@@ -2,6 +2,18 @@
 
 This repository is a working-memory space for a deep reread analysis of **Lord of the Mysteries (Book 1)**.
 
+## Repository Notice
+
+This repository is an independent reread analysis project.
+
+No source text is included.
+
+The repository contains notes, chronology analysis, investigations, and research artifacts derived from a personal reread of **Lord of the Mysteries**.
+
+The EPUB is intentionally excluded from version control.
+
+---
+
 The project is focused on investigation rather than summary:
 
 - Chronology
