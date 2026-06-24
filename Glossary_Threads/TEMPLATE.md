@@ -9,6 +9,7 @@ Current Analysis Status: Not Started
 Confidence Level: Unknown
 Spoiler Boundary:
 Reader Knowledge Boundary:
+Tags:
 Last Updated:
 
 Related Threads:
@@ -16,6 +17,8 @@ Related Threads:
 
 Related Investigations:
 -
+
+Use only controlled tags from `PROJECT_RULES.md`.
 
 Filename format:
 

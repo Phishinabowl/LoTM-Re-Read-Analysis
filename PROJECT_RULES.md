@@ -144,6 +144,7 @@ Current Analysis Status:
 Confidence Level:
 Spoiler Boundary:
 Reader Knowledge Boundary:
+Tags:
 Last Updated:
 ```
 
@@ -156,6 +157,7 @@ Use these fields consistently:
 - `Confidence Level`: Confidence in the current interpretation, such as Confirmed, Strong Evidence, Working Theory, Unknown, or Mixed.
 - `Spoiler Boundary`: Latest broader canon range this thread is allowed to reference.
 - `Reader Knowledge Boundary`: Exact reread point, usually a chapter, that defines what the reader knows for this entry.
+- `Tags`: Controlled taxonomy tags from the approved categories below.
 - `Last Updated`: Date of the last meaningful file update.
 
 The metadata section may also include:
@@ -169,6 +171,86 @@ Related Investigations:
 ```
 
 Use filenames without paths for metadata references unless a full Markdown link is useful.
+
+## Controlled Tag Taxonomy
+
+Tags are allowed only from controlled categories.
+
+Use tags to support filtering and later dashboard/report generation. Do not use vague, emotional, or one-off tags such as `interesting`, `important`, `really-important`, or joke labels.
+
+Use lowercase kebab-case tags.
+
+### Volume Tags
+
+```text
+volume-1
+volume-2
+volume-3
+volume-4
+volume-5
+volume-6
+volume-7
+volume-8
+side-stories
+```
+
+### Location Tags
+
+```text
+tingen
+backlund
+bayam
+feysac
+intis
+forsaken-land-of-the-gods
+spirit-world
+gray-fog
+```
+
+### Analysis Tags
+
+```text
+chronology
+foreshadowing
+reader-knowledge
+historical-context
+identity
+acting-method
+causality
+reveal-order
+family-lineage
+worldbuilding
+theme
+```
+
+### Status Tags
+
+```text
+resolved
+unresolved
+active-investigation
+needs-epub-verification
+verified
+working-theory
+```
+
+### Domain Tags
+
+```text
+artifact
+character
+family
+faction
+location
+concept
+event
+pathway
+epoch
+mystery
+timeline
+```
+
+When a needed tag does not fit an existing category, recommend adding it to the taxonomy before using it.
 
 ## Cross-Reference Standards
 
