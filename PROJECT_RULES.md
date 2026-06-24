@@ -93,6 +93,42 @@ Glossary threads must preserve reread chronology and reader knowledge state.
 
 Do not contaminate early entries with future reveals.
 
+## Naming Convention
+
+Use lowercase kebab-case filenames with an entity-type prefix:
+
+```text
+artifact-[name].md
+character-[name].md
+family-[name].md
+faction-[name].md
+location-[name].md
+concept-[name].md
+event-[name].md
+pathway-[name].md
+epoch-[name].md
+mystery-[name].md
+```
+
+Examples:
+
+```text
+artifact-0-08.md
+artifact-antigonus-notebook.md
+character-azik-eggers.md
+character-amon.md
+family-antigonus.md
+family-medici.md
+faction-rose-school-of-thought.md
+concept-gray-fog.md
+event-great-smog.md
+pathway-seer.md
+epoch-fourth-epoch.md
+mystery-mr-door.md
+```
+
+If a thread fits multiple categories, choose the category that best matches the analytical purpose of the file.
+
 ---
 
 # Canonical Sources

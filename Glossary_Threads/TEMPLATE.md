@@ -1,5 +1,22 @@
 # Thread Name
 
+Filename format:
+
+```text
+[entity-type]-[kebab-case-name].md
+```
+
+Examples:
+
+```text
+artifact-0-08.md
+character-azik-eggers.md
+family-medici.md
+faction-rose-school-of-thought.md
+concept-gray-fog.md
+event-great-smog.md
+```
+
 ## Purpose
 
 What recurring thread, symbol, faction, person, family, concept, or mystery does this file track?
