@@ -42,6 +42,7 @@ The project uses the following files:
 
 ```text
 Source/
+├── README.md
 └── Lord of Mysteries - Book 1.epub
 
 Boards/
@@ -49,11 +50,17 @@ Boards/
 └── 02_LoTM_Ancient_History_Family_Board.md
 
 Investigations/
+├── TEMPLATE.md
 └── (Investigation records created over time)
+
+Glossary_Threads/
+├── TEMPLATE.md
+└── (Thread records created over time)
 
 CURRENT_STATE.md
 PROJECT_RULES.md
 ASSISTANT_CONTEXT.md
+README.md
 ```
 
 These files are the project's working memory.
@@ -64,6 +71,27 @@ When conclusions are reached:
 - Create investigation records when appropriate.
 - Preserve chronology.
 - Preserve reader knowledge state.
+
+---
+
+# Glossary Threads
+
+Glossary thread files track recurring threads, symbols, factions, people, families, concepts, and mysteries that appear across multiple reread moments.
+
+Use glossary threads when a topic becomes too recurring or cross-cutting for a single board entry.
+
+Examples:
+
+- 0-08
+- Antigonus
+- Medici
+- Rose School of Thought
+- Adam / Amon
+- Gray Fog
+
+Glossary threads must preserve reread chronology and reader knowledge state.
+
+Do not contaminate early entries with future reveals.
 
 ---
 
