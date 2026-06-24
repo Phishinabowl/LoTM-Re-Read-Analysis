@@ -247,6 +247,24 @@ Small observations that do not affect understanding do not require board updates
 
 ---
 
+# Commit Cadence
+
+Commit only when project knowledge changes.
+
+Do not commit for:
+
+- Discussion
+- Hypotheses
+
+Commit after:
+
+- Board updates
+- Completed investigations
+- Chronology corrections
+- Durable conclusions
+
+---
+
 # Current Methodology Reminder
 
 Prefer:
