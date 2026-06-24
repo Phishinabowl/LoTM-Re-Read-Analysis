@@ -265,6 +265,20 @@ Commit after:
 
 ---
 
+# Board and Commit Review Habit
+
+After each substantive exchange, check whether the discussion produced project knowledge that should be preserved.
+
+If preservation may be appropriate:
+
+- Recommend any board updates.
+- Recommend any investigation record updates.
+- Recommend the matching commit, if the update would satisfy the commit cadence rules.
+
+Do not modify files or create commits without user confirmation.
+
+---
+
 # Current Methodology Reminder
 
 Prefer:
