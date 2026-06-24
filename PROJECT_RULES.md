@@ -130,6 +130,62 @@ mystery-mr-door.md
 
 If a thread fits multiple categories, choose the category that best matches the analytical purpose of the file.
 
+## Metadata Standards
+
+Every glossary thread should begin with a `Metadata` section using the same fields:
+
+```text
+Type:
+Status:
+First Mention Volume:
+Current Analysis Status:
+Spoiler Boundary:
+Last Updated:
+```
+
+Use these fields consistently:
+
+- `Type`: Entity type, such as Artifact, Character, Family, Faction, Location, Concept, Event, Pathway, Epoch, or Mystery.
+- `Status`: Thread lifecycle, such as Stub, Active, Dormant, or Complete.
+- `First Mention Volume`: Earliest known volume where the thread meaningfully appears.
+- `Current Analysis Status`: Current project state, such as Not Started, In Progress, Needs EPUB Verification, or Verified.
+- `Spoiler Boundary`: Latest reread point this thread is allowed to reference.
+- `Last Updated`: Date of the last meaningful file update.
+
+The metadata section may also include:
+
+```text
+Related Threads:
+- [thread-file]
+
+Related Investigations:
+- [investigation-file]
+```
+
+Use filenames without paths for metadata references unless a full Markdown link is useful.
+
+## Cross-Reference Standards
+
+Every glossary thread should include a `Related Threads` section.
+
+Use categories when they clarify the relationship:
+
+```text
+Directly Related
+Historical Connections
+Associated Mysteries
+Associated Artifacts
+Associated Factions
+Associated Characters
+Associated Pathways
+```
+
+Prefer Markdown links when the target file exists.
+
+Use plain planned filenames when the target file does not exist yet.
+
+Do not manually maintain incoming references or backlinks yet. Backlinks, generated reference indexes, relationship graphs, and visual maps should be left for future automation once the repository is larger.
+
 ---
 
 # Canonical Sources

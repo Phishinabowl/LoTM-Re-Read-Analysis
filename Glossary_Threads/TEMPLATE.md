@@ -1,5 +1,20 @@
 # Thread Name
 
+## Metadata
+
+Type:
+Status: Stub
+First Mention Volume:
+Current Analysis Status: Not Started
+Spoiler Boundary:
+Last Updated:
+
+Related Threads:
+-
+
+Related Investigations:
+-
+
 Filename format:
 
 ```text
@@ -43,11 +58,43 @@ Record only what is known at the relevant reread point. Avoid contaminating earl
 
 ## Related Threads
 
+Use Markdown links when the target file exists. Use plain planned filenames when the target file does not exist yet.
+
+### Directly Related
+
+-
+
+### Historical Connections
+
+-
+
+### Associated Mysteries
+
+-
+
+### Associated Artifacts
+
+-
+
+### Associated Factions
+
+-
+
+### Associated Characters
+
+-
+
+### Associated Pathways
+
 -
 
 ## Evidence Index
 
 - Chapter:
+
+## Future Automation Notes
+
+Do not manually maintain backlinks, incoming references, generated indexes, relationship graphs, or visual maps yet.
 
 ## Notes
 
