@@ -57,6 +57,7 @@ Glossary_Threads/
 ├── TEMPLATE.md
 └── (Thread records created over time)
 
+INDEX.md
 CURRENT_STATE.md
 PROJECT_RULES.md
 ASSISTANT_CONTEXT.md
@@ -308,6 +309,20 @@ Chronology corrections are important.
 Causality corrections are important.
 
 Small observations that do not affect understanding do not require board updates.
+
+---
+
+# Index Maintenance
+
+`INDEX.md` is the GitHub navigation hub for project files.
+
+When any of the following are created, recommend updating `INDEX.md` as part of the same change:
+
+- A glossary thread
+- An investigation record
+- A board
+
+Index updates should be committed with the related project knowledge update when they are part of the same confirmed change.
 
 ---
 

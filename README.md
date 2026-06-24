@@ -33,6 +33,8 @@ The EPUB is used as the canonical source only when verification is needed. Exter
 
 ## Project Map
 
+For clickable navigation, use the [Project Index](INDEX.md).
+
 ```text
 Boards/
   01_LoTM_Main_Reread_Board.md
