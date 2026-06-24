@@ -109,6 +109,7 @@ event-[name].md
 pathway-[name].md
 epoch-[name].md
 mystery-[name].md
+timeline-[name].md
 ```
 
 Examples:
@@ -126,6 +127,7 @@ event-great-smog.md
 pathway-seer.md
 epoch-fourth-epoch.md
 mystery-mr-door.md
+timeline-ian-zreal-chain.md
 ```
 
 If a thread fits multiple categories, choose the category that best matches the analytical purpose of the file.
@@ -139,17 +141,21 @@ Type:
 Status:
 First Mention Volume:
 Current Analysis Status:
+Confidence Level:
 Spoiler Boundary:
+Reader Knowledge Boundary:
 Last Updated:
 ```
 
 Use these fields consistently:
 
-- `Type`: Entity type, such as Artifact, Character, Family, Faction, Location, Concept, Event, Pathway, Epoch, or Mystery.
-- `Status`: Thread lifecycle, such as Stub, Active, Dormant, or Complete.
+- `Type`: Entity type, such as Artifact, Character, Family, Faction, Location, Concept, Event, Pathway, Epoch, Mystery, or Timeline.
+- `Status`: Thread lifecycle, such as Stub, Active, Dormant, Resolved, or Superseded.
 - `First Mention Volume`: Earliest known volume where the thread meaningfully appears.
 - `Current Analysis Status`: Current project state, such as Not Started, In Progress, Needs EPUB Verification, or Verified.
-- `Spoiler Boundary`: Latest reread point this thread is allowed to reference.
+- `Confidence Level`: Confidence in the current interpretation, such as Confirmed, Strong Evidence, Working Theory, Unknown, or Mixed.
+- `Spoiler Boundary`: Latest broader canon range this thread is allowed to reference.
+- `Reader Knowledge Boundary`: Exact reread point, usually a chapter, that defines what the reader knows for this entry.
 - `Last Updated`: Date of the last meaningful file update.
 
 The metadata section may also include:
@@ -185,6 +191,19 @@ Prefer Markdown links when the target file exists.
 Use plain planned filenames when the target file does not exist yet.
 
 Do not manually maintain incoming references or backlinks yet. Backlinks, generated reference indexes, relationship graphs, and visual maps should be left for future automation once the repository is larger.
+
+## Open Questions
+
+Every glossary thread should include an `Open Questions` section.
+
+Use it to capture unanswered questions that may later become investigations.
+
+When an open question is answered:
+
+1. Create or update the relevant investigation record if EPUB evidence was used.
+2. Update the relevant board if the conclusion changes durable project knowledge.
+3. Update the glossary thread to close, revise, or remove the question.
+4. Recommend a matching commit if the change satisfies the commit cadence rules.
 
 ---
 

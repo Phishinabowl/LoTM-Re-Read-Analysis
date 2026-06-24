@@ -6,7 +6,9 @@ Type:
 Status: Stub
 First Mention Volume:
 Current Analysis Status: Not Started
+Confidence Level: Unknown
 Spoiler Boundary:
+Reader Knowledge Boundary:
 Last Updated:
 
 Related Threads:
@@ -30,6 +32,7 @@ family-medici.md
 faction-rose-school-of-thought.md
 concept-gray-fog.md
 event-great-smog.md
+timeline-ian-zreal-chain.md
 ```
 
 ## Purpose
@@ -38,7 +41,15 @@ What recurring thread, symbol, faction, person, family, concept, or mystery does
 
 ## Spoiler Boundary
 
-Record only what is known at the relevant reread point. Avoid contaminating early entries with later reveals.
+Record only what is allowed by the broader spoiler boundary and exact reader knowledge boundary. Avoid contaminating early entries with later reveals.
+
+## Reader Knowledge Boundary
+
+Define the exact reread point this thread entry is limited to.
+
+- Volume:
+- Chapter:
+- Reader knowledge state:
 
 ## First Appearance / First Meaningful Mention
 
@@ -55,6 +66,13 @@ Record only what is known at the relevant reread point. Avoid contaminating earl
 - What the reader learns:
 - What remains unknown:
 - Why it matters:
+
+## Open Questions
+
+- Question:
+- Current confidence:
+- Needs EPUB verification:
+- Related investigation:
 
 ## Related Threads
 
