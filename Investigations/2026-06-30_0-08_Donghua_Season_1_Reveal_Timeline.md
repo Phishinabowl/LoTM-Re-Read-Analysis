@@ -6,7 +6,7 @@ What does a Donghua viewer know about 0-08 at each meaningful point in Season 1,
 
 ## Status
 
-In Progress. The full 13-episode subtitle audit is complete, and the dedicated spectral-quill visual audit is complete through Episode 7. Checks 1 through 10 remain subtitle verified; Checks 11 and 12 formalize the audiovisual motif and Episode 7 visual sequence. Previously verified Episode 10 and Episode 13 visual evidence remains recorded.
+In Progress. The full 13-episode subtitle audit is complete, and the dedicated spectral-quill visual audit is complete through Episode 10. Checks 1 through 10 remain subtitle verified; Checks 11 through 13 formalize the audiovisual motif and major visual sequences through Episode 10. Previously verified Episode 13 visual evidence remains recorded.
 
 ## Scope
 
@@ -70,6 +70,8 @@ Donghua Season 1, Episodes 1-13. Current subtitle source coverage does not inclu
 - Around `00:05:14`, the dialogue explicitly names Sealed Artifact 0-08 as the artifact taken by Ince Zangwill.
 - Around `00:05:32`, the dialogue identifies it as Grade 0 and explains the extreme confidentiality attached to that grade.
 - Around `00:05:42`, the dialogue describes 0-08 as resembling an ordinary quill that writes without ink.
+- User-verified audiovisual evidence around `00:05:40` shows a physical quill descending through clouds with the exact musical cue used by the earlier spectral-quill motif.
+- Why the visual matters: The shared cue confirms that the unidentified recurring motif represents 0-08, although its function remains unknown at this instant.
 - User-verified visual evidence places Klein in Old Neil's workshop reading a notebook or journal among Neil's papers. After reading Azik's letter, Klein drops the enclosed whistle, bends to retrieve it, and then hurriedly rises when he hears approaching footsteps.
 - Klein knocks over the notebook or journal, catches it, and causes Ince Zangwill's wanted poster to fall out. Dunn sees Klein holding the poster, which begins the conversation about Ince and 0-08.
 - Why it matters: The Donghua preserves the core facts of the novel's Chapter 19 introduction but delays them until Episode 10, after Old Neil's storyline.
@@ -140,6 +142,8 @@ Donghua Season 1, Episodes 1-13. Current subtitle source coverage does not inclu
 - Around `00:29:23`, Klein identifies the red smokestacks; around `00:29:25`, he says whoever is pulling the strings is located there.
 - Episode 8 around `00:01:40` says red-smokestack divination keeps reaching dead ends; around `00:01:44`, Klein says even the gray fog cannot break through the interference.
 - Episode 10 around `00:24:34` has Klein conclude that the occasions when his divination was blocked must be linked.
+- Around `00:23:36`, Klein calls John Maynard's death too coincidental; around `00:24:00`, divination confirms supernatural influence; around `00:24:01`, he concludes Frye's investigation was interfered with.
+- User-verified visual evidence around `00:24:40` pulls away from Klein above the gray fog and transitions into the established red-smokestack building with a dramatic musical cue.
 - Attribution boundary: These scenes establish a hidden coordinating power but do not identify it as 0-08 until Episode 13.
 - Adaptation distinction: The novel's gray-fog divination reveals the red chimney and its route search is later manipulated; the Donghua explicitly presents the red-chimney divination itself as remaining obstructed.
 - Why it matters: The Donghua creates a continuous fate-and-divination investigation that can be retrospectively attributed to 0-08 without spoiling the earlier episodes.
@@ -182,12 +186,17 @@ The spectral quill is a purely audiovisual evidence stream. Subtitle files do no
 | 5 | Full episode | No occurrence | Unrelated bird or feather imagery is excluded without the matching animation and musical signature | N/A |
 | 6 | `00:31:04` | Confirmed occurrence | Azik senses the same erratic power while discussing his son's stolen skull | Connects the skull thief to Klein's fate interference; exact theft mechanics remain unknown |
 | 7 | `00:01:56` | Confirmed occurrence | Azik asks Klein to chart coincidences beginning with the notebook, and the scene enters its ownership-chain flashback | Marks the notebook-transfer chain; individual manipulated decisions remain unresolved |
+| 8 | Full episode | No occurrence | None | N/A |
+| 9 | Full episode | No occurrence | Old Neil's loss of control is presented without the motif | N/A |
+| 10 | `00:05:40` | Confirmed physical-quill identity bridge | Dunn explains 0-08 while a physical quill descends through clouds with the established musical cue | Confirms motif identity; function remains unknown at this instant |
+| 10 | `00:21:00` | Confirmed spectral-quill occurrence | Appears over the Lanevus-to-Maynard investigation board before an external narrator's description of Mrs. Maynard is enacted word for word | Strongly indicates event-shaping through description; narrator identity and exact free-will mechanics remain separate |
 
 Reader-state progression:
 
 - Episodes 2-9: The viewer knows only that an unexplained spectral quill and musical cue recur near strange or newly connected events.
-- Episode 10 around `00:05:42`: Dunn's description of 0-08 as an ordinary inkless quill makes identification of the motif a reasonable working theory.
-- Episode 13: 0-08's narrative role confirms the retrospective identity and broad involvement, without automatically proving what it caused in each marked scene.
+- Episode 10 around `00:05:40`: A physical quill and the reused musical cue confirm that the motif represents 0-08.
+- Episode 10 around `00:21:00`: Description-to-enactment staging provides the first strong functional inference that 0-08 shapes events.
+- Episode 13: 0-08's narrative role confirms the broad event-shaping interpretation without automatically proving what it caused in each marked scene.
 
 ### Check 12: Episode 7 Red-Smokestack-to-Teno Editorial Chain
 
@@ -197,6 +206,30 @@ Reader-state progression:
 - The immediate edit encourages the viewer to associate the hidden mastermind and red-smokestack location with the skull and ritual.
 - The sequence does not yet explain Ince, 0-08, Beyonder characteristics, or which causal steps were manipulated.
 - Why it matters: The Donghua visually joins plot threads that remain analytically separate until the end-of-season explanation.
+
+### Check 13: Episode 10 Identity and Functional Escalation
+
+#### Motif Identity at `00:05:40`
+
+- During Dunn's explanation of 0-08, the Donghua replaces the earlier translucent spectral image with a physical quill descending through clouds.
+- The scene reuses the exact musical cue attached to prior spectral-quill appearances.
+- This confirms the motif's identity as 0-08 rather than leaving it as a merely plausible viewer theory.
+- The dialogue still withholds the artifact's function.
+
+#### Event-Shaping Demonstration at `00:21:00`
+
+- The spectral quill descends over an investigation board connecting Lanevus to John Maynard.
+- A separate external narrator describes Mrs. Maynard releasing her fury and quotes her words.
+- Mrs. Maynard then performs the action and repeats the exact quoted line.
+- The narrator's voice is explicitly user-verified as different from 0-08's Episode 13 voice.
+- Why it matters: Staging, exact enactment, and the now-identified motif strongly imply description-to-reality influence without presenting 0-08 as the audible narrator.
+
+#### Conspiracy Synthesis at `00:23:36-00:24:40`
+
+- Klein calls Maynard's death too coincidental and divines that it had supernatural influence.
+- He concludes Frye's investigation was interfered with and that his blocked divinations must be connected.
+- User-verified visuals then pull away from Klein above the gray fog and transition to the red-smokestack building with dramatic scoring.
+- Why it matters: The episode joins the Maynard/Sharon chain, Lanevus investigation, blocked divinations, and hidden mastermind location into one increasingly coherent theory before Episode 13 confirms it.
 
 ## Interim Conclusions
 
@@ -248,6 +281,10 @@ The recurring spectral quill creates a Donghua-original open question beginning 
 
 Episode 7 combines direct obstruction, explicit red-smokestack dialogue, and an immediate transition into the Teno-skull ritual flashback. This makes the hidden plot's internal connectedness more visually legible without revealing its author or mechanics.
 
+### Check 13
+
+Episode 10 first confirms who the spectral-quill motif represents, then uses a second occurrence to teach a possible description-to-enactment function. Klein's subsequent divination and the red-smokestack camera transition turn that audiovisual lesson into a working conspiracy model.
+
 ### Full Subtitle Audit
 
 All 13 regular Season 1 subtitle files were searched for direct references to `0-08`, Ince Zangwill, the quill, the mastermind, fate interference, coincidences, red chimneys, characteristics, divination, and the Tingen story. The audit confirmed the established checkpoints and added the Episodes 6-10 interference progression plus Episode 13's post-reveal theory, location sequence, and condensed Holy Cathedral identification. No subtitle line reproduces the novel's explicit warning naming both Ince and 0-08.
@@ -259,7 +296,7 @@ All 13 regular Season 1 subtitle files were searched for direct references to `0
 
 ## Future-Scope Questions
 
-- Which spectral-quill audiovisual occurrences appear in Episodes 8-13, and what event does each one mark?
+- Which spectral-quill audiovisual occurrences appear in Episodes 11-13, and what event does each one mark?
 - Does the animation explicitly depict the extraction or transformation of Teno's skull into the Death-descendant characteristic, beyond showing it in the ritual?
 - Does 0-08 have goals separate from Ince's, and what is the earliest Donghua-safe evidence of them?
 - Do the special episodes add or recontextualize any 0-08 information?
