@@ -136,6 +136,27 @@ Use Markdown links when the target file exists. Mention a nonexistent thread as 
 
 -
 
+## Relationship Seeds
+
+Use this section only for relationships important enough to support future relationship graphs. Keep entries reader-boundary aware and mark unverified start points as `TBD`.
+
+```yaml
+relationships:
+  - source:
+    target:
+    relationship_type:
+    start:
+      medium:
+      volume:
+      chapter:
+      season:
+      episode:
+      release_order:
+    status:
+    confidence:
+    notes:
+```
+
 ## Evidence Index
 
 - Chapter:

@@ -341,6 +341,56 @@ Mention a nonexistent thread only when its creation is already planned or when t
 
 Do not manually maintain incoming references or backlinks yet. Backlinks, generated reference indexes, relationship graphs, and visual maps should be left for future automation once the repository is larger.
 
+## Relationship Tracking Standards
+
+Glossary threads may include a `Relationship Seeds` section when a relationship is important enough that a future character, faction, artifact, or event graph should be able to use it.
+
+Keep relationship seeds lightweight and reader-boundary aware. They are not a separate database yet; they are structured notes for future extraction.
+
+Use controlled relationship types when possible:
+
+```text
+member-of
+subordinate-organization
+parent-organization
+colleague
+superior
+subordinate
+mentor
+student
+enemy
+ally
+investigates
+investigated-by
+manipulates
+victim-of
+protects
+affiliated-with
+artifact-user
+artifact-guardian
+source-of-information
+family
+```
+
+Use the earliest verified or best-known reader-safe start point for the relationship. If the start point is not yet verified, mark it `TBD` and avoid pretending the chronology is settled.
+
+Example:
+
+```yaml
+- source: character-klein-moretti
+  target: faction-church-of-evernight
+  relationship_type: member-of
+  start:
+    medium: novel
+    volume: 1
+    chapter: TBD
+  status: active
+  confidence: needs-verification
+  notes: Klein joins the Tingen Nighthawks under the Church of Evernight structure.
+```
+
+Do not manually maintain full graph files yet. Future automation may extract relationship seeds from glossary threads into Mermaid diagrams, relationship maps, dashboards, or generated indexes.
+
 ## Open Questions
 
 Every glossary thread should include an `Open Questions` section.
