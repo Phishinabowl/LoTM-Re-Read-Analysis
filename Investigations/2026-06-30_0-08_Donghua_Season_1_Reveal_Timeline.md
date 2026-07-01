@@ -6,7 +6,7 @@ What does a Donghua viewer know about 0-08 at each meaningful point in Season 1,
 
 ## Status
 
-In Progress. Checks 1 through 5 are subtitle verified. The Episode 10 introduction staging and Episode 7 skull placement are user-verified visual evidence; other visual details remain under investigation.
+In Progress. Checks 1 through 6 are subtitle verified. The Episode 7 skull placement, Episode 10 introduction staging, and Episode 13 narrative-revision sequence are user-verified visual evidence; other visual details remain under investigation.
 
 ## Scope
 
@@ -99,6 +99,19 @@ Donghua Season 1, Episodes 1-13. Current subtitle source coverage does not inclu
 - Around `00:17:38`, he predicts that the mastermind is about to take center stage.
 - Why it matters: The viewer's model advances from concealed manipulation to an active endgame without yet identifying Ince or 0-08 as the source.
 
+### Check 6: Operating Rules, Editing, and Autonomous Writing
+
+#### Episode 13: The Clown
+
+- 0-08 narrates the season through a puppet-like visual reconstruction and speaks from its own first-person perspective.
+- Around `00:19:54`, the narration describes an engineered event as a logical coincidence.
+- Around `00:20:57`, subtitle dialogue says Ince continues altering the plot.
+- User-verified visual evidence shows Ince crossing out written lines when disruptions force revisions.
+- User-verified visual evidence at the end of the narration shows the quill writing the conclusion by itself.
+- Around `00:22:07`, the subtitle narration concludes the story of Tingen.
+- Why it matters: The Donghua explicitly assigns an editorial role to Ince while separately depicting 0-08 as an autonomous narrator and self-writing actor.
+- Adaptation distinction: In the novel, revision agency is ambiguous and Ince writes the final line; the Donghua visually clarifies Ince's editing and changes the final writer to 0-08 itself.
+
 ## Interim Conclusions
 
 ### Check 1
@@ -120,6 +133,10 @@ Donghua viewers do not have formal Beyonder-characteristic knowledge before Epis
 ### Check 5
 
 Episode 12 makes hostile orchestration undeniable to Klein and the viewer without revealing its source. Megose's arrival is so direct that Klein expects the hidden mastermind to enter the open phase of the plan.
+
+### Check 6
+
+Episode 13 preserves the plausible-causality and adaptive-revision model while making the division of agency more explicit: Ince crosses out and alters lines, whereas 0-08 narrates and independently writes the final conclusion. Independent writing is confirmed visual behavior; full consciousness remains an inference.
 
 ## Board Updates
 

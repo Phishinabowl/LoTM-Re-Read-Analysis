@@ -6,7 +6,7 @@ What does the novel reader know about 0-08 at each meaningful point in Volume 1,
 
 ## Status
 
-In Progress. Checks 1 through 10 are EPUB verified.
+In Progress. Checks 1 through 11 are EPUB verified.
 
 ## Scope
 
@@ -156,6 +156,28 @@ Volume 1, from the first mention in Chapter 19 through Chapter 212.
 - He also infers that the artifact must have restrictions because Ince could not simply write an immediate, effortless victory.
 - Why it matters: Klein's reasoning converts Chapter 210's narrative demonstration into the reader's practical understanding of 0-08 as the mechanism coordinating the plot.
 
+### Check 11: Demonstrated Operating Rules and Remaining Inferences
+
+#### Chapter 210: Story
+
+- The story repeatedly frames successful manipulations as coincidences that make logical sense.
+- It states that its stories are not made up randomly, demonstrating a plausibility constraint on how outcomes are produced.
+- When Klein or others disrupt expected developments, rows are scribbled out and the narrative continues through revised circumstances.
+- Klein's survival, victory over the Secret Order member, discovery of the crimson chimney, and other deviations are described as inexplicable or unexplainable.
+- Some deviations are absorbed without changing the larger objective; larger disruptions force Ince to alter his original plans and introduce new story elements.
+- The novel uses passive language for the crossed-out rows, so it does not explicitly establish who physically performs every revision.
+- The narration reacts to Klein and refers to "our stories," supporting a strong inference that 0-08 has an autonomous perspective rather than functioning as a passive quill.
+- The final line is physically written by Ince while he holds the quill and closes the book.
+
+#### Chapter 212: Avenger
+
+- Klein infers that 0-08 may cause people to act according to its descriptions without realizing it.
+- He rejects arbitrary wish fulfillment because Ince could otherwise have written Saint Selena's ashes directly into his possession.
+- He infers that 0-08 lacks unrestricted direct combat power and must operate under meaningful constraints.
+- The chapter does not confirm that free will is completely protected or identify the gray fog as the mechanism behind Klein's disruptions.
+
+- Why it matters: Volume 1 establishes plausible causal influence and adaptive revision while leaving the exact limits of free will, Ince's editorial control, 0-08's consciousness, and gray-fog protection unresolved.
+
 ## Interim Conclusions
 
 ### Check 1
@@ -205,6 +227,10 @@ The user's memory was directionally correct: Chapter 210 reveals the Antigonus n
 The earliest disclosed manipulation is more precisely the chain that causes the notebook to move toward Tingen. It begins with Regence mistakenly selling it under the influence of weariness and illusions, then continues through successive ownership changes until it reaches Tingen.
 
 Chapter 210 provides strong contextual evidence that 0-08 orchestrated this chain. Chapter 212 supplies Klein's explicit reader-facing inference that 0-08 arranged the coincidences behind Ince Zangwill's plot.
+
+### Check 11
+
+Chapter 210 confirms that 0-08's stories preserve plausible causality and can be revised when events diverge. The novel strongly implies an autonomous narrative voice but depicts Ince writing the final line and leaves the physical editor of earlier revisions ambiguous. Chapter 212 adds Klein's constrained-behavior model without proving absolute limits on free will or explicitly identifying the gray fog as his protection.
 
 ## Board Updates
 

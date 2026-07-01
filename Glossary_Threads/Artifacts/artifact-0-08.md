@@ -124,8 +124,11 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 #### Chapter 210: Story
 
 - What the reader learns: Tingen's events have been represented as a mutable written story ending with Ince Zangwill holding the inkless quill.
-- What remains unknown: The artifact's complete rules, limits, motives, and degree of autonomy.
-- Why it matters: Seemingly isolated coincidences across Volume 1 are retrospectively joined into one orchestrated causal structure.
+- Demonstrated constraints: Manipulations preserve plausible causality; stories are not made randomly; and disruptions cause written rows to be revised.
+- Demonstrated adaptation: Smaller deviations can be absorbed without changing the larger objective, while larger deviations force Ince to alter his plans.
+- Apparent autonomy: The narration reacts to Klein and refers to "our stories," but Ince physically writes the final line in the novel.
+- What remains unknown: Who performs every earlier revision, whether 0-08 is fully conscious, how much editorial control Ince possesses, and why Klein can repeatedly exceed the description.
+- Why it matters: Seemingly isolated coincidences are joined into one orchestrated causal structure while the artifact's operating constraints become partially visible.
 
 #### Chapter 212: Avenger
 
@@ -173,6 +176,14 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 - Combined with Episodes 6-7: Teno's stolen skull is the probable source, but the extraction is not explicitly stated.
 - Why it matters: Donghua viewers acquire the framework needed to understand the dual ritual use only near the end of the season.
 
+#### Season 1, Episode 13: Editing and Autonomous Writing
+
+- Narrative role: 0-08 recounts the season through a puppet-like reconstruction and speaks from its own perspective.
+- Ince's role: Subtitle and user-verified visual evidence show Ince altering the plot and crossing out lines when disruptions require revisions.
+- 0-08's role: User-verified visual evidence shows the quill writing the final conclusion by itself around the end of the narration.
+- Adaptation difference: The novel leaves earlier revision agency ambiguous and depicts Ince writing the final line; the Donghua clarifies Ince as editor and changes the final writer to 0-08.
+- Why it matters: Autonomous writing becomes confirmed Donghua behavior, while full independent consciousness remains a strong inference.
+
 ## Open Questions
 
 - Question: Which scenes after Chapter 99 further develop the hidden-manipulator mystery before Chapter 210?
@@ -188,6 +199,21 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 - Question: Which parts of the notebook's transfer chain were actively arranged by 0-08 rather than merely incorporated into its story?
 - Current confidence: Strong Evidence
 - Needs EPUB verification: Further verification needed
+- Related investigation: [Volume 1 reveal timeline](../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md)
+
+- Question: What is the exact division of authorship and editorial control between Ince and 0-08 in the novel?
+- Current confidence: Mixed
+- Needs EPUB verification: Further evidence beyond Volume 1 needed
+- Related investigation: [Volume 1 reveal timeline](../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md)
+
+- Question: Does 0-08 override free will, or only influence behavior through plausible motives and circumstances?
+- Current confidence: Strong Evidence for constrained influence; exact limit unknown
+- Needs EPUB verification: Further evidence beyond Volume 1 needed
+- Related investigation: [Volume 1 reveal timeline](../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md)
+
+- Question: Is the gray fog the reason Klein repeatedly disrupts 0-08's descriptions?
+- Current confidence: Strong Inference
+- Needs EPUB verification: Further evidence beyond Volume 1 needed
 - Related investigation: [Volume 1 reveal timeline](../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md)
 
 ## Related Threads
@@ -239,6 +265,8 @@ The two plain filenames below are essential planned threads. Additional referenc
 - Donghua Season 1, Episode 10: Subtitle evidence identifies 0-08 around `00:05:14`, explains its Grade 0 status around `00:05:32`, and describes the inkless quill around `00:05:42`.
 - Donghua Season 1, Episode 12 around `00:17:31`: Klein calls Megose's timing direct and obvious and predicts that the mastermind is about to take center stage.
 - Donghua Season 1, Episodes 12-13: Subtitle evidence introduces the characteristic conservation law, the Death-descendant remnant used for Megose, and the remaining characteristic used in Ince's advancement.
+- Chapter 210 and Chapter 212: The story demonstrates plausible causality and adaptive revision; Klein infers constrained, unnoticed behavioral influence rather than arbitrary wish fulfillment.
+- Donghua Season 1, Episode 13 around `00:20:57` and `00:22:07`: Ince alters the plot while 0-08 narrates and visually writes the final conclusion by itself.
 - Chapter 210: 0-08's written story retrospectively connects the pre-Tingen notebook transfer chain with the wider Tingen plot.
 - Chapter 212: Klein attributes Ince's arrangements and the plot's coincidences to 0-08 while inferring that the artifact has restrictions.
 
@@ -819,6 +847,359 @@ last_updated: 2026-06-30
 #### Adaptation Analysis
 
 - The Donghua closely preserves the novel's threshold while making Klein's wording especially direct.
+
+### Knowledge Unit: 0-08 Must Preserve Plausible Causality
+
+```yaml
+id: 0-08-plausible-causality-constraint
+claim: 0-08 cannot produce arbitrary outcomes without explanation; its written developments must preserve a logically plausible causal surface.
+truth_status: true
+canon_scope: shared
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: enduring-rule
+  notes: This is an operating constraint demonstrated across the written Tingen story.
+tags:
+  - volume-1
+  - causality
+  - reader-knowledge
+  - reveal-order
+  - worldbuilding
+  - artifact
+disclosures:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 210
+    superseded_at:
+    superseded_by:
+  - medium: donghua
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 13
+      release_order: 13
+      timestamp: 00:19:54.66
+    superseded_at:
+    superseded_by:
+adaptation_relationships:
+  - type: faithful
+    novel_claim_changed: false
+    notes: Both versions frame successful manipulation as logical coincidence rather than arbitrary wish fulfillment.
+related_investigations:
+  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
+  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-06-30
+```
+
+#### Reader-State History
+
+- Novel Chapter 210 and Donghua Episode 13 explicitly frame the story's coincidences as constrained by logical development.
+
+#### Adaptation Analysis
+
+- The Donghua preserves the same constraint through condensed narration and visual reconstruction.
+
+### Knowledge Unit: 0-08's Written Narrative Can Be Revised
+
+```yaml
+id: 0-08-narrative-can-be-revised
+claim: When events diverge from the expected description, written portions of 0-08's narrative can be crossed out and replaced while the broader story continues.
+truth_status: true
+canon_scope: shared
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: enduring-rule
+  notes: Revisions occur repeatedly during the Tingen story.
+tags:
+  - volume-1
+  - chronology
+  - causality
+  - reader-knowledge
+  - reveal-order
+  - artifact
+disclosures:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 210
+    superseded_at:
+    superseded_by:
+  - medium: donghua
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 13
+      release_order: 13
+      timestamp: 00:20:57.36
+    superseded_at:
+    superseded_by:
+adaptation_relationships:
+  - type: faithful
+    novel_claim_changed: false
+    notes: Both versions preserve revision after disruption; the Donghua visualizes the crossing-out process.
+related_investigations:
+  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
+  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-06-30
+```
+
+#### Reader-State History
+
+- The reader or viewer learns at the end-of-volume/season narration that disruptions can be absorbed through textual revision.
+
+#### Adaptation Analysis
+
+- The novel leaves the physical reviser ambiguous; the Donghua shows the revision process directly.
+
+### Knowledge Unit: Ince Directly Edits the Written Story
+
+```yaml
+id: 0-08-ince-directly-edits-lines
+claim: Ince directly edits 0-08's written story by crossing out lines and altering the plot when events disrupt his plan.
+truth_status: contextual
+canon_scope: adaptation-variant
+occurs_at:
+  medium: donghua
+  season: 1
+  episode: 13
+  notes: The Donghua depicts the editing visually; the novel confirms changed plans but uses passive language for crossed-out rows.
+tags:
+  - volume-1
+  - causality
+  - reader-knowledge
+  - reveal-order
+  - artifact
+disclosures:
+  - medium: novel
+    knowledge_state: strong-inference
+    disclosure_type: strong-inference
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 210
+    superseded_at:
+    superseded_by:
+  - medium: donghua
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 13
+      release_order: 13
+      timestamp: 00:20:57.36
+    superseded_at:
+    superseded_by:
+adaptation_relationships:
+  - type: expanded
+    novel_claim_changed: false
+    notes: The Donghua resolves the novel's passive revision language by showing Ince cross out lines himself.
+related_investigations:
+  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
+  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-06-30
+```
+
+#### Reader-State History
+
+- Novel Chapter 210 strongly implies Ince's editorial role but does not identify the hand performing every revision.
+- Donghua Episode 13 confirms that role visually.
+
+#### Adaptation Analysis
+
+- This is an adaptation expansion rather than a contradiction.
+
+### Knowledge Unit: 0-08 Displays an Autonomous Perspective
+
+```yaml
+id: 0-08-displays-autonomous-perspective
+claim: 0-08 displays an apparent autonomous perspective by narrating, reacting to disruptions, and referring to the stories as its own.
+truth_status: contextual
+canon_scope: shared
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: 210
+  notes: The novel implies perspective through the narration; the Donghua gives 0-08 an explicit first-person narrative role.
+tags:
+  - volume-1
+  - reader-knowledge
+  - reveal-order
+  - identity
+  - artifact
+disclosures:
+  - medium: novel
+    knowledge_state: strong-inference
+    disclosure_type: strong-inference
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 210
+    superseded_at:
+    superseded_by:
+  - medium: donghua
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 13
+      release_order: 13
+      timestamp: 00:19:14.36
+    superseded_at:
+    superseded_by:
+adaptation_relationships:
+  - type: expanded
+    novel_claim_changed: false
+    notes: The Donghua turns the novel's implied narrative voice into an explicit first-person narrator.
+related_investigations:
+  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
+  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-06-30
+```
+
+#### Reader-State History
+
+- Novel readers can strongly infer an autonomous perspective from the narration's reactions and self-reference.
+- Donghua viewers receive explicit first-person narration from 0-08.
+
+#### Adaptation Analysis
+
+- Full consciousness remains an inference even though autonomous narrative behavior is directly presented.
+
+### Knowledge Unit: 0-08 Writes the Final Line Without Ince
+
+```yaml
+id: 0-08-writes-final-line-autonomously
+claim: 0-08 physically writes the final conclusion of Tingen's story without Ince holding or directing it.
+truth_status: contextual
+canon_scope: adaptation-variant
+occurs_at:
+  medium: donghua
+  season: 1
+  episode: 13
+  notes: User-verified visual evidence shows the quill writing by itself at the end of the narration.
+tags:
+  - volume-1
+  - reader-knowledge
+  - reveal-order
+  - artifact
+disclosures:
+  - medium: donghua
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 13
+      release_order: 13
+      timestamp: 00:22:07.57
+    superseded_at:
+    superseded_by:
+adaptation_relationships:
+  - type: changed
+    novel_claim_changed: true
+    notes: Novel Chapter 210 depicts Ince holding the quill and writing the final line; the Donghua depicts the quill writing independently.
+related_investigations:
+  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-06-30
+```
+
+#### Reader-State History
+
+- This autonomous-writing behavior is confirmed for Donghua viewers in Episode 13 and is not available as a novel claim at the Volume 1 boundary.
+
+#### Adaptation Analysis
+
+- This is a direct staging change rather than a mere clarification.
+
+### Knowledge Unit: 0-08 Influences Behavior Under Constraints
+
+```yaml
+id: 0-08-constrained-behavioral-influence
+claim: 0-08 likely causes people to follow its descriptions without realizing it, but cannot impose unrestricted direct outcomes or arbitrary wish fulfillment.
+truth_status: unresolved
+canon_scope: shared
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: 212
+  notes: This is Klein's model of the artifact's power rather than a complete mechanical explanation.
+tags:
+  - volume-1
+  - causality
+  - reader-knowledge
+  - reveal-order
+  - working-theory
+  - artifact
+disclosures:
+  - medium: novel
+    knowledge_state: strong-inference
+    disclosure_type: strong-inference
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 212
+    superseded_at:
+    superseded_by:
+  - medium: donghua
+    knowledge_state: strong-inference
+    disclosure_type: strong-inference
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 13
+      release_order: 13
+      timestamp: 00:22:07.57
+    superseded_at:
+    superseded_by:
+adaptation_relationships:
+  - type: faithful
+    novel_claim_changed: false
+    notes: Both versions demonstrate indirect causal manipulation and the need for plausible developments, while leaving the exact free-will boundary unresolved.
+related_investigations:
+  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
+  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-06-30
+```
+
+#### Reader-State History
+
+- Novel Chapter 212 makes this Klein's explicit working model.
+- Donghua Episode 13 supports the same constrained-influence model through the narrated causal chain.
+
+#### Adaptation Analysis
+
+- Neither format fully defines whether free will is overridden or merely steered through motives and circumstances.
 
 ### Knowledge Unit: 0-08 Orchestrated the Notebook's Transfer Toward Tingen
 
