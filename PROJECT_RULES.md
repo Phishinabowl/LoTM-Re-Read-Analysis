@@ -445,7 +445,23 @@ Examples:
 
 Mention a nonexistent thread only when its creation is already planned or when the relationship is essential to understanding the current thread. Use a plain filename and do not imply that it is a working link. Avoid seeding speculative references merely because a related thread might exist eventually.
 
+### Bidirectional Navigation Rule
+
+Whenever a glossary page is created, renamed, or newly linked to another existing glossary page, check navigation from both directions.
+
+If Page A links to Page B and Page B already exists, review Page B for whether it should link back to Page A in `Related Threads` or another appropriate visible section.
+
+After navigation changes, perform a relationship/link sweep to confirm that existing relationship endpoints are discoverable through Markdown links.
+
 Do not manually maintain incoming references or backlinks yet. Backlinks, generated reference indexes, relationship graphs, and visual maps should be left for future automation once the repository is larger.
+
+## Pilot Article Boundary Rule
+
+Pilot articles may be created naturally when another investigation repeatedly depends on a subject, but the new pilot article must stay bounded to the current verified reader position.
+
+A pilot article should synthesize only what is already supported by the active investigation boundary and existing verified records. Do not fully investigate the new subject across the whole volume unless the user explicitly chooses that as the next focus.
+
+When a pilot article is created, apply the current glossary template, metadata standards, relationship seeds, knowledge ledger format, related investigations, and index/navigation expectations immediately so the article does not require a later structural retrofit.
 
 ## Relationship Tracking Standards
 
@@ -520,6 +536,18 @@ Use event relationship types when an event page is the graph center:
 Prefer these over generic `connected-to` when the relationship is event-specific and reader-safe.
 
 Use the earliest verified or best-known reader-safe start point for the relationship. If the start point is not yet verified, mark it `TBD` and avoid pretending the chronology is settled.
+
+### Relationship Sweep Rule
+
+Whenever relationships are analyzed, added, renamed, or normalized, review them bidirectionally across all affected existing glossary pages.
+
+Relationship updates should branch through linked articles, not stop at the page currently being edited. If a relationship seed touches an existing page, check whether that page needs a reciprocal link, matching relationship seed, updated `Related Threads`, or taxonomy adjustment.
+
+### Taxonomy Gap Rule
+
+If an accurate relationship exists but no controlled relationship type fits, do not force it into `connected-to` by default.
+
+Recommend or define a narrow new relationship type, update `PROJECT_RULES.md`, then apply it consistently to the affected articles.
 
 Example:
 
