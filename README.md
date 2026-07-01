@@ -58,10 +58,21 @@ Boards/
 
 Investigations/
   TEMPLATE.md
-  completed investigation records
+  Artifacts/
+  Characters/
+  Factions/
+  Pathways/
+  Project/
+  type-specific subfolders for source verification records, split by subject and medium
 
 Glossary_Threads/
   TEMPLATE.md
+  Artifacts/
+  Characters/
+  Concepts/
+  Factions/
+  Locations/
+  Pathways/
   type-specific subfolders for recurring thread records and embedded spoiler-aware knowledge units
 
 Source/
