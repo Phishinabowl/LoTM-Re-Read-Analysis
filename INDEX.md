@@ -17,14 +17,16 @@ Navigation hub for the reread analysis workspace.
 ## Investigations
 
 - [Investigation Template](Investigations/TEMPLATE.md)
+- [0-08 Volume 1 Orchestration](Investigations/2026-06-30_0-08_Volume_1_Orchestration.md)
 
-No completed investigation records yet.
+One completed investigation record.
 
 ## Glossary Threads
 
 - [Glossary Thread Template](Glossary_Threads/TEMPLATE.md)
+- [0-08](Glossary_Threads/Artifacts/artifact-0-08.md)
 
-Glossary threads are organized into type-specific subfolders as records are created. No glossary thread records exist yet.
+Glossary threads are organized into type-specific subfolders as records are created.
 
 ## Source
 

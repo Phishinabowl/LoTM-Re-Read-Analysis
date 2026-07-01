@@ -83,6 +83,18 @@ When conclusions are reached:
 - Preserve chronology.
 - Preserve reader knowledge state.
 
+## Artifact Responsibilities
+
+Use each project artifact for a distinct purpose:
+
+- `Boards`: Volume-level state, major themes, broad conclusions, current research direction, and links to detailed records.
+- `Glossary_Threads`: Subject-specific information, complete reveal timelines, reader-state filtering data, and adaptation comparisons.
+- `Investigations`: Evidence, verification history, and supported conclusions for questions that required consulting the EPUB.
+
+Do not duplicate granular reveal chronology across boards and glossary threads. Keep the filterable detail in the glossary thread and summarize only the durable volume-level meaning on the appropriate board.
+
+Boards are analyst-facing overview documents, not the canonical source for automatic spoiler filtering. A future reader-facing system may gate a board by its volume boundary, but glossary knowledge units remain the source for position-specific filtering.
+
 ---
 
 # Glossary Threads
@@ -308,9 +320,9 @@ Associated Characters
 Associated Pathways
 ```
 
-Prefer Markdown links when the target file exists.
+Use Markdown links when the target file exists.
 
-Use plain planned filenames when the target file does not exist yet.
+Mention a nonexistent thread only when its creation is already planned or when the relationship is essential to understanding the current thread. Use a plain filename and do not imply that it is a working link. Avoid seeding speculative references merely because a related thread might exist eventually.
 
 Do not manually maintain incoming references or backlinks yet. Backlinks, generated reference indexes, relationship graphs, and visual maps should be left for future automation once the repository is larger.
 
@@ -370,6 +382,8 @@ contextual
 ```
 
 A theory or misconception may remain visible within its valid historical window even after it is disproven. Store `knowledge_state`, `available_from`, `superseded_at`, and `superseded_by` on the relevant medium-specific disclosure entry. This allows the same proposition to have different knowledge states in the novel and Donghua without blending their timelines.
+
+Use `occurs_at` when the underlying event happens at a different point from when the reader can understand or attribute it. `occurs_at` records story chronology; `available_from` controls spoiler eligibility. When an event predates the numbered narrative, use a clear phase label such as `pre-chapter-1` and explain it in `notes`.
 
 ## Canon Scope
 

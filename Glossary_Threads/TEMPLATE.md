@@ -81,7 +81,7 @@ Define the exact reread point this thread entry is limited to.
 
 ## Related Threads
 
-Use Markdown links when the target file exists. Use plain planned filenames when the target file does not exist yet.
+Use Markdown links when the target file exists. Mention a nonexistent thread as a plain filename only when its creation is already planned or the relationship is essential. Do not seed speculative future references.
 
 ### Directly Related
 
@@ -130,6 +130,12 @@ id: subject-claim-id
 claim: Exact fact, inference, theory, misconception, or question
 truth_status: unresolved
 canon_scope: shared
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume:
+  chapter:
+  notes:
 tags:
   - reader-knowledge
 disclosures:
