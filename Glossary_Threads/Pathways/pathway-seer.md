@@ -138,7 +138,7 @@ Later Seer pathway names, higher Sequences, future acting-method developments, a
 - character-klein-moretti.md
 - [Old Neil](../Characters/character-old-neil.md)
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
-- event-klein-becomes-a-seer.md
+- [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
 - concept-spirit-vision.md
 - concept-cogitation.md
 - concept-divination.md
@@ -186,6 +186,16 @@ relationships:
     status: active
     confidence: confirmed
     notes: Klein chooses Seer in Chapter 30 and consumes the Seer potion in Chapter 31.
+  - source: event-klein-becomes-a-seer
+    target: pathway-seer
+    relationship_type: event-outcome
+    start:
+      medium: novel
+      volume: 1
+      chapter: 31
+    status: active
+    confidence: confirmed
+    notes: Klein becoming a Seer is the event that makes Seer his active pathway.
   - source: faction-church-of-evernight
     target: pathway-seer
     relationship_type: connected-to

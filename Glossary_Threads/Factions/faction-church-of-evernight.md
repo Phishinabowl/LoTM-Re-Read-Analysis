@@ -14,6 +14,7 @@ Last Updated: 2026-07-01
 
 Related Threads:
 - [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
+- [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
 
 Related Investigations:
 - [Church of Evernight Volume 1 Reveal Timeline](../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
@@ -297,6 +298,16 @@ relationships:
     status: active
     confidence: confirmed
     notes: Klein chooses Seer in Chapter 30 and consumes the Seer potion in Chapter 31 through Church/Nighthawks formula and material access.
+  - source: faction-church-of-evernight
+    target: event-klein-becomes-a-seer
+    relationship_type: event-enabler
+    start:
+      medium: novel
+      volume: 1
+      chapter: 28
+    status: completed
+    confidence: confirmed
+    notes: The Church/Nighthawks provide the institutional pathway offer, formula/material custody, alchemy-room access, and status boundary that enable Klein to become a Seer.
   - source: character-daly-simone
     target: pathway-corpse-collector
     relationship_type: pathway-status

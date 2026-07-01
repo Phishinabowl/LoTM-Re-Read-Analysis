@@ -60,6 +60,7 @@ Investigations/
   TEMPLATE.md
   Artifacts/
   Characters/
+  Events/
   Factions/
   Pathways/
   Project/
@@ -70,6 +71,7 @@ Glossary_Threads/
   Artifacts/
   Characters/
   Concepts/
+  Events/
   Factions/
   Locations/
   Pathways/

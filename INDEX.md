@@ -27,6 +27,10 @@ Navigation hub for the reread analysis workspace.
 
 - [Old Neil Novel Volume 1 Reveal Timeline](Investigations/Characters/character-old-neil/novel-volume-1-reveal-timeline.md)
 
+### Events
+
+- [Klein Becomes a Seer Novel Volume 1 Event Timeline](Investigations/Events/event-klein-becomes-a-seer/novel-volume-1-reveal-timeline.md)
+
 ### Factions
 
 - [Church of Evernight Volume 1 Reveal Timeline](Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
@@ -52,6 +56,10 @@ Glossary-linked investigations are organized by thread type and subject, with se
 ### Concepts
 
 - [Beyonder Characteristics](Glossary_Threads/Concepts/concept-beyonder-characteristics.md)
+
+### Events
+
+- [Klein Becomes a Seer](Glossary_Threads/Events/event-klein-becomes-a-seer.md)
 
 ### Factions
 

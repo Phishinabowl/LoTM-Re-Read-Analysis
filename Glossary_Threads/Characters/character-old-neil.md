@@ -134,6 +134,7 @@ Later Old Neil developments, emotional consequences, and retrospective meaning m
 
 - character-klein-moretti.md
 - character-dunn-smith.md
+- [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
 - [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
 - pathway-mystery-pryer.md
@@ -211,7 +212,7 @@ relationships:
     notes: Klein receives his first practical Beyonder training from Old Neil after consuming the Seer potion.
   - source: character-old-neil
     target: event-klein-becomes-a-seer
-    relationship_type: connected-to
+    relationship_type: event-participant
     start:
       medium: novel
       volume: 1

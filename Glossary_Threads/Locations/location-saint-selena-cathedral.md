@@ -15,6 +15,7 @@ Last Updated: 2026-07-01
 Related Threads:
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
 - [0-08](../Artifacts/artifact-0-08.md)
+- [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
 
 Related Investigations:
 - [Church of Evernight Volume 1 Reveal Timeline](../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
@@ -208,6 +209,16 @@ relationships:
     status: active
     confidence: confirmed
     notes: Chapter 17 establishes the concealed connection; Chapters 25-26 demonstrate the route in use.
+  - source: location-saint-selena-cathedral
+    target: event-klein-becomes-a-seer
+    relationship_type: event-location
+    start:
+      medium: novel
+      volume: 1
+      chapter: 31
+    status: completed
+    confidence: confirmed
+    notes: Klein's Seer potion is prepared in the Nighthawks team's alchemy room along the route toward Saint Selena Cathedral inside the connected Church/Nighthawks complex.
   - source: character-ince-zangwill
     target: location-saint-selena-cathedral
     relationship_type: infiltrates

@@ -483,7 +483,22 @@ targets
 targets-protected-resource
 pathway-status
 family
+event-participant
+event-location
+event-cause
+event-enabler
+event-outcome
 ```
+
+Use event relationship types when an event page is the graph center:
+
+- `event-participant`: A person, faction, artifact, or other actor directly participates in the event.
+- `event-location`: A location is where the event happens or where a key event phase occurs.
+- `event-cause`: A prior condition, decision, or pressure causes the event to become necessary or possible.
+- `event-enabler`: A person, faction, artifact, resource, or system enables the event without being the event's primary subject.
+- `event-outcome`: The event produces a durable result, status change, relationship, or downstream condition.
+
+Prefer these over generic `connected-to` when the relationship is event-specific and reader-safe.
 
 Use the earliest verified or best-known reader-safe start point for the relationship. If the start point is not yet verified, mark it `TBD` and avoid pretending the chronology is settled.
 
