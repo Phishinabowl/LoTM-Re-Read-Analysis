@@ -130,12 +130,27 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 - What remains unknown: Who performs every earlier revision, whether 0-08 is fully conscious, how much editorial control Ince possesses, and why Klein can repeatedly exceed the description.
 - Why it matters: Seemingly isolated coincidences are joined into one orchestrated causal structure while the artifact's operating constraints become partially visible.
 
+#### Chapter 211: The Holy Cathedral's Warning
+
+- What the reader learns: An unencrypted Holy Cathedral telegram explicitly warning about Ince Zangwill and 0-08 arrived before the final battle but went unread during the crisis.
+- Character consequence: Leonard recognizes the implication, resolves to seek revenge, and decides to apply to the Red Gloves.
+- What remains unknown: How the Holy Cathedral detected the threat and whether an earlier reading could have changed the outcome.
+- Why it matters: Knowledge of the culprit existed institutionally before the disaster ended, but reached the surviving Tingen team too late.
+
 #### Chapter 212: Avenger
 
 - What the reader learns: Klein reasons that 0-08 likely produced the arrangements and coincidences used by Ince Zangwill.
 - Relationship boundary: Ince is using 0-08 to obtain Saint Selena's ashes and complete his advancement, but Volume 1 does not establish whether the artifact willingly cooperates or has a separate agenda.
+- Divination boundary: The combination of 0-08 and Ince's likely demigod status prevents Klein from divining an exact location even above the gray fog; he can determine only that Ince is in Backlund.
 - What remains unknown: The exact mechanism and restrictions governing those arrangements.
 - Why it matters: The reader receives an explicit interpretive framework for what Chapter 210 demonstrated.
+
+#### Chapter 213: Ongoing Threat
+
+- What the reader learns: Klein regards Ince as a Sequence 4 demigod wielding a powerful Grade 0 Sealed Artifact and plans to recheck his broad location periodically.
+- Operational caution: Klein avoids contacting Azik because Ince may still be keeping him under surveillance.
+- Attribution boundary: The surveillance concern is Klein's inference, not a confirmed 0-08 capability.
+- Why it matters: Volume 1 closes with 0-08 established as an ongoing threat rather than a mystery resolved by the Tingen reveal.
 
 ### Donghua
 
@@ -476,6 +491,9 @@ tags:
   - foreshadowing
   - reader-knowledge
   - reveal-order
+  - divination
+  - spirit-pendulum-divination
+  - gray-fog
   - artifact
 disclosures:
   - medium: novel
@@ -536,6 +554,9 @@ tags:
   - foreshadowing
   - reader-knowledge
   - reveal-order
+  - divination
+  - dream-divination
+  - gray-fog
   - artifact
 disclosures:
   - medium: novel
@@ -714,6 +735,10 @@ tags:
   - reader-knowledge
   - reveal-order
   - working-theory
+  - divination
+  - dream-divination
+  - spirit-pendulum-divination
+  - gray-fog
   - artifact
 disclosures:
   - medium: novel
@@ -1271,6 +1296,106 @@ last_updated: 2026-06-30
 #### Adaptation Analysis
 
 - The Donghua expands the relationship into a more personal liberation-and-cooperation framing without proving loyalty or shared long-term goals.
+
+### Knowledge Unit: Holy Cathedral Warning Arrived Before the Endgame
+
+```yaml
+id: 0-08-holy-cathedral-warning-before-endgame
+claim: The Holy Cathedral sent Tingen an explicit warning about Ince Zangwill and 0-08 before the final battle, but the telegram went unread until afterward.
+truth_status: true
+canon_scope: novel-only
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: 208
+  notes: The telegram machine receives the message as the battle is beginning; its contents become available to the reader in Chapter 211.
+tags:
+  - volume-1
+  - chronology
+  - reader-knowledge
+  - reveal-order
+  - artifact
+disclosures:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 211
+    superseded_at:
+    superseded_by:
+adaptation_relationships:
+  - type: uncertain
+    novel_claim_changed: false
+    notes: No equivalent Donghua warning has yet been verified.
+related_investigations:
+  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-06-30
+```
+
+#### Reader-State History
+
+- Chapter 211 reveals both the warning and its earlier arrival; Leonard learns the culprit immediately after the reader has seen the full written story.
+
+#### Adaptation Analysis
+
+- The Donghua investigation has not identified a matching institutional-warning scene.
+
+### Knowledge Unit: 0-08 and Ince Obstruct Exact Divination
+
+```yaml
+id: 0-08-ince-obstruct-exact-divination
+claim: The combined protection of 0-08 and Ince's likely demigod status prevents Klein from divining Ince's exact location, even above the gray fog, while still allowing a broad result of Backlund.
+truth_status: true
+canon_scope: unresolved-difference
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: 212
+  notes: The narration jointly attributes the limitation to 0-08 and Ince's likely demigod status; it does not isolate their individual contributions.
+tags:
+  - volume-1
+  - reader-knowledge
+  - reveal-order
+  - causality
+  - divination
+  - dream-divination
+  - gray-fog
+  - artifact
+disclosures:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 212
+    superseded_at:
+    superseded_by:
+adaptation_relationships:
+  - type: uncertain
+    novel_claim_changed: false
+    notes: The equivalent Donghua divination sequence has not yet been verified.
+related_investigations:
+  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-06-30
+```
+
+#### Reader-State History
+
+- Chapter 212 confirms that the gray fog is sufficient to obtain a broad location but not enough to overcome the combined interference and identify an exact position.
+- Chapter 213 treats Backlund as the continuing broad location and has Klein plan periodic rechecks.
+
+#### Adaptation Analysis
+
+- No equivalent Donghua disclosure is currently documented.
 
 ### Knowledge Unit: 0-08 Orchestrated the Notebook's Transfer Toward Tingen
 

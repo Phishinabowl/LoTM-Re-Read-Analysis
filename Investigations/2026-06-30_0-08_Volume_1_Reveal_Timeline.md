@@ -6,17 +6,17 @@ What does the novel reader know about 0-08 at each meaningful point in Volume 1,
 
 ## Status
 
-In Progress. Checks 1 through 12 are EPUB verified.
+Complete for Volume 1. Checks 1 through 14 are EPUB verified, followed by a full-text audit of all 213 Volume 1 chapters.
 
 ## Scope
 
 ### Endpoint Event
 
-The complete Volume 1 reader-disclosure timeline, ending with the Chapter 210 story and Klein's interpretation in Chapter 212.
+The complete Volume 1 reader-disclosure timeline, ending with the Chapter 210 story, the delayed warning in Chapter 211, and Klein's post-reveal interpretation and threat assessment in Chapters 212-213.
 
 ### Investigation Window
 
-Volume 1, from the first mention in Chapter 19 through Chapter 212.
+Volume 1, from the first mention in Chapter 19 through Chapter 213.
 
 ## Evidence
 
@@ -189,6 +189,27 @@ Volume 1, from the first mention in Chapter 19 through Chapter 212.
 - Nothing within the Volume 1 boundary affirmatively shows 0-08 acting maliciously toward Ince, deceiving him, resisting him, or undermining his plan.
 - Why it matters: Ince's motive and instrumental use are reader-safe facts, while 0-08's attitude and any separate agenda must remain unresolved.
 
+### Check 13: Delayed Holy Cathedral Warning
+
+#### Chapter 211: Funeral
+
+- Seeka Tron finds an unencrypted Holy Cathedral telegram in Dunn's office after the battle.
+- Chapter 208 records the telegram machine receiving the message as the battle was about to begin, but Leonard and Klein had no time to read it.
+- Its complete warning explicitly pairs Ince Zangwill with Sealed Artifact 0-08.
+- Leonard immediately understands the implication, resolves to seek revenge, and decides to apply to the Red Gloves.
+- Why it matters: The Church possessed actionable institutional knowledge before the battle ended, but the warning reached the surviving local team too late to affect the outcome.
+
+### Check 14: Post-Reveal Divination and Closing Threat State
+
+#### Chapters 212-213
+
+- Chapter 212 states that the existence of 0-08 and Ince's likely demigod status prevent Klein from divining his exact location.
+- The gray fog still permits a broad result: Ince is in Backlund.
+- The text does not isolate how much of the interference comes from 0-08 versus Ince's own status.
+- Chapter 213 has Klein plan periodic broad-location checks and treat Ince as a Sequence 4 demigod wielding a powerful Grade 0 Sealed Artifact.
+- Klein avoids contacting Azik because Ince may still be keeping him under surveillance; this remains an inference rather than a confirmed artifact ability.
+- Why it matters: The volume closes with a bounded operational model of the threat and a continuing pursuit, not merely the solution to the Tingen mystery.
+
 ## Interim Conclusions
 
 ### Check 1
@@ -247,14 +268,24 @@ Chapter 210 confirms that 0-08's stories preserve plausible causality and can be
 
 Volume 1 confirms an instrumental working relationship: Ince uses 0-08 to execute the Tingen plan serving his advancement. It does not establish 0-08's willingness, loyalty, malice toward Ince, or separate agenda.
 
+### Check 13
+
+Chapter 211 adds no new mechanical property, but it is a distinct reader-state and chronology checkpoint: the Holy Cathedral had identified Ince and 0-08 as the danger before the battle, while the local warning was read only after the disaster.
+
+### Check 14
+
+Chapters 212-213 establish the final Volume 1 threat state. 0-08 and demigod Ince jointly obstruct exact divination, Klein can still place him broadly in Backlund, and possible continued surveillance of Azik remains an unconfirmed precaution.
+
+### Full-Text Audit
+
+All 213 Volume 1 chapter files were searched for direct references to `0-08`, Ince Zangwill, the quill and inkless writing, and associated hidden-manipulator language. The audit confirmed the existing checkpoints and identified Chapters 211 and 213 as the only missing direct-reference stages. The author note following Chapter 213 was treated as paratext and excluded from reader knowledge.
+
 ## Board Updates
 
 - Board 1: Summarizes 0-08's Volume 1 significance and links to this detailed timeline.
 - Board 2: No update. This investigation does not materially change the ancient-history or family chronology.
 
-## Open Questions
+## Future-Scope Questions
 
-- Which clues after Chapter 99 further develop the hidden-manipulator mystery before Chapter 210?
-- Which apparent coincidences can be attributed to 0-08 by the end of Volume 1?
-- Does 0-08 have goals separate from Ince's, and what is the earliest reader-safe evidence of them?
-- Donghua reveal timing is tracked separately in `2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md`.
+- Does 0-08 have goals separate from Ince's, and what is the earliest reader-safe evidence beyond Volume 1?
+- Donghua reveal timing remains tracked separately in `2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md`.

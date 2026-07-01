@@ -271,6 +271,7 @@ historical-context
 identity
 acting-method
 causality
+divination
 reveal-order
 family-lineage
 worldbuilding
@@ -287,6 +288,17 @@ needs-epub-verification
 verified
 working-theory
 ```
+
+### Divination Method Tags
+
+Use the broad `divination` analysis tag for material substantially involving divination. Add a method tag when the specific technique is known and analytically relevant.
+
+```text
+dream-divination
+spirit-pendulum-divination
+```
+
+Add further divination method tags only when the method is encountered in a source and verified. Do not infer or prepopulate an exhaustive method list.
 
 ### Domain Tags
 
