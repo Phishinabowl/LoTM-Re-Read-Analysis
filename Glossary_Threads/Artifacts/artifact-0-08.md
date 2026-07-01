@@ -522,6 +522,7 @@ The two plain filenames below are essential planned threads. Additional referenc
 id: 0-08-designation-and-ince-possession
 claim: Sealed Artifact 0-08 is an extremely dangerous Grade 0 artifact taken by former archbishop Ince Zangwill when he escaped the Church of Evernight.
 truth_status: true
+confidence_level: confirmed
 canon_scope: shared
 occurs_at:
   medium: novel
@@ -567,7 +568,7 @@ related_investigations:
   - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
-last_updated: 2026-06-30
+last_updated: 2026-07-01
 ```
 
 #### Reader-State History
@@ -585,6 +586,7 @@ last_updated: 2026-06-30
 id: 0-08-ordinary-inkless-quill
 claim: 0-08 appears to be an ordinary quill but can write without ink.
 truth_status: true
+confidence_level: confirmed
 canon_scope: shared
 occurs_at:
   medium: novel
@@ -627,7 +629,7 @@ related_investigations:
   - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
-last_updated: 2026-06-30
+last_updated: 2026-07-01
 ```
 
 #### Reader-State History
@@ -645,6 +647,7 @@ last_updated: 2026-06-30
 id: 0-08-unrestricted-name-kill-theory
 claim: 0-08 can kill anyone whose name is written with it.
 truth_status: false
+confidence_level: disproven
 canon_scope: unresolved-difference
 occurs_at:
   medium: novel
@@ -700,6 +703,7 @@ last_updated: 2026-07-01
 id: 0-08-donghua-spectral-quill-audiovisual-motif
 claim: The Donghua's recurring spectral-quill animation and musical cue represent 0-08; Episode 10 confirms that identity by pairing the same cue with a physical quill during Dunn's explanation.
 truth_status: true
+confidence_level: confirmed
 canon_scope: donghua-only
 occurs_at:
   medium: donghua
@@ -818,6 +822,39 @@ related_investigations:
   - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
+evidence_basis:
+  - source: donghua-visual-audit
+    location: Season 1 Episodes 2, 4, 6, 7, 10, and 13
+    summary: Repeated spectral-quill appearances become identifiable when Episode 10 pairs the same musical cue with Dunn's physical-quill explanation; Episode 13 resolves the cue into 0-08's narration.
+    effect_on_confidence: Unknown visual motif becomes confirmed 0-08 signature.
+confidence_history:
+  - position:
+      medium: donghua
+      season: 1
+      episode: 2
+      release_order: 2
+    confidence_before: unknown
+    confidence_after: low
+    reason: First confirmed spectral-quill occurrence creates an unexplained recurring motif.
+    evidence: Visual audit, Episode 2 around 00:25:41.
+  - position:
+      medium: donghua
+      season: 1
+      episode: 10
+      release_order: 10
+    confidence_before: low
+    confidence_after: confirmed
+    reason: Physical quill appears during Dunn's 0-08 explanation with the established musical cue.
+    evidence: Subtitle and visual audit around 00:05:40-00:05:42.
+  - position:
+      medium: donghua
+      season: 1
+      episode: 13
+      release_order: 13
+    confidence_before: confirmed
+    confidence_after: confirmed
+    reason: The established cue bridges Klein's death into 0-08's first-person narration.
+    evidence: Visual/audio audit around 00:18:45-00:19:14.
 last_updated: 2026-07-01
 ```
 
@@ -837,6 +874,7 @@ last_updated: 2026-07-01
 id: 0-08-donghua-spectral-quill-event-shaping
 claim: After identifying the spectral quill as 0-08, the Donghua uses it alongside description-to-enactment staging to strongly indicate that 0-08 shapes connected events, while leaving the exact causal action of individual appearances unresolved.
 truth_status: true
+confidence_level: confirmed
 canon_scope: donghua-only
 occurs_at:
   medium: donghua
@@ -900,6 +938,39 @@ related_investigations:
   - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
+evidence_basis:
+  - source: donghua-visual-audit
+    location: Season 1 Episodes 10, 12, and 13
+    summary: Episode 10 pairs the identified motif with description-to-enactment staging; Episode 12 adds quill-marked Ince narration and behavioral steering; Episode 13 explains the completed story.
+    effect_on_confidence: Functional model rises from strong inference to confirmed broad event-shaping, while individual-event causality stays bounded.
+confidence_history:
+  - position:
+      medium: donghua
+      season: 1
+      episode: 10
+      release_order: 10
+    confidence_before: plausible
+    confidence_after: strong-inference
+    reason: The spectral quill appears over the Maynard board before narrated action is enacted word for word.
+    evidence: Visual audit around 00:21:00.
+  - position:
+      medium: donghua
+      season: 1
+      episode: 12
+      release_order: 12
+    confidence_before: strong-inference
+    confidence_after: strong-evidence
+    reason: Quill-marked Ince narration and steering toward Saint Selena's ashes make event-shaping much harder to dismiss.
+    evidence: Visual/subtitle audit around 00:20:25 and 00:25:39.
+  - position:
+      medium: donghua
+      season: 1
+      episode: 13
+      release_order: 13
+    confidence_before: strong-evidence
+    confidence_after: confirmed
+    reason: 0-08's narration retroactively frames the Tingen chain as its written story.
+    evidence: Episode 13 0-08 narration sequence.
 last_updated: 2026-07-01
 ```
 
@@ -920,6 +991,7 @@ last_updated: 2026-07-01
 id: 0-08-madam-sharon-demoness-plot-intersection
 claim: 0-08 incorporates John Maynard's death, Madam Sharon, and the resulting investigation into its Tingen story while the Saintess of White's broader Demoness Sect operation remains an independent agenda.
 truth_status: true
+confidence_level: confirmed
 canon_scope: shared
 occurs_at:
   medium: novel
@@ -997,6 +1069,7 @@ last_updated: 2026-07-01
 id: 0-08-hidden-interference-in-kleins-fate
 claim: 0-08 was the hidden coordinating power behind the disharmony and natural-seeming coincidences that Klein begins investigating in Chapters 98-99.
 truth_status: true
+confidence_level: confirmed
 canon_scope: unresolved-difference
 occurs_at:
   medium: novel
@@ -1088,7 +1161,41 @@ related_investigations:
   - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
-last_updated: 2026-06-30
+evidence_basis:
+  - source: novel-epub
+    location: Chapters 98-99, 210, and 212
+    summary: Chapters 98-99 establish hidden fate interference; Chapter 210 reveals the written story; Chapter 212 has Klein attribute the arrangements and coincidences to 0-08.
+    effect_on_confidence: Unknown hidden power becomes confirmed 0-08 attribution by the Volume 1 ending.
+  - source: donghua-subtitle-and-visual-audit
+    location: Season 1 Episodes 6-10 and 13
+    summary: The adaptation condenses fate interference and blocked divination, permits 0-08 as a working theory after Episode 10, and confirms the attribution in Episode 13.
+    effect_on_confidence: Separate Donghua path reaches the same broad attribution through audiovisual staging.
+confidence_history:
+  - position:
+      medium: novel
+      volume: 1
+      chapter: 98
+    confidence_before: unknown
+    confidence_after: low
+    reason: Azik detects disharmony in Klein's fate and asks about suspicious coincidences.
+    evidence: Novel Chapter 98.
+  - position:
+      medium: novel
+      volume: 1
+      chapter: 99
+    confidence_before: low
+    confidence_after: strong-inference
+    reason: Gray-fog divination confirms hidden interference, but the source remains unidentified.
+    evidence: Novel Chapter 99.
+  - position:
+      medium: novel
+      volume: 1
+      chapter: 212
+    confidence_before: strong-inference
+    confidence_after: confirmed
+    reason: Klein identifies 0-08 as the likely mechanism behind Ince's arrangements and coincidences after Chapter 210's story reveal.
+    evidence: Novel Chapters 210 and 212.
+last_updated: 2026-07-01
 ```
 
 #### Reader-State History
@@ -1108,6 +1215,7 @@ last_updated: 2026-06-30
 id: 0-08-diverted-red-chimney-search
 claim: 0-08 manipulated Klein's route choices during the red-chimney investigation so that he repeatedly excluded the correct house and would reach it only among the final search batches.
 truth_status: true
+confidence_level: confirmed
 canon_scope: unresolved-difference
 occurs_at:
   medium: novel
@@ -1163,6 +1271,7 @@ last_updated: 2026-07-01
 id: 0-08-ince-divided-death-descendant-characteristic
 claim: As part of the plot coordinated through 0-08, Ince divided a descendant-of-Death characteristic, placed one half into Megose for the True Creator spawn ritual, and retained the other half for his own advancement ritual with Saint Selena's ashes.
 truth_status: true
+confidence_level: confirmed
 canon_scope: unresolved-difference
 occurs_at:
   medium: novel
@@ -1226,6 +1335,7 @@ last_updated: 2026-07-01
 id: 0-08-azik-child-skull-characteristic-source
 claim: The stolen skull of Azik's child was the source of the descendant-of-Death characteristic that Ince divided for Megose's ritual and his own advancement plan.
 truth_status: true
+confidence_level: confirmed
 canon_scope: unresolved-difference
 occurs_at:
   medium: novel
@@ -1270,7 +1380,7 @@ related_investigations:
   - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
-last_updated: 2026-06-30
+last_updated: 2026-07-01
 ```
 
 #### Reader-State History
@@ -1290,6 +1400,7 @@ last_updated: 2026-06-30
 id: 0-08-mastermind-may-detect-investigation
 claim: The hidden mastermind behind Klein's fate interference may be able to notice investigation, strengthen its defenses, and deliberately become inactive until scrutiny decreases.
 truth_status: unresolved
+confidence_level: strong-inference
 canon_scope: shared
 occurs_at:
   medium: novel
@@ -1373,7 +1484,43 @@ related_investigations:
   - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
-last_updated: 2026-06-30
+evidence_basis:
+  - source: novel-epub
+    location: Chapter 170
+    summary: Azik infers that the target may have noticed his investigation because it stopped acting and left no clues.
+    effect_on_confidence: Raises the claim to strong inference, but does not confirm a mechanical detection ability.
+  - source: donghua-subtitle-audit
+    location: Season 1 Episodes 7, 8, and 10
+    summary: Klein and Azik explicitly discuss strengthened interference and the possibility that the target noticed their meddling.
+    effect_on_confidence: Reinforces the same inference in adaptation chronology.
+confidence_history:
+  - position:
+      medium: novel
+      volume: 1
+      chapter: 170
+    confidence_before: unknown
+    confidence_after: strong-inference
+    reason: Azik's behavior-change inference creates a plausible adaptive-mastermind model.
+    evidence: Novel Chapter 170.
+  - position:
+      medium: donghua
+      season: 1
+      episode: 7
+      release_order: 7
+    confidence_before: unknown
+    confidence_after: working-theory
+    reason: Klein says the interference feels as though someone noticed him meddling.
+    evidence: Subtitle audit around 00:15:16.
+  - position:
+      medium: donghua
+      season: 1
+      episode: 10
+      release_order: 10
+    confidence_before: working-theory
+    confidence_after: strong-inference
+    reason: Azik's letter says the mastermind fortified its interference and may lower its guard during his absence.
+    evidence: Subtitle audit around 00:04:13.
+last_updated: 2026-07-01
 ```
 
 #### Reader-State History
@@ -1393,6 +1540,7 @@ last_updated: 2026-06-30
 id: 0-08-mastermind-stops-concealing-endgame
 claim: Megose's arrival immediately after Lanevus's warning makes the hidden orchestration too direct to dismiss, indicating that the mastermind is no longer concealing its intervention and is entering the endgame.
 truth_status: contextual
+confidence_level: strong-evidence
 canon_scope: shared
 occurs_at:
   medium: novel
@@ -1449,7 +1597,7 @@ related_investigations:
   - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
-last_updated: 2026-06-30
+last_updated: 2026-07-01
 ```
 
 #### Reader-State History
@@ -1467,6 +1615,7 @@ last_updated: 2026-06-30
 id: 0-08-plausible-causality-constraint
 claim: 0-08 cannot produce arbitrary outcomes without explanation; its written developments must preserve a logically plausible causal surface.
 truth_status: true
+confidence_level: confirmed
 canon_scope: shared
 occurs_at:
   medium: novel
@@ -1545,6 +1694,7 @@ last_updated: 2026-07-01
 id: 0-08-narrative-can-be-revised
 claim: When events diverge from the expected description, written portions of 0-08's narrative can be crossed out and replaced while the broader story continues.
 truth_status: true
+confidence_level: confirmed
 canon_scope: shared
 occurs_at:
   medium: novel
@@ -1589,7 +1739,7 @@ related_investigations:
   - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
-last_updated: 2026-06-30
+last_updated: 2026-07-01
 ```
 
 #### Reader-State History
@@ -1606,6 +1756,7 @@ last_updated: 2026-06-30
 id: 0-08-ince-directly-edits-lines
 claim: Ince directly edits 0-08's written story by crossing out lines and altering the plot when events disrupt his plan.
 truth_status: contextual
+confidence_level: strong-evidence
 canon_scope: adaptation-variant
 occurs_at:
   medium: donghua
@@ -1683,6 +1834,7 @@ last_updated: 2026-07-01
 id: 0-08-displays-autonomous-perspective
 claim: 0-08 displays an apparent autonomous perspective by narrating, reacting to disruptions, and referring to the stories as its own.
 truth_status: contextual
+confidence_level: strong-evidence
 canon_scope: shared
 occurs_at:
   medium: novel
@@ -1726,7 +1878,7 @@ related_investigations:
   - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
-last_updated: 2026-06-30
+last_updated: 2026-07-01
 ```
 
 #### Reader-State History
@@ -1744,6 +1896,7 @@ last_updated: 2026-06-30
 id: 0-08-writes-final-line-autonomously
 claim: 0-08 physically writes the final conclusion of Tingen's story without Ince holding or directing it.
 truth_status: contextual
+confidence_level: strong-evidence
 canon_scope: adaptation-variant
 occurs_at:
   medium: donghua
@@ -1775,7 +1928,7 @@ related_investigations:
   - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
-last_updated: 2026-06-30
+last_updated: 2026-07-01
 ```
 
 #### Reader-State History
@@ -1792,6 +1945,7 @@ last_updated: 2026-06-30
 id: 0-08-constrained-behavioral-influence
 claim: 0-08 likely causes people to follow its descriptions without realizing it, but cannot impose unrestricted direct outcomes or arbitrary wish fulfillment.
 truth_status: unresolved
+confidence_level: strong-inference
 canon_scope: shared
 occurs_at:
   medium: novel
@@ -1852,6 +2006,41 @@ related_investigations:
   - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
+evidence_basis:
+  - source: novel-epub
+    location: Chapter 212
+    summary: Klein rejects arbitrary wish fulfillment and infers that 0-08 likely causes people to follow descriptions without realizing it.
+    effect_on_confidence: Establishes a strong inference while leaving exact free-will mechanics unresolved.
+  - source: donghua-subtitle-and-visual-audit
+    location: Season 1 Episodes 12 and 13
+    summary: Episode 12 visually demonstrates plausible behavioral steering toward Saint Selena's ashes; Episode 13 has Klein reject direct written reality in favor of will influence.
+    effect_on_confidence: Reinforces the constrained-influence model across both formats.
+confidence_history:
+  - position:
+      medium: novel
+      volume: 1
+      chapter: 20
+    confidence_before: unknown
+    confidence_after: very-low
+    reason: Klein rejects the direct name-kill model because Ince's behavior contradicts unrestricted use.
+    evidence: Novel Chapter 20.
+  - position:
+      medium: novel
+      volume: 1
+      chapter: 212
+    confidence_before: very-low
+    confidence_after: strong-inference
+    reason: Klein infers constrained behavioral influence and rejects arbitrary wish fulfillment after reconstructing Ince's plan.
+    evidence: Novel Chapter 212.
+  - position:
+      medium: donghua
+      season: 1
+      episode: 13
+      release_order: 13
+    confidence_before: strong-evidence
+    confidence_after: strong-inference
+    reason: Klein explicitly revises written-word reality into influence over targets' wills, but exact mechanics remain unresolved.
+    evidence: Subtitle audit around 00:29:05-00:29:08.
 last_updated: 2026-07-01
 ```
 
@@ -1871,6 +2060,7 @@ last_updated: 2026-07-01
 id: 0-08-steers-dunn-to-saint-selena-ashes
 claim: Ince and 0-08 steer the compromised Dunn toward selecting Saint Selena's ashes while preserving a plausible emergency justification for his choice.
 truth_status: true
+confidence_level: confirmed
 canon_scope: shared
 occurs_at:
   medium: donghua
@@ -1949,6 +2139,7 @@ last_updated: 2026-07-01
 id: 0-08-orchestrates-megose-blackthorn-arrival
 claim: 0-08's Tingen story orchestrates or exploits Megose's arrival at Blackthorn Security, but the literal source of the guiding voice she reports remains unresolved.
 truth_status: contextual
+confidence_level: strong-evidence
 canon_scope: adaptation-variant
 occurs_at:
   medium: donghua
@@ -2028,6 +2219,7 @@ last_updated: 2026-07-01
 id: 0-08-ince-working-relationship-volume-1
 claim: Ince uses 0-08 to execute his advancement plan, but the Volume 1 boundary does not establish that 0-08 has a separate or hostile agenda toward him.
 truth_status: contextual
+confidence_level: strong-evidence
 canon_scope: shared
 occurs_at:
   medium: novel
@@ -2072,7 +2264,7 @@ related_investigations:
   - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
-last_updated: 2026-06-30
+last_updated: 2026-07-01
 ```
 
 #### Reader-State History
@@ -2091,6 +2283,7 @@ last_updated: 2026-06-30
 id: 0-08-donghua-blocks-red-chimney-divination
 claim: In the Donghua, the hidden mastermind actively obstructs Klein as he reaches the red-smokestack target through the gray fog, and subsequent divination still cannot penetrate the interference.
 truth_status: true
+confidence_level: confirmed
 canon_scope: adaptation-variant
 occurs_at:
   medium: donghua
@@ -2165,6 +2358,7 @@ last_updated: 2026-07-01
 id: 0-08-unrestricted-written-word-theory
 claim: Klein briefly considers an unrestricted model in which 0-08's written words directly dictate reality before replacing it with a constrained behavioral-influence model.
 truth_status: false
+confidence_level: disproven
 canon_scope: shared
 occurs_at:
   medium: novel
@@ -2217,7 +2411,7 @@ related_investigations:
   - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
-last_updated: 2026-06-30
+last_updated: 2026-07-01
 ```
 
 #### Reader-State History
@@ -2234,6 +2428,7 @@ last_updated: 2026-06-30
 id: 0-08-holy-cathedral-warning-before-endgame
 claim: The Holy Cathedral sent Tingen an explicit warning about Ince Zangwill and 0-08 before the final battle, but the telegram went unread until afterward.
 truth_status: true
+confidence_level: confirmed
 canon_scope: novel-only
 occurs_at:
   medium: novel
@@ -2268,7 +2463,7 @@ related_investigations:
   - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
-last_updated: 2026-06-30
+last_updated: 2026-07-01
 ```
 
 #### Reader-State History
@@ -2285,6 +2480,7 @@ last_updated: 2026-06-30
 id: 0-08-donghua-holy-cathedral-culprit-identification
 claim: After the Tingen crisis, a Holy Cathedral wire tells Leonard that the culprit has been identified and the Red Gloves are pursuing the case, prompting him to join them.
 truth_status: true
+confidence_level: confirmed
 canon_scope: adaptation-variant
 occurs_at:
   medium: donghua
@@ -2321,7 +2517,7 @@ related_investigations:
   - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
-last_updated: 2026-06-30
+last_updated: 2026-07-01
 ```
 
 #### Reader-State History
@@ -2339,6 +2535,7 @@ last_updated: 2026-06-30
 id: 0-08-ince-obstruct-exact-divination
 claim: The combined protection of 0-08 and Ince's likely demigod status prevents Klein from divining Ince's exact location, even above the gray fog, while still allowing a broad result of Backlund.
 truth_status: true
+confidence_level: confirmed
 canon_scope: unresolved-difference
 occurs_at:
   medium: novel
@@ -2396,6 +2593,7 @@ last_updated: 2026-07-01
 id: 0-08-three-divinations-converge-backlund
 claim: Klein's attempts to locate Ince, locate Lanevus, and identify his best opportunity to grow stronger all produce the same broad answer of Backlund.
 truth_status: true
+confidence_level: confirmed
 canon_scope: shared
 occurs_at:
   medium: novel
@@ -2464,6 +2662,7 @@ last_updated: 2026-07-01
 id: 0-08-antigonus-notebook-transfer-to-tingen
 claim: 0-08 orchestrated the chain of plausible coincidences that moved the Antigonus notebook toward Tingen as the opening setup of Ince Zangwill's story.
 truth_status: true
+confidence_level: confirmed
 canon_scope: unresolved-difference
 occurs_at:
   medium: novel
@@ -2562,6 +2761,50 @@ related_investigations:
   - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
+evidence_basis:
+  - source: novel-epub
+    location: Chapters 210 and 212
+    summary: Chapter 210 frames the notebook transfer chain as the opening of the written Tingen story; Chapter 212 attributes the coincidences and arrangements to 0-08.
+    effect_on_confidence: Moves the claim from retrospective strong inference to confirmed Volume 1 interpretation.
+  - source: donghua-visual-audit
+    location: Season 1 Episodes 7, 10, and 13
+    summary: Episode 7 marks the ownership-chain flashback with the unidentified motif; Episode 10 identifies the motif as 0-08; Episode 13 states the notebook arrives in Tingen according to plan.
+    effect_on_confidence: Creates an earlier adaptation path from open question to confirmed attribution.
+confidence_history:
+  - position:
+      medium: novel
+      volume: 1
+      chapter: 210
+    confidence_before: unknown
+    confidence_after: strong-inference
+    reason: The written story begins with the notebook's plausible transfer chain toward Tingen.
+    evidence: Novel Chapter 210.
+  - position:
+      medium: novel
+      volume: 1
+      chapter: 212
+    confidence_before: strong-inference
+    confidence_after: confirmed
+    reason: Klein identifies 0-08 as the likely mechanism behind Ince's arrangements and coincidences.
+    evidence: Novel Chapter 212.
+  - position:
+      medium: donghua
+      season: 1
+      episode: 7
+      release_order: 7
+    confidence_before: unknown
+    confidence_after: low
+    reason: The spectral quill marks the notebook ownership-chain flashback before the viewer knows what the motif means.
+    evidence: Visual audit around 00:01:56.
+  - position:
+      medium: donghua
+      season: 1
+      episode: 13
+      release_order: 13
+    confidence_before: working-theory
+    confidence_after: confirmed
+    reason: On-screen text says the notebook arrives in Tingen according to plan during 0-08's narration.
+    evidence: Visual/subtitle audit around 00:19:35.
 last_updated: 2026-07-01
 ```
 

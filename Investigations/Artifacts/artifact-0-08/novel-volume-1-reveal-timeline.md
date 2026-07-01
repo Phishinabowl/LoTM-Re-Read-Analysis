@@ -284,6 +284,32 @@ Chapters 212-213 establish the final Volume 1 threat state. 0-08 and demigod Inc
 
 All 213 Volume 1 chapter files were searched for direct references to `0-08`, Ince Zangwill, the quill and inkless writing, and associated hidden-manipulator language. The audit confirmed the existing checkpoints and identified Chapters 211 and 213 as the only missing direct-reference stages. The author note following Chapter 213 was treated as paratext and excluded from reader knowledge.
 
+## Confidence Updates
+
+- Claim: `0-08-hidden-interference-in-kleins-fate`
+- Confidence before: strong-inference
+- Confidence after: confirmed
+- Reason: Chapters 98-99 establish hidden interference without attribution; Chapters 210 and 212 retrospectively connect the coordination to 0-08.
+- Glossary knowledge unit updated: Yes
+
+- Claim: `0-08-antigonus-notebook-transfer-to-tingen`
+- Confidence before: strong-inference
+- Confidence after: confirmed
+- Reason: Chapter 210 frames the notebook-transfer chain as the opening of the written Tingen story, and Chapter 212 supplies Klein's reader-facing 0-08 attribution.
+- Glossary knowledge unit updated: Yes
+
+- Claim: `0-08-constrained-behavioral-influence`
+- Confidence before: very-low for unrestricted direct control
+- Confidence after: strong-inference for constrained behavioral influence
+- Reason: Chapter 20 rejects unrestricted direct killing; Chapter 212 infers that 0-08 likely makes people follow descriptions while still requiring plausible circumstances.
+- Glossary knowledge unit updated: Yes
+
+- Claim: `0-08-mastermind-may-detect-investigation`
+- Confidence before: unknown
+- Confidence after: strong-inference
+- Reason: Chapter 170 gives Azik's inference that the target noticed investigation and became inactive, but does not mechanically confirm detection.
+- Glossary knowledge unit updated: Yes
+
 ## Board Updates
 
 - Board 1: Summarizes 0-08's Volume 1 significance and links to this detailed timeline.
@@ -292,4 +318,4 @@ All 213 Volume 1 chapter files were searched for direct references to `0-08`, In
 ## Future-Scope Questions
 
 - Does 0-08 have goals separate from Ince's, and what is the earliest reader-safe evidence beyond Volume 1?
-- Donghua reveal timing remains tracked separately in `2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md`.
+- Donghua reveal timing remains tracked separately in [0-08 Donghua Season 1 Reveal Timeline](donghua-season-1-reveal-timeline.md).

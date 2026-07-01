@@ -10,7 +10,7 @@ Confidence Level: Strong Evidence
 Spoiler Boundary: Novel Volume 1; Donghua Season 1
 Reader Knowledge Boundary: Novel Chapter 210; Donghua Season 1 Episode 13
 Tags: volume-1, reader-knowledge, reveal-order, worldbuilding, concept
-Last Updated: 2026-06-30
+Last Updated: 2026-07-01
 
 Related Threads:
 - [0-08](../Artifacts/artifact-0-08.md)
@@ -142,6 +142,7 @@ This thread currently contains only novel Volume 1 and Donghua Season 1 knowledg
 id: dead-beyonders-leave-power-bearing-remains
 claim: When a Beyonder dies, they can leave behind power-bearing remains or items, and relics that cannot be controlled may need to be sealed.
 truth_status: true
+confidence_level: confirmed
 canon_scope: shared
 occurs_at:
   medium: novel
@@ -184,7 +185,7 @@ related_investigations:
   - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
   - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
-last_updated: 2026-06-30
+last_updated: 2026-07-01
 ```
 
 #### Reader-State History
@@ -202,6 +203,7 @@ last_updated: 2026-06-30
 id: beyonder-characteristics-persist-and-transfer
 claim: Beyonder characteristics are not destroyed or reduced and pass from one carrier to another, including when a Beyonder dies.
 truth_status: true
+confidence_level: confirmed
 canon_scope: shared
 occurs_at:
   medium: novel
@@ -244,7 +246,7 @@ related_investigations:
   - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
   - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
-last_updated: 2026-06-30
+last_updated: 2026-07-01
 ```
 
 #### Reader-State History
@@ -262,6 +264,7 @@ last_updated: 2026-06-30
 id: beyonder-characteristics-can-be-divided
 claim: A Beyonder characteristic can be divided into portions used separately.
 truth_status: true
+confidence_level: confirmed
 canon_scope: shared
 occurs_at:
   medium: novel
@@ -304,7 +307,7 @@ related_investigations:
   - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
   - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
-last_updated: 2026-06-30
+last_updated: 2026-07-01
 ```
 
 #### Reader-State History

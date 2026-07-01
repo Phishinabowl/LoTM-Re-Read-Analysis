@@ -407,6 +407,32 @@ Episode 13 resolves Ince's concealed infiltration through a layered action-objec
 
 All 13 regular Season 1 subtitle files were searched for direct references to `0-08`, Ince Zangwill, the quill, the mastermind, fate interference, coincidences, red chimneys, characteristics, divination, and the Tingen story. The audit confirmed the established checkpoints and added the Episodes 6-10 interference progression plus Episode 13's post-reveal theory, location sequence, and condensed Holy Cathedral identification. No subtitle line reproduces the novel's explicit warning naming both Ince and 0-08.
 
+## Confidence Updates
+
+- Claim: `0-08-donghua-spectral-quill-audiovisual-motif`
+- Confidence before: open-question
+- Confidence after: confirmed
+- Reason: Episodes 2-9 establish an unidentified recurring motif; Episode 10 confirms the motif's identity by pairing the physical quill explanation with the same cue; Episode 13 resolves the cue into 0-08's narration.
+- Glossary knowledge unit updated: Yes
+
+- Claim: `0-08-donghua-spectral-quill-event-shaping`
+- Confidence before: strong-inference
+- Confidence after: confirmed
+- Reason: Episode 10 creates the first functional inference through description-to-enactment staging; Episodes 12-13 confirm broad event-shaping while preserving individual-event causal boundaries.
+- Glossary knowledge unit updated: Yes
+
+- Claim: `0-08-mastermind-may-detect-investigation`
+- Confidence before: working-theory
+- Confidence after: strong-inference
+- Reason: Episodes 7, 8, and 10 repeatedly state that the interference seems strengthened after the target noticed investigation, but the exact mechanism remains unconfirmed.
+- Glossary knowledge unit updated: Yes
+
+- Claim: `0-08-antigonus-notebook-transfer-to-tingen`
+- Confidence before: open-question
+- Confidence after: confirmed
+- Reason: Episode 7 marks the notebook chain with the unidentified motif, Episode 10 lets the viewer connect that motif to 0-08, and Episode 13 states that the notebook arrives in Tingen according to plan.
+- Glossary knowledge unit updated: Yes
+
 ## Board Updates
 
 - Board 1: No update. This is granular adaptation chronology owned by the 0-08 glossary thread.
