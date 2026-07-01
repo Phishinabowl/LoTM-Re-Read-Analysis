@@ -752,18 +752,35 @@ An investigation is an evidence-acquisition process, not a single keyword lookup
 2. Form working hypotheses and identify likely related concepts.
 3. Define the source, bounded scope, and endpoint event or reveal.
 4. Build a search vocabulary from names, aliases, effects, events, motifs, associated characters, locations, and likely paraphrases.
-5. Sweep the bounded source chronologically.
+5. Sweep the bounded source chronologically as a survey pass.
 6. Treat search matches and audiovisual observations as candidate evidence, not conclusions.
 7. Expand the surrounding textual or audiovisual context for each candidate.
-8. Evaluate relevance, chronology, adaptation differences, and reader knowledge implications.
-9. Record verified evidence in chronological order.
-10. Repeat the search-and-context loop until the initial sweep is complete.
-11. Perform a final completeness sweep using terminology and connections discovered during the investigation.
-12. Update the investigation record, glossary timeline, and any warranted board or index references.
+8. Use the survey to identify natural analysis arcs, such as reveal clusters, investigation sequences, action incidents, bridge chapters, or aftermath sections.
+9. Order those arcs by reader/viewer sequence and explicitly note filler or bridge gaps between them.
+10. Present the ordered arc list to the user before turning the survey into a completed article or broad final synthesis.
+11. Work through each arc collaboratively with the user in sequence, adding or revising evidence as the discussion clarifies reader knowledge, emphasis, adaptation differences, and interpretation.
+12. Record verified evidence in chronological order as each arc is accepted.
+13. Repeat the search-and-context loop until the active arc is complete.
+14. Perform a final completeness sweep using terminology and connections discovered during the investigation only after the arcs have been reviewed.
+15. Update the investigation record, glossary timeline, knowledge units, relationship seeds, and any warranted board or index references.
 
 The relevant source may be the EPUB, Donghua subtitles, the audiovisual episode, or a combination of them. Match the evidence label and confidence level to what was actually examined.
 
 Search vocabulary should evolve during the investigation. Finding one relevant passage or scene may reveal new names, effects, phrases, relationships, or motifs that require another chronological sweep.
+
+### Survey Pass vs. Collaborative Analysis
+
+A full chronological source sweep is allowed to find the shape of the subject, but it is not the same thing as completing the analysis.
+
+For glossary or board work where the user is actively collaborating:
+
+1. Use the broad sweep to propose natural arcs.
+2. Include bridge or filler gaps when chapters connect two larger arcs without forming a major reveal on their own.
+3. Move through those arcs with the user in order.
+4. Do not condense a full-volume survey into finished glossary prose, knowledge units, relationship seeds, or board conclusions without user review.
+5. Keep later survey findings as provisional evidence until the project reaches that arc collaboratively.
+
+This preserves the value of evidence acquisition while preventing the analysis from skipping the user's memory, questions, and interpretation.
 
 ---
 
