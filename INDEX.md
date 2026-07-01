@@ -26,6 +26,7 @@ Two active reveal-timeline investigations.
 
 - [Glossary Thread Template](Glossary_Threads/TEMPLATE.md)
 - [0-08](Glossary_Threads/Artifacts/artifact-0-08.md)
+- [Beyonder Characteristics](Glossary_Threads/Concepts/concept-beyonder-characteristics.md)
 
 Glossary threads are organized into type-specific subfolders as records are created.
 

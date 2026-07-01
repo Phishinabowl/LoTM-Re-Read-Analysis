@@ -6,7 +6,7 @@ What does the novel reader know about 0-08 at each meaningful point in Volume 1,
 
 ## Status
 
-In Progress. Checks 1 through 6 are EPUB verified.
+In Progress. Checks 1 through 7 are EPUB verified.
 
 ## Scope
 
@@ -87,7 +87,35 @@ Volume 1, from the first mention in Chapter 19 through Chapter 212.
 - The projected result was that he would reach the target only among the final batches after another two or three months.
 - Why it matters: 0-08 manipulates mundane route selection rather than visibly blocking the investigation, preserving the appearance of reasonable failure.
 
-### Check 6: Retrospective Causal Beginning
+### Check 6: Lamud Skull Theft and Its Later Purpose
+
+#### Chapter 150
+
+- Azik discovers that his child's skeleton is missing its skull.
+- He directly senses the same power that made Klein's fate disharmonious.
+- Klein therefore infers that the red-chimney mastermind came to Lamud Castle and stole the skull.
+- Azik attempts to trace the skull through their blood connection, but can only see that it was left beneath a tree and reduced to powder.
+- Why it matters: The hidden manipulator is independently connected to another deliberate theft, but neither Klein nor Azik knows the culprit, the role of 0-08, or the skull's purpose.
+
+#### Chapter 207
+
+- Dunn explains the Law of Beyonder Characteristics Indestructibility: characteristics are not destroyed or reduced and pass from one carrier to another.
+- This gives Klein the general framework needed to understand how dead Beyonders leave characteristics and how those characteristics can be consumed.
+- Why it matters: The transfer law appears shortly before the story demonstrates one characteristic being divided between two ritual uses.
+
+#### Chapter 210: Story
+
+- The written story reveals that Ince secretly helps Lanevus and Hood Eugen complete the ritual involving Megose.
+- Ince explicitly splits a descendant-of-Death characteristic that he obtained and places one half into Megose, allowing her to survive long enough for the True Creator spawn ritual to succeed.
+- Ince retains the other half and later uses it with Saint Selena's ashes in his own advancement ritual.
+- Why it matters: The apparently separate Megose plot and Ince's advancement are shown to depend on two uses of the same divided characteristic.
+
+#### Chapter 212: Avenger
+
+- Klein reconstructs Ince's advancement plan and identifies the stolen skull of Death's descendant as a likely ritual ingredient.
+- Why it matters: The reader can now connect the Chapter 150 theft to the characteristic used in both ritual chains, although Klein's skull-to-characteristic link remains an evidence-based inference.
+
+### Check 7: Retrospective Causal Beginning
 
 #### Chapter 210: Story
 
@@ -111,7 +139,7 @@ Volume 1, from the first mention in Chapter 19 through Chapter 212.
 
 The novel first mentions 0-08 explicitly in Chapter 19. The introduction occurs during Dunn's explanation of Sealed Artifact grades, not after Old Neil's death. At this point the reader knows its designation, danger class, appearance, inkless writing, and connection to Ince Zangwill, but nothing about its reality-shaping function.
 
-The user's remembered scene belongs to the Donghua presentation. The separate Donghua investigation verifies that Episode 10 reveals the designation and quill description substantially later than novel Chapter 19; its exact visual staging remains to be verified from the episode.
+The user's remembered scene belongs to the Donghua presentation. The separate Donghua investigation verifies that Episode 10 reveals the designation and quill description substantially later than novel Chapter 19; user-verified visual evidence establishes the accidental discovery of Ince's poster among Old Neil's papers in the workshop.
 
 ### Check 2
 
@@ -130,6 +158,12 @@ Chapters 98-99 establish that a hidden power has created natural-seeming coincid
 Klein's red-chimney investigation is genuine and methodical, but its repeated failures are not neutral. Chapter 210 reveals that 0-08 steers his route choices away from the correct house while preserving a plausible explanation: Tingen contains an overwhelming number of matching buildings.
 
 ### Check 6
+
+Chapter 150 establishes that the same hidden power affecting Klein's fate was present at the theft of Azik's child's skull. Chapter 207 provides the general characteristic-transfer law, Chapter 210 explicitly demonstrates divisibility through Ince's two ritual uses, and Chapter 212 supplies Klein's inference that the stolen skull was the characteristic's source.
+
+The Secret Order did not perform the Megose ritual. Lanevus and Hood Eugen conducted it, Ince assisted secretly, and Sirius's Aurora Order connection entered through Lanevus's later warning.
+
+### Check 7
 
 The user's memory was directionally correct: Chapter 210 reveals the Antigonus notebook's arrival in Tingen as part of the opening setup of 0-08's written story.
 

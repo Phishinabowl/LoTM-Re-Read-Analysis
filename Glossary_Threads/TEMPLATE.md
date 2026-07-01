@@ -58,17 +58,42 @@ Define the exact reread point this thread entry is limited to.
 
 ## First Appearance / First Meaningful Mention
 
+Use separate medium subsections when the thread tracks more than one format.
+
+### Novel
+
 - Volume:
 - Chapter:
 - Context:
 - Reader knowledge state:
 
+### Donghua
+
+- Season:
+- Episode:
+- Release order:
+- Timestamp:
+- Context:
+- Viewer knowledge state:
+
 ## Chronological Development
 
-### Volume X
+### Novel
+
+#### Volume X
 
 - Chapter:
 - What the reader learns:
+- What remains unknown:
+- Why it matters:
+
+### Donghua
+
+#### Season X, Episode Y
+
+- Release order:
+- Timestamp:
+- What the viewer learns:
 - What remains unknown:
 - Why it matters:
 
