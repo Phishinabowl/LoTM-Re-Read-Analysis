@@ -6,7 +6,7 @@ What does a Donghua viewer know about 0-08 at each meaningful point in Season 1,
 
 ## Status
 
-In Progress. The full 13-episode subtitle audit is complete, and the dedicated spectral-quill visual audit is complete through Episode 10. Checks 1 through 10 remain subtitle verified; Checks 11 through 13 formalize the audiovisual motif and major visual sequences through Episode 10. Previously verified Episode 13 visual evidence remains recorded.
+In Progress. The full 13-episode subtitle audit is complete, and the dedicated spectral-quill visual audit is complete through Episode 11. Checks 1 through 10 remain subtitle verified; Checks 11 through 14 formalize the audiovisual motif and major visual sequences through Episode 11. Previously verified Episode 13 visual evidence remains recorded.
 
 ## Scope
 
@@ -190,6 +190,7 @@ The spectral quill is a purely audiovisual evidence stream. Subtitle files do no
 | 9 | Full episode | No occurrence | Old Neil's loss of control is presented without the motif | N/A |
 | 10 | `00:05:40` | Confirmed physical-quill identity bridge | Dunn explains 0-08 while a physical quill descends through clouds with the established musical cue | Confirms motif identity; function remains unknown at this instant |
 | 10 | `00:21:00` | Confirmed spectral-quill occurrence | Appears over the Lanevus-to-Maynard investigation board before an external narrator's description of Mrs. Maynard is enacted word for word | Strongly indicates event-shaping through description; narrator identity and exact free-will mechanics remain separate |
+| 11 | `00:09:30` | Confirmed continuous sequence with two quill drops | Bridges the Saintess/Sharon confrontation, Sharon's return to her mansion, and Klein's surveillance | Strongly marks 0-08's involvement in the Sharon/Maynard/Klein intersection; control of the Saintess's independent plan is unsupported |
 
 Reader-state progression:
 
@@ -230,6 +231,17 @@ Reader-state progression:
 - He concludes Frye's investigation was interfered with and that his blocked divinations must be connected.
 - User-verified visuals then pull away from Klein above the gray fog and transition to the red-smokestack building with dramatic scoring.
 - Why it matters: The episode joins the Maynard/Sharon chain, Lanevus investigation, blocked divinations, and hidden mastermind location into one increasingly coherent theory before Episode 13 confirms it.
+
+### Check 14: Episode 11 Demoness-Plot Intersection
+
+#### Episode 11: Mastermind
+
+- Around `00:08:54`, the Saintess of White says Maynard's death was a needless complication thrust into her plans.
+- This establishes that the Saintess's Tingen operation is not simply identical to 0-08 and Ince's agenda.
+- User-verified audiovisual evidence around `00:09:30` shows one quill drop as the camera exits the clocktower and a second over Sharon's carriage entering her mansion.
+- The continuous camera movement ends with Klein surveilling the mansion.
+- Why it matters: The sequence strongly suggests that 0-08 shapes or exploits the point where Sharon's independent factional activity, Maynard's death, and Klein's investigation intersect.
+- Attribution boundary: It does not prove that 0-08 created the Demoness Sect's plan, controls the Saintess, or caused every event shown during the bridge.
 
 ## Interim Conclusions
 
@@ -285,6 +297,10 @@ Episode 7 combines direct obstruction, explicit red-smokestack dialogue, and an 
 
 Episode 10 first confirms who the spectral-quill motif represents, then uses a second occurrence to teach a possible description-to-enactment function. Klein's subsequent divination and the red-smokestack camera transition turn that audiovisual lesson into a working conspiracy model.
 
+### Check 14
+
+Episode 11 uses two quill drops inside one continuous transition to associate 0-08 with the Sharon/Maynard/Klein chain. The Saintess's own complaint establishes that her broader plan remains independent and was complicated by Maynard's death.
+
 ### Full Subtitle Audit
 
 All 13 regular Season 1 subtitle files were searched for direct references to `0-08`, Ince Zangwill, the quill, the mastermind, fate interference, coincidences, red chimneys, characteristics, divination, and the Tingen story. The audit confirmed the established checkpoints and added the Episodes 6-10 interference progression plus Episode 13's post-reveal theory, location sequence, and condensed Holy Cathedral identification. No subtitle line reproduces the novel's explicit warning naming both Ince and 0-08.
@@ -296,7 +312,7 @@ All 13 regular Season 1 subtitle files were searched for direct references to `0
 
 ## Future-Scope Questions
 
-- Which spectral-quill audiovisual occurrences appear in Episodes 11-13, and what event does each one mark?
+- Which spectral-quill audiovisual occurrences appear in Episodes 12-13, and what event does each one mark?
 - Does the animation explicitly depict the extraction or transformation of Teno's skull into the Death-descendant characteristic, beyond showing it in the ritual?
 - Does 0-08 have goals separate from Ince's, and what is the earliest Donghua-safe evidence of them?
 - Do the special episodes add or recontextualize any 0-08 information?

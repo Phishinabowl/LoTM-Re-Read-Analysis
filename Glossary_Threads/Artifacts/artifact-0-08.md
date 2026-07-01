@@ -201,6 +201,17 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 - What remains unknown: The exact free-will boundary, plausibility rules, and whether every visual detail in the sequence was directly authored by 0-08.
 - Why it matters: Episode 10 supplies the first functional model of 0-08 before Episode 13 explains the completed written story.
 
+#### Season 1, Episode 11: Intersection with the Demoness Plot
+
+- Around `00:08:54`, the Saintess of White tells Madam Sharon that John Maynard's death was a needless complication thrust into her plans.
+- The dialogue establishes that the Saintess's Tingen scheme is an independent agenda disrupted by the Maynard incident rather than a plan automatically shared with 0-08.
+- User-verified audiovisual evidence around `00:09:30` shows the camera exit the clocktower through its clock face as the spectral quill falls with its musical cue.
+- The camera crosses Tingen toward Madam Sharon's returning carriage, and the spectral quill falls again as the carriage passes through the mansion gates.
+- The sequence ends by revealing Klein surveilling the mansion from behind a tree.
+- Viewer state: 0-08 is strongly implicated in shaping or exploiting the intersection between Madam Sharon, Maynard's death, and Klein's investigation.
+- Causal boundary: The sequence does not show that 0-08 created, controls, or shares the Saintess of White's broader Tingen plan.
+- Why it matters: Episode 11 demonstrates that 0-08 can fold an independent faction's activity into its own causal story even when one engineered development complicates that faction's objectives.
+
 #### Season 1, Episode 12: Manipulation Becomes Obvious
 
 - What the viewer learns: Megose arrives within an hour of the Nighthawks finding Lanevus's letter.
@@ -271,6 +282,7 @@ Verified occurrence audit through Episode 10:
 | 9 | Full episode | No motif observed | Confirmed absent for this project audit; Old Neil's loss of control is not visually attributed to 0-08 | N/A |
 | 10 | `00:05:40` | Dunn describes 0-08 while a physical quill descends through clouds with the established musical cue | Confirms that the earlier spectral-quill motif represents 0-08 | Identity confirmed; function still unknown at this instant |
 | 10 | `00:21:00` | Spectral quill appears over the Lanevus-to-Maynard investigation board; an external narrator describes Mrs. Maynard's fury and exact words before she enacts them | Strongly demonstrates that 0-08 can shape a plausible social event through description | 0-08 involvement is strong; the narrator is not 0-08, and exact free-will mechanics remain unresolved |
+| 11 | `00:09:30` | Two quill drops bridge the Saintess/Sharon clocktower scene, Sharon's carriage returning to her mansion, and Klein's surveillance | Marks 0-08's involvement in the Sharon/Maynard/Klein intersection | Strong evidence of intersection shaping; control of the Saintess's independent plan is unsupported |
 
 #### Season 1, Episode 2: First Spectral-Quill Appearance
 
@@ -327,6 +339,17 @@ Verified occurrence audit through Episode 10:
 - User-verified visuals around `00:24:40` pull away from Klein above the gray fog and transition into the red-smokestack building with dramatic scoring.
 - Viewer state: 0-08 is now a strongly supported candidate for shaping plausible social actions and connecting the Maynard/Sharon, Lanevus, divination-interference, and red-smokestack plot lines.
 - Why it matters: Episode 10 resolves the motif's identity, supplies its first strong functional model, and turns the scattered mystery into a working 0-08 theory before Episode 13 confirms the full plot.
+
+#### Season 1, Episode 11: Sharon-Mansion Bridge
+
+- Around `00:09:30`, the camera exits the Saintess of White and Madam Sharon's clocktower confrontation through the clock face.
+- The spectral quill falls with its established musical cue as the camera begins crossing Tingen.
+- A second quill drop appears over Madam Sharon's carriage as it passes through her mansion gates.
+- The camera then reveals Klein watching the mansion from behind a tree.
+- Contextual dialogue: The Saintess has just called Maynard's death a needless complication thrust into her plans.
+- Retrospective interpretation: The continuous audiovisual bridge strongly associates 0-08 with the Sharon/Maynard/Klein chain and with the use of an independent Demoness plot as material inside the wider Tingen story.
+- Causal boundary: The two drops do not establish that 0-08 controls the Saintess, authored her entire plan, or caused every action in the bridged scenes.
+- Why it matters: This is the first audited motif sequence after viewers know both the quill's identity and its likely description-to-reality function.
 
 #### Season 1, Episodes 6-10: Hidden Interference Progression
 
@@ -814,6 +837,83 @@ last_updated: 2026-07-01
 #### Adaptation Analysis
 
 - The external narrator in Episode 10 is not 0-08's Episode 13 voice; the inference comes from staging, exact verbal enactment, and the identified spectral-quill cue rather than speaker identity.
+
+### Knowledge Unit: 0-08 Intersects the Madam Sharon and Demoness Plot
+
+```yaml
+id: 0-08-madam-sharon-demoness-plot-intersection
+claim: 0-08 incorporates John Maynard's death, Madam Sharon, and the resulting investigation into its Tingen story while the Saintess of White's broader Demoness Sect operation remains an independent agenda.
+truth_status: true
+canon_scope: shared
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: before-chapter-173
+  notes: Maynard dies off-page before Chapter 173; Chapter 173 reconstructs his death during Klein's investigation, and Chapter 210 discloses 0-08's incorporation of the chain.
+tags:
+  - volume-1
+  - chronology
+  - causality
+  - reader-knowledge
+  - reveal-order
+  - faction
+  - event
+  - artifact
+disclosures:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 210
+    superseded_at:
+    superseded_by:
+  - medium: donghua
+    knowledge_state: strong-inference
+    disclosure_type: implicit-clue
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 10
+      release_order: 10
+      timestamp: 00:21:00.83
+    superseded_at:
+    superseded_by:
+  - medium: donghua
+    knowledge_state: strong-inference
+    disclosure_type: confirmation
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 11
+      release_order: 11
+      timestamp: 00:09:30
+    superseded_at:
+    superseded_by:
+adaptation_relationships:
+  - type: expanded
+    novel_claim_changed: false
+    notes: Episode 11 juxtaposes the Saintess's complaint that Maynard disrupted her plans with two spectral-quill drops bridging Sharon's return and Klein's surveillance.
+related_investigations:
+  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
+  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-07-01
+```
+
+#### Reader-State History
+
+- Chapter 173 gives the reader the first reconstruction of Maynard's already-completed death without connecting it to 0-08.
+- Novel Chapter 210 confirms that the Maynard/Sharon chain was used inside 0-08 and Ince's plan.
+- Donghua Episode 10 strongly associates 0-08 with the Maynard/Sharon sequence through the identified motif and description-to-enactment staging.
+- Episode 11 reinforces the intersection while explicitly showing that Maynard's death complicated the Saintess's separate plan.
+
+#### Adaptation Analysis
+
+- The Donghua makes the collision of independent agendas more explicit without establishing that 0-08 controls the Saintess or the Demoness Sect.
 
 ### Knowledge Unit: 0-08 Was Behind the Hidden Interference Klein Detected
 
