@@ -1,5 +1,9 @@
 # Church of Evernight Volume 1 Reveal Timeline
 
+## Related Glossary Thread
+
+- [Church of Evernight](../../../Glossary_Threads/Factions/faction-church-of-evernight.md)
+
 ## Question
 
 What does the novel reader know about the Church of Evernight, its Nighthawks organization, and the Tingen team's institutional role at each meaningful point in Volume 1?

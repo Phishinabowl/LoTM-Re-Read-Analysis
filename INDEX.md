@@ -29,6 +29,7 @@ Glossary-linked investigations are organized by thread type and subject, with se
 - [0-08](Glossary_Threads/Artifacts/artifact-0-08.md)
 - [Beyonder Characteristics](Glossary_Threads/Concepts/concept-beyonder-characteristics.md)
 - [Church of Evernight](Glossary_Threads/Factions/faction-church-of-evernight.md)
+- [Saint Selena Cathedral](Glossary_Threads/Locations/location-saint-selena-cathedral.md)
 
 Glossary threads are organized into type-specific subfolders as records are created.
 

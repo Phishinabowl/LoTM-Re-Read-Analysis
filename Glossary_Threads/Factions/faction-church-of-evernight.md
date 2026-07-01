@@ -13,7 +13,7 @@ Tags: volume-1, reader-knowledge, worldbuilding, faction
 Last Updated: 2026-07-01
 
 Related Threads:
--
+- [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
 
 Related Investigations:
 - [Church of Evernight Volume 1 Reveal Timeline](../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
@@ -83,6 +83,40 @@ Later information about the Church of Evernight, its high-level structure, its h
 
 - Dunn explains losing control, advancement caution, and the Nighthawks' guardian ethos.
 - Chanis Gate and the Sealed Artifact system establish the Church as a formal custodian of supernatural dangers, knowledge, materials, and prisoners.
+
+#### Volume 1: Church-Level Development
+
+##### Public Religion and Social Role
+
+- Chapter 1 establishes the Evernight faith as part of Klein's family background through his mother's devotion.
+- Chapter 3 shows the Church operating Sunday schools and participating in the earlier provision of inexpensive education before the kingdom's religiously neutral public-school expansion.
+- Why it matters: The Church enters the story first as an ordinary part of family and civic life, well before its concealed Beyonder machinery is exposed.
+
+##### Controlled Access to the Beyonder World
+
+- Chapter 6 frames orthodox Churches as major controlled routes to becoming a Beyonder.
+- Joining through a Church requires institutional commitment, obedience, and some loss of personal freedom.
+- Why it matters: The Church's supernatural authority is presented as organized and restrictive rather than publicly accessible.
+
+##### Local Cathedral and Judicial Authority
+
+- Chapter 17 identifies [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md) as the Church of Evernight's Tingen headquarters.
+- The concealed Blackthorn and Chanis Gate complex is physically connected to the cathedral.
+- Klein's confidential employment contract falls under Church tribunal authority rather than ordinary kingdom courts.
+- Why it matters: The Church possesses local religious, operational, and judicial structures that overlap with—but are not reducible to—the police system.
+
+##### Theology, Antiquity, and Institutional Prestige
+
+- Chapter 18 gives the Evernight Goddess's established religious titles, including Her associations with crimson, concealment, repose, silence, misfortune, and horror.
+- Dunn's explanation presents the Evernight faith as older than the Church of the God of Steam and Machinery, whose deity arose only in the Fourth Epoch.
+- Why it matters: The reader receives an early theological identity for the Church and sees antiquity treated as part of orthodox prestige.
+
+##### Central Hierarchy and Supernatural Custody
+
+- Chapter 19 identifies the Cathedral of Serenity in Winter County as the Church's Holy Cathedral.
+- Local Chanis Gates operate within a wider hierarchy involving city cathedrals, diocesan headquarters, and the Holy Cathedral.
+- Church-sent Keepers, security clearances, artifact grades, and transfer rules demonstrate centralized control over dangerous knowledge, prisoners, materials, and Sealed Artifacts.
+- Why it matters: The Tingen team is revealed as one local node inside a larger Church system rather than an isolated supernatural police squad.
 
 #### Volume 1: Parent Institution for the Tingen Nighthawks
 
@@ -157,6 +191,7 @@ Use Markdown links when the target file exists. Mention a nonexistent thread as 
 
 ### Directly Related
 
+- [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
 - character-klein-moretti.md
 - character-dunn-smith.md
 - character-leonard-mitchell.md
@@ -172,7 +207,7 @@ Use Markdown links when the target file exists. Mention a nonexistent thread as 
 
 ### Associated Artifacts
 
-- [artifact-0-08.md](../Artifacts/artifact-0-08.md)
+- [0-08](../Artifacts/artifact-0-08.md)
 
 ### Associated Factions
 

@@ -1,5 +1,9 @@
 # 0-08 Donghua Season 1 Reveal Timeline
 
+## Related Glossary Thread
+
+- [0-08](../../../Glossary_Threads/Artifacts/artifact-0-08.md)
+
 ## Question
 
 What does a Donghua viewer know about 0-08 at each meaningful point in Season 1, and how does that disclosure order differ from the novel?

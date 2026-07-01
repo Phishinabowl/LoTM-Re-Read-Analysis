@@ -1,5 +1,9 @@
 # 0-08 Volume 1 Reveal Timeline
 
+## Related Glossary Thread
+
+- [0-08](../../../Glossary_Threads/Artifacts/artifact-0-08.md)
+
 ## Question
 
 What does the novel reader know about 0-08 at each meaningful point in Volume 1, and which events can be attributed to it retrospectively by the end of the volume?

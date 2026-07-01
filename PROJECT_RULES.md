@@ -342,6 +342,16 @@ Associated Pathways
 
 Use Markdown links when the target file exists.
 
+Use the target document's human-readable H1 title as the link label for an existing glossary thread. Use a clear human-readable investigation title for investigation links. Do not display a working link as its repository filename.
+
+Examples:
+
+```markdown
+[0-08](Glossary_Threads/Artifacts/artifact-0-08.md)
+[Beyonder Characteristics](Glossary_Threads/Concepts/concept-beyonder-characteristics.md)
+[Church of Evernight Volume 1 Reveal Timeline](Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
+```
+
 Mention a nonexistent thread only when its creation is already planned or when the relationship is essential to understanding the current thread. Use a plain filename and do not imply that it is a working link. Avoid seeding speculative references merely because a related thread might exist eventually.
 
 Do not manually maintain incoming references or backlinks yet. Backlinks, generated reference indexes, relationship graphs, and visual maps should be left for future automation once the repository is larger.
@@ -367,6 +377,7 @@ enemy
 ally
 investigates
 investigated-by
+infiltrates
 manipulates
 victim-of
 protects
@@ -771,6 +782,7 @@ Do not guess.
 
 - Put investigations in the `Investigations` folder.
 - Glossary-linked investigations should mirror the `Glossary_Threads` type structure and use one stable subject folder per glossary thread.
+- Every glossary-linked investigation must include a `Related Glossary Thread` section near the top with a working backlink labeled by the glossary thread's human-readable H1 title.
 - Use date-based filenames only for project-wide, board-level, or one-off investigations whose identity is genuinely the research event rather than a glossary subject.
 
 Glossary-linked path format:

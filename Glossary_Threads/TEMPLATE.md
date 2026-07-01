@@ -106,7 +106,7 @@ Use separate medium subsections when the thread tracks more than one format.
 
 ## Related Threads
 
-Use Markdown links when the target file exists. Mention a nonexistent thread as a plain filename only when its creation is already planned or the relationship is essential. Do not seed speculative future references.
+Use Markdown links when the target file exists, with the target document's human-readable H1 title as the link label. Mention a nonexistent thread as a plain filename only when its creation is already planned or the relationship is essential. Do not seed speculative future references.
 
 ### Directly Related
 

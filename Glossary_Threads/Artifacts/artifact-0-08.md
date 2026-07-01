@@ -15,11 +15,11 @@ Last Updated: 2026-07-01
 Related Threads:
 - artifact-antigonus-notebook.md
 - character-ince-zangwill.md
-- [concept-beyonder-characteristics.md](../Concepts/concept-beyonder-characteristics.md)
+- [Beyonder Characteristics](../Concepts/concept-beyonder-characteristics.md)
 
 Related Investigations:
-- [novel-volume-1-reveal-timeline.md](../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md)
-- [donghua-season-1-reveal-timeline.md](../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md)
+- [0-08 Volume 1 Reveal Timeline](../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md)
+- [0-08 Donghua Season 1 Reveal Timeline](../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md)
 
 ## Purpose
 
@@ -468,7 +468,7 @@ The two plain filenames below are essential planned threads. Additional referenc
 
 - artifact-antigonus-notebook.md
 - character-ince-zangwill.md
-- [concept-beyonder-characteristics.md](../Concepts/concept-beyonder-characteristics.md)
+- [Beyonder Characteristics](../Concepts/concept-beyonder-characteristics.md)
 
 ### Historical Connections
 

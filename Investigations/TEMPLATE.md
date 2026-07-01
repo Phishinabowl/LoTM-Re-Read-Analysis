@@ -7,6 +7,12 @@ Path convention:
 
 Use one living file per glossary subject, source medium, and bounded scope. Append new checks to the same file when the subject, medium, and scope remain the same.
 
+## Related Glossary Thread
+
+For a glossary-linked investigation, add a Markdown link to the owning glossary thread using its human-readable H1 title. For a project or board investigation, link the relevant board or state that this field is not applicable.
+
+-
+
 ## Question
 
 What are we trying to determine?

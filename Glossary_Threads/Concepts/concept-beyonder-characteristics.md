@@ -13,7 +13,7 @@ Tags: volume-1, reader-knowledge, reveal-order, worldbuilding, concept
 Last Updated: 2026-06-30
 
 Related Threads:
-- [artifact-0-08.md](../Artifacts/artifact-0-08.md)
+- [0-08](../Artifacts/artifact-0-08.md)
 
 Related Investigations:
 - [0-08 Volume 1 Reveal Timeline](../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md)
