@@ -25,6 +25,15 @@ What event or reveal are we working toward?
 
 What chapter/volume range should be searched?
 
+## Search Strategy
+
+Use this section to make the completeness sweep reproducible without narrating every search action.
+
+- Initial terms, names, and aliases:
+- Related effects, events, characters, locations, or motifs:
+- Terms discovered during the investigation:
+- Completeness sweep: Not started
+
 ## Evidence
 
 For a living glossary reconstruction, organize evidence as sequential verified checks within this file.

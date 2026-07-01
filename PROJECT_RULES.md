@@ -657,13 +657,36 @@ Switch to Investigation Mode when:
 1. Define the question.
 2. Identify the endpoint event.
 3. Bound the investigation window.
-4. Search the EPUB.
+4. Search the relevant source.
 5. Collect evidence.
 6. Draw conclusions.
 
 Never reverse steps 5 and 6.
 
 **Evidence first. Conclusion second.**
+
+### Investigation Methodology
+
+**Search broadly. Validate locally. Record evidence, not isolated keywords.**
+
+An investigation is an evidence-acquisition process, not a single keyword lookup.
+
+1. Reconstruct the subject from memory.
+2. Form working hypotheses and identify likely related concepts.
+3. Define the source, bounded scope, and endpoint event or reveal.
+4. Build a search vocabulary from names, aliases, effects, events, motifs, associated characters, locations, and likely paraphrases.
+5. Sweep the bounded source chronologically.
+6. Treat search matches and audiovisual observations as candidate evidence, not conclusions.
+7. Expand the surrounding textual or audiovisual context for each candidate.
+8. Evaluate relevance, chronology, adaptation differences, and reader knowledge implications.
+9. Record verified evidence in chronological order.
+10. Repeat the search-and-context loop until the initial sweep is complete.
+11. Perform a final completeness sweep using terminology and connections discovered during the investigation.
+12. Update the investigation record, glossary timeline, and any warranted board or index references.
+
+The relevant source may be the EPUB, Donghua subtitles, the audiovisual episode, or a combination of them. Match the evidence label and confidence level to what was actually examined.
+
+Search vocabulary should evolve during the investigation. Finding one relevant passage or scene may reveal new names, effects, phrases, relationships, or motifs that require another chronological sweep.
 
 ---
 
