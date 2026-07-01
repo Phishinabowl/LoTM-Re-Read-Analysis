@@ -175,6 +175,7 @@ Future reader-facing pages will filter these entries against the user's selected
 id: subject-claim-id
 claim: Exact fact, inference, theory, misconception, or question
 truth_status: unresolved
+confidence_level: unknown
 canon_scope: shared
 occurs_at:
   medium: novel
@@ -222,6 +223,23 @@ subject_attribution_from:
       release_order:
 related_investigations:
 related_boards:
+evidence_basis:
+  - source:
+    location:
+    summary:
+    effect_on_confidence:
+confidence_history:
+  - position:
+      medium:
+      volume:
+      chapter:
+      season:
+      episode:
+      release_order:
+    confidence_before:
+    confidence_after:
+    reason:
+    evidence:
 last_updated:
 ```
 
@@ -229,6 +247,7 @@ last_updated:
 
 - What each audience could reasonably know:
 - How the knowledge state changed:
+- How confidence changed as evidence accumulated:
 
 #### Adaptation Analysis
 

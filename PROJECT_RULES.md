@@ -466,6 +466,66 @@ A theory or misconception may remain visible within its valid historical window 
 
 Use `occurs_at` when the underlying event happens at a different point from when the reader can understand or attribute it. `occurs_at` records story chronology; `available_from` controls spoiler eligibility. When an event predates the numbered narrative, use a clear phase label such as `pre-chapter-1` and explain it in `notes`.
 
+## Confidence Revision Model
+
+The project uses a lightweight Bayesian-style confidence model: confidence changes when evidence changes.
+
+Do not assign numeric probabilities unless a future tool has a specific reason to do so. Use controlled qualitative confidence states and preserve the evidence trail that caused each revision.
+
+Allowed claim-level `confidence_level` values:
+
+```text
+unknown
+very-low
+low
+working-theory
+plausible
+strong-inference
+strong-evidence
+confirmed
+mixed
+disproven
+```
+
+Use the smallest confidence increase supported by the evidence. A new clue should usually move a claim from `unknown` to `working-theory` or `plausible`, not directly to `confirmed`.
+
+Confidence should be revised when:
+
+- New evidence supports a claim.
+- New evidence weakens or contradicts a claim.
+- A later reveal changes an earlier interpretation.
+- A source distinction matters, such as novel evidence versus Donghua visual evidence.
+- A claim is split into more precise claims because the original wording was too broad.
+
+Every major claim in a knowledge unit may include:
+
+```yaml
+confidence_level:
+evidence_basis:
+  - source:
+    location:
+    summary:
+    effect_on_confidence:
+confidence_history:
+  - position:
+      medium:
+      volume:
+      chapter:
+      season:
+      episode:
+      release_order:
+    confidence_before:
+    confidence_after:
+    reason:
+    evidence:
+```
+
+Use `evidence_basis` for the current support behind the claim. Use `confidence_history` when the evolution of belief is analytically important, especially for mysteries, foreshadowing, reader misconceptions, and claims that move from theory to confirmation.
+
+Do not force confidence history onto every minor fact. A simple confirmed identity, location, or first mention does not need a full revision trail unless the reader's interpretation changes over time.
+
+When an investigation changes confidence, record the change in the investigation conclusion and update the relevant glossary knowledge unit.
+
 ## Canon Scope
 
 Allowed `canon_scope` values:

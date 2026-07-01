@@ -62,6 +62,14 @@ Add further numbered checks when the subject, medium, and bounded scope remain t
 
 Supported conclusion after evidence review.
 
+## Confidence Updates
+
+- Claim:
+- Confidence before:
+- Confidence after:
+- Reason:
+- Glossary knowledge unit updated:
+
 ## Board Updates
 
 - Board 1:
