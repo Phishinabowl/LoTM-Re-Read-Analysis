@@ -473,6 +473,7 @@ Use controlled relationship types when possible:
 
 ```text
 member-of
+civilian-staff-of
 subordinate-organization
 parent-organization
 colleague
@@ -535,6 +536,27 @@ Use event relationship types when an event page is the graph center:
 
 Prefer these over generic `connected-to` when the relationship is event-specific and reader-safe.
 
+Event relationship direction should be consistent:
+
+- `event-participant`, `event-enabler`, `event-location`, and `event-cause` should point toward the event.
+- `event-outcome` should point outward from the event to the durable result, status change, relationship, or downstream condition.
+
+Use `civilian-staff-of` when a character is confirmed as civilian staff within an organization but is not yet a formal member of the organization's Beyonder team. Use `member-of` only when the broader membership relationship is accurate enough for the current reader boundary, or when a more specific staff/member type is not needed.
+
+Use controlled relationship status values:
+
+```text
+active
+completed
+broken
+historical
+future-boundary
+pending
+superseded
+```
+
+Relationship `status` values apply only inside `Relationship Seeds`. Do not confuse them with knowledge-unit `truth_status` values in the Reader Knowledge Ledger.
+
 Use the earliest verified or best-known reader-safe start point for the relationship. If the start point is not yet verified, mark it `TBD` and avoid pretending the chronology is settled.
 
 ### Relationship Sweep Rule
@@ -554,7 +576,7 @@ Example:
 ```yaml
 - source: character-klein-moretti
   target: faction-church-of-evernight
-  relationship_type: member-of
+  relationship_type: civilian-staff-of
   start:
     medium: novel
     volume: 1

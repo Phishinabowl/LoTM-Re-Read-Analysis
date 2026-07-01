@@ -235,7 +235,7 @@ relationships:
     notes: Chapter 13 explicitly identifies Dunn as a Nighthawk and connects the Nighthawks to the Church of Evernight's Beyonder teams.
   - source: character-klein-moretti
     target: faction-church-of-evernight
-    relationship_type: member-of
+    relationship_type: civilian-staff-of
     start:
       medium: novel
       volume: 1
@@ -253,6 +253,16 @@ relationships:
     status: active
     confidence: confirmed
     notes: Dunn is the Tingen Nighthawks captain and a primary representative of Church procedure in Volume 1.
+  - source: character-old-neil
+    target: faction-church-of-evernight
+    relationship_type: civilian-staff-of
+    start:
+      medium: novel
+      volume: 1
+      chapter: 19
+    status: active
+    confidence: confirmed
+    notes: Chapter 19 identifies Old Neil as one of the Tingen Nighthawks' civilian staff under the Church-linked organization.
   - source: faction-church-of-evernight
     target: artifact-0-08
     relationship_type: artifact-guardian

@@ -217,8 +217,8 @@ relationships:
     status: active
     confidence: confirmed
     notes: The event is the point where Seer becomes Klein's pathway.
-  - source: event-klein-becomes-a-seer
-    target: faction-church-of-evernight
+  - source: faction-church-of-evernight
+    target: event-klein-becomes-a-seer
     relationship_type: event-enabler
     start:
       medium: novel
@@ -227,8 +227,8 @@ relationships:
     status: active
     confidence: confirmed
     notes: The Church/Nighthawks provide the institutional access, formula/material custody, and status boundary.
-  - source: event-klein-becomes-a-seer
-    target: location-saint-selena-cathedral
+  - source: location-saint-selena-cathedral
+    target: event-klein-becomes-a-seer
     relationship_type: event-location
     start:
       medium: novel

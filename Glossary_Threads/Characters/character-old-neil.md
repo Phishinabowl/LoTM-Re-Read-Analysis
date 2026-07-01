@@ -122,8 +122,8 @@ Later Old Neil developments, emotional consequences, and retrospective meaning m
 ## Open Questions
 
 - Question: Should Old Neil's employment relationship use a new `civilian-staff-of` relationship type, or should `member-of` remain the controlled relationship type for now?
-- Current confidence: Working Theory. `member-of` is sufficient for the current graph, but `civilian-staff-of` may become useful if staff/formal-member distinctions matter.
-- Needs EPUB verification: No; taxonomy decision needed.
+- Current confidence: Confirmed. `civilian-staff-of` is now the controlled relationship type for Old Neil's known Chapter 19 status.
+- Needs EPUB verification: No
 - Related investigation: [Old Neil Novel Volume 1 Reveal Timeline](../../Investigations/Characters/character-old-neil/novel-volume-1-reveal-timeline.md)
 
 - Question: Should `Mystery Pryer`, `Cogitation`, `Spirit Vision`, and `ritualistic magic` receive separate pathway/concept threads now?
@@ -177,7 +177,7 @@ Later Old Neil developments, emotional consequences, and retrospective meaning m
 relationships:
   - source: character-old-neil
     target: faction-church-of-evernight
-    relationship_type: member-of
+    relationship_type: civilian-staff-of
     start:
       medium: novel
       volume: 1
