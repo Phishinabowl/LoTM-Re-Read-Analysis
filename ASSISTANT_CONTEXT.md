@@ -14,6 +14,7 @@
 - Treat structured YAML knowledge-unit blocks as canonical; do not maintain separate claim files or duplicate JSON manually.
 - Use local Donghua `.ass` files as canonical evidence for their subtitle dialogue and timestamps, while treating silent visual details as separate visual evidence.
 - Keep all local source media under `Source/`, which is ignored by Git; preserve only paraphrased evidence and references in tracked records.
+- After completing a commit and push, continue directly into the next discussion or investigation question unless the user pauses or changes direction.
 
 The user is strongest at:
 

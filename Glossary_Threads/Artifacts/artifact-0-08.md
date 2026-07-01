@@ -65,12 +65,18 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 - What remains unknown: The artifact's actual function and limitations.
 - Why it matters: The story gives the reader a false possibility, then uses Ince's behavior to establish that 0-08 cannot provide effortless direct victory.
 
-### Donghua Season 1, Episode 10: Delayed First Mention
+### Chapter 96: Repeated Mention
 
-- What the viewer learns: Ince Zangwill escaped with Sealed Artifact 0-08; it is Grade 0, resembles an ordinary quill, and writes without ink.
-- Subtitle evidence: The designation appears around `00:05:14`; the Grade 0 explanation around `00:05:32`; and the quill description around `00:05:42`.
-- What remains unknown: The artifact's actual function and operating restrictions.
-- Why it matters: The adaptation preserves the core introductory information but moves it far later than novel Chapter 19 and places it after Old Neil's storyline.
+- What the reader learns: Ince lost control while attempting to advance to Sequence 4 and was a Gatekeeper.
+- What changes about 0-08: Nothing. Klein merely recalls that Ince stole it.
+- Why it matters: The complete timeline should record meaningful recurrences without manufacturing a new artifact revelation where none exists.
+
+### Chapters 98-99: Hidden Manipulator Clue
+
+- What the reader learns: Klein's fate contains disharmony; several coincidences may share an internal cause; and a terrifying hidden power can conceal its interference from ordinary divination.
+- What Klein suspects: His fate may be intertwined with the Antigonus notebook, while an unknown person associated with a red chimney may be behind the manipulation.
+- What remains unknown: The manipulator's identity and any connection to 0-08.
+- Why it matters: This is the first major reader-facing evidence of the causal mechanism later attributed to 0-08, but displaying that attribution before Chapter 210 would be a spoiler.
 
 ### Chapter 210: Story
 
@@ -84,9 +90,16 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 - What remains unknown: The exact mechanism and restrictions governing those arrangements.
 - Why it matters: The reader receives an explicit interpretive framework for what Chapter 210 demonstrated.
 
+### Donghua Season 1, Episode 10: Delayed First Mention
+
+- What the viewer learns: Ince Zangwill escaped with Sealed Artifact 0-08; it is Grade 0, resembles an ordinary quill, and writes without ink.
+- Subtitle evidence: The designation appears around `00:05:14`; the Grade 0 explanation around `00:05:32`; and the quill description around `00:05:42`.
+- What remains unknown: The artifact's actual function and operating restrictions.
+- Why it matters: The adaptation preserves the core introductory information but moves it far later than novel Chapter 19 and places it after Old Neil's storyline.
+
 ## Open Questions
 
-- Question: Which intermediate Volume 1 scenes meaningfully change the reader's understanding of 0-08 before Chapter 210?
+- Question: Which scenes after Chapter 99 further develop the hidden-manipulator mystery before Chapter 210?
 - Current confidence: Unknown
 - Needs EPUB verification: Yes
 - Related investigation: Not yet created
@@ -143,6 +156,8 @@ The two plain filenames below are essential planned threads. Additional referenc
 
 - Chapter 19: Dunn explicitly identifies 0-08, its Grade 0 classification, its appearance, its inkless writing, and its connection to Ince Zangwill.
 - Chapter 20: Klein briefly speculates that 0-08 kills anyone whose name is written, then rejects the theory because Ince's behavior is inconsistent with such unrestricted power.
+- Chapter 96: Klein recalls that Ince stole 0-08, but the scene adds only wielder context and no new artifact knowledge.
+- Chapters 98-99: Azik detects disharmony in Klein's fate, and Klein verifies hidden interference while suspecting the Antigonus notebook rather than 0-08.
 - Donghua Season 1, Episode 10: Subtitle evidence identifies 0-08 around `00:05:14`, explains its Grade 0 status around `00:05:32`, and describes the inkless quill around `00:05:42`.
 - Chapter 210: 0-08's written story retrospectively connects the pre-Tingen notebook transfer chain with the wider Tingen plot.
 - Chapter 212: Klein attributes Ince's arrangements and the plot's coincidences to 0-08 while inferring that the artifact has restrictions.
@@ -325,6 +340,66 @@ last_updated: 2026-06-30
 #### Adaptation Analysis
 
 - The Episode 10 subtitle conversation proceeds from the quill description to broader Sealed Artifact context without preserving Klein's direct-kill speculation. This is subtitle evidence only; silent visual or internal presentation remains unverified.
+
+### Knowledge Unit: 0-08 Was Behind the Hidden Interference Klein Detected
+
+```yaml
+id: 0-08-hidden-interference-in-kleins-fate
+claim: 0-08 was the hidden coordinating power behind the disharmony and natural-seeming coincidences that Klein begins investigating in Chapters 98-99.
+truth_status: true
+canon_scope: unresolved-difference
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: 98
+  notes: The investigation begins in Chapter 98 and confirms hidden interference in Chapter 99; some manipulated events occurred earlier.
+tags:
+  - volume-1
+  - chronology
+  - foreshadowing
+  - reader-knowledge
+  - reveal-order
+  - artifact
+disclosures:
+  - medium: novel
+    knowledge_state: strong-inference
+    disclosure_type: explicit-reveal
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 210
+    superseded_at:
+    superseded_by:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: confirmation
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 212
+    superseded_at:
+    superseded_by:
+adaptation_relationships:
+  - type: uncertain
+    novel_claim_changed: false
+    notes: The equivalent Donghua hidden-manipulator progression has not yet been fully investigated.
+related_investigations:
+  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-06-30
+```
+
+#### Reader-State History
+
+- Chapters 98-99 permit the reader to know that hidden interference exists, but not that 0-08 causes it.
+- Before Chapter 210, this claim must remain absent from an automatically filtered 0-08 page even though the underlying clue has already occurred.
+- Chapter 210 retrospectively connects the natural-seeming coincidences to Ince's written story, and Chapter 212 has Klein identify 0-08 as the likely mechanism.
+
+#### Adaptation Analysis
+
+- Donghua Episodes 11-13 contain a related mastermind progression, but its exact disclosure timeline remains to be documented in the Donghua investigation.
 
 ### Knowledge Unit: 0-08 Orchestrated the Notebook's Transfer Toward Tingen
 

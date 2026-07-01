@@ -6,7 +6,7 @@ What does the novel reader know about 0-08 at each meaningful point in Volume 1,
 
 ## Status
 
-In Progress. Checks 1 through 3 are EPUB verified.
+In Progress. Checks 1 through 5 are EPUB verified.
 
 ## Scope
 
@@ -40,7 +40,32 @@ Volume 1, from the first mention in Chapter 19 through Chapter 212.
 - Klein does not replace this guess with another theory; the artifact's actual function remains unknown.
 - Why it matters: This is the reader's first proposed model for 0-08's power and the first constraint inferred from Ince's behavior.
 
-### Check 3: Retrospective Causal Beginning
+### Check 3: Repeated Mention Without New Artifact Knowledge
+
+#### Chapter 96
+
+- During a discussion of High-Sequence Beyonders, Dunn says that Ince Zangwill lost control while attempting to advance to Sequence 4.
+- Klein recalls Ince as the person who stole 0-08 and remembers that Ince was a Gatekeeper.
+- The conversation clarifies Ince's failed advancement and pathway context but provides no new property, ability, or limitation of 0-08.
+- Why it matters: This is an explicit recurrence of the artifact's name, but not every recurrence should create a new reader-knowledge unit.
+
+### Check 4: Hidden Interference Without 0-08 Attribution
+
+#### Chapter 98
+
+- Azik detects disharmony in Klein's fate and asks whether he has experienced strange coincidences.
+- Klein identifies three suspicious chains, including the kidnappers leading the Nighthawks toward the Antigonus notebook.
+- Neither Azik nor Klein connects the disharmony to 0-08.
+- Why it matters: The reader is alerted to an unknown coordinating force but is not yet permitted to identify the artifact behind it.
+
+#### Chapter 99
+
+- Divination above the gray fog shows Klein that Beyonder interference affected the Elliott kidnapping despite leaving no trace in his earlier external divination.
+- Klein recognizes the hidden power as terrifying, sees the red-chimney clue, and feels that he and the Nighthawks are behaving like puppets without realizing it.
+- He wonders whether his fate is intertwined with the Antigonus notebook rather than considering 0-08.
+- Why it matters: Hidden manipulation is now confirmed for the reader, but its source remains an unresolved mystery.
+
+### Check 5: Retrospective Causal Beginning
 
 #### Chapter 210: Story
 
@@ -72,6 +97,14 @@ Chapter 20 briefly introduces and dismisses the possibility that 0-08 directly k
 
 ### Check 3
 
+Chapter 96 repeats the established connection between Ince and 0-08 while adding information about Ince's failed advancement. It does not change what the reader knows about the artifact itself, so it belongs in the chronology without creating another knowledge unit.
+
+### Check 4
+
+Chapters 98-99 establish that a hidden power has created natural-seeming coincidences and concealed its interference from ordinary divination. Klein detects the manipulation but does not attribute it to 0-08. At that reader position, the causal source must remain hidden on an 0-08 page.
+
+### Check 5
+
 The user's memory was directionally correct: Chapter 210 reveals the Antigonus notebook's arrival in Tingen as part of the opening setup of 0-08's written story.
 
 The earliest disclosed manipulation is more precisely the chain that causes the notebook to move toward Tingen. It begins with Regence mistakenly selling it under the influence of weariness and illusions, then continues through successive ownership changes until it reaches Tingen.
@@ -85,6 +118,6 @@ Chapter 210 provides strong contextual evidence that 0-08 orchestrated this chai
 
 ## Open Questions
 
-- Which intermediate clues alter the reader's understanding before Chapter 210?
+- Which clues after Chapter 99 further develop the hidden-manipulator mystery before Chapter 210?
 - Which apparent coincidences can be attributed to 0-08 by the end of Volume 1?
 - Donghua reveal timing is tracked separately in `2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md`.
