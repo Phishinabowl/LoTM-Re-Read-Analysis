@@ -114,6 +114,13 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 - What remains unknown: Whether the target truly detected Azik, how it did so, and whether 0-08 is involved.
 - Why it matters: The hidden mastermind is now modeled as a potentially adaptive opponent rather than a passive source of interference.
 
+#### Chapter 205: Manipulation Becomes Obvious
+
+- What the reader learns: Megose arrives immediately after the Nighthawks discover Lanevus's warning, making the newest coincidence too direct and obvious to dismiss.
+- What Klein concludes: The hidden mastermind is no longer concealing its intervention and may soon take center stage.
+- What remains unknown: The mastermind's identity and any connection to Ince or 0-08.
+- Why it matters: The conspiracy moves from hidden orchestration into an active endgame while preserving the final identity reveal.
+
 #### Chapter 210: Story
 
 - What the reader learns: Tingen's events have been represented as a mutable written story ending with Ince Zangwill holding the inkless quill.
@@ -149,6 +156,13 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 - Subtitle evidence: The designation appears around `00:05:14`; the Grade 0 explanation around `00:05:32`; and the quill description around `00:05:42`.
 - What remains unknown: The artifact's actual function and operating restrictions.
 - Why it matters: The adaptation preserves the core introductory information but moves it far later than novel Chapter 19 and places it after Old Neil's storyline.
+
+#### Season 1, Episode 12: Manipulation Becomes Obvious
+
+- What the viewer learns: Megose arrives within an hour of the Nighthawks finding Lanevus's letter.
+- What Klein concludes: The coincidence is direct and obvious, the mastermind is no longer hiding the manipulation, and the plan is entering its open phase.
+- What remains unknown: The mastermind's identity and its connection to Ince or 0-08.
+- Why it matters: The Donghua preserves the novel's endgame threshold while delaying explicit attribution until Episode 13.
 
 #### Season 1, Episodes 12-13: Characteristic Framework
 
@@ -219,9 +233,11 @@ The two plain filenames below are essential planned threads. Additional referenc
 - Chapters 106-149 and Chapter 210: Klein's citywide red-chimney search repeatedly misses the target because 0-08 steers his route choices away from the correct house.
 - Chapters 150, 210, and 212: The hidden mastermind steals Azik's child's skull; Ince later divides its descendant-of-Death characteristic between Megose's ritual and his own advancement plan.
 - Chapter 170: Azik infers that the target noticed his investigation and leaves Tingen partly to lower its guard.
+- Chapter 205: Megose's arrival immediately after Lanevus's warning makes the hidden manipulation too direct to dismiss, but the mastermind remains unidentified.
 - Donghua Season 1, Episodes 6-7: Teno is identified as Azik's child, and his stolen skull is explicitly labeled inside the Megose ritual flashback.
 - Donghua Season 1, Episodes 8 and 10: Azik infers that the mastermind noticed his prying, fortified its interference, and may lower its guard during his absence.
 - Donghua Season 1, Episode 10: Subtitle evidence identifies 0-08 around `00:05:14`, explains its Grade 0 status around `00:05:32`, and describes the inkless quill around `00:05:42`.
+- Donghua Season 1, Episode 12 around `00:17:31`: Klein calls Megose's timing direct and obvious and predicts that the mastermind is about to take center stage.
 - Donghua Season 1, Episodes 12-13: Subtitle evidence introduces the characteristic conservation law, the Death-descendant remnant used for Megose, and the remaining characteristic used in Ince's advancement.
 - Chapter 210: 0-08's written story retrospectively connects the pre-Tingen notebook transfer chain with the wider Tingen plot.
 - Chapter 212: Klein attributes Ince's arrangements and the plot's coincidences to 0-08 while inferring that the artifact has restrictions.
@@ -729,6 +745,80 @@ last_updated: 2026-06-30
 #### Adaptation Analysis
 
 - The Donghua strengthens the foreshadowing by placing Azik's warning and departure letter immediately before Klein discovers Ince's poster and learns about 0-08.
+
+### Knowledge Unit: The Mastermind Stops Concealing the Endgame
+
+```yaml
+id: 0-08-mastermind-stops-concealing-endgame
+claim: Megose's arrival immediately after Lanevus's warning makes the hidden orchestration too direct to dismiss, indicating that the mastermind is no longer concealing its intervention and is entering the endgame.
+truth_status: contextual
+canon_scope: shared
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: 205
+  notes: The Donghua presents the equivalent realization in Season 1, Episode 12.
+tags:
+  - volume-1
+  - chronology
+  - foreshadowing
+  - reader-knowledge
+  - reveal-order
+  - artifact
+disclosures:
+  - medium: novel
+    knowledge_state: strong-inference
+    disclosure_type: strong-inference
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 205
+    superseded_at:
+    superseded_by:
+  - medium: donghua
+    knowledge_state: strong-inference
+    disclosure_type: strong-inference
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 12
+      release_order: 12
+      timestamp: 00:17:38.01
+    superseded_at:
+    superseded_by:
+adaptation_relationships:
+  - type: faithful
+    novel_claim_changed: false
+    notes: The Donghua closely preserves Klein's realization that the final coincidence is direct, obvious, and no longer concealed.
+subject_attribution_from:
+  - medium: novel
+    position:
+      book: lotm-1
+      volume: 1
+      chapter: 210
+  - medium: donghua
+    position:
+      season: 1
+      installment_type: episode
+      episode: 13
+      release_order: 13
+related_investigations:
+  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
+  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-06-30
+```
+
+#### Reader-State History
+
+- Novel Chapter 205 and Donghua Episode 12 make the generic endgame inference available without identifying the mastermind.
+- `subject_attribution_from` withholds the unit from the 0-08 page until novel Chapter 210 or Donghua Episode 13.
+
+#### Adaptation Analysis
+
+- The Donghua closely preserves the novel's threshold while making Klein's wording especially direct.
 
 ### Knowledge Unit: 0-08 Orchestrated the Notebook's Transfer Toward Tingen
 

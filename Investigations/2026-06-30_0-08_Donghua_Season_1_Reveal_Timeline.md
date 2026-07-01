@@ -6,7 +6,7 @@ What does a Donghua viewer know about 0-08 at each meaningful point in Season 1,
 
 ## Status
 
-In Progress. Checks 1 through 3 are subtitle verified. The Episode 10 introduction staging and Episode 7 skull placement are user-verified visual evidence; other visual details remain under investigation.
+In Progress. Checks 1 through 5 are subtitle verified. The Episode 10 introduction staging and Episode 7 skull placement are user-verified visual evidence; other visual details remain under investigation.
 
 ## Scope
 
@@ -28,17 +28,19 @@ Donghua Season 1, Episodes 1-13. Current subtitle source coverage does not inclu
 
 ## Evidence
 
-### Check 1: First Explicit Introduction
+### Check 1: Teno Skull and the Megose Ritual
 
-#### Episode 10: Clue
+#### Episode 6: Teacher
 
-- Around `00:05:00`, the dialogue identifies the object under discussion as a wanted poster.
-- Around `00:05:14`, the dialogue explicitly names Sealed Artifact 0-08 as the artifact taken by Ince Zangwill.
-- Around `00:05:32`, the dialogue identifies it as Grade 0 and explains the extreme confidentiality attached to that grade.
-- Around `00:05:42`, the dialogue describes 0-08 as resembling an ordinary quill that writes without ink.
-- User-verified visual evidence places Klein in Old Neil's workshop reading a notebook or journal among Neil's papers. After reading Azik's letter, Klein drops the enclosed whistle, bends to retrieve it, and then hurriedly rises when he hears approaching footsteps.
-- Klein knocks over the notebook or journal, catches it, and causes Ince Zangwill's wanted poster to fall out. Dunn sees Klein holding the poster, which begins the conversation about Ince and 0-08.
-- Why it matters: The Donghua preserves the core facts of the novel's Chapter 19 introduction but delays them until Episode 10, after Old Neil's storyline.
+- Near the end of the episode, dialogue establishes that someone stole Azik's child's skull, and an on-screen sign identifies the buried knight as Teno Eggers.
+- Why it matters: The viewer can identify Teno as Azik's child before seeing the skull used elsewhere.
+
+#### Episode 7: Coincidence
+
+- Around `00:29:49`, an on-screen sign marks a flashback as occurring one month earlier.
+- Around `00:29:54`, an on-screen sign explicitly labels the object as Teno Eggers's skull.
+- The same sequence identifies Lanevus and Hood Eugen, while the user directly verified that the animation shows the skull within the Megose ritual setup.
+- Why it matters: The Donghua explicitly connects the stolen skull to the Megose ritual long before introducing formal Beyonder-characteristic terminology.
 
 ### Check 2: Target Awareness and Azik's Departure
 
@@ -54,19 +56,19 @@ Donghua Season 1, Episodes 1-13. Current subtitle source coverage does not inclu
 - Immediately afterward, Klein's accidental discovery of Ince's wanted poster leads into the first explicit 0-08 explanation.
 - Why it matters: The Donghua places the adaptive-mastermind warning directly beside the delayed introduction of Ince and 0-08 without yet making the causal connection explicit.
 
-### Check 3: Beyonder Characteristics and the Death-Descendant Remnant
+### Check 3: First Explicit 0-08 Introduction
 
-#### Episode 6: Teacher
+#### Episode 10: Clue
 
-- Near the end of the episode, dialogue establishes that someone stole Azik's child's skull, and an on-screen sign identifies the buried knight as Teno Eggers.
-- Why it matters: The viewer can identify Teno as Azik's child before seeing the skull used elsewhere.
+- Around `00:05:00`, the dialogue identifies the object under discussion as a wanted poster.
+- Around `00:05:14`, the dialogue explicitly names Sealed Artifact 0-08 as the artifact taken by Ince Zangwill.
+- Around `00:05:32`, the dialogue identifies it as Grade 0 and explains the extreme confidentiality attached to that grade.
+- Around `00:05:42`, the dialogue describes 0-08 as resembling an ordinary quill that writes without ink.
+- User-verified visual evidence places Klein in Old Neil's workshop reading a notebook or journal among Neil's papers. After reading Azik's letter, Klein drops the enclosed whistle, bends to retrieve it, and then hurriedly rises when he hears approaching footsteps.
+- Klein knocks over the notebook or journal, catches it, and causes Ince Zangwill's wanted poster to fall out. Dunn sees Klein holding the poster, which begins the conversation about Ince and 0-08.
+- Why it matters: The Donghua preserves the core facts of the novel's Chapter 19 introduction but delays them until Episode 10, after Old Neil's storyline.
 
-#### Episode 7: Coincidence
-
-- Around `00:29:49`, an on-screen sign marks a flashback as occurring one month earlier.
-- Around `00:29:54`, an on-screen sign explicitly labels the object as Teno Eggers's skull.
-- The same sequence identifies Lanevus and Hood Eugen, while the user directly verified that the animation shows the skull within the Megose ritual setup.
-- Why it matters: The Donghua explicitly connects the stolen skull to the Megose ritual long before introducing formal Beyonder-characteristic terminology.
+### Check 4: Beyonder Characteristics and the Death-Descendant Remnant
 
 #### Episode 10: Clue
 
@@ -87,13 +89,21 @@ Donghua Season 1, Episodes 1-13. Current subtitle source coverage does not inclu
 - Combined with Episodes 6-7, it also supports a strong inference that Teno's stolen skull supplied that characteristic, although the extraction is not stated directly.
 - Why it matters: Donghua viewers can assemble both the divided use and probable skull source by Episode 13.
 
+### Check 5: Megose's Arrival Makes the Manipulation Obvious
+
+#### Episode 12: Bomb
+
+- Around `00:17:23`, Klein notes that Megose arrived within an hour of the Nighthawks finding Lanevus's letter.
+- Around `00:17:31`, he identifies the timing as another coincidence, then calls it direct and obvious.
+- Around `00:17:35`, he says the mastermind is no longer hiding the manipulation.
+- Around `00:17:38`, he predicts that the mastermind is about to take center stage.
+- Why it matters: The viewer's model advances from concealed manipulation to an active endgame without yet identifying Ince or 0-08 as the source.
+
 ## Interim Conclusions
 
 ### Check 1
 
-The Donghua first explicitly names and describes 0-08 in Episode 10. The `0-08` designation, Grade 0 classification, Ince Zangwill connection, quill appearance, and inkless writing are disclosed within one conversation.
-
-Compared with the novel's Chapter 19 introduction, the adaptation relationship is `revealed-later` and `recontextualized`. Subtitle evidence verifies the dialogue and timing, while user-verified visual evidence establishes that the poster is discovered accidentally among Old Neil's papers after Klein receives Azik's letter in the workshop.
+Episodes 6-7 identify Teno as Azik's child and explicitly place his stolen skull in the Megose ritual before the Donghua teaches the formal characteristic framework.
 
 ### Check 2
 
@@ -101,7 +111,15 @@ Episodes 8 and 10 preserve Azik's inference that the mastermind noticed investig
 
 ### Check 3
 
+The Donghua first explicitly names and describes 0-08 in Episode 10. Compared with novel Chapter 19, the reveal is `revealed-later` and `recontextualized` through the accidental discovery of Ince's poster among Old Neil's papers.
+
+### Check 4
+
 Donghua viewers do not have formal Beyonder-characteristic knowledge before Episode 12. They nevertheless see Teno's stolen skull used in the Megose ritual in Episode 7. Episode 10 supplies a simplified precursor, Episode 12 establishes the term and conservation law, and Episode 13 supports both the divided-use inference and the strong inference that Teno's skull supplied the characteristic.
+
+### Check 5
+
+Episode 12 makes hostile orchestration undeniable to Klein and the viewer without revealing its source. Megose's arrival is so direct that Klein expects the hidden mastermind to enter the open phase of the plan.
 
 ## Board Updates
 

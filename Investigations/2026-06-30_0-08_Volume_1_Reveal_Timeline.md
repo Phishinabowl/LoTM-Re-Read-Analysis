@@ -6,7 +6,7 @@ What does the novel reader know about 0-08 at each meaningful point in Volume 1,
 
 ## Status
 
-In Progress. Checks 1 through 9 are EPUB verified.
+In Progress. Checks 1 through 10 are EPUB verified.
 
 ## Scope
 
@@ -107,7 +107,18 @@ Volume 1, from the first mention in Chapter 19 through Chapter 212.
 - Why it matters: The reader's threat model advances from a hidden force that manipulates and conceals interference to a possible adaptive opponent that can notice investigation and deliberately become inactive.
 - Confidence limit: Azik presents this as a reasoned possibility, not a verified ability of the target.
 
-### Check 8: Characteristic Framework and the Skull's Later Purpose
+### Check 8: Megose's Arrival Makes the Manipulation Obvious
+
+#### Chapter 205
+
+- Megose arrives at Blackthorn Security Company immediately after the Nighthawks discover and interpret Lanevus's warning.
+- Klein compares this timing with the earlier subtle coincidence chains and concludes that this coincidence is too direct and obvious to remain hidden.
+- He warns Dunn that the person behind the events may soon take center stage.
+- Dunn includes the hidden-mastermind concern in the telegram requesting assistance.
+- Why it matters: The reader's model advances from concealed long-term manipulation to an active endgame in which the mastermind no longer appears concerned with hiding its intervention.
+- Attribution limit: Klein still does not identify Ince or 0-08.
+
+### Check 9: Characteristic Framework and the Skull's Later Purpose
 
 #### Chapter 207
 
@@ -127,7 +138,7 @@ Volume 1, from the first mention in Chapter 19 through Chapter 212.
 - Klein reconstructs Ince's advancement plan and identifies the stolen skull of Death's descendant as a likely ritual ingredient.
 - Why it matters: The reader can now connect the Chapter 150 theft to the characteristic used in both ritual chains, although Klein's skull-to-characteristic link remains an evidence-based inference.
 
-### Check 9: Retrospective Causal Beginning
+### Check 10: Retrospective Causal Beginning
 
 #### Chapter 210: Story
 
@@ -179,11 +190,15 @@ Chapter 170 adds a strong but unconfirmed inference that the hidden target can n
 
 ### Check 8
 
+Chapter 205 makes hostile orchestration undeniable to Klein without revealing its source. Megose's timing is so direct that Klein expects the hidden mastermind to enter the open phase of its plan.
+
+### Check 9
+
 Chapter 207 provides the general characteristic-transfer law, Chapter 210 explicitly demonstrates divisibility through Ince's two ritual uses, and Chapter 212 supplies Klein's inference that the stolen skull was the characteristic's source.
 
 The Secret Order did not perform the Megose ritual. Lanevus and Hood Eugen conducted it, Ince assisted secretly, and Sirius's Aurora Order connection entered through Lanevus's later warning.
 
-### Check 9
+### Check 10
 
 The user's memory was directionally correct: Chapter 210 reveals the Antigonus notebook's arrival in Tingen as part of the opening setup of 0-08's written story.
 
