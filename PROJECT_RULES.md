@@ -784,8 +784,8 @@ Examples:
 ```text
 Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
 Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
-Investigations/Factions/faction-church-of-evernight/novel-volume-1-foundation.md
-Investigations/Factions/faction-church-of-evernight/donghua-season-1-foundation.md
+Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md
+Investigations/Factions/faction-church-of-evernight/donghua-season-1-reveal-timeline.md
 Investigations/Project/2026-07-01_board-methodology.md
 ```
 
@@ -795,6 +795,7 @@ Group investigations by subject and bounded analytical scope, not by individual 
 
 - Use one focused file for a genuinely standalone question.
 - For glossary reconstruction, use one living investigation per subject, medium, and bounded arc, such as one novel volume or one Donghua season.
+- Use `reveal-timeline` as the default scope name for glossary investigations because their normal purpose is reconstructing the subject's reader-safe disclosure chronology.
 - Append additional checks to the existing file when the subject, medium, and scope remain the same.
 - Create a new file when the medium or bounded arc changes, or when a separate dispute would make the existing record difficult to understand.
 - Do not include investigation dates in glossary-linked filenames. The durable identity is the subject, source, and scope, not the day the research happened.

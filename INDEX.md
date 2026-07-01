@@ -19,6 +19,7 @@ Navigation hub for the reread analysis workspace.
 - [Investigation Template](Investigations/TEMPLATE.md)
 - [0-08 Volume 1 Reveal Timeline](Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md)
 - [0-08 Donghua Season 1 Reveal Timeline](Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md)
+- [Church of Evernight Volume 1 Reveal Timeline](Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
 
 Glossary-linked investigations are organized by thread type and subject, with separate files per source medium and bounded scope.
 

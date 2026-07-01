@@ -5,7 +5,7 @@
 Type: Faction
 Status: Active
 First Mention Volume: 1
-Current Analysis Status: Foundation thread started; needs Volume 1 EPUB and Donghua verification
+Current Analysis Status: Novel Volume 1 reveal timeline in progress; Donghua verification not started
 Confidence Level: Working Theory
 Spoiler Boundary: Volume 1
 Reader Knowledge Boundary: Novel Volume 1; Donghua Season 1
@@ -16,7 +16,7 @@ Related Threads:
 -
 
 Related Investigations:
--
+- [Church of Evernight Volume 1 Reveal Timeline](../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
 
 ## Purpose
 
@@ -43,9 +43,9 @@ Later information about the Church of Evernight, its high-level structure, its h
 ### Novel
 
 - Volume: 1
-- Chapter: TBD
-- Context: Needs EPUB verification.
-- Reader knowledge state: The exact first moment where the Church of Evernight becomes meaningful as an institution is not yet pinned down.
+- Chapter: 1 (first reference); 3 (first meaningful public-institution context); 6 (first Nighthawks name)
+- Context: Chapter 1 identifies Klein's mother as an Evernight devotee. Chapter 3 presents the Church through Sunday schools and public education. Chapter 6 names the Nighthawks among official organizations broadly connected with orthodox Churches.
+- Reader knowledge state: The reader first encounters Evernight as family religion, then the Church as part of ordinary Loen society, and finally the unexplained Nighthawks name before meeting the Tingen team.
 
 ### Donghua
 
@@ -59,6 +59,30 @@ Later information about the Church of Evernight, its high-level structure, its h
 ## Chronological Development
 
 ### Novel
+
+#### Chapters 1-6: Religion, Public Institution, and the Nighthawks Name
+
+- Chapter 1 first references the Evernight faith through Klein's family background.
+- Chapter 3 first presents the Church as a public institution through its educational role.
+- Chapter 6 first names the Nighthawks alongside the Mandated Punishers and Machinery Hivemind in the context of orthodox-Church access to Beyonder power.
+- The reader does not yet receive a direct organization-to-Church mapping for all three named groups.
+
+#### Chapters 10-13: Police Cover and Identity Reveal
+
+- Dunn and Leonard first appear in Chapter 10 as police investigators questioning Klein.
+- Dunn uses dream-guidance during the Chapter 12 investigation.
+- In Chapter 13, Dunn reintroduces himself as a Nighthawk, and Klein connects the identity to the Church of Evernight's Beyonder teams.
+
+#### Chapters 14-17: Recruitment and Institutional Structure
+
+- Dunn raises civilian recruitment in Chapter 14 and formally invites Klein in Chapter 15.
+- Klein sees the Blackthorn Security Company cover in Chapter 16 and joins in Chapter 17.
+- Chapter 17 explains the team's Church affiliation, police identity, territorial jurisdiction, civilian staff, and relationship to the corresponding organizations of other orthodox Churches.
+
+#### Chapters 18-19: Ethos and Supernatural Custody
+
+- Dunn explains losing control, advancement caution, and the Nighthawks' guardian ethos.
+- Chanis Gate and the Sealed Artifact system establish the Church as a formal custodian of supernatural dangers, knowledge, materials, and prisoners.
 
 #### Volume 1: Parent Institution for the Tingen Nighthawks
 
@@ -77,6 +101,13 @@ Later information about the Church of Evernight, its high-level structure, its h
 - Known Tingen members: Dunn Smith, Leonard Mitchell, Old Neil, Royale Reideen, Seeka Tron, Kenley White, Frye, and Klein Moretti after recruitment.
 - What remains unknown: Exact ranks, jurisdiction boundaries, inter-city command structure, and the full rules governing Church-held sealed artifacts.
 - Why it matters: The Nighthawks are Klein's first team, first training structure, first source of official occult knowledge, and the emotional center of Volume 1's ending.
+
+##### Red Gloves
+
+- Parent organization: Nighthawks of the Church of Evernight.
+- Volume 1 reader-safe disclosure: After the Tingen disaster, Leonard decides to apply to join the Red Gloves while pursuing revenge against Ince Zangwill and 0-08.
+- Current analysis status: Embedded foundation only. The first mention, broader duties, hierarchy, recruitment requirements, and relationship to local Nighthawk teams still require chronological verification.
+- Why it matters: The Red Gloves extend the reader's view of the Nighthawks beyond the local Tingen team and become part of the institutional response to the Volume 1 tragedy.
 
 #### Volume 1: Chanis Gate and Sealed Artifact Custody
 
@@ -101,14 +132,14 @@ Later information about the Church of Evernight, its high-level structure, its h
 ## Open Questions
 
 - Question: What is the exact first novel chapter where the Church of Evernight is introduced as a meaningful institution rather than background religion?
-- Current confidence: Unknown
-- Needs EPUB verification: Yes
-- Related investigation:
+- Current confidence: Confirmed. Chapter 1 is the first Evernight reference; Chapter 3 is the first meaningful public-institution context.
+- Needs EPUB verification: No
+- Related investigation: [Church of Evernight Volume 1 Reveal Timeline](../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
 
 - Question: What is the exact first novel chapter where the Nighthawks are named and connected to the Church of Evernight?
-- Current confidence: Unknown
-- Needs EPUB verification: Yes
-- Related investigation:
+- Current confidence: Confirmed. Chapter 6 first names them in broad orthodox-Church context; Chapter 13 explicitly identifies Dunn and connects the Nighthawks to the Church of Evernight.
+- Needs EPUB verification: No
+- Related investigation: [Church of Evernight Volume 1 Reveal Timeline](../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
 
 - Question: What is the exact first Donghua episode/timestamp where the Nighthawks are named and framed as the Church of Evernight's official Beyonder organization?
 - Current confidence: Unknown
@@ -145,8 +176,7 @@ Use Markdown links when the target file exists. Mention a nonexistent thread as 
 
 ### Associated Factions
 
-- faction-nighthawks.md
-- faction-red-gloves.md
+-
 
 ### Associated Characters
 
@@ -205,7 +235,7 @@ relationships:
 
 ## Evidence Index
 
-- Chapter: TBD
+- Chapters: 1, 3, 6, 10, 12-19
 - Donghua Episode: TBD
 
 ## Reader Knowledge Ledger
