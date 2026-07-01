@@ -8,9 +8,9 @@ This repository is an independent reread analysis project.
 
 No source text is included.
 
-The repository contains notes, chronology analysis, investigations, and research artifacts derived from a personal reread of **Lord of the Mysteries**.
+The repository contains notes, chronology analysis, investigations, adaptation comparisons, and research artifacts derived from a personal reread and Donghua analysis of **Lord of the Mysteries**.
 
-The EPUB is intentionally excluded from version control.
+The novel EPUB, Donghua subtitle files, and any future local source materials are intentionally excluded from version control.
 
 ---
 
@@ -23,6 +23,8 @@ The project is focused on investigation rather than summary:
 - Historical causality
 - Family lineages
 - Reader knowledge state
+- Novel and Donghua disclosure differences
+- Spoiler-safe knowledge timelines by chapter and episode
 
 ## Spoiler Policy
 
@@ -37,11 +39,13 @@ Default workflow:
 ```text
 Memory reconstruction
 -> Working theory
--> EPUB verification, if needed
+-> Source verification, if needed
 -> Board update
 ```
 
-The EPUB is used as the canonical source only when verification is needed. External summaries, wikis, fandom pages, Reddit posts, and memory are not used as evidence when verification is required.
+The EPUB is the canonical source for novel verification. Local `.ass` subtitle files are the canonical source for the dialogue, translated text, and timestamps contained in the Donghua subtitle release. Silent visual details require separate visual verification from the episode.
+
+External summaries, wikis, fandom pages, Reddit posts, and memory are not used as evidence when source verification is required.
 
 ## Project Map
 
@@ -62,7 +66,7 @@ Glossary_Threads/
 
 Source/
   README.md
-  Lord of Mysteries - Book 1.epub
+  local EPUB, Donghua subtitles, and future source materials (Git ignored)
 
 ASSISTANT_CONTEXT.md
 CURRENT_STATE.md
@@ -75,4 +79,4 @@ Embedded Reader Knowledge Ledger entries give every glossary subject a complete 
 
 Git commits should mark durable project knowledge changes, not ordinary discussion.
 
-The EPUB source file is local-only and ignored by Git.
+The entire `Source/` directory is ignored by Git so copyrighted source materials cannot be committed accidentally. The already tracked `Source/README.md` remains as public documentation; the EPUB, Donghua subtitles, and future local source files remain local-only.
