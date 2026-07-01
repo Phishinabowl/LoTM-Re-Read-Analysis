@@ -231,6 +231,97 @@ Related Investigations:
 
 Use filenames without paths for metadata references unless a full Markdown link is useful.
 
+## Glossary House Style
+
+Glossary pages are synthesis records. They should be readable as articles while still supporting future filtering, dashboards, and relationship graphs.
+
+Use the same top-level section order as `Glossary_Threads/TEMPLATE.md` unless there is a strong reason to deviate:
+
+1. Metadata
+2. Purpose
+3. Spoiler Boundary
+4. Reader Knowledge Boundary
+5. First Appearance / First Meaningful Mention
+6. Chronological Development
+7. Open Questions
+8. Related Threads
+9. Relationship Seeds
+10. Evidence Index
+11. Reader Knowledge Ledger
+12. Future Automation Notes
+13. Notes
+
+### Chronological Development Style
+
+Every meaningful chronological arc should explain why the project cares about it, not merely list events.
+
+Default novel arc format:
+
+```markdown
+#### Chapters X-Y: Arc Name
+
+- What the reader learns:
+- What changes:
+- What remains unknown:
+- Why it matters:
+```
+
+Default single-chapter format:
+
+```markdown
+#### Chapter X: Event Name
+
+- What the reader learns:
+- What changes:
+- What remains unknown:
+- Why it matters:
+```
+
+Default Donghua arc format:
+
+```markdown
+#### Season X, Episode Y: Event Name
+
+- Timestamp:
+- What the viewer learns:
+- What changes:
+- What remains unknown:
+- Why it matters:
+```
+
+Use `What happens`, `When the reader learns the connection`, `Attribution boundary`, `Visual/audio evidence`, `Adaptation difference`, `Institutional detail`, or similar extra labels only when the arc genuinely needs that distinction. Do not add extra labels just for decoration.
+
+For very small bridge entries, still include `Why it matters` and make the limited significance explicit.
+
+### Knowledge Unit Style
+
+Knowledge units should keep the structured YAML model from the template. They are intentionally more verbose than prose because they will support future spoiler filtering and dashboards.
+
+Every durable knowledge unit should include:
+
+- `claim`
+- `truth_status`
+- `confidence_level`
+- `canon_scope`
+- `occurs_at`
+- `tags`
+- `disclosures`
+- `related_investigations`
+- `related_boards`
+- `last_updated`
+- `Reader-State History`
+- `Adaptation Analysis`
+
+Add `evidence_basis` and `confidence_history` only when confidence actually evolves in an analytically meaningful way. Do not force confidence-history blocks onto simple confirmed facts.
+
+### Article Boundary Style
+
+Each article has its own reader boundary based on completed investigations already incorporated into that article.
+
+Do not downgrade or remove established material from one article merely because another active analysis thread is currently working through an earlier chapter.
+
+New work should normally be additive. Remove or rewrite existing material only when it is incorrect, duplicated in a harmful way, or structurally misleading.
+
 ## Controlled Tag Taxonomy
 
 Tags are allowed only from controlled categories.

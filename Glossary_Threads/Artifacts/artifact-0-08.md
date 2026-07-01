@@ -162,7 +162,7 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 - What remains unknown: The formal Beyonder-characteristic framework, the extraction process, Ince's role, and any connection to 0-08.
 - Why it matters: The Donghua reveals the skull's ritual destination early while withholding the system that explains what the skull contributes.
 
-#### Season 1, Episodes 7-8: Red-Smockestack Obstruction
+#### Season 1, Episodes 7-8: Red-Smokestack Obstruction
 
 - Episode 7 visual evidence: Around `00:29:00`, Klein reaches a conspicuous red-smokestack building through the gray fog but is forcefully repelled as surrounding buildings obscure the target and he is thrown back into The Fool's chair.
 - Episode 7 dialogue: Around `00:29:23-00:29:25`, Klein identifies the red smokestacks and says whoever is pulling the strings is located there.
@@ -359,7 +359,7 @@ Verified occurrence audit through Episode 13:
 - Retrospective interpretation: The motif strongly connects Teno's skull theft to Ince and 0-08's plot.
 - Why it matters: The quill now marks a shared hidden source operating beyond the original notebook and kidnapping incidents.
 
-#### Season 1, Episode 7: Notebook Origin, Detection, and Red-Smockestack Obstruction
+#### Season 1, Episode 7: Notebook Origin, Detection, and Red-Smokestack Obstruction
 
 - Around `00:01:56`, the spectral quill appears as Azik asks Klein to chart recent coincidences beginning with the Antigonus notebook; the scene enters a flashback of the notebook's ownership chain.
 - Around `00:02:15`, the episode-title card includes the on-screen line "This story is reasonable."

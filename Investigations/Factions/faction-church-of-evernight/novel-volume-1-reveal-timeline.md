@@ -10,24 +10,24 @@ What does the novel reader know about the Church of Evernight, its Nighthawks or
 
 ## Status
 
-In Progress. The opening institutional disclosure from Chapters 1-19 and the bridge arc through Chapters 20-26 are EPUB verified. The chronological sweep beyond Chapter 26 is intentionally paused for user-guided review.
+In Progress. The opening institutional disclosure from Chapters 1-19, the bridge arc through Chapters 20-26, and the pathway access arc through Chapters 28-31 are EPUB verified. The chronological sweep beyond Chapter 31 is intentionally paused for user-guided review.
 
 ## Scope
 
 ### Endpoint Event
 
-The complete Volume 1 reader-disclosure timeline for the Church of Evernight and the Tingen Nighthawks, built chronologically in bounded arcs. Current verified endpoint is Chapter 26.
+The complete Volume 1 reader-disclosure timeline for the Church of Evernight and the Tingen Nighthawks, built chronologically in bounded arcs. Current verified endpoint is Chapter 31.
 
 ### Investigation Window
 
-Volume 1, Chapters 1-213. Current active review window: Chapters 1-26.
+Volume 1, Chapters 1-213. Current active review window: Chapters 1-31.
 
 ## Search Strategy
 
 - Initial terms, names, and aliases: Evernight, Evernight Goddess, Church of Evernight, Nighthawk, Dunn Smith, Leonard Mitchell, Blackthorn Security Company
 - Related effects, events, characters, locations, or motifs: police inspectors, Beyonder teams, official Beyonders, Seventh Unit, Special Operations Department, Saint Selena Cathedral, Chanis Gate, civilian staff, Sealed Artifacts
-- Terms discovered during the investigation: Mandated Punishers, Machinery Hivemind, Church and police funding, tribunal courts, Archbishop Chanis, Keepers, Holy Cathedral, Special Operations badge, Zouteland Shooting Club, Sleepless, Midnight Poet, Nightmare, Saint Selena Cathedral route
-- Completeness sweep: Current bounded sweep complete through Chapter 26. Later speedrun findings are not treated as finalized until reviewed in chronological arcs with the user.
+- Terms discovered during the investigation: Mandated Punishers, Machinery Hivemind, Church and police funding, tribunal courts, Archbishop Chanis, Keepers, Holy Cathedral, Special Operations badge, Zouteland Shooting Club, Sleepless, Midnight Poet, Nightmare, Saint Selena Cathedral route, Secret Order, Moses Ascetic Order, Corpse Collector, Seer, alchemy room
+- Completeness sweep: Current bounded sweep complete through Chapter 31. Later speedrun findings are not treated as finalized until reviewed in chronological arcs with the user.
 
 ## Evidence
 
@@ -175,6 +175,49 @@ Volume 1, Chapters 1-213. Current active review window: Chapters 1-26.
 - Dunn treats the tailing as a Nighthawk operational problem and sends Klein back out through the cathedral route to draw out the observer.
 - Why it matters: The Church's visible sacred space, hidden Beyonder infrastructure, and police-facing Nighthawk function all operate together in a live incident.
 
+### Check 10: Chapter 27 Bridge, Dunn's Dream Warning
+
+#### Chapter 27
+
+- Dunn appears in Klein's dream to warn him that someone has sneaked into his room.
+- Why it matters: This is not a major new institutional reveal, but it bridges the Chapter 25-26 tailing/cathedral route into the Chapter 28 Secret Order follow-up. It also reinforces Dunn's `Nightmare` capability as an operational protective tool.
+
+### Check 11: Pathway Access and Klein's Nonstandard Beyonder Status
+
+#### Chapter 28
+
+- Dunn identifies the intruder's background as the Secret Order, an ancient organization from the Fourth Epoch tied to the Solomon Empire and fallen aristocrats.
+- Because Klein's sharp response may help locate the Antigonus notebook and because hidden danger remains, Dunn offers him the chance to become a Beyonder.
+- Dunn says Klein can only choose the starting Sequence of an incomplete pathway unless he gives up the chance and waits for an opportunity to become a `Sleepless`, the first complete Sequence the Goddess bestowed on the Nighthawks.
+- Dunn says that, apart from `Sleepless`, the Church has three Sequence 9 potion formulas: `Mystery Pryer`, `Corpse Collector`, and `Seer`.
+- `Mystery Pryer` is connected to Old Neil and to formulas obtained from the Moses Ascetic Order; the Church lacks a large portion of the chain, including Sequence 8 locally, though Dunn allows that the Holy Cathedral may have it.
+- `Corpse Collector` is associated with Death-worshiping cultists in the Southern Continent. The Church has Sequence 8 and Sequence 7 following it, and Dunn identifies Sequence 7 as `Spirit Medium`, the path Daly chose.
+- `Seer` is available to the Church only as Sequence 9 from Dunn's local knowledge, and he is unsure whether the Holy Cathedral has more.
+- Why it matters: The reader learns that Church-controlled access to Beyonder power is not simply a yes/no choice. It depends on available formulas, pathway completeness, local holdings, Holy Cathedral uncertainty, personal risk, and institutional need.
+
+#### Chapter 29
+
+- Dunn explains that a `Seer` gains qualifications and ability to learn divination methods such as astromancy, cartomancy, spiritual pendulums, and scrying, rather than instant mastery.
+- He says Seers lack direct combat methods but are more learned and professional in mysticism than Mystery Pryers.
+- Dunn gives Klein until Monday morning to choose and says the Nighthawks will not judge him regardless of whether he chooses a pathway or gives up the chance.
+- Why it matters: The reader's understanding of pathways becomes more practical: potion choice shapes learning capacity, combat utility, danger, and career support.
+
+#### Chapter 30
+
+- Klein arrives at Blackthorn after moving house and tells Dunn that he chooses `Seer`.
+- Why it matters: Klein's eventual pathway connection is decided inside the Nighthawks' workplace, under Church-controlled access.
+
+#### Chapter 31
+
+- Dunn warns Klein that consuming the potion leaves no room for regret.
+- Dunn leads Klein underground and, at the intersection, turns toward Saint Selena Cathedral rather than toward Chanis Gate, weapons, materials, or archives.
+- Dunn opens a secret door and identifies the Nighthawks team's alchemy room.
+- Dunn says Old Neil will retrieve the Seer potion formula and corresponding materials from inside Chanis Gate.
+- Dunn notes that the team still has materials for two Seer potions; otherwise Klein would need to wait.
+- Dunn explicitly says Klein is becoming a Beyonder because he must face danger and help find the notebook, but he will not become a team member yet. He remains civilian staff with the same salary and is assigned to learn mysticism with Old Neil.
+- Old Neil prepares the Seer potion in the alchemy room, using the formula and materials retrieved through Nighthawk/Chanis access.
+- Why it matters: The novel separates civilian staff, Church-supported Beyonder, and formal Nighthawk membership. It also shows that formula custody, material custody, alchemy-room practice, and Chanis Gate access are part of the Church/Nighthawks institutional pipeline.
+
 ## Interim Conclusions
 
 ### Opening Disclosure Structure
@@ -191,6 +234,8 @@ The novel does not introduce the Church of Evernight and the Nighthawks in one e
 8. The Nighthawks' ethos and the Church's custody of supernatural dangers.
 9. Workplace logistics, equipment, badges, shooting practice, and first pathway map.
 10. Saint Selena Cathedral as a public-safe and hidden-operational route.
+11. Dunn's dream warning as a bridge from surveillance to Secret Order follow-up.
+12. Church-controlled pathway access, incomplete formula chains, and Klein's Seer choice.
 
 This staging means first mention, first appearance, first identifiable appearance, and first complete institutional explanation must remain separate disclosure points.
 
@@ -210,13 +255,17 @@ Chapters 20-26 do not introduce a new parent organization, but they materially c
 
 By Chapter 22, the reader knows the Church of Evernight's complete pathway begins with `Sleepless` and reaches `Midnight Poet` and `Nightmare` by Sequence 7. The reader has also heard `Mystery Pryer` and `Spirit Medium` as incomplete pathway examples, but Klein has not yet made his own pathway choice.
 
+### Pathway Access Arc
+
+Chapters 28-31 turn pathway knowledge into institutional procedure. The Church can offer Klein incomplete Sequence 9 choices because of his contribution and danger exposure, but the complete Nighthawks pathway remains `Sleepless`. Klein chooses `Seer`, receives formula/material access through Nighthawk custody, and becomes a Beyonder while still remaining civilian staff.
+
 ## Board Updates
 
-- Board 1: Possible small update after user review. Chapters 20-26 clarify the Church/Nighthawks as Klein's first workplace and as an operational refuge through Saint Selena Cathedral.
+- Board 1: Possible update after user review. Chapters 20-31 clarify the Church/Nighthawks as Klein's first workplace, operational refuge, and controlled entry point into Beyonder pathway selection.
 - Board 2: No update. The verified opening sequence does not materially change the ancient-history or family chronology.
 
 ## Open Questions
 
-- Should the pathway placeholders from Chapter 22 remain plain references until their own pathway threads exist?
+- Should the pathway placeholders from Chapters 22 and 28-31 remain plain references until their own pathway threads exist?
 - Should the Selena/St. Selena naming detail be held for a later location/saint-specific thread rather than the main Church article?
-- In the next arc, should Chapter 28's pathway-choice explanation supersede, expand, or split the Chapter 22 `Sleepless` knowledge unit?
+- Should the Chapter 28 pathway-choice explanation expand the existing `Sleepless` knowledge unit or be represented as a separate Church pathway-access unit?

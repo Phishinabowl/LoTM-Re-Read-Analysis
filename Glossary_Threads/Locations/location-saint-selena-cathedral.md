@@ -65,32 +65,38 @@ Do not add later history, occupants, institutional changes, or consequences unti
 
 #### Volume 1, Chapter 17: Tingen Headquarters and Concealed Complex
 
-- Saint Selena Cathedral is identified as the Church of Evernight's headquarters in Tingen.
-- Blackthorn Security Company provides the Nighthawks' public-facing cover nearby, while the interior route connects toward the cathedral, armory, storeroom, archives, and Chanis Gate.
+- What the reader learns: Saint Selena Cathedral is the Church of Evernight's headquarters in Tingen.
+- What changes: Blackthorn Security Company is revealed as the Nighthawks' public-facing cover nearby, while the interior route connects toward the cathedral, armory, storeroom, archives, and Chanis Gate.
 - What remains unknown: The complete layout, public and restricted boundaries, staffing, and the history of the cathedral.
 - Why it matters: Ordinary worship space and concealed supernatural operations are shown as adjacent parts of the same Church presence.
 
 #### Volume 1, Chapter 19: Chanis Gate Custody
 
-- The connected Chanis Gate protects formulas, materials, prisoners, records, and Sealed Artifacts under Church and Nighthawk security procedures.
+- What the reader learns: The connected Chanis Gate protects formulas, materials, prisoners, records, and Sealed Artifacts under Church and Nighthawk security procedures.
+- What changes: The cathedral complex becomes a supernatural custody site, not only a public religious headquarters.
 - What remains unknown: The complete contents, deeper spatial organization, and all custody rules.
 - Why it matters: The cathedral complex is not merely symbolic or liturgical; it anchors the Church's local supernatural containment system.
 
 #### Volume 1, Chapters 25-26: Operational Refuge and Hidden Route
 
-- Klein uses Saint Selena Cathedral to contact Dunn while being followed, because going directly to Zouteland Street or Blackthorn could expose the Nighthawks.
-- The cathedral remains publicly ordinary for an Evernight believer, making Klein's entry plausibly non-suspicious.
-- Klein presents his Seventh Unit, Special Operations Department badge to a bishop and asks for Dunn Smith.
-- A priest guides Klein through a concealed route connected with Chanis Gate and Blackthorn Security Company.
-- Klein infers that the follower avoids entering the cathedral because they may fear the Church or a Beyonder bishop.
+- What the reader learns: Klein uses Saint Selena Cathedral to contact Dunn while being followed, because going directly to Zouteland Street or Blackthorn could expose the Nighthawks.
+- What changes: The cathedral remains publicly ordinary for an Evernight believer, but Klein can present his Seventh Unit badge to a bishop and be guided through a concealed route connected with Chanis Gate and Blackthorn Security Company.
+- Interpretation boundary: Klein infers that the follower avoids entering the cathedral because they may fear the Church or a Beyonder bishop.
 - What remains unknown: The exact public/restricted boundary, the bishop's Beyonder status, and the complete spatial layout.
 - Why it matters: The cathedral becomes an active operational interface between ordinary worship, covert Nighthawk access, and live field response.
 
+#### Volume 1, Chapter 31: Alchemy Room Along the Cathedral Route
+
+- What the reader learns: Dunn leads Klein underground and turns toward Saint Selena Cathedral rather than toward Chanis Gate, weapons, materials, or archives.
+- What changes: Dunn opens a secret door and identifies the Nighthawks team's alchemy room; Old Neil retrieves the Seer formula and materials from Chanis Gate, then prepares the potion there.
+- What remains unknown: The exact placement of the alchemy room within the full complex and its relationship to other restricted rooms.
+- Why it matters: The cathedral route is not only a passage to public Church space; it also passes through specialized Nighthawk facilities used for Beyonder advancement.
+
 #### Volume 1 Closing Crisis: Institutional Target
 
-- Ince Zangwill's plan uses the crisis confronting the Tingen Nighthawks to obtain Saint Selena's ashes from Church custody.
-- The local Church complex becomes both a defensive position and the location whose protected resource is compromised.
-- Leonard's post-crisis decision to pursue the culprit through the Red Gloves links the local tragedy to the Church's wider response.
+- What the reader learns: Ince Zangwill's plan uses the crisis confronting the Tingen Nighthawks to obtain Saint Selena's ashes from Church custody.
+- What changes: The local Church complex becomes both a defensive position and the location whose protected resource is compromised.
+- Consequence: Leonard's post-crisis decision to pursue the culprit through the Red Gloves links the local tragedy to the Church's wider response.
 - What remains unknown: The full institutional aftermath and later history of the location beyond Volume 1.
 - Why it matters: The cathedral's religious identity, hidden custody function, and emotional significance converge in the climax.
 
@@ -109,8 +115,8 @@ Do not add later history, occupants, institutional changes, or consequences unti
 - Related investigation:
 
 - Question: Which Volume 1 novel chapters materially expand the reader's understanding of the cathedral itself rather than the Nighthawks or Church generally?
-- Current confidence: Strong Evidence. Chapters 17, 19, and 25-26 materially establish the cathedral as headquarters, connected occult custody complex, and operational access route. Later final-crisis material remains valid from the completed 0-08 investigation.
-- Needs EPUB verification: No for Chapters 17, 19, and 25-26; yes for future refinements beyond already completed 0-08 work.
+- Current confidence: Strong Evidence. Chapters 17, 19, 25-26, and 31 materially establish the cathedral as headquarters, connected occult custody complex, operational access route, and route-adjacent alchemy facility. Later final-crisis material remains valid from the completed 0-08 investigation.
+- Needs EPUB verification: No for Chapters 17, 19, 25-26, and 31; yes for future refinements beyond already completed 0-08 work.
 - Related investigation: [Church of Evernight Volume 1 Reveal Timeline](../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
 
 - Question: How clearly do the novel and Donghua communicate the physical relationship among Saint Selena Cathedral, Blackthorn Security Company, Chanis Gate, and the final battle space?
@@ -209,7 +215,7 @@ relationships:
 
 ## Evidence Index
 
-- Novel Chapters: 17, 19, 25-26, 205-212
+- Novel Chapters: 17, 19, 25-26, 31, 205-212
 - Donghua Episodes: TBD
 
 ## Reader Knowledge Ledger
@@ -298,6 +304,15 @@ disclosures:
       chapter: 25
     superseded_at:
     superseded_by:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: expansion
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 31
+    superseded_at:
+    superseded_by:
 related_investigations:
   - ../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md
 related_boards:
@@ -310,6 +325,7 @@ last_updated: 2026-07-01
 - Chapter 17 gives the reader the spatial model.
 - Chapter 19 adds the supernatural custody function.
 - Chapters 25-26 confirm the route as usable during a live operational problem.
+- Chapter 31 adds the Nighthawks team's alchemy room as another specialized facility along the route toward the cathedral.
 
 #### Adaptation Analysis
 

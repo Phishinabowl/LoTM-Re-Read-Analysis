@@ -5,10 +5,10 @@
 Type: Faction
 Status: Active
 First Mention Volume: 1
-Current Analysis Status: Novel reveal timeline verified through Chapter 26; Donghua verification not started
+Current Analysis Status: Novel reveal timeline verified through Chapter 31; Donghua verification not started
 Confidence Level: Strong Evidence
 Spoiler Boundary: Volume 1
-Reader Knowledge Boundary: Novel Chapter 26; Donghua Season 1
+Reader Knowledge Boundary: Novel Chapter 31; Donghua Season 1
 Tags: volume-1, reader-knowledge, worldbuilding, faction
 Last Updated: 2026-07-01
 
@@ -33,8 +33,8 @@ Later information about the Church of Evernight, its high-level structure, its h
 ## Reader Knowledge Boundary
 
 - Novel Volume: 1
-- Novel Chapter: 26
-- Reader knowledge state: The reader knows the Church of Evernight as a major orthodox Church, the parent institution for the Tingen Nighthawks, the custodian of Chanis Gate and Sealed Artifacts, and a practical institutional refuge through Saint Selena Cathedral.
+- Novel Chapter: 31
+- Reader knowledge state: The reader knows the Church of Evernight as a major orthodox Church, the parent institution for the Tingen Nighthawks, the custodian of Chanis Gate and Sealed Artifacts, a practical institutional refuge through Saint Selena Cathedral, and the controlled pathway-access route through which Klein becomes a Seer while remaining civilian staff.
 - Donghua: Season 1
 - Donghua viewer knowledge state: Not yet verified for this thread.
 
@@ -62,110 +62,73 @@ Later information about the Church of Evernight, its high-level structure, its h
 
 #### Chapters 1-6: Religion, Public Institution, and the Nighthawks Name
 
-- Chapter 1 first references the Evernight faith through Klein's family background.
-- Chapter 3 first presents the Church as a public institution through its educational role.
-- Chapter 6 first names the Nighthawks alongside the Mandated Punishers and Machinery Hivemind in the context of orthodox-Church access to Beyonder power.
-- The reader does not yet receive a direct organization-to-Church mapping for all three named groups.
+- What the reader learns: Chapter 1 first references the Evernight faith through Klein's family background; Chapter 3 presents the Church as a public institution through its educational role; Chapter 6 names the Nighthawks alongside the Mandated Punishers and Machinery Hivemind in the context of orthodox-Church access to Beyonder power.
+- What changes: The Church develops from family religion and civic education into one of the major controlled routes toward the Beyonder world, with institutional commitment and loss of personal freedom implied as part of that access.
+- What remains unknown: The reader does not yet receive a direct organization-to-Church mapping for all three named groups, nor any details about the Nighthawks' function.
+- Why it matters: The Church enters first as ordinary religion and public institution before the hidden Beyonder machinery appears.
 
 #### Chapters 10-13: Police Cover and Identity Reveal
 
-- Dunn and Leonard first appear in Chapter 10 as police investigators questioning Klein.
-- Dunn uses dream-guidance during the Chapter 12 investigation.
-- In Chapter 13, Dunn reintroduces himself as a Nighthawk, and Klein connects the identity to the Church of Evernight's Beyonder teams.
+- What the reader learns: Dunn and Leonard first appear in Chapter 10 as police investigators; Dunn uses dream-guidance in Chapter 12; and Chapter 13 reveals Dunn as a Nighthawk, which Klein connects to the Church of Evernight's Beyonder teams.
+- What changes: Dunn and Leonard shift from apparent police investigators into the reader's first identifiable Evernight Beyonder agents.
+- What remains unknown: The reader still does not know the full team structure, legal cover, facilities, or rules governing Church Beyonders.
+- Why it matters: The novel joins the public police investigation with the hidden Church organization, turning the Nighthawks from a name into identifiable actors.
 
 #### Chapters 14-17: Recruitment and Institutional Structure
 
-- Dunn raises civilian recruitment in Chapter 14 and formally invites Klein in Chapter 15.
-- Klein sees the Blackthorn Security Company cover in Chapter 16 and joins in Chapter 17.
-- Chapter 17 explains the team's Church affiliation, police identity, territorial jurisdiction, civilian staff, and relationship to the corresponding organizations of other orthodox Churches.
+- What the reader learns: Dunn raises civilian recruitment in Chapter 14, formally invites Klein in Chapter 15, reveals the Blackthorn Security Company cover in Chapter 16, and brings Klein into the organization in Chapter 17.
+- What changes: Chapter 17 explains the team's Church affiliation, police identity, territorial jurisdiction, civilian staff structure, and relationship to the corresponding organizations of other orthodox Churches.
+- Institutional detail: Klein's confidential employment contract falls under Church tribunal authority rather than ordinary kingdom courts.
+- What remains unknown: The reader still does not know the complete roster, all local facilities, higher command structure, or how Church custody systems work.
+- Why it matters: Klein's relationship to the Church shifts from outside witness to contracted insider, while the Nighthawks become a hybrid Church-police institution rather than a vague supernatural group.
 
 #### Chapters 18-19: Ethos and Supernatural Custody
 
-- Dunn explains losing control, advancement caution, and the Nighthawks' guardian ethos.
-- Chanis Gate and the Sealed Artifact system establish the Church as a formal custodian of supernatural dangers, knowledge, materials, and prisoners.
+- What the reader learns: Dunn explains losing control, advancement caution, and the Nighthawks' guardian ethos.
+- What changes: Chanis Gate and the Sealed Artifact system establish the Church as a formal custodian of supernatural dangers, knowledge, materials, prisoners, and artifacts.
+- Theological detail: Chapter 18 gives the Evernight Goddess's religious titles and presents the Evernight faith as older than the Church of the God of Steam and Machinery.
+- Institutional detail: Chapter 19 identifies the Cathedral of Serenity in Winter County as the Holy Cathedral, while local Chanis Gates sit inside a wider hierarchy of city cathedrals, diocesan headquarters, Keepers, security clearances, artifact grades, and transfer rules.
+- What remains unknown: The full contents of Chanis Gate, the complete artifact catalog, and the wider rules of Church custody remain hidden.
+- Why it matters: The Nighthawks become morally and institutionally defined: they are not only investigators, but guardians managing dangerous knowledge and objects under severe rules.
 
 #### Chapters 20-22: Nighthawks as Workplace, Resource Network, and Pathway Hints
 
-- Dunn sends Klein through ordinary workplace logistics: advance pay, demon hunting bullets, normal bullets, a holster, a badge, and shooting-range practice.
-- Blackthorn's daily operation includes Rozanne, Mrs. Orianna, Old Neil, finance handling, equipment logs, and Nighthawk-specific police facilities.
-- Old Neil issues Klein a Seventh Unit, Special Operations Department badge rather than a Nighthawks badge.
-- Leonard introduces himself as Sequence 8 `Midnight Poet`.
-- Rozanne explains the Church's complete pathway begins with Sequence 9 `Sleepless`, then Sequence 8 `Midnight Poet`, then Sequence 7 `Nightmare`.
-- Rozanne implies Dunn is a `Nightmare` and says Tingen's Church has only two Sequence 7 Beyonders.
+- What the reader learns: Blackthorn has ordinary workplace logistics: advance pay, finance handling, equipment logs, demon hunting bullets, normal bullets, holsters, badges, and Nighthawk-specific shooting practice.
+- What changes: Old Neil issues Klein a Seventh Unit badge rather than a Nighthawks badge; Leonard identifies himself as Sequence 8 `Midnight Poet`; and Rozanne explains `Sleepless -> Midnight Poet -> Nightmare` as the Church's complete known pathway through Sequence 7.
+- What remains unknown: Klein is still not a Beyonder, the full team roster remains incomplete, and the reader does not yet know Klein's eventual pathway.
+- Why it matters: The hidden organization starts feeling like a working office with logistics, training, credentials, and individual pathway identities instead of pure exposition.
 
 #### Chapters 25-26: Saint Selena Cathedral as Operational Access Point
 
-- Klein uses Saint Selena Cathedral to contact Dunn while being followed, because going directly to Blackthorn could expose the Nighthawks.
-- Klein presents his Seventh Unit badge to a bishop and is guided through a concealed route linked to Chanis Gate and Blackthorn.
-- Klein infers that the follower avoids the cathedral because of fear of the Church or a Beyonder bishop.
-- Dunn treats the tailing as a Nighthawk operational matter and has Klein leave through the cathedral route to draw out the observer.
+- What the reader learns: Klein can use Saint Selena Cathedral to contact Dunn while being followed, avoiding a direct approach to Blackthorn that could expose the Nighthawks.
+- What changes: Klein presents his Seventh Unit badge to a bishop and is guided through a concealed route linked to Chanis Gate and Blackthorn.
+- What remains unknown: The bishop's exact status, the full layout, and the precise reason the follower avoids the cathedral remain uncertain.
+- Why it matters: The public cathedral becomes an active operational interface between ordinary worship, hidden Church infrastructure, and field response.
 
-#### Volume 1: Church-Level Development
+#### Chapter 27: Dream Warning Bridge
 
-##### Public Religion and Social Role
+- What the reader learns: Dunn appears in Klein's dream to warn that someone has entered his room.
+- What changes: This bridges the tailing/cathedral route into the Secret Order follow-up rather than creating a major new institutional reveal.
+- What remains unknown: The intruder's identity and purpose are not explained until the follow-up.
+- Why it matters: Dunn's `Nightmare` capability becomes a practical protective tool, not only an interrogation technique.
 
-- Chapter 1 establishes the Evernight faith as part of Klein's family background through his mother's devotion.
-- Chapter 3 shows the Church operating Sunday schools and participating in the earlier provision of inexpensive education before the kingdom's religiously neutral public-school expansion.
-- Why it matters: The Church enters the story first as an ordinary part of family and civic life, well before its concealed Beyonder machinery is exposed.
+#### Chapters 28-31: Pathway Access and Nonstandard Beyonder Status
 
-##### Controlled Access to the Beyonder World
+- What the reader learns: Dunn identifies the intruder's background as the Secret Order and offers Klein a Beyonder chance because of his contribution, danger exposure, and possible value in finding the Antigonus notebook.
+- What changes: Klein may choose only an incomplete Sequence 9 unless he gives up the chance and waits for a future `Sleepless` opportunity. Dunn names the available incomplete options as `Mystery Pryer`, `Corpse Collector`, and `Seer`, then Klein chooses `Seer`.
+- Institutional detail: `Mystery Pryer` is tied to the Moses Ascetic Order and an incomplete local chain; `Corpse Collector` has Sequence 8 and Sequence 7 available, with `Spirit Medium` tied to Daly; `Seer` is locally known only at Sequence 9, with Holy Cathedral continuation uncertain.
+- Chapter 31 confirmation: Dunn opens the Nighthawks team's alchemy room on the route toward Saint Selena Cathedral, while Old Neil retrieves the Seer formula and materials from Chanis Gate.
+- What remains unknown: Whether the Holy Cathedral has later Seer or Mystery Pryer Sequences, how complete the Church's total formula holdings are, and when or whether Klein can become a formal Nighthawk.
+- Why it matters: The arc turns pathway access into an institutional process and sharply separates three statuses: civilian staff, Church-supported Beyonder, and formal Nighthawk.
 
-- Chapter 6 frames orthodox Churches as major controlled routes to becoming a Beyonder.
-- Joining through a Church requires institutional commitment, obedience, and some loss of personal freedom.
-- Chapter 22 gives the first practical outline of the Church of Evernight's complete pathway through Rozanne's explanation of `Sleepless`, `Midnight Poet`, and `Nightmare`.
-- Why it matters: The Church's supernatural authority is presented as organized and restrictive rather than publicly accessible.
+#### Volume 1 Synthesis: Known Institutional Facets
 
-##### Local Cathedral and Judicial Authority
-
-- Chapter 17 identifies [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md) as the Church of Evernight's Tingen headquarters.
-- The concealed Blackthorn and Chanis Gate complex is physically connected to the cathedral.
-- Klein's confidential employment contract falls under Church tribunal authority rather than ordinary kingdom courts.
-- Chapters 25-26 show the cathedral functioning as a practical safe route into the Nighthawks' hidden space.
-- Why it matters: The Church possesses local religious, operational, and judicial structures that overlap with—but are not reducible to—the police system.
-
-##### Theology, Antiquity, and Institutional Prestige
-
-- Chapter 18 gives the Evernight Goddess's established religious titles, including Her associations with crimson, concealment, repose, silence, misfortune, and horror.
-- Dunn's explanation presents the Evernight faith as older than the Church of the God of Steam and Machinery, whose deity arose only in the Fourth Epoch.
-- Why it matters: The reader receives an early theological identity for the Church and sees antiquity treated as part of orthodox prestige.
-
-##### Central Hierarchy and Supernatural Custody
-
-- Chapter 19 identifies the Cathedral of Serenity in Winter County as the Church's Holy Cathedral.
-- Local Chanis Gates operate within a wider hierarchy involving city cathedrals, diocesan headquarters, and the Holy Cathedral.
-- Church-sent Keepers, security clearances, artifact grades, and transfer rules demonstrate centralized control over dangerous knowledge, prisoners, materials, and Sealed Artifacts.
-- Why it matters: The Tingen team is revealed as one local node inside a larger Church system rather than an isolated supernatural police squad.
-
-#### Volume 1: Parent Institution for the Tingen Nighthawks
-
-- What the reader learns: The Church of Evernight maintains an official Beyonder organization known as the Nighthawks, with the Tingen team operating behind a public-facing cover.
-- What remains unknown: The exact larger hierarchy, full scope of Church operations, and deeper institutional history.
-- Why it matters: The Church is the structure through which Klein first learns official Beyonder procedure, controlled mysticism, sealed artifacts, and mission discipline.
-
-#### Volume 1: Official Beyonder Organization
-
-##### Nighthawks
-
-- Role: Official Beyonder team associated with the Church of Evernight.
-- Volume 1 focus: The Tingen Nighthawks.
-- Public-facing cover: Blackthorn Security Company.
-- Core functions known by Chapter 26: Investigate Beyonder incidents, contain occult danger, handle confidential records and supplies, guard Chanis Gate, issue specialized ammunition, and maintain police-facing operational access.
-- Known Tingen members or staff by Chapter 26: Dunn Smith, Leonard Mitchell, Old Neil, Rozanne, Mrs. Orianna, and Klein Moretti as civilian staff.
-- Staff structure: Formal Nighthawks and civilian staff work together. Klein is a civilian staff member with a Seventh Unit police badge, not a full Nighthawk.
-- What remains unknown: The exact full roster, inter-city command structure, and all rules governing Church-held Sealed Artifacts.
-- Why it matters: The Nighthawks are Klein's first team, first training structure, first source of official occult knowledge, and the emotional center of Volume 1's ending.
-
-##### Red Gloves
-
-- Parent organization: Nighthawks of the Church of Evernight.
-- Current reader-safe disclosure through Chapter 26: Not yet introduced.
-- Current analysis status: Deferred.
-
-#### Volume 1: Chanis Gate and Sealed Artifact Custody
-
-- What the reader learns: The Church maintains guarded occult storage through Chanis Gate and keeps dangerous artifacts under institutional control.
-- What remains unknown: The full catalog, complete operating rules, and deeper custody structure.
-- Why it matters: Chanis Gate connects the Church's institutional authority to the artifact system, including the danger represented by Ince Zangwill's theft of 0-08.
+- What the reader learns: By Chapter 31, the Church of Evernight has appeared as public religion, civic institution, orthodox Beyonder gateway, parent organization of the Tingen Nighthawks, guardian of Chanis Gate, holder of formulas and materials, and operator of a concealed local complex connected with Saint Selena Cathedral.
+- What changes: The Church is no longer only a social or religious presence; it is now Klein's employer, training environment, supernatural resource network, and controlled path into becoming a Beyonder.
+- Nighthawks status: The Tingen Nighthawks are the Church's official local Beyonder organization, operating behind Blackthorn Security Company and supported by civilian staff such as Klein, Rozanne, and Mrs. Orianna.
+- Red Gloves status: The Red Gloves belong under the broader Nighthawks umbrella, but they have not yet been introduced at the Chapter 31 reader boundary.
+- What remains unknown: The exact larger hierarchy, full roster, full artifact catalog, all Church-held pathway options, Red Gloves role, deeper institutional history, and complete operating rules remain outside the current boundary.
+- Why it matters: This synthesis keeps the Church's early facets visible without replacing the chapter-by-chapter reveal chronology that controls spoiler-safe reader knowledge.
 
 ### Donghua
 
@@ -192,7 +155,7 @@ Later information about the Church of Evernight, its high-level structure, its h
 - Related investigation:
 
 - Question: Should the Nighthawks eventually become their own faction thread, or remain a major section under the Church of Evernight until the project needs a separate file?
-- Current confidence: Working Theory. Remaining embedded is clean through Chapter 26 because the reader only knows the Nighthawks as the Church of Evernight's local official Beyonder organization.
+- Current confidence: Working Theory. Remaining embedded is clean through Chapter 31 because the reader still primarily knows the Nighthawks as the Church of Evernight's local official Beyonder organization and Klein's institutional entry point.
 - Needs EPUB verification: No
 - Related investigation:
 
@@ -233,11 +196,14 @@ Use Markdown links when the target file exists. Mention a nonexistent thread as 
 
 - character-ince-zangwill.md
 - character-azik-eggers.md
+- character-daly-simone.md
 
 ### Associated Pathways
 
 - pathway-sleepless.md
 - pathway-mystery-pryer.md
+- pathway-corpse-collector.md
+- pathway-seer.md
 
 ## Relationship Seeds
 
@@ -262,7 +228,7 @@ relationships:
       chapter: 17
     status: active
     confidence: confirmed
-    notes: Klein becomes civilian staff under the Tingen Nighthawks in Chapter 17 and receives a Seventh Unit badge in Chapter 21. He is not a full Nighthawk by the current Chapter 26 boundary.
+    notes: Klein becomes civilian staff under the Tingen Nighthawks in Chapter 17, receives a Seventh Unit badge in Chapter 21, and becomes a Church-supported Seer in Chapter 31 while remaining civilian staff.
   - source: character-dunn-smith
     target: faction-church-of-evernight
     relationship_type: member-of
@@ -313,11 +279,31 @@ relationships:
     status: active
     confidence: confirmed
     notes: Rozanne identifies Old Neil's Sequence 9 title as Mystery Pryer.
+  - source: character-klein-moretti
+    target: pathway-seer
+    relationship_type: pathway-status
+    start:
+      medium: novel
+      volume: 1
+      chapter: 31
+    status: active
+    confidence: confirmed
+    notes: Klein chooses Seer in Chapter 30 and consumes the Seer potion in Chapter 31 through Church/Nighthawks formula and material access.
+  - source: character-daly-simone
+    target: pathway-corpse-collector
+    relationship_type: pathway-status
+    start:
+      medium: novel
+      volume: 1
+      chapter: 28
+    status: active
+    confidence: confirmed
+    notes: Dunn identifies Spirit Medium as the Corpse Collector pathway's Sequence 7 and says Daly chose it.
 ```
 
 ## Evidence Index
 
-- Novel Chapters: 1, 3, 6, 10, 12-22, 25-26
+- Novel Chapters: 1, 3, 6, 10, 12-22, 25-31
 - Donghua Episode: TBD
 
 ## Reader Knowledge Ledger
@@ -543,6 +529,15 @@ disclosures:
       chapter: 21
     superseded_at:
     superseded_by:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: confirmation
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 31
+    superseded_at:
+    superseded_by:
 related_investigations:
   - ../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md
 related_boards:
@@ -555,6 +550,7 @@ last_updated: 2026-07-01
 - Chapter 14 makes civilian staff recruitment possible.
 - Chapter 17 confirms Klein accepts the role and joins under a confidential contract.
 - Chapter 21 reinforces the boundary by giving him a Seventh Unit badge while noting it is not a Nighthawks badge.
+- Chapter 31 confirms that becoming a Beyonder does not make Klein a formal Nighthawk; he remains civilian staff.
 
 #### Adaptation Analysis
 
@@ -602,6 +598,15 @@ disclosures:
       chapter: 19
     superseded_at:
     superseded_by:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: confirmation
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 31
+    superseded_at:
+    superseded_by:
 related_investigations:
   - ../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md
 related_boards:
@@ -613,6 +618,7 @@ last_updated: 2026-07-01
 
 - Chapter 17 reveals that Chanis Gate is physically connected to the Tingen Nighthawks' hidden workplace.
 - Chapter 19 explains its function as part of a broader Church custody system guarded by Nighthawks and Church-sent Keepers.
+- Chapter 31 confirms that formula and potion-material access for Klein's Seer advancement also runs through Chanis Gate.
 - The same custody model contextualizes why Ince Zangwill's theft of 0-08 is so severe without moving the focus away from the Church thread.
 
 #### Adaptation Analysis
@@ -649,6 +655,15 @@ disclosures:
       chapter: 22
     superseded_at:
     superseded_by:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: expansion
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 28
+    superseded_at:
+    superseded_by:
 related_investigations:
   - ../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md
 related_boards:
@@ -660,6 +675,7 @@ last_updated: 2026-07-01
 
 - Chapter 21 leaves Klein only with a vague memory that the Church's complete pathway begins at Sequence 9.
 - Chapter 22 turns that into named pathway knowledge: `Sleepless`, `Midnight Poet`, and `Nightmare`.
+- Chapter 28 clarifies that `Sleepless` is the complete starting Sequence bestowed on the Nighthawks and is distinct from the incomplete options Klein can choose immediately.
 
 #### Adaptation Analysis
 
@@ -715,6 +731,173 @@ last_updated: 2026-07-01
 
 - Chapter 17 establishes the hidden physical connection.
 - Chapters 25-26 demonstrate its operational use when Klein seeks Nighthawk help without exposing Blackthorn directly.
+
+#### Adaptation Analysis
+
+- Donghua timing remains unverified for this knowledge unit.
+
+### Knowledge Unit: Church Offers Incomplete Pathway Options
+
+```yaml
+id: church-evernight-incomplete-pathway-options
+claim: Apart from the complete Sleepless pathway, the Church of Evernight can offer Klein three incomplete Sequence 9 options: Mystery Pryer, Corpse Collector, and Seer.
+truth_status: true
+confidence_level: confirmed
+canon_scope: novel
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: 28
+  notes: Dunn explains the available formulas after the Secret Order intrusion and Klein's contribution to the Antigonus notebook case.
+tags:
+  - volume-1
+  - reader-knowledge
+  - reveal-order
+  - pathway
+  - faction
+disclosures:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 28
+    superseded_at:
+    superseded_by:
+related_investigations:
+  - ../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-07-01
+```
+
+#### Reader-State History
+
+- Chapter 22 gives partial pathway hints through Rozanne.
+- Chapter 28 turns those hints into a controlled institutional menu: Klein may wait for `Sleepless` or choose from incomplete Sequence 9 formulas.
+- The reader also learns that pathway completeness varies by formula chain and may differ between Tingen's local knowledge and the Holy Cathedral.
+
+#### Adaptation Analysis
+
+- Donghua timing remains unverified for this knowledge unit.
+
+### Knowledge Unit: Klein Becomes a Seer While Remaining Civilian Staff
+
+```yaml
+id: church-evernight-klein-seer-civilian-staff
+claim: Klein chooses the Seer pathway and becomes a Church-supported Beyonder while remaining civilian staff rather than a formal Nighthawk.
+truth_status: true
+confidence_level: confirmed
+canon_scope: novel
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: 31
+  notes: Klein chooses Seer in Chapter 30 and consumes the potion in Chapter 31; Dunn explicitly says he remains civilian staff.
+tags:
+  - volume-1
+  - reader-knowledge
+  - reveal-order
+  - pathway
+  - faction
+  - character
+disclosures:
+  - medium: novel
+    knowledge_state: working-theory
+    disclosure_type: possibility
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 28
+    superseded_at:
+      book: lotm-1
+      volume: 1
+      chapter: 30
+    superseded_by: church-evernight-klein-seer-civilian-staff
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: choice
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 30
+    superseded_at:
+      book: lotm-1
+      volume: 1
+      chapter: 31
+    superseded_by: church-evernight-klein-seer-civilian-staff
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: confirmation
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 31
+    superseded_at:
+    superseded_by:
+related_investigations:
+  - ../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-07-01
+```
+
+#### Reader-State History
+
+- Chapter 28 presents Seer as one of Klein's possible incomplete Sequence 9 options.
+- Chapter 30 confirms Klein's choice.
+- Chapter 31 confirms the status distinction: Klein is now a Beyonder, but still civilian staff and not a formal Nighthawk.
+
+#### Adaptation Analysis
+
+- Donghua timing remains unverified for this knowledge unit.
+
+### Knowledge Unit: Nighthawks Alchemy Room and Chanis Formula Access
+
+```yaml
+id: church-evernight-alchemy-room-chanis-formula-access
+claim: The Tingen Nighthawks use an alchemy room and Chanis Gate formula/material custody to prepare Klein's Seer potion.
+truth_status: true
+confidence_level: confirmed
+canon_scope: novel
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: 31
+  notes: Dunn opens the Nighthawks team's alchemy room on the route toward Saint Selena Cathedral, while Old Neil retrieves the Seer formula and materials from Chanis Gate.
+tags:
+  - volume-1
+  - reader-knowledge
+  - reveal-order
+  - pathway
+  - faction
+  - location
+disclosures:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 31
+    superseded_at:
+    superseded_by:
+related_investigations:
+  - ../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-07-01
+```
+
+#### Reader-State History
+
+- Chapter 19 establishes Chanis Gate as supernatural custody infrastructure.
+- Chapter 31 shows that potion formula and material access for a new Beyonder also moves through that infrastructure.
+- The alchemy room makes the Church/Nighthawks advancement pipeline concrete rather than abstract.
 
 #### Adaptation Analysis
 

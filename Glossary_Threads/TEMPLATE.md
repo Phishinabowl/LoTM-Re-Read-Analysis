@@ -82,8 +82,8 @@ Use separate medium subsections when the thread tracks more than one format.
 
 #### Volume X
 
-- Chapter:
 - What the reader learns:
+- What changes:
 - What remains unknown:
 - Why it matters:
 
@@ -91,11 +91,13 @@ Use separate medium subsections when the thread tracks more than one format.
 
 #### Season X, Episode Y
 
-- Release order:
 - Timestamp:
 - What the viewer learns:
+- What changes:
 - What remains unknown:
 - Why it matters:
+
+Use extra labels such as `Attribution boundary`, `Visual/audio evidence`, `Adaptation difference`, or `Institutional detail` only when the arc genuinely needs them.
 
 ## Open Questions
 
