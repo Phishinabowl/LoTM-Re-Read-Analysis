@@ -382,9 +382,15 @@ manipulates
 victim-of
 protects
 affiliated-with
+connected-to
+uses-as-operational-refuge
 artifact-user
 artifact-guardian
 source-of-information
+causal-agent
+targets
+targets-protected-resource
+pathway-status
 family
 ```
 

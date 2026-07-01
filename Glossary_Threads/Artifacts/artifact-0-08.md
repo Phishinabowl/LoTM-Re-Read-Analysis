@@ -494,6 +494,82 @@ The two plain filenames below are essential planned threads. Additional referenc
 
 -
 
+## Relationship Seeds
+
+```yaml
+relationships:
+  - source: character-ince-zangwill
+    target: artifact-0-08
+    relationship_type: artifact-user
+    start:
+      medium: novel
+      volume: 1
+      chapter: 19
+    status: active
+    confidence: confirmed
+    notes: Chapter 19 establishes that Ince Zangwill escaped with 0-08. Chapters 210-212 confirm that he uses it to execute the Tingen plot and pursue his advancement objective.
+  - source: faction-church-of-evernight
+    target: artifact-0-08
+    relationship_type: artifact-guardian
+    start:
+      medium: novel
+      volume: 1
+      chapter: 19
+    status: broken
+    confidence: confirmed
+    notes: Chapter 19 establishes that 0-08 was under Church custody before Ince escaped with it.
+  - source: artifact-0-08
+    target: artifact-antigonus-notebook
+    relationship_type: causal-agent
+    start:
+      medium: novel
+      volume: 1
+      chapter: 210
+    status: completed
+    confidence: confirmed
+    notes: Chapter 210 retrospectively frames the notebook's transfer toward Tingen as part of the written story; Chapter 212 confirms Klein's interpretation that 0-08 produced Ince's arrangements and coincidences. The underlying causal setup begins before Chapter 1, but the reader-safe attribution begins at the Volume 1 ending.
+  - source: artifact-0-08
+    target: character-klein-moretti
+    relationship_type: manipulates
+    start:
+      medium: novel
+      volume: 1
+      chapter: 210
+    status: active
+    confidence: confirmed
+    notes: Chapter 210 reveals that Klein's investigation and movements were repeatedly incorporated into and constrained by 0-08's story. Chapter 212 confirms Klein's understanding that 0-08 arranged the coincidences, while Chapter 213 preserves surveillance as Klein's inference rather than confirmed fact.
+  - source: artifact-0-08
+    target: character-dunn-smith
+    relationship_type: manipulates
+    start:
+      medium: novel
+      volume: 1
+      chapter: 210
+    status: completed
+    confidence: strong-evidence
+    notes: The Volume 1 ending shows Dunn's condition and choices being incorporated into Ince and 0-08's plan to obtain Saint Selena's ashes. The Donghua makes the steering toward the ashes more explicit in Episode 12.
+  - source: artifact-0-08
+    target: character-azik-eggers
+    relationship_type: investigated-by
+    start:
+      medium: novel
+      volume: 1
+      chapter: 150
+    status: active
+    confidence: strong-evidence
+    notes: Azik investigates the power behind Klein's disharmonious fate and later links that same power to his child's stolen skull. The target is not reader-safe as 0-08 until the ending, so this seed should remain attribution-aware in generated graphs.
+  - source: artifact-0-08
+    target: location-saint-selena-cathedral
+    relationship_type: targets-protected-resource
+    start:
+      medium: novel
+      volume: 1
+      chapter: 210
+    status: completed
+    confidence: strong-evidence
+    notes: 0-08's written story shapes the Tingen crisis that lets Ince obtain Saint Selena's ashes from the Church/Nighthawks custody system connected to the cathedral complex.
+```
+
 ## Evidence Index
 
 - Chapter 19: Dunn explicitly identifies 0-08, its Grade 0 classification, its appearance, its inkless writing, and its connection to Ince Zangwill.
