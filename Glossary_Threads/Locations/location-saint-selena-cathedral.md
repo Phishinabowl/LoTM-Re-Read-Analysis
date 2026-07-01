@@ -76,6 +76,16 @@ Do not add later history, occupants, institutional changes, or consequences unti
 - What remains unknown: The complete contents, deeper spatial organization, and all custody rules.
 - Why it matters: The cathedral complex is not merely symbolic or liturgical; it anchors the Church's local supernatural containment system.
 
+#### Volume 1, Chapters 25-26: Operational Refuge and Hidden Route
+
+- Klein uses Saint Selena Cathedral to contact Dunn while being followed, because going directly to Zouteland Street or Blackthorn could expose the Nighthawks.
+- The cathedral remains publicly ordinary for an Evernight believer, making Klein's entry plausibly non-suspicious.
+- Klein presents his Seventh Unit, Special Operations Department badge to a bishop and asks for Dunn Smith.
+- A priest guides Klein through a concealed route connected with Chanis Gate and Blackthorn Security Company.
+- Klein infers that the follower avoids entering the cathedral because they may fear the Church or a Beyonder bishop.
+- What remains unknown: The exact public/restricted boundary, the bishop's Beyonder status, and the complete spatial layout.
+- Why it matters: The cathedral becomes an active operational interface between ordinary worship, covert Nighthawk access, and live field response.
+
 #### Volume 1 Closing Crisis: Institutional Target
 
 - Ince Zangwill's plan uses the crisis confronting the Tingen Nighthawks to obtain Saint Selena's ashes from Church custody.
@@ -99,8 +109,8 @@ Do not add later history, occupants, institutional changes, or consequences unti
 - Related investigation:
 
 - Question: Which Volume 1 novel chapters materially expand the reader's understanding of the cathedral itself rather than the Nighthawks or Church generally?
-- Current confidence: Unknown
-- Needs EPUB verification: Yes
+- Current confidence: Strong Evidence. Chapters 17, 19, and 25-26 materially establish the cathedral as headquarters, connected occult custody complex, and operational access route. Later final-crisis material remains valid from the completed 0-08 investigation.
+- Needs EPUB verification: No for Chapters 17, 19, and 25-26; yes for future refinements beyond already completed 0-08 work.
 - Related investigation: [Church of Evernight Volume 1 Reveal Timeline](../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
 
 - Question: How clearly do the novel and Donghua communicate the physical relationship among Saint Selena Cathedral, Blackthorn Security Company, Chanis Gate, and the final battle space?
@@ -165,6 +175,26 @@ relationships:
     status: active
     confidence: confirmed
     notes: The Tingen Nighthawks' Blackthorn and Chanis Gate facilities are part of the connected Church complex.
+  - source: character-klein-moretti
+    target: location-saint-selena-cathedral
+    relationship_type: uses-as-operational-refuge
+    start:
+      medium: novel
+      volume: 1
+      chapter: 25
+    status: completed
+    confidence: confirmed
+    notes: Klein enters Saint Selena Cathedral while being followed so he can contact Dunn without directly exposing Blackthorn or the Nighthawks.
+  - source: location-saint-selena-cathedral
+    target: location-blackthorn-security-company
+    relationship_type: connected-to
+    start:
+      medium: novel
+      volume: 1
+      chapter: 17
+    status: active
+    confidence: confirmed
+    notes: Chapter 17 establishes the concealed connection; Chapters 25-26 demonstrate the route in use.
   - source: character-ince-zangwill
     target: location-saint-selena-cathedral
     relationship_type: infiltrates
@@ -179,12 +209,224 @@ relationships:
 
 ## Evidence Index
 
-- Novel Chapters: 17, 19, 205-212
+- Novel Chapters: 17, 19, 25-26, 205-212
 - Donghua Episodes: TBD
 
 ## Reader Knowledge Ledger
 
-Structured knowledge units will be added after the location-specific novel and Donghua sweeps separate disclosures about the cathedral itself from disclosures about the Church, Nighthawks, and 0-08.
+### Knowledge Unit: Saint Selena Cathedral as Tingen Headquarters
+
+```yaml
+id: saint-selena-cathedral-tingen-headquarters
+claim: Saint Selena Cathedral is the Church of Evernight's headquarters in Tingen.
+truth_status: true
+confidence_level: confirmed
+canon_scope: novel
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: 17
+  notes: The narration identifies Saint Selena Cathedral as the Church of Evernight's Tingen headquarters while Rozanne explains the concealed complex.
+tags:
+  - volume-1
+  - reader-knowledge
+  - reveal-order
+  - location
+  - faction
+disclosures:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 17
+    superseded_at:
+    superseded_by:
+related_investigations:
+  - ../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-07-01
+```
+
+#### Reader-State History
+
+- Chapter 17 turns Saint Selena Cathedral from an implied public religious institution into a specific Tingen headquarters location tied to the Church of Evernight.
+
+#### Adaptation Analysis
+
+- Donghua timing remains unverified for this knowledge unit.
+
+### Knowledge Unit: Cathedral-Blackthorn-Chanis Connected Complex
+
+```yaml
+id: saint-selena-cathedral-blackthorn-chanis-complex
+claim: Saint Selena Cathedral, Blackthorn Security Company, and Chanis Gate are physically connected parts of the same Church/Nighthawks complex.
+truth_status: true
+confidence_level: confirmed
+canon_scope: novel
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: 17
+  notes: Chapter 17 establishes the concealed connection; Chapter 19 explains Chanis Gate custody; Chapters 25-26 demonstrate the cathedral route in use.
+tags:
+  - volume-1
+  - reader-knowledge
+  - reveal-order
+  - location
+  - faction
+disclosures:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 17
+    superseded_at:
+    superseded_by:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: confirmation
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 25
+    superseded_at:
+    superseded_by:
+related_investigations:
+  - ../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-07-01
+```
+
+#### Reader-State History
+
+- Chapter 17 gives the reader the spatial model.
+- Chapter 19 adds the supernatural custody function.
+- Chapters 25-26 confirm the route as usable during a live operational problem.
+
+#### Adaptation Analysis
+
+- Donghua timing remains unverified for this knowledge unit.
+
+### Knowledge Unit: Cathedral as Operational Refuge
+
+```yaml
+id: saint-selena-cathedral-operational-refuge
+claim: Klein can use Saint Selena Cathedral as a public-safe route to contact the Nighthawks without directly exposing Blackthorn Security Company.
+truth_status: true
+confidence_level: confirmed
+canon_scope: novel
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: 25
+  notes: Klein enters the cathedral while being followed, presents his Seventh Unit badge to a bishop, and is guided through the hidden route to reach Dunn.
+tags:
+  - volume-1
+  - reader-knowledge
+  - reveal-order
+  - location
+  - faction
+disclosures:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 25
+    superseded_at:
+    superseded_by:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: confirmation
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 26
+    superseded_at:
+    superseded_by:
+related_investigations:
+  - ../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-07-01
+```
+
+#### Reader-State History
+
+- Chapter 25 shows Klein using the cathedral's public religious cover to make contact while under surveillance.
+- Chapter 26 confirms that the public cathedral space and hidden Nighthawks route are operationally connected.
+
+#### Adaptation Analysis
+
+- Donghua timing remains unverified for this knowledge unit.
+
+### Knowledge Unit: Cathedral Complex as Final Crisis Target
+
+```yaml
+id: saint-selena-cathedral-final-crisis-target
+claim: Ince Zangwill's Volume 1 endgame targets the cathedral complex's protected resource, Saint Selena's ashes, through the Tingen crisis.
+truth_status: true
+confidence_level: strong-evidence
+canon_scope: shared
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: 210
+  notes: The completed 0-08 investigation establishes Ince's endgame and the role of Saint Selena's ashes in the Tingen crisis.
+tags:
+  - volume-1
+  - reader-knowledge
+  - reveal-order
+  - location
+  - artifact
+  - event
+disclosures:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 210
+    superseded_at:
+    superseded_by:
+  - medium: donghua
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 13
+      release_order: 13
+    superseded_at:
+    superseded_by:
+related_investigations:
+  - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-07-01
+```
+
+#### Reader-State History
+
+- Earlier chapters establish the cathedral complex as headquarters and occult custody infrastructure.
+- The Volume 1 ending recontextualizes that infrastructure as Ince's target because Saint Selena's ashes are stored within the protected Church/Nighthawks system.
+
+#### Adaptation Analysis
+
+- The Donghua preserves the final-crisis target function while using visual staging around Ince, 0-08, and the Church space. Exact location-specific visual timing still needs a dedicated Donghua sweep.
 
 ## Future Automation Notes
 

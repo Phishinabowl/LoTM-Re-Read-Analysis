@@ -10,24 +10,24 @@ What does the novel reader know about the Church of Evernight, its Nighthawks or
 
 ## Status
 
-In Progress. The opening institutional disclosure from Chapters 1-19 is EPUB verified. The chronological sweep through the remainder of Volume 1 is not yet complete.
+In Progress. The opening institutional disclosure from Chapters 1-19 and the bridge arc through Chapters 20-26 are EPUB verified. The chronological sweep beyond Chapter 26 is intentionally paused for user-guided review.
 
 ## Scope
 
 ### Endpoint Event
 
-The complete Volume 1 reader-disclosure timeline for the Church of Evernight and the Tingen Nighthawks, ending with the institutional consequences of the Tingen crisis.
+The complete Volume 1 reader-disclosure timeline for the Church of Evernight and the Tingen Nighthawks, built chronologically in bounded arcs. Current verified endpoint is Chapter 26.
 
 ### Investigation Window
 
-Volume 1, Chapters 1-213.
+Volume 1, Chapters 1-213. Current active review window: Chapters 1-26.
 
 ## Search Strategy
 
 - Initial terms, names, and aliases: Evernight, Evernight Goddess, Church of Evernight, Nighthawk, Dunn Smith, Leonard Mitchell, Blackthorn Security Company
 - Related effects, events, characters, locations, or motifs: police inspectors, Beyonder teams, official Beyonders, Seventh Unit, Special Operations Department, Saint Selena Cathedral, Chanis Gate, civilian staff, Sealed Artifacts
-- Terms discovered during the investigation: Mandated Punishers, Machinery Hivemind, Church and police funding, tribunal courts, Archbishop Chanis, Keepers, Holy Cathedral
-- Completeness sweep: Not started
+- Terms discovered during the investigation: Mandated Punishers, Machinery Hivemind, Church and police funding, tribunal courts, Archbishop Chanis, Keepers, Holy Cathedral, Special Operations badge, Zouteland Shooting Club, Sleepless, Midnight Poet, Nightmare, Saint Selena Cathedral route
+- Completeness sweep: Current bounded sweep complete through Chapter 26. Later speedrun findings are not treated as finalized until reviewed in chronological arcs with the user.
 
 ## Evidence
 
@@ -128,6 +128,53 @@ Volume 1, Chapters 1-213.
 - Dunn explains the Church's four-grade Sealed Artifact classification and the clearance required for access and use.
 - Why it matters: The Church is established as a custodian of dangerous supernatural knowledge, people, materials, and artifacts, with formal security and clearance systems extending beyond the local team.
 
+### Check 8: Workplace Logistics, Equipment, and Early Pathway Hints
+
+#### Chapter 20
+
+- Dunn sends Klein to Mrs. Orianna for advance pay, establishing ordinary workplace finance beneath the supernatural cover.
+- Dunn authorizes Klein to collect demon hunting bullets and normal bullets, keep Welch's revolver, and practice at the shooting range.
+- Dunn says most of the underground shooting range at No. 3 Zouteland Street belongs to the police department, but one range is specifically for the Nighthawks.
+- Why it matters: The Nighthawks become a working institution rather than just exposition: they have finance, paperwork, ammunition, badges, training spaces, and police-linked facilities.
+
+#### Chapter 21
+
+- Old Neil gives Klein demon hunting bullets, normal bullets, a holster, and a Seventh Unit, Special Operations Department badge.
+- Klein notes that the badge is not a Nighthawks badge, preserving his current civilian-staff boundary.
+- Old Neil says the Holy Cathedral permits local copies of Roselle scripts for research, showing that information custody can include sanctioned research duplicates rather than only locked originals.
+- Leonard introduces himself as Sequence 8 `Midnight Poet`.
+- Why it matters: Chapter 21 deepens the dual identity model: Klein receives police-facing credentials and Nighthawk resources while still lacking formal Nighthawk status. It also starts attaching pathway identities to individual team members.
+
+#### Chapter 22
+
+- Klein asks Rozanne about the starting point of the Church's complete Sequence.
+- Rozanne says the Church's complete pathway begins with Sequence 9 `Sleepless`.
+- She describes `Sleepless`, names Sequence 8 `Midnight Poet`, and identifies Sequence 7 as `Nightmare`.
+- Klein connects `Nightmare` to Dunn entering his dream; Rozanne implies Dunn is one of Tingen Church's two Sequence 7 Beyonders.
+- Rozanne also names Old Neil's Sequence 9 as `Mystery Pryer` and says she knows an incomplete Sequence 7, `Spirit Medium`, associated with Daly.
+- Why it matters: This is the first practical pathway map for the Church of Evernight. The reader learns the local Nighthawks are not all on the same pathway, but the Church's complete native line is `Sleepless -> Midnight Poet -> Nightmare`.
+
+### Check 9: Saint Selena Cathedral as Operational Access Point
+
+#### Chapter 24
+
+- Melissa's friend Selena is noted as being named after St. Selena by Evernight-believer parents.
+- Why it matters: This is a small public-religion detail rather than a Nighthawks operational reveal. It may belong later in a Saint Selena or public-faith thread, but it does not materially change the Church/Nighthawks model by itself.
+
+#### Chapter 25
+
+- While being followed, Klein avoids going directly to Zouteland Street because that could expose the Nighthawks.
+- He instead enters Saint Selena Cathedral, which is publicly ordinary for an Evernight believer.
+- Klein presents his Seventh Unit, Special Operations Department badge to a bishop and asks for Dunn Smith.
+- Why it matters: The cathedral becomes a practical safe contact point for the hidden Nighthawks structure rather than just the public headquarters named in Chapter 17.
+
+#### Chapter 26
+
+- A priest guides Klein through a concealed route connected with Chanis Gate and Blackthorn Security Company.
+- Klein infers that the follower avoided the cathedral because they may fear the Church or a Beyonder bishop.
+- Dunn treats the tailing as a Nighthawk operational problem and sends Klein back out through the cathedral route to draw out the observer.
+- Why it matters: The Church's visible sacred space, hidden Beyonder infrastructure, and police-facing Nighthawk function all operate together in a live incident.
+
 ## Interim Conclusions
 
 ### Opening Disclosure Structure
@@ -142,6 +189,8 @@ The novel does not introduce the Church of Evernight and the Nighthawks in one e
 6. Dunn's explicit identity as a Nighthawk of the Church of Evernight.
 7. Recruitment, Blackthorn, police authority, jurisdiction, staffing, and Church oversight.
 8. The Nighthawks' ethos and the Church's custody of supernatural dangers.
+9. Workplace logistics, equipment, badges, shooting practice, and first pathway map.
+10. Saint Selena Cathedral as a public-safe and hidden-operational route.
 
 This staging means first mention, first appearance, first identifiable appearance, and first complete institutional explanation must remain separate disclosure points.
 
@@ -153,14 +202,21 @@ The user's memory was directionally correct. Dunn and Leonard first approach Kle
 
 Blackthorn is first seen as a sign at the end of Chapter 16. Chapter 17 confirms it as a disguise and explains the Tingen team's simultaneous Church, police, and public-facing identities.
 
+### Bridge Arc: Workplace and Operational Access
+
+Chapters 20-26 do not introduce a new parent organization, but they materially change how real the Church/Nighthawks structure feels to the reader. The team now has pay, equipment, ammunition, badges, shooting practice, archives, individual pathway identities, and a practical cathedral route for covert contact.
+
+### Pathway Boundary Before Chapter 28
+
+By Chapter 22, the reader knows the Church of Evernight's complete pathway begins with `Sleepless` and reaches `Midnight Poet` and `Nightmare` by Sequence 7. The reader has also heard `Mystery Pryer` and `Spirit Medium` as incomplete pathway examples, but Klein has not yet made his own pathway choice.
+
 ## Board Updates
 
-- Board 1: No update drafted yet. Wait until the Volume 1 Church/Nighthawks sweep produces a complete durable summary.
+- Board 1: Possible small update after user review. Chapters 20-26 clarify the Church/Nighthawks as Klein's first workplace and as an operational refuge through Saint Selena Cathedral.
 - Board 2: No update. The verified opening sequence does not materially change the ancient-history or family chronology.
 
 ## Open Questions
 
-- What later Volume 1 chapters materially change the reader's understanding of Church hierarchy, procedure, jurisdiction, or institutional limitations?
-- At what points are the individual Tingen members, their roles, and their relationships with Klein established?
-- What does the reader learn about the warning and support chain between Tingen, the Holy Cathedral, and the Red Gloves before and after the final crisis?
-- Which Church facts should become structured knowledge units in the glossary, and which are supporting operational detail rather than meaningful disclosure changes?
+- Should the pathway placeholders from Chapter 22 remain plain references until their own pathway threads exist?
+- Should the Selena/St. Selena naming detail be held for a later location/saint-specific thread rather than the main Church article?
+- In the next arc, should Chapter 28's pathway-choice explanation supersede, expand, or split the Chapter 22 `Sleepless` knowledge unit?
