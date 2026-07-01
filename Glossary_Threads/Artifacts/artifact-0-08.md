@@ -58,6 +58,13 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 - What remains unknown: What it writes, how it affects reality, its limitations, why Ince stole it, and whether it has influenced Tingen.
 - Why it matters: The novel establishes the artifact's identity and extreme danger very early while withholding the ability that will explain Volume 1's causal structure.
 
+### Chapter 20: First Speculation and Rejection
+
+- What the reader considers: 0-08 might kill anyone whose name is written with it.
+- Why Klein rejects it: An unrestricted direct-kill ability would be too powerful and would make Ince Zangwill's escape and continued hiding unnecessary.
+- What remains unknown: The artifact's actual function and limitations.
+- Why it matters: The story gives the reader a false possibility, then uses Ince's behavior to establish that 0-08 cannot provide effortless direct victory.
+
 ### Donghua Season 1, Episode 10: Delayed First Mention
 
 - What the viewer learns: Ince Zangwill escaped with Sealed Artifact 0-08; it is Grade 0, resembles an ordinary quill, and writes without ink.
@@ -135,6 +142,7 @@ The two plain filenames below are essential planned threads. Additional referenc
 ## Evidence Index
 
 - Chapter 19: Dunn explicitly identifies 0-08, its Grade 0 classification, its appearance, its inkless writing, and its connection to Ince Zangwill.
+- Chapter 20: Klein briefly speculates that 0-08 kills anyone whose name is written, then rejects the theory because Ince's behavior is inconsistent with such unrestricted power.
 - Donghua Season 1, Episode 10: Subtitle evidence identifies 0-08 around `00:05:14`, explains its Grade 0 status around `00:05:32`, and describes the inkless quill around `00:05:42`.
 - Chapter 210: 0-08's written story retrospectively connects the pre-Tingen notebook transfer chain with the wider Tingen plot.
 - Chapter 212: Klein attributes Ince's arrangements and the plot's coincidences to 0-08 while inferring that the artifact has restrictions.
@@ -263,6 +271,60 @@ last_updated: 2026-06-30
 #### Adaptation Analysis
 
 - The Donghua names 0-08 and describes the quill within the same Episode 10 conversation, but at distinct timestamps.
+
+### Knowledge Unit: 0-08 Might Kill Anyone Whose Name Is Written
+
+```yaml
+id: 0-08-unrestricted-name-kill-theory
+claim: 0-08 can kill anyone whose name is written with it.
+truth_status: false
+canon_scope: unresolved-difference
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: 20
+  notes: This is Klein's internal speculation, not an event caused by the artifact.
+tags:
+  - volume-1
+  - reader-knowledge
+  - reveal-order
+  - working-theory
+  - artifact
+disclosures:
+  - medium: novel
+    knowledge_state: working-theory
+    disclosure_type: speculation
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 20
+      sequence: 1
+    superseded_at:
+      book: lotm-1
+      volume: 1
+      chapter: 20
+      sequence: 2
+    superseded_by: Rejected by Klein because Ince's behavior is inconsistent with an unrestricted direct-kill ability.
+adaptation_relationships:
+  - type: uncertain
+    novel_claim_changed: false
+    notes: No equivalent speculation appears in the Episode 10 subtitle conversation, but visual or internal presentation has not yet been checked.
+related_investigations:
+  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-06-30
+```
+
+#### Reader-State History
+
+- At the start of the Chapter 20 thought sequence, the novel reader is invited to consider a direct name-based killing ability.
+- Klein rejects it immediately, so the theory should appear in the historical timeline but not remain active in the end-of-chapter reader summary.
+
+#### Adaptation Analysis
+
+- The Episode 10 subtitle conversation proceeds from the quill description to broader Sealed Artifact context without preserving Klein's direct-kill speculation. This is subtitle evidence only; silent visual or internal presentation remains unverified.
 
 ### Knowledge Unit: 0-08 Orchestrated the Notebook's Transfer Toward Tingen
 

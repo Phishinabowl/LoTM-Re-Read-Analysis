@@ -433,6 +433,8 @@ first-mention
 visual-hint
 implicit-clue
 strong-inference
+speculation
+rejection
 explicit-reveal
 confirmation
 adaptation-only-reveal
@@ -440,6 +442,8 @@ early-reveal
 ```
 
 Use separate disclosure entries for each medium. Never infer Donghua spoiler safety from novel chronology, or novel spoiler safety from Donghua release order.
+
+Use an optional numeric `sequence` when multiple disclosure or state changes occur at the same chapter, episode, or timestamp. Lower values occur first. This allows a theory to be proposed and rejected within one reader position without leaving it active at the end of that position.
 
 ## Adaptation Relationships
 

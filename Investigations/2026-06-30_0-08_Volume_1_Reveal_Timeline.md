@@ -6,7 +6,7 @@ What does the novel reader know about 0-08 at each meaningful point in Volume 1,
 
 ## Status
 
-In Progress. Checks 1 and 2 are EPUB verified.
+In Progress. Checks 1 through 3 are EPUB verified.
 
 ## Scope
 
@@ -31,7 +31,16 @@ Volume 1, from the first mention in Chapter 19 through Chapter 212.
 - Old Neil is still alive; after this conversation, Dunn sends Klein to him for reading materials.
 - Why it matters: The novel names 0-08 and establishes its danger, appearance, and connection to Ince very early, while withholding what the artifact actually does.
 
-### Check 2: Retrospective Causal Beginning
+### Check 2: First Speculation and Immediate Rejection
+
+#### Chapter 20: The Forgetful Dunn
+
+- Klein wonders whether the quill might kill anyone whose name is written with it.
+- He immediately rejects the idea as excessively powerful because Ince Zangwill would not need to escape and remain hidden if 0-08 had such an unrestricted direct-kill ability.
+- Klein does not replace this guess with another theory; the artifact's actual function remains unknown.
+- Why it matters: This is the reader's first proposed model for 0-08's power and the first constraint inferred from Ince's behavior.
+
+### Check 3: Retrospective Causal Beginning
 
 #### Chapter 210: Story
 
@@ -58,6 +67,10 @@ The novel first mentions 0-08 explicitly in Chapter 19. The introduction occurs 
 The user's remembered scene belongs to the Donghua presentation. The separate Donghua investigation verifies that Episode 10 reveals the designation and quill description substantially later than novel Chapter 19; its exact visual staging remains to be verified from the episode.
 
 ### Check 2
+
+Chapter 20 briefly introduces and dismisses the possibility that 0-08 directly kills anyone whose name is written. The rejection does not reveal the true ability, but it teaches the reader to infer an artifact's limitations from how its owner behaves.
+
+### Check 3
 
 The user's memory was directionally correct: Chapter 210 reveals the Antigonus notebook's arrival in Tingen as part of the opening setup of 0-08's written story.
 
