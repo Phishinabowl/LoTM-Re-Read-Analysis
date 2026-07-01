@@ -6,7 +6,7 @@ What does a Donghua viewer know about 0-08 at each meaningful point in Season 1,
 
 ## Status
 
-In Progress. The full 13-episode subtitle audit is complete, and the dedicated spectral-quill visual audit is complete through Episode 11. Checks 1 through 10 remain subtitle verified; Checks 11 through 14 formalize the audiovisual motif and major visual sequences through Episode 11. Previously verified Episode 13 visual evidence remains recorded.
+In Progress. The full 13-episode subtitle audit is complete, and the dedicated spectral-quill visual audit is complete through Episode 12. Checks 1 through 10 remain subtitle verified; Checks 11 through 15 formalize the audiovisual motif and major visual sequences through Episode 12. Previously verified Episode 13 visual evidence remains recorded.
 
 ## Scope
 
@@ -191,6 +191,9 @@ The spectral quill is a purely audiovisual evidence stream. Subtitle files do no
 | 10 | `00:05:40` | Confirmed physical-quill identity bridge | Dunn explains 0-08 while a physical quill descends through clouds with the established musical cue | Confirms motif identity; function remains unknown at this instant |
 | 10 | `00:21:00` | Confirmed spectral-quill occurrence | Appears over the Lanevus-to-Maynard investigation board before an external narrator's description of Mrs. Maynard is enacted word for word | Strongly indicates event-shaping through description; narrator identity and exact free-will mechanics remain separate |
 | 11 | `00:09:30` | Confirmed continuous sequence with two quill drops | Bridges the Saintess/Sharon confrontation, Sharon's return to her mansion, and Klein's surveillance | Strongly marks 0-08's involvement in the Sharon/Maynard/Klein intersection; control of the Saintess's independent plan is unsupported |
+| 12 | `00:01:16` | Confirmed quill drop with `[Ince]` narration and blood-red written text | Dunn's contamination-driven behavior over Kenley's corpse | Ince/0-08 arrange and exploit the behavior; the Antigonus contamination remains the proximate mechanism |
+| 12 | `00:20:25` | Confirmed quill drop with `[Ince]` whisper | Dunn selects Saint Selena's ashes immediately afterward | Strong behavioral steering through a plausible decision; unrestricted mind control remains unproved |
+| 12 | `00:25:39` | Confirmed physical-quill writing shot with `[Ince]` narration | Ince announces the climactic act as Megose destabilizes | Confirms authorial intervention; visible framing conceals whether Ince or 0-08 physically writes |
 
 Reader-state progression:
 
@@ -242,6 +245,43 @@ Reader-state progression:
 - The continuous camera movement ends with Klein surveilling the mansion.
 - Why it matters: The sequence strongly suggests that 0-08 shapes or exploits the point where Sharon's independent factional activity, Maynard's death, and Klein's investigation intersect.
 - Attribution boundary: It does not prove that 0-08 created the Demoness Sect's plan, controls the Saintess, or caused every event shown during the bridge.
+
+### Check 15: Episode 12 Ince Authorship and Endgame Steering
+
+#### Opening Dunn/Kenley Sequence
+
+- Around `00:01:16`, the spectral quill drops as Crunchyroll closed captions identify `[Ince]` narrating Dunn over Kenley's corpse.
+- Blood-like red writing appears onscreen with dripping lines of text.
+- The sequence continues the Episode 11 revelation that Dunn consumed part of Kenley's remains.
+- Causal boundary: 0-08 and Ince arrange or exploit Dunn's Antigonus-notebook contamination; the scene does not establish that 0-08 created the contamination or directly overrides Dunn without a proximate compulsion.
+
+#### Saint Selena Steering
+
+- Around `00:20:25`, the spectral quill drops and `[Ince]` whispers "Saint Selena."
+- Dunn repeats the name, requests the ashes, and invokes the crisis clause.
+- Around `00:21:27`, an unidentified spectral shape crosses or reflects within Dunn's eye after the ashes reach him.
+- The eye detail is too ambiguous to identify as a feather and is not counted as a separate motif occurrence.
+- Why it matters: The scene strongly demonstrates targeted influence that enters through an unaware target's plausible tactical reasoning.
+
+#### Institutional Knowledge Boundary
+
+- Around `00:22:04`, the Holy Cathedral replies that backup is coming and tells Tingen to stall.
+- Around `00:22:09`, Klein asks about the mastermind; around `00:22:10`, Dunn says there was no response.
+- Why it matters: The Church responds operationally but has no disclosed mastermind conclusion before the battle. Episode 13's culprit-identification wire therefore remains a later institutional threshold.
+
+#### Megose's Guiding Voice
+
+- Around `00:23:23`, Megose says she heard a voice.
+- Around `00:23:27`, she quotes it: "Your friend at Blackthorn will help you."
+- The wording steers her to the exact location required by the mastermind's plan.
+- Source boundary: 0-08 strongly orchestrates or exploits the arrival, but the literal voice may be direct 0-08 influence, the godspawn, or Megose's compelled internal perception.
+
+#### Climactic Writing Shot
+
+- Around `00:25:39`, Crunchyroll closed captions identify `[Ince]` saying, "And at last we reach the climactic act."
+- User-verified visuals show a quill writing on paper.
+- No hand is visible, but the upper-right framing prevents determining whether Ince holds the quill or 0-08 writes autonomously.
+- Why it matters: Episode 12 confirms Ince's authorial association while deliberately preserving physical writing-agency ambiguity for Episode 13.
 
 ## Interim Conclusions
 
@@ -301,6 +341,10 @@ Episode 10 first confirms who the spectral-quill motif represents, then uses a s
 
 Episode 11 uses two quill drops inside one continuous transition to associate 0-08 with the Sharon/Maynard/Klein chain. The Saintess's own complaint establishes that her broader plan remains independent and was complicated by Maynard's death.
 
+### Check 15
+
+Episode 12 explicitly identifies Ince's voice during quill-marked narration, demonstrates behavioral steering toward Saint Selena's ashes, and shows the climax being written. It preserves separate ambiguities around Dunn's proximate contamination, Megose's voice source, and whether the quill writes autonomously before Episode 13.
+
 ### Full Subtitle Audit
 
 All 13 regular Season 1 subtitle files were searched for direct references to `0-08`, Ince Zangwill, the quill, the mastermind, fate interference, coincidences, red chimneys, characteristics, divination, and the Tingen story. The audit confirmed the established checkpoints and added the Episodes 6-10 interference progression plus Episode 13's post-reveal theory, location sequence, and condensed Holy Cathedral identification. No subtitle line reproduces the novel's explicit warning naming both Ince and 0-08.
@@ -312,7 +356,7 @@ All 13 regular Season 1 subtitle files were searched for direct references to `0
 
 ## Future-Scope Questions
 
-- Which spectral-quill audiovisual occurrences appear in Episodes 12-13, and what event does each one mark?
+- Which spectral-quill audiovisual occurrences appear in Episode 13 beyond the already verified narration sequence, and what event does each one mark?
 - Does the animation explicitly depict the extraction or transformation of Teno's skull into the Death-descendant characteristic, beyond showing it in the ritual?
 - Does 0-08 have goals separate from Ince's, and what is the earliest Donghua-safe evidence of them?
 - Do the special episodes add or recontextualize any 0-08 information?

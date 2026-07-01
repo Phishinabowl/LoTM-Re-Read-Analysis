@@ -212,12 +212,21 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 - Causal boundary: The sequence does not show that 0-08 created, controls, or shares the Saintess of White's broader Tingen plan.
 - Why it matters: Episode 11 demonstrates that 0-08 can fold an independent faction's activity into its own causal story even when one engineered development complicates that faction's objectives.
 
-#### Season 1, Episode 12: Manipulation Becomes Obvious
+#### Season 1, Episode 12: Manipulation Becomes Obvious and Authorship Emerges
 
-- What the viewer learns: Megose arrives within an hour of the Nighthawks finding Lanevus's letter.
-- What Klein concludes: The coincidence is direct and obvious, the mastermind is no longer hiding the manipulation, and the plan is entering its open phase.
-- What remains unknown: Whether the strongly suspected 0-08/Ince connection is correct and how the mechanism operates.
-- Why it matters: The Donghua preserves the novel's endgame threshold while delaying explicit attribution until Episode 13.
+- Around `00:01:16`, the spectral quill drops as `[Ince]` narrates Dunn crouched over Kenley's corpse; blood-like red writing appears onscreen with dripping lines of text.
+- Proximate-cause boundary: The Antigonus notebook contamination explains Dunn's abnormal compulsion, while 0-08 and Ince are strongly implicated in arranging and exploiting that contamination.
+- Around `00:17:23`, Megose arrives within an hour of the Nighthawks finding Lanevus's letter.
+- Around `00:17:31-00:17:38`, Klein calls the coincidence direct and obvious, says the mastermind is no longer hiding the manipulation, and expects the mastermind to take center stage.
+- Around `00:20:25`, the spectral quill drops while Crunchyroll closed captions identify `[Ince]` whispering "Saint Selena." Dunn then repeats the name, requests Saint Selena's ashes, and invokes a legitimate crisis clause.
+- Behavioral-influence boundary: The sequence strongly demonstrates steering through a reasonable decision rather than unrestricted mind control.
+- Around `00:21:27`, an unidentified spectral shape crosses or reflects within Dunn's eye after the ashes enter his hands. Its timing suggests a completion beat, but it is too ambiguous to identify as a feather or separate motif occurrence.
+- Around `00:22:04`, the Holy Cathedral replies that backup is coming; around `00:22:09-00:22:10`, Dunn says there was no response regarding the mastermind.
+- Around `00:23:23-00:23:29`, Megose says a voice told her, "Your friend at Blackthorn will help you."
+- Voice-source boundary: 0-08 strongly orchestrates or exploits Megose's arrival, but the literal voice may come directly from 0-08, from the godspawn, or from Megose's compelled internal perception.
+- Around `00:25:39`, `[Ince]` says, "And at last we reach the climactic act," while a quill writes on paper.
+- Writing-agency boundary: No hand is visible, but framing in the upper-right corner prevents the viewer from determining whether Ince holds the quill or 0-08 writes autonomously.
+- Why it matters: Episode 12 moves from obvious manipulation to identified Ince authorship, direct behavioral steering, visible writing, and deliberate agency ambiguity immediately before Episode 13's full reveal.
 
 #### Season 1, Episodes 12-13: Characteristic Framework
 
@@ -267,7 +276,7 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 - Episode 13 threshold: 0-08's narration confirms the motif's broad event-shaping significance, while the exact causal action represented by each earlier appearance remains event-specific and potentially unresolved.
 - Adaptation role: The recurring signature gives the Donghua a pre-reveal mystery structure absent from the novel and invites viewers to reinterpret earlier scenes after the reveal.
 
-Verified occurrence audit through Episode 10:
+Verified occurrence audit through Episode 12:
 
 | Episode | Timestamp | Surrounding event | Retrospective interpretation | Exact causal confidence |
 | --- | --- | --- | --- | --- |
@@ -283,6 +292,9 @@ Verified occurrence audit through Episode 10:
 | 10 | `00:05:40` | Dunn describes 0-08 while a physical quill descends through clouds with the established musical cue | Confirms that the earlier spectral-quill motif represents 0-08 | Identity confirmed; function still unknown at this instant |
 | 10 | `00:21:00` | Spectral quill appears over the Lanevus-to-Maynard investigation board; an external narrator describes Mrs. Maynard's fury and exact words before she enacts them | Strongly demonstrates that 0-08 can shape a plausible social event through description | 0-08 involvement is strong; the narrator is not 0-08, and exact free-will mechanics remain unresolved |
 | 11 | `00:09:30` | Two quill drops bridge the Saintess/Sharon clocktower scene, Sharon's carriage returning to her mansion, and Klein's surveillance | Marks 0-08's involvement in the Sharon/Maynard/Klein intersection | Strong evidence of intersection shaping; control of the Saintess's independent plan is unsupported |
+| 12 | `00:01:16` | Quill drops as `[Ince]` narrates Dunn over Kenley's corpse and blood-red text appears | Presents Dunn's contamination-driven behavior as material inside Ince and 0-08's written story | 0-08 arranges/exploits the contamination; it is not established as the contamination's sole proximate cause |
+| 12 | `00:20:25` | Quill drops while `[Ince]` whispers "Saint Selena," followed by Dunn selecting the ashes | Strongly demonstrates targeted behavioral steering through a plausible tactical choice | Unrestricted mind control is not established |
+| 12 | `00:25:39` | A quill writes while `[Ince]` announces the climactic act | Confirms Ince's active authorial role as the crisis reaches its intended climax | No hand is visible; whether Ince holds the quill or 0-08 writes autonomously remains unresolved |
 
 #### Season 1, Episode 2: First Spectral-Quill Appearance
 
@@ -312,6 +324,8 @@ Verified occurrence audit through Episode 10:
 #### Season 1, Episode 7: Notebook Origin, Detection, and Red-Smockestack Obstruction
 
 - Around `00:01:56`, the spectral quill appears as Azik asks Klein to chart recent coincidences beginning with the Antigonus notebook; the scene enters a flashback of the notebook's ownership chain.
+- Around `00:02:15`, the episode-title card includes the on-screen line "This story is reasonable."
+- At this reader position, the phrase is cryptic thematic text; Episode 10 permits a working connection to 0-08, and Episode 13 confirms its story-author and plausibility-rule significance.
 - Around `00:14:51`, Klein concludes that Elliott's kidnapping was deliberately plotted to lead him toward the notebook.
 - Around `00:15:16`, he says the stronger interference feels as though someone noticed him meddling.
 - User-verified visuals around `00:29:00` show Klein reach a conspicuous red-smokestack building through the gray fog, become forcefully repelled, and have surrounding buildings obscure the target before he is thrown back into The Fool's chair.
@@ -350,6 +364,16 @@ Verified occurrence audit through Episode 10:
 - Retrospective interpretation: The continuous audiovisual bridge strongly associates 0-08 with the Sharon/Maynard/Klein chain and with the use of an independent Demoness plot as material inside the wider Tingen story.
 - Causal boundary: The two drops do not establish that 0-08 controls the Saintess, authored her entire plan, or caused every action in the bridged scenes.
 - Why it matters: This is the first audited motif sequence after viewers know both the quill's identity and its likely description-to-reality function.
+
+#### Season 1, Episode 12: Ince Authorship and Endgame Steering
+
+- Around `00:01:16`, the quill drops with its cue as Crunchyroll closed captions identify `[Ince]` narrating Dunn's behavior over Kenley's corpse.
+- Blood-like red writing with dripping lines visually presents the description as authored text.
+- Around `00:20:25`, the quill drops again while `[Ince]` whispers "Saint Selena"; Dunn then selects the ashes through an otherwise reasonable crisis decision.
+- Around `00:21:27`, an unidentified spectral shape crosses Dunn's eye after the ashes reach him. It is retained as ambiguous visual reinforcement rather than counted as a confirmed quill occurrence.
+- Around `00:25:39`, a quill visibly writes while `[Ince]` announces the climactic act.
+- Physical-agency boundary: The shot shows no hand but places the quill in a corner that prevents determining whether Ince holds it or it writes alone.
+- Why it matters: Episode 12 progresses from Ince describing an already-corrupted Dunn, to planting the needed choice, to visibly writing the climax. It confirms authorial intervention while preserving the autonomous-quill reveal for Episode 13.
 
 #### Season 1, Episodes 6-10: Hidden Interference Progression
 
@@ -802,10 +826,21 @@ disclosures:
     superseded_at:
       season: 1
       installment_type: episode
-      episode: 13
-      release_order: 13
-      timestamp: 00:22:07.57
+      episode: 12
+      release_order: 12
+      timestamp: 00:25:39.82
     superseded_by: 0-08-donghua-spectral-quill-event-shaping
+  - medium: donghua
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 12
+      release_order: 12
+      timestamp: 00:25:39.82
+    superseded_at:
+    superseded_by:
   - medium: donghua
     knowledge_state: confirmed-fact
     disclosure_type: confirmation
@@ -832,7 +867,8 @@ last_updated: 2026-07-01
 
 - At `00:05:40`, Episode 10 confirms only that the recurring motif represents 0-08.
 - At `00:21:00`, the Maynard/Sharon sequence strongly indicates that described social behavior can be made to occur through 0-08's involvement.
-- Episode 13 confirms the written-story mechanism while leaving exact event-level responsibility separately evaluable.
+- At `00:25:39`, Episode 12 directly shows a quill writing as Ince narrates the story's climactic act, confirming the written-story mechanism without revealing whether Ince or the quill is physically writing.
+- Episode 13 confirms the mechanism again and reveals 0-08's autonomous role while leaving exact event-level responsibility separately evaluable.
 
 #### Adaptation Analysis
 
@@ -1415,6 +1451,22 @@ disclosures:
     superseded_at:
     superseded_by:
   - medium: donghua
+    knowledge_state: working-theory
+    disclosure_type: visual-hint
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 7
+      release_order: 7
+      timestamp: 00:02:15.00
+    superseded_at:
+      season: 1
+      installment_type: episode
+      episode: 13
+      release_order: 13
+      timestamp: 00:19:54.66
+    superseded_by: 0-08-plausible-causality-constraint
+  - medium: donghua
     knowledge_state: confirmed-fact
     disclosure_type: explicit-reveal
     available_from:
@@ -1434,11 +1486,12 @@ related_investigations:
   - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
-last_updated: 2026-06-30
+last_updated: 2026-07-01
 ```
 
 #### Reader-State History
 
+- Episode 7 places the unexplained title text `This story is reasonable` beside the early quill motif, allowing only a retrospective or highly speculative connection at that point.
 - Novel Chapter 210 and Donghua Episode 13 explicitly frame the story's coincidences as constrained by logical development.
 
 #### Adaptation Analysis
@@ -1535,6 +1588,22 @@ disclosures:
     superseded_at:
     superseded_by:
   - medium: donghua
+    knowledge_state: strong-inference
+    disclosure_type: implicit-clue
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 12
+      release_order: 12
+      timestamp: 00:25:39.82
+    superseded_at:
+      season: 1
+      installment_type: episode
+      episode: 13
+      release_order: 13
+      timestamp: 00:20:57.36
+    superseded_by: 0-08-ince-directly-edits-lines
+  - medium: donghua
     knowledge_state: confirmed-fact
     disclosure_type: explicit-reveal
     available_from:
@@ -1554,12 +1623,13 @@ related_investigations:
   - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
-last_updated: 2026-06-30
+last_updated: 2026-07-01
 ```
 
 #### Reader-State History
 
 - Novel Chapter 210 strongly implies Ince's editorial role but does not identify the hand performing every revision.
+- Episode 12 identifies Ince as the narrator while a quill writes the climactic line, strongly associating him with authorship; no hand is visible, so the physical writer remains unresolved.
 - Donghua Episode 13 confirms that role visually.
 
 #### Adaptation Analysis
@@ -1707,6 +1777,22 @@ disclosures:
     superseded_by:
   - medium: donghua
     knowledge_state: strong-inference
+    disclosure_type: implicit-clue
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 12
+      release_order: 12
+      timestamp: 00:20:25.87
+    superseded_at:
+      season: 1
+      installment_type: episode
+      episode: 13
+      release_order: 13
+      timestamp: 00:29:08.46
+    superseded_by: 0-08-constrained-behavioral-influence
+  - medium: donghua
+    knowledge_state: strong-inference
     disclosure_type: strong-inference
     available_from:
       season: 1
@@ -1725,17 +1811,175 @@ related_investigations:
   - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
-last_updated: 2026-06-30
+last_updated: 2026-07-01
 ```
 
 #### Reader-State History
 
 - Novel Chapter 212 makes this Klein's explicit working model.
+- Donghua Episode 12 strongly implies constrained steering when the quill cue and Ince's repeated whisper of `Saint Selena` precede Dunn's selection of the ashes through a legitimate emergency procedure.
 - Donghua Episode 13 makes the model explicit when Klein revises "written word dictates reality" into control of the targets' wills.
 
 #### Adaptation Analysis
 
 - Neither format fully defines whether free will is overridden or merely steered through motives and circumstances.
+
+### Knowledge Unit: 0-08 Steers Dunn Toward Saint Selena's Ashes
+
+```yaml
+id: 0-08-steers-dunn-to-saint-selena-ashes
+claim: Ince and 0-08 steer the compromised Dunn toward selecting Saint Selena's ashes while preserving a plausible emergency justification for his choice.
+truth_status: true
+canon_scope: shared
+occurs_at:
+  medium: donghua
+  season: 1
+  episode: 12
+  timestamp: 00:20:25.87
+  notes: The quill cue accompanies Ince's repeated whisper of Saint Selena immediately before Dunn invokes the crisis rule and selects the ashes.
+tags:
+  - volume-1
+  - chronology
+  - causality
+  - reader-knowledge
+  - reveal-order
+  - artifact
+disclosures:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 210
+    superseded_at:
+    superseded_by:
+  - medium: donghua
+    knowledge_state: strong-inference
+    disclosure_type: implicit-clue
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 12
+      release_order: 12
+      timestamp: 00:20:25.87
+    superseded_at:
+      season: 1
+      installment_type: episode
+      episode: 13
+      release_order: 13
+      timestamp: 00:19:54.66
+    superseded_by: 0-08-steers-dunn-to-saint-selena-ashes
+  - medium: donghua
+    knowledge_state: confirmed-fact
+    disclosure_type: confirmation
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 13
+      release_order: 13
+      timestamp: 00:19:54.66
+    superseded_at:
+    superseded_by:
+adaptation_relationships:
+  - type: expanded
+    novel_claim_changed: false
+    notes: The Donghua adds a quill cue and Ince's repeated whisper immediately before Dunn's choice, making the steering legible before the full retrospective reveal.
+related_investigations:
+  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
+  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-07-01
+```
+
+#### Reader-State History
+
+- Episode 12 allows a strong inference that Ince and 0-08 are steering Dunn, but the full mechanism is not yet explained.
+- Episode 13's retrospective narration confirms the inference.
+
+#### Adaptation Analysis
+
+- Dunn still acts through an available emergency rule, preserving the distinction between behavioral steering and an arbitrary impossible command.
+
+### Knowledge Unit: 0-08 Orchestrates Megose's Arrival at Blackthorn
+
+```yaml
+id: 0-08-orchestrates-megose-blackthorn-arrival
+claim: 0-08's Tingen story orchestrates or exploits Megose's arrival at Blackthorn Security, but the literal source of the guiding voice she reports remains unresolved.
+truth_status: contextual
+canon_scope: adaptation-variant
+occurs_at:
+  medium: donghua
+  season: 1
+  episode: 12
+  timestamp: 00:23:23.00
+  notes: Megose says a voice told her that her friend at Blackthorn would help her.
+tags:
+  - volume-1
+  - chronology
+  - causality
+  - reader-knowledge
+  - reveal-order
+  - artifact
+disclosures:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 210
+    superseded_at:
+    superseded_by:
+  - medium: donghua
+    knowledge_state: strong-inference
+    disclosure_type: implicit-clue
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 12
+      release_order: 12
+      timestamp: 00:23:23.00
+    superseded_at:
+      season: 1
+      installment_type: episode
+      episode: 13
+      release_order: 13
+      timestamp: 00:19:54.66
+    superseded_by: 0-08-orchestrates-megose-blackthorn-arrival
+  - medium: donghua
+    knowledge_state: confirmed-fact
+    disclosure_type: confirmation
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 13
+      release_order: 13
+      timestamp: 00:19:54.66
+    superseded_at:
+    superseded_by:
+adaptation_relationships:
+  - type: expanded
+    novel_claim_changed: false
+    notes: The novel retrospectively describes a baffling summons and Megose's irresistible urges; the Donghua adds her report of a literal guiding voice without identifying its source.
+related_investigations:
+  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
+  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-07-01
+```
+
+#### Reader-State History
+
+- Episode 12 makes deliberate guidance toward Blackthorn strongly inferable before identifying the larger written story.
+- Episode 13 confirms that Megose's arrival belongs to the orchestrated climax.
+- Neither disclosure identifies whether the reported voice was 0-08, the godspawn, or a compelled internal perception.
+
+#### Adaptation Analysis
+
+- The Donghua supplies a concrete subjective experience where the novel gives a retrospective causal description, so the voice itself must remain adaptation-specific and unresolved.
 
 ### Knowledge Unit: Ince and 0-08's Volume 1 Working Relationship
 
