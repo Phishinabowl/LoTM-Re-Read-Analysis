@@ -15,6 +15,7 @@ Mermaid graphs are generated from glossary metadata and Relationship Seeds. If a
 
 - [Volume 1 Knowledge Graph](graphs/volume-1-knowledge-graph.mmd)
 - [Graph Schema Notes](data/graph-schema.md)
+- [Rendering Instructions](rendering.md)
 
 The `rendered/` folder is reserved for future generated SVG or PNG graph exports.
 
