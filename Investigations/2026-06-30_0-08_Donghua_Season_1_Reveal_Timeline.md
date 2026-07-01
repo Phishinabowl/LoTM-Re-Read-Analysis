@@ -6,7 +6,7 @@ What does a Donghua viewer know about 0-08 at each meaningful point in Season 1,
 
 ## Status
 
-In Progress. Checks 1 through 7 are subtitle verified. The Episode 7 skull placement, Episode 10 introduction staging, and Episode 13 narrative-revision sequence are user-verified visual evidence; other visual details remain under investigation.
+In Progress. The full 13-episode subtitle audit is complete, and the dedicated spectral-quill visual audit is complete through Episode 7. Checks 1 through 10 remain subtitle verified; Checks 11 and 12 formalize the audiovisual motif and Episode 7 visual sequence. Previously verified Episode 10 and Episode 13 visual evidence remains recorded.
 
 ## Scope
 
@@ -25,6 +25,7 @@ Donghua Season 1, Episodes 1-13. Current subtitle source coverage does not inclu
 - Header provenance: Crunchyroll/Tencent
 - Coverage: 13 regular Season 1 episodes
 - Limitation: Subtitle evidence verifies dialogue, translated text, and timestamps but not silent visual details.
+- Secondary corroboration: Contemporary viewer discussions identify Episode 2 as the first translucent-feather appearance; this supports but does not replace the user-verified visual audit: https://www.reddit.com/r/LordofTheMysteries/comments/1lmnrt8
 
 ## Evidence
 
@@ -43,6 +44,11 @@ Donghua Season 1, Episodes 1-13. Current subtitle source coverage does not inclu
 - Why it matters: The Donghua explicitly connects the stolen skull to the Megose ritual long before introducing formal Beyonder-characteristic terminology.
 
 ### Check 2: Target Awareness and Azik's Departure
+
+#### Episode 7: Coincidence
+
+- Around `00:15:16`, Klein says the interference has grown stronger, as though someone noticed him meddling.
+- Why it matters: This is the Donghua's first explicit detection-of-investigation theory, earlier than Azik's later reinforcement.
 
 #### Episode 8: Losing Control
 
@@ -123,6 +129,75 @@ Donghua Season 1, Episodes 1-13. Current subtitle source coverage does not inclu
 - Adaptation distinction: The novel confirms Ince's use of 0-08 without defining the artifact's attitude; the Donghua expands the relationship through explicit liberation framing.
 - Why it matters: Cooperation or aligned interests are supportable at the Season 1 boundary, while loyalty, shared long-term goals, and a separate hostile agenda remain unknown.
 
+### Check 8: Hidden Interference and Blocked Divination Progression
+
+#### Episodes 6-10
+
+- Episode 6 around `00:17:18` has Azik identify disharmony in Klein's fate; around `00:31:07`, he senses the same erratic power at Lamud Castle.
+- Episode 7 around `00:14:51` has Klein conclude that the suspicious coincidences were deliberately plotted to lead him to the Antigonus notebook.
+- Around `00:15:16`, he says the stronger interference feels as though someone noticed his meddling.
+- User-verified visuals around `00:29:00` show Klein reach a prominent red-smokestack building, become forcefully repelled as buildings obscure it, and be thrown back into The Fool's chair above the gray fog.
+- Around `00:29:23`, Klein identifies the red smokestacks; around `00:29:25`, he says whoever is pulling the strings is located there.
+- Episode 8 around `00:01:40` says red-smokestack divination keeps reaching dead ends; around `00:01:44`, Klein says even the gray fog cannot break through the interference.
+- Episode 10 around `00:24:34` has Klein conclude that the occasions when his divination was blocked must be linked.
+- Attribution boundary: These scenes establish a hidden coordinating power but do not identify it as 0-08 until Episode 13.
+- Adaptation distinction: The novel's gray-fog divination reveals the red chimney and its route search is later manipulated; the Donghua explicitly presents the red-chimney divination itself as remaining obstructed.
+- Why it matters: The Donghua creates a continuous fate-and-divination investigation that can be retrospectively attributed to 0-08 without spoiling the earlier episodes.
+
+### Check 9: Post-Reveal Theory and Backlund Result
+
+#### Episode 13: The Clown
+
+- Around `00:28:56`, Klein identifies Ince as the mastermind.
+- Around `00:29:02`, he asks whether the plot was the power of 0-08.
+- Around `00:29:05`, he briefly proposes that 0-08's written word dictates reality.
+- Around `00:29:08`, he replaces that model with the theory that 0-08 controls the wills of its targets.
+- Around `00:29:11`, he identifies Saint Selena's ashes as Ince's goal and Dunn as the intended target.
+- Around `00:29:25`, Klein seeks Ince's immediate location; around `00:29:51`, all three of his inquiries lead broadly to Backlund.
+- Attribution boundary: Subtitle evidence confirms the immediate-location inquiry and broad result but does not state why the result lacks precision.
+- Why it matters: The viewer receives Klein's explicit working model and the continuing Backlund pursuit after 0-08's own narration has exposed the plot.
+
+### Check 10: Holy Cathedral Identification and Leonard's Red Gloves Decision
+
+#### Episode 13: The Clown
+
+- User-verified visual evidence around `00:22:14` shows the loose page written by 0-08 fly from the narration scene, catch against a window, and reveal Leonard inside a hospital ward as the camera pulls outward.
+- Around `00:22:31`, Seeka Tron gives Leonard a message and says it is an unencrypted wire from the Holy Cathedral.
+- Around `00:22:38`, she says the culprit has already been identified; around `00:22:40`, she says the Red Gloves are handling the case.
+- Around `00:22:45`, Leonard responds that he intends to join the Red Gloves.
+- Attribution boundary: The subtitle dialogue does not name Ince or 0-08 in the wire. Their association comes from the immediately preceding reveal and the user-verified flying-page transition.
+- Adaptation distinction: Novel Chapter 211 explicitly names Ince and 0-08 and confirms that the warning arrived before the battle. The Donghua preserves the institutional message and Leonard's decision while condensing the warning and leaving its arrival time unstated.
+- Why it matters: The Donghua retains the consequence of the delayed warning without giving its viewers the novel's exact institutional wording.
+
+### Check 11: Recurring Spectral-Quill Audiovisual Motif
+
+The spectral quill is a purely audiovisual evidence stream. Subtitle files do not contain the animation, musical stinger, or writing-like cue and therefore cannot verify its presence or absence.
+
+| Episode | Timestamp | Audit result | Event association | Causal boundary |
+| --- | --- | --- | --- | --- |
+| 1 | Full episode | No occurrence; user-reviewed and independently corroborated as preceding the first reported appearance | None | N/A |
+| 2 | `00:25:41` | First confirmed occurrence | Appears after Leonard incapacitates Elliott's kidnappers and before they awaken, transform, and merge | 0-08 involvement becomes retrospectively strong; direct causation of the transformation remains an inference |
+| 3 | Full episode | No occurrence after two user reviews | None | N/A |
+| 4 | `00:32:28` | Confirmed occurrence | Klein links Hanass, Selena's mirror incident, the Secret Order, and the Antigonus notebook | Marks the broader connected event chain; manipulation of Klein's reasoning is not established |
+| 5 | Full episode | No occurrence | Unrelated bird or feather imagery is excluded without the matching animation and musical signature | N/A |
+| 6 | `00:31:04` | Confirmed occurrence | Azik senses the same erratic power while discussing his son's stolen skull | Connects the skull thief to Klein's fate interference; exact theft mechanics remain unknown |
+| 7 | `00:01:56` | Confirmed occurrence | Azik asks Klein to chart coincidences beginning with the notebook, and the scene enters its ownership-chain flashback | Marks the notebook-transfer chain; individual manipulated decisions remain unresolved |
+
+Reader-state progression:
+
+- Episodes 2-9: The viewer knows only that an unexplained spectral quill and musical cue recur near strange or newly connected events.
+- Episode 10 around `00:05:42`: Dunn's description of 0-08 as an ordinary inkless quill makes identification of the motif a reasonable working theory.
+- Episode 13: 0-08's narrative role confirms the retrospective identity and broad involvement, without automatically proving what it caused in each marked scene.
+
+### Check 12: Episode 7 Red-Smokestack-to-Teno Editorial Chain
+
+- Around `00:29:23-00:29:25`, Klein identifies the red smokestacks as the hidden string-puller's location.
+- Around `00:29:49`, an on-screen sign moves the story to one month earlier.
+- Around `00:29:54`, Teno Eggers's skull is labeled inside the Megose ritual flashback.
+- The immediate edit encourages the viewer to associate the hidden mastermind and red-smokestack location with the skull and ritual.
+- The sequence does not yet explain Ince, 0-08, Beyonder characteristics, or which causal steps were manipulated.
+- Why it matters: The Donghua visually joins plot threads that remain analytically separate until the end-of-season explanation.
+
 ## Interim Conclusions
 
 ### Check 1
@@ -131,7 +206,7 @@ Episodes 6-7 identify Teno as Azik's child and explicitly place his stolen skull
 
 ### Check 2
 
-Episodes 8 and 10 preserve Azik's inference that the mastermind noticed investigation, fortified its interference, and might lower its guard after Azik leaves. The target's awareness remains a strong inference rather than a mechanically confirmed ability.
+Episode 7 gives Klein the first inference that the mastermind noticed his meddling. Episodes 8 and 10 reinforce that theory through Azik's observations and departure plan. The target's awareness remains a strong inference rather than a mechanically confirmed ability.
 
 ### Check 3
 
@@ -153,14 +228,38 @@ Episode 13 preserves the plausible-causality and adaptive-revision model while m
 
 The Donghua frames the relationship more personally than the novel: Ince freed 0-08 from Chanis Gate, giving the artifact an apparent reason to cooperate. This does not establish loyalty or malice toward Ince, and no Season 1 evidence shows 0-08 undermining him.
 
+### Check 8
+
+Episodes 6-10 establish hidden fate interference through repeated divination failures. Episode 7 visually demonstrates active obstruction at the red-smokestack target, and Episode 8 explicitly states that even the gray fog cannot penetrate the interference. The source remains unnamed until 0-08 becomes a viable theory in Episode 10 and is confirmed in Episode 13.
+
+### Check 9
+
+Episode 13 preserves Klein's transition from an unrestricted written-reality theory to constrained behavioral control. It also preserves his attempt to locate Ince and the broad Backlund result without subtitle-confirming the novel's explanation for that imprecision.
+
+### Check 10
+
+Episode 13 preserves the Holy Cathedral identification and Leonard's resulting Red Gloves pursuit through condensed dialogue and a new visual transition from 0-08's final page. The institution's exact knowledge of 0-08 remains less explicit than in the novel.
+
+### Check 11
+
+The recurring spectral quill creates a Donghua-original open question beginning in Episode 2. Repetition invites pattern recognition, Episode 10 permits identity attribution as a working theory, and Episode 13 confirms the motif's connection to 0-08 while leaving event-level causation separately evaluable.
+
+### Check 12
+
+Episode 7 combines direct obstruction, explicit red-smokestack dialogue, and an immediate transition into the Teno-skull ritual flashback. This makes the hidden plot's internal connectedness more visually legible without revealing its author or mechanics.
+
+### Full Subtitle Audit
+
+All 13 regular Season 1 subtitle files were searched for direct references to `0-08`, Ince Zangwill, the quill, the mastermind, fate interference, coincidences, red chimneys, characteristics, divination, and the Tingen story. The audit confirmed the established checkpoints and added the Episodes 6-10 interference progression plus Episode 13's post-reveal theory, location sequence, and condensed Holy Cathedral identification. No subtitle line reproduces the novel's explicit warning naming both Ince and 0-08.
+
 ## Board Updates
 
 - Board 1: No update. This is granular adaptation chronology owned by the 0-08 glossary thread.
 - Board 2: No update.
 
-## Open Questions
+## Future-Scope Questions
 
-- How does Episode 13 reveal 0-08's role in the Tingen plot?
+- Which spectral-quill audiovisual occurrences appear in Episodes 8-13, and what event does each one mark?
 - Does the animation explicitly depict the extraction or transformation of Teno's skull into the Death-descendant characteristic, beyond showing it in the ritual?
 - Does 0-08 have goals separate from Ince's, and what is the earliest Donghua-safe evidence of them?
 - Do the special episodes add or recontextualize any 0-08 information?

@@ -8,9 +8,9 @@ First Mention Volume: 1
 Current Analysis Status: In Progress
 Confidence Level: Strong Evidence
 Spoiler Boundary: Volume 1
-Reader Knowledge Boundary: Novel Chapter 212; Donghua Season 1 Episode 13
+Reader Knowledge Boundary: Novel Chapter 213; Donghua Season 1 Episode 13
 Tags: volume-1, chronology, foreshadowing, reader-knowledge, reveal-order, unresolved, artifact
-Last Updated: 2026-06-30
+Last Updated: 2026-07-01
 
 Related Threads:
 - artifact-antigonus-notebook.md
@@ -32,8 +32,8 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 ## Reader Knowledge Boundary
 
 - Volume: 1
-- Chapter: 212
-- Reader knowledge state: The reader has seen Ince conclude Tingen's written story and has followed Klein's inference that 0-08 arranged the coincidences behind the plot.
+- Chapter: 213
+- Reader knowledge state: The reader has seen Ince conclude Tingen's written story, followed Klein's inference that 0-08 arranged the plot, and reached the closing Backlund threat assessment.
 - Donghua: Season 1, Episode 13
 - Donghua viewer knowledge state: The viewer has seen Teno Eggers's skull used in the Megose ritual, learned the characteristic conservation law, and heard that Ince uses the remaining Death-descendant characteristic in his advancement. The skull-to-characteristic extraction remains a strong inference.
 
@@ -47,6 +47,35 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 - Reader knowledge state: The reader explicitly learns the `0-08` designation, its Grade 0 classification, its quill-like appearance, its ability to write without ink, and that Ince escaped with it. Its actual function remains unknown.
 
 ### Donghua
+
+#### Season 1: Recurring Spectral-Quill Audiovisual Motif
+
+- Presentation: A translucent spectral quill descends into selected scenes with a recurring musical and writing-like audio cue.
+- Episodes 1-9 reader state: The viewer can recognize a repeated audiovisual signature but does not know its identity, purpose, or whether it causes, redirects, observes, or merely marks the surrounding event.
+- Episode 10 threshold: Dunn's description of 0-08 as an ordinary inkless quill makes identification of the motif as 0-08 a reasonable working theory.
+- Episode 13 threshold: 0-08's narration confirms the retrospective attribution, while the exact causal action represented by each earlier appearance remains event-specific and potentially unresolved.
+- Adaptation role: The recurring signature gives the Donghua a pre-reveal mystery structure absent from the novel and invites viewers to reinterpret earlier scenes after the reveal.
+
+Verified occurrence audit through Episode 7:
+
+| Episode | Timestamp | Surrounding event | Retrospective interpretation | Exact causal confidence |
+| --- | --- | --- | --- | --- |
+| 1 | Full episode | No motif observed | Confirmed absent for this project audit | N/A |
+| 2 | `00:25:41` | Leonard has knocked out Elliott's kidnappers; the quill appears before they awaken, transform, and merge | Strong evidence of 0-08 involvement in the incident | The quill causing the awakening and merger is a strong inference, not confirmed mechanics |
+| 3 | Full episode, reviewed twice | No motif observed | Confirmed absent for this project audit | N/A |
+| 4 | `00:32:28` | Klein links Hanass, Selena's mirror incident, the Secret Order, and the Antigonus notebook | Marks the connected event chain later incorporated into 0-08's Tingen story | Manipulation of Klein's reasoning at that moment is unknown |
+| 5 | Full episode | No motif observed | Confirmed absent for this project audit; unrelated bird or feather imagery is excluded | N/A |
+| 6 | `00:31:04` | Azik senses the same erratic power while discussing his son's stolen skull | Connects the skull thief with the force disturbing Klein's fate | Exact theft mechanism remains unresolved |
+| 7 | `00:01:56` | Azik asks Klein to chart coincidences beginning with the Antigonus notebook; a flashback shows its ownership chain | Marks the notebook's path into the Tingen plot | Which transfers or decisions were directly manipulated remains unresolved |
+
+#### Season 1, Episodes 6-10: Hidden Interference Progression
+
+- Episode 6: Azik identifies disharmony in Klein's fate and later senses the same erratic power at Lamud Castle.
+- Episode 7: Klein concludes that the suspicious coincidences were deliberately plotted to lead him toward the Antigonus notebook.
+- Episode 8: Klein says his red-chimney divinations keep reaching dead ends and that even the gray fog cannot penetrate the interference.
+- Episode 10: Klein concludes that his blocked divinations must be connected, while Azik reports that the mastermind has fortified the interference.
+- Attribution boundary: None of these episodes identifies 0-08 as the source; that connection becomes safe only in Episode 13.
+- Why it matters: The Donghua develops the hidden manipulator through an escalating divination-and-fate investigation before revealing the artifact behind it.
 
 - Season: 1
 - Episode: 10, `Clue`
@@ -158,6 +187,7 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 
 - Episode 6 knowledge: Teno Eggers is identified as Azik's child, whose skull was stolen.
 - Episode 7 knowledge: A one-month-prior flashback explicitly labels Teno's skull while showing it in the Megose ritual sequence with Lanevus and Hood Eugen.
+- Editorial sequencing: The flashback follows immediately after Klein identifies the red smokestacks as the hidden string-puller's location, encouraging viewers to connect the mastermind, Teno's skull, and the Megose ritual before the causal chain is explained.
 - What remains unknown: The formal Beyonder-characteristic framework, the extraction process, Ince's role, and any connection to 0-08.
 - Why it matters: The Donghua reveals the skull's ritual destination early while withholding the system that explains what the skull contributes.
 
@@ -201,6 +231,26 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 - Adaptation difference: The novel leaves earlier revision agency ambiguous and depicts Ince writing the final line; the Donghua clarifies Ince as editor and changes the final writer to 0-08.
 - Intent boundary: Its independent perspective and interest in freedom do not establish malice, resistance, deception, or a hostile agenda toward Ince.
 - Why it matters: Autonomous writing becomes confirmed Donghua behavior, while full independent consciousness remains a strong inference.
+
+#### Season 1, Episode 13: Klein's Post-Reveal Model
+
+- Around `00:28:56`, Klein identifies Ince as the mastermind.
+- Around `00:29:02`, he asks whether the plot was the power of 0-08.
+- Around `00:29:05`, he briefly proposes that its written word dictates reality.
+- Around `00:29:08`, he revises the model to constrained control of its targets' wills.
+- Around `00:29:25`, he seeks Ince's immediate location; around `00:29:51`, his divinations lead only to Backlund.
+- Attribution boundary: The subtitles do not state why the location result is broad, so the novel's joint 0-08/demigod explanation cannot yet be promoted to a confirmed Donghua claim.
+- Why it matters: The season ends with an explicit reader-facing model of 0-08's influence and a continuing pursuit rather than only the narrated solution to Tingen's mystery.
+
+#### Season 1, Episode 13: Holy Cathedral Identification and Leonard's Pursuit
+
+- Visual transition around `00:22:14`: The final page written by 0-08 flies from the previous scene, catches against a window, and reveals Leonard's hospital ward as the camera pulls outward.
+- Spoken evidence around `00:22:31`: Seeka Tron hands Leonard a message and identifies it as an unencrypted wire from the Holy Cathedral.
+- Spoken evidence around `00:22:38`: Seeka says the culprit has already been identified and that the Red Gloves are handling the case.
+- Character consequence around `00:22:45`: Leonard immediately declares that he intends to join the Red Gloves.
+- Attribution boundary: The spoken wire summary does not name Ince or 0-08; the connection is supplied by its placement immediately after 0-08's narration and by the user-verified flying-page transition.
+- Adaptation difference: The novel explicitly names Ince and 0-08 and establishes that the warning arrived before the battle; the Donghua preserves the Holy Cathedral wire and Leonard's response but condenses its contents and does not subtitle-confirm its pre-battle arrival.
+- Why it matters: The institutional response and Leonard's pursuit survive the adaptation without granting Donghua viewers the novel's exact warning text.
 
 ## Open Questions
 
@@ -472,6 +522,148 @@ last_updated: 2026-06-30
 
 - The Episode 10 subtitle conversation proceeds from the quill description to broader Sealed Artifact context without preserving Klein's direct-kill speculation. This is subtitle evidence only; silent visual or internal presentation remains unverified.
 
+### Knowledge Unit: Recurring Spectral-Quill Audiovisual Motif
+
+```yaml
+id: 0-08-donghua-spectral-quill-audiovisual-motif
+claim: The Donghua uses a recurring spectral-quill animation and musical cue to mark events retrospectively associated with 0-08, while leaving the artifact's exact action in each event unresolved unless separately established.
+truth_status: true
+canon_scope: donghua-only
+occurs_at:
+  medium: donghua
+  season: 1
+  episode: 2
+  timestamp: 00:25:41
+  notes: Episode 2 contains the first confirmed occurrence; Episodes 1 and 3 contain no occurrence in the completed visual audit.
+tags:
+  - volume-1
+  - chronology
+  - foreshadowing
+  - reader-knowledge
+  - reveal-order
+  - audiovisual-motif
+  - artifact
+disclosures:
+  - medium: donghua
+    knowledge_state: open-question
+    disclosure_type: visual-hint
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 2
+      release_order: 2
+      timestamp: 00:25:41
+    superseded_at:
+      season: 1
+      installment_type: episode
+      episode: 10
+      release_order: 10
+      timestamp: 00:05:42.09
+    superseded_by: 0-08-donghua-spectral-quill-audiovisual-motif
+  - medium: donghua
+    knowledge_state: open-question
+    disclosure_type: visual-hint
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 4
+      release_order: 4
+      timestamp: 00:32:28
+    superseded_at:
+      season: 1
+      installment_type: episode
+      episode: 10
+      release_order: 10
+      timestamp: 00:05:42.09
+    superseded_by: 0-08-donghua-spectral-quill-audiovisual-motif
+  - medium: donghua
+    knowledge_state: open-question
+    disclosure_type: visual-hint
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 6
+      release_order: 6
+      timestamp: 00:31:04
+    superseded_at:
+      season: 1
+      installment_type: episode
+      episode: 10
+      release_order: 10
+      timestamp: 00:05:42.09
+    superseded_by: 0-08-donghua-spectral-quill-audiovisual-motif
+  - medium: donghua
+    knowledge_state: open-question
+    disclosure_type: visual-hint
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 7
+      release_order: 7
+      timestamp: 00:01:56
+    superseded_at:
+      season: 1
+      installment_type: episode
+      episode: 10
+      release_order: 10
+      timestamp: 00:05:42.09
+    superseded_by: 0-08-donghua-spectral-quill-audiovisual-motif
+  - medium: donghua
+    knowledge_state: working-theory
+    disclosure_type: speculation
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 10
+      release_order: 10
+      timestamp: 00:05:42.09
+    superseded_at:
+      season: 1
+      installment_type: episode
+      episode: 13
+      release_order: 13
+      timestamp: 00:19:21.95
+    superseded_by: 0-08-donghua-spectral-quill-audiovisual-motif
+  - medium: donghua
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 13
+      release_order: 13
+      timestamp: 00:19:21.95
+    superseded_at:
+    superseded_by:
+adaptation_relationships:
+  - type: donghua-original
+    novel_claim_changed: false
+    notes: The novel contains no recurring audiovisual signature corresponding to the Donghua's spectral quill and musical cue.
+subject_attribution_from:
+  - medium: donghua
+    position:
+      season: 1
+      installment_type: episode
+      episode: 10
+      release_order: 10
+      timestamp: 00:05:42.09
+related_investigations:
+  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-07-01
+```
+
+#### Reader-State History
+
+- Episodes 2-9 allow only recognition of an unexplained recurring audiovisual pattern.
+- Dunn's Episode 10 description of an ordinary inkless quill permits the viewer to theorize that the motif represents 0-08.
+- Episode 13 confirms the retrospective identity and broad involvement without automatically resolving the precise causal role of every earlier appearance.
+
+#### Adaptation Analysis
+
+- The motif creates a season-long visual mystery and delayed reinterpretation structure unique to the Donghua.
+
 ### Knowledge Unit: 0-08 Was Behind the Hidden Interference Klein Detected
 
 ```yaml
@@ -514,12 +706,59 @@ disclosures:
       chapter: 212
     superseded_at:
     superseded_by:
+  - medium: donghua
+    knowledge_state: strong-inference
+    disclosure_type: implicit-clue
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 6
+      release_order: 6
+      timestamp: 00:17:18.88
+    superseded_at:
+    superseded_by:
+  - medium: donghua
+    knowledge_state: working-theory
+    disclosure_type: speculation
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 10
+      release_order: 10
+      timestamp: 00:05:42.09
+    superseded_at:
+      season: 1
+      installment_type: episode
+      episode: 13
+      release_order: 13
+      timestamp: 00:22:07.57
+    superseded_by: 0-08-hidden-interference-in-kleins-fate
+  - medium: donghua
+    knowledge_state: confirmed-fact
+    disclosure_type: confirmation
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 13
+      release_order: 13
+      timestamp: 00:22:07.57
+    superseded_at:
+    superseded_by:
 adaptation_relationships:
-  - type: uncertain
+  - type: faithful
     novel_claim_changed: false
-    notes: The equivalent Donghua hidden-manipulator progression has not yet been fully investigated.
+    notes: The Donghua condenses the same hidden-interference progression across Episodes 6-10, permits a spectral-quill/0-08 working theory after the Episode 10 introduction, and confirms attribution in Episode 13.
+subject_attribution_from:
+  - medium: donghua
+    position:
+      season: 1
+      installment_type: episode
+      episode: 10
+      release_order: 10
+      timestamp: 00:05:42.09
 related_investigations:
   - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
+  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-06-30
@@ -530,10 +769,11 @@ last_updated: 2026-06-30
 - Chapters 98-99 permit the reader to know that hidden interference exists, but not that 0-08 causes it.
 - Before Chapter 210, this claim must remain absent from an automatically filtered 0-08 page even though the underlying clue has already occurred.
 - Chapter 210 retrospectively connects the natural-seeming coincidences to Ince's written story, and Chapter 212 has Klein identify 0-08 as the likely mechanism.
+- Donghua Episodes 6-10 establish the same generic hidden interference; the Episode 10 quill description permits a working 0-08 attribution, and Episode 13 confirms it.
 
 #### Adaptation Analysis
 
-- Donghua Episodes 11-13 contain a related mastermind progression, but its exact disclosure timeline remains to be documented in the Donghua investigation.
+- The Donghua reveals the generic interference earlier in its compressed chronology, permits identity attribution as a theory in Episode 10, and confirms it in Episode 13.
 
 ### Knowledge Unit: 0-08 Diverted Klein's Red-Chimney Search Routes
 
@@ -728,7 +968,7 @@ occurs_at:
   book: lotm-1
   volume: 1
   chapter: 170
-  notes: Azik presents this as an inference based on the target's recent inactivity; the Donghua presents the equivalent suspicion in Episodes 8 and 10.
+  notes: Azik presents this as an inference based on the target's recent inactivity; the Donghua begins the equivalent suspicion with Klein in Episode 7 and reinforces it in Episodes 8 and 10.
 tags:
   - volume-1
   - foreshadowing
@@ -756,6 +996,17 @@ disclosures:
     available_from:
       season: 1
       installment_type: episode
+      episode: 7
+      release_order: 7
+      timestamp: 00:15:16.86
+    superseded_at:
+    superseded_by:
+  - medium: donghua
+    knowledge_state: strong-inference
+    disclosure_type: confirmation
+    available_from:
+      season: 1
+      installment_type: episode
       episode: 8
       release_order: 8
       timestamp: 00:02:23.29
@@ -775,7 +1026,7 @@ disclosures:
 adaptation_relationships:
   - type: faithful
     novel_claim_changed: false
-    notes: The Donghua preserves Azik's reasoning and places his Episode 10 letter immediately before 0-08's delayed introduction.
+    notes: The Donghua gives Klein the first detection suspicion in Episode 7, reinforces it through Azik, and places Azik's Episode 10 letter immediately before 0-08's delayed introduction.
 subject_attribution_from:
   - medium: novel
     position:
@@ -786,8 +1037,9 @@ subject_attribution_from:
     position:
       season: 1
       installment_type: episode
-      episode: 13
-      release_order: 13
+      episode: 10
+      release_order: 10
+      timestamp: 00:05:42.09
 related_investigations:
   - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
   - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
@@ -798,9 +1050,9 @@ last_updated: 2026-06-30
 
 #### Reader-State History
 
-- Novel Chapter 170 and Donghua Episodes 8/10 make the generic adaptive-mastermind theory available without identifying 0-08 as the cause.
-- The generic claim is available from novel Chapter 170 and Donghua Episode 8, with Episode 10 reinforcing it.
-- To avoid spoiling the connection merely by displaying it on the 0-08 page, `subject_attribution_from` withholds this unit from that page until novel Chapter 210 or Donghua Episode 13.
+- Novel Chapter 170 and Donghua Episodes 7/8/10 make the generic adaptive-mastermind theory available without initially identifying 0-08 as the cause.
+- The generic Donghua claim is available from Episode 7, with Episodes 8 and 10 reinforcing it.
+- To avoid spoiling the connection merely by displaying it on the 0-08 page, `subject_attribution_from` withholds this unit until novel Chapter 210 or until Episode 10 makes the spectral-quill/0-08 identification a reasonable viewer theory.
 - Even after attribution, the target's exact detection mechanism remains unresolved.
 
 #### Adaptation Analysis
@@ -1210,7 +1462,7 @@ disclosures:
       installment_type: episode
       episode: 13
       release_order: 13
-      timestamp: 00:22:07.57
+      timestamp: 00:29:08.46
     superseded_at:
     superseded_by:
 adaptation_relationships:
@@ -1228,7 +1480,7 @@ last_updated: 2026-06-30
 #### Reader-State History
 
 - Novel Chapter 212 makes this Klein's explicit working model.
-- Donghua Episode 13 supports the same constrained-influence model through the narrated causal chain.
+- Donghua Episode 13 makes the model explicit when Klein revises "written word dictates reality" into control of the targets' wills.
 
 #### Adaptation Analysis
 
@@ -1297,6 +1549,149 @@ last_updated: 2026-06-30
 
 - The Donghua expands the relationship into a more personal liberation-and-cooperation framing without proving loyalty or shared long-term goals.
 
+### Knowledge Unit: Donghua Red-Chimney Divination Remains Blocked
+
+```yaml
+id: 0-08-donghua-blocks-red-chimney-divination
+claim: In the Donghua, the hidden mastermind actively obstructs Klein as he reaches the red-smokestack target through the gray fog, and subsequent divination still cannot penetrate the interference.
+truth_status: true
+canon_scope: adaptation-variant
+occurs_at:
+  medium: donghua
+  season: 1
+  episode: 7
+  timestamp: 00:29:23.59
+  notes: User-verified visuals depict Klein being repelled and surrounding buildings obscuring the target; subtitle dialogue identifies the red smokestacks as the hidden manipulator's location.
+tags:
+  - volume-1
+  - chronology
+  - foreshadowing
+  - reader-knowledge
+  - reveal-order
+  - divination
+  - gray-fog
+  - artifact
+disclosures:
+  - medium: donghua
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 7
+      release_order: 7
+      timestamp: 00:29:23.59
+    superseded_at:
+    superseded_by:
+  - medium: donghua
+    knowledge_state: confirmed-fact
+    disclosure_type: confirmation
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 8
+      release_order: 8
+      timestamp: 00:01:40.87
+    superseded_at:
+    superseded_by:
+adaptation_relationships:
+  - type: changed
+    novel_claim_changed: true
+    notes: The novel lets gray-fog divination reveal the red chimney and later shows 0-08 manipulating Klein's search routes; the Donghua instead explicitly emphasizes continuing divination interference, including above the gray fog.
+subject_attribution_from:
+  - medium: donghua
+    position:
+      season: 1
+      installment_type: episode
+      episode: 10
+      release_order: 10
+      timestamp: 00:05:42.09
+related_investigations:
+  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-07-01
+```
+
+#### Reader-State History
+
+- Episode 7 visually demonstrates active obstruction and has Klein identify the red smokestacks as the hidden string-puller's location.
+- Episode 8 verbally confirms that continued divination reaches dead ends and even the gray fog cannot break through.
+- Episode 10 permits a working identification with 0-08; Episode 13 confirms the retrospective attribution.
+
+#### Adaptation Analysis
+
+- This is a changed investigative mechanism, not merely a compressed version of the novel's route-choice manipulation.
+
+### Knowledge Unit: Unrestricted Written-Word Theory
+
+```yaml
+id: 0-08-unrestricted-written-word-theory
+claim: Klein briefly considers an unrestricted model in which 0-08's written words directly dictate reality before replacing it with a constrained behavioral-influence model.
+truth_status: false
+canon_scope: shared
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: 212
+  notes: Both versions present and reject an overly direct initial model during Klein's post-reveal reasoning.
+tags:
+  - volume-1
+  - reader-knowledge
+  - reveal-order
+  - causality
+  - working-theory
+  - artifact
+disclosures:
+  - medium: novel
+    knowledge_state: working-theory
+    disclosure_type: speculation
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 212
+    superseded_at:
+      book: lotm-1
+      volume: 1
+      chapter: 212
+    superseded_by: 0-08-constrained-behavioral-influence
+  - medium: donghua
+    knowledge_state: working-theory
+    disclosure_type: speculation
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 13
+      release_order: 13
+      timestamp: 00:29:05.86
+    superseded_at:
+      season: 1
+      installment_type: episode
+      episode: 13
+      release_order: 13
+      timestamp: 00:29:08.46
+    superseded_by: 0-08-constrained-behavioral-influence
+adaptation_relationships:
+  - type: faithful
+    novel_claim_changed: false
+    notes: The Donghua condenses Klein's rejected direct-reality model into a three-second transition before his behavioral-control theory.
+related_investigations:
+  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
+  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-06-30
+```
+
+#### Reader-State History
+
+- Novel Chapter 212 and Donghua Episode 13 both allow the unrestricted model only transiently before Klein rejects it as too simple.
+
+#### Adaptation Analysis
+
+- The Donghua makes the transition especially explicit through consecutive subtitle lines.
+
 ### Knowledge Unit: Holy Cathedral Warning Arrived Before the Endgame
 
 ```yaml
@@ -1327,9 +1722,12 @@ disclosures:
     superseded_at:
     superseded_by:
 adaptation_relationships:
-  - type: uncertain
-    novel_claim_changed: false
-    notes: No equivalent Donghua warning has yet been verified.
+  - type: changed
+    novel_claim_changed: true
+    notes: The Donghua preserves an unencrypted Holy Cathedral wire and Leonard's Red Gloves decision but summarizes only that the culprit was identified; it does not explicitly name Ince or 0-08 or establish that the message arrived before the battle.
+  - type: recontextualized
+    novel_claim_changed: true
+    notes: A user-verified visual transition carries 0-08's loose final page into Leonard's hospital-room scene, associating the institutional identification with the artifact without placing that identification in the wire's spoken wording.
 related_investigations:
   - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
 related_boards:
@@ -1343,7 +1741,61 @@ last_updated: 2026-06-30
 
 #### Adaptation Analysis
 
-- The Donghua investigation has not identified a matching institutional-warning scene.
+- The Donghua preserves a transformed counterpart immediately after 0-08's narration, but the novel-only claim remains narrower because only the novel confirms the explicit names and pre-battle arrival.
+
+### Knowledge Unit: Donghua Holy Cathedral Culprit Identification
+
+```yaml
+id: 0-08-donghua-holy-cathedral-culprit-identification
+claim: After the Tingen crisis, a Holy Cathedral wire tells Leonard that the culprit has been identified and the Red Gloves are pursuing the case, prompting him to join them.
+truth_status: true
+canon_scope: adaptation-variant
+occurs_at:
+  medium: donghua
+  season: 1
+  episode: 13
+  timestamp: 00:22:31.15
+  notes: User-verified visual evidence shows Seeka hand Leonard the message after a loose page from 0-08's narration visually transitions into his hospital ward.
+tags:
+  - volume-1
+  - chronology
+  - reader-knowledge
+  - reveal-order
+  - artifact
+disclosures:
+  - medium: donghua
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 13
+      release_order: 13
+      timestamp: 00:22:31.15
+    superseded_at:
+    superseded_by:
+adaptation_relationships:
+  - type: condensed
+    novel_claim_changed: true
+    notes: The Donghua retains the Holy Cathedral wire, culprit identification, and Leonard's Red Gloves decision while omitting the novel's explicit spoken warning naming Ince and 0-08.
+  - type: recontextualized
+    novel_claim_changed: true
+    notes: The flying-page transition visually connects 0-08's completed narration to Leonard receiving the wire, while the dialogue itself refers only to the culprit.
+related_investigations:
+  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-06-30
+```
+
+#### Reader-State History
+
+- The viewer has already seen 0-08 narrate Ince's plot before the visual page transition and Holy Cathedral identification scene.
+- The wire confirms an institutional culprit identification but does not itself disclose whether the Holy Cathedral explicitly named 0-08.
+
+#### Adaptation Analysis
+
+- This is the Donghua counterpart to Chapter 211's delayed warning, preserving narrative consequence while reducing the specificity of the message available to the viewer.
 
 ### Knowledge Unit: 0-08 and Ince Obstruct Exact Divination
 
@@ -1435,15 +1887,70 @@ disclosures:
       chapter: 212
     superseded_at:
     superseded_by:
+  - medium: donghua
+    knowledge_state: open-question
+    disclosure_type: visual-hint
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 7
+      release_order: 7
+      timestamp: 00:01:56
+    superseded_at:
+      season: 1
+      installment_type: episode
+      episode: 10
+      release_order: 10
+      timestamp: 00:05:42.09
+    superseded_by: 0-08-antigonus-notebook-transfer-to-tingen
+  - medium: donghua
+    knowledge_state: working-theory
+    disclosure_type: speculation
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 10
+      release_order: 10
+      timestamp: 00:05:42.09
+    superseded_at:
+      season: 1
+      installment_type: episode
+      episode: 13
+      release_order: 13
+      timestamp: 00:19:44.69
+    superseded_by: 0-08-antigonus-notebook-transfer-to-tingen
+  - medium: donghua
+    knowledge_state: strong-inference
+    disclosure_type: confirmation
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 13
+      release_order: 13
+      timestamp: 00:19:44.69
+    superseded_at:
+    superseded_by:
 adaptation_relationships:
-  - type: uncertain
+  - type: revealed-earlier
     novel_claim_changed: false
-    notes: Donghua disclosure timing has not yet been documented.
+    notes: Episode 7 visually marks the notebook ownership chain with the spectral-quill motif before Episode 10 permits the viewer to identify that motif as 0-08.
+  - type: recontextualized
+    novel_claim_changed: false
+    notes: The Donghua turns the ownership chain into a visual flashback attached to Klein and Azik's coincidence investigation.
+subject_attribution_from:
+  - medium: donghua
+    position:
+      season: 1
+      installment_type: episode
+      episode: 10
+      release_order: 10
+      timestamp: 00:05:42.09
 related_investigations:
   - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
+  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
-last_updated: 2026-06-30
+last_updated: 2026-07-01
 ```
 
 #### Reader-State History
@@ -1451,10 +1958,11 @@ last_updated: 2026-06-30
 - Before Chapter 210, the reader has experienced the transfer and its consequences without knowing that they belong to 0-08's written causal structure.
 - Chapter 210 retrospectively frames the transfer chain as the beginning of the written Tingen story.
 - Chapter 212 has Klein identify 0-08 as the likely mechanism behind Ince's arrangements and the story's coincidences.
+- Donghua Episode 7 marks the ownership-chain flashback with the unidentified spectral quill; Episode 10 permits a working identification, and Episode 13 retrospectively confirms the chain's place in 0-08's story.
 
 #### Adaptation Analysis
 
-- Donghua timing and presentation have not yet been documented.
+- The Donghua exposes the chain visually before naming 0-08, creating a staged open-question-to-theory-to-confirmation progression.
 
 ## Future Automation Notes
 
@@ -1462,4 +1970,4 @@ The knowledge unit above should eventually support separate causal and reader-di
 
 ## Notes
 
-- The novel timeline is verified at Chapter 19 and Chapters 210-212. Intermediate reveal points remain incomplete.
+- The novel Volume 1 timeline is complete. The regular-season subtitle audit is complete, and the Donghua spectral-quill visual audit is complete through Episode 7.
