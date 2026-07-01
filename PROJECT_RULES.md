@@ -571,6 +571,20 @@ If an accurate relationship exists but no controlled relationship type fits, do 
 
 Recommend or define a narrow new relationship type, update `PROJECT_RULES.md`, then apply it consistently to the affected articles.
 
+### Generator Interpretation Rules
+
+Duplicate exact relationship seeds are acceptable when they provide article-local context or bidirectional coverage across existing glossary pages.
+
+Graph generators should de-duplicate exact rendered edges and report only meaningful conflicts, such as different relationship types, start points, confidence levels, statuses, or notes that change the interpretation.
+
+Multiple relationship types between the same two nodes are allowed when they represent distinct semantic roles. Do not collapse them merely because the node pair is the same.
+
+Duplicate relationship seeds may differ in notes, source file, or article-local status because each glossary page frames the same edge from its own reader boundary and analytical purpose.
+
+Graph generators should preserve provenance for drill-down and avoid treating those differences as hard conflicts unless they change the underlying relationship type, chronology, confidence, or factual meaning.
+
+For global graphs, prefer the most generally applicable non-boundary status. For reader-boundary views, prefer the status valid for the selected article or reader position.
+
 Example:
 
 ```yaml
