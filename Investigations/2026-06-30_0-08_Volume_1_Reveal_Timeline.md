@@ -55,7 +55,7 @@ Volume 1, from the first mention in Chapter 19 through Chapter 212.
 
 The novel first mentions 0-08 explicitly in Chapter 19. The introduction occurs during Dunn's explanation of Sealed Artifact grades, not after Old Neil's death. At this point the reader knows its designation, danger class, appearance, inkless writing, and connection to Ince Zangwill, but nothing about its reality-shaping function.
 
-The user's remembered scene belongs to the Donghua presentation and may represent a later, recontextualized adaptation reveal. Its exact episode and disclosure details remain unverified.
+The user's remembered scene belongs to the Donghua presentation. The separate Donghua investigation verifies that Episode 10 reveals the designation and quill description substantially later than novel Chapter 19; its exact visual staging remains to be verified from the episode.
 
 ### Check 2
 
@@ -74,5 +74,4 @@ Chapter 210 provides strong contextual evidence that 0-08 orchestrated this chai
 
 - Which intermediate clues alter the reader's understanding before Chapter 210?
 - Which apparent coincidences can be attributed to 0-08 by the end of Volume 1?
-- In which Donghua installment is the quill first shown or described?
-- Does the Donghua reveal the `0-08` designation at the same time as the quill?
+- Donghua reveal timing is tracked separately in `2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md`.

@@ -8,7 +8,7 @@ First Mention Volume: 1
 Current Analysis Status: In Progress
 Confidence Level: Strong Evidence
 Spoiler Boundary: Volume 1
-Reader Knowledge Boundary: Chapter 212
+Reader Knowledge Boundary: Novel Chapter 212; Donghua Season 1 Episode 10
 Tags: volume-1, chronology, foreshadowing, reader-knowledge, reveal-order, unresolved, artifact
 Last Updated: 2026-06-30
 
@@ -18,6 +18,7 @@ Related Threads:
 
 Related Investigations:
 - [2026-06-30_0-08_Volume_1_Reveal_Timeline.md](../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md)
+- [2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md](../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md)
 
 ## Purpose
 
@@ -32,6 +33,8 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 - Volume: 1
 - Chapter: 212
 - Reader knowledge state: The reader has seen Ince conclude Tingen's written story and has followed Klein's inference that 0-08 arranged the coincidences behind the plot.
+- Donghua: Season 1, Episode 10
+- Donghua viewer knowledge state: The viewer has heard the `0-08` designation, its Grade 0 classification, its quill-like appearance, its inkless writing, and its connection to Ince. Later Season 1 disclosures are not yet integrated.
 
 ## First Appearance / First Meaningful Mention
 
@@ -54,6 +57,13 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 - What the reader learns: Ince Zangwill escaped with Grade 0 Sealed Artifact 0-08; it resembles an ordinary quill and writes without ink.
 - What remains unknown: What it writes, how it affects reality, its limitations, why Ince stole it, and whether it has influenced Tingen.
 - Why it matters: The novel establishes the artifact's identity and extreme danger very early while withholding the ability that will explain Volume 1's causal structure.
+
+### Donghua Season 1, Episode 10: Delayed First Mention
+
+- What the viewer learns: Ince Zangwill escaped with Sealed Artifact 0-08; it is Grade 0, resembles an ordinary quill, and writes without ink.
+- Subtitle evidence: The designation appears around `00:05:14`; the Grade 0 explanation around `00:05:32`; and the quill description around `00:05:42`.
+- What remains unknown: The artifact's actual function and operating restrictions.
+- Why it matters: The adaptation preserves the core introductory information but moves it far later than novel Chapter 19 and places it after Old Neil's storyline.
 
 ### Chapter 210: Story
 
@@ -84,10 +94,10 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 - Needs EPUB verification: Further verification needed
 - Related investigation: [Volume 1 reveal timeline](../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md)
 
-- Question: When does the Donghua first show or describe the quill, and when does it disclose the `0-08` designation?
-- Current confidence: User recalls a substantially later and recontextualized reveal after Old Neil's death.
-- Needs EPUB verification: No; Donghua verification needed
-- Related investigation: Planned Donghua Season 1 reveal timeline
+- Question: What visual setting and object placement accompany the Donghua's Episode 10 reveal?
+- Current confidence: User recalls Klein finding the wanted poster while going through Old Neil's workshop.
+- Needs EPUB verification: No; visual episode verification needed
+- Related investigation: [Donghua Season 1 reveal timeline](../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md)
 
 ## Related Threads
 
@@ -125,6 +135,7 @@ The two plain filenames below are essential planned threads. Additional referenc
 ## Evidence Index
 
 - Chapter 19: Dunn explicitly identifies 0-08, its Grade 0 classification, its appearance, its inkless writing, and its connection to Ince Zangwill.
+- Donghua Season 1, Episode 10: Subtitle evidence identifies 0-08 around `00:05:14`, explains its Grade 0 status around `00:05:32`, and describes the inkless quill around `00:05:42`.
 - Chapter 210: 0-08's written story retrospectively connects the pre-Tingen notebook transfer chain with the wider Tingen plot.
 - Chapter 212: Klein attributes Ince's arrangements and the plot's coincidences to 0-08 while inferring that the artifact has restrictions.
 
@@ -136,7 +147,7 @@ The two plain filenames below are essential planned threads. Additional referenc
 id: 0-08-designation-and-ince-possession
 claim: Sealed Artifact 0-08 is an extremely dangerous Grade 0 artifact taken by former archbishop Ince Zangwill when he escaped the Church of Evernight.
 truth_status: true
-canon_scope: unresolved-difference
+canon_scope: shared
 occurs_at:
   medium: novel
   book: lotm-1
@@ -158,15 +169,27 @@ disclosures:
       chapter: 19
     superseded_at:
     superseded_by:
+  - medium: donghua
+    knowledge_state: confirmed-fact
+    disclosure_type: first-mention
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 10
+      release_order: 10
+      timestamp: 00:05:14.42
+    superseded_at:
+    superseded_by:
 adaptation_relationships:
   - type: revealed-later
     novel_claim_changed: false
-    notes: Based on the user's Donghua recollection; exact installment and whether the designation is disclosed with the quill remain unverified.
+    notes: Verified by Episode 10 subtitle evidence. The novel discloses this in Chapter 19.
   - type: recontextualized
     novel_claim_changed: false
-    notes: The Donghua recollection places the reveal after Old Neil's death rather than during Klein's early introduction to Sealed Artifacts.
+    notes: The Donghua places the reveal after Old Neil's storyline rather than during Klein's early introduction to Sealed Artifacts. Exact visual staging remains to be verified from the episode.
 related_investigations:
   - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
+  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-06-30
@@ -175,11 +198,11 @@ last_updated: 2026-06-30
 #### Reader-State History
 
 - Chapter 19 explicitly gives the novel reader the `0-08` designation, its danger class, and its connection to Ince Zangwill.
-- The Donghua reveal position remains unverified and must not yet be used for automatic episode filtering.
+- Episode 10 subtitle evidence makes the same designation and Ince connection available to Donghua viewers from release order 10.
 
 #### Adaptation Analysis
 
-- The user recalls the Donghua moving and recontextualizing this introduction until after Old Neil's death.
+- The Donghua moves this introduction from novel Chapter 19 to Episode 10, after Old Neil's storyline. The subtitle track verifies the dialogue and timing; the user's recalled workshop staging remains visual evidence to verify.
 
 ### Knowledge Unit: 0-08 Resembles an Inkless Quill
 
@@ -187,7 +210,7 @@ last_updated: 2026-06-30
 id: 0-08-ordinary-inkless-quill
 claim: 0-08 appears to be an ordinary quill but can write without ink.
 truth_status: true
-canon_scope: unresolved-difference
+canon_scope: shared
 occurs_at:
   medium: novel
   book: lotm-1
@@ -209,12 +232,24 @@ disclosures:
       chapter: 19
     superseded_at:
     superseded_by:
+  - medium: donghua
+    knowledge_state: confirmed-fact
+    disclosure_type: first-mention
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 10
+      release_order: 10
+      timestamp: 00:05:42.09
+    superseded_at:
+    superseded_by:
 adaptation_relationships:
   - type: revealed-later
     novel_claim_changed: false
-    notes: The user recalls this visual information appearing after Old Neil's death in the Donghua; exact installment remains unverified.
+    notes: Verified by Episode 10 subtitle evidence. The novel discloses this in Chapter 19.
 related_investigations:
   - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
+  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-06-30
@@ -223,11 +258,11 @@ last_updated: 2026-06-30
 #### Reader-State History
 
 - Chapter 19 gives the novel reader only the quill's appearance and inkless writing. Its actual function remains concealed.
-- Donghua timing remains unverified and must not yet be used for automatic episode filtering.
+- Episode 10 subtitle evidence makes the quill description available to Donghua viewers from release order 10.
 
 #### Adaptation Analysis
 
-- Separating this property from the `0-08` designation allows the Donghua timeline to reveal the quill visually without necessarily naming it at the same moment.
+- The Donghua names 0-08 and describes the quill within the same Episode 10 conversation, but at distinct timestamps.
 
 ### Knowledge Unit: 0-08 Orchestrated the Notebook's Transfer Toward Tingen
 

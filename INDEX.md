@@ -18,8 +18,9 @@ Navigation hub for the reread analysis workspace.
 
 - [Investigation Template](Investigations/TEMPLATE.md)
 - [0-08 Volume 1 Reveal Timeline](Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md)
+- [0-08 Donghua Season 1 Reveal Timeline](Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md)
 
-One completed investigation record.
+Two active reveal-timeline investigations.
 
 ## Glossary Threads
 
@@ -32,4 +33,4 @@ Glossary threads are organized into type-specific subfolders as records are crea
 
 - [Source Handling Notes](Source/README.md)
 
-The EPUB source file is local-only and ignored by Git.
+The local source directory, including the EPUB and Donghua subtitles, is ignored by Git.

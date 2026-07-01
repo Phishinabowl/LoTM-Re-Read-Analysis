@@ -212,6 +212,8 @@ Use these fields consistently:
 - `Tags`: Controlled taxonomy tags from the approved categories below.
 - `Last Updated`: Date of the last meaningful file update.
 
+When a thread tracks more than one medium, record each `Reader Knowledge Boundary` independently, such as a novel chapter and a Donghua release position. Never let one medium's boundary silently advance another.
+
 The metadata section may also include:
 
 ```text
@@ -481,7 +483,7 @@ When a knowledge unit is created or materially changed:
 
 # Canonical Sources
 
-## EPUB
+## Novel EPUB
 
 The EPUB:
 
@@ -494,6 +496,33 @@ is the canonical source of truth.
 Do not use external summaries, wikis, fandom pages, Reddit posts, or memory when verification is required.
 
 Use the EPUB.
+
+## Donghua Subtitles
+
+Local `.ass` subtitle files are the canonical source for the dialogue and translated on-screen text contained in that subtitle release.
+
+Record subtitle provenance and coverage. Translation wording may differ between official or fan releases, so do not silently combine subtitle editions.
+
+Subtitle evidence can verify:
+
+- Dialogue
+- Narration represented in the subtitle track
+- Translated signs or on-screen text represented in the subtitle track
+- Episode-relative timestamps
+
+Subtitle evidence alone cannot verify:
+
+- Silent visual clues
+- Framing or camera emphasis
+- Character expressions
+- Object placement or appearance not described in text
+- Animation-only chronology that requires watching the scene
+
+Label evidence as `Subtitle Evidence`, `Visual Evidence`, or `Episode Evidence` when the distinction matters. `Episode Evidence` requires support from both the audiovisual episode and its dialogue or text.
+
+Do not commit subtitle source files or reproduce their dialogue in project records. Use episode numbers, timestamps, and paraphrased evidence summaries.
+
+When subtitle evidence is consulted for a formal conclusion, create or update the relevant investigation record just as with EPUB evidence.
 
 ---
 

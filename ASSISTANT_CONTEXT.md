@@ -12,6 +12,8 @@
 - Preserve novel and Donghua disclosure timelines independently.
 - Embed Reader Knowledge Ledger units in glossary threads for durable spoiler-timed claims, including theories and misconceptions.
 - Treat structured YAML knowledge-unit blocks as canonical; do not maintain separate claim files or duplicate JSON manually.
+- Use local Donghua `.ass` files as canonical evidence for their subtitle dialogue and timestamps, while treating silent visual details as separate visual evidence.
+- Keep all local source media under `Source/`, which is ignored by Git; preserve only paraphrased evidence and references in tracked records.
 
 The user is strongest at:
 
