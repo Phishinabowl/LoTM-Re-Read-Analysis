@@ -18,8 +18,8 @@ Related Threads:
 - [concept-beyonder-characteristics.md](../Concepts/concept-beyonder-characteristics.md)
 
 Related Investigations:
-- [2026-06-30_0-08_Volume_1_Reveal_Timeline.md](../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md)
-- [2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md](../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md)
+- [novel-volume-1-reveal-timeline.md](../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md)
+- [donghua-season-1-reveal-timeline.md](../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md)
 
 ## Purpose
 
@@ -438,27 +438,27 @@ Verified occurrence audit through Episode 13:
 - Question: Which parts of the notebook's transfer chain were actively arranged by 0-08 rather than merely incorporated into its story?
 - Current confidence: Strong Evidence
 - Needs EPUB verification: Further verification needed
-- Related investigation: [Volume 1 reveal timeline](../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md)
+- Related investigation: [Volume 1 reveal timeline](../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md)
 
 - Question: What is the exact division of authorship and editorial control between Ince and 0-08 in the novel?
 - Current confidence: Mixed
 - Needs EPUB verification: Further evidence beyond Volume 1 needed
-- Related investigation: [Volume 1 reveal timeline](../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md)
+- Related investigation: [Volume 1 reveal timeline](../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md)
 
 - Question: Does 0-08 override free will, or only influence behavior through plausible motives and circumstances?
 - Current confidence: Strong Evidence for constrained influence; exact limit unknown
 - Needs EPUB verification: Further evidence beyond Volume 1 needed
-- Related investigation: [Volume 1 reveal timeline](../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md)
+- Related investigation: [Volume 1 reveal timeline](../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md)
 
 - Question: Is the gray fog the reason Klein repeatedly disrupts 0-08's descriptions?
 - Current confidence: Strong Inference
 - Needs EPUB verification: Further evidence beyond Volume 1 needed
-- Related investigation: [Volume 1 reveal timeline](../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md)
+- Related investigation: [Volume 1 reveal timeline](../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md)
 
 - Question: Does 0-08 have an agenda separate from Ince's, and is it ever hostile toward him?
 - Current confidence: Unknown; no affirmative Volume 1 evidence
 - Needs EPUB verification: Evidence beyond Volume 1 needed
-- Related investigation: [Volume 1 reveal timeline](../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md)
+- Related investigation: [Volume 1 reveal timeline](../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md)
 
 ## Related Threads
 
@@ -563,8 +563,8 @@ adaptation_relationships:
     novel_claim_changed: false
     notes: The Donghua places the reveal after Old Neil's storyline and embeds Ince's wanted poster among Old Neil's papers, where Klein discovers it accidentally after receiving Azik's letter.
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-06-30
@@ -623,8 +623,8 @@ adaptation_relationships:
     novel_claim_changed: false
     notes: Verified by Episode 10 subtitle evidence. The novel discloses this in Chapter 19.
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-06-30
@@ -678,8 +678,8 @@ adaptation_relationships:
     novel_claim_changed: false
     notes: Episode 10 proceeds from Dunn's quill description into broader Sealed Artifact context without preserving Klein's brief direct-kill speculation and rejection.
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-07-01
@@ -815,7 +815,7 @@ subject_attribution_from:
       release_order: 10
       timestamp: 00:05:40
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-07-01
@@ -897,7 +897,7 @@ adaptation_relationships:
     novel_claim_changed: false
     notes: The underlying event-shaping power is shared, but the recurring audiovisual teaching device and description-to-enactment staging are Donghua-original.
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-07-01
@@ -973,8 +973,8 @@ adaptation_relationships:
     novel_claim_changed: false
     notes: Episode 11 juxtaposes the Saintess's complaint that Maynard disrupted her plans with two spectral-quill drops bridging Sharon's return and Klein's surveillance.
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-07-01
@@ -1084,8 +1084,8 @@ subject_attribution_from:
       release_order: 10
       timestamp: 00:05:42.09
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-06-30
@@ -1140,8 +1140,8 @@ adaptation_relationships:
     novel_claim_changed: false
     notes: The Donghua condenses the novel's prolonged route-selection failure into Episode 7's direct visual obstruction at the red-smokestack target and later blocked-divination dialogue rather than documenting each search batch.
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-07-01
@@ -1203,8 +1203,8 @@ adaptation_relationships:
     novel_claim_changed: false
     notes: Episode 12 identifies the Megose remnant and Episode 13 identifies Ince's remaining characteristic, preserving the divided-use inference; whether the extraction or transformation from Teno's skull is shown remains unresolved.
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-07-01
@@ -1266,8 +1266,8 @@ adaptation_relationships:
     novel_claim_changed: false
     notes: Episode 6 identifies Teno as Azik's child, Episode 7 labels his skull inside the Megose ritual flashback, and Episodes 12-13 establish the Death-remnant and remaining-characteristic uses. The extraction itself is not stated directly.
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-06-30
@@ -1369,8 +1369,8 @@ subject_attribution_from:
       release_order: 10
       timestamp: 00:05:42.09
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-06-30
@@ -1445,8 +1445,8 @@ subject_attribution_from:
       episode: 13
       release_order: 13
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-06-30
@@ -1523,8 +1523,8 @@ adaptation_relationships:
     novel_claim_changed: false
     notes: Both versions frame successful manipulation as logical coincidence rather than arbitrary wish fulfillment.
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-07-01
@@ -1585,8 +1585,8 @@ adaptation_relationships:
     novel_claim_changed: false
     notes: Both versions preserve revision after disruption; the Donghua visualizes the crossing-out process.
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-06-30
@@ -1660,8 +1660,8 @@ adaptation_relationships:
     novel_claim_changed: false
     notes: The Donghua resolves the novel's passive revision language by showing Ince cross out lines himself.
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-07-01
@@ -1722,8 +1722,8 @@ adaptation_relationships:
     novel_claim_changed: false
     notes: The Donghua turns the novel's implied narrative voice into an explicit first-person narrator.
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-06-30
@@ -1772,7 +1772,7 @@ adaptation_relationships:
     novel_claim_changed: true
     notes: Novel Chapter 210 depicts Ince holding the quill and writing the final line; the Donghua depicts the quill writing independently.
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-06-30
@@ -1848,8 +1848,8 @@ adaptation_relationships:
     novel_claim_changed: false
     notes: Both versions demonstrate indirect causal manipulation and the need for plausible developments, while leaving the exact free-will boundary unresolved.
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-07-01
@@ -1927,8 +1927,8 @@ adaptation_relationships:
     novel_claim_changed: false
     notes: The Donghua adds a quill cue and Ince's repeated whisper immediately before Dunn's choice, making the steering legible before the full retrospective reveal.
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-07-01
@@ -2005,8 +2005,8 @@ adaptation_relationships:
     novel_claim_changed: false
     notes: The novel retrospectively describes a baffling summons and Megose's irresistible urges; the Donghua adds her report of a literal guiding voice without identifying its source.
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-07-01
@@ -2068,8 +2068,8 @@ adaptation_relationships:
     novel_claim_changed: false
     notes: The Donghua gives 0-08 an apparent reason to cooperate by having it say that Ince freed it from bondage behind Chanis Gate; the novel does not define the artifact's attitude toward Ince.
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-06-30
@@ -2143,7 +2143,7 @@ subject_attribution_from:
       release_order: 10
       timestamp: 00:05:42.09
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-07-01
@@ -2213,8 +2213,8 @@ adaptation_relationships:
     novel_claim_changed: false
     notes: The Donghua condenses Klein's rejected direct-reality model into a three-second transition before his behavioral-control theory.
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-06-30
@@ -2265,7 +2265,7 @@ adaptation_relationships:
     novel_claim_changed: true
     notes: A user-verified visual transition carries 0-08's loose final page into Leonard's hospital-room scene, associating the institutional identification with the artifact without placing that identification in the wire's spoken wording.
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-06-30
@@ -2318,7 +2318,7 @@ adaptation_relationships:
     novel_claim_changed: true
     notes: The flying-page transition visually connects 0-08's completed narration to Leonard receiving the wire, while the dialogue itself refers only to the culprit.
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-06-30
@@ -2373,8 +2373,8 @@ adaptation_relationships:
     novel_claim_changed: false
     notes: The Donghua presents Ince's locality, Lanevus's whereabouts, and Klein's path to strength as a single three-panel convergence sequence.
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-07-01
@@ -2442,8 +2442,8 @@ adaptation_relationships:
     novel_claim_changed: false
     notes: The three questions are presented as one simultaneous three-panel convergence rather than three visually separate result sequences.
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-07-01
@@ -2558,8 +2558,8 @@ subject_attribution_from:
       release_order: 10
       timestamp: 00:05:42.09
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
 last_updated: 2026-07-01

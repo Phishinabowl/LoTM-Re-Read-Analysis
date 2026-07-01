@@ -51,7 +51,12 @@ Boards/
 
 Investigations/
 ├── TEMPLATE.md
-└── (Investigation records created over time)
+├── Artifacts/
+│   └── artifact-[name]/
+├── Characters/
+├── Factions/
+├── Concepts/
+└── Project/
 
 Glossary_Threads/
 ├── TEMPLATE.md
@@ -741,9 +746,25 @@ Do not guess.
 
 ### Records
 
-- All investigations should be put into the Investigations folder and filenames should be in the same format as the following examples:
-  - 2026-06-23_Ian_Zreal_Kaspars.md
-  - 2026-06-24_Ambassador_Bakerland.md
+- Put investigations in the `Investigations` folder.
+- Glossary-linked investigations should mirror the `Glossary_Threads` type structure and use one stable subject folder per glossary thread.
+- Use date-based filenames only for project-wide, board-level, or one-off investigations whose identity is genuinely the research event rather than a glossary subject.
+
+Glossary-linked path format:
+
+```text
+Investigations/[Type]/[thread-filename-without-extension]/[medium]-[scope].md
+```
+
+Examples:
+
+```text
+Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
+Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
+Investigations/Factions/faction-church-of-evernight/novel-volume-1-foundation.md
+Investigations/Factions/faction-church-of-evernight/donghua-season-1-foundation.md
+Investigations/Project/2026-07-01_board-methodology.md
+```
 
 ### Investigation Granularity
 
@@ -753,16 +774,8 @@ Group investigations by subject and bounded analytical scope, not by individual 
 - For glossary reconstruction, use one living investigation per subject, medium, and bounded arc, such as one novel volume or one Donghua season.
 - Append additional checks to the existing file when the subject, medium, and scope remain the same.
 - Create a new file when the medium or bounded arc changes, or when a separate dispute would make the existing record difficult to understand.
-- Keep the original creation date in the filename when a living investigation is updated later.
+- Do not include investigation dates in glossary-linked filenames. The durable identity is the subject, source, and scope, not the day the research happened.
 - Mark a living investigation `In Progress` until its bounded timeline is complete; completed checks inside it should still be clearly labeled as verified.
-
-Examples:
-
-```text
-2026-06-30_0-08_Volume_1_Reveal_Timeline.md
-2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
-2026-07-02_0-08_Volume_2_Reveal_Timeline.md
-```
 
 ---
 

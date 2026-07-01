@@ -1,5 +1,12 @@
 # Investigation Title
 
+Path convention:
+
+- Glossary-linked investigations: `Investigations/[Type]/[thread-filename-without-extension]/[medium]-[scope].md`
+- Project or board investigations: `Investigations/Project/YYYY-MM-DD_short-topic.md`
+
+Use one living file per glossary subject, source medium, and bounded scope. Append new checks to the same file when the subject, medium, and scope remain the same.
+
 ## Question
 
 What are we trying to determine?

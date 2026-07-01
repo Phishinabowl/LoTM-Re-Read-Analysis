@@ -50,7 +50,7 @@
 
 * One of the earliest demonstrations that seemingly isolated events are part of a much larger web.
 * Volume 1 ultimately reveals 0-08 as the mechanism connecting many apparently isolated Tingen events into an orchestrated causal structure.
-* Detailed chronology: [0-08 glossary thread](../Glossary_Threads/Artifacts/artifact-0-08.md) and [Volume 1 reveal timeline investigation](../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md).
+* Detailed chronology: [0-08 glossary thread](../Glossary_Threads/Artifacts/artifact-0-08.md) and [Volume 1 reveal timeline investigation](../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md).
 
 ---
 

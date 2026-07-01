@@ -16,8 +16,8 @@ Related Threads:
 - [artifact-0-08.md](../Artifacts/artifact-0-08.md)
 
 Related Investigations:
-- [0-08 Volume 1 Reveal Timeline](../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md)
-- [0-08 Donghua Season 1 Reveal Timeline](../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md)
+- [0-08 Volume 1 Reveal Timeline](../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md)
+- [0-08 Donghua Season 1 Reveal Timeline](../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md)
 
 ## Purpose
 
@@ -94,7 +94,7 @@ This thread currently contains only novel Volume 1 and Donghua Season 1 knowledg
 - Question: Does the Donghua visually depict characteristic extraction or division?
 - Current confidence: Unknown
 - Needs EPUB verification: No; visual episode verification needed
-- Related investigation: [Donghua Season 1 reveal timeline](../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md)
+- Related investigation: [Donghua Season 1 reveal timeline](../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md)
 
 ## Related Threads
 
@@ -181,8 +181,8 @@ adaptation_relationships:
     novel_claim_changed: false
     notes: The Donghua explains the remnant concept before introducing the formal characteristic conservation law.
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
 last_updated: 2026-06-30
 ```
@@ -241,8 +241,8 @@ adaptation_relationships:
     novel_claim_changed: false
     notes: The Donghua preserves the conservation law in Episode 12 after separately explaining death-related power-bearing remains in Episode 10.
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
 last_updated: 2026-06-30
 ```
@@ -301,8 +301,8 @@ adaptation_relationships:
     novel_claim_changed: false
     notes: The Donghua implies divisibility through the earlier Megose remnant and Ince's use of the remaining characteristic but does not explain the split directly in subtitle dialogue.
 related_investigations:
-  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
-  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md
 related_boards:
 last_updated: 2026-06-30
 ```
