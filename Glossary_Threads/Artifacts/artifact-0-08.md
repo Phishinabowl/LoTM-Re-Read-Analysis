@@ -133,6 +133,7 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 #### Chapter 212: Avenger
 
 - What the reader learns: Klein reasons that 0-08 likely produced the arrangements and coincidences used by Ince Zangwill.
+- Relationship boundary: Ince is using 0-08 to obtain Saint Selena's ashes and complete his advancement, but Volume 1 does not establish whether the artifact willingly cooperates or has a separate agenda.
 - What remains unknown: The exact mechanism and restrictions governing those arrangements.
 - Why it matters: The reader receives an explicit interpretive framework for what Chapter 210 demonstrated.
 
@@ -179,9 +180,11 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 #### Season 1, Episode 13: Editing and Autonomous Writing
 
 - Narrative role: 0-08 recounts the season through a puppet-like reconstruction and speaks from its own perspective.
+- Relationship framing: 0-08 says that Ince freed it from bondage behind Chanis Gate, giving it an apparent self-interested reason to cooperate with him.
 - Ince's role: Subtitle and user-verified visual evidence show Ince altering the plot and crossing out lines when disruptions require revisions.
 - 0-08's role: User-verified visual evidence shows the quill writing the final conclusion by itself around the end of the narration.
 - Adaptation difference: The novel leaves earlier revision agency ambiguous and depicts Ince writing the final line; the Donghua clarifies Ince as editor and changes the final writer to 0-08.
+- Intent boundary: Its independent perspective and interest in freedom do not establish malice, resistance, deception, or a hostile agenda toward Ince.
 - Why it matters: Autonomous writing becomes confirmed Donghua behavior, while full independent consciousness remains a strong inference.
 
 ## Open Questions
@@ -214,6 +217,11 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 - Question: Is the gray fog the reason Klein repeatedly disrupts 0-08's descriptions?
 - Current confidence: Strong Inference
 - Needs EPUB verification: Further evidence beyond Volume 1 needed
+- Related investigation: [Volume 1 reveal timeline](../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md)
+
+- Question: Does 0-08 have an agenda separate from Ince's, and is it ever hostile toward him?
+- Current confidence: Unknown; no affirmative Volume 1 evidence
+- Needs EPUB verification: Evidence beyond Volume 1 needed
 - Related investigation: [Volume 1 reveal timeline](../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md)
 
 ## Related Threads
@@ -1200,6 +1208,69 @@ last_updated: 2026-06-30
 #### Adaptation Analysis
 
 - Neither format fully defines whether free will is overridden or merely steered through motives and circumstances.
+
+### Knowledge Unit: Ince and 0-08's Volume 1 Working Relationship
+
+```yaml
+id: 0-08-ince-working-relationship-volume-1
+claim: Ince uses 0-08 to execute his advancement plan, but the Volume 1 boundary does not establish that 0-08 has a separate or hostile agenda toward him.
+truth_status: contextual
+canon_scope: shared
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: 210
+  notes: Chapter 210 demonstrates Ince's use of the artifact; Chapter 212 reconstructs his advancement motive.
+tags:
+  - volume-1
+  - reader-knowledge
+  - reveal-order
+  - identity
+  - artifact
+  - working-theory
+disclosures:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 210
+    superseded_at:
+    superseded_by:
+  - medium: donghua
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 13
+      release_order: 13
+      timestamp: 00:19:21.95
+    superseded_at:
+    superseded_by:
+adaptation_relationships:
+  - type: expanded
+    novel_claim_changed: false
+    notes: The Donghua gives 0-08 an apparent reason to cooperate by having it say that Ince freed it from bondage behind Chanis Gate; the novel does not define the artifact's attitude toward Ince.
+related_investigations:
+  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
+  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-06-30
+```
+
+#### Reader-State History
+
+- Novel Chapter 210 confirms that Ince uses 0-08 throughout the Tingen plan; Chapter 212 confirms his advancement objective through Klein's reconstruction.
+- Donghua Episode 13 additionally frames Ince as 0-08's liberator, supporting apparent self-interested cooperation.
+- Neither format supplies affirmative Volume 1 evidence that 0-08 is malicious toward Ince or secretly undermining him.
+
+#### Adaptation Analysis
+
+- The Donghua expands the relationship into a more personal liberation-and-cooperation framing without proving loyalty or shared long-term goals.
 
 ### Knowledge Unit: 0-08 Orchestrated the Notebook's Transfer Toward Tingen
 

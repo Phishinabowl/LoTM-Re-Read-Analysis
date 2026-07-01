@@ -6,7 +6,7 @@ What does a Donghua viewer know about 0-08 at each meaningful point in Season 1,
 
 ## Status
 
-In Progress. Checks 1 through 6 are subtitle verified. The Episode 7 skull placement, Episode 10 introduction staging, and Episode 13 narrative-revision sequence are user-verified visual evidence; other visual details remain under investigation.
+In Progress. Checks 1 through 7 are subtitle verified. The Episode 7 skull placement, Episode 10 introduction staging, and Episode 13 narrative-revision sequence are user-verified visual evidence; other visual details remain under investigation.
 
 ## Scope
 
@@ -112,6 +112,17 @@ Donghua Season 1, Episodes 1-13. Current subtitle source coverage does not inclu
 - Why it matters: The Donghua explicitly assigns an editorial role to Ince while separately depicting 0-08 as an autonomous narrator and self-writing actor.
 - Adaptation distinction: In the novel, revision agency is ambiguous and Ince writes the final line; the Donghua visually clarifies Ince's editing and changes the final writer to 0-08 itself.
 
+### Check 7: Ince and 0-08's Working Relationship
+
+#### Episode 13: The Clown
+
+- Around `00:19:21`, 0-08 calls Ince corrupt and covetous and says that he freed it from bondage behind Chanis Gate.
+- The first-person statement gives 0-08 an apparent personal interest in its changed circumstances and a plausible self-interested reason to cooperate with Ince.
+- The negative characterization of Ince demonstrates an independent perspective but does not by itself establish hostility toward him.
+- The episode does not show 0-08 resisting, deceiving, or undermining Ince.
+- Adaptation distinction: The novel confirms Ince's use of 0-08 without defining the artifact's attitude; the Donghua expands the relationship through explicit liberation framing.
+- Why it matters: Cooperation or aligned interests are supportable at the Season 1 boundary, while loyalty, shared long-term goals, and a separate hostile agenda remain unknown.
+
 ## Interim Conclusions
 
 ### Check 1
@@ -138,6 +149,10 @@ Episode 12 makes hostile orchestration undeniable to Klein and the viewer withou
 
 Episode 13 preserves the plausible-causality and adaptive-revision model while making the division of agency more explicit: Ince crosses out and alters lines, whereas 0-08 narrates and independently writes the final conclusion. Independent writing is confirmed visual behavior; full consciousness remains an inference.
 
+### Check 7
+
+The Donghua frames the relationship more personally than the novel: Ince freed 0-08 from Chanis Gate, giving the artifact an apparent reason to cooperate. This does not establish loyalty or malice toward Ince, and no Season 1 evidence shows 0-08 undermining him.
+
 ## Board Updates
 
 - Board 1: No update. This is granular adaptation chronology owned by the 0-08 glossary thread.
@@ -147,4 +162,5 @@ Episode 13 preserves the plausible-causality and adaptive-revision model while m
 
 - How does Episode 13 reveal 0-08's role in the Tingen plot?
 - Does the animation explicitly depict the extraction or transformation of Teno's skull into the Death-descendant characteristic, beyond showing it in the ritual?
+- Does 0-08 have goals separate from Ince's, and what is the earliest Donghua-safe evidence of them?
 - Do the special episodes add or recontextualize any 0-08 information?

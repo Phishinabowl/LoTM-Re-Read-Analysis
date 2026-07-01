@@ -6,7 +6,7 @@ What does the novel reader know about 0-08 at each meaningful point in Volume 1,
 
 ## Status
 
-In Progress. Checks 1 through 11 are EPUB verified.
+In Progress. Checks 1 through 12 are EPUB verified.
 
 ## Scope
 
@@ -178,6 +178,17 @@ Volume 1, from the first mention in Chapter 19 through Chapter 212.
 
 - Why it matters: Volume 1 establishes plausible causal influence and adaptive revision while leaving the exact limits of free will, Ince's editorial control, 0-08's consciousness, and gray-fog protection unresolved.
 
+### Check 12: Ince and 0-08's Working Relationship
+
+#### Chapters 210 and 212
+
+- Chapter 210 shows Ince holding and using 0-08 while the written story carries out a plan aligned with his intentions.
+- Chapter 212 confirms through Klein's reconstruction that Ince's objective was obtaining Saint Selena's ashes and advancing to Sequence 4.
+- The novel therefore confirms that Ince uses 0-08 as the mechanism for his agenda.
+- The autonomous narrative voice does not clearly reveal whether 0-08 cooperates willingly, merely follows its operating conditions, or pursues an independent objective.
+- Nothing within the Volume 1 boundary affirmatively shows 0-08 acting maliciously toward Ince, deceiving him, resisting him, or undermining his plan.
+- Why it matters: Ince's motive and instrumental use are reader-safe facts, while 0-08's attitude and any separate agenda must remain unresolved.
+
 ## Interim Conclusions
 
 ### Check 1
@@ -232,6 +243,10 @@ Chapter 210 provides strong contextual evidence that 0-08 orchestrated this chai
 
 Chapter 210 confirms that 0-08's stories preserve plausible causality and can be revised when events diverge. The novel strongly implies an autonomous narrative voice but depicts Ince writing the final line and leaves the physical editor of earlier revisions ambiguous. Chapter 212 adds Klein's constrained-behavior model without proving absolute limits on free will or explicitly identifying the gray fog as his protection.
 
+### Check 12
+
+Volume 1 confirms an instrumental working relationship: Ince uses 0-08 to execute the Tingen plan serving his advancement. It does not establish 0-08's willingness, loyalty, malice toward Ince, or separate agenda.
+
 ## Board Updates
 
 - Board 1: Summarizes 0-08's Volume 1 significance and links to this detailed timeline.
@@ -241,4 +256,5 @@ Chapter 210 confirms that 0-08's stories preserve plausible causality and can be
 
 - Which clues after Chapter 99 further develop the hidden-manipulator mystery before Chapter 210?
 - Which apparent coincidences can be attributed to 0-08 by the end of Volume 1?
+- Does 0-08 have goals separate from Ince's, and what is the earliest reader-safe evidence of them?
 - Donghua reveal timing is tracked separately in `2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md`.
