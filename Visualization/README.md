@@ -14,6 +14,7 @@ Mermaid graphs are generated from glossary metadata and Relationship Seeds. If a
 ## Current Artifacts
 
 - [Volume 1 Knowledge Graph](graphs/volume-1-knowledge-graph.mmd)
+- [Volume 1 Knowledge Graph - Timing Spoiler-Free](graphs/volume-1-knowledge-graph-timing-spoiler-free.mmd)
 - [Graph Schema Notes](data/graph-schema.md)
 - [Rendering Instructions](rendering.md)
 
