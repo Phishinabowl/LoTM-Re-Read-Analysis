@@ -21,6 +21,7 @@ Navigation hub for the reread analysis workspace.
 - [0-08 Donghua Season 1 Reveal Timeline](Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md)
 - [Old Neil Novel Volume 1 Reveal Timeline](Investigations/Characters/character-old-neil/novel-volume-1-reveal-timeline.md)
 - [Church of Evernight Volume 1 Reveal Timeline](Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
+- [Seer Pathway Novel Volume 1 Reveal Timeline](Investigations/Pathways/pathway-seer/novel-volume-1-reveal-timeline.md)
 
 Glossary-linked investigations are organized by thread type and subject, with separate files per source medium and bounded scope.
 
@@ -32,6 +33,7 @@ Glossary-linked investigations are organized by thread type and subject, with se
 - [Beyonder Characteristics](Glossary_Threads/Concepts/concept-beyonder-characteristics.md)
 - [Church of Evernight](Glossary_Threads/Factions/faction-church-of-evernight.md)
 - [Saint Selena Cathedral](Glossary_Threads/Locations/location-saint-selena-cathedral.md)
+- [Seer Pathway](Glossary_Threads/Pathways/pathway-seer.md)
 
 Glossary threads are organized into type-specific subfolders as records are created.
 
