@@ -20,15 +20,21 @@ What chapter/volume range should be searched?
 
 ## Evidence
 
-### Chapter X
+For a living glossary reconstruction, organize evidence as sequential verified checks within this file.
+
+### Check 1: Question or Reveal Point
+
+#### Chapter X
 
 - What happened:
 - Why it matters:
 
-### Chapter Y
+#### Chapter Y
 
 - What happened:
 - Why it matters:
+
+Add further numbered checks when the subject, medium, and bounded scope remain the same.
 
 ## Conclusion
 

@@ -17,7 +17,7 @@ Navigation hub for the reread analysis workspace.
 ## Investigations
 
 - [Investigation Template](Investigations/TEMPLATE.md)
-- [0-08 Volume 1 Orchestration](Investigations/2026-06-30_0-08_Volume_1_Orchestration.md)
+- [0-08 Volume 1 Reveal Timeline](Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md)
 
 One completed investigation record.
 
