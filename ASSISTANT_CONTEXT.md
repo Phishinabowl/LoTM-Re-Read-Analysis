@@ -9,6 +9,9 @@
 - Use EPUB only when verification is needed.
 - Evidence first, conclusion second.
 - End responses with the next investigation question.
+- Preserve novel and Donghua disclosure timelines independently.
+- Embed Reader Knowledge Ledger units in glossary threads for durable spoiler-timed claims, including theories and misconceptions.
+- Treat structured YAML knowledge-unit blocks as canonical; do not maintain separate claim files or duplicate JSON manually.
 
 The user is strongest at:
 

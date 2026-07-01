@@ -55,7 +55,17 @@ Investigations/
 
 Glossary_Threads/
 ├── TEMPLATE.md
-└── (Thread records created over time)
+├── Artifacts/
+├── Characters/
+├── Families/
+├── Factions/
+├── Locations/
+├── Concepts/
+├── Events/
+├── Pathways/
+├── Epochs/
+├── Mysteries/
+└── Timelines/
 
 INDEX.md
 CURRENT_STATE.md
@@ -131,6 +141,36 @@ timeline-ian-zreal-chain.md
 ```
 
 If a thread fits multiple categories, choose the category that best matches the analytical purpose of the file.
+
+## Folder Organization
+
+Store glossary threads in plural, type-specific subfolders:
+
+```text
+Glossary_Threads/Artifacts/
+Glossary_Threads/Characters/
+Glossary_Threads/Families/
+Glossary_Threads/Factions/
+Glossary_Threads/Locations/
+Glossary_Threads/Concepts/
+Glossary_Threads/Events/
+Glossary_Threads/Pathways/
+Glossary_Threads/Epochs/
+Glossary_Threads/Mysteries/
+Glossary_Threads/Timelines/
+```
+
+Retain the entity-type filename prefix inside the matching folder. For example:
+
+```text
+Glossary_Threads/Characters/character-amon.md
+Glossary_Threads/Artifacts/artifact-0-08.md
+Glossary_Threads/Mysteries/mystery-mr-door.md
+```
+
+Create a category folder when its first thread is created. Do not add placeholder files solely to make empty folders visible in Git.
+
+Adding a glossary type requires updating the naming convention, controlled domain tags, folder structure, template guidance, and index rules together.
 
 ## Metadata Standards
 
@@ -286,6 +326,142 @@ When an open question is answered:
 2. Update the relevant board if the conclusion changes durable project knowledge.
 3. Update the glossary thread to close, revise, or remove the question.
 4. Recommend a matching commit if the change satisfies the commit cadence rules.
+
+---
+
+# Embedded Reader Knowledge Ledger
+
+Each glossary thread contains its own Reader Knowledge Ledger section. The ledger stores spoiler-aware knowledge units about that thread for the novel and its adaptations.
+
+Together, the knowledge units must form a complete disclosure timeline for the glossary subject. Record every meaningful reveal point, including multiple disclosure entries from the same medium when a subject progresses from mention, to clue, to inference, to explicit reveal or confirmation.
+
+Its purpose is to support questions such as:
+
+- What could a novel reader know by a particular chapter?
+- What could a Donghua viewer know by a particular released installment?
+- Which revelations occur earlier, later, or differently in an adaptation?
+- Which theories or misconceptions were reasonable at a historical reader position?
+
+Store each durable claim as a structured YAML block inside the glossary thread where it most naturally belongs. The surrounding Markdown provides explanation, evidence links, and analysis. Do not manually maintain separate claim files or a duplicate JSON database. A future generator may extract the embedded blocks into JSON, dashboards, or spoiler-filtered views.
+
+Give every knowledge unit a stable lowercase kebab-case `id` that is unique across the project. Prefix it with the thread subject when useful, such as `bakerland-mr-ambassador-identity`.
+
+## Knowledge States
+
+Claims may preserve both correct knowledge and historically appropriate reader beliefs.
+
+Allowed disclosure `knowledge_state` values:
+
+```text
+confirmed-fact
+strong-inference
+working-theory
+reader-misconception
+open-question
+```
+
+Use `truth_status` to distinguish the eventual standing of the claim:
+
+```text
+true
+false
+unresolved
+contextual
+```
+
+A theory or misconception may remain visible within its valid historical window even after it is disproven. Store `knowledge_state`, `available_from`, `superseded_at`, and `superseded_by` on the relevant medium-specific disclosure entry. This allows the same proposition to have different knowledge states in the novel and Donghua without blending their timelines.
+
+## Canon Scope
+
+Allowed `canon_scope` values:
+
+```text
+shared
+novel-only
+donghua-only
+adaptation-variant
+unresolved-difference
+```
+
+One source of truth does not mean one blended chronology. Novel and Donghua disclosures must remain independently filterable.
+
+## Reader Positions
+
+Novel positions use the global chapter number as the primary sortable boundary and retain volume for readability:
+
+```yaml
+medium: novel
+book: lotm-1
+volume: 2
+chapter: 000
+```
+
+Donghua positions use a machine-sortable release order plus human-readable installment labels:
+
+```yaml
+medium: donghua
+season: 1
+installment_type: special
+episode: special-2
+release_order: 14
+```
+
+`release_order` determines Donghua spoiler eligibility, including specials or other installments that do not fit ordinary episode numbering.
+
+## Disclosure Types
+
+Allowed `disclosure_type` values:
+
+```text
+first-mention
+visual-hint
+implicit-clue
+strong-inference
+explicit-reveal
+confirmation
+adaptation-only-reveal
+early-reveal
+```
+
+Use separate disclosure entries for each medium. Never infer Donghua spoiler safety from novel chronology, or novel spoiler safety from Donghua release order.
+
+## Adaptation Relationships
+
+Allowed adaptation relationship types:
+
+```text
+faithful
+revealed-earlier
+revealed-later
+condensed
+expanded
+recontextualized
+omitted
+changed
+donghua-original
+uncertain
+```
+
+Record adaptation differences as relationships, not automatically as errors. A claim may use more than one relationship when needed, such as both `condensed` and `revealed-earlier`.
+
+## Spoiler Filtering
+
+For a selected reader position, display only disclosures available at or before that medium's boundary.
+
+Combined views must evaluate each selected medium independently and then combine only the permitted results. A disclosure in one medium must never silently advance the selected boundary of another medium.
+
+The eventual glossary page should update from the user's selected novel chapter, Donghua release position, or both. Its reader-facing summary and timeline must be constructed only from eligible knowledge units. Freeform analysis elsewhere in the Markdown file is project working material and must not be assumed spoiler-safe for automatic display.
+
+## Knowledge Unit Workflow
+
+Create an embedded knowledge unit when a durable claim has meaningful spoiler timing, adaptation significance, or historical reader-state value.
+
+When a knowledge unit is created or materially changed:
+
+1. Preserve the disclosure boundary for every represented medium.
+2. Link supporting investigations when EPUB evidence was consulted.
+3. Link related glossary threads and boards when relevant.
+4. Recommend a matching commit when the change satisfies the commit cadence rules.
 
 ---
 

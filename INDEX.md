@@ -24,7 +24,7 @@ No completed investigation records yet.
 
 - [Glossary Thread Template](Glossary_Threads/TEMPLATE.md)
 
-No glossary thread records yet.
+Glossary threads are organized into type-specific subfolders as records are created. No glossary thread records exist yet.
 
 ## Source
 

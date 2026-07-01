@@ -26,6 +26,8 @@ Filename format:
 [entity-type]-[kebab-case-name].md
 ```
 
+Store the file in its matching plural category folder, such as `Characters/`, `Artifacts/`, or `Mysteries/`, while retaining the filename prefix.
+
 Examples:
 
 ```text
@@ -112,6 +114,61 @@ Use Markdown links when the target file exists. Use plain planned filenames when
 ## Evidence Index
 
 - Chapter:
+
+## Reader Knowledge Ledger
+
+Add one block for each durable spoiler-timed claim. Duplicate the block as needed. Keep novel and Donghua disclosure timelines independent.
+
+Together, these units should form the subject's complete reveal timeline. Add a separate disclosure entry for every meaningful reveal point, including multiple entries from the same medium for first mentions, clues, inferences, explicit reveals, and confirmations.
+
+Future reader-facing pages will filter these entries against the user's selected position. Do not treat unrestricted analysis elsewhere in this file as automatically spoiler-safe.
+
+### Knowledge Unit: Claim Title
+
+```yaml
+id: subject-claim-id
+claim: Exact fact, inference, theory, misconception, or question
+truth_status: unresolved
+canon_scope: shared
+tags:
+  - reader-knowledge
+disclosures:
+  - medium: novel
+    knowledge_state: open-question
+    disclosure_type: first-mention
+    available_from:
+      book: lotm-1
+      volume:
+      chapter:
+    superseded_at:
+    superseded_by:
+  - medium: donghua
+    knowledge_state: open-question
+    disclosure_type: first-mention
+    available_from:
+      season:
+      installment_type: episode
+      episode:
+      release_order:
+    superseded_at:
+    superseded_by:
+adaptation_relationships:
+  - type: uncertain
+    novel_claim_changed: false
+    notes:
+related_investigations:
+related_boards:
+last_updated:
+```
+
+#### Reader-State History
+
+- What each audience could reasonably know:
+- How the knowledge state changed:
+
+#### Adaptation Analysis
+
+- Differences in timing, presentation, context, omission, condensation, expansion, or meaning:
 
 ## Future Automation Notes
 

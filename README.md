@@ -58,7 +58,7 @@ Investigations/
 
 Glossary_Threads/
   TEMPLATE.md
-  recurring thread records
+  type-specific subfolders for recurring thread records and embedded spoiler-aware knowledge units
 
 Source/
   README.md
@@ -68,6 +68,8 @@ ASSISTANT_CONTEXT.md
 CURRENT_STATE.md
 PROJECT_RULES.md
 ```
+
+Embedded Reader Knowledge Ledger entries give every glossary subject a complete reveal timeline. Novel chapters and Donghua release order remain independently filterable so a future page can show only what a user should know at their selected position, while also supporting adaptation comparisons.
 
 ## Version Control
 
