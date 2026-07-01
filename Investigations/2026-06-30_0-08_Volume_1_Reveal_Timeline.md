@@ -6,7 +6,7 @@ What does the novel reader know about 0-08 at each meaningful point in Volume 1,
 
 ## Status
 
-In Progress. Checks 1 through 5 are EPUB verified.
+In Progress. Checks 1 through 6 are EPUB verified.
 
 ## Scope
 
@@ -65,7 +65,29 @@ Volume 1, from the first mention in Chapter 19 through Chapter 212.
 - He wonders whether his fate is intertwined with the Antigonus notebook rather than considering 0-08.
 - Why it matters: Hidden manipulation is now confirmed for the reader, but its source remains an unresolved mystery.
 
-### Check 5: Retrospective Causal Beginning
+### Check 5: Red-Chimney Search and Hidden Route Interference
+
+#### Chapters 106 and 117
+
+- Klein hires Detective Henry to investigate buildings matching the red chimney from his divination.
+- The request remains active while Henry works through the large number of possible buildings.
+- Why it matters: Klein begins a rational investigation without knowing that ordinary choices within that investigation can be manipulated.
+
+#### Chapters 146-149
+
+- Henry's report identifies 1,725 possible buildings: 1,179 inside Tingen and 546 around its outskirts.
+- Klein narrows the initial search to 25 buildings with recent tenant changes.
+- He personally checks 15 buildings in Chapter 147 and the remaining 10 in Chapter 149 without finding the target.
+- Klein concludes that he may need to search roughly 1,600 buildings over approximately three months.
+- Why it matters: The failed search appears to result from an enormous search space rather than active interference.
+
+#### Chapter 210: Story
+
+- The written story reveals that Klein repeatedly selected routes that excluded the correct red-chimney house.
+- The projected result was that he would reach the target only among the final batches after another two or three months.
+- Why it matters: 0-08 manipulates mundane route selection rather than visibly blocking the investigation, preserving the appearance of reasonable failure.
+
+### Check 6: Retrospective Causal Beginning
 
 #### Chapter 210: Story
 
@@ -104,6 +126,10 @@ Chapter 96 repeats the established connection between Ince and 0-08 while adding
 Chapters 98-99 establish that a hidden power has created natural-seeming coincidences and concealed its interference from ordinary divination. Klein detects the manipulation but does not attribute it to 0-08. At that reader position, the causal source must remain hidden on an 0-08 page.
 
 ### Check 5
+
+Klein's red-chimney investigation is genuine and methodical, but its repeated failures are not neutral. Chapter 210 reveals that 0-08 steers his route choices away from the correct house while preserving a plausible explanation: Tingen contains an overwhelming number of matching buildings.
+
+### Check 6
 
 The user's memory was directionally correct: Chapter 210 reveals the Antigonus notebook's arrival in Tingen as part of the opening setup of 0-08's written story.
 

@@ -78,6 +78,13 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 - What remains unknown: The manipulator's identity and any connection to 0-08.
 - Why it matters: This is the first major reader-facing evidence of the causal mechanism later attributed to 0-08, but displaying that attribution before Chapter 210 would be a spoiler.
 
+### Chapters 106-149: Red-Chimney Search
+
+- What the reader sees: Klein hires Detective Henry, receives a report covering 1,725 possible buildings, filters an initial group of 25, and personally checks them without finding the target.
+- What Klein concludes: The recent-tenant filter may have failed, leaving roughly 1,600 buildings to search over several months.
+- What remains unknown: Klein's apparently ordinary route choices are being influenced so that he repeatedly excludes the correct house.
+- Why it matters: The investigation appears difficult because of scale, allowing supernatural interference to hide inside reasonable logistical failure.
+
 ### Chapter 210: Story
 
 - What the reader learns: Tingen's events have been represented as a mutable written story ending with Ince Zangwill holding the inkless quill.
@@ -158,6 +165,7 @@ The two plain filenames below are essential planned threads. Additional referenc
 - Chapter 20: Klein briefly speculates that 0-08 kills anyone whose name is written, then rejects the theory because Ince's behavior is inconsistent with such unrestricted power.
 - Chapter 96: Klein recalls that Ince stole 0-08, but the scene adds only wielder context and no new artifact knowledge.
 - Chapters 98-99: Azik detects disharmony in Klein's fate, and Klein verifies hidden interference while suspecting the Antigonus notebook rather than 0-08.
+- Chapters 106-149 and Chapter 210: Klein's citywide red-chimney search repeatedly misses the target because 0-08 steers his route choices away from the correct house.
 - Donghua Season 1, Episode 10: Subtitle evidence identifies 0-08 around `00:05:14`, explains its Grade 0 status around `00:05:32`, and describes the inkless quill around `00:05:42`.
 - Chapter 210: 0-08's written story retrospectively connects the pre-Tingen notebook transfer chain with the wider Tingen plot.
 - Chapter 212: Klein attributes Ince's arrangements and the plot's coincidences to 0-08 while inferring that the artifact has restrictions.
@@ -400,6 +408,57 @@ last_updated: 2026-06-30
 #### Adaptation Analysis
 
 - Donghua Episodes 11-13 contain a related mastermind progression, but its exact disclosure timeline remains to be documented in the Donghua investigation.
+
+### Knowledge Unit: 0-08 Diverted Klein's Red-Chimney Search Routes
+
+```yaml
+id: 0-08-diverted-red-chimney-search
+claim: 0-08 manipulated Klein's route choices during the red-chimney investigation so that he repeatedly excluded the correct house and would reach it only among the final search batches.
+truth_status: true
+canon_scope: unresolved-difference
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: 147
+  notes: Klein commissions the broader search in Chapter 106; his personal route selection is documented from Chapter 147 onward.
+tags:
+  - volume-1
+  - chronology
+  - foreshadowing
+  - reader-knowledge
+  - reveal-order
+  - artifact
+disclosures:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 210
+    superseded_at:
+    superseded_by:
+adaptation_relationships:
+  - type: uncertain
+    novel_claim_changed: false
+    notes: The Donghua treatment of Klein's search routes has not yet been investigated.
+related_investigations:
+  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-06-30
+```
+
+#### Reader-State History
+
+- Chapters 106-149 show a prolonged but apparently ordinary search failure caused by the size of Tingen and Klein's initial filtering assumptions.
+- Before Chapter 210, the reader may know that a hidden manipulator exists but cannot safely attribute each failed route to 0-08.
+- Chapter 210 explicitly reveals that Klein repeatedly chose routes excluding the correct house and would otherwise discover it only after another two or three months.
+
+#### Adaptation Analysis
+
+- The corresponding Donghua search and its retrospective explanation remain to be investigated.
 
 ### Knowledge Unit: 0-08 Orchestrated the Notebook's Transfer Toward Tingen
 
