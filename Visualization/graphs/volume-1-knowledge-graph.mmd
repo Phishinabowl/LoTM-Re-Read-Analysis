@@ -1,0 +1,66 @@
+graph TD
+  artifact_0_08["0-08"]
+  artifact_antigonus_notebook["Antigonus Notebook"]
+  character_azik_eggers["Azik Eggers"]
+  character_daly_simone["Daly Simone"]
+  character_dunn_smith["Dunn Smith"]
+  character_ince_zangwill["Ince Zangwill"]
+  character_klein_moretti["Klein Moretti"]
+  character_leonard_mitchell["Leonard Mitchell"]
+  character_old_neil["Old Neil"]
+  character_roselle_gustav["Roselle Gustav"]
+  concept_beyonder_characteristics["Beyonder Characteristics"]
+  concept_beyonders["Beyonders"]
+  concept_divination["Divination"]
+  event_klein_becomes_a_seer["Klein Becomes a Seer"]
+  faction_church_of_evernight["Church of Evernight"]
+  faction_nighthawks["Nighthawks"]
+  location_blackthorn_security_company["Blackthorn Security Company"]
+  location_saint_selena_cathedral["Saint Selena Cathedral"]
+  pathway_corpse_collector["Corpse Collector"]
+  pathway_mystery_pryer["Mystery Pryer"]
+  pathway_seer["Seer Pathway"]
+  pathway_sleepless["Sleepless"]
+
+  character_klein_moretti -->|pathway-status ch31| pathway_seer
+  event_klein_becomes_a_seer -->|event-outcome ch31| pathway_seer
+  faction_church_of_evernight -->|regulates-access-to ch28| pathway_seer
+  character_old_neil -->|trains-in ch31| pathway_seer
+  character_roselle_gustav -->|source-of-information ch21 historical| pathway_seer
+  pathway_seer -->|uses-method ch29| concept_divination
+  pathway_seer -->|access-route-to ch28| concept_beyonders
+  location_saint_selena_cathedral -->|affiliated-with ch17| faction_church_of_evernight
+  faction_nighthawks -->|affiliated-with ch17| location_saint_selena_cathedral
+  character_klein_moretti -->|uses-as-operational-refuge ch25 completed| location_saint_selena_cathedral
+  location_saint_selena_cathedral -->|connected-to ch17| location_blackthorn_security_company
+  location_saint_selena_cathedral -->|event-location ch31 completed| event_klein_becomes_a_seer
+  character_ince_zangwill -->|infiltrates ch210 completed strong-evidence| location_saint_selena_cathedral
+  faction_nighthawks -->|subordinate-organization ch13| faction_church_of_evernight
+  character_klein_moretti -->|civilian-staff-of ch17| faction_church_of_evernight
+  character_dunn_smith -->|member-of ch13| faction_church_of_evernight
+  character_old_neil -->|civilian-staff-of ch19| faction_church_of_evernight
+  faction_church_of_evernight -->|artifact-guardian ch19 broken| artifact_0_08
+  character_leonard_mitchell -->|pathway-status ch21| pathway_sleepless
+  character_dunn_smith -->|pathway-status ch22 strong-inference| pathway_sleepless
+  character_old_neil -->|pathway-status ch22| pathway_mystery_pryer
+  faction_church_of_evernight -->|event-enabler ch28 completed| event_klein_becomes_a_seer
+  faction_church_of_evernight -->|regulates-access-to ch6| concept_beyonders
+  character_daly_simone -->|pathway-status ch28| pathway_corpse_collector
+  character_klein_moretti -->|event-participant ch28| event_klein_becomes_a_seer
+  character_old_neil -->|event-participant ch31| event_klein_becomes_a_seer
+  character_dunn_smith -->|event-participant ch28| event_klein_becomes_a_seer
+  event_klein_becomes_a_seer -->|event-outcome ch31| character_klein_moretti
+  concept_beyonder_characteristics -->|mechanic-of ch207| concept_beyonders
+  concept_beyonder_characteristics -->|connected-to ch210| artifact_0_08
+  character_klein_moretti -->|instance-of ch31| concept_beyonders
+  event_klein_becomes_a_seer -->|event-outcome ch31| concept_beyonders
+  character_old_neil -->|instance-of ch22| concept_beyonders
+  character_old_neil -->|trains-in ch32| concept_beyonders
+  character_old_neil -->|mentor ch32| character_klein_moretti
+  character_klein_moretti -->|student ch32| character_old_neil
+  character_ince_zangwill -->|artifact-user ch19| artifact_0_08
+  artifact_0_08 -->|causal-agent ch210 completed| artifact_antigonus_notebook
+  artifact_0_08 -->|manipulates ch210| character_klein_moretti
+  artifact_0_08 -->|manipulates ch210 completed strong-evidence| character_dunn_smith
+  artifact_0_08 -->|investigated-by ch150 strong-evidence| character_azik_eggers
+  artifact_0_08 -->|targets-protected-resource ch210 completed strong-evidence| location_saint_selena_cathedral

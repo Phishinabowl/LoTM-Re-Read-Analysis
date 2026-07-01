@@ -95,10 +95,43 @@ Use each project artifact for a distinct purpose:
 - `Boards`: Volume-level state, major themes, broad conclusions, current research direction, and links to detailed records.
 - `Glossary_Threads`: Subject-specific information, complete reveal timelines, reader-state filtering data, and adaptation comparisons.
 - `Investigations`: Evidence, verification history, and supported conclusions for questions that required consulting the EPUB.
+- `Visualization`: Generated visualization artifacts, such as Mermaid graphs, rendered graph images, and future graph data exports.
 
 Do not duplicate granular reveal chronology across boards and glossary threads. Keep the filterable detail in the glossary thread and summarize only the durable volume-level meaning on the appropriate board.
 
 Boards are analyst-facing overview documents, not the canonical source for automatic spoiler filtering. A future reader-facing system may gate a board by its volume boundary, but glossary knowledge units remain the source for position-specific filtering.
+
+---
+
+# Visualization
+
+Visualization files are generated outputs.
+
+The graph source of truth remains:
+
+- Glossary thread metadata
+- Reader Knowledge Ledgers
+- Relationship Seeds
+- Controlled relationship taxonomy in this file
+
+Generated visualization outputs may include:
+
+- Mermaid `.mmd` files
+- Rendered SVG or PNG files
+- JSON graph data
+- Future frontend graph views
+
+Do not treat generated graph files as canonical project knowledge.
+
+Do not manually edit generated graph outputs except for debugging or temporary inspection. Fix durable graph problems by updating the relevant glossary thread, investigation record, Relationship Seed, or controlled taxonomy, then regenerate the graph.
+
+If a graph exposes missing or incorrect data:
+
+1. Fix the glossary or investigation record.
+2. Update Relationship Seeds when the relationship model changes.
+3. Regenerate the graph output.
+
+Future graph tooling should support dynamic generation, timeline filtering, reader-state filtering, and multiple graph views without making the rendered graph the source of truth.
 
 ---
 

@@ -47,9 +47,17 @@ The EPUB is the canonical source for novel verification. Local `.ass` subtitle f
 
 External summaries, wikis, fandom pages, Reddit posts, and memory are not used as evidence when source verification is required.
 
-## Project Map
-
 For clickable navigation, use the [Project Index](INDEX.md).
+
+## Visualization
+
+Generated visualization artifacts live in [Visualization](Visualization/README.md).
+
+The current GitHub-visible graph is the [Volume 1 Knowledge Graph](Visualization/graphs/volume-1-knowledge-graph.mmd). The graph is generated from glossary relationship seeds and is not the source of truth.
+
+Do not embed the full graph in this README; it is maintained as a separate generated artifact.
+
+## Project Structure
 
 ```text
 Boards/
@@ -76,6 +84,13 @@ Glossary_Threads/
   Locations/
   Pathways/
   type-specific subfolders for recurring thread records and embedded spoiler-aware knowledge units
+
+Visualization/
+  README.md
+  graphs/
+  data/
+  rendered/
+  generated graph artifacts and provisional graph schema notes
 
 Source/
   README.md

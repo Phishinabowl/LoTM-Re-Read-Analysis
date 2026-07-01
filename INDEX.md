@@ -14,6 +14,11 @@ Navigation hub for the reread analysis workspace.
 - [Main Reread Board](Boards/01_LoTM_Main_Reread_Board.md)
 - [Ancient History & Family Board](Boards/02_LoTM_Ancient_History_Family_Board.md)
 
+## Visualization
+
+- [Visualization README](Visualization/README.md)
+- [Volume 1 Knowledge Graph](Visualization/graphs/volume-1-knowledge-graph.mmd)
+
 ## Glossary Threads / Supporting Investigations
 
 - [Glossary Thread Template](Glossary_Threads/TEMPLATE.md)
