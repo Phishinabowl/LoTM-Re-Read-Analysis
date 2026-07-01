@@ -15,6 +15,9 @@ Last Updated: 2026-07-01
 Related Threads:
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
 - [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
+- [Beyonders](../Concepts/concept-beyonders.md)
+- [Seer Pathway](../Pathways/pathway-seer.md)
+- [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
 
 Related Investigations:
 - [Old Neil Novel Volume 1 Reveal Timeline](../../Investigations/Characters/character-old-neil/novel-volume-1-reveal-timeline.md)
@@ -137,6 +140,8 @@ Later Old Neil developments, emotional consequences, and retrospective meaning m
 - [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
 - [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
+- [Beyonders](../Concepts/concept-beyonders.md)
+- [Seer Pathway](../Pathways/pathway-seer.md)
 - pathway-mystery-pryer.md
 
 ### Historical Connections
@@ -164,7 +169,7 @@ Later Old Neil developments, emotional consequences, and retrospective meaning m
 ### Associated Pathways
 
 - pathway-mystery-pryer.md
-- pathway-seer.md
+- [Seer Pathway](../Pathways/pathway-seer.md)
 
 ## Relationship Seeds
 
@@ -220,6 +225,26 @@ relationships:
     status: active
     confidence: confirmed
     notes: Old Neil retrieves the formula/materials workflow from Chanis Gate and prepares Klein's Seer potion in the alchemy room.
+  - source: character-old-neil
+    target: concept-beyonders
+    relationship_type: instance-of
+    start:
+      medium: novel
+      volume: 1
+      chapter: 22
+    status: active
+    confidence: confirmed
+    notes: Old Neil is identified as a Mystery Pryer, making him a confirmed Beyonder by the current reader boundary.
+  - source: character-old-neil
+    target: concept-beyonders
+    relationship_type: trains-in
+    start:
+      medium: novel
+      volume: 1
+      chapter: 32
+    status: active
+    confidence: confirmed
+    notes: Old Neil teaches Klein immediate post-potion Beyonder practice, including Cogitation and Spirit Vision.
 ```
 
 ## Evidence Index

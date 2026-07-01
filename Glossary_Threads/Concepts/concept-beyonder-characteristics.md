@@ -13,6 +13,7 @@ Tags: volume-1, reader-knowledge, reveal-order, worldbuilding, concept
 Last Updated: 2026-07-01
 
 Related Threads:
+- [Beyonders](concept-beyonders.md)
 - [0-08](../Artifacts/artifact-0-08.md)
 
 Related Investigations:
@@ -100,6 +101,7 @@ This thread currently contains only novel Volume 1 and Donghua Season 1 knowledg
 
 ### Directly Related
 
+- [Beyonders](concept-beyonders.md)
 - [0-08](../Artifacts/artifact-0-08.md)
 
 ### Historical Connections
@@ -125,6 +127,32 @@ This thread currently contains only novel Volume 1 and Donghua Season 1 knowledg
 ### Associated Pathways
 
 -
+
+## Relationship Seeds
+
+```yaml
+relationships:
+  - source: concept-beyonder-characteristics
+    target: concept-beyonders
+    relationship_type: mechanic-of
+    start:
+      medium: novel
+      volume: 1
+      chapter: 207
+    status: active
+    confidence: confirmed
+    notes: The formal characteristic law explains how Beyonder power persists and transfers after death, making it a later mechanical layer under the broader Beyonders concept.
+  - source: concept-beyonder-characteristics
+    target: artifact-0-08
+    relationship_type: connected-to
+    start:
+      medium: novel
+      volume: 1
+      chapter: 210
+    status: active
+    confidence: confirmed
+    notes: The Death-descendant characteristic used in the Tingen plot is documented through the 0-08 reveal timeline.
+```
 
 ## Evidence Index
 

@@ -16,6 +16,7 @@ Related Threads:
 - artifact-antigonus-notebook.md
 - character-ince-zangwill.md
 - [Beyonder Characteristics](../Concepts/concept-beyonder-characteristics.md)
+- [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
 
 Related Investigations:
 - [0-08 Volume 1 Reveal Timeline](../../Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md)
@@ -469,6 +470,7 @@ The two plain filenames below are essential planned threads. Additional referenc
 - artifact-antigonus-notebook.md
 - character-ince-zangwill.md
 - [Beyonder Characteristics](../Concepts/concept-beyonder-characteristics.md)
+- [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
 
 ### Historical Connections
 

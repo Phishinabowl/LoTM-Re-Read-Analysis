@@ -129,5 +129,5 @@ Do not import the formal Beyonder-characteristics law, later pathway structure, 
 ## Open Questions
 
 - Should `concept-pathways`, `concept-potions`, `concept-cogitation`, `concept-spirit-vision`, and `concept-divination` be created as separate concept pages now, or only when the next review block forces them?
-- Are the new concept-specific graph types sufficient after more concept pages exist: `instance-of`, `regulates-access-to`, `access-route-to`, `trains-in`, `requires-practice`, and `uses-method`?
+- Are the new concept-specific graph types sufficient after more concept pages exist: `instance-of`, `regulates-access-to`, `access-route-to`, `trains-in`, `requires-practice`, `uses-method`, and `mechanic-of`?
 - Should a Donghua-specific Beyonders investigation be opened now, or wait until the user wants to compare early episodes for terminology and visual exposition?

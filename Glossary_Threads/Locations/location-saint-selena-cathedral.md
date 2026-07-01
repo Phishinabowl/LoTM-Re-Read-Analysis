@@ -16,6 +16,7 @@ Related Threads:
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
 - [0-08](../Artifacts/artifact-0-08.md)
 - [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
+- [Seer Pathway](../Pathways/pathway-seer.md)
 
 Related Investigations:
 - [Church of Evernight Volume 1 Reveal Timeline](../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
@@ -137,6 +138,8 @@ Do not add later history, occupants, institutional changes, or consequences unti
 ### Directly Related
 
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
+- [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
+- [0-08](../Artifacts/artifact-0-08.md)
 
 ### Historical Connections
 
@@ -163,7 +166,7 @@ Do not add later history, occupants, institutional changes, or consequences unti
 
 ### Associated Pathways
 
--
+- [Seer Pathway](../Pathways/pathway-seer.md)
 
 ## Relationship Seeds
 

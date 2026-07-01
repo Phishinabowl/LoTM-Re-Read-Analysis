@@ -16,6 +16,8 @@ Related Threads:
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
 - [Old Neil](../Characters/character-old-neil.md)
 - [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
+- [Beyonders](../Concepts/concept-beyonders.md)
+- [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
 
 Related Investigations:
 - [Seer Pathway Novel Volume 1 Reveal Timeline](../../Investigations/Pathways/pathway-seer/novel-volume-1-reveal-timeline.md)
@@ -139,6 +141,7 @@ Later Seer pathway names, higher Sequences, future acting-method developments, a
 - [Old Neil](../Characters/character-old-neil.md)
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
 - [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
+- [Beyonders](../Concepts/concept-beyonders.md)
 - concept-spirit-vision.md
 - concept-cogitation.md
 - concept-divination.md
@@ -198,7 +201,7 @@ relationships:
     notes: Klein becoming a Seer is the event that makes Seer his active pathway.
   - source: faction-church-of-evernight
     target: pathway-seer
-    relationship_type: connected-to
+    relationship_type: regulates-access-to
     start:
       medium: novel
       volume: 1
@@ -208,7 +211,7 @@ relationships:
     notes: Dunn identifies Seer as one of the Church's locally available incomplete Sequence 9 options.
   - source: character-old-neil
     target: pathway-seer
-    relationship_type: connected-to
+    relationship_type: trains-in
     start:
       medium: novel
       volume: 1
@@ -228,7 +231,7 @@ relationships:
     notes: Roselle's diary is the reader's first word-level Seer mention and influences Klein's later choice.
   - source: pathway-seer
     target: concept-divination
-    relationship_type: connected-to
+    relationship_type: uses-method
     start:
       medium: novel
       volume: 1
@@ -236,6 +239,16 @@ relationships:
     status: active
     confidence: confirmed
     notes: Dunn describes Seer as associated with divination methods such as astromancy, cartomancy, spiritual pendulums, and scrying.
+  - source: pathway-seer
+    target: concept-beyonders
+    relationship_type: access-route-to
+    start:
+      medium: novel
+      volume: 1
+      chapter: 28
+    status: active
+    confidence: confirmed
+    notes: Seer is one of the concrete Sequence 9 options through which Klein can become a Beyonder.
 ```
 
 ## Evidence Index

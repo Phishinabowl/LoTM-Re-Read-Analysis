@@ -15,6 +15,9 @@ Last Updated: 2026-07-01
 Related Threads:
 - [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
 - [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
+- [Beyonders](../Concepts/concept-beyonders.md)
+- [Seer Pathway](../Pathways/pathway-seer.md)
+- [Old Neil](../Characters/character-old-neil.md)
 
 Related Investigations:
 - [Church of Evernight Volume 1 Reveal Timeline](../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
@@ -180,10 +183,12 @@ Use Markdown links when the target file exists. Mention a nonexistent thread as 
 ### Directly Related
 
 - [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
+- [Beyonders](../Concepts/concept-beyonders.md)
+- [Seer Pathway](../Pathways/pathway-seer.md)
+- [Old Neil](../Characters/character-old-neil.md)
 - character-klein-moretti.md
 - character-dunn-smith.md
 - character-leonard-mitchell.md
-- character-old-neil.md
 
 ### Historical Connections
 
@@ -212,7 +217,7 @@ Use Markdown links when the target file exists. Mention a nonexistent thread as 
 - pathway-sleepless.md
 - pathway-mystery-pryer.md
 - pathway-corpse-collector.md
-- pathway-seer.md
+- [Seer Pathway](../Pathways/pathway-seer.md)
 
 ## Relationship Seeds
 
@@ -308,6 +313,26 @@ relationships:
     status: completed
     confidence: confirmed
     notes: The Church/Nighthawks provide the institutional pathway offer, formula/material custody, alchemy-room access, and status boundary that enable Klein to become a Seer.
+  - source: faction-church-of-evernight
+    target: concept-beyonders
+    relationship_type: regulates-access-to
+    start:
+      medium: novel
+      volume: 1
+      chapter: 6
+    status: active
+    confidence: confirmed
+    notes: The Church is introduced as an orthodox route to Beyonder power and later becomes Klein's actual supervised access path.
+  - source: faction-church-of-evernight
+    target: pathway-seer
+    relationship_type: regulates-access-to
+    start:
+      medium: novel
+      volume: 1
+      chapter: 28
+    status: active
+    confidence: confirmed
+    notes: Dunn identifies Seer as one of the Church's locally available incomplete Sequence 9 options.
   - source: character-daly-simone
     target: pathway-corpse-collector
     relationship_type: pathway-status

@@ -489,6 +489,7 @@ access-route-to
 trains-in
 requires-practice
 uses-method
+mechanic-of
 event-participant
 event-location
 event-cause
@@ -504,6 +505,7 @@ Use concept relationship types when a concept page is the graph center or when t
 - `trains-in`: A person, faction, organization, or institution teaches or supervises practice of the target concept/skill/status.
 - `requires-practice`: A concept/status/power requires continued practice, training, or control through the target method/concept.
 - `uses-method`: A person, faction, event, pathway, or concept uses the target method/concept in a meaningful reader-safe way.
+- `mechanic-of`: A concept, rule, law, process, or substance explains how the target concept/status/system works.
 
 Prefer these over generic `connected-to` when the relationship is concept-specific and reader-safe.
 

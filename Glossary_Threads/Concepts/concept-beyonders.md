@@ -128,7 +128,7 @@ Later explanations of Beyonder characteristics, pathway structure, acting method
 - Related investigation: [Beyonders Novel Volume 1 Reveal Timeline](../../Investigations/Concepts/concept-beyonders/novel-volume-1-reveal-timeline.md)
 
 - Question: Are the new concept-specific relationship types sufficient for graph generation once more concept pages exist?
-- Current confidence: Working Theory. The taxonomy now includes `instance-of`, `regulates-access-to`, `access-route-to`, `trains-in`, `requires-practice`, and `uses-method`, but future concept pages may reveal missing types.
+- Current confidence: Working Theory. The taxonomy now includes `instance-of`, `regulates-access-to`, `access-route-to`, `trains-in`, `requires-practice`, `uses-method`, and `mechanic-of`, but future concept pages may reveal missing types.
 - Needs EPUB verification: No; taxonomy stress testing needed.
 - Related investigation: [Beyonders Novel Volume 1 Reveal Timeline](../../Investigations/Concepts/concept-beyonders/novel-volume-1-reveal-timeline.md)
 
@@ -243,6 +243,16 @@ relationships:
     status: active
     confidence: confirmed
     notes: Old Neil teaches Klein immediate post-potion Beyonder practice, including Cogitation and Spirit Vision.
+  - source: concept-beyonder-characteristics
+    target: concept-beyonders
+    relationship_type: mechanic-of
+    start:
+      medium: novel
+      volume: 1
+      chapter: 207
+    status: future-boundary
+    confidence: confirmed
+    notes: Beyonder characteristics are a later reader-boundary mechanical explanation for how Beyonder power persists, transfers, and can be divided. This seed is included for cross-page graph completeness but remains outside the current Chapter 34 boundary of this page.
 ```
 
 ## Evidence Index
@@ -556,7 +566,7 @@ last_updated: 2026-07-01
 ## Future Automation Notes
 
 - Concept pages now have initial graph-oriented relationship types in `PROJECT_RULES.md`.
-- Stress-test `instance-of`, `regulates-access-to`, `access-route-to`, `trains-in`, `requires-practice`, and `uses-method` as additional concept pages are created.
+- Stress-test `instance-of`, `regulates-access-to`, `access-route-to`, `trains-in`, `requires-practice`, `uses-method`, and `mechanic-of` as additional concept pages are created.
 - Do not add automated backlinks or graph outputs manually yet.
 
 ## Notes

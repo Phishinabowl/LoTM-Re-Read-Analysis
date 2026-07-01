@@ -13,6 +13,7 @@ Tags: volume-1, reader-knowledge, event, pathway
 Last Updated: 2026-07-01
 
 Related Threads:
+- [Beyonders](../Concepts/concept-beyonders.md)
 - [Seer Pathway](../Pathways/pathway-seer.md)
 - [Old Neil](../Characters/character-old-neil.md)
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
@@ -121,9 +122,9 @@ Later consequences of Klein's Seer pathway, later acting-method development, lat
 
 ## Open Questions
 
-- Question: Should event pages use new event-specific relationship types?
-- Current confidence: Strong Evidence that they would improve graph clarity; not yet implemented.
-- Needs EPUB verification: No; taxonomy decision needed.
+- Question: Are the current event-specific relationship types sufficient once larger events are modeled?
+- Current confidence: Working Theory. `event-participant`, `event-location`, `event-cause`, `event-enabler`, and `event-outcome` are implemented and work for this pilot, but larger events may expose missing types.
+- Needs EPUB verification: No; taxonomy stress testing needed.
 - Related investigation: [Klein Becomes a Seer Novel Volume 1 Event Timeline](../../Investigations/Events/event-klein-becomes-a-seer/novel-volume-1-reveal-timeline.md)
 
 - Question: Should event pages include a separate `Participants / Causes / Outcomes` top-level section, or keep those details inside chronology and relationship seeds?
@@ -139,6 +140,7 @@ Later consequences of Klein's Seer pathway, later acting-method development, lat
 - [Old Neil](../Characters/character-old-neil.md)
 - character-dunn-smith.md
 - [Seer Pathway](../Pathways/pathway-seer.md)
+- [Beyonders](../Concepts/concept-beyonders.md)
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
 - [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
 
