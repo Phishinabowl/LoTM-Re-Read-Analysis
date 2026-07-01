@@ -483,12 +483,29 @@ targets
 targets-protected-resource
 pathway-status
 family
+instance-of
+regulates-access-to
+access-route-to
+trains-in
+requires-practice
+uses-method
 event-participant
 event-location
 event-cause
 event-enabler
 event-outcome
 ```
+
+Use concept relationship types when a concept page is the graph center or when the relationship describes access to, membership in, or practice of a concept:
+
+- `instance-of`: A concrete person, organization, artifact, event, or pathway is an example or holder of the target concept/status at the current reader boundary.
+- `regulates-access-to`: A faction, organization, institution, or authority controls, grants, restricts, or supervises access to the target concept/status/resource.
+- `access-route-to`: A pathway, formula, institution, event, or method is a route through which the target concept/status/resource can be reached.
+- `trains-in`: A person, faction, organization, or institution teaches or supervises practice of the target concept/skill/status.
+- `requires-practice`: A concept/status/power requires continued practice, training, or control through the target method/concept.
+- `uses-method`: A person, faction, event, pathway, or concept uses the target method/concept in a meaningful reader-safe way.
+
+Prefer these over generic `connected-to` when the relationship is concept-specific and reader-safe.
 
 Use event relationship types when an event page is the graph center:
 

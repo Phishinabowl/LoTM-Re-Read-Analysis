@@ -38,6 +38,16 @@ Navigation hub for the reread analysis workspace.
 
 ### Concepts
 
+#### Beyonders
+
+- Glossary: [Beyonders](Glossary_Threads/Concepts/concept-beyonders.md)
+- Supporting Investigations:
+  - [Beyonders Novel Volume 1 Reveal Timeline](Investigations/Concepts/concept-beyonders/novel-volume-1-reveal-timeline.md)
+  - [Church of Evernight Volume 1 Reveal Timeline](Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
+  - [Seer Pathway Novel Volume 1 Reveal Timeline](Investigations/Pathways/pathway-seer/novel-volume-1-reveal-timeline.md)
+  - [Klein Becomes a Seer Novel Volume 1 Event Timeline](Investigations/Events/event-klein-becomes-a-seer/novel-volume-1-reveal-timeline.md)
+  - [Old Neil Novel Volume 1 Reveal Timeline](Investigations/Characters/character-old-neil/novel-volume-1-reveal-timeline.md)
+
 #### Beyonder Characteristics
 
 - Glossary: [Beyonder Characteristics](Glossary_Threads/Concepts/concept-beyonder-characteristics.md)
