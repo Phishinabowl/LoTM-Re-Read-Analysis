@@ -6,7 +6,7 @@ What does the novel reader know about 0-08 at each meaningful point in Volume 1,
 
 ## Status
 
-In Progress. Checks 1 through 7 are EPUB verified.
+In Progress. Checks 1 through 9 are EPUB verified.
 
 ## Scope
 
@@ -87,7 +87,7 @@ Volume 1, from the first mention in Chapter 19 through Chapter 212.
 - The projected result was that he would reach the target only among the final batches after another two or three months.
 - Why it matters: 0-08 manipulates mundane route selection rather than visibly blocking the investigation, preserving the appearance of reasonable failure.
 
-### Check 6: Lamud Skull Theft and Its Later Purpose
+### Check 6: Lamud Skull Theft
 
 #### Chapter 150
 
@@ -96,6 +96,18 @@ Volume 1, from the first mention in Chapter 19 through Chapter 212.
 - Klein therefore infers that the red-chimney mastermind came to Lamud Castle and stole the skull.
 - Azik attempts to trace the skull through their blood connection, but can only see that it was left beneath a tree and reduced to powder.
 - Why it matters: The hidden manipulator is independently connected to another deliberate theft, but neither Klein nor Azik knows the culprit, the role of 0-08, or the skull's purpose.
+
+### Check 7: Target Awareness and Azik's Departure
+
+#### Chapter 170
+
+- Azik believes the target may have noticed his attention and investigation because it has stopped acting and left no new clues.
+- He plans to leave Tingen for Backlund both to investigate his own history and to make the target lower its guard in his absence.
+- Klein agrees to watch for renewed activity and notify Azik through his messenger.
+- Why it matters: The reader's threat model advances from a hidden force that manipulates and conceals interference to a possible adaptive opponent that can notice investigation and deliberately become inactive.
+- Confidence limit: Azik presents this as a reasoned possibility, not a verified ability of the target.
+
+### Check 8: Characteristic Framework and the Skull's Later Purpose
 
 #### Chapter 207
 
@@ -115,7 +127,7 @@ Volume 1, from the first mention in Chapter 19 through Chapter 212.
 - Klein reconstructs Ince's advancement plan and identifies the stolen skull of Death's descendant as a likely ritual ingredient.
 - Why it matters: The reader can now connect the Chapter 150 theft to the characteristic used in both ritual chains, although Klein's skull-to-characteristic link remains an evidence-based inference.
 
-### Check 7: Retrospective Causal Beginning
+### Check 9: Retrospective Causal Beginning
 
 #### Chapter 210: Story
 
@@ -159,11 +171,19 @@ Klein's red-chimney investigation is genuine and methodical, but its repeated fa
 
 ### Check 6
 
-Chapter 150 establishes that the same hidden power affecting Klein's fate was present at the theft of Azik's child's skull. Chapter 207 provides the general characteristic-transfer law, Chapter 210 explicitly demonstrates divisibility through Ince's two ritual uses, and Chapter 212 supplies Klein's inference that the stolen skull was the characteristic's source.
+Chapter 150 establishes that the same hidden power affecting Klein's fate was present at the theft of Azik's child's skull, while leaving its purpose and the culprit's identity unresolved.
+
+### Check 7
+
+Chapter 170 adds a strong but unconfirmed inference that the hidden target can notice investigation and adapt its behavior. Azik's departure is both a personal search for his history and a deliberate attempt to reduce the target's caution.
+
+### Check 8
+
+Chapter 207 provides the general characteristic-transfer law, Chapter 210 explicitly demonstrates divisibility through Ince's two ritual uses, and Chapter 212 supplies Klein's inference that the stolen skull was the characteristic's source.
 
 The Secret Order did not perform the Megose ritual. Lanevus and Hood Eugen conducted it, Ince assisted secretly, and Sirius's Aurora Order connection entered through Lanevus's later warning.
 
-### Check 7
+### Check 9
 
 The user's memory was directionally correct: Chapter 210 reveals the Antigonus notebook's arrival in Tingen as part of the opening setup of 0-08's written story.
 

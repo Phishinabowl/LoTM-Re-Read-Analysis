@@ -6,7 +6,7 @@ What does a Donghua viewer know about 0-08 at each meaningful point in Season 1,
 
 ## Status
 
-In Progress. Checks 1 and 2 are subtitle verified. The Episode 10 introduction staging and Episode 7 skull placement are user-verified visual evidence; other visual details remain under investigation.
+In Progress. Checks 1 through 3 are subtitle verified. The Episode 10 introduction staging and Episode 7 skull placement are user-verified visual evidence; other visual details remain under investigation.
 
 ## Scope
 
@@ -40,7 +40,21 @@ Donghua Season 1, Episodes 1-13. Current subtitle source coverage does not inclu
 - Klein knocks over the notebook or journal, catches it, and causes Ince Zangwill's wanted poster to fall out. Dunn sees Klein holding the poster, which begins the conversation about Ince and 0-08.
 - Why it matters: The Donghua preserves the core facts of the novel's Chapter 19 introduction but delays them until Episode 10, after Old Neil's storyline.
 
-### Check 2: Beyonder Characteristics and the Death-Descendant Remnant
+### Check 2: Target Awareness and Azik's Departure
+
+#### Episode 8: Losing Control
+
+- Around `00:02:23`, Azik says that the barrier appears to have been fortified after the target noticed his prying.
+- Why it matters: The adaptation explicitly gives Klein and the viewer a strong inference that the mastermind can detect investigation and strengthen its defenses.
+
+#### Episode 10: Clue
+
+- Around `00:03:52`, Azik's letter states that he is already aboard a train to Backlund.
+- Around `00:04:13`, the letter says the mastermind has fortified its interference and may lower its guard during Azik's absence.
+- Immediately afterward, Klein's accidental discovery of Ince's wanted poster leads into the first explicit 0-08 explanation.
+- Why it matters: The Donghua places the adaptive-mastermind warning directly beside the delayed introduction of Ince and 0-08 without yet making the causal connection explicit.
+
+### Check 3: Beyonder Characteristics and the Death-Descendant Remnant
 
 #### Episode 6: Teacher
 
@@ -82,6 +96,10 @@ The Donghua first explicitly names and describes 0-08 in Episode 10. The `0-08` 
 Compared with the novel's Chapter 19 introduction, the adaptation relationship is `revealed-later` and `recontextualized`. Subtitle evidence verifies the dialogue and timing, while user-verified visual evidence establishes that the poster is discovered accidentally among Old Neil's papers after Klein receives Azik's letter in the workshop.
 
 ### Check 2
+
+Episodes 8 and 10 preserve Azik's inference that the mastermind noticed investigation, fortified its interference, and might lower its guard after Azik leaves. The target's awareness remains a strong inference rather than a mechanically confirmed ability.
+
+### Check 3
 
 Donghua viewers do not have formal Beyonder-characteristic knowledge before Episode 12. They nevertheless see Teno's stolen skull used in the Megose ritual in Episode 7. Episode 10 supplies a simplified precursor, Episode 12 establishes the term and conservation law, and Episode 13 supports both the divided-use inference and the strong inference that Teno's skull supplied the characteristic.
 

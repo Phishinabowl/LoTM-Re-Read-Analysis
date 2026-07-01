@@ -107,6 +107,13 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 - What remains unknown: The culprit's identity, 0-08's involvement, why the skull was taken, and how its Beyonder characteristic will be used.
 - Why it matters: The hidden manipulator is now connected to a deliberate theft outside the original coincidence chains, but the causal purpose remains concealed.
 
+#### Chapter 170: Target Awareness and Azik's Departure
+
+- What the reader learns: Azik believes the target may have noticed his investigation because it has stopped acting and left no clues.
+- What Azik does: He leaves for Backlund to investigate his own history and to encourage the target to lower its guard.
+- What remains unknown: Whether the target truly detected Azik, how it did so, and whether 0-08 is involved.
+- Why it matters: The hidden mastermind is now modeled as a potentially adaptive opponent rather than a passive source of interference.
+
 #### Chapter 210: Story
 
 - What the reader learns: Tingen's events have been represented as a mutable written story ending with Ince Zangwill holding the inkless quill.
@@ -127,6 +134,14 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 - Episode 7 knowledge: A one-month-prior flashback explicitly labels Teno's skull while showing it in the Megose ritual sequence with Lanevus and Hood Eugen.
 - What remains unknown: The formal Beyonder-characteristic framework, the extraction process, Ince's role, and any connection to 0-08.
 - Why it matters: The Donghua reveals the skull's ritual destination early while withholding the system that explains what the skull contributes.
+
+#### Season 1, Episodes 8 and 10: Target Awareness and Azik's Departure
+
+- Episode 8 knowledge: Azik believes the target noticed his prying and fortified the interference.
+- Episode 10 knowledge: Azik is traveling to Backlund and hopes his absence will cause the mastermind to lower its guard.
+- Presentation: The letter ends immediately before Klein discovers Ince's wanted poster and learns about 0-08.
+- What remains unknown: The target's identity, whether its awareness is genuine, and any connection to Ince or 0-08.
+- Why it matters: The adaptation juxtaposes the adaptive-mastermind warning with 0-08's introduction while withholding explicit attribution until Episode 13.
 
 #### Season 1, Episode 10: Delayed First Mention
 
@@ -203,7 +218,9 @@ The two plain filenames below are essential planned threads. Additional referenc
 - Chapters 98-99: Azik detects disharmony in Klein's fate, and Klein verifies hidden interference while suspecting the Antigonus notebook rather than 0-08.
 - Chapters 106-149 and Chapter 210: Klein's citywide red-chimney search repeatedly misses the target because 0-08 steers his route choices away from the correct house.
 - Chapters 150, 210, and 212: The hidden mastermind steals Azik's child's skull; Ince later divides its descendant-of-Death characteristic between Megose's ritual and his own advancement plan.
+- Chapter 170: Azik infers that the target noticed his investigation and leaves Tingen partly to lower its guard.
 - Donghua Season 1, Episodes 6-7: Teno is identified as Azik's child, and his stolen skull is explicitly labeled inside the Megose ritual flashback.
+- Donghua Season 1, Episodes 8 and 10: Azik infers that the mastermind noticed his prying, fortified its interference, and may lower its guard during his absence.
 - Donghua Season 1, Episode 10: Subtitle evidence identifies 0-08 around `00:05:14`, explains its Grade 0 status around `00:05:32`, and describes the inkless quill around `00:05:42`.
 - Donghua Season 1, Episodes 12-13: Subtitle evidence introduces the characteristic conservation law, the Death-descendant remnant used for Megose, and the remaining characteristic used in Ince's advancement.
 - Chapter 210: 0-08's written story retrospectively connects the pre-Tingen notebook transfer chain with the wider Tingen plot.
@@ -625,6 +642,93 @@ last_updated: 2026-06-30
 #### Adaptation Analysis
 
 - The Donghua exposes the skull's ritual involvement earlier but leaves the extraction step implicit.
+
+### Knowledge Unit: The Hidden Mastermind May Detect Investigation
+
+```yaml
+id: 0-08-mastermind-may-detect-investigation
+claim: The hidden mastermind behind Klein's fate interference may be able to notice investigation, strengthen its defenses, and deliberately become inactive until scrutiny decreases.
+truth_status: unresolved
+canon_scope: shared
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: 170
+  notes: Azik presents this as an inference based on the target's recent inactivity; the Donghua presents the equivalent suspicion in Episodes 8 and 10.
+tags:
+  - volume-1
+  - foreshadowing
+  - reader-knowledge
+  - reveal-order
+  - working-theory
+  - artifact
+disclosures:
+  - medium: novel
+    knowledge_state: strong-inference
+    disclosure_type: strong-inference
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 170
+    superseded_at:
+    superseded_by:
+  - medium: donghua
+    knowledge_state: strong-inference
+    disclosure_type: strong-inference
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 8
+      release_order: 8
+      timestamp: 00:02:23.29
+    superseded_at:
+    superseded_by:
+  - medium: donghua
+    knowledge_state: strong-inference
+    disclosure_type: confirmation
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 10
+      release_order: 10
+      timestamp: 00:04:13.55
+    superseded_at:
+    superseded_by:
+adaptation_relationships:
+  - type: faithful
+    novel_claim_changed: false
+    notes: The Donghua preserves Azik's reasoning and places his Episode 10 letter immediately before 0-08's delayed introduction.
+subject_attribution_from:
+  - medium: novel
+    position:
+      book: lotm-1
+      volume: 1
+      chapter: 210
+  - medium: donghua
+    position:
+      season: 1
+      installment_type: episode
+      episode: 13
+      release_order: 13
+related_investigations:
+  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
+  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-06-30
+```
+
+#### Reader-State History
+
+- Novel Chapter 170 and Donghua Episodes 8/10 make the generic adaptive-mastermind theory available without identifying 0-08 as the cause.
+- The generic claim is available from novel Chapter 170 and Donghua Episode 8, with Episode 10 reinforcing it.
+- To avoid spoiling the connection merely by displaying it on the 0-08 page, `subject_attribution_from` withholds this unit from that page until novel Chapter 210 or Donghua Episode 13.
+- Even after attribution, the target's exact detection mechanism remains unresolved.
+
+#### Adaptation Analysis
+
+- The Donghua strengthens the foreshadowing by placing Azik's warning and departure letter immediately before Klein discovers Ince's poster and learns about 0-08.
 
 ### Knowledge Unit: 0-08 Orchestrated the Notebook's Transfer Toward Tingen
 

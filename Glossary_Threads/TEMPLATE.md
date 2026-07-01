@@ -187,6 +187,18 @@ adaptation_relationships:
   - type: uncertain
     novel_claim_changed: false
     notes:
+subject_attribution_from:
+  - medium: novel
+    position:
+      book: lotm-1
+      volume:
+      chapter:
+  - medium: donghua
+    position:
+      season:
+      installment_type: episode
+      episode:
+      release_order:
 related_investigations:
 related_boards:
 last_updated:

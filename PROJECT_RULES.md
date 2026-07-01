@@ -472,6 +472,18 @@ Combined views must evaluate each selected medium independently and then combine
 
 The eventual glossary page should update from the user's selected novel chapter, Donghua release position, or both. Its reader-facing summary and timeline must be constructed only from eligible knowledge units. Freeform analysis elsewhere in the Markdown file is project working material and must not be assumed spoiler-safe for automatic display.
 
+Use optional `subject_attribution_from` entries when a generic claim becomes knowable before the reader can connect it to the glossary subject that stores it. `available_from` controls when the claim itself is knowable; `subject_attribution_from` controls when it may appear on that subject's generated page.
+
+Example:
+
+```text
+Hidden mastermind may detect investigation:
+  available_from: Donghua Episode 8
+  subject_attribution_from for 0-08: Donghua Episode 13
+```
+
+Never delay `available_from` merely to avoid leaking a later subject attribution.
+
 ## Knowledge Unit Workflow
 
 Create an embedded knowledge unit when a durable claim has meaningful spoiler timing, adaptation significance, or historical reader-state value.

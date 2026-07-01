@@ -136,6 +136,66 @@ This thread currently contains only novel Volume 1 and Donghua Season 1 knowledg
 
 ## Reader Knowledge Ledger
 
+### Knowledge Unit: Dead Beyonders Can Leave Power-Bearing Remains
+
+```yaml
+id: dead-beyonders-leave-power-bearing-remains
+claim: When a Beyonder dies, they can leave behind power-bearing remains or items, and relics that cannot be controlled may need to be sealed.
+truth_status: true
+canon_scope: shared
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: enduring-law
+  notes: This is an enduring property rather than a discrete event.
+tags:
+  - volume-1
+  - reader-knowledge
+  - reveal-order
+  - worldbuilding
+  - concept
+disclosures:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 207
+    superseded_at:
+    superseded_by:
+  - medium: donghua
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 10
+      release_order: 10
+      timestamp: 00:05:49.44
+    superseded_at:
+    superseded_by:
+adaptation_relationships:
+  - type: faithful
+    novel_claim_changed: false
+    notes: The Donghua explains the remnant concept before introducing the formal characteristic conservation law.
+related_investigations:
+  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
+  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+related_boards:
+last_updated: 2026-06-30
+```
+
+#### Reader-State History
+
+- Novel readers receive the verified death-and-remnant explanation in Chapter 207.
+- Donghua viewers receive this narrower concept in Episode 10 without yet knowing the full conservation law.
+
+#### Adaptation Analysis
+
+- The Donghua uses this explanation as a conceptual precursor to Episode 12's formal framework.
+
 ### Knowledge Unit: Characteristics Persist and Transfer
 
 ```yaml
@@ -166,22 +226,6 @@ disclosures:
     superseded_at:
     superseded_by:
   - medium: donghua
-    knowledge_state: strong-inference
-    disclosure_type: implicit-clue
-    available_from:
-      season: 1
-      installment_type: episode
-      episode: 10
-      release_order: 10
-      timestamp: 00:05:49.44
-    superseded_at:
-      season: 1
-      installment_type: episode
-      episode: 12
-      release_order: 12
-      timestamp: 00:24:01.87
-    superseded_by: Explicit conservation-law explanation in Episode 12.
-  - medium: donghua
     knowledge_state: confirmed-fact
     disclosure_type: explicit-reveal
     available_from:
@@ -195,7 +239,7 @@ disclosures:
 adaptation_relationships:
   - type: faithful
     novel_claim_changed: false
-    notes: The Donghua preserves the conservation law but introduces a simplified precursor two episodes earlier.
+    notes: The Donghua preserves the conservation law in Episode 12 after separately explaining death-related power-bearing remains in Episode 10.
 related_investigations:
   - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
   - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
@@ -206,7 +250,7 @@ last_updated: 2026-06-30
 #### Reader-State History
 
 - Novel readers receive the formal law in Chapter 207.
-- Donghua viewers receive an incomplete conceptual model in Episode 10 and the formal law in Episode 12.
+- Donghua viewers learn the separate remnant concept in Episode 10 and receive this complete conservation law in Episode 12.
 
 #### Adaptation Analysis
 
