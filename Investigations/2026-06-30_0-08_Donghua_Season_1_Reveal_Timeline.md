@@ -6,7 +6,7 @@ What does a Donghua viewer know about 0-08 at each meaningful point in Season 1,
 
 ## Status
 
-In Progress. The full 13-episode subtitle audit is complete, and the dedicated spectral-quill visual audit is complete through Episode 12. Checks 1 through 10 remain subtitle verified; Checks 11 through 15 formalize the audiovisual motif and major visual sequences through Episode 12. Previously verified Episode 13 visual evidence remains recorded.
+Complete through regular Season 1. The full 13-episode subtitle audit and dedicated spectral-quill visual audit are complete. Checks 1 through 10 remain subtitle verified; Checks 11 through 16 formalize the audiovisual motif and major visual sequences through Episode 13.
 
 ## Scope
 
@@ -113,9 +113,10 @@ Donghua Season 1, Episodes 1-13. Current subtitle source coverage does not inclu
 
 - 0-08 narrates the season through a puppet-like visual reconstruction and speaks from its own first-person perspective.
 - Around `00:19:54`, the narration describes an engineered event as a logical coincidence.
-- Around `00:20:57`, subtitle dialogue says Ince continues altering the plot.
-- User-verified visual evidence shows Ince crossing out written lines when disruptions force revisions.
-- User-verified visual evidence at the end of the narration shows the quill writing the conclusion by itself.
+- Around `00:19:35`, on-screen text states that the Antigonus notebook arrives in Tingen "according to plan."
+- Around `00:20:59`, user-verified visuals show Ince crossing out written lines while the narration says he continues altering the plot.
+- Around `00:21:48`, user-verified visuals show 0-08 writing independently in a notebook on a desk.
+- Around `00:21:53`, the camera leaves the desk and follows a loose page drifting through the city during the aftermath narration.
 - Around `00:22:07`, the subtitle narration concludes the story of Tingen.
 - Why it matters: The Donghua explicitly assigns an editorial role to Ince while separately depicting 0-08 as an autonomous narrator and self-writing actor.
 - Adaptation distinction: In the novel, revision agency is ambiguous and Ince writes the final line; the Donghua visually clarifies Ince's editing and changes the final writer to 0-08 itself.
@@ -194,13 +195,15 @@ The spectral quill is a purely audiovisual evidence stream. Subtitle files do no
 | 12 | `00:01:16` | Confirmed quill drop with `[Ince]` narration and blood-red written text | Dunn's contamination-driven behavior over Kenley's corpse | Ince/0-08 arrange and exploit the behavior; the Antigonus contamination remains the proximate mechanism |
 | 12 | `00:20:25` | Confirmed quill drop with `[Ince]` whisper | Dunn selects Saint Selena's ashes immediately afterward | Strong behavioral steering through a plausible decision; unrestricted mind control remains unproved |
 | 12 | `00:25:39` | Confirmed physical-quill writing shot with `[Ince]` narration | Ince announces the climactic act as Megose destabilizes | Confirms authorial intervention; visible framing conceals whether Ince or 0-08 physically writes |
+| 13 | `00:18:45-00:19:14` | Confirmed audio-only motif resolution; no spectral quill appears | The established quill cue bridges Klein's death into the clockwork puppet-stage transition and 0-08's first-person narration | Directly resolves the audiovisual signature to 0-08; no additional event-level causal action is assigned |
 
 Reader-state progression:
 
 - Episodes 2-9: The viewer knows only that an unexplained spectral quill and musical cue recur near strange or newly connected events.
 - Episode 10 around `00:05:40`: A physical quill and the reused musical cue confirm that the motif represents 0-08.
 - Episode 10 around `00:21:00`: Description-to-enactment staging provides the first strong functional inference that 0-08 shapes events.
-- Episode 13: 0-08's narrative role confirms the broad event-shaping interpretation without automatically proving what it caused in each marked scene.
+- Episode 13 around `00:18:45-00:19:14`: The familiar cue returns without the quill image and resolves directly into 0-08's narration, confirming the signature's source without assigning a new event-level manipulation.
+- Episode 13 thereafter: 0-08's narrative role confirms the broad event-shaping interpretation without automatically proving what it caused in each earlier marked scene.
 
 ### Check 12: Episode 7 Red-Smokestack-to-Teno Editorial Chain
 
@@ -283,6 +286,53 @@ Reader-state progression:
 - No hand is visible, but the upper-right framing prevents determining whether Ince holds the quill or 0-08 writes autonomously.
 - Why it matters: Episode 12 confirms Ince's authorial association while deliberately preserving physical writing-agency ambiguity for Episode 13.
 
+### Check 16: Episode 13 Concealed Infiltration, Stage Reveal, and Klein's Reconstruction
+
+#### Concealed Infiltration Montage
+
+- Around `00:09:31-00:09:37`, police stop an apparent clergyman approaching the Church, accept his badge, and welcome his arrival.
+- The man is Ince, but the framing obscures most of his face; blond hair, a red cap, and a partial profile permit only an unusually sharp early identification from the wanted poster.
+- The Wall of Spirituality opens for him while an ominous choir contradicts the apparent relief of his authorized entry.
+- Intercuts with the Megose battle show Ince shattering a broken mirror bearing Evernight's emblem, descending past an extinguishing sacred light at a major musical impact, and appearing only as a moving shadow on a ruined wall.
+- The red-tinted Klein impalement image recreates the Episode 1 opening before shattering into the revelation that Dunn's Nightmare prevented the apparent outcome.
+- Interpretation boundary: The montage symbolizes betrayal, desecration, hidden authorship, and institutional failure; it does not prove that Ince directly causes every intercut event or supernaturally extinguishes the light.
+
+#### Ince Identity and Objective Reveal
+
+- Around `00:17:51`, Ince attacks Klein from behind, removes his heart, and retrieves Saint Selena's ashes.
+- Around `00:18:23-00:18:26`, Klein attempts to ask the killer's identity before Ince turns and reveals his face.
+- The visual disclosure order is action, objective, identity, then mechanism: 0-08's narration follows to explain how the outcome was constructed.
+
+#### Clockwork Puppet-Stage Transition
+
+- At `00:18:45`, Klein's dying perspective fades to black for roughly eleven seconds.
+- The established spectral-quill audio cue returns without the quill image and continues into the transition, directly linking the season-long motif to 0-08's revealed narration.
+- Around `00:18:56`, clock ticking begins before the image returns and withdraws upward from Klein's body through intricate three-dimensional gears.
+- The viewpoint expands into map-like scenery made from wooden blocks and puppets.
+- A giant Evernight symbol shatters and red curtains open as 0-08's narration begins.
+- Why it matters: The sequence shifts from Klein's limited lived experience to 0-08's retrospective authorial performance, presenting the Tingen plot as causal machinery and staged narrative without proving absolute control of every participant.
+
+#### Completed Story Returns to Tingen
+
+- Around `00:21:48`, 0-08 writes independently after Ince's objective and advancement succeed.
+- Around `00:21:53`, a page leaves the writing scene and drifts through ordinary Tingen as the sun-and-aftermath narration begins.
+- At `00:22:07`, 0-08 concludes the story; the page lands on Leonard's hospital window and transitions into the survivors' institutional aftermath.
+- Why it matters: The page visually carries the completed manuscript from the puppet-stage explanation back into the human consequences of the story.
+
+#### Azik and Klein Knowledge Thresholds
+
+- Around `00:25:39`, an unidentified observer overlooks Klein's grave; around `00:25:49`, he is revealed as Azik and promises that the now-understood mastermind will suffer.
+- Around `00:28:50`, Klein reconstructs the ashes and his dying view of Ince above the gray fog.
+- At `00:28:56`, he identifies Ince as the mastermind; at `00:29:02`, he separately attributes the causal mechanism to 0-08.
+- At `00:29:11-00:29:20`, Klein identifies the ashes as the strategic objective, Dunn as the central manipulated target, and himself as an unintended obstacle.
+
+#### Three-Way Backlund Divination
+
+- From `00:29:25-00:29:34`, Klein asks for Ince's immediate locality, Lanevus's whereabouts, and his best opportunity to grow stronger.
+- The Donghua presents dream-style imagery in a three-way split: fragmented views of Backlund rotate and align into one continuous panorama.
+- At `00:29:51`, Klein states the convergent answer, Backlund.
+- Precision boundary: The sequence confirms a shared broad destination but does not explain why no exact location is available.
+
 ## Interim Conclusions
 
 ### Check 1
@@ -327,7 +377,7 @@ Episode 13 preserves the Holy Cathedral identification and Leonard's resulting R
 
 ### Check 11
 
-The recurring spectral quill creates a Donghua-original open question beginning in Episode 2. Repetition invites pattern recognition, Episode 10 permits identity attribution as a working theory, and Episode 13 confirms the motif's connection to 0-08 while leaving event-level causation separately evaluable.
+The recurring spectral quill creates a Donghua-original open question beginning in Episode 2. Repetition invites pattern recognition, Episode 10 confirms the motif's identity and teaches a possible function, and Episode 13 resolves the same audio cue directly into 0-08's narration while leaving event-level causation separately evaluable.
 
 ### Check 12
 
@@ -345,6 +395,10 @@ Episode 11 uses two quill drops inside one continuous transition to associate 0-
 
 Episode 12 explicitly identifies Ince's voice during quill-marked narration, demonstrates behavioral steering toward Saint Selena's ashes, and shows the climax being written. It preserves separate ambiguities around Dunn's proximate contamination, Megose's voice source, and whether the quill writes autonomously before Episode 13.
 
+### Check 16
+
+Episode 13 resolves Ince's concealed infiltration through a layered action-objective-identity reveal, then changes visual modes into 0-08's clockwork puppet stage. Exact visuals establish Ince as editor, 0-08 as autonomous final writer, the notebook's planned Tingen arrival, and the finished page's transition into Leonard's aftermath. Klein's revival then supplies the protagonist-side attribution, target hierarchy, and three-way Backlund divination convergence.
+
 ### Full Subtitle Audit
 
 All 13 regular Season 1 subtitle files were searched for direct references to `0-08`, Ince Zangwill, the quill, the mastermind, fate interference, coincidences, red chimneys, characteristics, divination, and the Tingen story. The audit confirmed the established checkpoints and added the Episodes 6-10 interference progression plus Episode 13's post-reveal theory, location sequence, and condensed Holy Cathedral identification. No subtitle line reproduces the novel's explicit warning naming both Ince and 0-08.
@@ -356,7 +410,6 @@ All 13 regular Season 1 subtitle files were searched for direct references to `0
 
 ## Future-Scope Questions
 
-- Which spectral-quill audiovisual occurrences appear in Episode 13 beyond the already verified narration sequence, and what event does each one mark?
 - Does the animation explicitly depict the extraction or transformation of Teno's skull into the Death-descendant characteristic, beyond showing it in the ritual?
 - Does 0-08 have goals separate from Ince's, and what is the earliest Donghua-safe evidence of them?
 - Do the special episodes add or recontextualize any 0-08 information?

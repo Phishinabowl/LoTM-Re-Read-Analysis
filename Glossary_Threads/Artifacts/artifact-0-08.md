@@ -5,7 +5,7 @@
 Type: Artifact
 Status: Active
 First Mention Volume: 1
-Current Analysis Status: In Progress
+Current Analysis Status: Complete through Novel Volume 1 and Donghua Season 1
 Confidence Level: Strong Evidence
 Spoiler Boundary: Volume 1
 Reader Knowledge Boundary: Novel Chapter 213; Donghua Season 1 Episode 13
@@ -239,23 +239,59 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 
 #### Season 1, Episode 13: Editing and Autonomous Writing
 
-- Narrative role: 0-08 recounts the season through a puppet-like reconstruction and speaks from its own perspective.
+##### Ince's Concealed Infiltration and Reveal
+
+- Around `00:09:31-00:09:37`, police stop an apparent clergyman approaching the Church, accept the badge he presents, and express relief that he has arrived.
+- Identity boundary: The man is Ince, but his face is deliberately obscured. A highly attentive viewer may connect his blond hair, red cap, and partial profile to the brief wanted-poster image; ordinary first-view identification remains uncertain.
+- The Wall of Spirituality opens and permits him to pass, making his apparent Church authorization mechanically effective while an uninterrupted ominous choir warns that his arrival is dangerous.
+- During intercuts with the Megose battle, Ince steps on and completely shatters a broken mirror bearing Evernight's emblem, descends past an extinguishing sacred light at a major musical impact, and appears only as a shadow crossing a ruined wall.
+- Symbolic boundary: These images communicate betrayal, desecration, concealed authorship, and the Church's protections failing from within; they do not establish that Ince supernaturally extinguishes the light or directly causes the intercut battle failures.
+- The red-tinted image of Klein suspended, throwing tarot cards, and apparently being impaled recreates the Episode 1 opening before the screen shatters and reveals Dunn's Nightmare intervention. This completes and then reverses the season-opening apparent flash-forward.
+- Around `00:17:51`, Ince attacks Klein from behind, removes his heart, and retrieves Saint Selena's ashes.
+- Around `00:18:23-00:18:26`, Klein attempts to ask the killer's identity; Ince then turns and reveals his face before the transition into 0-08's narration.
+- Why it matters: The sequence resolves the concealed clergyman into the human mastermind only after showing his violence and objective, while preserving a separate later threshold for Klein's conscious recognition.
+
+##### Clockwork Stage Transition
+
+- At `00:18:45`, Klein's dying perspective fades to black and remains there for roughly eleven seconds.
+- Around `00:18:56`, clock ticking begins before the image returns to Klein's body and withdraws upward through intricate three-dimensional gears.
+- The viewpoint expands into a map-like overview as reality becomes wooden scenery and puppet-show construction.
+- A giant Evernight emblem shatters and red curtains open immediately before 0-08 begins narrating.
+- Interpretation: The clockwork, elevated viewpoint, blocks, puppets, and curtains shift the viewer from Klein's limited experience into a retrospective authorial performance explaining the causal machinery of Tingen.
+- Agency boundary: The staging represents manipulation and narrative construction without proving that every actor lacked free will or that every action was directly controlled.
+
+##### Authorship and Agency
+
+- Narrative role: 0-08 recounts the season through the puppet-like reconstruction and speaks from its own perspective.
 - Relationship framing: 0-08 says that Ince freed it from bondage behind Chanis Gate, giving it an apparent self-interested reason to cooperate with him.
-- Ince's role: Subtitle and user-verified visual evidence show Ince altering the plot and crossing out lines when disruptions require revisions.
-- 0-08's role: User-verified visual evidence shows the quill writing the final conclusion by itself around the end of the narration.
+- Around `00:19:35`, on-screen text states that the Antigonus notebook arrives in Tingen "according to plan," explicitly confirming the planned destination while leaving the exact first manipulated transfer separately unresolved.
+- Around `00:20:59`, Ince visibly crosses out lines while the narration says he continued altering the plot.
+- Around `00:21:48`, 0-08 visibly writes by itself in a notebook on a desk after Ince's advancement succeeds.
+- Around `00:21:53`, the camera leaves the desk; at `00:21:54`, the narration says that the sun shone as usual while a loose written page drifts through Tingen.
+- At `00:22:07`, 0-08 concludes the story of Tingen; the page later lands on Leonard's hospital window and carries the completed manuscript into its human aftermath.
 - Adaptation difference: The novel leaves earlier revision agency ambiguous and depicts Ince writing the final line; the Donghua clarifies Ince as editor and changes the final writer to 0-08.
 - Intent boundary: Its independent perspective and interest in freedom do not establish malice, resistance, deception, or a hostile agenda toward Ince.
 - Why it matters: Autonomous writing becomes confirmed Donghua behavior, while full independent consciousness remains a strong inference.
 
 #### Season 1, Episode 13: Klein's Post-Reveal Model
 
+- Around `00:28:50`, Klein reconstructs the hand taking Saint Selena's ashes and his dying view of Ince above the gray fog.
 - Around `00:28:56`, Klein identifies Ince as the mastermind.
 - Around `00:29:02`, he asks whether the plot was the power of 0-08.
 - Around `00:29:05`, he briefly proposes that its written word dictates reality.
 - Around `00:29:08`, he revises the model to constrained control of its targets' wills.
-- Around `00:29:25`, he seeks Ince's immediate location; around `00:29:51`, his divinations lead only to Backlund.
+- Around `00:29:11-00:29:20`, Klein identifies Saint Selena's ashes as Ince's strategic objective, Dunn as the central manipulated target, and himself as an unintended obstacle rather than the original target.
+- Around `00:29:25-00:29:34`, Klein performs dream-style divinations for Ince's immediate locality, Lanevus's whereabouts, and his best opportunity to grow stronger.
+- Donghua visual expansion: A three-way split shows different fragmented images of Backlund rotating and aligning into one continuous city panorama before Klein states the shared answer at `00:29:51`.
 - Attribution boundary: The subtitles do not state why the location result is broad, so the novel's joint 0-08/demigod explanation cannot yet be promoted to a confirmed Donghua claim.
 - Why it matters: The season ends with an explicit reader-facing model of 0-08's influence and a continuing pursuit rather than only the narrated solution to Tingen's mystery.
+
+#### Season 1, Episode 13: Azik's Consequence and Pursuit Threshold
+
+- Around `00:25:39`, an unidentified observer stands on a hill overlooking Klein's grave.
+- Around `00:25:49`, the observer is revealed as Azik; he apologizes for arriving too late, says he now knows the truth, and promises that the mastermind will suffer.
+- Attribution boundary: The scene confirms Azik's understanding and commitment to pursuit without subtitle-confirming exactly whom he can name or how much of 0-08's mechanism he knows.
+- Why it matters: Azik advances from sensing an erratic hidden power to recognizing the catastrophe's responsible mastermind and becoming an active future threat to the plotters.
 
 #### Season 1, Episode 13: Holy Cathedral Identification and Leonard's Pursuit
 
@@ -274,9 +310,10 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 - Episode 10 identity threshold: Dunn's description of 0-08 as an ordinary inkless quill is paired with a physical quill descending through clouds and the motif's exact musical cue, confirming the motif's identity.
 - Episode 10 functional threshold: A later spectral-quill appearance precedes an externally narrated description that Mrs. Maynard immediately enacts word for word, strongly implying description-to-reality influence.
 - Episode 13 threshold: 0-08's narration confirms the motif's broad event-shaping significance, while the exact causal action represented by each earlier appearance remains event-specific and potentially unresolved.
+- Episode 13 audio payoff: The recurring cue returns without the spectral-quill image during the transition into 0-08's narration, linking the season-long signature directly to its source as the visual mystery gives way to explicit explanation.
 - Adaptation role: The recurring signature gives the Donghua a pre-reveal mystery structure absent from the novel and invites viewers to reinterpret earlier scenes after the reveal.
 
-Verified occurrence audit through Episode 12:
+Verified occurrence audit through Episode 13:
 
 | Episode | Timestamp | Surrounding event | Retrospective interpretation | Exact causal confidence |
 | --- | --- | --- | --- | --- |
@@ -295,6 +332,7 @@ Verified occurrence audit through Episode 12:
 | 12 | `00:01:16` | Quill drops as `[Ince]` narrates Dunn over Kenley's corpse and blood-red text appears | Presents Dunn's contamination-driven behavior as material inside Ince and 0-08's written story | 0-08 arranges/exploits the contamination; it is not established as the contamination's sole proximate cause |
 | 12 | `00:20:25` | Quill drops while `[Ince]` whispers "Saint Selena," followed by Dunn selecting the ashes | Strongly demonstrates targeted behavioral steering through a plausible tactical choice | Unrestricted mind control is not established |
 | 12 | `00:25:39` | A quill writes while `[Ince]` announces the climactic act | Confirms Ince's active authorial role as the crisis reaches its intended climax | No hand is visible; whether Ince holds the quill or 0-08 writes autonomously remains unresolved |
+| 13 | `00:18:45-00:19:14` | No spectral quill appears; its established audio cue accompanies the fade from Klein's death into the clockwork, puppet-stage transition and 0-08's narration | Resolves the season-long audiovisual signature by carrying the familiar sound directly into its revealed source | Audio identity linkage is explicit; the cue does not assign a separate causal action beyond the narration transition |
 
 #### Season 1, Episode 2: First Spectral-Quill Appearance
 
@@ -375,6 +413,17 @@ Verified occurrence audit through Episode 12:
 - Physical-agency boundary: The shot shows no hand but places the quill in a corner that prevents determining whether Ince holds it or it writes alone.
 - Why it matters: Episode 12 progresses from Ince describing an already-corrupted Dunn, to planting the needed choice, to visibly writing the climax. It confirms authorial intervention while preserving the autonomous-quill reveal for Episode 13.
 
+#### Season 1, Episode 13: Audio-Only Motif Resolution
+
+- At `00:18:45`, Klein's dying perspective fades to black after Ince takes Saint Selena's ashes and reveals his face.
+- During the extended darkness and transition, the established spectral-quill audio cue returns without the spectral quill appearing onscreen.
+- Around `00:18:56`, clock ticking joins the cue before the image withdraws upward from Klein's body through clockwork gears and into the wooden puppet-stage reconstruction.
+- The Evernight emblem shatters, red curtains open, and 0-08 begins its first-person narration around `00:19:14`.
+- Identity payoff: The familiar sound now leads directly into 0-08's revealed perspective, resolving the audiovisual signature that had accompanied unexplained interventions throughout the season.
+- Presentation boundary: The absence of the spectral image does not weaken the identification; it marks the point where symbolic foreshadowing is no longer needed because 0-08 itself is taking over the story.
+- Causal boundary: The cue confirms the identity and narrative function of the motif but does not assign a new event-level manipulation to Klein's death or the transition itself.
+- Why it matters: The Donghua completes the motif through sound alone, transforming a recurring warning signal into the opening audio of 0-08's explicit explanation.
+
 #### Season 1, Episodes 6-10: Hidden Interference Progression
 
 - Episode 6: Azik identifies disharmony in Klein's fate and later senses the same erratic power at Lamud Castle.
@@ -385,16 +434,6 @@ Verified occurrence audit through Episode 12:
 - Why it matters: The Donghua develops the hidden manipulator through an escalating divination-and-fate investigation before revealing the artifact behind it.
 
 ## Open Questions
-
-- Question: Which scenes after Chapter 99 further develop the hidden-manipulator mystery before Chapter 210?
-- Current confidence: Unknown
-- Needs EPUB verification: Yes
-- Related investigation: Not yet created
-
-- Question: What limitations can a Volume 1 reader safely infer about 0-08?
-- Current confidence: Working Theory
-- Needs EPUB verification: Yes
-- Related investigation: [Volume 1 reveal timeline](../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md)
 
 - Question: Which parts of the notebook's transfer chain were actively arranged by 0-08 rather than merely incorporated into its story?
 - Current confidence: Strong Evidence
@@ -635,14 +674,15 @@ disclosures:
       sequence: 2
     superseded_by: Rejected by Klein because Ince's behavior is inconsistent with an unrestricted direct-kill ability.
 adaptation_relationships:
-  - type: uncertain
+  - type: omitted
     novel_claim_changed: false
-    notes: No equivalent speculation appears in the Episode 10 subtitle conversation, but visual or internal presentation has not yet been checked.
+    notes: Episode 10 proceeds from Dunn's quill description into broader Sealed Artifact context without preserving Klein's brief direct-kill speculation and rejection.
 related_investigations:
   - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
+  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
-last_updated: 2026-06-30
+last_updated: 2026-07-01
 ```
 
 #### Reader-State History
@@ -652,7 +692,7 @@ last_updated: 2026-06-30
 
 #### Adaptation Analysis
 
-- The Episode 10 subtitle conversation proceeds from the quill description to broader Sealed Artifact context without preserving Klein's direct-kill speculation. This is subtitle evidence only; silent visual or internal presentation remains unverified.
+- Episode 10 omits Klein's brief direct-kill speculation and immediate rejection, moving instead from the quill description into broader Sealed Artifact context.
 
 ### Knowledge Unit: Recurring Spectral-Quill Audiovisual Motif
 
@@ -1096,14 +1136,15 @@ disclosures:
     superseded_at:
     superseded_by:
 adaptation_relationships:
-  - type: uncertain
+  - type: recontextualized
     novel_claim_changed: false
-    notes: The Donghua treatment of Klein's search routes has not yet been investigated.
+    notes: The Donghua condenses the novel's prolonged route-selection failure into Episode 7's direct visual obstruction at the red-smokestack target and later blocked-divination dialogue rather than documenting each search batch.
 related_investigations:
   - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
+  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
-last_updated: 2026-06-30
+last_updated: 2026-07-01
 ```
 
 #### Reader-State History
@@ -1158,15 +1199,15 @@ disclosures:
     superseded_at:
     superseded_by:
 adaptation_relationships:
-  - type: uncertain
+  - type: faithful
     novel_claim_changed: false
-    notes: Episode 12 identifies the Megose remnant and Episode 13 identifies Ince's remaining characteristic, supporting the divided-use inference. Visual presentation remains unverified.
+    notes: Episode 12 identifies the Megose remnant and Episode 13 identifies Ince's remaining characteristic, preserving the divided-use inference; whether the extraction or transformation from Teno's skull is shown remains unresolved.
 related_investigations:
   - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
   - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
-last_updated: 2026-06-30
+last_updated: 2026-07-01
 ```
 
 #### Reader-State History
@@ -1177,7 +1218,7 @@ last_updated: 2026-06-30
 
 #### Adaptation Analysis
 
-- Subtitle evidence supports the divided-use inference by Episode 13, while visual presentation remains to be investigated.
+- Episode 13 subtitle evidence supports the divided-use inference; only the specific extraction or transformation from Teno's skull remains visually unresolved.
 
 ### Knowledge Unit: Azik's Child's Skull Supplied the Characteristic
 
@@ -2325,24 +2366,97 @@ disclosures:
     superseded_at:
     superseded_by:
 adaptation_relationships:
-  - type: uncertain
+  - type: expanded
     novel_claim_changed: false
-    notes: The equivalent Donghua divination sequence has not yet been verified.
+    notes: Episode 13 preserves the broad Backlund result and visually combines three dream-style divinations into fragmented Backlund images that rotate into one panorama, but does not explain the result's imprecision.
+  - type: condensed
+    novel_claim_changed: false
+    notes: The Donghua presents Ince's locality, Lanevus's whereabouts, and Klein's path to strength as a single three-panel convergence sequence.
 related_investigations:
   - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
+  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
 related_boards:
   - ../../Boards/01_LoTM_Main_Reread_Board.md
-last_updated: 2026-06-30
+last_updated: 2026-07-01
 ```
 
 #### Reader-State History
 
 - Chapter 212 confirms that the gray fog is sufficient to obtain a broad location but not enough to overcome the combined interference and identify an exact position.
 - Chapter 213 treats Backlund as the continuing broad location and has Klein plan periodic rechecks.
+- Donghua Episode 13 confirms only the broad Backlund convergence; it does not explain whether 0-08, Ince's demigod status, or both prevent a more exact result.
 
 #### Adaptation Analysis
 
-- No equivalent Donghua disclosure is currently documented.
+- The Donghua turns three sequential questions into a simultaneous visual convergence of fragmented Backlund images and tags the sequence as dream-style divination through imagery rather than a pendulum.
+
+### Knowledge Unit: Klein's Three Divinations Converge on Backlund
+
+```yaml
+id: 0-08-three-divinations-converge-backlund
+claim: Klein's attempts to locate Ince, locate Lanevus, and identify his best opportunity to grow stronger all produce the same broad answer of Backlund.
+truth_status: true
+canon_scope: shared
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: 212
+  notes: The three questions independently point Klein toward Backlund after his reconstruction of Ince and 0-08's plot.
+tags:
+  - volume-1
+  - chronology
+  - reader-knowledge
+  - reveal-order
+  - divination
+  - dream-divination
+  - gray-fog
+  - location
+  - artifact
+disclosures:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 212
+    superseded_at:
+    superseded_by:
+  - medium: donghua
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      season: 1
+      installment_type: episode
+      episode: 13
+      release_order: 13
+      timestamp: 00:29:51.39
+    superseded_at:
+    superseded_by:
+adaptation_relationships:
+  - type: expanded
+    novel_claim_changed: false
+    notes: The Donghua visualizes the three answers as fragmented Backlund images rotating and aligning into one continuous panorama.
+  - type: condensed
+    novel_claim_changed: false
+    notes: The three questions are presented as one simultaneous three-panel convergence rather than three visually separate result sequences.
+related_investigations:
+  - ../../Investigations/2026-06-30_0-08_Volume_1_Reveal_Timeline.md
+  - ../../Investigations/2026-06-30_0-08_Donghua_Season_1_Reveal_Timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-07-01
+```
+
+#### Reader-State History
+
+- Novel Chapter 212 and Donghua Episode 13 both establish Backlund as the convergence point for pursuit, unresolved conspiracy, and Klein's growth.
+- The result remains city-level rather than an exact address or guaranteed current position.
+
+#### Adaptation Analysis
+
+- The three-panel image makes convergence itself the visual subject: incomplete views become one city only when all three answers align.
 
 ### Knowledge Unit: 0-08 Orchestrated the Notebook's Transfer Toward Tingen
 
@@ -2415,14 +2529,14 @@ disclosures:
       timestamp: 00:19:44.69
     superseded_by: 0-08-antigonus-notebook-transfer-to-tingen
   - medium: donghua
-    knowledge_state: strong-inference
-    disclosure_type: confirmation
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
     available_from:
       season: 1
       installment_type: episode
       episode: 13
       release_order: 13
-      timestamp: 00:19:44.69
+      timestamp: 00:19:35.22
     superseded_at:
     superseded_by:
 adaptation_relationships:
@@ -2432,6 +2546,9 @@ adaptation_relationships:
   - type: recontextualized
     novel_claim_changed: false
     notes: The Donghua turns the ownership chain into a visual flashback attached to Klein and Azik's coincidence investigation.
+  - type: expanded
+    novel_claim_changed: false
+    notes: Episode 13 adds on-screen text explicitly stating that the notebook arrives in Tingen according to plan, strengthening the arrival's attribution while leaving the first exact intervention unresolved.
 subject_attribution_from:
   - medium: donghua
     position:
@@ -2454,6 +2571,7 @@ last_updated: 2026-07-01
 - Chapter 210 retrospectively frames the transfer chain as the beginning of the written Tingen story.
 - Chapter 212 has Klein identify 0-08 as the likely mechanism behind Ince's arrangements and the story's coincidences.
 - Donghua Episode 7 marks the ownership-chain flashback with the unidentified spectral quill; Episode 10 permits a working identification, and Episode 13 retrospectively confirms the chain's place in 0-08's story.
+- Episode 13's `according to plan` text explicitly confirms the planned Tingen arrival without identifying which individual pre-arrival transfer was the first direct manipulation.
 
 #### Adaptation Analysis
 
