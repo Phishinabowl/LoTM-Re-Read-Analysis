@@ -5,10 +5,10 @@
 Type: Faction
 Status: Active
 First Mention Volume: 1
-Current Analysis Status: Novel reveal timeline verified through Chapter 31; Donghua verification not started
+Current Analysis Status: Novel reveal timeline verified through Chapter 33; Donghua verification not started
 Confidence Level: Strong Evidence
 Spoiler Boundary: Volume 1
-Reader Knowledge Boundary: Novel Chapter 31; Donghua Season 1
+Reader Knowledge Boundary: Novel Chapter 33; Donghua Season 1
 Tags: volume-1, reader-knowledge, worldbuilding, faction
 Last Updated: 2026-07-01
 
@@ -33,8 +33,8 @@ Later information about the Church of Evernight, its high-level structure, its h
 ## Reader Knowledge Boundary
 
 - Novel Volume: 1
-- Novel Chapter: 31
-- Reader knowledge state: The reader knows the Church of Evernight as a major orthodox Church, the parent institution for the Tingen Nighthawks, the custodian of Chanis Gate and Sealed Artifacts, a practical institutional refuge through Saint Selena Cathedral, and the controlled pathway-access route through which Klein becomes a Seer while remaining civilian staff.
+- Novel Chapter: 33
+- Reader knowledge state: The reader knows the Church of Evernight as a major orthodox Church, the parent institution for the Tingen Nighthawks, the custodian of Chanis Gate and Sealed Artifacts, a practical institutional refuge through Saint Selena Cathedral, the controlled pathway-access route through which Klein becomes a Seer while remaining civilian staff, and the post-potion training environment where Old Neil teaches Klein basic Beyonder control.
 - Donghua: Season 1
 - Donghua viewer knowledge state: Not yet verified for this thread.
 
@@ -121,13 +121,21 @@ Later information about the Church of Evernight, its high-level structure, its h
 - What remains unknown: Whether the Holy Cathedral has later Seer or Mystery Pryer Sequences, how complete the Church's total formula holdings are, and when or whether Klein can become a formal Nighthawk.
 - Why it matters: The arc turns pathway access into an institutional process and sharply separates three statuses: civilian staff, Church-supported Beyonder, and formal Nighthawk.
 
+#### Chapters 32-33: Post-Potion Training and Spiritual Security
+
+- What the reader learns: Old Neil immediately supervises Klein after the Seer potion, teaches Cogitation and Spirit Vision, explains related mysticism concepts, and frames control practice as part of avoiding Beyonder danger.
+- What changes: The Nighthawks shift from providing access to the potion into actively training Klein as a new Beyonder while he remains civilian staff.
+- Institutional detail: Chapter 33 clarifies that the headquarters beneath the Church of Evernight is spiritually secured space belonging to a Nighthawk squad, with enough Beyonder presence and protection that wandering spirits and souls are not expected there.
+- What remains unknown: The full curriculum, how much of Klein's future training is standardized, and the exact safeguards protecting the local headquarters remain unclear.
+- Why it matters: The Church/Nighthawks become a supervised training environment, not only a custody institution or employer.
+
 #### Volume 1 Synthesis: Known Institutional Facets
 
-- What the reader learns: By Chapter 31, the Church of Evernight has appeared as public religion, civic institution, orthodox Beyonder gateway, parent organization of the Tingen Nighthawks, guardian of Chanis Gate, holder of formulas and materials, and operator of a concealed local complex connected with Saint Selena Cathedral.
+- What the reader learns: By Chapter 33, the Church of Evernight has appeared as public religion, civic institution, orthodox Beyonder gateway, parent organization of the Tingen Nighthawks, guardian of Chanis Gate, holder of formulas and materials, operator of a concealed local complex connected with Saint Selena Cathedral, and supervised training environment for a newly advanced Beyonder.
 - What changes: The Church is no longer only a social or religious presence; it is now Klein's employer, training environment, supernatural resource network, and controlled path into becoming a Beyonder.
 - Nighthawks status: The Tingen Nighthawks are the Church's official local Beyonder organization, operating behind Blackthorn Security Company and supported by civilian staff such as Klein, Rozanne, and Mrs. Orianna.
 - Red Gloves status: The Red Gloves belong under the broader Nighthawks umbrella, but they have not yet been introduced at the Chapter 31 reader boundary.
-- What remains unknown: The exact larger hierarchy, full roster, full artifact catalog, all Church-held pathway options, Red Gloves role, deeper institutional history, and complete operating rules remain outside the current boundary.
+- What remains unknown: The exact larger hierarchy, full roster, full artifact catalog, all Church-held pathway options, Red Gloves role, deeper institutional history, complete operating rules, and full training curriculum remain outside the current boundary.
 - Why it matters: This synthesis keeps the Church's early facets visible without replacing the chapter-by-chapter reveal chronology that controls spoiler-safe reader knowledge.
 
 ### Donghua
@@ -303,7 +311,7 @@ relationships:
 
 ## Evidence Index
 
-- Novel Chapters: 1, 3, 6, 10, 12-22, 25-31
+- Novel Chapters: 1, 3, 6, 10, 12-22, 25-33
 - Donghua Episode: TBD
 
 ## Reader Knowledge Ledger
@@ -898,6 +906,63 @@ last_updated: 2026-07-01
 - Chapter 19 establishes Chanis Gate as supernatural custody infrastructure.
 - Chapter 31 shows that potion formula and material access for a new Beyonder also moves through that infrastructure.
 - The alchemy room makes the Church/Nighthawks advancement pipeline concrete rather than abstract.
+
+#### Adaptation Analysis
+
+- Donghua timing remains unverified for this knowledge unit.
+
+### Knowledge Unit: Nighthawks Provide Post-Potion Training and Spiritual Security
+
+```yaml
+id: church-evernight-post-potion-training-spiritual-security
+claim: After Klein becomes a Seer, the Tingen Nighthawks provide immediate post-potion training, basic Beyonder safety guidance, and a spiritually secured headquarters environment beneath the Church of Evernight.
+truth_status: true
+confidence_level: confirmed
+canon_scope: novel
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: 33
+  notes: Chapters 32-33 show Old Neil teaching Cogitation, Spirit Vision, and ritualistic magic basics, while Chapter 33 identifies the headquarters beneath the Church as secured Nighthawk space.
+tags:
+  - volume-1
+  - reader-knowledge
+  - reveal-order
+  - faction
+  - pathway
+  - concept
+disclosures:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: expansion
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 32
+    superseded_at:
+    superseded_by:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 33
+    superseded_at:
+    superseded_by:
+related_investigations:
+  - ../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-07-01
+```
+
+#### Reader-State History
+
+- Chapter 31 shows the Church/Nighthawks formula and material pipeline for Klein's Seer potion.
+- Chapter 32 immediately shifts into supervised training, with Old Neil teaching Cogitation and Spirit Vision after Klein advances.
+- Chapter 33 clarifies that the headquarters beneath the Church of Evernight is spiritually secured Nighthawk space and pairs Old Neil's practical instruction with Dunn's caution against dangerous perception.
 
 #### Adaptation Analysis
 

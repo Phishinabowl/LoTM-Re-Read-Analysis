@@ -10,24 +10,24 @@ What does the novel reader know about the Church of Evernight, its Nighthawks or
 
 ## Status
 
-In Progress. The opening institutional disclosure from Chapters 1-19, the bridge arc through Chapters 20-26, and the pathway access arc through Chapters 28-31 are EPUB verified. The chronological sweep beyond Chapter 31 is intentionally paused for user-guided review.
+In Progress. The opening institutional disclosure from Chapters 1-19, the bridge arc through Chapters 20-26, the pathway access arc through Chapters 28-31, and the post-potion training arc through Chapters 32-33 are EPUB verified. The chronological sweep beyond Chapter 33 is intentionally paused for user-guided review.
 
 ## Scope
 
 ### Endpoint Event
 
-The complete Volume 1 reader-disclosure timeline for the Church of Evernight and the Tingen Nighthawks, built chronologically in bounded arcs. Current verified endpoint is Chapter 31.
+The complete Volume 1 reader-disclosure timeline for the Church of Evernight and the Tingen Nighthawks, built chronologically in bounded arcs. Current verified endpoint is Chapter 33.
 
 ### Investigation Window
 
-Volume 1, Chapters 1-213. Current active review window: Chapters 1-31.
+Volume 1, Chapters 1-213. Current active review window: Chapters 1-33.
 
 ## Search Strategy
 
 - Initial terms, names, and aliases: Evernight, Evernight Goddess, Church of Evernight, Nighthawk, Dunn Smith, Leonard Mitchell, Blackthorn Security Company
 - Related effects, events, characters, locations, or motifs: police inspectors, Beyonder teams, official Beyonders, Seventh Unit, Special Operations Department, Saint Selena Cathedral, Chanis Gate, civilian staff, Sealed Artifacts
-- Terms discovered during the investigation: Mandated Punishers, Machinery Hivemind, Church and police funding, tribunal courts, Archbishop Chanis, Keepers, Holy Cathedral, Special Operations badge, Zouteland Shooting Club, Sleepless, Midnight Poet, Nightmare, Saint Selena Cathedral route, Secret Order, Moses Ascetic Order, Corpse Collector, Seer, alchemy room
-- Completeness sweep: Current bounded sweep complete through Chapter 31. Later speedrun findings are not treated as finalized until reviewed in chronological arcs with the user.
+- Terms discovered during the investigation: Mandated Punishers, Machinery Hivemind, Church and police funding, tribunal courts, Archbishop Chanis, Keepers, Holy Cathedral, Special Operations badge, Zouteland Shooting Club, Sleepless, Midnight Poet, Nightmare, Saint Selena Cathedral route, Secret Order, Moses Ascetic Order, Corpse Collector, Seer, alchemy room, Cogitation, Spirit Vision, ritualistic magic
+- Completeness sweep: Current bounded sweep complete through Chapter 33. Later speedrun findings are not treated as finalized until reviewed in chronological arcs with the user.
 
 ## Evidence
 
@@ -218,6 +218,22 @@ Volume 1, Chapters 1-213. Current active review window: Chapters 1-31.
 - Old Neil prepares the Seer potion in the alchemy room, using the formula and materials retrieved through Nighthawk/Chanis access.
 - Why it matters: The novel separates civilian staff, Church-supported Beyonder, and formal Nighthawk membership. It also shows that formula custody, material custody, alchemy-room practice, and Chanis Gate access are part of the Church/Nighthawks institutional pipeline.
 
+### Check 12: Post-Potion Training and Spiritual Security
+
+#### Chapter 32
+
+- Old Neil supervises Klein immediately after he consumes the Seer potion and teaches him how to enter Cogitation.
+- He frames the practice as necessary for controlling spirituality and avoiding dangerous instability after becoming a Beyonder.
+- Klein confirms he has become a Seer and begins learning Spirit Vision under Old Neil's supervision.
+- Why it matters: The Nighthawks' institutional role extends beyond granting formula/material access. They also provide immediate post-potion training and safety guidance for a new Beyonder.
+
+#### Chapter 33
+
+- Old Neil explains aspects of Spirit Vision, remnant spirituality, and ritualistic magic while Klein tests his new perception in the alchemy room.
+- Old Neil clarifies that the team headquarters beneath the Church of Evernight is not spiritually ordinary space: it belongs to a Nighthawk squad, contains many Beyonders, and does not allow wandering spirits and souls to drift around freely.
+- Dunn later cautions Klein not to probe murmurings or existences that a Beyonder should not perceive.
+- Why it matters: The Church/Nighthawks environment becomes a spiritually secured training space, and its safety culture is reinforced through both Old Neil's practical instruction and Dunn's broader loss-of-control warning.
+
 ## Interim Conclusions
 
 ### Opening Disclosure Structure
@@ -236,6 +252,7 @@ The novel does not introduce the Church of Evernight and the Nighthawks in one e
 10. Saint Selena Cathedral as a public-safe and hidden-operational route.
 11. Dunn's dream warning as a bridge from surveillance to Secret Order follow-up.
 12. Church-controlled pathway access, incomplete formula chains, and Klein's Seer choice.
+13. Post-potion training, Spirit Vision instruction, and the headquarters' spiritual security.
 
 This staging means first mention, first appearance, first identifiable appearance, and first complete institutional explanation must remain separate disclosure points.
 
@@ -259,9 +276,13 @@ By Chapter 22, the reader knows the Church of Evernight's complete pathway begin
 
 Chapters 28-31 turn pathway knowledge into institutional procedure. The Church can offer Klein incomplete Sequence 9 choices because of his contribution and danger exposure, but the complete Nighthawks pathway remains `Sleepless`. Klein chooses `Seer`, receives formula/material access through Nighthawk custody, and becomes a Beyonder while still remaining civilian staff.
 
+### Post-Potion Training Arc
+
+Chapters 32-33 show what Church-supported advancement looks like after the potion is consumed. Old Neil immediately teaches Klein Cogitation and Spirit Vision, while Dunn reinforces caution against dangerous perception. The Nighthawks' local headquarters is also clarified as spiritually secured space beneath the Church of Evernight, not merely a hidden office.
+
 ## Board Updates
 
-- Board 1: Possible update after user review. Chapters 20-31 clarify the Church/Nighthawks as Klein's first workplace, operational refuge, and controlled entry point into Beyonder pathway selection.
+- Board 1: Possible update after user review. Chapters 20-33 clarify the Church/Nighthawks as Klein's first workplace, operational refuge, controlled entry point into Beyonder pathway selection, and post-potion training environment.
 - Board 2: No update. The verified opening sequence does not materially change the ancient-history or family chronology.
 
 ## Open Questions
@@ -269,3 +290,4 @@ Chapters 28-31 turn pathway knowledge into institutional procedure. The Church c
 - Should the pathway placeholders from Chapters 22 and 28-31 remain plain references until their own pathway threads exist?
 - Should the Selena/St. Selena naming detail be held for a later location/saint-specific thread rather than the main Church article?
 - Should the Chapter 28 pathway-choice explanation expand the existing `Sleepless` knowledge unit or be represented as a separate Church pathway-access unit?
+- Should Spirit Vision and Cogitation receive concept threads now, or remain inside pathway/training notes until they recur more heavily?

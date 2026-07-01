@@ -92,6 +92,13 @@ Do not add later history, occupants, institutional changes, or consequences unti
 - What remains unknown: The exact placement of the alchemy room within the full complex and its relationship to other restricted rooms.
 - Why it matters: The cathedral route is not only a passage to public Church space; it also passes through specialized Nighthawk facilities used for Beyonder advancement.
 
+#### Volume 1, Chapter 33: Spiritually Secured Headquarters Space
+
+- What the reader learns: Old Neil describes the space beneath the Church of Evernight as the headquarters of a Nighthawk squad with many Beyonders present.
+- What changes: The underground complex is not only physically hidden and operationally restricted; it is also presented as spiritually managed space where wandering spirits and souls are not expected to drift freely.
+- What remains unknown: The exact safeguards, rituals, personnel, or artifacts responsible for that spiritual security are not explained.
+- Why it matters: The location's supernatural security function becomes part of the reader's model of the cathedral-linked Nighthawks complex.
+
 #### Volume 1 Closing Crisis: Institutional Target
 
 - What the reader learns: Ince Zangwill's plan uses the crisis confronting the Tingen Nighthawks to obtain Saint Selena's ashes from Church custody.
@@ -115,8 +122,8 @@ Do not add later history, occupants, institutional changes, or consequences unti
 - Related investigation:
 
 - Question: Which Volume 1 novel chapters materially expand the reader's understanding of the cathedral itself rather than the Nighthawks or Church generally?
-- Current confidence: Strong Evidence. Chapters 17, 19, 25-26, and 31 materially establish the cathedral as headquarters, connected occult custody complex, operational access route, and route-adjacent alchemy facility. Later final-crisis material remains valid from the completed 0-08 investigation.
-- Needs EPUB verification: No for Chapters 17, 19, 25-26, and 31; yes for future refinements beyond already completed 0-08 work.
+- Current confidence: Strong Evidence. Chapters 17, 19, 25-26, 31, and 33 materially establish the cathedral as headquarters, connected occult custody complex, operational access route, route-adjacent alchemy facility, and spiritually secured headquarters environment. Later final-crisis material remains valid from the completed 0-08 investigation.
+- Needs EPUB verification: No for Chapters 17, 19, 25-26, 31, and 33; yes for future refinements beyond already completed 0-08 work.
 - Related investigation: [Church of Evernight Volume 1 Reveal Timeline](../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
 
 - Question: How clearly do the novel and Donghua communicate the physical relationship among Saint Selena Cathedral, Blackthorn Security Company, Chanis Gate, and the final battle space?
@@ -215,7 +222,7 @@ relationships:
 
 ## Evidence Index
 
-- Novel Chapters: 17, 19, 25-26, 31, 205-212
+- Novel Chapters: 17, 19, 25-26, 31, 33, 205-212
 - Donghua Episodes: TBD
 
 ## Reader Knowledge Ledger
@@ -278,7 +285,7 @@ occurs_at:
   book: lotm-1
   volume: 1
   chapter: 17
-  notes: Chapter 17 establishes the concealed connection; Chapter 19 explains Chanis Gate custody; Chapters 25-26 demonstrate the cathedral route in use.
+  notes: Chapter 17 establishes the concealed connection; Chapter 19 explains Chanis Gate custody; Chapters 25-26 demonstrate the cathedral route in use; Chapter 31 adds the alchemy room; Chapter 33 adds spiritual security context.
 tags:
   - volume-1
   - reader-knowledge
@@ -313,6 +320,15 @@ disclosures:
       chapter: 31
     superseded_at:
     superseded_by:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: expansion
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 33
+    superseded_at:
+    superseded_by:
 related_investigations:
   - ../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md
 related_boards:
@@ -326,6 +342,7 @@ last_updated: 2026-07-01
 - Chapter 19 adds the supernatural custody function.
 - Chapters 25-26 confirm the route as usable during a live operational problem.
 - Chapter 31 adds the Nighthawks team's alchemy room as another specialized facility along the route toward the cathedral.
+- Chapter 33 adds the spiritual-security layer: the headquarters beneath the Church is a Nighthawk squad space with many Beyonders and is not treated as open territory for wandering spirits or souls.
 
 #### Adaptation Analysis
 

@@ -46,6 +46,12 @@
 
 * Acts as both a plot device and an introduction to deeper historical mysteries.
 
+##### Church of Evernight / Nighthawks
+
+* Volume 1 introduces the Church first as ordinary religion and public institution, then reveals the Nighthawks as its official local Beyonder organization.
+* Through Chapter 33, the Nighthawks become Klein's first workplace, operational refuge, controlled pathway-access route, and supervised post-potion training environment.
+* Detailed chronology: [Church of Evernight glossary thread](../Glossary_Threads/Factions/faction-church-of-evernight.md) and [Volume 1 reveal timeline investigation](../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md).
+
 ##### 0-08
 
 * One of the earliest demonstrations that seemingly isolated events are part of a much larger web.
