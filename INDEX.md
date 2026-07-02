@@ -33,6 +33,13 @@ Navigation hub for the reread analysis workspace.
   - [0-08 Volume 1 Reveal Timeline](Investigations/Artifacts/artifact-0-08/novel-volume-1-reveal-timeline.md)
   - [0-08 Donghua Season 1 Reveal Timeline](Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md)
 
+#### Antigonus Notebook
+
+- Glossary: [Antigonus Notebook](Glossary_Threads/Artifacts/artifact-antigonus-notebook.md)
+- Supporting Investigations:
+  - [Antigonus Notebook Novel Volume 1 Reveal Timeline](Investigations/Artifacts/artifact-antigonus-notebook/novel-volume-1-reveal-timeline.md)
+  - [Church of Evernight Volume 1 Reveal Timeline](Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
+
 ### Characters
 
 #### Old Neil

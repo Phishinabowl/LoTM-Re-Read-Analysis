@@ -13,7 +13,7 @@ Tags: volume-1, chronology, foreshadowing, reader-knowledge, reveal-order, unres
 Last Updated: 2026-07-01
 
 Related Threads:
-- artifact-antigonus-notebook.md
+- [Antigonus Notebook](artifact-antigonus-notebook.md)
 - character-ince-zangwill.md
 - [Beyonder Characteristics](../Concepts/concept-beyonder-characteristics.md)
 - [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
@@ -463,11 +463,11 @@ Verified occurrence audit through Episode 13:
 
 ## Related Threads
 
-The two plain filenames below are essential planned threads. Additional references should be added only after their target threads exist or their creation is approved.
+Plain filenames below are essential planned threads. Additional references should be added only after their target threads exist or their creation is approved.
 
 ### Directly Related
 
-- artifact-antigonus-notebook.md
+- [Antigonus Notebook](artifact-antigonus-notebook.md)
 - character-ince-zangwill.md
 - [Beyonder Characteristics](../Concepts/concept-beyonder-characteristics.md)
 - [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)

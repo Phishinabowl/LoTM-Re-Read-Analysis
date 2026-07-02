@@ -219,7 +219,7 @@ Use Markdown links when the target file exists. Mention a nonexistent thread as 
 ### Associated Artifacts
 
 - [0-08](../Artifacts/artifact-0-08.md)
-- artifact-antigonus-notebook.md
+- [Antigonus Notebook](../Artifacts/artifact-antigonus-notebook.md)
 
 ### Associated Factions
 
