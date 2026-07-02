@@ -52,9 +52,15 @@ To update only the refresh report without rerendering images:
 .\Visualization\render-graphs.ps1 -SkipRender
 ```
 
-The helper reads `Visualization/config/render-settings.json`, renders every configured view to every configured output, and updates the live refresh tracker in:
+The helper reads `Visualization/config/render-settings.json`, renders every configured view to every configured output, updates the semantic graph snapshot, and updates the live refresh tracker in:
 
 - `Visualization/README.md`
+
+The semantic snapshot is stored at:
+
+- `Visualization/data/refresh-snapshot.json`
+
+The snapshot lets the tracker report added or removed nodes, added or removed relationships, changed relationship labels, duplicate relationships, broken links, orphan nodes, and pending graph nodes across refreshes.
 
 Manual commands remain useful for debugging a single view:
 

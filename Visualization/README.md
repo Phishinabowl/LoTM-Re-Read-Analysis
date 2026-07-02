@@ -22,10 +22,12 @@ The `rendered/` folder is reserved for future generated SVG or PNG graph exports
 
 ## Refresh Tracker
 
-After every graph refresh, update the live refresh tracker below. It summarizes node count, relationship count, views updated, rendered files, broken links, orphan nodes, and pending graph nodes.
+After every graph refresh, update the live refresh tracker below. It summarizes node count, relationship count, semantic graph changes, views updated, rendered files, broken links, orphan nodes, duplicate relationships, and pending graph nodes.
+
+The tracker compares the current graph against the semantic snapshot in `data/refresh-snapshot.json`. Unexpected removed nodes, removed relationships, changed relationship labels, duplicate relationships, broken links, or orphan nodes should be treated as visualization validation issues and reviewed before committing.
 
 <!-- VISUALIZATION-REFRESH-REPORT:START -->
-Last Updated: 2026-07-02 00:02:52 -04:00
+Last Updated: 2026-07-02 00:16:51 -04:00
 
 ### Summary
 
@@ -38,6 +40,16 @@ Last Updated: 2026-07-02 00:02:52 -04:00
 | Broken Links | 0 | 0 |
 | Orphan Nodes | 0 | 0 |
 | Pending Nodes | 14 | 0 |
+| Validation Issues | 0 | n/a |
+
+### Semantic Changes
+
+- Added nodes: 0
+- Removed nodes: 0
+- Added relationships: 0
+- Removed relationships: 0
+- Changed relationship labels: 0
+- Duplicate relationships: 0
 
 ### Views
 
@@ -55,6 +67,9 @@ Last Updated: 2026-07-02 00:02:52 -04:00
 
 - Broken links: 0
 - Orphan nodes: 0
+- Duplicate relationships: 0
+- Removed relationships: 0
+- Changed relationship labels: 0
 - Pending graph nodes: 14
 
 #### Pending Nodes
@@ -110,5 +125,6 @@ Future graph views may support:
 - Interactive frontend exploration
 - Multiple graph views, such as character networks, faction maps, pathway views, artifact causality maps, and event-centered graphs
 - Filters by node type, relationship type, confidence, truth status, medium, and controlled taxonomy tags
+- Expanded visualization validation for required relationship patterns, stale pending nodes, and generated graph subsets
 
 Until that layer exists, Mermaid files provide a GitHub-visible snapshot of the current graph.

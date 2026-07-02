@@ -5,6 +5,7 @@
   "height": 1800,
   "pngScale": 2,
   "reportPath": "Visualization/README.md",
+  "snapshotPath": "Visualization/data/refresh-snapshot.json",
   "views": [
     {
       "name": "Volume 1 Knowledge Graph",
