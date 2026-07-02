@@ -10,7 +10,7 @@ Confidence Level: Strong Evidence
 Spoiler Boundary: Volume 1
 Reader Knowledge Boundary: Novel Chapter 47; Donghua Season 1
 Tags: volume-1, chronology, foreshadowing, reader-knowledge, reveal-order, unresolved, artifact
-Last Updated: 2026-07-01
+Last Updated: 2026-07-02
 
 Related Threads:
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
@@ -168,6 +168,7 @@ Later revelations about the notebook's origin, contents, current possessor, caus
 - [Old Neil](../Characters/character-old-neil.md)
 - [Seer Pathway](../Pathways/pathway-seer.md)
 - [Divination](../Concepts/concept-divination.md)
+- [Blackthorn Security Company](../Locations/location-blackthorn-security-company.md)
 - character-klein-moretti.md
 - character-dunn-smith.md
 - character-leonard-mitchell.md
@@ -183,6 +184,10 @@ Later revelations about the notebook's origin, contents, current possessor, caus
 ### Associated Artifacts
 
 - [0-08](artifact-0-08.md)
+
+### Associated Locations
+
+- [Blackthorn Security Company](../Locations/location-blackthorn-security-company.md)
 
 ### Associated Factions
 
@@ -267,6 +272,16 @@ relationships:
     status: active
     confidence: confirmed
     notes: The notebook search establishes that Klein cannot divine a target without an impression of it, and Chapter 46 adds strange-power interference during the Ray Bieber/notebook lead.
+  - source: location-blackthorn-security-company
+    target: artifact-antigonus-notebook
+    relationship_type: connected-to
+    start:
+      medium: novel
+      volume: 1
+      chapter: 45
+    status: active
+    confidence: confirmed
+    notes: Klein reports his notebook lead at Blackthorn, and Dunn mobilizes the Nighthawks field response from there.
 ```
 
 ## Evidence Index

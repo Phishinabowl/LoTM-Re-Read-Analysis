@@ -93,6 +93,14 @@ Navigation hub for the reread analysis workspace.
 
 ### Locations
 
+#### Blackthorn Security Company
+
+- Glossary: [Blackthorn Security Company](Glossary_Threads/Locations/location-blackthorn-security-company.md)
+- Supporting Investigations:
+  - [Blackthorn Security Company Novel Volume 1 Reveal Timeline](Investigations/Locations/location-blackthorn-security-company/novel-volume-1-reveal-timeline.md)
+  - [Church of Evernight Volume 1 Reveal Timeline](Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
+  - [Antigonus Notebook Novel Volume 1 Reveal Timeline](Investigations/Artifacts/artifact-antigonus-notebook/novel-volume-1-reveal-timeline.md)
+
 #### Saint Selena Cathedral
 
 - Glossary: [Saint Selena Cathedral](Glossary_Threads/Locations/location-saint-selena-cathedral.md)

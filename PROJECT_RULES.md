@@ -604,6 +604,9 @@ protects
 affiliated-with
 connected-to
 uses-as-operational-refuge
+public-cover-for
+operational-base-for
+works-at
 artifact-user
 artifact-guardian
 source-of-information
@@ -637,6 +640,15 @@ Use concept relationship types when a concept page is the graph center or when t
 - `mechanic-of`: A concept, rule, law, process, or substance explains how the target concept/status/system works.
 
 Prefer these over generic `connected-to` when the relationship is concept-specific and reader-safe.
+
+Use location relationship types when a location page is the graph center or when a relationship describes what a location functionally does for a faction, person, or event:
+
+- `public-cover-for`: A public location, business, address, or identity conceals or fronts for the target faction, organization, operation, or protected activity.
+- `operational-base-for`: A location functions as a recurring command point, workplace, resource point, or mission launch site for the target faction, team, or operation.
+- `works-at`: A person is based at, employed at, routinely works at, or performs staff duties through the target location.
+- `uses-as-operational-refuge`: A person or faction uses the target location as a safe, public, concealed, or strategically useful refuge/contact point during an operation.
+
+Prefer these over generic `connected-to` when the relationship is location-specific and reader-safe.
 
 Use event relationship types when an event page is the graph center:
 

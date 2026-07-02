@@ -10,10 +10,11 @@ Confidence Level: Strong Evidence
 Spoiler Boundary: Volume 1
 Reader Knowledge Boundary: Novel Volume 1; Donghua Season 1
 Tags: volume-1, tingen, reader-knowledge, worldbuilding, location
-Last Updated: 2026-07-01
+Last Updated: 2026-07-02
 
 Related Threads:
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
+- [Blackthorn Security Company](location-blackthorn-security-company.md)
 - [0-08](../Artifacts/artifact-0-08.md)
 - [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
 - [Seer Pathway](../Pathways/pathway-seer.md)
@@ -138,6 +139,7 @@ Do not add later history, occupants, institutional changes, or consequences unti
 ### Directly Related
 
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
+- [Blackthorn Security Company](location-blackthorn-security-company.md)
 - [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
 - [0-08](../Artifacts/artifact-0-08.md)
 

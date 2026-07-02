@@ -10,7 +10,7 @@ Confidence Level: Strong Evidence
 Spoiler Boundary: Volume 1
 Reader Knowledge Boundary: Novel Chapter 34; Donghua Season 1
 Tags: volume-1, reader-knowledge, event, pathway
-Last Updated: 2026-07-01
+Last Updated: 2026-07-02
 
 Related Threads:
 - [Beyonders](../Concepts/concept-beyonders.md)
@@ -18,12 +18,14 @@ Related Threads:
 - [Old Neil](../Characters/character-old-neil.md)
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
 - [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
+- [Blackthorn Security Company](../Locations/location-blackthorn-security-company.md)
 
 Related Investigations:
 - [Klein Becomes a Seer Novel Volume 1 Event Timeline](../../Investigations/Events/event-klein-becomes-a-seer/novel-volume-1-reveal-timeline.md)
 - [Seer Pathway Novel Volume 1 Reveal Timeline](../../Investigations/Pathways/pathway-seer/novel-volume-1-reveal-timeline.md)
 - [Church of Evernight Volume 1 Reveal Timeline](../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
 - [Old Neil Novel Volume 1 Reveal Timeline](../../Investigations/Characters/character-old-neil/novel-volume-1-reveal-timeline.md)
+- [Blackthorn Security Company Novel Volume 1 Reveal Timeline](../../Investigations/Locations/location-blackthorn-security-company/novel-volume-1-reveal-timeline.md)
 
 ## Purpose
 
@@ -143,6 +145,7 @@ Later consequences of Klein's Seer pathway, later acting-method development, lat
 - [Beyonders](../Concepts/concept-beyonders.md)
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
 - [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
+- [Blackthorn Security Company](../Locations/location-blackthorn-security-company.md)
 
 ### Historical Connections
 
@@ -155,6 +158,11 @@ Later consequences of Klein's Seer pathway, later acting-method development, lat
 ### Associated Artifacts
 
 -
+
+### Associated Locations
+
+- [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
+- [Blackthorn Security Company](../Locations/location-blackthorn-security-company.md)
 
 ### Associated Factions
 
@@ -237,6 +245,16 @@ relationships:
     status: active
     confidence: confirmed
     notes: The alchemy room is reached along the route toward Saint Selena Cathedral inside the connected Church/Nighthawks complex.
+  - source: location-blackthorn-security-company
+    target: event-klein-becomes-a-seer
+    relationship_type: event-location
+    start:
+      medium: novel
+      volume: 1
+      chapter: 30
+    status: completed
+    confidence: confirmed
+    notes: Klein confirms his Seer choice at Blackthorn, and Dunn leads him from the Blackthorn/Nighthawks workplace into the connected hidden facilities for the potion event.
   - source: event-klein-becomes-a-seer
     target: character-klein-moretti
     relationship_type: event-outcome

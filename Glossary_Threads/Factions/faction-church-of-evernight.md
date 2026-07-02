@@ -10,10 +10,11 @@ Confidence Level: Strong Evidence
 Spoiler Boundary: Volume 1
 Reader Knowledge Boundary: Novel Chapter 47; Donghua Season 1
 Tags: volume-1, reader-knowledge, worldbuilding, faction
-Last Updated: 2026-07-01
+Last Updated: 2026-07-02
 
 Related Threads:
 - [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
+- [Blackthorn Security Company](../Locations/location-blackthorn-security-company.md)
 - [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
 - [Beyonders](../Concepts/concept-beyonders.md)
 - [Seer Pathway](../Pathways/pathway-seer.md)
@@ -201,6 +202,7 @@ Use Markdown links when the target file exists. Mention a nonexistent thread as 
 ### Directly Related
 
 - [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
+- [Blackthorn Security Company](../Locations/location-blackthorn-security-company.md)
 - [Beyonders](../Concepts/concept-beyonders.md)
 - [Seer Pathway](../Pathways/pathway-seer.md)
 - [Old Neil](../Characters/character-old-neil.md)
@@ -393,6 +395,26 @@ relationships:
     status: active
     confidence: confirmed
     notes: Old Neil frames Klein's planned Divination Club membership as useful Nighthawk monitoring work because occult-adjacent civilian spaces may contain cultists or evil-organization members.
+  - source: location-blackthorn-security-company
+    target: faction-nighthawks
+    relationship_type: public-cover-for
+    start:
+      medium: novel
+      volume: 1
+      chapter: 17
+    status: active
+    confidence: confirmed
+    notes: Blackthorn Security Company is the public-facing disguise for the Tingen Nighthawks.
+  - source: location-blackthorn-security-company
+    target: faction-nighthawks
+    relationship_type: operational-base-for
+    start:
+      medium: novel
+      volume: 1
+      chapter: 17
+    status: active
+    confidence: confirmed
+    notes: Blackthorn functions as the Tingen team's public office, workplace, resource point, client intake point, and field-response launch point.
 ```
 
 ## Evidence Index

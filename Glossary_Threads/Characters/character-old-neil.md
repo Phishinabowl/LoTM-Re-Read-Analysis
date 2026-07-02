@@ -10,11 +10,12 @@ Confidence Level: Strong Evidence
 Spoiler Boundary: Volume 1
 Reader Knowledge Boundary: Novel Chapter 47; Donghua Season 1
 Tags: volume-1, reader-knowledge, character, faction
-Last Updated: 2026-07-01
+Last Updated: 2026-07-02
 
 Related Threads:
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
 - [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
+- [Blackthorn Security Company](../Locations/location-blackthorn-security-company.md)
 - [Beyonders](../Concepts/concept-beyonders.md)
 - [Seer Pathway](../Pathways/pathway-seer.md)
 - [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
@@ -147,6 +148,7 @@ Later Old Neil developments, emotional consequences, and retrospective meaning m
 - [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
 - [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
+- [Blackthorn Security Company](../Locations/location-blackthorn-security-company.md)
 - [Beyonders](../Concepts/concept-beyonders.md)
 - [Seer Pathway](../Pathways/pathway-seer.md)
 - pathway-mystery-pryer.md
@@ -192,6 +194,16 @@ relationships:
     status: active
     confidence: confirmed
     notes: Chapter 19 identifies Old Neil as one of the Tingen Nighthawks' civilian staff under the Church-linked organization.
+  - source: character-old-neil
+    target: location-blackthorn-security-company
+    relationship_type: works-at
+    start:
+      medium: novel
+      volume: 1
+      chapter: 19
+    status: active
+    confidence: confirmed
+    notes: Old Neil is introduced as Nighthawks civilian staff and later performs restricted-duty and field-response work through Blackthorn's connected workplace/facility structure.
   - source: character-old-neil
     target: pathway-mystery-pryer
     relationship_type: pathway-status
