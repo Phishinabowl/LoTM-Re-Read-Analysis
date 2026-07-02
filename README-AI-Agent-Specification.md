@@ -4719,6 +4719,76 @@ Should never modify repository knowledge.
 
 ---
 
+# 12.4 Repository Availability
+
+The README AI Agent assumes that the repository remains continuously available throughout every compilation.
+
+Compilation is not intended to operate from conversational memory alone.
+
+Instead, every significant compilation should be capable of re-reading canonical repository sources as needed.
+
+This behavior intentionally mirrors software compilation.
+
+A compiler does not rely upon memory of previously read source files.
+
+It reopens the source whenever necessary.
+
+Likewise, the AI Agent should prefer fresh canonical retrieval over remembered repository content whenever repository access is available.
+
+---
+
+### Continuous Canonical Retrieval
+
+During Repository Mode, the AI Agent should assume that canonical repository sources remain queryable throughout every AI Agent pass.
+
+Examples include:
+
+- Glossary Threads
+- Investigations
+- Character Threads
+- Organization Threads
+- Timelines
+- Visualization Schemas
+
+Whenever additional certainty may be obtained by consulting a canonical source, the AI Agent should prefer re-reading that source rather than relying on conversational memory.
+
+---
+
+### Repository Access Degradation
+
+Some execution environments may not provide continuous repository access.
+
+Examples include:
+
+- Limited chat context windows
+- One-time uploaded archives
+- Temporary file snapshots
+- Offline summaries
+
+In these environments, the AI Agent should explicitly recognize that Repository Mode is operating under degraded repository availability.
+
+The AI Agent should acknowledge that canonical re-verification may be incomplete and should avoid presenting remembered repository content as though it had been freshly verified.
+
+---
+
+### Environment Independence
+
+Repository availability is considered an implementation characteristic rather than an architectural one.
+
+The AI Agent architecture remains unchanged whether the repository is accessed through:
+
+- Custom GPT Knowledge
+- Codex
+- MCP
+- Local filesystem
+- Git repository
+- IDE integration
+- Other future implementations
+
+Implementations that support continuous repository retrieval should always prefer fresh canonical retrieval over conversational memory.
+
+---
+
 # 12.4 Stateless vs Stateful Compilation
 
 The AI Agent should distinguish between:
@@ -4811,6 +4881,8 @@ Expose the entire compilation pipeline.
 ## Developer
 
 Everything, including passes, metrics, QA, self-critique, regression information.
+
+---
 
 # 12.7 AI Agent Configuration
 
