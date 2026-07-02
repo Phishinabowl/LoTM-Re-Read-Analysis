@@ -1,1 +1,4 @@
 /Source/
+
+# VS Code Workspace Files
+*.code-workspace
