@@ -798,12 +798,26 @@ Claims may preserve both correct knowledge and historically appropriate reader b
 Allowed disclosure `knowledge_state` values:
 
 ```text
+clue
 confirmed-fact
+expanded-fact
+strong-evidence
 strong-inference
 working-theory
 reader-misconception
 open-question
 ```
+
+Use `knowledge_state` for the reader or viewer's confidence/state of understanding at that disclosure point:
+
+- `open-question`: The subject or claim is visible as a question, mystery, or unknown.
+- `clue`: A meaningful clue is available, but the reader/viewer cannot yet form a stable theory.
+- `working-theory`: A plausible interpretation can be formed from available evidence.
+- `strong-inference`: The available evidence strongly supports the claim, but it is not explicitly confirmed.
+- `strong-evidence`: The claim has substantial support, often across more than one clue or scene, but still falls short of formal confirmation.
+- `confirmed-fact`: The claim is directly confirmed for that medium and reader position.
+- `expanded-fact`: A previously known or confirmed fact receives additional scope, context, examples, or implications without becoming a separate new core claim.
+- `reader-misconception`: A belief that was reasonable at the time but later proves false or misleading.
 
 Use `truth_status` to distinguish the eventual standing of the claim:
 
@@ -920,17 +934,72 @@ release_order: 14
 Allowed `disclosure_type` values:
 
 ```text
+ability-demonstration
+choice
+consequence
+context-link
+expanded-explanation
+expansion
+explicit-explanation
+explicit-identification
 first-mention
+first-appearance
+first-clue
+first-meaningful-mention
 visual-hint
 implicit-clue
+inference
 strong-inference
 speculation
 rejection
 explicit-reveal
 confirmation
+external-corroboration
+limitation
+pathway-confirmation
+pathway-inference
+possibility
+practical-confirmation
+practical-demonstration
+recontextualization
+staffing-snapshot
 adaptation-only-reveal
 early-reveal
 ```
+
+Use `disclosure_type` for the kind of disclosure event, not the eventual truth of the claim:
+
+- `first-appearance`: The subject appears before the reader/viewer can name or understand it.
+- `first-mention`: The subject is named or mentioned for the first time.
+- `first-meaningful-mention`: The first mention that gives useful context beyond a name.
+- `first-clue`: The first clue that matters for a later interpretation.
+- `visual-hint`: A visual-only or primarily visual hint.
+- `implicit-clue`: A clue embedded in context, behavior, structure, or implication.
+- `context-link`: A disclosure that connects two facts the reader/viewer already had separately.
+- `inference`: A conclusion the reader/viewer can infer from available evidence.
+- `strong-inference`: A particularly well-supported inference short of explicit confirmation.
+- `speculation`: A possibility considered from incomplete evidence.
+- `possibility`: A newly available option, route, or scenario.
+- `choice`: A character decision or selection that changes reader-state.
+- `explicit-identification`: A person, object, institution, or concept is explicitly identified.
+- `explicit-explanation`: A mechanism, rule, or meaning is explained directly.
+- `expanded-explanation`: A prior explanation is broadened or made more precise.
+- `explicit-reveal`: A major direct reveal.
+- `confirmation`: A claim is confirmed after prior clue, theory, or inference.
+- `practical-demonstration`: A fact or ability is shown in use.
+- `ability-demonstration`: An ability is specifically demonstrated.
+- `practical-confirmation`: Operational use confirms a prior claim in practice.
+- `pathway-inference`: Available evidence supports a pathway/status inference.
+- `pathway-confirmation`: A pathway/status relationship is confirmed.
+- `staffing-snapshot`: A roster, deployment, or team-status snapshot reveals relationships or roles.
+- `limitation`: A constraint, boundary, or failure mode is revealed.
+- `consequence`: A durable result or aftermath becomes visible.
+- `external-corroboration`: A separate source, institution, character, or medium corroborates the claim.
+- `expansion`: A known claim receives additional examples, scope, or implications.
+- `recontextualization`: New evidence changes the meaning of earlier evidence.
+- `rejection`: A theory or possible model is rejected.
+- `adaptation-only-reveal`: A disclosure occurs only in the adaptation.
+- `early-reveal`: An adaptation or medium reveals something earlier than another medium.
 
 Use separate disclosure entries for each medium. Never infer Donghua spoiler safety from novel chronology, or novel spoiler safety from Donghua release order.
 
@@ -951,9 +1020,12 @@ omitted
 changed
 donghua-original
 uncertain
+pending
 ```
 
 Record adaptation differences as relationships, not automatically as errors. A claim may use more than one relationship when needed, such as both `condensed` and `revealed-earlier`.
+
+Use `pending` only when the adaptation comparison has not yet been verified. Once the relevant adaptation evidence is reviewed, replace `pending` with a more specific relationship such as `faithful`, `condensed`, `omitted`, `changed`, or `uncertain`.
 
 ## Spoiler Filtering
 

@@ -198,6 +198,14 @@ Together, these units should form the subject's complete reveal timeline. Add a 
 
 Future reader-facing pages will filter these entries against the user's selected position. Do not treat unrestricted analysis elsewhere in this file as automatically spoiler-safe.
 
+Use only the controlled ledger values from `PROJECT_RULES.md`:
+
+- `knowledge_state`: `open-question`, `clue`, `working-theory`, `strong-inference`, `strong-evidence`, `confirmed-fact`, `expanded-fact`, or `reader-misconception`.
+- `disclosure_type`: `first-appearance`, `first-mention`, `first-meaningful-mention`, `first-clue`, `visual-hint`, `implicit-clue`, `context-link`, `inference`, `strong-inference`, `speculation`, `possibility`, `choice`, `explicit-identification`, `explicit-explanation`, `expanded-explanation`, `explicit-reveal`, `confirmation`, `practical-demonstration`, `ability-demonstration`, `practical-confirmation`, `pathway-inference`, `pathway-confirmation`, `staffing-snapshot`, `limitation`, `consequence`, `external-corroboration`, `expansion`, `recontextualization`, `rejection`, `adaptation-only-reveal`, or `early-reveal`.
+- `adaptation_relationships.type`: `pending`, `faithful`, `revealed-earlier`, `revealed-later`, `condensed`, `expanded`, `recontextualized`, `omitted`, `changed`, `donghua-original`, or `uncertain`.
+
+Use `pending` for adaptation relationships only while the adaptation comparison has not yet been verified.
+
 ### Knowledge Unit: Claim Title
 
 ```yaml
@@ -235,9 +243,9 @@ disclosures:
     superseded_at:
     superseded_by:
 adaptation_relationships:
-  - type: uncertain
+  - type: pending
     novel_claim_changed: false
-    notes:
+    notes: Adaptation comparison not yet verified.
 subject_attribution_from:
   - medium: novel
     position:
