@@ -1,19 +1,26 @@
 param(
   [string]$EpubPath = "Source/Lord of Mysteries - Book 1.epub",
+  [ValidateRange(1, 999)]
   [int]$StartChapter = 1,
+  [ValidateRange(1, 999)]
   [int]$EndChapter = 213,
   [string]$Pattern,
   [int]$ContextLines = 0,
   [int]$MaxHitsPerChapter = 50,
   [switch]$CountsOnly,
   [switch]$RegexPattern,
-  [switch]$CaseSensitive
+  [switch]$CaseSensitive,
+  [switch]$Json
 )
 
 $ErrorActionPreference = "Stop"
 
 if ([string]::IsNullOrWhiteSpace($Pattern)) {
   throw "Provide -Pattern. For literal multi-term searches, separate terms with |, such as -Pattern `"Dunn|Captain|Nighthawk`"."
+}
+
+if ($StartChapter -gt $EndChapter) {
+  throw "StartChapter cannot be greater than EndChapter."
 }
 
 if (-not (Test-Path $EpubPath)) {
@@ -70,6 +77,25 @@ function Format-Snippet {
   return $snippet
 }
 
+function Get-MatchedTerms {
+  param(
+    [string]$Text,
+    [string[]]$Terms,
+    [bool]$UseRegex,
+    [bool]$MatchCase
+  )
+
+  $matched = @()
+  foreach ($term in $Terms) {
+    $termRegex = New-SearchRegex @($term) $UseRegex $MatchCase
+    if ($termRegex.IsMatch($Text)) {
+      $matched += $term
+    }
+  }
+
+  return $matched
+}
+
 $terms = if ($RegexPattern) {
   @($Pattern)
 } else {
@@ -78,6 +104,7 @@ $terms = if ($RegexPattern) {
 
 $searchRegex = New-SearchRegex $terms $RegexPattern.IsPresent $CaseSensitive.IsPresent
 $zip = [System.IO.Compression.ZipFile]::OpenRead((Resolve-Path $EpubPath))
+$jsonResults = New-Object 'System.Collections.Generic.List[object]'
 
 try {
   foreach ($chapter in $StartChapter..$EndChapter) {
@@ -121,6 +148,17 @@ try {
     }
 
     if ($CountsOnly) {
+      if ($Json) {
+        foreach ($key in $termCounts.Keys) {
+          $jsonResults.Add([pscustomobject]@{
+            chapter = $chapter
+            term = $key
+            count = $termCounts[$key]
+          })
+        }
+        continue
+      }
+
       $countParts = @()
       foreach ($key in $termCounts.Keys) {
         $countParts += "$key=$($termCounts[$key])"
@@ -129,25 +167,65 @@ try {
       continue
     }
 
-    ""
-    "=== Chapter $chapter ==="
+    if (-not $Json) {
+      ""
+      "=== Chapter $chapter ==="
+    }
 
     $printed = 0
     foreach ($hitIndex in $hitIndexes) {
       if ($printed -ge $MaxHitsPerChapter) {
-        "... hit limit reached for Chapter $chapter ($MaxHitsPerChapter shown of $($hitIndexes.Count))"
+        if (-not $Json) {
+          "... hit limit reached for Chapter $chapter ($MaxHitsPerChapter shown of $($hitIndexes.Count))"
+        }
         break
       }
 
       if ($ContextLines -le 0) {
+        if ($Json) {
+          $matchedTerms = Get-MatchedTerms $lines[$hitIndex] $terms $RegexPattern.IsPresent $CaseSensitive.IsPresent
+          foreach ($matchedTerm in $matchedTerms) {
+            $jsonResults.Add([pscustomobject]@{
+              chapter = $chapter
+              term = $matchedTerm
+              line = $hitIndex + 1
+              line_index = $hitIndex
+              snippet = Format-Snippet $lines[$hitIndex]
+            })
+          }
+        } else {
         "[${hitIndex}] $(Format-Snippet $lines[$hitIndex])"
+        }
       } else {
         $start = [Math]::Max(0, $hitIndex - $ContextLines)
         $end = [Math]::Min($lines.Count - 1, $hitIndex + $ContextLines)
-        for ($contextIndex = $start; $contextIndex -le $end; $contextIndex++) {
-          "[${contextIndex}] $(Format-Snippet $lines[$contextIndex])"
+        if ($Json) {
+          $context = @()
+          for ($contextIndex = $start; $contextIndex -le $end; $contextIndex++) {
+            $context += [pscustomobject]@{
+              line = $contextIndex + 1
+              line_index = $contextIndex
+              snippet = Format-Snippet $lines[$contextIndex]
+            }
+          }
+
+          $matchedTerms = Get-MatchedTerms $lines[$hitIndex] $terms $RegexPattern.IsPresent $CaseSensitive.IsPresent
+          foreach ($matchedTerm in $matchedTerms) {
+            $jsonResults.Add([pscustomobject]@{
+              chapter = $chapter
+              term = $matchedTerm
+              line = $hitIndex + 1
+              line_index = $hitIndex
+              snippet = Format-Snippet $lines[$hitIndex]
+              context = $context
+            })
+          }
+        } else {
+          for ($contextIndex = $start; $contextIndex -le $end; $contextIndex++) {
+            "[${contextIndex}] $(Format-Snippet $lines[$contextIndex])"
+          }
+          "--"
         }
-        "--"
       }
 
       $printed++
@@ -155,4 +233,8 @@ try {
   }
 } finally {
   $zip.Dispose()
+}
+
+if ($Json) {
+  ConvertTo-Json -InputObject @($jsonResults.ToArray()) -Depth 6
 }

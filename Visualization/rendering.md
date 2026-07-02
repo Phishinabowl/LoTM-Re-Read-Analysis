@@ -43,14 +43,16 @@ If Edge is installed elsewhere, update `executablePath` in the Puppeteer config.
 From the repository root, render every configured graph view and write the refresh report:
 
 ```powershell
-.\Visualization\render-graphs.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-graphs.ps1
 ```
 
 To update only the refresh report without rerendering images:
 
 ```powershell
-.\Visualization\render-graphs.ps1 -SkipRender
+powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-graphs.ps1 -SkipRender
 ```
+
+Use `-NoProfile` to keep local shell profile output from contaminating command output.
 
 The helper reads `Visualization/config/render-settings.json`, renders every configured view to every configured output, updates the semantic graph snapshot, and updates the live refresh tracker in:
 

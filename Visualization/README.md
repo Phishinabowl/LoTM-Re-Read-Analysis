@@ -27,28 +27,28 @@ After every graph refresh, update the live refresh tracker below. It summarizes 
 The tracker compares the current graph against the semantic snapshot in `data/refresh-snapshot.json`. Unexpected removed nodes, removed relationships, changed relationship labels, duplicate relationships, broken links, or orphan nodes should be treated as visualization validation issues and reviewed before committing.
 
 <!-- VISUALIZATION-REFRESH-REPORT:START -->
-Last Updated: 2026-07-02 01:34:16 -04:00
+Last Updated: 2026-07-02 02:06:03 -04:00
 
 ### Summary
 
 | Metric | Count | Delta |
 | --- | ---: | ---: |
-| Nodes | 26 | +3 |
-| Relationships | 73 | +7 |
+| Nodes | 26 | 0 |
+| Relationships | 72 | 0 |
 | Views Updated | 2 | 0 |
 | Rendered Files | 4 | 0 |
 | Broken Links | 0 | 0 |
 | Orphan Nodes | 0 | 0 |
-| Pending Nodes | 17 | -1 |
+| Pending Nodes | 17 | 0 |
 | Validation Issues | 0 | n/a |
 
 ### Semantic Changes
 
-- Added nodes: 3
+- Added nodes: 0
 - Removed nodes: 0
-- Added relationships: 7
+- Added relationships: 0
 - Removed relationships: 0
-- Changed relationship labels: 
+- Changed relationship labels: 0
 - Duplicate relationships: 0
 
 ### Views
@@ -58,10 +58,10 @@ Last Updated: 2026-07-02 01:34:16 -04:00
 
 ### Rendered Outputs
 
-- `Visualization/rendered/volume-1-knowledge-graph.svg` (138655 bytes)
-- `Visualization/rendered/volume-1-knowledge-graph.png` (412161 bytes)
-- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.svg` (138163 bytes)
-- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.png` (425283 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph.svg` (136398 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph.png` (451848 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.svg` (136084 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.png` (471047 bytes)
 
 ### Hygiene
 
@@ -69,24 +69,8 @@ Last Updated: 2026-07-02 01:34:16 -04:00
 - Orphan nodes: 0
 - Duplicate relationships: 0
 - Removed relationships: 0
-- Changed relationship labels: 
+- Changed relationship labels: 0
 - Pending graph nodes: 17
-
-#### Added Nodes
-
-- `character_kenley_white`
-- `character_royale_reideen`
-- `character_seeka_tron`
-
-#### Added Relationships
-
-- `character_dunn_smith|pathway-status ch22|pathway_sleepless`
-- `character_kenley_white|pathway-status ch42|pathway_sleepless`
-- `character_royale_reideen|pathway-status ch42|pathway_sleepless`
-- `character_seeka_tron|pathway-status ch42|pathway_sleepless`
-- `faction_church_of_evernight|regulates-access-to ch22|pathway_sleepless`
-- `pathway_sleepless|access-route-to ch22|concept_beyonders`
-- `pathway_sleepless|connected-to ch28|pathway_seer`
 
 #### Pending Nodes
 
@@ -131,6 +115,12 @@ When a refresh is confirmed, update every current graph view unless the user exp
 - matching rendered PNG files, when present
 
 Fresh renders replace stale render files unless the user asks for archived snapshots.
+
+Canonical refresh command:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-graphs.ps1
+```
 
 ## Long-Term Vision
 

@@ -190,6 +190,12 @@ For the current repository, a normal graph refresh means updating:
 
 Fresh renders should replace the stale render files rather than accumulating duplicate dated copies unless the user asks for archived snapshots.
 
+Use this canonical refresh command from the repository root:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-graphs.ps1
+```
+
 Use this maintenance lifecycle for project-knowledge changes:
 
 ```text
@@ -1015,13 +1021,13 @@ The standard EPUB evidence workflow is:
 Example survey count:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -StartChapter 10 -EndChapter 47 -Pattern "Dunn|Captain|Nighthawk|Nightmare|Sleepless" -CountsOnly
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -StartChapter 10 -EndChapter 47 -Pattern "Dunn|Captain|Nighthawk|Nightmare|Sleepless" -CountsOnly
 ```
 
 Example context expansion:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -StartChapter 12 -EndChapter 13 -Pattern "Dunn|Nighthawk" -ContextLines 2 -MaxHitsPerChapter 8
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -StartChapter 12 -EndChapter 13 -Pattern "Dunn|Nighthawk" -ContextLines 2 -MaxHitsPerChapter 8
 ```
 
 By default, `-Pattern` treats `|` as a separator between literal terms. Use `-RegexPattern` only when a regular expression is needed.

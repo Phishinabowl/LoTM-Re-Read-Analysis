@@ -1,5 +1,5 @@
 ﻿{
-    "generated_at":  "2026-07-02 01:34:16 -04:00",
+    "generated_at":  "2026-07-02 02:06:03 -04:00",
     "nodes":  [
                   "artifact_0_08",
                   "artifact_antigonus_notebook",
@@ -105,13 +105,6 @@
                               "label":  "member-of ch13",
                               "key":  "character_dunn_smith|member-of ch13|faction_church_of_evernight",
                               "endpointKey":  "character_dunn_smith|faction_church_of_evernight"
-                          },
-                          {
-                              "source":  "character_dunn_smith",
-                              "target":  "pathway_sleepless",
-                              "label":  "pathway-status ch22 strong-evidence",
-                              "key":  "character_dunn_smith|pathway-status ch22 strong-evidence|pathway_sleepless",
-                              "endpointKey":  "character_dunn_smith|pathway_sleepless"
                           },
                           {
                               "source":  "character_dunn_smith",
