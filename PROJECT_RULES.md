@@ -88,6 +88,31 @@ When conclusions are reached:
 - Preserve chronology.
 - Preserve reader knowledge state.
 
+## Current State Dashboard Rules
+
+`CURRENT_STATE.md` is the live project dashboard. Keep it aligned with the actual active focus.
+
+Update `CURRENT_STATE.md` whenever:
+
+- the active investigation focus changes;
+- a glossary thread is created;
+- a glossary thread moves between pending, in-progress, completed, dormant, resolved, or superseded;
+- an investigation meaningfully advances a thread's reader boundary;
+- a generated/planned thread title becomes a tracked pending item;
+- a visualization workflow exposes durable project status or backlog information.
+
+Track glossary pages in three practical groups:
+
+- `Completed Threads`: threads whose current defined scope has been reviewed and recorded.
+- `In-Progress Threads`: active or partially built threads, including their current reader boundary and approximate Volume progress.
+- `Pending / Deferred Threads`: generated or planned thread titles that do not yet have dedicated glossary pages.
+
+For Volume 1 progress percentages, use the current verified chapter boundary divided by 213 total chapters. Treat the percentage as a chapter-boundary indicator, not a guarantee of article quality, cross-link completeness, or adaptation completeness.
+
+When a thread spans more than one medium, track novel and adaptation progress separately where practical. Do not let one medium's progress silently advance another.
+
+Do not create all pending threads just because they appear in `CURRENT_STATE.md`. Pending items are a backlog, not an instruction to scaffold every file.
+
 ## Artifact Responsibilities
 
 Use each project artifact for a distinct purpose:
