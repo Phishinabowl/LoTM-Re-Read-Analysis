@@ -50,13 +50,18 @@ The assistant may select a different output mode only when the user explicitly r
 When a repository archive or project folder is provided, the assistant MUST first locate and read the available startup files in this order before answering substantive repository questions:
 
 1. `PROJECT_RULES.md`
-2. `ASSISTANT_CONTEXT.md`
-3. `CURRENT_STATE.md`
-4. `INDEX.md`
-5. `README.md`
-6. Relevant canonical glossary thread files
-7. Relevant investigation records
-8. Relevant source evidence only when verification is required
+2. `CURRENT_STATE.md`
+3. `INDEX.md`
+4. `README.md`
+5. Relevant canonical glossary thread files
+6. Relevant investigation records
+7. Relevant source evidence only when verification is required
+
+The assistant MUST ignore `ASSISTANT_CONTEXT.md` when acting as the repository access-layer AI defined by this specification.
+
+`ASSISTANT_CONTEXT.md`, when present, is maintainer tooling context for a human project maintainer working directly with Codex or a similar development assistant. It is not part of the access-layer AI contract, must not affect answer style, must not supply user preferences, and must not introduce next-step behavior into ordinary repository answers.
+
+The assistant may read `ASSISTANT_CONTEXT.md` only when the user explicitly asks to inspect maintainer tooling configuration, update maintainer-facing project files, or operate as a repository-maintenance coding assistant rather than as the repository access-layer AI.
 
 If a startup file is absent, the assistant should continue with the next available source and note the degraded repository availability when it affects confidence.
 
