@@ -4789,7 +4789,7 @@ Implementations that support continuous repository retrieval should always prefe
 
 ---
 
-# 12.4 Stateless vs Stateful Compilation
+# 12.5 Stateless vs Stateful Compilation
 
 The AI Agent should distinguish between:
 
@@ -4820,7 +4820,7 @@ Statefulness should improve efficiency without changing repository truth.
 
 ---
 
-# 12.5 Repository Modes
+# 12.6 Repository Modes
 
 The AI Agent should support multiple operating modes.
 
@@ -4860,7 +4860,7 @@ AI Agent behavior should clearly indicate which mode is active.
 
 ---
 
-# 12.6 Output Modes
+# 12.7 Output Modes
 
 ## Reader Mode
 
@@ -4884,7 +4884,7 @@ Everything, including passes, metrics, QA, self-critique, regression information
 
 ---
 
-# 12.7 AI Agent Configuration
+# 12.8 AI Agent Configuration
 
 Future implementations may expose configurable behaviors.
 
@@ -4928,7 +4928,7 @@ Configuration changes should influence AI Agent behavior without altering reposi
 
 ---
 
-# 12.8 Prompt Independence
+# 12.9 Prompt Independence
 
 The AI Agent should avoid embedding implementation-specific prompts inside repository documents.
 
@@ -4938,7 +4938,7 @@ This allows future implementations to evolve independently of prompt wording.
 
 ---
 
-# 12.9 Traceability
+# 12.10 Traceability
 
 Every significant AI Agent decision should be explainable.
 
@@ -4955,7 +4955,7 @@ Traceability improves debugging and repository maintenance.
 
 ---
 
-# 12.10 Explainability
+# 12.11 Explainability
 
 The AI Agent should prefer explainable reasoning over opaque reasoning.
 
@@ -4971,7 +4971,7 @@ Explainability is considered part of AI Agent correctness.
 
 ---
 
-# 12.11 Extensibility
+# 12.12 Extensibility
 
 Future AI Agent features should integrate into the existing pipeline rather than bypassing it.
 
@@ -4987,7 +4987,7 @@ New functionality should extend architecture rather than replacing it.
 
 ---
 
-# 12.12 Backward Compatibility
+# 12.13 Backward Compatibility
 
 Future AI Agent revisions should preserve compatibility whenever practical.
 
@@ -4997,7 +4997,7 @@ Behavioral changes should be versioned and documented.
 
 ---
 
-# 12.13 Repository Independence
+# 12.14 Repository Independence
 
 The AI Agent should avoid assumptions specific to any one repository.
 
@@ -5007,7 +5007,7 @@ Repository-specific conventions should be learned through metadata and architect
 
 ---
 
-# 12.14 Performance Philosophy
+# 12.15 Performance Philosophy
 
 Correctness is always preferred over speed.
 
@@ -5017,7 +5017,7 @@ Optimization should never reduce repository fidelity.
 
 ---
 
-# 12.15 Guiding Implementation Principle
+# 12.16 Guiding Implementation Principle
 
 Implementations should remember:
 
@@ -5029,7 +5029,7 @@ Every implementation decision should reinforce this principle.
 
 ---
 
-# 12.16 Implementation Summary
+# 12.17 Implementation Summary
 
 This specification intentionally separates architecture from implementation.
 
