@@ -156,6 +156,60 @@ If a graph exposes missing or incorrect data:
 2. Update Relationship Seeds when the relationship model changes.
 3. Regenerate the graph output.
 
+## Visualization Refresh Gate
+
+Before committing a change, check whether graph inputs changed.
+
+Graph regeneration is recommended when any of these change:
+
+- a glossary page is created, deleted, renamed, or moved;
+- `Relationship Seeds` are added, removed, or changed;
+- a relationship type, relationship status, relationship confidence, source node, or target node changes;
+- a node type changes, such as `concept` to `faction`;
+- the controlled relationship taxonomy changes;
+- graph-relevant metadata changes, such as thread title, type, status, reader boundary, or spoiler boundary.
+
+Graph regeneration is not required for:
+
+- prose-only investigation updates;
+- typo fixes or style cleanup;
+- explanation wording that does not change structured data;
+- confidence discussion that does not change a structured confidence field;
+- board prose that does not alter graph inputs.
+
+When graph regeneration is recommended, tell the user before editing generated visualization files. Treat graph refresh like commits: recommend it when appropriate, but confirm before changing generated graph artifacts.
+
+When a graph refresh is confirmed, update every current graph view unless the user explicitly narrows the scope. This includes all existing Mermaid graph files and their rendered outputs in the currently used formats.
+
+For the current repository, a normal graph refresh means updating:
+
+- `Visualization/graphs/volume-1-knowledge-graph.mmd`
+- `Visualization/graphs/volume-1-knowledge-graph-timing-spoiler-free.mmd`
+- matching rendered SVG files, when present
+- matching rendered PNG files, when present
+
+Fresh renders should replace the stale render files rather than accumulating duplicate dated copies unless the user asks for archived snapshots.
+
+Use this maintenance lifecycle for project-knowledge changes:
+
+```text
+Investigation
+↓
+Glossary / Relationship Seeds
+↓
+Bidirectional relationship sweep
+↓
+Current State update
+↓
+Index update
+↓
+Visualization refresh check
+↓
+Commit review
+↓
+Commit
+```
+
 Future graph tooling should support dynamic generation, timeline filtering, reader-state filtering, and multiple graph views without making the rendered graph the source of truth.
 
 ---

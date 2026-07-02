@@ -11,6 +11,29 @@ Generated graph files are not the source of truth. The canonical project data re
 
 Mermaid graphs are generated from glossary metadata and Relationship Seeds. If a graph exposes missing, stale, or incorrect information, fix the glossary thread, investigation record, or relationship seed first, then regenerate the graph.
 
+## Refresh Rules
+
+Regenerate graph artifacts when graph inputs change:
+
+- glossary pages are created, deleted, renamed, or moved
+- `Relationship Seeds` are added, removed, or changed
+- relationship type, status, confidence, source, or target changes
+- node type or graph-relevant metadata changes
+- the controlled relationship taxonomy changes
+
+Graph regeneration is not required for prose-only investigation updates, typo fixes, wording cleanup, or board prose that does not change graph inputs.
+
+Before editing generated visualization files, recommend the refresh and confirm it with the user.
+
+When a refresh is confirmed, update every current graph view unless the user explicitly narrows the scope. For this repository, that means both current Mermaid graph files plus fresh replacement renders in the currently used formats:
+
+- `graphs/volume-1-knowledge-graph.mmd`
+- `graphs/volume-1-knowledge-graph-timing-spoiler-free.mmd`
+- matching rendered SVG files, when present
+- matching rendered PNG files, when present
+
+Fresh renders replace stale render files unless the user asks for archived snapshots.
+
 ## Current Artifacts
 
 - [Volume 1 Knowledge Graph](graphs/volume-1-knowledge-graph.mmd)

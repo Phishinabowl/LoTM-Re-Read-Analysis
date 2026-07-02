@@ -97,6 +97,7 @@ Graph source of truth remains `Relationship Seeds` in glossary threads plus the 
 - Created first relationship graph workflow and validation rules.
 - Formalized bidirectional navigation, relationship sweep, taxonomy gap, and generator interpretation rules.
 - Added controlled concept/event relationship types and relationship status values.
+- Formalized visualization refresh gate for graph-input changes.
 - Confirmed current graph validation passes with no invalid relationship types, statuses, event-direction errors, or hard reader-boundary violations.
 
 ## Paused Prior Focus
