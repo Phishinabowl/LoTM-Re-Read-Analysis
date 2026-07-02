@@ -15,6 +15,7 @@ graph TD
   event_klein_becomes_a_seer["Klein Becomes a Seer"]
   faction_church_of_evernight["Church of Evernight"]
   faction_nighthawks["Nighthawks"]
+  faction_secret_order["Secret Order"]
   location_blackthorn_security_company["Blackthorn Security Company"]
   location_saint_selena_cathedral["Saint Selena Cathedral"]
   pathway_corpse_collector["Corpse Collector"]
@@ -59,6 +60,11 @@ graph TD
   character_old_neil -->|mentor ch32| character_klein_moretti
   character_klein_moretti -->|student ch32| character_old_neil
   character_ince_zangwill -->|artifact-user ch19| artifact_0_08
+  faction_church_of_evernight -->|investigates ch13| artifact_antigonus_notebook
+  character_klein_moretti -->|investigates ch9| artifact_antigonus_notebook
+  faction_nighthawks -->|investigates ch13| artifact_antigonus_notebook
+  character_old_neil -->|investigates ch45| artifact_antigonus_notebook
+  faction_secret_order -->|targets ch28 strong-evidence| artifact_antigonus_notebook
   artifact_0_08 -->|causal-agent ch210 completed| artifact_antigonus_notebook
   artifact_0_08 -->|manipulates ch210| character_klein_moretti
   artifact_0_08 -->|manipulates ch210 completed strong-evidence| character_dunn_smith
