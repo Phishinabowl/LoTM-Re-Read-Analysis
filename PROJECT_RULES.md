@@ -363,6 +363,30 @@ Use the same top-level section order as `Glossary_Threads/TEMPLATE.md` unless th
 12. Future Automation Notes
 13. Notes
 
+### First Appearance Style
+
+The `First Appearance / First Meaningful Mention` section should preserve reader-state distinctions instead of compressing different reveal beats into one line.
+
+Use a simple per-medium bullet block only when first appearance, first naming, first meaningful explanation, and first confirmation are effectively the same moment.
+
+When those beats differ, use short subheadings under the medium, such as:
+
+```markdown
+#### First Visual / Functional Appearance
+
+#### First Reference
+
+#### First Named Identification
+
+#### First Meaningful Explanation
+
+#### First Formal Confirmation
+```
+
+Only include the beats that actually apply. Each beat should record `Volume`, `Chapter`, `Context`, and `Reader knowledge state` for novel entries, or the equivalent season/episode/timestamp fields for adaptation entries.
+
+Do not use later knowledge to rename an early beat as if the reader could already identify it. For example, a reader may first see an unidentified object before later learning its name or function.
+
 ### Chronological Development Style
 
 Every meaningful chronological arc should explain why the project cares about it, not merely list events.

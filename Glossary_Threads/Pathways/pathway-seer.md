@@ -48,10 +48,19 @@ Later Seer pathway names, higher Sequences, future acting-method developments, a
 
 ### Novel
 
+#### First Word-Level Mention
+
 - Volume: 1
-- Chapter: 21 (first word-level mention); Chapter 28 (first meaningful pathway option)
-- Context: Chapter 21 has Roselle regret not choosing `Apprentice`, `Seer`, or `Marauder`. Chapter 28 has Dunn identify `Seer` as one of the Church's available incomplete Sequence 9 options.
-- Reader knowledge state: In Chapter 21, `Seer` is a suggestive pathway name with Roselle significance. In Chapter 28, it becomes a concrete option Klein can choose.
+- Chapter: 21
+- Context: Roselle's diary says he regrets not choosing `Apprentice`, `Seer`, or `Marauder`.
+- Reader knowledge state: `Seer` is a suggestive pathway name with Roselle significance, but the reader does not yet know what the pathway does or whether Klein can choose it.
+
+#### First Meaningful Pathway Option
+
+- Volume: 1
+- Chapter: 28
+- Context: Dunn identifies `Seer` as one of the Church's available incomplete Sequence 9 options.
+- Reader knowledge state: `Seer` becomes a concrete pathway option Klein can choose.
 
 ### Donghua
 

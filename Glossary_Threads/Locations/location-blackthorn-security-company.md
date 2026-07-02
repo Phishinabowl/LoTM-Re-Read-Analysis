@@ -52,10 +52,19 @@ Do not add later Volume 1 crisis material, 0-08/Megose material, final battle st
 
 ### Novel
 
+#### First Visual / Functional Appearance
+
 - Volume: 1
 - Chapter: 16
 - Context: Klein follows Dunn's directions to No. 36 Zouteland Street and sees the Blackthorn Security Company sign.
-- Reader knowledge state: The reader first sees Blackthorn as an apparently mundane company name before Chapter 17 confirms it as the Nighthawks' disguise.
+- Reader knowledge state: The reader first sees Blackthorn as an apparently mundane company name.
+
+#### First Formal Explanation
+
+- Volume: 1
+- Chapter: 17
+- Context: Dunn confirms Blackthorn Security Company is a disguise for the Tingen Nighthawks' workplace.
+- Reader knowledge state: The reader now understands Blackthorn as public cover for the local official Beyonder team.
 
 ### Donghua
 

@@ -48,10 +48,26 @@ Later information about the Church of Evernight, its high-level structure, its h
 
 ### Novel
 
+#### First Reference
+
 - Volume: 1
-- Chapter: 1 (first reference); 3 (first meaningful public-institution context); 6 (first Nighthawks name)
-- Context: Chapter 1 identifies Klein's mother as an Evernight devotee. Chapter 3 presents the Church through Sunday schools and public education. Chapter 6 names the Nighthawks among official organizations broadly connected with orthodox Churches.
-- Reader knowledge state: The reader first encounters Evernight as family religion, then the Church as part of ordinary Loen society, and finally the unexplained Nighthawks name before meeting the Tingen team.
+- Chapter: 1
+- Context: Klein's mother is identified as an Evernight devotee.
+- Reader knowledge state: The reader first encounters Evernight as family religion rather than as an institution with hidden Beyonder machinery.
+
+#### First Public-Institution Context
+
+- Volume: 1
+- Chapter: 3
+- Context: The Church appears through Sunday schools and public education.
+- Reader knowledge state: The reader understands the Church of Evernight as part of ordinary Loen public life.
+
+#### First Official Beyonder-Team Name
+
+- Volume: 1
+- Chapter: 6
+- Context: The Nighthawks are named among official organizations broadly connected with orthodox Churches.
+- Reader knowledge state: The reader has the unexplained name of a Church-linked supernatural response organization before meeting the Tingen team.
 
 ### Donghua
 

@@ -53,10 +53,19 @@ Later revelations about the notebook's origin, contents, current possessor, caus
 
 ### Novel
 
+#### First Visual / Functional Appearance
+
 - Volume: 1
-- Chapter: 1 (first notebook image); Chapter 9 (first meaningful Antigonus identification)
-- Context: Chapter 1 opens with a notebook on Klein's desk as part of the death-scene tableau, but the reader cannot safely identify it as the Antigonus family notebook. Chapter 9 uses the original Klein's records to identify the studied ancient notebook as authored by a member of the Antigonus family.
-- Reader knowledge state: The reader first sees a notebook as a death-scene object, then later learns about an old Antigonus family notebook connected to Welch, Naya, and Klein.
+- Chapter: 1
+- Context: Chapter 1 opens with a notebook on Klein's desk as part of the death-scene tableau.
+- Reader knowledge state: The reader sees a notebook as a suspicious death-scene object, but cannot safely identify it as the Antigonus family notebook yet.
+
+#### First Named Identification
+
+- Volume: 1
+- Chapter: 9
+- Context: Original Klein's records identify the studied ancient notebook as authored by a member of the Antigonus family.
+- Reader knowledge state: The reader can now connect the old notebook to the Antigonus name and to Welch, Naya, and Klein's shared research.
 
 ### Donghua
 

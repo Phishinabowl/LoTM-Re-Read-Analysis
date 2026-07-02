@@ -42,20 +42,57 @@ This thread currently contains only Volume 1 knowledge. Later revelations about 
 
 ### Novel
 
+#### First Explicit Mention
+
 - Volume: 1
 - Chapter: 19
 - Context: Dunn explains Sealed Artifact grades, then shows Klein Ince Zangwill's wanted notice.
 - Reader knowledge state: The reader explicitly learns the `0-08` designation, its Grade 0 classification, its quill-like appearance, its ability to write without ink, and that Ince escaped with it. Its actual function remains unknown.
 
+#### First Formal Function Reveal
+
+- Volume: 1
+- Chapter: 210
+- Context: The retrospective `Story` chapter reveals 0-08's written narrative structure and its role in arranging the Volume 1 chain of events.
+- Reader knowledge state: The reader can now understand 0-08 as a plausibility-bound narrative/manipulation artifact rather than merely a dangerous quill stolen by Ince.
+
 ### Donghua
+
+#### First Audiovisual Motif
+
+- Season: 1
+- Episode: 2
+- Release order: 2
+- Timestamp: Around `00:25:41`
+- Context: The ghost-quill/feather motif drops with its musical cue after Leonard knocks out Elliott's kidnappers and before the transformation/merging escalation.
+- Viewer knowledge state: The viewer sees a recurring visual/audio signal tied to abnormal event escalation, but cannot yet identify it as 0-08 or understand its exact function.
+
+#### First Explicit Designation
 
 - Season: 1
 - Episode: 10, `Clue`
 - Release order: 10
-- First explicit designation: Around `00:05:14`
-- Quill description: Around `00:05:42`
+- Timestamp: Around `00:05:14`
 - Context: In Old Neil's workshop, Klein reads a notebook or journal among Neil's papers and receives Azik's letter. After dropping and retrieving the enclosed whistle, Klein hurriedly rises at approaching footsteps, knocks over the notebook or journal, and catches it; Ince Zangwill's wanted poster falls out. Dunn sees the poster and begins explaining Ince and 0-08. The dialogue is subtitle verified and the staging is user-verified visual evidence.
-- Viewer knowledge state: The viewer explicitly learns the `0-08` designation, its Grade 0 classification, its quill-like appearance, its ability to write without ink, and that Ince escaped with it. Its actual function remains unknown.
+- Viewer knowledge state: The viewer explicitly learns the `0-08` designation, its Grade 0 classification, and that Ince escaped with it.
+
+#### First Quill Description
+
+- Season: 1
+- Episode: 10, `Clue`
+- Release order: 10
+- Timestamp: Around `00:05:42`
+- Context: Dunn describes 0-08's quill-like appearance and inkless writing.
+- Viewer knowledge state: The viewer can connect the earlier ghost-quill motif to the stolen Grade 0 quill, while its full function remains unknown.
+
+#### First Formal Function Reveal
+
+- Season: 1
+- Episode: 13
+- Release order: 13
+- Timestamp: Around `00:18:56` onward
+- Context: After Ince kills Klein, the adaptation transitions into 0-08's puppet-theater retrospective narration of the Tingen story.
+- Viewer knowledge state: The viewer can recontextualize the season-long ghost-quill motif as evidence of 0-08's involvement in arranging and steering events.
 
 ## Chronological Development
 

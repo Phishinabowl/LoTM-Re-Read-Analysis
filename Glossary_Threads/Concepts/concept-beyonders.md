@@ -50,10 +50,19 @@ Later explanations of Beyonder characteristics, pathway structure, acting method
 
 ### Novel
 
+#### First Broad Category Introduction
+
 - Volume: 1
 - Chapter: 6
 - Context: The first Tarot Club gathering introduces Beyonders as people who gain supernatural power through potions and frames orthodox Churches as controlled access routes.
 - Reader knowledge state: The reader receives a broad supernatural category before seeing a grounded institutional explanation from the Nighthawks.
+
+#### First Official Institutional Explanation
+
+- Volume: 1
+- Chapter: 18
+- Context: Dunn explains Beyonders, potions, Sequences, advancement danger, fixed pathways, and losing control from the Church/Nighthawks perspective.
+- Reader knowledge state: The reader now has a grounded official framework for what Beyonders are and why the Churches regulate access to them.
 
 ### Donghua
 

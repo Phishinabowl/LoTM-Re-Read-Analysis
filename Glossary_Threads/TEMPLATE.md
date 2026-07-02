@@ -62,12 +62,39 @@ Use separate medium subsections when the thread tracks more than one format.
 
 ### Novel
 
+Use a single block only when all reveal beats happen together. If the subject has layered disclosure, duplicate the beat heading pattern below as needed.
+
+#### First Visual / Functional Appearance
+
+- Volume:
+- Chapter:
+- Context:
+- Reader knowledge state:
+
+#### First Named Identification
+
+- Volume:
+- Chapter:
+- Context:
+- Reader knowledge state:
+
+#### First Meaningful Explanation
+
+- Volume:
+- Chapter:
+- Context:
+- Reader knowledge state:
+
+#### First Formal Confirmation
+
 - Volume:
 - Chapter:
 - Context:
 - Reader knowledge state:
 
 ### Donghua
+
+Use the same beat-heading pattern when adaptation first appearance, naming, explanation, or confirmation differs from the novel or from itself.
 
 - Season:
 - Episode:

@@ -38,19 +38,32 @@ This thread currently contains only novel Volume 1 and Donghua Season 1 knowledg
 
 ### Novel
 
+#### First Formal Explanation
+
 - Volume: 1
-- First verified formal explanation: Chapter 207
+- Chapter: 207
 - Context: Dunn explains the Law of Beyonder Characteristics Indestructibility and how characteristics pass between carriers after death.
 - Reader knowledge state: The reader explicitly knows that characteristics persist and transfer. Earlier implicit examples have not yet been reconstructed.
 
 ### Donghua
 
+#### First Conceptual Precursor
+
 - Season: 1
-- Conceptual precursor: Episode 10, around `00:05:49`
-- Formal explanation: Episode 12, around `00:24:01`
-- Release orders: 10 and 12
-- Context: Episode 10 explains that dead rampaging Beyonders leave power-bearing items; Episode 12 explicitly names Beyonder characteristics and states their conservation law.
-- Viewer knowledge state: The viewer has an incomplete conceptual model from Episode 10 and confirmed formal knowledge from Episode 12.
+- Episode: 10
+- Release order: 10
+- Timestamp: Around `00:05:49`
+- Context: The adaptation explains that dead rampaging Beyonders leave power-bearing items.
+- Viewer knowledge state: The viewer has an incomplete conceptual model for power-bearing remains, but does not yet have the formal term or conservation law.
+
+#### First Formal Explanation
+
+- Season: 1
+- Episode: 12
+- Release order: 12
+- Timestamp: Around `00:24:01`
+- Context: The adaptation explicitly names Beyonder characteristics and states their conservation law.
+- Viewer knowledge state: The viewer has confirmed formal knowledge that characteristics persist.
 
 ## Chronological Development
 

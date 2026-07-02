@@ -50,10 +50,26 @@ Do not import later divination rules, high-sequence mechanics, gray-fog refineme
 
 ### Novel
 
+#### First Folk / Occult Appearance
+
 - Volume: 1
 - Chapter: 4
 - Context: Klein prepares a luck-enhancement ritual using inherited Zhou Mingrui knowledge and the chapter foregrounds divination as part of his pre-transmigration occult toolkit.
-- Reader knowledge state: Divination initially appears as familiar, possibly unreliable folk or occult practice before the novel confirms its supernatural mechanics.
+- Reader knowledge state: Divination initially appears as familiar, possibly unreliable folk or occult practice.
+
+#### First Pathway-Linked Explanation
+
+- Volume: 1
+- Chapter: 29
+- Context: Dunn describes Seer abilities through divination-related methods such as astromancy, cartomancy, spiritual pendulums, and scrying.
+- Reader knowledge state: The reader understands divination as a real capability connected to the Seer pathway rather than only ordinary occult practice.
+
+#### First Practical Mechanics Explanation
+
+- Volume: 1
+- Chapter: 40
+- Context: Old Neil teaches Klein pendulum dowsing and frames it through Astral Projection, the spirit world, and spiritual intelligence.
+- Reader knowledge state: The reader receives a practical mechanism for how at least one divination method works.
 
 ### Donghua
 

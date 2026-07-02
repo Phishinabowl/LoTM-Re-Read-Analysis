@@ -51,10 +51,26 @@ Later consequences of Klein's Seer pathway, later acting-method development, lat
 
 ### Novel
 
+#### First Event Setup
+
 - Volume: 1
-- Chapter: 28 (event setup); Chapter 31 (event completion)
-- Context: Dunn offers Klein the chance to become a Beyonder and names Seer as an available option in Chapter 28. Klein consumes the Seer potion in Chapter 31.
-- Reader knowledge state: The reader can identify the event as a pending choice from Chapter 28, a confirmed choice from Chapter 30, and an accomplished status change from Chapter 31.
+- Chapter: 28
+- Context: Dunn offers Klein the chance to become a Beyonder and names Seer as an available option.
+- Reader knowledge state: The reader can identify Klein becoming a Seer as a possible pending event, but Klein has not chosen yet.
+
+#### First Confirmed Choice
+
+- Volume: 1
+- Chapter: 30
+- Context: Klein tells Dunn that he chooses Seer.
+- Reader knowledge state: The reader knows the event is now committed as Klein's selected pathway, but the status change has not happened yet.
+
+#### First Formal Completion
+
+- Volume: 1
+- Chapter: 31
+- Context: Klein consumes the Seer potion.
+- Reader knowledge state: The reader can now treat Klein becoming a Seer as an accomplished status change.
 
 ### Donghua
 
