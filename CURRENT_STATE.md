@@ -13,12 +13,14 @@ Volume 1 foundation threads
 ↓
 Church of Evernight / Tingen Nighthawks
 ↓
-Next bounded review arc: Novel Chapters 34-40
+Current verified boundary: Novel Chapter 40
+↓
+Next bounded review arc: TBD
 ```
 
 Current question:
 
-> What new Church/Nighthawks institutional knowledge, if any, appears as Klein begins post-potion practice, early Seer work, and Old Neil's mysticism curriculum?
+> What new Church/Nighthawks institutional knowledge, if any, appears after the Chapter 34-40 early field-practice arc?
 
 Working rule for the next pass: update the Church thread only when the Church/Nighthawks institutional model changes. Route subject-specific material to Old Neil, Seer Pathway, Beyonders, or a future Divination concept thread as appropriate.
 
@@ -43,7 +45,7 @@ Percentages are chapter-boundary approximations for Novel Volume 1 using 213 cha
 
 | Thread | Type | Current Boundary | Volume 1 Progress | Status Notes |
 | --- | --- | --- | ---: | --- |
-| [Church of Evernight](Glossary_Threads/Factions/faction-church-of-evernight.md) | Faction | Novel Chapter 33; Donghua pending | 33/213, 15.5% | Active focus. Next arc: Chapters 34-40. |
+| [Church of Evernight](Glossary_Threads/Factions/faction-church-of-evernight.md) | Faction | Novel Chapter 40; Donghua pending | 40/213, 18.8% | Active focus. Chapters 34-40 added Antigonus historical stakes and Nighthawk monitoring of occult-adjacent civilian spaces. |
 | [Old Neil](Glossary_Threads/Characters/character-old-neil.md) | Character | Novel Chapter 34; Donghua pending | 34/213, 16.0% | Foundation pilot through early instruction period. |
 | [Beyonders](Glossary_Threads/Concepts/concept-beyonders.md) | Concept | Novel Chapter 34; Donghua pending | 34/213, 16.0% | Parent concept pilot; broader mechanics deferred. |
 | [Klein Becomes a Seer](Glossary_Threads/Events/event-klein-becomes-a-seer.md) | Event | Novel Chapter 34; Donghua pending | 34/213, 16.0% | Event pilot for offer, choice, potion, and immediate aftermath. |

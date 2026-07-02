@@ -10,24 +10,24 @@ What does the novel reader know about the Church of Evernight, its Nighthawks or
 
 ## Status
 
-In Progress. The opening institutional disclosure from Chapters 1-19, the bridge arc through Chapters 20-26, the pathway access arc through Chapters 28-31, and the post-potion training arc through Chapters 32-33 are EPUB verified. The chronological sweep beyond Chapter 33 is intentionally paused for user-guided review.
+In Progress. The opening institutional disclosure from Chapters 1-19, the bridge arc through Chapters 20-26, the pathway access arc through Chapters 28-31, the post-potion training arc through Chapters 32-33, and the Chapter 34-40 early field-practice arc are EPUB verified. The chronological sweep beyond Chapter 40 is intentionally paused for user-guided review.
 
 ## Scope
 
 ### Endpoint Event
 
-The complete Volume 1 reader-disclosure timeline for the Church of Evernight and the Tingen Nighthawks, built chronologically in bounded arcs. Current verified endpoint is Chapter 33.
+The complete Volume 1 reader-disclosure timeline for the Church of Evernight and the Tingen Nighthawks, built chronologically in bounded arcs. Current verified endpoint is Chapter 40.
 
 ### Investigation Window
 
-Volume 1, Chapters 1-213. Current active review window: Chapters 1-33.
+Volume 1, Chapters 1-213. Current active review window: Chapters 1-40.
 
 ## Search Strategy
 
 - Initial terms, names, and aliases: Evernight, Evernight Goddess, Church of Evernight, Nighthawk, Dunn Smith, Leonard Mitchell, Blackthorn Security Company
 - Related effects, events, characters, locations, or motifs: police inspectors, Beyonder teams, official Beyonders, Seventh Unit, Special Operations Department, Saint Selena Cathedral, Chanis Gate, civilian staff, Sealed Artifacts
-- Terms discovered during the investigation: Mandated Punishers, Machinery Hivemind, Church and police funding, tribunal courts, Archbishop Chanis, Keepers, Holy Cathedral, Special Operations badge, Zouteland Shooting Club, Sleepless, Midnight Poet, Nightmare, Saint Selena Cathedral route, Secret Order, Moses Ascetic Order, Corpse Collector, Seer, alchemy room, Cogitation, Spirit Vision, ritualistic magic
-- Completeness sweep: Current bounded sweep complete through Chapter 33. Later speedrun findings are not treated as finalized until reviewed in chronological arcs with the user.
+- Terms discovered during the investigation: Mandated Punishers, Machinery Hivemind, Church and police funding, tribunal courts, Archbishop Chanis, Keepers, Holy Cathedral, Special Operations badge, Zouteland Shooting Club, Sleepless, Midnight Poet, Nightmare, Saint Selena Cathedral route, Secret Order, Moses Ascetic Order, Corpse Collector, Seer, alchemy room, Cogitation, Spirit Vision, ritualistic magic, Antigonus family, Bredt, Divination Club, expense approval, external monitoring
+- Completeness sweep: Current bounded sweep complete through Chapter 40. Later speedrun findings are not treated as finalized until reviewed in chronological arcs with the user.
 
 ## Evidence
 
@@ -234,6 +234,48 @@ Volume 1, Chapters 1-213. Current active review window: Chapters 1-33.
 - Dunn later cautions Klein not to probe murmurings or existences that a Beyonder should not perceive.
 - Why it matters: The Church/Nighthawks environment becomes a spiritually secured training space, and its safety culture is reinforced through both Old Neil's practical instruction and Dunn's broader loss-of-control warning.
 
+### Check 13: Antigonus Stakes and Early Independent Practice
+
+#### Chapter 34
+
+- Klein applies Old Neil's Spirit Vision instruction above the gray fog during the Tarot gathering.
+- Alger teaches Audrey post-potion Cogitation basics, reinforcing that controlled spirituality practice is not unique to the Nighthawks.
+- Why it matters: This chapter mainly advances Seer/Beyonder practice rather than the Church institutional model.
+
+#### Chapter 35
+
+- Alger says the Secret Order's lost Antigonus family notebook is also known to connected Beyonder circles, not only to the Tingen Nighthawks.
+- Alger states that the Antigonus family was destroyed by the Church of Evernight, though he is unsure whether this happened at the end of the Fourth Epoch or early in the present epoch.
+- Klein realizes the Church/Nighthawks' interest in the notebook is far more serious than he had appreciated and reinterprets his own value as a spiritually sensitive search aid.
+- Why it matters: The notebook stops being only a dangerous local case file. It becomes tied to older Church history and a larger institutional stake.
+
+#### Chapter 36
+
+- Klein ends the Tarot gathering early because Alger's information has changed his understanding of the Nighthawks' true attitude toward the Antigonus notebook.
+- Klein decides he must search seriously enough that Dunn will not become suspicious of his home activity.
+- Why it matters: This is not a new Church procedure, but it shows Klein adjusting his behavior in response to the now clearer Nighthawk priority.
+
+### Check 14: Routine Work, Roster Detail, and External Monitoring
+
+#### Chapters 37-38
+
+- Klein continues treating Blackthorn Security Company as his workplace and resource point, including plans to retrieve daily bullets and practice because a Seer lacks quick direct combat methods.
+- Why it matters: These chapters reinforce the Nighthawks' routine support structure but do not materially change the institutional model.
+
+#### Chapter 39
+
+- Rozanne introduces Bredt as a colleague, confirming another local staff member in the Tingen workplace.
+- Bredt already knows Klein has become a Beyonder, showing Klein's status change is ordinary workplace knowledge inside the team.
+- Why it matters: This is a roster/workplace detail rather than a major structural reveal, but it further fills in the civilian-staff side of the local Nighthawks.
+
+#### Chapter 40
+
+- Old Neil patrols the armory, storeroom, and archives while teaching Klein, reinforcing that civilian staff work includes restricted-space duties.
+- Old Neil tells Klein that joining a Divination Club can be framed as Nighthawk work because such places may contain cultists or members of evil organizations.
+- Old Neil explains that the Nighthawks regularly monitor such places but lack the manpower for sustained watch, so Klein's membership can help cover that gap.
+- Old Neil says Klein can apply to Dunn for expense approval, and Klein decides to report it to the captain.
+- Why it matters: The Nighthawks' work expands beyond reactive cases and guarded facilities into external surveillance of occult-adjacent civilian spaces. It also shows that Klein's civilian-staff/Beyonder hybrid status can become operationally useful outside Blackthorn.
+
 ## Interim Conclusions
 
 ### Opening Disclosure Structure
@@ -253,6 +295,8 @@ The novel does not introduce the Church of Evernight and the Nighthawks in one e
 11. Dunn's dream warning as a bridge from surveillance to Secret Order follow-up.
 12. Church-controlled pathway access, incomplete formula chains, and Klein's Seer choice.
 13. Post-potion training, Spirit Vision instruction, and the headquarters' spiritual security.
+14. Antigonus notebook stakes as older Church history.
+15. External monitoring of occult-adjacent civilian spaces through Klein's developing Seer role.
 
 This staging means first mention, first appearance, first identifiable appearance, and first complete institutional explanation must remain separate disclosure points.
 
@@ -280,9 +324,13 @@ Chapters 28-31 turn pathway knowledge into institutional procedure. The Church c
 
 Chapters 32-33 show what Church-supported advancement looks like after the potion is consumed. Old Neil immediately teaches Klein Cogitation and Spirit Vision, while Dunn reinforces caution against dangerous perception. The Nighthawks' local headquarters is also clarified as spiritually secured space beneath the Church of Evernight, not merely a hidden office.
 
+### Early Field-Practice Arc
+
+Chapters 34-40 mostly develop Klein's Seer practice, but they add two durable Church/Nighthawks updates. Chapter 35 ties the Antigonus notebook to older Church of Evernight history through Alger's claim that the Church destroyed the Antigonus family. Chapter 40 shows how Klein's civilian-staff/Beyonder role can become external monitoring work, with Dunn able to approve expenses when occult-adjacent civilian spaces such as a Divination Club are treated as surveillance targets.
+
 ## Board Updates
 
-- Board 1: Possible update after user review. Chapters 20-33 clarify the Church/Nighthawks as Klein's first workplace, operational refuge, controlled entry point into Beyonder pathway selection, and post-potion training environment.
+- Board 1: Possible update after user review. Chapters 20-40 clarify the Church/Nighthawks as Klein's first workplace, operational refuge, controlled entry point into Beyonder pathway selection, post-potion training environment, and external-monitoring institution.
 - Board 2: No update. The verified opening sequence does not materially change the ancient-history or family chronology.
 
 ## Open Questions
@@ -291,3 +339,4 @@ Chapters 32-33 show what Church-supported advancement looks like after the potio
 - Should the Selena/St. Selena naming detail be held for a later location/saint-specific thread rather than the main Church article?
 - Should the Chapter 28 pathway-choice explanation expand the existing `Sleepless` knowledge unit or be represented as a separate Church pathway-access unit?
 - Should Spirit Vision and Cogitation receive concept threads now, or remain inside pathway/training notes until they recur more heavily?
+- Should the Divination Club become a location thread once Klein formally joins, or remain inside Seer/Divination concept notes until it develops more sustained plot significance?

@@ -5,10 +5,10 @@
 Type: Faction
 Status: Active
 First Mention Volume: 1
-Current Analysis Status: Novel reveal timeline verified through Chapter 33; Donghua verification not started
+Current Analysis Status: Novel reveal timeline verified through Chapter 40; Donghua verification not started
 Confidence Level: Strong Evidence
 Spoiler Boundary: Volume 1
-Reader Knowledge Boundary: Novel Chapter 33; Donghua Season 1
+Reader Knowledge Boundary: Novel Chapter 40; Donghua Season 1
 Tags: volume-1, reader-knowledge, worldbuilding, faction
 Last Updated: 2026-07-01
 
@@ -18,6 +18,7 @@ Related Threads:
 - [Beyonders](../Concepts/concept-beyonders.md)
 - [Seer Pathway](../Pathways/pathway-seer.md)
 - [Old Neil](../Characters/character-old-neil.md)
+- concept-divination.md
 
 Related Investigations:
 - [Church of Evernight Volume 1 Reveal Timeline](../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
@@ -37,8 +38,8 @@ Later information about the Church of Evernight, its high-level structure, its h
 ## Reader Knowledge Boundary
 
 - Novel Volume: 1
-- Novel Chapter: 33
-- Reader knowledge state: The reader knows the Church of Evernight as a major orthodox Church, the parent institution for the Tingen Nighthawks, the custodian of Chanis Gate and Sealed Artifacts, a practical institutional refuge through Saint Selena Cathedral, the controlled pathway-access route through which Klein becomes a Seer while remaining civilian staff, and the post-potion training environment where Old Neil teaches Klein basic Beyonder control.
+- Novel Chapter: 40
+- Reader knowledge state: The reader knows the Church of Evernight as a major orthodox Church, the parent institution for the Tingen Nighthawks, the custodian of Chanis Gate and Sealed Artifacts, a practical institutional refuge through Saint Selena Cathedral, the controlled pathway-access route through which Klein becomes a Seer while remaining civilian staff, the post-potion training environment where Old Neil teaches Klein basic Beyonder control, an institution with older historical stakes around the Antigonus family, and an organization that monitors occult-adjacent civilian spaces such as divination clubs when manpower allows.
 - Donghua: Season 1
 - Donghua viewer knowledge state: Not yet verified for this thread.
 
@@ -133,12 +134,20 @@ Later information about the Church of Evernight, its high-level structure, its h
 - What remains unknown: The full curriculum, how much of Klein's future training is standardized, and the exact safeguards protecting the local headquarters remain unclear.
 - Why it matters: The Church/Nighthawks become a supervised training environment, not only a custody institution or employer.
 
+#### Chapters 34-40: Antigonus Stakes and External Monitoring
+
+- What the reader learns: Alger's Chapter 35 information ties the Antigonus family notebook to older Church of Evernight history by claiming that the Church destroyed the Antigonus family. Chapter 39 introduces Bredt as another local colleague, and Chapter 40 shows Old Neil patrolling restricted facilities while explaining that Klein's future Divination Club membership can be treated as Nighthawk monitoring work.
+- What changes: The Antigonus notebook becomes more than a local missing-object problem, while Klein's new Seer status starts becoming useful outside Blackthorn through surveillance of occult-adjacent civilian spaces.
+- Institutional detail: Old Neil says Dunn can approve Klein's Divination Club expenses because such places may contain cultists or members of evil organizations, and the Nighthawks lack enough manpower for sustained monitoring.
+- What remains unknown: The exact Church-Antigonus history, whether Dunn will approve the expense, how formal the external-monitoring arrangement becomes, and whether Bredt is a formal Nighthawk or civilian staff remain unclear.
+- Why it matters: The Church/Nighthawks model expands from guarded headquarters and case response into older historical stakes and proactive monitoring of public occult environments.
+
 #### Volume 1 Synthesis: Known Institutional Facets
 
-- What the reader learns: By Chapter 33, the Church of Evernight has appeared as public religion, civic institution, orthodox Beyonder gateway, parent organization of the Tingen Nighthawks, guardian of Chanis Gate, holder of formulas and materials, operator of a concealed local complex connected with Saint Selena Cathedral, and supervised training environment for a newly advanced Beyonder.
+- What the reader learns: By Chapter 40, the Church of Evernight has appeared as public religion, civic institution, orthodox Beyonder gateway, parent organization of the Tingen Nighthawks, guardian of Chanis Gate, holder of formulas and materials, operator of a concealed local complex connected with Saint Selena Cathedral, supervised training environment for a newly advanced Beyonder, historical force tied to the Antigonus family, and monitor of occult-adjacent civilian spaces.
 - What changes: The Church is no longer only a social or religious presence; it is now Klein's employer, training environment, supernatural resource network, and controlled path into becoming a Beyonder.
 - Nighthawks status: The Tingen Nighthawks are the Church's official local Beyonder organization, operating behind Blackthorn Security Company and supported by civilian staff such as Klein, Rozanne, and Mrs. Orianna.
-- Red Gloves status: The Red Gloves belong under the broader Nighthawks umbrella, but they have not yet been introduced at the Chapter 31 reader boundary.
+- Red Gloves status: The Red Gloves belong under the broader Nighthawks umbrella, but they have not yet been introduced at the Chapter 40 reader boundary.
 - What remains unknown: The exact larger hierarchy, full roster, full artifact catalog, all Church-held pathway options, Red Gloves role, deeper institutional history, complete operating rules, and full training curriculum remain outside the current boundary.
 - Why it matters: This synthesis keeps the Church's early facets visible without replacing the chapter-by-chapter reveal chronology that controls spoiler-safe reader knowledge.
 
@@ -201,6 +210,7 @@ Use Markdown links when the target file exists. Mention a nonexistent thread as 
 ### Associated Artifacts
 
 - [0-08](../Artifacts/artifact-0-08.md)
+- artifact-antigonus-notebook.md
 
 ### Associated Factions
 
@@ -353,11 +363,31 @@ relationships:
     status: active
     confidence: confirmed
     notes: Dunn identifies Spirit Medium as the Corpse Collector pathway's Sequence 7 and says Daly chose it.
+  - source: faction-church-of-evernight
+    target: artifact-antigonus-notebook
+    relationship_type: investigates
+    start:
+      medium: novel
+      volume: 1
+      chapter: 35
+    status: active
+    confidence: strong-evidence
+    notes: Chapter 35 makes the notebook's Church significance clearer when Alger states that the Church of Evernight destroyed the Antigonus family and Klein reassesses the Nighthawks' interest in recovering the notebook.
+  - source: character-klein-moretti
+    target: concept-divination
+    relationship_type: uses-method
+    start:
+      medium: novel
+      volume: 1
+      chapter: 40
+    status: active
+    confidence: confirmed
+    notes: Klein plans to join a Divination Club to become a real Seer, and Old Neil frames that membership as useful Nighthawk monitoring work.
 ```
 
 ## Evidence Index
 
-- Novel Chapters: 1, 3, 6, 10, 12-22, 25-33
+- Novel Chapters: 1, 3, 6, 10, 12-22, 25-40
 - Donghua Episode: TBD
 
 ## Reader Knowledge Ledger
@@ -1009,6 +1039,102 @@ last_updated: 2026-07-01
 - Chapter 31 shows the Church/Nighthawks formula and material pipeline for Klein's Seer potion.
 - Chapter 32 immediately shifts into supervised training, with Old Neil teaching Cogitation and Spirit Vision after Klein advances.
 - Chapter 33 clarifies that the headquarters beneath the Church of Evernight is spiritually secured Nighthawk space and pairs Old Neil's practical instruction with Dunn's caution against dangerous perception.
+
+#### Adaptation Analysis
+
+- Donghua timing remains unverified for this knowledge unit.
+
+### Knowledge Unit: Antigonus Family as Church Historical Stake
+
+```yaml
+id: church-evernight-antigonus-family-historical-stake
+claim: By Chapter 35, the reader learns that the Antigonus family notebook matters to the Church of Evernight because Alger says the Church destroyed the Antigonus family in an earlier era.
+truth_status: true
+confidence_level: strong-evidence
+canon_scope: novel
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: 35
+  notes: Alger states that the Church of Evernight destroyed the Antigonus family, though he is unsure whether this happened near the end of the Fourth Epoch or early in the present epoch.
+tags:
+  - volume-1
+  - reader-knowledge
+  - reveal-order
+  - faction
+  - historical-context
+  - artifact
+disclosures:
+  - medium: novel
+    knowledge_state: strong-evidence
+    disclosure_type: explicit-reveal
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 35
+    superseded_at:
+    superseded_by:
+related_investigations:
+  - ../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-07-01
+```
+
+#### Reader-State History
+
+- Before Chapter 35, the reader knows the Nighthawks want the Antigonus notebook but does not yet understand why the Church may have an older institutional stake in it.
+- Chapter 35 adds Alger's historical claim and causes Klein to reassess the seriousness of the Nighthawks' notebook priority.
+- The exact historical timing and full Church-Antigonus context remain outside the current boundary.
+
+#### Adaptation Analysis
+
+- Donghua timing remains unverified for this knowledge unit.
+
+### Knowledge Unit: Nighthawks Monitor Occult-Adjacent Civilian Spaces
+
+```yaml
+id: church-evernight-external-occult-space-monitoring
+claim: The Tingen Nighthawks monitor occult-adjacent civilian spaces such as divination clubs, and Klein's membership can be treated as useful work because the team lacks manpower for sustained surveillance.
+truth_status: true
+confidence_level: confirmed
+canon_scope: novel
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: 40
+  notes: Old Neil explains that divination clubs may contain cultists or evil-organization members, that the Nighthawks regularly monitor such places, and that Klein can ask Dunn to approve the expenses.
+tags:
+  - volume-1
+  - reader-knowledge
+  - reveal-order
+  - faction
+  - divination
+  - worldbuilding
+disclosures:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 40
+    superseded_at:
+    superseded_by:
+related_investigations:
+  - ../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-07-01
+```
+
+#### Reader-State History
+
+- Earlier chapters show the Nighthawks reacting to specific supernatural cases and guarding restricted facilities.
+- Chapter 40 expands the model to proactive monitoring of public occult spaces where cultists or evil-organization members may appear.
+- Klein's hybrid status as civilian staff and new Beyonder becomes operationally useful outside the hidden headquarters.
 
 #### Adaptation Analysis
 
