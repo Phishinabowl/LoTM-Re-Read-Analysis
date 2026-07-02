@@ -162,7 +162,7 @@ Do not add later history, occupants, institutional changes, or consequences unti
 ### Associated Characters
 
 - character-klein-moretti.md
-- character-dunn-smith.md
+- [Dunn Smith](../Characters/character-dunn-smith.md)
 - character-leonard-mitchell.md
 - character-ince-zangwill.md
 

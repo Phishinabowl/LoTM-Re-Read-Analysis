@@ -10,7 +10,7 @@ Confidence Level: Strong Evidence
 Spoiler Boundary: Volume 1
 Reader Knowledge Boundary: Novel Chapter 34; Donghua Season 1
 Tags: volume-1, reader-knowledge, pathway, concept
-Last Updated: 2026-07-01
+Last Updated: 2026-07-02
 
 Related Threads:
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
@@ -166,7 +166,7 @@ Later Seer pathway names, higher Sequences, future acting-method developments, a
 
 - character-klein-moretti.md
 - [Old Neil](../Characters/character-old-neil.md)
-- character-dunn-smith.md
+- [Dunn Smith](../Characters/character-dunn-smith.md)
 - character-roselle-gustav.md
 
 ### Associated Pathways

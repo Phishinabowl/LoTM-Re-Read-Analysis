@@ -19,7 +19,7 @@ Related Threads:
 - [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
 - [Seer Pathway](../Pathways/pathway-seer.md)
 - character-klein-moretti.md
-- character-dunn-smith.md
+- [Dunn Smith](../Characters/character-dunn-smith.md)
 - [Old Neil](../Characters/character-old-neil.md)
 - character-leonard-mitchell.md
 
@@ -162,7 +162,7 @@ Do not add later Volume 1 crisis material, 0-08/Megose material, final battle st
 - [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
 - [Seer Pathway](../Pathways/pathway-seer.md)
 - character-klein-moretti.md
-- character-dunn-smith.md
+- [Dunn Smith](../Characters/character-dunn-smith.md)
 - [Old Neil](../Characters/character-old-neil.md)
 - character-leonard-mitchell.md
 
@@ -186,7 +186,7 @@ Do not add later Volume 1 crisis material, 0-08/Megose material, final battle st
 ### Associated Characters
 
 - character-klein-moretti.md
-- character-dunn-smith.md
+- [Dunn Smith](../Characters/character-dunn-smith.md)
 - [Old Neil](../Characters/character-old-neil.md)
 - character-leonard-mitchell.md
 - character-frye.md
@@ -253,6 +253,16 @@ relationships:
     status: active
     confidence: confirmed
     notes: Old Neil is part of the civilian staff and performs restricted-duty work tied to Blackthorn's hidden facilities.
+  - source: character-dunn-smith
+    target: location-blackthorn-security-company
+    relationship_type: works-at
+    start:
+      medium: novel
+      volume: 1
+      chapter: 17
+    status: active
+    confidence: confirmed
+    notes: Dunn operates through Blackthorn as the Tingen team's captain, recruiter, resource approver, and field-response coordinator.
   - source: location-blackthorn-security-company
     target: event-klein-becomes-a-seer
     relationship_type: event-location

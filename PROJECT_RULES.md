@@ -591,6 +591,7 @@ parent-organization
 colleague
 superior
 subordinate
+leader-of
 mentor
 student
 enemy
@@ -666,6 +667,8 @@ Event relationship direction should be consistent:
 - `event-outcome` should point outward from the event to the durable result, status change, relationship, or downstream condition.
 
 Use `civilian-staff-of` when a character is confirmed as civilian staff within an organization but is not yet a formal member of the organization's Beyonder team. Use `member-of` only when the broader membership relationship is accurate enough for the current reader boundary, or when a more specific staff/member type is not needed.
+
+Use `leader-of` when a person is confirmed as the captain, commander, head, or operational leader of a faction, organization, or team. Use `superior` and `subordinate` for person-to-person reporting relationships.
 
 Use controlled relationship status values:
 

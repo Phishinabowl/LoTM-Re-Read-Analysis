@@ -144,7 +144,7 @@ Later Old Neil developments, emotional consequences, and retrospective meaning m
 ### Directly Related
 
 - character-klein-moretti.md
-- character-dunn-smith.md
+- [Dunn Smith](character-dunn-smith.md)
 - [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
 - [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
@@ -172,7 +172,7 @@ Later Old Neil developments, emotional consequences, and retrospective meaning m
 ### Associated Characters
 
 - character-klein-moretti.md
-- character-dunn-smith.md
+- [Dunn Smith](character-dunn-smith.md)
 - character-rozanne.md
 
 ### Associated Pathways

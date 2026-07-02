@@ -10,7 +10,7 @@ Confidence Level: Confirmed
 Spoiler Boundary: Volume 1
 Reader Knowledge Boundary: Novel Chapter 47; Donghua Season 1
 Tags: volume-1, reader-knowledge, reveal-order, worldbuilding, concept, divination
-Last Updated: 2026-07-01
+Last Updated: 2026-07-02
 
 Related Threads:
 - [Seer Pathway](../Pathways/pathway-seer.md)
@@ -175,7 +175,7 @@ Do not import later divination rules, high-sequence mechanics, gray-fog refineme
 
 - character-klein-moretti.md
 - [Old Neil](../Characters/character-old-neil.md)
-- character-dunn-smith.md
+- [Dunn Smith](../Characters/character-dunn-smith.md)
 - character-leonard-mitchell.md
 
 ### Associated Pathways

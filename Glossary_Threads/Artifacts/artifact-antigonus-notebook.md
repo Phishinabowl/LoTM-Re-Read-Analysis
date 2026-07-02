@@ -17,7 +17,7 @@ Related Threads:
 - [Old Neil](../Characters/character-old-neil.md)
 - [Seer Pathway](../Pathways/pathway-seer.md)
 - character-klein-moretti.md
-- character-dunn-smith.md
+- [Dunn Smith](../Characters/character-dunn-smith.md)
 - character-leonard-mitchell.md
 - character-azik-eggers.md
 - character-ray-bieber.md
@@ -170,7 +170,7 @@ Later revelations about the notebook's origin, contents, current possessor, caus
 - [Divination](../Concepts/concept-divination.md)
 - [Blackthorn Security Company](../Locations/location-blackthorn-security-company.md)
 - character-klein-moretti.md
-- character-dunn-smith.md
+- [Dunn Smith](../Characters/character-dunn-smith.md)
 - character-leonard-mitchell.md
 
 ### Historical Connections
@@ -198,7 +198,7 @@ Later revelations about the notebook's origin, contents, current possessor, caus
 ### Associated Characters
 
 - character-klein-moretti.md
-- character-dunn-smith.md
+- [Dunn Smith](../Characters/character-dunn-smith.md)
 - character-leonard-mitchell.md
 - [Old Neil](../Characters/character-old-neil.md)
 - character-azik-eggers.md
@@ -232,6 +232,16 @@ relationships:
     status: active
     confidence: confirmed
     notes: Klein investigates the notebook's role in the original Klein's death, later uses Seer intuition to identify a notebook-related lead, and reports it to the Nighthawks.
+  - source: character-dunn-smith
+    target: artifact-antigonus-notebook
+    relationship_type: investigates
+    start:
+      medium: novel
+      volume: 1
+      chapter: 13
+    status: active
+    confidence: confirmed
+    notes: Dunn identifies the missing notebook as central to the early case and later mobilizes a field team around Klein's lead.
   - source: faction-nighthawks
     target: artifact-antigonus-notebook
     relationship_type: investigates

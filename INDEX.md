@@ -42,6 +42,15 @@ Navigation hub for the reread analysis workspace.
 
 ### Characters
 
+#### Dunn Smith
+
+- Glossary: [Dunn Smith](Glossary_Threads/Characters/character-dunn-smith.md)
+- Supporting Investigations:
+  - [Dunn Smith Novel Volume 1 Reveal Timeline](Investigations/Characters/character-dunn-smith/novel-volume-1-reveal-timeline.md)
+  - [Church of Evernight Volume 1 Reveal Timeline](Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
+  - [Blackthorn Security Company Novel Volume 1 Reveal Timeline](Investigations/Locations/location-blackthorn-security-company/novel-volume-1-reveal-timeline.md)
+  - [Klein Becomes a Seer Novel Volume 1 Event Timeline](Investigations/Events/event-klein-becomes-a-seer/novel-volume-1-reveal-timeline.md)
+
 #### Old Neil
 
 - Glossary: [Old Neil](Glossary_Threads/Characters/character-old-neil.md)

@@ -208,7 +208,7 @@ Use Markdown links when the target file exists. Mention a nonexistent thread as 
 - [Old Neil](../Characters/character-old-neil.md)
 - [Divination](../Concepts/concept-divination.md)
 - character-klein-moretti.md
-- character-dunn-smith.md
+- [Dunn Smith](../Characters/character-dunn-smith.md)
 - character-leonard-mitchell.md
 
 ### Historical Connections
@@ -275,6 +275,16 @@ relationships:
     status: active
     confidence: confirmed
     notes: Dunn is the Tingen Nighthawks captain and a primary representative of Church procedure in Volume 1.
+  - source: character-dunn-smith
+    target: faction-nighthawks
+    relationship_type: leader-of
+    start:
+      medium: novel
+      volume: 1
+      chapter: 17
+    status: active
+    confidence: confirmed
+    notes: Dunn is the captain/operational leader of the Tingen Nighthawks by the time Klein enters the Blackthorn workplace structure.
   - source: character-old-neil
     target: faction-church-of-evernight
     relationship_type: civilian-staff-of
@@ -313,7 +323,7 @@ relationships:
       volume: 1
       chapter: 22
     status: active
-    confidence: strong-inference
+    confidence: strong-evidence
     notes: Rozanne implies Dunn is one of Tingen's Sequence 7 Beyonders after Klein connects Nightmare to Dunn entering his dream; Chapter 22 places Nightmare in the Sleepless pathway.
   - source: character-old-neil
     target: pathway-mystery-pryer

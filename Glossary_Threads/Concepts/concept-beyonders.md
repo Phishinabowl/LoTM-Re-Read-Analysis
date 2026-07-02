@@ -138,7 +138,7 @@ Later explanations of Beyonder characteristics, pathway structure, acting method
 
 - character-klein-moretti.md
 - [Old Neil](../Characters/character-old-neil.md)
-- character-dunn-smith.md
+- [Dunn Smith](../Characters/character-dunn-smith.md)
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
 - [Seer Pathway](../Pathways/pathway-seer.md)
 - [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
@@ -169,7 +169,7 @@ Later explanations of Beyonder characteristics, pathway structure, acting method
 
 - character-klein-moretti.md
 - [Old Neil](../Characters/character-old-neil.md)
-- character-dunn-smith.md
+- [Dunn Smith](../Characters/character-dunn-smith.md)
 - character-leonard-mitchell.md
 - character-roselle-gustav.md
 

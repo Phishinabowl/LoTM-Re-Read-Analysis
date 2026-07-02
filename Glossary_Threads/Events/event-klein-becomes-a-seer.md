@@ -140,7 +140,7 @@ Later consequences of Klein's Seer pathway, later acting-method development, lat
 
 - character-klein-moretti.md
 - [Old Neil](../Characters/character-old-neil.md)
-- character-dunn-smith.md
+- [Dunn Smith](../Characters/character-dunn-smith.md)
 - [Seer Pathway](../Pathways/pathway-seer.md)
 - [Beyonders](../Concepts/concept-beyonders.md)
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
@@ -172,7 +172,7 @@ Later consequences of Klein's Seer pathway, later acting-method development, lat
 
 - character-klein-moretti.md
 - [Old Neil](../Characters/character-old-neil.md)
-- character-dunn-smith.md
+- [Dunn Smith](../Characters/character-dunn-smith.md)
 
 ### Associated Pathways
 
@@ -212,7 +212,7 @@ relationships:
       medium: novel
       volume: 1
       chapter: 28
-    status: active
+    status: completed
     confidence: confirmed
     notes: Dunn authorizes the opportunity, explains the options, and clarifies that Klein remains civilian staff after advancement.
   - source: event-klein-becomes-a-seer
