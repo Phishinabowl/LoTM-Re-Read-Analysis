@@ -6,27 +6,27 @@
 
 ## Question
 
-What does the novel reader know about Old Neil through Chapter 34, especially his role inside the Tingen Nighthawks, his pathway status, and his early relationship to Klein?
+What does the novel reader know about Old Neil through Chapter 47, especially his role inside the Tingen Nighthawks, his pathway status, his early relationship to Klein, and the additional workplace details surfaced during the Church/Nighthawks investigation?
 
 ## Status
 
-In Progress. Verified through Chapter 34 for the current character-page pilot. Later Volume 1 developments remain outside this boundary.
+In Progress. Verified through Chapter 47 for the current character-page pilot, using Chapters 41-47 evidence surfaced during the Church/Nighthawks investigation. Later Volume 1 developments remain outside this boundary.
 
 ## Scope
 
 ### Endpoint Event
 
-Old Neil's early role as civilian staff, Mystery Pryer, Roselle diary interpreter contact, formula/material custodian, and Klein's first practical mysticism instructor.
+Old Neil's early role as civilian staff, Mystery Pryer, Roselle diary interpreter contact, formula/material custodian, Klein's first practical mysticism instructor, field-response participant, and long-serving dual Church/police employee.
 
 ### Investigation Window
 
-Volume 1, Chapters 1-34. Current active review window: Chapters 19-34.
+Volume 1, Chapters 1-47. Current active review window: Chapters 19-47.
 
 ## Search Strategy
 
 - Initial terms, names, and aliases: Old Neil, Neil
-- Related effects, events, characters, locations, or motifs: Mystery Pryer, Roselle diary, Seer formula, Chanis Gate, alchemy room, Cogitation, Spirit Vision, ritualistic magic, remnant spiritualities
-- Completeness sweep: Current bounded sweep complete through Chapter 34. Later Old Neil material is intentionally excluded until reviewed with the user.
+- Related effects, events, characters, locations, or motifs: Mystery Pryer, Roselle diary, Seer formula, Chanis Gate, alchemy room, Cogitation, Spirit Vision, ritualistic magic, remnant spiritualities, armory watch, field response, Antigonus notebook, Church salary, police salary
+- Completeness sweep: Current bounded sweep complete through Chapter 47 as a companion update to the Church/Nighthawks arc. Later Old Neil material is intentionally excluded until reviewed with the user.
 
 ## Evidence
 
@@ -91,9 +91,31 @@ Volume 1, Chapters 1-34. Current active review window: Chapters 19-34.
 - Alger's explanation of Cogitation overlaps with Old Neil's earlier instruction but is not an Old Neil scene.
 - Why it matters: Chapter 34 confirms that Old Neil's teaching has already become part of Klein's working interpretive toolkit, but it does not add a major new Old Neil disclosure.
 
+### Check 7: Restricted-Duty Work and Field Response
+
+#### Chapters 40-41
+
+- Old Neil patrols the armory, storeroom, and archives while teaching Klein.
+- Chapter 41 continues from Klein receiving historical materials and explanatory transcripts from Old Neil before returning upstairs to Blackthorn.
+- Why it matters: Old Neil's civilian staff work remains tied to restricted spaces and knowledge materials even while he mentors Klein.
+
+#### Chapters 45-46
+
+- When Klein reports a possible Antigonus notebook lead, Dunn has Kenley replace Old Neil's armory watch and brings Old Neil into the field team with Frye, Leonard, and Klein.
+- At the apartment, Old Neil uses Spirit Vision with Klein and identifies an invisible energy sealing effect consistent with ritualistic magic.
+- Why it matters: Old Neil is not only a desk-bound instructor. Even if he no longer takes ordinary missions often, he can be pulled into a specialized response where his mysticism knowledge matters.
+
+### Check 8: Compensation and Long Service
+
+#### Chapter 47
+
+- Old Neil tells Klein he receives weekly pay from both the Church and the police department.
+- His total weekly salary is twelve pounds and he says it is tax-free.
+- Why it matters: This gives the reader a concrete sense of Old Neil's long-service status and makes the Nighthawks' dual Church/police compensation model personal rather than abstract.
+
 ## Interim Conclusions
 
-### Character Role Through Chapter 34
+### Character Role Through Chapter 47
 
 Old Neil is introduced in layers:
 
@@ -103,10 +125,12 @@ Old Neil is introduced in layers:
 4. Mystery Pryer with ritual/mysticism associations.
 5. Trusted handler of formula/material access and potion preparation.
 6. Klein's first practical instructor in Cogitation, Spirit Vision, and basic mysticism safety.
+7. Occasional field-response specialist despite age and reduced ordinary mission participation.
+8. Long-serving dual Church/police employee with concrete salary information.
 
 ### Reader-State Boundary
 
-Through Chapter 34, Old Neil is reader-safe as an eccentric, humorous, knowledgeable Nighthawks civilian staff member and Mystery Pryer who mentors Klein after his Seer advancement. Later tragedy, deeper personal history, and any later reinterpretation must remain excluded.
+Through Chapter 47, Old Neil is reader-safe as an eccentric, humorous, knowledgeable Nighthawks civilian staff member and Mystery Pryer who mentors Klein after his Seer advancement, handles restricted-duty work, joins a notebook-related field response when needed, and receives long-service pay through the Church/police funding model. Later tragedy, deeper personal history, and any later reinterpretation must remain excluded.
 
 ## Board Updates
 

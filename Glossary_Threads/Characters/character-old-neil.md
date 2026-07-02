@@ -5,10 +5,10 @@
 Type: Character
 Status: Active
 First Mention Volume: 1
-Current Analysis Status: Novel reveal timeline verified through Chapter 34; Donghua verification not started
+Current Analysis Status: Novel reveal timeline verified through Chapter 47; Donghua verification not started
 Confidence Level: Strong Evidence
 Spoiler Boundary: Volume 1
-Reader Knowledge Boundary: Novel Chapter 34; Donghua Season 1
+Reader Knowledge Boundary: Novel Chapter 47; Donghua Season 1
 Tags: volume-1, reader-knowledge, character, faction
 Last Updated: 2026-07-01
 
@@ -31,15 +31,15 @@ This page should preserve Old Neil's reader-facing development without importing
 
 ## Spoiler Boundary
 
-This thread currently allows only Volume 1 knowledge up to Novel Chapter 34 and Donghua Season 1 knowledge after separate verification.
+This thread currently allows only Volume 1 knowledge up to Novel Chapter 47 and Donghua Season 1 knowledge after separate verification.
 
 Later Old Neil developments, emotional consequences, and retrospective meaning must not be added until the boundary is deliberately advanced.
 
 ## Reader Knowledge Boundary
 
 - Novel Volume: 1
-- Novel Chapter: 34
-- Reader knowledge state: The reader knows Old Neil as an eccentric and knowledgeable civilian staff member of the Tingen Nighthawks, a Mystery Pryer, a Roselle diary contact, a trusted participant in formula/material handling, and Klein's first instructor for Cogitation, Spirit Vision, and basic mysticism practice.
+- Novel Chapter: 47
+- Reader knowledge state: The reader knows Old Neil as an eccentric and knowledgeable civilian staff member of the Tingen Nighthawks, a Mystery Pryer, a Roselle diary contact, a trusted participant in formula/material handling, Klein's first instructor for Cogitation, Spirit Vision, and basic mysticism practice, an occasional field-response specialist for notebook-related work, and a long-serving employee paid through both Church and police funding.
 - Donghua: Season 1
 - Donghua viewer knowledge state: Not yet verified for this thread.
 
@@ -109,6 +109,13 @@ Later Old Neil developments, emotional consequences, and retrospective meaning m
 - What remains unknown: Whether Old Neil or the Nighthawks can understand Klein's gray-fog practice remains completely unknown to the reader at this boundary.
 - Why it matters: The page's current boundary closes with Old Neil's teaching already influencing how Klein reads supernatural phenomena.
 
+#### Chapters 40-47: Restricted-Duty Work, Field Response, and Salary
+
+- What the reader learns: Old Neil patrols restricted Nighthawks spaces, supplies Klein with historical materials, joins Dunn's field team for the Antigonus notebook lead after Kenley covers his armory watch, uses Spirit Vision at the apartment, identifies a ritual-like sealing effect, and tells Klein his weekly pay comes from both the Church and police department.
+- What changes: Old Neil's role expands from instructor/support specialist into an older, semi-retired but still operationally useful field participant.
+- What remains unknown: His exact mission limits, full salary history, tax arrangement details, and complete responsibilities inside the team remain unclear.
+- Why it matters: Old Neil becomes more textured as a working member of the Nighthawks infrastructure: knowledgeable, aging, funny, occasionally grumbling, but still trusted in specialized responses.
+
 ### Donghua
 
 #### Season 1: Foundation Pending
@@ -128,7 +135,7 @@ Later Old Neil developments, emotional consequences, and retrospective meaning m
 
 - Question: Should `Mystery Pryer`, `Cogitation`, `Spirit Vision`, and `ritualistic magic` receive separate pathway/concept threads now?
 - Current confidence: Strong Evidence that they will recur; uncertain whether to create all immediately.
-- Needs EPUB verification: No for existence through Chapter 34; yes for full concept/pathway pages.
+- Needs EPUB verification: No for existence through Chapter 47; yes for full concept/pathway pages.
 - Related investigation: [Old Neil Novel Volume 1 Reveal Timeline](../../Investigations/Characters/character-old-neil/novel-volume-1-reveal-timeline.md)
 
 ## Related Threads
@@ -249,7 +256,7 @@ relationships:
 
 ## Evidence Index
 
-- Novel Chapters: 19-22, 28, 31-34
+- Novel Chapters: 19-22, 28, 31-34, 40-47
 - Donghua Episodes: TBD
 
 ## Reader Knowledge Ledger
@@ -454,6 +461,110 @@ last_updated: 2026-07-01
 - Chapter 32 establishes the mentor/instructor role immediately after Klein advances.
 - Chapter 33 expands the instruction into Spirit Vision switching, ritualistic magic context, and potion-ingredient spirituality.
 - Chapter 34 shows Klein applying Old Neil's aura-color explanations in independent gray-fog observation.
+
+#### Adaptation Analysis
+
+- Donghua timing remains unverified for this knowledge unit.
+
+### Knowledge Unit: Old Neil Joins Notebook Field Response
+
+```yaml
+id: old-neil-notebook-field-response
+claim: Old Neil joins Dunn's field team for Klein's Antigonus notebook lead and contributes mysticism expertise at the apartment.
+truth_status: true
+confidence_level: confirmed
+canon_scope: novel
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: 45
+  notes: Dunn has Kenley replace Old Neil's armory watch, brings Old Neil into the field team, and Chapter 46 shows Old Neil using Spirit Vision and identifying a ritual-like sealing effect.
+tags:
+  - volume-1
+  - reader-knowledge
+  - reveal-order
+  - character
+  - faction
+disclosures:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 45
+    superseded_at:
+    superseded_by:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: expansion
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 46
+    superseded_at:
+    superseded_by:
+related_investigations:
+  - ../../Investigations/Characters/character-old-neil/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-07-01
+```
+
+#### Reader-State History
+
+- Earlier chapters establish Old Neil as civilian staff, instructor, and formula/material handler.
+- Chapters 45-46 show that he can still be pulled into specialized field response when his knowledge is useful.
+
+#### Adaptation Analysis
+
+- Donghua timing remains unverified for this knowledge unit.
+
+### Knowledge Unit: Old Neil Dual Church and Police Salary
+
+```yaml
+id: old-neil-dual-church-police-salary
+claim: Old Neil receives a weekly salary from both the Church and the police department, totaling twelve pounds and tax-free by his account.
+truth_status: true
+confidence_level: confirmed
+canon_scope: novel
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: 47
+  notes: Old Neil gives Klein the salary figure while discussing his money situation.
+tags:
+  - volume-1
+  - reader-knowledge
+  - reveal-order
+  - character
+  - faction
+  - worldbuilding
+disclosures:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 47
+    superseded_at:
+    superseded_by:
+related_investigations:
+  - ../../Investigations/Characters/character-old-neil/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-07-01
+```
+
+#### Reader-State History
+
+- Earlier chapters establish the dual Church/police funding model in institutional terms.
+- Chapter 47 makes that model personal and concrete through Old Neil's pay.
 
 #### Adaptation Analysis
 

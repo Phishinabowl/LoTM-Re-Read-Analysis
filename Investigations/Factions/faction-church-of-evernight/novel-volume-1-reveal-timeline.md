@@ -10,24 +10,24 @@ What does the novel reader know about the Church of Evernight, its Nighthawks or
 
 ## Status
 
-In Progress. The opening institutional disclosure from Chapters 1-19, the bridge arc through Chapters 20-26, the pathway access arc through Chapters 28-31, the post-potion training arc through Chapters 32-33, and the Chapter 34-40 early field-practice arc are EPUB verified. The chronological sweep beyond Chapter 40 is intentionally paused for user-guided review.
+In Progress. The opening institutional disclosure from Chapters 1-19, the bridge arc through Chapters 20-26, the pathway access arc through Chapters 28-31, the post-potion training arc through Chapters 32-33, the Chapter 34-40 early field-practice arc, and the Chapter 41-47 workplace/field-response arc are EPUB verified. The chronological sweep beyond Chapter 47 is intentionally paused for user-guided review.
 
 ## Scope
 
 ### Endpoint Event
 
-The complete Volume 1 reader-disclosure timeline for the Church of Evernight and the Tingen Nighthawks, built chronologically in bounded arcs. Current verified endpoint is Chapter 40.
+The complete Volume 1 reader-disclosure timeline for the Church of Evernight and the Tingen Nighthawks, built chronologically in bounded arcs. Current verified endpoint is Chapter 47.
 
 ### Investigation Window
 
-Volume 1, Chapters 1-213. Current active review window: Chapters 1-40.
+Volume 1, Chapters 1-213. Current active review window: Chapters 1-47.
 
 ## Search Strategy
 
 - Initial terms, names, and aliases: Evernight, Evernight Goddess, Church of Evernight, Nighthawk, Dunn Smith, Leonard Mitchell, Blackthorn Security Company
 - Related effects, events, characters, locations, or motifs: police inspectors, Beyonder teams, official Beyonders, Seventh Unit, Special Operations Department, Saint Selena Cathedral, Chanis Gate, civilian staff, Sealed Artifacts
-- Terms discovered during the investigation: Mandated Punishers, Machinery Hivemind, Church and police funding, tribunal courts, Archbishop Chanis, Keepers, Holy Cathedral, Special Operations badge, Zouteland Shooting Club, Sleepless, Midnight Poet, Nightmare, Saint Selena Cathedral route, Secret Order, Moses Ascetic Order, Corpse Collector, Seer, alchemy room, Cogitation, Spirit Vision, ritualistic magic, Antigonus family, Bredt, Divination Club, expense approval, external monitoring
-- Completeness sweep: Current bounded sweep complete through Chapter 40. Later speedrun findings are not treated as finalized until reviewed in chronological arcs with the user.
+- Terms discovered during the investigation: Mandated Punishers, Machinery Hivemind, Church and police funding, tribunal courts, Archbishop Chanis, Keepers, Holy Cathedral, Special Operations badge, Zouteland Shooting Club, Sleepless, Midnight Poet, Nightmare, Saint Selena Cathedral route, Secret Order, Moses Ascetic Order, Corpse Collector, Seer, alchemy room, Cogitation, Spirit Vision, ritualistic magic, Antigonus family, Bredt, Divination Club, expense approval, external monitoring, Frye, Royale Reideen, Kenley White, Seeka Tron, Raphael Cemetery, Golden Indus Borough
+- Completeness sweep: Current bounded sweep complete through Chapter 47. Later speedrun findings are not treated as finalized until reviewed in chronological arcs with the user.
 
 ## Evidence
 
@@ -276,6 +276,34 @@ Volume 1, Chapters 1-213. Current active review window: Chapters 1-40.
 - Old Neil says Klein can apply to Dunn for expense approval, and Klein decides to report it to the captain.
 - Why it matters: The Nighthawks' work expands beyond reactive cases and guarded facilities into external surveillance of occult-adjacent civilian spaces. It also shows that Klein's civilian-staff/Beyonder hybrid status can become operationally useful outside Blackthorn.
 
+### Check 15: Workplace Layout, Team Deployment, and Notebook Field Response
+
+#### Chapter 41
+
+- Klein's narration gives a practical layout of Blackthorn Security Company: reception hall, inner region, Mrs. Orianna's account room, rest room, underground stair, Dunn's office, civilian staff office, and formal Nighthawks' recreation room.
+- Rozanne and Bredt discuss that only one formal Nighthawk is present because a case with cultist elements in Golden Indus has pulled two Nighthawks through a police request.
+- Why it matters: Blackthorn becomes more spatially concrete, and the reader sees that the small team can be thinned by outside requests.
+
+#### Chapter 42
+
+- Rozanne handles a public client while the formal Nighthawks are unavailable and says the team's security personnel are out on missions.
+- The chapter lists the team's deployment: Dunn is at the cathedral for a bishop's discussion, Leonard is guarding Chanis Gate, Frye and Royale Reideen are assisting police in Golden Indus, Kenley White is on leave, and Seeka Tron is patrolling Raphael Cemetery.
+- Old Neil is described as too old and frail for missions, while Klein is too new and inadequate for field work.
+- Why it matters: This is the clearest early operational roster snapshot. The reader sees Chanis Gate guarding, cemetery patrol, police assistance, cathedral meetings, leave, and client-intake limits all functioning at once.
+
+#### Chapters 43-46
+
+- Klein's Seer intuition and search efforts point toward the missing Antigonus notebook.
+- Klein reports the lead at Blackthorn; Dunn mobilizes a field team, has Kenley cover Old Neil's armory watch, and brings Old Neil and Frye alongside Klein and Leonard.
+- The Nighthawks use their own carriage, Leonard drives, Dunn directs the search, Frye examines the corpse, Old Neil and Klein use Spirit Vision, and Leonard retrieves patrolling police for the scene.
+- The notebook itself is gone, but Klein recognizes Hornacis-related murmurs and the apartment contains signs relevant to the notebook search.
+- Why it matters: The institutional model becomes procedural. Klein's new Seer sensitivity is folded into a formal Nighthawk field response involving role assignment, restricted-duty coverage, Beyonder specialties, and ordinary police coordination.
+
+#### Chapter 47
+
+- Old Neil tells Klein that his weekly salary comes from both the Church and the police department and totals twelve pounds, tax-free.
+- Why it matters: This gives the reader a concrete compensation example for a long-serving civilian staff Beyonder and reinforces the dual Church/police funding model previously described in broader terms.
+
 ## Interim Conclusions
 
 ### Opening Disclosure Structure
@@ -297,6 +325,7 @@ The novel does not introduce the Church of Evernight and the Nighthawks in one e
 13. Post-potion training, Spirit Vision instruction, and the headquarters' spiritual security.
 14. Antigonus notebook stakes as older Church history.
 15. External monitoring of occult-adjacent civilian spaces through Klein's developing Seer role.
+16. Concrete workplace layout, deployment roster, and field-response procedure.
 
 This staging means first mention, first appearance, first identifiable appearance, and first complete institutional explanation must remain separate disclosure points.
 
@@ -328,9 +357,13 @@ Chapters 32-33 show what Church-supported advancement looks like after the potio
 
 Chapters 34-40 mostly develop Klein's Seer practice, but they add two durable Church/Nighthawks updates. Chapter 35 ties the Antigonus notebook to older Church of Evernight history through Alger's claim that the Church destroyed the Antigonus family. Chapter 40 shows how Klein's civilian-staff/Beyonder role can become external monitoring work, with Dunn able to approve expenses when occult-adjacent civilian spaces such as a Divination Club are treated as surveillance targets.
 
+### Workplace and Field-Response Arc
+
+Chapters 41-47 make the Tingen Nighthawks feel operationally real. The reader receives the most concrete Blackthorn layout so far, sees the formal Nighthawks distributed across Chanis Gate guarding, cemetery patrol, cathedral business, police assistance, leave, and unavailable-status handling, and watches Dunn assemble a field team around Klein's notebook lead. The arc also makes Old Neil's dual Church/police salary concrete.
+
 ## Board Updates
 
-- Board 1: Possible update after user review. Chapters 20-40 clarify the Church/Nighthawks as Klein's first workplace, operational refuge, controlled entry point into Beyonder pathway selection, post-potion training environment, and external-monitoring institution.
+- Board 1: Possible update after user review. Chapters 20-47 clarify the Church/Nighthawks as Klein's first workplace, operational refuge, controlled entry point into Beyonder pathway selection, post-potion training environment, external-monitoring institution, and field-response organization.
 - Board 2: No update. The verified opening sequence does not materially change the ancient-history or family chronology.
 
 ## Open Questions

@@ -13,14 +13,14 @@ Volume 1 foundation threads
 ↓
 Church of Evernight / Tingen Nighthawks
 ↓
-Current verified boundary: Novel Chapter 40
+Current verified boundary: Novel Chapter 47
 ↓
-Next bounded review arc: TBD
+Next bounded review arc: Novel Chapters 48-56
 ```
 
 Current question:
 
-> What new Church/Nighthawks institutional knowledge, if any, appears after the Chapter 34-40 early field-practice arc?
+> What new Church/Nighthawks institutional knowledge, if any, appears as the Divination Club and Hanass Vincent material begins clustering?
 
 Working rule for the next pass: update the Church thread only when the Church/Nighthawks institutional model changes. Route subject-specific material to Old Neil, Seer Pathway, Beyonders, or a future Divination concept thread as appropriate.
 
@@ -45,8 +45,8 @@ Percentages are chapter-boundary approximations for Novel Volume 1 using 213 cha
 
 | Thread | Type | Current Boundary | Volume 1 Progress | Status Notes |
 | --- | --- | --- | ---: | --- |
-| [Church of Evernight](Glossary_Threads/Factions/faction-church-of-evernight.md) | Faction | Novel Chapter 40; Donghua pending | 40/213, 18.8% | Active focus. Chapters 34-40 added Antigonus historical stakes and Nighthawk monitoring of occult-adjacent civilian spaces. |
-| [Old Neil](Glossary_Threads/Characters/character-old-neil.md) | Character | Novel Chapter 34; Donghua pending | 34/213, 16.0% | Foundation pilot through early instruction period. |
+| [Church of Evernight](Glossary_Threads/Factions/faction-church-of-evernight.md) | Faction | Novel Chapter 47; Donghua pending | 47/213, 22.1% | Active focus. Chapters 41-47 added Blackthorn layout, team deployment, field-response procedure, and Old Neil salary detail. |
+| [Old Neil](Glossary_Threads/Characters/character-old-neil.md) | Character | Novel Chapter 47; Donghua pending | 47/213, 22.1% | Updated through Church arc for restricted-duty work, notebook field response, and dual Church/police salary. |
 | [Beyonders](Glossary_Threads/Concepts/concept-beyonders.md) | Concept | Novel Chapter 34; Donghua pending | 34/213, 16.0% | Parent concept pilot; broader mechanics deferred. |
 | [Klein Becomes a Seer](Glossary_Threads/Events/event-klein-becomes-a-seer.md) | Event | Novel Chapter 34; Donghua pending | 34/213, 16.0% | Event pilot for offer, choice, potion, and immediate aftermath. |
 | [Seer Pathway](Glossary_Threads/Pathways/pathway-seer.md) | Pathway | Novel Chapter 34; Donghua pending | 34/213, 16.0% | Pathway pilot through early abilities/training. |

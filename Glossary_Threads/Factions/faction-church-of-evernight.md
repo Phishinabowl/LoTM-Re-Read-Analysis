@@ -5,10 +5,10 @@
 Type: Faction
 Status: Active
 First Mention Volume: 1
-Current Analysis Status: Novel reveal timeline verified through Chapter 40; Donghua verification not started
+Current Analysis Status: Novel reveal timeline verified through Chapter 47; Donghua verification not started
 Confidence Level: Strong Evidence
 Spoiler Boundary: Volume 1
-Reader Knowledge Boundary: Novel Chapter 40; Donghua Season 1
+Reader Knowledge Boundary: Novel Chapter 47; Donghua Season 1
 Tags: volume-1, reader-knowledge, worldbuilding, faction
 Last Updated: 2026-07-01
 
@@ -38,8 +38,8 @@ Later information about the Church of Evernight, its high-level structure, its h
 ## Reader Knowledge Boundary
 
 - Novel Volume: 1
-- Novel Chapter: 40
-- Reader knowledge state: The reader knows the Church of Evernight as a major orthodox Church, the parent institution for the Tingen Nighthawks, the custodian of Chanis Gate and Sealed Artifacts, a practical institutional refuge through Saint Selena Cathedral, the controlled pathway-access route through which Klein becomes a Seer while remaining civilian staff, the post-potion training environment where Old Neil teaches Klein basic Beyonder control, an institution with older historical stakes around the Antigonus family, and an organization that monitors occult-adjacent civilian spaces such as divination clubs when manpower allows.
+- Novel Chapter: 47
+- Reader knowledge state: The reader knows the Church of Evernight as a major orthodox Church, the parent institution for the Tingen Nighthawks, the custodian of Chanis Gate and Sealed Artifacts, a practical institutional refuge through Saint Selena Cathedral, the controlled pathway-access route through which Klein becomes a Seer while remaining civilian staff, the post-potion training environment where Old Neil teaches Klein basic Beyonder control, an institution with older historical stakes around the Antigonus family, an organization that monitors occult-adjacent civilian spaces such as divination clubs when manpower allows, and a small field-response team whose formal members rotate through Chanis Gate guarding, cemetery patrol, cathedral business, police assistance, leave, and case mobilization.
 - Donghua: Season 1
 - Donghua viewer knowledge state: Not yet verified for this thread.
 
@@ -142,12 +142,21 @@ Later information about the Church of Evernight, its high-level structure, its h
 - What remains unknown: The exact Church-Antigonus history, whether Dunn will approve the expense, how formal the external-monitoring arrangement becomes, and whether Bredt is a formal Nighthawk or civilian staff remain unclear.
 - Why it matters: The Church/Nighthawks model expands from guarded headquarters and case response into older historical stakes and proactive monitoring of public occult environments.
 
+#### Chapters 41-47: Workplace Layout, Team Deployment, and Field Response
+
+- What the reader learns: Chapter 41 gives the clearest layout so far for Blackthorn Security Company, including reception, account room, rest room, underground stair, Dunn's office, civilian staff office, and formal Nighthawks' recreation room. Chapter 42 gives a snapshot of team deployment: Dunn is at the cathedral, Leonard guards Chanis Gate, Frye and Royale Reideen assist police in Golden Indus, Kenley White is on leave, and Seeka Tron patrols Raphael Cemetery.
+- What changes: The Tingen Nighthawks become a concrete, thinly staffed operation with rotating duties, mission gaps, public client handling, and limited manpower.
+- Institutional detail: Chapters 45-46 show Dunn assembling a field team around Klein's notebook lead, replacing Old Neil's armory watch with Kenley, bringing Old Neil and Frye, using a Nighthawks carriage, and coordinating with patrolling police at the scene.
+- Compensation detail: Chapter 47 gives Old Neil's salary as twelve pounds weekly from both the Church and police department, tax-free.
+- What remains unknown: The complete duty roster, exact rank/status of every named teammate, full client-service rules, and longer-term handling of notebook-related leads remain unclear.
+- Why it matters: The Church/Nighthawks model expands from structure and training into lived operations: workspace layout, staffing limits, formal-member duties, field mobilization, and compensation.
+
 #### Volume 1 Synthesis: Known Institutional Facets
 
-- What the reader learns: By Chapter 40, the Church of Evernight has appeared as public religion, civic institution, orthodox Beyonder gateway, parent organization of the Tingen Nighthawks, guardian of Chanis Gate, holder of formulas and materials, operator of a concealed local complex connected with Saint Selena Cathedral, supervised training environment for a newly advanced Beyonder, historical force tied to the Antigonus family, and monitor of occult-adjacent civilian spaces.
+- What the reader learns: By Chapter 47, the Church of Evernight has appeared as public religion, civic institution, orthodox Beyonder gateway, parent organization of the Tingen Nighthawks, guardian of Chanis Gate, holder of formulas and materials, operator of a concealed local complex connected with Saint Selena Cathedral, supervised training environment for a newly advanced Beyonder, historical force tied to the Antigonus family, monitor of occult-adjacent civilian spaces, and small field-response organization with concrete staffing constraints.
 - What changes: The Church is no longer only a social or religious presence; it is now Klein's employer, training environment, supernatural resource network, and controlled path into becoming a Beyonder.
 - Nighthawks status: The Tingen Nighthawks are the Church's official local Beyonder organization, operating behind Blackthorn Security Company and supported by civilian staff such as Klein, Rozanne, and Mrs. Orianna.
-- Red Gloves status: The Red Gloves belong under the broader Nighthawks umbrella, but they have not yet been introduced at the Chapter 40 reader boundary.
+- Red Gloves status: The Red Gloves belong under the broader Nighthawks umbrella, but they have not yet been introduced at the Chapter 47 reader boundary.
 - What remains unknown: The exact larger hierarchy, full roster, full artifact catalog, all Church-held pathway options, Red Gloves role, deeper institutional history, complete operating rules, and full training curriculum remain outside the current boundary.
 - Why it matters: This synthesis keeps the Church's early facets visible without replacing the chapter-by-chapter reveal chronology that controls spoiler-safe reader knowledge.
 
@@ -387,7 +396,7 @@ relationships:
 
 ## Evidence Index
 
-- Novel Chapters: 1, 3, 6, 10, 12-22, 25-40
+- Novel Chapters: 1, 3, 6, 10, 12-22, 25-47
 - Donghua Episode: TBD
 
 ## Reader Knowledge Ledger
@@ -1135,6 +1144,157 @@ last_updated: 2026-07-01
 - Earlier chapters show the Nighthawks reacting to specific supernatural cases and guarding restricted facilities.
 - Chapter 40 expands the model to proactive monitoring of public occult spaces where cultists or evil-organization members may appear.
 - Klein's hybrid status as civilian staff and new Beyonder becomes operationally useful outside the hidden headquarters.
+
+#### Adaptation Analysis
+
+- Donghua timing remains unverified for this knowledge unit.
+
+### Knowledge Unit: Tingen Nighthawks Team Deployment Snapshot
+
+```yaml
+id: church-evernight-tingen-nighthawks-deployment-snapshot
+claim: By Chapter 42, the reader sees the Tingen Nighthawks as a thinly staffed local team with formal members assigned across cathedral business, Chanis Gate guarding, police assistance, cemetery patrol, leave, and public-client availability limits.
+truth_status: true
+confidence_level: confirmed
+canon_scope: novel
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: 42
+  notes: Chapter 42 explains why Blackthorn has no available formal field personnel for a public client and lists Dunn, Leonard, Frye, Royale Reideen, Kenley White, and Seeka Tron by current duty or absence.
+tags:
+  - volume-1
+  - reader-knowledge
+  - reveal-order
+  - faction
+  - worldbuilding
+disclosures:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 42
+    superseded_at:
+    superseded_by:
+related_investigations:
+  - ../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-07-01
+```
+
+#### Reader-State History
+
+- Earlier chapters establish the Nighthawks' formal/civilian split and broad duties.
+- Chapter 42 gives the first concrete simultaneous deployment snapshot of the local formal team.
+- The reader can now see how easily the small Tingen team becomes unavailable for ordinary public-facing work.
+
+#### Adaptation Analysis
+
+- Donghua timing remains unverified for this knowledge unit.
+
+### Knowledge Unit: Notebook Lead Becomes Formal Field Response
+
+```yaml
+id: church-evernight-notebook-lead-field-response
+claim: When Klein identifies a possible Antigonus notebook lead, Dunn mobilizes Nighthawk personnel into a formal field response using team duty coverage, specialist roles, a Nighthawks carriage, and ordinary police coordination.
+truth_status: true
+confidence_level: confirmed
+canon_scope: novel
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: 45
+  notes: Chapters 45-46 show Dunn replacing Old Neil's armory watch, bringing Old Neil and Frye with Klein and Leonard, searching the apartment, using Spirit Vision and corpse examination, and having Leonard retrieve patrolling police.
+tags:
+  - volume-1
+  - reader-knowledge
+  - reveal-order
+  - faction
+  - worldbuilding
+disclosures:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 45
+    superseded_at:
+    superseded_by:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: expansion
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 46
+    superseded_at:
+    superseded_by:
+related_investigations:
+  - ../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-07-01
+```
+
+#### Reader-State History
+
+- Chapters 35-36 increase the reader's sense that the notebook is institutionally important.
+- Chapters 45-46 show that Klein's Seer sensitivity can trigger an actual Nighthawk field response.
+- The field response demonstrates how civilian staff, formal Nighthawks, specialist Beyonders, and ordinary police can be coordinated around one occult lead.
+
+#### Adaptation Analysis
+
+- Donghua timing remains unverified for this knowledge unit.
+
+### Knowledge Unit: Old Neil Dual Church and Police Salary
+
+```yaml
+id: church-evernight-old-neil-dual-salary
+claim: Old Neil receives weekly pay from both the Church and the police department, giving the reader a concrete compensation example for a long-serving Tingen Nighthawks civilian staff Beyonder.
+truth_status: true
+confidence_level: confirmed
+canon_scope: novel
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume: 1
+  chapter: 47
+  notes: Old Neil tells Klein that his weekly salary totals twelve pounds from both institutions and is tax-free.
+tags:
+  - volume-1
+  - reader-knowledge
+  - reveal-order
+  - faction
+  - character
+  - worldbuilding
+disclosures:
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: explicit-reveal
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 47
+    superseded_at:
+    superseded_by:
+related_investigations:
+  - ../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md
+  - ../../Investigations/Characters/character-old-neil/novel-volume-1-reveal-timeline.md
+related_boards:
+  - ../../Boards/01_LoTM_Main_Reread_Board.md
+last_updated: 2026-07-01
+```
+
+#### Reader-State History
+
+- Chapters 15 and 20 already establish that Nighthawks/civilian staff compensation involves Church and police funding.
+- Chapter 47 gives a specific example through Old Neil, showing how generous a long-serving staff Beyonder's pay can be relative to ordinary jobs.
 
 #### Adaptation Analysis
 
