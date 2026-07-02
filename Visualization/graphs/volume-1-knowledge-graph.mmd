@@ -23,55 +23,62 @@ graph TD
   pathway_seer["Seer Pathway"]
   pathway_sleepless["Sleepless"]
 
-  character_klein_moretti -->|pathway-status ch31| pathway_seer
-  event_klein_becomes_a_seer -->|event-outcome ch31| pathway_seer
-  faction_church_of_evernight -->|regulates-access-to ch28| pathway_seer
-  character_old_neil -->|trains-in ch31| pathway_seer
-  character_roselle_gustav -->|source-of-information ch21 historical| pathway_seer
-  pathway_seer -->|uses-method ch29| concept_divination
-  concept_divination -->|mechanic-of ch29| pathway_seer
-  character_old_neil -->|trains-in ch32| concept_divination
-  character_klein_moretti -->|uses-method ch43| concept_divination
-  faction_church_of_evernight -->|connected-to ch40| concept_divination
+  artifact_0_08 -->|causal-agent ch210 completed| artifact_antigonus_notebook
+  artifact_0_08 -->|investigated-by ch150 strong-evidence| character_azik_eggers
+  artifact_0_08 -->|manipulates ch210 completed strong-evidence| character_dunn_smith
+  artifact_0_08 -->|manipulates ch210| character_klein_moretti
+  artifact_0_08 -->|targets-protected-resource ch210 completed strong-evidence| location_saint_selena_cathedral
   artifact_antigonus_notebook -->|connected-to ch43| concept_divination
-  pathway_seer -->|access-route-to ch28| concept_beyonders
-  location_saint_selena_cathedral -->|affiliated-with ch17| faction_church_of_evernight
-  faction_nighthawks -->|affiliated-with ch17| location_saint_selena_cathedral
-  character_klein_moretti -->|uses-as-operational-refuge ch25 completed| location_saint_selena_cathedral
-  location_saint_selena_cathedral -->|connected-to ch17| location_blackthorn_security_company
-  location_saint_selena_cathedral -->|event-location ch31 completed| event_klein_becomes_a_seer
-  character_ince_zangwill -->|infiltrates ch210 completed strong-evidence| location_saint_selena_cathedral
-  faction_nighthawks -->|subordinate-organization ch13| faction_church_of_evernight
-  character_klein_moretti -->|civilian-staff-of ch17| faction_church_of_evernight
-  character_dunn_smith -->|member-of ch13| faction_church_of_evernight
-  character_old_neil -->|civilian-staff-of ch19| faction_church_of_evernight
-  faction_church_of_evernight -->|artifact-guardian ch19 broken| artifact_0_08
-  character_leonard_mitchell -->|pathway-status ch21| pathway_sleepless
-  character_dunn_smith -->|pathway-status ch22 strong-inference| pathway_sleepless
-  character_old_neil -->|pathway-status ch22| pathway_mystery_pryer
-  faction_church_of_evernight -->|event-enabler ch28 completed| event_klein_becomes_a_seer
-  faction_church_of_evernight -->|regulates-access-to ch6| concept_beyonders
   character_daly_simone -->|pathway-status ch28| pathway_corpse_collector
-  character_klein_moretti -->|event-participant ch28| event_klein_becomes_a_seer
-  character_old_neil -->|event-participant ch31| event_klein_becomes_a_seer
   character_dunn_smith -->|event-participant ch28| event_klein_becomes_a_seer
-  event_klein_becomes_a_seer -->|event-outcome ch31| character_klein_moretti
-  concept_beyonder_characteristics -->|mechanic-of ch207| concept_beyonders
-  concept_beyonder_characteristics -->|connected-to ch210| artifact_0_08
+  character_dunn_smith -->|member-of ch13| faction_church_of_evernight
+  character_dunn_smith -->|pathway-status ch22 strong-inference| pathway_sleepless
+  character_ince_zangwill -->|artifact-user ch19| artifact_0_08
+  character_ince_zangwill -->|infiltrates ch210 completed strong-evidence| location_saint_selena_cathedral
+  character_klein_moretti -->|investigates ch9| artifact_antigonus_notebook
+  character_klein_moretti -->|student ch32| character_old_neil
   character_klein_moretti -->|instance-of ch31| concept_beyonders
-  event_klein_becomes_a_seer -->|event-outcome ch31| concept_beyonders
+  character_klein_moretti -->|uses-method ch43| concept_divination
+  character_klein_moretti -->|event-participant ch28| event_klein_becomes_a_seer
+  character_klein_moretti -->|civilian-staff-of ch17| faction_church_of_evernight
+  character_klein_moretti -->|works-at ch17| location_blackthorn_security_company
+  character_klein_moretti -->|uses-as-operational-refuge ch25 completed| location_saint_selena_cathedral
+  character_klein_moretti -->|pathway-status ch31| pathway_seer
+  character_leonard_mitchell -->|pathway-status ch21| pathway_sleepless
+  character_old_neil -->|investigates ch45| artifact_antigonus_notebook
+  character_old_neil -->|mentor ch32| character_klein_moretti
   character_old_neil -->|instance-of ch22| concept_beyonders
   character_old_neil -->|trains-in ch32| concept_beyonders
-  character_old_neil -->|mentor ch32| character_klein_moretti
-  character_klein_moretti -->|student ch32| character_old_neil
-  character_ince_zangwill -->|artifact-user ch19| artifact_0_08
+  character_old_neil -->|trains-in ch32| concept_divination
+  character_old_neil -->|event-participant ch31| event_klein_becomes_a_seer
+  character_old_neil -->|civilian-staff-of ch19| faction_church_of_evernight
+  character_old_neil -->|works-at ch19| location_blackthorn_security_company
+  character_old_neil -->|pathway-status ch22| pathway_mystery_pryer
+  character_old_neil -->|trains-in ch31| pathway_seer
+  character_roselle_gustav -->|source-of-information ch21 historical| pathway_seer
+  concept_beyonder_characteristics -->|connected-to ch210| artifact_0_08
+  concept_beyonder_characteristics -->|mechanic-of ch207| concept_beyonders
+  concept_divination -->|mechanic-of ch29| pathway_seer
+  event_klein_becomes_a_seer -->|event-outcome ch31| character_klein_moretti
+  event_klein_becomes_a_seer -->|event-outcome ch31| concept_beyonders
+  event_klein_becomes_a_seer -->|event-outcome ch31| pathway_seer
+  faction_church_of_evernight -->|artifact-guardian ch19 broken| artifact_0_08
   faction_church_of_evernight -->|investigates ch13| artifact_antigonus_notebook
-  character_klein_moretti -->|investigates ch9| artifact_antigonus_notebook
+  faction_church_of_evernight -->|regulates-access-to ch6| concept_beyonders
+  faction_church_of_evernight -->|connected-to ch40| concept_divination
+  faction_church_of_evernight -->|event-enabler ch28 completed| event_klein_becomes_a_seer
+  faction_church_of_evernight -->|regulates-access-to ch28| pathway_seer
   faction_nighthawks -->|investigates ch13| artifact_antigonus_notebook
-  character_old_neil -->|investigates ch45| artifact_antigonus_notebook
+  faction_nighthawks -->|subordinate-organization ch13| faction_church_of_evernight
+  faction_nighthawks -->|affiliated-with ch17| location_saint_selena_cathedral
   faction_secret_order -->|targets ch28 strong-evidence| artifact_antigonus_notebook
-  artifact_0_08 -->|causal-agent ch210 completed| artifact_antigonus_notebook
-  artifact_0_08 -->|manipulates ch210| character_klein_moretti
-  artifact_0_08 -->|manipulates ch210 completed strong-evidence| character_dunn_smith
-  artifact_0_08 -->|investigated-by ch150 strong-evidence| character_azik_eggers
-  artifact_0_08 -->|targets-protected-resource ch210 completed strong-evidence| location_saint_selena_cathedral
+  location_blackthorn_security_company -->|connected-to ch45| artifact_antigonus_notebook
+  location_blackthorn_security_company -->|event-location ch30 completed| event_klein_becomes_a_seer
+  location_blackthorn_security_company -->|operational-base-for ch17| faction_nighthawks
+  location_blackthorn_security_company -->|public-cover-for ch17| faction_nighthawks
+  location_blackthorn_security_company -->|connected-to ch17| location_saint_selena_cathedral
+  location_saint_selena_cathedral -->|event-location ch31 completed| event_klein_becomes_a_seer
+  location_saint_selena_cathedral -->|affiliated-with ch17| faction_church_of_evernight
+  location_saint_selena_cathedral -->|connected-to ch17| location_blackthorn_security_company
+  pathway_seer -->|access-route-to ch28| concept_beyonders
+  pathway_seer -->|uses-method ch29| concept_divination

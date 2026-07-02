@@ -10,7 +10,7 @@ Confidence Level: Strong Evidence
 Spoiler Boundary: Volume 1
 Reader Knowledge Boundary: Novel Chapter 34; Donghua Season 1
 Tags: volume-1, reader-knowledge, reveal-order, worldbuilding, concept
-Last Updated: 2026-07-01
+Last Updated: 2026-07-02
 
 Related Threads:
 - [Beyonder Characteristics](concept-beyonder-characteristics.md)
@@ -244,16 +244,6 @@ relationships:
     status: active
     confidence: confirmed
     notes: Old Neil teaches Klein immediate post-potion Beyonder practice, including Cogitation and Spirit Vision.
-  - source: concept-beyonder-characteristics
-    target: concept-beyonders
-    relationship_type: mechanic-of
-    start:
-      medium: novel
-      volume: 1
-      chapter: 207
-    status: future-boundary
-    confidence: confirmed
-    notes: Beyonder characteristics are a later reader-boundary mechanical explanation for how Beyonder power persists, transfers, and can be divided. This seed is included for cross-page graph completeness but remains outside the current Chapter 34 boundary of this page.
 ```
 
 ## Evidence Index

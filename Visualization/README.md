@@ -27,26 +27,26 @@ After every graph refresh, update the live refresh tracker below. It summarizes 
 The tracker compares the current graph against the semantic snapshot in `data/refresh-snapshot.json`. Unexpected removed nodes, removed relationships, changed relationship labels, duplicate relationships, broken links, or orphan nodes should be treated as visualization validation issues and reviewed before committing.
 
 <!-- VISUALIZATION-REFRESH-REPORT:START -->
-Last Updated: 2026-07-02 00:16:51 -04:00
+Last Updated: 2026-07-02 00:39:12 -04:00
 
 ### Summary
 
 | Metric | Count | Delta |
 | --- | ---: | ---: |
 | Nodes | 23 | 0 |
-| Relationships | 52 | 0 |
+| Relationships | 59 | +7 |
 | Views Updated | 2 | 0 |
 | Rendered Files | 4 | 0 |
 | Broken Links | 0 | 0 |
 | Orphan Nodes | 0 | 0 |
-| Pending Nodes | 14 | 0 |
+| Pending Nodes | 16 | +2 |
 | Validation Issues | 0 | n/a |
 
 ### Semantic Changes
 
 - Added nodes: 0
 - Removed nodes: 0
-- Added relationships: 0
+- Added relationships: 7
 - Removed relationships: 0
 - Changed relationship labels: 0
 - Duplicate relationships: 0
@@ -58,10 +58,10 @@ Last Updated: 2026-07-02 00:16:51 -04:00
 
 ### Rendered Outputs
 
-- `Visualization/rendered/volume-1-knowledge-graph.svg` (91064 bytes)
-- `Visualization/rendered/volume-1-knowledge-graph.png` (332874 bytes)
-- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.svg` (90773 bytes)
-- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.png` (336403 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph.svg` (114749 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph.png` (431692 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.svg` (114889 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.png` (511092 bytes)
 
 ### Hygiene
 
@@ -70,21 +70,33 @@ Last Updated: 2026-07-02 00:16:51 -04:00
 - Duplicate relationships: 0
 - Removed relationships: 0
 - Changed relationship labels: 0
-- Pending graph nodes: 14
+- Pending graph nodes: 16
+
+#### Added Relationships
+
+- `character_klein_moretti|works-at ch17|location_blackthorn_security_company`
+- `character_old_neil|works-at ch19|location_blackthorn_security_company`
+- `location_blackthorn_security_company|connected-to ch17|location_saint_selena_cathedral`
+- `location_blackthorn_security_company|connected-to ch45|artifact_antigonus_notebook`
+- `location_blackthorn_security_company|event-location ch30 completed|event_klein_becomes_a_seer`
+- `location_blackthorn_security_company|operational-base-for ch17|faction_nighthawks`
+- `location_blackthorn_security_company|public-cover-for ch17|faction_nighthawks`
 
 #### Pending Nodes
 
 - `character-azik-eggers.md`
 - `character-daly-simone.md`
 - `character-dunn-smith.md`
+- `character-frye.md`
 - `character-ince-zangwill.md`
 - `character-klein-moretti.md`
 - `character-leonard-mitchell.md`
+- `character-mrs-orianna.md`
 - `character-ray-bieber.md`
+- `character-rozanne.md`
 - `character-roselle-gustav.md`
 - `faction-nighthawks.md`
 - `faction-secret-order.md`
-- `location-blackthorn-security-company.md`
 - `pathway-corpse-collector.md`
 - `pathway-mystery-pryer.md`
 - `pathway-sleepless.md`

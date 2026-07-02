@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-02 00:16:51 -04:00",
+  "generated_at": "2026-07-02 00:39:12 -04:00",
   "nodes": [
     "artifact_0_08",
     "artifact_antigonus_notebook",
@@ -167,6 +167,13 @@
       "endpointKey": "character_klein_moretti|concept_divination"
     },
     {
+      "source": "character_klein_moretti",
+      "target": "location_blackthorn_security_company",
+      "label": "works-at ch17",
+      "key": "character_klein_moretti|works-at ch17|location_blackthorn_security_company",
+      "endpointKey": "character_klein_moretti|location_blackthorn_security_company"
+    },
+    {
       "source": "character_leonard_mitchell",
       "target": "pathway_sleepless",
       "label": "pathway-status ch21",
@@ -235,6 +242,13 @@
       "label": "trains-in ch32",
       "key": "character_old_neil|trains-in ch32|concept_divination",
       "endpointKey": "character_old_neil|concept_divination"
+    },
+    {
+      "source": "character_old_neil",
+      "target": "location_blackthorn_security_company",
+      "label": "works-at ch19",
+      "key": "character_old_neil|works-at ch19|location_blackthorn_security_company",
+      "endpointKey": "character_old_neil|location_blackthorn_security_company"
     },
     {
       "source": "character_roselle_gustav",
@@ -356,6 +370,41 @@
       "endpointKey": "faction_secret_order|artifact_antigonus_notebook"
     },
     {
+      "source": "location_blackthorn_security_company",
+      "target": "location_saint_selena_cathedral",
+      "label": "connected-to ch17",
+      "key": "location_blackthorn_security_company|connected-to ch17|location_saint_selena_cathedral",
+      "endpointKey": "location_blackthorn_security_company|location_saint_selena_cathedral"
+    },
+    {
+      "source": "location_blackthorn_security_company",
+      "target": "artifact_antigonus_notebook",
+      "label": "connected-to ch45",
+      "key": "location_blackthorn_security_company|connected-to ch45|artifact_antigonus_notebook",
+      "endpointKey": "location_blackthorn_security_company|artifact_antigonus_notebook"
+    },
+    {
+      "source": "location_blackthorn_security_company",
+      "target": "event_klein_becomes_a_seer",
+      "label": "event-location ch30 completed",
+      "key": "location_blackthorn_security_company|event-location ch30 completed|event_klein_becomes_a_seer",
+      "endpointKey": "location_blackthorn_security_company|event_klein_becomes_a_seer"
+    },
+    {
+      "source": "location_blackthorn_security_company",
+      "target": "faction_nighthawks",
+      "label": "operational-base-for ch17",
+      "key": "location_blackthorn_security_company|operational-base-for ch17|faction_nighthawks",
+      "endpointKey": "location_blackthorn_security_company|faction_nighthawks"
+    },
+    {
+      "source": "location_blackthorn_security_company",
+      "target": "faction_nighthawks",
+      "label": "public-cover-for ch17",
+      "key": "location_blackthorn_security_company|public-cover-for ch17|faction_nighthawks",
+      "endpointKey": "location_blackthorn_security_company|faction_nighthawks"
+    },
+    {
       "source": "location_saint_selena_cathedral",
       "target": "faction_church_of_evernight",
       "label": "affiliated-with ch17",
@@ -409,14 +458,16 @@
     "character-azik-eggers.md",
     "character-daly-simone.md",
     "character-dunn-smith.md",
+    "character-frye.md",
     "character-ince-zangwill.md",
     "character-klein-moretti.md",
     "character-leonard-mitchell.md",
+    "character-mrs-orianna.md",
     "character-ray-bieber.md",
+    "character-rozanne.md",
     "character-roselle-gustav.md",
     "faction-nighthawks.md",
     "faction-secret-order.md",
-    "location-blackthorn-security-company.md",
     "pathway-corpse-collector.md",
     "pathway-mystery-pryer.md",
     "pathway-sleepless.md"

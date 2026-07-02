@@ -232,7 +232,7 @@ relationships:
       medium: novel
       volume: 1
       chapter: 28
-    status: active
+    status: completed
     confidence: confirmed
     notes: The Church/Nighthawks provide the institutional access, formula/material custody, and status boundary.
   - source: location-saint-selena-cathedral
@@ -242,7 +242,7 @@ relationships:
       medium: novel
       volume: 1
       chapter: 31
-    status: active
+    status: completed
     confidence: confirmed
     notes: The alchemy room is reached along the route toward Saint Selena Cathedral inside the connected Church/Nighthawks complex.
   - source: location-blackthorn-security-company

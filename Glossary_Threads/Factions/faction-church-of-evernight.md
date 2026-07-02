@@ -381,10 +381,10 @@ relationships:
     start:
       medium: novel
       volume: 1
-      chapter: 35
+      chapter: 13
     status: active
-    confidence: strong-evidence
-    notes: Chapter 35 makes the notebook's Church significance clearer when Alger states that the Church of Evernight destroyed the Antigonus family and Klein reassesses the Nighthawks' interest in recovering the notebook.
+    confidence: confirmed
+    notes: Chapter 13 establishes the missing notebook as a Nighthawks investigative target, while Chapter 35 makes the notebook's deeper Church significance clearer when Alger states that the Church of Evernight destroyed the Antigonus family.
   - source: faction-church-of-evernight
     target: concept-divination
     relationship_type: connected-to

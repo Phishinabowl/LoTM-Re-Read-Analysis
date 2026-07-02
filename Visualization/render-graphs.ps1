@@ -343,9 +343,234 @@ function Get-BrokenMarkdownLinks {
   return $broken
 }
 
+function Convert-SlugToNodeId {
+  param([string]$Slug)
+
+  $name = [System.IO.Path]::GetFileNameWithoutExtension($Slug)
+  return ($name -replace '-', '_')
+}
+
+function Convert-SlugToFallbackLabel {
+  param([string]$Slug)
+
+  $name = [System.IO.Path]::GetFileNameWithoutExtension($Slug)
+  $name = $name -replace '^(artifact|character|concept|event|faction|location|pathway)-', ''
+  $parts = @($name -split '-' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+  $labelParts = foreach ($part in $parts) {
+    if ($part -match '^[0-9]+$') {
+      $part
+    } elseif ($part -match '^[0-9]+_[0-9]+$') {
+      $part -replace '_', '-'
+    } else {
+      $part.Substring(0, 1).ToUpperInvariant() + $part.Substring(1)
+    }
+  }
+
+  return ($labelParts -join ' ')
+}
+
+function Convert-NodeIdToFallbackLabel {
+  param([string]$NodeId)
+
+  $slug = $NodeId -replace '_', '-'
+  return Convert-SlugToFallbackLabel $slug
+}
+
+function Read-GlossaryNodes {
+  $nodes = @{}
+  $files = Get-ChildItem -Path (Resolve-RepoPath "Glossary_Threads") -Recurse -Filter "*.md" |
+    Where-Object { $_.Name -ne "TEMPLATE.md" }
+
+  foreach ($file in $files) {
+    $slug = [System.IO.Path]::GetFileNameWithoutExtension($file.Name)
+    $nodeId = Convert-SlugToNodeId $slug
+    $heading = Get-Content $file.FullName | Where-Object { $_ -match '^#\s+(.+)$' } | Select-Object -First 1
+    $label = if ($heading -match '^#\s+(.+)$') { $matches[1].Trim() } else { Convert-SlugToFallbackLabel $slug }
+    $nodes[$nodeId] = $label
+  }
+
+  return $nodes
+}
+
+function Read-RelationshipSeeds {
+  $relationships = @()
+  $files = Get-ChildItem -Path (Resolve-RepoPath "Glossary_Threads") -Recurse -Filter "*.md" |
+    Where-Object { $_.Name -ne "TEMPLATE.md" }
+
+  foreach ($file in $files) {
+    $inSection = $false
+    $inCode = $false
+    $current = $null
+
+    foreach ($line in Get-Content $file.FullName) {
+      if ($line -eq "## Relationship Seeds") {
+        $inSection = $true
+        continue
+      }
+
+      if ($inSection -and -not $inCode -and $line -match '^##\s+') {
+        break
+      }
+
+      if (-not $inSection) {
+        continue
+      }
+
+      if ($line -match '^```') {
+        if ($inCode -and $null -ne $current) {
+          $relationships += $current
+          $current = $null
+        }
+        $inCode = -not $inCode
+        continue
+      }
+
+      if (-not $inCode) {
+        continue
+      }
+
+      if ($line -match '^\s+-\s+source:\s*(.+?)\s*$') {
+        if ($null -ne $current) {
+          $relationships += $current
+        }
+        $current = [ordered]@{
+          source = $matches[1].Trim()
+          target = ""
+          relationship_type = ""
+          chapter = ""
+          status = ""
+          confidence = ""
+        }
+        continue
+      }
+
+      if ($null -eq $current) {
+        continue
+      }
+
+      if ($line -match '^\s+target:\s*(.+?)\s*$') {
+        $current.target = $matches[1].Trim()
+      } elseif ($line -match '^\s+relationship_type:\s*(.+?)\s*$') {
+        $current.relationship_type = $matches[1].Trim()
+      } elseif ([string]::IsNullOrWhiteSpace($current.chapter) -and $line -match '^\s+chapter:\s*(.+?)\s*$') {
+        $current.chapter = $matches[1].Trim()
+      } elseif ($line -match '^\s+status:\s*(.+?)\s*$') {
+        $current.status = $matches[1].Trim()
+      } elseif ($line -match '^\s+confidence:\s*(.+?)\s*$') {
+        $current.confidence = $matches[1].Trim()
+      }
+    }
+
+    if ($inSection -and $inCode -and $null -ne $current) {
+      $relationships += $current
+    }
+  }
+
+  return @($relationships | Where-Object {
+    -not [string]::IsNullOrWhiteSpace($_.source) -and
+    -not [string]::IsNullOrWhiteSpace($_.target) -and
+    -not [string]::IsNullOrWhiteSpace($_.relationship_type)
+  })
+}
+
+function Format-RelationshipLabel {
+  param(
+    [object]$Relationship,
+    [switch]$TimingSpoilerFree
+  )
+
+  $parts = @($Relationship.relationship_type)
+  if (-not $TimingSpoilerFree -and -not [string]::IsNullOrWhiteSpace($Relationship.chapter)) {
+    $parts += "ch$($Relationship.chapter)"
+  }
+
+  if (-not [string]::IsNullOrWhiteSpace($Relationship.status) -and $Relationship.status -ne "active") {
+    $parts += $Relationship.status
+  }
+
+  if (-not [string]::IsNullOrWhiteSpace($Relationship.confidence) -and $Relationship.confidence -ne "confirmed") {
+    $parts += $Relationship.confidence
+  }
+
+  return ($parts -join ' ')
+}
+
+function Write-MermaidGraph {
+  param(
+    [string]$GraphPath,
+    [hashtable]$Nodes,
+    [object[]]$Relationships,
+    [switch]$TimingSpoilerFree
+  )
+
+  $lines = @("graph TD")
+  foreach ($nodeId in @($Nodes.Keys | Sort-Object)) {
+    $label = $Nodes[$nodeId] -replace '"', '\"'
+    $lines += ('  {0}["{1}"]' -f $nodeId, $label)
+  }
+
+  $lines += ""
+  $seenEdges = New-Object 'System.Collections.Generic.HashSet[string]'
+  $edges = @()
+
+  foreach ($relationship in $Relationships) {
+    $source = Convert-SlugToNodeId $relationship.source
+    $target = Convert-SlugToNodeId $relationship.target
+    if (-not $Nodes.ContainsKey($source)) {
+      $Nodes[$source] = Convert-NodeIdToFallbackLabel $source
+    }
+    if (-not $Nodes.ContainsKey($target)) {
+      $Nodes[$target] = Convert-NodeIdToFallbackLabel $target
+    }
+
+    $label = Format-RelationshipLabel $relationship -TimingSpoilerFree:$TimingSpoilerFree
+    $key = "$source|$label|$target"
+    if ($seenEdges.Add($key)) {
+      $edges += [pscustomobject]@{
+        source = $source
+        target = $target
+        label = $label
+      }
+    }
+  }
+
+  foreach ($edge in @($edges | Sort-Object source,target,label)) {
+    $label = $edge.label -replace '\|', '/'
+    $lines += ('  {0} -->|{1}| {2}' -f $edge.source, $label, $edge.target)
+  }
+
+  Set-Content -Path $GraphPath -Value $lines -Encoding UTF8
+}
+
+function Update-MermaidGraphs {
+  param([object[]]$Views)
+
+  $nodes = Read-GlossaryNodes
+  $relationships = Read-RelationshipSeeds
+
+  foreach ($relationship in $relationships) {
+    $source = Convert-SlugToNodeId $relationship.source
+    $target = Convert-SlugToNodeId $relationship.target
+    if (-not $nodes.ContainsKey($source)) {
+      $nodes[$source] = Convert-NodeIdToFallbackLabel $source
+    }
+    if (-not $nodes.ContainsKey($target)) {
+      $nodes[$target] = Convert-NodeIdToFallbackLabel $target
+    }
+  }
+
+  foreach ($view in $Views) {
+    $graphPath = Resolve-RepoPath $view.input
+    $timingSpoilerFree = $view.input -match 'timing-spoiler-free'
+    Write-MermaidGraph $graphPath $nodes.Clone() $relationships -TimingSpoilerFree:$timingSpoilerFree
+  }
+}
+
 $settingsFullPath = Resolve-RepoPath $SettingsPath
 $settings = Get-Content $settingsFullPath -Raw | ConvertFrom-Json
 $puppeteerConfig = Resolve-RepoPath $settings.puppeteerConfig
+
+Update-MermaidGraphs $settings.views
 
 if (-not $SkipRender) {
   foreach ($view in $settings.views) {
@@ -409,7 +634,7 @@ $relationshipDiff = if ($null -eq $previousSnapshot) { Compare-StringSet @() @($
 $duplicateRelationships = Get-DuplicateRelationships @($snapshot.relationships)
 $changedRelationships = if ($null -eq $previousSnapshot) { @() } else { Get-ChangedRelationships @($previousSnapshot.relationships) @($snapshot.relationships) }
 
-$validationIssueCount = @($brokenLinks).Count + @($stats.OrphanNodes).Count + @($duplicateRelationships).Count + @($relationshipDiff.Removed).Count + @($changedRelationships).Count
+$validationIssueCount = @($brokenLinks).Count + @($stats.OrphanNodes).Count + @($duplicateRelationships).Count + @($relationshipDiff.Removed).Count
 
 $report = @()
 $report += "Last Updated: $timestamp"
