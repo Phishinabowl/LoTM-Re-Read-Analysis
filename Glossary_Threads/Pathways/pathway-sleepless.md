@@ -18,7 +18,7 @@ Related Threads:
 - [Blackthorn Security Company](../Locations/location-blackthorn-security-company.md)
 - [Beyonders](../Concepts/concept-beyonders.md)
 - [Seer Pathway](pathway-seer.md)
-- character-leonard-mitchell.md
+- [Leonard Mitchell](../Characters/character-leonard-mitchell.md)
 - character-kenley-white.md
 - character-royale-reideen.md
 - character-seeka-tron.md
@@ -173,7 +173,7 @@ Later Sleepless pathway names, higher Sequences, deeper Church pathway lore, and
 - [Dunn Smith](../Characters/character-dunn-smith.md)
 - [Blackthorn Security Company](../Locations/location-blackthorn-security-company.md)
 - [Beyonders](../Concepts/concept-beyonders.md)
-- character-leonard-mitchell.md
+- [Leonard Mitchell](../Characters/character-leonard-mitchell.md)
 - character-kenley-white.md
 - character-royale-reideen.md
 - character-seeka-tron.md
@@ -198,7 +198,7 @@ Later Sleepless pathway names, higher Sequences, deeper Church pathway lore, and
 ### Associated Characters
 
 - [Dunn Smith](../Characters/character-dunn-smith.md)
-- character-leonard-mitchell.md
+- [Leonard Mitchell](../Characters/character-leonard-mitchell.md)
 - character-kenley-white.md
 - character-royale-reideen.md
 - character-seeka-tron.md

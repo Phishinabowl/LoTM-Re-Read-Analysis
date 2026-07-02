@@ -11,25 +11,6 @@ Generated graph files are not the source of truth. The canonical project data re
 
 Mermaid graphs are generated from glossary metadata and Relationship Seeds. If a graph exposes missing, stale, or incorrect information, fix the glossary thread, investigation record, or relationship seed first, then regenerate the graph.
 
-## Projection Style
-
-Dense relationship graphs should use semantic relationship nodes instead of long Mermaid edge labels.
-
-Preferred dense projection:
-
-```mermaid
-graph TD
-  source_node["Source"]
-  rel_001["relationship type<br/>timing/status/confidence"]
-  target_node["Target"]
-  source_node --> rel_001
-  rel_001 --> target_node
-```
-
-Relationship nodes are generated presentation nodes. They are not glossary nodes and are not canonical project knowledge. They exist to make rendered graphs easier to read, especially when many relationships share the same source, target cluster, or semantic hub.
-
-Simple one-off diagrams may still use edge labels when they remain readable. For repository-wide or relationship-heavy views, prefer relationship nodes by default.
-
 ## Current Artifacts
 
 - [Volume 1 Knowledge Graph](graphs/volume-1-knowledge-graph.mmd)
@@ -37,7 +18,7 @@ Simple one-off diagrams may still use edge labels when they remain readable. For
 - [Graph Schema Notes](data/graph-schema.md)
 - [Rendering Instructions](rendering.md)
 
-The `rendered/` folder contains generated SVG and PNG graph exports for review, sharing, and archive inspection.
+The `rendered/` folder is reserved for future generated SVG or PNG graph exports.
 
 ## Refresh Tracker
 
@@ -46,27 +27,27 @@ After every graph refresh, update the live refresh tracker below. It summarizes 
 The tracker compares the current graph against the semantic snapshot in `data/refresh-snapshot.json`. Unexpected removed nodes, removed relationships, changed relationship labels, duplicate relationships, broken links, or orphan nodes should be treated as visualization validation issues and reviewed before committing.
 
 <!-- VISUALIZATION-REFRESH-REPORT:START -->
-Last Updated: 2026-07-02 23:23:14 -04:00
+Last Updated: 2026-07-02 23:37:28 -04:00
 
 ### Summary
 
 | Metric | Count | Delta |
 | --- | ---: | ---: |
-| Nodes | 26 | -1 |
-| Relationships | 72 | -12 |
+| Nodes | 27 | 0 |
+| Relationships | 84 | 0 |
 | Views Updated | 2 | 0 |
 | Rendered Files | 4 | 0 |
 | Broken Links | 0 | 0 |
 | Orphan Nodes | 0 | 0 |
-| Pending Nodes | 17 | -4 |
-| Validation Issues | 12 | n/a |
+| Pending Nodes | 21 | 0 |
+| Validation Issues | 0 | n/a |
 
 ### Semantic Changes
 
 - Added nodes: 0
-- Removed nodes: 1
+- Removed nodes: 0
 - Added relationships: 0
-- Removed relationships: 12
+- Removed relationships: 0
 - Changed relationship labels: 0
 - Duplicate relationships: 0
 
@@ -77,56 +58,41 @@ Last Updated: 2026-07-02 23:23:14 -04:00
 
 ### Rendered Outputs
 
-- `Visualization/rendered/volume-1-knowledge-graph.svg` (293116 bytes)
-- `Visualization/rendered/volume-1-knowledge-graph.png` (786016 bytes)
-- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.svg` (292098 bytes)
-- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.png` (718278 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph.svg` (346377 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph.png` (664771 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.svg` (345234 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.png` (620810 bytes)
 
 ### Hygiene
 
 - Broken links: 0
 - Orphan nodes: 0
 - Duplicate relationships: 0
-- Removed relationships: 12
+- Removed relationships: 0
 - Changed relationship labels: 0
-- Pending graph nodes: 17
-
-#### Removed Nodes
-
-- `faction_red_gloves`
-
-#### Removed Relationships
-
-- `character_dunn_smith|superior ch21|character_leonard_mitchell`
-- `character_leonard_mitchell|affiliated-with ch211 future-boundary strong-evidence|faction_red_gloves`
-- `character_leonard_mitchell|colleague ch21|character_klein_moretti`
-- `character_leonard_mitchell|enemy ch211|character_ince_zangwill`
-- `character_leonard_mitchell|instance-of ch21|concept_beyonders`
-- `character_leonard_mitchell|investigates ch211|artifact_0_08`
-- `character_leonard_mitchell|investigates ch38|artifact_antigonus_notebook`
-- `character_leonard_mitchell|member-of ch21|faction_church_of_evernight`
-- `character_leonard_mitchell|member-of ch21|faction_nighthawks`
-- `character_leonard_mitchell|source-of-information ch43|concept_divination`
-- `character_leonard_mitchell|subordinate ch21|character_dunn_smith`
-- `character_leonard_mitchell|works-at ch21|location_blackthorn_security_company`
+- Pending graph nodes: 21
 
 #### Pending Nodes
 
+- `artifact-2-049.md`
+- `artifact-3-0782.md`
 - `character-azik-eggers.md`
 - `character-daly-simone.md`
 - `character-frye.md`
 - `character-ince-zangwill.md`
 - `character-kenley-white.md`
 - `character-klein-moretti.md`
-- `character-leonard-mitchell.md`
 - `character-mrs-orianna.md`
 - `character-ray-bieber.md`
 - `character-royale-reideen.md`
 - `character-rozanne.md`
 - `character-roselle-gustav.md`
 - `character-seeka-tron.md`
+- `event-tingen-disaster.md`
+- `faction-red-gloves.md`
 - `faction-nighthawks.md`
 - `faction-secret-order.md`
+- `mystery-leonard-hidden-secret.md`
 - `pathway-corpse-collector.md`
 - `pathway-mystery-pryer.md`
 <!-- VISUALIZATION-REFRESH-REPORT:END -->
@@ -159,14 +125,6 @@ Canonical refresh command:
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-graphs.ps1
 ```
-
-Pure render command for manually authored `.mmd` files:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-mermaid.ps1 -InputPath Visualization\graphs\example.mmd
-```
-
-Pure render mode uses the same Puppeteer and render-size settings as the canonical refresh command, but it does not regenerate graph files, update the semantic snapshot, or update this refresh tracker.
 
 ## Long-Term Vision
 

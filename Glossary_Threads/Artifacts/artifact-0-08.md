@@ -15,6 +15,7 @@ Last Updated: 2026-07-01
 Related Threads:
 - [Antigonus Notebook](artifact-antigonus-notebook.md)
 - character-ince-zangwill.md
+- [Leonard Mitchell](../Characters/character-leonard-mitchell.md)
 - [Beyonder Characteristics](../Concepts/concept-beyonder-characteristics.md)
 - [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
 
@@ -506,6 +507,7 @@ Plain filenames below are essential planned threads. Additional references shoul
 
 - [Antigonus Notebook](artifact-antigonus-notebook.md)
 - character-ince-zangwill.md
+- [Leonard Mitchell](../Characters/character-leonard-mitchell.md)
 - [Beyonder Characteristics](../Concepts/concept-beyonder-characteristics.md)
 - [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
 
@@ -527,7 +529,7 @@ Plain filenames below are essential planned threads. Additional references shoul
 
 ### Associated Characters
 
--
+- [Leonard Mitchell](../Characters/character-leonard-mitchell.md)
 
 ### Associated Pathways
 

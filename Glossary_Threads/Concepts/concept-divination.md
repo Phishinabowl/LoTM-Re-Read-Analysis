@@ -192,7 +192,7 @@ Do not import later divination rules, high-sequence mechanics, gray-fog refineme
 - character-klein-moretti.md
 - [Old Neil](../Characters/character-old-neil.md)
 - [Dunn Smith](../Characters/character-dunn-smith.md)
-- character-leonard-mitchell.md
+- [Leonard Mitchell](../Characters/character-leonard-mitchell.md)
 
 ### Associated Pathways
 

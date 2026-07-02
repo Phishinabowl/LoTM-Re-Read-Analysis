@@ -22,7 +22,7 @@ Related Threads:
 - character-klein-moretti.md
 - [Dunn Smith](../Characters/character-dunn-smith.md)
 - [Old Neil](../Characters/character-old-neil.md)
-- character-leonard-mitchell.md
+- [Leonard Mitchell](../Characters/character-leonard-mitchell.md)
 
 Related Investigations:
 - [Blackthorn Security Company Novel Volume 1 Reveal Timeline](../../Investigations/Locations/location-blackthorn-security-company/novel-volume-1-reveal-timeline.md)
@@ -174,7 +174,7 @@ Do not add later Volume 1 crisis material, 0-08/Megose material, final battle st
 - character-klein-moretti.md
 - [Dunn Smith](../Characters/character-dunn-smith.md)
 - [Old Neil](../Characters/character-old-neil.md)
-- character-leonard-mitchell.md
+- [Leonard Mitchell](../Characters/character-leonard-mitchell.md)
 
 ### Historical Connections
 
@@ -198,7 +198,7 @@ Do not add later Volume 1 crisis material, 0-08/Megose material, final battle st
 - character-klein-moretti.md
 - [Dunn Smith](../Characters/character-dunn-smith.md)
 - [Old Neil](../Characters/character-old-neil.md)
-- character-leonard-mitchell.md
+- [Leonard Mitchell](../Characters/character-leonard-mitchell.md)
 - character-frye.md
 - character-rozanne.md
 - character-mrs-orianna.md

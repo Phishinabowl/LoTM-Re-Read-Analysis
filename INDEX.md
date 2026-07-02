@@ -51,6 +51,12 @@ Navigation hub for the reread analysis workspace.
   - [Blackthorn Security Company Novel Volume 1 Reveal Timeline](Investigations/Locations/location-blackthorn-security-company/novel-volume-1-reveal-timeline.md)
   - [Klein Becomes a Seer Novel Volume 1 Event Timeline](Investigations/Events/event-klein-becomes-a-seer/novel-volume-1-reveal-timeline.md)
 
+#### Leonard Mitchell
+
+- Glossary: [Leonard Mitchell](Glossary_Threads/Characters/character-leonard-mitchell.md)
+- Supporting Investigations:
+  - [Leonard Mitchell Novel Volume 1 Reveal Timeline](Investigations/Characters/character-leonard-mitchell/novel-volume-1-reveal-timeline.md)
+
 #### Old Neil
 
 - Glossary: [Old Neil](Glossary_Threads/Characters/character-old-neil.md)

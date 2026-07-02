@@ -18,6 +18,7 @@
   event_klein_becomes_a_seer["Klein Becomes a Seer"]
   faction_church_of_evernight["Church of Evernight"]
   faction_nighthawks["Nighthawks"]
+  faction_red_gloves["Red Gloves"]
   faction_secret_order["Secret Order"]
   location_blackthorn_security_company["Blackthorn Security Company"]
   location_saint_selena_cathedral["Saint Selena Cathedral"]
@@ -54,6 +55,7 @@
   class event_klein_becomes_a_seer event
   class faction_church_of_evernight faction
   class faction_nighthawks faction
+  class faction_red_gloves faction
   class faction_secret_order faction
   class location_blackthorn_security_company location
   class location_saint_selena_cathedral location
@@ -98,255 +100,303 @@
   class rel_009 relationship
   character_dunn_smith --> rel_009
   rel_009 --> character_klein_moretti
-  rel_010["source-of-information<br/>ch18"]
+  rel_010["superior<br/>ch21"]
   class rel_010 relationship
   character_dunn_smith --> rel_010
-  rel_010 --> concept_beyonders
-  rel_011["source-of-information<br/>ch29"]
+  rel_010 --> character_leonard_mitchell
+  rel_011["source-of-information<br/>ch18"]
   class rel_011 relationship
   character_dunn_smith --> rel_011
-  rel_011 --> concept_divination
-  rel_012["event-participant<br/>ch28<br/>completed"]
+  rel_011 --> concept_beyonders
+  rel_012["source-of-information<br/>ch29"]
   class rel_012 relationship
   character_dunn_smith --> rel_012
-  rel_012 --> event_klein_becomes_a_seer
-  rel_013["member-of<br/>ch13"]
+  rel_012 --> concept_divination
+  rel_013["event-participant<br/>ch28<br/>completed"]
   class rel_013 relationship
   character_dunn_smith --> rel_013
-  rel_013 --> faction_church_of_evernight
-  rel_014["leader-of<br/>ch17"]
+  rel_013 --> event_klein_becomes_a_seer
+  rel_014["member-of<br/>ch13"]
   class rel_014 relationship
   character_dunn_smith --> rel_014
-  rel_014 --> faction_nighthawks
-  rel_015["works-at<br/>ch17"]
+  rel_014 --> faction_church_of_evernight
+  rel_015["leader-of<br/>ch17"]
   class rel_015 relationship
   character_dunn_smith --> rel_015
-  rel_015 --> location_blackthorn_security_company
-  rel_016["pathway-status<br/>ch22"]
+  rel_015 --> faction_nighthawks
+  rel_016["works-at<br/>ch17"]
   class rel_016 relationship
   character_dunn_smith --> rel_016
-  rel_016 --> pathway_sleepless
-  rel_017["artifact-user<br/>ch19"]
+  rel_016 --> location_blackthorn_security_company
+  rel_017["pathway-status<br/>ch22"]
   class rel_017 relationship
-  character_ince_zangwill --> rel_017
-  rel_017 --> artifact_0_08
-  rel_018["infiltrates<br/>ch210<br/>completed<br/>strong-evidence"]
+  character_dunn_smith --> rel_017
+  rel_017 --> pathway_sleepless
+  rel_018["artifact-user<br/>ch19"]
   class rel_018 relationship
   character_ince_zangwill --> rel_018
-  rel_018 --> location_saint_selena_cathedral
-  rel_019["pathway-status<br/>ch42"]
+  rel_018 --> artifact_0_08
+  rel_019["infiltrates<br/>ch210<br/>completed<br/>strong-evidence"]
   class rel_019 relationship
-  character_kenley_white --> rel_019
-  rel_019 --> pathway_sleepless
-  rel_020["investigates<br/>ch9"]
+  character_ince_zangwill --> rel_019
+  rel_019 --> location_saint_selena_cathedral
+  rel_020["pathway-status<br/>ch42"]
   class rel_020 relationship
-  character_klein_moretti --> rel_020
-  rel_020 --> artifact_antigonus_notebook
-  rel_021["subordinate<br/>ch17"]
+  character_kenley_white --> rel_020
+  rel_020 --> pathway_sleepless
+  rel_021["investigates<br/>ch9"]
   class rel_021 relationship
   character_klein_moretti --> rel_021
-  rel_021 --> character_dunn_smith
-  rel_022["student<br/>ch32"]
+  rel_021 --> artifact_antigonus_notebook
+  rel_022["subordinate<br/>ch17"]
   class rel_022 relationship
   character_klein_moretti --> rel_022
-  rel_022 --> character_old_neil
-  rel_023["instance-of<br/>ch31"]
+  rel_022 --> character_dunn_smith
+  rel_023["student<br/>ch32"]
   class rel_023 relationship
   character_klein_moretti --> rel_023
-  rel_023 --> concept_beyonders
-  rel_024["uses-method<br/>ch43"]
+  rel_023 --> character_old_neil
+  rel_024["instance-of<br/>ch31"]
   class rel_024 relationship
   character_klein_moretti --> rel_024
-  rel_024 --> concept_divination
-  rel_025["event-participant<br/>ch28"]
+  rel_024 --> concept_beyonders
+  rel_025["uses-method<br/>ch43"]
   class rel_025 relationship
   character_klein_moretti --> rel_025
-  rel_025 --> event_klein_becomes_a_seer
-  rel_026["civilian-staff-of<br/>ch17"]
+  rel_025 --> concept_divination
+  rel_026["event-participant<br/>ch28"]
   class rel_026 relationship
   character_klein_moretti --> rel_026
-  rel_026 --> faction_church_of_evernight
-  rel_027["works-at<br/>ch17"]
+  rel_026 --> event_klein_becomes_a_seer
+  rel_027["civilian-staff-of<br/>ch17"]
   class rel_027 relationship
   character_klein_moretti --> rel_027
-  rel_027 --> location_blackthorn_security_company
-  rel_028["uses-as-operational-refuge<br/>ch25<br/>completed"]
+  rel_027 --> faction_church_of_evernight
+  rel_028["works-at<br/>ch17"]
   class rel_028 relationship
   character_klein_moretti --> rel_028
-  rel_028 --> location_saint_selena_cathedral
-  rel_029["pathway-status<br/>ch31"]
+  rel_028 --> location_blackthorn_security_company
+  rel_029["uses-as-operational-refuge<br/>ch25<br/>completed"]
   class rel_029 relationship
   character_klein_moretti --> rel_029
-  rel_029 --> pathway_seer
-  rel_030["pathway-status<br/>ch21"]
+  rel_029 --> location_saint_selena_cathedral
+  rel_030["pathway-status<br/>ch31"]
   class rel_030 relationship
-  character_leonard_mitchell --> rel_030
-  rel_030 --> pathway_sleepless
-  rel_031["investigates<br/>ch45"]
+  character_klein_moretti --> rel_030
+  rel_030 --> pathway_seer
+  rel_031["investigates<br/>ch211"]
   class rel_031 relationship
-  character_old_neil --> rel_031
-  rel_031 --> artifact_antigonus_notebook
-  rel_032["mentor<br/>ch32"]
+  character_leonard_mitchell --> rel_031
+  rel_031 --> artifact_0_08
+  rel_032["investigates<br/>ch38"]
   class rel_032 relationship
-  character_old_neil --> rel_032
-  rel_032 --> character_klein_moretti
-  rel_033["instance-of<br/>ch22"]
+  character_leonard_mitchell --> rel_032
+  rel_032 --> artifact_antigonus_notebook
+  rel_033["subordinate<br/>ch21"]
   class rel_033 relationship
-  character_old_neil --> rel_033
-  rel_033 --> concept_beyonders
-  rel_034["trains-in<br/>ch32"]
+  character_leonard_mitchell --> rel_033
+  rel_033 --> character_dunn_smith
+  rel_034["enemy<br/>ch211"]
   class rel_034 relationship
-  character_old_neil --> rel_034
-  rel_034 --> concept_beyonders
-  rel_035["trains-in<br/>ch32"]
+  character_leonard_mitchell --> rel_034
+  rel_034 --> character_ince_zangwill
+  rel_035["colleague<br/>ch21"]
   class rel_035 relationship
-  character_old_neil --> rel_035
-  rel_035 --> concept_divination
-  rel_036["event-participant<br/>ch31"]
+  character_leonard_mitchell --> rel_035
+  rel_035 --> character_klein_moretti
+  rel_036["instance-of<br/>ch21"]
   class rel_036 relationship
-  character_old_neil --> rel_036
-  rel_036 --> event_klein_becomes_a_seer
-  rel_037["civilian-staff-of<br/>ch19"]
+  character_leonard_mitchell --> rel_036
+  rel_036 --> concept_beyonders
+  rel_037["source-of-information<br/>ch43"]
   class rel_037 relationship
-  character_old_neil --> rel_037
-  rel_037 --> faction_church_of_evernight
-  rel_038["works-at<br/>ch19"]
+  character_leonard_mitchell --> rel_037
+  rel_037 --> concept_divination
+  rel_038["member-of<br/>ch21"]
   class rel_038 relationship
-  character_old_neil --> rel_038
-  rel_038 --> location_blackthorn_security_company
-  rel_039["pathway-status<br/>ch22"]
+  character_leonard_mitchell --> rel_038
+  rel_038 --> faction_church_of_evernight
+  rel_039["member-of<br/>ch21"]
   class rel_039 relationship
-  character_old_neil --> rel_039
-  rel_039 --> pathway_mystery_pryer
-  rel_040["trains-in<br/>ch31"]
+  character_leonard_mitchell --> rel_039
+  rel_039 --> faction_nighthawks
+  rel_040["affiliated-with<br/>ch211<br/>future-boundary<br/>strong-evidence"]
   class rel_040 relationship
-  character_old_neil --> rel_040
-  rel_040 --> pathway_seer
-  rel_041["source-of-information<br/>ch21<br/>historical"]
+  character_leonard_mitchell --> rel_040
+  rel_040 --> faction_red_gloves
+  rel_041["works-at<br/>ch21"]
   class rel_041 relationship
-  character_roselle_gustav --> rel_041
-  rel_041 --> pathway_seer
-  rel_042["pathway-status<br/>ch42"]
+  character_leonard_mitchell --> rel_041
+  rel_041 --> location_blackthorn_security_company
+  rel_042["pathway-status<br/>ch21"]
   class rel_042 relationship
-  character_royale_reideen --> rel_042
+  character_leonard_mitchell --> rel_042
   rel_042 --> pathway_sleepless
-  rel_043["pathway-status<br/>ch42"]
+  rel_043["investigates<br/>ch45"]
   class rel_043 relationship
-  character_seeka_tron --> rel_043
-  rel_043 --> pathway_sleepless
-  rel_044["connected-to<br/>ch210"]
+  character_old_neil --> rel_043
+  rel_043 --> artifact_antigonus_notebook
+  rel_044["mentor<br/>ch32"]
   class rel_044 relationship
-  concept_beyonder_characteristics --> rel_044
-  rel_044 --> artifact_0_08
-  rel_045["mechanic-of<br/>ch207"]
+  character_old_neil --> rel_044
+  rel_044 --> character_klein_moretti
+  rel_045["instance-of<br/>ch22"]
   class rel_045 relationship
-  concept_beyonder_characteristics --> rel_045
+  character_old_neil --> rel_045
   rel_045 --> concept_beyonders
-  rel_046["mechanic-of<br/>ch29"]
+  rel_046["trains-in<br/>ch32"]
   class rel_046 relationship
-  concept_divination --> rel_046
-  rel_046 --> pathway_seer
-  rel_047["event-outcome<br/>ch31"]
+  character_old_neil --> rel_046
+  rel_046 --> concept_beyonders
+  rel_047["trains-in<br/>ch32"]
   class rel_047 relationship
-  event_klein_becomes_a_seer --> rel_047
-  rel_047 --> character_klein_moretti
-  rel_048["event-outcome<br/>ch31"]
+  character_old_neil --> rel_047
+  rel_047 --> concept_divination
+  rel_048["event-participant<br/>ch31"]
   class rel_048 relationship
-  event_klein_becomes_a_seer --> rel_048
-  rel_048 --> concept_beyonders
-  rel_049["event-outcome<br/>ch31"]
+  character_old_neil --> rel_048
+  rel_048 --> event_klein_becomes_a_seer
+  rel_049["civilian-staff-of<br/>ch19"]
   class rel_049 relationship
-  event_klein_becomes_a_seer --> rel_049
-  rel_049 --> pathway_seer
-  rel_050["artifact-guardian<br/>ch19<br/>broken"]
+  character_old_neil --> rel_049
+  rel_049 --> faction_church_of_evernight
+  rel_050["works-at<br/>ch19"]
   class rel_050 relationship
-  faction_church_of_evernight --> rel_050
-  rel_050 --> artifact_0_08
-  rel_051["investigates<br/>ch13"]
+  character_old_neil --> rel_050
+  rel_050 --> location_blackthorn_security_company
+  rel_051["pathway-status<br/>ch22"]
   class rel_051 relationship
-  faction_church_of_evernight --> rel_051
-  rel_051 --> artifact_antigonus_notebook
-  rel_052["regulates-access-to<br/>ch6"]
+  character_old_neil --> rel_051
+  rel_051 --> pathway_mystery_pryer
+  rel_052["trains-in<br/>ch31"]
   class rel_052 relationship
-  faction_church_of_evernight --> rel_052
-  rel_052 --> concept_beyonders
-  rel_053["connected-to<br/>ch40"]
+  character_old_neil --> rel_052
+  rel_052 --> pathway_seer
+  rel_053["source-of-information<br/>ch21<br/>historical"]
   class rel_053 relationship
-  faction_church_of_evernight --> rel_053
-  rel_053 --> concept_divination
-  rel_054["event-enabler<br/>ch28<br/>completed"]
+  character_roselle_gustav --> rel_053
+  rel_053 --> pathway_seer
+  rel_054["pathway-status<br/>ch42"]
   class rel_054 relationship
-  faction_church_of_evernight --> rel_054
-  rel_054 --> event_klein_becomes_a_seer
-  rel_055["regulates-access-to<br/>ch28"]
+  character_royale_reideen --> rel_054
+  rel_054 --> pathway_sleepless
+  rel_055["pathway-status<br/>ch42"]
   class rel_055 relationship
-  faction_church_of_evernight --> rel_055
-  rel_055 --> pathway_seer
-  rel_056["regulates-access-to<br/>ch22"]
+  character_seeka_tron --> rel_055
+  rel_055 --> pathway_sleepless
+  rel_056["connected-to<br/>ch210"]
   class rel_056 relationship
-  faction_church_of_evernight --> rel_056
-  rel_056 --> pathway_sleepless
-  rel_057["investigates<br/>ch13"]
+  concept_beyonder_characteristics --> rel_056
+  rel_056 --> artifact_0_08
+  rel_057["mechanic-of<br/>ch207"]
   class rel_057 relationship
-  faction_nighthawks --> rel_057
-  rel_057 --> artifact_antigonus_notebook
-  rel_058["subordinate-organization<br/>ch13"]
+  concept_beyonder_characteristics --> rel_057
+  rel_057 --> concept_beyonders
+  rel_058["mechanic-of<br/>ch29"]
   class rel_058 relationship
-  faction_nighthawks --> rel_058
-  rel_058 --> faction_church_of_evernight
-  rel_059["affiliated-with<br/>ch17"]
+  concept_divination --> rel_058
+  rel_058 --> pathway_seer
+  rel_059["event-outcome<br/>ch31"]
   class rel_059 relationship
-  faction_nighthawks --> rel_059
-  rel_059 --> location_saint_selena_cathedral
-  rel_060["targets<br/>ch28<br/>strong-evidence"]
+  event_klein_becomes_a_seer --> rel_059
+  rel_059 --> character_klein_moretti
+  rel_060["event-outcome<br/>ch31"]
   class rel_060 relationship
-  faction_secret_order --> rel_060
-  rel_060 --> artifact_antigonus_notebook
-  rel_061["connected-to<br/>ch45"]
+  event_klein_becomes_a_seer --> rel_060
+  rel_060 --> concept_beyonders
+  rel_061["event-outcome<br/>ch31"]
   class rel_061 relationship
-  location_blackthorn_security_company --> rel_061
-  rel_061 --> artifact_antigonus_notebook
-  rel_062["event-location<br/>ch30<br/>completed"]
+  event_klein_becomes_a_seer --> rel_061
+  rel_061 --> pathway_seer
+  rel_062["artifact-guardian<br/>ch19<br/>broken"]
   class rel_062 relationship
-  location_blackthorn_security_company --> rel_062
-  rel_062 --> event_klein_becomes_a_seer
-  rel_063["operational-base-for<br/>ch17"]
+  faction_church_of_evernight --> rel_062
+  rel_062 --> artifact_0_08
+  rel_063["investigates<br/>ch13"]
   class rel_063 relationship
-  location_blackthorn_security_company --> rel_063
-  rel_063 --> faction_nighthawks
-  rel_064["public-cover-for<br/>ch17"]
+  faction_church_of_evernight --> rel_063
+  rel_063 --> artifact_antigonus_notebook
+  rel_064["regulates-access-to<br/>ch6"]
   class rel_064 relationship
-  location_blackthorn_security_company --> rel_064
-  rel_064 --> faction_nighthawks
-  rel_065["connected-to<br/>ch17"]
+  faction_church_of_evernight --> rel_064
+  rel_064 --> concept_beyonders
+  rel_065["connected-to<br/>ch40"]
   class rel_065 relationship
-  location_blackthorn_security_company --> rel_065
-  rel_065 --> location_saint_selena_cathedral
-  rel_066["event-location<br/>ch31<br/>completed"]
+  faction_church_of_evernight --> rel_065
+  rel_065 --> concept_divination
+  rel_066["event-enabler<br/>ch28<br/>completed"]
   class rel_066 relationship
-  location_saint_selena_cathedral --> rel_066
+  faction_church_of_evernight --> rel_066
   rel_066 --> event_klein_becomes_a_seer
-  rel_067["affiliated-with<br/>ch17"]
+  rel_067["regulates-access-to<br/>ch28"]
   class rel_067 relationship
-  location_saint_selena_cathedral --> rel_067
-  rel_067 --> faction_church_of_evernight
-  rel_068["connected-to<br/>ch17"]
+  faction_church_of_evernight --> rel_067
+  rel_067 --> pathway_seer
+  rel_068["regulates-access-to<br/>ch22"]
   class rel_068 relationship
-  location_saint_selena_cathedral --> rel_068
-  rel_068 --> location_blackthorn_security_company
-  rel_069["access-route-to<br/>ch28"]
+  faction_church_of_evernight --> rel_068
+  rel_068 --> pathway_sleepless
+  rel_069["investigates<br/>ch13"]
   class rel_069 relationship
-  pathway_seer --> rel_069
-  rel_069 --> concept_beyonders
-  rel_070["uses-method<br/>ch29"]
+  faction_nighthawks --> rel_069
+  rel_069 --> artifact_antigonus_notebook
+  rel_070["subordinate-organization<br/>ch13"]
   class rel_070 relationship
-  pathway_seer --> rel_070
-  rel_070 --> concept_divination
-  rel_071["access-route-to<br/>ch22"]
+  faction_nighthawks --> rel_070
+  rel_070 --> faction_church_of_evernight
+  rel_071["affiliated-with<br/>ch17"]
   class rel_071 relationship
-  pathway_sleepless --> rel_071
-  rel_071 --> concept_beyonders
-  rel_072["connected-to<br/>ch28"]
+  faction_nighthawks --> rel_071
+  rel_071 --> location_saint_selena_cathedral
+  rel_072["targets<br/>ch28<br/>strong-evidence"]
   class rel_072 relationship
-  pathway_sleepless --> rel_072
-  rel_072 --> pathway_seer
+  faction_secret_order --> rel_072
+  rel_072 --> artifact_antigonus_notebook
+  rel_073["connected-to<br/>ch45"]
+  class rel_073 relationship
+  location_blackthorn_security_company --> rel_073
+  rel_073 --> artifact_antigonus_notebook
+  rel_074["event-location<br/>ch30<br/>completed"]
+  class rel_074 relationship
+  location_blackthorn_security_company --> rel_074
+  rel_074 --> event_klein_becomes_a_seer
+  rel_075["operational-base-for<br/>ch17"]
+  class rel_075 relationship
+  location_blackthorn_security_company --> rel_075
+  rel_075 --> faction_nighthawks
+  rel_076["public-cover-for<br/>ch17"]
+  class rel_076 relationship
+  location_blackthorn_security_company --> rel_076
+  rel_076 --> faction_nighthawks
+  rel_077["connected-to<br/>ch17"]
+  class rel_077 relationship
+  location_blackthorn_security_company --> rel_077
+  rel_077 --> location_saint_selena_cathedral
+  rel_078["event-location<br/>ch31<br/>completed"]
+  class rel_078 relationship
+  location_saint_selena_cathedral --> rel_078
+  rel_078 --> event_klein_becomes_a_seer
+  rel_079["affiliated-with<br/>ch17"]
+  class rel_079 relationship
+  location_saint_selena_cathedral --> rel_079
+  rel_079 --> faction_church_of_evernight
+  rel_080["connected-to<br/>ch17"]
+  class rel_080 relationship
+  location_saint_selena_cathedral --> rel_080
+  rel_080 --> location_blackthorn_security_company
+  rel_081["access-route-to<br/>ch28"]
+  class rel_081 relationship
+  pathway_seer --> rel_081
+  rel_081 --> concept_beyonders
+  rel_082["uses-method<br/>ch29"]
+  class rel_082 relationship
+  pathway_seer --> rel_082
+  rel_082 --> concept_divination
+  rel_083["access-route-to<br/>ch22"]
+  class rel_083 relationship
+  pathway_sleepless --> rel_083
+  rel_083 --> concept_beyonders
+  rel_084["connected-to<br/>ch28"]
+  class rel_084 relationship
+  pathway_sleepless --> rel_084
+  rel_084 --> pathway_seer

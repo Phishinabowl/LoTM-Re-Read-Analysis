@@ -23,7 +23,7 @@ Related Threads:
 - [Seer Pathway](../Pathways/pathway-seer.md)
 - [Old Neil](character-old-neil.md)
 - character-klein-moretti.md
-- character-leonard-mitchell.md
+- [Leonard Mitchell](character-leonard-mitchell.md)
 - faction-nighthawks.md
 - [Sleepless Pathway](../Pathways/pathway-sleepless.md)
 
@@ -201,7 +201,7 @@ Later Volume 1 crisis material, final-battle knowledge, and 0-08-specific Dunn e
 ### Directly Related
 
 - character-klein-moretti.md
-- character-leonard-mitchell.md
+- [Leonard Mitchell](character-leonard-mitchell.md)
 - [Old Neil](character-old-neil.md)
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
 - [Sleepless Pathway](../Pathways/pathway-sleepless.md)
@@ -234,7 +234,7 @@ Later Volume 1 crisis material, final-battle knowledge, and 0-08-specific Dunn e
 ### Associated Characters
 
 - character-klein-moretti.md
-- character-leonard-mitchell.md
+- [Leonard Mitchell](character-leonard-mitchell.md)
 - [Old Neil](character-old-neil.md)
 - character-frye.md
 - character-kenley-white.md

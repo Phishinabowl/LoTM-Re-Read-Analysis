@@ -18,7 +18,7 @@ Related Threads:
 - [Seer Pathway](../Pathways/pathway-seer.md)
 - character-klein-moretti.md
 - [Dunn Smith](../Characters/character-dunn-smith.md)
-- character-leonard-mitchell.md
+- [Leonard Mitchell](../Characters/character-leonard-mitchell.md)
 - character-azik-eggers.md
 - character-ray-bieber.md
 - [Divination](../Concepts/concept-divination.md)
@@ -180,7 +180,7 @@ Later revelations about the notebook's origin, contents, current possessor, caus
 - [Blackthorn Security Company](../Locations/location-blackthorn-security-company.md)
 - character-klein-moretti.md
 - [Dunn Smith](../Characters/character-dunn-smith.md)
-- character-leonard-mitchell.md
+- [Leonard Mitchell](../Characters/character-leonard-mitchell.md)
 
 ### Historical Connections
 
@@ -208,7 +208,7 @@ Later revelations about the notebook's origin, contents, current possessor, caus
 
 - character-klein-moretti.md
 - [Dunn Smith](../Characters/character-dunn-smith.md)
-- character-leonard-mitchell.md
+- [Leonard Mitchell](../Characters/character-leonard-mitchell.md)
 - [Old Neil](../Characters/character-old-neil.md)
 - character-azik-eggers.md
 - character-ray-bieber.md

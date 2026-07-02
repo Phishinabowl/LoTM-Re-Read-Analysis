@@ -163,7 +163,7 @@ Do not add later history, occupants, institutional changes, or consequences unti
 
 - character-klein-moretti.md
 - [Dunn Smith](../Characters/character-dunn-smith.md)
-- character-leonard-mitchell.md
+- [Leonard Mitchell](../Characters/character-leonard-mitchell.md)
 - character-ince-zangwill.md
 
 ### Associated Pathways
