@@ -1,0 +1,26 @@
+{
+  "puppeteerConfig": "Visualization/config/puppeteer-config.json",
+  "background": "white",
+  "width": 2400,
+  "height": 1800,
+  "pngScale": 2,
+  "reportPath": "Visualization/README.md",
+  "views": [
+    {
+      "name": "Volume 1 Knowledge Graph",
+      "input": "Visualization/graphs/volume-1-knowledge-graph.mmd",
+      "outputs": [
+        "Visualization/rendered/volume-1-knowledge-graph.svg",
+        "Visualization/rendered/volume-1-knowledge-graph.png"
+      ]
+    },
+    {
+      "name": "Volume 1 Knowledge Graph - Timing Spoiler-Free",
+      "input": "Visualization/graphs/volume-1-knowledge-graph-timing-spoiler-free.mmd",
+      "outputs": [
+        "Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.svg",
+        "Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.png"
+      ]
+    }
+  ]
+}

@@ -24,34 +24,42 @@ Use Mermaid CLI:
 npm install -g @mermaid-js/mermaid-cli
 ```
 
-The default `mmdc` browser launch may time out on Windows. The working approach was to point Puppeteer at local Microsoft Edge with a temporary config file.
+The default `mmdc` browser launch may time out on Windows. The working approach is to point Puppeteer at local Microsoft Edge through the permanent render config in `Visualization/config`.
 
-## Temporary Puppeteer Config
+## Permanent Render Config
 
-Create a temporary file such as `Visualization/rendered/puppeteer-config.json`:
+Puppeteer launch settings live at:
 
-```json
-{
-  "executablePath": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
-  "timeout": 120000,
-  "args": [
-    "--no-sandbox",
-    "--disable-setuid-sandbox",
-    "--disable-dev-shm-usage"
-  ]
-}
-```
+- `Visualization/config/puppeteer-config.json`
 
-If Edge is installed elsewhere, update `executablePath`. Chrome can also be used if available.
+Graph render settings live at:
 
-This config is a local rendering helper and does not need to remain in the repository after exports are generated.
+- `Visualization/config/render-settings.json`
+
+If Edge is installed elsewhere, update `executablePath` in the Puppeteer config. Chrome can also be used if available.
 
 ## Render Commands
 
-From the repository root:
+From the repository root, render every configured graph view and write the refresh report:
 
 ```powershell
-mmdc -p Visualization\rendered\puppeteer-config.json `
+.\Visualization\render-graphs.ps1
+```
+
+To update only the refresh report without rerendering images:
+
+```powershell
+.\Visualization\render-graphs.ps1 -SkipRender
+```
+
+The helper reads `Visualization/config/render-settings.json`, renders every configured view to every configured output, and updates the live refresh tracker in:
+
+- `Visualization/README.md`
+
+Manual commands remain useful for debugging a single view:
+
+```powershell
+mmdc -p Visualization\config\puppeteer-config.json `
   -i Visualization\graphs\volume-1-knowledge-graph.mmd `
   -o Visualization\rendered\volume-1-knowledge-graph.svg `
   -b white `
@@ -60,7 +68,7 @@ mmdc -p Visualization\rendered\puppeteer-config.json `
 ```
 
 ```powershell
-mmdc -p Visualization\rendered\puppeteer-config.json `
+mmdc -p Visualization\config\puppeteer-config.json `
   -i Visualization\graphs\volume-1-knowledge-graph.mmd `
   -o Visualization\rendered\volume-1-knowledge-graph.png `
   -b white `
@@ -70,14 +78,6 @@ mmdc -p Visualization\rendered\puppeteer-config.json `
 ```
 
 The first PNG export produced a readable Discord-friendly image around `4768 x 1426` pixels and about `428 KB`.
-
-## Cleanup
-
-After rendering, remove temporary test files and the temporary Puppeteer config:
-
-```powershell
-Remove-Item -LiteralPath Visualization\rendered\puppeteer-config.json
-```
 
 Keep the generated PNG/SVG exports only when they are useful project artifacts.
 
@@ -89,7 +89,7 @@ Tiny test graph:
 
 ```powershell
 "graph TD`nA[Alpha] --> B[Beta]" | mmdc `
-  -p Visualization\rendered\puppeteer-config.json `
+  -p Visualization\config\puppeteer-config.json `
   -i - `
   -o Visualization\rendered\_mmdc-test.svg
 ```

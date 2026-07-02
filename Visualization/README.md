@@ -11,6 +11,70 @@ Generated graph files are not the source of truth. The canonical project data re
 
 Mermaid graphs are generated from glossary metadata and Relationship Seeds. If a graph exposes missing, stale, or incorrect information, fix the glossary thread, investigation record, or relationship seed first, then regenerate the graph.
 
+## Current Artifacts
+
+- [Volume 1 Knowledge Graph](graphs/volume-1-knowledge-graph.mmd)
+- [Volume 1 Knowledge Graph - Timing Spoiler-Free](graphs/volume-1-knowledge-graph-timing-spoiler-free.mmd)
+- [Graph Schema Notes](data/graph-schema.md)
+- [Rendering Instructions](rendering.md)
+
+The `rendered/` folder is reserved for future generated SVG or PNG graph exports.
+
+## Refresh Tracker
+
+After every graph refresh, update the live refresh tracker below. It summarizes node count, relationship count, views updated, rendered files, broken links, orphan nodes, and pending graph nodes.
+
+<!-- VISUALIZATION-REFRESH-REPORT:START -->
+Last Updated: 2026-07-02 00:02:52 -04:00
+
+### Summary
+
+| Metric | Count | Delta |
+| --- | ---: | ---: |
+| Nodes | 23 | 0 |
+| Relationships | 52 | 0 |
+| Views Updated | 2 | 0 |
+| Rendered Files | 4 | 0 |
+| Broken Links | 0 | 0 |
+| Orphan Nodes | 0 | 0 |
+| Pending Nodes | 14 | 0 |
+
+### Views
+
+- Volume 1 Knowledge Graph: `Visualization/graphs/volume-1-knowledge-graph.mmd`
+- Volume 1 Knowledge Graph - Timing Spoiler-Free: `Visualization/graphs/volume-1-knowledge-graph-timing-spoiler-free.mmd`
+
+### Rendered Outputs
+
+- `Visualization/rendered/volume-1-knowledge-graph.svg` (91064 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph.png` (332874 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.svg` (90773 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.png` (336403 bytes)
+
+### Hygiene
+
+- Broken links: 0
+- Orphan nodes: 0
+- Pending graph nodes: 14
+
+#### Pending Nodes
+
+- `character-azik-eggers.md`
+- `character-daly-simone.md`
+- `character-dunn-smith.md`
+- `character-ince-zangwill.md`
+- `character-klein-moretti.md`
+- `character-leonard-mitchell.md`
+- `character-ray-bieber.md`
+- `character-roselle-gustav.md`
+- `faction-nighthawks.md`
+- `faction-secret-order.md`
+- `location-blackthorn-security-company.md`
+- `pathway-corpse-collector.md`
+- `pathway-mystery-pryer.md`
+- `pathway-sleepless.md`
+<!-- VISUALIZATION-REFRESH-REPORT:END -->
+
 ## Refresh Rules
 
 Regenerate graph artifacts when graph inputs change:
@@ -33,15 +97,6 @@ When a refresh is confirmed, update every current graph view unless the user exp
 - matching rendered PNG files, when present
 
 Fresh renders replace stale render files unless the user asks for archived snapshots.
-
-## Current Artifacts
-
-- [Volume 1 Knowledge Graph](graphs/volume-1-knowledge-graph.mmd)
-- [Volume 1 Knowledge Graph - Timing Spoiler-Free](graphs/volume-1-knowledge-graph-timing-spoiler-free.mmd)
-- [Graph Schema Notes](data/graph-schema.md)
-- [Rendering Instructions](rendering.md)
-
-The `rendered/` folder is reserved for future generated SVG or PNG graph exports.
 
 ## Long-Term Vision
 
