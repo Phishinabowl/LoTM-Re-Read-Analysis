@@ -1,4 +1,4 @@
-# Visualization
+﻿# Visualization
 
 This folder contains generated visualization artifacts for the Lord of the Mysteries re-read analysis project.
 
@@ -27,28 +27,28 @@ After every graph refresh, update the live refresh tracker below. It summarizes 
 The tracker compares the current graph against the semantic snapshot in `data/refresh-snapshot.json`. Unexpected removed nodes, removed relationships, changed relationship labels, duplicate relationships, broken links, or orphan nodes should be treated as visualization validation issues and reviewed before committing.
 
 <!-- VISUALIZATION-REFRESH-REPORT:START -->
-Last Updated: 2026-07-02 00:39:12 -04:00
+Last Updated: 2026-07-02 01:10:39 -04:00
 
 ### Summary
 
 | Metric | Count | Delta |
 | --- | ---: | ---: |
 | Nodes | 23 | 0 |
-| Relationships | 59 | +7 |
+| Relationships | 66 | +7 |
 | Views Updated | 2 | 0 |
 | Rendered Files | 4 | 0 |
 | Broken Links | 0 | 0 |
 | Orphan Nodes | 0 | 0 |
-| Pending Nodes | 16 | +2 |
-| Validation Issues | 0 | n/a |
+| Pending Nodes | 18 | +2 |
+| Validation Issues | 2 | n/a |
 
 ### Semantic Changes
 
 - Added nodes: 0
 - Removed nodes: 0
-- Added relationships: 7
-- Removed relationships: 0
-- Changed relationship labels: 0
+- Added relationships: 9
+- Removed relationships: 2
+- Changed relationship labels: 2
 - Duplicate relationships: 0
 
 ### Views
@@ -58,43 +58,57 @@ Last Updated: 2026-07-02 00:39:12 -04:00
 
 ### Rendered Outputs
 
-- `Visualization/rendered/volume-1-knowledge-graph.svg` (114749 bytes)
-- `Visualization/rendered/volume-1-knowledge-graph.png` (431692 bytes)
-- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.svg` (114889 bytes)
-- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.png` (511092 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph.svg` (126175 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph.png` (433966 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.svg` (125480 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.png` (453247 bytes)
 
 ### Hygiene
 
 - Broken links: 0
 - Orphan nodes: 0
 - Duplicate relationships: 0
-- Removed relationships: 0
-- Changed relationship labels: 0
-- Pending graph nodes: 16
+- Removed relationships: 2
+- Changed relationship labels: 2
+- Pending graph nodes: 18
 
 #### Added Relationships
 
-- `character_klein_moretti|works-at ch17|location_blackthorn_security_company`
-- `character_old_neil|works-at ch19|location_blackthorn_security_company`
-- `location_blackthorn_security_company|connected-to ch17|location_saint_selena_cathedral`
-- `location_blackthorn_security_company|connected-to ch45|artifact_antigonus_notebook`
-- `location_blackthorn_security_company|event-location ch30 completed|event_klein_becomes_a_seer`
-- `location_blackthorn_security_company|operational-base-for ch17|faction_nighthawks`
-- `location_blackthorn_security_company|public-cover-for ch17|faction_nighthawks`
+- `character_dunn_smith|event-participant ch28 completed|event_klein_becomes_a_seer`
+- `character_dunn_smith|investigates ch13|artifact_antigonus_notebook`
+- `character_dunn_smith|leader-of ch17|faction_nighthawks`
+- `character_dunn_smith|pathway-status ch22 strong-evidence|pathway_sleepless`
+- `character_dunn_smith|source-of-information ch18|concept_beyonders`
+- `character_dunn_smith|source-of-information ch29|concept_divination`
+- `character_dunn_smith|superior ch17|character_klein_moretti`
+- `character_dunn_smith|works-at ch17|location_blackthorn_security_company`
+- `character_klein_moretti|subordinate ch17|character_dunn_smith`
+
+#### Removed Relationships
+
+- `character_dunn_smith|event-participant ch28|event_klein_becomes_a_seer`
+- `character_dunn_smith|pathway-status ch22 strong-inference|pathway_sleepless`
+
+#### Changed Relationship Labels
+
+- `character_dunn_smith` -> `event_klein_becomes_a_seer` changed from `event-participant ch28` to `event-participant ch28 completed`
+- `character_dunn_smith` -> `pathway_sleepless` changed from `pathway-status ch22 strong-inference` to `pathway-status ch22 strong-evidence`
 
 #### Pending Nodes
 
 - `character-azik-eggers.md`
 - `character-daly-simone.md`
-- `character-dunn-smith.md`
 - `character-frye.md`
 - `character-ince-zangwill.md`
+- `character-kenley-white.md`
 - `character-klein-moretti.md`
 - `character-leonard-mitchell.md`
 - `character-mrs-orianna.md`
 - `character-ray-bieber.md`
+- `character-royale-reideen.md`
 - `character-rozanne.md`
 - `character-roselle-gustav.md`
+- `character-seeka-tron.md`
 - `faction-nighthawks.md`
 - `faction-secret-order.md`
 - `pathway-corpse-collector.md`

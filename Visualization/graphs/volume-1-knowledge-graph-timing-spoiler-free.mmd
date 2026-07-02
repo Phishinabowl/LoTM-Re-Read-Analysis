@@ -1,4 +1,4 @@
-graph TD
+﻿graph TD
   artifact_0_08["0-08"]
   artifact_antigonus_notebook["Antigonus Notebook"]
   character_azik_eggers["Azik Eggers"]
@@ -30,12 +30,19 @@ graph TD
   artifact_0_08 -->|targets-protected-resource completed strong-evidence| location_saint_selena_cathedral
   artifact_antigonus_notebook -->|connected-to| concept_divination
   character_daly_simone -->|pathway-status| pathway_corpse_collector
-  character_dunn_smith -->|event-participant| event_klein_becomes_a_seer
+  character_dunn_smith -->|investigates| artifact_antigonus_notebook
+  character_dunn_smith -->|superior| character_klein_moretti
+  character_dunn_smith -->|source-of-information| concept_beyonders
+  character_dunn_smith -->|source-of-information| concept_divination
+  character_dunn_smith -->|event-participant completed| event_klein_becomes_a_seer
   character_dunn_smith -->|member-of| faction_church_of_evernight
-  character_dunn_smith -->|pathway-status strong-inference| pathway_sleepless
+  character_dunn_smith -->|leader-of| faction_nighthawks
+  character_dunn_smith -->|works-at| location_blackthorn_security_company
+  character_dunn_smith -->|pathway-status strong-evidence| pathway_sleepless
   character_ince_zangwill -->|artifact-user| artifact_0_08
   character_ince_zangwill -->|infiltrates completed strong-evidence| location_saint_selena_cathedral
   character_klein_moretti -->|investigates| artifact_antigonus_notebook
+  character_klein_moretti -->|subordinate| character_dunn_smith
   character_klein_moretti -->|student| character_old_neil
   character_klein_moretti -->|instance-of| concept_beyonders
   character_klein_moretti -->|uses-method| concept_divination
