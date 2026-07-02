@@ -1,5 +1,5 @@
 ﻿{
-    "generated_at":  "2026-07-02 01:10:39 -04:00",
+    "generated_at":  "2026-07-02 01:34:16 -04:00",
     "nodes":  [
                   "artifact_0_08",
                   "artifact_antigonus_notebook",
@@ -7,10 +7,13 @@
                   "character_daly_simone",
                   "character_dunn_smith",
                   "character_ince_zangwill",
+                  "character_kenley_white",
                   "character_klein_moretti",
                   "character_leonard_mitchell",
                   "character_old_neil",
                   "character_roselle_gustav",
+                  "character_royale_reideen",
+                  "character_seeka_tron",
                   "concept_beyonder_characteristics",
                   "concept_beyonders",
                   "concept_divination",
@@ -112,6 +115,13 @@
                           },
                           {
                               "source":  "character_dunn_smith",
+                              "target":  "pathway_sleepless",
+                              "label":  "pathway-status ch22",
+                              "key":  "character_dunn_smith|pathway-status ch22|pathway_sleepless",
+                              "endpointKey":  "character_dunn_smith|pathway_sleepless"
+                          },
+                          {
+                              "source":  "character_dunn_smith",
                               "target":  "concept_beyonders",
                               "label":  "source-of-information ch18",
                               "key":  "character_dunn_smith|source-of-information ch18|concept_beyonders",
@@ -151,6 +161,13 @@
                               "label":  "infiltrates ch210 completed strong-evidence",
                               "key":  "character_ince_zangwill|infiltrates ch210 completed strong-evidence|location_saint_selena_cathedral",
                               "endpointKey":  "character_ince_zangwill|location_saint_selena_cathedral"
+                          },
+                          {
+                              "source":  "character_kenley_white",
+                              "target":  "pathway_sleepless",
+                              "label":  "pathway-status ch42",
+                              "key":  "character_kenley_white|pathway-status ch42|pathway_sleepless",
+                              "endpointKey":  "character_kenley_white|pathway_sleepless"
                           },
                           {
                               "source":  "character_klein_moretti",
@@ -307,6 +324,20 @@
                               "endpointKey":  "character_roselle_gustav|pathway_seer"
                           },
                           {
+                              "source":  "character_royale_reideen",
+                              "target":  "pathway_sleepless",
+                              "label":  "pathway-status ch42",
+                              "key":  "character_royale_reideen|pathway-status ch42|pathway_sleepless",
+                              "endpointKey":  "character_royale_reideen|pathway_sleepless"
+                          },
+                          {
+                              "source":  "character_seeka_tron",
+                              "target":  "pathway_sleepless",
+                              "label":  "pathway-status ch42",
+                              "key":  "character_seeka_tron|pathway-status ch42|pathway_sleepless",
+                              "endpointKey":  "character_seeka_tron|pathway_sleepless"
+                          },
+                          {
                               "source":  "concept_beyonder_characteristics",
                               "target":  "artifact_0_08",
                               "label":  "connected-to ch210",
@@ -375,6 +406,13 @@
                               "label":  "investigates ch13",
                               "key":  "faction_church_of_evernight|investigates ch13|artifact_antigonus_notebook",
                               "endpointKey":  "faction_church_of_evernight|artifact_antigonus_notebook"
+                          },
+                          {
+                              "source":  "faction_church_of_evernight",
+                              "target":  "pathway_sleepless",
+                              "label":  "regulates-access-to ch22",
+                              "key":  "faction_church_of_evernight|regulates-access-to ch22|pathway_sleepless",
+                              "endpointKey":  "faction_church_of_evernight|pathway_sleepless"
                           },
                           {
                               "source":  "faction_church_of_evernight",
@@ -487,6 +525,20 @@
                               "label":  "uses-method ch29",
                               "key":  "pathway_seer|uses-method ch29|concept_divination",
                               "endpointKey":  "pathway_seer|concept_divination"
+                          },
+                          {
+                              "source":  "pathway_sleepless",
+                              "target":  "concept_beyonders",
+                              "label":  "access-route-to ch22",
+                              "key":  "pathway_sleepless|access-route-to ch22|concept_beyonders",
+                              "endpointKey":  "pathway_sleepless|concept_beyonders"
+                          },
+                          {
+                              "source":  "pathway_sleepless",
+                              "target":  "pathway_seer",
+                              "label":  "connected-to ch28",
+                              "key":  "pathway_sleepless|connected-to ch28|pathway_seer",
+                              "endpointKey":  "pathway_sleepless|pathway_seer"
                           }
                       ],
     "views":  [
@@ -520,7 +572,6 @@
                           "faction-nighthawks.md",
                           "faction-secret-order.md",
                           "pathway-corpse-collector.md",
-                          "pathway-mystery-pryer.md",
-                          "pathway-sleepless.md"
+                          "pathway-mystery-pryer.md"
                       ]
 }

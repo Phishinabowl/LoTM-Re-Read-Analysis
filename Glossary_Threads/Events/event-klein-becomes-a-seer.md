@@ -195,7 +195,7 @@ Later consequences of Klein's Seer pathway, later acting-method development, lat
 - [Seer Pathway](../Pathways/pathway-seer.md)
 - pathway-mystery-pryer.md
 - pathway-corpse-collector.md
-- pathway-sleepless.md
+- [Sleepless Pathway](../Pathways/pathway-sleepless.md)
 
 ## Relationship Seeds
 

@@ -181,7 +181,7 @@ Later Seer pathway names, higher Sequences, future acting-method developments, a
 ### Associated Pathways
 
 - pathway-mystery-pryer.md
-- pathway-sleepless.md
+- [Sleepless Pathway](pathway-sleepless.md)
 - pathway-corpse-collector.md
 
 ## Relationship Seeds

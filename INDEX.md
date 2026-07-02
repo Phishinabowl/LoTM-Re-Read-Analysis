@@ -127,6 +127,15 @@ Navigation hub for the reread analysis workspace.
   - [Seer Pathway Novel Volume 1 Reveal Timeline](Investigations/Pathways/pathway-seer/novel-volume-1-reveal-timeline.md)
   - [Church of Evernight Volume 1 Reveal Timeline](Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
 
+#### Sleepless Pathway
+
+- Glossary: [Sleepless Pathway](Glossary_Threads/Pathways/pathway-sleepless.md)
+- Supporting Investigations:
+  - [Sleepless Pathway Novel Volume 1 Reveal Timeline](Investigations/Pathways/pathway-sleepless/novel-volume-1-reveal-timeline.md)
+  - [Church of Evernight Volume 1 Reveal Timeline](Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
+  - [Dunn Smith Novel Volume 1 Reveal Timeline](Investigations/Characters/character-dunn-smith/novel-volume-1-reveal-timeline.md)
+  - [Blackthorn Security Company Novel Volume 1 Reveal Timeline](Investigations/Locations/location-blackthorn-security-company/novel-volume-1-reveal-timeline.md)
+
 Glossary threads are organized into type-specific subfolders. Supporting investigations may be direct same-subject records or cross-subject records that provide evidence for the article.
 
 ## Source

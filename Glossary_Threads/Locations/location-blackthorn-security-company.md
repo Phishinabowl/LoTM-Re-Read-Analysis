@@ -18,6 +18,7 @@ Related Threads:
 - [Antigonus Notebook](../Artifacts/artifact-antigonus-notebook.md)
 - [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
 - [Seer Pathway](../Pathways/pathway-seer.md)
+- [Sleepless Pathway](../Pathways/pathway-sleepless.md)
 - character-klein-moretti.md
 - [Dunn Smith](../Characters/character-dunn-smith.md)
 - [Old Neil](../Characters/character-old-neil.md)
@@ -205,7 +206,7 @@ Do not add later Volume 1 crisis material, 0-08/Megose material, final battle st
 ### Associated Pathways
 
 - [Seer Pathway](../Pathways/pathway-seer.md)
-- pathway-sleepless.md
+- [Sleepless Pathway](../Pathways/pathway-sleepless.md)
 - pathway-mystery-pryer.md
 
 ## Relationship Seeds

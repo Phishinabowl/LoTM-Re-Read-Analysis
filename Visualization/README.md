@@ -27,28 +27,28 @@ After every graph refresh, update the live refresh tracker below. It summarizes 
 The tracker compares the current graph against the semantic snapshot in `data/refresh-snapshot.json`. Unexpected removed nodes, removed relationships, changed relationship labels, duplicate relationships, broken links, or orphan nodes should be treated as visualization validation issues and reviewed before committing.
 
 <!-- VISUALIZATION-REFRESH-REPORT:START -->
-Last Updated: 2026-07-02 01:10:39 -04:00
+Last Updated: 2026-07-02 01:34:16 -04:00
 
 ### Summary
 
 | Metric | Count | Delta |
 | --- | ---: | ---: |
-| Nodes | 23 | 0 |
-| Relationships | 66 | +7 |
+| Nodes | 26 | +3 |
+| Relationships | 73 | +7 |
 | Views Updated | 2 | 0 |
 | Rendered Files | 4 | 0 |
 | Broken Links | 0 | 0 |
 | Orphan Nodes | 0 | 0 |
-| Pending Nodes | 18 | +2 |
-| Validation Issues | 2 | n/a |
+| Pending Nodes | 17 | -1 |
+| Validation Issues | 0 | n/a |
 
 ### Semantic Changes
 
-- Added nodes: 0
+- Added nodes: 3
 - Removed nodes: 0
-- Added relationships: 9
-- Removed relationships: 2
-- Changed relationship labels: 2
+- Added relationships: 7
+- Removed relationships: 0
+- Changed relationship labels: 
 - Duplicate relationships: 0
 
 ### Views
@@ -58,41 +58,35 @@ Last Updated: 2026-07-02 01:10:39 -04:00
 
 ### Rendered Outputs
 
-- `Visualization/rendered/volume-1-knowledge-graph.svg` (126175 bytes)
-- `Visualization/rendered/volume-1-knowledge-graph.png` (433966 bytes)
-- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.svg` (125480 bytes)
-- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.png` (453247 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph.svg` (138655 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph.png` (412161 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.svg` (138163 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.png` (425283 bytes)
 
 ### Hygiene
 
 - Broken links: 0
 - Orphan nodes: 0
 - Duplicate relationships: 0
-- Removed relationships: 2
-- Changed relationship labels: 2
-- Pending graph nodes: 18
+- Removed relationships: 0
+- Changed relationship labels: 
+- Pending graph nodes: 17
+
+#### Added Nodes
+
+- `character_kenley_white`
+- `character_royale_reideen`
+- `character_seeka_tron`
 
 #### Added Relationships
 
-- `character_dunn_smith|event-participant ch28 completed|event_klein_becomes_a_seer`
-- `character_dunn_smith|investigates ch13|artifact_antigonus_notebook`
-- `character_dunn_smith|leader-of ch17|faction_nighthawks`
-- `character_dunn_smith|pathway-status ch22 strong-evidence|pathway_sleepless`
-- `character_dunn_smith|source-of-information ch18|concept_beyonders`
-- `character_dunn_smith|source-of-information ch29|concept_divination`
-- `character_dunn_smith|superior ch17|character_klein_moretti`
-- `character_dunn_smith|works-at ch17|location_blackthorn_security_company`
-- `character_klein_moretti|subordinate ch17|character_dunn_smith`
-
-#### Removed Relationships
-
-- `character_dunn_smith|event-participant ch28|event_klein_becomes_a_seer`
-- `character_dunn_smith|pathway-status ch22 strong-inference|pathway_sleepless`
-
-#### Changed Relationship Labels
-
-- `character_dunn_smith` -> `event_klein_becomes_a_seer` changed from `event-participant ch28` to `event-participant ch28 completed`
-- `character_dunn_smith` -> `pathway_sleepless` changed from `pathway-status ch22 strong-inference` to `pathway-status ch22 strong-evidence`
+- `character_dunn_smith|pathway-status ch22|pathway_sleepless`
+- `character_kenley_white|pathway-status ch42|pathway_sleepless`
+- `character_royale_reideen|pathway-status ch42|pathway_sleepless`
+- `character_seeka_tron|pathway-status ch42|pathway_sleepless`
+- `faction_church_of_evernight|regulates-access-to ch22|pathway_sleepless`
+- `pathway_sleepless|access-route-to ch22|concept_beyonders`
+- `pathway_sleepless|connected-to ch28|pathway_seer`
 
 #### Pending Nodes
 
@@ -113,7 +107,6 @@ Last Updated: 2026-07-02 01:10:39 -04:00
 - `faction-secret-order.md`
 - `pathway-corpse-collector.md`
 - `pathway-mystery-pryer.md`
-- `pathway-sleepless.md`
 <!-- VISUALIZATION-REFRESH-REPORT:END -->
 
 ## Refresh Rules

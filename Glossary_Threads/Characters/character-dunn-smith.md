@@ -25,7 +25,7 @@ Related Threads:
 - character-klein-moretti.md
 - character-leonard-mitchell.md
 - faction-nighthawks.md
-- pathway-sleepless.md
+- [Sleepless Pathway](../Pathways/pathway-sleepless.md)
 
 Related Investigations:
 - [Dunn Smith Novel Volume 1 Reveal Timeline](../../Investigations/Characters/character-dunn-smith/novel-volume-1-reveal-timeline.md)
@@ -138,7 +138,7 @@ Later Volume 1 crisis material, final-battle knowledge, and 0-08-specific Dunn e
 
 - What the reader learns: Dunn assigns Klein's early duties, explains Chanis Gate, formal Nighthawk rotations, Keepers, classified records, magical materials, prisoners, Sealed Artifact grades, 0-08's basic appearance, and local pathway context. By Chapter 22, the reader can strongly infer Dunn is on the Sleepless pathway and associated with `Nightmare`.
 - What changes: Dunn's role expands from recruiter to captain managing staff, dangerous knowledge, artifacts, and Nighthawk pathway information.
-- What remains unknown: Dunn's exact Sequence status is strongly implied but not formally confirmed in a direct Dunn profile statement, and 0-08's function remains unknown.
+- What remains unknown: Dunn's pathway affiliation and exact Sequence are still inferential at this moment, and 0-08's function remains unknown.
 - Why it matters: Dunn anchors the Nighthawks as a dangerous but bureaucratically controlled institution.
 
 #### Chapters 24-28: Secret Order Pressure and Beyonder Opportunity
@@ -164,8 +164,8 @@ Later Volume 1 crisis material, final-battle knowledge, and 0-08-specific Dunn e
 
 #### Chapters 42-47: Deployment Snapshot and Field Command
 
-- What the reader learns: Dunn is sometimes away on cathedral business, manages a thinly spread team, and mobilizes Leonard, Old Neil, Frye, and Klein around Klein's Antigonus notebook lead. He coordinates field response through Blackthorn, the Special Operations cover, and ordinary police at the scene.
-- What changes: Dunn becomes visible as active commander rather than only office authority.
+- What the reader learns: Dunn is sometimes away on cathedral business, manages a thinly spread team, and mobilizes Leonard, Old Neil, Frye, and Klein around Klein's Antigonus notebook lead. He coordinates field response through Blackthorn, the Special Operations cover, and ordinary police at the scene. Chapter 45 also confirms Dunn as an advanced Sleepless.
+- What changes: Dunn becomes visible as active commander rather than only office authority, and his Sleepless pathway affiliation moves from strong inference to confirmed.
 - What remains unknown: The longer-term handling of Ray Bieber, the notebook, and the Secret Order pursuit remains unresolved at this boundary.
 - Why it matters: Dunn's current boundary closes with him as a competent, trusted captain turning Klein's Seer clue into formal Nighthawks action.
 
@@ -187,7 +187,7 @@ Later Volume 1 crisis material, final-battle knowledge, and 0-08-specific Dunn e
 - Related investigation: [Dunn Smith Novel Volume 1 Reveal Timeline](../../Investigations/Characters/character-dunn-smith/novel-volume-1-reveal-timeline.md)
 
 - Question: Should Dunn's `Nightmare` status be treated as confirmed or strong inference through Chapter 47?
-- Current confidence: Strong Evidence. Chapter 22 directly connects Dunn's dream guidance to `Nightmare` and says it is likely he is one of Tingen's two Sequence 7 Beyonders, but the wording remains inferential rather than a direct Dunn profile statement.
+- Current confidence: Strong Evidence. Chapter 45 confirms Dunn is an advanced Sleepless, but Chapter 22 remains the main basis for the exact `Nightmare` inference and still stops short of a direct Dunn profile statement.
 - Needs EPUB verification: Completed through Chapter 47
 - Related investigation: [Dunn Smith Novel Volume 1 Reveal Timeline](../../Investigations/Characters/character-dunn-smith/novel-volume-1-reveal-timeline.md)
 
@@ -204,6 +204,7 @@ Later Volume 1 crisis material, final-battle knowledge, and 0-08-specific Dunn e
 - character-leonard-mitchell.md
 - [Old Neil](character-old-neil.md)
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
+- [Sleepless Pathway](../Pathways/pathway-sleepless.md)
 - faction-nighthawks.md
 - [Blackthorn Security Company](../Locations/location-blackthorn-security-company.md)
 - [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
@@ -242,7 +243,7 @@ Later Volume 1 crisis material, final-battle knowledge, and 0-08-specific Dunn e
 
 ### Associated Pathways
 
-- pathway-sleepless.md
+- [Sleepless Pathway](../Pathways/pathway-sleepless.md)
 - [Seer Pathway](../Pathways/pathway-seer.md)
 - pathway-mystery-pryer.md
 - pathway-corpse-collector.md
@@ -289,8 +290,8 @@ relationships:
       volume: 1
       chapter: 22
     status: active
-    confidence: strong-evidence
-    notes: Chapter 22 directly connects Dunn's dream guidance to Nightmare and says it is likely he is one of Tingen's two Sequence 7 Beyonders; keep as strong evidence because this remains inferential rather than a direct Dunn profile statement.
+    confidence: confirmed
+    notes: Chapter 22 directly connects Dunn's dream guidance to Nightmare and says it is likely he is one of Tingen's two Sequence 7 Beyonders; Chapter 45 confirms Dunn is an advanced Sleepless. Treat exact Nightmare status as strong evidence, but pathway affiliation as confirmed.
   - source: character-dunn-smith
     target: character-klein-moretti
     relationship_type: superior
@@ -428,20 +429,20 @@ last_updated: 2026-07-02
 
 - Donghua comparison is pending.
 
-### Knowledge Unit: Dunn Is Strongly Implied to Be a Nightmare
+### Knowledge Unit: Dunn Is Confirmed on the Sleepless Pathway and Strongly Implied to Be a Nightmare
 
 ```yaml
 id: dunn-nightmare-pathway-inference
-claim: Through Chapter 22, the reader can strongly infer that Dunn Smith is associated with the Sleepless pathway and likely Sequence 7 Nightmare.
+claim: Through Chapter 47, the reader can confirm Dunn Smith is associated with the Sleepless pathway and strongly infer he is likely Sequence 7 Nightmare.
 truth_status: true
-confidence_level: strong-evidence
+confidence_level: confirmed
 canon_scope: novel
 occurs_at:
   medium: novel
   book: lotm-1
   volume: 1
-  chapter: 22
-  notes: Chapter 13 shows Dunn entering/guiding Klein's dream; Chapter 22 connects Nightmare to that ability and frames Dunn as likely one of Tingen's two Sequence 7 Beyonders.
+  chapter: 45
+  notes: Chapter 13 shows Dunn entering/guiding Klein's dream; Chapter 22 connects Nightmare to that ability and frames Dunn as likely one of Tingen's two Sequence 7 Beyonders; Chapter 45 confirms Dunn is an advanced Sleepless.
 tags:
   - volume-1
   - reader-knowledge
@@ -466,6 +467,18 @@ disclosures:
       volume: 1
       chapter: 22
     superseded_at:
+      book: lotm-1
+      volume: 1
+      chapter: 45
+    superseded_by: dunn-nightmare-pathway-inference
+  - medium: novel
+    knowledge_state: confirmed-fact
+    disclosure_type: pathway-confirmation
+    available_from:
+      book: lotm-1
+      volume: 1
+      chapter: 45
+    superseded_at:
     superseded_by:
 adaptation_relationships:
   - type: pending
@@ -481,7 +494,8 @@ last_updated: 2026-07-02
 #### Reader-State History
 
 - Chapter 13 demonstrates Dunn's dream-related ability without naming the pathway.
-- Chapter 22 gives enough pathway context for a strong reader inference, but stops short of a direct formal confirmation.
+- Chapter 22 gives enough pathway context for a strong reader inference toward Nightmare.
+- Chapter 45 confirms Dunn is on the Sleepless pathway while still stopping short of a direct exact-Sequence profile statement.
 
 #### Adaptation Analysis
 

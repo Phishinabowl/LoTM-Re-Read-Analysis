@@ -18,6 +18,7 @@ Related Threads:
 - [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
 - [Beyonders](../Concepts/concept-beyonders.md)
 - [Seer Pathway](../Pathways/pathway-seer.md)
+- [Sleepless Pathway](../Pathways/pathway-sleepless.md)
 - [Old Neil](../Characters/character-old-neil.md)
 - [Divination](../Concepts/concept-divination.md)
 
@@ -226,6 +227,7 @@ Use Markdown links when the target file exists. Mention a nonexistent thread as 
 - character-klein-moretti.md
 - [Dunn Smith](../Characters/character-dunn-smith.md)
 - character-leonard-mitchell.md
+- [Sleepless Pathway](../Pathways/pathway-sleepless.md)
 
 ### Historical Connections
 
@@ -252,7 +254,7 @@ Use Markdown links when the target file exists. Mention a nonexistent thread as 
 
 ### Associated Pathways
 
-- pathway-sleepless.md
+- [Sleepless Pathway](../Pathways/pathway-sleepless.md)
 - pathway-mystery-pryer.md
 - pathway-corpse-collector.md
 - [Seer Pathway](../Pathways/pathway-seer.md)
@@ -339,8 +341,8 @@ relationships:
       volume: 1
       chapter: 22
     status: active
-    confidence: strong-evidence
-    notes: Rozanne implies Dunn is one of Tingen's Sequence 7 Beyonders after Klein connects Nightmare to Dunn entering his dream; Chapter 22 places Nightmare in the Sleepless pathway.
+    confidence: confirmed
+    notes: Rozanne implies Dunn is one of Tingen's Sequence 7 Beyonders after Klein connects Nightmare to Dunn entering his dream; Chapter 45 confirms Dunn is an advanced Sleepless. Treat exact Nightmare status as strong evidence, but pathway affiliation as confirmed.
   - source: character-old-neil
     target: pathway-mystery-pryer
     relationship_type: pathway-status
@@ -780,7 +782,7 @@ occurs_at:
   book: lotm-1
   volume: 1
   chapter: 22
-  notes: Rozanne explains the sequence names through Sequence 7 and implies Dunn is a Nightmare.
+  notes: Rozanne explains the sequence names through Sequence 7, implies Dunn is a Nightmare, and Chapter 45 later confirms Dunn is an advanced Sleepless.
 tags:
   - volume-1
   - reader-knowledge
@@ -818,6 +820,7 @@ last_updated: 2026-07-01
 - Chapter 21 leaves Klein only with a vague memory that the Church's complete pathway begins at Sequence 9.
 - Chapter 22 turns that into named pathway knowledge: `Sleepless`, `Midnight Poet`, and `Nightmare`.
 - Chapter 28 clarifies that `Sleepless` is the complete starting Sequence bestowed on the Nighthawks and is distinct from the incomplete options Klein can choose immediately.
+- Chapter 45 confirms Dunn as an advanced Sleepless, strengthening the character-to-pathway mapping while leaving exact `Nightmare` status as an inference.
 
 #### Adaptation Analysis
 

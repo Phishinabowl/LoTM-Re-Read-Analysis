@@ -16,6 +16,7 @@ Related Threads:
 - [Beyonder Characteristics](concept-beyonder-characteristics.md)
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
 - [Seer Pathway](../Pathways/pathway-seer.md)
+- [Sleepless Pathway](../Pathways/pathway-sleepless.md)
 - [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
 - [Old Neil](../Characters/character-old-neil.md)
 
@@ -185,7 +186,7 @@ Later explanations of Beyonder characteristics, pathway structure, acting method
 ### Associated Pathways
 
 - [Seer Pathway](../Pathways/pathway-seer.md)
-- pathway-sleepless.md
+- [Sleepless Pathway](../Pathways/pathway-sleepless.md)
 - pathway-mystery-pryer.md
 - pathway-corpse-collector.md
 

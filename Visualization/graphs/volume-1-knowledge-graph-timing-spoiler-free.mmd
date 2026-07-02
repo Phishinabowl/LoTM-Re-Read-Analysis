@@ -5,10 +5,13 @@
   character_daly_simone["Daly Simone"]
   character_dunn_smith["Dunn Smith"]
   character_ince_zangwill["Ince Zangwill"]
+  character_kenley_white["Kenley White"]
   character_klein_moretti["Klein Moretti"]
   character_leonard_mitchell["Leonard Mitchell"]
   character_old_neil["Old Neil"]
   character_roselle_gustav["Roselle Gustav"]
+  character_royale_reideen["Royale Reideen"]
+  character_seeka_tron["Seeka Tron"]
   concept_beyonder_characteristics["Beyonder Characteristics"]
   concept_beyonders["Beyonders"]
   concept_divination["Divination"]
@@ -21,7 +24,7 @@
   pathway_corpse_collector["Corpse Collector"]
   pathway_mystery_pryer["Mystery Pryer"]
   pathway_seer["Seer Pathway"]
-  pathway_sleepless["Sleepless"]
+  pathway_sleepless["Sleepless Pathway"]
 
   artifact_0_08 -->|causal-agent completed| artifact_antigonus_notebook
   artifact_0_08 -->|investigated-by strong-evidence| character_azik_eggers
@@ -38,9 +41,11 @@
   character_dunn_smith -->|member-of| faction_church_of_evernight
   character_dunn_smith -->|leader-of| faction_nighthawks
   character_dunn_smith -->|works-at| location_blackthorn_security_company
+  character_dunn_smith -->|pathway-status| pathway_sleepless
   character_dunn_smith -->|pathway-status strong-evidence| pathway_sleepless
   character_ince_zangwill -->|artifact-user| artifact_0_08
   character_ince_zangwill -->|infiltrates completed strong-evidence| location_saint_selena_cathedral
+  character_kenley_white -->|pathway-status| pathway_sleepless
   character_klein_moretti -->|investigates| artifact_antigonus_notebook
   character_klein_moretti -->|subordinate| character_dunn_smith
   character_klein_moretti -->|student| character_old_neil
@@ -63,6 +68,8 @@
   character_old_neil -->|pathway-status| pathway_mystery_pryer
   character_old_neil -->|trains-in| pathway_seer
   character_roselle_gustav -->|source-of-information historical| pathway_seer
+  character_royale_reideen -->|pathway-status| pathway_sleepless
+  character_seeka_tron -->|pathway-status| pathway_sleepless
   concept_beyonder_characteristics -->|connected-to| artifact_0_08
   concept_beyonder_characteristics -->|mechanic-of| concept_beyonders
   concept_divination -->|mechanic-of| pathway_seer
@@ -75,6 +82,7 @@
   faction_church_of_evernight -->|connected-to| concept_divination
   faction_church_of_evernight -->|event-enabler completed| event_klein_becomes_a_seer
   faction_church_of_evernight -->|regulates-access-to| pathway_seer
+  faction_church_of_evernight -->|regulates-access-to| pathway_sleepless
   faction_nighthawks -->|investigates| artifact_antigonus_notebook
   faction_nighthawks -->|subordinate-organization| faction_church_of_evernight
   faction_nighthawks -->|affiliated-with| location_saint_selena_cathedral
@@ -89,3 +97,5 @@
   location_saint_selena_cathedral -->|connected-to| location_blackthorn_security_company
   pathway_seer -->|access-route-to| concept_beyonders
   pathway_seer -->|uses-method| concept_divination
+  pathway_sleepless -->|access-route-to| concept_beyonders
+  pathway_sleepless -->|connected-to| pathway_seer
