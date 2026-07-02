@@ -66,6 +66,15 @@ Navigation hub for the reread analysis workspace.
 - Supporting Investigations:
   - [0-08 Donghua Season 1 Reveal Timeline](Investigations/Artifacts/artifact-0-08/donghua-season-1-reveal-timeline.md)
 
+#### Divination
+
+- Glossary: [Divination](Glossary_Threads/Concepts/concept-divination.md)
+- Supporting Investigations:
+  - [Divination Novel Volume 1 Reveal Timeline](Investigations/Concepts/concept-divination/novel-volume-1-reveal-timeline.md)
+  - [Seer Pathway Novel Volume 1 Reveal Timeline](Investigations/Pathways/pathway-seer/novel-volume-1-reveal-timeline.md)
+  - [Church of Evernight Volume 1 Reveal Timeline](Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
+  - [Antigonus Notebook Novel Volume 1 Reveal Timeline](Investigations/Artifacts/artifact-antigonus-notebook/novel-volume-1-reveal-timeline.md)
+
 ### Events
 
 #### Klein Becomes a Seer

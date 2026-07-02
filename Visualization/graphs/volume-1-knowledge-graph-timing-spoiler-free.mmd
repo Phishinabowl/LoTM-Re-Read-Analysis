@@ -29,6 +29,11 @@ graph TD
   character_old_neil -->|trains-in| pathway_seer
   character_roselle_gustav -->|source-of-information historical| pathway_seer
   pathway_seer -->|uses-method| concept_divination
+  concept_divination -->|mechanic-of| pathway_seer
+  character_old_neil -->|trains-in| concept_divination
+  character_klein_moretti -->|uses-method| concept_divination
+  faction_church_of_evernight -->|connected-to| concept_divination
+  artifact_antigonus_notebook -->|connected-to| concept_divination
   pathway_seer -->|access-route-to| concept_beyonders
   location_saint_selena_cathedral -->|affiliated-with| faction_church_of_evernight
   faction_nighthawks -->|affiliated-with| location_saint_selena_cathedral

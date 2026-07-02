@@ -128,8 +128,8 @@ Later Seer pathway names, higher Sequences, future acting-method developments, a
 - Needs EPUB verification: No; structure decision needed.
 - Related investigation: [Seer Pathway Novel Volume 1 Reveal Timeline](../../Investigations/Pathways/pathway-seer/novel-volume-1-reveal-timeline.md)
 
-- Question: Should `Spirit Vision`, `Cogitation`, and `divination` be concept threads immediately?
-- Current confidence: Strong Evidence that they recur; uncertain whether to split now or after the next training arc.
+- Question: Should `Spirit Vision` and `Cogitation` be concept threads immediately?
+- Current confidence: Strong Evidence that they recur; uncertain whether to split now or after the next training arc. `Divination` has now been promoted into a pilot concept thread through Chapter 47.
 - Needs EPUB verification: No for current existence; yes for full concept pages.
 - Related investigation: [Seer Pathway Novel Volume 1 Reveal Timeline](../../Investigations/Pathways/pathway-seer/novel-volume-1-reveal-timeline.md)
 
@@ -144,7 +144,7 @@ Later Seer pathway names, higher Sequences, future acting-method developments, a
 - [Beyonders](../Concepts/concept-beyonders.md)
 - concept-spirit-vision.md
 - concept-cogitation.md
-- concept-divination.md
+- [Divination](../Concepts/concept-divination.md)
 
 ### Historical Connections
 

@@ -122,8 +122,8 @@ Later explanations of Beyonder characteristics, pathway structure, acting method
 
 ## Open Questions
 
-- Question: Should this page eventually split `concept-pathways`, `concept-potions`, `concept-cogitation`, `concept-spirit-vision`, and `concept-divination` into separate concept pages?
-- Current confidence: Strong Evidence that these will recur; Working Theory that this parent page can hold them until each becomes too large.
+- Question: Should this page eventually split `concept-pathways`, `concept-potions`, `concept-cogitation`, and `concept-spirit-vision` into separate concept pages?
+- Current confidence: Strong Evidence that these will recur; Working Theory that this parent page can hold them until each becomes too large. `Divination` has now been promoted into a dedicated pilot concept page.
 - Needs EPUB verification: No for the structural decision; yes for full concept reconstruction.
 - Related investigation: [Beyonders Novel Volume 1 Reveal Timeline](../../Investigations/Concepts/concept-beyonders/novel-volume-1-reveal-timeline.md)
 
@@ -143,6 +143,7 @@ Later explanations of Beyonder characteristics, pathway structure, acting method
 - [Seer Pathway](../Pathways/pathway-seer.md)
 - [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
 - [Beyonder Characteristics](concept-beyonder-characteristics.md)
+- [Divination](concept-divination.md)
 - concept-pathways.md
 - concept-potions.md
 - concept-cogitation.md

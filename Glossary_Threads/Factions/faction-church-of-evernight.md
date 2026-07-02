@@ -18,7 +18,7 @@ Related Threads:
 - [Beyonders](../Concepts/concept-beyonders.md)
 - [Seer Pathway](../Pathways/pathway-seer.md)
 - [Old Neil](../Characters/character-old-neil.md)
-- concept-divination.md
+- [Divination](../Concepts/concept-divination.md)
 
 Related Investigations:
 - [Church of Evernight Volume 1 Reveal Timeline](../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
@@ -204,6 +204,7 @@ Use Markdown links when the target file exists. Mention a nonexistent thread as 
 - [Beyonders](../Concepts/concept-beyonders.md)
 - [Seer Pathway](../Pathways/pathway-seer.md)
 - [Old Neil](../Characters/character-old-neil.md)
+- [Divination](../Concepts/concept-divination.md)
 - character-klein-moretti.md
 - character-dunn-smith.md
 - character-leonard-mitchell.md
@@ -382,16 +383,16 @@ relationships:
     status: active
     confidence: strong-evidence
     notes: Chapter 35 makes the notebook's Church significance clearer when Alger states that the Church of Evernight destroyed the Antigonus family and Klein reassesses the Nighthawks' interest in recovering the notebook.
-  - source: character-klein-moretti
+  - source: faction-church-of-evernight
     target: concept-divination
-    relationship_type: uses-method
+    relationship_type: connected-to
     start:
       medium: novel
       volume: 1
       chapter: 40
     status: active
     confidence: confirmed
-    notes: Klein plans to join a Divination Club to become a real Seer, and Old Neil frames that membership as useful Nighthawk monitoring work.
+    notes: Old Neil frames Klein's planned Divination Club membership as useful Nighthawk monitoring work because occult-adjacent civilian spaces may contain cultists or evil-organization members.
 ```
 
 ## Evidence Index

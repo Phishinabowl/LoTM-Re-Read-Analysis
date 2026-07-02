@@ -21,7 +21,7 @@ Related Threads:
 - character-leonard-mitchell.md
 - character-azik-eggers.md
 - character-ray-bieber.md
-- concept-divination.md
+- [Divination](../Concepts/concept-divination.md)
 - faction-nighthawks.md
 - faction-secret-order.md
 
@@ -167,6 +167,7 @@ Later revelations about the notebook's origin, contents, current possessor, caus
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
 - [Old Neil](../Characters/character-old-neil.md)
 - [Seer Pathway](../Pathways/pathway-seer.md)
+- [Divination](../Concepts/concept-divination.md)
 - character-klein-moretti.md
 - character-dunn-smith.md
 - character-leonard-mitchell.md
@@ -256,6 +257,16 @@ relationships:
     status: active
     confidence: strong-evidence
     notes: Dunn connects the intruder to the Secret Order, and Chapter 47 indicates the Secret Order will likely race the Nighthawks toward Ray Bieber and the notebook.
+  - source: artifact-antigonus-notebook
+    target: concept-divination
+    relationship_type: connected-to
+    start:
+      medium: novel
+      volume: 1
+      chapter: 43
+    status: active
+    confidence: confirmed
+    notes: The notebook search establishes that Klein cannot divine a target without an impression of it, and Chapter 46 adds strange-power interference during the Ray Bieber/notebook lead.
 ```
 
 ## Evidence Index
