@@ -38,6 +38,9 @@ Use this section to make the completeness sweep reproducible without narrating e
 - Initial terms, names, and aliases:
 - Related effects, events, characters, locations, or motifs:
 - Terms discovered during the investigation:
+- EPUB survey command or equivalent source sweep:
+- Candidate chapter range:
+- Context expansion notes:
 - Completeness sweep: Not started
 
 ## Evidence

@@ -998,6 +998,34 @@ Do not use external summaries, wikis, fandom pages, Reddit posts, or memory when
 
 Use the EPUB.
 
+### EPUB Sweep Tool
+
+Use `Tools/Search-Epub.ps1` for repeatable novel EPUB checks.
+
+The standard EPUB evidence workflow is:
+
+1. Run a survey count across the bounded chapter range.
+2. Inspect candidate hits in chapter order.
+3. Expand local context around relevant hits.
+4. Add newly discovered terms, names, aliases, locations, abilities, motifs, and paraphrases to the search vocabulary.
+5. Repeat the survey/context loop until the active arc is covered.
+6. Record chapter references and paraphrased evidence in the investigation file.
+7. Do not paste long EPUB passages into tracked records.
+
+Example survey count:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -StartChapter 10 -EndChapter 47 -Pattern "Dunn|Captain|Nighthawk|Nightmare|Sleepless" -CountsOnly
+```
+
+Example context expansion:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -StartChapter 12 -EndChapter 13 -Pattern "Dunn|Nighthawk" -ContextLines 2 -MaxHitsPerChapter 8
+```
+
+By default, `-Pattern` treats `|` as a separator between literal terms. Use `-RegexPattern` only when a regular expression is needed.
+
 ## Donghua Subtitles
 
 Local `.ass` subtitle files are the canonical source for the dialogue and translated on-screen text contained in that subtitle release.
