@@ -223,11 +223,17 @@ Ordered graph content should preserve order visually. When graph nodes represent
 
 Dense knowledge graphs should use a connected semantic spine and styled nodes by default. Prefer ordinary styled group nodes over many Mermaid `subgraph` clusters. Use `subgraph` only for a few broad regions, intentional cluster views, or user-requested cluster boxes. Dense maps with many disconnected cluster islands should be fixed in the graph projection or generator before rendering.
 
+Content graphs should be grouped by subject semantics, not by evidence source layer, canonicalization status, validation status, or coverage status unless the graph is explicitly an evidence audit. Evidence and canonicalization status should usually appear through styling, labels, legends, note branches, or output reports.
+
 Dense graph styling should follow a visual role grammar rather than one-off decorative coloring. Use fill color to distinguish semantic roles, border style to distinguish uncertainty or boundary status, text prefixes to preserve accessible meaning, and topology to show structure. The exact palette may evolve, but role-to-style mapping should remain consistent inside a graph. This applies across graph domains, including pathway maps, artifact maps, influence maps, faction maps, event maps, location maps, and character relationship maps.
 
-Repeated entity nodes in ordered graphs must show their progression explicitly with label markers, progression edges, or advancement/state nodes. Do not rely on layout position alone to show that two appearances of the same person, artifact, faction, or concept are sequential states.
+Repeated entity nodes in ordered graphs must show their progression explicitly, preferably with label markers, compact badges, or advancement/state nodes. Use direct progression edges only when the edge itself is meaningful and should affect graph topology. Do not rely on layout position alone to show that two appearances of the same person, artifact, faction, or concept are sequential states.
 
 Uncertain, inferred, graph-local, or provisional nodes should keep the same local placement as confirmed nodes of the same semantic type. For example, a suspected holder is still holder-like for layout purposes; uncertainty belongs in the label and styling, not in a distant note cluster.
+
+For ladder-style graphs, keep the ordered sequence, phase, rank, or step chain as the primary spine. Attach holders, artifacts, controllers, notes, and evidence as leaves or local buckets rather than interrupting the spine.
+
+When reconciling against an older graph or user-provided reference graph, do not silently drop candidates. Include them, downgrade them, move them to a more accurate role, or report why they were excluded.
 
 Styled Mermaid graphs must pass class coverage validation before rendering. If a graph uses `classDef` or `class` statements, every declared or edge-used node should have an explicit class assignment. Fix missing classes, class references to nonexistent nodes, undefined classes, and semantic class mismatches in the Mermaid source or generator before publishing a render.
 

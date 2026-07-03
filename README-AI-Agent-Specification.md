@@ -2706,6 +2706,8 @@ The holder coverage pass searches repository evidence for:
 - pathway affiliation statements,
 - likely or strongly inferred pathway affiliation statements,
 - holder-like cases where the repository uses cautious wording,
+- pathway-controller, formula-possessor, founding-family, church, order, or institutional-control statements,
+- artifacts or items whose abilities are explicitly compared to a sequence title or pathway role,
 - and named characters associated with pathway abilities or pathway-specific institutional roles.
 
 The graph must not restrict holder nodes only to exact `Sequence N: Title` statements unless the user specifically requests exact numbered sequence holders only.
@@ -2725,13 +2727,21 @@ This node is not equivalent to a confirmed numbered sequence holder. It preserve
 
 If repository evidence supports a likely or inferred affiliation, the graph label must state the confidence level and reveal point.
 
+Pathway controllers, formula possessors, founding families, churches, orders, and organizations should be represented in a dedicated controller/possessor category rather than as ordinary sequence holders.
+
+Artifacts or items with sequence-like abilities should be represented as artifact/effect nodes, not holders, when the graph scope includes sequence-like abilities or pathway-role analogues.
+
+If title evidence appears before later sequence-number context, the graph may connect the holder to the later-learned sequence within the requested reader boundary, but the label should preserve both reveal points.
+
 For sequence-ladder graphs, each sequence node should receive a reverse coverage check:
 
 1. Search for the sequence title.
 2. Search for named holders of that title.
 3. Search for nearby pathway aliases or institutional roles.
 4. Search for cautious phrases such as `likely`, `probably`, `at least`, `most likely`, `advanced`, `belongs to`, `path of`, and `pathway`.
-5. Add supported holder nodes or explicitly leave the sequence without known holders.
+5. Search controller or formula-possession phrases such as `has the pathway in its grasp`, `controls`, `holds the formulas`, `founded`, and `possesses`.
+6. Search artifact and item ability analogues that are compared to sequence roles.
+7. Add supported holder, controller, or artifact nodes, or explicitly leave the sequence without known nodes.
 
 
 The holder coverage pass MUST include a literal title-holder surface-form audit.
@@ -2748,6 +2758,8 @@ Examples of required search shapes include:
 These surface forms are valid holder evidence when they are inside the requested source boundary and supported by nearby context.
 
 The AI Agent should treat missing holder nodes as a possible graph completeness failure, not merely as absent data.
+
+If a prior graph or user-provided reference graph is available, the AI Agent must reconcile against it as a candidate inventory. A node that existed in the prior graph should not disappear silently; include it, downgrade it, move it to a more accurate role, or report why it was excluded.
 
 ---
 
@@ -3865,9 +3877,13 @@ The AI Agent should distinguish unordered fan-out from ordered-series fan-out. U
 
 If a requested graph contains ordered items such as `Seq 9`, `Phase 1`, `Step 1`, `Chapter 1`, or `Episode 1`, the AI Agent should plan a chain or grouped chain before rendering instead of first emitting a wide sibling fan and correcting it after visual inspection.
 
-If the same entity appears more than once in an ordered series, the AI Agent should make the repeated-state progression visible. It may use label markers, direct progression edges between repeated-state nodes, or an intermediate progression/advancement node. It must not rely only on layout position to imply that repeated nodes are sequential states.
+If the same entity appears more than once in an ordered series, the AI Agent should make the repeated-state progression visible. It should prefer label markers or compact badges. Direct progression edges between repeated-state nodes should be used only when the edge itself is meaningful and should affect graph topology. It must not add extra edges merely to show order, and it must not rely only on layout position to imply that repeated nodes are sequential states.
+
+For ladder-style graphs, the ordered sequence, phase, rank, or step chain should remain the primary spine. Related holders, artifacts, controllers, notes, and evidence nodes should attach as leaves or local buckets rather than interrupting the spine.
 
 For dense knowledge graphs, the AI Agent should prefer a connected styled-node map over many Mermaid `subgraph` clusters. Use a visible semantic spine such as `root -> group -> entity -> detail`. Use styled group nodes for evidence buckets, topics, factions, pathways, timeline arcs, or other organizing concepts.
+
+Content graphs should be grouped by subject semantics, not by evidence source layer, canonicalization status, validation status, or coverage status unless the user explicitly asks for an evidence-audit graph. Evidence and canonicalization status should usually appear through styling, labels, legends, note branches, or output reports rather than as the graph's primary top-level branches.
 
 The AI Agent should avoid generating one `subgraph` cluster per topic, pathway, character, faction, or evidence bucket unless the user explicitly requests cluster boxes. Many Mermaid clusters often produce disconnected visual islands and wide strip renders. Clusters are acceptable for a few broad regions or intentionally separate diagrams, but they should not replace the graph spine.
 

@@ -104,6 +104,8 @@ Before finalizing a complex graph:
 
 Existing generated graph artifacts and user-provided prior graphs are coverage references, not canonical truth. Use them as candidate inventories to prevent omissions, then verify candidates against repository records or allowed source evidence.
 
+When reconciling against a prior graph, do not silently drop prior candidates. For every prior candidate that disappears from the new graph, either include it, downgrade it, move it to a more accurate role, or record an exclusion reason in the output report. This applies to holders, pathway controllers, artifacts with sequence-like abilities, variant ladders, named-only pathways, and high-sequence threshold nodes.
+
 ## Pathway, Sequence, Role, And Holder Graphs
 
 Pathway, sequence, role, title, affiliation, and "who is what sequence" graphs require a high-coverage discovery pass.
@@ -130,6 +132,8 @@ For each discovered pathway, sequence title, role title, affiliation, or holder-
 - named-only pathway-like term
 - suspected holder
 - former holder
+- pathway controller, pathway possessor, or institutional holder
+- artifact or item with sequence-like abilities
 - source-supported graph-local candidate
 - rejected or uncertain with reason
 - outside boundary
@@ -140,9 +144,17 @@ Every sequence-ladder graph must perform reverse holder coverage:
 2. Search for named holders of that title.
 3. Search for title-holder appositive forms, such as `Apprentice Fors Wall` or `Xio Derecha, Arbiter`.
 4. Search ability-first descriptions later resolved to a sequence or pathway.
-5. Represent unnumbered or likely affiliations explicitly instead of dropping them.
+5. Search pathway-controller and pathway-possession language, such as `has the pathway in its grasp`, `controls the pathway`, `holds the formulas`, `founded the pathway`, or `family/order/church possesses`.
+6. Search artifacts or items whose abilities are explicitly compared to a sequence title or pathway role.
+7. Represent unnumbered or likely affiliations explicitly instead of dropping them.
 
 Do not pin uncertain sequence numbers, sequence titles, or holder status more strongly than the source boundary supports.
+
+Pathway controllers, founding families, churches, orders, organizations, and formula possessors are not ordinary holders. Represent them in a dedicated controller/possessor category under the pathway, separate from sequence holder leaves. If a named person, family, or organization is source-supported as a controller or catalyst rather than as a sequence holder, include it in that controller category instead of omitting it or attaching it to an arbitrary sequence.
+
+Artifacts or items with sequence-like abilities are not holders. If the graph scope includes pathway/sequence use or "who/what has what sequence-like abilities," represent such artifacts as artifact/effect nodes attached to the relevant sequence or pathway role. Label them as artifacts, items, or ability analogues, not people.
+
+When title evidence appears before sequence-number context, preserve both reveal points. A label may say, for example, `title known ch13; sequence context ch22`. The graph may connect the holder to the later-learned sequence if the requested reader boundary includes both facts.
 
 ## Progression And Holder Placement
 
@@ -152,8 +164,9 @@ Use one or more of:
 
 - labels such as `stage 1`, `stage 2`, `progression 1/2`, or `then`;
 - a small text marker in the holder label, such as `Klein Moretti (1)` and `Klein Moretti (2)`;
-- direct progression edges between that entity's repeated holder nodes;
 - an intermediate `progression` or `advancement` node when the order needs explanation.
+
+Prefer label markers or compact badges over direct edges between repeated holder nodes. Direct progression edges should be used only when the edge itself represents a meaningful advancement event that should affect graph topology. Do not add direct repeated-holder edges merely to make sequence order visible, because those edges can distort placement.
 
 Do not rely only on vertical position or reader inference to show that repeated entity nodes are sequential states rather than duplicates.
 
@@ -162,7 +175,7 @@ Attach holder nodes to the most specific supported parent.
 - Confirmed exact holders attach to the confirmed sequence/title node.
 - Suspected exact-sequence holders attach to a suspected or candidate sequence node, not to the nearest lower confirmed sequence merely to keep the graph connected.
 - If the title is unknown but the sequence threshold is supported, create a node such as `Seq 7: title unknown` or `at least Seq 4: title unknown` and attach the holder there with uncertainty styling.
-- If evidence only says a character has power near, comparable to, or approaching a sequence, represent that as a state, comparison, or evidence note rather than as holder membership in that sequence.
+- If evidence only says a character has power near, comparable to, or approaching a sequence, represent that as a state, comparison, or evidence note rather than as holder membership in that sequence. Do not attach the state/comparison node as a child of the sequence node unless the evidence also supports actual membership in that sequence.
 
 This prevents graphs from implying false advancement, such as attaching a character to `Seq 6` when the evidence only says their power was close to Sequence 6.
 
@@ -170,11 +183,24 @@ High-sequence or threshold evidence should be represented as a threshold, not co
 
 For example, if source evidence supports that a character is a High-Sequence Beyonder but does not name the exact title, use a node like `High-Sequence / at least Seq 4: title unknown` with the relevant chapter. Do not downgrade the node to plain `unknown sequence` when the source boundary supports a stronger lower bound.
 
-When a pathway has known naming variants, historical variants, factional variants, translation variants, or age-specific versions, preserve that distinction visually. Variant branches should remain close to the main ladder and should rejoin where the source supports convergence.
+When a pathway has known naming variants, historical variants, factional variants, translation variants, or age-specific versions, preserve that distinction visually. Variant branches should remain close to the main ladder and should rejoin where the source supports convergence. Do not collapse parallel variant ladders into a single distant branch if that makes the equivalence harder to read.
 
 ## Layout Semantics
 
 Graph layout should be type-stable.
+
+Top-level grouping should follow the graph's subject semantics, not its evidence source layer, canonicalization status, validation status, or coverage status unless the user explicitly asks for an evidence-audit graph.
+
+Evidence layer, canonicalization status, graph-local status, validation notes, and coverage notes should usually be represented through styling, labels, legends, note branches, or the output report. They should not become the main branches of a content graph.
+
+Examples of semantic grouping:
+
+- pathway graphs: group by pathway, pathway family, controller/possessor, source-culture variant, or reader-relevant faction;
+- artifact graphs: group by artifact, owner/custody chain, ability, usage event, or consequence;
+- influence/manipulation graphs: group by manipulator, target, mechanism, event, or confirmed/inferred effect;
+- faction graphs: group by faction, hierarchy, operational cell, affiliation, conflict, or jurisdiction;
+- event graphs: group by event phase, participant role, cause, consequence, location, or reveal order;
+- timeline graphs: group by chronology, chapter/episode, phase, arc, disclosure sequence, or medium boundary.
 
 Within each repeated graph region, use a consistent topology such as:
 
@@ -188,6 +214,10 @@ group
 Nodes with the same semantic role should occupy similar relative positions across the graph. For example, confirmed holders, suspected holders, and graph-local holders may have different border styles, but they are all holder-like nodes and should be placed in the same local region relative to their parent sequence, pathway, event, artifact, or faction.
 
 Do not let confidence classes replace semantic roles. A suspected character holder is still a holder for layout purposes; uncertainty should change styling and label wording, not move it into an unrelated note or evidence region.
+
+For sequence-ladder graphs, the ordered sequence chain is the primary spine. Holder, controller, artifact, note, and evidence nodes should be leaves or local side buckets off the relevant pathway or sequence. Do not put holder-to-holder progression edges, controller nodes, artifacts, or evidence notes into the main sequence chain unless they are themselves ordered stages.
+
+When a sequence has many related holders or artifacts, use a local bucket node such as `Seq 9 holders`, `Seq 5 artifacts`, or `pathway controllers` so the ladder remains readable. The bucket is a layout helper and should be labeled as such when there is any risk of confusion.
 
 Explanatory, validation, legend, coverage, or output-report nodes are not content nodes.
 

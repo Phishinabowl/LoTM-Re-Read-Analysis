@@ -143,9 +143,11 @@ graph TB
 
 Flat fan-out is appropriate for unordered peer sets. Ordered-series fan-out usually makes Mermaid stretch the graph horizontally and hides the progression the graph is meant to show.
 
-If the same entity appears more than once in an ordered series, make the repeated-state progression explicit in the graph source before rendering. Use visible label markers, direct progression edges between repeated-state nodes, or an intermediate progression/advancement node. Do not depend on layout position alone to show that repeated nodes represent sequential states.
+If the same entity appears more than once in an ordered series, make the repeated-state progression explicit in the graph source before rendering. Prefer visible label markers or compact badges. Use direct progression edges between repeated-state nodes only when the edge itself is meaningful and should affect topology. Do not add extra edges merely to show order, and do not depend on layout position alone to show that repeated nodes represent sequential states.
 
 The layout validator can flag nodes with too many direct ordered-series children. The configured patterns are intentionally generic, such as `Seq 9`, `Phase 1`, `Step 1`, `Chapter 1`, and `Episode 1`.
+
+For ladder-style graphs, keep the ordered sequence, phase, rank, or step chain as the primary spine. Related holders, artifacts, controllers, notes, and evidence nodes should attach as leaves or local buckets rather than interrupting the spine.
 
 ## Dense Knowledge Graph Shape
 
@@ -172,6 +174,7 @@ For dense generated or agent-drafted views:
 - connect the graph through a visible semantic spine, such as `root -> group -> entity -> detail`;
 - define node classes for important visual roles;
 - keep content nodes on the content spine and put legend, coverage, validation, and explanatory nodes in a separate note or appendix branch;
+- group content by subject semantics rather than evidence source layer, canonicalization status, validation status, or coverage status unless the graph is explicitly an evidence audit;
 - reserve `subgraph` for a few broad regions or intentionally separate diagrams.
 
 The layout validator can flag dense graphs that have no class definitions, too many subgraph clusters, or too many disconnected components.
