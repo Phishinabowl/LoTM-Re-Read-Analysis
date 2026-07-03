@@ -47,6 +47,8 @@ Recommended labels include:
 
 Use uncertainty or boundary styling for graph-local content unless the graph's legend defines a more specific provisional style.
 
+Do not overload primary content-node labels with evidence-layer summaries such as `canonical + graph-local` unless that wording is necessary to understand the node itself. Prefer a separate legend, coverage note, output report, or per-edge/per-holder label for evidence-layer explanation.
+
 ## Source Expansion
 
 Start with repository-canonical records. If the request exceeds article or Relationship Seed coverage and source access is available, expand into allowed local canonical sources.
@@ -141,6 +143,57 @@ Every sequence-ladder graph must perform reverse holder coverage:
 5. Represent unnumbered or likely affiliations explicitly instead of dropping them.
 
 Do not pin uncertain sequence numbers, sequence titles, or holder status more strongly than the source boundary supports.
+
+## Progression And Holder Placement
+
+When the same entity appears multiple times in an ordered progression, the graph must make the progression visible.
+
+Use one or more of:
+
+- labels such as `stage 1`, `stage 2`, `progression 1/2`, or `then`;
+- a small text marker in the holder label, such as `Klein Moretti (1)` and `Klein Moretti (2)`;
+- direct progression edges between that entity's repeated holder nodes;
+- an intermediate `progression` or `advancement` node when the order needs explanation.
+
+Do not rely only on vertical position or reader inference to show that repeated entity nodes are sequential states rather than duplicates.
+
+Attach holder nodes to the most specific supported parent.
+
+- Confirmed exact holders attach to the confirmed sequence/title node.
+- Suspected exact-sequence holders attach to a suspected or candidate sequence node, not to the nearest lower confirmed sequence merely to keep the graph connected.
+- If the title is unknown but the sequence threshold is supported, create a node such as `Seq 7: title unknown` or `at least Seq 4: title unknown` and attach the holder there with uncertainty styling.
+- If evidence only says a character has power near, comparable to, or approaching a sequence, represent that as a state, comparison, or evidence note rather than as holder membership in that sequence.
+
+This prevents graphs from implying false advancement, such as attaching a character to `Seq 6` when the evidence only says their power was close to Sequence 6.
+
+High-sequence or threshold evidence should be represented as a threshold, not collapsed to `unknown sequence`.
+
+For example, if source evidence supports that a character is a High-Sequence Beyonder but does not name the exact title, use a node like `High-Sequence / at least Seq 4: title unknown` with the relevant chapter. Do not downgrade the node to plain `unknown sequence` when the source boundary supports a stronger lower bound.
+
+When a pathway has known naming variants, historical variants, factional variants, translation variants, or age-specific versions, preserve that distinction visually. Variant branches should remain close to the main ladder and should rejoin where the source supports convergence.
+
+## Layout Semantics
+
+Graph layout should be type-stable.
+
+Within each repeated graph region, use a consistent topology such as:
+
+```text
+group
+-> pathway/topic/faction
+-> ordered sequence/stage/phase chain
+-> holder/participant/evidence leaves
+```
+
+Nodes with the same semantic role should occupy similar relative positions across the graph. For example, confirmed holders, suspected holders, and graph-local holders may have different border styles, but they are all holder-like nodes and should be placed in the same local region relative to their parent sequence, pathway, event, artifact, or faction.
+
+Do not let confidence classes replace semantic roles. A suspected character holder is still a holder for layout purposes; uncertainty should change styling and label wording, not move it into an unrelated note or evidence region.
+
+Explanatory, validation, legend, coverage, or output-report nodes are not content nodes.
+
+Place these meta nodes in a clearly separated note or appendix branch, usually under a `Legend`, `Notes`, `Coverage`, or `Validation` node. Do not connect meta nodes through content pathways, holder chains, or evidence ladders in ways that affect the placement of the actual graph content.
+
+When a cross-cutting concept, reconstruction, exchange rule, alternate pathway connection, or boundary note would pull an existing ladder or holder into another section, use a local reference/proxy node inside the secondary section. Label it as a reference, proxy, reconstruction, summary, or `see ...` node. Do not directly cross-link into the canonical content node if that link will distort the main layout.
 
 ## Confidence And Styling
 

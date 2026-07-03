@@ -3865,6 +3865,8 @@ The AI Agent should distinguish unordered fan-out from ordered-series fan-out. U
 
 If a requested graph contains ordered items such as `Seq 9`, `Phase 1`, `Step 1`, `Chapter 1`, or `Episode 1`, the AI Agent should plan a chain or grouped chain before rendering instead of first emitting a wide sibling fan and correcting it after visual inspection.
 
+If the same entity appears more than once in an ordered series, the AI Agent should make the repeated-state progression visible. It may use label markers, direct progression edges between repeated-state nodes, or an intermediate progression/advancement node. It must not rely only on layout position to imply that repeated nodes are sequential states.
+
 For dense knowledge graphs, the AI Agent should prefer a connected styled-node map over many Mermaid `subgraph` clusters. Use a visible semantic spine such as `root -> group -> entity -> detail`. Use styled group nodes for evidence buckets, topics, factions, pathways, timeline arcs, or other organizing concepts.
 
 The AI Agent should avoid generating one `subgraph` cluster per topic, pathway, character, faction, or evidence bucket unless the user explicitly requests cluster boxes. Many Mermaid clusters often produce disconnected visual islands and wide strip renders. Clusters are acceptable for a few broad regions or intentionally separate diagrams, but they should not replace the graph spine.
@@ -3874,6 +3876,8 @@ Dense generated graphs should define visual classes for major roles, such as roo
 The AI Agent should use a visual role grammar instead of ad hoc decoration. Fill color should encode semantic role, border style should encode uncertainty or boundary status, label prefixes should encode reader-facing interpretation in text, and topology should encode structure. The exact colors are not fixed, but the mapping must be consistent within the graph. The same method applies to pathway maps, artifact maps, influence maps, faction maps, event maps, location maps, and character relationship maps; only the role labels change.
 
 Uncertain, inferred, suspected, missing, unresolved, boundary, or not-confirmed material should be visually distinct, normally through an uncertainty-style class with a dashed or otherwise different border. Do not rely only on wording such as `likely`, `unknown`, or `not confirmed`.
+
+Confidence styling must not override layout role. A suspected holder, inferred participant, graph-local character, or provisional owner should remain in the same local topology as confirmed nodes of that semantic type. Uncertainty belongs in the label, class assignment, and border style, not in a distant unrelated cluster.
 
 Before rendering a styled Mermaid graph, the AI Agent MUST validate class coverage. If the graph uses `classDef` or `class` statements, every declared or edge-used node should have an explicit class assignment, every class assignment should reference an existing node, and every assigned class should be defined when class definitions are present.
 
@@ -3886,6 +3890,8 @@ Before rendering a sectioned Mermaid graph, the AI Agent MUST preserve layout is
 Example: a late reconstruction section should represent `Ince Zangwill` through local reconstruction/reference nodes rather than directly linking `late_group` to holder nodes already owned by the Sleepless or Death pathway ladders.
 
 The AI Agent should avoid duplicate visible labels across different node IDs unless the duplicate is an explicitly labeled local reference/proxy. If a node ID looks like a proxy or reference, the rendered label must say so with language such as `reference`, `proxy`, `reconstruction`, `summary`, or `see ...`.
+
+Legend, coverage, validation, output-report, and explanatory nodes should be separated into a note or appendix branch. They should not be routed through the same content spine as pathways, holders, timelines, artifacts, factions, events, or other primary graph entities.
 
 If the canonical helper or repository Puppeteer configuration fails, the AI Agent should continue with reasonable fallback rendering methods rather than stopping prematurely.
 

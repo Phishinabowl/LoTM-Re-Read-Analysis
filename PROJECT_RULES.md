@@ -225,11 +225,17 @@ Dense knowledge graphs should use a connected semantic spine and styled nodes by
 
 Dense graph styling should follow a visual role grammar rather than one-off decorative coloring. Use fill color to distinguish semantic roles, border style to distinguish uncertainty or boundary status, text prefixes to preserve accessible meaning, and topology to show structure. The exact palette may evolve, but role-to-style mapping should remain consistent inside a graph. This applies across graph domains, including pathway maps, artifact maps, influence maps, faction maps, event maps, location maps, and character relationship maps.
 
+Repeated entity nodes in ordered graphs must show their progression explicitly with label markers, progression edges, or advancement/state nodes. Do not rely on layout position alone to show that two appearances of the same person, artifact, faction, or concept are sequential states.
+
+Uncertain, inferred, graph-local, or provisional nodes should keep the same local placement as confirmed nodes of the same semantic type. For example, a suspected holder is still holder-like for layout purposes; uncertainty belongs in the label and styling, not in a distant note cluster.
+
 Styled Mermaid graphs must pass class coverage validation before rendering. If a graph uses `classDef` or `class` statements, every declared or edge-used node should have an explicit class assignment. Fix missing classes, class references to nonexistent nodes, undefined classes, and semantic class mismatches in the Mermaid source or generator before publishing a render.
 
 Sectioned Mermaid graphs should preserve layout islands. If a node has canonical placement in one section, do not link a different summary, reconstruction, or boundary-note section directly to that same node when it will pull edges across the whole graph. Create a local reference/proxy node inside the secondary section instead, and label it as a reference to the canonical node or pathway/sequence.
 
 Avoid duplicate visible labels across different node IDs unless one of the nodes is explicitly labeled as a reference/proxy. Reference/proxy-like node IDs should also say `reference`, `proxy`, `reconstruction`, `summary`, or `see ...` in the rendered node label.
+
+Legend, coverage, validation, output-report, and explanatory nodes should live in a separate note or appendix branch so they do not distort the layout of primary content nodes.
 
 Use this maintenance lifecycle for project-knowledge changes:
 

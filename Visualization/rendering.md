@@ -143,6 +143,8 @@ graph TB
 
 Flat fan-out is appropriate for unordered peer sets. Ordered-series fan-out usually makes Mermaid stretch the graph horizontally and hides the progression the graph is meant to show.
 
+If the same entity appears more than once in an ordered series, make the repeated-state progression explicit in the graph source before rendering. Use visible label markers, direct progression edges between repeated-state nodes, or an intermediate progression/advancement node. Do not depend on layout position alone to show that repeated nodes represent sequential states.
+
 The layout validator can flag nodes with too many direct ordered-series children. The configured patterns are intentionally generic, such as `Seq 9`, `Phase 1`, `Step 1`, `Chapter 1`, and `Episode 1`.
 
 ## Dense Knowledge Graph Shape
@@ -169,6 +171,7 @@ For dense generated or agent-drafted views:
 - use styled group nodes instead of many cluster boxes;
 - connect the graph through a visible semantic spine, such as `root -> group -> entity -> detail`;
 - define node classes for important visual roles;
+- keep content nodes on the content spine and put legend, coverage, validation, and explanatory nodes in a separate note or appendix branch;
 - reserve `subgraph` for a few broad regions or intentionally separate diagrams.
 
 The layout validator can flag dense graphs that have no class definitions, too many subgraph clusters, or too many disconnected components.
@@ -193,6 +196,8 @@ Recommended role classes include:
 - `uncertain`, `boundary`, or `note` for inferred, missing, ambiguous, unresolved, or reader-boundary material.
 
 Uncertainty should be visible without relying only on words. Use dashed or otherwise distinct border styling for uncertainty-like classes such as `uncertain`, `boundary`, and `note`.
+
+Confidence styling should not override layout role. A suspected holder, inferred participant, graph-local character, or provisional owner should still be placed with the same local topology as confirmed nodes of that semantic type. Use border style, label wording, and class assignment to show uncertainty.
 
 Labels should still carry the semantic meaning in text. Examples include `holder:`, `owner:`, `participant:`, `manipulates:`, `affected:`, `member:`, `mentor:`, `likely holder:`, `holder-like:`, `generic holder:`, `Boundary note`, and `Seq 9:`. Color and line style help scanning, but text remains the accessible source of meaning.
 
@@ -241,6 +246,8 @@ The second shape forces Mermaid to place one node in two visual sections and usu
 The layout validator also checks for accidental duplicate visual labels across ordinary nodes. If two node IDs render with the same visible label, either collapse them into one canonical node or label the secondary node explicitly as a reference/proxy.
 
 Proxy/reference-like node IDs, such as `late_ince_ref`, must label themselves as a reference, proxy, reconstruction, summary, or `see ...` node. This keeps local layout helpers from looking like separate canonical entities.
+
+Legend, coverage, validation, output-report, and explanatory nodes should be rendered as a separate note or appendix branch. They should not be connected through the same content spine as pathways, holders, timelines, artifacts, factions, events, or other primary graph entities.
 
 ## Deferred Validation Ideas
 
