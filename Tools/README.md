@@ -102,3 +102,33 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Start
 ```
 
 JSON output includes `entry_type`, `volume`, `chapter`, `title`, and `source_path` fields where available.
+
+## EPUB Image Extraction
+
+Use `Extract-EpubImages.ps1` to list or extract EPUB image assets in actual spine/reading order. This is separate from text search because image-bearing XHTML entries include covers, front matter, volume covers, end-of-volume art, pathway guides, character galleries, location galleries, maps, and end-matter artwork.
+
+The script assigns an `image_number` based on EPUB spine order so "first image" and "next image" stay reproducible.
+
+### List Images
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Extract-EpubImages.ps1
+```
+
+Useful filters:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Extract-EpubImages.ps1 -StartImageNumber 1 -EndImageNumber 12
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Extract-EpubImages.ps1 -Volume 1 -ImageType Characters
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Extract-EpubImages.ps1 -ImageType Artwork
+```
+
+### Extract Images
+
+Extract selected images into `.tmp/epub-images` by default:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Extract-EpubImages.ps1 -StartImageNumber 1 -EndImageNumber 4 -Extract
+```
+
+Use `-OutputDir` to choose another destination, and `-Json` when downstream tooling needs structured fields such as `image_number`, `spine_index`, `image_type`, `volume`, `xhtml_path`, `image_path`, `alt`, and `output_path`.
