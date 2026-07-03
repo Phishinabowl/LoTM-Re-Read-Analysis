@@ -2605,6 +2605,48 @@ Placeholder nodes should only be created when supported by canonical repository 
 
 ---
 
+### Pathway and Sequence Holder Coverage
+
+When generating pathway, sequence, role, title, affiliation, or "who is what" graphs, the AI Agent MUST perform a holder coverage pass.
+
+The holder coverage pass searches repository evidence for:
+
+- exact numbered sequence statements,
+- titled role statements,
+- pathway affiliation statements,
+- likely or strongly inferred pathway affiliation statements,
+- holder-like cases where the repository uses cautious wording,
+- and named characters associated with pathway abilities or pathway-specific institutional roles.
+
+The graph must not restrict holder nodes only to exact `Sequence N: Title` statements unless the user specifically requests exact numbered sequence holders only.
+
+If repository evidence supports a pathway affiliation but not a precise sequence number, the graph should represent that explicitly rather than omit the character.
+
+Example representation:
+
+```mermaid
+graph TD
+    pathway_death["Death / Corpse Collector Pathway"]
+    holder_azik["Azik<br/>likely pathway affiliation<br/>exact sequence unknown at boundary"]
+    pathway_death --> holder_azik
+```
+
+This node is not equivalent to a confirmed numbered sequence holder. It preserves the reader boundary while avoiding a false omission.
+
+If repository evidence supports a likely or inferred affiliation, the graph label must state the confidence level and reveal point.
+
+For sequence-ladder graphs, each sequence node should receive a reverse coverage check:
+
+1. Search for the sequence title.
+2. Search for named holders of that title.
+3. Search for nearby pathway aliases or institutional roles.
+4. Search for cautious phrases such as `likely`, `probably`, `at least`, `most likely`, `advanced`, `belongs to`, `path of`, and `pathway`.
+5. Add supported holder nodes or explicitly leave the sequence without known holders.
+
+The AI Agent should treat missing holder nodes as a possible graph completeness failure, not merely as absent data.
+
+---
+
 ## 9.11 Manipulation Graphs
 
 Manipulation graphs receive special treatment.
@@ -2675,6 +2717,30 @@ Perspective determines which graph is compiled.
 
 ---
 
+### Source Boundary and Medium Boundary
+
+Graph compilation MUST preserve the requested source boundary.
+
+Examples of source boundaries include:
+
+- novel-only,
+- donghua-only,
+- mixed adaptation,
+- volume-bounded,
+- chapter-bounded,
+- episode-bounded,
+- repository-wide,
+- user-provided external context,
+- and explicitly opted-in external research.
+
+If a character, sequence, relationship, or reveal point is known from another medium or later boundary but is not present in the requested repository/source boundary, the graph must not silently include it.
+
+If the user provides outside or adaptation context in the conversation, the AI Agent may discuss it as user-provided context, but it must distinguish that context from repository-supported knowledge unless the context has been added to the repository or the user explicitly asks for a hybrid graph.
+
+When a graph excludes a plausible candidate because it belongs to a later chapter, later volume, different adaptation, unaudited subtitle set, or external source, the assistant should state that boundary reason when discussing graph coverage.
+
+---
+
 ## 9.13 Visualization Convention Resolution
 
 Before generating any graph, the AI Agent should inspect existing visualization architecture.
@@ -2718,6 +2784,10 @@ Before returning a graph, the AI Agent validates:
 - Graph direction
 - Platform compatibility
 - Rendering compatibility
+- Coverage against the requested entity class
+- Holder coverage for pathway, sequence, role, title, and affiliation graphs
+- Boundary consistency across chapter, volume, medium, and repository source scope
+- Confidence labels for likely, inferred, unnumbered, or boundary-limited affiliations
 
 For ChatGPT specifically:
 
@@ -3031,6 +3101,42 @@ Relationships present in investigations fail to appear because generated Mermaid
 Resolution:
 
 Always prioritize canonical repository evidence over generated artifacts.
+
+---
+
+### Type K — Holder Coverage Failure
+
+Definition:
+
+The AI Agent correctly identifies a pathway, sequence, role, title, or affiliation but omits repository-supported holders because the evidence is not phrased as an exact numbered sequence statement.
+
+Typical symptoms:
+
+- A pathway graph includes a pathway but omits a character with a supported likely pathway affiliation.
+- A sequence graph includes a sequence title but omits a character directly or strongly identified with that title.
+- A graph answers "who is what" while only extracting `Sequence N` patterns and missing `path of`, `advanced`, `at least`, `most likely`, `belongs to`, or institutional-role evidence.
+
+Resolution:
+
+Add a holder coverage pass that searches both exact sequence statements and affiliation-style evidence, then represents unnumbered or likely affiliations explicitly instead of dropping them.
+
+---
+
+### Type L — Source Boundary Confusion
+
+Definition:
+
+The AI Agent mixes evidence from different source boundaries without marking the difference.
+
+Typical symptoms:
+
+- Novel-only graphs include adaptation-only evidence.
+- Volume-bounded graphs include later-volume holders.
+- Repository Mode answers include user-provided or external facts as if they were repository-supported.
+
+Resolution:
+
+Validate the requested boundary before graph compilation and label or exclude evidence from other media, later chapters, later volumes, unaudited subtitles, or external sources unless the user explicitly requests a hybrid or research-mode graph.
 
 ---
 
