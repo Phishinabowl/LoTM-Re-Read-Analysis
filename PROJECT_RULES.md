@@ -110,6 +110,8 @@ Track glossary pages in three practical groups:
 - `In-Progress Threads`: active or partially built threads, including their current reader boundary and approximate Volume progress.
 - `Pending / Deferred Threads`: generated or planned thread titles that do not yet have dedicated glossary pages.
 
+Within `Pending / Deferred Threads`, mark existing pending entries as `(artwork backed)` when official artwork has already been mapped to that subject. If a mapped artwork subject does not already appear elsewhere in the pending backlog, add it to a lowest-priority `Artwork-Backed Pending Threads` subsection instead of promoting it automatically.
+
 For Volume 1 progress percentages, use the current verified chapter boundary divided by 213 total chapters. Treat the percentage as a chapter-boundary indicator, not a guarantee of article quality, cross-link completeness, or adaptation completeness.
 
 When a thread spans more than one medium, track novel and adaptation progress separately where practical. Do not let one medium's progress silently advance another.
