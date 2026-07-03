@@ -10,7 +10,7 @@ Confidence Level: Strong Evidence
 Spoiler Boundary: Volume 1
 Reader Knowledge Boundary: Novel Chapter 47; Donghua Season 1
 Tags: volume-1, reader-knowledge, pathway, faction
-Last Updated: 2026-07-02
+Last Updated: 2026-07-03
 
 Related Threads:
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
@@ -49,6 +49,14 @@ Later Sleepless pathway names, higher Sequences, deeper Church pathway lore, and
 - Donghua: Season 1
 - Donghua viewer knowledge state: Not yet verified for this pathway thread.
 
+## Pathway Snapshot
+
+- Current reader-safe status: The Church of Evernight's complete Nighthawks pathway route begins with `Sleepless` and is known through `Nightmare` at the current boundary.
+- Institutional access status: The Church/Nighthawks regulate access to the pathway; Klein could wait for a future opening rather than choose an immediately available incomplete option.
+- Known continuation status: The reader knows Sequence 9 through Sequence 7. Higher Sequences remain unknown at this boundary.
+- Primary reader-facing function: Night, darkness, reduced sleep, physical endurance, intuition, mental capability, and sleep/dream-related operational effects.
+- Main uncertainty: Dunn's exact `Nightmare` Sequence is strongly supported but not directly profile-confirmed through Chapter 47.
+
 ## First Appearance / First Meaningful Mention
 
 ### Novel
@@ -82,6 +90,235 @@ Later Sleepless pathway names, higher Sequences, deeper Church pathway lore, and
 - Timestamp: TBD
 - Context: Requires Donghua subtitle and visual verification.
 - Viewer knowledge state: Exact first mention, translation choice, and adaptation timing are not yet verified.
+
+## Known Sequences
+
+### Sequence 9: Sleepless
+
+- First reader-safe reveal: Novel Volume 1, Chapter 22 formally explains `Sleepless` as the Church's complete starting Sequence; the term appears earlier in Chapters 15 and 17.
+- Confidence: confirmed
+- Formula / potion details: No formula or ingredient details recorded at the current boundary.
+- Confirmed abilities or traits: Reduced sleep requirement, darkness vision, and stronger physical strength, intuition, and mental capabilities deeper into the night.
+- Practical demonstrations: Chapter 33 uses Sleepless as a contrast for non-Sleepless exhaustion after Spirit Vision practice.
+- Training or practice requirements: Leonard's Chapter 17 anecdote implies new Sleepless powers require adjustment, but no formal training method is recorded at this boundary.
+- Limitations: The exact recovery advantage and the line between Sequence 9 traits and later Sequence traits remain unclear.
+- Reader-safe unknowns: Potion formula details and how advancement slots open.
+- Notes: Sequence 9 is the known starting point of the Church's complete Nighthawks pathway.
+
+### Sequence 8: Midnight Poet
+
+- First reader-safe reveal: Novel Volume 1, Chapter 21, when Leonard introduces himself as `Sequence 8's Midnight Poet`; Chapter 22 places Midnight Poet inside the Sleepless ladder.
+- Confidence: confirmed
+- Formula / potion details: No formula or ingredient details recorded at the current boundary.
+- Confirmed abilities or traits: Sleep-like influence through singing is demonstrated, but the full Midnight Poet ability profile remains incomplete.
+- Practical demonstrations: Leonard's Chapter 44 singing can induce sleep-like influence and leave targets rationalizing the effect afterward.
+- Training or practice requirements: Not recorded at this boundary.
+- Limitations: Exact full capabilities of Midnight Poet remain unknown.
+- Reader-safe unknowns: Formula details, full ability set, and advancement history for known holders.
+- Notes: Leonard is the reader's first named Sequence 8 example before the pathway ladder is formally explained.
+
+### Sequence 7: Nightmare
+
+- First reader-safe reveal: Novel Volume 1, Chapter 22, when Rozanne names `Nightmare` as Sequence 7.
+- Confidence: confirmed for the Sequence name; strong evidence for Dunn's exact status.
+- Formula / potion details: No formula or ingredient details recorded at the current boundary.
+- Confirmed abilities or traits: Dream guidance/manipulation is strongly associated with Nightmare through Klein's inference about Dunn.
+- Practical demonstrations: Dunn's earlier dream guidance supports the Nightmare inference.
+- Training or practice requirements: Not recorded at this boundary.
+- Limitations: Dunn's exact Sequence is not directly profile-confirmed through Chapter 47.
+- Reader-safe unknowns: Full Nightmare ability set, formula details, and higher Sequences above Nightmare.
+- Notes: Preserve the distinction between confirmed Sequence name and strong-evidence character assignment.
+
+## Institutional Access
+
+| Institution / faction | Access type | First reader-safe reveal | Confidence | Notes |
+| --- | --- | --- | --- | --- |
+| [Church of Evernight](../Factions/faction-church-of-evernight.md) / Nighthawks | Complete pathway route and regulated institutional access | Novel Volume 1, Chapter 22; expanded Chapter 28 | confirmed | Chapter 22 explains the ladder; Chapter 28 clarifies Sleepless as the complete first Sequence bestowed on the Nighthawks. |
+
+## Affiliated Factions
+
+| Faction / organization | Affiliation type | First reader-safe reveal | Confidence | Notes |
+| --- | --- | --- | --- | --- |
+| [Church of Evernight](../Factions/faction-church-of-evernight.md) | Parent institutional affiliation | Novel Volume 1, Chapter 22 | confirmed | Rozanne identifies Sleepless as the Church's complete starting Sequence. |
+| faction-nighthawks.md | Complete operational route | Novel Volume 1, Chapter 28 | confirmed | Dunn clarifies Sleepless as the complete first Sequence bestowed on the Nighthawks. |
+| Higher-level Church pathway structure | Unknown continuation context | Novel Volume 1, Chapter 22 | unknown | The reader does not know pathway structure above Sequence 7 at this boundary. |
+
+## Known Holders
+
+| Character | Status / Sequence | First reader-safe reveal | Confidence | Notes |
+| --- | --- | --- | --- | --- |
+| [Leonard Mitchell](../Characters/character-leonard-mitchell.md) | Sequence 8 Midnight Poet | Novel Volume 1, Chapter 21 | confirmed | Chapter 22 confirms Midnight Poet belongs to the Sleepless pathway. |
+| [Dunn Smith](../Characters/character-dunn-smith.md) | Advanced Sleepless; Nightmare strongly implied | Novel Volume 1, Chapter 22; confirmed pathway Chapter 45 | confirmed pathway, strong evidence exact Sequence | Chapter 22 supports Nightmare inference; Chapter 45 confirms Dunn is an advanced Sleepless. |
+| character-royale-reideen.md | Sequence 9 Sleepless | Novel Volume 1, Chapter 42 | confirmed | Identified in the Tingen deployment snapshot. |
+| character-kenley-white.md | Sequence 9 Sleepless | Novel Volume 1, Chapter 42 | confirmed | Identified in the Tingen deployment snapshot. |
+| character-seeka-tron.md | Sequence 8 Midnight Poet | Novel Volume 1, Chapter 42 | confirmed | Chapter 22 places Midnight Poet inside the Sleepless ladder. |
+
+## Pathway Data Block
+
+```yaml
+pathway_profile:
+  reader_boundary:
+    medium: novel
+    book: lotm-1
+    volume: 1
+    chapter: 47
+  sequences:
+    - sequence: 9
+      name: Sleepless
+      reveal:
+        medium: novel
+        volume: 1
+        chapter: 22
+      confidence: confirmed
+      formula_details:
+        - No formula or ingredient details recorded at the current boundary.
+      ability_profile:
+        confirmed_traits:
+          - reduced sleep requirement
+          - darkness vision
+          - stronger physical strength, intuition, and mental capabilities deeper into the night
+        practical_demonstrations:
+          - Chapter 33 uses Sleepless as a contrast for non-Sleepless exhaustion after Spirit Vision practice.
+        training_or_practice:
+          - Leonard's Chapter 17 anecdote implies new Sleepless powers require adjustment.
+        limitations:
+          - Exact recovery advantage and division between Sequence 9 and later traits remain unclear.
+        unknowns:
+          - potion formula details
+          - how advancement slots open
+      notes: Term appears earlier, but Chapter 22 formally explains it as the Church's complete starting Sequence.
+    - sequence: 8
+      name: Midnight Poet
+      reveal:
+        medium: novel
+        volume: 1
+        chapter: 21
+      confidence: confirmed
+      formula_details:
+        - No formula or ingredient details recorded at the current boundary.
+      ability_profile:
+        confirmed_traits:
+          - sleep-like influence through singing
+        practical_demonstrations:
+          - Leonard's Chapter 44 singing induces sleep-like influence and later rationalization.
+        training_or_practice:
+          - Not recorded at this boundary.
+        limitations:
+          - Exact full capabilities of Midnight Poet remain unknown.
+        unknowns:
+          - formula details
+          - full ability set
+          - advancement history for known holders
+      notes: Leonard names himself as Sequence 8; Chapter 22 places Midnight Poet in the Sleepless ladder.
+    - sequence: 7
+      name: Nightmare
+      reveal:
+        medium: novel
+        volume: 1
+        chapter: 22
+      confidence: confirmed
+      formula_details:
+        - No formula or ingredient details recorded at the current boundary.
+      ability_profile:
+        confirmed_traits:
+          - dream guidance/manipulation is strongly associated with Nightmare through Klein's inference about Dunn
+        practical_demonstrations:
+          - Dunn's earlier dream guidance supports the Nightmare inference.
+        training_or_practice:
+          - Not recorded at this boundary.
+        limitations:
+          - Dunn's exact Sequence is not directly profile-confirmed through Chapter 47.
+        unknowns:
+          - full Nightmare ability set
+          - formula details
+          - higher Sequences above Nightmare
+      notes: The Sequence name is confirmed; Dunn's exact status remains strong evidence rather than direct profile confirmation.
+  institutional_access:
+    - faction: faction-church-of-evernight
+      access_type: complete-route
+      reveal:
+        medium: novel
+        volume: 1
+        chapter: 22
+      confidence: confirmed
+      notes: Chapter 28 clarifies Sleepless as the complete first Sequence bestowed on the Nighthawks.
+  affiliated_factions:
+    - faction: faction-church-of-evernight
+      affiliation_type: parent-institutional-affiliation
+      reveal:
+        medium: novel
+        volume: 1
+        chapter: 22
+      confidence: confirmed
+      notes: Rozanne identifies Sleepless as the Church's complete starting Sequence.
+    - faction: faction-nighthawks
+      affiliation_type: complete-operational-route
+      reveal:
+        medium: novel
+        volume: 1
+        chapter: 28
+      confidence: confirmed
+      notes: Dunn clarifies Sleepless as the complete first Sequence bestowed on the Nighthawks.
+    - faction: higher-level-church-pathway-structure
+      affiliation_type: unknown-continuation-context
+      reveal:
+        medium: novel
+        volume: 1
+        chapter: 22
+      confidence: unknown
+      notes: The reader does not know pathway structure above Sequence 7 at this boundary.
+  known_holders:
+    - character: character-leonard-mitchell
+      status: Sequence 8 Midnight Poet
+      sequence: 8
+      sequence_name: Midnight Poet
+      reveal:
+        medium: novel
+        volume: 1
+        chapter: 21
+      confidence: confirmed
+      notes: Chapter 22 connects Midnight Poet to Sleepless.
+    - character: character-dunn-smith
+      status: Advanced Sleepless; Nightmare strongly implied
+      sequence: 7
+      sequence_name: Nightmare
+      reveal:
+        medium: novel
+        volume: 1
+        chapter: 22
+      confidence: strong-evidence
+      notes: Chapter 45 confirms Dunn is an advanced Sleepless; exact Sequence remains not directly profile-confirmed.
+    - character: character-royale-reideen
+      status: Sequence 9 Sleepless
+      sequence: 9
+      sequence_name: Sleepless
+      reveal:
+        medium: novel
+        volume: 1
+        chapter: 42
+      confidence: confirmed
+      notes: Identified in the Tingen team deployment snapshot.
+    - character: character-kenley-white
+      status: Sequence 9 Sleepless
+      sequence: 9
+      sequence_name: Sleepless
+      reveal:
+        medium: novel
+        volume: 1
+        chapter: 42
+      confidence: confirmed
+      notes: Identified in the Tingen team deployment snapshot.
+    - character: character-seeka-tron
+      status: Sequence 8 Midnight Poet
+      sequence: 8
+      sequence_name: Midnight Poet
+      reveal:
+        medium: novel
+        volume: 1
+        chapter: 42
+      confidence: confirmed
+      notes: Chapter 22 places Midnight Poet inside the Sleepless ladder.
+```
 
 ## Chronological Development
 
@@ -590,7 +827,7 @@ last_updated: 2026-07-02
 ## Future Automation Notes
 
 - This pathway page should help test graph extraction for pathway-status relationships involving pending character nodes.
-- If sequence ladders become common, pathway pages may need a standardized `Known Sequence Ladder` section.
+- The `Pathway Data Block` should remain aligned with the pathway snapshot sections, relationship seeds, and reader knowledge ledger.
 
 ## Notes
 

@@ -418,6 +418,26 @@ Use the same top-level section order as `Glossary_Threads/TEMPLATE.md` unless th
 12. Future Automation Notes
 13. Notes
 
+### Type-Specific Glossary Overlays
+
+The universal glossary template defines the shared article contract. Type-specific folders may also define overlay templates when a glossary type has recurring fields that should be easy to extract for graphs, dashboards, or reader-state filters.
+
+Use a type-specific overlay only when it adds predictable structure that the universal template cannot express cleanly. The overlay should preserve the shared metadata, relationship seeds, evidence index, reader knowledge ledger, future automation notes, and notes sections.
+
+Place type-specific extraction sections after `Reader Knowledge Boundary` and before `First Appearance / First Meaningful Mention`. This keeps high-value structured facts close to the article boundary while preserving chronological development as the main prose record.
+
+Current type-specific overlays:
+
+- `Glossary_Threads/Pathways/TEMPLATE.md`: pathway pages should expose `Pathway Snapshot`, `Known Sequences`, `Institutional Access`, `Affiliated Factions`, `Known Holders`, and `Pathway Data Block` sections.
+
+### Pathway Article Overlay
+
+Pathway pages should include the pathway overlay once the page has enough verified material to support more than a stub. The overlay is required for active pathway pilot pages and recommended for any future pathway page with reader-safe sequence, formula, access, holder, or ability data.
+
+The `Known Sequences` section should appear even when only one Sequence is reader-safe. Each known Sequence should receive its own subsection with a normalized structure for reveal timing, confidence, formula or potion details, abilities, practical demonstrations, training or practice requirements, limitations, reader-safe unknowns, and notes. Keep pathway-wide institutional access in `Institutional Access`, broader faction associations in the `Affiliated Factions` table, and character assignments in the separate `Known Holders` table. Unknown higher Sequences should be marked as unknown or omitted; never fill them from later knowledge outside the current reader boundary.
+
+The `Pathway Data Block` is a structured extraction aid, not a separate source of truth. Keep it aligned with the visible pathway sections, relationship seeds, and reader knowledge ledger. If the data block and prose conflict, resolve the conflict in the canonical article content rather than treating the data block as independently authoritative.
+
 ### First Appearance Style
 
 The `First Appearance / First Meaningful Mention` section should preserve reader-state distinctions instead of compressing different reveal beats into one line.

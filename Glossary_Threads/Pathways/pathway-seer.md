@@ -10,7 +10,7 @@ Confidence Level: Strong Evidence
 Spoiler Boundary: Volume 1
 Reader Knowledge Boundary: Novel Chapter 34; Donghua Season 1
 Tags: volume-1, reader-knowledge, pathway, concept
-Last Updated: 2026-07-02
+Last Updated: 2026-07-03
 
 Related Threads:
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
@@ -44,6 +44,14 @@ Later Seer pathway names, higher Sequences, future acting-method developments, a
 - Donghua: Season 1
 - Donghua viewer knowledge state: Not yet verified for this thread.
 
+## Pathway Snapshot
+
+- Current reader-safe status: `Seer` is a Sequence 9 pathway option that Klein chooses and consumes through Church/Nighthawks support.
+- Institutional access status: The Church of Evernight's Tingen team can offer Sequence 9 locally; later Seer Sequences are uncertain from Dunn's local perspective.
+- Known continuation status: Only Sequence 9 is reader-safe at this boundary.
+- Primary reader-facing function: Divination, mysticism expertise, Spirit Vision, Cogitation-supported control, interpretive perception, and weak direct combat.
+- Main uncertainty: Whether the Holy Cathedral has later Seer Sequences remains unknown at this boundary.
+
 ## First Appearance / First Meaningful Mention
 
 ### Novel
@@ -70,6 +78,128 @@ Later Seer pathway names, higher Sequences, future acting-method developments, a
 - Timestamp: TBD
 - Context: Requires Donghua subtitle and visual verification.
 - Viewer knowledge state: The exact first meaningful Donghua disclosure is not yet pinned down.
+
+## Known Sequences
+
+### Sequence 9: Seer
+
+- First reader-safe reveal: Novel Volume 1, Chapter 21 names `Seer` through Roselle's diary; Chapter 28 makes it a concrete Church-held option.
+- Confidence: confirmed
+- Formula / potion details: The Chapter 31 formula includes pure water, night vanilla, gold mint leaves, poison hemlock juice, dragon blood grass, Lavos Squid blood, and Star Crystal.
+- Confirmed abilities or traits: Divination qualifications, mysticism expertise, Spirit Vision, Cogitation-supported spirituality control, aura interpretation, and weak direct combat.
+- Practical demonstrations: Klein begins using Spirit Vision after consuming the potion and applies aura-color interpretation during the next Tarot gathering.
+- Training or practice requirements: Dunn stresses that the potion grants qualifications rather than instant mastery; Old Neil teaches Cogitation and Spirit Vision after Klein consumes the potion.
+- Limitations: Seer lacks direct combat methods at this boundary and requires learning, control, and caution around dangerous perception.
+- Reader-safe unknowns: Higher Sequences, full divination limits, and whether Klein's unusual circumstances affect normal Seer perception.
+- Notes: Old Neil prepares the potion in the Nighthawks' alchemy room with formula and materials retrieved through Church/Nighthawks custody.
+
+## Institutional Access
+
+| Institution / faction | Access type | First reader-safe reveal | Confidence | Notes |
+| --- | --- | --- | --- | --- |
+| [Church of Evernight](../Factions/faction-church-of-evernight.md) / Tingen Nighthawks | Locally available incomplete Sequence 9 option | Novel Volume 1, Chapter 28 | confirmed | Dunn says Tingen has Sequence 9 Seer and is unsure whether the Holy Cathedral has later Sequences. |
+| [Church of Evernight](../Factions/faction-church-of-evernight.md) / Chanis Gate custody | Formula and material custody for Klein's potion | Novel Volume 1, Chapter 31 | confirmed | Old Neil retrieves the formula and materials through Nighthawk/Chanis access before preparing the potion. |
+
+## Affiliated Factions
+
+| Faction / organization | Affiliation type | First reader-safe reveal | Confidence | Notes |
+| --- | --- | --- | --- | --- |
+| [Church of Evernight](../Factions/faction-church-of-evernight.md) / Tingen Nighthawks | Local custody and access route | Novel Volume 1, Chapter 28 | confirmed | The current boundary supports Church/Nighthawks access but not an exclusive or complete Seer affiliation. |
+| Holy Cathedral | Possible later-Sequence custody | Novel Volume 1, Chapter 28 | unknown | Dunn is unsure whether the Holy Cathedral has later Seer Sequences. |
+
+## Known Holders
+
+| Character | Status / Sequence | First reader-safe reveal | Confidence | Notes |
+| --- | --- | --- | --- | --- |
+| character-klein-moretti.md | Sequence 9 Seer | Novel Volume 1, Chapter 31 | confirmed | Klein chooses Seer in Chapter 30 and consumes the potion in Chapter 31. |
+
+## Pathway Data Block
+
+```yaml
+pathway_profile:
+  reader_boundary:
+    medium: novel
+    book: lotm-1
+    volume: 1
+    chapter: 34
+  sequences:
+    - sequence: 9
+      name: Seer
+      reveal:
+        medium: novel
+        volume: 1
+        chapter: 21
+      confidence: confirmed
+      formula_details:
+        - Pure water, night vanilla, gold mint leaves, poison hemlock juice, dragon blood grass, Lavos Squid blood, and Star Crystal.
+      ability_profile:
+        confirmed_traits:
+          - divination qualifications
+          - mysticism expertise
+          - Spirit Vision
+          - Cogitation-supported spirituality control
+          - aura interpretation
+          - weak direct combat
+        practical_demonstrations:
+          - Klein begins using Spirit Vision after consuming the potion.
+          - Klein applies aura-color interpretation during the next Tarot gathering.
+        training_or_practice:
+          - The potion grants qualifications rather than instant mastery.
+          - Old Neil teaches Cogitation and Spirit Vision after Klein consumes the potion.
+        limitations:
+          - Seer lacks direct combat methods at the current boundary.
+          - Dangerous perception requires caution and control.
+        unknowns:
+          - higher Sequences
+          - full divination limits
+          - whether Klein's unusual circumstances affect normal Seer perception
+      notes: Chapter 21 names Seer through Roselle's diary; Chapter 28 makes it a concrete Church-held option.
+  institutional_access:
+    - faction: faction-church-of-evernight
+      access_type: local-incomplete-sequence-9-option
+      reveal:
+        medium: novel
+        volume: 1
+        chapter: 28
+      confidence: confirmed
+      notes: Dunn says Tingen has Sequence 9 Seer and is unsure whether the Holy Cathedral has later Sequences.
+    - faction: faction-church-of-evernight
+      access_type: formula-and-material-custody
+      reveal:
+        medium: novel
+        volume: 1
+        chapter: 31
+      confidence: confirmed
+      notes: Old Neil retrieves the formula and materials through Nighthawk/Chanis access.
+  affiliated_factions:
+    - faction: faction-church-of-evernight
+      affiliation_type: local-custody-and-access-route
+      reveal:
+        medium: novel
+        volume: 1
+        chapter: 28
+      confidence: confirmed
+      notes: The current boundary supports Church/Nighthawks access but not an exclusive or complete Seer affiliation.
+    - faction: holy-cathedral
+      affiliation_type: possible-later-sequence-custody
+      reveal:
+        medium: novel
+        volume: 1
+        chapter: 28
+      confidence: unknown
+      notes: Dunn is unsure whether the Holy Cathedral has later Seer Sequences.
+  known_holders:
+    - character: character-klein-moretti
+      status: Sequence 9 Seer
+      sequence: 9
+      sequence_name: Seer
+      reveal:
+        medium: novel
+        volume: 1
+        chapter: 31
+      confidence: confirmed
+      notes: Klein chooses Seer in Chapter 30 and consumes the potion in Chapter 31.
+```
 
 ## Chronological Development
 
@@ -131,11 +261,6 @@ Later Seer pathway names, higher Sequences, future acting-method developments, a
 - Why it matters: The Donghua may condense or visually emphasize Seer training differently from the novel.
 
 ## Open Questions
-
-- Question: Should pathway pages include a dedicated `Known Sequence Ladder` section even when only Sequence 9 is known?
-- Current confidence: Working Theory. Chronology and knowledge units are sufficient for now, but the ladder section may become useful once multiple Sequences are known.
-- Needs EPUB verification: No; structure decision needed.
-- Related investigation: [Seer Pathway Novel Volume 1 Reveal Timeline](../../Investigations/Pathways/pathway-seer/novel-volume-1-reveal-timeline.md)
 
 - Question: Should `Spirit Vision` and `Cogitation` be concept threads immediately?
 - Current confidence: Strong Evidence that they recur; uncertain whether to split now or after the next training arc. `Divination` has now been promoted into a pilot concept thread through Chapter 47.
@@ -476,7 +601,7 @@ last_updated: 2026-07-01
 ## Future Automation Notes
 
 - This pathway page should help test graph extraction for pathway status, faction access, concept associations, and event participation.
-- If pathway pages become large, consider adding a standardized `Known Sequence Ladder` section once at least two Sequences are reader-safe.
+- The `Pathway Data Block` should remain aligned with the pathway snapshot sections, relationship seeds, and reader knowledge ledger.
 
 ## Notes
 

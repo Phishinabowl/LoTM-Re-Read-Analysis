@@ -26,6 +26,7 @@ Navigation hub for the reread analysis workspace.
 ## Glossary Threads / Supporting Investigations
 
 - [Glossary Thread Template](Glossary_Threads/TEMPLATE.md)
+- [Pathway Thread Template](Glossary_Threads/Pathways/TEMPLATE.md)
 - [Investigation Template](Investigations/TEMPLATE.md)
 
 ### Artifacts
