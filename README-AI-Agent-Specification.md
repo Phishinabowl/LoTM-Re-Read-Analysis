@@ -133,6 +133,10 @@ Failure condition:
 
 The assistant creates a standalone Mermaid file, rendered image, or graph artifact in an ad hoc `outputs/` folder after reading repository evidence, without routing through the repository visualization workflow and without the user explicitly requesting scratch output.
 
+Failure condition:
+
+The assistant bypasses `Visualization/render-mermaid.ps1` or `Visualization/render-graphs.ps1` and calls `mmdc` directly even though the repository helper scripts are available, then describes the result as repository-workflow compliant.
+
 ---
 
 # 1. Purpose
@@ -3750,9 +3754,22 @@ For manually authored Mermaid files, use pure render mode:
 powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-mermaid.ps1 -InputPath Visualization\graphs\example.mmd
 ```
 
-Pure render mode uses the repository Puppeteer and render-size settings without regenerating graph files from Relationship Seeds, updating the semantic graph snapshot, or updating the visualization refresh tracker.
+Pure render mode is the required first render path for manually authored, temporary, or agent-drafted Mermaid files whenever the helper script is available. It uses the repository Puppeteer configuration, render-size settings, and validation assumptions without regenerating graph files from Relationship Seeds, updating the semantic graph snapshot, or updating the visualization refresh tracker.
 
-When manually rendering a single Mermaid file in this repository family, the AI Agent should try the repository Puppeteer config first because it is known to work for the maintainer's Windows environment:
+The AI Agent MUST NOT treat direct `mmdc` invocation with `Visualization/config/puppeteer-config.json` as equivalent to using the repository render workflow. The repository helper scripts encode workflow behavior beyond browser selection, including shared sizing and validation expectations.
+
+Direct `mmdc` commands are fallback/debug commands only. Use them only when:
+
+- the repository helper script is unavailable;
+- the helper script fails and the failure cannot be recovered;
+- the execution environment cannot run the helper script against the relevant input/output paths;
+- or the user explicitly requests a direct renderer command.
+
+When direct `mmdc` fallback is used, the AI Agent MUST state that rendering is degraded relative to the repository workflow and explain why the helper script was not used.
+
+If the repository root is read-only but another workspace path is writable, the AI Agent should still try the helper script with an accessible input path and explicit output path before falling back to direct `mmdc`, provided the script can be executed safely in that environment.
+
+For fallback/debug rendering of a single Mermaid file in this repository family, use the repository Puppeteer config because it is known to work for the maintainer's Windows environment:
 
 ```powershell
 mmdc -p Visualization\config\puppeteer-config.json `

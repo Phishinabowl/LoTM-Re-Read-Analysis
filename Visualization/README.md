@@ -25,6 +25,8 @@ First classify the request:
 
 Complex, relationship-heavy, evidence-bearing, or rendered graph requests default to repository-local artifacts, not scratch outputs.
 
+For rendered outputs, repository tooling means the PowerShell helper scripts documented in [rendering.md](rendering.md), not direct `mmdc` calls. Direct `mmdc` is a fallback/debug path only, and should be reported as degraded if used because the helper scripts are unavailable or cannot run in the current environment.
+
 ## Projection Style
 
 Dense relationship graphs should use semantic relationship nodes instead of long Mermaid edge labels.

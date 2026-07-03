@@ -26,6 +26,8 @@ npm install -g @mermaid-js/mermaid-cli
 
 The default `mmdc` browser launch may time out on Windows. The working approach is to point Puppeteer at local Microsoft Edge through the permanent render config in `Visualization/config`.
 
+Mermaid CLI is the underlying renderer, not the project workflow entry point. For repository graph work, call the PowerShell render helpers below first. Direct `mmdc` commands are fallback/debug commands only.
+
 ## Permanent Render Config
 
 Puppeteer launch settings live at:
@@ -70,6 +72,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-mermaid
 Use pure render mode for one-off, manually authored, or agent-drafted Mermaid files. Use the canonical refresh command only when generated graph artifacts should be rebuilt from Relationship Seeds.
 
 Use `-NoProfile` to keep local shell profile output from contaminating command output.
+
+Do not treat a direct `mmdc -p Visualization/config/puppeteer-config.json ...` command as equivalent to pure render mode. The helper script is the repository workflow layer. It applies shared render settings and validation expectations before calling the renderer.
+
+If an execution environment cannot write under `Visualization/`, the preferred degraded path is still to run `Visualization\render-mermaid.ps1` with an accessible `-InputPath` and explicit `-OutputPath`, when possible. Use direct `mmdc` only after the helper script is unavailable, fails, or cannot be run against the accessible paths. When direct `mmdc` is used, label the render as a degraded fallback.
 
 The helper reads `Visualization/config/render-settings.json`, renders every configured view to every configured output, updates the semantic graph snapshot, and updates the live refresh tracker in:
 
@@ -209,7 +215,7 @@ This keeps long semantic labels out of Mermaid edge labels, where they tend to o
 
 Timing-spoiler-free views use the same projection, but omit chapter and episode timing from the relationship node text.
 
-Manual commands remain useful for debugging a single view:
+Direct `mmdc` commands remain useful for debugging a single view or recovering when the helper scripts cannot run. They are not the default repository render workflow:
 
 ```powershell
 mmdc -p Visualization\config\puppeteer-config.json `
