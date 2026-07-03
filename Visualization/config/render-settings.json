@@ -26,6 +26,32 @@
       }
     ]
   },
+  "layoutValidation": {
+    "enabled": true,
+    "sectionClassNames": [
+      "group"
+    ],
+    "crossSectionTargetClasses": [
+      "holder",
+      "sequence"
+    ],
+    "duplicateLabelIgnoreClasses": [
+      "relationship"
+    ],
+    "proxyNodeIdPatterns": [
+      "(^|_)ref(erence)?$",
+      "(^|_)proxy$",
+      "_ref_",
+      "_proxy_"
+    ],
+    "proxyLabelPatterns": [
+      "reference",
+      "proxy",
+      "see ",
+      "reconstruction",
+      "summary"
+    ]
+  },
   "reportPath": "Visualization/README.md",
   "snapshotPath": "Visualization/data/refresh-snapshot.json",
   "views": [

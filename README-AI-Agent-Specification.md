@@ -3738,6 +3738,12 @@ The AI Agent should also check configured semantic class patterns. For example, 
 
 If class validation fails, fix the Mermaid source or generator before rendering. Do not treat a wrong-colored node as a cosmetic post-render issue.
 
+Before rendering a sectioned Mermaid graph, the AI Agent MUST preserve layout islands. If a node already has canonical placement under one section, a summary, reconstruction, or boundary-note section should use a local reference/proxy node instead of linking directly to that canonical node. This avoids forcing one node to live in two visual sections and prevents long cross-map edges.
+
+Example: a late reconstruction section should represent `Ince Zangwill` through local reconstruction/reference nodes rather than directly linking `late_group` to holder nodes already owned by the Sleepless or Death pathway ladders.
+
+The AI Agent should avoid duplicate visible labels across different node IDs unless the duplicate is an explicitly labeled local reference/proxy. If a node ID looks like a proxy or reference, the rendered label must say so with language such as `reference`, `proxy`, `reconstruction`, `summary`, or `see ...`.
+
 If the canonical helper or repository Puppeteer configuration fails, the AI Agent should continue with reasonable fallback rendering methods rather than stopping prematurely.
 
 Fallback options may include:

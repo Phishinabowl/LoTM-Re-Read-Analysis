@@ -105,6 +105,48 @@ The current semantic pattern check includes sequence-like node ids. For example,
 
 This prevents styled graphs from silently falling back to Mermaid default node styling.
 
+## Layout-Island Validation
+
+Sectioned graphs should avoid direct cross-section links into nodes that already belong to another branch.
+
+When a graph uses section nodes such as `group`, a summary or reconstruction section should not directly link to an existing `holder` or `sequence` node if that node already has a non-section owner elsewhere in the graph. Use a local reference/proxy node instead.
+
+Preferred projection:
+
+```mermaid
+graph TD
+  late_group["Late reconstruction"]
+  late_ince["Ince Zangwill<br/>late reconstruction reference"]
+  late_nightwatcher["Nightwatcher advancement<br/>see Sleepless Seq 4"]
+  late_group --> late_ince
+  late_ince --> late_nightwatcher
+```
+
+Avoid:
+
+```mermaid
+graph TD
+  late_group["Late reconstruction"]
+  sl4["Seq 4: Nightwatcher"]
+  h_ince_nightwatcher["holder: Ince Zangwill"]
+  sl4 --> h_ince_nightwatcher
+  late_group --> h_ince_nightwatcher
+```
+
+The second shape forces Mermaid to place one node in two visual sections and usually creates long crossing edges.
+
+The layout validator also checks for accidental duplicate visual labels across ordinary nodes. If two node IDs render with the same visible label, either collapse them into one canonical node or label the secondary node explicitly as a reference/proxy.
+
+Proxy/reference-like node IDs, such as `late_ince_ref`, must label themselves as a reference, proxy, reconstruction, summary, or `see ...` node. This keeps local layout helpers from looking like separate canonical entities.
+
+## Deferred Validation Ideas
+
+These graph hygiene checks are worth revisiting after more examples exist, but should not become hard validation yet:
+
+- Section or group nodes with too many direct children may need subgroups or split views.
+- Dense manual graphs that mix hierarchy, evidence, reconstruction, and holder edges with identical arrow semantics may need edge-purpose conventions.
+- Declared but disconnected nodes may indicate stale graph fragments, but some draft graphs may use them intentionally.
+
 ## Dense Graph Readability
 
 The graph generator projects relationship-heavy views through generated relationship nodes:

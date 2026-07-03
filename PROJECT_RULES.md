@@ -212,6 +212,10 @@ Visualization renderers should scale viewport dimensions for large graphs using 
 
 Styled Mermaid graphs must pass class coverage validation before rendering. If a graph uses `classDef` or `class` statements, every declared or edge-used node should have an explicit class assignment. Fix missing classes, class references to nonexistent nodes, undefined classes, and semantic class mismatches in the Mermaid source or generator before publishing a render.
 
+Sectioned Mermaid graphs should preserve layout islands. If a node has canonical placement in one section, do not link a different summary, reconstruction, or boundary-note section directly to that same node when it will pull edges across the whole graph. Create a local reference/proxy node inside the secondary section instead, and label it as a reference to the canonical node or pathway/sequence.
+
+Avoid duplicate visible labels across different node IDs unless one of the nodes is explicitly labeled as a reference/proxy. Reference/proxy-like node IDs should also say `reference`, `proxy`, `reconstruction`, `summary`, or `see ...` in the rendered node label.
+
 Use this maintenance lifecycle for project-knowledge changes:
 
 ```text

@@ -46,7 +46,7 @@ After every graph refresh, update the live refresh tracker below. It summarizes 
 The tracker compares the current graph against the semantic snapshot in `data/refresh-snapshot.json`. Unexpected removed nodes, removed relationships, changed relationship labels, duplicate relationships, broken links, or orphan nodes should be treated as visualization validation issues and reviewed before committing.
 
 <!-- VISUALIZATION-REFRESH-REPORT:START -->
-Last Updated: 2026-07-02 22:36:16 -04:00
+Last Updated: 2026-07-02 23:03:47 -04:00
 
 ### Summary
 
@@ -78,7 +78,7 @@ Last Updated: 2026-07-02 22:36:16 -04:00
 ### Rendered Outputs
 
 - `Visualization/rendered/volume-1-knowledge-graph.svg` (346377 bytes)
-- `Visualization/rendered/volume-1-knowledge-graph.png` (664503 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph.png` (664771 bytes)
 - `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.svg` (345234 bytes)
 - `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.png` (620810 bytes)
 
