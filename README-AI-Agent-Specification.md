@@ -28,6 +28,7 @@ The assistant MUST:
 7. Preserve evidence tiers, confidence boundaries, reader perspective, repository intent, and spoiler boundaries.
 8. State uncertainty when repository evidence is missing, immature, or unavailable.
 9. Never complete missing repository knowledge with model memory during Repository Mode.
+10. Never use pretrained domain knowledge, model memory, fan knowledge, or outside data for discovery, search seeding, inference, interpretation, ranking, or completion unless the user explicitly opts into outside knowledge.
 
 ## 0.1 Mode Trigger Rules
 
@@ -388,6 +389,25 @@ Every AI Agent pass must preserve them.
 The repository is the single source of truth.
 
 If repository knowledge conflicts with model knowledge during Repository Mode, repository knowledge takes precedence.
+
+Repository Authority applies to discovery as well as final answers.
+
+In Repository Mode, the AI Agent MUST NOT use pretrained domain knowledge, model memory, fan knowledge, external references, or personal familiarity to decide what to search for, which entities are likely important, which missing terms should exist, or how repository fragments should be completed.
+
+All search seeds, candidate entities, relationships, theories, sequence names, terminology, and interpretive frames must be discovered from repository files or source texts unless the user explicitly opts into outside knowledge.
+
+Permitted repo-only discovery methods include:
+
+- file inventories,
+- repository indexes,
+- glossary and investigation metadata,
+- neutral pattern searches,
+- source-text searches for generic structural terms,
+- and candidates extracted from those repository hits.
+
+Outside knowledge may be used only after the user knowingly opts in, such as by asking for Hybrid Mode, Research Mode, comparison with external sources, web research, fandom/wiki comparison, or otherwise explicitly authorizing outside data.
+
+When outside knowledge is enabled, the AI Agent MUST clearly mark it as outside the repository and distinguish it from repository-supported knowledge.
 
 ---
 
@@ -1088,6 +1108,8 @@ Knowledge originating outside the repository.
 Examples include:
 
 - Model knowledge
+- Pretrained domain knowledge
+- Model-memory search seeds
 - Fan knowledge
 - Future canon
 - External references
@@ -1101,6 +1123,10 @@ Characteristics:
 AI Agent behavior:
 
 Forbidden during Repository Mode unless the user explicitly requests external knowledge.
+
+This prohibition includes using outside knowledge as a hidden discovery aid.
+
+The assistant must not silently use model memory to decide that a missing character, pathway, sequence, faction, term, or relationship is worth searching for. If a candidate was not surfaced by repository files, source text, neutral structural search, or user-provided language, it must not enter the Repository Mode workflow.
 
 ---
 
@@ -1453,7 +1479,7 @@ Core assumptions include:
 - Repository architecture is intentional.
 - Repository terminology is canonical.
 - Repository teaching order should be preserved.
-- External knowledge is disabled unless explicitly requested.
+- External knowledge, including pretrained domain knowledge and model-memory search seeds, is disabled unless explicitly requested.
 
 Nothing else occurs before this contract is established.
 
@@ -3058,6 +3084,12 @@ Target:
 **0%**
 
 The AI Agent should continuously minimize contamination.
+
+Contamination includes hidden discovery contamination.
+
+An answer can still be contaminated even when every final claim is later verified against repository files if the assistant used outside knowledge to choose candidates, search terms, likely relationships, missing entities, or interpretive frames.
+
+Repository-compliant discovery must begin from the user's wording, repository inventories, repository indexes, canonical source text, neutral structural patterns, and candidates extracted from those repository hits.
 
 ---
 
@@ -5014,6 +5046,19 @@ Repository is authoritative.
 
 External knowledge disabled.
 
+Pretrained domain knowledge, model memory, fan knowledge, external references, and personal familiarity are disabled for:
+
+- final claims,
+- inferred claims,
+- candidate discovery,
+- search-term selection,
+- relationship completion,
+- terminology completion,
+- ranking importance,
+- and interpretation.
+
+If the repository does not surface a candidate through project files, source text, neutral structural search, or user-provided wording, the assistant must not introduce that candidate in Repository Mode.
+
 Preferred for:
 
 - repository QA
@@ -5028,6 +5073,10 @@ Repository remains primary.
 
 External knowledge may supplement when explicitly requested.
 
+Hybrid Mode requires explicit user opt-in.
+
+When Hybrid Mode is active, the assistant must separate repository-supported knowledge from outside knowledge and must not blur evidence tiers.
+
 ---
 
 ### Research Mode
@@ -5035,6 +5084,8 @@ External knowledge may supplement when explicitly requested.
 External knowledge enabled.
 
 Repository becomes one evidence source among many.
+
+Research Mode requires explicit user opt-in or a user request that clearly asks for external research, web lookup, fandom/wiki comparison, non-repository sources, or broader context outside the project.
 
 ---
 
@@ -5125,6 +5176,12 @@ Unless the user explicitly requests otherwise, the AI Agent should begin every r
 - Output Mode: Reader Mode
 
 Repository Mode means the repository is authoritative and external knowledge is disabled unless requested.
+
+External knowledge includes pretrained domain knowledge and model memory, even when used only to choose search terms or likely candidates.
+
+The assistant may ask whether the user wants to opt into outside knowledge when repository evidence appears incomplete, when external comparison would be useful, or when the user asks a question that may require broader context.
+
+The assistant must not enable outside knowledge silently.
 
 Reader Mode means the visible answer should prioritize compiled understanding over process trace.
 
