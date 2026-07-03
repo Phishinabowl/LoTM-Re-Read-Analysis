@@ -4,6 +4,54 @@
   "width": 2400,
   "height": 1800,
   "pngScale": 2,
+  "autoSize": {
+    "enabled": true,
+    "complexityUnit": 40,
+    "widthStep": 1200,
+    "heightStep": 600,
+    "maxWidth": 7200,
+    "maxHeight": 5400
+  },
+  "classValidation": {
+    "enabled": true,
+    "requireClassesWhenGraphUsesClasses": true,
+    "semanticPatterns": [
+      {
+        "className": "sequence",
+        "patterns": [
+          "(^|_)seq(uence)?[0-9_]",
+          "(^|_)seer[0-9_]",
+          "(^|_)unknown$"
+        ]
+      }
+    ]
+  },
+  "layoutValidation": {
+    "enabled": true,
+    "sectionClassNames": [
+      "group"
+    ],
+    "crossSectionTargetClasses": [
+      "holder",
+      "sequence"
+    ],
+    "duplicateLabelIgnoreClasses": [
+      "relationship"
+    ],
+    "proxyNodeIdPatterns": [
+      "(^|_)ref(erence)?$",
+      "(^|_)proxy$",
+      "_ref_",
+      "_proxy_"
+    ],
+    "proxyLabelPatterns": [
+      "reference",
+      "proxy",
+      "see ",
+      "reconstruction",
+      "summary"
+    ]
+  },
   "reportPath": "Visualization/README.md",
   "snapshotPath": "Visualization/data/refresh-snapshot.json",
   "views": [

@@ -156,6 +156,10 @@ If a graph exposes missing or incorrect data:
 2. Update Relationship Seeds when the relationship model changes.
 3. Regenerate the graph output.
 
+For dense Mermaid graphs, prefer semantic relationship nodes over long edge labels. A generated relationship node may hold the relationship type, timing, status, and confidence, with simple arrows from source to relationship node to target. These relationship nodes are presentation artifacts only. They are not glossary nodes, do not create new canonical entities, and must be regenerated from Relationship Seeds.
+
+Use direct edge labels only when the graph remains readable. If rendered labels overlap, collide, or become hard to follow, update the visualization generator or graph projection rather than hand-editing the generated Mermaid.
+
 ## Visualization Refresh Gate
 
 Before committing a change, check whether graph inputs changed.
@@ -195,6 +199,22 @@ Use this canonical refresh command from the repository root:
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-graphs.ps1
 ```
+
+Use pure render mode for manually authored or temporary Mermaid files that should not trigger graph regeneration:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-mermaid.ps1 -InputPath Visualization\graphs\example.mmd
+```
+
+Pure render mode may write rendered SVG or PNG outputs, but it must not regenerate Mermaid graph files from Relationship Seeds, update the visualization snapshot, or update the refresh tracker.
+
+Visualization renderers should scale viewport dimensions for large graphs using the shared render settings. Do not assume one fixed Mermaid render size works for every graph. If a large graph renders cramped, clipped, or unreadably small, adjust render-size settings or use the shared auto-size helper rather than hand-editing graph content solely to fit the canvas.
+
+Styled Mermaid graphs must pass class coverage validation before rendering. If a graph uses `classDef` or `class` statements, every declared or edge-used node should have an explicit class assignment. Fix missing classes, class references to nonexistent nodes, undefined classes, and semantic class mismatches in the Mermaid source or generator before publishing a render.
+
+Sectioned Mermaid graphs should preserve layout islands. If a node has canonical placement in one section, do not link a different summary, reconstruction, or boundary-note section directly to that same node when it will pull edges across the whole graph. Create a local reference/proxy node inside the secondary section instead, and label it as a reference to the canonical node or pathway/sequence.
+
+Avoid duplicate visible labels across different node IDs unless one of the nodes is explicitly labeled as a reference/proxy. Reference/proxy-like node IDs should also say `reference`, `proxy`, `reconstruction`, `summary`, or `see ...` in the rendered node label.
 
 Use this maintenance lifecycle for project-knowledge changes:
 

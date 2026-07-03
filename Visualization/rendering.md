@@ -52,6 +52,23 @@ To update only the refresh report without rerendering images:
 powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-graphs.ps1 -SkipRender
 ```
 
+To render a manually authored Mermaid file without regenerating repository graph views or updating the refresh tracker, use pure render mode:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-mermaid.ps1 `
+  -InputPath Visualization\graphs\example.mmd
+```
+
+By default, pure render mode writes both SVG and PNG files to `Visualization/rendered/` using the input filename. You can pass one or more explicit outputs:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-mermaid.ps1 `
+  -InputPath Visualization\graphs\example.mmd `
+  -OutputPath Visualization\rendered\example.svg,Visualization\rendered\example.png
+```
+
+Use pure render mode for one-off, manually authored, or agent-drafted Mermaid files. Use the canonical refresh command only when generated graph artifacts should be rebuilt from Relationship Seeds.
+
 Use `-NoProfile` to keep local shell profile output from contaminating command output.
 
 The helper reads `Visualization/config/render-settings.json`, renders every configured view to every configured output, updates the semantic graph snapshot, and updates the live refresh tracker in:
@@ -63,6 +80,89 @@ The semantic snapshot is stored at:
 - `Visualization/data/refresh-snapshot.json`
 
 The snapshot lets the tracker report added or removed nodes, added or removed relationships, changed relationship labels, duplicate relationships, broken links, orphan nodes, and pending graph nodes across refreshes.
+
+## Automatic Render Size
+
+The render scripts use the `autoSize` block in `Visualization/config/render-settings.json` to increase Mermaid viewport size for larger graphs.
+
+The default dimensions remain `width` and `height`. When `autoSize.enabled` is true, the renderer counts Mermaid node and edge lines, estimates graph complexity, and increases render width and height in bounded steps.
+
+This keeps small graphs fast and compact while giving large relationship maps more room to lay out cleanly. If a large graph still renders cramped or clipped, adjust:
+
+- `complexityUnit`
+- `widthStep`
+- `heightStep`
+- `maxWidth`
+- `maxHeight`
+
+## Class Coverage Validation
+
+The render scripts validate Mermaid class coverage before rendering styled graphs.
+
+When a graph uses `classDef` or `class` statements, every declared or edge-used node must have an explicit class assignment. The validator also reports class assignments that reference missing nodes, nodes assigned to undefined classes, and configured semantic pattern mismatches.
+
+The current semantic pattern check includes sequence-like node ids. For example, a node such as `seer7_unknown` must be assigned to the `sequence` class when rendering a graph that defines sequence styling.
+
+This prevents styled graphs from silently falling back to Mermaid default node styling.
+
+## Layout-Island Validation
+
+Sectioned graphs should avoid direct cross-section links into nodes that already belong to another branch.
+
+When a graph uses section nodes such as `group`, a summary or reconstruction section should not directly link to an existing `holder` or `sequence` node if that node already has a non-section owner elsewhere in the graph. Use a local reference/proxy node instead.
+
+Preferred projection:
+
+```mermaid
+graph TD
+  late_group["Late reconstruction"]
+  late_ince["Ince Zangwill<br/>late reconstruction reference"]
+  late_nightwatcher["Nightwatcher advancement<br/>see Sleepless Seq 4"]
+  late_group --> late_ince
+  late_ince --> late_nightwatcher
+```
+
+Avoid:
+
+```mermaid
+graph TD
+  late_group["Late reconstruction"]
+  sl4["Seq 4: Nightwatcher"]
+  h_ince_nightwatcher["holder: Ince Zangwill"]
+  sl4 --> h_ince_nightwatcher
+  late_group --> h_ince_nightwatcher
+```
+
+The second shape forces Mermaid to place one node in two visual sections and usually creates long crossing edges.
+
+The layout validator also checks for accidental duplicate visual labels across ordinary nodes. If two node IDs render with the same visible label, either collapse them into one canonical node or label the secondary node explicitly as a reference/proxy.
+
+Proxy/reference-like node IDs, such as `late_ince_ref`, must label themselves as a reference, proxy, reconstruction, summary, or `see ...` node. This keeps local layout helpers from looking like separate canonical entities.
+
+## Deferred Validation Ideas
+
+These graph hygiene checks are worth revisiting after more examples exist, but should not become hard validation yet:
+
+- Section or group nodes with too many direct children may need subgroups or split views.
+- Dense manual graphs that mix hierarchy, evidence, reconstruction, and holder edges with identical arrow semantics may need edge-purpose conventions.
+- Declared but disconnected nodes may indicate stale graph fragments, but some draft graphs may use them intentionally.
+
+## Dense Graph Readability
+
+The graph generator projects relationship-heavy views through generated relationship nodes:
+
+```mermaid
+graph TD
+  source_node["Source"]
+  rel_001["relationship type<br/>timing/status/confidence"]
+  target_node["Target"]
+  source_node --> rel_001
+  rel_001 --> target_node
+```
+
+This keeps long semantic labels out of Mermaid edge labels, where they tend to overlap when many edges share a hub. The `rel_###` nodes are presentation artifacts only; relationship seeds remain canonical.
+
+Timing-spoiler-free views use the same projection, but omit chapter and episode timing from the relationship node text.
 
 Manual commands remain useful for debugging a single view:
 

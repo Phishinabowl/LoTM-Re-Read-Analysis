@@ -76,6 +76,21 @@ Field notes:
 - `in_world_chronology`: Optional story-chronology position when it differs from reader disclosure order.
 - `related_investigation`: Supporting investigation record, if the relationship depends on source verification.
 
+## Presentation Nodes
+
+Rendered Mermaid graphs may introduce generated presentation nodes such as `rel_001`.
+
+These nodes are not canonical graph entities. They represent relationship records visually so dense graphs can place relationship meaning inside layout-aware boxes instead of fragile edge labels.
+
+Presentation relationship nodes may display:
+
+- `relationship_type`
+- timing, such as novel chapter or Donghua episode
+- relationship status
+- confidence level
+
+Timing-spoiler-free views should omit chapter and episode text from presentation nodes while preserving the underlying relationship type, status, and confidence.
+
 ## Future Filters
 
 Future graph generation may support filtering by:

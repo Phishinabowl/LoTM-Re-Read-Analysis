@@ -2,3 +2,6 @@
 
 # VS Code Workspace Files
 *.code-workspace
+
+# Zip Files
+*.zip
