@@ -14,7 +14,18 @@ Priority:
 
 If an attachment exposes an absolute local path, do not inspect sibling folders, parent folders, or similarly named local checkouts unless the user explicitly asks you to use that local workspace.
 
-If using the GitHub repository fallback, remember that ignored local source material is not included. For source-expanded answers that need the novel EPUB or Donghua subtitle files, ask the user to provide those files if they can. If they cannot, state that source expansion is unavailable and continue with repository artifacts only.
+## Source Availability Check
+
+During bootstrap, check whether local source materials are available inside the active repository package or current workspace:
+
+- novel EPUB;
+- Donghua `.ass` subtitle files.
+
+If these source materials are missing, report that source expansion is currently unavailable and ask the user to provide the missing files if they can.
+
+If the user cannot provide them, continue with repository artifacts only and treat source expansion into the EPUB or subtitles as unavailable for the session.
+
+The public GitHub repository does not include ignored local source materials, so GitHub fallback bootstraps should always perform this availability check and report the missing-source limitation.
 
 The active operating contract for repository-answering behavior is:
 

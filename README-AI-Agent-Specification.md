@@ -77,14 +77,30 @@ If no archive, upload, or explicit workspace is available, the assistant may use
 
 The GitHub fallback contains repository artifacts, project documentation, investigations, glossary threads, visualization files, and other version-controlled material. It does not contain ignored local source material such as the novel EPUB or Donghua subtitle files.
 
-When using the GitHub fallback, source-expanded answers that require the EPUB, subtitle files, or other ignored local source materials are degraded unless the user provides those files. The assistant should first ask the user to provide the required source files if they can. If the user cannot provide them, the assistant must state that source expansion is unavailable and continue using repository artifacts only.
+### 0.2.2 Startup Source Availability Check
+
+During bootstrap, the assistant MUST check whether local source materials are available inside the active repository package, explicit workspace, or user-provided file set.
+
+For this repository family, source availability includes:
+
+- the novel EPUB;
+- Donghua `.ass` subtitle files.
+
+The assistant MUST report source availability during bootstrap.
+
+If the EPUB, subtitle files, or other local source materials are missing, the assistant MUST ask the user to provide the missing source files if they can.
+
+If the user cannot provide the missing source files, the assistant MUST mark source expansion into those materials as unavailable for the session and continue using repository artifacts only.
+
+The public GitHub fallback does not include ignored local source materials. Therefore, GitHub fallback bootstraps MUST report that repository artifacts are available but EPUB/subtitle source expansion is unavailable unless the user provides those files.
 
 Before answering substantive repository questions, the assistant MUST:
 
 1. Read this specification completely from beginning to end.
 2. Identify the available repository container, archive, project folder, or file set.
 3. Build a minimal file inventory sufficient to locate likely repository materials.
-4. Use the rest of this specification to decide which repository files, glossary threads, investigation records, source evidence, or index files are relevant to the user's actual question.
+4. Perform the startup source availability check.
+5. Use the rest of this specification to decide which repository files, glossary threads, investigation records, source evidence, or index files are relevant to the user's actual question.
 
 The assistant MUST NOT answer a substantive repository question after reading only part of this specification.
 
@@ -175,7 +191,7 @@ The assistant MUST treat the attached archive contents as the active repository 
 
 If no archive, upload, or explicit workspace is available, the assistant may use the public GitHub fallback at [Phishinabowl/LoTM-Re-Read-Analysis](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis), disclose that fallback, and recognize that ignored local source files are unavailable from GitHub.
 
-For source-expanded requests while using GitHub fallback, the assistant should ask the user to provide the EPUB or subtitle files if needed. If the user cannot provide them, the assistant must state that source expansion is unavailable and proceed with repository artifacts only.
+During bootstrap, the assistant MUST report whether EPUB/subtitle source materials are available. If they are missing, it must ask the user to provide them if they can. If the user cannot provide them, it must mark source expansion as unavailable for the session and proceed with repository artifacts only.
 
 Failure condition:
 
@@ -183,7 +199,7 @@ The assistant uses an absolute path exposed by file attachment metadata to inspe
 
 Failure condition:
 
-The assistant uses GitHub fallback for repository artifacts but behaves as though ignored local source materials such as the EPUB or subtitle files are available.
+The assistant completes bootstrap without checking or reporting whether ignored local source materials such as the EPUB or subtitle files are available.
 
 ---
 
@@ -5276,7 +5292,7 @@ In these environments, the AI Agent should explicitly recognize that Repository 
 
 The AI Agent should acknowledge that canonical re-verification may be incomplete and should avoid presenting remembered repository content as though it had been freshly verified.
 
-When using the public GitHub fallback, repository artifacts are available but ignored local source materials are not. Requests requiring source expansion into the EPUB, subtitle files, or other ignored local sources should first ask the user to provide those materials; if unavailable, continue with repository artifacts only and label source expansion as unavailable.
+When using the public GitHub fallback, repository artifacts are available but ignored local source materials are not. The startup source availability check should ask the user to provide missing EPUB, subtitle files, or other ignored local sources if they can; if unavailable, continue with repository artifacts only and label source expansion as unavailable for the session.
 
 ---
 
