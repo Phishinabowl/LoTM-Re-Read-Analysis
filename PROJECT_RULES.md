@@ -153,11 +153,15 @@ Do not treat generated graph files as canonical project knowledge.
 
 Do not manually edit generated graph outputs except for debugging or temporary inspection. Fix durable graph problems by updating the relevant glossary thread, investigation record, Relationship Seed, or controlled taxonomy, then regenerate the graph.
 
-If a graph exposes missing or incorrect data:
+For durable canonical graph corrections, if a graph exposes missing or incorrect data:
 
 1. Fix the glossary or investigation record.
 2. Update Relationship Seeds when the relationship model changes.
 3. Regenerate the graph output.
+
+For graph-only maintainer work, do not silently update glossary threads, investigations, boards, current state, index, or Relationship Seeds while producing the graph. Graph generation may read project records and allowed local sources, include clearly marked graph-local evidence, and report candidate project-data updates. Ask for maintainer confirmation before editing canonical project records.
+
+Use the shared [Graph Authoring Standard](Visualization/graph-authoring-standard.md) for graph construction. It defines canonical versus graph-local evidence, source expansion, pathway/sequence coverage, maintainer confirmation, and output reporting.
 
 For dense Mermaid graphs, prefer semantic relationship nodes over long edge labels. A generated relationship node may hold the relationship type, timing, status, and confidence, with simple arrows from source to relationship node to target. These relationship nodes are presentation artifacts only. They are not glossary nodes, do not create new canonical entities, and must be regenerated from Relationship Seeds.
 

@@ -25,6 +25,7 @@ After reading `README-AI-Agent-Specification.md` completely, apply its graph and
 Then read the local repository visualization contract as implementation guidance if further guidance is needed:
 
 - [Visualization/README.md](Visualization/README.md)
+- [Visualization/graph-authoring-standard.md](Visualization/graph-authoring-standard.md)
 - [Visualization/rendering.md](Visualization/rendering.md)
 - [Visualization/data/graph-schema.md](Visualization/data/graph-schema.md)
 

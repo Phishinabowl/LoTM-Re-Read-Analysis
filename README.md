@@ -65,6 +65,8 @@ Generated visualization artifacts live in [Visualization](Visualization/README.m
 
 The current GitHub-visible graph is the [Volume 1 Knowledge Graph](Visualization/graphs/volume-1-knowledge-graph.mmd). The graph is generated from glossary relationship seeds and is not the source of truth.
 
+Graph construction rules shared by maintainer graph work and access-layer AI Agent graph requests live in the [Graph Authoring Standard](Visualization/graph-authoring-standard.md).
+
 Do not embed the full graph in this README; it is maintained as a separate generated artifact.
 
 ## Project Structure
@@ -97,6 +99,7 @@ Glossary_Threads/
 
 Visualization/
   README.md
+  graph-authoring-standard.md
   graphs/
   data/
   rendered/

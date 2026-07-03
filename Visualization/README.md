@@ -9,7 +9,9 @@ Generated graph files are not the source of truth. The canonical project data re
 - Relationship Seeds
 - The controlled relationship taxonomy in `PROJECT_RULES.md`
 
-Mermaid graphs are generated from glossary metadata and Relationship Seeds. If a graph exposes missing, stale, or incorrect information, fix the glossary thread, investigation record, or relationship seed first, then regenerate the graph.
+Generated Mermaid graphs are generated from glossary metadata and Relationship Seeds. If a canonical graph refresh exposes missing, stale, or incorrect information, fix the glossary thread, investigation record, or relationship seed first, then regenerate the graph. Manual maintainer graphs may include clearly marked graph-local evidence before those project-data updates are confirmed.
+
+Shared graph authoring rules live in [Graph Authoring Standard](graph-authoring-standard.md). Use that standard for both AI Agent graph requests and maintainer/project graph work before rendering.
 
 ## AI Agent Graph Request Routing
 
@@ -51,6 +53,7 @@ Simple one-off diagrams may still use edge labels when they remain readable. For
 - [Volume 1 Knowledge Graph](graphs/volume-1-knowledge-graph.mmd)
 - [Volume 1 Knowledge Graph - Timing Spoiler-Free](graphs/volume-1-knowledge-graph-timing-spoiler-free.mmd)
 - [Graph Schema Notes](data/graph-schema.md)
+- [Graph Authoring Standard](graph-authoring-standard.md)
 - [Rendering Instructions](rendering.md)
 
 The `rendered/` folder contains generated SVG and PNG graph exports for review, sharing, and archive inspection.

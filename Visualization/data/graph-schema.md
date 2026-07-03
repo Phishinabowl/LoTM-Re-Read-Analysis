@@ -25,6 +25,8 @@ node_id:
 label:
 node_type:
 source_file:
+source_layer:
+canonicalization_status:
 first_seen_novel_chapter:
 first_seen_donghua_episode:
 spoiler_boundary:
@@ -38,6 +40,8 @@ Field notes:
 - `label`: Human-readable display label, usually the glossary page H1.
 - `node_type`: Controlled glossary type, such as Character, Artifact, Faction, Concept, Event, Pathway, or Location.
 - `source_file`: Glossary file where the node is defined, if it exists.
+- `source_layer`: Whether the node is repository-canonical, source-supported graph-local, or external/unsupported.
+- `canonicalization_status`: Whether the node is already represented in project records, graph-local only, or a candidate project-data update.
 - `first_seen_novel_chapter`: Earliest verified novel chapter where the node is meaningfully available to the reader.
 - `first_seen_donghua_episode`: Earliest verified Donghua episode or release-order position where the node is meaningfully available to the viewer.
 - `spoiler_boundary`: Broad canon boundary for the node's current article.
@@ -60,6 +64,8 @@ novel_chapter:
 donghua_episode:
 in_world_chronology:
 related_investigation:
+source_layer:
+canonicalization_status:
 ```
 
 Field notes:
@@ -75,6 +81,8 @@ Field notes:
 - `donghua_episode`: Donghua episode or release-order position where the relationship becomes viewer-safe or is first verified.
 - `in_world_chronology`: Optional story-chronology position when it differs from reader disclosure order.
 - `related_investigation`: Supporting investigation record, if the relationship depends on source verification.
+- `source_layer`: Whether the relationship is repository-canonical, source-supported graph-local, or external/unsupported.
+- `canonicalization_status`: Whether the relationship is already represented in project records, graph-local only, or a candidate project-data update.
 
 ## Presentation Nodes
 

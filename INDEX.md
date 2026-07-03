@@ -20,6 +20,7 @@ Navigation hub for the reread analysis workspace.
 ## Visualization
 
 - [Visualization README](Visualization/README.md)
+- [Graph Authoring Standard](Visualization/graph-authoring-standard.md)
 - [Volume 1 Knowledge Graph](Visualization/graphs/volume-1-knowledge-graph.mmd)
 
 ## Glossary Threads / Supporting Investigations

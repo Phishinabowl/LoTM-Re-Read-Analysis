@@ -127,7 +127,7 @@ Expected behavior:
 
 The assistant MUST recognize the request as a graph or visualization request, inspect the repository visualization contract, classify the output as canonical graph refresh, repository-local manual graph, or chat-only scratch graph, and use the repository visualization workflow unless the user explicitly requests scratch output.
 
-For this repository family, the assistant should inspect `Visualization/README.md`, `Visualization/rendering.md`, `Visualization/data/graph-schema.md`, and relevant graph/render configuration before creating or rendering graph artifacts.
+For this repository family, the assistant should inspect `Visualization/README.md`, `Visualization/graph-authoring-standard.md`, `Visualization/rendering.md`, `Visualization/data/graph-schema.md`, and relevant graph/render configuration before creating or rendering graph artifacts.
 
 Failure condition:
 
@@ -136,6 +136,10 @@ The assistant creates a standalone Mermaid file, rendered image, or graph artifa
 Failure condition:
 
 The assistant bypasses `Visualization/render-mermaid.ps1` or `Visualization/render-graphs.ps1` and calls `mmdc` directly even though the repository helper scripts are available, then describes the result as repository-workflow compliant.
+
+Failure condition:
+
+The assistant omits source-supported graph-local candidates because they are not yet in glossary threads or Relationship Seeds, or presents graph-local evidence as if it were already repository-canonical.
 
 ---
 
@@ -2388,6 +2392,8 @@ The AI Agent should gather graph information from the following sources, in orde
 
 Generated Mermaid files are considered implementation artifacts rather than canonical sources.
 
+For repositories with a local visualization authoring standard, graph construction must also follow that shared standard after applying this specification's operating mode, evidence hierarchy, and perspective rules.
+
 ---
 
 ## 9.4 Graph Types
@@ -2630,6 +2636,8 @@ Placeholder nodes should only be created when supported by canonical repository 
 ### Pathway and Sequence Holder Coverage
 
 When generating pathway, sequence, role, title, affiliation, or "who is what" graphs, the AI Agent MUST perform a holder coverage pass.
+
+For this repository family, pathway, sequence, role, title, affiliation, and "who is what" graphs must use the high-coverage discovery workflow in `Visualization/graph-authoring-standard.md`. This includes repository-canonical candidates, source-supported graph-local candidates, generic structural source searches, prior-graph reconciliation when available, and explicit confidence classification.
 
 The holder coverage pass searches repository evidence for:
 
@@ -3719,6 +3727,8 @@ Before creating or rendering any graph artifact, the AI Agent MUST classify the 
 3. **Chat-only scratch graph** — produce temporary Mermaid in the chat or an explicitly requested scratch location, clearly labeled as noncanonical.
 
 If the request is complex, repository-wide, relationship-heavy, evidence-bearing, rendered, or expected to produce a durable artifact, the default classification is **Repository-local manual graph** or **Canonical graph refresh**, not chat-only scratch.
+
+For repository-local manual graphs, the AI Agent may include source-supported graph-local evidence discovered during the task when source expansion is allowed by the requested boundary. Graph-local evidence must be visibly distinguished from repository-canonical records and reported as not yet written back to project records.
 
 For canonical graph refreshes, inspect and use the repository refresh rules before modifying generated artifacts.
 
