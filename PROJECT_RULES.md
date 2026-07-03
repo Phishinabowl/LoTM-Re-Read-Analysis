@@ -210,6 +210,8 @@ Pure render mode may write rendered SVG or PNG outputs, but it must not regenera
 
 Visualization renderers should scale viewport dimensions for large graphs using the shared render settings. Do not assume one fixed Mermaid render size works for every graph. If a large graph renders cramped, clipped, or unreadably small, adjust render-size settings or use the shared auto-size helper rather than hand-editing graph content solely to fit the canvas.
 
+Styled Mermaid graphs must pass class coverage validation before rendering. If a graph uses `classDef` or `class` statements, every declared or edge-used node should have an explicit class assignment. Fix missing classes, class references to nonexistent nodes, undefined classes, and semantic class mismatches in the Mermaid source or generator before publishing a render.
+
 Use this maintenance lifecycle for project-knowledge changes:
 
 ```text

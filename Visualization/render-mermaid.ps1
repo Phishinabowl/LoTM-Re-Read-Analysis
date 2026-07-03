@@ -76,6 +76,115 @@ function Get-MermaidRenderSize {
   }
 }
 
+function Get-MermaidClassValidation {
+  param(
+    [string]$GraphPath,
+    [object]$Settings
+  )
+
+  $declaredNodes = New-Object 'System.Collections.Generic.HashSet[string]'
+  $usedNodes = New-Object 'System.Collections.Generic.HashSet[string]'
+  $classAssignments = @{}
+  $classDefs = New-Object 'System.Collections.Generic.HashSet[string]'
+
+  foreach ($line in Get-Content $GraphPath) {
+    if ($line -match '^\s*classDef\s+([A-Za-z0-9_-]+)') {
+      [void]$classDefs.Add($matches[1])
+      continue
+    }
+
+    if ($line -match '^\s*class\s+(.+?)\s+([A-Za-z0-9_-]+)\s*;?\s*$') {
+      $className = $matches[2]
+      foreach ($nodeId in @($matches[1] -split ',')) {
+        $nodeId = $nodeId.Trim()
+        if ([string]::IsNullOrWhiteSpace($nodeId)) {
+          continue
+        }
+
+        if (-not $classAssignments.ContainsKey($nodeId)) {
+          $classAssignments[$nodeId] = New-Object 'System.Collections.Generic.HashSet[string]'
+        }
+        [void]$classAssignments[$nodeId].Add($className)
+      }
+      continue
+    }
+
+    if ($line -match '^\s*([A-Za-z0-9_]+)\s*(?:\["|\(|\{|\>)') {
+      [void]$declaredNodes.Add($matches[1])
+      [void]$usedNodes.Add($matches[1])
+    }
+
+    foreach ($match in [regex]::Matches($line, '([A-Za-z0-9_]+)\s*(?:-->|--\>|-.->|==>)')) {
+      [void]$usedNodes.Add($match.Groups[1].Value)
+    }
+
+    foreach ($match in [regex]::Matches($line, '(?:-->|--\>|-.->|==>)\s*(?:\|[^|]*\|\s*)?([A-Za-z0-9_]+)')) {
+      [void]$usedNodes.Add($match.Groups[1].Value)
+    }
+  }
+
+  $issues = @()
+  $graphUsesClasses = $classDefs.Count -gt 0 -or $classAssignments.Keys.Count -gt 0
+  $validationSettings = $Settings.classValidation
+  $requireClassCoverage = $graphUsesClasses -and ($null -eq $validationSettings -or [bool]$validationSettings.requireClassesWhenGraphUsesClasses)
+
+  if ($requireClassCoverage) {
+    foreach ($nodeId in @($usedNodes | Sort-Object)) {
+      if (-not $classAssignments.ContainsKey($nodeId)) {
+        $issues += ('Node `{0}` is used but has no explicit class assignment.' -f $nodeId)
+      }
+    }
+  }
+
+  foreach ($nodeId in @($classAssignments.Keys | Sort-Object)) {
+    if (-not $usedNodes.Contains($nodeId) -and -not $declaredNodes.Contains($nodeId)) {
+      $issues += ('Class assignment references missing node `{0}`.' -f $nodeId)
+    }
+
+    foreach ($className in $classAssignments[$nodeId]) {
+      if ($classDefs.Count -gt 0 -and -not $classDefs.Contains($className)) {
+        $issues += ('Node `{0}` uses undefined class `{1}`.' -f $nodeId, $className)
+      }
+    }
+  }
+
+  if ($null -ne $validationSettings -and $null -ne $validationSettings.semanticPatterns) {
+    foreach ($rule in @($validationSettings.semanticPatterns)) {
+      foreach ($nodeId in @($usedNodes | Sort-Object)) {
+        $matchesRule = $false
+        foreach ($pattern in @($rule.patterns)) {
+          if ($nodeId -match $pattern) {
+            $matchesRule = $true
+            break
+          }
+        }
+
+        if ($matchesRule -and (-not $classAssignments.ContainsKey($nodeId) -or -not $classAssignments[$nodeId].Contains($rule.className))) {
+          $issues += ('Node `{0}` matches semantic class `{1}` but is not assigned to that class.' -f $nodeId, $rule.className)
+        }
+      }
+    }
+  }
+
+  return @($issues)
+}
+
+function Assert-MermaidClassValidation {
+  param(
+    [string]$GraphPath,
+    [object]$Settings
+  )
+
+  if ($null -ne $Settings.classValidation -and -not [bool]$Settings.classValidation.enabled) {
+    return
+  }
+
+  $issues = Get-MermaidClassValidation $GraphPath $Settings
+  if ($issues.Count -gt 0) {
+    throw "Mermaid class validation failed for $GraphPath`n- $($issues -join "`n- ")"
+  }
+}
+
 function Invoke-MermaidRender {
   param(
     [string]$InputFile,
@@ -84,6 +193,7 @@ function Invoke-MermaidRender {
     [string]$PuppeteerConfig
   )
 
+  Assert-MermaidClassValidation $InputFile $Settings
   $renderSize = Get-MermaidRenderSize $InputFile $Settings
   $outputDirectory = Split-Path -Parent $OutputFile
   if (-not [string]::IsNullOrWhiteSpace($outputDirectory) -and -not (Test-Path $outputDirectory)) {

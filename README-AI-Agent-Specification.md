@@ -3732,6 +3732,12 @@ If a tiny test graph times out under default `mmdc`, the likely failure is brows
 
 The AI Agent should use shared render-size settings rather than assuming a fixed Mermaid viewport. Larger graphs may need larger render dimensions. If a graph renders cramped, clipped, or unreadably small, the AI Agent should increase or rely on the repository auto-size render settings before rewriting semantically correct graph content.
 
+Before rendering a styled Mermaid graph, the AI Agent MUST validate class coverage. If the graph uses `classDef` or `class` statements, every declared or edge-used node should have an explicit class assignment, every class assignment should reference an existing node, and every assigned class should be defined when class definitions are present.
+
+The AI Agent should also check configured semantic class patterns. For example, a sequence-like node id such as `seer7_unknown` should not be allowed to render with default Mermaid styling when the graph's styling model expects a `sequence` class.
+
+If class validation fails, fix the Mermaid source or generator before rendering. Do not treat a wrong-colored node as a cosmetic post-render issue.
+
 If the canonical helper or repository Puppeteer configuration fails, the AI Agent should continue with reasonable fallback rendering methods rather than stopping prematurely.
 
 Fallback options may include:

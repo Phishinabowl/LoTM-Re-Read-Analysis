@@ -95,6 +95,16 @@ This keeps small graphs fast and compact while giving large relationship maps mo
 - `maxWidth`
 - `maxHeight`
 
+## Class Coverage Validation
+
+The render scripts validate Mermaid class coverage before rendering styled graphs.
+
+When a graph uses `classDef` or `class` statements, every declared or edge-used node must have an explicit class assignment. The validator also reports class assignments that reference missing nodes, nodes assigned to undefined classes, and configured semantic pattern mismatches.
+
+The current semantic pattern check includes sequence-like node ids. For example, a node such as `seer7_unknown` must be assigned to the `sequence` class when rendering a graph that defines sequence styling.
+
+This prevents styled graphs from silently falling back to Mermaid default node styling.
+
 ## Dense Graph Readability
 
 The graph generator projects relationship-heavy views through generated relationship nodes:
