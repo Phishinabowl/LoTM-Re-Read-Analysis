@@ -59,6 +59,8 @@ For this repository family:
 - Subtitle dialogue/timing evidence comes from local `.ass` subtitle files.
 - Silent visual evidence requires separate audiovisual verification.
 
+When novel EPUB source expansion is available and suitable for the graph request, use `Tools/Search-Epub.ps1` as the preferred first search path for bounded chapter sweeps, counts, snippets, and repeatable checks. Fall back to another structured EPUB search only if the helper is missing or unusable, and report that degraded path in the output.
+
 Source expansion must preserve the requested boundary. Do not include later-volume, later-chapter, adaptation-only, unaudited subtitle, or external material unless the user asks for that source scope.
 
 When source expansion finds supported material not yet in project records, keep it graph-local and report it as a candidate project-data update.
@@ -111,6 +113,8 @@ When reconciling against a prior graph, do not silently drop prior candidates. F
 Pathway, sequence, role, title, affiliation, and "who is what sequence" graphs require a high-coverage discovery pass.
 
 Do not begin only from known glossary nodes or already remembered pathway names.
+
+If EPUB source access is available, run the source-search portions of this pass through `Tools/Search-Epub.ps1` when possible. Use bounded chapter ranges, count sweeps, chapter-ordered snippets, and repeated vocabulary expansion instead of one-off manual text scans.
 
 Use generic structural searches inside the requested source boundary, including:
 
@@ -192,6 +196,10 @@ Graph layout should be type-stable.
 Top-level grouping should follow the graph's subject semantics, not its evidence source layer, canonicalization status, validation status, or coverage status unless the user explicitly asks for an evidence-audit graph.
 
 Evidence layer, canonicalization status, graph-local status, validation notes, and coverage notes should usually be represented through styling, labels, legends, note branches, or the output report. They should not become the main branches of a content graph.
+
+Before rendering a content graph, inspect the root's direct content children. If the root points first to evidence-layer or workflow nodes such as `repository-canonical`, `source-supported`, `graph-local`, `coverage`, `validation`, or `notes`, and those nodes then own the content, the graph fails layout validation. Restructure it so the root points to semantic subject groups, while evidence/workflow nodes are detached legend or report branches that do not control content placement.
+
+For pathway and sequence maps, choose top-level groups from the subject itself. Depending on the request, good root children include pathway owners/controllers, churches, orders, factions, jurisdictions, pathway families, source-culture variants, or individual pathways. Do not make `Repository-canonical pathway records` and `Source-supported graph-local coverage` the root's main content branches; those are provenance statuses, not subject categories.
 
 Examples of semantic grouping:
 

@@ -175,6 +175,7 @@ For dense generated or agent-drafted views:
 - define node classes for important visual roles;
 - keep content nodes on the content spine and put legend, coverage, validation, and explanatory nodes in a separate note or appendix branch;
 - group content by subject semantics rather than evidence source layer, canonicalization status, validation status, or coverage status unless the graph is explicitly an evidence audit;
+- make the root's direct content children semantic subject groups, not provenance or workflow groups such as `repository-canonical`, `source-supported`, `graph-local`, `coverage`, `validation`, or `notes`;
 - reserve `subgraph` for a few broad regions or intentionally separate diagrams.
 
 The layout validator can flag dense graphs that have no class definitions, too many subgraph clusters, or too many disconnected components.

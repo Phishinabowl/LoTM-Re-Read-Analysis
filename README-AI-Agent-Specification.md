@@ -94,6 +94,8 @@ If the user cannot provide the missing source files, the assistant MUST mark sou
 
 The public GitHub fallback does not include ignored local source materials. Therefore, GitHub fallback bootstraps MUST report that repository artifacts are available but EPUB/subtitle source expansion is unavailable unless the user provides those files.
 
+When novel EPUB source expansion is available and suitable for the task, the assistant SHOULD use the repository helper `Tools/Search-Epub.ps1` as the first EPUB search path for bounded chapter sweeps, counts, snippets, and repeatable evidence checks. If the helper is missing or fails, the assistant may fall back to another structured EPUB search method, but it MUST report that the preferred helper path was unavailable or degraded.
+
 Before answering substantive repository questions, the assistant MUST:
 
 1. Read this specification completely from beginning to end.
@@ -2699,6 +2701,8 @@ When generating pathway, sequence, role, title, affiliation, or "who is what" gr
 
 For this repository family, pathway, sequence, role, title, affiliation, and "who is what" graphs must use the high-coverage discovery workflow in `Visualization/graph-authoring-standard.md`. This includes repository-canonical candidates, source-supported graph-local candidates, generic structural source searches, prior-graph reconciliation when available, and explicit confidence classification.
 
+When EPUB source access is available, the high-coverage source-search pass SHOULD use `Tools/Search-Epub.ps1` for repeatable bounded sweeps before falling back to ad hoc EPUB parsing.
+
 The holder coverage pass searches repository evidence for:
 
 - exact numbered sequence statements,
@@ -3884,6 +3888,10 @@ For ladder-style graphs, the ordered sequence, phase, rank, or step chain should
 For dense knowledge graphs, the AI Agent should prefer a connected styled-node map over many Mermaid `subgraph` clusters. Use a visible semantic spine such as `root -> group -> entity -> detail`. Use styled group nodes for evidence buckets, topics, factions, pathways, timeline arcs, or other organizing concepts.
 
 Content graphs should be grouped by subject semantics, not by evidence source layer, canonicalization status, validation status, or coverage status unless the user explicitly asks for an evidence-audit graph. Evidence and canonicalization status should usually appear through styling, labels, legends, note branches, or output reports rather than as the graph's primary top-level branches.
+
+Before rendering, the AI Agent MUST inspect the root's direct content children. For a content graph, those children must be semantic subject groups, not nodes such as `repository-canonical`, `source-supported`, `graph-local`, `coverage`, `validation`, or `notes`. If evidence-layer or validation nodes own the main content branches, the graph must be restructured before rendering. Evidence-layer nodes may appear only as detached legend, notes, or report branches that do not control content placement.
+
+For pathway and sequence maps, preferred top-level semantic groups include reader-relevant pathway owners, controllers, jurisdictions, organizations, factions, pathway families, or individual pathways as appropriate to the request. Do not split the main map into `repository-canonical` versus `source-supported graph-local` regions; encode that provenance with styling, labels, legends, and the output report.
 
 The AI Agent should avoid generating one `subgraph` cluster per topic, pathway, character, faction, or evidence bucket unless the user explicitly requests cluster boxes. Many Mermaid clusters often produce disconnected visual islands and wide strip renders. Clusters are acceptable for a few broad regions or intentionally separate diagrams, but they should not replace the graph spine.
 

@@ -27,6 +27,8 @@ If the user cannot provide them, continue with repository artifacts only and tre
 
 The public GitHub repository does not include ignored local source materials, so GitHub fallback bootstraps should always perform this availability check and report the missing-source limitation.
 
+If novel EPUB source expansion is available and needed, prefer the repository EPUB search helper `Tools/Search-Epub.ps1` for bounded chapter sweeps before using ad hoc EPUB parsing. If that helper is missing or unusable, report the degraded source-search path.
+
 The active operating contract for repository-answering behavior is:
 
 - [README-AI-Agent-Specification.md](README-AI-Agent-Specification.md)

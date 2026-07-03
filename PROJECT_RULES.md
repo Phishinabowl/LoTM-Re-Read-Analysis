@@ -1127,6 +1127,8 @@ Use the EPUB.
 
 Use `Tools/Search-Epub.ps1` for repeatable novel EPUB checks.
 
+When a task requires novel EPUB source expansion and this helper is available, use it as the preferred first EPUB search path. This applies to graph-building coverage sweeps as well as article and investigation verification. If the helper is missing or unusable, use another structured EPUB search method and report the degraded path.
+
 The standard EPUB evidence workflow is:
 
 1. Run a survey count across the bounded chapter range.
