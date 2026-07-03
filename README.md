@@ -2,6 +2,14 @@
 
 This repository is a working-memory space for a deep reread analysis of **Lord of the Mysteries (Book 1)**.
 
+## AI Agent Bootstrap
+
+If you are an AI assistant opening this repository from a zip, archive, project folder, or file set, start with [Read First: AI Agent Bootstrap](00_READ_FIRST_AI_AGENT_BOOTSTRAP.md).
+
+The active operating contract for repository-answering behavior is [README AI Agent Specification](README-AI-Agent-Specification.md). Read that specification completely before answering substantive repository questions.
+
+[MAINTAINER_CONTEXT.md](MAINTAINER_CONTEXT.md) is maintainer tooling context only. It is not the AI Agent bootstrap or operating contract.
+
 ## Repository Notice
 
 This repository is an independent reread analysis project.
@@ -96,7 +104,10 @@ Source/
   README.md
   local EPUB, Donghua subtitles, and future source materials (Git ignored)
 
-ASSISTANT_CONTEXT.md
+00_READ_FIRST_AI_AGENT_BOOTSTRAP.md
+README-AI-Agent-Specification.md
+MAINTAINER_CONTEXT.md
+ASSISTANT_CONTEXT.md (deprecated redirect)
 CURRENT_STATE.md
 PROJECT_RULES.md
 ```

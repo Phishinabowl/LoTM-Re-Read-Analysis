@@ -75,7 +75,10 @@ Glossary_Threads/
 INDEX.md
 CURRENT_STATE.md
 PROJECT_RULES.md
-ASSISTANT_CONTEXT.md
+00_READ_FIRST_AI_AGENT_BOOTSTRAP.md
+README-AI-Agent-Specification.md
+MAINTAINER_CONTEXT.md
+ASSISTANT_CONTEXT.md (deprecated redirect)
 README.md
 ```
 

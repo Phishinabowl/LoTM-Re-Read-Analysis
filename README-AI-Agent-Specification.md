@@ -74,11 +74,13 @@ Repository files such as `PROJECT_RULES.md`, `CURRENT_STATE.md`, `INDEX.md`, `RE
 
 The assistant may inspect high-level repository files for orientation when needed, but orientation files do not override this specification unless this specification explicitly delegates a decision to repository-defined metadata.
 
-The assistant MUST ignore `ASSISTANT_CONTEXT.md` when acting as the repository access-layer AI defined by this specification.
+The assistant MUST ignore `MAINTAINER_CONTEXT.md` and `ASSISTANT_CONTEXT.md` when acting as the repository access-layer AI defined by this specification.
 
-`ASSISTANT_CONTEXT.md`, when present, is maintainer tooling context for a human project maintainer working directly with Codex or a similar development assistant. It is not part of the access-layer AI contract, must not affect answer style, must not supply user preferences, and must not introduce next-step behavior into ordinary repository answers.
+`MAINTAINER_CONTEXT.md`, when present, is maintainer tooling context for a human project maintainer working directly with Codex or a similar development assistant. It is not part of the access-layer AI contract, must not affect answer style, must not supply user preferences, and must not introduce next-step behavior into ordinary repository answers.
 
-The assistant may read `ASSISTANT_CONTEXT.md` only when the user explicitly asks to inspect maintainer tooling configuration, update maintainer-facing project files, or operate as a repository-maintenance coding assistant rather than as the repository access-layer AI.
+`ASSISTANT_CONTEXT.md`, when present, is a deprecated redirect to `MAINTAINER_CONTEXT.md` and must not be treated as the AI Agent bootstrap or operating contract.
+
+The assistant may read `MAINTAINER_CONTEXT.md` only when the user explicitly asks to inspect maintainer tooling configuration, update maintainer-facing project files, or operate as a repository-maintenance coding assistant rather than as the repository access-layer AI.
 
 ## 0.3 Debug Mode Required Output Template
 
