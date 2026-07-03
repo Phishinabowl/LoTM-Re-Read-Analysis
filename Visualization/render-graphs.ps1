@@ -13,6 +13,88 @@ function Resolve-RepoPath {
   return (Join-Path $repoRoot $Path)
 }
 
+function Get-MermaidRenderSize {
+  param(
+    [string]$GraphPath,
+    [object]$Settings
+  )
+
+  $width = [int]$Settings.width
+  $height = [int]$Settings.height
+
+  if ($null -eq $Settings.autoSize -or -not [bool]$Settings.autoSize.enabled) {
+    return [pscustomobject]@{
+      Width = $width
+      Height = $height
+      NodeCount = 0
+      EdgeCount = 0
+      Complexity = 0
+      ScaleSteps = 0
+    }
+  }
+
+  $nodeIds = New-Object 'System.Collections.Generic.HashSet[string]'
+  $edgeCount = 0
+
+  foreach ($line in Get-Content $GraphPath) {
+    if ($line -match '^\s+([A-Za-z0-9_]+)\["') {
+      [void]$nodeIds.Add($matches[1])
+    }
+
+    if ($line -match '\s-->|--\>|-.->|==>') {
+      $edgeCount += 1
+    }
+  }
+
+  $nodeCount = $nodeIds.Count
+  $complexity = $nodeCount + $edgeCount
+  $unit = if ($Settings.autoSize.complexityUnit) { [double]$Settings.autoSize.complexityUnit } else { 40.0 }
+  $scaleSteps = [Math]::Max(0, [Math]::Ceiling([Math]::Sqrt($complexity / $unit)) - 1)
+
+  $widthStep = if ($Settings.autoSize.widthStep) { [int]$Settings.autoSize.widthStep } else { 1200 }
+  $heightStep = if ($Settings.autoSize.heightStep) { [int]$Settings.autoSize.heightStep } else { 600 }
+  $maxWidth = if ($Settings.autoSize.maxWidth) { [int]$Settings.autoSize.maxWidth } else { $width }
+  $maxHeight = if ($Settings.autoSize.maxHeight) { [int]$Settings.autoSize.maxHeight } else { $height }
+
+  $width = [Math]::Min($maxWidth, $width + ($scaleSteps * $widthStep))
+  $height = [Math]::Min($maxHeight, $height + ($scaleSteps * $heightStep))
+
+  return [pscustomobject]@{
+    Width = [int]$width
+    Height = [int]$height
+    NodeCount = $nodeCount
+    EdgeCount = $edgeCount
+    Complexity = $complexity
+    ScaleSteps = [int]$scaleSteps
+  }
+}
+
+function Invoke-MermaidRender {
+  param(
+    [string]$InputPath,
+    [string]$OutputPath,
+    [object]$Settings,
+    [string]$PuppeteerConfig
+  )
+
+  $renderSize = Get-MermaidRenderSize $InputPath $Settings
+  $args = @(
+    "-p", $PuppeteerConfig,
+    "-i", $InputPath,
+    "-o", $OutputPath,
+    "-b", $Settings.background,
+    "-w", $renderSize.Width,
+    "-H", $renderSize.Height
+  )
+
+  if ([System.IO.Path]::GetExtension($OutputPath).ToLowerInvariant() -eq ".png") {
+    $args += @("-s", $Settings.pngScale)
+  }
+
+  Write-Output ('Rendering {0} -> {1} ({2}x{3}, nodes={4}, edges={5})' -f $InputPath, $OutputPath, $renderSize.Width, $renderSize.Height, $renderSize.NodeCount, $renderSize.EdgeCount)
+  & mmdc @args
+}
+
 function Read-PreviousMetrics {
   param([string]$ReportPath)
 
@@ -661,20 +743,7 @@ Update-MermaidGraphs $settings.views
 if (-not $SkipRender) {
   foreach ($view in $settings.views) {
     foreach ($output in $view.outputs) {
-      $args = @(
-        "-p", $puppeteerConfig,
-        "-i", (Resolve-RepoPath $view.input),
-        "-o", (Resolve-RepoPath $output),
-        "-b", $settings.background,
-        "-w", $settings.width,
-        "-H", $settings.height
-      )
-
-      if ([System.IO.Path]::GetExtension($output).ToLowerInvariant() -eq ".png") {
-        $args += @("-s", $settings.pngScale)
-      }
-
-      & mmdc @args
+      Invoke-MermaidRender (Resolve-RepoPath $view.input) (Resolve-RepoPath $output) $settings $puppeteerConfig
     }
   }
 }

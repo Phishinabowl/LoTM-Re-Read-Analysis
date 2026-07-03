@@ -2643,6 +2643,20 @@ For sequence-ladder graphs, each sequence node should receive a reverse coverage
 4. Search for cautious phrases such as `likely`, `probably`, `at least`, `most likely`, `advanced`, `belongs to`, `path of`, and `pathway`.
 5. Add supported holder nodes or explicitly leave the sequence without known holders.
 
+
+The holder coverage pass MUST include a literal title-holder surface-form audit.
+
+After discovering a sequence title, pathway title, role title, or affiliation label, search for repository phrases where that title appears directly next to a character name or appositive, even when the prose does not include the word `Sequence`.
+
+Examples of required search shapes include:
+
+- `[Title] [Character Name]`, such as `Apprentice Fors Wall`.
+- `[Character Name], [Title]`, such as `Xio Derecha, Arbiter`.
+- `[Title] and [Title]` paired with already named characters in the same sentence or scene.
+- ability-first references later resolved to a title, such as `go through wooden doors` plus `Sequence 9 Apprentice`.
+
+These surface forms are valid holder evidence when they are inside the requested source boundary and supported by nearby context.
+
 The AI Agent should treat missing holder nodes as a possible graph completeness failure, not merely as absent data.
 
 ---
@@ -3137,6 +3151,24 @@ Typical symptoms:
 Resolution:
 
 Validate the requested boundary before graph compilation and label or exclude evidence from other media, later chapters, later volumes, unaudited subtitles, or external sources unless the user explicitly requests a hybrid or research-mode graph.
+
+---
+
+### Type M — Title-Holder Surface Form Miss
+
+Definition:
+
+The AI Agent identifies a sequence, pathway, role, or affiliation title but fails to search for direct prose forms where that title modifies or apposes a character name.
+
+Typical symptoms:
+
+- A graph includes `Seq 9: Apprentice` but omits a repository phrase such as `Apprentice Fors Wall`.
+- A graph includes an `Arbiter` pathway but treats a named `Arbiter` character as unnumbered even when nearby repository evidence says the relevant characters are `two Sequence 9s`.
+- The agent searches only `Sequence 9 Apprentice` and misses `Apprentice [Name]`, `[Name], Apprentice`, or ability-first evidence resolved elsewhere.
+
+Resolution:
+
+For every discovered title, run a literal surface-form audit over the requested source boundary and reconcile those hits with nearby sequence-number evidence before finalizing graph holders.
 
 ---
 
@@ -3672,6 +3704,16 @@ For the current repository family, the canonical render command is:
 powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-graphs.ps1
 ```
 
+The canonical render command regenerates generated Mermaid graph views before rendering them. The AI Agent MUST NOT use it for manually authored, temporary, or one-off Mermaid files unless the user also wants generated graph artifacts refreshed.
+
+For manually authored Mermaid files, use pure render mode:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-mermaid.ps1 -InputPath Visualization\graphs\example.mmd
+```
+
+Pure render mode uses the repository Puppeteer and render-size settings without regenerating graph files from Relationship Seeds, updating the semantic graph snapshot, or updating the visualization refresh tracker.
+
 When manually rendering a single Mermaid file in this repository family, the AI Agent should try the repository Puppeteer config first because it is known to work for the maintainer's Windows environment:
 
 ```powershell
@@ -3687,6 +3729,8 @@ mmdc -p Visualization\config\puppeteer-config.json `
 The AI Agent MUST NOT treat a default `mmdc` timeout as a Mermaid syntax failure until it has retried using the repository Puppeteer configuration when that configuration exists.
 
 If a tiny test graph times out under default `mmdc`, the likely failure is browser launch configuration, not graph content. The AI Agent should switch to the repository render configuration before simplifying or rewriting the graph.
+
+The AI Agent should use shared render-size settings rather than assuming a fixed Mermaid viewport. Larger graphs may need larger render dimensions. If a graph renders cramped, clipped, or unreadably small, the AI Agent should increase or rely on the repository auto-size render settings before rewriting semantically correct graph content.
 
 If the canonical helper or repository Puppeteer configuration fails, the AI Agent should continue with reasonable fallback rendering methods rather than stopping prematurely.
 

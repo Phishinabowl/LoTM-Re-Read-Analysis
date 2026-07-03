@@ -4,6 +4,14 @@
   "width": 2400,
   "height": 1800,
   "pngScale": 2,
+  "autoSize": {
+    "enabled": true,
+    "complexityUnit": 40,
+    "widthStep": 1200,
+    "heightStep": 600,
+    "maxWidth": 7200,
+    "maxHeight": 5400
+  },
   "reportPath": "Visualization/README.md",
   "snapshotPath": "Visualization/data/refresh-snapshot.json",
   "views": [

@@ -52,6 +52,23 @@ To update only the refresh report without rerendering images:
 powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-graphs.ps1 -SkipRender
 ```
 
+To render a manually authored Mermaid file without regenerating repository graph views or updating the refresh tracker, use pure render mode:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-mermaid.ps1 `
+  -InputPath Visualization\graphs\example.mmd
+```
+
+By default, pure render mode writes both SVG and PNG files to `Visualization/rendered/` using the input filename. You can pass one or more explicit outputs:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-mermaid.ps1 `
+  -InputPath Visualization\graphs\example.mmd `
+  -OutputPath Visualization\rendered\example.svg,Visualization\rendered\example.png
+```
+
+Use pure render mode for one-off, manually authored, or agent-drafted Mermaid files. Use the canonical refresh command only when generated graph artifacts should be rebuilt from Relationship Seeds.
+
 Use `-NoProfile` to keep local shell profile output from contaminating command output.
 
 The helper reads `Visualization/config/render-settings.json`, renders every configured view to every configured output, updates the semantic graph snapshot, and updates the live refresh tracker in:
@@ -63,6 +80,20 @@ The semantic snapshot is stored at:
 - `Visualization/data/refresh-snapshot.json`
 
 The snapshot lets the tracker report added or removed nodes, added or removed relationships, changed relationship labels, duplicate relationships, broken links, orphan nodes, and pending graph nodes across refreshes.
+
+## Automatic Render Size
+
+The render scripts use the `autoSize` block in `Visualization/config/render-settings.json` to increase Mermaid viewport size for larger graphs.
+
+The default dimensions remain `width` and `height`. When `autoSize.enabled` is true, the renderer counts Mermaid node and edge lines, estimates graph complexity, and increases render width and height in bounded steps.
+
+This keeps small graphs fast and compact while giving large relationship maps more room to lay out cleanly. If a large graph still renders cramped or clipped, adjust:
+
+- `complexityUnit`
+- `widthStep`
+- `heightStep`
+- `maxWidth`
+- `maxHeight`
 
 ## Dense Graph Readability
 

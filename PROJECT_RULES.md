@@ -200,6 +200,16 @@ Use this canonical refresh command from the repository root:
 powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-graphs.ps1
 ```
 
+Use pure render mode for manually authored or temporary Mermaid files that should not trigger graph regeneration:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-mermaid.ps1 -InputPath Visualization\graphs\example.mmd
+```
+
+Pure render mode may write rendered SVG or PNG outputs, but it must not regenerate Mermaid graph files from Relationship Seeds, update the visualization snapshot, or update the refresh tracker.
+
+Visualization renderers should scale viewport dimensions for large graphs using the shared render settings. Do not assume one fixed Mermaid render size works for every graph. If a large graph renders cramped, clipped, or unreadably small, adjust render-size settings or use the shared auto-size helper rather than hand-editing graph content solely to fit the canvas.
+
 Use this maintenance lifecycle for project-knowledge changes:
 
 ```text
