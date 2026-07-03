@@ -3734,6 +3734,14 @@ If a tiny test graph times out under default `mmdc`, the likely failure is brows
 
 The AI Agent should use shared render-size settings rather than assuming a fixed Mermaid viewport. Larger graphs may need larger render dimensions. If a graph renders cramped, clipped, or unreadably small, the AI Agent should increase or rely on the repository auto-size render settings before rewriting semantically correct graph content.
 
+The AI Agent should proactively recognize wide fan-out before rendering. If one source connects to many targets, many sources converge on one target, or a group/pathway/concept node acts as a large hub, the graph is likely to need extra horizontal room. Use the repository fan-out-aware auto-size settings first.
+
+Fan-out is not automatically a semantic error. If extra width is not enough, improve projection rather than guessing after the render: add intermediate grouping nodes for related leaves, use relationship-node projection for explanatory edges, split the request into narrower views, or use local reference/proxy nodes when a summary or reconstruction section would otherwise pull edges across the graph.
+
+The AI Agent should distinguish unordered fan-out from ordered-series fan-out. Unordered peer sets may fan out from a shared parent. Ordered series should usually chain child-to-child so the visual structure preserves the progression. This applies broadly to pathway sequences, timelines, phases, stages, ranks, steps, chapters, episodes, investigation beats, and similar ordered structures.
+
+If a requested graph contains ordered items such as `Seq 9`, `Phase 1`, `Step 1`, `Chapter 1`, or `Episode 1`, the AI Agent should plan a chain or grouped chain before rendering instead of first emitting a wide sibling fan and correcting it after visual inspection.
+
 Before rendering a styled Mermaid graph, the AI Agent MUST validate class coverage. If the graph uses `classDef` or `class` statements, every declared or edge-used node should have an explicit class assignment, every class assignment should reference an existing node, and every assigned class should be defined when class definitions are present.
 
 The AI Agent should also check configured semantic class patterns. For example, a sequence-like node id such as `seer7_unknown` should not be allowed to render with default Mermaid styling when the graph's styling model expects a `sequence` class.

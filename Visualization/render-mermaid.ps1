@@ -37,11 +37,15 @@ function Get-MermaidRenderSize {
       EdgeCount = 0
       Complexity = 0
       ScaleSteps = 0
+      MaxFanOut = 0
+      FanOutSteps = 0
     }
   }
 
   $nodeIds = New-Object 'System.Collections.Generic.HashSet[string]'
   $edgeCount = 0
+  $outgoingCounts = @{}
+  $incomingCounts = @{}
 
   foreach ($line in Get-Content $GraphPath) {
     foreach ($match in [regex]::Matches($line, '(^|[\s])([A-Za-z0-9_]+)\s*(?:\["|\(|\{|\>)')) {
@@ -50,6 +54,23 @@ function Get-MermaidRenderSize {
 
     if ($line -match '\s-->|--\>|-.->|==>') {
       $edgeCount += 1
+    }
+
+    $edgeMatch = [regex]::Match($line, '^\s*([A-Za-z0-9_]+)\s*(?:-->|--\>|-.->|==>)\s*(?:\|[^|]*\|\s*)?([A-Za-z0-9_]+)')
+    if ($edgeMatch.Success) {
+      $source = $edgeMatch.Groups[1].Value
+      $target = $edgeMatch.Groups[2].Value
+      [void]$nodeIds.Add($source)
+      [void]$nodeIds.Add($target)
+
+      if (-not $outgoingCounts.ContainsKey($source)) {
+        $outgoingCounts[$source] = 0
+      }
+      if (-not $incomingCounts.ContainsKey($target)) {
+        $incomingCounts[$target] = 0
+      }
+      $outgoingCounts[$source] += 1
+      $incomingCounts[$target] += 1
     }
   }
 
@@ -62,8 +83,25 @@ function Get-MermaidRenderSize {
   $heightStep = if ($Settings.autoSize.heightStep) { [int]$Settings.autoSize.heightStep } else { 600 }
   $maxWidth = if ($Settings.autoSize.maxWidth) { [int]$Settings.autoSize.maxWidth } else { $width }
   $maxHeight = if ($Settings.autoSize.maxHeight) { [int]$Settings.autoSize.maxHeight } else { $height }
+  $fanOutThreshold = if ($Settings.autoSize.fanOutThreshold) { [int]$Settings.autoSize.fanOutThreshold } else { 6 }
+  $fanOutWidthStep = if ($Settings.autoSize.fanOutWidthStep) { [int]$Settings.autoSize.fanOutWidthStep } else { 900 }
 
-  $width = [Math]::Min($maxWidth, $width + ($scaleSteps * $widthStep))
+  $maxOutgoing = 0
+  $maxIncoming = 0
+  foreach ($count in $outgoingCounts.Values) {
+    $maxOutgoing = [Math]::Max($maxOutgoing, [int]$count)
+  }
+  foreach ($count in $incomingCounts.Values) {
+    $maxIncoming = [Math]::Max($maxIncoming, [int]$count)
+  }
+  $maxFanOut = [Math]::Max($maxOutgoing, $maxIncoming)
+  $fanOutSteps = if ($fanOutThreshold -gt 0) {
+    [Math]::Max(0, [Math]::Ceiling(($maxFanOut - $fanOutThreshold) / [double]$fanOutThreshold))
+  } else {
+    0
+  }
+
+  $width = [Math]::Min($maxWidth, $width + ($scaleSteps * $widthStep) + ($fanOutSteps * $fanOutWidthStep))
   $height = [Math]::Min($maxHeight, $height + ($scaleSteps * $heightStep))
 
   return [pscustomobject]@{
@@ -73,6 +111,8 @@ function Get-MermaidRenderSize {
     EdgeCount = $edgeCount
     Complexity = $complexity
     ScaleSteps = [int]$scaleSteps
+    MaxFanOut = [int]$maxFanOut
+    FanOutSteps = [int]$fanOutSteps
   }
 }
 
@@ -231,6 +271,7 @@ function Get-MermaidLayoutValidation {
   $duplicateLabelIgnoreClasses = if ($null -ne $layoutSettings -and $null -ne $layoutSettings.duplicateLabelIgnoreClasses) { @($layoutSettings.duplicateLabelIgnoreClasses) } else { @("relationship") }
   $proxyNodeIdPatterns = if ($null -ne $layoutSettings -and $null -ne $layoutSettings.proxyNodeIdPatterns) { @($layoutSettings.proxyNodeIdPatterns) } else { @("(^|_)ref(erence)?$", "(^|_)proxy$", "_ref_", "_proxy_") }
   $proxyLabelPatterns = if ($null -ne $layoutSettings -and $null -ne $layoutSettings.proxyLabelPatterns) { @($layoutSettings.proxyLabelPatterns) } else { @("reference", "proxy", "see ", "reconstruction", "summary") }
+  $orderedSeriesSettings = if ($null -ne $layoutSettings -and $null -ne $layoutSettings.orderedSeriesValidation) { $layoutSettings.orderedSeriesValidation } else { $null }
 
   function Test-NodeHasAnyClass {
     param(
@@ -244,6 +285,21 @@ function Get-MermaidLayoutValidation {
 
     foreach ($className in $ClassNames) {
       if ($classAssignments[$NodeId].Contains($className)) {
+        return $true
+      }
+    }
+
+    return $false
+  }
+
+  function Test-LabelMatchesAnyPattern {
+    param(
+      [string]$Label,
+      [string[]]$Patterns
+    )
+
+    foreach ($pattern in $Patterns) {
+      if ($Label -match $pattern) {
         return $true
       }
     }
@@ -325,6 +381,33 @@ function Get-MermaidLayoutValidation {
     }
   }
 
+  if ($null -ne $orderedSeriesSettings -and [bool]$orderedSeriesSettings.enabled) {
+    $maxDirectChildren = if ($orderedSeriesSettings.maxDirectChildren) { [int]$orderedSeriesSettings.maxDirectChildren } else { 2 }
+    $childLabelPatterns = if ($null -ne $orderedSeriesSettings.childLabelPatterns) {
+      @($orderedSeriesSettings.childLabelPatterns)
+    } else {
+      @("^Seq\s*[0-9]", "^Sequence\s*[0-9]", "^Ch(?:apter)?\s*[0-9]", "^Episode\s*[0-9]", "^Step\s*[0-9]", "^Phase\s*[0-9]", "^Stage\s*[0-9]", "^Rank\s*[0-9]", "^Level\s*[0-9]")
+    }
+
+    foreach ($edgeGroup in @($edges | Group-Object Source)) {
+      $orderedChildren = @()
+      foreach ($edge in @($edgeGroup.Group)) {
+        if (-not $nodeLabels.ContainsKey($edge.Target)) {
+          continue
+        }
+
+        if (Test-LabelMatchesAnyPattern $nodeLabels[$edge.Target] $childLabelPatterns) {
+          $orderedChildren += $edge.Target
+        }
+      }
+
+      $orderedChildren = @($orderedChildren | Sort-Object -Unique)
+      if ($orderedChildren.Count -gt $maxDirectChildren) {
+        $issues += ('Node `{0}` has {1} direct ordered-series children: {2}. Ordered ladders, timelines, ranks, phases, chapters, steps, and sequences should usually chain child-to-child or use intermediate grouping nodes instead of wide sibling fan-out.' -f $edgeGroup.Name, $orderedChildren.Count, ($orderedChildren -join ", "))
+      }
+    }
+  }
+
   return @($issues)
 }
 
@@ -373,7 +456,7 @@ function Invoke-MermaidRender {
     $args += @("-s", $Settings.pngScale)
   }
 
-  Write-Output ('Rendering {0} -> {1} ({2}x{3}, nodes={4}, edges={5})' -f $InputFile, $OutputFile, $renderSize.Width, $renderSize.Height, $renderSize.NodeCount, $renderSize.EdgeCount)
+  Write-Output ('Rendering {0} -> {1} ({2}x{3}, nodes={4}, edges={5}, maxFanOut={6})' -f $InputFile, $OutputFile, $renderSize.Width, $renderSize.Height, $renderSize.NodeCount, $renderSize.EdgeCount, $renderSize.MaxFanOut)
   & mmdc @args
   if ($LASTEXITCODE -ne 0) {
     throw "Mermaid render failed for $InputFile with exit code $LASTEXITCODE"

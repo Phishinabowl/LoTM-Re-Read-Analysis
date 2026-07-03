@@ -9,6 +9,8 @@
     "complexityUnit": 40,
     "widthStep": 1200,
     "heightStep": 600,
+    "fanOutThreshold": 6,
+    "fanOutWidthStep": 900,
     "maxWidth": 7200,
     "maxHeight": 5400
   },
@@ -50,7 +52,22 @@
       "see ",
       "reconstruction",
       "summary"
-    ]
+    ],
+    "orderedSeriesValidation": {
+      "enabled": true,
+      "maxDirectChildren": 2,
+      "childLabelPatterns": [
+        "^Seq\\s*[0-9]",
+        "^Sequence\\s*[0-9]",
+        "^Ch(?:apter)?\\s*[0-9]",
+        "^Episode\\s*[0-9]",
+        "^Step\\s*[0-9]",
+        "^Phase\\s*[0-9]",
+        "^Stage\\s*[0-9]",
+        "^Rank\\s*[0-9]",
+        "^Level\\s*[0-9]"
+      ]
+    }
   },
   "reportPath": "Visualization/README.md",
   "snapshotPath": "Visualization/data/refresh-snapshot.json",

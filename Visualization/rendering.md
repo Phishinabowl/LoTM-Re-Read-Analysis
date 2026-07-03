@@ -85,15 +85,59 @@ The snapshot lets the tracker report added or removed nodes, added or removed re
 
 The render scripts use the `autoSize` block in `Visualization/config/render-settings.json` to increase Mermaid viewport size for larger graphs.
 
-The default dimensions remain `width` and `height`. When `autoSize.enabled` is true, the renderer counts Mermaid node and edge lines, estimates graph complexity, and increases render width and height in bounded steps.
+The default dimensions remain `width` and `height`. When `autoSize.enabled` is true, the renderer counts Mermaid node and edge lines, estimates graph complexity, detects high fan-out hubs, and increases render width and height in bounded steps.
 
 This keeps small graphs fast and compact while giving large relationship maps more room to lay out cleanly. If a large graph still renders cramped or clipped, adjust:
 
 - `complexityUnit`
 - `widthStep`
 - `heightStep`
+- `fanOutThreshold`
+- `fanOutWidthStep`
 - `maxWidth`
 - `maxHeight`
+
+Wide fan-out graphs are expected. If one source, target, group, artifact, pathway, or concept connects to many neighbors, Mermaid often spreads the graph horizontally and may need extra width before the first render looks sensible. The render helpers use `fanOutThreshold` and `fanOutWidthStep` to widen those graphs automatically.
+
+Fan-out sizing only gives the layout room. It does not decide semantic grouping. When a hub still produces messy crossings after auto-sizing, prefer one of these projections:
+
+- group related leaves under intermediate semantic nodes;
+- split the graph into narrower topic-specific views;
+- use relationship-node projection for long relationship explanations;
+- use local reference/proxy nodes when a summary or reconstruction would otherwise pull edges across unrelated sections.
+
+## Ordered-Series Layout
+
+Ordered information should usually render as a chain, not as a flat fan.
+
+This rule is universal. It applies to pathway sequences, timelines, phases, stages, ranks, steps, chapters, episodes, investigation beats, and any other ordered progression.
+
+Preferred projection:
+
+```mermaid
+graph TB
+  parent["Topic"]
+  step1["Step 1"]
+  step2["Step 2"]
+  step3["Step 3"]
+  parent --> step1
+  step1 --> step2
+  step2 --> step3
+```
+
+Avoid this shape when the children are ordered:
+
+```mermaid
+graph TB
+  parent["Topic"]
+  parent --> step1["Step 1"]
+  parent --> step2["Step 2"]
+  parent --> step3["Step 3"]
+```
+
+Flat fan-out is appropriate for unordered peer sets. Ordered-series fan-out usually makes Mermaid stretch the graph horizontally and hides the progression the graph is meant to show.
+
+The layout validator can flag nodes with too many direct ordered-series children. The configured patterns are intentionally generic, such as `Seq 9`, `Phase 1`, `Step 1`, `Chapter 1`, and `Episode 1`.
 
 ## Class Coverage Validation
 
@@ -144,6 +188,7 @@ Proxy/reference-like node IDs, such as `late_ince_ref`, must label themselves as
 These graph hygiene checks are worth revisiting after more examples exist, but should not become hard validation yet:
 
 - Section or group nodes with too many direct children may need subgroups or split views.
+- Fan-out hubs may eventually get a warning when they exceed the configured `fanOutThreshold`, but current examples are still too few for a hard rule.
 - Dense manual graphs that mix hierarchy, evidence, reconstruction, and holder edges with identical arrow semantics may need edge-purpose conventions.
 - Declared but disconnected nodes may indicate stale graph fragments, but some draft graphs may use them intentionally.
 

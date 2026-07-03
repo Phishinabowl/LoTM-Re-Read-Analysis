@@ -213,6 +213,10 @@ Pure render mode may write rendered SVG or PNG outputs, but it must not regenera
 
 Visualization renderers should scale viewport dimensions for large graphs using the shared render settings. Do not assume one fixed Mermaid render size works for every graph. If a large graph renders cramped, clipped, or unreadably small, adjust render-size settings or use the shared auto-size helper rather than hand-editing graph content solely to fit the canvas.
 
+Wide fan-out is a known Mermaid layout pattern. When one hub node connects to many targets or many sources converge on one target, renderers should use fan-out-aware sizing and graph authors should expect the graph to need more horizontal room. If auto-sizing alone does not make the graph readable, improve the graph projection by adding meaningful intermediate grouping nodes, relationship nodes, local reference/proxy nodes, or split views. Do not treat wide fan-out as a data error by itself.
+
+Ordered graph content should preserve order visually. When graph nodes represent a sequence, timeline, phase list, rank ladder, chapter/episode progression, investigation chain, or other ordered series, prefer child-to-child chains over direct sibling fan-out from one parent. Flat fan-out is appropriate for unordered peer sets; ordered-series fan-out should be fixed in the graph projection or generator.
+
 Styled Mermaid graphs must pass class coverage validation before rendering. If a graph uses `classDef` or `class` statements, every declared or edge-used node should have an explicit class assignment. Fix missing classes, class references to nonexistent nodes, undefined classes, and semantic class mismatches in the Mermaid source or generator before publishing a render.
 
 Sectioned Mermaid graphs should preserve layout islands. If a node has canonical placement in one section, do not link a different summary, reconstruction, or boundary-note section directly to that same node when it will pull edges across the whole graph. Create a local reference/proxy node inside the secondary section instead, and label it as a reference to the canonical node or pathway/sequence.
