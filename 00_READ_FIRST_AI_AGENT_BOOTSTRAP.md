@@ -29,6 +29,18 @@ The public GitHub repository does not include ignored local source materials, so
 
 If novel EPUB source expansion is available and needed, prefer the repository EPUB search helper `Tools/Search-Epub.ps1` for bounded chapter sweeps before using ad hoc EPUB parsing. If that helper is missing or unusable, report the degraded source-search path.
 
+## Repository Tooling Availability Check
+
+During bootstrap, also check and report whether these repository helpers are present:
+
+- EPUB search helper: `Tools/Search-Epub.ps1`;
+- canonical visualization refresh helper: `Visualization/render-graphs.ps1`;
+- manual Mermaid render helper: `Visualization/render-mermaid.ps1`;
+- Mermaid browser config: `Visualization/config/puppeteer-config.json`;
+- shared render settings: `Visualization/config/render-settings.json`.
+
+If visualization helpers or config are missing, report that repository visualization rendering is degraded. Do not call direct `mmdc` equivalent to the repository render workflow when the helper scripts are unavailable.
+
 The active operating contract for repository-answering behavior is:
 
 - [README-AI-Agent-Specification.md](README-AI-Agent-Specification.md)

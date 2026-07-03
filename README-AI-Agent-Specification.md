@@ -96,12 +96,22 @@ The public GitHub fallback does not include ignored local source materials. Ther
 
 When novel EPUB source expansion is available and suitable for the task, the assistant SHOULD use the repository helper `Tools/Search-Epub.ps1` as the first EPUB search path for bounded chapter sweeps, counts, snippets, and repeatable evidence checks. If the helper is missing or fails, the assistant may fall back to another structured EPUB search method, but it MUST report that the preferred helper path was unavailable or degraded.
 
+During bootstrap, the assistant MUST also check and report availability of repository-local helper tooling needed for graph and source workflows. For this repository family, that tooling includes:
+
+- `Tools/Search-Epub.ps1`
+- `Visualization/render-graphs.ps1`
+- `Visualization/render-mermaid.ps1`
+- `Visualization/config/puppeteer-config.json`
+- `Visualization/config/render-settings.json`
+
+If any visualization helper or config file is missing, the assistant MUST mark repository visualization rendering as degraded until it can inspect the relevant visualization docs and confirm a supported fallback.
+
 Before answering substantive repository questions, the assistant MUST:
 
 1. Read this specification completely from beginning to end.
 2. Identify the available repository container, archive, project folder, or file set.
 3. Build a minimal file inventory sufficient to locate likely repository materials.
-4. Perform the startup source availability check.
+4. Perform the startup source and repository-tooling availability checks.
 5. Use the rest of this specification to decide which repository files, glossary threads, investigation records, source evidence, or index files are relevant to the user's actual question.
 
 The assistant MUST NOT answer a substantive repository question after reading only part of this specification.
@@ -3843,6 +3853,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-mermaid
 Pure render mode is the required first render path for manually authored, temporary, or agent-drafted Mermaid files whenever the helper script is available. It uses the repository Puppeteer configuration, render-size settings, and validation assumptions without regenerating graph files from Relationship Seeds, updating the semantic graph snapshot, or updating the visualization refresh tracker.
 
 The AI Agent MUST NOT treat direct `mmdc` invocation with `Visualization/config/puppeteer-config.json` as equivalent to using the repository render workflow. The repository helper scripts encode workflow behavior beyond browser selection, including shared sizing and validation expectations.
+
+If bootstrap or pre-render inspection shows that `Visualization/render-mermaid.ps1`, `Visualization/render-graphs.ps1`, `Visualization/config/puppeteer-config.json`, or `Visualization/config/render-settings.json` is missing, report the missing item before rendering and treat repository visualization rendering as degraded until a supported fallback is identified.
 
 Direct `mmdc` commands are fallback/debug commands only. Use them only when:
 

@@ -215,6 +215,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-mermaid
 
 Pure render mode may write rendered SVG or PNG outputs, but it must not regenerate Mermaid graph files from Relationship Seeds, update the visualization snapshot, or update the refresh tracker.
 
+Before graph rendering work, confirm that the expected visualization tooling is present: `Visualization/render-graphs.ps1`, `Visualization/render-mermaid.ps1`, `Visualization/config/puppeteer-config.json`, and `Visualization/config/render-settings.json`. If any are missing, report the render path as degraded before using a fallback.
+
 Visualization renderers should scale viewport dimensions for large graphs using the shared render settings. Do not assume one fixed Mermaid render size works for every graph. If a large graph renders cramped, clipped, or unreadably small, adjust render-size settings or use the shared auto-size helper rather than hand-editing graph content solely to fit the canvas.
 
 Wide fan-out is a known Mermaid layout pattern. When one hub node connects to many targets or many sources converge on one target, renderers should use fan-out-aware sizing and graph authors should expect the graph to need more horizontal room. If auto-sizing alone does not make the graph readable, improve the graph projection by adding meaningful intermediate grouping nodes, relationship nodes, local reference/proxy nodes, or split views. Do not treat wide fan-out as a data error by itself.
