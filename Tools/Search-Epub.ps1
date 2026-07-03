@@ -1,22 +1,27 @@
 param(
   [string]$EpubPath = "Source/Lord of Mysteries - Book 1.epub",
-  [ValidateRange(1, 999)]
+  [ValidateRange(1, 9999)]
   [int]$StartChapter = 1,
-  [ValidateRange(1, 999)]
-  [int]$EndChapter = 213,
+  [ValidateRange(1, 9999)]
+  [int]$EndChapter = 9999,
+  [int[]]$Volume,
+  [ValidateSet("Chapters", "SideStories", "Appendices", "Artwork", "FrontMatter", "Other", "All")]
+  [string[]]$EntryType = @("Chapters"),
+  [string]$EntryNamePattern,
   [string]$Pattern,
   [int]$ContextLines = 0,
   [int]$MaxHitsPerChapter = 50,
   [switch]$CountsOnly,
   [switch]$RegexPattern,
   [switch]$CaseSensitive,
-  [switch]$Json
+  [switch]$Json,
+  [switch]$ListEntries
 )
 
 $ErrorActionPreference = "Stop"
 
-if ([string]::IsNullOrWhiteSpace($Pattern)) {
-  throw "Provide -Pattern. For literal multi-term searches, separate terms with |, such as -Pattern `"Dunn|Captain|Nighthawk`"."
+if (-not $ListEntries -and [string]::IsNullOrWhiteSpace($Pattern)) {
+  throw "Provide -Pattern. For literal multi-term searches, separate terms with |, such as -Pattern `"Dunn|Captain|Nighthawk`". Use -ListEntries to inspect EPUB entries without a search pattern."
 }
 
 if ($StartChapter -gt $EndChapter) {
@@ -96,25 +101,84 @@ function Get-MatchedTerms {
   return $matched
 }
 
-$terms = if ($RegexPattern) {
-  @($Pattern)
-} else {
-  @($Pattern -split '\|' | ForEach-Object { $_.Trim() } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+function Get-EntryTitle {
+  param(
+    [string[]]$Lines,
+    [Nullable[int]]$Chapter
+  )
+
+  if ($Lines.Count -eq 0) {
+    return $null
+  }
+
+  if ($null -ne $Chapter) {
+    $chapterLine = $Lines | Where-Object { $_ -match '^Chapter\s+\d+(:|\b)' } | Select-Object -First 1
+    if ($chapterLine) {
+      return $chapterLine
+    }
+  }
+
+  return $Lines[0]
 }
 
-$searchRegex = New-SearchRegex $terms $RegexPattern.IsPresent $CaseSensitive.IsPresent
-$zip = [System.IO.Compression.ZipFile]::OpenRead((Resolve-Path $EpubPath))
-$jsonResults = New-Object 'System.Collections.Generic.List[object]'
+function Get-EntryMetadata {
+  param(
+    [System.IO.Compression.ZipArchiveEntry]$Entry,
+    [string[]]$Lines,
+    [int]$Order
+  )
 
-try {
-  foreach ($chapter in $StartChapter..$EndChapter) {
-    $entryName = "OEBPS/Text/volume_1_clown_chapter_$chapter.xhtml"
-    $entry = $zip.Entries | Where-Object { $_.FullName -eq $entryName } | Select-Object -First 1
+  $chapter = $null
+  $chapterLine = $Lines | Where-Object { $_ -match '^Chapter\s+(\d+)(:|\b)' } | Select-Object -First 1
+  if ($chapterLine) {
+    $chapter = [int]([regex]::Match($chapterLine, '^Chapter\s+(\d+)').Groups[1].Value)
+  }
 
-    if (-not $entry) {
-      continue
-    }
+  $volume = $null
+  $fileMatch = [regex]::Match($Entry.FullName, '^OEBPS/Text/volume_(\d+)_')
+  if ($fileMatch.Success) {
+    $volume = [int]$fileMatch.Groups[1].Value
+  }
 
+  $leafName = Split-Path $Entry.FullName -Leaf
+  $entryType = if ($leafName -like 'side_stories*') {
+    "SideStories"
+  } elseif ($null -ne $chapter -and $null -ne $volume) {
+    "Chapters"
+  } elseif ($leafName -match '^(character|pathways|location)\d+\.xhtml$') {
+    "Appendices"
+  } elseif ($leafName -match '^(artwork\d*|cover|back_cover)\.xhtml$') {
+    "Artwork"
+  } elseif ($leafName -match '^(copyright|foreword)\.xhtml$') {
+    "FrontMatter"
+  } else {
+    "Other"
+  }
+
+  $sortChapter = if ($null -ne $chapter) { $chapter } else { 100000 + $Order }
+
+  return [pscustomobject]@{
+    entry = $Entry
+    path = $Entry.FullName
+    file_name = $leafName
+    entry_type = $entryType
+    volume = $volume
+    chapter = $chapter
+    title = Get-EntryTitle $Lines $chapter
+    order = $Order
+    sort_chapter = $sortChapter
+    lines = $Lines
+  }
+}
+
+function Get-EpubEntries {
+  param($Zip)
+
+  $documents = New-Object 'System.Collections.Generic.List[object]'
+  $order = 0
+  $xhtmlEntries = $Zip.Entries | Where-Object { $_.FullName -like 'OEBPS/Text/*.xhtml' }
+
+  foreach ($entry in $xhtmlEntries) {
     $reader = [System.IO.StreamReader]::new($entry.Open())
     try {
       $xhtml = $reader.ReadToEnd()
@@ -123,112 +187,226 @@ try {
     }
 
     $lines = Convert-XhtmlToLines $xhtml
-    $hitIndexes = New-Object 'System.Collections.Generic.List[int]'
-    $termCounts = [ordered]@{}
+    $documents.Add((Get-EntryMetadata $entry $lines $order))
+    $order++
+  }
 
-    foreach ($term in $terms) {
-      $termRegex = New-SearchRegex @($term) $RegexPattern.IsPresent $CaseSensitive.IsPresent
-      $count = 0
-      foreach ($line in $lines) {
-        $count += $termRegex.Matches($line).Count
+  return @($documents.ToArray())
+}
+
+function Test-SelectedEntry {
+  param($Document)
+
+  $selectedTypes = if ($EntryType -contains "All") {
+    @("Chapters", "SideStories", "Appendices", "Artwork", "FrontMatter", "Other")
+  } else {
+    $EntryType
+  }
+
+  if ($selectedTypes -notcontains $Document.entry_type) {
+    return $false
+  }
+
+  if ($Volume -and ($null -eq $Document.volume -or $Volume -notcontains $Document.volume)) {
+    return $false
+  }
+
+  if ($null -ne $Document.chapter -and ($Document.chapter -lt $StartChapter -or $Document.chapter -gt $EndChapter)) {
+    return $false
+  }
+
+  if (-not [string]::IsNullOrWhiteSpace($EntryNamePattern)) {
+    if ($Document.path -notlike $EntryNamePattern -and $Document.file_name -notlike $EntryNamePattern) {
+      return $false
+    }
+  }
+
+  return $true
+}
+
+function Get-DocumentLabel {
+  param($Document)
+
+  if ($null -ne $Document.chapter) {
+    if ($Document.entry_type -ne "Chapters") {
+      return "$($Document.entry_type) Ch $($Document.chapter)"
+    }
+    if ($null -ne $Document.volume) {
+      return "Ch $($Document.chapter) (Vol $($Document.volume))"
+    }
+    return "Ch $($Document.chapter)"
+  }
+
+  return "$($Document.entry_type): $($Document.file_name)"
+}
+
+function Convert-DocumentToJsonObject {
+  param($Document)
+
+  return [pscustomobject]@{
+    entry_type = $Document.entry_type
+    volume = $Document.volume
+    chapter = $Document.chapter
+    title = $Document.title
+    source_path = $Document.path
+  }
+}
+
+$terms = @()
+$searchRegex = $null
+if (-not $ListEntries) {
+  $terms = if ($RegexPattern) {
+    @($Pattern)
+  } else {
+    @($Pattern -split '\|' | ForEach-Object { $_.Trim() } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+  }
+
+  $searchRegex = New-SearchRegex $terms $RegexPattern.IsPresent $CaseSensitive.IsPresent
+}
+
+$zip = [System.IO.Compression.ZipFile]::OpenRead((Resolve-Path $EpubPath))
+$jsonResults = New-Object 'System.Collections.Generic.List[object]'
+
+try {
+  $documents = Get-EpubEntries $zip |
+    Where-Object { Test-SelectedEntry $_ } |
+    Sort-Object sort_chapter, order
+
+  if ($ListEntries) {
+    if ($Json) {
+      foreach ($document in $documents) {
+        $jsonResults.Add((Convert-DocumentToJsonObject $document))
       }
-      if ($count -gt 0) {
-        $termCounts[$term] = $count
+    } else {
+      foreach ($document in $documents) {
+        $volumeText = if ($null -ne $document.volume) { "Vol $($document.volume)" } else { "Vol -" }
+        $chapterText = if ($null -ne $document.chapter) { "Ch $($document.chapter)" } else { "Ch -" }
+        "$($document.entry_type) | $volumeText | $chapterText | $($document.file_name) | $($document.title)"
       }
     }
+  } else {
+    foreach ($document in $documents) {
+      $lines = $document.lines
+      $hitIndexes = New-Object 'System.Collections.Generic.List[int]'
+      $termCounts = [ordered]@{}
 
-    for ($index = 0; $index -lt $lines.Count; $index++) {
-      if ($searchRegex.IsMatch($lines[$index])) {
-        $hitIndexes.Add($index)
-      }
-    }
-
-    if ($hitIndexes.Count -eq 0) {
-      continue
-    }
-
-    if ($CountsOnly) {
-      if ($Json) {
-        foreach ($key in $termCounts.Keys) {
-          $jsonResults.Add([pscustomobject]@{
-            chapter = $chapter
-            term = $key
-            count = $termCounts[$key]
-          })
+      foreach ($term in $terms) {
+        $termRegex = New-SearchRegex @($term) $RegexPattern.IsPresent $CaseSensitive.IsPresent
+        $count = 0
+        foreach ($line in $lines) {
+          $count += $termRegex.Matches($line).Count
         }
+        if ($count -gt 0) {
+          $termCounts[$term] = $count
+        }
+      }
+
+      for ($index = 0; $index -lt $lines.Count; $index++) {
+        if ($searchRegex.IsMatch($lines[$index])) {
+          $hitIndexes.Add($index)
+        }
+      }
+
+      if ($hitIndexes.Count -eq 0) {
         continue
       }
 
-      $countParts = @()
-      foreach ($key in $termCounts.Keys) {
-        $countParts += "$key=$($termCounts[$key])"
-      }
-      "Ch ${chapter}: " + ($countParts -join '; ')
-      continue
-    }
-
-    if (-not $Json) {
-      ""
-      "=== Chapter $chapter ==="
-    }
-
-    $printed = 0
-    foreach ($hitIndex in $hitIndexes) {
-      if ($printed -ge $MaxHitsPerChapter) {
-        if (-not $Json) {
-          "... hit limit reached for Chapter $chapter ($MaxHitsPerChapter shown of $($hitIndexes.Count))"
-        }
-        break
-      }
-
-      if ($ContextLines -le 0) {
+      if ($CountsOnly) {
         if ($Json) {
-          $matchedTerms = Get-MatchedTerms $lines[$hitIndex] $terms $RegexPattern.IsPresent $CaseSensitive.IsPresent
-          foreach ($matchedTerm in $matchedTerms) {
+          foreach ($key in $termCounts.Keys) {
             $jsonResults.Add([pscustomobject]@{
-              chapter = $chapter
-              term = $matchedTerm
-              line = $hitIndex + 1
-              line_index = $hitIndex
-              snippet = Format-Snippet $lines[$hitIndex]
+              entry_type = $document.entry_type
+              volume = $document.volume
+              chapter = $document.chapter
+              title = $document.title
+              source_path = $document.path
+              term = $key
+              count = $termCounts[$key]
             })
           }
-        } else {
-        "[${hitIndex}] $(Format-Snippet $lines[$hitIndex])"
+          continue
         }
-      } else {
-        $start = [Math]::Max(0, $hitIndex - $ContextLines)
-        $end = [Math]::Min($lines.Count - 1, $hitIndex + $ContextLines)
-        if ($Json) {
-          $context = @()
-          for ($contextIndex = $start; $contextIndex -le $end; $contextIndex++) {
-            $context += [pscustomobject]@{
-              line = $contextIndex + 1
-              line_index = $contextIndex
-              snippet = Format-Snippet $lines[$contextIndex]
+
+        $countParts = @()
+        foreach ($key in $termCounts.Keys) {
+          $countParts += "$key=$($termCounts[$key])"
+        }
+        "$(Get-DocumentLabel $document): " + ($countParts -join '; ')
+        continue
+      }
+
+      if (-not $Json) {
+        ""
+        "=== $(Get-DocumentLabel $document): $($document.title) ==="
+        "$($document.path)"
+      }
+
+      $printed = 0
+      foreach ($hitIndex in $hitIndexes) {
+        if ($printed -ge $MaxHitsPerChapter) {
+          if (-not $Json) {
+            "... hit limit reached for $(Get-DocumentLabel $document) ($MaxHitsPerChapter shown of $($hitIndexes.Count))"
+          }
+          break
+        }
+
+        if ($ContextLines -le 0) {
+          if ($Json) {
+            $matchedTerms = Get-MatchedTerms $lines[$hitIndex] $terms $RegexPattern.IsPresent $CaseSensitive.IsPresent
+            foreach ($matchedTerm in $matchedTerms) {
+              $jsonResults.Add([pscustomobject]@{
+                entry_type = $document.entry_type
+                volume = $document.volume
+                chapter = $document.chapter
+                title = $document.title
+                source_path = $document.path
+                term = $matchedTerm
+                line = $hitIndex + 1
+                line_index = $hitIndex
+                snippet = Format-Snippet $lines[$hitIndex]
+              })
             }
-          }
-
-          $matchedTerms = Get-MatchedTerms $lines[$hitIndex] $terms $RegexPattern.IsPresent $CaseSensitive.IsPresent
-          foreach ($matchedTerm in $matchedTerms) {
-            $jsonResults.Add([pscustomobject]@{
-              chapter = $chapter
-              term = $matchedTerm
-              line = $hitIndex + 1
-              line_index = $hitIndex
-              snippet = Format-Snippet $lines[$hitIndex]
-              context = $context
-            })
+          } else {
+            "[${hitIndex}] $(Format-Snippet $lines[$hitIndex])"
           }
         } else {
-          for ($contextIndex = $start; $contextIndex -le $end; $contextIndex++) {
-            "[${contextIndex}] $(Format-Snippet $lines[$contextIndex])"
-          }
-          "--"
-        }
-      }
+          $start = [Math]::Max(0, $hitIndex - $ContextLines)
+          $end = [Math]::Min($lines.Count - 1, $hitIndex + $ContextLines)
+          if ($Json) {
+            $context = @()
+            for ($contextIndex = $start; $contextIndex -le $end; $contextIndex++) {
+              $context += [pscustomobject]@{
+                line = $contextIndex + 1
+                line_index = $contextIndex
+                snippet = Format-Snippet $lines[$contextIndex]
+              }
+            }
 
-      $printed++
+            $matchedTerms = Get-MatchedTerms $lines[$hitIndex] $terms $RegexPattern.IsPresent $CaseSensitive.IsPresent
+            foreach ($matchedTerm in $matchedTerms) {
+              $jsonResults.Add([pscustomobject]@{
+                entry_type = $document.entry_type
+                volume = $document.volume
+                chapter = $document.chapter
+                title = $document.title
+                source_path = $document.path
+                term = $matchedTerm
+                line = $hitIndex + 1
+                line_index = $hitIndex
+                snippet = Format-Snippet $lines[$hitIndex]
+                context = $context
+              })
+            }
+          } else {
+            for ($contextIndex = $start; $contextIndex -le $end; $contextIndex++) {
+              "[${contextIndex}] $(Format-Snippet $lines[$contextIndex])"
+            }
+            "--"
+          }
+        }
+
+        $printed++
+      }
     }
   }
 } finally {

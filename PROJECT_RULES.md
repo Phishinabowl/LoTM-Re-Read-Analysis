@@ -1151,6 +1151,8 @@ Use `Tools/Search-Epub.ps1` for repeatable novel EPUB checks.
 
 When a task requires novel EPUB source expansion and this helper is available, use it as the preferred first EPUB search path. This applies to graph-building coverage sweeps as well as article and investigation verification. If the helper is missing or unusable, use another structured EPUB search method and report the degraded path.
 
+The helper searches the full Book 1 EPUB by actual chapter number rather than Volume 1 filenames. It can narrow by `-StartChapter` / `-EndChapter`, `-Volume`, `-EntryType`, and `-EntryNamePattern`. Use `-EntryType SideStories`, `-EntryType Appendices`, `-EntryType Artwork`, `-EntryType FrontMatter`, or `-EntryType All` when the evidence may live outside the main chapter stream.
+
 The standard EPUB evidence workflow is:
 
 1. Run a survey count across the bounded chapter range.
@@ -1174,6 +1176,19 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Start
 ```
 
 By default, `-Pattern` treats `|` as a separator between literal terms. Use `-RegexPattern` only when a regular expression is needed.
+
+Example later-volume count:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Volume 3 -Pattern "Gehrman|Traveler" -CountsOnly
+```
+
+Example appendix or side-story inspection:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -EntryType Appendices -EntryNamePattern "*pathways*" -ListEntries
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -EntryType SideStories -Pattern "3-0782" -CountsOnly
+```
 
 ## Donghua Subtitles
 

@@ -10,7 +10,7 @@ Place the EPUB here:
 Lord of Mysteries - Book 1.epub
 ```
 
-The EPUB is the canonical source of truth for verification, but the file itself is ignored by Git and should not be committed.
+The EPUB is the canonical source of truth for verification across all eight volumes of Book 1, but the file itself is ignored by Git and should not be committed.
 
 Use the EPUB only when chronology, reveal order, reader knowledge state, relationships, or other evidence-sensitive questions require verification.
 
