@@ -424,11 +424,24 @@ The universal glossary template defines the shared article contract. Type-specif
 
 Use a type-specific overlay only when it adds predictable structure that the universal template cannot express cleanly. The overlay should preserve the shared metadata, relationship seeds, evidence index, reader knowledge ledger, future automation notes, and notes sections.
 
-Place type-specific extraction sections after `Reader Knowledge Boundary` and before `First Appearance / First Meaningful Mention`. This keeps high-value structured facts close to the article boundary while preserving chronological development as the main prose record.
+Place type-specific extraction sections near the top of the article after `Reader Knowledge Boundary`. Type-specific overlays may keep `First Appearance / First Meaningful Mention` immediately after the snapshot when first reveal timing is especially important to scan early. This keeps high-value structured facts close to the article boundary while preserving chronological development as the main prose record.
 
 Current type-specific overlays:
 
 - `Glossary_Threads/Pathways/TEMPLATE.md`: pathway pages should expose `Pathway Snapshot`, `Known Sequences`, `Institutional Access`, `Affiliated Factions`, `Known Holders`, and `Pathway Data Block` sections.
+- `Glossary_Threads/Characters/TEMPLATE.md`: character pages should expose `Character Snapshot`, `Names, Aliases & Titles`, `Physical Profile`, `Status, Origin & Location`, `Affiliations`, `Pathway & Ability State`, `Ability Index`, `Equipment & Artifacts`, `Personality`, `Relationships`, `Messenger / Servants / Companions`, `Prayers & Ritual Access`, `Major Events & Fights`, and `Character Data Block` sections.
+
+### Character Article Overlay
+
+Character pages should include the character overlay once the page has enough verified material to support more than a stub. The overlay is required for active character pilot pages and recommended for any future character page with reader-safe identity, role, affiliation, pathway, relationship, inventory, event-participation, or ability data.
+
+Character pages should include an `Overall Summary` section immediately before `Character Snapshot`. This section should provide a reader-safe synthesis of who the character is at the current boundary. It can be more natural and interpretive than the structured rows, and it may be one paragraph for minor characters or a few concise paragraphs for major characters with more development. It must stay inside the reader boundary and avoid later emotional or plot contamination. The snapshot bullets should summarize the latest reader-safe state without replacing chronological development. Keep state/history tables newest-to-oldest by reveal or change point so the latest visible state appears first at the current reader boundary. Keep `Major Events & Fights`, chronological development, evidence indexes, and reader knowledge ledgers oldest-to-newest because those sections preserve event or reading order.
+
+Mutable character facts should accumulate rows instead of overwriting old values. This includes aliases, titles, age, vital status, residence, affiliations, pathway status, Sequence advancement, equipment possession, relationships, companions, and ability access. Future reader-boundary tooling should hide rows after the chosen boundary and compute the current state from the remaining rows.
+
+Use `Pathway & Ability State` for broad stateful supernatural status such as pathway, Sequence, advancement, digestion, or limitations. Use `Ability Index` for individual capabilities and skills, including pathway abilities, artifact-granted effects, rituals, authority, training, knowledge, or mundane competencies.
+
+Use `Prayers & Ritual Access` for character-specific prayer addresses, exact prayer wording when reader-safe, ritual labels, target functions, and cross-links to `Glossary_Threads/Concepts/concept-prayers-and-rituals.md`. Keep general ritual theory, reusable prayer/ritual type definitions, and cross-character comparisons on the concept page rather than duplicating them inside character pages.
 
 ### Pathway Article Overlay
 

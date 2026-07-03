@@ -10,7 +10,7 @@ Confidence Level: Strong Evidence
 Spoiler Boundary: Volume 1
 Reader Knowledge Boundary: Novel Chapter 47; Donghua Season 1
 Tags: volume-1, reader-knowledge, character, faction
-Last Updated: 2026-07-02
+Last Updated: 2026-07-03
 
 Related Threads:
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
@@ -44,6 +44,22 @@ Later Old Neil developments, emotional consequences, and retrospective meaning m
 - Donghua: Season 1
 - Donghua viewer knowledge state: Not yet verified for this thread.
 
+## Overall Summary
+
+Old Neil is the Tingen Nighthawks' eccentric elder specialist: a civilian staff Mystery Pryer who turns the hidden supernatural system into practical lessons, odd documents, potion work, and field interpretation for Klein.
+
+Through Chapter 47, he gives the Nighthawks' support structure a warmer, stranger, more lived-in texture. Old Neil is not introduced as a frontline captain, but he becomes essential as the person who handles knowledge, teaches practice, prepares materials, explains mysticism, and still steps into field work when the notebook case demands his expertise.
+
+## Character Snapshot
+
+- Current reader-safe identity: Old Neil, eccentric Tingen Nighthawks civilian staff member and Mystery Pryer.
+- Current primary role: Knowledge-work specialist, formula/material handler, mysticism instructor, and occasional field-response participant.
+- Current affiliation: Church of Evernight / Tingen Nighthawks, working through Blackthorn Security Company.
+- Current pathway / ability status: Confirmed Mystery Pryer; practical Spirit Vision, Cogitation, ritual/mysticism, and formula-preparation expertise are reader-safe through Chapter 47.
+- Current vital status: Alive at the current reader boundary.
+- First appearance: Novel Volume 1, Chapter 19, when Dunn names him as one of the Tingen Nighthawks' civilian staff.
+- Main reader-safe uncertainty: Old Neil's exact mission limits, full personal history, complete ability set, and later Volume 1 developments remain outside this boundary.
+
 ## First Appearance / First Meaningful Mention
 
 ### Novel
@@ -61,6 +77,265 @@ Later Old Neil developments, emotional consequences, and retrospective meaning m
 - Timestamp: TBD
 - Context: Requires Donghua subtitle and visual verification.
 - Viewer knowledge state: The exact first meaningful Donghua disclosure is not yet pinned down.
+
+## Names, Aliases & Titles
+
+| Field | Value | First reveal / change point | Status | Confidence | Notes |
+|---|---|---|---|---|---|
+| Primary name / common name | Old Neil | Novel V1 Ch19 | Current at boundary | Confirmed | Dunn names Old Neil as civilian staff. |
+| Title / role | Klein's first practical mysticism instructor | Novel V1 Ch32 | Current at boundary | Confirmed | Old Neil teaches Klein Cogitation, Spirit Vision, and basic mystical practice. |
+| Title / role | Tingen Nighthawks civilian staff member | Novel V1 Ch19 | Current at boundary | Confirmed | Introduced as part of the team support staff. |
+
+## Physical Profile
+
+| Field | Value | First reveal / change point | Status | Confidence | Notes |
+|---|---|---|---|---|---|
+| Age | Older adult | Novel V1 Ch19 | Current at boundary | Strong inference | The name and presentation mark him as elderly/older, but exact age is not verified. |
+| Species | Human | Novel V1 Ch19 | Current at boundary | Strong inference | Nothing through Chapter 47 suggests otherwise. |
+| Sex | Male | Novel V1 Ch19 | Current at boundary | Strong inference | Presentation and references are consistently masculine through this boundary. |
+| Birthday | Unknown | Novel V1 Ch19 | Unknown | Unknown | No verified birthday in the current character boundary. |
+| Height | Unknown | Novel V1 Ch19 | Unknown | Unknown | No verified height in the current character boundary. |
+| Weight | Unknown | Novel V1 Ch19 | Unknown | Unknown | No verified weight in the current character boundary. |
+| Hair color | Unknown | Novel V1 Ch19 | Unknown | Unknown | Not pinned down in the current page evidence. |
+| Eye color | Unknown | Novel V1 Ch19 | Unknown | Unknown | Not pinned down in the current page evidence. |
+
+## Status, Origin & Location
+
+| Field | Value | First reveal / change point | Status | Confidence | Notes |
+|---|---|---|---|---|---|
+| Current location | Ray Bieber apartment / Antigonus notebook field-response scene | Novel V1 Ch45-47 | Latest known location at boundary | Confirmed | Old Neil is last tracked joining Dunn's field team and examining the scene. |
+| Compensation status | Paid through both Church and police department | Novel V1 Ch47 | Current at boundary | Confirmed | Old Neil gives Klein a concrete salary detail. |
+| Residence / base | Blackthorn Security Company / Tingen Nighthawks workplace | Novel V1 Ch19-40 | Current operational base | Confirmed | Old Neil works in and guards restricted Nighthawk spaces connected to Blackthorn. |
+| Occupation / institutional role | Nighthawks civilian staff | Novel V1 Ch19 | Current at boundary | Confirmed | Introduced as support staff handling records, visitors, inventory, and restricted spaces. |
+| Vital status | Alive | Novel V1 Ch19 | Current at boundary | Confirmed | No reader-safe death or disappearance through Chapter 47. |
+| Nationality | Unknown | Novel V1 Ch19 | Unknown | Unknown | Not verified in the current character boundary. |
+| Origin / birthplace | Unknown | Novel V1 Ch19 | Unknown | Unknown | Not verified in the current character boundary. |
+
+## Affiliations
+
+| Organization / faction | Relationship | First reveal / change point | Status | Confidence | Notes |
+|---|---|---|---|---|---|
+| Blackthorn Security Company | Works at / operational workplace | Novel V1 Ch19-40 | Current at boundary | Confirmed | Old Neil performs Nighthawk support work through the Blackthorn-connected workplace. |
+| Tingen Nighthawks | Civilian staff member | Novel V1 Ch19 | Current at boundary | Confirmed | Dunn names him as one of the civilian staff. |
+| Church of Evernight | Civilian-staff affiliation | Novel V1 Ch19 | Current at boundary | Confirmed | Old Neil is part of the Church-linked Nighthawks infrastructure. |
+| Police department funding structure | Salary relationship | Novel V1 Ch47 | Current at boundary | Confirmed | Old Neil says his weekly pay comes from both Church and police sources. |
+
+## Pathway & Ability State
+
+| Field | Value | First reveal / change point | Status | Confidence | Notes |
+|---|---|---|---|---|---|
+| Pathway / Sequence | Sequence 9: Mystery Pryer | Novel V1 Ch22 / Ch28 | Current at boundary | Confirmed | Rozanne identifies the title; Dunn confirms Mystery Pryer is the power Old Neil controls. |
+| Ability state | Spirit Vision and practical mysticism instruction | Novel V1 Ch32-33 | Current demonstrated capability | Confirmed | Old Neil teaches and demonstrates early mystical practice for Klein. |
+| Ability state | Formula/material handling and potion preparation | Novel V1 Ch31 | Current demonstrated capability | Confirmed | Old Neil retrieves materials and prepares Klein's Seer potion. |
+
+## Ability Index
+
+| Ability / skill | Source | First reveal / change point | Status | Confidence | Notes |
+|---|---|---|---|---|---|
+| Ritual/sealing interpretation | Mysticism expertise / Mystery Pryer knowledge | Novel V1 Ch46 | Current at boundary | Confirmed | Old Neil identifies a ritual-like sealing effect during the notebook response. |
+| Spirit Vision | Mysticism practice / Mystery Pryer expertise | Novel V1 Ch32-33 | Current at boundary | Confirmed | Teaches Klein to use and interpret Spirit Vision. |
+| Cogitation instruction | Nighthawk training / mysticism expertise | Novel V1 Ch32 | Current at boundary | Confirmed | Provides Klein's first practical post-potion training. |
+| Formula and material preparation | Nighthawk formula/material workflow | Novel V1 Ch31 | Current at boundary | Confirmed | Prepares Klein's Seer potion in the alchemy room. |
+| Roselle diary/document handling | Knowledge-work specialty | Novel V1 Ch20-21 | Current at boundary | Confirmed | Old Neil becomes the first Roselle diary contact point. |
+
+## Equipment & Artifacts
+
+| Item | Type | First reveal / change point | Possession status | Confidence | Notes |
+|---|---|---|---|---|---|
+| Historical materials / documents | Knowledge-work materials | Novel V1 Ch40-47 | Supplies or manages access | Confirmed | Old Neil provides materials and context for Klein's work. |
+| Seer formula and potion materials | Formula/material set | Novel V1 Ch31 | Retrieved/prepared, not owned | Confirmed | Old Neil handles the materials for Klein's advancement. |
+| Roselle diary pages | Document / knowledge artifact | Novel V1 Ch20-21 | Handles or provides access | Confirmed | Old Neil's office is Klein's first contact point for the diary material. |
+
+## Personality
+
+| Trait / pattern | Evidence | First reveal / change point | Status | Confidence | Notes |
+|---|---|---|---|---|---|
+| Grumbling but reliable veteran | Joins field response after Kenley covers his armory watch | Novel V1 Ch45-47 | Current pattern at boundary | Confirmed | Old Neil may complain, but remains trusted for specialized work. |
+| Practical, safety-conscious teacher | Teaches Cogitation, Spirit Vision, and safe interpretation | Novel V1 Ch32-33 | Current pattern at boundary | Confirmed | His instruction is concrete and operational rather than purely theoretical. |
+| Eccentric knowledge specialist | Roselle diary/document work and unusual office contact | Novel V1 Ch20-21 | Current pattern at boundary | Confirmed | Old Neil becomes associated with odd documents and occult knowledge. |
+
+## Relationships
+
+| Character / entity | Relationship | First reveal / change point | Status | Confidence | Notes |
+|---|---|---|---|---|---|
+| Klein Moretti | Mentor / instructor | Novel V1 Ch32 | Current at boundary | Confirmed | Old Neil teaches Klein first practical Beyonder skills. |
+| Dunn Smith | Subordinate / colleague | Novel V1 Ch19 / Ch45 | Current at boundary | Confirmed | Dunn names Old Neil as staff and later brings him into the field response. |
+| Seer pathway | Formula/material event participant | Novel V1 Ch31 | Completed event connection | Confirmed | Old Neil prepares Klein's Seer potion. |
+| Mystery Pryer pathway | Pathway-status connection | Novel V1 Ch22 / Ch28 | Current at boundary | Confirmed | Old Neil is reader-safe as a Mystery Pryer. |
+
+## Messenger / Servants / Companions
+
+| Entity | Type | First reveal / change point | Status | Confidence | Notes |
+|---|---|---|---|---|---|
+| None known | Messenger / servant / companion | Novel V1 Ch47 | No reader-safe entity known | Confirmed absence through boundary | No messenger, servant, or companion is established for Old Neil through Chapter 47. |
+
+## Prayers & Ritual Access
+
+| Prayer / ritual label | Type | Function | First reveal / change point | Status | Confidence | Concept link | Notes |
+|---|---|---|---|---|---|---|---|
+| Ritualistic-magic instruction context | Ritualistic magic | Teaches Klein that ritualistic magic belongs to practical mysticism | Novel V1 Ch33 | Current instructional context | Confirmed | [Prayers & Rituals](../Concepts/concept-prayers-and-rituals.md) | Not a character-specific prayer address, but Old Neil is the current reader-safe source for ritualistic-magic context. |
+| Ray Bieber scene sealing effect | Sealing ritual / sealing effect | Interprets field evidence of a ritual-like seal | Novel V1 Ch46 | Observed effect, procedure unknown | Confirmed effect, unknown source | [Prayers & Rituals](../Concepts/concept-prayers-and-rituals.md) | Old Neil identifies the effect but is not confirmed as its creator. |
+
+## Major Events & Fights
+
+| Event / fight | Role | First reveal / occurrence | Outcome / status | Confidence | Notes |
+|---|---|---|---|---|---|
+| Roselle diary workplace contact | Knowledge-work contact | Novel V1 Ch20-21 | Active knowledge thread | Confirmed | Old Neil's office anchors Klein's first diary contact. |
+| Klein Becomes a Seer | Potion preparer / event participant | Novel V1 Ch31 | Completed | Confirmed | Retrieves formula/materials and prepares Klein's potion. |
+| Antigonus notebook / Ray Bieber field response | Specialized field participant | Novel V1 Ch45-47 | Active and unresolved at boundary | Confirmed | Old Neil uses Spirit Vision and identifies ritual-like sealing. |
+
+## Character Data Block
+
+```yaml
+character_profile:
+  reader_boundary:
+    medium: novel
+    book: lotm-1
+    volume: 1
+    chapter: 47
+  state_sort_order: newest_to_oldest
+  identities:
+    - field: title_role
+      value: Klein's first practical mysticism instructor
+      reveal: { medium: novel, volume: 1, chapter: 32 }
+      status: current_at_boundary
+      confidence: confirmed
+      notes: Old Neil teaches Klein Cogitation, Spirit Vision, and basic mystical practice.
+    - field: primary_common_name
+      value: Old Neil
+      reveal: { medium: novel, volume: 1, chapter: 19 }
+      status: current_at_boundary
+      confidence: confirmed
+      notes: Dunn names Old Neil as civilian staff.
+  physical_profile:
+    - field: age
+      value: Older adult
+      reveal: { medium: novel, volume: 1, chapter: 19 }
+      status: current_at_boundary
+      confidence: strong_inference
+      notes: Exact age is not verified.
+  status_origin_location:
+    - field: current_location
+      value: Ray Bieber apartment / Antigonus notebook field-response scene
+      reveal: { medium: novel, volume: 1, chapter: 45 }
+      status: latest_known_location_at_boundary
+      confidence: confirmed
+      notes: Old Neil is last tracked joining Dunn's field team and examining the scene.
+    - field: compensation_status
+      value: Paid through both Church and police department
+      reveal: { medium: novel, volume: 1, chapter: 47 }
+      status: current_at_boundary
+      confidence: confirmed
+      notes: Old Neil gives Klein a concrete salary detail.
+    - field: residence_base
+      value: Blackthorn Security Company / Tingen Nighthawks workplace
+      reveal: { medium: novel, volume: 1, chapter: 19 }
+      status: current_operational_base
+      confidence: confirmed
+      notes: Old Neil works in restricted Nighthawk spaces connected to Blackthorn.
+    - field: vital_status
+      value: Alive
+      reveal: { medium: novel, volume: 1, chapter: 19 }
+      status: current_at_boundary
+      confidence: confirmed
+      notes: No reader-safe death or disappearance through Chapter 47.
+  affiliations:
+    - organization: Blackthorn Security Company
+      relationship: works_at_operational_workplace
+      reveal: { medium: novel, volume: 1, chapter: 19 }
+      status: current_at_boundary
+      confidence: confirmed
+      notes: Performs Nighthawk support work through the Blackthorn-connected workplace.
+    - organization: Tingen Nighthawks
+      relationship: civilian_staff_member
+      reveal: { medium: novel, volume: 1, chapter: 19 }
+      status: current_at_boundary
+      confidence: confirmed
+      notes: Dunn names him as one of the civilian staff.
+  pathway_ability_state:
+    - field: pathway_sequence
+      value: "Sequence 9: Mystery Pryer"
+      reveal: { medium: novel, volume: 1, chapter: 22 }
+      status: current_at_boundary
+      confidence: confirmed
+      notes: Rozanne identifies the title; Dunn confirms the power in Chapter 28.
+    - field: ability_state
+      value: Spirit Vision and practical mysticism instruction
+      reveal: { medium: novel, volume: 1, chapter: 32 }
+      status: current_demonstrated_capability
+      confidence: confirmed
+      notes: Old Neil teaches and demonstrates early mystical practice for Klein.
+  ability_index:
+    - ability: ritual_sealing_interpretation
+      source: mysticism_expertise_mystery_pryer_knowledge
+      reveal: { medium: novel, volume: 1, chapter: 46 }
+      status: current_at_boundary
+      confidence: confirmed
+      notes: Identifies a ritual-like sealing effect during the notebook response.
+    - ability: spirit_vision_instruction
+      source: mysticism_practice_mystery_pryer_expertise
+      reveal: { medium: novel, volume: 1, chapter: 32 }
+      status: current_at_boundary
+      confidence: confirmed
+      notes: Teaches Klein to use and interpret Spirit Vision.
+    - ability: roselle_diary_document_handling
+      source: knowledge_work_specialty
+      reveal: { medium: novel, volume: 1, chapter: 20 }
+      status: current_at_boundary
+      confidence: confirmed
+      notes: Old Neil becomes the first Roselle diary contact point.
+  equipment_artifacts:
+    - item: Seer formula and potion materials
+      type: formula_material_set
+      reveal: { medium: novel, volume: 1, chapter: 31 }
+      possession_status: retrieved_prepared_not_owned
+      confidence: confirmed
+      notes: Handles the materials for Klein's advancement.
+    - item: Roselle diary pages
+      type: document_knowledge_artifact
+      reveal: { medium: novel, volume: 1, chapter: 20 }
+      possession_status: handles_or_provides_access
+      confidence: confirmed
+      notes: Old Neil's office is Klein's first contact point for the diary material.
+  prayers_ritual_access:
+    - label: Ritualistic-magic instruction context
+      type: ritualistic_magic
+      function: Teaches Klein that ritualistic magic belongs to practical mysticism
+      reveal: { medium: novel, volume: 1, chapter: 33 }
+      status: current_instructional_context
+      confidence: confirmed
+      concept_link: ../Concepts/concept-prayers-and-rituals.md
+      wording:
+      notes: Not a character-specific prayer address, but Old Neil is the current reader-safe source for ritualistic-magic context.
+    - label: Ray Bieber scene sealing effect
+      type: sealing_ritual_effect
+      function: Interprets field evidence of a ritual-like seal
+      reveal: { medium: novel, volume: 1, chapter: 46 }
+      status: observed_effect_procedure_unknown
+      confidence: confirmed_effect_unknown_source
+      concept_link: ../Concepts/concept-prayers-and-rituals.md
+      wording:
+      notes: Old Neil identifies the effect but is not confirmed as its creator.
+  major_events_fights:
+    - event: Roselle diary workplace contact
+      role: knowledge_work_contact
+      reveal: { medium: novel, volume: 1, chapter: 20 }
+      outcome_status: active_knowledge_thread
+      confidence: confirmed
+      notes: Old Neil's office anchors Klein's first diary contact.
+    - event: Klein Becomes a Seer
+      role: potion_preparer_event_participant
+      reveal: { medium: novel, volume: 1, chapter: 31 }
+      outcome_status: completed
+      confidence: confirmed
+      notes: Retrieves formula/materials and prepares Klein's potion.
+    - event: Antigonus notebook / Ray Bieber field response
+      role: specialized_field_participant
+      reveal: { medium: novel, volume: 1, chapter: 45 }
+      outcome_status: active_unresolved_at_boundary
+      confidence: confirmed
+      notes: Old Neil uses Spirit Vision and identifies ritual-like sealing.
+```
 
 ## Chronological Development
 

@@ -26,6 +26,7 @@ Navigation hub for the reread analysis workspace.
 ## Glossary Threads / Supporting Investigations
 
 - [Glossary Thread Template](Glossary_Threads/TEMPLATE.md)
+- [Character Thread Template](Glossary_Threads/Characters/TEMPLATE.md)
 - [Pathway Thread Template](Glossary_Threads/Pathways/TEMPLATE.md)
 - [Investigation Template](Investigations/TEMPLATE.md)
 
@@ -87,6 +88,14 @@ Navigation hub for the reread analysis workspace.
   - [Divination Novel Volume 1 Reveal Timeline](Investigations/Concepts/concept-divination/novel-volume-1-reveal-timeline.md)
   - [Seer Pathway Novel Volume 1 Reveal Timeline](Investigations/Pathways/pathway-seer/novel-volume-1-reveal-timeline.md)
   - [Church of Evernight Volume 1 Reveal Timeline](Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
+  - [Antigonus Notebook Novel Volume 1 Reveal Timeline](Investigations/Artifacts/artifact-antigonus-notebook/novel-volume-1-reveal-timeline.md)
+
+#### Prayers & Rituals
+
+- Glossary: [Prayers & Rituals](Glossary_Threads/Concepts/concept-prayers-and-rituals.md)
+- Supporting Investigations:
+  - [Prayers & Rituals Novel Volume 1 Reveal Timeline](Investigations/Concepts/concept-prayers-and-rituals/novel-volume-1-reveal-timeline.md)
+  - [Old Neil Novel Volume 1 Reveal Timeline](Investigations/Characters/character-old-neil/novel-volume-1-reveal-timeline.md)
   - [Antigonus Notebook Novel Volume 1 Reveal Timeline](Investigations/Artifacts/artifact-antigonus-notebook/novel-volume-1-reveal-timeline.md)
 
 ### Events
