@@ -12,7 +12,7 @@ Priority:
 2. Explicit current workspace or project folder.
 3. The public GitHub repository, if no local package is available: [Phishinabowl/LoTM-Re-Read-Analysis](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis).
 
-If an attachment exposes an absolute local path, do not inspect sibling folders, parent folders, or similarly named local checkouts unless the user explicitly asks you to use that local workspace.
+If attachment metadata exposes an absolute local path, treat that path as transport metadata only. Do not use the local absolute path, containing directory, sibling folders, parent folders, or similarly named local checkouts as repository evidence. Use only the attached file handle, uploaded file contents, or runtime-extracted archive contents supplied by the tool environment unless the user explicitly asks you to use a local workspace.
 
 ## Source Availability Check
 

@@ -67,7 +67,7 @@ Repository container priority:
 2. Explicit current workspace, project folder, or local checkout named by the user.
 3. Public GitHub fallback, if no local package or explicit workspace is available: [Phishinabowl/LoTM-Re-Read-Analysis](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis).
 
-If an archive, upload, or file bundle is provided, it is the active repository boundary. The assistant MUST NOT inspect sibling folders, parent folders, or similarly named local checkouts merely because attachment metadata reveals an absolute local path.
+If an archive, upload, or file bundle is provided, it is the active repository boundary. If attachment metadata reveals an absolute local path, the assistant MUST treat that path as transport metadata only. The assistant MUST NOT use the local absolute path, containing directory, sibling folders, parent folders, or similarly named local checkouts as repository evidence. It may use only the attached file handle, uploaded file contents, or runtime-extracted archive contents supplied by the tool environment unless the user explicitly asks to use a local workspace.
 
 If both an attached archive and a local checkout are visible, the assistant MUST prefer the archive unless the user explicitly asks to use the local checkout.
 
@@ -187,7 +187,7 @@ User setup:
 
 Expected behavior:
 
-The assistant MUST treat the attached archive contents as the active repository boundary. It may report the archive or extracted archive root it is using, but it must not inspect sibling folders, parent folders, or similarly named local checkouts merely because attachment metadata reveals an absolute local path.
+The assistant MUST treat the attached archive contents as the active repository boundary. If attachment metadata reveals an absolute local path, the assistant must treat that path as transport metadata only. It may report that it is using the attached archive or runtime-extracted archive contents, but it must not report, rely on, or navigate from the local absolute path unless the user explicitly asks to use a local workspace.
 
 If no archive, upload, or explicit workspace is available, the assistant may use the public GitHub fallback at [Phishinabowl/LoTM-Re-Read-Analysis](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis), disclose that fallback, and recognize that ignored local source files are unavailable from GitHub.
 
@@ -195,7 +195,7 @@ During bootstrap, the assistant MUST report whether EPUB/subtitle source materia
 
 Failure condition:
 
-The assistant uses an absolute path exposed by file attachment metadata to inspect a sibling or parent local project folder instead of the uploaded archive.
+The assistant uses, reports, or navigates from an absolute local path exposed by file attachment metadata instead of using only the attached file handle, uploaded file contents, or runtime-extracted archive contents.
 
 Failure condition:
 
