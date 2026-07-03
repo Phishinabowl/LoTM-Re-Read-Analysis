@@ -117,6 +117,22 @@ Failure condition:
 
 The assistant treats `debug mode` only as a request for terse citations, caveats, or confidence notes.
 
+## 0.5 Regression Test: Graph Workflow Routing
+
+User request:
+
+> make me a complex graph of [repository subject]
+
+Expected behavior:
+
+The assistant MUST recognize the request as a graph or visualization request, inspect the repository visualization contract, classify the output as canonical graph refresh, repository-local manual graph, or chat-only scratch graph, and use the repository visualization workflow unless the user explicitly requests scratch output.
+
+For this repository family, the assistant should inspect `Visualization/README.md`, `Visualization/rendering.md`, `Visualization/data/graph-schema.md`, and relevant graph/render configuration before creating or rendering graph artifacts.
+
+Failure condition:
+
+The assistant creates a standalone Mermaid file, rendered image, or graph artifact in an ad hoc `outputs/` folder after reading repository evidence, without routing through the repository visualization workflow and without the user explicitly requesting scratch output.
+
 ---
 
 # 1. Purpose
@@ -3686,6 +3702,26 @@ Validation includes:
 - Repository naming conventions
 - Rendering compatibility
 
+### Graph Request Routing Gate
+
+When a user asks for a graph, visualization, Mermaid diagram, relationship map, pathway map, timeline map, rendered graph, or similar visual artifact, the AI Agent MUST route the request through the repository visualization workflow before producing output.
+
+The AI Agent MUST NOT treat a graph request as a generic standalone Mermaid task unless the user explicitly asks for scratch, temporary, chat-only, or outside-repository output.
+
+Before creating or rendering any graph artifact, the AI Agent MUST classify the requested output as one of:
+
+1. **Canonical graph refresh** — update generated graph artifacts from canonical Relationship Seeds and repository graph inputs.
+2. **Repository-local manual graph** — create a manually authored graph under `Visualization/graphs/` and render it with repository render helpers.
+3. **Chat-only scratch graph** — produce temporary Mermaid in the chat or an explicitly requested scratch location, clearly labeled as noncanonical.
+
+If the request is complex, repository-wide, relationship-heavy, evidence-bearing, rendered, or expected to produce a durable artifact, the default classification is **Repository-local manual graph** or **Canonical graph refresh**, not chat-only scratch.
+
+For canonical graph refreshes, inspect and use the repository refresh rules before modifying generated artifacts.
+
+For repository-local manual graphs, inspect local visualization docs, write the Mermaid source under `Visualization/graphs/`, and render through repository tooling into `Visualization/rendered/`.
+
+For chat-only scratch graphs, state that the graph is a scratch artifact and is not part of the repository visualization system.
+
 ### Repository Rendering Instructions
 
 When a repository contains visualization documentation or rendering tooling, the AI Agent MUST inspect that local visualization contract before attempting ad hoc rendering.
@@ -3790,6 +3826,10 @@ Visualization-specific failures include:
 Correct graph.
 
 Repository visualization conventions violated.
+
+Example:
+
+The AI Agent creates a graph in an ad hoc `outputs/` folder after reading repository evidence, even though the repository has a `Visualization/` workflow and the user did not request scratch output.
 
 ---
 

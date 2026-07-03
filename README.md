@@ -10,6 +10,8 @@ The active operating contract for repository-answering behavior is [README AI Ag
 
 [MAINTAINER_CONTEXT.md](MAINTAINER_CONTEXT.md) is maintainer tooling context only. It is not the AI Agent bootstrap or operating contract.
 
+For graph, visualization, Mermaid, relationship-map, pathway-map, or rendered-image requests, follow the repository visualization workflow in [Visualization](Visualization/README.md). Do not create ad hoc graph artifacts outside the repository visualization workflow unless the user explicitly asks for scratch output.
+
 ## Repository Notice
 
 This repository is an independent reread analysis project.

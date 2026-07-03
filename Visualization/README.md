@@ -11,6 +11,20 @@ Generated graph files are not the source of truth. The canonical project data re
 
 Mermaid graphs are generated from glossary metadata and Relationship Seeds. If a graph exposes missing, stale, or incorrect information, fix the glossary thread, investigation record, or relationship seed first, then regenerate the graph.
 
+## AI Agent Graph Request Routing
+
+Graph and visualization requests are repository workflow requests by default.
+
+When an AI assistant is asked to create a graph, visualization, Mermaid diagram, relationship map, pathway map, timeline map, or rendered image, it should not begin by creating an ad hoc Mermaid file outside this folder.
+
+First classify the request:
+
+1. **Canonical graph refresh**: update generated graph artifacts from Relationship Seeds and graph inputs.
+2. **Repository-local manual graph**: create a manual `.mmd` source under `Visualization/graphs/` and render it through repository tooling.
+3. **Chat-only scratch graph**: produce temporary Mermaid only when the user explicitly asks for scratch, temporary, chat-only, or outside-repository output.
+
+Complex, relationship-heavy, evidence-bearing, or rendered graph requests default to repository-local artifacts, not scratch outputs.
+
 ## Projection Style
 
 Dense relationship graphs should use semantic relationship nodes instead of long Mermaid edge labels.
