@@ -116,7 +116,7 @@ Fan-out sizing only gives the layout room. It does not decide semantic grouping.
 
 Ordered information should usually render as a chain, not as a flat fan.
 
-This rule is universal. It applies to pathway sequences, timelines, phases, stages, ranks, steps, chapters, episodes, investigation beats, and any other ordered progression.
+This rule is universal. It applies to pathway sequences, artifact custody chains, influence cascades, relationship progressions, timelines, phases, stages, ranks, steps, chapters, episodes, investigation beats, and any other ordered progression.
 
 Preferred projection:
 
@@ -144,6 +144,59 @@ graph TB
 Flat fan-out is appropriate for unordered peer sets. Ordered-series fan-out usually makes Mermaid stretch the graph horizontally and hides the progression the graph is meant to show.
 
 The layout validator can flag nodes with too many direct ordered-series children. The configured patterns are intentionally generic, such as `Seq 9`, `Phase 1`, `Step 1`, `Chapter 1`, and `Episode 1`.
+
+## Dense Knowledge Graph Shape
+
+Dense knowledge graphs should usually be one connected styled-node map, not many Mermaid `subgraph` clusters.
+
+Preferred projection:
+
+```mermaid
+graph TB
+  root["Boundary / scope"]
+  group_a["Evidence group A"]
+  entity_a["Entity A"]
+  detail_a["Detail A"]
+  root --> group_a
+  group_a --> entity_a
+  entity_a --> detail_a
+```
+
+Avoid using a separate Mermaid `subgraph` cluster for every topic, pathway, faction, character, timeline arc, or evidence group unless the user explicitly asks for cluster boxes. Mermaid clusters are useful for a few large visual regions, but many clusters often become disconnected islands and force the render into a wide strip.
+
+For dense generated or agent-drafted views:
+
+- use styled group nodes instead of many cluster boxes;
+- connect the graph through a visible semantic spine, such as `root -> group -> entity -> detail`;
+- define node classes for important visual roles;
+- reserve `subgraph` for a few broad regions or intentionally separate diagrams.
+
+The layout validator can flag dense graphs that have no class definitions, too many subgraph clusters, or too many disconnected components.
+
+## Visual Role Grammar
+
+Dense graphs should expose their meaning through a consistent visual grammar. The exact palette may evolve, but the method should remain stable:
+
+- fill color communicates the node's semantic role;
+- border style communicates certainty, incompleteness, or boundary status;
+- label prefixes communicate reader-facing interpretation in text;
+- topology communicates structure and chronology.
+
+Recommended role classes include:
+
+- `root` or `main` for the graph boundary or scope;
+- `group` for organizing buckets or evidence regions;
+- `entity`, `character`, `actor`, `target`, `pathway`, `concept`, `faction`, `artifact`, `location`, `event`, `mechanism`, `effect`, or similar domain roles for major subjects;
+- `sequence`, `step`, or `stage` for ordered progression nodes;
+- `holder`, `owner`, `possessor`, `participant`, `member`, `student`, `mentor`, `manipulator`, `victim`, or similar assignment/participation roles for people or entities connected to a subject;
+- `relationship` for generated relationship presentation nodes;
+- `uncertain`, `boundary`, or `note` for inferred, missing, ambiguous, unresolved, or reader-boundary material.
+
+Uncertainty should be visible without relying only on words. Use dashed or otherwise distinct border styling for uncertainty-like classes such as `uncertain`, `boundary`, and `note`.
+
+Labels should still carry the semantic meaning in text. Examples include `holder:`, `owner:`, `participant:`, `manipulates:`, `affected:`, `member:`, `mentor:`, `likely holder:`, `holder-like:`, `generic holder:`, `Boundary note`, and `Seq 9:`. Color and line style help scanning, but text remains the accessible source of meaning.
+
+The class validator can flag dense graphs where label wording implies one visual role but the node is assigned to another. For example, a node labeled `Seq 9...` should use a progression role class, and a node labeled `likely holder...` should use an uncertainty-style class. Keep graph-specific roles consistent inside each view: artifact maps may emphasize owners, locations, effects, and custody events; influence maps may emphasize actors, mechanisms, targets, and affected events; character relationship maps may emphasize characters, factions, relationships, statuses, and shared events.
 
 ## Class Coverage Validation
 

@@ -119,10 +119,13 @@ function Get-MermaidClassValidation {
   $usedNodes = New-Object 'System.Collections.Generic.HashSet[string]'
   $classAssignments = @{}
   $classDefs = New-Object 'System.Collections.Generic.HashSet[string]'
+  $classDefLines = @{}
+  $nodeLabels = @{}
 
   foreach ($line in Get-Content $GraphPath) {
     if ($line -match '^\s*classDef\s+([A-Za-z0-9_-]+)') {
       [void]$classDefs.Add($matches[1])
+      $classDefLines[$matches[1]] = $line
       continue
     }
 
@@ -145,6 +148,10 @@ function Get-MermaidClassValidation {
     foreach ($match in [regex]::Matches($line, '(^|[\s])([A-Za-z0-9_]+)\s*(?:\["|\(|\{|\>)')) {
       [void]$declaredNodes.Add($match.Groups[2].Value)
       [void]$usedNodes.Add($match.Groups[2].Value)
+    }
+
+    foreach ($match in [regex]::Matches($line, '(^|[\s])([A-Za-z0-9_]+)\s*\["([^"]+)"\]')) {
+      $nodeLabels[$match.Groups[2].Value] = (($match.Groups[3].Value -replace '<br/>', ' ') -replace '\s+', ' ').Trim()
     }
 
     foreach ($match in [regex]::Matches($line, '([A-Za-z0-9_]+)\s*(?:-->|--\>|-.->|==>)')) {
@@ -225,10 +232,17 @@ function Get-MermaidLayoutValidation {
   )
 
   $classAssignments = @{}
+  $classDefs = New-Object 'System.Collections.Generic.HashSet[string]'
   $nodeLabels = @{}
   $edges = @()
+  $subgraphCount = 0
 
   foreach ($line in Get-Content $GraphPath) {
+    if ($line -match '^\s*classDef\s+([A-Za-z0-9_-]+)') {
+      [void]$classDefs.Add($matches[1])
+      continue
+    }
+
     if ($line -match '^\s*class\s+(.+?)\s+([A-Za-z0-9_-]+)\s*;?\s*$') {
       $className = $matches[2]
       foreach ($nodeId in @($matches[1] -split ',')) {
@@ -243,6 +257,10 @@ function Get-MermaidLayoutValidation {
         [void]$classAssignments[$nodeId].Add($className)
       }
       continue
+    }
+
+    if ($line -match '^\s*subgraph\s+') {
+      $subgraphCount += 1
     }
 
     foreach ($match in [regex]::Matches($line, '(^|[\s])([A-Za-z0-9_]+)\s*\["([^"]+)"\]')) {
@@ -264,6 +282,7 @@ function Get-MermaidLayoutValidation {
   $duplicateLabelIgnoreClasses = if ($null -ne $layoutSettings -and $null -ne $layoutSettings.duplicateLabelIgnoreClasses) { @($layoutSettings.duplicateLabelIgnoreClasses) } else { @("relationship") }
   $proxyNodeIdPatterns = if ($null -ne $layoutSettings -and $null -ne $layoutSettings.proxyNodeIdPatterns) { @($layoutSettings.proxyNodeIdPatterns) } else { @("(^|_)ref(erence)?$", "(^|_)proxy$", "_ref_", "_proxy_") }
   $proxyLabelPatterns = if ($null -ne $layoutSettings -and $null -ne $layoutSettings.proxyLabelPatterns) { @($layoutSettings.proxyLabelPatterns) } else { @("reference", "proxy", "see ", "reconstruction", "summary") }
+  $denseGraphSettings = if ($null -ne $layoutSettings -and $null -ne $layoutSettings.denseGraphValidation) { $layoutSettings.denseGraphValidation } else { $null }
   $orderedSeriesSettings = if ($null -ne $layoutSettings -and $null -ne $layoutSettings.orderedSeriesValidation) { $layoutSettings.orderedSeriesValidation } else { $null }
 
   function Test-NodeHasAnyClass {
@@ -301,6 +320,72 @@ function Get-MermaidLayoutValidation {
   }
 
   $issues = @()
+
+  if ($null -ne $denseGraphSettings -and [bool]$denseGraphSettings.enabled) {
+    $graphNodeIds = New-Object 'System.Collections.Generic.HashSet[string]'
+    foreach ($nodeId in $nodeLabels.Keys) {
+      [void]$graphNodeIds.Add($nodeId)
+    }
+    foreach ($edge in $edges) {
+      [void]$graphNodeIds.Add($edge.Source)
+      [void]$graphNodeIds.Add($edge.Target)
+    }
+
+    $minNodeCount = if ($denseGraphSettings.minNodeCount) { [int]$denseGraphSettings.minNodeCount } else { 20 }
+    if ($graphNodeIds.Count -ge $minNodeCount) {
+      if ([bool]$denseGraphSettings.requireClassDefinitions -and $classDefs.Count -eq 0) {
+        $issues += ('Dense graph has {0} nodes but no `classDef` styling. Use styled node classes so readers can distinguish groups, entities, relationships, evidence, uncertainty, and other semantic roles.' -f $graphNodeIds.Count)
+      }
+
+      $maxSubgraphCount = if ($denseGraphSettings.maxSubgraphCount -ne $null) { [int]$denseGraphSettings.maxSubgraphCount } else { 4 }
+      if ($subgraphCount -gt $maxSubgraphCount) {
+        $issues += ('Dense graph uses {0} Mermaid subgraph clusters. Dense knowledge maps should usually use styled group nodes and a connected semantic spine; reserve subgraph clusters for a few large regions or explicitly requested cluster views.' -f $subgraphCount)
+      }
+
+      $adjacency = @{}
+      foreach ($nodeId in $graphNodeIds) {
+        $adjacency[$nodeId] = New-Object 'System.Collections.Generic.HashSet[string]'
+      }
+      foreach ($edge in $edges) {
+        if (-not $adjacency.ContainsKey($edge.Source)) {
+          $adjacency[$edge.Source] = New-Object 'System.Collections.Generic.HashSet[string]'
+        }
+        if (-not $adjacency.ContainsKey($edge.Target)) {
+          $adjacency[$edge.Target] = New-Object 'System.Collections.Generic.HashSet[string]'
+        }
+        [void]$adjacency[$edge.Source].Add($edge.Target)
+        [void]$adjacency[$edge.Target].Add($edge.Source)
+      }
+
+      $visited = New-Object 'System.Collections.Generic.HashSet[string]'
+      $componentCount = 0
+      foreach ($nodeId in @($graphNodeIds | Sort-Object)) {
+        if ($visited.Contains($nodeId)) {
+          continue
+        }
+
+        $componentCount += 1
+        $queue = New-Object 'System.Collections.Generic.Queue[string]'
+        [void]$visited.Add($nodeId)
+        $queue.Enqueue($nodeId)
+
+        while ($queue.Count -gt 0) {
+          $current = $queue.Dequeue()
+          foreach ($neighbor in $adjacency[$current]) {
+            if (-not $visited.Contains($neighbor)) {
+              [void]$visited.Add($neighbor)
+              $queue.Enqueue($neighbor)
+            }
+          }
+        }
+      }
+
+      $maxDisconnectedComponents = if ($denseGraphSettings.maxDisconnectedComponents -ne $null) { [int]$denseGraphSettings.maxDisconnectedComponents } else { 2 }
+      if ($componentCount -gt $maxDisconnectedComponents) {
+        $issues += ('Dense graph has {0} disconnected components. Dense knowledge maps should usually have a connected semantic spine, such as root -> group -> entity -> detail, unless the user explicitly requests separate disconnected diagrams.' -f $componentCount)
+      }
+    }
+  }
 
   $labelsByText = @{}
   foreach ($nodeId in @($nodeLabels.Keys | Sort-Object)) {
@@ -397,6 +482,48 @@ function Get-MermaidLayoutValidation {
       $orderedChildren = @($orderedChildren | Sort-Object -Unique)
       if ($orderedChildren.Count -gt $maxDirectChildren) {
         $issues += ('Node `{0}` has {1} direct ordered-series children: {2}. Ordered ladders, timelines, ranks, phases, chapters, steps, and sequences should usually chain child-to-child or use intermediate grouping nodes instead of wide sibling fan-out.' -f $edgeGroup.Name, $orderedChildren.Count, ($orderedChildren -join ", "))
+      }
+    }
+  }
+
+  if ($null -ne $validationSettings -and $null -ne $validationSettings.uncertaintyClasses) {
+    $stylePattern = if ($validationSettings.uncertaintyClassStylePattern) { [string]$validationSettings.uncertaintyClassStylePattern } else { "stroke-dasharray" }
+    foreach ($className in @($validationSettings.uncertaintyClasses)) {
+      if ($classDefs.Contains($className) -and $classDefLines.ContainsKey($className) -and $classDefLines[$className] -notmatch $stylePattern) {
+        $issues += ('Uncertainty-style class `{0}` should include visual uncertainty styling matching `{1}`.' -f $className, $stylePattern)
+      }
+    }
+  }
+
+  if ($null -ne $validationSettings -and $null -ne $validationSettings.labelRoleRules) {
+    foreach ($rule in @($validationSettings.labelRoleRules)) {
+      foreach ($nodeId in @($nodeLabels.Keys | Sort-Object)) {
+        $label = $nodeLabels[$nodeId]
+        $matchesRule = $false
+        foreach ($pattern in @($rule.patterns)) {
+          if ($label -match $pattern) {
+            $matchesRule = $true
+            break
+          }
+        }
+
+        if (-not $matchesRule) {
+          continue
+        }
+
+        $hasAllowedClass = $false
+        if ($classAssignments.ContainsKey($nodeId)) {
+          foreach ($allowedClass in @($rule.allowedClasses)) {
+            if ($classAssignments[$nodeId].Contains($allowedClass)) {
+              $hasAllowedClass = $true
+              break
+            }
+          }
+        }
+
+        if (-not $hasAllowedClass) {
+          $issues += ('Node `{0}` label `{1}` matches visual role rule but is not assigned to one of: {2}. {3}' -f $nodeId, $label, (@($rule.allowedClasses) -join ", "), $rule.description)
+        }
       }
     }
   }

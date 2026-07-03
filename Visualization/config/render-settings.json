@@ -17,6 +17,12 @@
   "classValidation": {
     "enabled": true,
     "requireClassesWhenGraphUsesClasses": true,
+    "uncertaintyClasses": [
+      "uncertain",
+      "boundary",
+      "note"
+    ],
+    "uncertaintyClassStylePattern": "stroke-dasharray",
     "semanticPatterns": [
       {
         "className": "sequence",
@@ -24,6 +30,60 @@
           "(^|_)seq(uence)?[0-9_]",
           "(^|_)seer[0-9_]",
           "(^|_)unknown$"
+        ]
+      }
+    ],
+    "labelRoleRules": [
+      {
+        "description": "Ordered sequence or step labels should use a progression role class.",
+        "patterns": [
+          "^Seq\\s*[0-9]",
+          "^Sequence\\s*[0-9]",
+          "^Step\\s*[0-9]",
+          "^Phase\\s*[0-9]",
+          "^Stage\\s*[0-9]",
+          "^Rank\\s*[0-9]",
+          "^Level\\s*[0-9]"
+        ],
+        "allowedClasses": [
+          "sequence",
+          "step",
+          "stage"
+        ]
+      },
+      {
+        "description": "Holder labels should use a holder or uncertainty role class.",
+        "patterns": [
+          "^holder:",
+          "^holders:",
+          "^generic holder:"
+        ],
+        "allowedClasses": [
+          "holder",
+          "uncertain"
+        ]
+      },
+      {
+        "description": "Uncertain, inferred, missing, or boundary labels should use an uncertainty role class.",
+        "patterns": [
+          "^likely ",
+          "^suspected ",
+          "^holder-like:",
+          "^prospective holder:",
+          "inferred",
+          "likely",
+          "suspected",
+          "unknown",
+          "uncertain",
+          "not confirmed",
+          "not revealed",
+          "missing",
+          "boundary"
+        ],
+        "allowedClasses": [
+          "uncertain",
+          "boundary",
+          "note"
         ]
       }
     ]
@@ -53,6 +113,13 @@
       "reconstruction",
       "summary"
     ],
+    "denseGraphValidation": {
+      "enabled": true,
+      "minNodeCount": 20,
+      "requireClassDefinitions": true,
+      "maxSubgraphCount": 4,
+      "maxDisconnectedComponents": 2
+    },
     "orderedSeriesValidation": {
       "enabled": true,
       "maxDirectChildren": 2,

@@ -3791,9 +3791,19 @@ The AI Agent should proactively recognize wide fan-out before rendering. If one 
 
 Fan-out is not automatically a semantic error. If extra width is not enough, improve projection rather than guessing after the render: add intermediate grouping nodes for related leaves, use relationship-node projection for explanatory edges, split the request into narrower views, or use local reference/proxy nodes when a summary or reconstruction section would otherwise pull edges across the graph.
 
-The AI Agent should distinguish unordered fan-out from ordered-series fan-out. Unordered peer sets may fan out from a shared parent. Ordered series should usually chain child-to-child so the visual structure preserves the progression. This applies broadly to pathway sequences, timelines, phases, stages, ranks, steps, chapters, episodes, investigation beats, and similar ordered structures.
+The AI Agent should distinguish unordered fan-out from ordered-series fan-out. Unordered peer sets may fan out from a shared parent. Ordered series should usually chain child-to-child so the visual structure preserves the progression. This applies broadly to pathway sequences, artifact custody chains, influence cascades, relationship progressions, timelines, phases, stages, ranks, steps, chapters, episodes, investigation beats, and similar ordered structures.
 
 If a requested graph contains ordered items such as `Seq 9`, `Phase 1`, `Step 1`, `Chapter 1`, or `Episode 1`, the AI Agent should plan a chain or grouped chain before rendering instead of first emitting a wide sibling fan and correcting it after visual inspection.
+
+For dense knowledge graphs, the AI Agent should prefer a connected styled-node map over many Mermaid `subgraph` clusters. Use a visible semantic spine such as `root -> group -> entity -> detail`. Use styled group nodes for evidence buckets, topics, factions, pathways, timeline arcs, or other organizing concepts.
+
+The AI Agent should avoid generating one `subgraph` cluster per topic, pathway, character, faction, or evidence bucket unless the user explicitly requests cluster boxes. Many Mermaid clusters often produce disconnected visual islands and wide strip renders. Clusters are acceptable for a few broad regions or intentionally separate diagrams, but they should not replace the graph spine.
+
+Dense generated graphs should define visual classes for major roles, such as root, group, entity, character, actor, target, artifact, faction, location, event, relationship, sequence, holder, owner, participant, mechanism, effect, uncertain, evidence, boundary, or note. A dense graph with no `classDef` styling is usually incomplete for this repository family.
+
+The AI Agent should use a visual role grammar instead of ad hoc decoration. Fill color should encode semantic role, border style should encode uncertainty or boundary status, label prefixes should encode reader-facing interpretation in text, and topology should encode structure. The exact colors are not fixed, but the mapping must be consistent within the graph. The same method applies to pathway maps, artifact maps, influence maps, faction maps, event maps, location maps, and character relationship maps; only the role labels change.
+
+Uncertain, inferred, suspected, missing, unresolved, boundary, or not-confirmed material should be visually distinct, normally through an uncertainty-style class with a dashed or otherwise different border. Do not rely only on wording such as `likely`, `unknown`, or `not confirmed`.
 
 Before rendering a styled Mermaid graph, the AI Agent MUST validate class coverage. If the graph uses `classDef` or `class` statements, every declared or edge-used node should have an explicit class assignment, every class assignment should reference an existing node, and every assigned class should be defined when class definitions are present.
 
