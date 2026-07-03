@@ -234,6 +234,7 @@ try {
   }
 
   $currentVolume = $null
+  $inSideStories = $false
   $imageNumber = 0
   $spineIndex = 0
 
@@ -263,9 +264,20 @@ try {
     }
 
     $title = Get-XhtmlTitle $xhtml
-    $hrefVolume = Get-VolumeFromHref $href $title $currentVolume
+    if ($href -like 'Text/side_stories*') {
+      $currentVolume = $null
+      $inSideStories = $true
+    }
+
+    $hrefVolume = if ($inSideStories -and $href -notmatch 'volume_\d+_') {
+      $null
+    } else {
+      Get-VolumeFromHref $href $title $currentVolume
+    }
+
     if ($href -match 'volume_(\d+)_' -or $title -match '^Volume\s+\d+:') {
       $currentVolume = $hrefVolume
+      $inSideStories = $false
     }
 
     $tags = @(Get-ImgTags $xhtml)

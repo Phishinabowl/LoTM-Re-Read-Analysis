@@ -1,0 +1,200 @@
+# Official EPUB Image Map
+
+## Purpose
+
+Track official EPUB image assets in spine/reading order so they can later be linked to character, pathway, artifact, faction, location, concept, and event pages as reader-safe visual evidence.
+
+Use `Tools/Extract-EpubImages.ps1` as the source for image order and asset paths. Extracted image files live under `Artwork/extracted/` in section or volume subfolders.
+
+## Source
+
+- EPUB: `Source/Lord of Mysteries - Book 1.epub`
+- Extracted files: `Artwork/extracted/`
+- Extraction command for Volume 1 listing:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Extract-EpubImages.ps1 -Volume 1
+```
+
+## Mapping Rules
+
+- `image_number` is the global EPUB spine-order image number emitted by `Extract-EpubImages.ps1`.
+- `spine_index` is the XHTML spine position emitted by the tool.
+- `EPUB page` is the human-readable EPUB entry title for the XHTML file that contains the image. The source EPUB does not expose physical page numbers.
+- `reader-safe label` should describe only what the image visibly depicts or what the EPUB entry safely identifies at that point.
+- `mapped threads` should use existing thread links when available; use plain planned filenames only when the target page does not exist yet.
+- `confidence` should be `confirmed`, `strong-evidence`, `working-theory`, or `unknown`.
+- Leave uncertain identifications as `TBD` until user-confirmed.
+
+## Front Matter
+
+| Image # | Spine | EPUB page | Type | XHTML | Image asset | Extracted file | Alt | Reader-safe label | Mapped threads | Confidence | Notes |
+|---|---:|---|---|---|---|---|---|---|---|---|---|
+| 1 | 1 | Cover | Cover | `OEBPS/Text/cover.xhtml` | `OEBPS/Images/Cover.jpeg` | `Artwork/extracted/front-matter/0001-spine-0001-cover-cover.jpeg` | cover | Main novel cover | `README.md` | confirmed | Webnovel cover image for Lord of Mysteries; suitable for the root repository landing page. |
+| 2 | 3 | Copyright | FrontMatter | `OEBPS/Text/copyright.xhtml` | `OEBPS/Images/0001.jpeg` | `Artwork/extracted/front-matter/0002-spine-0003-frontmatter-copyright.jpeg` | copyright | Copyright page illustration | TBD | confirmed | Front-matter copyright image with Lord of Mysteries branding and a top-hatted figure; no article mapping planned yet. |
+| 3 | 4 | Synopsis | FrontMatter | `OEBPS/Text/synopsis.xhtml` | `OEBPS/Images/0002.jpeg` | `Artwork/extracted/front-matter/0003-spine-0004-frontmatter-synopsis.jpeg` | synopsis | Synopsis page illustration | TBD | confirmed | Front-matter synopsis image with Lord of Mysteries branding and series premise text; no article mapping planned yet. |
+
+## Volume 1: Clown
+
+| Image # | Spine | EPUB page | Type | XHTML | Image asset | Extracted file | Alt | Reader-safe label | Mapped threads | Confidence | Notes |
+|---|---:|---|---|---|---|---|---|---|---|---|---|
+| 4 | 6 | Volume 1: Clown | VolumeCover | `OEBPS/Text/volume_1_clown.xhtml` | `OEBPS/Images/0003.jpg` | `Artwork/extracted/volume-1-clown/0004-spine-0006-volumecover-volume-1-cover.jpg` | volume 1 cover | TBD | TBD | unknown | Pending inspection. |
+| 5 | 220 | End of Volume 1 | EndOfVolume | `OEBPS/Text/volume_1_clown_end_of_volume_1.xhtml` | `OEBPS/Images/0004.jpeg` | `Artwork/extracted/volume-1-clown/0005-spine-0220-endofvolume-v01-end.jpeg` | v01 end | TBD | TBD | unknown | Pending inspection. |
+| 6 | 221 | Pathways Guide | Pathways | `OEBPS/Text/volume_1_clown_pathways_guide.xhtml` | `OEBPS/Images/0005.jpeg` | `Artwork/extracted/volume-1-clown/0006-spine-0221-pathways-pathways-guide.jpeg` | pathways guide | TBD | TBD | unknown | Pending inspection. |
+| 7 | 221 | Pathways Guide | Pathways | `OEBPS/Text/volume_1_clown_pathways_guide.xhtml` | `OEBPS/Images/0006.jpeg` | `Artwork/extracted/volume-1-clown/0007-spine-0221-pathways-pathways1.jpeg` | pathways1 | TBD | TBD | unknown | Pending inspection. |
+| 8 | 222 | Pathways Guide | Pathways | `OEBPS/Text/pathways2.xhtml` | `OEBPS/Images/0007.jpeg` | `Artwork/extracted/volume-1-clown/0008-spine-0222-pathways-pathways2.jpeg` | pathways2 | TBD | TBD | unknown | Pending inspection. |
+| 9 | 223 | Pathways Guide | Pathways | `OEBPS/Text/pathways3.xhtml` | `OEBPS/Images/0008.jpeg` | `Artwork/extracted/volume-1-clown/0009-spine-0223-pathways-pathways3.jpeg` | pathways3 | TBD | TBD | unknown | Pending inspection. |
+| 10 | 224 | Image Gallery | Artwork | `OEBPS/Text/volume_1_clown_image_gallery.xhtml` | `OEBPS/Images/0009.jpeg` | `Artwork/extracted/volume-1-clown/0010-spine-0224-artwork-image-gallery.jpeg` | image gallery | TBD | TBD | unknown | Pending inspection. |
+| 11 | 225 | Characters | Characters | `OEBPS/Text/volume_1_clown_image_gallery_1.xhtml` | `OEBPS/Images/0010.jpeg` | `Artwork/extracted/volume-1-clown/0011-spine-0225-characters-tarot1.jpeg` | tarot1 | TBD | TBD | unknown | Pending inspection. |
+| 12 | 225 | Characters | Characters | `OEBPS/Text/volume_1_clown_image_gallery_1.xhtml` | `OEBPS/Images/0011.jpeg` | `Artwork/extracted/volume-1-clown/0012-spine-0225-characters-tarot2.jpeg` | tarot2 | TBD | TBD | unknown | Pending inspection. |
+| 13 | 226 | Characters | Characters | `OEBPS/Text/tarot3.xhtml` | `OEBPS/Images/0012.jpeg` | `Artwork/extracted/volume-1-clown/0013-spine-0226-characters-tarot3.jpeg` | tarot3 | TBD | TBD | unknown | Pending inspection. |
+| 14 | 227 | Characters | Characters | `OEBPS/Text/tarot4.xhtml` | `OEBPS/Images/0013.jpeg` | `Artwork/extracted/volume-1-clown/0014-spine-0227-characters-tarot4.jpeg` | tarot4 | TBD | TBD | unknown | Pending inspection. |
+| 15 | 228 | Characters | Characters | `OEBPS/Text/character1.xhtml` | `OEBPS/Images/0014.jpeg` | `Artwork/extracted/volume-1-clown/0015-spine-0228-characters-character1.jpeg` | character1 | TBD | TBD | unknown | Pending inspection. |
+| 16 | 229 | Characters | Characters | `OEBPS/Text/character2.xhtml` | `OEBPS/Images/0015.jpeg` | `Artwork/extracted/volume-1-clown/0016-spine-0229-characters-character2.jpeg` | character2 | TBD | TBD | unknown | Pending inspection. |
+| 17 | 230 | Characters | Characters | `OEBPS/Text/character3.xhtml` | `OEBPS/Images/0016.jpeg` | `Artwork/extracted/volume-1-clown/0017-spine-0230-characters-character3.jpeg` | character3 | TBD | TBD | unknown | Pending inspection. |
+| 18 | 231 | Locations | Locations | `OEBPS/Text/volume_1_clown_image_gallery_2.xhtml` | `OEBPS/Images/0017.jpeg` | `Artwork/extracted/volume-1-clown/0018-spine-0231-locations-location1.jpeg` | location1 | TBD | TBD | unknown | Pending inspection. |
+| 19 | 232 | Locations | Locations | `OEBPS/Text/location2.xhtml` | `OEBPS/Images/0018.jpeg` | `Artwork/extracted/volume-1-clown/0019-spine-0232-locations-location2.jpeg` | location2 | TBD | TBD | unknown | Pending inspection. |
+
+## Volume 2: Faceless
+
+| Image # | Spine | EPUB page | Type | XHTML | Image asset | Extracted file | Alt | Reader-safe label | Mapped threads | Confidence | Notes |
+|---|---:|---|---|---|---|---|---|---|---|---|---|
+| 20 | 233 | Volume 2: Faceless | VolumeCover | `OEBPS/Text/volume_2_faceless.xhtml` | `OEBPS/Images/0019.jpg` | `Artwork/extracted/volume-2-faceless/0020-spine-0233-volumecover-volume-2-cover.jpg` | volume 2 cover | TBD | TBD | unknown | Pending inspection. |
+| 21 | 503 | End of Volume 2 | EndOfVolume | `OEBPS/Text/volume_2_faceless_end_of.xhtml` | `OEBPS/Images/0020.jpeg` | `Artwork/extracted/volume-2-faceless/0021-spine-0503-endofvolume-v02-end.jpeg` | v02 end | TBD | TBD | unknown | Pending inspection. |
+| 22 | 504 | Pathways Guide | Pathways | `OEBPS/Text/volume_2_faceless_pathways.xhtml` | `OEBPS/Images/0005.jpeg` | `Artwork/extracted/volume-2-faceless/0022-spine-0504-pathways-pathways-guide.jpeg` | pathways guide | TBD | TBD | unknown | Pending inspection. |
+| 23 | 505 | Pathways Guide | Pathways | `OEBPS/Text/pathways4.xhtml` | `OEBPS/Images/0021.jpeg` | `Artwork/extracted/volume-2-faceless/0023-spine-0505-pathways-pathways4.jpeg` | pathways4 | TBD | TBD | unknown | Pending inspection. |
+| 24 | 506 | Pathways Guide | Pathways | `OEBPS/Text/pathways5.xhtml` | `OEBPS/Images/0022.jpeg` | `Artwork/extracted/volume-2-faceless/0024-spine-0506-pathways-pathways5.jpeg` | pathways5 | TBD | TBD | unknown | Pending inspection. |
+| 25 | 507 | Image Gallery | Artwork | `OEBPS/Text/volume_2_faceless_image.xhtml` | `OEBPS/Images/0009.jpeg` | `Artwork/extracted/volume-2-faceless/0025-spine-0507-artwork-image-gallery.jpeg` | image gallery | TBD | TBD | unknown | Pending inspection. |
+| 26 | 508 | Characters | Characters | `OEBPS/Text/volume_2_faceless_image_1.xhtml` | `OEBPS/Images/0023.jpeg` | `Artwork/extracted/volume-2-faceless/0026-spine-0508-characters-tarot5.jpeg` | tarot5 | TBD | TBD | unknown | Pending inspection. |
+| 27 | 509 | Characters | Characters | `OEBPS/Text/tarot6.xhtml` | `OEBPS/Images/0024.jpeg` | `Artwork/extracted/volume-2-faceless/0027-spine-0509-characters-tarot6.jpeg` | tarot6 | TBD | TBD | unknown | Pending inspection. |
+| 28 | 510 | Characters | Characters | `OEBPS/Text/character4.xhtml` | `OEBPS/Images/0025.jpeg` | `Artwork/extracted/volume-2-faceless/0028-spine-0510-characters-character4.jpeg` | character4 | TBD | TBD | unknown | Pending inspection. |
+| 29 | 511 | Characters | Characters | `OEBPS/Text/character5.xhtml` | `OEBPS/Images/0026.jpeg` | `Artwork/extracted/volume-2-faceless/0029-spine-0511-characters-character5.jpeg` | character5 | TBD | TBD | unknown | Pending inspection. |
+| 30 | 512 | Characters | Characters | `OEBPS/Text/character6.xhtml` | `OEBPS/Images/0027.jpeg` | `Artwork/extracted/volume-2-faceless/0030-spine-0512-characters-character6.jpeg` | character6 | TBD | TBD | unknown | Pending inspection. |
+| 31 | 513 | Characters | Characters | `OEBPS/Text/character7.xhtml` | `OEBPS/Images/0028.jpeg` | `Artwork/extracted/volume-2-faceless/0031-spine-0513-characters-character7.jpeg` | character7 | TBD | TBD | unknown | Pending inspection. |
+| 32 | 514 | Locations | Locations | `OEBPS/Text/volume_2_faceless_image_2.xhtml` | `OEBPS/Images/0029.jpeg` | `Artwork/extracted/volume-2-faceless/0032-spine-0514-locations-location3.jpeg` | location3 | TBD | TBD | unknown | Pending inspection. |
+
+## Volume 3: Traveler
+
+| Image # | Spine | EPUB page | Type | XHTML | Image asset | Extracted file | Alt | Reader-safe label | Mapped threads | Confidence | Notes |
+|---|---:|---|---|---|---|---|---|---|---|---|---|
+| 33 | 515 | Volume 3: Traveler | VolumeCover | `OEBPS/Text/volume_3_traveler.xhtml` | `OEBPS/Images/0030.jpg` | `Artwork/extracted/volume-3-traveler/0033-spine-0515-volumecover-volume-3-cover.jpg` | volume 3 cover | TBD | TBD | unknown | Pending inspection. |
+| 34 | 766 | End of Volume 3 | EndOfVolume | `OEBPS/Text/volume_3_traveler_end_of.xhtml` | `OEBPS/Images/0031.jpeg` | `Artwork/extracted/volume-3-traveler/0034-spine-0766-endofvolume-v03-end.jpeg` | v03 end | TBD | TBD | unknown | Pending inspection. |
+| 35 | 767 | Pathways Guide | Pathways | `OEBPS/Text/volume_3_traveler_pathways.xhtml` | `OEBPS/Images/0005.jpeg` | `Artwork/extracted/volume-3-traveler/0035-spine-0767-pathways-pathways-guide.jpeg` | pathways guide | TBD | TBD | unknown | Pending inspection. |
+| 36 | 768 | Pathways Guide | Pathways | `OEBPS/Text/pathways6.xhtml` | `OEBPS/Images/0032.jpeg` | `Artwork/extracted/volume-3-traveler/0036-spine-0768-pathways-pathways6.jpeg` | pathways6 | TBD | TBD | unknown | Pending inspection. |
+| 37 | 769 | Pathways Guide | Pathways | `OEBPS/Text/pathways7.xhtml` | `OEBPS/Images/0033.jpeg` | `Artwork/extracted/volume-3-traveler/0037-spine-0769-pathways-pathways7.jpeg` | pathways7 | TBD | TBD | unknown | Pending inspection. |
+| 38 | 770 | Image Gallery | Artwork | `OEBPS/Text/volume_3_traveler_image.xhtml` | `OEBPS/Images/0009.jpeg` | `Artwork/extracted/volume-3-traveler/0038-spine-0770-artwork-image-gallery.jpeg` | image gallery | TBD | TBD | unknown | Pending inspection. |
+| 39 | 771 | Characters | Characters | `OEBPS/Text/volume_3_traveler_image_1.xhtml` | `OEBPS/Images/0034.jpeg` | `Artwork/extracted/volume-3-traveler/0039-spine-0771-characters-tarot7.jpeg` | tarot7 | TBD | TBD | unknown | Pending inspection. |
+| 40 | 772 | Characters | Characters | `OEBPS/Text/tarot8.xhtml` | `OEBPS/Images/0035.jpeg` | `Artwork/extracted/volume-3-traveler/0040-spine-0772-characters-tarot8.jpeg` | tarot8 | TBD | TBD | unknown | Pending inspection. |
+| 41 | 773 | Characters | Characters | `OEBPS/Text/character8.xhtml` | `OEBPS/Images/0036.jpeg` | `Artwork/extracted/volume-3-traveler/0041-spine-0773-characters-character8.jpeg` | character8 | TBD | TBD | unknown | Pending inspection. |
+| 42 | 774 | Characters | Characters | `OEBPS/Text/character9.xhtml` | `OEBPS/Images/0037.jpeg` | `Artwork/extracted/volume-3-traveler/0042-spine-0774-characters-character9.jpeg` | character9 | TBD | TBD | unknown | Pending inspection. |
+| 43 | 775 | Characters | Characters | `OEBPS/Text/character10.xhtml` | `OEBPS/Images/0038.jpeg` | `Artwork/extracted/volume-3-traveler/0043-spine-0775-characters-character10.jpeg` | character10 | TBD | TBD | unknown | Pending inspection. |
+| 44 | 776 | Characters | Characters | `OEBPS/Text/character11.xhtml` | `OEBPS/Images/0039.jpeg` | `Artwork/extracted/volume-3-traveler/0044-spine-0776-characters-character11.jpeg` | character11 | TBD | TBD | unknown | Pending inspection. |
+| 45 | 777 | Characters | Characters | `OEBPS/Text/character12.xhtml` | `OEBPS/Images/0040.jpeg` | `Artwork/extracted/volume-3-traveler/0045-spine-0777-characters-character12.jpeg` | character12 | TBD | TBD | unknown | Pending inspection. |
+| 46 | 778 | Characters | Characters | `OEBPS/Text/character13.xhtml` | `OEBPS/Images/0041.jpeg` | `Artwork/extracted/volume-3-traveler/0046-spine-0778-characters-character13.jpeg` | character13 | TBD | TBD | unknown | Pending inspection. |
+| 47 | 779 | Locations | Locations | `OEBPS/Text/volume_3_traveler_image_2.xhtml` | `OEBPS/Images/0042.jpeg` | `Artwork/extracted/volume-3-traveler/0047-spine-0779-locations-location4.jpeg` | location4 | TBD | TBD | unknown | Pending inspection. |
+
+## Volume 4: Undying
+
+| Image # | Spine | EPUB page | Type | XHTML | Image asset | Extracted file | Alt | Reader-safe label | Mapped threads | Confidence | Notes |
+|---|---:|---|---|---|---|---|---|---|---|---|---|
+| 48 | 780 | Volume 4: Undying | VolumeCover | `OEBPS/Text/volume_4_undying.xhtml` | `OEBPS/Images/0043.jpg` | `Artwork/extracted/volume-4-undying/0048-spine-0780-volumecover-volume-4-cover.jpg` | volume 4 cover | TBD | TBD | unknown | Pending inspection. |
+| 49 | 995 | End of Volume 4 | EndOfVolume | `OEBPS/Text/volume_4_undying_end_of_volume.xhtml` | `OEBPS/Images/0044.jpeg` | `Artwork/extracted/volume-4-undying/0049-spine-0995-endofvolume-v04-end.jpeg` | v04 end | TBD | TBD | unknown | Pending inspection. |
+| 50 | 996 | Pathways Guide | Pathways | `OEBPS/Text/volume_4_undying_pathways.xhtml` | `OEBPS/Images/0005.jpeg` | `Artwork/extracted/volume-4-undying/0050-spine-0996-pathways-pathways-guide.jpeg` | pathways guide | TBD | TBD | unknown | Pending inspection. |
+| 51 | 997 | Pathways Guide | Pathways | `OEBPS/Text/pathways8.xhtml` | `OEBPS/Images/0045.jpeg` | `Artwork/extracted/volume-4-undying/0051-spine-0997-pathways-pathways8.jpeg` | pathways8 | TBD | TBD | unknown | Pending inspection. |
+| 52 | 998 | Pathways Guide | Pathways | `OEBPS/Text/pathways9.xhtml` | `OEBPS/Images/0046.jpeg` | `Artwork/extracted/volume-4-undying/0052-spine-0998-pathways-pathways9.jpeg` | pathways9 | TBD | TBD | unknown | Pending inspection. |
+| 53 | 999 | Image Gallery | Artwork | `OEBPS/Text/volume_4_undying_image_gallery.xhtml` | `OEBPS/Images/0009.jpeg` | `Artwork/extracted/volume-4-undying/0053-spine-0999-artwork-image-gallery.jpeg` | image gallery | TBD | TBD | unknown | Pending inspection. |
+| 54 | 1000 | Characters | Characters | `OEBPS/Text/volume_4_undying_image_gallery_1.xhtml` | `OEBPS/Images/0047.jpeg` | `Artwork/extracted/volume-4-undying/0054-spine-1000-characters-character14.jpeg` | character14 | TBD | TBD | unknown | Pending inspection. |
+| 55 | 1001 | Characters | Characters | `OEBPS/Text/character15.xhtml` | `OEBPS/Images/0048.jpeg` | `Artwork/extracted/volume-4-undying/0055-spine-1001-characters-character15.jpeg` | character15 | TBD | TBD | unknown | Pending inspection. |
+| 56 | 1002 | Characters | Characters | `OEBPS/Text/character16.xhtml` | `OEBPS/Images/0049.jpeg` | `Artwork/extracted/volume-4-undying/0056-spine-1002-characters-character16.jpeg` | character16 | TBD | TBD | unknown | Pending inspection. |
+| 57 | 1003 | Characters | Characters | `OEBPS/Text/character17.xhtml` | `OEBPS/Images/0050.jpeg` | `Artwork/extracted/volume-4-undying/0057-spine-1003-characters-character17.jpeg` | character17 | TBD | TBD | unknown | Pending inspection. |
+| 58 | 1004 | Characters | Characters | `OEBPS/Text/character18.xhtml` | `OEBPS/Images/0051.jpeg` | `Artwork/extracted/volume-4-undying/0058-spine-1004-characters-character18.jpeg` | character18 | TBD | TBD | unknown | Pending inspection. |
+| 59 | 1005 | Locations | Locations | `OEBPS/Text/volume_4_undying_image_gallery_2.xhtml` | `OEBPS/Images/0052.jpeg` | `Artwork/extracted/volume-4-undying/0059-spine-1005-locations-location5.jpeg` | location5 | TBD | TBD | unknown | Pending inspection. |
+
+## Volume 5: Red Priest
+
+| Image # | Spine | EPUB page | Type | XHTML | Image asset | Extracted file | Alt | Reader-safe label | Mapped threads | Confidence | Notes |
+|---|---:|---|---|---|---|---|---|---|---|---|---|
+| 60 | 1006 | Volume 5: Red Priest | VolumeCover | `OEBPS/Text/volume_5_red_priest.xhtml` | `OEBPS/Images/0053.jpg` | `Artwork/extracted/volume-5-red-priest/0060-spine-1006-volumecover-volume-5-cover.jpg` | volume 5 cover | TBD | TBD | unknown | Pending inspection. |
+| 61 | 1211 | End of Volume 5 | EndOfVolume | `OEBPS/Text/volume_5_red_priest_end_of.xhtml` | `OEBPS/Images/0054.jpeg` | `Artwork/extracted/volume-5-red-priest/0061-spine-1211-endofvolume-v05-end.jpeg` | v05 end | TBD | TBD | unknown | Pending inspection. |
+| 62 | 1212 | Pathways Guide | Pathways | `OEBPS/Text/volume_5_red_priest_pathways.xhtml` | `OEBPS/Images/0005.jpeg` | `Artwork/extracted/volume-5-red-priest/0062-spine-1212-pathways-pathways-guide.jpeg` | pathways guide | TBD | TBD | unknown | Pending inspection. |
+| 63 | 1213 | Pathways Guide | Pathways | `OEBPS/Text/pathways10.xhtml` | `OEBPS/Images/0055.jpeg` | `Artwork/extracted/volume-5-red-priest/0063-spine-1213-pathways-pathways10.jpeg` | pathways10 | TBD | TBD | unknown | Pending inspection. |
+| 64 | 1214 | Pathways Guide | Pathways | `OEBPS/Text/pathways11.xhtml` | `OEBPS/Images/0056.jpeg` | `Artwork/extracted/volume-5-red-priest/0064-spine-1214-pathways-pathways11.jpeg` | pathways11 | TBD | TBD | unknown | Pending inspection. |
+| 65 | 1215 | Image Gallery | Artwork | `OEBPS/Text/volume_5_red_priest_image.xhtml` | `OEBPS/Images/0009.jpeg` | `Artwork/extracted/volume-5-red-priest/0065-spine-1215-artwork-image-gallery.jpeg` | image gallery | TBD | TBD | unknown | Pending inspection. |
+| 66 | 1216 | Characters | Characters | `OEBPS/Text/volume_5_red_priest_image_1.xhtml` | `OEBPS/Images/0057.jpeg` | `Artwork/extracted/volume-5-red-priest/0066-spine-1216-characters-tarot9.jpeg` | tarot9 | TBD | TBD | unknown | Pending inspection. |
+| 67 | 1217 | Characters | Characters | `OEBPS/Text/tarot10.xhtml` | `OEBPS/Images/0058.jpeg` | `Artwork/extracted/volume-5-red-priest/0067-spine-1217-characters-tarot10.jpeg` | tarot10 | TBD | TBD | unknown | Pending inspection. |
+| 68 | 1218 | Characters | Characters | `OEBPS/Text/character19.xhtml` | `OEBPS/Images/0059.jpeg` | `Artwork/extracted/volume-5-red-priest/0068-spine-1218-characters-character19.jpeg` | character19 | TBD | TBD | unknown | Pending inspection. |
+| 69 | 1219 | Characters | Characters | `OEBPS/Text/character20.xhtml` | `OEBPS/Images/0060.jpeg` | `Artwork/extracted/volume-5-red-priest/0069-spine-1219-characters-character20.jpeg` | character20 | TBD | TBD | unknown | Pending inspection. |
+| 70 | 1220 | Characters | Characters | `OEBPS/Text/character21.xhtml` | `OEBPS/Images/0061.jpeg` | `Artwork/extracted/volume-5-red-priest/0070-spine-1220-characters-character21.jpeg` | character21 | TBD | TBD | unknown | Pending inspection. |
+| 71 | 1221 | Characters | Characters | `OEBPS/Text/character22.xhtml` | `OEBPS/Images/0062.jpeg` | `Artwork/extracted/volume-5-red-priest/0071-spine-1221-characters-character22.jpeg` | character22 | TBD | TBD | unknown | Pending inspection. |
+| 72 | 1222 | Locations | Locations | `OEBPS/Text/volume_5_red_priest_image_2.xhtml` | `OEBPS/Images/0063.jpeg` | `Artwork/extracted/volume-5-red-priest/0072-spine-1222-locations-location6.jpeg` | location6 | TBD | TBD | unknown | Pending inspection. |
+
+## Volume 6: Lightseeker
+
+| Image # | Spine | EPUB page | Type | XHTML | Image asset | Extracted file | Alt | Reader-safe label | Mapped threads | Confidence | Notes |
+|---|---:|---|---|---|---|---|---|---|---|---|---|
+| 73 | 1223 | Volume 6: Lightseeker | VolumeCover | `OEBPS/Text/volume_6_lightseeker.xhtml` | `OEBPS/Images/0064.jpg` | `Artwork/extracted/volume-6-lightseeker/0073-spine-1223-volumecover-volume-6-cover.jpg` | volume 6 cover | TBD | TBD | unknown | Pending inspection. |
+| 74 | 1340 | End of Volume 6 | EndOfVolume | `OEBPS/Text/volume_6_lightseeker_end_of.xhtml` | `OEBPS/Images/0065.jpeg` | `Artwork/extracted/volume-6-lightseeker/0074-spine-1340-endofvolume-v06-end.jpeg` | v06 end | TBD | TBD | unknown | Pending inspection. |
+| 75 | 1341 | Pathways Guide | Pathways | `OEBPS/Text/volume_6_lightseeker_pathways.xhtml` | `OEBPS/Images/0005.jpeg` | `Artwork/extracted/volume-6-lightseeker/0075-spine-1341-pathways-pathways-guide.jpeg` | pathways guide | TBD | TBD | unknown | Pending inspection. |
+| 76 | 1342 | Pathways Guide | Pathways | `OEBPS/Text/pathways12.xhtml` | `OEBPS/Images/0066.jpeg` | `Artwork/extracted/volume-6-lightseeker/0076-spine-1342-pathways-pathways12.jpeg` | pathways12 | TBD | TBD | unknown | Pending inspection. |
+| 77 | 1343 | Image Gallery | Artwork | `OEBPS/Text/volume_6_lightseeker_image.xhtml` | `OEBPS/Images/0009.jpeg` | `Artwork/extracted/volume-6-lightseeker/0077-spine-1343-artwork-image-gallery.jpeg` | image gallery | TBD | TBD | unknown | Pending inspection. |
+| 78 | 1344 | Characters | Characters | `OEBPS/Text/volume_6_lightseeker_image_1.xhtml` | `OEBPS/Images/0067.jpeg` | `Artwork/extracted/volume-6-lightseeker/0078-spine-1344-characters-character23.jpeg` | character23 | TBD | TBD | unknown | Pending inspection. |
+| 79 | 1345 | Characters | Characters | `OEBPS/Text/character24.xhtml` | `OEBPS/Images/0068.jpeg` | `Artwork/extracted/volume-6-lightseeker/0079-spine-1345-characters-character24.jpeg` | character24 | TBD | TBD | unknown | Pending inspection. |
+| 80 | 1346 | Characters | Characters | `OEBPS/Text/character25.xhtml` | `OEBPS/Images/0069.jpeg` | `Artwork/extracted/volume-6-lightseeker/0080-spine-1346-characters-character25.jpeg` | character25 | TBD | TBD | unknown | Pending inspection. |
+| 81 | 1347 | Characters | Characters | `OEBPS/Text/character26.xhtml` | `OEBPS/Images/0070.jpeg` | `Artwork/extracted/volume-6-lightseeker/0081-spine-1347-characters-character26.jpeg` | character26 | TBD | TBD | unknown | Pending inspection. |
+| 82 | 1348 | Locations | Locations | `OEBPS/Text/volume_6_lightseeker_image_2.xhtml` | `OEBPS/Images/0071.jpeg` | `Artwork/extracted/volume-6-lightseeker/0082-spine-1348-locations-location7.jpeg` | location7 | TBD | TBD | unknown | Pending inspection. |
+
+## Volume 7: The Hanged Man
+
+| Image # | Spine | EPUB page | Type | XHTML | Image asset | Extracted file | Alt | Reader-safe label | Mapped threads | Confidence | Notes |
+|---|---:|---|---|---|---|---|---|---|---|---|---|
+| 83 | 1349 | Volume 7: The Hanged Man | VolumeCover | `OEBPS/Text/volume_7_the_hanged_man.xhtml` | `OEBPS/Images/0072.jpg` | `Artwork/extracted/volume-7-the-hanged-man/0083-spine-1349-volumecover-volume-7-cover.jpg` | volume 7 cover | TBD | TBD | unknown | Pending inspection. |
+| 84 | 1437 | End of Volume 7 | EndOfVolume | `OEBPS/Text/volume_7_the_hanged_man_end_of.xhtml` | `OEBPS/Images/0073.jpeg` | `Artwork/extracted/volume-7-the-hanged-man/0084-spine-1437-endofvolume-v07-end.jpeg` | v07 end | TBD | TBD | unknown | Pending inspection. |
+| 85 | 1438 | Pathways Guide | Pathways | `OEBPS/Text/volume_7_the_hanged_man_88.xhtml` | `OEBPS/Images/0005.jpeg` | `Artwork/extracted/volume-7-the-hanged-man/0085-spine-1438-pathways-pathways-guide.jpeg` | pathways guide | TBD | TBD | unknown | Pending inspection. |
+| 86 | 1439 | Pathways Guide | Pathways | `OEBPS/Text/pathways13.xhtml` | `OEBPS/Images/0074.jpeg` | `Artwork/extracted/volume-7-the-hanged-man/0086-spine-1439-pathways-pathways13.jpeg` | pathways13 | TBD | TBD | unknown | Pending inspection. |
+| 87 | 1440 | Pathways Guide | Pathways | `OEBPS/Text/pathways14.xhtml` | `OEBPS/Images/0075.jpeg` | `Artwork/extracted/volume-7-the-hanged-man/0087-spine-1440-pathways-pathways14.jpeg` | pathways14 | TBD | TBD | unknown | Pending inspection. |
+| 88 | 1441 | Image Gallery | Artwork | `OEBPS/Text/volume_7_the_hanged_man_image.xhtml` | `OEBPS/Images/0009.jpeg` | `Artwork/extracted/volume-7-the-hanged-man/0088-spine-1441-artwork-image-gallery.jpeg` | image gallery | TBD | TBD | unknown | Pending inspection. |
+| 89 | 1442 | Characters | Characters | `OEBPS/Text/volume_7_the_hanged_man_image_1.xhtml` | `OEBPS/Images/0076.jpeg` | `Artwork/extracted/volume-7-the-hanged-man/0089-spine-1442-characters-character27.jpeg` | character27 | TBD | TBD | unknown | Pending inspection. |
+| 90 | 1443 | Locations | Locations | `OEBPS/Text/volume_7_the_hanged_man_image_2.xhtml` | `OEBPS/Images/0077.jpeg` | `Artwork/extracted/volume-7-the-hanged-man/0090-spine-1443-locations-location8.jpeg` | location8 | TBD | TBD | unknown | Pending inspection. |
+
+## Volume 8: Fool
+
+| Image # | Spine | EPUB page | Type | XHTML | Image asset | Extracted file | Alt | Reader-safe label | Mapped threads | Confidence | Notes |
+|---|---:|---|---|---|---|---|---|---|---|---|---|
+| 91 | 1444 | Volume 8: Fool | VolumeCover | `OEBPS/Text/volume_8_fool.xhtml` | `OEBPS/Images/0078.jpg` | `Artwork/extracted/volume-8-fool/0091-spine-1444-volumecover-volume-8-cover.jpg` | volume 8 cover | TBD | TBD | unknown | Pending inspection. |
+| 92 | 1487 | End of Volume 8 | EndOfVolume | `OEBPS/Text/volume_8_fool_end_of_volume_8.xhtml` | `OEBPS/Images/0079.jpeg` | `Artwork/extracted/volume-8-fool/0092-spine-1487-endofvolume-v08-end.jpeg` | v08 end | TBD | TBD | unknown | Pending inspection. |
+| 93 | 1488 | Pathways Guide | Pathways | `OEBPS/Text/volume_8_fool_pathways_guide.xhtml` | `OEBPS/Images/0005.jpeg` | `Artwork/extracted/volume-8-fool/0093-spine-1488-pathways-pathways-guide.jpeg` | pathways guide | TBD | TBD | unknown | Pending inspection. |
+| 94 | 1489 | Pathways Guide | Pathways | `OEBPS/Text/pathways15.xhtml` | `OEBPS/Images/0080.jpeg` | `Artwork/extracted/volume-8-fool/0094-spine-1489-pathways-pathways15.jpeg` | pathways15 | TBD | TBD | unknown | Pending inspection. |
+| 95 | 1490 | Pathways Guide | Pathways | `OEBPS/Text/pathways16.xhtml` | `OEBPS/Images/0081.jpeg` | `Artwork/extracted/volume-8-fool/0095-spine-1490-pathways-pathways16.jpeg` | pathways16 | TBD | TBD | unknown | Pending inspection. |
+| 96 | 1491 | Pathways Guide | Pathways | `OEBPS/Text/pathways17.xhtml` | `OEBPS/Images/0082.jpeg` | `Artwork/extracted/volume-8-fool/0096-spine-1491-pathways-pathways17.jpeg` | pathways17 | TBD | TBD | unknown | Pending inspection. |
+| 97 | 1492 | Pathways Guide | Pathways | `OEBPS/Text/pathways18.xhtml` | `OEBPS/Images/0083.jpeg` | `Artwork/extracted/volume-8-fool/0097-spine-1492-pathways-pathways18.jpeg` | pathways18 | TBD | TBD | unknown | Pending inspection. |
+| 98 | 1493 | Image Gallery | Artwork | `OEBPS/Text/volume_8_fool_image_gallery.xhtml` | `OEBPS/Images/0009.jpeg` | `Artwork/extracted/volume-8-fool/0098-spine-1493-artwork-image-gallery.jpeg` | image gallery | TBD | TBD | unknown | Pending inspection. |
+| 99 | 1494 | Characters | Characters | `OEBPS/Text/volume_8_fool_image_gallery_1.xhtml` | `OEBPS/Images/0084.jpeg` | `Artwork/extracted/volume-8-fool/0099-spine-1494-characters-tarot11.jpeg` | tarot11 | TBD | TBD | unknown | Pending inspection. |
+| 100 | 1495 | Locations | Locations | `OEBPS/Text/volume_8_fool_image_gallery_2.xhtml` | `OEBPS/Images/0085.jpeg` | `Artwork/extracted/volume-8-fool/0100-spine-1495-locations-location9.jpeg` | location9 | TBD | TBD | unknown | Pending inspection. |
+| 101 | 1496 | Locations | Locations | `OEBPS/Text/location10.xhtml` | `OEBPS/Images/0086.jpeg` | `Artwork/extracted/volume-8-fool/0101-spine-1496-locations-location10.jpeg` | location10 | TBD | TBD | unknown | Pending inspection. |
+
+## Side Stories and End Matter
+
+| Image # | Spine | EPUB page | Type | XHTML | Image asset | Extracted file | Alt | Reader-safe label | Mapped threads | Confidence | Notes |
+|---|---:|---|---|---|---|---|---|---|---|---|---|
+| 102 | 1497 | Side Stories | Other | `OEBPS/Text/side_stories.xhtml` | `OEBPS/Images/0087.jpg` | `Artwork/extracted/side-stories-and-end-matter/0102-spine-1497-other-volume-9-cover.jpg` | volume 9 cover | TBD | TBD | unknown | Pending inspection. |
+| 103 | 1539 | End of Side Stories | EndOfVolume | `OEBPS/Text/side_stories_end_of_side.xhtml` | `OEBPS/Images/0088.jpeg` | `Artwork/extracted/side-stories-and-end-matter/0103-spine-1539-endofvolume-v09-end.jpeg` | v09 end | TBD | TBD | unknown | Pending inspection. |
+| 104 | 1540 | Pathways Guide | Pathways | `OEBPS/Text/side_stories_pathways_guide.xhtml` | `OEBPS/Images/0005.jpeg` | `Artwork/extracted/side-stories-and-end-matter/0104-spine-1540-pathways-pathways-guide.jpeg` | pathways guide | TBD | TBD | unknown | Pending inspection. |
+| 105 | 1541 | Pathways Guide | Pathways | `OEBPS/Text/pathways19.xhtml` | `OEBPS/Images/0089.jpeg` | `Artwork/extracted/side-stories-and-end-matter/0105-spine-1541-pathways-pathways19.jpeg` | pathways19 | TBD | TBD | unknown | Pending inspection. |
+| 106 | 1542 | Pathways Guide | Pathways | `OEBPS/Text/pathways20.xhtml` | `OEBPS/Images/0090.jpeg` | `Artwork/extracted/side-stories-and-end-matter/0106-spine-1542-pathways-pathways20.jpeg` | pathways20 | TBD | TBD | unknown | Pending inspection. |
+| 107 | 1543 | Pathways Guide | Pathways | `OEBPS/Text/pathways21.xhtml` | `OEBPS/Images/0091.jpeg` | `Artwork/extracted/side-stories-and-end-matter/0107-spine-1543-pathways-pathways21.jpeg` | pathways21 | TBD | TBD | unknown | Pending inspection. |
+| 108 | 1544 | Image Gallery | Artwork | `OEBPS/Text/side_stories_image_gallery.xhtml` | `OEBPS/Images/0009.jpeg` | `Artwork/extracted/side-stories-and-end-matter/0108-spine-1544-artwork-image-gallery.jpeg` | image gallery | TBD | TBD | unknown | Pending inspection. |
+| 109 | 1545 | Artwork | Artwork | `OEBPS/Text/side_stories_image_gallery_1.xhtml` | `OEBPS/Images/0092.jpeg` | `Artwork/extracted/side-stories-and-end-matter/0109-spine-1545-artwork-artwork1.jpeg` | artwork1 | TBD | TBD | unknown | Pending inspection. |
+| 110 | 1546 | Artwork | Artwork | `OEBPS/Text/artwork2.xhtml` | `OEBPS/Images/0093.jpeg` | `Artwork/extracted/side-stories-and-end-matter/0110-spine-1546-artwork-artwork2.jpeg` | artwork2 | TBD | TBD | unknown | Pending inspection. |
+| 111 | 1547 | Artwork | Artwork | `OEBPS/Text/artwork3.xhtml` | `OEBPS/Images/0094.jpeg` | `Artwork/extracted/side-stories-and-end-matter/0111-spine-1547-artwork-artwork3.jpeg` | artwork3 | TBD | TBD | unknown | Pending inspection. |
+| 112 | 1548 | Artwork | Artwork | `OEBPS/Text/artwork4.xhtml` | `OEBPS/Images/0095.jpeg` | `Artwork/extracted/side-stories-and-end-matter/0112-spine-1548-artwork-artwork4.jpeg` | artwork4 | TBD | TBD | unknown | Pending inspection. |
+| 113 | 1549 | Artwork | Artwork | `OEBPS/Text/artwork5.xhtml` | `OEBPS/Images/0096.jpg` | `Artwork/extracted/side-stories-and-end-matter/0113-spine-1549-artwork-artwork5.jpg` | artwork5 | TBD | TBD | unknown | Pending inspection. |
+| 114 | 1550 | Artwork | Artwork | `OEBPS/Text/artwork6.xhtml` | `OEBPS/Images/0097.jpg` | `Artwork/extracted/side-stories-and-end-matter/0114-spine-1550-artwork-artwork6.jpg` | artwork6 | TBD | TBD | unknown | Pending inspection. |
+| 115 | 1551 | Artwork | Artwork | `OEBPS/Text/artwork7.xhtml` | `OEBPS/Images/0098.jpeg` | `Artwork/extracted/side-stories-and-end-matter/0115-spine-1551-artwork-artwork7.jpeg` | artwork7 | TBD | TBD | unknown | Pending inspection. |
+| 116 | 1552 | World Map | Map | `OEBPS/Text/world_map.xhtml` | `OEBPS/Images/0099.jpg` | `Artwork/extracted/side-stories-and-end-matter/0116-spine-1552-map-world-map.jpg` | world map | TBD | TBD | unknown | Pending inspection. |
+| 117 | 1553 | Back Cover | BackCover | `OEBPS/Text/back_cover.xhtml` | `OEBPS/Images/0100.jpeg` | `Artwork/extracted/side-stories-and-end-matter/0117-spine-1553-backcover-back-cover.jpeg` | back cover | TBD | TBD | unknown | Pending inspection. |
+
+## Open Questions
+
+- Should this map become a glossary thread, an investigation, or a data file once all volumes are mapped?
+- Should official artwork links be added to type-specific templates as a standard `Official Artwork / Visual Evidence` section?
+- How should reader boundary filtering treat end-of-volume galleries that visually reveal characters, pathways, or locations from the completed volume?
