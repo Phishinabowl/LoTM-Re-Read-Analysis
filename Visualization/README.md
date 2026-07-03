@@ -11,6 +11,25 @@ Generated graph files are not the source of truth. The canonical project data re
 
 Mermaid graphs are generated from glossary metadata and Relationship Seeds. If a graph exposes missing, stale, or incorrect information, fix the glossary thread, investigation record, or relationship seed first, then regenerate the graph.
 
+## Projection Style
+
+Dense relationship graphs should use semantic relationship nodes instead of long Mermaid edge labels.
+
+Preferred dense projection:
+
+```mermaid
+graph TD
+  source_node["Source"]
+  rel_001["relationship type<br/>timing/status/confidence"]
+  target_node["Target"]
+  source_node --> rel_001
+  rel_001 --> target_node
+```
+
+Relationship nodes are generated presentation nodes. They are not glossary nodes and are not canonical project knowledge. They exist to make rendered graphs easier to read, especially when many relationships share the same source, target cluster, or semantic hub.
+
+Simple one-off diagrams may still use edge labels when they remain readable. For repository-wide or relationship-heavy views, prefer relationship nodes by default.
+
 ## Current Artifacts
 
 - [Volume 1 Knowledge Graph](graphs/volume-1-knowledge-graph.mmd)
@@ -18,7 +37,7 @@ Mermaid graphs are generated from glossary metadata and Relationship Seeds. If a
 - [Graph Schema Notes](data/graph-schema.md)
 - [Rendering Instructions](rendering.md)
 
-The `rendered/` folder is reserved for future generated SVG or PNG graph exports.
+The `rendered/` folder contains generated SVG and PNG graph exports for review, sharing, and archive inspection.
 
 ## Refresh Tracker
 
@@ -27,19 +46,19 @@ After every graph refresh, update the live refresh tracker below. It summarizes 
 The tracker compares the current graph against the semantic snapshot in `data/refresh-snapshot.json`. Unexpected removed nodes, removed relationships, changed relationship labels, duplicate relationships, broken links, or orphan nodes should be treated as visualization validation issues and reviewed before committing.
 
 <!-- VISUALIZATION-REFRESH-REPORT:START -->
-Last Updated: 2026-07-02 02:06:03 -04:00
+Last Updated: 2026-07-02 20:30:14 -04:00
 
 ### Summary
 
 | Metric | Count | Delta |
 | --- | ---: | ---: |
-| Nodes | 26 | 0 |
-| Relationships | 72 | 0 |
+| Nodes | 27 | 0 |
+| Relationships | 84 | 0 |
 | Views Updated | 2 | 0 |
 | Rendered Files | 4 | 0 |
 | Broken Links | 0 | 0 |
 | Orphan Nodes | 0 | 0 |
-| Pending Nodes | 17 | 0 |
+| Pending Nodes | 21 | 0 |
 | Validation Issues | 0 | n/a |
 
 ### Semantic Changes
@@ -58,10 +77,10 @@ Last Updated: 2026-07-02 02:06:03 -04:00
 
 ### Rendered Outputs
 
-- `Visualization/rendered/volume-1-knowledge-graph.svg` (136398 bytes)
-- `Visualization/rendered/volume-1-knowledge-graph.png` (451848 bytes)
-- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.svg` (136084 bytes)
-- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.png` (471047 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph.svg` (346377 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph.png` (321296 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.svg` (345234 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.png` (293284 bytes)
 
 ### Hygiene
 
@@ -70,25 +89,29 @@ Last Updated: 2026-07-02 02:06:03 -04:00
 - Duplicate relationships: 0
 - Removed relationships: 0
 - Changed relationship labels: 0
-- Pending graph nodes: 17
+- Pending graph nodes: 21
 
 #### Pending Nodes
 
+- `artifact-2-049.md`
+- `artifact-3-0782.md`
 - `character-azik-eggers.md`
 - `character-daly-simone.md`
 - `character-frye.md`
 - `character-ince-zangwill.md`
 - `character-kenley-white.md`
 - `character-klein-moretti.md`
-- `character-leonard-mitchell.md`
 - `character-mrs-orianna.md`
 - `character-ray-bieber.md`
 - `character-royale-reideen.md`
 - `character-rozanne.md`
 - `character-roselle-gustav.md`
 - `character-seeka-tron.md`
+- `event-tingen-disaster.md`
+- `faction-red-gloves.md`
 - `faction-nighthawks.md`
 - `faction-secret-order.md`
+- `mystery-leonard-hidden-secret.md`
 - `pathway-corpse-collector.md`
 - `pathway-mystery-pryer.md`
 <!-- VISUALIZATION-REFRESH-REPORT:END -->

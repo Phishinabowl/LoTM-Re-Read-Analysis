@@ -111,10 +111,19 @@ function Get-GraphStats {
   $nodes = New-Object 'System.Collections.Generic.HashSet[string]'
   $linked = New-Object 'System.Collections.Generic.HashSet[string]'
   $edges = @()
+  $relationshipLabels = @{}
+  $relationshipSources = @{}
+  $relationshipTargets = @{}
 
   foreach ($line in Get-Content $GraphPath) {
-    if ($line -match '^\s+([A-Za-z0-9_]+)\["') {
-      [void]$nodes.Add($matches[1])
+    if ($line -match '^\s+([A-Za-z0-9_]+)\["(.+)"\]') {
+      $nodeId = $matches[1]
+      $label = $matches[2]
+      if ($nodeId -match '^rel_[0-9]+$') {
+        $relationshipLabels[$nodeId] = (($label -replace '<br/>', ' ') -replace '\\"', '"').Trim()
+      } else {
+        [void]$nodes.Add($nodeId)
+      }
       continue
     }
 
@@ -133,7 +142,39 @@ function Get-GraphStats {
 
       [void]$linked.Add($source)
       [void]$linked.Add($target)
+      continue
     }
+
+    if ($line -match '^\s+([A-Za-z0-9_]+)\s+-->\s+(rel_[0-9]+)') {
+      $relationshipSources[$matches[2]] = $matches[1]
+      continue
+    }
+
+    if ($line -match '^\s+(rel_[0-9]+)\s+-->\s+([A-Za-z0-9_]+)') {
+      $relationshipTargets[$matches[1]] = $matches[2]
+      continue
+    }
+  }
+
+  foreach ($relationshipId in $relationshipLabels.Keys) {
+    if (-not $relationshipSources.ContainsKey($relationshipId) -or -not $relationshipTargets.ContainsKey($relationshipId)) {
+      continue
+    }
+
+    $source = $relationshipSources[$relationshipId]
+    $target = $relationshipTargets[$relationshipId]
+    $label = $relationshipLabels[$relationshipId]
+
+    $edges += [pscustomobject]@{
+      source = $source
+      target = $target
+      label = $label
+      key = "$source|$label|$target"
+      endpointKey = "$source|$target"
+    }
+
+    [void]$linked.Add($source)
+    [void]$linked.Add($target)
   }
 
   $orphans = @()
@@ -495,6 +536,28 @@ function Format-RelationshipLabel {
   return ($parts -join ' ')
 }
 
+function Format-RelationshipNodeLabel {
+  param(
+    [object]$Relationship,
+    [switch]$TimingSpoilerFree
+  )
+
+  $parts = @($Relationship.relationship_type)
+  if (-not $TimingSpoilerFree -and -not [string]::IsNullOrWhiteSpace($Relationship.chapter)) {
+    $parts += "ch$($Relationship.chapter)"
+  }
+
+  if (-not [string]::IsNullOrWhiteSpace($Relationship.status) -and $Relationship.status -ne "active") {
+    $parts += $Relationship.status
+  }
+
+  if (-not [string]::IsNullOrWhiteSpace($Relationship.confidence) -and $Relationship.confidence -ne "confirmed") {
+    $parts += $Relationship.confidence
+  }
+
+  return (($parts | ForEach-Object { $_ -replace '"', '\"' }) -join '<br/>')
+}
+
 function Write-MermaidGraph {
   param(
     [string]$GraphPath,
@@ -507,6 +570,23 @@ function Write-MermaidGraph {
   foreach ($nodeId in @($Nodes.Keys | Sort-Object)) {
     $label = $Nodes[$nodeId] -replace '"', '\"'
     $lines += ('  {0}["{1}"]' -f $nodeId, $label)
+  }
+
+  $lines += ""
+  $lines += "  classDef artifact fill:#f3ead7,stroke:#b7791f,stroke-width:2px,color:#1f2937"
+  $lines += "  classDef character fill:#ecebff,stroke:#7c5cff,stroke-width:2px,color:#1f2937"
+  $lines += "  classDef concept fill:#e8f5f0,stroke:#2f855a,stroke-width:2px,color:#1f2937"
+  $lines += "  classDef event fill:#fff1f2,stroke:#e11d48,stroke-width:2px,color:#1f2937"
+  $lines += "  classDef faction fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#1f2937"
+  $lines += "  classDef location fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#1f2937"
+  $lines += "  classDef pathway fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#1f2937"
+  $lines += "  classDef relationship fill:#f7f2e9,stroke:#c69245,stroke-width:1.5px,color:#1f2937"
+  $lines += ""
+  foreach ($nodeId in @($Nodes.Keys | Sort-Object)) {
+    $className = ($nodeId -split '_')[0]
+    if (@("artifact", "character", "concept", "event", "faction", "location", "pathway") -contains $className) {
+      $lines += ('  class {0} {1}' -f $nodeId, $className)
+    }
   }
 
   $lines += ""
@@ -530,13 +610,19 @@ function Write-MermaidGraph {
         source = $source
         target = $target
         label = $label
+        nodeLabel = (Format-RelationshipNodeLabel $relationship -TimingSpoilerFree:$TimingSpoilerFree)
       }
     }
   }
 
+  $relationshipIndex = 1
   foreach ($edge in @($edges | Sort-Object source,target,label)) {
-    $label = $edge.label -replace '\|', '/'
-    $lines += ('  {0} -->|{1}| {2}' -f $edge.source, $label, $edge.target)
+    $relationshipId = 'rel_{0:d3}' -f $relationshipIndex
+    $lines += ('  {0}["{1}"]' -f $relationshipId, $edge.nodeLabel)
+    $lines += ('  class {0} relationship' -f $relationshipId)
+    $lines += ('  {0} --> {1}' -f $edge.source, $relationshipId)
+    $lines += ('  {0} --> {1}' -f $relationshipId, $edge.target)
+    $relationshipIndex += 1
   }
 
   Set-Content -Path $GraphPath -Value $lines -Encoding UTF8

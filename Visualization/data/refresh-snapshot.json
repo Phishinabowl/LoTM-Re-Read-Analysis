@@ -1,5 +1,5 @@
 ﻿{
-    "generated_at":  "2026-07-02 02:06:03 -04:00",
+    "generated_at":  "2026-07-02 20:30:14 -04:00",
     "nodes":  [
                   "artifact_0_08",
                   "artifact_antigonus_notebook",
@@ -20,6 +20,7 @@
                   "event_klein_becomes_a_seer",
                   "faction_church_of_evernight",
                   "faction_nighthawks",
+                  "faction_red_gloves",
                   "faction_secret_order",
                   "location_blackthorn_security_company",
                   "location_saint_selena_cathedral",
@@ -136,6 +137,13 @@
                           },
                           {
                               "source":  "character_dunn_smith",
+                              "target":  "character_leonard_mitchell",
+                              "label":  "superior ch21",
+                              "key":  "character_dunn_smith|superior ch21|character_leonard_mitchell",
+                              "endpointKey":  "character_dunn_smith|character_leonard_mitchell"
+                          },
+                          {
+                              "source":  "character_dunn_smith",
                               "target":  "location_blackthorn_security_company",
                               "label":  "works-at ch17",
                               "key":  "character_dunn_smith|works-at ch17|location_blackthorn_security_company",
@@ -234,10 +242,87 @@
                           },
                           {
                               "source":  "character_leonard_mitchell",
+                              "target":  "faction_red_gloves",
+                              "label":  "affiliated-with ch211 future-boundary strong-evidence",
+                              "key":  "character_leonard_mitchell|affiliated-with ch211 future-boundary strong-evidence|faction_red_gloves",
+                              "endpointKey":  "character_leonard_mitchell|faction_red_gloves"
+                          },
+                          {
+                              "source":  "character_leonard_mitchell",
+                              "target":  "character_klein_moretti",
+                              "label":  "colleague ch21",
+                              "key":  "character_leonard_mitchell|colleague ch21|character_klein_moretti",
+                              "endpointKey":  "character_leonard_mitchell|character_klein_moretti"
+                          },
+                          {
+                              "source":  "character_leonard_mitchell",
+                              "target":  "character_ince_zangwill",
+                              "label":  "enemy ch211",
+                              "key":  "character_leonard_mitchell|enemy ch211|character_ince_zangwill",
+                              "endpointKey":  "character_leonard_mitchell|character_ince_zangwill"
+                          },
+                          {
+                              "source":  "character_leonard_mitchell",
+                              "target":  "concept_beyonders",
+                              "label":  "instance-of ch21",
+                              "key":  "character_leonard_mitchell|instance-of ch21|concept_beyonders",
+                              "endpointKey":  "character_leonard_mitchell|concept_beyonders"
+                          },
+                          {
+                              "source":  "character_leonard_mitchell",
+                              "target":  "artifact_0_08",
+                              "label":  "investigates ch211",
+                              "key":  "character_leonard_mitchell|investigates ch211|artifact_0_08",
+                              "endpointKey":  "character_leonard_mitchell|artifact_0_08"
+                          },
+                          {
+                              "source":  "character_leonard_mitchell",
+                              "target":  "artifact_antigonus_notebook",
+                              "label":  "investigates ch38",
+                              "key":  "character_leonard_mitchell|investigates ch38|artifact_antigonus_notebook",
+                              "endpointKey":  "character_leonard_mitchell|artifact_antigonus_notebook"
+                          },
+                          {
+                              "source":  "character_leonard_mitchell",
+                              "target":  "faction_church_of_evernight",
+                              "label":  "member-of ch21",
+                              "key":  "character_leonard_mitchell|member-of ch21|faction_church_of_evernight",
+                              "endpointKey":  "character_leonard_mitchell|faction_church_of_evernight"
+                          },
+                          {
+                              "source":  "character_leonard_mitchell",
+                              "target":  "faction_nighthawks",
+                              "label":  "member-of ch21",
+                              "key":  "character_leonard_mitchell|member-of ch21|faction_nighthawks",
+                              "endpointKey":  "character_leonard_mitchell|faction_nighthawks"
+                          },
+                          {
+                              "source":  "character_leonard_mitchell",
                               "target":  "pathway_sleepless",
                               "label":  "pathway-status ch21",
                               "key":  "character_leonard_mitchell|pathway-status ch21|pathway_sleepless",
                               "endpointKey":  "character_leonard_mitchell|pathway_sleepless"
+                          },
+                          {
+                              "source":  "character_leonard_mitchell",
+                              "target":  "concept_divination",
+                              "label":  "source-of-information ch43",
+                              "key":  "character_leonard_mitchell|source-of-information ch43|concept_divination",
+                              "endpointKey":  "character_leonard_mitchell|concept_divination"
+                          },
+                          {
+                              "source":  "character_leonard_mitchell",
+                              "target":  "character_dunn_smith",
+                              "label":  "subordinate ch21",
+                              "key":  "character_leonard_mitchell|subordinate ch21|character_dunn_smith",
+                              "endpointKey":  "character_leonard_mitchell|character_dunn_smith"
+                          },
+                          {
+                              "source":  "character_leonard_mitchell",
+                              "target":  "location_blackthorn_security_company",
+                              "label":  "works-at ch21",
+                              "key":  "character_leonard_mitchell|works-at ch21|location_blackthorn_security_company",
+                              "endpointKey":  "character_leonard_mitchell|location_blackthorn_security_company"
                           },
                           {
                               "source":  "character_old_neil",
@@ -549,21 +634,25 @@
 
                      ],
     "pending_nodes":  [
+                          "artifact-2-049.md",
+                          "artifact-3-0782.md",
                           "character-azik-eggers.md",
                           "character-daly-simone.md",
                           "character-frye.md",
                           "character-ince-zangwill.md",
                           "character-kenley-white.md",
                           "character-klein-moretti.md",
-                          "character-leonard-mitchell.md",
                           "character-mrs-orianna.md",
                           "character-ray-bieber.md",
                           "character-royale-reideen.md",
                           "character-rozanne.md",
                           "character-roselle-gustav.md",
                           "character-seeka-tron.md",
+                          "event-tingen-disaster.md",
+                          "faction-red-gloves.md",
                           "faction-nighthawks.md",
                           "faction-secret-order.md",
+                          "mystery-leonard-hidden-secret.md",
                           "pathway-corpse-collector.md",
                           "pathway-mystery-pryer.md"
                       ]

@@ -156,6 +156,10 @@ If a graph exposes missing or incorrect data:
 2. Update Relationship Seeds when the relationship model changes.
 3. Regenerate the graph output.
 
+For dense Mermaid graphs, prefer semantic relationship nodes over long edge labels. A generated relationship node may hold the relationship type, timing, status, and confidence, with simple arrows from source to relationship node to target. These relationship nodes are presentation artifacts only. They are not glossary nodes, do not create new canonical entities, and must be regenerated from Relationship Seeds.
+
+Use direct edge labels only when the graph remains readable. If rendered labels overlap, collide, or become hard to follow, update the visualization generator or graph projection rather than hand-editing the generated Mermaid.
+
 ## Visualization Refresh Gate
 
 Before committing a change, check whether graph inputs changed.

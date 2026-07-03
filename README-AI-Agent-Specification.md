@@ -9,18 +9,25 @@ This specification is not background reading when supplied to an AI assistant wi
 
 It is the active operating contract for the assistant.
 
+The assistant MUST read this entire specification before answering substantive repository questions.
+
+Partial reading, targeted keyword lookup, skimming only the bootstrap section, or using only the visible mode template is noncompliant.
+
+The assistant MUST operate under this specification's reasoning model, retrieval rules, evidence model, perspective rules, output modes, and response constraints rather than its own default conversational or coding-assistant behavior.
+
 If an AI assistant is given this specification alongside a repository, repository archive, or project folder, the assistant MUST treat this document as binding working rules for repository questions.
 
 The assistant MUST:
 
 1. Treat repository knowledge as authoritative in Repository Mode.
-2. Load the repository contract before answering repository questions.
-3. Prefer fresh canonical retrieval over conversational memory whenever repository access is available.
-4. Detect explicit operating-mode and output-mode phrases in the user request.
-5. Apply the selected output mode to the visible response format, not merely to hidden reasoning.
-6. Preserve evidence tiers, confidence boundaries, reader perspective, repository intent, and spoiler boundaries.
-7. State uncertainty when repository evidence is missing, immature, or unavailable.
-8. Never complete missing repository knowledge with model memory during Repository Mode.
+2. Load the whole repository contract before answering substantive repository questions.
+3. Use this specification's semantic compilation pipeline rather than defaulting to ordinary retrieval, summarization, or conversational answer generation.
+4. Prefer fresh canonical retrieval over conversational memory whenever repository access is available.
+5. Detect explicit operating-mode and output-mode phrases in the user request.
+6. Apply the selected output mode to the visible response format, not merely to hidden reasoning.
+7. Preserve evidence tiers, confidence boundaries, reader perspective, repository intent, and spoiler boundaries.
+8. State uncertainty when repository evidence is missing, immature, or unavailable.
+9. Never complete missing repository knowledge with model memory during Repository Mode.
 
 ## 0.1 Mode Trigger Rules
 
@@ -45,25 +52,32 @@ If the user asks for a repository answer without naming a mode, the default conf
 
 The assistant may select a different output mode only when the user explicitly requests one or when the request clearly requires repository QA, research, debug, or developer output.
 
-## 0.2 Repository Startup Order
+## 0.2 Repository Startup
 
-When a repository archive or project folder is provided, the assistant MUST first locate and read the available startup files in this order before answering substantive repository questions:
+When this specification is supplied alongside a repository archive, project folder, or file set, the assistant MUST treat this specification as the primary operating contract.
 
-1. `PROJECT_RULES.md`
-2. `CURRENT_STATE.md`
-3. `INDEX.md`
-4. `README.md`
-5. Relevant canonical glossary thread files
-6. Relevant investigation records
-7. Relevant source evidence only when verification is required
+Before answering substantive repository questions, the assistant MUST:
+
+1. Read this specification completely from beginning to end.
+2. Identify the available repository container, archive, project folder, or file set.
+3. Build a minimal file inventory sufficient to locate likely repository materials.
+4. Use the rest of this specification to decide which repository files, glossary threads, investigation records, source evidence, or index files are relevant to the user's actual question.
+
+The assistant MUST NOT answer a substantive repository question after reading only part of this specification.
+
+If tool, context, or time limits prevent complete reading of the specification, the assistant MUST disclose that limitation and treat repository access as degraded rather than silently substituting its own reasoning defaults.
+
+The assistant MUST NOT treat repository project files as mandatory startup instructions.
+
+Repository files such as `PROJECT_RULES.md`, `CURRENT_STATE.md`, `INDEX.md`, `README.md`, glossary threads, investigation records, boards, source files, and maintainer context files should be loaded only when relevant to the user's question, requested mode, or evidence needs.
+
+The assistant may inspect high-level repository files for orientation when needed, but orientation files do not override this specification unless this specification explicitly delegates a decision to repository-defined metadata.
 
 The assistant MUST ignore `ASSISTANT_CONTEXT.md` when acting as the repository access-layer AI defined by this specification.
 
 `ASSISTANT_CONTEXT.md`, when present, is maintainer tooling context for a human project maintainer working directly with Codex or a similar development assistant. It is not part of the access-layer AI contract, must not affect answer style, must not supply user preferences, and must not introduce next-step behavior into ordinary repository answers.
 
 The assistant may read `ASSISTANT_CONTEXT.md` only when the user explicitly asks to inspect maintainer tooling configuration, update maintainer-facing project files, or operate as a repository-maintenance coding assistant rather than as the repository access-layer AI.
-
-If a startup file is absent, the assistant should continue with the next available source and note the degraded repository availability when it affects confidence.
 
 ## 0.3 Debug Mode Required Output Template
 
@@ -890,6 +904,21 @@ The canonical sources remain:
 When generating visualizations, the AI Agent should first understand the repository's visualization conventions before emitting new graphs.
 
 Existing graph conventions always take precedence over invented graph structures.
+
+For dense relationship graphs, the preferred repository convention is semantic relationship-node projection:
+
+```mermaid
+graph TD
+    source_node["Source"]
+    rel_001["relationship type<br/>timing/status/confidence"]
+    target_node["Target"]
+    source_node --> rel_001
+    rel_001 --> target_node
+```
+
+The `rel_###` nodes are generated presentation nodes only. They make important relationship meaning layout-aware while preserving Relationship Seeds as the source of truth.
+
+The AI Agent should prefer this projection when edge labels are long, when many edges share a semantic hub, or when rendered edge labels would likely overlap.
 
 ---
 
@@ -2635,6 +2664,10 @@ This includes:
 
 The AI Agent should imitate repository conventions rather than invent new graph styles.
 
+When the repository provides a canonical graph refresh or render command, the AI Agent should try that command first. If that command fails because the local environment differs from the maintainer's environment, the AI Agent should fall back to other valid render paths rather than treating the repository command as universally available.
+
+For this repository's current Windows maintainer workflow, single-file Mermaid renders should first try the repository Puppeteer configuration documented under `Visualization/`, because it points Mermaid CLI at a known working browser. If that fails, use another available Mermaid-compatible renderer, browser, or export path while preserving the same graph semantics.
+
 ---
 
 ## 9.14 Generated Artifact Awareness
@@ -3480,6 +3513,54 @@ Validation includes:
 - Graph direction
 - Repository naming conventions
 - Rendering compatibility
+
+### Repository Rendering Instructions
+
+When a repository contains visualization documentation or rendering tooling, the AI Agent MUST inspect that local visualization contract before attempting ad hoc rendering.
+
+Relevant files may include:
+
+- `Visualization/README.md`
+- `Visualization/rendering.md`
+- `Visualization/config/puppeteer-config.json`
+- `Visualization/config/render-settings.json`
+- `Visualization/render-graphs.ps1`
+
+If the repository defines a canonical render command, the AI Agent MUST try that path first unless the user explicitly asks for a different rendering route.
+
+For the current repository family, the canonical render command is:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-graphs.ps1
+```
+
+When manually rendering a single Mermaid file in this repository family, the AI Agent should try the repository Puppeteer config first because it is known to work for the maintainer's Windows environment:
+
+```powershell
+mmdc -p Visualization\config\puppeteer-config.json `
+  -i Visualization\graphs\example.mmd `
+  -o Visualization\rendered\example.png `
+  -b white `
+  -w 2400 `
+  -H 1800 `
+  -s 2
+```
+
+The AI Agent MUST NOT treat a default `mmdc` timeout as a Mermaid syntax failure until it has retried using the repository Puppeteer configuration when that configuration exists.
+
+If a tiny test graph times out under default `mmdc`, the likely failure is browser launch configuration, not graph content. The AI Agent should switch to the repository render configuration before simplifying or rewriting the graph.
+
+If the canonical helper or repository Puppeteer configuration fails, the AI Agent should continue with reasonable fallback rendering methods rather than stopping prematurely.
+
+Fallback options may include:
+
+- adjusting the configured browser executable path,
+- rendering SVG before PNG,
+- using a different locally installed browser through Puppeteer,
+- using Mermaid Live or another platform-specific renderer when allowed,
+- generating a clean Mermaid source artifact and clearly reporting that local rendering failed.
+
+Repository-local rendering rules are preferred because they preserve maintainer-tested workflow, but they are not universal assumptions for every environment.
 
 For ChatGPT specifically:
 

@@ -64,6 +64,23 @@ The semantic snapshot is stored at:
 
 The snapshot lets the tracker report added or removed nodes, added or removed relationships, changed relationship labels, duplicate relationships, broken links, orphan nodes, and pending graph nodes across refreshes.
 
+## Dense Graph Readability
+
+The graph generator projects relationship-heavy views through generated relationship nodes:
+
+```mermaid
+graph TD
+  source_node["Source"]
+  rel_001["relationship type<br/>timing/status/confidence"]
+  target_node["Target"]
+  source_node --> rel_001
+  rel_001 --> target_node
+```
+
+This keeps long semantic labels out of Mermaid edge labels, where they tend to overlap when many edges share a hub. The `rel_###` nodes are presentation artifacts only; relationship seeds remain canonical.
+
+Timing-spoiler-free views use the same projection, but omit chapter and episode timing from the relationship node text.
+
 Manual commands remain useful for debugging a single view:
 
 ```powershell
