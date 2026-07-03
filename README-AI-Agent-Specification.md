@@ -57,6 +57,28 @@ The assistant may select a different output mode only when the user explicitly r
 
 When this specification is supplied alongside a repository archive, project folder, or file set, the assistant MUST treat this specification as the primary operating contract.
 
+### 0.2.1 Repository Container Priority And Boundary
+
+The assistant MUST use the repository container the user intentionally provided.
+
+Repository container priority:
+
+1. Attached zip, archive, or uploaded file bundle.
+2. Explicit current workspace, project folder, or local checkout named by the user.
+3. Public GitHub fallback, if no local package or explicit workspace is available: [Phishinabowl/LoTM-Re-Read-Analysis](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis).
+
+If an archive, upload, or file bundle is provided, it is the active repository boundary. The assistant MUST NOT inspect sibling folders, parent folders, or similarly named local checkouts merely because attachment metadata reveals an absolute local path.
+
+If both an attached archive and a local checkout are visible, the assistant MUST prefer the archive unless the user explicitly asks to use the local checkout.
+
+If multiple plausible repository roots exist, the assistant should state which root it is using or ask the user to choose before answering substantive repository questions.
+
+If no archive, upload, or explicit workspace is available, the assistant may use the public GitHub fallback when network and tool access allow it. The assistant should disclose that it is using the GitHub fallback.
+
+The GitHub fallback contains repository artifacts, project documentation, investigations, glossary threads, visualization files, and other version-controlled material. It does not contain ignored local source material such as the novel EPUB or Donghua subtitle files.
+
+When using the GitHub fallback, source-expanded answers that require the EPUB, subtitle files, or other ignored local source materials are degraded unless the user provides those files. The assistant should first ask the user to provide the required source files if they can. If the user cannot provide them, the assistant must state that source expansion is unavailable and continue using repository artifacts only.
+
 Before answering substantive repository questions, the assistant MUST:
 
 1. Read this specification completely from beginning to end.
@@ -140,6 +162,28 @@ The assistant bypasses `Visualization/render-mermaid.ps1` or `Visualization/rend
 Failure condition:
 
 The assistant omits source-supported graph-local candidates because they are not yet in glossary threads or Relationship Seeds, or presents graph-local evidence as if it were already repository-canonical.
+
+## 0.6 Regression Test: Archive Boundary And GitHub Fallback
+
+User setup:
+
+> The user provides an attached repository zip and asks the assistant to bootstrap from it.
+
+Expected behavior:
+
+The assistant MUST treat the attached archive contents as the active repository boundary. It may report the archive or extracted archive root it is using, but it must not inspect sibling folders, parent folders, or similarly named local checkouts merely because attachment metadata reveals an absolute local path.
+
+If no archive, upload, or explicit workspace is available, the assistant may use the public GitHub fallback at [Phishinabowl/LoTM-Re-Read-Analysis](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis), disclose that fallback, and recognize that ignored local source files are unavailable from GitHub.
+
+For source-expanded requests while using GitHub fallback, the assistant should ask the user to provide the EPUB or subtitle files if needed. If the user cannot provide them, the assistant must state that source expansion is unavailable and proceed with repository artifacts only.
+
+Failure condition:
+
+The assistant uses an absolute path exposed by file attachment metadata to inspect a sibling or parent local project folder instead of the uploaded archive.
+
+Failure condition:
+
+The assistant uses GitHub fallback for repository artifacts but behaves as though ignored local source materials such as the EPUB or subtitle files are available.
 
 ---
 
@@ -5231,6 +5275,8 @@ Examples include:
 In these environments, the AI Agent should explicitly recognize that Repository Mode is operating under degraded repository availability.
 
 The AI Agent should acknowledge that canonical re-verification may be incomplete and should avoid presenting remembered repository content as though it had been freshly verified.
+
+When using the public GitHub fallback, repository artifacts are available but ignored local source materials are not. Requests requiring source expansion into the EPUB, subtitle files, or other ignored local sources should first ask the user to provide those materials; if unavailable, continue with repository artifacts only and label source expansion as unavailable.
 
 ---
 
