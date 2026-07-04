@@ -24,6 +24,7 @@ Related Investigations:
 
 Official Artwork: [Link to image map](../Artwork/official-epub-image-map.md)
 - [Human-readable promoted artwork label](../Artwork/page-assets/path/to/page-ready-image.ext)
+- Human-readable unpromoted artwork label
 
 Use only controlled tags from `../PROJECT_RULES.md`.
 

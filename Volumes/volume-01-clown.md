@@ -34,21 +34,21 @@ Related Investigations:
 
 Official Artwork: [Link to image map](../Artwork/official-epub-image-map.md#volume-1-clown)
 - [Volume 1 cover: Clown](../Artwork/page-assets/volumes/volume-01-clown/volume-1-cover-clown.jpg)
-- [End of Volume 1 emblem page](../Artwork/official-epub-image-map.md#volume-1-clown)
-- [Pathways Guide spoiler warning title page](../Artwork/official-epub-image-map.md#volume-1-clown)
-- [Twilight Giant pathway guide page](../Artwork/official-epub-image-map.md#volume-1-clown)
-- [Death pathway guide page](../Artwork/official-epub-image-map.md#volume-1-clown)
-- [Darkness pathway guide page](../Artwork/official-epub-image-map.md#volume-1-clown)
-- [Image Gallery spoiler warning title page](../Artwork/official-epub-image-map.md#volume-1-clown)
-- [Klein Moretti as The Fool tarot portrait](../Artwork/official-epub-image-map.md#volume-1-clown)
-- [Audrey Hall as Justice tarot portrait](../Artwork/official-epub-image-map.md#volume-1-clown)
-- [Alger Wilson as The Hanged Man tarot portrait](../Artwork/official-epub-image-map.md#volume-1-clown)
-- [Derrick Berg as The Sun tarot portrait](../Artwork/official-epub-image-map.md#volume-1-clown)
-- [Klein Moretti early-stage portrait](../Artwork/official-epub-image-map.md#volume-1-clown)
-- [Klein Moretti as a Nighthawk portrait](../Artwork/official-epub-image-map.md#volume-1-clown)
-- [Dunn Smith portrait](../Artwork/official-epub-image-map.md#volume-1-clown)
-- [Tingen City panorama](../Artwork/official-epub-image-map.md#volume-1-clown)
-- [Divination Club Citrine Room interior](../Artwork/official-epub-image-map.md#volume-1-clown)
+- End of Volume 1 emblem page
+- Pathways Guide spoiler warning title page
+- Twilight Giant pathway guide page
+- Death pathway guide page
+- Darkness pathway guide page
+- Image Gallery spoiler warning title page
+- Klein Moretti as The Fool tarot portrait
+- Audrey Hall as Justice tarot portrait
+- Alger Wilson as The Hanged Man tarot portrait
+- Derrick Berg as The Sun tarot portrait
+- Klein Moretti early-stage portrait
+- Klein Moretti as a Nighthawk portrait
+- Dunn Smith portrait
+- Tingen City panorama
+- Divination Club Citrine Room interior
 
 ## Purpose
 
