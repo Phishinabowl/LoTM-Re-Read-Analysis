@@ -4,7 +4,7 @@
 
 Track official EPUB image assets in spine/reading order so they can later be linked to character, pathway, artifact, faction, location, concept, and event pages as reader-safe visual evidence.
 
-Use `Tools/edit_image.py --operation extract-epub-images` as the source for image order and asset paths. Extracted image files live under `Artwork/extracted/` in section or volume subfolders.
+Use `Tools/edit_image.py --operation extract-epub-images` as the preferred source for image order and asset paths. `Tools/Edit-Image.ps1 -Operation ExtractEpubImages` is the Windows PowerShell fallback and should emit the same spine-order image numbering. Extracted image files live under `Artwork/extracted/` in section or volume subfolders.
 
 ## Source
 
@@ -14,11 +14,12 @@ Use `Tools/edit_image.py --operation extract-epub-images` as the source for imag
 
 ```text
 python Tools\edit_image.py --operation extract-epub-images --volume 1
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -Operation ExtractEpubImages -Volume 1
 ```
 
 ## Mapping Rules
 
-- `image_number` is the global EPUB spine-order image number emitted by `Tools/edit_image.py --operation extract-epub-images`.
+- `image_number` is the global EPUB spine-order image number emitted by `Tools/edit_image.py --operation extract-epub-images` or the fallback `Tools/Edit-Image.ps1 -Operation ExtractEpubImages`.
 - `spine_index` is the XHTML spine position emitted by the tool.
 - `EPUB page` is the human-readable EPUB entry title for the XHTML file that contains the image. The source EPUB does not expose physical page numbers.
 - `reader-safe label` should describe only what the image visibly depicts or what the EPUB entry safely identifies at that point.

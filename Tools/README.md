@@ -4,24 +4,31 @@ This folder contains reusable local helpers for project maintenance and source v
 
 ## Image Manipulation
 
-Use `edit_image.py` for repeatable local image operations. The tool supports crop operations, named crop presets, and EPUB image listing/extraction. It requires Python with Pillow installed.
+Use `edit_image.py` for repeatable local image operations when Python with Pillow is available. It is the preferred implementation because it is faster and shares one CLI for crop operations, named crop presets, and EPUB image listing/extraction.
+
+PowerShell fallbacks are maintained for Windows users who do not have Python installed:
+
+- `Edit-Image.ps1` mirrors crop operations, named crop presets, and EPUB image listing/extraction.
 
 List available presets:
 
 ```powershell
 python Tools\edit_image.py --list-presets
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -ListPresets
 ```
 
 Use the official pathway tarot-card crop preset:
 
 ```powershell
 python Tools\edit_image.py --preset PathwayTarotCard --source-image Artwork\extracted\volume-2-faceless\0023-spine-0505-pathways-pathways4.jpeg --output-image Artwork\tarot-cards\pathways\world-planter-pathway.png --force
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -Preset PathwayTarotCard -SourceImage Artwork\extracted\volume-2-faceless\0023-spine-0505-pathways-pathways4.jpeg -OutputImage Artwork\tarot-cards\pathways\world-planter-pathway.png -Force
 ```
 
 Use an explicit custom crop when a future image job needs different geometry:
 
 ```powershell
 python Tools\edit_image.py --operation crop --source-image path\to\source.jpeg --output-image path\to\crop.png --x 24 --y 804 --width 660 --height 1168
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -Operation Crop -SourceImage path\to\source.jpeg -OutputImage path\to\crop.png -X 24 -Y 804 -Width 660 -Height 1168
 ```
 
 ## EPUB Search
@@ -168,14 +175,15 @@ Raw counts can mislead when a term is also a job, epithet, or individual label. 
 
 ## EPUB Image Extraction
 
-Use `edit_image.py --operation extract-epub-images` to list or extract EPUB image assets in actual spine/reading order. This is separate from text search because image-bearing XHTML entries include covers, front matter, volume covers, end-of-volume art, pathway guides, character galleries, location galleries, maps, and end-matter artwork.
+Use `edit_image.py --operation extract-epub-images` to list or extract EPUB image assets in actual spine/reading order. If Python/Pillow is unavailable, use `Edit-Image.ps1 -Operation ExtractEpubImages` with the same filters in PowerShell form. This is separate from text search because image-bearing XHTML entries include covers, front matter, volume covers, end-of-volume art, pathway guides, character galleries, location galleries, maps, and end-matter artwork.
 
-The script assigns an `image_number` based on EPUB spine order so "first image" and "next image" stay reproducible.
+Both implementations assign an `image_number` based on EPUB spine order so "first image" and "next image" stay reproducible.
 
 ### List Images
 
 ```powershell
 python Tools\edit_image.py --operation extract-epub-images
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -Operation ExtractEpubImages
 ```
 
 Useful filters:
@@ -184,6 +192,10 @@ Useful filters:
 python Tools\edit_image.py --operation extract-epub-images --start-image-number 1 --end-image-number 12
 python Tools\edit_image.py --operation extract-epub-images --volume 1 --image-type Characters
 python Tools\edit_image.py --operation extract-epub-images --image-type Artwork
+
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -Operation ExtractEpubImages -StartImageNumber 1 -EndImageNumber 12
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -Operation ExtractEpubImages -Volume 1 -ImageType Characters
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -Operation ExtractEpubImages -ImageType Artwork
 ```
 
 ### Extract Images
@@ -192,6 +204,7 @@ Extract selected images into `.tmp/epub-images` by default:
 
 ```powershell
 python Tools\edit_image.py --operation extract-epub-images --start-image-number 1 --end-image-number 4 --extract
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -Operation ExtractEpubImages -StartImageNumber 1 -EndImageNumber 4 -Extract
 ```
 
-Use `--output-dir` to choose another destination, and `--json` when downstream tooling needs structured fields such as `image_number`, `spine_index`, `image_type`, `volume`, `xhtml_path`, `image_path`, `alt`, and `output_path`.
+Use `--output-dir` / `-OutputDir` to choose another destination, and `--json` / `-Json` when downstream tooling needs structured fields such as `image_number`, `spine_index`, `image_type`, `volume`, `xhtml_path`, `image_path`, `alt`, and `output_path`.
