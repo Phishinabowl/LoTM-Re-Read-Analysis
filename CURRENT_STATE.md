@@ -149,9 +149,11 @@ These pages are low-priority pending backlog items surfaced by official EPUB art
 - deity-ats-father-of-devils.md (ATS / Great Old One title cluster tied to Tenebrous World, Chained, and Abyss)
 - deity-ats-god-almighty.md (ATS / Great Old One title cluster for the omnipotent and omniscient pathway group)
 - deity-ats-lord-of-the-mysteries.md (ATS / Great Old One title cluster tied to Sefirah Castle, Fool, Door, and Error)
+- deity-ats-mother-goddess-of-depravity.md (Outer Deity / ATS-level page tied to the Planter/Earth and Moon pathway cluster; preserve Goddess of Origins, Mother of All, Brood Hive of Filth, Primordial Moon, and Origin of Evil title/alias nuance)
 - deity-ats-mother-tree-of-desire.md (Outer Deity / ATS-level page tied to the Prisoner, Criminal, and desire-corruption threads)
 - deity-s0-black-emperor.md (Sequence 0 / true god page for the Black Emperor pathway; preserve historical holders separately)
 - deity-s0-door.md (Sequence 0 / true god page for the Apprentice pathway; heavily tied to Mr. Door / Bethel Abraham)
+- deity-s0-earth-mother-lilith.md (Sequence 0 / true god page for the Planter/Mother pathway; preserve Earth Mother, Lilith, Sanguine Ancestor, and late cosmos-corruption boundary nuance)
 - deity-s0-error.md (Sequence 0 / true god page for the Marauder pathway; heavily tied to Amon)
 - deity-s0-evernight-goddess.md
 - deity-s0-fool.md (Sequence 0 / true god page for the Seer pathway; heavily tied to Klein and the prior Celestial Worthy / Lord of the Mysteries)
