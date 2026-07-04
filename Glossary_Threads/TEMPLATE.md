@@ -21,6 +21,8 @@ Related Investigations:
 
 Use only controlled tags from `PROJECT_RULES.md`.
 
+If this page embeds official artwork, use a promoted page-ready asset under `Artwork/page-assets/`. Keep raw extraction or working-crop paths such as `Artwork/extracted/` and `Artwork/tarot-cards/` out of rendered Markdown links and image tags; record them only as source/provenance metadata when needed.
+
 Filename format is governed by `PROJECT_RULES.md`. Use this generic shape only as a quick reminder:
 
 ```text

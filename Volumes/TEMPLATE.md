@@ -23,7 +23,7 @@ Related Investigations:
 -
 
 Official Artwork: [Link to image map](../Artwork/official-epub-image-map.md)
-- [Human-readable artwork label](../Artwork/extracted/path/to/image.ext)
+- [Human-readable promoted artwork label](../Artwork/page-assets/path/to/page-ready-image.ext)
 
 Use only controlled tags from `../PROJECT_RULES.md`.
 

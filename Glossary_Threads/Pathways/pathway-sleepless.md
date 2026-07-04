@@ -1,6 +1,6 @@
 # Sleepless Pathway
 
-<img src="../../Artwork/extracted/volume-1-clown/0009-spine-0223-pathways-pathways3.jpeg" alt="Darkness pathway guide page" width="360">
+<img src="../../Artwork/page-assets/pathways/pathway-sleepless/darkness-pathway-guide.jpeg" alt="Darkness pathway guide page" width="360">
 
 ## Metadata
 
@@ -76,7 +76,7 @@ This pathway keeps `pathway-sleepless.md` as the stable slug while allowing futu
 
 | Card image | Details |
 | --- | --- |
-| <a href="../../Artwork/tarot-cards/pathways/star-sleepless-pathway.png"><img src="../../Artwork/tarot-cards/pathways/star-sleepless-pathway.png" alt="The Star tarot card crop" width="160"></a> | <span style="font-size: 1.45em; font-weight: 700;">The Star</span><br><span style="font-size: 1.15em;">XVII (17)</span><br><br>- Associated pathway labels: Sleepless / Evernight / Darkness pathway<br>- Confidence: confirmed<br>- Notes: Derived from the official Volume 1 Darkness pathway guide image. |
+| <a href="../../Artwork/page-assets/pathways/pathway-sleepless/star-tarot-card.png"><img src="../../Artwork/page-assets/pathways/pathway-sleepless/star-tarot-card.png" alt="The Star tarot card crop" width="160"></a> | <span style="font-size: 1.45em; font-weight: 700;">The Star</span><br><span style="font-size: 1.15em;">XVII (17)</span><br><br>- Associated pathway labels: Sleepless / Evernight / Darkness pathway<br>- Confidence: confirmed<br>- Notes: Derived from the official Volume 1 Darkness pathway guide image. |
 
 ## Associated Higher-Order Entities
 
@@ -203,14 +203,16 @@ pathway_profile:
     - image_number: 9
       label: Darkness pathway guide page
       type: pathway_guide
-      file: Artwork/extracted/volume-1-clown/0009-spine-0223-pathways-pathways3.jpeg
+      file: Artwork/page-assets/pathways/pathway-sleepless/darkness-pathway-guide.jpeg
+      source_file: Artwork/extracted/volume-1-clown/0009-spine-0223-pathways-pathways3.jpeg
       usage: primary_pathway_image
   associated_tarot_card:
     card_name: The Star
     card_number: XVII (17)
     source_image_number: 9
     crop_number: TC-003
-    crop_file: Artwork/tarot-cards/pathways/star-sleepless-pathway.png
+    crop_file: Artwork/page-assets/pathways/pathway-sleepless/star-tarot-card.png
+    source_crop_file: Artwork/tarot-cards/pathways/star-sleepless-pathway.png
     confidence: confirmed
     notes: Derived from the official Volume 1 Darkness pathway guide page.
   associated_higher_order_entities:

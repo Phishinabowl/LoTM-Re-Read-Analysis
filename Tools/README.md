@@ -67,6 +67,8 @@ Use `--json` / `-Json` when downstream tooling needs structured results.
 
 Use `edit_image.py` for repeatable local image operations when Python with Pillow is available. It is the preferred implementation because it is faster and shares one CLI for crop operations, named crop presets, and EPUB image listing/extraction.
 
+Image extraction and crop commands should write bulk official artwork outputs to the ignored local staging folders `Artwork/extracted/` and `Artwork/tarot-cards/`. Keep those folders out of Git. When a maintained page needs a specific embedded image, copy only that selected page-ready asset into a tracked folder such as `Artwork/page-assets/`.
+
 PowerShell fallbacks are maintained for Windows users who do not have Python installed:
 
 - `Edit-Image.ps1` mirrors crop operations, named crop presets, and EPUB image listing/extraction.

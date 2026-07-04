@@ -7,6 +7,10 @@
 # Zip Files
 *.zip
 
+# Copyright-controlled local artwork staging
+/Artwork/extracted/
+/Artwork/tarot-cards/
+
 # Python/tool caches
 __pycache__/
 .pytest_cache/

@@ -4,12 +4,13 @@
 
 Track official EPUB image assets in spine/reading order so they can later be linked to character, pathway, artifact, faction, location, concept, and event pages as reader-safe visual evidence.
 
-Use `Tools/edit_image.py --operation extract-epub-images` as the preferred source for image order and asset paths. `Tools/Edit-Image.ps1 -Operation ExtractEpubImages` is the Windows PowerShell fallback and should emit the same spine-order image numbering. Extracted image files live under `Artwork/extracted/` in section or volume subfolders.
+Use `Tools/edit_image.py --operation extract-epub-images` as the preferred source for image order and asset paths. `Tools/Edit-Image.ps1 -Operation ExtractEpubImages` is the Windows PowerShell fallback and should emit the same spine-order image numbering. Extracted image files live under the ignored local `Artwork/extracted/` folder in section or volume subfolders.
 
 ## Source
 
 - EPUB: `Source/Lord of Mysteries - Book 1.epub`
-- Extracted files: `Artwork/extracted/`
+- Extracted files: local ignored `Artwork/extracted/`
+- Derived working crops: local ignored `Artwork/tarot-cards/`
 - Extraction command for Volume 1 listing:
 
 ```text
@@ -22,6 +23,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -Operat
 - `image_number` is the global EPUB spine-order image number emitted by `Tools/edit_image.py --operation extract-epub-images` or the fallback `Tools/Edit-Image.ps1 -Operation ExtractEpubImages`.
 - `spine_index` is the XHTML spine position emitted by the tool.
 - `EPUB page` is the human-readable EPUB entry title for the XHTML file that contains the image. The source EPUB does not expose physical page numbers.
+- `Extracted file` and crop paths are local staging references by default; they are intentionally not tracked unless a maintainer selectively promotes a specific page-ready asset for article embedding.
 - `reader-safe label` should describe only what the image visibly depicts or what the EPUB entry safely identifies at that point.
 - `mapped threads` should use existing thread links when available; use plain planned filenames only when the target page does not exist yet.
 - `confidence` should be `confirmed`, `strong-evidence`, `working-theory`, or `unknown`.
@@ -196,7 +198,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -Operat
 
 ## Derived Tarot Card Crops
 
-These are repository-generated crops from official pathway guide images. They preserve the pathway-associated tarot card artwork separately so pathway pages and a future tarot-card concept page can embed the card without the full pathway guide text.
+These are local working crops generated from official pathway guide images. They preserve the pathway-associated tarot card artwork separately so pathway pages and a future tarot-card concept page can later embed selectively promoted page-ready copies without the full pathway guide text.
 
 | Crop # | Source image # | Source pathway image | Derived file | Tarot card | Associated pathway | Mapped threads | Confidence | Notes |
 |---|---:|---|---|---|---|---|---|---|

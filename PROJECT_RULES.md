@@ -140,6 +140,19 @@ Volume summary pages are reader-facing overview documents for completed volume b
 
 Planned-but-uncreated volume summary pages should be listed in `INDEX.md` as planned paths and tracked in `CURRENT_STATE.md` under `Planned Volume Summary Pages`. The artwork map may point volume-level artwork at those planned targets before the page exists, but those planned references should remain visibly marked as planned.
 
+## Artwork Asset Safety
+
+Official EPUB artwork metadata is tracked in `Artwork/official-epub-image-map.md`, but bulk source-derived image assets are local-only staging files.
+
+Keep these directories ignored and untracked:
+
+- `Artwork/extracted/`
+- `Artwork/tarot-cards/`
+
+This mirrors the treatment of the source EPUB and subtitle/source-media files: the project can use local assets for inspection, mapping, and page planning without publishing the whole extracted asset set.
+
+When an article intentionally embeds official artwork, promote only that specific page-ready image into a tracked location such as `Artwork/page-assets/`. Do not bulk-promote extracted EPUB images, crop batches, or intermediate working assets.
+
 ---
 
 # Visualization

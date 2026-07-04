@@ -1,6 +1,6 @@
 # Volume 1: Clown
 
-![Volume 1 cover: Clown](../Artwork/extracted/volume-1-clown/0004-spine-0006-volumecover-volume-1-cover.jpg)
+![Volume 1 cover: Clown](../Artwork/page-assets/volumes/volume-01-clown/volume-1-cover-clown.jpg)
 
 ## Metadata
 
@@ -33,22 +33,22 @@ Related Investigations:
 - [Church of Evernight Volume 1 Reveal Timeline](../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
 
 Official Artwork: [Link to image map](../Artwork/official-epub-image-map.md#volume-1-clown)
-- [Volume 1 cover: Clown](../Artwork/extracted/volume-1-clown/0004-spine-0006-volumecover-volume-1-cover.jpg)
-- [End of Volume 1 emblem page](../Artwork/extracted/volume-1-clown/0005-spine-0220-endofvolume-v01-end.jpeg)
-- [Pathways Guide spoiler warning title page](../Artwork/extracted/volume-1-clown/0006-spine-0221-pathways-pathways-guide.jpeg)
-- [Twilight Giant pathway guide page](../Artwork/extracted/volume-1-clown/0007-spine-0221-pathways-pathways1.jpeg)
-- [Death pathway guide page](../Artwork/extracted/volume-1-clown/0008-spine-0222-pathways-pathways2.jpeg)
-- [Darkness pathway guide page](../Artwork/extracted/volume-1-clown/0009-spine-0223-pathways-pathways3.jpeg)
-- [Image Gallery spoiler warning title page](../Artwork/extracted/volume-1-clown/0010-spine-0224-artwork-image-gallery.jpeg)
-- [Klein Moretti as The Fool tarot portrait](../Artwork/extracted/volume-1-clown/0011-spine-0225-characters-tarot1.jpeg)
-- [Audrey Hall as Justice tarot portrait](../Artwork/extracted/volume-1-clown/0012-spine-0225-characters-tarot2.jpeg)
-- [Alger Wilson as The Hanged Man tarot portrait](../Artwork/extracted/volume-1-clown/0013-spine-0226-characters-tarot3.jpeg)
-- [Derrick Berg as The Sun tarot portrait](../Artwork/extracted/volume-1-clown/0014-spine-0227-characters-tarot4.jpeg)
-- [Klein Moretti early-stage portrait](../Artwork/extracted/volume-1-clown/0015-spine-0228-characters-character1.jpeg)
-- [Klein Moretti as a Nighthawk portrait](../Artwork/extracted/volume-1-clown/0016-spine-0229-characters-character2.jpeg)
-- [Dunn Smith portrait](../Artwork/extracted/volume-1-clown/0017-spine-0230-characters-character3.jpeg)
-- [Tingen City panorama](../Artwork/extracted/volume-1-clown/0018-spine-0231-locations-location1.jpeg)
-- [Divination Club Citrine Room interior](../Artwork/extracted/volume-1-clown/0019-spine-0232-locations-location2.jpeg)
+- [Volume 1 cover: Clown](../Artwork/page-assets/volumes/volume-01-clown/volume-1-cover-clown.jpg)
+- [End of Volume 1 emblem page](../Artwork/official-epub-image-map.md#volume-1-clown)
+- [Pathways Guide spoiler warning title page](../Artwork/official-epub-image-map.md#volume-1-clown)
+- [Twilight Giant pathway guide page](../Artwork/official-epub-image-map.md#volume-1-clown)
+- [Death pathway guide page](../Artwork/official-epub-image-map.md#volume-1-clown)
+- [Darkness pathway guide page](../Artwork/official-epub-image-map.md#volume-1-clown)
+- [Image Gallery spoiler warning title page](../Artwork/official-epub-image-map.md#volume-1-clown)
+- [Klein Moretti as The Fool tarot portrait](../Artwork/official-epub-image-map.md#volume-1-clown)
+- [Audrey Hall as Justice tarot portrait](../Artwork/official-epub-image-map.md#volume-1-clown)
+- [Alger Wilson as The Hanged Man tarot portrait](../Artwork/official-epub-image-map.md#volume-1-clown)
+- [Derrick Berg as The Sun tarot portrait](../Artwork/official-epub-image-map.md#volume-1-clown)
+- [Klein Moretti early-stage portrait](../Artwork/official-epub-image-map.md#volume-1-clown)
+- [Klein Moretti as a Nighthawk portrait](../Artwork/official-epub-image-map.md#volume-1-clown)
+- [Dunn Smith portrait](../Artwork/official-epub-image-map.md#volume-1-clown)
+- [Tingen City panorama](../Artwork/official-epub-image-map.md#volume-1-clown)
+- [Divination Club Citrine Room interior](../Artwork/official-epub-image-map.md#volume-1-clown)
 
 ## Purpose
 
@@ -176,67 +176,68 @@ volume_summary:
   official_artwork:
     - image_number: 4
       type: volume_cover
-      file: Artwork/extracted/volume-1-clown/0004-spine-0006-volumecover-volume-1-cover.jpg
+      file: Artwork/page-assets/volumes/volume-01-clown/volume-1-cover-clown.jpg
+      source_file: Artwork/extracted/volume-1-clown/0004-spine-0006-volumecover-volume-1-cover.jpg
       usage: primary_volume_image
     - image_number: 5
       type: end_of_volume
-      file: Artwork/extracted/volume-1-clown/0005-spine-0220-endofvolume-v01-end.jpeg
+      source_file: Artwork/extracted/volume-1-clown/0005-spine-0220-endofvolume-v01-end.jpeg
       usage: end_marker
     - image_number: 6
       type: pathways_title
-      file: Artwork/extracted/volume-1-clown/0006-spine-0221-pathways-pathways-guide.jpeg
+      source_file: Artwork/extracted/volume-1-clown/0006-spine-0221-pathways-pathways-guide.jpeg
       usage: volume_appendix_title
     - image_number: 7
       type: pathway_guide
-      file: Artwork/extracted/volume-1-clown/0007-spine-0221-pathways-pathways1.jpeg
+      source_file: Artwork/extracted/volume-1-clown/0007-spine-0221-pathways-pathways1.jpeg
       usage: planned_pathway_page
     - image_number: 8
       type: pathway_guide
-      file: Artwork/extracted/volume-1-clown/0008-spine-0222-pathways-pathways2.jpeg
+      source_file: Artwork/extracted/volume-1-clown/0008-spine-0222-pathways-pathways2.jpeg
       usage: planned_pathway_page
     - image_number: 9
       type: pathway_guide
-      file: Artwork/extracted/volume-1-clown/0009-spine-0223-pathways-pathways3.jpeg
+      source_file: Artwork/extracted/volume-1-clown/0009-spine-0223-pathways-pathways3.jpeg
       usage: pathway_page
     - image_number: 10
       type: image_gallery_title
-      file: Artwork/extracted/volume-1-clown/0010-spine-0224-artwork-image-gallery.jpeg
+      source_file: Artwork/extracted/volume-1-clown/0010-spine-0224-artwork-image-gallery.jpeg
       usage: volume_appendix_title
     - image_number: 11
       type: character_gallery
-      file: Artwork/extracted/volume-1-clown/0011-spine-0225-characters-tarot1.jpeg
+      source_file: Artwork/extracted/volume-1-clown/0011-spine-0225-characters-tarot1.jpeg
       usage: planned_character_page
     - image_number: 12
       type: character_gallery
-      file: Artwork/extracted/volume-1-clown/0012-spine-0225-characters-tarot2.jpeg
+      source_file: Artwork/extracted/volume-1-clown/0012-spine-0225-characters-tarot2.jpeg
       usage: planned_character_page
     - image_number: 13
       type: character_gallery
-      file: Artwork/extracted/volume-1-clown/0013-spine-0226-characters-tarot3.jpeg
+      source_file: Artwork/extracted/volume-1-clown/0013-spine-0226-characters-tarot3.jpeg
       usage: planned_character_page
     - image_number: 14
       type: character_gallery
-      file: Artwork/extracted/volume-1-clown/0014-spine-0227-characters-tarot4.jpeg
+      source_file: Artwork/extracted/volume-1-clown/0014-spine-0227-characters-tarot4.jpeg
       usage: planned_character_page
     - image_number: 15
       type: character_gallery
-      file: Artwork/extracted/volume-1-clown/0015-spine-0228-characters-character1.jpeg
+      source_file: Artwork/extracted/volume-1-clown/0015-spine-0228-characters-character1.jpeg
       usage: planned_character_page
     - image_number: 16
       type: character_gallery
-      file: Artwork/extracted/volume-1-clown/0016-spine-0229-characters-character2.jpeg
+      source_file: Artwork/extracted/volume-1-clown/0016-spine-0229-characters-character2.jpeg
       usage: planned_character_page
     - image_number: 17
       type: character_gallery
-      file: Artwork/extracted/volume-1-clown/0017-spine-0230-characters-character3.jpeg
+      source_file: Artwork/extracted/volume-1-clown/0017-spine-0230-characters-character3.jpeg
       usage: character_page
     - image_number: 18
       type: location_gallery
-      file: Artwork/extracted/volume-1-clown/0018-spine-0231-locations-location1.jpeg
+      source_file: Artwork/extracted/volume-1-clown/0018-spine-0231-locations-location1.jpeg
       usage: planned_location_page
     - image_number: 19
       type: location_gallery
-      file: Artwork/extracted/volume-1-clown/0019-spine-0232-locations-location2.jpeg
+      source_file: Artwork/extracted/volume-1-clown/0019-spine-0232-locations-location2.jpeg
       usage: planned_location_page
   major_developments:
     - label: Klein awakens in Tingen
