@@ -27,7 +27,7 @@ First classify the request:
 
 Complex, relationship-heavy, evidence-bearing, or rendered graph requests default to repository-local artifacts, not scratch outputs.
 
-For rendered outputs, repository tooling means the visualization helpers documented in [rendering.md](rendering.md), not direct `mmdc` calls. Prefer the Python helper and use the merged PowerShell helper as the Windows fallback. Direct `mmdc` is a fallback/debug path only, and should be reported as degraded if used because the helper scripts are unavailable or cannot run in the current environment.
+For rendered outputs, repository tooling means the visualization helpers documented in [rendering.md](rendering.md), not direct `mmdc` calls. Prefer the Python helper and use the PowerShell helper as the Windows fallback. Direct `mmdc` is a fallback/debug path only, and should be reported as degraded if used because the helper scripts are unavailable or cannot run in the current environment.
 
 ## Projection Style
 
@@ -173,17 +173,33 @@ When a refresh is confirmed, update every current graph view unless the user exp
 
 Fresh renders replace stale render files unless the user asks for archived snapshots.
 
+Before choosing a helper on an unfamiliar machine, run the Python availability probe documented in [Rendering Instructions](rendering.md). If Python is unavailable, use the PowerShell fallback command.
+
 Canonical refresh command:
+
+Preferred Python:
 
 ```powershell
 python Visualization\visualize.py --mode Refresh
+```
+
+PowerShell fallback:
+
+```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Refresh
 ```
 
 Pure render command for manually authored `.mmd` files:
 
+Preferred Python:
+
 ```powershell
 python Visualization\visualize.py --mode Render --input-path Visualization\graphs\example.mmd
+```
+
+PowerShell fallback:
+
+```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Render -InputPath Visualization\graphs\example.mmd
 ```
 

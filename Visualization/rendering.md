@@ -26,7 +26,7 @@ npm install -g @mermaid-js/mermaid-cli
 
 The default `mmdc` browser launch may time out on Windows. The working approach is to point Puppeteer at local Microsoft Edge through the permanent render config in `Visualization/config`.
 
-Mermaid CLI is the underlying renderer, not the project workflow entry point. For repository graph work, call the Python visualization helper below first. Use the merged PowerShell helper as the Windows fallback. Direct `mmdc` commands are fallback/debug commands only.
+Mermaid CLI is the underlying renderer, not the project workflow entry point. For repository graph work, call the Python visualization helper below first. Use the PowerShell helper as the Windows fallback. Direct `mmdc` commands are fallback/debug commands only.
 
 ## Permanent Render Config
 
@@ -40,40 +40,87 @@ Graph render settings live at:
 
 If Edge is installed elsewhere, update `executablePath` in the Puppeteer config. Chrome can also be used if available.
 
+## Availability Checks
+
+Before running visualization helpers on an unfamiliar machine, check whether Python is available:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1
+```
+
+For structured agent workflows, use JSON output:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1 -Json
+```
+
+Also confirm the render config files exist:
+
+- `Visualization/config/puppeteer-config.json`
+- `Visualization/config/render-settings.json`
+
+If Python is unavailable, use the PowerShell fallback commands below. If Python is available but a Python helper fails, treat that as a helper failure rather than silently falling back. If both helpers fail or required config is missing, report repository visualization rendering as degraded before using direct `mmdc`.
+
 ## Render Commands
 
 From the repository root, render every configured graph view and write the refresh report:
 
+Preferred Python:
+
 ```powershell
 python Visualization\visualize.py --mode Refresh
+```
+
+PowerShell fallback:
+
+```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Refresh
 ```
 
 To update only the refresh report without rerendering images:
 
+Preferred Python:
+
 ```powershell
 python Visualization\visualize.py --mode Refresh --skip-render
+```
+
+PowerShell fallback:
+
+```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Refresh -SkipRender
 ```
 
 To render a manually authored Mermaid file without regenerating repository graph views or updating the refresh tracker, use pure render mode:
 
+Preferred Python:
+
 ```powershell
 python Visualization\visualize.py --mode Render `
   --input-path Visualization\graphs\example.mmd
+```
 
+PowerShell fallback:
+
+```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Render `
   -InputPath Visualization\graphs\example.mmd
 ```
 
 By default, pure render mode writes both SVG and PNG files to `Visualization/rendered/` using the input filename. You can pass one or more explicit outputs:
 
+Preferred Python:
+
 ```powershell
 python Visualization\visualize.py --mode Render `
   --input-path Visualization\graphs\example.mmd `
   --output-path Visualization\rendered\example.svg `
   --output-path Visualization\rendered\example.png
+```
 
+PowerShell fallback:
+
+```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Render `
   -InputPath Visualization\graphs\example.mmd `
   -OutputPath Visualization\rendered\example.svg,Visualization\rendered\example.png

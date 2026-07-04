@@ -211,23 +211,7 @@ For the current repository, a normal graph refresh means updating:
 
 Fresh renders should replace the stale render files rather than accumulating duplicate dated copies unless the user asks for archived snapshots.
 
-Use this canonical refresh command from the repository root:
-
-```powershell
-python Visualization\visualize.py --mode Refresh
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Refresh
-```
-
-Use pure render mode for manually authored or temporary Mermaid files that should not trigger graph regeneration:
-
-```powershell
-python Visualization\visualize.py --mode Render --input-path Visualization\graphs\example.mmd
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Render -InputPath Visualization\graphs\example.mmd
-```
-
-Pure render mode may write rendered SVG or PNG outputs, but it must not regenerate Mermaid graph files from Relationship Seeds, update the visualization snapshot, or update the refresh tracker.
-
-Before graph rendering work, confirm that the expected visualization tooling is present: `Visualization/visualize.py`, `Visualization/visualize.ps1`, `Visualization/config/puppeteer-config.json`, and `Visualization/config/render-settings.json`. Prefer the Python helper when available and use the merged PowerShell helper as the Windows fallback. If both helpers or required config are missing, report the render path as degraded before using a fallback.
+Before graph rendering work, confirm that the expected visualization tooling is present: `Visualization/visualize.py`, `Visualization/visualize.ps1`, `Visualization/config/puppeteer-config.json`, and `Visualization/config/render-settings.json`. Prefer the Python helper when available and use the PowerShell helper as the Windows fallback. If both helpers or required config are missing, report the render path as degraded before using a fallback.
 
 On unfamiliar machines, check Python availability before choosing Python-preferred tools:
 
@@ -236,6 +220,36 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1
 ```
 
 If the probe reports Python unavailable, use documented PowerShell fallbacks. If Python is available but a Python helper fails, treat that as a helper failure rather than an automatic fallback condition.
+
+Use this canonical refresh command from the repository root:
+
+Preferred Python:
+
+```powershell
+python Visualization\visualize.py --mode Refresh
+```
+
+PowerShell fallback:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Refresh
+```
+
+Use pure render mode for manually authored or temporary Mermaid files that should not trigger graph regeneration:
+
+Preferred Python:
+
+```powershell
+python Visualization\visualize.py --mode Render --input-path Visualization\graphs\example.mmd
+```
+
+PowerShell fallback:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Render -InputPath Visualization\graphs\example.mmd
+```
+
+Pure render mode may write rendered SVG or PNG outputs, but it must not regenerate Mermaid graph files from Relationship Seeds, update the visualization snapshot, or update the refresh tracker.
 
 Visualization renderers should scale viewport dimensions for large graphs using the shared render settings. Do not assume one fixed Mermaid render size works for every graph. If a large graph renders cramped, clipped, or unreadably small, adjust render-size settings or use the shared auto-size helper rather than hand-editing graph content solely to fit the canvas.
 

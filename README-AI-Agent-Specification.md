@@ -3846,7 +3846,7 @@ python Visualization\visualize.py --mode Refresh
 
 The canonical render command regenerates generated Mermaid graph views before rendering them. The AI Agent MUST NOT use it for manually authored, temporary, or one-off Mermaid files unless the user also wants generated graph artifacts refreshed.
 
-If Python is unavailable, use the merged PowerShell fallback:
+If Python is unavailable, use the PowerShell fallback:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Refresh
@@ -3860,7 +3860,7 @@ python Visualization\visualize.py --mode Render --input-path Visualization\graph
 
 Pure render mode is the required first render path for manually authored, temporary, or agent-drafted Mermaid files whenever a repository helper is available. It uses the repository Puppeteer configuration, render-size settings, and validation assumptions without regenerating graph files from Relationship Seeds, updating the semantic graph snapshot, or updating the visualization refresh tracker.
 
-If Python is unavailable, use the merged PowerShell fallback:
+If Python is unavailable, use the PowerShell fallback:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Render -InputPath Visualization\graphs\example.mmd
