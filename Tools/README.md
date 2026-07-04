@@ -4,24 +4,24 @@ This folder contains reusable local helpers for project maintenance and source v
 
 ## Image Manipulation
 
-Use `Edit-Image.ps1` for repeatable local image operations. The tool currently supports crop operations and named crop presets.
+Use `edit_image.py` for repeatable local image operations. The tool currently supports crop operations and named crop presets. It requires Python with Pillow installed.
 
 List available presets:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -ListPresets
+python Tools\edit_image.py --list-presets
 ```
 
 Use the official pathway tarot-card crop preset:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -Preset PathwayTarotCard -SourceImage Artwork\extracted\volume-2-faceless\0023-spine-0505-pathways-pathways4.jpeg -OutputImage Artwork\tarot-cards\pathways\world-planter-pathway.png -Force
+python Tools\edit_image.py --preset PathwayTarotCard --source-image Artwork\extracted\volume-2-faceless\0023-spine-0505-pathways-pathways4.jpeg --output-image Artwork\tarot-cards\pathways\world-planter-pathway.png --force
 ```
 
 Use an explicit custom crop when a future image job needs different geometry:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -Operation Crop -SourceImage path\to\source.jpeg -OutputImage path\to\crop.png -X 24 -Y 804 -Width 660 -Height 1168
+python Tools\edit_image.py --operation crop --source-image path\to\source.jpeg --output-image path\to\crop.png --x 24 --y 804 --width 660 --height 1168
 ```
 
 ## EPUB Search
