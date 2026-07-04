@@ -27,5 +27,5 @@
 - Earth Mother Lilith is the deity-facing S0 article target.
 - Mother Goddess of Depravity is the Outer Deity / Outer God pressure tied to Planter/Earth and Moon.
 - Chapter 1271 explains the Mother Goddess of Depravity / Primordial Moon relationship.
-- Chapter 1347 gives the Goddess of Origins, Mother of All, Brood Hive of Filth title cluster for possible separate ATS handling.
-
+- Chapter 1347 gives the Goddess of Origins, Mother of All, Brood Hive of Filth title cluster for the separate planned ATS page `deity-ats-goddess-of-origins.md`.
+- `Mother Uniqueness` is currently a pathway Uniqueness / ATS formula component, not a dedicated `uniqueness-*` page target.

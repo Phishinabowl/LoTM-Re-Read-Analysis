@@ -27,5 +27,5 @@
 - Chapter 1271 ties Moon/Earth pathways to Mother Goddess of Depravity and identifies Primordial Moon as that Outer Deity manifestation.
 - Chapter 1274 says Earth Mother Lilith was once Sequence 0 of the Moon pathway.
 - Chapter 1321 gives Moon high-sequence names including Sequence 1 Beauty Goddess.
-- Chapter 1347 ties The Moon Uniqueness and Beauty Goddess characteristic into the Goddess of Origins, Mother of All, Brood Hive of Filth title cluster for possible separate ATS handling.
-
+- Chapter 1347 ties The Moon Uniqueness and Beauty Goddess characteristic into the Goddess of Origins, Mother of All, Brood Hive of Filth title cluster for the separate planned ATS page `deity-ats-goddess-of-origins.md`.
+- `The Moon Uniqueness` is currently a pathway Uniqueness / ATS formula component, not a dedicated `uniqueness-*` page target.

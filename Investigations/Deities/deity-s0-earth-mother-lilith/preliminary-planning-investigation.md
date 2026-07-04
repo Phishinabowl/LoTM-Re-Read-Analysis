@@ -40,6 +40,11 @@ Novel Chapters 468, 1271, 1274, 1321, and 1347 were key checked anchors.
 
 Create `deity-s0-earth-mother-lilith.md` as a Sequence 0 / true god page related to the Planter/Mother and Moon cluster, while keeping Mother Goddess of Depravity as a separate Outer Deity page.
 
+Related but distinct planned pages:
+
+- `deity-od-mother-goddess-of-depravity.md` for the active Outer Deity / Outer God pressure.
+- `deity-ats-goddess-of-origins.md` for the Above the Sequences / Great Old One title cluster.
+
 ## Open Questions
 
 - How should the article handle Earth Mother current-state versus Lilith historical-state display at different reader boundaries?

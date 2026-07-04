@@ -78,6 +78,13 @@ Use this section when a pathway has a confirmed or pending-review associated tar
 | --- | --- |
 | <a href="../../Artwork/tarot-cards/pathways/pathway-card.png"><img src="../../Artwork/tarot-cards/pathways/pathway-card.png" alt="Associated tarot card" width="160"></a> | <span style="font-size: 1.45em; font-weight: 700;">Card name</span><br><span style="font-size: 1.15em;">Card number</span><br><br>- Associated pathway labels:<br>- Confidence:<br>- Notes: |
 
+## Associated Higher-Order Entities
+
+Track pathway-level deity and cosmology associations here when they are reader-safe or useful as planned-page scaffolding. Keep native Sequence 0 / ATS relationships separate from Outer Deity pressure so those layers do not collapse together.
+
+| Entity | Page / target | Relationship layer | First reader-safe reveal | Status | Confidence | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+
 ## First Appearance / First Meaningful Mention
 
 Use separate medium subsections when the thread tracks more than one format.
@@ -144,9 +151,26 @@ Record only character-pathway statuses that are reader-safe at this article boun
 | Character | Status / Sequence | First reader-safe reveal | Confidence | Notes |
 | --- | --- | --- | --- | --- |
 
+## Associated Uniqueness
+
+Track the pathway's Uniqueness here even when it does not have a dedicated page. Only link to `Glossary_Threads/Uniquenesses/` when the Uniqueness is named, embodied, or tracked as a distinct item/entity, rather than only appearing as a pathway formula component.
+
+- Reader-safe name:
+- First reader-safe reveal:
+- Status: known / implied / formula-component / embodied / unknown
+- Dedicated article:
+- Known holder or accommodation state:
+- Related deity / Sequence 0 page:
+- Related ATS / Great Old One formula:
+- Notes:
+
+## Associated Mythical Creature
+
+Track the pathway's associated mythical creature form here when it becomes reader-safe. Keep this section descriptive for now until the project has a normalized mythical-creature structure.
+
 ## Pathway Data Block
 
-This block is a structured extraction aid for future graphs and dashboards. It duplicates the high-value pathway facts above in a predictable shape; the prose, relationship seeds, and reader knowledge ledger remain authoritative.
+This block is a structured extraction aid for future graphs and dashboards. It duplicates the high-value pathway facts above in a predictable shape; the prose, relationship seeds, and reader knowledge ledger remain authoritative. If `associated_tarot_card`, `associated_higher_order_entities`, `associated_uniqueness`, or `associated_mythical_creature` names a positive reader-safe target, add the corresponding graph edge in `Relationship Seeds`. Do not add relationship seeds for unknown/null placeholder state.
 
 ```yaml
 pathway_profile:
@@ -170,6 +194,17 @@ pathway_profile:
     crop_file:
     confidence:
     notes:
+  associated_higher_order_entities:
+    - display_name:
+      entity:
+      relationship_layer: sequence_0 | ats | outer_deity | sefirot | other
+      reveal:
+        medium:
+        volume:
+        chapter:
+      status:
+      confidence:
+      notes:
   name_timeline:
     - name:
       usage_type:
@@ -236,6 +271,27 @@ pathway_profile:
         chapter:
       confidence:
       notes:
+  associated_uniqueness:
+    reader_safe_name:
+    reveal:
+      medium:
+      volume:
+      chapter:
+    status:
+    dedicated_article:
+    holder_or_accommodation_state:
+    related_deity:
+    related_ats_formula:
+    notes:
+  associated_mythical_creature:
+    reader_safe_name:
+    reveal:
+      medium:
+      volume:
+      chapter:
+    status:
+    dedicated_article:
+    notes:
 ```
 
 ## Chronological Development
@@ -297,6 +353,8 @@ pathway_profile:
 -
 
 ## Relationship Seeds
+
+Use relationship seeds for graph-visible pathway edges, including `associated-tarot-card`, `associated-sequence-0`, `associated-ats`, `associated-outer-deity`, `associated-sefirot`, `associated-uniqueness`, and `associated-mythical-creature-form` when those targets are reader-safe. Keep detailed state, holders, notes, title variants, display timing, and uncertainty in the visible sections and `Pathway Data Block`.
 
 ```yaml
 relationships:

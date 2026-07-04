@@ -20,7 +20,7 @@ Reader-safe planning through the Book 1 ending and official EPUB artwork map.
 
 ### Investigation Window
 
-Novel Chapters 1271, 1274, 1321, and 1347 were key checked anchors.
+Novel Chapters 1271, 1274, 1321, 1347, and 1378 were key checked anchors.
 
 ## Evidence
 
@@ -34,12 +34,23 @@ Novel Chapters 1271, 1274, 1321, and 1347 were key checked anchors.
 #### Chapter 1347
 
 - What happened: The related ATS title cluster includes Goddess of Origins, Mother of All, and Brood Hive of Filth.
-- Why it matters: These should be preserved for possible separate ATS handling.
+- Why it matters: These should be preserved on the separate planned ATS title-cluster page `deity-ats-goddess-of-origins.md`.
+
+#### Chapter 1378
+
+- What happened: Primordial Moon is again equated with Mother Goddess of Depravity.
+- Why it matters: Primordial Moon should be preserved as an alias/manifestation/corruption-facing name for this Outer Deity page, not as a separate deity page at this stage.
 
 ## Conclusion
 
 Create `deity-od-mother-goddess-of-depravity.md` as an Outer Deity page tied to the Planter/Earth and Moon cluster, while keeping S0 and ATS layers separate.
 
-## Open Questions
+Related but distinct planned pages:
 
-- Should Goddess of Origins become `deity-ats-goddess-of-origin.md` or another title-cluster slug after deeper review?
+- `deity-s0-earth-mother-lilith.md` for the Sequence 0 / true god / holder identity layer.
+- `deity-ats-goddess-of-origins.md` for the Above the Sequences / Great Old One title cluster.
+
+## Alias And Title Notes
+
+- Preserve Primordial Moon as an alias/manifestation/corruption-facing name.
+- Preserve Goddess of Origins, Mother of All, and Brood Hive of Filth as the related ATS title cluster, not as the primary Outer Deity slug.

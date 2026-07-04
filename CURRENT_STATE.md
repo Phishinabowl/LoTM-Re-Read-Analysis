@@ -155,6 +155,7 @@ These pages are low-priority pending backlog items surfaced by official EPUB art
 - deity-ats-demon-of-knowledge.md (notes: [preliminary planning](Investigations/Deities/deity-ats-demon-of-knowledge/preliminary-planning-investigation.md))
 - deity-ats-eternal-darkness.md (ATS / Great Old One title cluster for Evernight, Death, and Twilight Giant)
 - deity-ats-father-of-devils.md (ATS / Great Old One title cluster tied to Tenebrous World, Chained, and Abyss)
+- deity-ats-goddess-of-origins.md (notes: [preliminary planning](Investigations/Deities/deity-ats-goddess-of-origins/preliminary-planning-investigation.md))
 - deity-ats-god-almighty.md (ATS / Great Old One title cluster for the omnipotent and omniscient pathway group)
 - deity-ats-key-of-light.md (notes: [preliminary planning](Investigations/Deities/deity-ats-key-of-light/preliminary-planning-investigation.md))
 - deity-ats-lord-of-the-mysteries.md (ATS / Great Old One title cluster tied to Sefirah Castle, Fool, Door, and Error)

@@ -77,6 +77,13 @@ This pathway keeps `pathway-sleepless.md` as the stable slug while allowing futu
 | --- | --- |
 | <a href="../../Artwork/tarot-cards/pathways/star-sleepless-pathway.png"><img src="../../Artwork/tarot-cards/pathways/star-sleepless-pathway.png" alt="The Star tarot card crop" width="160"></a> | <span style="font-size: 1.45em; font-weight: 700;">The Star</span><br><span style="font-size: 1.15em;">XVII (17)</span><br><br>- Associated pathway labels: Sleepless / Evernight / Darkness pathway<br>- Confidence: confirmed<br>- Notes: Derived from the official Volume 1 Darkness pathway guide image. |
 
+## Associated Higher-Order Entities
+
+| Entity | Page / target | Relationship layer | First reader-safe reveal | Status | Confidence | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| Evernight Goddess | deity-s0-evernight-goddess.md | Sequence 0 / true god endpoint | Novel Volume 1, Chapter 28; official EPUB Volume 1 Pathways Guide | planned page; reader-safe deity association and official artwork association | confirmed / confirmed artwork | Dunn says Sleepless is the first complete Sequence the Goddess bestowed on the Nighthawks. The official Darkness pathway guide maps this route to the planned Evernight Goddess page. |
+| Eternal Darkness | deity-ats-eternal-darkness.md | Above the Sequences / Great Old One title cluster | Official EPUB Volume 1 Pathways Guide | planned page; official artwork association | confirmed artwork | The artwork map links the Darkness/Sleepless/Evernight pathway group to Eternal Darkness. Preserve as later/pathway-cosmology scaffolding, not as active Chapter 47 novel knowledge. |
+
 ## First Appearance / First Meaningful Mention
 
 ### Novel
@@ -173,6 +180,14 @@ This pathway keeps `pathway-sleepless.md` as the stable slug while allowing futu
 | character-kenley-white.md | Sequence 9 Sleepless | Novel Volume 1, Chapter 42 | confirmed | Identified in the Tingen deployment snapshot. |
 | character-seeka-tron.md | Sequence 8 Midnight Poet | Novel Volume 1, Chapter 42 | confirmed | Chapter 22 places Midnight Poet inside the Sleepless ladder. |
 
+## Associated Uniqueness
+
+Track the pathway's Uniqueness here when it becomes reader-safe. No Sleepless pathway Uniqueness information is reader-safe at the current boundary.
+
+## Associated Mythical Creature
+
+Track the pathway's associated mythical creature form here when it becomes reader-safe. No Sleepless pathway mythical creature information is reader-safe at the current boundary.
+
 ## Pathway Data Block
 
 ```yaml
@@ -197,6 +212,27 @@ pathway_profile:
     crop_file: Artwork/tarot-cards/pathways/star-sleepless-pathway.png
     confidence: confirmed
     notes: Derived from the official Volume 1 Darkness pathway guide page.
+  associated_higher_order_entities:
+    - display_name: Evernight Goddess
+      entity: deity-s0-evernight-goddess
+      relationship_layer: sequence_0
+      reveal:
+        medium: novel
+        volume: 1
+        chapter: 28
+      status: planned_page_reader_safe_deity_association
+      confidence: confirmed
+      notes: Dunn says Sleepless is the first complete Sequence the Goddess bestowed on the Nighthawks; official artwork also maps the Darkness pathway guide to the Evernight Goddess page.
+    - display_name: Eternal Darkness
+      entity: deity-ats-eternal-darkness
+      relationship_layer: ats
+      reveal:
+        medium: official-epub-artwork
+        volume: 1
+        chapter: artwork-image-9
+      status: planned_page_official_artwork_association
+      confidence: confirmed_artwork
+      notes: Official pathway guide/map links the Darkness/Sleepless/Evernight pathway group to Eternal Darkness.
   name_timeline:
     - name: Sleepless Pathway
       usage_type: "reader-display; early-common-name"
@@ -410,6 +446,21 @@ pathway_profile:
         chapter: 42
       confidence: confirmed
       notes: Chapter 22 places Midnight Poet inside the Sleepless ladder.
+  associated_uniqueness:
+    reader_safe_name: null
+    reveal: null
+    status: unknown
+    dedicated_article: null
+    holder_or_accommodation_state: null
+    related_deity: null
+    related_ats_formula: null
+    notes: No Sleepless pathway Uniqueness information is reader-safe at the current boundary.
+  associated_mythical_creature:
+    reader_safe_name: null
+    reveal: null
+    status: unknown
+    dedicated_article: null
+    notes: No Sleepless pathway mythical creature information is reader-safe at the current boundary.
 ```
 
 ## Chronological Development
@@ -542,6 +593,36 @@ pathway_profile:
 
 ```yaml
 relationships:
+  - source: pathway-sleepless
+    target: tarot-card-the-star
+    relationship_type: associated-tarot-card
+    start:
+      medium: official-epub-artwork
+      volume: 1
+      chapter: artwork-image-9
+    status: active
+    confidence: confirmed
+    notes: Official Darkness pathway guide artwork associates the Sleepless/Evernight/Darkness pathway with The Star / XVII card; crop TC-003 preserves the card image.
+  - source: pathway-sleepless
+    target: deity-s0-evernight-goddess
+    relationship_type: associated-sequence-0
+    start:
+      medium: novel
+      volume: 1
+      chapter: 28
+    status: active
+    confidence: confirmed
+    notes: Dunn says Sleepless is the first complete Sequence the Goddess bestowed on the Nighthawks; official Darkness pathway guide artwork also maps this pathway to the Evernight Goddess page.
+  - source: pathway-sleepless
+    target: deity-ats-eternal-darkness
+    relationship_type: associated-ats
+    start:
+      medium: official-epub-artwork
+      volume: 1
+      chapter: artwork-image-9
+    status: active
+    confidence: confirmed-artwork
+    notes: Official Darkness pathway guide/map associates the Sleepless/Evernight/Darkness pathway group with the Eternal Darkness ATS title cluster.
   - source: faction-church-of-evernight
     target: pathway-sleepless
     relationship_type: regulates-access-to

@@ -361,6 +361,7 @@ concept-gray-fog.md
 event-great-smog.md
 deity-s0-evernight-goddess.md
 deity-ats-lord-of-the-mysteries.md
+deity-ats-goddess-of-origins.md
 deity-od-mother-goddess-of-depravity.md
 uniqueness-die-of-probability.md
 pathway-seer.md
@@ -377,9 +378,9 @@ Deity pages use a required second-level scope in the filename so true gods, Abov
 - `deity-ats-[name].md` for Above the Sequences / Great Old One title-cluster pages.
 - `deity-od-[name].md` for Outer Deity / Outer God entity pages.
 
-Keep these pages separate when the same pathway cluster exposes multiple layers. For example, `deity-s0-earth-mother-lilith.md`, `deity-od-mother-goddess-of-depravity.md`, and a future ATS title-cluster page may all be related to the Planter/Moon group without being the same article subject.
+Keep these pages separate when the same pathway cluster exposes multiple layers. For example, `deity-s0-earth-mother-lilith.md`, `deity-od-mother-goddess-of-depravity.md`, and `deity-ats-goddess-of-origins.md` are all related to the Planter/Moon group without being the same article subject. Use the exact plural `goddess-of-origins` slug for the Chapter 1347 ATS title cluster; treat singular `Goddess of Origin` as a substring or artwork-label/translation variant unless later evidence supports it separately.
 
-Known pathway Uniquenesses should receive dedicated Uniqueness pages when they are named or embodied as an item. Use `uniqueness-[name].md`, link them back to the pathway and Sequence 0/deity pages, and preserve holder/accommodation state separately from pathway identity. Example: `uniqueness-die-of-probability.md` is the Monster / Fate / Wheel of Fortune pathway Uniqueness and should cross-link `pathway-monster.md`, `deity-s0-wheel-of-fortune.md`, and relevant character-holder pages such as Will Auceptin and Ouroboros.
+Every pathway page should include an `Associated Uniqueness` section when the pathway's Uniqueness is known, implied, or relevant to an Above the Sequences formula. Do not create a dedicated `uniqueness-[name].md` page merely because a formula names a pathway's Uniqueness, such as `Mother Uniqueness` or `The Moon Uniqueness`. Create a dedicated Uniqueness page only when the Uniqueness is named, embodied, or tracked as a distinct item/entity in the story. Use `uniqueness-[name].md`, link it back to the pathway and Sequence 0/deity pages, and preserve holder/accommodation state separately from pathway identity. Example: `uniqueness-die-of-probability.md` is the Monster / Fate / Wheel of Fortune pathway Uniqueness and should cross-link `pathway-monster.md`, `deity-s0-wheel-of-fortune.md`, and relevant character-holder pages such as Will Auceptin and Ouroboros.
 
 ## Folder Organization
 
@@ -488,7 +489,7 @@ Place type-specific extraction sections near the top of the article after `Reade
 Current type-specific overlays:
 
 - `Glossary_Threads/Pathways/TEMPLATE.md`: pathway pages should expose `Pathway Snapshot`, `Pathway Names / Reader Display Timeline`, `Associated Tarot Card`, `Known Sequences`, `Institutional Access`, `Affiliated Factions`, `Known Holders`, and `Pathway Data Block` sections.
-- `Glossary_Threads/Characters/TEMPLATE.md`: character pages should expose `Character Snapshot`, `Names, Aliases & Titles`, `Physical Profile`, `Status, Origin & Location`, `Affiliations`, `Pathway & Ability State`, `Ability Index`, `Equipment & Artifacts`, `Personality`, `Relationships`, `Messenger / Servants / Companions`, `Prayers & Ritual Access`, `Major Events & Fights`, and `Character Data Block` sections.
+- `Glossary_Threads/Characters/TEMPLATE.md`: character pages should expose `Character Snapshot`, `Names, Aliases & Titles`, `Physical Profile`, `Status, Origin & Location`, `Affiliations`, `Pathway & Ability State`, `Ability Index`, `Equipment & Artifacts`, `Personality`, `Relationships`, `Messenger / Servants / Companions`, `Prayers & Ritual Access`, `Major Events & Fights`, and `Character Data Block` sections. Include `Mythical Creature Form State` and `Uniqueness State` only when the character has relevant reader-safe material for those relationships; do not add empty placeholder sections just because the template supports them.
 
 ### Character Article Overlay
 
@@ -496,7 +497,7 @@ Character pages should include the character overlay once the page has enough ve
 
 Character pages should include an `Overall Summary` section immediately before `Character Snapshot`. This section should provide a reader-safe synthesis of who the character is at the current boundary. It can be more natural and interpretive than the structured rows, and it may be one paragraph for minor characters or a few concise paragraphs for major characters with more development. It must stay inside the reader boundary and avoid later emotional or plot contamination. The snapshot bullets should summarize the latest reader-safe state without replacing chronological development. Keep state/history tables newest-to-oldest by reveal or change point so the latest visible state appears first at the current reader boundary. Keep `Major Events & Fights`, chronological development, evidence indexes, and reader knowledge ledgers oldest-to-newest because those sections preserve event or reading order.
 
-Mutable character facts should accumulate rows instead of overwriting old values. This includes aliases, titles, age, vital status, residence, affiliations, pathway status, Sequence advancement, equipment possession, relationships, companions, and ability access. Future reader-boundary tooling should hide rows after the chosen boundary and compute the current state from the remaining rows.
+Mutable character facts should accumulate rows instead of overwriting old values. This includes aliases, titles, age, vital status, residence, affiliations, pathway status, Sequence advancement, mythical creature form state, Uniqueness possession/control/accommodation state, equipment possession, relationships, companions, and ability access. Future reader-boundary tooling should hide rows after the chosen boundary and compute the current state from the remaining rows.
 
 Use `Pathway & Ability State` for broad stateful supernatural status such as pathway, Sequence, advancement, digestion, or limitations. Use `Ability Index` for individual capabilities and skills, including pathway abilities, artifact-granted effects, rituals, authority, training, knowledge, or mundane competencies.
 
@@ -794,6 +795,17 @@ causal-agent
 targets
 targets-protected-resource
 pathway-status
+associated-tarot-card
+associated-sequence-0
+associated-ats
+associated-outer-deity
+associated-sefirot
+associated-uniqueness
+associated-mythical-creature-form
+possesses-uniqueness
+controls-uniqueness
+accommodates-uniqueness
+has-mythical-creature-form
 family
 instance-of
 regulates-access-to
@@ -820,6 +832,26 @@ Use concept relationship types when a concept page is the graph center or when t
 - `mechanic-of`: A concept, rule, law, process, or substance explains how the target concept/status/system works.
 
 Prefer these over generic `connected-to` when the relationship is concept-specific and reader-safe.
+
+Use pathway metaphysics relationship types when a pathway, character, Uniqueness, deity, tarot card, sefirot, or mythical creature form relationship should be graph-visible:
+
+- `associated-tarot-card`: A pathway or Tarot Club identity is associated with a specific tarot card or planned tarot-card concept entry.
+- `associated-sequence-0`: A pathway is associated with a Sequence 0 / true-god endpoint or deity page.
+- `associated-ats`: A pathway, deity, or pathway group is associated with an Above the Sequences / Great Old One title-cluster page.
+- `associated-outer-deity`: A pathway, deity, concept, artifact, location, or event is meaningfully pressured, corrupted, claimed, or influenced by an Outer Deity / Outer God page.
+- `associated-sefirot`: A pathway, ATS title cluster, deity, artifact, or concept is associated with a sefirot page.
+- `associated-uniqueness`: A pathway is associated with a specific named or planned `uniqueness-*` page. Use only when the Uniqueness itself is reader-safe enough to name, embody, or track as a distinct subject.
+- `associated-mythical-creature-form`: A pathway is associated with a specific mythical creature form or planned mythical-creature page.
+- `possesses-uniqueness`: A character, deity, faction, artifact, or other entity possesses a Uniqueness at the reader boundary.
+- `controls-uniqueness`: A character, deity, faction, artifact, or other entity controls or can meaningfully use a Uniqueness without necessarily possessing or accommodating it.
+- `accommodates-uniqueness`: A character or deity accommodates a Uniqueness as part of advancement/state.
+- `has-mythical-creature-form`: A character or deity has, gains, reveals, loses, or is otherwise tied to a mythical creature form.
+
+Use `associated-outer-deity` for external pressure/influence, not as a synonym for Sequence 0 or ATS identity. For example, a pathway cluster can have a native ATS formula and also be pressured by a separate Outer Deity.
+
+Tarot-card relationship seed targets may use lightweight graph node slugs such as `tarot-card-the-star` before the project decides whether each card needs a dedicated glossary page. Keep the shared gallery and tarot-card explanation on `concept-tarot-cards.md` unless a specific card becomes article-worthy on its own.
+
+Use the visible section and type-specific data block for detailed state, uncertainty, reveal notes, holders, aliases, title variants, and display timing. Use Relationship Seeds only for positive graph-worthy edges. Do not seed an edge merely because a data block records `unknown`, `null`, or "no reader-safe relationship known."
 
 Use location relationship types when a location page is the graph center or when a relationship describes what a location functionally does for a faction, person, or event:
 

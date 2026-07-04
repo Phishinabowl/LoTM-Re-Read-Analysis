@@ -143,6 +143,20 @@ Use a single block only when all reveal beats happen together. If the character 
 | Ability state |  |  |  |  |  |
 | Limitation |  |  |  |  |  |
 
+## Mythical Creature Form State
+
+Include this section only when the character has a reader-safe mythical creature form state, partial transformation, form access, form advancement, loss, concealment, or uncertainty that is itself useful to track. Omit it from character pages where no mythical creature form relationship exists in the story. Rows should accumulate newest-to-oldest like other state/history tables.
+
+| Form / state | Related pathway | First reveal / change point | Status | Confidence | Notes |
+|---|---|---|---|---|---|
+
+## Uniqueness State
+
+Include this section only when the character has a reader-safe relationship to a pathway Uniqueness, including possession, control, accommodation, theft, loss, corruption, sealed access, or explicit absence that is itself important. Omit it from character pages where no Uniqueness relationship exists in the story. Link to a dedicated `uniqueness-*` page only when one exists.
+
+| Uniqueness | Relationship / state | First reveal / change point | Status | Confidence | Notes |
+|---|---|---|---|---|---|
+
 ## Ability Index
 
 | Ability / skill | Source | First reveal / change point | Status | Confidence | Notes |
@@ -199,7 +213,7 @@ Sort this table oldest-to-newest by event occurrence or first reveal.
 
 ## Character Data Block
 
-This block is a structured extraction aid, not a separate source of truth. Keep it aligned with the visible character sections, relationship seeds, and reader knowledge ledger.
+This block is a structured extraction aid, not a separate source of truth. Keep it aligned with the visible character sections, relationship seeds, and reader knowledge ledger. If `mythical_creature_form_state` or `uniqueness_state` records a positive reader-safe relationship, add the corresponding graph edge in `Relationship Seeds`. Do not add relationship seeds for omitted sections, unknown/null state, or ordinary absence.
 
 ```yaml
 character_profile:
@@ -252,6 +266,26 @@ character_profile:
   pathway_ability_state:
     - field:
       value:
+      reveal:
+        medium:
+        volume:
+        chapter:
+      status:
+      confidence:
+      notes:
+  mythical_creature_form_state:
+    - form_state:
+      related_pathway:
+      reveal:
+        medium:
+        volume:
+        chapter:
+      status:
+      confidence:
+      notes:
+  uniqueness_state:
+    - uniqueness:
+      relationship_state:
       reveal:
         medium:
         volume:
@@ -368,7 +402,7 @@ Use Markdown links when the target file exists, with the target document's human
 
 ## Relationship Seeds
 
-Use this section only for relationships important enough to support future relationship graphs. Keep entries reader-boundary aware and mark unverified start points as `TBD`.
+Use this section only for relationships important enough to support future relationship graphs. Keep entries reader-boundary aware and mark unverified start points as `TBD`. For Uniqueness and mythical creature form material, seed positive graph-worthy edges such as `possesses-uniqueness`, `controls-uniqueness`, `accommodates-uniqueness`, or `has-mythical-creature-form`; keep detailed state/history in the character sections and data block.
 
 ```yaml
 relationships:

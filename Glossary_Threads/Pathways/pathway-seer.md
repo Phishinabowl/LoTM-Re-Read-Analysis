@@ -1,5 +1,7 @@
 # Seer Pathway
 
+<img src="../../Artwork/extracted/volume-8-fool/0095-spine-1490-pathways-pathways16.jpeg" alt="Fool pathway guide page" width="360">
+
 ## Metadata
 
 Type: Pathway
@@ -18,9 +20,13 @@ Related Threads:
 - [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
 - [Beyonders](../Concepts/concept-beyonders.md)
 - [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
+- concept-tarot-cards.md
+- deity-s0-fool.md
+- deity-ats-lord-of-the-mysteries.md
 
 Related Investigations:
 - [Seer Pathway Novel Volume 1 Reveal Timeline](../../Investigations/Pathways/pathway-seer/novel-volume-1-reveal-timeline.md)
+- [Seer Pathway Preliminary Planning Investigation](../../Investigations/Pathways/pathway-seer/preliminary-planning-investigation.md)
 - [Church of Evernight Volume 1 Reveal Timeline](../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
 - [Old Neil Novel Volume 1 Reveal Timeline](../../Investigations/Characters/character-old-neil/novel-volume-1-reveal-timeline.md)
 
@@ -57,11 +63,20 @@ Later Seer pathway names, higher Sequences, future acting-method developments, a
 | Name | Usage type | First reader-safe reveal | Display active range | Confidence | Notes |
 | --- | --- | --- | --- | --- | --- |
 | Seer Pathway | reader-display; sequence-facing name | Novel Volume 1, Chapter 21; concrete pathway option in Chapter 28 | Novel Volume 1, Chapter 21 onward at the current boundary | confirmed | Chapter 21 names Seer through Roselle's diary; Chapter 28 makes it a concrete Church-held Sequence 9 option Klein can choose. |
+| Fool Pathway | artwork-label; formal / Sequence 0 endpoint label | Official EPUB Volume 8 Pathways Guide | Not active reader-display at the Chapter 34 boundary; artwork/search alias and later-display candidate | confirmed artwork label | Official pathway-guide artwork label. Preserve as later/pathway-cosmology scaffolding without importing later novel structure into the active Chapter 34 reader boundary. |
 
 ## Associated Tarot Card
 
-- Current status: No official pathway tarot-card crop is mapped to this page at the current Chapter 34 boundary.
-- Notes: Add this section's card image and details once the corresponding official pathway artwork/crop is classified and reader-safe for this page.
+| Card image | Details |
+| --- | --- |
+| <a href="../../Artwork/tarot-cards/pathways/fool-seer-pathway.png"><img src="../../Artwork/tarot-cards/pathways/fool-seer-pathway.png" alt="The Fool tarot card crop" width="160"></a> | <span style="font-size: 1.45em; font-weight: 700;">The Fool</span><br><span style="font-size: 1.15em;">0 (0)</span><br><br>- Associated pathway labels: Seer / Fool pathway<br>- Confidence: confirmed<br>- Notes: Derived from the official Volume 8 Fool pathway guide image. This is official artwork metadata, not active Chapter 34 novel knowledge. |
+
+## Associated Higher-Order Entities
+
+| Entity | Page / target | Relationship layer | First reader-safe reveal | Status | Confidence | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| The Fool | deity-s0-fool.md | Sequence 0 / true god endpoint | Official EPUB Volume 8 Pathways Guide | planned page; official artwork association | confirmed artwork | The official Seer pathway guide is labeled `Fool`. Preserve as later/pathway-cosmology scaffolding, not as active Chapter 34 novel knowledge. |
+| Lord of the Mysteries | deity-ats-lord-of-the-mysteries.md | Above the Sequences / Great Old One title cluster | Official EPUB Volume 8 Pathways Guide | planned page; official artwork association | confirmed artwork | The official guide places the Seer/Fool pathway under Lord of the Mysteries. Details belong in the planned ATS page and preliminary investigation. |
 
 ## First Appearance / First Meaningful Mention
 
@@ -124,6 +139,14 @@ Later Seer pathway names, higher Sequences, future acting-method developments, a
 | --- | --- | --- | --- | --- |
 | character-klein-moretti.md | Sequence 9 Seer | Novel Volume 1, Chapter 31 | confirmed | Klein chooses Seer in Chapter 30 and consumes the potion in Chapter 31. |
 
+## Associated Uniqueness
+
+Track the pathway's Uniqueness here when it becomes reader-safe. No Seer pathway Uniqueness information is reader-safe at the current boundary.
+
+## Associated Mythical Creature
+
+Track the pathway's associated mythical creature form here when it becomes reader-safe. No Seer pathway mythical creature information is reader-safe at the current boundary.
+
 ## Pathway Data Block
 
 ```yaml
@@ -134,8 +157,41 @@ pathway_profile:
     volume: 1
     chapter: 34
   stable_slug: pathway-seer
-  official_artwork: []
-  associated_tarot_card: null
+  official_artwork:
+    - image_number: 95
+      label: Seer pathway guide page
+      type: pathway_guide
+      file: Artwork/extracted/volume-8-fool/0095-spine-1490-pathways-pathways16.jpeg
+      usage: primary_pathway_image
+  associated_tarot_card:
+    card_name: The Fool
+    card_number: 0 (0)
+    source_image_number: 95
+    crop_number: TC-015
+    crop_file: Artwork/tarot-cards/pathways/fool-seer-pathway.png
+    confidence: confirmed
+    notes: Derived from the official Volume 8 Fool pathway guide page; official artwork metadata rather than active Chapter 34 novel knowledge.
+  associated_higher_order_entities:
+    - display_name: The Fool
+      entity: deity-s0-fool
+      relationship_layer: sequence_0
+      reveal:
+        medium: official-epub-artwork
+        volume: 8
+        chapter: artwork-image-95
+      status: planned_page_official_artwork_association
+      confidence: confirmed_artwork
+      notes: Official pathway guide labels the Seer pathway with the Fool endpoint.
+    - display_name: Lord of the Mysteries
+      entity: deity-ats-lord-of-the-mysteries
+      relationship_layer: ats
+      reveal:
+        medium: official-epub-artwork
+        volume: 8
+        chapter: artwork-image-95
+      status: planned_page_official_artwork_association
+      confidence: confirmed_artwork
+      notes: Official pathway guide places the Seer/Fool pathway under Lord of the Mysteries.
   name_timeline:
     - name: Seer Pathway
       usage_type: "reader-display; sequence-facing-name"
@@ -151,6 +207,20 @@ pathway_profile:
         primary_title: true
         hint_label: null
       notes: Chapter 21 names Seer through Roselle's diary; Chapter 28 makes it a concrete Church-held Sequence 9 option Klein can choose.
+    - name: Fool Pathway
+      usage_type: "artwork-label; formal-sequence-0-endpoint-label"
+      reveal:
+        medium: official-epub-artwork
+        volume: 8
+        chapter: artwork-image-95
+      display_active:
+        from: null
+        until: null
+      confidence: confirmed-artwork
+      display_behavior:
+        primary_title: false
+        hint_label: artwork/formal label
+      notes: Official Volume 8 pathway-guide artwork label; preserve as later/pathway-cosmology scaffolding, not active Chapter 34 novel knowledge.
   sequences:
     - sequence: 9
       name: Seer
@@ -228,6 +298,21 @@ pathway_profile:
         chapter: 31
       confidence: confirmed
       notes: Klein chooses Seer in Chapter 30 and consumes the potion in Chapter 31.
+  associated_uniqueness:
+    reader_safe_name: null
+    reveal: null
+    status: unknown
+    dedicated_article: null
+    holder_or_accommodation_state: null
+    related_deity: null
+    related_ats_formula: null
+    notes: No Seer pathway Uniqueness information is reader-safe at the current boundary.
+  associated_mythical_creature:
+    reader_safe_name: null
+    reveal: null
+    status: unknown
+    dedicated_article: null
+    notes: No Seer pathway mythical creature information is reader-safe at the current boundary.
 ```
 
 ## Chronological Development
@@ -342,6 +427,36 @@ pathway_profile:
 
 ```yaml
 relationships:
+  - source: pathway-seer
+    target: tarot-card-the-fool
+    relationship_type: associated-tarot-card
+    start:
+      medium: official-epub-artwork
+      volume: 8
+      chapter: artwork-image-95
+    status: active
+    confidence: confirmed
+    notes: Official Fool pathway guide artwork associates the Seer/Fool pathway with The Fool / 0 card; crop TC-015 preserves the card image.
+  - source: pathway-seer
+    target: deity-s0-fool
+    relationship_type: associated-sequence-0
+    start:
+      medium: official-epub-artwork
+      volume: 8
+      chapter: artwork-image-95
+    status: active
+    confidence: confirmed-artwork
+    notes: Official pathway guide labels the Seer pathway with the Fool endpoint; this is artwork/taxonomy context, not active Chapter 34 novel knowledge.
+  - source: pathway-seer
+    target: deity-ats-lord-of-the-mysteries
+    relationship_type: associated-ats
+    start:
+      medium: official-epub-artwork
+      volume: 8
+      chapter: artwork-image-95
+    status: active
+    confidence: confirmed-artwork
+    notes: Official pathway guide places the Seer/Fool pathway under Lord of the Mysteries; details belong in the planned ATS page and preliminary investigation.
   - source: character-klein-moretti
     target: pathway-seer
     relationship_type: pathway-status
