@@ -20,7 +20,9 @@ No source text is included.
 
 The repository contains notes, chronology analysis, investigations, adaptation comparisons, and research artifacts derived from a personal reread and Donghua analysis of **Lord of the Mysteries**.
 
-The novel EPUB, Donghua subtitle files, and any future local source materials are intentionally excluded from version control.
+The novel EPUB, Donghua subtitle files, bulk extracted artwork, working artwork crops, and any future local source materials are intentionally excluded from version control.
+
+Original repository materials are covered by [LICENSE](LICENSE). Third-party names, artwork, terminology, and related fan-reference materials are covered by the repository [NOTICE](NOTICE.md).
 
 ---
 
@@ -125,3 +127,5 @@ Embedded Reader Knowledge Ledger entries give every glossary subject a complete 
 Git commits should mark durable project knowledge changes, not ordinary discussion.
 
 The entire `Source/` directory is ignored by Git so copyrighted source materials cannot be committed accidentally. The already tracked `Source/README.md` remains as public documentation; the EPUB, Donghua subtitles, and future local source files remain local-only.
+
+Bulk official artwork staging is also ignored by Git. `Artwork/extracted/` and `Artwork/tarot-cards/` remain local-only working folders; only deliberately selected page-ready assets under `Artwork/page-assets/` should be tracked.

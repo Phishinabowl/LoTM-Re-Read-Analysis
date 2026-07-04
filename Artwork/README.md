@@ -2,6 +2,8 @@
 
 This folder tracks official EPUB artwork metadata and any narrowly selected page-ready assets.
 
+See the root [LICENSE](../LICENSE) and [NOTICE](../NOTICE.md) for repository licensing and third-party material notices. Official artwork and related third-party materials remain the property of their respective rights holders.
+
 Bulk extracted artwork and derivative working crops are local staging assets, like the source EPUB and subtitles. Keep them out of Git:
 
 - `Artwork/extracted/`

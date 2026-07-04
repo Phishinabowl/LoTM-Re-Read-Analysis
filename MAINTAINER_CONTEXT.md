@@ -22,6 +22,7 @@ For repository-answering behavior, read [README-AI-Agent-Specification.md](READM
 - Treat structured YAML knowledge-unit blocks as canonical; do not maintain separate claim files or duplicate JSON manually.
 - Use local Donghua `.ass` files as canonical evidence for their subtitle dialogue and timestamps, while treating silent visual details as separate visual evidence.
 - Keep all local source media under `Source/`, which is ignored by Git; preserve only paraphrased evidence and references in tracked records.
+- Keep bulk official artwork staging local-only under ignored `Artwork/extracted/` and `Artwork/tarot-cards/`; track only deliberately selected page-ready assets under `Artwork/page-assets/`.
 - After completing a commit and push, continue directly into the next discussion or investigation question unless the user pauses or changes direction.
 
 The user is strongest at:
@@ -40,4 +41,3 @@ The user is weaker at:
 - Historical sequencing
 
 Assist accordingly.
-

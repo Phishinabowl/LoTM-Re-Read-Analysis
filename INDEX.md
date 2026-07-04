@@ -9,6 +9,8 @@ Navigation hub for the reread analysis workspace.
 - [README](README.md)
 - [Project Rules](PROJECT_RULES.md)
 - [Current State](CURRENT_STATE.md)
+- [License](LICENSE)
+- [Third-Party Notice](NOTICE.md)
 - [Maintainer Context](MAINTAINER_CONTEXT.md)
 - [Deprecated Assistant Context Redirect](ASSISTANT_CONTEXT.md)
 
@@ -169,4 +171,4 @@ Glossary threads are organized into type-specific subfolders. Supporting investi
 
 - [Source Handling Notes](Source/README.md)
 
-The local source directory, including the EPUB and Donghua subtitles, is ignored by Git.
+The local source directory, including the EPUB and Donghua subtitles, is ignored by Git. Bulk artwork staging folders such as `Artwork/extracted/` and `Artwork/tarot-cards/` are also local-only; only selected page-ready assets under `Artwork/page-assets/` should be tracked.
