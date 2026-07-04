@@ -25,6 +25,7 @@ Related Threads:
 
 Related Investigations:
 - [Sleepless Pathway Novel Volume 1 Reveal Timeline](../../Investigations/Pathways/pathway-sleepless/novel-volume-1-reveal-timeline.md)
+- [Sleepless / Evernight Pathway Name Arbitration](../../Investigations/Pathways/pathway-sleepless/name-arbitration-sleepless-evernight.md)
 - [Church of Evernight Volume 1 Reveal Timeline](../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
 - [Dunn Smith Novel Volume 1 Reveal Timeline](../../Investigations/Characters/character-dunn-smith/novel-volume-1-reveal-timeline.md)
 - [Blackthorn Security Company Novel Volume 1 Reveal Timeline](../../Investigations/Locations/location-blackthorn-security-company/novel-volume-1-reveal-timeline.md)
@@ -33,7 +34,7 @@ Related Investigations:
 
 Track the Sleepless pathway as it is revealed to the reader through the Church of Evernight, including early term usage, known Sequence ladder, basic abilities, institutional access, and named Tingen team examples.
 
-This page should preserve the pathway's reveal order without importing later pathway names, higher Sequence structure, or future reinterpretations before the reader boundary reaches them.
+This page should preserve the pathway's reveal order. Later pathway names may appear only in the `Pathway Names / Reader Display Timeline` as inactive future-display rows until the reader boundary reaches them; higher Sequence structure and future reinterpretations should not be imported into the active Chapter 47 pathway content.
 
 ## Spoiler Boundary
 
@@ -56,6 +57,17 @@ Later Sleepless pathway names, higher Sequences, deeper Church pathway lore, and
 - Known continuation status: The reader knows Sequence 9 through Sequence 7. Higher Sequences remain unknown at this boundary.
 - Primary reader-facing function: Night, darkness, reduced sleep, physical endurance, intuition, mental capability, and sleep/dream-related operational effects.
 - Main uncertainty: Dunn's exact `Nightmare` Sequence is strongly supported but not directly profile-confirmed through Chapter 47.
+
+## Pathway Names / Reader Display Timeline
+
+This pathway keeps `pathway-sleepless.md` as the stable slug while allowing future reader-boundary tooling to change the displayed title once later names become reader-safe.
+
+| Name | Usage type | First reader-safe reveal | Display active range | Confidence | Notes |
+| --- | --- | --- | --- | --- | --- |
+| Sleepless Pathway | reader-display; early/common name | Novel Volume 1, Chapter 22; term appears earlier in Chapters 15 and 17 | Novel Volume 1, Chapter 22 through Novel Volume 2, Chapter 216 | confirmed | Current reader-safe title at Chapter 47; Church/Nighthawks-facing name for the known ladder before the exact `Evernight pathway` phrase becomes reader-safe. |
+| Evernight association | implied reader-display / association | Novel Volume 1, Chapter 203 | Novel Volume 1, Chapter 203 through Novel Volume 2, Chapter 216 | strong evidence | Azik's letter uses Evernight-pathway wording and Klein ties Death/Corpse Collector interchangeability to the Sleepless pathway. A frontend may show this as an implied/associated name before switching the title fully. |
+| Evernight Pathway | later reader-display; global/high-sequence name | Novel Volume 2, Chapter 217; Chapter 203 already links the pathway to Evernight wording | Novel Volume 2, Chapter 217 onward | confirmed | Exact phrase first appears in Chapter 217. Chapter 526 ties Nightmare effects to the Evernight pathway, and Chapter 530 explicitly pairs the Death and Evernight pathways as high-Sequence switch options. |
+| Darkness Pathway | artwork-label; formal label | Official EPUB Volume 1 Pathways Guide | Not reader-display from main text; artwork/search alias | confirmed artwork label | Official pathway-guide artwork label; `darkness pathway` had zero main-text phrase hits in the arbitration check. |
 
 ## First Appearance / First Meaningful Mention
 
@@ -162,6 +174,64 @@ pathway_profile:
     book: lotm-1
     volume: 1
     chapter: 47
+  stable_slug: pathway-sleepless
+  name_timeline:
+    - name: Sleepless Pathway
+      usage_type: "reader-display; early-common-name"
+      reveal:
+        medium: novel
+        volume: 1
+        chapter: 22
+      display_active:
+        from: novel-volume-1-chapter-22
+        until: novel-volume-2-chapter-216
+      confidence: confirmed
+      display_behavior:
+        primary_title: true
+        hint_label: null
+      notes: Term appears earlier in Chapters 15 and 17, but Chapter 22 formally explains it as the Church's complete starting Sequence. Use as the reader-facing display name until the exact Evernight pathway phrase becomes reader-safe in Chapter 217.
+    - name: Evernight association
+      usage_type: "implied-reader-display; association"
+      reveal:
+        medium: novel
+        volume: 1
+        chapter: 203
+      display_active:
+        from: novel-volume-1-chapter-203
+        until: novel-volume-2-chapter-216
+      confidence: strong-evidence
+      display_behavior:
+        primary_title: false
+        hint_label: implied Evernight association
+      notes: Azik's letter uses Evernight-pathway wording and Klein ties Death/Corpse Collector interchangeability to the Sleepless pathway. Future UI can show this as an implied or associated name while keeping Sleepless as the main title until Chapter 217.
+    - name: Evernight Pathway
+      usage_type: "later-reader-display; global-pathway-name"
+      reveal:
+        medium: novel
+        volume: 2
+        chapter: 217
+      display_active:
+        from: novel-volume-2-chapter-217
+        until: null
+      confidence: confirmed-full-book-term
+      display_behavior:
+        primary_title: true
+        hint_label: null
+      notes: Chapter 203 first makes Evernight wording reader-safe for this route, but Chapter 217 is the first exact Evernight pathway phrase. Later Chapters 526 and 530 confirm the term as the umbrella label for Nightmare/Sleepless-related effects and high-Sequence switching.
+    - name: Darkness Pathway
+      usage_type: "artwork-label; formal-label"
+      reveal:
+        medium: official-epub-artwork
+        volume: 1
+        chapter: null
+      display_active:
+        from: null
+        until: null
+      confidence: confirmed-artwork-label
+      display_behavior:
+        primary_title: false
+        hint_label: official artwork label
+      notes: Official pathway-guide artwork label; the exact phrase darkness pathway had zero main-text hits in the arbitration check.
   sequences:
     - sequence: 9
       name: Sleepless

@@ -58,6 +58,16 @@ Record only what is allowed by the broader spoiler boundary and exact reader kno
 - Primary reader-facing function:
 - Main uncertainty:
 
+## Pathway Names / Reader Display Timeline
+
+Track all pathway names, implied associations, aliases, artwork labels, formal names, sequence-facing names, and reader-display names that matter for spoiler-safe presentation. Use this table to support future frontends that change page titles based on reader boundary while keeping the filename/slug stable.
+
+Use `implied-reader-display` / `association` rows when the text makes a future or alternate pathway name strongly inferable before the exact display title is reader-safe. These rows can power reader-facing hints such as "implied" or "associated," but should not replace the main page title until a confirmed reader-display row becomes active.
+
+| Name | Usage type | First reader-safe reveal | Display active range | Confidence | Notes |
+| --- | --- | --- | --- | --- | --- |
+|  | reader-display / implied-reader-display / association / alias / artwork-label / formal-name / sequence-facing-name |  |  |  |  |
+
 ## First Appearance / First Meaningful Mention
 
 Use separate medium subsections when the thread tracks more than one format.
@@ -135,6 +145,22 @@ pathway_profile:
     book: lotm-1
     volume:
     chapter:
+  stable_slug: pathway-[name]
+  name_timeline:
+    - name:
+      usage_type:
+      reveal:
+        medium:
+        volume:
+        chapter:
+      display_active:
+        from:
+        until:
+      confidence:
+      display_behavior:
+        primary_title: true/false
+        hint_label:
+      notes:
   sequences:
     - sequence:
       name:
