@@ -2,6 +2,17 @@
 
 This folder contains reusable local helpers for project maintenance and source verification.
 
+## Environment Checks
+
+Use `Test-Python.ps1` to check whether Python is present and actually usable before selecting Python-preferred tools. It tests `python`, `python3`, and `py` in order, verifies that `--version` works, and confirms that Python can report `sys.executable`.
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1 -Json
+```
+
+If the probe reports Python unavailable, use the documented PowerShell fallback scripts. If Python is available but a Python tool fails, treat that as a tool/script failure rather than silently falling back.
+
 ## Image Manipulation
 
 Use `edit_image.py` for repeatable local image operations when Python with Pillow is available. It is the preferred implementation because it is faster and shares one CLI for crop operations, named crop presets, and EPUB image listing/extraction.

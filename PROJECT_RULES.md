@@ -229,6 +229,14 @@ Pure render mode may write rendered SVG or PNG outputs, but it must not regenera
 
 Before graph rendering work, confirm that the expected visualization tooling is present: `Visualization/visualize.py`, `Visualization/visualize.ps1`, `Visualization/config/puppeteer-config.json`, and `Visualization/config/render-settings.json`. Prefer the Python helper when available and use the merged PowerShell helper as the Windows fallback. If both helpers or required config are missing, report the render path as degraded before using a fallback.
 
+On unfamiliar machines, check Python availability before choosing Python-preferred tools:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1
+```
+
+If the probe reports Python unavailable, use documented PowerShell fallbacks. If Python is available but a Python helper fails, treat that as a helper failure rather than an automatic fallback condition.
+
 Visualization renderers should scale viewport dimensions for large graphs using the shared render settings. Do not assume one fixed Mermaid render size works for every graph. If a large graph renders cramped, clipped, or unreadably small, adjust render-size settings or use the shared auto-size helper rather than hand-editing graph content solely to fit the canvas.
 
 Wide fan-out is a known Mermaid layout pattern. When one hub node connects to many targets or many sources converge on one target, renderers should use fan-out-aware sizing and graph authors should expect the graph to need more horizontal room. If auto-sizing alone does not make the graph readable, improve the graph projection by adding meaningful intermediate grouping nodes, relationship nodes, local reference/proxy nodes, or split views. Do not treat wide fan-out as a data error by itself.
@@ -1179,7 +1187,7 @@ Use the EPUB.
 
 ### EPUB Sweep Tool
 
-Use `Tools/search_epub.py` for repeatable novel EPUB checks when Python is available. `Tools/Search-Epub.ps1` is the Windows PowerShell fallback and should remain behaviorally compatible.
+Use `Tools/search_epub.py` for repeatable novel EPUB checks when Python is available. `Tools/Search-Epub.ps1` is the Windows PowerShell fallback and should remain behaviorally compatible. Use `Tools/Test-Python.ps1` as the canonical local Python availability probe when the environment is unknown.
 
 When a task requires novel EPUB source expansion and this helper is available, use the Python helper as the preferred first EPUB search path because it is faster and can grow into reusable search/index functionality. Use the PowerShell helper when Python is unavailable. This applies to graph-building coverage sweeps as well as article and investigation verification. If both helpers are missing or unusable, use another structured EPUB search method and report the degraded path.
 
