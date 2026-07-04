@@ -148,7 +148,9 @@ These pages are low-priority pending backlog items surfaced by official EPUB art
 - character-will-auceptin.md
 - character-xio-derecha.md
 - artifact-groselles-travels.md
+- concept-city-of-calamity.md (sefirah page tied to Hunter/Red Priest and Demoness; preserve Chapter 1203 first sefirah-list reveal, Chapter 1347 ATS/fourth-pillar nuance, and Chapter 1369 Western Continent/Bansy seal connection)
 - deity-ats-the-anarchy.md (ATS / Great Old One title cluster tied to Nation of Disorder, Black Emperor, and Justiciar; preserve Shadow of Order as title alias and Chapter 1347 as first direct title-cluster reveal)
+- deity-ats-calamity-of-destruction.md (ATS / Great Old One title cluster tied to City of Calamity, Demoness, and Red Priest; preserve Origins of Disaster as title alias and Chapter 1347 as first direct title-cluster reveal)
 - deity-ats-demon-of-knowledge.md (ATS / Great Old One title cluster tied to Knowledge Moor, Hermit, and Paragon; preserve Arcana of Madness as title alias and Chapter 1347 as first direct title-cluster reveal)
 - deity-ats-eternal-darkness.md (ATS / Great Old One title cluster for Evernight, Death, and Twilight Giant)
 - deity-ats-father-of-devils.md (ATS / Great Old One title cluster tied to Tenebrous World, Chained, and Abyss)
