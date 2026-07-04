@@ -54,7 +54,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--volume", type=int, action="append")
     parser.add_argument("--entry-type", choices=ENTRY_TYPES, action="append", default=None)
     parser.add_argument("--entry-name-pattern")
-    parser.add_argument("--pattern")
+    parser.add_argument("--pattern", "--query", "--text", "--search")
     parser.add_argument("--context-lines", type=non_negative_int, default=0)
     parser.add_argument("--max-hits-per-chapter", type=non_negative_int, default=50)
     parser.add_argument("--counts-only", "--counts", action="store_true")

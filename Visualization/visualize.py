@@ -808,7 +808,7 @@ def invoke_refresh_mode(settings: dict[str, Any], puppeteer_config: Path, skip_r
 
 def invoke_render_mode(settings: dict[str, Any], puppeteer_config: Path, input_path: str | None, output_paths: list[str] | None) -> None:
     if not input_path:
-        raise RuntimeError("Render mode requires --input-path.")
+        raise RuntimeError("Render mode requires --input-path. Aliases: --input, --graph.")
 
     input_full_path = resolve_repo_path(input_path)
     if not input_full_path.exists():
@@ -824,12 +824,18 @@ def invoke_render_mode(settings: dict[str, Any], puppeteer_config: Path, input_p
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate and render repository Mermaid visualizations.")
-    parser.add_argument("--mode", choices=["Refresh", "Render"], default="Refresh")
-    parser.add_argument("--input-path")
-    parser.add_argument("--output-path", action="append", dest="output_paths")
-    parser.add_argument("--settings-path", default="Visualization/config/render-settings.json")
-    parser.add_argument("--skip-render", action="store_true")
-    return parser.parse_args()
+    parser.add_argument("--mode", choices=["refresh", "render", "update", "generate", "manual-render", "pure-render", "Refresh", "Render", "Update", "Generate", "Manual-Render", "Pure-Render"], default="Refresh")
+    parser.add_argument("--input-path", "--input", "--graph", dest="input_path")
+    parser.add_argument("--output-path", "--output", "--out", action="append", dest="output_paths")
+    parser.add_argument("--settings-path", "--settings", default="Visualization/config/render-settings.json")
+    parser.add_argument("--skip-render", "--no-render", action="store_true")
+    args = parser.parse_args()
+    args.mode = args.mode.lower()
+    if args.mode in {"update", "generate"}:
+        args.mode = "refresh"
+    elif args.mode in {"manual-render", "pure-render"}:
+        args.mode = "render"
+    return args
 
 
 def main() -> None:
@@ -839,7 +845,7 @@ def main() -> None:
     settings = json.loads(read_text(settings_path))
     puppeteer_config = resolve_repo_path(settings["puppeteerConfig"])
 
-    if args.mode == "Render":
+    if args.mode == "render":
         invoke_render_mode(settings, puppeteer_config, args.input_path, args.output_paths)
     else:
         invoke_refresh_mode(settings, puppeteer_config, args.skip_render)

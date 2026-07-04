@@ -237,6 +237,8 @@ PowerShell fallback:
 powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Refresh
 ```
 
+The canonical examples above should remain the preferred documented form, but the helpers intentionally accept ergonomic aliases for common operator slips. Python mode values are case-insensitive and also accept `update`/`generate` for refresh and `manual-render`/`pure-render` for render. Python accepts `--input`, `--graph`, `--output`, `--out`, `--settings`, and `--no-render` as aliases for the longer option names. PowerShell accepts matching aliases: `-Action`, `-Input`, `-Graph`, `-Output`, `-Out`, `-Settings`, and `-NoRender`.
+
 Use pure render mode for manually authored or temporary Mermaid files that should not trigger graph regeneration:
 
 Preferred Python:
@@ -1219,7 +1221,7 @@ The standard EPUB evidence workflow is:
 6. Record chapter references and paraphrased evidence in the investigation file.
 7. Do not paste long EPUB passages into tracked records.
 
-When choosing a canonical page slug or primary article name from competing names, run a term-arbitration sweep rather than relying on memory or raw search totals. Use `--term-summary` / `-TermSummary` to count all candidate terms across the full relevant range and split them by term and volume, then inspect context around hits in chapter order. The aliases `--summary-only`, `--summary`, `-SummaryOnly`, and `-Summary` are accepted for the same mode. For survey counts, prefer `--counts-only` / `-CountsOnly`; `--counts` / `-Counts` are accepted aliases. For context JSON where repeated terms on the same line matter, use `--include-line-match-counts` / `-IncludeLineMatchCounts`. Classify each usage by function: primary subject name, alias/title, sequence name, ordinary-language usage, person/role label, or artwork/formal label. Prefer the slug that best matches repeated in-text subject usage, and preserve alternate names in the article alias table and artwork-map notes. Raw counts can mislead when one term is also an occupation, epithet, or individual label.
+When choosing a canonical page slug or primary article name from competing names, run a term-arbitration sweep rather than relying on memory or raw search totals. Use `--term-summary` / `-TermSummary` to count all candidate terms across the full relevant range and split them by term and volume, then inspect context around hits in chapter order. The aliases `--summary-only`, `--summary`, `-SummaryOnly`, and `-Summary` are accepted for the same mode. For survey counts, prefer `--counts-only` / `-CountsOnly`; `--counts` / `-Counts` are accepted aliases. For search text, prefer `--pattern` / `-Pattern`, but `--query`, `--text`, `--search`, `-Query`, `-Text`, and `-Search` are accepted aliases. For context JSON where repeated terms on the same line matter, use `--include-line-match-counts` / `-IncludeLineMatchCounts`. Classify each usage by function: primary subject name, alias/title, sequence name, ordinary-language usage, person/role label, or artwork/formal label. Prefer the slug that best matches repeated in-text subject usage, and preserve alternate names in the article alias table and artwork-map notes. Raw counts can mislead when one term is also an occupation, epithet, or individual label.
 
 Example survey count:
 

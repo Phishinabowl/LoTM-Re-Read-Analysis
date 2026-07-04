@@ -145,8 +145,22 @@ These pages are low-priority pending backlog items surfaced by official EPUB art
 - character-will-auceptin.md
 - character-xio-derecha.md
 - artifact-groselles-travels.md
-- deity-evernight-goddess.md
-- deity-true-creator.md
+- deity-ats-eternal-darkness.md (ATS / Great Old One title cluster for Evernight, Death, and Twilight Giant)
+- deity-ats-father-of-devils.md (ATS / Great Old One title cluster tied to Tenebrous World, Chained, and Abyss)
+- deity-ats-god-almighty.md (ATS / Great Old One title cluster for the omnipotent and omniscient pathway group)
+- deity-ats-lord-of-the-mysteries.md (ATS / Great Old One title cluster tied to Sefirah Castle, Fool, Door, and Error)
+- deity-ats-mother-tree-of-desire.md (Outer Deity / ATS-level page tied to the Prisoner, Criminal, and desire-corruption threads)
+- deity-s0-black-emperor.md (Sequence 0 / true god page for the Black Emperor pathway; preserve historical holders separately)
+- deity-s0-door.md (Sequence 0 / true god page for the Apprentice pathway; heavily tied to Mr. Door / Bethel Abraham)
+- deity-s0-error.md (Sequence 0 / true god page for the Marauder pathway; heavily tied to Amon)
+- deity-s0-evernight-goddess.md
+- deity-s0-fool.md (Sequence 0 / true god page for the Seer pathway; heavily tied to Klein and the prior Celestial Worthy / Lord of the Mysteries)
+- deity-s0-god-of-combat.md
+- deity-s0-primordial-demoness.md
+- deity-s0-red-priest.md (Sequence 0 / true god page for the Hunter pathway)
+- deity-s0-salinger.md
+- deity-s0-the-chained-god.md
+- deity-s0-true-creator.md
 - location-backlund.md
 - location-city-of-silver.md
 - location-deaths-mausoleum.md

@@ -1,9 +1,13 @@
 param(
-  [ValidateSet("Refresh", "Render")]
+  [Alias("Action")]
   [string]$Mode = "Refresh",
+  [Alias("Input", "Graph")]
   [string]$InputPath,
+  [Alias("Output", "Out")]
   [string[]]$OutputPath,
+  [Alias("Settings")]
   [string]$SettingsPath = "Visualization/config/render-settings.json",
+  [Alias("NoRender")]
   [switch]$SkipRender
 )
 
@@ -20,6 +24,18 @@ function Resolve-RepoPath {
   }
 
   return (Join-Path $repoRoot $Path)
+}
+
+function Resolve-VisualizationMode {
+  param([string]$Name)
+
+  switch -Regex ($Name) {
+    '^(?i:refresh|update|generate)$' { return "Refresh" }
+    '^(?i:render|manual-render|pure-render)$' { return "Render" }
+    default {
+      throw "Unsupported visualization mode: $Name. Use Refresh or Render. Aliases include Update, Generate, Manual-Render, and Pure-Render."
+    }
+  }
 }
 
 function Get-MermaidRenderSize {
@@ -1238,7 +1254,7 @@ function Invoke-ManualRenderMode {
   )
 
   if ([string]::IsNullOrWhiteSpace($InputPath)) {
-    throw "Render mode requires -InputPath."
+    throw "Render mode requires -InputPath. Aliases: -Input, -Graph."
   }
 
   $inputFullPath = Resolve-RepoPath $InputPath
@@ -1451,6 +1467,7 @@ function Invoke-RefreshMode {
   Write-Output "Visualization refresh tracker updated in $($Settings.reportPath)"
 }
 
+$Mode = Resolve-VisualizationMode $Mode
 $settingsFullPath = Resolve-RepoPath $SettingsPath
 $settings = Get-Content $settingsFullPath -Raw | ConvertFrom-Json
 $puppeteerConfig = Resolve-RepoPath $settings.puppeteerConfig

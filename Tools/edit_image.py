@@ -25,6 +25,22 @@ PRESETS = {
     }
 }
 
+PRESET_ALIASES = {
+    "PathwayTarotCard": "PathwayTarotCard",
+    "pathway-tarot-card": "PathwayTarotCard",
+    "pathway-tarot": "PathwayTarotCard",
+    "tarot-card": "PathwayTarotCard",
+}
+
+OPERATION_ALIASES = {
+    "crop": "crop",
+    "extract": "extract-epub-images",
+    "extract-epub-images": "extract-epub-images",
+    "extract-images": "extract-epub-images",
+    "list-epub-images": "extract-epub-images",
+    "list-images": "extract-epub-images",
+}
+
 IMAGE_TYPES = [
     "Cover",
     "FrontMatter",
@@ -64,8 +80,8 @@ def positive_int(value: str) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Repeatable local image operations.")
-    parser.add_argument("--operation", choices=["crop", "extract-epub-images"], default="crop")
-    parser.add_argument("--preset", choices=sorted(PRESETS))
+    parser.add_argument("--operation", choices=sorted(OPERATION_ALIASES), default="crop")
+    parser.add_argument("--preset", choices=sorted(PRESET_ALIASES))
     parser.add_argument("--list-presets", action="store_true")
     parser.add_argument("--source-image")
     parser.add_argument("--output-image")
@@ -85,6 +101,16 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--extract", action="store_true")
     parser.add_argument("--json", action="store_true")
     return parser
+
+
+def normalize_operation(operation: str) -> str:
+    return OPERATION_ALIASES[operation]
+
+
+def normalize_preset(preset: str | None) -> str | None:
+    if preset is None:
+        return None
+    return PRESET_ALIASES[preset]
 
 
 def list_presets() -> None:
@@ -384,6 +410,8 @@ def extract_epub_images(args: argparse.Namespace) -> int:
 def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
+    args.operation = normalize_operation(args.operation)
+    args.preset = normalize_preset(args.preset)
 
     if args.list_presets:
         list_presets()

@@ -162,7 +162,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Start
 
 ### Regex Search
 
-By default, `--pattern` / `-Pattern` treats `|` as a separator between literal search terms. Use `--regex-pattern` / `-RegexPattern` when a regular expression is genuinely needed.
+By default, `--pattern` / `-Pattern` treats `|` as a separator between literal search terms. Python also accepts `--query`, `--text`, and `--search`, and PowerShell also accepts `-Query`, `-Text`, and `-Search`, as ergonomic aliases for the same search text. Use `--regex-pattern` / `-RegexPattern` when a regular expression is genuinely needed.
 
 ```powershell
 python Tools\search_epub.py --start-chapter 1 --end-chapter 1394 --pattern "red (chimney|smokestack)" --regex-pattern --counts-only
@@ -214,7 +214,7 @@ Raw counts can mislead when a term is also a job, epithet, or individual label. 
 
 ## EPUB Image Extraction
 
-Use `edit_image.py --operation extract-epub-images` to list or extract EPUB image assets in actual spine/reading order. If Python/Pillow is unavailable, use `Edit-Image.ps1 -Operation ExtractEpubImages` with the same filters in PowerShell form. This is separate from text search because image-bearing XHTML entries include covers, front matter, volume covers, end-of-volume art, pathway guides, character galleries, location galleries, maps, and end-matter artwork.
+Use `edit_image.py --operation extract-epub-images` to list or extract EPUB image assets in actual spine/reading order. Python also accepts `extract`, `extract-images`, `list-images`, and `list-epub-images`; PowerShell accepts the same aliases through `-Operation`. If Python/Pillow is unavailable, use `Edit-Image.ps1 -Operation ExtractEpubImages` with the same filters in PowerShell form. This is separate from text search because image-bearing XHTML entries include covers, front matter, volume covers, end-of-volume art, pathway guides, character galleries, location galleries, maps, and end-matter artwork.
 
 Both implementations assign an `image_number` based on EPUB spine order so "first image" and "next image" stay reproducible.
 

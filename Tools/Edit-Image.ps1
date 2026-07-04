@@ -1,10 +1,8 @@
 param(
   [Parameter(Mandatory = $false)]
-  [ValidateSet("Crop", "ExtractEpubImages")]
   [string]$Operation = "Crop",
 
   [Parameter(Mandatory = $false)]
-  [ValidateSet("PathwayTarotCard")]
   [string]$Preset,
 
   [Parameter(Mandatory = $false)]
@@ -48,6 +46,33 @@ $presets = @{
     Width = 660
     Height = 1168
     Description = "Official EPUB pathway guide tarot-card crop, recovered from the validated Strength/Giant pilot crop."
+  }
+}
+
+function Resolve-OperationName {
+  param([string]$Name)
+
+  switch -Regex ($Name) {
+    '^(?i:crop)$' { return "Crop" }
+    '^(?i:extract|extractepubimages|extract-epub-images|extract-images|listepubimages|list-epub-images|list-images)$' { return "ExtractEpubImages" }
+    default {
+      throw "Unsupported operation: $Name. Use Crop or ExtractEpubImages. Aliases include Extract, Extract-Images, List-Images, and List-Epub-Images."
+    }
+  }
+}
+
+function Resolve-PresetName {
+  param([string]$Name)
+
+  if ([string]::IsNullOrWhiteSpace($Name)) {
+    return $null
+  }
+
+  switch -Regex ($Name) {
+    '^(?i:pathwaytarotcard|pathway-tarot-card|pathway-tarot|tarot-card)$' { return "PathwayTarotCard" }
+    default {
+      throw "Unsupported preset: $Name. Use PathwayTarotCard. Aliases include pathway-tarot-card, pathway-tarot, and tarot-card."
+    }
   }
 }
 
@@ -96,7 +121,7 @@ function Invoke-Crop {
   $cropHeight = $Height
 
   if ($Preset) {
-    $presetValues = $presets[$Preset]
+    $presetValues = $presets[(Resolve-PresetName $Preset)]
     $operationName = $presetValues.Operation
     $cropX = $presetValues.X
     $cropY = $presetValues.Y
@@ -475,6 +500,9 @@ function Invoke-ExtractEpubImages {
     $zip.Dispose()
   }
 }
+
+$Operation = Resolve-OperationName $Operation
+$Preset = Resolve-PresetName $Preset
 
 if ($ListPresets) {
   Show-Presets

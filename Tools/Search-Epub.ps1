@@ -8,6 +8,7 @@ param(
   [ValidateSet("Chapters", "SideStories", "Appendices", "Artwork", "FrontMatter", "Other", "All")]
   [string[]]$EntryType = @("Chapters"),
   [string]$EntryNamePattern,
+  [Alias("Query", "Text", "Search")]
   [string]$Pattern,
   [int]$ContextLines = 0,
   [int]$MaxHitsPerChapter = 50,
