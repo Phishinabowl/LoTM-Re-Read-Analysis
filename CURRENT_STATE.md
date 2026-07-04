@@ -207,8 +207,9 @@ These pages are low-priority pending backlog items surfaced by official EPUB art
 Current graph artifacts:
 
 - [Volume 1 Knowledge Graph](Visualization/graphs/volume-1-knowledge-graph.mmd)
+- [Volume 1 Knowledge Graph - Timing Spoiler-Free](Visualization/graphs/volume-1-knowledge-graph-timing-spoiler-free.mmd)
 
-Graph source of truth remains `Relationship Seeds` in glossary threads plus the controlled taxonomy in [PROJECT_RULES.md](PROJECT_RULES.md).
+Configured graph views live in [render-settings.json](Visualization/config/render-settings.json). Graph source of truth remains `Relationship Seeds` in glossary threads plus the controlled taxonomy in [PROJECT_RULES.md](PROJECT_RULES.md).
 
 ## Recent Framework Milestones
 
