@@ -75,7 +75,7 @@ This pathway keeps `pathway-sleepless.md` as the stable slug while allowing futu
 
 | Card image | Details |
 | --- | --- |
-| <a href="../../Artwork/tarot-cards/pathways/star-sleepless-pathway.png"><img src="../../Artwork/tarot-cards/pathways/star-sleepless-pathway.png" alt="The Star tarot card crop" width="160"></a> | - Card name: The Star<br>- Card number: XVII (17)<br>- Associated pathway labels: Sleepless / Evernight / Darkness pathway<br>- Confidence: confirmed<br>- Notes: Derived from the official Volume 1 Darkness pathway guide image. |
+| <a href="../../Artwork/tarot-cards/pathways/star-sleepless-pathway.png"><img src="../../Artwork/tarot-cards/pathways/star-sleepless-pathway.png" alt="The Star tarot card crop" width="160"></a> | <span style="font-size: 1.45em; font-weight: 700;">The Star</span><br><span style="font-size: 1.15em;">XVII (17)</span><br><br>- Associated pathway labels: Sleepless / Evernight / Darkness pathway<br>- Confidence: confirmed<br>- Notes: Derived from the official Volume 1 Darkness pathway guide image. |
 
 ## First Appearance / First Meaningful Mention
 

@@ -76,7 +76,7 @@ Use this section when a pathway has a confirmed or pending-review associated tar
 
 | Card image | Details |
 | --- | --- |
-| <a href="../../Artwork/tarot-cards/pathways/pathway-card.png"><img src="../../Artwork/tarot-cards/pathways/pathway-card.png" alt="Associated tarot card" width="160"></a> | - Card name:<br>- Card number:<br>- Associated pathway labels:<br>- Confidence:<br>- Notes: |
+| <a href="../../Artwork/tarot-cards/pathways/pathway-card.png"><img src="../../Artwork/tarot-cards/pathways/pathway-card.png" alt="Associated tarot card" width="160"></a> | <span style="font-size: 1.45em; font-weight: 700;">Card name</span><br><span style="font-size: 1.15em;">Card number</span><br><br>- Associated pathway labels:<br>- Confidence:<br>- Notes: |
 
 ## First Appearance / First Meaningful Mention
 
