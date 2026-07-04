@@ -173,7 +173,7 @@ When a refresh is confirmed, update every current graph view unless the user exp
 
 Fresh renders replace stale render files unless the user asks for archived snapshots.
 
-Before choosing a helper on an unfamiliar machine, run the Python availability probe documented in [Rendering Instructions](rendering.md). If Python is unavailable, use the PowerShell fallback command.
+Before choosing a helper on an unfamiliar machine or fresh agent session, run the Python availability probe documented in [Rendering Instructions](rendering.md). Treat the result as the session's Python-availability state. If Python is available, use the Python commands going forward without rerunning the probe before every render command. If Python is unavailable, use the PowerShell fallback command for that session.
 
 Canonical refresh command:
 

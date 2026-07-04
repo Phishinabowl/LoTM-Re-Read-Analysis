@@ -6,12 +6,14 @@ This folder contains reusable local helpers for project maintenance and source v
 
 Use `Test-Python.ps1` to check whether Python is present and actually usable before selecting Python-preferred tools. It tests `python`, `python3`, and `py` in order, verifies that `--version` works, and confirms that Python can report `sys.executable`.
 
+Run this probe once for an unfamiliar machine or fresh agent session, then treat the result as the session's Python-availability state. If Python is available, use Python-preferred tools going forward without rerunning the probe before every command. Rerun only if the environment changes, such as PATH edits, Python installation changes, a different shell, a different machine, or a failed Python launch that suggests the earlier state is stale.
+
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1 -Json
 ```
 
-If the probe reports Python unavailable, use the documented PowerShell fallback scripts. If Python is available but a Python tool fails, treat that as a tool/script failure rather than silently falling back.
+If the probe reports Python unavailable, use the documented PowerShell fallback scripts for that session. If Python is available but a Python tool fails, treat that as a tool/script failure rather than silently falling back.
 
 ## Image Manipulation
 

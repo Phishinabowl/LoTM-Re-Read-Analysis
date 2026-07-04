@@ -42,7 +42,7 @@ If Edge is installed elsewhere, update `executablePath` in the Puppeteer config.
 
 ## Availability Checks
 
-Before running visualization helpers on an unfamiliar machine, check whether Python is available:
+Before running visualization helpers on an unfamiliar machine or fresh agent session, check whether Python is available:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1
@@ -59,7 +59,9 @@ Also confirm the render config files exist:
 - `Visualization/config/puppeteer-config.json`
 - `Visualization/config/render-settings.json`
 
-If Python is unavailable, use the PowerShell fallback commands below. If Python is available but a Python helper fails, treat that as a helper failure rather than silently falling back. If both helpers fail or required config is missing, report repository visualization rendering as degraded before using direct `mmdc`.
+Treat the probe result as the session's Python-availability state. If Python is available, use Python-preferred commands going forward without rerunning the probe before every render command. Rerun only if the environment changes, such as PATH edits, Python installation changes, a different shell, a different machine, or a failed Python launch that suggests the earlier state is stale.
+
+If Python is unavailable, use the PowerShell fallback commands below for that session. If Python is available but a Python helper fails, treat that as a helper failure rather than silently falling back. If both helpers fail or required config is missing, report repository visualization rendering as degraded before using direct `mmdc`.
 
 ## Render Commands
 

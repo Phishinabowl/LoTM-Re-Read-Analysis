@@ -213,13 +213,15 @@ Fresh renders should replace the stale render files rather than accumulating dup
 
 Before graph rendering work, confirm that the expected visualization tooling is present: `Visualization/visualize.py`, `Visualization/visualize.ps1`, `Visualization/config/puppeteer-config.json`, and `Visualization/config/render-settings.json`. Prefer the Python helper when available and use the PowerShell helper as the Windows fallback. If both helpers or required config are missing, report the render path as degraded before using a fallback.
 
-On unfamiliar machines, check Python availability before choosing Python-preferred tools:
+On unfamiliar machines or fresh agent sessions, check Python availability before choosing Python-preferred tools:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1
 ```
 
-If the probe reports Python unavailable, use documented PowerShell fallbacks. If Python is available but a Python helper fails, treat that as a helper failure rather than an automatic fallback condition.
+Treat the probe result as the session's Python-availability state. If Python is available, use Python-preferred tools going forward without rerunning the probe before every command. Rerun only if the environment changes, such as PATH edits, Python installation changes, a different shell, a different machine, or a failed Python launch that suggests the earlier state is stale.
+
+If the probe reports Python unavailable, use documented PowerShell fallbacks for that session. If Python is available but a Python helper fails, treat that as a helper failure rather than an automatic fallback condition.
 
 Use this canonical refresh command from the repository root:
 
@@ -1201,7 +1203,7 @@ Use the EPUB.
 
 ### EPUB Sweep Tool
 
-Use `Tools/search_epub.py` for repeatable novel EPUB checks when Python is available. `Tools/Search-Epub.ps1` is the Windows PowerShell fallback and should remain behaviorally compatible. Use `Tools/Test-Python.ps1` as the canonical local Python availability probe when the environment is unknown.
+Use `Tools/search_epub.py` for repeatable novel EPUB checks when Python is available. `Tools/Search-Epub.ps1` is the Windows PowerShell fallback and should remain behaviorally compatible. Use `Tools/Test-Python.ps1` as the canonical local Python availability probe when the environment is unknown, then retain the result as session state instead of probing before every command.
 
 When a task requires novel EPUB source expansion and this helper is available, use the Python helper as the preferred first EPUB search path because it is faster and can grow into reusable search/index functionality. Use the PowerShell helper when Python is unavailable. This applies to graph-building coverage sweeps as well as article and investigation verification. If both helpers are missing or unusable, use another structured EPUB search method and report the degraded path.
 
