@@ -15,6 +15,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1 -Json
 
 If the probe reports Python unavailable, use the documented PowerShell fallback scripts for that session. If Python is available but a Python tool fails, treat that as a tool/script failure rather than silently falling back.
 
+PowerShell fallback commands use `powershell`, which targets Windows PowerShell 5.1 on many Windows machines even when PowerShell 7 is also installed as `pwsh`. Keep `.ps1` fallback scripts compatible with Windows PowerShell 5.1 syntax and APIs unless a tool explicitly documents a PowerShell 7 requirement.
+
 ## Temporary File Cleanup
 
 Use `clean_temp_files.py` to remove disposable local cache directories when Python is available. It is the preferred implementation because it is portable across Windows, macOS, and Linux while matching the rest of the repository's Python-preferred tool convention.

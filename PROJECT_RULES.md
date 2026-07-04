@@ -224,6 +224,8 @@ Treat the probe result as the session's Python-availability state. If Python is 
 
 If the probe reports Python unavailable, use documented PowerShell fallbacks for that session. If Python is available but a Python helper fails, treat that as a helper failure rather than an automatic fallback condition.
 
+PowerShell fallback commands use `powershell` and should remain compatible with Windows PowerShell 5.1 unless a tool explicitly documents a `pwsh` / PowerShell 7 requirement.
+
 For disposable local tool caches, use the repository cleanup helper rather than ad hoc recursive deletion. Prefer the Python helper when Python is available:
 
 ```powershell
@@ -332,7 +334,7 @@ Commit review
 Commit
 ```
 
-Future graph tooling should support dynamic generation, timeline filtering, reader-state filtering, and multiple graph views without making the rendered graph the source of truth.
+Graph tooling should support dynamic generation, timeline filtering, reader-state filtering, and multiple graph views without making the rendered graph the source of truth. Configured visualization views may use `readerBoundary` to filter generated nodes by `Subject Visible From` and filter generated relationships by Relationship Seed `start` timing.
 
 ---
 

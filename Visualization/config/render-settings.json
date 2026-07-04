@@ -142,6 +142,13 @@
     {
       "name": "Volume 1 Knowledge Graph",
       "input": "Visualization/graphs/volume-1-knowledge-graph.mmd",
+      "readerBoundary": {
+        "medium": "novel",
+        "maxVolume": 1,
+        "maxChapter": 213,
+        "includeUnknownSubjects": false,
+        "includeUnknownPositions": false
+      },
       "outputs": [
         "Visualization/rendered/volume-1-knowledge-graph.svg",
         "Visualization/rendered/volume-1-knowledge-graph.png"
@@ -150,6 +157,13 @@
     {
       "name": "Volume 1 Knowledge Graph - Timing Spoiler-Free",
       "input": "Visualization/graphs/volume-1-knowledge-graph-timing-spoiler-free.mmd",
+      "readerBoundary": {
+        "medium": "novel",
+        "maxVolume": 1,
+        "maxChapter": 213,
+        "includeUnknownSubjects": false,
+        "includeUnknownPositions": false
+      },
       "outputs": [
         "Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.svg",
         "Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.png"

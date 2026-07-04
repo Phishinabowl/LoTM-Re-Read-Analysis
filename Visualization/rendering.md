@@ -38,6 +38,8 @@ Graph render settings live at:
 
 - `Visualization/config/render-settings.json`
 
+Each configured view can define a `readerBoundary`. Refresh mode applies that boundary during Mermaid generation: node eligibility comes from each glossary page's `Subject Visible From`, and relationship eligibility comes from the seed's `start.medium`, `start.volume`, and `start.chapter`. Use this for reader-safe volume/chapter graph views; use a separate unbounded view only for maintainer/global taxonomy graphs.
+
 If Edge is installed elsewhere, update `executablePath` in the Puppeteer config. Chrome can also be used if available.
 
 ## Availability Checks
@@ -62,6 +64,8 @@ Also confirm the render config files exist:
 Treat the probe result as the session's Python-availability state. If Python is available, use Python-preferred commands going forward without rerunning the probe before every render command. Rerun only if the environment changes, such as PATH edits, Python installation changes, a different shell, a different machine, or a failed Python launch that suggests the earlier state is stale.
 
 If Python is unavailable, use the PowerShell fallback commands below for that session. If Python is available but a Python helper fails, treat that as a helper failure rather than silently falling back. If both helpers fail or required config is missing, report repository visualization rendering as degraded before using direct `mmdc`.
+
+PowerShell fallback commands use `powershell`, which usually means Windows PowerShell 5.1 rather than PowerShell 7's `pwsh`. Keep visualization `.ps1` fallback code compatible with Windows PowerShell 5.1 APIs unless the documented command changes to require `pwsh`.
 
 ## Render Commands
 

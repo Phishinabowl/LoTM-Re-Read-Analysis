@@ -1,4 +1,4 @@
-﻿graph TD
+graph TD
   artifact_0_08["0-08"]
   artifact_antigonus_notebook["Antigonus Notebook"]
   character_azik_eggers["Azik Eggers"]
@@ -15,6 +15,8 @@
   concept_beyonder_characteristics["Beyonder Characteristics"]
   concept_beyonders["Beyonders"]
   concept_divination["Divination"]
+  concept_prayers_and_rituals["Prayers & Rituals"]
+  deity_s0_evernight_goddess["S0 Evernight Goddess"]
   event_klein_becomes_a_seer["Klein Becomes a Seer"]
   faction_church_of_evernight["Church of Evernight"]
   faction_nighthawks["Nighthawks"]
@@ -29,10 +31,17 @@
   classDef artifact fill:#f3ead7,stroke:#b7791f,stroke-width:2px,color:#1f2937
   classDef character fill:#ecebff,stroke:#7c5cff,stroke-width:2px,color:#1f2937
   classDef concept fill:#e8f5f0,stroke:#2f855a,stroke-width:2px,color:#1f2937
+  classDef deity fill:#fae8ff,stroke:#c026d3,stroke-width:2px,color:#1f2937
+  classDef epoch fill:#ede9fe,stroke:#6d28d9,stroke-width:2px,color:#1f2937
   classDef event fill:#fff1f2,stroke:#e11d48,stroke-width:2px,color:#1f2937
   classDef faction fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#1f2937
+  classDef family fill:#fce7f3,stroke:#be185d,stroke-width:2px,color:#1f2937
   classDef location fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#1f2937
+  classDef mystery fill:#e5e7eb,stroke:#4b5563,stroke-width:2px,color:#1f2937
   classDef pathway fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#1f2937
+  classDef tarot fill:#ffedd5,stroke:#ea580c,stroke-width:2px,color:#1f2937
+  classDef timeline fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1f2937
+  classDef uniqueness fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#1f2937
   classDef relationship fill:#f7f2e9,stroke:#c69245,stroke-width:1.5px,color:#1f2937
 
   class artifact_0_08 artifact
@@ -51,6 +60,8 @@
   class concept_beyonder_characteristics concept
   class concept_beyonders concept
   class concept_divination concept
+  class concept_prayers_and_rituals concept
+  class deity_s0_evernight_goddess deity
   class event_klein_becomes_a_seer event
   class faction_church_of_evernight faction
   class faction_nighthawks faction
@@ -246,107 +257,119 @@
   class rel_046 relationship
   concept_divination --> rel_046
   rel_046 --> pathway_seer
-  rel_047["event-outcome"]
+  rel_047["field-evidence-associated-with"]
   class rel_047 relationship
-  event_klein_becomes_a_seer --> rel_047
-  rel_047 --> character_klein_moretti
-  rel_048["event-outcome"]
+  concept_prayers_and_rituals --> rel_047
+  rel_047 --> artifact_antigonus_notebook
+  rel_048["explained-by"]
   class rel_048 relationship
-  event_klein_becomes_a_seer --> rel_048
-  rel_048 --> concept_beyonders
+  concept_prayers_and_rituals --> rel_048
+  rel_048 --> character_old_neil
   rel_049["event-outcome"]
   class rel_049 relationship
   event_klein_becomes_a_seer --> rel_049
-  rel_049 --> pathway_seer
-  rel_050["artifact-guardian<br/>broken"]
+  rel_049 --> character_klein_moretti
+  rel_050["event-outcome"]
   class rel_050 relationship
-  faction_church_of_evernight --> rel_050
-  rel_050 --> artifact_0_08
-  rel_051["investigates"]
+  event_klein_becomes_a_seer --> rel_050
+  rel_050 --> concept_beyonders
+  rel_051["event-outcome"]
   class rel_051 relationship
-  faction_church_of_evernight --> rel_051
-  rel_051 --> artifact_antigonus_notebook
-  rel_052["regulates-access-to"]
+  event_klein_becomes_a_seer --> rel_051
+  rel_051 --> pathway_seer
+  rel_052["artifact-guardian<br/>broken"]
   class rel_052 relationship
   faction_church_of_evernight --> rel_052
-  rel_052 --> concept_beyonders
-  rel_053["connected-to"]
+  rel_052 --> artifact_0_08
+  rel_053["investigates"]
   class rel_053 relationship
   faction_church_of_evernight --> rel_053
-  rel_053 --> concept_divination
-  rel_054["event-enabler<br/>completed"]
+  rel_053 --> artifact_antigonus_notebook
+  rel_054["regulates-access-to"]
   class rel_054 relationship
   faction_church_of_evernight --> rel_054
-  rel_054 --> event_klein_becomes_a_seer
-  rel_055["regulates-access-to"]
+  rel_054 --> concept_beyonders
+  rel_055["connected-to"]
   class rel_055 relationship
   faction_church_of_evernight --> rel_055
-  rel_055 --> pathway_seer
-  rel_056["regulates-access-to"]
+  rel_055 --> concept_divination
+  rel_056["event-enabler<br/>completed"]
   class rel_056 relationship
   faction_church_of_evernight --> rel_056
-  rel_056 --> pathway_sleepless
-  rel_057["investigates"]
+  rel_056 --> event_klein_becomes_a_seer
+  rel_057["regulates-access-to"]
   class rel_057 relationship
-  faction_nighthawks --> rel_057
-  rel_057 --> artifact_antigonus_notebook
-  rel_058["subordinate-organization"]
+  faction_church_of_evernight --> rel_057
+  rel_057 --> pathway_seer
+  rel_058["regulates-access-to"]
   class rel_058 relationship
-  faction_nighthawks --> rel_058
-  rel_058 --> faction_church_of_evernight
-  rel_059["affiliated-with"]
+  faction_church_of_evernight --> rel_058
+  rel_058 --> pathway_sleepless
+  rel_059["investigates"]
   class rel_059 relationship
   faction_nighthawks --> rel_059
-  rel_059 --> location_saint_selena_cathedral
-  rel_060["targets<br/>strong-evidence"]
+  rel_059 --> artifact_antigonus_notebook
+  rel_060["subordinate-organization"]
   class rel_060 relationship
-  faction_secret_order --> rel_060
-  rel_060 --> artifact_antigonus_notebook
-  rel_061["connected-to"]
+  faction_nighthawks --> rel_060
+  rel_060 --> faction_church_of_evernight
+  rel_061["affiliated-with"]
   class rel_061 relationship
-  location_blackthorn_security_company --> rel_061
-  rel_061 --> artifact_antigonus_notebook
-  rel_062["event-location<br/>completed"]
+  faction_nighthawks --> rel_061
+  rel_061 --> location_saint_selena_cathedral
+  rel_062["targets<br/>strong-evidence"]
   class rel_062 relationship
-  location_blackthorn_security_company --> rel_062
-  rel_062 --> event_klein_becomes_a_seer
-  rel_063["operational-base-for"]
+  faction_secret_order --> rel_062
+  rel_062 --> artifact_antigonus_notebook
+  rel_063["connected-to"]
   class rel_063 relationship
   location_blackthorn_security_company --> rel_063
-  rel_063 --> faction_nighthawks
-  rel_064["public-cover-for"]
+  rel_063 --> artifact_antigonus_notebook
+  rel_064["event-location<br/>completed"]
   class rel_064 relationship
   location_blackthorn_security_company --> rel_064
-  rel_064 --> faction_nighthawks
-  rel_065["connected-to"]
+  rel_064 --> event_klein_becomes_a_seer
+  rel_065["operational-base-for"]
   class rel_065 relationship
   location_blackthorn_security_company --> rel_065
-  rel_065 --> location_saint_selena_cathedral
-  rel_066["event-location<br/>completed"]
+  rel_065 --> faction_nighthawks
+  rel_066["public-cover-for"]
   class rel_066 relationship
-  location_saint_selena_cathedral --> rel_066
-  rel_066 --> event_klein_becomes_a_seer
-  rel_067["affiliated-with"]
+  location_blackthorn_security_company --> rel_066
+  rel_066 --> faction_nighthawks
+  rel_067["connected-to"]
   class rel_067 relationship
-  location_saint_selena_cathedral --> rel_067
-  rel_067 --> faction_church_of_evernight
-  rel_068["connected-to"]
+  location_blackthorn_security_company --> rel_067
+  rel_067 --> location_saint_selena_cathedral
+  rel_068["event-location<br/>completed"]
   class rel_068 relationship
   location_saint_selena_cathedral --> rel_068
-  rel_068 --> location_blackthorn_security_company
-  rel_069["access-route-to"]
+  rel_068 --> event_klein_becomes_a_seer
+  rel_069["affiliated-with"]
   class rel_069 relationship
-  pathway_seer --> rel_069
-  rel_069 --> concept_beyonders
-  rel_070["uses-method"]
+  location_saint_selena_cathedral --> rel_069
+  rel_069 --> faction_church_of_evernight
+  rel_070["connected-to"]
   class rel_070 relationship
-  pathway_seer --> rel_070
-  rel_070 --> concept_divination
+  location_saint_selena_cathedral --> rel_070
+  rel_070 --> location_blackthorn_security_company
   rel_071["access-route-to"]
   class rel_071 relationship
-  pathway_sleepless --> rel_071
+  pathway_seer --> rel_071
   rel_071 --> concept_beyonders
-  rel_072["connected-to"]
+  rel_072["uses-method"]
   class rel_072 relationship
-  pathway_sleepless --> rel_072
-  rel_072 --> pathway_seer
+  pathway_seer --> rel_072
+  rel_072 --> concept_divination
+  rel_073["access-route-to"]
+  class rel_073 relationship
+  pathway_sleepless --> rel_073
+  rel_073 --> concept_beyonders
+  rel_074["associated-sequence-0"]
+  class rel_074 relationship
+  pathway_sleepless --> rel_074
+  rel_074 --> deity_s0_evernight_goddess
+  rel_075["connected-to"]
+  class rel_075 relationship
+  pathway_sleepless --> rel_075
+  rel_075 --> pathway_seer

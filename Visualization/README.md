@@ -1,4 +1,4 @@
-﻿# Visualization
+# Visualization
 
 This folder contains generated visualization artifacts for the Lord of the Mysteries re-read analysis project.
 
@@ -11,7 +11,9 @@ Generated graph files are not the source of truth. The canonical project data re
 
 Generated Mermaid graphs are generated from glossary metadata and Relationship Seeds. If a canonical graph refresh exposes missing, stale, or incorrect information, fix the glossary thread, investigation record, or relationship seed first, then regenerate the graph. Manual maintainer graphs may include clearly marked graph-local evidence before those project-data updates are confirmed.
 
-Page-level reader visibility belongs to glossary metadata through `Subject Visible From`; do not model it as a Relationship Seed. Future filtered graph views should use that metadata as the node-level gate before applying relationship or claim-level timing.
+Page-level reader visibility belongs to glossary metadata through `Subject Visible From`; do not model it as a Relationship Seed. Filtered graph views use that metadata as the node-level gate before applying relationship or claim-level timing.
+
+Configured graph views may declare a `readerBoundary` in `config/render-settings.json`. When present, generation includes only nodes whose `Subject Visible From` is eligible for that medium/volume/chapter boundary and only relationship seeds whose `start.medium`, `start.volume`, and `start.chapter` are eligible. Unknown subject visibility or unknown relationship positions are excluded unless the view explicitly opts into them. The current Volume 1 graph views are novel-only reader-boundary views through Volume 1 Chapter 213, so official-artwork taxonomy seeds and later cosmology links do not appear there.
 
 Shared graph authoring rules live in [Graph Authoring Standard](graph-authoring-standard.md). Use that standard for both AI Agent graph requests and maintainer/project graph work before rendering.
 
@@ -62,32 +64,47 @@ The `rendered/` folder contains generated SVG and PNG graph exports for review, 
 
 ## Refresh Tracker
 
-After every graph refresh, update the live refresh tracker below. It summarizes node count, relationship count, semantic graph changes, views updated, rendered files, broken links, orphan nodes, duplicate relationships, and pending graph nodes.
+After every graph refresh, update the live refresh tracker below. It summarizes configured views, per-view node and relationship counts, per-view semantic graph changes, rendered files, broken links, orphan nodes, duplicate relationships, and pending graph nodes.
 
-The tracker compares the current graph against the semantic snapshot in `data/refresh-snapshot.json`. Unexpected removed nodes, removed relationships, changed relationship labels, duplicate relationships, broken links, or orphan nodes should be treated as visualization validation issues and reviewed before committing.
+The tracker compares each configured view against the semantic snapshot in `data/refresh-snapshot.json`. Unexpected removed nodes, removed relationships, changed relationship labels, duplicate relationships, broken links, or orphan nodes should be treated as visualization validation issues and reviewed before committing.
 
 <!-- VISUALIZATION-REFRESH-REPORT:START -->
-Last Updated: 2026-07-02 23:23:14 -04:00
+Last Updated: 2026-07-04 10:42:12 -04:00
 
 ### Summary
 
 | Metric | Count | Delta |
 | --- | ---: | ---: |
-| Nodes | 26 | -1 |
-| Relationships | 72 | -12 |
 | Views Updated | 2 | 0 |
 | Rendered Files | 4 | 0 |
 | Broken Links | 0 | 0 |
-| Orphan Nodes | 0 | 0 |
-| Pending Nodes | 17 | -4 |
-| Validation Issues | 12 | n/a |
+| Pending Nodes | 20 | 0 |
+| Validation Issues | 0 | n/a |
+
+### View Summary
+
+| View | Nodes | Delta | Relationships | Delta | Orphan Nodes |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Volume 1 Knowledge Graph | 28 | 0 | 75 | 0 | 0 |
+| Volume 1 Knowledge Graph - Timing Spoiler-Free | 28 | 0 | 75 | 0 | 0 |
 
 ### Semantic Changes
 
+#### Volume 1 Knowledge Graph
+
 - Added nodes: 0
-- Removed nodes: 1
+- Removed nodes: 0
 - Added relationships: 0
-- Removed relationships: 12
+- Removed relationships: 0
+- Changed relationship labels: 0
+- Duplicate relationships: 0
+
+#### Volume 1 Knowledge Graph - Timing Spoiler-Free
+
+- Added nodes: 0
+- Removed nodes: 0
+- Added relationships: 0
+- Removed relationships: 0
 - Changed relationship labels: 0
 - Duplicate relationships: 0
 
@@ -98,58 +115,42 @@ Last Updated: 2026-07-02 23:23:14 -04:00
 
 ### Rendered Outputs
 
-- `Visualization/rendered/volume-1-knowledge-graph.svg` (293116 bytes)
-- `Visualization/rendered/volume-1-knowledge-graph.png` (786016 bytes)
-- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.svg` (292098 bytes)
-- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.png` (718278 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph.svg` (306748 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph.png` (785561 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.svg` (305686 bytes)
+- `Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.png` (695182 bytes)
 
 ### Hygiene
 
 - Broken links: 0
 - Orphan nodes: 0
 - Duplicate relationships: 0
-- Removed relationships: 12
+- Removed relationships: 0
 - Changed relationship labels: 0
-- Pending graph nodes: 17
-
-#### Removed Nodes
-
-- `faction_red_gloves`
-
-#### Removed Relationships
-
-- `character_dunn_smith|superior ch21|character_leonard_mitchell`
-- `character_leonard_mitchell|affiliated-with ch211 future-boundary strong-evidence|faction_red_gloves`
-- `character_leonard_mitchell|colleague ch21|character_klein_moretti`
-- `character_leonard_mitchell|enemy ch211|character_ince_zangwill`
-- `character_leonard_mitchell|instance-of ch21|concept_beyonders`
-- `character_leonard_mitchell|investigates ch211|artifact_0_08`
-- `character_leonard_mitchell|investigates ch38|artifact_antigonus_notebook`
-- `character_leonard_mitchell|member-of ch21|faction_church_of_evernight`
-- `character_leonard_mitchell|member-of ch21|faction_nighthawks`
-- `character_leonard_mitchell|source-of-information ch43|concept_divination`
-- `character_leonard_mitchell|subordinate ch21|character_dunn_smith`
-- `character_leonard_mitchell|works-at ch21|location_blackthorn_security_company`
+- Pending graph nodes: 20
 
 #### Pending Nodes
 
-- `character-azik-eggers.md`
-- `character-daly-simone.md`
+- `character-azik-eggers.md (artwork backed)`
+- `character-bethel-abraham.md (notes: [preliminary planning](../Investigations/Characters/character-bethel-abraham/preliminary-planning-investigation.md))`
+- `character-daly-simone.md (artwork backed)`
 - `character-frye.md`
-- `character-ince-zangwill.md`
+- `character-ince-zangwill.md (artwork backed)`
 - `character-kenley-white.md`
-- `character-klein-moretti.md`
-- `character-leonard-mitchell.md`
+- `character-klein-moretti.md (artwork backed, 10 images)`
+- `character-leonard-mitchell.md (artwork backed)`
 - `character-mrs-orianna.md`
 - `character-ray-bieber.md`
 - `character-royale-reideen.md`
 - `character-rozanne.md`
-- `character-roselle-gustav.md`
+- `character-roselle-gustav.md (artwork backed)`
 - `character-seeka-tron.md`
 - `faction-nighthawks.md`
 - `faction-secret-order.md`
 - `pathway-corpse-collector.md`
-- `pathway-mystery-pryer.md`
+- `pathway-criminal.md (artwork backed; notes: [preliminary planning](../Investigations/Pathways/pathway-criminal/preliminary-planning-investigation.md))`
+- `pathway-mystery-pryer.md (artwork backed)`
+- `pathway-prisoner.md (artwork backed)`
 <!-- VISUALIZATION-REFRESH-REPORT:END -->
 
 ## Refresh Rules
@@ -166,12 +167,7 @@ Graph regeneration is not required for prose-only investigation updates, typo fi
 
 Before editing generated visualization files, recommend the refresh and confirm it with the user.
 
-When a refresh is confirmed, update every current graph view unless the user explicitly narrows the scope. For this repository, that means both current Mermaid graph files plus fresh replacement renders in the currently used formats:
-
-- `graphs/volume-1-knowledge-graph.mmd`
-- `graphs/volume-1-knowledge-graph-timing-spoiler-free.mmd`
-- matching rendered SVG files, when present
-- matching rendered PNG files, when present
+When a refresh is confirmed, update every configured graph view in `config/render-settings.json` unless the user explicitly narrows the scope. Each configured view owns its Mermaid source path and rendered output paths.
 
 Fresh renders replace stale render files unless the user asks for archived snapshots.
 

@@ -405,8 +405,8 @@ def convert_node_id_to_fallback_label(node_id: str) -> str:
     return convert_slug_to_fallback_label(node_id.replace("_", "-"))
 
 
-def read_glossary_nodes() -> dict[str, str]:
-    nodes: dict[str, str] = {}
+def read_glossary_nodes() -> dict[str, dict[str, str]]:
+    nodes: dict[str, dict[str, str]] = {}
     root = resolve_repo_path("Glossary_Threads")
     for file_path in sorted(root.rglob("*.md")):
         if file_path.name == "TEMPLATE.md":
@@ -414,12 +414,16 @@ def read_glossary_nodes() -> dict[str, str]:
         slug = file_path.stem
         node_id = convert_slug_to_node_id(slug)
         label = None
+        subject_visible_from = ""
         for line in read_text(file_path).splitlines():
             match = re.match(r"^#\s+(.+)$", line)
             if match:
                 label = match.group(1).strip()
+            if match := re.match(r"^Subject Visible From:\s*(.+?)\s*$", line):
+                subject_visible_from = match.group(1).strip()
+            if label and subject_visible_from:
                 break
-        nodes[node_id] = label or convert_slug_to_fallback_label(slug)
+        nodes[node_id] = {"label": label or convert_slug_to_fallback_label(slug), "subject_visible_from": subject_visible_from}
     return nodes
 
 
@@ -454,7 +458,16 @@ def read_relationship_seeds() -> list[dict[str, str]]:
             if match:
                 if current is not None:
                     relationships.append(current)
-                current = {"source": match.group(1).strip(), "target": "", "relationship_type": "", "chapter": "", "status": "", "confidence": ""}
+                current = {
+                    "source": match.group(1).strip(),
+                    "target": "",
+                    "relationship_type": "",
+                    "medium": "",
+                    "volume": "",
+                    "chapter": "",
+                    "status": "",
+                    "confidence": "",
+                }
                 continue
             if current is None:
                 continue
@@ -462,6 +475,10 @@ def read_relationship_seeds() -> list[dict[str, str]]:
                 current["target"] = match.group(1).strip()
             elif match := re.match(r"^\s+relationship_type:\s*(.+?)\s*$", line):
                 current["relationship_type"] = match.group(1).strip()
+            elif not current["medium"] and (match := re.match(r"^\s+medium:\s*(.+?)\s*$", line)):
+                current["medium"] = match.group(1).strip()
+            elif not current["volume"] and (match := re.match(r"^\s+volume:\s*(.+?)\s*$", line)):
+                current["volume"] = match.group(1).strip()
             elif not current["chapter"] and (match := re.match(r"^\s+chapter:\s*(.+?)\s*$", line)):
                 current["chapter"] = match.group(1).strip()
             elif match := re.match(r"^\s+status:\s*(.+?)\s*$", line):
@@ -476,6 +493,66 @@ def read_relationship_seeds() -> list[dict[str, str]]:
         relationship
         for relationship in relationships
         if relationship["source"].strip() and relationship["target"].strip() and relationship["relationship_type"].strip()
+    ]
+
+
+def parse_boundary_number(value: str) -> int | None:
+    value = str(value).strip()
+    if value.isdigit():
+        return int(value)
+    return None
+
+
+def parse_subject_visible_from(value: str) -> dict[str, int | str | None]:
+    match = re.search(r"\bNovel\s+V(?:ol(?:ume)?)?\s*(\d+)\s+Ch(?:apter)?\s*(\d+)\b", value, re.I)
+    if not match:
+        return {"medium": "", "volume": None, "chapter": None}
+    return {"medium": "novel", "volume": int(match.group(1)), "chapter": int(match.group(2))}
+
+
+def position_is_visible(medium: str, volume: str | int | None, chapter: str | int | None, boundary: dict[str, Any]) -> bool:
+    boundary_medium = str(boundary.get("medium") or "").strip().lower()
+    if boundary_medium and str(medium or "").strip().lower() != boundary_medium:
+        return False
+
+    volume_number = parse_boundary_number(str(volume or ""))
+    chapter_number = parse_boundary_number(str(chapter or ""))
+    max_volume = boundary.get("maxVolume")
+    max_chapter = boundary.get("maxChapter")
+
+    if volume_number is None or chapter_number is None:
+        return bool(boundary.get("includeUnknownPositions", False))
+    if max_volume is not None and volume_number > int(max_volume):
+        return False
+    if max_volume is not None and max_chapter is not None and volume_number == int(max_volume) and chapter_number > int(max_chapter):
+        return False
+    return True
+
+
+def filter_nodes_for_boundary(nodes: dict[str, dict[str, str]], boundary: dict[str, Any] | None) -> dict[str, str]:
+    if not boundary:
+        return {node_id: node["label"] for node_id, node in nodes.items()}
+
+    filtered: dict[str, str] = {}
+    for node_id, node in nodes.items():
+        visible_from = node.get("subject_visible_from", "")
+        if not visible_from:
+            if boundary.get("includeUnknownSubjects", False):
+                filtered[node_id] = node["label"]
+            continue
+        parsed = parse_subject_visible_from(visible_from)
+        if position_is_visible(str(parsed["medium"]), parsed["volume"], parsed["chapter"], boundary):
+            filtered[node_id] = node["label"]
+    return filtered
+
+
+def filter_relationships_for_boundary(relationships: list[dict[str, str]], boundary: dict[str, Any] | None) -> list[dict[str, str]]:
+    if not boundary:
+        return relationships
+    return [
+        relationship
+        for relationship in relationships
+        if position_is_visible(relationship.get("medium", ""), relationship.get("volume", ""), relationship.get("chapter", ""), boundary)
     ]
 
 
@@ -575,7 +652,10 @@ def update_mermaid_graphs(views: list[dict[str, Any]]) -> None:
     for view in views:
         graph_path = resolve_repo_path(view["input"])
         timing_spoiler_free = "timing-spoiler-free" in view["input"]
-        write_mermaid_graph(graph_path, dict(nodes), relationships, timing_spoiler_free)
+        boundary = view.get("readerBoundary")
+        view_nodes = filter_nodes_for_boundary(nodes, boundary)
+        view_relationships = filter_relationships_for_boundary(relationships, boundary)
+        write_mermaid_graph(graph_path, dict(view_nodes), view_relationships, timing_spoiler_free)
 
 
 def get_graph_stats(graph_path: Path) -> dict[str, Any]:
@@ -670,7 +750,7 @@ def get_pending_graph_nodes() -> list[str]:
         if in_section and re.match(r"^###\s+", line):
             break
         if in_section and (match := re.match(r"^-\s+(.+)$", line)):
-            pending.append(match.group(1).strip())
+            pending.append(match.group(1).strip().replace("](Investigations/", "](../Investigations/"))
     return pending
 
 
@@ -678,7 +758,7 @@ def get_broken_markdown_links() -> list[str]:
     broken: list[str] = []
     for file_path in sorted(REPO_ROOT.rglob("*.md")):
         full_name = str(file_path)
-        if f"{os.sep}.git{os.sep}" in full_name or f"{os.sep}Source{os.sep}" in full_name:
+        if f"{os.sep}.git{os.sep}" in full_name or f"{os.sep}Source{os.sep}" in full_name or file_path.name == "TEMPLATE.md":
             continue
         text = read_text(file_path)
         for match in re.finditer(r"\[[^\]]+\]\(([^)#]+)(?:#[^)]+)?\)", text):
@@ -687,6 +767,12 @@ def get_broken_markdown_links() -> list[str]:
                 continue
             target_path = file_path.parent / unquote(target)
             if not target_path.exists():
+                try:
+                    relative_target = target_path.resolve().relative_to(REPO_ROOT)
+                    if relative_target.parts and relative_target.parts[0] == "Glossary_Threads":
+                        continue
+                except ValueError:
+                    pass
                 broken.append(f".\\{file_path.relative_to(REPO_ROOT)} -> {target}")
     return broken
 
@@ -723,8 +809,23 @@ def invoke_refresh_mode(settings: dict[str, Any], puppeteer_config: Path, skip_r
             for output in view["outputs"]:
                 invoke_mermaid_render(resolve_repo_path(view["input"]), resolve_repo_path(output), settings, puppeteer_config)
 
-    primary_graph = resolve_repo_path(settings["views"][0]["input"])
-    stats = get_graph_stats(primary_graph)
+    view_stats: list[dict[str, Any]] = []
+    for view in settings["views"]:
+        graph_stats = get_graph_stats(resolve_repo_path(view["input"]))
+        view_stats.append(
+            {
+                "name": view["name"],
+                "input": view["input"],
+                "nodes": graph_stats["NodeIds"],
+                "relationships": [
+                    {key: relationship[key] for key in ["source", "target", "label", "key", "endpointKey"]}
+                    for relationship in graph_stats["Relationships"]
+                ],
+                "orphan_nodes": graph_stats["OrphanNodes"],
+            }
+        )
+
+    primary_view = view_stats[0]
     pending_nodes = get_pending_graph_nodes()
     broken_links = get_broken_markdown_links()
     rendered_files = [output for view in settings["views"] for output in view["outputs"] if resolve_repo_path(output).exists()]
@@ -737,29 +838,59 @@ def invoke_refresh_mode(settings: dict[str, Any], puppeteer_config: Path, skip_r
 
     snapshot = {
         "generated_at": timestamp,
-        "nodes": stats["NodeIds"],
-        "relationships": [
-            {key: relationship[key] for key in ["source", "target", "label", "key", "endpointKey"]}
-            for relationship in stats["Relationships"]
-        ],
+        "nodes": primary_view["nodes"],
+        "relationships": primary_view["relationships"],
         "views": [view["name"] for view in settings["views"]],
+        "view_stats": view_stats,
         "rendered_files": rendered_files,
         "broken_links": broken_links,
-        "orphan_nodes": stats["OrphanNodes"],
+        "orphan_nodes": primary_view["orphan_nodes"],
         "pending_nodes": pending_nodes,
     }
 
     def previous_count(key: str) -> int:
         return 0 if previous_snapshot is None else len(previous_snapshot.get(key) or [])
 
-    node_diff = compare_string_set((previous_snapshot or {}).get("nodes") or [], snapshot["nodes"])
-    relationship_diff = compare_string_set(
-        [relationship["key"] for relationship in (previous_snapshot or {}).get("relationships") or []],
-        [relationship["key"] for relationship in snapshot["relationships"]],
-    )
-    duplicate_relationships = get_duplicate_relationships(snapshot["relationships"])
-    changed_relationships = [] if previous_snapshot is None else get_changed_relationships(previous_snapshot.get("relationships") or [], snapshot["relationships"])
-    validation_issue_count = len(broken_links) + len(stats["OrphanNodes"]) + len(duplicate_relationships) + len(relationship_diff["Removed"])
+    previous_view_stats = {view.get("input") or view.get("name"): view for view in (previous_snapshot or {}).get("view_stats") or []}
+
+    def previous_for_view(view: dict[str, Any], index: int) -> dict[str, Any]:
+        previous_view = previous_view_stats.get(view["input"]) or previous_view_stats.get(view["name"])
+        if previous_view is not None:
+            return previous_view
+        if index == 0 and previous_snapshot is not None:
+            return {
+                "nodes": previous_snapshot.get("nodes") or [],
+                "relationships": previous_snapshot.get("relationships") or [],
+                "orphan_nodes": previous_snapshot.get("orphan_nodes") or [],
+            }
+        return {"nodes": [], "relationships": [], "orphan_nodes": []}
+
+    view_reports: list[dict[str, Any]] = []
+    for index, view in enumerate(view_stats):
+        previous_view = previous_for_view(view, index)
+        node_diff = compare_string_set(previous_view.get("nodes") or [], view["nodes"])
+        relationship_diff = compare_string_set(
+            [relationship["key"] for relationship in previous_view.get("relationships") or []],
+            [relationship["key"] for relationship in view["relationships"]],
+        )
+        duplicate_relationships = get_duplicate_relationships(view["relationships"])
+        changed_relationships = [] if previous_snapshot is None else get_changed_relationships(previous_view.get("relationships") or [], view["relationships"])
+        view_reports.append(
+            {
+                "view": view,
+                "previous": previous_view,
+                "node_diff": node_diff,
+                "relationship_diff": relationship_diff,
+                "duplicate_relationships": duplicate_relationships,
+                "changed_relationships": changed_relationships,
+            }
+        )
+
+    validation_issue_count = len(broken_links)
+    for view_report in view_reports:
+        validation_issue_count += len(view_report["view"]["orphan_nodes"])
+        validation_issue_count += len(view_report["duplicate_relationships"])
+        validation_issue_count += len(view_report["relationship_diff"]["Removed"])
 
     report = [
         f"Last Updated: {timestamp}",
@@ -768,24 +899,50 @@ def invoke_refresh_mode(settings: dict[str, Any], puppeteer_config: Path, skip_r
         "",
         "| Metric | Count | Delta |",
         "| --- | ---: | ---: |",
-        f"| Nodes | {len(snapshot['nodes'])} | {format_snapshot_delta(previous_snapshot, previous_count('nodes'), len(snapshot['nodes']))} |",
-        f"| Relationships | {len(snapshot['relationships'])} | {format_snapshot_delta(previous_snapshot, previous_count('relationships'), len(snapshot['relationships']))} |",
         f"| Views Updated | {len(settings['views'])} | {format_snapshot_delta(previous_snapshot, previous_count('views'), len(snapshot['views']))} |",
         f"| Rendered Files | {len(rendered_files)} | {format_snapshot_delta(previous_snapshot, previous_count('rendered_files'), len(rendered_files))} |",
         f"| Broken Links | {len(broken_links)} | {format_snapshot_delta(previous_snapshot, previous_count('broken_links'), len(broken_links))} |",
-        f"| Orphan Nodes | {len(stats['OrphanNodes'])} | {format_snapshot_delta(previous_snapshot, previous_count('orphan_nodes'), len(stats['OrphanNodes']))} |",
         f"| Pending Nodes | {len(pending_nodes)} | {format_snapshot_delta(previous_snapshot, previous_count('pending_nodes'), len(pending_nodes))} |",
         f"| Validation Issues | {validation_issue_count} | n/a |",
         "",
+        "### View Summary",
+        "",
+        "| View | Nodes | Delta | Relationships | Delta | Orphan Nodes |",
+        "| --- | ---: | ---: | ---: | ---: | ---: |",
+    ]
+    for view_report in view_reports:
+        view = view_report["view"]
+        previous_view = view_report["previous"]
+        report.append(
+            f"| {view['name']} | {len(view['nodes'])} | {format_snapshot_delta(previous_snapshot, len(previous_view.get('nodes') or []), len(view['nodes']))} | "
+            f"{len(view['relationships'])} | {format_snapshot_delta(previous_snapshot, len(previous_view.get('relationships') or []), len(view['relationships']))} | "
+            f"{len(view['orphan_nodes'])} |"
+        )
+
+    report += [
+        "",
         "### Semantic Changes",
         "",
-        f"- Added nodes: {len(node_diff['Added'])}",
-        f"- Removed nodes: {len(node_diff['Removed'])}",
-        f"- Added relationships: {len(relationship_diff['Added'])}",
-        f"- Removed relationships: {len(relationship_diff['Removed'])}",
-        f"- Changed relationship labels: {len(changed_relationships)}",
-        f"- Duplicate relationships: {len(duplicate_relationships)}",
-        "",
+    ]
+    for view_report in view_reports:
+        view = view_report["view"]
+        node_diff = view_report["node_diff"]
+        relationship_diff = view_report["relationship_diff"]
+        changed_relationships = view_report["changed_relationships"]
+        duplicate_relationships = view_report["duplicate_relationships"]
+        report += [
+            f"#### {view['name']}",
+            "",
+            f"- Added nodes: {len(node_diff['Added'])}",
+            f"- Removed nodes: {len(node_diff['Removed'])}",
+            f"- Added relationships: {len(relationship_diff['Added'])}",
+            f"- Removed relationships: {len(relationship_diff['Removed'])}",
+            f"- Changed relationship labels: {len(changed_relationships)}",
+            f"- Duplicate relationships: {len(duplicate_relationships)}",
+            "",
+        ]
+
+    report += [
         "### Views",
         "",
     ]
@@ -798,31 +955,36 @@ def invoke_refresh_mode(settings: dict[str, Any], puppeteer_config: Path, skip_r
         "### Hygiene",
         "",
         f"- Broken links: {len(broken_links)}",
-        f"- Orphan nodes: {len(stats['OrphanNodes'])}",
-        f"- Duplicate relationships: {len(duplicate_relationships)}",
-        f"- Removed relationships: {len(relationship_diff['Removed'])}",
-        f"- Changed relationship labels: {len(changed_relationships)}",
+        f"- Orphan nodes: {sum(len(view_report['view']['orphan_nodes']) for view_report in view_reports)}",
+        f"- Duplicate relationships: {sum(len(view_report['duplicate_relationships']) for view_report in view_reports)}",
+        f"- Removed relationships: {sum(len(view_report['relationship_diff']['Removed']) for view_report in view_reports)}",
+        f"- Changed relationship labels: {sum(len(view_report['changed_relationships']) for view_report in view_reports)}",
         f"- Pending graph nodes: {len(pending_nodes)}",
     ]
 
-    for title, items in [
-        ("Added Nodes", node_diff["Added"]),
-        ("Removed Nodes", node_diff["Removed"]),
-        ("Added Relationships", relationship_diff["Added"]),
-        ("Removed Relationships", relationship_diff["Removed"]),
-        ("Duplicate Relationships", duplicate_relationships),
-        ("Orphan Nodes", stats["OrphanNodes"]),
-        ("Broken Links", broken_links),
-        ("Pending Nodes", pending_nodes),
-    ]:
+    for view_report in view_reports:
+        view = view_report["view"]
+        for title, items in [
+            ("Added Nodes", view_report["node_diff"]["Added"]),
+            ("Removed Nodes", view_report["node_diff"]["Removed"]),
+            ("Added Relationships", view_report["relationship_diff"]["Added"]),
+            ("Removed Relationships", view_report["relationship_diff"]["Removed"]),
+            ("Duplicate Relationships", view_report["duplicate_relationships"]),
+            ("Orphan Nodes", view["orphan_nodes"]),
+        ]:
+            if items:
+                report += ["", f"#### {view['name']} - {title}", ""]
+                report += [f"- `{item}`" for item in items]
+
+        if view_report["changed_relationships"]:
+            report += ["", f"#### {view['name']} - Changed Relationship Labels", ""]
+            for relationship in view_report["changed_relationships"]:
+                report.append(f"- `{relationship['source']}` -> `{relationship['target']}` changed from `{relationship['previous']}` to `{relationship['current']}`")
+
+    for title, items in [("Broken Links", broken_links), ("Pending Nodes", pending_nodes)]:
         if items:
             report += ["", f"#### {title}", ""]
-            report += [f"- `{item}`" if title != "Broken Links" else f"- {item}" for item in items]
-
-    if changed_relationships:
-        report += ["", "#### Changed Relationship Labels", ""]
-        for relationship in changed_relationships:
-            report.append(f"- `{relationship['source']}` -> `{relationship['target']}` changed from `{relationship['previous']}` to `{relationship['current']}`")
+            report += [f"- {item}" if title == "Broken Links" else f"- `{item}`" for item in items]
 
     update_report_section(report_path, report)
     write_text(snapshot_path, json.dumps(snapshot, indent=2, ensure_ascii=False) + "\n")
@@ -870,7 +1032,10 @@ def invoke_validate_mode(settings: dict[str, Any]) -> None:
         for view in settings["views"]:
             temp_graph = temp_root / Path(view["input"]).name
             timing_spoiler_free = "timing-spoiler-free" in view["input"]
-            write_mermaid_graph(temp_graph, dict(nodes), relationships, timing_spoiler_free)
+            boundary = view.get("readerBoundary")
+            view_nodes = filter_nodes_for_boundary(nodes, boundary)
+            view_relationships = filter_relationships_for_boundary(relationships, boundary)
+            write_mermaid_graph(temp_graph, dict(view_nodes), view_relationships, timing_spoiler_free)
             class_issues = get_mermaid_class_validation(temp_graph, settings)
             layout_issues = get_mermaid_layout_validation(temp_graph, settings)
             print(f"Generated graph: {view['input']} class_issues={len(class_issues)} layout_issues={len(layout_issues)}")

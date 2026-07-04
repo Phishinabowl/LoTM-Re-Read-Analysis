@@ -1,570 +1,1720 @@
-﻿{
-    "generated_at":  "2026-07-02 23:23:14 -04:00",
-    "nodes":  [
-                  "artifact_0_08",
-                  "artifact_antigonus_notebook",
-                  "character_azik_eggers",
-                  "character_daly_simone",
-                  "character_dunn_smith",
-                  "character_ince_zangwill",
-                  "character_kenley_white",
-                  "character_klein_moretti",
-                  "character_leonard_mitchell",
-                  "character_old_neil",
-                  "character_roselle_gustav",
-                  "character_royale_reideen",
-                  "character_seeka_tron",
-                  "concept_beyonder_characteristics",
-                  "concept_beyonders",
-                  "concept_divination",
-                  "event_klein_becomes_a_seer",
-                  "faction_church_of_evernight",
-                  "faction_nighthawks",
-                  "faction_secret_order",
-                  "location_blackthorn_security_company",
-                  "location_saint_selena_cathedral",
-                  "pathway_corpse_collector",
-                  "pathway_mystery_pryer",
-                  "pathway_seer",
-                  "pathway_sleepless"
-              ],
-    "relationships":  [
-                          {
-                              "source":  "artifact_0_08",
-                              "target":  "artifact_antigonus_notebook",
-                              "label":  "causal-agent ch210 completed",
-                              "key":  "artifact_0_08|causal-agent ch210 completed|artifact_antigonus_notebook",
-                              "endpointKey":  "artifact_0_08|artifact_antigonus_notebook"
-                          },
-                          {
-                              "source":  "artifact_0_08",
-                              "target":  "character_azik_eggers",
-                              "label":  "investigated-by ch150 strong-evidence",
-                              "key":  "artifact_0_08|investigated-by ch150 strong-evidence|character_azik_eggers",
-                              "endpointKey":  "artifact_0_08|character_azik_eggers"
-                          },
-                          {
-                              "source":  "artifact_0_08",
-                              "target":  "character_dunn_smith",
-                              "label":  "manipulates ch210 completed strong-evidence",
-                              "key":  "artifact_0_08|manipulates ch210 completed strong-evidence|character_dunn_smith",
-                              "endpointKey":  "artifact_0_08|character_dunn_smith"
-                          },
-                          {
-                              "source":  "artifact_0_08",
-                              "target":  "character_klein_moretti",
-                              "label":  "manipulates ch210",
-                              "key":  "artifact_0_08|manipulates ch210|character_klein_moretti",
-                              "endpointKey":  "artifact_0_08|character_klein_moretti"
-                          },
-                          {
-                              "source":  "artifact_0_08",
-                              "target":  "location_saint_selena_cathedral",
-                              "label":  "targets-protected-resource ch210 completed strong-evidence",
-                              "key":  "artifact_0_08|targets-protected-resource ch210 completed strong-evidence|location_saint_selena_cathedral",
-                              "endpointKey":  "artifact_0_08|location_saint_selena_cathedral"
-                          },
-                          {
-                              "source":  "artifact_antigonus_notebook",
-                              "target":  "concept_divination",
-                              "label":  "connected-to ch43",
-                              "key":  "artifact_antigonus_notebook|connected-to ch43|concept_divination",
-                              "endpointKey":  "artifact_antigonus_notebook|concept_divination"
-                          },
-                          {
-                              "source":  "character_daly_simone",
-                              "target":  "pathway_corpse_collector",
-                              "label":  "pathway-status ch28",
-                              "key":  "character_daly_simone|pathway-status ch28|pathway_corpse_collector",
-                              "endpointKey":  "character_daly_simone|pathway_corpse_collector"
-                          },
-                          {
-                              "source":  "character_dunn_smith",
-                              "target":  "event_klein_becomes_a_seer",
-                              "label":  "event-participant ch28 completed",
-                              "key":  "character_dunn_smith|event-participant ch28 completed|event_klein_becomes_a_seer",
-                              "endpointKey":  "character_dunn_smith|event_klein_becomes_a_seer"
-                          },
-                          {
-                              "source":  "character_dunn_smith",
-                              "target":  "artifact_antigonus_notebook",
-                              "label":  "investigates ch13",
-                              "key":  "character_dunn_smith|investigates ch13|artifact_antigonus_notebook",
-                              "endpointKey":  "character_dunn_smith|artifact_antigonus_notebook"
-                          },
-                          {
-                              "source":  "character_dunn_smith",
-                              "target":  "faction_nighthawks",
-                              "label":  "leader-of ch17",
-                              "key":  "character_dunn_smith|leader-of ch17|faction_nighthawks",
-                              "endpointKey":  "character_dunn_smith|faction_nighthawks"
-                          },
-                          {
-                              "source":  "character_dunn_smith",
-                              "target":  "faction_church_of_evernight",
-                              "label":  "member-of ch13",
-                              "key":  "character_dunn_smith|member-of ch13|faction_church_of_evernight",
-                              "endpointKey":  "character_dunn_smith|faction_church_of_evernight"
-                          },
-                          {
-                              "source":  "character_dunn_smith",
-                              "target":  "pathway_sleepless",
-                              "label":  "pathway-status ch22",
-                              "key":  "character_dunn_smith|pathway-status ch22|pathway_sleepless",
-                              "endpointKey":  "character_dunn_smith|pathway_sleepless"
-                          },
-                          {
-                              "source":  "character_dunn_smith",
-                              "target":  "concept_beyonders",
-                              "label":  "source-of-information ch18",
-                              "key":  "character_dunn_smith|source-of-information ch18|concept_beyonders",
-                              "endpointKey":  "character_dunn_smith|concept_beyonders"
-                          },
-                          {
-                              "source":  "character_dunn_smith",
-                              "target":  "concept_divination",
-                              "label":  "source-of-information ch29",
-                              "key":  "character_dunn_smith|source-of-information ch29|concept_divination",
-                              "endpointKey":  "character_dunn_smith|concept_divination"
-                          },
-                          {
-                              "source":  "character_dunn_smith",
-                              "target":  "character_klein_moretti",
-                              "label":  "superior ch17",
-                              "key":  "character_dunn_smith|superior ch17|character_klein_moretti",
-                              "endpointKey":  "character_dunn_smith|character_klein_moretti"
-                          },
-                          {
-                              "source":  "character_dunn_smith",
-                              "target":  "location_blackthorn_security_company",
-                              "label":  "works-at ch17",
-                              "key":  "character_dunn_smith|works-at ch17|location_blackthorn_security_company",
-                              "endpointKey":  "character_dunn_smith|location_blackthorn_security_company"
-                          },
-                          {
-                              "source":  "character_ince_zangwill",
-                              "target":  "artifact_0_08",
-                              "label":  "artifact-user ch19",
-                              "key":  "character_ince_zangwill|artifact-user ch19|artifact_0_08",
-                              "endpointKey":  "character_ince_zangwill|artifact_0_08"
-                          },
-                          {
-                              "source":  "character_ince_zangwill",
-                              "target":  "location_saint_selena_cathedral",
-                              "label":  "infiltrates ch210 completed strong-evidence",
-                              "key":  "character_ince_zangwill|infiltrates ch210 completed strong-evidence|location_saint_selena_cathedral",
-                              "endpointKey":  "character_ince_zangwill|location_saint_selena_cathedral"
-                          },
-                          {
-                              "source":  "character_kenley_white",
-                              "target":  "pathway_sleepless",
-                              "label":  "pathway-status ch42",
-                              "key":  "character_kenley_white|pathway-status ch42|pathway_sleepless",
-                              "endpointKey":  "character_kenley_white|pathway_sleepless"
-                          },
-                          {
-                              "source":  "character_klein_moretti",
-                              "target":  "faction_church_of_evernight",
-                              "label":  "civilian-staff-of ch17",
-                              "key":  "character_klein_moretti|civilian-staff-of ch17|faction_church_of_evernight",
-                              "endpointKey":  "character_klein_moretti|faction_church_of_evernight"
-                          },
-                          {
-                              "source":  "character_klein_moretti",
-                              "target":  "event_klein_becomes_a_seer",
-                              "label":  "event-participant ch28",
-                              "key":  "character_klein_moretti|event-participant ch28|event_klein_becomes_a_seer",
-                              "endpointKey":  "character_klein_moretti|event_klein_becomes_a_seer"
-                          },
-                          {
-                              "source":  "character_klein_moretti",
-                              "target":  "concept_beyonders",
-                              "label":  "instance-of ch31",
-                              "key":  "character_klein_moretti|instance-of ch31|concept_beyonders",
-                              "endpointKey":  "character_klein_moretti|concept_beyonders"
-                          },
-                          {
-                              "source":  "character_klein_moretti",
-                              "target":  "artifact_antigonus_notebook",
-                              "label":  "investigates ch9",
-                              "key":  "character_klein_moretti|investigates ch9|artifact_antigonus_notebook",
-                              "endpointKey":  "character_klein_moretti|artifact_antigonus_notebook"
-                          },
-                          {
-                              "source":  "character_klein_moretti",
-                              "target":  "pathway_seer",
-                              "label":  "pathway-status ch31",
-                              "key":  "character_klein_moretti|pathway-status ch31|pathway_seer",
-                              "endpointKey":  "character_klein_moretti|pathway_seer"
-                          },
-                          {
-                              "source":  "character_klein_moretti",
-                              "target":  "character_old_neil",
-                              "label":  "student ch32",
-                              "key":  "character_klein_moretti|student ch32|character_old_neil",
-                              "endpointKey":  "character_klein_moretti|character_old_neil"
-                          },
-                          {
-                              "source":  "character_klein_moretti",
-                              "target":  "character_dunn_smith",
-                              "label":  "subordinate ch17",
-                              "key":  "character_klein_moretti|subordinate ch17|character_dunn_smith",
-                              "endpointKey":  "character_klein_moretti|character_dunn_smith"
-                          },
-                          {
-                              "source":  "character_klein_moretti",
-                              "target":  "location_saint_selena_cathedral",
-                              "label":  "uses-as-operational-refuge ch25 completed",
-                              "key":  "character_klein_moretti|uses-as-operational-refuge ch25 completed|location_saint_selena_cathedral",
-                              "endpointKey":  "character_klein_moretti|location_saint_selena_cathedral"
-                          },
-                          {
-                              "source":  "character_klein_moretti",
-                              "target":  "concept_divination",
-                              "label":  "uses-method ch43",
-                              "key":  "character_klein_moretti|uses-method ch43|concept_divination",
-                              "endpointKey":  "character_klein_moretti|concept_divination"
-                          },
-                          {
-                              "source":  "character_klein_moretti",
-                              "target":  "location_blackthorn_security_company",
-                              "label":  "works-at ch17",
-                              "key":  "character_klein_moretti|works-at ch17|location_blackthorn_security_company",
-                              "endpointKey":  "character_klein_moretti|location_blackthorn_security_company"
-                          },
-                          {
-                              "source":  "character_leonard_mitchell",
-                              "target":  "pathway_sleepless",
-                              "label":  "pathway-status ch21",
-                              "key":  "character_leonard_mitchell|pathway-status ch21|pathway_sleepless",
-                              "endpointKey":  "character_leonard_mitchell|pathway_sleepless"
-                          },
-                          {
-                              "source":  "character_old_neil",
-                              "target":  "faction_church_of_evernight",
-                              "label":  "civilian-staff-of ch19",
-                              "key":  "character_old_neil|civilian-staff-of ch19|faction_church_of_evernight",
-                              "endpointKey":  "character_old_neil|faction_church_of_evernight"
-                          },
-                          {
-                              "source":  "character_old_neil",
-                              "target":  "event_klein_becomes_a_seer",
-                              "label":  "event-participant ch31",
-                              "key":  "character_old_neil|event-participant ch31|event_klein_becomes_a_seer",
-                              "endpointKey":  "character_old_neil|event_klein_becomes_a_seer"
-                          },
-                          {
-                              "source":  "character_old_neil",
-                              "target":  "concept_beyonders",
-                              "label":  "instance-of ch22",
-                              "key":  "character_old_neil|instance-of ch22|concept_beyonders",
-                              "endpointKey":  "character_old_neil|concept_beyonders"
-                          },
-                          {
-                              "source":  "character_old_neil",
-                              "target":  "artifact_antigonus_notebook",
-                              "label":  "investigates ch45",
-                              "key":  "character_old_neil|investigates ch45|artifact_antigonus_notebook",
-                              "endpointKey":  "character_old_neil|artifact_antigonus_notebook"
-                          },
-                          {
-                              "source":  "character_old_neil",
-                              "target":  "character_klein_moretti",
-                              "label":  "mentor ch32",
-                              "key":  "character_old_neil|mentor ch32|character_klein_moretti",
-                              "endpointKey":  "character_old_neil|character_klein_moretti"
-                          },
-                          {
-                              "source":  "character_old_neil",
-                              "target":  "pathway_mystery_pryer",
-                              "label":  "pathway-status ch22",
-                              "key":  "character_old_neil|pathway-status ch22|pathway_mystery_pryer",
-                              "endpointKey":  "character_old_neil|pathway_mystery_pryer"
-                          },
-                          {
-                              "source":  "character_old_neil",
-                              "target":  "pathway_seer",
-                              "label":  "trains-in ch31",
-                              "key":  "character_old_neil|trains-in ch31|pathway_seer",
-                              "endpointKey":  "character_old_neil|pathway_seer"
-                          },
-                          {
-                              "source":  "character_old_neil",
-                              "target":  "concept_beyonders",
-                              "label":  "trains-in ch32",
-                              "key":  "character_old_neil|trains-in ch32|concept_beyonders",
-                              "endpointKey":  "character_old_neil|concept_beyonders"
-                          },
-                          {
-                              "source":  "character_old_neil",
-                              "target":  "concept_divination",
-                              "label":  "trains-in ch32",
-                              "key":  "character_old_neil|trains-in ch32|concept_divination",
-                              "endpointKey":  "character_old_neil|concept_divination"
-                          },
-                          {
-                              "source":  "character_old_neil",
-                              "target":  "location_blackthorn_security_company",
-                              "label":  "works-at ch19",
-                              "key":  "character_old_neil|works-at ch19|location_blackthorn_security_company",
-                              "endpointKey":  "character_old_neil|location_blackthorn_security_company"
-                          },
-                          {
-                              "source":  "character_roselle_gustav",
-                              "target":  "pathway_seer",
-                              "label":  "source-of-information ch21 historical",
-                              "key":  "character_roselle_gustav|source-of-information ch21 historical|pathway_seer",
-                              "endpointKey":  "character_roselle_gustav|pathway_seer"
-                          },
-                          {
-                              "source":  "character_royale_reideen",
-                              "target":  "pathway_sleepless",
-                              "label":  "pathway-status ch42",
-                              "key":  "character_royale_reideen|pathway-status ch42|pathway_sleepless",
-                              "endpointKey":  "character_royale_reideen|pathway_sleepless"
-                          },
-                          {
-                              "source":  "character_seeka_tron",
-                              "target":  "pathway_sleepless",
-                              "label":  "pathway-status ch42",
-                              "key":  "character_seeka_tron|pathway-status ch42|pathway_sleepless",
-                              "endpointKey":  "character_seeka_tron|pathway_sleepless"
-                          },
-                          {
-                              "source":  "concept_beyonder_characteristics",
-                              "target":  "artifact_0_08",
-                              "label":  "connected-to ch210",
-                              "key":  "concept_beyonder_characteristics|connected-to ch210|artifact_0_08",
-                              "endpointKey":  "concept_beyonder_characteristics|artifact_0_08"
-                          },
-                          {
-                              "source":  "concept_beyonder_characteristics",
-                              "target":  "concept_beyonders",
-                              "label":  "mechanic-of ch207",
-                              "key":  "concept_beyonder_characteristics|mechanic-of ch207|concept_beyonders",
-                              "endpointKey":  "concept_beyonder_characteristics|concept_beyonders"
-                          },
-                          {
-                              "source":  "concept_divination",
-                              "target":  "pathway_seer",
-                              "label":  "mechanic-of ch29",
-                              "key":  "concept_divination|mechanic-of ch29|pathway_seer",
-                              "endpointKey":  "concept_divination|pathway_seer"
-                          },
-                          {
-                              "source":  "event_klein_becomes_a_seer",
-                              "target":  "character_klein_moretti",
-                              "label":  "event-outcome ch31",
-                              "key":  "event_klein_becomes_a_seer|event-outcome ch31|character_klein_moretti",
-                              "endpointKey":  "event_klein_becomes_a_seer|character_klein_moretti"
-                          },
-                          {
-                              "source":  "event_klein_becomes_a_seer",
-                              "target":  "concept_beyonders",
-                              "label":  "event-outcome ch31",
-                              "key":  "event_klein_becomes_a_seer|event-outcome ch31|concept_beyonders",
-                              "endpointKey":  "event_klein_becomes_a_seer|concept_beyonders"
-                          },
-                          {
-                              "source":  "event_klein_becomes_a_seer",
-                              "target":  "pathway_seer",
-                              "label":  "event-outcome ch31",
-                              "key":  "event_klein_becomes_a_seer|event-outcome ch31|pathway_seer",
-                              "endpointKey":  "event_klein_becomes_a_seer|pathway_seer"
-                          },
-                          {
-                              "source":  "faction_church_of_evernight",
-                              "target":  "artifact_0_08",
-                              "label":  "artifact-guardian ch19 broken",
-                              "key":  "faction_church_of_evernight|artifact-guardian ch19 broken|artifact_0_08",
-                              "endpointKey":  "faction_church_of_evernight|artifact_0_08"
-                          },
-                          {
-                              "source":  "faction_church_of_evernight",
-                              "target":  "concept_divination",
-                              "label":  "connected-to ch40",
-                              "key":  "faction_church_of_evernight|connected-to ch40|concept_divination",
-                              "endpointKey":  "faction_church_of_evernight|concept_divination"
-                          },
-                          {
-                              "source":  "faction_church_of_evernight",
-                              "target":  "event_klein_becomes_a_seer",
-                              "label":  "event-enabler ch28 completed",
-                              "key":  "faction_church_of_evernight|event-enabler ch28 completed|event_klein_becomes_a_seer",
-                              "endpointKey":  "faction_church_of_evernight|event_klein_becomes_a_seer"
-                          },
-                          {
-                              "source":  "faction_church_of_evernight",
-                              "target":  "artifact_antigonus_notebook",
-                              "label":  "investigates ch13",
-                              "key":  "faction_church_of_evernight|investigates ch13|artifact_antigonus_notebook",
-                              "endpointKey":  "faction_church_of_evernight|artifact_antigonus_notebook"
-                          },
-                          {
-                              "source":  "faction_church_of_evernight",
-                              "target":  "pathway_sleepless",
-                              "label":  "regulates-access-to ch22",
-                              "key":  "faction_church_of_evernight|regulates-access-to ch22|pathway_sleepless",
-                              "endpointKey":  "faction_church_of_evernight|pathway_sleepless"
-                          },
-                          {
-                              "source":  "faction_church_of_evernight",
-                              "target":  "pathway_seer",
-                              "label":  "regulates-access-to ch28",
-                              "key":  "faction_church_of_evernight|regulates-access-to ch28|pathway_seer",
-                              "endpointKey":  "faction_church_of_evernight|pathway_seer"
-                          },
-                          {
-                              "source":  "faction_church_of_evernight",
-                              "target":  "concept_beyonders",
-                              "label":  "regulates-access-to ch6",
-                              "key":  "faction_church_of_evernight|regulates-access-to ch6|concept_beyonders",
-                              "endpointKey":  "faction_church_of_evernight|concept_beyonders"
-                          },
-                          {
-                              "source":  "faction_nighthawks",
-                              "target":  "location_saint_selena_cathedral",
-                              "label":  "affiliated-with ch17",
-                              "key":  "faction_nighthawks|affiliated-with ch17|location_saint_selena_cathedral",
-                              "endpointKey":  "faction_nighthawks|location_saint_selena_cathedral"
-                          },
-                          {
-                              "source":  "faction_nighthawks",
-                              "target":  "artifact_antigonus_notebook",
-                              "label":  "investigates ch13",
-                              "key":  "faction_nighthawks|investigates ch13|artifact_antigonus_notebook",
-                              "endpointKey":  "faction_nighthawks|artifact_antigonus_notebook"
-                          },
-                          {
-                              "source":  "faction_nighthawks",
-                              "target":  "faction_church_of_evernight",
-                              "label":  "subordinate-organization ch13",
-                              "key":  "faction_nighthawks|subordinate-organization ch13|faction_church_of_evernight",
-                              "endpointKey":  "faction_nighthawks|faction_church_of_evernight"
-                          },
-                          {
-                              "source":  "faction_secret_order",
-                              "target":  "artifact_antigonus_notebook",
-                              "label":  "targets ch28 strong-evidence",
-                              "key":  "faction_secret_order|targets ch28 strong-evidence|artifact_antigonus_notebook",
-                              "endpointKey":  "faction_secret_order|artifact_antigonus_notebook"
-                          },
-                          {
-                              "source":  "location_blackthorn_security_company",
-                              "target":  "location_saint_selena_cathedral",
-                              "label":  "connected-to ch17",
-                              "key":  "location_blackthorn_security_company|connected-to ch17|location_saint_selena_cathedral",
-                              "endpointKey":  "location_blackthorn_security_company|location_saint_selena_cathedral"
-                          },
-                          {
-                              "source":  "location_blackthorn_security_company",
-                              "target":  "artifact_antigonus_notebook",
-                              "label":  "connected-to ch45",
-                              "key":  "location_blackthorn_security_company|connected-to ch45|artifact_antigonus_notebook",
-                              "endpointKey":  "location_blackthorn_security_company|artifact_antigonus_notebook"
-                          },
-                          {
-                              "source":  "location_blackthorn_security_company",
-                              "target":  "event_klein_becomes_a_seer",
-                              "label":  "event-location ch30 completed",
-                              "key":  "location_blackthorn_security_company|event-location ch30 completed|event_klein_becomes_a_seer",
-                              "endpointKey":  "location_blackthorn_security_company|event_klein_becomes_a_seer"
-                          },
-                          {
-                              "source":  "location_blackthorn_security_company",
-                              "target":  "faction_nighthawks",
-                              "label":  "operational-base-for ch17",
-                              "key":  "location_blackthorn_security_company|operational-base-for ch17|faction_nighthawks",
-                              "endpointKey":  "location_blackthorn_security_company|faction_nighthawks"
-                          },
-                          {
-                              "source":  "location_blackthorn_security_company",
-                              "target":  "faction_nighthawks",
-                              "label":  "public-cover-for ch17",
-                              "key":  "location_blackthorn_security_company|public-cover-for ch17|faction_nighthawks",
-                              "endpointKey":  "location_blackthorn_security_company|faction_nighthawks"
-                          },
-                          {
-                              "source":  "location_saint_selena_cathedral",
-                              "target":  "faction_church_of_evernight",
-                              "label":  "affiliated-with ch17",
-                              "key":  "location_saint_selena_cathedral|affiliated-with ch17|faction_church_of_evernight",
-                              "endpointKey":  "location_saint_selena_cathedral|faction_church_of_evernight"
-                          },
-                          {
-                              "source":  "location_saint_selena_cathedral",
-                              "target":  "location_blackthorn_security_company",
-                              "label":  "connected-to ch17",
-                              "key":  "location_saint_selena_cathedral|connected-to ch17|location_blackthorn_security_company",
-                              "endpointKey":  "location_saint_selena_cathedral|location_blackthorn_security_company"
-                          },
-                          {
-                              "source":  "location_saint_selena_cathedral",
-                              "target":  "event_klein_becomes_a_seer",
-                              "label":  "event-location ch31 completed",
-                              "key":  "location_saint_selena_cathedral|event-location ch31 completed|event_klein_becomes_a_seer",
-                              "endpointKey":  "location_saint_selena_cathedral|event_klein_becomes_a_seer"
-                          },
-                          {
-                              "source":  "pathway_seer",
-                              "target":  "concept_beyonders",
-                              "label":  "access-route-to ch28",
-                              "key":  "pathway_seer|access-route-to ch28|concept_beyonders",
-                              "endpointKey":  "pathway_seer|concept_beyonders"
-                          },
-                          {
-                              "source":  "pathway_seer",
-                              "target":  "concept_divination",
-                              "label":  "uses-method ch29",
-                              "key":  "pathway_seer|uses-method ch29|concept_divination",
-                              "endpointKey":  "pathway_seer|concept_divination"
-                          },
-                          {
-                              "source":  "pathway_sleepless",
-                              "target":  "concept_beyonders",
-                              "label":  "access-route-to ch22",
-                              "key":  "pathway_sleepless|access-route-to ch22|concept_beyonders",
-                              "endpointKey":  "pathway_sleepless|concept_beyonders"
-                          },
-                          {
-                              "source":  "pathway_sleepless",
-                              "target":  "pathway_seer",
-                              "label":  "connected-to ch28",
-                              "key":  "pathway_sleepless|connected-to ch28|pathway_seer",
-                              "endpointKey":  "pathway_sleepless|pathway_seer"
-                          }
-                      ],
-    "views":  [
-                  "Volume 1 Knowledge Graph",
-                  "Volume 1 Knowledge Graph - Timing Spoiler-Free"
-              ],
-    "rendered_files":  [
-                           "Visualization/rendered/volume-1-knowledge-graph.svg",
-                           "Visualization/rendered/volume-1-knowledge-graph.png",
-                           "Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.svg",
-                           "Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.png"
-                       ],
-    "broken_links":  null,
-    "orphan_nodes":  [
-
-                     ],
-    "pending_nodes":  [
-                          "character-azik-eggers.md",
-                          "character-daly-simone.md",
-                          "character-frye.md",
-                          "character-ince-zangwill.md",
-                          "character-kenley-white.md",
-                          "character-klein-moretti.md",
-                          "character-leonard-mitchell.md",
-                          "character-mrs-orianna.md",
-                          "character-ray-bieber.md",
-                          "character-royale-reideen.md",
-                          "character-rozanne.md",
-                          "character-roselle-gustav.md",
-                          "character-seeka-tron.md",
-                          "faction-nighthawks.md",
-                          "faction-secret-order.md",
-                          "pathway-corpse-collector.md",
-                          "pathway-mystery-pryer.md"
-                      ]
+{
+  "generated_at": "2026-07-04 10:42:12 -04:00",
+  "nodes": [
+    "artifact_0_08",
+    "artifact_antigonus_notebook",
+    "character_azik_eggers",
+    "character_daly_simone",
+    "character_dunn_smith",
+    "character_ince_zangwill",
+    "character_kenley_white",
+    "character_klein_moretti",
+    "character_leonard_mitchell",
+    "character_old_neil",
+    "character_roselle_gustav",
+    "character_royale_reideen",
+    "character_seeka_tron",
+    "concept_beyonder_characteristics",
+    "concept_beyonders",
+    "concept_divination",
+    "concept_prayers_and_rituals",
+    "deity_s0_evernight_goddess",
+    "event_klein_becomes_a_seer",
+    "faction_church_of_evernight",
+    "faction_nighthawks",
+    "faction_secret_order",
+    "location_blackthorn_security_company",
+    "location_saint_selena_cathedral",
+    "pathway_corpse_collector",
+    "pathway_mystery_pryer",
+    "pathway_seer",
+    "pathway_sleepless"
+  ],
+  "relationships": [
+    {
+      "source": "artifact_0_08",
+      "target": "artifact_antigonus_notebook",
+      "label": "causal-agent ch210 completed",
+      "key": "artifact_0_08|causal-agent ch210 completed|artifact_antigonus_notebook",
+      "endpointKey": "artifact_0_08|artifact_antigonus_notebook"
+    },
+    {
+      "source": "artifact_0_08",
+      "target": "character_azik_eggers",
+      "label": "investigated-by ch150 strong-evidence",
+      "key": "artifact_0_08|investigated-by ch150 strong-evidence|character_azik_eggers",
+      "endpointKey": "artifact_0_08|character_azik_eggers"
+    },
+    {
+      "source": "artifact_0_08",
+      "target": "character_dunn_smith",
+      "label": "manipulates ch210 completed strong-evidence",
+      "key": "artifact_0_08|manipulates ch210 completed strong-evidence|character_dunn_smith",
+      "endpointKey": "artifact_0_08|character_dunn_smith"
+    },
+    {
+      "source": "artifact_0_08",
+      "target": "character_klein_moretti",
+      "label": "manipulates ch210",
+      "key": "artifact_0_08|manipulates ch210|character_klein_moretti",
+      "endpointKey": "artifact_0_08|character_klein_moretti"
+    },
+    {
+      "source": "artifact_0_08",
+      "target": "location_saint_selena_cathedral",
+      "label": "targets-protected-resource ch210 completed strong-evidence",
+      "key": "artifact_0_08|targets-protected-resource ch210 completed strong-evidence|location_saint_selena_cathedral",
+      "endpointKey": "artifact_0_08|location_saint_selena_cathedral"
+    },
+    {
+      "source": "artifact_antigonus_notebook",
+      "target": "concept_divination",
+      "label": "connected-to ch43",
+      "key": "artifact_antigonus_notebook|connected-to ch43|concept_divination",
+      "endpointKey": "artifact_antigonus_notebook|concept_divination"
+    },
+    {
+      "source": "character_daly_simone",
+      "target": "pathway_corpse_collector",
+      "label": "pathway-status ch28",
+      "key": "character_daly_simone|pathway-status ch28|pathway_corpse_collector",
+      "endpointKey": "character_daly_simone|pathway_corpse_collector"
+    },
+    {
+      "source": "character_dunn_smith",
+      "target": "event_klein_becomes_a_seer",
+      "label": "event-participant ch28 completed",
+      "key": "character_dunn_smith|event-participant ch28 completed|event_klein_becomes_a_seer",
+      "endpointKey": "character_dunn_smith|event_klein_becomes_a_seer"
+    },
+    {
+      "source": "character_dunn_smith",
+      "target": "artifact_antigonus_notebook",
+      "label": "investigates ch13",
+      "key": "character_dunn_smith|investigates ch13|artifact_antigonus_notebook",
+      "endpointKey": "character_dunn_smith|artifact_antigonus_notebook"
+    },
+    {
+      "source": "character_dunn_smith",
+      "target": "faction_nighthawks",
+      "label": "leader-of ch17",
+      "key": "character_dunn_smith|leader-of ch17|faction_nighthawks",
+      "endpointKey": "character_dunn_smith|faction_nighthawks"
+    },
+    {
+      "source": "character_dunn_smith",
+      "target": "faction_church_of_evernight",
+      "label": "member-of ch13",
+      "key": "character_dunn_smith|member-of ch13|faction_church_of_evernight",
+      "endpointKey": "character_dunn_smith|faction_church_of_evernight"
+    },
+    {
+      "source": "character_dunn_smith",
+      "target": "pathway_sleepless",
+      "label": "pathway-status ch22",
+      "key": "character_dunn_smith|pathway-status ch22|pathway_sleepless",
+      "endpointKey": "character_dunn_smith|pathway_sleepless"
+    },
+    {
+      "source": "character_dunn_smith",
+      "target": "concept_beyonders",
+      "label": "source-of-information ch18",
+      "key": "character_dunn_smith|source-of-information ch18|concept_beyonders",
+      "endpointKey": "character_dunn_smith|concept_beyonders"
+    },
+    {
+      "source": "character_dunn_smith",
+      "target": "concept_divination",
+      "label": "source-of-information ch29",
+      "key": "character_dunn_smith|source-of-information ch29|concept_divination",
+      "endpointKey": "character_dunn_smith|concept_divination"
+    },
+    {
+      "source": "character_dunn_smith",
+      "target": "character_klein_moretti",
+      "label": "superior ch17",
+      "key": "character_dunn_smith|superior ch17|character_klein_moretti",
+      "endpointKey": "character_dunn_smith|character_klein_moretti"
+    },
+    {
+      "source": "character_dunn_smith",
+      "target": "location_blackthorn_security_company",
+      "label": "works-at ch17",
+      "key": "character_dunn_smith|works-at ch17|location_blackthorn_security_company",
+      "endpointKey": "character_dunn_smith|location_blackthorn_security_company"
+    },
+    {
+      "source": "character_ince_zangwill",
+      "target": "artifact_0_08",
+      "label": "artifact-user ch19",
+      "key": "character_ince_zangwill|artifact-user ch19|artifact_0_08",
+      "endpointKey": "character_ince_zangwill|artifact_0_08"
+    },
+    {
+      "source": "character_ince_zangwill",
+      "target": "location_saint_selena_cathedral",
+      "label": "infiltrates ch210 completed strong-evidence",
+      "key": "character_ince_zangwill|infiltrates ch210 completed strong-evidence|location_saint_selena_cathedral",
+      "endpointKey": "character_ince_zangwill|location_saint_selena_cathedral"
+    },
+    {
+      "source": "character_kenley_white",
+      "target": "pathway_sleepless",
+      "label": "pathway-status ch42",
+      "key": "character_kenley_white|pathway-status ch42|pathway_sleepless",
+      "endpointKey": "character_kenley_white|pathway_sleepless"
+    },
+    {
+      "source": "character_klein_moretti",
+      "target": "faction_church_of_evernight",
+      "label": "civilian-staff-of ch17",
+      "key": "character_klein_moretti|civilian-staff-of ch17|faction_church_of_evernight",
+      "endpointKey": "character_klein_moretti|faction_church_of_evernight"
+    },
+    {
+      "source": "character_klein_moretti",
+      "target": "event_klein_becomes_a_seer",
+      "label": "event-participant ch28",
+      "key": "character_klein_moretti|event-participant ch28|event_klein_becomes_a_seer",
+      "endpointKey": "character_klein_moretti|event_klein_becomes_a_seer"
+    },
+    {
+      "source": "character_klein_moretti",
+      "target": "concept_beyonders",
+      "label": "instance-of ch31",
+      "key": "character_klein_moretti|instance-of ch31|concept_beyonders",
+      "endpointKey": "character_klein_moretti|concept_beyonders"
+    },
+    {
+      "source": "character_klein_moretti",
+      "target": "artifact_antigonus_notebook",
+      "label": "investigates ch9",
+      "key": "character_klein_moretti|investigates ch9|artifact_antigonus_notebook",
+      "endpointKey": "character_klein_moretti|artifact_antigonus_notebook"
+    },
+    {
+      "source": "character_klein_moretti",
+      "target": "pathway_seer",
+      "label": "pathway-status ch31",
+      "key": "character_klein_moretti|pathway-status ch31|pathway_seer",
+      "endpointKey": "character_klein_moretti|pathway_seer"
+    },
+    {
+      "source": "character_klein_moretti",
+      "target": "character_old_neil",
+      "label": "student ch32",
+      "key": "character_klein_moretti|student ch32|character_old_neil",
+      "endpointKey": "character_klein_moretti|character_old_neil"
+    },
+    {
+      "source": "character_klein_moretti",
+      "target": "character_dunn_smith",
+      "label": "subordinate ch17",
+      "key": "character_klein_moretti|subordinate ch17|character_dunn_smith",
+      "endpointKey": "character_klein_moretti|character_dunn_smith"
+    },
+    {
+      "source": "character_klein_moretti",
+      "target": "location_saint_selena_cathedral",
+      "label": "uses-as-operational-refuge ch25 completed",
+      "key": "character_klein_moretti|uses-as-operational-refuge ch25 completed|location_saint_selena_cathedral",
+      "endpointKey": "character_klein_moretti|location_saint_selena_cathedral"
+    },
+    {
+      "source": "character_klein_moretti",
+      "target": "concept_divination",
+      "label": "uses-method ch43",
+      "key": "character_klein_moretti|uses-method ch43|concept_divination",
+      "endpointKey": "character_klein_moretti|concept_divination"
+    },
+    {
+      "source": "character_klein_moretti",
+      "target": "location_blackthorn_security_company",
+      "label": "works-at ch17",
+      "key": "character_klein_moretti|works-at ch17|location_blackthorn_security_company",
+      "endpointKey": "character_klein_moretti|location_blackthorn_security_company"
+    },
+    {
+      "source": "character_leonard_mitchell",
+      "target": "pathway_sleepless",
+      "label": "pathway-status ch21",
+      "key": "character_leonard_mitchell|pathway-status ch21|pathway_sleepless",
+      "endpointKey": "character_leonard_mitchell|pathway_sleepless"
+    },
+    {
+      "source": "character_old_neil",
+      "target": "faction_church_of_evernight",
+      "label": "civilian-staff-of ch19",
+      "key": "character_old_neil|civilian-staff-of ch19|faction_church_of_evernight",
+      "endpointKey": "character_old_neil|faction_church_of_evernight"
+    },
+    {
+      "source": "character_old_neil",
+      "target": "event_klein_becomes_a_seer",
+      "label": "event-participant ch31",
+      "key": "character_old_neil|event-participant ch31|event_klein_becomes_a_seer",
+      "endpointKey": "character_old_neil|event_klein_becomes_a_seer"
+    },
+    {
+      "source": "character_old_neil",
+      "target": "concept_beyonders",
+      "label": "instance-of ch22",
+      "key": "character_old_neil|instance-of ch22|concept_beyonders",
+      "endpointKey": "character_old_neil|concept_beyonders"
+    },
+    {
+      "source": "character_old_neil",
+      "target": "artifact_antigonus_notebook",
+      "label": "investigates ch45",
+      "key": "character_old_neil|investigates ch45|artifact_antigonus_notebook",
+      "endpointKey": "character_old_neil|artifact_antigonus_notebook"
+    },
+    {
+      "source": "character_old_neil",
+      "target": "character_klein_moretti",
+      "label": "mentor ch32",
+      "key": "character_old_neil|mentor ch32|character_klein_moretti",
+      "endpointKey": "character_old_neil|character_klein_moretti"
+    },
+    {
+      "source": "character_old_neil",
+      "target": "pathway_mystery_pryer",
+      "label": "pathway-status ch22",
+      "key": "character_old_neil|pathway-status ch22|pathway_mystery_pryer",
+      "endpointKey": "character_old_neil|pathway_mystery_pryer"
+    },
+    {
+      "source": "character_old_neil",
+      "target": "pathway_seer",
+      "label": "trains-in ch31",
+      "key": "character_old_neil|trains-in ch31|pathway_seer",
+      "endpointKey": "character_old_neil|pathway_seer"
+    },
+    {
+      "source": "character_old_neil",
+      "target": "concept_beyonders",
+      "label": "trains-in ch32",
+      "key": "character_old_neil|trains-in ch32|concept_beyonders",
+      "endpointKey": "character_old_neil|concept_beyonders"
+    },
+    {
+      "source": "character_old_neil",
+      "target": "concept_divination",
+      "label": "trains-in ch32",
+      "key": "character_old_neil|trains-in ch32|concept_divination",
+      "endpointKey": "character_old_neil|concept_divination"
+    },
+    {
+      "source": "character_old_neil",
+      "target": "location_blackthorn_security_company",
+      "label": "works-at ch19",
+      "key": "character_old_neil|works-at ch19|location_blackthorn_security_company",
+      "endpointKey": "character_old_neil|location_blackthorn_security_company"
+    },
+    {
+      "source": "character_roselle_gustav",
+      "target": "pathway_seer",
+      "label": "source-of-information ch21 historical",
+      "key": "character_roselle_gustav|source-of-information ch21 historical|pathway_seer",
+      "endpointKey": "character_roselle_gustav|pathway_seer"
+    },
+    {
+      "source": "character_royale_reideen",
+      "target": "pathway_sleepless",
+      "label": "pathway-status ch42",
+      "key": "character_royale_reideen|pathway-status ch42|pathway_sleepless",
+      "endpointKey": "character_royale_reideen|pathway_sleepless"
+    },
+    {
+      "source": "character_seeka_tron",
+      "target": "pathway_sleepless",
+      "label": "pathway-status ch42",
+      "key": "character_seeka_tron|pathway-status ch42|pathway_sleepless",
+      "endpointKey": "character_seeka_tron|pathway_sleepless"
+    },
+    {
+      "source": "concept_beyonder_characteristics",
+      "target": "artifact_0_08",
+      "label": "connected-to ch210",
+      "key": "concept_beyonder_characteristics|connected-to ch210|artifact_0_08",
+      "endpointKey": "concept_beyonder_characteristics|artifact_0_08"
+    },
+    {
+      "source": "concept_beyonder_characteristics",
+      "target": "concept_beyonders",
+      "label": "mechanic-of ch207",
+      "key": "concept_beyonder_characteristics|mechanic-of ch207|concept_beyonders",
+      "endpointKey": "concept_beyonder_characteristics|concept_beyonders"
+    },
+    {
+      "source": "concept_divination",
+      "target": "pathway_seer",
+      "label": "mechanic-of ch29",
+      "key": "concept_divination|mechanic-of ch29|pathway_seer",
+      "endpointKey": "concept_divination|pathway_seer"
+    },
+    {
+      "source": "concept_prayers_and_rituals",
+      "target": "character_old_neil",
+      "label": "explained-by ch33",
+      "key": "concept_prayers_and_rituals|explained-by ch33|character_old_neil",
+      "endpointKey": "concept_prayers_and_rituals|character_old_neil"
+    },
+    {
+      "source": "concept_prayers_and_rituals",
+      "target": "artifact_antigonus_notebook",
+      "label": "field-evidence-associated-with ch46",
+      "key": "concept_prayers_and_rituals|field-evidence-associated-with ch46|artifact_antigonus_notebook",
+      "endpointKey": "concept_prayers_and_rituals|artifact_antigonus_notebook"
+    },
+    {
+      "source": "event_klein_becomes_a_seer",
+      "target": "character_klein_moretti",
+      "label": "event-outcome ch31",
+      "key": "event_klein_becomes_a_seer|event-outcome ch31|character_klein_moretti",
+      "endpointKey": "event_klein_becomes_a_seer|character_klein_moretti"
+    },
+    {
+      "source": "event_klein_becomes_a_seer",
+      "target": "concept_beyonders",
+      "label": "event-outcome ch31",
+      "key": "event_klein_becomes_a_seer|event-outcome ch31|concept_beyonders",
+      "endpointKey": "event_klein_becomes_a_seer|concept_beyonders"
+    },
+    {
+      "source": "event_klein_becomes_a_seer",
+      "target": "pathway_seer",
+      "label": "event-outcome ch31",
+      "key": "event_klein_becomes_a_seer|event-outcome ch31|pathway_seer",
+      "endpointKey": "event_klein_becomes_a_seer|pathway_seer"
+    },
+    {
+      "source": "faction_church_of_evernight",
+      "target": "artifact_0_08",
+      "label": "artifact-guardian ch19 broken",
+      "key": "faction_church_of_evernight|artifact-guardian ch19 broken|artifact_0_08",
+      "endpointKey": "faction_church_of_evernight|artifact_0_08"
+    },
+    {
+      "source": "faction_church_of_evernight",
+      "target": "concept_divination",
+      "label": "connected-to ch40",
+      "key": "faction_church_of_evernight|connected-to ch40|concept_divination",
+      "endpointKey": "faction_church_of_evernight|concept_divination"
+    },
+    {
+      "source": "faction_church_of_evernight",
+      "target": "event_klein_becomes_a_seer",
+      "label": "event-enabler ch28 completed",
+      "key": "faction_church_of_evernight|event-enabler ch28 completed|event_klein_becomes_a_seer",
+      "endpointKey": "faction_church_of_evernight|event_klein_becomes_a_seer"
+    },
+    {
+      "source": "faction_church_of_evernight",
+      "target": "artifact_antigonus_notebook",
+      "label": "investigates ch13",
+      "key": "faction_church_of_evernight|investigates ch13|artifact_antigonus_notebook",
+      "endpointKey": "faction_church_of_evernight|artifact_antigonus_notebook"
+    },
+    {
+      "source": "faction_church_of_evernight",
+      "target": "pathway_sleepless",
+      "label": "regulates-access-to ch22",
+      "key": "faction_church_of_evernight|regulates-access-to ch22|pathway_sleepless",
+      "endpointKey": "faction_church_of_evernight|pathway_sleepless"
+    },
+    {
+      "source": "faction_church_of_evernight",
+      "target": "pathway_seer",
+      "label": "regulates-access-to ch28",
+      "key": "faction_church_of_evernight|regulates-access-to ch28|pathway_seer",
+      "endpointKey": "faction_church_of_evernight|pathway_seer"
+    },
+    {
+      "source": "faction_church_of_evernight",
+      "target": "concept_beyonders",
+      "label": "regulates-access-to ch6",
+      "key": "faction_church_of_evernight|regulates-access-to ch6|concept_beyonders",
+      "endpointKey": "faction_church_of_evernight|concept_beyonders"
+    },
+    {
+      "source": "faction_nighthawks",
+      "target": "location_saint_selena_cathedral",
+      "label": "affiliated-with ch17",
+      "key": "faction_nighthawks|affiliated-with ch17|location_saint_selena_cathedral",
+      "endpointKey": "faction_nighthawks|location_saint_selena_cathedral"
+    },
+    {
+      "source": "faction_nighthawks",
+      "target": "artifact_antigonus_notebook",
+      "label": "investigates ch13",
+      "key": "faction_nighthawks|investigates ch13|artifact_antigonus_notebook",
+      "endpointKey": "faction_nighthawks|artifact_antigonus_notebook"
+    },
+    {
+      "source": "faction_nighthawks",
+      "target": "faction_church_of_evernight",
+      "label": "subordinate-organization ch13",
+      "key": "faction_nighthawks|subordinate-organization ch13|faction_church_of_evernight",
+      "endpointKey": "faction_nighthawks|faction_church_of_evernight"
+    },
+    {
+      "source": "faction_secret_order",
+      "target": "artifact_antigonus_notebook",
+      "label": "targets ch28 strong-evidence",
+      "key": "faction_secret_order|targets ch28 strong-evidence|artifact_antigonus_notebook",
+      "endpointKey": "faction_secret_order|artifact_antigonus_notebook"
+    },
+    {
+      "source": "location_blackthorn_security_company",
+      "target": "location_saint_selena_cathedral",
+      "label": "connected-to ch17",
+      "key": "location_blackthorn_security_company|connected-to ch17|location_saint_selena_cathedral",
+      "endpointKey": "location_blackthorn_security_company|location_saint_selena_cathedral"
+    },
+    {
+      "source": "location_blackthorn_security_company",
+      "target": "artifact_antigonus_notebook",
+      "label": "connected-to ch45",
+      "key": "location_blackthorn_security_company|connected-to ch45|artifact_antigonus_notebook",
+      "endpointKey": "location_blackthorn_security_company|artifact_antigonus_notebook"
+    },
+    {
+      "source": "location_blackthorn_security_company",
+      "target": "event_klein_becomes_a_seer",
+      "label": "event-location ch30 completed",
+      "key": "location_blackthorn_security_company|event-location ch30 completed|event_klein_becomes_a_seer",
+      "endpointKey": "location_blackthorn_security_company|event_klein_becomes_a_seer"
+    },
+    {
+      "source": "location_blackthorn_security_company",
+      "target": "faction_nighthawks",
+      "label": "operational-base-for ch17",
+      "key": "location_blackthorn_security_company|operational-base-for ch17|faction_nighthawks",
+      "endpointKey": "location_blackthorn_security_company|faction_nighthawks"
+    },
+    {
+      "source": "location_blackthorn_security_company",
+      "target": "faction_nighthawks",
+      "label": "public-cover-for ch17",
+      "key": "location_blackthorn_security_company|public-cover-for ch17|faction_nighthawks",
+      "endpointKey": "location_blackthorn_security_company|faction_nighthawks"
+    },
+    {
+      "source": "location_saint_selena_cathedral",
+      "target": "faction_church_of_evernight",
+      "label": "affiliated-with ch17",
+      "key": "location_saint_selena_cathedral|affiliated-with ch17|faction_church_of_evernight",
+      "endpointKey": "location_saint_selena_cathedral|faction_church_of_evernight"
+    },
+    {
+      "source": "location_saint_selena_cathedral",
+      "target": "location_blackthorn_security_company",
+      "label": "connected-to ch17",
+      "key": "location_saint_selena_cathedral|connected-to ch17|location_blackthorn_security_company",
+      "endpointKey": "location_saint_selena_cathedral|location_blackthorn_security_company"
+    },
+    {
+      "source": "location_saint_selena_cathedral",
+      "target": "event_klein_becomes_a_seer",
+      "label": "event-location ch31 completed",
+      "key": "location_saint_selena_cathedral|event-location ch31 completed|event_klein_becomes_a_seer",
+      "endpointKey": "location_saint_selena_cathedral|event_klein_becomes_a_seer"
+    },
+    {
+      "source": "pathway_seer",
+      "target": "concept_beyonders",
+      "label": "access-route-to ch28",
+      "key": "pathway_seer|access-route-to ch28|concept_beyonders",
+      "endpointKey": "pathway_seer|concept_beyonders"
+    },
+    {
+      "source": "pathway_seer",
+      "target": "concept_divination",
+      "label": "uses-method ch29",
+      "key": "pathway_seer|uses-method ch29|concept_divination",
+      "endpointKey": "pathway_seer|concept_divination"
+    },
+    {
+      "source": "pathway_sleepless",
+      "target": "concept_beyonders",
+      "label": "access-route-to ch22",
+      "key": "pathway_sleepless|access-route-to ch22|concept_beyonders",
+      "endpointKey": "pathway_sleepless|concept_beyonders"
+    },
+    {
+      "source": "pathway_sleepless",
+      "target": "deity_s0_evernight_goddess",
+      "label": "associated-sequence-0 ch28",
+      "key": "pathway_sleepless|associated-sequence-0 ch28|deity_s0_evernight_goddess",
+      "endpointKey": "pathway_sleepless|deity_s0_evernight_goddess"
+    },
+    {
+      "source": "pathway_sleepless",
+      "target": "pathway_seer",
+      "label": "connected-to ch28",
+      "key": "pathway_sleepless|connected-to ch28|pathway_seer",
+      "endpointKey": "pathway_sleepless|pathway_seer"
+    }
+  ],
+  "views": [
+    "Volume 1 Knowledge Graph",
+    "Volume 1 Knowledge Graph - Timing Spoiler-Free"
+  ],
+  "view_stats": [
+    {
+      "name": "Volume 1 Knowledge Graph",
+      "input": "Visualization/graphs/volume-1-knowledge-graph.mmd",
+      "nodes": [
+        "artifact_0_08",
+        "artifact_antigonus_notebook",
+        "character_azik_eggers",
+        "character_daly_simone",
+        "character_dunn_smith",
+        "character_ince_zangwill",
+        "character_kenley_white",
+        "character_klein_moretti",
+        "character_leonard_mitchell",
+        "character_old_neil",
+        "character_roselle_gustav",
+        "character_royale_reideen",
+        "character_seeka_tron",
+        "concept_beyonder_characteristics",
+        "concept_beyonders",
+        "concept_divination",
+        "concept_prayers_and_rituals",
+        "deity_s0_evernight_goddess",
+        "event_klein_becomes_a_seer",
+        "faction_church_of_evernight",
+        "faction_nighthawks",
+        "faction_secret_order",
+        "location_blackthorn_security_company",
+        "location_saint_selena_cathedral",
+        "pathway_corpse_collector",
+        "pathway_mystery_pryer",
+        "pathway_seer",
+        "pathway_sleepless"
+      ],
+      "relationships": [
+        {
+          "source": "artifact_0_08",
+          "target": "artifact_antigonus_notebook",
+          "label": "causal-agent ch210 completed",
+          "key": "artifact_0_08|causal-agent ch210 completed|artifact_antigonus_notebook",
+          "endpointKey": "artifact_0_08|artifact_antigonus_notebook"
+        },
+        {
+          "source": "artifact_0_08",
+          "target": "character_azik_eggers",
+          "label": "investigated-by ch150 strong-evidence",
+          "key": "artifact_0_08|investigated-by ch150 strong-evidence|character_azik_eggers",
+          "endpointKey": "artifact_0_08|character_azik_eggers"
+        },
+        {
+          "source": "artifact_0_08",
+          "target": "character_dunn_smith",
+          "label": "manipulates ch210 completed strong-evidence",
+          "key": "artifact_0_08|manipulates ch210 completed strong-evidence|character_dunn_smith",
+          "endpointKey": "artifact_0_08|character_dunn_smith"
+        },
+        {
+          "source": "artifact_0_08",
+          "target": "character_klein_moretti",
+          "label": "manipulates ch210",
+          "key": "artifact_0_08|manipulates ch210|character_klein_moretti",
+          "endpointKey": "artifact_0_08|character_klein_moretti"
+        },
+        {
+          "source": "artifact_0_08",
+          "target": "location_saint_selena_cathedral",
+          "label": "targets-protected-resource ch210 completed strong-evidence",
+          "key": "artifact_0_08|targets-protected-resource ch210 completed strong-evidence|location_saint_selena_cathedral",
+          "endpointKey": "artifact_0_08|location_saint_selena_cathedral"
+        },
+        {
+          "source": "artifact_antigonus_notebook",
+          "target": "concept_divination",
+          "label": "connected-to ch43",
+          "key": "artifact_antigonus_notebook|connected-to ch43|concept_divination",
+          "endpointKey": "artifact_antigonus_notebook|concept_divination"
+        },
+        {
+          "source": "character_daly_simone",
+          "target": "pathway_corpse_collector",
+          "label": "pathway-status ch28",
+          "key": "character_daly_simone|pathway-status ch28|pathway_corpse_collector",
+          "endpointKey": "character_daly_simone|pathway_corpse_collector"
+        },
+        {
+          "source": "character_dunn_smith",
+          "target": "event_klein_becomes_a_seer",
+          "label": "event-participant ch28 completed",
+          "key": "character_dunn_smith|event-participant ch28 completed|event_klein_becomes_a_seer",
+          "endpointKey": "character_dunn_smith|event_klein_becomes_a_seer"
+        },
+        {
+          "source": "character_dunn_smith",
+          "target": "artifact_antigonus_notebook",
+          "label": "investigates ch13",
+          "key": "character_dunn_smith|investigates ch13|artifact_antigonus_notebook",
+          "endpointKey": "character_dunn_smith|artifact_antigonus_notebook"
+        },
+        {
+          "source": "character_dunn_smith",
+          "target": "faction_nighthawks",
+          "label": "leader-of ch17",
+          "key": "character_dunn_smith|leader-of ch17|faction_nighthawks",
+          "endpointKey": "character_dunn_smith|faction_nighthawks"
+        },
+        {
+          "source": "character_dunn_smith",
+          "target": "faction_church_of_evernight",
+          "label": "member-of ch13",
+          "key": "character_dunn_smith|member-of ch13|faction_church_of_evernight",
+          "endpointKey": "character_dunn_smith|faction_church_of_evernight"
+        },
+        {
+          "source": "character_dunn_smith",
+          "target": "pathway_sleepless",
+          "label": "pathway-status ch22",
+          "key": "character_dunn_smith|pathway-status ch22|pathway_sleepless",
+          "endpointKey": "character_dunn_smith|pathway_sleepless"
+        },
+        {
+          "source": "character_dunn_smith",
+          "target": "concept_beyonders",
+          "label": "source-of-information ch18",
+          "key": "character_dunn_smith|source-of-information ch18|concept_beyonders",
+          "endpointKey": "character_dunn_smith|concept_beyonders"
+        },
+        {
+          "source": "character_dunn_smith",
+          "target": "concept_divination",
+          "label": "source-of-information ch29",
+          "key": "character_dunn_smith|source-of-information ch29|concept_divination",
+          "endpointKey": "character_dunn_smith|concept_divination"
+        },
+        {
+          "source": "character_dunn_smith",
+          "target": "character_klein_moretti",
+          "label": "superior ch17",
+          "key": "character_dunn_smith|superior ch17|character_klein_moretti",
+          "endpointKey": "character_dunn_smith|character_klein_moretti"
+        },
+        {
+          "source": "character_dunn_smith",
+          "target": "location_blackthorn_security_company",
+          "label": "works-at ch17",
+          "key": "character_dunn_smith|works-at ch17|location_blackthorn_security_company",
+          "endpointKey": "character_dunn_smith|location_blackthorn_security_company"
+        },
+        {
+          "source": "character_ince_zangwill",
+          "target": "artifact_0_08",
+          "label": "artifact-user ch19",
+          "key": "character_ince_zangwill|artifact-user ch19|artifact_0_08",
+          "endpointKey": "character_ince_zangwill|artifact_0_08"
+        },
+        {
+          "source": "character_ince_zangwill",
+          "target": "location_saint_selena_cathedral",
+          "label": "infiltrates ch210 completed strong-evidence",
+          "key": "character_ince_zangwill|infiltrates ch210 completed strong-evidence|location_saint_selena_cathedral",
+          "endpointKey": "character_ince_zangwill|location_saint_selena_cathedral"
+        },
+        {
+          "source": "character_kenley_white",
+          "target": "pathway_sleepless",
+          "label": "pathway-status ch42",
+          "key": "character_kenley_white|pathway-status ch42|pathway_sleepless",
+          "endpointKey": "character_kenley_white|pathway_sleepless"
+        },
+        {
+          "source": "character_klein_moretti",
+          "target": "faction_church_of_evernight",
+          "label": "civilian-staff-of ch17",
+          "key": "character_klein_moretti|civilian-staff-of ch17|faction_church_of_evernight",
+          "endpointKey": "character_klein_moretti|faction_church_of_evernight"
+        },
+        {
+          "source": "character_klein_moretti",
+          "target": "event_klein_becomes_a_seer",
+          "label": "event-participant ch28",
+          "key": "character_klein_moretti|event-participant ch28|event_klein_becomes_a_seer",
+          "endpointKey": "character_klein_moretti|event_klein_becomes_a_seer"
+        },
+        {
+          "source": "character_klein_moretti",
+          "target": "concept_beyonders",
+          "label": "instance-of ch31",
+          "key": "character_klein_moretti|instance-of ch31|concept_beyonders",
+          "endpointKey": "character_klein_moretti|concept_beyonders"
+        },
+        {
+          "source": "character_klein_moretti",
+          "target": "artifact_antigonus_notebook",
+          "label": "investigates ch9",
+          "key": "character_klein_moretti|investigates ch9|artifact_antigonus_notebook",
+          "endpointKey": "character_klein_moretti|artifact_antigonus_notebook"
+        },
+        {
+          "source": "character_klein_moretti",
+          "target": "pathway_seer",
+          "label": "pathway-status ch31",
+          "key": "character_klein_moretti|pathway-status ch31|pathway_seer",
+          "endpointKey": "character_klein_moretti|pathway_seer"
+        },
+        {
+          "source": "character_klein_moretti",
+          "target": "character_old_neil",
+          "label": "student ch32",
+          "key": "character_klein_moretti|student ch32|character_old_neil",
+          "endpointKey": "character_klein_moretti|character_old_neil"
+        },
+        {
+          "source": "character_klein_moretti",
+          "target": "character_dunn_smith",
+          "label": "subordinate ch17",
+          "key": "character_klein_moretti|subordinate ch17|character_dunn_smith",
+          "endpointKey": "character_klein_moretti|character_dunn_smith"
+        },
+        {
+          "source": "character_klein_moretti",
+          "target": "location_saint_selena_cathedral",
+          "label": "uses-as-operational-refuge ch25 completed",
+          "key": "character_klein_moretti|uses-as-operational-refuge ch25 completed|location_saint_selena_cathedral",
+          "endpointKey": "character_klein_moretti|location_saint_selena_cathedral"
+        },
+        {
+          "source": "character_klein_moretti",
+          "target": "concept_divination",
+          "label": "uses-method ch43",
+          "key": "character_klein_moretti|uses-method ch43|concept_divination",
+          "endpointKey": "character_klein_moretti|concept_divination"
+        },
+        {
+          "source": "character_klein_moretti",
+          "target": "location_blackthorn_security_company",
+          "label": "works-at ch17",
+          "key": "character_klein_moretti|works-at ch17|location_blackthorn_security_company",
+          "endpointKey": "character_klein_moretti|location_blackthorn_security_company"
+        },
+        {
+          "source": "character_leonard_mitchell",
+          "target": "pathway_sleepless",
+          "label": "pathway-status ch21",
+          "key": "character_leonard_mitchell|pathway-status ch21|pathway_sleepless",
+          "endpointKey": "character_leonard_mitchell|pathway_sleepless"
+        },
+        {
+          "source": "character_old_neil",
+          "target": "faction_church_of_evernight",
+          "label": "civilian-staff-of ch19",
+          "key": "character_old_neil|civilian-staff-of ch19|faction_church_of_evernight",
+          "endpointKey": "character_old_neil|faction_church_of_evernight"
+        },
+        {
+          "source": "character_old_neil",
+          "target": "event_klein_becomes_a_seer",
+          "label": "event-participant ch31",
+          "key": "character_old_neil|event-participant ch31|event_klein_becomes_a_seer",
+          "endpointKey": "character_old_neil|event_klein_becomes_a_seer"
+        },
+        {
+          "source": "character_old_neil",
+          "target": "concept_beyonders",
+          "label": "instance-of ch22",
+          "key": "character_old_neil|instance-of ch22|concept_beyonders",
+          "endpointKey": "character_old_neil|concept_beyonders"
+        },
+        {
+          "source": "character_old_neil",
+          "target": "artifact_antigonus_notebook",
+          "label": "investigates ch45",
+          "key": "character_old_neil|investigates ch45|artifact_antigonus_notebook",
+          "endpointKey": "character_old_neil|artifact_antigonus_notebook"
+        },
+        {
+          "source": "character_old_neil",
+          "target": "character_klein_moretti",
+          "label": "mentor ch32",
+          "key": "character_old_neil|mentor ch32|character_klein_moretti",
+          "endpointKey": "character_old_neil|character_klein_moretti"
+        },
+        {
+          "source": "character_old_neil",
+          "target": "pathway_mystery_pryer",
+          "label": "pathway-status ch22",
+          "key": "character_old_neil|pathway-status ch22|pathway_mystery_pryer",
+          "endpointKey": "character_old_neil|pathway_mystery_pryer"
+        },
+        {
+          "source": "character_old_neil",
+          "target": "pathway_seer",
+          "label": "trains-in ch31",
+          "key": "character_old_neil|trains-in ch31|pathway_seer",
+          "endpointKey": "character_old_neil|pathway_seer"
+        },
+        {
+          "source": "character_old_neil",
+          "target": "concept_beyonders",
+          "label": "trains-in ch32",
+          "key": "character_old_neil|trains-in ch32|concept_beyonders",
+          "endpointKey": "character_old_neil|concept_beyonders"
+        },
+        {
+          "source": "character_old_neil",
+          "target": "concept_divination",
+          "label": "trains-in ch32",
+          "key": "character_old_neil|trains-in ch32|concept_divination",
+          "endpointKey": "character_old_neil|concept_divination"
+        },
+        {
+          "source": "character_old_neil",
+          "target": "location_blackthorn_security_company",
+          "label": "works-at ch19",
+          "key": "character_old_neil|works-at ch19|location_blackthorn_security_company",
+          "endpointKey": "character_old_neil|location_blackthorn_security_company"
+        },
+        {
+          "source": "character_roselle_gustav",
+          "target": "pathway_seer",
+          "label": "source-of-information ch21 historical",
+          "key": "character_roselle_gustav|source-of-information ch21 historical|pathway_seer",
+          "endpointKey": "character_roselle_gustav|pathway_seer"
+        },
+        {
+          "source": "character_royale_reideen",
+          "target": "pathway_sleepless",
+          "label": "pathway-status ch42",
+          "key": "character_royale_reideen|pathway-status ch42|pathway_sleepless",
+          "endpointKey": "character_royale_reideen|pathway_sleepless"
+        },
+        {
+          "source": "character_seeka_tron",
+          "target": "pathway_sleepless",
+          "label": "pathway-status ch42",
+          "key": "character_seeka_tron|pathway-status ch42|pathway_sleepless",
+          "endpointKey": "character_seeka_tron|pathway_sleepless"
+        },
+        {
+          "source": "concept_beyonder_characteristics",
+          "target": "artifact_0_08",
+          "label": "connected-to ch210",
+          "key": "concept_beyonder_characteristics|connected-to ch210|artifact_0_08",
+          "endpointKey": "concept_beyonder_characteristics|artifact_0_08"
+        },
+        {
+          "source": "concept_beyonder_characteristics",
+          "target": "concept_beyonders",
+          "label": "mechanic-of ch207",
+          "key": "concept_beyonder_characteristics|mechanic-of ch207|concept_beyonders",
+          "endpointKey": "concept_beyonder_characteristics|concept_beyonders"
+        },
+        {
+          "source": "concept_divination",
+          "target": "pathway_seer",
+          "label": "mechanic-of ch29",
+          "key": "concept_divination|mechanic-of ch29|pathway_seer",
+          "endpointKey": "concept_divination|pathway_seer"
+        },
+        {
+          "source": "concept_prayers_and_rituals",
+          "target": "character_old_neil",
+          "label": "explained-by ch33",
+          "key": "concept_prayers_and_rituals|explained-by ch33|character_old_neil",
+          "endpointKey": "concept_prayers_and_rituals|character_old_neil"
+        },
+        {
+          "source": "concept_prayers_and_rituals",
+          "target": "artifact_antigonus_notebook",
+          "label": "field-evidence-associated-with ch46",
+          "key": "concept_prayers_and_rituals|field-evidence-associated-with ch46|artifact_antigonus_notebook",
+          "endpointKey": "concept_prayers_and_rituals|artifact_antigonus_notebook"
+        },
+        {
+          "source": "event_klein_becomes_a_seer",
+          "target": "character_klein_moretti",
+          "label": "event-outcome ch31",
+          "key": "event_klein_becomes_a_seer|event-outcome ch31|character_klein_moretti",
+          "endpointKey": "event_klein_becomes_a_seer|character_klein_moretti"
+        },
+        {
+          "source": "event_klein_becomes_a_seer",
+          "target": "concept_beyonders",
+          "label": "event-outcome ch31",
+          "key": "event_klein_becomes_a_seer|event-outcome ch31|concept_beyonders",
+          "endpointKey": "event_klein_becomes_a_seer|concept_beyonders"
+        },
+        {
+          "source": "event_klein_becomes_a_seer",
+          "target": "pathway_seer",
+          "label": "event-outcome ch31",
+          "key": "event_klein_becomes_a_seer|event-outcome ch31|pathway_seer",
+          "endpointKey": "event_klein_becomes_a_seer|pathway_seer"
+        },
+        {
+          "source": "faction_church_of_evernight",
+          "target": "artifact_0_08",
+          "label": "artifact-guardian ch19 broken",
+          "key": "faction_church_of_evernight|artifact-guardian ch19 broken|artifact_0_08",
+          "endpointKey": "faction_church_of_evernight|artifact_0_08"
+        },
+        {
+          "source": "faction_church_of_evernight",
+          "target": "concept_divination",
+          "label": "connected-to ch40",
+          "key": "faction_church_of_evernight|connected-to ch40|concept_divination",
+          "endpointKey": "faction_church_of_evernight|concept_divination"
+        },
+        {
+          "source": "faction_church_of_evernight",
+          "target": "event_klein_becomes_a_seer",
+          "label": "event-enabler ch28 completed",
+          "key": "faction_church_of_evernight|event-enabler ch28 completed|event_klein_becomes_a_seer",
+          "endpointKey": "faction_church_of_evernight|event_klein_becomes_a_seer"
+        },
+        {
+          "source": "faction_church_of_evernight",
+          "target": "artifact_antigonus_notebook",
+          "label": "investigates ch13",
+          "key": "faction_church_of_evernight|investigates ch13|artifact_antigonus_notebook",
+          "endpointKey": "faction_church_of_evernight|artifact_antigonus_notebook"
+        },
+        {
+          "source": "faction_church_of_evernight",
+          "target": "pathway_sleepless",
+          "label": "regulates-access-to ch22",
+          "key": "faction_church_of_evernight|regulates-access-to ch22|pathway_sleepless",
+          "endpointKey": "faction_church_of_evernight|pathway_sleepless"
+        },
+        {
+          "source": "faction_church_of_evernight",
+          "target": "pathway_seer",
+          "label": "regulates-access-to ch28",
+          "key": "faction_church_of_evernight|regulates-access-to ch28|pathway_seer",
+          "endpointKey": "faction_church_of_evernight|pathway_seer"
+        },
+        {
+          "source": "faction_church_of_evernight",
+          "target": "concept_beyonders",
+          "label": "regulates-access-to ch6",
+          "key": "faction_church_of_evernight|regulates-access-to ch6|concept_beyonders",
+          "endpointKey": "faction_church_of_evernight|concept_beyonders"
+        },
+        {
+          "source": "faction_nighthawks",
+          "target": "location_saint_selena_cathedral",
+          "label": "affiliated-with ch17",
+          "key": "faction_nighthawks|affiliated-with ch17|location_saint_selena_cathedral",
+          "endpointKey": "faction_nighthawks|location_saint_selena_cathedral"
+        },
+        {
+          "source": "faction_nighthawks",
+          "target": "artifact_antigonus_notebook",
+          "label": "investigates ch13",
+          "key": "faction_nighthawks|investigates ch13|artifact_antigonus_notebook",
+          "endpointKey": "faction_nighthawks|artifact_antigonus_notebook"
+        },
+        {
+          "source": "faction_nighthawks",
+          "target": "faction_church_of_evernight",
+          "label": "subordinate-organization ch13",
+          "key": "faction_nighthawks|subordinate-organization ch13|faction_church_of_evernight",
+          "endpointKey": "faction_nighthawks|faction_church_of_evernight"
+        },
+        {
+          "source": "faction_secret_order",
+          "target": "artifact_antigonus_notebook",
+          "label": "targets ch28 strong-evidence",
+          "key": "faction_secret_order|targets ch28 strong-evidence|artifact_antigonus_notebook",
+          "endpointKey": "faction_secret_order|artifact_antigonus_notebook"
+        },
+        {
+          "source": "location_blackthorn_security_company",
+          "target": "location_saint_selena_cathedral",
+          "label": "connected-to ch17",
+          "key": "location_blackthorn_security_company|connected-to ch17|location_saint_selena_cathedral",
+          "endpointKey": "location_blackthorn_security_company|location_saint_selena_cathedral"
+        },
+        {
+          "source": "location_blackthorn_security_company",
+          "target": "artifact_antigonus_notebook",
+          "label": "connected-to ch45",
+          "key": "location_blackthorn_security_company|connected-to ch45|artifact_antigonus_notebook",
+          "endpointKey": "location_blackthorn_security_company|artifact_antigonus_notebook"
+        },
+        {
+          "source": "location_blackthorn_security_company",
+          "target": "event_klein_becomes_a_seer",
+          "label": "event-location ch30 completed",
+          "key": "location_blackthorn_security_company|event-location ch30 completed|event_klein_becomes_a_seer",
+          "endpointKey": "location_blackthorn_security_company|event_klein_becomes_a_seer"
+        },
+        {
+          "source": "location_blackthorn_security_company",
+          "target": "faction_nighthawks",
+          "label": "operational-base-for ch17",
+          "key": "location_blackthorn_security_company|operational-base-for ch17|faction_nighthawks",
+          "endpointKey": "location_blackthorn_security_company|faction_nighthawks"
+        },
+        {
+          "source": "location_blackthorn_security_company",
+          "target": "faction_nighthawks",
+          "label": "public-cover-for ch17",
+          "key": "location_blackthorn_security_company|public-cover-for ch17|faction_nighthawks",
+          "endpointKey": "location_blackthorn_security_company|faction_nighthawks"
+        },
+        {
+          "source": "location_saint_selena_cathedral",
+          "target": "faction_church_of_evernight",
+          "label": "affiliated-with ch17",
+          "key": "location_saint_selena_cathedral|affiliated-with ch17|faction_church_of_evernight",
+          "endpointKey": "location_saint_selena_cathedral|faction_church_of_evernight"
+        },
+        {
+          "source": "location_saint_selena_cathedral",
+          "target": "location_blackthorn_security_company",
+          "label": "connected-to ch17",
+          "key": "location_saint_selena_cathedral|connected-to ch17|location_blackthorn_security_company",
+          "endpointKey": "location_saint_selena_cathedral|location_blackthorn_security_company"
+        },
+        {
+          "source": "location_saint_selena_cathedral",
+          "target": "event_klein_becomes_a_seer",
+          "label": "event-location ch31 completed",
+          "key": "location_saint_selena_cathedral|event-location ch31 completed|event_klein_becomes_a_seer",
+          "endpointKey": "location_saint_selena_cathedral|event_klein_becomes_a_seer"
+        },
+        {
+          "source": "pathway_seer",
+          "target": "concept_beyonders",
+          "label": "access-route-to ch28",
+          "key": "pathway_seer|access-route-to ch28|concept_beyonders",
+          "endpointKey": "pathway_seer|concept_beyonders"
+        },
+        {
+          "source": "pathway_seer",
+          "target": "concept_divination",
+          "label": "uses-method ch29",
+          "key": "pathway_seer|uses-method ch29|concept_divination",
+          "endpointKey": "pathway_seer|concept_divination"
+        },
+        {
+          "source": "pathway_sleepless",
+          "target": "concept_beyonders",
+          "label": "access-route-to ch22",
+          "key": "pathway_sleepless|access-route-to ch22|concept_beyonders",
+          "endpointKey": "pathway_sleepless|concept_beyonders"
+        },
+        {
+          "source": "pathway_sleepless",
+          "target": "deity_s0_evernight_goddess",
+          "label": "associated-sequence-0 ch28",
+          "key": "pathway_sleepless|associated-sequence-0 ch28|deity_s0_evernight_goddess",
+          "endpointKey": "pathway_sleepless|deity_s0_evernight_goddess"
+        },
+        {
+          "source": "pathway_sleepless",
+          "target": "pathway_seer",
+          "label": "connected-to ch28",
+          "key": "pathway_sleepless|connected-to ch28|pathway_seer",
+          "endpointKey": "pathway_sleepless|pathway_seer"
+        }
+      ],
+      "orphan_nodes": []
+    },
+    {
+      "name": "Volume 1 Knowledge Graph - Timing Spoiler-Free",
+      "input": "Visualization/graphs/volume-1-knowledge-graph-timing-spoiler-free.mmd",
+      "nodes": [
+        "artifact_0_08",
+        "artifact_antigonus_notebook",
+        "character_azik_eggers",
+        "character_daly_simone",
+        "character_dunn_smith",
+        "character_ince_zangwill",
+        "character_kenley_white",
+        "character_klein_moretti",
+        "character_leonard_mitchell",
+        "character_old_neil",
+        "character_roselle_gustav",
+        "character_royale_reideen",
+        "character_seeka_tron",
+        "concept_beyonder_characteristics",
+        "concept_beyonders",
+        "concept_divination",
+        "concept_prayers_and_rituals",
+        "deity_s0_evernight_goddess",
+        "event_klein_becomes_a_seer",
+        "faction_church_of_evernight",
+        "faction_nighthawks",
+        "faction_secret_order",
+        "location_blackthorn_security_company",
+        "location_saint_selena_cathedral",
+        "pathway_corpse_collector",
+        "pathway_mystery_pryer",
+        "pathway_seer",
+        "pathway_sleepless"
+      ],
+      "relationships": [
+        {
+          "source": "artifact_0_08",
+          "target": "artifact_antigonus_notebook",
+          "label": "causal-agent completed",
+          "key": "artifact_0_08|causal-agent completed|artifact_antigonus_notebook",
+          "endpointKey": "artifact_0_08|artifact_antigonus_notebook"
+        },
+        {
+          "source": "artifact_0_08",
+          "target": "character_azik_eggers",
+          "label": "investigated-by strong-evidence",
+          "key": "artifact_0_08|investigated-by strong-evidence|character_azik_eggers",
+          "endpointKey": "artifact_0_08|character_azik_eggers"
+        },
+        {
+          "source": "artifact_0_08",
+          "target": "character_dunn_smith",
+          "label": "manipulates completed strong-evidence",
+          "key": "artifact_0_08|manipulates completed strong-evidence|character_dunn_smith",
+          "endpointKey": "artifact_0_08|character_dunn_smith"
+        },
+        {
+          "source": "artifact_0_08",
+          "target": "character_klein_moretti",
+          "label": "manipulates",
+          "key": "artifact_0_08|manipulates|character_klein_moretti",
+          "endpointKey": "artifact_0_08|character_klein_moretti"
+        },
+        {
+          "source": "artifact_0_08",
+          "target": "location_saint_selena_cathedral",
+          "label": "targets-protected-resource completed strong-evidence",
+          "key": "artifact_0_08|targets-protected-resource completed strong-evidence|location_saint_selena_cathedral",
+          "endpointKey": "artifact_0_08|location_saint_selena_cathedral"
+        },
+        {
+          "source": "artifact_antigonus_notebook",
+          "target": "concept_divination",
+          "label": "connected-to",
+          "key": "artifact_antigonus_notebook|connected-to|concept_divination",
+          "endpointKey": "artifact_antigonus_notebook|concept_divination"
+        },
+        {
+          "source": "character_daly_simone",
+          "target": "pathway_corpse_collector",
+          "label": "pathway-status",
+          "key": "character_daly_simone|pathway-status|pathway_corpse_collector",
+          "endpointKey": "character_daly_simone|pathway_corpse_collector"
+        },
+        {
+          "source": "character_dunn_smith",
+          "target": "event_klein_becomes_a_seer",
+          "label": "event-participant completed",
+          "key": "character_dunn_smith|event-participant completed|event_klein_becomes_a_seer",
+          "endpointKey": "character_dunn_smith|event_klein_becomes_a_seer"
+        },
+        {
+          "source": "character_dunn_smith",
+          "target": "artifact_antigonus_notebook",
+          "label": "investigates",
+          "key": "character_dunn_smith|investigates|artifact_antigonus_notebook",
+          "endpointKey": "character_dunn_smith|artifact_antigonus_notebook"
+        },
+        {
+          "source": "character_dunn_smith",
+          "target": "faction_nighthawks",
+          "label": "leader-of",
+          "key": "character_dunn_smith|leader-of|faction_nighthawks",
+          "endpointKey": "character_dunn_smith|faction_nighthawks"
+        },
+        {
+          "source": "character_dunn_smith",
+          "target": "faction_church_of_evernight",
+          "label": "member-of",
+          "key": "character_dunn_smith|member-of|faction_church_of_evernight",
+          "endpointKey": "character_dunn_smith|faction_church_of_evernight"
+        },
+        {
+          "source": "character_dunn_smith",
+          "target": "pathway_sleepless",
+          "label": "pathway-status",
+          "key": "character_dunn_smith|pathway-status|pathway_sleepless",
+          "endpointKey": "character_dunn_smith|pathway_sleepless"
+        },
+        {
+          "source": "character_dunn_smith",
+          "target": "concept_beyonders",
+          "label": "source-of-information",
+          "key": "character_dunn_smith|source-of-information|concept_beyonders",
+          "endpointKey": "character_dunn_smith|concept_beyonders"
+        },
+        {
+          "source": "character_dunn_smith",
+          "target": "concept_divination",
+          "label": "source-of-information",
+          "key": "character_dunn_smith|source-of-information|concept_divination",
+          "endpointKey": "character_dunn_smith|concept_divination"
+        },
+        {
+          "source": "character_dunn_smith",
+          "target": "character_klein_moretti",
+          "label": "superior",
+          "key": "character_dunn_smith|superior|character_klein_moretti",
+          "endpointKey": "character_dunn_smith|character_klein_moretti"
+        },
+        {
+          "source": "character_dunn_smith",
+          "target": "location_blackthorn_security_company",
+          "label": "works-at",
+          "key": "character_dunn_smith|works-at|location_blackthorn_security_company",
+          "endpointKey": "character_dunn_smith|location_blackthorn_security_company"
+        },
+        {
+          "source": "character_ince_zangwill",
+          "target": "artifact_0_08",
+          "label": "artifact-user",
+          "key": "character_ince_zangwill|artifact-user|artifact_0_08",
+          "endpointKey": "character_ince_zangwill|artifact_0_08"
+        },
+        {
+          "source": "character_ince_zangwill",
+          "target": "location_saint_selena_cathedral",
+          "label": "infiltrates completed strong-evidence",
+          "key": "character_ince_zangwill|infiltrates completed strong-evidence|location_saint_selena_cathedral",
+          "endpointKey": "character_ince_zangwill|location_saint_selena_cathedral"
+        },
+        {
+          "source": "character_kenley_white",
+          "target": "pathway_sleepless",
+          "label": "pathway-status",
+          "key": "character_kenley_white|pathway-status|pathway_sleepless",
+          "endpointKey": "character_kenley_white|pathway_sleepless"
+        },
+        {
+          "source": "character_klein_moretti",
+          "target": "faction_church_of_evernight",
+          "label": "civilian-staff-of",
+          "key": "character_klein_moretti|civilian-staff-of|faction_church_of_evernight",
+          "endpointKey": "character_klein_moretti|faction_church_of_evernight"
+        },
+        {
+          "source": "character_klein_moretti",
+          "target": "event_klein_becomes_a_seer",
+          "label": "event-participant",
+          "key": "character_klein_moretti|event-participant|event_klein_becomes_a_seer",
+          "endpointKey": "character_klein_moretti|event_klein_becomes_a_seer"
+        },
+        {
+          "source": "character_klein_moretti",
+          "target": "concept_beyonders",
+          "label": "instance-of",
+          "key": "character_klein_moretti|instance-of|concept_beyonders",
+          "endpointKey": "character_klein_moretti|concept_beyonders"
+        },
+        {
+          "source": "character_klein_moretti",
+          "target": "artifact_antigonus_notebook",
+          "label": "investigates",
+          "key": "character_klein_moretti|investigates|artifact_antigonus_notebook",
+          "endpointKey": "character_klein_moretti|artifact_antigonus_notebook"
+        },
+        {
+          "source": "character_klein_moretti",
+          "target": "pathway_seer",
+          "label": "pathway-status",
+          "key": "character_klein_moretti|pathway-status|pathway_seer",
+          "endpointKey": "character_klein_moretti|pathway_seer"
+        },
+        {
+          "source": "character_klein_moretti",
+          "target": "character_old_neil",
+          "label": "student",
+          "key": "character_klein_moretti|student|character_old_neil",
+          "endpointKey": "character_klein_moretti|character_old_neil"
+        },
+        {
+          "source": "character_klein_moretti",
+          "target": "character_dunn_smith",
+          "label": "subordinate",
+          "key": "character_klein_moretti|subordinate|character_dunn_smith",
+          "endpointKey": "character_klein_moretti|character_dunn_smith"
+        },
+        {
+          "source": "character_klein_moretti",
+          "target": "location_saint_selena_cathedral",
+          "label": "uses-as-operational-refuge completed",
+          "key": "character_klein_moretti|uses-as-operational-refuge completed|location_saint_selena_cathedral",
+          "endpointKey": "character_klein_moretti|location_saint_selena_cathedral"
+        },
+        {
+          "source": "character_klein_moretti",
+          "target": "concept_divination",
+          "label": "uses-method",
+          "key": "character_klein_moretti|uses-method|concept_divination",
+          "endpointKey": "character_klein_moretti|concept_divination"
+        },
+        {
+          "source": "character_klein_moretti",
+          "target": "location_blackthorn_security_company",
+          "label": "works-at",
+          "key": "character_klein_moretti|works-at|location_blackthorn_security_company",
+          "endpointKey": "character_klein_moretti|location_blackthorn_security_company"
+        },
+        {
+          "source": "character_leonard_mitchell",
+          "target": "pathway_sleepless",
+          "label": "pathway-status",
+          "key": "character_leonard_mitchell|pathway-status|pathway_sleepless",
+          "endpointKey": "character_leonard_mitchell|pathway_sleepless"
+        },
+        {
+          "source": "character_old_neil",
+          "target": "faction_church_of_evernight",
+          "label": "civilian-staff-of",
+          "key": "character_old_neil|civilian-staff-of|faction_church_of_evernight",
+          "endpointKey": "character_old_neil|faction_church_of_evernight"
+        },
+        {
+          "source": "character_old_neil",
+          "target": "event_klein_becomes_a_seer",
+          "label": "event-participant",
+          "key": "character_old_neil|event-participant|event_klein_becomes_a_seer",
+          "endpointKey": "character_old_neil|event_klein_becomes_a_seer"
+        },
+        {
+          "source": "character_old_neil",
+          "target": "concept_beyonders",
+          "label": "instance-of",
+          "key": "character_old_neil|instance-of|concept_beyonders",
+          "endpointKey": "character_old_neil|concept_beyonders"
+        },
+        {
+          "source": "character_old_neil",
+          "target": "artifact_antigonus_notebook",
+          "label": "investigates",
+          "key": "character_old_neil|investigates|artifact_antigonus_notebook",
+          "endpointKey": "character_old_neil|artifact_antigonus_notebook"
+        },
+        {
+          "source": "character_old_neil",
+          "target": "character_klein_moretti",
+          "label": "mentor",
+          "key": "character_old_neil|mentor|character_klein_moretti",
+          "endpointKey": "character_old_neil|character_klein_moretti"
+        },
+        {
+          "source": "character_old_neil",
+          "target": "pathway_mystery_pryer",
+          "label": "pathway-status",
+          "key": "character_old_neil|pathway-status|pathway_mystery_pryer",
+          "endpointKey": "character_old_neil|pathway_mystery_pryer"
+        },
+        {
+          "source": "character_old_neil",
+          "target": "concept_beyonders",
+          "label": "trains-in",
+          "key": "character_old_neil|trains-in|concept_beyonders",
+          "endpointKey": "character_old_neil|concept_beyonders"
+        },
+        {
+          "source": "character_old_neil",
+          "target": "concept_divination",
+          "label": "trains-in",
+          "key": "character_old_neil|trains-in|concept_divination",
+          "endpointKey": "character_old_neil|concept_divination"
+        },
+        {
+          "source": "character_old_neil",
+          "target": "pathway_seer",
+          "label": "trains-in",
+          "key": "character_old_neil|trains-in|pathway_seer",
+          "endpointKey": "character_old_neil|pathway_seer"
+        },
+        {
+          "source": "character_old_neil",
+          "target": "location_blackthorn_security_company",
+          "label": "works-at",
+          "key": "character_old_neil|works-at|location_blackthorn_security_company",
+          "endpointKey": "character_old_neil|location_blackthorn_security_company"
+        },
+        {
+          "source": "character_roselle_gustav",
+          "target": "pathway_seer",
+          "label": "source-of-information historical",
+          "key": "character_roselle_gustav|source-of-information historical|pathway_seer",
+          "endpointKey": "character_roselle_gustav|pathway_seer"
+        },
+        {
+          "source": "character_royale_reideen",
+          "target": "pathway_sleepless",
+          "label": "pathway-status",
+          "key": "character_royale_reideen|pathway-status|pathway_sleepless",
+          "endpointKey": "character_royale_reideen|pathway_sleepless"
+        },
+        {
+          "source": "character_seeka_tron",
+          "target": "pathway_sleepless",
+          "label": "pathway-status",
+          "key": "character_seeka_tron|pathway-status|pathway_sleepless",
+          "endpointKey": "character_seeka_tron|pathway_sleepless"
+        },
+        {
+          "source": "concept_beyonder_characteristics",
+          "target": "artifact_0_08",
+          "label": "connected-to",
+          "key": "concept_beyonder_characteristics|connected-to|artifact_0_08",
+          "endpointKey": "concept_beyonder_characteristics|artifact_0_08"
+        },
+        {
+          "source": "concept_beyonder_characteristics",
+          "target": "concept_beyonders",
+          "label": "mechanic-of",
+          "key": "concept_beyonder_characteristics|mechanic-of|concept_beyonders",
+          "endpointKey": "concept_beyonder_characteristics|concept_beyonders"
+        },
+        {
+          "source": "concept_divination",
+          "target": "pathway_seer",
+          "label": "mechanic-of",
+          "key": "concept_divination|mechanic-of|pathway_seer",
+          "endpointKey": "concept_divination|pathway_seer"
+        },
+        {
+          "source": "concept_prayers_and_rituals",
+          "target": "character_old_neil",
+          "label": "explained-by",
+          "key": "concept_prayers_and_rituals|explained-by|character_old_neil",
+          "endpointKey": "concept_prayers_and_rituals|character_old_neil"
+        },
+        {
+          "source": "concept_prayers_and_rituals",
+          "target": "artifact_antigonus_notebook",
+          "label": "field-evidence-associated-with",
+          "key": "concept_prayers_and_rituals|field-evidence-associated-with|artifact_antigonus_notebook",
+          "endpointKey": "concept_prayers_and_rituals|artifact_antigonus_notebook"
+        },
+        {
+          "source": "event_klein_becomes_a_seer",
+          "target": "character_klein_moretti",
+          "label": "event-outcome",
+          "key": "event_klein_becomes_a_seer|event-outcome|character_klein_moretti",
+          "endpointKey": "event_klein_becomes_a_seer|character_klein_moretti"
+        },
+        {
+          "source": "event_klein_becomes_a_seer",
+          "target": "concept_beyonders",
+          "label": "event-outcome",
+          "key": "event_klein_becomes_a_seer|event-outcome|concept_beyonders",
+          "endpointKey": "event_klein_becomes_a_seer|concept_beyonders"
+        },
+        {
+          "source": "event_klein_becomes_a_seer",
+          "target": "pathway_seer",
+          "label": "event-outcome",
+          "key": "event_klein_becomes_a_seer|event-outcome|pathway_seer",
+          "endpointKey": "event_klein_becomes_a_seer|pathway_seer"
+        },
+        {
+          "source": "faction_church_of_evernight",
+          "target": "artifact_0_08",
+          "label": "artifact-guardian broken",
+          "key": "faction_church_of_evernight|artifact-guardian broken|artifact_0_08",
+          "endpointKey": "faction_church_of_evernight|artifact_0_08"
+        },
+        {
+          "source": "faction_church_of_evernight",
+          "target": "concept_divination",
+          "label": "connected-to",
+          "key": "faction_church_of_evernight|connected-to|concept_divination",
+          "endpointKey": "faction_church_of_evernight|concept_divination"
+        },
+        {
+          "source": "faction_church_of_evernight",
+          "target": "event_klein_becomes_a_seer",
+          "label": "event-enabler completed",
+          "key": "faction_church_of_evernight|event-enabler completed|event_klein_becomes_a_seer",
+          "endpointKey": "faction_church_of_evernight|event_klein_becomes_a_seer"
+        },
+        {
+          "source": "faction_church_of_evernight",
+          "target": "artifact_antigonus_notebook",
+          "label": "investigates",
+          "key": "faction_church_of_evernight|investigates|artifact_antigonus_notebook",
+          "endpointKey": "faction_church_of_evernight|artifact_antigonus_notebook"
+        },
+        {
+          "source": "faction_church_of_evernight",
+          "target": "concept_beyonders",
+          "label": "regulates-access-to",
+          "key": "faction_church_of_evernight|regulates-access-to|concept_beyonders",
+          "endpointKey": "faction_church_of_evernight|concept_beyonders"
+        },
+        {
+          "source": "faction_church_of_evernight",
+          "target": "pathway_seer",
+          "label": "regulates-access-to",
+          "key": "faction_church_of_evernight|regulates-access-to|pathway_seer",
+          "endpointKey": "faction_church_of_evernight|pathway_seer"
+        },
+        {
+          "source": "faction_church_of_evernight",
+          "target": "pathway_sleepless",
+          "label": "regulates-access-to",
+          "key": "faction_church_of_evernight|regulates-access-to|pathway_sleepless",
+          "endpointKey": "faction_church_of_evernight|pathway_sleepless"
+        },
+        {
+          "source": "faction_nighthawks",
+          "target": "location_saint_selena_cathedral",
+          "label": "affiliated-with",
+          "key": "faction_nighthawks|affiliated-with|location_saint_selena_cathedral",
+          "endpointKey": "faction_nighthawks|location_saint_selena_cathedral"
+        },
+        {
+          "source": "faction_nighthawks",
+          "target": "artifact_antigonus_notebook",
+          "label": "investigates",
+          "key": "faction_nighthawks|investigates|artifact_antigonus_notebook",
+          "endpointKey": "faction_nighthawks|artifact_antigonus_notebook"
+        },
+        {
+          "source": "faction_nighthawks",
+          "target": "faction_church_of_evernight",
+          "label": "subordinate-organization",
+          "key": "faction_nighthawks|subordinate-organization|faction_church_of_evernight",
+          "endpointKey": "faction_nighthawks|faction_church_of_evernight"
+        },
+        {
+          "source": "faction_secret_order",
+          "target": "artifact_antigonus_notebook",
+          "label": "targets strong-evidence",
+          "key": "faction_secret_order|targets strong-evidence|artifact_antigonus_notebook",
+          "endpointKey": "faction_secret_order|artifact_antigonus_notebook"
+        },
+        {
+          "source": "location_blackthorn_security_company",
+          "target": "artifact_antigonus_notebook",
+          "label": "connected-to",
+          "key": "location_blackthorn_security_company|connected-to|artifact_antigonus_notebook",
+          "endpointKey": "location_blackthorn_security_company|artifact_antigonus_notebook"
+        },
+        {
+          "source": "location_blackthorn_security_company",
+          "target": "location_saint_selena_cathedral",
+          "label": "connected-to",
+          "key": "location_blackthorn_security_company|connected-to|location_saint_selena_cathedral",
+          "endpointKey": "location_blackthorn_security_company|location_saint_selena_cathedral"
+        },
+        {
+          "source": "location_blackthorn_security_company",
+          "target": "event_klein_becomes_a_seer",
+          "label": "event-location completed",
+          "key": "location_blackthorn_security_company|event-location completed|event_klein_becomes_a_seer",
+          "endpointKey": "location_blackthorn_security_company|event_klein_becomes_a_seer"
+        },
+        {
+          "source": "location_blackthorn_security_company",
+          "target": "faction_nighthawks",
+          "label": "operational-base-for",
+          "key": "location_blackthorn_security_company|operational-base-for|faction_nighthawks",
+          "endpointKey": "location_blackthorn_security_company|faction_nighthawks"
+        },
+        {
+          "source": "location_blackthorn_security_company",
+          "target": "faction_nighthawks",
+          "label": "public-cover-for",
+          "key": "location_blackthorn_security_company|public-cover-for|faction_nighthawks",
+          "endpointKey": "location_blackthorn_security_company|faction_nighthawks"
+        },
+        {
+          "source": "location_saint_selena_cathedral",
+          "target": "faction_church_of_evernight",
+          "label": "affiliated-with",
+          "key": "location_saint_selena_cathedral|affiliated-with|faction_church_of_evernight",
+          "endpointKey": "location_saint_selena_cathedral|faction_church_of_evernight"
+        },
+        {
+          "source": "location_saint_selena_cathedral",
+          "target": "location_blackthorn_security_company",
+          "label": "connected-to",
+          "key": "location_saint_selena_cathedral|connected-to|location_blackthorn_security_company",
+          "endpointKey": "location_saint_selena_cathedral|location_blackthorn_security_company"
+        },
+        {
+          "source": "location_saint_selena_cathedral",
+          "target": "event_klein_becomes_a_seer",
+          "label": "event-location completed",
+          "key": "location_saint_selena_cathedral|event-location completed|event_klein_becomes_a_seer",
+          "endpointKey": "location_saint_selena_cathedral|event_klein_becomes_a_seer"
+        },
+        {
+          "source": "pathway_seer",
+          "target": "concept_beyonders",
+          "label": "access-route-to",
+          "key": "pathway_seer|access-route-to|concept_beyonders",
+          "endpointKey": "pathway_seer|concept_beyonders"
+        },
+        {
+          "source": "pathway_seer",
+          "target": "concept_divination",
+          "label": "uses-method",
+          "key": "pathway_seer|uses-method|concept_divination",
+          "endpointKey": "pathway_seer|concept_divination"
+        },
+        {
+          "source": "pathway_sleepless",
+          "target": "concept_beyonders",
+          "label": "access-route-to",
+          "key": "pathway_sleepless|access-route-to|concept_beyonders",
+          "endpointKey": "pathway_sleepless|concept_beyonders"
+        },
+        {
+          "source": "pathway_sleepless",
+          "target": "deity_s0_evernight_goddess",
+          "label": "associated-sequence-0",
+          "key": "pathway_sleepless|associated-sequence-0|deity_s0_evernight_goddess",
+          "endpointKey": "pathway_sleepless|deity_s0_evernight_goddess"
+        },
+        {
+          "source": "pathway_sleepless",
+          "target": "pathway_seer",
+          "label": "connected-to",
+          "key": "pathway_sleepless|connected-to|pathway_seer",
+          "endpointKey": "pathway_sleepless|pathway_seer"
+        }
+      ],
+      "orphan_nodes": []
+    }
+  ],
+  "rendered_files": [
+    "Visualization/rendered/volume-1-knowledge-graph.svg",
+    "Visualization/rendered/volume-1-knowledge-graph.png",
+    "Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.svg",
+    "Visualization/rendered/volume-1-knowledge-graph-timing-spoiler-free.png"
+  ],
+  "broken_links": [],
+  "orphan_nodes": [],
+  "pending_nodes": [
+    "character-azik-eggers.md (artwork backed)",
+    "character-bethel-abraham.md (notes: [preliminary planning](../Investigations/Characters/character-bethel-abraham/preliminary-planning-investigation.md))",
+    "character-daly-simone.md (artwork backed)",
+    "character-frye.md",
+    "character-ince-zangwill.md (artwork backed)",
+    "character-kenley-white.md",
+    "character-klein-moretti.md (artwork backed, 10 images)",
+    "character-leonard-mitchell.md (artwork backed)",
+    "character-mrs-orianna.md",
+    "character-ray-bieber.md",
+    "character-royale-reideen.md",
+    "character-rozanne.md",
+    "character-roselle-gustav.md (artwork backed)",
+    "character-seeka-tron.md",
+    "faction-nighthawks.md",
+    "faction-secret-order.md",
+    "pathway-corpse-collector.md",
+    "pathway-criminal.md (artwork backed; notes: [preliminary planning](../Investigations/Pathways/pathway-criminal/preliminary-planning-investigation.md))",
+    "pathway-mystery-pryer.md (artwork backed)",
+    "pathway-prisoner.md (artwork backed)"
+  ]
 }
