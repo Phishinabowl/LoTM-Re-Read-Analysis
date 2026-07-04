@@ -153,6 +153,8 @@ These pages are low-priority pending backlog items surfaced by official EPUB art
 - pathway-monster.md
 - pathway-planter.md
 - pathway-savant.md
+- pathway-secrets-suppliant.md
+- pathway-spectator.md
 - pathway-twilight-giant.md
 
 ## Visualization Status
