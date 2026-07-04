@@ -108,6 +108,8 @@ These pages are low-priority pending backlog items surfaced by official EPUB art
 - character-ouroboros.md
 - character-reinette-tinekerr.md
 - character-sharron.md
+- character-sauron-einhorn-medici.md
+- character-trissy.md
 - character-will-auceptin.md
 - character-xio-derecha.md
 - artifact-groselles-travels.md
