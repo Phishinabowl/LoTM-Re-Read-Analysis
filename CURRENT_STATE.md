@@ -2,7 +2,7 @@
 
 Live dashboard for project focus, glossary-thread progress, and deferred thread backlog.
 
-Last Updated: 2026-07-02
+Last Updated: 2026-07-04
 
 ## Current Investigation Focus
 
@@ -28,7 +28,7 @@ Working rule for the pilot pass: create only the selected pilot article and its 
 
 | Volume | Overall Project State | Notes |
 | --- | --- | --- |
-| Volume 1 | Active foundation reconstruction | Rebuilding major foundation threads with reader-state and relationship graph support. |
+| [Volume 1: Clown](Volumes/volume-01-clown.md) | Active foundation reconstruction | Volume summary pilot created; rebuilding major foundation threads with reader-state and relationship graph support. |
 | Volume 2 | Paused | Earlier Ian/Zreal/Ambassador work is paused while Volume 1 foundation threads are rebuilt. |
 
 ## Completed Threads

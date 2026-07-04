@@ -125,14 +125,17 @@ Do not create all pending threads just because they appear in `CURRENT_STATE.md`
 
 Use each project artifact for a distinct purpose:
 
-- `Boards`: Volume-level state, major themes, broad conclusions, current research direction, and links to detailed records.
+- `Boards`: Analyst-facing volume-level state, major themes, broad conclusions, current research direction, and links to detailed records.
+- `Volumes`: Reader-facing end-of-volume dashboards, official volume artwork homes, summary-level developments, and links to glossary/investigation evidence.
 - `Glossary_Threads`: Subject-specific information, complete reveal timelines, reader-state filtering data, and adaptation comparisons.
 - `Investigations`: Evidence, verification history, and supported conclusions for questions that required consulting the EPUB.
 - `Visualization`: Generated visualization artifacts, such as Mermaid graphs, rendered graph images, and future graph data exports.
 
-Do not duplicate granular reveal chronology across boards and glossary threads. Keep the filterable detail in the glossary thread and summarize only the durable volume-level meaning on the appropriate board.
+Do not duplicate granular reveal chronology across boards, volume pages, and glossary threads. Keep the filterable detail in the glossary thread and summarize only the durable volume-level meaning on the appropriate board or volume page.
 
 Boards are analyst-facing overview documents, not the canonical source for automatic spoiler filtering. A future reader-facing system may gate a board by its volume boundary, but glossary knowledge units remain the source for position-specific filtering.
+
+Volume summary pages are reader-facing overview documents for completed volume boundaries. They may include official volume cover/opening art, end-of-volume art, and volume gallery title pages. Subject-specific character, location, pathway, artifact, deity, faction, event, or concept artwork should still map primarily to the corresponding subject page when that page exists.
 
 ---
 
