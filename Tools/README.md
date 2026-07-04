@@ -33,13 +33,15 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -Operat
 
 ## EPUB Search
 
-Use `Search-Epub.ps1` for repeatable novel EPUB sweeps. The script reads the local ignored EPUB, discovers chapter files by parsing their XHTML chapter headings, strips XHTML tags, decodes HTML entities, and prints chapter-ordered counts or snippets.
+Use `search_epub.py` for repeatable novel EPUB sweeps when Python is available. It is the preferred implementation because it is faster, uses only the Python standard library, and exposes reusable functions that can later support generated indexes or frontend tooling. `Search-Epub.ps1` remains the Windows PowerShell fallback with matching behavior.
+
+Both scripts read the local ignored EPUB, discover chapter files by parsing their XHTML chapter headings, strip XHTML tags, decode HTML entities, and print chapter-ordered counts or snippets.
 
 The tool is for evidence acquisition. Do not copy long source passages into tracked notes. Record paraphrased evidence, chapter numbers, and reader-state conclusions.
 
-Chapter ranges are validated from 1 to 9999, and reversed ranges fail fast. The script searches by actual chapter number across the full Book 1 EPUB rather than assuming Volume 1 filenames.
+Chapter ranges are validated from 1 to 9999, and reversed ranges fail fast. The tools search by actual chapter number across the full Book 1 EPUB rather than assuming Volume 1 filenames.
 
-By default, the tool searches main chapter entries only. Use `-EntryType` to search or list other EPUB sections:
+By default, the tools search main chapter entries only. Use `--entry-type` / `-EntryType` to search or list other EPUB sections:
 
 ```text
 Chapters
@@ -51,39 +53,44 @@ Other
 All
 ```
 
-Use `-Volume` to narrow chapter searches by EPUB volume, `-StartChapter` / `-EndChapter` to narrow by actual chapter number, and `-EntryNamePattern` to match internal EPUB filenames such as `*pathways*` or `*side_stories*`.
+Use `--volume` / `-Volume` to narrow chapter searches by EPUB volume, `--start-chapter` / `--end-chapter` or `-StartChapter` / `-EndChapter` to narrow by actual chapter number, and `--entry-name-pattern` / `-EntryNamePattern` to match internal EPUB filenames such as `*pathways*` or `*side_stories*`.
 
 ### Survey Counts
 
 Use this first to find candidate chapters and term clusters.
 
 ```powershell
+python Tools\search_epub.py --start-chapter 10 --end-chapter 47 --pattern "Dunn|Captain|Nighthawk|Nightmare|Sleepless" --counts-only
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -StartChapter 10 -EndChapter 47 -Pattern "Dunn|Captain|Nighthawk|Nightmare|Sleepless" -CountsOnly
 ```
 
 Full-book or later-volume sweeps use the same global chapter numbers:
 
 ```powershell
+python Tools\search_epub.py --start-chapter 483 --end-chapter 732 --pattern "Gehrman|Traveler" --counts-only
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -StartChapter 483 -EndChapter 732 -Pattern "Gehrman|Traveler" -CountsOnly
 ```
 
 You can also narrow by volume without remembering the chapter span:
 
 ```powershell
+python Tools\search_epub.py --volume 3 --pattern "Gehrman|Traveler" --counts-only
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Volume 3 -Pattern "Gehrman|Traveler" -CountsOnly
 ```
 
 ### Term Summary
 
-Use `-TermSummary` when comparing competing names or aliases. It aggregates each literal pipe-separated term across the selected entries and splits counts by EPUB volume.
+Use `--term-summary` / `-TermSummary` when comparing competing names or aliases. It aggregates each literal pipe-separated term across the selected entries and splits counts by EPUB volume.
 
 ```powershell
+python Tools\search_epub.py --pattern "savant|artisan|paragon" --term-summary
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Pattern "savant|artisan|paragon" -TermSummary
 ```
 
-Use `-Json` when downstream tooling needs structured summary rows:
+Use `--json` / `-Json` when downstream tooling needs structured summary rows:
 
 ```powershell
+python Tools\search_epub.py --pattern "savant|artisan|paragon" --term-summary --json
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Pattern "savant|artisan|paragon" -TermSummary -Json
 ```
 
@@ -92,21 +99,27 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Patte
 Use `-ListEntries` to inspect the EPUB's searchable sections without searching for a term.
 
 ```powershell
+python Tools\search_epub.py --entry-type All --list-entries
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -EntryType All -ListEntries
 ```
 
 Examples for non-main sections:
 
 ```powershell
+python Tools\search_epub.py --entry-type SideStories --list-entries
+python Tools\search_epub.py --entry-type Appendices --entry-name-pattern "*pathways*" --list-entries
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -EntryType SideStories -ListEntries
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -EntryType Appendices -EntryNamePattern "*pathways*" -ListEntries
 ```
 
 ### Non-Chapter Searches
 
-Search side stories, appendices, artwork text, front matter, or every XHTML section with `-EntryType`.
+Search side stories, appendices, artwork text, front matter, or every XHTML section with `--entry-type` / `-EntryType`.
 
 ```powershell
+python Tools\search_epub.py --entry-type SideStories --pattern "3-0782" --counts-only
+python Tools\search_epub.py --entry-type Appendices --entry-name-pattern "*pathways*" --pattern "Seer" --counts-only
+python Tools\search_epub.py --entry-type All --pattern "Evernight" --counts-only
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -EntryType SideStories -Pattern "3-0782" -CountsOnly
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -EntryType Appendices -EntryNamePattern "*pathways*" -Pattern "Seer" -CountsOnly
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -EntryType All -Pattern "Evernight" -CountsOnly
@@ -117,6 +130,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Entry
 Use this to inspect where matches occur without expanding much context.
 
 ```powershell
+python Tools\search_epub.py --start-chapter 10 --end-chapter 13 --pattern "Dunn|Nighthawk" --max-hits-per-chapter 20
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -StartChapter 10 -EndChapter 13 -Pattern "Dunn|Nighthawk" -MaxHitsPerChapter 20
 ```
 
@@ -125,14 +139,16 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Start
 Use this after candidate chapters are known.
 
 ```powershell
+python Tools\search_epub.py --start-chapter 12 --end-chapter 13 --pattern "Dunn|Nighthawk" --context-lines 2 --max-hits-per-chapter 8
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -StartChapter 12 -EndChapter 13 -Pattern "Dunn|Nighthawk" -ContextLines 2 -MaxHitsPerChapter 8
 ```
 
 ### Regex Search
 
-By default, `-Pattern` treats `|` as a separator between literal search terms. Use `-RegexPattern` when a regular expression is genuinely needed.
+By default, `--pattern` / `-Pattern` treats `|` as a separator between literal search terms. Use `--regex-pattern` / `-RegexPattern` when a regular expression is genuinely needed.
 
 ```powershell
+python Tools\search_epub.py --start-chapter 1 --end-chapter 1394 --pattern "red (chimney|smokestack)" --regex-pattern --counts-only
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -StartChapter 1 -EndChapter 1394 -Pattern "red (chimney|smokestack)" -RegexPattern -CountsOnly
 ```
 
@@ -141,14 +157,16 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Start
 Use `-Json` when downstream tooling or Codex needs structured results instead of human-readable chapter blocks.
 
 ```powershell
+python Tools\search_epub.py --start-chapter 17 --end-chapter 17 --pattern "Sleepless" --context-lines 1 --max-hits-per-chapter 1 --json
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -StartChapter 17 -EndChapter 17 -Pattern "Sleepless" -ContextLines 1 -MaxHitsPerChapter 1 -Json
 ```
 
 JSON output includes `entry_type`, `volume`, `chapter`, `title`, and `source_path` fields where available.
 
-Use `-IncludeLineMatchCounts` with JSON hit output when a matched line may include the same term more than once or multiple competing terms.
+Use `--include-line-match-counts` / `-IncludeLineMatchCounts` with JSON hit output when a matched line may include the same term more than once or multiple competing terms.
 
 ```powershell
+python Tools\search_epub.py --pattern "savant|artisan" --context-lines 2 --max-hits-per-chapter 100 --json --include-line-match-counts
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Pattern "savant|artisan" -ContextLines 2 -MaxHitsPerChapter 100 -Json -IncludeLineMatchCounts
 ```
 
@@ -166,6 +184,10 @@ Use this workflow when choosing a canonical page slug or primary article name fr
 Example:
 
 ```powershell
+python Tools\search_epub.py --pattern "savant|artisan|paragon" --term-summary
+python Tools\search_epub.py --pattern "savant|artisan|paragon" --counts-only --json
+python Tools\search_epub.py --pattern "savant|artisan|paragon" --context-lines 2 --max-hits-per-chapter 100 --json --include-line-match-counts
+
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Pattern "savant|artisan|paragon" -TermSummary
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Pattern "savant|artisan|paragon" -CountsOnly -Json
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Pattern "savant|artisan|paragon" -ContextLines 2 -MaxHitsPerChapter 100 -Json -IncludeLineMatchCounts

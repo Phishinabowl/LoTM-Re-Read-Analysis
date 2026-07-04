@@ -27,6 +27,7 @@ Volume 1, Chapters 1-47. Current active review window: Chapters 15-47.
 - Initial terms, names, and aliases: Sleepless, Midnight Poet, Nightmare
 - Related effects, events, characters, locations, or motifs: Dunn, Leonard, Royale, Kenley, Seeka, night, darkness, dream, sleep, singing, Nighthawks, Church pathway access
 - EPUB survey commands:
+  - Historical note: these commands were run with the PowerShell helper. Future reruns should prefer `python Tools\search_epub.py` and use `Tools\Search-Epub.ps1` as the Windows PowerShell fallback.
   - `powershell -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -StartChapter 13 -EndChapter 28 -Pattern "Sleepless|Midnight Poet|Nightmare" -CountsOnly`
   - `powershell -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -StartChapter 17 -EndChapter 22 -Pattern "Sleepless|Midnight Poet|Nightmare" -ContextLines 2 -MaxHitsPerChapter 25`
   - `powershell -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -StartChapter 28 -EndChapter 33 -Pattern "Sleepless|Mystery Pryer|Corpse Collector|Seer" -ContextLines 1 -MaxHitsPerChapter 20`

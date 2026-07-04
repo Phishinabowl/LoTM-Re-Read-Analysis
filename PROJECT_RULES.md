@@ -1177,11 +1177,11 @@ Use the EPUB.
 
 ### EPUB Sweep Tool
 
-Use `Tools/Search-Epub.ps1` for repeatable novel EPUB checks.
+Use `Tools/search_epub.py` for repeatable novel EPUB checks when Python is available. `Tools/Search-Epub.ps1` is the Windows PowerShell fallback and should remain behaviorally compatible.
 
-When a task requires novel EPUB source expansion and this helper is available, use it as the preferred first EPUB search path. This applies to graph-building coverage sweeps as well as article and investigation verification. If the helper is missing or unusable, use another structured EPUB search method and report the degraded path.
+When a task requires novel EPUB source expansion and this helper is available, use the Python helper as the preferred first EPUB search path because it is faster and can grow into reusable search/index functionality. Use the PowerShell helper when Python is unavailable. This applies to graph-building coverage sweeps as well as article and investigation verification. If both helpers are missing or unusable, use another structured EPUB search method and report the degraded path.
 
-The helper searches the full Book 1 EPUB by actual chapter number rather than Volume 1 filenames. It can narrow by `-StartChapter` / `-EndChapter`, `-Volume`, `-EntryType`, and `-EntryNamePattern`. Use `-EntryType SideStories`, `-EntryType Appendices`, `-EntryType Artwork`, `-EntryType FrontMatter`, or `-EntryType All` when the evidence may live outside the main chapter stream.
+The helpers search the full Book 1 EPUB by actual chapter number rather than Volume 1 filenames. They can narrow by chapter range, volume, entry type, and entry filename pattern. Use side-story, appendix, artwork, front-matter, other, or all-entry filters when the evidence may live outside the main chapter stream.
 
 The standard EPUB evidence workflow is:
 
@@ -1193,31 +1193,36 @@ The standard EPUB evidence workflow is:
 6. Record chapter references and paraphrased evidence in the investigation file.
 7. Do not paste long EPUB passages into tracked records.
 
-When choosing a canonical page slug or primary article name from competing names, run a term-arbitration sweep rather than relying on memory or raw search totals. Use `-TermSummary` to count all candidate terms across the full relevant range and split them by term and volume, then inspect context around hits in chapter order. For context JSON where repeated terms on the same line matter, use `-IncludeLineMatchCounts`. Classify each usage by function: primary subject name, alias/title, sequence name, ordinary-language usage, person/role label, or artwork/formal label. Prefer the slug that best matches repeated in-text subject usage, and preserve alternate names in the article alias table and artwork-map notes. Raw counts can mislead when one term is also an occupation, epithet, or individual label.
+When choosing a canonical page slug or primary article name from competing names, run a term-arbitration sweep rather than relying on memory or raw search totals. Use `--term-summary` / `-TermSummary` to count all candidate terms across the full relevant range and split them by term and volume, then inspect context around hits in chapter order. For context JSON where repeated terms on the same line matter, use `--include-line-match-counts` / `-IncludeLineMatchCounts`. Classify each usage by function: primary subject name, alias/title, sequence name, ordinary-language usage, person/role label, or artwork/formal label. Prefer the slug that best matches repeated in-text subject usage, and preserve alternate names in the article alias table and artwork-map notes. Raw counts can mislead when one term is also an occupation, epithet, or individual label.
 
 Example survey count:
 
 ```powershell
+python Tools\search_epub.py --start-chapter 10 --end-chapter 47 --pattern "Dunn|Captain|Nighthawk|Nightmare|Sleepless" --counts-only
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -StartChapter 10 -EndChapter 47 -Pattern "Dunn|Captain|Nighthawk|Nightmare|Sleepless" -CountsOnly
 ```
 
 Example context expansion:
 
 ```powershell
+python Tools\search_epub.py --start-chapter 12 --end-chapter 13 --pattern "Dunn|Nighthawk" --context-lines 2 --max-hits-per-chapter 8
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -StartChapter 12 -EndChapter 13 -Pattern "Dunn|Nighthawk" -ContextLines 2 -MaxHitsPerChapter 8
 ```
 
-By default, `-Pattern` treats `|` as a separator between literal terms. Use `-RegexPattern` only when a regular expression is needed.
+By default, `--pattern` / `-Pattern` treats `|` as a separator between literal terms. Use `--regex-pattern` / `-RegexPattern` only when a regular expression is needed.
 
 Example later-volume count:
 
 ```powershell
+python Tools\search_epub.py --volume 3 --pattern "Gehrman|Traveler" --counts-only
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Volume 3 -Pattern "Gehrman|Traveler" -CountsOnly
 ```
 
 Example appendix or side-story inspection:
 
 ```powershell
+python Tools\search_epub.py --entry-type Appendices --entry-name-pattern "*pathways*" --list-entries
+python Tools\search_epub.py --entry-type SideStories --pattern "3-0782" --counts-only
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -EntryType Appendices -EntryNamePattern "*pathways*" -ListEntries
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -EntryType SideStories -Pattern "3-0782" -CountsOnly
 ```

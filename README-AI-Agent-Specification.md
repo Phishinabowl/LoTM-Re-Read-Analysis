@@ -94,10 +94,11 @@ If the user cannot provide the missing source files, the assistant MUST mark sou
 
 The public GitHub fallback does not include ignored local source materials. Therefore, GitHub fallback bootstraps MUST report that repository artifacts are available but EPUB/subtitle source expansion is unavailable unless the user provides those files.
 
-When novel EPUB source expansion is available and suitable for the task, the assistant SHOULD use the repository helper `Tools/Search-Epub.ps1` as the first EPUB search path for bounded chapter sweeps, counts, snippets, and repeatable evidence checks. If the helper is missing or fails, the assistant may fall back to another structured EPUB search method, but it MUST report that the preferred helper path was unavailable or degraded.
+When novel EPUB source expansion is available and suitable for the task, the assistant SHOULD use the repository helper `Tools/search_epub.py` as the first EPUB search path for bounded chapter sweeps, counts, snippets, and repeatable evidence checks. If Python is unavailable, the assistant SHOULD use the Windows PowerShell fallback `Tools/Search-Epub.ps1`. If both helpers are missing or fail, the assistant may fall back to another structured EPUB search method, but it MUST report that the preferred helper path was unavailable or degraded.
 
 During bootstrap, the assistant MUST also check and report availability of repository-local helper tooling needed for graph and source workflows. For this repository family, that tooling includes:
 
+- `Tools/search_epub.py`
 - `Tools/Search-Epub.ps1`
 - `Visualization/render-graphs.ps1`
 - `Visualization/render-mermaid.ps1`
@@ -2711,7 +2712,7 @@ When generating pathway, sequence, role, title, affiliation, or "who is what" gr
 
 For this repository family, pathway, sequence, role, title, affiliation, and "who is what" graphs must use the high-coverage discovery workflow in `Visualization/graph-authoring-standard.md`. This includes repository-canonical candidates, source-supported graph-local candidates, generic structural source searches, prior-graph reconciliation when available, and explicit confidence classification.
 
-When EPUB source access is available, the high-coverage source-search pass SHOULD use `Tools/Search-Epub.ps1` for repeatable bounded sweeps before falling back to ad hoc EPUB parsing.
+When EPUB source access is available, the high-coverage source-search pass SHOULD use `Tools/search_epub.py` for repeatable bounded sweeps, with `Tools/Search-Epub.ps1` as the Windows PowerShell fallback before falling back to ad hoc EPUB parsing.
 
 The holder coverage pass searches repository evidence for:
 

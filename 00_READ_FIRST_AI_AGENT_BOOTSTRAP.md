@@ -27,13 +27,13 @@ If the user cannot provide them, continue with repository artifacts only and tre
 
 The public GitHub repository does not include ignored local source materials, so GitHub fallback bootstraps should always perform this availability check and report the missing-source limitation.
 
-If novel EPUB source expansion is available and needed, prefer the repository EPUB search helper `Tools/Search-Epub.ps1` for bounded chapter sweeps before using ad hoc EPUB parsing. If that helper is missing or unusable, report the degraded source-search path.
+If novel EPUB source expansion is available and needed, prefer the repository EPUB search helper `Tools/search_epub.py` for bounded chapter sweeps before using ad hoc EPUB parsing. If Python is unavailable, use the Windows PowerShell fallback `Tools/Search-Epub.ps1`. If both helpers are missing or unusable, report the degraded source-search path.
 
 ## Repository Tooling Availability Check
 
 During bootstrap, also check and report whether these repository helpers are present:
 
-- EPUB search helper: `Tools/Search-Epub.ps1`;
+- EPUB search helpers: `Tools/search_epub.py` preferred, `Tools/Search-Epub.ps1` fallback;
 - canonical visualization refresh helper: `Visualization/render-graphs.ps1`;
 - manual Mermaid render helper: `Visualization/render-mermaid.ps1`;
 - Mermaid browser config: `Visualization/config/puppeteer-config.json`;

@@ -27,7 +27,7 @@ Volume 1, Chapters 4-47.
 - Initial terms, names, and aliases: prayer, pray, ritual, ritualistic magic, ceremony, offering, sacrifice, summon, honorific, blessing, seal, sealing
 - Related effects, events, characters, locations, or motifs: Klein's luck-enhancement attempt, Old Neil's mysticism instruction, Spirit Vision, Ray Bieber, Antigonus notebook, Seer pathway, Nighthawks
 - Terms discovered during the investigation: ritualistic magic, ritual-like sealing effect
-- EPUB survey command or equivalent source sweep: Pending targeted `Tools/Search-Epub.ps1` sweep.
+- EPUB survey command or equivalent source sweep: Pending targeted `Tools/search_epub.py` sweep, with `Tools/Search-Epub.ps1` as the Windows PowerShell fallback.
 - Candidate chapter range: Volume 1, Chapters 4-47.
 - Context expansion notes: Use existing Divination, Beyonders, Old Neil, and Antigonus Notebook records as starting anchors, then verify exact wording directly in the EPUB before expanding claims.
 - Completeness sweep: Not started

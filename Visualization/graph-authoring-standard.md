@@ -59,7 +59,7 @@ For this repository family:
 - Subtitle dialogue/timing evidence comes from local `.ass` subtitle files.
 - Silent visual evidence requires separate audiovisual verification.
 
-When novel EPUB source expansion is available and suitable for the graph request, use `Tools/Search-Epub.ps1` as the preferred first search path for bounded chapter sweeps, counts, snippets, and repeatable checks. Fall back to another structured EPUB search only if the helper is missing or unusable, and report that degraded path in the output.
+When novel EPUB source expansion is available and suitable for the graph request, use `Tools/search_epub.py` as the preferred first search path for bounded chapter sweeps, counts, snippets, and repeatable checks. If Python is unavailable, use the Windows PowerShell fallback `Tools/Search-Epub.ps1`. Fall back to another structured EPUB search only if both helpers are missing or unusable, and report that degraded path in the output.
 
 Source expansion must preserve the requested boundary. Do not include later-volume, later-chapter, adaptation-only, unaudited subtitle, or external material unless the user asks for that source scope.
 
@@ -114,7 +114,7 @@ Pathway, sequence, role, title, affiliation, and "who is what sequence" graphs r
 
 Do not begin only from known glossary nodes or already remembered pathway names.
 
-If EPUB source access is available, run the source-search portions of this pass through `Tools/Search-Epub.ps1` when possible. Use bounded chapter ranges, count sweeps, chapter-ordered snippets, and repeated vocabulary expansion instead of one-off manual text scans.
+If EPUB source access is available, run the source-search portions of this pass through `Tools/search_epub.py` when possible, or `Tools/Search-Epub.ps1` as the Windows PowerShell fallback. Use bounded chapter ranges, count sweeps, chapter-ordered snippets, and repeated vocabulary expansion instead of one-off manual text scans.
 
 Use generic structural searches inside the requested source boundary, including:
 
