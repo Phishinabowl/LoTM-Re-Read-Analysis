@@ -158,6 +158,7 @@ These pages are low-priority pending backlog items surfaced by official EPUB art
 - deity-s0-evernight-goddess.md
 - deity-s0-fool.md (Sequence 0 / true god page for the Seer pathway; heavily tied to Klein and the prior Celestial Worthy / Lord of the Mysteries)
 - deity-s0-god-of-combat.md
+- deity-s0-moon.md (Sequence 0 / true god page for the Moon pathway; preserve Apothecary as early pathway alias, Beauty Goddess as Sequence 1, and Lilith/Earth Mother as historical holder/deity identity nuance)
 - deity-s0-primordial-demoness.md
 - deity-s0-red-priest.md (Sequence 0 / true god page for the Hunter pathway)
 - deity-s0-salinger.md
