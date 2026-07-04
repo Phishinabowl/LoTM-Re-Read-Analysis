@@ -72,6 +72,8 @@ Use `--volume` / `-Volume` to narrow chapter searches by EPUB volume, `--start-c
 
 Use this first to find candidate chapters and term clusters.
 
+Preferred flags are `--counts-only` / `-CountsOnly`; the shorter aliases `--counts` / `-Counts` are also accepted.
+
 ```powershell
 python Tools\search_epub.py --start-chapter 10 --end-chapter 47 --pattern "Dunn|Captain|Nighthawk|Nightmare|Sleepless" --counts-only
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -StartChapter 10 -EndChapter 47 -Pattern "Dunn|Captain|Nighthawk|Nightmare|Sleepless" -CountsOnly
@@ -94,6 +96,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Volum
 ### Term Summary
 
 Use `--term-summary` / `-TermSummary` when comparing competing names or aliases. It aggregates each literal pipe-separated term across the selected entries and splits counts by EPUB volume.
+
+Preferred flags are `--term-summary` / `-TermSummary`; the aliases `--summary-only`, `--summary`, `-SummaryOnly`, and `-Summary` are also accepted.
 
 ```powershell
 python Tools\search_epub.py --pattern "savant|artisan|paragon" --term-summary

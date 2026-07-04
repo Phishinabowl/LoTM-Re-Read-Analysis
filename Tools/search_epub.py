@@ -12,6 +12,13 @@ from pathlib import PurePosixPath
 ENTRY_TYPES = ["Chapters", "SideStories", "Appendices", "Artwork", "FrontMatter", "Other", "All"]
 
 
+def configure_output_encoding() -> None:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
+
 @dataclass
 class Document:
     path: str
@@ -50,8 +57,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--pattern")
     parser.add_argument("--context-lines", type=non_negative_int, default=0)
     parser.add_argument("--max-hits-per-chapter", type=non_negative_int, default=50)
-    parser.add_argument("--counts-only", action="store_true")
-    parser.add_argument("--term-summary", action="store_true")
+    parser.add_argument("--counts-only", "--counts", action="store_true")
+    parser.add_argument("--term-summary", "--summary-only", "--summary", action="store_true")
     parser.add_argument("--include-line-match-counts", action="store_true")
     parser.add_argument("--regex-pattern", action="store_true")
     parser.add_argument("--case-sensitive", action="store_true")
@@ -349,6 +356,7 @@ def search_documents(documents: list[Document], terms: list[str], args: argparse
 
 
 def main() -> int:
+    configure_output_encoding()
     parser = build_parser()
     args = parser.parse_args()
 

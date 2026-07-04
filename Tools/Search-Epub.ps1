@@ -11,7 +11,9 @@ param(
   [string]$Pattern,
   [int]$ContextLines = 0,
   [int]$MaxHitsPerChapter = 50,
+  [Alias("Counts")]
   [switch]$CountsOnly,
+  [Alias("SummaryOnly", "Summary")]
   [switch]$TermSummary,
   [switch]$IncludeLineMatchCounts,
   [switch]$RegexPattern,
@@ -21,6 +23,8 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+$OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 
 if (-not $ListEntries -and [string]::IsNullOrWhiteSpace($Pattern)) {
   throw "Provide -Pattern. For literal multi-term searches, separate terms with |, such as -Pattern `"Dunn|Captain|Nighthawk`". Use -ListEntries to inspect EPUB entries without a search pattern."
