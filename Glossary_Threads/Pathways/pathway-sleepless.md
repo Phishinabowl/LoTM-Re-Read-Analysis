@@ -1,6 +1,6 @@
 # Sleepless Pathway
 
-![Darkness pathway guide page](../../Artwork/extracted/volume-1-clown/0009-spine-0223-pathways-pathways3.jpeg)
+<img src="../../Artwork/extracted/volume-1-clown/0009-spine-0223-pathways-pathways3.jpeg" alt="Darkness pathway guide page" width="360">
 
 ## Metadata
 

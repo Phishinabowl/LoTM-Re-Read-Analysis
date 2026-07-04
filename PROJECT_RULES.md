@@ -458,7 +458,7 @@ Use `Prayers & Ritual Access` for character-specific prayer addresses, exact pra
 
 Pathway pages should include the pathway overlay once the page has enough verified material to support more than a stub. The overlay is required for active pathway pilot pages and recommended for any future pathway page with reader-safe sequence, formula, access, holder, or ability data.
 
-When official pathway artwork is mapped, the current lightweight convention is to place the primary pathway-guide image near the top of the page and keep structured artwork references in the data block when useful for extraction. Avoid adding a separate visible `Official Artwork` metadata list to pathway pages unless a later page-level image pattern calls for one.
+When official pathway artwork is mapped, the current lightweight convention is to place a compact primary pathway-guide image near the top of the page and keep structured artwork references in the data block when useful for extraction. Avoid adding a separate visible `Official Artwork` metadata list to pathway pages unless a later page-level image pattern calls for one.
 
 Pathway pages should place `Associated Tarot Card` after `Pathway Names / Reader Display Timeline` and before `First Appearance / First Meaningful Mention`. When a crop exists, embed a compact card image that links to the full crop file, with a details list covering card name, card number, associated pathway labels, confidence, and notes. If no official crop is mapped for the page's current reader boundary, use a short status note instead of inventing a card association.
 

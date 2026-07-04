@@ -1,6 +1,6 @@
 # Pathway Name
 
-![Official pathway artwork label](../../Artwork/extracted/path/to/pathway-image.ext)
+<img src="../../Artwork/extracted/path/to/pathway-image.ext" alt="Official pathway artwork label" width="360">
 
 ## Metadata
 
