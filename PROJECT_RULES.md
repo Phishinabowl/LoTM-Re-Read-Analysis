@@ -149,7 +149,7 @@ Visualization files are generated outputs.
 The graph source of truth remains:
 
 - Glossary thread metadata
-- Reader Knowledge Ledgers
+- Embedded Reader Knowledge Ledger sections in glossary threads
 - Relationship Seeds
 - Controlled relationship taxonomy in this file
 

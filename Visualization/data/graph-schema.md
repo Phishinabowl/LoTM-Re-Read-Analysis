@@ -11,7 +11,7 @@ Graph data should be generated from project records, not maintained directly.
 Canonical inputs include:
 
 - Glossary thread metadata
-- Reader Knowledge Ledger entries
+- Embedded Reader Knowledge Ledger entries in glossary threads
 - Relationship Seeds
 - Controlled relationship and tag taxonomies in `PROJECT_RULES.md`
 - Supporting investigation records when evidence provenance is needed

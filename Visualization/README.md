@@ -5,7 +5,7 @@ This folder contains generated visualization artifacts for the Lord of the Myste
 Generated graph files are not the source of truth. The canonical project data remains in:
 
 - Glossary thread metadata
-- Reader Knowledge Ledgers
+- Embedded Reader Knowledge Ledger sections in glossary threads
 - Relationship Seeds
 - The controlled relationship taxonomy in `PROJECT_RULES.md`
 
