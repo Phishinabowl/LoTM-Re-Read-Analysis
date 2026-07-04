@@ -1,6 +1,6 @@
 # Volume 1: Clown
 
-![Volume 1 cover: Clown](../Artwork/page-assets/volumes/volume-01-clown/volume-1-cover-clown.jpg)
+[![Volume 1 cover: Clown](../Artwork/page-assets/volumes/volume-01-clown/volume-1-cover-clown.jpg)](../Artwork/page-assets/volumes/volume-01-clown/volume-1-cover-clown.jpg)
 
 ## Metadata
 

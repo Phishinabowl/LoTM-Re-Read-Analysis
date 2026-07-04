@@ -1,6 +1,6 @@
 # Seer Pathway
 
-<img src="../../Artwork/page-assets/pathways/pathway-seer/fool-pathway-guide.jpeg" alt="Fool pathway guide page" width="360">
+<a href="../../Artwork/page-assets/pathways/pathway-seer/fool-pathway-guide.jpeg"><img src="../../Artwork/page-assets/pathways/pathway-seer/fool-pathway-guide.jpeg" alt="Fool pathway guide page" width="360"></a>
 
 ## Metadata
 

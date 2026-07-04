@@ -1,5 +1,7 @@
 # Volume Title
 
+[![Volume artwork alt text](../Artwork/page-assets/path/to/page-ready-image.ext)](../Artwork/page-assets/path/to/page-ready-image.ext)
+
 ## Metadata
 
 Type: Volume Summary

@@ -1,6 +1,6 @@
 # Sleepless Pathway
 
-<img src="../../Artwork/page-assets/pathways/pathway-sleepless/darkness-pathway-guide.jpeg" alt="Darkness pathway guide page" width="360">
+<a href="../../Artwork/page-assets/pathways/pathway-sleepless/darkness-pathway-guide.jpeg"><img src="../../Artwork/page-assets/pathways/pathway-sleepless/darkness-pathway-guide.jpeg" alt="Darkness pathway guide page" width="360"></a>
 
 ## Metadata
 

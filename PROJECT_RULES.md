@@ -153,6 +153,8 @@ This mirrors the treatment of the source EPUB and subtitle/source-media files: t
 
 When an article intentionally embeds official artwork, promote only that specific page-ready image into a tracked location such as `Artwork/page-assets/`. Do not bulk-promote extracted EPUB images, crop batches, or intermediate working assets.
 
+By default, embedded page images should be clickable links to their own full-size page-ready asset unless a page-specific layout deliberately needs different behavior. Use the same `Artwork/page-assets/` path for both the displayed image and the surrounding link.
+
 ---
 
 # Visualization
@@ -556,7 +558,7 @@ Use `Prayers & Ritual Access` for character-specific prayer addresses, exact pra
 
 Pathway pages should include the pathway overlay once the page has enough verified material to support more than a stub. The overlay is required for active pathway pilot pages and recommended for any future pathway page with reader-safe sequence, formula, access, holder, or ability data.
 
-When official pathway artwork is mapped, the current lightweight convention is to place a compact primary pathway-guide image near the top of the page and keep structured artwork references in the data block when useful for extraction. Avoid adding a separate visible `Official Artwork` metadata list to pathway pages unless a later page-level image pattern calls for one.
+When official pathway artwork is mapped, the current lightweight convention is to place a compact clickable primary pathway-guide image near the top of the page and keep structured artwork references in the data block when useful for extraction. Avoid adding a separate visible `Official Artwork` metadata list to pathway pages unless a later page-level image pattern calls for one.
 
 Pathway pages should place `Associated Tarot Card` after `Pathway Names / Reader Display Timeline` and before `First Appearance / First Meaningful Mention`. When a crop exists, embed a compact card image that links to the full crop file, with a details list covering card name, card number, associated pathway labels, confidence, and notes. If no official crop is mapped for the page's current reader boundary, use a short status note instead of inventing a card association.
 
@@ -1275,7 +1277,7 @@ The eventual glossary page should update from the user's selected novel chapter,
 
 Filtered renderers should hide optional sections when all section content is filtered out for the selected reader position. A table with zero eligible rows, an optional prose section with no eligible reader-safe content, or an embedded media/detail section whose source fact is not yet eligible should collapse rather than display empty scaffolding. Durable structural sections such as page title, metadata needed by the renderer, and reader-boundary state may remain visible.
 
-Embedded page header images are exempt from spoiler-filter hiding. Header images function as page identity/official artwork anchors and may remain visible at any reader position even when later artwork mapping or detailed image metadata is not otherwise eligible. Other in-page images, cards, galleries, and visual evidence sections should follow normal section/content eligibility unless a future rule explicitly marks them as page-header artwork.
+Embedded page header images are exempt from spoiler-filter hiding. Header images function as page identity/official artwork anchors and may remain visible at any reader position even when later artwork mapping or detailed image metadata is not otherwise eligible. By default, these embedded header images should link to their full-size page-ready asset. Other in-page images, cards, galleries, and visual evidence sections should follow normal section/content eligibility unless a future rule explicitly marks them as page-header artwork.
 
 Use optional `subject_attribution_from` entries when a generic claim becomes knowable before the reader can connect it to the glossary subject that stores it. `available_from` controls when the claim itself is knowable; `subject_attribution_from` controls when it may appear on that subject's generated page.
 
