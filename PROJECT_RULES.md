@@ -1218,7 +1218,13 @@ For a selected reader position, display only disclosures available at or before 
 
 Combined views must evaluate each selected medium independently and then combine only the permitted results. A disclosure in one medium must never silently advance the selected boundary of another medium.
 
+Filtered renderers must apply page-level eligibility before section-level eligibility. If the page subject itself is not reader-safe at the selected position, hide the entire page from reader-facing navigation, search, related-thread lists, graph projections, and direct generated output. Do not show a blank page, title-only placeholder, hidden-card shell, or "spoiler removed" stub unless the user has explicitly opted into spoiler placeholders.
+
 The eventual glossary page should update from the user's selected novel chapter, Donghua release position, or both. Its reader-facing summary and timeline must be constructed only from eligible knowledge units. Freeform analysis elsewhere in the Markdown file is project working material and must not be assumed spoiler-safe for automatic display.
+
+Filtered renderers should hide optional sections when all section content is filtered out for the selected reader position. A table with zero eligible rows, an optional prose section with no eligible reader-safe content, or an embedded media/detail section whose source fact is not yet eligible should collapse rather than display empty scaffolding. Durable structural sections such as page title, metadata needed by the renderer, and reader-boundary state may remain visible.
+
+Embedded page header images are exempt from spoiler-filter hiding. Header images function as page identity/official artwork anchors and may remain visible at any reader position even when later artwork mapping or detailed image metadata is not otherwise eligible. Other in-page images, cards, galleries, and visual evidence sections should follow normal section/content eligibility unless a future rule explicitly marks them as page-header artwork.
 
 Use optional `subject_attribution_from` entries when a generic claim becomes knowable before the reader can connect it to the glossary subject that stores it. `available_from` controls when the claim itself is knowable; `subject_attribution_from` controls when it may appear on that subject's generated page.
 
