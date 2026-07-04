@@ -338,6 +338,7 @@ faction-[name].md
 location-[name].md
 concept-[name].md
 event-[name].md
+deity-[scope]-[name].md
 pathway-[name].md
 epoch-[name].md
 mystery-[name].md
@@ -356,6 +357,9 @@ family-medici.md
 faction-rose-school-of-thought.md
 concept-gray-fog.md
 event-great-smog.md
+deity-s0-evernight-goddess.md
+deity-ats-lord-of-the-mysteries.md
+deity-od-mother-goddess-of-depravity.md
 pathway-seer.md
 epoch-fourth-epoch.md
 mystery-mr-door.md
@@ -363,6 +367,14 @@ timeline-ian-zreal-chain.md
 ```
 
 If a thread fits multiple categories, choose the category that best matches the analytical purpose of the file.
+
+Deity pages use a required second-level scope in the filename so true gods, Above the Sequences title clusters, and Outer Deity entities do not collapse into each other:
+
+- `deity-s0-[name].md` for Sequence 0 / true god pages.
+- `deity-ats-[name].md` for Above the Sequences / Great Old One title-cluster pages.
+- `deity-od-[name].md` for Outer Deity / Outer God entity pages.
+
+Keep these pages separate when the same pathway cluster exposes multiple layers. For example, `deity-s0-earth-mother-lilith.md`, `deity-od-mother-goddess-of-depravity.md`, and a future ATS title-cluster page may all be related to the Planter/Moon group without being the same article subject.
 
 ## Folder Organization
 
@@ -388,6 +400,7 @@ Retain the entity-type filename prefix inside the matching folder. For example:
 ```text
 Glossary_Threads/Characters/character-amon.md
 Glossary_Threads/Artifacts/artifact-0-08.md
+Glossary_Threads/Deities/deity-s0-evernight-goddess.md
 Glossary_Threads/Mysteries/mystery-mr-door.md
 ```
 

@@ -20,13 +20,13 @@ Related Investigations:
 
 Use only controlled tags from `PROJECT_RULES.md`.
 
-Filename format:
+Filename format is governed by `PROJECT_RULES.md`. Use this generic shape only as a quick reminder:
 
 ```text
 [entity-type]-[kebab-case-name].md
 ```
 
-Store the file in its matching plural category folder, such as `Characters/`, `Artifacts/`, or `Mysteries/`, while retaining the filename prefix.
+Store the file in its matching plural category folder, such as `Characters/`, `Artifacts/`, `Deities/`, or `Mysteries/`, while retaining the filename prefix. For scoped or special filename families such as deity pages, follow `PROJECT_RULES.md` rather than duplicating the rule here.
 
 Examples:
 
