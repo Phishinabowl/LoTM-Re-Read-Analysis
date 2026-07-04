@@ -12,7 +12,7 @@ Use `Tools/edit_image.py --operation extract-epub-images` as the source for imag
 - Extracted files: `Artwork/extracted/`
 - Extraction command for Volume 1 listing:
 
-```powershell
+```text
 python Tools\edit_image.py --operation extract-epub-images --volume 1
 ```
 
