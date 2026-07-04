@@ -308,10 +308,8 @@ pathway_profile:
     related_ats_formula: null
     notes: No Seer pathway Uniqueness information is reader-safe at the current boundary.
   associated_mythical_creature:
-    reader_safe_name: null
-    reveal: null
-    status: unknown
-    dedicated_article: null
+    concept_index: concept-mythical-creature-forms
+    forms: []
     notes: No Seer pathway mythical creature information is reader-safe at the current boundary.
 ```
 

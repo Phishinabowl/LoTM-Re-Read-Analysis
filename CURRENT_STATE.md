@@ -150,6 +150,7 @@ These pages are low-priority pending backlog items surfaced by official EPUB art
 - artifact-groselles-travels.md
 - concept-city-of-calamity.md (notes: [preliminary planning](Investigations/Concepts/concept-city-of-calamity/preliminary-planning-investigation.md))
 - concept-key-of-light.md (notes: [preliminary planning](Investigations/Concepts/concept-key-of-light/preliminary-planning-investigation.md))
+- concept-mythical-creature-forms.md (notes: [preliminary planning](Investigations/Concepts/concept-mythical-creature-forms/preliminary-planning-investigation.md))
 - deity-ats-the-anarchy.md (notes: [preliminary planning](Investigations/Deities/deity-ats-the-anarchy/preliminary-planning-investigation.md))
 - deity-ats-calamity-of-destruction.md (notes: [preliminary planning](Investigations/Deities/deity-ats-calamity-of-destruction/preliminary-planning-investigation.md))
 - deity-ats-demon-of-knowledge.md (notes: [preliminary planning](Investigations/Deities/deity-ats-demon-of-knowledge/preliminary-planning-investigation.md))

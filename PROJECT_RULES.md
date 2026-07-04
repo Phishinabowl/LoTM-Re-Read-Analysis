@@ -382,6 +382,10 @@ Keep these pages separate when the same pathway cluster exposes multiple layers.
 
 Every pathway page should include an `Associated Uniqueness` section when the pathway's Uniqueness is known, implied, or relevant to an Above the Sequences formula. Do not create a dedicated `uniqueness-[name].md` page merely because a formula names a pathway's Uniqueness, such as `Mother Uniqueness` or `The Moon Uniqueness`. Create a dedicated Uniqueness page only when the Uniqueness is named, embodied, or tracked as a distinct item/entity in the story. Use `uniqueness-[name].md`, link it back to the pathway and Sequence 0/deity pages, and preserve holder/accommodation state separately from pathway identity. Example: `uniqueness-die-of-probability.md` is the Monster / Fate / Wheel of Fortune pathway Uniqueness and should cross-link `pathway-monster.md`, `deity-s0-wheel-of-fortune.md`, and relevant character-holder pages such as Will Auceptin and Ouroboros.
 
+Mythical creature forms should be tracked through a shared `concept-mythical-creature-forms.md` concept/index page rather than separate `mythical-creature-*` glossary pages by default. The concept page should keep a table of forms with links to the relevant pathway, character, deity, and evidence records. Character and pathway pages should record the specific form/state in their local tables and data blocks, then use relationship seeds to point to the shared concept when the relationship is graph-worthy.
+
+When recording mythical creature forms, preserve the form version/stage and the Sequence or advancement threshold that unlocks, changes, or upgrades it. Many pathways have multiple form versions tied to progression, so do not collapse a character's early form state and later form state into one row. Character form-state rows should accumulate newest-to-oldest like other mutable character facts, while the concept page can group form versions by pathway and Sequence threshold.
+
 ## Folder Organization
 
 Store glossary threads in plural, type-specific subfolders:
@@ -841,11 +845,11 @@ Use pathway metaphysics relationship types when a pathway, character, Uniqueness
 - `associated-outer-deity`: A pathway, deity, concept, artifact, location, or event is meaningfully pressured, corrupted, claimed, or influenced by an Outer Deity / Outer God page.
 - `associated-sefirot`: A pathway, ATS title cluster, deity, artifact, or concept is associated with a sefirot page.
 - `associated-uniqueness`: A pathway is associated with a specific named or planned `uniqueness-*` page. Use only when the Uniqueness itself is reader-safe enough to name, embody, or track as a distinct subject.
-- `associated-mythical-creature-form`: A pathway is associated with a specific mythical creature form or planned mythical-creature page.
+- `associated-mythical-creature-form`: A pathway is associated with a specific mythical creature form tracked on `concept-mythical-creature-forms.md`.
 - `possesses-uniqueness`: A character, deity, faction, artifact, or other entity possesses a Uniqueness at the reader boundary.
 - `controls-uniqueness`: A character, deity, faction, artifact, or other entity controls or can meaningfully use a Uniqueness without necessarily possessing or accommodating it.
 - `accommodates-uniqueness`: A character or deity accommodates a Uniqueness as part of advancement/state.
-- `has-mythical-creature-form`: A character or deity has, gains, reveals, loses, or is otherwise tied to a mythical creature form.
+- `has-mythical-creature-form`: A character or deity has, gains, reveals, loses, or is otherwise tied to a mythical creature form tracked on `concept-mythical-creature-forms.md`.
 
 Use `associated-outer-deity` for external pressure/influence, not as a synonym for Sequence 0 or ATS identity. For example, a pathway cluster can have a native ATS formula and also be pressured by a separate Outer Deity.
 

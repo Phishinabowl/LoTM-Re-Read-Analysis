@@ -145,10 +145,10 @@ Use a single block only when all reveal beats happen together. If the character 
 
 ## Mythical Creature Form State
 
-Include this section only when the character has a reader-safe mythical creature form state, partial transformation, form access, form advancement, loss, concealment, or uncertainty that is itself useful to track. Omit it from character pages where no mythical creature form relationship exists in the story. Rows should accumulate newest-to-oldest like other state/history tables.
+Include this section only when the character has a reader-safe mythical creature form state, partial transformation, form access, form advancement, loss, concealment, or uncertainty that is itself useful to track. Omit it from character pages where no mythical creature form relationship exists in the story. Rows should accumulate newest-to-oldest like other state/history tables. Track the form version/stage because many pathways expose more than one form state tied to Sequence progression. Link broader form comparison/indexing to `Glossary_Threads/Concepts/concept-mythical-creature-forms.md` rather than creating separate form pages by default.
 
-| Form / state | Related pathway | First reveal / change point | Status | Confidence | Notes |
-|---|---|---|---|---|---|
+| Form / state | Version / stage | Related pathway | Sequence / threshold | First reveal / change point | Status | Confidence | Notes |
+|---|---|---|---|---|---|---|---|
 
 ## Uniqueness State
 
@@ -275,7 +275,9 @@ character_profile:
       notes:
   mythical_creature_form_state:
     - form_state:
+      version_stage:
       related_pathway:
+      sequence_threshold:
       reveal:
         medium:
         volume:
@@ -402,7 +404,7 @@ Use Markdown links when the target file exists, with the target document's human
 
 ## Relationship Seeds
 
-Use this section only for relationships important enough to support future relationship graphs. Keep entries reader-boundary aware and mark unverified start points as `TBD`. For Uniqueness and mythical creature form material, seed positive graph-worthy edges such as `possesses-uniqueness`, `controls-uniqueness`, `accommodates-uniqueness`, or `has-mythical-creature-form`; keep detailed state/history in the character sections and data block.
+Use this section only for relationships important enough to support future relationship graphs. Keep entries reader-boundary aware and mark unverified start points as `TBD`. For Uniqueness and mythical creature form material, seed positive graph-worthy edges such as `possesses-uniqueness`, `controls-uniqueness`, `accommodates-uniqueness`, or `has-mythical-creature-form`; keep detailed state/history in the character sections and data block. For mythical creature forms, target `concept-mythical-creature-forms` and record the specific form name in notes/local data.
 
 ```yaml
 relationships:

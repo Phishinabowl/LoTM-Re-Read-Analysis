@@ -166,7 +166,10 @@ Track the pathway's Uniqueness here even when it does not have a dedicated page.
 
 ## Associated Mythical Creature
 
-Track the pathway's associated mythical creature form here when it becomes reader-safe. Keep this section descriptive for now until the project has a normalized mythical-creature structure.
+Track the pathway's associated mythical creature form here when it becomes reader-safe. Do not create a dedicated mythical-creature page by default; the shared index belongs on `Glossary_Threads/Concepts/concept-mythical-creature-forms.md`.
+
+| Form name | Version / stage | Sequence / threshold | First reader-safe reveal | Status | Confidence | Notes |
+|---|---|---|---|---|---|---|
 
 ## Pathway Data Block
 
@@ -284,14 +287,17 @@ pathway_profile:
     related_ats_formula:
     notes:
   associated_mythical_creature:
-    reader_safe_name:
-    reveal:
-      medium:
-      volume:
-      chapter:
-    status:
-    dedicated_article:
-    notes:
+    concept_index: concept-mythical-creature-forms
+    forms:
+      - reader_safe_name:
+        version_stage:
+        sequence_threshold:
+        reveal:
+          medium:
+          volume:
+          chapter:
+        status:
+        notes:
 ```
 
 ## Chronological Development
@@ -354,7 +360,7 @@ pathway_profile:
 
 ## Relationship Seeds
 
-Use relationship seeds for graph-visible pathway edges, including `associated-tarot-card`, `associated-sequence-0`, `associated-ats`, `associated-outer-deity`, `associated-sefirot`, `associated-uniqueness`, and `associated-mythical-creature-form` when those targets are reader-safe. Keep detailed state, holders, notes, title variants, display timing, and uncertainty in the visible sections and `Pathway Data Block`.
+Use relationship seeds for graph-visible pathway edges, including `associated-tarot-card`, `associated-sequence-0`, `associated-ats`, `associated-outer-deity`, `associated-sefirot`, `associated-uniqueness`, and `associated-mythical-creature-form` when those targets are reader-safe. For mythical creature forms, target the shared `concept-mythical-creature-forms` concept page and preserve the specific form name in notes/local data. Keep detailed state, holders, notes, title variants, display timing, and uncertainty in the visible sections and `Pathway Data Block`.
 
 ```yaml
 relationships:
