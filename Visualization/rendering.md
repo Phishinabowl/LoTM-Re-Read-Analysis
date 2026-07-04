@@ -26,7 +26,7 @@ npm install -g @mermaid-js/mermaid-cli
 
 The default `mmdc` browser launch may time out on Windows. The working approach is to point Puppeteer at local Microsoft Edge through the permanent render config in `Visualization/config`.
 
-Mermaid CLI is the underlying renderer, not the project workflow entry point. For repository graph work, call the PowerShell render helpers below first. Direct `mmdc` commands are fallback/debug commands only.
+Mermaid CLI is the underlying renderer, not the project workflow entry point. For repository graph work, call the Python visualization helper below first. Use the merged PowerShell helper as the Windows fallback. Direct `mmdc` commands are fallback/debug commands only.
 
 ## Permanent Render Config
 
@@ -45,26 +45,36 @@ If Edge is installed elsewhere, update `executablePath` in the Puppeteer config.
 From the repository root, render every configured graph view and write the refresh report:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-graphs.ps1
+python Visualization\visualize.py --mode Refresh
+powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Refresh
 ```
 
 To update only the refresh report without rerendering images:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-graphs.ps1 -SkipRender
+python Visualization\visualize.py --mode Refresh --skip-render
+powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Refresh -SkipRender
 ```
 
 To render a manually authored Mermaid file without regenerating repository graph views or updating the refresh tracker, use pure render mode:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-mermaid.ps1 `
+python Visualization\visualize.py --mode Render `
+  --input-path Visualization\graphs\example.mmd
+
+powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Render `
   -InputPath Visualization\graphs\example.mmd
 ```
 
 By default, pure render mode writes both SVG and PNG files to `Visualization/rendered/` using the input filename. You can pass one or more explicit outputs:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-mermaid.ps1 `
+python Visualization\visualize.py --mode Render `
+  --input-path Visualization\graphs\example.mmd `
+  --output-path Visualization\rendered\example.svg `
+  --output-path Visualization\rendered\example.png
+
+powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Render `
   -InputPath Visualization\graphs\example.mmd `
   -OutputPath Visualization\rendered\example.svg,Visualization\rendered\example.png
 ```
@@ -73,11 +83,11 @@ Use pure render mode for one-off, manually authored, or agent-drafted Mermaid fi
 
 Use `-NoProfile` to keep local shell profile output from contaminating command output.
 
-Do not treat a direct `mmdc -p Visualization/config/puppeteer-config.json ...` command as equivalent to pure render mode. The helper script is the repository workflow layer. It applies shared render settings and validation expectations before calling the renderer.
+Do not treat a direct `mmdc -p Visualization/config/puppeteer-config.json ...` command as equivalent to pure render mode. The helpers are the repository workflow layer. They apply shared render settings and validation expectations before calling the renderer.
 
-If an execution environment cannot write under `Visualization/`, the preferred degraded path is still to run `Visualization\render-mermaid.ps1` with an accessible `-InputPath` and explicit `-OutputPath`, when possible. Use direct `mmdc` only after the helper script is unavailable, fails, or cannot be run against the accessible paths. When direct `mmdc` is used, label the render as a degraded fallback.
+If an execution environment cannot write under `Visualization/`, the preferred degraded path is still to run `Visualization\visualize.py --mode Render` or `Visualization\visualize.ps1 -Mode Render` with an accessible input path and explicit output path, when possible. Use direct `mmdc` only after the helper scripts are unavailable, fail, or cannot be run against the accessible paths. When direct `mmdc` is used, label the render as a degraded fallback.
 
-The helper reads `Visualization/config/render-settings.json`, renders every configured view to every configured output, updates the semantic graph snapshot, and updates the live refresh tracker in:
+The helpers read `Visualization/config/render-settings.json`, render every configured view to every configured output, update the semantic graph snapshot, and update the live refresh tracker in:
 
 - `Visualization/README.md`
 

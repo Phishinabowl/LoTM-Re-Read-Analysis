@@ -250,10 +250,11 @@ Follow [rendering.md](rendering.md) for layout, class coverage, ordered-series l
 
 Use repository render helpers before direct renderer commands:
 
-- `Visualization/render-graphs.ps1` for canonical refreshes.
-- `Visualization/render-mermaid.ps1` for manual or agent-drafted Mermaid files.
+- `python Visualization\visualize.py --mode Refresh` for canonical refreshes.
+- `python Visualization\visualize.py --mode Render` for manual or agent-drafted Mermaid files.
+- `Visualization/visualize.ps1` is the merged PowerShell fallback for both modes.
 
-Direct `mmdc` is fallback/debug only and must be labeled degraded when used because helper scripts are unavailable or cannot run.
+Direct `mmdc` is fallback/debug only and must be labeled degraded when used because the helper scripts are unavailable or cannot run.
 
 ## Output Report
 

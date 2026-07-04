@@ -34,12 +34,11 @@ If novel EPUB source expansion is available and needed, prefer the repository EP
 During bootstrap, also check and report whether these repository helpers are present:
 
 - EPUB search helpers: `Tools/search_epub.py` preferred, `Tools/Search-Epub.ps1` fallback;
-- canonical visualization refresh helper: `Visualization/render-graphs.ps1`;
-- manual Mermaid render helper: `Visualization/render-mermaid.ps1`;
+- visualization helpers: `Visualization/visualize.py` preferred, `Visualization/visualize.ps1` PowerShell fallback;
 - Mermaid browser config: `Visualization/config/puppeteer-config.json`;
 - shared render settings: `Visualization/config/render-settings.json`.
 
-If visualization helpers or config are missing, report that repository visualization rendering is degraded. Do not call direct `mmdc` equivalent to the repository render workflow when the helper scripts are unavailable.
+If the visualization helpers or config are missing, report that repository visualization rendering is degraded. Do not call direct `mmdc` equivalent to the repository render workflow when the helper scripts are unavailable.
 
 The active operating contract for repository-answering behavior is:
 

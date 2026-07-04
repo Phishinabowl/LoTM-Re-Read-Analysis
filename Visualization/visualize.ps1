@@ -1,4 +1,8 @@
 param(
+  [ValidateSet("Refresh", "Render")]
+  [string]$Mode = "Refresh",
+  [string]$InputPath,
+  [string[]]$OutputPath,
   [string]$SettingsPath = "Visualization/config/render-settings.json",
   [switch]$SkipRender
 )
@@ -10,6 +14,11 @@ Set-Location $repoRoot
 
 function Resolve-RepoPath {
   param([string]$Path)
+
+  if ([System.IO.Path]::IsPathRooted($Path)) {
+    return $Path
+  }
+
   return (Join-Path $repoRoot $Path)
 }
 
@@ -558,6 +567,11 @@ function Invoke-MermaidRender {
   Assert-MermaidClassValidation $InputPath $Settings
   Assert-MermaidLayoutValidation $InputPath $Settings
   $renderSize = Get-MermaidRenderSize $InputPath $Settings
+  $outputDirectory = Split-Path -Parent $OutputPath
+  if (-not [string]::IsNullOrWhiteSpace($outputDirectory) -and -not (Test-Path $outputDirectory)) {
+    New-Item -ItemType Directory -Path $outputDirectory -Force | Out-Null
+  }
+
   $args = @(
     "-p", $PuppeteerConfig,
     "-i", $InputPath,
@@ -1217,191 +1231,232 @@ function Update-MermaidGraphs {
   }
 }
 
+function Invoke-ManualRenderMode {
+  param(
+    [object]$Settings,
+    [string]$PuppeteerConfig
+  )
+
+  if ([string]::IsNullOrWhiteSpace($InputPath)) {
+    throw "Render mode requires -InputPath."
+  }
+
+  $inputFullPath = Resolve-RepoPath $InputPath
+  if (-not (Test-Path $inputFullPath)) {
+    throw "Input Mermaid file not found: $InputPath"
+  }
+
+  if ($null -eq $OutputPath -or $OutputPath.Count -eq 0) {
+    $baseName = [System.IO.Path]::GetFileNameWithoutExtension($inputFullPath)
+    $OutputPath = @(
+      "Visualization/rendered/$baseName.svg",
+      "Visualization/rendered/$baseName.png"
+    )
+  }
+
+  foreach ($output in $OutputPath) {
+    Invoke-MermaidRender $inputFullPath (Resolve-RepoPath $output) $Settings $PuppeteerConfig
+  }
+}
+
+function Invoke-RefreshMode {
+  param(
+    [object]$Settings,
+    [string]$PuppeteerConfig
+  )
+
+  Update-MermaidGraphs $Settings.views
+
+  if (-not $SkipRender) {
+    foreach ($view in $Settings.views) {
+      foreach ($output in $view.outputs) {
+        Invoke-MermaidRender (Resolve-RepoPath $view.input) (Resolve-RepoPath $output) $Settings $PuppeteerConfig
+      }
+    }
+  }
+
+  $primaryGraph = Resolve-RepoPath $Settings.views[0].input
+  $stats = Get-GraphStats $primaryGraph
+  $pendingNodes = Get-PendingGraphNodes
+  $brokenLinks = Get-BrokenMarkdownLinks
+  $renderedFiles = @()
+
+  foreach ($view in $Settings.views) {
+    foreach ($output in $view.outputs) {
+      if (Test-Path (Resolve-RepoPath $output)) {
+        $renderedFiles += $output
+      }
+    }
+  }
+
+  $reportPath = Resolve-RepoPath $Settings.reportPath
+  $snapshotPath = Resolve-RepoPath $Settings.snapshotPath
+  $previousSnapshot = Read-PreviousSnapshot $snapshotPath
+  $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss zzz"
+  $snapshot = New-GraphSnapshot $stats $Settings.views $renderedFiles $brokenLinks $pendingNodes $timestamp
+
+  $previousNodeCount = if ($null -eq $previousSnapshot) { 0 } else { @($previousSnapshot.nodes).Count }
+  $previousRelationshipCount = if ($null -eq $previousSnapshot) { 0 } else { @($previousSnapshot.relationships).Count }
+  $previousViewCount = if ($null -eq $previousSnapshot) { 0 } else { @($previousSnapshot.views).Count }
+  $previousRenderedCount = if ($null -eq $previousSnapshot) { 0 } else { @($previousSnapshot.rendered_files).Count }
+  $previousBrokenLinkCount = if ($null -eq $previousSnapshot) { 0 } else { @($previousSnapshot.broken_links).Count }
+  $previousOrphanCount = if ($null -eq $previousSnapshot) { 0 } else { @($previousSnapshot.orphan_nodes).Count }
+  $previousPendingCount = if ($null -eq $previousSnapshot) { 0 } else { @($previousSnapshot.pending_nodes).Count }
+
+  $nodesDelta = Format-SnapshotDelta $previousSnapshot $previousNodeCount @($snapshot.nodes).Count
+  $relationshipsDelta = Format-SnapshotDelta $previousSnapshot $previousRelationshipCount @($snapshot.relationships).Count
+  $viewsDelta = Format-SnapshotDelta $previousSnapshot $previousViewCount @($snapshot.views).Count
+  $renderedDelta = Format-SnapshotDelta $previousSnapshot $previousRenderedCount @($snapshot.rendered_files).Count
+  $brokenLinksDelta = Format-SnapshotDelta $previousSnapshot $previousBrokenLinkCount @($snapshot.broken_links).Count
+  $orphanNodesDelta = Format-SnapshotDelta $previousSnapshot $previousOrphanCount @($snapshot.orphan_nodes).Count
+  $pendingNodesDelta = Format-SnapshotDelta $previousSnapshot $previousPendingCount @($snapshot.pending_nodes).Count
+
+  $nodeDiff = if ($null -eq $previousSnapshot) { Compare-StringSet @() @($snapshot.nodes) } else { Compare-StringSet @($previousSnapshot.nodes) @($snapshot.nodes) }
+  $relationshipDiff = if ($null -eq $previousSnapshot) { Compare-StringSet @() @($snapshot.relationships | ForEach-Object { $_.key }) } else { Compare-StringSet @($previousSnapshot.relationships | ForEach-Object { $_.key }) @($snapshot.relationships | ForEach-Object { $_.key }) }
+  $duplicateRelationships = Get-DuplicateRelationships @($snapshot.relationships)
+  $changedRelationships = if ($null -eq $previousSnapshot) { @() } else { Get-ChangedRelationships @($previousSnapshot.relationships) @($snapshot.relationships) }
+
+  $validationIssueCount = @($brokenLinks).Count + @($stats.OrphanNodes).Count + @($duplicateRelationships).Count + @($relationshipDiff.Removed).Count
+
+  $report = @()
+  $report += "Last Updated: $timestamp"
+  $report += ""
+  $report += "### Summary"
+  $report += ""
+  $report += "| Metric | Count | Delta |"
+  $report += "| --- | ---: | ---: |"
+  $report += "| Nodes | $(@($snapshot.nodes).Count) | $nodesDelta |"
+  $report += "| Relationships | $(@($snapshot.relationships).Count) | $relationshipsDelta |"
+  $report += "| Views Updated | $($Settings.views.Count) | $viewsDelta |"
+  $report += "| Rendered Files | $($renderedFiles.Count) | $renderedDelta |"
+  $report += "| Broken Links | $($brokenLinks.Count) | $brokenLinksDelta |"
+  $report += "| Orphan Nodes | $($stats.OrphanNodes.Count) | $orphanNodesDelta |"
+  $report += "| Pending Nodes | $($pendingNodes.Count) | $pendingNodesDelta |"
+  $report += "| Validation Issues | $validationIssueCount | n/a |"
+  $report += ""
+  $report += "### Semantic Changes"
+  $report += ""
+  $report += "- Added nodes: $($nodeDiff.Added.Count)"
+  $report += "- Removed nodes: $($nodeDiff.Removed.Count)"
+  $report += "- Added relationships: $($relationshipDiff.Added.Count)"
+  $report += "- Removed relationships: $($relationshipDiff.Removed.Count)"
+  $report += "- Changed relationship labels: $($changedRelationships.Count)"
+  $report += "- Duplicate relationships: $($duplicateRelationships.Count)"
+  $report += ""
+  $report += "### Views"
+  $report += ""
+  foreach ($view in $Settings.views) {
+    $report += ('- {0}: `{1}`' -f $view.name, $view.input)
+  }
+  $report += ""
+  $report += "### Rendered Outputs"
+  $report += ""
+  foreach ($file in $renderedFiles) {
+    $item = Get-Item (Resolve-RepoPath $file)
+    $report += ('- `{0}` ({1} bytes)' -f $file, $item.Length)
+  }
+  $report += ""
+  $report += "### Hygiene"
+  $report += ""
+  $report += "- Broken links: $($brokenLinks.Count)"
+  $report += "- Orphan nodes: $($stats.OrphanNodes.Count)"
+  $report += "- Duplicate relationships: $($duplicateRelationships.Count)"
+  $report += "- Removed relationships: $($relationshipDiff.Removed.Count)"
+  $report += "- Changed relationship labels: $($changedRelationships.Count)"
+  $report += "- Pending graph nodes: $($pendingNodes.Count)"
+
+  if ($nodeDiff.Added.Count -gt 0) {
+    $report += ""
+    $report += "#### Added Nodes"
+    $report += ""
+    foreach ($node in $nodeDiff.Added) {
+      $report += ('- `{0}`' -f $node)
+    }
+  }
+
+  if ($nodeDiff.Removed.Count -gt 0) {
+    $report += ""
+    $report += "#### Removed Nodes"
+    $report += ""
+    foreach ($node in $nodeDiff.Removed) {
+      $report += ('- `{0}`' -f $node)
+    }
+  }
+
+  if ($relationshipDiff.Added.Count -gt 0) {
+    $report += ""
+    $report += "#### Added Relationships"
+    $report += ""
+    foreach ($relationship in $relationshipDiff.Added) {
+      $report += ('- `{0}`' -f $relationship)
+    }
+  }
+
+  if ($relationshipDiff.Removed.Count -gt 0) {
+    $report += ""
+    $report += "#### Removed Relationships"
+    $report += ""
+    foreach ($relationship in $relationshipDiff.Removed) {
+      $report += ('- `{0}`' -f $relationship)
+    }
+  }
+
+  if ($changedRelationships.Count -gt 0) {
+    $report += ""
+    $report += "#### Changed Relationship Labels"
+    $report += ""
+    foreach ($relationship in $changedRelationships) {
+      $report += ('- `{0}` -> `{1}` changed from `{2}` to `{3}`' -f $relationship.source, $relationship.target, $relationship.previous, $relationship.current)
+    }
+  }
+
+  if ($duplicateRelationships.Count -gt 0) {
+    $report += ""
+    $report += "#### Duplicate Relationships"
+    $report += ""
+    foreach ($relationship in $duplicateRelationships) {
+      $report += ('- `{0}`' -f $relationship)
+    }
+  }
+
+  if ($stats.OrphanNodes.Count -gt 0) {
+    $report += ""
+    $report += "#### Orphan Nodes"
+    $report += ""
+    foreach ($node in $stats.OrphanNodes) {
+      $report += ('- `{0}`' -f $node)
+    }
+  }
+
+  if ($brokenLinks.Count -gt 0) {
+    $report += ""
+    $report += "#### Broken Links"
+    $report += ""
+    foreach ($link in $brokenLinks) {
+      $report += "- $link"
+    }
+  }
+
+  if ($pendingNodes.Count -gt 0) {
+    $report += ""
+    $report += "#### Pending Nodes"
+    $report += ""
+    foreach ($node in $pendingNodes) {
+      $report += ('- `{0}`' -f $node)
+    }
+  }
+
+  Update-ReportSection $reportPath $report
+  $snapshot | ConvertTo-Json -Depth 10 | Set-Content -Path $snapshotPath -Encoding UTF8
+  Write-Output "Visualization refresh tracker updated in $($Settings.reportPath)"
+}
+
 $settingsFullPath = Resolve-RepoPath $SettingsPath
 $settings = Get-Content $settingsFullPath -Raw | ConvertFrom-Json
 $puppeteerConfig = Resolve-RepoPath $settings.puppeteerConfig
 
-Update-MermaidGraphs $settings.views
-
-if (-not $SkipRender) {
-  foreach ($view in $settings.views) {
-    foreach ($output in $view.outputs) {
-      Invoke-MermaidRender (Resolve-RepoPath $view.input) (Resolve-RepoPath $output) $settings $puppeteerConfig
-    }
-  }
+if ($Mode -eq "Render") {
+  Invoke-ManualRenderMode $settings $puppeteerConfig
+} else {
+  Invoke-RefreshMode $settings $puppeteerConfig
 }
-
-$primaryGraph = Resolve-RepoPath $settings.views[0].input
-$stats = Get-GraphStats $primaryGraph
-$pendingNodes = Get-PendingGraphNodes
-$brokenLinks = Get-BrokenMarkdownLinks
-$renderedFiles = @()
-
-foreach ($view in $settings.views) {
-  foreach ($output in $view.outputs) {
-    if (Test-Path (Resolve-RepoPath $output)) {
-      $renderedFiles += $output
-    }
-  }
-}
-
-$reportPath = Resolve-RepoPath $settings.reportPath
-$snapshotPath = Resolve-RepoPath $settings.snapshotPath
-$previousSnapshot = Read-PreviousSnapshot $snapshotPath
-$timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss zzz"
-$snapshot = New-GraphSnapshot $stats $settings.views $renderedFiles $brokenLinks $pendingNodes $timestamp
-
-$previousNodeCount = if ($null -eq $previousSnapshot) { 0 } else { @($previousSnapshot.nodes).Count }
-$previousRelationshipCount = if ($null -eq $previousSnapshot) { 0 } else { @($previousSnapshot.relationships).Count }
-$previousViewCount = if ($null -eq $previousSnapshot) { 0 } else { @($previousSnapshot.views).Count }
-$previousRenderedCount = if ($null -eq $previousSnapshot) { 0 } else { @($previousSnapshot.rendered_files).Count }
-$previousBrokenLinkCount = if ($null -eq $previousSnapshot) { 0 } else { @($previousSnapshot.broken_links).Count }
-$previousOrphanCount = if ($null -eq $previousSnapshot) { 0 } else { @($previousSnapshot.orphan_nodes).Count }
-$previousPendingCount = if ($null -eq $previousSnapshot) { 0 } else { @($previousSnapshot.pending_nodes).Count }
-
-$nodesDelta = Format-SnapshotDelta $previousSnapshot $previousNodeCount @($snapshot.nodes).Count
-$relationshipsDelta = Format-SnapshotDelta $previousSnapshot $previousRelationshipCount @($snapshot.relationships).Count
-$viewsDelta = Format-SnapshotDelta $previousSnapshot $previousViewCount @($snapshot.views).Count
-$renderedDelta = Format-SnapshotDelta $previousSnapshot $previousRenderedCount @($snapshot.rendered_files).Count
-$brokenLinksDelta = Format-SnapshotDelta $previousSnapshot $previousBrokenLinkCount @($snapshot.broken_links).Count
-$orphanNodesDelta = Format-SnapshotDelta $previousSnapshot $previousOrphanCount @($snapshot.orphan_nodes).Count
-$pendingNodesDelta = Format-SnapshotDelta $previousSnapshot $previousPendingCount @($snapshot.pending_nodes).Count
-
-$nodeDiff = if ($null -eq $previousSnapshot) { Compare-StringSet @() @($snapshot.nodes) } else { Compare-StringSet @($previousSnapshot.nodes) @($snapshot.nodes) }
-$relationshipDiff = if ($null -eq $previousSnapshot) { Compare-StringSet @() @($snapshot.relationships | ForEach-Object { $_.key }) } else { Compare-StringSet @($previousSnapshot.relationships | ForEach-Object { $_.key }) @($snapshot.relationships | ForEach-Object { $_.key }) }
-$duplicateRelationships = Get-DuplicateRelationships @($snapshot.relationships)
-$changedRelationships = if ($null -eq $previousSnapshot) { @() } else { Get-ChangedRelationships @($previousSnapshot.relationships) @($snapshot.relationships) }
-
-$validationIssueCount = @($brokenLinks).Count + @($stats.OrphanNodes).Count + @($duplicateRelationships).Count + @($relationshipDiff.Removed).Count
-
-$report = @()
-$report += "Last Updated: $timestamp"
-$report += ""
-$report += "### Summary"
-$report += ""
-$report += "| Metric | Count | Delta |"
-$report += "| --- | ---: | ---: |"
-$report += "| Nodes | $(@($snapshot.nodes).Count) | $nodesDelta |"
-$report += "| Relationships | $(@($snapshot.relationships).Count) | $relationshipsDelta |"
-$report += "| Views Updated | $($settings.views.Count) | $viewsDelta |"
-$report += "| Rendered Files | $($renderedFiles.Count) | $renderedDelta |"
-$report += "| Broken Links | $($brokenLinks.Count) | $brokenLinksDelta |"
-$report += "| Orphan Nodes | $($stats.OrphanNodes.Count) | $orphanNodesDelta |"
-$report += "| Pending Nodes | $($pendingNodes.Count) | $pendingNodesDelta |"
-$report += "| Validation Issues | $validationIssueCount | n/a |"
-$report += ""
-$report += "### Semantic Changes"
-$report += ""
-$report += "- Added nodes: $($nodeDiff.Added.Count)"
-$report += "- Removed nodes: $($nodeDiff.Removed.Count)"
-$report += "- Added relationships: $($relationshipDiff.Added.Count)"
-$report += "- Removed relationships: $($relationshipDiff.Removed.Count)"
-$report += "- Changed relationship labels: $($changedRelationships.Count)"
-$report += "- Duplicate relationships: $($duplicateRelationships.Count)"
-$report += ""
-$report += "### Views"
-$report += ""
-foreach ($view in $settings.views) {
-  $report += ('- {0}: `{1}`' -f $view.name, $view.input)
-}
-$report += ""
-$report += "### Rendered Outputs"
-$report += ""
-foreach ($file in $renderedFiles) {
-  $item = Get-Item (Resolve-RepoPath $file)
-  $report += ('- `{0}` ({1} bytes)' -f $file, $item.Length)
-}
-$report += ""
-$report += "### Hygiene"
-$report += ""
-$report += "- Broken links: $($brokenLinks.Count)"
-$report += "- Orphan nodes: $($stats.OrphanNodes.Count)"
-$report += "- Duplicate relationships: $($duplicateRelationships.Count)"
-$report += "- Removed relationships: $($relationshipDiff.Removed.Count)"
-$report += "- Changed relationship labels: $($changedRelationships.Count)"
-$report += "- Pending graph nodes: $($pendingNodes.Count)"
-
-if ($nodeDiff.Added.Count -gt 0) {
-  $report += ""
-  $report += "#### Added Nodes"
-  $report += ""
-  foreach ($node in $nodeDiff.Added) {
-    $report += ('- `{0}`' -f $node)
-  }
-}
-
-if ($nodeDiff.Removed.Count -gt 0) {
-  $report += ""
-  $report += "#### Removed Nodes"
-  $report += ""
-  foreach ($node in $nodeDiff.Removed) {
-    $report += ('- `{0}`' -f $node)
-  }
-}
-
-if ($relationshipDiff.Added.Count -gt 0) {
-  $report += ""
-  $report += "#### Added Relationships"
-  $report += ""
-  foreach ($relationship in $relationshipDiff.Added) {
-    $report += ('- `{0}`' -f $relationship)
-  }
-}
-
-if ($relationshipDiff.Removed.Count -gt 0) {
-  $report += ""
-  $report += "#### Removed Relationships"
-  $report += ""
-  foreach ($relationship in $relationshipDiff.Removed) {
-    $report += ('- `{0}`' -f $relationship)
-  }
-}
-
-if ($changedRelationships.Count -gt 0) {
-  $report += ""
-  $report += "#### Changed Relationship Labels"
-  $report += ""
-  foreach ($relationship in $changedRelationships) {
-    $report += ('- `{0}` -> `{1}` changed from `{2}` to `{3}`' -f $relationship.source, $relationship.target, $relationship.previous, $relationship.current)
-  }
-}
-
-if ($duplicateRelationships.Count -gt 0) {
-  $report += ""
-  $report += "#### Duplicate Relationships"
-  $report += ""
-  foreach ($relationship in $duplicateRelationships) {
-    $report += ('- `{0}`' -f $relationship)
-  }
-}
-
-if ($stats.OrphanNodes.Count -gt 0) {
-  $report += ""
-  $report += "#### Orphan Nodes"
-  $report += ""
-  foreach ($node in $stats.OrphanNodes) {
-    $report += ('- `{0}`' -f $node)
-  }
-}
-
-if ($brokenLinks.Count -gt 0) {
-  $report += ""
-  $report += "#### Broken Links"
-  $report += ""
-  foreach ($link in $brokenLinks) {
-    $report += "- $link"
-  }
-}
-
-if ($pendingNodes.Count -gt 0) {
-  $report += ""
-  $report += "#### Pending Nodes"
-  $report += ""
-  foreach ($node in $pendingNodes) {
-    $report += ('- `{0}`' -f $node)
-  }
-}
-
-Update-ReportSection $reportPath $report
-$snapshot | ConvertTo-Json -Depth 10 | Set-Content -Path $snapshotPath -Encoding UTF8
-Write-Output "Visualization refresh tracker updated in $($settings.reportPath)"

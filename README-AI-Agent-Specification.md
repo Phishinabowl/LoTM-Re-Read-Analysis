@@ -100,8 +100,8 @@ During bootstrap, the assistant MUST also check and report availability of repos
 
 - `Tools/search_epub.py`
 - `Tools/Search-Epub.ps1`
-- `Visualization/render-graphs.ps1`
-- `Visualization/render-mermaid.ps1`
+- `Visualization/visualize.py`
+- `Visualization/visualize.ps1`
 - `Visualization/config/puppeteer-config.json`
 - `Visualization/config/render-settings.json`
 
@@ -186,7 +186,7 @@ The assistant creates a standalone Mermaid file, rendered image, or graph artifa
 
 Failure condition:
 
-The assistant bypasses `Visualization/render-mermaid.ps1` or `Visualization/render-graphs.ps1` and calls `mmdc` directly even though the repository helper scripts are available, then describes the result as repository-workflow compliant.
+The assistant bypasses `Visualization/visualize.py` / `Visualization/visualize.ps1` and calls `mmdc` directly even though repository helper scripts are available, then describes the result as repository-workflow compliant.
 
 Failure condition:
 
@@ -3833,33 +3833,46 @@ Relevant files may include:
 - `Visualization/rendering.md`
 - `Visualization/config/puppeteer-config.json`
 - `Visualization/config/render-settings.json`
-- `Visualization/render-graphs.ps1`
+- `Visualization/visualize.py`
+- `Visualization/visualize.ps1`
 
 If the repository defines a canonical render command, the AI Agent MUST try that path first unless the user explicitly asks for a different rendering route.
 
 For the current repository family, the canonical render command is:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-graphs.ps1
+python Visualization\visualize.py --mode Refresh
 ```
 
 The canonical render command regenerates generated Mermaid graph views before rendering them. The AI Agent MUST NOT use it for manually authored, temporary, or one-off Mermaid files unless the user also wants generated graph artifacts refreshed.
 
+If Python is unavailable, use the merged PowerShell fallback:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Refresh
+```
+
 For manually authored Mermaid files, use pure render mode:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-mermaid.ps1 -InputPath Visualization\graphs\example.mmd
+python Visualization\visualize.py --mode Render --input-path Visualization\graphs\example.mmd
 ```
 
-Pure render mode is the required first render path for manually authored, temporary, or agent-drafted Mermaid files whenever the helper script is available. It uses the repository Puppeteer configuration, render-size settings, and validation assumptions without regenerating graph files from Relationship Seeds, updating the semantic graph snapshot, or updating the visualization refresh tracker.
+Pure render mode is the required first render path for manually authored, temporary, or agent-drafted Mermaid files whenever a repository helper is available. It uses the repository Puppeteer configuration, render-size settings, and validation assumptions without regenerating graph files from Relationship Seeds, updating the semantic graph snapshot, or updating the visualization refresh tracker.
+
+If Python is unavailable, use the merged PowerShell fallback:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Render -InputPath Visualization\graphs\example.mmd
+```
 
 The AI Agent MUST NOT treat direct `mmdc` invocation with `Visualization/config/puppeteer-config.json` as equivalent to using the repository render workflow. The repository helper scripts encode workflow behavior beyond browser selection, including shared sizing and validation expectations.
 
-If bootstrap or pre-render inspection shows that `Visualization/render-mermaid.ps1`, `Visualization/render-graphs.ps1`, `Visualization/config/puppeteer-config.json`, or `Visualization/config/render-settings.json` is missing, report the missing item before rendering and treat repository visualization rendering as degraded until a supported fallback is identified.
+If bootstrap or pre-render inspection shows that both `Visualization/visualize.py` and `Visualization/visualize.ps1` are missing, or that `Visualization/config/puppeteer-config.json` or `Visualization/config/render-settings.json` is missing, report the missing item before rendering and treat repository visualization rendering as degraded until a supported fallback is identified.
 
 Direct `mmdc` commands are fallback/debug commands only. Use them only when:
 
-- the repository helper script is unavailable;
+- the repository helper scripts are unavailable;
 - the helper script fails and the failure cannot be recovered;
 - the execution environment cannot run the helper script against the relevant input/output paths;
 - or the user explicitly requests a direct renderer command.

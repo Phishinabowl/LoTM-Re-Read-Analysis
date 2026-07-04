@@ -27,7 +27,7 @@ First classify the request:
 
 Complex, relationship-heavy, evidence-bearing, or rendered graph requests default to repository-local artifacts, not scratch outputs.
 
-For rendered outputs, repository tooling means the PowerShell helper scripts documented in [rendering.md](rendering.md), not direct `mmdc` calls. Direct `mmdc` is a fallback/debug path only, and should be reported as degraded if used because the helper scripts are unavailable or cannot run in the current environment.
+For rendered outputs, repository tooling means the visualization helpers documented in [rendering.md](rendering.md), not direct `mmdc` calls. Prefer the Python helper and use the merged PowerShell helper as the Windows fallback. Direct `mmdc` is a fallback/debug path only, and should be reported as degraded if used because the helper scripts are unavailable or cannot run in the current environment.
 
 ## Projection Style
 
@@ -176,13 +176,15 @@ Fresh renders replace stale render files unless the user asks for archived snaps
 Canonical refresh command:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-graphs.ps1
+python Visualization\visualize.py --mode Refresh
+powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Refresh
 ```
 
 Pure render command for manually authored `.mmd` files:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\render-mermaid.ps1 -InputPath Visualization\graphs\example.mmd
+python Visualization\visualize.py --mode Render --input-path Visualization\graphs\example.mmd
+powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Render -InputPath Visualization\graphs\example.mmd
 ```
 
 Pure render mode uses the same Puppeteer and render-size settings as the canonical refresh command, but it does not regenerate graph files, update the semantic snapshot, or update this refresh tracker.
