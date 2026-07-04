@@ -11,6 +11,7 @@ import os
 import re
 import shutil
 import subprocess
+import tempfile
 from collections import defaultdict, deque
 from dataclasses import dataclass
 from datetime import datetime
@@ -387,7 +388,7 @@ def convert_slug_to_node_id(slug: str) -> str:
 
 
 def convert_slug_to_fallback_label(slug: str) -> str:
-    name = re.sub(r"^(artifact|character|concept|event|faction|location|pathway)-", "", Path(slug).stem)
+    name = re.sub(r"^(artifact|character|concept|deity|epoch|event|faction|family|location|mystery|pathway|tarot-card|timeline|uniqueness)-", "", Path(slug).stem)
     parts = [part for part in name.split("-") if part]
     label_parts = []
     for part in parts:
@@ -512,16 +513,38 @@ def write_mermaid_graph(graph_path: Path, nodes: dict[str, str], relationships: 
         "  classDef artifact fill:#f3ead7,stroke:#b7791f,stroke-width:2px,color:#1f2937",
         "  classDef character fill:#ecebff,stroke:#7c5cff,stroke-width:2px,color:#1f2937",
         "  classDef concept fill:#e8f5f0,stroke:#2f855a,stroke-width:2px,color:#1f2937",
+        "  classDef deity fill:#fae8ff,stroke:#c026d3,stroke-width:2px,color:#1f2937",
+        "  classDef epoch fill:#ede9fe,stroke:#6d28d9,stroke-width:2px,color:#1f2937",
         "  classDef event fill:#fff1f2,stroke:#e11d48,stroke-width:2px,color:#1f2937",
         "  classDef faction fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#1f2937",
+        "  classDef family fill:#fce7f3,stroke:#be185d,stroke-width:2px,color:#1f2937",
         "  classDef location fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#1f2937",
+        "  classDef mystery fill:#e5e7eb,stroke:#4b5563,stroke-width:2px,color:#1f2937",
         "  classDef pathway fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#1f2937",
+        "  classDef tarot fill:#ffedd5,stroke:#ea580c,stroke-width:2px,color:#1f2937",
+        "  classDef timeline fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1f2937",
+        "  classDef uniqueness fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#1f2937",
         "  classDef relationship fill:#f7f2e9,stroke:#c69245,stroke-width:1.5px,color:#1f2937",
         "",
     ]
     for node_id in sorted(nodes):
         class_name = node_id.split("_")[0]
-        if class_name in {"artifact", "character", "concept", "event", "faction", "location", "pathway"}:
+        if class_name in {
+            "artifact",
+            "character",
+            "concept",
+            "deity",
+            "epoch",
+            "event",
+            "faction",
+            "family",
+            "location",
+            "mystery",
+            "pathway",
+            "tarot",
+            "timeline",
+            "uniqueness",
+        }:
             lines.append(f"  class {node_id} {class_name}")
 
     lines.append("")
@@ -822,9 +845,69 @@ def invoke_render_mode(settings: dict[str, Any], puppeteer_config: Path, input_p
         invoke_mermaid_render(input_full_path, resolve_repo_path(output_path), settings, puppeteer_config)
 
 
+def load_visualization_settings(settings_path: str | Path = "Visualization/config/render-settings.json") -> dict[str, Any]:
+    return json.loads(read_text(resolve_repo_path(settings_path)))
+
+
+def invoke_validate_mode(settings: dict[str, Any]) -> None:
+    nodes = read_glossary_nodes()
+    relationships = read_relationship_seeds()
+    print(f"Source parse: nodes={len(nodes)} relationships={len(relationships)}")
+
+    issues: list[str] = []
+    for view in settings["views"]:
+        graph_path = resolve_repo_path(view["input"])
+        if not graph_path.exists():
+            issues.append(f"Configured graph is missing: {view['input']}")
+            continue
+        class_issues = get_mermaid_class_validation(graph_path, settings)
+        layout_issues = get_mermaid_layout_validation(graph_path, settings)
+        print(f"Existing graph: {view['input']} class_issues={len(class_issues)} layout_issues={len(layout_issues)}")
+        issues.extend(f"{view['input']}: {issue}" for issue in [*class_issues, *layout_issues])
+
+    with tempfile.TemporaryDirectory(prefix="lotm-visualization-validate-") as temp_dir:
+        temp_root = Path(temp_dir)
+        for view in settings["views"]:
+            temp_graph = temp_root / Path(view["input"]).name
+            timing_spoiler_free = "timing-spoiler-free" in view["input"]
+            write_mermaid_graph(temp_graph, dict(nodes), relationships, timing_spoiler_free)
+            class_issues = get_mermaid_class_validation(temp_graph, settings)
+            layout_issues = get_mermaid_layout_validation(temp_graph, settings)
+            print(f"Generated graph: {view['input']} class_issues={len(class_issues)} layout_issues={len(layout_issues)}")
+            issues.extend(f"generated {view['input']}: {issue}" for issue in [*class_issues, *layout_issues])
+
+    if issues:
+        raise RuntimeError("Visualization validation failed:\n" + "\n".join(f"- {issue}" for issue in issues))
+
+    print("Visualization validation passed.")
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate and render repository Mermaid visualizations.")
-    parser.add_argument("--mode", choices=["refresh", "render", "update", "generate", "manual-render", "pure-render", "Refresh", "Render", "Update", "Generate", "Manual-Render", "Pure-Render"], default="Refresh")
+    parser.add_argument(
+        "--mode",
+        choices=[
+            "refresh",
+            "render",
+            "validate",
+            "check",
+            "test",
+            "update",
+            "generate",
+            "manual-render",
+            "pure-render",
+            "Refresh",
+            "Render",
+            "Validate",
+            "Check",
+            "Test",
+            "Update",
+            "Generate",
+            "Manual-Render",
+            "Pure-Render",
+        ],
+        default="Refresh",
+    )
     parser.add_argument("--input-path", "--input", "--graph", dest="input_path")
     parser.add_argument("--output-path", "--output", "--out", action="append", dest="output_paths")
     parser.add_argument("--settings-path", "--settings", default="Visualization/config/render-settings.json")
@@ -835,18 +918,21 @@ def parse_args() -> argparse.Namespace:
         args.mode = "refresh"
     elif args.mode in {"manual-render", "pure-render"}:
         args.mode = "render"
+    elif args.mode in {"check", "test"}:
+        args.mode = "validate"
     return args
 
 
 def main() -> None:
     args = parse_args()
     os.chdir(REPO_ROOT)
-    settings_path = resolve_repo_path(args.settings_path)
-    settings = json.loads(read_text(settings_path))
+    settings = load_visualization_settings(args.settings_path)
     puppeteer_config = resolve_repo_path(settings["puppeteerConfig"])
 
     if args.mode == "render":
         invoke_render_mode(settings, puppeteer_config, args.input_path, args.output_paths)
+    elif args.mode == "validate":
+        invoke_validate_mode(settings)
     else:
         invoke_refresh_mode(settings, puppeteer_config, args.skip_render)
 

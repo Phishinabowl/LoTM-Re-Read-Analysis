@@ -5,6 +5,7 @@
 Type: Artifact
 Status: Active
 First Mention Volume: 1
+Subject Visible From: Novel V1 Ch9
 Current Analysis Status: Novel reveal timeline verified through Chapter 47; Donghua verification not started
 Confidence Level: Strong Evidence
 Spoiler Boundary: Volume 1
@@ -655,6 +656,7 @@ last_updated: 2026-07-01
 
 ## Future Automation Notes
 
+- Page-level `Subject Visible From` is Chapter 9 because the notebook appears before the reader can safely call it the Antigonus notebook.
 - This page should become a major graph node connecting Klein, Dunn, Old Neil, Leonard, the Church of Evernight, Nighthawks, Secret Order, Azik, and later notebook-related events.
 - Keep Chapter 1 notebook attribution unresolved until the text gives enough evidence to merge or distinguish it cleanly.
 

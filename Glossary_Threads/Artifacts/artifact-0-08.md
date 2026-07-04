@@ -5,6 +5,7 @@
 Type: Artifact
 Status: Active
 First Mention Volume: 1
+Subject Visible From: Novel V1 Ch19; Donghua S1E10
 Current Analysis Status: Complete through Novel Volume 1 and Donghua Season 1
 Confidence Level: Strong Evidence
 Spoiler Boundary: Volume 1
@@ -2938,6 +2939,8 @@ last_updated: 2026-07-01
 ## Future Automation Notes
 
 The knowledge unit above should eventually support separate causal and reader-disclosure timelines through `occurs_at` and `available_from`.
+
+- Page-level `Subject Visible From` is Chapter 19 / Donghua Episode 10 because the 0-08 title is safe when Dunn names the artifact. Do not move the page gate to Chapter 210 / Episode 13; those later points gate the artifact's function and causal-role disclosures, not the page subject itself.
 
 ## Notes
 

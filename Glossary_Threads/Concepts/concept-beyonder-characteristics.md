@@ -5,6 +5,7 @@
 Type: Concept
 Status: Active
 First Mention Volume: 1
+Subject Visible From: Novel V1 Ch207; Donghua S1E12
 Current Analysis Status: In Progress
 Confidence Level: Strong Evidence
 Spoiler Boundary: Novel Volume 1; Donghua Season 1

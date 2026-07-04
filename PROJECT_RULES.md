@@ -238,7 +238,21 @@ PowerShell fallback:
 powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Refresh
 ```
 
-The canonical examples above should remain the preferred documented form, but the helpers intentionally accept ergonomic aliases for common operator slips. Python mode values are case-insensitive and also accept `update`/`generate` for refresh and `manual-render`/`pure-render` for render. Python accepts `--input`, `--graph`, `--output`, `--out`, `--settings`, and `--no-render` as aliases for the longer option names. PowerShell accepts matching aliases: `-Action`, `-Input`, `-Graph`, `-Output`, `-Out`, `-Settings`, and `-NoRender`.
+The canonical examples above should remain the preferred documented form, but the helpers intentionally accept ergonomic aliases for common operator slips. Python mode values are case-insensitive and also accept `update`/`generate` for refresh, `manual-render`/`pure-render` for render, and `check`/`test` for validate. Python accepts `--input`, `--graph`, `--output`, `--out`, `--settings`, and `--no-render` as aliases for the longer option names. PowerShell accepts matching aliases: `-Action`, `-Input`, `-Graph`, `-Output`, `-Out`, `-Settings`, and `-NoRender`.
+
+Use validation mode when checking visualization compatibility without regenerating graph files, updating the visualization snapshot, updating the refresh tracker, or rendering images:
+
+Preferred Python:
+
+```powershell
+python Visualization\visualize.py --mode Validate
+```
+
+PowerShell fallback:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Validate
+```
 
 Use pure render mode for manually authored or temporary Mermaid files that should not trigger graph regeneration:
 
@@ -428,6 +442,7 @@ Every glossary thread should begin with a `Metadata` section using the same fiel
 Type:
 Status:
 First Mention Volume:
+Subject Visible From:
 Current Analysis Status:
 Confidence Level:
 Spoiler Boundary:
@@ -441,6 +456,7 @@ Use these fields consistently:
 - `Type`: Entity type, such as Artifact, Character, Family, Faction, Location, Concept, Event, Pathway, Uniqueness, Epoch, Mystery, or Timeline.
 - `Status`: Thread lifecycle, such as Stub, Active, Dormant, Resolved, or Superseded.
 - `First Mention Volume`: Earliest known volume where the thread meaningfully appears.
+- `Subject Visible From`: Earliest reader position where the page subject, title, or browse/search result is safe to expose as that subject. Use this for page-level filtering. This may be later than the first visual appearance when the subject is initially anonymous, misattributed, or only knowable as a mystery.
 - `Current Analysis Status`: Current project state, such as Not Started, In Progress, Needs EPUB Verification, or Verified.
 - `Confidence Level`: Confidence in the current interpretation, such as Confirmed, Strong Evidence, Working Theory, Unknown, or Mixed.
 - `Spoiler Boundary`: Latest broader canon range this thread is allowed to reference.
@@ -520,6 +536,8 @@ Pathway pages should keep a stable internal slug even when the best reader-facin
 The `Known Sequences` section should appear even when only one Sequence is reader-safe. Each known Sequence should receive its own subsection with a normalized structure for reveal timing, confidence, formula or potion details, abilities, practical demonstrations, training or practice requirements, limitations, reader-safe unknowns, and notes. Keep pathway-wide institutional access in `Institutional Access`, broader faction associations in the `Affiliated Factions` table, and character assignments in the separate `Known Holders` table. Unknown higher Sequences should be marked as unknown or omitted; never fill them from later knowledge outside the current reader boundary.
 
 The `Pathway Data Block` is a structured extraction aid, not a separate source of truth. Keep it aligned with the visible pathway sections, relationship seeds, and reader knowledge ledger. If the data block and prose conflict, resolve the conflict in the canonical article content rather than treating the data block as independently authoritative.
+
+Do not duplicate page-level `Subject Visible From` inside type-specific data blocks or Relationship Seeds by default. Treat the metadata field as the authoritative page-level visibility gate. Data blocks and Relationship Seeds should continue to model extractable facts, states, and graph-worthy relationships, while knowledge units and `available_from` / `subject_attribution_from` handle claim-level spoiler timing.
 
 ### First Appearance Style
 
@@ -1218,7 +1236,11 @@ For a selected reader position, display only disclosures available at or before 
 
 Combined views must evaluate each selected medium independently and then combine only the permitted results. A disclosure in one medium must never silently advance the selected boundary of another medium.
 
-Filtered renderers must apply page-level eligibility before section-level eligibility. If the page subject itself is not reader-safe at the selected position, hide the entire page from reader-facing navigation, search, related-thread lists, graph projections, and direct generated output. Do not show a blank page, title-only placeholder, hidden-card shell, or "spoiler removed" stub unless the user has explicitly opted into spoiler placeholders.
+Filtered renderers must apply page-level eligibility before section-level eligibility. Use the page metadata field `Subject Visible From` as the first-pass machine-readable gate. If the selected reader position is before that value, hide the entire page from reader-facing navigation, search, related-thread lists, graph projections, and direct generated output. Do not show a blank page, title-only placeholder, hidden-card shell, or "spoiler removed" stub unless the user has explicitly opted into spoiler placeholders.
+
+Set `Subject Visible From` to the earliest point where the article subject can be exposed under the page title or slug without spoiling attribution. It can match first appearance for openly named subjects, first named identification for characters/places/artifacts, first completion for event pages whose title contains the outcome, or first formal attribution for pages whose subject appears anonymously earlier.
+
+Do not add a standalone reader-facing `Subject Visibility` section by default. Keep the machine-readable value in metadata. If the gate is non-obvious, such as a title that exposes an event outcome or a subject that appears anonymously before it is named, record the rationale under `Future Automation Notes`.
 
 The eventual glossary page should update from the user's selected novel chapter, Donghua release position, or both. Its reader-facing summary and timeline must be constructed only from eligible knowledge units. Freeform analysis elsewhere in the Markdown file is project working material and must not be assumed spoiler-safe for automatic display.
 

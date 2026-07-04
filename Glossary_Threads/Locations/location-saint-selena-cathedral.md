@@ -5,6 +5,7 @@
 Type: Location
 Status: Active
 First Mention Volume: 1
+Subject Visible From: Novel V1 Ch17
 Current Analysis Status: Volume 1 foundation started; novel and Donghua reveal timelines incomplete
 Confidence Level: Strong Evidence
 Spoiler Boundary: Volume 1

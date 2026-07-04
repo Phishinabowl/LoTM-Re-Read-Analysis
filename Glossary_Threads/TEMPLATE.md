@@ -5,6 +5,7 @@
 Type:
 Status: Stub
 First Mention Volume:
+Subject Visible From:
 Current Analysis Status: Not Started
 Confidence Level: Unknown
 Spoiler Boundary:
@@ -298,6 +299,8 @@ Do not manually maintain backlinks, incoming references, generated indexes, rela
 Future spoiler-filtered renderers should collapse optional sections when no rows or prose remain eligible at the selected reader position. Embedded page header images may remain visible at any reader position.
 
 If this page's subject is not reader-safe for a selected position, future renderers should hide the entire page from reader-facing navigation, search, related-thread lists, graph views, and generated output.
+
+If `Subject Visible From` is not obvious from the first appearance section, add a short note here explaining the page-level gate.
 
 ## Notes
 

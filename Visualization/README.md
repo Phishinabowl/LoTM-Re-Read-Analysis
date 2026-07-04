@@ -11,6 +11,8 @@ Generated graph files are not the source of truth. The canonical project data re
 
 Generated Mermaid graphs are generated from glossary metadata and Relationship Seeds. If a canonical graph refresh exposes missing, stale, or incorrect information, fix the glossary thread, investigation record, or relationship seed first, then regenerate the graph. Manual maintainer graphs may include clearly marked graph-local evidence before those project-data updates are confirmed.
 
+Page-level reader visibility belongs to glossary metadata through `Subject Visible From`; do not model it as a Relationship Seed. Future filtered graph views should use that metadata as the node-level gate before applying relationship or claim-level timing.
+
 Shared graph authoring rules live in [Graph Authoring Standard](graph-authoring-standard.md). Use that standard for both AI Agent graph requests and maintainer/project graph work before rendering.
 
 ## AI Agent Graph Request Routing
@@ -188,6 +190,22 @@ PowerShell fallback:
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Refresh
 ```
+
+Compatibility validation command:
+
+Preferred Python:
+
+```powershell
+python Visualization\visualize.py --mode Validate
+```
+
+PowerShell fallback:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Validate
+```
+
+Validation mode checks glossary node parsing, Relationship Seed parsing, configured graph class/layout validation, and fresh temp graph generation without updating generated graph files, rendered images, the semantic snapshot, or this refresh tracker.
 
 Pure render command for manually authored `.mmd` files:
 

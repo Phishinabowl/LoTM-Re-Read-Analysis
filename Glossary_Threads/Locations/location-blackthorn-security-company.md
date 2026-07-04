@@ -5,6 +5,7 @@
 Type: Location
 Status: Active
 First Mention Volume: 1
+Subject Visible From: Novel V1 Ch16
 Current Analysis Status: Novel reveal timeline verified through Chapter 47; Donghua verification not started
 Confidence Level: Confirmed
 Spoiler Boundary: Volume 1

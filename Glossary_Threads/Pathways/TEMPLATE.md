@@ -7,6 +7,7 @@
 Type: Pathway
 Status: Stub
 First Mention Volume:
+Subject Visible From:
 Current Analysis Status: Not Started
 Confidence Level: Unknown
 Spoiler Boundary:
@@ -51,39 +52,6 @@ Record only what is allowed by the broader spoiler boundary and exact reader kno
 - Reader knowledge state:
 - Donghua:
 - Donghua viewer knowledge state:
-
-## Pathway Snapshot
-
-- Current reader-safe status:
-- Institutional access status:
-- Known continuation status:
-- Primary reader-facing function:
-- Main uncertainty:
-
-## Pathway Names / Reader Display Timeline
-
-Track all pathway names, implied associations, aliases, artwork labels, formal names, sequence-facing names, and reader-display names that matter for spoiler-safe presentation. Use this table to support future frontends that change page titles based on reader boundary while keeping the filename/slug stable.
-
-Use `implied-reader-display` / `association` rows when the text makes a future or alternate pathway name strongly inferable before the exact display title is reader-safe. These rows can power reader-facing hints such as "implied" or "associated," but should not replace the main page title until a confirmed reader-display row becomes active.
-
-| Name | Usage type | First reader-safe reveal | Display active range | Confidence | Notes |
-| --- | --- | --- | --- | --- | --- |
-|  | reader-display / implied-reader-display / association / alias / artwork-label / formal-name / sequence-facing-name |  |  |  |  |
-
-## Associated Tarot Card
-
-Use this section when a pathway has a confirmed or pending-review associated tarot-card crop. Keep the image compact and pair it with the core extraction details.
-
-| Card image | Details |
-| --- | --- |
-| <a href="../../Artwork/tarot-cards/pathways/pathway-card.png"><img src="../../Artwork/tarot-cards/pathways/pathway-card.png" alt="Associated tarot card" width="160"></a> | <span style="font-size: 1.45em; font-weight: 700;">Card name</span><br><span style="font-size: 1.15em;">Card number</span><br><br>- Associated pathway labels:<br>- Confidence:<br>- Notes: |
-
-## Associated Higher-Order Entities
-
-Track pathway-level deity and cosmology associations here when they are reader-safe or useful as planned-page scaffolding. Keep native Sequence 0 / ATS relationships separate from Outer Deity pressure so those layers do not collapse together.
-
-| Entity | Page / target | Relationship layer | First reader-safe reveal | Status | Confidence | Notes |
-| --- | --- | --- | --- | --- | --- | --- |
 
 ## First Appearance / First Meaningful Mention
 
@@ -173,7 +141,7 @@ Track the pathway's associated mythical creature form here when it becomes reade
 
 ## Pathway Data Block
 
-This block is a structured extraction aid for future graphs and dashboards. It duplicates the high-value pathway facts above in a predictable shape; the prose, relationship seeds, and reader knowledge ledger remain authoritative. If `associated_tarot_card`, `associated_higher_order_entities`, `associated_uniqueness`, or `associated_mythical_creature` names a positive reader-safe target, add the corresponding graph edge in `Relationship Seeds`. Do not add relationship seeds for unknown/null placeholder state.
+This block is a structured extraction aid for future graphs and dashboards. It duplicates the high-value pathway facts above in a predictable shape; the prose, relationship seeds, reader knowledge ledger, and metadata remain authoritative. Use metadata, not this data block, for page-level `Subject Visible From`. If `associated_tarot_card`, `associated_higher_order_entities`, `associated_uniqueness`, or `associated_mythical_creature` names a positive reader-safe target, add the corresponding graph edge in `Relationship Seeds`. Do not add relationship seeds for unknown/null placeholder state.
 
 ```yaml
 pathway_profile:
@@ -437,6 +405,7 @@ last_updated:
 - The `Pathway Data Block` should remain aligned with the pathway snapshot sections, relationship seeds, and reader knowledge ledger.
 - Future spoiler-filtered renderers should collapse optional sections when no rows or prose remain eligible at the selected reader position. Embedded page header images may remain visible at any reader position.
 - If this pathway is not reader-safe for a selected position, future renderers should hide the entire page from reader-facing navigation, search, related-thread lists, graph views, and generated output.
+- If `Subject Visible From` is not obvious from the first appearance section, add a short note here explaining the page-level gate.
 
 ## Notes
 

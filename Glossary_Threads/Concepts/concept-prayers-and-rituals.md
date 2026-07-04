@@ -5,6 +5,7 @@
 Type: Concept
 Status: Active
 First Mention Volume: 1
+Subject Visible From: Novel V1 Ch4
 Current Analysis Status: Initial structure added; Novel evidence verified only from existing Volume 1 Chapter 47 character/concept pages
 Confidence Level: Strong Evidence
 Spoiler Boundary: Volume 1
@@ -85,10 +86,20 @@ Do not import later Tarot Club prayer wording, gray-fog delivery mechanics, mess
 | Ritualistic magic | Structured supernatural procedure using spirituality, materials, symbols, or steps | Novel V1 Ch33 | Old Neil / Klein training context | Requires training and controlled practice | Unknown at this boundary | General category introduced through Nighthawk instruction. |
 | Sealing ritual / sealing effect | Restricts, seals, or alters a target/location state | Novel V1 Ch46 | Unknown practitioner at Ray Bieber scene; Old Neil interprets it | Can be recognized through Spirit Vision / mysticism expertise | Unknown at this boundary | Field evidence rather than full procedure. |
 | Luck-enhancement ritual | Attempts to improve fortune or alter circumstances | Novel V1 Ch4 | Klein / Zhou Mingrui inherited occult practice | Pre-system ritual pattern, exact mechanics unknown | Unknown at this boundary | Reader does not yet know what truly caused Klein's situation. |
-| Listener invocation | Lets a target hear or receive prayer/contact | Not reader-safe at current boundary | TBD | TBD | TBD | Reserved for later prayer-address systems such as character/entity-directed prayers. |
-| Offering / delivery ritual | Opens a channel for a petitioner to send items to a target | Not reader-safe at current boundary | TBD | TBD | TBD | Reserved for later item-transfer mechanics. |
-| Bestowal / return ritual | Opens a channel for a target to send items, power, or responses back | Not reader-safe at current boundary | TBD | TBD | TBD | Reserved for later return-channel mechanics. |
-| Summoning ritual | Calls a messenger, spirit, servant, or entity | Not reader-safe at current boundary | TBD | TBD | TBD | Reserved for later messenger/servant systems. |
+
+<details>
+<summary>Future Expansion Notes (potential future spoilers)</summary>
+
+These placeholder categories preserve maintainer-side taxonomy ideas for later reader boundaries. They are not reader-safe at the current Chapter 47 boundary and should not be surfaced in filtered reader-facing views until supported by eligible evidence.
+
+| Reserved type | Future function to verify | First safe reveal | Known users / targets | Rules | Risks | Notes |
+|---|---|---|---|---|---|---|
+| Listener invocation | Lets a target hear or receive prayer/contact | TBD | TBD | TBD | TBD | Reserved for later prayer-address systems such as character/entity-directed prayers. |
+| Offering / delivery ritual | Opens a channel for a petitioner to send items to a target | TBD | TBD | TBD | TBD | Reserved for later item-transfer mechanics. |
+| Bestowal / return ritual | Opens a channel for a target to send items, power, or responses back | TBD | TBD | TBD | TBD | Reserved for later return-channel mechanics. |
+| Summoning ritual | Calls a messenger, spirit, servant, or entity | TBD | TBD | TBD | TBD | Reserved for later messenger/servant systems. |
+
+</details>
 
 ## Known Prayer / Ritual Instances
 

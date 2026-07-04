@@ -32,8 +32,9 @@ function Resolve-VisualizationMode {
   switch -Regex ($Name) {
     '^(?i:refresh|update|generate)$' { return "Refresh" }
     '^(?i:render|manual-render|pure-render)$' { return "Render" }
+    '^(?i:validate|check|test)$' { return "Validate" }
     default {
-      throw "Unsupported visualization mode: $Name. Use Refresh or Render. Aliases include Update, Generate, Manual-Render, and Pure-Render."
+      throw "Unsupported visualization mode: $Name. Use Refresh, Render, or Validate. Aliases include Update, Generate, Manual-Render, Pure-Render, Check, and Test."
     }
   }
 }
@@ -990,7 +991,7 @@ function Convert-SlugToFallbackLabel {
   param([string]$Slug)
 
   $name = [System.IO.Path]::GetFileNameWithoutExtension($Slug)
-  $name = $name -replace '^(artifact|character|concept|event|faction|location|pathway)-', ''
+  $name = $name -replace '^(artifact|character|concept|deity|epoch|event|faction|family|location|mystery|pathway|tarot-card|timeline|uniqueness)-', ''
   $parts = @($name -split '-' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
   $labelParts = foreach ($part in $parts) {
     if ($part -match '^[0-9]+$') {
@@ -1161,6 +1162,17 @@ function Write-MermaidGraph {
     [switch]$TimingSpoilerFree
   )
 
+  foreach ($relationship in $Relationships) {
+    $source = Convert-SlugToNodeId $relationship.source
+    $target = Convert-SlugToNodeId $relationship.target
+    if (-not $Nodes.ContainsKey($source)) {
+      $Nodes[$source] = Convert-NodeIdToFallbackLabel $source
+    }
+    if (-not $Nodes.ContainsKey($target)) {
+      $Nodes[$target] = Convert-NodeIdToFallbackLabel $target
+    }
+  }
+
   $lines = @("graph TD")
   foreach ($nodeId in @($Nodes.Keys | Sort-Object)) {
     $label = $Nodes[$nodeId] -replace '"', '\"'
@@ -1171,15 +1183,22 @@ function Write-MermaidGraph {
   $lines += "  classDef artifact fill:#f3ead7,stroke:#b7791f,stroke-width:2px,color:#1f2937"
   $lines += "  classDef character fill:#ecebff,stroke:#7c5cff,stroke-width:2px,color:#1f2937"
   $lines += "  classDef concept fill:#e8f5f0,stroke:#2f855a,stroke-width:2px,color:#1f2937"
+  $lines += "  classDef deity fill:#fae8ff,stroke:#c026d3,stroke-width:2px,color:#1f2937"
+  $lines += "  classDef epoch fill:#ede9fe,stroke:#6d28d9,stroke-width:2px,color:#1f2937"
   $lines += "  classDef event fill:#fff1f2,stroke:#e11d48,stroke-width:2px,color:#1f2937"
   $lines += "  classDef faction fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#1f2937"
+  $lines += "  classDef family fill:#fce7f3,stroke:#be185d,stroke-width:2px,color:#1f2937"
   $lines += "  classDef location fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#1f2937"
+  $lines += "  classDef mystery fill:#e5e7eb,stroke:#4b5563,stroke-width:2px,color:#1f2937"
   $lines += "  classDef pathway fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#1f2937"
+  $lines += "  classDef tarot fill:#ffedd5,stroke:#ea580c,stroke-width:2px,color:#1f2937"
+  $lines += "  classDef timeline fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1f2937"
+  $lines += "  classDef uniqueness fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#1f2937"
   $lines += "  classDef relationship fill:#f7f2e9,stroke:#c69245,stroke-width:1.5px,color:#1f2937"
   $lines += ""
   foreach ($nodeId in @($Nodes.Keys | Sort-Object)) {
     $className = ($nodeId -split '_')[0]
-    if (@("artifact", "character", "concept", "event", "faction", "location", "pathway") -contains $className) {
+    if (@("artifact", "character", "concept", "deity", "epoch", "event", "faction", "family", "location", "mystery", "pathway", "tarot", "timeline", "uniqueness") -contains $className) {
       $lines += ('  class {0} {1}' -f $nodeId, $className)
     }
   }
@@ -1191,12 +1210,6 @@ function Write-MermaidGraph {
   foreach ($relationship in $Relationships) {
     $source = Convert-SlugToNodeId $relationship.source
     $target = Convert-SlugToNodeId $relationship.target
-    if (-not $Nodes.ContainsKey($source)) {
-      $Nodes[$source] = Convert-NodeIdToFallbackLabel $source
-    }
-    if (-not $Nodes.ContainsKey($target)) {
-      $Nodes[$target] = Convert-NodeIdToFallbackLabel $target
-    }
 
     $label = Format-RelationshipLabel $relationship -TimingSpoilerFree:$TimingSpoilerFree
     $key = "$source|$label|$target"
@@ -1273,6 +1286,56 @@ function Invoke-ManualRenderMode {
   foreach ($output in $OutputPath) {
     Invoke-MermaidRender $inputFullPath (Resolve-RepoPath $output) $Settings $PuppeteerConfig
   }
+}
+
+function Invoke-ValidateMode {
+  param(
+    [object]$Settings
+  )
+
+  $nodes = Read-GlossaryNodes
+  $relationships = Read-RelationshipSeeds
+  Write-Output ('Source parse: nodes={0} relationships={1}' -f $nodes.Count, $relationships.Count)
+
+  $issues = @()
+  foreach ($view in @($Settings.views)) {
+    $graphPath = Resolve-RepoPath $view.input
+    if (-not (Test-Path $graphPath)) {
+      $issues += "Configured graph is missing: $($view.input)"
+      continue
+    }
+
+    $classIssues = @(Get-MermaidClassValidation $graphPath $Settings)
+    $layoutIssues = @(Get-MermaidLayoutValidation $graphPath $Settings)
+    Write-Output ('Existing graph: {0} class_issues={1} layout_issues={2}' -f $view.input, $classIssues.Count, $layoutIssues.Count)
+    $issues += $classIssues | ForEach-Object { "$($view.input): $_" }
+    $issues += $layoutIssues | ForEach-Object { "$($view.input): $_" }
+  }
+
+  $tempRoot = Join-Path ([System.IO.Path]::GetTempPath()) ('lotm-visualization-validate-' + [guid]::NewGuid().ToString('N'))
+  New-Item -ItemType Directory -Path $tempRoot | Out-Null
+  try {
+    foreach ($view in @($Settings.views)) {
+      $tempGraph = Join-Path $tempRoot ([System.IO.Path]::GetFileName($view.input))
+      $timingSpoilerFree = $view.input -like '*timing-spoiler-free*'
+      Write-MermaidGraph $tempGraph $nodes.Clone() $relationships -TimingSpoilerFree:$timingSpoilerFree
+      $classIssues = @(Get-MermaidClassValidation $tempGraph $Settings)
+      $layoutIssues = @(Get-MermaidLayoutValidation $tempGraph $Settings)
+      Write-Output ('Generated graph: {0} class_issues={1} layout_issues={2}' -f $view.input, $classIssues.Count, $layoutIssues.Count)
+      $issues += $classIssues | ForEach-Object { "generated $($view.input): $_" }
+      $issues += $layoutIssues | ForEach-Object { "generated $($view.input): $_" }
+    }
+  } finally {
+    if (Test-Path $tempRoot) {
+      Remove-Item -LiteralPath $tempRoot -Recurse -Force
+    }
+  }
+
+  if ($issues.Count -gt 0) {
+    throw ("Visualization validation failed:`n- " + ($issues -join "`n- "))
+  }
+
+  Write-Output "Visualization validation passed."
 }
 
 function Invoke-RefreshMode {
@@ -1474,6 +1537,8 @@ $puppeteerConfig = Resolve-RepoPath $settings.puppeteerConfig
 
 if ($Mode -eq "Render") {
   Invoke-ManualRenderMode $settings $puppeteerConfig
+} elseif ($Mode -eq "Validate") {
+  Invoke-ValidateMode $settings
 } else {
   Invoke-RefreshMode $settings $puppeteerConfig
 }

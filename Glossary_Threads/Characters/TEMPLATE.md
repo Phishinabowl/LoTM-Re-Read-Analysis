@@ -5,6 +5,7 @@
 Type: Character
 Status: Stub
 First Mention Volume:
+Subject Visible From:
 Current Analysis Status: Not Started
 Confidence Level: Unknown
 Spoiler Boundary:
@@ -33,22 +34,6 @@ Record only what is allowed by the broader spoiler boundary and exact reader kno
 - Volume:
 - Chapter:
 - Reader knowledge state:
-
-## Overall Summary
-
-Reader-safe synthesis of who the character is at the current boundary. Use one paragraph for minor characters or a few concise paragraphs for major characters with more development.
-
-## Character Snapshot
-
-- Current reader-safe identity:
-- Current primary role:
-- Current affiliation:
-- Current pathway / ability status:
-- Current vital status:
-- First appearance:
-- Main reader-safe uncertainty:
-
-State/history tables below should be sorted newest-to-oldest by reveal/change point so the latest reader-safe state appears first. `Major Events & Fights`, chronological development, and reader ledgers remain oldest-to-newest.
 
 ## First Appearance / First Meaningful Mention
 
@@ -213,7 +198,7 @@ Sort this table oldest-to-newest by event occurrence or first reveal.
 
 ## Character Data Block
 
-This block is a structured extraction aid, not a separate source of truth. Keep it aligned with the visible character sections, relationship seeds, and reader knowledge ledger. If `mythical_creature_form_state` or `uniqueness_state` records a positive reader-safe relationship, add the corresponding graph edge in `Relationship Seeds`. Do not add relationship seeds for omitted sections, unknown/null state, or ordinary absence.
+This block is a structured extraction aid, not a separate source of truth. Keep it aligned with the visible character sections, relationship seeds, and reader knowledge ledger. Use metadata, not this data block, for page-level `Subject Visible From`. If `mythical_creature_form_state` or `uniqueness_state` records a positive reader-safe relationship, add the corresponding graph edge in `Relationship Seeds`. Do not add relationship seeds for omitted sections, unknown/null state, or ordinary absence.
 
 ```yaml
 character_profile:
@@ -438,6 +423,8 @@ Do not manually maintain backlinks, incoming references, generated indexes, rela
 Future spoiler-filtered renderers should collapse optional sections when no rows or prose remain eligible at the selected reader position. Embedded page header images may remain visible at any reader position.
 
 If this character is not reader-safe for a selected position, future renderers should hide the entire page from reader-facing navigation, search, related-thread lists, graph views, and generated output.
+
+If `Subject Visible From` is not obvious from the first appearance section, add a short note here explaining the page-level gate.
 
 ## Notes
 

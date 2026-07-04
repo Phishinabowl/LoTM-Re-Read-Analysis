@@ -5,6 +5,7 @@
 Type: Event
 Status: Active
 First Mention Volume: 1
+Subject Visible From: Novel V1 Ch31
 Current Analysis Status: Novel event timeline verified through Chapter 34; Donghua verification not started
 Confidence Level: Strong Evidence
 Spoiler Boundary: Volume 1
@@ -492,6 +493,7 @@ last_updated: 2026-07-01
 
 ## Future Automation Notes
 
+- Page-level `Subject Visible From` is Chapter 31 because the event title contains the outcome. Setup and choice rows can appear earlier only inside filtered views that do not expose the completed event title prematurely.
 - This event page pilots controlled event relationship types: `event-participant`, `event-location`, `event-enabler`, and `event-outcome`.
 - `event-cause` is defined but not used here yet because the likely cause threads, such as the Secret Order intrusion or Antigonus notebook investigation pressure, do not have stable event/thread records.
 - Event pages may eventually need a standardized `Event Frame` section with participants, location, cause, immediate outcome, and later consequences.

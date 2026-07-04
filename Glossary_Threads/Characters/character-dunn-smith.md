@@ -5,6 +5,7 @@
 Type: Character
 Status: Active
 First Mention Volume: 1
+Subject Visible From: Novel V1 Ch12
 Current Analysis Status: Novel reveal timeline directly verified through Chapter 47; Donghua verification not started
 Confidence Level: Strong Evidence
 Spoiler Boundary: Volume 1

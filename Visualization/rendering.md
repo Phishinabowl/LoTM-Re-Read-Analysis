@@ -79,7 +79,21 @@ PowerShell fallback:
 powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Refresh
 ```
 
-The helpers accept a few ergonomic aliases for common slips. Python mode values are case-insensitive for `refresh` and `render`; PowerShell also accepts `Update`/`Generate` for refresh and `Manual-Render`/`Pure-Render` for render. Python accepts `--input`, `--graph`, `--output`, `--out`, `--settings`, and `--no-render` as aliases for the longer option names. PowerShell accepts matching aliases: `-Input`, `-Graph`, `-Output`, `-Out`, `-Settings`, and `-NoRender`.
+The helpers accept a few ergonomic aliases for common slips. Python mode values are case-insensitive for `refresh`, `render`, and `validate`; both helpers also accept `Update`/`Generate` for refresh, `Manual-Render`/`Pure-Render` for render, and `Check`/`Test` for validate. Python accepts `--input`, `--graph`, `--output`, `--out`, `--settings`, and `--no-render` as aliases for the longer option names. PowerShell accepts matching aliases: `-Input`, `-Graph`, `-Output`, `-Out`, `-Settings`, and `-NoRender`.
+
+To validate visualization source parsing and graph class/layout compatibility without regenerating graph files, updating the refresh tracker, or rendering images:
+
+Preferred Python:
+
+```powershell
+python Visualization\visualize.py --mode Validate
+```
+
+PowerShell fallback:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Validate
+```
 
 To update only the refresh report without rerendering images:
 

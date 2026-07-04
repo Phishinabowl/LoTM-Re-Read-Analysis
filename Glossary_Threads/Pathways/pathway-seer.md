@@ -7,6 +7,7 @@
 Type: Pathway
 Status: Active
 First Mention Volume: 1
+Subject Visible From: Novel V1 Ch28
 Current Analysis Status: Novel reveal timeline verified through Chapter 34; Donghua verification not started
 Confidence Level: Strong Evidence
 Spoiler Boundary: Volume 1
@@ -742,6 +743,7 @@ last_updated: 2026-07-01
 
 ## Future Automation Notes
 
+- Page-level `Subject Visible From` is Chapter 28 because Chapter 21 is only a word-level diary mention. The `Seer Pathway` page title becomes useful and safe once Seer is presented as Klein's concrete pathway option.
 - This pathway page should help test graph extraction for pathway status, faction access, concept associations, and event participation.
 - The `Pathway Data Block` should remain aligned with the pathway snapshot sections, relationship seeds, and reader knowledge ledger.
 
