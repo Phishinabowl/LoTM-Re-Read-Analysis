@@ -122,6 +122,7 @@ pathway_profile:
     book: lotm-1
     volume: 1
     chapter: 34
+  official_artwork: []
   sequences:
     - sequence: 9
       name: Seer

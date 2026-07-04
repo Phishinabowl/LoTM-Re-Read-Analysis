@@ -1,5 +1,7 @@
 # Pathway Name
 
+![Official pathway artwork label](../../Artwork/extracted/path/to/pathway-image.ext)
+
 ## Metadata
 
 Type: Pathway
@@ -146,6 +148,12 @@ pathway_profile:
     volume:
     chapter:
   stable_slug: pathway-[name]
+  official_artwork:
+    - image_number:
+      label:
+      type:
+      file:
+      usage:
   name_timeline:
     - name:
       usage_type:

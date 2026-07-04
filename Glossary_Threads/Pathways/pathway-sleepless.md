@@ -1,5 +1,7 @@
 # Sleepless Pathway
 
+![Darkness pathway guide page](../../Artwork/extracted/volume-1-clown/0009-spine-0223-pathways-pathways3.jpeg)
+
 ## Metadata
 
 Type: Pathway
@@ -175,6 +177,12 @@ pathway_profile:
     volume: 1
     chapter: 47
   stable_slug: pathway-sleepless
+  official_artwork:
+    - image_number: 9
+      label: Darkness pathway guide page
+      type: pathway_guide
+      file: Artwork/extracted/volume-1-clown/0009-spine-0223-pathways-pathways3.jpeg
+      usage: primary_pathway_image
   name_timeline:
     - name: Sleepless Pathway
       usage_type: "reader-display; early-common-name"
