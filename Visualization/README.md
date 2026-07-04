@@ -17,41 +17,6 @@ Configured graph views may declare a `readerBoundary` in `config/render-settings
 
 Shared graph authoring rules live in [Graph Authoring Standard](graph-authoring-standard.md). Use that standard for both AI Agent graph requests and maintainer/project graph work before rendering.
 
-## AI Agent Graph Request Routing
-
-Graph and visualization requests are repository workflow requests by default.
-
-When an AI assistant is asked to create a graph, visualization, Mermaid diagram, relationship map, pathway map, timeline map, or rendered image, it should not begin by creating an ad hoc Mermaid file outside this folder.
-
-First classify the request:
-
-1. **Canonical graph refresh**: update generated graph artifacts from Relationship Seeds and graph inputs.
-2. **Repository-local manual graph**: create a manual `.mmd` source under `Visualization/graphs/` and render it through repository tooling.
-3. **Chat-only scratch graph**: produce temporary Mermaid only when the user explicitly asks for scratch, temporary, chat-only, or outside-repository output.
-
-Complex, relationship-heavy, evidence-bearing, or rendered graph requests default to repository-local artifacts, not scratch outputs.
-
-For rendered outputs, repository tooling means the visualization helpers documented in [rendering.md](rendering.md), not direct `mmdc` calls. Prefer the Python helper and use the PowerShell helper as the Windows fallback. Direct `mmdc` is a fallback/debug path only, and should be reported as degraded if used because the helper scripts are unavailable or cannot run in the current environment.
-
-## Projection Style
-
-Dense relationship graphs should use semantic relationship nodes instead of long Mermaid edge labels.
-
-Preferred dense projection:
-
-```mermaid
-graph TD
-  source_node["Source"]
-  rel_001["relationship type<br/>timing/status/confidence"]
-  target_node["Target"]
-  source_node --> rel_001
-  rel_001 --> target_node
-```
-
-Relationship nodes are generated presentation nodes. They are not glossary nodes and are not canonical project knowledge. They exist to make rendered graphs easier to read, especially when many relationships share the same source, target cluster, or semantic hub.
-
-Simple one-off diagrams may still use edge labels when they remain readable. For repository-wide or relationship-heavy views, prefer relationship nodes by default.
-
 ## Current Artifacts
 
 - [Volume 1 Knowledge Graph](graphs/volume-1-knowledge-graph.mmd)
@@ -152,6 +117,41 @@ Last Updated: 2026-07-04 10:42:12 -04:00
 - `pathway-mystery-pryer.md (artwork backed)`
 - `pathway-prisoner.md (artwork backed)`
 <!-- VISUALIZATION-REFRESH-REPORT:END -->
+
+## AI Agent Graph Request Routing
+
+Graph and visualization requests are repository workflow requests by default.
+
+When an AI assistant is asked to create a graph, visualization, Mermaid diagram, relationship map, pathway map, timeline map, or rendered image, it should not begin by creating an ad hoc Mermaid file outside this folder.
+
+First classify the request:
+
+1. **Canonical graph refresh**: update generated graph artifacts from Relationship Seeds and graph inputs.
+2. **Repository-local manual graph**: create a manual `.mmd` source under `Visualization/graphs/` and render it through repository tooling.
+3. **Chat-only scratch graph**: produce temporary Mermaid only when the user explicitly asks for scratch, temporary, chat-only, or outside-repository output.
+
+Complex, relationship-heavy, evidence-bearing, or rendered graph requests default to repository-local artifacts, not scratch outputs.
+
+For rendered outputs, repository tooling means the visualization helpers documented in [rendering.md](rendering.md), not direct `mmdc` calls. Prefer the Python helper and use the PowerShell helper as the Windows fallback. Direct `mmdc` is a fallback/debug path only, and should be reported as degraded if used because the helper scripts are unavailable or cannot run in the current environment.
+
+## Projection Style
+
+Dense relationship graphs should use semantic relationship nodes instead of long Mermaid edge labels.
+
+Preferred dense projection:
+
+```mermaid
+graph TD
+  source_node["Source"]
+  rel_001["relationship type<br/>timing/status/confidence"]
+  target_node["Target"]
+  source_node --> rel_001
+  rel_001 --> target_node
+```
+
+Relationship nodes are generated presentation nodes. They are not glossary nodes and are not canonical project knowledge. They exist to make rendered graphs easier to read, especially when many relationships share the same source, target cluster, or semantic hub.
+
+Simple one-off diagrams may still use edge labels when they remain readable. For repository-wide or relationship-heavy views, prefer relationship nodes by default.
 
 ## Refresh Rules
 
