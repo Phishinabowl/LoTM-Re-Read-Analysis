@@ -26,7 +26,7 @@ Filename format is governed by `PROJECT_RULES.md`. Use this generic shape only a
 [entity-type]-[kebab-case-name].md
 ```
 
-Store the file in its matching plural category folder, such as `Characters/`, `Artifacts/`, `Deities/`, or `Mysteries/`, while retaining the filename prefix. For scoped or special filename families such as deity pages, follow `PROJECT_RULES.md` rather than duplicating the rule here.
+Store the file in its matching plural category folder, such as `Characters/`, `Artifacts/`, `Deities/`, `Uniquenesses/`, or `Mysteries/`, while retaining the filename prefix. For scoped or special filename families such as deity and uniqueness pages, follow `PROJECT_RULES.md` rather than duplicating the rule here.
 
 Examples:
 
@@ -37,6 +37,7 @@ family-medici.md
 faction-rose-school-of-thought.md
 concept-gray-fog.md
 event-great-smog.md
+uniqueness-die-of-probability.md
 timeline-ian-zreal-chain.md
 ```
 

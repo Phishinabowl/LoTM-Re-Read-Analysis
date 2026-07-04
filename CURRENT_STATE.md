@@ -149,12 +149,14 @@ These pages are low-priority pending backlog items surfaced by official EPUB art
 - character-xio-derecha.md
 - artifact-groselles-travels.md
 - concept-city-of-calamity.md (sefirah page tied to Hunter/Red Priest and Demoness; preserve Chapter 1203 first sefirah-list reveal, Chapter 1347 ATS/fourth-pillar nuance, and Chapter 1369 Western Continent/Bansy seal connection)
+- concept-key-of-light.md (sefirah page tied to Monster / Wheel of Fortune / Fate; preserve Chapter 1203 first sefirah-list reveal, Chapter 1347 ATS recipe, and Chapter 1369 Western Continent seal context)
 - deity-ats-the-anarchy.md (ATS / Great Old One title cluster tied to Nation of Disorder, Black Emperor, and Justiciar; preserve Shadow of Order as title alias and Chapter 1347 as first direct title-cluster reveal)
 - deity-ats-calamity-of-destruction.md (ATS / Great Old One title cluster tied to City of Calamity, Demoness, and Red Priest; preserve Origins of Disaster as title alias and Chapter 1347 as first direct title-cluster reveal)
 - deity-ats-demon-of-knowledge.md (ATS / Great Old One title cluster tied to Knowledge Moor, Hermit, and Paragon; preserve Arcana of Madness as title alias and Chapter 1347 as first direct title-cluster reveal)
 - deity-ats-eternal-darkness.md (ATS / Great Old One title cluster for Evernight, Death, and Twilight Giant)
 - deity-ats-father-of-devils.md (ATS / Great Old One title cluster tied to Tenebrous World, Chained, and Abyss)
 - deity-ats-god-almighty.md (ATS / Great Old One title cluster for the omnipotent and omniscient pathway group)
+- deity-ats-key-of-light.md (ATS / Great Old One title cluster tied to Key of Light and Wheel of Fortune; preserve Endless Disorder and Incarnation of Fate as title aliases and Chapter 1347 as first direct title-cluster reveal)
 - deity-ats-lord-of-the-mysteries.md (ATS / Great Old One title cluster tied to Sefirah Castle, Fool, Door, and Error)
 - deity-od-son-of-chaos.md (Outer Deity / Outer God source tied to Lawyer/Black Emperor and Arbiter/Justiciar pathways; preserve Chapter 1321 nuance that its influence is comparatively less deep than MGOD/MTOD cases)
 - deity-od-mother-goddess-of-depravity.md (Outer Deity / Outer God page tied to the Planter/Earth and Moon pathway cluster; preserve Goddess of Origins, Mother of All, Brood Hive of Filth, Primordial Moon, and Origin of Evil title/alias nuance, and keep future ATS title-cluster handling separate if needed)
@@ -174,6 +176,8 @@ These pages are low-priority pending backlog items surfaced by official EPUB art
 - deity-s0-salinger.md
 - deity-s0-the-chained-god.md
 - deity-s0-true-creator.md
+- deity-s0-wheel-of-fortune.md (Sequence 0 / true god page for the Monster pathway; no stable Book 1 holder, so keep Will Auceptin and Ouroboros as character/angel pages while preserving Chapter 1357 and Chapter 1388 accommodation nuance)
+- uniqueness-die-of-probability.md (Uniqueness page for the Monster / Fate / Wheel of Fortune pathway; preserve Chapter 609 Wheel of Fortune Uniqueness reveal, Chapter 1388 Fate pathway Uniqueness wording, and Will Auceptin / Ouroboros accommodation race)
 - location-backlund.md
 - location-city-of-silver.md
 - location-deaths-mausoleum.md

@@ -94,6 +94,7 @@ Glossary_Threads/
   Events/
   Factions/
   Locations/
+  Uniquenesses/
   Pathways/
   type-specific subfolders for recurring thread records and embedded spoiler-aware knowledge units
 

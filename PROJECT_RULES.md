@@ -63,6 +63,7 @@ Glossary_Threads/
 ├── Artifacts/
 ├── Characters/
 ├── Deities/
+├── Uniquenesses/
 ├── Families/
 ├── Factions/
 ├── Locations/
@@ -339,6 +340,7 @@ location-[name].md
 concept-[name].md
 event-[name].md
 deity-[scope]-[name].md
+uniqueness-[name].md
 pathway-[name].md
 epoch-[name].md
 mystery-[name].md
@@ -360,6 +362,7 @@ event-great-smog.md
 deity-s0-evernight-goddess.md
 deity-ats-lord-of-the-mysteries.md
 deity-od-mother-goddess-of-depravity.md
+uniqueness-die-of-probability.md
 pathway-seer.md
 epoch-fourth-epoch.md
 mystery-mr-door.md
@@ -376,6 +379,8 @@ Deity pages use a required second-level scope in the filename so true gods, Abov
 
 Keep these pages separate when the same pathway cluster exposes multiple layers. For example, `deity-s0-earth-mother-lilith.md`, `deity-od-mother-goddess-of-depravity.md`, and a future ATS title-cluster page may all be related to the Planter/Moon group without being the same article subject.
 
+Known pathway Uniquenesses should receive dedicated Uniqueness pages when they are named or embodied as an item. Use `uniqueness-[name].md`, link them back to the pathway and Sequence 0/deity pages, and preserve holder/accommodation state separately from pathway identity. Example: `uniqueness-die-of-probability.md` is the Monster / Fate / Wheel of Fortune pathway Uniqueness and should cross-link `pathway-monster.md`, `deity-s0-wheel-of-fortune.md`, and relevant character-holder pages such as Will Auceptin and Ouroboros.
+
 ## Folder Organization
 
 Store glossary threads in plural, type-specific subfolders:
@@ -389,6 +394,7 @@ Glossary_Threads/Factions/
 Glossary_Threads/Locations/
 Glossary_Threads/Concepts/
 Glossary_Threads/Events/
+Glossary_Threads/Uniquenesses/
 Glossary_Threads/Pathways/
 Glossary_Threads/Epochs/
 Glossary_Threads/Mysteries/
@@ -401,6 +407,7 @@ Retain the entity-type filename prefix inside the matching folder. For example:
 Glossary_Threads/Characters/character-amon.md
 Glossary_Threads/Artifacts/artifact-0-08.md
 Glossary_Threads/Deities/deity-s0-evernight-goddess.md
+Glossary_Threads/Uniquenesses/uniqueness-die-of-probability.md
 Glossary_Threads/Mysteries/mystery-mr-door.md
 ```
 
@@ -426,7 +433,7 @@ Last Updated:
 
 Use these fields consistently:
 
-- `Type`: Entity type, such as Artifact, Character, Family, Faction, Location, Concept, Event, Pathway, Epoch, Mystery, or Timeline.
+- `Type`: Entity type, such as Artifact, Character, Family, Faction, Location, Concept, Event, Pathway, Uniqueness, Epoch, Mystery, or Timeline.
 - `Status`: Thread lifecycle, such as Stub, Active, Dormant, Resolved, or Superseded.
 - `First Mention Volume`: Earliest known volume where the thread meaningfully appears.
 - `Current Analysis Status`: Current project state, such as Not Started, In Progress, Needs EPUB Verification, or Verified.
@@ -690,6 +697,7 @@ location
 concept
 event
 pathway
+uniqueness
 epoch
 mystery
 timeline
@@ -708,6 +716,7 @@ Directly Related
 Historical Connections
 Associated Mysteries
 Associated Artifacts
+Associated Uniquenesses
 Associated Factions
 Associated Characters
 Associated Pathways
