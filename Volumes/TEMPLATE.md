@@ -22,8 +22,8 @@ Related Glossary Threads:
 Related Investigations:
 -
 
-Official Artwork:
--
+Official Artwork: [Link to image map](../Artwork/official-epub-image-map.md)
+- [Human-readable artwork label](../Artwork/extracted/path/to/image.ext)
 
 Use only controlled tags from `../PROJECT_RULES.md`.
 
@@ -110,10 +110,6 @@ Threads that reach a clear volume-boundary resolution, even if later volumes reo
 ### Investigations
 
 -
-
-### Artwork Map
-
-- [Official EPUB Image Map](../Artwork/official-epub-image-map.md)
 
 ## Volume Data Block
 

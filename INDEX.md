@@ -21,6 +21,14 @@ Navigation hub for the reread analysis workspace.
 
 - [Volume Summary Template](Volumes/TEMPLATE.md)
 - [Volume 1: Clown](Volumes/volume-01-clown.md)
+- Planned: `Volumes/volume-02-faceless.md`
+- Planned: `Volumes/volume-03-traveler.md`
+- Planned: `Volumes/volume-04-undying.md`
+- Planned: `Volumes/volume-05-red-priest.md`
+- Planned: `Volumes/volume-06-lightseeker.md`
+- Planned: `Volumes/volume-07-the-hanged-man.md`
+- Planned: `Volumes/volume-08-fool.md`
+- Planned: `Volumes/volume-09-side-stories.md`
 
 ## Visualization
 

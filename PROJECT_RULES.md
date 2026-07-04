@@ -137,6 +137,8 @@ Boards are analyst-facing overview documents, not the canonical source for autom
 
 Volume summary pages are reader-facing overview documents for completed volume boundaries. They may include official volume cover/opening art, end-of-volume art, and volume gallery title pages. Subject-specific character, location, pathway, artifact, deity, faction, event, or concept artwork should still map primarily to the corresponding subject page when that page exists.
 
+Planned-but-uncreated volume summary pages should be listed in `INDEX.md` as planned paths and tracked in `CURRENT_STATE.md` under `Planned Volume Summary Pages`. The artwork map may point volume-level artwork at those planned targets before the page exists, but those planned references should remain visibly marked as planned.
+
 ---
 
 # Visualization
