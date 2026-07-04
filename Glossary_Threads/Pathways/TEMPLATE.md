@@ -70,6 +70,14 @@ Use `implied-reader-display` / `association` rows when the text makes a future o
 | --- | --- | --- | --- | --- | --- |
 |  | reader-display / implied-reader-display / association / alias / artwork-label / formal-name / sequence-facing-name |  |  |  |  |
 
+## Associated Tarot Card
+
+Use this section when a pathway has a confirmed or pending-review associated tarot-card crop. Keep the image compact and pair it with the core extraction details.
+
+| Card image | Details |
+| --- | --- |
+| <a href="../../Artwork/tarot-cards/pathways/pathway-card.png"><img src="../../Artwork/tarot-cards/pathways/pathway-card.png" alt="Associated tarot card" width="160"></a> | - Card name:<br>- Card number:<br>- Associated pathway labels:<br>- Confidence:<br>- Notes: |
+
 ## First Appearance / First Meaningful Mention
 
 Use separate medium subsections when the thread tracks more than one format.
@@ -154,6 +162,14 @@ pathway_profile:
       type:
       file:
       usage:
+  associated_tarot_card:
+    card_name:
+    card_number:
+    source_image_number:
+    crop_number:
+    crop_file:
+    confidence:
+    notes:
   name_timeline:
     - name:
       usage_type:

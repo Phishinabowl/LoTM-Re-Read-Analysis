@@ -52,6 +52,17 @@ Later Seer pathway names, higher Sequences, future acting-method developments, a
 - Primary reader-facing function: Divination, mysticism expertise, Spirit Vision, Cogitation-supported control, interpretive perception, and weak direct combat.
 - Main uncertainty: Whether the Holy Cathedral has later Seer Sequences remains unknown at this boundary.
 
+## Pathway Names / Reader Display Timeline
+
+| Name | Usage type | First reader-safe reveal | Display active range | Confidence | Notes |
+| --- | --- | --- | --- | --- | --- |
+| Seer Pathway | reader-display; sequence-facing name | Novel Volume 1, Chapter 21; concrete pathway option in Chapter 28 | Novel Volume 1, Chapter 21 onward at the current boundary | confirmed | Chapter 21 names Seer through Roselle's diary; Chapter 28 makes it a concrete Church-held Sequence 9 option Klein can choose. |
+
+## Associated Tarot Card
+
+- Current status: No official pathway tarot-card crop is mapped to this page at the current Chapter 34 boundary.
+- Notes: Add this section's card image and details once the corresponding official pathway artwork/crop is classified and reader-safe for this page.
+
 ## First Appearance / First Meaningful Mention
 
 ### Novel
@@ -122,7 +133,24 @@ pathway_profile:
     book: lotm-1
     volume: 1
     chapter: 34
+  stable_slug: pathway-seer
   official_artwork: []
+  associated_tarot_card: null
+  name_timeline:
+    - name: Seer Pathway
+      usage_type: "reader-display; sequence-facing-name"
+      reveal:
+        medium: novel
+        volume: 1
+        chapter: 21
+      display_active:
+        from: novel-volume-1-chapter-21
+        until: null
+      confidence: confirmed
+      display_behavior:
+        primary_title: true
+        hint_label: null
+      notes: Chapter 21 names Seer through Roselle's diary; Chapter 28 makes it a concrete Church-held Sequence 9 option Klein can choose.
   sequences:
     - sequence: 9
       name: Seer

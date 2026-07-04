@@ -71,6 +71,12 @@ This pathway keeps `pathway-sleepless.md` as the stable slug while allowing futu
 | Evernight Pathway | later reader-display; global/high-sequence name | Novel Volume 2, Chapter 217; Chapter 203 already links the pathway to Evernight wording | Novel Volume 2, Chapter 217 onward | confirmed | Exact phrase first appears in Chapter 217. Chapter 526 ties Nightmare effects to the Evernight pathway, and Chapter 530 explicitly pairs the Death and Evernight pathways as high-Sequence switch options. |
 | Darkness Pathway | artwork-label; formal label | Official EPUB Volume 1 Pathways Guide | Not reader-display from main text; artwork/search alias | confirmed artwork label | Official pathway-guide artwork label; `darkness pathway` had zero main-text phrase hits in the arbitration check. |
 
+## Associated Tarot Card
+
+| Card image | Details |
+| --- | --- |
+| <a href="../../Artwork/tarot-cards/pathways/star-sleepless-pathway.png"><img src="../../Artwork/tarot-cards/pathways/star-sleepless-pathway.png" alt="The Star tarot card crop" width="160"></a> | - Card name: The Star<br>- Card number: XVII (17)<br>- Associated pathway labels: Sleepless / Evernight / Darkness pathway<br>- Confidence: confirmed<br>- Notes: Derived from the official Volume 1 Darkness pathway guide image. |
+
 ## First Appearance / First Meaningful Mention
 
 ### Novel
@@ -183,6 +189,14 @@ pathway_profile:
       type: pathway_guide
       file: Artwork/extracted/volume-1-clown/0009-spine-0223-pathways-pathways3.jpeg
       usage: primary_pathway_image
+  associated_tarot_card:
+    card_name: The Star
+    card_number: XVII (17)
+    source_image_number: 9
+    crop_number: TC-003
+    crop_file: Artwork/tarot-cards/pathways/star-sleepless-pathway.png
+    confidence: confirmed
+    notes: Derived from the official Volume 1 Darkness pathway guide page.
   name_timeline:
     - name: Sleepless Pathway
       usage_type: "reader-display; early-common-name"

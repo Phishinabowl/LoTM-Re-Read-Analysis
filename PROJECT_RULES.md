@@ -439,7 +439,7 @@ Place type-specific extraction sections near the top of the article after `Reade
 
 Current type-specific overlays:
 
-- `Glossary_Threads/Pathways/TEMPLATE.md`: pathway pages should expose `Pathway Snapshot`, `Pathway Names / Reader Display Timeline`, `Known Sequences`, `Institutional Access`, `Affiliated Factions`, `Known Holders`, and `Pathway Data Block` sections.
+- `Glossary_Threads/Pathways/TEMPLATE.md`: pathway pages should expose `Pathway Snapshot`, `Pathway Names / Reader Display Timeline`, `Associated Tarot Card`, `Known Sequences`, `Institutional Access`, `Affiliated Factions`, `Known Holders`, and `Pathway Data Block` sections.
 - `Glossary_Threads/Characters/TEMPLATE.md`: character pages should expose `Character Snapshot`, `Names, Aliases & Titles`, `Physical Profile`, `Status, Origin & Location`, `Affiliations`, `Pathway & Ability State`, `Ability Index`, `Equipment & Artifacts`, `Personality`, `Relationships`, `Messenger / Servants / Companions`, `Prayers & Ritual Access`, `Major Events & Fights`, and `Character Data Block` sections.
 
 ### Character Article Overlay
@@ -459,6 +459,8 @@ Use `Prayers & Ritual Access` for character-specific prayer addresses, exact pra
 Pathway pages should include the pathway overlay once the page has enough verified material to support more than a stub. The overlay is required for active pathway pilot pages and recommended for any future pathway page with reader-safe sequence, formula, access, holder, or ability data.
 
 When official pathway artwork is mapped, the current lightweight convention is to place the primary pathway-guide image near the top of the page and keep structured artwork references in the data block when useful for extraction. Avoid adding a separate visible `Official Artwork` metadata list to pathway pages unless a later page-level image pattern calls for one.
+
+Pathway pages should place `Associated Tarot Card` after `Pathway Names / Reader Display Timeline` and before `First Appearance / First Meaningful Mention`. When a crop exists, embed a compact card image that links to the full crop file, with a details list covering card name, card number, associated pathway labels, confidence, and notes. If no official crop is mapped for the page's current reader boundary, use a short status note instead of inventing a card association.
 
 Pathway pages should keep a stable internal slug even when the best reader-facing display name changes over time. Use `Pathway Names / Reader Display Timeline` to track reader-display names, implied reader-display associations, aliases, artwork labels, formal names, and sequence-facing names with reveal timing, display-active range, confidence, and notes. Future reader-boundary tooling should select the newest eligible confirmed reader-display name at or before the chosen boundary while preserving aliases and artwork labels for search, cross-linking, and article notes. Implied or associated name rows should be eligible for badges, subtitles, alternate labels, or "implied as of Chapter X" UI hints, but they should not replace the main display title until an exact or otherwise confirmed reader-display row becomes active. Name rows should accumulate rather than overwriting earlier reader-safe names.
 
