@@ -44,6 +44,20 @@ You can also narrow by volume without remembering the chapter span:
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Volume 3 -Pattern "Gehrman|Traveler" -CountsOnly
 ```
 
+### Term Summary
+
+Use `-TermSummary` when comparing competing names or aliases. It aggregates each literal pipe-separated term across the selected entries and splits counts by EPUB volume.
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Pattern "savant|artisan|paragon" -TermSummary
+```
+
+Use `-Json` when downstream tooling needs structured summary rows:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Pattern "savant|artisan|paragon" -TermSummary -Json
+```
+
 ### Entry Listing
 
 Use `-ListEntries` to inspect the EPUB's searchable sections without searching for a term.
@@ -102,6 +116,33 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Start
 ```
 
 JSON output includes `entry_type`, `volume`, `chapter`, `title`, and `source_path` fields where available.
+
+Use `-IncludeLineMatchCounts` with JSON hit output when a matched line may include the same term more than once or multiple competing terms.
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Pattern "savant|artisan" -ContextLines 2 -MaxHitsPerChapter 100 -Json -IncludeLineMatchCounts
+```
+
+### Term Arbitration
+
+Use this workflow when choosing a canonical page slug or primary article name from competing terms, aliases, translations, titles, or formal artwork labels.
+
+1. Run a full-book raw count for all candidate terms.
+2. Split the terms into separate counts by volume.
+3. Inspect context for each candidate hit in chapter order.
+4. Classify hits by usage, such as `primary subject name`, `alias/title`, `sequence name`, `ordinary-language usage`, `person/role label`, or `artwork/formal label`.
+5. Prefer the slug that best matches repeated in-text subject/pathway usage, not necessarily the raw highest count.
+6. Preserve alternate names in the target article alias table and in artwork-map notes.
+
+Example:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Pattern "savant|artisan|paragon" -TermSummary
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Pattern "savant|artisan|paragon" -CountsOnly -Json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Pattern "savant|artisan|paragon" -ContextLines 2 -MaxHitsPerChapter 100 -Json -IncludeLineMatchCounts
+```
+
+Raw counts can mislead when a term is also a job, epithet, or individual label. For example, `artisan` may outnumber `savant` while mostly referring to an item-maker or a specific person, whereas `Savant pathway` is stronger evidence for the canonical pathway slug.
 
 ## EPUB Image Extraction
 

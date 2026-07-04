@@ -62,6 +62,7 @@ Glossary_Threads/
 ├── TEMPLATE.md
 ├── Artifacts/
 ├── Characters/
+├── Deities/
 ├── Families/
 ├── Factions/
 ├── Locations/
@@ -110,7 +111,9 @@ Track glossary pages in three practical groups:
 - `In-Progress Threads`: active or partially built threads, including their current reader boundary and approximate Volume progress.
 - `Pending / Deferred Threads`: generated or planned thread titles that do not yet have dedicated glossary pages.
 
-Within `Pending / Deferred Threads`, mark existing pending entries as `(artwork backed)` when official artwork has already been mapped to that subject. If a mapped artwork subject does not already appear elsewhere in the pending backlog, add it to a lowest-priority `Artwork-Backed Pending Threads` subsection instead of promoting it automatically.
+Within `Pending / Deferred Threads`, mark existing pending entries as `(artwork backed)` when official artwork has already been mapped to that subject. If more than one official artwork image maps to the same pending subject, include the count as `(artwork backed, N images)`. If a mapped artwork subject does not already appear elsewhere in the pending backlog, add it to a lowest-priority `Artwork-Backed Pending Threads` subsection instead of promoting it automatically.
+
+When official artwork uses a classic or alternate pathway name that differs from the novel/common name, keep the article slug and primary thread identity aligned to the novel/common name, and preserve the artwork name in the map label, notes, and future pathway alias table. Examples: map Mother artwork to `pathway-planter.md`, Justiciar artwork to `pathway-arbiter.md`, and Paragon artwork to `pathway-savant.md` after term arbitration shows `Savant` is the stronger in-text pathway name while `Paragon` and `Artisan` remain aliases.
 
 For Volume 1 progress percentages, use the current verified chapter boundary divided by 213 total chapters. Treat the percentage as a chapter-boundary indicator, not a guarantee of article quality, cross-link completeness, or adaptation completeness.
 
@@ -335,6 +338,7 @@ Store glossary threads in plural, type-specific subfolders:
 ```text
 Glossary_Threads/Artifacts/
 Glossary_Threads/Characters/
+Glossary_Threads/Deities/
 Glossary_Threads/Families/
 Glossary_Threads/Factions/
 Glossary_Threads/Locations/
@@ -1177,6 +1181,8 @@ The standard EPUB evidence workflow is:
 5. Repeat the survey/context loop until the active arc is covered.
 6. Record chapter references and paraphrased evidence in the investigation file.
 7. Do not paste long EPUB passages into tracked records.
+
+When choosing a canonical page slug or primary article name from competing names, run a term-arbitration sweep rather than relying on memory or raw search totals. Use `-TermSummary` to count all candidate terms across the full relevant range and split them by term and volume, then inspect context around hits in chapter order. For context JSON where repeated terms on the same line matter, use `-IncludeLineMatchCounts`. Classify each usage by function: primary subject name, alias/title, sequence name, ordinary-language usage, person/role label, or artwork/formal label. Prefer the slug that best matches repeated in-text subject usage, and preserve alternate names in the article alias table and artwork-map notes. Raw counts can mislead when one term is also an occupation, epithet, or individual label.
 
 Example survey count:
 

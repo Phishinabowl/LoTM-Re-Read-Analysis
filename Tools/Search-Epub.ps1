@@ -12,6 +12,8 @@ param(
   [int]$ContextLines = 0,
   [int]$MaxHitsPerChapter = 50,
   [switch]$CountsOnly,
+  [switch]$TermSummary,
+  [switch]$IncludeLineMatchCounts,
   [switch]$RegexPattern,
   [switch]$CaseSensitive,
   [switch]$Json,
@@ -22,6 +24,10 @@ $ErrorActionPreference = "Stop"
 
 if (-not $ListEntries -and [string]::IsNullOrWhiteSpace($Pattern)) {
   throw "Provide -Pattern. For literal multi-term searches, separate terms with |, such as -Pattern `"Dunn|Captain|Nighthawk`". Use -ListEntries to inspect EPUB entries without a search pattern."
+}
+
+if ($ListEntries -and $TermSummary) {
+  throw "-TermSummary cannot be combined with -ListEntries."
 }
 
 if ($StartChapter -gt $EndChapter) {
@@ -99,6 +105,117 @@ function Get-MatchedTerms {
   }
 
   return $matched
+}
+
+function Get-TermMatchCounts {
+  param(
+    [string]$Text,
+    [string[]]$Terms,
+    [bool]$UseRegex,
+    [bool]$MatchCase
+  )
+
+  $counts = [ordered]@{}
+  foreach ($term in $Terms) {
+    $termRegex = New-SearchRegex @($term) $UseRegex $MatchCase
+    $count = $termRegex.Matches($Text).Count
+    if ($count -gt 0) {
+      $counts[$term] = $count
+    }
+  }
+
+  return [pscustomobject]$counts
+}
+
+function New-TermSummaryRows {
+  param(
+    [object[]]$Documents,
+    [string[]]$Terms,
+    [bool]$UseRegex,
+    [bool]$MatchCase
+  )
+
+  $volumeNumbers = @(
+    $Documents |
+      Where-Object { $null -ne $_.volume } |
+      Select-Object -ExpandProperty volume -Unique |
+      Sort-Object
+  )
+
+  $rows = New-Object 'System.Collections.Generic.List[object]'
+  foreach ($term in $Terms) {
+    $termRegex = New-SearchRegex @($term) $UseRegex $MatchCase
+    $row = [ordered]@{
+      term = $term
+      total = 0
+    }
+
+    foreach ($volumeNumber in $volumeNumbers) {
+      $row["vol_$volumeNumber"] = 0
+    }
+
+    $row["no_volume"] = 0
+
+    foreach ($document in $Documents) {
+      $count = 0
+      foreach ($line in $document.lines) {
+        $count += $termRegex.Matches($line).Count
+      }
+
+      if ($count -le 0) {
+        continue
+      }
+
+      $row.total += $count
+      if ($null -ne $document.volume) {
+        $row["vol_$($document.volume)"] += $count
+      } else {
+        $row.no_volume += $count
+      }
+    }
+
+    $rows.Add([pscustomobject]$row)
+  }
+
+  return @($rows.ToArray())
+}
+
+function Format-TermSummaryTable {
+  param([object[]]$Rows)
+
+  if ($Rows.Count -eq 0) {
+    return @()
+  }
+
+  $properties = @($Rows[0].PSObject.Properties.Name)
+  $widths = @{}
+  foreach ($property in $properties) {
+    $maxWidth = $property.Length
+    foreach ($row in $Rows) {
+      $value = [string]$row.$property
+      if ($value.Length -gt $maxWidth) {
+        $maxWidth = $value.Length
+      }
+    }
+    $widths[$property] = $maxWidth
+  }
+
+  $header = ($properties | ForEach-Object { $_.PadRight($widths[$_]) }) -join ' | '
+  $separator = ($properties | ForEach-Object { '-' * $widths[$_] }) -join '-|-'
+  $lines = @($header, $separator)
+
+  foreach ($row in $Rows) {
+    $lines += (($properties | ForEach-Object {
+      $value = [string]$row.$_
+      if ($_ -eq 'term') {
+        $value.PadRight($widths[$_])
+      } else {
+        $value.PadLeft($widths[$_])
+      }
+    }) -join ' | ')
+  }
+
+  return $lines
 }
 
 function Get-EntryTitle {
@@ -272,7 +389,16 @@ try {
     Where-Object { Test-SelectedEntry $_ } |
     Sort-Object sort_chapter, order
 
-  if ($ListEntries) {
+  if ($TermSummary) {
+    $summaryRows = New-TermSummaryRows $documents $terms $RegexPattern.IsPresent $CaseSensitive.IsPresent
+    if ($Json) {
+      foreach ($row in $summaryRows) {
+        $jsonResults.Add($row)
+      }
+    } else {
+      Format-TermSummaryTable $summaryRows
+    }
+  } elseif ($ListEntries) {
     if ($Json) {
       foreach ($document in $documents) {
         $jsonResults.Add((Convert-DocumentToJsonObject $document))
@@ -354,7 +480,7 @@ try {
           if ($Json) {
             $matchedTerms = Get-MatchedTerms $lines[$hitIndex] $terms $RegexPattern.IsPresent $CaseSensitive.IsPresent
             foreach ($matchedTerm in $matchedTerms) {
-              $jsonResults.Add([pscustomobject]@{
+              $hit = [ordered]@{
                 entry_type = $document.entry_type
                 volume = $document.volume
                 chapter = $document.chapter
@@ -364,7 +490,11 @@ try {
                 line = $hitIndex + 1
                 line_index = $hitIndex
                 snippet = Format-Snippet $lines[$hitIndex]
-              })
+              }
+              if ($IncludeLineMatchCounts) {
+                $hit.line_term_counts = Get-TermMatchCounts $lines[$hitIndex] $terms $RegexPattern.IsPresent $CaseSensitive.IsPresent
+              }
+              $jsonResults.Add([pscustomobject]$hit)
             }
           } else {
             "[${hitIndex}] $(Format-Snippet $lines[$hitIndex])"
@@ -384,7 +514,7 @@ try {
 
             $matchedTerms = Get-MatchedTerms $lines[$hitIndex] $terms $RegexPattern.IsPresent $CaseSensitive.IsPresent
             foreach ($matchedTerm in $matchedTerms) {
-              $jsonResults.Add([pscustomobject]@{
+              $hit = [ordered]@{
                 entry_type = $document.entry_type
                 volume = $document.volume
                 chapter = $document.chapter
@@ -395,7 +525,11 @@ try {
                 line_index = $hitIndex
                 snippet = Format-Snippet $lines[$hitIndex]
                 context = $context
-              })
+              }
+              if ($IncludeLineMatchCounts) {
+                $hit.line_term_counts = Get-TermMatchCounts $lines[$hitIndex] $terms $RegexPattern.IsPresent $CaseSensitive.IsPresent
+              }
+              $jsonResults.Add([pscustomobject]$hit)
             }
           } else {
             for ($contextIndex = $start; $contextIndex -le $end; $contextIndex++) {
