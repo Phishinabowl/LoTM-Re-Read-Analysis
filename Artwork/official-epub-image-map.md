@@ -193,6 +193,14 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Extract-EpubImages.ps1
 | 116 | 1552 | World Map | Map | `OEBPS/Text/world_map.xhtml` | `OEBPS/Images/0099.jpg` | `Artwork/extracted/side-stories-and-end-matter/0116-spine-1552-map-world-map.jpg` | world map | TBD | TBD | unknown | Pending inspection. |
 | 117 | 1553 | Back Cover | BackCover | `OEBPS/Text/back_cover.xhtml` | `OEBPS/Images/0100.jpeg` | `Artwork/extracted/side-stories-and-end-matter/0117-spine-1553-backcover-back-cover.jpeg` | back cover | TBD | TBD | unknown | Pending inspection. |
 
+## Derived Tarot Card Crops
+
+These are repository-generated crops from official pathway guide images. They preserve the pathway-associated tarot card artwork separately so pathway pages and a future tarot-card concept page can embed the card without the full pathway guide text.
+
+| Crop # | Source image # | Source pathway image | Derived file | Tarot card | Associated pathway | Mapped threads | Confidence | Notes |
+|---|---:|---|---|---|---|---|---|---|
+| TC-001 | 7 | `Artwork/extracted/volume-1-clown/0007-spine-0221-pathways-pathways1.jpeg` | `Artwork/tarot-cards/pathways/strength-twilight-giant-pathway.png` | Strength / VIII | Giant / Twilight Giant pathway | `Glossary_Threads/Pathways/pathway-giant.md` planned; `Glossary_Threads/Concepts/concept-tarot-cards.md` planned | confirmed | Derived crop from the official Volume 1 Twilight Giant pathway guide page. Crop preserves the full rounded tarot-card frame, card number, and `STRENGTH` label for future pathway-page `Associated Tarot Card` sections and the tarot-card concept page. |
+
 ## Open Questions
 
 - Should this map become a glossary thread, an investigation, or a data file once all volumes are mapped?
