@@ -6,3 +6,10 @@
 
 # Zip Files
 *.zip
+
+# Python/tool caches
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/

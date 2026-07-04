@@ -224,6 +224,20 @@ Treat the probe result as the session's Python-availability state. If Python is 
 
 If the probe reports Python unavailable, use documented PowerShell fallbacks for that session. If Python is available but a Python helper fails, treat that as a helper failure rather than an automatic fallback condition.
 
+For disposable local tool caches, use the repository cleanup helper rather than ad hoc recursive deletion. Prefer the Python helper when Python is available:
+
+```powershell
+python Tools\clean_temp_files.py --delete
+```
+
+Use the PowerShell fallback only when Python is unavailable:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Clean-TempFiles.ps1 -Delete
+```
+
+The cleanup helpers are restricted to allowlisted cache directory names under the repository root, currently `__pycache__`, `.pytest_cache`, `.mypy_cache`, `.ruff_cache`, and `.tox`. They must not be expanded to remove general scratch folders, extracted artwork staging directories, or investigation outputs unless those paths are deliberately promoted into the allowlist and documented here.
+
 Use this canonical refresh command from the repository root:
 
 Preferred Python:

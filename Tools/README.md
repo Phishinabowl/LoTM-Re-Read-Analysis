@@ -15,6 +15,52 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1 -Json
 
 If the probe reports Python unavailable, use the documented PowerShell fallback scripts for that session. If Python is available but a Python tool fails, treat that as a tool/script failure rather than silently falling back.
 
+## Temporary File Cleanup
+
+Use `clean_temp_files.py` to remove disposable local cache directories when Python is available. It is the preferred implementation because it is portable across Windows, macOS, and Linux while matching the rest of the repository's Python-preferred tool convention.
+
+`Clean-TempFiles.ps1` is the Windows PowerShell fallback for users who do not have Python installed.
+
+Both scripts only target allowlisted cache directories under the repository root:
+
+```text
+__pycache__
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.tox
+```
+
+By default, both scripts run in dry-run mode and only list what they would delete.
+
+Preferred Python:
+
+```powershell
+python Tools\clean_temp_files.py
+```
+
+PowerShell fallback:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Clean-TempFiles.ps1
+```
+
+Use `--delete` / `-Delete` to actually remove the matching cache directories:
+
+Preferred Python:
+
+```powershell
+python Tools\clean_temp_files.py --delete
+```
+
+PowerShell fallback:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Clean-TempFiles.ps1 -Delete
+```
+
+Use `--json` / `-Json` when downstream tooling needs structured results.
+
 ## Image Manipulation
 
 Use `edit_image.py` for repeatable local image operations when Python with Pillow is available. It is the preferred implementation because it is faster and shares one CLI for crop operations, named crop presets, and EPUB image listing/extraction.
