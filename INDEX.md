@@ -176,4 +176,4 @@ Glossary threads are organized into type-specific subfolders. Supporting investi
 
 - [Source Handling Notes](Source/README.md)
 
-The local source directory, including the EPUB and Donghua subtitles, is ignored by Git. Bulk artwork staging folders such as `Artwork/extracted/` and `Artwork/tarot-cards/` are also local-only; only selected page-ready assets under `Artwork/page-assets/` should be tracked.
+The local source directory, including the EPUB and Donghua subtitles, is ignored by Git. Bulk artwork staging under `Artwork/Source/` is also local-only; only selected page-ready assets under `Artwork/page-assets/` should be tracked.

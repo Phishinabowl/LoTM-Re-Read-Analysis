@@ -204,7 +204,7 @@ pathway_profile:
       label: Darkness pathway guide page
       type: pathway_guide
       file: Artwork/page-assets/pathways/pathway-sleepless/darkness-pathway-guide.jpeg
-      source_file: Artwork/extracted/volume-1-clown/0009-spine-0223-pathways-pathways3.jpeg
+      source_file: Artwork/Source/extracted/volume-1-clown/0009-spine-0223-pathways-pathways3.jpeg
       usage: primary_pathway_image
   associated_tarot_card:
     card_name: The Star
@@ -212,7 +212,7 @@ pathway_profile:
     source_image_number: 9
     crop_number: TC-003
     crop_file: Artwork/page-assets/pathways/pathway-sleepless/star-tarot-card.png
-    source_crop_file: Artwork/tarot-cards/pathways/star-sleepless-pathway.png
+    source_crop_file: Artwork/Source/tarot-cards/pathways/star-sleepless-pathway.png
     confidence: confirmed
     notes: Derived from the official Volume 1 Darkness pathway guide page.
   associated_higher_order_entities:

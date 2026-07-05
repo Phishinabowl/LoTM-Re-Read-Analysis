@@ -163,7 +163,7 @@ pathway_profile:
       label: Seer pathway guide page
       type: pathway_guide
       file: Artwork/page-assets/pathways/pathway-seer/fool-pathway-guide.jpeg
-      source_file: Artwork/extracted/volume-8-fool/0095-spine-1490-pathways-pathways16.jpeg
+      source_file: Artwork/Source/extracted/volume-8-fool/0095-spine-1490-pathways-pathways16.jpeg
       usage: primary_pathway_image
   associated_tarot_card:
     card_name: The Fool
@@ -171,7 +171,7 @@ pathway_profile:
     source_image_number: 95
     crop_number: TC-015
     crop_file: Artwork/page-assets/pathways/pathway-seer/fool-tarot-card.png
-    source_crop_file: Artwork/tarot-cards/pathways/fool-seer-pathway.png
+    source_crop_file: Artwork/Source/tarot-cards/pathways/fool-seer-pathway.png
     confidence: confirmed
     notes: Derived from the official Volume 8 Fool pathway guide page; official artwork metadata rather than active Chapter 34 novel knowledge.
   associated_higher_order_entities:

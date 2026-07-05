@@ -67,7 +67,7 @@ Use `--json` / `-Json` when downstream tooling needs structured results.
 
 Use `edit_image.py` for repeatable local image operations when Python with Pillow is available. It is the preferred implementation because it is faster and shares one CLI for crop operations, named crop presets, and EPUB image listing/extraction.
 
-Image extraction and crop commands should write bulk official artwork outputs to the ignored local staging folders `Artwork/extracted/` and `Artwork/tarot-cards/`. Keep those folders out of Git. When a maintained page needs a specific embedded image, copy only that selected page-ready asset into a tracked folder such as `Artwork/page-assets/`.
+Image extraction and crop commands should write bulk official artwork outputs under the ignored local staging umbrella `Artwork/Source/`. Keep that folder out of Git. When a maintained page needs a specific embedded image, copy only that selected page-ready asset into a tracked folder such as `Artwork/page-assets/`.
 
 PowerShell fallbacks are maintained for Windows users who do not have Python installed:
 
@@ -83,15 +83,41 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -ListPr
 Use the official pathway tarot-card crop preset:
 
 ```powershell
-python Tools\edit_image.py --preset PathwayTarotCard --source-image Artwork\extracted\volume-2-faceless\0023-spine-0505-pathways-pathways4.jpeg --output-image Artwork\tarot-cards\pathways\world-planter-pathway.png --force
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -Preset PathwayTarotCard -SourceImage Artwork\extracted\volume-2-faceless\0023-spine-0505-pathways-pathways4.jpeg -OutputImage Artwork\tarot-cards\pathways\world-planter-pathway.png -Force
+python Tools\edit_image.py --preset PathwayTarotCard --source-image <source-image> --output-image <output-image> --force
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -Preset PathwayTarotCard -SourceImage <source-image> -OutputImage <output-image> -Force
+```
+
+Name tarot-card crops with the tarot-card slug first and the pathway slug second:
+
+```text
+Artwork\Source\tarot-cards\pathways\<tarot-card-slug>-<pathway-slug>-pathway.png
+```
+
+Example:
+
+```powershell
+python Tools\edit_image.py --preset PathwayTarotCard --source-image Artwork\Source\extracted\volume-2-faceless\0023-spine-0505-pathways-pathways4.jpeg --output-image Artwork\Source\tarot-cards\pathways\world-planter-pathway.png --force
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -Preset PathwayTarotCard -SourceImage Artwork\Source\extracted\volume-2-faceless\0023-spine-0505-pathways-pathways4.jpeg -OutputImage Artwork\Source\tarot-cards\pathways\world-planter-pathway.png -Force
 ```
 
 Use the official pathway central-symbol crop preset as a review starting point:
 
 ```powershell
-python Tools\edit_image.py --preset PathwaySymbol --source-image Artwork\extracted\volume-1-clown\0009-spine-0223-pathways-pathways3.jpeg --output-image Artwork\pathway-symbols\pathways\sleepless-pathway-symbol.jpg --force
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -Preset PathwaySymbol -SourceImage Artwork\extracted\volume-1-clown\0009-spine-0223-pathways-pathways3.jpeg -OutputImage Artwork\pathway-symbols\pathways\sleepless-pathway-symbol.jpg -Force
+python Tools\edit_image.py --preset PathwaySymbol --source-image <source-image> --output-image <output-image> --force
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -Preset PathwaySymbol -SourceImage <source-image> -OutputImage <output-image> -Force
+```
+
+Name pathway-symbol crops by source section or volume and pathway slug:
+
+```text
+Artwork\Source\extracted\pathway-symbols\<section-or-volume>\<pathway-slug>-pathway-symbol.jpg
+```
+
+Example:
+
+```powershell
+python Tools\edit_image.py --preset PathwaySymbol --source-image Artwork\Source\extracted\volume-1-clown\0009-spine-0223-pathways-pathways3.jpeg --output-image Artwork\Source\extracted\pathway-symbols\volume-1-clown\sleepless-pathway-symbol.jpg --force
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -Preset PathwaySymbol -SourceImage Artwork\Source\extracted\volume-1-clown\0009-spine-0223-pathways-pathways3.jpeg -OutputImage Artwork\Source\extracted\pathway-symbols\volume-1-clown\sleepless-pathway-symbol.jpg -Force
 ```
 
 Unlike the tarot-card preset, pathway symbols should be visually reviewed per image. The preset captures the common guide-page symbol area, but individual pages may need manual crop refinement before promotion or mapping.
@@ -126,6 +152,13 @@ All
 ```
 
 Use `--volume` / `-Volume` to narrow chapter searches by EPUB volume, `--start-chapter` / `--end-chapter` or `-StartChapter` / `-EndChapter` to narrow by actual chapter number, and `--entry-name-pattern` / `-EntryNamePattern` to match internal EPUB filenames such as `*pathways*` or `*side_stories*`.
+
+Most EPUB search workflows follow this shape. Replace the pattern and filters with the evidence boundary for the current question:
+
+```powershell
+python Tools\search_epub.py --pattern "<term-a>|<term-b>" --counts-only
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Pattern "<term-a>|<term-b>" -CountsOnly
+```
 
 ### Survey Counts
 

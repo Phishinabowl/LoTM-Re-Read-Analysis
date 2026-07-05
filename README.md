@@ -108,6 +108,12 @@ Visualization/
   rendered/
   generated graph artifacts and provisional graph schema notes
 
+Artwork/
+  README.md
+  official-epub-image-map.md
+  page-assets/
+  tracked page-ready artwork plus ignored local artwork source workspace
+
 Source/
   README.md
   local EPUB, Donghua subtitles, and future source materials (Git ignored)
@@ -128,4 +134,4 @@ Git commits should mark durable project knowledge changes, not ordinary discussi
 
 The entire `Source/` directory is ignored by Git so copyrighted source materials cannot be committed accidentally. The already tracked `Source/README.md` remains as public documentation; the EPUB, Donghua subtitles, and future local source files remain local-only.
 
-Bulk official artwork staging is also ignored by Git. `Artwork/extracted/`, `Artwork/tarot-cards/`, and `Artwork/pathway-symbols/` remain local-only working folders; only deliberately selected page-ready assets under `Artwork/page-assets/` should be tracked.
+Bulk official artwork staging is also ignored by Git. `Artwork/Source/` is the local-only workspace for extracted official artwork and derived working crops; only deliberately selected page-ready assets under `Artwork/page-assets/` should be tracked.

@@ -144,11 +144,9 @@ Planned-but-uncreated volume summary pages should be listed in `INDEX.md` as pla
 
 Official EPUB artwork metadata is tracked in `Artwork/official-epub-image-map.md`, but bulk source-derived image assets are local-only staging files.
 
-Keep these directories ignored and untracked:
+Keep this directory ignored and untracked:
 
-- `Artwork/extracted/`
-- `Artwork/tarot-cards/`
-- `Artwork/pathway-symbols/`
+- `Artwork/Source/`
 
 This mirrors the treatment of the source EPUB and subtitle/source-media files: the project can use local assets for inspection, mapping, and page planning without publishing the whole extracted asset set.
 

@@ -8,9 +8,7 @@
 *.zip
 
 # Copyright-controlled local artwork staging
-/Artwork/extracted/
-/Artwork/tarot-cards/
-/Artwork/pathway-symbols/
+/Artwork/Source/
 
 # Python/tool caches
 __pycache__/
