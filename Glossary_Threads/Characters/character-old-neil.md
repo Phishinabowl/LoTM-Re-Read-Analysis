@@ -313,6 +313,7 @@ character_profile:
     volume: 1
     chapter: 47
   state_sort_order: newest_to_oldest
+  official_artwork: []
   identities:
     - field: title_role
       value: Klein's first practical mysticism instructor

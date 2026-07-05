@@ -1,5 +1,8 @@
 # Character Name
 
+<!-- Optional: omit this block until a page-ready official character asset is promoted. -->
+<a href="../../Artwork/page-assets/characters/character-slug/page-ready-character-image.ext"><img src="../../Artwork/page-assets/characters/character-slug/page-ready-character-image.ext" alt="Official character artwork label" width="320"></a>
+
 ## Metadata
 
 Type: Character
@@ -240,6 +243,12 @@ character_profile:
     volume:
     chapter:
   state_sort_order: newest_to_oldest
+  official_artwork:
+    - image_number:
+      label:
+      type:
+      file:
+      usage:
   identities:
     - field:
       value:

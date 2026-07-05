@@ -1,5 +1,7 @@
 # Dunn Smith
 
+<a href="../../Artwork/page-assets/characters/character-dunn-smith/dunn-smith-portrait.jpeg"><img src="../../Artwork/page-assets/characters/character-dunn-smith/dunn-smith-portrait.jpeg" alt="Dunn Smith official character portrait" width="320"></a>
+
 ## Metadata
 
 Type: Character
@@ -382,6 +384,12 @@ character_profile:
     volume: 1
     chapter: 47
   state_sort_order: newest_to_oldest
+  official_artwork:
+    - image_number: 17
+      label: Dunn Smith portrait
+      type: official_epub_character_gallery
+      file: ../../Artwork/page-assets/characters/character-dunn-smith/dunn-smith-portrait.jpeg
+      usage: primary_page_header_image
   identities:
     - field: title_role
       value: Captain of the Tingen Nighthawks

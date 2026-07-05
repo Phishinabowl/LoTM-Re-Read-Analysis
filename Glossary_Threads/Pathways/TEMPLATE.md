@@ -1,5 +1,6 @@
 # Pathway Name
 
+<!-- Optional: omit this block until a page-ready official pathway asset is promoted. -->
 <a href="../../Artwork/page-assets/pathways/pathway-slug/page-ready-pathway-image.ext"><img src="../../Artwork/page-assets/pathways/pathway-slug/page-ready-pathway-image.ext" alt="Official pathway artwork label" width="360"></a>
 
 ## Metadata
