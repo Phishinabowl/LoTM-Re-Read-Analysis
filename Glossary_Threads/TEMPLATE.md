@@ -169,9 +169,17 @@ Use Markdown links when the target file exists, with the target document's human
 
 -
 
+## Type-Specific Data Block
+
+Use the matching category template for this section when one exists. Replace this placeholder with the concrete heading, such as `Character Data Block` or `Pathway Data Block`, and keep the block immediately before `Relationship Seeds`.
+
+Omit this section for lightweight stubs or categories whose data block shape has not been defined yet. Do not invent a generic schema just to fill this slot.
+
 ## Relationship Seeds
 
 Use this section only for relationships important enough to support future relationship graphs. Keep entries reader-boundary aware and mark unverified start points as `TBD`.
+
+Omit this section on actual pages only when no graph-worthy relationships have been identified yet.
 
 ```yaml
 relationships:
