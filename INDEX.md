@@ -13,6 +13,8 @@ Navigation hub for the reread analysis workspace.
 - [Third-Party Notice](NOTICE.md)
 - [Maintainer Context](MAINTAINER_CONTEXT.md)
 - [Deprecated Assistant Context Redirect](ASSISTANT_CONTEXT.md)
+- [Visualization README](Visualization/README.md)
+- [Graph Authoring Standard](Visualization/graph-authoring-standard.md)
 
 ## Boards
 
@@ -32,11 +34,14 @@ Navigation hub for the reread analysis workspace.
 - Planned: `Volumes/volume-08-fool.md`
 - Planned: `Volumes/volume-09-side-stories.md`
 
-## Visualization
+## Visualizations
 
-- [Visualization README](Visualization/README.md)
-- [Graph Authoring Standard](Visualization/graph-authoring-standard.md)
 - [Volume 1 Knowledge Graph](Visualization/graphs/volume-1-knowledge-graph.mmd)
+- [Volume 1 Knowledge Graph: Timing-Spoiler Free](Visualization/graphs/volume-1-knowledge-graph-timing-spoiler-free.mmd)
+
+## Reference Maps
+
+- [Map of the Lord of the Mysteries World](Artwork/page-assets/maps/lotm-world-map.jpg)
 
 ## Glossary Threads / Supporting Investigations
 
