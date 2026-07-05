@@ -455,6 +455,12 @@ character_profile:
       confidence: confirmed
       notes: Dunn reveals himself as a Church-linked Nighthawk.
   pathway_ability_state:
+    - field: pathway_sequence_inference
+      value: Sleepless pathway / Nightmare association
+      reveal: { medium: novel, volume: 1, chapter: 22 }
+      status: strong_evidence_at_boundary
+      confidence: strong_evidence
+      notes: Chapter 22 connects dream guidance to Nightmare and makes Dunn's likely Sequence 7 status inferable before later pathway confirmation.
     - field: pathway
       value: Sleepless pathway
       reveal: { medium: novel, volume: 1, chapter: 45 }
@@ -474,6 +480,18 @@ character_profile:
       status: current_at_boundary
       confidence: confirmed
       notes: Mobilizes the team around the notebook lead.
+    - ability: resource_approval_and_operational_budgeting
+      source: captain_authority
+      reveal: { medium: novel, volume: 1, chapter: 37 }
+      status: current_at_boundary
+      confidence: confirmed
+      notes: Approves training, ammunition, and external monitoring expenses through the Church/police funding structure.
+    - ability: beyonder_doctrine_explanation
+      source: nighthawk_knowledge
+      reveal: { medium: novel, volume: 1, chapter: 17 }
+      status: current_at_boundary
+      confidence: confirmed
+      notes: Explains Beyonders, potions, Sequences, advancement danger, and loss of control across the onboarding explanation.
     - ability: dream_entry_dream_guidance
       source: sleepless_nightmare_associated_ability
       reveal: { medium: novel, volume: 1, chapter: 12 }
@@ -487,6 +505,68 @@ character_profile:
       possession_status: investigating_not_possessed
       confidence: confirmed
       notes: Dunn treats the missing notebook as central to the case.
+    - item: Nighthawk resources and ammunition access
+      type: institutional_equipment_resource_access
+      reveal: { medium: novel, volume: 1, chapter: 37 }
+      possession_status: authorized_by_dunn
+      confidence: confirmed
+      notes: Dunn can approve Klein's practice and monitoring expenses.
+    - item: Sealed Artifact 0-08
+      type: sealed_artifact
+      reveal: { medium: novel, volume: 1, chapter: 22 }
+      possession_status: institutional_knowledge_not_local_possession
+      confidence: confirmed
+      notes: Dunn explains basic appearance and grade context without later function details.
+  personality:
+    - trait: protective_proceduralism
+      evidence: Warns Klein about confidentiality, danger, and irreversible potion consumption.
+      reveal: { medium: novel, volume: 1, chapter: 14 }
+      status: current_pattern_at_boundary
+      confidence: confirmed
+      notes: Dunn repeatedly turns danger into rules, boundaries, and monitored choices.
+    - trait: calm_institutional_authority
+      evidence: Converts police investigation into Church/Nighthawk onboarding.
+      reveal: { medium: novel, volume: 1, chapter: 13 }
+      status: current_pattern_at_boundary
+      confidence: confirmed
+      notes: Explains the hidden system without abandoning official process.
+    - trait: adaptive_field_leadership
+      evidence: Uses Klein's Seer clue to mobilize a field response.
+      reveal: { medium: novel, volume: 1, chapter: 45 }
+      status: current_pattern_at_boundary
+      confidence: confirmed
+      notes: Treats Klein as useful while preserving command structure.
+  relationships:
+    - target: character-old-neil
+      relationship: team_leader_colleague
+      reveal: { medium: novel, volume: 1, chapter: 19 }
+      status: current_at_boundary
+      confidence: confirmed
+      notes: Dunn directs Old Neil inside the team and brings him into field response.
+    - target: character-klein-moretti
+      relationship: recruiter_supervisor_authorizer
+      reveal: { medium: novel, volume: 1, chapter: 14 }
+      status: current_at_boundary
+      confidence: confirmed
+      notes: Dunn recruits Klein and authorizes his Seer opportunity.
+    - target: character-leonard-mitchell
+      relationship: team_leader_colleague
+      reveal: { medium: novel, volume: 1, chapter: 10 }
+      status: current_at_boundary
+      confidence: confirmed
+      notes: Leonard works with Dunn in both investigation and field deployment context.
+    - target: faction-church-of-evernight
+      relationship: member_official_agent
+      reveal: { medium: novel, volume: 1, chapter: 13 }
+      status: current_at_boundary
+      confidence: confirmed
+      notes: Dunn is the reader's first direct Church-linked Nighthawk.
+    - target: artifact-antigonus-notebook
+      relationship: investigator
+      reveal: { medium: novel, volume: 1, chapter: 13 }
+      status: active_case_connection
+      confidence: confirmed
+      notes: The notebook drives Dunn's investigation and Chapter 45 field response.
   prayers_ritual_access:
     - label: None known
       type: prayer_ritual_access
@@ -560,8 +640,8 @@ relationships:
       volume: 1
       chapter: 22
     status: active
-    confidence: confirmed
-    notes: Chapter 22 directly connects Dunn's dream guidance to Nightmare and says it is likely he is one of Tingen's two Sequence 7 Beyonders; Chapter 45 confirms Dunn is an advanced Sleepless. Treat exact Nightmare status as strong evidence, but pathway affiliation as confirmed.
+    confidence: strong-evidence
+    notes: Chapter 22 connects Dunn's dream guidance to Nightmare and says it is likely he is one of Tingen's two Sequence 7 Beyonders, making the Sleepless/Nightmare association graph-worthy as strong evidence before confirmation. Chapter 45 later confirms Dunn is an advanced Sleepless; keep that confirmation in the data block and ledger until graph extraction supports relationship state history by reader boundary.
   - source: character-dunn-smith
     target: character-klein-moretti
     relationship_type: superior
