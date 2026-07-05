@@ -47,6 +47,14 @@ $presets = @{
     Height = 1168
     Description = "Official EPUB pathway guide tarot-card crop, recovered from the validated Strength/Giant pilot crop."
   }
+  PathwaySymbol = @{
+    Operation = "Crop"
+    X = 472
+    Y = 305
+    Width = 486
+    Height = 486
+    Description = "Official EPUB pathway guide central symbol crop, recovered from the reviewed Sleepless/Darkness symbol pilot crop."
+  }
 }
 
 function Resolve-OperationName {
@@ -70,8 +78,9 @@ function Resolve-PresetName {
 
   switch -Regex ($Name) {
     '^(?i:pathwaytarotcard|pathway-tarot-card|pathway-tarot|tarot-card)$' { return "PathwayTarotCard" }
+    '^(?i:pathwaysymbol|pathway-symbol|pathway-symbol-crop|symbol)$' { return "PathwaySymbol" }
     default {
-      throw "Unsupported preset: $Name. Use PathwayTarotCard. Aliases include pathway-tarot-card, pathway-tarot, and tarot-card."
+      throw "Unsupported preset: $Name. Use PathwayTarotCard or PathwaySymbol. Aliases include pathway-tarot-card, pathway-tarot, tarot-card, pathway-symbol, pathway-symbol-crop, and symbol."
     }
   }
 }

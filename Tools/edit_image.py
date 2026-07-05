@@ -22,6 +22,14 @@ PRESETS = {
         "width": 660,
         "height": 1168,
         "description": "Official EPUB pathway guide tarot-card crop, recovered from the validated Strength/Giant pilot crop.",
+    },
+    "PathwaySymbol": {
+        "operation": "crop",
+        "x": 472,
+        "y": 305,
+        "width": 486,
+        "height": 486,
+        "description": "Official EPUB pathway guide central symbol crop, recovered from the reviewed Sleepless/Darkness symbol pilot crop.",
     }
 }
 
@@ -30,6 +38,10 @@ PRESET_ALIASES = {
     "pathway-tarot-card": "PathwayTarotCard",
     "pathway-tarot": "PathwayTarotCard",
     "tarot-card": "PathwayTarotCard",
+    "PathwaySymbol": "PathwaySymbol",
+    "pathway-symbol": "PathwaySymbol",
+    "pathway-symbol-crop": "PathwaySymbol",
+    "symbol": "PathwaySymbol",
 }
 
 OPERATION_ALIASES = {

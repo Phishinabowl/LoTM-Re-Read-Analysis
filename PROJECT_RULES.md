@@ -148,6 +148,7 @@ Keep these directories ignored and untracked:
 
 - `Artwork/extracted/`
 - `Artwork/tarot-cards/`
+- `Artwork/pathway-symbols/`
 
 This mirrors the treatment of the source EPUB and subtitle/source-media files: the project can use local assets for inspection, mapping, and page planning without publishing the whole extracted asset set.
 

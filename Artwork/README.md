@@ -8,6 +8,7 @@ Bulk extracted artwork and derivative working crops are local staging assets, li
 
 - `Artwork/extracted/`
 - `Artwork/tarot-cards/`
+- `Artwork/pathway-symbols/`
 
 Use [official-epub-image-map.md](official-epub-image-map.md) to preserve source order, local staging paths, classifications, and planned article mappings without uploading the full extracted asset set.
 

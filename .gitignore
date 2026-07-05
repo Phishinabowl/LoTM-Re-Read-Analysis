@@ -10,6 +10,7 @@
 # Copyright-controlled local artwork staging
 /Artwork/extracted/
 /Artwork/tarot-cards/
+/Artwork/pathway-symbols/
 
 # Python/tool caches
 __pycache__/
@@ -17,3 +18,18 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 .tox/
+
+# Personal Implementation Notes
+*.local.md
+
+# Throwaway Test Scripts
+*.scratch.ps1
+
+# Temporary Debugging Helpers
+*.debug.ps1
+
+# Local-only Working Artifacts
+.local/
+
+# Obsidian Files
+.obsidian/

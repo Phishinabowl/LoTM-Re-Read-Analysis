@@ -87,6 +87,15 @@ python Tools\edit_image.py --preset PathwayTarotCard --source-image Artwork\extr
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -Preset PathwayTarotCard -SourceImage Artwork\extracted\volume-2-faceless\0023-spine-0505-pathways-pathways4.jpeg -OutputImage Artwork\tarot-cards\pathways\world-planter-pathway.png -Force
 ```
 
+Use the official pathway central-symbol crop preset as a review starting point:
+
+```powershell
+python Tools\edit_image.py --preset PathwaySymbol --source-image Artwork\extracted\volume-1-clown\0009-spine-0223-pathways-pathways3.jpeg --output-image Artwork\pathway-symbols\pathways\sleepless-pathway-symbol.jpg --force
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -Preset PathwaySymbol -SourceImage Artwork\extracted\volume-1-clown\0009-spine-0223-pathways-pathways3.jpeg -OutputImage Artwork\pathway-symbols\pathways\sleepless-pathway-symbol.jpg -Force
+```
+
+Unlike the tarot-card preset, pathway symbols should be visually reviewed per image. The preset captures the common guide-page symbol area, but individual pages may need manual crop refinement before promotion or mapping.
+
 Use an explicit custom crop when a future image job needs different geometry:
 
 ```powershell

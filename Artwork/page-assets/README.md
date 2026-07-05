@@ -8,3 +8,4 @@ Bulk extraction and working crop outputs stay local and ignored under:
 
 - `Artwork/extracted/`
 - `Artwork/tarot-cards/`
+- `Artwork/pathway-symbols/`
