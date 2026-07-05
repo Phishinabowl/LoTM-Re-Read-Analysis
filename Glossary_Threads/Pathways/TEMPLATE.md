@@ -139,6 +139,64 @@ Track the pathway's associated mythical creature form here when it becomes reade
 | Form name | Version / stage | Sequence / threshold | First reader-safe reveal | Status | Confidence | Notes |
 |---|---|---|---|---|---|---|
 
+## Chronological Development
+
+### Novel
+
+#### Chapter X: Event Name
+
+- What the reader learns:
+- What changes:
+- What remains unknown:
+- Why it matters:
+
+### Donghua
+
+#### Season X, Episode Y: Event Name
+
+- Timestamp:
+- What the viewer learns:
+- What changes:
+- What remains unknown:
+- Why it matters:
+
+## Open Questions
+
+- Question:
+- Current confidence:
+- Needs EPUB verification:
+- Related investigation:
+
+## Related Threads
+
+### Directly Related
+
+-
+
+### Historical Connections
+
+-
+
+### Associated Mysteries
+
+-
+
+### Associated Artifacts
+
+-
+
+### Associated Factions
+
+-
+
+### Associated Characters
+
+-
+
+### Associated Pathways
+
+-
+
 ## Pathway Data Block
 
 This block is a structured extraction aid for future graphs and dashboards. It duplicates the high-value pathway facts above in a predictable shape; the prose, relationship seeds, reader knowledge ledger, and metadata remain authoritative. Use metadata, not this data block, for page-level `Subject Visible From`. If `associated_tarot_card`, `associated_higher_order_entities`, `associated_uniqueness`, or `associated_mythical_creature` names a positive reader-safe target, add the corresponding graph edge in `Relationship Seeds`. Do not add relationship seeds for unknown/null placeholder state.
@@ -267,64 +325,6 @@ pathway_profile:
         status:
         notes:
 ```
-
-## Chronological Development
-
-### Novel
-
-#### Chapter X: Event Name
-
-- What the reader learns:
-- What changes:
-- What remains unknown:
-- Why it matters:
-
-### Donghua
-
-#### Season X, Episode Y: Event Name
-
-- Timestamp:
-- What the viewer learns:
-- What changes:
-- What remains unknown:
-- Why it matters:
-
-## Open Questions
-
-- Question:
-- Current confidence:
-- Needs EPUB verification:
-- Related investigation:
-
-## Related Threads
-
-### Directly Related
-
--
-
-### Historical Connections
-
--
-
-### Associated Mysteries
-
--
-
-### Associated Artifacts
-
--
-
-### Associated Factions
-
--
-
-### Associated Characters
-
--
-
-### Associated Pathways
-
--
 
 ## Relationship Seeds
 

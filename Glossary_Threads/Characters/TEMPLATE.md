@@ -196,6 +196,38 @@ Sort this table oldest-to-newest by event occurrence or first reveal.
 | Event / fight | Role | First reveal / occurrence | Outcome / status | Confidence | Notes |
 |---|---|---|---|---|---|
 
+## Chronological Development
+
+### Novel
+
+#### Volume X
+
+- What the reader learns:
+- What changes:
+- What remains unknown:
+- Why it matters:
+
+### Donghua
+
+#### Season X, Episode Y
+
+- Timestamp:
+- What the viewer learns:
+- What changes:
+- What remains unknown:
+- Why it matters:
+
+## Open Questions
+
+- Question:
+- Current confidence:
+- Needs EPUB verification:
+- Related investigation:
+
+## Related Threads
+
+Use Markdown links when the target file exists, with the target document's human-readable H1 title as the link label. Mention a nonexistent thread as a plain filename only when its creation is already planned or the relationship is essential. Do not seed speculative future references.
+
 ## Character Data Block
 
 This block is a structured extraction aid, not a separate source of truth. Keep it aligned with the visible character sections, relationship seeds, and reader knowledge ledger. Use metadata, not this data block, for page-level `Subject Visible From`. If `mythical_creature_form_state` or `uniqueness_state` records a positive reader-safe relationship, add the corresponding graph edge in `Relationship Seeds`. Do not add relationship seeds for omitted sections, unknown/null state, or ordinary absence.
@@ -354,38 +386,6 @@ character_profile:
       confidence:
       notes:
 ```
-
-## Chronological Development
-
-### Novel
-
-#### Volume X
-
-- What the reader learns:
-- What changes:
-- What remains unknown:
-- Why it matters:
-
-### Donghua
-
-#### Season X, Episode Y
-
-- Timestamp:
-- What the viewer learns:
-- What changes:
-- What remains unknown:
-- Why it matters:
-
-## Open Questions
-
-- Question:
-- Current confidence:
-- Needs EPUB verification:
-- Related investigation:
-
-## Related Threads
-
-Use Markdown links when the target file exists, with the target document's human-readable H1 title as the link label. Mention a nonexistent thread as a plain filename only when its creation is already planned or the relationship is essential. Do not seed speculative future references.
 
 ## Relationship Seeds
 

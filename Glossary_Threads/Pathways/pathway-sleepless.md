@@ -189,6 +189,132 @@ Track the pathway's Uniqueness here when it becomes reader-safe. No Sleepless pa
 
 Track the pathway's associated mythical creature form here when it becomes reader-safe. No Sleepless pathway mythical creature information is reader-safe at the current boundary.
 
+## Chronological Development
+
+### Novel
+
+#### Chapter 15: First Loose Term
+
+- What the reader learns: Dunn uses `Sleepless` casually while explaining why the Nighthawks need someone with historical and archaeological education.
+- What changes: The term enters the reader's vocabulary before its formal meaning is explained.
+- What remains unknown: Whether Sleepless is a pathway, rank, job role, or informal nickname remains unclear.
+- Why it matters: The first mention is deliberately low-context, matching the reader's early partial understanding of Nighthawk terminology.
+
+#### Chapter 17: Leonard as First Practical Example
+
+- What the reader learns: Rozanne says Leonard had trouble on the stairs on his first day after becoming a `Sleepless`.
+- What changes: Sleepless becomes tied to a person, potion-like status change, and new powers that require adjustment.
+- What remains unknown: Leonard's exact Sequence, the ability set, and the pathway ladder remain unknown.
+- Why it matters: The pathway first becomes concrete through workplace anecdote rather than exposition.
+
+#### Chapter 21: Leonard Identifies as Midnight Poet
+
+- What the reader learns: Leonard introduces himself as `Sequence 8's Midnight Poet`.
+- What changes: Leonard is no longer only linked to Sleepless by Rozanne's anecdote; he now has a named Sequence 8 status.
+- What remains unknown: Whether Midnight Poet belongs to the Sleepless chain is not confirmed until Chapter 22.
+- Why it matters: This sets up the reveal that the Church's complete pathway is a ladder rather than a single potion name.
+
+#### Chapter 22: Church Pathway Ladder and Abilities
+
+- What the reader learns: Rozanne explains the Church's complete known pathway as `Sequence 9 Sleepless`, `Sequence 8 Midnight Poet`, and `Sequence 7 Nightmare`. She says Sleepless need only three to four hours of rest during the day, can see through darkness without lights, and become stronger deeper into the night in physical strength, intuition, and mental capabilities.
+- What changes: The reader can now connect Leonard's Midnight Poet title to Sleepless and can strongly infer Dunn's association with Nightmare because Klein remembers Dunn guiding his dreams.
+- What remains unknown: Higher Sequences above Nightmare, exact full capabilities of Midnight Poet and Nightmare, and Dunn's precise Sequence statement remain incomplete.
+- Why it matters: Chapter 22 is the pathway's first real information payload: ladder, abilities, Church ownership, and character mapping.
+
+#### Chapter 28: Complete Church Route Versus Incomplete Options
+
+- What the reader learns: Dunn says Klein can give up his immediate chance and wait until there is sufficient room to become a `Sleepless`, which he calls the first complete Sequence the Goddess bestowed on the Nighthawks. He contrasts that with the locally available incomplete options `Mystery Pryer`, `Corpse Collector`, and `Seer`.
+- What changes: Sleepless becomes the Church/Nighthawks' complete institutional route rather than only a named ladder.
+- What remains unknown: How slots open, what formal-team constraints control access, and whether Klein could realistically wait for Sleepless remain unclear.
+- Why it matters: This distinguishes pathway access from pathway knowledge: the Church knows the route, but institutional capacity governs who can take it.
+
+#### Chapter 33: Contrast With Non-Sleepless Exhaustion
+
+- What the reader learns: Old Neil reminds Klein that they are not Sleepless after Spirit Vision practice exhausts him.
+- What changes: The pathway's reduced-sleep endurance becomes a practical contrast with Seer training fatigue.
+- What remains unknown: How much recovery advantage belongs to Sequence 9 Sleepless versus later steps remains unclear.
+- Why it matters: Sleepless remains relevant as a benchmark even after Klein chooses another pathway.
+
+#### Chapter 42: Team Snapshot
+
+- What the reader learns: Rozanne's staffing snapshot names Royale Reideen and Kenley White as `Sleepless`, and Seeka Tron as a `Midnight Poet`.
+- What changes: Sleepless becomes a visible team-distribution pattern rather than only Leonard/Dunn context.
+- What remains unknown: Complete roster details, individual ability profiles, and exact advancement history for each team member remain unknown.
+- Why it matters: The pathway is shown as the Nighthawks' local backbone, distributed across police assistance, leave, Chanis Gate guarding, and cemetery patrol.
+
+#### Chapters 44-45: Leonard's Abilities and Dunn's Confirmed Pathway Affiliation
+
+- What the reader learns: Leonard's singing can lull targets into sleep-like influence and leave them rationalizing the effect afterward. Leonard also calls Dunn an advanced Sleepless who needs only two hours of sleep during the day.
+- What changes: Midnight Poet gains a first practical ability expression, and Dunn's membership in the Sleepless pathway is confirmed more directly than the Chapter 22 Nightmare inference.
+- What remains unknown: Whether Dunn's exact Sequence should be treated as confirmed remains unresolved; `Nightmare` is strongly supported, but the current boundary still lacks a direct Dunn profile statement.
+- Why it matters: The pathway becomes operational in the Elliott case and strengthens the reader's character-to-pathway mapping.
+
+### Donghua
+
+#### Season 1: Foundation Pending
+
+- Timestamp: TBD
+- What the viewer learns: Not yet verified.
+- What changes: Not yet verified.
+- What remains unknown: Exact first mention, translation choices for Sequence names, visual presentation, and adaptation timing.
+- Why it matters: The Donghua may emphasize pathway identity through visuals, cards, or condensed dialogue differently from the novel.
+
+## Open Questions
+
+- Question: Should Dunn's exact `Nightmare` Sequence be treated as confirmed or strong evidence through Chapter 47?
+- Current confidence: Strong Evidence. Chapter 22 links Dunn's dream guidance to `Nightmare`; Chapter 45 confirms Dunn is an advanced Sleepless; however, the current boundary still lacks a direct "Dunn is Sequence 7 Nightmare" profile statement.
+- Needs EPUB verification: Completed through Chapter 47
+- Related investigation: [Sleepless Pathway Novel Volume 1 Reveal Timeline](../../Investigations/Pathways/pathway-sleepless/novel-volume-1-reveal-timeline.md)
+
+- Question: Should Leonard, Royale, Kenley, and Seeka become character pages before the Church arc advances further?
+- Current confidence: Working Theory. Their pathway statuses are now useful graph nodes, but dedicated character pages should still be created only when selected or naturally required by the next investigation.
+- Needs EPUB verification: Later character-specific sweeps
+- Related investigation: [Sleepless Pathway Novel Volume 1 Reveal Timeline](../../Investigations/Pathways/pathway-sleepless/novel-volume-1-reveal-timeline.md)
+
+## Related Threads
+
+### Directly Related
+
+- [Church of Evernight](../Factions/faction-church-of-evernight.md)
+- [Dunn Smith](../Characters/character-dunn-smith.md)
+- [Blackthorn Security Company](../Locations/location-blackthorn-security-company.md)
+- [Beyonders](../Concepts/concept-beyonders.md)
+- character-leonard-mitchell.md
+- character-kenley-white.md
+- character-royale-reideen.md
+- character-seeka-tron.md
+
+### Historical Connections
+
+-
+
+### Associated Mysteries
+
+-
+
+### Associated Artifacts
+
+-
+
+### Associated Factions
+
+- [Church of Evernight](../Factions/faction-church-of-evernight.md)
+- faction-nighthawks.md
+
+### Associated Characters
+
+- [Dunn Smith](../Characters/character-dunn-smith.md)
+- character-leonard-mitchell.md
+- character-kenley-white.md
+- character-royale-reideen.md
+- character-seeka-tron.md
+
+### Associated Pathways
+
+- [Seer Pathway](pathway-seer.md)
+- pathway-mystery-pryer.md
+- pathway-corpse-collector.md
+
 ## Pathway Data Block
 
 ```yaml
@@ -463,132 +589,6 @@ pathway_profile:
     forms: []
     notes: No Sleepless pathway mythical creature information is reader-safe at the current boundary.
 ```
-
-## Chronological Development
-
-### Novel
-
-#### Chapter 15: First Loose Term
-
-- What the reader learns: Dunn uses `Sleepless` casually while explaining why the Nighthawks need someone with historical and archaeological education.
-- What changes: The term enters the reader's vocabulary before its formal meaning is explained.
-- What remains unknown: Whether Sleepless is a pathway, rank, job role, or informal nickname remains unclear.
-- Why it matters: The first mention is deliberately low-context, matching the reader's early partial understanding of Nighthawk terminology.
-
-#### Chapter 17: Leonard as First Practical Example
-
-- What the reader learns: Rozanne says Leonard had trouble on the stairs on his first day after becoming a `Sleepless`.
-- What changes: Sleepless becomes tied to a person, potion-like status change, and new powers that require adjustment.
-- What remains unknown: Leonard's exact Sequence, the ability set, and the pathway ladder remain unknown.
-- Why it matters: The pathway first becomes concrete through workplace anecdote rather than exposition.
-
-#### Chapter 21: Leonard Identifies as Midnight Poet
-
-- What the reader learns: Leonard introduces himself as `Sequence 8's Midnight Poet`.
-- What changes: Leonard is no longer only linked to Sleepless by Rozanne's anecdote; he now has a named Sequence 8 status.
-- What remains unknown: Whether Midnight Poet belongs to the Sleepless chain is not confirmed until Chapter 22.
-- Why it matters: This sets up the reveal that the Church's complete pathway is a ladder rather than a single potion name.
-
-#### Chapter 22: Church Pathway Ladder and Abilities
-
-- What the reader learns: Rozanne explains the Church's complete known pathway as `Sequence 9 Sleepless`, `Sequence 8 Midnight Poet`, and `Sequence 7 Nightmare`. She says Sleepless need only three to four hours of rest during the day, can see through darkness without lights, and become stronger deeper into the night in physical strength, intuition, and mental capabilities.
-- What changes: The reader can now connect Leonard's Midnight Poet title to Sleepless and can strongly infer Dunn's association with Nightmare because Klein remembers Dunn guiding his dreams.
-- What remains unknown: Higher Sequences above Nightmare, exact full capabilities of Midnight Poet and Nightmare, and Dunn's precise Sequence statement remain incomplete.
-- Why it matters: Chapter 22 is the pathway's first real information payload: ladder, abilities, Church ownership, and character mapping.
-
-#### Chapter 28: Complete Church Route Versus Incomplete Options
-
-- What the reader learns: Dunn says Klein can give up his immediate chance and wait until there is sufficient room to become a `Sleepless`, which he calls the first complete Sequence the Goddess bestowed on the Nighthawks. He contrasts that with the locally available incomplete options `Mystery Pryer`, `Corpse Collector`, and `Seer`.
-- What changes: Sleepless becomes the Church/Nighthawks' complete institutional route rather than only a named ladder.
-- What remains unknown: How slots open, what formal-team constraints control access, and whether Klein could realistically wait for Sleepless remain unclear.
-- Why it matters: This distinguishes pathway access from pathway knowledge: the Church knows the route, but institutional capacity governs who can take it.
-
-#### Chapter 33: Contrast With Non-Sleepless Exhaustion
-
-- What the reader learns: Old Neil reminds Klein that they are not Sleepless after Spirit Vision practice exhausts him.
-- What changes: The pathway's reduced-sleep endurance becomes a practical contrast with Seer training fatigue.
-- What remains unknown: How much recovery advantage belongs to Sequence 9 Sleepless versus later steps remains unclear.
-- Why it matters: Sleepless remains relevant as a benchmark even after Klein chooses another pathway.
-
-#### Chapter 42: Team Snapshot
-
-- What the reader learns: Rozanne's staffing snapshot names Royale Reideen and Kenley White as `Sleepless`, and Seeka Tron as a `Midnight Poet`.
-- What changes: Sleepless becomes a visible team-distribution pattern rather than only Leonard/Dunn context.
-- What remains unknown: Complete roster details, individual ability profiles, and exact advancement history for each team member remain unknown.
-- Why it matters: The pathway is shown as the Nighthawks' local backbone, distributed across police assistance, leave, Chanis Gate guarding, and cemetery patrol.
-
-#### Chapters 44-45: Leonard's Abilities and Dunn's Confirmed Pathway Affiliation
-
-- What the reader learns: Leonard's singing can lull targets into sleep-like influence and leave them rationalizing the effect afterward. Leonard also calls Dunn an advanced Sleepless who needs only two hours of sleep during the day.
-- What changes: Midnight Poet gains a first practical ability expression, and Dunn's membership in the Sleepless pathway is confirmed more directly than the Chapter 22 Nightmare inference.
-- What remains unknown: Whether Dunn's exact Sequence should be treated as confirmed remains unresolved; `Nightmare` is strongly supported, but the current boundary still lacks a direct Dunn profile statement.
-- Why it matters: The pathway becomes operational in the Elliott case and strengthens the reader's character-to-pathway mapping.
-
-### Donghua
-
-#### Season 1: Foundation Pending
-
-- Timestamp: TBD
-- What the viewer learns: Not yet verified.
-- What changes: Not yet verified.
-- What remains unknown: Exact first mention, translation choices for Sequence names, visual presentation, and adaptation timing.
-- Why it matters: The Donghua may emphasize pathway identity through visuals, cards, or condensed dialogue differently from the novel.
-
-## Open Questions
-
-- Question: Should Dunn's exact `Nightmare` Sequence be treated as confirmed or strong evidence through Chapter 47?
-- Current confidence: Strong Evidence. Chapter 22 links Dunn's dream guidance to `Nightmare`; Chapter 45 confirms Dunn is an advanced Sleepless; however, the current boundary still lacks a direct "Dunn is Sequence 7 Nightmare" profile statement.
-- Needs EPUB verification: Completed through Chapter 47
-- Related investigation: [Sleepless Pathway Novel Volume 1 Reveal Timeline](../../Investigations/Pathways/pathway-sleepless/novel-volume-1-reveal-timeline.md)
-
-- Question: Should Leonard, Royale, Kenley, and Seeka become character pages before the Church arc advances further?
-- Current confidence: Working Theory. Their pathway statuses are now useful graph nodes, but dedicated character pages should still be created only when selected or naturally required by the next investigation.
-- Needs EPUB verification: Later character-specific sweeps
-- Related investigation: [Sleepless Pathway Novel Volume 1 Reveal Timeline](../../Investigations/Pathways/pathway-sleepless/novel-volume-1-reveal-timeline.md)
-
-## Related Threads
-
-### Directly Related
-
-- [Church of Evernight](../Factions/faction-church-of-evernight.md)
-- [Dunn Smith](../Characters/character-dunn-smith.md)
-- [Blackthorn Security Company](../Locations/location-blackthorn-security-company.md)
-- [Beyonders](../Concepts/concept-beyonders.md)
-- character-leonard-mitchell.md
-- character-kenley-white.md
-- character-royale-reideen.md
-- character-seeka-tron.md
-
-### Historical Connections
-
--
-
-### Associated Mysteries
-
--
-
-### Associated Artifacts
-
--
-
-### Associated Factions
-
-- [Church of Evernight](../Factions/faction-church-of-evernight.md)
-- faction-nighthawks.md
-
-### Associated Characters
-
-- [Dunn Smith](../Characters/character-dunn-smith.md)
-- character-leonard-mitchell.md
-- character-kenley-white.md
-- character-royale-reideen.md
-- character-seeka-tron.md
-
-### Associated Pathways
-
-- [Seer Pathway](pathway-seer.md)
-- pathway-mystery-pryer.md
-- pathway-corpse-collector.md
 
 ## Relationship Seeds
 

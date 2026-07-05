@@ -148,6 +148,114 @@ Track the pathway's Uniqueness here when it becomes reader-safe. No Seer pathway
 
 Track the pathway's associated mythical creature form here when it becomes reader-safe. No Seer pathway mythical creature information is reader-safe at the current boundary.
 
+## Chronological Development
+
+### Novel
+
+#### Chapter 21: Roselle Diary First Mention
+
+- What the reader learns: Roselle regretted not choosing `Apprentice`, `Seer`, or `Marauder`.
+- What changes: `Seer` enters the reader's vocabulary as a potentially important pathway name before its access route is known.
+- What remains unknown: What the pathway does, whether Klein can access it, and why Roselle valued it remain unknown.
+- Why it matters: Roselle's diary gives `Seer` early protagonist-facing weight before the Church offers it.
+
+#### Chapter 28: Church-Held Incomplete Option
+
+- What the reader learns: Dunn says the Church can offer `Seer` as one of three incomplete Sequence 9 options outside the complete `Sleepless` pathway.
+- What changes: `Seer` becomes a real institutional option rather than only a diary reference.
+- Institutional detail: Dunn says the Tingen team only has Sequence 9 `Seer` from his local knowledge, and he is unsure whether the Holy Cathedral has later Sequences.
+- What remains unknown: The later Seer sequence chain, its broader organizations, and its full power set remain unknown.
+- Why it matters: The pathway is reader-safe as an incomplete, locally available Church option with uncertain continuation.
+
+#### Chapter 29: Ability Profile Before Selection
+
+- What the reader learns: Dunn associates the Seer potion with astromancy, cartomancy, spiritual pendulums, and scrying, while stressing that the potion grants qualifications rather than instant mastery.
+- What changes: The pathway gains a functional profile: divination, mysticism expertise, interpretation, and weak direct combat.
+- What remains unknown: The exact limits of Seer divination, how learning progresses, and how it compares to later pathways remain unknown.
+- Why it matters: The reader can understand why Klein is interested in Seer while also seeing the combat tradeoff.
+
+#### Chapters 30-31: Klein Chooses and Consumes Seer
+
+- What the reader learns: Klein chooses `Seer`; Old Neil prepares the potion in the Nighthawks' alchemy room with formula and materials retrieved through Church/Nighthawks custody.
+- What changes: Seer becomes Klein's pathway rather than a theoretical option.
+- Formula detail: The Chapter 31 formula includes pure water, night vanilla, gold mint leaves, poison hemlock juice, dragon blood grass, Lavos Squid blood, and Star Crystal.
+- What remains unknown: The exact consequences of the choice, the full danger profile, and the higher Sequences remain unknown.
+- Why it matters: The pathway becomes a central part of Klein's identity and future development.
+
+#### Chapters 32-33: First Effects and Training
+
+- What the reader learns: Klein becomes a Seer, shows a physical eye change, learns Cogitation, begins using Spirit Vision, and receives warnings about dangerous perception.
+- What changes: Seer is now experienced through practice: perception, control, spirit-world interpretation, and safety limits.
+- Instructor detail: Old Neil teaches the first practical methods and Dunn reinforces caution.
+- What remains unknown: How much of Klein's immediate Spirit Vision aptitude is specific to Seer and how much is due to Klein's unusual circumstances remains unresolved.
+- Why it matters: The pathway's first lived expression is interpretive perception under supervision, not direct offensive ability.
+
+#### Chapter 34: Training Applied Outside the Nighthawks
+
+- What the reader learns: Klein applies Old Neil's aura-color framework while observing Tarot Club participants above the gray fog.
+- What changes: Seer-related training begins shaping Klein's independent supernatural observation.
+- What remains unknown: Whether the gray fog changes the normal limits of Seer perception remains unknown at this boundary.
+- Why it matters: The pathway starts mattering outside the Nighthawks' alchemy room almost immediately.
+
+### Donghua
+
+#### Season 1: Foundation Pending
+
+- Timestamp: TBD
+- What the viewer learns: Not yet verified.
+- What changes: Not yet verified.
+- What remains unknown: Exact first appearance, translated terminology, visual presentation, and adaptation timing.
+- Why it matters: The Donghua may condense or visually emphasize Seer training differently from the novel.
+
+## Open Questions
+
+- Question: Should `Spirit Vision` and `Cogitation` be concept threads immediately?
+- Current confidence: Strong Evidence that they recur; uncertain whether to split now or after the next training arc. `Divination` has now been promoted into a pilot concept thread through Chapter 47.
+- Needs EPUB verification: No for current existence; yes for full concept pages.
+- Related investigation: [Seer Pathway Novel Volume 1 Reveal Timeline](../../Investigations/Pathways/pathway-seer/novel-volume-1-reveal-timeline.md)
+
+## Related Threads
+
+### Directly Related
+
+- character-klein-moretti.md
+- [Old Neil](../Characters/character-old-neil.md)
+- [Church of Evernight](../Factions/faction-church-of-evernight.md)
+- [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
+- [Beyonders](../Concepts/concept-beyonders.md)
+- concept-spirit-vision.md
+- concept-cogitation.md
+- [Divination](../Concepts/concept-divination.md)
+
+### Historical Connections
+
+- character-roselle-gustav.md
+
+### Associated Mysteries
+
+-
+
+### Associated Artifacts
+
+-
+
+### Associated Factions
+
+- [Church of Evernight](../Factions/faction-church-of-evernight.md)
+
+### Associated Characters
+
+- character-klein-moretti.md
+- [Old Neil](../Characters/character-old-neil.md)
+- [Dunn Smith](../Characters/character-dunn-smith.md)
+- character-roselle-gustav.md
+
+### Associated Pathways
+
+- pathway-mystery-pryer.md
+- [Sleepless Pathway](pathway-sleepless.md)
+- pathway-corpse-collector.md
+
 ## Pathway Data Block
 
 ```yaml
@@ -315,114 +423,6 @@ pathway_profile:
     forms: []
     notes: No Seer pathway mythical creature information is reader-safe at the current boundary.
 ```
-
-## Chronological Development
-
-### Novel
-
-#### Chapter 21: Roselle Diary First Mention
-
-- What the reader learns: Roselle regretted not choosing `Apprentice`, `Seer`, or `Marauder`.
-- What changes: `Seer` enters the reader's vocabulary as a potentially important pathway name before its access route is known.
-- What remains unknown: What the pathway does, whether Klein can access it, and why Roselle valued it remain unknown.
-- Why it matters: Roselle's diary gives `Seer` early protagonist-facing weight before the Church offers it.
-
-#### Chapter 28: Church-Held Incomplete Option
-
-- What the reader learns: Dunn says the Church can offer `Seer` as one of three incomplete Sequence 9 options outside the complete `Sleepless` pathway.
-- What changes: `Seer` becomes a real institutional option rather than only a diary reference.
-- Institutional detail: Dunn says the Tingen team only has Sequence 9 `Seer` from his local knowledge, and he is unsure whether the Holy Cathedral has later Sequences.
-- What remains unknown: The later Seer sequence chain, its broader organizations, and its full power set remain unknown.
-- Why it matters: The pathway is reader-safe as an incomplete, locally available Church option with uncertain continuation.
-
-#### Chapter 29: Ability Profile Before Selection
-
-- What the reader learns: Dunn associates the Seer potion with astromancy, cartomancy, spiritual pendulums, and scrying, while stressing that the potion grants qualifications rather than instant mastery.
-- What changes: The pathway gains a functional profile: divination, mysticism expertise, interpretation, and weak direct combat.
-- What remains unknown: The exact limits of Seer divination, how learning progresses, and how it compares to later pathways remain unknown.
-- Why it matters: The reader can understand why Klein is interested in Seer while also seeing the combat tradeoff.
-
-#### Chapters 30-31: Klein Chooses and Consumes Seer
-
-- What the reader learns: Klein chooses `Seer`; Old Neil prepares the potion in the Nighthawks' alchemy room with formula and materials retrieved through Church/Nighthawks custody.
-- What changes: Seer becomes Klein's pathway rather than a theoretical option.
-- Formula detail: The Chapter 31 formula includes pure water, night vanilla, gold mint leaves, poison hemlock juice, dragon blood grass, Lavos Squid blood, and Star Crystal.
-- What remains unknown: The exact consequences of the choice, the full danger profile, and the higher Sequences remain unknown.
-- Why it matters: The pathway becomes a central part of Klein's identity and future development.
-
-#### Chapters 32-33: First Effects and Training
-
-- What the reader learns: Klein becomes a Seer, shows a physical eye change, learns Cogitation, begins using Spirit Vision, and receives warnings about dangerous perception.
-- What changes: Seer is now experienced through practice: perception, control, spirit-world interpretation, and safety limits.
-- Instructor detail: Old Neil teaches the first practical methods and Dunn reinforces caution.
-- What remains unknown: How much of Klein's immediate Spirit Vision aptitude is specific to Seer and how much is due to Klein's unusual circumstances remains unresolved.
-- Why it matters: The pathway's first lived expression is interpretive perception under supervision, not direct offensive ability.
-
-#### Chapter 34: Training Applied Outside the Nighthawks
-
-- What the reader learns: Klein applies Old Neil's aura-color framework while observing Tarot Club participants above the gray fog.
-- What changes: Seer-related training begins shaping Klein's independent supernatural observation.
-- What remains unknown: Whether the gray fog changes the normal limits of Seer perception remains unknown at this boundary.
-- Why it matters: The pathway starts mattering outside the Nighthawks' alchemy room almost immediately.
-
-### Donghua
-
-#### Season 1: Foundation Pending
-
-- Timestamp: TBD
-- What the viewer learns: Not yet verified.
-- What changes: Not yet verified.
-- What remains unknown: Exact first appearance, translated terminology, visual presentation, and adaptation timing.
-- Why it matters: The Donghua may condense or visually emphasize Seer training differently from the novel.
-
-## Open Questions
-
-- Question: Should `Spirit Vision` and `Cogitation` be concept threads immediately?
-- Current confidence: Strong Evidence that they recur; uncertain whether to split now or after the next training arc. `Divination` has now been promoted into a pilot concept thread through Chapter 47.
-- Needs EPUB verification: No for current existence; yes for full concept pages.
-- Related investigation: [Seer Pathway Novel Volume 1 Reveal Timeline](../../Investigations/Pathways/pathway-seer/novel-volume-1-reveal-timeline.md)
-
-## Related Threads
-
-### Directly Related
-
-- character-klein-moretti.md
-- [Old Neil](../Characters/character-old-neil.md)
-- [Church of Evernight](../Factions/faction-church-of-evernight.md)
-- [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
-- [Beyonders](../Concepts/concept-beyonders.md)
-- concept-spirit-vision.md
-- concept-cogitation.md
-- [Divination](../Concepts/concept-divination.md)
-
-### Historical Connections
-
-- character-roselle-gustav.md
-
-### Associated Mysteries
-
--
-
-### Associated Artifacts
-
--
-
-### Associated Factions
-
-- [Church of Evernight](../Factions/faction-church-of-evernight.md)
-
-### Associated Characters
-
-- character-klein-moretti.md
-- [Old Neil](../Characters/character-old-neil.md)
-- [Dunn Smith](../Characters/character-dunn-smith.md)
-- character-roselle-gustav.md
-
-### Associated Pathways
-
-- pathway-mystery-pryer.md
-- [Sleepless Pathway](pathway-sleepless.md)
-- pathway-corpse-collector.md
 
 ## Relationship Seeds
 

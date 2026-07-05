@@ -524,11 +524,12 @@ Use the same top-level section order as `Glossary_Threads/TEMPLATE.md` unless th
 6. Chronological Development
 7. Open Questions
 8. Related Threads
-9. Relationship Seeds
-10. Evidence Index
-11. Reader Knowledge Ledger
-12. Future Automation Notes
-13. Notes
+9. Type-Specific Data Block, when present
+10. Relationship Seeds
+11. Evidence Index
+12. Reader Knowledge Ledger
+13. Future Automation Notes
+14. Notes
 
 ### Type-Specific Glossary Overlays
 
@@ -536,7 +537,7 @@ The universal glossary template defines the shared article contract. Type-specif
 
 Use a type-specific overlay only when it adds predictable structure that the universal template cannot express cleanly. The overlay should preserve the shared metadata, relationship seeds, evidence index, reader knowledge ledger, future automation notes, and notes sections.
 
-Place type-specific extraction sections near the top of the article after `Reader Knowledge Boundary`. Type-specific overlays may keep `First Appearance / First Meaningful Mention` immediately after the snapshot when first reveal timing is especially important to scan early. This keeps high-value structured facts close to the article boundary while preserving chronological development as the main prose record.
+Place human-facing type-specific sections near the top of the article after `Reader Knowledge Boundary`. Type-specific overlays may keep `First Appearance / First Meaningful Mention` immediately after the snapshot when first reveal timing is especially important to scan early. Keep machine-readable type-specific data blocks near the bottom of the article, immediately before `Relationship Seeds`, so structured extraction material stays grouped while the main page remains easy for humans to read.
 
 Current type-specific overlays:
 

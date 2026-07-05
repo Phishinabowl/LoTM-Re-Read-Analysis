@@ -185,6 +185,124 @@ Through Chapter 47, he gives the Nighthawks' support structure a warmer, strange
 | Klein Becomes a Seer | Potion preparer / event participant | Novel V1 Ch31 | Completed | Confirmed | Retrieves formula/materials and prepares Klein's potion. |
 | Antigonus notebook / Ray Bieber field response | Specialized field participant | Novel V1 Ch45-47 | Active and unresolved at boundary | Confirmed | Old Neil uses Spirit Vision and identifies ritual-like sealing. |
 
+## Chronological Development
+
+### Novel
+
+#### Chapter 19: Civilian Staff First Mention
+
+- What the reader learns: Old Neil is one of the Tingen Nighthawks' civilian staff, alongside Rozanne and Bredt.
+- What changes: The Nighthawks' local structure expands beyond formal Beyonders into support staff who handle records, visitors, inventory, and restricted spaces.
+- What remains unknown: Old Neil's pathway, personality, expertise, and relationship to Klein are not yet known.
+- Why it matters: Old Neil enters the story as part of the institution's working infrastructure before becoming a mentor figure.
+
+#### Chapters 20-21: First Direct Workplace Contact
+
+- What the reader learns: Dunn expects Klein to spend time at Old Neil's, and Klein's visit to Old Neil's office becomes the first Roselle diary contact point.
+- What changes: Old Neil becomes associated with knowledge work, unusual documents, and the Nighthawks' internal information handling.
+- What remains unknown: The reader does not yet know Old Neil's pathway or how important he will become to Klein's training.
+- Why it matters: Old Neil becomes Klein's first bridge from ordinary office onboarding into deeper occult-historical material.
+
+#### Chapters 22 and 28: Mystery Pryer Identity
+
+- What the reader learns: Rozanne identifies Old Neil's Sequence 9 title as `Mystery Pryer`, and Dunn later confirms that Mystery Pryer is the power Old Neil controls.
+- What changes: Old Neil is no longer only a civilian staff member; he is also a Beyonder tied to mysticism, rituals, and one of the Church's incomplete pathway options.
+- Institutional detail: Dunn links the Church's Mystery Pryer formula and some non-directly chained later Sequences to the Moses Ascetic Order.
+- What remains unknown: Old Neil's exact Sequence beyond the named Sequence 9 title, his full ability set, and his personal history remain unknown.
+- Why it matters: Old Neil becomes the first character through whom the reader can connect support-staff work, mysticism study, and incomplete pathway access.
+
+#### Chapter 31: Formula/Material Handling and Potion Preparation
+
+- What the reader learns: Dunn has Old Neil retrieve the Seer formula and corresponding materials from Chanis Gate, and Old Neil prepares Klein's Seer potion in the alchemy room.
+- What changes: Old Neil is shown as trusted inside the Nighthawks' formula/material workflow, not merely as a desk-bound staff member.
+- What remains unknown: The full rules governing Old Neil's access to Chanis Gate materials and his exact official responsibility remain unclear.
+- Why it matters: Old Neil directly participates in the event that turns Klein into a Beyonder.
+
+#### Chapters 32-33: Klein's First Mysticism Instructor
+
+- What the reader learns: Old Neil supervises Klein after the Seer potion, confirms his advancement, teaches Cogitation and Spirit Vision, explains basic mysticism concepts, and gives practical safety guidance.
+- What changes: Old Neil becomes Klein's first direct instructor in Beyonder practice.
+- Institutional detail: Old Neil also clarifies that the headquarters beneath the Church of Evernight is spiritually managed Nighthawk space rather than open territory for wandering spirits and souls.
+- What remains unknown: The full training curriculum, Old Neil's deeper expertise, and the long-term mentor/student shape of the relationship remain unknown.
+- Why it matters: Old Neil gives the Church/Nighthawks training model a human face: funny, practical, knowledgeable, and safety-conscious.
+
+#### Chapter 34: Teaching Carries Into Klein's Independent Practice
+
+- What the reader learns: Klein applies Old Neil's aura-color explanations while observing the Tarot Club above the gray fog.
+- What changes: Old Neil's instruction becomes part of Klein's active interpretive toolkit outside the immediate Nighthawks setting.
+- What remains unknown: Whether Old Neil or the Nighthawks can understand Klein's gray-fog practice remains completely unknown to the reader at this boundary.
+- Why it matters: The page's current boundary closes with Old Neil's teaching already influencing how Klein reads supernatural phenomena.
+
+#### Chapters 40-47: Restricted-Duty Work, Field Response, and Salary
+
+- What the reader learns: Old Neil patrols restricted Nighthawks spaces, supplies Klein with historical materials, joins Dunn's field team for the Antigonus notebook lead after Kenley covers his armory watch, uses Spirit Vision at the apartment, identifies a ritual-like sealing effect, and tells Klein his weekly pay comes from both the Church and police department.
+- What changes: Old Neil's role expands from instructor/support specialist into an older, semi-retired but still operationally useful field participant.
+- What remains unknown: His exact mission limits, full salary history, tax arrangement details, and complete responsibilities inside the team remain unclear.
+- Why it matters: Old Neil becomes more textured as a working member of the Nighthawks infrastructure: knowledgeable, aging, funny, occasionally grumbling, but still trusted in specialized responses.
+
+### Donghua
+
+#### Season 1: Foundation Pending
+
+- Timestamp: TBD
+- What the viewer learns: Not yet verified.
+- What changes: Not yet verified.
+- What remains unknown: Exact first appearance, presentation, and adaptation timing.
+- Why it matters: Old Neil's Donghua presentation should be verified separately because character introduction timing and visual emphasis may differ from the novel.
+
+## Open Questions
+
+- Question: Should Old Neil's employment relationship use a new `civilian-staff-of` relationship type, or should `member-of` remain the controlled relationship type for now?
+- Current confidence: Confirmed. `civilian-staff-of` is now the controlled relationship type for Old Neil's known Chapter 19 status.
+- Needs EPUB verification: No
+- Related investigation: [Old Neil Novel Volume 1 Reveal Timeline](../../Investigations/Characters/character-old-neil/novel-volume-1-reveal-timeline.md)
+
+- Question: Should `Mystery Pryer`, `Cogitation`, `Spirit Vision`, and `ritualistic magic` receive separate pathway/concept threads now?
+- Current confidence: Strong Evidence that they will recur; uncertain whether to create all immediately.
+- Needs EPUB verification: No for existence through Chapter 47; yes for full concept/pathway pages.
+- Related investigation: [Old Neil Novel Volume 1 Reveal Timeline](../../Investigations/Characters/character-old-neil/novel-volume-1-reveal-timeline.md)
+
+## Related Threads
+
+### Directly Related
+
+- character-klein-moretti.md
+- [Dunn Smith](character-dunn-smith.md)
+- [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
+- [Church of Evernight](../Factions/faction-church-of-evernight.md)
+- [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
+- [Blackthorn Security Company](../Locations/location-blackthorn-security-company.md)
+- [Beyonders](../Concepts/concept-beyonders.md)
+- [Seer Pathway](../Pathways/pathway-seer.md)
+- pathway-mystery-pryer.md
+
+### Historical Connections
+
+-
+
+### Associated Mysteries
+
+-
+
+### Associated Artifacts
+
+-
+
+### Associated Factions
+
+- [Church of Evernight](../Factions/faction-church-of-evernight.md)
+
+### Associated Characters
+
+- character-klein-moretti.md
+- [Dunn Smith](character-dunn-smith.md)
+- character-rozanne.md
+
+### Associated Pathways
+
+- pathway-mystery-pryer.md
+- [Seer Pathway](../Pathways/pathway-seer.md)
+
 ## Character Data Block
 
 ```yaml
@@ -337,124 +455,6 @@ character_profile:
       confidence: confirmed
       notes: Old Neil uses Spirit Vision and identifies ritual-like sealing.
 ```
-
-## Chronological Development
-
-### Novel
-
-#### Chapter 19: Civilian Staff First Mention
-
-- What the reader learns: Old Neil is one of the Tingen Nighthawks' civilian staff, alongside Rozanne and Bredt.
-- What changes: The Nighthawks' local structure expands beyond formal Beyonders into support staff who handle records, visitors, inventory, and restricted spaces.
-- What remains unknown: Old Neil's pathway, personality, expertise, and relationship to Klein are not yet known.
-- Why it matters: Old Neil enters the story as part of the institution's working infrastructure before becoming a mentor figure.
-
-#### Chapters 20-21: First Direct Workplace Contact
-
-- What the reader learns: Dunn expects Klein to spend time at Old Neil's, and Klein's visit to Old Neil's office becomes the first Roselle diary contact point.
-- What changes: Old Neil becomes associated with knowledge work, unusual documents, and the Nighthawks' internal information handling.
-- What remains unknown: The reader does not yet know Old Neil's pathway or how important he will become to Klein's training.
-- Why it matters: Old Neil becomes Klein's first bridge from ordinary office onboarding into deeper occult-historical material.
-
-#### Chapters 22 and 28: Mystery Pryer Identity
-
-- What the reader learns: Rozanne identifies Old Neil's Sequence 9 title as `Mystery Pryer`, and Dunn later confirms that Mystery Pryer is the power Old Neil controls.
-- What changes: Old Neil is no longer only a civilian staff member; he is also a Beyonder tied to mysticism, rituals, and one of the Church's incomplete pathway options.
-- Institutional detail: Dunn links the Church's Mystery Pryer formula and some non-directly chained later Sequences to the Moses Ascetic Order.
-- What remains unknown: Old Neil's exact Sequence beyond the named Sequence 9 title, his full ability set, and his personal history remain unknown.
-- Why it matters: Old Neil becomes the first character through whom the reader can connect support-staff work, mysticism study, and incomplete pathway access.
-
-#### Chapter 31: Formula/Material Handling and Potion Preparation
-
-- What the reader learns: Dunn has Old Neil retrieve the Seer formula and corresponding materials from Chanis Gate, and Old Neil prepares Klein's Seer potion in the alchemy room.
-- What changes: Old Neil is shown as trusted inside the Nighthawks' formula/material workflow, not merely as a desk-bound staff member.
-- What remains unknown: The full rules governing Old Neil's access to Chanis Gate materials and his exact official responsibility remain unclear.
-- Why it matters: Old Neil directly participates in the event that turns Klein into a Beyonder.
-
-#### Chapters 32-33: Klein's First Mysticism Instructor
-
-- What the reader learns: Old Neil supervises Klein after the Seer potion, confirms his advancement, teaches Cogitation and Spirit Vision, explains basic mysticism concepts, and gives practical safety guidance.
-- What changes: Old Neil becomes Klein's first direct instructor in Beyonder practice.
-- Institutional detail: Old Neil also clarifies that the headquarters beneath the Church of Evernight is spiritually managed Nighthawk space rather than open territory for wandering spirits and souls.
-- What remains unknown: The full training curriculum, Old Neil's deeper expertise, and the long-term mentor/student shape of the relationship remain unknown.
-- Why it matters: Old Neil gives the Church/Nighthawks training model a human face: funny, practical, knowledgeable, and safety-conscious.
-
-#### Chapter 34: Teaching Carries Into Klein's Independent Practice
-
-- What the reader learns: Klein applies Old Neil's aura-color explanations while observing the Tarot Club above the gray fog.
-- What changes: Old Neil's instruction becomes part of Klein's active interpretive toolkit outside the immediate Nighthawks setting.
-- What remains unknown: Whether Old Neil or the Nighthawks can understand Klein's gray-fog practice remains completely unknown to the reader at this boundary.
-- Why it matters: The page's current boundary closes with Old Neil's teaching already influencing how Klein reads supernatural phenomena.
-
-#### Chapters 40-47: Restricted-Duty Work, Field Response, and Salary
-
-- What the reader learns: Old Neil patrols restricted Nighthawks spaces, supplies Klein with historical materials, joins Dunn's field team for the Antigonus notebook lead after Kenley covers his armory watch, uses Spirit Vision at the apartment, identifies a ritual-like sealing effect, and tells Klein his weekly pay comes from both the Church and police department.
-- What changes: Old Neil's role expands from instructor/support specialist into an older, semi-retired but still operationally useful field participant.
-- What remains unknown: His exact mission limits, full salary history, tax arrangement details, and complete responsibilities inside the team remain unclear.
-- Why it matters: Old Neil becomes more textured as a working member of the Nighthawks infrastructure: knowledgeable, aging, funny, occasionally grumbling, but still trusted in specialized responses.
-
-### Donghua
-
-#### Season 1: Foundation Pending
-
-- Timestamp: TBD
-- What the viewer learns: Not yet verified.
-- What changes: Not yet verified.
-- What remains unknown: Exact first appearance, presentation, and adaptation timing.
-- Why it matters: Old Neil's Donghua presentation should be verified separately because character introduction timing and visual emphasis may differ from the novel.
-
-## Open Questions
-
-- Question: Should Old Neil's employment relationship use a new `civilian-staff-of` relationship type, or should `member-of` remain the controlled relationship type for now?
-- Current confidence: Confirmed. `civilian-staff-of` is now the controlled relationship type for Old Neil's known Chapter 19 status.
-- Needs EPUB verification: No
-- Related investigation: [Old Neil Novel Volume 1 Reveal Timeline](../../Investigations/Characters/character-old-neil/novel-volume-1-reveal-timeline.md)
-
-- Question: Should `Mystery Pryer`, `Cogitation`, `Spirit Vision`, and `ritualistic magic` receive separate pathway/concept threads now?
-- Current confidence: Strong Evidence that they will recur; uncertain whether to create all immediately.
-- Needs EPUB verification: No for existence through Chapter 47; yes for full concept/pathway pages.
-- Related investigation: [Old Neil Novel Volume 1 Reveal Timeline](../../Investigations/Characters/character-old-neil/novel-volume-1-reveal-timeline.md)
-
-## Related Threads
-
-### Directly Related
-
-- character-klein-moretti.md
-- [Dunn Smith](character-dunn-smith.md)
-- [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
-- [Church of Evernight](../Factions/faction-church-of-evernight.md)
-- [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
-- [Blackthorn Security Company](../Locations/location-blackthorn-security-company.md)
-- [Beyonders](../Concepts/concept-beyonders.md)
-- [Seer Pathway](../Pathways/pathway-seer.md)
-- pathway-mystery-pryer.md
-
-### Historical Connections
-
--
-
-### Associated Mysteries
-
--
-
-### Associated Artifacts
-
--
-
-### Associated Factions
-
-- [Church of Evernight](../Factions/faction-church-of-evernight.md)
-
-### Associated Characters
-
-- character-klein-moretti.md
-- [Dunn Smith](character-dunn-smith.md)
-- character-rozanne.md
-
-### Associated Pathways
-
-- pathway-mystery-pryer.md
-- [Seer Pathway](../Pathways/pathway-seer.md)
 
 ## Relationship Seeds
 

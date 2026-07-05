@@ -219,144 +219,6 @@ At this reader boundary, Dunn feels like the local center of gravity for the Chu
 | Klein Becomes a Seer | Authorizer / supervising authority | Novel V1 Ch28-31 | Completed | Confirmed | Dunn offers and authorizes Klein's potion opportunity. |
 | Antigonus notebook / Ray Bieber field response | Field commander | Novel V1 Ch45-47 | Active and unresolved at boundary | Confirmed | Dunn mobilizes the team around Klein's divination lead. |
 
-## Character Data Block
-
-```yaml
-character_profile:
-  reader_boundary:
-    medium: novel
-    book: lotm-1
-    volume: 1
-    chapter: 47
-  state_sort_order: newest_to_oldest
-  identities:
-    - field: title_role
-      value: Captain of the Tingen Nighthawks
-      reveal: { medium: novel, volume: 1, chapter: 17 }
-      status: current_at_boundary
-      confidence: confirmed
-      notes: Local team captain and onboarding authority.
-    - field: primary_name
-      value: Dunn Smith
-      reveal: { medium: novel, volume: 1, chapter: 12 }
-      status: current_at_boundary
-      confidence: confirmed
-      notes: The Chapter 10 inspector identifies himself by name.
-    - field: cover_label
-      value: Gray-eyed police inspector
-      reveal: { medium: novel, volume: 1, chapter: 10 }
-      status: superseded_by_later_naming
-      confidence: confirmed
-      notes: First reader-facing presentation during the Welch/Naya investigation.
-  physical_profile:
-    - field: eye_color
-      value: Gray
-      reveal: { medium: novel, volume: 1, chapter: 10 }
-      status: current_at_boundary
-      confidence: confirmed
-      notes: Part of the first police-inspector description.
-  status_origin_location:
-    - field: residence_base
-      value: Blackthorn Security Company / Tingen Nighthawks workplace
-      reveal: { medium: novel, volume: 1, chapter: 17 }
-      status: current_operational_base
-      confidence: confirmed
-      notes: Dunn works through the Blackthorn front and connected Nighthawk facilities.
-    - field: current_location
-      value: Ray Bieber apartment / Antigonus notebook field-response scene
-      reveal: { medium: novel, volume: 1, chapter: 45 }
-      status: latest_known_location_at_boundary
-      confidence: confirmed
-      notes: Dunn is last tracked mobilizing and coordinating the team around Klein's notebook lead.
-    - field: vital_status
-      value: Alive
-      reveal: { medium: novel, volume: 1, chapter: 10 }
-      status: current_at_boundary
-      confidence: confirmed
-      notes: No reader-safe death or disappearance through Chapter 47.
-  affiliations:
-    - organization: Blackthorn Security Company
-      relationship: works_through_operational_front
-      reveal: { medium: novel, volume: 1, chapter: 17 }
-      status: current_at_boundary
-      confidence: confirmed
-      notes: Public-facing Nighthawks workplace.
-    - organization: Tingen Nighthawks
-      relationship: leader_captain
-      reveal: { medium: novel, volume: 1, chapter: 17 }
-      status: current_at_boundary
-      confidence: confirmed
-      notes: Dunn manages the local team and staff.
-    - organization: Church of Evernight
-      relationship: official_beyonder_affiliation
-      reveal: { medium: novel, volume: 1, chapter: 13 }
-      status: current_at_boundary
-      confidence: confirmed
-      notes: Dunn reveals himself as a Church-linked Nighthawk.
-  pathway_ability_state:
-    - field: pathway
-      value: Sleepless pathway
-      reveal: { medium: novel, volume: 1, chapter: 45 }
-      status: current_at_boundary
-      confidence: confirmed
-      notes: Leonard calls Dunn an advanced Sleepless.
-    - field: sequence
-      value: Nightmare
-      reveal: { medium: novel, volume: 1, chapter: 22 }
-      status: strong_evidence_at_boundary
-      confidence: strong_evidence
-      notes: Inferred from dream guidance and Rozanne's Sequence 7 explanation.
-  ability_index:
-    - ability: field_command_and_team_coordination
-      source: institutional_role_experience
-      reveal: { medium: novel, volume: 1, chapter: 45 }
-      status: current_at_boundary
-      confidence: confirmed
-      notes: Mobilizes the team around the notebook lead.
-    - ability: dream_entry_dream_guidance
-      source: sleepless_nightmare_associated_ability
-      reveal: { medium: novel, volume: 1, chapter: 12 }
-      status: current_at_boundary
-      confidence: confirmed
-      notes: Demonstrated before pathway details are fully explained.
-  equipment_artifacts:
-    - item: Antigonus notebook case materials
-      type: investigation_target_case_evidence
-      reveal: { medium: novel, volume: 1, chapter: 13 }
-      possession_status: investigating_not_possessed
-      confidence: confirmed
-      notes: Dunn treats the missing notebook as central to the case.
-  prayers_ritual_access:
-    - label: None known
-      type: prayer_ritual_access
-      function: No reader-safe Dunn-specific prayer or ritual address known
-      reveal: { medium: novel, volume: 1, chapter: 47 }
-      status: no_reader_safe_access_known
-      confidence: confirmed_absence_through_boundary
-      concept_link: ../Concepts/concept-prayers-and-rituals.md
-      wording:
-      notes: Dunn explains and participates in supernatural systems, but no prayer wording or ritual address is tied to him through Chapter 47.
-  major_events_fights:
-    - event: Welch / Naya investigation
-      role: police_cover_investigator_nighthawk_investigator
-      reveal: { medium: novel, volume: 1, chapter: 10 }
-      outcome_status: ongoing_case_foundation
-      confidence: confirmed
-      notes: Dunn's first arc connects ordinary investigation to the supernatural notebook case.
-    - event: Klein Becomes a Seer
-      role: authorizer_supervising_authority
-      reveal: { medium: novel, volume: 1, chapter: 28 }
-      outcome_status: completed
-      confidence: confirmed
-      notes: Dunn offers and authorizes Klein's potion opportunity.
-    - event: Antigonus notebook / Ray Bieber field response
-      role: field_commander
-      reveal: { medium: novel, volume: 1, chapter: 45 }
-      outcome_status: active_unresolved_at_boundary
-      confidence: confirmed
-      notes: Dunn mobilizes the team around Klein's divination lead.
-```
-
 ## Chronological Development
 
 ### Novel
@@ -509,6 +371,144 @@ character_profile:
 - [Seer Pathway](../Pathways/pathway-seer.md)
 - pathway-mystery-pryer.md
 - pathway-corpse-collector.md
+
+## Character Data Block
+
+```yaml
+character_profile:
+  reader_boundary:
+    medium: novel
+    book: lotm-1
+    volume: 1
+    chapter: 47
+  state_sort_order: newest_to_oldest
+  identities:
+    - field: title_role
+      value: Captain of the Tingen Nighthawks
+      reveal: { medium: novel, volume: 1, chapter: 17 }
+      status: current_at_boundary
+      confidence: confirmed
+      notes: Local team captain and onboarding authority.
+    - field: primary_name
+      value: Dunn Smith
+      reveal: { medium: novel, volume: 1, chapter: 12 }
+      status: current_at_boundary
+      confidence: confirmed
+      notes: The Chapter 10 inspector identifies himself by name.
+    - field: cover_label
+      value: Gray-eyed police inspector
+      reveal: { medium: novel, volume: 1, chapter: 10 }
+      status: superseded_by_later_naming
+      confidence: confirmed
+      notes: First reader-facing presentation during the Welch/Naya investigation.
+  physical_profile:
+    - field: eye_color
+      value: Gray
+      reveal: { medium: novel, volume: 1, chapter: 10 }
+      status: current_at_boundary
+      confidence: confirmed
+      notes: Part of the first police-inspector description.
+  status_origin_location:
+    - field: residence_base
+      value: Blackthorn Security Company / Tingen Nighthawks workplace
+      reveal: { medium: novel, volume: 1, chapter: 17 }
+      status: current_operational_base
+      confidence: confirmed
+      notes: Dunn works through the Blackthorn front and connected Nighthawk facilities.
+    - field: current_location
+      value: Ray Bieber apartment / Antigonus notebook field-response scene
+      reveal: { medium: novel, volume: 1, chapter: 45 }
+      status: latest_known_location_at_boundary
+      confidence: confirmed
+      notes: Dunn is last tracked mobilizing and coordinating the team around Klein's notebook lead.
+    - field: vital_status
+      value: Alive
+      reveal: { medium: novel, volume: 1, chapter: 10 }
+      status: current_at_boundary
+      confidence: confirmed
+      notes: No reader-safe death or disappearance through Chapter 47.
+  affiliations:
+    - organization: Blackthorn Security Company
+      relationship: works_through_operational_front
+      reveal: { medium: novel, volume: 1, chapter: 17 }
+      status: current_at_boundary
+      confidence: confirmed
+      notes: Public-facing Nighthawks workplace.
+    - organization: Tingen Nighthawks
+      relationship: leader_captain
+      reveal: { medium: novel, volume: 1, chapter: 17 }
+      status: current_at_boundary
+      confidence: confirmed
+      notes: Dunn manages the local team and staff.
+    - organization: Church of Evernight
+      relationship: official_beyonder_affiliation
+      reveal: { medium: novel, volume: 1, chapter: 13 }
+      status: current_at_boundary
+      confidence: confirmed
+      notes: Dunn reveals himself as a Church-linked Nighthawk.
+  pathway_ability_state:
+    - field: pathway
+      value: Sleepless pathway
+      reveal: { medium: novel, volume: 1, chapter: 45 }
+      status: current_at_boundary
+      confidence: confirmed
+      notes: Leonard calls Dunn an advanced Sleepless.
+    - field: sequence
+      value: Nightmare
+      reveal: { medium: novel, volume: 1, chapter: 22 }
+      status: strong_evidence_at_boundary
+      confidence: strong_evidence
+      notes: Inferred from dream guidance and Rozanne's Sequence 7 explanation.
+  ability_index:
+    - ability: field_command_and_team_coordination
+      source: institutional_role_experience
+      reveal: { medium: novel, volume: 1, chapter: 45 }
+      status: current_at_boundary
+      confidence: confirmed
+      notes: Mobilizes the team around the notebook lead.
+    - ability: dream_entry_dream_guidance
+      source: sleepless_nightmare_associated_ability
+      reveal: { medium: novel, volume: 1, chapter: 12 }
+      status: current_at_boundary
+      confidence: confirmed
+      notes: Demonstrated before pathway details are fully explained.
+  equipment_artifacts:
+    - item: Antigonus notebook case materials
+      type: investigation_target_case_evidence
+      reveal: { medium: novel, volume: 1, chapter: 13 }
+      possession_status: investigating_not_possessed
+      confidence: confirmed
+      notes: Dunn treats the missing notebook as central to the case.
+  prayers_ritual_access:
+    - label: None known
+      type: prayer_ritual_access
+      function: No reader-safe Dunn-specific prayer or ritual address known
+      reveal: { medium: novel, volume: 1, chapter: 47 }
+      status: no_reader_safe_access_known
+      confidence: confirmed_absence_through_boundary
+      concept_link: ../Concepts/concept-prayers-and-rituals.md
+      wording:
+      notes: Dunn explains and participates in supernatural systems, but no prayer wording or ritual address is tied to him through Chapter 47.
+  major_events_fights:
+    - event: Welch / Naya investigation
+      role: police_cover_investigator_nighthawk_investigator
+      reveal: { medium: novel, volume: 1, chapter: 10 }
+      outcome_status: ongoing_case_foundation
+      confidence: confirmed
+      notes: Dunn's first arc connects ordinary investigation to the supernatural notebook case.
+    - event: Klein Becomes a Seer
+      role: authorizer_supervising_authority
+      reveal: { medium: novel, volume: 1, chapter: 28 }
+      outcome_status: completed
+      confidence: confirmed
+      notes: Dunn offers and authorizes Klein's potion opportunity.
+    - event: Antigonus notebook / Ray Bieber field response
+      role: field_commander
+      reveal: { medium: novel, volume: 1, chapter: 45 }
+      outcome_status: active_unresolved_at_boundary
+      confidence: confirmed
+      notes: Dunn mobilizes the team around Klein's divination lead.
+```
 
 ## Relationship Seeds
 
