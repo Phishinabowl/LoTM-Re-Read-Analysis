@@ -677,6 +677,8 @@ Use tags to support filtering and later dashboard/report generation. Do not use 
 
 Use lowercase kebab-case tags.
 
+Use the same casing split for structured glossary metadata: YAML/data field names use snake_case, while tag-like or enum-like values use lowercase kebab-case. Examples: `reader_boundary`, `relationship_type`, and `possession_status` are field names; `current-at-boundary`, `strong-evidence`, `authorized-access`, `member-of`, and `confirmed-artwork` are controlled or taxonomy-style values.
+
 ### Volume Tags
 
 ```text

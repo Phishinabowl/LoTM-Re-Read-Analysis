@@ -269,10 +269,10 @@ pathway_profile:
   official_artwork:
     - image_number: 95
       label: Seer pathway guide page
-      type: pathway_guide
+      type: pathway-guide
       file: Artwork/page-assets/pathways/pathway-seer/fool-pathway-guide.jpeg
       source_file: Artwork/Source/extracted/volume-8-fool/0095-spine-1490-pathways-pathways16.jpeg
-      usage: primary_pathway_image
+      usage: primary-pathway-image
   associated_tarot_card:
     card_name: The Fool
     card_number: 0 (0)
@@ -285,13 +285,13 @@ pathway_profile:
   associated_higher_order_entities:
     - display_name: The Fool
       entity: deity-s0-fool
-      relationship_layer: sequence_0
+      relationship_layer: sequence-0
       reveal:
         medium: official-epub-artwork
         volume: 8
         chapter: artwork-image-95
-      status: planned_page_official_artwork_association
-      confidence: confirmed_artwork
+      status: planned-page-official-artwork-association
+      confidence: confirmed-artwork
       notes: Official pathway guide labels the Seer pathway with the Fool endpoint.
     - display_name: Lord of the Mysteries
       entity: deity-ats-lord-of-the-mysteries
@@ -300,8 +300,8 @@ pathway_profile:
         medium: official-epub-artwork
         volume: 8
         chapter: artwork-image-95
-      status: planned_page_official_artwork_association
-      confidence: confirmed_artwork
+      status: planned-page-official-artwork-association
+      confidence: confirmed-artwork
       notes: Official pathway guide places the Seer/Fool pathway under Lord of the Mysteries.
   name_timeline:
     - name: Seer Pathway

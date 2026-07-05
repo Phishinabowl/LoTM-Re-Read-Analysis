@@ -328,10 +328,10 @@ pathway_profile:
   official_artwork:
     - image_number: 9
       label: Darkness pathway guide page
-      type: pathway_guide
+      type: pathway-guide
       file: Artwork/page-assets/pathways/pathway-sleepless/darkness-pathway-guide.jpeg
       source_file: Artwork/Source/extracted/volume-1-clown/0009-spine-0223-pathways-pathways3.jpeg
-      usage: primary_pathway_image
+      usage: primary-pathway-image
   associated_tarot_card:
     card_name: The Star
     card_number: XVII (17)
@@ -344,12 +344,12 @@ pathway_profile:
   associated_higher_order_entities:
     - display_name: Evernight Goddess
       entity: deity-s0-evernight-goddess
-      relationship_layer: sequence_0
+      relationship_layer: sequence-0
       reveal:
         medium: novel
         volume: 1
         chapter: 28
-      status: planned_page_reader_safe_deity_association
+      status: planned-page-reader-safe-deity-association
       confidence: confirmed
       notes: Dunn says Sleepless is the first complete Sequence the Goddess bestowed on the Nighthawks; official artwork also maps the Darkness pathway guide to the Evernight Goddess page.
     - display_name: Eternal Darkness
@@ -359,8 +359,8 @@ pathway_profile:
         medium: official-epub-artwork
         volume: 1
         chapter: artwork-image-9
-      status: planned_page_official_artwork_association
-      confidence: confirmed_artwork
+      status: planned-page-official-artwork-association
+      confidence: confirmed-artwork
       notes: Official pathway guide/map links the Darkness/Sleepless/Evernight pathway group to Eternal Darkness.
   name_timeline:
     - name: Sleepless Pathway

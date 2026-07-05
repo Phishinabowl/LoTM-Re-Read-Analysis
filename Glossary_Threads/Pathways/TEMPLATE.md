@@ -202,6 +202,8 @@ Track the pathway's associated mythical creature form here when it becomes reade
 
 This block is a structured extraction aid for future graphs and dashboards. It duplicates the high-value pathway facts above in a predictable shape; the prose, relationship seeds, reader knowledge ledger, and metadata remain authoritative. Use metadata, not this data block, for page-level `Subject Visible From`. If `associated_tarot_card`, `associated_higher_order_entities`, `associated_uniqueness`, or `associated_mythical_creature` names a positive reader-safe target, add the corresponding graph edge in `Relationship Seeds`. Do not add relationship seeds for unknown/null placeholder state.
 
+Use kebab-case values for local Pathway Data Block taxonomy fields such as `status`, `usage_type`, `display_behavior`, `relationship_layer`, `type`, `usage`, and `confidence`. Keep YAML field names such as `reader_boundary`, `stable_slug`, `usage_type`, `display_behavior`, and `relationship_layer` in snake_case.
+
 ```yaml
 pathway_profile:
   reader_boundary:
@@ -227,7 +229,7 @@ pathway_profile:
   associated_higher_order_entities:
     - display_name:
       entity:
-      relationship_layer: sequence_0 | ats | outer_deity | sefirot | other
+      relationship_layer: sequence-0 | ats | outer-deity | sefirot | other
       reveal:
         medium:
         volume:

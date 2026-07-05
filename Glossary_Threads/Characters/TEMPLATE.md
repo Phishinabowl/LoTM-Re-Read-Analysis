@@ -235,6 +235,10 @@ Use Markdown links when the target file exists, with the target document's human
 
 This block is a structured extraction aid, not a separate source of truth. Keep it aligned with the visible character sections, relationship seeds, and reader knowledge ledger. Use metadata, not this data block, for page-level `Subject Visible From`. If `mythical_creature_form_state` or `uniqueness_state` records a positive reader-safe relationship, add the corresponding graph edge in `Relationship Seeds`. Do not add relationship seeds for omitted sections, unknown/null state, or ordinary absence.
 
+Use kebab-case values for local Character Data Block taxonomy fields such as `status`, `relationship`, `possession_status`, `outcome_status`, `type`, `role`, `source`, and `confidence`. Keep YAML field names such as `reader_boundary`, `state_sort_order`, `possession_status`, and `outcome_status` in snake_case.
+
+Prefer reusable local data-block values over character-specific one-offs. Examples include `current-at-boundary`, `current-operational-base`, `latest-known-location-at-boundary`, `current-pattern-at-boundary`, `strong-evidence-at-boundary`, `superseded-by-later-naming`, `authorized-access`, `investigating-not-possessed`, and `no-reader-safe-access-known`. If a new value is needed, make it generic enough to reuse across future character pages and explain the specific character nuance in `notes`.
+
 ```yaml
 character_profile:
   reader_boundary:
@@ -242,7 +246,7 @@ character_profile:
     book: lotm-1
     volume:
     chapter:
-  state_sort_order: newest_to_oldest
+  state_sort_order: newest-to-oldest
   official_artwork:
     - image_number:
       label:
