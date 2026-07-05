@@ -2,11 +2,11 @@
 
 ## Related Glossary Thread
 
-[City of Calamity](../../../Glossary_Threads/Concepts/concept-city-of-calamity.md) planned.
+[City of Calamity](../../../Glossary_Threads/Locations/location-city-of-calamity.md) planned.
 
 ## Question
 
-What should be preserved before creating the City of Calamity concept page?
+What should be preserved before creating the City of Calamity location-style sefirah page?
 
 ## Status
 
@@ -34,7 +34,7 @@ Novel Chapters 1203, 1347, 1369, and 1377 were the key checked anchors.
 #### Chapter 1347
 
 - What happened: The Great Old One formula links City of Calamity with the Demoness and Red Priest pathway group.
-- Why it matters: The concept page should tie City of Calamity to Hunter/Red Priest, Demoness, and the Calamity of Destruction ATS title cluster.
+- Why it matters: The location-style sefirah page should tie City of Calamity to Hunter/Red Priest, Demoness, and the Calamity of Destruction ATS title cluster.
 
 ### Check 2: Fourth Pillar And Seal Context
 
@@ -46,7 +46,7 @@ Novel Chapters 1203, 1347, 1369, and 1377 were the key checked anchors.
 #### Chapter 1369
 
 - What happened: City of Calamity is named among the sefirot sealed in the Western Continent.
-- Why it matters: The concept page should preserve Western Continent seal context and the Bansy Harbor connection.
+- Why it matters: The location-style sefirah page should preserve Western Continent seal context and the Bansy Harbor connection.
 
 #### Chapter 1377
 
@@ -55,7 +55,7 @@ Novel Chapters 1203, 1347, 1369, and 1377 were the key checked anchors.
 
 ## Conclusion
 
-Create `Glossary_Threads/Concepts/concept-city-of-calamity.md` as a sefirah concept page tied to Hunter/Red Priest, Demoness, the Calamity of Destruction ATS cluster, Western Continent seal context, and Bansy-related hints.
+Create `Glossary_Threads/Locations/location-city-of-calamity.md` as a location-style sefirah page tied to Hunter/Red Priest, Demoness, the Calamity of Destruction ATS cluster, Western Continent seal context, and Bansy-related hints.
 
 ## Open Questions
 

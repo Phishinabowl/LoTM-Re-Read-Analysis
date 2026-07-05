@@ -2,7 +2,7 @@
 
 ## Related Glossary Thread
 
-- [concept-nation-of-disorder.md](../../../Glossary_Threads/Concepts/concept-nation-of-disorder.md) planned
+- [location-nation-of-disorder.md](../../../Glossary_Threads/Locations/location-nation-of-disorder.md) planned
 
 ## Preliminary Scope
 

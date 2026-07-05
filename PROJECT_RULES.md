@@ -416,6 +416,8 @@ timeline-ian-zreal-chain.md
 
 If a thread fits multiple categories, choose the category that best matches the analytical purpose of the file.
 
+The overall taxonomy and idea of sefirot should use the shared concept page `concept-sefirot.md`. Individual named sefirot, such as Sefirah Castle, Tenebrous World, Nation of Disorder, Knowledge Moor, City of Calamity, Key of Light, or Brood Hive, should use `location-[name].md` under `Glossary_Threads/Locations/`. This is an intentional pragmatic category choice: named sefirot behave like special places/realms for page organization even when they are not ordinary physical locations.
+
 Deity pages use a required second-level scope in the filename so true gods, Above the Sequences title clusters, and Outer Deity entities do not collapse into each other:
 
 - `deity-s0-[name].md` for Sequence 0 / true god pages.

@@ -69,6 +69,6 @@ Use `Goddess of Origins` as the slug and display title because Chapter 1347 give
 ## Alias And Title Notes
 
 - `Mother of All` should be preserved as an ATS title alias, but not used as the slug because it also appears earlier as Earth Mother worship language.
-- `Brood Hive of Filth` should be preserved as an ATS title alias and tied to the `concept-brood-hive.md` / sefirah planning if that page is later created.
+- `Brood Hive of Filth` should be preserved as an ATS title alias and tied to the `location-brood-hive.md` / sefirah planning if that page is later created.
 - `Primordial Moon` belongs primarily with the Mother Goddess of Depravity OD page as manifestation/corruption-facing terminology.
 - `Mother Uniqueness` and `The Moon Uniqueness` are formula-component names, not currently distinct item/entity page targets.

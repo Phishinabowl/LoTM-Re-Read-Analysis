@@ -2,7 +2,7 @@
 
 ## Related Glossary Thread
 
-- [concept-knowledge-moor.md](../../../Glossary_Threads/Concepts/concept-knowledge-moor.md) planned
+- [location-knowledge-moor.md](../../../Glossary_Threads/Locations/location-knowledge-moor.md) planned
 
 ## Preliminary Scope
 
