@@ -203,7 +203,203 @@ function New-Relationship {
     start_medium = if ($Data.ContainsKey("start_medium")) { $Data["start_medium"] } else { "" }
     start_volume = if ($Data.ContainsKey("start_volume")) { $Data["start_volume"] } else { "" }
     start_chapter = if ($Data.ContainsKey("start_chapter")) { $Data["start_chapter"] } else { "" }
+    projection_source = if ($Data.ContainsKey("projection_source")) { $Data["projection_source"] } else { "" }
   }
+}
+
+function ConvertFrom-InlineMapping {
+  param([string]$Value)
+  $result = @{}
+  $value = (ConvertFrom-Scalar $Value).Trim()
+  if (-not ($value.StartsWith("{") -and $value.EndsWith("}"))) {
+    return $result
+  }
+  $inner = $value.Substring(1, $value.Length - 2).Trim()
+  if (-not $inner) {
+    return $result
+  }
+  foreach ($part in $inner -split ",") {
+    if (-not $part.Contains(":")) {
+      continue
+    }
+    $pieces = $part.Split(":", 2)
+    $result[$pieces[0].Trim()] = ConvertFrom-Scalar $pieces[1]
+  }
+  return $result
+}
+
+function ConvertTo-ProjectionSlug {
+  param([string]$Value)
+  $value = (ConvertFrom-Scalar $Value).Trim()
+  if (-not $value) {
+    return ""
+  }
+  if ([regex]::IsMatch($value, "^$SlugPattern$")) {
+    return $value
+  }
+  $value = [regex]::Replace($value, "[/\\]+", " ")
+  $value = [regex]::Replace($value, "[^A-Za-z0-9]+", "-").Trim("-").ToLowerInvariant()
+  return $value
+}
+
+function Get-ProjectionKeysForRow {
+  param([hashtable]$Row)
+  $keys = New-Object 'System.Collections.Generic.HashSet[string]'
+  foreach ($field in @("target", "ability", "event", "pathway", "organization", "item", "label", "field", "entity", "uniqueness")) {
+    if (-not $Row.ContainsKey($field) -or -not $Row[$field]) {
+      continue
+    }
+    $slug = ConvertTo-ProjectionSlug $Row[$field]
+    if (-not $slug) {
+      continue
+    }
+    [void]$keys.Add($slug)
+    foreach ($prefix in $SlugPrefixes) {
+      [void]$keys.Add("$prefix-$slug")
+    }
+  }
+  return @($keys)
+}
+
+function New-AvailabilityEntry {
+  param([hashtable]$Data)
+  return [pscustomobject]@{
+    medium = if ($Data.ContainsKey("medium")) { $Data["medium"] } else { "" }
+    volume = if ($Data.ContainsKey("from_volume")) { $Data["from_volume"] } elseif ($Data.ContainsKey("volume")) { $Data["volume"] } else { "" }
+    chapter = if ($Data.ContainsKey("from_chapter")) { $Data["from_chapter"] } elseif ($Data.ContainsKey("chapter")) { $Data["chapter"] } else { "" }
+    season = if ($Data.ContainsKey("from_season")) { $Data["from_season"] } elseif ($Data.ContainsKey("season")) { $Data["season"] } else { "" }
+    episode = if ($Data.ContainsKey("from_episode")) { $Data["from_episode"] } elseif ($Data.ContainsKey("episode")) { $Data["episode"] } else { "" }
+    release_order = if ($Data.ContainsKey("from_release_order")) { $Data["from_release_order"] } elseif ($Data.ContainsKey("release_order")) { $Data["release_order"] } else { "" }
+    status = if ($Data.ContainsKey("status")) { $Data["status"] } elseif ($Data.ContainsKey("possession_status")) { $Data["possession_status"] } elseif ($Data.ContainsKey("outcome_status")) { $Data["outcome_status"] } else { "" }
+    confidence = if ($Data.ContainsKey("confidence")) { $Data["confidence"] } else { "" }
+    graph_visibility = if ($Data.ContainsKey("graph_visibility")) { $Data["graph_visibility"] } else { "" }
+    adaptation_relationship = if ($Data.ContainsKey("adaptation_relationship")) { $Data["adaptation_relationship"] } else { "" }
+  }
+}
+
+function Get-DataProjections {
+  param(
+    [string]$Text,
+    [string]$NoteSlug
+  )
+  $projections = @{}
+  $relationshipBlock = Get-RelationshipYaml $Text
+
+  foreach ($block in Get-FencedYamlBlocks $Text) {
+    if ($relationshipBlock -and $block.Text -eq $relationshipBlock) {
+      continue
+    }
+
+    $rootKey = ""
+    $sectionKey = ""
+    $row = $null
+    $availability = @()
+    $availabilityItem = $null
+    $inAvailability = $false
+    $inFrom = $false
+
+    function Finish-ProjectionRow {
+      param(
+        [string]$RootKey,
+        [string]$SectionKey,
+        [string]$NoteSlug,
+        [hashtable]$Row,
+        [object[]]$Availability,
+        [hashtable]$Projections
+      )
+      if ($null -eq $Row -or -not $RootKey -or -not $SectionKey -or @($Availability).Count -eq 0) {
+        return
+      }
+      foreach ($key in Get-ProjectionKeysForRow $Row) {
+        $projectionSource = "$RootKey.$SectionKey[$key]"
+        $Projections[$projectionSource] = [pscustomobject]@{
+          source_slug = $NoteSlug
+          projection_source = $projectionSource
+          availability = @($Availability)
+        }
+      }
+    }
+
+    foreach ($rawLine in $block.Text -split "`r?`n") {
+      if ([string]::IsNullOrWhiteSpace($rawLine) -or -not $rawLine.Contains(":")) {
+        continue
+      }
+      $indent = $rawLine.Length - $rawLine.TrimStart(" ").Length
+      $line = $rawLine.Trim()
+
+      if ($indent -eq 0 -and -not $line.StartsWith("- ")) {
+        if ($null -ne $availabilityItem) { $availability += @(New-AvailabilityEntry $availabilityItem) }
+        Finish-ProjectionRow $rootKey $sectionKey $NoteSlug $row $availability $projections
+        $row = $null; $availability = @(); $availabilityItem = $null; $inAvailability = $false; $inFrom = $false
+        $parts = $line.Split(":", 2)
+        $rootKey = if ((ConvertFrom-Scalar $parts[1]) -eq "") { $parts[0].Trim() } else { "" }
+        $sectionKey = ""
+        continue
+      }
+
+      if ($rootKey -and $indent -eq 2 -and -not $line.StartsWith("- ")) {
+        if ($null -ne $availabilityItem) { $availability += @(New-AvailabilityEntry $availabilityItem) }
+        Finish-ProjectionRow $rootKey $sectionKey $NoteSlug $row $availability $projections
+        $row = $null; $availability = @(); $availabilityItem = $null; $inAvailability = $false; $inFrom = $false
+        $parts = $line.Split(":", 2)
+        $sectionKey = if ((ConvertFrom-Scalar $parts[1]) -eq "") { $parts[0].Trim() } else { "" }
+        continue
+      }
+
+      if ($rootKey -and $sectionKey -and $indent -eq 4 -and $line.StartsWith("- ")) {
+        if ($null -ne $availabilityItem) { $availability += @(New-AvailabilityEntry $availabilityItem) }
+        Finish-ProjectionRow $rootKey $sectionKey $NoteSlug $row $availability $projections
+        $row = @{}; $availability = @(); $availabilityItem = $null; $inAvailability = $false; $inFrom = $false
+        $line = $line.Substring(2).Trim()
+        if (-not $line.Contains(":")) {
+          continue
+        }
+      }
+
+      if ($null -eq $row) {
+        continue
+      }
+
+      $parts = $line.Split(":", 2)
+      $key = $parts[0].Trim().TrimStart("-").Trim()
+      $value = ConvertFrom-Scalar $parts[1]
+
+      if ($indent -eq 4) {
+        $row[$key] = $value
+        $inAvailability = $false
+        $inFrom = $false
+      } elseif ($indent -eq 6 -and $key -ne "availability" -and -not $inAvailability) {
+        $row[$key] = $value
+      } elseif ($indent -eq 6 -and $key -eq "availability") {
+        if ($null -ne $availabilityItem) { $availability += @(New-AvailabilityEntry $availabilityItem) }
+        $availabilityItem = $null
+        $inAvailability = $true
+        $inFrom = $false
+      } elseif ($indent -eq 8 -and $line.StartsWith("- ")) {
+        if ($null -ne $availabilityItem) { $availability += @(New-AvailabilityEntry $availabilityItem) }
+        $availabilityItem = @{}
+        if ($key) { $availabilityItem[$key] = $value }
+        $inAvailability = $true
+        $inFrom = $false
+      } elseif ($inAvailability -and $null -ne $availabilityItem) {
+        if ($key -eq "from") {
+          foreach ($mappingKey in (ConvertFrom-InlineMapping $value).Keys) {
+            $availabilityItem["from_$mappingKey"] = (ConvertFrom-InlineMapping $value)[$mappingKey]
+          }
+          $inFrom = $true
+        } elseif ($inFrom -and $indent -ge 12) {
+          $availabilityItem["from_$key"] = $value
+        } else {
+          $availabilityItem[$key] = $value
+          $inFrom = $false
+        }
+      }
+    }
+    if ($null -ne $availabilityItem) { $availability += @(New-AvailabilityEntry $availabilityItem) }
+    Finish-ProjectionRow $rootKey $sectionKey $NoteSlug $row $availability $projections
+  }
+
+  return $projections
 }
 
 function Get-RelationshipsFromYaml {
@@ -359,6 +555,7 @@ function Get-CanonicalNotes {
   $notes = @{}
   $relationships = @()
   $dataReferences = @()
+  $dataProjections = @{}
 
   foreach ($searchPath in @((Join-Path $RepoRoot "Glossary_Threads"), (Join-Path $RepoRoot "Volumes"))) {
     if (-not (Test-Path -LiteralPath $searchPath)) {
@@ -381,6 +578,7 @@ function Get-CanonicalNotes {
       $slug = [System.IO.Path]::GetFileNameWithoutExtension($file.Name)
       $noteRelationships = @(Get-RelationshipsFromYaml (Get-RelationshipYaml $text) $relativeSource)
       $noteDataRefs = @(Get-DataReferences $text $slug $relativeSource)
+      $noteDataProjections = Get-DataProjections $text $slug
       $typeName = $metadata["type"]
       $note = [pscustomobject]@{
         slug = $slug
@@ -390,6 +588,7 @@ function Get-CanonicalNotes {
       metadata = $metadata
       relationships = $noteRelationships
       data_references = $noteDataRefs
+      data_projections = $noteDataProjections
       type_name = $typeName
       export_folder = Get-ExportFolder $typeName
       export_file_stem = ConvertTo-SafeFileName (Get-FirstHeading $text (ConvertTo-SlugTitle $slug))
@@ -397,6 +596,9 @@ function Get-CanonicalNotes {
       $notes[$slug] = $note
       $relationships += $noteRelationships
       $dataReferences += $noteDataRefs
+      foreach ($projectionKey in $noteDataProjections.Keys) {
+        $dataProjections[$projectionKey] = $noteDataProjections[$projectionKey]
+      }
     }
   }
 
@@ -404,6 +606,7 @@ function Get-CanonicalNotes {
     Notes = $notes
     Relationships = @($relationships)
     DataReferences = @($dataReferences)
+    DataProjections = $dataProjections
   }
 }
 
@@ -715,10 +918,21 @@ function Get-RelationshipSourceDomain {
 }
 
 function Get-RelationshipProvenanceLines {
-  param([object[]]$Relationships)
+  param(
+    [object[]]$Relationships,
+    [hashtable]$DataProjections = @{}
+  )
   $lines = @()
   foreach ($rel in @($Relationships | Sort-Object @{ Expression = { Get-RelationshipSourceDomain $_.source_file } }, confidence, start_chapter, source_file)) {
-    $parts = @(Get-RelationshipSourceDomain $rel.source_file)
+    if ($DataProjections.Count -gt 0) {
+      $line = Format-RelationshipSourceLine $rel $DataProjections
+      if ($line) {
+        $lines += $line
+        continue
+      }
+    }
+    $parts = @(Get-RelationshipSourceDomain $rel.source_file, "seed")
+    if ($rel.start_medium) { $parts += $rel.start_medium }
     if ($rel.confidence) { $parts += $rel.confidence }
     if ($rel.start_chapter) { $parts += "ch$($rel.start_chapter)" }
     if ($rel.status -and $rel.status -ne "active") { $parts += $rel.status }
@@ -766,7 +980,8 @@ function ConvertTo-LabeledRelationshipGraph {
 function ConvertTo-RelationshipNodeGraph {
   param(
     [object[]]$Relationships,
-    [hashtable]$Notes
+    [hashtable]$Notes,
+    [hashtable]$DataProjections
   )
   $grouped = Group-Relationships $Relationships
   $usedSlugs = Get-UsedSlugs $grouped
@@ -787,12 +1002,19 @@ function ConvertTo-RelationshipNodeGraph {
   $index = 1
   foreach ($key in @($grouped.Keys | Sort-Object)) {
     $parts = $key -split "\|", 3
-    $label = $parts[1]
-    if ($grouped[$key].Count -gt 1) {
-      $label = "$label x$($grouped[$key].Count)"
-      $label = @($label) + @(Get-RelationshipProvenanceLines $grouped[$key])
-      $label = $label -join "<br/>"
+    $labelLines = @(if ($grouped[$key].Count -gt 1) { "$($parts[1]) x$($grouped[$key].Count)" } else { $parts[1] })
+    $sourceLines = @(Get-RelationshipSourceLines $grouped[$key] $DataProjections)
+    if ($sourceLines.Count -gt 0) {
+      $labelLines += $sourceLines
     }
+    if ($grouped[$key].Count -gt 1) {
+      foreach ($fallbackLine in @(Get-RelationshipProvenanceLines $grouped[$key] $DataProjections)) {
+        if ($labelLines -notcontains $fallbackLine) {
+          $labelLines += $fallbackLine
+        }
+      }
+    }
+    $label = $labelLines -join "<br/>"
     $relationshipNodeId = "rel_{0:d3}" -f $index
     $lines.Add(('  {0}["{1}"]' -f $relationshipNodeId, (ConvertTo-MermaidEscaped $label))) | Out-Null
     $lines.Add(('  {0} --> {1}' -f (ConvertTo-MermaidNodeId $parts[0]), $relationshipNodeId)) | Out-Null
@@ -809,6 +1031,102 @@ function ConvertTo-RelationshipNodeGraph {
   }
   $lines.Add("") | Out-Null
   return ($lines -join "`n")
+}
+
+function Get-RelationshipSourceLines {
+  param(
+    [object[]]$Relationships,
+    [hashtable]$DataProjections
+  )
+  $seen = New-Object 'System.Collections.Generic.HashSet[string]'
+  $lines = @()
+  foreach ($rel in @($Relationships | Sort-Object @{ Expression = { Get-RelationshipSourceDomain $_.source_file } }, source_file)) {
+    $line = Format-RelationshipSourceLine $rel $DataProjections
+    if ($line -and $seen.Add($line)) {
+      $lines += $line
+    }
+  }
+  return @($lines)
+}
+
+function Format-RelationshipSourceLine {
+  param(
+    [object]$Relationship,
+    [hashtable]$DataProjections
+  )
+  $domain = Get-RelationshipSourceDomain $Relationship.source_file
+  if ($Relationship.projection_source -and $DataProjections.ContainsKey($Relationship.projection_source)) {
+    $history = Format-AvailabilityHistory @($DataProjections[$Relationship.projection_source].availability)
+    if ($history) {
+      return "$domain data $history"
+    }
+  }
+
+  $parts = @($domain, "seed")
+  if ($Relationship.start_medium) { $parts += $Relationship.start_medium }
+  if ($Relationship.start_chapter) { $parts += "ch$($Relationship.start_chapter)" }
+  if ($Relationship.confidence) { $parts += $Relationship.confidence }
+  if ($Relationship.status -and $Relationship.status -ne "active") { $parts += $Relationship.status }
+  return ($parts -join " ")
+}
+
+function Format-AvailabilityHistory {
+  param([object[]]$Entries)
+  $byMedium = @{}
+  foreach ($entry in $Entries) {
+    $entryText = Format-AvailabilityEntry $entry
+    if (-not $entryText) {
+      continue
+    }
+    $medium = if ($entry.medium) { $entry.medium } else { "unknown" }
+    if (-not $byMedium.ContainsKey($medium)) {
+      $byMedium[$medium] = @()
+    }
+    if ($byMedium[$medium] -notcontains $entryText) {
+      $byMedium[$medium] += $entryText
+    }
+  }
+  $lines = @()
+  foreach ($medium in @($byMedium.Keys | Sort-Object)) {
+    $lines += "$medium $($byMedium[$medium] -join ' -> ')"
+  }
+  return ($lines -join "; ")
+}
+
+function Format-AvailabilityEntry {
+  param([object]$Entry)
+  $parts = @()
+  if ($Entry.medium -eq "novel" -and $Entry.chapter) {
+    $parts += "ch$($Entry.chapter)"
+  } elseif ($Entry.medium -eq "donghua") {
+    $hasRealPosition = $false
+    foreach ($value in @($Entry.season, $Entry.episode, $Entry.release_order)) {
+      if ($value -and $value -ne "TBD") { $hasRealPosition = $true }
+    }
+    if (-not $hasRealPosition) {
+      return ""
+    }
+    if ($Entry.season -and $Entry.season -ne "TBD") { $parts += "s$($Entry.season)" }
+    if ($Entry.episode -and $Entry.episode -ne "TBD") { $parts += "e$($Entry.episode)" }
+    if ($Entry.release_order -and $Entry.release_order -ne "TBD") { $parts += "r$($Entry.release_order)" }
+  } elseif ($Entry.medium) {
+    $parts += $Entry.medium
+  }
+  if ($parts.Count -eq 0) {
+    return ""
+  }
+  if ($Entry.confidence -and $Entry.confidence -ne "TBD") {
+    $parts += $Entry.confidence
+  } elseif ($Entry.status -and $Entry.status -ne "TBD") {
+    $parts += $Entry.status
+  }
+  if ($Entry.graph_visibility -and $Entry.graph_visibility -ne "full") {
+    $parts += $Entry.graph_visibility
+  }
+  if ($Entry.adaptation_relationship -and $Entry.adaptation_relationship -ne "pending") {
+    $parts += $Entry.adaptation_relationship
+  }
+  return ($parts -join " ")
 }
 
 function ConvertTo-VisualizationRelationshipGraph {
@@ -1110,7 +1428,8 @@ function Write-ObsidianExport {
     [bool]$CleanOutput,
     [hashtable]$Notes,
     [object[]]$Relationships,
-    [object[]]$DataReferences
+    [object[]]$DataReferences,
+    [hashtable]$DataProjections
   )
   $exportPath = Assert-SafeOutputPath $RepoRoot $ExportPath
   if ($CleanOutput -and (Test-Path -LiteralPath $exportPath)) {
@@ -1129,7 +1448,7 @@ function Write-ObsidianExport {
   $generatedDir = Join-Path $exportPath "_Generated"
   Write-TextFile (Join-Path $generatedDir "relationship-index.md") (ConvertTo-RelationshipIndex $Relationships $Notes)
   Write-TextFile (Join-Path $generatedDir "QA-relationship-graph.mmd") (ConvertTo-LabeledRelationshipGraph $Relationships $Notes)
-  Write-TextFile (Join-Path $generatedDir "QA-relationship-node-graph.mmd") (ConvertTo-RelationshipNodeGraph $Relationships $Notes)
+  Write-TextFile (Join-Path $generatedDir "QA-relationship-node-graph.mmd") (ConvertTo-RelationshipNodeGraph $Relationships $Notes $DataProjections)
   Write-TextFile (Join-Path $generatedDir "visualization-relationship-graph.mmd") (ConvertTo-VisualizationRelationshipGraph $Relationships $Notes)
   Write-TextFile (Join-Path $generatedDir "data-reference-index.md") (ConvertTo-DataReferenceIndex $DataReferences $Notes)
   Write-TextFile (Join-Path $generatedDir "orphan-report.md") (ConvertTo-OrphanReport $Notes $Relationships $DataReferences)
@@ -1139,7 +1458,7 @@ function Write-ObsidianExport {
 $repoRoot = (Resolve-Path -LiteralPath $Root).Path
 $exportPath = if ([System.IO.Path]::IsPathRooted($OutputDir)) { $OutputDir } else { Join-Path $repoRoot $OutputDir }
 $discovered = Get-CanonicalNotes $repoRoot ([bool]$IncludeStubs)
-Write-ObsidianExport $repoRoot $exportPath ([bool]$Clean) $discovered.Notes $discovered.Relationships $discovered.DataReferences
+Write-ObsidianExport $repoRoot $exportPath ([bool]$Clean) $discovered.Notes $discovered.Relationships $discovered.DataReferences $discovered.DataProjections
 
 $orphanData = Get-OrphanAnalysis $discovered.Notes $discovered.Relationships $discovered.DataReferences
 $suspiciousData = Get-SuspiciousEdgeAnalysis $discovered.Relationships $discovered.Notes

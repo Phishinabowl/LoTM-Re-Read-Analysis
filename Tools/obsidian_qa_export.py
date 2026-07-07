@@ -81,6 +81,28 @@ class Relationship:
     start_medium: str = ""
     start_volume: str = ""
     start_chapter: str = ""
+    projection_source: str = ""
+
+
+@dataclass(frozen=True)
+class AvailabilityEntry:
+    medium: str = ""
+    volume: str = ""
+    chapter: str = ""
+    season: str = ""
+    episode: str = ""
+    release_order: str = ""
+    status: str = ""
+    confidence: str = ""
+    graph_visibility: str = ""
+    adaptation_relationship: str = ""
+
+
+@dataclass(frozen=True)
+class DataProjection:
+    source_slug: str
+    projection_source: str
+    availability: tuple[AvailabilityEntry, ...]
 
 
 @dataclass(frozen=True)
@@ -101,6 +123,7 @@ class CanonicalNote:
     metadata: dict[str, str]
     relationships: list[Relationship] = field(default_factory=list)
     data_references: list[DataReference] = field(default_factory=list)
+    data_projections: dict[str, DataProjection] = field(default_factory=dict)
 
     @property
     def type_name(self) -> str:
@@ -261,7 +284,167 @@ def make_relationship(data: dict[str, str], source_file: str) -> Relationship:
         start_medium=data.get("start_medium", ""),
         start_volume=data.get("start_volume", ""),
         start_chapter=data.get("start_chapter", ""),
+        projection_source=data.get("projection_source", ""),
     )
+
+
+def parse_inline_mapping(value: str) -> dict[str, str]:
+    value = strip_scalar(value)
+    if not value.startswith("{") or not value.endswith("}"):
+        return {}
+    result: dict[str, str] = {}
+    inner = value[1:-1].strip()
+    if not inner:
+        return result
+    for part in inner.split(","):
+        if ":" not in part:
+            continue
+        key, item_value = part.split(":", 1)
+        result[key.strip()] = strip_scalar(item_value)
+    return result
+
+
+def slugify_projection_value(value: str) -> str:
+    value = strip_scalar(value).strip()
+    if not value:
+        return ""
+    if SLUG_RE.fullmatch(value):
+        return value
+    value = re.sub(r"[/\\]+", " ", value)
+    value = re.sub(r"[^A-Za-z0-9]+", "-", value).strip("-").lower()
+    return value
+
+
+def projection_keys_for_row(row: dict[str, str]) -> set[str]:
+    keys: set[str] = set()
+    for key in ["target", "ability", "event", "pathway", "organization", "item", "label", "field", "entity", "uniqueness"]:
+        value = row.get(key, "")
+        if not value:
+            continue
+        slug_value = slugify_projection_value(value)
+        if slug_value:
+            keys.add(slug_value)
+            for prefix in SLUG_PREFIXES:
+                keys.add(f"{prefix}-{slug_value}")
+    return keys
+
+
+def make_availability_entry(data: dict[str, str]) -> AvailabilityEntry:
+    return AvailabilityEntry(
+        medium=data.get("medium", ""),
+        volume=data.get("from_volume", "") or data.get("volume", ""),
+        chapter=data.get("from_chapter", "") or data.get("chapter", ""),
+        season=data.get("from_season", "") or data.get("season", ""),
+        episode=data.get("from_episode", "") or data.get("episode", ""),
+        release_order=data.get("from_release_order", "") or data.get("release_order", ""),
+        status=data.get("status", "") or data.get("possession_status", "") or data.get("outcome_status", ""),
+        confidence=data.get("confidence", ""),
+        graph_visibility=data.get("graph_visibility", ""),
+        adaptation_relationship=data.get("adaptation_relationship", ""),
+    )
+
+
+def parse_data_projections(text: str, note_slug: str) -> dict[str, DataProjection]:
+    projections: dict[str, DataProjection] = {}
+    relationship_block = extract_relationship_yaml(text)
+
+    for _, block in fenced_yaml_blocks(text):
+        if relationship_block and block == relationship_block:
+            continue
+
+        root_key = ""
+        section_key = ""
+        row: dict[str, str] | None = None
+        availability: list[AvailabilityEntry] = []
+        availability_item: dict[str, str] | None = None
+        in_availability = False
+        in_from = False
+
+        def finish_availability_item() -> None:
+            nonlocal availability_item
+            if availability_item is not None:
+                availability.append(make_availability_entry(availability_item))
+                availability_item = None
+
+        def finish_row() -> None:
+            nonlocal row, availability, availability_item, in_availability, in_from
+            if row is None:
+                return
+            finish_availability_item()
+            if root_key and section_key and availability:
+                for key in projection_keys_for_row(row):
+                    projection_source = f"{root_key}.{section_key}[{key}]"
+                    projections[projection_source] = DataProjection(note_slug, projection_source, tuple(availability))
+            row = None
+            availability = []
+            availability_item = None
+            in_availability = False
+            in_from = False
+
+        for raw_line in block.splitlines():
+            if not raw_line.strip() or ":" not in raw_line:
+                continue
+            indent = len(raw_line) - len(raw_line.lstrip(" "))
+            line = raw_line.strip()
+
+            if indent == 0 and not line.startswith("- "):
+                finish_row()
+                key, value = line.split(":", 1)
+                root_key = key.strip() if strip_scalar(value) == "" else ""
+                section_key = ""
+                continue
+
+            if root_key and indent == 2 and not line.startswith("- "):
+                finish_row()
+                key, value = line.split(":", 1)
+                section_key = key.strip() if strip_scalar(value) == "" else ""
+                continue
+
+            if root_key and section_key and indent == 4 and line.startswith("- "):
+                finish_row()
+                row = {}
+                line = line[2:].strip()
+                if ":" not in line:
+                    continue
+
+            if row is None:
+                continue
+
+            key, value = line.split(":", 1)
+            key = key.strip().lstrip("-").strip()
+            value = strip_scalar(value)
+
+            if indent == 4:
+                row[key] = value
+                in_availability = False
+                in_from = False
+            elif indent == 6 and key != "availability" and not in_availability:
+                row[key] = value
+            elif indent == 6 and key == "availability":
+                finish_availability_item()
+                in_availability = True
+                in_from = False
+            elif indent == 8 and line.startswith("- "):
+                finish_availability_item()
+                availability_item = {}
+                key = key.lstrip("-").strip()
+                if key:
+                    availability_item[key] = value
+                in_availability = True
+                in_from = False
+            elif in_availability and availability_item is not None:
+                if key == "from":
+                    availability_item.update({f"from_{k}": v for k, v in parse_inline_mapping(value).items()})
+                    in_from = True
+                elif in_from and indent >= 12:
+                    availability_item[f"from_{key}"] = value
+                else:
+                    availability_item[key] = value
+                    in_from = False
+
+        finish_row()
+
+    return projections
 
 
 def slug_candidates_from_yaml_value(value: str) -> set[str]:
@@ -306,10 +489,13 @@ def parse_data_references(text: str, note_slug: str, source_file: str) -> list[D
     return sorted(refs, key=lambda ref: (ref.target, ref.yaml_block, ref.context_key))
 
 
-def discover_notes(root: Path, include_stubs: bool) -> tuple[dict[str, CanonicalNote], list[Relationship], list[DataReference]]:
+def discover_notes(
+    root: Path, include_stubs: bool
+) -> tuple[dict[str, CanonicalNote], list[Relationship], list[DataReference], dict[str, DataProjection]]:
     notes: dict[str, CanonicalNote] = {}
     relationships: list[Relationship] = []
     data_references: list[DataReference] = []
+    data_projections: dict[str, DataProjection] = {}
 
     for search_root in [root / "Glossary_Threads", root / "Volumes"]:
         if not search_root.exists():
@@ -334,11 +520,13 @@ def discover_notes(root: Path, include_stubs: bool) -> tuple[dict[str, Canonical
             )
             note.relationships = parse_relationships(extract_relationship_yaml(text), relative_source)
             note.data_references = parse_data_references(text, note.slug, relative_source)
+            note.data_projections = parse_data_projections(text, note.slug)
             notes[note.slug] = note
             relationships.extend(note.relationships)
             data_references.extend(note.data_references)
+            data_projections.update(note.data_projections)
 
-    return notes, relationships, data_references
+    return notes, relationships, data_references, data_projections
 
 
 def wiki_link(slug: str, notes: dict[str, CanonicalNote]) -> str:
@@ -510,7 +698,9 @@ def render_labeled_relationship_graph(relationships: list[Relationship], notes: 
     return "\n".join(lines)
 
 
-def render_relationship_node_graph(relationships: list[Relationship], notes: dict[str, CanonicalNote]) -> str:
+def render_relationship_node_graph(
+    relationships: list[Relationship], notes: dict[str, CanonicalNote], data_projections: dict[str, DataProjection]
+) -> str:
     grouped: dict[tuple[str, str, str], list[Relationship]] = {}
     for rel in relationships:
         if not rel.source or not rel.target:
@@ -537,10 +727,16 @@ def render_relationship_node_graph(relationships: list[Relationship], notes: dic
     for index, (source, relationship_type, target) in enumerate(grouped_items, start=1):
         group = grouped[(source, relationship_type, target)]
         duplicate_count = len(group)
-        label = relationship_type
+        label_lines = [f"{relationship_type} x{duplicate_count}" if duplicate_count > 1 else relationship_type]
+        source_lines = relationship_source_lines(group, data_projections)
+        if source_lines:
+            label_lines.extend(source_lines)
         if duplicate_count > 1:
-            label = f"{label} x{duplicate_count}"
-            label = "<br/>".join([label, *relationship_provenance_lines(group)])
+            fallback_lines = relationship_provenance_lines(group, data_projections)
+            for fallback_line in fallback_lines:
+                if fallback_line not in label_lines:
+                    label_lines.append(fallback_line)
+        label = "<br/>".join(label_lines)
         relationship_node_id = f"rel_{index:03d}"
         lines.append(f'  {relationship_node_id}["{mermaid_escape(label)}"]')
         lines.append(f"  {mermaid_node_id(source)} --> {relationship_node_id}")
@@ -555,10 +751,101 @@ def render_relationship_node_graph(relationships: list[Relationship], notes: dic
     return "\n".join(lines)
 
 
-def relationship_provenance_lines(relationships: list[Relationship]) -> list[str]:
+def relationship_source_lines(
+    relationships: list[Relationship], data_projections: dict[str, DataProjection]
+) -> list[str]:
+    seen: set[str] = set()
+    lines: list[str] = []
+    for rel in sorted(relationships, key=lambda item: (source_domain_label(item.source_file), item.source_file)):
+        line = relationship_source_line(rel, data_projections)
+        if line and line not in seen:
+            seen.add(line)
+            lines.append(line)
+    return lines
+
+
+def relationship_source_line(rel: Relationship, data_projections: dict[str, DataProjection]) -> str:
+    domain = source_domain_label(rel.source_file)
+    if rel.projection_source:
+        projection = data_projections.get(rel.projection_source)
+        if projection:
+            history = format_availability_history(projection.availability)
+            if history:
+                return f"{domain} data {history}"
+
+    seed_parts = [domain, "seed"]
+    if rel.start_medium:
+        seed_parts.append(rel.start_medium)
+    if rel.start_chapter:
+        seed_parts.append(f"ch{rel.start_chapter}")
+    if rel.confidence:
+        seed_parts.append(rel.confidence)
+    if rel.status and rel.status != "active":
+        seed_parts.append(rel.status)
+    return " ".join(seed_parts)
+
+
+def format_availability_history(entries: tuple[AvailabilityEntry, ...]) -> str:
+    by_medium: dict[str, list[str]] = {}
+    for entry in entries:
+        entry_text = format_availability_entry(entry)
+        if not entry_text:
+            continue
+        medium = entry.medium or "unknown"
+        by_medium.setdefault(medium, [])
+        if entry_text not in by_medium[medium]:
+            by_medium[medium].append(entry_text)
+
+    lines: list[str] = []
+    for medium in sorted(by_medium):
+        lines.append(f"{medium} {' -> '.join(by_medium[medium])}")
+    return "; ".join(lines)
+
+
+def format_availability_entry(entry: AvailabilityEntry) -> str:
+    timing_parts: list[str] = []
+    if entry.medium == "novel" and entry.chapter:
+        timing_parts.append(f"ch{entry.chapter}")
+    elif entry.medium == "donghua":
+        has_real_position = any(
+            value and value != "TBD" for value in [entry.season, entry.episode, entry.release_order]
+        )
+        if not has_real_position:
+            return ""
+        if entry.season and entry.season != "TBD":
+            timing_parts.append(f"s{entry.season}")
+        if entry.episode and entry.episode != "TBD":
+            timing_parts.append(f"e{entry.episode}")
+        if entry.release_order and entry.release_order != "TBD":
+            timing_parts.append(f"r{entry.release_order}")
+    elif entry.medium:
+        timing_parts.append(entry.medium)
+    if not timing_parts:
+        return ""
+    if entry.confidence and entry.confidence != "TBD":
+        timing_parts.append(entry.confidence)
+    elif entry.status and entry.status != "TBD":
+        timing_parts.append(entry.status)
+    if entry.graph_visibility and entry.graph_visibility != "full":
+        timing_parts.append(entry.graph_visibility)
+    if entry.adaptation_relationship and entry.adaptation_relationship != "pending":
+        timing_parts.append(entry.adaptation_relationship)
+    return " ".join(timing_parts)
+
+
+def relationship_provenance_lines(
+    relationships: list[Relationship], data_projections: dict[str, DataProjection] | None = None
+) -> list[str]:
     lines: list[str] = []
     for rel in sorted(relationships, key=lambda item: (source_domain_label(item.source_file), item.confidence, item.start_chapter, item.source_file)):
-        parts = [source_domain_label(rel.source_file)]
+        if data_projections:
+            line = relationship_source_line(rel, data_projections)
+            if line:
+                lines.append(line)
+                continue
+        parts = [source_domain_label(rel.source_file), "seed"]
+        if rel.start_medium:
+            parts.append(rel.start_medium)
         if rel.confidence:
             parts.append(rel.confidence)
         if rel.start_chapter:
@@ -829,6 +1116,7 @@ def write_export(
     notes: dict[str, CanonicalNote],
     relationships: list[Relationship],
     data_references: list[DataReference],
+    data_projections: dict[str, DataProjection],
 ) -> None:
     output_dir = ensure_safe_output(root, output_dir)
     if clean and output_dir.exists():
@@ -851,7 +1139,7 @@ def write_export(
         encoding="utf-8",
     )
     (generated_dir / "QA-relationship-node-graph.mmd").write_text(
-        render_relationship_node_graph(relationships, notes),
+        render_relationship_node_graph(relationships, notes, data_projections),
         encoding="utf-8",
     )
     write_visualization_relationship_graph(root, generated_dir / "visualization-relationship-graph.mmd")
@@ -879,8 +1167,8 @@ def main() -> int:
     root = Path(args.root).resolve()
     output_dir = (root / args.output_dir).resolve()
 
-    notes, relationships, data_references = discover_notes(root, args.include_stubs)
-    write_export(root, output_dir, args.clean, notes, relationships, data_references)
+    notes, relationships, data_references, data_projections = discover_notes(root, args.include_stubs)
+    write_export(root, output_dir, args.clean, notes, relationships, data_references, data_projections)
 
     orphan_data = analyze_orphans(notes, relationships, data_references)
     suspicious_data = analyze_suspicious_edges(relationships, notes)

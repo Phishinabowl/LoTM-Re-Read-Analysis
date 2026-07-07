@@ -185,6 +185,8 @@ Prefer one canonical seed owner for each semantic edge. Store local rosters, hol
 
 Keep entries reader-boundary aware and mark unverified start points as `TBD`. `start` is the earliest reader-safe point where the edge becomes graph-worthy, not necessarily the confirmation point.
 
+When a seed projects a data-block row, set `projection_source`. QA graph labels should then summarize that row's meaningful availability history, while pending/TBD adaptation rows remain in the data block until they are verified.
+
 Omit this section on actual pages only when no graph-worthy relationships have been identified yet.
 
 ```yaml

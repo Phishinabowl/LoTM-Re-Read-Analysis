@@ -942,6 +942,14 @@ Relationship graph renderers should evaluate visibility in this order:
 3. Hide the relationship if the target page fails `Subject Visible From`, unless the current availability entry explicitly sets `graph_visibility: anonymized` or `graph_visibility: partial` with safe display labels.
 4. Render the current availability entry's display labels/type when provided; otherwise render the canonical source, target, and relationship type.
 
+QA relationship-node graphs should present claim history by source layer:
+
+- The first line is the relationship type, with a duplicate count when multiple source pages currently seed the same `source + relationship_type + target`.
+- If a seed has `projection_source` and the projected data row has eligible availability entries, the source line should summarize the data history, such as `character data novel ch22 strong-evidence -> ch45 confirmed`.
+- If a seed has no usable `projection_source`, the source line should fall back to seed provenance, such as `faction seed novel ch22 confirmed`.
+- Pending adaptation entries with `TBD` timing, `confidence: TBD`, or `adaptation_relationship: pending` should stay in the data block but should not appear in graph labels until they have a real pinned viewer position.
+- Do not add duplicate Relationship Seeds merely to make later confirmations appear in graph provenance; add the later state to the projected data row's `availability` ladder.
+
 Use controlled relationship types when possible:
 
 ```text

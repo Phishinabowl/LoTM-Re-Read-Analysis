@@ -115,6 +115,8 @@ Relationship records should distinguish the graph edge from the reader-state his
 
 Graph generators should apply page visibility, row availability, and relationship display state in that order. Hidden source or target pages should suppress the edge unless the current availability entry explicitly provides an anonymized or partial display label. Anonymized nodes are presentation artifacts, not canonical glossary nodes.
 
+QA relationship-node graph labels should summarize provenance by source layer. A seed with `projection_source` should render the projected data row's meaningful availability history, such as `character data novel ch22 strong-evidence -> ch45 confirmed`; a seed without a usable projection should render seed provenance, such as `faction seed novel ch22 confirmed`. Pending adaptation rows with only TBD timing should be retained in graph data but omitted from compact graph labels until a real viewer position is verified.
+
 ## Presentation Nodes
 
 Rendered Mermaid graphs may introduce generated presentation nodes such as `rel_001`.
