@@ -574,6 +574,8 @@ When official character artwork is mapped and promoted into `Artwork/page-assets
 
 Mutable character facts should accumulate rows instead of overwriting old values. This includes aliases, titles, age, vital status, residence, affiliations, pathway status, Sequence advancement, mythical creature form state, Uniqueness possession/control/accommodation state, equipment possession, relationships, companions, and ability access. Future reader-boundary tooling should hide rows after the chosen boundary and compute the current state from the remaining rows.
 
+For type-specific data blocks, every row that describes reader-visible state should support `availability`. Use page metadata `Subject Visible From` as the whole-page gate, then use row-level `availability` as the fact-level gate. Static implementation fields such as `data_model_version`, `stable_slug`, `state_sort_order`, local artwork file paths, or internal usage labels do not need availability unless their display would itself reveal spoiler-sensitive subject information.
+
 Use `Pathway & Ability State` for broad stateful supernatural status such as pathway, Sequence, advancement, digestion, or limitations. Use `Ability Index` for individual capabilities and skills, including pathway abilities, artifact-granted effects, rituals, authority, training, knowledge, or mundane competencies.
 
 Use `Prayers & Ritual Access` for character-specific prayer addresses, exact prayer wording when reader-safe, ritual labels, target functions, and cross-links to `Glossary_Threads/Concepts/concept-prayers-and-rituals.md`. Keep general ritual theory, reusable prayer/ritual type definitions, and cross-character comparisons on the concept page rather than duplicating them inside character pages.
@@ -592,7 +594,7 @@ The `Known Sequences` section should appear even when only one Sequence is reade
 
 The `Pathway Data Block` is a structured extraction aid, not a separate source of truth. Keep it aligned with the visible pathway sections, relationship seeds, and reader knowledge ledger. If the data block and prose conflict, resolve the conflict in the canonical article content rather than treating the data block as independently authoritative.
 
-Do not duplicate page-level `Subject Visible From` inside type-specific data blocks or Relationship Seeds by default. Treat the metadata field as the authoritative page-level visibility gate. Data blocks and Relationship Seeds should continue to model extractable facts, states, and graph-worthy relationships, while knowledge units and `available_from` / `subject_attribution_from` handle claim-level spoiler timing.
+Do not duplicate page-level `Subject Visible From` inside type-specific data blocks or Relationship Seeds by default. Treat the metadata field as the authoritative page-level visibility gate. Data blocks and Relationship Seeds should continue to model extractable facts, states, and graph-worthy relationships, while row-level `availability` handles fact-level spoiler timing and knowledge units preserve audit/explanation history.
 
 ### First Appearance Style
 
@@ -838,7 +840,107 @@ When a pilot article is created, apply the current glossary template, metadata s
 
 Glossary threads may include a `Relationship Seeds` section when a relationship is important enough that a future character, faction, artifact, or event graph should be able to use it.
 
-Keep relationship seeds lightweight and reader-boundary aware. They are not a separate database yet; they are structured notes for future extraction.
+Keep relationship seeds lightweight and reader-boundary aware. They are graph projection records, not a second canon database.
+
+### Canonical Modeling Layers
+
+Use these layers consistently across all glossary page types:
+
+1. **Visible article prose and tables** are the human-readable canonical article surface.
+2. **Type-specific data blocks** are the structured page-local state model for future generated pages, dashboards, and reader-position filters. They should carry recurring state such as character affiliations, pathway status, artifact custody, location functions, event participation, aliases, access rules, and similar data, including claim availability by medium and reader position when the state can change over time.
+3. **Reader Knowledge Ledger knowledge units** are the audit and interpretation layer for reader knowledge. Use them to explain why a claim changes, preserve misconception arcs, cite reveal evidence, compare adaptations, and support QA, but do not make future renderers hunt through knowledge units for ordinary page-local state that belongs in the type-specific data block.
+4. **Relationship Seeds** are graph projection hints. They say which node-to-node edge should exist in relationship graphs, which relationship type to use, and the earliest reader-safe point where that edge becomes graph-worthy. When possible, a seed should point to the data-block row it projects.
+
+When these layers overlap, resolve the content in this order: article prose/tables define the human-facing article; type-specific data blocks define structured page-local state; Reader Knowledge Ledger entries explain reveal/audit history; Relationship Seeds project graph-worthy edges from that structured state.
+
+Do not use Relationship Seeds to duplicate every data-block row. Use seeds only when the edge should be visible in generated relationship graphs. A data block can list many holders, members, aliases, access points, or related items without each row becoming a seed immediately.
+
+### Relationship Seed Ownership
+
+Each semantic edge should normally have one canonical Relationship Seed owner. Other pages may mention the same relationship in prose, related-thread lists, type-specific data blocks, or knowledge units without adding duplicate seeds.
+
+Default ownership rules:
+
+- **Source-owned entity relationships**: for relationships such as `member-of`, `civilian-staff-of`, `works-at`, `pathway-status`, `superior`, `subordinate`, `mentor`, `student`, `artifact-user`, `victim-of`, `protects`, `enemy`, `ally`, and similar entity-to-entity state, put the seed on the source entity's page when that page exists.
+- **Event-centered relationships**: put `event-participant`, `event-location`, `event-cause`, `event-enabler`, and `event-outcome` seeds on the event page, even when the edge direction points toward or away from the event.
+- **Pathway and metaphysics relationships**: put pathway-wide associations such as `associated-tarot-card`, `associated-sequence-0`, `associated-ats`, `associated-sefirot`, `associated-uniqueness`, and `associated-mythical-creature-form` on the pathway or metaphysics page that owns the association. Character-specific `pathway-status` belongs on the character page when the character page exists; pathway pages may keep holder rows in their data block without duplicating every holder as a Relationship Seed.
+- **Location-function relationships**: put `public-cover-for`, `operational-base-for`, and similar location-function seeds on the location page when the source is the location. Put `works-at` or `uses-as-operational-refuge` on the person/faction page when the source is the person/faction and that source page exists.
+- **Concept relationships**: put `mechanic-of`, `instance-of`, `trains-in`, `requires-practice`, `uses-method`, and `access-route-to` on the source page when the source exists. A concept page may own seeds only when the concept itself is the graph center or the source page does not yet exist.
+- **Provisional hub seeds**: if the natural source page does not exist yet, a faction, pathway, event, concept, location, or artifact page may temporarily own a seed so the graph can show the edge. Mark that seed `projection_scope: provisional` and migrate or remove it when the natural owner page is created.
+
+Exact duplicate seeds across owner pages should be treated as QA findings unless they are explicitly provisional, represent different relationship types, or record a real reader-state/modeling conflict that needs resolution.
+
+### Relationship State History
+
+Use Relationship Seeds for the graph edge, not for the full state history of the claim.
+
+`start` means the earliest reader-safe point where the relationship becomes graph-worthy. It does not necessarily mean the relationship is already confirmed. If a relationship begins as a clue, inference, or strong evidence and is confirmed later, store that confidence progression in the relevant type-specific data-block row's `availability` list. Use knowledge-unit `disclosures` when the claim needs a fuller reveal/audit explanation.
+
+Do not add multiple Relationship Seeds for the same `source + relationship_type + target` merely to represent confidence progression. Prefer one seed plus a data-block state row that records the availability history. If the seed projects a specific row, add `projection_source`. If the seed also depends on a specific knowledge unit, add `claim_id` with the knowledge unit id so future generators can merge graph projection with reader-state history.
+
+For new or retrofitted structured data, prefer `availability` over single `reveal` fields. Every reader-visible data-block row should be able to carry one or more availability entries:
+
+```yaml
+availability:
+  - medium: novel
+    from: { book: lotm-1, volume: 1, chapter: 22 }
+    confidence: strong-evidence
+    status: strong-evidence-at-boundary
+    graph_visibility: full
+    notes: Earliest graph-worthy clue or inference.
+  - medium: novel
+    from: { book: lotm-1, volume: 1, chapter: 45 }
+    confidence: confirmed
+    status: current-at-boundary
+    graph_visibility: full
+    notes: Later confirmation at the active reader boundary.
+  - medium: donghua
+    from: { season: 1, episode: TBD, release_order: TBD }
+    confidence: TBD
+    status: pending-adaptation-verification
+    adaptation_relationship: pending
+```
+
+Legacy `reveal` fields may remain on older rows until the page is migrated. Do not mix novel and Donghua timing into one blended field.
+
+Use `graph_visibility` only when a row can project into relationship graphs. It controls whether the relationship renders at that reader position, not whether the underlying true relationship exists in canon:
+
+- `hidden`: render nothing. This is the default before the reader knows the relationship exists.
+- `anonymized`: render a generic source, target, or relationship label because the reader can see that an unknown actor/force/relationship exists.
+- `partial`: render some real pieces while withholding other pieces, such as showing the source but using a safer relationship label.
+- `full`: render the true eligible source, target, and relationship type.
+
+Do not anonymize future knowledge by default. Use `anonymized` or `partial` only when the text has made the unknown actor, force, relationship, or pattern reader-visible. Mystery mechanics such as 0-08 should usually progress through a ladder like `hidden` -> `anonymized` or `partial` -> `full`, with each rung tied to an actual reader-visible clue or reveal.
+
+Optional display override fields inside an availability entry:
+
+```yaml
+graph_visibility: anonymized
+display_source_label: Unknown Influence
+display_target_label: Unknown Figure
+display_relationship_type: affects
+display_notes: Reader can see the anomalous pattern, but not the true source or mechanism.
+```
+
+Recommended optional fields for future-proof seeds:
+
+```yaml
+projection_owner: source-page
+projection_scope: canonical
+projection_source: character_profile.pathway_state[pathway-sleepless]
+claim_id: subject-claim-id
+default_hidden_source_behavior: hide
+default_hidden_target_behavior: hide
+```
+
+Use `projection_scope: canonical` for the normal owner seed, `projection_scope: provisional` for temporary hub-owned seeds, and `projection_scope: local-context` only when a duplicate is intentionally kept because the page-local context changes interpretation. Avoid `local-context` unless a QA review would otherwise incorrectly treat the seed as accidental duplication.
+
+Relationship graph renderers should evaluate visibility in this order:
+
+1. Hide the relationship if the source page fails `Subject Visible From`.
+2. Hide the relationship if the projected data row or seed is not available at the selected reader position.
+3. Hide the relationship if the target page fails `Subject Visible From`, unless the current availability entry explicitly sets `graph_visibility: anonymized` or `graph_visibility: partial` with safe display labels.
+4. Render the current availability entry's display labels/type when provided; otherwise render the canonical source, target, and relationship type.
 
 Use controlled relationship types when possible:
 
@@ -990,13 +1092,13 @@ Recommend or define a narrow new relationship type, update `PROJECT_RULES.md`, t
 
 ### Generator Interpretation Rules
 
-Duplicate exact relationship seeds are acceptable when they provide article-local context or bidirectional coverage across existing glossary pages.
+Duplicate exact relationship seeds are QA signals by default. They may be acceptable only when they are marked as provisional, intentionally local-context, or represent a known modeling conflict awaiting cleanup.
 
-Graph generators should de-duplicate exact rendered edges and report only meaningful conflicts, such as different relationship types, start points, confidence levels, statuses, or notes that change the interpretation.
+Graph generators should de-duplicate exact rendered edges for readability while preserving provenance in QA outputs. They should report meaningful conflicts, such as different relationship types, start points, confidence levels, statuses, projection scopes, or notes that change the interpretation.
 
 Multiple relationship types between the same two nodes are allowed when they represent distinct semantic roles. Do not collapse them merely because the node pair is the same.
 
-Duplicate relationship seeds may differ in notes, source file, or article-local status because each glossary page frames the same edge from its own reader boundary and analytical purpose.
+Duplicate relationship seeds may differ in notes, source file, or article-local status only when that difference is intentional and marked through `projection_scope` or explained in notes. Otherwise, normalize to one canonical owner seed and keep the other page's local context in prose, type-specific data blocks, related-thread lists, or knowledge units.
 
 Graph generators should preserve provenance for drill-down and avoid treating those differences as hard conflicts unless they change the underlying relationship type, chronology, confidence, or factual meaning.
 

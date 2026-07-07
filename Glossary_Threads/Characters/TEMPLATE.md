@@ -233,7 +233,11 @@ Use Markdown links when the target file exists, with the target document's human
 
 ## Character Data Block
 
-This block is a structured extraction aid, not a separate source of truth. Keep it aligned with the visible character sections, relationship seeds, and reader knowledge ledger. Use metadata, not this data block, for page-level `Subject Visible From`. If `mythical_creature_form_state` or `uniqueness_state` records a positive reader-safe relationship, add the corresponding graph edge in `Relationship Seeds`. Do not add relationship seeds for omitted sections, unknown/null state, or ordinary absence.
+This block is the structured page-local state model for future generated pages, dashboards, reader-position filters, and relationship graphs. Keep it aligned with the visible character sections and Reader Knowledge Ledger. Use metadata, not this data block, for page-level `Subject Visible From`. If `mythical_creature_form_state` or `uniqueness_state` records a positive reader-safe relationship, add the corresponding graph edge in `Relationship Seeds`. Do not add relationship seeds for omitted sections, unknown/null state, or ordinary absence.
+
+For new or retrofitted rows, prefer `availability` over a single `reveal` field. `availability` preserves novel and Donghua timing independently and can record confidence changes over time. Every row that describes reader-visible state should support availability. Keep legacy `reveal` fields only on unmigrated rows.
+
+Use `graph_visibility` inside an availability entry only when the row can project into relationship graphs. `hidden` means render nothing at that reader point; `anonymized` means use safe generic labels because the reader can see an unknown actor, force, or relationship pattern; `partial` means show some real pieces while withholding others; `full` means show the true eligible source, target, and relationship type.
 
 Use kebab-case values for local Character Data Block taxonomy fields such as `status`, `relationship`, `possession_status`, `outcome_status`, `type`, `role`, `source`, and `confidence`. Keep YAML field names such as `reader_boundary`, `state_sort_order`, `possession_status`, and `outcome_status` in snake_case.
 
@@ -256,153 +260,319 @@ character_profile:
   identities:
     - field:
       value:
-      reveal:
-        medium:
-        volume:
-        chapter:
       status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          adaptation_relationship:
+          notes:
       notes:
   physical_profile:
     - field:
       value:
-      reveal:
-        medium:
-        volume:
-        chapter:
       status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          notes:
       notes:
   status_origin_location:
     - field:
       value:
-      reveal:
-        medium:
-        volume:
-        chapter:
       status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          notes:
       notes:
   affiliations:
     - organization:
       relationship:
-      reveal:
-        medium:
-        volume:
-        chapter:
       status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          adaptation_relationship:
+          notes:
       notes:
-  pathway_ability_state:
-    - field:
-      value:
-      reveal:
-        medium:
-        volume:
-        chapter:
+  pathway_state:
+    - pathway:
+      target:
+      relationship: pathway-status
       status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          adaptation_relationship:
+          notes:
+      notes:
+  sequence_state:
+    - sequence:
+      sequence_name:
+      related_pathway:
+      status:
+      confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          adaptation_relationship:
+          notes:
       notes:
   mythical_creature_form_state:
     - form_state:
       version_stage:
       related_pathway:
       sequence_threshold:
-      reveal:
-        medium:
-        volume:
-        chapter:
       status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          graph_visibility:
+          display_source_label:
+          display_target_label:
+          display_relationship_type:
+          notes:
       notes:
   uniqueness_state:
     - uniqueness:
       relationship_state:
-      reveal:
-        medium:
-        volume:
-        chapter:
       status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          graph_visibility:
+          display_source_label:
+          display_target_label:
+          display_relationship_type:
+          notes:
       notes:
   ability_index:
     - ability:
       source:
-      reveal:
-        medium:
-        volume:
-        chapter:
       status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          notes:
       notes:
   equipment_artifacts:
     - item:
       type:
-      reveal:
-        medium:
-        volume:
-        chapter:
       possession_status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          possession_status:
+          confidence:
+          graph_visibility:
+          display_source_label:
+          display_target_label:
+          display_relationship_type:
+          notes:
       notes:
   personality:
     - trait:
       evidence:
-      reveal:
-        medium:
-        volume:
-        chapter:
       status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          notes:
       notes:
   relationships:
     - target:
       relationship:
-      reveal:
-        medium:
-        volume:
-        chapter:
       status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          graph_visibility:
+          display_source_label:
+          display_target_label:
+          display_relationship_type:
+          notes:
       notes:
   messengers_servants_companions:
     - entity:
       type:
-      reveal:
-        medium:
-        volume:
-        chapter:
       status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          graph_visibility:
+          display_source_label:
+          display_target_label:
+          display_relationship_type:
+          notes:
       notes:
   prayers_ritual_access:
     - label:
       type:
       function:
-      reveal:
-        medium:
-        volume:
-        chapter:
       status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          notes:
       concept_link: ../Concepts/concept-prayers-and-rituals.md
       wording:
       notes:
   major_events_fights:
     - event:
       role:
-      reveal:
-        medium:
-        volume:
-        chapter:
       outcome_status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          outcome_status:
+          confidence:
+          graph_visibility:
+          display_source_label:
+          display_target_label:
+          display_relationship_type:
+          notes:
       notes:
 ```
 
 ## Relationship Seeds
 
-Use this section only for relationships important enough to support future relationship graphs. Keep entries reader-boundary aware and mark unverified start points as `TBD`. For Uniqueness and mythical creature form material, seed positive graph-worthy edges such as `possesses-uniqueness`, `controls-uniqueness`, `accommodates-uniqueness`, or `has-mythical-creature-form`; keep detailed state/history in the character sections and data block. For mythical creature forms, target `concept-mythical-creature-forms` and record the specific form name in notes/local data.
+Use this section only for relationships important enough to support future relationship graphs. Relationship Seeds are graph projection hints, not full state histories or replacements for character data blocks and knowledge units.
+
+For character pages, this page normally owns seeds where the character is the source, such as affiliation, staffing, pathway status, workplace, reporting, mentor/student, artifact-use, and event participation when the relationship is not event-centered. Keep detailed state/history in the character sections and data block. Use Reader Knowledge Ledger disclosures for audit/explanation. If confidence changes over time, keep one graph edge seed and record the change in the data-block row's `availability` list.
+
+Keep entries reader-boundary aware and mark unverified start points as `TBD`. `start` is the earliest reader-safe point where the edge becomes graph-worthy, not necessarily the confirmation point.
+
+For Uniqueness and mythical creature form material, seed positive graph-worthy edges such as `possesses-uniqueness`, `controls-uniqueness`, `accommodates-uniqueness`, or `has-mythical-creature-form`; keep detailed state/history in the character sections and data block. For mythical creature forms, target `concept-mythical-creature-forms` and record the specific form name in notes/local data.
 
 ```yaml
 relationships:
@@ -418,6 +588,12 @@ relationships:
       release_order:
     status:
     confidence:
+    projection_owner:
+    projection_scope: canonical
+    projection_source:
+    claim_id:
+    default_hidden_source_behavior: hide
+    default_hidden_target_behavior: hide
     notes:
 ```
 

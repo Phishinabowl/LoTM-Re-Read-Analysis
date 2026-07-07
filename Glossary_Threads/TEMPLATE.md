@@ -175,9 +175,15 @@ Use the matching category template for this section when one exists. Replace thi
 
 Omit this section for lightweight stubs or categories whose data block shape has not been defined yet. Do not invent a generic schema just to fill this slot.
 
+For any row that describes reader-visible state, use row-level `availability` instead of a single blended reveal field. `Subject Visible From` gates the whole page; `availability` gates individual facts after the page is visible. Each availability entry may include `graph_visibility` when the row can project into a relationship graph. Use `hidden` by default before the relationship itself is reader-visible, and reserve `anonymized` or `partial` for cases where the story has made an unknown actor, force, or relationship pattern visible without revealing the true source, target, or label.
+
 ## Relationship Seeds
 
-Use this section only for relationships important enough to support future relationship graphs. Keep entries reader-boundary aware and mark unverified start points as `TBD`.
+Use this section only for relationships important enough to support future relationship graphs. Relationship Seeds are graph projection hints, not full state histories or replacements for data blocks and knowledge units.
+
+Prefer one canonical seed owner for each semantic edge. Store local rosters, holders, access rows, aliases, detailed state, and confidence progression in the visible section and type-specific data block. Use Reader Knowledge Ledger disclosures for reveal/audit explanation, adaptation comparison, and misconception or supersedence notes that need narrative context.
+
+Keep entries reader-boundary aware and mark unverified start points as `TBD`. `start` is the earliest reader-safe point where the edge becomes graph-worthy, not necessarily the confirmation point.
 
 Omit this section on actual pages only when no graph-worthy relationships have been identified yet.
 
@@ -195,6 +201,12 @@ relationships:
       release_order:
     status:
     confidence:
+    projection_owner:
+    projection_scope: canonical
+    projection_source:
+    claim_id:
+    default_hidden_source_behavior: hide
+    default_hidden_target_behavior: hide
     notes:
 ```
 

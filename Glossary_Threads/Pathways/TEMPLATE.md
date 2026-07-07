@@ -200,7 +200,11 @@ Track the pathway's associated mythical creature form here when it becomes reade
 
 ## Pathway Data Block
 
-This block is a structured extraction aid for future graphs and dashboards. It duplicates the high-value pathway facts above in a predictable shape; the prose, relationship seeds, reader knowledge ledger, and metadata remain authoritative. Use metadata, not this data block, for page-level `Subject Visible From`. If `associated_tarot_card`, `associated_higher_order_entities`, `associated_uniqueness`, or `associated_mythical_creature` names a positive reader-safe target, add the corresponding graph edge in `Relationship Seeds`. Do not add relationship seeds for unknown/null placeholder state.
+This block is the structured page-local state model for future generated pages, dashboards, reader-position filters, and relationship graphs. It duplicates the high-value pathway facts above in a predictable shape; keep it aligned with the prose and Reader Knowledge Ledger. Use metadata, not this data block, for page-level `Subject Visible From`. If `associated_tarot_card`, `associated_higher_order_entities`, `associated_uniqueness`, or `associated_mythical_creature` names a positive reader-safe target, add the corresponding graph edge in `Relationship Seeds`. Do not add relationship seeds for unknown/null placeholder state.
+
+For new or retrofitted rows, prefer `availability` over a single `reveal` field. `availability` preserves novel and Donghua timing independently and can record confidence changes over time. Every row that describes reader-visible state should support availability. Keep legacy `reveal` fields only on unmigrated rows.
+
+Use `graph_visibility` inside an availability entry only when the row can project into relationship graphs. `hidden` means render nothing at that reader point; `anonymized` means use safe generic labels because the reader can see an unknown actor, force, or relationship pattern; `partial` means show some real pieces while withholding others; `full` means show the true eligible source, target, and relationship type.
 
 Use kebab-case values for local Pathway Data Block taxonomy fields such as `status`, `usage_type`, `display_behavior`, `relationship_layer`, `type`, `usage`, and `confidence`. Keep YAML field names such as `reader_boundary`, `stable_slug`, `usage_type`, `display_behavior`, and `relationship_layer` in snake_case.
 
@@ -297,11 +301,24 @@ pathway_profile:
       status:
       sequence:
       sequence_name:
-      reveal:
-        medium:
-        volume:
-        chapter:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          adaptation_relationship:
+          graph_visibility:
+          display_source_label:
+          display_target_label:
+          display_relationship_type:
+          notes:
       notes:
   associated_uniqueness:
     reader_safe_name:
@@ -331,7 +348,13 @@ pathway_profile:
 
 ## Relationship Seeds
 
-Use relationship seeds for graph-visible pathway edges, including `associated-tarot-card`, `associated-sequence-0`, `associated-ats`, `associated-outer-deity`, `associated-sefirot`, `associated-uniqueness`, and `associated-mythical-creature-form` when those targets are reader-safe. For mythical creature forms, target the shared `concept-mythical-creature-forms` concept page and preserve the specific form name in notes/local data. Keep detailed state, holders, notes, title variants, display timing, and uncertainty in the visible sections and `Pathway Data Block`.
+Use relationship seeds for graph-visible pathway edges, including `associated-tarot-card`, `associated-sequence-0`, `associated-ats`, `associated-outer-deity`, `associated-sefirot`, `associated-uniqueness`, and `associated-mythical-creature-form` when those targets are reader-safe. Relationship Seeds are graph projection hints, not full state histories or replacements for pathway data blocks and knowledge units.
+
+For pathway pages, this page owns pathway-wide metaphysical, institutional, tarot, Sequence 0, ATS, sefirot, Uniqueness, and mythical-creature-form associations. Do not duplicate every known holder as a `pathway-status` seed when the holder/character page exists; keep holder lists and uncertainty in `Known Holders` and `Pathway Data Block`. Use provisional holder seeds only when the holder page does not exist yet and the graph needs the edge.
+
+If confidence or reader-state changes over time, keep one graph edge seed and record the state progression in the data-block row's `availability` list. Use Reader Knowledge Ledger disclosures for audit/explanation. `start` is the earliest reader-safe point where the edge becomes graph-worthy, not necessarily the confirmation point.
+
+For mythical creature forms, target the shared `concept-mythical-creature-forms` concept page and preserve the specific form name in notes/local data. Keep detailed state, holders, notes, title variants, display timing, and uncertainty in the visible sections and `Pathway Data Block`.
 
 ```yaml
 relationships:
@@ -347,6 +370,12 @@ relationships:
       release_order:
     status:
     confidence:
+    projection_owner:
+    projection_scope: canonical
+    projection_source:
+    claim_id:
+    default_hidden_source_behavior: hide
+    default_hidden_target_behavior: hide
     notes:
 ```
 
