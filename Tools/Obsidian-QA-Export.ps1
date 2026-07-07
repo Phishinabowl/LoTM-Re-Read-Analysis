@@ -3,7 +3,8 @@ param(
   [string]$OutputDir = "Obsidian_Export",
   [switch]$IncludeStubs,
   [switch]$Clean,
-  [switch]$Json
+  [switch]$Json,
+  [string[]]$BoundedGraph = @()
 )
 
 $ErrorActionPreference = "Stop"
@@ -414,6 +415,150 @@ function Get-DataProjections {
   return $projections
 }
 
+function Get-FirstAppearanceBeats {
+  param([string]$Text)
+
+  $beats = @()
+  $relationshipBlock = Get-RelationshipYaml $Text
+
+  foreach ($block in Get-FencedYamlBlocks $Text) {
+    if ($relationshipBlock -and $block.Text -eq $relationshipBlock) {
+      continue
+    }
+
+    $rootKey = ""
+    $sectionKey = ""
+    $row = $null
+    $position = @{}
+    $graphDisplay = @{}
+    $context = ""
+
+    foreach ($rawLine in $block.Text -split "`r?`n") {
+      if ([string]::IsNullOrWhiteSpace($rawLine) -or -not $rawLine.Contains(":")) {
+        continue
+      }
+      $indent = $rawLine.Length - $rawLine.TrimStart(" ").Length
+      $line = $rawLine.Trim()
+
+      if ($indent -eq 0 -and -not $line.StartsWith("- ")) {
+        if ($null -ne $row) {
+          $beats += [pscustomobject]@{
+            medium = if ($row.ContainsKey("medium")) { $row["medium"] } else { "" }
+            beat_type = if ($row.ContainsKey("beat_type")) { $row["beat_type"] } else { "" }
+            title = if ($row.ContainsKey("title")) { $row["title"] } else { "" }
+            position = $position.Clone()
+            reader_knowledge_state = if ($row.ContainsKey("reader_knowledge_state")) { $row["reader_knowledge_state"] } else { "" }
+            viewer_knowledge_state = if ($row.ContainsKey("viewer_knowledge_state")) { $row["viewer_knowledge_state"] } else { "" }
+            graph_behavior = if ($graphDisplay.ContainsKey("behavior")) { $graphDisplay["behavior"] } else { "" }
+            graph_label = if ($graphDisplay.ContainsKey("label")) { $graphDisplay["label"] } else { "" }
+            status = if ($row.ContainsKey("status")) { $row["status"] } else { "" }
+            confidence = if ($row.ContainsKey("confidence")) { $row["confidence"] } else { "" }
+          }
+        }
+        $row = $null; $position = @{}; $graphDisplay = @{}; $context = ""
+        $parts = $line.Split(":", 2)
+        $rootKey = if ((ConvertFrom-Scalar $parts[1]) -eq "") { $parts[0].Trim() } else { "" }
+        $sectionKey = ""
+        continue
+      }
+
+      if ($rootKey -and $indent -eq 2 -and -not $line.StartsWith("- ")) {
+        if ($null -ne $row) {
+          $beats += [pscustomobject]@{
+            medium = if ($row.ContainsKey("medium")) { $row["medium"] } else { "" }
+            beat_type = if ($row.ContainsKey("beat_type")) { $row["beat_type"] } else { "" }
+            title = if ($row.ContainsKey("title")) { $row["title"] } else { "" }
+            position = $position.Clone()
+            reader_knowledge_state = if ($row.ContainsKey("reader_knowledge_state")) { $row["reader_knowledge_state"] } else { "" }
+            viewer_knowledge_state = if ($row.ContainsKey("viewer_knowledge_state")) { $row["viewer_knowledge_state"] } else { "" }
+            graph_behavior = if ($graphDisplay.ContainsKey("behavior")) { $graphDisplay["behavior"] } else { "" }
+            graph_label = if ($graphDisplay.ContainsKey("label")) { $graphDisplay["label"] } else { "" }
+            status = if ($row.ContainsKey("status")) { $row["status"] } else { "" }
+            confidence = if ($row.ContainsKey("confidence")) { $row["confidence"] } else { "" }
+          }
+        }
+        $row = $null; $position = @{}; $graphDisplay = @{}; $context = ""
+        $parts = $line.Split(":", 2)
+        $sectionKey = if ((ConvertFrom-Scalar $parts[1]) -eq "") { $parts[0].Trim() } else { "" }
+        continue
+      }
+
+      if ($rootKey -and $sectionKey -eq "first_appearance_beats" -and $indent -eq 4 -and $line.StartsWith("- ")) {
+        if ($null -ne $row) {
+          $beats += [pscustomobject]@{
+            medium = if ($row.ContainsKey("medium")) { $row["medium"] } else { "" }
+            beat_type = if ($row.ContainsKey("beat_type")) { $row["beat_type"] } else { "" }
+            title = if ($row.ContainsKey("title")) { $row["title"] } else { "" }
+            position = $position.Clone()
+            reader_knowledge_state = if ($row.ContainsKey("reader_knowledge_state")) { $row["reader_knowledge_state"] } else { "" }
+            viewer_knowledge_state = if ($row.ContainsKey("viewer_knowledge_state")) { $row["viewer_knowledge_state"] } else { "" }
+            graph_behavior = if ($graphDisplay.ContainsKey("behavior")) { $graphDisplay["behavior"] } else { "" }
+            graph_label = if ($graphDisplay.ContainsKey("label")) { $graphDisplay["label"] } else { "" }
+            status = if ($row.ContainsKey("status")) { $row["status"] } else { "" }
+            confidence = if ($row.ContainsKey("confidence")) { $row["confidence"] } else { "" }
+          }
+        }
+        $row = @{}; $position = @{}; $graphDisplay = @{}; $context = ""
+        $line = $line.Substring(2).Trim()
+        if (-not $line.Contains(":")) {
+          continue
+        }
+      }
+
+      if ($null -eq $row -or $sectionKey -ne "first_appearance_beats") {
+        continue
+      }
+
+      $parts = $line.Split(":", 2)
+      $key = $parts[0].Trim().TrimStart("-").Trim()
+      $value = ConvertFrom-Scalar $parts[1]
+
+      if ($indent -eq 4) {
+        $row[$key] = $value
+        $context = ""
+      } elseif ($indent -eq 6) {
+        if ($key -in @("position", "graph_display")) {
+          $context = $key
+          $mapping = ConvertFrom-InlineMapping $value
+          foreach ($mappingKey in $mapping.Keys) {
+            if ($key -eq "position") {
+              $position[$mappingKey] = $mapping[$mappingKey]
+            } else {
+              $graphDisplay[$mappingKey] = $mapping[$mappingKey]
+            }
+          }
+          continue
+        }
+        $row[$key] = $value
+        $context = ""
+      } elseif ($indent -ge 8) {
+        if ($context -eq "position") {
+          $position[$key] = $value
+        } elseif ($context -eq "graph_display") {
+          $graphDisplay[$key] = $value
+        }
+      }
+    }
+
+    if ($null -ne $row) {
+      $beats += [pscustomobject]@{
+        medium = if ($row.ContainsKey("medium")) { $row["medium"] } else { "" }
+        beat_type = if ($row.ContainsKey("beat_type")) { $row["beat_type"] } else { "" }
+        title = if ($row.ContainsKey("title")) { $row["title"] } else { "" }
+        position = $position.Clone()
+        reader_knowledge_state = if ($row.ContainsKey("reader_knowledge_state")) { $row["reader_knowledge_state"] } else { "" }
+        viewer_knowledge_state = if ($row.ContainsKey("viewer_knowledge_state")) { $row["viewer_knowledge_state"] } else { "" }
+        graph_behavior = if ($graphDisplay.ContainsKey("behavior")) { $graphDisplay["behavior"] } else { "" }
+        graph_label = if ($graphDisplay.ContainsKey("label")) { $graphDisplay["label"] } else { "" }
+        status = if ($row.ContainsKey("status")) { $row["status"] } else { "" }
+        confidence = if ($row.ContainsKey("confidence")) { $row["confidence"] } else { "" }
+      }
+    }
+  }
+
+  return @($beats)
+}
+
 function Get-RelationshipsFromYaml {
   param(
     [string]$Block,
@@ -559,6 +704,124 @@ function ConvertTo-SafeFileName {
   return $safeName
 }
 
+function ConvertTo-SafeSlug {
+  param(
+    [string]$Value,
+    [string]$Fallback
+  )
+  $cleaned = [regex]::Replace($Value.Trim(), "[^A-Za-z0-9._-]+", "-").Trim("-._")
+  if ([string]::IsNullOrWhiteSpace($cleaned)) {
+    return $Fallback
+  }
+  return $cleaned
+}
+
+function ConvertTo-BoolValue {
+  param([string]$Value)
+  $normalized = $Value.Trim().ToLowerInvariant()
+  if ($normalized -in @("1", "true", "yes", "y", "on")) {
+    return $true
+  }
+  if ($normalized -in @("0", "false", "no", "n", "off")) {
+    return $false
+  }
+  throw "Expected boolean value, got: $Value"
+}
+
+function ConvertFrom-BoundedGraphSpec {
+  param(
+    [string]$Spec,
+    [int]$Index
+  )
+  $Spec = (ConvertFrom-Scalar $Spec).Trim().Trim('"').Trim("'")
+  $aliases = @{
+    "maxvolume" = "max_volume"
+    "max-volume" = "max_volume"
+    "volume" = "max_volume"
+    "maxchapter" = "max_chapter"
+    "max-chapter" = "max_chapter"
+    "chapter" = "max_chapter"
+    "maxseason" = "max_season"
+    "max-season" = "max_season"
+    "season" = "max_season"
+    "maxepisode" = "max_episode"
+    "max-episode" = "max_episode"
+    "episode" = "max_episode"
+    "maxreleaseorder" = "max_release_order"
+    "max-release-order" = "max_release_order"
+    "releaseorder" = "max_release_order"
+    "release-order" = "max_release_order"
+    "includeunknownsubjects" = "include_unknown_subjects"
+    "include-unknown-subjects" = "include_unknown_subjects"
+    "includeunknownpositions" = "include_unknown_positions"
+    "include-unknown-positions" = "include_unknown_positions"
+    "file" = "file_stem"
+    "filename" = "file_stem"
+    "file-stem" = "file_stem"
+  }
+  $values = @{}
+  foreach ($part in $Spec -split ",") {
+    $part = $part.Trim().Trim('"').Trim("'")
+    if (-not $part) {
+      continue
+    }
+    if (-not $part.Contains("=")) {
+      throw "Invalid -BoundedGraph segment '$part'. Use key=value pairs."
+    }
+    $pieces = $part.Split("=", 2)
+    $key = $pieces[0].Trim().Trim('"').Trim("'")
+    $normalizedKey = $key.Replace("_", "-").ToLowerInvariant()
+    if ($aliases.ContainsKey($normalizedKey)) {
+      $normalizedKey = $aliases[$normalizedKey]
+    } else {
+      $normalizedKey = $key.Trim().Replace("-", "_").ToLowerInvariant()
+    }
+    $values[$normalizedKey] = (ConvertFrom-Scalar $pieces[1].Trim()).Trim('"').Trim("'")
+  }
+
+  $name = if ($values.ContainsKey("name") -and $values["name"]) { $values["name"] } else { "bounded-graph-$Index" }
+  $medium = if ($values.ContainsKey("medium") -and $values["medium"]) { $values["medium"] } else { "novel" }
+  $fileStemSource = if ($values.ContainsKey("file_stem") -and $values["file_stem"]) { $values["file_stem"] } else { $name }
+  $hasBoundary = $false
+  foreach ($key in @("max_volume", "max_chapter", "max_season", "max_episode", "max_release_order")) {
+    if ($values.ContainsKey($key) -and $values[$key]) {
+      $hasBoundary = $true
+    }
+  }
+  if (-not $hasBoundary) {
+    throw "-BoundedGraph '$Spec' must include at least one max boundary, such as maxVolume=1."
+  }
+
+  return [pscustomobject]@{
+    name = $name
+    file_stem = ConvertTo-SafeSlug $fileStemSource "bounded-graph-$Index"
+    medium = $medium
+    max_volume = if ($values.ContainsKey("max_volume")) { $values["max_volume"] } else { "" }
+    max_chapter = if ($values.ContainsKey("max_chapter")) { $values["max_chapter"] } else { "" }
+    max_season = if ($values.ContainsKey("max_season")) { $values["max_season"] } else { "" }
+    max_episode = if ($values.ContainsKey("max_episode")) { $values["max_episode"] } else { "" }
+    max_release_order = if ($values.ContainsKey("max_release_order")) { $values["max_release_order"] } else { "" }
+    include_unknown_subjects = ConvertTo-BoolValue $(if ($values.ContainsKey("include_unknown_subjects")) { $values["include_unknown_subjects"] } else { "false" })
+    include_unknown_positions = ConvertTo-BoolValue $(if ($values.ContainsKey("include_unknown_positions")) { $values["include_unknown_positions"] } else { "false" })
+  }
+}
+
+function ConvertFrom-BoundedGraphSpecs {
+  param([string[]]$Specs)
+  $result = @()
+  $index = 1
+  foreach ($rawSpec in @($Specs)) {
+    foreach ($spec in ($rawSpec -split ";")) {
+      if (-not $spec.Trim()) {
+        continue
+      }
+      $result += ConvertFrom-BoundedGraphSpec $spec $index
+      $index += 1
+    }
+  }
+  return @($result)
+}
+
 function Get-CanonicalNotes {
   param(
     [string]$RepoRoot,
@@ -591,6 +854,7 @@ function Get-CanonicalNotes {
       $noteRelationships = @(Get-RelationshipsFromYaml (Get-RelationshipYaml $text) $relativeSource)
       $noteDataRefs = @(Get-DataReferences $text $slug $relativeSource)
       $noteDataProjections = Get-DataProjections $text $slug
+      $noteFirstAppearanceBeats = @(Get-FirstAppearanceBeats $text)
       $typeName = $metadata["type"]
       $note = [pscustomobject]@{
         slug = $slug
@@ -598,6 +862,7 @@ function Get-CanonicalNotes {
         source_path = $file.FullName
         relative_source = $relativeSource
       metadata = $metadata
+      first_appearance_beats = $noteFirstAppearanceBeats
       relationships = $noteRelationships
       data_references = $noteDataRefs
       data_projections = $noteDataProjections
@@ -724,6 +989,63 @@ function Format-DataRefLine {
   return "- ${key}:: $subject ($($Reference.yaml_block); $(Format-SourceLink $Reference.source_file))"
 }
 
+function Format-TableCell {
+  param([string]$Value)
+  if ($null -eq $Value) {
+    return ""
+  }
+  return $Value.Replace("|", "\|")
+}
+
+function Format-BeatPosition {
+  param([hashtable]$Position)
+  $parts = @()
+  foreach ($item in @(
+    @{ key = "book"; label = "book" },
+    @{ key = "volume"; label = "vol" },
+    @{ key = "chapter"; label = "ch" },
+    @{ key = "season"; label = "s" },
+    @{ key = "episode"; label = "ep" },
+    @{ key = "release_order"; label = "order" }
+  )) {
+    if ($Position.ContainsKey($item.key) -and $Position[$item.key]) {
+      $parts += "$($item.label) $($Position[$item.key])"
+    }
+  }
+  return ($parts -join ", ")
+}
+
+function ConvertTo-FirstAppearanceBeatMarkdown {
+  param([object[]]$Beats)
+  $lines = @("", "## First Appearance Beats", "")
+  if ($Beats.Count -eq 0) {
+    $lines += "- None generated."
+    return @($lines)
+  }
+
+  $lines += "| Medium | Beat | Position | Reader / Viewer Knowledge | Graph Display | Status |"
+  $lines += "|---|---|---|---|---|---|"
+  foreach ($beat in $Beats) {
+    $beatTitle = @(if ($beat.beat_type) { $beat.beat_type }; if ($beat.title) { $beat.title }) -join " - "
+    $knowledge = @(if ($beat.reader_knowledge_state) { $beat.reader_knowledge_state }; if ($beat.viewer_knowledge_state) { $beat.viewer_knowledge_state }) -join " / "
+    $graphDisplay = $beat.graph_behavior
+    if ($beat.graph_label) {
+      $graphDisplay = if ($graphDisplay) { "${graphDisplay}: $($beat.graph_label)" } else { $beat.graph_label }
+    }
+    $status = @(if ($beat.status) { $beat.status }; if ($beat.confidence) { $beat.confidence }) -join " / "
+    $cells = @(
+      (Format-TableCell $beat.medium),
+      (Format-TableCell $beatTitle),
+      (Format-TableCell (Format-BeatPosition $beat.position)),
+      (Format-TableCell $knowledge),
+      (Format-TableCell $graphDisplay),
+      (Format-TableCell $status)
+    )
+    $lines += "| $($cells -join ' | ') |"
+  }
+  return @($lines)
+}
+
 function ConvertTo-NoteMarkdown {
   param(
     [object]$Note,
@@ -765,6 +1087,8 @@ function ConvertTo-NoteMarkdown {
       $lines += "- ${displayKey}:: $($Note.metadata[$key])"
     }
   }
+
+  $lines += ConvertTo-FirstAppearanceBeatMarkdown $Note.first_appearance_beats
 
   $lines += @("", "## Outgoing Relationship Seeds", "")
   if ($outgoing.Count -gt 0) {
@@ -1573,6 +1897,51 @@ function Write-RepoRefreshCheck {
   powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "Visualization/visualize.ps1") -Mode Refresh -SettingsPath (Get-RepoRelativePath $RepoRoot $settingsPath) -SkipRender
 }
 
+function Write-BoundedGraphs {
+  param(
+    [string]$RepoRoot,
+    [string]$GeneratedDir,
+    [object[]]$Specs
+  )
+  if (@($Specs).Count -eq 0) {
+    return
+  }
+
+  $sourceSettingsPath = Join-Path $RepoRoot "Visualization/config/render-settings.json"
+  $settings = Get-Content -LiteralPath $sourceSettingsPath -Raw | ConvertFrom-Json
+  $boundedDir = Join-Path $GeneratedDir "bounded-graphs"
+  New-Item -ItemType Directory -Path $boundedDir -Force | Out-Null
+
+  $settings.reportPath = Get-RepoRelativePath $RepoRoot (Join-Path $boundedDir "bounded-graphs-report.md")
+  $settings.snapshotPath = Get-RepoRelativePath $RepoRoot (Join-Path $boundedDir "bounded-graphs-snapshot.json")
+  $settings.views = @()
+
+  foreach ($spec in @($Specs)) {
+    $boundary = [ordered]@{
+      medium = $spec.medium
+      includeUnknownSubjects = [bool]$spec.include_unknown_subjects
+      includeUnknownPositions = [bool]$spec.include_unknown_positions
+    }
+    if ($spec.max_volume) { $boundary["maxVolume"] = $spec.max_volume }
+    if ($spec.max_chapter) { $boundary["maxChapter"] = $spec.max_chapter }
+    if ($spec.max_season) { $boundary["maxSeason"] = $spec.max_season }
+    if ($spec.max_episode) { $boundary["maxEpisode"] = $spec.max_episode }
+    if ($spec.max_release_order) { $boundary["maxReleaseOrder"] = $spec.max_release_order }
+
+    $settings.views += [pscustomobject]@{
+      name = $spec.name
+      input = Get-RepoRelativePath $RepoRoot (Join-Path $boundedDir "$($spec.file_stem).mmd")
+      readerBoundary = [pscustomobject]$boundary
+      outputs = @()
+    }
+  }
+
+  $settingsPath = Join-Path $boundedDir "bounded-graphs-settings.json"
+  Write-TextFile $settingsPath ($settings | ConvertTo-Json -Depth 50)
+
+  powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "Visualization/visualize.ps1") -Mode Refresh -SettingsPath (Get-RepoRelativePath $RepoRoot $settingsPath) -SkipRender
+}
+
 function Write-ObsidianExport {
   param(
     [string]$RepoRoot,
@@ -1581,7 +1950,8 @@ function Write-ObsidianExport {
     [hashtable]$Notes,
     [object[]]$Relationships,
     [object[]]$DataReferences,
-    [hashtable]$DataProjections
+    [hashtable]$DataProjections,
+    [object[]]$BoundedGraphSpecs
   )
   $exportPath = Assert-SafeOutputPath $RepoRoot $ExportPath
   if ($CleanOutput -and (Test-Path -LiteralPath $exportPath)) {
@@ -1603,6 +1973,7 @@ function Write-ObsidianExport {
   Write-TextFile (Join-Path $generatedDir "QA-relationship-node-graph.mmd") (ConvertTo-RelationshipNodeGraph $Relationships $Notes $DataProjections)
   Write-TextFile (Join-Path $generatedDir "visualization-relationship-graph.mmd") (ConvertTo-VisualizationRelationshipGraph $Relationships $Notes $DataProjections)
   Write-RepoRefreshCheck $RepoRoot $generatedDir
+  Write-BoundedGraphs $RepoRoot $generatedDir $BoundedGraphSpecs
   Write-TextFile (Join-Path $generatedDir "data-reference-index.md") (ConvertTo-DataReferenceIndex $DataReferences $Notes)
   Write-TextFile (Join-Path $generatedDir "orphan-report.md") (ConvertTo-OrphanReport $Notes $Relationships $DataReferences)
   Write-TextFile (Join-Path $generatedDir "suspicious-edges.md") (ConvertTo-SuspiciousEdges $Notes $Relationships)
@@ -1622,8 +1993,9 @@ function Invoke-DisposableCacheCleanup {
 
 $repoRoot = (Resolve-Path -LiteralPath $Root).Path
 $exportPath = if ([System.IO.Path]::IsPathRooted($OutputDir)) { $OutputDir } else { Join-Path $repoRoot $OutputDir }
+$boundedGraphSpecs = @(ConvertFrom-BoundedGraphSpecs $BoundedGraph)
 $discovered = Get-CanonicalNotes $repoRoot ([bool]$IncludeStubs)
-Write-ObsidianExport $repoRoot $exportPath ([bool]$Clean) $discovered.Notes $discovered.Relationships $discovered.DataReferences $discovered.DataProjections
+Write-ObsidianExport $repoRoot $exportPath ([bool]$Clean) $discovered.Notes $discovered.Relationships $discovered.DataReferences $discovered.DataProjections $boundedGraphSpecs
 
 $orphanData = Get-OrphanAnalysis $discovered.Notes $discovered.Relationships $discovered.DataReferences
 $suspiciousData = Get-SuspiciousEdgeAnalysis $discovered.Relationships $discovered.Notes
@@ -1638,6 +2010,7 @@ $summary = [ordered]@{
   self_loops = @($suspiciousData.self_loops).Count
   duplicate_edge_groups = @($suspiciousData.duplicate_edges).Count
   missing_reciprocals = @($suspiciousData.missing_reciprocals).Count
+  bounded_graphs = @($boundedGraphSpecs).Count
 }
 
 if ($Json) {

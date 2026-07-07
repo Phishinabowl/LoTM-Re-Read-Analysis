@@ -27,7 +27,7 @@ Use `clean_temp_files.py` to remove disposable local cache directories when Pyth
 
 `Clean-TempFiles.ps1` is the Windows PowerShell fallback for users who do not have Python installed.
 
-Both scripts only target allowlisted cache directories under the repository root:
+By default, both scripts only target allowlisted cache directories under the repository root:
 
 ```text
 __pycache__
@@ -63,6 +63,36 @@ PowerShell fallback:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Clean-TempFiles.ps1 -Delete
+```
+
+Use `--include-tmp` / `-IncludeTmp` to include direct children of the ignored repository `.tmp/` folder. This is useful after parity checks, bounded-graph experiments, EPUB extraction checks, or other local QA runs:
+
+Preferred Python:
+
+```powershell
+python Tools\clean_temp_files.py --include-tmp
+python Tools\clean_temp_files.py --include-tmp --delete
+```
+
+PowerShell fallback:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Clean-TempFiles.ps1 -IncludeTmp
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Clean-TempFiles.ps1 -IncludeTmp -Delete
+```
+
+Tools that create disposable `.tmp` artifacts automatically should use scoped cleanup instead of broad `.tmp` cleanup. Pass the exact path created during that run with `--tmp-path` / `-TmpPath`; the helper will delete only that path and only if it resolves under repository `.tmp/`.
+
+Preferred Python:
+
+```powershell
+python Tools\clean_temp_files.py --tmp-path .tmp\tool-run-id --delete
+```
+
+PowerShell fallback:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Clean-TempFiles.ps1 -TmpPath .tmp\tool-run-id -Delete
 ```
 
 Use `--json` / `-Json` when downstream tooling needs structured results.

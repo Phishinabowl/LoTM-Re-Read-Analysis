@@ -302,13 +302,15 @@ Visible character tables are the GitHub-readable article layer. `character_profi
 
 Do not expect the future website to turn character taxonomy values into full prose on their own. Use kebab-case values for filtering, grouping, graphing, and current-state calculation; use human-written fields such as `summary`, `notes`, `reader_learns`, `changes`, `remains_unknown`, `why_it_matters`, `evidence`, or future `site_summary` / `display_text` fields for sentences that may be shown directly to readers. Renderer templates should use display-label mappings for reusable values and prose fields for article voice.
 
+Use `first_appearance_beats` to mirror the visible `First Appearance / First Meaningful Mention` section. Each meaningful visible beat should have one structured row with the same medium, position, context, and reader/viewer knowledge state. Keep early anonymous or ambiguous beats named from the reader's knowledge at that point rather than from later confirmation. Use `graph_display.behavior: anonymized-node` only when a reader-boundary graph or future site should show a safe presentation node before the canonical page title is reader-safe; otherwise use `canonical-node` or `hidden` as appropriate.
+
 Use `timeline_entries` to mirror meaningful `Chronological Development` prose as structured data for future generated pages and reader-position filtering. Place `timeline_entries` after `major_events_fights` in the character data block so it matches the visible page order where `Chronological Development` follows `Major Events & Fights`. Keep the Markdown chronology readable for GitHub; do not replace it with YAML-only chronology. Every real visible chronology subsection should have `<!-- timeline_id: ... -->` and exactly one matching `timeline_entries.id`. Keep visible subsections and timeline rows in the same oldest-to-newest reader/viewer order within each medium. When inserting a newly discovered arc, reorder the prose and data row without renaming stable semantic IDs.
 
 For new or retrofitted rows, prefer `availability` over a single `reveal` field. `availability` preserves novel and Donghua timing independently and can record confidence changes over time. Every row that describes reader-visible state should support availability. Keep legacy `reveal` fields only on unmigrated rows.
 
 Use `graph_visibility` inside an availability entry only when the row can project into relationship graphs. `hidden` means render nothing at that reader point; `anonymized` means use safe generic labels because the reader can see an unknown actor, force, or relationship pattern; `partial` means show some real pieces while withholding others; `full` means show the true eligible source, target, and relationship type.
 
-Use kebab-case values for local Character Data Block taxonomy fields such as `status`, `relationship`, `possession_status`, `outcome_status`, `type`, `role`, `source`, `item_significance`, `graph_relevance`, `page_worthiness`, and `confidence`. Keep YAML field names such as `reader_boundary`, `state_sort_order`, `possession_status`, `graph_relevance`, `page_worthiness`, and `outcome_status` in snake_case.
+Use kebab-case values for local Character Data Block taxonomy fields such as `status`, `beat_type`, `relationship`, `possession_status`, `outcome_status`, `type`, `role`, `source`, `item_significance`, `graph_relevance`, `page_worthiness`, and `confidence`. Keep YAML field names such as `reader_boundary`, `state_sort_order`, `possession_status`, `graph_relevance`, `page_worthiness`, and `outcome_status` in snake_case.
 
 Prefer reusable local data-block values over character-specific one-offs. Examples include `current-at-boundary`, `current-operational-base`, `latest-known-location-at-boundary`, `current-pattern-at-boundary`, `strong-evidence-at-boundary`, `superseded-by-later-naming`, `authorized-access`, `investigating-not-possessed`, and `no-reader-safe-access-known`. If a new value is needed, make it generic enough to reuse across future character pages and explain the specific character nuance in `notes`.
 
@@ -328,6 +330,56 @@ character_profile:
       type:
       file:
       usage:
+  first_appearance_beats:
+    - medium:
+      beat_type:
+      title:
+      position:
+        book:
+        volume:
+        chapter:
+        season:
+        episode:
+        release_order:
+        timestamp:
+      context:
+      reader_knowledge_state:
+      viewer_knowledge_state:
+      graph_display:
+        behavior:
+        label:
+        visible_from:
+          medium:
+          book:
+          volume:
+          chapter:
+          season:
+          episode:
+          release_order:
+        resolves_to_canonical_at:
+          medium:
+          book:
+          volume:
+          chapter:
+          season:
+          episode:
+          release_order:
+      status:
+      confidence:
+      related_timeline_entries:
+        -
+      related_claims:
+        -
+      source_refs:
+        - medium:
+          book:
+          volume:
+          chapter:
+          season:
+          episode:
+          release_order:
+          timestamp:
+      notes:
   identities:
     - field:
       value:

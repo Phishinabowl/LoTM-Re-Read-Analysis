@@ -122,6 +122,34 @@ class DataReference:
     context_key: str = ""
 
 
+@dataclass(frozen=True)
+class FirstAppearanceBeat:
+    medium: str = ""
+    beat_type: str = ""
+    title: str = ""
+    position: dict[str, str] = field(default_factory=dict)
+    reader_knowledge_state: str = ""
+    viewer_knowledge_state: str = ""
+    graph_behavior: str = ""
+    graph_label: str = ""
+    status: str = ""
+    confidence: str = ""
+
+
+@dataclass(frozen=True)
+class BoundedGraphSpec:
+    name: str
+    file_stem: str
+    medium: str
+    max_volume: str = ""
+    max_chapter: str = ""
+    max_season: str = ""
+    max_episode: str = ""
+    max_release_order: str = ""
+    include_unknown_subjects: bool = False
+    include_unknown_positions: bool = False
+
+
 @dataclass
 class CanonicalNote:
     slug: str
@@ -129,6 +157,7 @@ class CanonicalNote:
     source_path: Path
     relative_source: str
     metadata: dict[str, str]
+    first_appearance_beats: list[FirstAppearanceBeat] = field(default_factory=list)
     relationships: list[Relationship] = field(default_factory=list)
     data_references: list[DataReference] = field(default_factory=list)
     data_projections: dict[str, DataProjection] = field(default_factory=dict)
@@ -162,6 +191,18 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--include-stubs", action="store_true", help="Include pages whose metadata status is Stub.")
     parser.add_argument("--clean", action="store_true", help="Delete the output directory before regenerating it.")
     parser.add_argument("--json", action="store_true", help="Print a JSON summary instead of human-readable text.")
+    parser.add_argument(
+        "--bounded-graph",
+        action="append",
+        default=[],
+        metavar="SPEC",
+        help=(
+            "Also generate a no-render bounded visualization graph under "
+            "_Generated/bounded-graphs/. Repeat for multiple graphs. "
+            "SPEC is comma-separated key=value pairs, for example "
+            "name=vol1-ch45,medium=novel,maxVolume=1,maxChapter=45."
+        ),
+    )
     return parser
 
 
@@ -182,6 +223,90 @@ def safe_file_stem(title: str) -> str:
     cleaned = re.sub(r'[<>:"/\\|?*\x00-\x1f]', "-", title)
     cleaned = re.sub(r"\s+", " ", cleaned).strip().rstrip(".")
     return cleaned or "Untitled"
+
+
+def safe_slug(value: str, fallback: str) -> str:
+    cleaned = re.sub(r"[^A-Za-z0-9._-]+", "-", value.strip()).strip("-._")
+    return cleaned or fallback
+
+
+def parse_bool(value: str) -> bool:
+    normalized = value.strip().lower()
+    if normalized in {"1", "true", "yes", "y", "on"}:
+        return True
+    if normalized in {"0", "false", "no", "n", "off"}:
+        return False
+    raise ValueError(f"Expected boolean value, got: {value}")
+
+
+def parse_bounded_graph_spec(raw_spec: str, index: int) -> BoundedGraphSpec:
+    raw_spec = strip_scalar(raw_spec).strip().strip("\"'")
+    aliases = {
+        "maxvolume": "max_volume",
+        "max-volume": "max_volume",
+        "volume": "max_volume",
+        "maxchapter": "max_chapter",
+        "max-chapter": "max_chapter",
+        "chapter": "max_chapter",
+        "maxseason": "max_season",
+        "max-season": "max_season",
+        "season": "max_season",
+        "maxepisode": "max_episode",
+        "max-episode": "max_episode",
+        "episode": "max_episode",
+        "maxreleaseorder": "max_release_order",
+        "max-release-order": "max_release_order",
+        "releaseorder": "max_release_order",
+        "release-order": "max_release_order",
+        "includeunknownsubjects": "include_unknown_subjects",
+        "include-unknown-subjects": "include_unknown_subjects",
+        "includeunknownpositions": "include_unknown_positions",
+        "include-unknown-positions": "include_unknown_positions",
+        "file": "file_stem",
+        "filename": "file_stem",
+        "file-stem": "file_stem",
+    }
+    values: dict[str, str] = {}
+    for part in raw_spec.split(","):
+        part = part.strip().strip("\"'")
+        if not part:
+            continue
+        if "=" not in part:
+            raise ValueError(f"Invalid --bounded-graph segment `{part}`. Use key=value pairs.")
+        key, value = part.split("=", 1)
+        key = key.strip().strip("\"'")
+        normalized_key = aliases.get(key.replace("_", "-").lower(), key.strip().replace("-", "_").lower())
+        values[normalized_key] = strip_scalar(value.strip()).strip("\"'")
+
+    name = values.get("name") or f"bounded-graph-{index}"
+    medium = values.get("medium", "novel")
+    file_stem = safe_slug(values.get("file_stem") or name, f"bounded-graph-{index}")
+
+    if not any(values.get(key) for key in ["max_volume", "max_chapter", "max_season", "max_episode", "max_release_order"]):
+        raise ValueError(f"--bounded-graph `{raw_spec}` must include at least one max boundary, such as maxVolume=1.")
+
+    return BoundedGraphSpec(
+        name=name,
+        file_stem=file_stem,
+        medium=medium,
+        max_volume=values.get("max_volume", ""),
+        max_chapter=values.get("max_chapter", ""),
+        max_season=values.get("max_season", ""),
+        max_episode=values.get("max_episode", ""),
+        max_release_order=values.get("max_release_order", ""),
+        include_unknown_subjects=parse_bool(values.get("include_unknown_subjects", "false")),
+        include_unknown_positions=parse_bool(values.get("include_unknown_positions", "false")),
+    )
+
+
+def parse_bounded_graph_specs(raw_specs: list[str]) -> list[BoundedGraphSpec]:
+    expanded_specs = [
+        spec.strip()
+        for raw_spec in raw_specs
+        for spec in raw_spec.split(";")
+        if spec.strip()
+    ]
+    return [parse_bounded_graph_spec(raw_spec, index) for index, raw_spec in enumerate(expanded_specs, start=1)]
 
 
 def first_heading(text: str, fallback: str) -> str:
@@ -471,6 +596,105 @@ def parse_data_projections(text: str, note_slug: str) -> dict[str, DataProjectio
     return projections
 
 
+def parse_first_appearance_beats(text: str) -> list[FirstAppearanceBeat]:
+    beats: list[FirstAppearanceBeat] = []
+    relationship_block = extract_relationship_yaml(text)
+
+    for _, block in fenced_yaml_blocks(text):
+        if relationship_block and block == relationship_block:
+            continue
+
+        root_key = ""
+        section_key = ""
+        row: dict[str, str] | None = None
+        position: dict[str, str] = {}
+        graph_display: dict[str, str] = {}
+        context = ""
+
+        def finish_row() -> None:
+            nonlocal row, position, graph_display, context
+            if row is None:
+                return
+            beats.append(
+                FirstAppearanceBeat(
+                    medium=row.get("medium", ""),
+                    beat_type=row.get("beat_type", ""),
+                    title=row.get("title", ""),
+                    position=dict(position),
+                    reader_knowledge_state=row.get("reader_knowledge_state", ""),
+                    viewer_knowledge_state=row.get("viewer_knowledge_state", ""),
+                    graph_behavior=graph_display.get("behavior", ""),
+                    graph_label=graph_display.get("label", ""),
+                    status=row.get("status", ""),
+                    confidence=row.get("confidence", ""),
+                )
+            )
+            row = None
+            position = {}
+            graph_display = {}
+            context = ""
+
+        for raw_line in block.splitlines():
+            if not raw_line.strip() or ":" not in raw_line:
+                continue
+            indent = len(raw_line) - len(raw_line.lstrip(" "))
+            line = raw_line.strip()
+
+            if indent == 0 and not line.startswith("- "):
+                finish_row()
+                key, value = line.split(":", 1)
+                root_key = key.strip() if strip_scalar(value) == "" else ""
+                section_key = ""
+                continue
+
+            if root_key and indent == 2 and not line.startswith("- "):
+                finish_row()
+                key, value = line.split(":", 1)
+                section_key = key.strip() if strip_scalar(value) == "" else ""
+                continue
+
+            if root_key and section_key == "first_appearance_beats" and indent == 4 and line.startswith("- "):
+                finish_row()
+                row = {}
+                position = {}
+                graph_display = {}
+                context = ""
+                line = line[2:].strip()
+                if ":" not in line:
+                    continue
+
+            if row is None or section_key != "first_appearance_beats":
+                continue
+
+            key, value = line.split(":", 1)
+            key = key.strip().lstrip("-").strip()
+            value = strip_scalar(value)
+
+            if indent == 4:
+                row[key] = value
+                context = ""
+            elif indent == 6:
+                if key in {"position", "graph_display"}:
+                    context = key
+                    mapping = parse_inline_mapping(value)
+                    if key == "position":
+                        position.update(mapping)
+                    else:
+                        graph_display.update(mapping)
+                    continue
+                row[key] = value
+                context = ""
+            elif indent >= 8:
+                if context == "position":
+                    position[key] = value
+                elif context == "graph_display":
+                    graph_display[key] = value
+
+        finish_row()
+
+    return beats
+
+
 def slug_candidates_from_yaml_value(value: str) -> set[str]:
     value = strip_scalar(value).strip()
     if not value or value.startswith("{") or value.startswith("["):
@@ -541,6 +765,7 @@ def discover_notes(
                 source_path=path,
                 relative_source=relative_source,
                 metadata=metadata,
+                first_appearance_beats=parse_first_appearance_beats(text),
             )
             note.relationships = parse_relationships(extract_relationship_yaml(text), relative_source)
             note.data_references = parse_data_references(text, note.slug, relative_source)
@@ -618,6 +843,63 @@ def data_ref_line(ref: DataReference, notes: dict[str, CanonicalNote], incoming:
     return f"- {key}:: {subject} ({ref.yaml_block}; {source_link(ref.source_file)})"
 
 
+def table_cell(value: str) -> str:
+    return (value or "").replace("|", "\\|")
+
+
+def format_beat_position(position: dict[str, str]) -> str:
+    parts = []
+    for key, label in [
+        ("book", "book"),
+        ("volume", "vol"),
+        ("chapter", "ch"),
+        ("season", "s"),
+        ("episode", "ep"),
+        ("release_order", "order"),
+    ]:
+        value = position.get(key, "")
+        if value:
+            parts.append(f"{label} {value}")
+    return ", ".join(parts)
+
+
+def render_first_appearance_beats(beats: list[FirstAppearanceBeat]) -> list[str]:
+    lines = ["", "## First Appearance Beats", ""]
+    if not beats:
+        lines.append("- None generated.")
+        return lines
+
+    lines.extend(
+        [
+            "| Medium | Beat | Position | Reader / Viewer Knowledge | Graph Display | Status |",
+            "|---|---|---|---|---|---|",
+        ]
+    )
+    for beat in beats:
+        knowledge = " / ".join(
+            part for part in [beat.reader_knowledge_state, beat.viewer_knowledge_state] if part
+        )
+        graph_display = beat.graph_behavior
+        if beat.graph_label:
+            graph_display = f"{graph_display}: {beat.graph_label}" if graph_display else beat.graph_label
+        lines.append(
+            "| "
+            + " | ".join(
+                table_cell(value)
+                for value in [
+                    beat.medium,
+                    " - ".join(part for part in [beat.beat_type, beat.title] if part),
+                    format_beat_position(beat.position),
+                    knowledge,
+                    graph_display,
+                    " / ".join(part for part in [beat.status, beat.confidence] if part),
+                ]
+            )
+            + " |"
+        )
+    return lines
+
+
 def render_note(
     note: CanonicalNote,
     notes: dict[str, CanonicalNote],
@@ -654,6 +936,8 @@ def render_note(
     for key in ["type", "status", "reader_knowledge_boundary", "spoiler_boundary", "confidence_level", "tags"]:
         if key in note.metadata:
             lines.append(f"- {key.replace('_', ' ').title()}:: {note.metadata[key]}")
+
+    lines.extend(render_first_appearance_beats(note.first_appearance_beats))
 
     lines.extend(["", "## Outgoing Relationship Seeds", ""])
     lines.extend(edge_line(rel, notes) for rel in outgoing)
@@ -1036,6 +1320,55 @@ def write_repo_refresh_check(root: Path, generated_dir: Path) -> None:
     )
 
 
+def write_bounded_graphs(root: Path, generated_dir: Path, specs: list[BoundedGraphSpec]) -> None:
+    if not specs:
+        return
+
+    visualize = load_visualization_helper(root)
+    source_settings_path = root / "Visualization" / "config" / "render-settings.json"
+    settings = json.loads(source_settings_path.read_text(encoding="utf-8"))
+    bounded_dir = generated_dir / "bounded-graphs"
+    bounded_dir.mkdir(parents=True, exist_ok=True)
+
+    settings["reportPath"] = repo_relative_path(root, bounded_dir / "bounded-graphs-report.md")
+    settings["snapshotPath"] = repo_relative_path(root, bounded_dir / "bounded-graphs-snapshot.json")
+    settings["views"] = []
+
+    for spec in specs:
+        boundary: dict[str, str | bool] = {
+            "medium": spec.medium,
+            "includeUnknownSubjects": spec.include_unknown_subjects,
+            "includeUnknownPositions": spec.include_unknown_positions,
+        }
+        for key, value in [
+            ("maxVolume", spec.max_volume),
+            ("maxChapter", spec.max_chapter),
+            ("maxSeason", spec.max_season),
+            ("maxEpisode", spec.max_episode),
+            ("maxReleaseOrder", spec.max_release_order),
+        ]:
+            if value:
+                boundary[key] = value
+        settings["views"].append(
+            {
+                "name": spec.name,
+                "input": repo_relative_path(root, bounded_dir / f"{spec.file_stem}.mmd"),
+                "readerBoundary": boundary,
+                "outputs": [],
+            }
+        )
+
+    (bounded_dir / "bounded-graphs-settings.json").write_text(
+        json.dumps(settings, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    visualize.invoke_refresh_mode(
+        settings,
+        root / "Visualization" / "config" / "puppeteer-config.json",
+        skip_render=True,
+    )
+
+
 def render_relationship_index(relationships: list[Relationship], notes: dict[str, CanonicalNote]) -> str:
     lines = [
         "# Relationship Index",
@@ -1223,6 +1556,7 @@ def write_export(
     relationships: list[Relationship],
     data_references: list[DataReference],
     data_projections: dict[str, DataProjection],
+    bounded_graph_specs: list[BoundedGraphSpec],
 ) -> None:
     output_dir = ensure_safe_output(root, output_dir)
     if clean and output_dir.exists():
@@ -1250,6 +1584,7 @@ def write_export(
     )
     write_visualization_relationship_graph(root, generated_dir / "visualization-relationship-graph.mmd")
     write_repo_refresh_check(root, generated_dir)
+    write_bounded_graphs(root, generated_dir, bounded_graph_specs)
     (generated_dir / "data-reference-index.md").write_text(render_data_reference_index(data_references, notes), encoding="utf-8")
     (generated_dir / "orphan-report.md").write_text(render_orphan_report(notes, relationships, data_references), encoding="utf-8")
     (generated_dir / "suspicious-edges.md").write_text(render_suspicious_edges(notes, relationships), encoding="utf-8")
@@ -1273,9 +1608,10 @@ def main() -> int:
     args = build_parser().parse_args()
     root = Path(args.root).resolve()
     output_dir = (root / args.output_dir).resolve()
+    bounded_graph_specs = parse_bounded_graph_specs(args.bounded_graph)
 
     notes, relationships, data_references, data_projections = discover_notes(root, args.include_stubs)
-    write_export(root, output_dir, args.clean, notes, relationships, data_references, data_projections)
+    write_export(root, output_dir, args.clean, notes, relationships, data_references, data_projections, bounded_graph_specs)
 
     orphan_data = analyze_orphans(notes, relationships, data_references)
     suspicious_data = analyze_suspicious_edges(relationships, notes)
@@ -1290,6 +1626,7 @@ def main() -> int:
         "self_loops": len(suspicious_data["self_loops"]),
         "duplicate_edge_groups": len(suspicious_data["duplicate_edges"]),
         "missing_reciprocals": len(suspicious_data["missing_reciprocals"]),
+        "bounded_graphs": len(bounded_graph_specs),
     }
 
     if args.json:

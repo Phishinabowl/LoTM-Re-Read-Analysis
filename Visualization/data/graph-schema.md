@@ -29,6 +29,11 @@ source_file:
 source_layer:
 canonicalization_status:
 subject_visible_from:
+display_node_id:
+canonical_node_id:
+display_behavior:
+display_visible_from:
+display_resolves_to_canonical_at:
 first_seen_novel_chapter:
 first_seen_donghua_episode:
 spoiler_boundary:
@@ -45,6 +50,11 @@ Field notes:
 - `source_layer`: Whether the node is repository-canonical, source-supported graph-local, or external/unsupported.
 - `canonicalization_status`: Whether the node is already represented in project records, graph-local only, or a candidate project-data update.
 - `subject_visible_from`: Page-level reader-safe visibility gate from glossary metadata. Use this to decide whether the node itself can appear in reader-facing navigation, search, or filtered graph views.
+- `display_node_id`: Opaque generated id for a presentation-only display node, such as an anonymized first-appearance node.
+- `canonical_node_id`: Canonical node that a presentation-only display node stands in for until the reader boundary reaches the canonical reveal point.
+- `display_behavior`: Display behavior for presentation nodes. `anonymized-node` means the story has shown something that should appear with a safe label before the canonical title is exposed.
+- `display_visible_from`: Reader/viewer position where a presentation-only node may appear.
+- `display_resolves_to_canonical_at`: Reader/viewer position where the presentation-only node should give way to the canonical node.
 - `status`: Page completion state from glossary metadata. Reader-visible pending pages may render with a dashed pending-node outline, while pending pages outside the selected reader boundary should remain hidden. Missing glossary pages may render as graph-local pending endpoints only when relationship or projected data timing proves they are visible inside the selected reader boundary.
 - `first_seen_novel_chapter`: Earliest verified novel chapter where the node is meaningfully available to the reader.
 - `first_seen_donghua_episode`: Earliest verified Donghua episode or release-order position where the node is meaningfully available to the viewer.
@@ -126,19 +136,23 @@ Knowledge Source `knowledge_entries` should expose stable source-unit fields whe
 
 Knowledge Source entries may also expose unit-level provenance fields such as `provider`, `provider_role`, `transfer_mode`, `reader`, `reader_access_type`, `holder_understanding`, `intentionality`, and `mediation`. These distinguish incidental access from deliberate submission, direct reading from translation or mediation, and reader-safe understanding from later reinterpretation.
 
+Type-specific data blocks may expose `first_appearance_beats` or a type-local equivalent as the structured companion to visible First Appearance prose. These rows are not relationship records. They support future website rendering, Obsidian QA mirror display, and reader-boundary graph display. A row with `graph_display.behavior: anonymized-node` may generate an opaque presentation node before the canonical page/title is eligible under `Subject Visible From`; once the configured boundary reaches `graph_display.resolves_to_canonical_at`, graph generation should use the canonical node instead.
+
 Type-specific data blocks may expose `timeline_entries` as the structured companion to visible Chronological Development prose. These entries are not relationship records by default. They support future website rendering, reader-position filtering, dashboard timelines, and QA checks that compare visible Markdown chronology with structured chronology. Every real visible chronology subsection should have a stable semantic `timeline_id` matched to one `timeline_entries.id`, and both layers should stay in the same reader/viewer order within each medium. A timeline entry can reference graph entities, claims, relationships, or events through related fields, but graph projection should still come from Relationship Seeds or explicit graph-local modeling.
 
 Relationship Seed `status` values describe the seed edge, not the full item, artifact, or character state. Use `historical` for relationships that were true earlier but are no longer current without implying rupture. Reserve `broken` for a relationship that is explicitly breached, severed, failed, destroyed, or narratively broken. For custody or possession loss, prefer row-level state such as `possession_status: lost-custody` or `custody_status: lost-custody` plus a current/historical availability ladder rather than labeling the edge `broken`.
 
-Graph generators should apply page visibility, row availability, and relationship display state in that order. Hidden source or target pages should suppress the edge unless the current availability entry explicitly provides an anonymized or partial display label. Anonymized nodes are presentation artifacts, not canonical glossary nodes.
+Graph generators should apply page visibility, first-appearance display overrides, row availability, and relationship display state in that order. Hidden source or target pages should suppress the edge unless an eligible anonymized first-appearance display node can stand in for that canonical endpoint, or unless the current availability entry explicitly provides an anonymized or partial display label. Anonymized nodes are presentation artifacts, not canonical glossary nodes.
 
 QA relationship-node graph labels should summarize provenance by source layer. A seed with `projection_source` should render the projected data row's meaningful availability history, such as `character data novel ch22 strong-evidence -> ch45 confirmed`; a seed without a usable projection should render seed provenance, such as `faction seed novel ch22 confirmed`. Pending adaptation rows with only TBD timing should be retained in graph data but omitted from compact graph labels until a real viewer position is verified.
 
 ## Presentation Nodes
 
-Rendered Mermaid graphs may introduce generated presentation nodes such as `rel_001`.
+Rendered Mermaid graphs may introduce generated presentation nodes such as `rel_001` or anonymized display nodes such as `anon_001`.
 
 These nodes are not canonical graph entities. They represent relationship records visually so dense graphs can place relationship meaning inside layout-aware boxes instead of fragile edge labels.
+
+Anonymized display nodes are also not canonical graph entities. They represent a reader-visible but not-yet-canonically-named subject, such as an unnamed inspector before the reader can safely see the `Dunn Smith` page title.
 
 Rendered Mermaid graphs may also introduce graph-local pending endpoint nodes when a source or target has no glossary page yet but a boundary-visible relationship proves that the endpoint can safely appear. These nodes are not canonical glossary pages and should disappear, change to pending-page nodes, or become solid canonical nodes as page metadata is added.
 

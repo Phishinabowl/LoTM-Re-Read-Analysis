@@ -136,6 +136,8 @@ Use the same beat-heading pattern when adaptation first appearance, naming, expl
 
 Use extra labels such as `Attribution boundary`, `Visual/audio evidence`, `Adaptation difference`, or `Institutional detail` only when the arc genuinely needs them.
 
+Mirror meaningful visible first-appearance beats in the type-specific data block so future website renderers can rebuild this section without inferring it from aliases, relationship rows, timeline entries, or knowledge units. Use a type-appropriate field such as `first_appearance_beats`, keep it near the start of the data block to match this page order, and preserve the same medium, position, context, and reader/viewer knowledge state.
+
 Use `timeline_id` comments for every real visible chronology subsection, and keep each one matched to exactly one structured `timeline_entries.id` row in the type-specific data block. Blank placeholders and lightweight stubs may remove the example comment until the entry is populated. Keep the Markdown prose readable for GitHub, and use the data-block row as the future website/source-rendering structure.
 
 ## Open Questions
@@ -198,6 +200,8 @@ Structured taxonomy values are not final website prose. Use kebab-case values fo
 For any row that describes reader-visible state, use row-level `availability` instead of a single blended reveal field. `Subject Visible From` gates the whole page; `availability` gates individual facts after the page is visible. Each availability entry may include `graph_visibility` when the row can project into a relationship graph. Use `hidden` by default before the relationship itself is reader-visible, and reserve `anonymized` or `partial` for cases where the story has made an unknown actor, force, or relationship pattern visible without revealing the true source, target, or label.
 
 When a page has meaningful `Chronological Development` prose, add a type-specific `timeline_entries` array so future reader-position renderers can reveal and sort the prose without scraping Markdown headings. Place `timeline_entries` in the data block at the point that corresponds to `Chronological Development` in the visible article order, not at the top of the block by default. The visible prose should remain the GitHub-readable article layer; `timeline_entries` should mirror its timing, summary, reader-learns, changes, unknowns, and why-it-matters fields as structured data. Keep visible chronology subsections and `timeline_entries` in the same oldest-to-newest reader/viewer order within each medium; insert newly discovered arcs into the correct position without renaming stable semantic IDs.
+
+For pages with meaningful `First Appearance / First Meaningful Mention` prose, add a type-specific `first_appearance_beats` array or equivalent type-local field. Each row should mirror one visible beat and carry `medium`, `beat_type`, `title`, `position`, `context`, `reader_knowledge_state` or `viewer_knowledge_state`, optional `graph_display`, `status`, `confidence`, optional related timeline/claim references, and source refs. Keep early anonymous, partial, or ambiguous beats named from the reader's knowledge at that point rather than from later confirmation. Use `graph_display.behavior: anonymized-node` only when a reader-boundary graph or future site should show a safe presentation node before the canonical page title is reader-safe.
 
 ## Relationship Seeds
 

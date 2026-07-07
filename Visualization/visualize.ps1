@@ -1110,6 +1110,151 @@ function Read-GlossaryNodes {
   return $nodes
 }
 
+function Read-FirstAppearanceGraphDisplays {
+  $displays = @{}
+  $displayIndex = 1
+  $files = Get-ChildItem -Path (Resolve-RepoPath "Glossary_Threads") -Recurse -Filter "*.md" |
+    Where-Object { $_.Name -ne "TEMPLATE.md" } |
+    Sort-Object FullName
+
+  foreach ($file in $files) {
+    $noteSlug = [System.IO.Path]::GetFileNameWithoutExtension($file.Name)
+    $canonicalNodeId = Convert-SlugToNodeId $noteSlug
+    $text = [System.IO.File]::ReadAllText($file.FullName, [System.Text.UTF8Encoding]::new($true))
+    $relationshipBlock = Get-RelationshipYaml $text
+
+    foreach ($block in Get-FencedYamlBlocks $text) {
+      if ($relationshipBlock -and $block.Text -eq $relationshipBlock) {
+        continue
+      }
+
+      $rootKey = ""
+      $sectionKey = ""
+      $row = $null
+      $graphDisplay = @{}
+      $context = ""
+
+      function Add-FirstAppearanceDisplay {
+        param(
+          [hashtable]$Displays,
+          [string]$CanonicalNodeId,
+          [hashtable]$Row,
+          [hashtable]$GraphDisplay,
+          [ref]$DisplayIndex
+        )
+        if ($null -eq $Row) {
+          return
+        }
+        $behavior = if ($GraphDisplay.ContainsKey("behavior")) { $GraphDisplay["behavior"] } else { "" }
+        $label = if ($GraphDisplay.ContainsKey("label")) { $GraphDisplay["label"] } else { "" }
+        if ($behavior -ne "anonymized-node" -or [string]::IsNullOrWhiteSpace($label)) {
+          return
+        }
+        $medium = if ($GraphDisplay.ContainsKey("visible_from_medium")) { $GraphDisplay["visible_from_medium"] } elseif ($Row.ContainsKey("position_medium")) { $Row["position_medium"] } elseif ($Row.ContainsKey("medium")) { $Row["medium"] } else { "" }
+        $volume = if ($GraphDisplay.ContainsKey("visible_from_volume")) { $GraphDisplay["visible_from_volume"] } elseif ($Row.ContainsKey("position_volume")) { $Row["position_volume"] } else { "" }
+        $chapter = if ($GraphDisplay.ContainsKey("visible_from_chapter")) { $GraphDisplay["visible_from_chapter"] } elseif ($Row.ContainsKey("position_chapter")) { $Row["position_chapter"] } else { "" }
+        if (-not $Displays.ContainsKey($CanonicalNodeId)) {
+          $Displays[$CanonicalNodeId] = @()
+        }
+        $Displays[$CanonicalNodeId] += [pscustomobject]@{
+          node_id = ("anon_{0:D3}" -f $DisplayIndex.Value)
+          canonical_node_id = $CanonicalNodeId
+          label = $label
+          behavior = $behavior
+          medium = $medium
+          volume = $volume
+          chapter = $chapter
+          season = if ($GraphDisplay.ContainsKey("visible_from_season")) { $GraphDisplay["visible_from_season"] } elseif ($Row.ContainsKey("position_season")) { $Row["position_season"] } else { "" }
+          episode = if ($GraphDisplay.ContainsKey("visible_from_episode")) { $GraphDisplay["visible_from_episode"] } elseif ($Row.ContainsKey("position_episode")) { $Row["position_episode"] } else { "" }
+          release_order = if ($GraphDisplay.ContainsKey("visible_from_release_order")) { $GraphDisplay["visible_from_release_order"] } elseif ($Row.ContainsKey("position_release_order")) { $Row["position_release_order"] } else { "" }
+          resolves_medium = if ($GraphDisplay.ContainsKey("resolves_to_canonical_at_medium")) { $GraphDisplay["resolves_to_canonical_at_medium"] } else { "" }
+          resolves_volume = if ($GraphDisplay.ContainsKey("resolves_to_canonical_at_volume")) { $GraphDisplay["resolves_to_canonical_at_volume"] } else { "" }
+          resolves_chapter = if ($GraphDisplay.ContainsKey("resolves_to_canonical_at_chapter")) { $GraphDisplay["resolves_to_canonical_at_chapter"] } else { "" }
+        }
+        $DisplayIndex.Value += 1
+      }
+
+      foreach ($rawLine in ($block.Text -split "`r?`n")) {
+        if ([string]::IsNullOrWhiteSpace($rawLine) -or $rawLine -notmatch ":") {
+          continue
+        }
+        $indent = $rawLine.Length - $rawLine.TrimStart(" ").Length
+        $line = $rawLine.Trim()
+
+        if ($indent -eq 0 -and -not $line.StartsWith("- ")) {
+          Add-FirstAppearanceDisplay $displays $canonicalNodeId $row $graphDisplay ([ref]$displayIndex)
+          $row = $null
+          $graphDisplay = @{}
+          $key, $value = $line.Split(":", 2)
+          $rootKey = if ([string]::IsNullOrWhiteSpace((ConvertFrom-Scalar $value))) { $key.Trim() } else { "" }
+          $sectionKey = ""
+          continue
+        }
+
+        if ($rootKey -and $indent -eq 2 -and -not $line.StartsWith("- ")) {
+          Add-FirstAppearanceDisplay $displays $canonicalNodeId $row $graphDisplay ([ref]$displayIndex)
+          $row = $null
+          $graphDisplay = @{}
+          $key, $value = $line.Split(":", 2)
+          $sectionKey = if ([string]::IsNullOrWhiteSpace((ConvertFrom-Scalar $value))) { $key.Trim() } else { "" }
+          continue
+        }
+
+        if ($rootKey -and $sectionKey -eq "first_appearance_beats" -and $indent -eq 4 -and $line.StartsWith("- ")) {
+          Add-FirstAppearanceDisplay $displays $canonicalNodeId $row $graphDisplay ([ref]$displayIndex)
+          $row = @{}
+          $graphDisplay = @{}
+          $context = ""
+          $line = $line.Substring(2).Trim()
+          if ($line -notmatch ":") {
+            continue
+          }
+        }
+
+        if ($null -eq $row -or $sectionKey -ne "first_appearance_beats") {
+          continue
+        }
+
+        $key, $value = $line.Split(":", 2)
+        $key = $key.Trim().TrimStart("-").Trim()
+        $value = ConvertFrom-Scalar $value
+
+        if ($indent -eq 4) {
+          $row[$key] = $value
+          $context = ""
+        } elseif ($indent -eq 6) {
+          if ($key -in @("position", "graph_display")) {
+            $context = $key
+            if ($key -eq "position") {
+              foreach ($pair in (ConvertFrom-InlineMapping $value).GetEnumerator()) {
+                $row["position_$($pair.Key)"] = $pair.Value
+              }
+            }
+            continue
+          }
+          $row[$key] = $value
+          $context = ""
+        } elseif ($indent -ge 8) {
+          if ($context -eq "position") {
+            $row["position_$key"] = $value
+          } elseif ($context -eq "graph_display") {
+            if ($key -in @("visible_from", "resolves_to_canonical_at")) {
+              foreach ($pair in (ConvertFrom-InlineMapping $value).GetEnumerator()) {
+                $graphDisplay["${key}_$($pair.Key)"] = $pair.Value
+              }
+            } else {
+              $graphDisplay[$key] = $value
+            }
+          }
+        }
+      }
+      Add-FirstAppearanceDisplay $displays $canonicalNodeId $row $graphDisplay ([ref]$displayIndex)
+    }
+  }
+
+  return $displays
+}
+
 function Get-MarkdownSection {
   param(
     [string]$Text,
@@ -1513,6 +1658,69 @@ function Select-NodesForBoundary {
   return $filtered
 }
 
+function Test-NodeVisibleAtBoundary {
+  param(
+    [object]$Node,
+    [object]$Boundary
+  )
+
+  if ($null -eq $Boundary) {
+    return $true
+  }
+  if ([string]::IsNullOrWhiteSpace($Node.subject_visible_from)) {
+    return [bool]$Boundary.includeUnknownSubjects
+  }
+  $visibleFrom = Convert-SubjectVisibleFrom $Node.subject_visible_from
+  return (Test-PositionVisible $visibleFrom.medium $visibleFrom.volume $visibleFrom.chapter $Boundary)
+}
+
+function Test-GraphDisplayVisible {
+  param(
+    [object]$Display,
+    [object]$Boundary
+  )
+
+  if ($null -eq $Boundary) {
+    return $false
+  }
+  if (-not (Test-PositionVisible $Display.medium $Display.volume $Display.chapter $Boundary)) {
+    return $false
+  }
+  if (-not [string]::IsNullOrWhiteSpace($Display.resolves_medium) -and (Test-PositionVisible $Display.resolves_medium $Display.resolves_volume $Display.resolves_chapter $Boundary)) {
+    return $false
+  }
+  return $true
+}
+
+function Get-AnonymizedNodeDisplays {
+  param(
+    [hashtable]$Nodes,
+    [object]$Boundary,
+    [hashtable]$FirstAppearanceDisplays
+  )
+
+  $displayNodes = @{}
+  $nodeAliases = @{}
+  if ($null -eq $Boundary) {
+    return [pscustomobject]@{ Nodes = $displayNodes; Aliases = $nodeAliases }
+  }
+
+  foreach ($canonicalNodeId in $FirstAppearanceDisplays.Keys) {
+    if ($Nodes.ContainsKey($canonicalNodeId) -and (Test-NodeVisibleAtBoundary $Nodes[$canonicalNodeId] $Boundary)) {
+      continue
+    }
+    $visibleDisplays = @($FirstAppearanceDisplays[$canonicalNodeId] | Where-Object { Test-GraphDisplayVisible $_ $Boundary })
+    if ($visibleDisplays.Count -eq 0) {
+      continue
+    }
+    $display = $visibleDisplays[$visibleDisplays.Count - 1]
+    $displayNodes[$display.node_id] = $display.label
+    $nodeAliases[$canonicalNodeId] = $display.node_id
+  }
+
+  return [pscustomobject]@{ Nodes = $displayNodes; Aliases = $nodeAliases }
+}
+
 function Test-AvailabilityPinned {
   param([object]$Entry)
 
@@ -1673,7 +1881,8 @@ function Select-RelationshipsForBoundary {
     [object[]]$VisibleNodeIds = @(),
     [object[]]$KnownNodeIds = @(),
     [hashtable]$DataProjections = @{},
-    [switch]$TimingSpoilerFree
+    [switch]$TimingSpoilerFree,
+    [hashtable]$NodeAliases = @{}
   )
 
   $visible = New-Object 'System.Collections.Generic.HashSet[string]'
@@ -1692,7 +1901,7 @@ function Select-RelationshipsForBoundary {
     if ($visible.Count -gt 0) {
       $hasHiddenKnownEndpoint = $false
       foreach ($nodeId in @($sourceNode, $targetNode)) {
-        if (-not $visible.Contains($nodeId) -and $known.Contains($nodeId)) {
+        if (-not $visible.Contains($nodeId) -and $known.Contains($nodeId) -and -not $NodeAliases.ContainsKey($nodeId)) {
           $hasHiddenKnownEndpoint = $true
         }
       }
@@ -1702,6 +1911,8 @@ function Select-RelationshipsForBoundary {
     }
 
     $rendered = Copy-Relationship $relationship
+    $rendered | Add-Member -NotePropertyName render_source_node -NotePropertyValue $(if ($NodeAliases.ContainsKey($sourceNode)) { $NodeAliases[$sourceNode] } else { $sourceNode }) -Force
+    $rendered | Add-Member -NotePropertyName render_target_node -NotePropertyValue $(if ($NodeAliases.ContainsKey($targetNode)) { $NodeAliases[$targetNode] } else { $targetNode }) -Force
     $namespacedProjectionSource = "$($relationship.source)|$($relationship.projection_source)"
     if (-not [string]::IsNullOrWhiteSpace($relationship.projection_source) -and ($DataProjections.ContainsKey($namespacedProjectionSource) -or $DataProjections.ContainsKey($relationship.projection_source))) {
       if ($DataProjections.ContainsKey($namespacedProjectionSource)) {
@@ -1724,7 +1935,7 @@ function Select-RelationshipsForBoundary {
       continue
     }
 
-    $key = "$($rendered.source)|$($rendered.relationship_type)|$($rendered.target)"
+    $key = "$($rendered.render_source_node)|$($rendered.relationship_type)|$($rendered.render_target_node)"
     if (-not $selected.ContainsKey($key) -or (Get-RelationshipScore $rendered) -gt (Get-RelationshipScore $selected[$key])) {
       $selected[$key] = $rendered
     }
@@ -1828,6 +2039,9 @@ function Write-MermaidGraph {
     foreach ($nodeId in $KnownNodeIds) {
       [void]$known.Add([string]$nodeId)
     }
+    foreach ($nodeId in $Nodes.Keys) {
+      [void]$known.Add([string]$nodeId)
+    }
   }
   $pendingNodes = New-Object 'System.Collections.Generic.HashSet[string]'
   foreach ($nodeId in @($PendingNodeIds)) {
@@ -1840,8 +2054,8 @@ function Write-MermaidGraph {
   $missingEndpointNodes = New-Object 'System.Collections.Generic.HashSet[string]'
 
   foreach ($relationship in $Relationships) {
-    $source = Convert-SlugToNodeId $relationship.source
-    $target = Convert-SlugToNodeId $relationship.target
+    $source = if ($relationship.PSObject.Properties.Name -contains "render_source_node" -and -not [string]::IsNullOrWhiteSpace($relationship.render_source_node)) { $relationship.render_source_node } else { Convert-SlugToNodeId $relationship.source }
+    $target = if ($relationship.PSObject.Properties.Name -contains "render_target_node" -and -not [string]::IsNullOrWhiteSpace($relationship.render_target_node)) { $relationship.render_target_node } else { Convert-SlugToNodeId $relationship.target }
     if (-not $known.Contains($source)) {
       [void]$missingEndpointNodes.Add($source)
     }
@@ -1882,9 +2096,14 @@ function Write-MermaidGraph {
   $lines += "  classDef missingEndpoint fill:#f8fafc,stroke:#64748b,stroke-width:2px,stroke-dasharray:4 3,color:#1f2937"
   $lines += "  classDef pendingNode stroke:#64748b,stroke-width:2px,stroke-dasharray:4 3"
   $lines += "  classDef pendingEndpoint fill:#f8fafc,stroke:#64748b,stroke-width:2px,stroke-dasharray:4 3,color:#1f2937"
+  $lines += "  classDef anonymizedNode fill:#f8fafc,stroke:#475569,stroke-width:2px,stroke-dasharray:6 3,color:#1f2937"
   $lines += "  classDef relationship fill:#f7f2e9,stroke:#c69245,stroke-width:1.5px,color:#1f2937"
   $lines += ""
   foreach ($nodeId in @($Nodes.Keys | Sort-Object)) {
+    if ($nodeId -match '^anon_[0-9]+$') {
+      $lines += ('  class {0} anonymizedNode' -f $nodeId)
+      continue
+    }
     if ($missingEndpointNodes.Contains($nodeId)) {
       $className = if ($pendingEndpointNodes.Contains($nodeId)) { "pendingEndpoint" } else { "missingEndpoint" }
       $lines += ('  class {0} {1}' -f $nodeId, $className)
@@ -1904,8 +2123,8 @@ function Write-MermaidGraph {
   $edges = @()
 
   foreach ($relationship in $Relationships) {
-    $source = Convert-SlugToNodeId $relationship.source
-    $target = Convert-SlugToNodeId $relationship.target
+    $source = if ($relationship.PSObject.Properties.Name -contains "render_source_node" -and -not [string]::IsNullOrWhiteSpace($relationship.render_source_node)) { $relationship.render_source_node } else { Convert-SlugToNodeId $relationship.source }
+    $target = if ($relationship.PSObject.Properties.Name -contains "render_target_node" -and -not [string]::IsNullOrWhiteSpace($relationship.render_target_node)) { $relationship.render_target_node } else { Convert-SlugToNodeId $relationship.target }
 
     $label = Format-RelationshipLabel $relationship -TimingSpoilerFree:$TimingSpoilerFree
     $key = "$source|$label|$target"
@@ -1938,13 +2157,18 @@ function Update-MermaidGraphs {
   $nodes = Read-GlossaryNodes
   $relationships = Read-RelationshipSeeds
   $dataProjections = Read-DataProjections
+  $firstAppearanceDisplays = Read-FirstAppearanceGraphDisplays
   $pendingNodeIds = @($nodes.Keys | Where-Object { $nodes[$_].status -eq "pending" })
 
   foreach ($view in $Views) {
     $graphPath = Resolve-RepoPath $view.input
     $timingSpoilerFree = $view.input -match 'timing-spoiler-free'
     $viewNodes = Select-NodesForBoundary $nodes $view.readerBoundary
-    $viewRelationships = Select-RelationshipsForBoundary $relationships $view.readerBoundary @($viewNodes.Keys) @($nodes.Keys) $dataProjections -TimingSpoilerFree:$timingSpoilerFree
+    $displayState = Get-AnonymizedNodeDisplays $nodes $view.readerBoundary $firstAppearanceDisplays
+    foreach ($nodeId in $displayState.Nodes.Keys) {
+      $viewNodes[$nodeId] = $displayState.Nodes[$nodeId]
+    }
+    $viewRelationships = Select-RelationshipsForBoundary $relationships $view.readerBoundary @($viewNodes.Keys) @($nodes.Keys) $dataProjections -TimingSpoilerFree:$timingSpoilerFree -NodeAliases $displayState.Aliases
     $visiblePendingNodeIds = @($pendingNodeIds | Where-Object { $viewNodes.ContainsKey($_) })
     $pendingEndpointNodeIds = Get-MissingRelationshipEndpoints $viewRelationships @($nodes.Keys)
     Write-MermaidGraph $graphPath $viewNodes.Clone() $viewRelationships -TimingSpoilerFree:$timingSpoilerFree -KnownNodeIds @($nodes.Keys) -PendingNodeIds $visiblePendingNodeIds -PendingEndpointNodeIds $pendingEndpointNodeIds
@@ -1987,6 +2211,7 @@ function Invoke-ValidateMode {
   $nodes = Read-GlossaryNodes
   $relationships = Read-RelationshipSeeds
   $dataProjections = Read-DataProjections
+  $firstAppearanceDisplays = Read-FirstAppearanceGraphDisplays
   $pendingNodeIds = @($nodes.Keys | Where-Object { $nodes[$_].status -eq "pending" })
   Write-Output ('Source parse: nodes={0} relationships={1}' -f $nodes.Count, $relationships.Count)
 
@@ -2012,7 +2237,11 @@ function Invoke-ValidateMode {
       $tempGraph = Join-Path $tempRoot ([System.IO.Path]::GetFileName($view.input))
       $timingSpoilerFree = $view.input -like '*timing-spoiler-free*'
       $viewNodes = Select-NodesForBoundary $nodes $view.readerBoundary
-      $viewRelationships = Select-RelationshipsForBoundary $relationships $view.readerBoundary @($viewNodes.Keys) @($nodes.Keys) $dataProjections -TimingSpoilerFree:$timingSpoilerFree
+      $displayState = Get-AnonymizedNodeDisplays $nodes $view.readerBoundary $firstAppearanceDisplays
+      foreach ($nodeId in $displayState.Nodes.Keys) {
+        $viewNodes[$nodeId] = $displayState.Nodes[$nodeId]
+      }
+      $viewRelationships = Select-RelationshipsForBoundary $relationships $view.readerBoundary @($viewNodes.Keys) @($nodes.Keys) $dataProjections -TimingSpoilerFree:$timingSpoilerFree -NodeAliases $displayState.Aliases
       $visiblePendingNodeIds = @($pendingNodeIds | Where-Object { $viewNodes.ContainsKey($_) })
       $pendingEndpointNodeIds = Get-MissingRelationshipEndpoints $viewRelationships @($nodes.Keys)
       Write-MermaidGraph $tempGraph $viewNodes.Clone() $viewRelationships -TimingSpoilerFree:$timingSpoilerFree -KnownNodeIds @($nodes.Keys) -PendingNodeIds $visiblePendingNodeIds -PendingEndpointNodeIds $pendingEndpointNodeIds

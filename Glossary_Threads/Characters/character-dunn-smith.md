@@ -403,6 +403,126 @@ character_profile:
       type: official-epub-character-gallery
       file: ../../Artwork/page-assets/characters/character-dunn-smith/dunn-smith-portrait.jpeg
       usage: primary-page-header-image
+  first_appearance_beats:
+    - medium: novel
+      beat_type: first-visual-functional-appearance
+      title: First Visual / Functional Appearance
+      position:
+        book: lotm-1
+        volume: 1
+        chapter: 10
+      context: Dunn first appears visually/functionally as the unnamed gray-eyed police inspector handling Klein during the Welch/Naya investigation.
+      reader_knowledge_state: The reader sees an official police-cover investigator, but does not yet know his name, Nighthawk identity, Church connection, or Beyonder status.
+      graph_display:
+        behavior: anonymized-node
+        label: Unnamed gray-eyed inspector
+        visible_from: { medium: novel, book: lotm-1, volume: 1, chapter: 10 }
+        resolves_to_canonical_at: { medium: novel, book: lotm-1, volume: 1, chapter: 12 }
+      status: reader-visible-anonymous-beat
+      confidence: confirmed
+      related_timeline_entries:
+        - dunn-police-cover-investigator
+      related_claims:
+        - dunn-police-cover-investigator
+      source_refs:
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 10
+    - medium: novel
+      beat_type: first-named-identification
+      title: First Named Identification
+      position:
+        book: lotm-1
+        volume: 1
+        chapter: 12
+      context: The same gray-eyed police inspector arrives at Klein's door and identifies himself as Dunn Smith.
+      reader_knowledge_state: The reader can now connect the Chapter 10 inspector to the name Dunn Smith, but still does not know his formal supernatural role.
+      graph_display:
+        behavior: canonical-node
+        label: Dunn Smith
+        visible_from: { medium: novel, book: lotm-1, volume: 1, chapter: 12 }
+      status: reader-visible-named-beat
+      confidence: confirmed
+      related_timeline_entries:
+        - dunn-named-dream-tested
+      related_claims:
+        - dunn-police-cover-investigator
+      source_refs:
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 12
+    - medium: novel
+      beat_type: first-supernatural-ability-clue
+      title: First Supernatural Ability Clue
+      position:
+        book: lotm-1
+        volume: 1
+        chapter: 12
+      context: Dunn appears inside Klein's nightmare-like escape attempt, revealing that the investigation has moved beyond ordinary police procedure.
+      reader_knowledge_state: The reader can infer Dunn has some kind of dream-related ability before the Nighthawks explanation is given.
+      graph_display:
+        behavior: canonical-node
+        label: Dunn Smith
+        visible_from: { medium: novel, book: lotm-1, volume: 1, chapter: 12 }
+      status: reader-visible-clue-beat
+      confidence: confirmed
+      related_timeline_entries:
+        - dunn-named-dream-tested
+      related_claims:
+        - dunn-police-cover-investigator
+      source_refs:
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 12
+    - medium: novel
+      beat_type: first-formal-identity-reveal
+      title: First Formal Identity Reveal
+      position:
+        book: lotm-1
+        volume: 1
+        chapter: 13
+      context: Dunn reintroduces himself as Nighthawk Dunn Smith and explains that he entered and guided Klein's dream.
+      reader_knowledge_state: Dunn is now explicitly understood as a Church-linked Nighthawk and Beyonder investigator.
+      graph_display:
+        behavior: canonical-node
+        label: Dunn Smith
+        visible_from: { medium: novel, book: lotm-1, volume: 1, chapter: 13 }
+      status: reader-visible-formal-reveal
+      confidence: confirmed
+      related_timeline_entries:
+        - dunn-nighthawk-reveal-notebook-case
+      related_claims:
+        - dunn-police-cover-investigator
+      source_refs:
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 13
+    - medium: donghua
+      beat_type: first-appearance-verification-pending
+      title: Donghua First Appearance Pending
+      position:
+        season: 1
+        episode: TBD
+        release_order: TBD
+        timestamp: TBD
+      context: Requires Donghua subtitle and visual verification.
+      viewer_knowledge_state: Exact first appearance, police-cover staging, and Nighthawk-reveal timing are not yet pinned down.
+      graph_display:
+        behavior: hidden
+      status: verification-pending
+      confidence: TBD
+      related_timeline_entries:
+        - dunn-donghua-foundation-pending
+      source_refs:
+        - medium: donghua
+          season: 1
+          episode: TBD
+          release_order: TBD
+          timestamp: TBD
   identities:
     - field: title-role
       value: Captain of the Tingen Nighthawks

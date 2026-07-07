@@ -263,6 +263,8 @@ For graph-only maintainer work or Obsidian QA export work, do not silently updat
 
 The Obsidian QA export's `_Generated/repo-refresh-check/` bundle is a local dry run of the configured repository visualization refresh. It is generated inside ignored `Obsidian_Export/`, runs with rendering disabled, and must not be mistaken for updating canonical files under `Visualization/graphs/`, `Visualization/rendered/`, `Visualization/data/refresh-snapshot.json`, or `Visualization/README.md`.
 
+When requested with bounded graph flags, the Obsidian QA export may also create `_Generated/bounded-graphs/`. These are opt-in no-render local Mermaid previews for ad hoc reader/viewer boundaries, not canonical configured repository views.
+
 Use the shared [Graph Authoring Standard](Visualization/graph-authoring-standard.md) for graph construction. It defines canonical versus graph-local evidence, source expansion, pathway/sequence coverage, maintainer confirmation, and output reporting.
 
 For dense Mermaid graphs, prefer semantic relationship nodes over long edge labels. A generated relationship node may hold the relationship type, timing, status, confidence, and provenance, with simple arrows from source to relationship node to target. These relationship nodes are presentation artifacts only. They are not glossary nodes, do not create new canonical entities, and must be regenerated from canonical glossary records such as Relationship Seeds and projected type-specific data-block rows.
@@ -645,6 +647,10 @@ When those beats differ, use short subheadings under the medium, such as:
 Only include the beats that actually apply. Each beat should record `Volume`, `Chapter`, `Context`, and `Reader knowledge state` for novel entries, or the equivalent season/episode/timestamp fields for adaptation entries.
 
 Do not use later knowledge to rename an early beat as if the reader could already identify it. For example, a reader may first see an unidentified object before later learning its name or function.
+
+Mirror these visible beats in the type-specific data block so future website renderers can rebuild the first-appearance section without inferring it from aliases, relationship rows, timeline entries, or knowledge units. Use a type-appropriate field such as `first_appearance_beats`. Each meaningful visible beat should have one structured row with the same medium, position, context, and reader/viewer knowledge state. Keep the block in data-block order where first appearance appears in the visible page order; for character pages, that means `character_profile.first_appearance_beats` before `identities`.
+
+When the subject appears before its canonical page title is reader-safe, preserve the difference between page visibility and graph/site display visibility. `Subject Visible From` remains the canonical page/title gate. A first-appearance row may add `graph_display.behavior: anonymized-node`, a safe `graph_display.label`, `graph_display.visible_from`, and `graph_display.resolves_to_canonical_at` so filtered graphs or future websites can show an anonymous presentation node before the real subject is revealed. Anonymized display nodes are presentation artifacts only; they are not new glossary entities and should use opaque generated IDs in graph source output.
 
 ### Chronological Development Style
 

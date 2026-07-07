@@ -40,7 +40,7 @@ Graph render settings live at:
 
 - `Visualization/config/render-settings.json`
 
-Each configured view can define a `readerBoundary`. Refresh mode applies that boundary during Mermaid generation: node eligibility comes from each glossary page's `Subject Visible From`, and relationship eligibility comes from the seed's `start.medium`, `start.volume`, and `start.chapter`. Use this for reader-safe volume/chapter graph views; use a separate unbounded view only for maintainer/global taxonomy graphs.
+Each configured view can define a `readerBoundary`. Refresh mode applies that boundary during Mermaid generation: canonical node eligibility comes from each glossary page's `Subject Visible From`, optional anonymized presentation-node eligibility can come from type-specific `first_appearance_beats.graph_display`, and relationship eligibility comes from the seed's `start.medium`, `start.volume`, and `start.chapter` or projected data-block availability. Use this for reader-safe volume/chapter graph views; use a separate unbounded view only for maintainer/global taxonomy graphs.
 
 If Edge is installed elsewhere, update `executablePath` in the Puppeteer config. Chrome can also be used if available.
 

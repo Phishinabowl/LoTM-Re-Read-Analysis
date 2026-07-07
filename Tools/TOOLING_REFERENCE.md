@@ -85,7 +85,9 @@ Purpose: find and optionally remove allowlisted local cache directories under th
 
 | Purpose | Python switch | PowerShell switch | Default | Notes |
 | --- | --- | --- | --- | --- |
-| Actually delete cache folders | `--delete` | `-Delete` | off | Without this switch, both scripts run in dry-run mode and only report matching directories. |
+| Actually delete cache folders/artifacts | `--delete` | `-Delete` | off | Without this switch, both scripts run in dry-run mode and only report matching paths. |
+| Include ignored `.tmp` artifacts | `--include-tmp` | `-IncludeTmp` | off | Adds direct children of repository `.tmp/` to the cleanup target list. The `.tmp` root itself is left in place. |
+| Include exact scoped `.tmp` path | `--tmp-path <path>` | `-TmpPath <path>[,<path>]` | none | Adds only the specified existing path(s), and only when they resolve under repository `.tmp/`. Intended for automatic cleanup of artifacts created by the current tool run. |
 | Print JSON summary | `--json` | `-Json` | off | Emits structured fields for `repo_root`, `delete`, `allowed_directory_names`, `count`, and `results`. |
 | Show CLI help | `--help` | n/a | n/a | Python exposes argparse help. The PowerShell fallback exposes switches through the script `param(...)` block. |
 
@@ -98,7 +100,7 @@ Purpose: find and optionally remove allowlisted local cache directories under th
 
 ### Allowlist
 
-Only directories with these exact names are considered:
+By default, only directories with these exact names are considered:
 
 - `.mypy_cache`
 - `.pytest_cache`
@@ -106,7 +108,7 @@ Only directories with these exact names are considered:
 - `.tox`
 - `__pycache__`
 
-Both scripts verify that a resolved match remains inside the repository root before reporting or deleting it.
+With `--include-tmp` / `-IncludeTmp`, direct children of the repository `.tmp/` folder are also considered. With `--tmp-path` / `-TmpPath`, only exact existing paths under repository `.tmp/` are considered. Both scripts verify that a resolved match remains inside the repository root before reporting or deleting it, and scoped tmp paths must also remain inside `.tmp/` without targeting `.tmp/` itself.
 
 ### Outputs And Side Effects
 
@@ -114,7 +116,7 @@ Both scripts verify that a resolved match remains inside the repository root bef
 | --- | --- | --- |
 | Default dry run | Human-readable `Would delete: <path>` lines, or `No allowlisted cache directories found.` | None. |
 | JSON dry run | JSON summary with `status: would_delete` rows. | None. |
-| Delete | Human-readable `Deleted: <path>` lines, or JSON rows with `status: deleted`. | Removes every allowlisted cache directory found under the repository root. |
+| Delete | Human-readable `Deleted: <path>` lines, or JSON rows with `status: deleted`. | Removes every allowlisted cache directory found under the repository root, direct `.tmp/` children only when explicitly included, and exact scoped `.tmp` paths when provided. |
 
 ### Behavior Map
 
@@ -124,6 +126,8 @@ Both scripts verify that a resolved match remains inside the repository root bef
 | Resolve repository root | `get_repo_root` | top-level `$repoRoot` |
 | Guard paths under repo | `is_within_repo` | `Test-IsWithinRepo` |
 | Find cache directories | `find_cache_dirs` | top-level `Get-ChildItem ... Where-Object` pipeline |
+| Find `.tmp` artifacts | `find_tmp_artifacts` | top-level `.tmp` child listing when `-IncludeTmp` is set |
+| Find scoped `.tmp` artifacts | `find_scoped_tmp_artifacts`, `is_within_tmp` | `-TmpPath` loop, `Test-IsWithinTmp` |
 | Delete cache directories | `clean_cache_dirs` | top-level `Remove-Item` loop |
 | Render JSON/human output | `main` | bottom script block |
 
@@ -144,6 +148,12 @@ New-Item -ItemType Directory -Force -Path .tmp\cleanup-parity\Nested\.ruff_cache
 python Tools\clean_temp_files.py --json
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Clean-TempFiles.ps1 -Json
 
+python Tools\clean_temp_files.py --include-tmp --json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Clean-TempFiles.ps1 -IncludeTmp -Json
+
+python Tools\clean_temp_files.py --tmp-path .tmp\cleanup-parity --json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Clean-TempFiles.ps1 -TmpPath .tmp\cleanup-parity -Json
+
 python Tools\clean_temp_files.py --delete --json
 
 New-Item -ItemType Directory -Force -Path .tmp\cleanup-parity\Tools\__pycache__
@@ -152,6 +162,8 @@ New-Item -ItemType Directory -Force -Path .tmp\cleanup-parity\Nested\.ruff_cache
 
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Clean-TempFiles.ps1 -Delete -Json
 ```
+
+Automatic tool cleanup should prefer `--tmp-path ... --delete` / `-TmpPath ... -Delete` for exact paths created by the current run. Use `--include-tmp --delete` / `-IncludeTmp -Delete` only when ignored local test outputs under `.tmp/` are no longer needed. This is intentionally opt-in so parity runs that write inspectable outputs under `.tmp/` are not deleted immediately by the tools that created them.
 
 Expected non-semantic differences:
 
@@ -521,7 +533,7 @@ Validate:
 | --- | --- |
 | `Visualization/config/render-settings.json` or supplied settings path | Configured views, output paths, validation rules, render dimensions, and report/snapshot destinations. |
 | `Visualization/config/puppeteer-config.json` or settings-defined puppeteer config | Browser launch settings for Mermaid CLI rendering. |
-| `Glossary_Threads/**/*.md` | Node metadata, `Subject Visible From`, status, type-specific data blocks, and Relationship Seeds. |
+| `Glossary_Threads/**/*.md` | Node metadata, `Subject Visible From`, status, type-specific data blocks, first-appearance display rows, and Relationship Seeds. |
 | `CURRENT_STATE.md` | Pending graph node report lines. |
 | Repository Markdown files | Broken link scan for refresh report hygiene. |
 | Existing Mermaid files from configured view inputs | Validate mode checks existing graph class/layout hygiene. |
@@ -550,9 +562,11 @@ Refresh mode should be treated as a canonical generated-artifact update unless a
 | Validate Mermaid layout hygiene | `get_mermaid_layout_validation`, `assert_mermaid_layout_validation` | `Get-MermaidLayoutValidation`, `Assert-MermaidLayoutValidation` |
 | Invoke Mermaid CLI rendering | `invoke_mermaid_render` | `Invoke-MermaidRender` |
 | Parse glossary nodes | `read_glossary_nodes` | `Read-GlossaryNodes` |
+| Parse anonymized first-appearance displays | `read_first_appearance_graph_displays` | `Read-FirstAppearanceGraphDisplays` |
 | Parse Relationship Seeds | `read_relationship_seeds`, `extract_relationship_yaml` | `Read-RelationshipSeeds`, `Get-RelationshipYaml` |
 | Parse data-block projections | `read_data_projections`, `make_availability_entry`, `projection_keys_for_row` | `Read-DataProjections`, `New-AvailabilityEntry`, `Get-ProjectionKeysForRow` |
 | Filter nodes by reader boundary | `filter_nodes_for_boundary`, `parse_subject_visible_from`, `position_is_visible` | `Select-NodesForBoundary`, `Convert-SubjectVisibleFrom`, `Test-PositionVisible` |
+| Add anonymized display nodes | `get_anonymized_node_displays`, `graph_display_is_visible`, `node_is_visible_at_boundary` | `Get-AnonymizedNodeDisplays`, `Test-GraphDisplayVisible`, `Test-NodeVisibleAtBoundary` |
 | Filter/project relationships by boundary | `filter_relationships_for_boundary`, `choose_current_availability`, `relationship_strength` | `Select-RelationshipsForBoundary`, `Select-CurrentAvailability`, `Get-RelationshipScore` |
 | Find missing visible endpoints | `get_missing_relationship_endpoints` | `Get-MissingRelationshipEndpoints` |
 | Format relationship labels | `format_relationship_label`, `format_relationship_node_label`, `format_availability_history` | `Format-RelationshipLabel`, `Format-RelationshipNodeLabel`, `Format-AvailabilityHistory` |
@@ -633,7 +647,16 @@ Purpose: compile repository metadata, type-specific YAML data blocks, Relationsh
 | Include stub pages | `--include-stubs` | `-IncludeStubs` | off | Includes canonical pages whose metadata has `Status: Stub`. Pending pages are not excluded by this switch. |
 | Clean before writing | `--clean` | `-Clean` | off | Deletes the selected export directory before regenerating it, after the path safety check. |
 | Print JSON summary | `--json` | `-Json` | off | Prints summary counts as JSON instead of human-readable text. Generated files are still written. |
+| Generate extra bounded graph(s) | `--bounded-graph <spec>` | `-BoundedGraph <spec>` | none | Repeatable opt-in. Generates no-render Mermaid graphs under `_Generated/bounded-graphs/` in addition to the normal export. Specs are comma-separated key/value pairs such as `name=vol1-ch45,medium=novel,maxVolume=1,maxChapter=45`. Multiple specs may also be separated with semicolons inside one argument, which is the recommended PowerShell form. |
 | Show CLI help | `--help` | n/a | n/a | Python exposes argparse help. The PowerShell fallback exposes switches through the script `param(...)` block. |
+
+Bounded graph spec keys:
+
+- `name`: Human-readable graph view name and default output filename stem.
+- `file` / `filename` / `file-stem`: Optional explicit output filename stem.
+- `medium`: Boundary medium. Defaults to `novel`.
+- `maxVolume`, `maxChapter`, `maxSeason`, `maxEpisode`, `maxReleaseOrder`: Reader/viewer boundary values. At least one max boundary is required.
+- `includeUnknownSubjects`, `includeUnknownPositions`: Optional booleans. Defaults are `false`.
 
 ### Inputs
 
@@ -653,7 +676,7 @@ Default output root: `Obsidian_Export/`, ignored by Git.
 
 | Output | Description |
 | --- | --- |
-| Type folders such as `Characters/`, `Artifacts/`, `Items/`, `Knowledge_Sources/`, `Pathways/`, and `Volumes/` | Generated mirror notes grouped by canonical page type. |
+| Type folders such as `Characters/`, `Artifacts/`, `Items/`, `Knowledge_Sources/`, `Pathways/`, and `Volumes/` | Generated mirror notes grouped by canonical page type. Notes include metadata, first-appearance beat mirrors when present, relationship seeds, data references, incoming references, and seed evidence. |
 | `_Generated/relationship-index.md` | Relationship Seed table with source, relationship, target, status, confidence, and seed file. |
 | `_Generated/data-reference-index.md` | Non-Relationship-Seed YAML slug references discovered in data blocks. |
 | `_Generated/orphan-report.md` | Unknown sources/targets, unknown data targets, and generated notes with no edges or references. |
@@ -665,6 +688,10 @@ Default output root: `Obsidian_Export/`, ignored by Git.
 | `_Generated/repo-refresh-check/refresh-check-report.md` | Dry-run refresh report generated through the real visualization refresh helper. |
 | `_Generated/repo-refresh-check/refresh-check-snapshot.json` | Dry-run semantic graph snapshot. |
 | `_Generated/repo-refresh-check/refresh-check-settings.json` | Generated render settings rewritten to point at the local dry-run bundle. |
+| `_Generated/bounded-graphs/*.mmd` | Optional no-render bounded graph outputs requested through `--bounded-graph` / `-BoundedGraph`. This folder is created only when bounded graphs are requested. |
+| `_Generated/bounded-graphs/bounded-graphs-report.md` | Optional refresh report for the requested bounded graph bundle. |
+| `_Generated/bounded-graphs/bounded-graphs-snapshot.json` | Optional semantic graph snapshot for the requested bounded graph bundle. |
+| `_Generated/bounded-graphs/bounded-graphs-settings.json` | Optional generated render settings used for the requested bounded graph bundle. |
 
 The repo refresh check does not update canonical `Visualization/graphs/`, `Visualization/rendered/`, `Visualization/data/refresh-snapshot.json`, or `Visualization/README.md`.
 
@@ -679,6 +706,7 @@ The repo refresh check does not update canonical `Visualization/graphs/`, `Visua
 | Parse Relationship Seeds | `extract_relationship_yaml`, `parse_relationships`, `make_relationship` | `Get-RelationshipYaml`, `Get-RelationshipsFromYaml`, `New-Relationship` |
 | Parse non-seed YAML references | `parse_data_references`, `slug_candidates_from_yaml_value` | `Get-DataReferences`, `Get-SlugCandidatesFromYamlValue` |
 | Parse projected data-block availability | `parse_data_projections`, `make_availability_entry`, `projection_keys_for_row` | `Get-DataProjections`, `New-AvailabilityEntry`, `Get-ProjectionKeysForRow` |
+| Parse first-appearance beats for mirror notes | `parse_first_appearance_beats` | `Get-FirstAppearanceBeats` |
 | Render generated mirror notes | `render_note` | `ConvertTo-NoteMarkdown` |
 | Render index/report Markdown | `render_relationship_index`, `render_data_reference_index`, `render_orphan_report`, `render_suspicious_edges` | `ConvertTo-RelationshipIndex`, `ConvertTo-DataReferenceIndex`, `ConvertTo-OrphanReport`, `ConvertTo-SuspiciousEdges` |
 | Analyze QA issues | `analyze_orphans`, `analyze_suspicious_edges` | `Get-OrphanAnalysis`, `Get-SuspiciousEdgeAnalysis` |
@@ -687,6 +715,8 @@ The repo refresh check does not update canonical `Visualization/graphs/`, `Visua
 | Build QA graph labels/provenance | `relationship_provenance_lines`, `relationship_source_lines`, `relationship_source_line`, `format_availability_history`, `format_availability_entry` | `Get-RelationshipProvenanceLines`, `Get-RelationshipSourceLines`, `Format-RelationshipSourceLine`, `Format-AvailabilityHistory`, `Format-AvailabilityEntry` |
 | Render visualization-style unbounded graph | `write_visualization_relationship_graph` | `ConvertTo-VisualizationRelationshipGraph` |
 | Write repo refresh dry-run bundle | `write_repo_refresh_check`, `repo_relative_path` | `Write-RepoRefreshCheck`, `Get-RepoRelativePath` |
+| Parse bounded graph requests | `parse_bounded_graph_specs`, `parse_bounded_graph_spec` | `ConvertFrom-BoundedGraphSpecs`, `ConvertFrom-BoundedGraphSpec` |
+| Write optional bounded graph bundle | `write_bounded_graphs` | `Write-BoundedGraphs` |
 | Guard output path safety | `ensure_safe_output` | `Assert-SafeOutputPath` |
 | Write all export files | `write_export` | `Write-ObsidianExport` |
 | Clean disposable Python caches | `clean_disposable_caches` | n/a |
@@ -704,6 +734,9 @@ Use ignored `.tmp/` output folders so comparison runs do not create trackable ar
 ```powershell
 python Tools\obsidian_qa_export.py --clean --output-dir .tmp\obsidian-python-check --json
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1 -Clean -OutputDir .tmp\obsidian-powershell-check -Json
+
+python Tools\obsidian_qa_export.py --clean --output-dir .tmp\obsidian-python-bounded --bounded-graph "name=ch10,medium=novel,maxVolume=1,maxChapter=10" --bounded-graph "name=vol1,medium=novel,maxVolume=1" --json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1 -Clean -OutputDir .tmp\obsidian-powershell-bounded -BoundedGraph 'name=ch10,medium=novel,maxVolume=1,maxChapter=10;name=vol1,medium=novel,maxVolume=1' -Json
 ```
 
 Compare at minimum:
