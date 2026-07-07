@@ -18,6 +18,8 @@ Configured graph views may declare a `readerBoundary` in `config/render-settings
 
 Reader-boundary graphs distinguish unfinished visible pages from hidden future subjects. A glossary page with `Status: Pending` still appears if its `Subject Visible From` is eligible for the view, but it renders with a dashed pending-node outline. A missing glossary page may also appear as a dashed graph-local pending endpoint when at least one relationship or projected data row proves the endpoint is visible inside the selected reader boundary. Pending or missing endpoints without eligible timing remain hidden from reader-facing views and are better inspected through the Obsidian QA export.
 
+The Obsidian QA export also emits a no-render dry run of every configured view in `config/render-settings.json` under `Obsidian_Export/_Generated/repo-refresh-check/`. That bundle uses the real visualization refresh helper and writes Mermaid sources, a refresh report, a semantic snapshot, and generated check settings for local inspection only. It does not update canonical graph sources, rendered images, the real refresh snapshot, or this README.
+
 Relationship Seed statuses affect graph labels but should not be used as a catch-all for state changes. In particular, `broken` means a relationship was narratively breached, severed, failed, or destroyed; ordinary ended custody or possession should be represented through projected data-block availability such as `possession_status: lost-custody` plus `historical` relationship state where needed.
 
 Named non-artifact objects appear as `Item` nodes only when the underlying data row is recurring, graph-worthy, or page-worthy. Minor equipment and disposable possessions should stay in type-specific data blocks with `graph_relevance: none`, so graph refreshes do not turn inventory into relationship noise.
@@ -25,6 +27,8 @@ Named non-artifact objects appear as `Item` nodes only when the underlying data 
 Recurring reveal carriers appear as `Knowledge Source` nodes with `source-*` slugs when their access chain, authorship, translation, quotes, or claim chronology needs independent tracking. Use these for Roselle diary pages, spellbooks, grimoires, notebooks, scriptures, case files, letters, inscriptions, formula records, murals, and similar sources rather than forcing them into Item nodes.
 
 Shared graph authoring rules live in [Graph Authoring Standard](graph-authoring-standard.md). Use that standard for both AI Agent graph requests and maintainer/project graph work before rendering.
+
+For the visualization helper switch map, mode aliases, output side effects, and Python/PowerShell parity notes, see the [Tooling Reference](../Tools/TOOLING_REFERENCE.md#visualization-graph-workflow).
 
 ## Current Artifacts
 
@@ -281,6 +285,8 @@ Before editing generated visualization files, recommend the refresh and confirm 
 When a refresh is confirmed, update every configured graph view in `config/render-settings.json` unless the user explicitly narrows the scope. Each configured view owns its Mermaid source path and rendered output paths.
 
 Fresh renders replace stale render files unless the user asks for archived snapshots.
+
+For a local no-render preview before committing to a canonical refresh, run the Obsidian QA export and inspect `Obsidian_Export/_Generated/repo-refresh-check/`. Use that dry-run bundle for QA only; promote changes by fixing canonical data and running the normal refresh command.
 
 Before choosing a helper on an unfamiliar machine or fresh agent session, run the Python availability probe documented in [Rendering Instructions](rendering.md). Treat the result as the session's Python-availability state. If Python is available, use the Python commands going forward without rerunning the probe before every render command. If Python is unavailable, use the PowerShell fallback command for that session.
 

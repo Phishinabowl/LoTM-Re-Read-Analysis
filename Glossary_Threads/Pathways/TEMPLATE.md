@@ -87,6 +87,8 @@ Use separate medium subsections when the thread tracks more than one format.
 
 Record only Sequences that are reader-safe at this article boundary. Unknown higher Sequences should be marked as unknown in `Pathway Snapshot` or `Reader-safe unknowns` rather than filled from later knowledge.
 
+For formula and potion details, preserve material inputs, quantities, preparation instructions, formula source, and reader-safe uncertainty separately. Materials can stay inline until a recurring ingredient becomes page-worthy. If a formula or ritual creates a usable supernatural output, classify that output as a future Preparation rather than defaulting to Item; use Item only for named recurring possessions with custody history, Artifact for formal supernatural artifacts, and Knowledge Source for formula records or texts whose main role is revealing information.
+
 ### Sequence 9: Reader-Safe Name
 
 - First reader-safe reveal:
@@ -303,7 +305,37 @@ pathway_profile:
           confidence:
           notes:
       formula_details:
-        -
+        - source:
+          formula_known_from:
+          ingredients:
+            - name:
+              quantity:
+              role:
+              material_target:
+              confidence:
+              notes:
+          preparation_steps:
+            -
+          output:
+            output_type: potion | preparation | item | artifact | effect | unknown
+            output_target:
+            physical_form:
+            possession_trackable:
+            notes:
+          availability:
+            - medium:
+              from:
+                book:
+                volume:
+                chapter:
+                season:
+                episode:
+                release_order:
+              status:
+              confidence:
+              graph_visibility:
+              notes:
+          notes:
       ability_profile:
         confirmed_traits:
           -

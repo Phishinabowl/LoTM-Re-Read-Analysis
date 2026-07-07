@@ -16,7 +16,10 @@ function Test-IsWithinRepo {
 
   $resolvedPath = (Resolve-Path -LiteralPath $Path).Path
   $resolvedRoot = (Resolve-Path -LiteralPath $Root).Path
-  return $resolvedPath.StartsWith($resolvedRoot, [System.StringComparison]::OrdinalIgnoreCase)
+  return (
+    $resolvedPath -eq $resolvedRoot -or
+    $resolvedPath.StartsWith($resolvedRoot + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)
+  )
 }
 
 $targets = @(
@@ -48,7 +51,7 @@ foreach ($target in $targets) {
 $output = [ordered]@{
   repo_root = $repoRoot
   delete = [bool]$Delete
-  allowed_directory_names = $allowedDirectoryNames
+  allowed_directory_names = @($allowedDirectoryNames | Sort-Object)
   count = $results.Count
   results = $results
 }

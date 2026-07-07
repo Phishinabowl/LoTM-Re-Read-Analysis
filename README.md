@@ -61,13 +61,15 @@ External summaries, wikis, fandom pages, Reddit posts, and memory are not used a
 
 For clickable navigation, use the [Project Index](INDEX.md).
 
+Reusable helper commands, switch maps, output side effects, and Python/PowerShell parity notes are tracked in the [Tooling Reference](Tools/TOOLING_REFERENCE.md).
+
 ## Visualization
 
 Generated visualization artifacts live in [Visualization](Visualization/README.md).
 
 The current GitHub-visible graph is the [Volume 1 Knowledge Graph](Visualization/graphs/volume-1-knowledge-graph.mmd). The graph is generated from glossary metadata, Relationship Seeds, and projected type-specific data-block availability; it is not the source of truth.
 
-Local Obsidian QA mirrors are generated with [Tools/obsidian_qa_export.py](Tools/obsidian_qa_export.py), or the PowerShell fallback [Tools/Obsidian-QA-Export.ps1](Tools/Obsidian-QA-Export.ps1) when Python is unavailable, into the ignored `Obsidian_Export/` folder. They are compiled inspection views for Obsidian graph review, not canonical records and not GitHub-visible visualization artifacts.
+Local Obsidian QA mirrors are generated with [Tools/obsidian_qa_export.py](Tools/obsidian_qa_export.py), or the PowerShell fallback [Tools/Obsidian-QA-Export.ps1](Tools/Obsidian-QA-Export.ps1) when Python is unavailable, into the ignored `Obsidian_Export/` folder. They are compiled inspection views for Obsidian graph review, not canonical records and not GitHub-visible visualization artifacts. Each Obsidian QA export also includes `_Generated/repo-refresh-check/`, a dry run of the current configured repository graph views that writes Mermaid sources and a refresh report without touching canonical `Visualization/` outputs.
 
 Graph construction rules shared by maintainer graph work and access-layer AI Agent graph requests live in the [Graph Authoring Standard](Visualization/graph-authoring-standard.md).
 
@@ -158,4 +160,4 @@ The entire `Source/` directory is ignored by Git so copyrighted source materials
 
 Bulk official artwork staging is also ignored by Git. `Artwork/Source/` is the local-only workspace for extracted official artwork and derived working crops; only deliberately selected page-ready assets under `Artwork/page-assets/` should be tracked.
 
-Generated Obsidian QA exports are ignored by Git. Regenerate them locally from canonical repository records instead of editing or committing `Obsidian_Export/`.
+Generated Obsidian QA exports are ignored by Git. Regenerate them locally from canonical repository records instead of editing or committing `Obsidian_Export/`. The export includes QA-only graph dry-run artifacts under `Obsidian_Export/_Generated/repo-refresh-check/`; treat those as local inspection output, not repository graph refreshes.

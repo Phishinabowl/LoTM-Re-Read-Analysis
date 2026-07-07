@@ -2,6 +2,8 @@
 
 This folder contains reusable local helpers for project maintenance and source verification.
 
+For switch-by-switch maps, function-pipeline notes, side effects, and parity checks for maintained helper scripts, see [Tooling Reference](TOOLING_REFERENCE.md). That reference should be extended whenever another tool is audited.
+
 ## Environment Checks
 
 Use `Test-Python.ps1` to check whether Python is present and actually usable before selecting Python-preferred tools. It tests `python`, `python3`, and `py` in order, verifies that `--version` works, and confirms that Python can report `sys.executable`.
@@ -12,6 +14,8 @@ Run this probe once for an unfamiliar machine or fresh agent session, then treat
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1 -Json
 ```
+
+For the full candidate order, switch behavior, JSON fields, side effects, and latest local check note, see [Tooling Reference](TOOLING_REFERENCE.md#python-environment-check).
 
 If the probe reports Python unavailable, use the documented PowerShell fallback scripts for that session. If Python is available but a Python tool fails, treat that as a tool/script failure rather than silently falling back.
 
@@ -64,6 +68,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Clean-TempFiles.ps1 -D
 Use `--json` / `-Json` when downstream tooling needs structured results.
 
 The Python Obsidian QA export and visualization refresh helpers invoke the Python cleanup helper at the end of normal runs so transient `__pycache__` folders do not linger. Run the cleanup command directly when a tool exits early, when using fallback scripts, or when reviewing cache cleanup behavior by itself.
+
+For the full cleanup switch map, allowlist, side effects, and Python/PowerShell parity notes, see [Tooling Reference](TOOLING_REFERENCE.md#temporary-file-cleanup).
 
 ## Image Manipulation
 
@@ -130,6 +136,8 @@ Use an explicit custom crop when a future image job needs different geometry:
 python Tools\edit_image.py --operation crop --source-image path\to\source.jpeg --output-image path\to\crop.png --x 24 --y 804 --width 660 --height 1168
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -Operation Crop -SourceImage path\to\source.jpeg -OutputImage path\to\crop.png -X 24 -Y 804 -Width 660 -Height 1168
 ```
+
+For the full image helper switch map, operation aliases, side effects, and Python/PowerShell parity notes, see [Tooling Reference](TOOLING_REFERENCE.md#image-manipulation).
 
 ## EPUB Search
 
@@ -306,6 +314,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Patte
 
 Raw counts can mislead when a term is also a job, epithet, or individual label. For example, `artisan` may outnumber `savant` while mostly referring to an item-maker or a specific person, whereas `Savant pathway` is stronger evidence for the canonical pathway slug.
 
+For the full EPUB search switch map, entry-type behavior, side effects, and Python/PowerShell parity notes, see [Tooling Reference](TOOLING_REFERENCE.md#epub-search).
+
 ## Obsidian QA Export
 
 Use `obsidian_qa_export.py` to compile glossary metadata, Relationship Seeds, YAML data-block references, and projected data-block availability into a generated Obsidian-friendly mirror. It is the preferred implementation when Python is available. If Python is unavailable, use the Windows PowerShell fallback `Obsidian-QA-Export.ps1`. The export is a QA view, not a source of truth. Canonical project notes remain under `Glossary_Threads/`, `Investigations/`, `Volumes/`, and related source folders.
@@ -336,6 +346,12 @@ Obsidian_Export/
     QA-relationship-graph.mmd
     QA-relationship-node-graph.mmd
     visualization-relationship-graph.mmd
+    repo-refresh-check/
+      volume-1-knowledge-graph.mmd
+      volume-1-knowledge-graph-timing-spoiler-free.mmd
+      refresh-check-report.md
+      refresh-check-snapshot.json
+      refresh-check-settings.json
     data-reference-index.md
     orphan-report.md
     suspicious-edges.md
@@ -348,6 +364,8 @@ Each mirror note includes source metadata, a canonical source link, outgoing Rel
 `QA-relationship-node-graph.mmd` is the same QA relationship set projected through intermediary relationship nodes, which can be easier to read in Mermaid viewers when direct edge labels overlap. The relationship nodes preserve seed/data provenance and projected availability summaries for quick maintainer review.
 
 `visualization-relationship-graph.mmd` is a QA-local unbounded graph generated through the repository visualization helper. It uses the same semantic relationship-node projection style as `Visualization/`, but writes only to the ignored Obsidian export folder and does not render images or update canonical visualization artifacts. Relationship Seeds with `projection_source` are resolved against the seed source page first, so repeated local data-block keys on different pages do not collide.
+
+The `_Generated/repo-refresh-check/` folder is a QA-local dry run of every currently configured repository graph view from `Visualization/config/render-settings.json`. It uses the real visualization refresh helper with rendering disabled, writes Mermaid graph sources, a refresh report, a semantic snapshot, and the generated check settings into the Obsidian export, and does not touch canonical `Visualization/graphs/`, rendered images, the real refresh snapshot, or `Visualization/README.md`. Because it derives from the live render settings each run, future configured graph views should automatically appear in this QA dry run.
 
 The QA export intentionally exposes modeling issues that reader-facing graphs may hide. It should show duplicate/provisional seeds, seed-vs-data provenance, pending endpoint nodes, and projected availability ladders so maintainers can spot taxonomy drift. `projection_source` is expected to point at structured data-block rows, not visible Markdown tables.
 

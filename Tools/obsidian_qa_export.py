@@ -954,7 +954,7 @@ def append_qa_graph_class_assignments(lines: list[str], used_slugs: list[str], n
         lines.append(f"  class {mermaid_node_id(slug)} {class_name}")
 
 
-def write_visualization_relationship_graph(root: Path, output_path: Path) -> None:
+def load_visualization_helper(root: Path):
     visualize_path = root / "Visualization" / "visualize.py"
     if not visualize_path.exists():
         raise RuntimeError(f"Visualization helper not found: {visualize_path}")
@@ -967,6 +967,11 @@ def write_visualization_relationship_graph(root: Path, output_path: Path) -> Non
     visualize = importlib.util.module_from_spec(spec)
     sys.modules[module_name] = visualize
     spec.loader.exec_module(visualize)
+    return visualize
+
+
+def write_visualization_relationship_graph(root: Path, output_path: Path) -> None:
+    visualize = load_visualization_helper(root)
 
     node_data = visualize.read_glossary_nodes()
     nodes = {node_id: data["label"] for node_id, data in node_data.items()}
@@ -994,6 +999,43 @@ def write_visualization_relationship_graph(root: Path, output_path: Path) -> Non
     )
 
 
+def repo_relative_path(root: Path, path: Path) -> str:
+    try:
+        return str(path.resolve().relative_to(root.resolve())).replace("\\", "/")
+    except ValueError:
+        return str(path)
+
+
+def write_repo_refresh_check(root: Path, generated_dir: Path) -> None:
+    visualize = load_visualization_helper(root)
+    source_settings_path = root / "Visualization" / "config" / "render-settings.json"
+    settings = json.loads(source_settings_path.read_text(encoding="utf-8"))
+    check_dir = generated_dir / "repo-refresh-check"
+    rendered_dir = check_dir / "rendered"
+    check_dir.mkdir(parents=True, exist_ok=True)
+
+    settings["reportPath"] = repo_relative_path(root, check_dir / "refresh-check-report.md")
+    settings["snapshotPath"] = repo_relative_path(root, check_dir / "refresh-check-snapshot.json")
+
+    for view in settings.get("views", []):
+        input_name = Path(view["input"]).name
+        view["input"] = repo_relative_path(root, check_dir / input_name)
+        view["outputs"] = [
+            repo_relative_path(root, rendered_dir / Path(output).name)
+            for output in view.get("outputs", [])
+        ]
+
+    (check_dir / "refresh-check-settings.json").write_text(
+        json.dumps(settings, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    visualize.invoke_refresh_mode(
+        settings,
+        root / "Visualization" / "config" / "puppeteer-config.json",
+        skip_render=True,
+    )
+
+
 def render_relationship_index(relationships: list[Relationship], notes: dict[str, CanonicalNote]) -> str:
     lines = [
         "# Relationship Index",
@@ -1003,7 +1045,7 @@ def render_relationship_index(relationships: list[Relationship], notes: dict[str
         "| Source | Relationship | Target | Status | Confidence | Seed File |",
         "|---|---|---|---|---|---|",
     ]
-    for rel in sorted(relationships, key=lambda item: (item.source, item.relationship_type, item.target)):
+    for rel in sorted(relationships, key=lambda item: (item.source, item.relationship_type, item.target, item.source_file)):
         lines.append(
             "| "
             + " | ".join(
@@ -1092,23 +1134,36 @@ def render_orphan_report(
 
 
 def analyze_suspicious_edges(relationships: list[Relationship], notes: dict[str, CanonicalNote]) -> dict[str, list]:
-    loops = [rel for rel in relationships if rel.source and rel.source == rel.target]
+    def rel_sort_key(rel: Relationship) -> tuple[str, str, str, str]:
+        return (rel.source, rel.relationship_type, rel.target, rel.source_file)
+
+    loops = sorted([rel for rel in relationships if rel.source and rel.source == rel.target], key=rel_sort_key)
     seen: dict[tuple[str, str, str], list[Relationship]] = {}
     for rel in relationships:
         seen.setdefault((rel.source, rel.relationship_type, rel.target), []).append(rel)
-    duplicates = [items for items in seen.values() if len(items) > 1]
+    duplicates = [
+        sorted(items, key=rel_sort_key)
+        for _, items in sorted(seen.items(), key=lambda item: item[0])
+        if len(items) > 1
+    ]
     edge_types = {(rel.source, rel.relationship_type, rel.target) for rel in relationships}
-    missing_reciprocals = [
-        rel
-        for rel in relationships
-        if rel.relationship_type in RECIPROCAL_TYPES
-        and (rel.target, RECIPROCAL_TYPES[rel.relationship_type], rel.source) not in edge_types
-    ]
-    same_type_known_edges = [
-        rel
-        for rel in relationships
-        if rel.source in notes and rel.target in notes and notes[rel.source].type_name == notes[rel.target].type_name
-    ]
+    missing_reciprocals = sorted(
+        [
+            rel
+            for rel in relationships
+            if rel.relationship_type in RECIPROCAL_TYPES
+            and (rel.target, RECIPROCAL_TYPES[rel.relationship_type], rel.source) not in edge_types
+        ],
+        key=rel_sort_key,
+    )
+    same_type_known_edges = sorted(
+        [
+            rel
+            for rel in relationships
+            if rel.source in notes and rel.target in notes and notes[rel.source].type_name == notes[rel.target].type_name
+        ],
+        key=rel_sort_key,
+    )
     return {
         "self_loops": loops,
         "duplicate_edges": duplicates,
@@ -1194,6 +1249,7 @@ def write_export(
         encoding="utf-8",
     )
     write_visualization_relationship_graph(root, generated_dir / "visualization-relationship-graph.mmd")
+    write_repo_refresh_check(root, generated_dir)
     (generated_dir / "data-reference-index.md").write_text(render_data_reference_index(data_references, notes), encoding="utf-8")
     (generated_dir / "orphan-report.md").write_text(render_orphan_report(notes, relationships, data_references), encoding="utf-8")
     (generated_dir / "suspicious-edges.md").write_text(render_suspicious_edges(notes, relationships), encoding="utf-8")

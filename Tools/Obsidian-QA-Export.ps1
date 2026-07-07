@@ -1318,7 +1318,7 @@ function ConvertTo-RelationshipIndex {
     "| Source | Relationship | Target | Status | Confidence | Seed File |",
     "|---|---|---|---|---|---|"
   )
-  foreach ($rel in @($Relationships | Sort-Object source,relationship_type,target)) {
+  foreach ($rel in @($Relationships | Sort-Object source,relationship_type,target,source_file)) {
     $lines += "| " + (@(
       Format-TableWikiLink $rel.source $Notes
       $rel.relationship_type
@@ -1428,14 +1428,21 @@ function Get-SuspiciousEdgeAnalysis {
     [object[]]$Relationships,
     [hashtable]$Notes
   )
-  $loops = @($Relationships | Where-Object { $_.source -and $_.source -eq $_.target })
+  $loops = @($Relationships |
+    Where-Object { $_.source -and $_.source -eq $_.target } |
+    Sort-Object source, relationship_type, target, source_file)
   $seen = @{}
   foreach ($rel in $Relationships) {
     $key = "$($rel.source)|$($rel.relationship_type)|$($rel.target)"
     if (-not $seen.ContainsKey($key)) { $seen[$key] = @() }
     $seen[$key] = @($seen[$key] + $rel)
   }
-  $duplicates = @($seen.Values | Where-Object { $_.Count -gt 1 })
+  $duplicates = @(
+    foreach ($key in ($seen.Keys | Sort-Object)) {
+      $group = @($seen[$key] | Sort-Object source, relationship_type, target, source_file)
+      if ($group.Count -gt 1) { ,$group }
+    }
+  )
   $edgeTypes = New-Object 'System.Collections.Generic.HashSet[string]'
   foreach ($rel in $Relationships) {
     [void]$edgeTypes.Add("$($rel.source)|$($rel.relationship_type)|$($rel.target)")
@@ -1444,11 +1451,11 @@ function Get-SuspiciousEdgeAnalysis {
     $_.relationship_type -and
     $ReciprocalTypes.ContainsKey($_.relationship_type) -and
     -not $edgeTypes.Contains("$($_.target)|$($ReciprocalTypes[$_.relationship_type])|$($_.source)")
-  })
+  } | Sort-Object source, relationship_type, target, source_file)
   $sameTypeKnownEdges = @($Relationships | Where-Object {
     $_.source -and $_.target -and $Notes.ContainsKey($_.source) -and $Notes.ContainsKey($_.target) -and
     $Notes[$_.source].type_name -eq $Notes[$_.target].type_name
-  })
+  } | Sort-Object source, relationship_type, target, source_file)
   return [pscustomobject]@{
     self_loops = $loops
     duplicate_edges = $duplicates
@@ -1517,6 +1524,55 @@ function Assert-SafeOutputPath {
   return $resolvedOutput
 }
 
+function Get-RepoRelativePath {
+  param(
+    [string]$RepoRoot,
+    [string]$Path
+  )
+  if ([System.IO.Path]::IsPathRooted($Path)) {
+    $fullPath = [System.IO.Path]::GetFullPath($Path)
+  } else {
+    $fullPath = [System.IO.Path]::GetFullPath((Join-Path $RepoRoot $Path))
+  }
+  $rootPath = [System.IO.Path]::GetFullPath($RepoRoot)
+  if ($fullPath.StartsWith($rootPath + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)) {
+    return $fullPath.Substring($rootPath.Length + 1).Replace("\", "/")
+  }
+  return $fullPath
+}
+
+function Write-RepoRefreshCheck {
+  param(
+    [string]$RepoRoot,
+    [string]$GeneratedDir
+  )
+  $sourceSettingsPath = Join-Path $RepoRoot "Visualization/config/render-settings.json"
+  $settings = Get-Content -LiteralPath $sourceSettingsPath -Raw | ConvertFrom-Json
+  $checkDir = Join-Path $GeneratedDir "repo-refresh-check"
+  $renderedDir = Join-Path $checkDir "rendered"
+  New-Item -ItemType Directory -Path $checkDir -Force | Out-Null
+
+  $settings.reportPath = Get-RepoRelativePath $RepoRoot (Join-Path $checkDir "refresh-check-report.md")
+  $settings.snapshotPath = Get-RepoRelativePath $RepoRoot (Join-Path $checkDir "refresh-check-snapshot.json")
+
+  foreach ($view in $settings.views) {
+    $inputName = Split-Path -Leaf $view.input
+    $view.input = Get-RepoRelativePath $RepoRoot (Join-Path $checkDir $inputName)
+
+    $newOutputs = @()
+    foreach ($output in $view.outputs) {
+      $outputName = Split-Path -Leaf $output
+      $newOutputs += (Get-RepoRelativePath $RepoRoot (Join-Path $renderedDir $outputName))
+    }
+    $view.outputs = $newOutputs
+  }
+
+  $settingsPath = Join-Path $checkDir "refresh-check-settings.json"
+  Write-TextFile $settingsPath ($settings | ConvertTo-Json -Depth 50)
+
+  powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "Visualization/visualize.ps1") -Mode Refresh -SettingsPath (Get-RepoRelativePath $RepoRoot $settingsPath) -SkipRender
+}
+
 function Write-ObsidianExport {
   param(
     [string]$RepoRoot,
@@ -1546,9 +1602,22 @@ function Write-ObsidianExport {
   Write-TextFile (Join-Path $generatedDir "QA-relationship-graph.mmd") (ConvertTo-LabeledRelationshipGraph $Relationships $Notes)
   Write-TextFile (Join-Path $generatedDir "QA-relationship-node-graph.mmd") (ConvertTo-RelationshipNodeGraph $Relationships $Notes $DataProjections)
   Write-TextFile (Join-Path $generatedDir "visualization-relationship-graph.mmd") (ConvertTo-VisualizationRelationshipGraph $Relationships $Notes $DataProjections)
+  Write-RepoRefreshCheck $RepoRoot $generatedDir
   Write-TextFile (Join-Path $generatedDir "data-reference-index.md") (ConvertTo-DataReferenceIndex $DataReferences $Notes)
   Write-TextFile (Join-Path $generatedDir "orphan-report.md") (ConvertTo-OrphanReport $Notes $Relationships $DataReferences)
   Write-TextFile (Join-Path $generatedDir "suspicious-edges.md") (ConvertTo-SuspiciousEdges $Notes $Relationships)
+}
+
+function Invoke-DisposableCacheCleanup {
+  param([string]$RepoRoot)
+  try {
+    $cleanScript = Join-Path $RepoRoot "Tools/Clean-TempFiles.ps1"
+    if (Test-Path -LiteralPath $cleanScript) {
+      powershell -NoProfile -ExecutionPolicy Bypass -File $cleanScript -Delete | Out-Null
+    }
+  } catch {
+    return
+  }
 }
 
 $repoRoot = (Resolve-Path -LiteralPath $Root).Path
@@ -1573,6 +1642,7 @@ $summary = [ordered]@{
 
 if ($Json) {
   $summary | ConvertTo-Json -Depth 5
+  Invoke-DisposableCacheCleanup $repoRoot
   exit 0
 }
 
@@ -1580,3 +1650,4 @@ Write-Output "Generated $($summary.notes) Obsidian QA notes."
 Write-Output "Relationship Seeds: $($summary.relationships); data block references: $($summary.data_references)."
 Write-Output "Output: $($summary.output_dir)"
 Write-Output ("QA: {0} unknown relationship sources, {1} unknown relationship targets, {2} unknown data targets, {3} self loops, {4} duplicate edge groups, {5} missing expected reciprocals." -f $summary.unknown_relationship_sources, $summary.unknown_relationship_targets, $summary.unknown_data_targets, $summary.self_loops, $summary.duplicate_edge_groups, $summary.missing_reciprocals)
+Invoke-DisposableCacheCleanup $repoRoot

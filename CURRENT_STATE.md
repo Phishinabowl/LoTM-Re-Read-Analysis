@@ -240,7 +240,7 @@ Configured graph views live in [render-settings.json](Visualization/config/rende
 ## Recent Framework Milestones
 
 - Created first relationship graph workflow and validation rules.
-- Added local Obsidian QA export workflow for generated mirror notes, relationship/data-reference reports, and three local Mermaid relationship views under ignored `Obsidian_Export/`.
+- Added local Obsidian QA export workflow for generated mirror notes, relationship/data-reference reports, three local Mermaid relationship views, and a no-render configured repo graph refresh-check bundle under ignored `Obsidian_Export/`.
 - Formalized bidirectional navigation, relationship sweep, taxonomy gap, and generator interpretation rules.
 - Added controlled concept/event relationship types and relationship status values.
 - Formalized visualization refresh gate for graph-input changes.

@@ -118,6 +118,8 @@ Relationship Seeds that project type-specific data rows should resolve `projecti
 
 Named non-artifact objects should use canonical Item nodes only when they are recurring, graph-worthy, or page-worthy. Minor possessions, disposable equipment, and ordinary access items can remain data-block rows with `graph_relevance: none` and no Relationship Seed. Item and equipment rows should use `item_significance`, `graph_relevance`, and `page_worthiness` to decide whether they stay data-only, appear only in local maintainer graphs, or become full graph nodes with `possesses-item` / `uses-item` seeds.
 
+Potion, formula, and ritual modeling should distinguish inputs from outputs and object identity. Materials are raw inputs/components and may remain inline in pathway, ritual, item, artifact, or event data until a recurring material becomes page-worthy. Preparations are outputs made, charged, consecrated, assembled, or activated by a formula, ritual, prayer, or craft process; this future node family can cover charms, ritual bullets, blessed powders, talismans, prepared tools, and durable or repeatable ritual effects. A preparation may also become possession-trackable when it has `physical_form: item` or `physical_form: consumable-item`, but that does not make every preparation an Item node. Pure ritual effects should not be projected as possession nodes unless the current graph view explicitly models effects.
+
 Recurring knowledge carriers should use canonical Knowledge Source nodes when their source identity, access chain, quotes, interpretation changes, or claim chronology matter independently. Use `source-*` nodes for diary-page corpora, spellbooks, grimoires, notebooks, scriptures, case files, letters, inscriptions, formula records, murals, or similar reveal carriers. Do not model these as Item nodes merely because they are physical objects.
 
 Knowledge Source `knowledge_entries` should expose stable source-unit fields when the source is encountered in pages, batches, fragments, inscriptions, chapters, files, or excerpts. `source_unit_id` is the preferred row key for graph projection; `source_unit_type`, `batch_id`, `fragment_id`, `sequence_index`, and `source_position` preserve local ordering and citation context without creating separate glossary nodes for every fragment.
@@ -172,5 +174,8 @@ Potential generated outputs include:
 - SVG or PNG graph renders
 - JSON graph data
 - Interactive frontend graph views
+- Obsidian QA dry-run graph artifacts under `Obsidian_Export/_Generated/repo-refresh-check/`
 
 Generated outputs should be reproducible from canonical project data.
+
+The Obsidian QA dry-run artifacts are generated from the same configured visualization views with rendering disabled. They are local inspection output and should not be treated as canonical replacements for `Visualization/graphs/`, rendered outputs, the real refresh snapshot, or visualization refresh tracker updates.

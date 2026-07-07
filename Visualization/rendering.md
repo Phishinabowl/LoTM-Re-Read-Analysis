@@ -28,6 +28,8 @@ The default `mmdc` browser launch may time out on Windows. The working approach 
 
 Mermaid CLI is the underlying renderer, not the project workflow entry point. For repository graph work, call the Python visualization helper below first. Use the PowerShell helper as the Windows fallback. Direct `mmdc` commands are fallback/debug commands only.
 
+For the visualization helper switch map, mode aliases, output side effects, and Python/PowerShell parity notes, see the [Tooling Reference](../Tools/TOOLING_REFERENCE.md#visualization-graph-workflow).
+
 ## Permanent Render Config
 
 Puppeteer launch settings live at:
@@ -55,6 +57,8 @@ For structured agent workflows, use JSON output:
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1 -Json
 ```
+
+For the full environment probe map, candidate order, JSON fields, and latest local check note, see the [Tooling Reference](../Tools/TOOLING_REFERENCE.md#python-environment-check).
 
 Also confirm the render config files exist:
 

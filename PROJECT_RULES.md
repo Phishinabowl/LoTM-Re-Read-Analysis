@@ -111,7 +111,7 @@ Testing/
   local scratch outputs and temporary experiments unless deliberately promoted
 
 Obsidian_Export/
-  local generated Obsidian QA mirror (Git ignored)
+  local generated Obsidian QA mirror and repo graph dry-run bundle (Git ignored)
 
 .obsidian/
   local Obsidian vault settings (Git ignored)
@@ -182,7 +182,7 @@ Use each project artifact for a distinct purpose:
 - `Artwork`: Tracked official artwork metadata and selected page-ready assets. Bulk extraction, intermediate crops, and source-derived staging stay local-only.
 - `Source`: Local canonical source materials such as the EPUB and Donghua subtitles. Copyrighted source files stay ignored by Git.
 - `Testing`: Local scratch outputs and temporary experiments. Promote durable outputs into the appropriate canonical folder only after maintainer confirmation.
-- `Obsidian_Export`: Ignored local QA mirror generated from repository records for Obsidian graph inspection, anomaly detection, and relationship review.
+- `Obsidian_Export`: Ignored local QA mirror generated from repository records for Obsidian graph inspection, anomaly detection, relationship review, and no-render repository graph refresh checks.
 
 Do not duplicate granular reveal chronology across boards, volume pages, and glossary threads. Keep the filterable detail in the glossary thread and summarize only the durable volume-level meaning on the appropriate board or volume page.
 
@@ -246,6 +246,7 @@ Generated Obsidian QA outputs may include:
 - Obsidian-friendly mirror notes
 - relationship and data-reference indexes
 - local-only QA Mermaid `.mmd` files
+- a `_Generated/repo-refresh-check/` dry run of configured repository graph views, including generated Mermaid sources, a refresh report, a semantic snapshot, and generated check settings
 - orphan, suspicious-edge, duplicate-edge, and unknown-target reports
 
 Do not treat generated graph files, generated Obsidian mirror notes, or generated QA reports as canonical project knowledge.
@@ -259,6 +260,8 @@ For durable canonical graph or Obsidian QA corrections, if a generated view expo
 3. Regenerate the relevant output.
 
 For graph-only maintainer work or Obsidian QA export work, do not silently update glossary threads, investigations, boards, current state, index, Relationship Seeds, or data blocks while producing the generated view. Graph generation may read project records and allowed local sources, include clearly marked graph-local evidence, and report candidate project-data updates. Ask for maintainer confirmation before editing canonical project records.
+
+The Obsidian QA export's `_Generated/repo-refresh-check/` bundle is a local dry run of the configured repository visualization refresh. It is generated inside ignored `Obsidian_Export/`, runs with rendering disabled, and must not be mistaken for updating canonical files under `Visualization/graphs/`, `Visualization/rendered/`, `Visualization/data/refresh-snapshot.json`, or `Visualization/README.md`.
 
 Use the shared [Graph Authoring Standard](Visualization/graph-authoring-standard.md) for graph construction. It defines canonical versus graph-local evidence, source expansion, pathway/sequence coverage, maintainer confirmation, and output reporting.
 
@@ -300,6 +303,8 @@ For the current repository, a normal graph refresh means updating:
 - matching rendered PNG files, when present
 
 Fresh renders should replace the stale render files rather than accumulating duplicate dated copies unless the user asks for archived snapshots.
+
+The Obsidian QA export also emits a no-render dry run of these configured views under `Obsidian_Export/_Generated/repo-refresh-check/`. Use it for inspection before deciding whether a real graph refresh is warranted; it does not replace the confirmed canonical refresh workflow above.
 
 For exact visualization helper commands, validation modes, pure-render behavior, render sizing, and troubleshooting, use `Visualization/README.md` and `Visualization/rendering.md`. For graph-local evidence, source expansion, layout semantics, dense graph shape, visual role grammar, and output reports, use `Visualization/graph-authoring-standard.md`.
 
@@ -404,6 +409,16 @@ For sources encountered as fragments, batches, pages, inscriptions, chapters, fi
 Use unit-level provenance fields on `knowledge_entries` when access differs by batch or page. `provider` records who held, supplied, submitted, displayed, or mediated that specific source unit; `provider_role` describes their role; `transfer_mode` distinguishes incidental access, deliberate submission, sale, theft, loan, discovery, ritual access, or archival access; `reader` records who reads or interprets it; `reader_access_type` distinguishes intended recipient, opportunistic reading, authorized review, covert reading, or mediated interpretation; `holder_understanding` records whether the holder understands, partially understands, cannot read, misreads, or merely stores the source; `intentionality` records whether the reveal to the reader/interpreter was intended, accidental, coerced, transactional, or unknown; and `mediation` records direct reading, translation, copied text, paraphrase, summary, vision, or other access mode.
 
 Use `artifact-[name].md` for formal mystical artifacts, sealed artifacts, supernatural objects with established artifact identity, or plot-center objects whose supernatural nature is the analytical point. When uncertain, keep the object in a character, faction, location, or artifact data block with `page_worthiness: candidate` until the page type is clear.
+
+For potion, ritual, charm, ammunition, and crafted supernatural output modeling, keep these analytical roles separate even when the same story object participates in more than one role:
+
+- **Materials** are raw inputs or components, such as herbs, crystals, monster parts, blood, metals, powders, liquids, or other formula ingredients. Record them inline in pathway, ritual, item, artifact, or event data until a recurring material becomes page-worthy.
+- **Preparations** are outputs made, charged, consecrated, assembled, or activated by a formula, ritual, prayer, craft process, or supernatural method. This future page family should cover charms, ritual bullets, blessed powders, talismans, prepared ritual tools, and durable or repeatable ritual effects. A preparation may have `physical_form: item`, `physical_form: consumable-item`, or `physical_form: none`.
+- **Items** are durable named possessions, tools, or carriers with object identity and custody history. If a preparation becomes a recurring possessed object, track possession on the preparation or item record, but do not promote every made charm or expendable bullet to an Item page by default.
+- **Artifacts** are formal supernatural artifacts, Sealed Artifacts, or artifact-identity objects, not merely any supernatural object produced by a ritual.
+- **Concepts** own reusable systems and mechanics, such as prayer structures, ritual categories, summoning theory, and pathway theory.
+
+Do not create `Glossary_Threads/Materials/` or `Glossary_Threads/Preparations/` until the project needs dedicated pages and templates. Until then, pathway pages may record formula ingredients inline, concept pages may record reusable ritual mechanics, and item/artifact/source pages may point to those systems when the object or source is graph-worthy.
 
 The overall taxonomy and idea of sefirot should use the shared concept page `concept-sefirot.md`. Individual named sefirot, such as Sefirah Castle, Tenebrous World, Nation of Disorder, Knowledge Moor, City of Calamity, Key of Light, or Brood Hive, should use `location-[name].md` under `Glossary_Threads/Locations/`. This is an intentional pragmatic category choice: named sefirot behave like special places/realms for page organization even when they are not ordinary physical locations.
 
@@ -569,6 +584,8 @@ Pathway pages should place `Associated Tarot Card` after `Pathway Names / Reader
 Pathway pages should keep a stable internal slug even when the best reader-facing display name changes over time. Use `Pathway Names / Reader Display Timeline` to track reader-display names, implied reader-display associations, aliases, artwork labels, formal names, and sequence-facing names with reveal timing, display-active range, confidence, and notes. Future reader-boundary tooling should select the newest eligible confirmed reader-display name at or before the chosen boundary while preserving aliases and artwork labels for search, cross-linking, and article notes. Implied or associated name rows should be eligible for badges, subtitles, alternate labels, or "implied as of Chapter X" UI hints, but they should not replace the main display title until an exact or otherwise confirmed reader-display row becomes active. Name rows should accumulate rather than overwriting earlier reader-safe names.
 
 The `Known Sequences` section should appear even when only one Sequence is reader-safe. Each known Sequence should receive its own subsection with a normalized structure for reveal timing, confidence, formula or potion details, abilities, practical demonstrations, training or practice requirements, limitations, reader-safe unknowns, and notes. Keep pathway-wide institutional access in `Institutional Access`, broader faction associations in the `Affiliated Factions` table, and character assignments in the separate `Known Holders` table. Unknown higher Sequences should be marked as unknown or omitted; never fill them from later knowledge outside the current reader boundary.
+
+Pathway formula details should preserve ingredients as materials even before a dedicated Material page type exists. Record known ingredients, quantities, preparation steps, source of the formula, and reader-safe uncertainty in the Sequence row. If a formula or ritual produces a usable supernatural output, classify the output conceptually as a future Preparation rather than defaulting to Item; only model it as an Item when it is a named, recurring possession with custody history. Use Knowledge Source pages when a formula record, diary page, spellbook, or inscription is primarily important because it reveals the formula or pathway knowledge over time.
 
 The `Pathway Data Block` is a structured extraction aid, not a separate source of truth. Keep it aligned with the visible pathway sections, relationship seeds, and reader knowledge ledger. If the data block and prose conflict, resolve the conflict in the canonical article content rather than treating the data block as independently authoritative.
 
@@ -1527,7 +1544,7 @@ Use the EPUB.
 
 ### EPUB Sweep Tool
 
-Use `Tools/search_epub.py` for repeatable novel EPUB checks when Python is available. `Tools/Search-Epub.ps1` is the Windows PowerShell fallback and should remain behaviorally compatible. Use `Tools/Test-Python.ps1` as the canonical local Python availability probe when the environment is unknown, then retain the result as session state instead of probing before every command. Exact commands, flags, aliases, and examples live in `Tools/README.md`.
+Use `Tools/search_epub.py` for repeatable novel EPUB checks when Python is available. `Tools/Search-Epub.ps1` is the Windows PowerShell fallback and should remain behaviorally compatible. Use `Tools/Test-Python.ps1` as the canonical local Python availability probe when the environment is unknown, then retain the result as session state instead of probing before every command. Exact commands, flags, aliases, examples, switch maps, and parity notes live in `Tools/README.md` and `Tools/TOOLING_REFERENCE.md`.
 
 When a task requires novel EPUB source expansion and this helper is available, use the Python helper as the preferred first EPUB search path because it is faster and can grow into reusable search/index functionality. Use the PowerShell helper when Python is unavailable. This applies to graph-building coverage sweeps as well as article and investigation verification. If both helpers are missing or unusable, use another structured EPUB search method and report the degraded path.
 
