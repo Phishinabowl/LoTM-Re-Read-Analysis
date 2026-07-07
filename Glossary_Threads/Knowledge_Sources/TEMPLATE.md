@@ -427,9 +427,4 @@ last_updated:
 
 -
 
-<details>
-<summary>Maintainer Notes</summary>
-
-- Page-specific modeling note:
-
-</details>
+<!-- Add a collapsible Maintainer Notes block only when this page needs page-specific modeling, boundary, rendering, future split, or migration notes. Do not add empty maintainer-note placeholders to real pages. -->

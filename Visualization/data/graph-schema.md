@@ -158,6 +158,8 @@ Future graph generation may support filtering by:
 
 - Node type
 - Relationship type
+- Event type
+- Event part
 - Confidence
 - Truth status
 - Medium
