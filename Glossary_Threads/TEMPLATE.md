@@ -29,7 +29,7 @@ Filename format is governed by `PROJECT_RULES.md`. Use this generic shape only a
 [entity-type]-[kebab-case-name].md
 ```
 
-Store the file in its matching plural category folder, such as `Characters/`, `Artifacts/`, `Deities/`, `Uniquenesses/`, or `Mysteries/`, while retaining the filename prefix. For scoped or special filename families such as deity and uniqueness pages, follow `PROJECT_RULES.md` rather than duplicating the rule here.
+Store the file in its matching plural category folder, such as `Characters/`, `Artifacts/`, `Items/`, `Deities/`, `Uniquenesses/`, or `Mysteries/`, while retaining the filename prefix. For scoped or special filename families such as deity and uniqueness pages, follow `PROJECT_RULES.md` rather than duplicating the rule here.
 
 Examples:
 
@@ -38,6 +38,7 @@ artifact-0-08.md
 character-azik-eggers.md
 family-medici.md
 faction-rose-school-of-thought.md
+item-aziks-copper-whistle.md
 concept-gray-fog.md
 event-great-smog.md
 uniqueness-die-of-probability.md
@@ -46,7 +47,7 @@ timeline-ian-zreal-chain.md
 
 ## Purpose
 
-What recurring thread, symbol, faction, person, family, concept, or mystery does this file track?
+What recurring thread, symbol, faction, person, family, item, location, event, concept, or mystery does this file track?
 
 ## Spoiler Boundary
 
@@ -157,6 +158,10 @@ Use Markdown links when the target file exists, with the target document's human
 
 -
 
+### Associated Items
+
+-
+
 ### Associated Factions
 
 -
@@ -186,6 +191,10 @@ Prefer one canonical seed owner for each semantic edge. Store local rosters, hol
 Keep entries reader-boundary aware and mark unverified start points as `TBD`. `start` is the earliest reader-safe point where the edge becomes graph-worthy, not necessarily the confirmation point.
 
 When a seed projects a data-block row, set `projection_source`. QA graph labels should then summarize that row's meaningful availability history, while pending/TBD adaptation rows remain in the data block until they are verified.
+
+`projection_source` should point to a structured data-block row on the seed source page, not to a visible Markdown table. For possession, custody, and equipment state, seed only graph-worthy edges; keep minor/disposable rows data-only.
+
+Use `status: broken` only for relationships that are explicitly ruptured, breached, failed, destroyed, or narratively broken. For ordinary ended custody, possession, residence, access, or employment, prefer projected data-block state such as `possession_status: lost-custody` with `status: historical` where needed.
 
 Omit this section on actual pages only when no graph-worthy relationships have been identified yet.
 

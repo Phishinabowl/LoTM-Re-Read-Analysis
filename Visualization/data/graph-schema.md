@@ -40,7 +40,7 @@ Field notes:
 
 - `node_id`: Stable lowercase kebab-case identifier, normally matching the glossary filename without extension.
 - `label`: Human-readable display label, usually the glossary page H1.
-- `node_type`: Controlled glossary type, such as Character, Artifact, Faction, Concept, Event, Pathway, Location, Deity, Uniqueness, Family, Epoch, Mystery, or Timeline. Provisional graph-local node types such as Tarot may also appear when relationship seeds intentionally target lightweight nodes before a dedicated glossary page exists.
+- `node_type`: Controlled glossary type, such as Character, Artifact, Item, Faction, Concept, Event, Pathway, Location, Deity, Uniqueness, Family, Epoch, Mystery, or Timeline. Provisional graph-local node types such as Tarot may also appear when relationship seeds intentionally target lightweight nodes before a dedicated glossary page exists.
 - `source_file`: Glossary file where the node is defined, if it exists.
 - `source_layer`: Whether the node is repository-canonical, source-supported graph-local, or external/unsupported.
 - `canonicalization_status`: Whether the node is already represented in project records, graph-local only, or a candidate project-data update.
@@ -113,6 +113,12 @@ Field notes:
 - `default_hidden_target_behavior`: Seed-level default for hidden target pages, usually `hide`.
 
 Relationship records should distinguish the graph edge from the reader-state history of the claim. For example, `novel_chapter` can represent the earliest graph-worthy visibility of an edge, while a linked `projection_source` can preserve that the same edge moved from strong inference to confirmed fact later. A linked `claim_id` may add evidence or interpretive context, but should not be required for ordinary page-local state that is already represented in the type-specific data block.
+
+Relationship Seeds that project type-specific data rows should resolve `projection_source` relative to the seed source page before falling back to any global key. This avoids collisions between repeated local row keys such as `character_profile.affiliations[faction-nighthawks]` across multiple character pages. `projection_source` points to structured data-block rows, not human-facing Markdown tables; generated graphs should read row-level `availability` from the data block and treat prose tables as display surfaces that may later be generated.
+
+Named non-artifact objects should use canonical Item nodes only when they are recurring, graph-worthy, or page-worthy. Minor possessions, disposable equipment, and ordinary access items can remain data-block rows with `graph_relevance: none` and no Relationship Seed. Item and equipment rows should use `item_significance`, `graph_relevance`, and `page_worthiness` to decide whether they stay data-only, appear only in local maintainer graphs, or become full graph nodes with `possesses-item` / `uses-item` seeds.
+
+Relationship Seed `status` values describe the seed edge, not the full item, artifact, or character state. Use `historical` for relationships that were true earlier but are no longer current without implying rupture. Reserve `broken` for a relationship that is explicitly breached, severed, failed, destroyed, or narratively broken. For custody or possession loss, prefer row-level state such as `possession_status: lost-custody` or `custody_status: lost-custody` plus a current/historical availability ladder rather than labeling the edge `broken`.
 
 Graph generators should apply page visibility, row availability, and relationship display state in that order. Hidden source or target pages should suppress the edge unless the current availability entry explicitly provides an anonymized or partial display label. Anonymized nodes are presentation artifacts, not canonical glossary nodes.
 

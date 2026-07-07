@@ -23,6 +23,7 @@ $SlugPrefixes = @(
   "deity",
   "event",
   "faction",
+  "item",
   "location",
   "pathway",
   "tarot-card",
@@ -1048,7 +1049,7 @@ function Convert-SlugToFallbackLabel {
   param([string]$Slug)
 
   $name = [System.IO.Path]::GetFileNameWithoutExtension($Slug)
-  $name = $name -replace '^(artifact|character|concept|deity|epoch|event|faction|family|location|mystery|pathway|tarot-card|timeline|uniqueness)-', ''
+  $name = $name -replace '^(artifact|character|concept|deity|epoch|event|faction|family|item|location|mystery|pathway|tarot-card|timeline|uniqueness)-', ''
   $parts = @($name -split '-' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
   $labelParts = foreach ($part in $parts) {
     if ($part -match '^[0-9]+$') {
@@ -1203,6 +1204,7 @@ function Add-ProjectionRow {
   param(
     [string]$RootKey,
     [string]$SectionKey,
+    [string]$NoteSlug,
     [hashtable]$Row,
     [object[]]$Availability,
     [hashtable]$Projections
@@ -1212,7 +1214,11 @@ function Add-ProjectionRow {
     return
   }
   foreach ($key in Get-ProjectionKeysForRow $Row) {
-    $Projections["$RootKey.$SectionKey[$key]"] = @($Availability)
+    $projectionSource = "$RootKey.$SectionKey[$key]"
+    $Projections["$NoteSlug|$projectionSource"] = @($Availability)
+    if (-not $Projections.ContainsKey($projectionSource)) {
+      $Projections[$projectionSource] = @($Availability)
+    }
   }
 }
 
@@ -1223,6 +1229,7 @@ function Read-DataProjections {
 
   foreach ($file in $files) {
     $text = [System.IO.File]::ReadAllText($file.FullName, [System.Text.UTF8Encoding]::new($true))
+    $noteSlug = [System.IO.Path]::GetFileNameWithoutExtension($file.Name)
     $relationshipBlock = Get-RelationshipYaml $text
     foreach ($block in Get-FencedYamlBlocks $text) {
       if ($relationshipBlock -and $block.Text -eq $relationshipBlock) {
@@ -1246,7 +1253,7 @@ function Read-DataProjections {
 
         if ($indent -eq 0 -and -not $line.StartsWith("- ")) {
           if ($null -ne $availabilityItem) { $availability += @(New-AvailabilityEntry $availabilityItem) }
-          Add-ProjectionRow $rootKey $sectionKey $row $availability $projections
+          Add-ProjectionRow $rootKey $sectionKey $noteSlug $row $availability $projections
           $row = $null; $availability = @(); $availabilityItem = $null; $inAvailability = $false; $inFrom = $false
           $parts = $line.Split(":", 2)
           $rootKey = if ((ConvertFrom-Scalar $parts[1]) -eq "") { $parts[0].Trim() } else { "" }
@@ -1256,7 +1263,7 @@ function Read-DataProjections {
 
         if ($rootKey -and $indent -eq 2 -and -not $line.StartsWith("- ")) {
           if ($null -ne $availabilityItem) { $availability += @(New-AvailabilityEntry $availabilityItem) }
-          Add-ProjectionRow $rootKey $sectionKey $row $availability $projections
+          Add-ProjectionRow $rootKey $sectionKey $noteSlug $row $availability $projections
           $row = $null; $availability = @(); $availabilityItem = $null; $inAvailability = $false; $inFrom = $false
           $parts = $line.Split(":", 2)
           $sectionKey = if ((ConvertFrom-Scalar $parts[1]) -eq "") { $parts[0].Trim() } else { "" }
@@ -1265,7 +1272,7 @@ function Read-DataProjections {
 
         if ($rootKey -and $sectionKey -and $indent -eq 4 -and $line.StartsWith("- ")) {
           if ($null -ne $availabilityItem) { $availability += @(New-AvailabilityEntry $availabilityItem) }
-          Add-ProjectionRow $rootKey $sectionKey $row $availability $projections
+          Add-ProjectionRow $rootKey $sectionKey $noteSlug $row $availability $projections
           $row = @{}; $availability = @(); $availabilityItem = $null; $inAvailability = $false; $inFrom = $false
           $line = $line.Substring(2).Trim()
           if (-not $line.Contains(":")) {
@@ -1314,7 +1321,7 @@ function Read-DataProjections {
         }
       }
       if ($null -ne $availabilityItem) { $availability += @(New-AvailabilityEntry $availabilityItem) }
-      Add-ProjectionRow $rootKey $sectionKey $row $availability $projections
+      Add-ProjectionRow $rootKey $sectionKey $noteSlug $row $availability $projections
     }
   }
 
@@ -1694,8 +1701,13 @@ function Select-RelationshipsForBoundary {
     }
 
     $rendered = Copy-Relationship $relationship
-    if (-not [string]::IsNullOrWhiteSpace($relationship.projection_source) -and $DataProjections.ContainsKey($relationship.projection_source)) {
-      $availability = @($DataProjections[$relationship.projection_source])
+    $namespacedProjectionSource = "$($relationship.source)|$($relationship.projection_source)"
+    if (-not [string]::IsNullOrWhiteSpace($relationship.projection_source) -and ($DataProjections.ContainsKey($namespacedProjectionSource) -or $DataProjections.ContainsKey($relationship.projection_source))) {
+      if ($DataProjections.ContainsKey($namespacedProjectionSource)) {
+        $availability = @($DataProjections[$namespacedProjectionSource])
+      } else {
+        $availability = @($DataProjections[$relationship.projection_source])
+      }
       $current = Select-CurrentAvailability $availability $Boundary
       if ($null -eq $current) {
         continue
@@ -1858,6 +1870,7 @@ function Write-MermaidGraph {
   $lines += "  classDef event fill:#fff1f2,stroke:#e11d48,stroke-width:2px,color:#1f2937"
   $lines += "  classDef faction fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#1f2937"
   $lines += "  classDef family fill:#fce7f3,stroke:#be185d,stroke-width:2px,color:#1f2937"
+  $lines += "  classDef item fill:#ecfccb,stroke:#65a30d,stroke-width:2px,color:#1f2937"
   $lines += "  classDef location fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#1f2937"
   $lines += "  classDef mystery fill:#e5e7eb,stroke:#4b5563,stroke-width:2px,color:#1f2937"
   $lines += "  classDef pathway fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#1f2937"
@@ -1876,7 +1889,7 @@ function Write-MermaidGraph {
       continue
     }
     $className = ($nodeId -split '_')[0]
-    if (@("artifact", "character", "concept", "deity", "epoch", "event", "faction", "family", "location", "mystery", "pathway", "tarot", "timeline", "uniqueness") -contains $className) {
+    if (@("artifact", "character", "concept", "deity", "epoch", "event", "faction", "family", "item", "location", "mystery", "pathway", "tarot", "timeline", "uniqueness") -contains $className) {
       $lines += ('  class {0} {1}' -f $nodeId, $className)
     }
     if ($pendingNodes.Contains($nodeId)) {

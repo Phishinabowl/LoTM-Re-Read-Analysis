@@ -326,6 +326,7 @@ Obsidian_Export/
   Factions/
   Concepts/
   Events/
+  Items/
   Locations/
   Pathways/
   Volumes/
@@ -345,7 +346,11 @@ Each mirror note includes source metadata, a canonical source link, outgoing Rel
 
 `QA-relationship-node-graph.mmd` is the same QA relationship set projected through intermediary relationship nodes, which can be easier to read in Mermaid viewers when direct edge labels overlap. The relationship nodes preserve seed/data provenance and projected availability summaries for quick maintainer review.
 
-`visualization-relationship-graph.mmd` is a QA-local unbounded graph generated through the repository visualization helper. It uses the same semantic relationship-node projection style as `Visualization/`, but writes only to the ignored Obsidian export folder and does not render images or update canonical visualization artifacts.
+`visualization-relationship-graph.mmd` is a QA-local unbounded graph generated through the repository visualization helper. It uses the same semantic relationship-node projection style as `Visualization/`, but writes only to the ignored Obsidian export folder and does not render images or update canonical visualization artifacts. Relationship Seeds with `projection_source` are resolved against the seed source page first, so repeated local data-block keys on different pages do not collide.
+
+The QA export intentionally exposes modeling issues that reader-facing graphs may hide. It should show duplicate/provisional seeds, seed-vs-data provenance, pending endpoint nodes, and projected availability ladders so maintainers can spot taxonomy drift. `projection_source` is expected to point at structured data-block rows, not visible Markdown tables.
+
+Item and equipment rows follow the project taxonomy in `PROJECT_RULES.md`: minor or disposable equipment remains data-only, recurring local-interest objects may appear in maintainer/local views, and full graph-worthy named non-artifact objects should use `item-*` pages with `possesses-item` or `uses-item` seeds. Relationship status labels should preserve semantics; use `broken` only for actual rupture/failure, not ordinary custody loss.
 
 The `_Generated` reports flag:
 

@@ -30,6 +30,7 @@ SLUG_PREFIXES = (
     "deity",
     "event",
     "faction",
+    "item",
     "location",
     "pathway",
     "tarot-card",
@@ -404,7 +405,7 @@ def convert_slug_to_node_id(slug: str) -> str:
 
 
 def convert_slug_to_fallback_label(slug: str) -> str:
-    name = re.sub(r"^(artifact|character|concept|deity|epoch|event|faction|family|location|mystery|pathway|tarot-card|timeline|uniqueness)-", "", Path(slug).stem)
+    name = re.sub(r"^(artifact|character|concept|deity|epoch|event|faction|family|item|location|mystery|pathway|tarot-card|timeline|uniqueness)-", "", Path(slug).stem)
     parts = [part for part in name.split("-") if part]
     label_parts = []
     for part in parts:
@@ -539,6 +540,7 @@ def read_data_projections() -> dict[str, list[dict[str, str]]]:
     for file_path in sorted(root.rglob("*.md")):
         if file_path.name == "TEMPLATE.md":
             continue
+        note_slug = file_path.stem
         text = read_text(file_path)
         relationship_block = extract_relationship_yaml(text)
         for block in fenced_yaml_blocks(text):
@@ -566,7 +568,9 @@ def read_data_projections() -> dict[str, list[dict[str, str]]]:
                 finish_availability_item()
                 if root_key and section_key and availability:
                     for key in projection_keys_for_row(row):
-                        projections[f"{root_key}.{section_key}[{key}]"] = list(availability)
+                        projection_source = f"{root_key}.{section_key}[{key}]"
+                        projections[f"{note_slug}|{projection_source}"] = list(availability)
+                        projections.setdefault(projection_source, list(availability))
                 row = None
                 availability = []
                 availability_item = None
@@ -860,7 +864,8 @@ def filter_relationships_for_boundary(
 
         rendered = dict(relationship)
         projection_source = relationship.get("projection_source", "")
-        availability = data_projections.get(projection_source, [])
+        namespaced_projection_source = f"{relationship.get('source', '')}|{projection_source}"
+        availability = data_projections.get(namespaced_projection_source) or data_projections.get(projection_source, [])
         if availability:
             current = choose_current_availability(availability, boundary)
             if current is None:
@@ -895,7 +900,11 @@ def get_missing_relationship_endpoints(relationships: list[dict[str, str]], know
     return missing
 
 
-def format_relationship_label(relationship: dict[str, str], timing_spoiler_free: bool) -> str:
+def format_relationship_label(
+    relationship: dict[str, str],
+    timing_spoiler_free: bool,
+    include_confirmed_confidence: bool = False,
+) -> str:
     parts = [relationship["relationship_type"]]
     if relationship.get("history_label"):
         parts.append(relationship["history_label"])
@@ -904,17 +913,21 @@ def format_relationship_label(relationship: dict[str, str], timing_spoiler_free:
         parts.append(f"ch{relationship['chapter']}")
     if relationship.get("status") and relationship["status"] != "active":
         parts.append(relationship["status"])
-    if relationship.get("confidence") and relationship["confidence"] != "confirmed":
+    if relationship.get("confidence") and (include_confirmed_confidence or relationship["confidence"] != "confirmed"):
         parts.append(relationship["confidence"])
     return " ".join(parts)
 
 
-def format_relationship_node_label(relationship: dict[str, str], timing_spoiler_free: bool) -> str:
+def format_relationship_node_label(
+    relationship: dict[str, str],
+    timing_spoiler_free: bool,
+    include_confirmed_confidence: bool = False,
+) -> str:
     if relationship.get("history_label"):
         parts = [relationship["relationship_type"], relationship["history_label"]]
         return "<br/>".join(part.replace('"', r"\"") for part in parts)
-    return format_relationship_label(relationship, timing_spoiler_free).replace(" ", "<br/>", 1) if False else "<br/>".join(
-        part.replace('"', r"\"") for part in format_relationship_label(relationship, timing_spoiler_free).split(" ")
+    return format_relationship_label(relationship, timing_spoiler_free, include_confirmed_confidence).replace(" ", "<br/>", 1) if False else "<br/>".join(
+        part.replace('"', r"\"") for part in format_relationship_label(relationship, timing_spoiler_free, include_confirmed_confidence).split(" ")
     )
 
 
@@ -926,6 +939,7 @@ def write_mermaid_graph(
     known_node_ids: set[str] | None = None,
     pending_node_ids: set[str] | None = None,
     pending_endpoint_node_ids: set[str] | None = None,
+    include_confirmed_confidence: bool = False,
 ) -> None:
     known = set(nodes) if known_node_ids is None else set(known_node_ids)
     pending_node_ids = pending_node_ids or set()
@@ -956,6 +970,7 @@ def write_mermaid_graph(
         "  classDef event fill:#fff1f2,stroke:#e11d48,stroke-width:2px,color:#1f2937",
         "  classDef faction fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#1f2937",
         "  classDef family fill:#fce7f3,stroke:#be185d,stroke-width:2px,color:#1f2937",
+        "  classDef item fill:#ecfccb,stroke:#65a30d,stroke-width:2px,color:#1f2937",
         "  classDef location fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#1f2937",
         "  classDef mystery fill:#e5e7eb,stroke:#4b5563,stroke-width:2px,color:#1f2937",
         "  classDef pathway fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#1f2937",
@@ -983,6 +998,7 @@ def write_mermaid_graph(
             "event",
             "faction",
             "family",
+            "item",
             "location",
             "mystery",
             "pathway",
@@ -1000,11 +1016,11 @@ def write_mermaid_graph(
     for relationship in relationships:
         source = convert_slug_to_node_id(relationship["source"])
         target = convert_slug_to_node_id(relationship["target"])
-        label = format_relationship_label(relationship, timing_spoiler_free)
+        label = format_relationship_label(relationship, timing_spoiler_free, include_confirmed_confidence)
         key = f"{source}|{label}|{target}"
         if key not in seen_edges:
             seen_edges.add(key)
-            edges.append({"source": source, "target": target, "label": label, "nodeLabel": format_relationship_node_label(relationship, timing_spoiler_free)})
+            edges.append({"source": source, "target": target, "label": label, "nodeLabel": format_relationship_node_label(relationship, timing_spoiler_free, include_confirmed_confidence)})
 
     for index, edge in enumerate(sorted(edges, key=lambda item: (item["source"], item["target"], item["label"])), start=1):
         relationship_id = f"rel_{index:03d}"

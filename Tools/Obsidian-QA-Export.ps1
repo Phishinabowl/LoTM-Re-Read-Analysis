@@ -16,6 +16,7 @@ $TypeFolders = @{
   "concept" = "Concepts"
   "event" = "Events"
   "faction" = "Factions"
+  "item" = "Items"
   "location" = "Locations"
   "pathway" = "Pathways"
   "uniqueness" = "Uniquenesses"
@@ -38,6 +39,7 @@ $SlugPrefixes = @(
   "deity",
   "event",
   "faction",
+  "item",
   "location",
   "pathway",
   "tarot-card",
@@ -56,6 +58,7 @@ $DataReferenceKeys = New-Object 'System.Collections.Generic.HashSet[string]'
   "entity",
   "event",
   "faction",
+  "item",
   "file",
   "location",
   "pathway",
@@ -312,10 +315,14 @@ function Get-DataProjections {
       }
       foreach ($key in Get-ProjectionKeysForRow $Row) {
         $projectionSource = "$RootKey.$SectionKey[$key]"
-        $Projections[$projectionSource] = [pscustomobject]@{
+        $projection = [pscustomobject]@{
           source_slug = $NoteSlug
           projection_source = $projectionSource
           availability = @($Availability)
+        }
+        $Projections["$NoteSlug|$projectionSource"] = $projection
+        if (-not $Projections.ContainsKey($projectionSource)) {
+          $Projections[$projectionSource] = $projection
         }
       }
     }
@@ -807,6 +814,7 @@ function Get-QAGraphClassDefinitions {
     "  classDef pathway fill:#dcfce7,stroke:#16a34a,color:#111827",
     "  classDef location fill:#ffedd5,stroke:#ea580c,color:#111827",
     "  classDef event fill:#fce7f3,stroke:#db2777,color:#111827",
+    "  classDef item fill:#ecfccb,stroke:#65a30d,color:#111827",
     "  classDef volume fill:#e5e7eb,stroke:#6b7280,color:#111827",
     "  classDef unknown fill:#f8fafc,stroke:#64748b,stroke-dasharray: 4 3,color:#111827"
   )
@@ -830,6 +838,7 @@ function Add-QAGraphClassAssignments {
     "Pathway" = "pathway"
     "Location" = "location"
     "Event" = "event"
+    "Item" = "item"
     "Volume Summary" = "volume"
   }
   foreach ($slug in $UsedSlugs) {
@@ -879,6 +888,7 @@ function Get-SingularDomainLabel {
     "deities" = "deity"
     "events" = "event"
     "factions" = "faction"
+    "items" = "item"
     "locations" = "location"
     "pathways" = "pathway"
     "tarot-cards" = "tarot"
@@ -1055,8 +1065,14 @@ function Format-RelationshipSourceLine {
     [hashtable]$DataProjections
   )
   $domain = Get-RelationshipSourceDomain $Relationship.source_file
-  if ($Relationship.projection_source -and $DataProjections.ContainsKey($Relationship.projection_source)) {
-    $history = Format-AvailabilityHistory @($DataProjections[$Relationship.projection_source].availability)
+  $namespacedProjectionSource = "$($Relationship.source)|$($Relationship.projection_source)"
+  if ($Relationship.projection_source -and ($DataProjections.ContainsKey($namespacedProjectionSource) -or $DataProjections.ContainsKey($Relationship.projection_source))) {
+    if ($DataProjections.ContainsKey($namespacedProjectionSource)) {
+      $projection = $DataProjections[$namespacedProjectionSource]
+    } else {
+      $projection = $DataProjections[$Relationship.projection_source]
+    }
+    $history = Format-AvailabilityHistory @($projection.availability)
     if ($history) {
       return "$domain data $history"
     }
@@ -1132,12 +1148,16 @@ function Format-AvailabilityEntry {
 function ConvertTo-VisualizationRelationshipGraph {
   param(
     [object[]]$Relationships,
-    [hashtable]$Notes
+    [hashtable]$Notes,
+    [hashtable]$DataProjections
   )
   $nodes = @{}
+  $knownNodeIds = New-Object 'System.Collections.Generic.HashSet[string]'
   foreach ($note in $Notes.Values) {
     if ($note.type_name -ne "Volume Summary") {
-      $nodes[(ConvertTo-MermaidNodeId $note.slug)] = $note.title
+      $nodeId = ConvertTo-MermaidNodeId $note.slug
+      $nodes[$nodeId] = $note.title
+      [void]$knownNodeIds.Add($nodeId)
     }
   }
   foreach ($rel in $Relationships) {
@@ -1147,27 +1167,78 @@ function ConvertTo-VisualizationRelationshipGraph {
     if (-not $nodes.ContainsKey($target)) { $nodes[$target] = ConvertTo-SlugTitle $rel.target }
   }
 
-  $seenEdges = New-Object 'System.Collections.Generic.HashSet[string]'
-  $edges = @()
+  $selected = @{}
   foreach ($rel in $Relationships) {
     if (-not $rel.source -or -not $rel.target -or -not $rel.relationship_type) {
       continue
     }
+    $rendered = [pscustomobject]@{
+      source = $rel.source
+      target = $rel.target
+      relationship_type = $rel.relationship_type
+      start_chapter = $rel.start_chapter
+      status = $rel.status
+      confidence = $rel.confidence
+      projection_source = $rel.projection_source
+      history_label = ""
+      has_projection = if ($rel.projection_source) { 1 } else { 0 }
+      has_history = 0
+    }
+    $namespacedProjectionSource = "$($rel.source)|$($rel.projection_source)"
+    if ($rel.projection_source -and ($DataProjections.ContainsKey($namespacedProjectionSource) -or $DataProjections.ContainsKey($rel.projection_source))) {
+      if ($DataProjections.ContainsKey($namespacedProjectionSource)) {
+        $projection = $DataProjections[$namespacedProjectionSource]
+      } else {
+        $projection = $DataProjections[$rel.projection_source]
+      }
+      $history = Format-AvailabilityHistory @($projection.availability)
+      if ($history) {
+        $rendered.history_label = $history
+        $rendered.has_history = 1
+        $availabilityEntries = @($projection.availability)
+        $lastAvailability = $availabilityEntries[$availabilityEntries.Count - 1]
+        if ($lastAvailability.chapter) { $rendered.start_chapter = $lastAvailability.chapter }
+        if ($lastAvailability.status) { $rendered.status = $lastAvailability.status }
+        if ($lastAvailability.confidence) { $rendered.confidence = $lastAvailability.confidence }
+      }
+    }
+
+    $selectionKey = "$($rendered.source)|$($rendered.relationship_type)|$($rendered.target)"
+    $confidenceRank = switch ($rendered.confidence) {
+      "confirmed" { 3 }
+      "strong-evidence" { 2 }
+      "strong-inference" { 2 }
+      "clue" { 1 }
+      default { 0 }
+    }
+    $score = ($rendered.has_history * 1000) + ($rendered.has_projection * 100) + $confidenceRank
+    if (-not $selected.ContainsKey($selectionKey) -or $score -gt $selected[$selectionKey].score) {
+      $selected[$selectionKey] = [pscustomobject]@{
+        relationship = $rendered
+        score = $score
+      }
+    }
+  }
+
+  $edges = @()
+  foreach ($entry in $selected.Values) {
+    $rel = $entry.relationship
     $source = ConvertTo-MermaidNodeId $rel.source
     $target = ConvertTo-MermaidNodeId $rel.target
-    $parts = @($rel.relationship_type)
-    if ($rel.start_chapter) { $parts += "ch$($rel.start_chapter)" }
-    if ($rel.status -and $rel.status -ne "active") { $parts += $rel.status }
-    if ($rel.confidence -and $rel.confidence -ne "confirmed") { $parts += $rel.confidence }
+    if ($rel.history_label) {
+      $parts = @($rel.relationship_type, $rel.history_label)
+    } else {
+      $parts = @($rel.relationship_type)
+      if ($rel.start_chapter) { $parts += "ch$($rel.start_chapter)" }
+      if ($rel.status -and $rel.status -ne "active") { $parts += $rel.status }
+      if ($rel.confidence) { $parts += $rel.confidence }
+    }
     $label = $parts -join " "
-    $key = "$source|$label|$target"
-    if ($seenEdges.Add($key)) {
-      $edges += [pscustomobject]@{
-        source = $source
-        target = $target
-        label = $label
-        nodeLabel = (($parts | ForEach-Object { ConvertTo-MermaidEscaped $_ }) -join "<br/>")
-      }
+    $edges += [pscustomobject]@{
+      source = $source
+      target = $target
+      label = $label
+      nodeLabel = (($parts | ForEach-Object { ConvertTo-MermaidEscaped $_ }) -join "<br/>")
     }
   }
 
@@ -1177,22 +1248,37 @@ function ConvertTo-VisualizationRelationshipGraph {
     $lines.Add(('  {0}["{1}"]' -f $nodeId, (ConvertTo-MermaidEscaped $nodes[$nodeId]))) | Out-Null
   }
   $lines.Add("") | Out-Null
-  $lines.Add("  classDef artifact fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#1f2937") | Out-Null
-  $lines.Add("  classDef character fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1f2937") | Out-Null
-  $lines.Add("  classDef concept fill:#ede9fe,stroke:#7c3aed,stroke-width:2px,color:#1f2937") | Out-Null
-  $lines.Add("  classDef deity fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#1f2937") | Out-Null
-  $lines.Add("  classDef event fill:#fce7f3,stroke:#db2777,stroke-width:2px,color:#1f2937") | Out-Null
-  $lines.Add("  classDef faction fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#1f2937") | Out-Null
-  $lines.Add("  classDef location fill:#ffedd5,stroke:#ea580c,stroke-width:2px,color:#1f2937") | Out-Null
-  $lines.Add("  classDef pathway fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#1f2937") | Out-Null
-  $lines.Add("  classDef tarot fill:#f5f3ff,stroke:#8b5cf6,stroke-width:2px,color:#1f2937") | Out-Null
+  $lines.Add("  classDef artifact fill:#f3ead7,stroke:#b7791f,stroke-width:2px,color:#1f2937") | Out-Null
+  $lines.Add("  classDef character fill:#ecebff,stroke:#7c5cff,stroke-width:2px,color:#1f2937") | Out-Null
+  $lines.Add("  classDef concept fill:#e8f5f0,stroke:#2f855a,stroke-width:2px,color:#1f2937") | Out-Null
+  $lines.Add("  classDef deity fill:#fae8ff,stroke:#c026d3,stroke-width:2px,color:#1f2937") | Out-Null
+  $lines.Add("  classDef epoch fill:#ede9fe,stroke:#6d28d9,stroke-width:2px,color:#1f2937") | Out-Null
+  $lines.Add("  classDef event fill:#fff1f2,stroke:#e11d48,stroke-width:2px,color:#1f2937") | Out-Null
+  $lines.Add("  classDef faction fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#1f2937") | Out-Null
+  $lines.Add("  classDef family fill:#fce7f3,stroke:#be185d,stroke-width:2px,color:#1f2937") | Out-Null
+  $lines.Add("  classDef item fill:#ecfccb,stroke:#65a30d,stroke-width:2px,color:#1f2937") | Out-Null
+  $lines.Add("  classDef location fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#1f2937") | Out-Null
+  $lines.Add("  classDef mystery fill:#e5e7eb,stroke:#4b5563,stroke-width:2px,color:#1f2937") | Out-Null
+  $lines.Add("  classDef pathway fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#1f2937") | Out-Null
+  $lines.Add("  classDef tarot fill:#ffedd5,stroke:#ea580c,stroke-width:2px,color:#1f2937") | Out-Null
+  $lines.Add("  classDef timeline fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1f2937") | Out-Null
   $lines.Add("  classDef uniqueness fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#1f2937") | Out-Null
+  $lines.Add("  classDef missingEndpoint fill:#f8fafc,stroke:#64748b,stroke-width:2px,stroke-dasharray:4 3,color:#1f2937") | Out-Null
+  $lines.Add("  classDef pendingNode stroke:#64748b,stroke-width:2px,stroke-dasharray:4 3") | Out-Null
+  $lines.Add("  classDef pendingEndpoint fill:#f8fafc,stroke:#64748b,stroke-width:2px,stroke-dasharray:4 3,color:#1f2937") | Out-Null
   $lines.Add("  classDef relationship fill:#f7f2e9,stroke:#c69245,stroke-width:1.5px,color:#1f2937") | Out-Null
   $lines.Add("") | Out-Null
   foreach ($nodeId in @($nodes.Keys | Sort-Object)) {
+    if (-not $knownNodeIds.Contains($nodeId)) {
+      $lines.Add("  class $nodeId pendingEndpoint") | Out-Null
+      continue
+    }
     $className = ($nodeId -split "_")[0]
-    if ($className -eq "tarot") { $className = "tarot" }
-    $lines.Add("  class $nodeId $className") | Out-Null
+    if ($className -in @("artifact", "character", "concept", "deity", "epoch", "event", "faction", "family", "item", "location", "mystery", "pathway", "tarot", "timeline", "uniqueness")) {
+      $lines.Add("  class $nodeId $className") | Out-Null
+    } else {
+      $lines.Add("  class $nodeId missingEndpoint") | Out-Null
+    }
   }
   $lines.Add("") | Out-Null
 
@@ -1449,7 +1535,7 @@ function Write-ObsidianExport {
   Write-TextFile (Join-Path $generatedDir "relationship-index.md") (ConvertTo-RelationshipIndex $Relationships $Notes)
   Write-TextFile (Join-Path $generatedDir "QA-relationship-graph.mmd") (ConvertTo-LabeledRelationshipGraph $Relationships $Notes)
   Write-TextFile (Join-Path $generatedDir "QA-relationship-node-graph.mmd") (ConvertTo-RelationshipNodeGraph $Relationships $Notes $DataProjections)
-  Write-TextFile (Join-Path $generatedDir "visualization-relationship-graph.mmd") (ConvertTo-VisualizationRelationshipGraph $Relationships $Notes)
+  Write-TextFile (Join-Path $generatedDir "visualization-relationship-graph.mmd") (ConvertTo-VisualizationRelationshipGraph $Relationships $Notes $DataProjections)
   Write-TextFile (Join-Path $generatedDir "data-reference-index.md") (ConvertTo-DataReferenceIndex $DataReferences $Notes)
   Write-TextFile (Join-Path $generatedDir "orphan-report.md") (ConvertTo-OrphanReport $Notes $Relationships $DataReferences)
   Write-TextFile (Join-Path $generatedDir "suspicious-edges.md") (ConvertTo-SuspiciousEdges $Notes $Relationships)

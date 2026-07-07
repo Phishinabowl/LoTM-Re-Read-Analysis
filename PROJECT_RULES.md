@@ -57,6 +57,7 @@ Investigations/
   Concepts/
   Events/
   Factions/
+  Items/
   Locations/
   Pathways/
   Project/
@@ -72,6 +73,7 @@ Glossary_Threads/
   Events/
   Factions/
   Families/
+  Items/
   Locations/
   Mysteries/
   Pathways/
@@ -351,6 +353,7 @@ artifact-[name].md
 character-[name].md
 family-[name].md
 faction-[name].md
+item-[name].md
 location-[name].md
 concept-[name].md
 event-[name].md
@@ -372,6 +375,7 @@ character-amon.md
 family-antigonus.md
 family-medici.md
 faction-rose-school-of-thought.md
+item-aziks-copper-whistle.md
 concept-gray-fog.md
 event-great-smog.md
 deity-s0-evernight-goddess.md
@@ -386,6 +390,10 @@ timeline-ian-zreal-chain.md
 ```
 
 If a thread fits multiple categories, choose the category that best matches the analytical purpose of the file.
+
+Use `item-[name].md` for named, recurring, graph-worthy possessions, tools, documents, badges, keys, weapons, instruments, or other important objects that are not best modeled as formal supernatural artifacts. Item pages are for objects that become independent relationship hubs or recurring reader-facing subjects, such as Azik's copper whistle. Do not create item pages for ordinary disposable inventory, temporary equipment, or one-scene props unless that specific object becomes a durable mystery, access route, relationship hub, or plot-relevant named possession.
+
+Use `artifact-[name].md` for formal mystical artifacts, sealed artifacts, supernatural objects with established artifact identity, or plot-center objects whose supernatural nature is the analytical point. When uncertain, keep the object in a character, faction, location, or artifact data block with `page_worthiness: candidate` until the page type is clear.
 
 The overall taxonomy and idea of sefirot should use the shared concept page `concept-sefirot.md`. Individual named sefirot, such as Sefirah Castle, Tenebrous World, Nation of Disorder, Knowledge Moor, City of Calamity, Key of Light, or Brood Hive, should use `location-[name].md` under `Glossary_Threads/Locations/`. This is an intentional pragmatic category choice: named sefirot behave like special places/realms for page organization even when they are not ordinary physical locations.
 
@@ -413,6 +421,7 @@ Glossary_Threads/Characters/
 Glossary_Threads/Deities/
 Glossary_Threads/Families/
 Glossary_Threads/Factions/
+Glossary_Threads/Items/
 Glossary_Threads/Locations/
 Glossary_Threads/Concepts/
 Glossary_Threads/Events/
@@ -428,6 +437,7 @@ Retain the entity-type filename prefix inside the matching folder. For example:
 ```text
 Glossary_Threads/Characters/character-amon.md
 Glossary_Threads/Artifacts/artifact-0-08.md
+Glossary_Threads/Items/item-aziks-copper-whistle.md
 Glossary_Threads/Deities/deity-s0-evernight-goddess.md
 Glossary_Threads/Uniquenesses/uniqueness-die-of-probability.md
 Glossary_Threads/Mysteries/mystery-mr-door.md
@@ -513,6 +523,7 @@ Current type-specific overlays:
 
 - `Glossary_Threads/Pathways/TEMPLATE.md`: pathway pages should expose `Pathway Snapshot`, `Pathway Names / Reader Display Timeline`, `Associated Tarot Card`, `Known Sequences`, `Institutional Access`, `Affiliated Factions`, `Known Holders`, and `Pathway Data Block` sections.
 - `Glossary_Threads/Characters/TEMPLATE.md`: character pages should expose `Character Snapshot`, `Names, Aliases & Titles`, `Physical Profile`, `Status, Origin & Location`, `Affiliations`, `Pathway & Ability State`, `Ability Index`, `Equipment & Artifacts`, `Personality`, `Relationships`, `Messenger / Servants / Companions`, `Prayers & Ritual Access`, `Major Events & Fights`, and `Character Data Block` sections. Include `Mythical Creature Form State` and `Uniqueness State` only when the character has relevant reader-safe material for those relationships; do not add empty placeholder sections just because the template supports them.
+- `Glossary_Threads/Items/TEMPLATE.md`: item pages should expose `Item Snapshot`, `Names & Labels`, `Ownership / Custody / Access`, `Functions & Uses`, `Related Concepts / Systems`, `Appearance / Physical Description`, and `Item Data Block` sections. Use Item pages for named, recurring, graph-worthy non-artifact objects. Keep minor equipment and disposable possessions in local character, faction, location, or event data blocks without creating a page.
 
 ### Character Article Overlay
 
@@ -522,13 +533,15 @@ Character pages should include an `Overall Summary` section immediately before `
 
 When official character artwork is mapped and promoted into `Artwork/page-assets/characters/`, place a compact clickable primary character image immediately under the page H1 and before `Metadata`. Omit the image block until a page-ready asset exists; do not link directly to ignored bulk-extracted artwork.
 
-Mutable character facts should accumulate rows instead of overwriting old values. This includes aliases, titles, age, vital status, residence, affiliations, pathway status, Sequence advancement, mythical creature form state, Uniqueness possession/control/accommodation state, equipment possession, relationships, companions, and ability access. Future reader-boundary tooling should hide rows after the chosen boundary and compute the current state from the remaining rows.
+Mutable character facts should accumulate rows instead of overwriting old values. This includes aliases, titles, age, vital status, residence, affiliations, pathway status, Sequence advancement, mythical creature form state, Uniqueness possession/control/accommodation state, equipment/item possession, relationships, companions, and ability access. Future reader-boundary tooling should hide rows after the chosen boundary and compute the current state from the remaining rows.
 
 For type-specific data blocks, every row that describes reader-visible state should support `availability`. Use page metadata `Subject Visible From` as the whole-page gate, then use row-level `availability` as the fact-level gate. Static implementation fields such as `data_model_version`, `stable_slug`, `state_sort_order`, local artwork file paths, or internal usage labels do not need availability unless their display would itself reveal spoiler-sensitive subject information.
 
 Use `Pathway & Ability State` for broad stateful supernatural status such as pathway, Sequence, advancement, digestion, or limitations. Use `Ability Index` for individual capabilities and skills, including pathway abilities, artifact-granted effects, rituals, authority, training, knowledge, or mundane competencies.
 
 Use `Prayers & Ritual Access` for character-specific prayer addresses, exact prayer wording when reader-safe, ritual labels, target functions, and cross-links to `Glossary_Threads/Concepts/concept-prayers-and-rituals.md`. Keep general ritual theory, reusable prayer/ritual type definitions, and cross-character comparisons on the concept page rather than duplicating them inside character pages.
+
+Use `Equipment & Artifacts` for broad local possession, custody, access, use, or investigation state. Add item relevance fields when the row may become graph-visible or page-worthy: `item_significance` (`minor`, `recurring`, `major`), `graph_relevance` (`none`, `local`, `full`), and `page_worthiness` (`none`, `candidate`, `dedicated-page`). Minor or disposable equipment stays data-only. Named recurring non-artifact objects with `page_worthiness: dedicated-page` should use `Glossary_Threads/Items/item-[name].md`. Formal supernatural artifacts should use `Glossary_Threads/Artifacts/artifact-[name].md`.
 
 ### Pathway Article Overlay
 
@@ -725,6 +738,7 @@ artifact
 character
 family
 faction
+item
 location
 concept
 event
@@ -812,13 +826,33 @@ Keep relationship seeds lightweight and reader-boundary aware. They are graph pr
 Use these layers consistently across all glossary page types:
 
 1. **Visible article prose and tables** are the human-readable canonical article surface.
-2. **Type-specific data blocks** are the structured page-local state model for future generated pages, dashboards, and reader-position filters. They should carry recurring state such as character affiliations, pathway status, artifact custody, location functions, event participation, aliases, access rules, and similar data, including claim availability by medium and reader position when the state can change over time.
+2. **Type-specific data blocks** are the structured page-local state model for future generated pages, dashboards, and reader-position filters. They should carry recurring state such as character affiliations, pathway status, artifact or item custody, location functions, event participation, aliases, access rules, and similar data, including claim availability by medium and reader position when the state can change over time.
 3. **Reader Knowledge Ledger knowledge units** are the audit and interpretation layer for reader knowledge. Use them to explain why a claim changes, preserve misconception arcs, cite reveal evidence, compare adaptations, and support QA, but do not make future renderers hunt through knowledge units for ordinary page-local state that belongs in the type-specific data block.
 4. **Relationship Seeds** are graph projection hints. They say which node-to-node edge should exist in relationship graphs, which relationship type to use, and the earliest reader-safe point where that edge becomes graph-worthy. When possible, a seed should point to the data-block row it projects.
 
 When these layers overlap, resolve the content in this order: article prose/tables define the human-facing article; type-specific data blocks define structured page-local state; Reader Knowledge Ledger entries explain reveal/audit history; Relationship Seeds project graph-worthy edges from that structured state.
 
-Do not use Relationship Seeds to duplicate every data-block row. Use seeds only when the edge should be visible in generated relationship graphs. A data block can list many holders, members, aliases, access points, or related items without each row becoming a seed immediately.
+Do not use Relationship Seeds to duplicate every data-block row. Use seeds only when the edge should be visible in generated relationship graphs. A data block can list many holders, members, aliases, access points, possessions, equipment rows, or related items without each row becoming a seed immediately.
+
+### Possession, Equipment, and Item Rules
+
+Use the local type-specific data block for broad possession, equipment, access, custody, or use state. A character, faction, location, event, or item page may record minor equipment, temporary custody, ordinary access, lost objects, borrowed tools, and unresolved possession claims without making any of those rows graph-visible.
+
+Use these row-level fields when an object might matter later:
+
+- `item_significance`: `minor`, `recurring`, or `major`
+- `graph_relevance`: `none`, `local`, or `full`
+- `page_worthiness`: `none`, `candidate`, or `dedicated-page`
+
+Interpret them this way:
+
+- `minor` + `graph_relevance: none` + `page_worthiness: none`: data-only equipment, inventory, or one-scene prop. Do not create an Item page and do not add a Relationship Seed.
+- `recurring` + `graph_relevance: local` + `page_worthiness: candidate`: keep the row in local data and consider it for maintainer or local-context graphs. Create an Item page only if later analysis makes the object a durable relationship hub.
+- `major` + `graph_relevance: full` + `page_worthiness: dedicated-page`: create or target an `item-*` page when the object is not a formal supernatural artifact, and add the appropriate Relationship Seed.
+
+Use `Glossary_Threads/Items/item-[name].md` for named, recurring, graph-worthy non-artifact objects such as durable possessions, tools, documents, badges, keys, weapons, instruments, or access objects. Use `Glossary_Threads/Artifacts/artifact-[name].md` when the object's supernatural artifact identity, Sealed Artifact status, or mystical-object behavior is the analytical center. Keep ordinary disposable equipment data-only even if it briefly matters in a scene.
+
+Possession/custody rows should preserve state changes in `availability` rather than overwriting the row. For example, a row can move from `possession_status: held` to `possession_status: lost-custody` while the Relationship Seed remains one graph edge whose current display is computed at the selected reader boundary.
 
 ### Relationship Seed Ownership
 
@@ -831,6 +865,7 @@ Default ownership rules:
 - **Pathway and metaphysics relationships**: put pathway-wide associations such as `associated-tarot-card`, `associated-sequence-0`, `associated-ats`, `associated-sefirot`, `associated-uniqueness`, and `associated-mythical-creature-form` on the pathway or metaphysics page that owns the association. Character-specific `pathway-status` belongs on the character page when the character page exists; pathway pages may keep holder rows in their data block without duplicating every holder as a Relationship Seed.
 - **Location-function relationships**: put `public-cover-for`, `operational-base-for`, and similar location-function seeds on the location page when the source is the location. Put `works-at` or `uses-as-operational-refuge` on the person/faction page when the source is the person/faction and that source page exists.
 - **Concept relationships**: put `mechanic-of`, `instance-of`, `trains-in`, `requires-practice`, `uses-method`, and `access-route-to` on the source page when the source exists. A concept page may own seeds only when the concept itself is the graph center or the source page does not yet exist.
+- **Item and equipment relationships**: put `possesses-item` on the character, faction, location, or other holder page when that entity is the source and the item is the target. Put item-as-source seeds on the item page when the item itself enables, accesses, calls, identifies, unlocks, explains, or otherwise relates to a concept, system, event, user, or function. Do not seed every equipment row; seed only rows whose `graph_relevance` is `full`, or `local` when the graph view is explicitly maintainer/local.
 - **Provisional hub seeds**: if the natural source page does not exist yet, a faction, pathway, event, concept, location, or artifact page may temporarily own a seed so the graph can show the edge. Mark that seed `projection_scope: provisional` and migrate or remove it when the natural owner page is created.
 
 Exact duplicate seeds across owner pages should be treated as QA findings unless they are explicitly provisional, represent different relationship types, or record a real reader-state/modeling conflict that needs resolution.
@@ -907,6 +942,12 @@ Relationship graph renderers should evaluate visibility in this order:
 3. Hide the relationship if the target page fails `Subject Visible From`, unless the current availability entry explicitly sets `graph_visibility: anonymized` or `graph_visibility: partial` with safe display labels.
 4. Render the current availability entry's display labels/type when provided; otherwise render the canonical source, target, and relationship type.
 
+Resolve `projection_source` against the Relationship Seed source page before falling back to any global projection key. Many pages reuse local keys such as `character_profile.affiliations[faction-nighthawks]`; page-local resolution prevents one character, faction, item, or location row from accidentally supplying another page's timing or confidence history.
+
+`projection_source` points to a structured data-block row, not to a human-facing Markdown table. Visible tables may be rewritten, replaced, or generated later; generators should read the type-specific data block and its `availability` list. Use stable row identifiers where possible, usually the row's `target`, `field`, `item`, `function`, or another slug-like key inside the brackets.
+
+If a seed has no stable data-block row yet, leave `projection_source` blank and let QA graphs show seed provenance. Add `projection_source` only after the data row exists and its ownership is clear. Do not point a canonical seed at another page's data row unless the seed is explicitly provisional or local-context and the cross-page dependency is noted.
+
 QA relationship-node graphs should present claim history by source layer:
 
 - The first line is the relationship type, with a duplicate count when multiple source pages currently seed the same `source + relationship_type + target`.
@@ -944,6 +985,8 @@ operational-base-for
 works-at
 artifact-user
 artifact-guardian
+possesses-item
+uses-item
 source-of-information
 causal-agent
 targets
@@ -1005,6 +1048,13 @@ Use `associated-outer-deity` for external pressure/influence, not as a synonym f
 
 Tarot-card relationship seed targets may use lightweight graph node slugs such as `tarot-card-the-star` before the project decides whether each card needs a dedicated glossary page. Keep the shared gallery and tarot-card explanation on `concept-tarot-cards.md` unless a specific card becomes article-worthy on its own.
 
+Use item relationship types when an `item-*` page is graph-visible:
+
+- `possesses-item`: A character, faction, location, or other entity holds, owns, carries, stores, or has custody of a named non-artifact item at the reader boundary.
+- `uses-item`: A character, faction, event, or system meaningfully uses a named non-artifact item without the relationship primarily being ownership or custody.
+
+Use `artifact-user` and `artifact-guardian` for formal supernatural artifacts, Sealed Artifacts, or artifact pages. Use `possesses-item` and `uses-item` for named non-artifact item pages. Keep ordinary equipment data-only unless the row's `graph_relevance` and `page_worthiness` justify a Relationship Seed.
+
 Use the visible section and type-specific data block for detailed state, uncertainty, reveal notes, holders, aliases, title variants, and display timing. Use Relationship Seeds only for positive graph-worthy edges. Do not seed an edge merely because a data block records `unknown`, `null`, or "no reader-safe relationship known."
 
 Use location relationship types when a location page is the graph center or when a relationship describes what a location functionally does for a faction, person, or event:
@@ -1048,6 +1098,18 @@ superseded
 ```
 
 Relationship `status` values apply only inside `Relationship Seeds`. Do not confuse them with knowledge-unit `truth_status` values in the Reader Knowledge Ledger.
+
+Interpret Relationship Seed `status` values consistently:
+
+- `active`: the relationship is ongoing at the selected or declared reader boundary.
+- `completed`: the relationship describes a completed action, event role, reveal, or outcome; the consequences may still matter, but the edge is no longer an ongoing state.
+- `historical`: the relationship was true earlier but is not current at the boundary, without implying rupture or failure. Prefer this for ended possession, custody, employment, residence, or access when the ending is ordinary or neutral.
+- `broken`: use sparingly for a relationship that is explicitly disrupted, breached, severed, failed, escaped, destroyed, or narratively broken. Do not use `broken` as a generic synonym for "no longer holds."
+- `future-boundary`: the relationship is known to maintainers but outside the current reader boundary and should not appear in reader-safe graphs.
+- `pending`: the relationship is planned, suspected, or awaiting verification; avoid reader-facing projection unless the graph is explicitly a maintainer QA view.
+- `superseded`: a later row or seed replaces this modeling claim with a more accurate relationship, target, status, or confidence.
+
+For custody or possession loss, prefer a data-block row state such as `possession_status: lost-custody`, `custody_status: lost-custody`, `status: historical`, or a later availability entry rather than `status: broken`, unless the story frames the custody relationship itself as breached or broken. A future artifact/location/faction taxonomy pass may introduce narrower custody statuses, but until then keep `broken` reserved for actual rupture semantics.
 
 Use the earliest verified or best-known reader-safe start point for the relationship. If the start point is not yet verified, mark it `TBD` and avoid pretending the chronology is settled.
 

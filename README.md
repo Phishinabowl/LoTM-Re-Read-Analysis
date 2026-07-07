@@ -92,6 +92,7 @@ Investigations/
   Concepts/
   Events/
   Factions/
+  Items/
   Locations/
   Pathways/
   Project/
@@ -107,6 +108,7 @@ Glossary_Threads/
   Events/
   Factions/
   Families/
+  Items/
   Locations/
   Mysteries/
   Uniquenesses/

@@ -152,8 +152,10 @@ Include this section only when the character has a reader-safe relationship to a
 
 ## Equipment & Artifacts
 
-| Item | Type | First reveal / change point | Possession status | Confidence | Notes |
-|---|---|---|---|---|---|
+Use this section for broad possession, custody, access, use, or investigation state. Link named recurring non-artifact objects to `Glossary_Threads/Items/item-[name].md` when they are page-worthy; link formal mystical artifacts or Sealed Artifacts to `Glossary_Threads/Artifacts/artifact-[name].md`. Keep minor equipment, disposable possessions, and one-scene props as plain data rows unless they become graph-worthy later.
+
+| Item / artifact | Type | Page target | First reveal / change point | Possession status | Graph relevance | Confidence | Notes |
+|---|---|---|---|---|---|---|---|
 
 ## Personality
 
@@ -233,13 +235,13 @@ Use Markdown links when the target file exists, with the target document's human
 
 ## Character Data Block
 
-This block is the structured page-local state model for future generated pages, dashboards, reader-position filters, and relationship graphs. Keep it aligned with the visible character sections and Reader Knowledge Ledger. Use metadata, not this data block, for page-level `Subject Visible From`. If `mythical_creature_form_state` or `uniqueness_state` records a positive reader-safe relationship, add the corresponding graph edge in `Relationship Seeds`. Do not add relationship seeds for omitted sections, unknown/null state, or ordinary absence.
+This block is the structured page-local state model for future generated pages, dashboards, reader-position filters, and relationship graphs. Keep it aligned with the visible character sections and Reader Knowledge Ledger. Use metadata, not this data block, for page-level `Subject Visible From`. If `mythical_creature_form_state`, `uniqueness_state`, or a major/recurring `equipment_artifacts` row records a positive reader-safe graph relationship, add the corresponding graph edge in `Relationship Seeds`. Do not add relationship seeds for omitted sections, unknown/null state, ordinary absence, minor equipment, or disposable possessions.
 
 For new or retrofitted rows, prefer `availability` over a single `reveal` field. `availability` preserves novel and Donghua timing independently and can record confidence changes over time. Every row that describes reader-visible state should support availability. Keep legacy `reveal` fields only on unmigrated rows.
 
 Use `graph_visibility` inside an availability entry only when the row can project into relationship graphs. `hidden` means render nothing at that reader point; `anonymized` means use safe generic labels because the reader can see an unknown actor, force, or relationship pattern; `partial` means show some real pieces while withholding others; `full` means show the true eligible source, target, and relationship type.
 
-Use kebab-case values for local Character Data Block taxonomy fields such as `status`, `relationship`, `possession_status`, `outcome_status`, `type`, `role`, `source`, and `confidence`. Keep YAML field names such as `reader_boundary`, `state_sort_order`, `possession_status`, and `outcome_status` in snake_case.
+Use kebab-case values for local Character Data Block taxonomy fields such as `status`, `relationship`, `possession_status`, `outcome_status`, `type`, `role`, `source`, `item_significance`, `graph_relevance`, `page_worthiness`, and `confidence`. Keep YAML field names such as `reader_boundary`, `state_sort_order`, `possession_status`, `graph_relevance`, `page_worthiness`, and `outcome_status` in snake_case.
 
 Prefer reusable local data-block values over character-specific one-offs. Examples include `current-at-boundary`, `current-operational-base`, `latest-known-location-at-boundary`, `current-pattern-at-boundary`, `strong-evidence-at-boundary`, `superseded-by-later-naming`, `authorized-access`, `investigating-not-possessed`, and `no-reader-safe-access-known`. If a new value is needed, make it generic enough to reuse across future character pages and explain the specific character nuance in `notes`.
 
@@ -437,8 +439,12 @@ character_profile:
       notes:
   equipment_artifacts:
     - item:
+      target:
       type:
       possession_status:
+      item_significance: minor
+      graph_relevance: none
+      page_worthiness: none
       confidence:
       availability:
         - medium:
@@ -450,6 +456,9 @@ character_profile:
             episode:
             release_order:
           possession_status:
+          item_significance:
+          graph_relevance:
+          page_worthiness:
           confidence:
           graph_visibility:
           display_source_label:
@@ -570,9 +579,13 @@ Use this section only for relationships important enough to support future relat
 
 For character pages, this page normally owns seeds where the character is the source, such as affiliation, staffing, pathway status, workplace, reporting, mentor/student, artifact-use, and event participation when the relationship is not event-centered. Keep detailed state/history in the character sections and data block. Use Reader Knowledge Ledger disclosures for audit/explanation. If confidence changes over time, keep one graph edge seed and record the change in the data-block row's `availability` list.
 
+For equipment, possessions, and custody, add seeds only for graph-worthy `equipment_artifacts` rows. Minor or disposable rows should stay data-only. Use `possesses-item` / `uses-item` for named non-artifact item pages, and `artifact-user` / `artifact-guardian` for formal artifact pages.
+
 Keep entries reader-boundary aware and mark unverified start points as `TBD`. `start` is the earliest reader-safe point where the edge becomes graph-worthy, not necessarily the confirmation point.
 
 For Uniqueness and mythical creature form material, seed positive graph-worthy edges such as `possesses-uniqueness`, `controls-uniqueness`, `accommodates-uniqueness`, or `has-mythical-creature-form`; keep detailed state/history in the character sections and data block. For mythical creature forms, target `concept-mythical-creature-forms` and record the specific form name in notes/local data.
+
+Use `status: broken` only for relationships that are explicitly ruptured, breached, failed, destroyed, or narratively broken. For ordinary ended custody, possession, residence, access, or employment, prefer projected data-block state such as `possession_status: lost-custody` with `status: historical` where needed.
 
 ```yaml
 relationships:

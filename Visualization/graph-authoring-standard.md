@@ -205,6 +205,7 @@ Examples of semantic grouping:
 
 - pathway graphs: group by pathway, pathway family, controller/possessor, source-culture variant, or reader-relevant faction;
 - artifact graphs: group by artifact, owner/custody chain, ability, usage event, or consequence;
+- item/equipment graphs: group by named item, holder/custody chain, function, access route, related system, or usage event;
 - influence/manipulation graphs: group by manipulator, target, mechanism, event, or confirmed/inferred effect;
 - faction graphs: group by faction, hierarchy, operational cell, affiliation, conflict, or jurisdiction;
 - event graphs: group by event phase, participant role, cause, consequence, location, or reveal order;
@@ -233,6 +234,8 @@ Place these meta nodes in a clearly separated note or appendix branch, usually u
 
 When a cross-cutting concept, reconstruction, exchange rule, alternate pathway connection, or boundary note would pull an existing ladder or holder into another section, use a local reference/proxy node inside the secondary section. Label it as a reference, proxy, reconstruction, summary, or `see ...` node. Do not directly cross-link into the canonical content node if that link will distort the main layout.
 
+For possession and equipment graphs, include named non-artifact Item nodes only when repository data or source-supported graph-local evidence makes them recurring, graph-worthy, or page-worthy. Minor equipment, disposable props, and ordinary inventory should stay in output notes or be omitted unless the user explicitly asks for inventory coverage.
+
 ## Confidence And Styling
 
 Graph labels and styling must preserve confidence:
@@ -243,6 +246,8 @@ Graph labels and styling must preserve confidence:
 - named-only or pathway-like terms should not be forced into full sequence ladders.
 
 Uncertainty should be visible in both text and style. Do not rely only on color.
+
+Relationship status labels should preserve taxonomy meaning. `broken` means rupture, breach, failure, destruction, or a narratively broken relationship; do not use it merely because custody, possession, residence, employment, or access ended. Use `historical`, a custody/possession state label, or an output note for ordinary loss or transfer.
 
 ## Layout And Rendering
 

@@ -15,6 +15,7 @@ TYPE_FOLDERS = {
     "concept": "Concepts",
     "event": "Events",
     "faction": "Factions",
+    "item": "Items",
     "location": "Locations",
     "pathway": "Pathways",
     "uniqueness": "Uniquenesses",
@@ -37,6 +38,7 @@ SLUG_PREFIXES = (
     "deity",
     "event",
     "faction",
+    "item",
     "location",
     "pathway",
     "tarot-card",
@@ -59,6 +61,7 @@ DATA_REFERENCE_KEYS = {
     "entity",
     "event",
     "faction",
+    "item",
     "file",
     "location",
     "pathway",
@@ -374,7 +377,9 @@ def parse_data_projections(text: str, note_slug: str) -> dict[str, DataProjectio
             if root_key and section_key and availability:
                 for key in projection_keys_for_row(row):
                     projection_source = f"{root_key}.{section_key}[{key}]"
-                    projections[projection_source] = DataProjection(note_slug, projection_source, tuple(availability))
+                    projection = DataProjection(note_slug, projection_source, tuple(availability))
+                    projections[f"{note_slug}|{projection_source}"] = projection
+                    projections.setdefault(projection_source, projection)
             row = None
             availability = []
             availability_item = None
@@ -767,7 +772,7 @@ def relationship_source_lines(
 def relationship_source_line(rel: Relationship, data_projections: dict[str, DataProjection]) -> str:
     domain = source_domain_label(rel.source_file)
     if rel.projection_source:
-        projection = data_projections.get(rel.projection_source)
+        projection = data_projections.get(f"{rel.source}|{rel.projection_source}") or data_projections.get(rel.projection_source)
         if projection:
             history = format_availability_history(projection.availability)
             if history:
@@ -880,6 +885,7 @@ def singular_domain(value: str) -> str:
         "deities": "deity",
         "events": "event",
         "factions": "faction",
+        "items": "item",
         "locations": "location",
         "pathways": "pathway",
         "tarot-cards": "tarot",
@@ -899,6 +905,7 @@ def qa_graph_class_definitions(include_relationship: bool = False) -> list[str]:
         "  classDef pathway fill:#dcfce7,stroke:#16a34a,color:#111827",
         "  classDef location fill:#ffedd5,stroke:#ea580c,color:#111827",
         "  classDef event fill:#fce7f3,stroke:#db2777,color:#111827",
+        "  classDef item fill:#ecfccb,stroke:#65a30d,color:#111827",
         "  classDef volume fill:#e5e7eb,stroke:#6b7280,color:#111827",
         "  classDef unknown fill:#f8fafc,stroke:#64748b,stroke-dasharray: 4 3,color:#111827",
     ]
@@ -916,6 +923,7 @@ def append_qa_graph_class_assignments(lines: list[str], used_slugs: list[str], n
         "Pathway": "pathway",
         "Location": "location",
         "Event": "event",
+        "Item": "item",
         "Volume Summary": "volume",
     }
     for slug in used_slugs:
@@ -940,7 +948,27 @@ def write_visualization_relationship_graph(root: Path, output_path: Path) -> Non
     node_data = visualize.read_glossary_nodes()
     nodes = {node_id: data["label"] for node_id, data in node_data.items()}
     relationships = visualize.read_relationship_seeds()
-    visualize.write_mermaid_graph(output_path, dict(nodes), relationships, False)
+    data_projections = visualize.read_data_projections()
+    filtered_relationships = visualize.filter_relationships_for_boundary(
+        relationships,
+        None,
+        set(nodes),
+        set(nodes),
+        data_projections,
+        False,
+    )
+    pending_node_ids = {node_id for node_id, data in node_data.items() if data.get("status") == "pending"}
+    pending_endpoint_node_ids = visualize.get_missing_relationship_endpoints(filtered_relationships, set(nodes))
+    visualize.write_mermaid_graph(
+        output_path,
+        dict(nodes),
+        filtered_relationships,
+        False,
+        set(nodes),
+        pending_node_ids,
+        pending_endpoint_node_ids,
+        include_confirmed_confidence=True,
+    )
 
 
 def render_relationship_index(relationships: list[Relationship], notes: dict[str, CanonicalNote]) -> str:
