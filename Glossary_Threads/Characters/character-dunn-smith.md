@@ -956,6 +956,35 @@ adaptation_relationships:
   - type: pending
     novel_claim_changed: false
     notes: Donghua timing not yet verified.
+subject_attribution_from:
+  - medium: novel
+    position:
+      book: lotm-1
+      volume: 1
+      chapter: 12
+    notes: Chapter 12 identifies the earlier gray-eyed police inspector as Dunn Smith.
+evidence_basis:
+  - source: novel
+    location: Volume 1 Chapters 10, 12, and 13
+    summary: Dunn first appears under police cover, is named at Klein's door, then is recontextualized as a Nighthawk.
+    effect_on_confidence: Confirms the Chapter 10 investigator and the named Nighthawk are the same character.
+confidence_history:
+  - position:
+      medium: novel
+      volume: 1
+      chapter: 10
+    confidence_before: unknown
+    confidence_after: clue
+    reason: The reader sees an unnamed police-cover investigator.
+    evidence: First visual/function role in the Welch/Naya investigation.
+  - position:
+      medium: novel
+      volume: 1
+      chapter: 12
+    confidence_before: clue
+    confidence_after: confirmed
+    reason: The investigator identifies himself as Dunn Smith.
+    evidence: Naming connects the earlier police-cover figure to Dunn.
 related_investigations:
   - ../../Investigations/Characters/character-dunn-smith/novel-volume-1-reveal-timeline.md
 related_boards:
@@ -1027,6 +1056,63 @@ adaptation_relationships:
   - type: pending
     novel_claim_changed: false
     notes: Donghua timing not yet verified.
+subject_attribution_from:
+  - medium: novel
+    position:
+      book: lotm-1
+      volume: 1
+      chapter: 13
+    notes: Dunn demonstrates dream guidance before pathway terminology is available to the reader.
+  - medium: novel
+    position:
+      book: lotm-1
+      volume: 1
+      chapter: 22
+    notes: Rozanne's pathway explanation makes Dunn's dream ability strongly legible as Nightmare/Sleepless evidence.
+  - medium: novel
+    position:
+      book: lotm-1
+      volume: 1
+      chapter: 45
+    notes: Leonard explicitly frames Dunn as an advanced Sleepless.
+evidence_basis:
+  - source: novel
+    location: Volume 1 Chapter 13
+    summary: Dunn enters and guides Klein's dream, establishing the ability basis for the later pathway inference.
+    effect_on_confidence: Raises the claim from unknown to ability clue.
+  - source: novel
+    location: Volume 1 Chapter 22
+    summary: Pathway explanation connects Nightmare to dream-related abilities and the Tingen team's known Sequence 7 context.
+    effect_on_confidence: Raises Dunn's exact pathway/Sequence reading to strong inference.
+  - source: novel
+    location: Volume 1 Chapter 45
+    summary: Leonard calls Dunn an advanced Sleepless during the field response.
+    effect_on_confidence: Confirms the Sleepless pathway while leaving the exact Nightmare profile as strong evidence.
+confidence_history:
+  - position:
+      medium: novel
+      volume: 1
+      chapter: 13
+    confidence_before: unknown
+    confidence_after: clue
+    reason: Dunn's dream guidance is visible but not yet tied to a named pathway.
+    evidence: Dream entry / dream guidance demonstration.
+  - position:
+      medium: novel
+      volume: 1
+      chapter: 22
+    confidence_before: clue
+    confidence_after: strong-evidence
+    reason: Reader now has Nightmare/Sleepless context that explains Dunn's demonstrated ability.
+    evidence: Pathway explanation plus prior dream evidence.
+  - position:
+      medium: novel
+      volume: 1
+      chapter: 45
+    confidence_before: strong-evidence
+    confidence_after: confirmed
+    reason: The broader Sleepless pathway association is directly confirmed.
+    evidence: Leonard identifies Dunn as an advanced Sleepless.
 related_investigations:
   - ../../Investigations/Characters/character-dunn-smith/novel-volume-1-reveal-timeline.md
   - ../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md
@@ -1078,6 +1164,27 @@ adaptation_relationships:
   - type: pending
     novel_claim_changed: false
     notes: Donghua timing not yet verified.
+subject_attribution_from:
+  - medium: novel
+    position:
+      book: lotm-1
+      volume: 1
+      chapter: 17
+    notes: Blackthorn onboarding and contract context identify Dunn as Captain.
+evidence_basis:
+  - source: novel
+    location: Volume 1 Chapter 17
+    summary: Klein's Blackthorn onboarding establishes Dunn's captain role and local operational authority.
+    effect_on_confidence: Confirms Dunn as the Tingen Nighthawks captain.
+confidence_history:
+  - position:
+      medium: novel
+      volume: 1
+      chapter: 17
+    confidence_before: unknown
+    confidence_after: confirmed
+    reason: Dunn's role becomes explicit during Blackthorn onboarding.
+    evidence: Captain title and operational authority.
 related_investigations:
   - ../../Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md
   - ../../Investigations/Locations/location-blackthorn-security-company/novel-volume-1-reveal-timeline.md
@@ -1128,6 +1235,27 @@ adaptation_relationships:
   - type: pending
     novel_claim_changed: false
     notes: Donghua timing not yet verified.
+subject_attribution_from:
+  - medium: novel
+    position:
+      book: lotm-1
+      volume: 1
+      chapter: 18
+    notes: Dunn provides the official explanation block during Klein's onboarding.
+evidence_basis:
+  - source: novel
+    location: Volume 1 Chapters 17-18
+    summary: Dunn explains Beyonders, potions, Sequences, advancement danger, and loss of control as institutional doctrine.
+    effect_on_confidence: Confirms Dunn's role as the reader's official early Beyonder-doctrine source.
+confidence_history:
+  - position:
+      medium: novel
+      volume: 1
+      chapter: 18
+    confidence_before: unknown
+    confidence_after: confirmed
+    reason: Dunn directly delivers the official doctrine explanation.
+    evidence: Onboarding explanation of Beyonder systems and risks.
 related_investigations:
   - ../../Investigations/Concepts/concept-beyonders/novel-volume-1-reveal-timeline.md
 related_boards:
@@ -1186,6 +1314,41 @@ adaptation_relationships:
   - type: pending
     novel_claim_changed: false
     notes: Donghua timing not yet verified.
+subject_attribution_from:
+  - medium: novel
+    position:
+      book: lotm-1
+      volume: 1
+      chapter: 28
+    notes: Dunn initiates and authorizes Klein's opportunity to become a Seer.
+  - medium: novel
+    position:
+      book: lotm-1
+      volume: 1
+      chapter: 31
+    notes: Dunn supervises the resulting status boundary after Klein consumes the potion.
+evidence_basis:
+  - source: novel
+    location: Volume 1 Chapters 28-31
+    summary: Dunn offers the opportunity, explains options, supervises the potion path, and preserves Klein's civilian-staff boundary.
+    effect_on_confidence: Confirms Dunn as authorizer and institutional supervisor of the Seer event.
+confidence_history:
+  - position:
+      medium: novel
+      volume: 1
+      chapter: 28
+    confidence_before: unknown
+    confidence_after: confirmed
+    reason: Dunn authorizes the opportunity.
+    evidence: Offer and decision structure around Klein's pathway choice.
+  - position:
+      medium: novel
+      volume: 1
+      chapter: 31
+    confidence_before: confirmed
+    confidence_after: expanded-fact
+    reason: The event completes while Dunn preserves Klein's civilian-staff status boundary.
+    evidence: Potion process and post-consumption institutional status.
 related_investigations:
   - ../../Investigations/Events/event-klein-becomes-a-seer/novel-volume-1-reveal-timeline.md
 related_boards:
@@ -1236,6 +1399,27 @@ adaptation_relationships:
   - type: pending
     novel_claim_changed: false
     notes: Donghua timing not yet verified.
+subject_attribution_from:
+  - medium: novel
+    position:
+      book: lotm-1
+      volume: 1
+      chapter: 45
+    notes: Dunn responds to Klein's notebook/Ray Bieber lead by mobilizing the team.
+evidence_basis:
+  - source: novel
+    location: Volume 1 Chapters 45-47
+    summary: Dunn turns Klein's report into a coordinated Nighthawks field response involving Leonard, Old Neil, Frye, and Klein.
+    effect_on_confidence: Confirms Dunn's field-command role in the notebook response.
+confidence_history:
+  - position:
+      medium: novel
+      volume: 1
+      chapter: 45
+    confidence_before: unknown
+    confidence_after: confirmed
+    reason: Dunn mobilizes the team around Klein's lead.
+    evidence: Field-response command behavior.
 related_investigations:
   - ../../Investigations/Characters/character-dunn-smith/novel-volume-1-reveal-timeline.md
   - ../../Investigations/Locations/location-blackthorn-security-company/novel-volume-1-reveal-timeline.md
