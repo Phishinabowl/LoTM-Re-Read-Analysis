@@ -361,6 +361,21 @@ def yaml_quote(value: str | bool) -> str:
     return f'"{escaped}"'
 
 
+def mermaid_escape(value: str) -> str:
+    return value.replace("\\", "\\\\").replace('"', '\\"')
+
+
+def mermaid_node_id(slug: str) -> str:
+    cleaned = re.sub(r"[^A-Za-z0-9_]", "_", slug)
+    if not cleaned or cleaned[0].isdigit():
+        cleaned = f"node_{cleaned}"
+    return cleaned
+
+
+def mermaid_node_title(slug: str, notes: dict[str, CanonicalNote]) -> str:
+    return notes[slug].title if slug in notes else slug_to_title(slug)
+
+
 def edge_line(rel: Relationship, notes: dict[str, CanonicalNote], incoming: bool = False) -> str:
     subject = wiki_link(rel.source if incoming else rel.target, notes)
     field_name = f"incoming-{rel.relationship_type or 'relationship'}" if incoming else rel.relationship_type or "relationship"
@@ -442,6 +457,69 @@ def render_note(
         lines.append(f"- `{rel.source}` --{rel.relationship_type or 'relationship'}--> `{rel.target}` from {source_link(rel.source_file)}")
     if not outgoing and not incoming:
         lines.append("- No Relationship Seeds mention this note.")
+
+    lines.append("")
+    return "\n".join(lines)
+
+
+def render_labeled_relationship_graph(relationships: list[Relationship], notes: dict[str, CanonicalNote]) -> str:
+    grouped: dict[tuple[str, str, str], list[Relationship]] = {}
+    for rel in relationships:
+        if not rel.source or not rel.target:
+            continue
+        key = (rel.source, rel.relationship_type or "relationship", rel.target)
+        grouped.setdefault(key, []).append(rel)
+
+    used_slugs = sorted({slug for source, _, target in grouped for slug in (source, target)})
+    lines = [
+        "%% Labeled Relationship Graph",
+        "%% Generated from Relationship Seeds as a QA-only Mermaid view.",
+        "%% Duplicate seed edges are collapsed and marked with counts.",
+        "%% Unknown nodes are Relationship Seed slugs that do not currently resolve to generated mirror notes.",
+        "graph LR",
+    ]
+
+    for slug in used_slugs:
+        node_id = mermaid_node_id(slug)
+        title = mermaid_escape(mermaid_node_title(slug, notes))
+        lines.append(f'  {node_id}["{title}"]')
+
+    lines.append("")
+    for source, relationship_type, target in sorted(grouped):
+        duplicate_count = len(grouped[(source, relationship_type, target)])
+        label = relationship_type
+        if duplicate_count > 1:
+            label = f"{label} x{duplicate_count}"
+        lines.append(f'  {mermaid_node_id(source)} -->|"{mermaid_escape(label)}"| {mermaid_node_id(target)}')
+
+    lines.extend(
+        [
+            "",
+            "  classDef character fill:#dbeafe,stroke:#2563eb,color:#111827",
+            "  classDef faction fill:#fee2e2,stroke:#dc2626,color:#111827",
+            "  classDef artifact fill:#fef3c7,stroke:#d97706,color:#111827",
+            "  classDef concept fill:#ede9fe,stroke:#7c3aed,color:#111827",
+            "  classDef pathway fill:#dcfce7,stroke:#16a34a,color:#111827",
+            "  classDef location fill:#ffedd5,stroke:#ea580c,color:#111827",
+            "  classDef event fill:#fce7f3,stroke:#db2777,color:#111827",
+            "  classDef volume fill:#e5e7eb,stroke:#6b7280,color:#111827",
+            "  classDef unknown fill:#f8fafc,stroke:#64748b,stroke-dasharray: 4 3,color:#111827",
+        ]
+    )
+
+    class_map = {
+        "Character": "character",
+        "Faction": "faction",
+        "Artifact": "artifact",
+        "Concept": "concept",
+        "Pathway": "pathway",
+        "Location": "location",
+        "Event": "event",
+        "Volume Summary": "volume",
+    }
+    for slug in used_slugs:
+        class_name = class_map.get(notes[slug].type_name, "unknown") if slug in notes else "unknown"
+        lines.append(f"  class {mermaid_node_id(slug)} {class_name}")
 
     lines.append("")
     return "\n".join(lines)
@@ -637,6 +715,10 @@ def write_export(
 
     generated_dir = output_dir / "_Generated"
     (generated_dir / "relationship-index.md").write_text(render_relationship_index(relationships, notes), encoding="utf-8")
+    (generated_dir / "labeled-relationship-graph.mmd").write_text(
+        render_labeled_relationship_graph(relationships, notes),
+        encoding="utf-8",
+    )
     (generated_dir / "data-reference-index.md").write_text(render_data_reference_index(data_references, notes), encoding="utf-8")
     (generated_dir / "orphan-report.md").write_text(render_orphan_report(notes, relationships, data_references), encoding="utf-8")
     (generated_dir / "suspicious-edges.md").write_text(render_suspicious_edges(notes, relationships), encoding="utf-8")
