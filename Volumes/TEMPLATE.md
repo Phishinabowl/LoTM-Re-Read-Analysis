@@ -147,7 +147,3 @@ volume_summary:
     resolved:
       -
 ```
-
-## Notes
-
--

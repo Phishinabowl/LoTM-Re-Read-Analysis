@@ -148,7 +148,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 
   -OutputPath Visualization\rendered\example.svg,Visualization\rendered\example.png
 ```
 
-Use pure render mode for one-off, manually authored, or agent-drafted Mermaid files. Use the canonical refresh command only when generated graph artifacts should be rebuilt from Relationship Seeds.
+Use pure render mode for one-off, manually authored, or agent-drafted Mermaid files. Use the canonical refresh command only when generated graph artifacts should be rebuilt from canonical graph inputs such as metadata, Relationship Seeds, and projected type-specific data-block availability.
 
 Use `-NoProfile` to keep local shell profile output from contaminating command output.
 
@@ -354,7 +354,7 @@ graph TD
   rel_001 --> target_node
 ```
 
-This keeps long semantic labels out of Mermaid edge labels, where they tend to overlap when many edges share a hub. The `rel_###` nodes are presentation artifacts only; relationship seeds remain canonical.
+This keeps long semantic labels out of Mermaid edge labels, where they tend to overlap when many edges share a hub. The `rel_###` nodes are presentation artifacts only; canonical state remains in glossary records such as Relationship Seeds and projected type-specific data-block rows.
 
 Timing-spoiler-free views use the same projection, but omit chapter and episode timing from the relationship node text.
 

@@ -21,7 +21,7 @@ This file owns graph authoring.
 
 Classify every graph request before creating artifacts:
 
-- **Canonical graph refresh**: regenerate existing generated graph artifacts from canonical repository inputs such as Relationship Seeds.
+- **Canonical graph refresh**: regenerate existing generated graph artifacts from canonical repository inputs such as metadata, Relationship Seeds, and projected type-specific data-block availability.
 - **Repository-local manual graph**: create a manual `.mmd` source under `Visualization/graphs/` and render it through repository tooling.
 - **Chat-only scratch graph**: produce temporary Mermaid only when explicitly requested as scratch, temporary, chat-only, or outside-repository output.
 
@@ -31,7 +31,7 @@ Complex, relationship-heavy, evidence-bearing, or rendered graph requests defaul
 
 Graph data may come from three evidence layers:
 
-- **Repository-canonical**: already recorded in glossary threads, investigations, Reader Knowledge Ledger units, Relationship Seeds, or generated graph inputs.
+- **Repository-canonical**: already recorded in glossary threads, investigations, Reader Knowledge Ledger units, type-specific data blocks, Relationship Seeds, or generated graph inputs.
 - **Source-supported graph-local**: found during the graph task in allowed local source material, such as the EPUB or subtitle files, but not yet written back to repository records.
 - **Unsupported or external**: outside the repository or outside the allowed source boundary; exclude unless the user explicitly opts into hybrid or research work.
 
@@ -41,7 +41,7 @@ Recommended labels include:
 
 - `graph-local evidence:`
 - `provisional holder:`
-- `source-supported, not yet in Relationship Seeds`
+- `source-supported, not yet in canonical graph inputs`
 - `not canonicalized`
 - `candidate project-data update`
 
@@ -51,7 +51,7 @@ Do not overload primary content-node labels with evidence-layer summaries such a
 
 ## Source Expansion
 
-Start with repository-canonical records. If the request exceeds article or Relationship Seed coverage and source access is available, expand into allowed local canonical sources.
+Start with repository-canonical records. If the request exceeds article, data-block, or Relationship Seed coverage and source access is available, expand into allowed local canonical sources.
 
 For this repository family:
 
@@ -67,9 +67,9 @@ When source expansion finds supported material not yet in project records, keep 
 
 ## Maintainer Graph Work
 
-When the maintainer asks for project graph work, graph generation may discover gaps in articles, investigations, metadata, or Relationship Seeds.
+When the maintainer asks for project graph work, graph generation may discover gaps in articles, investigations, metadata, type-specific data blocks, or Relationship Seeds.
 
-Do not silently update glossary threads, investigations, boards, current state, index, or Relationship Seeds as a side effect of graph generation.
+Do not silently update glossary threads, investigations, boards, current state, index, type-specific data blocks, or Relationship Seeds as a side effect of graph generation.
 
 Instead:
 
@@ -97,7 +97,7 @@ If a user asks for "all known" material within a source boundary, that request p
 Before finalizing a complex graph:
 
 1. Resolve graph intent, perspective, source boundary, and artifact intent.
-2. Gather repository-canonical candidates from metadata, Relationship Seeds, glossary threads, investigations, ledgers, graph schemas, and existing generated graph artifacts.
+2. Gather repository-canonical candidates from metadata, type-specific data blocks, Relationship Seeds, glossary threads, investigations, ledgers, graph schemas, and existing generated graph artifacts.
 3. If coverage is insufficient and source access is allowed, perform a bounded source-wide candidate discovery pass.
 4. Convert candidates into graph nodes/edges with provenance and confidence labels.
 5. Reconcile generated candidates against existing graph artifacts or user-provided prior graph drafts when available.

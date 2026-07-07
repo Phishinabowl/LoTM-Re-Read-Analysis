@@ -171,7 +171,7 @@ Use each project artifact for a distinct purpose:
 
 - `Boards`: Analyst-facing volume-level state, major themes, broad conclusions, current research direction, and links to detailed records.
 - `Volumes`: Reader-facing end-of-volume dashboards, official volume artwork homes, summary-level developments, and links to glossary/investigation evidence.
-- `Glossary_Threads`: Subject-specific information, complete reveal timelines, reader-state filtering data, and adaptation comparisons.
+- `Glossary_Threads`: Subject-specific information, durable disclosure history, structured reader-state filtering data, and adaptation comparisons.
 - `Investigations`: Evidence, verification history, and supported conclusions for questions that required consulting the EPUB.
 - `Visualization`: Generated visualization artifacts, such as Mermaid graphs, rendered graph images, and future graph data exports.
 - `Tools`: Repeatable local maintenance, source-search, artwork, visualization, Obsidian export, and cleanup helpers. Prefer Python helpers when available and documented PowerShell fallbacks when Python is unavailable.
@@ -187,6 +187,20 @@ Boards are analyst-facing overview documents, not the canonical source for autom
 Volume summary pages are reader-facing overview documents for completed volume boundaries. They may include official volume cover/opening art, end-of-volume art, and volume gallery title pages. Subject-specific character, location, pathway, artifact, deity, faction, event, or concept artwork should still map primarily to the corresponding subject page when that page exists.
 
 Planned-but-uncreated volume summary pages should be listed in `INDEX.md` as planned paths and tracked in `CURRENT_STATE.md` under `Planned Volume Summary Pages`. The artwork map may point volume-level artwork at those planned targets before the page exists, but those planned references should remain visibly marked as planned.
+
+## Documentation Ownership
+
+Keep `PROJECT_RULES.md` focused on durable project policy: source of truth, spoiler boundaries, glossary modeling, relationship taxonomy, data-layer responsibilities, and maintenance gates.
+
+Use specialized docs for operational detail:
+
+- `Tools/README.md`: exact helper commands, Python/PowerShell fallbacks, EPUB search, Obsidian QA export, artwork extraction, and cleanup behavior.
+- `Visualization/README.md`: current generated graph artifacts, refresh tracker, configured graph views, and visualization workflow entry points.
+- `Visualization/graph-authoring-standard.md`: graph intent, graph-local evidence, source expansion, coverage workflow, graph projection, layout semantics, and graph output reporting.
+- `Visualization/rendering.md`: render commands, validation modes, render sizing, class/layout validation, and render troubleshooting.
+- `Visualization/data/graph-schema.md`: provisional generated graph data fields and presentation-node schema.
+
+When a rule appears in more than one place, keep the policy statement here and put the commands, examples, and troubleshooting details in the narrower document.
 
 ## Artwork Asset Safety
 
@@ -244,7 +258,7 @@ For graph-only maintainer work or Obsidian QA export work, do not silently updat
 
 Use the shared [Graph Authoring Standard](Visualization/graph-authoring-standard.md) for graph construction. It defines canonical versus graph-local evidence, source expansion, pathway/sequence coverage, maintainer confirmation, and output reporting.
 
-For dense Mermaid graphs, prefer semantic relationship nodes over long edge labels. A generated relationship node may hold the relationship type, timing, status, and confidence, with simple arrows from source to relationship node to target. These relationship nodes are presentation artifacts only. They are not glossary nodes, do not create new canonical entities, and must be regenerated from Relationship Seeds.
+For dense Mermaid graphs, prefer semantic relationship nodes over long edge labels. A generated relationship node may hold the relationship type, timing, status, confidence, and provenance, with simple arrows from source to relationship node to target. These relationship nodes are presentation artifacts only. They are not glossary nodes, do not create new canonical entities, and must be regenerated from canonical glossary records such as Relationship Seeds and projected type-specific data-block rows.
 
 Use direct edge labels only when the graph remains readable. If rendered labels overlap, collide, or become hard to follow, update the visualization generator or graph projection rather than hand-editing the generated Mermaid.
 
@@ -258,6 +272,7 @@ Graph regeneration is recommended when any of these change:
 - `Relationship Seeds` are added, removed, or changed;
 - a relationship type, relationship status, relationship confidence, source node, or target node changes;
 - a node type changes, such as `concept` to `faction`;
+- a graph-relevant type-specific data-block row or row-level `availability` entry changes;
 - the controlled relationship taxonomy changes;
 - graph-relevant metadata changes, such as thread title, type, status, reader boundary, or spoiler boundary.
 
@@ -282,119 +297,7 @@ For the current repository, a normal graph refresh means updating:
 
 Fresh renders should replace the stale render files rather than accumulating duplicate dated copies unless the user asks for archived snapshots.
 
-Before graph rendering work, confirm that the expected visualization tooling is present: `Visualization/visualize.py`, `Visualization/visualize.ps1`, `Visualization/config/puppeteer-config.json`, and `Visualization/config/render-settings.json`. Prefer the Python helper when available and use the PowerShell helper as the Windows fallback. If both helpers or required config are missing, report the render path as degraded before using a fallback.
-
-On unfamiliar machines or fresh agent sessions, check Python availability before choosing Python-preferred tools:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1
-```
-
-Treat the probe result as the session's Python-availability state. If Python is available, use Python-preferred tools going forward without rerunning the probe before every command. Rerun only if the environment changes, such as PATH edits, Python installation changes, a different shell, a different machine, or a failed Python launch that suggests the earlier state is stale.
-
-If the probe reports Python unavailable, use documented PowerShell fallbacks for that session. If Python is available but a Python helper fails, treat that as a helper failure rather than an automatic fallback condition.
-
-PowerShell fallback commands use `powershell` and should remain compatible with Windows PowerShell 5.1 unless a tool explicitly documents a `pwsh` / PowerShell 7 requirement.
-
-For local Obsidian QA mirror generation, prefer the Python helper when Python is available:
-
-```powershell
-python Tools\obsidian_qa_export.py --clean
-```
-
-Use the PowerShell fallback only when Python is unavailable:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1 -Clean
-```
-
-For disposable local tool caches, use the repository cleanup helper rather than ad hoc recursive deletion. Prefer the Python helper when Python is available:
-
-```powershell
-python Tools\clean_temp_files.py --delete
-```
-
-Use the PowerShell fallback only when Python is unavailable:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Clean-TempFiles.ps1 -Delete
-```
-
-The cleanup helpers are restricted to allowlisted cache directory names under the repository root, currently `__pycache__`, `.pytest_cache`, `.mypy_cache`, `.ruff_cache`, and `.tox`. They must not be expanded to remove general scratch folders, extracted artwork staging directories, or investigation outputs unless those paths are deliberately promoted into the allowlist and documented here.
-
-Use this canonical refresh command from the repository root:
-
-Preferred Python:
-
-```powershell
-python Visualization\visualize.py --mode Refresh
-```
-
-PowerShell fallback:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Refresh
-```
-
-The canonical examples above should remain the preferred documented form, but the helpers intentionally accept ergonomic aliases for common operator slips. Python mode values are case-insensitive and also accept `update`/`generate` for refresh, `manual-render`/`pure-render` for render, and `check`/`test` for validate. Python accepts `--input`, `--graph`, `--output`, `--out`, `--settings`, and `--no-render` as aliases for the longer option names. PowerShell accepts matching aliases: `-Action`, `-Input`, `-Graph`, `-Output`, `-Out`, `-Settings`, and `-NoRender`.
-
-Use validation mode when checking visualization compatibility without regenerating graph files, updating the visualization snapshot, updating the refresh tracker, or rendering images:
-
-Preferred Python:
-
-```powershell
-python Visualization\visualize.py --mode Validate
-```
-
-PowerShell fallback:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Validate
-```
-
-Use pure render mode for manually authored or temporary Mermaid files that should not trigger graph regeneration:
-
-Preferred Python:
-
-```powershell
-python Visualization\visualize.py --mode Render --input-path Visualization\graphs\example.mmd
-```
-
-PowerShell fallback:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Render -InputPath Visualization\graphs\example.mmd
-```
-
-Pure render mode may write rendered SVG or PNG outputs, but it must not regenerate Mermaid graph files from Relationship Seeds, update the visualization snapshot, or update the refresh tracker.
-
-Visualization renderers should scale viewport dimensions for large graphs using the shared render settings. Do not assume one fixed Mermaid render size works for every graph. If a large graph renders cramped, clipped, or unreadably small, adjust render-size settings or use the shared auto-size helper rather than hand-editing graph content solely to fit the canvas.
-
-Wide fan-out is a known Mermaid layout pattern. When one hub node connects to many targets or many sources converge on one target, renderers should use fan-out-aware sizing and graph authors should expect the graph to need more horizontal room. If auto-sizing alone does not make the graph readable, improve the graph projection by adding meaningful intermediate grouping nodes, relationship nodes, local reference/proxy nodes, or split views. Do not treat wide fan-out as a data error by itself.
-
-Ordered graph content should preserve order visually. When graph nodes represent a sequence, timeline, phase list, rank ladder, chapter/episode progression, investigation chain, or other ordered series, prefer child-to-child chains over direct sibling fan-out from one parent. Flat fan-out is appropriate for unordered peer sets; ordered-series fan-out should be fixed in the graph projection or generator.
-
-Dense knowledge graphs should use a connected semantic spine and styled nodes by default. Prefer ordinary styled group nodes over many Mermaid `subgraph` clusters. Use `subgraph` only for a few broad regions, intentional cluster views, or user-requested cluster boxes. Dense maps with many disconnected cluster islands should be fixed in the graph projection or generator before rendering.
-
-Content graphs should be grouped by subject semantics, not by evidence source layer, canonicalization status, validation status, or coverage status unless the graph is explicitly an evidence audit. Evidence and canonicalization status should usually appear through styling, labels, legends, note branches, or output reports.
-
-Dense graph styling should follow a visual role grammar rather than one-off decorative coloring. Use fill color to distinguish semantic roles, border style to distinguish uncertainty or boundary status, text prefixes to preserve accessible meaning, and topology to show structure. The exact palette may evolve, but role-to-style mapping should remain consistent inside a graph. This applies across graph domains, including pathway maps, artifact maps, influence maps, faction maps, event maps, location maps, and character relationship maps.
-
-Repeated entity nodes in ordered graphs must show their progression explicitly, preferably with label markers, compact badges, or advancement/state nodes. Use direct progression edges only when the edge itself is meaningful and should affect graph topology. Do not rely on layout position alone to show that two appearances of the same person, artifact, faction, or concept are sequential states.
-
-Uncertain, inferred, graph-local, or provisional nodes should keep the same local placement as confirmed nodes of the same semantic type. For example, a suspected holder is still holder-like for layout purposes; uncertainty belongs in the label and styling, not in a distant note cluster.
-
-For ladder-style graphs, keep the ordered sequence, phase, rank, or step chain as the primary spine. Attach holders, artifacts, controllers, notes, and evidence as leaves or local buckets rather than interrupting the spine.
-
-When reconciling against an older graph or user-provided reference graph, do not silently drop candidates. Include them, downgrade them, move them to a more accurate role, or report why they were excluded.
-
-Styled Mermaid graphs must pass class coverage validation before rendering. If a graph uses `classDef` or `class` statements, every declared or edge-used node should have an explicit class assignment. Fix missing classes, class references to nonexistent nodes, undefined classes, and semantic class mismatches in the Mermaid source or generator before publishing a render.
-
-Sectioned Mermaid graphs should preserve layout islands. If a node has canonical placement in one section, do not link a different summary, reconstruction, or boundary-note section directly to that same node when it will pull edges across the whole graph. Create a local reference/proxy node inside the secondary section instead, and label it as a reference to the canonical node or pathway/sequence.
-
-Avoid duplicate visible labels across different node IDs unless one of the nodes is explicitly labeled as a reference/proxy. Reference/proxy-like node IDs should also say `reference`, `proxy`, `reconstruction`, `summary`, or `see ...` in the rendered node label.
-
-Legend, coverage, validation, output-report, and explanatory nodes should live in a separate note or appendix branch so they do not distort the layout of primary content nodes.
+For exact visualization helper commands, validation modes, pure-render behavior, render sizing, and troubleshooting, use `Visualization/README.md` and `Visualization/rendering.md`. For graph-local evidence, source expansion, layout semantics, dense graph shape, visual role grammar, and output reports, use `Visualization/graph-authoring-standard.md`.
 
 Use this maintenance lifecycle for project-knowledge changes:
 
@@ -1210,7 +1113,7 @@ When an open question is answered:
 
 Each glossary thread contains its own Reader Knowledge Ledger section. The ledger stores spoiler-aware knowledge units about that thread for the novel and its adaptations.
 
-Together, the knowledge units must form a complete disclosure timeline for the glossary subject. Record every meaningful reveal point, including multiple disclosure entries from the same medium when a subject progresses from mention, to clue, to inference, to explicit reveal or confirmation.
+Together, the knowledge units should preserve the meaningful disclosure and audit history for durable claims about the glossary subject. Ordinary current-state facts belong in visible page sections and type-specific data blocks; use knowledge units for reveal timing, confidence changes, misconception arcs, adaptation comparison, and evidence-backed interpretation.
 
 Its purpose is to support questions such as:
 
@@ -1520,7 +1423,7 @@ Use the EPUB.
 
 ### EPUB Sweep Tool
 
-Use `Tools/search_epub.py` for repeatable novel EPUB checks when Python is available. `Tools/Search-Epub.ps1` is the Windows PowerShell fallback and should remain behaviorally compatible. Use `Tools/Test-Python.ps1` as the canonical local Python availability probe when the environment is unknown, then retain the result as session state instead of probing before every command.
+Use `Tools/search_epub.py` for repeatable novel EPUB checks when Python is available. `Tools/Search-Epub.ps1` is the Windows PowerShell fallback and should remain behaviorally compatible. Use `Tools/Test-Python.ps1` as the canonical local Python availability probe when the environment is unknown, then retain the result as session state instead of probing before every command. Exact commands, flags, aliases, and examples live in `Tools/README.md`.
 
 When a task requires novel EPUB source expansion and this helper is available, use the Python helper as the preferred first EPUB search path because it is faster and can grow into reusable search/index functionality. Use the PowerShell helper when Python is unavailable. This applies to graph-building coverage sweeps as well as article and investigation verification. If both helpers are missing or unusable, use another structured EPUB search method and report the degraded path.
 
@@ -1536,39 +1439,7 @@ The standard EPUB evidence workflow is:
 6. Record chapter references and paraphrased evidence in the investigation file.
 7. Do not paste long EPUB passages into tracked records.
 
-When choosing a canonical page slug or primary article name from competing names, run a term-arbitration sweep rather than relying on memory or raw search totals. Use `--term-summary` / `-TermSummary` to count all candidate terms across the full relevant range and split them by term and volume, then inspect context around hits in chapter order. The aliases `--summary-only`, `--summary`, `-SummaryOnly`, and `-Summary` are accepted for the same mode. For survey counts, prefer `--counts-only` / `-CountsOnly`; `--counts` / `-Counts` are accepted aliases. For search text, prefer `--pattern` / `-Pattern`, but `--query`, `--text`, `--search`, `-Query`, `-Text`, and `-Search` are accepted aliases. For context JSON where repeated terms on the same line matter, use `--include-line-match-counts` / `-IncludeLineMatchCounts`. Classify each usage by function: primary subject name, alias/title, sequence name, ordinary-language usage, person/role label, or artwork/formal label. Prefer the slug that best matches repeated in-text subject usage, and preserve alternate names in the article alias table and artwork-map notes. Raw counts can mislead when one term is also an occupation, epithet, or individual label.
-
-Example survey count:
-
-```powershell
-python Tools\search_epub.py --start-chapter 10 --end-chapter 47 --pattern "Dunn|Captain|Nighthawk|Nightmare|Sleepless" --counts-only
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -StartChapter 10 -EndChapter 47 -Pattern "Dunn|Captain|Nighthawk|Nightmare|Sleepless" -CountsOnly
-```
-
-Example context expansion:
-
-```powershell
-python Tools\search_epub.py --start-chapter 12 --end-chapter 13 --pattern "Dunn|Nighthawk" --context-lines 2 --max-hits-per-chapter 8
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -StartChapter 12 -EndChapter 13 -Pattern "Dunn|Nighthawk" -ContextLines 2 -MaxHitsPerChapter 8
-```
-
-By default, `--pattern` / `-Pattern` treats `|` as a separator between literal terms. Use `--regex-pattern` / `-RegexPattern` only when a regular expression is needed.
-
-Example later-volume count:
-
-```powershell
-python Tools\search_epub.py --volume 3 --pattern "Gehrman|Traveler" --counts-only
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Volume 3 -Pattern "Gehrman|Traveler" -CountsOnly
-```
-
-Example appendix or side-story inspection:
-
-```powershell
-python Tools\search_epub.py --entry-type Appendices --entry-name-pattern "*pathways*" --list-entries
-python Tools\search_epub.py --entry-type SideStories --pattern "3-0782" --counts-only
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -EntryType Appendices -EntryNamePattern "*pathways*" -ListEntries
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -EntryType SideStories -Pattern "3-0782" -CountsOnly
-```
+When choosing a canonical page slug or primary article name from competing names, run a term-arbitration sweep rather than relying on memory or raw search totals. Count all candidate terms across the full relevant range, split them by term and volume, then inspect context around hits in chapter order. Classify each usage by function: primary subject name, alias/title, sequence name, ordinary-language usage, person/role label, or artwork/formal label. Prefer the slug that best matches repeated in-text subject usage, and preserve alternate names in the article alias table and artwork-map notes. Raw counts can mislead when one term is also an occupation, epithet, or individual label.
 
 ## Donghua Subtitles
 
@@ -1603,9 +1474,9 @@ When subtitle evidence is consulted for a formal conclusion, create or update th
 
 ## Mode 1: Discussion Mode (Default)
 
-This is the default mode.
+This is the default mode for open-ended lore discussion, memory reconstruction, thematic analysis, and exploratory conversation.
 
-Start here unless verification is required.
+Start here unless verification, tooling work, QA, graph generation, article editing, or another repository-maintenance task is required.
 
 ### Goal
 
@@ -1619,13 +1490,13 @@ Reconstruct understanding from memory.
 4. Identify gaps.
 5. Build working theories.
 
-Do **not** immediately search the EPUB.
+Do **not** immediately search the EPUB for ordinary discussion.
 
 The user specifically enjoys discovering forgotten connections through discussion.
 
 The EPUB is an archive, not the first step.
 
-Use it only when needed.
+Use it when verification is needed, when the user asks for source-backed work, or when a repository-maintenance task depends on pinned evidence.
 
 ---
 
@@ -1640,6 +1511,7 @@ Switch to Investigation Mode when:
 - Historical connections need verification.
 - A board update requires confidence.
 - The user explicitly requests verification.
+- The task is tooling, QA, graph generation, article editing, or another repository-maintenance operation that depends on source-backed evidence.
 
 ### Investigation Workflow
 

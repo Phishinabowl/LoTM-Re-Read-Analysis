@@ -220,7 +220,7 @@ relationships:
 
 Add one block for each durable spoiler-timed claim. Duplicate the block as needed. Keep novel and Donghua disclosure timelines independent.
 
-Together, these units should form the subject's complete reveal timeline. Add a separate disclosure entry for every meaningful reveal point, including multiple entries from the same medium for first mentions, clues, inferences, explicit reveals, and confirmations.
+Together, these units should preserve the subject's durable disclosure and audit history. Add separate disclosure entries for meaningful reveal points, including multiple entries from the same medium when a claim progresses from first mention, to clue, to inference, to explicit reveal, or to confirmation. Keep ordinary current-state facts in the visible sections and type-specific data block.
 
 Future reader-facing pages will filter these entries against the user's selected position. Do not treat unrestricted analysis elsewhere in this file as automatically spoiler-safe.
 

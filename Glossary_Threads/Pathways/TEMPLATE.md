@@ -170,6 +170,8 @@ Track the pathway's associated mythical creature form here when it becomes reade
 
 ## Related Threads
 
+Use Markdown links when the target file exists, with the target document's human-readable H1 title as the link label. Mention a nonexistent thread as a plain filename only when its creation is already planned or the relationship is essential. Do not seed speculative future references.
+
 ### Directly Related
 
 -
@@ -463,40 +465,92 @@ relationships:
 
 ## Reader Knowledge Ledger
 
-Add one block for each durable spoiler-timed pathway claim. Keep novel and Donghua disclosure timelines independent.
+Add one block for each durable spoiler-timed pathway claim. Duplicate the block as needed. Keep novel and Donghua disclosure timelines independent.
+
+Together, these units should preserve the pathway's durable disclosure and audit history. Add separate disclosure entries for meaningful reveal points, including multiple entries from the same medium when a claim progresses from first mention, to clue, to inference, to explicit reveal, or to confirmation. Keep ordinary current-state facts in the visible sections and Pathway Data Block.
+
+Future reader-facing pages will filter these entries against the user's selected position. Do not treat unrestricted analysis elsewhere in this file as automatically spoiler-safe.
+
+Use only the controlled ledger values from `PROJECT_RULES.md`:
+
+- `knowledge_state`: `open-question`, `clue`, `working-theory`, `strong-inference`, `strong-evidence`, `confirmed-fact`, `expanded-fact`, or `reader-misconception`.
+- `disclosure_type`: `first-appearance`, `first-mention`, `first-meaningful-mention`, `first-clue`, `visual-hint`, `implicit-clue`, `context-link`, `inference`, `strong-inference`, `speculation`, `possibility`, `choice`, `explicit-identification`, `explicit-explanation`, `expanded-explanation`, `explicit-reveal`, `confirmation`, `practical-demonstration`, `ability-demonstration`, `practical-confirmation`, `pathway-inference`, `pathway-confirmation`, `staffing-snapshot`, `limitation`, `consequence`, `external-corroboration`, `expansion`, `recontextualization`, `rejection`, `adaptation-only-reveal`, or `early-reveal`.
+- `adaptation_relationships.type`: `pending`, `faithful`, `revealed-earlier`, `revealed-later`, `condensed`, `expanded`, `recontextualized`, `omitted`, `changed`, `donghua-original`, or `uncertain`.
+
+Use `pending` for adaptation relationships only while the adaptation comparison has not yet been verified.
 
 ### Knowledge Unit: Claim Title
 
 ```yaml
-id:
-claim:
-truth_status:
-confidence_level:
-canon_scope:
+id: subject-claim-id
+claim: Exact fact, inference, theory, misconception, or question
+truth_status: unresolved
+confidence_level: unknown
+canon_scope: shared
 occurs_at:
-  medium:
-  book:
+  medium: novel
+  book: lotm-1
   volume:
   chapter:
   notes:
 tags:
+  - reader-knowledge
   - pathway
 disclosures:
-  - medium:
-    knowledge_state:
-    disclosure_type:
+  - medium: novel
+    knowledge_state: open-question
+    disclosure_type: first-mention
     available_from:
-      book:
+      book: lotm-1
       volume:
       chapter:
+    superseded_at:
+    superseded_by:
+  - medium: donghua
+    knowledge_state: open-question
+    disclosure_type: first-mention
+    available_from:
+      season:
+      installment_type: episode
+      episode:
+      release_order:
     superseded_at:
     superseded_by:
 adaptation_relationships:
   - type: pending
     novel_claim_changed: false
     notes: Adaptation comparison not yet verified.
+subject_attribution_from:
+  - medium: novel
+    position:
+      book: lotm-1
+      volume:
+      chapter:
+  - medium: donghua
+    position:
+      season:
+      installment_type: episode
+      episode:
+      release_order:
 related_investigations:
 related_boards:
+evidence_basis:
+  - source:
+    location:
+    summary:
+    effect_on_confidence:
+confidence_history:
+  - position:
+      medium:
+      volume:
+      chapter:
+      season:
+      episode:
+      release_order:
+    confidence_before:
+    confidence_after:
+    reason:
+    evidence:
 last_updated:
 ```
 

@@ -230,7 +230,7 @@ When an AI assistant is asked to create a graph, visualization, Mermaid diagram,
 
 First classify the request:
 
-1. **Canonical graph refresh**: update generated graph artifacts from Relationship Seeds and graph inputs.
+1. **Canonical graph refresh**: update generated graph artifacts from canonical graph inputs, including metadata, Relationship Seeds, and projected type-specific data-block availability.
 2. **Repository-local manual graph**: create a manual `.mmd` source under `Visualization/graphs/` and render it through repository tooling.
 3. **Chat-only scratch graph**: produce temporary Mermaid only when the user explicitly asks for scratch, temporary, chat-only, or outside-repository output.
 
@@ -264,6 +264,7 @@ Regenerate graph artifacts when graph inputs change:
 - glossary pages are created, deleted, renamed, or moved
 - `Relationship Seeds` are added, removed, or changed
 - relationship type, status, confidence, source, or target changes
+- graph-relevant type-specific data-block rows or row-level `availability` entries change
 - node type or graph-relevant metadata changes
 - the controlled relationship taxonomy changes
 
@@ -329,7 +330,7 @@ The long-term goal is a dynamic graph layer generated from normalized relationsh
 
 Future graph views may support:
 
-- Dynamic graph generation from Relationship Seeds and normalized graph data
+- Dynamic graph generation from Relationship Seeds, projected data-block availability, and normalized graph data
 - Timeline filtering by novel chapter, Donghua episode, and in-world chronology
 - Reader-state filtering by spoiler boundary and reader knowledge boundary
 - Interactive frontend exploration

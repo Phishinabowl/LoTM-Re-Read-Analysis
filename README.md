@@ -80,12 +80,19 @@ Boards/
   01_LoTM_Main_Reread_Board.md
   02_LoTM_Ancient_History_Family_Board.md
 
+Volumes/
+  TEMPLATE.md
+  volume-01-clown.md
+  planned volume summary pages
+
 Investigations/
   TEMPLATE.md
   Artifacts/
   Characters/
+  Concepts/
   Events/
   Factions/
+  Locations/
   Pathways/
   Project/
   type-specific subfolders for source verification records, split by subject and medium
@@ -95,16 +102,22 @@ Glossary_Threads/
   Artifacts/
   Characters/
   Concepts/
+  Deities/
+  Epochs/
   Events/
   Factions/
+  Families/
   Locations/
+  Mysteries/
   Uniquenesses/
   Pathways/
+  Timelines/
   type-specific subfolders for recurring thread records and embedded spoiler-aware knowledge units
 
 Visualization/
   README.md
   graph-authoring-standard.md
+  config/
   graphs/
   data/
   rendered/
@@ -118,14 +131,7 @@ Artwork/
   README.md
   official-epub-image-map.md
   page-assets/
-  tracked page-ready artwork plus ignored local artwork source workspace
-
-Source/
-  README.md
-  local EPUB, Donghua subtitles, and future source materials (Git ignored)
-
-Obsidian_Export/
-  local generated Obsidian QA mirror (Git ignored)
+  tracked page-ready artwork and artwork metadata
 
 00_READ_FIRST_AI_AGENT_BOOTSTRAP.md
 README-AI-Agent-Specification.md
@@ -133,9 +139,12 @@ MAINTAINER_CONTEXT.md
 ASSISTANT_CONTEXT.md (deprecated redirect)
 CURRENT_STATE.md
 PROJECT_RULES.md
+INDEX.md
+LICENSE
+NOTICE.md
 ```
 
-Embedded Reader Knowledge Ledger entries give every glossary subject a complete reveal timeline. Novel chapters and Donghua release order remain independently filterable so a future page can show only what a user should know at their selected position, while also supporting adaptation comparisons.
+Embedded Reader Knowledge Ledger entries preserve durable disclosure and audit history, while visible page sections and type-specific data blocks preserve ordinary structured state. Novel chapters and Donghua release order remain independently filterable so a future page can show only what a user should know at their selected position, while also supporting adaptation comparisons.
 
 ## Version Control
 
