@@ -8,6 +8,8 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import yaml
+
 
 TYPE_FOLDERS = {
     "artifact": "Artifacts",
@@ -150,6 +152,20 @@ class BoundedGraphSpec:
     include_unknown_positions: bool = False
 
 
+@dataclass(frozen=True)
+class BoundedPageSpec:
+    slug: str
+    name: str
+    file_stem: str
+    medium: str
+    max_volume: str = ""
+    max_chapter: str = ""
+    max_season: str = ""
+    max_episode: str = ""
+    max_release_order: str = ""
+    include_anonymous_preview: bool = True
+
+
 @dataclass
 class CanonicalNote:
     slug: str
@@ -201,6 +217,17 @@ def build_parser() -> argparse.ArgumentParser:
             "_Generated/bounded-graphs/. Repeat for multiple graphs. "
             "SPEC is comma-separated key=value pairs, for example "
             "name=vol1-ch45,medium=novel,maxVolume=1,maxChapter=45."
+        ),
+    )
+    parser.add_argument(
+        "--bounded-page",
+        action="append",
+        default=[],
+        metavar="SPEC",
+        help=(
+            "Also generate a bounded QA Markdown page under _Generated/bounded-pages/. "
+            "Repeat for multiple pages. SPEC is comma-separated key=value pairs, for example "
+            "slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=30."
         ),
     )
     return parser
@@ -307,6 +334,79 @@ def parse_bounded_graph_specs(raw_specs: list[str]) -> list[BoundedGraphSpec]:
         if spec.strip()
     ]
     return [parse_bounded_graph_spec(raw_spec, index) for index, raw_spec in enumerate(expanded_specs, start=1)]
+
+
+def parse_bounded_page_spec(raw_spec: str, index: int) -> BoundedPageSpec:
+    raw_spec = strip_scalar(raw_spec).strip().strip("\"'")
+    aliases = {
+        "maxvolume": "max_volume",
+        "max-volume": "max_volume",
+        "volume": "max_volume",
+        "maxchapter": "max_chapter",
+        "max-chapter": "max_chapter",
+        "chapter": "max_chapter",
+        "maxseason": "max_season",
+        "max-season": "max_season",
+        "season": "max_season",
+        "maxepisode": "max_episode",
+        "max-episode": "max_episode",
+        "episode": "max_episode",
+        "maxreleaseorder": "max_release_order",
+        "max-release-order": "max_release_order",
+        "releaseorder": "max_release_order",
+        "release-order": "max_release_order",
+        "includeanonymouspreview": "include_anonymous_preview",
+        "include-anonymous-preview": "include_anonymous_preview",
+        "anonymouspreview": "include_anonymous_preview",
+        "anonymous-preview": "include_anonymous_preview",
+        "file": "file_stem",
+        "filename": "file_stem",
+        "file-stem": "file_stem",
+    }
+    values: dict[str, str] = {}
+    for part in raw_spec.split(","):
+        part = part.strip().strip("\"'")
+        if not part:
+            continue
+        if "=" not in part:
+            raise ValueError(f"Invalid --bounded-page segment `{part}`. Use key=value pairs.")
+        key, value = part.split("=", 1)
+        key = key.strip().strip("\"'")
+        normalized_key = aliases.get(key.replace("_", "-").lower(), key.strip().replace("-", "_").lower())
+        values[normalized_key] = strip_scalar(value.strip()).strip("\"'")
+
+    slug = values.get("slug", "")
+    if not slug:
+        raise ValueError(f"--bounded-page `{raw_spec}` must include slug=<canonical-slug>.")
+    if not any(values.get(key) for key in ["max_volume", "max_chapter", "max_season", "max_episode", "max_release_order"]):
+        raise ValueError(f"--bounded-page `{raw_spec}` must include at least one max boundary, such as maxChapter=30.")
+
+    name = values.get("name", "")
+    medium = values.get("medium", "novel")
+    file_stem = values.get("file_stem", "")
+
+    return BoundedPageSpec(
+        slug=slug,
+        name=name,
+        file_stem=file_stem,
+        medium=medium,
+        max_volume=values.get("max_volume", ""),
+        max_chapter=values.get("max_chapter", ""),
+        max_season=values.get("max_season", ""),
+        max_episode=values.get("max_episode", ""),
+        max_release_order=values.get("max_release_order", ""),
+        include_anonymous_preview=parse_bool(values.get("include_anonymous_preview", "true")),
+    )
+
+
+def parse_bounded_page_specs(raw_specs: list[str]) -> list[BoundedPageSpec]:
+    expanded_specs = [
+        spec.strip()
+        for raw_spec in raw_specs
+        for spec in raw_spec.split(";")
+        if spec.strip()
+    ]
+    return [parse_bounded_page_spec(raw_spec, index) for index, raw_spec in enumerate(expanded_specs, start=1)]
 
 
 def first_heading(text: str, fallback: str) -> str:
@@ -1369,6 +1469,537 @@ def write_bounded_graphs(root: Path, generated_dir: Path, specs: list[BoundedGra
     )
 
 
+def extract_profile_block(text: str, root_key: str) -> dict:
+    for _, block in fenced_yaml_blocks(text):
+        try:
+            data = yaml.safe_load(block)
+        except yaml.YAMLError as exc:
+            raise ValueError(f"Unable to parse YAML block for `{root_key}`: {exc}") from exc
+        if isinstance(data, dict) and isinstance(data.get(root_key), dict):
+            return data[root_key]
+    return {}
+
+
+def parse_profile_yaml(text: str, type_name: str) -> dict:
+    root_key_by_type = {
+        "character": "character_profile",
+    }
+    root_key = root_key_by_type.get(type_name.lower())
+    if not root_key:
+        return {}
+    return extract_profile_block(text, root_key)
+
+
+def boundary_label(spec: BoundedPageSpec | BoundedGraphSpec) -> str:
+    if spec.medium.lower() == "novel":
+        parts = ["novel"]
+        if spec.max_volume:
+            parts.append(f"V{spec.max_volume}")
+        if spec.max_chapter:
+            parts.append(f"Ch{spec.max_chapter}")
+        return " ".join(parts)
+    if spec.medium.lower() == "donghua":
+        parts = ["donghua"]
+        if spec.max_season:
+            parts.append(f"S{spec.max_season}")
+        if spec.max_episode:
+            parts.append(f"E{spec.max_episode}")
+        if spec.max_release_order:
+            parts.append(f"Release {spec.max_release_order}")
+        return " ".join(parts)
+    return spec.medium
+
+
+def to_int(value) -> int | None:
+    if value is None:
+        return None
+    value = str(value).strip()
+    if not value or value.upper() == "TBD":
+        return None
+    try:
+        return int(value)
+    except ValueError:
+        return None
+
+
+def boundary_position(spec: BoundedPageSpec | BoundedGraphSpec) -> dict[str, int | str]:
+    return {
+        "medium": spec.medium.lower(),
+        "volume": to_int(spec.max_volume),
+        "chapter": to_int(spec.max_chapter),
+        "season": to_int(spec.max_season),
+        "episode": to_int(spec.max_episode),
+        "release_order": to_int(spec.max_release_order),
+    }
+
+
+def normalize_medium(value) -> str:
+    return str(value or "").strip().lower()
+
+
+def position_from_metadata(value: str) -> dict:
+    match = re.search(r"\b(Novel|Donghua)\b", value, re.IGNORECASE)
+    medium = match.group(1).lower() if match else ""
+    position: dict[str, str] = {"medium": medium}
+    volume = re.search(r"\bV(?:ol(?:ume)?)?\s*(\d+)\b", value, re.IGNORECASE)
+    chapter = re.search(r"\bCh(?:apter)?\s*(\d+)\b", value, re.IGNORECASE)
+    season = re.search(r"\bS(?:eason)?\s*(\d+)\b", value, re.IGNORECASE)
+    episode = re.search(r"\bE(?:pisode)?\s*(\d+)\b", value, re.IGNORECASE)
+    if volume:
+        position["volume"] = volume.group(1)
+    if chapter:
+        position["chapter"] = chapter.group(1)
+    if season:
+        position["season"] = season.group(1)
+    if episode:
+        position["episode"] = episode.group(1)
+    return position
+
+
+def entry_position(entry: dict) -> dict:
+    if not isinstance(entry, dict):
+        return {}
+    if isinstance(entry.get("from"), dict):
+        data = dict(entry["from"])
+    elif isinstance(entry.get("position"), dict):
+        data = dict(entry["position"])
+    elif isinstance(entry.get("visibility"), dict) and isinstance(entry["visibility"].get("from"), dict):
+        data = dict(entry["visibility"]["from"])
+    else:
+        data = dict(entry)
+    if "medium" not in data and entry.get("medium"):
+        data["medium"] = entry.get("medium")
+    return data
+
+
+def position_is_visible(position: dict, boundary: dict[str, int | str]) -> bool:
+    medium = normalize_medium(position.get("medium"))
+    if medium and medium != boundary["medium"]:
+        return False
+    if boundary["medium"] == "novel":
+        volume = to_int(position.get("volume"))
+        chapter = to_int(position.get("chapter"))
+        max_volume = boundary.get("volume")
+        max_chapter = boundary.get("chapter")
+        if volume is None and chapter is None:
+            return False
+        if max_volume is not None and volume is not None:
+            if volume > max_volume:
+                return False
+            if volume < max_volume:
+                return True
+        if max_chapter is not None and chapter is not None:
+            return chapter <= max_chapter
+        return max_volume is not None and volume is not None and volume <= max_volume
+    if boundary["medium"] == "donghua":
+        release_order = to_int(position.get("release_order"))
+        episode = to_int(position.get("episode"))
+        season = to_int(position.get("season"))
+        max_release_order = boundary.get("release_order")
+        max_episode = boundary.get("episode")
+        max_season = boundary.get("season")
+        if release_order is not None and max_release_order is not None:
+            return release_order <= max_release_order
+        if season is None and episode is None:
+            return False
+        if max_season is not None and season is not None:
+            if season > max_season:
+                return False
+            if season < max_season:
+                return True
+        if max_episode is not None and episode is not None:
+            return episode <= max_episode
+        return max_season is not None and season is not None and season <= max_season
+    return False
+
+
+def position_sort_key(position: dict) -> tuple[int, int, int, int]:
+    return (
+        to_int(position.get("volume")) or to_int(position.get("season")) or 0,
+        to_int(position.get("chapter")) or to_int(position.get("episode")) or 0,
+        to_int(position.get("release_order")) or 0,
+        0,
+    )
+
+
+def row_visible_availability(row: dict, boundary: dict[str, int | str]) -> list[dict]:
+    entries = row.get("availability", [])
+    if not isinstance(entries, list):
+        return []
+    visible = [entry for entry in entries if isinstance(entry, dict) and position_is_visible(entry_position(entry), boundary)]
+    return sorted(visible, key=lambda entry: position_sort_key(entry_position(entry)))
+
+
+def row_is_visible(row: dict, boundary: dict[str, int | str]) -> bool:
+    if not isinstance(row, dict):
+        return False
+    if row.get("availability") is not None:
+        return bool(row_visible_availability(row, boundary))
+    if isinstance(row.get("to"), dict):
+        end_position = dict(row["to"])
+        if "medium" not in end_position and row.get("medium"):
+            end_position["medium"] = row.get("medium")
+        return position_is_visible(end_position, boundary)
+    for key in ["visibility", "from", "position"]:
+        if key in row:
+            position = entry_position(row)
+            return position_is_visible(position, boundary)
+    source_refs = row.get("source_refs", [])
+    if isinstance(source_refs, list):
+        return any(isinstance(ref, dict) and position_is_visible(entry_position(ref), boundary) for ref in source_refs)
+    return False
+
+
+def latest_visible_availability(row: dict, boundary: dict[str, int | str]) -> dict:
+    visible = row_visible_availability(row, boundary)
+    return visible[-1] if visible else {}
+
+
+def merge_row_at_boundary(row: dict, boundary: dict[str, int | str]) -> dict:
+    merged = dict(row)
+    visible = row_visible_availability(row, boundary)
+    if visible:
+        latest = visible[-1]
+        for key, value in latest.items():
+            if key in {"medium", "from", "notes"}:
+                continue
+            if value not in {None, ""}:
+                merged[key] = value
+        merged["_visible_availability"] = visible
+    return merged
+
+
+def filter_profile_rows_for_boundary(profile: dict, boundary: dict[str, int | str]) -> dict[str, list[dict]]:
+    filtered: dict[str, list[dict]] = {}
+    for section, rows in profile.items():
+        if not isinstance(rows, list):
+            continue
+        visible_rows = []
+        for row in rows:
+            if isinstance(row, dict) and row_is_visible(row, boundary):
+                visible_rows.append(merge_row_at_boundary(row, boundary))
+        filtered[section] = visible_rows
+    return filtered
+
+
+def page_visible_at_boundary(note: CanonicalNote, boundary: dict[str, int | str]) -> bool:
+    visible_from = note.metadata.get("subject_visible_from", "")
+    if not visible_from:
+        return True
+    position = position_from_metadata(visible_from)
+    return position_is_visible(position, boundary)
+
+
+def table_escape(value) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, list):
+        return "<br>".join(table_escape(item) for item in value)
+    if isinstance(value, dict):
+        return format_position(value)
+    return str(value).replace("|", "\\|").replace("\n", "<br>")
+
+
+def format_position(position: dict) -> str:
+    if not isinstance(position, dict):
+        return ""
+    medium = normalize_medium(position.get("medium"))
+    if medium == "novel" or position.get("chapter") or position.get("volume"):
+        parts = []
+        if position.get("volume"):
+            parts.append(f"V{position.get('volume')}")
+        if position.get("chapter"):
+            parts.append(f"Ch{position.get('chapter')}")
+        return " ".join(parts)
+    if medium == "donghua" or position.get("episode") or position.get("season"):
+        parts = []
+        if position.get("season"):
+            parts.append(f"S{position.get('season')}")
+        if position.get("episode"):
+            parts.append(f"E{position.get('episode')}")
+        if position.get("release_order"):
+            parts.append(f"Release {position.get('release_order')}")
+        return " ".join(parts)
+    return ", ".join(f"{key}: {value}" for key, value in position.items() if value not in {None, ""})
+
+
+def format_availability_progression(row: dict) -> str:
+    entries = row.get("_visible_availability", [])
+    parts = []
+    if entries:
+        for entry in entries:
+            position = format_position(entry_position(entry))
+            status = entry.get("status") or entry.get("possession_status") or entry.get("outcome_status") or ""
+            confidence = entry.get("confidence", "")
+            details = " / ".join(item for item in [status, confidence] if item)
+            parts.append(f"{position}: {details}" if details else position)
+        return "<br>".join(parts)
+
+    if isinstance(row.get("position"), dict):
+        position = format_position(entry_position(row))
+        status = row.get("status", "")
+        confidence = row.get("confidence", "")
+        details = " / ".join(item for item in [status, confidence] if item)
+        if position:
+            parts.append(f"{position}: {details}" if details else position)
+
+    source_refs = row.get("source_refs", [])
+    if isinstance(source_refs, list):
+        for ref in source_refs:
+            if not isinstance(ref, dict):
+                continue
+            position = format_position(ref)
+            if position and not any(part.startswith(position) for part in parts):
+                parts.append(f"{position}: source-ref")
+
+    graph_display = row.get("graph_display", {})
+    if isinstance(graph_display, dict):
+        visible_from = graph_display.get("visible_from")
+        resolves_to = graph_display.get("resolves_to_canonical_at")
+        if isinstance(visible_from, dict):
+            parts.append(f"graph visible from {format_position(visible_from)}")
+        if isinstance(resolves_to, dict):
+            parts.append(f"resolves to canonical at {format_position(resolves_to)}")
+    return "<br>".join(parts)
+
+
+def graph_display_for_boundary(note: CanonicalNote, filtered: dict[str, list[dict]], page_visible: bool) -> dict[str, str]:
+    beats = filtered.get("first_appearance_beats", [])
+    graph_rows = []
+    for beat in beats:
+        graph_display = beat.get("graph_display", {})
+        if isinstance(graph_display, dict):
+            behavior = graph_display.get("behavior", "")
+            label = graph_display.get("label", "")
+        else:
+            behavior = ""
+            label = ""
+        if behavior:
+            graph_rows.append({"behavior": behavior, "label": label, "title": beat.get("title", "")})
+
+    if graph_rows:
+        preferred = graph_rows[-1]
+        return {
+            "node_visible": "yes" if preferred["behavior"] != "hidden" else "no",
+            "visibility": preferred["behavior"],
+            "label": preferred["label"] or note.title,
+            "source": preferred["title"],
+        }
+    if page_visible:
+        return {
+            "node_visible": "yes",
+            "visibility": "canonical-node",
+            "label": note.title,
+            "source": "page visibility",
+        }
+    return {
+        "node_visible": "no",
+        "visibility": "hidden",
+        "label": "",
+        "source": "before page visibility",
+    }
+
+
+def render_generation_stats(note: CanonicalNote, spec: BoundedPageSpec, page_visible: bool, filtered: dict[str, list[dict]]) -> list[str]:
+    graph_display = graph_display_for_boundary(note, filtered, page_visible)
+    rows = [
+        ("Boundary", boundary_label(spec)),
+        ("Canonical page visible", "yes" if page_visible else "no"),
+        ("Graph node visible", graph_display["node_visible"]),
+        ("Graph visibility behavior", graph_display["visibility"]),
+        ("Graph label", graph_display["label"]),
+        ("Graph visibility source", graph_display["source"]),
+        ("Visible first appearance beats", str(len(filtered.get("first_appearance_beats", [])))),
+        ("Visible timeline entries", str(len(filtered.get("timeline_entries", [])))),
+        ("Visible relationship rows", str(len(filtered.get("relationships", [])))),
+    ]
+    lines = [
+        "## Generation Stats",
+        "",
+        "| Field | Value |",
+        "|---|---|",
+    ]
+    lines.extend(f"| {table_escape(label)} | {table_escape(value)} |" for label, value in rows)
+    lines.append("")
+    return lines
+
+
+def render_bounded_table(title: str, rows: list[dict], columns: list[tuple[str, str]]) -> list[str]:
+    lines = [f"## {title}", ""]
+    if not rows:
+        lines.extend(["- No rows visible at this boundary.", ""])
+        return lines
+    header = [label for label, _ in columns] + ["Availability Progression"]
+    lines.append("| " + " | ".join(header) + " |")
+    lines.append("|" + "|".join("---" for _ in header) + "|")
+    for row in rows:
+        values = [table_escape(row.get(key, "")) for _, key in columns]
+        values.append(table_escape(format_availability_progression(row)))
+        lines.append("| " + " | ".join(values) + " |")
+    lines.append("")
+    return lines
+
+
+BOUNDED_CHARACTER_TABLES: list[tuple[str, str, list[tuple[str, str]]]] = [
+    ("First Appearance Beats", "first_appearance_beats", [("Title", "title"), ("Type", "beat_type"), ("State", "reader_knowledge_state"), ("Status", "status"), ("Confidence", "confidence")]),
+    ("Identity / Role", "identities", [("Field", "field"), ("Value", "value"), ("Status", "status"), ("Confidence", "confidence"), ("Notes", "notes")]),
+    ("Affiliations", "affiliations", [("Organization", "organization"), ("Target", "target"), ("Relationship", "relationship"), ("Status", "status"), ("Confidence", "confidence")]),
+    ("Pathway State", "pathway_state", [("Pathway", "pathway"), ("Target", "target"), ("Relationship", "relationship"), ("Status", "status"), ("Confidence", "confidence")]),
+    ("Abilities", "ability_index", [("Ability", "ability"), ("Source", "source"), ("Status", "status"), ("Confidence", "confidence"), ("Notes", "notes")]),
+    ("Equipment / Artifacts / Items", "equipment_artifacts", [("Item", "item"), ("Target", "target"), ("Type", "type"), ("Possession", "possession_status"), ("Significance", "item_significance")]),
+    ("Major Events", "major_events_fights", [("Event", "event"), ("Type", "event_type"), ("Part", "event_part"), ("Role", "role"), ("Outcome", "outcome_status")]),
+    ("Timeline Entries", "timeline_entries", [("ID", "id"), ("Title", "title"), ("Type", "entry_type"), ("Summary", "summary"), ("Why It Matters", "why_it_matters")]),
+]
+
+
+def extract_timeline_prose_blocks(text: str) -> dict[str, str]:
+    section = extract_section(text, "Chronological Development")
+    blocks: dict[str, str] = {}
+    if not section:
+        return blocks
+    pattern = re.compile(
+        r"(?ms)^(#### .+?\n<!-- timeline_id:\s*([a-zA-Z0-9_-]+)\s*-->\n.*?)(?=^#### |\Z)"
+    )
+    for match in pattern.finditer(section):
+        blocks[match.group(2)] = match.group(1).strip()
+    return blocks
+
+
+def render_bounded_timeline_prose(text: str, visible_timeline_rows: list[dict]) -> list[str]:
+    blocks = extract_timeline_prose_blocks(text)
+    visible_ids = [row.get("id", "") for row in visible_timeline_rows if row.get("id")]
+    lines = ["## Visible Timeline Prose", ""]
+    if not blocks:
+        lines.extend(["- No timeline prose blocks found.", ""])
+        return lines
+    emitted = False
+    for timeline_id in visible_ids:
+        block = blocks.get(timeline_id)
+        if block:
+            lines.extend([block, ""])
+            emitted = True
+    if not emitted:
+        lines.append("- No timeline prose sections visible at this boundary.")
+        lines.append("")
+    omitted = sorted(set(blocks) - set(visible_ids))
+    lines.extend(["## Omitted Timeline IDs", ""])
+    lines.extend(f"- `{timeline_id}`" for timeline_id in omitted) if omitted else lines.append("- None.")
+    lines.append("")
+    return lines
+
+
+def render_bounded_character_page(root: Path, note: CanonicalNote, spec: BoundedPageSpec) -> str:
+    text = read_text(note.source_path)
+    profile = parse_profile_yaml(text, note.type_name)
+    boundary = boundary_position(spec)
+    page_visible = page_visible_at_boundary(note, boundary)
+    filtered = filter_profile_rows_for_boundary(profile, boundary)
+    if not page_visible and not spec.include_anonymous_preview:
+        filtered = {key: [] for key in filtered}
+    if not page_visible:
+        filtered["first_appearance_beats"] = [
+            row
+            for row in filtered.get("first_appearance_beats", [])
+            if isinstance(row.get("graph_display"), dict)
+            and row["graph_display"].get("behavior") == "anonymized-node"
+        ]
+        for key in list(filtered):
+            if key != "first_appearance_beats":
+                filtered[key] = []
+
+    title = spec.name or note.title
+    lines = [
+        "---",
+        "generated: true",
+        "generated_type: bounded-page-qa",
+        f"source_file: {yaml_quote(note.relative_source)}",
+        f"source_slug: {yaml_quote(note.slug)}",
+        f"type: {yaml_quote(note.type_name.lower())}",
+        f"boundary: {yaml_quote(boundary_label(spec))}",
+        f"canonical_page_visible: {str(page_visible).lower()}",
+        "---",
+        "",
+        f"# {title} - Bounded QA ({boundary_label(spec)})",
+        "",
+        "> Generated QA projection. Canonical source remains the glossary page.",
+        "",
+        f"- Canonical Source: {source_link(note.relative_source)}",
+        f"- Canonical Page Visible At Boundary: {'yes' if page_visible else 'no'}",
+    ]
+    if not page_visible:
+        lines.append("- QA Note: canonical page body is hidden at this boundary; only explicitly modeled anonymous preview beats are shown.")
+    lines.append("")
+    lines.extend(render_generation_stats(note, spec, page_visible, filtered))
+
+    for table_title, section_key, columns in BOUNDED_CHARACTER_TABLES:
+        lines.extend(render_bounded_table(table_title, filtered.get(section_key, []), columns))
+
+    if page_visible:
+        lines.extend(render_bounded_timeline_prose(text, filtered.get("timeline_entries", [])))
+    else:
+        lines.extend(["## Visible Timeline Prose", "", "- Canonical timeline prose hidden before page visibility.", ""])
+    return "\n".join(lines)
+
+
+def write_bounded_pages(root: Path, generated_dir: Path, notes: dict[str, CanonicalNote], specs: list[BoundedPageSpec]) -> None:
+    if not specs:
+        return
+    bounded_dir = generated_dir / "bounded-pages"
+    for spec in specs:
+        note = notes.get(spec.slug)
+        if note is None:
+            unknown_dir = bounded_dir / "_Unknown"
+            unknown_dir.mkdir(parents=True, exist_ok=True)
+            file_stem = safe_file_stem(spec.file_stem or spec.name or spec.slug)
+            (unknown_dir / f"{file_stem}.md").write_text(
+                "\n".join(
+                    [
+                        "---",
+                        "generated: true",
+                        "generated_type: bounded-page-qa",
+                        f"source_slug: {yaml_quote(spec.slug)}",
+                        f"boundary: {yaml_quote(boundary_label(spec))}",
+                        "canonical_page_visible: false",
+                        "---",
+                        "",
+                        f"# Unknown Bounded Page - {spec.slug}",
+                        "",
+                        "- Requested canonical source slug does not exist in the generated note set.",
+                        "",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            continue
+
+        output_folder = bounded_dir / note.export_folder
+        output_folder.mkdir(parents=True, exist_ok=True)
+        boundary_stem = f"chapter-{spec.max_chapter}" if spec.max_chapter else safe_slug(boundary_label(spec), "boundary")
+        default_stem = f"{note.export_file_stem} - {boundary_stem}"
+        file_stem = safe_file_stem(spec.file_stem or default_stem)
+        if note.type_name.lower() == "character":
+            content = render_bounded_character_page(root, note, spec)
+        else:
+            content = "\n".join(
+                [
+                    "---",
+                    "generated: true",
+                    "generated_type: bounded-page-qa",
+                    f"source_file: {yaml_quote(note.relative_source)}",
+                    f"source_slug: {yaml_quote(note.slug)}",
+                    f"type: {yaml_quote(note.type_name.lower())}",
+                    f"boundary: {yaml_quote(boundary_label(spec))}",
+                    "---",
+                    "",
+                    f"# {note.title} - Bounded QA ({boundary_label(spec)})",
+                    "",
+                    "- Bounded page rendering is currently implemented for character pages only.",
+                    "",
+                ]
+            )
+        (output_folder / f"{file_stem}.md").write_text(content, encoding="utf-8")
+
+
 def render_relationship_index(relationships: list[Relationship], notes: dict[str, CanonicalNote]) -> str:
     lines = [
         "# Relationship Index",
@@ -1557,6 +2188,7 @@ def write_export(
     data_references: list[DataReference],
     data_projections: dict[str, DataProjection],
     bounded_graph_specs: list[BoundedGraphSpec],
+    bounded_page_specs: list[BoundedPageSpec],
 ) -> None:
     output_dir = ensure_safe_output(root, output_dir)
     if clean and output_dir.exists():
@@ -1585,6 +2217,7 @@ def write_export(
     write_visualization_relationship_graph(root, generated_dir / "visualization-relationship-graph.mmd")
     write_repo_refresh_check(root, generated_dir)
     write_bounded_graphs(root, generated_dir, bounded_graph_specs)
+    write_bounded_pages(root, generated_dir, notes, bounded_page_specs)
     (generated_dir / "data-reference-index.md").write_text(render_data_reference_index(data_references, notes), encoding="utf-8")
     (generated_dir / "orphan-report.md").write_text(render_orphan_report(notes, relationships, data_references), encoding="utf-8")
     (generated_dir / "suspicious-edges.md").write_text(render_suspicious_edges(notes, relationships), encoding="utf-8")
@@ -1609,9 +2242,20 @@ def main() -> int:
     root = Path(args.root).resolve()
     output_dir = (root / args.output_dir).resolve()
     bounded_graph_specs = parse_bounded_graph_specs(args.bounded_graph)
+    bounded_page_specs = parse_bounded_page_specs(args.bounded_page)
 
     notes, relationships, data_references, data_projections = discover_notes(root, args.include_stubs)
-    write_export(root, output_dir, args.clean, notes, relationships, data_references, data_projections, bounded_graph_specs)
+    write_export(
+        root,
+        output_dir,
+        args.clean,
+        notes,
+        relationships,
+        data_references,
+        data_projections,
+        bounded_graph_specs,
+        bounded_page_specs,
+    )
 
     orphan_data = analyze_orphans(notes, relationships, data_references)
     suspicious_data = analyze_suspicious_edges(relationships, notes)
@@ -1627,6 +2271,7 @@ def main() -> int:
         "duplicate_edge_groups": len(suspicious_data["duplicate_edges"]),
         "missing_reciprocals": len(suspicious_data["missing_reciprocals"]),
         "bounded_graphs": len(bounded_graph_specs),
+        "bounded_pages": len(bounded_page_specs),
     }
 
     if args.json:

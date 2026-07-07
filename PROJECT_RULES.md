@@ -178,7 +178,7 @@ Use each project artifact for a distinct purpose:
 - `Glossary_Threads`: Subject-specific information, durable disclosure history, structured reader-state filtering data, and adaptation comparisons.
 - `Investigations`: Evidence, verification history, and supported conclusions for questions that required consulting the EPUB.
 - `Visualization`: Generated visualization artifacts, such as Mermaid graphs, rendered graph images, and future graph data exports.
-- `Tools`: Repeatable local maintenance, source-search, artwork, visualization, Obsidian export, and cleanup helpers. Prefer Python helpers when available and documented PowerShell fallbacks when Python is unavailable.
+- `Tools`: Repeatable local maintenance, source-search, artwork, visualization, Obsidian export, and cleanup helpers. Prefer Python helpers when Python is available and repository Python requirements from `requirements-python.txt` are installed; use documented PowerShell fallbacks when Python is unavailable.
 - `Artwork`: Tracked official artwork metadata and selected page-ready assets. Bulk extraction, intermediate crops, and source-derived staging stay local-only.
 - `Source`: Local canonical source materials such as the EPUB and Donghua subtitles. Copyrighted source files stay ignored by Git.
 - `Testing`: Local scratch outputs and temporary experiments. Promote durable outputs into the appropriate canonical folder only after maintainer confirmation.
@@ -198,7 +198,7 @@ Keep `PROJECT_RULES.md` focused on durable project policy: source of truth, spoi
 
 Use specialized docs for operational detail:
 
-- `Tools/README.md`: exact helper commands, Python/PowerShell fallbacks, EPUB search, Obsidian QA export, artwork extraction, and cleanup behavior.
+- `Tools/README.md`: exact helper commands, Python dependency setup, Python/PowerShell fallbacks, EPUB search, Obsidian QA export, artwork extraction, and cleanup behavior.
 - `Visualization/README.md`: current generated graph artifacts, refresh tracker, configured graph views, and visualization workflow entry points.
 - `Visualization/graph-authoring-standard.md`: graph intent, graph-local evidence, source expansion, coverage workflow, graph projection, layout semantics, and graph output reporting.
 - `Visualization/rendering.md`: render commands, validation modes, render sizing, class/layout validation, and render troubleshooting.
@@ -247,6 +247,7 @@ Generated Obsidian QA outputs may include:
 - relationship and data-reference indexes
 - local-only QA Mermaid `.mmd` files
 - a `_Generated/repo-refresh-check/` dry run of configured repository graph views, including generated Mermaid sources, a refresh report, a semantic snapshot, and generated check settings
+- optional `_Generated/bounded-pages/` QA Markdown projections for requested reader/viewer boundaries
 - orphan, suspicious-edge, duplicate-edge, and unknown-target reports
 
 Do not treat generated graph files, generated Obsidian mirror notes, or generated QA reports as canonical project knowledge.
@@ -264,6 +265,8 @@ For graph-only maintainer work or Obsidian QA export work, do not silently updat
 The Obsidian QA export's `_Generated/repo-refresh-check/` bundle is a local dry run of the configured repository visualization refresh. It is generated inside ignored `Obsidian_Export/`, runs with rendering disabled, and must not be mistaken for updating canonical files under `Visualization/graphs/`, `Visualization/rendered/`, `Visualization/data/refresh-snapshot.json`, or `Visualization/README.md`.
 
 When requested with bounded graph flags, the Obsidian QA export may also create `_Generated/bounded-graphs/`. These are opt-in no-render local Mermaid previews for ad hoc reader/viewer boundaries, not canonical configured repository views.
+
+When requested with bounded page flags, the Obsidian QA export may also create `_Generated/bounded-pages/`. These are opt-in local QA projections that read structured type-specific data blocks, apply a requested reader/viewer boundary, and render provisional Markdown tables plus timeline-linked prose excerpts for inspection. They are not canonical articles, do not replace the source glossary page, and must not invent prose or facts outside the source page's structured data. If a requested boundary is before `Subject Visible From`, the bounded page should either omit the canonical page body or clearly mark the canonical page as hidden; anonymous first-appearance preview beats may be shown only when the data block explicitly models them.
 
 Use the shared [Graph Authoring Standard](Visualization/graph-authoring-standard.md) for graph construction. It defines canonical versus graph-local evidence, source expansion, pathway/sequence coverage, maintainer confirmation, and output reporting.
 
@@ -577,7 +580,7 @@ When official character artwork is mapped and promoted into `Artwork/page-assets
 
 Mutable character facts should accumulate rows instead of overwriting old values. This includes aliases, titles, age, vital status, residence, affiliations, pathway status, Sequence advancement, mythical creature form state, Uniqueness possession/control/accommodation state, equipment/item possession, relationships, companions, and ability access. Future reader-boundary tooling should hide rows after the chosen boundary and compute the current state from the remaining rows.
 
-For type-specific data blocks, every row that describes reader-visible state should support `availability`. Use page metadata `Subject Visible From` as the whole-page gate, then use row-level `availability` as the fact-level gate. Static implementation fields such as `data_model_version`, `stable_slug`, `state_sort_order`, local artwork file paths, or internal usage labels do not need availability unless their display would itself reveal spoiler-sensitive subject information.
+For type-specific data blocks, rows that describe continuing reader-visible state should support `availability`. Use page metadata `Subject Visible From` as the whole-page gate, then use row-level `availability` as the fact-level gate for mutable state such as affiliations, pathway status, custody, relationships, abilities, current location, event participation, or confidence that can change over reader time. Discrete reveal records such as `first_appearance_beats` and `timeline_entries` normally use `position`, `from`, `to`, `visibility.from`, `source_refs`, and optional `graph_display` instead of an availability ladder. Static implementation fields such as `data_model_version`, `stable_slug`, `state_sort_order`, local artwork file paths, or internal usage labels do not need availability unless their display would itself reveal spoiler-sensitive subject information.
 
 Visible character tables and `character_profile` rows should mirror each other when they describe the same extractable state. If they conflict, update both. The visible table remains the GitHub-readable article surface; the data-block row is the future renderer, filtering, and QA source. Do not make future tooling scrape visible tables when a structured row can carry the same data. Order type-specific data-block sections to match the visible page sections as closely as practical; for character pages, place `timeline_entries` after `major_events_fights` because `Chronological Development` follows `Major Events & Fights` in the visible article.
 
@@ -651,6 +654,8 @@ Do not use later knowledge to rename an early beat as if the reader could alread
 Mirror these visible beats in the type-specific data block so future website renderers can rebuild the first-appearance section without inferring it from aliases, relationship rows, timeline entries, or knowledge units. Use a type-appropriate field such as `first_appearance_beats`. Each meaningful visible beat should have one structured row with the same medium, position, context, and reader/viewer knowledge state. Keep the block in data-block order where first appearance appears in the visible page order; for character pages, that means `character_profile.first_appearance_beats` before `identities`.
 
 When the subject appears before its canonical page title is reader-safe, preserve the difference between page visibility and graph/site display visibility. `Subject Visible From` remains the canonical page/title gate. A first-appearance row may add `graph_display.behavior: anonymized-node`, a safe `graph_display.label`, `graph_display.visible_from`, and `graph_display.resolves_to_canonical_at` so filtered graphs or future websites can show an anonymous presentation node before the real subject is revealed. Anonymized display nodes are presentation artifacts only; they are not new glossary entities and should use opaque generated IDs in graph source output.
+
+First-appearance rows are positioned reveal beats, not continuing state rows by default. Use `position` for when the beat happens, `source_refs` for evidence, and `graph_display` for graph/site display timing. Add an `availability` ladder only when the same beat itself has a meaningful changing interpretation that cannot be represented by separate reveal beats, such as an adaptation-specific reinterpretation or a confidence progression tied to the beat.
 
 ### Chronological Development Style
 
@@ -992,7 +997,7 @@ Use Relationship Seeds for the graph edge, not for the full state history of the
 
 Do not add multiple Relationship Seeds for the same `source + relationship_type + target` merely to represent confidence progression. Prefer one seed plus a data-block state row that records the availability history. If the seed projects a specific row, add `projection_source`. If the seed also depends on a specific knowledge unit, add `claim_id` with the knowledge unit id so future generators can merge graph projection with reader-state history.
 
-For new or retrofitted structured data, prefer `availability` over single `reveal` fields. Every reader-visible data-block row should be able to carry one or more availability entries:
+For new or retrofitted structured state data, prefer `availability` over single `reveal` fields. Every continuing reader-visible state row should be able to carry one or more availability entries. Positioned reveal rows such as first-appearance beats and timeline entries may use their own `position`, `from`, `to`, `visibility.from`, and `source_refs` fields instead:
 
 ```yaml
 availability:

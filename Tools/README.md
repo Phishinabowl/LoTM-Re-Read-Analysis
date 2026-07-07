@@ -6,13 +6,19 @@ For switch-by-switch maps, function-pipeline notes, side effects, parity checks,
 
 ## Environment Checks
 
-Use `Test-Python.ps1` to check whether Python is present and actually usable before selecting Python-preferred tools. It tests `python`, `python3`, and `py` in order, verifies that `--version` works, and confirms that Python can report `sys.executable`.
+Use `Test-Python.ps1` to check whether Python is present and actually usable before selecting Python-preferred tools. It tests `python`, `python3`, and `py` in order, verifies that `--version` works, confirms that Python can report `sys.executable`, and checks repository Python requirements from `requirements-python.txt`.
 
 Run this probe once for an unfamiliar machine or fresh agent session, then treat the result as the session's Python-availability state. If Python is available, use Python-preferred tools going forward without rerunning the probe before every command. Rerun only if the environment changes, such as PATH edits, Python installation changes, a different shell, a different machine, or a failed Python launch that suggests the earlier state is stale.
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1 -Json
+```
+
+If Python is available but required modules are missing, install the repository Python dependencies:
+
+```powershell
+python -m pip install -r requirements-python.txt
 ```
 
 For the full candidate order, switch behavior, JSON fields, side effects, and latest local check note, see [Tooling Reference](TOOLING_REFERENCE.md#python-environment-check).
@@ -382,6 +388,9 @@ Obsidian_Export/
       refresh-check-report.md
       refresh-check-snapshot.json
       refresh-check-settings.json
+    bounded-pages/
+      Characters/
+        Dunn Smith - chapter-30.md
     data-reference-index.md
     orphan-report.md
     suspicious-edges.md
@@ -396,6 +405,14 @@ Each mirror note includes source metadata, a canonical source link, outgoing Rel
 `visualization-relationship-graph.mmd` is a QA-local unbounded graph generated through the repository visualization helper. It uses the same semantic relationship-node projection style as `Visualization/`, but writes only to the ignored Obsidian export folder and does not render images or update canonical visualization artifacts. Relationship Seeds with `projection_source` are resolved against the seed source page first, so repeated local data-block keys on different pages do not collide.
 
 The `_Generated/repo-refresh-check/` folder is a QA-local dry run of every currently configured repository graph view from `Visualization/config/render-settings.json`. It uses the real visualization refresh helper with rendering disabled, writes Mermaid graph sources, a refresh report, a semantic snapshot, and the generated check settings into the Obsidian export, and does not touch canonical `Visualization/graphs/`, rendered images, the real refresh snapshot, or `Visualization/README.md`. Because it derives from the live render settings each run, future configured graph views should automatically appear in this QA dry run.
+
+Use `--bounded-page` to generate optional local QA page projections for specific reader/viewer boundaries. The folder is created only when requested. The Python implementation is the pilot path; PowerShell parity should be added separately before treating bounded pages as a fully paired tool feature.
+
+```powershell
+python Tools\obsidian_qa_export.py --clean --bounded-page "slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=30"
+```
+
+Bounded pages read the canonical page's structured data block and render boundary-filtered QA tables plus matching timeline prose sections when `timeline_entries` map to visible `timeline_id` comments. They are generated inspection artifacts, not canonical rewritten articles. Before the page's `Subject Visible From` boundary, the output must clearly mark the canonical page as hidden; explicitly modeled anonymous first-appearance beats may still appear as QA preview rows. Their timing display may come from either state-row `availability` ladders or positioned reveal fields such as `position`, `source_refs`, and `graph_display`.
 
 The QA export intentionally exposes modeling issues that reader-facing graphs may hide. It should show duplicate/provisional seeds, seed-vs-data provenance, pending endpoint nodes, and projected availability ladders so maintainers can spot taxonomy drift. `projection_source` is expected to point at structured data-block rows, not visible Markdown tables.
 

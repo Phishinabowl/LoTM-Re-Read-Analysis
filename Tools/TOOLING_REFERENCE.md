@@ -17,13 +17,14 @@ The repository convention is:
 | --- | --- | --- |
 | Environment probe | `Tools/Test-Python.ps1` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1` |
 
-Purpose: check whether the local machine has a usable Python command before choosing Python-preferred tools or documented PowerShell fallbacks. This is a read-only probe and has no Python pair.
+Purpose: check whether the local machine has a usable Python command and the repository's required Python modules before choosing Python-preferred tools or documented PowerShell fallbacks. This is a read-only probe and has no Python pair.
 
 ### Switch Map
 
 | Purpose | Switch | Default | Notes |
 | --- | --- | --- | --- |
-| Print JSON summary | `-Json` | off | Emits structured `available`, `command`, `version`, `executable`, `checked`, and `message` fields for agent workflows. |
+| Print JSON summary | `-Json` | off | Emits structured `available`, `ready`, `command`, `version`, `executable`, `requirements_*`, `checked`, and `message` fields for agent workflows. |
+| Requirements file | `-RequirementsPath <path>` | `requirements-python.txt` | Checks required Python import modules derived from the repository Python dependency file. |
 
 ### Inputs
 
@@ -32,13 +33,14 @@ Purpose: check whether the local machine has a usable Python command before choo
 | Local shell PATH | Finds candidate commands in order: `python`, `python3`, then `py`. |
 | Candidate command `--version` output | Confirms the command launches and reports a version. |
 | Candidate command `-c "import sys; print(sys.executable)"` output | Confirms Python can execute code and reports the underlying executable path. |
+| `requirements-python.txt` or supplied requirements path | Defines repository Python packages to validate before treating Python tooling as fully ready. |
 
 ### Outputs And Side Effects
 
 | Mode | Output | Side Effect |
 | --- | --- | --- |
-| Default | Human-readable availability, command, version, and executable lines when Python is usable; fallback guidance when unavailable. | None. |
-| JSON | Structured availability record plus the checked candidate list. | None. |
+| Default | Human-readable availability, command, version, executable, and requirement status lines when Python is usable; fallback guidance when unavailable. | None. |
+| JSON | Structured availability/readiness record plus the checked candidate list and requirement checks. | None. |
 
 ### Behavior Map
 
@@ -49,6 +51,8 @@ Purpose: check whether the local machine has a usable Python command before choo
 | Resolve candidate commands | `Get-Command` loop |
 | Validate version launch | candidate `--version` call |
 | Validate Python execution | candidate `-c "import sys; print(sys.executable)"` call |
+| Read repository requirements | `Get-RequirementModules` |
+| Validate Python modules | candidate `-c "import importlib.util ..."` calls |
 | Render JSON/human output | bottom script block |
 
 ### Important Notes
@@ -56,7 +60,8 @@ Purpose: check whether the local machine has a usable Python command before choo
 - Run this once for an unfamiliar machine or fresh agent session, then treat the result as session state.
 - Rerun only if the environment changes, such as PATH edits, Python installation changes, a different shell, a different machine, or a failed Python launch that suggests the earlier state is stale.
 - If Python is unavailable, use the documented PowerShell fallback scripts for that session.
-- If Python is available but a Python helper fails, treat that as a helper failure rather than silently falling back.
+- If Python is available but `ready` is false because required modules are missing, install the repository dependencies with `python -m pip install -r requirements-python.txt` before using Python helpers that need those modules.
+- If Python is available and ready but a Python helper fails, treat that as a helper failure rather than silently falling back.
 - Keep PowerShell fallback scripts compatible with Windows PowerShell 5.1 unless a tool explicitly documents a PowerShell 7 requirement.
 
 ### Check Recipe
@@ -64,11 +69,12 @@ Purpose: check whether the local machine has a usable Python command before choo
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1 -Json
+python -m pip install -r requirements-python.txt
 ```
 
 Last mapped: 2026-07-07.
 
-Last check: 2026-07-07. Normal and JSON modes ran successfully on this machine. The probe detected `python`, `Python 3.14.5`, and executable `C:\Users\ptseb\AppData\Local\Python\pythoncore-3.14-64\python.exe`.
+Last check: 2026-07-07. Normal and JSON modes ran successfully on this machine. The probe detected `python`, `Python 3.14.5`, executable `C:\Users\ptseb\AppData\Local\Python\pythoncore-3.14-64\python.exe`, and `ready: true` after validating `PyYAML` through the `yaml` import module.
 
 ## Temporary File Cleanup
 
@@ -648,6 +654,7 @@ Purpose: compile repository metadata, type-specific YAML data blocks, Relationsh
 | Clean before writing | `--clean` | `-Clean` | off | Deletes the selected export directory before regenerating it, after the path safety check. |
 | Print JSON summary | `--json` | `-Json` | off | Prints summary counts as JSON instead of human-readable text. Generated files are still written. |
 | Generate extra bounded graph(s) | `--bounded-graph <spec>` | `-BoundedGraph <spec>` | none | Repeatable opt-in. Generates no-render Mermaid graphs under `_Generated/bounded-graphs/` in addition to the normal export. Specs are comma-separated key/value pairs such as `name=vol1-ch45,medium=novel,maxVolume=1,maxChapter=45`. Multiple specs may also be separated with semicolons inside one argument, which is the recommended PowerShell form. |
+| Generate extra bounded page(s) | `--bounded-page <spec>` | n/a | none | Python pilot only. Repeatable opt-in. Generates boundary-filtered QA Markdown pages under `_Generated/bounded-pages/` in addition to the normal export. Specs are comma-separated key/value pairs such as `slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=30`. Multiple specs may also be separated with semicolons inside one argument. |
 | Show CLI help | `--help` | n/a | n/a | Python exposes argparse help. The PowerShell fallback exposes switches through the script `param(...)` block. |
 
 Bounded graph spec keys:
@@ -657,6 +664,15 @@ Bounded graph spec keys:
 - `medium`: Boundary medium. Defaults to `novel`.
 - `maxVolume`, `maxChapter`, `maxSeason`, `maxEpisode`, `maxReleaseOrder`: Reader/viewer boundary values. At least one max boundary is required.
 - `includeUnknownSubjects`, `includeUnknownPositions`: Optional booleans. Defaults are `false`.
+
+Bounded page spec keys:
+
+- `slug`: Required canonical source slug, such as `character-dunn-smith`.
+- `name`: Optional human-readable label. Defaults to the source page title.
+- `file` / `filename` / `file-stem`: Optional explicit output filename stem.
+- `medium`: Boundary medium. Defaults to `novel`.
+- `maxVolume`, `maxChapter`, `maxSeason`, `maxEpisode`, `maxReleaseOrder`: Reader/viewer boundary values. At least one max boundary is required.
+- `includeAnonymousPreview`: Optional boolean. Defaults to `true`. Allows explicitly modeled anonymous first-appearance beats before canonical page visibility.
 
 ### Inputs
 
@@ -669,6 +685,7 @@ Bounded graph spec keys:
 | `Visualization/config/render-settings.json` | Source configured view list for `_Generated/repo-refresh-check/`. |
 | `Visualization/config/puppeteer-config.json` | Passed through to the visualization refresh helper for dry-run fidelity. Rendering is skipped. |
 | `Tools/clean_temp_files.py` | Python export calls this at the end to remove transient Python cache folders. |
+| `requirements-python.txt` / PyYAML | Python bounded-page pilot uses PyYAML to parse structured page data blocks. |
 
 ### Outputs
 
@@ -692,6 +709,7 @@ Default output root: `Obsidian_Export/`, ignored by Git.
 | `_Generated/bounded-graphs/bounded-graphs-report.md` | Optional refresh report for the requested bounded graph bundle. |
 | `_Generated/bounded-graphs/bounded-graphs-snapshot.json` | Optional semantic graph snapshot for the requested bounded graph bundle. |
 | `_Generated/bounded-graphs/bounded-graphs-settings.json` | Optional generated render settings used for the requested bounded graph bundle. |
+| `_Generated/bounded-pages/**/*.md` | Optional Python-pilot bounded QA page projections requested through `--bounded-page`. This folder is created only when bounded pages are requested. Bounded-page timing tables can summarize state-row `availability` ladders or positioned reveal fields such as first-appearance `position`, `source_refs`, and `graph_display`. |
 
 The repo refresh check does not update canonical `Visualization/graphs/`, `Visualization/rendered/`, `Visualization/data/refresh-snapshot.json`, or `Visualization/README.md`.
 
@@ -717,6 +735,9 @@ The repo refresh check does not update canonical `Visualization/graphs/`, `Visua
 | Write repo refresh dry-run bundle | `write_repo_refresh_check`, `repo_relative_path` | `Write-RepoRefreshCheck`, `Get-RepoRelativePath` |
 | Parse bounded graph requests | `parse_bounded_graph_specs`, `parse_bounded_graph_spec` | `ConvertFrom-BoundedGraphSpecs`, `ConvertFrom-BoundedGraphSpec` |
 | Write optional bounded graph bundle | `write_bounded_graphs` | `Write-BoundedGraphs` |
+| Parse bounded page requests | `parse_bounded_page_specs`, `parse_bounded_page_spec` | n/a |
+| Parse and filter bounded character page data | `extract_profile_block`, `parse_profile_yaml`, `filter_profile_rows_for_boundary` | n/a |
+| Write optional bounded page bundle | `write_bounded_pages` | n/a |
 | Guard output path safety | `ensure_safe_output` | `Assert-SafeOutputPath` |
 | Write all export files | `write_export` | `Write-ObsidianExport` |
 | Clean disposable Python caches | `clean_disposable_caches` | n/a |
@@ -725,6 +746,7 @@ The repo refresh check does not update canonical `Visualization/graphs/`, `Visua
 
 - Python invokes `Tools/clean_temp_files.py` at the end of normal runs to remove transient cache folders. PowerShell invokes `Tools/Clean-TempFiles.ps1 -Delete` at the end for the same cleanup behavior.
 - Python loads `Visualization/visualize.py` directly for the unbounded visualization-style graph and repo refresh dry run. PowerShell mirrors the unbounded graph internally, then shells out to `Visualization/visualize.ps1` for the repo refresh dry run.
+- `--bounded-page` is currently Python-only while the bounded-page model is piloted against Dunn's character page. Add PowerShell parity before treating bounded pages as a fully matched script-pair feature.
 - Python has built-in `--help`; PowerShell switch discovery is through the `param(...)` block and this reference.
 
 ### Parity Check Recipe
@@ -771,6 +793,7 @@ This section tracks durable configuration and generated state files that affect 
 
 | File | Kind | Read By | Written By | Purpose | Update When |
 | --- | --- | --- | --- | --- | --- |
+| `requirements-python.txt` | Dependency registry | `Tools/Test-Python.ps1`; human setup via `python -m pip install -r requirements-python.txt` | Maintainers | Defines Python packages required by preferred Python helper scripts. | Add or change entries when a Python helper gains or removes a third-party package dependency. |
 | `Visualization/config/render-settings.json` | Source config | `Visualization/visualize.py`, `Visualization/visualize.ps1`, `Tools/obsidian_qa_export.py`, `Tools/Obsidian-QA-Export.ps1` | Maintainers | Defines canonical graph views, source Mermaid paths, rendered output paths, render dimensions, validation settings, reader-boundary filters, report path, and semantic snapshot path. The Obsidian QA export also derives its local `_Generated/repo-refresh-check/` dry-run settings from this file. | Add or remove repository graph views, change render sizes, adjust validation rules, change reader-boundary behavior, or redirect canonical report/snapshot paths. |
 | `Visualization/config/puppeteer-config.json` | Source config | `Visualization/visualize.py`, `Visualization/visualize.ps1`, Obsidian QA repo-refresh dry-run helpers through visualization tooling | Maintainers | Configures the browser executable, timeout, and launch args used by Mermaid/Puppeteer rendering. | Browser path changes, rendering starts timing out, CI/local environment changes, or Mermaid rendering needs different launch args. |
 | `Visualization/data/refresh-snapshot.json` | Generated semantic state | `Visualization/visualize.py`, `Visualization/visualize.ps1` | `Visualization/visualize.py --mode Refresh`, `Visualization/visualize.ps1 -Mode Refresh` | Stores the last canonical graph semantic snapshot so refresh reports can detect added/removed nodes, relationships, changed labels, duplicates, and other graph hygiene changes. | Update only through a confirmed canonical graph refresh. Do not edit manually except for explicit debugging that is later reverted or regenerated. |
