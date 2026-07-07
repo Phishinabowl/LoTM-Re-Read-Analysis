@@ -306,12 +306,13 @@ Raw counts can mislead when a term is also a job, epithet, or individual label. 
 
 ## Obsidian QA Export
 
-Use `obsidian_qa_export.py` to compile glossary metadata, Relationship Seeds, and YAML data-block references into a generated Obsidian-friendly mirror. The export is a QA view, not a source of truth. Canonical project notes remain under `Glossary_Threads/`, `Investigations/`, `Volumes/`, and related source folders.
+Use `obsidian_qa_export.py` to compile glossary metadata, Relationship Seeds, and YAML data-block references into a generated Obsidian-friendly mirror. It is the preferred implementation when Python is available. If Python is unavailable, use the Windows PowerShell fallback `Obsidian-QA-Export.ps1`. The export is a QA view, not a source of truth. Canonical project notes remain under `Glossary_Threads/`, `Investigations/`, `Volumes/`, and related source folders.
 
 Default output goes to ignored local directory `Obsidian_Export/`:
 
 ```powershell
 python Tools\obsidian_qa_export.py
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1
 ```
 
 The generated structure mirrors active canonical pages by type and adds QA reports:
@@ -358,12 +359,14 @@ Use `--clean` to delete and regenerate the export directory:
 
 ```powershell
 python Tools\obsidian_qa_export.py --clean
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1 -Clean
 ```
 
-Use `--json` when downstream tooling needs summary counts:
+Use `--json` / `-Json` when downstream tooling needs summary counts:
 
 ```powershell
 python Tools\obsidian_qa_export.py --json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1 -Json
 ```
 
 ## EPUB Image Extraction

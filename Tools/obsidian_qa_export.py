@@ -110,6 +110,10 @@ class CanonicalNote:
     def export_folder(self) -> str:
         return TYPE_FOLDERS.get(self.type_name.lower(), "Other")
 
+    @property
+    def export_file_stem(self) -> str:
+        return safe_file_stem(self.title)
+
 
 def configure_output_encoding() -> None:
     if hasattr(sys.stdout, "reconfigure"):
@@ -141,6 +145,12 @@ def normalize_rel_path(path: Path) -> str:
 def slug_to_title(slug: str) -> str:
     cleaned = re.sub(r"^(?:" + "|".join(re.escape(p) for p in SLUG_PREFIXES) + r")-", "", slug)
     return " ".join(part.capitalize() for part in cleaned.split("-") if part)
+
+
+def safe_file_stem(title: str) -> str:
+    cleaned = re.sub(r'[<>:"/\\|?*\x00-\x1f]', "-", title)
+    cleaned = re.sub(r"\s+", " ", cleaned).strip().rstrip(".")
+    return cleaned or "Untitled"
 
 
 def first_heading(text: str, fallback: str) -> str:
@@ -334,14 +344,14 @@ def discover_notes(root: Path, include_stubs: bool) -> tuple[dict[str, Canonical
 def wiki_link(slug: str, notes: dict[str, CanonicalNote]) -> str:
     if slug in notes:
         note = notes[slug]
-        return f"[[{note.export_folder}/{note.title}|{note.title}]]"
+        return f"[[{note.export_folder}/{note.export_file_stem}|{note.title}]]"
     return f"[[{slug_to_title(slug)}]]"
 
 
 def table_wiki_link(slug: str, notes: dict[str, CanonicalNote]) -> str:
     if slug in notes:
         note = notes[slug]
-        return f"[[{note.export_folder}/{note.title}]]"
+        return f"[[{note.export_folder}/{note.export_file_stem}|{note.title}]]"
     return f"[[{slug_to_title(slug)}]]"
 
 
@@ -780,7 +790,7 @@ def write_export(
         (output_dir / folder).mkdir(parents=True, exist_ok=True)
 
     for note in notes.values():
-        (output_dir / note.export_folder / f"{note.title}.md").write_text(
+        (output_dir / note.export_folder / f"{note.export_file_stem}.md").write_text(
             render_note(note, notes, relationships, data_references),
             encoding="utf-8",
         )

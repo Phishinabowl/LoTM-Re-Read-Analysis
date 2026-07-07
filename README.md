@@ -67,7 +67,7 @@ Generated visualization artifacts live in [Visualization](Visualization/README.m
 
 The current GitHub-visible graph is the [Volume 1 Knowledge Graph](Visualization/graphs/volume-1-knowledge-graph.mmd). The graph is generated from glossary relationship seeds and is not the source of truth.
 
-Local Obsidian QA mirrors are generated with [Tools/obsidian_qa_export.py](Tools/obsidian_qa_export.py) into the ignored `Obsidian_Export/` folder. They are compiled inspection views for Obsidian graph review, not canonical records and not GitHub-visible visualization artifacts.
+Local Obsidian QA mirrors are generated with [Tools/obsidian_qa_export.py](Tools/obsidian_qa_export.py), or the PowerShell fallback [Tools/Obsidian-QA-Export.ps1](Tools/Obsidian-QA-Export.ps1) when Python is unavailable, into the ignored `Obsidian_Export/` folder. They are compiled inspection views for Obsidian graph review, not canonical records and not GitHub-visible visualization artifacts.
 
 Graph construction rules shared by maintainer graph work and access-layer AI Agent graph requests live in the [Graph Authoring Standard](Visualization/graph-authoring-standard.md).
 

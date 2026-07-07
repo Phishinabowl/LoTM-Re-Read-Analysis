@@ -35,13 +35,13 @@ During bootstrap, also check and report whether these repository helpers are pre
 
 - EPUB search helpers: `Tools/search_epub.py` preferred, `Tools/Search-Epub.ps1` fallback;
 - visualization helpers: `Visualization/visualize.py` preferred, `Visualization/visualize.ps1` PowerShell fallback;
-- Obsidian QA export helper: `Tools/obsidian_qa_export.py`;
+- Obsidian QA export helper: `Tools/obsidian_qa_export.py` preferred, `Tools/Obsidian-QA-Export.ps1` PowerShell fallback;
 - Mermaid browser config: `Visualization/config/puppeteer-config.json`;
 - shared render settings: `Visualization/config/render-settings.json`.
 
 If the visualization helpers or config are missing, report that repository visualization rendering is degraded. Do not call direct `mmdc` equivalent to the repository render workflow when the helper scripts are unavailable.
 
-If `Tools/obsidian_qa_export.py` is missing, report that local Obsidian QA mirror generation is unavailable. This does not degrade the canonical repository visualization workflow.
+If both Obsidian QA export helpers are missing, report that local Obsidian QA mirror generation is unavailable. This does not degrade the canonical repository visualization workflow.
 
 The active operating contract for repository-answering behavior is:
 

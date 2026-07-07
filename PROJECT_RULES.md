@@ -248,6 +248,18 @@ If the probe reports Python unavailable, use documented PowerShell fallbacks for
 
 PowerShell fallback commands use `powershell` and should remain compatible with Windows PowerShell 5.1 unless a tool explicitly documents a `pwsh` / PowerShell 7 requirement.
 
+For local Obsidian QA mirror generation, prefer the Python helper when Python is available:
+
+```powershell
+python Tools\obsidian_qa_export.py --clean
+```
+
+Use the PowerShell fallback only when Python is unavailable:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1 -Clean
+```
+
 For disposable local tool caches, use the repository cleanup helper rather than ad hoc recursive deletion. Prefer the Python helper when Python is available:
 
 ```powershell
