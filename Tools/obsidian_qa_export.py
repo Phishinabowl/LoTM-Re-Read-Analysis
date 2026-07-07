@@ -811,6 +811,19 @@ def write_export(
     (generated_dir / "suspicious-edges.md").write_text(render_suspicious_edges(notes, relationships), encoding="utf-8")
 
 
+def clean_disposable_caches(root: Path) -> None:
+    try:
+        clean_path = root / "Tools" / "clean_temp_files.py"
+        spec = importlib.util.spec_from_file_location("_lotm_clean_temp_files", clean_path)
+        if spec is None or spec.loader is None:
+            return
+        cleaner = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cleaner)
+        cleaner.clean_cache_dirs(cleaner.find_cache_dirs(root))
+    except Exception:
+        return
+
+
 def main() -> int:
     configure_output_encoding()
     args = build_parser().parse_args()
@@ -850,6 +863,7 @@ def main() -> int:
             f"{summary['duplicate_edge_groups']} duplicate edge groups, "
             f"{summary['missing_reciprocals']} missing expected reciprocals."
         )
+    clean_disposable_caches(root)
     return 0
 
 

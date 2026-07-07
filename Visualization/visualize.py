@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import html
+import importlib.util
 import json
 import math
 import os
@@ -1088,18 +1089,34 @@ def parse_args() -> argparse.Namespace:
     return args
 
 
+def clean_disposable_caches() -> None:
+    try:
+        clean_path = REPO_ROOT / "Tools" / "clean_temp_files.py"
+        spec = importlib.util.spec_from_file_location("_lotm_clean_temp_files", clean_path)
+        if spec is None or spec.loader is None:
+            return
+        cleaner = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cleaner)
+        cleaner.clean_cache_dirs(cleaner.find_cache_dirs(REPO_ROOT))
+    except Exception:
+        return
+
+
 def main() -> None:
     args = parse_args()
     os.chdir(REPO_ROOT)
     settings = load_visualization_settings(args.settings_path)
     puppeteer_config = resolve_repo_path(settings["puppeteerConfig"])
 
-    if args.mode == "render":
-        invoke_render_mode(settings, puppeteer_config, args.input_path, args.output_paths)
-    elif args.mode == "validate":
-        invoke_validate_mode(settings)
-    else:
-        invoke_refresh_mode(settings, puppeteer_config, args.skip_render)
+    try:
+        if args.mode == "render":
+            invoke_render_mode(settings, puppeteer_config, args.input_path, args.output_paths)
+        elif args.mode == "validate":
+            invoke_validate_mode(settings)
+        else:
+            invoke_refresh_mode(settings, puppeteer_config, args.skip_render)
+    finally:
+        clean_disposable_caches()
 
 
 if __name__ == "__main__":
