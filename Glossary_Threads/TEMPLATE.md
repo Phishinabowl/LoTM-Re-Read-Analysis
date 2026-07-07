@@ -38,7 +38,7 @@ artifact-0-08.md
 character-azik-eggers.md
 family-medici.md
 faction-rose-school-of-thought.md
-item-aziks-copper-whistle.md
+item-copper-whistle.md
 source-roselle-diary-pages.md
 concept-gray-fog.md
 event-great-smog.md

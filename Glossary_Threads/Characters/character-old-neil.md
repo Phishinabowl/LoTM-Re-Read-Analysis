@@ -23,6 +23,7 @@ Related Threads:
 - [Prayers & Rituals](../Concepts/concept-prayers-and-rituals.md)
 - [Seer Pathway](../Pathways/pathway-seer.md)
 - [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
+- source-roselle-diary-pages.md
 
 Related Investigations:
 - [Old Neil Novel Volume 1 Reveal Timeline](../../Investigations/Characters/character-old-neil/novel-volume-1-reveal-timeline.md)
@@ -148,7 +149,7 @@ Through Chapter 47, he gives the Nighthawks' support structure a warmer, strange
 |---|---|---|---|---|---|---|---|
 | Historical materials / documents | Knowledge-work materials | Data-only | Novel V1 Ch40-47 | Supplies or manages access | None | Confirmed | Old Neil provides materials and context for Klein's work. |
 | Seer formula and potion materials | Formula/material set | Data-only | Novel V1 Ch31 | Retrieved/prepared, not owned | Local event support | Confirmed | Old Neil handles the materials for Klein's advancement; no standalone item page needed yet. |
-| Roselle diary pages | Document / knowledge-source corpus | Source-page candidate | Novel V1 Ch20-21 | Handles or provides access | Local pending source hub | Confirmed | Old Neil's office is Klein's first contact point for the diary material; model as a future Source page rather than an Item page. |
+| Roselle diary pages | Document / knowledge-source corpus | source-roselle-diary-pages.md | Novel V1 Ch20-21 | Handles or provides access | Full pending source hub | Confirmed | Old Neil's office is Klein's first contact point for the diary material; model as a pending Knowledge Source page rather than an Item page. |
 
 ## Personality
 
@@ -166,6 +167,7 @@ Through Chapter 47, he gives the Nighthawks' support structure a warmer, strange
 | Dunn Smith | Subordinate / colleague | Novel V1 Ch19 / Ch45 | Current at boundary | Confirmed | Dunn names Old Neil as staff and later brings him into the field response. |
 | Seer pathway | Formula/material event participant | Novel V1 Ch31 | Completed event connection | Confirmed | Old Neil prepares Klein's Seer potion. |
 | Mystery Pryer pathway | Pathway-status connection | Novel V1 Ch22 / Ch28 | Current at boundary | Confirmed | Old Neil is reader-safe as a Mystery Pryer. |
+| Roselle diary pages | Handles / provides access to knowledge source | Novel V1 Ch20-21 | Current at boundary | Confirmed | Old Neil's office is Klein's first reader-safe access point for the diary material; full claim details belong on the pending Knowledge Source page. |
 
 ## Messenger / Servants / Companions
 
@@ -293,6 +295,10 @@ Through Chapter 47, he gives the Nighthawks' support structure a warmer, strange
 ### Associated Artifacts
 
 - [Antigonus Notebook](../Artifacts/artifact-antigonus-notebook.md)
+
+### Associated Knowledge Sources
+
+- source-roselle-diary-pages.md
 
 ### Associated Factions
 
@@ -656,6 +662,7 @@ character_profile:
       notes: Prepares Klein's Seer potion in the alchemy room.
     - ability: roselle-diary-document-handling
       source: knowledge-work-specialty
+      target: source-roselle-diary-pages
       status: current-at-boundary
       confidence: confirmed
       availability:
@@ -663,6 +670,7 @@ character_profile:
           from: { book: lotm-1, volume: 1, chapter: 20 }
           status: current-at-boundary
           confidence: confirmed
+          target: source-roselle-diary-pages
       notes: Old Neil becomes the first Roselle diary contact point.
   equipment_artifacts:
     - item: Historical materials / documents
@@ -701,22 +709,23 @@ character_profile:
           graph_visibility: full
       notes: Handles the materials for Klein's advancement.
     - item: Roselle diary pages
-      target:
+      target: source-roselle-diary-pages
       type: document-knowledge-source-corpus
       possession_status: handles-or-provides-access
       item_significance: major
-      graph_relevance: local
-      page_worthiness: candidate
+      graph_relevance: full
+      page_worthiness: dedicated-page
       confidence: confirmed
       availability:
         - medium: novel
           from: { book: lotm-1, volume: 1, chapter: 20 }
           possession_status: handles-or-provides-access
           item_significance: major
-          graph_relevance: local
-          page_worthiness: candidate
+          graph_relevance: full
+          page_worthiness: dedicated-page
           confidence: confirmed
-      notes: Old Neil's office is Klein's first contact point for the diary material; keep as a Source-page candidate rather than an Item page.
+          graph_visibility: full
+      notes: Old Neil's office is Klein's first contact point for the diary material; model as a pending Knowledge Source page rather than an Item page.
   personality:
     - trait: grumbling-but-reliable-veteran
       evidence: Joins field response after Kenley covers his armory watch.
@@ -792,6 +801,17 @@ character_profile:
           confidence: confirmed
           graph_visibility: full
       notes: Old Neil is reader-safe as a Mystery Pryer.
+    - target: source-roselle-diary-pages
+      relationship: handles-provides-access-to-knowledge-source
+      status: current-at-boundary
+      confidence: confirmed
+      availability:
+        - medium: novel
+          from: { book: lotm-1, volume: 1, chapter: 20 }
+          status: current-at-boundary
+          confidence: confirmed
+          graph_visibility: full
+      notes: Old Neil's office is Klein's first reader-safe access point for the diary material; full claim details belong on the pending Knowledge Source page.
   messengers_servants_companions:
     - entity: None known
       type: messenger-servant-companion
@@ -832,12 +852,14 @@ character_profile:
       notes: Old Neil identifies the effect but is not confirmed as its creator.
   major_events_fights:
     - event: Roselle diary workplace contact
+      target: source-roselle-diary-pages
       role: knowledge-work-contact
       outcome_status: active-knowledge-thread
       confidence: confirmed
       availability:
         - medium: novel
           from: { book: lotm-1, volume: 1, chapter: 20 }
+          target: source-roselle-diary-pages
           outcome_status: active-knowledge-thread
           confidence: confirmed
       notes: Old Neil's office anchors Klein's first diary contact.
@@ -1019,6 +1041,21 @@ relationships:
     default_hidden_source_behavior: hide
     default_hidden_target_behavior: hide
     notes: Old Neil is the current reader-safe source for ritualistic-magic context and later identifies a ritual-like sealing effect at the Ray Bieber scene.
+  - source: source-roselle-diary-pages
+    target: character-old-neil
+    relationship_type: handled-by
+    start:
+      medium: novel
+      volume: 1
+      chapter: 20
+    status: active
+    confidence: confirmed
+    projection_owner: target-page
+    projection_scope: canonical
+    projection_source: character_profile.equipment_artifacts[source-roselle-diary-pages]
+    default_hidden_source_behavior: hide
+    default_hidden_target_behavior: hide
+    notes: Old Neil's office is Klein's first reader-safe access point for Roselle diary material; the pending Knowledge Source page should later own source-as-source claim entries.
 ```
 
 ## Evidence Index
@@ -1117,7 +1154,7 @@ tags:
   - reader-knowledge
   - reveal-order
   - character
-  - artifact
+  - knowledge-source
   - concept
 disclosures:
   - medium: novel

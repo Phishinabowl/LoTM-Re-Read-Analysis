@@ -378,7 +378,7 @@ character-amon.md
 family-antigonus.md
 family-medici.md
 faction-rose-school-of-thought.md
-item-aziks-copper-whistle.md
+item-copper-whistle.md
 source-roselle-diary-pages.md
 concept-gray-fog.md
 event-great-smog.md
@@ -395,7 +395,7 @@ timeline-ian-zreal-chain.md
 
 If a thread fits multiple categories, choose the category that best matches the analytical purpose of the file.
 
-Use `item-[name].md` for named, recurring, graph-worthy possessions, tools, badges, keys, weapons, instruments, or other important objects that are not best modeled as formal supernatural artifacts or knowledge sources. Item pages are for objects that become independent relationship hubs or recurring reader-facing subjects, such as Azik's copper whistle. Do not create item pages for ordinary disposable inventory, temporary equipment, one-scene props, or recurring texts whose main function is revealing information.
+Use `item-[name].md` for named, recurring, graph-worthy possessions, tools, badges, keys, weapons, instruments, or other important objects that are not best modeled as formal supernatural artifacts or knowledge sources. Item pages are for objects that become independent relationship hubs or recurring reader-facing subjects, such as the copper whistle; ownership, custody, and source-holder details belong in the item data block rather than in the filename. Do not create item pages for ordinary disposable inventory, temporary equipment, one-scene props, or recurring texts whose main function is revealing information.
 
 Use `source-[name].md` for recurring knowledge carriers whose analytical purpose is revealing, preserving, transmitting, translating, or misdirecting information over time. Knowledge Source pages are for diary-page corpora, spellbooks, grimoires, notebooks, scriptures, case files, letters, inscriptions, formula records, murals, records, or similar sources where the important thing is the sequence of claims, quotes, access points, readers, handlers, and interpretations. Do not create a Knowledge Source page for every ordinary document mention; use one when the source is a recurring reveal hub or needs its own chronology of knowledge entries.
 
@@ -448,7 +448,7 @@ Retain the entity-type filename prefix inside the matching folder. For example:
 ```text
 Glossary_Threads/Characters/character-amon.md
 Glossary_Threads/Artifacts/artifact-0-08.md
-Glossary_Threads/Items/item-aziks-copper-whistle.md
+Glossary_Threads/Items/item-copper-whistle.md
 Glossary_Threads/Knowledge_Sources/source-roselle-diary-pages.md
 Glossary_Threads/Deities/deity-s0-evernight-goddess.md
 Glossary_Threads/Uniquenesses/uniqueness-die-of-probability.md
@@ -885,7 +885,7 @@ Default ownership rules:
 - **Concept relationships**: put `mechanic-of`, `instance-of`, `trains-in`, `requires-practice`, `uses-method`, and `access-route-to` on the source page when the source exists. A concept page may own seeds only when the concept itself is the graph center or the source page does not yet exist.
 - **Item and equipment relationships**: put `possesses-item` on the character, faction, location, or other holder page when that entity is the source and the item is the target. Put item-as-source seeds on the item page when the item itself enables, accesses, calls, identifies, unlocks, explains, or otherwise relates to a concept, system, event, user, or function. Do not seed every equipment row; seed only rows whose `graph_relevance` is `full`, or `local` when the graph view is explicitly maintainer/local.
 - **Knowledge source relationships**: put source-as-source seeds on the Knowledge Source page when the source reveals, records, describes, contains, misleads about, or transmits a claim, concept, event, formula, entity, or system. Put reader/handler/access edges on the character, faction, location, or event page when that page is the natural source and the relationship is about access, handling, reading, custody, or interpretation at the reader boundary. Do not model a recurring knowledge source as an Item merely because it is physically held.
-- **Provisional hub seeds**: if the natural source page does not exist yet, a faction, pathway, event, concept, location, or artifact page may temporarily own a seed so the graph can show the edge. Mark that seed `projection_scope: provisional` and migrate or remove it when the natural owner page is created.
+- **Provisional semantic-hub seeds**: if a graph-worthy source or target page does not exist yet, an existing semantic hub page may temporarily host a seed so QA graphs can show the pending endpoint. The relationship itself must be true to the hub's subject, not merely co-located with evidence on that page. Mark the seed `projection_scope: provisional`, omit `projection_source` until a stable data row exists, and migrate or remove the seed when the natural owner page is created. Examples: a prayers/rituals concept page may temporarily host `item-copper-whistle -> concept-prayers-and-rituals` because the item is an access object for ritual mechanics; an artifact page should not host that edge merely because an adaptation evidence note on the artifact page mentions the whistle.
 
 Exact duplicate seeds across owner pages should be treated as QA findings unless they are explicitly provisional, represent different relationship types, or record a real reader-state/modeling conflict that needs resolution.
 
