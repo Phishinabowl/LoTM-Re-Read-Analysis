@@ -162,6 +162,8 @@ Use Markdown links when the target file exists, with the target document's human
 
 This block is the structured page-local state model for recurring knowledge carriers. Use metadata, not this data block, for page-level `Subject Visible From`. Use row-level `availability` for source identity, access, interpretation, and claim entries that change by medium or reader position.
 
+Structured taxonomy values are not final website prose. Use kebab-case values for filtering, grouping, graphing, access-chain logic, and claim-state logic; use human-written fields such as `summary`, `notes`, `claim_text`, `evidence`, or future `site_summary` / `display_text` fields for sentences that may be shown directly to readers. Future renderers should map reusable values through display labels and use prose fields for article voice.
+
 ```yaml
 knowledge_source_profile:
   reader_boundary:

@@ -2,7 +2,7 @@
 
 This folder contains reusable local helpers for project maintenance and source verification.
 
-For switch-by-switch maps, function-pipeline notes, side effects, and parity checks for maintained helper scripts, see [Tooling Reference](TOOLING_REFERENCE.md). That reference should be extended whenever another tool is audited.
+For switch-by-switch maps, function-pipeline notes, side effects, parity checks, and durable config/state files for maintained helper scripts, see [Tooling Reference](TOOLING_REFERENCE.md). That reference should be extended whenever another tool is audited or a tool starts reading a new shared config file.
 
 ## Environment Checks
 

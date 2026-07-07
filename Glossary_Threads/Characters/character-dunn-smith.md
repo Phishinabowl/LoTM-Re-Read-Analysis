@@ -215,17 +215,18 @@ At this reader boundary, Dunn feels like the local center of gravity for the Chu
 
 ## Major Events & Fights
 
-| Event / fight | Role | First reveal / occurrence | Outcome / status | Confidence | Notes |
-|---|---|---|---|---|---|
-| Welch / Naya investigation | Police-cover investigator / Nighthawk investigator | Novel V1 Ch10-13 | Ongoing case foundation | Confirmed | Dunn's first arc connects ordinary investigation to the supernatural notebook case. |
-| Klein Becomes a Seer | Authorizer / supervising authority | Novel V1 Ch28-31 | Completed | Confirmed | Dunn offers and authorizes Klein's potion opportunity. |
-| Antigonus notebook / Ray Bieber field response | Field commander | Novel V1 Ch45-47 | Active and unresolved at boundary | Confirmed | Dunn mobilizes the team around Klein's divination lead. |
+| Event / fight | Event type | Event part | Role | First reveal / occurrence | Outcome / status | Confidence | Notes |
+|---|---|---|---|---|---|---|---|
+| Welch / Naya investigation | Investigation | Opening case foundation | Police-cover investigator / Nighthawk investigator | Novel V1 Ch10-13 | Ongoing case foundation | Confirmed | Dunn's first arc connects ordinary investigation to the supernatural notebook case. |
+| [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md) | Pathway advancement | Authorization and supervision | Authorizer / supervising authority | Novel V1 Ch28-31 | Completed | Confirmed | Dunn offers and authorizes Klein's potion opportunity. |
+| Antigonus notebook / Ray Bieber field response | Field response | Notebook lead deployment | Field commander | Novel V1 Ch45-47 | Active and unresolved at boundary | Confirmed | Dunn mobilizes the team around Klein's divination lead. |
 
 ## Chronological Development
 
 ### Novel
 
 #### Chapter 10: Police-Cover Investigator
+<!-- timeline_id: dunn-police-cover-investigator -->
 
 - What the reader learns: Dunn appears as an unnamed gray-eyed police inspector connected to Welch and Naya's deaths.
 - What changes: Klein's private death-scene mystery becomes an official investigation.
@@ -233,6 +234,7 @@ At this reader boundary, Dunn feels like the local center of gravity for the Chu
 - Why it matters: Dunn begins as the face of legitimate authority before the reader learns that authority is supernatural and Church-linked.
 
 #### Chapter 12: Dunn Smith Named and Dream-Tested
+<!-- timeline_id: dunn-named-dream-tested -->
 
 - What the reader learns: The gray-eyed inspector is named Dunn Smith. He confronts Klein with carriage-driver evidence, Welch's missing revolver, and then appears inside a dream/nightmare escape sequence.
 - What changes: Dunn becomes more than a normal police investigator before the text has fully explained why.
@@ -240,6 +242,7 @@ At this reader boundary, Dunn feels like the local center of gravity for the Chu
 - Why it matters: The reader gets Dunn's name and first supernatural-feeling action before the official Nighthawk explanation.
 
 #### Chapter 13: Nighthawk Reveal and Notebook Case
+<!-- timeline_id: dunn-nighthawk-reveal-notebook-case -->
 
 - What the reader learns: Dunn reintroduces himself as a Nighthawk, clarifies that he entered and guided Klein's dream, identifies the missing Antigonus family notebook as central to the case, and frames Klein as the only surviving lead.
 - What changes: Dunn shifts from apparent police investigator to supernatural investigator.
@@ -247,6 +250,7 @@ At this reader boundary, Dunn feels like the local center of gravity for the Chu
 - Why it matters: Dunn becomes the reader's first direct bridge into the Church's official Beyonder response system.
 
 #### Chapters 14-17: Recruitment Logic, Confidentiality, and Blackthorn
+<!-- timeline_id: dunn-recruitment-confidentiality-blackthorn -->
 
 - What the reader learns: Dunn clears Klein after Daly's examination, warns him not to reveal the case, explains that civilian staff are still "one of us," lays out why Klein can be recruited, and gives practical terms for confidential employment.
 - What changes: Dunn becomes Klein's recruiter and handler rather than only an investigator.
@@ -254,6 +258,7 @@ At this reader boundary, Dunn feels like the local center of gravity for the Chu
 - Why it matters: Dunn turns supernatural secrecy into an employment system: exposure logic, salary, contract, confidentiality, shifts, and hidden contact routes.
 
 #### Chapters 17-18: Blackthorn, Special Operations, and Official Beyonder Doctrine
+<!-- timeline_id: dunn-blackthorn-special-operations-beyonder-doctrine -->
 
 - What the reader learns: Dunn confirms Blackthorn Security Company as a disguise, shows the Seventh Unit/Special Operations police cover, gives the Tingen team size, and explains Beyonders, potions, Sequences, advancement danger, and loss of control.
 - What changes: Dunn becomes Klein's primary institutional explainer.
@@ -261,6 +266,7 @@ At this reader boundary, Dunn feels like the local center of gravity for the Chu
 - Why it matters: Dunn turns the setting's hidden supernatural system into workplace procedure: cover identities, contracts, authority, danger, and supervision.
 
 #### Chapters 19-22: Team Structure, Sealed Artifacts, and Pathway Clues
+<!-- timeline_id: dunn-team-structure-sealed-artifacts-pathway-clues -->
 
 - What the reader learns: Dunn assigns Klein's early duties, explains Chanis Gate, formal Nighthawk rotations, Keepers, classified records, magical materials, prisoners, Sealed Artifact grades, 0-08's basic appearance, and local pathway context. By Chapter 22, the reader can strongly infer Dunn is on the Sleepless pathway and associated with `Nightmare`.
 - What changes: Dunn's role expands from recruiter to captain managing staff, dangerous knowledge, artifacts, and Nighthawk pathway information.
@@ -268,6 +274,7 @@ At this reader boundary, Dunn feels like the local center of gravity for the Chu
 - Why it matters: Dunn anchors the Nighthawks as a dangerous but bureaucratically controlled institution.
 
 #### Chapters 24-28: Secret Order Pressure and Beyonder Opportunity
+<!-- timeline_id: dunn-secret-order-pressure-beyonder-opportunity -->
 
 - What the reader learns: Dunn continues the Antigonus notebook investigation, identifies the Secret Order background of the intruder, enters Klein's dream again to coordinate against the intruder, and offers Klein a Church-supported Beyonder chance because of his contribution, exposure to danger, and possible usefulness in finding the notebook.
 - What changes: Dunn's leadership becomes adaptive: Klein is no longer just a protected witness or clerk, but a potential controlled asset.
@@ -275,6 +282,7 @@ At this reader boundary, Dunn feels like the local center of gravity for the Chu
 - Why it matters: Dunn is the person who converts danger exposure into institutional advancement.
 
 #### Chapters 29-33: Pathway Choice, Potion Boundary, and Safety Doctrine
+<!-- timeline_id: dunn-pathway-choice-potion-boundary-safety-doctrine -->
 
 - What the reader learns: Dunn explains Seer tradeoffs, gives Klein time to decide, accepts Klein's choice, warns that consuming the potion is irreversible, takes Klein into the hidden facilities, keeps Klein as civilian staff rather than a formal Nighthawk, and reinforces safety limits after Klein's advancement.
 - What changes: Dunn becomes the authorizer of Klein's first major supernatural status change.
@@ -282,6 +290,7 @@ At this reader boundary, Dunn feels like the local center of gravity for the Chu
 - Why it matters: Dunn's authority is protective and procedural: he enables Klein's advancement while preserving boundaries.
 
 #### Chapters 37-41: Resource Approval and External Monitoring
+<!-- timeline_id: dunn-resource-approval-external-monitoring -->
 
 - What the reader learns: Dunn can approve equipment, ammunition, practice, and external monitoring expenses, including Klein's Divination Club work when framed as occult-adjacent surveillance. Chapter 41 also shows Dunn folding Klein's request into Church/police quarterly funding.
 - What changes: Dunn's captain role extends beyond Blackthorn into controlled use of civilian spaces.
@@ -289,6 +298,7 @@ At this reader boundary, Dunn feels like the local center of gravity for the Chu
 - Why it matters: Dunn shows how Nighthawk leadership translates supernatural risk into mundane administration.
 
 #### Chapters 42-47: Deployment Snapshot and Field Command
+<!-- timeline_id: dunn-deployment-snapshot-field-command -->
 
 - What the reader learns: Dunn is sometimes away on cathedral business, manages a thinly spread team, and mobilizes Leonard, Old Neil, Frye, and Klein around Klein's Antigonus notebook lead. He coordinates field response through Blackthorn, the Special Operations cover, and ordinary police at the scene. Chapter 45 also confirms Dunn as an advanced Sleepless.
 - What changes: Dunn becomes visible as active commander rather than only office authority, and his Sleepless pathway affiliation moves from strong inference to confirmed.
@@ -298,6 +308,7 @@ At this reader boundary, Dunn feels like the local center of gravity for the Chu
 ### Donghua
 
 #### Season 1: Foundation Pending
+<!-- timeline_id: dunn-donghua-foundation-pending -->
 
 - Timestamp: TBD
 - What the viewer learns: Not yet verified.
@@ -889,38 +900,373 @@ character_profile:
       notes: Dunn explains and participates in supernatural systems, but no prayer wording or ritual address is tied to him through Chapter 47.
   major_events_fights:
     - event: Welch / Naya investigation
+      event_type: investigation
+      event_part: opening-case-foundation
       role: police-cover-investigator-nighthawk-investigator
       outcome_status: ongoing-case-foundation
       confidence: confirmed
       availability:
         - medium: novel
           from: { book: lotm-1, volume: 1, chapter: 10 }
+          event_type: investigation
+          event_part: opening-case-foundation
           outcome_status: ongoing-case-foundation
           confidence: confirmed
           graph_visibility: full
       notes: Dunn's first arc connects ordinary investigation to the supernatural notebook case.
-    - event: Klein Becomes a Seer
+    - event: event-klein-becomes-a-seer
+      event_type: pathway-advancement
+      event_part: authorization-and-supervision
       role: authorizer-supervising-authority
       outcome_status: completed
       confidence: confirmed
       availability:
         - medium: novel
           from: { book: lotm-1, volume: 1, chapter: 28 }
+          event_type: pathway-advancement
+          event_part: authorization-and-supervision
           outcome_status: completed
           confidence: confirmed
           graph_visibility: full
       notes: Dunn offers and authorizes Klein's potion opportunity.
     - event: Antigonus notebook / Ray Bieber field response
+      event_type: field-response
+      event_part: notebook-lead-deployment
       role: field-commander
       outcome_status: active-unresolved-at-boundary
       confidence: confirmed
       availability:
         - medium: novel
           from: { book: lotm-1, volume: 1, chapter: 45 }
+          event_type: field-response
+          event_part: notebook-lead-deployment
           outcome_status: active-unresolved-at-boundary
           confidence: confirmed
           graph_visibility: full
       notes: Dunn mobilizes the team around Klein's divination lead.
+  timeline_entries:
+    - id: dunn-police-cover-investigator
+      title: Police-Cover Investigator
+      medium: novel
+      from: { book: lotm-1, volume: 1, chapter: 10 }
+      to: { book: lotm-1, volume: 1, chapter: 10 }
+      visibility:
+        from: { medium: novel, book: lotm-1, volume: 1, chapter: 10 }
+      entry_type: investigation
+      summary: Dunn appears as an unnamed gray-eyed police inspector connected to Welch and Naya's deaths.
+      reader_learns:
+        - Dunn first appears as an unnamed police-cover investigator.
+      changes:
+        - Klein's private death-scene mystery becomes an official investigation.
+      remains_unknown:
+        - Dunn's name, Church identity, Beyonder status, pathway, rank, and motives are hidden.
+      why_it_matters: Dunn begins as legitimate authority before the reader learns that authority is supernatural and Church-linked.
+      related_entities:
+        - character-klein-moretti
+      related_claims:
+        - dunn-police-cover-investigator
+      source_refs:
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 10
+    - id: dunn-named-dream-tested
+      title: Dunn Smith Named and Dream-Tested
+      medium: novel
+      from: { book: lotm-1, volume: 1, chapter: 12 }
+      to: { book: lotm-1, volume: 1, chapter: 12 }
+      visibility:
+        from: { medium: novel, book: lotm-1, volume: 1, chapter: 12 }
+      entry_type: identity-reveal
+      summary: The gray-eyed inspector is named Dunn Smith and appears inside a dream/nightmare escape sequence.
+      reader_learns:
+        - Dunn's name.
+        - Dunn is more than a normal police investigator.
+      changes:
+        - Dunn's role shifts from ordinary authority to supernatural-feeling investigator.
+      remains_unknown:
+        - His Nighthawk identity, Church role, and pathway are still not explicit.
+      why_it_matters: The reader gets Dunn's name and first supernatural-feeling action before the official Nighthawk explanation.
+      related_entities:
+        - character-klein-moretti
+      source_refs:
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 12
+    - id: dunn-nighthawk-reveal-notebook-case
+      title: Nighthawk Reveal and Notebook Case
+      medium: novel
+      from: { book: lotm-1, volume: 1, chapter: 13 }
+      to: { book: lotm-1, volume: 1, chapter: 13 }
+      visibility:
+        from: { medium: novel, book: lotm-1, volume: 1, chapter: 13 }
+      entry_type: faction-reveal
+      summary: Dunn reintroduces himself as a Nighthawk and identifies the missing Antigonus family notebook as central to the case.
+      reader_learns:
+        - Dunn is a Nighthawk.
+        - Dunn entered and guided Klein's dream.
+        - The Antigonus family notebook is central to the opening case.
+      changes:
+        - Dunn shifts from apparent police investigator to supernatural investigator.
+      remains_unknown:
+        - The full Nighthawks organization, Dunn's pathway, and the notebook's deeper importance remain unclear.
+      why_it_matters: Dunn becomes the reader's first direct bridge into the Church's official Beyonder response system.
+      related_entities:
+        - character-klein-moretti
+        - artifact-antigonus-notebook
+        - faction-nighthawks
+      related_claims:
+        - dunn-police-cover-investigator
+      source_refs:
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 13
+    - id: dunn-recruitment-confidentiality-blackthorn
+      title: Recruitment Logic, Confidentiality, and Blackthorn
+      medium: novel
+      from: { book: lotm-1, volume: 1, chapter: 14 }
+      to: { book: lotm-1, volume: 1, chapter: 17 }
+      visibility:
+        from: { medium: novel, book: lotm-1, volume: 1, chapter: 14 }
+      entry_type: recruitment
+      summary: Dunn clears Klein after Daly's examination, explains confidentiality, and gives practical terms for confidential employment.
+      reader_learns:
+        - Dunn can recruit exposed civilians into Nighthawk-adjacent work.
+        - Civilian staff are still treated as part of the hidden system.
+      changes:
+        - Dunn becomes Klein's recruiter and handler rather than only an investigator.
+      remains_unknown:
+        - Dunn's full ability set, complete pathway, and full internal hierarchy remain unknown.
+      why_it_matters: Dunn turns supernatural secrecy into an employment system with salary, contract, confidentiality, shifts, and hidden contact routes.
+      related_entities:
+        - character-klein-moretti
+        - location-blackthorn-security-company
+      related_claims:
+        - dunn-recruits-klein-civilian-staff
+      source_refs:
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 14
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 17
+    - id: dunn-blackthorn-special-operations-beyonder-doctrine
+      title: Blackthorn, Special Operations, and Official Beyonder Doctrine
+      medium: novel
+      from: { book: lotm-1, volume: 1, chapter: 17 }
+      to: { book: lotm-1, volume: 1, chapter: 18 }
+      visibility:
+        from: { medium: novel, book: lotm-1, volume: 1, chapter: 17 }
+      entry_type: doctrine-explanation
+      summary: Dunn confirms the Blackthorn cover, Special Operations police disguise, team scale, and official Beyonder doctrine.
+      reader_learns:
+        - Blackthorn Security Company is a disguise.
+        - Dunn leads the local team under police-cover structures.
+        - Beyonders, potions, Sequences, advancement danger, and loss of control are official Church concerns.
+      changes:
+        - Dunn becomes Klein's primary institutional explainer.
+      remains_unknown:
+        - Dunn's own full ability set, complete pathway, and full internal hierarchy remain unknown.
+      why_it_matters: Dunn turns the hidden supernatural system into workplace procedure.
+      related_entities:
+        - character-klein-moretti
+        - location-blackthorn-security-company
+        - concept-beyonders
+      related_claims:
+        - dunn-tingen-nighthawks-captain
+        - dunn-explains-official-beyonder-doctrine
+      source_refs:
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 17
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 18
+    - id: dunn-team-structure-sealed-artifacts-pathway-clues
+      title: Team Structure, Sealed Artifacts, and Pathway Clues
+      medium: novel
+      from: { book: lotm-1, volume: 1, chapter: 19 }
+      to: { book: lotm-1, volume: 1, chapter: 22 }
+      visibility:
+        from: { medium: novel, book: lotm-1, volume: 1, chapter: 19 }
+      entry_type: institutional-context
+      summary: Dunn assigns Klein's duties and explains team rotations, Chanis Gate, Sealed Artifact grades, 0-08's basic appearance, and local pathway context.
+      reader_learns:
+        - Dunn manages staff, dangerous knowledge, artifacts, and classified pathway context.
+        - By Chapter 22, Dunn can be strongly inferred as Sleepless and associated with Nightmare.
+      changes:
+        - Dunn's role expands from recruiter to captain managing hazardous institutional systems.
+      remains_unknown:
+        - Dunn's pathway affiliation and exact Sequence are still inferential, and 0-08's function remains unknown.
+      why_it_matters: Dunn anchors the Nighthawks as dangerous but bureaucratically controlled.
+      related_entities:
+        - character-klein-moretti
+        - pathway-sleepless
+        - artifact-0-08
+      related_claims:
+        - dunn-nightmare-pathway-inference
+      source_refs:
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 19
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 22
+    - id: dunn-secret-order-pressure-beyonder-opportunity
+      title: Secret Order Pressure and Beyonder Opportunity
+      medium: novel
+      from: { book: lotm-1, volume: 1, chapter: 24 }
+      to: { book: lotm-1, volume: 1, chapter: 28 }
+      visibility:
+        from: { medium: novel, book: lotm-1, volume: 1, chapter: 24 }
+      entry_type: opportunity
+      summary: Dunn continues the notebook investigation, identifies Secret Order pressure, coordinates against the intruder, and offers Klein a Church-supported Beyonder chance.
+      reader_learns:
+        - Dunn can convert danger exposure and contribution into a controlled Beyonder opportunity.
+      changes:
+        - Klein becomes a potential controlled asset rather than only a protected witness or clerk.
+      remains_unknown:
+        - Which pathway Klein will choose and how Dunn will classify him afterward remain unresolved.
+      why_it_matters: Dunn is the person who converts danger exposure into institutional advancement.
+      related_entities:
+        - character-klein-moretti
+        - artifact-antigonus-notebook
+      related_claims:
+        - dunn-authorizes-klein-seer-event
+      related_events:
+        - event-klein-becomes-a-seer
+      source_refs:
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 24
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 28
+    - id: dunn-pathway-choice-potion-boundary-safety-doctrine
+      title: Pathway Choice, Potion Boundary, and Safety Doctrine
+      medium: novel
+      from: { book: lotm-1, volume: 1, chapter: 29 }
+      to: { book: lotm-1, volume: 1, chapter: 33 }
+      visibility:
+        from: { medium: novel, book: lotm-1, volume: 1, chapter: 29 }
+      entry_type: pathway-advancement
+      summary: Dunn explains Seer tradeoffs, accepts Klein's choice, warns that consuming the potion is irreversible, and reinforces safety limits after advancement.
+      reader_learns:
+        - Dunn authorizes Klein's first major supernatural status change.
+        - Dunn keeps Klein as civilian staff rather than a formal Nighthawk after the advancement.
+      changes:
+        - Klein becomes a Seer under Dunn's supervision.
+      remains_unknown:
+        - Dunn's deeper personal views and the long-term consequences of Klein's status boundary remain unknown.
+      why_it_matters: Dunn enables Klein's advancement while preserving protective institutional boundaries.
+      related_entities:
+        - character-klein-moretti
+        - pathway-seer
+      related_claims:
+        - dunn-authorizes-klein-seer-event
+      related_events:
+        - event-klein-becomes-a-seer
+      source_refs:
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 29
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 33
+    - id: dunn-resource-approval-external-monitoring
+      title: Resource Approval and External Monitoring
+      medium: novel
+      from: { book: lotm-1, volume: 1, chapter: 37 }
+      to: { book: lotm-1, volume: 1, chapter: 41 }
+      visibility:
+        from: { medium: novel, book: lotm-1, volume: 1, chapter: 37 }
+      entry_type: administration
+      summary: Dunn approves equipment, ammunition, practice, and external monitoring expenses, including Klein's Divination Club work.
+      reader_learns:
+        - Dunn's captain authority extends into controlled use of civilian spaces and mundane budgets.
+      changes:
+        - Dunn's leadership becomes administrative as well as supernatural.
+      remains_unknown:
+        - Full budget rules and the limits of external surveillance remain unclear.
+      why_it_matters: Dunn shows how Nighthawk leadership translates supernatural risk into mundane administration.
+      related_entities:
+        - character-klein-moretti
+        - concept-divination
+      related_claims:
+        - dunn-approves-resources-and-monitoring
+      source_refs:
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 37
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 41
+    - id: dunn-deployment-snapshot-field-command
+      title: Deployment Snapshot and Field Command
+      medium: novel
+      from: { book: lotm-1, volume: 1, chapter: 42 }
+      to: { book: lotm-1, volume: 1, chapter: 47 }
+      visibility:
+        from: { medium: novel, book: lotm-1, volume: 1, chapter: 42 }
+      entry_type: field-command
+      summary: Dunn manages a thinly spread team and mobilizes Leonard, Old Neil, Frye, and Klein around Klein's Antigonus notebook lead.
+      reader_learns:
+        - Dunn coordinates field response through Blackthorn, Special Operations cover, and ordinary police.
+        - Chapter 45 confirms Dunn as an advanced Sleepless.
+      changes:
+        - Dunn becomes visible as active commander rather than only office authority.
+        - His Sleepless pathway affiliation moves from strong inference to confirmed.
+      remains_unknown:
+        - The longer-term handling of Ray Bieber, the notebook, and the Secret Order pursuit remains unresolved.
+      why_it_matters: Dunn's current boundary closes with him as a trusted captain turning Klein's Seer clue into formal Nighthawks action.
+      related_entities:
+        - character-klein-moretti
+        - character-leonard-mitchell
+        - character-old-neil
+        - artifact-antigonus-notebook
+        - pathway-sleepless
+      related_claims:
+        - dunn-nightmare-pathway-inference
+        - dunn-mobilizes-notebook-field-response
+      source_refs:
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 42
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 47
+    - id: dunn-donghua-foundation-pending
+      title: Donghua Season 1 Foundation Pending
+      medium: donghua
+      from: { season: 1 }
+      visibility:
+        from: { medium: donghua, season: 1 }
+      entry_type: adaptation-verification-pending
+      summary: Dunn's Donghua presentation has not yet been verified.
+      reader_learns:
+        - Not yet verified.
+      changes:
+        - Not yet verified.
+      remains_unknown:
+        - Exact first appearance, Nighthawk reveal timing, pathway clues, and adaptation emphasis.
+      why_it_matters: Dunn's Donghua presentation is visually important and should be verified separately.
+      notes: Keep novel and Donghua timing independent once the adaptation pass is completed.
 ```
 
 ## Relationship Seeds
@@ -988,6 +1334,36 @@ relationships:
     default_hidden_target_behavior: hide
     notes: Chapter 22 is the earliest graph-worthy Sleepless/Nightmare association; Chapter 45 confirmation is preserved in the projected data-block row's availability history.
   - source: character-dunn-smith
+    target: concept-beyonders
+    relationship_type: source-of-information
+    start:
+      medium: novel
+      volume: 1
+      chapter: 18
+    status: active
+    confidence: confirmed
+    projection_owner: source-page
+    projection_scope: canonical
+    projection_source: character_profile.ability_index[beyonder-doctrine-explanation]
+    default_hidden_source_behavior: hide
+    default_hidden_target_behavior: hide
+    notes: Dunn provides Klein and the reader with the official Church/Nighthawks explanation of Beyonders, potions, Sequences, advancement danger, and losing control.
+  - source: character-dunn-smith
+    target: concept-divination
+    relationship_type: source-of-information
+    start:
+      medium: novel
+      volume: 1
+      chapter: 29
+    status: active
+    confidence: confirmed
+    projection_owner: source-page
+    projection_scope: canonical
+    projection_source: character_profile.ability_index[seer-pathway-and-divination-explanation]
+    default_hidden_source_behavior: hide
+    default_hidden_target_behavior: hide
+    notes: Dunn explains Seer tradeoffs and names divination methods such as astromancy, cartomancy, spiritual pendulums, and scrying.
+  - source: character-dunn-smith
     target: character-klein-moretti
     relationship_type: superior
     start:
@@ -1033,21 +1409,6 @@ relationships:
     default_hidden_target_behavior: hide
     notes: Leonard works with Dunn during the opening investigation and later field deployment under Dunn's captain authority.
   - source: character-dunn-smith
-    target: event-klein-becomes-a-seer
-    relationship_type: event-participant
-    start:
-      medium: novel
-      volume: 1
-      chapter: 28
-    status: completed
-    confidence: confirmed
-    projection_owner: source-page
-    projection_scope: canonical
-    projection_source: character_profile.major_events_fights[event-klein-becomes-a-seer]
-    default_hidden_source_behavior: hide
-    default_hidden_target_behavior: hide
-    notes: Dunn authorizes Klein's Beyonder opportunity, explains the options, leads him to the alchemy room, and preserves the civilian-staff status boundary.
-  - source: character-dunn-smith
     target: artifact-antigonus-notebook
     relationship_type: investigates
     start:
@@ -1063,35 +1424,20 @@ relationships:
     default_hidden_target_behavior: hide
     notes: Dunn identifies the notebook as central to the early case and later mobilizes a field team around Klein's Ray Bieber/notebook lead.
   - source: character-dunn-smith
-    target: concept-beyonders
-    relationship_type: source-of-information
+    target: event-klein-becomes-a-seer
+    relationship_type: event-participant
     start:
       medium: novel
       volume: 1
-      chapter: 18
-    status: active
+      chapter: 28
+    status: completed
     confidence: confirmed
     projection_owner: source-page
     projection_scope: canonical
-    projection_source: character_profile.ability_index[beyonder-doctrine-explanation]
+    projection_source: character_profile.major_events_fights[event-klein-becomes-a-seer]
     default_hidden_source_behavior: hide
     default_hidden_target_behavior: hide
-    notes: Dunn provides Klein and the reader with the official Church/Nighthawks explanation of Beyonders, potions, Sequences, advancement danger, and losing control.
-  - source: character-dunn-smith
-    target: concept-divination
-    relationship_type: source-of-information
-    start:
-      medium: novel
-      volume: 1
-      chapter: 29
-    status: active
-    confidence: confirmed
-    projection_owner: source-page
-    projection_scope: canonical
-    projection_source: character_profile.ability_index[seer-pathway-and-divination-explanation]
-    default_hidden_source_behavior: hide
-    default_hidden_target_behavior: hide
-    notes: Dunn explains Seer tradeoffs and names divination methods such as astromancy, cartomancy, spiritual pendulums, and scrying.
+    notes: Dunn authorizes Klein's Beyonder opportunity, explains the options, leads him to the alchemy room, and preserves the civilian-staff status boundary.
 ```
 
 ## Evidence Index

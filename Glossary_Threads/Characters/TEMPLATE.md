@@ -298,9 +298,11 @@ Use Markdown links when the target file exists, with the target document's human
 
 This block is the structured page-local state model for future generated pages, dashboards, reader-position filters, and relationship graphs. Keep it aligned with the visible character sections and Reader Knowledge Ledger. Use metadata, not this data block, for page-level `Subject Visible From`. If `mythical_creature_form_state`, `uniqueness_state`, or a major/recurring `equipment_artifacts` row records a positive reader-safe graph relationship, add the corresponding graph edge in `Relationship Seeds`. Do not add relationship seeds for omitted sections, unknown/null state, ordinary absence, minor equipment, or disposable possessions.
 
-Visible character tables are the GitHub-readable article layer. `character_profile` rows are the future renderer, filtering, and QA layer. When both describe the same extractable state, keep them synchronized and fix both if they conflict.
+Visible character tables are the GitHub-readable article layer. `character_profile` rows are the future renderer, filtering, and QA layer. When both describe the same extractable state, keep them synchronized and fix both if they conflict. Keep `character_profile` sections in the same order as the visible character sections whenever practical, so maintainers can compare article text, tables, and YAML without hunting through the block.
 
-Use `timeline_entries` to mirror meaningful `Chronological Development` prose as structured data for future generated pages and reader-position filtering. Keep the Markdown chronology readable for GitHub; do not replace it with YAML-only chronology. Every real visible chronology subsection should have `<!-- timeline_id: ... -->` and exactly one matching `timeline_entries.id`. Keep visible subsections and timeline rows in the same oldest-to-newest reader/viewer order within each medium. When inserting a newly discovered arc, reorder the prose and data row without renaming stable semantic IDs.
+Do not expect the future website to turn character taxonomy values into full prose on their own. Use kebab-case values for filtering, grouping, graphing, and current-state calculation; use human-written fields such as `summary`, `notes`, `reader_learns`, `changes`, `remains_unknown`, `why_it_matters`, `evidence`, or future `site_summary` / `display_text` fields for sentences that may be shown directly to readers. Renderer templates should use display-label mappings for reusable values and prose fields for article voice.
+
+Use `timeline_entries` to mirror meaningful `Chronological Development` prose as structured data for future generated pages and reader-position filtering. Place `timeline_entries` after `major_events_fights` in the character data block so it matches the visible page order where `Chronological Development` follows `Major Events & Fights`. Keep the Markdown chronology readable for GitHub; do not replace it with YAML-only chronology. Every real visible chronology subsection should have `<!-- timeline_id: ... -->` and exactly one matching `timeline_entries.id`. Keep visible subsections and timeline rows in the same oldest-to-newest reader/viewer order within each medium. When inserting a newly discovered arc, reorder the prose and data row without renaming stable semantic IDs.
 
 For new or retrofitted rows, prefer `availability` over a single `reveal` field. `availability` preserves novel and Donghua timing independently and can record confidence changes over time. Every row that describes reader-visible state should support availability. Keep legacy `reveal` fields only on unmigrated rows.
 
@@ -326,60 +328,6 @@ character_profile:
       type:
       file:
       usage:
-  timeline_entries:
-    - id:
-      title:
-      medium:
-      from:
-        book:
-        volume:
-        chapter:
-        season:
-        episode:
-        release_order:
-      to:
-        book:
-        volume:
-        chapter:
-        season:
-        episode:
-        release_order:
-      visibility:
-        from:
-          medium:
-          book:
-          volume:
-          chapter:
-          season:
-          episode:
-          release_order:
-      entry_type:
-      summary:
-      reader_learns:
-        -
-      changes:
-        -
-      remains_unknown:
-        -
-      why_it_matters:
-      related_entities:
-        -
-      related_claims:
-        -
-      related_relationships:
-        -
-      related_events:
-        -
-      source_refs:
-        - medium:
-          book:
-          volume:
-          chapter:
-          season:
-          episode:
-          release_order:
-          timestamp:
-      notes:
   identities:
     - field:
       value:
@@ -696,6 +644,60 @@ character_profile:
           display_relationship_type:
           notes:
       notes:
+  timeline_entries:
+    - id:
+      title:
+      medium:
+      from:
+        book:
+        volume:
+        chapter:
+        season:
+        episode:
+        release_order:
+      to:
+        book:
+        volume:
+        chapter:
+        season:
+        episode:
+        release_order:
+      visibility:
+        from:
+          medium:
+          book:
+          volume:
+          chapter:
+          season:
+          episode:
+          release_order:
+      entry_type:
+      summary:
+      reader_learns:
+        -
+      changes:
+        -
+      remains_unknown:
+        -
+      why_it_matters:
+      related_entities:
+        -
+      related_claims:
+        -
+      related_relationships:
+        -
+      related_events:
+        -
+      source_refs:
+        - medium:
+          book:
+          volume:
+          chapter:
+          season:
+          episode:
+          release_order:
+          timestamp:
+      notes:
 ```
 
 ## Relationship Seeds
@@ -703,6 +705,8 @@ character_profile:
 Use this section only for relationships important enough to support future relationship graphs. Relationship Seeds are graph projection hints, not full state histories or replacements for character data blocks and knowledge units.
 
 For character pages, this page normally owns seeds where the character is the source, such as affiliation, staffing, pathway status, workplace, reporting, mentor/student, artifact-use, and event participation when the relationship is not event-centered. Keep detailed state/history in the character sections and data block. Use Reader Knowledge Ledger disclosures for audit/explanation. If confidence changes over time, keep one graph edge seed and record the change in the data-block row's `availability` list.
+
+Order seeds by the character data-block section they project from when possible: affiliation seeds, pathway/sequence seeds, ability seeds, graph-worthy equipment/artifact seeds, relationship seeds, then major-event participation seeds. The order is for maintainer scanning only; graph generators must use the seed fields, not position.
 
 For equipment, possessions, and custody, add seeds only for graph-worthy `equipment_artifacts` rows. Minor or disposable rows should stay data-only. Use `possesses-item` / `uses-item` for named non-artifact item pages, and `artifact-user` / `artifact-guardian` for formal artifact pages.
 

@@ -524,6 +524,8 @@ Glossary pages are synthesis records. They should be readable as articles while 
 
 Visible prose and tables are the public GitHub-readable article layer. Type-specific data blocks are the structured future-renderer layer. Keep both in sync while the repository remains Markdown-first. Do not remove visible tables merely because the data block can represent the same facts; a later website may generate those tables from structured data, but GitHub pages should remain usable in the meantime.
 
+Structured taxonomy values are not final website prose. Use kebab-case values for stable filtering, grouping, graphing, sorting, reader-boundary logic, and dashboard logic. Use human-written fields such as `summary`, `notes`, `reader_learns`, `changes`, `remains_unknown`, `why_it_matters`, `evidence`, `claim_text`, labels, or future `site_summary` / `display_text` fields for sentences that may appear directly on public pages. Future website renderers should map reusable taxonomy values through a controlled display-label layer, fall back to readable title-casing for unlabeled values, and use prose fields for natural article voice instead of assembling full paragraphs from enum values.
+
 `Glossary_Threads/TEMPLATE.md` is the universal glossary contract and maximal shared shape, not a demand that every stub or lightweight page include every empty section. Use the same top-level section order unless a type-specific template has a strong reason to deviate:
 
 1. Metadata
@@ -575,9 +577,9 @@ Mutable character facts should accumulate rows instead of overwriting old values
 
 For type-specific data blocks, every row that describes reader-visible state should support `availability`. Use page metadata `Subject Visible From` as the whole-page gate, then use row-level `availability` as the fact-level gate. Static implementation fields such as `data_model_version`, `stable_slug`, `state_sort_order`, local artwork file paths, or internal usage labels do not need availability unless their display would itself reveal spoiler-sensitive subject information.
 
-Visible character tables and `character_profile` rows should mirror each other when they describe the same extractable state. If they conflict, update both. The visible table remains the GitHub-readable article surface; the data-block row is the future renderer, filtering, and QA source. Do not make future tooling scrape visible tables when a structured row can carry the same data.
+Visible character tables and `character_profile` rows should mirror each other when they describe the same extractable state. If they conflict, update both. The visible table remains the GitHub-readable article surface; the data-block row is the future renderer, filtering, and QA source. Do not make future tooling scrape visible tables when a structured row can carry the same data. Order type-specific data-block sections to match the visible page sections as closely as practical; for character pages, place `timeline_entries` after `major_events_fights` because `Chronological Development` follows `Major Events & Fights` in the visible article.
 
-Use snake_case for data-block field names and lowercase kebab-case for controlled values. Reuse generic values across page types where possible. If a value will repeat across multiple page types, define or reference it in `PROJECT_RULES.md`; if it is character-specific, define it in the character template and keep the specific nuance in `notes` rather than inventing one-off values.
+Use snake_case for data-block field names and lowercase kebab-case for controlled values. Reuse generic values across page types where possible. If a value will repeat across multiple page types, define or reference it in `PROJECT_RULES.md`; if it is character-specific, define it in the character template and keep the specific nuance in `notes` rather than inventing one-off values. Repeated controlled values that will be user-visible should eventually receive explicit display labels; rare or temporary values may rely on renderer fallback title-casing until they prove reusable.
 
 Use `Pathway & Ability State` for broad stateful supernatural status such as pathway, Sequence, advancement, digestion, or limitations. Use `Ability Index` for individual capabilities and skills, including pathway abilities, artifact-granted effects, rituals, authority, training, knowledge, or mundane competencies.
 
@@ -600,6 +602,7 @@ Default character fact ownership:
 - Interpersonal, factional, or entity-to-entity ties that are not affiliation, equipment, pathway, or event participation belong first in `Relationships`.
 - Character participation in plot events, fights, investigations, rituals, meetings, disasters, or reveals belongs first in `Major Events & Fights`, with event pages becoming the canonical event hubs once they exist.
 - Relationship Seeds project graph-worthy edges from these local rows. They do not replace the visible section or data-block row.
+- Order Relationship Seeds by the visible/data-block section they project from when possible. For character pages, that usually means affiliation seeds, pathway/sequence seeds, ability seeds, graph-worthy equipment/artifact seeds, relationship seeds, then major-event participation seeds. This ordering is for maintainer readability only; graph generators should not depend on seed position.
 
 ### Pathway Article Overlay
 
@@ -689,7 +692,7 @@ For very small bridge entries, still include `Why it matters` and make the limit
 
 Chronological Development prose is the GitHub-readable article layer. It should remain clear, useful, and reader-boundary safe while the project is still maintained primarily as Markdown.
 
-Type-specific data blocks should add `timeline_entries` when a page has meaningful chronological prose that future reader-position tooling should reveal, hide, sort, or render dynamically. `timeline_entries` are the structured future-website layer for narrative development. They do not replace the visible prose yet, and the visible prose should not be parsed heuristically as the source of truth.
+Type-specific data blocks should add `timeline_entries` when a page has meaningful chronological prose that future reader-position tooling should reveal, hide, sort, or render dynamically. `timeline_entries` are the structured future-website layer for narrative development. Place them in the data block according to the visible page order for that type rather than defaulting to the top of the block. They do not replace the visible prose yet, and the visible prose should not be parsed heuristically as the source of truth.
 
 Every real Chronological Development subsection on an active or retrofitted page must have a `timeline_id` comment and exactly one matching `timeline_entries.id`. Every `timeline_entries.id` should have a matching visible chronology subsection unless the row is explicitly marked as data-only/internal. Blank template placeholders and lightweight stubs may omit or remove timeline IDs until the entry is populated.
 

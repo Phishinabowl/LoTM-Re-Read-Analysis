@@ -731,3 +731,17 @@ Expected non-semantic differences:
 Last mapped: 2026-07-07.
 
 Last parity check: 2026-07-07. Python and PowerShell generated 27 files each with matching file lists. The main generated Markdown files, QA Mermaid graphs, visualization-style Mermaid graph, and repo refresh dry-run Mermaid files matched after newline normalization. `refresh-check-snapshot.json` matched semantically after ignoring `generated_at` and normalizing the intentionally different `.tmp` output path. The JSON console summaries matched on all count fields.
+
+## Configuration Files
+
+This section tracks durable configuration and generated state files that affect helper behavior. Add new entries here when a tool starts reading a new config file, writing a new persistent state file, or depending on a shared registry. Do not list ignored one-run artifacts such as `.tmp/`, `Obsidian_Export/`, Python caches, or rendered files generated from an already listed source config.
+
+| File | Kind | Read By | Written By | Purpose | Update When |
+| --- | --- | --- | --- | --- | --- |
+| `Visualization/config/render-settings.json` | Source config | `Visualization/visualize.py`, `Visualization/visualize.ps1`, `Tools/obsidian_qa_export.py`, `Tools/Obsidian-QA-Export.ps1` | Maintainers | Defines canonical graph views, source Mermaid paths, rendered output paths, render dimensions, validation settings, reader-boundary filters, report path, and semantic snapshot path. The Obsidian QA export also derives its local `_Generated/repo-refresh-check/` dry-run settings from this file. | Add or remove repository graph views, change render sizes, adjust validation rules, change reader-boundary behavior, or redirect canonical report/snapshot paths. |
+| `Visualization/config/puppeteer-config.json` | Source config | `Visualization/visualize.py`, `Visualization/visualize.ps1`, Obsidian QA repo-refresh dry-run helpers through visualization tooling | Maintainers | Configures the browser executable, timeout, and launch args used by Mermaid/Puppeteer rendering. | Browser path changes, rendering starts timing out, CI/local environment changes, or Mermaid rendering needs different launch args. |
+| `Visualization/data/refresh-snapshot.json` | Generated semantic state | `Visualization/visualize.py`, `Visualization/visualize.ps1` | `Visualization/visualize.py --mode Refresh`, `Visualization/visualize.ps1 -Mode Refresh` | Stores the last canonical graph semantic snapshot so refresh reports can detect added/removed nodes, relationships, changed labels, duplicates, and other graph hygiene changes. | Update only through a confirmed canonical graph refresh. Do not edit manually except for explicit debugging that is later reverted or regenerated. |
+
+### Future Config Registries
+
+Planned shared registries should be added here once they exist. Likely candidates include a display-label registry for reusable taxonomy values, broader controlled-value taxonomy files, or site-rendering configuration. Until those files exist, `PROJECT_RULES.md` and the type templates remain the source of truth for taxonomy/prose rendering policy.

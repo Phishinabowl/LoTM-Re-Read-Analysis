@@ -118,6 +118,8 @@ Threads that reach a clear volume-boundary resolution, even if later volumes reo
 
 This block is a structured extraction aid for future dashboards. Visible sections above remain the reader-facing source.
 
+Structured taxonomy values are not final website prose. Use stable values for filtering, grouping, and dashboard logic; use human-written fields such as labels, summaries, notes, or future `site_summary` / `display_text` fields for sentences that may be shown directly to readers. Future renderers should map reusable values through display labels and use prose fields for article voice.
+
 ```yaml
 volume_summary:
   volume:
