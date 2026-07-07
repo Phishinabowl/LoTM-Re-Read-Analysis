@@ -535,10 +535,12 @@ def render_relationship_node_graph(relationships: list[Relationship], notes: dic
     lines.append("")
     grouped_items = sorted(grouped)
     for index, (source, relationship_type, target) in enumerate(grouped_items, start=1):
-        duplicate_count = len(grouped[(source, relationship_type, target)])
+        group = grouped[(source, relationship_type, target)]
+        duplicate_count = len(group)
         label = relationship_type
         if duplicate_count > 1:
             label = f"{label} x{duplicate_count}"
+            label = "<br/>".join([label, *relationship_provenance_lines(group)])
         relationship_node_id = f"rel_{index:03d}"
         lines.append(f'  {relationship_node_id}["{mermaid_escape(label)}"]')
         lines.append(f"  {mermaid_node_id(source)} --> {relationship_node_id}")
@@ -551,6 +553,53 @@ def render_relationship_node_graph(relationships: list[Relationship], notes: dic
 
     lines.append("")
     return "\n".join(lines)
+
+
+def relationship_provenance_lines(relationships: list[Relationship]) -> list[str]:
+    lines: list[str] = []
+    for rel in sorted(relationships, key=lambda item: (source_domain_label(item.source_file), item.confidence, item.start_chapter, item.source_file)):
+        parts = [source_domain_label(rel.source_file)]
+        if rel.confidence:
+            parts.append(rel.confidence)
+        if rel.start_chapter:
+            parts.append(f"ch{rel.start_chapter}")
+        if rel.status and rel.status != "active":
+            parts.append(rel.status)
+        lines.append(" ".join(parts))
+    return lines
+
+
+def source_domain_label(source_file: str) -> str:
+    parts = Path(source_file).parts
+    if "Glossary_Threads" in parts:
+        index = parts.index("Glossary_Threads")
+        if index + 1 < len(parts):
+            return singular_domain(parts[index + 1])
+    if parts and parts[0] == "Volumes":
+        return "volume"
+    stem = Path(source_file).stem
+    for prefix in SLUG_PREFIXES:
+        if stem.startswith(f"{prefix}-"):
+            return prefix.replace("tarot-card", "tarot")
+    return "source"
+
+
+def singular_domain(value: str) -> str:
+    normalized = value.strip().lower().replace("_", "-")
+    mapping = {
+        "artifacts": "artifact",
+        "characters": "character",
+        "concepts": "concept",
+        "deities": "deity",
+        "events": "event",
+        "factions": "faction",
+        "locations": "location",
+        "pathways": "pathway",
+        "tarot-cards": "tarot",
+        "uniquenesses": "uniqueness",
+        "volumes": "volume",
+    }
+    return mapping.get(normalized, normalized.rstrip("s") or "source")
 
 
 def qa_graph_class_definitions(include_relationship: bool = False) -> list[str]:

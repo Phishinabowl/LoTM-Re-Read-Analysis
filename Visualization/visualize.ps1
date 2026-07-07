@@ -1294,12 +1294,31 @@ function Write-MermaidGraph {
     [string]$GraphPath,
     [hashtable]$Nodes,
     [object[]]$Relationships,
-    [switch]$TimingSpoilerFree
+    [switch]$TimingSpoilerFree,
+    [object[]]$KnownNodeIds = $null
   )
+
+  $known = New-Object 'System.Collections.Generic.HashSet[string]'
+  if ($null -eq $KnownNodeIds) {
+    foreach ($nodeId in $Nodes.Keys) {
+      [void]$known.Add([string]$nodeId)
+    }
+  } else {
+    foreach ($nodeId in $KnownNodeIds) {
+      [void]$known.Add([string]$nodeId)
+    }
+  }
+  $missingEndpointNodes = New-Object 'System.Collections.Generic.HashSet[string]'
 
   foreach ($relationship in $Relationships) {
     $source = Convert-SlugToNodeId $relationship.source
     $target = Convert-SlugToNodeId $relationship.target
+    if (-not $known.Contains($source)) {
+      [void]$missingEndpointNodes.Add($source)
+    }
+    if (-not $known.Contains($target)) {
+      [void]$missingEndpointNodes.Add($target)
+    }
     if (-not $Nodes.ContainsKey($source)) {
       $Nodes[$source] = Convert-NodeIdToFallbackLabel $source
     }
@@ -1329,9 +1348,14 @@ function Write-MermaidGraph {
   $lines += "  classDef tarot fill:#ffedd5,stroke:#ea580c,stroke-width:2px,color:#1f2937"
   $lines += "  classDef timeline fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1f2937"
   $lines += "  classDef uniqueness fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#1f2937"
+  $lines += "  classDef missingEndpoint fill:#f8fafc,stroke:#64748b,stroke-width:2px,stroke-dasharray:4 3,color:#1f2937"
   $lines += "  classDef relationship fill:#f7f2e9,stroke:#c69245,stroke-width:1.5px,color:#1f2937"
   $lines += ""
   foreach ($nodeId in @($Nodes.Keys | Sort-Object)) {
+    if ($missingEndpointNodes.Contains($nodeId)) {
+      $lines += ('  class {0} missingEndpoint' -f $nodeId)
+      continue
+    }
     $className = ($nodeId -split '_')[0]
     if (@("artifact", "character", "concept", "deity", "epoch", "event", "faction", "family", "location", "mystery", "pathway", "tarot", "timeline", "uniqueness") -contains $className) {
       $lines += ('  class {0} {1}' -f $nodeId, $className)
@@ -1382,7 +1406,7 @@ function Update-MermaidGraphs {
     $timingSpoilerFree = $view.input -match 'timing-spoiler-free'
     $viewNodes = Select-NodesForBoundary $nodes $view.readerBoundary
     $viewRelationships = Select-RelationshipsForBoundary $relationships $view.readerBoundary
-    Write-MermaidGraph $graphPath $viewNodes.Clone() $viewRelationships -TimingSpoilerFree:$timingSpoilerFree
+    Write-MermaidGraph $graphPath $viewNodes.Clone() $viewRelationships -TimingSpoilerFree:$timingSpoilerFree -KnownNodeIds @($nodes.Keys)
   }
 }
 

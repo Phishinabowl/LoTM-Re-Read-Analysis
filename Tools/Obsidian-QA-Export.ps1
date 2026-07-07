@@ -666,6 +666,67 @@ function Get-UsedSlugs {
   return @($set | Sort-Object)
 }
 
+function Get-SingularDomainLabel {
+  param([string]$Value)
+  $normalized = $Value.Trim().ToLowerInvariant().Replace("_", "-")
+  $mapping = @{
+    "artifacts" = "artifact"
+    "characters" = "character"
+    "concepts" = "concept"
+    "deities" = "deity"
+    "events" = "event"
+    "factions" = "faction"
+    "locations" = "location"
+    "pathways" = "pathway"
+    "tarot-cards" = "tarot"
+    "uniquenesses" = "uniqueness"
+    "volumes" = "volume"
+  }
+  if ($mapping.ContainsKey($normalized)) {
+    return $mapping[$normalized]
+  }
+  if ($normalized.EndsWith("s")) {
+    return $normalized.Substring(0, $normalized.Length - 1)
+  }
+  if ([string]::IsNullOrWhiteSpace($normalized)) {
+    return "source"
+  }
+  return $normalized
+}
+
+function Get-RelationshipSourceDomain {
+  param([string]$SourceFile)
+  $parts = @($SourceFile -split '[\\/]')
+  $glossaryIndex = [array]::IndexOf($parts, "Glossary_Threads")
+  if ($glossaryIndex -ge 0 -and $glossaryIndex + 1 -lt $parts.Count) {
+    return Get-SingularDomainLabel $parts[$glossaryIndex + 1]
+  }
+  if ($parts.Count -gt 0 -and $parts[0] -eq "Volumes") {
+    return "volume"
+  }
+  $stem = [System.IO.Path]::GetFileNameWithoutExtension($SourceFile)
+  foreach ($prefix in $SlugPrefixes) {
+    if ($stem.StartsWith("$prefix-")) {
+      if ($prefix -eq "tarot-card") { return "tarot" }
+      return $prefix
+    }
+  }
+  return "source"
+}
+
+function Get-RelationshipProvenanceLines {
+  param([object[]]$Relationships)
+  $lines = @()
+  foreach ($rel in @($Relationships | Sort-Object @{ Expression = { Get-RelationshipSourceDomain $_.source_file } }, confidence, start_chapter, source_file)) {
+    $parts = @(Get-RelationshipSourceDomain $rel.source_file)
+    if ($rel.confidence) { $parts += $rel.confidence }
+    if ($rel.start_chapter) { $parts += "ch$($rel.start_chapter)" }
+    if ($rel.status -and $rel.status -ne "active") { $parts += $rel.status }
+    $lines += ($parts -join " ")
+  }
+  return $lines
+}
+
 function ConvertTo-LabeledRelationshipGraph {
   param(
     [object[]]$Relationships,
@@ -729,6 +790,8 @@ function ConvertTo-RelationshipNodeGraph {
     $label = $parts[1]
     if ($grouped[$key].Count -gt 1) {
       $label = "$label x$($grouped[$key].Count)"
+      $label = @($label) + @(Get-RelationshipProvenanceLines $grouped[$key])
+      $label = $label -join "<br/>"
     }
     $relationshipNodeId = "rel_{0:d3}" -f $index
     $lines.Add(('  {0}["{1}"]' -f $relationshipNodeId, (ConvertTo-MermaidEscaped $label))) | Out-Null

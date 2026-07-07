@@ -574,10 +574,22 @@ def format_relationship_node_label(relationship: dict[str, str], timing_spoiler_
     )
 
 
-def write_mermaid_graph(graph_path: Path, nodes: dict[str, str], relationships: list[dict[str, str]], timing_spoiler_free: bool) -> None:
+def write_mermaid_graph(
+    graph_path: Path,
+    nodes: dict[str, str],
+    relationships: list[dict[str, str]],
+    timing_spoiler_free: bool,
+    known_node_ids: set[str] | None = None,
+) -> None:
+    known = set(nodes) if known_node_ids is None else set(known_node_ids)
+    missing_endpoint_nodes: set[str] = set()
     for relationship in relationships:
         source = convert_slug_to_node_id(relationship["source"])
         target = convert_slug_to_node_id(relationship["target"])
+        if source not in known:
+            missing_endpoint_nodes.add(source)
+        if target not in known:
+            missing_endpoint_nodes.add(target)
         nodes.setdefault(source, convert_node_id_to_fallback_label(source))
         nodes.setdefault(target, convert_node_id_to_fallback_label(target))
 
@@ -602,10 +614,14 @@ def write_mermaid_graph(graph_path: Path, nodes: dict[str, str], relationships: 
         "  classDef tarot fill:#ffedd5,stroke:#ea580c,stroke-width:2px,color:#1f2937",
         "  classDef timeline fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1f2937",
         "  classDef uniqueness fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#1f2937",
+        "  classDef missingEndpoint fill:#f8fafc,stroke:#64748b,stroke-width:2px,stroke-dasharray:4 3,color:#1f2937",
         "  classDef relationship fill:#f7f2e9,stroke:#c69245,stroke-width:1.5px,color:#1f2937",
         "",
     ]
     for node_id in sorted(nodes):
+        if node_id in missing_endpoint_nodes:
+            lines.append(f"  class {node_id} missingEndpoint")
+            continue
         class_name = node_id.split("_")[0]
         if class_name in {
             "artifact",
@@ -656,7 +672,7 @@ def update_mermaid_graphs(views: list[dict[str, Any]]) -> None:
         boundary = view.get("readerBoundary")
         view_nodes = filter_nodes_for_boundary(nodes, boundary)
         view_relationships = filter_relationships_for_boundary(relationships, boundary)
-        write_mermaid_graph(graph_path, dict(view_nodes), view_relationships, timing_spoiler_free)
+        write_mermaid_graph(graph_path, dict(view_nodes), view_relationships, timing_spoiler_free, set(nodes))
 
 
 def get_graph_stats(graph_path: Path) -> dict[str, Any]:
