@@ -312,7 +312,6 @@ Default output goes to ignored local directory `Obsidian_Export/`:
 
 ```powershell
 python Tools\obsidian_qa_export.py
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1
 ```
 
 The generated structure mirrors active canonical pages by type and adds QA reports:
@@ -355,18 +354,16 @@ The `_Generated` reports flag:
 - same-type known edges;
 - missing expected reciprocal edges such as `superior` / `subordinate`.
 
-Use `--clean` / `-Clean` to delete and regenerate the export directory:
+Use `--clean` to delete and regenerate the export directory:
 
 ```powershell
 python Tools\obsidian_qa_export.py --clean
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1 -Clean
 ```
 
-Use `--json` / `-Json` when downstream tooling needs summary counts:
+Use `--json` when downstream tooling needs summary counts:
 
 ```powershell
 python Tools\obsidian_qa_export.py --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1 -Json
 ```
 
 ## EPUB Image Extraction
