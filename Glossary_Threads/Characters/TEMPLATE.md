@@ -150,6 +150,13 @@ Use a single block only when all reveal beats happen together. If the character 
 | Ability state |  |  |  |  |  |
 | Limitation |  |  |  |  |  |
 
+## Associated Tarot Card
+
+Include this section only when the character has a reader-safe Tarot Club identity, tarot-card assignment, tarot-card alias, or other explicit character-specific tarot association that is meaningful to track. Omit it from character pages where no tarot-card association exists. Preserve assignment/reveal timing separately from pathway tarot-card associations. When a page-ready card crop exists and is reader-safe at the current boundary, embed a compact clickable image like pathway pages do; otherwise use the table only.
+
+| Tarot card | Card number | Identity / alias | Assignment / reveal point | Status | Confidence | Image | Notes |
+|---|---|---|---|---|---|---|---|
+
 ## Mythical Creature Form State
 
 Include this section only when the character has a reader-safe mythical creature form state, partial transformation, form access, form advancement, loss, concealment, or uncertainty that is itself useful to track. Omit it from character pages where no mythical creature form relationship exists in the story. Rows should accumulate newest-to-oldest like other state/history tables. Track the form version/stage because many pathways expose more than one form state tied to Sequence progression. Link broader form comparison/indexing to `Glossary_Threads/Concepts/concept-mythical-creature-forms.md` rather than creating separate form pages by default.
@@ -188,17 +195,21 @@ Use this section for broad possession, custody, access, use, investigation state
 
 ## Messenger / Servants / Companions
 
+Include this section only when the character has a reader-safe companion, messenger, servant, familiar, contracted helper, summoned entity, spirit, or similar associated being that is meaningful to track. Omit it from character pages where no such relationship exists. Do not add default "none known" rows unless the absence itself is analytically important at the current boundary.
+
 | Entity | Type | First reveal / change point | Status | Confidence | Notes |
 |---|---|---|---|---|---|
 
 ## Prayers & Ritual Access
+
+Include this section only when the character has reader-safe access to a specific prayer address, ritual method, ritual target, character-specific wording, or recurring ritual function. Omit it from character pages where no prayer/ritual access is meaningful to track. Keep general ritual theory, reusable prayer/ritual definitions, and cross-character comparisons on [Prayers & Rituals](../Concepts/concept-prayers-and-rituals.md).
 
 | Prayer / ritual label | Type | Function | First reveal / change point | Status | Confidence | Concept link | Notes |
 |---|---|---|---|---|---|---|---|
 
 ### Prayer / Ritual Texts
 
-Use one subsection per exact text only when the wording is reader-safe and character-specific. Keep general ritual theory on [Prayers & Rituals](../Concepts/concept-prayers-and-rituals.md).
+Include this subsection only when exact wording is reader-safe and character-specific. Omit it from character pages with no exact text to preserve. Use one subsection per exact text when needed. Keep general ritual theory on [Prayers & Rituals](../Concepts/concept-prayers-and-rituals.md).
 
 #### Label
 
@@ -494,6 +505,39 @@ character_profile:
           adaptation_relationship:
           notes:
       notes:
+  # Optional specialized module: omit this array unless the visible page includes
+  # Associated Tarot Card or the absence is analytically important.
+  associated_tarot_card:
+    - card_name:
+      card_number:
+      target:
+      identity_alias:
+      association_type:
+      status:
+      confidence:
+      image:
+        crop_file:
+        source_crop_file:
+        alt:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          graph_visibility:
+          display_source_label:
+          display_target_label:
+          display_relationship_type:
+          notes:
+      notes:
+  # Optional specialized module: omit this array unless the visible page includes
+  # Mythical Creature Form State or the absence is analytically important.
   mythical_creature_form_state:
     - form_state:
       version_stage:
@@ -518,6 +562,8 @@ character_profile:
           display_relationship_type:
           notes:
       notes:
+  # Optional specialized module: omit this array unless the visible page includes
+  # Uniqueness State or the absence is analytically important.
   uniqueness_state:
     - uniqueness:
       relationship_state:
@@ -627,6 +673,8 @@ character_profile:
           display_relationship_type:
           notes:
       notes:
+  # Optional specialized module: omit this array unless the visible page includes
+  # Messenger / Servants / Companions or the absence is analytically important.
   messengers_servants_companions:
     - entity:
       type:
@@ -649,6 +697,8 @@ character_profile:
           display_relationship_type:
           notes:
       notes:
+  # Optional specialized module: omit this array unless the visible page includes
+  # Prayers & Ritual Access or the absence is analytically important.
   prayers_ritual_access:
     - label:
       type:
@@ -756,9 +806,9 @@ character_profile:
 
 Use this section only for relationships important enough to support future relationship graphs. Relationship Seeds are graph projection hints, not full state histories or replacements for character data blocks and knowledge units.
 
-For character pages, this page normally owns seeds where the character is the source, such as affiliation, staffing, pathway status, workplace, reporting, mentor/student, artifact-use, and event participation when the relationship is not event-centered. Keep detailed state/history in the character sections and data block. Use Reader Knowledge Ledger disclosures for audit/explanation. If confidence changes over time, keep one graph edge seed and record the change in the data-block row's `availability` list.
+For character pages, this page normally owns seeds where the character is the source, such as affiliation, staffing, pathway status, Tarot Club card identity, workplace, reporting, mentor/student, artifact-use, and event participation when the relationship is not event-centered. Keep detailed state/history in the character sections and data block. Use Reader Knowledge Ledger disclosures for audit/explanation. If confidence changes over time, keep one graph edge seed and record the change in the data-block row's `availability` list.
 
-Order seeds by the character data-block section they project from when possible: affiliation seeds, pathway/sequence seeds, ability seeds, graph-worthy equipment/artifact seeds, relationship seeds, then major-event participation seeds. The order is for maintainer scanning only; graph generators must use the seed fields, not position.
+Order seeds by the character data-block section they project from when possible: affiliation seeds, pathway/sequence seeds, tarot-card seeds, ability seeds, graph-worthy equipment/artifact seeds, relationship seeds, then major-event participation seeds. The order is for maintainer scanning only; graph generators must use the seed fields, not position.
 
 For equipment, possessions, and custody, add seeds only for graph-worthy `equipment_artifacts` rows. Minor or disposable rows should stay data-only. Use `possesses-item` / `uses-item` for named non-artifact item pages, and `artifact-user` / `artifact-guardian` for formal artifact pages.
 
