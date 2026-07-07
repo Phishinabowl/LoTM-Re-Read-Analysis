@@ -304,6 +304,62 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Patte
 
 Raw counts can mislead when a term is also a job, epithet, or individual label. For example, `artisan` may outnumber `savant` while mostly referring to an item-maker or a specific person, whereas `Savant pathway` is stronger evidence for the canonical pathway slug.
 
+## Obsidian QA Export
+
+Use `obsidian_qa_export.py` to compile glossary metadata, Relationship Seeds, and YAML data-block references into a generated Obsidian-friendly mirror. The export is a QA view, not a source of truth. Canonical project notes remain under `Glossary_Threads/`, `Investigations/`, `Volumes/`, and related source folders.
+
+Default output goes to ignored local directory `Obsidian_Export/`:
+
+```powershell
+python Tools\obsidian_qa_export.py
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1
+```
+
+The generated structure mirrors active canonical pages by type and adds QA reports:
+
+```text
+Obsidian_Export/
+  Characters/
+  Artifacts/
+  Factions/
+  Concepts/
+  Events/
+  Locations/
+  Pathways/
+  Volumes/
+  _Generated/
+    relationship-index.md
+    data-reference-index.md
+    orphan-report.md
+    suspicious-edges.md
+```
+
+Each mirror note includes source metadata, a canonical source link, outgoing Relationship Seed edges, incoming edges, data-block references, incoming data-block references, and seed-file evidence.
+
+The `_Generated` reports flag:
+
+- unknown source/target slugs from Relationship Seeds;
+- unknown target slugs from YAML data blocks;
+- canonical notes with no generated edges or references;
+- self loops;
+- duplicate edges;
+- same-type known edges;
+- missing expected reciprocal edges such as `superior` / `subordinate`.
+
+Use `--clean` / `-Clean` to delete and regenerate the export directory:
+
+```powershell
+python Tools\obsidian_qa_export.py --clean
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1 -Clean
+```
+
+Use `--json` / `-Json` when downstream tooling needs summary counts:
+
+```powershell
+python Tools\obsidian_qa_export.py --json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1 -Json
+```
+
 ## EPUB Image Extraction
 
 Use `edit_image.py --operation extract-epub-images` to list or extract EPUB image assets in actual spine/reading order. Python also accepts `extract`, `extract-images`, `list-images`, and `list-epub-images`; PowerShell accepts the same aliases through `-Operation`. If Python/Pillow is unavailable, use `Edit-Image.ps1 -Operation ExtractEpubImages` with the same filters in PowerShell form. This is separate from text search because image-bearing XHTML entries include covers, front matter, volume covers, end-of-volume art, pathway guides, character galleries, location galleries, maps, and end-matter artwork.
