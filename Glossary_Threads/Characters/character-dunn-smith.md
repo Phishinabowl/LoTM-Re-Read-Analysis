@@ -177,11 +177,11 @@ At this reader boundary, Dunn feels like the local center of gravity for the Chu
 
 ## Equipment & Artifacts
 
-| Item | Type | First reveal / change point | Possession status | Confidence | Notes |
-|---|---|---|---|---|---|
-| Antigonus notebook case materials | Investigation target / case evidence | Novel V1 Ch13 | Investigating, not possessed | Confirmed | Dunn treats the missing notebook as central to the case. |
-| Nighthawk resources and ammunition access | Institutional equipment | Novel V1 Ch37-41 | Authorized by Dunn | Confirmed | Dunn can approve Klein's practice and monitoring expenses. |
-| Sealed Artifact 0-08 | Sealed Artifact | Novel V1 Ch22 | Institutional knowledge, not local possession in this page | Confirmed | Dunn explains basic appearance/grade context without later function details. |
+| Item / artifact | Type | Page target | First reveal / change point | Possession status | Graph relevance | Confidence | Notes |
+|---|---|---|---|---|---|---|---|
+| Antigonus notebook case materials | Investigation target / case evidence | [Antigonus Notebook](../Artifacts/artifact-antigonus-notebook.md) | Novel V1 Ch13 | Investigating, not possessed | Full through investigation relationship | Confirmed | Dunn treats the missing notebook as central to the case. |
+| Nighthawk resources and ammunition access | Institutional equipment / resource access | Data-only | Novel V1 Ch37-41 | Authorized by Dunn | None | Confirmed | Dunn can approve Klein's practice and monitoring expenses; no named item page needed. |
+| Sealed Artifact 0-08 | Sealed Artifact / institutional knowledge | [0-08](../Artifacts/artifact-0-08.md) | Novel V1 Ch22 | Institutional knowledge, not local possession in this page | Local reference only | Confirmed | Dunn explains basic appearance/grade context without later function details. |
 
 ## Personality
 
@@ -722,34 +722,55 @@ character_profile:
       notes: Demonstrated before pathway details are fully explained.
   equipment_artifacts:
     - item: Antigonus notebook case materials
+      target: artifact-antigonus-notebook
       type: investigation-target-case-evidence
       possession_status: investigating-not-possessed
+      item_significance: major
+      graph_relevance: full
+      page_worthiness: dedicated-page
       confidence: confirmed
       availability:
         - medium: novel
           from: { book: lotm-1, volume: 1, chapter: 13 }
           possession_status: investigating-not-possessed
+          item_significance: major
+          graph_relevance: full
+          page_worthiness: dedicated-page
           confidence: confirmed
           graph_visibility: full
       notes: Dunn treats the missing notebook as central to the case.
     - item: Nighthawk resources and ammunition access
+      target:
       type: institutional-equipment-resource-access
       possession_status: authorized-access
+      item_significance: minor
+      graph_relevance: none
+      page_worthiness: none
       confidence: confirmed
       availability:
         - medium: novel
           from: { book: lotm-1, volume: 1, chapter: 37 }
           possession_status: authorized-access
+          item_significance: minor
+          graph_relevance: none
+          page_worthiness: none
           confidence: confirmed
       notes: Dunn can approve Klein's practice and monitoring expenses.
     - item: Sealed Artifact 0-08
+      target: artifact-0-08
       type: sealed-artifact
       possession_status: institutional-knowledge-not-local-possession
+      item_significance: major
+      graph_relevance: local
+      page_worthiness: dedicated-page
       confidence: confirmed
       availability:
         - medium: novel
           from: { book: lotm-1, volume: 1, chapter: 22 }
           possession_status: institutional-knowledge-not-local-possession
+          item_significance: major
+          graph_relevance: local
+          page_worthiness: dedicated-page
           confidence: confirmed
           graph_visibility: full
       notes: Dunn explains basic appearance and grade context without later function details.

@@ -327,6 +327,7 @@ Obsidian_Export/
   Concepts/
   Events/
   Items/
+  Knowledge_Sources/
   Locations/
   Pathways/
   Volumes/
@@ -351,6 +352,8 @@ Each mirror note includes source metadata, a canonical source link, outgoing Rel
 The QA export intentionally exposes modeling issues that reader-facing graphs may hide. It should show duplicate/provisional seeds, seed-vs-data provenance, pending endpoint nodes, and projected availability ladders so maintainers can spot taxonomy drift. `projection_source` is expected to point at structured data-block rows, not visible Markdown tables.
 
 Item and equipment rows follow the project taxonomy in `PROJECT_RULES.md`: minor or disposable equipment remains data-only, recurring local-interest objects may appear in maintainer/local views, and full graph-worthy named non-artifact objects should use `item-*` pages with `possesses-item` or `uses-item` seeds. Relationship status labels should preserve semantics; use `broken` only for actual rupture/failure, not ordinary custody loss.
+
+Knowledge Source pages use `source-*` slugs under `Glossary_Threads/Knowledge_Sources/` for recurring reveal carriers such as diary pages, spellbooks, grimoires, notebooks, scriptures, case files, letters, inscriptions, formula records, murals, or records. The QA export treats them as graphable source nodes so maintainers can inspect access, authorship, translation, and claim-reveal relationships without modeling them as ordinary Items.
 
 The `_Generated` reports flag:
 

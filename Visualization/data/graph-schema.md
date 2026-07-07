@@ -40,7 +40,7 @@ Field notes:
 
 - `node_id`: Stable lowercase kebab-case identifier, normally matching the glossary filename without extension.
 - `label`: Human-readable display label, usually the glossary page H1.
-- `node_type`: Controlled glossary type, such as Character, Artifact, Item, Faction, Concept, Event, Pathway, Location, Deity, Uniqueness, Family, Epoch, Mystery, or Timeline. Provisional graph-local node types such as Tarot may also appear when relationship seeds intentionally target lightweight nodes before a dedicated glossary page exists.
+- `node_type`: Controlled glossary type, such as Character, Artifact, Item, Knowledge Source, Faction, Concept, Event, Pathway, Location, Deity, Uniqueness, Family, Epoch, Mystery, or Timeline. Provisional graph-local node types such as Tarot may also appear when relationship seeds intentionally target lightweight nodes before a dedicated glossary page exists.
 - `source_file`: Glossary file where the node is defined, if it exists.
 - `source_layer`: Whether the node is repository-canonical, source-supported graph-local, or external/unsupported.
 - `canonicalization_status`: Whether the node is already represented in project records, graph-local only, or a candidate project-data update.
@@ -117,6 +117,12 @@ Relationship records should distinguish the graph edge from the reader-state his
 Relationship Seeds that project type-specific data rows should resolve `projection_source` relative to the seed source page before falling back to any global key. This avoids collisions between repeated local row keys such as `character_profile.affiliations[faction-nighthawks]` across multiple character pages. `projection_source` points to structured data-block rows, not human-facing Markdown tables; generated graphs should read row-level `availability` from the data block and treat prose tables as display surfaces that may later be generated.
 
 Named non-artifact objects should use canonical Item nodes only when they are recurring, graph-worthy, or page-worthy. Minor possessions, disposable equipment, and ordinary access items can remain data-block rows with `graph_relevance: none` and no Relationship Seed. Item and equipment rows should use `item_significance`, `graph_relevance`, and `page_worthiness` to decide whether they stay data-only, appear only in local maintainer graphs, or become full graph nodes with `possesses-item` / `uses-item` seeds.
+
+Recurring knowledge carriers should use canonical Knowledge Source nodes when their source identity, access chain, quotes, interpretation changes, or claim chronology matter independently. Use `source-*` nodes for diary-page corpora, spellbooks, grimoires, notebooks, scriptures, case files, letters, inscriptions, formula records, murals, or similar reveal carriers. Do not model these as Item nodes merely because they are physical objects.
+
+Knowledge Source `knowledge_entries` should expose stable source-unit fields when the source is encountered in pages, batches, fragments, inscriptions, chapters, files, or excerpts. `source_unit_id` is the preferred row key for graph projection; `source_unit_type`, `batch_id`, `fragment_id`, `sequence_index`, and `source_position` preserve local ordering and citation context without creating separate glossary nodes for every fragment.
+
+Knowledge Source entries may also expose unit-level provenance fields such as `provider`, `provider_role`, `transfer_mode`, `reader`, `reader_access_type`, `holder_understanding`, `intentionality`, and `mediation`. These distinguish incidental access from deliberate submission, direct reading from translation or mediation, and reader-safe understanding from later reinterpretation.
 
 Relationship Seed `status` values describe the seed edge, not the full item, artifact, or character state. Use `historical` for relationships that were true earlier but are no longer current without implying rupture. Reserve `broken` for a relationship that is explicitly breached, severed, failed, destroyed, or narratively broken. For custody or possession loss, prefer row-level state such as `possession_status: lost-custody` or `custody_status: lost-custody` plus a current/historical availability ladder rather than labeling the edge `broken`.
 

@@ -17,6 +17,7 @@ $TypeFolders = @{
   "event" = "Events"
   "faction" = "Factions"
   "item" = "Items"
+  "knowledge source" = "Knowledge_Sources"
   "location" = "Locations"
   "pathway" = "Pathways"
   "uniqueness" = "Uniquenesses"
@@ -40,6 +41,7 @@ $SlugPrefixes = @(
   "event",
   "faction",
   "item",
+  "source",
   "location",
   "pathway",
   "tarot-card",
@@ -62,9 +64,12 @@ $DataReferenceKeys = New-Object 'System.Collections.Generic.HashSet[string]'
   "file",
   "location",
   "pathway",
+  "provider",
   "related_ats_formula",
   "related_deity",
+  "reader",
   "source",
+  "source_node",
   "target"
 ) | ForEach-Object { [void]$DataReferenceKeys.Add($_) }
 
@@ -248,7 +253,7 @@ function ConvertTo-ProjectionSlug {
 function Get-ProjectionKeysForRow {
   param([hashtable]$Row)
   $keys = New-Object 'System.Collections.Generic.HashSet[string]'
-  foreach ($field in @("target", "ability", "event", "pathway", "organization", "item", "label", "field", "entity", "uniqueness")) {
+  foreach ($field in @("target", "ability", "event", "pathway", "organization", "item", "source_unit_id", "batch_id", "fragment_id", "label", "field", "entity", "uniqueness")) {
     if (-not $Row.ContainsKey($field) -or -not $Row[$field]) {
       continue
     }
@@ -815,6 +820,7 @@ function Get-QAGraphClassDefinitions {
     "  classDef location fill:#ffedd5,stroke:#ea580c,color:#111827",
     "  classDef event fill:#fce7f3,stroke:#db2777,color:#111827",
     "  classDef item fill:#ecfccb,stroke:#65a30d,color:#111827",
+    "  classDef source fill:#cffafe,stroke:#0891b2,color:#111827",
     "  classDef volume fill:#e5e7eb,stroke:#6b7280,color:#111827",
     "  classDef unknown fill:#f8fafc,stroke:#64748b,stroke-dasharray: 4 3,color:#111827"
   )
@@ -839,6 +845,7 @@ function Add-QAGraphClassAssignments {
     "Location" = "location"
     "Event" = "event"
     "Item" = "item"
+    "Knowledge Source" = "source"
     "Volume Summary" = "volume"
   }
   foreach ($slug in $UsedSlugs) {
@@ -889,6 +896,8 @@ function Get-SingularDomainLabel {
     "events" = "event"
     "factions" = "faction"
     "items" = "item"
+    "knowledge-sources" = "source"
+    "knowledge_sources" = "source"
     "locations" = "location"
     "pathways" = "pathway"
     "tarot-cards" = "tarot"
@@ -1257,6 +1266,7 @@ function ConvertTo-VisualizationRelationshipGraph {
   $lines.Add("  classDef faction fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#1f2937") | Out-Null
   $lines.Add("  classDef family fill:#fce7f3,stroke:#be185d,stroke-width:2px,color:#1f2937") | Out-Null
   $lines.Add("  classDef item fill:#ecfccb,stroke:#65a30d,stroke-width:2px,color:#1f2937") | Out-Null
+  $lines.Add("  classDef source fill:#cffafe,stroke:#0891b2,stroke-width:2px,color:#1f2937") | Out-Null
   $lines.Add("  classDef location fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#1f2937") | Out-Null
   $lines.Add("  classDef mystery fill:#e5e7eb,stroke:#4b5563,stroke-width:2px,color:#1f2937") | Out-Null
   $lines.Add("  classDef pathway fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#1f2937") | Out-Null
@@ -1274,7 +1284,7 @@ function ConvertTo-VisualizationRelationshipGraph {
       continue
     }
     $className = ($nodeId -split "_")[0]
-    if ($className -in @("artifact", "character", "concept", "deity", "epoch", "event", "faction", "family", "item", "location", "mystery", "pathway", "tarot", "timeline", "uniqueness")) {
+    if ($className -in @("artifact", "character", "concept", "deity", "epoch", "event", "faction", "family", "item", "source", "location", "mystery", "pathway", "tarot", "timeline", "uniqueness")) {
       $lines.Add("  class $nodeId $className") | Out-Null
     } else {
       $lines.Add("  class $nodeId missingEndpoint") | Out-Null

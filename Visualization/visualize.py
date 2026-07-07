@@ -31,6 +31,7 @@ SLUG_PREFIXES = (
     "event",
     "faction",
     "item",
+    "source",
     "location",
     "pathway",
     "tarot-card",
@@ -405,7 +406,7 @@ def convert_slug_to_node_id(slug: str) -> str:
 
 
 def convert_slug_to_fallback_label(slug: str) -> str:
-    name = re.sub(r"^(artifact|character|concept|deity|epoch|event|faction|family|item|location|mystery|pathway|tarot-card|timeline|uniqueness)-", "", Path(slug).stem)
+    name = re.sub(r"^(artifact|character|concept|deity|epoch|event|faction|family|item|source|location|mystery|pathway|tarot-card|timeline|uniqueness)-", "", Path(slug).stem)
     parts = [part for part in name.split("-") if part]
     label_parts = []
     for part in parts:
@@ -504,7 +505,21 @@ def projection_slug(value: str) -> str:
 
 def projection_keys_for_row(row: dict[str, str]) -> set[str]:
     keys: set[str] = set()
-    for key in ["target", "ability", "event", "pathway", "organization", "item", "label", "field", "entity", "uniqueness"]:
+    for key in [
+        "target",
+        "ability",
+        "event",
+        "pathway",
+        "organization",
+        "item",
+        "source_unit_id",
+        "batch_id",
+        "fragment_id",
+        "label",
+        "field",
+        "entity",
+        "uniqueness",
+    ]:
         value = row.get(key, "")
         if not value:
             continue
@@ -971,6 +986,7 @@ def write_mermaid_graph(
         "  classDef faction fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#1f2937",
         "  classDef family fill:#fce7f3,stroke:#be185d,stroke-width:2px,color:#1f2937",
         "  classDef item fill:#ecfccb,stroke:#65a30d,stroke-width:2px,color:#1f2937",
+        "  classDef source fill:#cffafe,stroke:#0891b2,stroke-width:2px,color:#1f2937",
         "  classDef location fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#1f2937",
         "  classDef mystery fill:#e5e7eb,stroke:#4b5563,stroke-width:2px,color:#1f2937",
         "  classDef pathway fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#1f2937",
@@ -999,6 +1015,7 @@ def write_mermaid_graph(
             "faction",
             "family",
             "item",
+            "source",
             "location",
             "mystery",
             "pathway",

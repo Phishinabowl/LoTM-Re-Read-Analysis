@@ -29,7 +29,7 @@ Filename format is governed by `PROJECT_RULES.md`. Use this generic shape only a
 [entity-type]-[kebab-case-name].md
 ```
 
-Store the file in its matching plural category folder, such as `Characters/`, `Artifacts/`, `Items/`, `Deities/`, `Uniquenesses/`, or `Mysteries/`, while retaining the filename prefix. For scoped or special filename families such as deity and uniqueness pages, follow `PROJECT_RULES.md` rather than duplicating the rule here.
+Store the file in its matching plural category folder, such as `Characters/`, `Artifacts/`, `Items/`, `Knowledge_Sources/`, `Deities/`, `Uniquenesses/`, or `Mysteries/`, while retaining the filename prefix. For scoped or special filename families such as deity and uniqueness pages, follow `PROJECT_RULES.md` rather than duplicating the rule here.
 
 Examples:
 
@@ -39,6 +39,7 @@ character-azik-eggers.md
 family-medici.md
 faction-rose-school-of-thought.md
 item-aziks-copper-whistle.md
+source-roselle-diary-pages.md
 concept-gray-fog.md
 event-great-smog.md
 uniqueness-die-of-probability.md
@@ -47,7 +48,7 @@ timeline-ian-zreal-chain.md
 
 ## Purpose
 
-What recurring thread, symbol, faction, person, family, item, location, event, concept, or mystery does this file track?
+What recurring thread, symbol, faction, person, family, item, knowledge source, location, event, concept, or mystery does this file track?
 
 ## Spoiler Boundary
 
@@ -159,6 +160,10 @@ Use Markdown links when the target file exists, with the target document's human
 -
 
 ### Associated Items
+
+-
+
+### Associated Knowledge Sources
 
 -
 

@@ -58,6 +58,7 @@ Investigations/
   Events/
   Factions/
   Items/
+  Knowledge_Sources/
   Locations/
   Pathways/
   Project/
@@ -74,6 +75,7 @@ Glossary_Threads/
   Factions/
   Families/
   Items/
+  Knowledge_Sources/
   Locations/
   Mysteries/
   Pathways/
@@ -354,6 +356,7 @@ character-[name].md
 family-[name].md
 faction-[name].md
 item-[name].md
+source-[name].md
 location-[name].md
 concept-[name].md
 event-[name].md
@@ -376,6 +379,7 @@ family-antigonus.md
 family-medici.md
 faction-rose-school-of-thought.md
 item-aziks-copper-whistle.md
+source-roselle-diary-pages.md
 concept-gray-fog.md
 event-great-smog.md
 deity-s0-evernight-goddess.md
@@ -391,7 +395,13 @@ timeline-ian-zreal-chain.md
 
 If a thread fits multiple categories, choose the category that best matches the analytical purpose of the file.
 
-Use `item-[name].md` for named, recurring, graph-worthy possessions, tools, documents, badges, keys, weapons, instruments, or other important objects that are not best modeled as formal supernatural artifacts. Item pages are for objects that become independent relationship hubs or recurring reader-facing subjects, such as Azik's copper whistle. Do not create item pages for ordinary disposable inventory, temporary equipment, or one-scene props unless that specific object becomes a durable mystery, access route, relationship hub, or plot-relevant named possession.
+Use `item-[name].md` for named, recurring, graph-worthy possessions, tools, badges, keys, weapons, instruments, or other important objects that are not best modeled as formal supernatural artifacts or knowledge sources. Item pages are for objects that become independent relationship hubs or recurring reader-facing subjects, such as Azik's copper whistle. Do not create item pages for ordinary disposable inventory, temporary equipment, one-scene props, or recurring texts whose main function is revealing information.
+
+Use `source-[name].md` for recurring knowledge carriers whose analytical purpose is revealing, preserving, transmitting, translating, or misdirecting information over time. Knowledge Source pages are for diary-page corpora, spellbooks, grimoires, notebooks, scriptures, case files, letters, inscriptions, formula records, murals, records, or similar sources where the important thing is the sequence of claims, quotes, access points, readers, handlers, and interpretations. Do not create a Knowledge Source page for every ordinary document mention; use one when the source is a recurring reveal hub or needs its own chronology of knowledge entries.
+
+For sources encountered as fragments, batches, pages, inscriptions, chapters, files, or excerpts, keep one page for the recurring source and track individual reveal units inside `knowledge_source_profile.knowledge_entries`. Use `source_unit_id` as the stable local identifier for the encountered unit, `source_unit_type` for values such as `diary-page`, `page-batch`, `spellbook-entry`, `inscription`, `case-file`, or `formula-record`, `batch_id` when several units arrive together, `fragment_id` for a specific fragment/page/excerpt inside that batch, and `sequence_index` for reader-order sorting inside the source page. Do not create separate glossary pages for every page or fragment unless that fragment becomes an independent named subject.
+
+Use unit-level provenance fields on `knowledge_entries` when access differs by batch or page. `provider` records who held, supplied, submitted, displayed, or mediated that specific source unit; `provider_role` describes their role; `transfer_mode` distinguishes incidental access, deliberate submission, sale, theft, loan, discovery, ritual access, or archival access; `reader` records who reads or interprets it; `reader_access_type` distinguishes intended recipient, opportunistic reading, authorized review, covert reading, or mediated interpretation; `holder_understanding` records whether the holder understands, partially understands, cannot read, misreads, or merely stores the source; `intentionality` records whether the reveal to the reader/interpreter was intended, accidental, coerced, transactional, or unknown; and `mediation` records direct reading, translation, copied text, paraphrase, summary, vision, or other access mode.
 
 Use `artifact-[name].md` for formal mystical artifacts, sealed artifacts, supernatural objects with established artifact identity, or plot-center objects whose supernatural nature is the analytical point. When uncertain, keep the object in a character, faction, location, or artifact data block with `page_worthiness: candidate` until the page type is clear.
 
@@ -422,6 +432,7 @@ Glossary_Threads/Deities/
 Glossary_Threads/Families/
 Glossary_Threads/Factions/
 Glossary_Threads/Items/
+Glossary_Threads/Knowledge_Sources/
 Glossary_Threads/Locations/
 Glossary_Threads/Concepts/
 Glossary_Threads/Events/
@@ -438,6 +449,7 @@ Retain the entity-type filename prefix inside the matching folder. For example:
 Glossary_Threads/Characters/character-amon.md
 Glossary_Threads/Artifacts/artifact-0-08.md
 Glossary_Threads/Items/item-aziks-copper-whistle.md
+Glossary_Threads/Knowledge_Sources/source-roselle-diary-pages.md
 Glossary_Threads/Deities/deity-s0-evernight-goddess.md
 Glossary_Threads/Uniquenesses/uniqueness-die-of-probability.md
 Glossary_Threads/Mysteries/mystery-mr-door.md
@@ -524,6 +536,7 @@ Current type-specific overlays:
 - `Glossary_Threads/Pathways/TEMPLATE.md`: pathway pages should expose `Pathway Snapshot`, `Pathway Names / Reader Display Timeline`, `Associated Tarot Card`, `Known Sequences`, `Institutional Access`, `Affiliated Factions`, `Known Holders`, and `Pathway Data Block` sections.
 - `Glossary_Threads/Characters/TEMPLATE.md`: character pages should expose `Character Snapshot`, `Names, Aliases & Titles`, `Physical Profile`, `Status, Origin & Location`, `Affiliations`, `Pathway & Ability State`, `Ability Index`, `Equipment & Artifacts`, `Personality`, `Relationships`, `Messenger / Servants / Companions`, `Prayers & Ritual Access`, `Major Events & Fights`, and `Character Data Block` sections. Include `Mythical Creature Form State` and `Uniqueness State` only when the character has relevant reader-safe material for those relationships; do not add empty placeholder sections just because the template supports them.
 - `Glossary_Threads/Items/TEMPLATE.md`: item pages should expose `Item Snapshot`, `Names & Labels`, `Ownership / Custody / Access`, `Functions & Uses`, `Related Concepts / Systems`, `Appearance / Physical Description`, and `Item Data Block` sections. Use Item pages for named, recurring, graph-worthy non-artifact objects. Keep minor equipment and disposable possessions in local character, faction, location, or event data blocks without creating a page.
+- `Glossary_Threads/Knowledge_Sources/TEMPLATE.md`: knowledge source pages should expose `Source Snapshot`, `Names & Labels`, `Format / Medium`, `Authorship / Origin`, `Access / Custody / Readers`, `Knowledge Entries`, `Quote / Evidence Index`, and `Knowledge Source Data Block` sections. Use Knowledge Source pages for recurring reveal carriers whose claims, quotes, custody/access, interpretation, and reader-safe chronology need to be tracked independently.
 
 ### Character Article Overlay
 
@@ -542,6 +555,8 @@ Use `Pathway & Ability State` for broad stateful supernatural status such as pat
 Use `Prayers & Ritual Access` for character-specific prayer addresses, exact prayer wording when reader-safe, ritual labels, target functions, and cross-links to `Glossary_Threads/Concepts/concept-prayers-and-rituals.md`. Keep general ritual theory, reusable prayer/ritual type definitions, and cross-character comparisons on the concept page rather than duplicating them inside character pages.
 
 Use `Equipment & Artifacts` for broad local possession, custody, access, use, or investigation state. Add item relevance fields when the row may become graph-visible or page-worthy: `item_significance` (`minor`, `recurring`, `major`), `graph_relevance` (`none`, `local`, `full`), and `page_worthiness` (`none`, `candidate`, `dedicated-page`). Minor or disposable equipment stays data-only. Named recurring non-artifact objects with `page_worthiness: dedicated-page` should use `Glossary_Threads/Items/item-[name].md`. Formal supernatural artifacts should use `Glossary_Threads/Artifacts/artifact-[name].md`.
+
+Use `Glossary_Threads/Knowledge_Sources/source-[name].md` instead of an Item page when the row's main importance is that it reveals or transmits knowledge across multiple reader positions. Roselle diary pages, spellbooks, grimoires, notebooks, scriptures, formula records, case files, letters, inscriptions, murals, and similar carriers may begin as character/faction/location data rows, then graduate to Knowledge Source pages when their quote history, access chain, or claim chronology needs independent tracking.
 
 ### Pathway Article Overlay
 
@@ -739,6 +754,7 @@ character
 family
 faction
 item
+knowledge-source
 location
 concept
 event
@@ -762,6 +778,8 @@ Directly Related
 Historical Connections
 Associated Mysteries
 Associated Artifacts
+Associated Items
+Associated Knowledge Sources
 Associated Uniquenesses
 Associated Factions
 Associated Characters
@@ -850,7 +868,7 @@ Interpret them this way:
 - `recurring` + `graph_relevance: local` + `page_worthiness: candidate`: keep the row in local data and consider it for maintainer or local-context graphs. Create an Item page only if later analysis makes the object a durable relationship hub.
 - `major` + `graph_relevance: full` + `page_worthiness: dedicated-page`: create or target an `item-*` page when the object is not a formal supernatural artifact, and add the appropriate Relationship Seed.
 
-Use `Glossary_Threads/Items/item-[name].md` for named, recurring, graph-worthy non-artifact objects such as durable possessions, tools, documents, badges, keys, weapons, instruments, or access objects. Use `Glossary_Threads/Artifacts/artifact-[name].md` when the object's supernatural artifact identity, Sealed Artifact status, or mystical-object behavior is the analytical center. Keep ordinary disposable equipment data-only even if it briefly matters in a scene.
+Use `Glossary_Threads/Items/item-[name].md` for named, recurring, graph-worthy non-artifact objects such as durable possessions, tools, badges, keys, weapons, instruments, or access objects. Use `Glossary_Threads/Knowledge_Sources/source-[name].md` when the object's main function is carrying claims, quotes, formulas, interpretations, or reveal chronology. Use `Glossary_Threads/Artifacts/artifact-[name].md` when the object's supernatural artifact identity, Sealed Artifact status, or mystical-object behavior is the analytical center. Keep ordinary disposable equipment data-only even if it briefly matters in a scene.
 
 Possession/custody rows should preserve state changes in `availability` rather than overwriting the row. For example, a row can move from `possession_status: held` to `possession_status: lost-custody` while the Relationship Seed remains one graph edge whose current display is computed at the selected reader boundary.
 
@@ -866,6 +884,7 @@ Default ownership rules:
 - **Location-function relationships**: put `public-cover-for`, `operational-base-for`, and similar location-function seeds on the location page when the source is the location. Put `works-at` or `uses-as-operational-refuge` on the person/faction page when the source is the person/faction and that source page exists.
 - **Concept relationships**: put `mechanic-of`, `instance-of`, `trains-in`, `requires-practice`, `uses-method`, and `access-route-to` on the source page when the source exists. A concept page may own seeds only when the concept itself is the graph center or the source page does not yet exist.
 - **Item and equipment relationships**: put `possesses-item` on the character, faction, location, or other holder page when that entity is the source and the item is the target. Put item-as-source seeds on the item page when the item itself enables, accesses, calls, identifies, unlocks, explains, or otherwise relates to a concept, system, event, user, or function. Do not seed every equipment row; seed only rows whose `graph_relevance` is `full`, or `local` when the graph view is explicitly maintainer/local.
+- **Knowledge source relationships**: put source-as-source seeds on the Knowledge Source page when the source reveals, records, describes, contains, misleads about, or transmits a claim, concept, event, formula, entity, or system. Put reader/handler/access edges on the character, faction, location, or event page when that page is the natural source and the relationship is about access, handling, reading, custody, or interpretation at the reader boundary. Do not model a recurring knowledge source as an Item merely because it is physically held.
 - **Provisional hub seeds**: if the natural source page does not exist yet, a faction, pathway, event, concept, location, or artifact page may temporarily own a seed so the graph can show the edge. Mark that seed `projection_scope: provisional` and migrate or remove it when the natural owner page is created.
 
 Exact duplicate seeds across owner pages should be treated as QA findings unless they are explicitly provisional, represent different relationship types, or record a real reader-state/modeling conflict that needs resolution.
@@ -987,6 +1006,15 @@ artifact-user
 artifact-guardian
 possesses-item
 uses-item
+authored-by
+read-by
+accessed-by
+handled-by
+translated-by
+records-event
+contains-formula
+describes-concept
+reveals-claim
 source-of-information
 causal-agent
 targets
@@ -1054,6 +1082,20 @@ Use item relationship types when an `item-*` page is graph-visible:
 - `uses-item`: A character, faction, event, or system meaningfully uses a named non-artifact item without the relationship primarily being ownership or custody.
 
 Use `artifact-user` and `artifact-guardian` for formal supernatural artifacts, Sealed Artifacts, or artifact pages. Use `possesses-item` and `uses-item` for named non-artifact item pages. Keep ordinary equipment data-only unless the row's `graph_relevance` and `page_worthiness` justify a Relationship Seed.
+
+Use knowledge-source relationship types when a `source-*` page or source candidate is graph-visible:
+
+- `authored-by`: A knowledge source is authored, created, written, dictated, carved, compiled, or otherwise originated by the target.
+- `read-by`: A character, faction, or other entity reads or can directly interpret the target knowledge source.
+- `accessed-by`: A character, faction, location, event, or system gives access to, obtains access to, or serves as an access route for the target knowledge source.
+- `handled-by`: A character, faction, location, or organization physically handles, stores, curates, files, distributes, or administers access to the target knowledge source without necessarily understanding it.
+- `translated-by`: A character, faction, system, or method translates, decodes, interprets, or renders the target knowledge source intelligible.
+- `records-event`: A knowledge source records, describes, preserves, or testifies about the target event.
+- `contains-formula`: A knowledge source contains, preserves, points to, or transmits the target formula, pathway ingredient set, ritual procedure, or structured method.
+- `describes-concept`: A knowledge source describes, explains, hints at, or formalizes the target concept.
+- `reveals-claim`: A knowledge source reveals a durable claim tracked in a Reader Knowledge Ledger unit or future normalized claim node.
+
+Use `source-of-information` when a person, faction, source, or page is broadly functioning as the reader's source for a concept but the relationship does not need a narrower knowledge-source type yet.
 
 Use the visible section and type-specific data block for detailed state, uncertainty, reveal notes, holders, aliases, title variants, and display timing. Use Relationship Seeds only for positive graph-worthy edges. Do not seed an edge merely because a data block records `unknown`, `null`, or "no reader-safe relationship known."
 

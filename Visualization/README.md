@@ -22,6 +22,8 @@ Relationship Seed statuses affect graph labels but should not be used as a catch
 
 Named non-artifact objects appear as `Item` nodes only when the underlying data row is recurring, graph-worthy, or page-worthy. Minor equipment and disposable possessions should stay in type-specific data blocks with `graph_relevance: none`, so graph refreshes do not turn inventory into relationship noise.
 
+Recurring reveal carriers appear as `Knowledge Source` nodes with `source-*` slugs when their access chain, authorship, translation, quotes, or claim chronology needs independent tracking. Use these for Roselle diary pages, spellbooks, grimoires, notebooks, scriptures, case files, letters, inscriptions, formula records, murals, and similar sources rather than forcing them into Item nodes.
+
 Shared graph authoring rules live in [Graph Authoring Standard](graph-authoring-standard.md). Use that standard for both AI Agent graph requests and maintainer/project graph work before rendering.
 
 ## Current Artifacts

@@ -93,6 +93,7 @@ Investigations/
   Events/
   Factions/
   Items/
+  Knowledge_Sources/
   Locations/
   Pathways/
   Project/
@@ -109,6 +110,7 @@ Glossary_Threads/
   Factions/
   Families/
   Items/
+  Knowledge_Sources/
   Locations/
   Mysteries/
   Uniquenesses/

@@ -206,6 +206,7 @@ Examples of semantic grouping:
 - pathway graphs: group by pathway, pathway family, controller/possessor, source-culture variant, or reader-relevant faction;
 - artifact graphs: group by artifact, owner/custody chain, ability, usage event, or consequence;
 - item/equipment graphs: group by named item, holder/custody chain, function, access route, related system, or usage event;
+- knowledge-source graphs: group by source, author/origin, reader/interpreter, access chain, claim sequence, quote/evidence reference, or downstream reveal;
 - influence/manipulation graphs: group by manipulator, target, mechanism, event, or confirmed/inferred effect;
 - faction graphs: group by faction, hierarchy, operational cell, affiliation, conflict, or jurisdiction;
 - event graphs: group by event phase, participant role, cause, consequence, location, or reveal order;
@@ -235,6 +236,8 @@ Place these meta nodes in a clearly separated note or appendix branch, usually u
 When a cross-cutting concept, reconstruction, exchange rule, alternate pathway connection, or boundary note would pull an existing ladder or holder into another section, use a local reference/proxy node inside the secondary section. Label it as a reference, proxy, reconstruction, summary, or `see ...` node. Do not directly cross-link into the canonical content node if that link will distort the main layout.
 
 For possession and equipment graphs, include named non-artifact Item nodes only when repository data or source-supported graph-local evidence makes them recurring, graph-worthy, or page-worthy. Minor equipment, disposable props, and ordinary inventory should stay in output notes or be omitted unless the user explicitly asks for inventory coverage.
+
+For source/reveal graphs, use Knowledge Source nodes for recurring carriers of information such as diary pages, spellbooks, notebooks, scriptures, case files, letters, inscriptions, formula records, murals, and records. Treat the source's claim sequence, access chain, translation state, and quote references as its semantic content; do not flatten it into a generic Item unless the request is specifically about physical custody or use.
 
 ## Confidence And Styling
 

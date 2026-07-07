@@ -19,7 +19,7 @@ Related Threads:
 Related Investigations:
 -
 
-Use Item pages for named, recurring, graph-worthy non-artifact objects. Use Artifact pages for formal mystical artifacts, Sealed Artifacts, or supernatural objects whose artifact identity is the analytical center. Keep minor equipment, disposable possessions, and ordinary one-scene props inside local data blocks instead of creating Item pages.
+Use Item pages for named, recurring, graph-worthy non-artifact objects. Use Knowledge Source pages for recurring information carriers whose claims, quotes, access history, or interpretation chronology are the analytical center. Use Artifact pages for formal mystical artifacts, Sealed Artifacts, or supernatural objects whose artifact identity is the analytical center. Keep minor equipment, disposable possessions, and ordinary one-scene props inside local data blocks instead of creating Item pages.
 
 ## Purpose
 
@@ -124,6 +124,10 @@ Use Markdown links when the target file exists, with the target document's human
 -
 
 ### Associated Concepts / Systems
+
+-
+
+### Associated Knowledge Sources
 
 -
 

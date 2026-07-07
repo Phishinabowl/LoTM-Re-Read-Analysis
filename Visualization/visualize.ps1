@@ -24,6 +24,7 @@ $SlugPrefixes = @(
   "event",
   "faction",
   "item",
+  "source",
   "location",
   "pathway",
   "tarot-card",
@@ -1049,7 +1050,7 @@ function Convert-SlugToFallbackLabel {
   param([string]$Slug)
 
   $name = [System.IO.Path]::GetFileNameWithoutExtension($Slug)
-  $name = $name -replace '^(artifact|character|concept|deity|epoch|event|faction|family|item|location|mystery|pathway|tarot-card|timeline|uniqueness)-', ''
+  $name = $name -replace '^(artifact|character|concept|deity|epoch|event|faction|family|item|source|location|mystery|pathway|tarot-card|timeline|uniqueness)-', ''
   $parts = @($name -split '-' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
   $labelParts = foreach ($part in $parts) {
     if ($part -match '^[0-9]+$') {
@@ -1168,7 +1169,7 @@ function Get-ProjectionKeysForRow {
   param([hashtable]$Row)
 
   $keys = New-Object 'System.Collections.Generic.HashSet[string]'
-  foreach ($field in @("target", "ability", "event", "pathway", "organization", "item", "label", "field", "entity", "uniqueness")) {
+  foreach ($field in @("target", "ability", "event", "pathway", "organization", "item", "source_unit_id", "batch_id", "fragment_id", "label", "field", "entity", "uniqueness")) {
     if (-not $Row.ContainsKey($field) -or -not $Row[$field]) {
       continue
     }
@@ -1871,6 +1872,7 @@ function Write-MermaidGraph {
   $lines += "  classDef faction fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#1f2937"
   $lines += "  classDef family fill:#fce7f3,stroke:#be185d,stroke-width:2px,color:#1f2937"
   $lines += "  classDef item fill:#ecfccb,stroke:#65a30d,stroke-width:2px,color:#1f2937"
+  $lines += "  classDef source fill:#cffafe,stroke:#0891b2,stroke-width:2px,color:#1f2937"
   $lines += "  classDef location fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#1f2937"
   $lines += "  classDef mystery fill:#e5e7eb,stroke:#4b5563,stroke-width:2px,color:#1f2937"
   $lines += "  classDef pathway fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#1f2937"
@@ -1889,7 +1891,7 @@ function Write-MermaidGraph {
       continue
     }
     $className = ($nodeId -split '_')[0]
-    if (@("artifact", "character", "concept", "deity", "epoch", "event", "faction", "family", "item", "location", "mystery", "pathway", "tarot", "timeline", "uniqueness") -contains $className) {
+    if (@("artifact", "character", "concept", "deity", "epoch", "event", "faction", "family", "item", "source", "location", "mystery", "pathway", "tarot", "timeline", "uniqueness") -contains $className) {
       $lines += ('  class {0} {1}' -f $nodeId, $className)
     }
     if ($pendingNodes.Contains($nodeId)) {

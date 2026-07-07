@@ -144,11 +144,11 @@ Through Chapter 47, he gives the Nighthawks' support structure a warmer, strange
 
 ## Equipment & Artifacts
 
-| Item | Type | First reveal / change point | Possession status | Confidence | Notes |
-|---|---|---|---|---|---|
-| Historical materials / documents | Knowledge-work materials | Novel V1 Ch40-47 | Supplies or manages access | Confirmed | Old Neil provides materials and context for Klein's work. |
-| Seer formula and potion materials | Formula/material set | Novel V1 Ch31 | Retrieved/prepared, not owned | Confirmed | Old Neil handles the materials for Klein's advancement. |
-| Roselle diary pages | Document / knowledge artifact | Novel V1 Ch20-21 | Handles or provides access | Confirmed | Old Neil's office is Klein's first contact point for the diary material. |
+| Item / artifact | Type | Page target | First reveal / change point | Possession status | Graph relevance | Confidence | Notes |
+|---|---|---|---|---|---|---|---|
+| Historical materials / documents | Knowledge-work materials | Data-only | Novel V1 Ch40-47 | Supplies or manages access | None | Confirmed | Old Neil provides materials and context for Klein's work. |
+| Seer formula and potion materials | Formula/material set | Data-only | Novel V1 Ch31 | Retrieved/prepared, not owned | Local event support | Confirmed | Old Neil handles the materials for Klein's advancement; no standalone item page needed yet. |
+| Roselle diary pages | Document / knowledge-source corpus | Source-page candidate | Novel V1 Ch20-21 | Handles or provides access | Local pending source hub | Confirmed | Old Neil's office is Klein's first contact point for the diary material; model as a future Source page rather than an Item page. |
 
 ## Personality
 
@@ -666,36 +666,57 @@ character_profile:
       notes: Old Neil becomes the first Roselle diary contact point.
   equipment_artifacts:
     - item: Historical materials / documents
+      target:
       type: knowledge-work-materials
       possession_status: supplies-or-manages-access
+      item_significance: minor
+      graph_relevance: none
+      page_worthiness: none
       confidence: confirmed
       availability:
         - medium: novel
           from: { book: lotm-1, volume: 1, chapter: 40 }
           possession_status: supplies-or-manages-access
+          item_significance: minor
+          graph_relevance: none
+          page_worthiness: none
           confidence: confirmed
       notes: Old Neil provides materials and context for Klein's work.
     - item: Seer formula and potion materials
+      target:
       type: formula-material-set
       possession_status: retrieved-prepared-not-owned
+      item_significance: recurring
+      graph_relevance: local
+      page_worthiness: candidate
       confidence: confirmed
       availability:
         - medium: novel
           from: { book: lotm-1, volume: 1, chapter: 31 }
           possession_status: retrieved-prepared-not-owned
+          item_significance: recurring
+          graph_relevance: local
+          page_worthiness: candidate
           confidence: confirmed
           graph_visibility: full
       notes: Handles the materials for Klein's advancement.
     - item: Roselle diary pages
-      type: document-knowledge-artifact
+      target:
+      type: document-knowledge-source-corpus
       possession_status: handles-or-provides-access
+      item_significance: major
+      graph_relevance: local
+      page_worthiness: candidate
       confidence: confirmed
       availability:
         - medium: novel
           from: { book: lotm-1, volume: 1, chapter: 20 }
           possession_status: handles-or-provides-access
+          item_significance: major
+          graph_relevance: local
+          page_worthiness: candidate
           confidence: confirmed
-      notes: Old Neil's office is Klein's first contact point for the diary material.
+      notes: Old Neil's office is Klein's first contact point for the diary material; keep as a Source-page candidate rather than an Item page.
   personality:
     - trait: grumbling-but-reliable-veteran
       evidence: Joins field response after Kenley covers his armory watch.

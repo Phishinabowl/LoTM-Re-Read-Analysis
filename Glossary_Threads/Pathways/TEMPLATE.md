@@ -192,6 +192,10 @@ Use Markdown links when the target file exists, with the target document's human
 
 -
 
+### Associated Knowledge Sources
+
+-
+
 ### Associated Factions
 
 -
@@ -206,7 +210,7 @@ Use Markdown links when the target file exists, with the target document's human
 
 ## Pathway Data Block
 
-This block is the structured page-local state model for future generated pages, dashboards, reader-position filters, and relationship graphs. It duplicates the high-value pathway facts above in a predictable shape; keep it aligned with the prose and Reader Knowledge Ledger. Use metadata, not this data block, for page-level `Subject Visible From`. If `associated_tarot_card`, `associated_higher_order_entities`, `associated_uniqueness`, or `associated_mythical_creature` names a positive reader-safe target, add the corresponding graph edge in `Relationship Seeds`. Mention related items in visible sections or related threads when useful, but use a dedicated Item page and item-owned seed only when the object is itself a graph-worthy access route, tool, or relationship hub. Do not add relationship seeds for unknown/null placeholder state.
+This block is the structured page-local state model for future generated pages, dashboards, reader-position filters, and relationship graphs. It duplicates the high-value pathway facts above in a predictable shape; keep it aligned with the prose and Reader Knowledge Ledger. Use metadata, not this data block, for page-level `Subject Visible From`. If `associated_tarot_card`, `associated_higher_order_entities`, `associated_uniqueness`, or `associated_mythical_creature` names a positive reader-safe target, add the corresponding graph edge in `Relationship Seeds`. Mention related items or knowledge sources in visible sections or related threads when useful, but use dedicated Item or Knowledge Source pages only when the object/source is itself graph-worthy. Do not add relationship seeds for unknown/null placeholder state.
 
 For new or retrofitted rows, prefer `availability` over a single `reveal` field. `availability` preserves novel and Donghua timing independently and can record confidence changes over time. Every row that describes reader-visible state should support availability. Keep legacy `reveal` fields only on unmigrated rows.
 
@@ -441,6 +445,8 @@ If confidence or reader-state changes over time, keep one graph edge seed and re
 For mythical creature forms, target the shared `concept-mythical-creature-forms` concept page and preserve the specific form name in notes/local data. Keep detailed state, holders, notes, title variants, display timing, and uncertainty in the visible sections and `Pathway Data Block`.
 
 Pathway pages should not own ordinary possession/equipment seeds. If a named non-artifact item is important to pathway access, practice, or presentation, track the object on an `item-*` page and let that item page own item-as-source edges such as `access-route-to` or `uses-method` when appropriate.
+
+If a recurring source reveals pathway names, formulas, Sequences, access routes, or pathway history, track it on a `source-*` page and let the Knowledge Source page own source-as-source edges such as `contains-formula`, `describes-concept`, or `reveals-claim` when appropriate.
 
 Use `status: broken` only for pathway relationships that are explicitly ruptured, breached, failed, destroyed, or narratively broken. For ordinary ended access, custody, possession, affiliation, or holder state, prefer projected data-block state plus `status: historical` where needed.
 

@@ -152,7 +152,7 @@ Include this section only when the character has a reader-safe relationship to a
 
 ## Equipment & Artifacts
 
-Use this section for broad possession, custody, access, use, or investigation state. Link named recurring non-artifact objects to `Glossary_Threads/Items/item-[name].md` when they are page-worthy; link formal mystical artifacts or Sealed Artifacts to `Glossary_Threads/Artifacts/artifact-[name].md`. Keep minor equipment, disposable possessions, and one-scene props as plain data rows unless they become graph-worthy later.
+Use this section for broad possession, custody, access, use, investigation state, or source handling. Link named recurring non-artifact objects to `Glossary_Threads/Items/item-[name].md` when they are page-worthy; link recurring knowledge carriers to `Glossary_Threads/Knowledge_Sources/source-[name].md` when their quotes, claims, access history, or interpretation chronology need independent tracking; link formal mystical artifacts or Sealed Artifacts to `Glossary_Threads/Artifacts/artifact-[name].md`. Keep minor equipment, disposable possessions, and one-scene props as plain data rows unless they become graph-worthy later.
 
 | Item / artifact | Type | Page target | First reveal / change point | Possession status | Graph relevance | Confidence | Notes |
 |---|---|---|---|---|---|---|---|
@@ -232,6 +232,46 @@ Sort this table oldest-to-newest by event occurrence or first reveal.
 ## Related Threads
 
 Use Markdown links when the target file exists, with the target document's human-readable H1 title as the link label. Mention a nonexistent thread as a plain filename only when its creation is already planned or the relationship is essential. Do not seed speculative future references.
+
+### Directly Related
+
+-
+
+### Associated Characters
+
+-
+
+### Associated Factions
+
+-
+
+### Associated Locations
+
+-
+
+### Associated Artifacts
+
+-
+
+### Associated Items
+
+-
+
+### Associated Knowledge Sources
+
+-
+
+### Associated Concepts / Systems
+
+-
+
+### Associated Events
+
+-
+
+### Associated Pathways
+
+-
 
 ## Character Data Block
 

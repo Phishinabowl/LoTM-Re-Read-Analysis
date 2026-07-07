@@ -16,6 +16,7 @@ TYPE_FOLDERS = {
     "event": "Events",
     "faction": "Factions",
     "item": "Items",
+    "knowledge source": "Knowledge_Sources",
     "location": "Locations",
     "pathway": "Pathways",
     "uniqueness": "Uniquenesses",
@@ -39,6 +40,7 @@ SLUG_PREFIXES = (
     "event",
     "faction",
     "item",
+    "source",
     "location",
     "pathway",
     "tarot-card",
@@ -65,9 +67,12 @@ DATA_REFERENCE_KEYS = {
     "file",
     "location",
     "pathway",
+    "provider",
     "related_ats_formula",
     "related_deity",
+    "reader",
     "source",
+    "source_node",
     "target",
 }
 
@@ -320,7 +325,21 @@ def slugify_projection_value(value: str) -> str:
 
 def projection_keys_for_row(row: dict[str, str]) -> set[str]:
     keys: set[str] = set()
-    for key in ["target", "ability", "event", "pathway", "organization", "item", "label", "field", "entity", "uniqueness"]:
+    for key in [
+        "target",
+        "ability",
+        "event",
+        "pathway",
+        "organization",
+        "item",
+        "source_unit_id",
+        "batch_id",
+        "fragment_id",
+        "label",
+        "field",
+        "entity",
+        "uniqueness",
+    ]:
         value = row.get(key, "")
         if not value:
             continue
@@ -886,6 +905,8 @@ def singular_domain(value: str) -> str:
         "events": "event",
         "factions": "faction",
         "items": "item",
+        "knowledge-sources": "source",
+        "knowledge_sources": "source",
         "locations": "location",
         "pathways": "pathway",
         "tarot-cards": "tarot",
@@ -906,6 +927,7 @@ def qa_graph_class_definitions(include_relationship: bool = False) -> list[str]:
         "  classDef location fill:#ffedd5,stroke:#ea580c,color:#111827",
         "  classDef event fill:#fce7f3,stroke:#db2777,color:#111827",
         "  classDef item fill:#ecfccb,stroke:#65a30d,color:#111827",
+        "  classDef source fill:#cffafe,stroke:#0891b2,color:#111827",
         "  classDef volume fill:#e5e7eb,stroke:#6b7280,color:#111827",
         "  classDef unknown fill:#f8fafc,stroke:#64748b,stroke-dasharray: 4 3,color:#111827",
     ]
@@ -924,6 +946,7 @@ def append_qa_graph_class_assignments(lines: list[str], used_slugs: list[str], n
         "Location": "location",
         "Event": "event",
         "Item": "item",
+        "Knowledge Source": "source",
         "Volume Summary": "volume",
     }
     for slug in used_slugs:
