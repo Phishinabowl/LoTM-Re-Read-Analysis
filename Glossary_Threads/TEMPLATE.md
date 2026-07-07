@@ -23,6 +23,8 @@ Use only controlled tags from `PROJECT_RULES.md`.
 
 If this page embeds official artwork, use a promoted page-ready asset under `Artwork/page-assets/` and make the embedded image clickable to its own full-size asset by default. Keep raw extraction and working-crop paths under `Artwork/Source/` out of rendered Markdown links and image tags; record them only as source/provenance metadata when needed.
 
+This universal template is the shared glossary contract and maximal reference shape. Type-specific templates decide which sections are required, optional when relevant, or omitted by default. Do not add empty sections to real lightweight pages just to satisfy this template; use the relevant sections once the page has enough reader-safe material to support them.
+
 Filename format is governed by `PROJECT_RULES.md`. Use this generic shape only as a quick reminder:
 
 ```text
@@ -114,6 +116,7 @@ Use the same beat-heading pattern when adaptation first appearance, naming, expl
 ### Novel
 
 #### Volume X
+<!-- timeline_id: subject-volume-x-arc (required for real entries; keep matched to timeline_entries.id) -->
 
 - What the reader learns:
 - What changes:
@@ -123,6 +126,7 @@ Use the same beat-heading pattern when adaptation first appearance, naming, expl
 ### Donghua
 
 #### Season X, Episode Y
+<!-- timeline_id: subject-donghua-arc (required for real entries; keep matched to timeline_entries.id) -->
 
 - Timestamp:
 - What the viewer learns:
@@ -131,6 +135,8 @@ Use the same beat-heading pattern when adaptation first appearance, naming, expl
 - Why it matters:
 
 Use extra labels such as `Attribution boundary`, `Visual/audio evidence`, `Adaptation difference`, or `Institutional detail` only when the arc genuinely needs them.
+
+Use `timeline_id` comments for every real visible chronology subsection, and keep each one matched to exactly one structured `timeline_entries.id` row in the type-specific data block. Blank placeholders and lightweight stubs may remove the example comment until the entry is populated. Keep the Markdown prose readable for GitHub, and use the data-block row as the future website/source-rendering structure.
 
 ## Open Questions
 
@@ -185,7 +191,11 @@ Use the matching category template for this section when one exists. Replace thi
 
 Omit this section for lightweight stubs or categories whose data block shape has not been defined yet. Do not invent a generic schema just to fill this slot.
 
+Visible prose and tables are the GitHub-readable article layer. Type-specific data blocks are the future renderer, filtering, and QA layer. When a visible table and data-block row describe the same extractable state, keep both synchronized; do not rely on future tooling to scrape the visible table.
+
 For any row that describes reader-visible state, use row-level `availability` instead of a single blended reveal field. `Subject Visible From` gates the whole page; `availability` gates individual facts after the page is visible. Each availability entry may include `graph_visibility` when the row can project into a relationship graph. Use `hidden` by default before the relationship itself is reader-visible, and reserve `anonymized` or `partial` for cases where the story has made an unknown actor, force, or relationship pattern visible without revealing the true source, target, or label.
+
+When a page has meaningful `Chronological Development` prose, add a type-specific `timeline_entries` array so future reader-position renderers can reveal and sort the prose without scraping Markdown headings. The visible prose should remain the GitHub-readable article layer; `timeline_entries` should mirror its timing, summary, reader-learns, changes, unknowns, and why-it-matters fields as structured data. Keep visible chronology subsections and `timeline_entries` in the same oldest-to-newest reader/viewer order within each medium; insert newly discovered arcs into the correct position without renaming stable semantic IDs.
 
 ## Relationship Seeds
 
@@ -329,3 +339,5 @@ last_updated:
 #### Adaptation Analysis
 
 - Differences in timing, presentation, context, omission, condensation, expansion, or meaning:
+
+<!-- Add a collapsible Maintainer Notes block only when this page needs page-specific modeling, boundary, rendering, future split, or migration notes. Do not add empty maintainer-note placeholders to real pages. -->

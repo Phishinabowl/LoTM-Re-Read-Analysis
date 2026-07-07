@@ -24,6 +24,12 @@ Related Investigations:
 
 Use this template as a character-specific overlay on top of the universal glossary contract. Preserve the shared metadata, first appearance, chronological development, relationship seeds, evidence index, reader knowledge ledger, and optional maintainer notes from `Glossary_Threads/TEMPLATE.md`.
 
+For active or retrofitted character pages, the required minimum is `Metadata`, `Purpose`, `Spoiler Boundary`, `Reader Knowledge Boundary`, `Overall Summary`, `Character Snapshot`, `First Appearance / First Meaningful Mention`, `Chronological Development`, `Character Data Block`, `Relationship Seeds` when graph-worthy relationships are known, `Evidence Index`, and `Reader Knowledge Ledger`.
+
+Use `Names, Aliases & Titles`, `Physical Profile`, `Status, Origin & Location`, `Affiliations`, `Pathway & Ability State`, `Ability Index`, `Equipment & Artifacts`, `Personality`, `Relationships`, and `Major Events & Fights` when relevant. Omit empty optional modules from real pages until the character has reader-safe material for them.
+
+Omit `Mythical Creature Form State`, `Uniqueness State`, `Messenger / Servants / Companions`, `Prayers & Ritual Access`, and `Prayer / Ritual Texts` by default unless they have meaningful reader-safe material.
+
 ## Purpose
 
 What person does this page track, and what reader-safe character thread should it preserve?
@@ -37,6 +43,19 @@ Record only what is allowed by the broader spoiler boundary and exact reader kno
 - Volume:
 - Chapter:
 - Reader knowledge state:
+
+## Overall Summary
+
+Write a reader-safe synthesis of who this character is at the current boundary. This may be one paragraph for minor characters or a few concise paragraphs for major characters. Keep it inside the stated reader boundary.
+
+## Character Snapshot
+
+- Current reader-safe identity:
+- Current role:
+- Current affiliation / status:
+- Current location / base:
+- Current pathway / ability state:
+- Current narrative function:
 
 ## First Appearance / First Meaningful Mention
 
@@ -196,16 +215,17 @@ Exact reader-safe wording, if applicable.
 
 ## Major Events & Fights
 
-Sort this table oldest-to-newest by event occurrence or first reveal.
+Use this section as the character-local participation/index view, not as the canonical event model. Sort this table oldest-to-newest by reader/viewer occurrence or first reveal. Link to the event page and event part when those exist; future event pages own canonical event classification, multi-part structure, participants, locations, causes, outcomes, and event-centered Relationship Seeds.
 
-| Event / fight | Role | First reveal / occurrence | Outcome / status | Confidence | Notes |
-|---|---|---|---|---|---|
+| Event / fight | Event type | Event part | Role | First reveal / occurrence | Outcome / status | Confidence | Notes |
+|---|---|---|---|---|---|---|---|
 
 ## Chronological Development
 
 ### Novel
 
 #### Volume X
+<!-- timeline_id: character-volume-x-arc (required for real entries; keep matched to timeline_entries.id) -->
 
 - What the reader learns:
 - What changes:
@@ -215,6 +235,7 @@ Sort this table oldest-to-newest by event occurrence or first reveal.
 ### Donghua
 
 #### Season X, Episode Y
+<!-- timeline_id: character-donghua-arc (required for real entries; keep matched to timeline_entries.id) -->
 
 - Timestamp:
 - What the viewer learns:
@@ -277,6 +298,10 @@ Use Markdown links when the target file exists, with the target document's human
 
 This block is the structured page-local state model for future generated pages, dashboards, reader-position filters, and relationship graphs. Keep it aligned with the visible character sections and Reader Knowledge Ledger. Use metadata, not this data block, for page-level `Subject Visible From`. If `mythical_creature_form_state`, `uniqueness_state`, or a major/recurring `equipment_artifacts` row records a positive reader-safe graph relationship, add the corresponding graph edge in `Relationship Seeds`. Do not add relationship seeds for omitted sections, unknown/null state, ordinary absence, minor equipment, or disposable possessions.
 
+Visible character tables are the GitHub-readable article layer. `character_profile` rows are the future renderer, filtering, and QA layer. When both describe the same extractable state, keep them synchronized and fix both if they conflict.
+
+Use `timeline_entries` to mirror meaningful `Chronological Development` prose as structured data for future generated pages and reader-position filtering. Keep the Markdown chronology readable for GitHub; do not replace it with YAML-only chronology. Every real visible chronology subsection should have `<!-- timeline_id: ... -->` and exactly one matching `timeline_entries.id`. Keep visible subsections and timeline rows in the same oldest-to-newest reader/viewer order within each medium. When inserting a newly discovered arc, reorder the prose and data row without renaming stable semantic IDs.
+
 For new or retrofitted rows, prefer `availability` over a single `reveal` field. `availability` preserves novel and Donghua timing independently and can record confidence changes over time. Every row that describes reader-visible state should support availability. Keep legacy `reveal` fields only on unmigrated rows.
 
 Use `graph_visibility` inside an availability entry only when the row can project into relationship graphs. `hidden` means render nothing at that reader point; `anonymized` means use safe generic labels because the reader can see an unknown actor, force, or relationship pattern; `partial` means show some real pieces while withholding others; `full` means show the true eligible source, target, and relationship type.
@@ -284,6 +309,8 @@ Use `graph_visibility` inside an availability entry only when the row can projec
 Use kebab-case values for local Character Data Block taxonomy fields such as `status`, `relationship`, `possession_status`, `outcome_status`, `type`, `role`, `source`, `item_significance`, `graph_relevance`, `page_worthiness`, and `confidence`. Keep YAML field names such as `reader_boundary`, `state_sort_order`, `possession_status`, `graph_relevance`, `page_worthiness`, and `outcome_status` in snake_case.
 
 Prefer reusable local data-block values over character-specific one-offs. Examples include `current-at-boundary`, `current-operational-base`, `latest-known-location-at-boundary`, `current-pattern-at-boundary`, `strong-evidence-at-boundary`, `superseded-by-later-naming`, `authorized-access`, `investigating-not-possessed`, and `no-reader-safe-access-known`. If a new value is needed, make it generic enough to reuse across future character pages and explain the specific character nuance in `notes`.
+
+Default character fact ownership: affiliation, employment, and team membership belong first in `Affiliations`; pathway, Sequence, advancement, digestion, and broad supernatural state belong first in `Pathway & Ability State`; individual powers or skills belong first in `Ability Index` unless they are better modeled as `Prayers & Ritual Access`; object possession, custody, access, or use belongs first in `Equipment & Artifacts`; interpersonal/entity ties belong first in `Relationships`; plot participation belongs first in `Major Events & Fights`. Relationship Seeds project graph-worthy edges from those local rows and do not replace them.
 
 ```yaml
 character_profile:
@@ -299,6 +326,60 @@ character_profile:
       type:
       file:
       usage:
+  timeline_entries:
+    - id:
+      title:
+      medium:
+      from:
+        book:
+        volume:
+        chapter:
+        season:
+        episode:
+        release_order:
+      to:
+        book:
+        volume:
+        chapter:
+        season:
+        episode:
+        release_order:
+      visibility:
+        from:
+          medium:
+          book:
+          volume:
+          chapter:
+          season:
+          episode:
+          release_order:
+      entry_type:
+      summary:
+      reader_learns:
+        -
+      changes:
+        -
+      remains_unknown:
+        -
+      why_it_matters:
+      related_entities:
+        -
+      related_claims:
+        -
+      related_relationships:
+        -
+      related_events:
+        -
+      source_refs:
+        - medium:
+          book:
+          volume:
+          chapter:
+          season:
+          episode:
+          release_order:
+          timestamp:
+      notes:
   identities:
     - field:
       value:
@@ -591,6 +672,8 @@ character_profile:
       notes:
   major_events_fights:
     - event:
+      event_type:
+      event_part:
       role:
       outcome_status:
       confidence:
@@ -603,6 +686,8 @@ character_profile:
             season:
             episode:
             release_order:
+          event_type:
+          event_part:
           outcome_status:
           confidence:
           graph_visibility:

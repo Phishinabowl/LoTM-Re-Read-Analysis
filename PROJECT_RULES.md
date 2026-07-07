@@ -522,7 +522,9 @@ Use filenames without paths for metadata references unless a full Markdown link 
 
 Glossary pages are synthesis records. They should be readable as articles while still supporting future filtering, dashboards, and relationship graphs.
 
-Use the same top-level section order as `Glossary_Threads/TEMPLATE.md` unless there is a strong reason to deviate:
+Visible prose and tables are the public GitHub-readable article layer. Type-specific data blocks are the structured future-renderer layer. Keep both in sync while the repository remains Markdown-first. Do not remove visible tables merely because the data block can represent the same facts; a later website may generate those tables from structured data, but GitHub pages should remain usable in the meantime.
+
+`Glossary_Threads/TEMPLATE.md` is the universal glossary contract and maximal shared shape, not a demand that every stub or lightweight page include every empty section. Use the same top-level section order unless a type-specific template has a strong reason to deviate:
 
 1. Metadata
 2. Purpose
@@ -542,9 +544,11 @@ Use the same top-level section order as `Glossary_Threads/TEMPLATE.md` unless th
 
 The universal glossary template defines the shared article contract. Type-specific folders may also define overlay templates when a glossary type has recurring fields that should be easy to extract for graphs, dashboards, or reader-state filters.
 
-Use a type-specific overlay only when it adds predictable structure that the universal template cannot express cleanly. The overlay should preserve the shared metadata, relationship seeds, evidence index, reader knowledge ledger, and optional maintainer notes.
+Use a type-specific overlay only when it adds predictable structure that the universal template cannot express cleanly. The overlay should preserve the shared metadata, relationship seeds, evidence index, reader knowledge ledger, and optional maintainer notes. Type-specific templates decide which sections are required, optional when relevant, or omitted by default. Do not add empty sections to real pages just to satisfy a maximal template.
 
 Place human-facing type-specific sections near the top of the article after `Reader Knowledge Boundary`. Type-specific overlays may keep `First Appearance / First Meaningful Mention` immediately after the snapshot when first reveal timing is especially important to scan early. Keep machine-readable type-specific data blocks near the bottom of the article, immediately before `Relationship Seeds`, so structured extraction material stays grouped while the main page remains easy for humans to read.
+
+Maintainer Notes are optional page-local implementation notes. Do not include a Maintainer Notes block in every page by default. Add the collapsible block only when a page needs specific modeling, boundary, rendering, future split, or migration notes that do not belong in the reader-facing article flow.
 
 Current type-specific overlays:
 
@@ -557,6 +561,12 @@ Current type-specific overlays:
 
 Character pages should include the character overlay once the page has enough verified material to support more than a stub. The overlay is required for active character pilot pages and recommended for any future character page with reader-safe identity, role, affiliation, pathway, relationship, inventory, event-participation, or ability data.
 
+For active or retrofitted character pages, treat these sections as the required minimum unless the page is explicitly a lightweight stub: `Metadata`, `Purpose`, `Spoiler Boundary`, `Reader Knowledge Boundary`, `Overall Summary`, `Character Snapshot`, `First Appearance / First Meaningful Mention`, `Chronological Development`, `Character Data Block`, `Relationship Seeds` when any graph-worthy relationship is known, `Evidence Index`, and `Reader Knowledge Ledger`.
+
+Use these character modules when relevant: `Names, Aliases & Titles`, `Physical Profile`, `Status, Origin & Location`, `Affiliations`, `Pathway & Ability State`, `Ability Index`, `Equipment & Artifacts`, `Personality`, `Relationships`, and `Major Events & Fights`. Omit empty optional modules from real pages until the character has reader-safe material for them.
+
+Omit these specialized modules by default unless they have meaningful reader-safe material: `Mythical Creature Form State`, `Uniqueness State`, `Messenger / Servants / Companions`, `Prayers & Ritual Access`, and `Prayer / Ritual Texts`.
+
 Character pages should include an `Overall Summary` section immediately before `Character Snapshot`. This section should provide a reader-safe synthesis of who the character is at the current boundary. It can be more natural and interpretive than the structured rows, and it may be one paragraph for minor characters or a few concise paragraphs for major characters with more development. It must stay inside the reader boundary and avoid later emotional or plot contamination. The snapshot bullets should summarize the latest reader-safe state without replacing chronological development. Keep state/history tables newest-to-oldest by reveal or change point so the latest visible state appears first at the current reader boundary. Keep `Major Events & Fights`, chronological development, evidence indexes, and reader knowledge ledgers oldest-to-newest because those sections preserve event or reading order.
 
 When official character artwork is mapped and promoted into `Artwork/page-assets/characters/`, place a compact clickable primary character image immediately under the page H1 and before `Metadata`. Omit the image block until a page-ready asset exists; do not link directly to ignored bulk-extracted artwork.
@@ -565,6 +575,10 @@ Mutable character facts should accumulate rows instead of overwriting old values
 
 For type-specific data blocks, every row that describes reader-visible state should support `availability`. Use page metadata `Subject Visible From` as the whole-page gate, then use row-level `availability` as the fact-level gate. Static implementation fields such as `data_model_version`, `stable_slug`, `state_sort_order`, local artwork file paths, or internal usage labels do not need availability unless their display would itself reveal spoiler-sensitive subject information.
 
+Visible character tables and `character_profile` rows should mirror each other when they describe the same extractable state. If they conflict, update both. The visible table remains the GitHub-readable article surface; the data-block row is the future renderer, filtering, and QA source. Do not make future tooling scrape visible tables when a structured row can carry the same data.
+
+Use snake_case for data-block field names and lowercase kebab-case for controlled values. Reuse generic values across page types where possible. If a value will repeat across multiple page types, define or reference it in `PROJECT_RULES.md`; if it is character-specific, define it in the character template and keep the specific nuance in `notes` rather than inventing one-off values.
+
 Use `Pathway & Ability State` for broad stateful supernatural status such as pathway, Sequence, advancement, digestion, or limitations. Use `Ability Index` for individual capabilities and skills, including pathway abilities, artifact-granted effects, rituals, authority, training, knowledge, or mundane competencies.
 
 Use `Prayers & Ritual Access` for character-specific prayer addresses, exact prayer wording when reader-safe, ritual labels, target functions, and cross-links to `Glossary_Threads/Concepts/concept-prayers-and-rituals.md`. Keep general ritual theory, reusable prayer/ritual type definitions, and cross-character comparisons on the concept page rather than duplicating them inside character pages.
@@ -572,6 +586,20 @@ Use `Prayers & Ritual Access` for character-specific prayer addresses, exact pra
 Use `Equipment & Artifacts` for broad local possession, custody, access, use, or investigation state. Add item relevance fields when the row may become graph-visible or page-worthy: `item_significance` (`minor`, `recurring`, `major`), `graph_relevance` (`none`, `local`, `full`), and `page_worthiness` (`none`, `candidate`, `dedicated-page`). Minor or disposable equipment stays data-only. Named recurring non-artifact objects with `page_worthiness: dedicated-page` should use `Glossary_Threads/Items/item-[name].md`. Formal supernatural artifacts should use `Glossary_Threads/Artifacts/artifact-[name].md`.
 
 Use `Glossary_Threads/Knowledge_Sources/source-[name].md` instead of an Item page when the row's main importance is that it reveals or transmits knowledge across multiple reader positions. Roselle diary pages, spellbooks, grimoires, notebooks, scriptures, formula records, case files, letters, inscriptions, murals, and similar carriers may begin as character/faction/location data rows, then graduate to Knowledge Source pages when their quote history, access chain, or claim chronology needs independent tracking.
+
+Use `Major Events & Fights` as the character-local participation/index view, not as the canonical event model. The character page should summarize the character's role, outcome, and reader-safe significance, then link to an event page and event part when those exist. Future event pages should own canonical event classification, multi-part structure, participants, locations, causes, enablers, outcomes, injuries/deaths, artifacts/items/abilities used, knowledge revealed, timeline entries, and event-centered Relationship Seeds.
+
+When an event page exists, character `major_events_fights` rows should include both `event` and, when applicable, `event_part`. Use `event_type: fight` or similar values so future generated character pages can produce a dedicated fights view by filtering event participation rows. A single canonical event may appear as a fight for one character, a reveal for another, and a ritual or disaster on the event page itself.
+
+Default character fact ownership:
+
+- Affiliation, employment, team membership, and institutional role belong first in `Affiliations`.
+- Pathway, Sequence, advancement, digestion, broad ability state, and limitations belong first in `Pathway & Ability State`.
+- Individual powers, skills, training, ritual access, artifact-granted effects, and mundane competencies belong first in `Ability Index` unless they are better modeled as `Prayers & Ritual Access`.
+- Object possession, custody, use, access, or investigation state belongs first in `Equipment & Artifacts`.
+- Interpersonal, factional, or entity-to-entity ties that are not affiliation, equipment, pathway, or event participation belong first in `Relationships`.
+- Character participation in plot events, fights, investigations, rituals, meetings, disasters, or reveals belongs first in `Major Events & Fights`, with event pages becoming the canonical event hubs once they exist.
+- Relationship Seeds project graph-worthy edges from these local rows. They do not replace the visible section or data-block row.
 
 ### Pathway Article Overlay
 
@@ -656,6 +684,45 @@ Default Donghua arc format:
 Use `What happens`, `When the reader learns the connection`, `Attribution boundary`, `Visual/audio evidence`, `Adaptation difference`, `Institutional detail`, or similar extra labels only when the arc genuinely needs that distinction. Do not add extra labels just for decoration.
 
 For very small bridge entries, still include `Why it matters` and make the limited significance explicit.
+
+### Timeline Entry Style
+
+Chronological Development prose is the GitHub-readable article layer. It should remain clear, useful, and reader-boundary safe while the project is still maintained primarily as Markdown.
+
+Type-specific data blocks should add `timeline_entries` when a page has meaningful chronological prose that future reader-position tooling should reveal, hide, sort, or render dynamically. `timeline_entries` are the structured future-website layer for narrative development. They do not replace the visible prose yet, and the visible prose should not be parsed heuristically as the source of truth.
+
+Every real Chronological Development subsection on an active or retrofitted page must have a `timeline_id` comment and exactly one matching `timeline_entries.id`. Every `timeline_entries.id` should have a matching visible chronology subsection unless the row is explicitly marked as data-only/internal. Blank template placeholders and lightweight stubs may omit or remove timeline IDs until the entry is populated.
+
+Use the same stable `id` in the visible subsection and the data block when practical:
+
+```markdown
+#### Chapters X-Y: Arc Name
+<!-- timeline_id: subject-arc-name -->
+
+- What the reader learns:
+- What changes:
+- What remains unknown:
+- Why it matters:
+```
+
+Use comments only when they help keep prose and data synchronized. Do not clutter tiny stubs with timeline IDs before a page has enough chronology to model. Once a chronology entry is real, the comment is required.
+
+Each structured timeline entry should preserve:
+
+- `id`: stable semantic row key, usually kebab-case and subject-scoped. Avoid numeric sequence IDs such as `timeline-001` because inserted discoveries should not force later ID renumbering.
+- `title`: reader-facing arc label.
+- `medium`: `novel`, `donghua`, or another controlled medium when supported.
+- `from` and optional `to`: source-position range for the arc.
+- `visibility.from`: earliest reader/viewer position where this entry can appear.
+- `entry_type`: reusable category such as `recruitment`, `investigation`, `ability-demonstration`, `relationship-change`, `status-change`, `source-access`, `battle`, `reveal`, or `setup`.
+- `summary`, `reader_learns`, `changes`, `remains_unknown`, and `why_it_matters`: structured mirrors of the visible prose.
+- Optional `related_entities`, `related_claims`, `related_relationships`, `related_events`, and `source_refs`.
+
+Visible chronology subsections and `timeline_entries` should both be sorted oldest-to-newest within each medium by reader/viewer disclosure order, not in-world chronology, unless the section explicitly says otherwise. The two orders should match.
+
+When another investigation surfaces a new chronological entry for an existing article, insert the visible subsection and the `timeline_entries` row into the correct reader/viewer order instead of appending them to the end. Re-sequence the order, not the stable semantic IDs. Only rename an existing `timeline_id` when the ID itself was wrong or misleading, and update every matching reference at the same time.
+
+When visible chronology and `timeline_entries` conflict, fix both. Treat visible prose/tables as the human-facing article surface and `timeline_entries` as the structured renderer source for future websites, dashboards, and reader-position filters.
 
 ### Knowledge Unit Style
 
@@ -864,6 +931,8 @@ Use these layers consistently across all glossary page types:
 2. **Type-specific data blocks** are the structured page-local state model for future generated pages, dashboards, and reader-position filters. They should carry recurring state such as character affiliations, pathway status, artifact or item custody, location functions, event participation, aliases, access rules, and similar data, including claim availability by medium and reader position when the state can change over time.
 3. **Reader Knowledge Ledger knowledge units** are the audit and interpretation layer for reader knowledge. Use them to explain why a claim changes, preserve misconception arcs, cite reveal evidence, compare adaptations, and support QA, but do not make future renderers hunt through knowledge units for ordinary page-local state that belongs in the type-specific data block.
 4. **Relationship Seeds** are graph projection hints. They say which node-to-node edge should exist in relationship graphs, which relationship type to use, and the earliest reader-safe point where that edge becomes graph-worthy. When possible, a seed should point to the data-block row it projects.
+
+`timeline_entries` inside type-specific data blocks are part of layer 2. They are the structured version of the visible Chronological Development prose, intended for future website rendering, reader-position filtering, dashboard timelines, and QA checks. They should describe narrative development arcs, not replace state rows, relationship seeds, or knowledge units.
 
 When these layers overlap, resolve the content in this order: article prose/tables define the human-facing article; type-specific data blocks define structured page-local state; Reader Knowledge Ledger entries explain reveal/audit history; Relationship Seeds project graph-worthy edges from that structured state.
 
