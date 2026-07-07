@@ -329,7 +329,8 @@ Obsidian_Export/
   Volumes/
   _Generated/
     relationship-index.md
-    labeled-relationship-graph.mmd
+    QA-relationship-graph.mmd
+    visualization-relationship-graph.mmd
     data-reference-index.md
     orphan-report.md
     suspicious-edges.md
@@ -337,7 +338,9 @@ Obsidian_Export/
 
 Each mirror note includes source metadata, a canonical source link, outgoing Relationship Seed edges, incoming edges, data-block references, incoming data-block references, and seed-file evidence.
 
-`labeled-relationship-graph.mmd` is a QA-only Mermaid graph that labels relationship edges directly. It collapses duplicate `source + relationship + target` seeds into one edge with an `xN` suffix so the diagram stays readable. The canonical/public visualization workflow remains under `Visualization/`; this labeled graph is only for local Obsidian inspection.
+`QA-relationship-graph.mmd` is a QA-only Mermaid graph that labels relationship edges directly. It collapses duplicate `source + relationship + target` seeds into one edge with an `xN` suffix so the diagram stays readable. The canonical/public visualization workflow remains under `Visualization/`; this labeled graph is only for local Obsidian inspection.
+
+`visualization-relationship-graph.mmd` is a QA-local unbounded graph generated through the repository visualization helper. It uses the same semantic relationship-node projection style as `Visualization/`, but writes only to the ignored Obsidian export folder and does not render images or update canonical visualization artifacts.
 
 The `_Generated` reports flag:
 

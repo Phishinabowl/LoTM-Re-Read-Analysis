@@ -1,5 +1,6 @@
 import argparse
 import datetime as dt
+import importlib.util
 import json
 import re
 import shutil
@@ -525,6 +526,26 @@ def render_labeled_relationship_graph(relationships: list[Relationship], notes: 
     return "\n".join(lines)
 
 
+def write_visualization_relationship_graph(root: Path, output_path: Path) -> None:
+    visualize_path = root / "Visualization" / "visualize.py"
+    if not visualize_path.exists():
+        raise RuntimeError(f"Visualization helper not found: {visualize_path}")
+
+    module_name = "_lotm_visualization_for_obsidian_qa"
+    spec = importlib.util.spec_from_file_location(module_name, visualize_path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"Unable to load visualization helper: {visualize_path}")
+
+    visualize = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = visualize
+    spec.loader.exec_module(visualize)
+
+    node_data = visualize.read_glossary_nodes()
+    nodes = {node_id: data["label"] for node_id, data in node_data.items()}
+    relationships = visualize.read_relationship_seeds()
+    visualize.write_mermaid_graph(output_path, dict(nodes), relationships, False)
+
+
 def render_relationship_index(relationships: list[Relationship], notes: dict[str, CanonicalNote]) -> str:
     lines = [
         "# Relationship Index",
@@ -715,10 +736,11 @@ def write_export(
 
     generated_dir = output_dir / "_Generated"
     (generated_dir / "relationship-index.md").write_text(render_relationship_index(relationships, notes), encoding="utf-8")
-    (generated_dir / "labeled-relationship-graph.mmd").write_text(
+    (generated_dir / "QA-relationship-graph.mmd").write_text(
         render_labeled_relationship_graph(relationships, notes),
         encoding="utf-8",
     )
+    write_visualization_relationship_graph(root, generated_dir / "visualization-relationship-graph.mmd")
     (generated_dir / "data-reference-index.md").write_text(render_data_reference_index(data_references, notes), encoding="utf-8")
     (generated_dir / "orphan-report.md").write_text(render_orphan_report(notes, relationships, data_references), encoding="utf-8")
     (generated_dir / "suspicious-edges.md").write_text(render_suspicious_edges(notes, relationships), encoding="utf-8")
