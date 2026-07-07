@@ -20,7 +20,7 @@ No source text is included.
 
 The repository contains notes, chronology analysis, investigations, adaptation comparisons, and research artifacts derived from a personal reread and Donghua analysis of **Lord of the Mysteries**.
 
-The novel EPUB, Donghua subtitle files, bulk extracted artwork, working artwork crops, and any future local source materials are intentionally excluded from version control.
+The novel EPUB, Donghua subtitle files, bulk extracted artwork, working artwork crops, generated Obsidian QA exports, and any future local source materials are intentionally excluded from version control.
 
 Original repository materials are covered by [LICENSE](LICENSE). Third-party names, artwork, terminology, and related fan-reference materials are covered by the repository [NOTICE](NOTICE.md).
 
@@ -67,6 +67,8 @@ Generated visualization artifacts live in [Visualization](Visualization/README.m
 
 The current GitHub-visible graph is the [Volume 1 Knowledge Graph](Visualization/graphs/volume-1-knowledge-graph.mmd). The graph is generated from glossary relationship seeds and is not the source of truth.
 
+Local Obsidian QA mirrors are generated with [Tools/obsidian_qa_export.py](Tools/obsidian_qa_export.py) into the ignored `Obsidian_Export/` folder. They are compiled inspection views for Obsidian graph review, not canonical records and not GitHub-visible visualization artifacts.
+
 Graph construction rules shared by maintainer graph work and access-layer AI Agent graph requests live in the [Graph Authoring Standard](Visualization/graph-authoring-standard.md).
 
 Do not embed the full graph in this README; it is maintained as a separate generated artifact.
@@ -108,6 +110,10 @@ Visualization/
   rendered/
   generated graph artifacts and provisional graph schema notes
 
+Tools/
+  README.md
+  Python-preferred helper scripts and documented PowerShell fallbacks
+
 Artwork/
   README.md
   official-epub-image-map.md
@@ -117,6 +123,9 @@ Artwork/
 Source/
   README.md
   local EPUB, Donghua subtitles, and future source materials (Git ignored)
+
+Obsidian_Export/
+  local generated Obsidian QA mirror (Git ignored)
 
 00_READ_FIRST_AI_AGENT_BOOTSTRAP.md
 README-AI-Agent-Specification.md
@@ -135,3 +144,5 @@ Git commits should mark durable project knowledge changes, not ordinary discussi
 The entire `Source/` directory is ignored by Git so copyrighted source materials cannot be committed accidentally. The already tracked `Source/README.md` remains as public documentation; the EPUB, Donghua subtitles, and future local source files remain local-only.
 
 Bulk official artwork staging is also ignored by Git. `Artwork/Source/` is the local-only workspace for extracted official artwork and derived working crops; only deliberately selected page-ready assets under `Artwork/page-assets/` should be tracked.
+
+Generated Obsidian QA exports are ignored by Git. Regenerate them locally from canonical repository records instead of editing or committing `Obsidian_Export/`.

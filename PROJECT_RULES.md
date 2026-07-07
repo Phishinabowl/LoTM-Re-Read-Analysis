@@ -131,6 +131,7 @@ Use each project artifact for a distinct purpose:
 - `Glossary_Threads`: Subject-specific information, complete reveal timelines, reader-state filtering data, and adaptation comparisons.
 - `Investigations`: Evidence, verification history, and supported conclusions for questions that required consulting the EPUB.
 - `Visualization`: Generated visualization artifacts, such as Mermaid graphs, rendered graph images, and future graph data exports.
+- `Obsidian_Export`: Ignored local QA mirror generated from repository records for Obsidian graph inspection, anomaly detection, and relationship review.
 
 Do not duplicate granular reveal chronology across boards, volume pages, and glossary threads. Keep the filterable detail in the glossary thread and summarize only the durable volume-level meaning on the appropriate board or volume page.
 
@@ -158,7 +159,7 @@ By default, embedded page images should be clickable links to their own full-siz
 
 # Visualization
 
-Visualization files are generated outputs.
+Visualization files are generated outputs. `Obsidian_Export/` is also a generated output, but it is a local-only QA mirror rather than a GitHub-visible visualization artifact.
 
 The graph source of truth remains:
 
@@ -174,17 +175,24 @@ Generated visualization outputs may include:
 - JSON graph data
 - Future frontend graph views
 
-Do not treat generated graph files as canonical project knowledge.
+Generated Obsidian QA outputs may include:
 
-Do not manually edit generated graph outputs except for debugging or temporary inspection. Fix durable graph problems by updating the relevant glossary thread, investigation record, Relationship Seed, or controlled taxonomy, then regenerate the graph.
+- Obsidian-friendly mirror notes
+- relationship and data-reference indexes
+- local-only QA Mermaid `.mmd` files
+- orphan, suspicious-edge, duplicate-edge, and unknown-target reports
 
-For durable canonical graph corrections, if a graph exposes missing or incorrect data:
+Do not treat generated graph files, generated Obsidian mirror notes, or generated QA reports as canonical project knowledge.
+
+Do not manually edit generated graph outputs or generated Obsidian export files except for debugging or temporary inspection. Fix durable graph problems by updating the relevant glossary thread, investigation record, Relationship Seed, data block, or controlled taxonomy, then regenerate the output.
+
+For durable canonical graph or Obsidian QA corrections, if a generated view exposes missing or incorrect data:
 
 1. Fix the glossary or investigation record.
-2. Update Relationship Seeds when the relationship model changes.
-3. Regenerate the graph output.
+2. Update Relationship Seeds or structured data blocks when the relationship or extracted-data model changes.
+3. Regenerate the relevant output.
 
-For graph-only maintainer work, do not silently update glossary threads, investigations, boards, current state, index, or Relationship Seeds while producing the graph. Graph generation may read project records and allowed local sources, include clearly marked graph-local evidence, and report candidate project-data updates. Ask for maintainer confirmation before editing canonical project records.
+For graph-only maintainer work or Obsidian QA export work, do not silently update glossary threads, investigations, boards, current state, index, Relationship Seeds, or data blocks while producing the generated view. Graph generation may read project records and allowed local sources, include clearly marked graph-local evidence, and report candidate project-data updates. Ask for maintainer confirmation before editing canonical project records.
 
 Use the shared [Graph Authoring Standard](Visualization/graph-authoring-standard.md) for graph construction. It defines canonical versus graph-local evidence, source expansion, pathway/sequence coverage, maintainer confirmation, and output reporting.
 
@@ -804,7 +812,7 @@ If Page A links to Page B and Page B already exists, review Page B for whether i
 
 After navigation changes, perform a relationship/link sweep to confirm that existing relationship endpoints are discoverable through Markdown links.
 
-Do not manually maintain incoming references or backlinks yet. Backlinks, generated reference indexes, relationship graphs, and visual maps should be left for future automation once the repository is larger.
+Do not manually maintain incoming references, backlinks, generated reference indexes, relationship graphs, or visual maps inside source pages. Use repository generators for compiled views, and fix durable issues by updating canonical glossary threads, investigations, Relationship Seeds, or data blocks.
 
 ## Pilot Article Boundary Rule
 
@@ -997,7 +1005,7 @@ Example:
   notes: Klein joins the Tingen Nighthawks under the Church of Evernight structure.
 ```
 
-Do not manually maintain full graph files yet. Future automation may extract relationship seeds from glossary threads into Mermaid diagrams, relationship maps, dashboards, or generated indexes.
+Do not manually maintain generated full graph files. Repository automation extracts Relationship Seeds and structured data from glossary threads into Mermaid diagrams, relationship maps, QA mirrors, dashboards, or generated indexes. Manual Mermaid files are allowed only when explicitly classified as repository-local manual graphs under the visualization workflow.
 
 ## Open Questions
 

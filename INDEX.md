@@ -13,6 +13,7 @@ Navigation hub for the reread analysis workspace.
 - [Third-Party Notice](NOTICE.md)
 - [Maintainer Context](MAINTAINER_CONTEXT.md)
 - [Deprecated Assistant Context Redirect](ASSISTANT_CONTEXT.md)
+- [Tools README](Tools/README.md)
 - [Visualization README](Visualization/README.md)
 - [Graph Authoring Standard](Visualization/graph-authoring-standard.md)
 

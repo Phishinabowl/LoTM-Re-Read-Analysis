@@ -304,7 +304,7 @@ last_updated:
 
 ## Future Automation Notes
 
-Do not manually maintain backlinks, incoming references, generated indexes, relationship graphs, or visual maps yet.
+Do not manually maintain backlinks, incoming references, generated indexes, relationship graphs, or visual maps inside source pages. Use repository generators for compiled views, and keep generated outputs out of canonical article content.
 
 Future spoiler-filtered renderers should collapse optional sections when no rows or prose remain eligible at the selected reader position. Embedded page header images may remain visible at any reader position.
 
