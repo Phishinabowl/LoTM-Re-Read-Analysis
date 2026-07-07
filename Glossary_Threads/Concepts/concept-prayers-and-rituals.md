@@ -256,8 +256,6 @@ last_updated: 2026-07-03
 
 ## Future Automation Notes
 
-Do not manually maintain backlinks, incoming references, generated indexes, relationship graphs, or visual maps yet.
-
 Future reader-boundary tooling should let character pages expose exact prayer wording only when the wording is available at or before the selected boundary, while this concept page provides reusable prayer/ritual type definitions.
 
 ## Notes

@@ -234,24 +234,44 @@ pathway_profile:
     - display_name:
       entity:
       relationship_layer: sequence-0 | ats | outer-deity | sefirot | other
-      reveal:
-        medium:
-        volume:
-        chapter:
       status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          graph_visibility:
+          display_source_label:
+          display_target_label:
+          display_relationship_type:
+          notes:
       notes:
   name_timeline:
     - name:
       usage_type:
-      reveal:
-        medium:
-        volume:
-        chapter:
       display_active:
         from:
         until:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          notes:
       display_behavior:
         primary_title: true/false
         hint_label:
@@ -259,11 +279,19 @@ pathway_profile:
   sequences:
     - sequence:
       name:
-      reveal:
-        medium:
-        volume:
-        chapter:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          notes:
       formula_details:
         -
       ability_profile:
@@ -281,20 +309,44 @@ pathway_profile:
   institutional_access:
     - faction:
       access_type:
-      reveal:
-        medium:
-        volume:
-      chapter:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          graph_visibility:
+          display_source_label:
+          display_target_label:
+          display_relationship_type:
+          notes:
       notes:
   affiliated_factions:
     - faction:
       affiliation_type:
-      reveal:
-        medium:
-        volume:
-        chapter:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          graph_visibility:
+          display_source_label:
+          display_target_label:
+          display_relationship_type:
+          notes:
       notes:
   known_holders:
     - character:
@@ -322,11 +374,24 @@ pathway_profile:
       notes:
   associated_uniqueness:
     reader_safe_name:
-    reveal:
-      medium:
-      volume:
-      chapter:
     status:
+    confidence:
+    availability:
+      - medium:
+        from:
+          book:
+          volume:
+          chapter:
+          season:
+          episode:
+          release_order:
+        status:
+        confidence:
+        graph_visibility:
+        display_source_label:
+        display_target_label:
+        display_relationship_type:
+        notes:
     dedicated_article:
     holder_or_accommodation_state:
     related_deity:
@@ -338,11 +403,24 @@ pathway_profile:
       - reader_safe_name:
         version_stage:
         sequence_threshold:
-        reveal:
-          medium:
-          volume:
-          chapter:
         status:
+        confidence:
+        availability:
+          - medium:
+            from:
+              book:
+              volume:
+              chapter:
+              season:
+              episode:
+              release_order:
+            status:
+            confidence:
+            graph_visibility:
+            display_source_label:
+            display_target_label:
+            display_relationship_type:
+            notes:
         notes:
 ```
 
@@ -431,14 +509,3 @@ last_updated:
 #### Adaptation Analysis
 
 - Differences in timing, presentation, context, omission, condensation, expansion, or meaning:
-
-## Future Automation Notes
-
-- The `Pathway Data Block` should remain aligned with the pathway snapshot sections, relationship seeds, and reader knowledge ledger.
-- Future spoiler-filtered renderers should collapse optional sections when no rows or prose remain eligible at the selected reader position. Embedded page header images may remain visible at any reader position.
-- If this pathway is not reader-safe for a selected position, future renderers should hide the entire page from reader-facing navigation, search, related-thread lists, graph views, and generated output.
-- If `Subject Visible From` is not obvious from the first appearance section, add a short note here explaining the page-level gate.
-
-## Notes
-
--

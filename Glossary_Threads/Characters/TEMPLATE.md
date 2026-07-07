@@ -22,7 +22,7 @@ Related Threads:
 Related Investigations:
 -
 
-Use this template as a character-specific overlay on top of the universal glossary contract. Preserve the shared metadata, first appearance, chronological development, relationship seeds, evidence index, reader knowledge ledger, future automation notes, and notes sections from `Glossary_Threads/TEMPLATE.md`.
+Use this template as a character-specific overlay on top of the universal glossary contract. Preserve the shared metadata, first appearance, chronological development, relationship seeds, evidence index, reader knowledge ledger, optional maintainer notes, and notes sections from `Glossary_Threads/TEMPLATE.md`.
 
 ## Purpose
 
@@ -604,17 +604,3 @@ relationships:
 ## Reader Knowledge Ledger
 
 Add one block for each durable spoiler-timed claim. Duplicate the block as needed. Keep novel and Donghua disclosure timelines independent.
-
-## Future Automation Notes
-
-Do not manually maintain backlinks, incoming references, generated indexes, relationship graphs, or visual maps yet.
-
-Future spoiler-filtered renderers should collapse optional sections when no rows or prose remain eligible at the selected reader position. Embedded page header images may remain visible at any reader position.
-
-If this character is not reader-safe for a selected position, future renderers should hide the entire page from reader-facing navigation, search, related-thread lists, graph views, and generated output.
-
-If `Subject Visible From` is not obvious from the first appearance section, add a short note here explaining the page-level gate.
-
-## Notes
-
--

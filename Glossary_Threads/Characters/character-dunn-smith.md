@@ -1252,11 +1252,13 @@ last_updated: 2026-07-02
 
 - Donghua comparison is pending.
 
-## Future Automation Notes
+<details>
+<summary>Maintainer Notes</summary>
 
+- Page-level `Subject Visible From` is Novel V1 Ch12 because Chapter 10 only shows an unnamed gray-eyed police inspector; the page title becomes reader-safe once he identifies himself as Dunn Smith.
+- Keep Dunn's `pathway-status` relationship as one seed projected from `character_profile.pathway_state[pathway-sleepless]`; the data row preserves the Chapter 22 strong-evidence state and Chapter 45 confirmation without duplicate graph edges.
 - This character should become a major graph hub connecting Klein, Leonard, Old Neil, Blackthorn, the Nighthawks, the Church, Seer advancement, the Antigonus notebook, Sleepless/Nightmare pathway clues, and later 0-08 crisis material.
 - Do not import the completed 0-08 Dunn evidence until the Dunn page's reader boundary advances.
-
-## Notes
-
 - Keep Dunn's current page focused on reader-safe captain/institutional authority through Chapter 47. Later emotional and crisis material belongs in a future boundary advance.
+
+</details>

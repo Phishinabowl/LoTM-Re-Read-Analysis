@@ -38,41 +38,82 @@ The objective is to reconstruct:
 
 # Project File Structure
 
-The project uses the following files:
+The project uses the following files and folders:
 
 ```text
-Source/
-├── README.md
-└── Lord of Mysteries - Book 1.epub
-
 Boards/
-├── 01_LoTM_Main_Reread_Board.md
-└── 02_LoTM_Ancient_History_Family_Board.md
+  01_LoTM_Main_Reread_Board.md
+  02_LoTM_Ancient_History_Family_Board.md
+
+Volumes/
+  TEMPLATE.md
+  volume-01-clown.md
+  planned volume summary pages
 
 Investigations/
-├── TEMPLATE.md
-├── Artifacts/
-│   └── artifact-[name]/
-├── Characters/
-├── Factions/
-├── Concepts/
-└── Project/
+  TEMPLATE.md
+  Artifacts/
+  Characters/
+  Concepts/
+  Events/
+  Factions/
+  Locations/
+  Pathways/
+  Project/
+  type-specific source verification records, split by subject and medium
 
 Glossary_Threads/
-├── TEMPLATE.md
-├── Artifacts/
-├── Characters/
-├── Deities/
-├── Uniquenesses/
-├── Families/
-├── Factions/
-├── Locations/
-├── Concepts/
-├── Events/
-├── Pathways/
-├── Epochs/
-├── Mysteries/
-└── Timelines/
+  TEMPLATE.md
+  Artifacts/
+  Characters/
+  Concepts/
+  Deities/
+  Epochs/
+  Events/
+  Factions/
+  Families/
+  Locations/
+  Mysteries/
+  Pathways/
+  Timelines/
+  Uniquenesses/
+  recurring subject records and embedded spoiler-aware knowledge units
+
+Visualization/
+  README.md
+  graph-authoring-standard.md
+  config/
+  data/
+  graphs/
+  rendered/
+  generated graph artifacts, render settings, and provisional graph schema notes
+
+Tools/
+  README.md
+  Python-preferred helper scripts
+  documented PowerShell fallbacks
+
+Artwork/
+  README.md
+  official-epub-image-map.md
+  page-assets/
+  tracked page-ready artwork plus ignored local source-artwork workspace
+
+Source/
+  README.md
+  local EPUB, Donghua subtitles, and future source materials (Git ignored)
+
+Testing/
+  local scratch outputs and temporary experiments unless deliberately promoted
+
+Obsidian_Export/
+  local generated Obsidian QA mirror (Git ignored)
+
+.obsidian/
+  local Obsidian vault settings (Git ignored)
+
+.tmp/
+  local scratch workspace (Git ignored)
 
 INDEX.md
 CURRENT_STATE.md
@@ -82,9 +123,11 @@ README-AI-Agent-Specification.md
 MAINTAINER_CONTEXT.md
 ASSISTANT_CONTEXT.md (deprecated redirect)
 README.md
+LICENSE
+NOTICE.md
 ```
 
-These files are the project's working memory.
+These files and folders are the project's working memory.
 
 When conclusions are reached:
 
@@ -131,6 +174,10 @@ Use each project artifact for a distinct purpose:
 - `Glossary_Threads`: Subject-specific information, complete reveal timelines, reader-state filtering data, and adaptation comparisons.
 - `Investigations`: Evidence, verification history, and supported conclusions for questions that required consulting the EPUB.
 - `Visualization`: Generated visualization artifacts, such as Mermaid graphs, rendered graph images, and future graph data exports.
+- `Tools`: Repeatable local maintenance, source-search, artwork, visualization, Obsidian export, and cleanup helpers. Prefer Python helpers when available and documented PowerShell fallbacks when Python is unavailable.
+- `Artwork`: Tracked official artwork metadata and selected page-ready assets. Bulk extraction, intermediate crops, and source-derived staging stay local-only.
+- `Source`: Local canonical source materials such as the EPUB and Donghua subtitles. Copyrighted source files stay ignored by Git.
+- `Testing`: Local scratch outputs and temporary experiments. Promote durable outputs into the appropriate canonical folder only after maintainer confirmation.
 - `Obsidian_Export`: Ignored local QA mirror generated from repository records for Obsidian graph inspection, anomaly detection, and relationship review.
 
 Do not duplicate granular reveal chronology across boards, volume pages, and glossary threads. Keep the filterable detail in the glossary thread and summarize only the durable volume-level meaning on the appropriate board or volume page.
@@ -165,6 +212,7 @@ The graph source of truth remains:
 
 - Glossary thread metadata
 - Embedded Reader Knowledge Ledger sections in glossary threads
+- Type-specific data blocks and their row-level `availability` entries
 - Relationship Seeds
 - Controlled relationship taxonomy in this file
 
@@ -548,14 +596,13 @@ Use the same top-level section order as `Glossary_Threads/TEMPLATE.md` unless th
 10. Relationship Seeds
 11. Evidence Index
 12. Reader Knowledge Ledger
-13. Future Automation Notes
-14. Notes
+13. Maintainer Notes, when needed
 
 ### Type-Specific Glossary Overlays
 
 The universal glossary template defines the shared article contract. Type-specific folders may also define overlay templates when a glossary type has recurring fields that should be easy to extract for graphs, dashboards, or reader-state filters.
 
-Use a type-specific overlay only when it adds predictable structure that the universal template cannot express cleanly. The overlay should preserve the shared metadata, relationship seeds, evidence index, reader knowledge ledger, future automation notes, and notes sections.
+Use a type-specific overlay only when it adds predictable structure that the universal template cannot express cleanly. The overlay should preserve the shared metadata, relationship seeds, evidence index, reader knowledge ledger, and optional maintainer notes.
 
 Place human-facing type-specific sections near the top of the article after `Reader Knowledge Boundary`. Type-specific overlays may keep `First Appearance / First Meaningful Mention` immediately after the snapshot when first reveal timing is especially important to scan early. Keep machine-readable type-specific data blocks near the bottom of the article, immediately before `Relationship Seeds`, so structured extraction material stays grouped while the main page remains easy for humans to read.
 
@@ -827,6 +874,21 @@ If Page A links to Page B and Page B already exists, review Page B for whether i
 After navigation changes, perform a relationship/link sweep to confirm that existing relationship endpoints are discoverable through Markdown links.
 
 Do not manually maintain incoming references, backlinks, generated reference indexes, relationship graphs, or visual maps inside source pages. Use repository generators for compiled views, and fix durable issues by updating canonical glossary threads, investigations, Relationship Seeds, or data blocks.
+
+Do not copy generic automation policy into individual glossary articles. Keep global automation and generator rules in this file, tool docs, or visualization docs. Page-local implementation notes belong only when they explain a specific page's modeling, boundary, rendering, or future split behavior.
+
+When page-local implementation notes are needed, prefer a collapsible block so reader-facing article flow stays clean:
+
+```markdown
+<details>
+<summary>Maintainer Notes</summary>
+
+- Page-specific modeling note:
+
+</details>
+```
+
+Generated website or reader-facing renderers should be able to strip or hide maintainer-note blocks by default, while maintainer views may preserve them.
 
 ## Pilot Article Boundary Rule
 
@@ -1407,7 +1469,7 @@ Filtered renderers must apply page-level eligibility before section-level eligib
 
 Set `Subject Visible From` to the earliest point where the article subject can be exposed under the page title or slug without spoiling attribution. It can match first appearance for openly named subjects, first named identification for characters/places/artifacts, first completion for event pages whose title contains the outcome, or first formal attribution for pages whose subject appears anonymously earlier.
 
-Do not add a standalone reader-facing `Subject Visibility` section by default. Keep the machine-readable value in metadata. If the gate is non-obvious, such as a title that exposes an event outcome or a subject that appears anonymously before it is named, record the rationale under `Future Automation Notes`.
+Do not add a standalone reader-facing `Subject Visibility` section by default. Keep the machine-readable value in metadata. If the gate is non-obvious, such as a title that exposes an event outcome or a subject that appears anonymously before it is named, record the rationale under page-local `Maintainer Notes`.
 
 The eventual glossary page should update from the user's selected novel chapter, Donghua release position, or both. Its reader-facing summary and timeline must be constructed only from eligible knowledge units. Freeform analysis elsewhere in the Markdown file is project working material and must not be assumed spoiler-safe for automatic display.
 

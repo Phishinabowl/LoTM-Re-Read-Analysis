@@ -6,10 +6,11 @@ Generated graph files are not the source of truth. The canonical project data re
 
 - Glossary thread metadata
 - Embedded Reader Knowledge Ledger sections in glossary threads
+- Type-specific data blocks and their row-level `availability` entries
 - Relationship Seeds
 - The controlled relationship taxonomy in `PROJECT_RULES.md`
 
-Generated Mermaid graphs are generated from glossary metadata and Relationship Seeds. If a canonical graph refresh exposes missing, stale, or incorrect information, fix the glossary thread, investigation record, or relationship seed first, then regenerate the graph. Manual maintainer graphs may include clearly marked graph-local evidence before those project-data updates are confirmed.
+Generated Mermaid graphs are generated from glossary metadata, Relationship Seeds, and projected type-specific data-block availability. If a canonical graph refresh exposes missing, stale, or incorrect information, fix the glossary thread, investigation record, data block, or relationship seed first, then regenerate the graph. Manual maintainer graphs may include clearly marked graph-local evidence before those project-data updates are confirmed.
 
 Page-level reader visibility belongs to glossary metadata through `Subject Visible From`; do not model it as a Relationship Seed. Filtered graph views use that metadata as the node-level gate before applying relationship or claim-level timing.
 

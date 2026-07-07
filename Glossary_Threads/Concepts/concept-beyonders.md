@@ -569,7 +569,6 @@ last_updated: 2026-07-01
 
 - Concept pages now have initial graph-oriented relationship types in `PROJECT_RULES.md`.
 - Stress-test `instance-of`, `regulates-access-to`, `access-route-to`, `trains-in`, `requires-practice`, `uses-method`, and `mechanic-of` as additional concept pages are created.
-- Do not add automated backlinks or graph outputs manually yet.
 
 ## Notes
 

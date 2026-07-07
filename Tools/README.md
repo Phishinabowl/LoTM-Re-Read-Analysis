@@ -63,6 +63,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Clean-TempFiles.ps1 -D
 
 Use `--json` / `-Json` when downstream tooling needs structured results.
 
+The Python Obsidian QA export and visualization refresh helpers invoke the Python cleanup helper at the end of normal runs so transient `__pycache__` folders do not linger. Run the cleanup command directly when a tool exits early, when using fallback scripts, or when reviewing cache cleanup behavior by itself.
+
 ## Image Manipulation
 
 Use `edit_image.py` for repeatable local image operations when Python with Pillow is available. It is the preferred implementation because it is faster and shares one CLI for crop operations, named crop presets, and EPUB image listing/extraction.
@@ -306,7 +308,7 @@ Raw counts can mislead when a term is also a job, epithet, or individual label. 
 
 ## Obsidian QA Export
 
-Use `obsidian_qa_export.py` to compile glossary metadata, Relationship Seeds, and YAML data-block references into a generated Obsidian-friendly mirror. It is the preferred implementation when Python is available. If Python is unavailable, use the Windows PowerShell fallback `Obsidian-QA-Export.ps1`. The export is a QA view, not a source of truth. Canonical project notes remain under `Glossary_Threads/`, `Investigations/`, `Volumes/`, and related source folders.
+Use `obsidian_qa_export.py` to compile glossary metadata, Relationship Seeds, YAML data-block references, and projected data-block availability into a generated Obsidian-friendly mirror. It is the preferred implementation when Python is available. If Python is unavailable, use the Windows PowerShell fallback `Obsidian-QA-Export.ps1`. The export is a QA view, not a source of truth. Canonical project notes remain under `Glossary_Threads/`, `Investigations/`, `Volumes/`, and related source folders.
 
 Default output goes to ignored local directory `Obsidian_Export/`:
 
@@ -315,7 +317,7 @@ python Tools\obsidian_qa_export.py
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1
 ```
 
-The generated structure mirrors active canonical pages by type and adds QA reports:
+The generated structure mirrors active canonical pages by type and adds QA reports. Pages with `Status: Stub` are excluded by default; pass `--include-stubs` / `-IncludeStubs` when stub pages should be mirrored for local inspection. Pending pages are treated as normal QA candidates unless the source page itself is omitted by status.
 
 ```text
 Obsidian_Export/
@@ -339,9 +341,9 @@ Obsidian_Export/
 
 Each mirror note includes source metadata, a canonical source link, outgoing Relationship Seed edges, incoming edges, data-block references, incoming data-block references, and seed-file evidence.
 
-`QA-relationship-graph.mmd` is a QA-only Mermaid graph that labels relationship edges directly. It collapses duplicate `source + relationship + target` seeds into one edge with an `xN` suffix so the diagram stays readable. The canonical/public visualization workflow remains under `Visualization/`; this labeled graph is only for local Obsidian inspection.
+`QA-relationship-graph.mmd` is a QA-only Mermaid graph that labels relationship edges directly. It collapses duplicate `source + relationship + target` seeds into one edge with an `xN` suffix so the diagram stays readable. When a seed declares `projection_source`, the label includes the projected availability history from the matching data-block row. The canonical/public visualization workflow remains under `Visualization/`; this labeled graph is only for local Obsidian inspection.
 
-`QA-relationship-node-graph.mmd` is the same QA relationship set projected through intermediary relationship nodes, which can be easier to read in Mermaid viewers when direct edge labels overlap.
+`QA-relationship-node-graph.mmd` is the same QA relationship set projected through intermediary relationship nodes, which can be easier to read in Mermaid viewers when direct edge labels overlap. The relationship nodes preserve seed/data provenance and projected availability summaries for quick maintainer review.
 
 `visualization-relationship-graph.mmd` is a QA-local unbounded graph generated through the repository visualization helper. It uses the same semantic relationship-node projection style as `Visualization/`, but writes only to the ignored Obsidian export folder and does not render images or update canonical visualization artifacts.
 
