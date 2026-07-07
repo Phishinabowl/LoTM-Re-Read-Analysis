@@ -473,7 +473,7 @@ def render_labeled_relationship_graph(relationships: list[Relationship], notes: 
 
     used_slugs = sorted({slug for source, _, target in grouped for slug in (source, target)})
     lines = [
-        "%% Labeled Relationship Graph",
+        "%% QA Relationship Graph",
         "%% Generated from Relationship Seeds as a QA-only Mermaid view.",
         "%% Duplicate seed edges are collapsed and marked with counts.",
         "%% Unknown nodes are Relationship Seed slugs that do not currently resolve to generated mirror notes.",
@@ -493,21 +493,75 @@ def render_labeled_relationship_graph(relationships: list[Relationship], notes: 
             label = f"{label} x{duplicate_count}"
         lines.append(f'  {mermaid_node_id(source)} -->|"{mermaid_escape(label)}"| {mermaid_node_id(target)}')
 
-    lines.extend(
-        [
-            "",
-            "  classDef character fill:#dbeafe,stroke:#2563eb,color:#111827",
-            "  classDef faction fill:#fee2e2,stroke:#dc2626,color:#111827",
-            "  classDef artifact fill:#fef3c7,stroke:#d97706,color:#111827",
-            "  classDef concept fill:#ede9fe,stroke:#7c3aed,color:#111827",
-            "  classDef pathway fill:#dcfce7,stroke:#16a34a,color:#111827",
-            "  classDef location fill:#ffedd5,stroke:#ea580c,color:#111827",
-            "  classDef event fill:#fce7f3,stroke:#db2777,color:#111827",
-            "  classDef volume fill:#e5e7eb,stroke:#6b7280,color:#111827",
-            "  classDef unknown fill:#f8fafc,stroke:#64748b,stroke-dasharray: 4 3,color:#111827",
-        ]
-    )
+    lines.extend(qa_graph_class_definitions())
+    append_qa_graph_class_assignments(lines, used_slugs, notes)
 
+    lines.append("")
+    return "\n".join(lines)
+
+
+def render_relationship_node_graph(relationships: list[Relationship], notes: dict[str, CanonicalNote]) -> str:
+    grouped: dict[tuple[str, str, str], list[Relationship]] = {}
+    for rel in relationships:
+        if not rel.source or not rel.target:
+            continue
+        key = (rel.source, rel.relationship_type or "relationship", rel.target)
+        grouped.setdefault(key, []).append(rel)
+
+    used_slugs = sorted({slug for source, _, target in grouped for slug in (source, target)})
+    lines = [
+        "%% QA Relationship Node Graph",
+        "%% Generated from Relationship Seeds as a QA-only Mermaid view with relationship nodes.",
+        "%% Duplicate seed edges are collapsed into relationship nodes and marked with counts.",
+        "%% Unknown nodes are Relationship Seed slugs that do not currently resolve to generated mirror notes.",
+        "graph LR",
+    ]
+
+    for slug in used_slugs:
+        node_id = mermaid_node_id(slug)
+        title = mermaid_escape(mermaid_node_title(slug, notes))
+        lines.append(f'  {node_id}["{title}"]')
+
+    lines.append("")
+    grouped_items = sorted(grouped)
+    for index, (source, relationship_type, target) in enumerate(grouped_items, start=1):
+        duplicate_count = len(grouped[(source, relationship_type, target)])
+        label = relationship_type
+        if duplicate_count > 1:
+            label = f"{label} x{duplicate_count}"
+        relationship_node_id = f"rel_{index:03d}"
+        lines.append(f'  {relationship_node_id}["{mermaid_escape(label)}"]')
+        lines.append(f"  {mermaid_node_id(source)} --> {relationship_node_id}")
+        lines.append(f"  {relationship_node_id} --> {mermaid_node_id(target)}")
+
+    lines.extend(qa_graph_class_definitions(include_relationship=True))
+    append_qa_graph_class_assignments(lines, used_slugs, notes)
+    for index in range(1, len(grouped_items) + 1):
+        lines.append(f"  class rel_{index:03d} relationship")
+
+    lines.append("")
+    return "\n".join(lines)
+
+
+def qa_graph_class_definitions(include_relationship: bool = False) -> list[str]:
+    lines = [
+        "",
+        "  classDef character fill:#dbeafe,stroke:#2563eb,color:#111827",
+        "  classDef faction fill:#fee2e2,stroke:#dc2626,color:#111827",
+        "  classDef artifact fill:#fef3c7,stroke:#d97706,color:#111827",
+        "  classDef concept fill:#ede9fe,stroke:#7c3aed,color:#111827",
+        "  classDef pathway fill:#dcfce7,stroke:#16a34a,color:#111827",
+        "  classDef location fill:#ffedd5,stroke:#ea580c,color:#111827",
+        "  classDef event fill:#fce7f3,stroke:#db2777,color:#111827",
+        "  classDef volume fill:#e5e7eb,stroke:#6b7280,color:#111827",
+        "  classDef unknown fill:#f8fafc,stroke:#64748b,stroke-dasharray: 4 3,color:#111827",
+    ]
+    if include_relationship:
+        lines.append("  classDef relationship fill:#f8fafc,stroke:#475569,stroke-width:1.5px,color:#111827")
+    return lines
+
+
+def append_qa_graph_class_assignments(lines: list[str], used_slugs: list[str], notes: dict[str, CanonicalNote]) -> None:
     class_map = {
         "Character": "character",
         "Faction": "faction",
@@ -521,9 +575,6 @@ def render_labeled_relationship_graph(relationships: list[Relationship], notes: 
     for slug in used_slugs:
         class_name = class_map.get(notes[slug].type_name, "unknown") if slug in notes else "unknown"
         lines.append(f"  class {mermaid_node_id(slug)} {class_name}")
-
-    lines.append("")
-    return "\n".join(lines)
 
 
 def write_visualization_relationship_graph(root: Path, output_path: Path) -> None:
@@ -738,6 +789,10 @@ def write_export(
     (generated_dir / "relationship-index.md").write_text(render_relationship_index(relationships, notes), encoding="utf-8")
     (generated_dir / "QA-relationship-graph.mmd").write_text(
         render_labeled_relationship_graph(relationships, notes),
+        encoding="utf-8",
+    )
+    (generated_dir / "QA-relationship-node-graph.mmd").write_text(
+        render_relationship_node_graph(relationships, notes),
         encoding="utf-8",
     )
     write_visualization_relationship_graph(root, generated_dir / "visualization-relationship-graph.mmd")
