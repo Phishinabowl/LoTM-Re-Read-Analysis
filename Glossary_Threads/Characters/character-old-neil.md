@@ -312,148 +312,281 @@ character_profile:
     book: lotm-1
     volume: 1
     chapter: 47
+  data_model_version: page-local-state-v2
+  availability_policy: per-medium-independent
   state_sort_order: newest-to-oldest
   official_artwork: []
   identities:
     - field: title-role
       value: Klein's first practical mysticism instructor
-      reveal: { medium: novel, volume: 1, chapter: 32 }
       status: current-at-boundary
       confidence: confirmed
+      availability:
+        - medium: novel
+          from: { book: lotm-1, volume: 1, chapter: 32 }
+          status: current-at-boundary
+          confidence: confirmed
       notes: Old Neil teaches Klein Cogitation, Spirit Vision, and basic mystical practice.
     - field: primary-common-name
       value: Old Neil
-      reveal: { medium: novel, volume: 1, chapter: 19 }
       status: current-at-boundary
       confidence: confirmed
+      availability:
+        - medium: novel
+          from: { book: lotm-1, volume: 1, chapter: 19 }
+          status: current-at-boundary
+          confidence: confirmed
       notes: Dunn names Old Neil as civilian staff.
   physical_profile:
     - field: age
       value: Older adult
-      reveal: { medium: novel, volume: 1, chapter: 19 }
       status: current-at-boundary
       confidence: strong-inference
+      availability:
+        - medium: novel
+          from: { book: lotm-1, volume: 1, chapter: 19 }
+          status: current-at-boundary
+          confidence: strong-inference
       notes: Exact age is not verified.
   status_origin_location:
     - field: current-location
       value: Ray Bieber apartment / Antigonus notebook field-response scene
-      reveal: { medium: novel, volume: 1, chapter: 45 }
       status: latest-known-location-at-boundary
       confidence: confirmed
+      availability:
+        - medium: novel
+          from: { book: lotm-1, volume: 1, chapter: 45 }
+          status: latest-known-location-at-boundary
+          confidence: confirmed
       notes: Old Neil is last tracked joining Dunn's field team and examining the scene.
     - field: compensation-status
       value: Paid through both Church and police department
-      reveal: { medium: novel, volume: 1, chapter: 47 }
       status: current-at-boundary
       confidence: confirmed
+      availability:
+        - medium: novel
+          from: { book: lotm-1, volume: 1, chapter: 47 }
+          status: current-at-boundary
+          confidence: confirmed
       notes: Old Neil gives Klein a concrete salary detail.
     - field: residence-base
       value: Blackthorn Security Company / Tingen Nighthawks workplace
-      reveal: { medium: novel, volume: 1, chapter: 19 }
       status: current-operational-base
       confidence: confirmed
+      availability:
+        - medium: novel
+          from: { book: lotm-1, volume: 1, chapter: 19 }
+          status: current-operational-base
+          confidence: confirmed
       notes: Old Neil works in restricted Nighthawk spaces connected to Blackthorn.
     - field: vital-status
       value: Alive
-      reveal: { medium: novel, volume: 1, chapter: 19 }
       status: current-at-boundary
       confidence: confirmed
+      availability:
+        - medium: novel
+          from: { book: lotm-1, volume: 1, chapter: 19 }
+          status: current-at-boundary
+          confidence: confirmed
       notes: No reader-safe death or disappearance through Chapter 47.
   affiliations:
     - organization: Blackthorn Security Company
+      target: location-blackthorn-security-company
       relationship: works-at-operational-workplace
-      reveal: { medium: novel, volume: 1, chapter: 19 }
       status: current-at-boundary
       confidence: confirmed
+      availability:
+        - medium: novel
+          from: { book: lotm-1, volume: 1, chapter: 19 }
+          status: current-at-boundary
+          confidence: confirmed
+          graph_visibility: full
       notes: Performs Nighthawk support work through the Blackthorn-connected workplace.
     - organization: Tingen Nighthawks
+      target: faction-nighthawks
       relationship: civilian-staff-member
-      reveal: { medium: novel, volume: 1, chapter: 19 }
       status: current-at-boundary
       confidence: confirmed
+      availability:
+        - medium: novel
+          from: { book: lotm-1, volume: 1, chapter: 19 }
+          status: current-at-boundary
+          confidence: confirmed
+          graph_visibility: full
       notes: Dunn names him as one of the civilian staff.
-  pathway_ability_state:
-    - field: pathway-sequence
-      value: "Sequence 9: Mystery Pryer"
-      reveal: { medium: novel, volume: 1, chapter: 22 }
+    - organization: Church of Evernight
+      target: faction-church-of-evernight
+      relationship: civilian-staff-member
       status: current-at-boundary
       confidence: confirmed
-      notes: Rozanne identifies the title; Dunn confirms the power in Chapter 28.
-    - field: ability-state
+      availability:
+        - medium: novel
+          from: { book: lotm-1, volume: 1, chapter: 19 }
+          status: current-at-boundary
+          confidence: confirmed
+          graph_visibility: full
+      notes: Chapter 19 places Old Neil in the Church-linked Tingen Nighthawks civilian staff structure.
+  pathway_state:
+    - pathway: Mystery Pryer pathway
+      target: pathway-mystery-pryer
+      relationship: pathway-status
+      status: current-at-boundary
+      confidence: confirmed
+      availability:
+        - medium: novel
+          from: { book: lotm-1, volume: 1, chapter: 22 }
+          status: current-at-boundary
+          confidence: confirmed
+          graph_visibility: full
+          notes: Rozanne identifies Old Neil's Sequence 9 title as Mystery Pryer; Dunn confirms in Chapter 28 that Mystery Pryer is the power Old Neil controls.
+        - medium: donghua
+          from: { season: TBD, episode: TBD, release_order: TBD }
+          status: pending-adaptation-verification
+          confidence: TBD
+          adaptation_relationship: pending
+      notes: Use this row as the structured state source for Old Neil's pathway-status graph edge.
+  sequence_state:
+    - sequence: 9
+      sequence_name: Mystery Pryer
+      related_pathway: pathway-mystery-pryer
+      status: current-at-boundary
+      confidence: confirmed
+      availability:
+        - medium: novel
+          from: { book: lotm-1, volume: 1, chapter: 22 }
+          status: current-at-boundary
+          confidence: confirmed
+          notes: Rozanne identifies the Sequence title before later practical demonstrations.
+        - medium: donghua
+          from: { season: TBD, episode: TBD, release_order: TBD }
+          status: pending-adaptation-verification
+          confidence: TBD
+          adaptation_relationship: pending
+      notes: Sequence state is separated from the broader Mystery Pryer pathway edge so future pages can track advancement independently.
+  ability_state:
+    - field: practical-mysticism-instruction
       value: Spirit Vision and practical mysticism instruction
-      reveal: { medium: novel, volume: 1, chapter: 32 }
       status: current-demonstrated-capability
       confidence: confirmed
+      availability:
+        - medium: novel
+          from: { book: lotm-1, volume: 1, chapter: 32 }
+          status: current-demonstrated-capability
+          confidence: confirmed
       notes: Old Neil teaches and demonstrates early mystical practice for Klein.
   ability_index:
     - ability: ritual-sealing-interpretation
       source: mysticism-expertise-mystery-pryer-knowledge
-      reveal: { medium: novel, volume: 1, chapter: 46 }
       status: current-at-boundary
       confidence: confirmed
+      availability:
+        - medium: novel
+          from: { book: lotm-1, volume: 1, chapter: 46 }
+          status: current-at-boundary
+          confidence: confirmed
       notes: Identifies a ritual-like sealing effect during the notebook response.
     - ability: spirit-vision-instruction
       source: mysticism-practice-mystery-pryer-expertise
-      reveal: { medium: novel, volume: 1, chapter: 32 }
       status: current-at-boundary
       confidence: confirmed
+      availability:
+        - medium: novel
+          from: { book: lotm-1, volume: 1, chapter: 32 }
+          status: current-at-boundary
+          confidence: confirmed
+          graph_visibility: full
       notes: Teaches Klein to use and interpret Spirit Vision.
     - ability: roselle-diary-document-handling
       source: knowledge-work-specialty
-      reveal: { medium: novel, volume: 1, chapter: 20 }
       status: current-at-boundary
       confidence: confirmed
+      availability:
+        - medium: novel
+          from: { book: lotm-1, volume: 1, chapter: 20 }
+          status: current-at-boundary
+          confidence: confirmed
       notes: Old Neil becomes the first Roselle diary contact point.
   equipment_artifacts:
     - item: Seer formula and potion materials
       type: formula-material-set
-      reveal: { medium: novel, volume: 1, chapter: 31 }
       possession_status: retrieved-prepared-not-owned
       confidence: confirmed
+      availability:
+        - medium: novel
+          from: { book: lotm-1, volume: 1, chapter: 31 }
+          possession_status: retrieved-prepared-not-owned
+          confidence: confirmed
+          graph_visibility: full
       notes: Handles the materials for Klein's advancement.
     - item: Roselle diary pages
       type: document-knowledge-artifact
-      reveal: { medium: novel, volume: 1, chapter: 20 }
       possession_status: handles-or-provides-access
       confidence: confirmed
+      availability:
+        - medium: novel
+          from: { book: lotm-1, volume: 1, chapter: 20 }
+          possession_status: handles-or-provides-access
+          confidence: confirmed
       notes: Old Neil's office is Klein's first contact point for the diary material.
   prayers_ritual_access:
     - label: Ritualistic-magic instruction context
       type: ritualistic-magic
       function: Teaches Klein that ritualistic magic belongs to practical mysticism
-      reveal: { medium: novel, volume: 1, chapter: 33 }
       status: current-instructional-context
       confidence: confirmed
+      availability:
+        - medium: novel
+          from: { book: lotm-1, volume: 1, chapter: 33 }
+          status: current-instructional-context
+          confidence: confirmed
       concept_link: ../Concepts/concept-prayers-and-rituals.md
       wording:
       notes: Not a character-specific prayer address, but Old Neil is the current reader-safe source for ritualistic-magic context.
     - label: Ray Bieber scene sealing effect
       type: sealing-ritual-effect
       function: Interprets field evidence of a ritual-like seal
-      reveal: { medium: novel, volume: 1, chapter: 46 }
       status: observed-effect-procedure-unknown
       confidence: confirmed
+      availability:
+        - medium: novel
+          from: { book: lotm-1, volume: 1, chapter: 46 }
+          status: observed-effect-procedure-unknown
+          confidence: confirmed
       concept_link: ../Concepts/concept-prayers-and-rituals.md
       wording:
       notes: Old Neil identifies the effect but is not confirmed as its creator.
   major_events_fights:
     - event: Roselle diary workplace contact
       role: knowledge-work-contact
-      reveal: { medium: novel, volume: 1, chapter: 20 }
       outcome_status: active-knowledge-thread
       confidence: confirmed
+      availability:
+        - medium: novel
+          from: { book: lotm-1, volume: 1, chapter: 20 }
+          outcome_status: active-knowledge-thread
+          confidence: confirmed
       notes: Old Neil's office anchors Klein's first diary contact.
     - event: Klein Becomes a Seer
       role: potion-preparer-event-participant
-      reveal: { medium: novel, volume: 1, chapter: 31 }
       outcome_status: completed
       confidence: confirmed
+      availability:
+        - medium: novel
+          from: { book: lotm-1, volume: 1, chapter: 31 }
+          outcome_status: completed
+          confidence: confirmed
+          graph_visibility: full
       notes: Retrieves formula/materials and prepares Klein's potion.
     - event: Antigonus notebook / Ray Bieber field response
       role: specialized-field-participant
-      reveal: { medium: novel, volume: 1, chapter: 45 }
       outcome_status: active-unresolved-at-boundary
       confidence: confirmed
+      availability:
+        - medium: novel
+          from: { book: lotm-1, volume: 1, chapter: 45 }
+          outcome_status: active-unresolved-at-boundary
+          confidence: confirmed
+          graph_visibility: full
       notes: Old Neil uses Spirit Vision and identifies ritual-like sealing.
 ```
 
@@ -470,6 +603,11 @@ relationships:
       chapter: 19
     status: active
     confidence: confirmed
+    projection_owner: source-page
+    projection_scope: canonical
+    projection_source: character_profile.affiliations[faction-church-of-evernight]
+    default_hidden_source_behavior: hide
+    default_hidden_target_behavior: hide
     notes: Chapter 19 identifies Old Neil as one of the Tingen Nighthawks' civilian staff under the Church-linked organization.
   - source: character-old-neil
     target: location-blackthorn-security-company
@@ -480,6 +618,11 @@ relationships:
       chapter: 19
     status: active
     confidence: confirmed
+    projection_owner: source-page
+    projection_scope: canonical
+    projection_source: character_profile.affiliations[location-blackthorn-security-company]
+    default_hidden_source_behavior: hide
+    default_hidden_target_behavior: hide
     notes: Old Neil is introduced as Nighthawks civilian staff and later performs restricted-duty and field-response work through Blackthorn's connected workplace/facility structure.
   - source: character-old-neil
     target: pathway-mystery-pryer
@@ -490,6 +633,11 @@ relationships:
       chapter: 22
     status: active
     confidence: confirmed
+    projection_owner: source-page
+    projection_scope: canonical
+    projection_source: character_profile.pathway_state[pathway-mystery-pryer]
+    default_hidden_source_behavior: hide
+    default_hidden_target_behavior: hide
     notes: Rozanne identifies Old Neil's Sequence 9 title as Mystery Pryer; Dunn confirms in Chapter 28 that Mystery Pryer is the power Old Neil controls.
   - source: character-old-neil
     target: character-klein-moretti
@@ -500,17 +648,12 @@ relationships:
       chapter: 32
     status: active
     confidence: confirmed
+    projection_owner: source-page
+    projection_scope: canonical
+    projection_source: character_profile.ability_index[spirit-vision-instruction]
+    default_hidden_source_behavior: hide
+    default_hidden_target_behavior: hide
     notes: Old Neil begins teaching Klein Cogitation, Spirit Vision, and practical mysticism immediately after Klein becomes a Seer.
-  - source: character-klein-moretti
-    target: character-old-neil
-    relationship_type: student
-    start:
-      medium: novel
-      volume: 1
-      chapter: 32
-    status: active
-    confidence: confirmed
-    notes: Klein receives his first practical Beyonder training from Old Neil after consuming the Seer potion.
   - source: character-old-neil
     target: event-klein-becomes-a-seer
     relationship_type: event-participant
@@ -520,6 +663,11 @@ relationships:
       chapter: 31
     status: active
     confidence: confirmed
+    projection_owner: source-page
+    projection_scope: canonical
+    projection_source: character_profile.major_events_fights[event-klein-becomes-a-seer]
+    default_hidden_source_behavior: hide
+    default_hidden_target_behavior: hide
     notes: Old Neil retrieves the formula/materials workflow from Chanis Gate and prepares Klein's Seer potion in the alchemy room.
   - source: character-old-neil
     target: concept-beyonders
@@ -530,6 +678,11 @@ relationships:
       chapter: 22
     status: active
     confidence: confirmed
+    projection_owner: source-page
+    projection_scope: canonical
+    projection_source: character_profile.pathway_state[pathway-mystery-pryer]
+    default_hidden_source_behavior: hide
+    default_hidden_target_behavior: hide
     notes: Old Neil is identified as a Mystery Pryer, making him a confirmed Beyonder by the current reader boundary.
   - source: character-old-neil
     target: concept-beyonders
@@ -540,6 +693,11 @@ relationships:
       chapter: 32
     status: active
     confidence: confirmed
+    projection_owner: source-page
+    projection_scope: canonical
+    projection_source: character_profile.ability_index[spirit-vision-instruction]
+    default_hidden_source_behavior: hide
+    default_hidden_target_behavior: hide
     notes: Old Neil teaches Klein immediate post-potion Beyonder practice, including Cogitation and Spirit Vision.
 ```
 
