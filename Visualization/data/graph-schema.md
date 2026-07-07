@@ -45,6 +45,7 @@ Field notes:
 - `source_layer`: Whether the node is repository-canonical, source-supported graph-local, or external/unsupported.
 - `canonicalization_status`: Whether the node is already represented in project records, graph-local only, or a candidate project-data update.
 - `subject_visible_from`: Page-level reader-safe visibility gate from glossary metadata. Use this to decide whether the node itself can appear in reader-facing navigation, search, or filtered graph views.
+- `status`: Page completion state from glossary metadata. Reader-visible pending pages may render with a dashed pending-node outline, while pending pages outside the selected reader boundary should remain hidden. Missing glossary pages may render as graph-local pending endpoints only when relationship or projected data timing proves they are visible inside the selected reader boundary.
 - `first_seen_novel_chapter`: Earliest verified novel chapter where the node is meaningfully available to the reader.
 - `first_seen_donghua_episode`: Earliest verified Donghua episode or release-order position where the node is meaningfully available to the viewer.
 - `spoiler_boundary`: Broad canon boundary for the node's current article.
@@ -123,12 +124,15 @@ Rendered Mermaid graphs may introduce generated presentation nodes such as `rel_
 
 These nodes are not canonical graph entities. They represent relationship records visually so dense graphs can place relationship meaning inside layout-aware boxes instead of fragile edge labels.
 
+Rendered Mermaid graphs may also introduce graph-local pending endpoint nodes when a source or target has no glossary page yet but a boundary-visible relationship proves that the endpoint can safely appear. These nodes are not canonical glossary pages and should disappear, change to pending-page nodes, or become solid canonical nodes as page metadata is added.
+
 Presentation relationship nodes may display:
 
 - `relationship_type`
 - timing, such as novel chapter or Donghua episode
 - relationship status
 - confidence level
+- projected availability history when a Relationship Seed points at a type-specific data-block row
 
 Timing-spoiler-free views should omit chapter and episode text from presentation nodes while preserving the underlying relationship type, status, and confidence.
 

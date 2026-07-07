@@ -13,7 +13,9 @@ Generated Mermaid graphs are generated from glossary metadata and Relationship S
 
 Page-level reader visibility belongs to glossary metadata through `Subject Visible From`; do not model it as a Relationship Seed. Filtered graph views use that metadata as the node-level gate before applying relationship or claim-level timing.
 
-Configured graph views may declare a `readerBoundary` in `config/render-settings.json`. When present, generation includes only nodes whose `Subject Visible From` is eligible for that medium/volume/chapter boundary and only relationship seeds whose `start.medium`, `start.volume`, and `start.chapter` are eligible. Unknown subject visibility or unknown relationship positions are excluded unless the view explicitly opts into them. The current Volume 1 graph views are novel-only reader-boundary views through Volume 1 Chapter 213, so official-artwork taxonomy seeds and later cosmology links do not appear there.
+Configured graph views may declare a `readerBoundary` in `config/render-settings.json`. When present, generation includes only nodes whose `Subject Visible From` is eligible for that medium/volume/chapter boundary. Relationship Seeds that declare `projection_source` read their timing, confidence, and current display state from the projected type-specific data-block row's `availability` list; other seeds fall back to their own start fields. Unknown subject visibility or unknown relationship positions are excluded unless the view explicitly opts into them. The current Volume 1 graph views are novel-only reader-boundary views through Volume 1 Chapter 213, so official-artwork taxonomy seeds and later cosmology links do not appear there.
+
+Reader-boundary graphs distinguish unfinished visible pages from hidden future subjects. A glossary page with `Status: Pending` still appears if its `Subject Visible From` is eligible for the view, but it renders with a dashed pending-node outline. A missing glossary page may also appear as a dashed graph-local pending endpoint when at least one relationship or projected data row proves the endpoint is visible inside the selected reader boundary. Pending or missing endpoints without eligible timing remain hidden from reader-facing views and are better inspected through the Obsidian QA export.
 
 Shared graph authoring rules live in [Graph Authoring Standard](graph-authoring-standard.md). Use that standard for both AI Agent graph requests and maintainer/project graph work before rendering.
 
@@ -34,7 +36,7 @@ After every graph refresh, update the live refresh tracker below. It summarizes 
 The tracker compares each configured view against the semantic snapshot in `data/refresh-snapshot.json`. Unexpected removed nodes, removed relationships, changed relationship labels, duplicate relationships, broken links, or orphan nodes should be treated as visualization validation issues and reviewed before committing.
 
 <!-- VISUALIZATION-REFRESH-REPORT:START -->
-Last Updated: 2026-07-04 10:42:12 -04:00
+Last Updated: 2026-07-07 03:57:13 -04:00
 
 ### Summary
 
@@ -43,32 +45,32 @@ Last Updated: 2026-07-04 10:42:12 -04:00
 | Views Updated | 2 | 0 |
 | Rendered Files | 4 | 0 |
 | Broken Links | 0 | 0 |
-| Pending Nodes | 20 | 0 |
+| Pending Nodes | 21 | 0 |
 | Validation Issues | 0 | n/a |
 
 ### View Summary
 
 | View | Nodes | Delta | Relationships | Delta | Orphan Nodes |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Volume 1 Knowledge Graph | 28 | 0 | 75 | 0 | 0 |
-| Volume 1 Knowledge Graph - Timing Spoiler-Free | 28 | 0 | 75 | 0 | 0 |
+| Volume 1 Knowledge Graph | 28 | +14 | 73 | +30 | 0 |
+| Volume 1 Knowledge Graph - Timing Spoiler-Free | 28 | +14 | 73 | +30 | 0 |
 
 ### Semantic Changes
 
 #### Volume 1 Knowledge Graph
 
-- Added nodes: 0
+- Added nodes: 14
 - Removed nodes: 0
-- Added relationships: 0
+- Added relationships: 30
 - Removed relationships: 0
 - Changed relationship labels: 0
 - Duplicate relationships: 0
 
 #### Volume 1 Knowledge Graph - Timing Spoiler-Free
 
-- Added nodes: 0
+- Added nodes: 14
 - Removed nodes: 0
-- Added relationships: 0
+- Added relationships: 30
 - Removed relationships: 0
 - Changed relationship labels: 0
 - Duplicate relationships: 0
@@ -92,7 +94,107 @@ Last Updated: 2026-07-04 10:42:12 -04:00
 - Duplicate relationships: 0
 - Removed relationships: 0
 - Changed relationship labels: 0
-- Pending graph nodes: 20
+- Pending graph nodes: 21
+
+#### Volume 1 Knowledge Graph - Added Nodes
+
+- `character_azik_eggers`
+- `character_daly_simone`
+- `character_ince_zangwill`
+- `character_kenley_white`
+- `character_klein_moretti`
+- `character_leonard_mitchell`
+- `character_roselle_gustav`
+- `character_royale_reideen`
+- `character_seeka_tron`
+- `deity_s0_evernight_goddess`
+- `faction_nighthawks`
+- `faction_secret_order`
+- `pathway_corpse_collector`
+- `pathway_mystery_pryer`
+
+#### Volume 1 Knowledge Graph - Added Relationships
+
+- `artifact_0_08|investigated-by ch150 strong-evidence|character_azik_eggers`
+- `artifact_0_08|manipulates ch210|character_klein_moretti`
+- `character_daly_simone|pathway-status ch28|pathway_corpse_collector`
+- `character_dunn_smith|leader-of novel ch19 confirmed|faction_nighthawks`
+- `character_dunn_smith|superior novel ch14 confirmed|character_klein_moretti`
+- `character_ince_zangwill|artifact-user ch19|artifact_0_08`
+- `character_ince_zangwill|infiltrates ch210 completed strong-evidence|location_saint_selena_cathedral`
+- `character_kenley_white|pathway-status ch42|pathway_sleepless`
+- `character_klein_moretti|civilian-staff-of ch17|faction_church_of_evernight`
+- `character_klein_moretti|event-participant ch28|event_klein_becomes_a_seer`
+- `character_klein_moretti|instance-of ch31|concept_beyonders`
+- `character_klein_moretti|investigates ch9|artifact_antigonus_notebook`
+- `character_klein_moretti|pathway-status ch31|pathway_seer`
+- `character_klein_moretti|uses-as-operational-refuge ch25 completed|location_saint_selena_cathedral`
+- `character_klein_moretti|uses-method ch43|concept_divination`
+- `character_klein_moretti|works-at ch17|location_blackthorn_security_company`
+- `character_leonard_mitchell|pathway-status ch21|pathway_sleepless`
+- `character_old_neil|mentor novel ch32 confirmed|character_klein_moretti`
+- `character_old_neil|pathway-status novel ch22 confirmed|pathway_mystery_pryer`
+- `character_roselle_gustav|source-of-information ch21 historical|pathway_seer`
+- `character_royale_reideen|pathway-status ch42|pathway_sleepless`
+- `character_seeka_tron|pathway-status ch42|pathway_sleepless`
+- `event_klein_becomes_a_seer|event-outcome ch31|character_klein_moretti`
+- `faction_nighthawks|affiliated-with ch17|location_saint_selena_cathedral`
+- `faction_nighthawks|investigates ch13|artifact_antigonus_notebook`
+- `faction_nighthawks|subordinate-organization ch13|faction_church_of_evernight`
+- `faction_secret_order|targets ch28 strong-evidence|artifact_antigonus_notebook`
+- `location_blackthorn_security_company|operational-base-for ch17|faction_nighthawks`
+- `location_blackthorn_security_company|public-cover-for ch17|faction_nighthawks`
+- `pathway_sleepless|associated-sequence-0 ch28|deity_s0_evernight_goddess`
+
+#### Volume 1 Knowledge Graph - Timing Spoiler-Free - Added Nodes
+
+- `character_azik_eggers`
+- `character_daly_simone`
+- `character_ince_zangwill`
+- `character_kenley_white`
+- `character_klein_moretti`
+- `character_leonard_mitchell`
+- `character_roselle_gustav`
+- `character_royale_reideen`
+- `character_seeka_tron`
+- `deity_s0_evernight_goddess`
+- `faction_nighthawks`
+- `faction_secret_order`
+- `pathway_corpse_collector`
+- `pathway_mystery_pryer`
+
+#### Volume 1 Knowledge Graph - Timing Spoiler-Free - Added Relationships
+
+- `artifact_0_08|investigated-by strong-evidence|character_azik_eggers`
+- `artifact_0_08|manipulates|character_klein_moretti`
+- `character_daly_simone|pathway-status|pathway_corpse_collector`
+- `character_dunn_smith|leader-of confirmed|faction_nighthawks`
+- `character_dunn_smith|superior confirmed|character_klein_moretti`
+- `character_ince_zangwill|artifact-user|artifact_0_08`
+- `character_ince_zangwill|infiltrates completed strong-evidence|location_saint_selena_cathedral`
+- `character_kenley_white|pathway-status|pathway_sleepless`
+- `character_klein_moretti|civilian-staff-of|faction_church_of_evernight`
+- `character_klein_moretti|event-participant|event_klein_becomes_a_seer`
+- `character_klein_moretti|instance-of|concept_beyonders`
+- `character_klein_moretti|investigates|artifact_antigonus_notebook`
+- `character_klein_moretti|pathway-status|pathway_seer`
+- `character_klein_moretti|uses-as-operational-refuge completed|location_saint_selena_cathedral`
+- `character_klein_moretti|uses-method|concept_divination`
+- `character_klein_moretti|works-at|location_blackthorn_security_company`
+- `character_leonard_mitchell|pathway-status|pathway_sleepless`
+- `character_old_neil|mentor confirmed|character_klein_moretti`
+- `character_old_neil|pathway-status confirmed|pathway_mystery_pryer`
+- `character_roselle_gustav|source-of-information historical|pathway_seer`
+- `character_royale_reideen|pathway-status|pathway_sleepless`
+- `character_seeka_tron|pathway-status|pathway_sleepless`
+- `event_klein_becomes_a_seer|event-outcome|character_klein_moretti`
+- `faction_nighthawks|affiliated-with|location_saint_selena_cathedral`
+- `faction_nighthawks|investigates|artifact_antigonus_notebook`
+- `faction_nighthawks|subordinate-organization|faction_church_of_evernight`
+- `faction_secret_order|targets strong-evidence|artifact_antigonus_notebook`
+- `location_blackthorn_security_company|operational-base-for|faction_nighthawks`
+- `location_blackthorn_security_company|public-cover-for|faction_nighthawks`
+- `pathway_sleepless|associated-sequence-0|deity_s0_evernight_goddess`
 
 #### Pending Nodes
 
@@ -102,7 +204,7 @@ Last Updated: 2026-07-04 10:42:12 -04:00
 - `character-frye.md`
 - `character-ince-zangwill.md (artwork backed)`
 - `character-kenley-white.md`
-- `character-klein-moretti.md (artwork backed, 10 images)`
+- `character-klein-moretti.md (artwork backed, 17 images)`
 - `character-leonard-mitchell.md (artwork backed)`
 - `character-mrs-orianna.md`
 - `character-ray-bieber.md`
@@ -112,6 +214,7 @@ Last Updated: 2026-07-04 10:42:12 -04:00
 - `character-seeka-tron.md`
 - `faction-nighthawks.md`
 - `faction-secret-order.md`
+- `faction-tarot-club.md (artwork backed; notes: [preliminary planning](../Investigations/Factions/faction-tarot-club/preliminary-planning-investigation.md))`
 - `pathway-corpse-collector.md`
 - `pathway-criminal.md (artwork backed; notes: [preliminary planning](../Investigations/Pathways/pathway-criminal/preliminary-planning-investigation.md))`
 - `pathway-mystery-pryer.md (artwork backed)`

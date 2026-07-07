@@ -16,6 +16,21 @@ $ErrorActionPreference = "Stop"
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
 Set-Location $repoRoot
 
+$SlugPrefixes = @(
+  "artifact",
+  "character",
+  "concept",
+  "deity",
+  "event",
+  "faction",
+  "location",
+  "pathway",
+  "tarot-card",
+  "uniqueness"
+)
+
+$SlugPattern = "\b(?:" + (($SlugPrefixes | ForEach-Object { [regex]::Escape($_) }) -join "|") + ")-[a-z0-9][a-z0-9-]*\b"
+
 function Resolve-RepoPath {
   param([string]$Path)
 
@@ -37,6 +52,41 @@ function Resolve-VisualizationMode {
       throw "Unsupported visualization mode: $Name. Use Refresh, Render, or Validate. Aliases include Update, Generate, Manual-Render, Pure-Render, Check, and Test."
     }
   }
+}
+
+function ConvertFrom-Scalar {
+  param([string]$Value)
+
+  $value = $Value.Trim()
+  if ($value -in @("", "null", "Null", "NULL")) {
+    return ""
+  }
+  if ($value.Length -ge 2 -and ($value[0] -eq $value[$value.Length - 1]) -and $value[0] -in @("'", '"')) {
+    return $value.Substring(1, $value.Length - 2)
+  }
+  return $value
+}
+
+function ConvertFrom-InlineMapping {
+  param([string]$Value)
+
+  $result = @{}
+  $value = (ConvertFrom-Scalar $Value).Trim()
+  if (-not ($value.StartsWith("{") -and $value.EndsWith("}"))) {
+    return $result
+  }
+  $inner = $value.Substring(1, $value.Length - 2).Trim()
+  if (-not $inner) {
+    return $result
+  }
+  foreach ($part in $inner -split ",") {
+    if (-not $part.Contains(":")) {
+      continue
+    }
+    $pieces = $part.Split(":", 2)
+    $result[$pieces[0].Trim()] = ConvertFrom-Scalar $pieces[1]
+  }
+  return $result
 }
 
 function Get-MermaidRenderSize {
@@ -1030,6 +1080,7 @@ function Read-GlossaryNodes {
     $nodeId = Convert-SlugToNodeId $slug
     $label = $null
     $subjectVisibleFrom = ""
+    $status = ""
     foreach ($line in Get-Content $file.FullName) {
       if ($null -eq $label -and $line -match '^#\s+(.+)$') {
         $label = $matches[1].Trim()
@@ -1037,7 +1088,10 @@ function Read-GlossaryNodes {
       if ([string]::IsNullOrWhiteSpace($subjectVisibleFrom) -and $line -match '^Subject Visible From:\s*(.+?)\s*$') {
         $subjectVisibleFrom = $matches[1].Trim()
       }
-      if ($null -ne $label -and -not [string]::IsNullOrWhiteSpace($subjectVisibleFrom)) {
+      if ([string]::IsNullOrWhiteSpace($status) -and $line -match '^Status:\s*(.+?)\s*$') {
+        $status = $matches[1].Trim().ToLowerInvariant()
+      }
+      if ($null -ne $label -and -not [string]::IsNullOrWhiteSpace($subjectVisibleFrom) -and -not [string]::IsNullOrWhiteSpace($status)) {
         break
       }
     }
@@ -1047,10 +1101,224 @@ function Read-GlossaryNodes {
     $nodes[$nodeId] = [pscustomobject]@{
       label = $label
       subject_visible_from = $subjectVisibleFrom
+      status = $status
     }
   }
 
   return $nodes
+}
+
+function Get-MarkdownSection {
+  param(
+    [string]$Text,
+    [string]$Heading
+  )
+
+  $pattern = "(?ms)^##\s+" + [regex]::Escape($Heading) + "\s*\r?\n(.*?)(?=^##\s+|\z)"
+  $match = [regex]::Match($Text, $pattern)
+  if ($match.Success) {
+    return $match.Groups[1].Value
+  }
+  return ""
+}
+
+function Get-FencedYamlBlocks {
+  param([string]$Text)
+
+  $blocks = @()
+  foreach ($match in [regex]::Matches($Text, '```yaml\s*(.*?)```', [System.Text.RegularExpressions.RegexOptions]::Singleline)) {
+    $blocks += [pscustomobject]@{
+      Text = $match.Groups[1].Value.Trim()
+    }
+  }
+  return @($blocks)
+}
+
+function Get-RelationshipYaml {
+  param([string]$Text)
+
+  $section = Get-MarkdownSection $Text "Relationship Seeds"
+  if ([string]::IsNullOrWhiteSpace($section)) {
+    return ""
+  }
+  $match = [regex]::Match($section, '```yaml\s*(.*?)```', [System.Text.RegularExpressions.RegexOptions]::Singleline)
+  if ($match.Success) {
+    return $match.Groups[1].Value.Trim()
+  }
+  return ""
+}
+
+function ConvertTo-ProjectionSlug {
+  param([string]$Value)
+
+  $value = (ConvertFrom-Scalar $Value).Trim()
+  if (-not $value) {
+    return ""
+  }
+  if ([regex]::IsMatch($value, "^$SlugPattern$")) {
+    return $value
+  }
+  $value = [regex]::Replace($value, "[/\\]+", " ")
+  $value = [regex]::Replace($value, "[^A-Za-z0-9]+", "-").Trim("-").ToLowerInvariant()
+  return $value
+}
+
+function Get-ProjectionKeysForRow {
+  param([hashtable]$Row)
+
+  $keys = New-Object 'System.Collections.Generic.HashSet[string]'
+  foreach ($field in @("target", "ability", "event", "pathway", "organization", "item", "label", "field", "entity", "uniqueness")) {
+    if (-not $Row.ContainsKey($field) -or -not $Row[$field]) {
+      continue
+    }
+    $slug = ConvertTo-ProjectionSlug $Row[$field]
+    if (-not $slug) {
+      continue
+    }
+    [void]$keys.Add($slug)
+    foreach ($prefix in $SlugPrefixes) {
+      [void]$keys.Add("$prefix-$slug")
+    }
+  }
+  return @($keys)
+}
+
+function New-AvailabilityEntry {
+  param([hashtable]$Data)
+
+  return [pscustomobject]@{
+    medium = if ($Data.ContainsKey("medium")) { $Data["medium"] } else { "" }
+    volume = if ($Data.ContainsKey("from_volume")) { $Data["from_volume"] } elseif ($Data.ContainsKey("volume")) { $Data["volume"] } else { "" }
+    chapter = if ($Data.ContainsKey("from_chapter")) { $Data["from_chapter"] } elseif ($Data.ContainsKey("chapter")) { $Data["chapter"] } else { "" }
+    season = if ($Data.ContainsKey("from_season")) { $Data["from_season"] } elseif ($Data.ContainsKey("season")) { $Data["season"] } else { "" }
+    episode = if ($Data.ContainsKey("from_episode")) { $Data["from_episode"] } elseif ($Data.ContainsKey("episode")) { $Data["episode"] } else { "" }
+    release_order = if ($Data.ContainsKey("from_release_order")) { $Data["from_release_order"] } elseif ($Data.ContainsKey("release_order")) { $Data["release_order"] } else { "" }
+    status = if ($Data.ContainsKey("status")) { $Data["status"] } elseif ($Data.ContainsKey("possession_status")) { $Data["possession_status"] } elseif ($Data.ContainsKey("outcome_status")) { $Data["outcome_status"] } else { "" }
+    confidence = if ($Data.ContainsKey("confidence")) { $Data["confidence"] } else { "" }
+    graph_visibility = if ($Data.ContainsKey("graph_visibility")) { $Data["graph_visibility"] } else { "" }
+  }
+}
+
+function Add-ProjectionRow {
+  param(
+    [string]$RootKey,
+    [string]$SectionKey,
+    [hashtable]$Row,
+    [object[]]$Availability,
+    [hashtable]$Projections
+  )
+
+  if ($null -eq $Row -or -not $RootKey -or -not $SectionKey -or @($Availability).Count -eq 0) {
+    return
+  }
+  foreach ($key in Get-ProjectionKeysForRow $Row) {
+    $Projections["$RootKey.$SectionKey[$key]"] = @($Availability)
+  }
+}
+
+function Read-DataProjections {
+  $projections = @{}
+  $files = Get-ChildItem -Path (Resolve-RepoPath "Glossary_Threads") -Recurse -Filter "*.md" |
+    Where-Object { $_.Name -ne "TEMPLATE.md" }
+
+  foreach ($file in $files) {
+    $text = [System.IO.File]::ReadAllText($file.FullName, [System.Text.UTF8Encoding]::new($true))
+    $relationshipBlock = Get-RelationshipYaml $text
+    foreach ($block in Get-FencedYamlBlocks $text) {
+      if ($relationshipBlock -and $block.Text -eq $relationshipBlock) {
+        continue
+      }
+
+      $rootKey = ""
+      $sectionKey = ""
+      $row = $null
+      $availability = @()
+      $availabilityItem = $null
+      $inAvailability = $false
+      $inFrom = $false
+
+      foreach ($rawLine in $block.Text -split "`r?`n") {
+        if ([string]::IsNullOrWhiteSpace($rawLine) -or -not $rawLine.Contains(":")) {
+          continue
+        }
+        $indent = $rawLine.Length - $rawLine.TrimStart(" ").Length
+        $line = $rawLine.Trim()
+
+        if ($indent -eq 0 -and -not $line.StartsWith("- ")) {
+          if ($null -ne $availabilityItem) { $availability += @(New-AvailabilityEntry $availabilityItem) }
+          Add-ProjectionRow $rootKey $sectionKey $row $availability $projections
+          $row = $null; $availability = @(); $availabilityItem = $null; $inAvailability = $false; $inFrom = $false
+          $parts = $line.Split(":", 2)
+          $rootKey = if ((ConvertFrom-Scalar $parts[1]) -eq "") { $parts[0].Trim() } else { "" }
+          $sectionKey = ""
+          continue
+        }
+
+        if ($rootKey -and $indent -eq 2 -and -not $line.StartsWith("- ")) {
+          if ($null -ne $availabilityItem) { $availability += @(New-AvailabilityEntry $availabilityItem) }
+          Add-ProjectionRow $rootKey $sectionKey $row $availability $projections
+          $row = $null; $availability = @(); $availabilityItem = $null; $inAvailability = $false; $inFrom = $false
+          $parts = $line.Split(":", 2)
+          $sectionKey = if ((ConvertFrom-Scalar $parts[1]) -eq "") { $parts[0].Trim() } else { "" }
+          continue
+        }
+
+        if ($rootKey -and $sectionKey -and $indent -eq 4 -and $line.StartsWith("- ")) {
+          if ($null -ne $availabilityItem) { $availability += @(New-AvailabilityEntry $availabilityItem) }
+          Add-ProjectionRow $rootKey $sectionKey $row $availability $projections
+          $row = @{}; $availability = @(); $availabilityItem = $null; $inAvailability = $false; $inFrom = $false
+          $line = $line.Substring(2).Trim()
+          if (-not $line.Contains(":")) {
+            continue
+          }
+        }
+
+        if ($null -eq $row) {
+          continue
+        }
+
+        $parts = $line.Split(":", 2)
+        $key = $parts[0].Trim().TrimStart("-").Trim()
+        $value = ConvertFrom-Scalar $parts[1]
+
+        if ($indent -eq 4) {
+          $row[$key] = $value
+          $inAvailability = $false
+          $inFrom = $false
+        } elseif ($indent -eq 6 -and $key -ne "availability" -and -not $inAvailability) {
+          $row[$key] = $value
+        } elseif ($indent -eq 6 -and $key -eq "availability") {
+          if ($null -ne $availabilityItem) { $availability += @(New-AvailabilityEntry $availabilityItem) }
+          $availabilityItem = $null
+          $inAvailability = $true
+          $inFrom = $false
+        } elseif ($indent -eq 8 -and $line.StartsWith("- ")) {
+          if ($null -ne $availabilityItem) { $availability += @(New-AvailabilityEntry $availabilityItem) }
+          $availabilityItem = @{}
+          if ($key) { $availabilityItem[$key] = $value }
+          $inAvailability = $true
+          $inFrom = $false
+        } elseif ($inAvailability -and $null -ne $availabilityItem) {
+          if ($key -eq "from") {
+            $mapping = ConvertFrom-InlineMapping $value
+            foreach ($mappingKey in $mapping.Keys) {
+              $availabilityItem["from_$mappingKey"] = $mapping[$mappingKey]
+            }
+            $inFrom = $true
+          } elseif ($inFrom -and $indent -ge 12) {
+            $availabilityItem["from_$key"] = $value
+          } else {
+            $availabilityItem[$key] = $value
+            $inFrom = $false
+          }
+        }
+      }
+      if ($null -ne $availabilityItem) { $availability += @(New-AvailabilityEntry $availabilityItem) }
+      Add-ProjectionRow $rootKey $sectionKey $row $availability $projections
+    }
+  }
+
+  return $projections
 }
 
 function Read-RelationshipSeeds {
@@ -1103,6 +1371,9 @@ function Read-RelationshipSeeds {
           chapter = ""
           status = ""
           confidence = ""
+          projection_source = ""
+          projection_scope = ""
+          history_label = ""
         }
         continue
       }
@@ -1125,6 +1396,10 @@ function Read-RelationshipSeeds {
         $current.status = $matches[1].Trim()
       } elseif ($line -match '^\s+confidence:\s*(.+?)\s*$') {
         $current.confidence = $matches[1].Trim()
+      } elseif ($line -match '^\s+projection_source:\s*(.+?)\s*$') {
+        $current.projection_source = $matches[1].Trim()
+      } elseif ($line -match '^\s+projection_scope:\s*(.+?)\s*$') {
+        $current.projection_scope = $matches[1].Trim()
       }
     }
 
@@ -1230,19 +1505,241 @@ function Select-NodesForBoundary {
   return $filtered
 }
 
-function Select-RelationshipsForBoundary {
+function Test-AvailabilityPinned {
+  param([object]$Entry)
+
+  if ($Entry.medium -eq "novel") {
+    return ($null -ne (Convert-BoundaryNumber $Entry.volume) -and $null -ne (Convert-BoundaryNumber $Entry.chapter))
+  }
+  if ($Entry.medium -eq "donghua") {
+    foreach ($key in @("season", "episode", "release_order")) {
+      if (-not [string]::IsNullOrWhiteSpace($Entry.$key) -and $Entry.$key -ne "TBD") {
+        return $true
+      }
+    }
+  }
+  return $false
+}
+
+function Test-AvailabilityVisible {
   param(
-    [object[]]$Relationships,
+    [object]$Entry,
     [object]$Boundary
   )
 
-  if ($null -eq $Boundary) {
-    return @($Relationships)
+  if (-not (Test-AvailabilityPinned $Entry)) {
+    return $false
+  }
+  if ($null -ne $Boundary -and -not (Test-PositionVisible $Entry.medium $Entry.volume $Entry.chapter $Boundary)) {
+    return $false
+  }
+  if ($Entry.graph_visibility -eq "hidden") {
+    return $false
+  }
+  return $true
+}
+
+function Format-AvailabilityEntry {
+  param(
+    [object]$Entry,
+    [switch]$TimingSpoilerFree
+  )
+
+  $parts = @()
+  if (-not $TimingSpoilerFree) {
+    if ($Entry.medium -eq "novel" -and -not [string]::IsNullOrWhiteSpace($Entry.chapter)) {
+      $parts += "ch$($Entry.chapter)"
+    } elseif ($Entry.medium -eq "donghua") {
+      if (-not [string]::IsNullOrWhiteSpace($Entry.season) -and $Entry.season -ne "TBD") {
+        $parts += "s$($Entry.season)"
+      }
+      if (-not [string]::IsNullOrWhiteSpace($Entry.episode) -and $Entry.episode -ne "TBD") {
+        $parts += "e$($Entry.episode)"
+      }
+    }
+  }
+  if (-not [string]::IsNullOrWhiteSpace($Entry.confidence)) {
+    $parts += $Entry.confidence
+  } elseif (-not [string]::IsNullOrWhiteSpace($Entry.status) -and $Entry.status -notin @("active", "current-at-boundary")) {
+    $parts += $Entry.status
+  }
+  return ($parts -join " ")
+}
+
+function Format-AvailabilityHistory {
+  param(
+    [object[]]$Entries,
+    [switch]$TimingSpoilerFree
+  )
+
+  $byMedium = [ordered]@{}
+  foreach ($entry in @($Entries)) {
+    if (-not (Test-AvailabilityVisible $entry $null)) {
+      continue
+    }
+    if ($entry.medium -eq "donghua") {
+      $hasDonghuaPosition = $false
+      foreach ($key in @("season", "episode", "release_order")) {
+        if (-not [string]::IsNullOrWhiteSpace($entry.$key) -and $entry.$key -ne "TBD") {
+          $hasDonghuaPosition = $true
+        }
+      }
+      if (-not $hasDonghuaPosition) {
+        continue
+      }
+    }
+    $line = Format-AvailabilityEntry $entry -TimingSpoilerFree:$TimingSpoilerFree
+    if ([string]::IsNullOrWhiteSpace($line)) {
+      continue
+    }
+    $medium = if ([string]::IsNullOrWhiteSpace($entry.medium)) { "unknown" } else { $entry.medium }
+    if (-not $byMedium.Contains($medium)) {
+      $byMedium[$medium] = @()
+    }
+    if ($byMedium[$medium] -notcontains $line) {
+      $byMedium[$medium] += $line
+    }
   }
 
-  return @($Relationships | Where-Object {
-    Test-PositionVisible $_.medium $_.volume $_.chapter $Boundary
-  })
+  $lines = @()
+  foreach ($medium in @($byMedium.Keys | Sort-Object)) {
+    $history = $byMedium[$medium] -join " -> "
+    if ($TimingSpoilerFree) {
+      $lines += $history
+    } else {
+      $lines += "$medium $history"
+    }
+  }
+  return ($lines -join "; ")
+}
+
+function Select-CurrentAvailability {
+  param(
+    [object[]]$Entries,
+    [object]$Boundary
+  )
+
+  $visibleEntries = @($Entries | Where-Object { Test-AvailabilityVisible $_ $Boundary })
+  if ($visibleEntries.Count -eq 0) {
+    return $null
+  }
+  return $visibleEntries[$visibleEntries.Count - 1]
+}
+
+function Get-RelationshipScore {
+  param([object]$Relationship)
+
+  $score = 0
+  if (-not [string]::IsNullOrWhiteSpace($Relationship.history_label)) { $score += 1000 }
+  if (-not [string]::IsNullOrWhiteSpace($Relationship.projection_source)) { $score += 100 }
+  if ($Relationship.projection_scope -eq "canonical") { $score += 10 }
+  switch ($Relationship.confidence) {
+    "confirmed" { $score += 3 }
+    "strong-evidence" { $score += 2 }
+    "strong-inference" { $score += 2 }
+    "clue" { $score += 1 }
+  }
+  return $score
+}
+
+function Copy-Relationship {
+  param([object]$Relationship)
+
+  $copy = [ordered]@{}
+  if ($Relationship -is [System.Collections.IDictionary]) {
+    foreach ($key in $Relationship.Keys) {
+      $copy[$key] = $Relationship[$key]
+    }
+  } else {
+    foreach ($property in $Relationship.PSObject.Properties) {
+      $copy[$property.Name] = $property.Value
+    }
+  }
+  return [pscustomobject]$copy
+}
+
+function Select-RelationshipsForBoundary {
+  param(
+    [object[]]$Relationships,
+    [object]$Boundary,
+    [object[]]$VisibleNodeIds = @(),
+    [object[]]$KnownNodeIds = @(),
+    [hashtable]$DataProjections = @{},
+    [switch]$TimingSpoilerFree
+  )
+
+  $visible = New-Object 'System.Collections.Generic.HashSet[string]'
+  foreach ($nodeId in @($VisibleNodeIds)) {
+    [void]$visible.Add([string]$nodeId)
+  }
+  $known = New-Object 'System.Collections.Generic.HashSet[string]'
+  foreach ($nodeId in @($KnownNodeIds)) {
+    [void]$known.Add([string]$nodeId)
+  }
+  $selected = @{}
+
+  foreach ($relationship in @($Relationships)) {
+    $sourceNode = Convert-SlugToNodeId $relationship.source
+    $targetNode = Convert-SlugToNodeId $relationship.target
+    if ($visible.Count -gt 0) {
+      $hasHiddenKnownEndpoint = $false
+      foreach ($nodeId in @($sourceNode, $targetNode)) {
+        if (-not $visible.Contains($nodeId) -and $known.Contains($nodeId)) {
+          $hasHiddenKnownEndpoint = $true
+        }
+      }
+      if ($hasHiddenKnownEndpoint) {
+        continue
+      }
+    }
+
+    $rendered = Copy-Relationship $relationship
+    if (-not [string]::IsNullOrWhiteSpace($relationship.projection_source) -and $DataProjections.ContainsKey($relationship.projection_source)) {
+      $availability = @($DataProjections[$relationship.projection_source])
+      $current = Select-CurrentAvailability $availability $Boundary
+      if ($null -eq $current) {
+        continue
+      }
+      $rendered.medium = $current.medium
+      $rendered.volume = $current.volume
+      $rendered.chapter = $current.chapter
+      $rendered.status = $current.status
+      $rendered.confidence = $current.confidence
+      $eligible = @($availability | Where-Object { Test-AvailabilityVisible $_ $Boundary })
+      $rendered.history_label = Format-AvailabilityHistory $eligible -TimingSpoilerFree:$TimingSpoilerFree
+    } elseif ($null -ne $Boundary -and -not (Test-PositionVisible $rendered.medium $rendered.volume $rendered.chapter $Boundary)) {
+      continue
+    }
+
+    $key = "$($rendered.source)|$($rendered.relationship_type)|$($rendered.target)"
+    if (-not $selected.ContainsKey($key) -or (Get-RelationshipScore $rendered) -gt (Get-RelationshipScore $selected[$key])) {
+      $selected[$key] = $rendered
+    }
+  }
+
+  return @($selected.Keys | Sort-Object | ForEach-Object { $selected[$_] })
+}
+
+function Get-MissingRelationshipEndpoints {
+  param(
+    [object[]]$Relationships,
+    [object[]]$KnownNodeIds
+  )
+
+  $known = New-Object 'System.Collections.Generic.HashSet[string]'
+  foreach ($nodeId in @($KnownNodeIds)) {
+    [void]$known.Add([string]$nodeId)
+  }
+  $missing = New-Object 'System.Collections.Generic.HashSet[string]'
+  foreach ($relationship in @($Relationships)) {
+    foreach ($slug in @($relationship.source, $relationship.target)) {
+      $nodeId = Convert-SlugToNodeId $slug
+      if (-not $known.Contains($nodeId)) {
+        [void]$missing.Add($nodeId)
+      }
+    }
+  }
+  return @($missing)
 }
 
 function Format-RelationshipLabel {
@@ -1252,6 +1749,10 @@ function Format-RelationshipLabel {
   )
 
   $parts = @($Relationship.relationship_type)
+  if (-not [string]::IsNullOrWhiteSpace($Relationship.history_label)) {
+    $parts += $Relationship.history_label
+    return ($parts -join ' ')
+  }
   if (-not $TimingSpoilerFree -and -not [string]::IsNullOrWhiteSpace($Relationship.chapter)) {
     $parts += "ch$($Relationship.chapter)"
   }
@@ -1272,6 +1773,11 @@ function Format-RelationshipNodeLabel {
     [object]$Relationship,
     [switch]$TimingSpoilerFree
   )
+
+  if (-not [string]::IsNullOrWhiteSpace($Relationship.history_label)) {
+    $parts = @($Relationship.relationship_type, $Relationship.history_label)
+    return (($parts | ForEach-Object { $_ -replace '"', '\"' }) -join '<br/>')
+  }
 
   $parts = @($Relationship.relationship_type)
   if (-not $TimingSpoilerFree -and -not [string]::IsNullOrWhiteSpace($Relationship.chapter)) {
@@ -1295,7 +1801,9 @@ function Write-MermaidGraph {
     [hashtable]$Nodes,
     [object[]]$Relationships,
     [switch]$TimingSpoilerFree,
-    [object[]]$KnownNodeIds = $null
+    [object[]]$KnownNodeIds = $null,
+    [object[]]$PendingNodeIds = @(),
+    [object[]]$PendingEndpointNodeIds = @()
   )
 
   $known = New-Object 'System.Collections.Generic.HashSet[string]'
@@ -1307,6 +1815,14 @@ function Write-MermaidGraph {
     foreach ($nodeId in $KnownNodeIds) {
       [void]$known.Add([string]$nodeId)
     }
+  }
+  $pendingNodes = New-Object 'System.Collections.Generic.HashSet[string]'
+  foreach ($nodeId in @($PendingNodeIds)) {
+    [void]$pendingNodes.Add([string]$nodeId)
+  }
+  $pendingEndpointNodes = New-Object 'System.Collections.Generic.HashSet[string]'
+  foreach ($nodeId in @($PendingEndpointNodeIds)) {
+    [void]$pendingEndpointNodes.Add([string]$nodeId)
   }
   $missingEndpointNodes = New-Object 'System.Collections.Generic.HashSet[string]'
 
@@ -1349,16 +1865,22 @@ function Write-MermaidGraph {
   $lines += "  classDef timeline fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1f2937"
   $lines += "  classDef uniqueness fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#1f2937"
   $lines += "  classDef missingEndpoint fill:#f8fafc,stroke:#64748b,stroke-width:2px,stroke-dasharray:4 3,color:#1f2937"
+  $lines += "  classDef pendingNode stroke:#64748b,stroke-width:2px,stroke-dasharray:4 3"
+  $lines += "  classDef pendingEndpoint fill:#f8fafc,stroke:#64748b,stroke-width:2px,stroke-dasharray:4 3,color:#1f2937"
   $lines += "  classDef relationship fill:#f7f2e9,stroke:#c69245,stroke-width:1.5px,color:#1f2937"
   $lines += ""
   foreach ($nodeId in @($Nodes.Keys | Sort-Object)) {
     if ($missingEndpointNodes.Contains($nodeId)) {
-      $lines += ('  class {0} missingEndpoint' -f $nodeId)
+      $className = if ($pendingEndpointNodes.Contains($nodeId)) { "pendingEndpoint" } else { "missingEndpoint" }
+      $lines += ('  class {0} {1}' -f $nodeId, $className)
       continue
     }
     $className = ($nodeId -split '_')[0]
     if (@("artifact", "character", "concept", "deity", "epoch", "event", "faction", "family", "location", "mystery", "pathway", "tarot", "timeline", "uniqueness") -contains $className) {
       $lines += ('  class {0} {1}' -f $nodeId, $className)
+    }
+    if ($pendingNodes.Contains($nodeId)) {
+      $lines += ('  class {0} pendingNode' -f $nodeId)
     }
   }
 
@@ -1400,13 +1922,17 @@ function Update-MermaidGraphs {
 
   $nodes = Read-GlossaryNodes
   $relationships = Read-RelationshipSeeds
+  $dataProjections = Read-DataProjections
+  $pendingNodeIds = @($nodes.Keys | Where-Object { $nodes[$_].status -eq "pending" })
 
   foreach ($view in $Views) {
     $graphPath = Resolve-RepoPath $view.input
     $timingSpoilerFree = $view.input -match 'timing-spoiler-free'
     $viewNodes = Select-NodesForBoundary $nodes $view.readerBoundary
-    $viewRelationships = Select-RelationshipsForBoundary $relationships $view.readerBoundary
-    Write-MermaidGraph $graphPath $viewNodes.Clone() $viewRelationships -TimingSpoilerFree:$timingSpoilerFree -KnownNodeIds @($nodes.Keys)
+    $viewRelationships = Select-RelationshipsForBoundary $relationships $view.readerBoundary @($viewNodes.Keys) @($nodes.Keys) $dataProjections -TimingSpoilerFree:$timingSpoilerFree
+    $visiblePendingNodeIds = @($pendingNodeIds | Where-Object { $viewNodes.ContainsKey($_) })
+    $pendingEndpointNodeIds = Get-MissingRelationshipEndpoints $viewRelationships @($nodes.Keys)
+    Write-MermaidGraph $graphPath $viewNodes.Clone() $viewRelationships -TimingSpoilerFree:$timingSpoilerFree -KnownNodeIds @($nodes.Keys) -PendingNodeIds $visiblePendingNodeIds -PendingEndpointNodeIds $pendingEndpointNodeIds
   }
 }
 
@@ -1445,6 +1971,8 @@ function Invoke-ValidateMode {
 
   $nodes = Read-GlossaryNodes
   $relationships = Read-RelationshipSeeds
+  $dataProjections = Read-DataProjections
+  $pendingNodeIds = @($nodes.Keys | Where-Object { $nodes[$_].status -eq "pending" })
   Write-Output ('Source parse: nodes={0} relationships={1}' -f $nodes.Count, $relationships.Count)
 
   $issues = @()
@@ -1469,8 +1997,10 @@ function Invoke-ValidateMode {
       $tempGraph = Join-Path $tempRoot ([System.IO.Path]::GetFileName($view.input))
       $timingSpoilerFree = $view.input -like '*timing-spoiler-free*'
       $viewNodes = Select-NodesForBoundary $nodes $view.readerBoundary
-      $viewRelationships = Select-RelationshipsForBoundary $relationships $view.readerBoundary
-      Write-MermaidGraph $tempGraph $viewNodes.Clone() $viewRelationships -TimingSpoilerFree:$timingSpoilerFree
+      $viewRelationships = Select-RelationshipsForBoundary $relationships $view.readerBoundary @($viewNodes.Keys) @($nodes.Keys) $dataProjections -TimingSpoilerFree:$timingSpoilerFree
+      $visiblePendingNodeIds = @($pendingNodeIds | Where-Object { $viewNodes.ContainsKey($_) })
+      $pendingEndpointNodeIds = Get-MissingRelationshipEndpoints $viewRelationships @($nodes.Keys)
+      Write-MermaidGraph $tempGraph $viewNodes.Clone() $viewRelationships -TimingSpoilerFree:$timingSpoilerFree -KnownNodeIds @($nodes.Keys) -PendingNodeIds $visiblePendingNodeIds -PendingEndpointNodeIds $pendingEndpointNodeIds
       $classIssues = @(Get-MermaidClassValidation $tempGraph $Settings)
       $layoutIssues = @(Get-MermaidLayoutValidation $tempGraph $Settings)
       Write-Output ('Generated graph: {0} class_issues={1} layout_issues={2}' -f $view.input, $classIssues.Count, $layoutIssues.Count)
