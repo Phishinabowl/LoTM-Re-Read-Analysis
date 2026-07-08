@@ -754,7 +754,7 @@ Default output root: `Obsidian_Export/`, ignored by Git.
 | `_Generated/bounded-graphs/bounded-graphs-report.md` | Optional refresh report for the requested bounded graph bundle. |
 | `_Generated/bounded-graphs/bounded-graphs-snapshot.json` | Optional semantic graph snapshot for the requested bounded graph bundle. |
 | `_Generated/bounded-graphs/bounded-graphs-settings.json` | Optional generated render settings used for the requested bounded graph bundle. |
-| `_Generated/bounded-pages/**/*.md` | Optional bounded QA page projections requested through `--bounded-page` / `-BoundedPage`. This folder is created only when bounded pages are requested. Bounded-page timing tables can summarize state-row `availability` ladders or positioned reveal fields such as first-appearance `position`, `source_refs`, and `graph_display`. |
+| `_Generated/bounded-pages/**/*.md` | Optional bounded QA page projections requested through `--bounded-page` / `-BoundedPage`. This folder is created only when bounded pages are requested. Character bounded pages render the standard character modules and present optional modules such as Tarot card, mythical creature form, uniqueness, messengers/servants/companions, and prayers/ritual access only when the source data block includes them. Bounded-page timing tables can summarize state-row `availability` ladders or positioned reveal fields such as first-appearance `position`, `source_refs`, and `graph_display`. |
 
 The repo refresh check does not update canonical `Visualization/graphs/`, `Visualization/rendered/`, `Visualization/data/refresh-snapshot.json`, or `Visualization/README.md`.
 
@@ -781,7 +781,7 @@ The repo refresh check does not update canonical `Visualization/graphs/`, `Visua
 | Parse bounded graph requests | `parse_bounded_graph_specs`, `parse_bounded_graph_spec` | `ConvertFrom-BoundedGraphSpecs`, `ConvertFrom-BoundedGraphSpec` |
 | Write optional bounded graph bundle | `write_bounded_graphs` | `Write-BoundedGraphs` |
 | Parse bounded page requests | `parse_bounded_page_specs`, `parse_bounded_page_spec` | `ConvertFrom-BoundedPageSpecs`, `ConvertFrom-BoundedPageSpec` |
-| Parse and filter bounded character page data | `extract_profile_block`, `parse_profile_yaml`, `filter_profile_rows_for_boundary` | `Get-ProfileYaml`, `Get-FilteredProfileRowsForBoundary` |
+| Parse and filter bounded character page data | `extract_profile_block`, `parse_profile_yaml`, `filter_profile_rows_for_boundary`, `render_bounded_table` | `Get-ProfileYaml`, `Get-FilteredProfileRowsForBoundary`, `ConvertTo-BoundedTableMarkdown` |
 | Write optional bounded page bundle | `write_bounded_pages` | `Write-BoundedPages` |
 | Guard output path safety | `ensure_safe_output` | `Assert-SafeOutputPath` |
 | Write all export files | `write_export` | `Write-ObsidianExport` |
@@ -823,7 +823,7 @@ Compare at minimum:
 - `repo-refresh-check/*.mmd`;
 - `repo-refresh-check/refresh-check-report.md`;
 - `repo-refresh-check/refresh-check-snapshot.json`;
-- bounded page outputs when `--bounded-page` / `-BoundedPage` is used, especially Ch10 anonymous preview behavior and Ch30/Ch50 Dunn pathway-state progression.
+- bounded page outputs when `--bounded-page` / `-BoundedPage` is used, especially Ch10 anonymous preview behavior, Ch30/Ch50 Dunn pathway-state progression, and Old Neil transitional/current character modules.
 
 Expected non-semantic differences:
 
@@ -834,7 +834,7 @@ Expected non-semantic differences:
 
 Last mapped: 2026-07-07.
 
-Last parity check: 2026-07-07. Python and PowerShell generated 27 files each with matching file lists for normal exports. The main generated Markdown files, QA Mermaid graphs, visualization-style Mermaid graph, and repo refresh dry-run Mermaid files matched after newline normalization. `refresh-check-snapshot.json` matched semantically after ignoring `generated_at` and normalizing the intentionally different `.tmp` output path. Bounded page parity was checked with Dunn Smith at Novel V1 Ch10, Ch20, Ch30, and Ch50; both implementations generated four bounded pages, preserved Ch10 anonymous preview behavior, and showed Dunn's Sleepless pathway progression as Ch22 strong-evidence at Ch30 and Ch22 strong-evidence -> Ch45 confirmed at Ch50.
+Last parity check: 2026-07-07. Python and PowerShell generated 27 files each with matching file lists for normal exports. The main generated Markdown files, QA Mermaid graphs, visualization-style Mermaid graph, and repo refresh dry-run Mermaid files matched after newline normalization. `refresh-check-snapshot.json` matched semantically after ignoring `generated_at` and normalizing the intentionally different `.tmp` output path. Bounded page parity was checked with Dunn Smith at Novel V1 Ch10, Ch20, Ch30, and Ch50; both implementations generated four bounded pages, preserved Ch10 anonymous preview behavior, and showed Dunn's Sleepless pathway progression as Ch22 strong-evidence at Ch30 and Ch22 strong-evidence -> Ch45 confirmed at Ch50. The bounded character renderer also supports the broader character module set, including optional/specialized modules only when present.
 
 ## Configuration Files
 

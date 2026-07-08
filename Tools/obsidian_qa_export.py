@@ -1840,15 +1840,26 @@ def render_bounded_table(title: str, rows: list[dict], columns: list[tuple[str, 
     return lines
 
 
-BOUNDED_CHARACTER_TABLES: list[tuple[str, str, list[tuple[str, str]]]] = [
-    ("First Appearance Beats", "first_appearance_beats", [("Title", "title"), ("Type", "beat_type"), ("State", "reader_knowledge_state"), ("Status", "status"), ("Confidence", "confidence")]),
-    ("Identity / Role", "identities", [("Field", "field"), ("Value", "value"), ("Status", "status"), ("Confidence", "confidence"), ("Notes", "notes")]),
-    ("Affiliations", "affiliations", [("Organization", "organization"), ("Target", "target"), ("Relationship", "relationship"), ("Status", "status"), ("Confidence", "confidence")]),
-    ("Pathway State", "pathway_state", [("Pathway", "pathway"), ("Target", "target"), ("Relationship", "relationship"), ("Status", "status"), ("Confidence", "confidence")]),
-    ("Abilities", "ability_index", [("Ability", "ability"), ("Source", "source"), ("Status", "status"), ("Confidence", "confidence"), ("Notes", "notes")]),
-    ("Equipment / Artifacts / Items", "equipment_artifacts", [("Item", "item"), ("Target", "target"), ("Type", "type"), ("Possession", "possession_status"), ("Significance", "item_significance")]),
-    ("Major Events", "major_events_fights", [("Event", "event"), ("Type", "event_type"), ("Part", "event_part"), ("Role", "role"), ("Outcome", "outcome_status")]),
-    ("Timeline Entries", "timeline_entries", [("ID", "id"), ("Title", "title"), ("Type", "entry_type"), ("Summary", "summary"), ("Why It Matters", "why_it_matters")]),
+BOUNDED_CHARACTER_TABLES: list[tuple[str, str, list[tuple[str, str]], bool]] = [
+    ("First Appearance Beats", "first_appearance_beats", [("Title", "title"), ("Type", "beat_type"), ("State", "reader_knowledge_state"), ("Status", "status"), ("Confidence", "confidence")], False),
+    ("Identity / Role", "identities", [("Field", "field"), ("Value", "value"), ("Status", "status"), ("Confidence", "confidence"), ("Notes", "notes")], False),
+    ("Physical Profile", "physical_profile", [("Field", "field"), ("Value", "value"), ("Status", "status"), ("Confidence", "confidence"), ("Notes", "notes")], False),
+    ("Status / Origin / Location", "status_origin_location", [("Field", "field"), ("Value", "value"), ("Status", "status"), ("Confidence", "confidence"), ("Notes", "notes")], False),
+    ("Affiliations", "affiliations", [("Organization", "organization"), ("Target", "target"), ("Relationship", "relationship"), ("Status", "status"), ("Confidence", "confidence")], False),
+    ("Pathway State", "pathway_state", [("Pathway", "pathway"), ("Target", "target"), ("Relationship", "relationship"), ("Status", "status"), ("Confidence", "confidence")], False),
+    ("Sequence State", "sequence_state", [("Sequence", "sequence"), ("Name", "sequence_name"), ("Pathway", "related_pathway"), ("Status", "status"), ("Confidence", "confidence")], False),
+    ("Associated Tarot Card", "associated_tarot_card", [("Card", "card_name"), ("Number", "card_number"), ("Target", "target"), ("Alias", "identity_alias"), ("Association", "association_type"), ("Status", "status"), ("Confidence", "confidence")], True),
+    ("Mythical Creature Form State", "mythical_creature_form_state", [("Form State", "form_state"), ("Stage", "version_stage"), ("Pathway", "related_pathway"), ("Sequence Threshold", "sequence_threshold"), ("Status", "status"), ("Confidence", "confidence")], True),
+    ("Uniqueness State", "uniqueness_state", [("Uniqueness", "uniqueness"), ("Relationship", "relationship_state"), ("Status", "status"), ("Confidence", "confidence"), ("Notes", "notes")], True),
+    ("Ability State", "ability_state", [("Field", "field"), ("Value", "value"), ("Status", "status"), ("Confidence", "confidence"), ("Notes", "notes")], True),
+    ("Abilities", "ability_index", [("Ability", "ability"), ("Source", "source"), ("Target", "target"), ("Status", "status"), ("Confidence", "confidence"), ("Notes", "notes")], False),
+    ("Equipment / Artifacts / Items", "equipment_artifacts", [("Item", "item"), ("Target", "target"), ("Type", "type"), ("Possession", "possession_status"), ("Significance", "item_significance"), ("Graph", "graph_relevance")], False),
+    ("Personality", "personality", [("Trait", "trait"), ("Evidence", "evidence"), ("Status", "status"), ("Confidence", "confidence"), ("Notes", "notes")], False),
+    ("Relationships", "relationships", [("Target", "target"), ("Relationship", "relationship"), ("Status", "status"), ("Confidence", "confidence"), ("Notes", "notes")], False),
+    ("Messengers / Servants / Companions", "messengers_servants_companions", [("Entity", "entity"), ("Label", "label"), ("Type", "type"), ("Function", "function"), ("Status", "status"), ("Confidence", "confidence")], True),
+    ("Prayers & Ritual Access", "prayers_ritual_access", [("Label", "label"), ("Type", "type"), ("Function", "function"), ("Concept Link", "concept_link"), ("Status", "status"), ("Confidence", "confidence")], True),
+    ("Major Events", "major_events_fights", [("Event", "event"), ("Target", "target"), ("Type", "event_type"), ("Part", "event_part"), ("Role", "role"), ("Outcome", "outcome_status")], False),
+    ("Timeline Entries", "timeline_entries", [("ID", "id"), ("Title", "title"), ("Type", "entry_type"), ("Summary", "summary"), ("Why It Matters", "why_it_matters")], False),
 ]
 
 
@@ -1931,7 +1942,9 @@ def render_bounded_character_page(root: Path, note: CanonicalNote, spec: Bounded
     lines.append("")
     lines.extend(render_generation_stats(note, spec, page_visible, filtered))
 
-    for table_title, section_key, columns in BOUNDED_CHARACTER_TABLES:
+    for table_title, section_key, columns, optional in BOUNDED_CHARACTER_TABLES:
+        if optional and section_key not in profile and section_key not in filtered:
+            continue
         lines.extend(render_bounded_table(table_title, filtered.get(section_key, []), columns))
 
     if page_visible:

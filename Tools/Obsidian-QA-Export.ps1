@@ -2534,14 +2534,25 @@ function ConvertTo-BoundedTableMarkdown {
 }
 
 $BoundedCharacterTables = @(
-  [pscustomobject]@{ Title = "First Appearance Beats"; Key = "first_appearance_beats"; Columns = @(@("Title", "title"), @("Type", "beat_type"), @("State", "reader_knowledge_state"), @("Status", "status"), @("Confidence", "confidence")) },
-  [pscustomobject]@{ Title = "Identity / Role"; Key = "identities"; Columns = @(@("Field", "field"), @("Value", "value"), @("Status", "status"), @("Confidence", "confidence"), @("Notes", "notes")) },
-  [pscustomobject]@{ Title = "Affiliations"; Key = "affiliations"; Columns = @(@("Organization", "organization"), @("Target", "target"), @("Relationship", "relationship"), @("Status", "status"), @("Confidence", "confidence")) },
-  [pscustomobject]@{ Title = "Pathway State"; Key = "pathway_state"; Columns = @(@("Pathway", "pathway"), @("Target", "target"), @("Relationship", "relationship"), @("Status", "status"), @("Confidence", "confidence")) },
-  [pscustomobject]@{ Title = "Abilities"; Key = "ability_index"; Columns = @(@("Ability", "ability"), @("Source", "source"), @("Status", "status"), @("Confidence", "confidence"), @("Notes", "notes")) },
-  [pscustomobject]@{ Title = "Equipment / Artifacts / Items"; Key = "equipment_artifacts"; Columns = @(@("Item", "item"), @("Target", "target"), @("Type", "type"), @("Possession", "possession_status"), @("Significance", "item_significance")) },
-  [pscustomobject]@{ Title = "Major Events"; Key = "major_events_fights"; Columns = @(@("Event", "event"), @("Type", "event_type"), @("Part", "event_part"), @("Role", "role"), @("Outcome", "outcome_status")) },
-  [pscustomobject]@{ Title = "Timeline Entries"; Key = "timeline_entries"; Columns = @(@("ID", "id"), @("Title", "title"), @("Type", "entry_type"), @("Summary", "summary"), @("Why It Matters", "why_it_matters")) }
+  [pscustomobject]@{ Title = "First Appearance Beats"; Key = "first_appearance_beats"; Optional = $false; Columns = @(@("Title", "title"), @("Type", "beat_type"), @("State", "reader_knowledge_state"), @("Status", "status"), @("Confidence", "confidence")) },
+  [pscustomobject]@{ Title = "Identity / Role"; Key = "identities"; Optional = $false; Columns = @(@("Field", "field"), @("Value", "value"), @("Status", "status"), @("Confidence", "confidence"), @("Notes", "notes")) },
+  [pscustomobject]@{ Title = "Physical Profile"; Key = "physical_profile"; Optional = $false; Columns = @(@("Field", "field"), @("Value", "value"), @("Status", "status"), @("Confidence", "confidence"), @("Notes", "notes")) },
+  [pscustomobject]@{ Title = "Status / Origin / Location"; Key = "status_origin_location"; Optional = $false; Columns = @(@("Field", "field"), @("Value", "value"), @("Status", "status"), @("Confidence", "confidence"), @("Notes", "notes")) },
+  [pscustomobject]@{ Title = "Affiliations"; Key = "affiliations"; Optional = $false; Columns = @(@("Organization", "organization"), @("Target", "target"), @("Relationship", "relationship"), @("Status", "status"), @("Confidence", "confidence")) },
+  [pscustomobject]@{ Title = "Pathway State"; Key = "pathway_state"; Optional = $false; Columns = @(@("Pathway", "pathway"), @("Target", "target"), @("Relationship", "relationship"), @("Status", "status"), @("Confidence", "confidence")) },
+  [pscustomobject]@{ Title = "Sequence State"; Key = "sequence_state"; Optional = $false; Columns = @(@("Sequence", "sequence"), @("Name", "sequence_name"), @("Pathway", "related_pathway"), @("Status", "status"), @("Confidence", "confidence")) },
+  [pscustomobject]@{ Title = "Associated Tarot Card"; Key = "associated_tarot_card"; Optional = $true; Columns = @(@("Card", "card_name"), @("Number", "card_number"), @("Target", "target"), @("Alias", "identity_alias"), @("Association", "association_type"), @("Status", "status"), @("Confidence", "confidence")) },
+  [pscustomobject]@{ Title = "Mythical Creature Form State"; Key = "mythical_creature_form_state"; Optional = $true; Columns = @(@("Form State", "form_state"), @("Stage", "version_stage"), @("Pathway", "related_pathway"), @("Sequence Threshold", "sequence_threshold"), @("Status", "status"), @("Confidence", "confidence")) },
+  [pscustomobject]@{ Title = "Uniqueness State"; Key = "uniqueness_state"; Optional = $true; Columns = @(@("Uniqueness", "uniqueness"), @("Relationship", "relationship_state"), @("Status", "status"), @("Confidence", "confidence"), @("Notes", "notes")) },
+  [pscustomobject]@{ Title = "Ability State"; Key = "ability_state"; Optional = $true; Columns = @(@("Field", "field"), @("Value", "value"), @("Status", "status"), @("Confidence", "confidence"), @("Notes", "notes")) },
+  [pscustomobject]@{ Title = "Abilities"; Key = "ability_index"; Optional = $false; Columns = @(@("Ability", "ability"), @("Source", "source"), @("Target", "target"), @("Status", "status"), @("Confidence", "confidence"), @("Notes", "notes")) },
+  [pscustomobject]@{ Title = "Equipment / Artifacts / Items"; Key = "equipment_artifacts"; Optional = $false; Columns = @(@("Item", "item"), @("Target", "target"), @("Type", "type"), @("Possession", "possession_status"), @("Significance", "item_significance"), @("Graph", "graph_relevance")) },
+  [pscustomobject]@{ Title = "Personality"; Key = "personality"; Optional = $false; Columns = @(@("Trait", "trait"), @("Evidence", "evidence"), @("Status", "status"), @("Confidence", "confidence"), @("Notes", "notes")) },
+  [pscustomobject]@{ Title = "Relationships"; Key = "relationships"; Optional = $false; Columns = @(@("Target", "target"), @("Relationship", "relationship"), @("Status", "status"), @("Confidence", "confidence"), @("Notes", "notes")) },
+  [pscustomobject]@{ Title = "Messengers / Servants / Companions"; Key = "messengers_servants_companions"; Optional = $true; Columns = @(@("Entity", "entity"), @("Label", "label"), @("Type", "type"), @("Function", "function"), @("Status", "status"), @("Confidence", "confidence")) },
+  [pscustomobject]@{ Title = "Prayers & Ritual Access"; Key = "prayers_ritual_access"; Optional = $true; Columns = @(@("Label", "label"), @("Type", "type"), @("Function", "function"), @("Concept Link", "concept_link"), @("Status", "status"), @("Confidence", "confidence")) },
+  [pscustomobject]@{ Title = "Major Events"; Key = "major_events_fights"; Optional = $false; Columns = @(@("Event", "event"), @("Target", "target"), @("Type", "event_type"), @("Part", "event_part"), @("Role", "role"), @("Outcome", "outcome_status")) },
+  [pscustomobject]@{ Title = "Timeline Entries"; Key = "timeline_entries"; Optional = $false; Columns = @(@("ID", "id"), @("Title", "title"), @("Type", "entry_type"), @("Summary", "summary"), @("Why It Matters", "why_it_matters")) }
 )
 
 function Get-TimelineProseBlocks {
@@ -2646,6 +2657,7 @@ function ConvertTo-BoundedCharacterPageMarkdown {
   $lines += ""
   $lines += ConvertTo-GenerationStatsMarkdown $Note $Spec $pageVisible $filtered
   foreach ($table in $BoundedCharacterTables) {
+    if ($table.Optional -and -not (Test-MapHasKey $profile $table.Key) -and -not (Test-MapHasKey $filtered $table.Key)) { continue }
     $lines += ConvertTo-BoundedTableMarkdown $table.Title @(Get-MapValue $filtered $table.Key @()) $table.Columns
   }
   if ($pageVisible) {
