@@ -2008,13 +2008,19 @@ function Write-BoundedGraphs {
     [string]$GeneratedDir,
     [object[]]$Specs
   )
+  $boundedDir = Join-Path $GeneratedDir "bounded-graphs"
   if (@($Specs).Count -eq 0) {
+    if (Test-Path -LiteralPath $boundedDir) {
+      Remove-Item -LiteralPath $boundedDir -Recurse -Force
+    }
     return
   }
 
   $sourceSettingsPath = Join-Path $RepoRoot "Visualization/config/render-settings.json"
   $settings = Get-Content -LiteralPath $sourceSettingsPath -Raw | ConvertFrom-Json
-  $boundedDir = Join-Path $GeneratedDir "bounded-graphs"
+  if (Test-Path -LiteralPath $boundedDir) {
+    Remove-Item -LiteralPath $boundedDir -Recurse -Force
+  }
   New-Item -ItemType Directory -Path $boundedDir -Force | Out-Null
 
   $settings.reportPath = Get-RepoRelativePath $RepoRoot (Join-Path $boundedDir "bounded-graphs-report.md")

@@ -1010,6 +1010,9 @@ function Get-BrokenMarkdownLinks {
 
   foreach ($file in $markdownFiles) {
     $text = Get-Content $file.FullName -Raw
+    if ($null -eq $text) {
+      $text = ""
+    }
     $matches = [regex]::Matches($text, '\[[^\]]+\]\(([^)#]+)(?:#[^)]+)?\)')
 
     foreach ($match in $matches) {

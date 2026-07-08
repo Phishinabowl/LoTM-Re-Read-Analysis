@@ -1422,13 +1422,17 @@ def write_repo_refresh_check(root: Path, generated_dir: Path) -> None:
 
 
 def write_bounded_graphs(root: Path, generated_dir: Path, specs: list[BoundedGraphSpec]) -> None:
+    bounded_dir = generated_dir / "bounded-graphs"
     if not specs:
+        if bounded_dir.exists():
+            shutil.rmtree(bounded_dir)
         return
 
     visualize = load_visualization_helper(root)
     source_settings_path = root / "Visualization" / "config" / "render-settings.json"
     settings = json.loads(source_settings_path.read_text(encoding="utf-8"))
-    bounded_dir = generated_dir / "bounded-graphs"
+    if bounded_dir.exists():
+        shutil.rmtree(bounded_dir)
     bounded_dir.mkdir(parents=True, exist_ok=True)
 
     settings["reportPath"] = repo_relative_path(root, bounded_dir / "bounded-graphs-report.md")
