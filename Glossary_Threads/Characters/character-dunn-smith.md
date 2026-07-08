@@ -395,6 +395,7 @@ character_profile:
     book: lotm-1
     volume: 1
     chapter: 47
+    notes: Directly EPUB-verified through the current Volume 1 reader boundary; Donghua comparison remains pending.
   data_model_version: page-local-state-v2
   availability_policy: per-medium-independent
   state_sort_order: newest-to-oldest
@@ -402,8 +403,10 @@ character_profile:
     - image_number: 17
       label: Dunn Smith portrait
       type: official-epub-character-gallery
-      file: ../../Artwork/page-assets/characters/character-dunn-smith/dunn-smith-portrait.jpeg
+      file: Artwork/page-assets/characters/character-dunn-smith/dunn-smith-portrait.jpeg
+      source_file: Artwork/Source/extracted/volume-1-clown/0017-spine-0230-characters-character3.jpeg
       usage: primary-page-header-image
+      notes: Promoted from the official EPUB image map row 17 for the Dunn Smith character page.
   first_appearance_beats:
     - medium: novel
       beat_type: first-visual-functional-appearance

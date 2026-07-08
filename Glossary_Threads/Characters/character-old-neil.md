@@ -337,6 +337,7 @@ character_profile:
     book: lotm-1
     volume: 1
     chapter: 47
+    notes: Directly EPUB-verified through the current Volume 1 reader boundary; Donghua comparison remains pending.
   data_model_version: page-local-state-v2
   availability_policy: per-medium-independent
   state_sort_order: newest-to-oldest
