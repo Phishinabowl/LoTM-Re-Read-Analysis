@@ -58,10 +58,11 @@ Through Chapter 47, he gives the Nighthawks' support structure a warmer, strange
 ## Character Snapshot
 
 - Current reader-safe identity: Old Neil, eccentric Tingen Nighthawks civilian staff member and Mystery Pryer.
-- Current primary role: Knowledge-work specialist, formula/material handler, mysticism instructor, and occasional field-response participant.
-- Current affiliation: Church of Evernight / Tingen Nighthawks, working through Blackthorn Security Company.
-- Current pathway / ability status: Confirmed Mystery Pryer; practical Spirit Vision, Cogitation, ritual/mysticism, and formula-preparation expertise are reader-safe through Chapter 47.
-- Current vital status: Alive at the current reader boundary.
+- Current role: Knowledge-work specialist, formula/material handler, mysticism instructor, and occasional field-response participant.
+- Current affiliation / status: Church of Evernight / Tingen Nighthawks civilian staff member; alive at the current reader boundary.
+- Current location / base: Blackthorn Security Company / Tingen Nighthawks workplace, last tracked at the Ray Bieber apartment field-response scene.
+- Current pathway / ability state: Confirmed Mystery Pryer; practical Spirit Vision, Cogitation, ritual/mysticism, and formula-preparation expertise are reader-safe through Chapter 47.
+- Current narrative function: Mentor-instructor, occult knowledge handler, potion-preparation support, and Nighthawks infrastructure texture.
 - First appearance: Novel Volume 1, Chapter 19, when Dunn names him as one of the Tingen Nighthawks' civilian staff.
 - Main reader-safe uncertainty: Old Neil's exact mission limits, full personal history, complete ability set, and later Volume 1 developments remain outside this boundary.
 
@@ -147,8 +148,13 @@ Through Chapter 47, he gives the Nighthawks' support structure a warmer, strange
 
 | Item / artifact | Type | Page target | First reveal / change point | Possession status | Graph relevance | Confidence | Notes |
 |---|---|---|---|---|---|---|---|
-| Historical materials / documents | Knowledge-work materials | Data-only | Novel V1 Ch40-47 | Supplies or manages access | None | Confirmed | Old Neil provides materials and context for Klein's work. |
 | Seer formula and potion materials | Formula/material set | Data-only | Novel V1 Ch31 | Retrieved/prepared, not owned | Local event support | Confirmed | Old Neil handles the materials for Klein's advancement; no standalone item page needed yet. |
+
+## Knowledge Sources & Documents
+
+| Knowledge source / document | Type | Page target | First reveal / change point | Access / handling status | Graph relevance | Confidence | Notes |
+|---|---|---|---|---|---|---|---|
+| Historical materials / documents | Knowledge-work materials | Data-only | Novel V1 Ch40-47 | Supplies or manages access | None | Confirmed | Old Neil provides materials and context for Klein's work. |
 | Roselle diary pages | Document / knowledge-source corpus | source-roselle-diary-pages.md | Novel V1 Ch20-21 | Handles or provides access | Full pending source hub | Confirmed | Old Neil's office is Klein's first contact point for the diary material; model as a pending Knowledge Source page rather than an Item page. |
 
 ## Personality
@@ -169,12 +175,6 @@ Through Chapter 47, he gives the Nighthawks' support structure a warmer, strange
 | Mystery Pryer pathway | Pathway-status connection | Novel V1 Ch22 / Ch28 | Current at boundary | Confirmed | Old Neil is reader-safe as a Mystery Pryer. |
 | Roselle diary pages | Handles / provides access to knowledge source | Novel V1 Ch20-21 | Current at boundary | Confirmed | Old Neil's office is Klein's first reader-safe access point for the diary material; full claim details belong on the pending Knowledge Source page. |
 
-## Messenger / Servants / Companions
-
-| Entity | Type | First reveal / change point | Status | Confidence | Notes |
-|---|---|---|---|---|---|
-| None known | Messenger / servant / companion | Novel V1 Ch47 | No reader-safe entity known | Confirmed absence through boundary | No messenger, servant, or companion is established for Old Neil through Chapter 47. |
-
 ## Prayers & Ritual Access
 
 | Prayer / ritual label | Type | Function | First reveal / change point | Status | Confidence | Concept link | Notes |
@@ -184,17 +184,18 @@ Through Chapter 47, he gives the Nighthawks' support structure a warmer, strange
 
 ## Major Events & Fights
 
-| Event / fight | Role | First reveal / occurrence | Outcome / status | Confidence | Notes |
-|---|---|---|---|---|---|
-| Roselle diary workplace contact | Knowledge-work contact | Novel V1 Ch20-21 | Active knowledge thread | Confirmed | Old Neil's office anchors Klein's first diary contact. |
-| Klein Becomes a Seer | Potion preparer / event participant | Novel V1 Ch31 | Completed | Confirmed | Retrieves formula/materials and prepares Klein's potion. |
-| Antigonus notebook / Ray Bieber field response | Specialized field participant | Novel V1 Ch45-47 | Active and unresolved at boundary | Confirmed | Old Neil uses Spirit Vision and identifies ritual-like sealing. |
+| Event / fight | Event type | Event part | Role | First reveal / occurrence | Outcome / status | Confidence | Notes |
+|---|---|---|---|---|---|---|---|
+| Roselle diary workplace contact | knowledge-source-contact | first-diary-access-point | Knowledge-work contact | Novel V1 Ch20-21 | Active knowledge thread | Confirmed | Old Neil's office anchors Klein's first diary contact and the pending `source-roselle-diary-pages.md` hub. |
+| [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md) | pathway-advancement | potion-preparation | Potion preparer / event participant | Novel V1 Ch31 | Completed | Confirmed | Retrieves formula/materials and prepares Klein's potion. |
+| Antigonus notebook / Ray Bieber field response | field-response | notebook-lead-investigation | Specialized field participant | Novel V1 Ch45-47 | Active and unresolved at boundary | Confirmed | Old Neil uses Spirit Vision and identifies ritual-like sealing. |
 
 ## Chronological Development
 
 ### Novel
 
 #### Chapter 19: Civilian Staff First Mention
+<!-- timeline_id: old-neil-civilian-staff-first-mention -->
 
 - What the reader learns: Old Neil is one of the Tingen Nighthawks' civilian staff, alongside Rozanne and Bredt.
 - What changes: The Nighthawks' local structure expands beyond formal Beyonders into support staff who handle records, visitors, inventory, and restricted spaces.
@@ -202,6 +203,7 @@ Through Chapter 47, he gives the Nighthawks' support structure a warmer, strange
 - Why it matters: Old Neil enters the story as part of the institution's working infrastructure before becoming a mentor figure.
 
 #### Chapters 20-21: First Direct Workplace Contact
+<!-- timeline_id: old-neil-first-workplace-contact -->
 
 - What the reader learns: Dunn expects Klein to spend time at Old Neil's, and Klein's visit to Old Neil's office becomes the first Roselle diary contact point.
 - What changes: Old Neil becomes associated with knowledge work, unusual documents, and the Nighthawks' internal information handling.
@@ -209,6 +211,7 @@ Through Chapter 47, he gives the Nighthawks' support structure a warmer, strange
 - Why it matters: Old Neil becomes Klein's first bridge from ordinary office onboarding into deeper occult-historical material.
 
 #### Chapters 22 and 28: Mystery Pryer Identity
+<!-- timeline_id: old-neil-mystery-pryer-identity -->
 
 - What the reader learns: Rozanne identifies Old Neil's Sequence 9 title as `Mystery Pryer`, and Dunn later confirms that Mystery Pryer is the power Old Neil controls.
 - What changes: Old Neil is no longer only a civilian staff member; he is also a Beyonder tied to mysticism, rituals, and one of the Church's incomplete pathway options.
@@ -217,6 +220,7 @@ Through Chapter 47, he gives the Nighthawks' support structure a warmer, strange
 - Why it matters: Old Neil becomes the first character through whom the reader can connect support-staff work, mysticism study, and incomplete pathway access.
 
 #### Chapter 31: Formula/Material Handling and Potion Preparation
+<!-- timeline_id: old-neil-seer-potion-preparation -->
 
 - What the reader learns: Dunn has Old Neil retrieve the Seer formula and corresponding materials from Chanis Gate, and Old Neil prepares Klein's Seer potion in the alchemy room.
 - What changes: Old Neil is shown as trusted inside the Nighthawks' formula/material workflow, not merely as a desk-bound staff member.
@@ -224,6 +228,7 @@ Through Chapter 47, he gives the Nighthawks' support structure a warmer, strange
 - Why it matters: Old Neil directly participates in the event that turns Klein into a Beyonder.
 
 #### Chapters 32-33: Klein's First Mysticism Instructor
+<!-- timeline_id: old-neil-first-mysticism-instructor -->
 
 - What the reader learns: Old Neil supervises Klein after the Seer potion, confirms his advancement, teaches Cogitation and Spirit Vision, explains basic mysticism concepts, and gives practical safety guidance.
 - What changes: Old Neil becomes Klein's first direct instructor in Beyonder practice.
@@ -232,6 +237,7 @@ Through Chapter 47, he gives the Nighthawks' support structure a warmer, strange
 - Why it matters: Old Neil gives the Church/Nighthawks training model a human face: funny, practical, knowledgeable, and safety-conscious.
 
 #### Chapter 34: Teaching Carries Into Klein's Independent Practice
+<!-- timeline_id: old-neil-teaching-informs-klein-practice -->
 
 - What the reader learns: Klein applies Old Neil's aura-color explanations while observing the Tarot Club above the gray fog.
 - What changes: Old Neil's instruction becomes part of Klein's active interpretive toolkit outside the immediate Nighthawks setting.
@@ -239,6 +245,7 @@ Through Chapter 47, he gives the Nighthawks' support structure a warmer, strange
 - Why it matters: The page's current boundary closes with Old Neil's teaching already influencing how Klein reads supernatural phenomena.
 
 #### Chapters 40-47: Restricted-Duty Work, Field Response, and Salary
+<!-- timeline_id: old-neil-restricted-duty-field-response-salary -->
 
 - What the reader learns: Old Neil patrols restricted Nighthawks spaces, supplies Klein with historical materials, joins Dunn's field team for the Antigonus notebook lead after Kenley covers his armory watch, uses Spirit Vision at the apartment, identifies a ritual-like sealing effect, and tells Klein his weekly pay comes from both the Church and police department.
 - What changes: Old Neil's role expands from instructor/support specialist into an older, semi-retired but still operationally useful field participant.
@@ -248,6 +255,7 @@ Through Chapter 47, he gives the Nighthawks' support structure a warmer, strange
 ### Donghua
 
 #### Season 1: Foundation Pending
+<!-- timeline_id: old-neil-donghua-foundation-pending -->
 
 - Timestamp: TBD
 - What the viewer learns: Not yet verified.
@@ -273,43 +281,47 @@ Through Chapter 47, he gives the Nighthawks' support structure a warmer, strange
 
 - character-klein-moretti.md
 - [Dunn Smith](character-dunn-smith.md)
-- [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
 - [Church of Evernight](../Factions/faction-church-of-evernight.md)
 - faction-nighthawks.md
-- [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
 - [Blackthorn Security Company](../Locations/location-blackthorn-security-company.md)
-- [Antigonus Notebook](../Artifacts/artifact-antigonus-notebook.md)
-- [Beyonders](../Concepts/concept-beyonders.md)
-- [Prayers & Rituals](../Concepts/concept-prayers-and-rituals.md)
-- [Seer Pathway](../Pathways/pathway-seer.md)
 - pathway-mystery-pryer.md
-
-### Historical Connections
-
--
-
-### Associated Mysteries
-
--
-
-### Associated Artifacts
-
-- [Antigonus Notebook](../Artifacts/artifact-antigonus-notebook.md)
-
-### Associated Knowledge Sources
-
-- source-roselle-diary-pages.md
-
-### Associated Factions
-
-- [Church of Evernight](../Factions/faction-church-of-evernight.md)
-- faction-nighthawks.md
 
 ### Associated Characters
 
 - character-klein-moretti.md
 - [Dunn Smith](character-dunn-smith.md)
 - character-rozanne.md
+
+### Associated Factions
+
+- [Church of Evernight](../Factions/faction-church-of-evernight.md)
+- faction-nighthawks.md
+
+### Associated Locations
+
+- [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
+- [Blackthorn Security Company](../Locations/location-blackthorn-security-company.md)
+
+### Associated Artifacts
+
+- [Antigonus Notebook](../Artifacts/artifact-antigonus-notebook.md)
+
+### Associated Items
+
+- Seer formula and potion materials
+
+### Associated Knowledge Sources
+
+- source-roselle-diary-pages.md
+
+### Associated Concepts / Systems
+
+- [Beyonders](../Concepts/concept-beyonders.md)
+- [Prayers & Rituals](../Concepts/concept-prayers-and-rituals.md)
+
+### Associated Events
+
+- [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
 
 ### Associated Pathways
 
@@ -329,6 +341,53 @@ character_profile:
   availability_policy: per-medium-independent
   state_sort_order: newest-to-oldest
   official_artwork: []
+  first_appearance_beats:
+    - medium: novel
+      beat_type: first-meaningful-mention
+      title: First Meaningful Mention
+      position:
+        book: lotm-1
+        volume: 1
+        chapter: 19
+      context: Dunn names Old Neil as one of the Tingen Nighthawks' civilian staff, along with Rozanne and Bredt, while explaining the team's structure and duties.
+      reader_knowledge_state: Old Neil is first known as support staff involved in visitor handling, case files, inventory registration, and guarding restricted team spaces.
+      graph_display:
+        behavior: canonical-node
+        label: Old Neil
+        visible_from: { medium: novel, book: lotm-1, volume: 1, chapter: 19 }
+      status: reader-visible-named-beat
+      confidence: confirmed
+      related_timeline_entries:
+        - old-neil-civilian-staff-first-mention
+      related_claims:
+        - old-neil-civilian-staff
+      source_refs:
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 19
+    - medium: donghua
+      beat_type: first-appearance-verification-pending
+      title: Donghua First Appearance Pending
+      position:
+        season: 1
+        episode: TBD
+        release_order: TBD
+        timestamp: TBD
+      context: Requires Donghua subtitle and visual verification.
+      viewer_knowledge_state: Exact first appearance, presentation, and adaptation timing are not yet pinned down.
+      graph_display:
+        behavior: hidden
+      status: verification-pending
+      confidence: TBD
+      related_timeline_entries:
+        - old-neil-donghua-foundation-pending
+      source_refs:
+        - medium: donghua
+          season: 1
+          episode: TBD
+          release_order: TBD
+          timestamp: TBD
   identities:
     - field: title-role
       value: Klein's first practical mysticism instructor
@@ -596,27 +655,6 @@ character_profile:
           confidence: TBD
           adaptation_relationship: pending
       notes: Sequence state is separated from the broader Mystery Pryer pathway edge so future pages can track advancement independently.
-  ability_state:
-    - field: practical-mysticism-instruction
-      value: Spirit Vision and practical mysticism instruction
-      status: current-demonstrated-capability
-      confidence: confirmed
-      availability:
-        - medium: novel
-          from: { book: lotm-1, volume: 1, chapter: 32 }
-          status: current-demonstrated-capability
-          confidence: confirmed
-      notes: Old Neil teaches and demonstrates early mystical practice for Klein.
-    - field: formula-material-handling-and-potion-preparation
-      value: Formula/material handling and potion preparation
-      status: current-demonstrated-capability
-      confidence: confirmed
-      availability:
-        - medium: novel
-          from: { book: lotm-1, volume: 1, chapter: 31 }
-          status: current-demonstrated-capability
-          confidence: confirmed
-      notes: Old Neil retrieves materials and prepares Klein's Seer potion.
   ability_index:
     - ability: ritual-sealing-interpretation
       source: mysticism-expertise-mystery-pryer-knowledge
@@ -673,23 +711,6 @@ character_profile:
           target: source-roselle-diary-pages
       notes: Old Neil becomes the first Roselle diary contact point.
   equipment_artifacts:
-    - item: Historical materials / documents
-      target:
-      type: knowledge-work-materials
-      possession_status: supplies-or-manages-access
-      item_significance: minor
-      graph_relevance: none
-      page_worthiness: none
-      confidence: confirmed
-      availability:
-        - medium: novel
-          from: { book: lotm-1, volume: 1, chapter: 40 }
-          possession_status: supplies-or-manages-access
-          item_significance: minor
-          graph_relevance: none
-          page_worthiness: none
-          confidence: confirmed
-      notes: Old Neil provides materials and context for Klein's work.
     - item: Seer formula and potion materials
       target:
       type: formula-material-set
@@ -708,19 +729,37 @@ character_profile:
           confidence: confirmed
           graph_visibility: full
       notes: Handles the materials for Klein's advancement.
-    - item: Roselle diary pages
+  knowledge_sources_documents:
+    - source: Historical materials / documents
+      target:
+      type: knowledge-work-materials
+      access_status: supplies-or-manages-access
+      source_significance: minor
+      graph_relevance: none
+      page_worthiness: none
+      confidence: confirmed
+      availability:
+        - medium: novel
+          from: { book: lotm-1, volume: 1, chapter: 40 }
+          access_status: supplies-or-manages-access
+          source_significance: minor
+          graph_relevance: none
+          page_worthiness: none
+          confidence: confirmed
+      notes: Old Neil provides materials and context for Klein's work.
+    - source: Roselle diary pages
       target: source-roselle-diary-pages
       type: document-knowledge-source-corpus
-      possession_status: handles-or-provides-access
-      item_significance: major
+      access_status: handles-or-provides-access
+      source_significance: major
       graph_relevance: full
       page_worthiness: dedicated-page
       confidence: confirmed
       availability:
         - medium: novel
           from: { book: lotm-1, volume: 1, chapter: 20 }
-          possession_status: handles-or-provides-access
-          item_significance: major
+          access_status: handles-or-provides-access
+          source_significance: major
           graph_relevance: full
           page_worthiness: dedicated-page
           confidence: confirmed
@@ -812,17 +851,6 @@ character_profile:
           confidence: confirmed
           graph_visibility: full
       notes: Old Neil's office is Klein's first reader-safe access point for the diary material; full claim details belong on the pending Knowledge Source page.
-  messengers_servants_companions:
-    - entity: None known
-      type: messenger-servant-companion
-      status: no-reader-safe-entity-known
-      confidence: confirmed
-      availability:
-        - medium: novel
-          from: { book: lotm-1, volume: 1, chapter: 47 }
-          status: no-reader-safe-entity-known
-          confidence: confirmed
-      notes: No messenger, servant, or companion is established for Old Neil through Chapter 47.
   prayers_ritual_access:
     - label: Ritualistic-magic instruction context
       type: ritualistic-magic
@@ -853,6 +881,8 @@ character_profile:
   major_events_fights:
     - event: Roselle diary workplace contact
       target: source-roselle-diary-pages
+      event_type: knowledge-source-contact
+      event_part: first-diary-access-point
       role: knowledge-work-contact
       outcome_status: active-knowledge-thread
       confidence: confirmed
@@ -860,31 +890,276 @@ character_profile:
         - medium: novel
           from: { book: lotm-1, volume: 1, chapter: 20 }
           target: source-roselle-diary-pages
+          event_type: knowledge-source-contact
+          event_part: first-diary-access-point
           outcome_status: active-knowledge-thread
           confidence: confirmed
-      notes: Old Neil's office anchors Klein's first diary contact.
-    - event: Klein Becomes a Seer
+      notes: Old Neil's office anchors Klein's first diary contact and the pending source-roselle-diary-pages.md hub.
+    - event: event-klein-becomes-a-seer
+      target: event-klein-becomes-a-seer
+      event_type: pathway-advancement
+      event_part: potion-preparation
       role: potion-preparer-event-participant
       outcome_status: completed
       confidence: confirmed
       availability:
         - medium: novel
           from: { book: lotm-1, volume: 1, chapter: 31 }
+          target: event-klein-becomes-a-seer
+          event_type: pathway-advancement
+          event_part: potion-preparation
           outcome_status: completed
           confidence: confirmed
           graph_visibility: full
       notes: Retrieves formula/materials and prepares Klein's potion.
     - event: Antigonus notebook / Ray Bieber field response
+      event_type: field-response
+      event_part: notebook-lead-investigation
       role: specialized-field-participant
       outcome_status: active-unresolved-at-boundary
       confidence: confirmed
       availability:
         - medium: novel
           from: { book: lotm-1, volume: 1, chapter: 45 }
+          event_type: field-response
+          event_part: notebook-lead-investigation
           outcome_status: active-unresolved-at-boundary
           confidence: confirmed
           graph_visibility: full
       notes: Old Neil uses Spirit Vision and identifies ritual-like sealing.
+  timeline_entries:
+    - id: old-neil-civilian-staff-first-mention
+      title: Civilian Staff First Mention
+      medium: novel
+      from: { book: lotm-1, volume: 1, chapter: 19 }
+      to: { book: lotm-1, volume: 1, chapter: 19 }
+      visibility:
+        from: { medium: novel, book: lotm-1, volume: 1, chapter: 19 }
+      entry_type: staff-introduction
+      summary: Dunn names Old Neil as one of the Tingen Nighthawks' civilian staff.
+      reader_learns:
+        - Old Neil is civilian staff in the local Nighthawks structure.
+      changes:
+        - The Nighthawks expand from formal Beyonders into support staff who handle records, visitors, inventory, and restricted spaces.
+      remains_unknown:
+        - Old Neil's pathway, personality, expertise, and relationship to Klein are not yet known.
+      why_it_matters: Old Neil enters the story as part of the institution's working infrastructure before becoming a mentor figure.
+      related_entities:
+        - faction-nighthawks
+        - character-rozanne
+      related_claims:
+        - old-neil-civilian-staff
+      source_refs:
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 19
+    - id: old-neil-first-workplace-contact
+      title: First Direct Workplace Contact
+      medium: novel
+      from: { book: lotm-1, volume: 1, chapter: 20 }
+      to: { book: lotm-1, volume: 1, chapter: 21 }
+      visibility:
+        from: { medium: novel, book: lotm-1, volume: 1, chapter: 20 }
+      entry_type: knowledge-source-contact
+      summary: Klein's visit to Old Neil's office becomes the first Roselle diary contact point.
+      reader_learns:
+        - Old Neil is associated with knowledge work, unusual documents, and internal information handling.
+      changes:
+        - Old Neil becomes Klein's first bridge from ordinary office onboarding into deeper occult-historical material.
+      remains_unknown:
+        - The reader does not yet know Old Neil's pathway or how important he will become to Klein's training.
+      why_it_matters: Old Neil's office anchors the first reader-safe contact with Roselle diary material.
+      related_entities:
+        - character-klein-moretti
+        - source-roselle-diary-pages
+      related_claims:
+        - old-neil-handles-roselle-diary
+      source_refs:
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 20
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 21
+    - id: old-neil-mystery-pryer-identity
+      title: Mystery Pryer Identity
+      medium: novel
+      from: { book: lotm-1, volume: 1, chapter: 22 }
+      to: { book: lotm-1, volume: 1, chapter: 28 }
+      visibility:
+        from: { medium: novel, book: lotm-1, volume: 1, chapter: 22 }
+      entry_type: pathway-reveal
+      summary: Rozanne identifies Old Neil's Sequence 9 title as Mystery Pryer, and Dunn later confirms Mystery Pryer is the power Old Neil controls.
+      reader_learns:
+        - Old Neil is a Mystery Pryer.
+        - Old Neil is a Beyonder tied to mysticism and one of the Church's incomplete pathway options.
+      changes:
+        - Old Neil is no longer only a civilian staff member.
+      remains_unknown:
+        - Old Neil's exact Sequence beyond the named Sequence 9 title, full ability set, and personal history remain unknown.
+      why_it_matters: Old Neil connects support-staff work, mysticism study, and incomplete pathway access.
+      related_entities:
+        - pathway-mystery-pryer
+        - faction-church-of-evernight
+      related_claims:
+        - old-neil-mystery-pryer
+      source_refs:
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 22
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 28
+    - id: old-neil-seer-potion-preparation
+      title: Formula/Material Handling and Potion Preparation
+      medium: novel
+      from: { book: lotm-1, volume: 1, chapter: 31 }
+      to: { book: lotm-1, volume: 1, chapter: 31 }
+      visibility:
+        from: { medium: novel, book: lotm-1, volume: 1, chapter: 31 }
+      entry_type: pathway-advancement-support
+      summary: Old Neil retrieves the Seer formula and materials from Chanis Gate and prepares Klein's Seer potion in the alchemy room.
+      reader_learns:
+        - Old Neil is trusted inside the Nighthawks' formula/material workflow.
+      changes:
+        - Old Neil directly participates in the event that turns Klein into a Beyonder.
+      remains_unknown:
+        - The full rules governing Old Neil's access to Chanis Gate materials and his exact official responsibility remain unclear.
+      why_it_matters: Old Neil becomes a practical participant in Klein's advancement rather than only a support-staff contact.
+      related_entities:
+        - character-klein-moretti
+        - event-klein-becomes-a-seer
+        - pathway-seer
+      related_claims:
+        - old-neil-prepares-klein-seer-potion
+      source_refs:
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 31
+    - id: old-neil-first-mysticism-instructor
+      title: Klein's First Mysticism Instructor
+      medium: novel
+      from: { book: lotm-1, volume: 1, chapter: 32 }
+      to: { book: lotm-1, volume: 1, chapter: 33 }
+      visibility:
+        from: { medium: novel, book: lotm-1, volume: 1, chapter: 32 }
+      entry_type: training
+      summary: Old Neil supervises Klein after the Seer potion, confirms his advancement, teaches Cogitation and Spirit Vision, explains basic mysticism, and gives practical safety guidance.
+      reader_learns:
+        - Old Neil is Klein's first direct instructor in Beyonder practice.
+        - Old Neil can teach Cogitation, Spirit Vision, and basic ritual/mysticism context.
+      changes:
+        - Old Neil becomes a mentor figure rather than only a staff contact.
+      remains_unknown:
+        - The full training curriculum, Old Neil's deeper expertise, and the long-term mentor/student shape of the relationship remain unknown.
+      why_it_matters: Old Neil gives the Church/Nighthawks training model a human face.
+      related_entities:
+        - character-klein-moretti
+        - concept-prayers-and-rituals
+      related_claims:
+        - old-neil-practical-mysticism-instructor
+      source_refs:
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 32
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 33
+    - id: old-neil-teaching-informs-klein-practice
+      title: Teaching Carries Into Klein's Independent Practice
+      medium: novel
+      from: { book: lotm-1, volume: 1, chapter: 34 }
+      to: { book: lotm-1, volume: 1, chapter: 34 }
+      visibility:
+        from: { medium: novel, book: lotm-1, volume: 1, chapter: 34 }
+      entry_type: training-application
+      summary: Klein applies Old Neil's aura-color explanations while observing the Tarot Club above the gray fog.
+      reader_learns:
+        - Old Neil's instruction becomes part of Klein's active interpretive toolkit.
+      changes:
+        - Old Neil's teaching extends beyond the immediate Nighthawks setting.
+      remains_unknown:
+        - Whether Old Neil or the Nighthawks can understand Klein's gray-fog practice remains completely unknown to the reader at this boundary.
+      why_it_matters: Old Neil's practical lessons begin shaping how Klein reads supernatural phenomena independently.
+      related_entities:
+        - character-klein-moretti
+      related_claims:
+        - old-neil-practical-mysticism-instructor
+      source_refs:
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 34
+    - id: old-neil-restricted-duty-field-response-salary
+      title: Restricted-Duty Work, Field Response, and Salary
+      medium: novel
+      from: { book: lotm-1, volume: 1, chapter: 40 }
+      to: { book: lotm-1, volume: 1, chapter: 47 }
+      visibility:
+        from: { medium: novel, book: lotm-1, volume: 1, chapter: 40 }
+      entry_type: field-response
+      summary: Old Neil patrols restricted spaces, supplies historical materials, joins Dunn's field team, uses Spirit Vision, identifies a ritual-like sealing effect, and gives Klein salary details.
+      reader_learns:
+        - Old Neil remains operationally useful in restricted-duty and field-response contexts.
+        - Old Neil is paid through both Church and police funding.
+      changes:
+        - Old Neil's role expands from instructor/support specialist into a more textured working member of the Nighthawks infrastructure.
+      remains_unknown:
+        - His exact mission limits, full salary history, tax arrangement details, and complete responsibilities inside the team remain unclear.
+      why_it_matters: Old Neil becomes knowledgeable, aging, funny, occasionally grumbling, but still trusted in specialized responses.
+      related_entities:
+        - character-dunn-smith
+        - artifact-antigonus-notebook
+        - concept-prayers-and-rituals
+      related_claims:
+        - old-neil-field-response-specialist
+        - old-neil-dual-salary
+      source_refs:
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 40
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 45
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 46
+        - medium: novel
+          book: lotm-1
+          volume: 1
+          chapter: 47
+    - id: old-neil-donghua-foundation-pending
+      title: Donghua Foundation Pending
+      medium: donghua
+      from: { season: 1, episode: TBD, release_order: TBD }
+      visibility:
+        from: { medium: donghua, season: 1, episode: TBD, release_order: TBD }
+      entry_type: adaptation-verification-pending
+      summary: Old Neil's Donghua presentation requires subtitle and visual verification.
+      reader_learns:
+        - Not yet verified.
+      changes:
+        - Not yet verified.
+      remains_unknown:
+        - Exact first appearance, presentation, and adaptation timing.
+      why_it_matters: Old Neil's Donghua presentation should be verified separately because character introduction timing and visual emphasis may differ from the novel.
+      related_entities: []
+      source_refs:
+        - medium: donghua
+          season: 1
+          episode: TBD
+          release_order: TBD
 ```
 
 ## Relationship Seeds
@@ -1052,7 +1327,7 @@ relationships:
     confidence: confirmed
     projection_owner: target-page
     projection_scope: canonical
-    projection_source: character_profile.equipment_artifacts[source-roselle-diary-pages]
+    projection_source: character_profile.knowledge_sources_documents[source-roselle-diary-pages]
     default_hidden_source_behavior: hide
     default_hidden_target_behavior: hide
     notes: Old Neil's office is Klein's first reader-safe access point for Roselle diary material; the pending Knowledge Source page should later own source-as-source claim entries.

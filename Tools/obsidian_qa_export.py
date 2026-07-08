@@ -557,6 +557,7 @@ def projection_keys_for_row(row: dict[str, str]) -> set[str]:
         "pathway",
         "organization",
         "item",
+        "source",
         "source_unit_id",
         "batch_id",
         "fragment_id",
@@ -584,7 +585,7 @@ def make_availability_entry(data: dict[str, str]) -> AvailabilityEntry:
         season=data.get("from_season", "") or data.get("season", ""),
         episode=data.get("from_episode", "") or data.get("episode", ""),
         release_order=data.get("from_release_order", "") or data.get("release_order", ""),
-        status=data.get("status", "") or data.get("possession_status", "") or data.get("outcome_status", ""),
+        status=data.get("status", "") or data.get("possession_status", "") or data.get("access_status", "") or data.get("outcome_status", ""),
         confidence=data.get("confidence", ""),
         graph_visibility=data.get("graph_visibility", ""),
         adaptation_relationship=data.get("adaptation_relationship", ""),
@@ -1729,7 +1730,7 @@ def format_availability_progression(row: dict) -> str:
     if entries:
         for entry in entries:
             position = format_position(entry_position(entry))
-            status = entry.get("status") or entry.get("possession_status") or entry.get("outcome_status") or ""
+            status = entry.get("status") or entry.get("possession_status") or entry.get("access_status") or entry.get("outcome_status") or ""
             confidence = entry.get("confidence", "")
             details = " / ".join(item for item in [status, confidence] if item)
             parts.append(f"{position}: {details}" if details else position)
@@ -1854,6 +1855,7 @@ BOUNDED_CHARACTER_TABLES: list[tuple[str, str, list[tuple[str, str]], bool]] = [
     ("Ability State", "ability_state", [("Field", "field"), ("Value", "value"), ("Status", "status"), ("Confidence", "confidence"), ("Notes", "notes")], True),
     ("Abilities", "ability_index", [("Ability", "ability"), ("Source", "source"), ("Target", "target"), ("Status", "status"), ("Confidence", "confidence"), ("Notes", "notes")], False),
     ("Equipment / Artifacts / Items", "equipment_artifacts", [("Item", "item"), ("Target", "target"), ("Type", "type"), ("Possession", "possession_status"), ("Significance", "item_significance"), ("Graph", "graph_relevance")], False),
+    ("Knowledge Sources & Documents", "knowledge_sources_documents", [("Source", "source"), ("Target", "target"), ("Type", "type"), ("Access", "access_status"), ("Significance", "source_significance"), ("Graph", "graph_relevance")], True),
     ("Personality", "personality", [("Trait", "trait"), ("Evidence", "evidence"), ("Status", "status"), ("Confidence", "confidence"), ("Notes", "notes")], False),
     ("Relationships", "relationships", [("Target", "target"), ("Relationship", "relationship"), ("Status", "status"), ("Confidence", "confidence"), ("Notes", "notes")], False),
     ("Messengers / Servants / Companions", "messengers_servants_companions", [("Entity", "entity"), ("Label", "label"), ("Type", "type"), ("Function", "function"), ("Status", "status"), ("Confidence", "confidence")], True),

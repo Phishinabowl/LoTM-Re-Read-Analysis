@@ -26,7 +26,7 @@ Use this template as a character-specific overlay on top of the universal glossa
 
 For active or retrofitted character pages, the required minimum is `Metadata`, `Purpose`, `Spoiler Boundary`, `Reader Knowledge Boundary`, `Overall Summary`, `Character Snapshot`, `First Appearance / First Meaningful Mention`, `Chronological Development`, `Character Data Block`, `Relationship Seeds` when graph-worthy relationships are known, `Evidence Index`, and `Reader Knowledge Ledger`.
 
-Use `Names, Aliases & Titles`, `Physical Profile`, `Status, Origin & Location`, `Affiliations`, `Pathway & Ability State`, `Ability Index`, `Equipment & Artifacts`, `Personality`, `Relationships`, and `Major Events & Fights` when relevant. Omit empty optional modules from real pages until the character has reader-safe material for them.
+Use `Names, Aliases & Titles`, `Physical Profile`, `Status, Origin & Location`, `Affiliations`, `Pathway & Ability State`, `Ability Index`, `Equipment & Artifacts`, `Knowledge Sources & Documents`, `Personality`, `Relationships`, and `Major Events & Fights` when relevant. Omit empty optional modules from real pages until the character has reader-safe material for them.
 
 Omit `Mythical Creature Form State`, `Uniqueness State`, `Messenger / Servants / Companions`, `Prayers & Ritual Access`, and `Prayer / Ritual Texts` by default unless they have meaningful reader-safe material.
 
@@ -178,9 +178,16 @@ Include this section only when the character has a reader-safe relationship to a
 
 ## Equipment & Artifacts
 
-Use this section for broad possession, custody, access, use, investigation state, or source handling. Link named recurring non-artifact objects to `Glossary_Threads/Items/item-[name].md` when they are page-worthy; link recurring knowledge carriers to `Glossary_Threads/Knowledge_Sources/source-[name].md` when their quotes, claims, access history, or interpretation chronology need independent tracking; link formal mystical artifacts or Sealed Artifacts to `Glossary_Threads/Artifacts/artifact-[name].md`. Keep minor equipment, disposable possessions, and one-scene props as plain data rows unless they become graph-worthy later.
+Use this section for broad possession, custody, access, use, or investigation state for physical equipment, items, and formal artifacts. Link named recurring non-artifact objects to `Glossary_Threads/Items/item-[name].md` when they are page-worthy; link formal mystical artifacts or Sealed Artifacts to `Glossary_Threads/Artifacts/artifact-[name].md`. Put recurring knowledge carriers, document corpora, source texts, records, letters, formula records, and similar reveal carriers in `Knowledge Sources & Documents` instead. Keep minor equipment, disposable possessions, and one-scene props as plain data rows unless they become graph-worthy later.
 
 | Item / artifact | Type | Page target | First reveal / change point | Possession status | Graph relevance | Confidence | Notes |
+|---|---|---|---|---|---|---|---|
+
+## Knowledge Sources & Documents
+
+Include this section only when the character has meaningful reader-safe access to, custody of, handling of, reading of, translation of, interpretation of, or transmission of a recurring knowledge source or document. Use it for diary pages, spellbooks, grimoires, notebooks, scriptures, case files, letters, inscriptions, formula records, murals, records, or similar reveal carriers. Link to `Glossary_Threads/Knowledge_Sources/source-[name].md` when a dedicated source page exists; mention a planned source page as a plain filename when it is pending. Omit this section from character pages with no meaningful source/document relationship.
+
+| Knowledge source / document | Type | Page target | First reveal / change point | Access / handling status | Graph relevance | Confidence | Notes |
 |---|---|---|---|---|---|---|---|
 
 ## Personality
@@ -307,7 +314,7 @@ Use Markdown links when the target file exists, with the target document's human
 
 ## Character Data Block
 
-This block is the structured page-local state model for future generated pages, dashboards, reader-position filters, and relationship graphs. Keep it aligned with the visible character sections and Reader Knowledge Ledger. Use metadata, not this data block, for page-level `Subject Visible From`. If `mythical_creature_form_state`, `uniqueness_state`, or a major/recurring `equipment_artifacts` row records a positive reader-safe graph relationship, add the corresponding graph edge in `Relationship Seeds`. Do not add relationship seeds for omitted sections, unknown/null state, ordinary absence, minor equipment, or disposable possessions.
+This block is the structured page-local state model for future generated pages, dashboards, reader-position filters, and relationship graphs. Keep it aligned with the visible character sections and Reader Knowledge Ledger. Use metadata, not this data block, for page-level `Subject Visible From`. If `mythical_creature_form_state`, `uniqueness_state`, a major/recurring `equipment_artifacts` row, or a graph-worthy `knowledge_sources_documents` row records a positive reader-safe graph relationship, add the corresponding graph edge in `Relationship Seeds`. Do not add relationship seeds for omitted sections, unknown/null state, ordinary absence, minor equipment, disposable possessions, or incidental one-scene documents.
 
 Visible character tables are the GitHub-readable article layer. `character_profile` rows are the future renderer, filtering, and QA layer. When both describe the same extractable state, keep them synchronized and fix both if they conflict. Keep `character_profile` sections in the same order as the visible character sections whenever practical, so maintainers can compare article text, tables, and YAML without hunting through the block.
 
@@ -325,7 +332,7 @@ Use kebab-case values for local Character Data Block taxonomy fields such as `st
 
 Prefer reusable local data-block values over character-specific one-offs. Examples include `current-at-boundary`, `current-operational-base`, `latest-known-location-at-boundary`, `current-pattern-at-boundary`, `strong-evidence-at-boundary`, `superseded-by-later-naming`, `authorized-access`, `investigating-not-possessed`, and `no-reader-safe-access-known`. If a new value is needed, make it generic enough to reuse across future character pages and explain the specific character nuance in `notes`.
 
-Default character fact ownership: affiliation, employment, and team membership belong first in `Affiliations`; pathway, Sequence, advancement, digestion, and broad supernatural state belong first in `Pathway & Ability State`; individual powers or skills belong first in `Ability Index` unless they are better modeled as `Prayers & Ritual Access`; object possession, custody, access, or use belongs first in `Equipment & Artifacts`; interpersonal/entity ties belong first in `Relationships`; plot participation belongs first in `Major Events & Fights`. Relationship Seeds project graph-worthy edges from those local rows and do not replace them.
+Default character fact ownership: affiliation, employment, and team membership belong first in `Affiliations`; pathway, Sequence, advancement, digestion, and broad supernatural state belong first in `Pathway & Ability State`; individual powers or skills belong first in `Ability Index` unless they are better modeled as `Prayers & Ritual Access`; object possession, custody, access, or use belongs first in `Equipment & Artifacts`; recurring knowledge-source/document access, handling, reading, custody, translation, interpretation, or transmission belongs first in `Knowledge Sources & Documents`; interpersonal/entity ties belong first in `Relationships`; plot participation belongs first in `Major Events & Fights`. Relationship Seeds project graph-worthy edges from those local rows and do not replace them.
 
 ```yaml
 character_profile:
@@ -633,6 +640,37 @@ character_profile:
           display_relationship_type:
           notes:
       notes:
+  # Optional specialized module: omit this array unless the visible page includes
+  # Knowledge Sources & Documents.
+  knowledge_sources_documents:
+    - source:
+      target:
+      type:
+      access_status:
+      source_significance: minor
+      graph_relevance: none
+      page_worthiness: none
+      confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          access_status:
+          source_significance:
+          graph_relevance:
+          page_worthiness:
+          confidence:
+          graph_visibility:
+          display_source_label:
+          display_target_label:
+          display_relationship_type:
+          notes:
+      notes:
   personality:
     - trait:
       evidence:
@@ -811,6 +849,8 @@ For character pages, this page normally owns seeds where the character is the so
 Order seeds by the character data-block section they project from when possible: affiliation seeds, pathway/sequence seeds, tarot-card seeds, ability seeds, graph-worthy equipment/artifact seeds, relationship seeds, then major-event participation seeds. The order is for maintainer scanning only; graph generators must use the seed fields, not position.
 
 For equipment, possessions, and custody, add seeds only for graph-worthy `equipment_artifacts` rows. Minor or disposable rows should stay data-only. Use `possesses-item` / `uses-item` for named non-artifact item pages, and `artifact-user` / `artifact-guardian` for formal artifact pages.
+
+For knowledge sources and documents, add seeds only for graph-worthy `knowledge_sources_documents` rows. Put source-as-source reveal/claim edges on the Knowledge Source page when it exists; character pages may own access, handling, reading, custody, translation, or interpretation edges when the character/source relationship is the local fact being tracked.
 
 Keep entries reader-boundary aware and mark unverified start points as `TBD`. `start` is the earliest reader-safe point where the edge becomes graph-worthy, not necessarily the confirmation point.
 

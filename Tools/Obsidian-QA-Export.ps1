@@ -255,7 +255,7 @@ function ConvertTo-ProjectionSlug {
 function Get-ProjectionKeysForRow {
   param([hashtable]$Row)
   $keys = New-Object 'System.Collections.Generic.HashSet[string]'
-  foreach ($field in @("target", "ability", "event", "pathway", "organization", "item", "source_unit_id", "batch_id", "fragment_id", "label", "field", "entity", "uniqueness")) {
+  foreach ($field in @("target", "ability", "event", "pathway", "organization", "item", "source", "source_unit_id", "batch_id", "fragment_id", "label", "field", "entity", "uniqueness")) {
     if (-not $Row.ContainsKey($field) -or -not $Row[$field]) {
       continue
     }
@@ -280,7 +280,7 @@ function New-AvailabilityEntry {
     season = if ($Data.ContainsKey("from_season")) { $Data["from_season"] } elseif ($Data.ContainsKey("season")) { $Data["season"] } else { "" }
     episode = if ($Data.ContainsKey("from_episode")) { $Data["from_episode"] } elseif ($Data.ContainsKey("episode")) { $Data["episode"] } else { "" }
     release_order = if ($Data.ContainsKey("from_release_order")) { $Data["from_release_order"] } elseif ($Data.ContainsKey("release_order")) { $Data["release_order"] } else { "" }
-    status = if ($Data.ContainsKey("status")) { $Data["status"] } elseif ($Data.ContainsKey("possession_status")) { $Data["possession_status"] } elseif ($Data.ContainsKey("outcome_status")) { $Data["outcome_status"] } else { "" }
+    status = if ($Data.ContainsKey("status")) { $Data["status"] } elseif ($Data.ContainsKey("possession_status")) { $Data["possession_status"] } elseif ($Data.ContainsKey("access_status")) { $Data["access_status"] } elseif ($Data.ContainsKey("outcome_status")) { $Data["outcome_status"] } else { "" }
     confidence = if ($Data.ContainsKey("confidence")) { $Data["confidence"] } else { "" }
     graph_visibility = if ($Data.ContainsKey("graph_visibility")) { $Data["graph_visibility"] } else { "" }
     adaptation_relationship = if ($Data.ContainsKey("adaptation_relationship")) { $Data["adaptation_relationship"] } else { "" }
@@ -2395,7 +2395,7 @@ function Format-AvailabilityProgression {
   if ($entries -is [System.Collections.IEnumerable] -and -not ($entries -is [string]) -and @($entries).Count -gt 0) {
     foreach ($entry in @($entries)) {
       $position = Format-Position (Get-EntryPosition $entry)
-      $status = Get-MapValue $entry "status" (Get-MapValue $entry "possession_status" (Get-MapValue $entry "outcome_status" ""))
+      $status = Get-MapValue $entry "status" (Get-MapValue $entry "possession_status" (Get-MapValue $entry "access_status" (Get-MapValue $entry "outcome_status" "")))
       $confidence = Get-MapValue $entry "confidence" ""
       $details = @($status, $confidence) | Where-Object { $_ }
       if ($details.Count -gt 0) { $parts += "$position`: $($details -join ' / ')" } else { $parts += $position }
@@ -2547,6 +2547,7 @@ $BoundedCharacterTables = @(
   [pscustomobject]@{ Title = "Ability State"; Key = "ability_state"; Optional = $true; Columns = @(@("Field", "field"), @("Value", "value"), @("Status", "status"), @("Confidence", "confidence"), @("Notes", "notes")) },
   [pscustomobject]@{ Title = "Abilities"; Key = "ability_index"; Optional = $false; Columns = @(@("Ability", "ability"), @("Source", "source"), @("Target", "target"), @("Status", "status"), @("Confidence", "confidence"), @("Notes", "notes")) },
   [pscustomobject]@{ Title = "Equipment / Artifacts / Items"; Key = "equipment_artifacts"; Optional = $false; Columns = @(@("Item", "item"), @("Target", "target"), @("Type", "type"), @("Possession", "possession_status"), @("Significance", "item_significance"), @("Graph", "graph_relevance")) },
+  [pscustomobject]@{ Title = "Knowledge Sources & Documents"; Key = "knowledge_sources_documents"; Optional = $true; Columns = @(@("Source", "source"), @("Target", "target"), @("Type", "type"), @("Access", "access_status"), @("Significance", "source_significance"), @("Graph", "graph_relevance")) },
   [pscustomobject]@{ Title = "Personality"; Key = "personality"; Optional = $false; Columns = @(@("Trait", "trait"), @("Evidence", "evidence"), @("Status", "status"), @("Confidence", "confidence"), @("Notes", "notes")) },
   [pscustomobject]@{ Title = "Relationships"; Key = "relationships"; Optional = $false; Columns = @(@("Target", "target"), @("Relationship", "relationship"), @("Status", "status"), @("Confidence", "confidence"), @("Notes", "notes")) },
   [pscustomobject]@{ Title = "Messengers / Servants / Companions"; Key = "messengers_servants_companions"; Optional = $true; Columns = @(@("Entity", "entity"), @("Label", "label"), @("Type", "type"), @("Function", "function"), @("Status", "status"), @("Confidence", "confidence")) },

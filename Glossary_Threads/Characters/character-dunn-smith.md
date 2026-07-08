@@ -201,18 +201,6 @@ At this reader boundary, Dunn feels like the local center of gravity for the Chu
 | Church of Evernight | Member / official agent | Novel V1 Ch13 | Current at boundary | Confirmed | Dunn is the reader's first direct Church-linked Nighthawk. |
 | Antigonus Notebook | Investigator | Novel V1 Ch13 | Active case connection | Confirmed | The notebook drives Dunn's investigation and Chapter 45 field response. |
 
-## Messenger / Servants / Companions
-
-| Entity | Type | First reveal / change point | Status | Confidence | Notes |
-|---|---|---|---|---|---|
-| None known | Messenger / servant / companion | Novel V1 Ch47 | No reader-safe entity known | Confirmed absence through boundary | No messenger, servant, or companion is established for Dunn through Chapter 47. |
-
-## Prayers & Ritual Access
-
-| Prayer / ritual label | Type | Function | First reveal / change point | Status | Confidence | Concept link | Notes |
-|---|---|---|---|---|---|---|---|
-| None known | Prayer / ritual access | No reader-safe Dunn-specific prayer or ritual address known | Novel V1 Ch47 | No reader-safe access known | Confirmed absence through boundary | [Prayers & Rituals](../Concepts/concept-prayers-and-rituals.md) | Dunn explains and participates in supernatural systems, but no prayer wording or ritual address is tied to him through Chapter 47. |
-
 ## Major Events & Fights
 
 | Event / fight | Event type | Event part | Role | First reveal / occurrence | Outcome / status | Confidence | Notes |
@@ -349,25 +337,6 @@ At this reader boundary, Dunn feels like the local center of gravity for the Chu
 - [Antigonus Notebook](../Artifacts/artifact-antigonus-notebook.md)
 - [Beyonders](../Concepts/concept-beyonders.md)
 
-### Historical Connections
-
--
-
-### Associated Mysteries
-
-- [Antigonus Notebook](../Artifacts/artifact-antigonus-notebook.md)
-
-### Associated Artifacts
-
-- [Antigonus Notebook](../Artifacts/artifact-antigonus-notebook.md)
-- [0-08](../Artifacts/artifact-0-08.md)
-
-### Associated Factions
-
-- [Church of Evernight](../Factions/faction-church-of-evernight.md)
-- faction-nighthawks.md
-- faction-secret-order.md
-
 ### Associated Characters
 
 - character-klein-moretti.md
@@ -377,6 +346,38 @@ At this reader boundary, Dunn feels like the local center of gravity for the Chu
 - character-kenley-white.md
 - character-seeka-tron.md
 - character-royale-reideen.md
+
+### Associated Factions
+
+- [Church of Evernight](../Factions/faction-church-of-evernight.md)
+- faction-nighthawks.md
+- faction-secret-order.md
+
+### Associated Locations
+
+- [Blackthorn Security Company](../Locations/location-blackthorn-security-company.md)
+- [Saint Selena Cathedral](../Locations/location-saint-selena-cathedral.md)
+
+### Associated Artifacts
+
+- [Antigonus Notebook](../Artifacts/artifact-antigonus-notebook.md)
+- [0-08](../Artifacts/artifact-0-08.md)
+
+### Associated Items
+
+- Nighthawk resources and ammunition access
+
+### Associated Knowledge Sources
+
+-
+
+### Associated Concepts / Systems
+
+- [Beyonders](../Concepts/concept-beyonders.md)
+
+### Associated Events
+
+- [Klein Becomes a Seer](../Events/event-klein-becomes-a-seer.md)
 
 ### Associated Pathways
 
@@ -992,32 +993,6 @@ character_profile:
           confidence: confirmed
           graph_visibility: full
       notes: The notebook drives Dunn's investigation and Chapter 45 field response.
-  messengers_servants_companions:
-    - label: None known
-      type: messenger-servant-companion
-      function: No reader-safe Dunn-specific messenger, servant, or companion known
-      status: no-reader-safe-entity-known
-      confidence: confirmed
-      availability:
-        - medium: novel
-          from: { book: lotm-1, volume: 1, chapter: 47 }
-          status: no-reader-safe-entity-known
-          confidence: confirmed
-      notes: No messenger, servant, or companion is established for Dunn through Chapter 47.
-  prayers_ritual_access:
-    - label: None known
-      type: prayer-ritual-access
-      function: No reader-safe Dunn-specific prayer or ritual address known
-      status: no-reader-safe-access-known
-      confidence: confirmed
-      availability:
-        - medium: novel
-          from: { book: lotm-1, volume: 1, chapter: 47 }
-          status: no-reader-safe-access-known
-          confidence: confirmed
-      concept_link: ../Concepts/concept-prayers-and-rituals.md
-      wording:
-      notes: Dunn explains and participates in supernatural systems, but no prayer wording or ritual address is tied to him through Chapter 47.
   major_events_fights:
     - event: Welch / Naya investigation
       event_type: investigation
