@@ -108,6 +108,13 @@ Purpose: check whether the local PowerShell environment has repository-required 
 | Default | Human-readable PowerShell version, executable, requirements path, and module status lines. | None. |
 | JSON | Structured readiness record plus module checks. | None. |
 
+### Important Notes
+
+- Run this once for an unfamiliar machine or fresh agent session, then treat the result as session state.
+- Rerun only if the environment changes, such as module installation changes, a different PowerShell edition, a different machine, or a failed fallback command that suggests the earlier state is stale.
+- If required modules are missing, install the repository PowerShell dependencies before using fallback features that need those modules.
+- `CurrentUser` module installs are usually sufficient. Maintainers who prefer machine-wide module availability may use `-Scope AllUsers` from an elevated PowerShell session.
+
 ### Check Recipe
 
 ```powershell
@@ -118,7 +125,7 @@ Install-Module powershell-yaml -Scope CurrentUser -Force -AllowClobber
 
 Last mapped: 2026-07-07.
 
-Last check: 2026-07-07. Normal JSON mode ran successfully on this machine with Windows PowerShell 5.1.19041.7417 and detected `powershell-yaml` 0.4.12 from `C:\Users\ptseb\Documents\WindowsPowerShell\Modules\powershell-yaml\0.4.12\powershell-yaml.psd1`.
+Last check: 2026-07-07. Normal JSON mode ran successfully on this machine with Windows PowerShell 5.1.19041.7417 and detected `powershell-yaml` 0.4.12 from `C:\Program Files\WindowsPowerShell\Modules\powershell-yaml\0.4.12\powershell-yaml.psd1`.
 
 ## Temporary File Cleanup
 
@@ -843,7 +850,7 @@ This section tracks durable configuration and generated state files that affect 
 | File | Kind | Read By | Written By | Purpose | Update When |
 | --- | --- | --- | --- | --- | --- |
 | `requirements-python.txt` | Dependency registry | `Tools/Test-Python.ps1`; human setup via `python -m pip install -r requirements-python.txt` | Maintainers | Defines Python packages required by preferred Python helper scripts. | Add or change entries when a Python helper gains or removes a third-party package dependency. |
-| `requirements-powershell.txt` | Dependency registry | `Tools/Test-PowerShell.ps1`; human setup via `Install-Module <module> -Scope CurrentUser -Force -AllowClobber` | Maintainers | Defines PowerShell modules required by fallback script features such as bounded Obsidian QA pages. | Add or change entries when a PowerShell helper gains or removes a module dependency. |
+| `requirements-powershell.txt` | Dependency registry | `Tools/Test-PowerShell.ps1`; human setup via `Install-Module <module> -Scope CurrentUser -Force -AllowClobber` or elevated `-Scope AllUsers` when machine-wide installs are preferred | Maintainers | Defines PowerShell modules required by fallback script features such as bounded Obsidian QA pages. | Add or change entries when a PowerShell helper gains or removes a module dependency. |
 | `Visualization/config/render-settings.json` | Source config | `Visualization/visualize.py`, `Visualization/visualize.ps1`, `Tools/obsidian_qa_export.py`, `Tools/Obsidian-QA-Export.ps1` | Maintainers | Defines canonical graph views, source Mermaid paths, rendered output paths, render dimensions, validation settings, reader-boundary filters, report path, and semantic snapshot path. The Obsidian QA export also derives its local `_Generated/repo-refresh-check/` dry-run settings from this file. | Add or remove repository graph views, change render sizes, adjust validation rules, change reader-boundary behavior, or redirect canonical report/snapshot paths. |
 | `Visualization/config/puppeteer-config.json` | Source config | `Visualization/visualize.py`, `Visualization/visualize.ps1`, Obsidian QA repo-refresh dry-run helpers through visualization tooling | Maintainers | Configures the browser executable, timeout, and launch args used by Mermaid/Puppeteer rendering. | Browser path changes, rendering starts timing out, CI/local environment changes, or Mermaid rendering needs different launch args. |
 | `Visualization/data/refresh-snapshot.json` | Generated semantic state | `Visualization/visualize.py`, `Visualization/visualize.ps1` | `Visualization/visualize.py --mode Refresh`, `Visualization/visualize.ps1 -Mode Refresh` | Stores the last canonical graph semantic snapshot so refresh reports can detect added/removed nodes, relationships, changed labels, duplicates, and other graph hygiene changes. | Update only through a confirmed canonical graph refresh. Do not edit manually except for explicit debugging that is later reverted or regenerated. |

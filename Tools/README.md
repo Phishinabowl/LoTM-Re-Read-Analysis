@@ -29,12 +29,14 @@ PowerShell fallback commands use `powershell`, which targets Windows PowerShell 
 
 Use `Test-PowerShell.ps1` to check repository PowerShell module requirements from `requirements-powershell.txt` before using fallback features that need modules, such as bounded Obsidian QA pages.
 
+Run this probe once for an unfamiliar machine or fresh agent session, then treat the result as the session's PowerShell-module readiness state. Rerun only if the environment changes, such as module installation changes, a different PowerShell edition, a different machine, or a failed fallback command that suggests the earlier state is stale.
+
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-PowerShell.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-PowerShell.ps1 -Json
 ```
 
-If required PowerShell modules are missing, install them from an elevated or internet-enabled PowerShell session as needed. For the current registry:
+If required PowerShell modules are missing, install them from an internet-enabled PowerShell session as needed. Current-user installs are usually sufficient; maintainers who prefer machine-wide module availability may use `-Scope AllUsers` from an elevated PowerShell session. For the current registry:
 
 ```powershell
 Install-Module powershell-yaml -Scope CurrentUser -Force -AllowClobber
