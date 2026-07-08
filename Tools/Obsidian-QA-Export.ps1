@@ -4,7 +4,8 @@ param(
   [switch]$IncludeStubs,
   [switch]$Clean,
   [switch]$Json,
-  [string[]]$BoundedGraph = @()
+  [string[]]$BoundedGraph = @(),
+  [string[]]$BoundedPage = @()
 )
 
 $ErrorActionPreference = "Stop"
@@ -820,6 +821,110 @@ function ConvertFrom-BoundedGraphSpecs {
     }
   }
   return @($result)
+}
+
+function ConvertFrom-BoundedPageSpec {
+  param(
+    [string]$Spec,
+    [int]$Index
+  )
+  $Spec = (ConvertFrom-Scalar $Spec).Trim().Trim('"').Trim("'")
+  $aliases = @{
+    "maxvolume" = "max_volume"
+    "max-volume" = "max_volume"
+    "volume" = "max_volume"
+    "maxchapter" = "max_chapter"
+    "max-chapter" = "max_chapter"
+    "chapter" = "max_chapter"
+    "maxseason" = "max_season"
+    "max-season" = "max_season"
+    "season" = "max_season"
+    "maxepisode" = "max_episode"
+    "max-episode" = "max_episode"
+    "episode" = "max_episode"
+    "maxreleaseorder" = "max_release_order"
+    "max-release-order" = "max_release_order"
+    "releaseorder" = "max_release_order"
+    "release-order" = "max_release_order"
+    "includeanonymouspreview" = "include_anonymous_preview"
+    "include-anonymous-preview" = "include_anonymous_preview"
+    "file" = "file_stem"
+    "filename" = "file_stem"
+    "file-stem" = "file_stem"
+  }
+  $values = @{}
+  foreach ($part in $Spec -split ",") {
+    $part = $part.Trim().Trim('"').Trim("'")
+    if (-not $part) {
+      continue
+    }
+    if (-not $part.Contains("=")) {
+      throw "Invalid -BoundedPage segment '$part'. Use key=value pairs."
+    }
+    $pieces = $part.Split("=", 2)
+    $key = $pieces[0].Trim().Trim('"').Trim("'")
+    $normalizedKey = $key.Replace("_", "-").ToLowerInvariant()
+    if ($aliases.ContainsKey($normalizedKey)) {
+      $normalizedKey = $aliases[$normalizedKey]
+    } else {
+      $normalizedKey = $key.Trim().Replace("-", "_").ToLowerInvariant()
+    }
+    $values[$normalizedKey] = (ConvertFrom-Scalar $pieces[1].Trim()).Trim('"').Trim("'")
+  }
+
+  if (-not $values.ContainsKey("slug") -or -not $values["slug"]) {
+    throw "-BoundedPage '$Spec' must include slug=<canonical-slug>."
+  }
+  $hasBoundary = $false
+  foreach ($key in @("max_volume", "max_chapter", "max_season", "max_episode", "max_release_order")) {
+    if ($values.ContainsKey($key) -and $values[$key]) {
+      $hasBoundary = $true
+    }
+  }
+  if (-not $hasBoundary) {
+    throw "-BoundedPage '$Spec' must include at least one max boundary, such as maxChapter=30."
+  }
+
+  return [pscustomobject]@{
+    slug = $values["slug"]
+    name = if ($values.ContainsKey("name")) { $values["name"] } else { "" }
+    file_stem = if ($values.ContainsKey("file_stem")) { $values["file_stem"] } else { "" }
+    medium = if ($values.ContainsKey("medium") -and $values["medium"]) { $values["medium"] } else { "novel" }
+    max_volume = if ($values.ContainsKey("max_volume")) { $values["max_volume"] } else { "" }
+    max_chapter = if ($values.ContainsKey("max_chapter")) { $values["max_chapter"] } else { "" }
+    max_season = if ($values.ContainsKey("max_season")) { $values["max_season"] } else { "" }
+    max_episode = if ($values.ContainsKey("max_episode")) { $values["max_episode"] } else { "" }
+    max_release_order = if ($values.ContainsKey("max_release_order")) { $values["max_release_order"] } else { "" }
+    include_anonymous_preview = ConvertTo-BoolValue $(if ($values.ContainsKey("include_anonymous_preview")) { $values["include_anonymous_preview"] } else { "true" })
+  }
+}
+
+function ConvertFrom-BoundedPageSpecs {
+  param([string[]]$Specs)
+  $result = @()
+  $index = 1
+  foreach ($rawSpec in @($Specs)) {
+    foreach ($spec in ($rawSpec -split ";")) {
+      if (-not $spec.Trim()) {
+        continue
+      }
+      $result += ConvertFrom-BoundedPageSpec $spec $index
+      $index += 1
+    }
+  }
+  return @($result)
+}
+
+function Import-YamlModuleForBoundedPages {
+  param([object[]]$BoundedPageSpecs)
+  if (@($BoundedPageSpecs).Count -eq 0) {
+    return
+  }
+  try {
+    Import-Module powershell-yaml -ErrorAction Stop
+  } catch {
+    throw "Bounded page generation requires the PowerShell module 'powershell-yaml'. Install it with: Install-Module powershell-yaml -Scope CurrentUser -Force -AllowClobber"
+  }
 }
 
 function Get-CanonicalNotes {
@@ -1942,6 +2047,677 @@ function Write-BoundedGraphs {
   powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "Visualization/visualize.ps1") -Mode Refresh -SettingsPath (Get-RepoRelativePath $RepoRoot $settingsPath) -SkipRender
 }
 
+function Get-MapValue {
+  param(
+    [object]$Map,
+    [string]$Key,
+    [object]$Default = ""
+  )
+  if ($null -eq $Map) { return $Default }
+  if ($Map -is [System.Collections.IDictionary]) {
+    if ($Map.Contains($Key)) { return $Map[$Key] }
+    return $Default
+  }
+  $property = $Map.PSObject.Properties[$Key]
+  if ($null -ne $property) { return $property.Value }
+  return $Default
+}
+
+function Test-MapHasKey {
+  param(
+    [object]$Map,
+    [string]$Key
+  )
+  if ($null -eq $Map) { return $false }
+  if ($Map -is [System.Collections.IDictionary]) { return $Map.Contains($Key) }
+  return $null -ne $Map.PSObject.Properties[$Key]
+}
+
+function Get-MapKeys {
+  param([object]$Map)
+  if ($null -eq $Map) { return @() }
+  if ($Map -is [string] -or $Map.GetType().IsPrimitive) { return @() }
+  if ($Map -is [System.Collections.IDictionary]) { return @($Map.Keys) }
+  if ($Map -is [System.Collections.IEnumerable]) { return @() }
+  return @($Map.PSObject.Properties | ForEach-Object { $_.Name })
+}
+
+function Copy-Map {
+  param([object]$Map)
+  $copy = [ordered]@{}
+  if ($Map -is [System.Collections.IDictionary]) {
+    foreach ($key in $Map.Keys) {
+      $copy[$key] = $Map[$key]
+    }
+  } elseif ($null -ne $Map) {
+    foreach ($property in $Map.PSObject.Properties) {
+      $copy[$property.Name] = $property.Value
+    }
+  }
+  return $copy
+}
+
+function Get-ProfileYaml {
+  param(
+    [string]$Text,
+    [string]$TypeName
+  )
+  $rootByType = @{ "character" = "character_profile" }
+  $typeKey = $TypeName.ToLowerInvariant()
+  if (-not $rootByType.ContainsKey($typeKey)) { return @{} }
+  $rootKey = $rootByType[$typeKey]
+  $relationshipBlock = Get-RelationshipYaml $Text
+  foreach ($block in Get-FencedYamlBlocks $Text) {
+    if ($relationshipBlock -and $block.Text -eq $relationshipBlock) { continue }
+    try {
+      $parsed = ConvertFrom-Yaml -Yaml $block.Text -Ordered
+    } catch {
+      continue
+    }
+    if (Test-MapHasKey $parsed $rootKey) {
+      return (Get-MapValue $parsed $rootKey @{})
+    }
+  }
+  return @{}
+}
+
+function ConvertTo-NullableInt {
+  param([object]$Value)
+  if ($null -eq $Value) { return $null }
+  $text = ([string]$Value).Trim()
+  if (-not $text -or $text.ToUpperInvariant() -eq "TBD") { return $null }
+  $number = 0
+  if ([int]::TryParse($text, [ref]$number)) { return $number }
+  return $null
+}
+
+function Get-BoundaryLabel {
+  param([object]$Spec)
+  $medium = ([string]$Spec.medium).ToLowerInvariant()
+  if ($medium -eq "novel") {
+    $parts = @("novel")
+    if ($Spec.max_volume) { $parts += "V$($Spec.max_volume)" }
+    if ($Spec.max_chapter) { $parts += "Ch$($Spec.max_chapter)" }
+    return ($parts -join " ")
+  }
+  if ($medium -eq "donghua") {
+    $parts = @("donghua")
+    if ($Spec.max_season) { $parts += "S$($Spec.max_season)" }
+    if ($Spec.max_episode) { $parts += "E$($Spec.max_episode)" }
+    if ($Spec.max_release_order) { $parts += "Release $($Spec.max_release_order)" }
+    return ($parts -join " ")
+  }
+  return $Spec.medium
+}
+
+function Get-BoundaryPosition {
+  param([object]$Spec)
+  return [ordered]@{
+    medium = ([string]$Spec.medium).ToLowerInvariant()
+    volume = ConvertTo-NullableInt $Spec.max_volume
+    chapter = ConvertTo-NullableInt $Spec.max_chapter
+    season = ConvertTo-NullableInt $Spec.max_season
+    episode = ConvertTo-NullableInt $Spec.max_episode
+    release_order = ConvertTo-NullableInt $Spec.max_release_order
+  }
+}
+
+function Get-NormalizedMedium {
+  param([object]$Value)
+  if ($null -eq $Value) { return "" }
+  return ([string]$Value).Trim().ToLowerInvariant()
+}
+
+function Get-PositionFromMetadata {
+  param([string]$Value)
+  $position = [ordered]@{ medium = "" }
+  $mediumMatch = [regex]::Match($Value, "\b(Novel|Donghua)\b", [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+  if ($mediumMatch.Success) { $position["medium"] = $mediumMatch.Groups[1].Value.ToLowerInvariant() }
+  $volume = [regex]::Match($Value, "\bV(?:ol(?:ume)?)?\s*(\d+)\b", [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+  $chapter = [regex]::Match($Value, "\bCh(?:apter)?\s*(\d+)\b", [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+  $season = [regex]::Match($Value, "\bS(?:eason)?\s*(\d+)\b", [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+  $episode = [regex]::Match($Value, "\bE(?:pisode)?\s*(\d+)\b", [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+  if ($volume.Success) { $position["volume"] = $volume.Groups[1].Value }
+  if ($chapter.Success) { $position["chapter"] = $chapter.Groups[1].Value }
+  if ($season.Success) { $position["season"] = $season.Groups[1].Value }
+  if ($episode.Success) { $position["episode"] = $episode.Groups[1].Value }
+  return $position
+}
+
+function Get-EntryPosition {
+  param([object]$Entry)
+  if (@(Get-MapKeys $Entry).Count -eq 0) { return @{} }
+  $from = Get-MapValue $Entry "from" $null
+  $positionValue = Get-MapValue $Entry "position" $null
+  $visibility = Get-MapValue $Entry "visibility" $null
+  if (@(Get-MapKeys $from).Count -gt 0) {
+    $data = Copy-Map $from
+  } elseif (@(Get-MapKeys $positionValue).Count -gt 0) {
+    $data = Copy-Map $positionValue
+  } elseif (@(Get-MapKeys $visibility).Count -gt 0 -and @(Get-MapKeys (Get-MapValue $visibility "from" $null)).Count -gt 0) {
+    $data = Copy-Map (Get-MapValue $visibility "from" @{})
+  } else {
+    $data = Copy-Map $Entry
+  }
+  if (-not (Test-MapHasKey $data "medium") -and (Get-MapValue $Entry "medium" "")) {
+    $data["medium"] = Get-MapValue $Entry "medium" ""
+  }
+  return $data
+}
+
+function Test-PositionVisible {
+  param(
+    [object]$Position,
+    [object]$Boundary
+  )
+  $medium = Get-NormalizedMedium (Get-MapValue $Position "medium" "")
+  if ($medium -and $medium -ne $Boundary["medium"]) { return $false }
+  if ($Boundary["medium"] -eq "novel") {
+    $volume = ConvertTo-NullableInt (Get-MapValue $Position "volume" "")
+    $chapter = ConvertTo-NullableInt (Get-MapValue $Position "chapter" "")
+    $maxVolume = $Boundary["volume"]
+    $maxChapter = $Boundary["chapter"]
+    if ($null -eq $volume -and $null -eq $chapter) { return $false }
+    if ($null -ne $maxVolume -and $null -ne $volume) {
+      if ($volume -gt $maxVolume) { return $false }
+      if ($volume -lt $maxVolume) { return $true }
+    }
+    if ($null -ne $maxChapter -and $null -ne $chapter) { return $chapter -le $maxChapter }
+    return ($null -ne $maxVolume -and $null -ne $volume -and $volume -le $maxVolume)
+  }
+  if ($Boundary["medium"] -eq "donghua") {
+    $releaseOrder = ConvertTo-NullableInt (Get-MapValue $Position "release_order" "")
+    $episode = ConvertTo-NullableInt (Get-MapValue $Position "episode" "")
+    $season = ConvertTo-NullableInt (Get-MapValue $Position "season" "")
+    $maxReleaseOrder = $Boundary["release_order"]
+    $maxEpisode = $Boundary["episode"]
+    $maxSeason = $Boundary["season"]
+    if ($null -ne $releaseOrder -and $null -ne $maxReleaseOrder) { return $releaseOrder -le $maxReleaseOrder }
+    if ($null -eq $season -and $null -eq $episode) { return $false }
+    if ($null -ne $maxSeason -and $null -ne $season) {
+      if ($season -gt $maxSeason) { return $false }
+      if ($season -lt $maxSeason) { return $true }
+    }
+    if ($null -ne $maxEpisode -and $null -ne $episode) { return $episode -le $maxEpisode }
+    return ($null -ne $maxSeason -and $null -ne $season -and $season -le $maxSeason)
+  }
+  return $false
+}
+
+function Get-RowVisibleAvailability {
+  param(
+    [object]$Row,
+    [object]$Boundary
+  )
+  $entries = Get-MapValue $Row "availability" @()
+  if (-not ($entries -is [System.Collections.IEnumerable]) -or $entries -is [string]) { return @() }
+  $visible = @()
+  foreach ($entry in @($entries)) {
+    if (@(Get-MapKeys $entry).Count -gt 0 -and (Test-PositionVisible (Get-EntryPosition $entry) $Boundary)) {
+      $visible += $entry
+    }
+  }
+  return @($visible)
+}
+
+function Test-RowVisible {
+  param(
+    [object]$Row,
+    [object]$Boundary
+  )
+  if (@(Get-MapKeys $Row).Count -eq 0) { return $false }
+  if (Test-MapHasKey $Row "availability") { return @((Get-RowVisibleAvailability $Row $Boundary)).Count -gt 0 }
+  $to = Get-MapValue $Row "to" $null
+  if (@(Get-MapKeys $to).Count -gt 0) {
+    $endPosition = Copy-Map $to
+    if (-not (Test-MapHasKey $endPosition "medium") -and (Get-MapValue $Row "medium" "")) {
+      $endPosition["medium"] = Get-MapValue $Row "medium" ""
+    }
+    return Test-PositionVisible $endPosition $Boundary
+  }
+  foreach ($key in @("visibility", "from", "position")) {
+    if (Test-MapHasKey $Row $key) { return Test-PositionVisible (Get-EntryPosition $Row) $Boundary }
+  }
+  $sourceRefs = Get-MapValue $Row "source_refs" @()
+  if ($sourceRefs -is [System.Collections.IEnumerable] -and -not ($sourceRefs -is [string])) {
+    foreach ($ref in @($sourceRefs)) {
+      if ($ref -is [System.Collections.IDictionary] -and (Test-PositionVisible (Get-EntryPosition $ref) $Boundary)) { return $true }
+    }
+  }
+  return $false
+}
+
+function Merge-RowAtBoundary {
+  param(
+    [object]$Row,
+    [object]$Boundary
+  )
+  $merged = Copy-Map $Row
+  $visible = @(Get-RowVisibleAvailability $Row $Boundary)
+  if ($visible.Count -gt 0) {
+    $latest = $visible[$visible.Count - 1]
+    foreach ($key in Get-MapKeys $latest) {
+      if ($key -in @("medium", "from", "notes")) { continue }
+      $value = Get-MapValue $latest $key ""
+      if ($null -ne $value -and ([string]$value) -ne "") { $merged[$key] = $value }
+    }
+    $merged["_visible_availability"] = @($visible)
+  }
+  return $merged
+}
+
+function Get-FilteredProfileRowsForBoundary {
+  param(
+    [object]$Profile,
+    [object]$Boundary
+  )
+  $filtered = [ordered]@{}
+  if (-not ($Profile -is [System.Collections.IDictionary])) { return $filtered }
+  foreach ($section in $Profile.Keys) {
+    $rows = $Profile[$section]
+    if ($rows -is [System.Collections.IDictionary] -or @(Get-MapKeys $rows).Count -gt 0) {
+      if ((Test-MapHasKey $rows "availability") -or (Test-MapHasKey $rows "source_refs") -or (Test-MapHasKey $rows "position") -or (Test-MapHasKey $rows "visibility") -or (Test-MapHasKey $rows "from") -or (Test-MapHasKey $rows "to")) {
+        $rowCandidates = @($rows)
+      } else {
+        continue
+      }
+    } elseif ($rows -is [System.Collections.IEnumerable] -and -not ($rows -is [string])) {
+      $rowCandidates = @($rows)
+    } else {
+      continue
+    }
+    $visibleRows = @()
+    foreach ($row in @($rowCandidates)) {
+      if ((Test-RowVisible $row $Boundary)) {
+        $visibleRows += Merge-RowAtBoundary $row $Boundary
+      }
+    }
+    $filtered[$section] = @($visibleRows)
+  }
+  return $filtered
+}
+
+function Test-PageVisibleAtBoundary {
+  param(
+    [object]$Note,
+    [object]$Boundary
+  )
+  $visibleFrom = Get-MapValue $Note.metadata "subject_visible_from" ""
+  if (-not $visibleFrom) { return $true }
+  return Test-PositionVisible (Get-PositionFromMetadata $visibleFrom) $Boundary
+}
+
+function Format-Position {
+  param([object]$Position)
+  if (@(Get-MapKeys $Position).Count -eq 0) { return "" }
+  $medium = Get-NormalizedMedium (Get-MapValue $Position "medium" "")
+  if ($medium -eq "novel" -or (Get-MapValue $Position "chapter" "") -or (Get-MapValue $Position "volume" "")) {
+    $parts = @()
+    $volumeValue = Get-MapValue $Position "volume" ""
+    $chapterValue = Get-MapValue $Position "chapter" ""
+    if ($volumeValue) { $parts += "V$volumeValue" }
+    if ($chapterValue) { $parts += "Ch$chapterValue" }
+    return ($parts -join " ")
+  }
+  if ($medium -eq "donghua" -or (Get-MapValue $Position "episode" "") -or (Get-MapValue $Position "season" "")) {
+    $parts = @()
+    $seasonValue = Get-MapValue $Position "season" ""
+    $episodeValue = Get-MapValue $Position "episode" ""
+    $releaseOrderValue = Get-MapValue $Position "release_order" ""
+    if ($seasonValue) { $parts += "S$seasonValue" }
+    if ($episodeValue) { $parts += "E$episodeValue" }
+    if ($releaseOrderValue) { $parts += "Release $releaseOrderValue" }
+    return ($parts -join " ")
+  }
+  $parts = @()
+  foreach ($key in $Position.Keys) {
+    if ($null -ne $Position[$key] -and ([string]$Position[$key]) -ne "") { $parts += "$key`: $($Position[$key])" }
+  }
+  return ($parts -join ", ")
+}
+
+function ConvertTo-TableValue {
+  param([object]$Value)
+  if ($null -eq $Value) { return "" }
+  if (@(Get-MapKeys $Value).Count -gt 0) { return Format-Position $Value }
+  if ($Value -is [System.Collections.IEnumerable] -and -not ($Value -is [string])) {
+    $parts = @()
+    foreach ($item in @($Value)) { $parts += ConvertTo-TableValue $item }
+    return ($parts -join "<br>")
+  }
+  return ([string]$Value).Replace("|", "\|").Replace("`r`n", "<br>").Replace("`n", "<br>")
+}
+
+function Format-AvailabilityProgression {
+  param([object]$Row)
+  $entries = Get-MapValue $Row "_visible_availability" @()
+  $parts = @()
+  if ($entries -is [System.Collections.IEnumerable] -and -not ($entries -is [string]) -and @($entries).Count -gt 0) {
+    foreach ($entry in @($entries)) {
+      $position = Format-Position (Get-EntryPosition $entry)
+      $status = Get-MapValue $entry "status" (Get-MapValue $entry "possession_status" (Get-MapValue $entry "outcome_status" ""))
+      $confidence = Get-MapValue $entry "confidence" ""
+      $details = @($status, $confidence) | Where-Object { $_ }
+      if ($details.Count -gt 0) { $parts += "$position`: $($details -join ' / ')" } else { $parts += $position }
+    }
+    return ($parts -join "<br>")
+  }
+  $positionValue = Get-MapValue $Row "position" $null
+  if (@(Get-MapKeys $positionValue).Count -gt 0) {
+    $position = Format-Position (Get-EntryPosition $Row)
+    $status = Get-MapValue $Row "status" ""
+    $confidence = Get-MapValue $Row "confidence" ""
+    $details = @($status, $confidence) | Where-Object { $_ }
+    if ($position) {
+      if ($details.Count -gt 0) { $parts += "$position`: $($details -join ' / ')" } else { $parts += $position }
+    }
+  }
+  $sourceRefs = Get-MapValue $Row "source_refs" @()
+  if ($sourceRefs -is [System.Collections.IEnumerable] -and -not ($sourceRefs -is [string])) {
+    foreach ($ref in @($sourceRefs)) {
+      if (-not ($ref -is [System.Collections.IDictionary])) { continue }
+      $position = Format-Position $ref
+      if ($position -and -not ($parts | Where-Object { $_.StartsWith($position) })) { $parts += "$position`: source-ref" }
+    }
+  }
+  $graphDisplay = Get-MapValue $Row "graph_display" $null
+  if (@(Get-MapKeys $graphDisplay).Count -gt 0) {
+    $visibleFrom = Get-MapValue $graphDisplay "visible_from" $null
+    $resolvesTo = Get-MapValue $graphDisplay "resolves_to_canonical_at" $null
+    if (@(Get-MapKeys $visibleFrom).Count -gt 0) { $parts += "graph visible from $(Format-Position $visibleFrom)" }
+    if (@(Get-MapKeys $resolvesTo).Count -gt 0) { $parts += "resolves to canonical at $(Format-Position $resolvesTo)" }
+  }
+  return ($parts -join "<br>")
+}
+
+function Get-GraphDisplayForBoundary {
+  param(
+    [object]$Note,
+    [object]$Filtered,
+    [bool]$PageVisible
+  )
+  $beats = @(Get-MapValue $Filtered "first_appearance_beats" @())
+  $graphRows = @()
+  foreach ($beat in $beats) {
+    $graphDisplay = Get-MapValue $beat "graph_display" $null
+    $behavior = ""
+    $label = ""
+    if (@(Get-MapKeys $graphDisplay).Count -gt 0) {
+      $behavior = Get-MapValue $graphDisplay "behavior" ""
+      $label = Get-MapValue $graphDisplay "label" ""
+    }
+    if ($behavior) {
+      $graphRows += [pscustomobject]@{
+        behavior = $behavior
+        label = $label
+        title = Get-MapValue $beat "title" ""
+      }
+    }
+  }
+  if ($graphRows.Count -gt 0) {
+    $preferred = $graphRows[$graphRows.Count - 1]
+    return [ordered]@{
+      node_visible = if ($preferred.behavior -ne "hidden") { "yes" } else { "no" }
+      visibility = $preferred.behavior
+      label = if ($preferred.label) { $preferred.label } else { $Note.title }
+      source = $preferred.title
+    }
+  }
+  if ($PageVisible) {
+    return [ordered]@{
+      node_visible = "yes"
+      visibility = "canonical-node"
+      label = $Note.title
+      source = "page visibility"
+    }
+  }
+  return [ordered]@{
+    node_visible = "no"
+    visibility = "hidden"
+    label = ""
+    source = "before page visibility"
+  }
+}
+
+function ConvertTo-GenerationStatsMarkdown {
+  param(
+    [object]$Note,
+    [object]$Spec,
+    [bool]$PageVisible,
+    [object]$Filtered
+  )
+  $graphDisplay = Get-GraphDisplayForBoundary $Note $Filtered $PageVisible
+  $rows = @(
+    @("Boundary", (Get-BoundaryLabel $Spec)),
+    @("Canonical page visible", $(if ($PageVisible) { "yes" } else { "no" })),
+    @("Graph node visible", $graphDisplay["node_visible"]),
+    @("Graph visibility behavior", $graphDisplay["visibility"]),
+    @("Graph label", $graphDisplay["label"]),
+    @("Graph visibility source", $graphDisplay["source"]),
+    @("Visible first appearance beats", "$(@(Get-MapValue $Filtered "first_appearance_beats" @()).Count)"),
+    @("Visible timeline entries", "$(@(Get-MapValue $Filtered "timeline_entries" @()).Count)"),
+    @("Visible relationship rows", "$(@(Get-MapValue $Filtered "relationships" @()).Count)")
+  )
+  $lines = @("## Generation Stats", "", "| Field | Value |", "|---|---|")
+  foreach ($row in $rows) {
+    $lines += "| $(ConvertTo-TableValue $row[0]) | $(ConvertTo-TableValue $row[1]) |"
+  }
+  $lines += ""
+  return @($lines)
+}
+
+function ConvertTo-BoundedTableMarkdown {
+  param(
+    [string]$Title,
+    [object[]]$Rows,
+    [object[]]$Columns
+  )
+  $lines = @("## $Title", "")
+  if (@($Rows).Count -eq 0) {
+    $lines += "- No rows visible at this boundary."
+    $lines += ""
+    return @($lines)
+  }
+  $header = @($Columns | ForEach-Object { $_[0] }) + @("Availability Progression")
+  $lines += "| $($header -join ' | ') |"
+  $lines += "|" + (($header | ForEach-Object { "---" }) -join "|") + "|"
+  foreach ($row in @($Rows)) {
+    $values = @()
+    foreach ($column in $Columns) {
+      $values += ConvertTo-TableValue (Get-MapValue $row $column[1] "")
+    }
+    $values += ConvertTo-TableValue (Format-AvailabilityProgression $row)
+    $lines += "| $($values -join ' | ') |"
+  }
+  $lines += ""
+  return @($lines)
+}
+
+$BoundedCharacterTables = @(
+  [pscustomobject]@{ Title = "First Appearance Beats"; Key = "first_appearance_beats"; Columns = @(@("Title", "title"), @("Type", "beat_type"), @("State", "reader_knowledge_state"), @("Status", "status"), @("Confidence", "confidence")) },
+  [pscustomobject]@{ Title = "Identity / Role"; Key = "identities"; Columns = @(@("Field", "field"), @("Value", "value"), @("Status", "status"), @("Confidence", "confidence"), @("Notes", "notes")) },
+  [pscustomobject]@{ Title = "Affiliations"; Key = "affiliations"; Columns = @(@("Organization", "organization"), @("Target", "target"), @("Relationship", "relationship"), @("Status", "status"), @("Confidence", "confidence")) },
+  [pscustomobject]@{ Title = "Pathway State"; Key = "pathway_state"; Columns = @(@("Pathway", "pathway"), @("Target", "target"), @("Relationship", "relationship"), @("Status", "status"), @("Confidence", "confidence")) },
+  [pscustomobject]@{ Title = "Abilities"; Key = "ability_index"; Columns = @(@("Ability", "ability"), @("Source", "source"), @("Status", "status"), @("Confidence", "confidence"), @("Notes", "notes")) },
+  [pscustomobject]@{ Title = "Equipment / Artifacts / Items"; Key = "equipment_artifacts"; Columns = @(@("Item", "item"), @("Target", "target"), @("Type", "type"), @("Possession", "possession_status"), @("Significance", "item_significance")) },
+  [pscustomobject]@{ Title = "Major Events"; Key = "major_events_fights"; Columns = @(@("Event", "event"), @("Type", "event_type"), @("Part", "event_part"), @("Role", "role"), @("Outcome", "outcome_status")) },
+  [pscustomobject]@{ Title = "Timeline Entries"; Key = "timeline_entries"; Columns = @(@("ID", "id"), @("Title", "title"), @("Type", "entry_type"), @("Summary", "summary"), @("Why It Matters", "why_it_matters")) }
+)
+
+function Get-TimelineProseBlocks {
+  param([string]$Text)
+  $section = Get-MarkdownSection $Text "Chronological Development"
+  $blocks = @{}
+  if ([string]::IsNullOrWhiteSpace($section)) { return $blocks }
+  foreach ($match in [regex]::Matches($section, "(?ms)^(#### .+?`n<!-- timeline_id:\s*([a-zA-Z0-9_-]+)\s*-->`n.*?)(?=^#### |\z)")) {
+    $blocks[$match.Groups[2].Value] = $match.Groups[1].Value.Trim()
+  }
+  return $blocks
+}
+
+function ConvertTo-BoundedTimelineProseMarkdown {
+  param(
+    [string]$Text,
+    [object[]]$VisibleTimelineRows
+  )
+  $blocks = Get-TimelineProseBlocks $Text
+  $visibleIds = @($VisibleTimelineRows | ForEach-Object { Get-MapValue $_ "id" "" } | Where-Object { $_ })
+  $lines = @("## Visible Timeline Prose", "")
+  if ($blocks.Count -eq 0) {
+    $lines += "- No timeline prose blocks found."
+    $lines += ""
+    return @($lines)
+  }
+  $emitted = $false
+  foreach ($timelineId in $visibleIds) {
+    if ($blocks.ContainsKey($timelineId)) {
+      $lines += $blocks[$timelineId]
+      $lines += ""
+      $emitted = $true
+    }
+  }
+  if (-not $emitted) {
+    $lines += "- No timeline prose sections visible at this boundary."
+    $lines += ""
+  }
+  $omitted = @($blocks.Keys | Where-Object { $_ -notin $visibleIds } | Sort-Object)
+  $lines += "## Omitted Timeline IDs"
+  $lines += ""
+  if ($omitted.Count -gt 0) {
+    foreach ($timelineId in $omitted) { $lines += "- ``$timelineId``" }
+  } else {
+    $lines += "- None."
+  }
+  $lines += ""
+  return @($lines)
+}
+
+function ConvertTo-BoundedCharacterPageMarkdown {
+  param(
+    [string]$RepoRoot,
+    [object]$Note,
+    [object]$Spec
+  )
+  $text = Read-TextFile $Note.source_path
+  $profile = Get-ProfileYaml $text $Note.type_name
+  $boundary = Get-BoundaryPosition $Spec
+  $pageVisible = Test-PageVisibleAtBoundary $Note $boundary
+  $filtered = Get-FilteredProfileRowsForBoundary $profile $boundary
+  if (-not $pageVisible -and -not $Spec.include_anonymous_preview) {
+    foreach ($key in @($filtered.Keys)) { $filtered[$key] = @() }
+  }
+  if (-not $pageVisible) {
+    $previewRows = @()
+    foreach ($row in @(Get-MapValue $filtered "first_appearance_beats" @())) {
+      $graphDisplay = Get-MapValue $row "graph_display" $null
+      if (@(Get-MapKeys $graphDisplay).Count -gt 0 -and (Get-MapValue $graphDisplay "behavior" "") -eq "anonymized-node") {
+        $previewRows += $row
+      }
+    }
+    $filtered["first_appearance_beats"] = @($previewRows)
+    foreach ($key in @($filtered.Keys)) {
+      if ($key -ne "first_appearance_beats") { $filtered[$key] = @() }
+    }
+  }
+
+  $title = if ($Spec.name) { $Spec.name } else { $Note.title }
+  $boundaryLabel = Get-BoundaryLabel $Spec
+  $lines = @(
+    "---",
+    "generated: true",
+    "generated_type: bounded-page-qa",
+    "source_file: $(ConvertTo-YamlQuote $Note.relative_source)",
+    "source_slug: $(ConvertTo-YamlQuote $Note.slug)",
+    "type: $(ConvertTo-YamlQuote $Note.type_name.ToLowerInvariant())",
+    "boundary: $(ConvertTo-YamlQuote $boundaryLabel)",
+    "canonical_page_visible: $(([string]$pageVisible).ToLowerInvariant())",
+    "---",
+    "",
+    "# $title - Bounded QA ($boundaryLabel)",
+    "",
+    "> Generated QA projection. Canonical source remains the glossary page.",
+    "",
+    "- Canonical Source: $(Format-SourceLink $Note.relative_source)",
+    "- Canonical Page Visible At Boundary: $(if ($pageVisible) { 'yes' } else { 'no' })"
+  )
+  if (-not $pageVisible) {
+    $lines += "- QA Note: canonical page body is hidden at this boundary; only explicitly modeled anonymous preview beats are shown."
+  }
+  $lines += ""
+  $lines += ConvertTo-GenerationStatsMarkdown $Note $Spec $pageVisible $filtered
+  foreach ($table in $BoundedCharacterTables) {
+    $lines += ConvertTo-BoundedTableMarkdown $table.Title @(Get-MapValue $filtered $table.Key @()) $table.Columns
+  }
+  if ($pageVisible) {
+    $lines += ConvertTo-BoundedTimelineProseMarkdown $text @(Get-MapValue $filtered "timeline_entries" @())
+  } else {
+    $lines += @("## Visible Timeline Prose", "", "- Canonical timeline prose hidden before page visibility.", "")
+  }
+  return ($lines -join "`n")
+}
+
+function Write-BoundedPages {
+  param(
+    [string]$RepoRoot,
+    [string]$GeneratedDir,
+    [hashtable]$Notes,
+    [object[]]$Specs
+  )
+  if (@($Specs).Count -eq 0) { return }
+  $boundedDir = Join-Path $GeneratedDir "bounded-pages"
+  foreach ($spec in @($Specs)) {
+    if (-not $Notes.ContainsKey($spec.slug)) {
+      $unknownDir = Join-Path $boundedDir "_Unknown"
+      New-Item -ItemType Directory -Path $unknownDir -Force | Out-Null
+      $fileStemSource = if ($spec.file_stem) { $spec.file_stem } elseif ($spec.name) { $spec.name } else { $spec.slug }
+      $fileStem = ConvertTo-SafeFileName $fileStemSource
+      $content = @(
+        "---",
+        "generated: true",
+        "generated_type: bounded-page-qa",
+        "source_slug: $(ConvertTo-YamlQuote $spec.slug)",
+        "boundary: $(ConvertTo-YamlQuote (Get-BoundaryLabel $spec))",
+        "canonical_page_visible: false",
+        "---",
+        "",
+        "# Unknown Bounded Page - $($spec.slug)",
+        "",
+        "- Requested canonical source slug does not exist in the generated note set.",
+        ""
+      ) -join "`n"
+      Write-TextFile (Join-Path $unknownDir "$fileStem.md") $content
+      continue
+    }
+
+    $note = $Notes[$spec.slug]
+    $outputFolder = Join-Path $boundedDir $note.export_folder
+    New-Item -ItemType Directory -Path $outputFolder -Force | Out-Null
+    $boundaryStem = if ($spec.max_chapter) { "chapter-$($spec.max_chapter)" } else { ConvertTo-SafeSlug (Get-BoundaryLabel $spec) "boundary" }
+    $defaultStem = "$($note.export_file_stem) - $boundaryStem"
+    $fileStem = ConvertTo-SafeFileName $(if ($spec.file_stem) { $spec.file_stem } else { $defaultStem })
+    if ($note.type_name.ToLowerInvariant() -eq "character") {
+      $content = ConvertTo-BoundedCharacterPageMarkdown $RepoRoot $note $spec
+    } else {
+      $content = @(
+        "---",
+        "generated: true",
+        "generated_type: bounded-page-qa",
+        "source_file: $(ConvertTo-YamlQuote $note.relative_source)",
+        "source_slug: $(ConvertTo-YamlQuote $note.slug)",
+        "type: $(ConvertTo-YamlQuote $note.type_name.ToLowerInvariant())",
+        "boundary: $(ConvertTo-YamlQuote (Get-BoundaryLabel $spec))",
+        "---",
+        "",
+        "# $($note.title) - Bounded QA ($(Get-BoundaryLabel $spec))",
+        "",
+        "- Bounded page rendering is currently implemented for character pages only.",
+        ""
+      ) -join "`n"
+    }
+    Write-TextFile (Join-Path $outputFolder "$fileStem.md") $content
+  }
+}
+
 function Write-ObsidianExport {
   param(
     [string]$RepoRoot,
@@ -1951,7 +2727,8 @@ function Write-ObsidianExport {
     [object[]]$Relationships,
     [object[]]$DataReferences,
     [hashtable]$DataProjections,
-    [object[]]$BoundedGraphSpecs
+    [object[]]$BoundedGraphSpecs,
+    [object[]]$BoundedPageSpecs
   )
   $exportPath = Assert-SafeOutputPath $RepoRoot $ExportPath
   if ($CleanOutput -and (Test-Path -LiteralPath $exportPath)) {
@@ -1974,6 +2751,7 @@ function Write-ObsidianExport {
   Write-TextFile (Join-Path $generatedDir "visualization-relationship-graph.mmd") (ConvertTo-VisualizationRelationshipGraph $Relationships $Notes $DataProjections)
   Write-RepoRefreshCheck $RepoRoot $generatedDir
   Write-BoundedGraphs $RepoRoot $generatedDir $BoundedGraphSpecs
+  Write-BoundedPages $RepoRoot $generatedDir $Notes $BoundedPageSpecs
   Write-TextFile (Join-Path $generatedDir "data-reference-index.md") (ConvertTo-DataReferenceIndex $DataReferences $Notes)
   Write-TextFile (Join-Path $generatedDir "orphan-report.md") (ConvertTo-OrphanReport $Notes $Relationships $DataReferences)
   Write-TextFile (Join-Path $generatedDir "suspicious-edges.md") (ConvertTo-SuspiciousEdges $Notes $Relationships)
@@ -1994,8 +2772,10 @@ function Invoke-DisposableCacheCleanup {
 $repoRoot = (Resolve-Path -LiteralPath $Root).Path
 $exportPath = if ([System.IO.Path]::IsPathRooted($OutputDir)) { $OutputDir } else { Join-Path $repoRoot $OutputDir }
 $boundedGraphSpecs = @(ConvertFrom-BoundedGraphSpecs $BoundedGraph)
+$boundedPageSpecs = @(ConvertFrom-BoundedPageSpecs $BoundedPage)
+Import-YamlModuleForBoundedPages $boundedPageSpecs
 $discovered = Get-CanonicalNotes $repoRoot ([bool]$IncludeStubs)
-Write-ObsidianExport $repoRoot $exportPath ([bool]$Clean) $discovered.Notes $discovered.Relationships $discovered.DataReferences $discovered.DataProjections $boundedGraphSpecs
+Write-ObsidianExport $repoRoot $exportPath ([bool]$Clean) $discovered.Notes $discovered.Relationships $discovered.DataReferences $discovered.DataProjections $boundedGraphSpecs $boundedPageSpecs
 
 $orphanData = Get-OrphanAnalysis $discovered.Notes $discovered.Relationships $discovered.DataReferences
 $suspiciousData = Get-SuspiciousEdgeAnalysis $discovered.Relationships $discovered.Notes
@@ -2011,6 +2791,7 @@ $summary = [ordered]@{
   duplicate_edge_groups = @($suspiciousData.duplicate_edges).Count
   missing_reciprocals = @($suspiciousData.missing_reciprocals).Count
   bounded_graphs = @($boundedGraphSpecs).Count
+  bounded_pages = @($boundedPageSpecs).Count
 }
 
 if ($Json) {

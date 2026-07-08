@@ -27,6 +27,19 @@ If the probe reports Python unavailable, use the documented PowerShell fallback 
 
 PowerShell fallback commands use `powershell`, which targets Windows PowerShell 5.1 on many Windows machines even when PowerShell 7 is also installed as `pwsh`. Keep `.ps1` fallback scripts compatible with Windows PowerShell 5.1 syntax and APIs unless a tool explicitly documents a PowerShell 7 requirement.
 
+Use `Test-PowerShell.ps1` to check repository PowerShell module requirements from `requirements-powershell.txt` before using fallback features that need modules, such as bounded Obsidian QA pages.
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-PowerShell.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-PowerShell.ps1 -Json
+```
+
+If required PowerShell modules are missing, install them from an elevated or internet-enabled PowerShell session as needed. For the current registry:
+
+```powershell
+Install-Module powershell-yaml -Scope CurrentUser -Force -AllowClobber
+```
+
 ## Temporary File Cleanup
 
 Use `clean_temp_files.py` to remove disposable local cache directories when Python is available. It is the preferred implementation because it is portable across Windows, macOS, and Linux while matching the rest of the repository's Python-preferred tool convention.
@@ -406,10 +419,11 @@ Each mirror note includes source metadata, a canonical source link, outgoing Rel
 
 The `_Generated/repo-refresh-check/` folder is a QA-local dry run of every currently configured repository graph view from `Visualization/config/render-settings.json`. It uses the real visualization refresh helper with rendering disabled, writes Mermaid graph sources, a refresh report, a semantic snapshot, and the generated check settings into the Obsidian export, and does not touch canonical `Visualization/graphs/`, rendered images, the real refresh snapshot, or `Visualization/README.md`. Because it derives from the live render settings each run, future configured graph views should automatically appear in this QA dry run.
 
-Use `--bounded-page` to generate optional local QA page projections for specific reader/viewer boundaries. The folder is created only when requested. The Python implementation is the pilot path; PowerShell parity should be added separately before treating bounded pages as a fully paired tool feature.
+Use `--bounded-page` / `-BoundedPage` to generate optional local QA page projections for specific reader/viewer boundaries. The folder is created only when requested. Python uses PyYAML from `requirements-python.txt`; the PowerShell fallback uses `powershell-yaml` from `requirements-powershell.txt`.
 
 ```powershell
 python Tools\obsidian_qa_export.py --clean --bounded-page "slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=30"
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1 -Clean -BoundedPage 'slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=30'
 ```
 
 Bounded pages read the canonical page's structured data block and render boundary-filtered QA tables plus matching timeline prose sections when `timeline_entries` map to visible `timeline_id` comments. They are generated inspection artifacts, not canonical rewritten articles. Before the page's `Subject Visible From` boundary, the output must clearly mark the canonical page as hidden; explicitly modeled anonymous first-appearance beats may still appear as QA preview rows. Their timing display may come from either state-row `availability` ladders or positioned reveal fields such as `position`, `source_refs`, and `graph_display`.

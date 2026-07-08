@@ -178,7 +178,7 @@ Use each project artifact for a distinct purpose:
 - `Glossary_Threads`: Subject-specific information, durable disclosure history, structured reader-state filtering data, and adaptation comparisons.
 - `Investigations`: Evidence, verification history, and supported conclusions for questions that required consulting the EPUB.
 - `Visualization`: Generated visualization artifacts, such as Mermaid graphs, rendered graph images, and future graph data exports.
-- `Tools`: Repeatable local maintenance, source-search, artwork, visualization, Obsidian export, and cleanup helpers. Prefer Python helpers when Python is available and repository Python requirements from `requirements-python.txt` are installed; use documented PowerShell fallbacks when Python is unavailable.
+- `Tools`: Repeatable local maintenance, source-search, artwork, visualization, Obsidian export, and cleanup helpers. Prefer Python helpers when Python is available and repository Python requirements from `requirements-python.txt` are installed; use documented PowerShell fallbacks when Python is unavailable. Some PowerShell fallback features have module requirements tracked in `requirements-powershell.txt`.
 - `Artwork`: Tracked official artwork metadata and selected page-ready assets. Bulk extraction, intermediate crops, and source-derived staging stay local-only.
 - `Source`: Local canonical source materials such as the EPUB and Donghua subtitles. Copyrighted source files stay ignored by Git.
 - `Testing`: Local scratch outputs and temporary experiments. Promote durable outputs into the appropriate canonical folder only after maintainer confirmation.
@@ -198,7 +198,7 @@ Keep `PROJECT_RULES.md` focused on durable project policy: source of truth, spoi
 
 Use specialized docs for operational detail:
 
-- `Tools/README.md`: exact helper commands, Python dependency setup, Python/PowerShell fallbacks, EPUB search, Obsidian QA export, artwork extraction, and cleanup behavior.
+- `Tools/README.md`: exact helper commands, Python and PowerShell dependency setup, Python/PowerShell fallbacks, EPUB search, Obsidian QA export, artwork extraction, and cleanup behavior.
 - `Visualization/README.md`: current generated graph artifacts, refresh tracker, configured graph views, and visualization workflow entry points.
 - `Visualization/graph-authoring-standard.md`: graph intent, graph-local evidence, source expansion, coverage workflow, graph projection, layout semantics, and graph output reporting.
 - `Visualization/rendering.md`: render commands, validation modes, render sizing, class/layout validation, and render troubleshooting.
