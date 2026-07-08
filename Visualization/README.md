@@ -6,16 +6,31 @@ Generated graph files are not the source of truth. The canonical project data re
 
 - Glossary thread metadata
 - Embedded Reader Knowledge Ledger sections in glossary threads
+- Type-specific data blocks and their row-level `availability` entries
 - Relationship Seeds
 - The controlled relationship taxonomy in `PROJECT_RULES.md`
 
-Generated Mermaid graphs are generated from glossary metadata and Relationship Seeds. If a canonical graph refresh exposes missing, stale, or incorrect information, fix the glossary thread, investigation record, or relationship seed first, then regenerate the graph. Manual maintainer graphs may include clearly marked graph-local evidence before those project-data updates are confirmed.
+Generated Mermaid graphs are generated from glossary metadata, Relationship Seeds, and projected type-specific data-block availability. If a canonical graph refresh exposes missing, stale, or incorrect information, fix the glossary thread, investigation record, data block, or relationship seed first, then regenerate the graph. Manual maintainer graphs may include clearly marked graph-local evidence before those project-data updates are confirmed.
 
 Page-level reader visibility belongs to glossary metadata through `Subject Visible From`; do not model it as a Relationship Seed. Filtered graph views use that metadata as the node-level gate before applying relationship or claim-level timing.
 
-Configured graph views may declare a `readerBoundary` in `config/render-settings.json`. When present, generation includes only nodes whose `Subject Visible From` is eligible for that medium/volume/chapter boundary and only relationship seeds whose `start.medium`, `start.volume`, and `start.chapter` are eligible. Unknown subject visibility or unknown relationship positions are excluded unless the view explicitly opts into them. The current Volume 1 graph views are novel-only reader-boundary views through Volume 1 Chapter 213, so official-artwork taxonomy seeds and later cosmology links do not appear there.
+Configured graph views may declare a `readerBoundary` in `config/render-settings.json`. When present, generation includes only nodes whose `Subject Visible From` is eligible for that medium/volume/chapter boundary, plus any eligible anonymized first-appearance display nodes declared in type-specific data blocks. Relationship Seeds that declare `projection_source` read their timing, confidence, and current display state from the projected type-specific data-block row's `availability` list; other seeds fall back to their own start fields. Projection sources resolve against the seed source page first so repeated local row keys do not collide across pages. Unknown subject visibility or unknown relationship positions are excluded unless the view explicitly opts into them. The current Volume 1 graph views are novel-only reader-boundary views through Volume 1 Chapter 213, so official-artwork taxonomy seeds and later cosmology links do not appear there.
+
+Anonymized first-appearance display nodes come from rows such as `first_appearance_beats` with `graph_display.behavior: anonymized-node`. They are generated presentation nodes with opaque IDs, not canonical glossary entities. Use them only when the story has made a person, object, place, or force visible before the canonical page title is reader-safe.
+
+Reader-boundary graphs distinguish unfinished visible pages from hidden future subjects. A glossary page with `Status: Pending` still appears if its `Subject Visible From` is eligible for the view, but it renders with a dashed pending-node outline. A missing glossary page may also appear as a dashed graph-local pending endpoint when at least one relationship or projected data row proves the endpoint is visible inside the selected reader boundary. Pending or missing endpoints without eligible timing remain hidden from reader-facing views and are better inspected through the Obsidian QA export.
+
+The Obsidian QA export also emits a no-render dry run of every configured view in `config/render-settings.json` under `Obsidian_Export/_Generated/repo-refresh-check/`. That bundle uses the real visualization refresh helper and writes Mermaid sources, a refresh report, a semantic snapshot, and generated check settings for local inspection only. It does not update canonical graph sources, rendered images, the real refresh snapshot, or this README. When run with bounded graph flags, the Obsidian QA export can additionally create `Obsidian_Export/_Generated/bounded-graphs/` with ad hoc no-render Mermaid previews for requested reader/viewer boundaries; optional bounded export folders are rebuilt or removed on each QA run so stale samples do not linger.
+
+Relationship Seed statuses affect graph labels but should not be used as a catch-all for state changes. In particular, `broken` means a relationship was narratively breached, severed, failed, or destroyed; ordinary ended custody or possession should be represented through projected data-block availability such as `possession_status: lost-custody` plus `historical` relationship state where needed.
+
+Named non-artifact objects appear as `Item` nodes only when the underlying data row is recurring, graph-worthy, or page-worthy. Minor equipment and disposable possessions should stay in type-specific data blocks with `graph_relevance: none`, so graph refreshes do not turn inventory into relationship noise.
+
+Recurring reveal carriers appear as `Knowledge Source` nodes with `source-*` slugs when their access chain, authorship, translation, quotes, or claim chronology needs independent tracking. Use these for Roselle diary pages, spellbooks, grimoires, notebooks, scriptures, case files, letters, inscriptions, formula records, murals, and similar sources rather than forcing them into Item nodes.
 
 Shared graph authoring rules live in [Graph Authoring Standard](graph-authoring-standard.md). Use that standard for both AI Agent graph requests and maintainer/project graph work before rendering.
+
+For the visualization helper switch map, mode aliases, output side effects, and Python/PowerShell parity notes, see the [Tooling Reference](../Tools/TOOLING_REFERENCE.md#visualization-graph-workflow).
 
 ## Current Artifacts
 
@@ -34,7 +49,7 @@ After every graph refresh, update the live refresh tracker below. It summarizes 
 The tracker compares each configured view against the semantic snapshot in `data/refresh-snapshot.json`. Unexpected removed nodes, removed relationships, changed relationship labels, duplicate relationships, broken links, or orphan nodes should be treated as visualization validation issues and reviewed before committing.
 
 <!-- VISUALIZATION-REFRESH-REPORT:START -->
-Last Updated: 2026-07-04 10:42:12 -04:00
+Last Updated: 2026-07-07 03:57:13 -04:00
 
 ### Summary
 
@@ -43,32 +58,32 @@ Last Updated: 2026-07-04 10:42:12 -04:00
 | Views Updated | 2 | 0 |
 | Rendered Files | 4 | 0 |
 | Broken Links | 0 | 0 |
-| Pending Nodes | 20 | 0 |
+| Pending Nodes | 21 | 0 |
 | Validation Issues | 0 | n/a |
 
 ### View Summary
 
 | View | Nodes | Delta | Relationships | Delta | Orphan Nodes |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Volume 1 Knowledge Graph | 28 | 0 | 75 | 0 | 0 |
-| Volume 1 Knowledge Graph - Timing Spoiler-Free | 28 | 0 | 75 | 0 | 0 |
+| Volume 1 Knowledge Graph | 28 | +14 | 73 | +30 | 0 |
+| Volume 1 Knowledge Graph - Timing Spoiler-Free | 28 | +14 | 73 | +30 | 0 |
 
 ### Semantic Changes
 
 #### Volume 1 Knowledge Graph
 
-- Added nodes: 0
+- Added nodes: 14
 - Removed nodes: 0
-- Added relationships: 0
+- Added relationships: 30
 - Removed relationships: 0
 - Changed relationship labels: 0
 - Duplicate relationships: 0
 
 #### Volume 1 Knowledge Graph - Timing Spoiler-Free
 
-- Added nodes: 0
+- Added nodes: 14
 - Removed nodes: 0
-- Added relationships: 0
+- Added relationships: 30
 - Removed relationships: 0
 - Changed relationship labels: 0
 - Duplicate relationships: 0
@@ -92,7 +107,107 @@ Last Updated: 2026-07-04 10:42:12 -04:00
 - Duplicate relationships: 0
 - Removed relationships: 0
 - Changed relationship labels: 0
-- Pending graph nodes: 20
+- Pending graph nodes: 21
+
+#### Volume 1 Knowledge Graph - Added Nodes
+
+- `character_azik_eggers`
+- `character_daly_simone`
+- `character_ince_zangwill`
+- `character_kenley_white`
+- `character_klein_moretti`
+- `character_leonard_mitchell`
+- `character_roselle_gustav`
+- `character_royale_reideen`
+- `character_seeka_tron`
+- `deity_s0_evernight_goddess`
+- `faction_nighthawks`
+- `faction_secret_order`
+- `pathway_corpse_collector`
+- `pathway_mystery_pryer`
+
+#### Volume 1 Knowledge Graph - Added Relationships
+
+- `artifact_0_08|investigated-by ch150 strong-evidence|character_azik_eggers`
+- `artifact_0_08|manipulates ch210|character_klein_moretti`
+- `character_daly_simone|pathway-status ch28|pathway_corpse_collector`
+- `character_dunn_smith|leader-of novel ch19 confirmed|faction_nighthawks`
+- `character_dunn_smith|superior novel ch14 confirmed|character_klein_moretti`
+- `character_ince_zangwill|artifact-user ch19|artifact_0_08`
+- `character_ince_zangwill|infiltrates ch210 completed strong-evidence|location_saint_selena_cathedral`
+- `character_kenley_white|pathway-status ch42|pathway_sleepless`
+- `character_klein_moretti|civilian-staff-of ch17|faction_church_of_evernight`
+- `character_klein_moretti|event-participant ch28|event_klein_becomes_a_seer`
+- `character_klein_moretti|instance-of ch31|concept_beyonders`
+- `character_klein_moretti|investigates ch9|artifact_antigonus_notebook`
+- `character_klein_moretti|pathway-status ch31|pathway_seer`
+- `character_klein_moretti|uses-as-operational-refuge ch25 completed|location_saint_selena_cathedral`
+- `character_klein_moretti|uses-method ch43|concept_divination`
+- `character_klein_moretti|works-at ch17|location_blackthorn_security_company`
+- `character_leonard_mitchell|pathway-status ch21|pathway_sleepless`
+- `character_old_neil|mentor novel ch32 confirmed|character_klein_moretti`
+- `character_old_neil|pathway-status novel ch22 confirmed|pathway_mystery_pryer`
+- `character_roselle_gustav|source-of-information ch21 historical|pathway_seer`
+- `character_royale_reideen|pathway-status ch42|pathway_sleepless`
+- `character_seeka_tron|pathway-status ch42|pathway_sleepless`
+- `event_klein_becomes_a_seer|event-outcome ch31|character_klein_moretti`
+- `faction_nighthawks|affiliated-with ch17|location_saint_selena_cathedral`
+- `faction_nighthawks|investigates ch13|artifact_antigonus_notebook`
+- `faction_nighthawks|subordinate-organization ch13|faction_church_of_evernight`
+- `faction_secret_order|targets ch28 strong-evidence|artifact_antigonus_notebook`
+- `location_blackthorn_security_company|operational-base-for ch17|faction_nighthawks`
+- `location_blackthorn_security_company|public-cover-for ch17|faction_nighthawks`
+- `pathway_sleepless|associated-sequence-0 ch28|deity_s0_evernight_goddess`
+
+#### Volume 1 Knowledge Graph - Timing Spoiler-Free - Added Nodes
+
+- `character_azik_eggers`
+- `character_daly_simone`
+- `character_ince_zangwill`
+- `character_kenley_white`
+- `character_klein_moretti`
+- `character_leonard_mitchell`
+- `character_roselle_gustav`
+- `character_royale_reideen`
+- `character_seeka_tron`
+- `deity_s0_evernight_goddess`
+- `faction_nighthawks`
+- `faction_secret_order`
+- `pathway_corpse_collector`
+- `pathway_mystery_pryer`
+
+#### Volume 1 Knowledge Graph - Timing Spoiler-Free - Added Relationships
+
+- `artifact_0_08|investigated-by strong-evidence|character_azik_eggers`
+- `artifact_0_08|manipulates|character_klein_moretti`
+- `character_daly_simone|pathway-status|pathway_corpse_collector`
+- `character_dunn_smith|leader-of confirmed|faction_nighthawks`
+- `character_dunn_smith|superior confirmed|character_klein_moretti`
+- `character_ince_zangwill|artifact-user|artifact_0_08`
+- `character_ince_zangwill|infiltrates completed strong-evidence|location_saint_selena_cathedral`
+- `character_kenley_white|pathway-status|pathway_sleepless`
+- `character_klein_moretti|civilian-staff-of|faction_church_of_evernight`
+- `character_klein_moretti|event-participant|event_klein_becomes_a_seer`
+- `character_klein_moretti|instance-of|concept_beyonders`
+- `character_klein_moretti|investigates|artifact_antigonus_notebook`
+- `character_klein_moretti|pathway-status|pathway_seer`
+- `character_klein_moretti|uses-as-operational-refuge completed|location_saint_selena_cathedral`
+- `character_klein_moretti|uses-method|concept_divination`
+- `character_klein_moretti|works-at|location_blackthorn_security_company`
+- `character_leonard_mitchell|pathway-status|pathway_sleepless`
+- `character_old_neil|mentor confirmed|character_klein_moretti`
+- `character_old_neil|pathway-status confirmed|pathway_mystery_pryer`
+- `character_roselle_gustav|source-of-information historical|pathway_seer`
+- `character_royale_reideen|pathway-status|pathway_sleepless`
+- `character_seeka_tron|pathway-status|pathway_sleepless`
+- `event_klein_becomes_a_seer|event-outcome|character_klein_moretti`
+- `faction_nighthawks|affiliated-with|location_saint_selena_cathedral`
+- `faction_nighthawks|investigates|artifact_antigonus_notebook`
+- `faction_nighthawks|subordinate-organization|faction_church_of_evernight`
+- `faction_secret_order|targets strong-evidence|artifact_antigonus_notebook`
+- `location_blackthorn_security_company|operational-base-for|faction_nighthawks`
+- `location_blackthorn_security_company|public-cover-for|faction_nighthawks`
+- `pathway_sleepless|associated-sequence-0|deity_s0_evernight_goddess`
 
 #### Pending Nodes
 
@@ -102,7 +217,7 @@ Last Updated: 2026-07-04 10:42:12 -04:00
 - `character-frye.md`
 - `character-ince-zangwill.md (artwork backed)`
 - `character-kenley-white.md`
-- `character-klein-moretti.md (artwork backed, 10 images)`
+- `character-klein-moretti.md (artwork backed, 17 images)`
 - `character-leonard-mitchell.md (artwork backed)`
 - `character-mrs-orianna.md`
 - `character-ray-bieber.md`
@@ -112,6 +227,7 @@ Last Updated: 2026-07-04 10:42:12 -04:00
 - `character-seeka-tron.md`
 - `faction-nighthawks.md`
 - `faction-secret-order.md`
+- `faction-tarot-club.md (artwork backed; notes: [preliminary planning](../Investigations/Factions/faction-tarot-club/preliminary-planning-investigation.md))`
 - `pathway-corpse-collector.md`
 - `pathway-criminal.md (artwork backed; notes: [preliminary planning](../Investigations/Pathways/pathway-criminal/preliminary-planning-investigation.md))`
 - `pathway-mystery-pryer.md (artwork backed)`
@@ -126,7 +242,7 @@ When an AI assistant is asked to create a graph, visualization, Mermaid diagram,
 
 First classify the request:
 
-1. **Canonical graph refresh**: update generated graph artifacts from Relationship Seeds and graph inputs.
+1. **Canonical graph refresh**: update generated graph artifacts from canonical graph inputs, including metadata, Relationship Seeds, and projected type-specific data-block availability.
 2. **Repository-local manual graph**: create a manual `.mmd` source under `Visualization/graphs/` and render it through repository tooling.
 3. **Chat-only scratch graph**: produce temporary Mermaid only when the user explicitly asks for scratch, temporary, chat-only, or outside-repository output.
 
@@ -160,6 +276,7 @@ Regenerate graph artifacts when graph inputs change:
 - glossary pages are created, deleted, renamed, or moved
 - `Relationship Seeds` are added, removed, or changed
 - relationship type, status, confidence, source, or target changes
+- graph-relevant type-specific data-block rows or row-level `availability` entries change
 - node type or graph-relevant metadata changes
 - the controlled relationship taxonomy changes
 
@@ -170,6 +287,8 @@ Before editing generated visualization files, recommend the refresh and confirm 
 When a refresh is confirmed, update every configured graph view in `config/render-settings.json` unless the user explicitly narrows the scope. Each configured view owns its Mermaid source path and rendered output paths.
 
 Fresh renders replace stale render files unless the user asks for archived snapshots.
+
+For a local no-render preview before committing to a canonical refresh, run the Obsidian QA export and inspect `Obsidian_Export/_Generated/repo-refresh-check/`. Use that dry-run bundle for QA only; promote changes by fixing canonical data and running the normal refresh command.
 
 Before choosing a helper on an unfamiliar machine or fresh agent session, run the Python availability probe documented in [Rendering Instructions](rendering.md). Treat the result as the session's Python-availability state. If Python is available, use the Python commands going forward without rerunning the probe before every render command. If Python is unavailable, use the PowerShell fallback command for that session.
 
@@ -225,7 +344,7 @@ The long-term goal is a dynamic graph layer generated from normalized relationsh
 
 Future graph views may support:
 
-- Dynamic graph generation from Relationship Seeds and normalized graph data
+- Dynamic graph generation from Relationship Seeds, projected data-block availability, and normalized graph data
 - Timeline filtering by novel chapter, Donghua episode, and in-world chronology
 - Reader-state filtering by spoiler boundary and reader knowledge boundary
 - Interactive frontend exploration

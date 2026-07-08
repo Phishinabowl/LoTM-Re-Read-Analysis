@@ -35,20 +35,30 @@ PRESETS = {
 
 PRESET_ALIASES = {
     "PathwayTarotCard": "PathwayTarotCard",
+    "pathwaytarotcard": "PathwayTarotCard",
     "pathway-tarot-card": "PathwayTarotCard",
     "pathway-tarot": "PathwayTarotCard",
     "tarot-card": "PathwayTarotCard",
     "PathwaySymbol": "PathwaySymbol",
+    "pathwaysymbol": "PathwaySymbol",
     "pathway-symbol": "PathwaySymbol",
     "pathway-symbol-crop": "PathwaySymbol",
     "symbol": "PathwaySymbol",
 }
 
 OPERATION_ALIASES = {
+    "Crop": "crop",
     "crop": "crop",
+    "Extract": "extract-epub-images",
+    "ExtractEpubImages": "extract-epub-images",
+    "Extract-Images": "extract-epub-images",
+    "List-Epub-Images": "extract-epub-images",
+    "List-Images": "extract-epub-images",
     "extract": "extract-epub-images",
+    "extractepubimages": "extract-epub-images",
     "extract-epub-images": "extract-epub-images",
     "extract-images": "extract-epub-images",
+    "listepubimages": "extract-epub-images",
     "list-epub-images": "extract-epub-images",
     "list-images": "extract-epub-images",
 }
@@ -376,6 +386,8 @@ def discover_epub_images(epub_path: Path) -> list[EpubImage]:
 def extract_epub_images(args: argparse.Namespace) -> int:
     if args.start_image_number > args.end_image_number:
         raise ValueError("start image number cannot be greater than end image number.")
+    if args.start_image_number < 1 or args.end_image_number < 1:
+        raise ValueError("image number filters are 1-based and must be at least 1.")
 
     epub_path = Path(args.epub_path)
     output_dir = Path(args.output_dir)

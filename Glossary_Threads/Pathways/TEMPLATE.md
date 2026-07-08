@@ -87,6 +87,8 @@ Use separate medium subsections when the thread tracks more than one format.
 
 Record only Sequences that are reader-safe at this article boundary. Unknown higher Sequences should be marked as unknown in `Pathway Snapshot` or `Reader-safe unknowns` rather than filled from later knowledge.
 
+For formula and potion details, preserve material inputs, quantities, preparation instructions, formula source, and reader-safe uncertainty separately. Materials can stay inline until a recurring ingredient becomes page-worthy. If a formula or ritual creates a usable supernatural output, classify that output as a future Preparation rather than defaulting to Item; use Item only for named recurring possessions with custody history, Artifact for formal supernatural artifacts, and Knowledge Source for formula records or texts whose main role is revealing information.
+
 ### Sequence 9: Reader-Safe Name
 
 - First reader-safe reveal:
@@ -170,6 +172,8 @@ Track the pathway's associated mythical creature form here when it becomes reade
 
 ## Related Threads
 
+Use Markdown links when the target file exists, with the target document's human-readable H1 title as the link label. Mention a nonexistent thread as a plain filename only when its creation is already planned or the relationship is essential. Do not seed speculative future references.
+
 ### Directly Related
 
 -
@@ -183,6 +187,14 @@ Track the pathway's associated mythical creature form here when it becomes reade
 -
 
 ### Associated Artifacts
+
+-
+
+### Associated Items
+
+-
+
+### Associated Knowledge Sources
 
 -
 
@@ -200,7 +212,13 @@ Track the pathway's associated mythical creature form here when it becomes reade
 
 ## Pathway Data Block
 
-This block is a structured extraction aid for future graphs and dashboards. It duplicates the high-value pathway facts above in a predictable shape; the prose, relationship seeds, reader knowledge ledger, and metadata remain authoritative. Use metadata, not this data block, for page-level `Subject Visible From`. If `associated_tarot_card`, `associated_higher_order_entities`, `associated_uniqueness`, or `associated_mythical_creature` names a positive reader-safe target, add the corresponding graph edge in `Relationship Seeds`. Do not add relationship seeds for unknown/null placeholder state.
+This block is the structured page-local state model for future generated pages, dashboards, reader-position filters, and relationship graphs. It duplicates the high-value pathway facts above in a predictable shape; keep it aligned with the prose and Reader Knowledge Ledger. Use metadata, not this data block, for page-level `Subject Visible From`. If `associated_tarot_card`, `associated_higher_order_entities`, `associated_uniqueness`, or `associated_mythical_creature` names a positive reader-safe target, add the corresponding graph edge in `Relationship Seeds`. Mention related items or knowledge sources in visible sections or related threads when useful, but use dedicated Item or Knowledge Source pages only when the object/source is itself graph-worthy. Do not add relationship seeds for unknown/null placeholder state.
+
+Structured taxonomy values are not final website prose. Use kebab-case values for filtering, grouping, graphing, holder/state logic, and association logic; use human-written fields such as `summary`, `notes`, `evidence`, or future `site_summary` / `display_text` fields for sentences that may be shown directly to readers. Future renderers should map reusable values through display labels and use prose fields for article voice.
+
+For new or retrofitted rows, prefer `availability` over a single `reveal` field. `availability` preserves novel and Donghua timing independently and can record confidence changes over time. Every row that describes reader-visible state should support availability. Keep legacy `reveal` fields only on unmigrated rows.
+
+Use `graph_visibility` inside an availability entry only when the row can project into relationship graphs. `hidden` means render nothing at that reader point; `anonymized` means use safe generic labels because the reader can see an unknown actor, force, or relationship pattern; `partial` means show some real pieces while withholding others; `full` means show the true eligible source, target, and relationship type.
 
 Use kebab-case values for local Pathway Data Block taxonomy fields such as `status`, `usage_type`, `display_behavior`, `relationship_layer`, `type`, `usage`, and `confidence`. Keep YAML field names such as `reader_boundary`, `stable_slug`, `usage_type`, `display_behavior`, and `relationship_layer` in snake_case.
 
@@ -230,24 +248,44 @@ pathway_profile:
     - display_name:
       entity:
       relationship_layer: sequence-0 | ats | outer-deity | sefirot | other
-      reveal:
-        medium:
-        volume:
-        chapter:
       status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          graph_visibility:
+          display_source_label:
+          display_target_label:
+          display_relationship_type:
+          notes:
       notes:
   name_timeline:
     - name:
       usage_type:
-      reveal:
-        medium:
-        volume:
-        chapter:
       display_active:
         from:
         until:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          notes:
       display_behavior:
         primary_title: true/false
         hint_label:
@@ -255,13 +293,51 @@ pathway_profile:
   sequences:
     - sequence:
       name:
-      reveal:
-        medium:
-        volume:
-        chapter:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          notes:
       formula_details:
-        -
+        - source:
+          formula_known_from:
+          ingredients:
+            - name:
+              quantity:
+              role:
+              material_target:
+              confidence:
+              notes:
+          preparation_steps:
+            -
+          output:
+            output_type: potion | preparation | item | artifact | effect | unknown
+            output_target:
+            physical_form:
+            possession_trackable:
+            notes:
+          availability:
+            - medium:
+              from:
+                book:
+                volume:
+                chapter:
+                season:
+                episode:
+                release_order:
+              status:
+              confidence:
+              graph_visibility:
+              notes:
+          notes:
       ability_profile:
         confirmed_traits:
           -
@@ -277,39 +353,89 @@ pathway_profile:
   institutional_access:
     - faction:
       access_type:
-      reveal:
-        medium:
-        volume:
-      chapter:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          graph_visibility:
+          display_source_label:
+          display_target_label:
+          display_relationship_type:
+          notes:
       notes:
   affiliated_factions:
     - faction:
       affiliation_type:
-      reveal:
-        medium:
-        volume:
-        chapter:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          graph_visibility:
+          display_source_label:
+          display_target_label:
+          display_relationship_type:
+          notes:
       notes:
   known_holders:
     - character:
       status:
       sequence:
       sequence_name:
-      reveal:
-        medium:
-        volume:
-        chapter:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          adaptation_relationship:
+          graph_visibility:
+          display_source_label:
+          display_target_label:
+          display_relationship_type:
+          notes:
       notes:
   associated_uniqueness:
     reader_safe_name:
-    reveal:
-      medium:
-      volume:
-      chapter:
     status:
+    confidence:
+    availability:
+      - medium:
+        from:
+          book:
+          volume:
+          chapter:
+          season:
+          episode:
+          release_order:
+        status:
+        confidence:
+        graph_visibility:
+        display_source_label:
+        display_target_label:
+        display_relationship_type:
+        notes:
     dedicated_article:
     holder_or_accommodation_state:
     related_deity:
@@ -321,17 +447,42 @@ pathway_profile:
       - reader_safe_name:
         version_stage:
         sequence_threshold:
-        reveal:
-          medium:
-          volume:
-          chapter:
         status:
+        confidence:
+        availability:
+          - medium:
+            from:
+              book:
+              volume:
+              chapter:
+              season:
+              episode:
+              release_order:
+            status:
+            confidence:
+            graph_visibility:
+            display_source_label:
+            display_target_label:
+            display_relationship_type:
+            notes:
         notes:
 ```
 
 ## Relationship Seeds
 
-Use relationship seeds for graph-visible pathway edges, including `associated-tarot-card`, `associated-sequence-0`, `associated-ats`, `associated-outer-deity`, `associated-sefirot`, `associated-uniqueness`, and `associated-mythical-creature-form` when those targets are reader-safe. For mythical creature forms, target the shared `concept-mythical-creature-forms` concept page and preserve the specific form name in notes/local data. Keep detailed state, holders, notes, title variants, display timing, and uncertainty in the visible sections and `Pathway Data Block`.
+Use relationship seeds for graph-visible pathway edges, including `associated-tarot-card`, `associated-sequence-0`, `associated-ats`, `associated-outer-deity`, `associated-sefirot`, `associated-uniqueness`, and `associated-mythical-creature-form` when those targets are reader-safe. Relationship Seeds are graph projection hints, not full state histories or replacements for pathway data blocks and knowledge units.
+
+For pathway pages, this page owns pathway-wide metaphysical, institutional, tarot, Sequence 0, ATS, sefirot, Uniqueness, and mythical-creature-form associations. Do not duplicate every known holder as a `pathway-status` seed when the holder/character page exists; keep holder lists and uncertainty in `Known Holders` and `Pathway Data Block`. Use provisional holder seeds only when the holder page does not exist yet and the graph needs the edge.
+
+If confidence or reader-state changes over time, keep one graph edge seed and record the state progression in the data-block row's `availability` list. Use Reader Knowledge Ledger disclosures for audit/explanation. `start` is the earliest reader-safe point where the edge becomes graph-worthy, not necessarily the confirmation point.
+
+For mythical creature forms, target the shared `concept-mythical-creature-forms` concept page and preserve the specific form name in notes/local data. Keep detailed state, holders, notes, title variants, display timing, and uncertainty in the visible sections and `Pathway Data Block`.
+
+Pathway pages should not own ordinary possession/equipment seeds. If a named non-artifact item is important to pathway access, practice, or presentation, track the object on an `item-*` page and let that item page own item-as-source edges such as `access-route-to` or `uses-method` when appropriate.
+
+If a recurring source reveals pathway names, formulas, Sequences, access routes, or pathway history, track it on a `source-*` page and let the Knowledge Source page own source-as-source edges such as `contains-formula`, `describes-concept`, or `reveals-claim` when appropriate.
+
+Use `status: broken` only for pathway relationships that are explicitly ruptured, breached, failed, destroyed, or narratively broken. For ordinary ended access, custody, possession, affiliation, or holder state, prefer projected data-block state plus `status: historical` where needed.
 
 ```yaml
 relationships:
@@ -347,6 +498,12 @@ relationships:
       release_order:
     status:
     confidence:
+    projection_owner:
+    projection_scope: canonical
+    projection_source:
+    claim_id:
+    default_hidden_source_behavior: hide
+    default_hidden_target_behavior: hide
     notes:
 ```
 
@@ -356,40 +513,92 @@ relationships:
 
 ## Reader Knowledge Ledger
 
-Add one block for each durable spoiler-timed pathway claim. Keep novel and Donghua disclosure timelines independent.
+Add one block for each durable spoiler-timed pathway claim. Duplicate the block as needed. Keep novel and Donghua disclosure timelines independent.
+
+Together, these units should preserve the pathway's durable disclosure and audit history. Add separate disclosure entries for meaningful reveal points, including multiple entries from the same medium when a claim progresses from first mention, to clue, to inference, to explicit reveal, or to confirmation. Keep ordinary current-state facts in the visible sections and Pathway Data Block.
+
+Future reader-facing pages will filter these entries against the user's selected position. Do not treat unrestricted analysis elsewhere in this file as automatically spoiler-safe.
+
+Use only the controlled ledger values from `PROJECT_RULES.md`:
+
+- `knowledge_state`: `open-question`, `clue`, `working-theory`, `strong-inference`, `strong-evidence`, `confirmed-fact`, `expanded-fact`, or `reader-misconception`.
+- `disclosure_type`: `first-appearance`, `first-mention`, `first-meaningful-mention`, `first-clue`, `visual-hint`, `implicit-clue`, `context-link`, `inference`, `strong-inference`, `speculation`, `possibility`, `choice`, `explicit-identification`, `explicit-explanation`, `expanded-explanation`, `explicit-reveal`, `confirmation`, `practical-demonstration`, `ability-demonstration`, `practical-confirmation`, `pathway-inference`, `pathway-confirmation`, `staffing-snapshot`, `limitation`, `consequence`, `external-corroboration`, `expansion`, `recontextualization`, `rejection`, `adaptation-only-reveal`, or `early-reveal`.
+- `adaptation_relationships.type`: `pending`, `faithful`, `revealed-earlier`, `revealed-later`, `condensed`, `expanded`, `recontextualized`, `omitted`, `changed`, `donghua-original`, or `uncertain`.
+
+Use `pending` for adaptation relationships only while the adaptation comparison has not yet been verified.
 
 ### Knowledge Unit: Claim Title
 
 ```yaml
-id:
-claim:
-truth_status:
-confidence_level:
-canon_scope:
+id: subject-claim-id
+claim: Exact fact, inference, theory, misconception, or question
+truth_status: unresolved
+confidence_level: unknown
+canon_scope: shared
 occurs_at:
-  medium:
-  book:
+  medium: novel
+  book: lotm-1
   volume:
   chapter:
   notes:
 tags:
+  - reader-knowledge
   - pathway
 disclosures:
-  - medium:
-    knowledge_state:
-    disclosure_type:
+  - medium: novel
+    knowledge_state: open-question
+    disclosure_type: first-mention
     available_from:
-      book:
+      book: lotm-1
       volume:
       chapter:
+    superseded_at:
+    superseded_by:
+  - medium: donghua
+    knowledge_state: open-question
+    disclosure_type: first-mention
+    available_from:
+      season:
+      installment_type: episode
+      episode:
+      release_order:
     superseded_at:
     superseded_by:
 adaptation_relationships:
   - type: pending
     novel_claim_changed: false
     notes: Adaptation comparison not yet verified.
+subject_attribution_from:
+  - medium: novel
+    position:
+      book: lotm-1
+      volume:
+      chapter:
+  - medium: donghua
+    position:
+      season:
+      installment_type: episode
+      episode:
+      release_order:
 related_investigations:
 related_boards:
+evidence_basis:
+  - source:
+    location:
+    summary:
+    effect_on_confidence:
+confidence_history:
+  - position:
+      medium:
+      volume:
+      chapter:
+      season:
+      episode:
+      release_order:
+    confidence_before:
+    confidence_after:
+    reason:
+    evidence:
 last_updated:
 ```
 
@@ -402,14 +611,3 @@ last_updated:
 #### Adaptation Analysis
 
 - Differences in timing, presentation, context, omission, condensation, expansion, or meaning:
-
-## Future Automation Notes
-
-- The `Pathway Data Block` should remain aligned with the pathway snapshot sections, relationship seeds, and reader knowledge ledger.
-- Future spoiler-filtered renderers should collapse optional sections when no rows or prose remain eligible at the selected reader position. Embedded page header images may remain visible at any reader position.
-- If this pathway is not reader-safe for a selected position, future renderers should hide the entire page from reader-facing navigation, search, related-thread lists, graph views, and generated output.
-- If `Subject Visible From` is not obvious from the first appearance section, add a short note here explaining the page-level gate.
-
-## Notes
-
--

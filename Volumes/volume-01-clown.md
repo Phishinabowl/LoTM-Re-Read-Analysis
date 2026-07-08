@@ -102,7 +102,7 @@ The title `Clown` lands as both a pathway advancement and a tone statement. Klei
 | Klein Moretti | Transmigrator, new Seer, Tarot Club founder, Nighthawk member. | Forced past the Tingen phase and into a larger hidden-world trajectory. |  |
 | Dunn Smith | Nighthawk captain and Klein's first model of official Beyonder responsibility. | Central to the emotional and operational cost of the Tingen finale. | [Dunn Smith](../Glossary_Threads/Characters/character-dunn-smith.md) |
 | Old Neil | Mentor for mysticism practice and cautionary figure for loss of control. | His arc resolves as a personal tragedy that clarifies Beyonder risk. | [Old Neil](../Glossary_Threads/Characters/character-old-neil.md) |
-| Leonard Mitchell | Fellow Nighthawk with unusual presence and later-thread mystery seeds. | Remains a notable Tingen survivor and unresolved internal mystery. |  |
+| Leonard Mitchell | Fellow Nighthawk with unusual presence and later-thread mystery seeds. | Remains a notable Tingen survivor and unresolved internal mystery. | [Leonard Mitchell](../Glossary_Threads/Characters/character-leonard-mitchell.md) |
 | Azik Eggers | History professor and early deep-history mystery. | Established as a major unresolved thread beyond ordinary Tingen cases. |  |
 | Audrey Hall | Tarot Club member and early audience surrogate for aristocratic and Spectator-path hints. | Recurring Tarot Club participant with growing curiosity and access. |  |
 | Alger Wilson | Tarot Club member and maritime Church-connected information source. | Recurring Tarot Club participant and practical hidden-world broker. |  |

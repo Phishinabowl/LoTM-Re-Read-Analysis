@@ -154,10 +154,30 @@ Keep general ritual theory, reusable type definitions, cross-character compariso
 
 - [Antigonus Notebook](../Artifacts/artifact-antigonus-notebook.md)
 
+### Associated Items
+
+- item-copper-whistle.md
+
 ## Relationship Seeds
 
 ```yaml
 relationships:
+  - source: item-copper-whistle
+    target: concept-prayers-and-rituals
+    relationship_type: access-route-to
+    start:
+      medium: TBD
+      volume: TBD
+      chapter: TBD
+      season: TBD
+      episode: TBD
+      release_order: TBD
+    status: pending
+    confidence: TBD
+    projection_scope: provisional
+    default_hidden_source_behavior: hide
+    default_hidden_target_behavior: hide
+    notes: Provisional semantic-hub seed so the pending copper whistle item appears in maintainer QA graphs as an item tied to prayer/ritual mechanics. Replace with an item-owned canonical seed and row-level availability when item-copper-whistle.md is created and source timing is verified.
   - source: concept-prayers-and-rituals
     target: character-old-neil
     relationship_type: explained-by
@@ -255,8 +275,6 @@ last_updated: 2026-07-03
 - Differences in timing, presentation, context, omission, condensation, expansion, or meaning: Pending Donghua verification.
 
 ## Future Automation Notes
-
-Do not manually maintain backlinks, incoming references, generated indexes, relationship graphs, or visual maps yet.
 
 Future reader-boundary tooling should let character pages expose exact prayer wording only when the wording is available at or before the selected boundary, while this concept page provides reusable prayer/ritual type definitions.
 

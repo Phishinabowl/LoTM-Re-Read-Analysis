@@ -1,5 +1,7 @@
 param(
   [switch]$Delete,
+  [switch]$IncludeTmp,
+  [string[]]$TmpPath = @(),
   [switch]$Json
 )
 
@@ -7,6 +9,7 @@ $ErrorActionPreference = "Stop"
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $allowedDirectoryNames = @("__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache", ".tox")
+$tmpRoot = Join-Path $repoRoot ".tmp"
 
 function Test-IsWithinRepo {
   param(
@@ -16,14 +19,50 @@ function Test-IsWithinRepo {
 
   $resolvedPath = (Resolve-Path -LiteralPath $Path).Path
   $resolvedRoot = (Resolve-Path -LiteralPath $Root).Path
-  return $resolvedPath.StartsWith($resolvedRoot, [System.StringComparison]::OrdinalIgnoreCase)
+  return (
+    $resolvedPath -eq $resolvedRoot -or
+    $resolvedPath.StartsWith($resolvedRoot + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)
+  )
 }
 
-$targets = @(
+function Test-IsWithinTmp {
+  param(
+    [Parameter(Mandatory = $true)][string]$Path,
+    [Parameter(Mandatory = $true)][string]$TmpRoot
+  )
+
+  $resolvedPath = (Resolve-Path -LiteralPath $Path).Path
+  $resolvedTmp = (Resolve-Path -LiteralPath $TmpRoot).Path
+  return (
+    $resolvedPath -ne $resolvedTmp -and
+    $resolvedPath.StartsWith($resolvedTmp + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)
+  )
+}
+
+$cacheTargets = @(
   Get-ChildItem -Path $repoRoot -Directory -Recurse -Force |
     Where-Object { $allowedDirectoryNames -contains $_.Name } |
     Sort-Object FullName
 )
+$tmpTargets = @()
+if ($IncludeTmp -and (Test-Path -LiteralPath $tmpRoot)) {
+  $tmpTargets = @(
+    Get-ChildItem -LiteralPath $tmpRoot -Force |
+      Sort-Object FullName
+  )
+}
+$scopedTmpTargets = @()
+foreach ($pathValue in @($TmpPath)) {
+  $candidate = if ([System.IO.Path]::IsPathRooted($pathValue)) { $pathValue } else { Join-Path $repoRoot $pathValue }
+  if (-not (Test-Path -LiteralPath $candidate)) {
+    continue
+  }
+  $resolvedCandidate = (Resolve-Path -LiteralPath $candidate).Path
+  if ((Test-IsWithinRepo -Path $resolvedCandidate -Root $repoRoot) -and (Test-IsWithinTmp -Path $resolvedCandidate -TmpRoot $tmpRoot)) {
+    $scopedTmpTargets += Get-Item -LiteralPath $resolvedCandidate -Force
+  }
+}
+$targets = @($cacheTargets + $tmpTargets + ($scopedTmpTargets | Sort-Object FullName -Unique))
 
 $results = @()
 foreach ($target in $targets) {
@@ -48,7 +87,12 @@ foreach ($target in $targets) {
 $output = [ordered]@{
   repo_root = $repoRoot
   delete = [bool]$Delete
-  allowed_directory_names = $allowedDirectoryNames
+  allowed_directory_names = @($allowedDirectoryNames | Sort-Object)
+  include_tmp = [bool]$IncludeTmp
+  tmp_root = $tmpRoot
+  cache_count = @($cacheTargets).Count
+  tmp_count = @($tmpTargets).Count
+  scoped_tmp_count = @($scopedTmpTargets).Count
   count = $results.Count
   results = $results
 }

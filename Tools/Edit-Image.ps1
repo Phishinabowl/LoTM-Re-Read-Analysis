@@ -89,15 +89,8 @@ function Show-Presets {
   $presets.GetEnumerator() |
     Sort-Object Name |
     ForEach-Object {
-      [pscustomobject]@{
-        Name = $_.Name
-        Operation = $_.Value.Operation
-        X = $_.Value.X
-        Y = $_.Value.Y
-        Width = $_.Value.Width
-        Height = $_.Value.Height
-        Description = $_.Value.Description
-      }
+      $operation = $_.Value.Operation.ToLowerInvariant()
+      "$($_.Name): operation=$operation x=$($_.Value.X) y=$($_.Value.Y) width=$($_.Value.Width) height=$($_.Value.Height) - $($_.Value.Description)"
     }
 }
 
@@ -503,7 +496,7 @@ function Invoke-ExtractEpubImages {
     }
 
     if ($Json) {
-      $jsonResults | ConvertTo-Json -Depth 6
+      ConvertTo-Json -InputObject @($jsonResults.ToArray()) -Depth 6
     }
   } finally {
     $zip.Dispose()

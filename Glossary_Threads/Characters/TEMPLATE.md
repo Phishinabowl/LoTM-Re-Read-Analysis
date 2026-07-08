@@ -1,6 +1,6 @@
 # Character Name
 
-<!-- Optional: omit this block until a page-ready official character asset is promoted. -->
+<!-- On page creation, check Artwork/official-epub-image-map.md. If eligible mapped artwork exists, promote the selected file into Artwork/page-assets/characters/character-slug/ and embed it here. Omit only when no eligible artwork exists or promotion is deliberately deferred. -->
 <a href="../../Artwork/page-assets/characters/character-slug/page-ready-character-image.ext"><img src="../../Artwork/page-assets/characters/character-slug/page-ready-character-image.ext" alt="Official character artwork label" width="320"></a>
 
 ## Metadata
@@ -22,7 +22,13 @@ Related Threads:
 Related Investigations:
 -
 
-Use this template as a character-specific overlay on top of the universal glossary contract. Preserve the shared metadata, first appearance, chronological development, relationship seeds, evidence index, reader knowledge ledger, future automation notes, and notes sections from `Glossary_Threads/TEMPLATE.md`.
+Use this template as a character-specific overlay on top of the universal glossary contract. Preserve the shared metadata, first appearance, chronological development, relationship seeds, evidence index, reader knowledge ledger, and optional maintainer notes from `Glossary_Threads/TEMPLATE.md`.
+
+For active or retrofitted character pages, the required minimum is `Metadata`, `Purpose`, `Spoiler Boundary`, `Reader Knowledge Boundary`, `Overall Summary`, `Character Snapshot`, `First Appearance / First Meaningful Mention`, `Chronological Development`, `Character Data Block`, `Relationship Seeds` when graph-worthy relationships are known, `Evidence Index`, and `Reader Knowledge Ledger`.
+
+Use `Names, Aliases & Titles`, `Physical Profile`, `Status, Origin & Location`, `Affiliations`, `Pathway & Ability State`, `Ability Index`, `Equipment & Artifacts`, `Knowledge Sources & Documents`, `Personality`, `Relationships`, and `Major Events & Fights` when relevant. Omit empty optional modules from real pages until the character has reader-safe material for them.
+
+Omit `Mythical Creature Form State`, `Uniqueness State`, `Messenger / Servants / Companions`, `Prayers & Ritual Access`, and `Prayer / Ritual Texts` by default unless they have meaningful reader-safe material.
 
 ## Purpose
 
@@ -37,6 +43,19 @@ Record only what is allowed by the broader spoiler boundary and exact reader kno
 - Volume:
 - Chapter:
 - Reader knowledge state:
+
+## Overall Summary
+
+Write a reader-safe synthesis of who this character is at the current boundary. This may be one paragraph for minor characters or a few concise paragraphs for major characters. Keep it inside the stated reader boundary.
+
+## Character Snapshot
+
+- Current reader-safe identity:
+- Current role:
+- Current affiliation / status:
+- Current location / base:
+- Current pathway / ability state:
+- Current narrative function:
 
 ## First Appearance / First Meaningful Mention
 
@@ -131,6 +150,16 @@ Use a single block only when all reveal beats happen together. If the character 
 | Ability state |  |  |  |  |  |
 | Limitation |  |  |  |  |  |
 
+## Associated Tarot Card
+
+Include this section only when the character has a reader-safe Tarot Club identity, tarot-card assignment, tarot-card alias, or other explicit character-specific tarot association that is meaningful to track. Omit it from character pages where no tarot-card association exists. Preserve assignment/reveal timing separately from pathway tarot-card associations. When the associated tarot-card crop exists and is reader-safe at the current boundary, embed the compact clickable card crop like pathway pages do; keep the character portrait as page identity/header artwork rather than the card-association image. `Card target` is temporary pending-page scaffolding: use it only while the individual tarot-card page does not exist. Once the card page exists and its path is stable, remove the visible `Card target` column and make the tarot-card name itself the Markdown link to that page.
+
+| Card image | Tarot card | Card target | Card number | Identity / alias | Assignment / reveal point | Status | Confidence | Notes |
+|---|---|---|---|---|---|---|---|---|
+| <a href="../../Artwork/page-assets/pathways/pathway-slug/card-crop.ext"><img src="../../Artwork/page-assets/pathways/pathway-slug/card-crop.ext" alt="Tarot card crop label" width="120"></a> | <span style="font-size: 1.45em; font-weight: 700;">Card Name</span> | tarot-card-card-name | <span style="font-size: 1.15em;">Roman / Number</span> |  |  |  |  |  |
+
+<!-- After the card page exists, remove the Card target column and link the Tarot card cell, for example: [<span style="font-size: 1.45em; font-weight: 700;">Card Name</span>](../Tarot_Cards/tarot-card-card-name.md). Keep the data-block `target` field either way. -->
+
 ## Mythical Creature Form State
 
 Include this section only when the character has a reader-safe mythical creature form state, partial transformation, form access, form advancement, loss, concealment, or uncertainty that is itself useful to track. Omit it from character pages where no mythical creature form relationship exists in the story. Rows should accumulate newest-to-oldest like other state/history tables. Track the form version/stage because many pathways expose more than one form state tied to Sequence progression. Link broader form comparison/indexing to `Glossary_Threads/Concepts/concept-mythical-creature-forms.md` rather than creating separate form pages by default.
@@ -152,8 +181,17 @@ Include this section only when the character has a reader-safe relationship to a
 
 ## Equipment & Artifacts
 
-| Item | Type | First reveal / change point | Possession status | Confidence | Notes |
-|---|---|---|---|---|---|
+Use this section for broad possession, custody, access, use, or investigation state for physical equipment, items, and formal artifacts. Link named recurring non-artifact objects to `Glossary_Threads/Items/item-[name].md` when they are page-worthy; link formal mystical artifacts or Sealed Artifacts to `Glossary_Threads/Artifacts/artifact-[name].md`. Put recurring knowledge carriers, document corpora, source texts, records, letters, formula records, and similar reveal carriers in `Knowledge Sources & Documents` instead. Keep minor equipment, disposable possessions, and one-scene props as plain data rows unless they become graph-worthy later.
+
+| Item / artifact | Type | Page target | First reveal / change point | Possession status | Graph relevance | Confidence | Notes |
+|---|---|---|---|---|---|---|---|
+
+## Knowledge Sources & Documents
+
+Include this section only when the character has meaningful reader-safe access to, custody of, handling of, reading of, translation of, interpretation of, or transmission of a recurring knowledge source or document. Use it for diary pages, spellbooks, grimoires, notebooks, scriptures, case files, letters, inscriptions, formula records, murals, records, or similar reveal carriers. Link to `Glossary_Threads/Knowledge_Sources/source-[name].md` when a dedicated source page exists; mention a planned source page as a plain filename when it is pending. Omit this section from character pages with no meaningful source/document relationship.
+
+| Knowledge source / document | Type | Page target | First reveal / change point | Access / handling status | Graph relevance | Confidence | Notes |
+|---|---|---|---|---|---|---|---|
 
 ## Personality
 
@@ -167,17 +205,21 @@ Include this section only when the character has a reader-safe relationship to a
 
 ## Messenger / Servants / Companions
 
+Include this section only when the character has a reader-safe companion, messenger, servant, familiar, contracted helper, summoned entity, spirit, or similar associated being that is meaningful to track. Omit it from character pages where no such relationship exists. Do not add default "none known" rows unless the absence itself is analytically important at the current boundary.
+
 | Entity | Type | First reveal / change point | Status | Confidence | Notes |
 |---|---|---|---|---|---|
 
 ## Prayers & Ritual Access
+
+Include this section only when the character has reader-safe access to a specific prayer address, ritual method, ritual target, character-specific wording, or recurring ritual function. Omit it from character pages where no prayer/ritual access is meaningful to track. Keep general ritual theory, reusable prayer/ritual definitions, and cross-character comparisons on [Prayers & Rituals](../Concepts/concept-prayers-and-rituals.md).
 
 | Prayer / ritual label | Type | Function | First reveal / change point | Status | Confidence | Concept link | Notes |
 |---|---|---|---|---|---|---|---|
 
 ### Prayer / Ritual Texts
 
-Use one subsection per exact text only when the wording is reader-safe and character-specific. Keep general ritual theory on [Prayers & Rituals](../Concepts/concept-prayers-and-rituals.md).
+Include this subsection only when exact wording is reader-safe and character-specific. Omit it from character pages with no exact text to preserve. Use one subsection per exact text when needed. Keep general ritual theory on [Prayers & Rituals](../Concepts/concept-prayers-and-rituals.md).
 
 #### Label
 
@@ -194,16 +236,17 @@ Exact reader-safe wording, if applicable.
 
 ## Major Events & Fights
 
-Sort this table oldest-to-newest by event occurrence or first reveal.
+Use this section as the character-local participation/index view, not as the canonical event model. Sort this table oldest-to-newest by reader/viewer occurrence or first reveal. Link to the event page and event part when those exist; future event pages own canonical event classification, multi-part structure, participants, locations, causes, outcomes, and event-centered Relationship Seeds.
 
-| Event / fight | Role | First reveal / occurrence | Outcome / status | Confidence | Notes |
-|---|---|---|---|---|---|
+| Event / fight | Event type | Event part | Role | First reveal / occurrence | Outcome / status | Confidence | Notes |
+|---|---|---|---|---|---|---|---|
 
 ## Chronological Development
 
 ### Novel
 
 #### Volume X
+<!-- timeline_id: character-volume-x-arc (required for real entries; keep matched to timeline_entries.id) -->
 
 - What the reader learns:
 - What changes:
@@ -213,6 +256,7 @@ Sort this table oldest-to-newest by event occurrence or first reveal.
 ### Donghua
 
 #### Season X, Episode Y
+<!-- timeline_id: character-donghua-arc (required for real entries; keep matched to timeline_entries.id) -->
 
 - Timestamp:
 - What the viewer learns:
@@ -231,13 +275,67 @@ Sort this table oldest-to-newest by event occurrence or first reveal.
 
 Use Markdown links when the target file exists, with the target document's human-readable H1 title as the link label. Mention a nonexistent thread as a plain filename only when its creation is already planned or the relationship is essential. Do not seed speculative future references.
 
+### Directly Related
+
+-
+
+### Associated Characters
+
+-
+
+### Associated Factions
+
+-
+
+### Associated Locations
+
+-
+
+### Associated Artifacts
+
+-
+
+### Associated Items
+
+-
+
+### Associated Knowledge Sources
+
+-
+
+### Associated Concepts / Systems
+
+-
+
+### Associated Events
+
+-
+
+### Associated Pathways
+
+-
+
 ## Character Data Block
 
-This block is a structured extraction aid, not a separate source of truth. Keep it aligned with the visible character sections, relationship seeds, and reader knowledge ledger. Use metadata, not this data block, for page-level `Subject Visible From`. If `mythical_creature_form_state` or `uniqueness_state` records a positive reader-safe relationship, add the corresponding graph edge in `Relationship Seeds`. Do not add relationship seeds for omitted sections, unknown/null state, or ordinary absence.
+This block is the structured page-local state model for future generated pages, dashboards, reader-position filters, and relationship graphs. Keep it aligned with the visible character sections and Reader Knowledge Ledger. Use metadata, not this data block, for page-level `Subject Visible From`. If `mythical_creature_form_state`, `uniqueness_state`, a major/recurring `equipment_artifacts` row, or a graph-worthy `knowledge_sources_documents` row records a positive reader-safe graph relationship, add the corresponding graph edge in `Relationship Seeds`. Do not add relationship seeds for omitted sections, unknown/null state, ordinary absence, minor equipment, disposable possessions, or incidental one-scene documents.
 
-Use kebab-case values for local Character Data Block taxonomy fields such as `status`, `relationship`, `possession_status`, `outcome_status`, `type`, `role`, `source`, and `confidence`. Keep YAML field names such as `reader_boundary`, `state_sort_order`, `possession_status`, and `outcome_status` in snake_case.
+Visible character tables are the GitHub-readable article layer. `character_profile` rows are the future renderer, filtering, and QA layer. When both describe the same extractable state, keep them synchronized and fix both if they conflict. Keep `character_profile` sections in the same order as the visible character sections whenever practical, so maintainers can compare article text, tables, and YAML without hunting through the block.
+
+Do not expect the future website to turn character taxonomy values into full prose on their own. Use kebab-case values for filtering, grouping, graphing, and current-state calculation; use human-written fields such as `summary`, `notes`, `reader_learns`, `changes`, `remains_unknown`, `why_it_matters`, `evidence`, or future `site_summary` / `display_text` fields for sentences that may be shown directly to readers. Renderer templates should use display-label mappings for reusable values and prose fields for article voice.
+
+Use `first_appearance_beats` to mirror the visible `First Appearance / First Meaningful Mention` section. Each meaningful visible beat should have one structured row with the same medium, position, context, and reader/viewer knowledge state. Keep early anonymous or ambiguous beats named from the reader's knowledge at that point rather than from later confirmation. Use `graph_display.behavior: anonymized-node` only when a reader-boundary graph or future site should show a safe presentation node before the canonical page title is reader-safe; otherwise use `canonical-node` or `hidden` as appropriate. These rows are positioned reveal beats by default, so they normally use `position`, `source_refs`, and `graph_display` rather than an `availability` ladder. Add `availability` only when the same beat has a meaningful changing interpretation that cannot be modeled as separate beats.
+
+Use `timeline_entries` to mirror meaningful `Chronological Development` prose as structured data for future generated pages and reader-position filtering. Place `timeline_entries` after `major_events_fights` in the character data block so it matches the visible page order where `Chronological Development` follows `Major Events & Fights`. Keep the Markdown chronology readable for GitHub; do not replace it with YAML-only chronology. Every real visible chronology subsection should have `<!-- timeline_id: ... -->` and exactly one matching `timeline_entries.id`. Keep visible subsections and timeline rows in the same oldest-to-newest reader/viewer order within each medium. When inserting a newly discovered arc, reorder the prose and data row without renaming stable semantic IDs.
+
+For new or retrofitted continuing state rows, prefer `availability` over a single `reveal` field. `availability` preserves novel and Donghua timing independently and can record confidence changes over time. Rows that describe mutable reader-visible state should support availability. Positioned reveal rows such as `first_appearance_beats` and `timeline_entries` normally use their own timing fields instead. Keep legacy `reveal` fields only on unmigrated rows.
+
+Use `graph_visibility` inside an availability entry only when the row can project into relationship graphs. `hidden` means render nothing at that reader point; `anonymized` means use safe generic labels because the reader can see an unknown actor, force, or relationship pattern; `partial` means show some real pieces while withholding others; `full` means show the true eligible source, target, and relationship type.
+
+Use kebab-case values for local Character Data Block taxonomy fields such as `status`, `beat_type`, `relationship`, `possession_status`, `outcome_status`, `type`, `role`, `source`, `item_significance`, `graph_relevance`, `page_worthiness`, and `confidence`. Keep YAML field names such as `reader_boundary`, `state_sort_order`, `possession_status`, `graph_relevance`, `page_worthiness`, and `outcome_status` in snake_case.
 
 Prefer reusable local data-block values over character-specific one-offs. Examples include `current-at-boundary`, `current-operational-base`, `latest-known-location-at-boundary`, `current-pattern-at-boundary`, `strong-evidence-at-boundary`, `superseded-by-later-naming`, `authorized-access`, `investigating-not-possessed`, and `no-reader-safe-access-known`. If a new value is needed, make it generic enough to reuse across future character pages and explain the specific character nuance in `notes`.
+
+Default character fact ownership: affiliation, employment, and team membership belong first in `Affiliations`; pathway, Sequence, advancement, digestion, and broad supernatural state belong first in `Pathway & Ability State`; individual powers or skills belong first in `Ability Index` unless they are better modeled as `Prayers & Ritual Access`; object possession, custody, access, or use belongs first in `Equipment & Artifacts`; recurring knowledge-source/document access, handling, reading, custody, translation, interpretation, or transmission belongs first in `Knowledge Sources & Documents`; interpersonal/entity ties belong first in `Relationships`; plot participation belongs first in `Major Events & Fights`. Relationship Seeds project graph-worthy edges from those local rows and do not replace them.
 
 ```yaml
 character_profile:
@@ -246,163 +344,527 @@ character_profile:
     book: lotm-1
     volume:
     chapter:
+    notes:
   state_sort_order: newest-to-oldest
   official_artwork:
     - image_number:
       label:
       type:
       file:
+      source_file:
       usage:
+      notes:
+  first_appearance_beats:
+    - medium:
+      beat_type:
+      title:
+      position:
+        book:
+        volume:
+        chapter:
+        season:
+        episode:
+        release_order:
+        timestamp:
+      context:
+      reader_knowledge_state:
+      viewer_knowledge_state:
+      graph_display:
+        behavior:
+        label:
+        visible_from:
+          medium:
+          book:
+          volume:
+          chapter:
+          season:
+          episode:
+          release_order:
+        resolves_to_canonical_at:
+          medium:
+          book:
+          volume:
+          chapter:
+          season:
+          episode:
+          release_order:
+      status:
+      confidence:
+      related_timeline_entries:
+        -
+      related_claims:
+        -
+      source_refs:
+        - medium:
+          book:
+          volume:
+          chapter:
+          season:
+          episode:
+          release_order:
+          timestamp:
+      notes:
   identities:
     - field:
       value:
-      reveal:
-        medium:
-        volume:
-        chapter:
       status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          adaptation_relationship:
+          notes:
       notes:
   physical_profile:
     - field:
       value:
-      reveal:
-        medium:
-        volume:
-        chapter:
       status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          notes:
       notes:
   status_origin_location:
     - field:
       value:
-      reveal:
-        medium:
-        volume:
-        chapter:
       status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          notes:
       notes:
   affiliations:
     - organization:
       relationship:
-      reveal:
-        medium:
-        volume:
-        chapter:
       status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          adaptation_relationship:
+          notes:
       notes:
-  pathway_ability_state:
-    - field:
-      value:
-      reveal:
-        medium:
-        volume:
-        chapter:
+  pathway_state:
+    - pathway:
+      target:
+      relationship: pathway-status
       status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          adaptation_relationship:
+          notes:
       notes:
+  sequence_state:
+    - sequence:
+      sequence_name:
+      related_pathway:
+      status:
+      confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          adaptation_relationship:
+          notes:
+      notes:
+  # Optional specialized module: omit this array unless the visible page includes
+  # Associated Tarot Card or the absence is analytically important.
+  associated_tarot_card:
+    - card_name:
+      card_number:
+      target:
+      identity_alias:
+      association_type:
+      status:
+      confidence:
+      image:
+        crop_file:
+        source_crop_file:
+        alt:
+      character_artwork_file:
+      source_character_artwork_file:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          graph_visibility:
+          display_source_label:
+          display_target_label:
+          display_relationship_type:
+          notes:
+      notes:
+  # Optional specialized module: omit this array unless the visible page includes
+  # Mythical Creature Form State or the absence is analytically important.
   mythical_creature_form_state:
     - form_state:
       version_stage:
       related_pathway:
       sequence_threshold:
-      reveal:
-        medium:
-        volume:
-        chapter:
       status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          graph_visibility:
+          display_source_label:
+          display_target_label:
+          display_relationship_type:
+          notes:
       notes:
+  # Optional specialized module: omit this array unless the visible page includes
+  # Uniqueness State or the absence is analytically important.
   uniqueness_state:
     - uniqueness:
       relationship_state:
-      reveal:
-        medium:
-        volume:
-        chapter:
       status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          graph_visibility:
+          display_source_label:
+          display_target_label:
+          display_relationship_type:
+          notes:
       notes:
   ability_index:
     - ability:
       source:
-      reveal:
-        medium:
-        volume:
-        chapter:
       status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          notes:
       notes:
   equipment_artifacts:
     - item:
+      target:
       type:
-      reveal:
-        medium:
-        volume:
-        chapter:
       possession_status:
+      item_significance: minor
+      graph_relevance: none
+      page_worthiness: none
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          possession_status:
+          item_significance:
+          graph_relevance:
+          page_worthiness:
+          confidence:
+          graph_visibility:
+          display_source_label:
+          display_target_label:
+          display_relationship_type:
+          notes:
+      notes:
+  # Optional specialized module: omit this array unless the visible page includes
+  # Knowledge Sources & Documents.
+  knowledge_sources_documents:
+    - source:
+      target:
+      type:
+      access_status:
+      source_significance: minor
+      graph_relevance: none
+      page_worthiness: none
+      confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          access_status:
+          source_significance:
+          graph_relevance:
+          page_worthiness:
+          confidence:
+          graph_visibility:
+          display_source_label:
+          display_target_label:
+          display_relationship_type:
+          notes:
       notes:
   personality:
     - trait:
       evidence:
-      reveal:
-        medium:
-        volume:
-        chapter:
       status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          notes:
       notes:
   relationships:
     - target:
       relationship:
-      reveal:
-        medium:
-        volume:
-        chapter:
       status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          graph_visibility:
+          display_source_label:
+          display_target_label:
+          display_relationship_type:
+          notes:
       notes:
+  # Optional specialized module: omit this array unless the visible page includes
+  # Messenger / Servants / Companions or the absence is analytically important.
   messengers_servants_companions:
     - entity:
       type:
-      reveal:
-        medium:
-        volume:
-        chapter:
       status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          graph_visibility:
+          display_source_label:
+          display_target_label:
+          display_relationship_type:
+          notes:
       notes:
+  # Optional specialized module: omit this array unless the visible page includes
+  # Prayers & Ritual Access or the absence is analytically important.
   prayers_ritual_access:
     - label:
       type:
       function:
-      reveal:
-        medium:
-        volume:
-        chapter:
       status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          status:
+          confidence:
+          notes:
       concept_link: ../Concepts/concept-prayers-and-rituals.md
       wording:
       notes:
   major_events_fights:
     - event:
+      event_type:
+      event_part:
       role:
-      reveal:
-        medium:
-        volume:
-        chapter:
       outcome_status:
       confidence:
+      availability:
+        - medium:
+          from:
+            book:
+            volume:
+            chapter:
+            season:
+            episode:
+            release_order:
+          event_type:
+          event_part:
+          outcome_status:
+          confidence:
+          graph_visibility:
+          display_source_label:
+          display_target_label:
+          display_relationship_type:
+          notes:
+      notes:
+  timeline_entries:
+    - id:
+      title:
+      medium:
+      from:
+        book:
+        volume:
+        chapter:
+        season:
+        episode:
+        release_order:
+      to:
+        book:
+        volume:
+        chapter:
+        season:
+        episode:
+        release_order:
+      visibility:
+        from:
+          medium:
+          book:
+          volume:
+          chapter:
+          season:
+          episode:
+          release_order:
+      entry_type:
+      summary:
+      reader_learns:
+        -
+      changes:
+        -
+      remains_unknown:
+        -
+      why_it_matters:
+      related_entities:
+        -
+      related_claims:
+        -
+      related_relationships:
+        -
+      related_events:
+        -
+      source_refs:
+        - medium:
+          book:
+          volume:
+          chapter:
+          season:
+          episode:
+          release_order:
+          timestamp:
       notes:
 ```
 
 ## Relationship Seeds
 
-Use this section only for relationships important enough to support future relationship graphs. Keep entries reader-boundary aware and mark unverified start points as `TBD`. For Uniqueness and mythical creature form material, seed positive graph-worthy edges such as `possesses-uniqueness`, `controls-uniqueness`, `accommodates-uniqueness`, or `has-mythical-creature-form`; keep detailed state/history in the character sections and data block. For mythical creature forms, target `concept-mythical-creature-forms` and record the specific form name in notes/local data.
+Use this section only for relationships important enough to support future relationship graphs. Relationship Seeds are graph projection hints, not full state histories or replacements for character data blocks and knowledge units.
+
+For character pages, this page normally owns seeds where the character is the source, such as affiliation, staffing, pathway status, Tarot Club card identity, workplace, reporting, mentor/student, artifact-use, and event participation when the relationship is not event-centered. Keep detailed state/history in the character sections and data block. Use Reader Knowledge Ledger disclosures for audit/explanation. If confidence changes over time, keep one graph edge seed and record the change in the data-block row's `availability` list.
+
+Order seeds by the character data-block section they project from when possible: affiliation seeds, pathway/sequence seeds, tarot-card seeds, ability seeds, graph-worthy equipment/artifact seeds, relationship seeds, then major-event participation seeds. The order is for maintainer scanning only; graph generators must use the seed fields, not position.
+
+For equipment, possessions, and custody, add seeds only for graph-worthy `equipment_artifacts` rows. Minor or disposable rows should stay data-only. Use `possesses-item` / `uses-item` for named non-artifact item pages, and `artifact-user` / `artifact-guardian` for formal artifact pages.
+
+For knowledge sources and documents, add seeds only for graph-worthy `knowledge_sources_documents` rows. Put source-as-source reveal/claim edges on the Knowledge Source page when it exists; character pages may own access, handling, reading, custody, translation, or interpretation edges when the character/source relationship is the local fact being tracked.
+
+Keep entries reader-boundary aware and mark unverified start points as `TBD`. `start` is the earliest reader-safe point where the edge becomes graph-worthy, not necessarily the confirmation point.
+
+For Uniqueness and mythical creature form material, seed positive graph-worthy edges such as `possesses-uniqueness`, `controls-uniqueness`, `accommodates-uniqueness`, or `has-mythical-creature-form`; keep detailed state/history in the character sections and data block. For mythical creature forms, target `concept-mythical-creature-forms` and record the specific form name in notes/local data.
+
+Use `status: broken` only for relationships that are explicitly ruptured, breached, failed, destroyed, or narratively broken. For ordinary ended custody, possession, residence, access, or employment, prefer projected data-block state such as `possession_status: lost-custody` with `status: historical` where needed.
 
 ```yaml
 relationships:
@@ -418,6 +880,12 @@ relationships:
       release_order:
     status:
     confidence:
+    projection_owner:
+    projection_scope: canonical
+    projection_source:
+    claim_id:
+    default_hidden_source_behavior: hide
+    default_hidden_target_behavior: hide
     notes:
 ```
 
@@ -429,16 +897,100 @@ relationships:
 
 Add one block for each durable spoiler-timed claim. Duplicate the block as needed. Keep novel and Donghua disclosure timelines independent.
 
-## Future Automation Notes
+Together, these units should preserve the subject's durable disclosure and audit history. Add separate disclosure entries for meaningful reveal points, including multiple entries from the same medium when a claim progresses from first mention, to clue, to inference, to explicit reveal, or to confirmation. Keep ordinary current-state facts in the visible sections and type-specific data block.
 
-Do not manually maintain backlinks, incoming references, generated indexes, relationship graphs, or visual maps yet.
+Future reader-facing pages will filter these entries against the user's selected position. Do not treat unrestricted analysis elsewhere in this file as automatically spoiler-safe.
 
-Future spoiler-filtered renderers should collapse optional sections when no rows or prose remain eligible at the selected reader position. Embedded page header images may remain visible at any reader position.
+Use only the controlled ledger values from `PROJECT_RULES.md`:
 
-If this character is not reader-safe for a selected position, future renderers should hide the entire page from reader-facing navigation, search, related-thread lists, graph views, and generated output.
+- `knowledge_state`: `open-question`, `clue`, `working-theory`, `strong-inference`, `strong-evidence`, `confirmed-fact`, `expanded-fact`, or `reader-misconception`.
+- `disclosure_type`: `first-appearance`, `first-mention`, `first-meaningful-mention`, `first-clue`, `visual-hint`, `implicit-clue`, `context-link`, `inference`, `strong-inference`, `speculation`, `possibility`, `choice`, `explicit-identification`, `explicit-explanation`, `expanded-explanation`, `explicit-reveal`, `confirmation`, `practical-demonstration`, `ability-demonstration`, `practical-confirmation`, `pathway-inference`, `pathway-confirmation`, `staffing-snapshot`, `limitation`, `consequence`, `external-corroboration`, `expansion`, `recontextualization`, `rejection`, `adaptation-only-reveal`, or `early-reveal`.
+- `adaptation_relationships.type`: `pending`, `faithful`, `revealed-earlier`, `revealed-later`, `condensed`, `expanded`, `recontextualized`, `omitted`, `changed`, `donghua-original`, or `uncertain`.
 
-If `Subject Visible From` is not obvious from the first appearance section, add a short note here explaining the page-level gate.
+Use `pending` for adaptation relationships only while the adaptation comparison has not yet been verified.
 
-## Notes
+### Knowledge Unit: Claim Title
 
--
+```yaml
+id: subject-claim-id
+claim: Exact fact, inference, theory, misconception, or question
+truth_status: unresolved
+confidence_level: unknown
+canon_scope: shared
+occurs_at:
+  medium: novel
+  book: lotm-1
+  volume:
+  chapter:
+  notes:
+tags:
+  - reader-knowledge
+disclosures:
+  - medium: novel
+    knowledge_state: open-question
+    disclosure_type: first-mention
+    available_from:
+      book: lotm-1
+      volume:
+      chapter:
+    superseded_at:
+    superseded_by:
+  - medium: donghua
+    knowledge_state: open-question
+    disclosure_type: first-mention
+    available_from:
+      season:
+      installment_type: episode
+      episode:
+      release_order:
+    superseded_at:
+    superseded_by:
+adaptation_relationships:
+  - type: pending
+    novel_claim_changed: false
+    notes: Adaptation comparison not yet verified.
+subject_attribution_from:
+  - medium: novel
+    position:
+      book: lotm-1
+      volume:
+      chapter:
+  - medium: donghua
+    position:
+      season:
+      installment_type: episode
+      episode:
+      release_order:
+related_investigations:
+related_boards:
+evidence_basis:
+  - source:
+    location:
+    summary:
+    effect_on_confidence:
+confidence_history:
+  - position:
+      medium:
+      volume:
+      chapter:
+      season:
+      episode:
+      release_order:
+    confidence_before:
+    confidence_after:
+    reason:
+    evidence:
+last_updated:
+```
+
+#### Reader-State History
+
+- What each audience could reasonably know:
+- How the knowledge state changed:
+- How confidence changed as evidence accumulated:
+
+#### Adaptation Analysis
+
+- Differences in timing, presentation, context, omission, condensation, expansion, or meaning:
+
+<!-- Add a collapsible Maintainer Notes block only when this page needs page-specific modeling, search-boundary, rendering, future split, or migration notes. Do not add empty maintainer-note placeholders to real pages. For repo-only pilot pages, record the evidence/search mode and any deliberately deferred promotions or excluded memory-known material here. -->

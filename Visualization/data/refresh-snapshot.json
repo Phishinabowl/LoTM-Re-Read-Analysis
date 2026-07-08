@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-04 10:42:12 -04:00",
+  "generated_at": "2026-07-07 03:57:13 -04:00",
   "nodes": [
     "artifact_0_08",
     "artifact_antigonus_notebook",
@@ -83,44 +83,37 @@
     {
       "source": "character_dunn_smith",
       "target": "event_klein_becomes_a_seer",
-      "label": "event-participant ch28 completed",
-      "key": "character_dunn_smith|event-participant ch28 completed|event_klein_becomes_a_seer",
+      "label": "event-participant novel ch31 confirmed",
+      "key": "character_dunn_smith|event-participant novel ch31 confirmed|event_klein_becomes_a_seer",
       "endpointKey": "character_dunn_smith|event_klein_becomes_a_seer"
     },
     {
       "source": "character_dunn_smith",
       "target": "artifact_antigonus_notebook",
-      "label": "investigates ch13",
-      "key": "character_dunn_smith|investigates ch13|artifact_antigonus_notebook",
+      "label": "investigates novel ch13 confirmed",
+      "key": "character_dunn_smith|investigates novel ch13 confirmed|artifact_antigonus_notebook",
       "endpointKey": "character_dunn_smith|artifact_antigonus_notebook"
     },
     {
       "source": "character_dunn_smith",
       "target": "faction_nighthawks",
-      "label": "leader-of ch17",
-      "key": "character_dunn_smith|leader-of ch17|faction_nighthawks",
+      "label": "leader-of novel ch19 confirmed",
+      "key": "character_dunn_smith|leader-of novel ch19 confirmed|faction_nighthawks",
       "endpointKey": "character_dunn_smith|faction_nighthawks"
     },
     {
       "source": "character_dunn_smith",
       "target": "faction_church_of_evernight",
-      "label": "member-of ch13",
-      "key": "character_dunn_smith|member-of ch13|faction_church_of_evernight",
+      "label": "member-of novel ch19 confirmed",
+      "key": "character_dunn_smith|member-of novel ch19 confirmed|faction_church_of_evernight",
       "endpointKey": "character_dunn_smith|faction_church_of_evernight"
     },
     {
       "source": "character_dunn_smith",
       "target": "pathway_sleepless",
-      "label": "pathway-status ch22",
-      "key": "character_dunn_smith|pathway-status ch22|pathway_sleepless",
+      "label": "pathway-status novel ch22 strong-evidence -> ch45 confirmed",
+      "key": "character_dunn_smith|pathway-status novel ch22 strong-evidence -> ch45 confirmed|pathway_sleepless",
       "endpointKey": "character_dunn_smith|pathway_sleepless"
-    },
-    {
-      "source": "character_dunn_smith",
-      "target": "concept_beyonders",
-      "label": "source-of-information ch18",
-      "key": "character_dunn_smith|source-of-information ch18|concept_beyonders",
-      "endpointKey": "character_dunn_smith|concept_beyonders"
     },
     {
       "source": "character_dunn_smith",
@@ -131,16 +124,23 @@
     },
     {
       "source": "character_dunn_smith",
+      "target": "concept_beyonders",
+      "label": "source-of-information novel ch17 confirmed",
+      "key": "character_dunn_smith|source-of-information novel ch17 confirmed|concept_beyonders",
+      "endpointKey": "character_dunn_smith|concept_beyonders"
+    },
+    {
+      "source": "character_dunn_smith",
       "target": "character_klein_moretti",
-      "label": "superior ch17",
-      "key": "character_dunn_smith|superior ch17|character_klein_moretti",
+      "label": "superior novel ch14 confirmed",
+      "key": "character_dunn_smith|superior novel ch14 confirmed|character_klein_moretti",
       "endpointKey": "character_dunn_smith|character_klein_moretti"
     },
     {
       "source": "character_dunn_smith",
       "target": "location_blackthorn_security_company",
-      "label": "works-at ch17",
-      "key": "character_dunn_smith|works-at ch17|location_blackthorn_security_company",
+      "label": "works-at novel ch19 confirmed",
+      "key": "character_dunn_smith|works-at novel ch19 confirmed|location_blackthorn_security_company",
       "endpointKey": "character_dunn_smith|location_blackthorn_security_company"
     },
     {
@@ -201,20 +201,6 @@
     },
     {
       "source": "character_klein_moretti",
-      "target": "character_old_neil",
-      "label": "student ch32",
-      "key": "character_klein_moretti|student ch32|character_old_neil",
-      "endpointKey": "character_klein_moretti|character_old_neil"
-    },
-    {
-      "source": "character_klein_moretti",
-      "target": "character_dunn_smith",
-      "label": "subordinate ch17",
-      "key": "character_klein_moretti|subordinate ch17|character_dunn_smith",
-      "endpointKey": "character_klein_moretti|character_dunn_smith"
-    },
-    {
-      "source": "character_klein_moretti",
       "target": "location_saint_selena_cathedral",
       "label": "uses-as-operational-refuge ch25 completed",
       "key": "character_klein_moretti|uses-as-operational-refuge ch25 completed|location_saint_selena_cathedral",
@@ -244,22 +230,22 @@
     {
       "source": "character_old_neil",
       "target": "faction_church_of_evernight",
-      "label": "civilian-staff-of ch19",
-      "key": "character_old_neil|civilian-staff-of ch19|faction_church_of_evernight",
+      "label": "civilian-staff-of novel ch19 confirmed",
+      "key": "character_old_neil|civilian-staff-of novel ch19 confirmed|faction_church_of_evernight",
       "endpointKey": "character_old_neil|faction_church_of_evernight"
     },
     {
       "source": "character_old_neil",
       "target": "event_klein_becomes_a_seer",
-      "label": "event-participant ch31",
-      "key": "character_old_neil|event-participant ch31|event_klein_becomes_a_seer",
+      "label": "event-participant novel ch31 confirmed",
+      "key": "character_old_neil|event-participant novel ch31 confirmed|event_klein_becomes_a_seer",
       "endpointKey": "character_old_neil|event_klein_becomes_a_seer"
     },
     {
       "source": "character_old_neil",
       "target": "concept_beyonders",
-      "label": "instance-of ch22",
-      "key": "character_old_neil|instance-of ch22|concept_beyonders",
+      "label": "instance-of novel ch22 confirmed",
+      "key": "character_old_neil|instance-of novel ch22 confirmed|concept_beyonders",
       "endpointKey": "character_old_neil|concept_beyonders"
     },
     {
@@ -272,15 +258,15 @@
     {
       "source": "character_old_neil",
       "target": "character_klein_moretti",
-      "label": "mentor ch32",
-      "key": "character_old_neil|mentor ch32|character_klein_moretti",
+      "label": "mentor novel ch32 confirmed",
+      "key": "character_old_neil|mentor novel ch32 confirmed|character_klein_moretti",
       "endpointKey": "character_old_neil|character_klein_moretti"
     },
     {
       "source": "character_old_neil",
       "target": "pathway_mystery_pryer",
-      "label": "pathway-status ch22",
-      "key": "character_old_neil|pathway-status ch22|pathway_mystery_pryer",
+      "label": "pathway-status novel ch22 confirmed",
+      "key": "character_old_neil|pathway-status novel ch22 confirmed|pathway_mystery_pryer",
       "endpointKey": "character_old_neil|pathway_mystery_pryer"
     },
     {
@@ -292,13 +278,6 @@
     },
     {
       "source": "character_old_neil",
-      "target": "concept_beyonders",
-      "label": "trains-in ch32",
-      "key": "character_old_neil|trains-in ch32|concept_beyonders",
-      "endpointKey": "character_old_neil|concept_beyonders"
-    },
-    {
-      "source": "character_old_neil",
       "target": "concept_divination",
       "label": "trains-in ch32",
       "key": "character_old_neil|trains-in ch32|concept_divination",
@@ -306,9 +285,16 @@
     },
     {
       "source": "character_old_neil",
+      "target": "concept_beyonders",
+      "label": "trains-in novel ch32 confirmed",
+      "key": "character_old_neil|trains-in novel ch32 confirmed|concept_beyonders",
+      "endpointKey": "character_old_neil|concept_beyonders"
+    },
+    {
+      "source": "character_old_neil",
       "target": "location_blackthorn_security_company",
-      "label": "works-at ch19",
-      "key": "character_old_neil|works-at ch19|location_blackthorn_security_company",
+      "label": "works-at novel ch19 confirmed",
+      "key": "character_old_neil|works-at novel ch19 confirmed|location_blackthorn_security_company",
       "endpointKey": "character_old_neil|location_blackthorn_security_company"
     },
     {
@@ -648,44 +634,37 @@
         {
           "source": "character_dunn_smith",
           "target": "event_klein_becomes_a_seer",
-          "label": "event-participant ch28 completed",
-          "key": "character_dunn_smith|event-participant ch28 completed|event_klein_becomes_a_seer",
+          "label": "event-participant novel ch31 confirmed",
+          "key": "character_dunn_smith|event-participant novel ch31 confirmed|event_klein_becomes_a_seer",
           "endpointKey": "character_dunn_smith|event_klein_becomes_a_seer"
         },
         {
           "source": "character_dunn_smith",
           "target": "artifact_antigonus_notebook",
-          "label": "investigates ch13",
-          "key": "character_dunn_smith|investigates ch13|artifact_antigonus_notebook",
+          "label": "investigates novel ch13 confirmed",
+          "key": "character_dunn_smith|investigates novel ch13 confirmed|artifact_antigonus_notebook",
           "endpointKey": "character_dunn_smith|artifact_antigonus_notebook"
         },
         {
           "source": "character_dunn_smith",
           "target": "faction_nighthawks",
-          "label": "leader-of ch17",
-          "key": "character_dunn_smith|leader-of ch17|faction_nighthawks",
+          "label": "leader-of novel ch19 confirmed",
+          "key": "character_dunn_smith|leader-of novel ch19 confirmed|faction_nighthawks",
           "endpointKey": "character_dunn_smith|faction_nighthawks"
         },
         {
           "source": "character_dunn_smith",
           "target": "faction_church_of_evernight",
-          "label": "member-of ch13",
-          "key": "character_dunn_smith|member-of ch13|faction_church_of_evernight",
+          "label": "member-of novel ch19 confirmed",
+          "key": "character_dunn_smith|member-of novel ch19 confirmed|faction_church_of_evernight",
           "endpointKey": "character_dunn_smith|faction_church_of_evernight"
         },
         {
           "source": "character_dunn_smith",
           "target": "pathway_sleepless",
-          "label": "pathway-status ch22",
-          "key": "character_dunn_smith|pathway-status ch22|pathway_sleepless",
+          "label": "pathway-status novel ch22 strong-evidence -> ch45 confirmed",
+          "key": "character_dunn_smith|pathway-status novel ch22 strong-evidence -> ch45 confirmed|pathway_sleepless",
           "endpointKey": "character_dunn_smith|pathway_sleepless"
-        },
-        {
-          "source": "character_dunn_smith",
-          "target": "concept_beyonders",
-          "label": "source-of-information ch18",
-          "key": "character_dunn_smith|source-of-information ch18|concept_beyonders",
-          "endpointKey": "character_dunn_smith|concept_beyonders"
         },
         {
           "source": "character_dunn_smith",
@@ -696,16 +675,23 @@
         },
         {
           "source": "character_dunn_smith",
+          "target": "concept_beyonders",
+          "label": "source-of-information novel ch17 confirmed",
+          "key": "character_dunn_smith|source-of-information novel ch17 confirmed|concept_beyonders",
+          "endpointKey": "character_dunn_smith|concept_beyonders"
+        },
+        {
+          "source": "character_dunn_smith",
           "target": "character_klein_moretti",
-          "label": "superior ch17",
-          "key": "character_dunn_smith|superior ch17|character_klein_moretti",
+          "label": "superior novel ch14 confirmed",
+          "key": "character_dunn_smith|superior novel ch14 confirmed|character_klein_moretti",
           "endpointKey": "character_dunn_smith|character_klein_moretti"
         },
         {
           "source": "character_dunn_smith",
           "target": "location_blackthorn_security_company",
-          "label": "works-at ch17",
-          "key": "character_dunn_smith|works-at ch17|location_blackthorn_security_company",
+          "label": "works-at novel ch19 confirmed",
+          "key": "character_dunn_smith|works-at novel ch19 confirmed|location_blackthorn_security_company",
           "endpointKey": "character_dunn_smith|location_blackthorn_security_company"
         },
         {
@@ -766,20 +752,6 @@
         },
         {
           "source": "character_klein_moretti",
-          "target": "character_old_neil",
-          "label": "student ch32",
-          "key": "character_klein_moretti|student ch32|character_old_neil",
-          "endpointKey": "character_klein_moretti|character_old_neil"
-        },
-        {
-          "source": "character_klein_moretti",
-          "target": "character_dunn_smith",
-          "label": "subordinate ch17",
-          "key": "character_klein_moretti|subordinate ch17|character_dunn_smith",
-          "endpointKey": "character_klein_moretti|character_dunn_smith"
-        },
-        {
-          "source": "character_klein_moretti",
           "target": "location_saint_selena_cathedral",
           "label": "uses-as-operational-refuge ch25 completed",
           "key": "character_klein_moretti|uses-as-operational-refuge ch25 completed|location_saint_selena_cathedral",
@@ -809,22 +781,22 @@
         {
           "source": "character_old_neil",
           "target": "faction_church_of_evernight",
-          "label": "civilian-staff-of ch19",
-          "key": "character_old_neil|civilian-staff-of ch19|faction_church_of_evernight",
+          "label": "civilian-staff-of novel ch19 confirmed",
+          "key": "character_old_neil|civilian-staff-of novel ch19 confirmed|faction_church_of_evernight",
           "endpointKey": "character_old_neil|faction_church_of_evernight"
         },
         {
           "source": "character_old_neil",
           "target": "event_klein_becomes_a_seer",
-          "label": "event-participant ch31",
-          "key": "character_old_neil|event-participant ch31|event_klein_becomes_a_seer",
+          "label": "event-participant novel ch31 confirmed",
+          "key": "character_old_neil|event-participant novel ch31 confirmed|event_klein_becomes_a_seer",
           "endpointKey": "character_old_neil|event_klein_becomes_a_seer"
         },
         {
           "source": "character_old_neil",
           "target": "concept_beyonders",
-          "label": "instance-of ch22",
-          "key": "character_old_neil|instance-of ch22|concept_beyonders",
+          "label": "instance-of novel ch22 confirmed",
+          "key": "character_old_neil|instance-of novel ch22 confirmed|concept_beyonders",
           "endpointKey": "character_old_neil|concept_beyonders"
         },
         {
@@ -837,15 +809,15 @@
         {
           "source": "character_old_neil",
           "target": "character_klein_moretti",
-          "label": "mentor ch32",
-          "key": "character_old_neil|mentor ch32|character_klein_moretti",
+          "label": "mentor novel ch32 confirmed",
+          "key": "character_old_neil|mentor novel ch32 confirmed|character_klein_moretti",
           "endpointKey": "character_old_neil|character_klein_moretti"
         },
         {
           "source": "character_old_neil",
           "target": "pathway_mystery_pryer",
-          "label": "pathway-status ch22",
-          "key": "character_old_neil|pathway-status ch22|pathway_mystery_pryer",
+          "label": "pathway-status novel ch22 confirmed",
+          "key": "character_old_neil|pathway-status novel ch22 confirmed|pathway_mystery_pryer",
           "endpointKey": "character_old_neil|pathway_mystery_pryer"
         },
         {
@@ -857,13 +829,6 @@
         },
         {
           "source": "character_old_neil",
-          "target": "concept_beyonders",
-          "label": "trains-in ch32",
-          "key": "character_old_neil|trains-in ch32|concept_beyonders",
-          "endpointKey": "character_old_neil|concept_beyonders"
-        },
-        {
-          "source": "character_old_neil",
           "target": "concept_divination",
           "label": "trains-in ch32",
           "key": "character_old_neil|trains-in ch32|concept_divination",
@@ -871,9 +836,16 @@
         },
         {
           "source": "character_old_neil",
+          "target": "concept_beyonders",
+          "label": "trains-in novel ch32 confirmed",
+          "key": "character_old_neil|trains-in novel ch32 confirmed|concept_beyonders",
+          "endpointKey": "character_old_neil|concept_beyonders"
+        },
+        {
+          "source": "character_old_neil",
           "target": "location_blackthorn_security_company",
-          "label": "works-at ch19",
-          "key": "character_old_neil|works-at ch19|location_blackthorn_security_company",
+          "label": "works-at novel ch19 confirmed",
+          "key": "character_old_neil|works-at novel ch19 confirmed|location_blackthorn_security_company",
           "endpointKey": "character_old_neil|location_blackthorn_security_company"
         },
         {
@@ -1210,43 +1182,43 @@
         {
           "source": "character_dunn_smith",
           "target": "event_klein_becomes_a_seer",
-          "label": "event-participant completed",
-          "key": "character_dunn_smith|event-participant completed|event_klein_becomes_a_seer",
+          "label": "event-participant confirmed",
+          "key": "character_dunn_smith|event-participant confirmed|event_klein_becomes_a_seer",
           "endpointKey": "character_dunn_smith|event_klein_becomes_a_seer"
         },
         {
           "source": "character_dunn_smith",
           "target": "artifact_antigonus_notebook",
-          "label": "investigates",
-          "key": "character_dunn_smith|investigates|artifact_antigonus_notebook",
+          "label": "investigates confirmed",
+          "key": "character_dunn_smith|investigates confirmed|artifact_antigonus_notebook",
           "endpointKey": "character_dunn_smith|artifact_antigonus_notebook"
         },
         {
           "source": "character_dunn_smith",
           "target": "faction_nighthawks",
-          "label": "leader-of",
-          "key": "character_dunn_smith|leader-of|faction_nighthawks",
+          "label": "leader-of confirmed",
+          "key": "character_dunn_smith|leader-of confirmed|faction_nighthawks",
           "endpointKey": "character_dunn_smith|faction_nighthawks"
         },
         {
           "source": "character_dunn_smith",
           "target": "faction_church_of_evernight",
-          "label": "member-of",
-          "key": "character_dunn_smith|member-of|faction_church_of_evernight",
+          "label": "member-of confirmed",
+          "key": "character_dunn_smith|member-of confirmed|faction_church_of_evernight",
           "endpointKey": "character_dunn_smith|faction_church_of_evernight"
         },
         {
           "source": "character_dunn_smith",
           "target": "pathway_sleepless",
-          "label": "pathway-status",
-          "key": "character_dunn_smith|pathway-status|pathway_sleepless",
+          "label": "pathway-status strong-evidence -> confirmed",
+          "key": "character_dunn_smith|pathway-status strong-evidence -> confirmed|pathway_sleepless",
           "endpointKey": "character_dunn_smith|pathway_sleepless"
         },
         {
           "source": "character_dunn_smith",
           "target": "concept_beyonders",
-          "label": "source-of-information",
-          "key": "character_dunn_smith|source-of-information|concept_beyonders",
+          "label": "source-of-information confirmed",
+          "key": "character_dunn_smith|source-of-information confirmed|concept_beyonders",
           "endpointKey": "character_dunn_smith|concept_beyonders"
         },
         {
@@ -1259,15 +1231,15 @@
         {
           "source": "character_dunn_smith",
           "target": "character_klein_moretti",
-          "label": "superior",
-          "key": "character_dunn_smith|superior|character_klein_moretti",
+          "label": "superior confirmed",
+          "key": "character_dunn_smith|superior confirmed|character_klein_moretti",
           "endpointKey": "character_dunn_smith|character_klein_moretti"
         },
         {
           "source": "character_dunn_smith",
           "target": "location_blackthorn_security_company",
-          "label": "works-at",
-          "key": "character_dunn_smith|works-at|location_blackthorn_security_company",
+          "label": "works-at confirmed",
+          "key": "character_dunn_smith|works-at confirmed|location_blackthorn_security_company",
           "endpointKey": "character_dunn_smith|location_blackthorn_security_company"
         },
         {
@@ -1328,20 +1300,6 @@
         },
         {
           "source": "character_klein_moretti",
-          "target": "character_old_neil",
-          "label": "student",
-          "key": "character_klein_moretti|student|character_old_neil",
-          "endpointKey": "character_klein_moretti|character_old_neil"
-        },
-        {
-          "source": "character_klein_moretti",
-          "target": "character_dunn_smith",
-          "label": "subordinate",
-          "key": "character_klein_moretti|subordinate|character_dunn_smith",
-          "endpointKey": "character_klein_moretti|character_dunn_smith"
-        },
-        {
-          "source": "character_klein_moretti",
           "target": "location_saint_selena_cathedral",
           "label": "uses-as-operational-refuge completed",
           "key": "character_klein_moretti|uses-as-operational-refuge completed|location_saint_selena_cathedral",
@@ -1371,22 +1329,22 @@
         {
           "source": "character_old_neil",
           "target": "faction_church_of_evernight",
-          "label": "civilian-staff-of",
-          "key": "character_old_neil|civilian-staff-of|faction_church_of_evernight",
+          "label": "civilian-staff-of confirmed",
+          "key": "character_old_neil|civilian-staff-of confirmed|faction_church_of_evernight",
           "endpointKey": "character_old_neil|faction_church_of_evernight"
         },
         {
           "source": "character_old_neil",
           "target": "event_klein_becomes_a_seer",
-          "label": "event-participant",
-          "key": "character_old_neil|event-participant|event_klein_becomes_a_seer",
+          "label": "event-participant confirmed",
+          "key": "character_old_neil|event-participant confirmed|event_klein_becomes_a_seer",
           "endpointKey": "character_old_neil|event_klein_becomes_a_seer"
         },
         {
           "source": "character_old_neil",
           "target": "concept_beyonders",
-          "label": "instance-of",
-          "key": "character_old_neil|instance-of|concept_beyonders",
+          "label": "instance-of confirmed",
+          "key": "character_old_neil|instance-of confirmed|concept_beyonders",
           "endpointKey": "character_old_neil|concept_beyonders"
         },
         {
@@ -1399,22 +1357,22 @@
         {
           "source": "character_old_neil",
           "target": "character_klein_moretti",
-          "label": "mentor",
-          "key": "character_old_neil|mentor|character_klein_moretti",
+          "label": "mentor confirmed",
+          "key": "character_old_neil|mentor confirmed|character_klein_moretti",
           "endpointKey": "character_old_neil|character_klein_moretti"
         },
         {
           "source": "character_old_neil",
           "target": "pathway_mystery_pryer",
-          "label": "pathway-status",
-          "key": "character_old_neil|pathway-status|pathway_mystery_pryer",
+          "label": "pathway-status confirmed",
+          "key": "character_old_neil|pathway-status confirmed|pathway_mystery_pryer",
           "endpointKey": "character_old_neil|pathway_mystery_pryer"
         },
         {
           "source": "character_old_neil",
           "target": "concept_beyonders",
-          "label": "trains-in",
-          "key": "character_old_neil|trains-in|concept_beyonders",
+          "label": "trains-in confirmed",
+          "key": "character_old_neil|trains-in confirmed|concept_beyonders",
           "endpointKey": "character_old_neil|concept_beyonders"
         },
         {
@@ -1434,8 +1392,8 @@
         {
           "source": "character_old_neil",
           "target": "location_blackthorn_security_company",
-          "label": "works-at",
-          "key": "character_old_neil|works-at|location_blackthorn_security_company",
+          "label": "works-at confirmed",
+          "key": "character_old_neil|works-at confirmed|location_blackthorn_security_company",
           "endpointKey": "character_old_neil|location_blackthorn_security_company"
         },
         {
@@ -1702,7 +1660,7 @@
     "character-frye.md",
     "character-ince-zangwill.md (artwork backed)",
     "character-kenley-white.md",
-    "character-klein-moretti.md (artwork backed, 10 images)",
+    "character-klein-moretti.md (artwork backed, 17 images)",
     "character-leonard-mitchell.md (artwork backed)",
     "character-mrs-orianna.md",
     "character-ray-bieber.md",
@@ -1712,6 +1670,7 @@
     "character-seeka-tron.md",
     "faction-nighthawks.md",
     "faction-secret-order.md",
+    "faction-tarot-club.md (artwork backed; notes: [preliminary planning](../Investigations/Factions/faction-tarot-club/preliminary-planning-investigation.md))",
     "pathway-corpse-collector.md",
     "pathway-criminal.md (artwork backed; notes: [preliminary planning](../Investigations/Pathways/pathway-criminal/preliminary-planning-investigation.md))",
     "pathway-mystery-pryer.md (artwork backed)",

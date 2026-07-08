@@ -38,41 +38,86 @@ The objective is to reconstruct:
 
 # Project File Structure
 
-The project uses the following files:
+The project uses the following files and folders:
 
 ```text
-Source/
-├── README.md
-└── Lord of Mysteries - Book 1.epub
-
 Boards/
-├── 01_LoTM_Main_Reread_Board.md
-└── 02_LoTM_Ancient_History_Family_Board.md
+  01_LoTM_Main_Reread_Board.md
+  02_LoTM_Ancient_History_Family_Board.md
+
+Volumes/
+  TEMPLATE.md
+  volume-01-clown.md
+  planned volume summary pages
 
 Investigations/
-├── TEMPLATE.md
-├── Artifacts/
-│   └── artifact-[name]/
-├── Characters/
-├── Factions/
-├── Concepts/
-└── Project/
+  TEMPLATE.md
+  Artifacts/
+  Characters/
+  Concepts/
+  Events/
+  Factions/
+  Items/
+  Knowledge_Sources/
+  Locations/
+  Pathways/
+  Project/
+  type-specific source verification records, split by subject and medium
 
 Glossary_Threads/
-├── TEMPLATE.md
-├── Artifacts/
-├── Characters/
-├── Deities/
-├── Uniquenesses/
-├── Families/
-├── Factions/
-├── Locations/
-├── Concepts/
-├── Events/
-├── Pathways/
-├── Epochs/
-├── Mysteries/
-└── Timelines/
+  TEMPLATE.md
+  Artifacts/
+  Characters/
+  Concepts/
+  Deities/
+  Epochs/
+  Events/
+  Factions/
+  Families/
+  Items/
+  Knowledge_Sources/
+  Locations/
+  Mysteries/
+  Pathways/
+  Timelines/
+  Uniquenesses/
+  recurring subject records and embedded spoiler-aware knowledge units
+
+Visualization/
+  README.md
+  graph-authoring-standard.md
+  config/
+  data/
+  graphs/
+  rendered/
+  generated graph artifacts, render settings, and provisional graph schema notes
+
+Tools/
+  README.md
+  Python-preferred helper scripts
+  documented PowerShell fallbacks
+
+Artwork/
+  README.md
+  official-epub-image-map.md
+  page-assets/
+  tracked page-ready artwork plus ignored local source-artwork workspace
+
+Source/
+  README.md
+  local EPUB, Donghua subtitles, and future source materials (Git ignored)
+
+Testing/
+  local scratch outputs and temporary experiments unless deliberately promoted
+
+Obsidian_Export/
+  local generated Obsidian QA mirror and repo graph dry-run bundle (Git ignored)
+
+.obsidian/
+  local Obsidian vault settings (Git ignored)
+
+.tmp/
+  local scratch workspace (Git ignored)
 
 INDEX.md
 CURRENT_STATE.md
@@ -82,9 +127,11 @@ README-AI-Agent-Specification.md
 MAINTAINER_CONTEXT.md
 ASSISTANT_CONTEXT.md (deprecated redirect)
 README.md
+LICENSE
+NOTICE.md
 ```
 
-These files are the project's working memory.
+These files and folders are the project's working memory.
 
 When conclusions are reached:
 
@@ -118,6 +165,31 @@ When official artwork uses a classic or alternate pathway name that differs from
 
 For Volume 1 progress percentages, use the current verified chapter boundary divided by 213 total chapters. Treat the percentage as a chapter-boundary indicator, not a guarantee of article quality, cross-link completeness, or adaptation completeness.
 
+### Novel Chapter Notation And Volume Ranges
+
+Novel chapter labels must preserve both the absolute chapter number and the containing volume when the volume is known. Use the compact visible form `Novel V# Ch#` in tables, metadata, graph labels, first-reveal fields, evidence indexes, and concise prose references. Use fuller prose only when readability needs it, such as `Novel Volume 5, Chapter 951`; do not use bare `Novel Ch951` once the volume can be determined.
+
+The canonical Lord of the Mysteries Book 1 volume ranges are derived from the local source EPUB by reading each `OEBPS/Text/volume_N_...` chapter file and its internal `Chapter X` heading:
+
+| Volume | Title | Absolute chapter range | Chapter count |
+|---|---|---:|---:|
+| V1 | Clown | 1-213 | 213 |
+| V2 | Faceless | 214-482 | 269 |
+| V3 | Traveler | 483-732 | 250 |
+| V4 | Undying | 733-946 | 214 |
+| V5 | Red Priest | 947-1150 | 204 |
+| V6 | Lightseeker | 1151-1266 | 116 |
+| V7 | The Hanged Man | 1267-1353 | 87 |
+| V8 | Fool | 1354-1394 | 41 |
+
+Structured data should store both `volume` and absolute `chapter` when possible:
+
+```yaml
+from: { book: lotm-1, volume: 5, chapter: 951 }
+```
+
+If a chapter is known but the volume field is missing on an older row, add the volume from this registry during the next page normalization pass. Use `volume: TBD` only when the absolute chapter is unknown or the source cannot yet be reconciled to this registry.
+
 When a thread spans more than one medium, track novel and adaptation progress separately where practical. Do not let one medium's progress silently advance another.
 
 Do not create all pending threads just because they appear in `CURRENT_STATE.md`. Pending items are a backlog, not an instruction to scaffold every file.
@@ -128,9 +200,14 @@ Use each project artifact for a distinct purpose:
 
 - `Boards`: Analyst-facing volume-level state, major themes, broad conclusions, current research direction, and links to detailed records.
 - `Volumes`: Reader-facing end-of-volume dashboards, official volume artwork homes, summary-level developments, and links to glossary/investigation evidence.
-- `Glossary_Threads`: Subject-specific information, complete reveal timelines, reader-state filtering data, and adaptation comparisons.
+- `Glossary_Threads`: Subject-specific information, durable disclosure history, structured reader-state filtering data, and adaptation comparisons.
 - `Investigations`: Evidence, verification history, and supported conclusions for questions that required consulting the EPUB.
 - `Visualization`: Generated visualization artifacts, such as Mermaid graphs, rendered graph images, and future graph data exports.
+- `Tools`: Repeatable local maintenance, source-search, artwork, visualization, Obsidian export, and cleanup helpers. Prefer Python helpers when Python is available and repository Python requirements from `requirements-python.txt` are installed; use documented PowerShell fallbacks when Python is unavailable. Use `Tools/Test-Python.ps1` and `Tools/Test-PowerShell.ps1` as read-only environment probes for unfamiliar machines or fresh agent sessions, then retain the results as session state instead of rerunning them before every command. Some PowerShell fallback features have module requirements tracked in `requirements-powershell.txt`.
+- `Artwork`: Tracked official artwork metadata and selected page-ready assets. Bulk extraction, intermediate crops, and source-derived staging stay local-only.
+- `Source`: Local canonical source materials such as the EPUB and Donghua subtitles. Copyrighted source files stay ignored by Git.
+- `Testing`: Local scratch outputs and temporary experiments. Promote durable outputs into the appropriate canonical folder only after maintainer confirmation.
+- `Obsidian_Export`: Ignored local QA mirror generated from repository records for Obsidian graph inspection, anomaly detection, relationship review, and no-render repository graph refresh checks.
 
 Do not duplicate granular reveal chronology across boards, volume pages, and glossary threads. Keep the filterable detail in the glossary thread and summarize only the durable volume-level meaning on the appropriate board or volume page.
 
@@ -139,6 +216,31 @@ Boards are analyst-facing overview documents, not the canonical source for autom
 Volume summary pages are reader-facing overview documents for completed volume boundaries. They may include official volume cover/opening art, end-of-volume art, and volume gallery title pages. Subject-specific character, location, pathway, artifact, deity, faction, event, or concept artwork should still map primarily to the corresponding subject page when that page exists.
 
 Planned-but-uncreated volume summary pages should be listed in `INDEX.md` as planned paths and tracked in `CURRENT_STATE.md` under `Planned Volume Summary Pages`. The artwork map may point volume-level artwork at those planned targets before the page exists, but those planned references should remain visibly marked as planned.
+
+## Documentation Ownership
+
+Keep `PROJECT_RULES.md` focused on durable project policy: source of truth, spoiler boundaries, glossary modeling, relationship taxonomy, data-layer responsibilities, and maintenance gates.
+
+Use specialized docs for operational detail:
+
+- `Tools/README.md`: exact helper commands, Python and PowerShell dependency setup, Python/PowerShell fallbacks, EPUB search, Obsidian QA export, artwork extraction, and cleanup behavior.
+- `Visualization/README.md`: current generated graph artifacts, refresh tracker, configured graph views, and visualization workflow entry points.
+- `Visualization/graph-authoring-standard.md`: graph intent, graph-local evidence, source expansion, coverage workflow, graph projection, layout semantics, and graph output reporting.
+- `Visualization/rendering.md`: render commands, validation modes, render sizing, class/layout validation, and render troubleshooting.
+- `Visualization/data/graph-schema.md`: provisional generated graph data fields and presentation-node schema.
+
+When a rule appears in more than one place, keep the policy statement here and put the commands, examples, and troubleshooting details in the narrower document.
+
+## Evidence Mode And Search-Term Discipline
+
+Before gathering evidence, building a pilot page, refreshing QA outputs, or creating a graph, classify the work by evidence mode and keep search terms inside that mode.
+
+- **Repo-only existing-data pass**: Use only repository files and user-provided wording. Initial searches may use the requested subject name, existing repo slugs, exact aliases already visible in repo files, and neutral structural terms such as `Related Threads`, `Relationship Seeds`, `artwork backed`, or a known page type. Derive second-pass terms only from repository hits. Do not seed searches with pretrained knowledge, model memory, fan knowledge, or outside-known future spoilers.
+- **Build-pilot-from-existing-data pass**: Treat this as repo-only unless the maintainer explicitly asks for a new source investigation. Use existing glossary pages, investigations, boards, current-state records, artwork metadata, and generated QA reports as candidate inventories, then label which layer each fact came from. Do not use EPUB, Donghua source files, web sources, or memory-known terms merely to make the pilot feel complete.
+- **Investigation/source-verification pass**: Source expansion into the local EPUB or subtitle files is allowed inside the requested boundary. Search-term provenance still matters: seed terms should come from user wording, repository records, neutral structural terms, or terms discovered in source hits. If a term comes from outside knowledge, switch to Hybrid/Research mode only after explicit maintainer opt-in and label it as outside-derived until verified.
+- **Graph or Obsidian QA pass**: Generated views may read canonical project records and allowed source evidence for the requested mode, but they must not silently canonicalize graph-local findings. Report candidate project-data updates separately.
+
+For every nontrivial gathering pass, be able to explain why each search term was allowed. If a term is known from memory but not surfaced by the repository, user wording, neutral structure, or allowed source hits, do not search for it or mention it as repo-backed.
 
 ## Artwork Asset Safety
 
@@ -158,12 +260,13 @@ By default, embedded page images should be clickable links to their own full-siz
 
 # Visualization
 
-Visualization files are generated outputs.
+Visualization files are generated outputs. `Obsidian_Export/` is also a generated output, but it is a local-only QA mirror rather than a GitHub-visible visualization artifact.
 
 The graph source of truth remains:
 
 - Glossary thread metadata
 - Embedded Reader Knowledge Ledger sections in glossary threads
+- Type-specific data blocks and their row-level `availability` entries
 - Relationship Seeds
 - Controlled relationship taxonomy in this file
 
@@ -174,21 +277,38 @@ Generated visualization outputs may include:
 - JSON graph data
 - Future frontend graph views
 
-Do not treat generated graph files as canonical project knowledge.
+Generated Obsidian QA outputs may include:
 
-Do not manually edit generated graph outputs except for debugging or temporary inspection. Fix durable graph problems by updating the relevant glossary thread, investigation record, Relationship Seed, or controlled taxonomy, then regenerate the graph.
+- Obsidian-friendly mirror notes
+- relationship and data-reference indexes
+- local-only QA Mermaid `.mmd` files
+- a `_Generated/repo-refresh-check/` dry run of configured repository graph views, including generated Mermaid sources, a refresh report, a semantic snapshot, and generated check settings
+- optional `_Generated/bounded-pages/` QA Markdown projections for requested reader/viewer boundaries
+- orphan, suspicious-edge, duplicate-edge, and unknown-target reports
 
-For durable canonical graph corrections, if a graph exposes missing or incorrect data:
+Do not treat generated graph files, generated Obsidian mirror notes, or generated QA reports as canonical project knowledge.
+
+Do not manually edit generated graph outputs or generated Obsidian export files except for debugging or temporary inspection. Fix durable graph problems by updating the relevant glossary thread, investigation record, Relationship Seed, data block, or controlled taxonomy, then regenerate the output.
+
+For durable canonical graph or Obsidian QA corrections, if a generated view exposes missing or incorrect data:
 
 1. Fix the glossary or investigation record.
-2. Update Relationship Seeds when the relationship model changes.
-3. Regenerate the graph output.
+2. Update Relationship Seeds or structured data blocks when the relationship or extracted-data model changes.
+3. Regenerate the relevant output.
 
-For graph-only maintainer work, do not silently update glossary threads, investigations, boards, current state, index, or Relationship Seeds while producing the graph. Graph generation may read project records and allowed local sources, include clearly marked graph-local evidence, and report candidate project-data updates. Ask for maintainer confirmation before editing canonical project records.
+For graph-only maintainer work or Obsidian QA export work, do not silently update glossary threads, investigations, boards, current state, index, Relationship Seeds, or data blocks while producing the generated view. Graph generation may read project records and allowed local sources, include clearly marked graph-local evidence, and report candidate project-data updates. Ask for maintainer confirmation before editing canonical project records.
+
+The Obsidian QA export's `_Generated/repo-refresh-check/` bundle is a local dry run of the configured repository visualization refresh. It is generated inside ignored `Obsidian_Export/`, runs with rendering disabled, and must not be mistaken for updating canonical files under `Visualization/graphs/`, `Visualization/rendered/`, `Visualization/data/refresh-snapshot.json`, or `Visualization/README.md`.
+
+When requested with bounded graph flags, the Obsidian QA export may also create `_Generated/bounded-graphs/`. These are opt-in no-render local Mermaid previews for ad hoc reader/viewer boundaries, not canonical configured repository views.
+
+When requested with bounded page flags, the Obsidian QA export may also create `_Generated/bounded-pages/`. These are opt-in local QA projections that read structured type-specific data blocks, apply a requested reader/viewer boundary, and render provisional Markdown tables plus timeline-linked prose excerpts for inspection. They are not canonical articles, do not replace the source glossary page, and must not invent prose or facts outside the source page's structured data. If a requested boundary is before `Subject Visible From`, the bounded page should either omit the canonical page body or clearly mark the canonical page as hidden; anonymous first-appearance preview beats may be shown only when the data block explicitly models them.
+
+The optional bounded output folders are rebuilt per QA export run. If bounded graph or bounded page specs are present, the matching `_Generated/bounded-graphs/` or `_Generated/bounded-pages/` folder should be deleted and regenerated so stale sample files do not linger. If no specs are present for one of those optional bundles, the export should remove any old folder for that bundle.
 
 Use the shared [Graph Authoring Standard](Visualization/graph-authoring-standard.md) for graph construction. It defines canonical versus graph-local evidence, source expansion, pathway/sequence coverage, maintainer confirmation, and output reporting.
 
-For dense Mermaid graphs, prefer semantic relationship nodes over long edge labels. A generated relationship node may hold the relationship type, timing, status, and confidence, with simple arrows from source to relationship node to target. These relationship nodes are presentation artifacts only. They are not glossary nodes, do not create new canonical entities, and must be regenerated from Relationship Seeds.
+For dense Mermaid graphs, prefer semantic relationship nodes over long edge labels. A generated relationship node may hold the relationship type, timing, status, confidence, and provenance, with simple arrows from source to relationship node to target. These relationship nodes are presentation artifacts only. They are not glossary nodes, do not create new canonical entities, and must be regenerated from canonical glossary records such as Relationship Seeds and projected type-specific data-block rows.
 
 Use direct edge labels only when the graph remains readable. If rendered labels overlap, collide, or become hard to follow, update the visualization generator or graph projection rather than hand-editing the generated Mermaid.
 
@@ -202,6 +322,7 @@ Graph regeneration is recommended when any of these change:
 - `Relationship Seeds` are added, removed, or changed;
 - a relationship type, relationship status, relationship confidence, source node, or target node changes;
 - a node type changes, such as `concept` to `faction`;
+- a graph-relevant type-specific data-block row or row-level `availability` entry changes;
 - the controlled relationship taxonomy changes;
 - graph-relevant metadata changes, such as thread title, type, status, reader boundary, or spoiler boundary.
 
@@ -226,107 +347,9 @@ For the current repository, a normal graph refresh means updating:
 
 Fresh renders should replace the stale render files rather than accumulating duplicate dated copies unless the user asks for archived snapshots.
 
-Before graph rendering work, confirm that the expected visualization tooling is present: `Visualization/visualize.py`, `Visualization/visualize.ps1`, `Visualization/config/puppeteer-config.json`, and `Visualization/config/render-settings.json`. Prefer the Python helper when available and use the PowerShell helper as the Windows fallback. If both helpers or required config are missing, report the render path as degraded before using a fallback.
+The Obsidian QA export also emits a no-render dry run of these configured views under `Obsidian_Export/_Generated/repo-refresh-check/`. Use it for inspection before deciding whether a real graph refresh is warranted; it does not replace the confirmed canonical refresh workflow above.
 
-On unfamiliar machines or fresh agent sessions, check Python availability before choosing Python-preferred tools:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1
-```
-
-Treat the probe result as the session's Python-availability state. If Python is available, use Python-preferred tools going forward without rerunning the probe before every command. Rerun only if the environment changes, such as PATH edits, Python installation changes, a different shell, a different machine, or a failed Python launch that suggests the earlier state is stale.
-
-If the probe reports Python unavailable, use documented PowerShell fallbacks for that session. If Python is available but a Python helper fails, treat that as a helper failure rather than an automatic fallback condition.
-
-PowerShell fallback commands use `powershell` and should remain compatible with Windows PowerShell 5.1 unless a tool explicitly documents a `pwsh` / PowerShell 7 requirement.
-
-For disposable local tool caches, use the repository cleanup helper rather than ad hoc recursive deletion. Prefer the Python helper when Python is available:
-
-```powershell
-python Tools\clean_temp_files.py --delete
-```
-
-Use the PowerShell fallback only when Python is unavailable:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Clean-TempFiles.ps1 -Delete
-```
-
-The cleanup helpers are restricted to allowlisted cache directory names under the repository root, currently `__pycache__`, `.pytest_cache`, `.mypy_cache`, `.ruff_cache`, and `.tox`. They must not be expanded to remove general scratch folders, extracted artwork staging directories, or investigation outputs unless those paths are deliberately promoted into the allowlist and documented here.
-
-Use this canonical refresh command from the repository root:
-
-Preferred Python:
-
-```powershell
-python Visualization\visualize.py --mode Refresh
-```
-
-PowerShell fallback:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Refresh
-```
-
-The canonical examples above should remain the preferred documented form, but the helpers intentionally accept ergonomic aliases for common operator slips. Python mode values are case-insensitive and also accept `update`/`generate` for refresh, `manual-render`/`pure-render` for render, and `check`/`test` for validate. Python accepts `--input`, `--graph`, `--output`, `--out`, `--settings`, and `--no-render` as aliases for the longer option names. PowerShell accepts matching aliases: `-Action`, `-Input`, `-Graph`, `-Output`, `-Out`, `-Settings`, and `-NoRender`.
-
-Use validation mode when checking visualization compatibility without regenerating graph files, updating the visualization snapshot, updating the refresh tracker, or rendering images:
-
-Preferred Python:
-
-```powershell
-python Visualization\visualize.py --mode Validate
-```
-
-PowerShell fallback:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Validate
-```
-
-Use pure render mode for manually authored or temporary Mermaid files that should not trigger graph regeneration:
-
-Preferred Python:
-
-```powershell
-python Visualization\visualize.py --mode Render --input-path Visualization\graphs\example.mmd
-```
-
-PowerShell fallback:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Render -InputPath Visualization\graphs\example.mmd
-```
-
-Pure render mode may write rendered SVG or PNG outputs, but it must not regenerate Mermaid graph files from Relationship Seeds, update the visualization snapshot, or update the refresh tracker.
-
-Visualization renderers should scale viewport dimensions for large graphs using the shared render settings. Do not assume one fixed Mermaid render size works for every graph. If a large graph renders cramped, clipped, or unreadably small, adjust render-size settings or use the shared auto-size helper rather than hand-editing graph content solely to fit the canvas.
-
-Wide fan-out is a known Mermaid layout pattern. When one hub node connects to many targets or many sources converge on one target, renderers should use fan-out-aware sizing and graph authors should expect the graph to need more horizontal room. If auto-sizing alone does not make the graph readable, improve the graph projection by adding meaningful intermediate grouping nodes, relationship nodes, local reference/proxy nodes, or split views. Do not treat wide fan-out as a data error by itself.
-
-Ordered graph content should preserve order visually. When graph nodes represent a sequence, timeline, phase list, rank ladder, chapter/episode progression, investigation chain, or other ordered series, prefer child-to-child chains over direct sibling fan-out from one parent. Flat fan-out is appropriate for unordered peer sets; ordered-series fan-out should be fixed in the graph projection or generator.
-
-Dense knowledge graphs should use a connected semantic spine and styled nodes by default. Prefer ordinary styled group nodes over many Mermaid `subgraph` clusters. Use `subgraph` only for a few broad regions, intentional cluster views, or user-requested cluster boxes. Dense maps with many disconnected cluster islands should be fixed in the graph projection or generator before rendering.
-
-Content graphs should be grouped by subject semantics, not by evidence source layer, canonicalization status, validation status, or coverage status unless the graph is explicitly an evidence audit. Evidence and canonicalization status should usually appear through styling, labels, legends, note branches, or output reports.
-
-Dense graph styling should follow a visual role grammar rather than one-off decorative coloring. Use fill color to distinguish semantic roles, border style to distinguish uncertainty or boundary status, text prefixes to preserve accessible meaning, and topology to show structure. The exact palette may evolve, but role-to-style mapping should remain consistent inside a graph. This applies across graph domains, including pathway maps, artifact maps, influence maps, faction maps, event maps, location maps, and character relationship maps.
-
-Repeated entity nodes in ordered graphs must show their progression explicitly, preferably with label markers, compact badges, or advancement/state nodes. Use direct progression edges only when the edge itself is meaningful and should affect graph topology. Do not rely on layout position alone to show that two appearances of the same person, artifact, faction, or concept are sequential states.
-
-Uncertain, inferred, graph-local, or provisional nodes should keep the same local placement as confirmed nodes of the same semantic type. For example, a suspected holder is still holder-like for layout purposes; uncertainty belongs in the label and styling, not in a distant note cluster.
-
-For ladder-style graphs, keep the ordered sequence, phase, rank, or step chain as the primary spine. Attach holders, artifacts, controllers, notes, and evidence as leaves or local buckets rather than interrupting the spine.
-
-When reconciling against an older graph or user-provided reference graph, do not silently drop candidates. Include them, downgrade them, move them to a more accurate role, or report why they were excluded.
-
-Styled Mermaid graphs must pass class coverage validation before rendering. If a graph uses `classDef` or `class` statements, every declared or edge-used node should have an explicit class assignment. Fix missing classes, class references to nonexistent nodes, undefined classes, and semantic class mismatches in the Mermaid source or generator before publishing a render.
-
-Sectioned Mermaid graphs should preserve layout islands. If a node has canonical placement in one section, do not link a different summary, reconstruction, or boundary-note section directly to that same node when it will pull edges across the whole graph. Create a local reference/proxy node inside the secondary section instead, and label it as a reference to the canonical node or pathway/sequence.
-
-Avoid duplicate visible labels across different node IDs unless one of the nodes is explicitly labeled as a reference/proxy. Reference/proxy-like node IDs should also say `reference`, `proxy`, `reconstruction`, `summary`, or `see ...` in the rendered node label.
-
-Legend, coverage, validation, output-report, and explanatory nodes should live in a separate note or appendix branch so they do not distort the layout of primary content nodes.
+For exact visualization helper commands, validation modes, pure-render behavior, render sizing, and troubleshooting, use `Visualization/README.md` and `Visualization/rendering.md`. For graph-local evidence, source expansion, layout semantics, dense graph shape, visual role grammar, and output reports, use `Visualization/graph-authoring-standard.md`.
 
 Use this maintenance lifecycle for project-knowledge changes:
 
@@ -380,6 +403,8 @@ artifact-[name].md
 character-[name].md
 family-[name].md
 faction-[name].md
+item-[name].md
+source-[name].md
 location-[name].md
 concept-[name].md
 event-[name].md
@@ -401,6 +426,8 @@ character-amon.md
 family-antigonus.md
 family-medici.md
 faction-rose-school-of-thought.md
+item-copper-whistle.md
+source-roselle-diary-pages.md
 concept-gray-fog.md
 event-great-smog.md
 deity-s0-evernight-goddess.md
@@ -415,6 +442,26 @@ timeline-ian-zreal-chain.md
 ```
 
 If a thread fits multiple categories, choose the category that best matches the analytical purpose of the file.
+
+Use `item-[name].md` for named, recurring, graph-worthy possessions, tools, badges, keys, weapons, instruments, or other important objects that are not best modeled as formal supernatural artifacts or knowledge sources. Item pages are for objects that become independent relationship hubs or recurring reader-facing subjects, such as the copper whistle; ownership, custody, and source-holder details belong in the item data block rather than in the filename. Do not create item pages for ordinary disposable inventory, temporary equipment, one-scene props, or recurring texts whose main function is revealing information.
+
+Use `source-[name].md` for recurring knowledge carriers whose analytical purpose is revealing, preserving, transmitting, translating, or misdirecting information over time. Knowledge Source pages are for diary-page corpora, spellbooks, grimoires, notebooks, scriptures, case files, letters, inscriptions, formula records, murals, records, or similar sources where the important thing is the sequence of claims, quotes, access points, readers, handlers, and interpretations. Do not create a Knowledge Source page for every ordinary document mention; use one when the source is a recurring reveal hub or needs its own chronology of knowledge entries.
+
+For sources encountered as fragments, batches, pages, inscriptions, chapters, files, or excerpts, keep one page for the recurring source and track individual reveal units inside `knowledge_source_profile.knowledge_entries`. Use `source_unit_id` as the stable local identifier for the encountered unit, `source_unit_type` for values such as `diary-page`, `page-batch`, `spellbook-entry`, `inscription`, `case-file`, or `formula-record`, `batch_id` when several units arrive together, `fragment_id` for a specific fragment/page/excerpt inside that batch, and `sequence_index` for reader-order sorting inside the source page. Do not create separate glossary pages for every page or fragment unless that fragment becomes an independent named subject.
+
+Use unit-level provenance fields on `knowledge_entries` when access differs by batch or page. `provider` records who held, supplied, submitted, displayed, or mediated that specific source unit; `provider_role` describes their role; `transfer_mode` distinguishes incidental access, deliberate submission, sale, theft, loan, discovery, ritual access, or archival access; `reader` records who reads or interprets it; `reader_access_type` distinguishes intended recipient, opportunistic reading, authorized review, covert reading, or mediated interpretation; `holder_understanding` records whether the holder understands, partially understands, cannot read, misreads, or merely stores the source; `intentionality` records whether the reveal to the reader/interpreter was intended, accidental, coerced, transactional, or unknown; and `mediation` records direct reading, translation, copied text, paraphrase, summary, vision, or other access mode.
+
+Use `artifact-[name].md` for formal mystical artifacts, sealed artifacts, supernatural objects with established artifact identity, or plot-center objects whose supernatural nature is the analytical point. When uncertain, keep the object in a character, faction, location, or artifact data block with `page_worthiness: candidate` until the page type is clear.
+
+For potion, ritual, charm, ammunition, and crafted supernatural output modeling, keep these analytical roles separate even when the same story object participates in more than one role:
+
+- **Materials** are raw inputs or components, such as herbs, crystals, monster parts, blood, metals, powders, liquids, or other formula ingredients. Record them inline in pathway, ritual, item, artifact, or event data until a recurring material becomes page-worthy.
+- **Preparations** are outputs made, charged, consecrated, assembled, or activated by a formula, ritual, prayer, craft process, or supernatural method. This future page family should cover charms, ritual bullets, blessed powders, talismans, prepared ritual tools, and durable or repeatable ritual effects. A preparation may have `physical_form: item`, `physical_form: consumable-item`, or `physical_form: none`.
+- **Items** are durable named possessions, tools, or carriers with object identity and custody history. If a preparation becomes a recurring possessed object, track possession on the preparation or item record, but do not promote every made charm or expendable bullet to an Item page by default.
+- **Artifacts** are formal supernatural artifacts, Sealed Artifacts, or artifact-identity objects, not merely any supernatural object produced by a ritual.
+- **Concepts** own reusable systems and mechanics, such as prayer structures, ritual categories, summoning theory, and pathway theory.
+
+Do not create `Glossary_Threads/Materials/` or `Glossary_Threads/Preparations/` until the project needs dedicated pages and templates. Until then, pathway pages may record formula ingredients inline, concept pages may record reusable ritual mechanics, and item/artifact/source pages may point to those systems when the object or source is graph-worthy.
 
 The overall taxonomy and idea of sefirot should use the shared concept page `concept-sefirot.md`. Individual named sefirot, such as Sefirah Castle, Tenebrous World, Nation of Disorder, Knowledge Moor, City of Calamity, Key of Light, or Brood Hive, should use `location-[name].md` under `Glossary_Threads/Locations/`. This is an intentional pragmatic category choice: named sefirot behave like special places/realms for page organization even when they are not ordinary physical locations.
 
@@ -442,6 +489,8 @@ Glossary_Threads/Characters/
 Glossary_Threads/Deities/
 Glossary_Threads/Families/
 Glossary_Threads/Factions/
+Glossary_Threads/Items/
+Glossary_Threads/Knowledge_Sources/
 Glossary_Threads/Locations/
 Glossary_Threads/Concepts/
 Glossary_Threads/Events/
@@ -457,6 +506,8 @@ Retain the entity-type filename prefix inside the matching folder. For example:
 ```text
 Glossary_Threads/Characters/character-amon.md
 Glossary_Threads/Artifacts/artifact-0-08.md
+Glossary_Threads/Items/item-copper-whistle.md
+Glossary_Threads/Knowledge_Sources/source-roselle-diary-pages.md
 Glossary_Threads/Deities/deity-s0-evernight-goddess.md
 Glossary_Threads/Uniquenesses/uniqueness-die-of-probability.md
 Glossary_Threads/Mysteries/mystery-mr-door.md
@@ -514,7 +565,11 @@ Use filenames without paths for metadata references unless a full Markdown link 
 
 Glossary pages are synthesis records. They should be readable as articles while still supporting future filtering, dashboards, and relationship graphs.
 
-Use the same top-level section order as `Glossary_Threads/TEMPLATE.md` unless there is a strong reason to deviate:
+Visible prose and tables are the public GitHub-readable article layer. Type-specific data blocks are the structured future-renderer layer. Keep both in sync while the repository remains Markdown-first. Do not remove visible tables merely because the data block can represent the same facts; a later website may generate those tables from structured data, but GitHub pages should remain usable in the meantime.
+
+Structured taxonomy values are not final website prose. Use kebab-case values for stable filtering, grouping, graphing, sorting, reader-boundary logic, and dashboard logic. Use human-written fields such as `summary`, `notes`, `reader_learns`, `changes`, `remains_unknown`, `why_it_matters`, `evidence`, `claim_text`, labels, or future `site_summary` / `display_text` fields for sentences that may appear directly on public pages. Future website renderers should map reusable taxonomy values through a controlled display-label layer, fall back to readable title-casing for unlabeled values, and use prose fields for natural article voice instead of assembling full paragraphs from enum values.
+
+`Glossary_Threads/TEMPLATE.md` is the universal glossary contract and maximal shared shape, not a demand that every stub or lightweight page include every empty section. Use the same top-level section order unless a type-specific template has a strong reason to deviate:
 
 1. Metadata
 2. Purpose
@@ -528,35 +583,74 @@ Use the same top-level section order as `Glossary_Threads/TEMPLATE.md` unless th
 10. Relationship Seeds
 11. Evidence Index
 12. Reader Knowledge Ledger
-13. Future Automation Notes
-14. Notes
+13. Maintainer Notes, when needed
 
 ### Type-Specific Glossary Overlays
 
 The universal glossary template defines the shared article contract. Type-specific folders may also define overlay templates when a glossary type has recurring fields that should be easy to extract for graphs, dashboards, or reader-state filters.
 
-Use a type-specific overlay only when it adds predictable structure that the universal template cannot express cleanly. The overlay should preserve the shared metadata, relationship seeds, evidence index, reader knowledge ledger, future automation notes, and notes sections.
+Use a type-specific overlay only when it adds predictable structure that the universal template cannot express cleanly. The overlay should preserve the shared metadata, relationship seeds, evidence index, reader knowledge ledger, and optional maintainer notes. Type-specific templates decide which sections are required, optional when relevant, or omitted by default. Do not add empty sections to real pages just to satisfy a maximal template.
 
 Place human-facing type-specific sections near the top of the article after `Reader Knowledge Boundary`. Type-specific overlays may keep `First Appearance / First Meaningful Mention` immediately after the snapshot when first reveal timing is especially important to scan early. Keep machine-readable type-specific data blocks near the bottom of the article, immediately before `Relationship Seeds`, so structured extraction material stays grouped while the main page remains easy for humans to read.
+
+Maintainer Notes are optional page-local implementation notes. Do not include a Maintainer Notes block in every page by default. Add the collapsible block only when a page needs specific modeling, boundary, rendering, future split, or migration notes that do not belong in the reader-facing article flow.
 
 Current type-specific overlays:
 
 - `Glossary_Threads/Pathways/TEMPLATE.md`: pathway pages should expose `Pathway Snapshot`, `Pathway Names / Reader Display Timeline`, `Associated Tarot Card`, `Known Sequences`, `Institutional Access`, `Affiliated Factions`, `Known Holders`, and `Pathway Data Block` sections.
-- `Glossary_Threads/Characters/TEMPLATE.md`: character pages should expose `Character Snapshot`, `Names, Aliases & Titles`, `Physical Profile`, `Status, Origin & Location`, `Affiliations`, `Pathway & Ability State`, `Ability Index`, `Equipment & Artifacts`, `Personality`, `Relationships`, `Messenger / Servants / Companions`, `Prayers & Ritual Access`, `Major Events & Fights`, and `Character Data Block` sections. Include `Mythical Creature Form State` and `Uniqueness State` only when the character has relevant reader-safe material for those relationships; do not add empty placeholder sections just because the template supports them.
+- `Glossary_Threads/Characters/TEMPLATE.md`: character pages should expose `Overall Summary`, `Character Snapshot`, `Names, Aliases & Titles`, `Physical Profile`, `Status, Origin & Location`, `Affiliations`, `Pathway & Ability State`, `Ability Index`, `Equipment & Artifacts`, `Knowledge Sources & Documents`, `Personality`, `Relationships`, `Major Events & Fights`, and `Character Data Block` sections when relevant. Include specialized sections such as `Associated Tarot Card`, `Mythical Creature Form State`, `Uniqueness State`, `Messenger / Servants / Companions`, `Prayers & Ritual Access`, and `Prayer / Ritual Texts` only when the character has relevant reader-safe material for those relationships; do not add empty placeholder sections just because the template supports them.
+- `Glossary_Threads/Items/TEMPLATE.md`: item pages should expose `Item Snapshot`, `Names & Labels`, `Ownership / Custody / Access`, `Functions & Uses`, `Related Concepts / Systems`, `Appearance / Physical Description`, and `Item Data Block` sections. Use Item pages for named, recurring, graph-worthy non-artifact objects. Keep minor equipment and disposable possessions in local character, faction, location, or event data blocks without creating a page.
+- `Glossary_Threads/Knowledge_Sources/TEMPLATE.md`: knowledge source pages should expose `Source Snapshot`, `Names & Labels`, `Format / Medium`, `Authorship / Origin`, `Access / Custody / Readers`, `Knowledge Entries`, `Quote / Evidence Index`, and `Knowledge Source Data Block` sections. Use Knowledge Source pages for recurring reveal carriers whose claims, quotes, custody/access, interpretation, and reader-safe chronology need to be tracked independently.
 
 ### Character Article Overlay
 
 Character pages should include the character overlay once the page has enough verified material to support more than a stub. The overlay is required for active character pilot pages and recommended for any future character page with reader-safe identity, role, affiliation, pathway, relationship, inventory, event-participation, or ability data.
 
+For active or retrofitted character pages, treat these sections as the required minimum unless the page is explicitly a lightweight stub: `Metadata`, `Purpose`, `Spoiler Boundary`, `Reader Knowledge Boundary`, `Overall Summary`, `Character Snapshot`, `First Appearance / First Meaningful Mention`, `Chronological Development`, `Character Data Block`, `Relationship Seeds` when any graph-worthy relationship is known, `Evidence Index`, and `Reader Knowledge Ledger`.
+
+Use these character modules when relevant: `Names, Aliases & Titles`, `Physical Profile`, `Status, Origin & Location`, `Affiliations`, `Pathway & Ability State`, `Ability Index`, `Equipment & Artifacts`, `Knowledge Sources & Documents`, `Personality`, `Relationships`, and `Major Events & Fights`. Omit empty optional modules from real pages until the character has reader-safe material for them.
+
+Omit these specialized modules by default unless they have meaningful reader-safe material: `Associated Tarot Card`, `Mythical Creature Form State`, `Uniqueness State`, `Messenger / Servants / Companions`, `Prayers & Ritual Access`, and `Prayer / Ritual Texts`.
+
 Character pages should include an `Overall Summary` section immediately before `Character Snapshot`. This section should provide a reader-safe synthesis of who the character is at the current boundary. It can be more natural and interpretive than the structured rows, and it may be one paragraph for minor characters or a few concise paragraphs for major characters with more development. It must stay inside the reader boundary and avoid later emotional or plot contamination. The snapshot bullets should summarize the latest reader-safe state without replacing chronological development. Keep state/history tables newest-to-oldest by reveal or change point so the latest visible state appears first at the current reader boundary. Keep `Major Events & Fights`, chronological development, evidence indexes, and reader knowledge ledgers oldest-to-newest because those sections preserve event or reading order.
 
-When official character artwork is mapped and promoted into `Artwork/page-assets/characters/`, place a compact clickable primary character image immediately under the page H1 and before `Metadata`. Omit the image block until a page-ready asset exists; do not link directly to ignored bulk-extracted artwork.
+When creating or promoting a character page, check `Artwork/official-epub-image-map.md` for mapped official artwork for that character. If an eligible, reader-safe mapped source asset exists, promote only that specific file into `Artwork/page-assets/characters/<character-slug>/` and place a compact clickable primary character image immediately under the page H1 and before `Metadata`. Omit the image block only when no eligible mapped artwork exists or the maintainer has deliberately deferred promotion. Do not link directly to ignored bulk-extracted artwork.
 
-Mutable character facts should accumulate rows instead of overwriting old values. This includes aliases, titles, age, vital status, residence, affiliations, pathway status, Sequence advancement, mythical creature form state, Uniqueness possession/control/accommodation state, equipment possession, relationships, companions, and ability access. Future reader-boundary tooling should hide rows after the chosen boundary and compute the current state from the remaining rows.
+Mutable character facts should accumulate rows instead of overwriting old values. This includes aliases, titles, age, vital status, residence, affiliations, pathway status, Sequence advancement, mythical creature form state, Uniqueness possession/control/accommodation state, equipment/item possession, relationships, companions, and ability access. Future reader-boundary tooling should hide rows after the chosen boundary and compute the current state from the remaining rows.
+
+For type-specific data blocks, rows that describe continuing reader-visible state should support `availability`. Use page metadata `Subject Visible From` as the whole-page gate, then use row-level `availability` as the fact-level gate for mutable state such as affiliations, pathway status, custody, relationships, abilities, current location, event participation, or confidence that can change over reader time. Discrete reveal records such as `first_appearance_beats` and `timeline_entries` normally use `position`, `from`, `to`, `visibility.from`, `source_refs`, and optional `graph_display` instead of an availability ladder. Static implementation fields such as `data_model_version`, `stable_slug`, `state_sort_order`, local artwork file paths, or internal usage labels do not need availability unless their display would itself reveal spoiler-sensitive subject information.
+
+Visible character tables and `character_profile` rows should mirror each other when they describe the same extractable state. If they conflict, update both. The visible table remains the GitHub-readable article surface; the data-block row is the future renderer, filtering, and QA source. Do not make future tooling scrape visible tables when a structured row can carry the same data. Order type-specific data-block sections to match the visible page sections as closely as practical; for character pages, place `timeline_entries` after `major_events_fights` because `Chronological Development` follows `Major Events & Fights` in the visible article.
+
+Use snake_case for data-block field names and lowercase kebab-case for controlled values. Reuse generic values across page types where possible. If a value will repeat across multiple page types, define or reference it in `PROJECT_RULES.md`; if it is character-specific, define it in the character template and keep the specific nuance in `notes` rather than inventing one-off values. Repeated controlled values that will be user-visible should eventually receive explicit display labels; rare or temporary values may rely on renderer fallback title-casing until they prove reusable.
 
 Use `Pathway & Ability State` for broad stateful supernatural status such as pathway, Sequence, advancement, digestion, or limitations. Use `Ability Index` for individual capabilities and skills, including pathway abilities, artifact-granted effects, rituals, authority, training, knowledge, or mundane competencies.
 
-Use `Prayers & Ritual Access` for character-specific prayer addresses, exact prayer wording when reader-safe, ritual labels, target functions, and cross-links to `Glossary_Threads/Concepts/concept-prayers-and-rituals.md`. Keep general ritual theory, reusable prayer/ritual type definitions, and cross-character comparisons on the concept page rather than duplicating them inside character pages.
+Use character `Associated Tarot Card` only for character-specific tarot assignments, identities, aliases, or Tarot Club membership/card relationships. Preserve assignment/reveal timing with an `associated_tarot_card` data row and `availability` ladder. This is separate from pathway-wide `Associated Tarot Card`, which belongs on pathway pages. When a reader-safe tarot-card crop exists, use the same compact clickable crop used by the relevant pathway page as the section image, keep detailed table columns for card name, target slug or page link, number, identity, timing, status, confidence, and notes, and use slightly enlarged inline styling for the card name/number like the pathway card tables. While an individual tarot-card page is pending, keep the visible card name plain and show the graph/page target slug in the temporary `Card target` column. Once a dedicated tarot-card page exists and its path is stable, remove the visible `Card target` column and make the visible card name link to that page. Keep the data-block `target` field either way. Keep official character portraits in the page header / `official_artwork`; if the tarot-card association also has character-gallery artwork provenance, store that separately in fields such as `character_artwork_file` rather than using it as the card image.
+
+Use `Prayers & Ritual Access` only when a character has reader-safe access to a specific prayer address, ritual method, ritual target, character-specific wording, or recurring ritual function. Cross-link to `Glossary_Threads/Concepts/concept-prayers-and-rituals.md` when relevant. Do not add a default "none known" section or data row unless the absence itself is analytically important at the page boundary. Keep general ritual theory, reusable prayer/ritual type definitions, and cross-character comparisons on the concept page rather than duplicating them inside character pages.
+
+Use `Messenger / Servants / Companions` only when a specific companion, messenger, servant, familiar, contracted helper, summoned entity, spirit, or similar associated being is reader-safe and meaningful for the character. Do not add a default "none known" section or data row unless the absence itself is analytically important at the page boundary.
+
+Use `Equipment & Artifacts` for broad local possession, custody, access, use, or investigation state for physical equipment, items, and formal artifacts. Add item relevance fields when the row may become graph-visible or page-worthy: `item_significance` (`minor`, `recurring`, `major`), `graph_relevance` (`none`, `local`, `full`), and `page_worthiness` (`none`, `candidate`, `dedicated-page`). Minor or disposable equipment stays data-only. Named recurring non-artifact objects with `page_worthiness: dedicated-page` should use `Glossary_Threads/Items/item-[name].md`. Formal supernatural artifacts should use `Glossary_Threads/Artifacts/artifact-[name].md`.
+
+Use `Knowledge Sources & Documents` when a character has meaningful reader-safe access to, custody of, handling of, reading of, translation of, interpretation of, or transmission of a recurring knowledge source or document. This includes diary pages, spellbooks, grimoires, notebooks, scriptures, formula records, case files, letters, inscriptions, murals, records, or similar reveal carriers. Use `Glossary_Threads/Knowledge_Sources/source-[name].md` instead of an Item page when the source's main importance is that it reveals or transmits knowledge across multiple reader positions. A source/document row may stay data-only while the source is minor or incidental; create or target a Knowledge Source page when quote history, access chain, or claim chronology needs independent tracking.
+
+Use `Major Events & Fights` as the character-local participation/index view, not as the canonical event model. The character page should summarize the character's role, outcome, and reader-safe significance, then link to an event page and event part when those exist. Future event pages should own canonical event classification, multi-part structure, participants, locations, causes, enablers, outcomes, injuries/deaths, artifacts/items/abilities used, knowledge revealed, timeline entries, and event-centered Relationship Seeds.
+
+When an event page exists, character `major_events_fights` rows should include both `event` and, when applicable, `event_part`. Use `event_type: fight` or similar values so future generated character pages can produce a dedicated fights view by filtering event participation rows. A single canonical event may appear as a fight for one character, a reveal for another, and a ritual or disaster on the event page itself.
+
+Default character fact ownership:
+
+- Affiliation, employment, team membership, and institutional role belong first in `Affiliations`.
+- Pathway, Sequence, advancement, digestion, broad ability state, and limitations belong first in `Pathway & Ability State`.
+- Individual powers, skills, training, ritual access, artifact-granted effects, and mundane competencies belong first in `Ability Index` unless they are better modeled as `Prayers & Ritual Access`.
+- Object possession, custody, use, access, or investigation state belongs first in `Equipment & Artifacts`.
+- Recurring knowledge-source/document access, handling, reading, custody, translation, interpretation, or transmission belongs first in `Knowledge Sources & Documents`.
+- Interpersonal, factional, or entity-to-entity ties that are not affiliation, equipment, pathway, or event participation belong first in `Relationships`.
+- Character participation in plot events, fights, investigations, rituals, meetings, disasters, or reveals belongs first in `Major Events & Fights`, with event pages becoming the canonical event hubs once they exist.
+- Relationship Seeds project graph-worthy edges from these local rows. They do not replace the visible section or data-block row.
+- Order Relationship Seeds by the visible/data-block section they project from when possible. For character pages, that usually means affiliation seeds, pathway/sequence seeds, character tarot-card seeds, ability seeds, graph-worthy equipment/artifact seeds, graph-worthy knowledge-source/document seeds, relationship seeds, then major-event participation seeds. This ordering is for maintainer readability only; graph generators should not depend on seed position.
 
 ### Pathway Article Overlay
 
@@ -570,9 +664,11 @@ Pathway pages should keep a stable internal slug even when the best reader-facin
 
 The `Known Sequences` section should appear even when only one Sequence is reader-safe. Each known Sequence should receive its own subsection with a normalized structure for reveal timing, confidence, formula or potion details, abilities, practical demonstrations, training or practice requirements, limitations, reader-safe unknowns, and notes. Keep pathway-wide institutional access in `Institutional Access`, broader faction associations in the `Affiliated Factions` table, and character assignments in the separate `Known Holders` table. Unknown higher Sequences should be marked as unknown or omitted; never fill them from later knowledge outside the current reader boundary.
 
+Pathway formula details should preserve ingredients as materials even before a dedicated Material page type exists. Record known ingredients, quantities, preparation steps, source of the formula, and reader-safe uncertainty in the Sequence row. If a formula or ritual produces a usable supernatural output, classify the output conceptually as a future Preparation rather than defaulting to Item; only model it as an Item when it is a named, recurring possession with custody history. Use Knowledge Source pages when a formula record, diary page, spellbook, or inscription is primarily important because it reveals the formula or pathway knowledge over time.
+
 The `Pathway Data Block` is a structured extraction aid, not a separate source of truth. Keep it aligned with the visible pathway sections, relationship seeds, and reader knowledge ledger. If the data block and prose conflict, resolve the conflict in the canonical article content rather than treating the data block as independently authoritative.
 
-Do not duplicate page-level `Subject Visible From` inside type-specific data blocks or Relationship Seeds by default. Treat the metadata field as the authoritative page-level visibility gate. Data blocks and Relationship Seeds should continue to model extractable facts, states, and graph-worthy relationships, while knowledge units and `available_from` / `subject_attribution_from` handle claim-level spoiler timing.
+Do not duplicate page-level `Subject Visible From` inside type-specific data blocks or Relationship Seeds by default. Treat the metadata field as the authoritative page-level visibility gate. Data blocks and Relationship Seeds should continue to model extractable facts, states, and graph-worthy relationships, while row-level `availability` handles fact-level spoiler timing and knowledge units preserve audit/explanation history.
 
 ### First Appearance Style
 
@@ -597,6 +693,12 @@ When those beats differ, use short subheadings under the medium, such as:
 Only include the beats that actually apply. Each beat should record `Volume`, `Chapter`, `Context`, and `Reader knowledge state` for novel entries, or the equivalent season/episode/timestamp fields for adaptation entries.
 
 Do not use later knowledge to rename an early beat as if the reader could already identify it. For example, a reader may first see an unidentified object before later learning its name or function.
+
+Mirror these visible beats in the type-specific data block so future website renderers can rebuild the first-appearance section without inferring it from aliases, relationship rows, timeline entries, or knowledge units. Use a type-appropriate field such as `first_appearance_beats`. Each meaningful visible beat should have one structured row with the same medium, position, context, and reader/viewer knowledge state. Keep the block in data-block order where first appearance appears in the visible page order; for character pages, that means `character_profile.first_appearance_beats` before `identities`.
+
+When the subject appears before its canonical page title is reader-safe, preserve the difference between page visibility and graph/site display visibility. `Subject Visible From` remains the canonical page/title gate. A first-appearance row may add `graph_display.behavior: anonymized-node`, a safe `graph_display.label`, `graph_display.visible_from`, and `graph_display.resolves_to_canonical_at` so filtered graphs or future websites can show an anonymous presentation node before the real subject is revealed. Anonymized display nodes are presentation artifacts only; they are not new glossary entities and should use opaque generated IDs in graph source output.
+
+First-appearance rows are positioned reveal beats, not continuing state rows by default. Use `position` for when the beat happens, `source_refs` for evidence, and `graph_display` for graph/site display timing. Add an `availability` ladder only when the same beat itself has a meaningful changing interpretation that cannot be represented by separate reveal beats, such as an adaptation-specific reinterpretation or a confidence progression tied to the beat.
 
 ### Chronological Development Style
 
@@ -639,6 +741,45 @@ Default Donghua arc format:
 Use `What happens`, `When the reader learns the connection`, `Attribution boundary`, `Visual/audio evidence`, `Adaptation difference`, `Institutional detail`, or similar extra labels only when the arc genuinely needs that distinction. Do not add extra labels just for decoration.
 
 For very small bridge entries, still include `Why it matters` and make the limited significance explicit.
+
+### Timeline Entry Style
+
+Chronological Development prose is the GitHub-readable article layer. It should remain clear, useful, and reader-boundary safe while the project is still maintained primarily as Markdown.
+
+Type-specific data blocks should add `timeline_entries` when a page has meaningful chronological prose that future reader-position tooling should reveal, hide, sort, or render dynamically. `timeline_entries` are the structured future-website layer for narrative development. Place them in the data block according to the visible page order for that type rather than defaulting to the top of the block. They do not replace the visible prose yet, and the visible prose should not be parsed heuristically as the source of truth.
+
+Every real Chronological Development subsection on an active or retrofitted page must have a `timeline_id` comment and exactly one matching `timeline_entries.id`. Every `timeline_entries.id` should have a matching visible chronology subsection unless the row is explicitly marked as data-only/internal. Blank template placeholders and lightweight stubs may omit or remove timeline IDs until the entry is populated.
+
+Use the same stable `id` in the visible subsection and the data block when practical:
+
+```markdown
+#### Chapters X-Y: Arc Name
+<!-- timeline_id: subject-arc-name -->
+
+- What the reader learns:
+- What changes:
+- What remains unknown:
+- Why it matters:
+```
+
+Use comments only when they help keep prose and data synchronized. Do not clutter tiny stubs with timeline IDs before a page has enough chronology to model. Once a chronology entry is real, the comment is required.
+
+Each structured timeline entry should preserve:
+
+- `id`: stable semantic row key, usually kebab-case and subject-scoped. Avoid numeric sequence IDs such as `timeline-001` because inserted discoveries should not force later ID renumbering.
+- `title`: reader-facing arc label.
+- `medium`: `novel`, `donghua`, or another controlled medium when supported.
+- `from` and optional `to`: source-position range for the arc.
+- `visibility.from`: earliest reader/viewer position where this entry can appear.
+- `entry_type`: reusable category such as `recruitment`, `investigation`, `ability-demonstration`, `relationship-change`, `status-change`, `source-access`, `battle`, `reveal`, or `setup`.
+- `summary`, `reader_learns`, `changes`, `remains_unknown`, and `why_it_matters`: structured mirrors of the visible prose.
+- Optional `related_entities`, `related_claims`, `related_relationships`, `related_events`, and `source_refs`.
+
+Visible chronology subsections and `timeline_entries` should both be sorted oldest-to-newest within each medium by reader/viewer disclosure order, not in-world chronology, unless the section explicitly says otherwise. The two orders should match.
+
+When another investigation surfaces a new chronological entry for an existing article, insert the visible subsection and the `timeline_entries` row into the correct reader/viewer order instead of appending them to the end. Re-sequence the order, not the stable semantic IDs. Only rename an existing `timeline_id` when the ID itself was wrong or misleading, and update every matching reference at the same time.
+
+When visible chronology and `timeline_entries` conflict, fix both. Treat visible prose/tables as the human-facing article surface and `timeline_entries` as the structured renderer source for future websites, dashboards, and reader-position filters.
 
 ### Knowledge Unit Style
 
@@ -753,6 +894,8 @@ artifact
 character
 family
 faction
+item
+knowledge-source
 location
 concept
 event
@@ -776,6 +919,8 @@ Directly Related
 Historical Connections
 Associated Mysteries
 Associated Artifacts
+Associated Items
+Associated Knowledge Sources
 Associated Uniquenesses
 Associated Factions
 Associated Characters
@@ -804,7 +949,22 @@ If Page A links to Page B and Page B already exists, review Page B for whether i
 
 After navigation changes, perform a relationship/link sweep to confirm that existing relationship endpoints are discoverable through Markdown links.
 
-Do not manually maintain incoming references or backlinks yet. Backlinks, generated reference indexes, relationship graphs, and visual maps should be left for future automation once the repository is larger.
+Do not manually maintain incoming references, backlinks, generated reference indexes, relationship graphs, or visual maps inside source pages. Use repository generators for compiled views, and fix durable issues by updating canonical glossary threads, investigations, Relationship Seeds, or data blocks.
+
+Do not copy generic automation policy into individual glossary articles. Keep global automation and generator rules in this file, tool docs, or visualization docs. Page-local implementation notes belong only when they explain a specific page's modeling, boundary, rendering, or future split behavior.
+
+When page-local implementation notes are needed, prefer a collapsible block so reader-facing article flow stays clean:
+
+```markdown
+<details>
+<summary>Maintainer Notes</summary>
+
+- Page-specific modeling note:
+
+</details>
+```
+
+Generated website or reader-facing renderers should be able to strip or hide maintainer-note blocks by default, while maintainer views may preserve them.
 
 ## Pilot Article Boundary Rule
 
@@ -818,7 +978,145 @@ When a pilot article is created, apply the current glossary template, metadata s
 
 Glossary threads may include a `Relationship Seeds` section when a relationship is important enough that a future character, faction, artifact, or event graph should be able to use it.
 
-Keep relationship seeds lightweight and reader-boundary aware. They are not a separate database yet; they are structured notes for future extraction.
+Keep relationship seeds lightweight and reader-boundary aware. They are graph projection records, not a second canon database.
+
+### Canonical Modeling Layers
+
+Use these layers consistently across all glossary page types:
+
+1. **Visible article prose and tables** are the human-readable canonical article surface.
+2. **Type-specific data blocks** are the structured page-local state model for future generated pages, dashboards, and reader-position filters. They should carry recurring state such as character affiliations, pathway status, artifact or item custody, location functions, event participation, aliases, access rules, and similar data, including claim availability by medium and reader position when the state can change over time.
+3. **Reader Knowledge Ledger knowledge units** are the audit and interpretation layer for reader knowledge. Use them to explain why a claim changes, preserve misconception arcs, cite reveal evidence, compare adaptations, and support QA, but do not make future renderers hunt through knowledge units for ordinary page-local state that belongs in the type-specific data block.
+4. **Relationship Seeds** are graph projection hints. They say which node-to-node edge should exist in relationship graphs, which relationship type to use, and the earliest reader-safe point where that edge becomes graph-worthy. When possible, a seed should point to the data-block row it projects.
+
+`timeline_entries` inside type-specific data blocks are part of layer 2. They are the structured version of the visible Chronological Development prose, intended for future website rendering, reader-position filtering, dashboard timelines, and QA checks. They should describe narrative development arcs, not replace state rows, relationship seeds, or knowledge units.
+
+When these layers overlap, resolve the content in this order: article prose/tables define the human-facing article; type-specific data blocks define structured page-local state; Reader Knowledge Ledger entries explain reveal/audit history; Relationship Seeds project graph-worthy edges from that structured state.
+
+Do not use Relationship Seeds to duplicate every data-block row. Use seeds only when the edge should be visible in generated relationship graphs. A data block can list many holders, members, aliases, access points, possessions, equipment rows, or related items without each row becoming a seed immediately.
+
+### Possession, Equipment, and Item Rules
+
+Use the local type-specific data block for broad possession, equipment, access, custody, or use state. A character, faction, location, event, or item page may record minor equipment, temporary custody, ordinary access, lost objects, borrowed tools, and unresolved possession claims without making any of those rows graph-visible.
+
+Use these row-level fields when an object might matter later:
+
+- `item_significance`: `minor`, `recurring`, or `major`
+- `graph_relevance`: `none`, `local`, or `full`
+- `page_worthiness`: `none`, `candidate`, or `dedicated-page`
+
+Interpret them this way:
+
+- `minor` + `graph_relevance: none` + `page_worthiness: none`: data-only equipment, inventory, or one-scene prop. Do not create an Item page and do not add a Relationship Seed.
+- `recurring` + `graph_relevance: local` + `page_worthiness: candidate`: keep the row in local data and consider it for maintainer or local-context graphs. Create an Item page only if later analysis makes the object a durable relationship hub.
+- `major` + `graph_relevance: full` + `page_worthiness: dedicated-page`: create or target an `item-*` page when the object is not a formal supernatural artifact, and add the appropriate Relationship Seed.
+
+Use `Glossary_Threads/Items/item-[name].md` for named, recurring, graph-worthy non-artifact objects such as durable possessions, tools, badges, keys, weapons, instruments, or access objects. Use `Glossary_Threads/Knowledge_Sources/source-[name].md` when the object's main function is carrying claims, quotes, formulas, interpretations, or reveal chronology. Use `Glossary_Threads/Artifacts/artifact-[name].md` when the object's supernatural artifact identity, Sealed Artifact status, or mystical-object behavior is the analytical center. Keep ordinary disposable equipment data-only even if it briefly matters in a scene.
+
+Possession/custody rows should preserve state changes in `availability` rather than overwriting the row. For example, a row can move from `possession_status: held` to `possession_status: lost-custody` while the Relationship Seed remains one graph edge whose current display is computed at the selected reader boundary.
+
+### Relationship Seed Ownership
+
+Each semantic edge should normally have one canonical Relationship Seed owner. Other pages may mention the same relationship in prose, related-thread lists, type-specific data blocks, or knowledge units without adding duplicate seeds.
+
+Default ownership rules:
+
+- **Source-owned entity relationships**: for relationships such as `member-of`, `civilian-staff-of`, `works-at`, `pathway-status`, `superior`, `subordinate`, `mentor`, `student`, `artifact-user`, `victim-of`, `protects`, `enemy`, `ally`, and similar entity-to-entity state, put the seed on the source entity's page when that page exists.
+- **Event-centered relationships**: put `event-participant`, `event-location`, `event-cause`, `event-enabler`, and `event-outcome` seeds on the event page, even when the edge direction points toward or away from the event.
+- **Pathway, tarot, and metaphysics relationships**: put pathway-wide associations such as pathway `associated-tarot-card`, `associated-sequence-0`, `associated-ats`, `associated-sefirot`, `associated-uniqueness`, and `associated-mythical-creature-form` on the pathway or metaphysics page that owns the association. Character-specific Tarot Club identity/card assignments belong on the character page in `Associated Tarot Card` / `associated_tarot_card` and may project `associated-tarot-card` seeds from there. Character-specific `pathway-status` belongs on the character page when the character page exists; pathway pages may keep holder rows in their data block without duplicating every holder as a Relationship Seed.
+- **Location-function relationships**: put `public-cover-for`, `operational-base-for`, and similar location-function seeds on the location page when the source is the location. Put `works-at` or `uses-as-operational-refuge` on the person/faction page when the source is the person/faction and that source page exists.
+- **Concept relationships**: put `mechanic-of`, `instance-of`, `trains-in`, `requires-practice`, `uses-method`, and `access-route-to` on the source page when the source exists. A concept page may own seeds only when the concept itself is the graph center or the source page does not yet exist.
+- **Item and equipment relationships**: put `possesses-item` on the character, faction, location, or other holder page when that entity is the source and the item is the target. Put item-as-source seeds on the item page when the item itself enables, accesses, calls, identifies, unlocks, explains, or otherwise relates to a concept, system, event, user, or function. Do not seed every equipment row; seed only rows whose `graph_relevance` is `full`, or `local` when the graph view is explicitly maintainer/local.
+- **Knowledge source relationships**: put source-as-source seeds on the Knowledge Source page when the source reveals, records, describes, contains, misleads about, or transmits a claim, concept, event, formula, entity, or system. Put reader/handler/access edges on the character, faction, location, or event page when that page is the natural source and the relationship is about access, handling, reading, custody, or interpretation at the reader boundary. Do not model a recurring knowledge source as an Item merely because it is physically held.
+- **Provisional semantic-hub seeds**: if a graph-worthy source or target page does not exist yet, an existing semantic hub page may temporarily host a seed so QA graphs can show the pending endpoint. The relationship itself must be true to the hub's subject, not merely co-located with evidence on that page. Mark the seed `projection_scope: provisional`, omit `projection_source` until a stable data row exists, and migrate or remove the seed when the natural owner page is created. Examples: a prayers/rituals concept page may temporarily host `item-copper-whistle -> concept-prayers-and-rituals` because the item is an access object for ritual mechanics; an artifact page should not host that edge merely because an adaptation evidence note on the artifact page mentions the whistle.
+
+Exact duplicate seeds across owner pages should be treated as QA findings unless they are explicitly provisional, represent different relationship types, or record a real reader-state/modeling conflict that needs resolution.
+
+### Relationship State History
+
+Use Relationship Seeds for the graph edge, not for the full state history of the claim.
+
+`start` means the earliest reader-safe point where the relationship becomes graph-worthy. It does not necessarily mean the relationship is already confirmed. If a relationship begins as a clue, inference, or strong evidence and is confirmed later, store that confidence progression in the relevant type-specific data-block row's `availability` list. Use knowledge-unit `disclosures` when the claim needs a fuller reveal/audit explanation.
+
+Do not add multiple Relationship Seeds for the same `source + relationship_type + target` merely to represent confidence progression. Prefer one seed plus a data-block state row that records the availability history. If the seed projects a specific row, add `projection_source`. If the seed also depends on a specific knowledge unit, add `claim_id` with the knowledge unit id so future generators can merge graph projection with reader-state history.
+
+For new or retrofitted structured state data, prefer `availability` over single `reveal` fields. Every continuing reader-visible state row should be able to carry one or more availability entries. Positioned reveal rows such as first-appearance beats and timeline entries may use their own `position`, `from`, `to`, `visibility.from`, and `source_refs` fields instead:
+
+```yaml
+availability:
+  - medium: novel
+    from: { book: lotm-1, volume: 1, chapter: 22 }
+    confidence: strong-evidence
+    status: strong-evidence-at-boundary
+    graph_visibility: full
+    notes: Earliest graph-worthy clue or inference.
+  - medium: novel
+    from: { book: lotm-1, volume: 1, chapter: 45 }
+    confidence: confirmed
+    status: current-at-boundary
+    graph_visibility: full
+    notes: Later confirmation at the active reader boundary.
+  - medium: donghua
+    from: { season: 1, episode: TBD, release_order: TBD }
+    confidence: TBD
+    status: pending-adaptation-verification
+    adaptation_relationship: pending
+```
+
+Legacy `reveal` fields may remain on older rows until the page is migrated. Do not mix novel and Donghua timing into one blended field.
+
+Use `graph_visibility` only when a row can project into relationship graphs. It controls whether the relationship renders at that reader position, not whether the underlying true relationship exists in canon:
+
+- `hidden`: render nothing. This is the default before the reader knows the relationship exists.
+- `anonymized`: render a generic source, target, or relationship label because the reader can see that an unknown actor/force/relationship exists.
+- `partial`: render some real pieces while withholding other pieces, such as showing the source but using a safer relationship label.
+- `full`: render the true eligible source, target, and relationship type.
+
+Do not anonymize future knowledge by default. Use `anonymized` or `partial` only when the text has made the unknown actor, force, relationship, or pattern reader-visible. Mystery mechanics such as 0-08 should usually progress through a ladder like `hidden` -> `anonymized` or `partial` -> `full`, with each rung tied to an actual reader-visible clue or reveal.
+
+Optional display override fields inside an availability entry:
+
+```yaml
+graph_visibility: anonymized
+display_source_label: Unknown Influence
+display_target_label: Unknown Figure
+display_relationship_type: affects
+display_notes: Reader can see the anomalous pattern, but not the true source or mechanism.
+```
+
+Recommended optional fields for future-proof seeds:
+
+```yaml
+projection_owner: source-page
+projection_scope: canonical
+projection_source: character_profile.pathway_state[pathway-sleepless]
+claim_id: subject-claim-id
+default_hidden_source_behavior: hide
+default_hidden_target_behavior: hide
+```
+
+Use `projection_scope: canonical` for the normal owner seed, `projection_scope: provisional` for temporary hub-owned seeds, and `projection_scope: local-context` only when a duplicate is intentionally kept because the page-local context changes interpretation. Avoid `local-context` unless a QA review would otherwise incorrectly treat the seed as accidental duplication.
+
+Relationship graph renderers should evaluate visibility in this order:
+
+1. Hide the relationship if the source page fails `Subject Visible From`.
+2. Hide the relationship if the projected data row or seed is not available at the selected reader position.
+3. Hide the relationship if the target page fails `Subject Visible From`, unless the current availability entry explicitly sets `graph_visibility: anonymized` or `graph_visibility: partial` with safe display labels.
+4. Render the current availability entry's display labels/type when provided; otherwise render the canonical source, target, and relationship type.
+
+Resolve `projection_source` against the Relationship Seed source page before falling back to any global projection key. Many pages reuse local keys such as `character_profile.affiliations[faction-nighthawks]`; page-local resolution prevents one character, faction, item, or location row from accidentally supplying another page's timing or confidence history.
+
+`projection_source` points to a structured data-block row, not to a human-facing Markdown table. Visible tables may be rewritten, replaced, or generated later; generators should read the type-specific data block and its `availability` list. Use stable row identifiers where possible, usually the row's `target`, `field`, `item`, `function`, or another slug-like key inside the brackets.
+
+If a seed has no stable data-block row yet, leave `projection_source` blank and let QA graphs show seed provenance. Add `projection_source` only after the data row exists and its ownership is clear. Do not point a canonical seed at another page's data row unless the seed is explicitly provisional or local-context and the cross-page dependency is noted.
+
+QA relationship-node graphs should present claim history by source layer:
+
+- The first line is the relationship type, with a duplicate count when multiple source pages currently seed the same `source + relationship_type + target`.
+- If a seed has `projection_source` and the projected data row has eligible availability entries, the source line should summarize the data history, such as `character data novel ch22 strong-evidence -> ch45 confirmed`.
+- If a seed has no usable `projection_source`, the source line should fall back to seed provenance, such as `faction seed novel ch22 confirmed`.
+- Pending adaptation entries with `TBD` timing, `confidence: TBD`, or `adaptation_relationship: pending` should stay in the data block but should not appear in graph labels until they have a real pinned viewer position.
+- Do not add duplicate Relationship Seeds merely to make later confirmations appear in graph provenance; add the later state to the projected data row's `availability` ladder.
 
 Use controlled relationship types when possible:
 
@@ -849,6 +1147,17 @@ operational-base-for
 works-at
 artifact-user
 artifact-guardian
+possesses-item
+uses-item
+authored-by
+read-by
+accessed-by
+handled-by
+translated-by
+records-event
+contains-formula
+describes-concept
+reveals-claim
 source-of-information
 causal-agent
 targets
@@ -910,6 +1219,27 @@ Use `associated-outer-deity` for external pressure/influence, not as a synonym f
 
 Tarot-card relationship seed targets may use lightweight graph node slugs such as `tarot-card-the-star` before the project decides whether each card needs a dedicated glossary page. Keep the shared gallery and tarot-card explanation on `concept-tarot-cards.md` unless a specific card becomes article-worthy on its own.
 
+Use item relationship types when an `item-*` page is graph-visible:
+
+- `possesses-item`: A character, faction, location, or other entity holds, owns, carries, stores, or has custody of a named non-artifact item at the reader boundary.
+- `uses-item`: A character, faction, event, or system meaningfully uses a named non-artifact item without the relationship primarily being ownership or custody.
+
+Use `artifact-user` and `artifact-guardian` for formal supernatural artifacts, Sealed Artifacts, or artifact pages. Use `possesses-item` and `uses-item` for named non-artifact item pages. Keep ordinary equipment data-only unless the row's `graph_relevance` and `page_worthiness` justify a Relationship Seed.
+
+Use knowledge-source relationship types when a `source-*` page or source candidate is graph-visible:
+
+- `authored-by`: A knowledge source is authored, created, written, dictated, carved, compiled, or otherwise originated by the target.
+- `read-by`: A character, faction, or other entity reads or can directly interpret the target knowledge source.
+- `accessed-by`: A character, faction, location, event, or system gives access to, obtains access to, or serves as an access route for the target knowledge source.
+- `handled-by`: A character, faction, location, or organization physically handles, stores, curates, files, distributes, or administers access to the target knowledge source without necessarily understanding it.
+- `translated-by`: A character, faction, system, or method translates, decodes, interprets, or renders the target knowledge source intelligible.
+- `records-event`: A knowledge source records, describes, preserves, or testifies about the target event.
+- `contains-formula`: A knowledge source contains, preserves, points to, or transmits the target formula, pathway ingredient set, ritual procedure, or structured method.
+- `describes-concept`: A knowledge source describes, explains, hints at, or formalizes the target concept.
+- `reveals-claim`: A knowledge source reveals a durable claim tracked in a Reader Knowledge Ledger unit or future normalized claim node.
+
+Use `source-of-information` when a person, faction, source, or page is broadly functioning as the reader's source for a concept but the relationship does not need a narrower knowledge-source type yet.
+
 Use the visible section and type-specific data block for detailed state, uncertainty, reveal notes, holders, aliases, title variants, and display timing. Use Relationship Seeds only for positive graph-worthy edges. Do not seed an edge merely because a data block records `unknown`, `null`, or "no reader-safe relationship known."
 
 Use location relationship types when a location page is the graph center or when a relationship describes what a location functionally does for a faction, person, or event:
@@ -954,6 +1284,18 @@ superseded
 
 Relationship `status` values apply only inside `Relationship Seeds`. Do not confuse them with knowledge-unit `truth_status` values in the Reader Knowledge Ledger.
 
+Interpret Relationship Seed `status` values consistently:
+
+- `active`: the relationship is ongoing at the selected or declared reader boundary.
+- `completed`: the relationship describes a completed action, event role, reveal, or outcome; the consequences may still matter, but the edge is no longer an ongoing state.
+- `historical`: the relationship was true earlier but is not current at the boundary, without implying rupture or failure. Prefer this for ended possession, custody, employment, residence, or access when the ending is ordinary or neutral.
+- `broken`: use sparingly for a relationship that is explicitly disrupted, breached, severed, failed, escaped, destroyed, or narratively broken. Do not use `broken` as a generic synonym for "no longer holds."
+- `future-boundary`: the relationship is known to maintainers but outside the current reader boundary and should not appear in reader-safe graphs.
+- `pending`: the relationship is planned, suspected, or awaiting verification; avoid reader-facing projection unless the graph is explicitly a maintainer QA view.
+- `superseded`: a later row or seed replaces this modeling claim with a more accurate relationship, target, status, or confidence.
+
+For custody or possession loss, prefer a data-block row state such as `possession_status: lost-custody`, `custody_status: lost-custody`, `status: historical`, or a later availability entry rather than `status: broken`, unless the story frames the custody relationship itself as breached or broken. A future artifact/location/faction taxonomy pass may introduce narrower custody statuses, but until then keep `broken` reserved for actual rupture semantics.
+
 Use the earliest verified or best-known reader-safe start point for the relationship. If the start point is not yet verified, mark it `TBD` and avoid pretending the chronology is settled.
 
 ### Relationship Sweep Rule
@@ -970,13 +1312,13 @@ Recommend or define a narrow new relationship type, update `PROJECT_RULES.md`, t
 
 ### Generator Interpretation Rules
 
-Duplicate exact relationship seeds are acceptable when they provide article-local context or bidirectional coverage across existing glossary pages.
+Duplicate exact relationship seeds are QA signals by default. They may be acceptable only when they are marked as provisional, intentionally local-context, or represent a known modeling conflict awaiting cleanup.
 
-Graph generators should de-duplicate exact rendered edges and report only meaningful conflicts, such as different relationship types, start points, confidence levels, statuses, or notes that change the interpretation.
+Graph generators should de-duplicate exact rendered edges for readability while preserving provenance in QA outputs. They should report meaningful conflicts, such as different relationship types, start points, confidence levels, statuses, projection scopes, or notes that change the interpretation.
 
 Multiple relationship types between the same two nodes are allowed when they represent distinct semantic roles. Do not collapse them merely because the node pair is the same.
 
-Duplicate relationship seeds may differ in notes, source file, or article-local status because each glossary page frames the same edge from its own reader boundary and analytical purpose.
+Duplicate relationship seeds may differ in notes, source file, or article-local status only when that difference is intentional and marked through `projection_scope` or explained in notes. Otherwise, normalize to one canonical owner seed and keep the other page's local context in prose, type-specific data blocks, related-thread lists, or knowledge units.
 
 Graph generators should preserve provenance for drill-down and avoid treating those differences as hard conflicts unless they change the underlying relationship type, chronology, confidence, or factual meaning.
 
@@ -997,7 +1339,7 @@ Example:
   notes: Klein joins the Tingen Nighthawks under the Church of Evernight structure.
 ```
 
-Do not manually maintain full graph files yet. Future automation may extract relationship seeds from glossary threads into Mermaid diagrams, relationship maps, dashboards, or generated indexes.
+Do not manually maintain generated full graph files. Repository automation extracts Relationship Seeds and structured data from glossary threads into Mermaid diagrams, relationship maps, QA mirrors, dashboards, or generated indexes. Manual Mermaid files are allowed only when explicitly classified as repository-local manual graphs under the visualization workflow.
 
 ## Open Questions
 
@@ -1018,7 +1360,7 @@ When an open question is answered:
 
 Each glossary thread contains its own Reader Knowledge Ledger section. The ledger stores spoiler-aware knowledge units about that thread for the novel and its adaptations.
 
-Together, the knowledge units must form a complete disclosure timeline for the glossary subject. Record every meaningful reveal point, including multiple disclosure entries from the same medium when a subject progresses from mention, to clue, to inference, to explicit reveal or confirmation.
+Together, the knowledge units should preserve the meaningful disclosure and audit history for durable claims about the glossary subject. Ordinary current-state facts belong in visible page sections and type-specific data blocks; use knowledge units for reveal timing, confidence changes, misconception arcs, adaptation comparison, and evidence-backed interpretation.
 
 Its purpose is to support questions such as:
 
@@ -1277,7 +1619,7 @@ Filtered renderers must apply page-level eligibility before section-level eligib
 
 Set `Subject Visible From` to the earliest point where the article subject can be exposed under the page title or slug without spoiling attribution. It can match first appearance for openly named subjects, first named identification for characters/places/artifacts, first completion for event pages whose title contains the outcome, or first formal attribution for pages whose subject appears anonymously earlier.
 
-Do not add a standalone reader-facing `Subject Visibility` section by default. Keep the machine-readable value in metadata. If the gate is non-obvious, such as a title that exposes an event outcome or a subject that appears anonymously before it is named, record the rationale under `Future Automation Notes`.
+Do not add a standalone reader-facing `Subject Visibility` section by default. Keep the machine-readable value in metadata. If the gate is non-obvious, such as a title that exposes an event outcome or a subject that appears anonymously before it is named, record the rationale under page-local `Maintainer Notes`.
 
 The eventual glossary page should update from the user's selected novel chapter, Donghua release position, or both. Its reader-facing summary and timeline must be constructed only from eligible knowledge units. Freeform analysis elsewhere in the Markdown file is project working material and must not be assumed spoiler-safe for automatic display.
 
@@ -1328,7 +1670,7 @@ Use the EPUB.
 
 ### EPUB Sweep Tool
 
-Use `Tools/search_epub.py` for repeatable novel EPUB checks when Python is available. `Tools/Search-Epub.ps1` is the Windows PowerShell fallback and should remain behaviorally compatible. Use `Tools/Test-Python.ps1` as the canonical local Python availability probe when the environment is unknown, then retain the result as session state instead of probing before every command.
+Use `Tools/search_epub.py` for repeatable novel EPUB checks when Python is available. `Tools/Search-Epub.ps1` is the Windows PowerShell fallback and should remain behaviorally compatible. Use `Tools/Test-Python.ps1` as the canonical local Python availability probe when the environment is unknown, and use `Tools/Test-PowerShell.ps1` when fallback module readiness is unknown; retain those results as session state instead of probing before every command. Exact commands, flags, aliases, examples, switch maps, dependency checks, and parity notes live in `Tools/README.md` and `Tools/TOOLING_REFERENCE.md`.
 
 When a task requires novel EPUB source expansion and this helper is available, use the Python helper as the preferred first EPUB search path because it is faster and can grow into reusable search/index functionality. Use the PowerShell helper when Python is unavailable. This applies to graph-building coverage sweeps as well as article and investigation verification. If both helpers are missing or unusable, use another structured EPUB search method and report the degraded path.
 
@@ -1344,39 +1686,7 @@ The standard EPUB evidence workflow is:
 6. Record chapter references and paraphrased evidence in the investigation file.
 7. Do not paste long EPUB passages into tracked records.
 
-When choosing a canonical page slug or primary article name from competing names, run a term-arbitration sweep rather than relying on memory or raw search totals. Use `--term-summary` / `-TermSummary` to count all candidate terms across the full relevant range and split them by term and volume, then inspect context around hits in chapter order. The aliases `--summary-only`, `--summary`, `-SummaryOnly`, and `-Summary` are accepted for the same mode. For survey counts, prefer `--counts-only` / `-CountsOnly`; `--counts` / `-Counts` are accepted aliases. For search text, prefer `--pattern` / `-Pattern`, but `--query`, `--text`, `--search`, `-Query`, `-Text`, and `-Search` are accepted aliases. For context JSON where repeated terms on the same line matter, use `--include-line-match-counts` / `-IncludeLineMatchCounts`. Classify each usage by function: primary subject name, alias/title, sequence name, ordinary-language usage, person/role label, or artwork/formal label. Prefer the slug that best matches repeated in-text subject usage, and preserve alternate names in the article alias table and artwork-map notes. Raw counts can mislead when one term is also an occupation, epithet, or individual label.
-
-Example survey count:
-
-```powershell
-python Tools\search_epub.py --start-chapter 10 --end-chapter 47 --pattern "Dunn|Captain|Nighthawk|Nightmare|Sleepless" --counts-only
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -StartChapter 10 -EndChapter 47 -Pattern "Dunn|Captain|Nighthawk|Nightmare|Sleepless" -CountsOnly
-```
-
-Example context expansion:
-
-```powershell
-python Tools\search_epub.py --start-chapter 12 --end-chapter 13 --pattern "Dunn|Nighthawk" --context-lines 2 --max-hits-per-chapter 8
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -StartChapter 12 -EndChapter 13 -Pattern "Dunn|Nighthawk" -ContextLines 2 -MaxHitsPerChapter 8
-```
-
-By default, `--pattern` / `-Pattern` treats `|` as a separator between literal terms. Use `--regex-pattern` / `-RegexPattern` only when a regular expression is needed.
-
-Example later-volume count:
-
-```powershell
-python Tools\search_epub.py --volume 3 --pattern "Gehrman|Traveler" --counts-only
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Volume 3 -Pattern "Gehrman|Traveler" -CountsOnly
-```
-
-Example appendix or side-story inspection:
-
-```powershell
-python Tools\search_epub.py --entry-type Appendices --entry-name-pattern "*pathways*" --list-entries
-python Tools\search_epub.py --entry-type SideStories --pattern "3-0782" --counts-only
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -EntryType Appendices -EntryNamePattern "*pathways*" -ListEntries
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -EntryType SideStories -Pattern "3-0782" -CountsOnly
-```
+When choosing a canonical page slug or primary article name from competing names, run a term-arbitration sweep rather than relying on memory or raw search totals. Count all candidate terms across the full relevant range, split them by term and volume, then inspect context around hits in chapter order. Classify each usage by function: primary subject name, alias/title, sequence name, ordinary-language usage, person/role label, or artwork/formal label. Prefer the slug that best matches repeated in-text subject usage, and preserve alternate names in the article alias table and artwork-map notes. Raw counts can mislead when one term is also an occupation, epithet, or individual label.
 
 ## Donghua Subtitles
 
@@ -1411,9 +1721,9 @@ When subtitle evidence is consulted for a formal conclusion, create or update th
 
 ## Mode 1: Discussion Mode (Default)
 
-This is the default mode.
+This is the default mode for open-ended lore discussion, memory reconstruction, thematic analysis, and exploratory conversation.
 
-Start here unless verification is required.
+Start here unless verification, tooling work, QA, graph generation, article editing, or another repository-maintenance task is required.
 
 ### Goal
 
@@ -1427,13 +1737,13 @@ Reconstruct understanding from memory.
 4. Identify gaps.
 5. Build working theories.
 
-Do **not** immediately search the EPUB.
+Do **not** immediately search the EPUB for ordinary discussion.
 
 The user specifically enjoys discovering forgotten connections through discussion.
 
 The EPUB is an archive, not the first step.
 
-Use it only when needed.
+Use it when verification is needed, when the user asks for source-backed work, or when a repository-maintenance task depends on pinned evidence.
 
 ---
 
@@ -1448,6 +1758,7 @@ Switch to Investigation Mode when:
 - Historical connections need verification.
 - A board update requires confidence.
 - The user explicitly requests verification.
+- The task is tooling, QA, graph generation, article editing, or another repository-maintenance operation that depends on source-backed evidence.
 
 ### Investigation Workflow
 

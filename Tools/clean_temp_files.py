@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Clean disposable local tool caches from this repository."""
+"""Clean disposable local tool caches and opted-in temp artifacts."""
 
 from __future__ import annotations
 
@@ -16,6 +16,8 @@ CACHE_DIR_NAMES = {
     ".ruff_cache",
     ".tox",
 }
+
+TMP_DIR_NAME = ".tmp"
 
 
 def get_repo_root() -> Path:
@@ -41,10 +43,53 @@ def find_cache_dirs(repo_root: Path) -> list[Path]:
     return sorted(matches, key=lambda item: str(item).lower())
 
 
+def find_tmp_artifacts(repo_root: Path) -> list[Path]:
+    tmp_root = (repo_root / TMP_DIR_NAME).resolve()
+    if not tmp_root.exists() or not tmp_root.is_dir():
+        return []
+    if not is_within_repo(tmp_root, repo_root):
+        return []
+    return sorted(tmp_root.iterdir(), key=lambda item: str(item).lower())
+
+
+def resolve_existing_path(repo_root: Path, path_value: str) -> Path | None:
+    path = Path(path_value)
+    if not path.is_absolute():
+        path = repo_root / path
+    if not path.exists():
+        return None
+    return path.resolve()
+
+
+def is_within_tmp(path: Path, repo_root: Path) -> bool:
+    tmp_root = (repo_root / TMP_DIR_NAME).resolve()
+    try:
+        path.resolve().relative_to(tmp_root)
+        return path.resolve() != tmp_root
+    except ValueError:
+        return False
+
+
+def find_scoped_tmp_artifacts(repo_root: Path, path_values: list[str]) -> list[Path]:
+    matches: list[Path] = []
+    seen: set[Path] = set()
+    for path_value in path_values:
+        resolved = resolve_existing_path(repo_root, path_value)
+        if resolved is None or not is_within_repo(resolved, repo_root) or not is_within_tmp(resolved, repo_root):
+            continue
+        if resolved not in seen:
+            matches.append(resolved)
+            seen.add(resolved)
+    return sorted(matches, key=lambda item: str(item).lower())
+
+
 def clean_cache_dirs(paths: list[Path]) -> list[dict[str, str]]:
     results: list[dict[str, str]] = []
     for path in paths:
-        shutil.rmtree(path)
+        if path.is_dir():
+            shutil.rmtree(path)
+        else:
+            path.unlink()
         results.append({"path": str(path), "status": "deleted"})
     return results
 
@@ -63,10 +108,27 @@ def main() -> int:
         action="store_true",
         help="Emit structured JSON output.",
     )
+    parser.add_argument(
+        "--include-tmp",
+        action="store_true",
+        help="Also include direct children of the repository .tmp directory.",
+    )
+    parser.add_argument(
+        "--tmp-path",
+        action="append",
+        default=[],
+        help=(
+            "Include an exact path under repository .tmp. Repeat for multiple scoped paths. "
+            "This is intended for automatic cleanup of artifacts created by the current run."
+        ),
+    )
     args = parser.parse_args()
 
     repo_root = get_repo_root()
-    targets = find_cache_dirs(repo_root)
+    cache_targets = find_cache_dirs(repo_root)
+    tmp_targets = find_tmp_artifacts(repo_root) if args.include_tmp else []
+    scoped_tmp_targets = find_scoped_tmp_artifacts(repo_root, args.tmp_path)
+    targets = cache_targets + tmp_targets + scoped_tmp_targets
 
     if args.delete:
         results = clean_cache_dirs(targets)
@@ -77,6 +139,11 @@ def main() -> int:
         "repo_root": str(repo_root),
         "delete": args.delete,
         "allowed_directory_names": sorted(CACHE_DIR_NAMES),
+        "include_tmp": args.include_tmp,
+        "tmp_root": str(repo_root / TMP_DIR_NAME),
+        "cache_count": len(cache_targets),
+        "tmp_count": len(tmp_targets),
+        "scoped_tmp_count": len(scoped_tmp_targets),
         "count": len(results),
         "results": results,
     }

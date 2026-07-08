@@ -10,7 +10,9 @@ param(
   [string]$EntryNamePattern,
   [Alias("Query", "Text", "Search")]
   [string]$Pattern,
+  [ValidateRange(0, 9999)]
   [int]$ContextLines = 0,
+  [ValidateRange(0, 9999)]
   [int]$MaxHitsPerChapter = 50,
   [Alias("Counts")]
   [switch]$CountsOnly,

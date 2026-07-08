@@ -28,6 +28,8 @@ The default `mmdc` browser launch may time out on Windows. The working approach 
 
 Mermaid CLI is the underlying renderer, not the project workflow entry point. For repository graph work, call the Python visualization helper below first. Use the PowerShell helper as the Windows fallback. Direct `mmdc` commands are fallback/debug commands only.
 
+For the visualization helper switch map, mode aliases, output side effects, and Python/PowerShell parity notes, see the [Tooling Reference](../Tools/TOOLING_REFERENCE.md#visualization-graph-workflow).
+
 ## Permanent Render Config
 
 Puppeteer launch settings live at:
@@ -38,7 +40,7 @@ Graph render settings live at:
 
 - `Visualization/config/render-settings.json`
 
-Each configured view can define a `readerBoundary`. Refresh mode applies that boundary during Mermaid generation: node eligibility comes from each glossary page's `Subject Visible From`, and relationship eligibility comes from the seed's `start.medium`, `start.volume`, and `start.chapter`. Use this for reader-safe volume/chapter graph views; use a separate unbounded view only for maintainer/global taxonomy graphs.
+Each configured view can define a `readerBoundary`. Refresh mode applies that boundary during Mermaid generation: canonical node eligibility comes from each glossary page's `Subject Visible From`, optional anonymized presentation-node eligibility can come from type-specific `first_appearance_beats.graph_display`, and relationship eligibility comes from the seed's `start.medium`, `start.volume`, and `start.chapter` or projected data-block availability. Use this for reader-safe volume/chapter graph views; use a separate unbounded view only for maintainer/global taxonomy graphs.
 
 If Edge is installed elsewhere, update `executablePath` in the Puppeteer config. Chrome can also be used if available.
 
@@ -55,6 +57,8 @@ For structured agent workflows, use JSON output:
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1 -Json
 ```
+
+For the full environment probe map, candidate order, JSON fields, and latest local check note, see the [Tooling Reference](../Tools/TOOLING_REFERENCE.md#python-environment-check).
 
 Also confirm the render config files exist:
 
@@ -148,7 +152,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 
   -OutputPath Visualization\rendered\example.svg,Visualization\rendered\example.png
 ```
 
-Use pure render mode for one-off, manually authored, or agent-drafted Mermaid files. Use the canonical refresh command only when generated graph artifacts should be rebuilt from Relationship Seeds.
+Use pure render mode for one-off, manually authored, or agent-drafted Mermaid files. Use the canonical refresh command only when generated graph artifacts should be rebuilt from canonical graph inputs such as metadata, Relationship Seeds, and projected type-specific data-block availability.
 
 Use `-NoProfile` to keep local shell profile output from contaminating command output.
 
@@ -354,7 +358,7 @@ graph TD
   rel_001 --> target_node
 ```
 
-This keeps long semantic labels out of Mermaid edge labels, where they tend to overlap when many edges share a hub. The `rel_###` nodes are presentation artifacts only; relationship seeds remain canonical.
+This keeps long semantic labels out of Mermaid edge labels, where they tend to overlap when many edges share a hub. The `rel_###` nodes are presentation artifacts only; canonical state remains in glossary records such as Relationship Seeds and projected type-specific data-block rows.
 
 Timing-spoiler-free views use the same projection, but omit chapter and episode timing from the relationship node text.
 

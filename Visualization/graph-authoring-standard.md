@@ -21,7 +21,7 @@ This file owns graph authoring.
 
 Classify every graph request before creating artifacts:
 
-- **Canonical graph refresh**: regenerate existing generated graph artifacts from canonical repository inputs such as Relationship Seeds.
+- **Canonical graph refresh**: regenerate existing generated graph artifacts from canonical repository inputs such as metadata, Relationship Seeds, and projected type-specific data-block availability.
 - **Repository-local manual graph**: create a manual `.mmd` source under `Visualization/graphs/` and render it through repository tooling.
 - **Chat-only scratch graph**: produce temporary Mermaid only when explicitly requested as scratch, temporary, chat-only, or outside-repository output.
 
@@ -31,7 +31,7 @@ Complex, relationship-heavy, evidence-bearing, or rendered graph requests defaul
 
 Graph data may come from three evidence layers:
 
-- **Repository-canonical**: already recorded in glossary threads, investigations, Reader Knowledge Ledger units, Relationship Seeds, or generated graph inputs.
+- **Repository-canonical**: already recorded in glossary threads, investigations, Reader Knowledge Ledger units, type-specific data blocks, Relationship Seeds, or generated graph inputs.
 - **Source-supported graph-local**: found during the graph task in allowed local source material, such as the EPUB or subtitle files, but not yet written back to repository records.
 - **Unsupported or external**: outside the repository or outside the allowed source boundary; exclude unless the user explicitly opts into hybrid or research work.
 
@@ -41,7 +41,7 @@ Recommended labels include:
 
 - `graph-local evidence:`
 - `provisional holder:`
-- `source-supported, not yet in Relationship Seeds`
+- `source-supported, not yet in canonical graph inputs`
 - `not canonicalized`
 - `candidate project-data update`
 
@@ -51,7 +51,9 @@ Do not overload primary content-node labels with evidence-layer summaries such a
 
 ## Source Expansion
 
-Start with repository-canonical records. If the request exceeds article or Relationship Seed coverage and source access is available, expand into allowed local canonical sources.
+Start with repository-canonical records. If the request exceeds article, data-block, or Relationship Seed coverage and source access is available, expand into allowed local canonical sources.
+
+Search terms for graph source expansion must follow the active evidence mode. In repo-only graph or QA work, derive terms only from user wording, repository records, existing generated artifacts used as candidate inventories, or neutral structural searches. In source-verification graph work, terms may also come from bounded source hits. Do not use pretrained knowledge, model memory, fan knowledge, or outside-known future spoilers to seed graph searches unless the user explicitly opts into Hybrid or Research mode, and label those outside-derived terms until verified.
 
 For this repository family:
 
@@ -67,9 +69,9 @@ When source expansion finds supported material not yet in project records, keep 
 
 ## Maintainer Graph Work
 
-When the maintainer asks for project graph work, graph generation may discover gaps in articles, investigations, metadata, or Relationship Seeds.
+When the maintainer asks for project graph work, graph generation may discover gaps in articles, investigations, metadata, type-specific data blocks, or Relationship Seeds.
 
-Do not silently update glossary threads, investigations, boards, current state, index, or Relationship Seeds as a side effect of graph generation.
+Do not silently update glossary threads, investigations, boards, current state, index, type-specific data blocks, or Relationship Seeds as a side effect of graph generation.
 
 Instead:
 
@@ -97,7 +99,7 @@ If a user asks for "all known" material within a source boundary, that request p
 Before finalizing a complex graph:
 
 1. Resolve graph intent, perspective, source boundary, and artifact intent.
-2. Gather repository-canonical candidates from metadata, Relationship Seeds, glossary threads, investigations, ledgers, graph schemas, and existing generated graph artifacts.
+2. Gather repository-canonical candidates from metadata, type-specific data blocks, Relationship Seeds, glossary threads, investigations, ledgers, graph schemas, and existing generated graph artifacts.
 3. If coverage is insufficient and source access is allowed, perform a bounded source-wide candidate discovery pass.
 4. Convert candidates into graph nodes/edges with provenance and confidence labels.
 5. Reconcile generated candidates against existing graph artifacts or user-provided prior graph drafts when available.
@@ -205,6 +207,8 @@ Examples of semantic grouping:
 
 - pathway graphs: group by pathway, pathway family, controller/possessor, source-culture variant, or reader-relevant faction;
 - artifact graphs: group by artifact, owner/custody chain, ability, usage event, or consequence;
+- item/equipment graphs: group by named item, holder/custody chain, function, access route, related system, or usage event;
+- knowledge-source graphs: group by source, author/origin, reader/interpreter, access chain, claim sequence, quote/evidence reference, or downstream reveal;
 - influence/manipulation graphs: group by manipulator, target, mechanism, event, or confirmed/inferred effect;
 - faction graphs: group by faction, hierarchy, operational cell, affiliation, conflict, or jurisdiction;
 - event graphs: group by event phase, participant role, cause, consequence, location, or reveal order;
@@ -233,6 +237,10 @@ Place these meta nodes in a clearly separated note or appendix branch, usually u
 
 When a cross-cutting concept, reconstruction, exchange rule, alternate pathway connection, or boundary note would pull an existing ladder or holder into another section, use a local reference/proxy node inside the secondary section. Label it as a reference, proxy, reconstruction, summary, or `see ...` node. Do not directly cross-link into the canonical content node if that link will distort the main layout.
 
+For possession and equipment graphs, include named non-artifact Item nodes only when repository data or source-supported graph-local evidence makes them recurring, graph-worthy, or page-worthy. Minor equipment, disposable props, and ordinary inventory should stay in output notes or be omitted unless the user explicitly asks for inventory coverage.
+
+For source/reveal graphs, use Knowledge Source nodes for recurring carriers of information such as diary pages, spellbooks, notebooks, scriptures, case files, letters, inscriptions, formula records, murals, and records. Treat the source's claim sequence, access chain, translation state, and quote references as its semantic content; do not flatten it into a generic Item unless the request is specifically about physical custody or use.
+
 ## Confidence And Styling
 
 Graph labels and styling must preserve confidence:
@@ -243,6 +251,8 @@ Graph labels and styling must preserve confidence:
 - named-only or pathway-like terms should not be forced into full sequence ladders.
 
 Uncertainty should be visible in both text and style. Do not rely only on color.
+
+Relationship status labels should preserve taxonomy meaning. `broken` means rupture, breach, failure, destruction, or a narratively broken relationship; do not use it merely because custody, possession, residence, employment, or access ended. Use `historical`, a custody/possession state label, or an output note for ordinary loss or transfer.
 
 ## Layout And Rendering
 

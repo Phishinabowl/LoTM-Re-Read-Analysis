@@ -2,9 +2,11 @@
 
 This folder contains reusable local helpers for project maintenance and source verification.
 
+For switch-by-switch maps, function-pipeline notes, side effects, parity checks, and durable config/state files for maintained helper scripts, see [Tooling Reference](TOOLING_REFERENCE.md). That reference should be extended whenever another tool is audited or a tool starts reading a new shared config file.
+
 ## Environment Checks
 
-Use `Test-Python.ps1` to check whether Python is present and actually usable before selecting Python-preferred tools. It tests `python`, `python3`, and `py` in order, verifies that `--version` works, and confirms that Python can report `sys.executable`.
+Use `Test-Python.ps1` to check whether Python is present and actually usable before selecting Python-preferred tools. It tests `python`, `python3`, and `py` in order, verifies that `--version` works, confirms that Python can report `sys.executable`, and checks repository Python requirements from `requirements-python.txt`.
 
 Run this probe once for an unfamiliar machine or fresh agent session, then treat the result as the session's Python-availability state. If Python is available, use Python-preferred tools going forward without rerunning the probe before every command. Rerun only if the environment changes, such as PATH edits, Python installation changes, a different shell, a different machine, or a failed Python launch that suggests the earlier state is stale.
 
@@ -13,9 +15,32 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1 -Json
 ```
 
+If Python is available but required modules are missing, install the repository Python dependencies:
+
+```powershell
+python -m pip install -r requirements-python.txt
+```
+
+For the full candidate order, switch behavior, JSON fields, side effects, and latest local check note, see [Tooling Reference](TOOLING_REFERENCE.md#python-environment-check).
+
 If the probe reports Python unavailable, use the documented PowerShell fallback scripts for that session. If Python is available but a Python tool fails, treat that as a tool/script failure rather than silently falling back.
 
 PowerShell fallback commands use `powershell`, which targets Windows PowerShell 5.1 on many Windows machines even when PowerShell 7 is also installed as `pwsh`. Keep `.ps1` fallback scripts compatible with Windows PowerShell 5.1 syntax and APIs unless a tool explicitly documents a PowerShell 7 requirement.
+
+Use `Test-PowerShell.ps1` to check repository PowerShell module requirements from `requirements-powershell.txt` before using fallback features that need modules, such as bounded Obsidian QA pages.
+
+Run this probe once for an unfamiliar machine or fresh agent session, then treat the result as the session's PowerShell-module readiness state. Rerun only if the environment changes, such as module installation changes, a different PowerShell edition, a different machine, or a failed fallback command that suggests the earlier state is stale.
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-PowerShell.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-PowerShell.ps1 -Json
+```
+
+If required PowerShell modules are missing, install them from an internet-enabled PowerShell session as needed. Current-user installs are usually sufficient; maintainers who prefer machine-wide module availability may use `-Scope AllUsers` from an elevated PowerShell session. For the current registry:
+
+```powershell
+Install-Module powershell-yaml -Scope CurrentUser -Force -AllowClobber
+```
 
 ## Temporary File Cleanup
 
@@ -23,7 +48,7 @@ Use `clean_temp_files.py` to remove disposable local cache directories when Pyth
 
 `Clean-TempFiles.ps1` is the Windows PowerShell fallback for users who do not have Python installed.
 
-Both scripts only target allowlisted cache directories under the repository root:
+By default, both scripts only target allowlisted cache directories under the repository root:
 
 ```text
 __pycache__
@@ -61,7 +86,41 @@ PowerShell fallback:
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Clean-TempFiles.ps1 -Delete
 ```
 
+Use `--include-tmp` / `-IncludeTmp` to include direct children of the ignored repository `.tmp/` folder. This is useful after parity checks, bounded-graph experiments, EPUB extraction checks, or other local QA runs:
+
+Preferred Python:
+
+```powershell
+python Tools\clean_temp_files.py --include-tmp
+python Tools\clean_temp_files.py --include-tmp --delete
+```
+
+PowerShell fallback:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Clean-TempFiles.ps1 -IncludeTmp
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Clean-TempFiles.ps1 -IncludeTmp -Delete
+```
+
+Tools that create disposable `.tmp` artifacts automatically should use scoped cleanup instead of broad `.tmp` cleanup. Pass the exact path created during that run with `--tmp-path` / `-TmpPath`; the helper will delete only that path and only if it resolves under repository `.tmp/`.
+
+Preferred Python:
+
+```powershell
+python Tools\clean_temp_files.py --tmp-path .tmp\tool-run-id --delete
+```
+
+PowerShell fallback:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Clean-TempFiles.ps1 -TmpPath .tmp\tool-run-id -Delete
+```
+
 Use `--json` / `-Json` when downstream tooling needs structured results.
+
+The Python Obsidian QA export and visualization refresh helpers invoke the Python cleanup helper at the end of normal runs so transient `__pycache__` folders do not linger. Run the cleanup command directly when a tool exits early, when using fallback scripts, or when reviewing cache cleanup behavior by itself.
+
+For the full cleanup switch map, allowlist, side effects, and Python/PowerShell parity notes, see [Tooling Reference](TOOLING_REFERENCE.md#temporary-file-cleanup).
 
 ## Image Manipulation
 
@@ -128,6 +187,8 @@ Use an explicit custom crop when a future image job needs different geometry:
 python Tools\edit_image.py --operation crop --source-image path\to\source.jpeg --output-image path\to\crop.png --x 24 --y 804 --width 660 --height 1168
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -Operation Crop -SourceImage path\to\source.jpeg -OutputImage path\to\crop.png -X 24 -Y 804 -Width 660 -Height 1168
 ```
+
+For the full image helper switch map, operation aliases, side effects, and Python/PowerShell parity notes, see [Tooling Reference](TOOLING_REFERENCE.md#image-manipulation).
 
 ## EPUB Search
 
@@ -303,6 +364,103 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Patte
 ```
 
 Raw counts can mislead when a term is also a job, epithet, or individual label. For example, `artisan` may outnumber `savant` while mostly referring to an item-maker or a specific person, whereas `Savant pathway` is stronger evidence for the canonical pathway slug.
+
+For the full EPUB search switch map, entry-type behavior, side effects, and Python/PowerShell parity notes, see [Tooling Reference](TOOLING_REFERENCE.md#epub-search).
+
+## Obsidian QA Export
+
+Use `obsidian_qa_export.py` to compile glossary metadata, Relationship Seeds, YAML data-block references, and projected data-block availability into a generated Obsidian-friendly mirror. It is the preferred implementation when Python is available. If Python is unavailable, use the Windows PowerShell fallback `Obsidian-QA-Export.ps1`. The export is a QA view, not a source of truth. Canonical project notes remain under `Glossary_Threads/`, `Investigations/`, `Volumes/`, and related source folders.
+
+Default output goes to ignored local directory `Obsidian_Export/`:
+
+```powershell
+python Tools\obsidian_qa_export.py
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1
+```
+
+The generated structure mirrors active canonical pages by type and adds QA reports. Pages with `Status: Stub` are excluded by default; pass `--include-stubs` / `-IncludeStubs` when stub pages should be mirrored for local inspection. Pending pages are treated as normal QA candidates unless the source page itself is omitted by status.
+
+```text
+Obsidian_Export/
+  Characters/
+  Artifacts/
+  Factions/
+  Concepts/
+  Events/
+  Items/
+  Knowledge_Sources/
+  Locations/
+  Pathways/
+  Volumes/
+  _Generated/
+    relationship-index.md
+    QA-relationship-graph.mmd
+    QA-relationship-node-graph.mmd
+    visualization-relationship-graph.mmd
+    repo-refresh-check/
+      volume-1-knowledge-graph.mmd
+      volume-1-knowledge-graph-timing-spoiler-free.mmd
+      refresh-check-report.md
+      refresh-check-snapshot.json
+      refresh-check-settings.json
+    bounded-pages/
+      Characters/
+        Dunn Smith - chapter-30.md
+    data-reference-index.md
+    orphan-report.md
+    suspicious-edges.md
+```
+
+Each mirror note includes source metadata, a canonical source link, outgoing Relationship Seed edges, incoming edges, data-block references, incoming data-block references, and seed-file evidence.
+
+`QA-relationship-graph.mmd` is a QA-only Mermaid graph that labels relationship edges directly. It collapses duplicate `source + relationship + target` seeds into one edge with an `xN` suffix so the diagram stays readable. When a seed declares `projection_source`, the label includes the projected availability history from the matching data-block row. The canonical/public visualization workflow remains under `Visualization/`; this labeled graph is only for local Obsidian inspection.
+
+`QA-relationship-node-graph.mmd` is the same QA relationship set projected through intermediary relationship nodes, which can be easier to read in Mermaid viewers when direct edge labels overlap. The relationship nodes preserve seed/data provenance and projected availability summaries for quick maintainer review.
+
+`visualization-relationship-graph.mmd` is a QA-local unbounded graph generated through the repository visualization helper. It uses the same semantic relationship-node projection style as `Visualization/`, but writes only to the ignored Obsidian export folder and does not render images or update canonical visualization artifacts. Relationship Seeds with `projection_source` are resolved against the seed source page first, so repeated local data-block keys on different pages do not collide.
+
+The `_Generated/repo-refresh-check/` folder is a QA-local dry run of every currently configured repository graph view from `Visualization/config/render-settings.json`. It uses the real visualization refresh helper with rendering disabled, writes Mermaid graph sources, a refresh report, a semantic snapshot, and the generated check settings into the Obsidian export, and does not touch canonical `Visualization/graphs/`, rendered images, the real refresh snapshot, or `Visualization/README.md`. Because it derives from the live render settings each run, future configured graph views should automatically appear in this QA dry run.
+
+Optional bounded output folders are owned by the current QA export run. If bounded graph or bounded page specs are provided, the matching `_Generated/bounded-graphs/` or `_Generated/bounded-pages/` folder is rebuilt from scratch so stale files from earlier sampled boundaries do not linger. If no specs are provided for one of those opt-in bundles, any old folder for that bundle is removed.
+
+Use `--bounded-page` / `-BoundedPage` to generate optional local QA page projections for specific reader/viewer boundaries. The folder is created only when requested. Python uses PyYAML from `requirements-python.txt`; the PowerShell fallback uses `powershell-yaml` from `requirements-powershell.txt`.
+
+```powershell
+python Tools\obsidian_qa_export.py --clean --bounded-page "slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=30"
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1 -Clean -BoundedPage 'slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=30'
+```
+
+Bounded pages read the canonical page's structured data block and render boundary-filtered QA tables plus matching timeline prose sections when `timeline_entries` map to visible `timeline_id` comments. Character bounded pages include the standard character modules such as first appearance, identity, physical profile, status/origin/location, affiliations, pathway and sequence state, abilities, equipment, personality, relationships, major events, and timeline entries. Optional modules such as associated Tarot card, mythical creature form, uniqueness, knowledge sources/documents, messengers/servants/companions, and prayers/ritual access render only when present in the source data block. They are generated inspection artifacts, not canonical rewritten articles. Before the page's `Subject Visible From` boundary, the output must clearly mark the canonical page as hidden; explicitly modeled anonymous first-appearance beats may still appear as QA preview rows. Their timing display may come from either state-row `availability` ladders or positioned reveal fields such as `position`, `source_refs`, and `graph_display`.
+
+The QA export intentionally exposes modeling issues that reader-facing graphs may hide. It should show duplicate/provisional seeds, seed-vs-data provenance, pending endpoint nodes, and projected availability ladders so maintainers can spot taxonomy drift. `projection_source` is expected to point at structured data-block rows, not visible Markdown tables.
+
+Item and equipment rows follow the project taxonomy in `PROJECT_RULES.md`: minor or disposable equipment remains data-only, recurring local-interest objects may appear in maintainer/local views, and full graph-worthy named non-artifact objects should use `item-*` pages with `possesses-item` or `uses-item` seeds. Relationship status labels should preserve semantics; use `broken` only for actual rupture/failure, not ordinary custody loss.
+
+Knowledge Source pages use `source-*` slugs under `Glossary_Threads/Knowledge_Sources/` for recurring reveal carriers such as diary pages, spellbooks, grimoires, notebooks, scriptures, case files, letters, inscriptions, formula records, murals, or records. The QA export treats them as graphable source nodes so maintainers can inspect access, authorship, translation, and claim-reveal relationships without modeling them as ordinary Items.
+
+The `_Generated` reports flag:
+
+- unknown source/target slugs from Relationship Seeds;
+- unknown target slugs from YAML data blocks;
+- canonical notes with no generated edges or references;
+- self loops;
+- duplicate edges;
+- same-type known edges;
+- missing expected reciprocal edges such as `superior` / `subordinate`.
+
+Use `--clean` to delete and regenerate the export directory:
+
+```powershell
+python Tools\obsidian_qa_export.py --clean
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1 -Clean
+```
+
+Use `--json` / `-Json` when downstream tooling needs summary counts:
+
+```powershell
+python Tools\obsidian_qa_export.py --json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1 -Json
+```
 
 ## EPUB Image Extraction
 

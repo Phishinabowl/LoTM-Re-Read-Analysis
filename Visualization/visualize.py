@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import html
+import importlib.util
 import json
 import math
 import os
@@ -21,6 +22,23 @@ from urllib.parse import unquote
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+
+SLUG_PREFIXES = (
+    "artifact",
+    "character",
+    "concept",
+    "deity",
+    "event",
+    "faction",
+    "item",
+    "source",
+    "location",
+    "pathway",
+    "tarot-card",
+    "uniqueness",
+)
+
+SLUG_RE = re.compile(r"\b(?:" + "|".join(re.escape(prefix) for prefix in SLUG_PREFIXES) + r")-[a-z0-9][a-z0-9-]*\b")
 
 
 @dataclass
@@ -388,7 +406,7 @@ def convert_slug_to_node_id(slug: str) -> str:
 
 
 def convert_slug_to_fallback_label(slug: str) -> str:
-    name = re.sub(r"^(artifact|character|concept|deity|epoch|event|faction|family|location|mystery|pathway|tarot-card|timeline|uniqueness)-", "", Path(slug).stem)
+    name = re.sub(r"^(artifact|character|concept|deity|epoch|event|faction|family|item|source|location|mystery|pathway|tarot-card|timeline|uniqueness)-", "", Path(slug).stem)
     parts = [part for part in name.split("-") if part]
     label_parts = []
     for part in parts:
@@ -415,16 +433,349 @@ def read_glossary_nodes() -> dict[str, dict[str, str]]:
         node_id = convert_slug_to_node_id(slug)
         label = None
         subject_visible_from = ""
+        status = ""
         for line in read_text(file_path).splitlines():
             match = re.match(r"^#\s+(.+)$", line)
             if match:
                 label = match.group(1).strip()
             if match := re.match(r"^Subject Visible From:\s*(.+?)\s*$", line):
                 subject_visible_from = match.group(1).strip()
-            if label and subject_visible_from:
+            if match := re.match(r"^Status:\s*(.+?)\s*$", line):
+                status = match.group(1).strip().lower()
+            if label and subject_visible_from and status:
                 break
-        nodes[node_id] = {"label": label or convert_slug_to_fallback_label(slug), "subject_visible_from": subject_visible_from}
+        nodes[node_id] = {
+            "label": label or convert_slug_to_fallback_label(slug),
+            "subject_visible_from": subject_visible_from,
+            "status": status,
+        }
     return nodes
+
+
+def read_first_appearance_graph_displays() -> dict[str, list[dict[str, str]]]:
+    displays: dict[str, list[dict[str, str]]] = defaultdict(list)
+    root = resolve_repo_path("Glossary_Threads")
+    display_index = 1
+    for file_path in sorted(root.rglob("*.md")):
+        if file_path.name == "TEMPLATE.md":
+            continue
+        note_slug = file_path.stem
+        canonical_node_id = convert_slug_to_node_id(note_slug)
+        text = read_text(file_path)
+        relationship_block = extract_relationship_yaml(text)
+
+        for block in fenced_yaml_blocks(text):
+            if relationship_block and block == relationship_block:
+                continue
+
+            root_key = ""
+            section_key = ""
+            row: dict[str, str] | None = None
+            graph_display: dict[str, str] = {}
+            context = ""
+
+            def finish_row() -> None:
+                nonlocal row, graph_display, display_index, context
+                if row is None:
+                    return
+                behavior = graph_display.get("behavior", "")
+                label = graph_display.get("label", "")
+                if behavior == "anonymized-node" and label:
+                    medium = graph_display.get("visible_from_medium") or row.get("position_medium") or row.get("medium", "")
+                    volume = graph_display.get("visible_from_volume") or row.get("position_volume", "")
+                    chapter = graph_display.get("visible_from_chapter") or row.get("position_chapter", "")
+                    season = graph_display.get("visible_from_season") or row.get("position_season", "")
+                    episode = graph_display.get("visible_from_episode") or row.get("position_episode", "")
+                    release_order = graph_display.get("visible_from_release_order") or row.get("position_release_order", "")
+                    displays[canonical_node_id].append(
+                        {
+                            "node_id": f"anon_{display_index:03d}",
+                            "canonical_node_id": canonical_node_id,
+                            "label": label,
+                            "behavior": behavior,
+                            "medium": medium,
+                            "volume": volume,
+                            "chapter": chapter,
+                            "season": season,
+                            "episode": episode,
+                            "release_order": release_order,
+                            "resolves_medium": graph_display.get("resolves_to_canonical_at_medium", ""),
+                            "resolves_volume": graph_display.get("resolves_to_canonical_at_volume", ""),
+                            "resolves_chapter": graph_display.get("resolves_to_canonical_at_chapter", ""),
+                            "resolves_season": graph_display.get("resolves_to_canonical_at_season", ""),
+                            "resolves_episode": graph_display.get("resolves_to_canonical_at_episode", ""),
+                            "resolves_release_order": graph_display.get("resolves_to_canonical_at_release_order", ""),
+                        }
+                    )
+                    display_index += 1
+                row = None
+                graph_display = {}
+                context = ""
+
+            for raw_line in block.splitlines():
+                if not raw_line.strip() or ":" not in raw_line:
+                    continue
+                indent = len(raw_line) - len(raw_line.lstrip(" "))
+                line = raw_line.strip()
+
+                if indent == 0 and not line.startswith("- "):
+                    finish_row()
+                    key, value = line.split(":", 1)
+                    root_key = key.strip() if strip_yaml_scalar(value) == "" else ""
+                    section_key = ""
+                    continue
+
+                if root_key and indent == 2 and not line.startswith("- "):
+                    finish_row()
+                    key, value = line.split(":", 1)
+                    section_key = key.strip() if strip_yaml_scalar(value) == "" else ""
+                    continue
+
+                if root_key and section_key == "first_appearance_beats" and indent == 4 and line.startswith("- "):
+                    finish_row()
+                    row = {}
+                    graph_display = {}
+                    context = ""
+                    line = line[2:].strip()
+                    if ":" not in line:
+                        continue
+
+                if row is None or section_key != "first_appearance_beats":
+                    continue
+
+                key, value = line.split(":", 1)
+                key = key.strip().lstrip("-").strip()
+                value = strip_yaml_scalar(value)
+
+                if indent == 4:
+                    row[key] = value
+                    context = ""
+                elif indent == 6:
+                    if key in {"position", "graph_display"}:
+                        context = key
+                        if key == "position":
+                            for inline_key, inline_value in parse_inline_mapping(value).items():
+                                row[f"position_{inline_key}"] = inline_value
+                        continue
+                    row[key] = value
+                    context = ""
+                elif indent >= 8:
+                    if context == "position":
+                        row[f"position_{key}"] = value
+                    elif context == "graph_display":
+                        if key in {"visible_from", "resolves_to_canonical_at"}:
+                            for inline_key, inline_value in parse_inline_mapping(value).items():
+                                graph_display[f"{key}_{inline_key}"] = inline_value
+                        else:
+                            graph_display[key] = value
+
+            finish_row()
+
+    return displays
+
+
+def strip_yaml_scalar(value: str) -> str:
+    value = value.strip()
+    if value in {"", "null", "Null", "NULL"}:
+        return ""
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
+        return value[1:-1]
+    return value
+
+
+def parse_inline_mapping(value: str) -> dict[str, str]:
+    value = strip_yaml_scalar(value)
+    if not value.startswith("{") or not value.endswith("}"):
+        return {}
+    result: dict[str, str] = {}
+    for part in value[1:-1].split(","):
+        if ":" not in part:
+            continue
+        key, item_value = part.split(":", 1)
+        result[key.strip()] = strip_yaml_scalar(item_value)
+    return result
+
+
+def extract_section(text: str, heading: str) -> str:
+    match = re.search(rf"^## {re.escape(heading)}\s*$", text, re.MULTILINE)
+    if not match:
+        return ""
+    start = match.end()
+    next_match = re.search(r"^##\s+", text[start:], re.MULTILINE)
+    end = start + next_match.start() if next_match else len(text)
+    return text[start:end].strip()
+
+
+def fenced_yaml_blocks(text: str) -> list[str]:
+    return [match.group(1).strip() for match in re.finditer(r"```yaml\s*(.*?)```", text, re.DOTALL)]
+
+
+def extract_relationship_yaml(text: str) -> str:
+    section = extract_section(text, "Relationship Seeds")
+    match = re.search(r"```yaml\s*(.*?)```", section, re.DOTALL)
+    return match.group(1).strip() if match else ""
+
+
+def projection_slug(value: str) -> str:
+    value = strip_yaml_scalar(value)
+    if not value:
+        return ""
+    if SLUG_RE.fullmatch(value):
+        return value
+    return re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
+
+
+def projection_keys_for_row(row: dict[str, str]) -> set[str]:
+    keys: set[str] = set()
+    for key in [
+        "target",
+        "ability",
+        "event",
+        "pathway",
+        "organization",
+        "item",
+        "source_unit_id",
+        "batch_id",
+        "fragment_id",
+        "label",
+        "field",
+        "entity",
+        "uniqueness",
+    ]:
+        value = row.get(key, "")
+        if not value:
+            continue
+        slug = projection_slug(value)
+        if not slug:
+            continue
+        keys.add(slug)
+        for prefix in SLUG_PREFIXES:
+            keys.add(f"{prefix}-{slug}")
+    return keys
+
+
+def make_availability_entry(data: dict[str, str]) -> dict[str, str]:
+    return {
+        "medium": data.get("medium", ""),
+        "volume": data.get("from_volume", "") or data.get("volume", ""),
+        "chapter": data.get("from_chapter", "") or data.get("chapter", ""),
+        "season": data.get("from_season", "") or data.get("season", ""),
+        "episode": data.get("from_episode", "") or data.get("episode", ""),
+        "release_order": data.get("from_release_order", "") or data.get("release_order", ""),
+        "status": data.get("status", "") or data.get("possession_status", "") or data.get("outcome_status", ""),
+        "confidence": data.get("confidence", ""),
+        "graph_visibility": data.get("graph_visibility", ""),
+        "display_source_label": data.get("display_source_label", ""),
+        "display_target_label": data.get("display_target_label", ""),
+        "display_relationship_type": data.get("display_relationship_type", ""),
+    }
+
+
+def read_data_projections() -> dict[str, list[dict[str, str]]]:
+    projections: dict[str, list[dict[str, str]]] = {}
+    root = resolve_repo_path("Glossary_Threads")
+    for file_path in sorted(root.rglob("*.md")):
+        if file_path.name == "TEMPLATE.md":
+            continue
+        note_slug = file_path.stem
+        text = read_text(file_path)
+        relationship_block = extract_relationship_yaml(text)
+        for block in fenced_yaml_blocks(text):
+            if relationship_block and block == relationship_block:
+                continue
+
+            root_key = ""
+            section_key = ""
+            row: dict[str, str] | None = None
+            availability: list[dict[str, str]] = []
+            availability_item: dict[str, str] | None = None
+            in_availability = False
+            in_from = False
+
+            def finish_availability_item() -> None:
+                nonlocal availability_item
+                if availability_item is not None:
+                    availability.append(make_availability_entry(availability_item))
+                    availability_item = None
+
+            def finish_row() -> None:
+                nonlocal row, availability, availability_item, in_availability, in_from
+                if row is None:
+                    return
+                finish_availability_item()
+                if root_key and section_key and availability:
+                    for key in projection_keys_for_row(row):
+                        projection_source = f"{root_key}.{section_key}[{key}]"
+                        projections[f"{note_slug}|{projection_source}"] = list(availability)
+                        projections.setdefault(projection_source, list(availability))
+                row = None
+                availability = []
+                availability_item = None
+                in_availability = False
+                in_from = False
+
+            for raw_line in block.splitlines():
+                if not raw_line.strip() or ":" not in raw_line:
+                    continue
+                indent = len(raw_line) - len(raw_line.lstrip(" "))
+                line = raw_line.strip()
+
+                if indent == 0 and not line.startswith("- "):
+                    finish_row()
+                    key, value = line.split(":", 1)
+                    root_key = key.strip() if strip_yaml_scalar(value) == "" else ""
+                    section_key = ""
+                    continue
+
+                if root_key and indent == 2 and not line.startswith("- "):
+                    finish_row()
+                    key, value = line.split(":", 1)
+                    section_key = key.strip() if strip_yaml_scalar(value) == "" else ""
+                    continue
+
+                if root_key and section_key and indent == 4 and line.startswith("- "):
+                    finish_row()
+                    row = {}
+                    line = line[2:].strip()
+                    if ":" not in line:
+                        continue
+
+                if row is None:
+                    continue
+
+                key, value = line.split(":", 1)
+                key = key.strip().lstrip("-").strip()
+                value = strip_yaml_scalar(value)
+
+                if indent == 4:
+                    row[key] = value
+                    in_availability = False
+                    in_from = False
+                elif indent == 6 and key != "availability" and not in_availability:
+                    row[key] = value
+                elif indent == 6 and key == "availability":
+                    finish_availability_item()
+                    in_availability = True
+                    in_from = False
+                elif indent == 8 and line.startswith("- "):
+                    finish_availability_item()
+                    availability_item = {}
+                    if key:
+                        availability_item[key] = value
+                    in_availability = True
+                    in_from = False
+                elif in_availability and availability_item is not None:
+                    if key == "from":
+                        availability_item.update({f"from_{k}": v for k, v in parse_inline_mapping(value).items()})
+                        in_from = True
+                    elif in_from and indent >= 12:
+                        availability_item[f"from_{key}"] = value
+                    else:
+                        availability_item[key] = value
+                        in_from = False
+
+            finish_row()
+    return projections
 
 
 def read_relationship_seeds() -> list[dict[str, str]]:
@@ -467,6 +818,9 @@ def read_relationship_seeds() -> list[dict[str, str]]:
                     "chapter": "",
                     "status": "",
                     "confidence": "",
+                    "projection_source": "",
+                    "projection_scope": "",
+                    "history_label": "",
                 }
                 continue
             if current is None:
@@ -475,6 +829,14 @@ def read_relationship_seeds() -> list[dict[str, str]]:
                 current["target"] = match.group(1).strip()
             elif match := re.match(r"^\s+relationship_type:\s*(.+?)\s*$", line):
                 current["relationship_type"] = match.group(1).strip()
+            elif match := re.match(r"^\s+start:\s*(\{.*\})\s*$", line):
+                mapping = parse_inline_mapping(match.group(1).strip())
+                if not current["medium"]:
+                    current["medium"] = mapping.get("medium", "")
+                if not current["volume"]:
+                    current["volume"] = mapping.get("volume", "")
+                if not current["chapter"]:
+                    current["chapter"] = mapping.get("chapter", "")
             elif not current["medium"] and (match := re.match(r"^\s+medium:\s*(.+?)\s*$", line)):
                 current["medium"] = match.group(1).strip()
             elif not current["volume"] and (match := re.match(r"^\s+volume:\s*(.+?)\s*$", line)):
@@ -485,6 +847,10 @@ def read_relationship_seeds() -> list[dict[str, str]]:
                 current["status"] = match.group(1).strip()
             elif match := re.match(r"^\s+confidence:\s*(.+?)\s*$", line):
                 current["confidence"] = match.group(1).strip()
+            elif match := re.match(r"^\s+projection_source:\s*(.+?)\s*$", line):
+                current["projection_source"] = match.group(1).strip()
+            elif match := re.match(r"^\s+projection_scope:\s*(.+?)\s*$", line):
+                current["projection_scope"] = match.group(1).strip()
 
         if in_section and in_code and current is not None:
             relationships.append(current)
@@ -546,37 +912,239 @@ def filter_nodes_for_boundary(nodes: dict[str, dict[str, str]], boundary: dict[s
     return filtered
 
 
-def filter_relationships_for_boundary(relationships: list[dict[str, str]], boundary: dict[str, Any] | None) -> list[dict[str, str]]:
+def node_is_visible_at_boundary(node: dict[str, str], boundary: dict[str, Any] | None) -> bool:
     if not boundary:
-        return relationships
-    return [
-        relationship
-        for relationship in relationships
-        if position_is_visible(relationship.get("medium", ""), relationship.get("volume", ""), relationship.get("chapter", ""), boundary)
-    ]
+        return True
+    visible_from = node.get("subject_visible_from", "")
+    if not visible_from:
+        return bool(boundary.get("includeUnknownSubjects", False))
+    parsed = parse_subject_visible_from(visible_from)
+    return position_is_visible(str(parsed["medium"]), parsed["volume"], parsed["chapter"], boundary)
 
 
-def format_relationship_label(relationship: dict[str, str], timing_spoiler_free: bool) -> str:
+def graph_display_is_visible(display: dict[str, str], boundary: dict[str, Any] | None) -> bool:
+    if not boundary:
+        return False
+    if not position_is_visible(display.get("medium", ""), display.get("volume", ""), display.get("chapter", ""), boundary):
+        return False
+    resolves_medium = display.get("resolves_medium", "")
+    if resolves_medium and position_is_visible(resolves_medium, display.get("resolves_volume", ""), display.get("resolves_chapter", ""), boundary):
+        return False
+    return True
+
+
+def get_anonymized_node_displays(
+    nodes: dict[str, dict[str, str]],
+    boundary: dict[str, Any] | None,
+    first_appearance_displays: dict[str, list[dict[str, str]]],
+) -> tuple[dict[str, str], dict[str, str]]:
+    if not boundary:
+        return {}, {}
+
+    display_nodes: dict[str, str] = {}
+    node_aliases: dict[str, str] = {}
+    for canonical_node_id, displays in first_appearance_displays.items():
+        node = nodes.get(canonical_node_id)
+        if node and node_is_visible_at_boundary(node, boundary):
+            continue
+        visible_displays = [display for display in displays if graph_display_is_visible(display, boundary)]
+        if not visible_displays:
+            continue
+        display = visible_displays[-1]
+        display_nodes[display["node_id"]] = display["label"]
+        node_aliases[canonical_node_id] = display["node_id"]
+    return display_nodes, node_aliases
+
+
+def availability_is_pinned(entry: dict[str, str]) -> bool:
+    if entry.get("medium") == "novel":
+        return bool(parse_boundary_number(entry.get("volume", "")) and parse_boundary_number(entry.get("chapter", "")))
+    if entry.get("medium") == "donghua":
+        return any(entry.get(key) and entry.get(key) != "TBD" for key in ["season", "episode", "release_order"])
+    return False
+
+
+def availability_entry_is_visible(entry: dict[str, str], boundary: dict[str, Any] | None) -> bool:
+    if not availability_is_pinned(entry):
+        return False
+    if boundary and not position_is_visible(entry.get("medium", ""), entry.get("volume", ""), entry.get("chapter", ""), boundary):
+        return False
+    if entry.get("graph_visibility") == "hidden":
+        return False
+    return True
+
+
+def format_availability_entry(entry: dict[str, str], timing_spoiler_free: bool) -> str:
+    parts: list[str] = []
+    if not timing_spoiler_free:
+        if entry.get("medium") == "novel" and entry.get("chapter"):
+            parts.append(f"ch{entry['chapter']}")
+        elif entry.get("medium") == "donghua":
+            if entry.get("season") and entry["season"] != "TBD":
+                parts.append(f"s{entry['season']}")
+            if entry.get("episode") and entry["episode"] != "TBD":
+                parts.append(f"e{entry['episode']}")
+    if entry.get("confidence") and entry["confidence"] != "confirmed":
+        parts.append(entry["confidence"])
+    elif entry.get("confidence") == "confirmed":
+        parts.append("confirmed")
+    elif entry.get("status") and entry["status"] not in {"active", "current-at-boundary"}:
+        parts.append(entry["status"])
+    return " ".join(parts)
+
+
+def format_availability_history(entries: list[dict[str, str]], timing_spoiler_free: bool) -> str:
+    visible_entries = [entry for entry in entries if availability_entry_is_visible(entry, None)]
+    if not visible_entries:
+        return ""
+    by_medium: dict[str, list[str]] = defaultdict(list)
+    for entry in visible_entries:
+        if entry.get("medium") == "donghua" and not any(entry.get(key) and entry.get(key) != "TBD" for key in ["season", "episode", "release_order"]):
+            continue
+        line = format_availability_entry(entry, timing_spoiler_free)
+        if line and line not in by_medium[entry.get("medium", "unknown")]:
+            by_medium[entry.get("medium", "unknown")].append(line)
+    lines = []
+    for medium in sorted(by_medium):
+        prefix = medium if not timing_spoiler_free else ""
+        history = " -> ".join(by_medium[medium])
+        lines.append(f"{prefix} {history}".strip())
+    return "; ".join(lines)
+
+
+def choose_current_availability(entries: list[dict[str, str]], boundary: dict[str, Any] | None) -> dict[str, str] | None:
+    visible_entries = [entry for entry in entries if availability_entry_is_visible(entry, boundary)]
+    if not visible_entries:
+        return None
+    return visible_entries[-1]
+
+
+def relationship_strength(relationship: dict[str, str]) -> tuple[int, int, int, int]:
+    has_projection = 1 if relationship.get("projection_source") else 0
+    has_history = 1 if relationship.get("history_label") else 0
+    canonical = 1 if relationship.get("projection_scope") == "canonical" else 0
+    confidence_rank = {"confirmed": 3, "strong-evidence": 2, "strong-inference": 2, "clue": 1}.get(relationship.get("confidence", ""), 0)
+    return (has_history, has_projection, canonical, confidence_rank)
+
+
+def filter_relationships_for_boundary(
+    relationships: list[dict[str, str]],
+    boundary: dict[str, Any] | None,
+    visible_node_ids: set[str] | None = None,
+    known_node_ids: set[str] | None = None,
+    data_projections: dict[str, list[dict[str, str]]] | None = None,
+    timing_spoiler_free: bool = False,
+    node_aliases: dict[str, str] | None = None,
+) -> list[dict[str, str]]:
+    data_projections = data_projections or {}
+    node_aliases = node_aliases or {}
+    visible_node_ids = visible_node_ids or set()
+    known_node_ids = known_node_ids or set()
+    selected: dict[tuple[str, str, str], dict[str, str]] = {}
+
+    for relationship in relationships:
+        source_node = convert_slug_to_node_id(relationship["source"])
+        target_node = convert_slug_to_node_id(relationship["target"])
+        if visible_node_ids:
+            hidden_known_endpoint = any(
+                node_id not in visible_node_ids and node_id in known_node_ids and node_id not in node_aliases
+                for node_id in [source_node, target_node]
+            )
+            if hidden_known_endpoint:
+                continue
+
+        rendered = dict(relationship)
+        rendered["render_source_node"] = node_aliases.get(source_node, source_node)
+        rendered["render_target_node"] = node_aliases.get(target_node, target_node)
+        projection_source = relationship.get("projection_source", "")
+        namespaced_projection_source = f"{relationship.get('source', '')}|{projection_source}"
+        availability = data_projections.get(namespaced_projection_source) or data_projections.get(projection_source, [])
+        if availability:
+            current = choose_current_availability(availability, boundary)
+            if current is None:
+                continue
+            rendered["medium"] = current.get("medium", rendered.get("medium", ""))
+            rendered["volume"] = current.get("volume", rendered.get("volume", ""))
+            rendered["chapter"] = current.get("chapter", rendered.get("chapter", ""))
+            rendered["status"] = current.get("status", rendered.get("status", ""))
+            rendered["confidence"] = current.get("confidence", rendered.get("confidence", ""))
+            rendered["history_label"] = format_availability_history(
+                [entry for entry in availability if availability_entry_is_visible(entry, boundary)],
+                timing_spoiler_free,
+            )
+        elif boundary and not position_is_visible(rendered.get("medium", ""), rendered.get("volume", ""), rendered.get("chapter", ""), boundary):
+            continue
+
+        key = (rendered["render_source_node"], rendered["relationship_type"], rendered["render_target_node"])
+        previous = selected.get(key)
+        if previous is None or relationship_strength(rendered) > relationship_strength(previous):
+            selected[key] = rendered
+
+    return [selected[key] for key in sorted(selected)]
+
+
+def get_missing_relationship_endpoints(relationships: list[dict[str, str]], known_node_ids: set[str]) -> set[str]:
+    missing: set[str] = set()
+    for relationship in relationships:
+        for key in ["source", "target"]:
+            node_id = convert_slug_to_node_id(relationship[key])
+            if node_id not in known_node_ids:
+                missing.add(node_id)
+    return missing
+
+
+def format_relationship_label(
+    relationship: dict[str, str],
+    timing_spoiler_free: bool,
+    include_confirmed_confidence: bool = False,
+) -> str:
     parts = [relationship["relationship_type"]]
+    if relationship.get("history_label"):
+        parts.append(relationship["history_label"])
+        return " ".join(parts)
     if not timing_spoiler_free and relationship.get("chapter"):
         parts.append(f"ch{relationship['chapter']}")
     if relationship.get("status") and relationship["status"] != "active":
         parts.append(relationship["status"])
-    if relationship.get("confidence") and relationship["confidence"] != "confirmed":
+    if relationship.get("confidence") and (include_confirmed_confidence or relationship["confidence"] != "confirmed"):
         parts.append(relationship["confidence"])
     return " ".join(parts)
 
 
-def format_relationship_node_label(relationship: dict[str, str], timing_spoiler_free: bool) -> str:
-    return format_relationship_label(relationship, timing_spoiler_free).replace(" ", "<br/>", 1) if False else "<br/>".join(
-        part.replace('"', r"\"") for part in format_relationship_label(relationship, timing_spoiler_free).split(" ")
+def format_relationship_node_label(
+    relationship: dict[str, str],
+    timing_spoiler_free: bool,
+    include_confirmed_confidence: bool = False,
+) -> str:
+    if relationship.get("history_label"):
+        parts = [relationship["relationship_type"], relationship["history_label"]]
+        return "<br/>".join(part.replace('"', r"\"") for part in parts)
+    return format_relationship_label(relationship, timing_spoiler_free, include_confirmed_confidence).replace(" ", "<br/>", 1) if False else "<br/>".join(
+        part.replace('"', r"\"") for part in format_relationship_label(relationship, timing_spoiler_free, include_confirmed_confidence).split(" ")
     )
 
 
-def write_mermaid_graph(graph_path: Path, nodes: dict[str, str], relationships: list[dict[str, str]], timing_spoiler_free: bool) -> None:
+def write_mermaid_graph(
+    graph_path: Path,
+    nodes: dict[str, str],
+    relationships: list[dict[str, str]],
+    timing_spoiler_free: bool,
+    known_node_ids: set[str] | None = None,
+    pending_node_ids: set[str] | None = None,
+    pending_endpoint_node_ids: set[str] | None = None,
+    include_confirmed_confidence: bool = False,
+) -> None:
+    known = set(nodes) if known_node_ids is None else set(known_node_ids) | set(nodes)
+    pending_node_ids = pending_node_ids or set()
+    pending_endpoint_node_ids = pending_endpoint_node_ids or set()
+    missing_endpoint_nodes: set[str] = set()
     for relationship in relationships:
-        source = convert_slug_to_node_id(relationship["source"])
-        target = convert_slug_to_node_id(relationship["target"])
+        source = relationship.get("render_source_node") or convert_slug_to_node_id(relationship["source"])
+        target = relationship.get("render_target_node") or convert_slug_to_node_id(relationship["target"])
+        if source not in known:
+            missing_endpoint_nodes.add(source)
+        if target not in known:
+            missing_endpoint_nodes.add(target)
         nodes.setdefault(source, convert_node_id_to_fallback_label(source))
         nodes.setdefault(target, convert_node_id_to_fallback_label(target))
 
@@ -595,16 +1163,29 @@ def write_mermaid_graph(graph_path: Path, nodes: dict[str, str], relationships: 
         "  classDef event fill:#fff1f2,stroke:#e11d48,stroke-width:2px,color:#1f2937",
         "  classDef faction fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#1f2937",
         "  classDef family fill:#fce7f3,stroke:#be185d,stroke-width:2px,color:#1f2937",
+        "  classDef item fill:#ecfccb,stroke:#65a30d,stroke-width:2px,color:#1f2937",
+        "  classDef source fill:#cffafe,stroke:#0891b2,stroke-width:2px,color:#1f2937",
         "  classDef location fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#1f2937",
         "  classDef mystery fill:#e5e7eb,stroke:#4b5563,stroke-width:2px,color:#1f2937",
         "  classDef pathway fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#1f2937",
         "  classDef tarot fill:#ffedd5,stroke:#ea580c,stroke-width:2px,color:#1f2937",
         "  classDef timeline fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1f2937",
         "  classDef uniqueness fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#1f2937",
+        "  classDef missingEndpoint fill:#f8fafc,stroke:#64748b,stroke-width:2px,stroke-dasharray:4 3,color:#1f2937",
+        "  classDef pendingNode stroke:#64748b,stroke-width:2px,stroke-dasharray:4 3",
+        "  classDef pendingEndpoint fill:#f8fafc,stroke:#64748b,stroke-width:2px,stroke-dasharray:4 3,color:#1f2937",
+        "  classDef anonymizedNode fill:#f8fafc,stroke:#475569,stroke-width:2px,stroke-dasharray:6 3,color:#1f2937",
         "  classDef relationship fill:#f7f2e9,stroke:#c69245,stroke-width:1.5px,color:#1f2937",
         "",
     ]
     for node_id in sorted(nodes):
+        if re.match(r"^anon_[0-9]+$", node_id):
+            lines.append(f"  class {node_id} anonymizedNode")
+            continue
+        if node_id in missing_endpoint_nodes:
+            class_name = "pendingEndpoint" if node_id in pending_endpoint_node_ids else "missingEndpoint"
+            lines.append(f"  class {node_id} {class_name}")
+            continue
         class_name = node_id.split("_")[0]
         if class_name in {
             "artifact",
@@ -615,6 +1196,8 @@ def write_mermaid_graph(graph_path: Path, nodes: dict[str, str], relationships: 
             "event",
             "faction",
             "family",
+            "item",
+            "source",
             "location",
             "mystery",
             "pathway",
@@ -623,18 +1206,20 @@ def write_mermaid_graph(graph_path: Path, nodes: dict[str, str], relationships: 
             "uniqueness",
         }:
             lines.append(f"  class {node_id} {class_name}")
+        if node_id in pending_node_ids:
+            lines.append(f"  class {node_id} pendingNode")
 
     lines.append("")
     seen_edges: set[str] = set()
     edges: list[dict[str, str]] = []
     for relationship in relationships:
-        source = convert_slug_to_node_id(relationship["source"])
-        target = convert_slug_to_node_id(relationship["target"])
-        label = format_relationship_label(relationship, timing_spoiler_free)
+        source = relationship.get("render_source_node") or convert_slug_to_node_id(relationship["source"])
+        target = relationship.get("render_target_node") or convert_slug_to_node_id(relationship["target"])
+        label = format_relationship_label(relationship, timing_spoiler_free, include_confirmed_confidence)
         key = f"{source}|{label}|{target}"
         if key not in seen_edges:
             seen_edges.add(key)
-            edges.append({"source": source, "target": target, "label": label, "nodeLabel": format_relationship_node_label(relationship, timing_spoiler_free)})
+            edges.append({"source": source, "target": target, "label": label, "nodeLabel": format_relationship_node_label(relationship, timing_spoiler_free, include_confirmed_confidence)})
 
     for index, edge in enumerate(sorted(edges, key=lambda item: (item["source"], item["target"], item["label"])), start=1):
         relationship_id = f"rel_{index:03d}"
@@ -649,13 +1234,35 @@ def write_mermaid_graph(graph_path: Path, nodes: dict[str, str], relationships: 
 def update_mermaid_graphs(views: list[dict[str, Any]]) -> None:
     nodes = read_glossary_nodes()
     relationships = read_relationship_seeds()
+    data_projections = read_data_projections()
+    first_appearance_displays = read_first_appearance_graph_displays()
+    pending_node_ids = {node_id for node_id, node in nodes.items() if node.get("status") == "pending"}
     for view in views:
         graph_path = resolve_repo_path(view["input"])
         timing_spoiler_free = "timing-spoiler-free" in view["input"]
         boundary = view.get("readerBoundary")
         view_nodes = filter_nodes_for_boundary(nodes, boundary)
-        view_relationships = filter_relationships_for_boundary(relationships, boundary)
-        write_mermaid_graph(graph_path, dict(view_nodes), view_relationships, timing_spoiler_free)
+        anonymized_nodes, node_aliases = get_anonymized_node_displays(nodes, boundary, first_appearance_displays)
+        view_nodes.update(anonymized_nodes)
+        view_relationships = filter_relationships_for_boundary(
+            relationships,
+            boundary,
+            set(view_nodes),
+            set(nodes),
+            data_projections,
+            timing_spoiler_free,
+            node_aliases,
+        )
+        pending_endpoint_node_ids = get_missing_relationship_endpoints(view_relationships, set(nodes))
+        write_mermaid_graph(
+            graph_path,
+            dict(view_nodes),
+            view_relationships,
+            timing_spoiler_free,
+            set(nodes),
+            pending_node_ids & set(view_nodes),
+            pending_endpoint_node_ids,
+        )
 
 
 def get_graph_stats(graph_path: Path) -> dict[str, Any]:
@@ -1014,6 +1621,9 @@ def load_visualization_settings(settings_path: str | Path = "Visualization/confi
 def invoke_validate_mode(settings: dict[str, Any]) -> None:
     nodes = read_glossary_nodes()
     relationships = read_relationship_seeds()
+    data_projections = read_data_projections()
+    first_appearance_displays = read_first_appearance_graph_displays()
+    pending_node_ids = {node_id for node_id, node in nodes.items() if node.get("status") == "pending"}
     print(f"Source parse: nodes={len(nodes)} relationships={len(relationships)}")
 
     issues: list[str] = []
@@ -1034,8 +1644,27 @@ def invoke_validate_mode(settings: dict[str, Any]) -> None:
             timing_spoiler_free = "timing-spoiler-free" in view["input"]
             boundary = view.get("readerBoundary")
             view_nodes = filter_nodes_for_boundary(nodes, boundary)
-            view_relationships = filter_relationships_for_boundary(relationships, boundary)
-            write_mermaid_graph(temp_graph, dict(view_nodes), view_relationships, timing_spoiler_free)
+            anonymized_nodes, node_aliases = get_anonymized_node_displays(nodes, boundary, first_appearance_displays)
+            view_nodes.update(anonymized_nodes)
+            view_relationships = filter_relationships_for_boundary(
+                relationships,
+                boundary,
+                set(view_nodes),
+                set(nodes),
+                data_projections,
+                timing_spoiler_free,
+                node_aliases,
+            )
+            pending_endpoint_node_ids = get_missing_relationship_endpoints(view_relationships, set(nodes))
+            write_mermaid_graph(
+                temp_graph,
+                dict(view_nodes),
+                view_relationships,
+                timing_spoiler_free,
+                set(nodes),
+                pending_node_ids & set(view_nodes),
+                pending_endpoint_node_ids,
+            )
             class_issues = get_mermaid_class_validation(temp_graph, settings)
             layout_issues = get_mermaid_layout_validation(temp_graph, settings)
             print(f"Generated graph: {view['input']} class_issues={len(class_issues)} layout_issues={len(layout_issues)}")
@@ -1088,18 +1717,34 @@ def parse_args() -> argparse.Namespace:
     return args
 
 
+def clean_disposable_caches() -> None:
+    try:
+        clean_path = REPO_ROOT / "Tools" / "clean_temp_files.py"
+        spec = importlib.util.spec_from_file_location("_lotm_clean_temp_files", clean_path)
+        if spec is None or spec.loader is None:
+            return
+        cleaner = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cleaner)
+        cleaner.clean_cache_dirs(cleaner.find_cache_dirs(REPO_ROOT))
+    except Exception:
+        return
+
+
 def main() -> None:
     args = parse_args()
     os.chdir(REPO_ROOT)
     settings = load_visualization_settings(args.settings_path)
     puppeteer_config = resolve_repo_path(settings["puppeteerConfig"])
 
-    if args.mode == "render":
-        invoke_render_mode(settings, puppeteer_config, args.input_path, args.output_paths)
-    elif args.mode == "validate":
-        invoke_validate_mode(settings)
-    else:
-        invoke_refresh_mode(settings, puppeteer_config, args.skip_render)
+    try:
+        if args.mode == "render":
+            invoke_render_mode(settings, puppeteer_config, args.input_path, args.output_paths)
+        elif args.mode == "validate":
+            invoke_validate_mode(settings)
+        else:
+            invoke_refresh_mode(settings, puppeteer_config, args.skip_render)
+    finally:
+        clean_disposable_caches()
 
 
 if __name__ == "__main__":
