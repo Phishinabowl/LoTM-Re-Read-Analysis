@@ -15,6 +15,7 @@ For repository-answering behavior, read [README-AI-Agent-Specification.md](READM
 - Prefers Socratic investigation style.
 - Start with memory reconstruction.
 - Use EPUB only when verification is needed.
+- For repo-only or build-pilot-from-existing-data passes, follow Repository Mode search discipline even in Codex maintainer work: do not seed searches with pretrained knowledge, model memory, fan knowledge, or outside-known terms unless the user explicitly opts into Hybrid/Research work.
 - Evidence first, conclusion second.
 - End responses with the next investigation question.
 - Preserve novel and Donghua disclosure timelines independently.

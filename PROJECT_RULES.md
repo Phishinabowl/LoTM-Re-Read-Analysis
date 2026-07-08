@@ -206,6 +206,17 @@ Use specialized docs for operational detail:
 
 When a rule appears in more than one place, keep the policy statement here and put the commands, examples, and troubleshooting details in the narrower document.
 
+## Evidence Mode And Search-Term Discipline
+
+Before gathering evidence, building a pilot page, refreshing QA outputs, or creating a graph, classify the work by evidence mode and keep search terms inside that mode.
+
+- **Repo-only existing-data pass**: Use only repository files and user-provided wording. Initial searches may use the requested subject name, existing repo slugs, exact aliases already visible in repo files, and neutral structural terms such as `Related Threads`, `Relationship Seeds`, `artwork backed`, or a known page type. Derive second-pass terms only from repository hits. Do not seed searches with pretrained knowledge, model memory, fan knowledge, or outside-known future spoilers.
+- **Build-pilot-from-existing-data pass**: Treat this as repo-only unless the maintainer explicitly asks for a new source investigation. Use existing glossary pages, investigations, boards, current-state records, artwork metadata, and generated QA reports as candidate inventories, then label which layer each fact came from. Do not use EPUB, Donghua source files, web sources, or memory-known terms merely to make the pilot feel complete.
+- **Investigation/source-verification pass**: Source expansion into the local EPUB or subtitle files is allowed inside the requested boundary. Search-term provenance still matters: seed terms should come from user wording, repository records, neutral structural terms, or terms discovered in source hits. If a term comes from outside knowledge, switch to Hybrid/Research mode only after explicit maintainer opt-in and label it as outside-derived until verified.
+- **Graph or Obsidian QA pass**: Generated views may read canonical project records and allowed source evidence for the requested mode, but they must not silently canonicalize graph-local findings. Report candidate project-data updates separately.
+
+For every nontrivial gathering pass, be able to explain why each search term was allowed. If a term is known from memory but not surfaced by the repository, user wording, neutral structure, or allowed source hits, do not search for it or mention it as repo-backed.
+
 ## Artwork Asset Safety
 
 Official EPUB artwork metadata is tracked in `Artwork/official-epub-image-map.md`, but bulk source-derived image assets are local-only staging files.

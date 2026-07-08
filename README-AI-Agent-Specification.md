@@ -214,6 +214,24 @@ Failure condition:
 
 The assistant completes bootstrap without checking or reporting whether ignored local source materials such as the EPUB or subtitle files are available.
 
+## 0.7 Regression Test: Repo-Only Search Seeding
+
+User request:
+
+> Gather all existing repository material for [planned character] before creating the page. Use only what is already in the repo; do not search the source text.
+
+Expected behavior:
+
+The assistant MUST treat the request as Repository Mode with source expansion disabled. Initial search terms may come only from the user's wording, existing repository names/slugs, visible repo aliases, and neutral structural terms. Second-pass search terms may come only from repository hits. The assistant may report that outside-known or memory-known gaps might exist only if it clearly labels them as outside knowledge and does not search for them or present them as repo-backed.
+
+Failure condition:
+
+The assistant seeds repository searches with pretrained domain knowledge, fan knowledge, future-spoiler names, likely hidden relationships, or remembered source facts that were not surfaced by user wording or repository hits.
+
+Failure condition:
+
+The assistant searches the EPUB, subtitle files, web, fandom/wiki sources, or other external/source materials after the user explicitly requested a repo-only existing-data pass.
+
 ---
 
 # 1. Purpose

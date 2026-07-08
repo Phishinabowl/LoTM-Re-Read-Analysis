@@ -35,9 +35,16 @@ What chapter/volume range should be searched?
 
 Use this section to make the completeness sweep reproducible without narrating every search action.
 
+- Search mode: repo-only / source-verification / hybrid / research
 - Initial terms, names, and aliases:
+  - `[user|repo|neutral|source-hit|outside]` term:
 - Related effects, events, characters, locations, or motifs:
+  - `[user|repo|neutral|source-hit|outside]` term:
 - Terms discovered during the investigation:
+  - `[repo-hit|source-hit]` term:
+- Excluded memory-known or outside-known terms:
+  - term:
+  - reason not used:
 - EPUB survey command or equivalent source sweep:
 - Candidate chapter range:
 - Context expansion notes:

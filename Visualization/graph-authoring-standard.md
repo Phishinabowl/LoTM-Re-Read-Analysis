@@ -53,6 +53,8 @@ Do not overload primary content-node labels with evidence-layer summaries such a
 
 Start with repository-canonical records. If the request exceeds article, data-block, or Relationship Seed coverage and source access is available, expand into allowed local canonical sources.
 
+Search terms for graph source expansion must follow the active evidence mode. In repo-only graph or QA work, derive terms only from user wording, repository records, existing generated artifacts used as candidate inventories, or neutral structural searches. In source-verification graph work, terms may also come from bounded source hits. Do not use pretrained knowledge, model memory, fan knowledge, or outside-known future spoilers to seed graph searches unless the user explicitly opts into Hybrid or Research mode, and label those outside-derived terms until verified.
+
 For this repository family:
 
 - Novel evidence comes from the local EPUB.
