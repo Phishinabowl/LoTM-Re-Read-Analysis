@@ -78,6 +78,16 @@ Navigation hub for the reread analysis workspace.
   - [Blackthorn Security Company Novel Volume 1 Reveal Timeline](Investigations/Locations/location-blackthorn-security-company/novel-volume-1-reveal-timeline.md)
   - [Klein Becomes a Seer Novel Volume 1 Event Timeline](Investigations/Events/event-klein-becomes-a-seer/novel-volume-1-reveal-timeline.md)
 
+#### Leonard Mitchell
+
+- Glossary: [Leonard Mitchell](Glossary_Threads/Characters/character-leonard-mitchell.md)
+- Supporting Investigations:
+  - [Sleepless Pathway Novel Volume 1 Reveal Timeline](Investigations/Pathways/pathway-sleepless/novel-volume-1-reveal-timeline.md)
+  - [Church of Evernight Volume 1 Reveal Timeline](Investigations/Factions/faction-church-of-evernight/novel-volume-1-reveal-timeline.md)
+  - [Dunn Smith Novel Volume 1 Reveal Timeline](Investigations/Characters/character-dunn-smith/novel-volume-1-reveal-timeline.md)
+  - [Blackthorn Security Company Novel Volume 1 Reveal Timeline](Investigations/Locations/location-blackthorn-security-company/novel-volume-1-reveal-timeline.md)
+  - [Tarot Club Preliminary Planning Investigation](Investigations/Factions/faction-tarot-club/preliminary-planning-investigation.md)
+
 #### Old Neil
 
 - Glossary: [Old Neil](Glossary_Threads/Characters/character-old-neil.md)

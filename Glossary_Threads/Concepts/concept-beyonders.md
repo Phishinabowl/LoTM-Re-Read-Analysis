@@ -181,7 +181,7 @@ Later explanations of Beyonder characteristics, pathway structure, acting method
 - character-klein-moretti.md
 - [Old Neil](../Characters/character-old-neil.md)
 - [Dunn Smith](../Characters/character-dunn-smith.md)
-- character-leonard-mitchell.md
+- [Leonard Mitchell](../Characters/character-leonard-mitchell.md)
 - character-roselle-gustav.md
 
 ### Associated Pathways

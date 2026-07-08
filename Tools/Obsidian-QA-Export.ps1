@@ -2659,6 +2659,7 @@ function ConvertTo-BoundedCharacterPageMarkdown {
   $lines += ConvertTo-GenerationStatsMarkdown $Note $Spec $pageVisible $filtered
   foreach ($table in $BoundedCharacterTables) {
     if ($table.Optional -and -not (Test-MapHasKey $profile $table.Key) -and -not (Test-MapHasKey $filtered $table.Key)) { continue }
+    if ($table.Optional -and @(Get-MapValue $filtered $table.Key @()).Count -eq 0) { continue }
     $lines += ConvertTo-BoundedTableMarkdown $table.Title @(Get-MapValue $filtered $table.Key @()) $table.Columns
   }
   if ($pageVisible) {
@@ -2676,8 +2677,16 @@ function Write-BoundedPages {
     [hashtable]$Notes,
     [object[]]$Specs
   )
-  if (@($Specs).Count -eq 0) { return }
   $boundedDir = Join-Path $GeneratedDir "bounded-pages"
+  if (@($Specs).Count -eq 0) {
+    if (Test-Path -LiteralPath $boundedDir) {
+      Remove-Item -LiteralPath $boundedDir -Recurse -Force
+    }
+    return
+  }
+  if (Test-Path -LiteralPath $boundedDir) {
+    Remove-Item -LiteralPath $boundedDir -Recurse -Force
+  }
   foreach ($spec in @($Specs)) {
     if (-not $Notes.ContainsKey($spec.slug)) {
       $unknownDir = Join-Path $boundedDir "_Unknown"

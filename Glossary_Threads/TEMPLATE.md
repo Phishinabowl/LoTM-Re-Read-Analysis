@@ -21,6 +21,8 @@ Related Investigations:
 
 Use only controlled tags from `PROJECT_RULES.md`.
 
+For novel timing labels, use `Novel V# Ch#` and include both `volume` and absolute `chapter` in structured data when known. Follow the canonical volume range registry in `PROJECT_RULES.md`.
+
 If this page embeds official artwork, use a promoted page-ready asset under `Artwork/page-assets/` and make the embedded image clickable to its own full-size asset by default. Keep raw extraction and working-crop paths under `Artwork/Source/` out of rendered Markdown links and image tags; record them only as source/provenance metadata when needed.
 
 This universal template is the shared glossary contract and maximal reference shape. Type-specific templates decide which sections are required, optional when relevant, or omitted by default. Do not add empty sections to real lightweight pages just to satisfy this template; use the relevant sections once the page has enough reader-safe material to support them.

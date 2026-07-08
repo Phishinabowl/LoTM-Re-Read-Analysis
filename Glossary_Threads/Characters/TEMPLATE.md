@@ -1,6 +1,6 @@
 # Character Name
 
-<!-- Optional: omit this block until a page-ready official character asset is promoted. -->
+<!-- On page creation, check Artwork/official-epub-image-map.md. If eligible mapped artwork exists, promote the selected file into Artwork/page-assets/characters/character-slug/ and embed it here. Omit only when no eligible artwork exists or promotion is deliberately deferred. -->
 <a href="../../Artwork/page-assets/characters/character-slug/page-ready-character-image.ext"><img src="../../Artwork/page-assets/characters/character-slug/page-ready-character-image.ext" alt="Official character artwork label" width="320"></a>
 
 ## Metadata
@@ -152,10 +152,13 @@ Use a single block only when all reveal beats happen together. If the character 
 
 ## Associated Tarot Card
 
-Include this section only when the character has a reader-safe Tarot Club identity, tarot-card assignment, tarot-card alias, or other explicit character-specific tarot association that is meaningful to track. Omit it from character pages where no tarot-card association exists. Preserve assignment/reveal timing separately from pathway tarot-card associations. When a page-ready card crop exists and is reader-safe at the current boundary, embed a compact clickable image like pathway pages do; otherwise use the table only.
+Include this section only when the character has a reader-safe Tarot Club identity, tarot-card assignment, tarot-card alias, or other explicit character-specific tarot association that is meaningful to track. Omit it from character pages where no tarot-card association exists. Preserve assignment/reveal timing separately from pathway tarot-card associations. When the associated tarot-card crop exists and is reader-safe at the current boundary, embed the compact clickable card crop like pathway pages do; keep the character portrait as page identity/header artwork rather than the card-association image. `Card target` is temporary pending-page scaffolding: use it only while the individual tarot-card page does not exist. Once the card page exists and its path is stable, remove the visible `Card target` column and make the tarot-card name itself the Markdown link to that page.
 
-| Tarot card | Card number | Identity / alias | Assignment / reveal point | Status | Confidence | Image | Notes |
-|---|---|---|---|---|---|---|---|
+| Card image | Tarot card | Card target | Card number | Identity / alias | Assignment / reveal point | Status | Confidence | Notes |
+|---|---|---|---|---|---|---|---|---|
+| <a href="../../Artwork/page-assets/pathways/pathway-slug/card-crop.ext"><img src="../../Artwork/page-assets/pathways/pathway-slug/card-crop.ext" alt="Tarot card crop label" width="120"></a> | <span style="font-size: 1.45em; font-weight: 700;">Card Name</span> | tarot-card-card-name | <span style="font-size: 1.15em;">Roman / Number</span> |  |  |  |  |  |
+
+<!-- After the card page exists, remove the Card target column and link the Tarot card cell, for example: [<span style="font-size: 1.45em; font-weight: 700;">Card Name</span>](../Tarot_Cards/tarot-card-card-name.md). Keep the data-block `target` field either way. -->
 
 ## Mythical Creature Form State
 
@@ -526,6 +529,8 @@ character_profile:
         crop_file:
         source_crop_file:
         alt:
+      character_artwork_file:
+      source_character_artwork_file:
       availability:
         - medium:
           from:

@@ -829,6 +829,14 @@ def read_relationship_seeds() -> list[dict[str, str]]:
                 current["target"] = match.group(1).strip()
             elif match := re.match(r"^\s+relationship_type:\s*(.+?)\s*$", line):
                 current["relationship_type"] = match.group(1).strip()
+            elif match := re.match(r"^\s+start:\s*(\{.*\})\s*$", line):
+                mapping = parse_inline_mapping(match.group(1).strip())
+                if not current["medium"]:
+                    current["medium"] = mapping.get("medium", "")
+                if not current["volume"]:
+                    current["volume"] = mapping.get("volume", "")
+                if not current["chapter"]:
+                    current["chapter"] = mapping.get("chapter", "")
             elif not current["medium"] and (match := re.match(r"^\s+medium:\s*(.+?)\s*$", line)):
                 current["medium"] = match.group(1).strip()
             elif not current["volume"] and (match := re.match(r"^\s+volume:\s*(.+?)\s*$", line)):

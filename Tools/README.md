@@ -421,6 +421,8 @@ Each mirror note includes source metadata, a canonical source link, outgoing Rel
 
 The `_Generated/repo-refresh-check/` folder is a QA-local dry run of every currently configured repository graph view from `Visualization/config/render-settings.json`. It uses the real visualization refresh helper with rendering disabled, writes Mermaid graph sources, a refresh report, a semantic snapshot, and the generated check settings into the Obsidian export, and does not touch canonical `Visualization/graphs/`, rendered images, the real refresh snapshot, or `Visualization/README.md`. Because it derives from the live render settings each run, future configured graph views should automatically appear in this QA dry run.
 
+Optional bounded output folders are owned by the current QA export run. If bounded graph or bounded page specs are provided, the matching `_Generated/bounded-graphs/` or `_Generated/bounded-pages/` folder is rebuilt from scratch so stale files from earlier sampled boundaries do not linger. If no specs are provided for one of those opt-in bundles, any old folder for that bundle is removed.
+
 Use `--bounded-page` / `-BoundedPage` to generate optional local QA page projections for specific reader/viewer boundaries. The folder is created only when requested. Python uses PyYAML from `requirements-python.txt`; the PowerShell fallback uses `powershell-yaml` from `requirements-powershell.txt`.
 
 ```powershell

@@ -227,7 +227,7 @@ Use Markdown links when the target file exists. Mention a nonexistent thread as 
 - [Divination](../Concepts/concept-divination.md)
 - character-klein-moretti.md
 - [Dunn Smith](../Characters/character-dunn-smith.md)
-- character-leonard-mitchell.md
+- [Leonard Mitchell](../Characters/character-leonard-mitchell.md)
 - [Sleepless Pathway](../Pathways/pathway-sleepless.md)
 
 ### Historical Connections

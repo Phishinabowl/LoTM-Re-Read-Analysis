@@ -165,6 +165,31 @@ When official artwork uses a classic or alternate pathway name that differs from
 
 For Volume 1 progress percentages, use the current verified chapter boundary divided by 213 total chapters. Treat the percentage as a chapter-boundary indicator, not a guarantee of article quality, cross-link completeness, or adaptation completeness.
 
+### Novel Chapter Notation And Volume Ranges
+
+Novel chapter labels must preserve both the absolute chapter number and the containing volume when the volume is known. Use the compact visible form `Novel V# Ch#` in tables, metadata, graph labels, first-reveal fields, evidence indexes, and concise prose references. Use fuller prose only when readability needs it, such as `Novel Volume 5, Chapter 951`; do not use bare `Novel Ch951` once the volume can be determined.
+
+The canonical Lord of the Mysteries Book 1 volume ranges are derived from the local source EPUB by reading each `OEBPS/Text/volume_N_...` chapter file and its internal `Chapter X` heading:
+
+| Volume | Title | Absolute chapter range | Chapter count |
+|---|---|---:|---:|
+| V1 | Clown | 1-213 | 213 |
+| V2 | Faceless | 214-482 | 269 |
+| V3 | Traveler | 483-732 | 250 |
+| V4 | Undying | 733-946 | 214 |
+| V5 | Red Priest | 947-1150 | 204 |
+| V6 | Lightseeker | 1151-1266 | 116 |
+| V7 | The Hanged Man | 1267-1353 | 87 |
+| V8 | Fool | 1354-1394 | 41 |
+
+Structured data should store both `volume` and absolute `chapter` when possible:
+
+```yaml
+from: { book: lotm-1, volume: 5, chapter: 951 }
+```
+
+If a chapter is known but the volume field is missing on an older row, add the volume from this registry during the next page normalization pass. Use `volume: TBD` only when the absolute chapter is unknown or the source cannot yet be reconciled to this registry.
+
 When a thread spans more than one medium, track novel and adaptation progress separately where practical. Do not let one medium's progress silently advance another.
 
 Do not create all pending threads just because they appear in `CURRENT_STATE.md`. Pending items are a backlog, not an instruction to scaffold every file.
@@ -278,6 +303,8 @@ The Obsidian QA export's `_Generated/repo-refresh-check/` bundle is a local dry 
 When requested with bounded graph flags, the Obsidian QA export may also create `_Generated/bounded-graphs/`. These are opt-in no-render local Mermaid previews for ad hoc reader/viewer boundaries, not canonical configured repository views.
 
 When requested with bounded page flags, the Obsidian QA export may also create `_Generated/bounded-pages/`. These are opt-in local QA projections that read structured type-specific data blocks, apply a requested reader/viewer boundary, and render provisional Markdown tables plus timeline-linked prose excerpts for inspection. They are not canonical articles, do not replace the source glossary page, and must not invent prose or facts outside the source page's structured data. If a requested boundary is before `Subject Visible From`, the bounded page should either omit the canonical page body or clearly mark the canonical page as hidden; anonymous first-appearance preview beats may be shown only when the data block explicitly models them.
+
+The optional bounded output folders are rebuilt per QA export run. If bounded graph or bounded page specs are present, the matching `_Generated/bounded-graphs/` or `_Generated/bounded-pages/` folder should be deleted and regenerated so stale sample files do not linger. If no specs are present for one of those optional bundles, the export should remove any old folder for that bundle.
 
 Use the shared [Graph Authoring Standard](Visualization/graph-authoring-standard.md) for graph construction. It defines canonical versus graph-local evidence, source expansion, pathway/sequence coverage, maintainer confirmation, and output reporting.
 
@@ -587,7 +614,7 @@ Omit these specialized modules by default unless they have meaningful reader-saf
 
 Character pages should include an `Overall Summary` section immediately before `Character Snapshot`. This section should provide a reader-safe synthesis of who the character is at the current boundary. It can be more natural and interpretive than the structured rows, and it may be one paragraph for minor characters or a few concise paragraphs for major characters with more development. It must stay inside the reader boundary and avoid later emotional or plot contamination. The snapshot bullets should summarize the latest reader-safe state without replacing chronological development. Keep state/history tables newest-to-oldest by reveal or change point so the latest visible state appears first at the current reader boundary. Keep `Major Events & Fights`, chronological development, evidence indexes, and reader knowledge ledgers oldest-to-newest because those sections preserve event or reading order.
 
-When official character artwork is mapped and promoted into `Artwork/page-assets/characters/`, place a compact clickable primary character image immediately under the page H1 and before `Metadata`. Omit the image block until a page-ready asset exists; do not link directly to ignored bulk-extracted artwork.
+When creating or promoting a character page, check `Artwork/official-epub-image-map.md` for mapped official artwork for that character. If an eligible, reader-safe mapped source asset exists, promote only that specific file into `Artwork/page-assets/characters/<character-slug>/` and place a compact clickable primary character image immediately under the page H1 and before `Metadata`. Omit the image block only when no eligible mapped artwork exists or the maintainer has deliberately deferred promotion. Do not link directly to ignored bulk-extracted artwork.
 
 Mutable character facts should accumulate rows instead of overwriting old values. This includes aliases, titles, age, vital status, residence, affiliations, pathway status, Sequence advancement, mythical creature form state, Uniqueness possession/control/accommodation state, equipment/item possession, relationships, companions, and ability access. Future reader-boundary tooling should hide rows after the chosen boundary and compute the current state from the remaining rows.
 
@@ -599,7 +626,7 @@ Use snake_case for data-block field names and lowercase kebab-case for controlle
 
 Use `Pathway & Ability State` for broad stateful supernatural status such as pathway, Sequence, advancement, digestion, or limitations. Use `Ability Index` for individual capabilities and skills, including pathway abilities, artifact-granted effects, rituals, authority, training, knowledge, or mundane competencies.
 
-Use character `Associated Tarot Card` only for character-specific tarot assignments, identities, aliases, or Tarot Club membership/card relationships. Preserve assignment/reveal timing with an `associated_tarot_card` data row and `availability` ladder. This is separate from pathway-wide `Associated Tarot Card`, which belongs on pathway pages. When a reader-safe card crop exists, link the compact visible image to the page-ready asset and store the image path in the data row; omit the image until the crop is mapped and safe.
+Use character `Associated Tarot Card` only for character-specific tarot assignments, identities, aliases, or Tarot Club membership/card relationships. Preserve assignment/reveal timing with an `associated_tarot_card` data row and `availability` ladder. This is separate from pathway-wide `Associated Tarot Card`, which belongs on pathway pages. When a reader-safe tarot-card crop exists, use the same compact clickable crop used by the relevant pathway page as the section image, keep detailed table columns for card name, target slug or page link, number, identity, timing, status, confidence, and notes, and use slightly enlarged inline styling for the card name/number like the pathway card tables. While an individual tarot-card page is pending, keep the visible card name plain and show the graph/page target slug in the temporary `Card target` column. Once a dedicated tarot-card page exists and its path is stable, remove the visible `Card target` column and make the visible card name link to that page. Keep the data-block `target` field either way. Keep official character portraits in the page header / `official_artwork`; if the tarot-card association also has character-gallery artwork provenance, store that separately in fields such as `character_artwork_file` rather than using it as the card image.
 
 Use `Prayers & Ritual Access` only when a character has reader-safe access to a specific prayer address, ritual method, ritual target, character-specific wording, or recurring ritual function. Cross-link to `Glossary_Threads/Concepts/concept-prayers-and-rituals.md` when relevant. Do not add a default "none known" section or data row unless the absence itself is analytically important at the page boundary. Keep general ritual theory, reusable prayer/ritual type definitions, and cross-character comparisons on the concept page rather than duplicating them inside character pages.
 

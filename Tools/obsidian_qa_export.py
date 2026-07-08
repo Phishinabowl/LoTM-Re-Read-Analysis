@@ -1947,6 +1947,8 @@ def render_bounded_character_page(root: Path, note: CanonicalNote, spec: Bounded
     for table_title, section_key, columns, optional in BOUNDED_CHARACTER_TABLES:
         if optional and section_key not in profile and section_key not in filtered:
             continue
+        if optional and not filtered.get(section_key, []):
+            continue
         lines.extend(render_bounded_table(table_title, filtered.get(section_key, []), columns))
 
     if page_visible:
@@ -1957,9 +1959,13 @@ def render_bounded_character_page(root: Path, note: CanonicalNote, spec: Bounded
 
 
 def write_bounded_pages(root: Path, generated_dir: Path, notes: dict[str, CanonicalNote], specs: list[BoundedPageSpec]) -> None:
-    if not specs:
-        return
     bounded_dir = generated_dir / "bounded-pages"
+    if not specs:
+        if bounded_dir.exists():
+            shutil.rmtree(bounded_dir)
+        return
+    if bounded_dir.exists():
+        shutil.rmtree(bounded_dir)
     for spec in specs:
         note = notes.get(spec.slug)
         if note is None:

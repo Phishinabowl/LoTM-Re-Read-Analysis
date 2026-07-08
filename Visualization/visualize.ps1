@@ -1539,6 +1539,17 @@ function Read-RelationshipSeeds {
         $current.target = $matches[1].Trim()
       } elseif ($line -match '^\s+relationship_type:\s*(.+?)\s*$') {
         $current.relationship_type = $matches[1].Trim()
+      } elseif ($line -match '^\s+start:\s*(\{.*\})\s*$') {
+        $mapping = ConvertFrom-InlineMapping $matches[1].Trim()
+        if ([string]::IsNullOrWhiteSpace($current.medium) -and $mapping.ContainsKey("medium")) {
+          $current.medium = $mapping["medium"]
+        }
+        if ([string]::IsNullOrWhiteSpace($current.volume) -and $mapping.ContainsKey("volume")) {
+          $current.volume = $mapping["volume"]
+        }
+        if ([string]::IsNullOrWhiteSpace($current.chapter) -and $mapping.ContainsKey("chapter")) {
+          $current.chapter = $mapping["chapter"]
+        }
       } elseif ([string]::IsNullOrWhiteSpace($current.medium) -and $line -match '^\s+medium:\s*(.+?)\s*$') {
         $current.medium = $matches[1].Trim()
       } elseif ([string]::IsNullOrWhiteSpace($current.volume) -and $line -match '^\s+volume:\s*(.+?)\s*$') {
