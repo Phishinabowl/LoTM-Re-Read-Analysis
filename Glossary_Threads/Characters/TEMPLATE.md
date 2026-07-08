@@ -344,13 +344,16 @@ character_profile:
     book: lotm-1
     volume:
     chapter:
+    notes:
   state_sort_order: newest-to-oldest
   official_artwork:
     - image_number:
       label:
       type:
       file:
+      source_file:
       usage:
+      notes:
   first_appearance_beats:
     - medium:
       beat_type:
@@ -989,3 +992,5 @@ last_updated:
 #### Adaptation Analysis
 
 - Differences in timing, presentation, context, omission, condensation, expansion, or meaning:
+
+<!-- Add a collapsible Maintainer Notes block only when this page needs page-specific modeling, search-boundary, rendering, future split, or migration notes. Do not add empty maintainer-note placeholders to real pages. For repo-only pilot pages, record the evidence/search mode and any deliberately deferred promotions or excluded memory-known material here. -->
