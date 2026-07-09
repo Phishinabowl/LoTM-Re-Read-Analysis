@@ -206,6 +206,20 @@ Pandas is a consumer/view layer, not the core model.
 - Have QA generator, likely improved version of it, run whenever category/page/YAML data is changed and refresh only associated info on site when detected
 - Expose all of the QA specific files only when in maintainer context. Do not show to regular users (requires login state from earlier)
 
+## Long-Term Vision
+
+- Website and standalone desktop app for various OS's
+- Support syncing between desktop platform app and website for project maintainers
+- Create custom file format for saving/exporting entire project from like web to open in desktop app for more advanced features
+- Custom file format should encode in a "projectUsageMode" value that determines what type of project it is to open matching project type (author/worldbuilding, legal, medical etc.)
+- Eventual website generator determined by usage mode w/ templates (ie. fandom wiki style site for author/worldbuilding, legal focussed site for legal/compliance/LE, medical focussed site for medical etc)
+- Website and desktop app should support themes/layouts depending on project type so buttons/prompts etc are most useful to the people using the platform in that industry
+- Desktop app should allow for better integration with other desktop apps. Similar to ChatGPT web vs Codex
+- AI chatbot using AI OS concept
+  - Website version should know how to reason/use KB and should have checkbox opt-in for pulling external data/info from web both for search seeding as well as answer synthesis. Should explicitly tell web users that source searching is not available due to copyright issues OR figure out a legal way to allow users to upload source files to possibly user-specific saved profile tied to their login
+  - Desktop app should allow upgraded features such as source searching via saved local source files that get added to application once and then get re-used going forward. Should have same opt-in for external/pre-trained data as website version
+- Be able to link to discord to add discord chatbot to a given server. Chatbot should be powered by same AI system from above
+
 ## Planned Phases
 
 ### Phase 1: MVP Maintainer UI
