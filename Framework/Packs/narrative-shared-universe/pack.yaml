@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-shared-universe
-pack_version: 4
+pack_version: 5
 lifecycle: active
 pack_kind: domain
 label: Narrative Shared Universe
@@ -18,7 +18,15 @@ capabilities:
   - id: entity-incarnations
     lifecycle: available
     label: Entity Incarnations
-    description: Stable conceptual entities, continuity-bound incarnations, scope-backed bindings, and typed counterpart or lineage relationships.
+    description: Stable conceptual entities, category memberships, entity lineage, continuity-bound incarnations, scope-backed bindings, and typed counterpart relationships.
+  - id: entity-identity-phases
+    lifecycle: planned
+    label: Entity Identity Phases
+    description: Same-continuity addressable phases such as regenerations, temporal duplicates, simulations, and ontologically distinct transformations.
+  - id: entity-identity-reconciliation
+    lifecycle: planned
+    label: Entity Identity Reconciliation
+    description: Auditable merges, redirects, mistaken duplicates, and superseded stable identity records.
   - id: crossover-events
     lifecycle: planned
     label: Crossover Events
@@ -43,6 +51,36 @@ controlled_values:
     - primary
     - appearance
     - crossover
+  narrative.entity-relationship-type:
+    - successor-to
+    - has-successor
+    - namesake-of
+    - has-namesake
+    - legacy-of
+    - has-legacy
+    - mantle-holder-of
+    - mantle-held-by
+    - clone-of
+    - has-clone
+    - splintered-from
+    - has-splinter
+    - derived-from
+    - source-for
+    - composite-of
+    - has-composite
+    - inspired-by
+    - inspired
+    - instance-of
+    - has-instance
+  narrative.entity-relationship-basis-role:
+    - identity
+    - name
+    - appearance
+    - personality
+    - history
+    - abilities
+    - relationships
+    - narrative-function
   narrative.incarnation-relationship-type:
     - counterpart-of
     - adaptation-counterpart-of

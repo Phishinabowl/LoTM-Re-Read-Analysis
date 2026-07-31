@@ -7,7 +7,7 @@ if (-not (Get-Command Get-KnowledgeSchemaPackRegistry -ErrorAction SilentlyConti
   . $schemaPackConfigHelper
 }
 
-$script:SupportedEntitySchemaVersion = 1
+$script:SupportedEntitySchemaVersion = 2
 $script:EntityStableIdPattern = "^[a-z0-9]+(?:-[a-z0-9]+)*$"
 $script:EntityLifecycles = @("active", "deferred")
 
@@ -107,6 +107,44 @@ function New-EntityAliasMap {
   return $aliases
 }
 
+function Assert-EntityRelationshipTypeInverses {
+  param([object]$RelationshipTypes, [string]$Label)
+
+  foreach ($type in $RelationshipTypes.Values) {
+    if (-not $RelationshipTypes.Contains($type.inverse_type)) {
+      throw "Entity registry $Label relationship type '$($type.id)' references unknown inverse '$($type.inverse_type)'."
+    }
+    $inverse = $RelationshipTypes[$type.inverse_type]
+    if ($inverse.inverse_type -ne $type.id) {
+      throw "Entity registry $Label relationship types '$($type.id)' and '$($inverse.id)' are not reciprocal inverses."
+    }
+    if ($type.symmetric -ne ($type.id -eq $type.inverse_type)) {
+      throw "Entity registry $Label relationship type '$($type.id)' has inconsistent symmetric and inverse settings."
+    }
+  }
+}
+
+function Get-CanonicalEntityRelationshipShape {
+  param(
+    [string]$SourceId,
+    [string]$TypeId,
+    [string]$TargetId,
+    [string]$ScopeId,
+    [object]$RelationshipTypes
+  )
+
+  $type = $RelationshipTypes[$TypeId]
+  if ($type.symmetric) {
+    $ends = @($SourceId, $TargetId) | Sort-Object
+    return "$($ends[0])|$TypeId|$($ends[1])|$ScopeId"
+  }
+  $canonicalType = @($TypeId, $type.inverse_type) | Sort-Object | Select-Object -First 1
+  if ($TypeId -eq $canonicalType) {
+    return "$SourceId|$canonicalType|$TargetId|$ScopeId"
+  }
+  return "$TargetId|$canonicalType|$SourceId|$ScopeId"
+}
+
 function Get-KnowledgeEntityRegistry {
   param(
     [object]$ProjectConfig,
@@ -145,12 +183,18 @@ function Get-KnowledgeEntityRegistry {
     if ($entity -isnot [System.Collections.IDictionary]) { throw "Entity registry '$context' must be a mapping." }
     $lifecycle = Get-RequiredEntityString $entity "lifecycle" $context
     if ($script:EntityLifecycles -notcontains $lifecycle) { throw "Entity registry '$context.lifecycle' must be one of: $($script:EntityLifecycles -join ', ')." }
-    $categoryId = Get-RequiredEntityString $entity "category_id" $context
-    if (-not $TaxonomyConfig.categories.Contains($categoryId)) { throw "Entity registry '$context.category_id' references unknown category '$categoryId'." }
+    $primaryCategoryId = Get-RequiredEntityString $entity "primary_category_id" $context
+    $categoryIds = @(Get-EntityStringList $entity "category_ids" $context)
+    if ($categoryIds.Count -eq 0) { throw "Entity registry '$context.category_ids' cannot be empty." }
+    foreach ($categoryId in $categoryIds) {
+      if (-not $TaxonomyConfig.categories.Contains($categoryId)) { throw "Entity registry '$context.category_ids' references unknown category '$categoryId'." }
+    }
+    if ($categoryIds -notcontains $primaryCategoryId) { throw "Entity registry '$context.primary_category_id' must appear in category_ids." }
     $entities[$entityId] = [pscustomobject]@{
       id = $entityId
       lifecycle = $lifecycle
-      category_id = $categoryId
+      primary_category_id = $primaryCategoryId
+      category_ids = @($categoryIds)
       label = Get-RequiredEntityString $entity "label" $context
       aliases = @(Get-EntityStringList $entity "aliases" $context)
     }
@@ -158,6 +202,55 @@ function Get-KnowledgeEntityRegistry {
 
   $allowedMembershipStatuses = @(Get-SchemaPackAllowedValues $SchemaPackRegistry "source.membership-status")
   if ($allowedMembershipStatuses.Count -eq 0) { throw "Selected schema packs do not provide controlled namespace 'source.membership-status'." }
+
+  $rawEntityTypes = Get-ProjectMapValue $registry "entity_relationship_types"
+  if ($null -eq $rawEntityTypes -or $rawEntityTypes -isnot [System.Collections.IDictionary]) { throw "Entity registry 'entity_relationship_types' must be a mapping." }
+  $entityRelationshipTypes = [ordered]@{}
+  foreach ($typeId in $rawEntityTypes.Keys) {
+    $context = "entity_relationship_types.$typeId"; Assert-EntityStableId $typeId $context
+    Assert-EntityPackValue $SchemaPackRegistry "narrative.entity-relationship-type" $typeId $context
+    $type = $rawEntityTypes[$typeId]
+    if ($type -isnot [System.Collections.IDictionary]) { throw "Entity registry '$context' must be a mapping." }
+    $entityRelationshipTypes[$typeId] = [pscustomobject]@{
+      id=$typeId
+      label=Get-RequiredEntityString $type "label" $context
+      inverse_type=Get-RequiredEntityString $type "inverse_type" $context
+      symmetric=Get-RequiredEntityBoolean $type "symmetric" $context
+    }
+  }
+  Assert-EntityRelationshipTypeInverses $entityRelationshipTypes "entity"
+
+  $rawEntityRelationships = Get-ProjectMapValue $registry "entity_relationships"
+  if ($null -eq $rawEntityRelationships) { $rawEntityRelationships = @() }
+  if ($rawEntityRelationships -is [string]) { throw "Entity registry 'entity_relationships' must be a list." }
+  $rawEntityRelationships = @($rawEntityRelationships)
+  $entityRelationships = @()
+  $entityRelationshipIds = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+  $entityRelationshipShapes = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+  $lineageRoleTypes = @("derived-from", "composite-of", "inspired-by")
+  for ($index = 0; $index -lt $rawEntityRelationships.Count; $index += 1) {
+    $context = "entity_relationships[$index]"; $relationship = $rawEntityRelationships[$index]
+    if ($relationship -isnot [System.Collections.IDictionary]) { throw "Entity registry '$context' must be a mapping." }
+    $id = Get-RequiredEntityString $relationship "id" $context; Assert-EntityStableId $id "$context.id"
+    if (-not $entityRelationshipIds.Add($id)) { throw "Entity registry repeats entity relationship ID '$id'." }
+    $sourceId = Get-RequiredEntityString $relationship "source_entity_id" $context
+    $targetId = Get-RequiredEntityString $relationship "target_entity_id" $context
+    if (-not $entities.Contains($sourceId) -or -not $entities.Contains($targetId)) { throw "Entity registry '$context' references an unknown entity endpoint." }
+    if ($sourceId -eq $targetId) { throw "Entity registry '$context' cannot relate an entity to itself." }
+    $typeId = Get-RequiredEntityString $relationship "relationship_type" $context
+    if (-not $entityRelationshipTypes.Contains($typeId)) { throw "Entity registry '$context.relationship_type' references unknown type '$typeId'." }
+    $status = Get-RequiredEntityString $relationship "status" $context
+    if ($allowedMembershipStatuses -notcontains $status) { throw "Entity registry '$context.status' value '$status' is not supplied by selected schema packs." }
+    $scopeId = Get-OptionalEntityString $relationship "applicability_scope_id" $context
+    if ($null -ne $scopeId -and -not $SourceRegistry.applicability_scopes.Contains($scopeId)) { throw "Entity registry '$context.applicability_scope_id' references unknown scope '$scopeId'." }
+    $basisRoles = if ($relationship.Contains("basis_roles")) { @(Get-EntityStringList $relationship "basis_roles" $context) } else { @() }
+    foreach ($basisRole in $basisRoles) { Assert-EntityPackValue $SchemaPackRegistry "narrative.entity-relationship-basis-role" $basisRole "$context.basis_roles" }
+    if ($basisRoles.Count -gt 0 -and $lineageRoleTypes -notcontains $typeId) { throw "Entity registry '$context.basis_roles' is only valid for derived-from, composite-of, or inspired-by relationships." }
+    $shape = Get-CanonicalEntityRelationshipShape $sourceId $typeId $targetId $scopeId $entityRelationshipTypes
+    if (-not $entityRelationshipShapes.Add($shape)) { throw "Entity registry '$context' duplicates an entity relationship or its inverse." }
+    $entityRelationships += [pscustomobject]@{ id=$id; source_entity_id=$sourceId; relationship_type=$typeId; target_entity_id=$targetId; status=$status; applicability_scope_id=$scopeId; basis_roles=@($basisRoles) }
+  }
+
   $rawIncarnations = Get-ProjectMapValue $registry "incarnations"
   if ($null -eq $rawIncarnations -or $rawIncarnations -isnot [System.Collections.IDictionary]) { throw "Entity registry 'incarnations' must be a mapping." }
   $incarnations = [ordered]@{}
@@ -240,12 +333,7 @@ function Get-KnowledgeEntityRegistry {
       symmetric=Get-RequiredEntityBoolean $type "symmetric" $context
     }
   }
-  foreach ($type in $relationshipTypes.Values) {
-    if (-not $relationshipTypes.Contains($type.inverse_type)) { throw "Entity registry relationship type '$($type.id)' references unknown inverse '$($type.inverse_type)'." }
-    $inverse = $relationshipTypes[$type.inverse_type]
-    if ($inverse.inverse_type -ne $type.id) { throw "Entity registry relationship types '$($type.id)' and '$($inverse.id)' are not reciprocal inverses." }
-    if ($type.symmetric -ne ($type.id -eq $type.inverse_type)) { throw "Entity registry relationship type '$($type.id)' has inconsistent symmetric and inverse settings." }
-  }
+  Assert-EntityRelationshipTypeInverses $relationshipTypes "incarnation"
 
   $rawRelationships = Get-ProjectMapValue $registry "incarnation_relationships"
   if ($null -eq $rawRelationships) { $rawRelationships = @() }
@@ -279,6 +367,8 @@ function Get-KnowledgeEntityRegistry {
     path=$registryPath
     schema_version=[int]$schemaVersion
     entities=$entities
+    entity_relationship_types=$entityRelationshipTypes
+    entity_relationships=@($entityRelationships)
     incarnations=$incarnations
     incarnation_bindings=@($bindings)
     incarnation_relationship_types=$relationshipTypes
@@ -310,6 +400,14 @@ function Get-KnowledgeEntityIncarnations {
   return @($EntityRegistry.incarnations.Values | Where-Object entity_id -eq $EntityId)
 }
 
+function Get-KnowledgeEntityRelationships {
+  param([object]$EntityRegistry, [string]$EntityId)
+  if (-not $EntityRegistry.entities.Contains($EntityId)) { throw "Unknown entity '$EntityId'." }
+  return @($EntityRegistry.entity_relationships | Where-Object {
+    $_.source_entity_id -eq $EntityId -or $_.target_entity_id -eq $EntityId
+  })
+}
+
 function Get-KnowledgeIncarnationBindings {
   param([object]$EntityRegistry, [string]$IncarnationId)
   if (-not $EntityRegistry.incarnations.Contains($IncarnationId)) { throw "Unknown incarnation '$IncarnationId'." }
@@ -330,6 +428,10 @@ function Get-KnowledgeEntityProvenanceTarget {
   switch ($SubjectType) {
     "entity" {
       if ($EntityRegistry.entities.Contains($SubjectId)) { return $EntityRegistry.entities[$SubjectId] }
+    }
+    "entity-relationship" {
+      $target = @($EntityRegistry.entity_relationships | Where-Object id -eq $SubjectId)
+      if ($target.Count -eq 1) { return $target[0] }
     }
     "entity-incarnation" {
       if ($EntityRegistry.incarnations.Contains($SubjectId)) { return $EntityRegistry.incarnations[$SubjectId] }

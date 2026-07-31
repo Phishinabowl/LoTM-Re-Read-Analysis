@@ -1,9 +1,96 @@
-schema_version: 1
+schema_version: 2
 
 # Conceptual subjects that may have one or more continuity-bound realizations.
 # LoTM does not need explicit incarnation records yet, so the project registry
 # begins empty rather than prematurely splitting existing glossary subjects.
 entities: {}
+
+# Entity-level relationships preserve same-continuity succession, mantles,
+# namesakes, clones, faction splinters, class/instance links, and conceptual
+# derivation without misclassifying those subjects as incarnations.
+entity_relationship_types:
+  successor-to:
+    label: Successor To
+    inverse_type: has-successor
+    symmetric: false
+  has-successor:
+    label: Has Successor
+    inverse_type: successor-to
+    symmetric: false
+  namesake-of:
+    label: Namesake Of
+    inverse_type: has-namesake
+    symmetric: false
+  has-namesake:
+    label: Has Namesake
+    inverse_type: namesake-of
+    symmetric: false
+  legacy-of:
+    label: Legacy Of
+    inverse_type: has-legacy
+    symmetric: false
+  has-legacy:
+    label: Has Legacy
+    inverse_type: legacy-of
+    symmetric: false
+  mantle-holder-of:
+    label: Mantle Holder Of
+    inverse_type: mantle-held-by
+    symmetric: false
+  mantle-held-by:
+    label: Mantle Held By
+    inverse_type: mantle-holder-of
+    symmetric: false
+  clone-of:
+    label: Clone Of
+    inverse_type: has-clone
+    symmetric: false
+  has-clone:
+    label: Has Clone
+    inverse_type: clone-of
+    symmetric: false
+  splintered-from:
+    label: Splintered From
+    inverse_type: has-splinter
+    symmetric: false
+  has-splinter:
+    label: Has Splinter
+    inverse_type: splintered-from
+    symmetric: false
+  derived-from:
+    label: Derived From
+    inverse_type: source-for
+    symmetric: false
+  source-for:
+    label: Source For
+    inverse_type: derived-from
+    symmetric: false
+  composite-of:
+    label: Composite Of
+    inverse_type: has-composite
+    symmetric: false
+  has-composite:
+    label: Has Composite
+    inverse_type: composite-of
+    symmetric: false
+  inspired-by:
+    label: Inspired By
+    inverse_type: inspired
+    symmetric: false
+  inspired:
+    label: Inspired
+    inverse_type: inspired-by
+    symmetric: false
+  instance-of:
+    label: Instance Of
+    inverse_type: has-instance
+    symmetric: false
+  has-instance:
+    label: Has Instance
+    inverse_type: instance-of
+    symmetric: false
+
+entity_relationships: []
 
 incarnations: {}
 

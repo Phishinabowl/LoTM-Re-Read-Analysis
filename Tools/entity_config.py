@@ -10,7 +10,7 @@ from source_config import SourceRegistry
 from taxonomy_config import TaxonomyConfig
 
 
-SUPPORTED_ENTITY_SCHEMA_VERSION = 1
+SUPPORTED_ENTITY_SCHEMA_VERSION = 2
 LIFECYCLES = {"active", "deferred"}
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
@@ -19,9 +19,29 @@ STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 class EntityConfig:
     id: str
     lifecycle: str
-    category_id: str
+    primary_category_id: str
+    category_ids: tuple[str, ...]
     label: str
     aliases: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class EntityRelationshipType:
+    id: str
+    label: str
+    inverse_type: str
+    symmetric: bool
+
+
+@dataclass(frozen=True)
+class EntityRelationship:
+    id: str
+    source_entity_id: str
+    relationship_type: str
+    target_entity_id: str
+    status: str
+    applicability_scope_id: str | None
+    basis_roles: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -73,6 +93,8 @@ class EntityRegistry:
     path: Path
     schema_version: int
     entities: dict[str, EntityConfig]
+    entity_relationship_types: dict[str, EntityRelationshipType]
+    entity_relationships: tuple[EntityRelationship, ...]
     incarnations: dict[str, IncarnationConfig]
     incarnation_bindings: tuple[IncarnationBinding, ...]
     incarnation_relationship_types: dict[str, IncarnationRelationshipType]
@@ -103,6 +125,18 @@ class EntityRegistry:
             if incarnation.entity_id == entity_id
         )
 
+    def relationships_for_entity(
+        self, entity_id: str
+    ) -> tuple[EntityRelationship, ...]:
+        if entity_id not in self.entities:
+            raise ValueError(f"Unknown entity `{entity_id}`.")
+        return tuple(
+            relationship
+            for relationship in self.entity_relationships
+            if entity_id
+            in (relationship.source_entity_id, relationship.target_entity_id)
+        )
+
     def bindings_for_incarnation(self, incarnation_id: str) -> tuple[IncarnationBinding, ...]:
         if incarnation_id not in self.incarnations:
             raise ValueError(f"Unknown incarnation `{incarnation_id}`.")
@@ -130,6 +164,10 @@ class EntityRegistry:
     def provenance_target(self, subject_type: str, subject_id: str) -> object:
         target_maps = {
             "entity": self.entities,
+            "entity-relationship": {
+                relationship.id: relationship
+                for relationship in self.entity_relationships
+            },
             "entity-incarnation": self.incarnations,
             "incarnation-binding": {
                 binding.id: binding for binding in self.incarnation_bindings
@@ -243,6 +281,52 @@ def build_aliases(records: dict[str, EntityConfig | IncarnationConfig], label: s
     return aliases
 
 
+def validate_relationship_type_inverses(
+    relationship_types: dict[
+        str, EntityRelationshipType | IncarnationRelationshipType
+    ],
+    label: str,
+) -> None:
+    for relationship_type in relationship_types.values():
+        if relationship_type.inverse_type not in relationship_types:
+            raise ValueError(
+                f"Entity registry {label} relationship type "
+                f"`{relationship_type.id}` references unknown inverse "
+                f"`{relationship_type.inverse_type}`."
+            )
+        inverse = relationship_types[relationship_type.inverse_type]
+        if inverse.inverse_type != relationship_type.id:
+            raise ValueError(
+                f"Entity registry {label} relationship types "
+                f"`{relationship_type.id}` and `{inverse.id}` are not "
+                "reciprocal inverses."
+            )
+        if relationship_type.symmetric != (
+            relationship_type.id == relationship_type.inverse_type
+        ):
+            raise ValueError(
+                f"Entity registry {label} relationship type "
+                f"`{relationship_type.id}` has inconsistent symmetric and "
+                "inverse settings."
+            )
+
+
+def canonical_relationship_shape(
+    source_id: str,
+    type_id: str,
+    target_id: str,
+    scope_id: str | None,
+    relationship_types: dict[str, EntityRelationshipType],
+) -> tuple[str, str, str, str | None]:
+    relationship_type = relationship_types[type_id]
+    if relationship_type.symmetric:
+        return min(source_id, target_id), type_id, max(source_id, target_id), scope_id
+    canonical_type = min(type_id, relationship_type.inverse_type)
+    if type_id == canonical_type:
+        return source_id, canonical_type, target_id, scope_id
+    return target_id, canonical_type, source_id, scope_id
+
+
 def load_entity_registry(
     project: ProjectConfig,
     taxonomy: TaxonomyConfig,
@@ -277,26 +361,145 @@ def load_entity_registry(
         entity = require_mapping(raw_entity, context)
         lifecycle = require_string(entity, "lifecycle", context)
         validate_lifecycle(lifecycle, f"{context}.lifecycle")
-        category_id = require_string(entity, "category_id", context)
-        if category_id not in taxonomy.categories:
+        primary_category_id = require_string(
+            entity, "primary_category_id", context
+        )
+        category_ids = string_list(entity, "category_ids", context)
+        if not category_ids:
             raise ValueError(
-                f"Entity registry `{context}.category_id` references unknown category `{category_id}`."
+                f"Entity registry `{context}.category_ids` cannot be empty."
+            )
+        unknown_categories = set(category_ids) - set(taxonomy.categories)
+        if unknown_categories:
+            raise ValueError(
+                f"Entity registry `{context}.category_ids` references unknown categories: "
+                + ", ".join(sorted(unknown_categories))
+                + "."
+            )
+        if primary_category_id not in category_ids:
+            raise ValueError(
+                f"Entity registry `{context}.primary_category_id` must appear in category_ids."
             )
         entities[entity_id] = EntityConfig(
             id=entity_id,
             lifecycle=lifecycle,
-            category_id=category_id,
+            primary_category_id=primary_category_id,
+            category_ids=category_ids,
             label=require_string(entity, "label", context),
             aliases=string_list(entity, "aliases", context),
         )
 
-    incarnations: dict[str, IncarnationConfig] = {}
-    raw_incarnations = require_mapping(registry.get("incarnations"), "incarnations")
     membership_statuses = set(schema_packs.allowed_values("source.membership-status"))
     if not membership_statuses:
         raise ValueError(
             "Selected schema packs do not provide controlled namespace `source.membership-status`."
         )
+
+    entity_relationship_types: dict[str, EntityRelationshipType] = {}
+    raw_entity_types = require_mapping(
+        registry.get("entity_relationship_types"), "entity_relationship_types"
+    )
+    for type_id, raw_type in raw_entity_types.items():
+        context = f"entity_relationship_types.{type_id}"
+        validate_id(type_id, context)
+        validate_pack_value(
+            schema_packs, "narrative.entity-relationship-type", type_id, context
+        )
+        relationship_type = require_mapping(raw_type, context)
+        entity_relationship_types[type_id] = EntityRelationshipType(
+            id=type_id,
+            label=require_string(relationship_type, "label", context),
+            inverse_type=require_string(relationship_type, "inverse_type", context),
+            symmetric=require_bool(relationship_type, "symmetric", context),
+        )
+    validate_relationship_type_inverses(
+        entity_relationship_types, "entity"
+    )
+
+    entity_relationships: list[EntityRelationship] = []
+    seen_entity_relationship_ids: set[str] = set()
+    seen_entity_relationship_shapes: set[tuple[str, str, str, str | None]] = set()
+    lineage_role_types = {"derived-from", "composite-of", "inspired-by"}
+    for index, raw_relationship in enumerate(
+        require_list(registry.get("entity_relationships"), "entity_relationships")
+    ):
+        context = f"entity_relationships[{index}]"
+        relationship = require_mapping(raw_relationship, context)
+        relationship_id = require_string(relationship, "id", context)
+        validate_id(relationship_id, f"{context}.id")
+        if relationship_id in seen_entity_relationship_ids:
+            raise ValueError(
+                f"Entity registry repeats entity relationship ID `{relationship_id}`."
+            )
+        seen_entity_relationship_ids.add(relationship_id)
+        source_id = require_string(relationship, "source_entity_id", context)
+        target_id = require_string(relationship, "target_entity_id", context)
+        if source_id not in entities or target_id not in entities:
+            raise ValueError(
+                f"Entity registry `{context}` references an unknown entity endpoint."
+            )
+        if source_id == target_id:
+            raise ValueError(
+                f"Entity registry `{context}` cannot relate an entity to itself."
+            )
+        type_id = require_string(relationship, "relationship_type", context)
+        if type_id not in entity_relationship_types:
+            raise ValueError(
+                f"Entity registry `{context}.relationship_type` references unknown type `{type_id}`."
+            )
+        status = require_string(relationship, "status", context)
+        if status not in membership_statuses:
+            raise ValueError(
+                f"Entity registry `{context}.status` value `{status}` is not supplied by selected schema packs."
+            )
+        scope_id = optional_string(relationship, "applicability_scope_id", context)
+        if scope_id is not None and scope_id not in sources.applicability_scopes:
+            raise ValueError(
+                f"Entity registry `{context}.applicability_scope_id` references unknown scope `{scope_id}`."
+            )
+        basis_roles = (
+            string_list(relationship, "basis_roles", context)
+            if "basis_roles" in relationship
+            else ()
+        )
+        for basis_role in basis_roles:
+            validate_pack_value(
+                schema_packs,
+                "narrative.entity-relationship-basis-role",
+                basis_role,
+                f"{context}.basis_roles",
+            )
+        if basis_roles and type_id not in lineage_role_types:
+            raise ValueError(
+                f"Entity registry `{context}.basis_roles` is only valid for "
+                "derived-from, composite-of, or inspired-by relationships."
+            )
+        shape = canonical_relationship_shape(
+            source_id,
+            type_id,
+            target_id,
+            scope_id,
+            entity_relationship_types,
+        )
+        if shape in seen_entity_relationship_shapes:
+            raise ValueError(
+                f"Entity registry `{context}` duplicates an entity relationship or its inverse."
+            )
+        seen_entity_relationship_shapes.add(shape)
+        entity_relationships.append(
+            EntityRelationship(
+                relationship_id,
+                source_id,
+                type_id,
+                target_id,
+                status,
+                scope_id,
+                basis_roles,
+            )
+        )
+
+    incarnations: dict[str, IncarnationConfig] = {}
+    raw_incarnations = require_mapping(registry.get("incarnations"), "incarnations")
     for incarnation_id, raw_incarnation in raw_incarnations.items():
         validate_id(incarnation_id, f"incarnations.{incarnation_id}")
         context = f"incarnations.{incarnation_id}"
@@ -409,20 +612,7 @@ def load_entity_registry(
             inverse_type=require_string(relationship_type, "inverse_type", context),
             symmetric=require_bool(relationship_type, "symmetric", context),
         )
-    for relationship_type in relationship_types.values():
-        if relationship_type.inverse_type not in relationship_types:
-            raise ValueError(
-                f"Entity registry relationship type `{relationship_type.id}` references unknown inverse `{relationship_type.inverse_type}`."
-            )
-        inverse = relationship_types[relationship_type.inverse_type]
-        if inverse.inverse_type != relationship_type.id:
-            raise ValueError(
-                f"Entity registry relationship types `{relationship_type.id}` and `{inverse.id}` are not reciprocal inverses."
-            )
-        if relationship_type.symmetric != (relationship_type.id == relationship_type.inverse_type):
-            raise ValueError(
-                f"Entity registry relationship type `{relationship_type.id}` has inconsistent symmetric and inverse settings."
-            )
+    validate_relationship_type_inverses(relationship_types, "incarnation")
 
     relationships: list[IncarnationRelationship] = []
     seen_relationship_ids: set[str] = set()
@@ -480,6 +670,8 @@ def load_entity_registry(
         path=project.entities_registry,
         schema_version=schema_version,
         entities=entities,
+        entity_relationship_types=entity_relationship_types,
+        entity_relationships=tuple(entity_relationships),
         incarnations=incarnations,
         incarnation_bindings=tuple(bindings),
         incarnation_relationship_types=relationship_types,
