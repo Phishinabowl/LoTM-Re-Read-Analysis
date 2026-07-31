@@ -1,4 +1,4 @@
-schema_version: 9
+schema_version: 10
 
 default_authority_profile_id: lotm-adaptation-comparison
 
@@ -48,6 +48,10 @@ mediums:
         chapter: integer
         sequence: integer
       work_scope_field: book
+      structural_validation:
+        strategy: work-volume-catalog
+        partition_field: volume
+        ordinal_field: chapter
       required_fields:
         - book
         - chapter
@@ -248,6 +252,7 @@ authority_profiles:
     claim_authority_rules:
       - id: novel-canon-content-authority
         claim_namespace: canonical-content
+        precedence: 10
         source_ids:
           - lotm-book-1-novel
           - lotm-book-2-novel
@@ -257,6 +262,7 @@ authority_profiles:
         rank: 1
       - id: novel-publication-authority
         claim_namespace: publication-metadata
+        precedence: 10
         source_ids:
           - lotm-book-1-novel
           - lotm-book-2-novel
@@ -284,6 +290,7 @@ authority_profiles:
     claim_authority_rules:
       - id: adaptation-novel-content-authority
         claim_namespace: canonical-content
+        precedence: 10
         source_ids:
           - lotm-book-1-novel
           - lotm-book-2-novel
@@ -293,6 +300,7 @@ authority_profiles:
         rank: 1
       - id: adaptation-donghua-content-authority
         claim_namespace: canonical-content
+        precedence: 10
         source_ids:
           - lotm-donghua-release
           - lotm-donghua-special-1-release
@@ -304,6 +312,7 @@ authority_profiles:
         rank: 2
       - id: adaptation-artwork-visual-authority
         claim_namespace: visual-design
+        precedence: 20
         source_ids:
           - lotm-official-epub-artwork
         source_roles: []
@@ -312,6 +321,7 @@ authority_profiles:
         rank: 1
       - id: adaptation-donghua-visual-authority
         claim_namespace: visual-design
+        precedence: 20
         source_ids:
           - lotm-donghua-release
           - lotm-donghua-special-1-release
@@ -323,6 +333,7 @@ authority_profiles:
         rank: 2
       - id: adaptation-novel-dialogue-authority
         claim_namespace: dialogue
+        precedence: 20
         source_ids:
           - lotm-book-1-novel
           - lotm-book-2-novel
@@ -332,6 +343,7 @@ authority_profiles:
         rank: 1
       - id: adaptation-donghua-dialogue-authority
         claim_namespace: dialogue
+        precedence: 20
         source_ids:
           - lotm-donghua-release
           - lotm-donghua-special-1-release
@@ -343,6 +355,7 @@ authority_profiles:
         rank: 2
       - id: adaptation-subtitle-localization-authority
         claim_namespace: localization
+        precedence: 10
         source_ids:
           - lotm-donghua-subtitles
         source_roles: []
@@ -351,6 +364,7 @@ authority_profiles:
         rank: 1
       - id: adaptation-release-metadata-authority
         claim_namespace: release-metadata
+        precedence: 10
         source_ids:
           - lotm-donghua-release
           - lotm-donghua-special-1-release

@@ -6,7 +6,7 @@ Schema packs are composable contracts, not project instances. Pack files define 
 
 | Pack | Purpose |
 | --- | --- |
-| `core` | Domain-neutral identity, stable nested-record identity, composite evidence scope, claim-aware authority, multi-position evidence-located assertion snapshots, relationships, temporal positions, visibility, projection, and validation. |
+| `core` | Domain-neutral identity, stable nested-record identity, composite evidence scope, hierarchical precedence-aware authority, point/range evidence locators, semantic provenance paths, structural position validation, relationships, temporal positions, visibility, projection, and validation. |
 | `narrative-media` | Narrative foundation: works, media facets, structural segments, recursively nested content groups with participation roles, temporally scoped localized title variants, ordering, continuity, narrative time, and reader disclosure. |
 | `narrative-publishing` | Prose and sequential-art serialization, editions, localization, packaging, and planned publication-run/textual-history support. |
 | `narrative-screen-audio` | Film, television, animation, audio works, episodes, specials, cuts, tracks, embedded visuals, and planned live-performance production/event support. |
@@ -35,7 +35,7 @@ Do not encode every media property in one value.
 
 A Donghua film can therefore use the `donghua` medium profile, `animation` modality, `donghua` cultural form, `film` release form, and a streaming or theatrical container. Official artwork extracted from an EPUB uses the `illustration` profile and `still-image` modality while its source records `epub` and any extracted digital file as containers. `official-epub-artwork` is not a medium.
 
-Claim namespaces and content-group member roles are pack-owned vocabulary. General source priority remains a fallback; projects that activate `claim-aware-authority` may define claim-specific rules in their source registry. Downstream projects activate only capabilities supplied by their selected packs, so an absent feature remains disabled rather than becoming an error in an unrelated industry configuration.
+Claim namespaces and content-group member roles are pack-owned vocabulary. Claim namespaces may declare a `broader_value`; authority rules inherit down that hierarchy and use explicit precedence to resolve broad defaults against narrow exceptions. General source priority remains a fallback. Position-structure strategies are also pack-owned: narrative publishing currently contributes `work-volume-catalog`, while unrelated domains may omit structural validation or supply their own strategy. Downstream projects activate only capabilities supplied by their selected packs, so an absent feature remains disabled rather than becoming an error in an unrelated industry configuration.
 
 ## Capability Honesty
 

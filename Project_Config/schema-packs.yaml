@@ -36,6 +36,11 @@ capability_activation:
     - evidence-locators
     - multi-position-evidence
     - claim-aware-authority
+    - authority-rule-precedence
+    - hierarchical-claim-authority
+    - evidence-locator-ranges
+    - structural-position-validation
+    - semantic-provenance-paths
     - authority-profiles
     - typed-relationships
     - temporal-positions

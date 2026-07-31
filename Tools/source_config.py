@@ -12,7 +12,7 @@ from resource_config import ResourceConfig
 from schema_pack_config import SchemaPackRegistry, load_schema_pack_registry
 
 
-SUPPORTED_SOURCE_SCHEMA_VERSION = 9
+SUPPORTED_SOURCE_SCHEMA_VERSION = 10
 LIFECYCLES = {"active", "deferred"}
 POSITION_FIELD_TYPES = {"string", "integer", "number", "timestamp", "boolean"}
 PRIORITY_ORDERS = {"ascending", "descending"}
@@ -77,6 +77,7 @@ class ContinuityRelationship:
 class AuthorityRule:
     id: str
     claim_namespace: str
+    precedence: int
     source_ids: tuple[str, ...]
     source_roles: tuple[str, ...]
     medium_ids: tuple[str, ...]
@@ -113,6 +114,13 @@ class RegistryValueConfig:
 
 
 @dataclass(frozen=True)
+class PositionStructuralValidation:
+    strategy: str
+    partition_field: str
+    ordinal_field: str
+
+
+@dataclass(frozen=True)
 class CulturalFormConfig:
     id: str
     label: str
@@ -129,6 +137,7 @@ class MediumConfig:
     cultural_form_ids: tuple[str, ...]
     fields: dict[str, str]
     work_scope_field: str
+    structural_validation: PositionStructuralValidation | None
     required_fields: tuple[str, ...]
     sort_fields: tuple[str, ...]
     citation_formats: tuple[CitationFormat, ...]
@@ -561,7 +570,10 @@ class ProvenanceEvidenceLink:
 class EvidenceLocator:
     id: str
     medium_id: str
-    position: dict[str, object]
+    locator_type: str
+    position: dict[str, object] | None
+    start: dict[str, object] | None
+    end: dict[str, object] | None
 
 
 @dataclass(frozen=True)
@@ -583,6 +595,7 @@ class SourceRegistry:
     path: Path
     schema_version: int
     default_authority_profile_id: str
+    claim_namespace_ancestors: dict[str, tuple[str, ...]]
     media_modalities: dict[str, RegistryValueConfig]
     cultural_forms: dict[str, CulturalFormConfig]
     release_forms: dict[str, RegistryValueConfig]
@@ -645,20 +658,34 @@ class SourceRegistry:
     def authority_rank(
         self, profile_id: str, claim_namespace: str, source_id: str
     ) -> int:
+        if profile_id not in self.authority_profiles:
+            raise ValueError(f"Unknown authority profile `{profile_id}`.")
+        if source_id not in self.sources:
+            raise ValueError(f"Unknown source `{source_id}`.")
+        if claim_namespace not in self.claim_namespace_ancestors:
+            raise ValueError(f"Unknown claim namespace `{claim_namespace}`.")
         profile = self.authority_profiles[profile_id]
         source = self.sources[source_id]
+        applicable_namespaces = self.claim_namespace_ancestors[claim_namespace]
         matches = [
             rule
             for rule in profile.claim_authority_rules
-            if rule.claim_namespace == claim_namespace
+            if rule.claim_namespace in applicable_namespaces
             and authority_rule_matches_source(rule, source)
         ]
-        if len(matches) > 1:
+        if not matches:
+            return source.priority
+        winning_precedence = max(rule.precedence for rule in matches)
+        winners = [
+            rule for rule in matches if rule.precedence == winning_precedence
+        ]
+        if len(winners) > 1:
             raise ValueError(
-                f"Authority profile `{profile_id}` has ambiguous rules for source "
-                f"`{source_id}` and claim namespace `{claim_namespace}`."
+                f"Authority profile `{profile_id}` has ambiguous precedence "
+                f"`{winning_precedence}` rules for source `{source_id}` and claim "
+                f"namespace `{claim_namespace}`."
             )
-        return matches[0].rank if matches else source.priority
+        return winners[0].rank
 
 
 def authority_rule_matches_source(
@@ -967,6 +994,146 @@ def validate_pack_values(
         )
 
 
+def controlled_value_ancestors(
+    schema_packs: SchemaPackRegistry, namespace: str
+) -> dict[str, tuple[str, ...]]:
+    ancestors: dict[str, tuple[str, ...]] = {}
+    for value in schema_packs.allowed_values(namespace):
+        lineage = [value]
+        current = value
+        while True:
+            definition = schema_packs.definition_of(namespace, current)
+            broader = definition.broader_value if definition is not None else None
+            if broader is None:
+                break
+            lineage.append(broader)
+            current = broader
+        ancestors[value] = tuple(lineage)
+    return ancestors
+
+
+def position_sort_value(value: object, field_type: str) -> object:
+    if field_type == "timestamp":
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        if parsed.tzinfo is not None:
+            parsed = parsed.astimezone(timezone.utc).replace(tzinfo=None)
+        return parsed
+    return value
+
+
+def compare_positions(
+    left: dict[str, object], right: dict[str, object], medium: MediumConfig
+) -> int:
+    for field_id in medium.sort_fields:
+        if field_id not in left:
+            continue
+        left_value = position_sort_value(left[field_id], medium.fields[field_id])
+        right_value = position_sort_value(right[field_id], medium.fields[field_id])
+        if left_value < right_value:
+            return -1
+        if left_value > right_value:
+            return 1
+    return 0
+
+
+def validate_structural_position(
+    position: dict[str, object],
+    medium: MediumConfig,
+    works: dict[str, WorkConfig],
+    context: str,
+) -> None:
+    validation = medium.structural_validation
+    if validation is None:
+        return
+    work_id = position[medium.work_scope_field]
+    work = works[work_id]
+    if validation.strategy != "work-volume-catalog":
+        raise ValueError(
+            f"Source registry `{context}` uses unsupported structural validation "
+            f"strategy `{validation.strategy}`."
+        )
+    if work.volume_catalog_status != "verified":
+        return
+    ordinal = position[validation.ordinal_field]
+    matching_volumes = [
+        volume
+        for volume in work.volumes
+        if volume.chapter_start <= ordinal <= volume.chapter_end
+    ]
+    if not matching_volumes:
+        raise ValueError(
+            f"Source registry `{context}.{validation.ordinal_field}` falls outside "
+            f"the verified volume catalog for work `{work_id}`."
+        )
+    if validation.partition_field in position and all(
+        volume.number != position[validation.partition_field]
+        for volume in matching_volumes
+    ):
+        raise ValueError(
+            f"Source registry `{context}` assigns {validation.ordinal_field} "
+            f"`{ordinal}` to the wrong {validation.partition_field}."
+        )
+
+
+def validate_source_position(
+    position: dict[str, object],
+    medium: MediumConfig,
+    source_work_ids: tuple[str, ...],
+    works: dict[str, WorkConfig],
+    context: str,
+) -> None:
+    if not position:
+        raise ValueError(
+            f"Source registry `{context}` must be a non-empty mapping."
+        )
+    unknown_fields = set(position) - set(medium.fields)
+    if unknown_fields:
+        raise ValueError(
+            f"Source registry `{context}` references unknown position fields: "
+            f"{', '.join(sorted(unknown_fields))}."
+        )
+    missing_fields = set(medium.required_fields) - set(position)
+    if missing_fields:
+        raise ValueError(
+            f"Source registry `{context}` omits required position fields: "
+            f"{', '.join(sorted(missing_fields))}."
+        )
+    validate_position_values(position, medium.fields, context)
+    scope_field = medium.work_scope_field
+    if position[scope_field] not in source_work_ids:
+        raise ValueError(
+            f"Source registry `{context}` falls outside the evidence source work "
+            "scope."
+        )
+    validate_structural_position(position, medium, works, context)
+
+
+def resolve_record_field_path(record: object, field_path: str, context: str) -> object:
+    current = record
+    for token in re.findall(r"[a-z][a-z0-9_]*|\[[0-9]+\]", field_path):
+        if token.startswith("["):
+            index = int(token[1:-1])
+            if not isinstance(current, (list, tuple)) or index >= len(current):
+                raise ValueError(
+                    f"Source registry `{context}` does not resolve on its subject."
+                )
+            current = current[index]
+            continue
+        if isinstance(current, dict):
+            if token not in current:
+                raise ValueError(
+                    f"Source registry `{context}` does not resolve on its subject."
+                )
+            current = current[token]
+        elif hasattr(current, token):
+            current = getattr(current, token)
+        else:
+            raise ValueError(
+                f"Source registry `{context}` does not resolve on its subject."
+            )
+    return current
+
+
 def parse_lifecycle(mapping: dict, context: str) -> str:
     lifecycle = require_string(mapping, "lifecycle", context)
     if lifecycle not in LIFECYCLES:
@@ -1234,6 +1401,7 @@ def parse_medium(
     *,
     media_modalities: dict[str, RegistryValueConfig],
     cultural_forms: dict[str, CulturalFormConfig],
+    schema_packs: SchemaPackRegistry,
 ) -> MediumConfig:
     context = f"mediums.{medium_id}"
     validate_id(medium_id, context)
@@ -1303,6 +1471,48 @@ def parse_medium(
             f"Source registry `{context}.position.work_scope_field` must also be "
             "listed in required_fields."
         )
+    structural_validation = None
+    raw_structural_validation = position.get("structural_validation")
+    if raw_structural_validation is not None:
+        validation_context = f"{context}.position.structural_validation"
+        validation = require_mapping(
+            raw_structural_validation, validation_context
+        )
+        strategy = require_string(validation, "strategy", validation_context)
+        validate_pack_values(
+            schema_packs,
+            "source.position-structure-strategy",
+            (strategy,),
+            f"{validation_context}.strategy",
+        )
+        partition_field = require_string(
+            validation, "partition_field", validation_context
+        )
+        ordinal_field = require_string(
+            validation, "ordinal_field", validation_context
+        )
+        for field_name, field_id in (
+            ("partition_field", partition_field),
+            ("ordinal_field", ordinal_field),
+        ):
+            if field_id not in fields or fields[field_id] != "integer":
+                raise ValueError(
+                    f"Source registry `{validation_context}.{field_name}` must "
+                    "reference a configured integer position field."
+                )
+            if field_name == "ordinal_field" and field_id not in sort_fields:
+                raise ValueError(
+                    f"Source registry `{validation_context}.ordinal_field` must "
+                    "also be listed in sort_fields."
+                )
+        if ordinal_field not in required_fields:
+            raise ValueError(
+                f"Source registry `{validation_context}.ordinal_field` must also "
+                "be listed in required_fields."
+            )
+        structural_validation = PositionStructuralValidation(
+            strategy, partition_field, ordinal_field
+        )
     for list_name, values in (
         ("required_fields", required_fields),
         ("sort_fields", sort_fields),
@@ -1371,6 +1581,7 @@ def parse_medium(
         cultural_form_ids=cultural_form_ids,
         fields=fields,
         work_scope_field=work_scope_field,
+        structural_validation=structural_validation,
         required_fields=required_fields,
         sort_fields=sort_fields,
         citation_formats=tuple(citation_formats),
@@ -1467,6 +1678,14 @@ def load_source_registry(
             "`source.membership-status` required by continuity memberships and "
             "relationship statuses."
         )
+    claim_namespace_ancestors = controlled_value_ancestors(
+        schema_packs, "provenance.claim-namespace"
+    )
+    if not claim_namespace_ancestors:
+        raise ValueError(
+            "Selected schema packs do not provide controlled namespace "
+            "`provenance.claim-namespace`."
+        )
     try:
         data = yaml.safe_load(project.sources_registry.read_text(encoding="utf-8"))
     except yaml.YAMLError as exc:
@@ -1539,6 +1758,7 @@ def load_source_registry(
             raw_medium,
             media_modalities=media_modalities,
             cultural_forms=cultural_forms,
+            schema_packs=schema_packs,
         )
         for medium_id, raw_medium in raw_mediums.items()
     }
@@ -1818,6 +2038,16 @@ def load_source_registry(
                 (claim_namespace,),
                 f"{rule_context}.claim_namespace",
             )
+            precedence = rule.get("precedence")
+            if (
+                isinstance(precedence, bool)
+                or not isinstance(precedence, int)
+                or precedence < 1
+            ):
+                raise ValueError(
+                    f"Source registry `{rule_context}.precedence` must be a "
+                    "positive integer."
+                )
             source_ids = require_string_list(rule, "source_ids", rule_context)
             source_roles = require_string_list(rule, "source_roles", rule_context)
             medium_ids = require_string_list(rule, "medium_ids", rule_context)
@@ -1854,6 +2084,7 @@ def load_source_registry(
                 AuthorityRule(
                     rule_id,
                     claim_namespace,
+                    precedence,
                     source_ids,
                     source_roles,
                     medium_ids,
@@ -4372,6 +4603,12 @@ def load_source_registry(
                         f"Source registry `{range_context}` references unknown "
                         f"position fields: {', '.join(sorted(unknown_fields))}."
                     )
+                missing_fields = set(mediums[medium_id].required_fields) - set(start)
+                if missing_fields:
+                    raise ValueError(
+                        f"Source registry `{range_context}` omits required position "
+                        f"fields: {', '.join(sorted(missing_fields))}."
+                    )
                 validate_position_values(start, medium_fields, f"{range_context}.start")
                 validate_position_values(end, medium_fields, f"{range_context}.end")
                 work_scope_field = mediums[medium_id].work_scope_field
@@ -4387,6 +4624,16 @@ def load_source_registry(
                     raise ValueError(
                         f"Source registry `{range_context}` falls outside its "
                         "coverage target work scope."
+                    )
+                validate_structural_position(
+                    start, mediums[medium_id], works, f"{range_context}.start"
+                )
+                validate_structural_position(
+                    end, mediums[medium_id], works, f"{range_context}.end"
+                )
+                if compare_positions(start, end, mediums[medium_id]) > 0:
+                    raise ValueError(
+                        f"Source registry `{range_context}` start must not follow end."
                     )
                 position_ranges.append(
                     CoveragePositionRange(range_id, dict(start), dict(end))
@@ -4457,22 +4704,30 @@ def load_source_registry(
                     f"Source registry authority rule `{rule.id}` references unknown "
                     f"sources: {', '.join(sorted(unknown_rule_sources))}."
                 )
-        claim_namespaces = {
-            rule.claim_namespace for rule in profile.claim_authority_rules
-        }
-        for claim_namespace in claim_namespaces:
+        for claim_namespace, ancestors in claim_namespace_ancestors.items():
             for source in sources.values():
                 matches = [
                     rule
                     for rule in profile.claim_authority_rules
-                    if rule.claim_namespace == claim_namespace
+                    if rule.claim_namespace in ancestors
                     and authority_rule_matches_source(rule, source)
                 ]
-                if len(matches) > 1:
+                if not matches:
+                    continue
+                highest_precedence = max(
+                    rule.precedence for rule in matches
+                )
+                winners = [
+                    rule
+                    for rule in matches
+                    if rule.precedence == highest_precedence
+                ]
+                if len(winners) > 1:
                     raise ValueError(
                         f"Source registry authority profile `{profile.id}` has "
-                        f"ambiguous `{claim_namespace}` rules for source "
-                        f"`{source.id}`."
+                        f"ambiguous precedence `{highest_precedence}` rules for "
+                        f"source `{source.id}` and claim namespace "
+                        f"`{claim_namespace}`."
                     )
 
     raw_source_relationships = registry.get("source_relationships")
@@ -4650,6 +4905,12 @@ def load_source_registry(
                 f"Source registry `{context}.field_path` must be a dotted/indexed "
                 "machine field path."
             )
+        if field_path is not None:
+            resolve_record_field_path(
+                provenance_targets[subject_type][subject_id],
+                field_path,
+                f"{context}.field_path",
+            )
         if "asserted_value" not in assertion:
             raise ValueError(
                 f"Source registry `{context}.asserted_value` is required, "
@@ -4714,7 +4975,7 @@ def load_source_registry(
                     "non-empty list."
                 )
             locators: list[EvidenceLocator] = []
-            seen_positions: set[tuple[str, str]] = set()
+            seen_locator_shapes: set[tuple[str, str, str]] = set()
             for locator_index, raw_locator in enumerate(raw_locators):
                 locator_context = (
                     f"{evidence_context}.locators[{locator_index}]"
@@ -4741,52 +5002,95 @@ def load_source_registry(
                         f"Source registry `{locator_context}.medium_id` is not "
                         "allowed by the evidence source."
                     )
-                position = require_mapping(
-                    locator.get("position"), f"{locator_context}.position"
+                locator_type = require_string(
+                    locator, "locator_type", locator_context
                 )
-                if not position:
-                    raise ValueError(
-                        f"Source registry `{locator_context}.position` must not "
-                        "be empty."
-                    )
+                validate_pack_values(
+                    schema_packs,
+                    "provenance.locator-type",
+                    (locator_type,),
+                    f"{locator_context}.locator_type",
+                )
                 locator_medium = mediums[locator_medium_id]
-                unknown_locator_fields = set(position) - set(
-                    locator_medium.fields
-                )
-                if unknown_locator_fields:
-                    raise ValueError(
-                        f"Source registry `{locator_context}.position` references "
-                        f"unknown position fields: "
-                        f"{', '.join(sorted(unknown_locator_fields))}."
+                position = None
+                start = None
+                end = None
+                if locator_type == "point":
+                    if "start" in locator or "end" in locator:
+                        raise ValueError(
+                            f"Source registry `{locator_context}` point locator "
+                            "cannot declare start or end."
+                        )
+                    position = require_mapping(
+                        locator.get("position"), f"{locator_context}.position"
                     )
-                validate_position_values(
-                    position,
-                    locator_medium.fields,
-                    f"{locator_context}.position",
-                )
-                scope_field = locator_medium.work_scope_field
-                if (
-                    scope_field not in position
-                    or position[scope_field]
-                    not in sources[evidence_source_id].work_ids
-                ):
-                    raise ValueError(
-                        f"Source registry `{locator_context}.position` falls "
-                        "outside the evidence source work scope."
+                    validate_source_position(
+                        position,
+                        locator_medium,
+                        sources[evidence_source_id].work_ids,
+                        works,
+                        f"{locator_context}.position",
                     )
-                position_key = (
+                    shape_value = repr(sorted(position.items()))
+                else:
+                    if "position" in locator:
+                        raise ValueError(
+                            f"Source registry `{locator_context}` range locator "
+                            "cannot declare position."
+                        )
+                    start = require_mapping(
+                        locator.get("start"), f"{locator_context}.start"
+                    )
+                    end = require_mapping(
+                        locator.get("end"), f"{locator_context}.end"
+                    )
+                    if set(start) != set(end):
+                        raise ValueError(
+                            f"Source registry `{locator_context}` range start/end "
+                            "fields must be identical."
+                        )
+                    validate_source_position(
+                        start,
+                        locator_medium,
+                        sources[evidence_source_id].work_ids,
+                        works,
+                        f"{locator_context}.start",
+                    )
+                    validate_source_position(
+                        end,
+                        locator_medium,
+                        sources[evidence_source_id].work_ids,
+                        works,
+                        f"{locator_context}.end",
+                    )
+                    if compare_positions(start, end, locator_medium) > 0:
+                        raise ValueError(
+                            f"Source registry `{locator_context}` range start must "
+                            "not follow end."
+                        )
+                    shape_value = (
+                        f"{repr(sorted(start.items()))}|"
+                        f"{repr(sorted(end.items()))}"
+                    )
+                locator_shape = (
                     locator_medium_id,
-                    repr(sorted(position.items())),
+                    locator_type,
+                    shape_value,
                 )
-                if position_key in seen_positions:
+                if locator_shape in seen_locator_shapes:
                     raise ValueError(
                         f"Source registry `{evidence_context}.locators` repeats a "
-                        "position."
+                        "locator."
                     )
-                seen_positions.add(position_key)
+                seen_locator_shapes.add(locator_shape)
                 locators.append(
                     EvidenceLocator(
-                        locator_id, locator_medium_id, dict(position)
+                        locator_id,
+                        locator_medium_id,
+                        locator_type,
+                        dict(position) if position is not None else None,
+                        dict(start) if start is not None else None,
+                        dict(end) if end is not None else None,
                     )
                 )
             evidence_links.append(
@@ -4921,6 +5225,7 @@ def load_source_registry(
         path=project.sources_registry,
         schema_version=schema_version,
         default_authority_profile_id=default_authority_profile_id,
+        claim_namespace_ancestors=claim_namespace_ancestors,
         media_modalities=media_modalities,
         cultural_forms=cultural_forms,
         release_forms=release_forms,
