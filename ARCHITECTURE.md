@@ -69,6 +69,7 @@ Within canonical pages, the visible article and structured page data are two syn
 The planned `Project_Config/taxonomy.yaml` owns:
 
 - stable category IDs;
+- non-category content-type IDs and their distinction from subject categories;
 - category labels, folders, slug prefixes, and graph classes;
 - controlled relationship types and reciprocal behavior;
 - strict field-scoped enums and their aliases;
@@ -76,6 +77,8 @@ The planned `Project_Config/taxonomy.yaml` owns:
 - explicitly extensible domain vocabularies.
 
 The registry must distinguish strict enums, extensible vocabularies, aliases, and free descriptive fields. There must not be one global `status`, `type`, or `confidence` allowlist when those names serve different model contexts.
+
+Aggregating records such as LoTM Volume Summaries are content types, not subject categories. A content type may define its own root, template, slug prefix, schema, and default projection behavior without appearing in the category editor or becoming a graph node.
 
 ### Source Registry
 
@@ -144,6 +147,8 @@ relationships: []
 
 During migration, the content index may derive missing stable IDs from existing slugs. Derived IDs are compatibility behavior, not permission to couple future identity permanently to filenames.
 
+Non-category records should use the same normalized boundary while leaving `category_id` empty and declaring their content type, for example `record_kind: summary` and `content_type_id: volume-summary`.
+
 ## Mutation and Migration Contract
 
 Repository-wide changes such as category-folder renames, slug-prefix changes, page moves, and schema migrations must be planned operations.
@@ -188,7 +193,7 @@ A domain implementation should contain:
 
 - its project manifest;
 - taxonomy and source registries;
-- category schemas and templates;
+- category and non-category content-type schemas and templates;
 - canonical content and evidence;
 - domain-specific graph presets or presentation overrides.
 

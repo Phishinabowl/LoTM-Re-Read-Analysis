@@ -91,7 +91,7 @@ Boards/
 Volumes/
   TEMPLATE.md
   volume-01-clown.md
-  planned volume summary pages
+  aggregating Volume Summary content type and planned summary pages
 
 Investigations/
   TEMPLATE.md
@@ -123,6 +123,7 @@ Glossary_Threads/
   Mysteries/
   Uniquenesses/
   Pathways/
+  Tarot_Cards/
   Timelines/
   type-specific subfolders for recurring thread records and embedded spoiler-aware knowledge units
 

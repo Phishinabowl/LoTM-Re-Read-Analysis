@@ -60,7 +60,7 @@ Boards/
 Volumes/
   TEMPLATE.md
   volume-01-clown.md
-  planned volume summary pages
+  aggregating Volume Summary content type and planned summary pages
 
 Investigations/
   TEMPLATE.md
@@ -91,6 +91,7 @@ Glossary_Threads/
   Locations/
   Mysteries/
   Pathways/
+  Tarot_Cards/
   Timelines/
   Uniquenesses/
   recurring subject records and embedded spoiler-aware knowledge units
@@ -426,6 +427,7 @@ event-[name].md
 deity-[scope]-[name].md
 uniqueness-[name].md
 pathway-[name].md
+tarot-card-[name].md
 epoch-[name].md
 mystery-[name].md
 timeline-[name].md
@@ -451,6 +453,7 @@ deity-ats-goddess-of-origins.md
 deity-od-mother-goddess-of-depravity.md
 uniqueness-die-of-probability.md
 pathway-seer.md
+tarot-card-the-star.md
 epoch-fourth-epoch.md
 mystery-mr-door.md
 timeline-ian-zreal-chain.md
@@ -468,6 +471,8 @@ Use unit-level provenance fields on `knowledge_entries` when access differs by b
 
 Use `artifact-[name].md` for formal mystical artifacts, sealed artifacts, supernatural objects with established artifact identity, or plot-center objects whose supernatural nature is the analytical point. When uncertain, keep the object in a character, faction, location, or artifact data block with `page_worthiness: candidate` until the page type is clear.
 
+Use `tarot-card-[name].md` for an individual Tarot card when pathway associations, Tarot Club identities, card numbering, symbolism, history, deity or Sequence 0 associations, Cards of Blasphemy relationships, or other recurring connections make the card an independent relationship hub. Keep the overall card system, shared gallery, and comparison index on `concept-tarot-cards.md`; keep Tarot Club organization and membership on `faction-tarot-club.md`. Character and pathway pages own their local assignment or association histories, while the Tarot Card page becomes the canonical cross-subject hub. Approval of the category does not require creating every card page immediately; create individual pages as investigations establish their reader-safe content and canonical slugs.
+
 For potion, ritual, charm, ammunition, and crafted supernatural output modeling, keep these analytical roles separate even when the same story object participates in more than one role:
 
 - **Materials** are raw inputs or components, such as herbs, crystals, monster parts, blood, metals, powders, liquids, or other formula ingredients. Record them inline in pathway, ritual, item, artifact, or event data until a recurring material becomes page-worthy.
@@ -476,7 +481,7 @@ For potion, ritual, charm, ammunition, and crafted supernatural output modeling,
 - **Artifacts** are formal supernatural artifacts, Sealed Artifacts, or artifact-identity objects, not merely any supernatural object produced by a ritual.
 - **Concepts** own reusable systems and mechanics, such as prayer structures, ritual categories, summoning theory, and pathway theory.
 
-Do not create `Glossary_Threads/Materials/` or `Glossary_Threads/Preparations/` until the project needs dedicated pages and templates. Until then, pathway pages may record formula ingredients inline, concept pages may record reusable ritual mechanics, and item/artifact/source pages may point to those systems when the object or source is graph-worthy.
+Materials and Preparations are deferred prospective glossary categories, not currently approved page categories. Do not create `Glossary_Threads/Materials/` or `Glossary_Threads/Preparations/` until the project needs dedicated pages and templates and explicitly promotes the relevant category. Until then, pathway pages may record formula ingredients inline, concept pages may record reusable ritual mechanics, and item/artifact/source pages may point to those systems when the object or source is graph-worthy.
 
 The overall taxonomy and idea of sefirot should use the shared concept page `concept-sefirot.md`. Individual named sefirot, such as Sefirah Castle, Tenebrous World, Nation of Disorder, Knowledge Moor, City of Calamity, Key of Light, or Brood Hive, should use `location-[name].md` under `Glossary_Threads/Locations/`. This is an intentional pragmatic category choice: named sefirot behave like special places/realms for page organization even when they are not ordinary physical locations.
 
@@ -511,6 +516,7 @@ Glossary_Threads/Concepts/
 Glossary_Threads/Events/
 Glossary_Threads/Uniquenesses/
 Glossary_Threads/Pathways/
+Glossary_Threads/Tarot_Cards/
 Glossary_Threads/Epochs/
 Glossary_Threads/Mysteries/
 Glossary_Threads/Timelines/
@@ -525,12 +531,19 @@ Glossary_Threads/Items/item-copper-whistle.md
 Glossary_Threads/Knowledge_Sources/source-roselle-diary-pages.md
 Glossary_Threads/Deities/deity-s0-evernight-goddess.md
 Glossary_Threads/Uniquenesses/uniqueness-die-of-probability.md
+Glossary_Threads/Tarot_Cards/tarot-card-the-star.md
 Glossary_Threads/Mysteries/mystery-mr-door.md
 ```
 
 Create a category folder when its first thread is created. Do not add placeholder files solely to make empty folders visible in Git.
 
 Adding a glossary type requires updating the naming convention, controlled domain tags, folder structure, template guidance, and index rules together.
+
+### Glossary Categories and Aggregating Content Types
+
+Glossary categories define recurring graphable or cross-referenced subjects such as characters, pathways, tarot cards, factions, and concepts. `Volume Summary` is not a glossary category. It is an aggregating content type stored under `Volumes/` that organizes and summarizes canonical glossary subjects within a bounded source range.
+
+Volume Summary pages may contain structured data, links, indexes, artwork, and reader-boundary information, but they should not receive a glossary category ID or become graph nodes by default. Future framework configuration and editors must expose glossary categories separately from aggregating content types.
 
 ## Metadata Standards
 
@@ -616,6 +629,7 @@ Current type-specific overlays:
 - `Glossary_Threads/Characters/TEMPLATE.md`: character pages should expose `Overall Summary`, `Character Snapshot`, `Names, Aliases & Titles`, `Physical Profile`, `Status, Origin & Location`, `Affiliations`, `Pathway & Ability State`, `Ability Index`, `Equipment & Artifacts`, `Knowledge Sources & Documents`, `Personality`, `Relationships`, `Major Events & Fights`, and `Character Data Block` sections when relevant. Include specialized sections such as `Associated Tarot Card`, `Mythical Creature Form State`, `Uniqueness State`, `Messenger / Servants / Companions`, `Prayers & Ritual Access`, and `Prayer / Ritual Texts` only when the character has relevant reader-safe material for those relationships; do not add empty placeholder sections just because the template supports them.
 - `Glossary_Threads/Items/TEMPLATE.md`: item pages should expose `Item Snapshot`, `Names & Labels`, `Ownership / Custody / Access`, `Functions & Uses`, `Related Concepts / Systems`, `Appearance / Physical Description`, and `Item Data Block` sections. Use Item pages for named, recurring, graph-worthy non-artifact objects. Keep minor equipment and disposable possessions in local character, faction, location, or event data blocks without creating a page.
 - `Glossary_Threads/Knowledge_Sources/TEMPLATE.md`: knowledge source pages should expose `Source Snapshot`, `Names & Labels`, `Format / Medium`, `Authorship / Origin`, `Access / Custody / Readers`, `Knowledge Entries`, `Quote / Evidence Index`, and `Knowledge Source Data Block` sections. Use Knowledge Source pages for recurring reveal carriers whose claims, quotes, custody/access, interpretation, and reader-safe chronology need to be tracked independently.
+- Tarot Card pages currently inherit `Glossary_Threads/TEMPLATE.md`. Until the first dedicated page establishes a type-specific template, include only reader-safe sections needed to track the card identity and number, pathway associations, character or Tarot Club assignments, symbolism, history, deity or Sequence 0 relationships, Cards of Blasphemy relationships, artwork, and chronology.
 
 ### Character Article Overlay
 
@@ -907,6 +921,7 @@ Add further divination method tags only when the method is encountered in a sour
 ```text
 artifact
 character
+deity
 family
 faction
 item
@@ -915,6 +930,7 @@ location
 concept
 event
 pathway
+tarot-card
 uniqueness
 epoch
 mystery
@@ -922,6 +938,8 @@ timeline
 ```
 
 When a needed tag does not fit an existing category, recommend adding it to the taxonomy before using it.
+
+`volume` is a controlled content tag for Volume Summary pages, not a glossary domain-category tag.
 
 ## Cross-Reference Standards
 
@@ -1218,7 +1236,7 @@ Prefer these over generic `connected-to` when the relationship is concept-specif
 
 Use pathway metaphysics relationship types when a pathway, character, Uniqueness, deity, tarot card, sefirot, or mythical creature form relationship should be graph-visible:
 
-- `associated-tarot-card`: A pathway or Tarot Club identity is associated with a specific tarot card or planned tarot-card concept entry.
+- `associated-tarot-card`: A pathway, Tarot Club identity, character assignment, or other subject is associated with a specific Tarot Card page or pending `tarot-card-*` target.
 - `associated-sequence-0`: A pathway is associated with a Sequence 0 / true-god endpoint or deity page.
 - `associated-ats`: A pathway, deity, or pathway group is associated with an Above the Sequences / Great Old One title-cluster page.
 - `associated-outer-deity`: A pathway, deity, concept, artifact, location, or event is meaningfully pressured, corrupted, claimed, or influenced by an Outer Deity / Outer God page.
@@ -1232,7 +1250,7 @@ Use pathway metaphysics relationship types when a pathway, character, Uniqueness
 
 Use `associated-outer-deity` for external pressure/influence, not as a synonym for Sequence 0 or ATS identity. For example, a pathway cluster can have a native ATS formula and also be pressured by a separate Outer Deity.
 
-Tarot-card relationship seed targets may use lightweight graph node slugs such as `tarot-card-the-star` before the project decides whether each card needs a dedicated glossary page. Keep the shared gallery and tarot-card explanation on `concept-tarot-cards.md` unless a specific card becomes article-worthy on its own.
+Tarot-card relationship seed targets may use approved pending-page slugs such as `tarot-card-the-star` before the dedicated page exists. These pending targets may appear as provisional graph endpoints and should materialize into the same canonical subject when the page is created. Keep the shared gallery and Tarot system explanation on `concept-tarot-cards.md`; create individual card pages only when their cross-subject relationships or chronology justify independent treatment.
 
 Use item relationship types when an `item-*` page is graph-visible:
 

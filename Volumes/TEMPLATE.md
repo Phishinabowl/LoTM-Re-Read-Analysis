@@ -18,6 +18,8 @@ Last Updated:
 Related Boards:
 -
 
+`Volume Summary` is an aggregating content type, not a glossary category. It organizes and summarizes glossary subjects within a bounded source range and should not become a graph node by default.
+
 Related Glossary Threads:
 -
 

@@ -872,4 +872,4 @@ This section tracks durable configuration and generated state files that affect 
 
 ### Future Config Registries
 
-`Project_Config/project.yaml` establishes the shared bootstrap boundary and already defines project paths and content-root provenance behavior. The [Architecture Contract](../ARCHITECTURE.md) assigns planned domain taxonomy and source-priority behavior to separate registries located through the manifest. Add those files to the configuration table once they exist. Until then, `PROJECT_RULES.md` and the type templates remain the source of truth for LoTM taxonomy and prose-rendering policy.
+`Project_Config/project.yaml` establishes the shared bootstrap boundary and already defines project paths and content-root provenance behavior. The [Architecture Contract](../ARCHITECTURE.md) assigns planned domain taxonomy, non-category content types, and source-priority behavior to separate registries located through the manifest. Add those files to the configuration table once they exist. Until then, `PROJECT_RULES.md`, the type templates, and the Volume Summary template remain the source of truth for LoTM taxonomy and prose-rendering policy.

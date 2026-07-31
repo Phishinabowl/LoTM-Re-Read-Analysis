@@ -33,7 +33,7 @@ Filename format is governed by `PROJECT_RULES.md`. Use this generic shape only a
 [entity-type]-[kebab-case-name].md
 ```
 
-Store the file in its matching plural category folder, such as `Characters/`, `Artifacts/`, `Items/`, `Knowledge_Sources/`, `Deities/`, `Uniquenesses/`, or `Mysteries/`, while retaining the filename prefix. For scoped or special filename families such as deity and uniqueness pages, follow `PROJECT_RULES.md` rather than duplicating the rule here.
+Store the file in its matching plural category folder, such as `Characters/`, `Artifacts/`, `Items/`, `Knowledge_Sources/`, `Deities/`, `Tarot_Cards/`, `Uniquenesses/`, or `Mysteries/`, while retaining the filename prefix. For scoped or special filename families such as deity and uniqueness pages, follow `PROJECT_RULES.md` rather than duplicating the rule here.
 
 Examples:
 
@@ -47,12 +47,13 @@ source-roselle-diary-pages.md
 concept-gray-fog.md
 event-great-smog.md
 uniqueness-die-of-probability.md
+tarot-card-the-star.md
 timeline-ian-zreal-chain.md
 ```
 
 ## Purpose
 
-What recurring thread, symbol, faction, person, family, item, knowledge source, location, event, concept, or mystery does this file track?
+What recurring thread, symbol, faction, person, family, item, knowledge source, location, event, concept, Tarot card, or mystery does this file track?
 
 ## Spoiler Boundary
 
