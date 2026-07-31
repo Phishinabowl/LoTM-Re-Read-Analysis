@@ -1,4 +1,6 @@
 param(
+  [Alias("?","h")]
+  [switch]$Help,
   [string]$Root = ".",
   [string]$OutputDir = "Obsidian_Export",
   [switch]$IncludeStubs,
@@ -11,6 +13,39 @@ param(
 $ErrorActionPreference = "Stop"
 $OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+
+function Show-Help {
+  @"
+Generate an Obsidian QA mirror from metadata, data blocks, and Relationship Seeds.
+
+Usage:
+  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1 [options]
+
+Options:
+  -Root <path>             Repository root. Defaults to the current directory.
+  -OutputDir <path>        Generated export directory. Defaults to Obsidian_Export.
+  -IncludeStubs            Include pages whose metadata status is Stub.
+  -Clean                   Delete the output directory before regenerating it.
+  -Json                    Print a JSON summary instead of human-readable text.
+  -BoundedGraph <spec[]>   Also generate no-render bounded visualization graph(s)
+                           under _Generated\bounded-graphs. Multiple specs may be
+                           supplied as an array or separated with semicolons.
+  -BoundedPage <spec[]>    Also generate bounded QA Markdown page(s) under
+                           _Generated\bounded-pages. Multiple specs may be supplied
+                           as an array or separated with semicolons.
+  -Help, -?, -h            Show this help and exit.
+
+Examples:
+  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1 -Clean
+  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1 -Clean -BoundedGraph 'name=ch50,medium=novel,maxVolume=1,maxChapter=50'
+  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1 -Clean -BoundedPage 'slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=150'
+"@
+}
+
+if ($Help) {
+  Show-Help
+  exit 0
+}
 
 $TypeFolders = @{
   "artifact" = "Artifacts"

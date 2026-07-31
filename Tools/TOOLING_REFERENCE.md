@@ -706,7 +706,7 @@ Purpose: compile repository metadata, type-specific YAML data blocks, Relationsh
 | Print JSON summary | `--json` | `-Json` | off | Prints summary counts as JSON instead of human-readable text. Generated files are still written. |
 | Generate extra bounded graph(s) | `--bounded-graph <spec>` | `-BoundedGraph <spec>` | none | Repeatable opt-in. Generates no-render Mermaid graphs under `_Generated/bounded-graphs/` in addition to the normal export. Specs are comma-separated key/value pairs such as `name=vol1-ch45,medium=novel,maxVolume=1,maxChapter=45`. Multiple specs may also be separated with semicolons inside one argument, which is the recommended PowerShell form. The folder is rebuilt from scratch when specs are provided and removed when no bounded graphs are requested, preventing stale sampled graphs from lingering. |
 | Generate extra bounded page(s) | `--bounded-page <spec>` | `-BoundedPage <spec>` | none | Repeatable opt-in. Generates boundary-filtered QA Markdown pages under `_Generated/bounded-pages/` in addition to the normal export. Specs are comma-separated key/value pairs such as `slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=30`. Multiple specs may also be separated with semicolons inside one argument, which is the recommended PowerShell form. The folder is rebuilt from scratch when specs are provided and removed when no bounded pages are requested, preventing stale sampled pages from lingering. |
-| Show CLI help | `--help` | n/a | n/a | Python exposes argparse help. The PowerShell fallback exposes switches through the script `param(...)` block. |
+| Show CLI help | `--help` | `-Help`, `-?`, `-h` | n/a | Python exposes argparse help. The PowerShell fallback prints script-specific help and exits without generating the export. |
 
 Bounded graph spec keys:
 
@@ -770,6 +770,7 @@ The repo refresh check does not update canonical `Visualization/graphs/`, `Visua
 | Behavior | Python function | PowerShell function |
 | --- | --- | --- |
 | Parse CLI/switches | `build_parser`, `main` | top-level `param(...)`, bottom script block |
+| Render CLI help | argparse generated help | `Show-Help` |
 | Configure UTF-8 output | `configure_output_encoding` | top-level `$OutputEncoding` / `[Console]::OutputEncoding` |
 | Read canonical Markdown | `discover_notes`, `read_text` | `Get-CanonicalNotes`, `Read-TextFile` |
 | Parse metadata | `parse_metadata`, `extract_section` | `Get-Metadata`, `Get-MarkdownSection` |
@@ -799,7 +800,7 @@ The repo refresh check does not update canonical `Visualization/graphs/`, `Visua
 - Python invokes `Tools/clean_temp_files.py` at the end of normal runs to remove transient cache folders. PowerShell invokes `Tools/Clean-TempFiles.ps1 -Delete` at the end for the same cleanup behavior.
 - Python loads `Visualization/visualize.py` directly for the unbounded visualization-style graph and repo refresh dry run. PowerShell mirrors the unbounded graph internally, then shells out to `Visualization/visualize.ps1` for the repo refresh dry run.
 - Python bounded-page parsing depends on `PyYAML`. PowerShell bounded-page parsing depends on `powershell-yaml`; use `Tools/Test-PowerShell.ps1` before using `-BoundedPage` on a new machine.
-- Python has built-in `--help`; PowerShell switch discovery is through the `param(...)` block and this reference.
+- Python has built-in `--help`; PowerShell supports `-Help`, `-?`, and `-h` through `Show-Help`.
 
 ### Parity Check Recipe
 
