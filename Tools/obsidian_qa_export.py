@@ -10,6 +10,15 @@ from pathlib import Path
 
 import yaml
 
+from project_config import (
+    ContentRootConfig,
+    ProjectConfig,
+    load_project_config,
+    resolve_project_root,
+)
+
+
+ACTIVE_CONTENT_ROOTS: tuple[ContentRootConfig, ...] = ()
 
 TYPE_FOLDERS = {
     "artifact": "Artifacts",
@@ -202,8 +211,17 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Generate an Obsidian QA mirror from metadata, data blocks, and Relationship Seeds."
     )
-    parser.add_argument("--root", default=".", help="Repository root. Defaults to the current directory.")
-    parser.add_argument("--output-dir", default="Obsidian_Export", help="Generated export directory.")
+    parser.add_argument(
+        "--root",
+        help=(
+            "Repository root. When omitted, search upward from the current directory "
+            "and this script's directory for Project_Config/project.yaml."
+        ),
+    )
+    parser.add_argument(
+        "--output-dir",
+        help="Generated export directory. Defaults to `paths.qa_export` in the project manifest.",
+    )
     parser.add_argument("--include-stubs", action="store_true", help="Include pages whose metadata status is Stub.")
     parser.add_argument("--clean", action="store_true", help="Delete the output directory before regenerating it.")
     parser.add_argument("--json", action="store_true", help="Print a JSON summary instead of human-readable text.")
@@ -839,14 +857,17 @@ def parse_data_references(text: str, note_slug: str, source_file: str) -> list[D
 
 
 def discover_notes(
-    root: Path, include_stubs: bool
+    root: Path,
+    content_roots: tuple[ContentRootConfig, ...],
+    include_stubs: bool,
 ) -> tuple[dict[str, CanonicalNote], list[Relationship], list[DataReference], dict[str, DataProjection]]:
     notes: dict[str, CanonicalNote] = {}
     relationships: list[Relationship] = []
     data_references: list[DataReference] = []
     data_projections: dict[str, DataProjection] = {}
 
-    for search_root in [root / "Glossary_Threads", root / "Volumes"]:
+    for content_root in content_roots:
+        search_root = content_root.path
         if not search_root.exists():
             continue
         for path in sorted(search_root.rglob("*.md")):
@@ -1266,13 +1287,18 @@ def relationship_provenance_lines(
 
 
 def source_domain_label(source_file: str) -> str:
-    parts = Path(source_file).parts
-    if "Glossary_Threads" in parts:
-        index = parts.index("Glossary_Threads")
-        if index + 1 < len(parts):
-            return singular_domain(parts[index + 1])
-    if parts and parts[0] == "Volumes":
-        return "volume"
+    relative_source = Path(source_file)
+    for content_root in ACTIVE_CONTENT_ROOTS:
+        try:
+            remainder = relative_source.relative_to(content_root.relative_path)
+        except ValueError:
+            continue
+        if content_root.provenance_mode == "fixed":
+            return content_root.provenance_label
+        if content_root.provenance_mode == "child-directory" and len(remainder.parts) > 1:
+            return singular_domain(remainder.parts[0])
+        break
+
     stem = Path(source_file).stem
     for prefix in SLUG_PREFIXES:
         if stem.startswith(f"{prefix}-"):
@@ -1339,8 +1365,8 @@ def append_qa_graph_class_assignments(lines: list[str], used_slugs: list[str], n
         lines.append(f"  class {mermaid_node_id(slug)} {class_name}")
 
 
-def load_visualization_helper(root: Path):
-    visualize_path = root / "Visualization" / "visualize.py"
+def load_visualization_helper(config: ProjectConfig):
+    visualize_path = config.visualization_python_helper
     if not visualize_path.exists():
         raise RuntimeError(f"Visualization helper not found: {visualize_path}")
 
@@ -1355,8 +1381,8 @@ def load_visualization_helper(root: Path):
     return visualize
 
 
-def write_visualization_relationship_graph(root: Path, output_path: Path) -> None:
-    visualize = load_visualization_helper(root)
+def write_visualization_relationship_graph(config: ProjectConfig, output_path: Path) -> None:
+    visualize = load_visualization_helper(config)
 
     node_data = visualize.read_glossary_nodes()
     nodes = {node_id: data["label"] for node_id, data in node_data.items()}
@@ -1391,9 +1417,10 @@ def repo_relative_path(root: Path, path: Path) -> str:
         return str(path)
 
 
-def write_repo_refresh_check(root: Path, generated_dir: Path) -> None:
-    visualize = load_visualization_helper(root)
-    source_settings_path = root / "Visualization" / "config" / "render-settings.json"
+def write_repo_refresh_check(config: ProjectConfig, generated_dir: Path) -> None:
+    root = config.root
+    visualize = load_visualization_helper(config)
+    source_settings_path = config.visualization_render_settings
     settings = json.loads(source_settings_path.read_text(encoding="utf-8"))
     check_dir = generated_dir / "repo-refresh-check"
     rendered_dir = check_dir / "rendered"
@@ -1416,20 +1443,25 @@ def write_repo_refresh_check(root: Path, generated_dir: Path) -> None:
     )
     visualize.invoke_refresh_mode(
         settings,
-        root / "Visualization" / "config" / "puppeteer-config.json",
+        config.visualization_puppeteer_config,
         skip_render=True,
     )
 
 
-def write_bounded_graphs(root: Path, generated_dir: Path, specs: list[BoundedGraphSpec]) -> None:
+def write_bounded_graphs(
+    config: ProjectConfig,
+    generated_dir: Path,
+    specs: list[BoundedGraphSpec],
+) -> None:
+    root = config.root
     bounded_dir = generated_dir / "bounded-graphs"
     if not specs:
         if bounded_dir.exists():
             shutil.rmtree(bounded_dir)
         return
 
-    visualize = load_visualization_helper(root)
-    source_settings_path = root / "Visualization" / "config" / "render-settings.json"
+    visualize = load_visualization_helper(config)
+    source_settings_path = config.visualization_render_settings
     settings = json.loads(source_settings_path.read_text(encoding="utf-8"))
     if bounded_dir.exists():
         shutil.rmtree(bounded_dir)
@@ -1469,7 +1501,7 @@ def write_bounded_graphs(root: Path, generated_dir: Path, specs: list[BoundedGra
     )
     visualize.invoke_refresh_mode(
         settings,
-        root / "Visualization" / "config" / "puppeteer-config.json",
+        config.visualization_puppeteer_config,
         skip_render=True,
     )
 
@@ -2205,7 +2237,7 @@ def ensure_safe_output(root: Path, output_dir: Path) -> Path:
 
 
 def write_export(
-    root: Path,
+    config: ProjectConfig,
     output_dir: Path,
     clean: bool,
     notes: dict[str, CanonicalNote],
@@ -2215,6 +2247,7 @@ def write_export(
     bounded_graph_specs: list[BoundedGraphSpec],
     bounded_page_specs: list[BoundedPageSpec],
 ) -> None:
+    root = config.root
     output_dir = ensure_safe_output(root, output_dir)
     if clean and output_dir.exists():
         shutil.rmtree(output_dir)
@@ -2239,39 +2272,51 @@ def write_export(
         render_relationship_node_graph(relationships, notes, data_projections),
         encoding="utf-8",
     )
-    write_visualization_relationship_graph(root, generated_dir / "visualization-relationship-graph.mmd")
-    write_repo_refresh_check(root, generated_dir)
-    write_bounded_graphs(root, generated_dir, bounded_graph_specs)
+    write_visualization_relationship_graph(config, generated_dir / "visualization-relationship-graph.mmd")
+    write_repo_refresh_check(config, generated_dir)
+    write_bounded_graphs(config, generated_dir, bounded_graph_specs)
     write_bounded_pages(root, generated_dir, notes, bounded_page_specs)
     (generated_dir / "data-reference-index.md").write_text(render_data_reference_index(data_references, notes), encoding="utf-8")
     (generated_dir / "orphan-report.md").write_text(render_orphan_report(notes, relationships, data_references), encoding="utf-8")
     (generated_dir / "suspicious-edges.md").write_text(render_suspicious_edges(notes, relationships), encoding="utf-8")
 
 
-def clean_disposable_caches(root: Path) -> None:
+def clean_disposable_caches(config: ProjectConfig) -> None:
     try:
-        clean_path = root / "Tools" / "clean_temp_files.py"
+        clean_path = config.cleanup_python_helper
         spec = importlib.util.spec_from_file_location("_lotm_clean_temp_files", clean_path)
         if spec is None or spec.loader is None:
             return
         cleaner = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(cleaner)
-        cleaner.clean_cache_dirs(cleaner.find_cache_dirs(root))
+        cleaner.clean_cache_dirs(cleaner.find_cache_dirs(config.root))
     except Exception:
         return
 
 
 def main() -> int:
+    global ACTIVE_CONTENT_ROOTS
+
     configure_output_encoding()
     args = build_parser().parse_args()
-    root = Path(args.root).resolve()
-    output_dir = (root / args.output_dir).resolve()
+    root = resolve_project_root(args.root)
+    config = load_project_config(root)
+    ACTIVE_CONTENT_ROOTS = config.canonical_content
+    output_dir = (
+        (root / args.output_dir).resolve()
+        if args.output_dir
+        else config.qa_export
+    )
     bounded_graph_specs = parse_bounded_graph_specs(args.bounded_graph)
     bounded_page_specs = parse_bounded_page_specs(args.bounded_page)
 
-    notes, relationships, data_references, data_projections = discover_notes(root, args.include_stubs)
-    write_export(
+    notes, relationships, data_references, data_projections = discover_notes(
         root,
+        config.canonical_content,
+        args.include_stubs,
+    )
+    write_export(
+        config,
         output_dir,
         args.clean,
         notes,
@@ -2314,7 +2359,7 @@ def main() -> int:
             f"{summary['duplicate_edge_groups']} duplicate edge groups, "
             f"{summary['missing_reciprocals']} missing expected reciprocals."
         )
-    clean_disposable_caches(root)
+    clean_disposable_caches(config)
     return 0
 
 

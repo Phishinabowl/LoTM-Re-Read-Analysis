@@ -1,0 +1,24 @@
+schema_version: 1
+project_id: lotm-analysis
+framework: knowledge-model
+domain: lord-of-the-mysteries
+
+paths:
+  canonical_content:
+    - path: Glossary_Threads
+      provenance_mode: child-directory
+    - path: Volumes
+      provenance_mode: fixed
+      provenance_label: volume
+
+  qa_export: Obsidian_Export
+
+  visualization:
+    python_helper: Visualization/visualize.py
+    powershell_helper: Visualization/visualize.ps1
+    render_settings: Visualization/config/render-settings.json
+    puppeteer_config: Visualization/config/puppeteer-config.json
+
+  cleanup:
+    python_helper: Tools/clean_temp_files.py
+    powershell_helper: Tools/Clean-TempFiles.ps1

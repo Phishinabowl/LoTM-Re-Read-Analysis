@@ -1,8 +1,8 @@
 param(
   [Alias("?","h")]
   [switch]$Help,
-  [string]$Root = ".",
-  [string]$OutputDir = "Obsidian_Export",
+  [string]$Root,
+  [string]$OutputDir,
   [switch]$IncludeStubs,
   [switch]$Clean,
   [switch]$Json,
@@ -14,6 +14,12 @@ $ErrorActionPreference = "Stop"
 $OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 
+$projectConfigHelper = Join-Path $PSScriptRoot "Project-Config.ps1"
+if (-not (Test-Path -LiteralPath $projectConfigHelper -PathType Leaf)) {
+  throw "Project configuration helper not found: $projectConfigHelper"
+}
+. $projectConfigHelper
+
 function Show-Help {
   @"
 Generate an Obsidian QA mirror from metadata, data blocks, and Relationship Seeds.
@@ -22,8 +28,11 @@ Usage:
   powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1 [options]
 
 Options:
-  -Root <path>             Repository root. Defaults to the current directory.
-  -OutputDir <path>        Generated export directory. Defaults to Obsidian_Export.
+  -Root <path>             Repository root. When omitted, searches upward from
+                           the current directory and this script's directory for
+                           Project_Config\project.yaml.
+  -OutputDir <path>        Generated export directory. Defaults to paths.qa_export
+                           in Project_Config\project.yaml.
   -IncludeStubs            Include pages whose metadata status is Stub.
   -Clean                   Delete the output directory before regenerating it.
   -Json                    Print a JSON summary instead of human-readable text.
@@ -950,21 +959,10 @@ function ConvertFrom-BoundedPageSpecs {
   return @($result)
 }
 
-function Import-YamlModuleForBoundedPages {
-  param([object[]]$BoundedPageSpecs)
-  if (@($BoundedPageSpecs).Count -eq 0) {
-    return
-  }
-  try {
-    Import-Module powershell-yaml -ErrorAction Stop
-  } catch {
-    throw "Bounded page generation requires the PowerShell module 'powershell-yaml'. Install it with: Install-Module powershell-yaml -Scope CurrentUser -Force -AllowClobber"
-  }
-}
-
 function Get-CanonicalNotes {
   param(
     [string]$RepoRoot,
+    [object[]]$ContentRoots,
     [bool]$IncludeStubPages
   )
   $notes = @{}
@@ -972,7 +970,8 @@ function Get-CanonicalNotes {
   $dataReferences = @()
   $dataProjections = @{}
 
-  foreach ($searchPath in @((Join-Path $RepoRoot "Glossary_Threads"), (Join-Path $RepoRoot "Volumes"))) {
+  foreach ($contentRoot in @($ContentRoots)) {
+    $searchPath = $contentRoot.path
     if (-not (Test-Path -LiteralPath $searchPath)) {
       continue
     }
@@ -1382,14 +1381,30 @@ function Get-SingularDomainLabel {
 
 function Get-RelationshipSourceDomain {
   param([string]$SourceFile)
-  $parts = @($SourceFile -split '[\\/]')
-  $glossaryIndex = [array]::IndexOf($parts, "Glossary_Threads")
-  if ($glossaryIndex -ge 0 -and $glossaryIndex + 1 -lt $parts.Count) {
-    return Get-SingularDomainLabel $parts[$glossaryIndex + 1]
+
+  $normalizedSource = $SourceFile.Replace("\", "/")
+  foreach ($contentRoot in @($script:ActiveContentRoots)) {
+    $normalizedRoot = ([string]$contentRoot.relative_path).Replace("\", "/").TrimEnd("/")
+    if ($normalizedSource -eq $normalizedRoot) {
+      $remainder = ""
+    } elseif ($normalizedSource.StartsWith($normalizedRoot + "/", [System.StringComparison]::OrdinalIgnoreCase)) {
+      $remainder = $normalizedSource.Substring($normalizedRoot.Length + 1)
+    } else {
+      continue
+    }
+
+    if ($contentRoot.provenance_mode -eq "fixed") {
+      return $contentRoot.provenance_label
+    }
+    if ($contentRoot.provenance_mode -eq "child-directory") {
+      $parts = @($remainder -split "/" | Where-Object { $_ })
+      if ($parts.Count -gt 1) {
+        return Get-SingularDomainLabel $parts[0]
+      }
+    }
+    break
   }
-  if ($parts.Count -gt 0 -and $parts[0] -eq "Volumes") {
-    return "volume"
-  }
+
   $stem = [System.IO.Path]::GetFileNameWithoutExtension($SourceFile)
   foreach ($prefix in $SlugPrefixes) {
     if ($stem.StartsWith("$prefix-")) {
@@ -2007,10 +2022,11 @@ function Get-RepoRelativePath {
 
 function Write-RepoRefreshCheck {
   param(
-    [string]$RepoRoot,
+    [object]$ProjectConfig,
     [string]$GeneratedDir
   )
-  $sourceSettingsPath = Join-Path $RepoRoot "Visualization/config/render-settings.json"
+  $RepoRoot = $ProjectConfig.root
+  $sourceSettingsPath = $ProjectConfig.visualization_render_settings
   $settings = Get-Content -LiteralPath $sourceSettingsPath -Raw | ConvertFrom-Json
   $checkDir = Join-Path $GeneratedDir "repo-refresh-check"
   $renderedDir = Join-Path $checkDir "rendered"
@@ -2034,15 +2050,16 @@ function Write-RepoRefreshCheck {
   $settingsPath = Join-Path $checkDir "refresh-check-settings.json"
   Write-TextFile $settingsPath ($settings | ConvertTo-Json -Depth 50)
 
-  powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "Visualization/visualize.ps1") -Mode Refresh -SettingsPath (Get-RepoRelativePath $RepoRoot $settingsPath) -SkipRender
+  powershell -NoProfile -ExecutionPolicy Bypass -File $ProjectConfig.visualization_powershell_helper -Mode Refresh -SettingsPath (Get-RepoRelativePath $RepoRoot $settingsPath) -SkipRender
 }
 
 function Write-BoundedGraphs {
   param(
-    [string]$RepoRoot,
+    [object]$ProjectConfig,
     [string]$GeneratedDir,
     [object[]]$Specs
   )
+  $RepoRoot = $ProjectConfig.root
   $boundedDir = Join-Path $GeneratedDir "bounded-graphs"
   if (@($Specs).Count -eq 0) {
     if (Test-Path -LiteralPath $boundedDir) {
@@ -2051,7 +2068,7 @@ function Write-BoundedGraphs {
     return
   }
 
-  $sourceSettingsPath = Join-Path $RepoRoot "Visualization/config/render-settings.json"
+  $sourceSettingsPath = $ProjectConfig.visualization_render_settings
   $settings = Get-Content -LiteralPath $sourceSettingsPath -Raw | ConvertFrom-Json
   if (Test-Path -LiteralPath $boundedDir) {
     Remove-Item -LiteralPath $boundedDir -Recurse -Force
@@ -2085,7 +2102,7 @@ function Write-BoundedGraphs {
   $settingsPath = Join-Path $boundedDir "bounded-graphs-settings.json"
   Write-TextFile $settingsPath ($settings | ConvertTo-Json -Depth 50)
 
-  powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot "Visualization/visualize.ps1") -Mode Refresh -SettingsPath (Get-RepoRelativePath $RepoRoot $settingsPath) -SkipRender
+  powershell -NoProfile -ExecutionPolicy Bypass -File $ProjectConfig.visualization_powershell_helper -Mode Refresh -SettingsPath (Get-RepoRelativePath $RepoRoot $settingsPath) -SkipRender
 }
 
 function Get-MapValue {
@@ -2602,7 +2619,7 @@ function Get-TimelineProseBlocks {
   $section = Get-MarkdownSection $Text "Chronological Development"
   $blocks = @{}
   if ([string]::IsNullOrWhiteSpace($section)) { return $blocks }
-  foreach ($match in [regex]::Matches($section, "(?ms)^(#### .+?`n<!-- timeline_id:\s*([a-zA-Z0-9_-]+)\s*-->`n.*?)(?=^#### |\z)")) {
+  foreach ($match in [regex]::Matches($section, "(?ms)^(#### .+?\r?\n<!-- timeline_id:\s*([a-zA-Z0-9_-]+)\s*-->\r?\n.*?)(?=^#### |\z)")) {
     $blocks[$match.Groups[2].Value] = $match.Groups[1].Value.Trim()
   }
   return $blocks
@@ -2783,7 +2800,7 @@ function Write-BoundedPages {
 
 function Write-ObsidianExport {
   param(
-    [string]$RepoRoot,
+    [object]$ProjectConfig,
     [string]$ExportPath,
     [bool]$CleanOutput,
     [hashtable]$Notes,
@@ -2793,6 +2810,7 @@ function Write-ObsidianExport {
     [object[]]$BoundedGraphSpecs,
     [object[]]$BoundedPageSpecs
   )
+  $RepoRoot = $ProjectConfig.root
   $exportPath = Assert-SafeOutputPath $RepoRoot $ExportPath
   if ($CleanOutput -and (Test-Path -LiteralPath $exportPath)) {
     Remove-Item -LiteralPath $exportPath -Recurse -Force
@@ -2812,8 +2830,8 @@ function Write-ObsidianExport {
   Write-TextFile (Join-Path $generatedDir "QA-relationship-graph.mmd") (ConvertTo-LabeledRelationshipGraph $Relationships $Notes)
   Write-TextFile (Join-Path $generatedDir "QA-relationship-node-graph.mmd") (ConvertTo-RelationshipNodeGraph $Relationships $Notes $DataProjections)
   Write-TextFile (Join-Path $generatedDir "visualization-relationship-graph.mmd") (ConvertTo-VisualizationRelationshipGraph $Relationships $Notes $DataProjections)
-  Write-RepoRefreshCheck $RepoRoot $generatedDir
-  Write-BoundedGraphs $RepoRoot $generatedDir $BoundedGraphSpecs
+  Write-RepoRefreshCheck $ProjectConfig $generatedDir
+  Write-BoundedGraphs $ProjectConfig $generatedDir $BoundedGraphSpecs
   Write-BoundedPages $RepoRoot $generatedDir $Notes $BoundedPageSpecs
   Write-TextFile (Join-Path $generatedDir "data-reference-index.md") (ConvertTo-DataReferenceIndex $DataReferences $Notes)
   Write-TextFile (Join-Path $generatedDir "orphan-report.md") (ConvertTo-OrphanReport $Notes $Relationships $DataReferences)
@@ -2821,9 +2839,9 @@ function Write-ObsidianExport {
 }
 
 function Invoke-DisposableCacheCleanup {
-  param([string]$RepoRoot)
+  param([object]$ProjectConfig)
   try {
-    $cleanScript = Join-Path $RepoRoot "Tools/Clean-TempFiles.ps1"
+    $cleanScript = $ProjectConfig.cleanup_powershell_helper
     if (Test-Path -LiteralPath $cleanScript) {
       powershell -NoProfile -ExecutionPolicy Bypass -File $cleanScript -Delete | Out-Null
     }
@@ -2832,13 +2850,15 @@ function Invoke-DisposableCacheCleanup {
   }
 }
 
-$repoRoot = (Resolve-Path -LiteralPath $Root).Path
-$exportPath = if ([System.IO.Path]::IsPathRooted($OutputDir)) { $OutputDir } else { Join-Path $repoRoot $OutputDir }
+$repoRoot = Resolve-KnowledgeProjectRoot $Root
+$projectConfig = Get-KnowledgeProjectConfig $repoRoot
+$script:ActiveContentRoots = @($projectConfig.canonical_content)
+$selectedOutputDir = if ([string]::IsNullOrWhiteSpace($OutputDir)) { $projectConfig.qa_export } else { $OutputDir }
+$exportPath = if ([System.IO.Path]::IsPathRooted($selectedOutputDir)) { $selectedOutputDir } else { Join-Path $repoRoot $selectedOutputDir }
 $boundedGraphSpecs = @(ConvertFrom-BoundedGraphSpecs $BoundedGraph)
 $boundedPageSpecs = @(ConvertFrom-BoundedPageSpecs $BoundedPage)
-Import-YamlModuleForBoundedPages $boundedPageSpecs
-$discovered = Get-CanonicalNotes $repoRoot ([bool]$IncludeStubs)
-Write-ObsidianExport $repoRoot $exportPath ([bool]$Clean) $discovered.Notes $discovered.Relationships $discovered.DataReferences $discovered.DataProjections $boundedGraphSpecs $boundedPageSpecs
+$discovered = Get-CanonicalNotes $repoRoot $projectConfig.canonical_content ([bool]$IncludeStubs)
+Write-ObsidianExport $projectConfig $exportPath ([bool]$Clean) $discovered.Notes $discovered.Relationships $discovered.DataReferences $discovered.DataProjections $boundedGraphSpecs $boundedPageSpecs
 
 $orphanData = Get-OrphanAnalysis $discovered.Notes $discovered.Relationships $discovered.DataReferences
 $suspiciousData = Get-SuspiciousEdgeAnalysis $discovered.Relationships $discovered.Notes
@@ -2859,7 +2879,7 @@ $summary = [ordered]@{
 
 if ($Json) {
   $summary | ConvertTo-Json -Depth 5
-  Invoke-DisposableCacheCleanup $repoRoot
+  Invoke-DisposableCacheCleanup $projectConfig
   exit 0
 }
 
@@ -2867,4 +2887,4 @@ Write-Output "Generated $($summary.notes) Obsidian QA notes."
 Write-Output "Relationship Seeds: $($summary.relationships); data block references: $($summary.data_references)."
 Write-Output "Output: $($summary.output_dir)"
 Write-Output ("QA: {0} unknown relationship sources, {1} unknown relationship targets, {2} unknown data targets, {3} self loops, {4} duplicate edge groups, {5} missing expected reciprocals." -f $summary.unknown_relationship_sources, $summary.unknown_relationship_targets, $summary.unknown_data_targets, $summary.self_loops, $summary.duplicate_edge_groups, $summary.missing_reciprocals)
-Invoke-DisposableCacheCleanup $repoRoot
+Invoke-DisposableCacheCleanup $projectConfig

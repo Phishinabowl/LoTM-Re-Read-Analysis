@@ -27,7 +27,7 @@ If the probe reports Python unavailable, use the documented PowerShell fallback 
 
 PowerShell fallback commands use `powershell`, which targets Windows PowerShell 5.1 on many Windows machines even when PowerShell 7 is also installed as `pwsh`. Keep `.ps1` fallback scripts compatible with Windows PowerShell 5.1 syntax and APIs unless a tool explicitly documents a PowerShell 7 requirement.
 
-Use `Test-PowerShell.ps1` to check repository PowerShell module requirements from `requirements-powershell.txt` before using fallback features that need modules, such as bounded Obsidian QA pages.
+Use `Test-PowerShell.ps1` to check repository PowerShell module requirements from `requirements-powershell.txt` before using fallback tools that need modules. The PowerShell Obsidian QA exporter requires `powershell-yaml` for the shared project manifest and bounded page data.
 
 Run this probe once for an unfamiliar machine or fresh agent session, then treat the result as the session's PowerShell-module readiness state. Rerun only if the environment changes, such as module installation changes, a different PowerShell edition, a different machine, or a failed fallback command that suggests the earlier state is stale.
 
@@ -378,6 +378,8 @@ python Tools\obsidian_qa_export.py
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1
 ```
 
+When `--root` / `-Root` is omitted, both implementations search upward from the current directory and then from the script directory for `Project_Config/project.yaml`. They can therefore be launched from either the repository root or `Tools/` without manually passing the root. An explicit root remains available for automation and is validated against the same manifest. The manifest supplies canonical content roots, provenance behavior, the default QA output path, visualization integration paths, and cleanup helper paths. Content-directory names such as `Glossary_Threads/` are LoTM configuration values, not framework assumptions.
+
 The generated structure mirrors active canonical pages by type and adds QA reports. Pages with `Status: Stub` are excluded by default; pass `--include-stubs` / `-IncludeStubs` when stub pages should be mirrored for local inspection. Pending pages are treated as normal QA candidates unless the source page itself is omitted by status.
 
 ```text
@@ -423,7 +425,7 @@ The `_Generated/repo-refresh-check/` folder is a QA-local dry run of every curre
 
 Optional bounded output folders are owned by the current QA export run. If bounded graph or bounded page specs are provided, the matching `_Generated/bounded-graphs/` or `_Generated/bounded-pages/` folder is rebuilt from scratch so stale files from earlier sampled boundaries do not linger. If no specs are provided for one of those opt-in bundles, any old folder for that bundle is removed.
 
-Use `--bounded-page` / `-BoundedPage` to generate optional local QA page projections for specific reader/viewer boundaries. The folder is created only when requested. Python uses PyYAML from `requirements-python.txt`; the PowerShell fallback uses `powershell-yaml` from `requirements-powershell.txt`.
+Use `--bounded-page` / `-BoundedPage` to generate optional local QA page projections for specific reader/viewer boundaries. The folder is created only when requested. Python uses PyYAML from `requirements-python.txt`; the PowerShell fallback uses `powershell-yaml` from `requirements-powershell.txt`. Those YAML dependencies also load the shared project manifest during normal QA runs.
 
 ```powershell
 python Tools\obsidian_qa_export.py --clean --bounded-page "slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=30"

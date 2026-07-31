@@ -78,6 +78,10 @@ Do not embed the full graph in this README; it is maintained as a separate gener
 ## Project Structure
 
 ```text
+Project_Config/
+  project.yaml
+  domain-neutral project identity, content roots, and tool integration paths
+
 Boards/
   01_LoTM_Main_Reread_Board.md
   02_LoTM_Ancient_History_Family_Board.md

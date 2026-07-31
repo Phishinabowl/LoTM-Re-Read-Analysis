@@ -41,6 +41,10 @@ The objective is to reconstruct:
 The project uses the following files and folders:
 
 ```text
+Project_Config/
+  project.yaml
+  domain-neutral project identity, content roots, and tool integration paths
+
 Boards/
   01_LoTM_Main_Reread_Board.md
   02_LoTM_Ancient_History_Family_Board.md
@@ -132,6 +136,8 @@ NOTICE.md
 ```
 
 These files and folders are the project's working memory.
+
+`Project_Config/project.yaml` is the domain-neutral repository manifest. Tooling uses it to locate and identify the project and to resolve canonical content roots, source-provenance behavior, QA output, visualization integration, and cleanup helpers. Directory names such as `Glossary_Threads/` and `Volumes/` are LoTM configuration values rather than reusable framework assumptions. The manifest does not replace the LoTM-specific taxonomy and authoring rules in this document; shared controlled vocabularies will move into separate registries as the reusable framework is extracted.
 
 When conclusions are reached:
 

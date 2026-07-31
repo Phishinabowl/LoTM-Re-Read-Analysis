@@ -699,7 +699,7 @@ Purpose: compile repository metadata, type-specific YAML data blocks, Relationsh
 
 | Purpose | Python switch | PowerShell switch | Default | Notes |
 | --- | --- | --- | --- | --- |
-| Select repository root | `--root <path>` | `-Root <path>` | `.` | All discovered canonical files and output safety checks are resolved from this root. |
+| Select repository root | `--root <path>` | `-Root <path>` | Auto-detected | When omitted, searches upward from the current directory and then the script directory. Explicit roots remain authoritative. Project identity comes from `Project_Config/project.yaml`; content-directory names do not participate in root detection. |
 | Select export directory | `--output-dir <path>` | `-OutputDir <path>` | `Obsidian_Export` | Relative paths are resolved under the repository root. Output must remain inside the repository root. |
 | Include stub pages | `--include-stubs` | `-IncludeStubs` | off | Includes canonical pages whose metadata has `Status: Stub`. Pending pages are not excluded by this switch. |
 | Clean before writing | `--clean` | `-Clean` | off | Deletes the selected export directory before regenerating it, after the path safety check. |
@@ -729,19 +729,17 @@ Bounded page spec keys:
 
 | Input | Used For |
 | --- | --- |
-| `Glossary_Threads/**/*.md` | Canonical glossary notes, metadata, YAML data blocks, and Relationship Seeds. |
-| `Volumes/**/*.md` | Volume summary pages with metadata, YAML data blocks, or Relationship Seeds. |
-| `Visualization/visualize.py` | Python export helper for `visualization-relationship-graph.mmd` and repo refresh dry-run generation. |
-| `Visualization/visualize.ps1` | PowerShell export helper for repo refresh dry-run generation. |
-| `Visualization/config/render-settings.json` | Source configured view list for `_Generated/repo-refresh-check/`. |
-| `Visualization/config/puppeteer-config.json` | Passed through to the visualization refresh helper for dry-run fidelity. Rendering is skipped. |
-| `Tools/clean_temp_files.py` | Python export calls this at the end to remove transient Python cache folders. |
-| `requirements-python.txt` / `PyYAML` | Python bounded-page generation uses `PyYAML` to parse structured page data blocks. |
-| `requirements-powershell.txt` / `powershell-yaml` | PowerShell bounded-page generation uses `powershell-yaml` to parse structured page data blocks. |
+| `Project_Config/project.yaml` | Identifies the project and configures canonical content roots, provenance behavior, QA output, visualization integration, and cleanup helpers. |
+| Configured canonical content roots; currently `Glossary_Threads/**/*.md` and `Volumes/**/*.md` | Canonical notes, metadata, YAML data blocks, and Relationship Seeds. |
+| Configured visualization helpers; currently `Visualization/visualize.py` and `Visualization/visualize.ps1` | Visualization-style graph and repo refresh dry-run generation. |
+| Configured render settings and Puppeteer config under `Visualization/config/` | Source view list and dry-run fidelity settings. Rendering is skipped. |
+| Configured cleanup helpers under `Tools/` | End-of-run transient cache cleanup. |
+| `requirements-python.txt` / `PyYAML` | Python project-manifest and structured page-data parsing. |
+| `requirements-powershell.txt` / `powershell-yaml` | PowerShell project-manifest and structured page-data parsing. |
 
 ### Outputs
 
-Default output root: `Obsidian_Export/`, ignored by Git.
+Default output root: the manifest's `paths.qa_export`, currently `Obsidian_Export/` and ignored by Git.
 
 | Output | Description |
 | --- | --- |
@@ -771,6 +769,8 @@ The repo refresh check does not update canonical `Visualization/graphs/`, `Visua
 | --- | --- | --- |
 | Parse CLI/switches | `build_parser`, `main` | top-level `param(...)`, bottom script block |
 | Render CLI help | argparse generated help | `Show-Help` |
+| Resolve repository root | `resolve_project_root`, `is_project_root` in `project_config.py` | `Resolve-KnowledgeProjectRoot`, `Test-KnowledgeProjectRoot` in `Project-Config.ps1` |
+| Load and validate project configuration | `load_project_config`, `resolve_manifest_path` in `project_config.py` | `Get-KnowledgeProjectConfig`, `Resolve-ProjectManifestPath` in `Project-Config.ps1` |
 | Configure UTF-8 output | `configure_output_encoding` | top-level `$OutputEncoding` / `[Console]::OutputEncoding` |
 | Read canonical Markdown | `discover_notes`, `read_text` | `Get-CanonicalNotes`, `Read-TextFile` |
 | Parse metadata | `parse_metadata`, `extract_section` | `Get-Metadata`, `Get-MarkdownSection` |
@@ -793,13 +793,14 @@ The repo refresh check does not update canonical `Visualization/graphs/`, `Visua
 | Write optional bounded page bundle | `write_bounded_pages` | `Write-BoundedPages` |
 | Guard output path safety | `ensure_safe_output` | `Assert-SafeOutputPath` |
 | Write all export files | `write_export` | `Write-ObsidianExport` |
-| Clean disposable Python caches | `clean_disposable_caches` | n/a |
+| Clean disposable caches | `clean_disposable_caches` | `Invoke-DisposableCacheCleanup` |
 
 ### Important Differences
 
-- Python invokes `Tools/clean_temp_files.py` at the end of normal runs to remove transient cache folders. PowerShell invokes `Tools/Clean-TempFiles.ps1 -Delete` at the end for the same cleanup behavior.
-- Python loads `Visualization/visualize.py` directly for the unbounded visualization-style graph and repo refresh dry run. PowerShell mirrors the unbounded graph internally, then shells out to `Visualization/visualize.ps1` for the repo refresh dry run.
-- Python bounded-page parsing depends on `PyYAML`. PowerShell bounded-page parsing depends on `powershell-yaml`; use `Tools/Test-PowerShell.ps1` before using `-BoundedPage` on a new machine.
+- Python invokes the manifest-configured Python cleanup helper at the end of normal runs. PowerShell invokes the manifest-configured PowerShell cleanup helper with `-Delete` for the same behavior.
+- Both implementations auto-detect the repository root when `--root` / `-Root` is omitted, so they may be launched from the repository root, `Tools/`, or another descendant directory. Detection does not depend on `.git` or a domain-specific content folder; explicit roots are validated against `Project_Config/project.yaml`.
+- Python loads the manifest-configured Python visualization helper directly for the unbounded visualization-style graph and repo refresh dry run. PowerShell mirrors the unbounded graph internally, then shells out to the configured PowerShell visualization helper for the repo refresh dry run.
+- Python QA generation depends on `PyYAML`. PowerShell QA generation depends on `powershell-yaml`; use the environment checks on a new machine before selecting either implementation.
 - Python has built-in `--help`; PowerShell supports `-Help`, `-?`, and `-h` through `Show-Help`.
 
 ### Parity Check Recipe
@@ -840,9 +841,9 @@ Expected non-semantic differences:
 - path names inside `refresh-check-settings.json` when different output directories are used;
 - JSON formatting differences between Python `json.dumps` and PowerShell `ConvertTo-Json`.
 
-Last mapped: 2026-07-07.
+Last mapped: 2026-07-30.
 
-Last parity check: 2026-07-07. Python and PowerShell generated 27 files each with matching file lists for normal exports. The main generated Markdown files, QA Mermaid graphs, visualization-style Mermaid graph, and repo refresh dry-run Mermaid files matched after newline normalization. `refresh-check-snapshot.json` matched semantically after ignoring `generated_at` and normalizing the intentionally different `.tmp` output path. Bounded page parity was checked with Dunn Smith at Novel V1 Ch10, Ch20, Ch30, and Ch50; both implementations generated four bounded pages, preserved Ch10 anonymous preview behavior, and showed Dunn's Sleepless pathway progression as Ch22 strong-evidence at Ch30 and Ch22 strong-evidence -> Ch45 confirmed at Ch50. The bounded character renderer also supports the broader character module set, including optional/specialized modules only when present.
+Last parity check: 2026-07-30. Python and PowerShell each generated 28 files with matching file lists and summary counts for normal exports launched from both the repository root and `Tools/`. Key Markdown and Mermaid outputs were invariant across launch positions. A bounded Novel V1 Ch30 graph and Dunn Smith page matched after newline normalization; the check also corrected PowerShell timeline-prose parsing so `timeline_id` blocks work with both LF and CRLF source files. Prior boundary checks covered Dunn Smith at Novel V1 Ch10, Ch20, Ch30, and Ch50, including anonymous-preview and Sleepless-pathway progression behavior.
 
 ## Configuration Files
 
@@ -850,12 +851,25 @@ This section tracks durable configuration and generated state files that affect 
 
 | File | Kind | Read By | Written By | Purpose | Update When |
 | --- | --- | --- | --- | --- | --- |
+| `Project_Config/project.yaml` | Project manifest | `Tools/project_config.py`, `Tools/Project-Config.ps1`, and consumers such as both Obsidian QA exporters | Maintainers | Identifies the project and configures canonical content roots, provenance behavior, default QA output, visualization helpers/settings, cleanup helpers, and manifest schema version without coupling framework code to LoTM directory names. | Project identity or paths change, a content root is added, provenance behavior changes, helper locations move, or the manifest schema changes. |
 | `requirements-python.txt` | Dependency registry | `Tools/Test-Python.ps1`; human setup via `python -m pip install -r requirements-python.txt` | Maintainers | Defines Python packages required by preferred Python helper scripts. | Add or change entries when a Python helper gains or removes a third-party package dependency. |
-| `requirements-powershell.txt` | Dependency registry | `Tools/Test-PowerShell.ps1`; human setup via `Install-Module <module> -Scope CurrentUser -Force -AllowClobber` or elevated `-Scope AllUsers` when machine-wide installs are preferred | Maintainers | Defines PowerShell modules required by fallback script features such as bounded Obsidian QA pages. | Add or change entries when a PowerShell helper gains or removes a module dependency. |
+| `requirements-powershell.txt` | Dependency registry | `Tools/Test-PowerShell.ps1`; human setup via `Install-Module <module> -Scope CurrentUser -Force -AllowClobber` or elevated `-Scope AllUsers` when machine-wide installs are preferred | Maintainers | Defines PowerShell modules required by fallback tools, including `powershell-yaml` for project configuration and structured page data. | Add or change entries when a PowerShell helper gains or removes a module dependency. |
 | `Visualization/config/render-settings.json` | Source config | `Visualization/visualize.py`, `Visualization/visualize.ps1`, `Tools/obsidian_qa_export.py`, `Tools/Obsidian-QA-Export.ps1` | Maintainers | Defines canonical graph views, source Mermaid paths, rendered output paths, render dimensions, validation settings, reader-boundary filters, report path, and semantic snapshot path. The Obsidian QA export also derives its local `_Generated/repo-refresh-check/` dry-run settings from this file. | Add or remove repository graph views, change render sizes, adjust validation rules, change reader-boundary behavior, or redirect canonical report/snapshot paths. |
 | `Visualization/config/puppeteer-config.json` | Source config | `Visualization/visualize.py`, `Visualization/visualize.ps1`, Obsidian QA repo-refresh dry-run helpers through visualization tooling | Maintainers | Configures the browser executable, timeout, and launch args used by Mermaid/Puppeteer rendering. | Browser path changes, rendering starts timing out, CI/local environment changes, or Mermaid rendering needs different launch args. |
 | `Visualization/data/refresh-snapshot.json` | Generated semantic state | `Visualization/visualize.py`, `Visualization/visualize.ps1` | `Visualization/visualize.py --mode Refresh`, `Visualization/visualize.ps1 -Mode Refresh` | Stores the last canonical graph semantic snapshot so refresh reports can detect added/removed nodes, relationships, changed labels, duplicates, and other graph hygiene changes. | Update only through a confirmed canonical graph refresh. Do not edit manually except for explicit debugging that is later reverted or regenerated. |
 
+### Project Manifest Contract
+
+`Project_Config/project.yaml` is the bootstrap configuration copied into each framework implementation. `schema_version`, `project_id`, `framework`, and `domain` identify the contract and implementation. All entries under `paths` must be repository-relative; the shared loaders reject absolute paths, paths that escape the repository, missing canonical roots, and missing required helper/config files.
+
+`paths.canonical_content` is an ordered list. Each entry declares a `path` and a provenance rule:
+
+- `child-directory`: derive the provenance label from the first directory beneath the configured root. The LoTM `Glossary_Threads/Characters/` path therefore contributes `character`.
+- `fixed`: use `provenance_label` for every record under that root. The LoTM `Volumes/` root therefore contributes `volume`.
+- `slug-prefix`: skip path-based provenance and fall back to the record slug prefix.
+
+`paths.qa_export` defines the default generated QA destination. `paths.visualization` identifies the Python and PowerShell visualization helpers plus render settings and Puppeteer configuration. `paths.cleanup` identifies the matching disposable-cache cleanup helpers.
+
 ### Future Config Registries
 
-Planned shared registries should be added here once they exist. Likely candidates include a display-label registry for reusable taxonomy values, broader controlled-value taxonomy files, or site-rendering configuration. Until those files exist, `PROJECT_RULES.md` and the type templates remain the source of truth for taxonomy/prose rendering policy.
+`Project_Config/project.yaml` establishes the shared bootstrap boundary and already defines project paths and content-root provenance behavior. Planned registries should be added here once they exist. Likely candidates include source priorities, a display-label registry for reusable taxonomy values, broader controlled-value taxonomy files, or site-rendering configuration. Until those files exist, `PROJECT_RULES.md` and the type templates remain the source of truth for taxonomy/prose rendering policy.
