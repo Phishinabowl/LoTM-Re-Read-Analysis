@@ -30,6 +30,7 @@ capability_activation:
   enabled:
     - stable-identity
     - aliases
+    - deterministic-lookup-keys
     - lifecycle
     - content-types
     - subject-categories

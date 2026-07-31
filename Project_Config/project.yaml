@@ -1,4 +1,4 @@
-schema_version: 4
+schema_version: 5
 project_id: lotm-analysis
 framework: knowledge-model
 domain: lord-of-the-mysteries
@@ -75,6 +75,7 @@ paths:
     powershell_helper: Tools/Clean-TempFiles.ps1
 
 registries:
+  lookup_keys: Framework/Data/unicode-lookup-16.0.0.json
   schema_packs: Project_Config/schema-packs.yaml
   taxonomy: Project_Config/taxonomy.yaml
   resources: Project_Config/resources.yaml

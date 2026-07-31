@@ -62,7 +62,11 @@ Within canonical pages, the visible article and structured page data are two syn
 
 `Project_Config/project.yaml` is the bootstrap manifest. It identifies the project, assigns stable IDs to modeled content and resource roots, locates supporting registries, and declares tool-integration paths without absorbing domain definitions.
 
-`Tools/project_config.py` and `Tools/Project-Config.ps1` are the matching manifest-loader implementations. They locate and validate project configuration and registry paths; they do not own domain taxonomy.
+`Tools/project_config.py` and `Tools/Project-Config.ps1` are the matching manifest-loader implementations. They locate and validate project configuration and registry paths, including the pinned lookup-key data registry; they do not own domain taxonomy.
+
+### Lookup-Key Registry
+
+`Framework/Data/unicode-lookup-16.0.0.json` is portable framework data selected by the project manifest. `Tools/lookup_key_config.py` and `Tools/Lookup-Key-Config.ps1` implement the same pinned trim, NFC, full default case-fold, and NFC algorithm without inheriting the host runtime's Unicode version or locale rules. Human-facing aliases and explicitly case-insensitive semantic values use the resulting key with ordinal comparison. Stable IDs, schema keys, filesystem paths, and standards-specific language tags retain their own validators. See `Framework/Contracts/lookup-key-normalization.md`.
 
 ### Schema Packs
 
@@ -186,6 +190,7 @@ Visualization settings and presets define graph views, boundaries, filtering cho
 | --- | --- | --- |
 | Project configuration loaders | Root detection, manifest parsing, safe content/resource path resolution, registry discovery | Domain categories, graph semantics, page mutation |
 | Schema-pack loaders | Pack selection, dependency/version validation, capabilities, controlled-value ownership | Project-instance works, pages, paths, or sources |
+| Lookup-key loader | Pinned runtime-independent Unicode normalization for semantic aliases and case-insensitive values | Fuzzy matching, stable-ID rewriting, path or language-tag normalization |
 | Taxonomy, resource, source, and entity registry loaders | Registry parsing, schema validation, aliases, cross-registry references, pack-controlled value lookup | Canonical page content, graph serialization |
 | Content index | Canonical-content discovery and normalized records | Domain constants duplicated from registries, presentation-specific graph decisions |
 | Validation service | Schema, taxonomy, reference, provenance, and consistency findings | Silent canonical rewrites |

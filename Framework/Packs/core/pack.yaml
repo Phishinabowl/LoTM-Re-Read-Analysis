@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: core
-pack_version: 10
+pack_version: 11
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -13,6 +13,10 @@ capabilities:
   - explainable-applicability-decisions
   - stable-identity
   - aliases
+  - id: deterministic-lookup-keys
+    lifecycle: available
+    label: Deterministic Lookup Keys
+    description: Runtime-independent Unicode normalization for human-facing aliases and semantic lookup values.
   - lifecycle
   - content-types
   - subject-categories

@@ -47,6 +47,19 @@ resource_types:
         tracking: tracked
         required: true
 
+  framework-data:
+    lifecycle: active
+    label: Framework Data
+    plural_label: Framework Data
+    kind_id: component
+    authority: canonical
+    editor_enabled: false
+    placements:
+      - root_id: framework
+        relative_path: Data
+        tracking: tracked
+        required: true
+
   visual-asset:
     lifecycle: active
     label: Visual Asset

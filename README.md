@@ -82,6 +82,9 @@ Do not embed the full graph in this README; it is maintained as a separate gener
 ```text
 Framework/
   README.md
+  Data/
+    README.md
+    unicode-lookup-16.0.0.json
   Contracts/
     README.md
   Packs/
@@ -106,7 +109,7 @@ Framework/
       pack.yaml
     narrative-production/
       pack.yaml
-  reusable contracts and bundled schema packs shared across project instances
+  reusable runtime data, contracts, and bundled schema packs shared across project instances
 
 Project_Config/
   project.yaml
@@ -115,7 +118,7 @@ Project_Config/
   resources.yaml
   sources.yaml
   LoTM project identity, selected and activated packs, stable content/resource
-  roots, registry discovery, local taxonomy, repository resources, and sources
+  roots, registry discovery, local taxonomy, repository resources, sources, and lookup-key selection
 
 Boards/
   01_LoTM_Main_Reread_Board.md

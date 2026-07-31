@@ -4,6 +4,7 @@ import re
 
 import yaml
 
+from lookup_key_config import LookupKeyConfig, load_lookup_key_config
 from project_config import ProjectConfig
 from schema_pack_config import SchemaPackRegistry, load_schema_pack_registry
 from source_config import SourceRegistry
@@ -103,13 +104,14 @@ class EntityRegistry:
     incarnation_bindings: tuple[IncarnationBinding, ...]
     incarnation_relationship_types: dict[str, IncarnationRelationshipType]
     incarnation_relationships: tuple[IncarnationRelationship, ...]
+    lookup_keys: LookupKeyConfig
     entity_aliases: dict[str, tuple[str, ...]]
     incarnation_aliases: dict[str, tuple[str, ...]]
 
     def resolve_entity_ids(self, value: str) -> tuple[str, ...]:
-        normalized = value.strip().casefold()
+        normalized = self.lookup_keys.normalize(value)
         for entity_id in self.entities:
-            if entity_id.casefold() == normalized:
+            if self.lookup_keys.normalize(entity_id) == normalized:
                 return (entity_id,)
         return self.entity_aliases.get(normalized, ())
 
@@ -122,9 +124,9 @@ class EntityRegistry:
         return matches[0] if matches else None
 
     def resolve_incarnation_ids(self, value: str) -> tuple[str, ...]:
-        normalized = value.strip().casefold()
+        normalized = self.lookup_keys.normalize(value)
         for incarnation_id in self.incarnations:
-            if incarnation_id.casefold() == normalized:
+            if self.lookup_keys.normalize(incarnation_id) == normalized:
                 return (incarnation_id,)
         return self.incarnation_aliases.get(normalized, ())
 
@@ -249,7 +251,7 @@ def string_list(mapping: dict, key: str, context: str) -> tuple[str, ...]:
                 f"Entity registry `{context}.{key}[{index}]` must be a non-empty string."
             )
         values.append(value.strip())
-    if len({value.casefold() for value in values}) != len(values):
+    if len(set(values)) != len(values):
         raise ValueError(f"Entity registry `{context}.{key}` contains duplicate values.")
     return tuple(values)
 
@@ -283,13 +285,23 @@ def validate_pack_value(
 
 
 def build_aliases(
-    records: dict[str, EntityConfig | IncarnationConfig], label: str
+    records: dict[str, EntityConfig | IncarnationConfig],
+    label: str,
+    lookup_keys: LookupKeyConfig,
 ) -> dict[str, tuple[str, ...]]:
     aliases: dict[str, list[str]] = {}
-    ids = {record_id.casefold(): record_id for record_id in records}
+    ids = {lookup_keys.normalize(record_id): record_id for record_id in records}
     for record in records.values():
+        record_alias_keys: set[str] = set()
+        for alias in record.aliases:
+            alias_key = lookup_keys.normalize(alias)
+            if alias_key in record_alias_keys:
+                raise ValueError(
+                    f"Entity registry {label} `{record.id}` contains duplicate aliases."
+                )
+            record_alias_keys.add(alias_key)
         for alias in (record.label, *record.aliases):
-            normalized = alias.casefold()
+            normalized = lookup_keys.normalize(alias)
             if normalized in ids and ids[normalized] != record.id:
                 raise ValueError(
                     f"Entity registry {label} alias `{alias}` conflicts with ID `{ids[normalized]}`."
@@ -445,6 +457,7 @@ def load_entity_registry(
         raise ValueError(
             "Entity registry requires enabled schema capability `entity-incarnations`."
         )
+    lookup_keys = load_lookup_key_config(project)
 
     try:
         data = yaml.safe_load(project.entities_registry.read_text(encoding="utf-8"))
@@ -808,6 +821,7 @@ def load_entity_registry(
         incarnation_bindings=tuple(bindings),
         incarnation_relationship_types=relationship_types,
         incarnation_relationships=tuple(relationships),
-        entity_aliases=build_aliases(entities, "entity"),
-        incarnation_aliases=build_aliases(incarnations, "incarnation"),
+        lookup_keys=lookup_keys,
+        entity_aliases=build_aliases(entities, "entity", lookup_keys),
+        incarnation_aliases=build_aliases(incarnations, "incarnation", lookup_keys),
     )

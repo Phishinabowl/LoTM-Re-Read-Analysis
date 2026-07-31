@@ -7,6 +7,7 @@ import re
 
 import yaml
 
+from lookup_key_config import LookupKeyConfig, load_lookup_key_config
 from project_config import ProjectConfig
 from resource_config import ResourceConfig
 from schema_pack_config import SchemaPackRegistry, load_schema_pack_registry
@@ -750,24 +751,27 @@ class SourceRegistry:
     sources: dict[str, SourceConfig]
     source_relationships: tuple[SourceRelationship, ...]
     provenance_assertions: tuple[ProvenanceAssertion, ...]
+    lookup_keys: LookupKeyConfig
     source_aliases: dict[str, str]
     identifier_schemes: dict[str, IdentifierScheme]
     external_identifiers: tuple[ExternalIdentifier, ...]
 
     def resolve_source_id(self, value: str) -> str | None:
-        normalized = value.strip().casefold()
-        if normalized in {source_id.casefold() for source_id in self.sources}:
+        normalized = self.lookup_keys.normalize(value)
+        if normalized in {
+            self.lookup_keys.normalize(source_id) for source_id in self.sources
+        }:
             return next(
                 source_id
                 for source_id in self.sources
-                if source_id.casefold() == normalized
+                if self.lookup_keys.normalize(source_id) == normalized
             )
         return self.source_aliases.get(normalized)
 
     def resolve_work_id(self, value: str) -> str | None:
-        normalized = value.strip().casefold()
+        normalized = self.lookup_keys.normalize(value)
         for work_id in self.works:
-            if work_id.casefold() == normalized:
+            if self.lookup_keys.normalize(work_id) == normalized:
                 return work_id
         return self.work_aliases.get(normalized)
 
@@ -2458,6 +2462,7 @@ def load_source_registry(
 ) -> SourceRegistry:
     if schema_packs is None:
         schema_packs = load_schema_pack_registry(project)
+    lookup_keys = load_lookup_key_config(project)
     allowed_source_roles = set(
         schema_packs.allowed_values("source.source-role")
     )
@@ -2645,8 +2650,8 @@ def load_source_registry(
     raw_continuities = require_mapping(registry.get("continuities"), "continuities")
     continuities: dict[str, ContinuityConfig] = {}
     continuity_aliases: set[str] = set()
-    continuity_ids_casefolded = {
-        continuity_id.casefold() for continuity_id in raw_continuities
+    continuity_id_keys = {
+        lookup_keys.normalize(continuity_id) for continuity_id in raw_continuities
     }
     for continuity_id, raw_continuity in raw_continuities.items():
         context = f"continuities.{continuity_id}"
@@ -2657,8 +2662,8 @@ def load_source_registry(
         aliases = require_string_list(continuity, "aliases", context)
         for alias in aliases:
             validate_id(alias, f"{context}.aliases")
-            alias_key = alias.casefold()
-            if alias_key in continuity_aliases or alias_key in continuity_ids_casefolded:
+            alias_key = lookup_keys.normalize(alias)
+            if alias_key in continuity_aliases or alias_key in continuity_id_keys:
                 raise ValueError(
                     f"Source registry continuity alias `{alias}` is duplicated or "
                     "collides with a continuity ID."
@@ -2954,7 +2959,7 @@ def load_source_registry(
     )
     seen_ordinals: dict[tuple[str, int], str] = {}
     work_aliases: dict[str, str] = {}
-    work_ids_casefolded = {work_id.casefold() for work_id in works}
+    work_id_keys = {lookup_keys.normalize(work_id) for work_id in works}
     for work in works.values():
         if work.parent_work_id is not None:
             if work.parent_work_id not in works:
@@ -2975,8 +2980,8 @@ def load_source_registry(
                     )
                 seen_ordinals[ordinal_key] = work.id
         for alias in work.aliases:
-            alias_key = alias.casefold()
-            if alias_key in work_aliases or alias_key in work_ids_casefolded:
+            alias_key = lookup_keys.normalize(alias)
+            if alias_key in work_aliases or alias_key in work_id_keys:
                 raise ValueError(
                     f"Source registry work alias `{alias}` is duplicated or collides "
                     "with a work ID."
@@ -3082,13 +3087,13 @@ def load_source_registry(
     for segment in segments.values():
         aliases = segment_aliases_by_work.setdefault(segment.work_id, set())
         work_segment_ids = {
-            item.id.casefold()
+            lookup_keys.normalize(item.id)
             for item in segments.values()
             if item.work_id == segment.work_id
         }
         for alias in segment.aliases:
             validate_id(alias, f"segments.{segment.id}.aliases")
-            normalized = alias.casefold()
+            normalized = lookup_keys.normalize(alias)
             if normalized in aliases or normalized in work_segment_ids:
                 raise ValueError(
                     f"Source registry segment alias `{alias}` is duplicated or "
@@ -3179,7 +3184,10 @@ def load_source_registry(
                 entry, "display_number", entry_context
             )
             aliases = require_string_list(entry, "aliases", entry_context)
-            number_keys = {display_number.casefold(), *(a.casefold() for a in aliases)}
+            number_keys = {
+                lookup_keys.normalize(display_number),
+                *(lookup_keys.normalize(alias) for alias in aliases),
+            }
             if target_id in seen_targets or seen_numbers.intersection(number_keys):
                 raise ValueError(
                     f"Source registry `{context}.entries` repeats a target or number."
@@ -3439,9 +3447,9 @@ def load_source_registry(
         aliases = require_string_list(group, "aliases", context)
         for alias in aliases:
             validate_id(alias, f"{context}.aliases")
-            normalized = alias.casefold()
+            normalized = lookup_keys.normalize(alias)
             if normalized in content_group_aliases or normalized in {
-                value.casefold() for value in raw_content_groups
+                lookup_keys.normalize(value) for value in raw_content_groups
             }:
                 raise ValueError(
                     f"Source registry content-group alias `{alias}` is duplicated "
@@ -3720,7 +3728,7 @@ def load_source_registry(
     seen_territory_codes: set[tuple[str, str]] = set()
     for territory in territories.values():
         for scheme_id, code in territory.codes.items():
-            key = (scheme_id, code.casefold())
+            key = (scheme_id, lookup_keys.normalize(code))
             if key in seen_territory_codes:
                 raise ValueError(
                     f"Source registry repeats territory code `{scheme_id}:{code}`."
@@ -3828,9 +3836,9 @@ def load_source_registry(
         aliases = require_string_list(platform, "aliases", context)
         for alias in aliases:
             validate_id(alias, f"{context}.aliases")
-            normalized = alias.casefold()
+            normalized = lookup_keys.normalize(alias)
             if normalized in platform_aliases or normalized in {
-                value.casefold() for value in raw_platforms
+                lookup_keys.normalize(value) for value in raw_platforms
             }:
                 raise ValueError(
                     f"Source registry platform alias `{alias}` is duplicated or "
@@ -3906,9 +3914,9 @@ def load_source_registry(
         aliases = require_string_list(manifestation, "aliases", context)
         for alias in aliases:
             validate_id(alias, f"{context}.aliases")
-            normalized = alias.casefold()
+            normalized = lookup_keys.normalize(alias)
             if normalized in manifestation_aliases or normalized in {
-                value.casefold() for value in raw_manifestations
+                lookup_keys.normalize(value) for value in raw_manifestations
             }:
                 raise ValueError(
                     f"Source registry manifestation alias `{alias}` is duplicated or "
@@ -4332,9 +4340,9 @@ def load_source_registry(
         aliases = require_string_list(package, "aliases", context)
         for alias in aliases:
             validate_id(alias, f"{context}.aliases")
-            normalized = alias.casefold()
+            normalized = lookup_keys.normalize(alias)
             if normalized in release_package_aliases or normalized in {
-                value.casefold() for value in raw_release_packages
+                lookup_keys.normalize(value) for value in raw_release_packages
             }:
                 raise ValueError(
                     f"Source registry release-package alias `{alias}` is duplicated "
@@ -5255,9 +5263,9 @@ def load_source_registry(
         source_aliases = require_string_list(source, "aliases", context)
         for alias in source_aliases:
             validate_id(alias, f"{context}.aliases")
-            alias_key = alias.casefold()
+            alias_key = lookup_keys.normalize(alias)
             if alias_key in aliases or alias_key in {
-                existing_id.casefold() for existing_id in raw_sources
+                lookup_keys.normalize(existing_id) for existing_id in raw_sources
             }:
                 raise ValueError(
                     f"Source registry alias `{alias}` is duplicated or collides with "
@@ -6767,7 +6775,7 @@ def load_source_registry(
         normalized_value = (
             value
             if identifier_schemes[scheme_id].case_sensitive
-            else value.casefold()
+            else lookup_keys.normalize(value)
         )
         scheme_value = (scheme_id, normalized_value)
         if scheme_value in seen_scheme_values:
@@ -6862,6 +6870,7 @@ def load_source_registry(
         sources=sources,
         source_relationships=tuple(source_relationships),
         provenance_assertions=tuple(provenance_assertions),
+        lookup_keys=lookup_keys,
         source_aliases=aliases,
         identifier_schemes=identifier_schemes,
         external_identifiers=tuple(external_identifiers),

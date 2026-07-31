@@ -10,6 +10,10 @@ $schemaPackConfigHelper = Join-Path $PSScriptRoot "Schema-Pack-Config.ps1"
 if (-not (Get-Command Get-KnowledgeSchemaPackRegistry -ErrorAction SilentlyContinue)) {
   . $schemaPackConfigHelper
 }
+$lookupKeyConfigHelper = Join-Path $PSScriptRoot "Lookup-Key-Config.ps1"
+if (-not (Get-Command Get-KnowledgeLookupKeyConfig -ErrorAction SilentlyContinue)) {
+  . $lookupKeyConfigHelper
+}
 
 $script:SupportedSourceSchemaVersion = 15
 $script:AllowedSourceLifecycles = @("active", "deferred")
@@ -701,9 +705,9 @@ function Resolve-SourceResourceBinding {
 function Resolve-KnowledgeSourceId {
   param([object]$SourceRegistry, [string]$Value)
 
-  $normalized = $Value.Trim().ToLowerInvariant()
+  $normalized = ConvertTo-KnowledgeLookupKey $Value $SourceRegistry.lookup_keys
   foreach ($sourceId in $SourceRegistry.sources.Keys) {
-    if ($sourceId.ToLowerInvariant() -eq $normalized) {
+    if ((ConvertTo-KnowledgeLookupKey $sourceId $SourceRegistry.lookup_keys) -ceq $normalized) {
       return $sourceId
     }
   }
@@ -716,9 +720,9 @@ function Resolve-KnowledgeSourceId {
 function Resolve-KnowledgeWorkId {
   param([object]$SourceRegistry, [string]$Value)
 
-  $normalized = $Value.Trim().ToLowerInvariant()
+  $normalized = ConvertTo-KnowledgeLookupKey $Value $SourceRegistry.lookup_keys
   foreach ($workId in $SourceRegistry.works.Keys) {
-    if ($workId.ToLowerInvariant() -eq $normalized) {
+    if ((ConvertTo-KnowledgeLookupKey $workId $SourceRegistry.lookup_keys) -ceq $normalized) {
       return $workId
     }
   }
@@ -981,6 +985,7 @@ function Get-KnowledgeSourceRegistry {
   if ($null -eq $SchemaPackRegistry) {
     $SchemaPackRegistry = Get-KnowledgeSchemaPackRegistry $ProjectConfig
   }
+  $lookupKeys = Get-KnowledgeLookupKeyConfig $ProjectConfig
   $allowedSourceRoles = @(Get-SchemaPackAllowedValues $SchemaPackRegistry "source.source-role")
   if ($allowedSourceRoles.Count -eq 0) {
     throw "Selected schema packs do not provide controlled namespace 'source.source-role' required by 'sources.*.role'."
@@ -1110,7 +1115,9 @@ function Get-KnowledgeSourceRegistry {
     throw "Source registry 'continuities' must be a mapping."
   }
   $continuities = [ordered]@{}
-  $continuityAliases = @{}
+  $continuityAliases = New-Object 'System.Collections.Generic.Dictionary[string,string]' ([System.StringComparer]::Ordinal)
+  $continuityIdKeys = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+  foreach ($continuityId in $rawContinuities.Keys) { [void]$continuityIdKeys.Add((ConvertTo-KnowledgeLookupKey $continuityId $lookupKeys)) }
   foreach ($continuityId in $rawContinuities.Keys) {
     $context = "continuities.$continuityId"
     Test-StableSourceId $continuityId $context
@@ -1124,8 +1131,8 @@ function Get-KnowledgeSourceRegistry {
     $aliases = @(Get-SourceStringList $continuity "aliases" $context)
     foreach ($alias in $aliases) {
       Test-StableSourceId $alias "$context.aliases"
-      $aliasKey = $alias.ToLowerInvariant()
-      if ($continuityAliases.ContainsKey($aliasKey) -or @($rawContinuities.Keys | Where-Object { $_.ToLowerInvariant() -eq $aliasKey }).Count -gt 0) {
+      $aliasKey = ConvertTo-KnowledgeLookupKey $alias $lookupKeys
+      if ($continuityAliases.ContainsKey($aliasKey) -or $continuityIdKeys.Contains($aliasKey)) {
         throw "Source registry continuity alias '$alias' is duplicated or collides with a continuity ID."
       }
       $continuityAliases[$aliasKey] = $continuityId
@@ -1223,7 +1230,9 @@ function Get-KnowledgeSourceRegistry {
   $rawWorks = Get-ProjectMapValue $registry "works"
   if ($null -eq $rawWorks -or -not ($rawWorks -is [System.Collections.IDictionary])) { throw "Source registry 'works' must be a mapping." }
   $works = [ordered]@{}
-  $workAliases = @{}
+  $workAliases = New-Object 'System.Collections.Generic.Dictionary[string,string]' ([System.StringComparer]::Ordinal)
+  $workIdKeys = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+  foreach ($workId in $rawWorks.Keys) { [void]$workIdKeys.Add((ConvertTo-KnowledgeLookupKey $workId $lookupKeys)) }
   $seenOrdinals = @{}
   foreach ($workId in $rawWorks.Keys) {
     $context = "works.$workId"
@@ -1246,8 +1255,8 @@ function Get-KnowledgeSourceRegistry {
     $aliases = @(Get-SourceStringList $work "aliases" $context)
     foreach ($alias in $aliases) {
       Test-StableSourceId $alias "$context.aliases"
-      $aliasKey = $alias.ToLowerInvariant()
-      if ($workAliases.ContainsKey($aliasKey) -or @($rawWorks.Keys | Where-Object { $_.ToLowerInvariant() -eq $aliasKey }).Count -gt 0) { throw "Source registry work alias '$alias' is duplicated or collides with a work ID." }
+      $aliasKey = ConvertTo-KnowledgeLookupKey $alias $lookupKeys
+      if ($workAliases.ContainsKey($aliasKey) -or $workIdKeys.Contains($aliasKey)) { throw "Source registry work alias '$alias' is duplicated or collides with a work ID." }
       $workAliases[$aliasKey] = $workId
     }
     $groupMemberships = @()
@@ -1375,12 +1384,16 @@ function Get-KnowledgeSourceRegistry {
   $segmentAliasesByWork = @{}
   foreach ($segment in $segments.Values) {
     if (-not $segmentAliasesByWork.ContainsKey($segment.work_id)) {
-      $segmentAliasesByWork[$segment.work_id] = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+      $segmentAliasesByWork[$segment.work_id] = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    }
+    $workSegmentIdKeys = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    foreach ($item in $segments.Values) {
+      if ($item.work_id -eq $segment.work_id) { [void]$workSegmentIdKeys.Add((ConvertTo-KnowledgeLookupKey $item.id $lookupKeys)) }
     }
     foreach ($alias in $segment.aliases) {
       Test-StableSourceId $alias "segments.$($segment.id).aliases"
-      $collides = @($segments.Values | Where-Object { $_.work_id -eq $segment.work_id -and $_.id -eq $alias }).Count -gt 0
-      if ($collides -or -not $segmentAliasesByWork[$segment.work_id].Add($alias)) { throw "Source registry segment alias '$alias' is duplicated or collides inside work '$($segment.work_id)'." }
+      $aliasKey = ConvertTo-KnowledgeLookupKey $alias $lookupKeys
+      if ($workSegmentIdKeys.Contains($aliasKey) -or -not $segmentAliasesByWork[$segment.work_id].Add($aliasKey)) { throw "Source registry segment alias '$alias' is duplicated or collides inside work '$($segment.work_id)'." }
     }
   }
 
@@ -1405,7 +1418,7 @@ function Get-KnowledgeSourceRegistry {
     }
     $rawEntries=@(Get-ProjectMapValue $scheme "entries")
     if ($rawEntries.Count -eq 0) { throw "Source registry '$context.entries' must be a non-empty list." }
-    $entries=@(); $seenTargets=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal); $seenNumbers=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+    $entries=@(); $seenTargets=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal); $seenNumbers=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
     foreach ($entry in $rawEntries) {
       $targetId=Get-RequiredSourceString $entry "target_id" "$context.entries"
       $targets=if($targetType -eq "work"){$works}else{$segments}
@@ -1416,8 +1429,8 @@ function Get-KnowledgeSourceRegistry {
         if (-not $insideGroup) { throw "Source registry '$context.entries' target falls outside work group scope '$scopeId'." }
       }
       $displayNumber=Get-RequiredSourceString $entry "display_number" "$context.entries"; $aliases=@(Get-SourceStringListAllowEmpty $entry "aliases" "$context.entries")
-      if (-not $seenTargets.Add($targetId) -or -not $seenNumbers.Add($displayNumber)) { throw "Source registry '$context.entries' repeats a target or number." }
-      foreach ($alias in $aliases) { if (-not $seenNumbers.Add($alias)) { throw "Source registry '$context.entries' repeats number alias '$alias'." } }
+      if (-not $seenTargets.Add($targetId) -or -not $seenNumbers.Add((ConvertTo-KnowledgeLookupKey $displayNumber $lookupKeys))) { throw "Source registry '$context.entries' repeats a target or number." }
+      foreach ($alias in $aliases) { if (-not $seenNumbers.Add((ConvertTo-KnowledgeLookupKey $alias $lookupKeys))) { throw "Source registry '$context.entries' repeats number alias '$alias'." } }
       $entries += [pscustomobject]@{ target_id=$targetId; display_number=$displayNumber; aliases=@($aliases) }
     }
     $lifecycle=Get-RequiredSourceString $scheme "lifecycle" $context
@@ -1503,7 +1516,9 @@ function Get-KnowledgeSourceRegistry {
   $rawContentGroups=Get-ProjectMapValue $registry "content_groups"
   if ($null -eq $rawContentGroups -or -not ($rawContentGroups -is [System.Collections.IDictionary])) { throw "Source registry 'content_groups' must be a mapping." }
   $contentGroups=[ordered]@{}
-  $contentGroupAliasKeys=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+  $contentGroupAliasKeys=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+  $contentGroupIdKeys=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+  foreach($groupId in $rawContentGroups.Keys){[void]$contentGroupIdKeys.Add((ConvertTo-KnowledgeLookupKey $groupId $lookupKeys))}
   foreach ($groupId in $rawContentGroups.Keys) {
     $context="content_groups.$groupId"; Test-StableSourceId $groupId $context; $group=$rawContentGroups[$groupId]
     $rawMembers=@(Get-ProjectMapValue $group "members")
@@ -1534,8 +1549,8 @@ function Get-KnowledgeSourceRegistry {
     $aliases=@(Get-SourceStringListAllowEmpty $group "aliases" $context)
     foreach($alias in $aliases) {
       Test-StableSourceId $alias "$context.aliases"
-      $collides=@($rawContentGroups.Keys | Where-Object {$_.ToLowerInvariant() -eq $alias.ToLowerInvariant()}).Count -gt 0
-      if($collides -or -not $contentGroupAliasKeys.Add($alias)){throw "Source registry content-group alias '$alias' is duplicated or collides with a group ID."}
+      $aliasKey=ConvertTo-KnowledgeLookupKey $alias $lookupKeys
+      if($contentGroupIdKeys.Contains($aliasKey) -or -not $contentGroupAliasKeys.Add($aliasKey)){throw "Source registry content-group alias '$alias' is duplicated or collides with a group ID."}
     }
     $lifecycle=Get-RequiredSourceString $group "lifecycle" $context
     if ($script:AllowedSourceLifecycles -notcontains $lifecycle) { throw "Source registry '$context.lifecycle' must be one of: $($script:AllowedSourceLifecycles -join ', ')." }
@@ -1642,8 +1657,8 @@ function Get-KnowledgeSourceRegistry {
       $currentTerritoryId=$territories[$currentTerritoryId].parent_territory_id
     }
   }
-  $seenTerritoryCodes=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
-  foreach ($territory in $territories.Values) { foreach ($schemeId in $territory.codes.Keys) { if (-not $seenTerritoryCodes.Add("$schemeId|$($territory.codes[$schemeId])")) { throw "Source registry repeats territory code '${schemeId}:$($territory.codes[$schemeId])'." } } }
+  $seenTerritoryCodes=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+  foreach ($territory in $territories.Values) { foreach ($schemeId in $territory.codes.Keys) { $codeKey=ConvertTo-KnowledgeLookupKey ([string]$territory.codes[$schemeId]) $lookupKeys; if (-not $seenTerritoryCodes.Add("$schemeId|$codeKey")) { throw "Source registry repeats territory code '${schemeId}:$($territory.codes[$schemeId])'." } } }
 
   if(-not $registry.Contains("work_production_contexts")){throw "Source registry 'work_production_contexts' must be a list."}
   $rawWorkProductionContexts=$registry["work_production_contexts"]
@@ -1674,13 +1689,16 @@ function Get-KnowledgeSourceRegistry {
   $rawPlatforms = Get-ProjectMapValue $registry "platforms"
   if ($null -eq $rawPlatforms -or -not ($rawPlatforms -is [System.Collections.IDictionary])) { throw "Source registry 'platforms' must be a mapping." }
   $platforms = [ordered]@{}
-  $platformAliasKeys = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+  $platformAliasKeys = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+  $platformIdKeys = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+  foreach ($platformId in $rawPlatforms.Keys) { [void]$platformIdKeys.Add((ConvertTo-KnowledgeLookupKey $platformId $lookupKeys)) }
   foreach ($platformId in $rawPlatforms.Keys) {
     $context = "platforms.$platformId"; Test-StableSourceId $platformId $context; $platform = $rawPlatforms[$platformId]
     $aliases = @(Get-SourceStringListAllowEmpty $platform "aliases" $context)
     foreach ($alias in $aliases) {
       Test-StableSourceId $alias "$context.aliases"
-      if ($rawPlatforms.Contains($alias) -or -not $platformAliasKeys.Add($alias)) { throw "Source registry platform alias '$alias' is duplicated or collides with a platform ID." }
+      $aliasKey = ConvertTo-KnowledgeLookupKey $alias $lookupKeys
+      if ($platformIdKeys.Contains($aliasKey) -or -not $platformAliasKeys.Add($aliasKey)) { throw "Source registry platform alias '$alias' is duplicated or collides with a platform ID." }
     }
     $platforms[$platformId] = [pscustomobject]@{
       id=$platformId; lifecycle=Get-RequiredSourceString $platform "lifecycle" $context
@@ -1698,7 +1716,9 @@ function Get-KnowledgeSourceRegistry {
   $rawManifestations = Get-ProjectMapValue $registry "manifestations"
   if ($null -eq $rawManifestations -or -not ($rawManifestations -is [System.Collections.IDictionary])) { throw "Source registry 'manifestations' must be a mapping." }
   $manifestations = [ordered]@{}
-  $manifestationAliasKeys = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+  $manifestationAliasKeys = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+  $manifestationIdKeys = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+  foreach ($manifestationId in $rawManifestations.Keys) { [void]$manifestationIdKeys.Add((ConvertTo-KnowledgeLookupKey $manifestationId $lookupKeys)) }
   foreach ($manifestationId in $rawManifestations.Keys) {
     $context = "manifestations.$manifestationId"; Test-StableSourceId $manifestationId $context; $manifestation = $rawManifestations[$manifestationId]
     $workId = Get-RequiredSourceString $manifestation "work_id" $context
@@ -1712,7 +1732,8 @@ function Get-KnowledgeSourceRegistry {
     $aliases = @(Get-SourceStringListAllowEmpty $manifestation "aliases" $context)
     foreach ($alias in $aliases) {
       Test-StableSourceId $alias "$context.aliases"
-      if ($rawManifestations.Contains($alias) -or -not $manifestationAliasKeys.Add($alias)) { throw "Source registry manifestation alias '$alias' is duplicated or collides with a manifestation ID." }
+      $aliasKey = ConvertTo-KnowledgeLookupKey $alias $lookupKeys
+      if ($manifestationIdKeys.Contains($aliasKey) -or -not $manifestationAliasKeys.Add($aliasKey)) { throw "Source registry manifestation alias '$alias' is duplicated or collides with a manifestation ID." }
     }
     $languageTags = @(Get-SourceStringListAllowEmpty $manifestation "language_tags" $context)
     foreach ($languageTag in $languageTags) { Test-SourceLanguageTag $languageTag "$context.language_tags" }
@@ -1813,7 +1834,9 @@ function Get-KnowledgeSourceRegistry {
   $rawReleasePackages = Get-ProjectMapValue $registry "release_packages"
   if ($null -eq $rawReleasePackages -or -not ($rawReleasePackages -is [System.Collections.IDictionary])) { throw "Source registry 'release_packages' must be a mapping." }
   $releasePackages = [ordered]@{}
-  $releasePackageAliasKeys = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+  $releasePackageAliasKeys = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+  $releasePackageIdKeys = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+  foreach ($packageId in $rawReleasePackages.Keys) { [void]$releasePackageIdKeys.Add((ConvertTo-KnowledgeLookupKey $packageId $lookupKeys)) }
   foreach ($packageId in $rawReleasePackages.Keys) {
     $context="release_packages.$packageId"; Test-StableSourceId $packageId $context; $package=$rawReleasePackages[$packageId]
     $manifestationIds=@(Get-SourceStringListAllowEmpty $package "manifestation_ids" $context)
@@ -1840,7 +1863,8 @@ function Get-KnowledgeSourceRegistry {
     $aliases=@(Get-SourceStringListAllowEmpty $package "aliases" $context)
     foreach ($alias in $aliases) {
       Test-StableSourceId $alias "$context.aliases"
-      if ($rawReleasePackages.Contains($alias) -or -not $releasePackageAliasKeys.Add($alias)) { throw "Source registry release-package alias '$alias' is duplicated or collides with a package ID." }
+      $aliasKey = ConvertTo-KnowledgeLookupKey $alias $lookupKeys
+      if ($releasePackageIdKeys.Contains($aliasKey) -or -not $releasePackageAliasKeys.Add($aliasKey)) { throw "Source registry release-package alias '$alias' is duplicated or collides with a package ID." }
     }
     $localizedTitles=@(ConvertTo-SourceLocalizedTitles $package $context $SchemaPackRegistry)
     foreach ($localizedTitle in $localizedTitles) {
@@ -2098,7 +2122,9 @@ function Get-KnowledgeSourceRegistry {
 
   $rawSources = Get-ProjectMapValue $registry "sources"
   if ($null -eq $rawSources -or -not ($rawSources -is [System.Collections.IDictionary])) { throw "Source registry 'sources' must be a mapping." }
-  $sources=[ordered]@{}; $sourceAliases=@{}
+  $sources=[ordered]@{}; $sourceAliases=New-Object 'System.Collections.Generic.Dictionary[string,string]' ([System.StringComparer]::Ordinal)
+  $sourceIdKeys=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+  foreach($sourceId in $rawSources.Keys){[void]$sourceIdKeys.Add((ConvertTo-KnowledgeLookupKey $sourceId $lookupKeys))}
   foreach ($sourceId in $rawSources.Keys) {
     $context="sources.$sourceId"; Test-StableSourceId $sourceId $context; $source=$rawSources[$sourceId]
     $lifecycle=Get-RequiredSourceString $source "lifecycle" $context
@@ -2161,8 +2187,8 @@ function Get-KnowledgeSourceRegistry {
     if ($priority -is [bool] -or $priority -isnot [int] -or [int]$priority -lt 1) { throw "Source registry '$context.priority' must be a positive integer." }
     $aliases=@(Get-SourceStringListAllowEmpty $source "aliases" $context)
     foreach ($alias in $aliases) {
-      Test-StableSourceId $alias "$context.aliases"; $aliasKey=$alias.ToLowerInvariant()
-      if ($sourceAliases.ContainsKey($aliasKey) -or @($rawSources.Keys | Where-Object { $_.ToLowerInvariant() -eq $aliasKey }).Count -gt 0) { throw "Source registry alias '$alias' is duplicated or collides with a source ID." }
+      Test-StableSourceId $alias "$context.aliases"; $aliasKey=ConvertTo-KnowledgeLookupKey $alias $lookupKeys
+      if ($sourceAliases.ContainsKey($aliasKey) -or $sourceIdKeys.Contains($aliasKey)) { throw "Source registry alias '$alias' is duplicated or collides with a source ID." }
       $sourceAliases[$aliasKey]=$sourceId
     }
     $evidenceModes=@(Get-SourceStringListAllowEmpty $source "evidence_modes" $context)
@@ -2591,7 +2617,7 @@ function Get-KnowledgeSourceRegistry {
     }
     if (-not $targetExists) { throw "Source registry '$context.target_id' references unknown $targetType '$targetId'." }
     $value=Get-RequiredSourceString $identifier "value" $context
-    $normalizedValue=if($identifierSchemes[$schemeId].case_sensitive){$value}else{$value.ToLowerInvariant()}
+    $normalizedValue=if($identifierSchemes[$schemeId].case_sensitive){$value}else{ConvertTo-KnowledgeLookupKey $value $lookupKeys}
     if (-not $seenSchemeValues.Add("$schemeId|$normalizedValue")) { throw "Source registry repeats value '$value' in identifier scheme '$schemeId'." }
     $territoryIds=@(Get-SourceStringListAllowEmpty $identifier "territory_ids" $context)
     foreach ($territoryId in $territoryIds) { if (-not $territories.Contains($territoryId)) { throw "Source registry '$context.territory_ids' references unknown territory '$territoryId'." } }
@@ -2603,7 +2629,7 @@ function Get-KnowledgeSourceRegistry {
   }
 
   return [pscustomobject]@{
-    path=$registryPath; schema_version=[int]$schemaVersion; default_authority_profile_id=$defaultAuthorityProfileId; claim_namespace_ancestors=$claimNamespaceAncestors; evidence_mode_ancestors=$evidenceModeAncestors
+    path=$registryPath; schema_version=[int]$schemaVersion; lookup_keys=$lookupKeys; default_authority_profile_id=$defaultAuthorityProfileId; claim_namespace_ancestors=$claimNamespaceAncestors; evidence_mode_ancestors=$evidenceModeAncestors
     media_modalities=$mediaModalities; cultural_forms=$culturalForms; release_forms=$releaseForms; container_formats=$containerFormats
     mediums=$mediums; work_group_types=$workGroupTypes; work_groups=$workGroups; continuities=$continuities
     continuity_relationship_types=$continuityRelationshipTypes; continuity_relationships=@($continuityRelationships)

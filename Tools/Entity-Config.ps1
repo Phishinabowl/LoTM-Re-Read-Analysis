@@ -6,6 +6,10 @@ $schemaPackConfigHelper = Join-Path $PSScriptRoot "Schema-Pack-Config.ps1"
 if (-not (Get-Command Get-KnowledgeSchemaPackRegistry -ErrorAction SilentlyContinue)) {
   . $schemaPackConfigHelper
 }
+$lookupKeyConfigHelper = Join-Path $PSScriptRoot "Lookup-Key-Config.ps1"
+if (-not (Get-Command Get-KnowledgeLookupKeyConfig -ErrorAction SilentlyContinue)) {
+  . $lookupKeyConfigHelper
+}
 
 $script:SupportedEntitySchemaVersion = 3
 $script:EntityStableIdPattern = "^[a-z0-9]+(?:-[a-z0-9]+)*$"
@@ -51,7 +55,7 @@ function Get-EntityStringList {
   if ($raw -is [System.Collections.IDictionary]) { throw "Entity registry '$Context.$Key' must be a list." }
   $raw = @($raw)
   $values = @()
-  $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+  $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
   for ($index = 0; $index -lt $raw.Count; $index += 1) {
     $value = [string]$raw[$index]
     if ([string]::IsNullOrWhiteSpace($value)) {
@@ -87,18 +91,25 @@ function Assert-EntityPackValue {
 }
 
 function New-EntityAliasMap {
-  param([object]$Records, [string]$Label)
+  param([object]$Records, [string]$Label, [object]$LookupKeyConfig)
 
-  $aliases = [ordered]@{}
-  $ids = @{}
-  foreach ($recordId in $Records.Keys) { $ids[$recordId.ToLowerInvariant()] = $recordId }
+  $aliases = New-Object 'System.Collections.Generic.Dictionary[string,object]' ([System.StringComparer]::Ordinal)
+  $ids = New-Object 'System.Collections.Generic.Dictionary[string,string]' ([System.StringComparer]::Ordinal)
+  foreach ($recordId in $Records.Keys) { $ids[$(ConvertTo-KnowledgeLookupKey $recordId $LookupKeyConfig)] = $recordId }
   foreach ($record in $Records.Values) {
+    $recordAliasKeys = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    foreach ($alias in @($record.aliases)) {
+      $aliasKey = ConvertTo-KnowledgeLookupKey ([string]$alias) $LookupKeyConfig
+      if (-not $recordAliasKeys.Add($aliasKey)) {
+        throw "Entity registry $Label '$($record.id)' contains duplicate aliases."
+      }
+    }
     foreach ($alias in @($record.label) + @($record.aliases)) {
-      $normalized = ([string]$alias).ToLowerInvariant()
+      $normalized = ConvertTo-KnowledgeLookupKey ([string]$alias) $LookupKeyConfig
       if ($ids.ContainsKey($normalized) -and $ids[$normalized] -ne $record.id) {
         throw "Entity registry $Label alias '$alias' conflicts with ID '$($ids[$normalized])'."
       }
-      $owners = if ($aliases.Contains($normalized)) { @($aliases[$normalized]) } else { @() }
+      $owners = if ($aliases.ContainsKey($normalized)) { @($aliases[$normalized]) } else { @() }
       if ($owners -notcontains $record.id) { $aliases[$normalized] = @(@($owners) + @($record.id)) }
     }
   }
@@ -247,6 +258,7 @@ function Get-KnowledgeEntityRegistry {
   if (-not (Test-SchemaPackCapabilityEnabled $SchemaPackRegistry "entity-incarnations")) {
     throw "Entity registry requires enabled schema capability 'entity-incarnations'."
   }
+  $lookupKeys = Get-KnowledgeLookupKeyConfig $ProjectConfig
 
   $registryPath = $ProjectConfig.entities_registry
   $registry = ConvertFrom-Yaml -Yaml ([System.IO.File]::ReadAllText($registryPath, [System.Text.UTF8Encoding]::new($true))) -Ordered
@@ -467,8 +479,9 @@ function Get-KnowledgeEntityRegistry {
     incarnation_bindings=@($bindings)
     incarnation_relationship_types=$relationshipTypes
     incarnation_relationships=@($relationships)
-    entity_aliases=New-EntityAliasMap $entities "entity"
-    incarnation_aliases=New-EntityAliasMap $incarnations "incarnation"
+    lookup_keys=$lookupKeys
+    entity_aliases=New-EntityAliasMap $entities "entity" $lookupKeys
+    incarnation_aliases=New-EntityAliasMap $incarnations "incarnation" $lookupKeys
   }
 }
 
@@ -481,9 +494,9 @@ function Resolve-KnowledgeEntityId {
 
 function Resolve-KnowledgeEntityIds {
   param([object]$EntityRegistry, [string]$Value)
-  $normalized = $Value.Trim().ToLowerInvariant()
-  foreach ($entityId in $EntityRegistry.entities.Keys) { if ($entityId.ToLowerInvariant() -eq $normalized) { return @($entityId) } }
-  if ($EntityRegistry.entity_aliases.Contains($normalized)) { return @($EntityRegistry.entity_aliases[$normalized]) }
+  $normalized = ConvertTo-KnowledgeLookupKey $Value $EntityRegistry.lookup_keys
+  foreach ($entityId in $EntityRegistry.entities.Keys) { if ((ConvertTo-KnowledgeLookupKey $entityId $EntityRegistry.lookup_keys) -ceq $normalized) { return @($entityId) } }
+  if ($EntityRegistry.entity_aliases.ContainsKey($normalized)) { return @($EntityRegistry.entity_aliases[$normalized]) }
   return @()
 }
 
@@ -496,9 +509,9 @@ function Resolve-KnowledgeIncarnationId {
 
 function Resolve-KnowledgeIncarnationIds {
   param([object]$EntityRegistry, [string]$Value)
-  $normalized = $Value.Trim().ToLowerInvariant()
-  foreach ($incarnationId in $EntityRegistry.incarnations.Keys) { if ($incarnationId.ToLowerInvariant() -eq $normalized) { return @($incarnationId) } }
-  if ($EntityRegistry.incarnation_aliases.Contains($normalized)) { return @($EntityRegistry.incarnation_aliases[$normalized]) }
+  $normalized = ConvertTo-KnowledgeLookupKey $Value $EntityRegistry.lookup_keys
+  foreach ($incarnationId in $EntityRegistry.incarnations.Keys) { if ((ConvertTo-KnowledgeLookupKey $incarnationId $EntityRegistry.lookup_keys) -ceq $normalized) { return @($incarnationId) } }
+  if ($EntityRegistry.incarnation_aliases.ContainsKey($normalized)) { return @($EntityRegistry.incarnation_aliases[$normalized]) }
   return @()
 }
 
