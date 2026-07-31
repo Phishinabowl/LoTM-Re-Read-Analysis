@@ -60,7 +60,7 @@ Within canonical pages, the visible article and structured page data are two syn
 
 ### Project Manifest
 
-`Project_Config/project.yaml` is the bootstrap manifest. It identifies the project, assigns stable IDs to modeled content roots, locates supporting registries, and declares tool-integration paths without absorbing domain definitions.
+`Project_Config/project.yaml` is the bootstrap manifest. It identifies the project, assigns stable IDs to modeled content and resource roots, locates supporting registries, and declares tool-integration paths without absorbing domain definitions.
 
 `Tools/project_config.py` and `Tools/Project-Config.ps1` are the matching manifest-loader implementations. They locate and validate project configuration and registry paths; they do not own domain taxonomy.
 
@@ -91,7 +91,21 @@ Content type and subject category are orthogonal:
 - a Dunn Smith source review is `content_type_id: investigation-record` plus `category_id: character`;
 - a Volume Summary is `content_type_id: volume-summary` with categories forbidden.
 
-A content type defines the record contract, root, path strategy, default template, QA-page behavior, and graph eligibility. A category defines the subject family, subject slug, display/metadata identity, graph class, and its placement under eligible content types. Aggregating records such as Volume Summaries therefore do not appear in the category editor or become subject graph nodes merely because they are canonical records.
+A content type defines the record contract, root, path strategy, optional default template, QA-page behavior, and graph eligibility. A category defines the subject family, subject slug, display/metadata identity, graph class, and its placement under eligible content types. Aggregating records such as Volume Summaries, analyst boards, the project dashboard, and the navigation index therefore do not appear in the category editor or become subject graph nodes merely because they are canonical records.
+
+### Resource Registry
+
+`Project_Config/resources.yaml` is the machine-readable registry for repository resources that support, configure, generate, or provide evidence for content without being authored content records themselves. It owns:
+
+- stable resource-kind and resource-type IDs;
+- resource lifecycle, authority role, and editor eligibility;
+- placement beneath manifest-configured resource roots;
+- tracked, ignored, or mixed storage behavior;
+- whether a placement must exist in a valid checkout.
+
+Examples include visual assets, local source material, executable tools, project configuration, generated visualizations, QA exports, design records, application state, and temporary artifacts. These are intentionally not taxonomy content types. The distinction lets an IT implementation map the same contracts to diagrams, vendor documentation, logs, automation, configuration, generated topology views, and local working state.
+
+`Tools/resource_config.py` and `Tools/Resource-Config.ps1` are the matching registry loaders. They validate stable IDs, resource-root and kind references, controlled lifecycle/authority/tracking values, safe relative placements, required paths, and placement uniqueness.
 
 ### Source Registry
 
@@ -105,6 +119,8 @@ The planned `Project_Config/sources.yaml` owns:
 
 Source priority must guide comparison and deviation reporting without erasing independently modeled disclosure timelines.
 
+The resource registry says where source material lives and how that storage is governed. The source registry will identify the evidence sources themselves and define their semantic priority and derivation relationships.
+
 ### Visualization Configuration
 
 Visualization settings and presets define graph views, boundaries, filtering choices, validation, rendering, and destinations. They do not redefine canonical categories or relationships.
@@ -113,8 +129,8 @@ Visualization settings and presets define graph views, boundaries, filtering cho
 
 | Component | Owns | Must Not Own |
 | --- | --- | --- |
-| Project configuration loaders | Root detection, manifest parsing, safe path resolution, registry discovery | Domain categories, graph semantics, page mutation |
-| Taxonomy and source registry loaders | Registry parsing, schema validation, aliases, controlled-value lookup | Canonical page content, graph serialization |
+| Project configuration loaders | Root detection, manifest parsing, safe content/resource path resolution, registry discovery | Domain categories, graph semantics, page mutation |
+| Taxonomy, resource, and source registry loaders | Registry parsing, schema validation, aliases, controlled-value lookup | Canonical page content, graph serialization |
 | Content index | Canonical-content discovery and normalized records | Domain constants duplicated from registries, presentation-specific graph decisions |
 | Validation service | Schema, taxonomy, reference, provenance, and consistency findings | Silent canonical rewrites |
 | Repository mutation service | Planned canonical edits, moves, reference updates, validation, rollback data | UI presentation, independent domain rules |
@@ -205,7 +221,7 @@ The reusable framework should contain:
 A domain implementation should contain:
 
 - its project manifest;
-- taxonomy and source registries;
+- taxonomy, resource, and source registries;
 - category and non-category content-type schemas and templates;
 - canonical content and evidence;
 - domain-specific graph presets or presentation overrides.
@@ -216,8 +232,8 @@ The framework must not assume names such as `Glossary_Threads`, `Characters`, `P
 
 The current extraction plan is:
 
-1. **Project boundary:** manifest, root detection, configurable content roots, and tool paths.
-2. **Model boundary:** architecture contract, taxonomy registry, source registry, shared registry loaders, warning-only validation, and normalized content index.
+1. **Project boundary:** manifest, root detection, configurable content/resource roots, and tool paths.
+2. **Model boundary:** architecture contract, taxonomy registry, resource registry, source registry, shared registry loaders, warning-only validation, and normalized content index.
 3. **Visualization boundary:** reusable graph engine, configurable graph presets, and migration of all QA graph construction into Visualization.
 4. **Framework extraction:** copy the domain-neutral contracts and services into a reusable framework repository.
 5. **IT proof of concept:** define IT taxonomy, evidence priorities, schemas, sample content, and graphs without changing framework algorithms.

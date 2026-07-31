@@ -47,6 +47,50 @@ content_types:
     qa_page_enabled: true
     graph_enabled: false
 
+  analysis-board:
+    lifecycle: active
+    canonical_pages_enabled: true
+    label: Analysis Board
+    plural_label: Analysis Boards
+    content_root_id: boards
+    category_policy: forbidden
+    path_strategy: root-file
+    metadata_type_mode: none
+    slug_mode: record
+    record_slug_pattern: '^[0-9]{2}_[A-Za-z0-9][A-Za-z0-9_-]*$'
+    qa_page_enabled: false
+    graph_enabled: false
+
+  project-dashboard:
+    lifecycle: active
+    canonical_pages_enabled: true
+    label: Project Dashboard
+    plural_label: Project Dashboards
+    content_root_id: repository
+    category_policy: forbidden
+    path_strategy: fixed-file
+    record_path: CURRENT_STATE.md
+    metadata_type_mode: none
+    slug_mode: record
+    record_slug_pattern: '^CURRENT_STATE$'
+    qa_page_enabled: false
+    graph_enabled: false
+
+  navigation-index:
+    lifecycle: active
+    canonical_pages_enabled: true
+    label: Navigation Index
+    plural_label: Navigation Indexes
+    content_root_id: repository
+    category_policy: forbidden
+    path_strategy: fixed-file
+    record_path: INDEX.md
+    metadata_type_mode: none
+    slug_mode: record
+    record_slug_pattern: '^INDEX$'
+    qa_page_enabled: false
+    graph_enabled: false
+
 categories:
   artifact:
     lifecycle: active

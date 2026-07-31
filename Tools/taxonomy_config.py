@@ -10,7 +10,7 @@ from project_config import ContentRootConfig, ProjectConfig, resolve_manifest_pa
 SUPPORTED_TAXONOMY_SCHEMA_VERSION = 2
 LIFECYCLES = {"active", "deferred"}
 CATEGORY_POLICIES = {"required", "optional", "forbidden"}
-PATH_STRATEGIES = {"category-file", "category-subject-record", "root-file"}
+PATH_STRATEGIES = {"category-file", "category-subject-record", "root-file", "fixed-file"}
 METADATA_TYPE_MODES = {"category", "fixed", "none"}
 SLUG_MODES = {"category", "record"}
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
@@ -50,12 +50,13 @@ class ContentTypeConfig:
     path_strategy: str
     metadata_type_mode: str
     slug_mode: str
-    default_template: Path
+    default_template: Path | None
     qa_page_enabled: bool
     graph_enabled: bool
     metadata_type: str = ""
     record_slug_prefix: str = ""
     record_slug_pattern: str = ""
+    record_path: Path | None = None
 
 
 @dataclass(frozen=True)
@@ -212,10 +213,10 @@ def parse_content_type(
         allowed = ", ".join(sorted(SLUG_MODES))
         raise ValueError(f"Taxonomy registry `{context}.slug_mode` must be one of: {allowed}.")
 
-    if category_policy == "forbidden" and path_strategy != "root-file":
+    if category_policy == "forbidden" and path_strategy not in {"root-file", "fixed-file"}:
         raise ValueError(
             f"Taxonomy registry `{context}` with forbidden categories must use "
-            "`root-file` path strategy."
+            "`root-file` or `fixed-file` path strategy."
         )
     if slug_mode == "category" and category_policy == "forbidden":
         raise ValueError(
@@ -246,6 +247,40 @@ def parse_content_type(
             )
         validate_regex(record_slug_pattern, f"{context}.record_slug_pattern")
 
+    default_template_value = str(content_type.get("default_template", "")).strip()
+    default_template = (
+        resolve_template(
+            project,
+            default_template_value,
+            f"{context}.default_template",
+        )
+        if default_template_value
+        else None
+    )
+    record_path_value = str(content_type.get("record_path", "")).strip()
+    record_path = None
+    if path_strategy == "fixed-file":
+        if not record_path_value:
+            raise ValueError(
+                f"Taxonomy registry `{context}.record_path` is required for fixed-file."
+            )
+        relative_record, resolved_record = resolve_folder(
+            project,
+            content_root_id,
+            record_path_value,
+            f"{context}.record_path",
+        )
+        if not resolved_record.is_file():
+            raise ValueError(
+                f"Taxonomy registry `{context}.record_path` does not exist: "
+                f"{resolved_record}"
+            )
+        record_path = relative_record
+    elif record_path_value:
+        raise ValueError(
+            f"Taxonomy registry `{context}.record_path` is only valid for fixed-file."
+        )
+
     return ContentTypeConfig(
         id=content_type_id,
         lifecycle=lifecycle,
@@ -257,16 +292,13 @@ def parse_content_type(
         path_strategy=path_strategy,
         metadata_type_mode=metadata_type_mode,
         slug_mode=slug_mode,
-        default_template=resolve_template(
-            project,
-            require_string(content_type, "default_template", context),
-            f"{context}.default_template",
-        ),
+        default_template=default_template,
         qa_page_enabled=require_bool(content_type, "qa_page_enabled", context),
         graph_enabled=require_bool(content_type, "graph_enabled", context),
         metadata_type=metadata_type,
         record_slug_prefix=record_slug_prefix,
         record_slug_pattern=record_slug_pattern,
+        record_path=record_path,
     )
 
 
@@ -348,6 +380,11 @@ def parse_category(
             if template_value
             else content_type.default_template
         )
+        if template is None:
+            raise ValueError(
+                f"Taxonomy registry `{placement_context}` requires a template because "
+                f"content type `{content_type_id}` has no default template."
+            )
         placements[content_type_id] = CategoryPlacement(
             content_type_id=content_type_id,
             relative_folder=relative_folder,
@@ -420,15 +457,12 @@ def load_taxonomy_config(project: ProjectConfig) -> TaxonomyConfig:
         )
         for content_type_id, raw_content_type in raw_content_types.items()
     }
-    ensure_unique(
-        [
-            content_type
-            for content_type in content_types.values()
-            if content_type.lifecycle == "active"
-        ],
-        "content_root_id",
-        "active content root",
-    )
+    fixed_record_paths = [
+        content_type
+        for content_type in content_types.values()
+        if content_type.lifecycle == "active" and content_type.record_path is not None
+    ]
+    ensure_unique(fixed_record_paths, "record_path", "fixed record path")
 
     raw_categories = require_mapping(registry.get("categories"), "categories")
     overlapping_ids = set(raw_categories) & set(raw_content_types)

@@ -51,11 +51,15 @@ The project uses the following files and folders:
 ```text
 Project_Config/
   project.yaml
-  domain-neutral project identity, content roots, and tool integration paths
+  taxonomy.yaml
+  resources.yaml
+  domain-neutral project identity, content/resource roots, registries,
+  and tool integration paths
 
 Boards/
   01_LoTM_Main_Reread_Board.md
   02_LoTM_Ancient_History_Family_Board.md
+  analyst-facing Analysis Board content type
 
 Volumes/
   TEMPLATE.md
@@ -147,9 +151,11 @@ NOTICE.md
 
 These files and folders are the project's working memory.
 
-`Project_Config/project.yaml` is the domain-neutral repository manifest. Tooling uses it to locate and identify the project, assign stable IDs to modeled content roots, and resolve the taxonomy registry, source-provenance behavior, QA output, visualization integration, and cleanup helpers. Directory names such as `Glossary_Threads/`, `Investigations/`, and `Volumes/` are LoTM configuration values rather than reusable framework assumptions.
+`Project_Config/project.yaml` is the domain-neutral repository manifest. Tooling uses it to locate and identify the project, assign stable IDs to modeled content and resource roots, and resolve the taxonomy/resource registries, source-provenance behavior, QA output, visualization integration, and cleanup helpers. Directory names such as `Glossary_Threads/`, `Investigations/`, and `Volumes/` are LoTM configuration values rather than reusable framework assumptions.
 
-`Project_Config/taxonomy.yaml` is the machine-readable authority for content-type and category IDs, lifecycle, canonical-page enablement, content roots, category policy, path strategies, metadata behavior, subject/record slug rules, per-content-type placements, templates, QA-page eligibility, and graph defaults. Content type and category are separate dimensions: a glossary article and an investigation may share `category_id: character` while using `content_type_id: glossary-page` and `content_type_id: investigation-record`; a `volume-summary` forbids subject categories. This document remains authoritative for LoTM-specific authoring and modeling policy and explains how those configured records should be used. Keep the registry, templates, and this policy synchronized; do not introduce a new category or content type only in prose or hardcode a new allowlist in a consumer.
+`Project_Config/taxonomy.yaml` is the machine-readable authority for content-type and category IDs, lifecycle, canonical-page enablement, content roots, category policy, path strategies, metadata behavior, subject/record slug rules, per-content-type placements, templates, QA-page eligibility, and graph defaults. Content type and category are separate dimensions: a glossary article and an investigation may share `category_id: character` while using `content_type_id: glossary-page` and `content_type_id: investigation-record`; `volume-summary`, `analysis-board`, `project-dashboard`, and `navigation-index` forbid subject categories. This document remains authoritative for LoTM-specific authoring and modeling policy and explains how those configured records should be used. Keep the registry, templates, and this policy synchronized; do not introduce a new category or content type only in prose or hardcode a new allowlist in a consumer.
+
+`Project_Config/resources.yaml` is the machine-readable authority for non-content repository resources: visual assets, evidence source material, executable tools, project configuration, generated outputs, design/workspace support, application state, and temporary artifacts. It defines stable resource kinds/types, authority roles, editor eligibility, configured placements, tracking expectations, and required-path behavior. Resource records do not become subject categories or content pages merely because they are important to the repository. A future `sources.yaml` will separately define source identity and priority; `resources.yaml` defines where source material lives and how its storage is governed.
 
 When conclusions are reached:
 
@@ -226,10 +232,11 @@ Use each project artifact for a distinct purpose:
 - `Source`: Local canonical source materials such as the EPUB and Donghua subtitles. Copyrighted source files stay ignored by Git.
 - `Testing`: Local scratch outputs and temporary experiments. Promote durable outputs into the appropriate canonical folder only after maintainer confirmation.
 - `Obsidian_Export`: Ignored local QA mirror generated from repository records for Obsidian graph inspection, anomaly detection, relationship review, and no-render repository graph refresh checks.
+- `Project_Config`: Canonical machine-readable project, taxonomy, and resource contracts. Change these through reviewed edits and, later, the shared mutation service.
 
 Do not duplicate granular reveal chronology across boards, volume pages, and glossary threads. Keep the filterable detail in the glossary thread and summarize only the durable volume-level meaning on the appropriate board or volume page.
 
-Boards are analyst-facing overview documents, not the canonical source for automatic spoiler filtering. A future reader-facing system may gate a board by its volume boundary, but glossary knowledge units remain the source for position-specific filtering.
+Boards are `analysis-board` content records and analyst-facing overviews, not the canonical source for automatic spoiler filtering. `CURRENT_STATE.md` is the fixed `project-dashboard` record, while `INDEX.md` is the fixed `navigation-index` record. A future reader-facing system may gate a board by its volume boundary, but glossary knowledge units remain the source for position-specific filtering.
 
 Volume summary pages are reader-facing overview documents for completed volume boundaries. They may include official volume cover/opening art, end-of-volume art, and volume gallery title pages. Subject-specific character, location, pathway, artifact, deity, faction, event, or concept artwork should still map primarily to the corresponding subject page when that page exists.
 

@@ -21,6 +21,14 @@ class ContentRootConfig:
 
 
 @dataclass(frozen=True)
+class ResourceRootConfig:
+    id: str
+    relative_path: Path
+    path: Path
+    required: bool
+
+
+@dataclass(frozen=True)
 class ProjectConfig:
     root: Path
     manifest_path: Path
@@ -29,6 +37,7 @@ class ProjectConfig:
     framework: str
     domain: str
     content_roots: tuple[ContentRootConfig, ...]
+    resource_roots: tuple[ResourceRootConfig, ...]
     qa_export: Path
     visualization_python_helper: Path
     visualization_powershell_helper: Path
@@ -37,6 +46,7 @@ class ProjectConfig:
     cleanup_python_helper: Path
     cleanup_powershell_helper: Path
     taxonomy_registry: Path
+    resources_registry: Path
 
 
 def is_project_root(path: Path) -> bool:
@@ -135,7 +145,7 @@ def load_project_config(root: Path) -> ProjectConfig:
         raise ValueError("Project manifest `paths.content_roots` must be a non-empty list.")
 
     content_roots: list[ContentRootConfig] = []
-    content_root_ids: set[str] = set()
+    configured_root_ids: set[str] = set()
     for index, raw_entry in enumerate(raw_content_roots):
         context = f"paths.content_roots[{index}]"
         entry = require_mapping(raw_entry, context)
@@ -145,12 +155,12 @@ def load_project_config(root: Path) -> ProjectConfig:
                 f"Project manifest `{context}.id` must be a lowercase kebab-case "
                 f"stable ID: {content_root_id}"
             )
-        if content_root_id in content_root_ids:
+        if content_root_id in configured_root_ids:
             raise ValueError(
                 f"Project manifest `{context}.id` duplicates content-root ID "
                 f"`{content_root_id}`."
             )
-        content_root_ids.add(content_root_id)
+        configured_root_ids.add(content_root_id)
         path_value = require_string(entry, "path", context)
         relative_path, resolved_path = resolve_manifest_path(
             resolved_root,
@@ -176,6 +186,44 @@ def load_project_config(root: Path) -> ProjectConfig:
                 path=resolved_path,
                 provenance_mode=provenance_mode,
                 provenance_label=provenance_label,
+            )
+        )
+
+    raw_resource_roots = paths.get("resource_roots")
+    if not isinstance(raw_resource_roots, list) or not raw_resource_roots:
+        raise ValueError("Project manifest `paths.resource_roots` must be a non-empty list.")
+
+    resource_roots: list[ResourceRootConfig] = []
+    for index, raw_entry in enumerate(raw_resource_roots):
+        context = f"paths.resource_roots[{index}]"
+        entry = require_mapping(raw_entry, context)
+        resource_root_id = require_string(entry, "id", context)
+        if not STABLE_ID_PATTERN.fullmatch(resource_root_id):
+            raise ValueError(
+                f"Project manifest `{context}.id` must be a lowercase kebab-case "
+                f"stable ID: {resource_root_id}"
+            )
+        if resource_root_id in configured_root_ids:
+            raise ValueError(
+                f"Project manifest `{context}.id` duplicates configured root ID "
+                f"`{resource_root_id}`."
+            )
+        configured_root_ids.add(resource_root_id)
+        required = entry.get("required")
+        if not isinstance(required, bool):
+            raise ValueError(f"Project manifest `{context}.required` must be true or false.")
+        relative_path, resolved_path = resolve_manifest_path(
+            resolved_root,
+            require_string(entry, "path", context),
+            f"{context}.path",
+            must_exist=required,
+        )
+        resource_roots.append(
+            ResourceRootConfig(
+                id=resource_root_id,
+                relative_path=relative_path,
+                path=resolved_path,
+                required=required,
             )
         )
 
@@ -233,6 +281,12 @@ def load_project_config(root: Path) -> ProjectConfig:
         "registries.taxonomy",
         must_exist=True,
     )
+    _, resources_registry = resolve_manifest_path(
+        resolved_root,
+        require_string(registries, "resources", "registries"),
+        "registries.resources",
+        must_exist=True,
+    )
 
     return ProjectConfig(
         root=resolved_root,
@@ -242,6 +296,7 @@ def load_project_config(root: Path) -> ProjectConfig:
         framework=framework,
         domain=domain,
         content_roots=tuple(content_roots),
+        resource_roots=tuple(resource_roots),
         qa_export=qa_export,
         visualization_python_helper=visualization_python_helper,
         visualization_powershell_helper=visualization_powershell_helper,
@@ -250,4 +305,5 @@ def load_project_config(root: Path) -> ProjectConfig:
         cleanup_python_helper=cleanup_python_helper,
         cleanup_powershell_helper=cleanup_powershell_helper,
         taxonomy_registry=taxonomy_registry,
+        resources_registry=resources_registry,
     )

@@ -5,6 +5,14 @@ domain: lord-of-the-mysteries
 
 paths:
   content_roots:
+    - id: repository
+      path: .
+      provenance_mode: fixed
+      provenance_label: project
+    - id: boards
+      path: Boards
+      provenance_mode: fixed
+      provenance_label: board
     - id: glossary
       path: Glossary_Threads
       provenance_mode: child-directory
@@ -15,6 +23,41 @@ paths:
       path: Volumes
       provenance_mode: fixed
       provenance_label: volume
+
+  resource_roots:
+    - id: artwork
+      path: Artwork
+      required: true
+    - id: source
+      path: Source
+      required: false
+    - id: tools
+      path: Tools
+      required: true
+    - id: project-config
+      path: Project_Config
+      required: true
+    - id: visualization
+      path: Visualization
+      required: true
+    - id: qa-export
+      path: Obsidian_Export
+      required: false
+    - id: testing
+      path: Testing
+      required: false
+    - id: temporary
+      path: .tmp
+      required: false
+    - id: ux
+      path: UX
+      required: false
+    - id: local-workspace
+      path: .local
+      required: false
+    - id: obsidian-state
+      path: .obsidian
+      required: false
 
   qa_export: Obsidian_Export
 
@@ -30,3 +73,4 @@ paths:
 
 registries:
   taxonomy: Project_Config/taxonomy.yaml
+  resources: Project_Config/resources.yaml

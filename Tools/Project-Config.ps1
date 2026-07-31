@@ -138,7 +138,7 @@ function Get-KnowledgeProjectConfig {
     throw "Project manifest 'paths.content_roots' must be a non-empty list."
   }
   $contentRoots = @()
-  $contentRootIds = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+  $configuredRootIds = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
   for ($index = 0; $index -lt $rawContentRoots.Count; $index += 1) {
     $entry = $rawContentRoots[$index]
     $context = "paths.content_roots[$index]"
@@ -146,7 +146,7 @@ function Get-KnowledgeProjectConfig {
     if ($contentRootId -notmatch $script:StableProjectIdPattern) {
       throw "Project manifest '$context.id' must be a lowercase kebab-case stable ID: $contentRootId"
     }
-    if (-not $contentRootIds.Add($contentRootId)) {
+    if (-not $configuredRootIds.Add($contentRootId)) {
       throw "Project manifest '$context.id' duplicates content-root ID '$contentRootId'."
     }
     $pathValue = Get-RequiredProjectString $entry "path" $context
@@ -164,6 +164,34 @@ function Get-KnowledgeProjectConfig {
       path = Resolve-ProjectManifestPath $RepoRoot $pathValue "$context.path" $true
       provenance_mode = $provenanceMode
       provenance_label = $provenanceLabel.Trim()
+    }
+  }
+
+  $rawResourceRoots = @(Get-ProjectMapValue $paths "resource_roots")
+  if ($rawResourceRoots.Count -eq 0) {
+    throw "Project manifest 'paths.resource_roots' must be a non-empty list."
+  }
+  $resourceRoots = @()
+  for ($index = 0; $index -lt $rawResourceRoots.Count; $index += 1) {
+    $entry = $rawResourceRoots[$index]
+    $context = "paths.resource_roots[$index]"
+    $resourceRootId = Get-RequiredProjectString $entry "id" $context
+    if ($resourceRootId -notmatch $script:StableProjectIdPattern) {
+      throw "Project manifest '$context.id' must be a lowercase kebab-case stable ID: $resourceRootId"
+    }
+    if (-not $configuredRootIds.Add($resourceRootId)) {
+      throw "Project manifest '$context.id' duplicates configured root ID '$resourceRootId'."
+    }
+    $required = Get-ProjectMapValue $entry "required"
+    if ($required -isnot [bool]) {
+      throw "Project manifest '$context.required' must be true or false."
+    }
+    $pathValue = Get-RequiredProjectString $entry "path" $context
+    $resourceRoots += [pscustomobject]@{
+      id = $resourceRootId
+      relative_path = $pathValue
+      path = Resolve-ProjectManifestPath $RepoRoot $pathValue "$context.path" ([bool]$required)
+      required = [bool]$required
     }
   }
 
@@ -188,6 +216,7 @@ function Get-KnowledgeProjectConfig {
     framework = $framework
     domain = $domain
     content_roots = @($contentRoots)
+    resource_roots = @($resourceRoots)
     qa_export = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $paths "qa_export" "paths") "paths.qa_export" $false
     visualization_python_helper = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $visualization "python_helper" "paths.visualization") "paths.visualization.python_helper" $true
     visualization_powershell_helper = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $visualization "powershell_helper" "paths.visualization") "paths.visualization.powershell_helper" $true
@@ -196,5 +225,6 @@ function Get-KnowledgeProjectConfig {
     cleanup_python_helper = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $cleanup "python_helper" "paths.cleanup") "paths.cleanup.python_helper" $true
     cleanup_powershell_helper = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $cleanup "powershell_helper" "paths.cleanup") "paths.cleanup.powershell_helper" $true
     taxonomy_registry = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $registries "taxonomy" "registries") "registries.taxonomy" $true
+    resources_registry = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $registries "resources" "registries") "registries.resources" $true
   }
 }

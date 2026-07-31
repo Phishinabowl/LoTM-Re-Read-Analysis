@@ -83,17 +83,25 @@ Do not embed the full graph in this README; it is maintained as a separate gener
 Project_Config/
   project.yaml
   taxonomy.yaml
-  domain-neutral project identity, stable content roots, registry discovery,
-  and orthogonal LoTM content-type/category configuration
+  resources.yaml
+  domain-neutral project identity, stable content/resource roots, registry
+  discovery, LoTM content taxonomy, and repository resource configuration
 
 Boards/
   01_LoTM_Main_Reread_Board.md
   02_LoTM_Ancient_History_Family_Board.md
+  authored Analysis Board content type
 
 Volumes/
   TEMPLATE.md
   volume-01-clown.md
   aggregating Volume Summary content type and planned summary pages
+
+INDEX.md
+  fixed Navigation Index content type
+
+CURRENT_STATE.md
+  fixed Project Dashboard content type
 
 Investigations/
   TEMPLATE.md

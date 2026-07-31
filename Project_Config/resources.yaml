@@ -1,0 +1,173 @@
+schema_version: 1
+
+resource_kinds:
+  asset:
+    label: Asset
+    plural_label: Assets
+  source:
+    label: Source
+    plural_label: Sources
+  component:
+    label: Component
+    plural_label: Components
+  generated-output:
+    label: Generated Output
+    plural_label: Generated Outputs
+  workspace-support:
+    label: Workspace Support
+    plural_label: Workspace Support Resources
+  temporary:
+    label: Temporary Resource
+    plural_label: Temporary Resources
+
+resource_types:
+  visual-asset:
+    lifecycle: active
+    label: Visual Asset
+    plural_label: Visual Assets
+    kind_id: asset
+    authority: supporting
+    editor_enabled: true
+    placements:
+      - root_id: artwork
+        relative_path: .
+        tracking: mixed
+        required: true
+
+  source-material:
+    lifecycle: active
+    label: Source Material
+    plural_label: Source Materials
+    kind_id: source
+    authority: evidence
+    editor_enabled: true
+    placements:
+      - root_id: source
+        relative_path: .
+        tracking: ignored
+        required: false
+
+  executable-tool:
+    lifecycle: active
+    label: Executable Tool
+    plural_label: Executable Tools
+    kind_id: component
+    authority: operational
+    editor_enabled: false
+    placements:
+      - root_id: tools
+        relative_path: .
+        tracking: tracked
+        required: true
+
+  project-configuration:
+    lifecycle: active
+    label: Project Configuration
+    plural_label: Project Configuration
+    kind_id: component
+    authority: canonical
+    editor_enabled: true
+    placements:
+      - root_id: project-config
+        relative_path: .
+        tracking: tracked
+        required: true
+
+  generated-visualization:
+    lifecycle: active
+    label: Generated Visualization
+    plural_label: Generated Visualizations
+    kind_id: generated-output
+    authority: generated
+    editor_enabled: false
+    placements:
+      - root_id: visualization
+        relative_path: graphs
+        tracking: tracked
+        required: true
+      - root_id: visualization
+        relative_path: rendered
+        tracking: tracked
+        required: true
+
+  visualization-state:
+    lifecycle: active
+    label: Visualization State
+    plural_label: Visualization State
+    kind_id: generated-output
+    authority: generated
+    editor_enabled: false
+    placements:
+      - root_id: visualization
+        relative_path: data/refresh-snapshot.json
+        tracking: tracked
+        required: true
+
+  qa-export:
+    lifecycle: active
+    label: QA Export
+    plural_label: QA Exports
+    kind_id: generated-output
+    authority: generated
+    editor_enabled: false
+    placements:
+      - root_id: qa-export
+        relative_path: .
+        tracking: ignored
+        required: false
+
+  design-record:
+    lifecycle: active
+    label: Design Record
+    plural_label: Design Records
+    kind_id: workspace-support
+    authority: supporting
+    editor_enabled: true
+    placements:
+      - root_id: ux
+        relative_path: .
+        tracking: tracked
+        required: false
+
+  local-workspace-record:
+    lifecycle: active
+    label: Local Workspace Record
+    plural_label: Local Workspace Records
+    kind_id: workspace-support
+    authority: supporting
+    editor_enabled: false
+    placements:
+      - root_id: local-workspace
+        relative_path: .
+        tracking: ignored
+        required: false
+
+  application-state:
+    lifecycle: active
+    label: Application State
+    plural_label: Application State
+    kind_id: workspace-support
+    authority: operational
+    editor_enabled: false
+    placements:
+      - root_id: obsidian-state
+        relative_path: .
+        tracking: ignored
+        required: false
+
+  temporary-artifact:
+    lifecycle: active
+    label: Temporary Artifact
+    plural_label: Temporary Artifacts
+    kind_id: temporary
+    authority: temporary
+    editor_enabled: false
+    placements:
+      - root_id: testing
+        relative_path: .
+        tracking: ignored
+        required: false
+      - root_id: temporary
+        relative_path: .
+        tracking: ignored
+        required: false

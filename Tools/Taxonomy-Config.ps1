@@ -6,7 +6,7 @@ if (-not (Get-Command Get-KnowledgeProjectConfig -ErrorAction SilentlyContinue))
 $script:SupportedTaxonomySchemaVersion = 2
 $script:AllowedTaxonomyLifecycles = @("active", "deferred")
 $script:AllowedCategoryPolicies = @("required", "optional", "forbidden")
-$script:AllowedPathStrategies = @("category-file", "category-subject-record", "root-file")
+$script:AllowedPathStrategies = @("category-file", "category-subject-record", "root-file", "fixed-file")
 $script:AllowedMetadataTypeModes = @("category", "fixed", "none")
 $script:AllowedSlugModes = @("category", "record")
 $script:StableTaxonomyIdPattern = "^[a-z0-9]+(?:-[a-z0-9]+)*$"
@@ -146,8 +146,8 @@ function ConvertTo-ContentTypeConfig {
     throw "Taxonomy registry '$context.slug_mode' must be one of: $($script:AllowedSlugModes -join ', ')."
   }
 
-  if ($categoryPolicy -eq "forbidden" -and $pathStrategy -ne "root-file") {
-    throw "Taxonomy registry '$context' with forbidden categories must use 'root-file' path strategy."
+  if ($categoryPolicy -eq "forbidden" -and $pathStrategy -notin @("root-file", "fixed-file")) {
+    throw "Taxonomy registry '$context' with forbidden categories must use 'root-file' or 'fixed-file' path strategy."
   }
   if ($slugMode -eq "category" -and $categoryPolicy -eq "forbidden") {
     throw "Taxonomy registry '$context' cannot use category slugs when categories are forbidden."
@@ -173,7 +173,26 @@ function ConvertTo-ContentTypeConfig {
     Test-TaxonomyRegex $recordSlugPattern "$context.record_slug_pattern"
   }
 
-  $defaultTemplate = Resolve-TaxonomyTemplate $ProjectConfig (Get-RequiredTaxonomyString $RawContentType "default_template" $context) "$context.default_template"
+  $defaultTemplateValue = ([string](Get-ProjectMapValue $RawContentType "default_template" "")).Trim()
+  $defaultTemplate = if ([string]::IsNullOrWhiteSpace($defaultTemplateValue)) {
+    $null
+  } else {
+    Resolve-TaxonomyTemplate $ProjectConfig $defaultTemplateValue "$context.default_template"
+  }
+  $recordPathValue = ([string](Get-ProjectMapValue $RawContentType "record_path" "")).Trim()
+  $recordPath = $null
+  if ($pathStrategy -eq "fixed-file") {
+    if ([string]::IsNullOrWhiteSpace($recordPathValue)) {
+      throw "Taxonomy registry '$context.record_path' is required for fixed-file."
+    }
+    $resolvedRecordPath = Resolve-TaxonomyFolder $ProjectConfig $contentRootId $recordPathValue "$context.record_path"
+    if (-not (Test-Path -LiteralPath $resolvedRecordPath -PathType Leaf)) {
+      throw "Taxonomy registry '$context.record_path' does not exist: $resolvedRecordPath"
+    }
+    $recordPath = $recordPathValue
+  } elseif (-not [string]::IsNullOrWhiteSpace($recordPathValue)) {
+    throw "Taxonomy registry '$context.record_path' is only valid for fixed-file."
+  }
   return [pscustomobject]@{
     id = $ContentTypeId
     lifecycle = $lifecycle
@@ -191,6 +210,7 @@ function ConvertTo-ContentTypeConfig {
     metadata_type = $metadataType
     record_slug_prefix = $recordSlugPrefix
     record_slug_pattern = $recordSlugPattern
+    record_path = $recordPath
   }
 }
 
@@ -269,6 +289,9 @@ function ConvertTo-CategoryConfig {
     } else {
       Resolve-TaxonomyTemplate $ProjectConfig $templateValue "$placementContext.template"
     }
+    if ($null -eq $template) {
+      throw "Taxonomy registry '$placementContext' requires a template because content type '$contentTypeId' has no default template."
+    }
     $placements[$contentTypeId] = [pscustomobject]@{
       content_type_id = $contentTypeId
       relative_folder = $relativeFolder
@@ -339,7 +362,9 @@ function Get-KnowledgeTaxonomyConfig {
   foreach ($contentTypeId in $rawContentTypes.Keys) {
     $contentTypes[$contentTypeId] = ConvertTo-ContentTypeConfig $contentTypeId $rawContentTypes[$contentTypeId] $ProjectConfig
   }
-  Assert-UniqueTaxonomyValue @($contentTypes.Values | Where-Object lifecycle -eq "active") "content_root_id" "active content root"
+  Assert-UniqueTaxonomyValue @($contentTypes.Values | Where-Object {
+    $_.lifecycle -eq "active" -and $null -ne $_.record_path
+  }) "record_path" "fixed record path"
 
   $rawCategories = Get-ProjectMapValue $registry "categories"
   if ($null -eq $rawCategories -or -not ($rawCategories -is [System.Collections.IDictionary])) {
