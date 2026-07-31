@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: core
-pack_version: 11
+pack_version: 12
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -43,6 +43,10 @@ capabilities:
   - stable-claim-identity
   - multi-source-authority-comparison
   - claim-authority-evaluation
+  - id: cross-registry-provenance
+    lifecycle: available
+    label: Cross-Registry Provenance
+    description: Standalone claims and supersession validated against typed subject providers from multiple registries.
   - authority-profiles
   - typed-relationships
   - temporal-positions

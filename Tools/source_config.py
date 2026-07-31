@@ -13,7 +13,7 @@ from resource_config import ResourceConfig
 from schema_pack_config import SchemaPackRegistry, load_schema_pack_registry
 
 
-SUPPORTED_SOURCE_SCHEMA_VERSION = 15
+SUPPORTED_SOURCE_SCHEMA_VERSION = 16
 LIFECYCLES = {"active", "deferred"}
 POSITION_FIELD_TYPES = {"string", "integer", "number", "timestamp", "boolean"}
 PRIORITY_ORDERS = {"ascending", "descending"}
@@ -24,9 +24,6 @@ VOLUME_CATALOG_STATUSES = {"verified", "pending-verification", "not-applicable"}
 ORDERING_MODES = {"total", "partial"}
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 FIELD_ID_PATTERN = re.compile(r"^[a-z][a-z0-9_]*$")
-FIELD_PATH_PATTERN = re.compile(
-    r"^[a-z][a-z0-9_]*(?:(?:\.[a-z][a-z0-9_]*)|(?:\[[0-9]+\]))*$"
-)
 LANGUAGE_TAG_PATTERN = re.compile(r"^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$")
 
 
@@ -114,16 +111,6 @@ class AuthorityComparison:
     claim_namespace: str
     best_rank: int | None
     winning_candidate_ids: tuple[str, ...]
-    decisions: tuple[AuthorityCandidateDecision, ...]
-
-
-@dataclass(frozen=True)
-class ClaimAuthorityEvaluation:
-    outcome: str
-    profile_id: str
-    claim_key: str
-    best_rank: int | None
-    winning_assertion_ids: tuple[str, ...]
     decisions: tuple[AuthorityCandidateDecision, ...]
 
 
@@ -291,16 +278,6 @@ class ScopedContinuityAssertion:
     applicability_scope_id: str
     continuity_id: str
     status: str
-
-
-@dataclass(frozen=True)
-class ClaimSupersession:
-    id: str
-    source_claim_key: str
-    relationship_type: str
-    target_claim_key: str
-    applicability_scope_id: str
-    continuity_ids: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -670,39 +647,6 @@ class SourceRelationship:
 
 
 @dataclass(frozen=True)
-class ProvenanceEvidenceLink:
-    source_id: str
-    evidence_role: str
-    locators: tuple["EvidenceLocator", ...]
-
-
-@dataclass(frozen=True)
-class EvidenceLocator:
-    id: str
-    medium_id: str
-    evidence_mode: str
-    locator_type: str
-    position: dict[str, object] | None
-    start: dict[str, object] | None
-    end: dict[str, object] | None
-
-
-@dataclass(frozen=True)
-class ProvenanceAssertion:
-    id: str
-    claim_key: str
-    subject_type: str
-    subject_id: str
-    claim_namespace: str
-    field_path: str | None
-    asserted_value: object
-    assertion_status: str
-    observed_at: TemporalWindow | None
-    effective_window: TemporalWindow | None
-    evidence_links: tuple[ProvenanceEvidenceLink, ...]
-
-
-@dataclass(frozen=True)
 class SourceRegistry:
     path: Path
     schema_version: int
@@ -725,7 +669,6 @@ class SourceRegistry:
     work_production_contexts: dict[str, WorkProductionContext]
     applicability_scopes: dict[str, ApplicabilityScope]
     scoped_continuity_assertions: dict[str, ScopedContinuityAssertion]
-    claim_supersessions: tuple[ClaimSupersession, ...]
     segments: dict[str, SegmentConfig]
     content_groups: dict[str, ContentGroup]
     numbering_schemes: dict[str, NumberingScheme]
@@ -750,11 +693,98 @@ class SourceRegistry:
     source_relationship_types: dict[str, RelationshipTypeConfig]
     sources: dict[str, SourceConfig]
     source_relationships: tuple[SourceRelationship, ...]
-    provenance_assertions: tuple[ProvenanceAssertion, ...]
     lookup_keys: LookupKeyConfig
     source_aliases: dict[str, str]
     identifier_schemes: dict[str, IdentifierScheme]
     external_identifiers: tuple[ExternalIdentifier, ...]
+
+    def provenance_targets(self) -> dict[str, dict[str, object]]:
+        nested = {
+            "content-group-member": (
+                member for group in self.content_groups.values() for member in group.members
+            ),
+            "localized-title": (
+                title
+                for owner in (
+                    *self.works.values(),
+                    *self.segments.values(),
+                    *self.content_groups.values(),
+                    *self.manifestations.values(),
+                    *self.release_packages.values(),
+                    *self.catalog_placements.values(),
+                )
+                for title in owner.localized_titles
+            ),
+            "release-run-phase": (
+                phase for run in self.release_runs.values() for phase in run.phases
+            ),
+            "source-coverage": (
+                coverage for source in self.sources.values() for coverage in source.coverage
+            ),
+            "source-observation": (
+                observation
+                for source in self.sources.values()
+                for observation in source.observations
+            ),
+            "coverage-position-range": (
+                position_range
+                for source in self.sources.values()
+                for coverage in source.coverage
+                for position_range in coverage.position_ranges
+            ),
+            "authority-rule": (
+                rule
+                for profile in self.authority_profiles.values()
+                for rule in profile.claim_authority_rules
+            ),
+        }
+        nested = {key: tuple(records) for key, records in nested.items()}
+        for subject_type, records in nested.items():
+            record_ids = [record.id for record in records]
+            if len(record_ids) != len(set(record_ids)):
+                raise ValueError(
+                    f"Source registry {subject_type} IDs must be unique across owners."
+                )
+        return {
+            "work": dict(self.works),
+            "work-production-context": dict(self.work_production_contexts),
+            "applicability-scope": dict(self.applicability_scopes),
+            "scoped-continuity-assertion": dict(self.scoped_continuity_assertions),
+            "segment": dict(self.segments),
+            "content-group": dict(self.content_groups),
+            "work-relationship": {item.id: item for item in self.work_relationships},
+            "adaptation-mapping": {item.id: item for item in self.adaptation_mappings},
+            "manifestation": dict(self.manifestations),
+            "manifestation-relationship": {
+                item.id: item for item in self.manifestation_relationships
+            },
+            "manifestation-segment-mapping": {
+                item.id: item for item in self.manifestation_segment_mappings
+            },
+            "release-component": dict(self.release_components),
+            "release-component-relationship": {
+                item.id: item for item in self.release_component_relationships
+            },
+            "release-package": dict(self.release_packages),
+            "release-run": dict(self.release_runs),
+            "release-event": dict(self.release_events),
+            "catalog-placement": dict(self.catalog_placements),
+            "platform-offering": dict(self.platform_offerings),
+            "source": dict(self.sources),
+            "source-relationship": {item.id: item for item in self.source_relationships},
+            **{
+                subject_type: {record.id: record for record in records}
+                for subject_type, records in nested.items()
+            },
+        }
+
+    def provenance_target(self, subject_type: str, subject_id: str) -> object:
+        targets = self.provenance_targets().get(subject_type)
+        if targets is None:
+            raise ValueError(f"Unsupported source-registry subject type `{subject_type}`.")
+        if subject_id not in targets:
+            raise ValueError(f"Unknown {subject_type} `{subject_id}`.")
+        return targets[subject_id]
 
     def resolve_source_id(self, value: str) -> str | None:
         normalized = self.lookup_keys.normalize(value)
@@ -897,9 +927,6 @@ class SourceRegistry:
             "manifestation": self.manifestations,
             "release-component": self.release_components,
             "release-package": self.release_packages,
-            "provenance-claim": {
-                item.claim_key: item for item in self.provenance_assertions
-            },
         }
         if target_type not in targets:
             raise ValueError(f"Unknown applicability target type `{target_type}`.")
@@ -957,6 +984,9 @@ class SourceRegistry:
                 )
             return result
         return set()
+
+    def target_work_ids(self, target_type: str, target_id: str) -> set[str]:
+        return self._target_work_ids(target_type, target_id)
 
     def _target_is_within_segment(
         self, target_type: str, target_id: str, segment_id: str
@@ -1042,21 +1072,6 @@ class SourceRegistry:
         active = set(active)
         active.add(key)
 
-        if target_type == "provenance-claim":
-            assertion = next(
-                item
-                for item in self.provenance_assertions
-                if item.claim_key == target_id
-            )
-            if self._applicability_target_match(
-                scope_type,
-                scope_id,
-                assertion.subject_type,
-                assertion.subject_id,
-                active,
-            ) is not None:
-                return "claim-subject"
-            return None
         if scope_type == "work":
             work_ids = self._target_work_ids(target_type, target_id)
             return "contained" if work_ids == {scope_id} else None
@@ -1239,90 +1254,6 @@ class SourceRegistry:
             winners,
             decisions,
         )
-
-    def evaluate_claim_authority(
-        self, profile_id: str, claim_key: str
-    ) -> ClaimAuthorityEvaluation:
-        assertions = tuple(
-            assertion
-            for assertion in self.provenance_assertions
-            if assertion.claim_key == claim_key
-        )
-        if not assertions:
-            raise ValueError(f"Unknown claim key `{claim_key}`.")
-        claim_namespace = assertions[0].claim_namespace
-        decisions = tuple(
-            AuthorityCandidateDecision(
-                f"{assertion.id}:{link.source_id}:{locator.id}",
-                assertion.id,
-                self.authority_decision(
-                    profile_id,
-                    claim_namespace,
-                    link.source_id,
-                    locator.evidence_mode,
-                ),
-            )
-            for assertion in assertions
-            for link in assertion.evidence_links
-            if link.evidence_role == "supports"
-            for locator in link.locators
-        )
-        if not decisions:
-            raise ValueError(
-                f"Claim key `{claim_key}` has no supporting evidence locators."
-            )
-        comparison_groups = {
-            self.sources[item.decision.source_id].comparison_group
-            for item in decisions
-        }
-        if len(comparison_groups) != 1:
-            return ClaimAuthorityEvaluation(
-                "incomparable", profile_id, claim_key, None, (), decisions
-            )
-        profile = self.authority_profiles[profile_id]
-        best_by_assertion: dict[str, int] = {}
-        for item in decisions:
-            assertion_id = str(item.assertion_id)
-            previous = best_by_assertion.get(assertion_id)
-            rank = item.decision.rank
-            if previous is None or (
-                profile.source_priority_order == "ascending" and rank < previous
-            ) or (
-                profile.source_priority_order == "descending" and rank > previous
-            ):
-                best_by_assertion[assertion_id] = rank
-        best_rank = (
-            min(best_by_assertion.values())
-            if profile.source_priority_order == "ascending"
-            else max(best_by_assertion.values())
-        )
-        winning_ids = tuple(
-            assertion.id
-            for assertion in assertions
-            if best_by_assertion.get(assertion.id) == best_rank
-        )
-        if len(winning_ids) == 1:
-            outcome = "winner"
-        else:
-            winning_values = [
-                assertion.asserted_value
-                for assertion in assertions
-                if assertion.id in winning_ids
-            ]
-            outcome = (
-                "tie"
-                if all(value == winning_values[0] for value in winning_values[1:])
-                else "conflict"
-            )
-        return ClaimAuthorityEvaluation(
-            outcome,
-            profile_id,
-            claim_key,
-            best_rank,
-            winning_ids,
-            decisions,
-        )
-
 
 def authority_rule_matches_source(
     rule: AuthorityRule,
@@ -1875,32 +1806,6 @@ def validate_source_position(
     validate_structural_position(
         position, medium, works, segments, ordering_schemes, context
     )
-
-
-def resolve_record_field_path(record: object, field_path: str, context: str) -> object:
-    current = record
-    for token in re.findall(r"[a-z][a-z0-9_]*|\[[0-9]+\]", field_path):
-        if token.startswith("["):
-            index = int(token[1:-1])
-            if not isinstance(current, (list, tuple)) or index >= len(current):
-                raise ValueError(
-                    f"Source registry `{context}` does not resolve on its subject."
-                )
-            current = current[index]
-            continue
-        if isinstance(current, dict):
-            if token not in current:
-                raise ValueError(
-                    f"Source registry `{context}` does not resolve on its subject."
-                )
-            current = current[token]
-        elif hasattr(current, token):
-            current = getattr(current, token)
-        else:
-            raise ValueError(
-                f"Source registry `{context}` does not resolve on its subject."
-            )
-    return current
 
 
 def parse_lifecycle(mapping: dict, context: str) -> str:
@@ -5980,748 +5885,6 @@ def load_source_registry(
             status=status,
         )
 
-    raw_claim_supersessions = registry.get("claim_supersessions")
-    if not isinstance(raw_claim_supersessions, list):
-        raise ValueError("Source registry `claim_supersessions` must be a list.")
-    claim_supersessions: list[ClaimSupersession] = []
-    seen_claim_supersession_ids: set[str] = set()
-    for index, raw_supersession in enumerate(raw_claim_supersessions):
-        context = f"claim_supersessions[{index}]"
-        supersession = require_mapping(raw_supersession, context)
-        supersession_id = require_string(supersession, "id", context)
-        validate_id(supersession_id, f"{context}.id")
-        if supersession_id in seen_claim_supersession_ids:
-            raise ValueError(
-                f"Source registry claim-supersession ID `{supersession_id}` is "
-                "duplicated."
-            )
-        seen_claim_supersession_ids.add(supersession_id)
-        source_claim_key = require_string(
-            supersession, "source_claim_key", context
-        )
-        target_claim_key = require_string(
-            supersession, "target_claim_key", context
-        )
-        validate_id(source_claim_key, f"{context}.source_claim_key")
-        validate_id(target_claim_key, f"{context}.target_claim_key")
-        if source_claim_key == target_claim_key:
-            raise ValueError(
-                f"Source registry `{context}` cannot supersede a claim with itself."
-            )
-        relationship_type = require_string(
-            supersession, "relationship_type", context
-        )
-        validate_pack_values(
-            schema_packs,
-            "narrative.claim-change-type",
-            (relationship_type,),
-            f"{context}.relationship_type",
-        )
-        scope_id = require_string(supersession, "applicability_scope_id", context)
-        if scope_id not in applicability_scopes:
-            raise ValueError(
-                f"Source registry `{context}.applicability_scope_id` references "
-                f"unknown scope `{scope_id}`."
-            )
-        scope = applicability_scopes[scope_id]
-        if scope.target_type != "provenance-claim" or scope.target_id != target_claim_key:
-            raise ValueError(
-                f"Source registry `{context}` scope must target the superseded "
-                f"claim `{target_claim_key}`."
-            )
-        continuity_ids = require_string_list(
-            supersession, "continuity_ids", context
-        )
-        unknown_continuities = set(continuity_ids) - set(continuities)
-        if unknown_continuities:
-            raise ValueError(
-                f"Source registry `{context}.continuity_ids` references unknown "
-                f"continuities: {', '.join(sorted(unknown_continuities))}."
-            )
-        claim_supersessions.append(
-            ClaimSupersession(
-                id=supersession_id,
-                source_claim_key=source_claim_key,
-                relationship_type=relationship_type,
-                target_claim_key=target_claim_key,
-                applicability_scope_id=scope_id,
-                continuity_ids=continuity_ids,
-            )
-        )
-
-    nested_provenance_targets = {
-        "content-group-member": [
-            member
-            for group in content_groups.values()
-            for member in group.members
-        ],
-        "localized-title": [
-            title
-            for owner in (
-                *works.values(),
-                *segments.values(),
-                *content_groups.values(),
-                *manifestations.values(),
-                *release_packages.values(),
-                *catalog_placements.values(),
-            )
-            for title in owner.localized_titles
-        ],
-        "release-run-phase": [
-            phase for run in release_runs.values() for phase in run.phases
-        ],
-        "source-coverage": [
-            coverage
-            for source in sources.values()
-            for coverage in source.coverage
-        ],
-        "source-observation": [
-            observation
-            for source in sources.values()
-            for observation in source.observations
-        ],
-        "coverage-position-range": [
-            position_range
-            for source in sources.values()
-            for coverage in source.coverage
-            for position_range in coverage.position_ranges
-        ],
-        "authority-rule": [
-            rule
-            for profile in authority_profiles.values()
-            for rule in profile.claim_authority_rules
-        ],
-    }
-    for nested_type, nested_records in nested_provenance_targets.items():
-        nested_ids = [record.id for record in nested_records]
-        if len(nested_ids) != len(set(nested_ids)):
-            raise ValueError(
-                f"Source registry {nested_type} IDs must be unique across owners."
-            )
-
-    provenance_targets = {
-        "work": works,
-        "work-production-context": work_production_contexts,
-        "applicability-scope": applicability_scopes,
-        "scoped-continuity-assertion": scoped_continuity_assertions,
-        "claim-supersession": {
-            item.id: item for item in claim_supersessions
-        },
-        "segment": segments,
-        "content-group": content_groups,
-        "work-relationship": {
-            item.id: item for item in work_relationships
-        },
-        "adaptation-mapping": {
-            item.id: item for item in adaptation_mappings
-        },
-        "manifestation": manifestations,
-        "manifestation-relationship": {
-            item.id: item for item in manifestation_relationships
-        },
-        "manifestation-segment-mapping": {
-            item.id: item for item in manifestation_segment_mappings
-        },
-        "release-component": release_components,
-        "release-component-relationship": {
-            item.id: item for item in release_component_relationships
-        },
-        "release-package": release_packages,
-        "release-run": release_runs,
-        "release-event": release_events,
-        "catalog-placement": catalog_placements,
-        "platform-offering": platform_offerings,
-        "source": sources,
-        "source-relationship": {
-            item.id: item for item in source_relationships
-        },
-        **{
-            nested_type: {record.id: record for record in nested_records}
-            for nested_type, nested_records in nested_provenance_targets.items()
-        },
-    }
-
-    def target_work_scope(target_type: str, target_id: str) -> set[str]:
-        if target_type == "work":
-            return {target_id}
-        if target_type == "segment":
-            return {segments[target_id].work_id}
-        if target_type == "content-group":
-            result: set[str] = set()
-            for member in content_groups[target_id].members:
-                result.update(target_work_scope(member.target_type, member.target_id))
-            return result
-        if target_type == "manifestation":
-            return {manifestations[target_id].work_id}
-        if target_type == "release-component":
-            component = release_components[target_id]
-            result = {segments[item].work_id for item in component.segment_ids}
-            if component.manifestation_id is not None:
-                result.add(manifestations[component.manifestation_id].work_id)
-            return result
-        return release_package_work_ids(target_id)
-
-    def target_segment_scope(target_type: str, target_id: str) -> set[str]:
-        if target_type == "segment":
-            return {target_id}
-        if target_type == "content-group":
-            result: set[str] = set()
-            for member in content_groups[target_id].members:
-                result.update(
-                    target_segment_scope(member.target_type, member.target_id)
-                )
-            return result
-        if target_type == "manifestation":
-            return set(manifestations[target_id].segment_ids)
-        if target_type == "release-component":
-            return set(release_components[target_id].segment_ids)
-        if target_type == "release-package":
-            package = release_packages[target_id]
-            result = set(package.segment_ids)
-            for component_id in package.release_component_ids:
-                result.update(release_components[component_id].segment_ids)
-            for manifestation_id in package.manifestation_ids:
-                result.update(manifestations[manifestation_id].segment_ids)
-            return result
-        return set()
-
-    def target_complete_work_scope(target_type: str, target_id: str) -> set[str]:
-        if target_type == "work":
-            return {target_id}
-        if target_type == "content-group":
-            result: set[str] = set()
-            for member in content_groups[target_id].members:
-                result.update(
-                    target_complete_work_scope(
-                        member.target_type, member.target_id
-                    )
-                )
-            return result
-        if target_type == "manifestation":
-            manifestation = manifestations[target_id]
-            return {manifestation.work_id} if not manifestation.segment_ids else set()
-        if target_type == "release-component":
-            component = release_components[target_id]
-            if component.segment_ids or component.manifestation_id is None:
-                return set()
-            manifestation = manifestations[component.manifestation_id]
-            return {manifestation.work_id} if not manifestation.segment_ids else set()
-        if target_type == "release-package":
-            package = release_packages[target_id]
-            result: set[str] = set()
-            for manifestation_id in package.manifestation_ids:
-                manifestation = manifestations[manifestation_id]
-                if not manifestation.segment_ids:
-                    result.add(manifestation.work_id)
-            for component_id in package.release_component_ids:
-                result.update(
-                    target_complete_work_scope(
-                        "release-component", component_id
-                    )
-                )
-            return result
-        return set()
-
-    def position_segment_id(
-        position: dict[str, object], medium: MediumConfig
-    ) -> str | None:
-        validation = medium.structural_validation
-        if (
-            validation is None
-            or validation.strategy != "work-segment-ordering"
-        ):
-            return None
-        return str(position[validation.segment_field])
-
-    def range_contains_positions(
-        coverage_range: CoveragePositionRange,
-        positions: tuple[dict[str, object], ...],
-        medium: MediumConfig,
-        context: str,
-    ) -> bool:
-        range_fields = set(coverage_range.start)
-        if any(not range_fields.issubset(position) for position in positions):
-            return False
-        for position in positions:
-            projected = {field: position[field] for field in range_fields}
-            if compare_positions(
-                coverage_range.start,
-                projected,
-                medium,
-                ordering_schemes,
-                context,
-            ) > 0 or compare_positions(
-                projected,
-                coverage_range.end,
-                medium,
-                ordering_schemes,
-                context,
-            ) > 0:
-                return False
-        return True
-
-    def assert_locator_covered(
-        source: SourceConfig,
-        medium: MediumConfig,
-        evidence_mode: str,
-        positions: tuple[dict[str, object], ...],
-        context: str,
-    ) -> None:
-        work_id = str(positions[0][medium.work_scope_field])
-        if source.coverage:
-            covered = False
-            for coverage_entry in source.coverage:
-                if (
-                    coverage_entry.medium_id != medium.id
-                    or evidence_mode not in coverage_entry.evidence_modes
-                ):
-                    continue
-                if work_id not in target_work_scope(
-                    coverage_entry.target_type, coverage_entry.target_id
-                ):
-                    continue
-                if coverage_entry.position_ranges and any(
-                    range_contains_positions(
-                        coverage_range, positions, medium, context
-                    )
-                    for coverage_range in coverage_entry.position_ranges
-                ):
-                    covered = True
-                    break
-                segment_ids = {
-                    position_segment_id(position, medium)
-                    for position in positions
-                }
-                target_segments = target_segment_scope(
-                    coverage_entry.target_type, coverage_entry.target_id
-                )
-                if (
-                    coverage_entry.coverage_type == "complete"
-                    and not coverage_entry.position_ranges
-                    and work_id
-                    in target_complete_work_scope(
-                        coverage_entry.target_type, coverage_entry.target_id
-                    )
-                ):
-                    covered = True
-                    break
-                if None not in segment_ids and segment_ids.issubset(target_segments):
-                    covered = True
-                    break
-            if not covered:
-                raise ValueError(
-                    f"Source registry `{context}` falls outside the evidence "
-                    f"source's declared coverage."
-                )
-
-        scope_sets: list[set[str]] = []
-        if source.manifestation_id is not None:
-            manifestation_segments = set(
-                manifestations[source.manifestation_id].segment_ids
-            )
-            if manifestation_segments:
-                scope_sets.append(manifestation_segments)
-        for component_id in source.release_component_ids:
-            component_segments = set(release_components[component_id].segment_ids)
-            if component_segments:
-                scope_sets.append(component_segments)
-        if source.release_package_id is not None:
-            package = release_packages[source.release_package_id]
-            if package.segment_ids and not package.manifestation_ids:
-                scope_sets.append(set(package.segment_ids))
-        if scope_sets:
-            segment_ids = {
-                position_segment_id(position, medium) for position in positions
-            }
-            if None in segment_ids or any(
-                not segment_ids.issubset(scope) for scope in scope_sets
-            ):
-                raise ValueError(
-                    f"Source registry `{context}` falls outside the evidence "
-                    "source's segment scope."
-                )
-
-    raw_provenance_assertions = registry.get("provenance_assertions")
-    if not isinstance(raw_provenance_assertions, list):
-        raise ValueError(
-            "Source registry `provenance_assertions` must be a list."
-        )
-    provenance_assertions: list[ProvenanceAssertion] = []
-    seen_provenance_ids: set[str] = set()
-    seen_locator_ids: set[str] = set()
-    claim_shapes: dict[str, tuple[str, str, str, str | None]] = {}
-    for index, raw_assertion in enumerate(raw_provenance_assertions):
-        context = f"provenance_assertions[{index}]"
-        assertion = require_mapping(raw_assertion, context)
-        assertion_id = require_string(assertion, "id", context)
-        validate_id(assertion_id, f"{context}.id")
-        if assertion_id in seen_provenance_ids:
-            raise ValueError(
-                f"Source registry provenance assertion ID `{assertion_id}` is "
-                "duplicated."
-            )
-        seen_provenance_ids.add(assertion_id)
-        claim_key = require_string(assertion, "claim_key", context)
-        validate_id(claim_key, f"{context}.claim_key")
-        subject_type = require_string(assertion, "subject_type", context)
-        validate_pack_values(
-            schema_packs,
-            "provenance.subject-type",
-            (subject_type,),
-            f"{context}.subject_type",
-        )
-        subject_id = require_string(assertion, "subject_id", context)
-        if (
-            subject_type not in provenance_targets
-            or subject_id not in provenance_targets[subject_type]
-        ):
-            raise ValueError(
-                f"Source registry `{context}.subject_id` references unknown "
-                f"{subject_type} `{subject_id}`."
-            )
-        claim_namespace = require_string(
-            assertion, "claim_namespace", context
-        )
-        validate_pack_values(
-            schema_packs,
-            "provenance.claim-namespace",
-            (claim_namespace,),
-            f"{context}.claim_namespace",
-        )
-        field_path = optional_string(assertion, "field_path", context)
-        if field_path is not None and not FIELD_PATH_PATTERN.fullmatch(
-            field_path
-        ):
-            raise ValueError(
-                f"Source registry `{context}.field_path` must be a dotted/indexed "
-                "machine field path."
-            )
-        if field_path is not None:
-            resolve_record_field_path(
-                provenance_targets[subject_type][subject_id],
-                field_path,
-                f"{context}.field_path",
-            )
-        claim_shape = (subject_type, subject_id, claim_namespace, field_path)
-        previous_shape = claim_shapes.get(claim_key)
-        if previous_shape is not None and previous_shape != claim_shape:
-            raise ValueError(
-                f"Source registry claim key `{claim_key}` is reused for a "
-                "different subject, namespace, or field path."
-            )
-        claim_shapes[claim_key] = claim_shape
-        if "asserted_value" not in assertion:
-            raise ValueError(
-                f"Source registry `{context}.asserted_value` is required, "
-                "including when the asserted value is null."
-            )
-        asserted_value = assertion["asserted_value"]
-        assertion_status = require_string(
-            assertion, "assertion_status", context
-        )
-        validate_pack_values(
-            schema_packs,
-            "provenance.assertion-status",
-            (assertion_status,),
-            f"{context}.assertion_status",
-        )
-        observed_at = parse_temporal_window(
-            assertion, "observed_at", context, schema_packs
-        )
-        effective_window = parse_temporal_window(
-            assertion, "effective_window", context, schema_packs
-        )
-        raw_evidence_links = assertion.get("evidence_links")
-        if not isinstance(raw_evidence_links, list) or not raw_evidence_links:
-            raise ValueError(
-                f"Source registry `{context}.evidence_links` must be a non-empty "
-                "list."
-            )
-        evidence_links: list[ProvenanceEvidenceLink] = []
-        seen_evidence_sources: set[str] = set()
-        for evidence_index, raw_link in enumerate(raw_evidence_links):
-            evidence_context = (
-                f"{context}.evidence_links[{evidence_index}]"
-            )
-            link = require_mapping(raw_link, evidence_context)
-            evidence_source_id = require_string(
-                link, "source_id", evidence_context
-            )
-            if evidence_source_id not in sources:
-                raise ValueError(
-                    f"Source registry `{evidence_context}.source_id` references "
-                    f"unknown source `{evidence_source_id}`."
-                )
-            if evidence_source_id in seen_evidence_sources:
-                raise ValueError(
-                    f"Source registry `{context}.evidence_links` repeats source "
-                    f"`{evidence_source_id}`."
-                )
-            seen_evidence_sources.add(evidence_source_id)
-            evidence_role = require_string(
-                link, "evidence_role", evidence_context
-            )
-            validate_pack_values(
-                schema_packs,
-                "provenance.evidence-role",
-                (evidence_role,),
-                f"{evidence_context}.evidence_role",
-            )
-            raw_locators = link.get("locators")
-            if not isinstance(raw_locators, list) or not raw_locators:
-                raise ValueError(
-                    f"Source registry `{evidence_context}.locators` must be a "
-                    "non-empty list."
-                )
-            locators: list[EvidenceLocator] = []
-            seen_locator_shapes: set[tuple[str, str, str, str]] = set()
-            for locator_index, raw_locator in enumerate(raw_locators):
-                locator_context = (
-                    f"{evidence_context}.locators[{locator_index}]"
-                )
-                locator = require_mapping(raw_locator, locator_context)
-                locator_id = require_string(locator, "id", locator_context)
-                validate_id(locator_id, f"{locator_context}.id")
-                if locator_id in seen_locator_ids:
-                    raise ValueError(
-                        f"Source registry evidence-locator ID `{locator_id}` is "
-                        "duplicated."
-                    )
-                seen_locator_ids.add(locator_id)
-                locator_medium_id = require_string(
-                    locator, "medium_id", locator_context
-                )
-                if locator_medium_id not in mediums:
-                    raise ValueError(
-                        f"Source registry `{locator_context}.medium_id` references "
-                        f"unknown medium `{locator_medium_id}`."
-                    )
-                if locator_medium_id not in sources[evidence_source_id].locator_medium_ids:
-                    raise ValueError(
-                        f"Source registry `{locator_context}.medium_id` is not "
-                        "allowed by the evidence source."
-                    )
-                evidence_mode = require_string(
-                    locator, "evidence_mode", locator_context
-                )
-                if evidence_mode not in sources[evidence_source_id].evidence_modes:
-                    raise ValueError(
-                        f"Source registry `{locator_context}.evidence_mode` is not "
-                        "declared by the evidence source."
-                    )
-                locator_type = require_string(
-                    locator, "locator_type", locator_context
-                )
-                validate_pack_values(
-                    schema_packs,
-                    "provenance.locator-type",
-                    (locator_type,),
-                    f"{locator_context}.locator_type",
-                )
-                locator_medium = mediums[locator_medium_id]
-                position = None
-                start = None
-                end = None
-                if locator_type == "point":
-                    if "start" in locator or "end" in locator:
-                        raise ValueError(
-                            f"Source registry `{locator_context}` point locator "
-                            "cannot declare start or end."
-                        )
-                    position = require_mapping(
-                        locator.get("position"), f"{locator_context}.position"
-                    )
-                    validate_source_position(
-                        position,
-                        locator_medium,
-                        sources[evidence_source_id].work_ids,
-                        works,
-                        segments,
-                        ordering_schemes,
-                        f"{locator_context}.position",
-                    )
-                    assert_locator_covered(
-                        sources[evidence_source_id],
-                        locator_medium,
-                        evidence_mode,
-                        (position,),
-                        locator_context,
-                    )
-                    shape_value = repr(sorted(position.items()))
-                else:
-                    if "position" in locator:
-                        raise ValueError(
-                            f"Source registry `{locator_context}` range locator "
-                            "cannot declare position."
-                        )
-                    start = require_mapping(
-                        locator.get("start"), f"{locator_context}.start"
-                    )
-                    end = require_mapping(
-                        locator.get("end"), f"{locator_context}.end"
-                    )
-                    if set(start) != set(end):
-                        raise ValueError(
-                            f"Source registry `{locator_context}` range start/end "
-                            "fields must be identical."
-                        )
-                    validate_source_position(
-                        start,
-                        locator_medium,
-                        sources[evidence_source_id].work_ids,
-                        works,
-                        segments,
-                        ordering_schemes,
-                        f"{locator_context}.start",
-                    )
-                    validate_source_position(
-                        end,
-                        locator_medium,
-                        sources[evidence_source_id].work_ids,
-                        works,
-                        segments,
-                        ordering_schemes,
-                        f"{locator_context}.end",
-                    )
-                    work_scope_field = locator_medium.work_scope_field
-                    if start[work_scope_field] != end[work_scope_field]:
-                        raise ValueError(
-                            f"Source registry `{locator_context}` range endpoints "
-                            "must identify the same work."
-                        )
-                    if compare_positions(
-                        start,
-                        end,
-                        locator_medium,
-                        ordering_schemes,
-                        locator_context,
-                    ) > 0:
-                        raise ValueError(
-                            f"Source registry `{locator_context}` range start must "
-                            "not follow end."
-                        )
-                    assert_locator_covered(
-                        sources[evidence_source_id],
-                        locator_medium,
-                        evidence_mode,
-                        (start, end),
-                        locator_context,
-                    )
-                    shape_value = (
-                        f"{repr(sorted(start.items()))}|"
-                        f"{repr(sorted(end.items()))}"
-                    )
-                locator_shape = (
-                    locator_medium_id,
-                    evidence_mode,
-                    locator_type,
-                    shape_value,
-                )
-                if locator_shape in seen_locator_shapes:
-                    raise ValueError(
-                        f"Source registry `{evidence_context}.locators` repeats a "
-                        "locator."
-                    )
-                seen_locator_shapes.add(locator_shape)
-                locators.append(
-                    EvidenceLocator(
-                        locator_id,
-                        locator_medium_id,
-                        evidence_mode,
-                        locator_type,
-                        dict(position) if position is not None else None,
-                        dict(start) if start is not None else None,
-                        dict(end) if end is not None else None,
-                    )
-                )
-            evidence_links.append(
-                ProvenanceEvidenceLink(
-                    evidence_source_id, evidence_role, tuple(locators)
-                )
-            )
-        evidence_roles = {link.evidence_role for link in evidence_links}
-        if assertion_status in {"verified", "inferred"} and "supports" not in evidence_roles:
-            raise ValueError(
-                f"Source registry `{context}` status `{assertion_status}` requires "
-                "supporting evidence."
-            )
-        if assertion_status == "disputed" and not {
-            "supports",
-            "contradicts",
-        }.issubset(evidence_roles):
-            raise ValueError(
-                f"Source registry `{context}` disputed status requires supporting "
-                "and contradicting evidence."
-            )
-        provenance_assertions.append(
-            ProvenanceAssertion(
-                assertion_id,
-                claim_key,
-                subject_type,
-                subject_id,
-                claim_namespace,
-                field_path,
-                asserted_value,
-                assertion_status,
-                observed_at,
-                effective_window,
-                tuple(evidence_links),
-            )
-        )
-
-    for scope in applicability_scopes.values():
-        if (
-            scope.target_type == "provenance-claim"
-            and scope.target_id not in claim_shapes
-        ):
-            raise ValueError(
-                f"Source registry applicability scope `{scope.id}` references "
-                f"unknown provenance claim `{scope.target_id}`."
-            )
-
-    claim_supersession_edges: dict[str, set[str]] = {}
-    for supersession in claim_supersessions:
-        if supersession.source_claim_key not in claim_shapes:
-            raise ValueError(
-                f"Source registry claim supersession `{supersession.id}` references "
-                f"unknown source claim `{supersession.source_claim_key}`."
-            )
-        if supersession.target_claim_key not in claim_shapes:
-            raise ValueError(
-                f"Source registry claim supersession `{supersession.id}` references "
-                f"unknown target claim `{supersession.target_claim_key}`."
-            )
-        if claim_shapes[supersession.source_claim_key] != claim_shapes[
-            supersession.target_claim_key
-        ]:
-            raise ValueError(
-                f"Source registry claim supersession `{supersession.id}` must "
-                "relate claims with the same subject, namespace, and field path."
-            )
-        claim_supersession_edges.setdefault(
-            supersession.source_claim_key, set()
-        ).add(supersession.target_claim_key)
-
-    visited_claims: set[str] = set()
-    active_claims: set[str] = set()
-
-    def visit_claim_supersession(claim_key: str) -> None:
-        if claim_key in active_claims:
-            raise ValueError(
-                f"Source registry contains a claim-supersession cycle involving "
-                f"`{claim_key}`."
-            )
-        if claim_key in visited_claims:
-            return
-        active_claims.add(claim_key)
-        for target_claim_key in claim_supersession_edges.get(claim_key, set()):
-            visit_claim_supersession(target_claim_key)
-        active_claims.remove(claim_key)
-        visited_claims.add(claim_key)
-
-    for claim_key in claim_supersession_edges:
-        visit_claim_supersession(claim_key)
-
     raw_external_identifiers = registry.get("external_identifiers")
     if not isinstance(raw_external_identifiers, list):
         raise ValueError(
@@ -6838,7 +6001,6 @@ def load_source_registry(
         work_production_contexts=work_production_contexts,
         applicability_scopes=applicability_scopes,
         scoped_continuity_assertions=scoped_continuity_assertions,
-        claim_supersessions=tuple(claim_supersessions),
         segments=segments,
         content_groups=content_groups,
         numbering_schemes=numbering_schemes,
@@ -6869,7 +6031,6 @@ def load_source_registry(
         source_relationship_types=source_relationship_types,
         sources=sources,
         source_relationships=tuple(source_relationships),
-        provenance_assertions=tuple(provenance_assertions),
         lookup_keys=lookup_keys,
         source_aliases=aliases,
         identifier_schemes=identifier_schemes,

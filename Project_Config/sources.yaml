@@ -1,4 +1,4 @@
-schema_version: 15
+schema_version: 16
 
 default_authority_profile_id: lotm-adaptation-comparison
 
@@ -732,7 +732,6 @@ territories: {}
 applicability_scopes: []
 scoped_continuity_assertions: []
 work_production_contexts: []
-claim_supersessions: []
 platforms: {}
 
 manifestation_relationship_types:
@@ -1229,6 +1228,5 @@ source_relationships:
     relationship_type: packaged-with
     target_source_id: lotm-book-1-novel
 
-provenance_assertions: []
 
 external_identifiers: []

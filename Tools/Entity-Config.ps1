@@ -543,6 +543,10 @@ function Get-KnowledgeIncarnationRelationships {
   })
 }
 
+function Get-KnowledgeEntityProvenanceSubjectTypes {
+  return @("entity","entity-relationship","entity-incarnation","incarnation-binding","incarnation-relationship")
+}
+
 function Get-KnowledgeEntityProvenanceTarget {
   param([object]$EntityRegistry, [string]$SubjectType, [string]$SubjectId)
 

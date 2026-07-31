@@ -117,6 +117,8 @@ Project_Config/
   taxonomy.yaml
   resources.yaml
   sources.yaml
+  provenance.yaml
+  entities.yaml
   LoTM project identity, selected and activated packs, stable content/resource
   roots, registry discovery, local taxonomy, repository resources, sources, and lookup-key selection
 

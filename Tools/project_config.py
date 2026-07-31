@@ -6,7 +6,7 @@ import yaml
 
 
 PROJECT_MANIFEST_PATH = Path("Project_Config") / "project.yaml"
-SUPPORTED_SCHEMA_VERSION = 5
+SUPPORTED_SCHEMA_VERSION = 6
 PROVENANCE_MODES = {"child-directory", "fixed", "slug-prefix"}
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
@@ -51,6 +51,7 @@ class ProjectConfig:
     resources_registry: Path
     sources_registry: Path
     entities_registry: Path
+    provenance_registry: Path
 
 
 def is_project_root(path: Path) -> bool:
@@ -315,6 +316,12 @@ def load_project_config(root: Path) -> ProjectConfig:
         "registries.entities",
         must_exist=True,
     )
+    _, provenance_registry = resolve_manifest_path(
+        resolved_root,
+        require_string(registries, "provenance", "registries"),
+        "registries.provenance",
+        must_exist=True,
+    )
 
     return ProjectConfig(
         root=resolved_root,
@@ -338,4 +345,5 @@ def load_project_config(root: Path) -> ProjectConfig:
         resources_registry=resources_registry,
         sources_registry=sources_registry,
         entities_registry=entities_registry,
+        provenance_registry=provenance_registry,
     )

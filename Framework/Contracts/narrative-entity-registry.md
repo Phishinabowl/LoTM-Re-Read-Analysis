@@ -49,7 +49,7 @@ Continuity membership and material applicability are different facts. An incarna
 
 ## Provenance And Pages
 
-Entity, entity-relationship, incarnation, binding, and incarnation-relationship IDs are stable provenance-addressable records. The paired loaders expose typed lookup APIs so a future central provenance service can validate assertions across registries. Source-registry assertions do not yet accept these cross-registry targets; do not duplicate locator or evidence logic inside `entities.yaml`.
+Entity, entity-relationship, entity-incarnation, incarnation-binding, and incarnation-relationship IDs are stable provenance-addressable records. The paired loaders expose typed lookup APIs consumed by the standalone provenance registry. Do not duplicate locator, evidence, assertion, or claim-supersession logic inside `entities.yaml`.
 
 Canonical pages do not yet store entity or incarnation IDs. That migration must use the shared mutation service and preserve page slugs as presentation/storage identifiers rather than silently treating a rename as a new conceptual entity. Until then, an empty project entity registry is valid and preferable to speculative incarnation splits.
 

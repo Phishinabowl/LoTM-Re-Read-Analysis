@@ -1,5 +1,5 @@
 $script:ProjectManifestPath = "Project_Config/project.yaml"
-$script:SupportedProjectSchemaVersion = 5
+$script:SupportedProjectSchemaVersion = 6
 $script:AllowedProvenanceModes = @("child-directory", "fixed", "slug-prefix")
 $script:StableProjectIdPattern = "^[a-z0-9]+(?:-[a-z0-9]+)*$"
 
@@ -230,5 +230,6 @@ function Get-KnowledgeProjectConfig {
     resources_registry = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $registries "resources" "registries") "registries.resources" $true
     sources_registry = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $registries "sources" "registries") "registries.sources" $true
     entities_registry = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $registries "entities" "registries") "registries.entities" $true
+    provenance_registry = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $registries "provenance" "registries") "registries.provenance" $true
   }
 }

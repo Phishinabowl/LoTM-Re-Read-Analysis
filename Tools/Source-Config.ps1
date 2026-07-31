@@ -15,7 +15,7 @@ if (-not (Get-Command Get-KnowledgeLookupKeyConfig -ErrorAction SilentlyContinue
   . $lookupKeyConfigHelper
 }
 
-$script:SupportedSourceSchemaVersion = 15
+$script:SupportedSourceSchemaVersion = 16
 $script:AllowedSourceLifecycles = @("active", "deferred")
 $script:AllowedPositionFieldTypes = @("string", "integer", "number", "timestamp", "boolean")
 $script:AllowedPriorityOrders = @("ascending", "descending")
@@ -25,7 +25,6 @@ $script:AllowedChapterNumberingModes = @("work-local", "series-global", "not-app
 $script:AllowedVolumeCatalogStatuses = @("verified", "pending-verification", "not-applicable")
 $script:AllowedOrderingModes = @("total", "partial")
 $script:SourceFieldIdPattern = "^[a-z][a-z0-9_]*$"
-$script:SourceFieldPathPattern = "^[a-z][a-z0-9_]*(?:(?:\.[a-z][a-z0-9_]*)|(?:\[[0-9]+\]))*$"
 $script:SourceLanguageTagPattern = "^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$"
 
 function Get-RequiredSourceString {
@@ -589,24 +588,6 @@ function Assert-SourceLocatorCoverage {
   }
 }
 
-function Resolve-SourceRecordFieldPath {
-  param([object]$Record,[string]$FieldPath,[string]$Context)
-  $current=$Record
-  foreach($match in [regex]::Matches($FieldPath,'[a-z][a-z0-9_]*|\[[0-9]+\]')){
-    $token=$match.Value
-    if($token.StartsWith('[')){
-      $index=[int]$token.Trim('[',']')
-      if($current -is [string] -or $current -isnot [System.Collections.IList] -or $index -ge $current.Count){throw "Source registry '$Context' does not resolve on its subject."}
-      $current=$current[$index];continue
-    }
-    if($current -is [System.Collections.IDictionary]){if(-not $current.Contains($token)){throw "Source registry '$Context' does not resolve on its subject."};$current=$current[$token];continue}
-    $property=$current.PSObject.Properties[$token]
-    if($null -eq $property){throw "Source registry '$Context' does not resolve on its subject."}
-    $current=$property.Value
-  }
-  return $current
-}
-
 function ConvertTo-SourceIdMap {
   param([object[]]$Records)
   $result=[ordered]@{}
@@ -846,11 +827,6 @@ function Get-KnowledgeApplicabilityTargetMatch {
   if($ScopeType -eq $TargetType -and $ScopeId -eq $TargetId){return "exact"}
   $next=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
   foreach($item in $Active){[void]$next.Add($item)};[void]$next.Add($key)
-  if($TargetType -eq "provenance-claim"){
-    $assertion=@($SourceRegistry.provenance_assertions|Where-Object {$_.claim_key -eq $TargetId})[0]
-    if($null -ne (Get-KnowledgeApplicabilityTargetMatch $SourceRegistry $ScopeType $ScopeId $assertion.subject_type $assertion.subject_id $next)){return "claim-subject"}
-    return $null
-  }
   if($ScopeType -eq "work"){$workIds=@(Get-KnowledgeApplicabilityTargetWorkIds $SourceRegistry $TargetType $TargetId);if($workIds.Count -eq 1 -and $workIds[0] -eq $ScopeId){return "contained"};return $null}
   if($ScopeType -eq "segment"){if(Test-KnowledgeApplicabilityTargetWithinSegment $SourceRegistry $TargetType $TargetId $ScopeId){return "contained"};return $null}
   if($ScopeType -eq "content-group"){if(Test-KnowledgeApplicabilityGroupContains $SourceRegistry $ScopeId $TargetType $TargetId $next){return "contained"};return $null}
@@ -906,7 +882,6 @@ function Get-KnowledgeApplicabilityDecision {
     "manifestation"{$targetExists=$SourceRegistry.manifestations.Contains($TargetId)}
     "release-component"{$targetExists=$SourceRegistry.release_components.Contains($TargetId)}
     "release-package"{$targetExists=$SourceRegistry.release_packages.Contains($TargetId)}
-    "provenance-claim"{$targetExists=@($SourceRegistry.provenance_assertions|Where-Object {$_.claim_key -eq $TargetId}).Count -gt 0}
     default{throw "Unknown applicability target type '$TargetType'."}
   }
   if(-not $targetExists){throw "Unknown $TargetType applicability target '$TargetId'."}
@@ -2445,150 +2420,6 @@ function Get-KnowledgeSourceRegistry {
     $scopedContinuityAssertions[$assertionId]=[pscustomobject]@{id=$assertionId;applicability_scope_id=$scopeId;continuity_id=$continuityId;status=$status}
   }
 
-  if(-not $registry.Contains("claim_supersessions")){throw "Source registry 'claim_supersessions' must be a list."}
-  $rawClaimSupersessions=$registry["claim_supersessions"]
-  if($null -eq $rawClaimSupersessions){$rawClaimSupersessions=@()}
-  elseif($rawClaimSupersessions -isnot [System.Collections.IList]){throw "Source registry 'claim_supersessions' must be a list."}
-  $claimSupersessions=@();$seenClaimSupersessionIds=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
-  for($index=0;$index -lt $rawClaimSupersessions.Count;$index++){
-    $context="claim_supersessions[$index]";$supersession=$rawClaimSupersessions[$index]
-    $supersessionId=Get-RequiredSourceString $supersession "id" $context;Test-StableSourceId $supersessionId "$context.id"
-    if(-not $seenClaimSupersessionIds.Add($supersessionId)){throw "Source registry claim-supersession ID '$supersessionId' is duplicated."}
-    $sourceClaimKey=Get-RequiredSourceString $supersession "source_claim_key" $context;Test-StableSourceId $sourceClaimKey "$context.source_claim_key"
-    $targetClaimKey=Get-RequiredSourceString $supersession "target_claim_key" $context;Test-StableSourceId $targetClaimKey "$context.target_claim_key"
-    if($sourceClaimKey -eq $targetClaimKey){throw "Source registry '$context' cannot supersede a claim with itself."}
-    $relationshipType=Get-RequiredSourceString $supersession "relationship_type" $context
-    Assert-SourceSchemaPackValues $SchemaPackRegistry "narrative.claim-change-type" @($relationshipType) "$context.relationship_type"
-    $scopeId=Get-RequiredSourceString $supersession "applicability_scope_id" $context
-    if(-not $applicabilityScopes.Contains($scopeId)){throw "Source registry '$context.applicability_scope_id' references unknown scope '$scopeId'."}
-    $scope=$applicabilityScopes[$scopeId]
-    if($scope.target_type -ne "provenance-claim" -or $scope.target_id -ne $targetClaimKey){throw "Source registry '$context' scope must target the superseded claim '$targetClaimKey'."}
-    $continuityIds=@(Get-SourceStringListAllowEmpty $supersession "continuity_ids" $context)
-    $unknownContinuities=@($continuityIds|Where-Object {-not $continuities.Contains($_)}|Sort-Object -Unique)
-    if($unknownContinuities.Count -gt 0){throw "Source registry '$context.continuity_ids' references unknown continuities: $($unknownContinuities -join ', ')."}
-    $claimSupersessions += [pscustomobject]@{id=$supersessionId;source_claim_key=$sourceClaimKey;relationship_type=$relationshipType;target_claim_key=$targetClaimKey;applicability_scope_id=$scopeId;continuity_ids=@($continuityIds)}
-  }
-
-  $nestedIdCollections=[ordered]@{
-    "content-group-member"=@($contentGroups.Values|ForEach-Object {$_.members}|ForEach-Object {$_.id})
-    "localized-title"=@(@($works.Values)+@($segments.Values)+@($contentGroups.Values)+@($manifestations.Values)+@($releasePackages.Values)+@($catalogPlacements.Values)|ForEach-Object {$_.localized_titles}|ForEach-Object {$_.id})
-    "release-run-phase"=@($releaseRuns.Values|ForEach-Object {$_.phases}|ForEach-Object {$_.id})
-    "source-coverage"=@($sources.Values|ForEach-Object {$_.coverage}|ForEach-Object {$_.id})
-    "source-observation"=@($sources.Values|ForEach-Object {$_.observations}|ForEach-Object {$_.id})
-    "coverage-position-range"=@($sources.Values|ForEach-Object {$_.coverage}|ForEach-Object {$_.position_ranges}|ForEach-Object {$_.id})
-    "authority-rule"=@($authorityProfiles.Values|ForEach-Object {$_.claim_authority_rules}|ForEach-Object {$_.id})
-  }
-  foreach($nestedType in $nestedIdCollections.Keys){
-    $seenNestedIds=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
-    foreach($nestedId in $nestedIdCollections[$nestedType]){
-      if(-not $seenNestedIds.Add($nestedId)){throw "Source registry $nestedType ID '$nestedId' is duplicated across owners."}
-    }
-  }
-
-  $provenanceTargets=[ordered]@{
-    "work"=$works;"work-production-context"=$workProductionContexts;"applicability-scope"=$applicabilityScopes;"scoped-continuity-assertion"=$scopedContinuityAssertions;"claim-supersession"=(ConvertTo-SourceIdMap $claimSupersessions);"segment"=$segments;"content-group"=$contentGroups
-    "work-relationship"=$workRelationshipMap;"adaptation-mapping"=$adaptationMappingMap
-    "manifestation"=$manifestations;"manifestation-relationship"=(ConvertTo-SourceIdMap $manifestationRelationships);"manifestation-segment-mapping"=(ConvertTo-SourceIdMap $manifestationSegmentMappings)
-    "release-component"=$releaseComponents;"release-component-relationship"=(ConvertTo-SourceIdMap $releaseComponentRelationships);"release-package"=$releasePackages
-    "release-run"=$releaseRuns;"release-event"=$releaseEvents;"catalog-placement"=$catalogPlacements;"platform-offering"=$platformOfferings
-    "source"=$sources;"source-relationship"=(ConvertTo-SourceIdMap $sourceRelationships)
-    "content-group-member"=(ConvertTo-SourceIdMap @($contentGroups.Values|ForEach-Object {$_.members}))
-    "localized-title"=(ConvertTo-SourceIdMap @(@($works.Values)+@($segments.Values)+@($contentGroups.Values)+@($manifestations.Values)+@($releasePackages.Values)+@($catalogPlacements.Values)|ForEach-Object {$_.localized_titles}))
-    "release-run-phase"=(ConvertTo-SourceIdMap @($releaseRuns.Values|ForEach-Object {$_.phases}))
-    "source-coverage"=(ConvertTo-SourceIdMap @($sources.Values|ForEach-Object {$_.coverage}))
-    "source-observation"=(ConvertTo-SourceIdMap @($sources.Values|ForEach-Object {$_.observations}))
-    "coverage-position-range"=(ConvertTo-SourceIdMap @($sources.Values|ForEach-Object {$_.coverage}|ForEach-Object {$_.position_ranges}))
-    "authority-rule"=(ConvertTo-SourceIdMap @($authorityProfiles.Values|ForEach-Object {$_.claim_authority_rules}))
-  }
-
-  $provenanceAssertions=@();$seenProvenanceIds=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal);$seenLocatorIds=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal);$claimShapes=[ordered]@{}
-  $rawProvenanceAssertions=@(Get-ProjectMapValue $registry "provenance_assertions")
-  for($index=0;$index -lt $rawProvenanceAssertions.Count;$index++){
-    $context="provenance_assertions[$index]";$assertion=$rawProvenanceAssertions[$index]
-    $id=Get-RequiredSourceString $assertion "id" $context;Test-StableSourceId $id "$context.id"
-    if(-not $seenProvenanceIds.Add($id)){throw "Source registry provenance assertion ID '$id' is duplicated."}
-    $claimKey=Get-RequiredSourceString $assertion "claim_key" $context;Test-StableSourceId $claimKey "$context.claim_key"
-    $subjectType=Get-RequiredSourceString $assertion "subject_type" $context
-    Assert-SourceSchemaPackValues $SchemaPackRegistry "provenance.subject-type" @($subjectType) "$context.subject_type"
-    $subjectId=Get-RequiredSourceString $assertion "subject_id" $context
-    if(-not $provenanceTargets.Contains($subjectType) -or -not $provenanceTargets[$subjectType].Contains($subjectId)){throw "Source registry '$context.subject_id' references unknown $subjectType '$subjectId'."}
-    $claimNamespace=Get-RequiredSourceString $assertion "claim_namespace" $context
-    Assert-SourceSchemaPackValues $SchemaPackRegistry "provenance.claim-namespace" @($claimNamespace) "$context.claim_namespace"
-    $fieldPath=Get-OptionalSourceString $assertion "field_path" $context
-    if($null -ne $fieldPath -and $fieldPath -notmatch $script:SourceFieldPathPattern){throw "Source registry '$context.field_path' must be a dotted/indexed machine field path."}
-    if($null -ne $fieldPath){$null=Resolve-SourceRecordFieldPath $provenanceTargets[$subjectType][$subjectId] $fieldPath "$context.field_path"}
-    $claimShape="$subjectType|$subjectId|$claimNamespace|$fieldPath"
-    if($claimShapes.Contains($claimKey) -and $claimShapes[$claimKey] -ne $claimShape){throw "Source registry claim key '$claimKey' is reused for a different subject, namespace, or field path."}
-    $claimShapes[$claimKey]=$claimShape
-    if(-not $assertion.Contains("asserted_value")){throw "Source registry '$context.asserted_value' is required."};$assertedValue=Get-ProjectMapValue $assertion "asserted_value"
-    $assertionStatus=Get-RequiredSourceString $assertion "assertion_status" $context
-    Assert-SourceSchemaPackValues $SchemaPackRegistry "provenance.assertion-status" @($assertionStatus) "$context.assertion_status"
-    $rawEvidenceLinks=@(Get-ProjectMapValue $assertion "evidence_links")
-    if($rawEvidenceLinks.Count -eq 0){throw "Source registry '$context.evidence_links' must be a non-empty list."}
-    $evidenceLinks=@();$seenEvidenceSources=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
-    for($evidenceIndex=0;$evidenceIndex -lt $rawEvidenceLinks.Count;$evidenceIndex++){
-      $evidenceContext="$context.evidence_links[$evidenceIndex]";$link=$rawEvidenceLinks[$evidenceIndex]
-      $evidenceSourceId=Get-RequiredSourceString $link "source_id" $evidenceContext
-      if(-not $sources.Contains($evidenceSourceId)){throw "Source registry '$evidenceContext.source_id' references unknown source '$evidenceSourceId'."}
-      if(-not $seenEvidenceSources.Add($evidenceSourceId)){throw "Source registry '$context.evidence_links' repeats source '$evidenceSourceId'."}
-      $evidenceRole=Get-RequiredSourceString $link "evidence_role" $evidenceContext
-      Assert-SourceSchemaPackValues $SchemaPackRegistry "provenance.evidence-role" @($evidenceRole) "$evidenceContext.evidence_role"
-      $rawLocators=@(Get-ProjectMapValue $link "locators");if($rawLocators.Count -eq 0){throw "Source registry '$evidenceContext.locators' must be a non-empty list."}
-      $locators=@();$seenLocatorShapes=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
-      for($locatorIndex=0;$locatorIndex -lt $rawLocators.Count;$locatorIndex++){
-        $locatorContext="$evidenceContext.locators[$locatorIndex]";$locator=$rawLocators[$locatorIndex]
-        $locatorId=Get-RequiredSourceString $locator "id" $locatorContext;Test-StableSourceId $locatorId "$locatorContext.id";if(-not $seenLocatorIds.Add($locatorId)){throw "Source registry evidence-locator ID '$locatorId' is duplicated."}
-        $locatorMediumId=Get-RequiredSourceString $locator "medium_id" $locatorContext;if(-not $mediums.Contains($locatorMediumId)){throw "Source registry '$locatorContext.medium_id' references unknown medium '$locatorMediumId'."}
-        if($sources[$evidenceSourceId].locator_medium_ids -notcontains $locatorMediumId){throw "Source registry '$locatorContext.medium_id' is not allowed by the evidence source."}
-        $evidenceMode=Get-RequiredSourceString $locator "evidence_mode" $locatorContext
-        if($sources[$evidenceSourceId].evidence_modes -notcontains $evidenceMode){throw "Source registry '$locatorContext.evidence_mode' is not declared by the evidence source."}
-        $locatorType=Get-RequiredSourceString $locator "locator_type" $locatorContext;Assert-SourceSchemaPackValues $SchemaPackRegistry "provenance.locator-type" @($locatorType) "$locatorContext.locator_type"
-        $locatorMedium=$mediums[$locatorMediumId];$position=$null;$start=$null;$end=$null
-        if($locatorType -eq "point"){
-          if($locator.Contains("start") -or $locator.Contains("end")){throw "Source registry '$locatorContext' point locator cannot declare start or end."}
-          $position=Get-ProjectMapValue $locator "position";Assert-SourceEvidencePosition $position $locatorMedium $sources[$evidenceSourceId].work_ids $works $segments $orderingSchemes "$locatorContext.position"
-          Assert-SourceLocatorCoverage $sources[$evidenceSourceId] $locatorMedium $evidenceMode @($position) $segments $contentGroups $manifestations $releaseComponents $releasePackages $orderingSchemes $locatorContext
-          $shapeValue=(($position.Keys|Sort-Object|ForEach-Object {"$_=$($position[$_])"}) -join '|')
-        } else {
-          if($locator.Contains("position")){throw "Source registry '$locatorContext' range locator cannot declare position."}
-          $start=Get-ProjectMapValue $locator "start";$end=Get-ProjectMapValue $locator "end"
-          if($null -eq $start -or $start -isnot [System.Collections.IDictionary] -or $null -eq $end -or $end -isnot [System.Collections.IDictionary]){throw "Source registry '$locatorContext' range start and end must be mappings."}
-          $startKeys=@($start.Keys|ForEach-Object {[string]$_}|Sort-Object);$endKeys=@($end.Keys|ForEach-Object {[string]$_}|Sort-Object);if(@(Compare-Object $startKeys $endKeys).Count -gt 0){throw "Source registry '$locatorContext' range start/end fields must be identical."}
-          Assert-SourceEvidencePosition $start $locatorMedium $sources[$evidenceSourceId].work_ids $works $segments $orderingSchemes "$locatorContext.start";Assert-SourceEvidencePosition $end $locatorMedium $sources[$evidenceSourceId].work_ids $works $segments $orderingSchemes "$locatorContext.end"
-          $workScopeField=$locatorMedium.work_scope_field;if([string]$start[$workScopeField] -ne [string]$end[$workScopeField]){throw "Source registry '$locatorContext' range endpoints must identify the same work."}
-          if((Compare-SourcePositions $start $end $locatorMedium $orderingSchemes $locatorContext) -gt 0){throw "Source registry '$locatorContext' range start must not follow end."}
-          Assert-SourceLocatorCoverage $sources[$evidenceSourceId] $locatorMedium $evidenceMode @($start,$end) $segments $contentGroups $manifestations $releaseComponents $releasePackages $orderingSchemes $locatorContext
-          $shapeValue="$(($start.Keys|Sort-Object|ForEach-Object {"$_=$($start[$_])"}) -join '|')->$(($end.Keys|Sort-Object|ForEach-Object {"$_=$($end[$_])"}) -join '|')"
-        }
-        $shapeKey="$locatorMediumId|$evidenceMode|$locatorType|$shapeValue";if(-not $seenLocatorShapes.Add($shapeKey)){throw "Source registry '$evidenceContext.locators' repeats a locator."}
-        $locators += [pscustomobject]@{id=$locatorId;medium_id=$locatorMediumId;evidence_mode=$evidenceMode;locator_type=$locatorType;position=$position;start=$start;end=$end}
-      }
-      $evidenceLinks += [pscustomobject]@{source_id=$evidenceSourceId;evidence_role=$evidenceRole;locators=@($locators)}
-    }
-    $roles=@($evidenceLinks|ForEach-Object {$_.evidence_role});if($assertionStatus -in @("verified","inferred") -and $roles -notcontains "supports"){throw "Source registry '$context' status '$assertionStatus' requires supporting evidence."};if($assertionStatus -eq "disputed" -and ($roles -notcontains "supports" -or $roles -notcontains "contradicts")){throw "Source registry '$context' disputed status requires supporting and contradicting evidence."}
-    $provenanceAssertions += [pscustomobject]@{id=$id;claim_key=$claimKey;subject_type=$subjectType;subject_id=$subjectId;claim_namespace=$claimNamespace;field_path=$fieldPath;asserted_value=$assertedValue;assertion_status=$assertionStatus;observed_at=ConvertTo-SourceTemporalWindow $assertion "observed_at" $context $SchemaPackRegistry;effective_window=ConvertTo-SourceTemporalWindow $assertion "effective_window" $context $SchemaPackRegistry;evidence_links=@($evidenceLinks)}
-  }
-
-  foreach($scope in $applicabilityScopes.Values){if($scope.target_type -eq "provenance-claim" -and -not $claimShapes.Contains($scope.target_id)){throw "Source registry applicability scope '$($scope.id)' references unknown provenance claim '$($scope.target_id)'."}}
-  $claimSupersessionEdges=[ordered]@{}
-  foreach($supersession in $claimSupersessions){
-    if(-not $claimShapes.Contains($supersession.source_claim_key)){throw "Source registry claim supersession '$($supersession.id)' references unknown source claim '$($supersession.source_claim_key)'."}
-    if(-not $claimShapes.Contains($supersession.target_claim_key)){throw "Source registry claim supersession '$($supersession.id)' references unknown target claim '$($supersession.target_claim_key)'."}
-    if($claimShapes[$supersession.source_claim_key] -ne $claimShapes[$supersession.target_claim_key]){throw "Source registry claim supersession '$($supersession.id)' must relate claims with the same subject, namespace, and field path."}
-    if(-not $claimSupersessionEdges.Contains($supersession.source_claim_key)){$claimSupersessionEdges[$supersession.source_claim_key]=@()}
-    $claimSupersessionEdges[$supersession.source_claim_key]=@($claimSupersessionEdges[$supersession.source_claim_key])+@($supersession.target_claim_key)
-  }
-  $visitedClaims=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal);$activeClaims=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
-  $visitClaimSupersession={
-    param([string]$ClaimKey)
-    if($activeClaims.Contains($ClaimKey)){throw "Source registry contains a claim-supersession cycle involving '$ClaimKey'."}
-    if($visitedClaims.Contains($ClaimKey)){return}
-    [void]$activeClaims.Add($ClaimKey)
-    if($claimSupersessionEdges.Contains($ClaimKey)){foreach($targetClaimKey in $claimSupersessionEdges[$ClaimKey]){& $visitClaimSupersession $targetClaimKey}}
-    [void]$activeClaims.Remove($ClaimKey);[void]$visitedClaims.Add($ClaimKey)
-  }
-  foreach($claimKey in $claimSupersessionEdges.Keys){& $visitClaimSupersession $claimKey}
-
   $rawExternalIdentifiers=@(Get-ProjectMapValue $registry "external_identifiers")
   $externalIdentifiers=@()
   $seenExternalIdentifierIds=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
@@ -2628,13 +2459,24 @@ function Get-KnowledgeSourceRegistry {
     $externalIdentifiers += [pscustomobject]@{ id=$id; scheme_id=$schemeId; target_type=$targetType; target_id=$targetId; value=$value; territory_ids=@($territoryIds); language_tag=$languageTag; status=$status }
   }
 
+  $nestedIdCollections=[ordered]@{
+    "content-group-member"=@($contentGroups.Values|ForEach-Object {$_.members}|ForEach-Object {$_.id})
+    "localized-title"=@(@($works.Values)+@($segments.Values)+@($contentGroups.Values)+@($manifestations.Values)+@($releasePackages.Values)+@($catalogPlacements.Values)|ForEach-Object {$_.localized_titles}|ForEach-Object {$_.id})
+    "release-run-phase"=@($releaseRuns.Values|ForEach-Object {$_.phases}|ForEach-Object {$_.id})
+    "source-coverage"=@($sources.Values|ForEach-Object {$_.coverage}|ForEach-Object {$_.id})
+    "source-observation"=@($sources.Values|ForEach-Object {$_.observations}|ForEach-Object {$_.id})
+    "coverage-position-range"=@($sources.Values|ForEach-Object {$_.coverage}|ForEach-Object {$_.position_ranges}|ForEach-Object {$_.id})
+    "authority-rule"=@($authorityProfiles.Values|ForEach-Object {$_.claim_authority_rules}|ForEach-Object {$_.id})
+  }
+  foreach($subjectType in $nestedIdCollections.Keys){$ids=@($nestedIdCollections[$subjectType]);if(@($ids|Sort-Object -Unique).Count -ne $ids.Count){throw "Source registry $subjectType IDs must be unique across owners."}}
+
   return [pscustomobject]@{
     path=$registryPath; schema_version=[int]$schemaVersion; lookup_keys=$lookupKeys; default_authority_profile_id=$defaultAuthorityProfileId; claim_namespace_ancestors=$claimNamespaceAncestors; evidence_mode_ancestors=$evidenceModeAncestors
     media_modalities=$mediaModalities; cultural_forms=$culturalForms; release_forms=$releaseForms; container_formats=$containerFormats
     mediums=$mediums; work_group_types=$workGroupTypes; work_groups=$workGroups; continuities=$continuities
     continuity_relationship_types=$continuityRelationshipTypes; continuity_relationships=@($continuityRelationships)
     authority_profiles=$authorityProfiles; work_relationship_types=$workRelationshipTypes; works=$works; work_production_contexts=$workProductionContexts
-    applicability_scopes=$applicabilityScopes; scoped_continuity_assertions=$scopedContinuityAssertions; claim_supersessions=@($claimSupersessions)
+    applicability_scopes=$applicabilityScopes; scoped_continuity_assertions=$scopedContinuityAssertions
     segments=$segments; content_groups=$contentGroups; ordering_schemes=$orderingSchemes; numbering_schemes=$numberingSchemes
     work_relationships=@($workRelationships); adaptation_mappings=@($adaptationMappings)
     territories=$territories; platforms=$platforms; manifestation_relationship_types=$manifestationRelationshipTypes
@@ -2645,8 +2487,49 @@ function Get-KnowledgeSourceRegistry {
     identifier_schemes=$identifierSchemes; external_identifiers=@($externalIdentifiers)
     work_aliases=$workAliases; source_relationship_types=$sourceRelationshipTypes
     sources=$sources; source_relationships=@($sourceRelationships); source_aliases=$sourceAliases
-    provenance_assertions=@($provenanceAssertions)
   }
+}
+
+function Get-KnowledgeSourceProvenanceSubjectTypes {
+  return @("work","work-production-context","applicability-scope","scoped-continuity-assertion","segment","content-group","work-relationship","adaptation-mapping","manifestation","manifestation-relationship","manifestation-segment-mapping","release-component","release-component-relationship","release-package","release-run","release-event","catalog-placement","platform-offering","source","source-relationship","content-group-member","localized-title","release-run-phase","source-coverage","source-observation","coverage-position-range","authority-rule")
+}
+
+function Get-KnowledgeSourceProvenanceTarget {
+  param([object]$SourceRegistry,[string]$SubjectType,[string]$SubjectId)
+
+  $targets=$null
+  switch($SubjectType){
+    "work"{$targets=$SourceRegistry.works}
+    "work-production-context"{$targets=$SourceRegistry.work_production_contexts}
+    "applicability-scope"{$targets=$SourceRegistry.applicability_scopes}
+    "scoped-continuity-assertion"{$targets=$SourceRegistry.scoped_continuity_assertions}
+    "segment"{$targets=$SourceRegistry.segments}
+    "content-group"{$targets=$SourceRegistry.content_groups}
+    "work-relationship"{$targets=ConvertTo-SourceIdMap @($SourceRegistry.work_relationships)}
+    "adaptation-mapping"{$targets=ConvertTo-SourceIdMap @($SourceRegistry.adaptation_mappings)}
+    "manifestation"{$targets=$SourceRegistry.manifestations}
+    "manifestation-relationship"{$targets=ConvertTo-SourceIdMap @($SourceRegistry.manifestation_relationships)}
+    "manifestation-segment-mapping"{$targets=ConvertTo-SourceIdMap @($SourceRegistry.manifestation_segment_mappings)}
+    "release-component"{$targets=$SourceRegistry.release_components}
+    "release-component-relationship"{$targets=ConvertTo-SourceIdMap @($SourceRegistry.release_component_relationships)}
+    "release-package"{$targets=$SourceRegistry.release_packages}
+    "release-run"{$targets=$SourceRegistry.release_runs}
+    "release-event"{$targets=$SourceRegistry.release_events}
+    "catalog-placement"{$targets=$SourceRegistry.catalog_placements}
+    "platform-offering"{$targets=$SourceRegistry.platform_offerings}
+    "source"{$targets=$SourceRegistry.sources}
+    "source-relationship"{$targets=ConvertTo-SourceIdMap @($SourceRegistry.source_relationships)}
+    "content-group-member"{$targets=ConvertTo-SourceIdMap @($SourceRegistry.content_groups.Values|ForEach-Object {$_.members})}
+    "localized-title"{$targets=ConvertTo-SourceIdMap @(@($SourceRegistry.works.Values)+@($SourceRegistry.segments.Values)+@($SourceRegistry.content_groups.Values)+@($SourceRegistry.manifestations.Values)+@($SourceRegistry.release_packages.Values)+@($SourceRegistry.catalog_placements.Values)|ForEach-Object {$_.localized_titles})}
+    "release-run-phase"{$targets=ConvertTo-SourceIdMap @($SourceRegistry.release_runs.Values|ForEach-Object {$_.phases})}
+    "source-coverage"{$targets=ConvertTo-SourceIdMap @($SourceRegistry.sources.Values|ForEach-Object {$_.coverage})}
+    "source-observation"{$targets=ConvertTo-SourceIdMap @($SourceRegistry.sources.Values|ForEach-Object {$_.observations})}
+    "coverage-position-range"{$targets=ConvertTo-SourceIdMap @($SourceRegistry.sources.Values|ForEach-Object {$_.coverage}|ForEach-Object {$_.position_ranges})}
+    "authority-rule"{$targets=ConvertTo-SourceIdMap @($SourceRegistry.authority_profiles.Values|ForEach-Object {$_.claim_authority_rules})}
+    default{throw "Unsupported source-registry subject type '$SubjectType'."}
+  }
+  if(-not $targets.Contains($SubjectId)){throw "Unknown $SubjectType '$SubjectId'."}
+  return $targets[$SubjectId]
 }
 
 function Get-KnowledgeSourceAuthorityDecision {
@@ -2686,24 +2569,4 @@ function Compare-KnowledgeSourceAuthority {
   $bestRank=if($profile.source_priority_order -eq "ascending"){[int](($decisions.decision|Measure-Object -Property rank -Minimum).Minimum)}else{[int](($decisions.decision|Measure-Object -Property rank -Maximum).Maximum)}
   $winners=@($decisions|Where-Object {$_.decision.rank -eq $bestRank}|ForEach-Object {$_.candidate_id})
   return [pscustomobject]@{outcome=if($winners.Count -eq 1){"winner"}else{"tie"};profile_id=$ProfileId;claim_namespace=$ClaimNamespace;best_rank=$bestRank;winning_candidate_ids=@($winners);decisions=@($decisions)}
-}
-
-function Get-KnowledgeClaimAuthorityEvaluation {
-  param([object]$SourceRegistry,[string]$ProfileId,[string]$ClaimKey)
-  $assertions=@($SourceRegistry.provenance_assertions|Where-Object {$_.claim_key -eq $ClaimKey})
-  if($assertions.Count -eq 0){throw "Unknown claim key '$ClaimKey'."}
-  $claimNamespace=[string]$assertions[0].claim_namespace;$decisions=@()
-  foreach($assertion in $assertions){foreach($link in @($assertion.evidence_links)){if($link.evidence_role -ne "supports"){continue};foreach($locator in @($link.locators)){
-    $decision=Get-KnowledgeSourceAuthorityDecision $SourceRegistry $ProfileId $claimNamespace ([string]$link.source_id) ([string]$locator.evidence_mode)
-    $decisions += [pscustomobject]@{candidate_id="$($assertion.id):$($link.source_id):$($locator.id)";assertion_id=[string]$assertion.id;decision=$decision}
-  }}}
-  if($decisions.Count -eq 0){throw "Claim key '$ClaimKey' has no supporting evidence locators."}
-  $groups=@($decisions|ForEach-Object {$SourceRegistry.sources[$_.decision.source_id].comparison_group}|Sort-Object -Unique)
-  if($groups.Count -ne 1){return [pscustomobject]@{outcome="incomparable";profile_id=$ProfileId;claim_key=$ClaimKey;best_rank=$null;winning_assertion_ids=@();decisions=@($decisions)}}
-  $profile=$SourceRegistry.authority_profiles[$ProfileId];$bestByAssertion=[ordered]@{}
-  foreach($item in $decisions){$id=[string]$item.assertion_id;$rank=[int]$item.decision.rank;if(-not $bestByAssertion.Contains($id) -or ($profile.source_priority_order -eq "ascending" -and $rank -lt $bestByAssertion[$id]) -or ($profile.source_priority_order -eq "descending" -and $rank -gt $bestByAssertion[$id])){$bestByAssertion[$id]=$rank}}
-  $bestRank=if($profile.source_priority_order -eq "ascending"){[int](($bestByAssertion.Values|Measure-Object -Minimum).Minimum)}else{[int](($bestByAssertion.Values|Measure-Object -Maximum).Maximum)}
-  $winnerIds=@($assertions|Where-Object {$bestByAssertion.Contains($_.id) -and $bestByAssertion[$_.id] -eq $bestRank}|ForEach-Object {$_.id})
-  if($winnerIds.Count -eq 1){$outcome="winner"}else{$values=@($assertions|Where-Object {$winnerIds -contains $_.id}|ForEach-Object {ConvertTo-SourceCanonicalJson $_.asserted_value});$outcome=if(@($values|Sort-Object -Unique).Count -eq 1){"tie"}else{"conflict"}}
-  return [pscustomobject]@{outcome=$outcome;profile_id=$ProfileId;claim_key=$ClaimKey;best_rank=$bestRank;winning_assertion_ids=@($winnerIds);decisions=@($decisions)}
 }

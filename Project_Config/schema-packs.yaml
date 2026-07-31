@@ -57,6 +57,7 @@ capability_activation:
     - stable-claim-identity
     - multi-source-authority-comparison
     - claim-authority-evaluation
+    - cross-registry-provenance
     - authority-profiles
     - typed-relationships
     - temporal-positions

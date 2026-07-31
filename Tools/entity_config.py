@@ -183,8 +183,8 @@ class EntityRegistry:
             )
         )
 
-    def provenance_target(self, subject_type: str, subject_id: str) -> object:
-        target_maps = {
+    def provenance_targets(self) -> dict[str, dict[str, object]]:
+        return {
             "entity": self.entities,
             "entity-relationship": {
                 relationship.id: relationship
@@ -199,7 +199,9 @@ class EntityRegistry:
                 for relationship in self.incarnation_relationships
             },
         }
-        targets = target_maps.get(subject_type)
+
+    def provenance_target(self, subject_type: str, subject_id: str) -> object:
+        targets = self.provenance_targets().get(subject_type)
         if targets is None:
             raise ValueError(f"Unsupported entity-registry subject type `{subject_type}`.")
         if subject_id not in targets:
