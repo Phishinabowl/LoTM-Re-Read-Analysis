@@ -9,15 +9,15 @@ Schema packs are composable contracts, not project instances. Pack files define 
 | `core` | Domain-neutral identity, stable nested-record and claim identity, composite channel-bounded evidence scope, hierarchical locator-level evidence modes, explainable precedence-aware authority, multi-source and claim-level evaluation, point/range evidence locators, semantic provenance paths, structural position validation, ordered temporal windows, relationships, visibility, projection, and validation. |
 | `narrative-media` | Narrative foundation: works, media facets, structural segments, segment-anchored locators, ordering-backed position validation, recursively nested content groups with participation roles, temporally scoped localized title variants, continuity, narrative time, and reader disclosure. |
 | `narrative-publishing` | Prose and sequential-art serialization, editions, localization, packaging, and planned publication-run/textual-history support. |
-| `narrative-screen-audio` | Film, television, animation, audio works, episodes, specials, cuts, tracks, embedded visuals, and planned live-performance production/event support. |
-| `narrative-adaptation` | Work lineage, segment mappings, adaptation deviations, and authority-aware comparison. |
-| `narrative-distribution` | Editions, cuts, builds, manifestation segment mappings, component lineage, release packages/phased runs/events, multi-target source observations, semantically work-scoped coverage ranges, mixed-media evidence locators, structured time, localized platform catalogs/offerings, identifiers, and regional availability. |
+| `narrative-screen-audio` | Film, television, animation, web series, audio works, episodes, specials, cuts, tracks, embedded visuals, and planned live-performance production/event support. |
+| `narrative-adaptation` | Work lineage, parody and other transformative derivatives, segment mappings, adaptation deviations, and authority-aware comparison. |
+| `narrative-distribution` | Editions, cuts, builds, manifestation segment mappings, component lineage, release packages/phased runs/events, multi-target source observations, semantically work-scoped coverage ranges, mixed-media evidence locators, structured time, localized platform catalogs/offerings including video-sharing platforms, identifiers, and regional availability. |
 | `narrative-shared-universe` | Optional multiverse, reboot, incarnation, retcon, and crossover-event support. |
 | `narrative-interactive` | Optional branching-story, route, ending, playthrough, campaign, and session support. |
 | `narrative-preservation` | Optional missing, partial, reconstructed, archival, and access-state support. |
-| `narrative-production` | Optional contributor, production-credit, ownership, officiality, and licensing support. |
+| `narrative-production` | Work production origin, authorization, rights basis, commerciality, territorial/effective scope, and planned contributor-credit support. |
 
-LoTM currently selects `core`, `narrative-media`, `narrative-publishing`, `narrative-screen-audio`, `narrative-adaptation`, and `narrative-distribution`. Other narrative packs remain discoverable templates for projects that need them; their planned capabilities cannot be activated until the corresponding executable contracts exist.
+LoTM currently selects `core`, `narrative-media`, `narrative-publishing`, `narrative-screen-audio`, `narrative-adaptation`, `narrative-distribution`, and `narrative-production`. Other narrative packs remain discoverable templates for projects that need them; their planned capabilities cannot be activated until the corresponding executable contracts exist.
 
 ## Media Axes
 
@@ -39,4 +39,4 @@ Claim namespaces, evidence modes, and content-group member roles are pack-owned 
 
 ## Capability Honesty
 
-`available` means the selected contract can be instantiated and validated. `planned` means the concept has stable ownership and vocabulary but the repository must not yet store records that depend on it. In particular, entity incarnations, claim-scoped retcons, branching narrative state, preservation state, contributor credits, rights records, and textual witnesses remain planned until their paired Python and PowerShell contracts are implemented.
+`available` means the selected contract can be instantiated and validated. `planned` means the concept has stable ownership and vocabulary but the repository must not yet store records that depend on it. In particular, entity incarnations, claim-scoped retcons, branching narrative state, preservation state, contributor credits, and textual witnesses remain planned until their paired Python and PowerShell contracts are implemented. Work production/rights contexts are executable; they keep production origin, authorization, rights basis, and commerciality independent and make no legal inference from parody or other transformative lineage.

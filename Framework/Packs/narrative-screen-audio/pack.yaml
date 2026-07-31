@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-screen-audio
-pack_version: 8
+pack_version: 9
 lifecycle: active
 pack_kind: domain
 label: Narrative Screen and Audio
@@ -8,7 +8,7 @@ description: Film, television, animation, audio drama, podcast, episode, special
 
 dependencies:
   - pack_id: narrative-media
-    minimum_version: 11
+    minimum_version: 12
 
 capabilities:
   - screen-works
@@ -62,6 +62,7 @@ controlled_values:
     - dub-of
     - has-dub
   source.work-type:
+    - web-series
     - television-series
     - television-season
     - television-special
@@ -80,6 +81,7 @@ controlled_values:
     - musical
     - radio-drama
   source.release-form:
+    - web-series
     - television-series
     - television-season
     - episode

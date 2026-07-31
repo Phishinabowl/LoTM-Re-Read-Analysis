@@ -19,6 +19,9 @@ selected_packs:
   - pack_id: narrative-distribution
     path: Framework/Packs/narrative-distribution/pack.yaml
 
+  - pack_id: narrative-production
+    path: Framework/Packs/narrative-production/pack.yaml
+
 capability_activation:
   default: disabled
   enabled:
@@ -90,6 +93,7 @@ capability_activation:
     - segment-anchored-locators
     - ordering-backed-position-validation
     - adaptation-comparison
+    - transformative-derivatives
     - manifestations
     - release-components
     - release-events
@@ -97,6 +101,7 @@ capability_activation:
     - platform-catalogs
     - platform-offerings
     - regional-availability
+    - rights-and-licensing
     - localized-work-metadata
     - segment-scoped-distribution
     - structured-release-time

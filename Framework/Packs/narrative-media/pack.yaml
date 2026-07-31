@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-media
-pack_version: 11
+pack_version: 12
 lifecycle: active
 pack_kind: domain
 label: Narrative Media Foundation
@@ -219,9 +219,12 @@ controlled_values:
   source.continuity-type:
     - primary
     - adaptation
+    - parody
   source.continuity-relationship-type:
     - adaptation-of
     - has-adaptation
+    - parody-of
+    - has-parody
     - branched-from
     - has-branch
     - reboot-of

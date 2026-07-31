@@ -1,4 +1,4 @@
-schema_version: 12
+schema_version: 13
 
 default_authority_profile_id: lotm-adaptation-comparison
 
@@ -728,6 +728,8 @@ work_relationships:
 adaptation_mappings: []
 
 territories: {}
+
+work_production_contexts: []
 platforms: {}
 
 manifestation_relationship_types:

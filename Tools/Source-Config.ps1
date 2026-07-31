@@ -11,7 +11,7 @@ if (-not (Get-Command Get-KnowledgeSchemaPackRegistry -ErrorAction SilentlyConti
   . $schemaPackConfigHelper
 }
 
-$script:SupportedSourceSchemaVersion = 12
+$script:SupportedSourceSchemaVersion = 13
 $script:AllowedSourceLifecycles = @("active", "deferred")
 $script:AllowedPositionFieldTypes = @("string", "integer", "number", "timestamp", "boolean")
 $script:AllowedPriorityOrders = @("ascending", "descending")
@@ -1440,6 +1440,36 @@ function Get-KnowledgeSourceRegistry {
   }
   $seenTerritoryCodes=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
   foreach ($territory in $territories.Values) { foreach ($schemeId in $territory.codes.Keys) { if (-not $seenTerritoryCodes.Add("$schemeId|$($territory.codes[$schemeId])")) { throw "Source registry repeats territory code '${schemeId}:$($territory.codes[$schemeId])'." } } }
+
+  if(-not $registry.Contains("work_production_contexts")){throw "Source registry 'work_production_contexts' must be a list."}
+  $rawWorkProductionContexts=Get-ProjectMapValue $registry "work_production_contexts"
+  if($null -eq $rawWorkProductionContexts){$rawWorkProductionContexts=@()}
+  elseif($rawWorkProductionContexts -isnot [System.Collections.IList]){throw "Source registry 'work_production_contexts' must be a list."}
+  $workProductionContexts=[ordered]@{};$productionScopeWindows=[ordered]@{}
+  for($index=0;$index -lt $rawWorkProductionContexts.Count;$index++){
+    $context="work_production_contexts[$index]";$productionContext=$rawWorkProductionContexts[$index]
+    $id=Get-RequiredSourceString $productionContext "id" $context;Test-StableSourceId $id "$context.id"
+    if($workProductionContexts.Contains($id)){throw "Source registry work-production-context ID '$id' is duplicated."}
+    $workId=Get-RequiredSourceString $productionContext "work_id" $context
+    if(-not $works.Contains($workId)){throw "Source registry '$context.work_id' references unknown work '$workId'."}
+    $productionOrigin=Get-RequiredSourceString $productionContext "production_origin" $context
+    $authorizationStatus=Get-RequiredSourceString $productionContext "authorization_status" $context
+    $rightsBasis=Get-RequiredSourceString $productionContext "rights_basis" $context
+    $commerciality=Get-RequiredSourceString $productionContext "commerciality" $context
+    Assert-SourceSchemaPackValues $SchemaPackRegistry "source.production-origin" @($productionOrigin) "$context.production_origin"
+    Assert-SourceSchemaPackValues $SchemaPackRegistry "source.authorization-status" @($authorizationStatus) "$context.authorization_status"
+    Assert-SourceSchemaPackValues $SchemaPackRegistry "source.rights-basis" @($rightsBasis) "$context.rights_basis"
+    Assert-SourceSchemaPackValues $SchemaPackRegistry "source.commerciality" @($commerciality) "$context.commerciality"
+    $territoryIds=@(Get-SourceStringListAllowEmpty $productionContext "territory_ids" $context)
+    $unknownTerritories=@($territoryIds|Where-Object {-not $territories.Contains($_)}|Sort-Object -Unique)
+    if($unknownTerritories.Count -gt 0){throw "Source registry '$context.territory_ids' references unknown territories: $($unknownTerritories -join ', ')."}
+    $effectiveWindow=ConvertTo-SourceTemporalWindow $productionContext "effective_window" $context $SchemaPackRegistry
+    $scope="$workId|$(@($territoryIds|Sort-Object) -join ',')"
+    $existingWindows=if($productionScopeWindows.Contains($scope)){@($productionScopeWindows[$scope])}else{@()}
+    foreach($existingWindow in $existingWindows){if(Test-SourceTemporalWindowsOverlap $effectiveWindow $existingWindow.window){throw "Source registry '$context' overlaps another production context for the same work and territory scope."}}
+    $productionScopeWindows[$scope]=@($productionScopeWindows[$scope])+@([pscustomobject]@{window=$effectiveWindow})
+    $workProductionContexts[$id]=[pscustomobject]@{id=$id;work_id=$workId;production_origin=$productionOrigin;authorization_status=$authorizationStatus;rights_basis=$rightsBasis;commerciality=$commerciality;territory_ids=@($territoryIds);effective_window=$effectiveWindow}
+  }
   foreach ($owner in @($works.Values)+@($segments.Values)+@($contentGroups.Values)) {
     foreach ($localizedTitle in $owner.localized_titles) { foreach ($territoryId in $localizedTitle.territory_ids) { if (-not $territories.Contains($territoryId)) { throw "Source registry localized title references unknown territory '$territoryId'." } } }
   }
@@ -2138,7 +2168,7 @@ function Get-KnowledgeSourceRegistry {
   }
 
   $provenanceTargets=[ordered]@{
-    "work"=$works;"segment"=$segments;"content-group"=$contentGroups
+    "work"=$works;"work-production-context"=$workProductionContexts;"segment"=$segments;"content-group"=$contentGroups
     "work-relationship"=(ConvertTo-SourceIdMap $workRelationships);"adaptation-mapping"=(ConvertTo-SourceIdMap $adaptationMappings)
     "manifestation"=$manifestations;"manifestation-relationship"=(ConvertTo-SourceIdMap $manifestationRelationships);"manifestation-segment-mapping"=(ConvertTo-SourceIdMap $manifestationSegmentMappings)
     "release-component"=$releaseComponents;"release-component-relationship"=(ConvertTo-SourceIdMap $releaseComponentRelationships);"release-package"=$releasePackages
@@ -2265,7 +2295,7 @@ function Get-KnowledgeSourceRegistry {
     media_modalities=$mediaModalities; cultural_forms=$culturalForms; release_forms=$releaseForms; container_formats=$containerFormats
     mediums=$mediums; work_group_types=$workGroupTypes; work_groups=$workGroups; continuities=$continuities
     continuity_relationship_types=$continuityRelationshipTypes; continuity_relationships=@($continuityRelationships)
-    authority_profiles=$authorityProfiles; work_relationship_types=$workRelationshipTypes; works=$works
+    authority_profiles=$authorityProfiles; work_relationship_types=$workRelationshipTypes; works=$works; work_production_contexts=$workProductionContexts
     segments=$segments; content_groups=$contentGroups; ordering_schemes=$orderingSchemes; numbering_schemes=$numberingSchemes
     work_relationships=@($workRelationships); adaptation_mappings=@($adaptationMappings)
     territories=$territories; platforms=$platforms; manifestation_relationship_types=$manifestationRelationshipTypes

@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-production
-pack_version: 1
+pack_version: 2
 lifecycle: active
 pack_kind: domain
 label: Narrative Production and Rights
@@ -8,7 +8,7 @@ description: Creative contributions, production credits, ownership, licensing, a
 
 dependencies:
   - pack_id: narrative-media
-    minimum_version: 2
+    minimum_version: 12
 
 capabilities:
   - id: contributor-credits
@@ -16,9 +16,9 @@ capabilities:
     label: Contributor Credits
     description: Authorship, illustration, editing, translation, direction, performance, and production roles.
   - id: rights-and-licensing
-    lifecycle: planned
+    lifecycle: available
     label: Rights and Licensing
-    description: Ownership, publisher, platform, territory, license, and officiality records independent of canon.
+    description: Work-scoped production origin, authorization, rights basis, commerciality, territory, and effective-window records independent of canon.
 
 controlled_values:
   narrative.contributor-role:
@@ -42,15 +42,31 @@ controlled_values:
     - narrator
     - composer
     - game-designer
-  source.officiality-status:
-    - official
-    - licensed
-    - unofficial
-    - fan-produced
+  source.production-origin:
+    - rights-holder-production
+    - third-party-production
+    - independent-production
+    - fan-production
+    - community-production
     - unknown
-  source.license-status:
-    - licensed
-    - unlicensed
-    - expired
+  source.authorization-status:
+    - authorized
+    - not-authorized
+    - not-required
+    - disputed
+    - unknown
+  source.rights-basis:
+    - ownership
+    - license
+    - permission
     - public-domain
+    - statutory-exception
+    - other
     - unknown
+  source.commerciality:
+    - commercial
+    - noncommercial
+    - mixed
+    - unknown
+  provenance.subject-type:
+    - work-production-context

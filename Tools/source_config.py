@@ -12,7 +12,7 @@ from resource_config import ResourceConfig
 from schema_pack_config import SchemaPackRegistry, load_schema_pack_registry
 
 
-SUPPORTED_SOURCE_SCHEMA_VERSION = 12
+SUPPORTED_SOURCE_SCHEMA_VERSION = 13
 LIFECYCLES = {"active", "deferred"}
 POSITION_FIELD_TYPES = {"string", "integer", "number", "timestamp", "boolean"}
 PRIORITY_ORDERS = {"ascending", "descending"}
@@ -236,6 +236,18 @@ class WorkRelationship:
     target_work_id: str
     continuity_ids: tuple[str, ...]
     status: str
+
+
+@dataclass(frozen=True)
+class WorkProductionContext:
+    id: str
+    work_id: str
+    production_origin: str
+    authorization_status: str
+    rights_basis: str
+    commerciality: str
+    territory_ids: tuple[str, ...]
+    effective_window: "TemporalWindow | None"
 
 
 @dataclass(frozen=True)
@@ -657,6 +669,7 @@ class SourceRegistry:
     authority_profiles: dict[str, AuthorityProfile]
     work_relationship_types: dict[str, RelationshipTypeConfig]
     works: dict[str, WorkConfig]
+    work_production_contexts: dict[str, WorkProductionContext]
     segments: dict[str, SegmentConfig]
     content_groups: dict[str, ContentGroup]
     numbering_schemes: dict[str, NumberingScheme]
@@ -3278,6 +3291,103 @@ def load_source_registry(
                 )
             seen_territory_codes.add(key)
 
+    raw_production_contexts = registry.get("work_production_contexts")
+    if not isinstance(raw_production_contexts, list):
+        raise ValueError(
+            "Source registry `work_production_contexts` must be a list."
+        )
+    work_production_contexts: dict[str, WorkProductionContext] = {}
+    production_scope_windows: dict[
+        tuple[str, tuple[str, ...]], list[TemporalWindow | None]
+    ] = {}
+    for index, raw_context in enumerate(raw_production_contexts):
+        context = f"work_production_contexts[{index}]"
+        production_context = require_mapping(raw_context, context)
+        context_id = require_string(production_context, "id", context)
+        validate_id(context_id, f"{context}.id")
+        if context_id in work_production_contexts:
+            raise ValueError(
+                f"Source registry work-production-context ID `{context_id}` is "
+                "duplicated."
+            )
+        work_id = require_string(production_context, "work_id", context)
+        if work_id not in works:
+            raise ValueError(
+                f"Source registry `{context}.work_id` references unknown work "
+                f"`{work_id}`."
+            )
+        production_origin = require_string(
+            production_context, "production_origin", context
+        )
+        authorization_status = require_string(
+            production_context, "authorization_status", context
+        )
+        rights_basis = require_string(
+            production_context, "rights_basis", context
+        )
+        commerciality = require_string(
+            production_context, "commerciality", context
+        )
+        validate_pack_values(
+            schema_packs,
+            "source.production-origin",
+            (production_origin,),
+            f"{context}.production_origin",
+        )
+        validate_pack_values(
+            schema_packs,
+            "source.authorization-status",
+            (authorization_status,),
+            f"{context}.authorization_status",
+        )
+        validate_pack_values(
+            schema_packs,
+            "source.rights-basis",
+            (rights_basis,),
+            f"{context}.rights_basis",
+        )
+        validate_pack_values(
+            schema_packs,
+            "source.commerciality",
+            (commerciality,),
+            f"{context}.commerciality",
+        )
+        territory_ids = require_string_list(
+            production_context, "territory_ids", context
+        )
+        unknown_territories = set(territory_ids) - set(territories)
+        if unknown_territories:
+            raise ValueError(
+                f"Source registry `{context}.territory_ids` references unknown "
+                f"territories: {', '.join(sorted(unknown_territories))}."
+            )
+        effective_window = parse_temporal_window(
+            production_context,
+            "effective_window",
+            context,
+            schema_packs,
+        )
+        scope = (work_id, tuple(sorted(territory_ids)))
+        if any(
+            temporal_windows_overlap(effective_window, existing)
+            for existing in production_scope_windows.get(scope, [])
+        ):
+            raise ValueError(
+                f"Source registry `{context}` overlaps another production context "
+                "for the same work and territory scope."
+            )
+        production_scope_windows.setdefault(scope, []).append(effective_window)
+        work_production_contexts[context_id] = WorkProductionContext(
+            id=context_id,
+            work_id=work_id,
+            production_origin=production_origin,
+            authorization_status=authorization_status,
+            rights_basis=rights_basis,
+            commerciality=commerciality,
+            territory_ids=territory_ids,
+            effective_window=effective_window,
+        )
+
     for owner_context, localized_titles in (
         *((f"works.{work.id}", work.localized_titles) for work in works.values()),
         *(
@@ -5276,6 +5386,7 @@ def load_source_registry(
 
     provenance_targets = {
         "work": works,
+        "work-production-context": work_production_contexts,
         "segment": segments,
         "content-group": content_groups,
         "work-relationship": {
@@ -5951,6 +6062,7 @@ def load_source_registry(
         authority_profiles=authority_profiles,
         work_relationship_types=work_relationship_types,
         works=works,
+        work_production_contexts=work_production_contexts,
         segments=segments,
         content_groups=content_groups,
         numbering_schemes=numbering_schemes,
