@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-screen-audio
-pack_version: 3
+pack_version: 4
 lifecycle: active
 pack_kind: domain
 label: Narrative Screen and Audio
@@ -8,7 +8,7 @@ description: Film, television, animation, audio drama, podcast, episode, special
 
 dependencies:
   - pack_id: narrative-media
-    minimum_version: 3
+    minimum_version: 5
 
 capabilities:
   - screen-works
@@ -16,7 +16,7 @@ capabilities:
   - id: episodic-releases
     lifecycle: available
     label: Episodic Releases
-    description: Episode and cour work-part identity plus segment-scoped release and offering records when narrative-distribution is selected.
+    description: Episode and cour work-part identity plus segment-scoped release runs, events, and offerings when narrative-distribution is selected.
   - release-cuts
   - embedded-visual-assets
   - id: live-performance-works

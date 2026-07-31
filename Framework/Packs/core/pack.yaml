@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: core
-pack_version: 1
+pack_version: 2
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -16,6 +16,7 @@ capabilities:
   - subject-categories
   - resources
   - evidence-sources
+  - composite-evidence-scope
   - authority-profiles
   - typed-relationships
   - temporal-positions

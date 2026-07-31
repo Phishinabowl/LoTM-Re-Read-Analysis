@@ -1,6 +1,6 @@
 # Narrative Source Registry Contract
 
-`Project_Config/sources.yaml` schema version 5 is the executable project-instance contract for selected narrative packs. `Tools/source_config.py` and `Tools/Source-Config.ps1` enforce the same fields and reference rules.
+`Project_Config/sources.yaml` schema version 6 is the executable project-instance contract for selected narrative packs. `Tools/source_config.py` and `Tools/Source-Config.ps1` enforce the same fields and reference rules.
 
 ## Media Facets
 
@@ -20,6 +20,8 @@ Every evidence source must declare one or more `container_format_ids`; container
 ## Work Structure And Ordering
 
 `segments` is a stable-ID mapping for configurable work parts. A segment declares its work, type, label, optional positive ordinal, and optional parent segment. Parent chains must remain inside one work and cannot cycle. Segment types come from `source.segment-type`.
+
+`segment_groups` provide overlapping, optionally nested collections without changing structural parentage. Each group has a controlled type, one or more segments from any registered work, optional parent groups, localized titles, aliases, and an optional ordering scheme that must order exactly its members. A segment may therefore belong simultaneously to a publication unit, narrative arc, saga, crossover, cover story, collection, or reading path. Group-parent graphs cannot cycle.
 
 `numbering_schemes` assign display numbers and aliases to work or segment targets inside an explicit work or work-group scope. Numbering does not imply order: use an ordering scheme for sequence. This separation supports issue `0`, legacy comic numbering, production codes, split issue numbers, and provider numbering without coercing them into integers.
 
@@ -45,14 +47,16 @@ Creative identity and distribution identity are separate:
 
 - `works` own the creative unit and its canonical hierarchy.
 - `manifestations` own a concrete edition, translation, cut, remaster, episodic recut, compilation cut, or software build of one work. An empty `segment_ids` list means the whole work; a populated list scopes the manifestation without inventing separate works. They may carry language, territory, container, localized-title, and alias metadata.
-- `release_components` own tracks and bundled components such as subtitles, audio, captions, commentary, deleted scenes, or embedded illustrations.
+- `manifestation_segment_mappings` describe retained, omitted, added, altered, replaced, reordered, combined, or split segment correspondence between related manifestations of the same work. Omission has source segments only; addition has target segments only; other mappings require both sides.
+- `release_components` represent tracks and bundled components such as subtitles, audio, captions, commentary, deleted scenes, embedded illustrations, posters, inserts, or physical bonuses. A component may identify its originating manifestation. A component without a manifestation must belong to at least one release package, which supports package-only material without a fictional edition.
 - `release_packages` bundle manifestations, selected segments, components, and containers as box sets, omnibuses, multi-disc sets, collector editions, or other commercial packages.
+- `release_runs` compactly describe regular segment releases through an exact total ordering, first release window, day/week/month cadence, platform and territory scope, and typed reschedule, pause, skip, or cancellation exceptions.
 - `release_events` record a manifestation or package publication, broadcast, theatrical, streaming, physical, or rerelease event. Optional segment scope supports staggered episode or chapter releases.
 - `territories` provide stable hierarchical project IDs for worldwide, region, country, market, or custom availability scopes and may retain external territorial codes.
 - `platforms` identify providers, broadcasters, stores, retailers, theaters, or libraries.
-- `catalog_placements` point to a work, segment, manifestation, or package and preserve how one platform presents it, including provider-defined titles, seasons, parts, volumes, collections, and channels.
+- `catalog_placements` point to a work, segment, segment group, manifestation, or package and preserve how one platform presents it, including provider-defined localized titles, seasons, parts, volumes, collections, and channels.
 - `platform_offerings` record subscription, rental, purchase, free, broadcast, archival, or other availability windows for a manifestation or package. Optional segment scope supports incomplete regional catalogs.
-- `sources` remain concrete evidence artifacts and may bind to the manifestation, package, release event, components, or platform offering they actually observe.
+- `sources` remain concrete evidence artifacts and declare one or more `work_ids`. They may bind to the manifestation, package, release event, components, or platform offering they actually observe. Composite evidence such as omnibus files, anthology scans, box-set inspections, or archives therefore retains every work in scope instead of inventing one primary work.
 - `identifier_schemes` and `external_identifiers` preserve ISBNs, ISSNs, production codes, provider IDs, and other external identity systems separately from stable internal IDs.
 
 A platform's catalog grouping is not canonical work hierarchy. For example, a service may market episodes as “Season 2” or “Part 3” without creating a new canonical season work. Store that provider label as a catalog placement unless independent creative identity justifies a work.
@@ -61,6 +65,6 @@ Language values use BCP-47-style tags; regional values must reference the territ
 
 ## Validation Boundary
 
-The paired loaders currently validate media facets, work/release identity and hierarchy, work groups, continuities, authority profiles, segments, localized titles, numbering schemes, total and partial ordering schemes, work and multi-input adaptation relationships, manifestations, release packages/components/events, hierarchical territories, platform catalogs and offerings, structured time windows, external identifiers, source containers, evidence sources, aliases, volume catalogs, citation schemas, and resource bindings.
+The paired loaders currently validate media facets, work/release identity and hierarchy, work groups, continuities, authority profiles, segments, overlapping segment groups, localized titles, numbering schemes, total and partial ordering schemes, work and multi-input adaptation relationships, manifestations and segment mappings, package- or manifestation-scoped components, release packages/runs/events, hierarchical territories, localized platform catalogs and offerings, structured time windows, external identifiers, composite evidence scope, source containers, aliases, volume catalogs, citation schemas, and resource bindings.
 
 Capabilities marked `planned` in any pack are outside this executable boundary. A future schema version must add paired validation before a project may activate or instantiate those capabilities.

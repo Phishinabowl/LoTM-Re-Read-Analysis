@@ -128,21 +128,21 @@ Examples include framework contracts and packs, visual assets, local source mate
 
 ### Source Registry
 
-`Project_Config/sources.yaml` schema version 5 owns:
+`Project_Config/sources.yaml` schema version 6 owns:
 
 - stable source and medium-profile IDs plus instantiated modality, cultural-form, release-form, and container-format facets;
-- stable franchise/collection/adaptation-program groups, creative works, work segments, continuities, and per-work volume identities;
+- stable franchise/collection/adaptation-program groups, creative works, structural work segments, overlapping segment groups, continuities, and per-work volume identities;
 - named numbering schemes plus independent total or partial publication, release, story, production, or recommended ordering schemes;
 - segment-aware, multi-input adaptation mappings with explicit source-basis roles that preserve source and derivative claims;
-- manifestations for whole works or selected segments, including editions, translations, cuts, recuts, remasters, and builds;
-- release components, commercial packages, and events for tracks, bundled material, staggered segments, and launches;
-- hierarchical territories plus platforms, direct-target provider catalog placements, segment-scoped offerings, BCP-47-style languages, and structured availability windows;
+- manifestations for whole works or selected segments, including editions, translations, cuts, recuts, remasters, builds, and explicit segment-level version mappings;
+- manifestation- or package-scoped components, commercial packages, compact release runs, and concrete events for tracks, bundled material, staggered segments, and launches;
+- hierarchical territories plus platforms, localized direct-target provider catalog placements, segment-scoped offerings, BCP-47-style languages, and structured availability windows;
 - external identifier schemes and values for works, segments, releases, platforms, catalog records, and evidence sources;
 - medium-specific position fields, sort order, and citation formats;
 - authority profiles, comparison groups, and source priority;
 - typed work relationships such as sequel, spinoff, side story, adaptation, remake, retelling, crossover, containment, compilation, and inspiration;
 - typed source relationships such as edition, translation, transcript, subtitle track, dub, scan, extract, and package membership;
-- source aliases, evidence modes, and bindings to registered resources;
+- composite evidence-source work scope, source aliases, evidence modes, and bindings to registered resources;
 - conflict, deviation, and unresolved-difference policy.
 
 Reader positions are work-scoped before they are volume- or chapter-scoped. This prevents chapter 100 in one book from colliding with chapter 100 in a sequel and permits filtering or sorting by franchise, collection, continuity, work, volume, and local chapter. Work aliases may provide familiar labels while canonical work IDs remain stable.
@@ -159,7 +159,7 @@ Priority is interpreted inside a comparison group under a selected authority pro
 
 The resource registry says where source material lives and how that storage is governed. The source registry identifies creative works and evidence sources and defines their separate semantic relationships.
 
-`Tools/source_config.py` and `Tools/Source-Config.ps1` are the matching source-registry loaders. They validate media-facet compatibility, release and container forms, work/group/segment nesting, localized titles, numbering, total and partial named orderings, continuities, authority profiles, works and memberships, volume ranges, multi-input adaptation mappings, segment-scoped manifestations, release components/packages/events, hierarchical territories, platform catalogs/offerings, structured time, external identifiers, typed relationships, position schemas, citation placeholders, aliases, priorities, comparison groups, and resource bindings constrained to registered placements. Domain clients should use these normalized records rather than hardcoding book names, `novel`, `donghua`, or domain-specific evidence precedence.
+`Tools/source_config.py` and `Tools/Source-Config.ps1` are the matching source-registry loaders. They validate media-facet compatibility, release and container forms, work/group/segment nesting, overlapping segment groups, localized titles, numbering, total and partial named orderings, continuities, authority profiles, works and memberships, volume ranges, multi-input adaptation mappings, segment-scoped manifestations and version mappings, package-scoped components, release packages/runs/events, hierarchical territories, localized platform catalogs/offerings, structured time, external identifiers, composite evidence scope, typed relationships, position schemas, citation placeholders, aliases, priorities, comparison groups, and resource bindings constrained to registered placements. Domain clients should use these normalized records rather than hardcoding book names, `novel`, `donghua`, or domain-specific evidence precedence.
 
 Publication-run records, live-performance productions/events, entity incarnations, claim-scoped continuity and retcons, branching narrative state, preservation/access state, textual witnesses, editorial assembly, contributor credits, and rights/licensing remain planned capabilities. Pack ownership is established, but project data must not instantiate them until paired executable contracts are implemented.
 

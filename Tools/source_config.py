@@ -11,7 +11,7 @@ from resource_config import ResourceConfig
 from schema_pack_config import SchemaPackRegistry, load_schema_pack_registry
 
 
-SUPPORTED_SOURCE_SCHEMA_VERSION = 5
+SUPPORTED_SOURCE_SCHEMA_VERSION = 6
 LIFECYCLES = {"active", "deferred"}
 POSITION_FIELD_TYPES = {"string", "integer", "number", "timestamp", "boolean"}
 PRIORITY_ORDERS = {"ascending", "descending"}
@@ -182,6 +182,19 @@ class SegmentConfig:
 
 
 @dataclass(frozen=True)
+class SegmentGroup:
+    id: str
+    lifecycle: str
+    label: str
+    group_type: str
+    segment_ids: tuple[str, ...]
+    parent_group_ids: tuple[str, ...]
+    ordering_scheme_id: str | None
+    localized_titles: tuple["LocalizedTitle", ...]
+    aliases: tuple[str, ...]
+
+
+@dataclass(frozen=True)
 class NumberingEntry:
     target_id: str
     display_number: str
@@ -294,11 +307,22 @@ class ManifestationRelationship:
 
 
 @dataclass(frozen=True)
+class ManifestationSegmentMapping:
+    id: str
+    source_manifestation_id: str
+    source_segment_ids: tuple[str, ...]
+    target_manifestation_id: str
+    target_segment_ids: tuple[str, ...]
+    mapping_type: str
+    status: str
+
+
+@dataclass(frozen=True)
 class ReleaseComponent:
     id: str
     lifecycle: str
     label: str
-    manifestation_id: str
+    manifestation_id: str | None
     component_type: str
     segment_ids: tuple[str, ...]
     language_tag: str | None
@@ -331,6 +355,34 @@ class ReleaseEvent:
     territory_ids: tuple[str, ...]
     platform_ids: tuple[str, ...]
     availability_status: str
+    release_run_id: str | None
+
+
+@dataclass(frozen=True)
+class ReleaseRunException:
+    exception_type: str
+    segment_id: str
+    release_window: TemporalWindow | None
+    interval_count: int | None
+
+
+@dataclass(frozen=True)
+class ReleaseRun:
+    id: str
+    lifecycle: str
+    label: str
+    subject_type: str
+    subject_id: str
+    segment_ids: tuple[str, ...]
+    ordering_scheme_id: str
+    release_event_type: str
+    first_release_window: TemporalWindow
+    cadence_unit: str
+    cadence_interval: int
+    territory_ids: tuple[str, ...]
+    platform_ids: tuple[str, ...]
+    availability_status: str
+    exceptions: tuple[ReleaseRunException, ...]
 
 
 @dataclass(frozen=True)
@@ -345,6 +397,7 @@ class CatalogPlacement:
     target_id: str
     ordinal: int | None
     provider_key: str | None
+    localized_titles: tuple[LocalizedTitle, ...]
 
 
 @dataclass(frozen=True)
@@ -400,7 +453,7 @@ class SourceConfig:
     id: str
     lifecycle: str
     label: str
-    work_id: str
+    work_ids: tuple[str, ...]
     manifestation_id: str | None
     release_package_id: str | None
     release_event_id: str | None
@@ -443,6 +496,7 @@ class SourceRegistry:
     work_relationship_types: dict[str, RelationshipTypeConfig]
     works: dict[str, WorkConfig]
     segments: dict[str, SegmentConfig]
+    segment_groups: dict[str, SegmentGroup]
     numbering_schemes: dict[str, NumberingScheme]
     ordering_schemes: dict[str, OrderingScheme]
     work_relationships: tuple[WorkRelationship, ...]
@@ -452,8 +506,10 @@ class SourceRegistry:
     manifestation_relationship_types: dict[str, RelationshipTypeConfig]
     manifestations: dict[str, ManifestationConfig]
     manifestation_relationships: tuple[ManifestationRelationship, ...]
+    manifestation_segment_mappings: tuple[ManifestationSegmentMapping, ...]
     release_components: dict[str, ReleaseComponent]
     release_packages: dict[str, ReleasePackage]
+    release_runs: dict[str, ReleaseRun]
     release_events: dict[str, ReleaseEvent]
     catalog_placements: dict[str, CatalogPlacement]
     platform_offerings: dict[str, PlatformOffering]
@@ -1909,6 +1965,119 @@ def load_source_registry(
             "ordering_schemes.*.ordering_type",
         )
 
+    raw_segment_groups = require_mapping(
+        registry.get("segment_groups"), "segment_groups"
+    )
+    segment_groups: dict[str, SegmentGroup] = {}
+    segment_group_aliases: set[str] = set()
+    for group_id, raw_group in raw_segment_groups.items():
+        context = f"segment_groups.{group_id}"
+        validate_id(group_id, context)
+        group = require_mapping(raw_group, context)
+        segment_ids = require_string_list(group, "segment_ids", context)
+        if not segment_ids:
+            raise ValueError(
+                f"Source registry `{context}.segment_ids` must not be empty."
+            )
+        unknown_segments = set(segment_ids) - set(segments)
+        if unknown_segments:
+            raise ValueError(
+                f"Source registry `{context}.segment_ids` references unknown "
+                f"segments: {', '.join(sorted(unknown_segments))}."
+            )
+        if len(set(segment_ids)) != len(segment_ids):
+            raise ValueError(
+                f"Source registry `{context}.segment_ids` contains duplicates."
+            )
+        parent_group_ids = require_string_list(
+            group, "parent_group_ids", context
+        )
+        if group_id in parent_group_ids or len(set(parent_group_ids)) != len(
+            parent_group_ids
+        ):
+            raise ValueError(
+                f"Source registry `{context}.parent_group_ids` contains a self "
+                "reference or duplicate."
+            )
+        ordering_scheme_id = optional_string(
+            group, "ordering_scheme_id", context
+        )
+        if ordering_scheme_id is not None:
+            if ordering_scheme_id not in ordering_schemes:
+                raise ValueError(
+                    f"Source registry `{context}.ordering_scheme_id` references "
+                    f"unknown ordering scheme `{ordering_scheme_id}`."
+                )
+            ordered_targets = {
+                entry.target_id
+                for entry in ordering_schemes[ordering_scheme_id].entries
+                if entry.target_type == "segment"
+            }
+            if (
+                len(ordered_targets)
+                != len(ordering_schemes[ordering_scheme_id].entries)
+                or ordered_targets != set(segment_ids)
+            ):
+                raise ValueError(
+                    f"Source registry `{context}.ordering_scheme_id` must order "
+                    "exactly the group's segments."
+                )
+        aliases = require_string_list(group, "aliases", context)
+        for alias in aliases:
+            validate_id(alias, f"{context}.aliases")
+            normalized = alias.casefold()
+            if normalized in segment_group_aliases or normalized in {
+                value.casefold() for value in raw_segment_groups
+            }:
+                raise ValueError(
+                    f"Source registry segment-group alias `{alias}` is duplicated "
+                    "or collides with a group ID."
+                )
+            segment_group_aliases.add(normalized)
+        segment_groups[group_id] = SegmentGroup(
+            id=group_id,
+            lifecycle=parse_lifecycle(group, context),
+            label=require_string(group, "label", context),
+            group_type=require_string(group, "group_type", context),
+            segment_ids=segment_ids,
+            parent_group_ids=parent_group_ids,
+            ordering_scheme_id=ordering_scheme_id,
+            localized_titles=parse_localized_titles(group, context),
+            aliases=aliases,
+        )
+    if segment_groups:
+        validate_pack_values(
+            schema_packs,
+            "source.segment-group-type",
+            (group.group_type for group in segment_groups.values()),
+            "segment_groups.*.group_type",
+        )
+    for group in segment_groups.values():
+        unknown_parents = set(group.parent_group_ids) - set(segment_groups)
+        if unknown_parents:
+            raise ValueError(
+                f"Source registry `segment_groups.{group.id}.parent_group_ids` "
+                f"references unknown groups: {', '.join(sorted(unknown_parents))}."
+            )
+    complete_segment_groups: set[str] = set()
+
+    def visit_segment_group(group_id: str, active: set[str]) -> None:
+        if group_id in active:
+            raise ValueError(
+                f"Source registry contains a segment-group cycle involving "
+                f"`{group_id}`."
+            )
+        if group_id in complete_segment_groups:
+            return
+        active.add(group_id)
+        for parent_id in segment_groups[group_id].parent_group_ids:
+            visit_segment_group(parent_id, active)
+        active.remove(group_id)
+        complete_segment_groups.add(group_id)
+
+    for group_id in segment_groups:
+        visit_segment_group(group_id, set())
+
     raw_work_relationships = registry.get("work_relationships")
     if not isinstance(raw_work_relationships, list):
         raise ValueError("Source registry `work_relationships` must be a list.")
@@ -2144,6 +2313,10 @@ def load_source_registry(
             (f"segments.{segment.id}", segment.localized_titles)
             for segment in segments.values()
         ),
+        *(
+            (f"segment_groups.{group.id}", group.localized_titles)
+            for group in segment_groups.values()
+        ),
     ):
         for localized_title in localized_titles:
             unknown_territories = set(localized_title.territory_ids) - set(territories)
@@ -2349,6 +2522,124 @@ def load_source_registry(
             )
         )
 
+    raw_manifestation_segment_mappings = registry.get(
+        "manifestation_segment_mappings"
+    )
+    if not isinstance(raw_manifestation_segment_mappings, list):
+        raise ValueError(
+            "Source registry `manifestation_segment_mappings` must be a list."
+        )
+    manifestation_segment_mappings: list[ManifestationSegmentMapping] = []
+    seen_manifestation_mapping_ids: set[str] = set()
+    related_manifestation_pairs = {
+        frozenset(
+            (
+                relationship.source_manifestation_id,
+                relationship.target_manifestation_id,
+            )
+        )
+        for relationship in manifestation_relationships
+    }
+    for index, raw_mapping in enumerate(raw_manifestation_segment_mappings):
+        context = f"manifestation_segment_mappings[{index}]"
+        mapping = require_mapping(raw_mapping, context)
+        mapping_id = require_string(mapping, "id", context)
+        validate_id(mapping_id, f"{context}.id")
+        if mapping_id in seen_manifestation_mapping_ids:
+            raise ValueError(
+                f"Source registry manifestation segment mapping ID `{mapping_id}` "
+                "is duplicated."
+            )
+        seen_manifestation_mapping_ids.add(mapping_id)
+        source_id = require_string(
+            mapping, "source_manifestation_id", context
+        )
+        target_id = require_string(
+            mapping, "target_manifestation_id", context
+        )
+        if source_id not in manifestations or target_id not in manifestations:
+            raise ValueError(
+                f"Source registry `{context}` references an unknown manifestation."
+            )
+        if source_id == target_id:
+            raise ValueError(
+                f"Source registry `{context}` cannot map a manifestation to itself."
+            )
+        if manifestations[source_id].work_id != manifestations[target_id].work_id:
+            raise ValueError(
+                f"Source registry `{context}` must map manifestations of the same "
+                "work."
+            )
+        if frozenset((source_id, target_id)) not in related_manifestation_pairs:
+            raise ValueError(
+                f"Source registry `{context}` requires a manifestation relationship "
+                "between its source and target."
+            )
+        source_segment_ids = require_string_list(
+            mapping, "source_segment_ids", context
+        )
+        target_segment_ids = require_string_list(
+            mapping, "target_segment_ids", context
+        )
+        work_id = manifestations[source_id].work_id
+        for field_name, values, manifestation_id in (
+            ("source_segment_ids", source_segment_ids, source_id),
+            ("target_segment_ids", target_segment_ids, target_id),
+        ):
+            for segment_id in values:
+                if (
+                    segment_id not in segments
+                    or segments[segment_id].work_id != work_id
+                    or (
+                        manifestations[manifestation_id].segment_ids
+                        and segment_id
+                        not in manifestations[manifestation_id].segment_ids
+                    )
+                ):
+                    raise ValueError(
+                        f"Source registry `{context}.{field_name}` references segment "
+                        f"`{segment_id}` outside manifestation scope."
+                    )
+        mapping_type = require_string(mapping, "mapping_type", context)
+        if mapping_type == "omitted":
+            valid_shape = bool(source_segment_ids) and not target_segment_ids
+        elif mapping_type == "added":
+            valid_shape = not source_segment_ids and bool(target_segment_ids)
+        else:
+            valid_shape = bool(source_segment_ids) and bool(target_segment_ids)
+        if not valid_shape:
+            raise ValueError(
+                f"Source registry `{context}` has segment lists incompatible with "
+                f"mapping type `{mapping_type}`."
+            )
+        status = require_string(mapping, "status", context)
+        if status not in membership_statuses:
+            raise ValueError(
+                f"Source registry `{context}.status` must be one of: "
+                f"{', '.join(sorted(membership_statuses))}."
+            )
+        manifestation_segment_mappings.append(
+            ManifestationSegmentMapping(
+                mapping_id,
+                source_id,
+                source_segment_ids,
+                target_id,
+                target_segment_ids,
+                mapping_type,
+                status,
+            )
+        )
+    if manifestation_segment_mappings:
+        validate_pack_values(
+            schema_packs,
+            "source.manifestation-segment-mapping-type",
+            (
+                mapping.mapping_type
+                for mapping in manifestation_segment_mappings
+            ),
+            "manifestation_segment_mappings.*.mapping_type",
+        )
+
     raw_release_components = require_mapping(
         registry.get("release_components"), "release_components"
     )
@@ -2357,28 +2648,34 @@ def load_source_registry(
         context = f"release_components.{component_id}"
         validate_id(component_id, context)
         component = require_mapping(raw_component, context)
-        manifestation_id = require_string(
+        manifestation_id = optional_string(
             component, "manifestation_id", context
         )
-        if manifestation_id not in manifestations:
+        if manifestation_id is not None and manifestation_id not in manifestations:
             raise ValueError(
                 f"Source registry `{context}.manifestation_id` references unknown "
                 f"manifestation `{manifestation_id}`."
-            )
+        )
         segment_ids = require_string_list(component, "segment_ids", context)
-        manifestation = manifestations[manifestation_id]
-        work_id = manifestation.work_id
         for segment_id in segment_ids:
-            if segment_id not in segments or segments[segment_id].work_id != work_id:
+            if segment_id not in segments:
                 raise ValueError(
                     f"Source registry `{context}.segment_ids` references segment "
-                    f"`{segment_id}` outside manifestation work `{work_id}`."
+                    f"`{segment_id}`."
                 )
-            if manifestation.segment_ids and segment_id not in manifestation.segment_ids:
-                raise ValueError(
-                    f"Source registry `{context}.segment_ids` references segment "
-                    f"`{segment_id}` outside manifestation scope."
-                )
+            if manifestation_id is not None:
+                manifestation = manifestations[manifestation_id]
+                if (
+                    segments[segment_id].work_id != manifestation.work_id
+                    or (
+                        manifestation.segment_ids
+                        and segment_id not in manifestation.segment_ids
+                    )
+                ):
+                    raise ValueError(
+                        f"Source registry `{context}.segment_ids` references segment "
+                        f"`{segment_id}` outside manifestation scope."
+                    )
         language_tag = optional_string(component, "language_tag", context)
         if language_tag is not None:
             validate_language_tag(language_tag, f"{context}.language_tag")
@@ -2437,8 +2734,13 @@ def load_source_registry(
             component_manifestation_id = release_components[
                 component_id
             ].manifestation_id
-            component_manifestation_ids.add(component_manifestation_id)
-            if manifestation_ids and component_manifestation_id not in manifestation_ids:
+            if component_manifestation_id is not None:
+                component_manifestation_ids.add(component_manifestation_id)
+            if (
+                manifestation_ids
+                and component_manifestation_id is not None
+                and component_manifestation_id not in manifestation_ids
+            ):
                 raise ValueError(
                     f"Source registry `{context}` component `{component_id}` belongs "
                     "to a manifestation outside the package."
@@ -2508,6 +2810,67 @@ def load_source_registry(
             "release_packages.*.package_type",
         )
 
+    packages_by_component: dict[str, set[str]] = {
+        component_id: set() for component_id in release_components
+    }
+    for package in release_packages.values():
+        for component_id in package.release_component_ids:
+            packages_by_component[component_id].add(package.id)
+    for component in release_components.values():
+        if (
+            component.manifestation_id is None
+            and not packages_by_component[component.id]
+        ):
+            raise ValueError(
+                f"Source registry release component `{component.id}` has no "
+                "manifestation and is not included in a release package."
+            )
+        for package_id in packages_by_component[component.id]:
+            package = release_packages[package_id]
+            package_work_ids = {
+                manifestations[manifestation_id].work_id
+                for manifestation_id in package.manifestation_ids
+            } | {
+                segments[segment_id].work_id
+                for segment_id in package.segment_ids
+            }
+            if component.manifestation_id is not None:
+                package_work_ids.add(
+                    manifestations[component.manifestation_id].work_id
+                )
+            component_work_ids = {
+                segments[segment_id].work_id
+                for segment_id in component.segment_ids
+            }
+            if package_work_ids and not component_work_ids.issubset(
+                package_work_ids
+            ):
+                raise ValueError(
+                    f"Source registry release component `{component.id}` has segment "
+                    f"scope outside package `{package_id}`."
+                )
+
+    def release_package_work_ids(package_id: str) -> set[str]:
+        package = release_packages[package_id]
+        work_ids = {
+            manifestations[manifestation_id].work_id
+            for manifestation_id in package.manifestation_ids
+        }
+        work_ids.update(
+            segments[segment_id].work_id for segment_id in package.segment_ids
+        )
+        for component_id in package.release_component_ids:
+            component = release_components[component_id]
+            if component.manifestation_id is not None:
+                work_ids.add(
+                    manifestations[component.manifestation_id].work_id
+                )
+            work_ids.update(
+                segments[segment_id].work_id
+                for segment_id in component.segment_ids
+            )
+        return work_ids
+
     def validate_distribution_scope(
         subject_type: str,
         subject_id: str,
@@ -2547,14 +2910,7 @@ def load_source_registry(
                 f"package `{subject_id}`."
             )
         package = release_packages[subject_id]
-        package_manifestation_ids = set(package.manifestation_ids) | {
-            release_components[component_id].manifestation_id
-            for component_id in package.release_component_ids
-        }
-        package_work_ids = {
-            manifestations[manifestation_id].work_id
-            for manifestation_id in package_manifestation_ids
-        }
+        package_work_ids = release_package_work_ids(subject_id)
         package_segment_ids = set(package.segment_ids)
         for segment_id in segment_ids:
             if segment_id not in segments:
@@ -2571,6 +2927,189 @@ def load_source_registry(
                     f"Source registry `{context}.segment_ids` references segment "
                     f"`{segment_id}` outside release-package scope."
                 )
+
+    raw_release_runs = require_mapping(
+        registry.get("release_runs"), "release_runs"
+    )
+    release_runs: dict[str, ReleaseRun] = {}
+    for run_id, raw_run in raw_release_runs.items():
+        context = f"release_runs.{run_id}"
+        validate_id(run_id, context)
+        run = require_mapping(raw_run, context)
+        subject_type = require_string(run, "subject_type", context)
+        subject_id = require_string(run, "subject_id", context)
+        segment_ids = require_string_list(run, "segment_ids", context)
+        if not segment_ids or len(set(segment_ids)) != len(segment_ids):
+            raise ValueError(
+                f"Source registry `{context}.segment_ids` must be a non-empty "
+                "duplicate-free list."
+            )
+        validate_distribution_scope(
+            subject_type, subject_id, segment_ids, context
+        )
+        ordering_scheme_id = require_string(
+            run, "ordering_scheme_id", context
+        )
+        if ordering_scheme_id not in ordering_schemes:
+            raise ValueError(
+                f"Source registry `{context}.ordering_scheme_id` references unknown "
+                f"ordering scheme `{ordering_scheme_id}`."
+            )
+        ordering = ordering_schemes[ordering_scheme_id]
+        ordered_segment_ids = {
+            entry.target_id
+            for entry in ordering.entries
+            if entry.target_type == "segment"
+        }
+        if (
+            ordering.ordering_mode != "total"
+            or len(ordered_segment_ids) != len(ordering.entries)
+            or ordered_segment_ids != set(segment_ids)
+        ):
+            raise ValueError(
+                f"Source registry `{context}.ordering_scheme_id` must be a total "
+                "ordering of exactly the run's segments."
+            )
+        first_release_window = parse_temporal_window(
+            run, "first_release_window", context, schema_packs
+        )
+        if first_release_window is None:
+            raise ValueError(
+                f"Source registry `{context}.first_release_window` is required."
+            )
+        cadence = require_mapping(run.get("cadence"), f"{context}.cadence")
+        cadence_unit = require_string(cadence, "unit", f"{context}.cadence")
+        cadence_interval = cadence.get("interval")
+        if (
+            isinstance(cadence_interval, bool)
+            or not isinstance(cadence_interval, int)
+            or cadence_interval < 1
+        ):
+            raise ValueError(
+                f"Source registry `{context}.cadence.interval` must be a positive "
+                "integer."
+            )
+        validate_pack_values(
+            schema_packs,
+            "source.release-run-cadence-unit",
+            (cadence_unit,),
+            f"{context}.cadence.unit",
+        )
+        territory_ids = require_string_list(run, "territory_ids", context)
+        unknown_territories = set(territory_ids) - set(territories)
+        if unknown_territories:
+            raise ValueError(
+                f"Source registry `{context}.territory_ids` references unknown "
+                f"territories: {', '.join(sorted(unknown_territories))}."
+            )
+        platform_ids = require_string_list(run, "platform_ids", context)
+        unknown_platforms = set(platform_ids) - set(platforms)
+        if unknown_platforms:
+            raise ValueError(
+                f"Source registry `{context}.platform_ids` references unknown "
+                f"platforms: {', '.join(sorted(unknown_platforms))}."
+            )
+        raw_exceptions = run.get("exceptions")
+        if not isinstance(raw_exceptions, list):
+            raise ValueError(
+                f"Source registry `{context}.exceptions` must be a list."
+            )
+        exceptions: list[ReleaseRunException] = []
+        seen_exceptions: set[tuple[str, str]] = set()
+        for index, raw_exception in enumerate(raw_exceptions):
+            exception_context = f"{context}.exceptions[{index}]"
+            exception = require_mapping(raw_exception, exception_context)
+            exception_type = require_string(
+                exception, "exception_type", exception_context
+            )
+            validate_pack_values(
+                schema_packs,
+                "source.release-run-exception-type",
+                (exception_type,),
+                f"{exception_context}.exception_type",
+            )
+            segment_id = require_string(
+                exception, "segment_id", exception_context
+            )
+            if segment_id not in segment_ids:
+                raise ValueError(
+                    f"Source registry `{exception_context}.segment_id` falls outside "
+                    "the release run."
+                )
+            if (exception_type, segment_id) in seen_exceptions:
+                raise ValueError(
+                    f"Source registry `{context}.exceptions` repeats an exception."
+                )
+            seen_exceptions.add((exception_type, segment_id))
+            release_window = parse_temporal_window(
+                exception,
+                "release_window",
+                exception_context,
+                schema_packs,
+            )
+            interval_count = exception.get("interval_count")
+            if interval_count is not None and (
+                isinstance(interval_count, bool)
+                or not isinstance(interval_count, int)
+                or interval_count < 1
+            ):
+                raise ValueError(
+                    f"Source registry `{exception_context}.interval_count` must be "
+                    "a positive integer when present."
+                )
+            if exception_type == "rescheduled":
+                valid_shape = release_window is not None and interval_count is None
+            elif exception_type == "pause":
+                valid_shape = release_window is None and interval_count is not None
+            else:
+                valid_shape = release_window is None and interval_count is None
+            if not valid_shape:
+                raise ValueError(
+                    f"Source registry `{exception_context}` fields are incompatible "
+                    f"with exception type `{exception_type}`."
+                )
+            exceptions.append(
+                ReleaseRunException(
+                    exception_type,
+                    segment_id,
+                    release_window,
+                    interval_count,
+                )
+            )
+        release_runs[run_id] = ReleaseRun(
+            id=run_id,
+            lifecycle=parse_lifecycle(run, context),
+            label=require_string(run, "label", context),
+            subject_type=subject_type,
+            subject_id=subject_id,
+            segment_ids=segment_ids,
+            ordering_scheme_id=ordering_scheme_id,
+            release_event_type=require_string(
+                run, "release_event_type", context
+            ),
+            first_release_window=first_release_window,
+            cadence_unit=cadence_unit,
+            cadence_interval=cadence_interval,
+            territory_ids=territory_ids,
+            platform_ids=platform_ids,
+            availability_status=require_string(
+                run, "availability_status", context
+            ),
+            exceptions=tuple(exceptions),
+        )
+    if release_runs:
+        validate_pack_values(
+            schema_packs,
+            "source.release-event-type",
+            (run.release_event_type for run in release_runs.values()),
+            "release_runs.*.release_event_type",
+        )
+        validate_pack_values(
+            schema_packs,
+            "source.availability-status",
+            (run.availability_status for run in release_runs.values()),
+            "release_runs.*.availability_status",
+        )
 
     raw_release_events = require_mapping(
         registry.get("release_events"), "release_events"
@@ -2600,6 +3139,32 @@ def load_source_registry(
                 f"Source registry `{context}.territory_ids` references unknown "
                 f"territories: {', '.join(sorted(unknown_territories))}."
             )
+        release_run_id = optional_string(event, "release_run_id", context)
+        if release_run_id is not None:
+            if release_run_id not in release_runs:
+                raise ValueError(
+                    f"Source registry `{context}.release_run_id` references unknown "
+                    f"release run `{release_run_id}`."
+                )
+            release_run = release_runs[release_run_id]
+            if (
+                release_run.subject_type != subject_type
+                or release_run.subject_id != subject_id
+                or not set(segment_ids).issubset(release_run.segment_ids)
+                or (
+                    release_run.platform_ids
+                    and not set(platform_ids).issubset(release_run.platform_ids)
+                )
+                or (
+                    release_run.territory_ids
+                    and not set(territory_ids).issubset(
+                        release_run.territory_ids
+                    )
+                )
+            ):
+                raise ValueError(
+                    f"Source registry `{context}` falls outside its release run."
+                )
         release_events[event_id] = ReleaseEvent(
             id=event_id,
             lifecycle=parse_lifecycle(event, context),
@@ -2618,6 +3183,7 @@ def load_source_registry(
             availability_status=require_string(
                 event, "availability_status", context
             ),
+            release_run_id=release_run_id,
         )
     if release_events:
         validate_pack_values(
@@ -2658,6 +3224,7 @@ def load_source_registry(
         catalog_targets = {
             "work": works,
             "segment": segments,
+            "segment-group": segment_groups,
             "manifestation": manifestations,
             "release-package": release_packages,
         }
@@ -2674,6 +3241,17 @@ def load_source_registry(
                 f"Source registry `{context}.ordinal` must be a positive integer "
                 "when present."
             )
+        localized_titles = parse_localized_titles(placement, context)
+        for localized_title in localized_titles:
+            unknown_territories = set(localized_title.territory_ids) - set(
+                territories
+            )
+            if unknown_territories:
+                raise ValueError(
+                    f"Source registry `{context}.localized_titles` references "
+                    f"unknown territories: "
+                    f"{', '.join(sorted(unknown_territories))}."
+                )
         catalog_placements[placement_id] = CatalogPlacement(
             id=placement_id,
             lifecycle=parse_lifecycle(placement, context),
@@ -2687,6 +3265,7 @@ def load_source_registry(
             target_id=target_id,
             ordinal=ordinal,
             provider_key=optional_string(placement, "provider_key", context),
+            localized_titles=localized_titles,
         )
     for placement in catalog_placements.values():
         parent_id = placement.parent_placement_id
@@ -2892,11 +3471,17 @@ def load_source_registry(
                 f"Source registry `{context}.role` must be one of: "
                 f"{', '.join(sorted(allowed_source_roles))}."
             )
-        work_id = require_string(source, "work_id", context)
-        if work_id not in works:
+        work_ids = require_string_list(source, "work_ids", context)
+        if not work_ids or len(set(work_ids)) != len(work_ids):
             raise ValueError(
-                f"Source registry `{context}.work_id` references unknown work "
-                f"`{work_id}`."
+                f"Source registry `{context}.work_ids` must be a non-empty "
+                "duplicate-free list."
+            )
+        unknown_works = set(work_ids) - set(works)
+        if unknown_works:
+            raise ValueError(
+                f"Source registry `{context}.work_ids` references unknown works: "
+                f"{', '.join(sorted(unknown_works))}."
             )
         manifestation_id = optional_string(source, "manifestation_id", context)
         if manifestation_id is not None:
@@ -2905,10 +3490,10 @@ def load_source_registry(
                     f"Source registry `{context}.manifestation_id` references unknown "
                     f"manifestation `{manifestation_id}`."
                 )
-            if manifestations[manifestation_id].work_id != work_id:
+            if manifestations[manifestation_id].work_id not in work_ids:
                 raise ValueError(
                     f"Source registry `{context}` manifestation belongs to a "
-                    "different work."
+                    "work outside the source scope."
                 )
         release_package_id = optional_string(
             source, "release_package_id", context
@@ -2923,11 +3508,18 @@ def load_source_registry(
             package_manifestation_ids = set(package.manifestation_ids) | {
                 release_components[component_id].manifestation_id
                 for component_id in package.release_component_ids
+                if release_components[component_id].manifestation_id is not None
             }
             if manifestation_id is not None and manifestation_id not in package_manifestation_ids:
                 raise ValueError(
                     f"Source registry `{context}` manifestation is not contained by "
                     "its release package."
+                )
+            package_work_ids = release_package_work_ids(release_package_id)
+            if package_work_ids and not set(work_ids).issubset(package_work_ids):
+                raise ValueError(
+                    f"Source registry `{context}.work_ids` extends beyond its "
+                    "release package."
                 )
         release_event_id = optional_string(source, "release_event_id", context)
         if release_event_id is not None:
@@ -2969,6 +3561,19 @@ def load_source_registry(
                     f"Source registry `{context}` component `{component_id}` does not "
                     "belong to its manifestation or package."
                 )
+            component_work_ids = {
+                segments[segment_id].work_id
+                for segment_id in release_components[component_id].segment_ids
+            }
+            if component_manifestation_id is not None:
+                component_work_ids.add(
+                    manifestations[component_manifestation_id].work_id
+                )
+            if component_work_ids and not component_work_ids.intersection(work_ids):
+                raise ValueError(
+                    f"Source registry `{context}` component `{component_id}` falls "
+                    "outside the source work scope."
+                )
         platform_offering_id = optional_string(
             source, "platform_offering_id", context
         )
@@ -2989,9 +3594,19 @@ def load_source_registry(
                     f"Source registry `{context}` platform offering does not belong "
                     "to its manifestation or package."
                 )
-        if works[work_id].medium_id != medium_id and role not in {"supplemental", "reference", "extract"}:
+        incompatible_work_ids = {
+            work_id
+            for work_id in work_ids
+            if works[work_id].medium_id != medium_id
+        }
+        if incompatible_work_ids and role not in {
+            "supplemental",
+            "reference",
+            "extract",
+        }:
             raise ValueError(
-                f"Source registry `{context}` medium does not match work `{work_id}`."
+                f"Source registry `{context}` medium does not match works: "
+                f"{', '.join(sorted(incompatible_work_ids))}."
             )
         comparison_group = require_string(source, "comparison_group", context)
         validate_id(comparison_group, f"{context}.comparison_group")
@@ -3033,7 +3648,7 @@ def load_source_registry(
             id=source_id,
             lifecycle=lifecycle,
             label=require_string(source, "label", context),
-            work_id=work_id,
+            work_ids=work_ids,
             manifestation_id=manifestation_id,
             release_package_id=release_package_id,
             release_event_id=release_event_id,
@@ -3104,8 +3719,10 @@ def load_source_registry(
     identifier_targets = {
         "work": works,
         "segment": segments,
+        "segment-group": segment_groups,
         "manifestation": manifestations,
         "release-package": release_packages,
+        "release-run": release_runs,
         "release-event": release_events,
         "platform": platforms,
         "catalog-placement": catalog_placements,
@@ -3203,6 +3820,7 @@ def load_source_registry(
         work_relationship_types=work_relationship_types,
         works=works,
         segments=segments,
+        segment_groups=segment_groups,
         numbering_schemes=numbering_schemes,
         ordering_schemes=ordering_schemes,
         work_relationships=tuple(work_relationships),
@@ -3212,8 +3830,12 @@ def load_source_registry(
         manifestation_relationship_types=manifestation_relationship_types,
         manifestations=manifestations,
         manifestation_relationships=tuple(manifestation_relationships),
+        manifestation_segment_mappings=tuple(
+            manifestation_segment_mappings
+        ),
         release_components=release_components,
         release_packages=release_packages,
+        release_runs=release_runs,
         release_events=release_events,
         catalog_placements=catalog_placements,
         platform_offerings=platform_offerings,

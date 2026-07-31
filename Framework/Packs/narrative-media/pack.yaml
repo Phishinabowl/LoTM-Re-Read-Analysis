@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-media
-pack_version: 4
+pack_version: 5
 lifecycle: active
 pack_kind: domain
 label: Narrative Media Foundation
@@ -8,7 +8,7 @@ description: Domain-neutral narrative works, media facets, ordering, continuitie
 
 dependencies:
   - pack_id: core
-    minimum_version: 1
+    minimum_version: 2
 
 capabilities:
   - franchises
@@ -23,6 +23,7 @@ capabilities:
   - numbering-schemes
   - external-identifiers
   - localized-segment-metadata
+  - segment-groups
   - narrative-time
   - reader-disclosure
   - spoiler-bounding
@@ -137,6 +138,16 @@ controlled_values:
     - arc
     - part
     - volume
+  source.segment-group-type:
+    - narrative-arc
+    - saga
+    - storyline
+    - crossover
+    - cover-story
+    - publication-unit
+    - season
+    - collection
+    - reading-path
   source.ordering-type:
     - release-order
     - publication-order
@@ -153,6 +164,7 @@ controlled_values:
   source.identifier-target-type:
     - work
     - segment
+    - segment-group
     - manifestation
     - release-package
     - release-event

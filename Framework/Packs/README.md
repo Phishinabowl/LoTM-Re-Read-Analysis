@@ -6,12 +6,12 @@ Schema packs are composable contracts, not project instances. Pack files define 
 
 | Pack | Purpose |
 | --- | --- |
-| `core` | Domain-neutral identity, evidence, relationships, temporal positions, visibility, projection, and validation. |
-| `narrative-media` | Narrative foundation: works, media facets, work hierarchy, ordering, continuity, narrative time, and reader disclosure. |
+| `core` | Domain-neutral identity, composite evidence scope, relationships, temporal positions, visibility, projection, and validation. |
+| `narrative-media` | Narrative foundation: works, media facets, structural segments, overlapping segment groups, ordering, continuity, narrative time, and reader disclosure. |
 | `narrative-publishing` | Prose and sequential-art serialization, editions, localization, packaging, and planned publication-run/textual-history support. |
 | `narrative-screen-audio` | Film, television, animation, audio works, episodes, specials, cuts, tracks, embedded visuals, and planned live-performance production/event support. |
 | `narrative-adaptation` | Work lineage, segment mappings, adaptation deviations, and authority-aware comparison. |
-| `narrative-distribution` | Editions, cuts, builds, segment-scoped manifestations, components, release packages/events, structured time, platform catalogs/offerings, identifiers, and regional availability. |
+| `narrative-distribution` | Editions, cuts, builds, manifestation segment mappings, package-scoped components, release packages/runs/events, structured time, localized platform catalogs/offerings, identifiers, and regional availability. |
 | `narrative-shared-universe` | Optional multiverse, reboot, incarnation, retcon, and crossover-event support. |
 | `narrative-interactive` | Optional branching-story, route, ending, playthrough, campaign, and session support. |
 | `narrative-preservation` | Optional missing, partial, reconstructed, archival, and access-state support. |

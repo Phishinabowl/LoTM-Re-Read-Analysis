@@ -11,7 +11,7 @@ if (-not (Get-Command Get-KnowledgeSchemaPackRegistry -ErrorAction SilentlyConti
   . $schemaPackConfigHelper
 }
 
-$script:SupportedSourceSchemaVersion = 5
+$script:SupportedSourceSchemaVersion = 6
 $script:AllowedSourceLifecycles = @("active", "deferred")
 $script:AllowedPositionFieldTypes = @("string", "integer", "number", "timestamp", "boolean")
 $script:AllowedPriorityOrders = @("ascending", "descending")
@@ -970,6 +970,42 @@ function Get-KnowledgeSourceRegistry {
     Assert-SourceSchemaPackValues $SchemaPackRegistry "source.ordering-type" @($orderingSchemes.Values | ForEach-Object { $_.ordering_type }) "ordering_schemes.*.ordering_type"
   }
 
+  $rawSegmentGroups=Get-ProjectMapValue $registry "segment_groups"
+  if ($null -eq $rawSegmentGroups -or -not ($rawSegmentGroups -is [System.Collections.IDictionary])) { throw "Source registry 'segment_groups' must be a mapping." }
+  $segmentGroups=[ordered]@{}
+  $segmentGroupAliasKeys=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+  foreach ($groupId in $rawSegmentGroups.Keys) {
+    $context="segment_groups.$groupId"; Test-StableSourceId $groupId $context; $group=$rawSegmentGroups[$groupId]
+    $segmentIds=@(Get-SourceStringList $group "segment_ids" $context)
+    if ($segmentIds.Count -eq 0 -or @($segmentIds | Sort-Object -Unique).Count -ne $segmentIds.Count) { throw "Source registry '$context.segment_ids' must be a non-empty duplicate-free list." }
+    foreach ($segmentId in $segmentIds) { if (-not $segments.Contains($segmentId)) { throw "Source registry '$context.segment_ids' references unknown segment '$segmentId'." } }
+    $parentGroupIds=@(Get-SourceStringListAllowEmpty $group "parent_group_ids" $context)
+    if ($parentGroupIds -contains $groupId -or @($parentGroupIds | Sort-Object -Unique).Count -ne $parentGroupIds.Count) { throw "Source registry '$context.parent_group_ids' contains a self reference or duplicate." }
+    $orderingSchemeId=Get-OptionalSourceString $group "ordering_scheme_id" $context
+    if ($null -ne $orderingSchemeId) {
+      if (-not $orderingSchemes.Contains($orderingSchemeId)) { throw "Source registry '$context.ordering_scheme_id' references unknown ordering scheme '$orderingSchemeId'." }
+      $orderedEntries=@($orderingSchemes[$orderingSchemeId].entries)
+      $orderedSegmentIds=@($orderedEntries | Where-Object {$_.target_type -eq "segment"} | ForEach-Object {$_.target_id} | Sort-Object -Unique)
+      if ($orderedSegmentIds.Count -ne $orderedEntries.Count -or (Compare-Object @($segmentIds|Sort-Object) @($orderedSegmentIds|Sort-Object))) { throw "Source registry '$context.ordering_scheme_id' must order exactly the group's segments." }
+    }
+    $aliases=@(Get-SourceStringListAllowEmpty $group "aliases" $context)
+    foreach($alias in $aliases) {
+      Test-StableSourceId $alias "$context.aliases"
+      $collides=@($rawSegmentGroups.Keys | Where-Object {$_.ToLowerInvariant() -eq $alias.ToLowerInvariant()}).Count -gt 0
+      if($collides -or -not $segmentGroupAliasKeys.Add($alias)){throw "Source registry segment-group alias '$alias' is duplicated or collides with a group ID."}
+    }
+    $lifecycle=Get-RequiredSourceString $group "lifecycle" $context
+    if ($script:AllowedSourceLifecycles -notcontains $lifecycle) { throw "Source registry '$context.lifecycle' must be one of: $($script:AllowedSourceLifecycles -join ', ')." }
+    $segmentGroups[$groupId]=[pscustomobject]@{id=$groupId;lifecycle=$lifecycle;label=Get-RequiredSourceString $group "label" $context;group_type=Get-RequiredSourceString $group "group_type" $context;segment_ids=@($segmentIds);parent_group_ids=@($parentGroupIds);ordering_scheme_id=$orderingSchemeId;localized_titles=@(ConvertTo-SourceLocalizedTitles $group $context);aliases=@($aliases)}
+  }
+  if($segmentGroups.Count -gt 0){Assert-SourceSchemaPackValues $SchemaPackRegistry "source.segment-group-type" @($segmentGroups.Values|ForEach-Object {$_.group_type}) "segment_groups.*.group_type"}
+  foreach($group in $segmentGroups.Values){foreach($parentId in $group.parent_group_ids){if(-not $segmentGroups.Contains($parentId)){throw "Source registry segment group '$($group.id)' references unknown parent '$parentId'."}}}
+  $remainingGroupParents=@{};$readyGroups=New-Object System.Collections.Queue
+  foreach($group in $segmentGroups.Values){$remainingGroupParents[$group.id]=[int]$group.parent_group_ids.Count;if($group.parent_group_ids.Count -eq 0){$readyGroups.Enqueue($group.id)}}
+  $processedGroups=0
+  while($readyGroups.Count -gt 0){$currentGroupId=[string]$readyGroups.Dequeue();$processedGroups++;foreach($child in @($segmentGroups.Values|Where-Object {$_.parent_group_ids -contains $currentGroupId})){$remainingGroupParents[$child.id]--;if($remainingGroupParents[$child.id] -eq 0){$readyGroups.Enqueue($child.id)}}}
+  if($processedGroups -ne $segmentGroups.Count){throw "Source registry contains a segment-group cycle."}
+
   $workRelationships = @()
   $rawWorkRelationships = @(Get-ProjectMapValue $registry "work_relationships")
   for ($index=0; $index -lt $rawWorkRelationships.Count; $index++) {
@@ -1065,7 +1101,7 @@ function Get-KnowledgeSourceRegistry {
   }
   $seenTerritoryCodes=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
   foreach ($territory in $territories.Values) { foreach ($schemeId in $territory.codes.Keys) { if (-not $seenTerritoryCodes.Add("$schemeId|$($territory.codes[$schemeId])")) { throw "Source registry repeats territory code '${schemeId}:$($territory.codes[$schemeId])'." } } }
-  foreach ($owner in @($works.Values)+@($segments.Values)) {
+  foreach ($owner in @($works.Values)+@($segments.Values)+@($segmentGroups.Values)) {
     foreach ($localizedTitle in $owner.localized_titles) { foreach ($territoryId in $localizedTitle.territory_ids) { if (-not $territories.Contains($territoryId)) { throw "Source registry localized title references unknown territory '$territoryId'." } } }
   }
 
@@ -1156,17 +1192,41 @@ function Get-KnowledgeSourceRegistry {
     $manifestationRelationships += [pscustomobject]@{ id=$id; source_manifestation_id=$sourceId; relationship_type=$type; target_manifestation_id=$targetId; status=$status }
   }
 
+  $relatedManifestationPairs=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+  foreach($relationship in $manifestationRelationships){[void]$relatedManifestationPairs.Add((@($relationship.source_manifestation_id,$relationship.target_manifestation_id)|Sort-Object)-join "|")}
+  $manifestationSegmentMappings=@();$seenManifestationMappingIds=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+  $rawManifestationSegmentMappings=@(Get-ProjectMapValue $registry "manifestation_segment_mappings")
+  for($index=0;$index -lt $rawManifestationSegmentMappings.Count;$index++){
+    $context="manifestation_segment_mappings[$index]";$mapping=$rawManifestationSegmentMappings[$index]
+    $id=Get-RequiredSourceString $mapping "id" $context;Test-StableSourceId $id "$context.id";if(-not $seenManifestationMappingIds.Add($id)){throw "Source registry manifestation segment mapping ID '$id' is duplicated."}
+    $sourceId=Get-RequiredSourceString $mapping "source_manifestation_id" $context;$targetId=Get-RequiredSourceString $mapping "target_manifestation_id" $context
+    if(-not $manifestations.Contains($sourceId) -or -not $manifestations.Contains($targetId)){throw "Source registry '$context' references an unknown manifestation."}
+    if($sourceId -eq $targetId){throw "Source registry '$context' cannot map a manifestation to itself."}
+    if($manifestations[$sourceId].work_id -ne $manifestations[$targetId].work_id){throw "Source registry '$context' must map manifestations of the same work."}
+    if(-not $relatedManifestationPairs.Contains((@($sourceId,$targetId)|Sort-Object)-join "|")){throw "Source registry '$context' requires a manifestation relationship between its source and target."}
+    $sourceSegmentIds=@(Get-SourceStringListAllowEmpty $mapping "source_segment_ids" $context);$targetSegmentIds=@(Get-SourceStringListAllowEmpty $mapping "target_segment_ids" $context)
+    foreach($scope in @([pscustomobject]@{name="source_segment_ids";ids=$sourceSegmentIds;manifestation_id=$sourceId},[pscustomobject]@{name="target_segment_ids";ids=$targetSegmentIds;manifestation_id=$targetId})){
+      foreach($segmentId in $scope.ids){if(-not $segments.Contains($segmentId) -or $segments[$segmentId].work_id -ne $manifestations[$scope.manifestation_id].work_id -or ($manifestations[$scope.manifestation_id].segment_ids.Count -gt 0 -and $manifestations[$scope.manifestation_id].segment_ids -notcontains $segmentId)){throw "Source registry '$context.$($scope.name)' references segment '$segmentId' outside manifestation scope."}}
+    }
+    $mappingType=Get-RequiredSourceString $mapping "mapping_type" $context
+    $validShape=if($mappingType -eq "omitted"){$sourceSegmentIds.Count -gt 0 -and $targetSegmentIds.Count -eq 0}elseif($mappingType -eq "added"){$sourceSegmentIds.Count -eq 0 -and $targetSegmentIds.Count -gt 0}else{$sourceSegmentIds.Count -gt 0 -and $targetSegmentIds.Count -gt 0}
+    if(-not $validShape){throw "Source registry '$context' has segment lists incompatible with mapping type '$mappingType'."}
+    $status=Get-RequiredSourceString $mapping "status" $context;if($allowedMembershipStatuses -notcontains $status){throw "Source registry '$context.status' must be one of: $($allowedMembershipStatuses -join ', ')." }
+    $manifestationSegmentMappings += [pscustomobject]@{id=$id;source_manifestation_id=$sourceId;source_segment_ids=@($sourceSegmentIds);target_manifestation_id=$targetId;target_segment_ids=@($targetSegmentIds);mapping_type=$mappingType;status=$status}
+  }
+  if($manifestationSegmentMappings.Count -gt 0){Assert-SourceSchemaPackValues $SchemaPackRegistry "source.manifestation-segment-mapping-type" @($manifestationSegmentMappings|ForEach-Object {$_.mapping_type}) "manifestation_segment_mappings.*.mapping_type"}
+
   $rawReleaseComponents = Get-ProjectMapValue $registry "release_components"
   if ($null -eq $rawReleaseComponents -or -not ($rawReleaseComponents -is [System.Collections.IDictionary])) { throw "Source registry 'release_components' must be a mapping." }
   $releaseComponents = [ordered]@{}
   foreach ($componentId in $rawReleaseComponents.Keys) {
     $context="release_components.$componentId"; Test-StableSourceId $componentId $context; $component=$rawReleaseComponents[$componentId]
-    $manifestationId=Get-RequiredSourceString $component "manifestation_id" $context
-    if (-not $manifestations.Contains($manifestationId)) { throw "Source registry '$context.manifestation_id' references unknown manifestation '$manifestationId'." }
+    $manifestationId=Get-OptionalSourceString $component "manifestation_id" $context
+    if ($null -ne $manifestationId -and -not $manifestations.Contains($manifestationId)) { throw "Source registry '$context.manifestation_id' references unknown manifestation '$manifestationId'." }
     $segmentIds=@(Get-SourceStringListAllowEmpty $component "segment_ids" $context)
     foreach ($segmentId in $segmentIds) {
-      if (-not $segments.Contains($segmentId) -or $segments[$segmentId].work_id -ne $manifestations[$manifestationId].work_id) { throw "Source registry '$context.segment_ids' references segment '$segmentId' outside the manifestation work." }
-      if ($manifestations[$manifestationId].segment_ids.Count -gt 0 -and $manifestations[$manifestationId].segment_ids -notcontains $segmentId) { throw "Source registry '$context.segment_ids' references segment '$segmentId' outside manifestation scope." }
+      if (-not $segments.Contains($segmentId)) { throw "Source registry '$context.segment_ids' references unknown segment '$segmentId'." }
+      if ($null -ne $manifestationId -and ($segments[$segmentId].work_id -ne $manifestations[$manifestationId].work_id -or ($manifestations[$manifestationId].segment_ids.Count -gt 0 -and $manifestations[$manifestationId].segment_ids -notcontains $segmentId))) { throw "Source registry '$context.segment_ids' references segment '$segmentId' outside manifestation scope." }
     }
     $languageTag=Get-OptionalSourceString $component "language_tag" $context
     if ($null -ne $languageTag) { Test-SourceLanguageTag $languageTag "$context.language_tag" }
@@ -1199,9 +1259,9 @@ function Get-KnowledgeSourceRegistry {
     }
     foreach ($componentId in $componentIds) {
       if (-not $releaseComponents.Contains($componentId)) { throw "Source registry '$context.release_component_ids' references unknown component '$componentId'." }
-      if ($manifestationIds.Count -gt 0 -and $manifestationIds -notcontains $releaseComponents[$componentId].manifestation_id) { throw "Source registry '$context.release_component_ids' references component '$componentId' outside the package manifestations." }
+      if ($manifestationIds.Count -gt 0 -and $null -ne $releaseComponents[$componentId].manifestation_id -and $manifestationIds -notcontains $releaseComponents[$componentId].manifestation_id) { throw "Source registry '$context.release_component_ids' references component '$componentId' outside the package manifestations." }
     }
-    $effectiveManifestationIds=@($manifestationIds + @($componentIds | ForEach-Object { $releaseComponents[$_].manifestation_id }) | Sort-Object -Unique)
+    $effectiveManifestationIds=@($manifestationIds + @($componentIds | ForEach-Object { $releaseComponents[$_].manifestation_id } | Where-Object {$null -ne $_}) | Sort-Object -Unique)
     $packageWorkIds=@($effectiveManifestationIds | ForEach-Object { $manifestations[$_].work_id } | Sort-Object -Unique)
     foreach ($segmentId in $segmentIds) {
       if ($packageWorkIds.Count -gt 0 -and $packageWorkIds -notcontains $segments[$segmentId].work_id) { throw "Source registry '$context.segment_ids' references segment '$segmentId' outside the package manifestations." }
@@ -1229,6 +1289,27 @@ function Get-KnowledgeSourceRegistry {
   }
   if ($releasePackages.Count -gt 0) { Assert-SourceSchemaPackValues $SchemaPackRegistry "source.release-package-type" @($releasePackages.Values | ForEach-Object { $_.package_type }) "release_packages.*.package_type" }
 
+  $packagesByComponent=@{};foreach($componentId in $releaseComponents.Keys){$packagesByComponent[$componentId]=@()}
+  foreach($package in $releasePackages.Values){foreach($componentId in $package.release_component_ids){$packagesByComponent[$componentId]=@($packagesByComponent[$componentId]+$package.id)}}
+  foreach($component in $releaseComponents.Values){
+    if($null -eq $component.manifestation_id -and $packagesByComponent[$component.id].Count -eq 0){throw "Source registry release component '$($component.id)' has no manifestation and is not included in a release package."}
+    foreach($packageId in $packagesByComponent[$component.id]){
+      $package=$releasePackages[$packageId]
+      $packageWorkIds=@($package.manifestation_ids|ForEach-Object {$manifestations[$_].work_id})
+      $packageWorkIds+=@($package.segment_ids|ForEach-Object {$segments[$_].work_id})
+      if($null -ne $component.manifestation_id){$packageWorkIds+=@($manifestations[$component.manifestation_id].work_id)}
+      $packageWorkIds=@($packageWorkIds|Sort-Object -Unique)
+      $componentWorkIds=@($component.segment_ids|ForEach-Object {$segments[$_].work_id}|Sort-Object -Unique)
+      if($packageWorkIds.Count -gt 0 -and @($componentWorkIds|Where-Object {$packageWorkIds -notcontains $_}).Count -gt 0){throw "Source registry release component '$($component.id)' has segment scope outside package '$packageId'."}
+    }
+  }
+  $getReleasePackageWorkIds={
+    param([string]$PackageId)
+    $package=$releasePackages[$PackageId];$workIds=@($package.manifestation_ids|ForEach-Object {$manifestations[$_].work_id});$workIds+=@($package.segment_ids|ForEach-Object {$segments[$_].work_id})
+    foreach($componentId in $package.release_component_ids){$component=$releaseComponents[$componentId];if($null -ne $component.manifestation_id){$workIds+=@($manifestations[$component.manifestation_id].work_id)};$workIds+=@($component.segment_ids|ForEach-Object {$segments[$_].work_id})}
+    return @($workIds|Sort-Object -Unique)
+  }
+
   $validateDistributionScope = {
     param([string]$SubjectType,[string]$SubjectId,[object[]]$SegmentIds,[string]$Context)
     Assert-SourceSchemaPackValues $SchemaPackRegistry "source.distribution-subject-type" @($SubjectType) "$Context.subject_type"
@@ -1246,8 +1327,7 @@ function Get-KnowledgeSourceRegistry {
         if (-not $segments.Contains($segmentId)) { throw "Source registry '$Context.segment_ids' references unknown segment '$segmentId'." }
         if ($releasePackages[$SubjectId].segment_ids.Count -gt 0 -and $releasePackages[$SubjectId].segment_ids -notcontains $segmentId) { throw "Source registry '$Context.segment_ids' references segment '$segmentId' outside release-package scope." }
         if ($releasePackages[$SubjectId].segment_ids.Count -eq 0) {
-          $packageManifestationIds=@($releasePackages[$SubjectId].manifestation_ids + @($releasePackages[$SubjectId].release_component_ids | ForEach-Object { $releaseComponents[$_].manifestation_id }) | Sort-Object -Unique)
-          $packageWorkIds=@($packageManifestationIds | ForEach-Object { $manifestations[$_].work_id } | Sort-Object -Unique)
+          $packageWorkIds=@(& $getReleasePackageWorkIds $SubjectId)
           if ($packageWorkIds.Count -gt 0 -and $packageWorkIds -notcontains $segments[$segmentId].work_id) { throw "Source registry '$Context.segment_ids' references segment '$segmentId' outside release-package manifestations." }
         }
       }
@@ -1255,6 +1335,41 @@ function Get-KnowledgeSourceRegistry {
     }
     throw "Source registry '$Context.subject_type' has unsupported value '$SubjectType'."
   }
+
+  $rawReleaseRuns=Get-ProjectMapValue $registry "release_runs"
+  if($null -eq $rawReleaseRuns -or -not ($rawReleaseRuns -is [System.Collections.IDictionary])){throw "Source registry 'release_runs' must be a mapping."}
+  $releaseRuns=[ordered]@{}
+  foreach($runId in $rawReleaseRuns.Keys){
+    $context="release_runs.$runId";Test-StableSourceId $runId $context;$run=$rawReleaseRuns[$runId]
+    $subjectType=Get-RequiredSourceString $run "subject_type" $context;$subjectId=Get-RequiredSourceString $run "subject_id" $context;$segmentIds=@(Get-SourceStringList $run "segment_ids" $context)
+    if($segmentIds.Count -eq 0 -or @($segmentIds|Sort-Object -Unique).Count -ne $segmentIds.Count){throw "Source registry '$context.segment_ids' must be a non-empty duplicate-free list."}
+    & $validateDistributionScope $subjectType $subjectId $segmentIds $context
+    $orderingSchemeId=Get-RequiredSourceString $run "ordering_scheme_id" $context
+    if(-not $orderingSchemes.Contains($orderingSchemeId)){throw "Source registry '$context.ordering_scheme_id' references unknown ordering scheme '$orderingSchemeId'."}
+    $ordering=$orderingSchemes[$orderingSchemeId];$orderedEntries=@($ordering.entries);$orderedSegmentIds=@($orderedEntries|Where-Object {$_.target_type -eq "segment"}|ForEach-Object {$_.target_id}|Sort-Object -Unique)
+    if($ordering.ordering_mode -ne "total" -or $orderedSegmentIds.Count -ne $orderedEntries.Count -or (Compare-Object @($segmentIds|Sort-Object) @($orderedSegmentIds|Sort-Object))){throw "Source registry '$context.ordering_scheme_id' must be a total ordering of exactly the run's segments."}
+    $firstReleaseWindow=ConvertTo-SourceTemporalWindow $run "first_release_window" $context $SchemaPackRegistry
+    if($null -eq $firstReleaseWindow){throw "Source registry '$context.first_release_window' is required."}
+    $cadence=Get-ProjectMapValue $run "cadence";if($null -eq $cadence -or -not ($cadence -is [System.Collections.IDictionary])){throw "Source registry '$context.cadence' must be a mapping."}
+    $cadenceUnit=Get-RequiredSourceString $cadence "unit" "$context.cadence";$cadenceInterval=Get-ProjectMapValue $cadence "interval"
+    if($cadenceInterval -is [bool] -or $cadenceInterval -isnot [int] -or [int]$cadenceInterval -lt 1){throw "Source registry '$context.cadence.interval' must be a positive integer."}
+    Assert-SourceSchemaPackValues $SchemaPackRegistry "source.release-run-cadence-unit" @($cadenceUnit) "$context.cadence.unit"
+    $territoryIds=@(Get-SourceStringListAllowEmpty $run "territory_ids" $context);foreach($territoryId in $territoryIds){if(-not $territories.Contains($territoryId)){throw "Source registry '$context.territory_ids' references unknown territory '$territoryId'."}}
+    $platformIds=@(Get-SourceStringListAllowEmpty $run "platform_ids" $context);foreach($platformId in $platformIds){if(-not $platforms.Contains($platformId)){throw "Source registry '$context.platform_ids' references unknown platform '$platformId'."}}
+    $rawExceptions=@(Get-ProjectMapValue $run "exceptions");$exceptions=@();$seenExceptions=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    for($index=0;$index -lt $rawExceptions.Count;$index++){
+      $exceptionContext="$context.exceptions[$index]";$exception=$rawExceptions[$index];$exceptionType=Get-RequiredSourceString $exception "exception_type" $exceptionContext;Assert-SourceSchemaPackValues $SchemaPackRegistry "source.release-run-exception-type" @($exceptionType) "$exceptionContext.exception_type"
+      $segmentId=Get-RequiredSourceString $exception "segment_id" $exceptionContext;if($segmentIds -notcontains $segmentId){throw "Source registry '$exceptionContext.segment_id' falls outside the release run."};if(-not $seenExceptions.Add("$exceptionType|$segmentId")){throw "Source registry '$context.exceptions' repeats an exception."}
+      $releaseWindow=ConvertTo-SourceTemporalWindow $exception "release_window" $exceptionContext $SchemaPackRegistry;$intervalCount=Get-ProjectMapValue $exception "interval_count"
+      if($null -ne $intervalCount -and ($intervalCount -is [bool] -or $intervalCount -isnot [int] -or [int]$intervalCount -lt 1)){throw "Source registry '$exceptionContext.interval_count' must be a positive integer when present."}
+      $validShape=if($exceptionType -eq "rescheduled"){$null -ne $releaseWindow -and $null -eq $intervalCount}elseif($exceptionType -eq "pause"){$null -eq $releaseWindow -and $null -ne $intervalCount}else{$null -eq $releaseWindow -and $null -eq $intervalCount}
+      if(-not $validShape){throw "Source registry '$exceptionContext' fields are incompatible with exception type '$exceptionType'."}
+      $exceptions += [pscustomobject]@{exception_type=$exceptionType;segment_id=$segmentId;release_window=$releaseWindow;interval_count=if($null -eq $intervalCount){$null}else{[int]$intervalCount}}
+    }
+    $lifecycle=Get-RequiredSourceString $run "lifecycle" $context;if($script:AllowedSourceLifecycles -notcontains $lifecycle){throw "Source registry '$context.lifecycle' must be one of: $($script:AllowedSourceLifecycles -join ', ')." }
+    $releaseRuns[$runId]=[pscustomobject]@{id=$runId;lifecycle=$lifecycle;label=Get-RequiredSourceString $run "label" $context;subject_type=$subjectType;subject_id=$subjectId;segment_ids=@($segmentIds);ordering_scheme_id=$orderingSchemeId;release_event_type=Get-RequiredSourceString $run "release_event_type" $context;first_release_window=$firstReleaseWindow;cadence_unit=$cadenceUnit;cadence_interval=[int]$cadenceInterval;territory_ids=@($territoryIds);platform_ids=@($platformIds);availability_status=Get-RequiredSourceString $run "availability_status" $context;exceptions=@($exceptions)}
+  }
+  if($releaseRuns.Count -gt 0){Assert-SourceSchemaPackValues $SchemaPackRegistry "source.release-event-type" @($releaseRuns.Values|ForEach-Object {$_.release_event_type}) "release_runs.*.release_event_type";Assert-SourceSchemaPackValues $SchemaPackRegistry "source.availability-status" @($releaseRuns.Values|ForEach-Object {$_.availability_status}) "release_runs.*.availability_status"}
 
   $rawReleaseEvents = Get-ProjectMapValue $registry "release_events"
   if ($null -eq $rawReleaseEvents -or -not ($rawReleaseEvents -is [System.Collections.IDictionary])) { throw "Source registry 'release_events' must be a mapping." }
@@ -1269,6 +1384,12 @@ function Get-KnowledgeSourceRegistry {
     foreach ($platformId in $platformIds) { if (-not $platforms.Contains($platformId)) { throw "Source registry '$context.platform_ids' references unknown platform '$platformId'." } }
     $territoryIds=@(Get-SourceStringListAllowEmpty $event "territory_ids" $context)
     foreach ($territoryId in $territoryIds) { if (-not $territories.Contains($territoryId)) { throw "Source registry '$context.territory_ids' references unknown territory '$territoryId'." } }
+    $releaseRunId=Get-OptionalSourceString $event "release_run_id" $context
+    if($null -ne $releaseRunId){
+      if(-not $releaseRuns.Contains($releaseRunId)){throw "Source registry '$context.release_run_id' references unknown release run '$releaseRunId'."}
+      $releaseRun=$releaseRuns[$releaseRunId]
+      if($releaseRun.subject_type -ne $subjectType -or $releaseRun.subject_id -ne $subjectId -or @($segmentIds|Where-Object {$releaseRun.segment_ids -notcontains $_}).Count -gt 0 -or ($releaseRun.platform_ids.Count -gt 0 -and @($platformIds|Where-Object {$releaseRun.platform_ids -notcontains $_}).Count -gt 0) -or ($releaseRun.territory_ids.Count -gt 0 -and @($territoryIds|Where-Object {$releaseRun.territory_ids -notcontains $_}).Count -gt 0)){throw "Source registry '$context' falls outside its release run."}
+    }
     $releaseEvents[$eventId]=[pscustomobject]@{
       id=$eventId; lifecycle=Get-RequiredSourceString $event "lifecycle" $context; label=Get-RequiredSourceString $event "label" $context
       subject_type=$subjectType; subject_id=$subjectId; segment_ids=@($segmentIds)
@@ -1276,6 +1397,7 @@ function Get-KnowledgeSourceRegistry {
       release_window=ConvertTo-SourceTemporalWindow (Get-ProjectMapValue $event "release_window") "$context.release_window" $SchemaPackRegistry
       territory_ids=@($territoryIds)
       platform_ids=@($platformIds); availability_status=Get-RequiredSourceString $event "availability_status" $context
+      release_run_id=$releaseRunId
     }
     if ($script:AllowedSourceLifecycles -notcontains $releaseEvents[$eventId].lifecycle) { throw "Source registry '$context.lifecycle' must be one of: $($script:AllowedSourceLifecycles -join ', ')." }
   }
@@ -1297,6 +1419,7 @@ function Get-KnowledgeSourceRegistry {
     $targetExists = switch ($targetType) {
       "work" { $works.Contains($targetId) }
       "segment" { $segments.Contains($targetId) }
+      "segment-group" { $segmentGroups.Contains($targetId) }
       "manifestation" { $manifestations.Contains($targetId) }
       "release-package" { $releasePackages.Contains($targetId) }
       default { $false }
@@ -1304,12 +1427,15 @@ function Get-KnowledgeSourceRegistry {
     if (-not $targetExists) { throw "Source registry '$context.target_id' references unknown $targetType '$targetId'." }
     $ordinal=Get-ProjectMapValue $placement "ordinal"
     if ($null -ne $ordinal -and ($ordinal -is [bool] -or $ordinal -isnot [int] -or [int]$ordinal -lt 1)) { throw "Source registry '$context.ordinal' must be a positive integer when present." }
+    $localizedTitles=@(ConvertTo-SourceLocalizedTitles $placement $context)
+    foreach($localizedTitle in $localizedTitles){foreach($territoryId in $localizedTitle.territory_ids){if(-not $territories.Contains($territoryId)){throw "Source registry '$context.localized_titles' references unknown territory '$territoryId'."}}}
     $catalogPlacements[$placementId]=[pscustomobject]@{
       id=$placementId; lifecycle=Get-RequiredSourceString $placement "lifecycle" $context; label=Get-RequiredSourceString $placement "label" $context
       platform_id=$platformId; placement_type=Get-RequiredSourceString $placement "placement_type" $context
       parent_placement_id=Get-OptionalSourceString $placement "parent_placement_id" $context
       target_type=$targetType; target_id=$targetId; ordinal=if($null -eq $ordinal){$null}else{[int]$ordinal}
       provider_key=Get-OptionalSourceString $placement "provider_key" $context
+      localized_titles=@($localizedTitles)
     }
     if ($script:AllowedSourceLifecycles -notcontains $catalogPlacements[$placementId].lifecycle) { throw "Source registry '$context.lifecycle' must be one of: $($script:AllowedSourceLifecycles -join ', ')." }
   }
@@ -1391,19 +1517,22 @@ function Get-KnowledgeSourceRegistry {
     $context="sources.$sourceId"; Test-StableSourceId $sourceId $context; $source=$rawSources[$sourceId]
     $lifecycle=Get-RequiredSourceString $source "lifecycle" $context
     if ($script:AllowedSourceLifecycles -notcontains $lifecycle) { throw "Source registry '$context.lifecycle' must be one of: $($script:AllowedSourceLifecycles -join ', ')." }
-    $workId=Get-RequiredSourceString $source "work_id" $context; $mediumId=Get-RequiredSourceString $source "medium_id" $context
-    if (-not $works.Contains($workId)) { throw "Source registry '$context.work_id' references unknown work '$workId'." }
+    $workIds=@(Get-SourceStringList $source "work_ids" $context); $mediumId=Get-RequiredSourceString $source "medium_id" $context
+    if($workIds.Count -eq 0 -or @($workIds|Sort-Object -Unique).Count -ne $workIds.Count){throw "Source registry '$context.work_ids' must be a non-empty duplicate-free list."}
+    foreach($workId in $workIds){if(-not $works.Contains($workId)){throw "Source registry '$context.work_ids' references unknown work '$workId'."}}
     if (-not $mediums.Contains($mediumId)) { throw "Source registry '$context.medium_id' references unknown medium '$mediumId'." }
     $manifestationId=Get-OptionalSourceString $source "manifestation_id" $context
     if ($null -ne $manifestationId) {
       if (-not $manifestations.Contains($manifestationId)) { throw "Source registry '$context.manifestation_id' references unknown manifestation '$manifestationId'." }
-      if ($manifestations[$manifestationId].work_id -ne $workId) { throw "Source registry '$context' manifestation belongs to a different work." }
+      if ($workIds -notcontains $manifestations[$manifestationId].work_id) { throw "Source registry '$context' manifestation belongs to a work outside the source scope." }
     }
     $releasePackageId=Get-OptionalSourceString $source "release_package_id" $context
     if ($null -ne $releasePackageId) {
       if (-not $releasePackages.Contains($releasePackageId)) { throw "Source registry '$context.release_package_id' references unknown release package '$releasePackageId'." }
-      $packageManifestationIds=@($releasePackages[$releasePackageId].manifestation_ids + @($releasePackages[$releasePackageId].release_component_ids | ForEach-Object { $releaseComponents[$_].manifestation_id }) | Sort-Object -Unique)
+      $packageManifestationIds=@($releasePackages[$releasePackageId].manifestation_ids + @($releasePackages[$releasePackageId].release_component_ids | ForEach-Object { $releaseComponents[$_].manifestation_id } | Where-Object {$null -ne $_}) | Sort-Object -Unique)
       if ($null -ne $manifestationId -and $packageManifestationIds -notcontains $manifestationId) { throw "Source registry '$context' manifestation is not contained by its release package." }
+      $packageWorkIds=@(& $getReleasePackageWorkIds $releasePackageId)
+      if($packageWorkIds.Count -gt 0 -and @($workIds|Where-Object {$packageWorkIds -notcontains $_}).Count -gt 0){throw "Source registry '$context.work_ids' extends beyond its release package."}
     }
     $releaseEventId=Get-OptionalSourceString $source "release_event_id" $context
     if ($null -ne $releaseEventId) {
@@ -1418,6 +1547,10 @@ function Get-KnowledgeSourceRegistry {
       $componentMatches=($null -ne $manifestationId -and $releaseComponents[$componentId].manifestation_id -eq $manifestationId)
       if ($null -ne $releasePackageId) { $componentMatches=$componentMatches -or ($releasePackages[$releasePackageId].release_component_ids -contains $componentId) }
       if (-not $componentMatches) { throw "Source registry '$context' component '$componentId' does not belong to its manifestation or package." }
+      $componentWorkIds=@($releaseComponents[$componentId].segment_ids|ForEach-Object {$segments[$_].work_id})
+      if($null -ne $releaseComponents[$componentId].manifestation_id){$componentWorkIds+=@($manifestations[$releaseComponents[$componentId].manifestation_id].work_id)}
+      $componentWorkIds=@($componentWorkIds|Sort-Object -Unique)
+      if($componentWorkIds.Count -gt 0 -and @($componentWorkIds|Where-Object {$workIds -contains $_}).Count -eq 0){throw "Source registry '$context' component '$componentId' falls outside the source work scope."}
     }
     $platformOfferingId=Get-OptionalSourceString $source "platform_offering_id" $context
     if ($null -ne $platformOfferingId) {
@@ -1432,21 +1565,22 @@ function Get-KnowledgeSourceRegistry {
     if ($unknownContainerFormats.Count -gt 0) { throw "Source registry '$context.container_format_ids' references unknown container formats: $($unknownContainerFormats -join ', ')." }
     $role=Get-RequiredSourceString $source "role" $context
     if ($allowedSourceRoles -notcontains $role) { throw "Source registry '$context.role' must be one of: $($allowedSourceRoles -join ', ')." }
-    if ($works[$workId].medium_id -ne $mediumId -and $role -notin @("supplemental","reference","extract")) { throw "Source registry '$context' medium does not match work '$workId'." }
+    $incompatibleWorkIds=@($workIds|Where-Object {$works[$_].medium_id -ne $mediumId})
+    if ($incompatibleWorkIds.Count -gt 0 -and $role -notin @("supplemental","reference","extract")) { throw "Source registry '$context' medium does not match works: $($incompatibleWorkIds -join ', ')." }
     $comparisonGroup=Get-RequiredSourceString $source "comparison_group" $context; Test-StableSourceId $comparisonGroup "$context.comparison_group"
     $priority=Get-ProjectMapValue $source "priority"
     if ($priority -is [bool] -or $priority -isnot [int] -or [int]$priority -lt 1) { throw "Source registry '$context.priority' must be a positive integer." }
-    $aliases=@(Get-SourceStringList $source "aliases" $context)
+    $aliases=@(Get-SourceStringListAllowEmpty $source "aliases" $context)
     foreach ($alias in $aliases) {
       Test-StableSourceId $alias "$context.aliases"; $aliasKey=$alias.ToLowerInvariant()
       if ($sourceAliases.ContainsKey($aliasKey) -or @($rawSources.Keys | Where-Object { $_.ToLowerInvariant() -eq $aliasKey }).Count -gt 0) { throw "Source registry alias '$alias' is duplicated or collides with a source ID." }
       $sourceAliases[$aliasKey]=$sourceId
     }
-    $evidenceModes=@(Get-SourceStringList $source "evidence_modes" $context)
+    $evidenceModes=@(Get-SourceStringListAllowEmpty $source "evidence_modes" $context)
     foreach ($mode in $evidenceModes) { Test-StableSourceId $mode "$context.evidence_modes" }
     $bindings=@(); $rawBindings=@(Get-ProjectMapValue $source "resource_bindings")
     for ($i=0; $i -lt $rawBindings.Count; $i++) { $bindings += Resolve-SourceResourceBinding $ProjectConfig $ResourceConfig $rawBindings[$i] "$context.resource_bindings[$i]" }
-    $sources[$sourceId]=[pscustomobject]@{ id=$sourceId; lifecycle=$lifecycle; label=Get-RequiredSourceString $source "label" $context; work_id=$workId; manifestation_id=$manifestationId; release_package_id=$releasePackageId; release_event_id=$releaseEventId; release_component_ids=@($releaseComponentIds); platform_offering_id=$platformOfferingId; medium_id=$mediumId; container_format_ids=@($containerFormatIds); role=$role; comparison_group=$comparisonGroup; priority=[int]$priority; aliases=@($aliases); evidence_modes=@($evidenceModes); resource_bindings=@($bindings) }
+    $sources[$sourceId]=[pscustomobject]@{ id=$sourceId; lifecycle=$lifecycle; label=Get-RequiredSourceString $source "label" $context; work_ids=@($workIds); manifestation_id=$manifestationId; release_package_id=$releasePackageId; release_event_id=$releaseEventId; release_component_ids=@($releaseComponentIds); platform_offering_id=$platformOfferingId; medium_id=$mediumId; container_format_ids=@($containerFormatIds); role=$role; comparison_group=$comparisonGroup; priority=[int]$priority; aliases=@($aliases); evidence_modes=@($evidenceModes); resource_bindings=@($bindings) }
   }
   Assert-SourceSchemaPackValues $SchemaPackRegistry "source.source-role" @($sources.Values | ForEach-Object { $_.role }) "sources.*.role"
 
@@ -1479,8 +1613,10 @@ function Get-KnowledgeSourceRegistry {
     $targetExists=switch($targetType) {
       "work" { $works.Contains($targetId) }
       "segment" { $segments.Contains($targetId) }
+      "segment-group" { $segmentGroups.Contains($targetId) }
       "manifestation" { $manifestations.Contains($targetId) }
       "release-package" { $releasePackages.Contains($targetId) }
+      "release-run" { $releaseRuns.Contains($targetId) }
       "release-event" { $releaseEvents.Contains($targetId) }
       "platform" { $platforms.Contains($targetId) }
       "catalog-placement" { $catalogPlacements.Contains($targetId) }
@@ -1506,11 +1642,11 @@ function Get-KnowledgeSourceRegistry {
     mediums=$mediums; work_group_types=$workGroupTypes; work_groups=$workGroups; continuities=$continuities
     continuity_relationship_types=$continuityRelationshipTypes; continuity_relationships=@($continuityRelationships)
     authority_profiles=$authorityProfiles; work_relationship_types=$workRelationshipTypes; works=$works
-    segments=$segments; ordering_schemes=$orderingSchemes; numbering_schemes=$numberingSchemes
+    segments=$segments; segment_groups=$segmentGroups; ordering_schemes=$orderingSchemes; numbering_schemes=$numberingSchemes
     work_relationships=@($workRelationships); adaptation_mappings=@($adaptationMappings)
     territories=$territories; platforms=$platforms; manifestation_relationship_types=$manifestationRelationshipTypes
-    manifestations=$manifestations; manifestation_relationships=@($manifestationRelationships)
-    release_components=$releaseComponents; release_packages=$releasePackages; release_events=$releaseEvents
+    manifestations=$manifestations; manifestation_relationships=@($manifestationRelationships); manifestation_segment_mappings=@($manifestationSegmentMappings)
+    release_components=$releaseComponents; release_packages=$releasePackages; release_runs=$releaseRuns; release_events=$releaseEvents
     catalog_placements=$catalogPlacements; platform_offerings=$platformOfferings
     identifier_schemes=$identifierSchemes; external_identifiers=@($externalIdentifiers)
     work_aliases=$workAliases; source_relationship_types=$sourceRelationshipTypes

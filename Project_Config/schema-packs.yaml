@@ -29,6 +29,7 @@ capability_activation:
     - subject-categories
     - resources
     - evidence-sources
+    - composite-evidence-scope
     - authority-profiles
     - typed-relationships
     - temporal-positions
@@ -47,6 +48,7 @@ capability_activation:
     - numbering-schemes
     - external-identifiers
     - localized-segment-metadata
+    - segment-groups
     - narrative-time
     - serialization
     - publication-packaging
@@ -73,3 +75,7 @@ capability_activation:
     - localized-work-metadata
     - segment-scoped-distribution
     - structured-release-time
+    - package-scoped-components
+    - manifestation-segment-mappings
+    - localized-catalog-metadata
+    - release-runs

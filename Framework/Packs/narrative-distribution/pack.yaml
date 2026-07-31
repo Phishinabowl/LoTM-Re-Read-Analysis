@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-distribution
-pack_version: 2
+pack_version: 3
 lifecycle: active
 pack_kind: domain
 label: Narrative Distribution
@@ -8,7 +8,7 @@ description: Editions, cuts, localized manifestations, releases, platform catalo
 
 dependencies:
   - pack_id: narrative-media
-    minimum_version: 3
+    minimum_version: 5
 
 capabilities:
   - manifestations
@@ -21,6 +21,10 @@ capabilities:
   - localized-work-metadata
   - segment-scoped-distribution
   - structured-release-time
+  - package-scoped-components
+  - manifestation-segment-mappings
+  - localized-catalog-metadata
+  - release-runs
 
 controlled_values:
   source.manifestation-type:
@@ -54,6 +58,15 @@ controlled_values:
     - has-recut
     - build-of
     - has-build
+  source.manifestation-segment-mapping-type:
+    - retained
+    - omitted
+    - added
+    - altered
+    - replaced
+    - reordered
+    - combined
+    - split
   source.release-component-type:
     - audio-track
     - subtitle-track
@@ -88,6 +101,7 @@ controlled_values:
     - segment
     - manifestation
     - release-package
+    - segment-group
   source.release-event-type:
     - publication
     - broadcast
@@ -148,3 +162,14 @@ controlled_values:
     - approximate
     - announced
     - uncertain
+  source.release-run-cadence-unit:
+    - day
+    - week
+    - month
+  source.release-run-exception-type:
+    - rescheduled
+    - pause
+    - skipped
+    - cancelled
+  source.identifier-target-type:
+    - release-run
