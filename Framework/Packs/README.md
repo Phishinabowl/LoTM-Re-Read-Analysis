@@ -11,12 +11,13 @@ Schema packs are composable contracts, not project instances. Pack files define 
 | `narrative-publishing` | Prose and sequential-art serialization, publication runs, editions, localization, packaging, and future textual-history support. |
 | `narrative-screen-audio` | Film, television, animation, audio works, episodes, specials, cuts, tracks, and embedded visuals. |
 | `narrative-adaptation` | Work lineage, segment mappings, adaptation deviations, and authority-aware comparison. |
+| `narrative-distribution` | Editions, cuts, builds, localized manifestations, release events, tracks, platform catalogs, offerings, and regional availability. |
 | `narrative-shared-universe` | Optional multiverse, reboot, incarnation, retcon, and crossover-event support. |
 | `narrative-interactive` | Optional branching-story, route, ending, playthrough, campaign, and session support. |
 | `narrative-preservation` | Optional missing, partial, reconstructed, archival, and access-state support. |
 | `narrative-production` | Optional contributor, production-credit, ownership, officiality, and licensing support. |
 
-LoTM currently selects `core`, `narrative-media`, `narrative-publishing`, `narrative-screen-audio`, and `narrative-adaptation`. Other narrative packs remain discoverable templates for projects that need them; their planned capabilities cannot be activated until the corresponding executable contracts exist.
+LoTM currently selects `core`, `narrative-media`, `narrative-publishing`, `narrative-screen-audio`, `narrative-adaptation`, and `narrative-distribution`. Other narrative packs remain discoverable templates for projects that need them; their planned capabilities cannot be activated until the corresponding executable contracts exist.
 
 ## Media Axes
 
@@ -27,6 +28,10 @@ Do not encode every media property in one value.
 - A **cultural form** preserves a meaningful production tradition such as anime, donghua, manga, manhwa, manhua, or webtoon.
 - A **release form** describes the creative unit or packaging level, such as novel, television season, special, film, issue, or collected volume.
 - A **container format** describes the concrete evidence container, such as EPUB, print, streaming release, subtitle file, Blu-ray, or app.
+- A **manifestation** describes a particular edition, translation, cut, remaster, recut, or build of one creative work.
+- A **release event** records when and where that manifestation launched.
+- A **platform offering** records how a provider exposed it in a territory and time window.
+- A **catalog placement** preserves provider presentation without rewriting canonical work hierarchy.
 
 A Donghua film can therefore use the `donghua` medium profile, `animation` modality, `donghua` cultural form, `film` release form, and a streaming or theatrical container. Official artwork extracted from an EPUB uses the `illustration` profile and `still-image` modality while its source records `epub` and any extracted digital file as containers. `official-epub-artwork` is not a medium.
 

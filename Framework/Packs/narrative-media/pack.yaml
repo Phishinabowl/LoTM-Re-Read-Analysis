@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-media
-pack_version: 2
+pack_version: 3
 lifecycle: active
 pack_kind: domain
 label: Narrative Media Foundation
@@ -93,6 +93,7 @@ controlled_values:
     - audio
     - still-image
     - interactive
+    - live-performance
   source.cultural-form:
     - id: anime
       label: Anime
@@ -129,6 +130,10 @@ controlled_values:
     - work-part
     - section
     - scene
+    - saga
+    - arc
+    - part
+    - volume
   source.ordering-type:
     - release-order
     - publication-order
@@ -166,6 +171,12 @@ controlled_values:
     - shares-concepts-with
     - licensed-derivative-of
     - has-licensed-derivative
+    - documents
+    - documented-by
+    - making-of
+    - has-making-of
+    - promotional-work-for
+    - has-promotional-work
   source.membership-status:
     - canonical
     - secondary-canon

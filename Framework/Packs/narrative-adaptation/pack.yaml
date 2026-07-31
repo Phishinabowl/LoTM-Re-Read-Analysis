@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-adaptation
-pack_version: 1
+pack_version: 2
 lifecycle: active
 pack_kind: domain
 label: Narrative Adaptation
@@ -48,3 +48,9 @@ controlled_values:
     - chronology-change
     - visual-interpretation
     - localization-change
+  source.adaptation-basis-role:
+    - primary-source
+    - secondary-source
+    - prior-adaptation
+    - inspiration
+    - shared-property

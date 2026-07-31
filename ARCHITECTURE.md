@@ -72,7 +72,7 @@ Within canonical pages, the visible article and structured page data are two syn
 
 - `Framework/Packs/core/pack.yaml` declares domain-neutral platform capabilities and evidence-source vocabulary;
 - `Framework/Packs/narrative-media/pack.yaml` depends on `core` and contributes the narrative foundation;
-- publishing, screen/audio, adaptation, shared-universe, interactive, preservation, and production/rights companion packs add orthogonal domain capabilities without forcing them into every narrative project;
+- publishing, screen/audio, adaptation, distribution, shared-universe, interactive, preservation, and production/rights companion packs add orthogonal domain capabilities without forcing them into every narrative project;
 - future implementations may replace `narrative-media` with packs such as `it-operations`, `legal-matter`, or `medical-knowledge`, or compose compatible packs.
 
 A capability has separate declaration, lifecycle, availability, and project-activation states. String capability entries are shorthand for lifecycle `available`; mapped entries may be `planned`, `available`, or `deprecated`. Planned capabilities remain discoverable to roadmap tooling but cannot be enabled. Available capabilities may be enabled by `capability_activation.enabled`; deprecated capabilities remain activatable for compatibility or migration but should not be recommended for new projects. The activation default must remain `disabled`. An unavailable or unenabled capability is omitted by tools, validators, projections, and interfaces unless project configuration explicitly references its contract, in which case validation must report the invalid reference. Missing or incompatible declared pack dependencies are always errors.
@@ -128,12 +128,15 @@ Examples include framework contracts and packs, visual assets, local source mate
 
 ### Source Registry
 
-`Project_Config/sources.yaml` schema version 3 owns:
+`Project_Config/sources.yaml` schema version 4 owns:
 
 - stable source and medium-profile IDs plus instantiated modality, cultural-form, release-form, and container-format facets;
 - stable franchise/collection/adaptation-program groups, creative works, work segments, continuities, and per-work volume identities;
-- named publication, release, story, production, or recommended ordering schemes;
-- segment-aware adaptation mappings that preserve source and derivative claims;
+- named total or partial publication, release, story, production, or recommended ordering schemes;
+- segment-aware adaptation mappings with explicit source-basis roles that preserve source and derivative claims;
+- manifestations for editions, translations, cuts, recuts, remasters, and builds;
+- release components and events for tracks, bundled material, and launches;
+- registered territories plus platforms, provider catalog placements, offerings, BCP-47-style languages, and availability windows;
 - medium-specific position fields, sort order, and citation formats;
 - authority profiles, comparison groups, and source priority;
 - typed work relationships such as sequel, spinoff, side story, adaptation, remake, retelling, crossover, containment, compilation, and inspiration;
@@ -145,7 +148,9 @@ Reader positions are work-scoped before they are volume- or chapter-scoped. This
 
 Current graph and bounded-page implementations predate the work registry and remain implicitly scoped to `lotm-1`. Their migration to the normalized content index must add an explicit work selector before those interfaces are used for COI or cross-book output; do not infer a work from a chapter number.
 
-Creative-work lineage and evidence-source lineage are separate. `lotm-donghua-season-1` is an adaptation work in its own continuity; `lotm-donghua-release` is the observed release source for that work; and `lotm-donghua-subtitles` is a subtitle-track source related to that release. A transcript, edition, or scan never becomes the adaptation merely because it supplies evidence about it.
+Creative-work identity, manifestation identity, distribution, and evidence lineage are separate. `lotm-donghua-season-1` is an adaptation work in its own continuity; its streaming manifestation is a particular version of that work; a release event or platform offering records where that manifestation appeared; `lotm-donghua-release` is the evidence source observing it; and the English subtitles are both a release component and an evidence source. A transcript, edition, or scan never becomes the adaptation merely because it supplies evidence about it.
+
+Provider catalog presentation is not canonical hierarchy. A streaming service may label material as a season, part, volume, or collection differently from the creative structure. Preserve that label in a catalog placement unless the unit independently qualifies as a work. Partial ordering schemes preserve concurrent or unresolved release branches without forcing arbitrary ordinals.
 
 An adaptation program is a heterogeneous work group. It may contain television seasons, skipped-content specials, character specials, films, or other release forms in one adaptation continuity. Named ordering schemes preserve release order separately from story, publication, production, or recommended order. Each member remains an independent work with its own evidence sources, spoiler timeline, and relationship to the work or works it adapts.
 
@@ -153,7 +158,7 @@ Priority is interpreted inside a comparison group under a selected authority pro
 
 The resource registry says where source material lives and how that storage is governed. The source registry identifies creative works and evidence sources and defines their separate semantic relationships.
 
-`Tools/source_config.py` and `Tools/Source-Config.ps1` are the matching source-registry loaders. They validate media-facet compatibility, release and container forms, work-group and segment nesting, named orderings, continuities, authority profiles, works and memberships, volume ranges, adaptation mappings, typed work/source relationships, position schemas, citation placeholders, aliases, priorities, comparison groups, and resource bindings constrained to registered placements. Domain clients should use these normalized records rather than hardcoding book names, `novel`, `donghua`, or domain-specific evidence precedence.
+`Tools/source_config.py` and `Tools/Source-Config.ps1` are the matching source-registry loaders. They validate media-facet compatibility, release and container forms, work/group/segment nesting, total and partial named orderings, continuities, authority profiles, works and memberships, volume ranges, adaptation mappings and basis roles, manifestations, release components/events, platform catalogs/offerings, typed relationships, position schemas, citation placeholders, aliases, priorities, comparison groups, and resource bindings constrained to registered placements. Domain clients should use these normalized records rather than hardcoding book names, `novel`, `donghua`, or domain-specific evidence precedence.
 
 Entity incarnations, claim-scoped continuity and retcons, branching narrative state, preservation/access state, textual witnesses, contributor credits, and rights/licensing remain planned capabilities. Pack ownership is established, but project data must not instantiate them until paired executable contracts are implemented.
 

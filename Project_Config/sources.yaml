@@ -1,4 +1,4 @@
-schema_version: 3
+schema_version: 4
 
 default_authority_profile_id: lotm-adaptation-comparison
 
@@ -517,30 +517,44 @@ ordering_schemes:
   lotm-primary-publication-order:
     label: Lord of Mysteries Primary Novel Publication Order
     ordering_type: publication-order
+    ordering_mode: total
     entries:
-      - target_type: work
+      - id: lotm-1
+        target_type: work
         target_id: lotm-1
         ordinal: 1
-      - target_type: work
+        after_entry_ids: []
+      - id: lotm-2
+        target_type: work
         target_id: lotm-2
         ordinal: 2
+        after_entry_ids: []
 
   lotm-donghua-release-order:
     label: Lord of Mysteries Donghua Release Order
     ordering_type: release-order
+    ordering_mode: total
     entries:
-      - target_type: work
+      - id: season-1
+        target_type: work
         target_id: lotm-donghua-season-1
         ordinal: 1
-      - target_type: work
+        after_entry_ids: []
+      - id: special-1
+        target_type: work
         target_id: lotm-donghua-special-1
         ordinal: 2
-      - target_type: work
+        after_entry_ids: []
+      - id: special-2
+        target_type: work
         target_id: lotm-donghua-special-2
         ordinal: 3
-      - target_type: work
+        after_entry_ids: []
+      - id: special-3
+        target_type: work
         target_id: lotm-donghua-special-3
         ordinal: 4
+        after_entry_ids: []
 
 work_relationships:
   - id: coi-sequel-to-lotm
@@ -588,6 +602,163 @@ work_relationships:
     status: canonical
 
 adaptation_mappings: []
+
+territories: {}
+platforms: {}
+
+manifestation_relationship_types:
+  edition-of:
+    label: Edition Of
+    inverse_type: has-edition
+    symmetric: false
+  has-edition:
+    label: Has Edition
+    inverse_type: edition-of
+    symmetric: false
+  translation-of:
+    label: Translation Of
+    inverse_type: has-translation
+    symmetric: false
+  has-translation:
+    label: Has Translation
+    inverse_type: translation-of
+    symmetric: false
+  cut-of:
+    label: Cut Of
+    inverse_type: has-cut
+    symmetric: false
+  has-cut:
+    label: Has Cut
+    inverse_type: cut-of
+    symmetric: false
+  remaster-of:
+    label: Remaster Of
+    inverse_type: has-remaster
+    symmetric: false
+  has-remaster:
+    label: Has Remaster
+    inverse_type: remaster-of
+    symmetric: false
+  recut-of:
+    label: Recut Of
+    inverse_type: has-recut
+    symmetric: false
+  has-recut:
+    label: Has Recut
+    inverse_type: recut-of
+    symmetric: false
+  build-of:
+    label: Build Of
+    inverse_type: has-build
+    symmetric: false
+  has-build:
+    label: Has Build
+    inverse_type: build-of
+    symmetric: false
+
+manifestations:
+  lotm-book-1-epub:
+    lifecycle: active
+    label: Lord of Mysteries Book 1 EPUB Edition
+    work_id: lotm-1
+    manifestation_type: digital-edition
+    language_tags:
+      - en
+    territory_ids: []
+    container_format_ids:
+      - epub
+    localized_titles: []
+    aliases:
+      - lotm-1-epub
+
+  lotm-book-2-epub:
+    lifecycle: active
+    label: Circle of Inevitability EPUB Edition
+    work_id: lotm-2
+    manifestation_type: digital-edition
+    language_tags:
+      - en
+    territory_ids: []
+    container_format_ids:
+      - epub
+    localized_titles: []
+    aliases:
+      - coi-epub-edition
+
+  lotm-donghua-season-1-streaming:
+    lifecycle: active
+    label: Lord of Mysteries Donghua Season 1 Streaming Version
+    work_id: lotm-donghua-season-1
+    manifestation_type: streaming-version
+    language_tags:
+      - zh
+    territory_ids: []
+    container_format_ids:
+      - streaming-release
+    localized_titles: []
+    aliases:
+      - donghua-season-1-streaming
+
+  lotm-donghua-special-1-streaming:
+    lifecycle: active
+    label: City of Silver Special Streaming Version
+    work_id: lotm-donghua-special-1
+    manifestation_type: streaming-version
+    language_tags:
+      - zh
+    territory_ids: []
+    container_format_ids:
+      - streaming-release
+    localized_titles: []
+    aliases: []
+
+  lotm-donghua-special-2-streaming:
+    lifecycle: active
+    label: The Marked Hunt Part 1 Streaming Version
+    work_id: lotm-donghua-special-2
+    manifestation_type: streaming-version
+    language_tags:
+      - zh
+    territory_ids: []
+    container_format_ids:
+      - streaming-release
+    localized_titles: []
+    aliases: []
+
+  lotm-donghua-special-3-streaming:
+    lifecycle: active
+    label: The Marked Hunt Part 2 Streaming Version
+    work_id: lotm-donghua-special-3
+    manifestation_type: streaming-version
+    language_tags:
+      - zh
+    territory_ids: []
+    container_format_ids:
+      - streaming-release
+    localized_titles: []
+    aliases: []
+
+manifestation_relationships: []
+
+release_components:
+  lotm-book-1-embedded-illustrations:
+    lifecycle: active
+    label: Lord of Mysteries Book 1 Embedded Illustrations
+    manifestation_id: lotm-book-1-epub
+    component_type: embedded-illustration-set
+    segment_ids: []
+
+  lotm-donghua-season-1-en-subtitles:
+    lifecycle: active
+    label: Lord of Mysteries Donghua Season 1 English Subtitles
+    manifestation_id: lotm-donghua-season-1-streaming
+    component_type: subtitle-track
+    segment_ids: []
+    language_tag: en
+
+release_events: {}
+catalog_placements: {}
+platform_offerings: {}
 
 source_relationship_types:
   edition-of:
@@ -656,6 +827,8 @@ sources:
     lifecycle: active
     label: Lord of Mysteries Book 1 Novel
     work_id: lotm-1
+    manifestation_id: lotm-book-1-epub
+    release_component_ids: []
     medium_id: novel
     container_format_ids:
       - epub
@@ -678,6 +851,8 @@ sources:
     lifecycle: active
     label: Circle of Inevitability Novel
     work_id: lotm-2
+    manifestation_id: lotm-book-2-epub
+    release_component_ids: []
     medium_id: novel
     container_format_ids:
       - epub
@@ -699,6 +874,8 @@ sources:
     lifecycle: active
     label: Lord of Mysteries Donghua Season 1 Release
     work_id: lotm-donghua-season-1
+    manifestation_id: lotm-donghua-season-1-streaming
+    release_component_ids: []
     medium_id: donghua
     container_format_ids:
       - streaming-release
@@ -720,6 +897,9 @@ sources:
     lifecycle: active
     label: Lord of Mysteries Donghua English Subtitles
     work_id: lotm-donghua-season-1
+    manifestation_id: lotm-donghua-season-1-streaming
+    release_component_ids:
+      - lotm-donghua-season-1-en-subtitles
     medium_id: donghua
     container_format_ids:
       - subtitle-file
@@ -741,6 +921,8 @@ sources:
     lifecycle: active
     label: "Lord of Mysteries Special: City of Silver Release"
     work_id: lotm-donghua-special-1
+    manifestation_id: lotm-donghua-special-1-streaming
+    release_component_ids: []
     medium_id: donghua
     container_format_ids:
       - streaming-release
@@ -759,6 +941,8 @@ sources:
     lifecycle: active
     label: "Lord of Mysteries Special: The Marked Hunt Part 1 Release"
     work_id: lotm-donghua-special-2
+    manifestation_id: lotm-donghua-special-2-streaming
+    release_component_ids: []
     medium_id: donghua
     container_format_ids:
       - streaming-release
@@ -777,6 +961,8 @@ sources:
     lifecycle: active
     label: "Lord of Mysteries Special: The Marked Hunt Part 2 Release"
     work_id: lotm-donghua-special-3
+    manifestation_id: lotm-donghua-special-3-streaming
+    release_component_ids: []
     medium_id: donghua
     container_format_ids:
       - streaming-release
@@ -795,6 +981,9 @@ sources:
     lifecycle: active
     label: Lord of Mysteries Official EPUB Artwork
     work_id: lotm-1
+    manifestation_id: lotm-book-1-epub
+    release_component_ids:
+      - lotm-book-1-embedded-illustrations
     medium_id: illustration
     container_format_ids:
       - epub

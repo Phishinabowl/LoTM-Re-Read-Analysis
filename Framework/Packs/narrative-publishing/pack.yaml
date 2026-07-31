@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-publishing
-pack_version: 1
+pack_version: 2
 lifecycle: active
 pack_kind: domain
 label: Narrative Publishing
@@ -40,6 +40,7 @@ controlled_values:
     - manhua-series
     - webtoon-series
     - light-novel-series
+    - audiobook
   source.release-form:
     - novel
     - novella
@@ -54,6 +55,7 @@ controlled_values:
     - omnibus
     - facsimile-edition
     - digital-episode
+    - audiobook
   source.segment-type:
     - chapter
     - issue
@@ -61,6 +63,7 @@ controlled_values:
     - panel
     - prose-section
     - bonus-chapter
+    - webtoon-episode
   source.container-format:
     - hardcover
     - paperback

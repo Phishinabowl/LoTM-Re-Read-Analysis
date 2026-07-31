@@ -96,6 +96,8 @@ Framework/
       pack.yaml
     narrative-adaptation/
       pack.yaml
+    narrative-distribution/
+      pack.yaml
     narrative-shared-universe/
       pack.yaml
     narrative-interactive/

@@ -10,7 +10,7 @@ from resource_config import ResourceConfig
 from schema_pack_config import SchemaPackRegistry, load_schema_pack_registry
 
 
-SUPPORTED_SOURCE_SCHEMA_VERSION = 3
+SUPPORTED_SOURCE_SCHEMA_VERSION = 4
 LIFECYCLES = {"active", "deferred"}
 POSITION_FIELD_TYPES = {"string", "integer", "number", "timestamp", "boolean"}
 PRIORITY_ORDERS = {"ascending", "descending"}
@@ -18,8 +18,10 @@ CONFLICT_BEHAVIORS = {"flag"}
 DEVIATION_OWNERS = {"derivative-work"}
 CHAPTER_NUMBERING_MODES = {"work-local", "series-global", "not-applicable"}
 VOLUME_CATALOG_STATUSES = {"verified", "pending-verification", "not-applicable"}
+ORDERING_MODES = {"total", "partial"}
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 FIELD_ID_PATTERN = re.compile(r"^[a-z][a-z0-9_]*$")
+LANGUAGE_TAG_PATTERN = re.compile(r"^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$")
 
 
 @dataclass(frozen=True)
@@ -142,6 +144,7 @@ class WorkConfig:
     lifecycle: str
     label: str
     short_label: str
+    parent_work_id: str | None
     work_type: str
     medium_id: str
     release_form_id: str
@@ -176,9 +179,11 @@ class SegmentConfig:
 
 @dataclass(frozen=True)
 class OrderingEntry:
+    id: str
     target_type: str
     target_id: str
-    ordinal: int
+    ordinal: int | None
+    after_entry_ids: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -186,6 +191,7 @@ class OrderingScheme:
     id: str
     label: str
     ordering_type: str
+    ordering_mode: str
     entries: tuple[OrderingEntry, ...]
 
 
@@ -197,7 +203,102 @@ class AdaptationMapping:
     source_segment_ids: tuple[str, ...]
     target_segment_ids: tuple[str, ...]
     mapping_type: str
+    basis_role: str
     status: str
+
+
+@dataclass(frozen=True)
+class LocalizedTitle:
+    language_tag: str
+    territory_ids: tuple[str, ...]
+    title: str
+
+
+@dataclass(frozen=True)
+class PlatformConfig:
+    id: str
+    lifecycle: str
+    label: str
+    platform_type: str
+    aliases: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class ManifestationConfig:
+    id: str
+    lifecycle: str
+    label: str
+    work_id: str
+    manifestation_type: str
+    language_tags: tuple[str, ...]
+    territory_ids: tuple[str, ...]
+    container_format_ids: tuple[str, ...]
+    localized_titles: tuple[LocalizedTitle, ...]
+    aliases: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class ManifestationRelationship:
+    id: str
+    source_manifestation_id: str
+    relationship_type: str
+    target_manifestation_id: str
+    status: str
+
+
+@dataclass(frozen=True)
+class ReleaseComponent:
+    id: str
+    lifecycle: str
+    label: str
+    manifestation_id: str
+    component_type: str
+    segment_ids: tuple[str, ...]
+    language_tag: str | None
+
+
+@dataclass(frozen=True)
+class ReleaseEvent:
+    id: str
+    lifecycle: str
+    label: str
+    manifestation_id: str
+    release_event_type: str
+    released_at: str | None
+    territory_ids: tuple[str, ...]
+    platform_ids: tuple[str, ...]
+    availability_status: str
+
+
+@dataclass(frozen=True)
+class CatalogPlacement:
+    id: str
+    lifecycle: str
+    label: str
+    platform_id: str
+    placement_type: str
+    parent_placement_id: str | None
+    work_id: str | None
+    manifestation_id: str | None
+    ordinal: int | None
+    provider_key: str | None
+
+
+@dataclass(frozen=True)
+class PlatformOffering:
+    id: str
+    lifecycle: str
+    label: str
+    platform_id: str
+    manifestation_id: str
+    release_event_id: str | None
+    offering_type: str
+    availability_status: str
+    territory_ids: tuple[str, ...]
+    language_tags: tuple[str, ...]
+    available_from: str | None
+    available_until: str | None
+    catalog_placement_ids: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -215,6 +316,10 @@ class SourceConfig:
     lifecycle: str
     label: str
     work_id: str
+    manifestation_id: str | None
+    release_event_id: str | None
+    release_component_ids: tuple[str, ...]
+    platform_offering_id: str | None
     medium_id: str
     container_format_ids: tuple[str, ...]
     role: str
@@ -255,6 +360,15 @@ class SourceRegistry:
     ordering_schemes: dict[str, OrderingScheme]
     work_relationships: tuple[WorkRelationship, ...]
     adaptation_mappings: tuple[AdaptationMapping, ...]
+    territories: dict[str, RegistryValueConfig]
+    platforms: dict[str, PlatformConfig]
+    manifestation_relationship_types: dict[str, RelationshipTypeConfig]
+    manifestations: dict[str, ManifestationConfig]
+    manifestation_relationships: tuple[ManifestationRelationship, ...]
+    release_components: dict[str, ReleaseComponent]
+    release_events: dict[str, ReleaseEvent]
+    catalog_placements: dict[str, CatalogPlacement]
+    platform_offerings: dict[str, PlatformOffering]
     work_aliases: dict[str, str]
     source_relationship_types: dict[str, RelationshipTypeConfig]
     sources: dict[str, SourceConfig]
@@ -306,6 +420,54 @@ def require_string_list(mapping: dict, key: str, context: str) -> tuple[str, ...
     ):
         raise ValueError(f"Source registry `{context}.{key}` must be a list of strings.")
     return tuple(item.strip() for item in value)
+
+
+def optional_string(mapping: dict, key: str, context: str) -> str | None:
+    value = mapping.get(key)
+    if value is None:
+        return None
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(
+            f"Source registry `{context}.{key}` must be a non-empty string when present."
+        )
+    return value.strip()
+
+
+def validate_language_tag(value: str, context: str) -> None:
+    if not LANGUAGE_TAG_PATTERN.fullmatch(value):
+        raise ValueError(
+            f"Source registry `{context}` must be a BCP-47-style language tag: {value}"
+        )
+
+
+def parse_localized_titles(mapping: dict, context: str) -> tuple[LocalizedTitle, ...]:
+    raw_titles = mapping.get("localized_titles", [])
+    if not isinstance(raw_titles, list):
+        raise ValueError(
+            f"Source registry `{context}.localized_titles` must be a list."
+        )
+    titles: list[LocalizedTitle] = []
+    seen_scopes: set[tuple[str, tuple[str, ...]]] = set()
+    for index, raw_title in enumerate(raw_titles):
+        title_context = f"{context}.localized_titles[{index}]"
+        value = require_mapping(raw_title, title_context)
+        language_tag = require_string(value, "language_tag", title_context)
+        validate_language_tag(language_tag, f"{title_context}.language_tag")
+        territory_ids = require_string_list(value, "territory_ids", title_context)
+        scope = (language_tag.casefold(), tuple(sorted(territory_ids)))
+        if scope in seen_scopes:
+            raise ValueError(
+                f"Source registry `{context}.localized_titles` repeats a locale scope."
+            )
+        seen_scopes.add(scope)
+        titles.append(
+            LocalizedTitle(
+                language_tag=language_tag,
+                territory_ids=territory_ids,
+                title=require_string(value, "title", title_context),
+            )
+        )
+    return tuple(titles)
 
 
 def validate_id(value: str, context: str) -> None:
@@ -587,6 +749,7 @@ def parse_work(
         lifecycle=lifecycle,
         label=require_string(work, "label", context),
         short_label=require_string(work, "short_label", context),
+        parent_work_id=optional_string(work, "parent_work_id", context),
         work_type=work_type,
         medium_id=medium_id,
         release_form_id=release_form_id,
@@ -1202,6 +1365,14 @@ def load_source_registry(
     work_aliases: dict[str, str] = {}
     work_ids_casefolded = {work_id.casefold() for work_id in works}
     for work in works.values():
+        if work.parent_work_id is not None:
+            if work.parent_work_id not in works:
+                raise ValueError(
+                    f"Source registry `works.{work.id}.parent_work_id` references "
+                    f"unknown work `{work.parent_work_id}`."
+                )
+            if work.parent_work_id == work.id:
+                raise ValueError(f"Source registry work `{work.id}` cannot parent itself.")
         for membership in work.group_memberships:
             if membership.ordinal is not None:
                 ordinal_key = (membership.group_id, membership.ordinal)
@@ -1220,6 +1391,25 @@ def load_source_registry(
                     "with a work ID."
                 )
             work_aliases[alias_key] = work.id
+
+    complete_works: set[str] = set()
+
+    def visit_work(work_id: str, active: set[str]) -> None:
+        if work_id in active:
+            raise ValueError(
+                f"Source registry contains a work-parent cycle involving `{work_id}`."
+            )
+        if work_id in complete_works:
+            return
+        active.add(work_id)
+        parent = works[work_id].parent_work_id
+        if parent:
+            visit_work(parent, active)
+        active.remove(work_id)
+        complete_works.add(work_id)
+
+    for work_id in works:
+        visit_work(work_id, set())
 
     raw_segments = require_mapping(registry.get("segments"), "segments")
     segments: dict[str, SegmentConfig] = {}
@@ -1305,17 +1495,31 @@ def load_source_registry(
         scheme = require_mapping(raw_scheme, context)
         ordering_type = require_string(scheme, "ordering_type", context)
         validate_id(ordering_type, f"{context}.ordering_type")
+        ordering_mode = require_string(scheme, "ordering_mode", context)
+        if ordering_mode not in ORDERING_MODES:
+            raise ValueError(
+                f"Source registry `{context}.ordering_mode` must be one of: "
+                f"{', '.join(sorted(ORDERING_MODES))}."
+            )
         raw_entries = scheme.get("entries")
         if not isinstance(raw_entries, list) or not raw_entries:
             raise ValueError(
                 f"Source registry `{context}.entries` must be a non-empty list."
             )
         entries: list[OrderingEntry] = []
+        seen_entry_ids: set[str] = set()
         seen_targets: set[tuple[str, str]] = set()
         seen_ordinals: set[int] = set()
         for index, raw_entry in enumerate(raw_entries):
             entry_context = f"{context}.entries[{index}]"
             entry = require_mapping(raw_entry, entry_context)
+            entry_id = require_string(entry, "id", entry_context)
+            validate_id(entry_id, f"{entry_context}.id")
+            if entry_id in seen_entry_ids:
+                raise ValueError(
+                    f"Source registry `{context}.entries` repeats entry ID `{entry_id}`."
+                )
+            seen_entry_ids.add(entry_id)
             target_type = require_string(entry, "target_type", entry_context)
             if target_type not in {"work", "segment"}:
                 raise ValueError(
@@ -1330,23 +1534,91 @@ def load_source_registry(
                     f"{target_type} `{target_id}`."
                 )
             ordinal = entry.get("ordinal")
-            if isinstance(ordinal, bool) or not isinstance(ordinal, int) or ordinal < 1:
+            after_entry_ids = require_string_list(
+                entry, "after_entry_ids", entry_context
+            )
+            for predecessor_id in after_entry_ids:
+                validate_id(
+                    predecessor_id, f"{entry_context}.after_entry_ids"
+                )
+            if ordering_mode == "total":
+                if (
+                    isinstance(ordinal, bool)
+                    or not isinstance(ordinal, int)
+                    or ordinal < 1
+                ):
+                    raise ValueError(
+                        f"Source registry `{entry_context}.ordinal` must be a "
+                        "positive integer for total ordering."
+                    )
+                if after_entry_ids:
+                    raise ValueError(
+                        f"Source registry `{entry_context}.after_entry_ids` must be "
+                        "empty for total ordering."
+                    )
+            elif ordinal is not None:
                 raise ValueError(
-                    f"Source registry `{entry_context}.ordinal` must be a positive integer."
+                    f"Source registry `{entry_context}.ordinal` must be omitted for "
+                    "partial ordering."
                 )
             target_key = (target_type, target_id)
-            if target_key in seen_targets or ordinal in seen_ordinals:
+            if target_key in seen_targets or (
+                ordinal is not None and ordinal in seen_ordinals
+            ):
                 raise ValueError(
                     f"Source registry `{context}.entries` repeats a target or ordinal."
                 )
             seen_targets.add(target_key)
-            seen_ordinals.add(ordinal)
-            entries.append(OrderingEntry(target_type, target_id, ordinal))
+            if ordinal is not None:
+                seen_ordinals.add(ordinal)
+            entries.append(
+                OrderingEntry(
+                    entry_id, target_type, target_id, ordinal, after_entry_ids
+                )
+            )
+        if ordering_mode == "partial":
+            entry_ids = {entry.id for entry in entries}
+            for entry in entries:
+                unknown = set(entry.after_entry_ids) - entry_ids
+                if unknown:
+                    raise ValueError(
+                        f"Source registry `{context}` entry `{entry.id}` references "
+                        f"unknown predecessors: {', '.join(sorted(unknown))}."
+                    )
+                if entry.id in entry.after_entry_ids:
+                    raise ValueError(
+                        f"Source registry `{context}` entry `{entry.id}` cannot "
+                        "follow itself."
+                    )
+            complete_entries: set[str] = set()
+
+            def visit_ordering_entry(entry_id: str, active: set[str]) -> None:
+                if entry_id in active:
+                    raise ValueError(
+                        f"Source registry `{context}` contains a partial-order cycle "
+                        f"involving `{entry_id}`."
+                    )
+                if entry_id in complete_entries:
+                    return
+                active.add(entry_id)
+                entry = next(item for item in entries if item.id == entry_id)
+                for predecessor_id in entry.after_entry_ids:
+                    visit_ordering_entry(predecessor_id, active)
+                active.remove(entry_id)
+                complete_entries.add(entry_id)
+
+            for entry in entries:
+                visit_ordering_entry(entry.id, set())
         ordering_schemes[scheme_id] = OrderingScheme(
             id=scheme_id,
             label=require_string(scheme, "label", context),
             ordering_type=ordering_type,
-            entries=tuple(sorted(entries, key=lambda entry: entry.ordinal)),
+            ordering_mode=ordering_mode,
+            entries=tuple(
+                sorted(entries, key=lambda entry: entry.ordinal or 0)
+                if ordering_mode == "total"
+                else entries
+            ),
         )
     if ordering_schemes:
         validate_pack_values(
@@ -1455,6 +1727,7 @@ def load_source_registry(
                         f"`{segment_id}` belongs to a different work."
                     )
         mapping_type = require_string(mapping, "mapping_type", context)
+        basis_role = require_string(mapping, "basis_role", context)
         status = require_string(mapping, "status", context)
         if status not in membership_statuses:
             raise ValueError(
@@ -1469,6 +1742,7 @@ def load_source_registry(
                 source_segment_ids=source_segment_ids,
                 target_segment_ids=target_segment_ids,
                 mapping_type=mapping_type,
+                basis_role=basis_role,
                 status=status,
             )
         )
@@ -1478,6 +1752,501 @@ def load_source_registry(
             "source.adaptation-mapping-type",
             (mapping.mapping_type for mapping in adaptation_mappings),
             "adaptation_mappings.*.mapping_type",
+        )
+        validate_pack_values(
+            schema_packs,
+            "source.adaptation-basis-role",
+            (mapping.basis_role for mapping in adaptation_mappings),
+            "adaptation_mappings.*.basis_role",
+        )
+
+    raw_territories = require_mapping(registry.get("territories"), "territories")
+    territories: dict[str, RegistryValueConfig] = {}
+    for territory_id, raw_territory in raw_territories.items():
+        context = f"territories.{territory_id}"
+        validate_id(territory_id, context)
+        territory = require_mapping(raw_territory, context)
+        territories[territory_id] = RegistryValueConfig(
+            id=territory_id,
+            label=require_string(territory, "label", context),
+        )
+
+    raw_platforms = require_mapping(registry.get("platforms"), "platforms")
+    platforms: dict[str, PlatformConfig] = {}
+    platform_aliases: set[str] = set()
+    for platform_id, raw_platform in raw_platforms.items():
+        context = f"platforms.{platform_id}"
+        validate_id(platform_id, context)
+        platform = require_mapping(raw_platform, context)
+        platform_type = require_string(platform, "platform_type", context)
+        aliases = require_string_list(platform, "aliases", context)
+        for alias in aliases:
+            validate_id(alias, f"{context}.aliases")
+            normalized = alias.casefold()
+            if normalized in platform_aliases or normalized in {
+                value.casefold() for value in raw_platforms
+            }:
+                raise ValueError(
+                    f"Source registry platform alias `{alias}` is duplicated or "
+                    "collides with a platform ID."
+                )
+            platform_aliases.add(normalized)
+        platforms[platform_id] = PlatformConfig(
+            id=platform_id,
+            lifecycle=parse_lifecycle(platform, context),
+            label=require_string(platform, "label", context),
+            platform_type=platform_type,
+            aliases=aliases,
+        )
+    if platforms:
+        validate_pack_values(
+            schema_packs,
+            "source.platform-type",
+            (platform.platform_type for platform in platforms.values()),
+            "platforms.*.platform_type",
+        )
+
+    manifestation_relationship_types = parse_relationship_types(
+        registry.get("manifestation_relationship_types"),
+        "manifestation_relationship_types",
+    )
+    if manifestation_relationship_types:
+        validate_pack_values(
+            schema_packs,
+            "source.manifestation-relationship-type",
+            manifestation_relationship_types,
+            "manifestation_relationship_types",
+        )
+
+    raw_manifestations = require_mapping(
+        registry.get("manifestations"), "manifestations"
+    )
+    manifestations: dict[str, ManifestationConfig] = {}
+    manifestation_aliases: set[str] = set()
+    for manifestation_id, raw_manifestation in raw_manifestations.items():
+        context = f"manifestations.{manifestation_id}"
+        validate_id(manifestation_id, context)
+        manifestation = require_mapping(raw_manifestation, context)
+        work_id = require_string(manifestation, "work_id", context)
+        if work_id not in works:
+            raise ValueError(
+                f"Source registry `{context}.work_id` references unknown work "
+                f"`{work_id}`."
+            )
+        manifestation_type = require_string(
+            manifestation, "manifestation_type", context
+        )
+        container_format_ids = require_string_list(
+            manifestation, "container_format_ids", context
+        )
+        unknown_formats = set(container_format_ids) - set(container_formats)
+        if unknown_formats:
+            raise ValueError(
+                f"Source registry `{context}.container_format_ids` references unknown "
+                f"formats: {', '.join(sorted(unknown_formats))}."
+            )
+        aliases = require_string_list(manifestation, "aliases", context)
+        for alias in aliases:
+            validate_id(alias, f"{context}.aliases")
+            normalized = alias.casefold()
+            if normalized in manifestation_aliases or normalized in {
+                value.casefold() for value in raw_manifestations
+            }:
+                raise ValueError(
+                    f"Source registry manifestation alias `{alias}` is duplicated or "
+                    "collides with a manifestation ID."
+                )
+            manifestation_aliases.add(normalized)
+        language_tags = require_string_list(
+            manifestation, "language_tags", context
+        )
+        for language_tag in language_tags:
+            validate_language_tag(language_tag, f"{context}.language_tags")
+        territory_ids = require_string_list(
+            manifestation, "territory_ids", context
+        )
+        unknown_territories = set(territory_ids) - set(territories)
+        if unknown_territories:
+            raise ValueError(
+                f"Source registry `{context}.territory_ids` references unknown "
+                f"territories: {', '.join(sorted(unknown_territories))}."
+            )
+        localized_titles = parse_localized_titles(manifestation, context)
+        for localized_title in localized_titles:
+            unknown_territories = set(localized_title.territory_ids) - set(territories)
+            if unknown_territories:
+                raise ValueError(
+                    f"Source registry `{context}.localized_titles` references unknown "
+                    f"territories: {', '.join(sorted(unknown_territories))}."
+                )
+        manifestations[manifestation_id] = ManifestationConfig(
+            id=manifestation_id,
+            lifecycle=parse_lifecycle(manifestation, context),
+            label=require_string(manifestation, "label", context),
+            work_id=work_id,
+            manifestation_type=manifestation_type,
+            language_tags=language_tags,
+            territory_ids=territory_ids,
+            container_format_ids=container_format_ids,
+            localized_titles=localized_titles,
+            aliases=aliases,
+        )
+    if manifestations:
+        validate_pack_values(
+            schema_packs,
+            "source.manifestation-type",
+            (
+                manifestation.manifestation_type
+                for manifestation in manifestations.values()
+            ),
+            "manifestations.*.manifestation_type",
+        )
+
+    raw_manifestation_relationships = registry.get("manifestation_relationships")
+    if not isinstance(raw_manifestation_relationships, list):
+        raise ValueError(
+            "Source registry `manifestation_relationships` must be a list."
+        )
+    manifestation_relationships: list[ManifestationRelationship] = []
+    seen_manifestation_relationship_ids: set[str] = set()
+    for index, raw_relationship in enumerate(raw_manifestation_relationships):
+        context = f"manifestation_relationships[{index}]"
+        relationship = require_mapping(raw_relationship, context)
+        relationship_id = require_string(relationship, "id", context)
+        validate_id(relationship_id, f"{context}.id")
+        if relationship_id in seen_manifestation_relationship_ids:
+            raise ValueError(
+                f"Source registry manifestation relationship ID `{relationship_id}` "
+                "is duplicated."
+            )
+        seen_manifestation_relationship_ids.add(relationship_id)
+        source_id = require_string(
+            relationship, "source_manifestation_id", context
+        )
+        target_id = require_string(
+            relationship, "target_manifestation_id", context
+        )
+        relationship_type = require_string(
+            relationship, "relationship_type", context
+        )
+        if source_id not in manifestations or target_id not in manifestations:
+            raise ValueError(
+                f"Source registry `{context}` references an unknown manifestation."
+            )
+        if source_id == target_id:
+            raise ValueError(
+                f"Source registry `{context}` cannot relate a manifestation to itself."
+            )
+        if relationship_type not in manifestation_relationship_types:
+            raise ValueError(
+                f"Source registry `{context}.relationship_type` references unknown "
+                f"type `{relationship_type}`."
+            )
+        status = require_string(relationship, "status", context)
+        if status not in membership_statuses:
+            raise ValueError(
+                f"Source registry `{context}.status` must be one of: "
+                f"{', '.join(sorted(membership_statuses))}."
+            )
+        manifestation_relationships.append(
+            ManifestationRelationship(
+                relationship_id, source_id, relationship_type, target_id, status
+            )
+        )
+
+    raw_release_components = require_mapping(
+        registry.get("release_components"), "release_components"
+    )
+    release_components: dict[str, ReleaseComponent] = {}
+    for component_id, raw_component in raw_release_components.items():
+        context = f"release_components.{component_id}"
+        validate_id(component_id, context)
+        component = require_mapping(raw_component, context)
+        manifestation_id = require_string(
+            component, "manifestation_id", context
+        )
+        if manifestation_id not in manifestations:
+            raise ValueError(
+                f"Source registry `{context}.manifestation_id` references unknown "
+                f"manifestation `{manifestation_id}`."
+            )
+        segment_ids = require_string_list(component, "segment_ids", context)
+        work_id = manifestations[manifestation_id].work_id
+        for segment_id in segment_ids:
+            if segment_id not in segments or segments[segment_id].work_id != work_id:
+                raise ValueError(
+                    f"Source registry `{context}.segment_ids` references segment "
+                    f"`{segment_id}` outside manifestation work `{work_id}`."
+                )
+        language_tag = optional_string(component, "language_tag", context)
+        if language_tag is not None:
+            validate_language_tag(language_tag, f"{context}.language_tag")
+        release_components[component_id] = ReleaseComponent(
+            id=component_id,
+            lifecycle=parse_lifecycle(component, context),
+            label=require_string(component, "label", context),
+            manifestation_id=manifestation_id,
+            component_type=require_string(component, "component_type", context),
+            segment_ids=segment_ids,
+            language_tag=language_tag,
+        )
+    if release_components:
+        validate_pack_values(
+            schema_packs,
+            "source.release-component-type",
+            (component.component_type for component in release_components.values()),
+            "release_components.*.component_type",
+        )
+
+    raw_release_events = require_mapping(
+        registry.get("release_events"), "release_events"
+    )
+    release_events: dict[str, ReleaseEvent] = {}
+    for event_id, raw_event in raw_release_events.items():
+        context = f"release_events.{event_id}"
+        validate_id(event_id, context)
+        event = require_mapping(raw_event, context)
+        manifestation_id = require_string(event, "manifestation_id", context)
+        if manifestation_id not in manifestations:
+            raise ValueError(
+                f"Source registry `{context}.manifestation_id` references unknown "
+                f"manifestation `{manifestation_id}`."
+            )
+        platform_ids = require_string_list(event, "platform_ids", context)
+        unknown_platforms = set(platform_ids) - set(platforms)
+        if unknown_platforms:
+            raise ValueError(
+                f"Source registry `{context}.platform_ids` references unknown "
+                f"platforms: {', '.join(sorted(unknown_platforms))}."
+            )
+        territory_ids = require_string_list(event, "territory_ids", context)
+        unknown_territories = set(territory_ids) - set(territories)
+        if unknown_territories:
+            raise ValueError(
+                f"Source registry `{context}.territory_ids` references unknown "
+                f"territories: {', '.join(sorted(unknown_territories))}."
+            )
+        release_events[event_id] = ReleaseEvent(
+            id=event_id,
+            lifecycle=parse_lifecycle(event, context),
+            label=require_string(event, "label", context),
+            manifestation_id=manifestation_id,
+            release_event_type=require_string(
+                event, "release_event_type", context
+            ),
+            released_at=optional_string(event, "released_at", context),
+            territory_ids=territory_ids,
+            platform_ids=platform_ids,
+            availability_status=require_string(
+                event, "availability_status", context
+            ),
+        )
+    if release_events:
+        validate_pack_values(
+            schema_packs,
+            "source.release-event-type",
+            (event.release_event_type for event in release_events.values()),
+            "release_events.*.release_event_type",
+        )
+        validate_pack_values(
+            schema_packs,
+            "source.availability-status",
+            (event.availability_status for event in release_events.values()),
+            "release_events.*.availability_status",
+        )
+
+    raw_catalog_placements = require_mapping(
+        registry.get("catalog_placements"), "catalog_placements"
+    )
+    catalog_placements: dict[str, CatalogPlacement] = {}
+    for placement_id, raw_placement in raw_catalog_placements.items():
+        context = f"catalog_placements.{placement_id}"
+        validate_id(placement_id, context)
+        placement = require_mapping(raw_placement, context)
+        platform_id = require_string(placement, "platform_id", context)
+        if platform_id not in platforms:
+            raise ValueError(
+                f"Source registry `{context}.platform_id` references unknown platform "
+                f"`{platform_id}`."
+            )
+        work_id = optional_string(placement, "work_id", context)
+        manifestation_id = optional_string(
+            placement, "manifestation_id", context
+        )
+        if work_id is not None and work_id not in works:
+            raise ValueError(
+                f"Source registry `{context}.work_id` references unknown work "
+                f"`{work_id}`."
+            )
+        if manifestation_id is not None and manifestation_id not in manifestations:
+            raise ValueError(
+                f"Source registry `{context}.manifestation_id` references unknown "
+                f"manifestation `{manifestation_id}`."
+            )
+        if (
+            work_id is not None
+            and manifestation_id is not None
+            and manifestations[manifestation_id].work_id != work_id
+        ):
+            raise ValueError(
+                f"Source registry `{context}` work and manifestation do not agree."
+            )
+        ordinal = placement.get("ordinal")
+        if ordinal is not None and (
+            isinstance(ordinal, bool) or not isinstance(ordinal, int) or ordinal < 1
+        ):
+            raise ValueError(
+                f"Source registry `{context}.ordinal` must be a positive integer "
+                "when present."
+            )
+        catalog_placements[placement_id] = CatalogPlacement(
+            id=placement_id,
+            lifecycle=parse_lifecycle(placement, context),
+            label=require_string(placement, "label", context),
+            platform_id=platform_id,
+            placement_type=require_string(placement, "placement_type", context),
+            parent_placement_id=optional_string(
+                placement, "parent_placement_id", context
+            ),
+            work_id=work_id,
+            manifestation_id=manifestation_id,
+            ordinal=ordinal,
+            provider_key=optional_string(placement, "provider_key", context),
+        )
+    for placement in catalog_placements.values():
+        parent_id = placement.parent_placement_id
+        if parent_id is not None:
+            if parent_id not in catalog_placements:
+                raise ValueError(
+                    f"Source registry `catalog_placements.{placement.id}` references "
+                    f"unknown parent `{parent_id}`."
+                )
+            if parent_id == placement.id:
+                raise ValueError(
+                    f"Source registry catalog placement `{placement.id}` cannot "
+                    "parent itself."
+                )
+            if catalog_placements[parent_id].platform_id != placement.platform_id:
+                raise ValueError(
+                    f"Source registry catalog placement `{placement.id}` and its "
+                    "parent must belong to the same platform."
+                )
+    complete_placements: set[str] = set()
+
+    def visit_placement(placement_id: str, active: set[str]) -> None:
+        if placement_id in active:
+            raise ValueError(
+                f"Source registry contains a catalog-placement cycle involving "
+                f"`{placement_id}`."
+            )
+        if placement_id in complete_placements:
+            return
+        active.add(placement_id)
+        parent = catalog_placements[placement_id].parent_placement_id
+        if parent:
+            visit_placement(parent, active)
+        active.remove(placement_id)
+        complete_placements.add(placement_id)
+
+    for placement_id in catalog_placements:
+        visit_placement(placement_id, set())
+    if catalog_placements:
+        validate_pack_values(
+            schema_packs,
+            "source.catalog-placement-type",
+            (placement.placement_type for placement in catalog_placements.values()),
+            "catalog_placements.*.placement_type",
+        )
+
+    raw_platform_offerings = require_mapping(
+        registry.get("platform_offerings"), "platform_offerings"
+    )
+    platform_offerings: dict[str, PlatformOffering] = {}
+    for offering_id, raw_offering in raw_platform_offerings.items():
+        context = f"platform_offerings.{offering_id}"
+        validate_id(offering_id, context)
+        offering = require_mapping(raw_offering, context)
+        platform_id = require_string(offering, "platform_id", context)
+        manifestation_id = require_string(offering, "manifestation_id", context)
+        release_event_id = optional_string(
+            offering, "release_event_id", context
+        )
+        if platform_id not in platforms:
+            raise ValueError(
+                f"Source registry `{context}.platform_id` references unknown platform "
+                f"`{platform_id}`."
+            )
+        if manifestation_id not in manifestations:
+            raise ValueError(
+                f"Source registry `{context}.manifestation_id` references unknown "
+                f"manifestation `{manifestation_id}`."
+            )
+        if release_event_id is not None:
+            if release_event_id not in release_events:
+                raise ValueError(
+                    f"Source registry `{context}.release_event_id` references unknown "
+                    f"release event `{release_event_id}`."
+                )
+            event = release_events[release_event_id]
+            if (
+                event.manifestation_id != manifestation_id
+                or platform_id not in event.platform_ids
+            ):
+                raise ValueError(
+                    f"Source registry `{context}` release event does not match its "
+                    "manifestation and platform."
+                )
+        placement_ids = require_string_list(
+            offering, "catalog_placement_ids", context
+        )
+        for placement_id in placement_ids:
+            if (
+                placement_id not in catalog_placements
+                or catalog_placements[placement_id].platform_id != platform_id
+            ):
+                raise ValueError(
+                    f"Source registry `{context}.catalog_placement_ids` references "
+                    f"placement `{placement_id}` outside platform `{platform_id}`."
+                )
+        territory_ids = require_string_list(offering, "territory_ids", context)
+        unknown_territories = set(territory_ids) - set(territories)
+        if unknown_territories:
+            raise ValueError(
+                f"Source registry `{context}.territory_ids` references unknown "
+                f"territories: {', '.join(sorted(unknown_territories))}."
+            )
+        language_tags = require_string_list(offering, "language_tags", context)
+        for language_tag in language_tags:
+            validate_language_tag(language_tag, f"{context}.language_tags")
+        platform_offerings[offering_id] = PlatformOffering(
+            id=offering_id,
+            lifecycle=parse_lifecycle(offering, context),
+            label=require_string(offering, "label", context),
+            platform_id=platform_id,
+            manifestation_id=manifestation_id,
+            release_event_id=release_event_id,
+            offering_type=require_string(offering, "offering_type", context),
+            availability_status=require_string(
+                offering, "availability_status", context
+            ),
+            territory_ids=territory_ids,
+            language_tags=language_tags,
+            available_from=optional_string(offering, "available_from", context),
+            available_until=optional_string(offering, "available_until", context),
+            catalog_placement_ids=placement_ids,
+        )
+    if platform_offerings:
+        validate_pack_values(
+            schema_packs,
+            "source.platform-offering-type",
+            (offering.offering_type for offering in platform_offerings.values()),
+            "platform_offerings.*.offering_type",
+        )
+        validate_pack_values(
+            schema_packs,
+            "source.availability-status",
+            (offering.availability_status for offering in platform_offerings.values()),
+            "platform_offerings.*.availability_status",
         )
 
     raw_sources = require_mapping(registry.get("sources"), "sources")
@@ -1519,6 +2288,67 @@ def load_source_registry(
                 f"Source registry `{context}.work_id` references unknown work "
                 f"`{work_id}`."
             )
+        manifestation_id = optional_string(source, "manifestation_id", context)
+        if manifestation_id is not None:
+            if manifestation_id not in manifestations:
+                raise ValueError(
+                    f"Source registry `{context}.manifestation_id` references unknown "
+                    f"manifestation `{manifestation_id}`."
+                )
+            if manifestations[manifestation_id].work_id != work_id:
+                raise ValueError(
+                    f"Source registry `{context}` manifestation belongs to a "
+                    "different work."
+                )
+        release_event_id = optional_string(source, "release_event_id", context)
+        if release_event_id is not None:
+            if release_event_id not in release_events:
+                raise ValueError(
+                    f"Source registry `{context}.release_event_id` references unknown "
+                    f"release event `{release_event_id}`."
+                )
+            event_manifestation_id = release_events[release_event_id].manifestation_id
+            if manifestation_id != event_manifestation_id:
+                raise ValueError(
+                    f"Source registry `{context}` release event does not belong to "
+                    "its manifestation."
+                )
+        release_component_ids = require_string_list(
+            source, "release_component_ids", context
+        )
+        for component_id in release_component_ids:
+            if component_id not in release_components:
+                raise ValueError(
+                    f"Source registry `{context}.release_component_ids` references "
+                    f"unknown component `{component_id}`."
+                )
+            if (
+                manifestation_id is None
+                or release_components[component_id].manifestation_id
+                != manifestation_id
+            ):
+                raise ValueError(
+                    f"Source registry `{context}` component `{component_id}` does not "
+                    "belong to its manifestation."
+                )
+        platform_offering_id = optional_string(
+            source, "platform_offering_id", context
+        )
+        if platform_offering_id is not None:
+            if platform_offering_id not in platform_offerings:
+                raise ValueError(
+                    f"Source registry `{context}.platform_offering_id` references "
+                    f"unknown offering `{platform_offering_id}`."
+                )
+            if (
+                manifestation_id is None
+                or platform_offerings[platform_offering_id].manifestation_id
+                != manifestation_id
+            ):
+                raise ValueError(
+                    f"Source registry `{context}` platform offering does not belong "
+                    "to its manifestation."
+                )
         if works[work_id].medium_id != medium_id and role not in {"supplemental", "reference", "extract"}:
             raise ValueError(
                 f"Source registry `{context}` medium does not match work `{work_id}`."
@@ -1564,6 +2394,10 @@ def load_source_registry(
             lifecycle=lifecycle,
             label=require_string(source, "label", context),
             work_id=work_id,
+            manifestation_id=manifestation_id,
+            release_event_id=release_event_id,
+            release_component_ids=release_component_ids,
+            platform_offering_id=platform_offering_id,
             medium_id=medium_id,
             container_format_ids=container_format_ids,
             role=role,
@@ -1639,6 +2473,15 @@ def load_source_registry(
         ordering_schemes=ordering_schemes,
         work_relationships=tuple(work_relationships),
         adaptation_mappings=tuple(adaptation_mappings),
+        territories=territories,
+        platforms=platforms,
+        manifestation_relationship_types=manifestation_relationship_types,
+        manifestations=manifestations,
+        manifestation_relationships=tuple(manifestation_relationships),
+        release_components=release_components,
+        release_events=release_events,
+        catalog_placements=catalog_placements,
+        platform_offerings=platform_offerings,
         work_aliases=work_aliases,
         source_relationship_types=source_relationship_types,
         sources=sources,

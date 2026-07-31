@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-screen-audio
-pack_version: 1
+pack_version: 2
 lifecycle: active
 pack_kind: domain
 label: Narrative Screen and Audio
@@ -8,7 +8,7 @@ description: Film, television, animation, audio drama, podcast, episode, special
 
 dependencies:
   - pack_id: narrative-media
-    minimum_version: 2
+    minimum_version: 3
 
 capabilities:
   - screen-works
@@ -16,6 +16,7 @@ capabilities:
   - episodic-releases
   - release-cuts
   - embedded-visual-assets
+  - live-performance-works
 
 controlled_values:
   source.source-relationship-type:
@@ -32,6 +33,15 @@ controlled_values:
     - audio-drama-series
     - audio-drama
     - podcast-series
+    - ova
+    - ona
+    - recap-special
+    - music-video
+    - promotional-short
+    - trailer
+    - stage-play
+    - musical
+    - radio-drama
   source.release-form:
     - television-series
     - television-season
@@ -45,12 +55,23 @@ controlled_values:
     - compilation-film
     - audio-drama
     - podcast-episode
+    - ova
+    - ona
+    - cour
+    - recap
+    - music-video
+    - promotional-short
+    - trailer
+    - stage-performance
+    - radio-broadcast
   source.segment-type:
     - episode
     - special
     - shot
     - timestamp-range
     - audio-episode
+    - cour
+    - recap-segment
   source.container-format:
     - broadcast
     - theatrical-release

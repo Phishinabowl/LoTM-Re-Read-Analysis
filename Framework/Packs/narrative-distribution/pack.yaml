@@ -1,0 +1,105 @@
+schema_version: 2
+pack_id: narrative-distribution
+pack_version: 1
+lifecycle: active
+pack_kind: domain
+label: Narrative Distribution
+description: Editions, cuts, localized manifestations, releases, platform catalogs, offerings, tracks, and regional availability.
+
+dependencies:
+  - pack_id: narrative-media
+    minimum_version: 3
+
+capabilities:
+  - manifestations
+  - release-components
+  - release-events
+  - platform-catalogs
+  - platform-offerings
+  - regional-availability
+  - localized-work-metadata
+
+controlled_values:
+  source.manifestation-type:
+    - original-edition
+    - translated-edition
+    - digital-edition
+    - print-edition
+    - audiobook-edition
+    - broadcast-version
+    - streaming-version
+    - theatrical-cut
+    - directors-cut
+    - extended-cut
+    - censored-cut
+    - uncensored-cut
+    - home-video-version
+    - remaster
+    - episodic-recut
+    - compilation-cut
+    - game-build
+  source.manifestation-relationship-type:
+    - edition-of
+    - has-edition
+    - translation-of
+    - has-translation
+    - cut-of
+    - has-cut
+    - remaster-of
+    - has-remaster
+    - recut-of
+    - has-recut
+    - build-of
+    - has-build
+  source.release-component-type:
+    - audio-track
+    - subtitle-track
+    - closed-caption-track
+    - video-track
+    - embedded-illustration-set
+    - bonus-feature
+    - deleted-scene
+    - commentary-track
+  source.release-event-type:
+    - publication
+    - broadcast
+    - theatrical
+    - streaming
+    - simulcast
+    - home-video
+    - digital-launch
+    - physical-launch
+    - rerelease
+  source.platform-type:
+    - streaming-service
+    - broadcaster
+    - publisher-platform
+    - digital-store
+    - physical-retailer
+    - theater-network
+    - library
+  source.catalog-placement-type:
+    - title
+    - season
+    - part
+    - volume
+    - collection
+    - channel
+  source.platform-offering-type:
+    - subscription
+    - channel-subscription
+    - ad-supported
+    - rental
+    - purchase
+    - free
+    - broadcast
+    - archival
+  source.availability-status:
+    - announced
+    - upcoming
+    - available
+    - unavailable
+    - delisted
+    - region-locked
+    - time-limited
+    - unknown

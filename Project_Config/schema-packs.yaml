@@ -16,6 +16,9 @@ selected_packs:
   - pack_id: narrative-adaptation
     path: Framework/Packs/narrative-adaptation/pack.yaml
 
+  - pack_id: narrative-distribution
+    path: Framework/Packs/narrative-distribution/pack.yaml
+
 capability_activation:
   default: disabled
   enabled:
@@ -52,8 +55,16 @@ capability_activation:
     - episodic-releases
     - release-cuts
     - embedded-visual-assets
+    - live-performance-works
     - adaptation-lineage
     - adaptation-mappings
     - reader-disclosure
     - spoiler-bounding
     - adaptation-comparison
+    - manifestations
+    - release-components
+    - release-events
+    - platform-catalogs
+    - platform-offerings
+    - regional-availability
+    - localized-work-metadata
