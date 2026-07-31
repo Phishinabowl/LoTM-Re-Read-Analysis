@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-publishing
-pack_version: 2
+pack_version: 3
 lifecycle: active
 pack_kind: domain
 label: Narrative Publishing
@@ -15,7 +15,10 @@ capabilities:
   - publication-packaging
   - editions
   - localization
-  - publication-runs
+  - id: publication-runs
+    lifecycle: planned
+    label: Publication Runs
+    description: Publisher-, imprint-, territory-, and date-scoped print or serialization runs beyond edition manifestations.
   - id: textual-witnesses
     lifecycle: planned
     label: Textual Witnesses

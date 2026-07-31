@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-distribution
-pack_version: 1
+pack_version: 2
 lifecycle: active
 pack_kind: domain
 label: Narrative Distribution
@@ -14,10 +14,13 @@ capabilities:
   - manifestations
   - release-components
   - release-events
+  - release-packages
   - platform-catalogs
   - platform-offerings
   - regional-availability
   - localized-work-metadata
+  - segment-scoped-distribution
+  - structured-release-time
 
 controlled_values:
   source.manifestation-type:
@@ -60,6 +63,31 @@ controlled_values:
     - bonus-feature
     - deleted-scene
     - commentary-track
+    - cover
+    - variant-cover
+    - dust-jacket
+    - insert
+    - map
+    - poster
+    - booklet
+    - physical-bonus-item
+    - disc-menu
+  source.release-package-type:
+    - box-set
+    - multi-disc-set
+    - omnibus-package
+    - collector-edition
+    - bundle
+    - magazine-issue
+    - home-video-set
+  source.distribution-subject-type:
+    - manifestation
+    - release-package
+  source.catalog-target-type:
+    - work
+    - segment
+    - manifestation
+    - release-package
   source.release-event-type:
     - publication
     - broadcast
@@ -103,3 +131,20 @@ controlled_values:
     - region-locked
     - time-limited
     - unknown
+  source.territory-type:
+    - worldwide
+    - region
+    - country
+    - market
+    - custom
+  source.temporal-precision:
+    - datetime
+    - date
+    - month
+    - year
+    - unknown
+  source.temporal-certainty:
+    - exact
+    - approximate
+    - announced
+    - uncertain

@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-adaptation
-pack_version: 2
+pack_version: 3
 lifecycle: active
 pack_kind: domain
 label: Narrative Adaptation
@@ -12,7 +12,10 @@ dependencies:
 
 capabilities:
   - adaptation-lineage
-  - adaptation-mappings
+  - id: adaptation-mappings
+    lifecycle: available
+    label: Adaptation Mappings
+    description: Segment-aware mappings from one or more classified basis works into a derivative work.
   - adaptation-comparison
 
 controlled_values:

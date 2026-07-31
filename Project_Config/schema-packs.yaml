@@ -44,12 +44,14 @@ capability_activation:
     - media-facets
     - work-hierarchies
     - multiple-orderings
+    - numbering-schemes
+    - external-identifiers
+    - localized-segment-metadata
     - narrative-time
     - serialization
     - publication-packaging
     - editions
     - localization
-    - publication-runs
     - screen-works
     - audio-works
     - episodic-releases
@@ -64,7 +66,10 @@ capability_activation:
     - manifestations
     - release-components
     - release-events
+    - release-packages
     - platform-catalogs
     - platform-offerings
     - regional-availability
     - localized-work-metadata
+    - segment-scoped-distribution
+    - structured-release-time

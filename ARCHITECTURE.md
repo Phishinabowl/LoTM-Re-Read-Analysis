@@ -128,15 +128,16 @@ Examples include framework contracts and packs, visual assets, local source mate
 
 ### Source Registry
 
-`Project_Config/sources.yaml` schema version 4 owns:
+`Project_Config/sources.yaml` schema version 5 owns:
 
 - stable source and medium-profile IDs plus instantiated modality, cultural-form, release-form, and container-format facets;
 - stable franchise/collection/adaptation-program groups, creative works, work segments, continuities, and per-work volume identities;
-- named total or partial publication, release, story, production, or recommended ordering schemes;
-- segment-aware adaptation mappings with explicit source-basis roles that preserve source and derivative claims;
-- manifestations for editions, translations, cuts, recuts, remasters, and builds;
-- release components and events for tracks, bundled material, and launches;
-- registered territories plus platforms, provider catalog placements, offerings, BCP-47-style languages, and availability windows;
+- named numbering schemes plus independent total or partial publication, release, story, production, or recommended ordering schemes;
+- segment-aware, multi-input adaptation mappings with explicit source-basis roles that preserve source and derivative claims;
+- manifestations for whole works or selected segments, including editions, translations, cuts, recuts, remasters, and builds;
+- release components, commercial packages, and events for tracks, bundled material, staggered segments, and launches;
+- hierarchical territories plus platforms, direct-target provider catalog placements, segment-scoped offerings, BCP-47-style languages, and structured availability windows;
+- external identifier schemes and values for works, segments, releases, platforms, catalog records, and evidence sources;
 - medium-specific position fields, sort order, and citation formats;
 - authority profiles, comparison groups, and source priority;
 - typed work relationships such as sequel, spinoff, side story, adaptation, remake, retelling, crossover, containment, compilation, and inspiration;
@@ -158,9 +159,9 @@ Priority is interpreted inside a comparison group under a selected authority pro
 
 The resource registry says where source material lives and how that storage is governed. The source registry identifies creative works and evidence sources and defines their separate semantic relationships.
 
-`Tools/source_config.py` and `Tools/Source-Config.ps1` are the matching source-registry loaders. They validate media-facet compatibility, release and container forms, work/group/segment nesting, total and partial named orderings, continuities, authority profiles, works and memberships, volume ranges, adaptation mappings and basis roles, manifestations, release components/events, platform catalogs/offerings, typed relationships, position schemas, citation placeholders, aliases, priorities, comparison groups, and resource bindings constrained to registered placements. Domain clients should use these normalized records rather than hardcoding book names, `novel`, `donghua`, or domain-specific evidence precedence.
+`Tools/source_config.py` and `Tools/Source-Config.ps1` are the matching source-registry loaders. They validate media-facet compatibility, release and container forms, work/group/segment nesting, localized titles, numbering, total and partial named orderings, continuities, authority profiles, works and memberships, volume ranges, multi-input adaptation mappings, segment-scoped manifestations, release components/packages/events, hierarchical territories, platform catalogs/offerings, structured time, external identifiers, typed relationships, position schemas, citation placeholders, aliases, priorities, comparison groups, and resource bindings constrained to registered placements. Domain clients should use these normalized records rather than hardcoding book names, `novel`, `donghua`, or domain-specific evidence precedence.
 
-Entity incarnations, claim-scoped continuity and retcons, branching narrative state, preservation/access state, textual witnesses, contributor credits, and rights/licensing remain planned capabilities. Pack ownership is established, but project data must not instantiate them until paired executable contracts are implemented.
+Publication-run records, live-performance productions/events, entity incarnations, claim-scoped continuity and retcons, branching narrative state, preservation/access state, textual witnesses, editorial assembly, contributor credits, and rights/licensing remain planned capabilities. Pack ownership is established, but project data must not instantiate them until paired executable contracts are implemented.
 
 ### Visualization Configuration
 

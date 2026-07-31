@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-media
-pack_version: 3
+pack_version: 4
 lifecycle: active
 pack_kind: domain
 label: Narrative Media Foundation
@@ -20,6 +20,9 @@ capabilities:
   - media-facets
   - work-hierarchies
   - multiple-orderings
+  - numbering-schemes
+  - external-identifiers
+  - localized-segment-metadata
   - narrative-time
   - reader-disclosure
   - spoiler-bounding
@@ -140,6 +143,27 @@ controlled_values:
     - story-order
     - production-order
     - recommended-order
+  source.numbering-target-type:
+    - work
+    - segment
+  source.numbering-scope-type:
+    - none
+    - work
+    - work-group
+  source.identifier-target-type:
+    - work
+    - segment
+    - manifestation
+    - release-package
+    - release-event
+    - platform
+    - catalog-placement
+    - source
+  source.identifier-status:
+    - active
+    - retired
+    - deprecated
+    - unknown
   source.continuity-type:
     - primary
     - adaptation

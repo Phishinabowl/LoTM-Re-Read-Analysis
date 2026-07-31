@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-screen-audio
-pack_version: 2
+pack_version: 3
 lifecycle: active
 pack_kind: domain
 label: Narrative Screen and Audio
@@ -13,10 +13,24 @@ dependencies:
 capabilities:
   - screen-works
   - audio-works
-  - episodic-releases
+  - id: episodic-releases
+    lifecycle: available
+    label: Episodic Releases
+    description: Episode and cour work-part identity plus segment-scoped release and offering records when narrative-distribution is selected.
   - release-cuts
   - embedded-visual-assets
-  - live-performance-works
+  - id: live-performance-works
+    lifecycle: available
+    label: Live Performance Works
+    description: Stable creative identity for stage plays, musicals, and related authored works.
+  - id: live-performance-productions
+    lifecycle: planned
+    label: Live Performance Productions
+    description: Production-, revival-, tour-, venue-, and cast-scoped stagings of a live-performance work.
+  - id: performance-events
+    lifecycle: planned
+    label: Performance Events
+    description: Individual scheduled performances and recorded performance instances.
 
 controlled_values:
   source.source-relationship-type:
