@@ -9,26 +9,85 @@ from project_config import ProjectConfig
 from resource_config import ResourceConfig
 
 
-SUPPORTED_SOURCE_SCHEMA_VERSION = 1
+SUPPORTED_SOURCE_SCHEMA_VERSION = 2
 LIFECYCLES = {"active", "deferred"}
-SOURCE_ROLES = {"original", "adaptation", "transcript", "supplemental", "reference"}
+SOURCE_ROLES = {
+    "primary-edition",
+    "official-release",
+    "transcript",
+    "supplemental",
+    "reference",
+    "translation",
+    "localization",
+    "extract",
+}
 POSITION_FIELD_TYPES = {"string", "integer", "number", "timestamp", "boolean"}
 PRIORITY_ORDERS = {"ascending", "descending"}
 CONFLICT_BEHAVIORS = {"flag"}
-DEVIATION_OWNERS = {"adaptation-source"}
-CHAPTER_NUMBERING_MODES = {"work-local", "series-global"}
+DEVIATION_OWNERS = {"derivative-work"}
+CHAPTER_NUMBERING_MODES = {"work-local", "series-global", "not-applicable"}
 VOLUME_CATALOG_STATUSES = {"verified", "pending-verification", "not-applicable"}
+MEMBERSHIP_STATUSES = {"canonical", "secondary-canon", "non-canon", "disputed", "unknown"}
+RELATIONSHIP_STATUSES = MEMBERSHIP_STATUSES
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 FIELD_ID_PATTERN = re.compile(r"^[a-z][a-z0-9_]*$")
 
 
 @dataclass(frozen=True)
-class ComparisonPolicy:
-    priority_order: str
-    compare_within_group_only: bool
-    compare_within_work_only: bool
+class RelationshipTypeConfig:
+    id: str
+    label: str
+    inverse_type: str
+    symmetric: bool
+
+
+@dataclass(frozen=True)
+class WorkGroupTypeConfig:
+    id: str
+    label: str
+    ordered: bool
+
+
+@dataclass(frozen=True)
+class WorkGroupConfig:
+    id: str
+    lifecycle: str
+    label: str
+    short_label: str
+    group_type: str
+    parent_group_id: str | None
+
+
+@dataclass(frozen=True)
+class ContinuityConfig:
+    id: str
+    lifecycle: str
+    label: str
+    short_label: str
+    continuity_type: str
+    aliases: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class ContinuityRelationship:
+    id: str
+    source_continuity_id: str
+    relationship_type: str
+    target_continuity_id: str
+    status: str
+
+
+@dataclass(frozen=True)
+class AuthorityProfile:
+    id: str
+    lifecycle: str
+    label: str
+    continuity_order: tuple[str, ...]
+    accepted_membership_statuses: tuple[str, ...]
+    source_priority_order: str
+    comparison_work_relationship_types: tuple[str, ...]
     cross_source_conflict: str
-    adaptation_deviation_owner: str
+    derivative_deviation_owner: str
     preserve_source_scoped_claims: bool
 
 
@@ -52,11 +111,16 @@ class MediumConfig:
 
 
 @dataclass(frozen=True)
-class SeriesConfig:
-    id: str
-    lifecycle: str
-    label: str
-    short_label: str
+class WorkGroupMembership:
+    group_id: str
+    role: str
+    ordinal: int | None
+
+
+@dataclass(frozen=True)
+class ContinuityMembership:
+    continuity_id: str
+    status: str
 
 
 @dataclass(frozen=True)
@@ -72,16 +136,26 @@ class VolumeConfig:
 class WorkConfig:
     id: str
     lifecycle: str
-    series_id: str
     label: str
     short_label: str
-    ordinal: int
     work_type: str
     medium_id: str
     aliases: tuple[str, ...]
+    group_memberships: tuple[WorkGroupMembership, ...]
+    continuity_memberships: tuple[ContinuityMembership, ...]
     chapter_numbering: str
     volume_catalog_status: str
     volumes: tuple[VolumeConfig, ...]
+
+
+@dataclass(frozen=True)
+class WorkRelationship:
+    id: str
+    source_work_id: str
+    relationship_type: str
+    target_work_id: str
+    continuity_ids: tuple[str, ...]
+    status: str
 
 
 @dataclass(frozen=True)
@@ -105,21 +179,36 @@ class SourceConfig:
     priority: int
     aliases: tuple[str, ...]
     evidence_modes: tuple[str, ...]
-    adapted_from_source_id: str | None
-    derived_from_source_id: str | None
     resource_bindings: tuple[SourceResourceBinding, ...]
+
+
+@dataclass(frozen=True)
+class SourceRelationship:
+    id: str
+    source_source_id: str
+    relationship_type: str
+    target_source_id: str
 
 
 @dataclass(frozen=True)
 class SourceRegistry:
     path: Path
     schema_version: int
-    comparison_policy: ComparisonPolicy
+    default_authority_profile_id: str
     mediums: dict[str, MediumConfig]
-    series: dict[str, SeriesConfig]
+    work_group_types: dict[str, WorkGroupTypeConfig]
+    work_groups: dict[str, WorkGroupConfig]
+    continuities: dict[str, ContinuityConfig]
+    continuity_relationship_types: dict[str, RelationshipTypeConfig]
+    continuity_relationships: tuple[ContinuityRelationship, ...]
+    authority_profiles: dict[str, AuthorityProfile]
+    work_relationship_types: dict[str, RelationshipTypeConfig]
     works: dict[str, WorkConfig]
+    work_relationships: tuple[WorkRelationship, ...]
     work_aliases: dict[str, str]
+    source_relationship_types: dict[str, RelationshipTypeConfig]
     sources: dict[str, SourceConfig]
+    source_relationships: tuple[SourceRelationship, ...]
     source_aliases: dict[str, str]
 
     def resolve_source_id(self, value: str) -> str | None:
@@ -183,103 +272,69 @@ def validate_field_id(value: str, context: str) -> None:
         )
 
 
-def parse_policy(raw_policy) -> ComparisonPolicy:
-    context = "comparison_policy"
-    policy = require_mapping(raw_policy, context)
-    priority_order = require_string(policy, "priority_order", context)
-    if priority_order not in PRIORITY_ORDERS:
-        raise ValueError(
-            f"Source registry `{context}.priority_order` must be one of: "
-            f"{', '.join(sorted(PRIORITY_ORDERS))}."
-        )
-    cross_source_conflict = require_string(policy, "cross_source_conflict", context)
-    if cross_source_conflict not in CONFLICT_BEHAVIORS:
-        raise ValueError(
-            f"Source registry `{context}.cross_source_conflict` must be one of: "
-            f"{', '.join(sorted(CONFLICT_BEHAVIORS))}."
-        )
-    deviation_owner = require_string(
-        policy,
-        "adaptation_deviation_owner",
-        context,
-    )
-    if deviation_owner not in DEVIATION_OWNERS:
-        raise ValueError(
-            f"Source registry `{context}.adaptation_deviation_owner` must be one of: "
-            f"{', '.join(sorted(DEVIATION_OWNERS))}."
-        )
-    return ComparisonPolicy(
-        priority_order=priority_order,
-        compare_within_group_only=require_bool(
-            policy,
-            "compare_within_group_only",
-            context,
-        ),
-        compare_within_work_only=require_bool(
-            policy,
-            "compare_within_work_only",
-            context,
-        ),
-        cross_source_conflict=cross_source_conflict,
-        adaptation_deviation_owner=deviation_owner,
-        preserve_source_scoped_claims=require_bool(
-            policy,
-            "preserve_source_scoped_claims",
-            context,
-        ),
-    )
-
-
-def parse_series(series_id: str, raw_series) -> SeriesConfig:
-    context = f"series.{series_id}"
-    validate_id(series_id, context)
-    series = require_mapping(raw_series, context)
-    lifecycle = require_string(series, "lifecycle", context)
+def parse_lifecycle(mapping: dict, context: str) -> str:
+    lifecycle = require_string(mapping, "lifecycle", context)
     if lifecycle not in LIFECYCLES:
         raise ValueError(
             f"Source registry `{context}.lifecycle` must be one of: "
             f"{', '.join(sorted(LIFECYCLES))}."
         )
-    return SeriesConfig(
-        id=series_id,
-        lifecycle=lifecycle,
-        label=require_string(series, "label", context),
-        short_label=require_string(series, "short_label", context),
-    )
+    return lifecycle
+
+
+def parse_relationship_types(raw_value, context: str) -> dict[str, RelationshipTypeConfig]:
+    raw_types = require_mapping(raw_value, context)
+    parsed: dict[str, RelationshipTypeConfig] = {}
+    for type_id, raw_type in raw_types.items():
+        type_context = f"{context}.{type_id}"
+        validate_id(type_id, type_context)
+        value = require_mapping(raw_type, type_context)
+        inverse_type = require_string(value, "inverse_type", type_context)
+        validate_id(inverse_type, f"{type_context}.inverse_type")
+        parsed[type_id] = RelationshipTypeConfig(
+            id=type_id,
+            label=require_string(value, "label", type_context),
+            inverse_type=inverse_type,
+            symmetric=require_bool(value, "symmetric", type_context),
+        )
+    for relation_type in parsed.values():
+        inverse = parsed.get(relation_type.inverse_type)
+        if inverse is None:
+            raise ValueError(
+                f"Source registry `{context}.{relation_type.id}.inverse_type` "
+                f"references unknown type `{relation_type.inverse_type}`."
+            )
+        if inverse.inverse_type != relation_type.id:
+            raise ValueError(
+                f"Source registry relationship types `{relation_type.id}` and "
+                f"`{inverse.id}` do not define reciprocal inverses."
+            )
+        if relation_type.symmetric != (relation_type.id == relation_type.inverse_type):
+            raise ValueError(
+                f"Source registry relationship type `{relation_type.id}` has "
+                "inconsistent symmetric and inverse settings."
+            )
+    return parsed
 
 
 def parse_work(
     work_id: str,
     raw_work,
     *,
-    series: dict[str, SeriesConfig],
+    work_groups: dict[str, WorkGroupConfig],
+    work_group_types: dict[str, WorkGroupTypeConfig],
+    continuities: dict[str, ContinuityConfig],
     mediums: dict[str, MediumConfig],
 ) -> WorkConfig:
     context = f"works.{work_id}"
     validate_id(work_id, context)
     work = require_mapping(raw_work, context)
-    lifecycle = require_string(work, "lifecycle", context)
-    if lifecycle not in LIFECYCLES:
-        raise ValueError(
-            f"Source registry `{context}.lifecycle` must be one of: "
-            f"{', '.join(sorted(LIFECYCLES))}."
-        )
-    series_id = require_string(work, "series_id", context)
-    if series_id not in series:
-        raise ValueError(
-            f"Source registry `{context}.series_id` references unknown series "
-            f"`{series_id}`."
-        )
+    lifecycle = parse_lifecycle(work, context)
     medium_id = require_string(work, "medium_id", context)
     if medium_id not in mediums:
         raise ValueError(
             f"Source registry `{context}.medium_id` references unknown medium "
             f"`{medium_id}`."
-        )
-    ordinal = work.get("ordinal")
-    if isinstance(ordinal, bool) or not isinstance(ordinal, int) or ordinal < 1:
-        raise ValueError(
-            f"Source registry `{context}.ordinal` must be a positive integer."
         )
     work_type = require_string(work, "work_type", context)
     validate_id(work_type, f"{context}.work_type")
@@ -298,6 +353,74 @@ def parse_work(
     aliases = require_string_list(work, "aliases", context)
     for alias in aliases:
         validate_id(alias, f"{context}.aliases")
+    raw_group_memberships = work.get("group_memberships")
+    if not isinstance(raw_group_memberships, list) or not raw_group_memberships:
+        raise ValueError(
+            f"Source registry `{context}.group_memberships` must be a non-empty list."
+        )
+    group_memberships: list[WorkGroupMembership] = []
+    seen_groups: set[str] = set()
+    for index, raw_membership in enumerate(raw_group_memberships):
+        membership_context = f"{context}.group_memberships[{index}]"
+        membership = require_mapping(raw_membership, membership_context)
+        group_id = require_string(membership, "group_id", membership_context)
+        if group_id not in work_groups:
+            raise ValueError(
+                f"Source registry `{membership_context}.group_id` references "
+                f"unknown work group `{group_id}`."
+            )
+        if group_id in seen_groups:
+            raise ValueError(
+                f"Source registry `{context}` repeats work group `{group_id}`."
+            )
+        seen_groups.add(group_id)
+        role = require_string(membership, "role", membership_context)
+        validate_id(role, f"{membership_context}.role")
+        ordinal = membership.get("ordinal")
+        ordered = work_group_types[work_groups[group_id].group_type].ordered
+        if ordered:
+            if isinstance(ordinal, bool) or not isinstance(ordinal, int) or ordinal < 1:
+                raise ValueError(
+                    f"Source registry `{membership_context}.ordinal` must be a "
+                    "positive integer for an ordered work group."
+                )
+        elif ordinal is not None:
+            raise ValueError(
+                f"Source registry `{membership_context}.ordinal` is only valid for "
+                "ordered work groups."
+            )
+        group_memberships.append(WorkGroupMembership(group_id, role, ordinal))
+
+    raw_continuity_memberships = work.get("continuity_memberships")
+    if not isinstance(raw_continuity_memberships, list) or not raw_continuity_memberships:
+        raise ValueError(
+            f"Source registry `{context}.continuity_memberships` must be a "
+            "non-empty list."
+        )
+    continuity_memberships: list[ContinuityMembership] = []
+    seen_continuities: set[str] = set()
+    for index, raw_membership in enumerate(raw_continuity_memberships):
+        membership_context = f"{context}.continuity_memberships[{index}]"
+        membership = require_mapping(raw_membership, membership_context)
+        continuity_id = require_string(membership, "continuity_id", membership_context)
+        if continuity_id not in continuities:
+            raise ValueError(
+                f"Source registry `{membership_context}.continuity_id` references "
+                f"unknown continuity `{continuity_id}`."
+            )
+        if continuity_id in seen_continuities:
+            raise ValueError(
+                f"Source registry `{context}` repeats continuity `{continuity_id}`."
+            )
+        seen_continuities.add(continuity_id)
+        status = require_string(membership, "status", membership_context)
+        if status not in MEMBERSHIP_STATUSES:
+            raise ValueError(
+                f"Source registry `{membership_context}.status` must be one of: "
+                f"{', '.join(sorted(MEMBERSHIP_STATUSES))}."
+            )
+        continuity_memberships.append(ContinuityMembership(continuity_id, status))
+
     if "volumes" not in work or not isinstance(work.get("volumes"), list):
         raise ValueError(f"Source registry `{context}.volumes` must be a list.")
     raw_volumes = work["volumes"]
@@ -366,13 +489,13 @@ def parse_work(
     return WorkConfig(
         id=work_id,
         lifecycle=lifecycle,
-        series_id=series_id,
         label=require_string(work, "label", context),
         short_label=require_string(work, "short_label", context),
-        ordinal=ordinal,
         work_type=work_type,
         medium_id=medium_id,
         aliases=aliases,
+        group_memberships=tuple(group_memberships),
+        continuity_memberships=tuple(continuity_memberships),
         chapter_numbering=chapter_numbering,
         volume_catalog_status=volume_status,
         volumes=tuple(sorted_volumes),
@@ -560,25 +683,258 @@ def load_source_registry(
             f"Unsupported source schema_version {schema_version!r}; "
             f"expected {SUPPORTED_SOURCE_SCHEMA_VERSION}."
         )
-    comparison_policy = parse_policy(registry.get("comparison_policy"))
-
     raw_mediums = require_mapping(registry.get("mediums"), "mediums")
     mediums = {
         medium_id: parse_medium(medium_id, raw_medium)
         for medium_id, raw_medium in raw_mediums.items()
     }
 
-    raw_series = require_mapping(registry.get("series"), "series")
-    series = {
-        series_id: parse_series(series_id, raw_series_entry)
-        for series_id, raw_series_entry in raw_series.items()
+    raw_group_types = require_mapping(
+        registry.get("work_group_types"), "work_group_types"
+    )
+    work_group_types: dict[str, WorkGroupTypeConfig] = {}
+    for type_id, raw_type in raw_group_types.items():
+        context = f"work_group_types.{type_id}"
+        validate_id(type_id, context)
+        value = require_mapping(raw_type, context)
+        work_group_types[type_id] = WorkGroupTypeConfig(
+            id=type_id,
+            label=require_string(value, "label", context),
+            ordered=require_bool(value, "ordered", context),
+        )
+
+    raw_groups = require_mapping(registry.get("work_groups"), "work_groups")
+    work_groups: dict[str, WorkGroupConfig] = {}
+    for group_id, raw_group in raw_groups.items():
+        context = f"work_groups.{group_id}"
+        validate_id(group_id, context)
+        group = require_mapping(raw_group, context)
+        group_type = require_string(group, "group_type", context)
+        if group_type not in work_group_types:
+            raise ValueError(
+                f"Source registry `{context}.group_type` references unknown work "
+                f"group type `{group_type}`."
+            )
+        parent_group_id = str(group.get("parent_group_id", "")).strip() or None
+        work_groups[group_id] = WorkGroupConfig(
+            id=group_id,
+            lifecycle=parse_lifecycle(group, context),
+            label=require_string(group, "label", context),
+            short_label=require_string(group, "short_label", context),
+            group_type=group_type,
+            parent_group_id=parent_group_id,
+        )
+    for group in work_groups.values():
+        if group.parent_group_id is None:
+            continue
+        if group.parent_group_id not in work_groups:
+            raise ValueError(
+                f"Source registry `work_groups.{group.id}.parent_group_id` references "
+                f"unknown work group `{group.parent_group_id}`."
+            )
+        if group.parent_group_id == group.id:
+            raise ValueError(f"Source registry work group `{group.id}` cannot parent itself.")
+    complete_groups: set[str] = set()
+
+    def visit_group(group_id: str, active: set[str]) -> None:
+        if group_id in active:
+            raise ValueError(
+                f"Source registry contains a work-group parent cycle involving "
+                f"`{group_id}`."
+            )
+        if group_id in complete_groups:
+            return
+        active.add(group_id)
+        parent = work_groups[group_id].parent_group_id
+        if parent:
+            visit_group(parent, active)
+        active.remove(group_id)
+        complete_groups.add(group_id)
+
+    for group_id in work_groups:
+        visit_group(group_id, set())
+
+    raw_continuities = require_mapping(registry.get("continuities"), "continuities")
+    continuities: dict[str, ContinuityConfig] = {}
+    continuity_aliases: set[str] = set()
+    continuity_ids_casefolded = {
+        continuity_id.casefold() for continuity_id in raw_continuities
     }
+    for continuity_id, raw_continuity in raw_continuities.items():
+        context = f"continuities.{continuity_id}"
+        validate_id(continuity_id, context)
+        continuity = require_mapping(raw_continuity, context)
+        continuity_type = require_string(continuity, "continuity_type", context)
+        validate_id(continuity_type, f"{context}.continuity_type")
+        aliases = require_string_list(continuity, "aliases", context)
+        for alias in aliases:
+            validate_id(alias, f"{context}.aliases")
+            alias_key = alias.casefold()
+            if alias_key in continuity_aliases or alias_key in continuity_ids_casefolded:
+                raise ValueError(
+                    f"Source registry continuity alias `{alias}` is duplicated or "
+                    "collides with a continuity ID."
+                )
+            continuity_aliases.add(alias_key)
+        continuities[continuity_id] = ContinuityConfig(
+            id=continuity_id,
+            lifecycle=parse_lifecycle(continuity, context),
+            label=require_string(continuity, "label", context),
+            short_label=require_string(continuity, "short_label", context),
+            continuity_type=continuity_type,
+            aliases=aliases,
+        )
+
+    continuity_relationship_types = parse_relationship_types(
+        registry.get("continuity_relationship_types"),
+        "continuity_relationship_types",
+    )
+    work_relationship_types = parse_relationship_types(
+        registry.get("work_relationship_types"), "work_relationship_types"
+    )
+    source_relationship_types = parse_relationship_types(
+        registry.get("source_relationship_types"), "source_relationship_types"
+    )
+
+    raw_continuity_relationships = registry.get("continuity_relationships")
+    if not isinstance(raw_continuity_relationships, list):
+        raise ValueError(
+            "Source registry `continuity_relationships` must be a list."
+        )
+    continuity_relationships: list[ContinuityRelationship] = []
+    seen_relationship_ids: set[str] = set()
+    for index, raw_relationship in enumerate(raw_continuity_relationships):
+        context = f"continuity_relationships[{index}]"
+        relationship = require_mapping(raw_relationship, context)
+        relationship_id = require_string(relationship, "id", context)
+        validate_id(relationship_id, f"{context}.id")
+        if relationship_id in seen_relationship_ids:
+            raise ValueError(
+                f"Source registry relationship ID `{relationship_id}` is duplicated."
+            )
+        seen_relationship_ids.add(relationship_id)
+        source_id = require_string(
+            relationship, "source_continuity_id", context
+        )
+        target_id = require_string(
+            relationship, "target_continuity_id", context
+        )
+        relationship_type = require_string(
+            relationship, "relationship_type", context
+        )
+        if source_id not in continuities or target_id not in continuities:
+            raise ValueError(
+                f"Source registry `{context}` references an unknown continuity."
+            )
+        if source_id == target_id:
+            raise ValueError(
+                f"Source registry `{context}` cannot relate a continuity to itself."
+            )
+        if relationship_type not in continuity_relationship_types:
+            raise ValueError(
+                f"Source registry `{context}.relationship_type` references unknown "
+                f"type `{relationship_type}`."
+            )
+        status = require_string(relationship, "status", context)
+        if status not in RELATIONSHIP_STATUSES:
+            raise ValueError(
+                f"Source registry `{context}.status` must be one of: "
+                f"{', '.join(sorted(RELATIONSHIP_STATUSES))}."
+            )
+        continuity_relationships.append(
+            ContinuityRelationship(
+                relationship_id, source_id, relationship_type, target_id, status
+            )
+        )
+
+    raw_authority_profiles = require_mapping(
+        registry.get("authority_profiles"), "authority_profiles"
+    )
+    authority_profiles: dict[str, AuthorityProfile] = {}
+    for profile_id, raw_profile in raw_authority_profiles.items():
+        context = f"authority_profiles.{profile_id}"
+        validate_id(profile_id, context)
+        profile = require_mapping(raw_profile, context)
+        continuity_order = require_string_list(profile, "continuity_order", context)
+        if len(set(continuity_order)) != len(continuity_order):
+            raise ValueError(
+                f"Source registry `{context}.continuity_order` contains duplicates."
+            )
+        unknown_continuities = set(continuity_order) - set(continuities)
+        if unknown_continuities:
+            raise ValueError(
+                f"Source registry `{context}.continuity_order` references unknown "
+                f"continuities: {', '.join(sorted(unknown_continuities))}."
+            )
+        accepted_statuses = require_string_list(
+            profile, "accepted_membership_statuses", context
+        )
+        unknown_statuses = set(accepted_statuses) - MEMBERSHIP_STATUSES
+        if unknown_statuses:
+            raise ValueError(
+                f"Source registry `{context}.accepted_membership_statuses` contains "
+                f"unknown values: {', '.join(sorted(unknown_statuses))}."
+            )
+        priority_order = require_string(profile, "source_priority_order", context)
+        if priority_order not in PRIORITY_ORDERS:
+            raise ValueError(
+                f"Source registry `{context}.source_priority_order` must be one of: "
+                f"{', '.join(sorted(PRIORITY_ORDERS))}."
+            )
+        comparison_types = require_string_list(
+            profile, "comparison_work_relationship_types", context
+        )
+        unknown_types = set(comparison_types) - set(work_relationship_types)
+        if unknown_types:
+            raise ValueError(
+                f"Source registry `{context}.comparison_work_relationship_types` "
+                f"references unknown types: {', '.join(sorted(unknown_types))}."
+            )
+        conflict = require_string(profile, "cross_source_conflict", context)
+        if conflict not in CONFLICT_BEHAVIORS:
+            raise ValueError(
+                f"Source registry `{context}.cross_source_conflict` must be one of: "
+                f"{', '.join(sorted(CONFLICT_BEHAVIORS))}."
+            )
+        deviation_owner = require_string(
+            profile, "derivative_deviation_owner", context
+        )
+        if deviation_owner not in DEVIATION_OWNERS:
+            raise ValueError(
+                f"Source registry `{context}.derivative_deviation_owner` must be one "
+                f"of: {', '.join(sorted(DEVIATION_OWNERS))}."
+            )
+        authority_profiles[profile_id] = AuthorityProfile(
+            id=profile_id,
+            lifecycle=parse_lifecycle(profile, context),
+            label=require_string(profile, "label", context),
+            continuity_order=continuity_order,
+            accepted_membership_statuses=accepted_statuses,
+            source_priority_order=priority_order,
+            comparison_work_relationship_types=comparison_types,
+            cross_source_conflict=conflict,
+            derivative_deviation_owner=deviation_owner,
+            preserve_source_scoped_claims=require_bool(
+                profile, "preserve_source_scoped_claims", context
+            ),
+        )
+    default_authority_profile_id = require_string(
+        registry, "default_authority_profile_id", "root"
+    )
+    if default_authority_profile_id not in authority_profiles:
+        raise ValueError(
+            "Source registry `default_authority_profile_id` references unknown "
+            f"authority profile `{default_authority_profile_id}`."
+        )
+
     raw_works = require_mapping(registry.get("works"), "works")
     works = {
         work_id: parse_work(
             work_id,
             raw_work,
-            series=series,
+            work_groups=work_groups,
+            work_group_types=work_group_types,
+            continuities=continuities,
             mediums=mediums,
         )
         for work_id, raw_work in raw_works.items()
@@ -587,14 +943,16 @@ def load_source_registry(
     work_aliases: dict[str, str] = {}
     work_ids_casefolded = {work_id.casefold() for work_id in works}
     for work in works.values():
-        ordinal_key = (work.series_id, work.ordinal)
-        if ordinal_key in seen_ordinals:
-            raise ValueError(
-                f"Source registry duplicates ordinal {work.ordinal} in series "
-                f"`{work.series_id}` between `{seen_ordinals[ordinal_key]}` and "
-                f"`{work.id}`."
-            )
-        seen_ordinals[ordinal_key] = work.id
+        for membership in work.group_memberships:
+            if membership.ordinal is not None:
+                ordinal_key = (membership.group_id, membership.ordinal)
+                if ordinal_key in seen_ordinals:
+                    raise ValueError(
+                        f"Source registry duplicates ordinal {membership.ordinal} in "
+                        f"work group `{membership.group_id}` between "
+                        f"`{seen_ordinals[ordinal_key]}` and `{work.id}`."
+                    )
+                seen_ordinals[ordinal_key] = work.id
         for alias in work.aliases:
             alias_key = alias.casefold()
             if alias_key in work_aliases or alias_key in work_ids_casefolded:
@@ -604,6 +962,62 @@ def load_source_registry(
                 )
             work_aliases[alias_key] = work.id
 
+    raw_work_relationships = registry.get("work_relationships")
+    if not isinstance(raw_work_relationships, list):
+        raise ValueError("Source registry `work_relationships` must be a list.")
+    work_relationships: list[WorkRelationship] = []
+    for index, raw_relationship in enumerate(raw_work_relationships):
+        context = f"work_relationships[{index}]"
+        relationship = require_mapping(raw_relationship, context)
+        relationship_id = require_string(relationship, "id", context)
+        validate_id(relationship_id, f"{context}.id")
+        if relationship_id in seen_relationship_ids:
+            raise ValueError(
+                f"Source registry relationship ID `{relationship_id}` is duplicated."
+            )
+        seen_relationship_ids.add(relationship_id)
+        source_id = require_string(relationship, "source_work_id", context)
+        target_id = require_string(relationship, "target_work_id", context)
+        relationship_type = require_string(
+            relationship, "relationship_type", context
+        )
+        if source_id not in works or target_id not in works:
+            raise ValueError(f"Source registry `{context}` references an unknown work.")
+        if source_id == target_id:
+            raise ValueError(
+                f"Source registry `{context}` cannot relate a work to itself."
+            )
+        if relationship_type not in work_relationship_types:
+            raise ValueError(
+                f"Source registry `{context}.relationship_type` references unknown "
+                f"type `{relationship_type}`."
+            )
+        continuity_ids = require_string_list(
+            relationship, "continuity_ids", context
+        )
+        unknown_continuities = set(continuity_ids) - set(continuities)
+        if unknown_continuities:
+            raise ValueError(
+                f"Source registry `{context}.continuity_ids` references unknown "
+                f"continuities: {', '.join(sorted(unknown_continuities))}."
+            )
+        status = require_string(relationship, "status", context)
+        if status not in RELATIONSHIP_STATUSES:
+            raise ValueError(
+                f"Source registry `{context}.status` must be one of: "
+                f"{', '.join(sorted(RELATIONSHIP_STATUSES))}."
+            )
+        work_relationships.append(
+            WorkRelationship(
+                relationship_id,
+                source_id,
+                relationship_type,
+                target_id,
+                continuity_ids,
+                status,
+            )
+        )
+
     raw_sources = require_mapping(registry.get("sources"), "sources")
     sources: dict[str, SourceConfig] = {}
     aliases: dict[str, str] = {}
@@ -611,12 +1025,7 @@ def load_source_registry(
         context = f"sources.{source_id}"
         validate_id(source_id, context)
         source = require_mapping(raw_source, context)
-        lifecycle = require_string(source, "lifecycle", context)
-        if lifecycle not in LIFECYCLES:
-            raise ValueError(
-                f"Source registry `{context}.lifecycle` must be one of: "
-                f"{', '.join(sorted(LIFECYCLES))}."
-            )
+        lifecycle = parse_lifecycle(source, context)
         medium_id = require_string(source, "medium_id", context)
         if medium_id not in mediums:
             raise ValueError(
@@ -635,11 +1044,7 @@ def load_source_registry(
                 f"Source registry `{context}.work_id` references unknown work "
                 f"`{work_id}`."
             )
-        if works[work_id].medium_id != medium_id and role not in {
-            "adaptation",
-            "transcript",
-            "supplemental",
-        }:
+        if works[work_id].medium_id != medium_id and role not in {"supplemental", "reference", "extract"}:
             raise ValueError(
                 f"Source registry `{context}` medium does not match work `{work_id}`."
             )
@@ -679,8 +1084,6 @@ def load_source_registry(
             )
             for index, raw_binding in enumerate(raw_bindings)
         )
-        adapted_from = str(source.get("adapted_from_source_id", "")).strip() or None
-        derived_from = str(source.get("derived_from_source_id", "")).strip() or None
         sources[source_id] = SourceConfig(
             id=source_id,
             lifecycle=lifecycle,
@@ -692,86 +1095,64 @@ def load_source_registry(
             priority=priority,
             aliases=source_aliases,
             evidence_modes=evidence_modes,
-            adapted_from_source_id=adapted_from,
-            derived_from_source_id=derived_from,
             resource_bindings=bindings,
         )
 
-    for source in sources.values():
-        for relationship_name, target_id in (
-            ("adapted_from_source_id", source.adapted_from_source_id),
-            ("derived_from_source_id", source.derived_from_source_id),
-        ):
-            if target_id is None:
-                continue
-            if target_id not in sources:
-                raise ValueError(
-                    f"Source registry `sources.{source.id}.{relationship_name}` "
-                    f"references unknown source `{target_id}`."
-                )
-            if target_id == source.id:
-                raise ValueError(
-                    f"Source registry `sources.{source.id}.{relationship_name}` "
-                    "cannot reference itself."
-                )
-            target = sources[target_id]
-            if target.comparison_group != source.comparison_group:
-                raise ValueError(
-                    f"Source registry `{source.id}` and `{target_id}` must share a "
-                    "comparison group."
-                )
-            if target.work_id != source.work_id:
-                raise ValueError(
-                    f"Source registry `{source.id}` and `{target_id}` must reference "
-                    "the same work."
-                )
-        if source.role == "adaptation" and source.adapted_from_source_id is None:
+    raw_source_relationships = registry.get("source_relationships")
+    if not isinstance(raw_source_relationships, list):
+        raise ValueError("Source registry `source_relationships` must be a list.")
+    source_relationships: list[SourceRelationship] = []
+    for index, raw_relationship in enumerate(raw_source_relationships):
+        context = f"source_relationships[{index}]"
+        relationship = require_mapping(raw_relationship, context)
+        relationship_id = require_string(relationship, "id", context)
+        validate_id(relationship_id, f"{context}.id")
+        if relationship_id in seen_relationship_ids:
             raise ValueError(
-                f"Source registry adaptation `{source.id}` requires "
-                "`adapted_from_source_id`."
+                f"Source registry relationship ID `{relationship_id}` is duplicated."
             )
-        if source.adapted_from_source_id:
-            original = sources[source.adapted_from_source_id]
-            outranks_original = (
-                source.priority < original.priority
-                if comparison_policy.priority_order == "ascending"
-                else source.priority > original.priority
+        seen_relationship_ids.add(relationship_id)
+        source_id = require_string(relationship, "source_source_id", context)
+        target_id = require_string(relationship, "target_source_id", context)
+        relationship_type = require_string(
+            relationship, "relationship_type", context
+        )
+        if source_id not in sources or target_id not in sources:
+            raise ValueError(
+                f"Source registry `{context}` references an unknown source."
             )
-            if outranks_original:
-                raise ValueError(
-                    f"Source registry adaptation `{source.id}` cannot outrank "
-                    f"`{original.id}` under the configured priority order."
-                )
-
-    def visit(source_id: str, active: set[str], complete: set[str]) -> None:
-        if source_id in active:
-            chain = " -> ".join((*active, source_id))
-            raise ValueError(f"Source registry contains a derivation cycle: {chain}.")
-        if source_id in complete:
-            return
-        active.add(source_id)
-        source = sources[source_id]
-        for target_id in (
-            source.adapted_from_source_id,
-            source.derived_from_source_id,
-        ):
-            if target_id:
-                visit(target_id, active, complete)
-        active.remove(source_id)
-        complete.add(source_id)
-
-    complete_sources: set[str] = set()
-    for source_id in sources:
-        visit(source_id, set(), complete_sources)
+        if source_id == target_id:
+            raise ValueError(
+                f"Source registry `{context}` cannot relate a source to itself."
+            )
+        if relationship_type not in source_relationship_types:
+            raise ValueError(
+                f"Source registry `{context}.relationship_type` references unknown "
+                f"type `{relationship_type}`."
+            )
+        source_relationships.append(
+            SourceRelationship(
+                relationship_id, source_id, relationship_type, target_id
+            )
+        )
 
     return SourceRegistry(
         path=project.sources_registry,
         schema_version=schema_version,
-        comparison_policy=comparison_policy,
+        default_authority_profile_id=default_authority_profile_id,
         mediums=mediums,
-        series=series,
+        work_group_types=work_group_types,
+        work_groups=work_groups,
+        continuities=continuities,
+        continuity_relationship_types=continuity_relationship_types,
+        continuity_relationships=tuple(continuity_relationships),
+        authority_profiles=authority_profiles,
+        work_relationship_types=work_relationship_types,
         works=works,
+        work_relationships=tuple(work_relationships),
         work_aliases=work_aliases,
+        source_relationship_types=source_relationship_types,
         sources=sources,
+        source_relationships=tuple(source_relationships),
         source_aliases=aliases,
     )

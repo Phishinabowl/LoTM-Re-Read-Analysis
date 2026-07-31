@@ -1,6 +1,6 @@
 # Lord of the Mysteries Re-Read Analysis
 
-This repository is currently focused on a deep reread analysis of **Lord of the Mysteries (Book 1)** while preserving a series-aware source model for **Circle of Inevitability (Book 2)** and possible later works.
+This repository is currently focused on a deep reread analysis of **Lord of the Mysteries (Book 1)** while preserving a franchise-, continuity-, and work-aware source model for **Circle of Inevitability (Book 2)**, adaptations, spinoffs, and possible later works.
 
 ## AI Agent Bootstrap
 

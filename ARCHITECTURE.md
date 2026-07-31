@@ -112,22 +112,27 @@ Examples include visual assets, local source material, executable tools, project
 `Project_Config/sources.yaml` owns:
 
 - stable source and medium IDs;
-- stable series, work/book, and per-work volume identities;
+- stable franchise/collection/adaptation-program groups, creative works, continuities, and per-work volume identities;
 - medium-specific position fields, sort order, and citation formats;
-- comparison groups and source priority;
-- original, adaptation, transcript, supplemental, and derivation relationships;
+- authority profiles, comparison groups, and source priority;
+- typed work relationships such as sequel, spinoff, side story, adaptation, remake, retelling, crossover, containment, compilation, and inspiration;
+- typed source relationships such as edition, translation, transcript, subtitle track, dub, scan, extract, and package membership;
 - source aliases, evidence modes, and bindings to registered resources;
 - conflict, deviation, and unresolved-difference policy.
 
-Reader positions are work-scoped before they are volume- or chapter-scoped. This prevents chapter 100 in one book from colliding with chapter 100 in a sequel and permits filtering or sorting by series, work, volume, and local chapter. Work aliases may provide familiar labels while canonical work IDs remain stable.
+Reader positions are work-scoped before they are volume- or chapter-scoped. This prevents chapter 100 in one book from colliding with chapter 100 in a sequel and permits filtering or sorting by franchise, collection, continuity, work, volume, and local chapter. Work aliases may provide familiar labels while canonical work IDs remain stable.
 
 Current graph and bounded-page implementations predate the work registry and remain implicitly scoped to `lotm-1`. Their migration to the normalized content index must add an explicit work selector before those interfaces are used for COI or cross-book output; do not infer a work from a chapter number.
 
-Priority is interpreted only inside a comparison group and, by default, one work. The current LoTM narrative group assigns each original novel source priority 1 and the Book 1 Donghua adaptation priority 2. A disagreement therefore becomes an adaptation deviation attached to the Donghua; it does not rewrite the Book 1 novel claim or affect another book. Source-scoped claims and each medium's disclosure timeline remain independently valid.
+Creative-work lineage and evidence-source lineage are separate. `lotm-donghua-season-1` is an adaptation work in its own continuity; `lotm-donghua-release` is the observed release source for that work; and `lotm-donghua-subtitles` is a subtitle-track source related to that release. A transcript, edition, or scan never becomes the adaptation merely because it supplies evidence about it.
 
-The resource registry says where source material lives and how that storage is governed. The source registry identifies the evidence sources themselves and defines their semantic priority and derivation relationships.
+An adaptation program is an ordered, heterogeneous work group. It may contain television seasons, skipped-content specials, character specials, films, or other release formats in one adaptation continuity. Each member remains an independent work with its own release order, evidence sources, spoiler timeline, and relationship to the work or works it adapts.
 
-`Tools/source_config.py` and `Tools/Source-Config.ps1` are the matching source-registry loaders. They validate source, medium, series, work, and volume IDs; work ordering and volume ranges; position schemas; citation placeholders; aliases; priorities; comparison groups; acyclic adaptation/derivation references; and resource bindings constrained to registered placements. Domain clients should use these normalized records rather than hardcoding book names, `novel`, `donghua`, or domain-specific evidence precedence.
+Priority is interpreted inside a comparison group under a selected authority profile. The current adaptation-comparison profile orders the novel continuity before the Donghua continuity and compares works connected by approved derivative relationships. Primary novel editions have priority 1 and the Donghua release/transcript priority 2. A disagreement therefore becomes a deviation attached to the derivative Donghua work; it does not rewrite the novel work or another continuity. Source-scoped claims and each medium's disclosure timeline remain independently valid.
+
+The resource registry says where source material lives and how that storage is governed. The source registry identifies creative works and evidence sources and defines their separate semantic relationships.
+
+`Tools/source_config.py` and `Tools/Source-Config.ps1` are the matching source-registry loaders. They validate media, work-group types and nesting, continuities, authority profiles, works and ordered memberships, volume ranges, typed work/source relationships, position schemas, citation placeholders, aliases, priorities, comparison groups, and resource bindings constrained to registered placements. Domain clients should use these normalized records rather than hardcoding book names, `novel`, `donghua`, or domain-specific evidence precedence.
 
 ### Visualization Configuration
 

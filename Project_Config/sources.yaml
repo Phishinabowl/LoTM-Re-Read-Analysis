@@ -1,12 +1,6 @@
-schema_version: 1
+schema_version: 2
 
-comparison_policy:
-  priority_order: ascending
-  compare_within_group_only: true
-  compare_within_work_only: true
-  cross_source_conflict: flag
-  adaptation_deviation_owner: adaptation-source
-  preserve_source_scoped_claims: true
+default_authority_profile_id: lotm-adaptation-comparison
 
 mediums:
   novel:
@@ -45,6 +39,7 @@ mediums:
     plural_label: Donghua Releases
     position:
       fields:
+        work: string
         season: integer
         installment_type: string
         episode: string
@@ -52,20 +47,24 @@ mediums:
         timestamp: timestamp
         sequence: integer
       required_fields:
+        - work
         - release_order
       sort_fields:
+        - work
         - release_order
         - sequence
       citation_formats:
         - id: season-episode-timestamp
-          template: "Donghua S{season} E{episode} {timestamp}"
+          template: "{work} S{season} E{episode} {timestamp}"
           required_fields:
+            - work
             - season
             - episode
             - timestamp
         - id: season-episode
-          template: "Donghua S{season} E{episode}"
+          template: "{work} S{season} E{episode}"
           required_fields:
+            - work
             - season
             - episode
 
@@ -75,44 +74,246 @@ mediums:
     plural_label: Official EPUB Artwork
     position:
       fields:
+        work: string
         volume: integer
         asset_id: string
         image_index: integer
       required_fields:
+        - work
         - asset_id
       sort_fields:
+        - work
         - volume
         - image_index
         - asset_id
       citation_formats:
         - id: volume-asset
-          template: "Official EPUB Artwork V{volume} {asset_id}"
+          template: "{work} Official EPUB Artwork V{volume} {asset_id}"
           required_fields:
+            - work
             - volume
             - asset_id
         - id: asset
-          template: "Official EPUB Artwork {asset_id}"
+          template: "{work} Official EPUB Artwork {asset_id}"
           required_fields:
+            - work
             - asset_id
 
-series:
-  lord-of-mysteries:
+work_group_types:
+  franchise:
+    label: Franchise
+    ordered: false
+  series:
+    label: Series
+    ordered: true
+  adaptation-program:
+    label: Adaptation Program
+    ordered: true
+  collection:
+    label: Collection
+    ordered: false
+
+work_groups:
+  lord-of-mysteries-franchise:
     lifecycle: active
     label: Lord of Mysteries
     short_label: LoTM
+    group_type: franchise
+
+  lotm-primary-novels:
+    lifecycle: active
+    label: Lord of Mysteries Primary Novels
+    short_label: LoTM Novels
+    group_type: series
+    parent_group_id: lord-of-mysteries-franchise
+
+  lotm-donghua-adaptation-program:
+    lifecycle: active
+    label: Lord of Mysteries Donghua Adaptation Program
+    short_label: LoTM Donghua
+    group_type: adaptation-program
+    parent_group_id: lord-of-mysteries-franchise
+
+continuities:
+  lotm-novel-main:
+    lifecycle: active
+    label: Lord of Mysteries Novel Main Continuity
+    short_label: Novel Main
+    continuity_type: primary
+    aliases:
+      - novel-main
+
+  lotm-donghua-adaptation:
+    lifecycle: active
+    label: Lord of Mysteries Donghua Adaptation Continuity
+    short_label: Donghua
+    continuity_type: adaptation
+    aliases:
+      - donghua-continuity
+
+continuity_relationship_types:
+  adaptation-of:
+    label: Adaptation Of
+    inverse_type: has-adaptation
+    symmetric: false
+  has-adaptation:
+    label: Has Adaptation
+    inverse_type: adaptation-of
+    symmetric: false
+  branched-from:
+    label: Branched From
+    inverse_type: has-branch
+    symmetric: false
+  has-branch:
+    label: Has Branch
+    inverse_type: branched-from
+    symmetric: false
+  reboot-of:
+    label: Reboot Of
+    inverse_type: has-reboot
+    symmetric: false
+  has-reboot:
+    label: Has Reboot
+    inverse_type: reboot-of
+    symmetric: false
+  overlaps-with:
+    label: Overlaps With
+    inverse_type: overlaps-with
+    symmetric: true
+
+continuity_relationships:
+  - id: lotm-donghua-adapts-novel-continuity
+    source_continuity_id: lotm-donghua-adaptation
+    relationship_type: adaptation-of
+    target_continuity_id: lotm-novel-main
+    status: canonical
+
+authority_profiles:
+  lotm-novel-canon:
+    lifecycle: active
+    label: Lord of Mysteries Novel Canon
+    continuity_order:
+      - lotm-novel-main
+    accepted_membership_statuses:
+      - canonical
+    source_priority_order: ascending
+    comparison_work_relationship_types: []
+    cross_source_conflict: flag
+    derivative_deviation_owner: derivative-work
+    preserve_source_scoped_claims: true
+
+  lotm-adaptation-comparison:
+    lifecycle: active
+    label: Lord of Mysteries Novel and Donghua Comparison
+    continuity_order:
+      - lotm-novel-main
+      - lotm-donghua-adaptation
+    accepted_membership_statuses:
+      - canonical
+    source_priority_order: ascending
+    comparison_work_relationship_types:
+      - adaptation-of
+      - remake-of
+      - retelling-of
+    cross_source_conflict: flag
+    derivative_deviation_owner: derivative-work
+    preserve_source_scoped_claims: true
+
+work_relationship_types:
+  sequel-to:
+    label: Sequel To
+    inverse_type: prequel-to
+    symmetric: false
+  prequel-to:
+    label: Prequel To
+    inverse_type: sequel-to
+    symmetric: false
+  spinoff-of:
+    label: Spinoff Of
+    inverse_type: has-spinoff
+    symmetric: false
+  has-spinoff:
+    label: Has Spinoff
+    inverse_type: spinoff-of
+    symmetric: false
+  side-story-of:
+    label: Side Story Of
+    inverse_type: has-side-story
+    symmetric: false
+  has-side-story:
+    label: Has Side Story
+    inverse_type: side-story-of
+    symmetric: false
+  adaptation-of:
+    label: Adaptation Of
+    inverse_type: has-adaptation
+    symmetric: false
+  has-adaptation:
+    label: Has Adaptation
+    inverse_type: adaptation-of
+    symmetric: false
+  remake-of:
+    label: Remake Of
+    inverse_type: has-remake
+    symmetric: false
+  has-remake:
+    label: Has Remake
+    inverse_type: remake-of
+    symmetric: false
+  retelling-of:
+    label: Retelling Of
+    inverse_type: has-retelling
+    symmetric: false
+  has-retelling:
+    label: Has Retelling
+    inverse_type: retelling-of
+    symmetric: false
+  crossover-with:
+    label: Crossover With
+    inverse_type: crossover-with
+    symmetric: true
+  contains:
+    label: Contains
+    inverse_type: contained-by
+    symmetric: false
+  contained-by:
+    label: Contained By
+    inverse_type: contains
+    symmetric: false
+  compiled-from:
+    label: Compiled From
+    inverse_type: included-in-compilation
+    symmetric: false
+  included-in-compilation:
+    label: Included In Compilation
+    inverse_type: compiled-from
+    symmetric: false
+  inspired-by:
+    label: Inspired By
+    inverse_type: inspired
+    symmetric: false
+  inspired:
+    label: Inspired
+    inverse_type: inspired-by
+    symmetric: false
 
 works:
   lotm-1:
     lifecycle: active
-    series_id: lord-of-mysteries
     label: Lord of Mysteries
     short_label: LoTM
-    ordinal: 1
     work_type: novel
     medium_id: novel
     aliases:
       - lotm
       - lord-of-mysteries
+    group_memberships:
+      - group_id: lotm-primary-novels
+        role: primary
+        ordinal: 1
+    continuity_memberships:
+      - continuity_id: lotm-novel-main
+        status: canonical
     chapter_numbering: work-local
     volume_catalog_status: verified
     volumes:
@@ -159,18 +360,210 @@ works:
 
   lotm-2:
     lifecycle: active
-    series_id: lord-of-mysteries
     label: Circle of Inevitability
     short_label: COI
-    ordinal: 2
     work_type: novel
     medium_id: novel
     aliases:
       - coi
       - circle-of-inevitability
+    group_memberships:
+      - group_id: lotm-primary-novels
+        role: primary
+        ordinal: 2
+    continuity_memberships:
+      - continuity_id: lotm-novel-main
+        status: canonical
     chapter_numbering: work-local
     volume_catalog_status: pending-verification
     volumes: []
+
+  lotm-donghua-season-1:
+    lifecycle: active
+    label: Lord of Mysteries Donghua Season 1
+    short_label: LoTM Donghua S1
+    work_type: television-season
+    medium_id: donghua
+    aliases:
+      - lotm-donghua
+      - donghua-season-1
+    group_memberships:
+      - group_id: lotm-donghua-adaptation-program
+        role: season
+        ordinal: 1
+    continuity_memberships:
+      - continuity_id: lotm-donghua-adaptation
+        status: canonical
+    chapter_numbering: not-applicable
+    volume_catalog_status: not-applicable
+    volumes: []
+
+  lotm-donghua-special-1:
+    lifecycle: active
+    label: "Lord of Mysteries Special: City of Silver"
+    short_label: City of Silver
+    work_type: television-special
+    medium_id: donghua
+    aliases:
+      - donghua-special-1
+      - city-of-silver-special
+    group_memberships:
+      - group_id: lotm-donghua-adaptation-program
+        role: special
+        ordinal: 2
+    continuity_memberships:
+      - continuity_id: lotm-donghua-adaptation
+        status: canonical
+    chapter_numbering: not-applicable
+    volume_catalog_status: not-applicable
+    volumes: []
+
+  lotm-donghua-special-2:
+    lifecycle: active
+    label: "Lord of Mysteries Special: The Marked Hunt Part 1"
+    short_label: The Marked Hunt Part 1
+    work_type: television-special
+    medium_id: donghua
+    aliases:
+      - donghua-special-2
+      - marked-hunt-special-1
+    group_memberships:
+      - group_id: lotm-donghua-adaptation-program
+        role: special
+        ordinal: 3
+    continuity_memberships:
+      - continuity_id: lotm-donghua-adaptation
+        status: canonical
+    chapter_numbering: not-applicable
+    volume_catalog_status: not-applicable
+    volumes: []
+
+  lotm-donghua-special-3:
+    lifecycle: active
+    label: "Lord of Mysteries Special: The Marked Hunt Part 2"
+    short_label: The Marked Hunt Part 2
+    work_type: television-special
+    medium_id: donghua
+    aliases:
+      - donghua-special-3
+      - marked-hunt-special-2
+    group_memberships:
+      - group_id: lotm-donghua-adaptation-program
+        role: special
+        ordinal: 4
+    continuity_memberships:
+      - continuity_id: lotm-donghua-adaptation
+        status: canonical
+    chapter_numbering: not-applicable
+    volume_catalog_status: not-applicable
+    volumes: []
+
+work_relationships:
+  - id: coi-sequel-to-lotm
+    source_work_id: lotm-2
+    relationship_type: sequel-to
+    target_work_id: lotm-1
+    continuity_ids:
+      - lotm-novel-main
+    status: canonical
+
+  - id: donghua-season-1-adapts-lotm
+    source_work_id: lotm-donghua-season-1
+    relationship_type: adaptation-of
+    target_work_id: lotm-1
+    continuity_ids:
+      - lotm-donghua-adaptation
+      - lotm-novel-main
+    status: canonical
+
+  - id: donghua-special-1-adapts-lotm
+    source_work_id: lotm-donghua-special-1
+    relationship_type: adaptation-of
+    target_work_id: lotm-1
+    continuity_ids:
+      - lotm-donghua-adaptation
+      - lotm-novel-main
+    status: canonical
+
+  - id: donghua-special-2-adapts-lotm
+    source_work_id: lotm-donghua-special-2
+    relationship_type: adaptation-of
+    target_work_id: lotm-1
+    continuity_ids:
+      - lotm-donghua-adaptation
+      - lotm-novel-main
+    status: canonical
+
+  - id: donghua-special-3-adapts-lotm
+    source_work_id: lotm-donghua-special-3
+    relationship_type: adaptation-of
+    target_work_id: lotm-1
+    continuity_ids:
+      - lotm-donghua-adaptation
+      - lotm-novel-main
+    status: canonical
+
+source_relationship_types:
+  edition-of:
+    label: Edition Of
+    inverse_type: has-edition
+    symmetric: false
+  has-edition:
+    label: Has Edition
+    inverse_type: edition-of
+    symmetric: false
+  translation-of:
+    label: Translation Of
+    inverse_type: has-translation
+    symmetric: false
+  has-translation:
+    label: Has Translation
+    inverse_type: translation-of
+    symmetric: false
+  transcript-of:
+    label: Transcript Of
+    inverse_type: has-transcript
+    symmetric: false
+  has-transcript:
+    label: Has Transcript
+    inverse_type: transcript-of
+    symmetric: false
+  subtitle-track-of:
+    label: Subtitle Track Of
+    inverse_type: has-subtitle-track
+    symmetric: false
+  has-subtitle-track:
+    label: Has Subtitle Track
+    inverse_type: subtitle-track-of
+    symmetric: false
+  dub-of:
+    label: Dub Of
+    inverse_type: has-dub
+    symmetric: false
+  has-dub:
+    label: Has Dub
+    inverse_type: dub-of
+    symmetric: false
+  scan-of:
+    label: Scan Of
+    inverse_type: has-scan
+    symmetric: false
+  has-scan:
+    label: Has Scan
+    inverse_type: scan-of
+    symmetric: false
+  extract-from:
+    label: Extract From
+    inverse_type: has-extract
+    symmetric: false
+  has-extract:
+    label: Has Extract
+    inverse_type: extract-from
+    symmetric: false
+  packaged-with:
+    label: Packaged With
+    inverse_type: packaged-with
+    symmetric: true
 
 sources:
   lotm-book-1-novel:
@@ -178,7 +571,7 @@ sources:
     label: Lord of Mysteries Book 1 Novel
     work_id: lotm-1
     medium_id: novel
-    role: original
+    role: primary-edition
     comparison_group: lotm-narrative
     priority: 1
     aliases:
@@ -198,7 +591,7 @@ sources:
     label: Circle of Inevitability Novel
     work_id: lotm-2
     medium_id: novel
-    role: original
+    role: primary-edition
     comparison_group: lotm-narrative
     priority: 1
     aliases:
@@ -212,17 +605,17 @@ sources:
         relative_path: Circle of Inevitability.epub
         required: false
 
-  lotm-donghua:
+  lotm-donghua-release:
     lifecycle: active
-    label: Lord of Mysteries Donghua
-    work_id: lotm-1
+    label: Lord of Mysteries Donghua Season 1 Release
+    work_id: lotm-donghua-season-1
     medium_id: donghua
-    role: adaptation
+    role: official-release
     comparison_group: lotm-narrative
     priority: 2
-    adapted_from_source_id: lotm-book-1-novel
     aliases:
       - donghua
+      - lotm-donghua
       - donghua-visual-audit
       - donghua-subtitle-and-visual-audit
     evidence_modes:
@@ -234,12 +627,11 @@ sources:
   lotm-donghua-subtitles:
     lifecycle: active
     label: Lord of Mysteries Donghua English Subtitles
-    work_id: lotm-1
+    work_id: lotm-donghua-season-1
     medium_id: donghua
     role: transcript
     comparison_group: lotm-narrative
     priority: 2
-    derived_from_source_id: lotm-donghua
     aliases:
       - donghua-subtitle-audit
     evidence_modes:
@@ -250,6 +642,54 @@ sources:
         root_id: source
         relative_path: Donghua_Subtitles/Season_1
         required: false
+
+  lotm-donghua-special-1-release:
+    lifecycle: active
+    label: "Lord of Mysteries Special: City of Silver Release"
+    work_id: lotm-donghua-special-1
+    medium_id: donghua
+    role: official-release
+    comparison_group: lotm-narrative
+    priority: 2
+    aliases:
+      - donghua-special-1-release
+    evidence_modes:
+      - animation-visual
+      - dialogue
+      - on-screen-text
+    resource_bindings: []
+
+  lotm-donghua-special-2-release:
+    lifecycle: active
+    label: "Lord of Mysteries Special: The Marked Hunt Part 1 Release"
+    work_id: lotm-donghua-special-2
+    medium_id: donghua
+    role: official-release
+    comparison_group: lotm-narrative
+    priority: 2
+    aliases:
+      - donghua-special-2-release
+    evidence_modes:
+      - animation-visual
+      - dialogue
+      - on-screen-text
+    resource_bindings: []
+
+  lotm-donghua-special-3-release:
+    lifecycle: active
+    label: "Lord of Mysteries Special: The Marked Hunt Part 2 Release"
+    work_id: lotm-donghua-special-3
+    medium_id: donghua
+    role: official-release
+    comparison_group: lotm-narrative
+    priority: 2
+    aliases:
+      - donghua-special-3-release
+    evidence_modes:
+      - animation-visual
+      - dialogue
+      - on-screen-text
+    resource_bindings: []
 
   lotm-official-epub-artwork:
     lifecycle: active
@@ -268,3 +708,14 @@ sources:
         root_id: artwork
         relative_path: Source
         required: false
+
+source_relationships:
+  - id: donghua-subtitles-belong-to-release
+    source_source_id: lotm-donghua-subtitles
+    relationship_type: subtitle-track-of
+    target_source_id: lotm-donghua-release
+
+  - id: official-artwork-packaged-with-book-1
+    source_source_id: lotm-official-epub-artwork
+    relationship_type: packaged-with
+    target_source_id: lotm-book-1-novel
