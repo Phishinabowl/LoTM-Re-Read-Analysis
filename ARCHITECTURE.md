@@ -168,7 +168,13 @@ The resource registry says where source material lives and how that storage is g
 
 `Tools/source_config.py` and `Tools/Source-Config.ps1` are the matching source-registry loaders. They validate media-facet compatibility, release and container forms, work/group/segment nesting, recursively nested content groups and member roles, globally stable nested and claim identities, reusable target/territory/time applicability scopes, semantic applicability decisions and precedence, scoped work relationships, scoped continuity, acyclic shape-compatible claim supersession, nonoverlapping and correctly ordered temporal windows, numbering, total and partial named orderings, continuities, hierarchical and precedence-resolved authority profiles, works and memberships, production/right contexts, volume ranges, multi-input adaptation mappings, segment-scoped manifestations and version mappings, package-scoped components and component lineage, release packages/phased runs/events, hierarchical territories, localized platform catalogs/offerings, external identifiers, multi-target source observations, ordered and structurally validated channel-scoped coverage ranges, locator evidence modes, declared source coverage and segment bounds, point/range mixed-media assertion provenance, resolved target field paths, typed relationships, position schemas, citation placeholders, aliases, priorities, comparison groups, and resource bindings constrained to registered placements. Domain clients should use these normalized records and decision/comparison APIs rather than hardcoding book names, `novel`, `donghua`, `web-series`, `parody-of`, containment, territorial fallback, or domain-specific evidence precedence.
 
-Publication-run records, live-performance productions/events, entity incarnations, branching narrative state, preservation/access state, textual witnesses, editorial assembly, contributor credits, and detailed party-/asset-/instrument-scoped rights grants and restrictions remain planned capabilities. Pack ownership is established, but project data must not instantiate them until paired executable contracts are implemented.
+### Entity Registry
+
+`Project_Config/entities.yaml` instantiates optional continuity-independent conceptual entities and continuity-bound incarnations when the selected schema packs enable `entity-incarnations`. The registry owns stable entity/incarnation IDs, taxonomy category references, labels and aliases, primary/additional continuity memberships, applicability-scope-backed material bindings, and typed incarnation relationships. It does not own pages, portrayals, aliases within one continuity, manifestations, releases, or ordinary state changes.
+
+`Tools/entity_config.py` and `Tools/Entity-Config.ps1` are the matching entity-registry loaders. They consume the normalized taxonomy, selected-pack, and source registries; validate every cross-registry reference and controlled value; and expose alias, entity-incarnation, binding, relationship, and provenance-target lookup APIs. Entity-registry records are stable provenance addresses, but evidence locators and assertions remain centralized in the provenance/source service rather than being duplicated here. The LoTM registry intentionally begins empty until a real continuity split warrants records. See `Framework/Contracts/narrative-entity-registry.md`.
+
+Publication-run records, live-performance productions/events, crossover events, branching narrative state, preservation/access state, textual witnesses, editorial assembly, contributor credits, and detailed party-/asset-/instrument-scoped rights grants and restrictions remain planned capabilities. Pack ownership is established, but project data must not instantiate them until paired executable contracts are implemented.
 
 ### Visualization Configuration
 
@@ -180,7 +186,7 @@ Visualization settings and presets define graph views, boundaries, filtering cho
 | --- | --- | --- |
 | Project configuration loaders | Root detection, manifest parsing, safe content/resource path resolution, registry discovery | Domain categories, graph semantics, page mutation |
 | Schema-pack loaders | Pack selection, dependency/version validation, capabilities, controlled-value ownership | Project-instance works, pages, paths, or sources |
-| Taxonomy, resource, and source registry loaders | Registry parsing, schema validation, aliases, pack-controlled value lookup | Canonical page content, graph serialization |
+| Taxonomy, resource, source, and entity registry loaders | Registry parsing, schema validation, aliases, cross-registry references, pack-controlled value lookup | Canonical page content, graph serialization |
 | Content index | Canonical-content discovery and normalized records | Domain constants duplicated from registries, presentation-specific graph decisions |
 | Validation service | Schema, taxonomy, reference, provenance, and consistency findings | Silent canonical rewrites |
 | Repository mutation service | Planned canonical edits, moves, reference updates, validation, rollback data | UI presentation, independent domain rules |
@@ -274,7 +280,7 @@ A domain implementation should contain:
 
 - its project manifest;
 - selected-pack registry and any project-owned extension packs;
-- taxonomy, resource, and source registries;
+- taxonomy, resource, source, and optional entity/incarnation registries;
 - category and non-category content-type schemas and templates;
 - canonical content and evidence;
 - domain-specific graph presets or presentation overrides.

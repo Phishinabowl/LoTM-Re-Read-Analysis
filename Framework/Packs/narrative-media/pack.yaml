@@ -37,10 +37,6 @@ capabilities:
     lifecycle: available
     label: Scoped Continuity
     description: Work-, segment-, content-group-, and claim-scoped continuity assertions with territorial, temporal, and precedence-aware applicability.
-  - id: entity-incarnations
-    lifecycle: planned
-    label: Entity Incarnations
-    description: Conceptual entities, continuity-specific incarnations, counterparts, and cross-continuity identity.
   - id: retcon-supersession
     lifecycle: available
     label: Retcon and Supersession

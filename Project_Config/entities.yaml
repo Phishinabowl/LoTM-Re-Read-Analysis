@@ -1,0 +1,49 @@
+schema_version: 1
+
+# Conceptual subjects that may have one or more continuity-bound realizations.
+# LoTM does not need explicit incarnation records yet, so the project registry
+# begins empty rather than prematurely splitting existing glossary subjects.
+entities: {}
+
+incarnations: {}
+
+# Bindings connect incarnations to reusable source applicability scopes.
+incarnation_bindings: []
+
+# Relationship semantics are project-instantiated and pack-constrained. Inverse
+# pairs must both be declared; symmetric types name themselves as the inverse.
+incarnation_relationship_types:
+  counterpart-of:
+    label: Counterpart Of
+    inverse_type: counterpart-of
+    symmetric: true
+  adaptation-counterpart-of:
+    label: Adaptation Counterpart Of
+    inverse_type: adaptation-counterpart-of
+    symmetric: true
+  branched-from:
+    label: Branched From
+    inverse_type: has-branch
+    symmetric: false
+  has-branch:
+    label: Has Branch
+    inverse_type: branched-from
+    symmetric: false
+  rebooted-from:
+    label: Rebooted From
+    inverse_type: has-reboot
+    symmetric: false
+  has-reboot:
+    label: Has Reboot
+    inverse_type: rebooted-from
+    symmetric: false
+  derived-from:
+    label: Derived From
+    inverse_type: source-for
+    symmetric: false
+  source-for:
+    label: Source For
+    inverse_type: derived-from
+    symmetric: false
+
+incarnation_relationships: []

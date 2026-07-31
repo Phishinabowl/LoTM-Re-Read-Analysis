@@ -22,6 +22,9 @@ selected_packs:
   - pack_id: narrative-production
     path: Framework/Packs/narrative-production/pack.yaml
 
+  - pack_id: narrative-shared-universe
+    path: Framework/Packs/narrative-shared-universe/pack.yaml
+
 capability_activation:
   default: disabled
   enabled:
@@ -121,3 +124,5 @@ capability_activation:
     - position-range-coverage
     - mixed-media-evidence-locators
     - semantic-position-coverage
+    - shared-universes
+    - entity-incarnations
