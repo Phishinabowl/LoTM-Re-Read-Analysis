@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-distribution
-pack_version: 3
+pack_version: 4
 lifecycle: active
 pack_kind: domain
 label: Narrative Distribution
@@ -8,7 +8,7 @@ description: Editions, cuts, localized manifestations, releases, platform catalo
 
 dependencies:
   - pack_id: narrative-media
-    minimum_version: 5
+    minimum_version: 6
 
 capabilities:
   - manifestations
@@ -25,6 +25,9 @@ capabilities:
   - manifestation-segment-mappings
   - localized-catalog-metadata
   - release-runs
+  - phased-release-runs
+  - source-coverage
+  - release-component-lineage
 
 controlled_values:
   source.manifestation-type:
@@ -85,6 +88,15 @@ controlled_values:
     - booklet
     - physical-bonus-item
     - disc-menu
+  source.release-component-relationship-type:
+    - revision-of
+    - has-revision
+    - translation-of
+    - has-translation
+    - dub-of
+    - has-dub
+    - derived-from
+    - source-for
   source.release-package-type:
     - box-set
     - multi-disc-set
@@ -101,7 +113,7 @@ controlled_values:
     - segment
     - manifestation
     - release-package
-    - segment-group
+    - content-group
   source.release-event-type:
     - publication
     - broadcast
@@ -171,5 +183,28 @@ controlled_values:
     - pause
     - skipped
     - cancelled
+  source.coverage-target-type:
+    - work
+    - segment
+    - content-group
+    - manifestation
+    - release-component
+    - release-package
+  source.coverage-type:
+    - complete
+    - partial
+    - excerpt
+    - sample
   source.identifier-target-type:
     - release-run
+  provenance.subject-type:
+    - manifestation
+    - manifestation-relationship
+    - manifestation-segment-mapping
+    - release-component
+    - release-component-relationship
+    - release-package
+    - release-run
+    - release-event
+    - catalog-placement
+    - platform-offering

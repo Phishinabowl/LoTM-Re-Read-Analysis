@@ -8,7 +8,7 @@ description: Prose and sequential-art serialization, editions, localization, and
 
 dependencies:
   - pack_id: narrative-media
-    minimum_version: 5
+    minimum_version: 6
 
 capabilities:
   - serialization

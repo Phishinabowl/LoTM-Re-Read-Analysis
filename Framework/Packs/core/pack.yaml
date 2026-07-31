@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: core
-pack_version: 2
+pack_version: 3
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -17,6 +17,7 @@ capabilities:
   - resources
   - evidence-sources
   - composite-evidence-scope
+  - assertion-provenance
   - authority-profiles
   - typed-relationships
   - temporal-positions
@@ -29,6 +30,18 @@ capabilities:
     description: Previewed, validated, and reversible repository-wide schema and identity transformations.
 
 controlled_values:
+  provenance.assertion-status:
+    - verified
+    - inferred
+    - disputed
+    - unverified
+  provenance.evidence-role:
+    - supports
+    - contradicts
+    - contextualizes
+  provenance.subject-type:
+    - source
+    - source-relationship
   source.source-role:
     - transcript
     - supplemental

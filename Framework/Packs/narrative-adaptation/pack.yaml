@@ -8,7 +8,7 @@ description: Work- and segment-level adaptation lineage, mappings, deviations, a
 
 dependencies:
   - pack_id: narrative-media
-    minimum_version: 5
+    minimum_version: 6
 
 capabilities:
   - adaptation-lineage
@@ -19,6 +19,8 @@ capabilities:
   - adaptation-comparison
 
 controlled_values:
+  provenance.subject-type:
+    - adaptation-mapping
   source.work-relationship-type:
     - adaptation-of
     - has-adaptation
