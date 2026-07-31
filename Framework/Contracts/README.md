@@ -16,10 +16,13 @@ Future machine-readable schema documents belong here as those loader contracts a
 
 ## Capability Semantics
 
-Schema packs provide capabilities; projects activate them.
+Schema packs declare capabilities; capability lifecycle controls availability; projects enable available capabilities.
 
-- A capability absent from all selected packs is unavailable and therefore disabled.
-- A capability supplied by a selected pack but omitted from the project's enabled list is available but disabled.
+- A capability absent from all selected packs is undeclared, unavailable, and disabled.
+- `planned` capabilities are discoverable to roadmap tooling but unavailable for activation.
+- `available` capabilities may be enabled by the project.
+- `deprecated` capabilities remain available for compatibility or migration but should not be newly recommended.
+- An available or deprecated capability omitted from the project's enabled list is disabled.
 - Tools and interfaces must omit disabled feature modules without warning.
 - A selected pack with a missing or incompatible hard dependency is invalid.
 - A project registry that explicitly references an unavailable or disabled schema capability is invalid.

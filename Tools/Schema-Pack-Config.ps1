@@ -4,9 +4,10 @@ if (-not (Get-Command Get-KnowledgeProjectConfig -ErrorAction SilentlyContinue))
 }
 
 $script:SupportedSchemaPackRegistryVersion = 2
-$script:SupportedSchemaPackVersion = 1
+$script:SupportedSchemaPackVersion = 2
 $script:AllowedSchemaPackLifecycles = @("active", "deferred")
 $script:AllowedSchemaPackKinds = @("core", "domain", "extension")
+$script:AllowedCapabilityLifecycles = @("available", "planned", "deprecated")
 $script:SchemaPackNamespacePattern = "^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)+$"
 
 function Get-RequiredSchemaPackString {
@@ -125,12 +126,52 @@ function ConvertTo-SchemaPackConfig {
     }
   }
 
-  $capabilities = @(Get-SchemaPackStringList $pack "capabilities" $packId)
+  $rawCapabilities = @(Get-ProjectMapValue $pack "capabilities")
+  if ($rawCapabilities.Count -eq 0) {
+    throw "Schema pack '$packId.capabilities' cannot be empty."
+  }
+  $capabilities = @()
+  $capabilityDefinitions = [ordered]@{}
   $seenCapabilities = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
-  foreach ($capability in $capabilities) {
-    Assert-SchemaPackStableId $capability "$packId.capabilities"
-    if (-not $seenCapabilities.Add($capability)) {
-      throw "Schema pack '$packId.capabilities' contains duplicates."
+  for ($index = 0; $index -lt $rawCapabilities.Count; $index += 1) {
+    $rawCapability = $rawCapabilities[$index]
+    $context = "$packId.capabilities[$index]"
+    if ($rawCapability -is [string]) {
+      $capabilityId = $rawCapability.Trim()
+      $capabilityLifecycle = "available"
+      $capabilityLabel = $null
+      $capabilityDescription = $null
+    } elseif ($rawCapability -is [System.Collections.IDictionary]) {
+      $capabilityId = Get-RequiredSchemaPackString $rawCapability "id" $context
+      $capabilityLifecycle = Get-RequiredSchemaPackString $rawCapability "lifecycle" $context
+      $labelValue = Get-ProjectMapValue $rawCapability "label"
+      $descriptionValue = Get-ProjectMapValue $rawCapability "description"
+      foreach ($field in @(
+        [pscustomobject]@{ name = "label"; value = $labelValue },
+        [pscustomobject]@{ name = "description"; value = $descriptionValue }
+      )) {
+        if ($null -ne $field.value -and [string]::IsNullOrWhiteSpace([string]$field.value)) {
+          throw "Schema-pack configuration '$context.$($field.name)' must be a non-empty string when present."
+        }
+      }
+      $capabilityLabel = if ($null -eq $labelValue) { $null } else { ([string]$labelValue).Trim() }
+      $capabilityDescription = if ($null -eq $descriptionValue) { $null } else { ([string]$descriptionValue).Trim() }
+    } else {
+      throw "Schema-pack configuration '$context' must be a stable-ID string or capability-definition mapping."
+    }
+    Assert-SchemaPackStableId $capabilityId $context
+    if ($script:AllowedCapabilityLifecycles -notcontains $capabilityLifecycle) {
+      throw "Schema pack '$context.lifecycle' must be one of: $($script:AllowedCapabilityLifecycles -join ', ')."
+    }
+    if (-not $seenCapabilities.Add($capabilityId)) {
+      throw "Schema pack '$packId.capabilities' contains duplicate '$capabilityId'."
+    }
+    $capabilities += $capabilityId
+    $capabilityDefinitions[$capabilityId] = [pscustomobject]@{
+      id = $capabilityId
+      lifecycle = $capabilityLifecycle
+      label = $capabilityLabel
+      description = $capabilityDescription
     }
   }
 
@@ -207,6 +248,7 @@ function ConvertTo-SchemaPackConfig {
     description = Get-RequiredSchemaPackString $pack "description" $packId
     dependencies = @($dependencies)
     capabilities = @($capabilities)
+    capability_definitions = $capabilityDefinitions
     controlled_values = $controlledValues
     controlled_value_definitions = $controlledValueDefinitions
   }
@@ -262,15 +304,22 @@ function Get-KnowledgeSchemaPackRegistry {
     $null = $selectedBefore.Add($packId)
   }
 
+  $declaredCapabilities = @()
   $availableCapabilities = @()
   $capabilityProviders = @{}
+  $capabilityDefinitions = @{}
   foreach ($packId in $selectionOrder) {
     foreach ($capability in $packs[$packId].capabilities) {
       if (-not $capabilityProviders.ContainsKey($capability)) {
         $capabilityProviders[$capability] = @()
-        $availableCapabilities += $capability
+        $declaredCapabilities += $capability
       }
       $capabilityProviders[$capability] = @($capabilityProviders[$capability]) + $packId
+      $definition = $packs[$packId].capability_definitions[$capability]
+      $capabilityDefinitions["$packId|$capability"] = $definition
+      if ($definition.lifecycle -in @("available", "deprecated") -and $availableCapabilities -notcontains $capability) {
+        $availableCapabilities += $capability
+      }
     }
   }
 
@@ -290,7 +339,10 @@ function Get-KnowledgeSchemaPackRegistry {
       throw "Schema-pack registry 'capability_activation.enabled' contains duplicates."
     }
     if (-not $capabilityProviders.ContainsKey($capability)) {
-      throw "Schema-pack registry enables capability not provided by selected packs: $capability."
+      throw "Schema-pack registry enables capability not declared by selected packs: $capability."
+    }
+    if ($availableCapabilities -notcontains $capability) {
+      throw "Schema-pack registry enables capability that is not available or deprecated in selected packs: $capability."
     }
   }
 
@@ -346,9 +398,11 @@ function Get-KnowledgeSchemaPackRegistry {
     schema_version = $schemaVersion
     packs = $packs
     selection_order = @($selectionOrder)
+    declared_capabilities = @($declaredCapabilities)
     available_capabilities = @($availableCapabilities)
     enabled_capabilities = @($enabledCapabilities)
     capability_providers = $capabilityProviders
+    capability_definitions = $capabilityDefinitions
     controlled_values = $controlledValues
     controlled_value_owners = $owners
     controlled_value_definitions = $definitions
@@ -358,7 +412,29 @@ function Get-KnowledgeSchemaPackRegistry {
 function Test-SchemaPackCapabilityAvailable {
   param([object]$SchemaPackRegistry, [string]$Capability)
 
+  return @($SchemaPackRegistry.available_capabilities) -contains $Capability
+}
+
+function Test-SchemaPackCapabilityDeclared {
+  param([object]$SchemaPackRegistry, [string]$Capability)
+
   return $SchemaPackRegistry.capability_providers.ContainsKey($Capability)
+}
+
+function Get-SchemaPackCapabilityDefinitions {
+  param([object]$SchemaPackRegistry, [string]$Capability)
+
+  $definitions = @()
+  foreach ($packId in @($SchemaPackRegistry.capability_providers[$Capability])) {
+    $key = "$packId|$Capability"
+    if ($SchemaPackRegistry.capability_definitions.ContainsKey($key)) {
+      $definitions += [pscustomobject]@{
+        pack_id = $packId
+        definition = $SchemaPackRegistry.capability_definitions[$key]
+      }
+    }
+  }
+  return @($definitions)
 }
 
 function Test-SchemaPackCapabilityEnabled {

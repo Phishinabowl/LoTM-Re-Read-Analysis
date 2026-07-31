@@ -8,9 +8,10 @@ from project_config import ProjectConfig
 
 
 SUPPORTED_SCHEMA_PACK_REGISTRY_VERSION = 2
-SUPPORTED_SCHEMA_PACK_VERSION = 1
+SUPPORTED_SCHEMA_PACK_VERSION = 2
 PACK_LIFECYCLES = {"active", "deferred"}
 PACK_KINDS = {"core", "domain", "extension"}
+CAPABILITY_LIFECYCLES = {"available", "planned", "deprecated"}
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 NAMESPACE_PATTERN = re.compile(
     r"^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)+$"
@@ -21,6 +22,14 @@ NAMESPACE_PATTERN = re.compile(
 class SchemaPackDependency:
     pack_id: str
     minimum_version: int
+
+
+@dataclass(frozen=True)
+class CapabilityConfig:
+    id: str
+    lifecycle: str
+    label: str | None
+    description: str | None
 
 
 @dataclass(frozen=True)
@@ -43,6 +52,7 @@ class SchemaPackConfig:
     description: str
     dependencies: tuple[SchemaPackDependency, ...]
     capabilities: tuple[str, ...]
+    capability_definitions: dict[str, CapabilityConfig]
     controlled_values: dict[str, tuple[str, ...]]
     controlled_value_definitions: dict[str, dict[str, ControlledValueConfig]]
 
@@ -53,9 +63,11 @@ class SchemaPackRegistry:
     schema_version: int
     packs: dict[str, SchemaPackConfig]
     selection_order: tuple[str, ...]
+    declared_capabilities: tuple[str, ...]
     available_capabilities: tuple[str, ...]
     enabled_capabilities: tuple[str, ...]
     capability_providers: dict[str, tuple[str, ...]]
+    capability_definitions: dict[tuple[str, str], CapabilityConfig]
     controlled_values: dict[str, tuple[str, ...]]
     controlled_value_owners: dict[tuple[str, str], str]
     controlled_value_definitions: dict[
@@ -66,10 +78,21 @@ class SchemaPackRegistry:
         return self.controlled_values.get(namespace, ())
 
     def capability_available(self, capability: str) -> bool:
-        return capability in self.capability_providers
+        return capability in self.available_capabilities
 
     def capability_enabled(self, capability: str) -> bool:
         return capability in self.enabled_capabilities
+
+    def capability_declared(self, capability: str) -> bool:
+        return capability in self.capability_providers
+
+    def capability_definitions_for(
+        self, capability: str
+    ) -> tuple[tuple[str, CapabilityConfig], ...]:
+        return tuple(
+            (pack_id, self.capability_definitions[(pack_id, capability)])
+            for pack_id in self.capability_providers.get(capability, ())
+        )
 
     def owns_value(self, namespace: str, value: str) -> bool:
         return (namespace, value) in self.controlled_value_owners
@@ -203,13 +226,63 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
             )
         )
 
-    capabilities = require_string_list(pack, "capabilities", pack_id)
-    if not capabilities:
+    raw_capabilities = pack.get("capabilities")
+    if not isinstance(raw_capabilities, list) or not raw_capabilities:
         raise ValueError(f"Schema pack `{pack_id}.capabilities` cannot be empty.")
-    if len(set(capabilities)) != len(capabilities):
-        raise ValueError(f"Schema pack `{pack_id}.capabilities` contains duplicates.")
-    for capability in capabilities:
-        validate_id(capability, f"{pack_id}.capabilities")
+    capabilities: list[str] = []
+    capability_definitions: dict[str, CapabilityConfig] = {}
+    for index, raw_capability in enumerate(raw_capabilities):
+        context = f"{pack_id}.capabilities[{index}]"
+        if isinstance(raw_capability, str):
+            capability_id = raw_capability.strip()
+            lifecycle = "available"
+            label = None
+            description = None
+        elif isinstance(raw_capability, dict):
+            capability_id = require_string(raw_capability, "id", context)
+            lifecycle = require_string(raw_capability, "lifecycle", context)
+            label_value = raw_capability.get("label")
+            description_value = raw_capability.get("description")
+            for key, value in (
+                ("label", label_value),
+                ("description", description_value),
+            ):
+                if value is not None and (
+                    not isinstance(value, str) or not value.strip()
+                ):
+                    raise ValueError(
+                        f"Schema-pack configuration `{context}.{key}` must be a "
+                        "non-empty string when present."
+                    )
+            label = label_value.strip() if isinstance(label_value, str) else None
+            description = (
+                description_value.strip()
+                if isinstance(description_value, str)
+                else None
+            )
+        else:
+            raise ValueError(
+                f"Schema-pack configuration `{context}` must be a stable-ID string "
+                "or capability-definition mapping."
+            )
+        validate_id(capability_id, context)
+        if lifecycle not in CAPABILITY_LIFECYCLES:
+            raise ValueError(
+                f"Schema pack `{context}.lifecycle` must be one of: "
+                f"{', '.join(sorted(CAPABILITY_LIFECYCLES))}."
+            )
+        if capability_id in capability_definitions:
+            raise ValueError(
+                f"Schema pack `{pack_id}.capabilities` contains duplicate "
+                f"`{capability_id}`."
+            )
+        capabilities.append(capability_id)
+        capability_definitions[capability_id] = CapabilityConfig(
+            id=capability_id,
+            lifecycle=lifecycle,
+            label=label,
+            description=description,
+        )
 
     raw_controlled = require_mapping(
         pack.get("controlled_values"), f"{pack_id}.controlled_values"
@@ -306,7 +379,8 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
         label=require_string(pack, "label", pack_id),
         description=require_string(pack, "description", pack_id),
         dependencies=tuple(dependencies),
-        capabilities=capabilities,
+        capabilities=tuple(capabilities),
+        capability_definitions=capability_definitions,
         controlled_values=controlled_values,
         controlled_value_definitions=controlled_value_definitions,
     )
@@ -371,13 +445,22 @@ def load_schema_pack_registry(project: ProjectConfig) -> SchemaPackRegistry:
                 )
         selected_before.add(pack_id)
 
+    declared_capabilities: list[str] = []
     available_capabilities: list[str] = []
     capability_providers: dict[str, list[str]] = {}
+    capability_definitions: dict[tuple[str, str], CapabilityConfig] = {}
     for pack_id in selection_order:
         for capability in packs[pack_id].capabilities:
             providers = capability_providers.setdefault(capability, [])
             providers.append(pack_id)
-            if capability not in available_capabilities:
+            if capability not in declared_capabilities:
+                declared_capabilities.append(capability)
+            definition = packs[pack_id].capability_definitions[capability]
+            capability_definitions[(pack_id, capability)] = definition
+            if (
+                definition.lifecycle in {"available", "deprecated"}
+                and capability not in available_capabilities
+            ):
                 available_capabilities.append(capability)
 
     activation = require_mapping(
@@ -404,8 +487,9 @@ def load_schema_pack_registry(project: ProjectConfig) -> SchemaPackRegistry:
     unavailable_enabled = set(enabled_capabilities) - set(available_capabilities)
     if unavailable_enabled:
         raise ValueError(
-            "Schema-pack registry enables capabilities not provided by selected "
-            f"packs: {', '.join(sorted(unavailable_enabled))}."
+            "Schema-pack registry enables capabilities that are not available or "
+            "deprecated in selected packs: "
+            f"{', '.join(sorted(unavailable_enabled))}."
         )
 
     controlled: dict[str, list[str]] = {}
@@ -459,12 +543,14 @@ def load_schema_pack_registry(project: ProjectConfig) -> SchemaPackRegistry:
         schema_version=schema_version,
         packs=packs,
         selection_order=tuple(selection_order),
+        declared_capabilities=tuple(declared_capabilities),
         available_capabilities=tuple(available_capabilities),
         enabled_capabilities=enabled_capabilities,
         capability_providers={
             capability: tuple(providers)
             for capability, providers in capability_providers.items()
         },
+        capability_definitions=capability_definitions,
         controlled_values={
             namespace: tuple(values) for namespace, values in controlled.items()
         },

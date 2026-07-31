@@ -1,4 +1,4 @@
-schema_version: 1
+schema_version: 2
 pack_id: core
 pack_version: 1
 lifecycle: active
@@ -22,7 +22,10 @@ capabilities:
   - visibility-policy
   - graph-projection
   - schema-validation
-  - migration-services
+  - id: migration-services
+    lifecycle: planned
+    label: Migration Services
+    description: Previewed, validated, and reversible repository-wide schema and identity transformations.
 
 controlled_values:
   source.source-role:
