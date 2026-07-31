@@ -31,6 +31,9 @@ capability_activation:
     - evidence-sources
     - composite-evidence-scope
     - assertion-provenance
+    - nested-record-identity
+    - provenance-snapshots
+    - evidence-locators
     - authority-profiles
     - typed-relationships
     - temporal-positions
@@ -50,6 +53,8 @@ capability_activation:
     - external-identifiers
     - localized-segment-metadata
     - content-groups
+    - nested-content-groups
+    - temporal-localized-titles
     - narrative-time
     - serialization
     - publication-packaging
@@ -84,3 +89,5 @@ capability_activation:
     - source-coverage
     - localized-title-variants
     - release-component-lineage
+    - multi-target-source-observations
+    - position-range-coverage

@@ -1,4 +1,4 @@
-schema_version: 7
+schema_version: 8
 
 default_authority_profile_id: lotm-adaptation-comparison
 
@@ -898,6 +898,7 @@ sources:
       - lotm-novel
     evidence_modes:
       - canonical-text
+    observations: []
     coverage: []
     resource_bindings:
       - resource_type_id: source-material
@@ -923,6 +924,7 @@ sources:
       - coi-epub
     evidence_modes:
       - canonical-text
+    observations: []
     coverage: []
     resource_bindings:
       - resource_type_id: source-material
@@ -952,6 +954,7 @@ sources:
       - animation-visual
       - dialogue
       - on-screen-text
+    observations: []
     coverage: []
     resource_bindings: []
 
@@ -974,6 +977,7 @@ sources:
     evidence_modes:
       - subtitle-dialogue
       - translated-on-screen-text
+    observations: []
     coverage: []
     resource_bindings:
       - resource_type_id: source-material
@@ -1000,6 +1004,7 @@ sources:
       - animation-visual
       - dialogue
       - on-screen-text
+    observations: []
     coverage: []
     resource_bindings: []
 
@@ -1022,6 +1027,7 @@ sources:
       - animation-visual
       - dialogue
       - on-screen-text
+    observations: []
     coverage: []
     resource_bindings: []
 
@@ -1044,6 +1050,7 @@ sources:
       - animation-visual
       - dialogue
       - on-screen-text
+    observations: []
     coverage: []
     resource_bindings: []
 
@@ -1066,6 +1073,7 @@ sources:
       - official-epub-artwork
     evidence_modes:
       - official-illustration
+    observations: []
     coverage: []
     resource_bindings:
       - resource_type_id: visual-asset

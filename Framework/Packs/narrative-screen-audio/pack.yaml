@@ -8,7 +8,7 @@ description: Film, television, animation, audio drama, podcast, episode, special
 
 dependencies:
   - pack_id: narrative-media
-    minimum_version: 6
+    minimum_version: 7
 
 capabilities:
   - screen-works

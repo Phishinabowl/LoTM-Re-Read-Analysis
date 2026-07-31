@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-media
-pack_version: 6
+pack_version: 7
 lifecycle: active
 pack_kind: domain
 label: Narrative Media Foundation
@@ -8,7 +8,7 @@ description: Domain-neutral narrative works, media facets, ordering, continuitie
 
 dependencies:
   - pack_id: core
-    minimum_version: 3
+    minimum_version: 4
 
 capabilities:
   - franchises
@@ -25,6 +25,8 @@ capabilities:
   - localized-segment-metadata
   - localized-title-variants
   - content-groups
+  - nested-content-groups
+  - temporal-localized-titles
   - narrative-time
   - reader-disclosure
   - spoiler-bounding
@@ -188,6 +190,8 @@ controlled_values:
     - segment
     - content-group
     - work-relationship
+    - content-group-member
+    - localized-title
   source.identifier-status:
     - active
     - retired

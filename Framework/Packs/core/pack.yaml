@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: core
-pack_version: 3
+pack_version: 4
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -18,6 +18,9 @@ capabilities:
   - evidence-sources
   - composite-evidence-scope
   - assertion-provenance
+  - nested-record-identity
+  - provenance-snapshots
+  - evidence-locators
   - authority-profiles
   - typed-relationships
   - temporal-positions

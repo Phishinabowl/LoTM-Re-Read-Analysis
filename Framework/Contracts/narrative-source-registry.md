@@ -1,6 +1,6 @@
 # Narrative Source Registry Contract
 
-`Project_Config/sources.yaml` schema version 7 is the executable project-instance contract for selected narrative packs. `Tools/source_config.py` and `Tools/Source-Config.ps1` enforce the same fields and reference rules.
+`Project_Config/sources.yaml` schema version 8 is the executable project-instance contract for selected narrative packs. `Tools/source_config.py` and `Tools/Source-Config.ps1` enforce the same fields and reference rules.
 
 ## Media Facets
 
@@ -21,7 +21,7 @@ Every evidence source must declare one or more `container_format_ids`; container
 
 `segments` is a stable-ID mapping for configurable work parts. A segment declares its work, type, label, optional positive ordinal, and optional parent segment. Parent chains must remain inside one work and cannot cycle. Segment types come from `source.segment-type`.
 
-`content_groups` provide overlapping, optionally nested selections without changing structural parentage or franchise membership. Each group has a controlled type and typed `work` or `segment` members, so a crossover or reading path may combine complete works with individual issues, chapters, or episodes. Optional parent groups, localized titles, aliases, and an ordering scheme may describe the selection; an ordering scheme must order exactly the typed members. Group-parent graphs cannot cycle.
+`content_groups` provide overlapping, optionally nested selections without changing structural parentage or franchise membership. Each member has a globally stable ID and targets a `work`, `segment`, or another `content-group`, so a crossover or reading path may compose complete works, individual issues, chapters, episodes, or reusable subgroups. Optional parent groups, localized titles, aliases, and an ordering scheme may describe the selection; an ordering scheme must order exactly the typed members. Parent and member nesting form one acyclic group graph.
 
 `numbering_schemes` assign display numbers and aliases to work or segment targets inside an explicit work or work-group scope. Numbering does not imply order: use an ordering scheme for sequence. This separation supports issue `0`, legacy comic numbering, production codes, split issue numbers, and provider numbering without coercing them into integers.
 
@@ -56,7 +56,8 @@ Creative identity and distribution identity are separate:
 - `platforms` identify providers, broadcasters, stores, retailers, theaters, or libraries.
 - `catalog_placements` point to a work, segment, content group, manifestation, or package and preserve how one platform presents it, including provider-defined localized titles, seasons, parts, volumes, collections, and channels.
 - `platform_offerings` record subscription, rental, purchase, free, broadcast, archival, or other availability windows for a manifestation or package. Optional segment scope supports incomplete regional catalogs.
-- `sources` remain concrete evidence artifacts and declare one or more `work_ids`. They may bind to the manifestation, package, release event, components, or platform offering they actually observe. Typed `coverage` entries identify complete, partial, excerpt, or sample coverage of works, segments, content groups, manifestations, components, or packages. Composite evidence such as omnibus files, anthology scans, box-set inspections, or archives therefore retains both every work in scope and the exact material observed.
+- `sources` remain concrete evidence artifacts and declare one or more `work_ids`. Singular release bindings remain convenient for simple artifacts; repeatable typed `observations` identify every manifestation, package, event, component, or platform offering observed by composite evidence. Every observation has a stable ID and must remain inside the source work scope.
+- Typed `coverage` entries have stable IDs and identify complete, partial, excerpt, or sample coverage of works, segments, recursively nested content groups, manifestations, components, or packages. Optional position ranges use fields from the source medium profile and compactly delimit partial coverage. Omnibus files, anthology scans, box-set inspections, or archives therefore retain every work in scope, every concrete release object observed, and the exact material covered.
 - `identifier_schemes` and `external_identifiers` preserve ISBNs, ISSNs, production codes, provider IDs, and other external identity systems separately from stable internal IDs.
 
 A platform's catalog grouping is not canonical work hierarchy. For example, a service may market episodes as “Season 2” or “Part 3” without creating a new canonical season work. Store that provider label as a catalog placement unless independent creative identity justifies a work.
@@ -65,10 +66,10 @@ Language values use BCP-47-style tags; regional values must reference the territ
 
 ## Assertion Provenance
 
-`provenance_assertions` is the reusable evidence bridge for factual registry records. An assertion targets a supported record and optional dotted/indexed field path, records a controlled verification state, and contains one or more evidence links whose roles distinguish supporting, contradicting, and contextual evidence. Evidence links always reference canonical source IDs. This central contract avoids adding incompatible citation fields to every record type and can be reused by non-narrative schema packs.
+`provenance_assertions` is the reusable evidence bridge for factual registry records and stable nested records such as content-group members, localized titles, release-run phases, and source-coverage entries. An assertion snapshots the asserted value, optional dotted/indexed field path, observation time, effective window, and controlled verification state. Every evidence link references a canonical source ID and a nonempty locator composed from that source medium's position fields; roles distinguish supporting, contradicting, and contextual evidence. Verified and inferred assertions require support, while disputed assertions require both support and contradiction. This central contract avoids adding incompatible citation fields to every record type and can be reused by non-narrative schema packs.
 
 ## Validation Boundary
 
-The paired loaders currently validate media facets, work/release identity and hierarchy, work groups, continuities, authority profiles, segments, mixed-member content groups, localized title variants, numbering schemes, total and partial ordering schemes, work and multi-input adaptation relationships, manifestations and segment mappings, package- or manifestation-scoped components and component lineage, release packages/phased runs/events, hierarchical territories, localized platform catalogs and offerings, structured time windows, external identifiers, precise composite evidence coverage, assertion provenance, source containers, aliases, volume catalogs, citation schemas, and resource bindings.
+The paired loaders currently validate media facets, work/release identity and hierarchy, work groups, continuities, authority profiles, segments, recursively nested content groups with stable members, temporally scoped localized titles, numbering schemes, total and partial ordering schemes, work and multi-input adaptation relationships, manifestations and segment mappings, package- or manifestation-scoped components and component lineage, release packages/phased runs/events, hierarchical territories, localized platform catalogs and offerings, structured time windows, external identifiers, multi-target source observations, position-ranged composite evidence coverage, evidence-located assertion snapshots, source containers, aliases, volume catalogs, citation schemas, and resource bindings.
 
 Capabilities marked `planned` in any pack are outside this executable boundary. A future schema version must add paired validation before a project may activate or instantiate those capabilities.
