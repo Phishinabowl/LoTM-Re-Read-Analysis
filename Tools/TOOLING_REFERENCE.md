@@ -872,4 +872,4 @@ This section tracks durable configuration and generated state files that affect 
 
 ### Future Config Registries
 
-`Project_Config/project.yaml` establishes the shared bootstrap boundary and already defines project paths and content-root provenance behavior. Planned registries should be added here once they exist. Likely candidates include source priorities, a display-label registry for reusable taxonomy values, broader controlled-value taxonomy files, or site-rendering configuration. Until those files exist, `PROJECT_RULES.md` and the type templates remain the source of truth for taxonomy/prose rendering policy.
+`Project_Config/project.yaml` establishes the shared bootstrap boundary and already defines project paths and content-root provenance behavior. The [Architecture Contract](../ARCHITECTURE.md) assigns planned domain taxonomy and source-priority behavior to separate registries located through the manifest. Add those files to the configuration table once they exist. Until then, `PROJECT_RULES.md` and the type templates remain the source of truth for LoTM taxonomy and prose-rendering policy.

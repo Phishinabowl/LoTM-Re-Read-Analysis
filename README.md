@@ -63,6 +63,8 @@ For clickable navigation, use the [Project Index](INDEX.md).
 
 Reusable helper commands, switch maps, output side effects, and Python/PowerShell parity notes are tracked in the [Tooling Reference](Tools/TOOLING_REFERENCE.md).
 
+Framework boundaries, component ownership, generated-output rules, stable-identity direction, and the LoTM-to-reusable-framework extraction sequence are defined in the [Architecture Contract](ARCHITECTURE.md).
+
 ## Visualization
 
 Generated visualization artifacts live in [Visualization](Visualization/README.md).
@@ -145,6 +147,7 @@ Artwork/
 
 00_READ_FIRST_AI_AGENT_BOOTSTRAP.md
 README-AI-Agent-Specification.md
+ARCHITECTURE.md
 MAINTAINER_CONTEXT.md
 ASSISTANT_CONTEXT.md (deprecated redirect)
 CURRENT_STATE.md

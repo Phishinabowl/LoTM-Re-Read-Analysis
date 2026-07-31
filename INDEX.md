@@ -7,6 +7,7 @@ Navigation hub for the reread analysis workspace.
 - [Read First: AI Agent Bootstrap](00_READ_FIRST_AI_AGENT_BOOTSTRAP.md)
 - [README AI Agent Specification](README-AI-Agent-Specification.md)
 - [README](README.md)
+- [Architecture Contract](ARCHITECTURE.md)
 - [Project Rules](PROJECT_RULES.md)
 - [Current State](CURRENT_STATE.md)
 - [License](LICENSE)

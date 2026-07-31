@@ -36,6 +36,14 @@ The objective is to reconstruct:
 
 ---
 
+# Architecture and Ownership
+
+[ARCHITECTURE.md](ARCHITECTURE.md) is authoritative for framework boundaries, component ownership, configuration registries, stable identity, generated-output lifecycle, repository migrations, and the extraction sequence for reusable LoTM and IT implementations.
+
+This document remains authoritative for LoTM-specific authoring, evidence, taxonomy, spoiler, and content-modeling rules. When current tooling duplicates responsibilities that the architecture contract assigns to a shared service, treat that duplication as transition debt rather than extending it.
+
+---
+
 # Project File Structure
 
 The project uses the following files and folders:
@@ -126,6 +134,7 @@ Obsidian_Export/
 INDEX.md
 CURRENT_STATE.md
 PROJECT_RULES.md
+ARCHITECTURE.md
 00_READ_FIRST_AI_AGENT_BOOTSTRAP.md
 README-AI-Agent-Specification.md
 MAINTAINER_CONTEXT.md

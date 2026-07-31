@@ -371,6 +371,8 @@ For the full EPUB search switch map, entry-type behavior, side effects, and Pyth
 
 Use `obsidian_qa_export.py` to compile glossary metadata, Relationship Seeds, YAML data-block references, and projected data-block availability into a generated Obsidian-friendly mirror. It is the preferred implementation when Python is available. If Python is unavailable, use the Windows PowerShell fallback `Obsidian-QA-Export.ps1`. The export is a QA view, not a source of truth. Canonical project notes remain under `Glossary_Threads/`, `Investigations/`, `Volumes/`, and related source folders.
 
+The [Architecture Contract](../ARCHITECTURE.md) assigns all graph semantics and generation to the reusable Visualization engine while QA retains orchestration and ignored output destinations. The two directly generated QA relationship graph variants are current transition behavior; migrate their builders into Visualization rather than adding new graph logic to the QA exporter.
+
 Default output goes to ignored local directory `Obsidian_Export/`:
 
 ```powershell

@@ -2,6 +2,8 @@
 
 This folder contains generated visualization artifacts for the Lord of the Mysteries re-read analysis project.
 
+The [Architecture Contract](../ARCHITECTURE.md) makes Visualization the owner of all graph projection, filtering, deduplication, styling, Mermaid generation, validation, and optional rendering, including graphs requested by QA or future interfaces. Callers may choose tracked, ignored, or temporary destinations without taking ownership of graph algorithms. Current QA-local graph builders are documented transition debt and will move behind the reusable visualization engine.
+
 Generated graph files are not the source of truth. The canonical project data remains in:
 
 - Glossary thread metadata
