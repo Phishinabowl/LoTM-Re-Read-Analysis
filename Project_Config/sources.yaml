@@ -1,4 +1,4 @@
-schema_version: 8
+schema_version: 9
 
 default_authority_profile_id: lotm-adaptation-comparison
 
@@ -47,6 +47,7 @@ mediums:
         volume: integer
         chapter: integer
         sequence: integer
+      work_scope_field: book
       required_fields:
         - book
         - chapter
@@ -84,6 +85,7 @@ mediums:
         release_order: integer
         timestamp: timestamp
         sequence: integer
+      work_scope_field: work
       required_fields:
         - work
         - release_order
@@ -119,6 +121,7 @@ mediums:
         volume: integer
         asset_id: string
         image_index: integer
+      work_scope_field: work
       required_fields:
         - work
         - asset_id
@@ -242,6 +245,25 @@ authority_profiles:
     cross_source_conflict: flag
     derivative_deviation_owner: derivative-work
     preserve_source_scoped_claims: true
+    claim_authority_rules:
+      - id: novel-canon-content-authority
+        claim_namespace: canonical-content
+        source_ids:
+          - lotm-book-1-novel
+          - lotm-book-2-novel
+        source_roles: []
+        medium_ids: []
+        evidence_modes: []
+        rank: 1
+      - id: novel-publication-authority
+        claim_namespace: publication-metadata
+        source_ids:
+          - lotm-book-1-novel
+          - lotm-book-2-novel
+        source_roles: []
+        medium_ids: []
+        evidence_modes: []
+        rank: 1
 
   lotm-adaptation-comparison:
     lifecycle: active
@@ -259,6 +281,85 @@ authority_profiles:
     cross_source_conflict: flag
     derivative_deviation_owner: derivative-work
     preserve_source_scoped_claims: true
+    claim_authority_rules:
+      - id: adaptation-novel-content-authority
+        claim_namespace: canonical-content
+        source_ids:
+          - lotm-book-1-novel
+          - lotm-book-2-novel
+        source_roles: []
+        medium_ids: []
+        evidence_modes: []
+        rank: 1
+      - id: adaptation-donghua-content-authority
+        claim_namespace: canonical-content
+        source_ids:
+          - lotm-donghua-release
+          - lotm-donghua-special-1-release
+          - lotm-donghua-special-2-release
+          - lotm-donghua-special-3-release
+        source_roles: []
+        medium_ids: []
+        evidence_modes: []
+        rank: 2
+      - id: adaptation-artwork-visual-authority
+        claim_namespace: visual-design
+        source_ids:
+          - lotm-official-epub-artwork
+        source_roles: []
+        medium_ids: []
+        evidence_modes: []
+        rank: 1
+      - id: adaptation-donghua-visual-authority
+        claim_namespace: visual-design
+        source_ids:
+          - lotm-donghua-release
+          - lotm-donghua-special-1-release
+          - lotm-donghua-special-2-release
+          - lotm-donghua-special-3-release
+        source_roles: []
+        medium_ids: []
+        evidence_modes: []
+        rank: 2
+      - id: adaptation-novel-dialogue-authority
+        claim_namespace: dialogue
+        source_ids:
+          - lotm-book-1-novel
+          - lotm-book-2-novel
+        source_roles: []
+        medium_ids: []
+        evidence_modes: []
+        rank: 1
+      - id: adaptation-donghua-dialogue-authority
+        claim_namespace: dialogue
+        source_ids:
+          - lotm-donghua-release
+          - lotm-donghua-special-1-release
+          - lotm-donghua-special-2-release
+          - lotm-donghua-special-3-release
+        source_roles: []
+        medium_ids: []
+        evidence_modes: []
+        rank: 2
+      - id: adaptation-subtitle-localization-authority
+        claim_namespace: localization
+        source_ids:
+          - lotm-donghua-subtitles
+        source_roles: []
+        medium_ids: []
+        evidence_modes: []
+        rank: 1
+      - id: adaptation-release-metadata-authority
+        claim_namespace: release-metadata
+        source_ids:
+          - lotm-donghua-release
+          - lotm-donghua-special-1-release
+          - lotm-donghua-special-2-release
+          - lotm-donghua-special-3-release
+        source_roles: []
+        medium_ids: []
+        evidence_modes: []
+        rank: 1
 
 work_relationship_types:
   sequel-to:
@@ -887,6 +988,9 @@ sources:
     manifestation_id: lotm-book-1-epub
     release_component_ids: []
     medium_id: novel
+    locator_medium_ids:
+      - novel
+      - illustration
     container_format_ids:
       - epub
     role: primary-edition
@@ -914,6 +1018,8 @@ sources:
     manifestation_id: lotm-book-2-epub
     release_component_ids: []
     medium_id: novel
+    locator_medium_ids:
+      - novel
     container_format_ids:
       - epub
     role: primary-edition
@@ -940,6 +1046,8 @@ sources:
     manifestation_id: lotm-donghua-season-1-streaming
     release_component_ids: []
     medium_id: donghua
+    locator_medium_ids:
+      - donghua
     container_format_ids:
       - streaming-release
     role: official-release
@@ -967,6 +1075,8 @@ sources:
     release_component_ids:
       - lotm-donghua-season-1-en-subtitles
     medium_id: donghua
+    locator_medium_ids:
+      - donghua
     container_format_ids:
       - subtitle-file
     role: transcript
@@ -993,6 +1103,8 @@ sources:
     manifestation_id: lotm-donghua-special-1-streaming
     release_component_ids: []
     medium_id: donghua
+    locator_medium_ids:
+      - donghua
     container_format_ids:
       - streaming-release
     role: official-release
@@ -1016,6 +1128,8 @@ sources:
     manifestation_id: lotm-donghua-special-2-streaming
     release_component_ids: []
     medium_id: donghua
+    locator_medium_ids:
+      - donghua
     container_format_ids:
       - streaming-release
     role: official-release
@@ -1039,6 +1153,8 @@ sources:
     manifestation_id: lotm-donghua-special-3-streaming
     release_component_ids: []
     medium_id: donghua
+    locator_medium_ids:
+      - donghua
     container_format_ids:
       - streaming-release
     role: official-release
@@ -1063,6 +1179,8 @@ sources:
     release_component_ids:
       - lotm-book-1-embedded-illustrations
     medium_id: illustration
+    locator_medium_ids:
+      - illustration
     container_format_ids:
       - epub
       - digital-file

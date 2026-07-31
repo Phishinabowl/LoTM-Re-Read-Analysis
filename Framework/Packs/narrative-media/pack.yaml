@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-media
-pack_version: 7
+pack_version: 8
 lifecycle: active
 pack_kind: domain
 label: Narrative Media Foundation
@@ -8,7 +8,7 @@ description: Domain-neutral narrative works, media facets, ordering, continuitie
 
 dependencies:
   - pack_id: core
-    minimum_version: 4
+    minimum_version: 5
 
 capabilities:
   - franchises
@@ -27,6 +27,7 @@ capabilities:
   - content-groups
   - nested-content-groups
   - temporal-localized-titles
+  - content-group-member-roles
   - narrative-time
   - reader-disclosure
   - spoiler-bounding
@@ -44,6 +45,9 @@ capabilities:
     description: Claim-level replacement, reinterpretation, restoration, and effective-scope tracking.
 
 controlled_values:
+  provenance.claim-namespace:
+    - canonical-content
+    - localization
   source.source-role:
     - primary-edition
     - official-release
@@ -151,6 +155,13 @@ controlled_values:
     - season
     - collection
     - reading-path
+  source.content-group-member-role:
+    - core
+    - required
+    - optional
+    - supplemental
+    - prologue
+    - epilogue
   source.localized-title-type:
     - official
     - short

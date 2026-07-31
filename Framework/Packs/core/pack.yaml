@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: core
-pack_version: 4
+pack_version: 5
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -21,6 +21,8 @@ capabilities:
   - nested-record-identity
   - provenance-snapshots
   - evidence-locators
+  - multi-position-evidence
+  - claim-aware-authority
   - authority-profiles
   - typed-relationships
   - temporal-positions
@@ -33,6 +35,10 @@ capabilities:
     description: Previewed, validated, and reversible repository-wide schema and identity transformations.
 
 controlled_values:
+  provenance.claim-namespace:
+    - identity
+    - chronology
+    - provenance
   provenance.assertion-status:
     - verified
     - inferred
@@ -45,6 +51,7 @@ controlled_values:
   provenance.subject-type:
     - source
     - source-relationship
+    - authority-rule
   source.source-role:
     - transcript
     - supplemental

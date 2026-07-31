@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from datetime import datetime
+import calendar
+from datetime import datetime, timezone
 from pathlib import Path
 from string import Formatter
 import re
@@ -11,7 +12,7 @@ from resource_config import ResourceConfig
 from schema_pack_config import SchemaPackRegistry, load_schema_pack_registry
 
 
-SUPPORTED_SOURCE_SCHEMA_VERSION = 8
+SUPPORTED_SOURCE_SCHEMA_VERSION = 9
 LIFECYCLES = {"active", "deferred"}
 POSITION_FIELD_TYPES = {"string", "integer", "number", "timestamp", "boolean"}
 PRIORITY_ORDERS = {"ascending", "descending"}
@@ -73,6 +74,17 @@ class ContinuityRelationship:
 
 
 @dataclass(frozen=True)
+class AuthorityRule:
+    id: str
+    claim_namespace: str
+    source_ids: tuple[str, ...]
+    source_roles: tuple[str, ...]
+    medium_ids: tuple[str, ...]
+    evidence_modes: tuple[str, ...]
+    rank: int
+
+
+@dataclass(frozen=True)
 class AuthorityProfile:
     id: str
     lifecycle: str
@@ -84,6 +96,7 @@ class AuthorityProfile:
     cross_source_conflict: str
     derivative_deviation_owner: str
     preserve_source_scoped_claims: bool
+    claim_authority_rules: tuple[AuthorityRule, ...]
 
 
 @dataclass(frozen=True)
@@ -115,6 +128,7 @@ class MediumConfig:
     modality_ids: tuple[str, ...]
     cultural_form_ids: tuple[str, ...]
     fields: dict[str, str]
+    work_scope_field: str
     required_fields: tuple[str, ...]
     sort_fields: tuple[str, ...]
     citation_formats: tuple[CitationFormat, ...]
@@ -189,6 +203,7 @@ class ContentGroupMember:
     id: str
     target_type: str
     target_id: str
+    role: str
 
 
 @dataclass(frozen=True)
@@ -515,6 +530,7 @@ class SourceConfig:
     release_component_ids: tuple[str, ...]
     platform_offering_id: str | None
     medium_id: str
+    locator_medium_ids: tuple[str, ...]
     container_format_ids: tuple[str, ...]
     role: str
     comparison_group: str
@@ -538,7 +554,14 @@ class SourceRelationship:
 class ProvenanceEvidenceLink:
     source_id: str
     evidence_role: str
-    locator: dict[str, object]
+    locators: tuple["EvidenceLocator", ...]
+
+
+@dataclass(frozen=True)
+class EvidenceLocator:
+    id: str
+    medium_id: str
+    position: dict[str, object]
 
 
 @dataclass(frozen=True)
@@ -546,6 +569,7 @@ class ProvenanceAssertion:
     id: str
     subject_type: str
     subject_id: str
+    claim_namespace: str
     field_path: str | None
     asserted_value: object
     assertion_status: str
@@ -618,6 +642,38 @@ class SourceRegistry:
                 return work_id
         return self.work_aliases.get(normalized)
 
+    def authority_rank(
+        self, profile_id: str, claim_namespace: str, source_id: str
+    ) -> int:
+        profile = self.authority_profiles[profile_id]
+        source = self.sources[source_id]
+        matches = [
+            rule
+            for rule in profile.claim_authority_rules
+            if rule.claim_namespace == claim_namespace
+            and authority_rule_matches_source(rule, source)
+        ]
+        if len(matches) > 1:
+            raise ValueError(
+                f"Authority profile `{profile_id}` has ambiguous rules for source "
+                f"`{source_id}` and claim namespace `{claim_namespace}`."
+            )
+        return matches[0].rank if matches else source.priority
+
+
+def authority_rule_matches_source(
+    rule: AuthorityRule, source: SourceConfig
+) -> bool:
+    return (
+        (not rule.source_ids or source.id in rule.source_ids)
+        and (not rule.source_roles or source.role in rule.source_roles)
+        and (not rule.medium_ids or source.medium_id in rule.medium_ids)
+        and (
+            not rule.evidence_modes
+            or bool(set(rule.evidence_modes).intersection(source.evidence_modes))
+        )
+    )
+
 
 def require_mapping(value, context: str) -> dict:
     if not isinstance(value, dict):
@@ -678,7 +734,10 @@ def parse_localized_titles(
         )
     titles: list[LocalizedTitle] = []
     seen_ids: set[str] = set()
-    seen_scopes: set[tuple[str, tuple[str, ...], str, str | None]] = set()
+    scope_windows: dict[
+        tuple[str, tuple[str, ...], str, str | None],
+        list[TemporalWindow | None],
+    ] = {}
     for index, raw_title in enumerate(raw_titles):
         title_context = f"{context}.localized_titles[{index}]"
         value = require_mapping(raw_title, title_context)
@@ -715,11 +774,18 @@ def parse_localized_titles(
             title_type,
             romanization_scheme,
         )
-        if scope in seen_scopes:
+        valid_window = parse_temporal_window(
+            value, "valid_window", title_context, schema_packs
+        )
+        if any(
+            temporal_windows_overlap(valid_window, existing)
+            for existing in scope_windows.get(scope, [])
+        ):
             raise ValueError(
-                f"Source registry `{context}.localized_titles` repeats a locale scope."
+                f"Source registry `{context}.localized_titles` has overlapping "
+                "validity windows in one locale scope."
             )
-        seen_scopes.add(scope)
+        scope_windows.setdefault(scope, []).append(valid_window)
         titles.append(
             LocalizedTitle(
                 id=title_id,
@@ -730,9 +796,7 @@ def parse_localized_titles(
                 status=status,
                 is_primary=require_bool(value, "is_primary", title_context),
                 romanization_scheme=romanization_scheme,
-                valid_window=parse_temporal_window(
-                    value, "valid_window", title_context, schema_packs
-                ),
+                valid_window=valid_window,
             )
         )
     return tuple(titles)
@@ -805,6 +869,45 @@ def parse_temporal_window(
             "precision."
         )
     return TemporalWindow(start, end, precision, certainty, timezone)
+
+
+def temporal_bound(value: str, precision: str, *, upper: bool) -> datetime:
+    if precision == "year":
+        year = int(value)
+        return datetime(year, 12 if upper else 1, 31 if upper else 1, 23 if upper else 0, 59 if upper else 0, 59 if upper else 0, 999999 if upper else 0)
+    if precision == "month":
+        parsed = datetime.strptime(value, "%Y-%m")
+        day = calendar.monthrange(parsed.year, parsed.month)[1] if upper else 1
+        return datetime(parsed.year, parsed.month, day, 23 if upper else 0, 59 if upper else 0, 59 if upper else 0, 999999 if upper else 0)
+    if precision == "date":
+        parsed = datetime.strptime(value, "%Y-%m-%d")
+        return parsed.replace(hour=23, minute=59, second=59, microsecond=999999) if upper else parsed
+    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    if parsed.tzinfo is not None:
+        parsed = parsed.astimezone(timezone.utc).replace(tzinfo=None)
+    return parsed
+
+
+def temporal_windows_overlap(
+    left: TemporalWindow | None, right: TemporalWindow | None
+) -> bool:
+    if left is None or right is None:
+        return True
+    if left.precision == "unknown" or right.precision == "unknown":
+        return True
+    left_start = temporal_bound(left.start, left.precision, upper=False)
+    right_start = temporal_bound(right.start, right.precision, upper=False)
+    left_end = (
+        temporal_bound(left.end, left.precision, upper=True)
+        if left.end is not None
+        else datetime.max
+    )
+    right_end = (
+        temporal_bound(right.end, right.precision, upper=True)
+        if right.end is not None
+        else datetime.max
+    )
+    return left_start <= right_end and right_start <= left_end
 
 
 def validate_id(value: str, context: str) -> None:
@@ -1181,12 +1284,25 @@ def parse_medium(
                 f"{', '.join(sorted(POSITION_FIELD_TYPES))}."
             )
         fields[field_id] = field_type
+    work_scope_field = require_string(
+        position, "work_scope_field", f"{context}.position"
+    )
+    if work_scope_field not in fields or fields[work_scope_field] != "string":
+        raise ValueError(
+            f"Source registry `{context}.position.work_scope_field` must reference "
+            "a configured string position field."
+        )
     required_fields = require_string_list(
         position,
         "required_fields",
         f"{context}.position",
     )
     sort_fields = require_string_list(position, "sort_fields", f"{context}.position")
+    if work_scope_field not in required_fields:
+        raise ValueError(
+            f"Source registry `{context}.position.work_scope_field` must also be "
+            "listed in required_fields."
+        )
     for list_name, values in (
         ("required_fields", required_fields),
         ("sort_fields", sort_fields),
@@ -1254,6 +1370,7 @@ def parse_medium(
         modality_ids=modality_ids,
         cultural_form_ids=cultural_form_ids,
         fields=fields,
+        work_scope_field=work_scope_field,
         required_fields=required_fields,
         sort_fields=sort_fields,
         citation_formats=tuple(citation_formats),
@@ -1674,6 +1791,76 @@ def load_source_registry(
                 f"Source registry `{context}.derivative_deviation_owner` must be one "
                 f"of: {', '.join(sorted(DEVIATION_OWNERS))}."
             )
+        raw_rules = profile.get("claim_authority_rules")
+        if not isinstance(raw_rules, list):
+            raise ValueError(
+                f"Source registry `{context}.claim_authority_rules` must be a list."
+            )
+        rules: list[AuthorityRule] = []
+        seen_rule_ids: set[str] = set()
+        for rule_index, raw_rule in enumerate(raw_rules):
+            rule_context = f"{context}.claim_authority_rules[{rule_index}]"
+            rule = require_mapping(raw_rule, rule_context)
+            rule_id = require_string(rule, "id", rule_context)
+            validate_id(rule_id, f"{rule_context}.id")
+            if rule_id in seen_rule_ids:
+                raise ValueError(
+                    f"Source registry `{context}.claim_authority_rules` repeats "
+                    f"ID `{rule_id}`."
+                )
+            seen_rule_ids.add(rule_id)
+            claim_namespace = require_string(
+                rule, "claim_namespace", rule_context
+            )
+            validate_pack_values(
+                schema_packs,
+                "provenance.claim-namespace",
+                (claim_namespace,),
+                f"{rule_context}.claim_namespace",
+            )
+            source_ids = require_string_list(rule, "source_ids", rule_context)
+            source_roles = require_string_list(rule, "source_roles", rule_context)
+            medium_ids = require_string_list(rule, "medium_ids", rule_context)
+            evidence_modes = require_string_list(
+                rule, "evidence_modes", rule_context
+            )
+            if not any((source_ids, source_roles, medium_ids, evidence_modes)):
+                raise ValueError(
+                    f"Source registry `{rule_context}` must declare at least one "
+                    "source selector."
+                )
+            validate_pack_values(
+                schema_packs,
+                "source.source-role",
+                source_roles,
+                f"{rule_context}.source_roles",
+            )
+            unknown_rule_mediums = set(medium_ids) - set(mediums)
+            if unknown_rule_mediums:
+                raise ValueError(
+                    f"Source registry `{rule_context}.medium_ids` references unknown "
+                    f"media: {', '.join(sorted(unknown_rule_mediums))}."
+                )
+            for source_id in source_ids:
+                validate_id(source_id, f"{rule_context}.source_ids")
+            for evidence_mode in evidence_modes:
+                validate_id(evidence_mode, f"{rule_context}.evidence_modes")
+            rank = rule.get("rank")
+            if isinstance(rank, bool) or not isinstance(rank, int) or rank < 1:
+                raise ValueError(
+                    f"Source registry `{rule_context}.rank` must be a positive integer."
+                )
+            rules.append(
+                AuthorityRule(
+                    rule_id,
+                    claim_namespace,
+                    source_ids,
+                    source_roles,
+                    medium_ids,
+                    evidence_modes,
+                    rank,
+                )
+            )
         authority_profiles[profile_id] = AuthorityProfile(
             id=profile_id,
             lifecycle=parse_lifecycle(profile, context),
@@ -1687,6 +1874,7 @@ def load_source_registry(
             preserve_source_scoped_claims=require_bool(
                 profile, "preserve_source_scoped_claims", context
             ),
+            claim_authority_rules=tuple(rules),
         )
     default_authority_profile_id = require_string(
         registry, "default_authority_profile_id", "root"
@@ -2170,7 +2358,16 @@ def load_source_registry(
                     f"Source registry `{context}.members` contains duplicates."
                 )
             seen_members.add(member_key)
-            members.append(ContentGroupMember(member_id, target_type, target_id))
+            role = require_string(member, "role", member_context)
+            validate_pack_values(
+                schema_packs,
+                "source.content-group-member-role",
+                (role,),
+                f"{member_context}.role",
+            )
+            members.append(
+                ContentGroupMember(member_id, target_type, target_id, role)
+            )
         parent_group_ids = require_string_list(
             group, "parent_group_ids", context
         )
@@ -3762,6 +3959,22 @@ def load_source_registry(
                 f"Source registry `{context}.medium_id` references unknown medium "
                 f"`{medium_id}`."
             )
+        locator_medium_ids = require_string_list(
+            source, "locator_medium_ids", context
+        )
+        if medium_id not in locator_medium_ids or len(set(locator_medium_ids)) != len(
+            locator_medium_ids
+        ):
+            raise ValueError(
+                f"Source registry `{context}.locator_medium_ids` must be "
+                "duplicate-free and include the source medium."
+            )
+        unknown_locator_media = set(locator_medium_ids) - set(mediums)
+        if unknown_locator_media:
+            raise ValueError(
+                f"Source registry `{context}.locator_medium_ids` references unknown "
+                f"media: {', '.join(sorted(unknown_locator_media))}."
+            )
         container_format_ids = require_string_list(
             source, "container_format_ids", context
         )
@@ -4161,6 +4374,20 @@ def load_source_registry(
                     )
                 validate_position_values(start, medium_fields, f"{range_context}.start")
                 validate_position_values(end, medium_fields, f"{range_context}.end")
+                work_scope_field = mediums[medium_id].work_scope_field
+                if work_scope_field not in start:
+                    raise ValueError(
+                        f"Source registry `{range_context}` must include work-scope "
+                        f"field `{work_scope_field}`."
+                    )
+                range_work_ids = {start[work_scope_field], end[work_scope_field]}
+                if len(range_work_ids) != 1 or not range_work_ids.issubset(
+                    target_work_ids
+                ):
+                    raise ValueError(
+                        f"Source registry `{range_context}` falls outside its "
+                        "coverage target work scope."
+                    )
                 position_ranges.append(
                     CoveragePositionRange(range_id, dict(start), dict(end))
                 )
@@ -4198,6 +4425,7 @@ def load_source_registry(
             release_component_ids=release_component_ids,
             platform_offering_id=platform_offering_id,
             medium_id=medium_id,
+            locator_medium_ids=locator_medium_ids,
             container_format_ids=container_format_ids,
             role=role,
             comparison_group=comparison_group,
@@ -4214,6 +4442,38 @@ def load_source_registry(
         (source.role for source in sources.values()),
         "sources.*.role",
     )
+    seen_authority_rule_ids: set[str] = set()
+    for profile in authority_profiles.values():
+        for rule in profile.claim_authority_rules:
+            if rule.id in seen_authority_rule_ids:
+                raise ValueError(
+                    f"Source registry authority-rule ID `{rule.id}` is duplicated "
+                    "across profiles."
+                )
+            seen_authority_rule_ids.add(rule.id)
+            unknown_rule_sources = set(rule.source_ids) - set(sources)
+            if unknown_rule_sources:
+                raise ValueError(
+                    f"Source registry authority rule `{rule.id}` references unknown "
+                    f"sources: {', '.join(sorted(unknown_rule_sources))}."
+                )
+        claim_namespaces = {
+            rule.claim_namespace for rule in profile.claim_authority_rules
+        }
+        for claim_namespace in claim_namespaces:
+            for source in sources.values():
+                matches = [
+                    rule
+                    for rule in profile.claim_authority_rules
+                    if rule.claim_namespace == claim_namespace
+                    and authority_rule_matches_source(rule, source)
+                ]
+                if len(matches) > 1:
+                    raise ValueError(
+                        f"Source registry authority profile `{profile.id}` has "
+                        f"ambiguous `{claim_namespace}` rules for source "
+                        f"`{source.id}`."
+                    )
 
     raw_source_relationships = registry.get("source_relationships")
     if not isinstance(raw_source_relationships, list):
@@ -4279,6 +4539,22 @@ def load_source_registry(
             for source in sources.values()
             for coverage in source.coverage
         ],
+        "source-observation": [
+            observation
+            for source in sources.values()
+            for observation in source.observations
+        ],
+        "coverage-position-range": [
+            position_range
+            for source in sources.values()
+            for coverage in source.coverage
+            for position_range in coverage.position_ranges
+        ],
+        "authority-rule": [
+            rule
+            for profile in authority_profiles.values()
+            for rule in profile.claim_authority_rules
+        ],
     }
     for nested_type, nested_records in nested_provenance_targets.items():
         nested_ids = [record.id for record in nested_records]
@@ -4329,6 +4605,7 @@ def load_source_registry(
         )
     provenance_assertions: list[ProvenanceAssertion] = []
     seen_provenance_ids: set[str] = set()
+    seen_locator_ids: set[str] = set()
     for index, raw_assertion in enumerate(raw_provenance_assertions):
         context = f"provenance_assertions[{index}]"
         assertion = require_mapping(raw_assertion, context)
@@ -4356,6 +4633,15 @@ def load_source_registry(
                 f"Source registry `{context}.subject_id` references unknown "
                 f"{subject_type} `{subject_id}`."
             )
+        claim_namespace = require_string(
+            assertion, "claim_namespace", context
+        )
+        validate_pack_values(
+            schema_packs,
+            "provenance.claim-namespace",
+            (claim_namespace,),
+            f"{context}.claim_namespace",
+        )
         field_path = optional_string(assertion, "field_path", context)
         if field_path is not None and not FIELD_PATH_PATTERN.fullmatch(
             field_path
@@ -4421,30 +4707,91 @@ def load_source_registry(
                 (evidence_role,),
                 f"{evidence_context}.evidence_role",
             )
-            locator = require_mapping(
-                link.get("locator"), f"{evidence_context}.locator"
-            )
-            if not locator:
+            raw_locators = link.get("locators")
+            if not isinstance(raw_locators, list) or not raw_locators:
                 raise ValueError(
-                    f"Source registry `{evidence_context}.locator` must not be "
-                    "empty."
+                    f"Source registry `{evidence_context}.locators` must be a "
+                    "non-empty list."
                 )
-            source_medium = mediums[sources[evidence_source_id].medium_id]
-            unknown_locator_fields = set(locator) - set(source_medium.fields)
-            if unknown_locator_fields:
-                raise ValueError(
-                    f"Source registry `{evidence_context}.locator` references "
-                    f"unknown source-position fields: "
-                    f"{', '.join(sorted(unknown_locator_fields))}."
+            locators: list[EvidenceLocator] = []
+            seen_positions: set[tuple[str, str]] = set()
+            for locator_index, raw_locator in enumerate(raw_locators):
+                locator_context = (
+                    f"{evidence_context}.locators[{locator_index}]"
                 )
-            validate_position_values(
-                locator,
-                source_medium.fields,
-                f"{evidence_context}.locator",
-            )
+                locator = require_mapping(raw_locator, locator_context)
+                locator_id = require_string(locator, "id", locator_context)
+                validate_id(locator_id, f"{locator_context}.id")
+                if locator_id in seen_locator_ids:
+                    raise ValueError(
+                        f"Source registry evidence-locator ID `{locator_id}` is "
+                        "duplicated."
+                    )
+                seen_locator_ids.add(locator_id)
+                locator_medium_id = require_string(
+                    locator, "medium_id", locator_context
+                )
+                if locator_medium_id not in mediums:
+                    raise ValueError(
+                        f"Source registry `{locator_context}.medium_id` references "
+                        f"unknown medium `{locator_medium_id}`."
+                    )
+                if locator_medium_id not in sources[evidence_source_id].locator_medium_ids:
+                    raise ValueError(
+                        f"Source registry `{locator_context}.medium_id` is not "
+                        "allowed by the evidence source."
+                    )
+                position = require_mapping(
+                    locator.get("position"), f"{locator_context}.position"
+                )
+                if not position:
+                    raise ValueError(
+                        f"Source registry `{locator_context}.position` must not "
+                        "be empty."
+                    )
+                locator_medium = mediums[locator_medium_id]
+                unknown_locator_fields = set(position) - set(
+                    locator_medium.fields
+                )
+                if unknown_locator_fields:
+                    raise ValueError(
+                        f"Source registry `{locator_context}.position` references "
+                        f"unknown position fields: "
+                        f"{', '.join(sorted(unknown_locator_fields))}."
+                    )
+                validate_position_values(
+                    position,
+                    locator_medium.fields,
+                    f"{locator_context}.position",
+                )
+                scope_field = locator_medium.work_scope_field
+                if (
+                    scope_field not in position
+                    or position[scope_field]
+                    not in sources[evidence_source_id].work_ids
+                ):
+                    raise ValueError(
+                        f"Source registry `{locator_context}.position` falls "
+                        "outside the evidence source work scope."
+                    )
+                position_key = (
+                    locator_medium_id,
+                    repr(sorted(position.items())),
+                )
+                if position_key in seen_positions:
+                    raise ValueError(
+                        f"Source registry `{evidence_context}.locators` repeats a "
+                        "position."
+                    )
+                seen_positions.add(position_key)
+                locators.append(
+                    EvidenceLocator(
+                        locator_id, locator_medium_id, dict(position)
+                    )
+                )
             evidence_links.append(
                 ProvenanceEvidenceLink(
-                    evidence_source_id, evidence_role, dict(locator)
+                    evidence_source_id, evidence_role, tuple(locators)
                 )
             )
         evidence_roles = {link.evidence_role for link in evidence_links}
@@ -4466,6 +4813,7 @@ def load_source_registry(
                 assertion_id,
                 subject_type,
                 subject_id,
+                claim_namespace,
                 field_path,
                 asserted_value,
                 assertion_status,

@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-distribution
-pack_version: 5
+pack_version: 6
 lifecycle: active
 pack_kind: domain
 label: Narrative Distribution
@@ -8,7 +8,7 @@ description: Editions, cuts, localized manifestations, releases, platform catalo
 
 dependencies:
   - pack_id: narrative-media
-    minimum_version: 7
+    minimum_version: 8
 
 capabilities:
   - manifestations
@@ -30,8 +30,12 @@ capabilities:
   - release-component-lineage
   - multi-target-source-observations
   - position-range-coverage
+  - mixed-media-evidence-locators
+  - semantic-position-coverage
 
 controlled_values:
+  provenance.claim-namespace:
+    - release-metadata
   source.manifestation-type:
     - original-edition
     - translated-edition
@@ -212,3 +216,5 @@ controlled_values:
     - platform-offering
     - release-run-phase
     - source-coverage
+    - source-observation
+    - coverage-position-range

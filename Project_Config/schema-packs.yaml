@@ -34,6 +34,8 @@ capability_activation:
     - nested-record-identity
     - provenance-snapshots
     - evidence-locators
+    - multi-position-evidence
+    - claim-aware-authority
     - authority-profiles
     - typed-relationships
     - temporal-positions
@@ -55,6 +57,7 @@ capability_activation:
     - content-groups
     - nested-content-groups
     - temporal-localized-titles
+    - content-group-member-roles
     - narrative-time
     - serialization
     - publication-packaging
@@ -91,3 +94,5 @@ capability_activation:
     - release-component-lineage
     - multi-target-source-observations
     - position-range-coverage
+    - mixed-media-evidence-locators
+    - semantic-position-coverage

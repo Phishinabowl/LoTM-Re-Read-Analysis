@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-publishing
-pack_version: 3
+pack_version: 4
 lifecycle: active
 pack_kind: domain
 label: Narrative Publishing
@@ -8,7 +8,7 @@ description: Prose and sequential-art serialization, editions, localization, and
 
 dependencies:
   - pack_id: narrative-media
-    minimum_version: 7
+    minimum_version: 8
 
 capabilities:
   - serialization
@@ -29,6 +29,8 @@ capabilities:
     description: Posthumous editing, compilation, completion, commentary, and synthesis from source material.
 
 controlled_values:
+  provenance.claim-namespace:
+    - publication-metadata
   source.work-type:
     - novel
     - novella
