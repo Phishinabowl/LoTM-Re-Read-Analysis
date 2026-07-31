@@ -886,7 +886,7 @@ last_updated: 2026-07-01
 
 ```yaml
 id: church-evernight-incomplete-pathway-options
-claim: Apart from the complete Sleepless pathway, the Church of Evernight can offer Klein three incomplete Sequence 9 options: Mystery Pryer, Corpse Collector, and Seer.
+claim: "Apart from the complete Sleepless pathway, the Church of Evernight can offer Klein three incomplete Sequence 9 options: Mystery Pryer, Corpse Collector, and Seer."
 truth_status: true
 confidence_level: confirmed
 canon_scope: novel
