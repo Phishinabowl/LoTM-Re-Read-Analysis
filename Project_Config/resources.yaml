@@ -21,6 +21,32 @@ resource_kinds:
     plural_label: Temporary Resources
 
 resource_types:
+  framework-contract:
+    lifecycle: active
+    label: Framework Contract
+    plural_label: Framework Contracts
+    kind_id: component
+    authority: canonical
+    editor_enabled: true
+    placements:
+      - root_id: framework
+        relative_path: Contracts
+        tracking: tracked
+        required: true
+
+  schema-pack:
+    lifecycle: active
+    label: Schema Pack
+    plural_label: Schema Packs
+    kind_id: component
+    authority: canonical
+    editor_enabled: true
+    placements:
+      - root_id: framework
+        relative_path: Packs
+        tracking: tracked
+        required: true
+
   visual-asset:
     lifecycle: active
     label: Visual Asset

@@ -1,0 +1,46 @@
+schema_version: 1
+pack_id: core
+pack_version: 1
+lifecycle: active
+pack_kind: core
+label: Knowledge Platform Core
+description: Domain-neutral identity, evidence, relationship, temporal, visibility, validation, and projection primitives.
+
+dependencies: []
+
+capabilities:
+  - stable-identity
+  - aliases
+  - lifecycle
+  - content-types
+  - subject-categories
+  - resources
+  - evidence-sources
+  - authority-profiles
+  - typed-relationships
+  - temporal-positions
+  - visibility-policy
+  - graph-projection
+  - schema-validation
+  - migration-services
+
+controlled_values:
+  source.source-role:
+    - transcript
+    - supplemental
+    - reference
+    - translation
+    - localization
+    - extract
+  source.source-relationship-type:
+    - edition-of
+    - has-edition
+    - translation-of
+    - has-translation
+    - transcript-of
+    - has-transcript
+    - scan-of
+    - has-scan
+    - extract-from
+    - has-extract
+    - packaged-with

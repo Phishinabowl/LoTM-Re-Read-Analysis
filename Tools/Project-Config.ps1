@@ -1,5 +1,5 @@
 $script:ProjectManifestPath = "Project_Config/project.yaml"
-$script:SupportedProjectSchemaVersion = 2
+$script:SupportedProjectSchemaVersion = 3
 $script:AllowedProvenanceModes = @("child-directory", "fixed", "slug-prefix")
 $script:StableProjectIdPattern = "^[a-z0-9]+(?:-[a-z0-9]+)*$"
 
@@ -224,6 +224,7 @@ function Get-KnowledgeProjectConfig {
     visualization_puppeteer_config = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $visualization "puppeteer_config" "paths.visualization") "paths.visualization.puppeteer_config" $true
     cleanup_python_helper = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $cleanup "python_helper" "paths.cleanup") "paths.cleanup.python_helper" $true
     cleanup_powershell_helper = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $cleanup "powershell_helper" "paths.cleanup") "paths.cleanup.powershell_helper" $true
+    schema_packs_registry = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $registries "schema_packs" "registries") "registries.schema_packs" $true
     taxonomy_registry = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $registries "taxonomy" "registries") "registries.taxonomy" $true
     resources_registry = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $registries "resources" "registries") "registries.resources" $true
     sources_registry = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $registries "sources" "registries") "registries.sources" $true

@@ -80,13 +80,25 @@ Do not embed the full graph in this README; it is maintained as a separate gener
 ## Project Structure
 
 ```text
+Framework/
+  README.md
+  Contracts/
+    README.md
+  Packs/
+    core/
+      pack.yaml
+    narrative-media/
+      pack.yaml
+  reusable contracts and bundled schema packs shared across project instances
+
 Project_Config/
   project.yaml
+  schema-packs.yaml
   taxonomy.yaml
   resources.yaml
   sources.yaml
-  domain-neutral project identity, stable content/resource roots, registry
-  discovery, LoTM content taxonomy, repository resources, and source priority
+  LoTM project identity, selected and activated packs, stable content/resource
+  roots, registry discovery, local taxonomy, repository resources, and sources
 
 Boards/
   01_LoTM_Main_Reread_Board.md

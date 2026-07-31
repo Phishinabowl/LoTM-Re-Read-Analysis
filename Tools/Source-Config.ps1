@@ -6,10 +6,13 @@ $resourceConfigHelper = Join-Path $PSScriptRoot "Resource-Config.ps1"
 if (-not (Get-Command Get-KnowledgeResourceConfig -ErrorAction SilentlyContinue)) {
   . $resourceConfigHelper
 }
+$schemaPackConfigHelper = Join-Path $PSScriptRoot "Schema-Pack-Config.ps1"
+if (-not (Get-Command Get-KnowledgeSchemaPackRegistry -ErrorAction SilentlyContinue)) {
+  . $schemaPackConfigHelper
+}
 
 $script:SupportedSourceSchemaVersion = 2
 $script:AllowedSourceLifecycles = @("active", "deferred")
-$script:AllowedSourceRoles = @("primary-edition", "official-release", "transcript", "supplemental", "reference", "translation", "localization", "extract")
 $script:AllowedPositionFieldTypes = @("string", "integer", "number", "timestamp", "boolean")
 $script:AllowedPriorityOrders = @("ascending", "descending")
 $script:AllowedConflictBehaviors = @("flag")
@@ -172,6 +175,24 @@ function ConvertTo-MediumConfig {
   }
 }
 
+function Assert-SourceSchemaPackValues {
+  param(
+    [object]$SchemaPackRegistry,
+    [string]$Namespace,
+    [object[]]$Values,
+    [string]$Context
+  )
+
+  $allowed = @(Get-SchemaPackAllowedValues $SchemaPackRegistry $Namespace)
+  if ($allowed.Count -eq 0) {
+    throw "Selected schema packs do not provide controlled namespace '$Namespace' required by '$Context'."
+  }
+  $unknown = @($Values | Where-Object { $allowed -notcontains $_ } | Sort-Object -Unique)
+  if ($unknown.Count -gt 0) {
+    throw "Source registry '$Context' uses value(s) not provided by the selected schema packs in '$Namespace': $($unknown -join ', ')."
+  }
+}
+
 function Resolve-SourceResourceBinding {
   param(
     [object]$ProjectConfig,
@@ -301,9 +322,20 @@ function ConvertTo-RelationshipTypeRegistry {
 }
 
 function Get-KnowledgeSourceRegistry {
-  param([object]$ProjectConfig, [object]$ResourceConfig)
+  param(
+    [object]$ProjectConfig,
+    [object]$ResourceConfig,
+    [object]$SchemaPackRegistry = $null
+  )
 
   Import-ProjectYamlModule
+  if ($null -eq $SchemaPackRegistry) {
+    $SchemaPackRegistry = Get-KnowledgeSchemaPackRegistry $ProjectConfig
+  }
+  $allowedSourceRoles = @(Get-SchemaPackAllowedValues $SchemaPackRegistry "source.source-role")
+  if ($allowedSourceRoles.Count -eq 0) {
+    throw "Selected schema packs do not provide controlled namespace 'source.source-role' required by 'sources.*.role'."
+  }
   $registryPath = $ProjectConfig.sources_registry
   $registry = ConvertFrom-Yaml -Yaml ([System.IO.File]::ReadAllText($registryPath, [System.Text.UTF8Encoding]::new($true))) -Ordered
   if ($null -eq $registry -or -not ($registry -is [System.Collections.IDictionary])) {
@@ -322,6 +354,7 @@ function Get-KnowledgeSourceRegistry {
   foreach ($mediumId in $rawMediums.Keys) {
     $mediums[$mediumId] = ConvertTo-MediumConfig $mediumId $rawMediums[$mediumId]
   }
+  Assert-SourceSchemaPackValues $SchemaPackRegistry "source.medium" @($mediums.Keys) "mediums"
 
   $rawGroupTypes = Get-ProjectMapValue $registry "work_group_types"
   if ($null -eq $rawGroupTypes -or -not ($rawGroupTypes -is [System.Collections.IDictionary])) {
@@ -338,6 +371,7 @@ function Get-KnowledgeSourceRegistry {
       ordered = Get-RequiredSourceBoolean $rawType "ordered" $context
     }
   }
+  Assert-SourceSchemaPackValues $SchemaPackRegistry "source.work-group-type" @($workGroupTypes.Keys) "work_group_types"
 
   $rawGroups = Get-ProjectMapValue $registry "work_groups"
   if ($null -eq $rawGroups -or -not ($rawGroups -is [System.Collections.IDictionary])) {
@@ -418,10 +452,14 @@ function Get-KnowledgeSourceRegistry {
       aliases = @($aliases)
     }
   }
+  Assert-SourceSchemaPackValues $SchemaPackRegistry "source.continuity-type" @($continuities.Values | ForEach-Object { $_.continuity_type }) "continuities.*.continuity_type"
 
   $continuityRelationshipTypes = ConvertTo-RelationshipTypeRegistry (Get-ProjectMapValue $registry "continuity_relationship_types") "continuity_relationship_types"
   $workRelationshipTypes = ConvertTo-RelationshipTypeRegistry (Get-ProjectMapValue $registry "work_relationship_types") "work_relationship_types"
   $sourceRelationshipTypes = ConvertTo-RelationshipTypeRegistry (Get-ProjectMapValue $registry "source_relationship_types") "source_relationship_types"
+  Assert-SourceSchemaPackValues $SchemaPackRegistry "source.continuity-relationship-type" @($continuityRelationshipTypes.Keys) "continuity_relationship_types"
+  Assert-SourceSchemaPackValues $SchemaPackRegistry "source.work-relationship-type" @($workRelationshipTypes.Keys) "work_relationship_types"
+  Assert-SourceSchemaPackValues $SchemaPackRegistry "source.source-relationship-type" @($sourceRelationshipTypes.Keys) "source_relationship_types"
 
   $seenRelationshipIds = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
   $continuityRelationships = @()
@@ -565,6 +603,7 @@ function Get-KnowledgeSourceRegistry {
       volume_catalog_status=$volumeStatus; volumes=@($volumes)
     }
   }
+  Assert-SourceSchemaPackValues $SchemaPackRegistry "source.work-type" @($works.Values | ForEach-Object { $_.work_type }) "works.*.work_type"
 
   $workRelationships = @()
   $rawWorkRelationships = @(Get-ProjectMapValue $registry "work_relationships")
@@ -595,7 +634,7 @@ function Get-KnowledgeSourceRegistry {
     if (-not $works.Contains($workId)) { throw "Source registry '$context.work_id' references unknown work '$workId'." }
     if (-not $mediums.Contains($mediumId)) { throw "Source registry '$context.medium_id' references unknown medium '$mediumId'." }
     $role=Get-RequiredSourceString $source "role" $context
-    if ($script:AllowedSourceRoles -notcontains $role) { throw "Source registry '$context.role' must be one of: $($script:AllowedSourceRoles -join ', ')." }
+    if ($allowedSourceRoles -notcontains $role) { throw "Source registry '$context.role' must be one of: $($allowedSourceRoles -join ', ')." }
     if ($works[$workId].medium_id -ne $mediumId -and $role -notin @("supplemental","reference","extract")) { throw "Source registry '$context' medium does not match work '$workId'." }
     $comparisonGroup=Get-RequiredSourceString $source "comparison_group" $context; Test-StableSourceId $comparisonGroup "$context.comparison_group"
     $priority=Get-ProjectMapValue $source "priority"
@@ -612,6 +651,7 @@ function Get-KnowledgeSourceRegistry {
     for ($i=0; $i -lt $rawBindings.Count; $i++) { $bindings += Resolve-SourceResourceBinding $ProjectConfig $ResourceConfig $rawBindings[$i] "$context.resource_bindings[$i]" }
     $sources[$sourceId]=[pscustomobject]@{ id=$sourceId; lifecycle=$lifecycle; label=Get-RequiredSourceString $source "label" $context; work_id=$workId; medium_id=$mediumId; role=$role; comparison_group=$comparisonGroup; priority=[int]$priority; aliases=@($aliases); evidence_modes=@($evidenceModes); resource_bindings=@($bindings) }
   }
+  Assert-SourceSchemaPackValues $SchemaPackRegistry "source.source-role" @($sources.Values | ForEach-Object { $_.role }) "sources.*.role"
 
   $sourceRelationships=@(); $rawSourceRelationships=@(Get-ProjectMapValue $registry "source_relationships")
   for ($index=0; $index -lt $rawSourceRelationships.Count; $index++) {

@@ -1,0 +1,36 @@
+schema_version: 2
+
+selected_packs:
+  - pack_id: core
+    path: Framework/Packs/core/pack.yaml
+
+  - pack_id: narrative-media
+    path: Framework/Packs/narrative-media/pack.yaml
+
+capability_activation:
+  default: disabled
+  enabled:
+    - stable-identity
+    - aliases
+    - lifecycle
+    - content-types
+    - subject-categories
+    - resources
+    - evidence-sources
+    - authority-profiles
+    - typed-relationships
+    - temporal-positions
+    - visibility-policy
+    - graph-projection
+    - schema-validation
+    - franchises
+    - ordered-series
+    - adaptation-programs
+    - continuities
+    - creative-works
+    - installments
+    - adaptation-lineage
+    - embedded-visual-assets
+    - reader-disclosure
+    - spoiler-bounding
+    - adaptation-comparison

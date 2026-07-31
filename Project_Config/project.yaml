@@ -1,4 +1,4 @@
-schema_version: 2
+schema_version: 3
 project_id: lotm-analysis
 framework: knowledge-model
 domain: lord-of-the-mysteries
@@ -25,6 +25,9 @@ paths:
       provenance_label: volume
 
   resource_roots:
+    - id: framework
+      path: Framework
+      required: true
     - id: artwork
       path: Artwork
       required: true
@@ -72,6 +75,7 @@ paths:
     powershell_helper: Tools/Clean-TempFiles.ps1
 
 registries:
+  schema_packs: Project_Config/schema-packs.yaml
   taxonomy: Project_Config/taxonomy.yaml
   resources: Project_Config/resources.yaml
   sources: Project_Config/sources.yaml

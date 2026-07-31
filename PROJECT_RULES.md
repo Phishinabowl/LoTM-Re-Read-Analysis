@@ -49,13 +49,25 @@ This document remains authoritative for LoTM-specific authoring, evidence, taxon
 The project uses the following files and folders:
 
 ```text
+Framework/
+  README.md
+  Contracts/
+    README.md
+  Packs/
+    core/
+      pack.yaml
+    narrative-media/
+      pack.yaml
+  portable framework contracts and bundled schema packs
+
 Project_Config/
   project.yaml
+  schema-packs.yaml
   taxonomy.yaml
   resources.yaml
   sources.yaml
-  domain-neutral project identity, content/resource roots, registries,
-  and tool integration paths
+  LoTM project identity, pack selection and activation, content/resource roots,
+  project registries, and tool integration paths
 
 Boards/
   01_LoTM_Main_Reread_Board.md
@@ -154,9 +166,15 @@ These files and folders are the project's working memory.
 
 `Project_Config/project.yaml` is the domain-neutral repository manifest. Tooling uses it to locate and identify the project, assign stable IDs to modeled content and resource roots, and resolve the taxonomy/resource registries, source-provenance behavior, QA output, visualization integration, and cleanup helpers. Directory names such as `Glossary_Threads/`, `Investigations/`, and `Volumes/` are LoTM configuration values rather than reusable framework assumptions.
 
+`Project_Config/schema-packs.yaml` selects schema contracts in dependency order and explicitly activates the capabilities used by this project. `Framework/Packs/core/pack.yaml` owns domain-neutral platform and evidence primitives; `Framework/Packs/narrative-media/pack.yaml` owns reusable narrative work, continuity, media, and adaptation vocabulary. A capability absent from selected packs is unavailable and disabled. A supplied capability omitted from `capability_activation.enabled` is available but disabled; tools and interfaces must omit that feature without warning. Missing hard dependencies and explicit project references to unavailable or disabled contracts remain validation errors.
+
+Universal media terms remain semantically distinct beneath broader groupings: `anime` and `donghua` classify under `animation`; `manga`, `manhwa`, and `manhua` classify under `comic`; and `official-epub-artwork` currently classifies under `illustration`. Embedded artwork may be extracted from EPUBs, comic releases, scans, or other supported narrative sources: preserve the originating evidence source, register the extracted image as a visual resource, and treat promotion into tracked page-ready artwork as a separate action. LoTM registries may instantiate values supplied by selected packs but must not silently introduce a new engine, industry, or project concept. Add reusable concepts to the appropriate reusable pack and organization/project-specific terms to a compatible extension pack before using them in project data. Reusable packs must not contain LoTM works, pages, paths, or source records; project extension packs may contribute local vocabulary but still must not instantiate those records.
+
+Treat schema packs as the source for future setup wizards, recommended schemas, template modules, validators, editor forms, and migration plans. A wizard may recommend a pack and collect project-specific labels or records, but UI code must not redefine the pack's field meaning or controlled values.
+
 `Project_Config/taxonomy.yaml` is the machine-readable authority for content-type and category IDs, lifecycle, canonical-page enablement, content roots, category policy, path strategies, metadata behavior, subject/record slug rules, per-content-type placements, templates, QA-page eligibility, and graph defaults. Content type and category are separate dimensions: a glossary article and an investigation may share `category_id: character` while using `content_type_id: glossary-page` and `content_type_id: investigation-record`; `volume-summary`, `analysis-board`, `project-dashboard`, and `navigation-index` forbid subject categories. This document remains authoritative for LoTM-specific authoring and modeling policy and explains how those configured records should be used. Keep the registry, templates, and this policy synchronized; do not introduce a new category or content type only in prose or hardcode a new allowlist in a consumer.
 
-`Project_Config/resources.yaml` is the machine-readable authority for non-content repository resources: visual assets, evidence source material, executable tools, project configuration, generated outputs, design/workspace support, application state, and temporary artifacts. It defines stable resource kinds/types, authority roles, editor eligibility, configured placements, tracking expectations, and required-path behavior. Resource records do not become subject categories or content pages merely because they are important to the repository.
+`Project_Config/resources.yaml` is the machine-readable authority for non-content repository resources: framework contracts and packs, visual assets, evidence source material, executable tools, project configuration, generated outputs, design/workspace support, application state, and temporary artifacts. It defines stable resource kinds/types, authority roles, editor eligibility, configured placements, tracking expectations, and required-path behavior. Resource records do not become subject categories or content pages merely because they are important to the repository.
 
 `Project_Config/sources.yaml` is the machine-readable authority for work groups, works, continuities, authority profiles, per-work volumes, evidence sources, media, typed work/source relationships, position schemas, citation formats, aliases, evidence modes, comparison groups, priority, and bindings to registered resources. Work groups represent franchises, ordered series, heterogeneous adaptation programs, or collections. Works represent creative units such as novels, television seasons, specials, or films. Continuities model compatible canon scopes. Sources represent concrete editions, releases, transcripts, subtitle tracks, scans, extracts, or other evidence artifacts. Do not collapse those layers.
 
@@ -675,7 +693,7 @@ For type-specific data blocks, rows that describe continuing reader-visible stat
 
 Visible character tables and `character_profile` rows should mirror each other when they describe the same extractable state. If they conflict, update both. The visible table remains the GitHub-readable article surface; the data-block row is the future renderer, filtering, and QA source. Do not make future tooling scrape visible tables when a structured row can carry the same data. Order type-specific data-block sections to match the visible page sections as closely as practical; for character pages, place `timeline_entries` after `major_events_fights` because `Chronological Development` follows `Major Events & Fights` in the visible article.
 
-Use snake_case for data-block field names and lowercase kebab-case for controlled values. Reuse generic values across page types where possible. If a value will repeat across multiple page types, define or reference it in `PROJECT_RULES.md`; if it is character-specific, define it in the character template and keep the specific nuance in `notes` rather than inventing one-off values. Repeated controlled values that will be user-visible should eventually receive explicit display labels; rare or temporary values may rely on renderer fallback title-casing until they prove reusable.
+Use snake_case for data-block field names and lowercase kebab-case for controlled values. Reuse generic values across page types where possible. Values governed by a selected schema-pack namespace belong in that pack; project taxonomy and resource values belong in their machine-readable registries. Type-local values that are not yet registry governed may remain documented in the relevant type template, with page-specific nuance in `notes` rather than one-off values. Repeated controlled values that will be user-visible should receive explicit display labels in their owning contract; rare or temporary type-local values may rely on renderer fallback title-casing until they prove reusable.
 
 Use `Pathway & Ability State` for broad stateful supernatural status such as pathway, Sequence, advancement, digestion, or limitations. Use `Ability Index` for individual capabilities and skills, including pathway abilities, artifact-granted effects, rituals, authority, training, knowledge, or mundane competencies.
 

@@ -64,6 +64,24 @@ Within canonical pages, the visible article and structured page data are two syn
 
 `Tools/project_config.py` and `Tools/Project-Config.ps1` are the matching manifest-loader implementations. They locate and validate project configuration and registry paths; they do not own domain taxonomy.
 
+### Schema Packs
+
+`Framework/` contains portable framework assets. `Framework/Contracts/` owns versioned configuration-shape contracts as they stabilize, while `Framework/Packs/` owns bundled reusable capability and vocabulary packs. `Project_Config/` remains the project-instance composition layer.
+
+`Project_Config/schema-packs.yaml` selects reusable schema packs in dependency order and activates project capabilities. Each selected pack is a portable contract stored separately from project-instance data:
+
+- `Framework/Packs/core/pack.yaml` declares domain-neutral platform capabilities and evidence-source vocabulary;
+- `Framework/Packs/narrative-media/pack.yaml` depends on `core` and contributes franchises, continuities, creative works, adaptation programs, narrative media, and creative-lineage vocabulary;
+- future implementations may replace `narrative-media` with packs such as `it-operations`, `legal-matter`, or `medical-knowledge`, or compose compatible packs.
+
+A capability has separate availability and activation states. Selection makes a pack's capabilities available; `capability_activation.enabled` enables only the features the project intends to use. The activation default must remain `disabled`. An unavailable or unactivated capability is omitted by tools, validators, projections, and interfaces unless project configuration explicitly references its contract, in which case validation must report the invalid reference. Missing or incompatible declared pack dependencies are always errors.
+
+A schema pack may contribute capabilities and controlled values. Controlled values may preserve broader/narrower meaning: `anime` and `donghua` remain distinct beneath `animation`; `manga`, `manhwa`, and `manhua` remain distinct beneath `comic`; and official EPUB artwork remains reusable beneath `illustration`. Narrative sources may contain embedded visual assets regardless of whether the container is an EPUB, comic release, scan, or another supported format. The source record owns evidence provenance, the extracted image is a visual resource, and promotion into a tracked page-ready asset remains a separate project action. Reusable packs do not instantiate LoTM works, categories, pages, paths, source records, or project-specific vocabulary. A project-owned extension pack may contribute local terminology while project registries instantiate actual records. Interface wizards should generate or edit those layers from pack contracts rather than embedding industry or organization assumptions in UI code.
+
+`Tools/schema_pack_config.py` and `Tools/Schema-Pack-Config.ps1` are the matching schema-pack loaders. They validate pack identity, version, kind, lifecycle, repository-safe paths, dependency selection and order, capability availability and activation, controlled-value namespaces, and unambiguous ownership. Source-registry loaders consume the aggregate pack contract and reject medium, work, continuity, relationship, or source-role vocabulary not supplied by a selected pack.
+
+The initial pack boundary is deliberately narrow. It proves executable ownership for source-model vocabulary before taxonomy fields, page modules, graph projections, and editor forms are migrated into the same pack mechanism.
+
 ### Taxonomy Registry
 
 `Project_Config/taxonomy.yaml` is the machine-readable taxonomy registry. Its current category and content-type records own:
@@ -103,7 +121,7 @@ A content type defines the record contract, root, path strategy, optional defaul
 - tracked, ignored, or mixed storage behavior;
 - whether a placement must exist in a valid checkout.
 
-Examples include visual assets, local source material, executable tools, project configuration, generated visualizations, QA exports, design records, application state, and temporary artifacts. These are intentionally not taxonomy content types. The distinction lets an IT implementation map the same contracts to diagrams, vendor documentation, logs, automation, configuration, generated topology views, and local working state.
+Examples include framework contracts and packs, visual assets, local source material, executable tools, project configuration, generated visualizations, QA exports, design records, application state, and temporary artifacts. These are intentionally not taxonomy content types. The distinction lets an IT implementation map the same contracts to diagrams, vendor documentation, logs, automation, configuration, generated topology views, and local working state.
 
 `Tools/resource_config.py` and `Tools/Resource-Config.ps1` are the matching registry loaders. They validate stable IDs, resource-root and kind references, controlled lifecycle/authority/tracking values, safe relative placements, required paths, and placement uniqueness.
 
@@ -143,7 +161,8 @@ Visualization settings and presets define graph views, boundaries, filtering cho
 | Component | Owns | Must Not Own |
 | --- | --- | --- |
 | Project configuration loaders | Root detection, manifest parsing, safe content/resource path resolution, registry discovery | Domain categories, graph semantics, page mutation |
-| Taxonomy, resource, and source registry loaders | Registry parsing, schema validation, aliases, controlled-value lookup | Canonical page content, graph serialization |
+| Schema-pack loaders | Pack selection, dependency/version validation, capabilities, controlled-value ownership | Project-instance works, pages, paths, or sources |
+| Taxonomy, resource, and source registry loaders | Registry parsing, schema validation, aliases, pack-controlled value lookup | Canonical page content, graph serialization |
 | Content index | Canonical-content discovery and normalized records | Domain constants duplicated from registries, presentation-specific graph decisions |
 | Validation service | Schema, taxonomy, reference, provenance, and consistency findings | Silent canonical rewrites |
 | Repository mutation service | Planned canonical edits, moves, reference updates, validation, rollback data | UI presentation, independent domain rules |
@@ -224,6 +243,8 @@ The reusable framework should contain:
 
 - manifest and registry contracts;
 - configuration loaders;
+- the core schema pack and schema-pack loader contract;
+- optional reusable domain-pack library entries without project instances;
 - normalized content indexing;
 - validation services;
 - repository mutation and migration services;
@@ -234,6 +255,7 @@ The reusable framework should contain:
 A domain implementation should contain:
 
 - its project manifest;
+- selected-pack registry and any project-owned extension packs;
 - taxonomy, resource, and source registries;
 - category and non-category content-type schemas and templates;
 - canonical content and evidence;
@@ -246,7 +268,7 @@ The framework must not assume names such as `Glossary_Threads`, `Characters`, `P
 The current extraction plan is:
 
 1. **Project boundary:** manifest, root detection, configurable content/resource roots, and tool paths.
-2. **Model boundary:** architecture contract, taxonomy registry, resource registry, source registry, shared registry loaders, warning-only validation, and normalized content index.
+2. **Model boundary:** architecture contract, schema-pack boundary, taxonomy registry, resource registry, source registry, shared registry loaders, warning-only validation, and normalized content index.
 3. **Visualization boundary:** reusable graph engine, configurable graph presets, and migration of all QA graph construction into Visualization.
 4. **Framework extraction:** copy the domain-neutral contracts and services into a reusable framework repository.
 5. **IT proof of concept:** define IT taxonomy, evidence priorities, schemas, sample content, and graphs without changing framework algorithms.

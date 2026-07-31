@@ -6,7 +6,7 @@ import yaml
 
 
 PROJECT_MANIFEST_PATH = Path("Project_Config") / "project.yaml"
-SUPPORTED_SCHEMA_VERSION = 2
+SUPPORTED_SCHEMA_VERSION = 3
 PROVENANCE_MODES = {"child-directory", "fixed", "slug-prefix"}
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
@@ -45,6 +45,7 @@ class ProjectConfig:
     visualization_puppeteer_config: Path
     cleanup_python_helper: Path
     cleanup_powershell_helper: Path
+    schema_packs_registry: Path
     taxonomy_registry: Path
     resources_registry: Path
     sources_registry: Path
@@ -276,6 +277,12 @@ def load_project_config(root: Path) -> ProjectConfig:
     )
 
     registries = require_mapping(manifest.get("registries"), "registries")
+    _, schema_packs_registry = resolve_manifest_path(
+        resolved_root,
+        require_string(registries, "schema_packs", "registries"),
+        "registries.schema_packs",
+        must_exist=True,
+    )
     _, taxonomy_registry = resolve_manifest_path(
         resolved_root,
         require_string(registries, "taxonomy", "registries"),
@@ -311,6 +318,7 @@ def load_project_config(root: Path) -> ProjectConfig:
         visualization_puppeteer_config=visualization_puppeteer_config,
         cleanup_python_helper=cleanup_python_helper,
         cleanup_powershell_helper=cleanup_powershell_helper,
+        schema_packs_registry=schema_packs_registry,
         taxonomy_registry=taxonomy_registry,
         resources_registry=resources_registry,
         sources_registry=sources_registry,

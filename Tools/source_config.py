@@ -7,20 +7,11 @@ import yaml
 
 from project_config import ProjectConfig
 from resource_config import ResourceConfig
+from schema_pack_config import SchemaPackRegistry, load_schema_pack_registry
 
 
 SUPPORTED_SOURCE_SCHEMA_VERSION = 2
 LIFECYCLES = {"active", "deferred"}
-SOURCE_ROLES = {
-    "primary-edition",
-    "official-release",
-    "transcript",
-    "supplemental",
-    "reference",
-    "translation",
-    "localization",
-    "extract",
-}
 POSITION_FIELD_TYPES = {"string", "integer", "number", "timestamp", "boolean"}
 PRIORITY_ORDERS = {"ascending", "descending"}
 CONFLICT_BEHAVIORS = {"flag"}
@@ -269,6 +260,26 @@ def validate_field_id(value: str, context: str) -> None:
     if not FIELD_ID_PATTERN.fullmatch(value):
         raise ValueError(
             f"Source registry `{context}` must be a lowercase snake_case field ID: {value}"
+        )
+
+
+def validate_pack_values(
+    schema_packs: SchemaPackRegistry,
+    namespace: str,
+    values,
+    context: str,
+) -> None:
+    allowed = set(schema_packs.allowed_values(namespace))
+    if not allowed:
+        raise ValueError(
+            f"Selected schema packs do not provide controlled namespace "
+            f"`{namespace}` required by `{context}`."
+        )
+    unknown = set(values) - allowed
+    if unknown:
+        raise ValueError(
+            f"Source registry `{context}` uses value(s) not provided by the selected "
+            f"schema packs in `{namespace}`: {', '.join(sorted(unknown))}."
         )
 
 
@@ -669,7 +680,18 @@ def resolve_resource_binding(
 def load_source_registry(
     project: ProjectConfig,
     resources: ResourceConfig,
+    schema_packs: SchemaPackRegistry | None = None,
 ) -> SourceRegistry:
+    if schema_packs is None:
+        schema_packs = load_schema_pack_registry(project)
+    allowed_source_roles = set(
+        schema_packs.allowed_values("source.source-role")
+    )
+    if not allowed_source_roles:
+        raise ValueError(
+            "Selected schema packs do not provide controlled namespace "
+            "`source.source-role` required by `sources.*.role`."
+        )
     try:
         data = yaml.safe_load(project.sources_registry.read_text(encoding="utf-8"))
     except yaml.YAMLError as exc:
@@ -688,6 +710,9 @@ def load_source_registry(
         medium_id: parse_medium(medium_id, raw_medium)
         for medium_id, raw_medium in raw_mediums.items()
     }
+    validate_pack_values(
+        schema_packs, "source.medium", mediums, "mediums"
+    )
 
     raw_group_types = require_mapping(
         registry.get("work_group_types"), "work_group_types"
@@ -702,6 +727,12 @@ def load_source_registry(
             label=require_string(value, "label", context),
             ordered=require_bool(value, "ordered", context),
         )
+    validate_pack_values(
+        schema_packs,
+        "source.work-group-type",
+        work_group_types,
+        "work_group_types",
+    )
 
     raw_groups = require_mapping(registry.get("work_groups"), "work_groups")
     work_groups: dict[str, WorkGroupConfig] = {}
@@ -784,6 +815,12 @@ def load_source_registry(
             continuity_type=continuity_type,
             aliases=aliases,
         )
+    validate_pack_values(
+        schema_packs,
+        "source.continuity-type",
+        (continuity.continuity_type for continuity in continuities.values()),
+        "continuities.*.continuity_type",
+    )
 
     continuity_relationship_types = parse_relationship_types(
         registry.get("continuity_relationship_types"),
@@ -794,6 +831,24 @@ def load_source_registry(
     )
     source_relationship_types = parse_relationship_types(
         registry.get("source_relationship_types"), "source_relationship_types"
+    )
+    validate_pack_values(
+        schema_packs,
+        "source.continuity-relationship-type",
+        continuity_relationship_types,
+        "continuity_relationship_types",
+    )
+    validate_pack_values(
+        schema_packs,
+        "source.work-relationship-type",
+        work_relationship_types,
+        "work_relationship_types",
+    )
+    validate_pack_values(
+        schema_packs,
+        "source.source-relationship-type",
+        source_relationship_types,
+        "source_relationship_types",
     )
 
     raw_continuity_relationships = registry.get("continuity_relationships")
@@ -939,6 +994,12 @@ def load_source_registry(
         )
         for work_id, raw_work in raw_works.items()
     }
+    validate_pack_values(
+        schema_packs,
+        "source.work-type",
+        (work.work_type for work in works.values()),
+        "works.*.work_type",
+    )
     seen_ordinals: dict[tuple[str, int], str] = {}
     work_aliases: dict[str, str] = {}
     work_ids_casefolded = {work_id.casefold() for work_id in works}
@@ -1033,10 +1094,10 @@ def load_source_registry(
                 f"`{medium_id}`."
             )
         role = require_string(source, "role", context)
-        if role not in SOURCE_ROLES:
+        if role not in allowed_source_roles:
             raise ValueError(
                 f"Source registry `{context}.role` must be one of: "
-                f"{', '.join(sorted(SOURCE_ROLES))}."
+                f"{', '.join(sorted(allowed_source_roles))}."
             )
         work_id = require_string(source, "work_id", context)
         if work_id not in works:
@@ -1097,6 +1158,12 @@ def load_source_registry(
             evidence_modes=evidence_modes,
             resource_bindings=bindings,
         )
+    validate_pack_values(
+        schema_packs,
+        "source.source-role",
+        (source.role for source in sources.values()),
+        "sources.*.role",
+    )
 
     raw_source_relationships = registry.get("source_relationships")
     if not isinstance(raw_source_relationships, list):

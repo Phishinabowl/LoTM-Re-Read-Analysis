@@ -1,0 +1,121 @@
+schema_version: 1
+pack_id: narrative-media
+pack_version: 1
+lifecycle: active
+pack_kind: domain
+label: Narrative Media
+description: Franchises, continuities, creative works, adaptations, reader positions, and media evidence.
+
+dependencies:
+  - pack_id: core
+    minimum_version: 1
+
+capabilities:
+  - franchises
+  - ordered-series
+  - adaptation-programs
+  - continuities
+  - creative-works
+  - installments
+  - adaptation-lineage
+  - embedded-visual-assets
+  - reader-disclosure
+  - spoiler-bounding
+  - adaptation-comparison
+
+controlled_values:
+  source.source-role:
+    - primary-edition
+    - official-release
+  source.source-relationship-type:
+    - subtitle-track-of
+    - has-subtitle-track
+    - dub-of
+    - has-dub
+  source.medium:
+    - id: novel
+      label: Novel
+    - id: animation
+      label: Animation
+    - id: anime
+      label: Anime
+      broader_value: animation
+      description: Japanese animation.
+    - id: donghua
+      label: Donghua
+      broader_value: animation
+      description: Chinese animation.
+    - id: television
+      label: Television
+    - id: film
+      label: Film
+    - id: illustration
+      label: Illustration
+      description: Still visual artwork published independently or embedded within another narrative release.
+    - id: official-epub-artwork
+      label: Official EPUB Artwork
+      broader_value: illustration
+      description: Artwork published as part of an official EPUB edition.
+    - id: audio
+      label: Audio
+    - id: comic
+      label: Comic
+      description: Sequential visual narrative, including region-specific forms such as manga, manhwa, and manhua.
+    - id: manga
+      label: Manga
+      broader_value: comic
+      description: Japanese comics.
+    - id: manhwa
+      label: Manhwa
+      broader_value: comic
+      description: Korean comics.
+    - id: manhua
+      label: Manhua
+      broader_value: comic
+      description: Chinese comics.
+    - id: graphic-novel
+      label: Graphic Novel
+      broader_value: comic
+    - id: game
+      label: Game
+  source.work-group-type:
+    - franchise
+    - series
+    - adaptation-program
+    - collection
+  source.work-type:
+    - novel
+    - television-season
+    - television-special
+    - film
+  source.continuity-type:
+    - primary
+    - adaptation
+  source.continuity-relationship-type:
+    - adaptation-of
+    - has-adaptation
+    - branched-from
+    - has-branch
+    - reboot-of
+    - has-reboot
+    - overlaps-with
+  source.work-relationship-type:
+    - sequel-to
+    - prequel-to
+    - spinoff-of
+    - has-spinoff
+    - side-story-of
+    - has-side-story
+    - adaptation-of
+    - has-adaptation
+    - remake-of
+    - has-remake
+    - retelling-of
+    - has-retelling
+    - crossover-with
+    - contains
+    - contained-by
+    - compiled-from
+    - included-in-compilation
+    - inspired-by
+    - inspired
