@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-shared-universe
-pack_version: 1
+pack_version: 2
 lifecycle: active
 pack_kind: domain
 label: Narrative Shared Universe
@@ -8,7 +8,7 @@ description: Multiverses, continuity branches, incarnations, reboots, retcons, a
 
 dependencies:
   - pack_id: narrative-media
-    minimum_version: 2
+    minimum_version: 13
 
 capabilities:
   - id: shared-universes
@@ -19,10 +19,6 @@ capabilities:
     lifecycle: planned
     label: Entity Incarnations
     description: Conceptual entities and continuity-specific incarnations or counterparts.
-  - id: retcon-supersession
-    lifecycle: planned
-    label: Retcon and Supersession
-    description: Claim-level continuity replacement, restoration, and reinterpretation.
   - id: crossover-events
     lifecycle: planned
     label: Crossover Events
@@ -48,9 +44,3 @@ controlled_values:
     - has-incarnation
     - counterpart-of
     - crossed-into-continuity
-  narrative.claim-change-type:
-    - supersedes
-    - reinterprets
-    - restores
-    - invalidates
-    - soft-reboots

@@ -11,7 +11,7 @@ if (-not (Get-Command Get-KnowledgeSchemaPackRegistry -ErrorAction SilentlyConti
   . $schemaPackConfigHelper
 }
 
-$script:SupportedSourceSchemaVersion = 13
+$script:SupportedSourceSchemaVersion = 14
 $script:AllowedSourceLifecycles = @("active", "deferred")
 $script:AllowedPositionFieldTypes = @("string", "integer", "number", "timestamp", "boolean")
 $script:AllowedPriorityOrders = @("ascending", "descending")
@@ -728,6 +728,18 @@ function Resolve-KnowledgeWorkId {
   return $null
 }
 
+function Get-KnowledgeHighestPrecedenceScopes {
+  param([object]$SourceRegistry,[string[]]$ScopeIds)
+  if($null -eq $ScopeIds -or $ScopeIds.Count -eq 0){throw "At least one applicability scope ID is required."}
+  $scopes=@()
+  foreach($scopeId in $ScopeIds){
+    if(-not $SourceRegistry.applicability_scopes.Contains($scopeId)){throw "Unknown applicability scope ID '$scopeId'."}
+    $scopes+=@($SourceRegistry.applicability_scopes[$scopeId])
+  }
+  $highest=[int](($scopes|Measure-Object -Property precedence -Maximum).Maximum)
+  return @($scopes|Where-Object {$_.precedence -eq $highest})
+}
+
 function ConvertTo-RelationshipTypeRegistry {
   param([object]$RawTypes, [string]$Context)
 
@@ -1360,7 +1372,7 @@ function Get-KnowledgeSourceRegistry {
     foreach ($continuityId in $continuityIds) { if (-not $continuities.Contains($continuityId)) { throw "Source registry '$context.continuity_ids' references unknown continuity '$continuityId'." } }
     $status=Get-RequiredSourceString $relationship "status" $context
     if ($allowedMembershipStatuses -notcontains $status) { throw "Source registry '$context.status' must be one of: $($allowedMembershipStatuses -join ', ')." }
-    $workRelationships += [pscustomobject]@{ id=$id; source_work_id=$sourceId; relationship_type=$type; target_work_id=$targetId; continuity_ids=@($continuityIds); status=$status }
+    $workRelationships += [pscustomobject]@{ id=$id; source_work_id=$sourceId; relationship_type=$type; target_work_id=$targetId; continuity_ids=@($continuityIds); status=$status; applicability_scope_id=Get-OptionalSourceString $relationship "applicability_scope_id" $context }
   }
 
   $adaptationMappings = @()
@@ -1442,10 +1454,10 @@ function Get-KnowledgeSourceRegistry {
   foreach ($territory in $territories.Values) { foreach ($schemeId in $territory.codes.Keys) { if (-not $seenTerritoryCodes.Add("$schemeId|$($territory.codes[$schemeId])")) { throw "Source registry repeats territory code '${schemeId}:$($territory.codes[$schemeId])'." } } }
 
   if(-not $registry.Contains("work_production_contexts")){throw "Source registry 'work_production_contexts' must be a list."}
-  $rawWorkProductionContexts=Get-ProjectMapValue $registry "work_production_contexts"
+  $rawWorkProductionContexts=$registry["work_production_contexts"]
   if($null -eq $rawWorkProductionContexts){$rawWorkProductionContexts=@()}
   elseif($rawWorkProductionContexts -isnot [System.Collections.IList]){throw "Source registry 'work_production_contexts' must be a list."}
-  $workProductionContexts=[ordered]@{};$productionScopeWindows=[ordered]@{}
+  $workProductionContexts=[ordered]@{}
   for($index=0;$index -lt $rawWorkProductionContexts.Count;$index++){
     $context="work_production_contexts[$index]";$productionContext=$rawWorkProductionContexts[$index]
     $id=Get-RequiredSourceString $productionContext "id" $context;Test-StableSourceId $id "$context.id"
@@ -1456,19 +1468,12 @@ function Get-KnowledgeSourceRegistry {
     $authorizationStatus=Get-RequiredSourceString $productionContext "authorization_status" $context
     $rightsBasis=Get-RequiredSourceString $productionContext "rights_basis" $context
     $commerciality=Get-RequiredSourceString $productionContext "commerciality" $context
+    $applicabilityScopeId=Get-RequiredSourceString $productionContext "applicability_scope_id" $context
     Assert-SourceSchemaPackValues $SchemaPackRegistry "source.production-origin" @($productionOrigin) "$context.production_origin"
     Assert-SourceSchemaPackValues $SchemaPackRegistry "source.authorization-status" @($authorizationStatus) "$context.authorization_status"
     Assert-SourceSchemaPackValues $SchemaPackRegistry "source.rights-basis" @($rightsBasis) "$context.rights_basis"
     Assert-SourceSchemaPackValues $SchemaPackRegistry "source.commerciality" @($commerciality) "$context.commerciality"
-    $territoryIds=@(Get-SourceStringListAllowEmpty $productionContext "territory_ids" $context)
-    $unknownTerritories=@($territoryIds|Where-Object {-not $territories.Contains($_)}|Sort-Object -Unique)
-    if($unknownTerritories.Count -gt 0){throw "Source registry '$context.territory_ids' references unknown territories: $($unknownTerritories -join ', ')."}
-    $effectiveWindow=ConvertTo-SourceTemporalWindow $productionContext "effective_window" $context $SchemaPackRegistry
-    $scope="$workId|$(@($territoryIds|Sort-Object) -join ',')"
-    $existingWindows=if($productionScopeWindows.Contains($scope)){@($productionScopeWindows[$scope])}else{@()}
-    foreach($existingWindow in $existingWindows){if(Test-SourceTemporalWindowsOverlap $effectiveWindow $existingWindow.window){throw "Source registry '$context' overlaps another production context for the same work and territory scope."}}
-    $productionScopeWindows[$scope]=@($productionScopeWindows[$scope])+@([pscustomobject]@{window=$effectiveWindow})
-    $workProductionContexts[$id]=[pscustomobject]@{id=$id;work_id=$workId;production_origin=$productionOrigin;authorization_status=$authorizationStatus;rights_basis=$rightsBasis;commerciality=$commerciality;territory_ids=@($territoryIds);effective_window=$effectiveWindow}
+    $workProductionContexts[$id]=[pscustomobject]@{id=$id;work_id=$workId;production_origin=$productionOrigin;authorization_status=$authorizationStatus;rights_basis=$rightsBasis;commerciality=$commerciality;applicability_scope_id=$applicabilityScopeId}
   }
   foreach ($owner in @($works.Values)+@($segments.Values)+@($contentGroups.Values)) {
     foreach ($localizedTitle in $owner.localized_titles) { foreach ($territoryId in $localizedTitle.territory_ids) { if (-not $territories.Contains($territoryId)) { throw "Source registry localized title references unknown territory '$territoryId'." } } }
@@ -2151,6 +2156,101 @@ function Get-KnowledgeSourceRegistry {
     $sourceRelationships += [pscustomobject]@{ id=$id; source_source_id=$sourceId; relationship_type=$type; target_source_id=$targetId }
   }
 
+  $workRelationshipMap=ConvertTo-SourceIdMap $workRelationships
+  $adaptationMappingMap=ConvertTo-SourceIdMap $adaptationMappings
+  $applicabilityTargets=[ordered]@{
+    "work"=$works;"segment"=$segments;"content-group"=$contentGroups;"work-relationship"=$workRelationshipMap
+    "adaptation-mapping"=$adaptationMappingMap;"manifestation"=$manifestations;"release-component"=$releaseComponents;"release-package"=$releasePackages
+  }
+  if(-not $registry.Contains("applicability_scopes")){throw "Source registry 'applicability_scopes' must be a list."}
+  $rawApplicabilityScopes=$registry["applicability_scopes"]
+  if($null -eq $rawApplicabilityScopes){$rawApplicabilityScopes=@()}
+  elseif($rawApplicabilityScopes -isnot [System.Collections.IList]){throw "Source registry 'applicability_scopes' must be a list."}
+  $applicabilityScopes=[ordered]@{};$scopeWindows=[ordered]@{}
+  for($index=0;$index -lt $rawApplicabilityScopes.Count;$index++){
+    $context="applicability_scopes[$index]";$scope= $rawApplicabilityScopes[$index]
+    $scopeId=Get-RequiredSourceString $scope "id" $context;Test-StableSourceId $scopeId "$context.id"
+    if($applicabilityScopes.Contains($scopeId)){throw "Source registry applicability-scope ID '$scopeId' is duplicated."}
+    $targetType=Get-RequiredSourceString $scope "target_type" $context
+    Assert-SourceSchemaPackValues $SchemaPackRegistry "source.applicability-target-type" @($targetType) "$context.target_type"
+    $targetId=Get-RequiredSourceString $scope "target_id" $context
+    if($targetType -ne "provenance-claim" -and (-not $applicabilityTargets.Contains($targetType) -or -not $applicabilityTargets[$targetType].Contains($targetId))){throw "Source registry '$context.target_id' references unknown $targetType '$targetId'."}
+    $territoryIds=@(Get-SourceStringListAllowEmpty $scope "territory_ids" $context)
+    $unknownTerritories=@($territoryIds|Where-Object {-not $territories.Contains($_)}|Sort-Object -Unique)
+    if($unknownTerritories.Count -gt 0){throw "Source registry '$context.territory_ids' references unknown territories: $($unknownTerritories -join ', ')."}
+    $precedence=Get-ProjectMapValue $scope "precedence"
+    if($precedence -is [bool] -or $precedence -isnot [int] -or [int]$precedence -lt 0){throw "Source registry '$context.precedence' must be a non-negative integer."}
+    $effectiveWindow=ConvertTo-SourceTemporalWindow $scope "effective_window" $context $SchemaPackRegistry
+    $windowKey="$targetType|$targetId|$(@($territoryIds|Sort-Object) -join ',')|$precedence"
+    $existingWindows=if($scopeWindows.Contains($windowKey)){@($scopeWindows[$windowKey])}else{@()}
+    foreach($existingWindow in $existingWindows){if(Test-SourceTemporalWindowsOverlap $effectiveWindow $existingWindow.window){throw "Source registry '$context' overlaps another applicability scope with the same target, territory set, and precedence."}}
+    $scopeWindows[$windowKey]=@($scopeWindows[$windowKey])+@([pscustomobject]@{window=$effectiveWindow})
+    $applicabilityScopes[$scopeId]=[pscustomobject]@{id=$scopeId;target_type=$targetType;target_id=$targetId;territory_ids=@($territoryIds);effective_window=$effectiveWindow;precedence=[int]$precedence}
+  }
+  $getApplicabilityWorkIds={
+    param([object]$Scope)
+    if($Scope.target_type -in @("work","segment","content-group","manifestation","release-component","release-package")){return @(Get-SourceTargetWorkScope $Scope.target_type $Scope.target_id $segments $contentGroups $manifestations $releaseComponents $releasePackages)}
+    if($Scope.target_type -eq "work-relationship"){$item=$workRelationshipMap[$Scope.target_id];return @(@($item.source_work_id,$item.target_work_id)|Sort-Object -Unique)}
+    if($Scope.target_type -eq "adaptation-mapping"){$item=$adaptationMappingMap[$Scope.target_id];return @(@(@($item.target_work_id)+@($item.basis_inputs|ForEach-Object {$_.work_id}))|Sort-Object -Unique)}
+    return @()
+  }
+  foreach($relationship in $workRelationships){
+    if($null -eq $relationship.applicability_scope_id){continue}
+    if(-not $applicabilityScopes.Contains($relationship.applicability_scope_id)){throw "Source registry work relationship '$($relationship.id)' references unknown applicability scope '$($relationship.applicability_scope_id)'."}
+    $resolvedWorkIds=@(& $getApplicabilityWorkIds $applicabilityScopes[$relationship.applicability_scope_id])
+    if($resolvedWorkIds.Count -ne 1 -or $resolvedWorkIds[0] -ne $relationship.source_work_id){throw "Source registry work relationship '$($relationship.id)' scope must resolve only to its source work."}
+  }
+  foreach($productionContext in $workProductionContexts.Values){
+    if(-not $applicabilityScopes.Contains($productionContext.applicability_scope_id)){throw "Source registry work production context '$($productionContext.id)' references unknown applicability scope '$($productionContext.applicability_scope_id)'."}
+    $resolvedWorkIds=@(& $getApplicabilityWorkIds $applicabilityScopes[$productionContext.applicability_scope_id])
+    if($resolvedWorkIds -notcontains $productionContext.work_id){throw "Source registry work production context '$($productionContext.id)' scope falls outside work '$($productionContext.work_id)'."}
+  }
+
+  if(-not $registry.Contains("scoped_continuity_assertions")){throw "Source registry 'scoped_continuity_assertions' must be a list."}
+  $rawContinuityAssertions=$registry["scoped_continuity_assertions"]
+  if($null -eq $rawContinuityAssertions){$rawContinuityAssertions=@()}
+  elseif($rawContinuityAssertions -isnot [System.Collections.IList]){throw "Source registry 'scoped_continuity_assertions' must be a list."}
+  $scopedContinuityAssertions=[ordered]@{};$seenContinuityScopes=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+  for($index=0;$index -lt $rawContinuityAssertions.Count;$index++){
+    $context="scoped_continuity_assertions[$index]";$assertion=$rawContinuityAssertions[$index]
+    $assertionId=Get-RequiredSourceString $assertion "id" $context;Test-StableSourceId $assertionId "$context.id"
+    if($scopedContinuityAssertions.Contains($assertionId)){throw "Source registry scoped-continuity-assertion ID '$assertionId' is duplicated."}
+    $scopeId=Get-RequiredSourceString $assertion "applicability_scope_id" $context
+    if(-not $applicabilityScopes.Contains($scopeId)){throw "Source registry '$context.applicability_scope_id' references unknown scope '$scopeId'."}
+    $scope=$applicabilityScopes[$scopeId]
+    if($scope.target_type -notin @("work","segment","content-group","provenance-claim")){throw "Source registry '$context' scope target type '$($scope.target_type)' cannot carry continuity."}
+    $continuityId=Get-RequiredSourceString $assertion "continuity_id" $context
+    if(-not $continuities.Contains($continuityId)){throw "Source registry '$context.continuity_id' references unknown continuity '$continuityId'."}
+    $status=Get-RequiredSourceString $assertion "status" $context
+    if($allowedMembershipStatuses -notcontains $status){throw "Source registry '$context.status' must be one of: $($allowedMembershipStatuses -join ', ')."}
+    if(-not $seenContinuityScopes.Add("$continuityId|$scopeId")){throw "Source registry repeats continuity '$continuityId' for applicability scope '$scopeId'."}
+    $scopedContinuityAssertions[$assertionId]=[pscustomobject]@{id=$assertionId;applicability_scope_id=$scopeId;continuity_id=$continuityId;status=$status}
+  }
+
+  if(-not $registry.Contains("claim_supersessions")){throw "Source registry 'claim_supersessions' must be a list."}
+  $rawClaimSupersessions=$registry["claim_supersessions"]
+  if($null -eq $rawClaimSupersessions){$rawClaimSupersessions=@()}
+  elseif($rawClaimSupersessions -isnot [System.Collections.IList]){throw "Source registry 'claim_supersessions' must be a list."}
+  $claimSupersessions=@();$seenClaimSupersessionIds=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+  for($index=0;$index -lt $rawClaimSupersessions.Count;$index++){
+    $context="claim_supersessions[$index]";$supersession=$rawClaimSupersessions[$index]
+    $supersessionId=Get-RequiredSourceString $supersession "id" $context;Test-StableSourceId $supersessionId "$context.id"
+    if(-not $seenClaimSupersessionIds.Add($supersessionId)){throw "Source registry claim-supersession ID '$supersessionId' is duplicated."}
+    $sourceClaimKey=Get-RequiredSourceString $supersession "source_claim_key" $context;Test-StableSourceId $sourceClaimKey "$context.source_claim_key"
+    $targetClaimKey=Get-RequiredSourceString $supersession "target_claim_key" $context;Test-StableSourceId $targetClaimKey "$context.target_claim_key"
+    if($sourceClaimKey -eq $targetClaimKey){throw "Source registry '$context' cannot supersede a claim with itself."}
+    $relationshipType=Get-RequiredSourceString $supersession "relationship_type" $context
+    Assert-SourceSchemaPackValues $SchemaPackRegistry "narrative.claim-change-type" @($relationshipType) "$context.relationship_type"
+    $scopeId=Get-RequiredSourceString $supersession "applicability_scope_id" $context
+    if(-not $applicabilityScopes.Contains($scopeId)){throw "Source registry '$context.applicability_scope_id' references unknown scope '$scopeId'."}
+    $scope=$applicabilityScopes[$scopeId]
+    if($scope.target_type -ne "provenance-claim" -or $scope.target_id -ne $targetClaimKey){throw "Source registry '$context' scope must target the superseded claim '$targetClaimKey'."}
+    $continuityIds=@(Get-SourceStringListAllowEmpty $supersession "continuity_ids" $context)
+    $unknownContinuities=@($continuityIds|Where-Object {-not $continuities.Contains($_)}|Sort-Object -Unique)
+    if($unknownContinuities.Count -gt 0){throw "Source registry '$context.continuity_ids' references unknown continuities: $($unknownContinuities -join ', ')."}
+    $claimSupersessions += [pscustomobject]@{id=$supersessionId;source_claim_key=$sourceClaimKey;relationship_type=$relationshipType;target_claim_key=$targetClaimKey;applicability_scope_id=$scopeId;continuity_ids=@($continuityIds)}
+  }
+
   $nestedIdCollections=[ordered]@{
     "content-group-member"=@($contentGroups.Values|ForEach-Object {$_.members}|ForEach-Object {$_.id})
     "localized-title"=@(@($works.Values)+@($segments.Values)+@($contentGroups.Values)+@($manifestations.Values)+@($releasePackages.Values)+@($catalogPlacements.Values)|ForEach-Object {$_.localized_titles}|ForEach-Object {$_.id})
@@ -2168,8 +2268,8 @@ function Get-KnowledgeSourceRegistry {
   }
 
   $provenanceTargets=[ordered]@{
-    "work"=$works;"work-production-context"=$workProductionContexts;"segment"=$segments;"content-group"=$contentGroups
-    "work-relationship"=(ConvertTo-SourceIdMap $workRelationships);"adaptation-mapping"=(ConvertTo-SourceIdMap $adaptationMappings)
+    "work"=$works;"work-production-context"=$workProductionContexts;"applicability-scope"=$applicabilityScopes;"scoped-continuity-assertion"=$scopedContinuityAssertions;"claim-supersession"=(ConvertTo-SourceIdMap $claimSupersessions);"segment"=$segments;"content-group"=$contentGroups
+    "work-relationship"=$workRelationshipMap;"adaptation-mapping"=$adaptationMappingMap
     "manifestation"=$manifestations;"manifestation-relationship"=(ConvertTo-SourceIdMap $manifestationRelationships);"manifestation-segment-mapping"=(ConvertTo-SourceIdMap $manifestationSegmentMappings)
     "release-component"=$releaseComponents;"release-component-relationship"=(ConvertTo-SourceIdMap $releaseComponentRelationships);"release-package"=$releasePackages
     "release-run"=$releaseRuns;"release-event"=$releaseEvents;"catalog-placement"=$catalogPlacements;"platform-offering"=$platformOfferings
@@ -2251,6 +2351,26 @@ function Get-KnowledgeSourceRegistry {
     $provenanceAssertions += [pscustomobject]@{id=$id;claim_key=$claimKey;subject_type=$subjectType;subject_id=$subjectId;claim_namespace=$claimNamespace;field_path=$fieldPath;asserted_value=$assertedValue;assertion_status=$assertionStatus;observed_at=ConvertTo-SourceTemporalWindow $assertion "observed_at" $context $SchemaPackRegistry;effective_window=ConvertTo-SourceTemporalWindow $assertion "effective_window" $context $SchemaPackRegistry;evidence_links=@($evidenceLinks)}
   }
 
+  foreach($scope in $applicabilityScopes.Values){if($scope.target_type -eq "provenance-claim" -and -not $claimShapes.Contains($scope.target_id)){throw "Source registry applicability scope '$($scope.id)' references unknown provenance claim '$($scope.target_id)'."}}
+  $claimSupersessionEdges=[ordered]@{}
+  foreach($supersession in $claimSupersessions){
+    if(-not $claimShapes.Contains($supersession.source_claim_key)){throw "Source registry claim supersession '$($supersession.id)' references unknown source claim '$($supersession.source_claim_key)'."}
+    if(-not $claimShapes.Contains($supersession.target_claim_key)){throw "Source registry claim supersession '$($supersession.id)' references unknown target claim '$($supersession.target_claim_key)'."}
+    if($claimShapes[$supersession.source_claim_key] -ne $claimShapes[$supersession.target_claim_key]){throw "Source registry claim supersession '$($supersession.id)' must relate claims with the same subject, namespace, and field path."}
+    if(-not $claimSupersessionEdges.Contains($supersession.source_claim_key)){$claimSupersessionEdges[$supersession.source_claim_key]=@()}
+    $claimSupersessionEdges[$supersession.source_claim_key]=@($claimSupersessionEdges[$supersession.source_claim_key])+@($supersession.target_claim_key)
+  }
+  $visitedClaims=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal);$activeClaims=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+  $visitClaimSupersession={
+    param([string]$ClaimKey)
+    if($activeClaims.Contains($ClaimKey)){throw "Source registry contains a claim-supersession cycle involving '$ClaimKey'."}
+    if($visitedClaims.Contains($ClaimKey)){return}
+    [void]$activeClaims.Add($ClaimKey)
+    if($claimSupersessionEdges.Contains($ClaimKey)){foreach($targetClaimKey in $claimSupersessionEdges[$ClaimKey]){& $visitClaimSupersession $targetClaimKey}}
+    [void]$activeClaims.Remove($ClaimKey);[void]$visitedClaims.Add($ClaimKey)
+  }
+  foreach($claimKey in $claimSupersessionEdges.Keys){& $visitClaimSupersession $claimKey}
+
   $rawExternalIdentifiers=@(Get-ProjectMapValue $registry "external_identifiers")
   $externalIdentifiers=@()
   $seenExternalIdentifierIds=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
@@ -2296,6 +2416,7 @@ function Get-KnowledgeSourceRegistry {
     mediums=$mediums; work_group_types=$workGroupTypes; work_groups=$workGroups; continuities=$continuities
     continuity_relationship_types=$continuityRelationshipTypes; continuity_relationships=@($continuityRelationships)
     authority_profiles=$authorityProfiles; work_relationship_types=$workRelationshipTypes; works=$works; work_production_contexts=$workProductionContexts
+    applicability_scopes=$applicabilityScopes; scoped_continuity_assertions=$scopedContinuityAssertions; claim_supersessions=@($claimSupersessions)
     segments=$segments; content_groups=$contentGroups; ordering_schemes=$orderingSchemes; numbering_schemes=$numberingSchemes
     work_relationships=@($workRelationships); adaptation_mappings=@($adaptationMappings)
     territories=$territories; platforms=$platforms; manifestation_relationship_types=$manifestationRelationshipTypes

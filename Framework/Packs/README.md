@@ -15,7 +15,7 @@ Schema packs are composable contracts, not project instances. Pack files define 
 | `narrative-shared-universe` | Optional multiverse, reboot, incarnation, retcon, and crossover-event support. |
 | `narrative-interactive` | Optional branching-story, route, ending, playthrough, campaign, and session support. |
 | `narrative-preservation` | Optional missing, partial, reconstructed, archival, and access-state support. |
-| `narrative-production` | Work production origin, authorization, rights basis, commerciality, territorial/effective scope, and planned contributor-credit support. |
+| `narrative-production` | Scope-backed production origin, authorization, rights basis, and commerciality, plus planned contributor-credit and detailed rights-grant support. |
 
 LoTM currently selects `core`, `narrative-media`, `narrative-publishing`, `narrative-screen-audio`, `narrative-adaptation`, `narrative-distribution`, and `narrative-production`. Other narrative packs remain discoverable templates for projects that need them; their planned capabilities cannot be activated until the corresponding executable contracts exist.
 
@@ -39,4 +39,4 @@ Claim namespaces, evidence modes, and content-group member roles are pack-owned 
 
 ## Capability Honesty
 
-`available` means the selected contract can be instantiated and validated. `planned` means the concept has stable ownership and vocabulary but the repository must not yet store records that depend on it. In particular, entity incarnations, claim-scoped retcons, branching narrative state, preservation state, contributor credits, and textual witnesses remain planned until their paired Python and PowerShell contracts are implemented. Work production/rights contexts are executable; they keep production origin, authorization, rights basis, and commerciality independent and make no legal inference from parody or other transformative lineage.
+`available` means the selected contract can be instantiated and validated. `planned` means the concept has stable ownership and vocabulary but the repository must not yet store records that depend on it. Applicability scopes, scoped continuity, claim supersession, and production/right contexts are executable. Entity incarnations, branching narrative state, preservation state, contributor credits, textual witnesses, and detailed rights grants/restrictions remain planned until their paired Python and PowerShell contracts are implemented. Production/right contexts keep production origin, authorization, rights basis, and commerciality independent and make no legal inference from parody or other transformative lineage.

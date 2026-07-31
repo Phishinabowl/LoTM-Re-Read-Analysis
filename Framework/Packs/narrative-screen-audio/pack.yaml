@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-screen-audio
-pack_version: 9
+pack_version: 10
 lifecycle: active
 pack_kind: domain
 label: Narrative Screen and Audio
@@ -8,7 +8,7 @@ description: Film, television, animation, audio drama, podcast, episode, special
 
 dependencies:
   - pack_id: narrative-media
-    minimum_version: 12
+    minimum_version: 13
 
 capabilities:
   - screen-works

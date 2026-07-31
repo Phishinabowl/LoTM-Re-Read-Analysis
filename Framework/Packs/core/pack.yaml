@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: core
-pack_version: 8
+pack_version: 9
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -9,6 +9,7 @@ description: Domain-neutral identity, evidence, relationship, temporal, visibili
 dependencies: []
 
 capabilities:
+  - applicability-scopes
   - stable-identity
   - aliases
   - lifecycle
@@ -49,6 +50,8 @@ capabilities:
     description: Previewed, validated, and reversible repository-wide schema and identity transformations.
 
 controlled_values:
+  source.applicability-target-type:
+    - provenance-claim
   provenance.claim-namespace:
     - identity
     - chronology
@@ -73,6 +76,7 @@ controlled_values:
     - audio-evidence
     - metadata-evidence
   provenance.subject-type:
+    - applicability-scope
     - source
     - source-relationship
     - authority-rule

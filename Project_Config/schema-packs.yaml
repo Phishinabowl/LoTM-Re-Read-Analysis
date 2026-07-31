@@ -90,10 +90,13 @@ capability_activation:
     - adaptation-mappings
     - reader-disclosure
     - spoiler-bounding
+    - applicability-scopes
     - segment-anchored-locators
     - ordering-backed-position-validation
     - adaptation-comparison
     - transformative-derivatives
+    - scoped-continuity
+    - retcon-supersession
     - manifestations
     - release-components
     - release-events
@@ -101,7 +104,7 @@ capability_activation:
     - platform-catalogs
     - platform-offerings
     - regional-availability
-    - rights-and-licensing
+    - production-rights-contexts
     - localized-work-metadata
     - segment-scoped-distribution
     - structured-release-time

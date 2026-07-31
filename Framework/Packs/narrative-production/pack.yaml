@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-production
-pack_version: 2
+pack_version: 3
 lifecycle: active
 pack_kind: domain
 label: Narrative Production and Rights
@@ -8,17 +8,21 @@ description: Creative contributions, production credits, ownership, licensing, a
 
 dependencies:
   - pack_id: narrative-media
-    minimum_version: 12
+    minimum_version: 13
 
 capabilities:
   - id: contributor-credits
     lifecycle: planned
     label: Contributor Credits
     description: Authorship, illustration, editing, translation, direction, performance, and production roles.
-  - id: rights-and-licensing
+  - id: production-rights-contexts
     lifecycle: available
-    label: Rights and Licensing
-    description: Work-scoped production origin, authorization, rights basis, commerciality, territory, and effective-window records independent of canon.
+    label: Production and Rights Contexts
+    description: Scope-backed work production origin, authorization, rights basis, commerciality, territory, and effective-window records independent of canon.
+  - id: rights-grants-and-restrictions
+    lifecycle: planned
+    label: Rights Grants and Restrictions
+    description: Party-, asset-, right-type-, instrument-, territory-, and time-scoped grants, restrictions, exclusivity, and obligations.
 
 controlled_values:
   narrative.contributor-role:

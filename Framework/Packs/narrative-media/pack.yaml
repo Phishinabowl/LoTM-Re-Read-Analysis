@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-media
-pack_version: 12
+pack_version: 13
 lifecycle: active
 pack_kind: domain
 label: Narrative Media Foundation
@@ -34,19 +34,30 @@ capabilities:
   - segment-anchored-locators
   - ordering-backed-position-validation
   - id: scoped-continuity
-    lifecycle: planned
+    lifecycle: available
     label: Scoped Continuity
-    description: Segment- and claim-scoped continuity assertions with temporal validity.
+    description: Work-, segment-, content-group-, and claim-scoped continuity assertions with territorial, temporal, and precedence-aware applicability.
   - id: entity-incarnations
     lifecycle: planned
     label: Entity Incarnations
     description: Conceptual entities, continuity-specific incarnations, counterparts, and cross-continuity identity.
   - id: retcon-supersession
-    lifecycle: planned
+    lifecycle: available
     label: Retcon and Supersession
     description: Claim-level replacement, reinterpretation, restoration, and effective-scope tracking.
 
 controlled_values:
+  source.applicability-target-type:
+    - work
+    - segment
+    - content-group
+    - work-relationship
+  narrative.claim-change-type:
+    - supersedes
+    - reinterprets
+    - restores
+    - invalidates
+    - soft-reboots
   provenance.claim-namespace:
     - canonical-content
     - localization
@@ -208,6 +219,8 @@ controlled_values:
     - work
     - segment
     - content-group
+    - scoped-continuity-assertion
+    - claim-supersession
     - work-relationship
     - content-group-member
     - localized-title

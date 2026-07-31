@@ -12,7 +12,7 @@ from resource_config import ResourceConfig
 from schema_pack_config import SchemaPackRegistry, load_schema_pack_registry
 
 
-SUPPORTED_SOURCE_SCHEMA_VERSION = 13
+SUPPORTED_SOURCE_SCHEMA_VERSION = 14
 LIFECYCLES = {"active", "deferred"}
 POSITION_FIELD_TYPES = {"string", "integer", "number", "timestamp", "boolean"}
 PRIORITY_ORDERS = {"ascending", "descending"}
@@ -236,6 +236,7 @@ class WorkRelationship:
     target_work_id: str
     continuity_ids: tuple[str, ...]
     status: str
+    applicability_scope_id: str | None
 
 
 @dataclass(frozen=True)
@@ -246,8 +247,35 @@ class WorkProductionContext:
     authorization_status: str
     rights_basis: str
     commerciality: str
+    applicability_scope_id: str
+
+
+@dataclass(frozen=True)
+class ApplicabilityScope:
+    id: str
+    target_type: str
+    target_id: str
     territory_ids: tuple[str, ...]
     effective_window: "TemporalWindow | None"
+    precedence: int
+
+
+@dataclass(frozen=True)
+class ScopedContinuityAssertion:
+    id: str
+    applicability_scope_id: str
+    continuity_id: str
+    status: str
+
+
+@dataclass(frozen=True)
+class ClaimSupersession:
+    id: str
+    source_claim_key: str
+    relationship_type: str
+    target_claim_key: str
+    applicability_scope_id: str
+    continuity_ids: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -670,6 +698,9 @@ class SourceRegistry:
     work_relationship_types: dict[str, RelationshipTypeConfig]
     works: dict[str, WorkConfig]
     work_production_contexts: dict[str, WorkProductionContext]
+    applicability_scopes: dict[str, ApplicabilityScope]
+    scoped_continuity_assertions: dict[str, ScopedContinuityAssertion]
+    claim_supersessions: tuple[ClaimSupersession, ...]
     segments: dict[str, SegmentConfig]
     content_groups: dict[str, ContentGroup]
     numbering_schemes: dict[str, NumberingScheme]
@@ -715,6 +746,22 @@ class SourceRegistry:
             if work_id.casefold() == normalized:
                 return work_id
         return self.work_aliases.get(normalized)
+
+    def highest_precedence_scopes(
+        self, scope_ids: tuple[str, ...] | list[str]
+    ) -> tuple[ApplicabilityScope, ...]:
+        if not scope_ids:
+            raise ValueError("At least one applicability scope ID is required.")
+        unknown = set(scope_ids) - set(self.applicability_scopes)
+        if unknown:
+            raise ValueError(
+                "Unknown applicability scope IDs: "
+                + ", ".join(sorted(unknown))
+                + "."
+            )
+        scopes = tuple(self.applicability_scopes[item] for item in scope_ids)
+        highest = max(scope.precedence for scope in scopes)
+        return tuple(scope for scope in scopes if scope.precedence == highest)
 
     def authority_decision(
         self,
@@ -3115,6 +3162,9 @@ def load_source_registry(
                 target_id,
                 continuity_ids,
                 status,
+                optional_string(
+                    relationship, "applicability_scope_id", context
+                ),
             )
         )
 
@@ -3297,9 +3347,6 @@ def load_source_registry(
             "Source registry `work_production_contexts` must be a list."
         )
     work_production_contexts: dict[str, WorkProductionContext] = {}
-    production_scope_windows: dict[
-        tuple[str, tuple[str, ...]], list[TemporalWindow | None]
-    ] = {}
     for index, raw_context in enumerate(raw_production_contexts):
         context = f"work_production_contexts[{index}]"
         production_context = require_mapping(raw_context, context)
@@ -3328,6 +3375,9 @@ def load_source_registry(
         commerciality = require_string(
             production_context, "commerciality", context
         )
+        applicability_scope_id = require_string(
+            production_context, "applicability_scope_id", context
+        )
         validate_pack_values(
             schema_packs,
             "source.production-origin",
@@ -3352,31 +3402,6 @@ def load_source_registry(
             (commerciality,),
             f"{context}.commerciality",
         )
-        territory_ids = require_string_list(
-            production_context, "territory_ids", context
-        )
-        unknown_territories = set(territory_ids) - set(territories)
-        if unknown_territories:
-            raise ValueError(
-                f"Source registry `{context}.territory_ids` references unknown "
-                f"territories: {', '.join(sorted(unknown_territories))}."
-            )
-        effective_window = parse_temporal_window(
-            production_context,
-            "effective_window",
-            context,
-            schema_packs,
-        )
-        scope = (work_id, tuple(sorted(territory_ids)))
-        if any(
-            temporal_windows_overlap(effective_window, existing)
-            for existing in production_scope_windows.get(scope, [])
-        ):
-            raise ValueError(
-                f"Source registry `{context}` overlaps another production context "
-                "for the same work and territory scope."
-            )
-        production_scope_windows.setdefault(scope, []).append(effective_window)
         work_production_contexts[context_id] = WorkProductionContext(
             id=context_id,
             work_id=work_id,
@@ -3384,8 +3409,7 @@ def load_source_registry(
             authorization_status=authorization_status,
             rights_basis=rights_basis,
             commerciality=commerciality,
-            territory_ids=territory_ids,
-            effective_window=effective_window,
+            applicability_scope_id=applicability_scope_id,
         )
 
     for owner_context, localized_titles in (
@@ -5334,6 +5358,303 @@ def load_source_registry(
             )
         )
 
+    work_relationship_map = {item.id: item for item in work_relationships}
+    adaptation_mapping_map = {item.id: item for item in adaptation_mappings}
+    applicability_targets = {
+        "work": works,
+        "segment": segments,
+        "content-group": content_groups,
+        "work-relationship": work_relationship_map,
+        "adaptation-mapping": adaptation_mapping_map,
+        "manifestation": manifestations,
+        "release-component": release_components,
+        "release-package": release_packages,
+    }
+
+    raw_applicability_scopes = registry.get("applicability_scopes")
+    if not isinstance(raw_applicability_scopes, list):
+        raise ValueError("Source registry `applicability_scopes` must be a list.")
+    applicability_scopes: dict[str, ApplicabilityScope] = {}
+    scope_windows: dict[
+        tuple[str, str, tuple[str, ...], int], list[TemporalWindow | None]
+    ] = {}
+    for index, raw_scope in enumerate(raw_applicability_scopes):
+        context = f"applicability_scopes[{index}]"
+        scope = require_mapping(raw_scope, context)
+        scope_id = require_string(scope, "id", context)
+        validate_id(scope_id, f"{context}.id")
+        if scope_id in applicability_scopes:
+            raise ValueError(
+                f"Source registry applicability-scope ID `{scope_id}` is duplicated."
+            )
+        target_type = require_string(scope, "target_type", context)
+        validate_pack_values(
+            schema_packs,
+            "source.applicability-target-type",
+            (target_type,),
+            f"{context}.target_type",
+        )
+        target_id = require_string(scope, "target_id", context)
+        if target_type != "provenance-claim" and (
+            target_type not in applicability_targets
+            or target_id not in applicability_targets[target_type]
+        ):
+            raise ValueError(
+                f"Source registry `{context}.target_id` references unknown "
+                f"{target_type} `{target_id}`."
+            )
+        territory_ids = require_string_list(scope, "territory_ids", context)
+        unknown_territories = set(territory_ids) - set(territories)
+        if unknown_territories:
+            raise ValueError(
+                f"Source registry `{context}.territory_ids` references unknown "
+                f"territories: {', '.join(sorted(unknown_territories))}."
+            )
+        precedence = scope.get("precedence")
+        if (
+            isinstance(precedence, bool)
+            or not isinstance(precedence, int)
+            or precedence < 0
+        ):
+            raise ValueError(
+                f"Source registry `{context}.precedence` must be a non-negative "
+                "integer."
+            )
+        effective_window = parse_temporal_window(
+            scope, "effective_window", context, schema_packs
+        )
+        window_key = (
+            target_type,
+            target_id,
+            tuple(sorted(territory_ids)),
+            precedence,
+        )
+        if any(
+            temporal_windows_overlap(effective_window, existing)
+            for existing in scope_windows.get(window_key, [])
+        ):
+            raise ValueError(
+                f"Source registry `{context}` overlaps another applicability "
+                "scope with the same target, territory set, and precedence."
+            )
+        scope_windows.setdefault(window_key, []).append(effective_window)
+        applicability_scopes[scope_id] = ApplicabilityScope(
+            id=scope_id,
+            target_type=target_type,
+            target_id=target_id,
+            territory_ids=territory_ids,
+            effective_window=effective_window,
+            precedence=precedence,
+        )
+
+    def applicability_target_work_ids(scope: ApplicabilityScope) -> set[str]:
+        target_type = scope.target_type
+        target_id = scope.target_id
+        if target_type == "work":
+            return {target_id}
+        if target_type == "segment":
+            return {segments[target_id].work_id}
+        if target_type == "content-group":
+            result: set[str] = set()
+            for member in content_groups[target_id].members:
+                nested_scope = ApplicabilityScope(
+                    id=scope.id,
+                    target_type=member.target_type,
+                    target_id=member.target_id,
+                    territory_ids=scope.territory_ids,
+                    effective_window=scope.effective_window,
+                    precedence=scope.precedence,
+                )
+                result.update(applicability_target_work_ids(nested_scope))
+            return result
+        if target_type == "work-relationship":
+            relationship = work_relationship_map[target_id]
+            return {relationship.source_work_id, relationship.target_work_id}
+        if target_type == "adaptation-mapping":
+            mapping = adaptation_mapping_map[target_id]
+            return {mapping.target_work_id} | {
+                basis.work_id for basis in mapping.basis_inputs
+            }
+        if target_type == "manifestation":
+            return {manifestations[target_id].work_id}
+        if target_type == "release-component":
+            component = release_components[target_id]
+            result = {segments[item].work_id for item in component.segment_ids}
+            if component.manifestation_id is not None:
+                result.add(manifestations[component.manifestation_id].work_id)
+            return result
+        if target_type == "release-package":
+            return release_package_work_ids(target_id)
+        return set()
+
+    for relationship in work_relationships:
+        if relationship.applicability_scope_id is None:
+            continue
+        if relationship.applicability_scope_id not in applicability_scopes:
+            raise ValueError(
+                f"Source registry work relationship `{relationship.id}` references "
+                f"unknown applicability scope "
+                f"`{relationship.applicability_scope_id}`."
+            )
+        relationship_scope = applicability_scopes[
+            relationship.applicability_scope_id
+        ]
+        if applicability_target_work_ids(relationship_scope) != {
+            relationship.source_work_id
+        }:
+            raise ValueError(
+                f"Source registry work relationship `{relationship.id}` scope must "
+                "resolve only to its source work."
+            )
+
+    for production_context in work_production_contexts.values():
+        if production_context.applicability_scope_id not in applicability_scopes:
+            raise ValueError(
+                f"Source registry work production context "
+                f"`{production_context.id}` references unknown applicability scope "
+                f"`{production_context.applicability_scope_id}`."
+            )
+        production_scope = applicability_scopes[
+            production_context.applicability_scope_id
+        ]
+        if production_context.work_id not in applicability_target_work_ids(
+            production_scope
+        ):
+            raise ValueError(
+                f"Source registry work production context "
+                f"`{production_context.id}` scope falls outside work "
+                f"`{production_context.work_id}`."
+            )
+
+    raw_continuity_assertions = registry.get("scoped_continuity_assertions")
+    if not isinstance(raw_continuity_assertions, list):
+        raise ValueError(
+            "Source registry `scoped_continuity_assertions` must be a list."
+        )
+    scoped_continuity_assertions: dict[str, ScopedContinuityAssertion] = {}
+    seen_continuity_scopes: set[tuple[str, str]] = set()
+    for index, raw_assertion in enumerate(raw_continuity_assertions):
+        context = f"scoped_continuity_assertions[{index}]"
+        assertion = require_mapping(raw_assertion, context)
+        assertion_id = require_string(assertion, "id", context)
+        validate_id(assertion_id, f"{context}.id")
+        if assertion_id in scoped_continuity_assertions:
+            raise ValueError(
+                f"Source registry scoped-continuity-assertion ID "
+                f"`{assertion_id}` is duplicated."
+            )
+        scope_id = require_string(assertion, "applicability_scope_id", context)
+        if scope_id not in applicability_scopes:
+            raise ValueError(
+                f"Source registry `{context}.applicability_scope_id` references "
+                f"unknown scope `{scope_id}`."
+            )
+        scope = applicability_scopes[scope_id]
+        if scope.target_type not in {
+            "work",
+            "segment",
+            "content-group",
+            "provenance-claim",
+        }:
+            raise ValueError(
+                f"Source registry `{context}` scope target type "
+                f"`{scope.target_type}` cannot carry continuity."
+            )
+        continuity_id = require_string(assertion, "continuity_id", context)
+        if continuity_id not in continuities:
+            raise ValueError(
+                f"Source registry `{context}.continuity_id` references unknown "
+                f"continuity `{continuity_id}`."
+            )
+        status = require_string(assertion, "status", context)
+        if status not in membership_statuses:
+            raise ValueError(
+                f"Source registry `{context}.status` must be one of: "
+                f"{', '.join(sorted(membership_statuses))}."
+            )
+        continuity_scope = (continuity_id, scope_id)
+        if continuity_scope in seen_continuity_scopes:
+            raise ValueError(
+                f"Source registry repeats continuity `{continuity_id}` for "
+                f"applicability scope `{scope_id}`."
+            )
+        seen_continuity_scopes.add(continuity_scope)
+        scoped_continuity_assertions[assertion_id] = ScopedContinuityAssertion(
+            id=assertion_id,
+            applicability_scope_id=scope_id,
+            continuity_id=continuity_id,
+            status=status,
+        )
+
+    raw_claim_supersessions = registry.get("claim_supersessions")
+    if not isinstance(raw_claim_supersessions, list):
+        raise ValueError("Source registry `claim_supersessions` must be a list.")
+    claim_supersessions: list[ClaimSupersession] = []
+    seen_claim_supersession_ids: set[str] = set()
+    for index, raw_supersession in enumerate(raw_claim_supersessions):
+        context = f"claim_supersessions[{index}]"
+        supersession = require_mapping(raw_supersession, context)
+        supersession_id = require_string(supersession, "id", context)
+        validate_id(supersession_id, f"{context}.id")
+        if supersession_id in seen_claim_supersession_ids:
+            raise ValueError(
+                f"Source registry claim-supersession ID `{supersession_id}` is "
+                "duplicated."
+            )
+        seen_claim_supersession_ids.add(supersession_id)
+        source_claim_key = require_string(
+            supersession, "source_claim_key", context
+        )
+        target_claim_key = require_string(
+            supersession, "target_claim_key", context
+        )
+        validate_id(source_claim_key, f"{context}.source_claim_key")
+        validate_id(target_claim_key, f"{context}.target_claim_key")
+        if source_claim_key == target_claim_key:
+            raise ValueError(
+                f"Source registry `{context}` cannot supersede a claim with itself."
+            )
+        relationship_type = require_string(
+            supersession, "relationship_type", context
+        )
+        validate_pack_values(
+            schema_packs,
+            "narrative.claim-change-type",
+            (relationship_type,),
+            f"{context}.relationship_type",
+        )
+        scope_id = require_string(supersession, "applicability_scope_id", context)
+        if scope_id not in applicability_scopes:
+            raise ValueError(
+                f"Source registry `{context}.applicability_scope_id` references "
+                f"unknown scope `{scope_id}`."
+            )
+        scope = applicability_scopes[scope_id]
+        if scope.target_type != "provenance-claim" or scope.target_id != target_claim_key:
+            raise ValueError(
+                f"Source registry `{context}` scope must target the superseded "
+                f"claim `{target_claim_key}`."
+            )
+        continuity_ids = require_string_list(
+            supersession, "continuity_ids", context
+        )
+        unknown_continuities = set(continuity_ids) - set(continuities)
+        if unknown_continuities:
+            raise ValueError(
+                f"Source registry `{context}.continuity_ids` references unknown "
+                f"continuities: {', '.join(sorted(unknown_continuities))}."
+            )
+        claim_supersessions.append(
+            ClaimSupersession(
+                id=supersession_id,
+                source_claim_key=source_claim_key,
+                relationship_type=relationship_type,
+                target_claim_key=target_claim_key,
+                applicability_scope_id=scope_id,
+                continuity_ids=continuity_ids,
+            )
+        )
+
     nested_provenance_targets = {
         "content-group-member": [
             member
@@ -5387,6 +5708,11 @@ def load_source_registry(
     provenance_targets = {
         "work": works,
         "work-production-context": work_production_contexts,
+        "applicability-scope": applicability_scopes,
+        "scoped-continuity-assertion": scoped_continuity_assertions,
+        "claim-supersession": {
+            item.id: item for item in claim_supersessions
+        },
         "segment": segments,
         "content-group": content_groups,
         "work-relationship": {
@@ -5949,6 +6275,59 @@ def load_source_registry(
             )
         )
 
+    for scope in applicability_scopes.values():
+        if (
+            scope.target_type == "provenance-claim"
+            and scope.target_id not in claim_shapes
+        ):
+            raise ValueError(
+                f"Source registry applicability scope `{scope.id}` references "
+                f"unknown provenance claim `{scope.target_id}`."
+            )
+
+    claim_supersession_edges: dict[str, set[str]] = {}
+    for supersession in claim_supersessions:
+        if supersession.source_claim_key not in claim_shapes:
+            raise ValueError(
+                f"Source registry claim supersession `{supersession.id}` references "
+                f"unknown source claim `{supersession.source_claim_key}`."
+            )
+        if supersession.target_claim_key not in claim_shapes:
+            raise ValueError(
+                f"Source registry claim supersession `{supersession.id}` references "
+                f"unknown target claim `{supersession.target_claim_key}`."
+            )
+        if claim_shapes[supersession.source_claim_key] != claim_shapes[
+            supersession.target_claim_key
+        ]:
+            raise ValueError(
+                f"Source registry claim supersession `{supersession.id}` must "
+                "relate claims with the same subject, namespace, and field path."
+            )
+        claim_supersession_edges.setdefault(
+            supersession.source_claim_key, set()
+        ).add(supersession.target_claim_key)
+
+    visited_claims: set[str] = set()
+    active_claims: set[str] = set()
+
+    def visit_claim_supersession(claim_key: str) -> None:
+        if claim_key in active_claims:
+            raise ValueError(
+                f"Source registry contains a claim-supersession cycle involving "
+                f"`{claim_key}`."
+            )
+        if claim_key in visited_claims:
+            return
+        active_claims.add(claim_key)
+        for target_claim_key in claim_supersession_edges.get(claim_key, set()):
+            visit_claim_supersession(target_claim_key)
+        active_claims.remove(claim_key)
+        visited_claims.add(claim_key)
+
+    for claim_key in claim_supersession_edges:
+        visit_claim_supersession(claim_key)
+
     raw_external_identifiers = registry.get("external_identifiers")
     if not isinstance(raw_external_identifiers, list):
         raise ValueError(
@@ -6063,6 +6442,9 @@ def load_source_registry(
         work_relationship_types=work_relationship_types,
         works=works,
         work_production_contexts=work_production_contexts,
+        applicability_scopes=applicability_scopes,
+        scoped_continuity_assertions=scoped_continuity_assertions,
+        claim_supersessions=tuple(claim_supersessions),
         segments=segments,
         content_groups=content_groups,
         numbering_schemes=numbering_schemes,

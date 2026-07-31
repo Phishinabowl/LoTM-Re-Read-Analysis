@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-publishing
-pack_version: 8
+pack_version: 9
 lifecycle: active
 pack_kind: domain
 label: Narrative Publishing
@@ -8,7 +8,7 @@ description: Prose and sequential-art serialization, editions, localization, and
 
 dependencies:
   - pack_id: narrative-media
-    minimum_version: 12
+    minimum_version: 13
 
 capabilities:
   - serialization
