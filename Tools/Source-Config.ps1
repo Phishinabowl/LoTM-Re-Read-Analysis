@@ -707,7 +707,7 @@ function Resolve-KnowledgeSourceId {
 
   $normalized = ConvertTo-KnowledgeLookupKey $Value $SourceRegistry.lookup_keys
   foreach ($sourceId in $SourceRegistry.sources.Keys) {
-    if ((ConvertTo-KnowledgeLookupKey $sourceId $SourceRegistry.lookup_keys) -ceq $normalized) {
+    if (Test-KnowledgeLookupKeysEqual (ConvertTo-KnowledgeLookupKey $sourceId $SourceRegistry.lookup_keys) $normalized) {
       return $sourceId
     }
   }
@@ -722,7 +722,7 @@ function Resolve-KnowledgeWorkId {
 
   $normalized = ConvertTo-KnowledgeLookupKey $Value $SourceRegistry.lookup_keys
   foreach ($workId in $SourceRegistry.works.Keys) {
-    if ((ConvertTo-KnowledgeLookupKey $workId $SourceRegistry.lookup_keys) -ceq $normalized) {
+    if (Test-KnowledgeLookupKeysEqual (ConvertTo-KnowledgeLookupKey $workId $SourceRegistry.lookup_keys) $normalized) {
       return $workId
     }
   }

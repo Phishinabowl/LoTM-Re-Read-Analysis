@@ -495,7 +495,7 @@ function Resolve-KnowledgeEntityId {
 function Resolve-KnowledgeEntityIds {
   param([object]$EntityRegistry, [string]$Value)
   $normalized = ConvertTo-KnowledgeLookupKey $Value $EntityRegistry.lookup_keys
-  foreach ($entityId in $EntityRegistry.entities.Keys) { if ((ConvertTo-KnowledgeLookupKey $entityId $EntityRegistry.lookup_keys) -ceq $normalized) { return @($entityId) } }
+  foreach ($entityId in $EntityRegistry.entities.Keys) { if (Test-KnowledgeLookupKeysEqual (ConvertTo-KnowledgeLookupKey $entityId $EntityRegistry.lookup_keys) $normalized) { return @($entityId) } }
   if ($EntityRegistry.entity_aliases.ContainsKey($normalized)) { return @($EntityRegistry.entity_aliases[$normalized]) }
   return @()
 }
@@ -510,7 +510,7 @@ function Resolve-KnowledgeIncarnationId {
 function Resolve-KnowledgeIncarnationIds {
   param([object]$EntityRegistry, [string]$Value)
   $normalized = ConvertTo-KnowledgeLookupKey $Value $EntityRegistry.lookup_keys
-  foreach ($incarnationId in $EntityRegistry.incarnations.Keys) { if ((ConvertTo-KnowledgeLookupKey $incarnationId $EntityRegistry.lookup_keys) -ceq $normalized) { return @($incarnationId) } }
+  foreach ($incarnationId in $EntityRegistry.incarnations.Keys) { if (Test-KnowledgeLookupKeysEqual (ConvertTo-KnowledgeLookupKey $incarnationId $EntityRegistry.lookup_keys) $normalized) { return @($incarnationId) } }
   if ($EntityRegistry.incarnation_aliases.ContainsKey($normalized)) { return @($EntityRegistry.incarnation_aliases[$normalized]) }
   return @()
 }

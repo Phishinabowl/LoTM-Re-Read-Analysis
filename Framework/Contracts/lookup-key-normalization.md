@@ -10,7 +10,7 @@ The current algorithm ID is `trim-nfc-default-casefold-nfc`:
 2. Apply canonical Unicode normalization form C using the pinned decomposition, combining-class, composition, and Hangul rules.
 3. Apply full default Unicode case folding from the pinned table.
 4. Apply the same pinned NFC operation again.
-5. Compare and store resulting keys with ordinal semantics.
+5. Compare and store resulting keys with ordinal semantics. PowerShell consumers must use `Test-KnowledgeLookupKeysEqual` or an ordinal dictionary; `-eq`, `-ceq`, and their negative forms are culture-aware and are not valid lookup-key comparers.
 
 The bundled data file is generated from Unicode 16.0.0. Runtime Unicode libraries, locale-sensitive casing, and runtime-default case-insensitive dictionaries are not part of this contract.
 
@@ -23,3 +23,5 @@ Do not normalize canonical stable IDs, schema field names, filesystem paths, or 
 ## Evolution
 
 Changing the algorithm, trim set, or Unicode version is a reviewed data migration. Update the manifest path or registry schema/version deliberately, run exhaustive Python/PowerShell parity tests, and review newly colliding keys before accepting the change.
+
+Portable conformance cases live in `Framework/Data/lookup-key-regression-vectors.json`. Equivalent pairs must resolve to ordinally equal normalized keys; distinct pairs must remain ordinally unequal in every supported runtime.

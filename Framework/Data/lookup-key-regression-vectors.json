@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "algorithm": "trim-nfc-default-casefold-nfc",
+  "equivalent": [
+    {"id": "sharp-s", "left": [83, 116, 114, 97, 223, 101], "right": [83, 84, 82, 65, 83, 83, 69]},
+    {"id": "canonical-accent", "left": [80, 111, 107, 233, 109, 111, 110], "right": [80, 111, 107, 101, 769, 109, 111, 110]},
+    {"id": "kelvin-sign", "left": [8490], "right": [75]},
+    {"id": "ligature", "left": [64259], "right": [70, 70, 73]},
+    {"id": "dotted-i", "left": [304], "right": [105, 775]},
+    {"id": "ascii-edge-trim", "left": [9, 32, 78, 97, 109, 101, 32, 13], "right": [78, 97, 109, 101]}
+  ],
+  "distinct": [
+    {"id": "dotless-i", "left": [305], "right": [105]},
+    {"id": "fullwidth-letter", "left": [65313], "right": [65]},
+    {"id": "cross-script-confusable", "left": [1072], "right": [97]},
+    {"id": "nonbreaking-space-edge", "left": [160, 78, 97, 109, 101, 160], "right": [78, 97, 109, 101]},
+    {"id": "soft-hyphen", "left": [108, 111, 116, 109, 45, 49, 173], "right": [108, 111, 116, 109, 45, 49]},
+    {"id": "combining-grapheme-joiner", "left": [108, 111, 116, 109, 45, 49, 847], "right": [108, 111, 116, 109, 45, 49]},
+    {"id": "arabic-letter-mark", "left": [108, 111, 116, 109, 45, 49, 1564], "right": [108, 111, 116, 109, 45, 49]},
+    {"id": "mongolian-vowel-separator", "left": [108, 111, 116, 109, 45, 49, 6158], "right": [108, 111, 116, 109, 45, 49]},
+    {"id": "zero-width-space", "left": [108, 111, 116, 109, 45, 49, 8203], "right": [108, 111, 116, 109, 45, 49]},
+    {"id": "zero-width-non-joiner", "left": [108, 111, 116, 109, 45, 49, 8204], "right": [108, 111, 116, 109, 45, 49]},
+    {"id": "zero-width-joiner", "left": [108, 111, 116, 109, 45, 49, 8205], "right": [108, 111, 116, 109, 45, 49]},
+    {"id": "word-joiner", "left": [108, 111, 116, 109, 45, 49, 8288], "right": [108, 111, 116, 109, 45, 49]},
+    {"id": "byte-order-mark", "left": [108, 111, 116, 109, 45, 49, 65279], "right": [108, 111, 116, 109, 45, 49]}
+  ]
+}

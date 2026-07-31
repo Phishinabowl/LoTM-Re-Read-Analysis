@@ -215,6 +215,12 @@ function ConvertTo-KnowledgeLookupKey {
   return ,$builder.ToString()
 }
 
+function Test-KnowledgeLookupKeysEqual {
+  param([AllowNull()][string]$Left, [AllowNull()][string]$Right)
+
+  return [string]::Equals($Left, $Right, [System.StringComparison]::Ordinal)
+}
+
 function Get-KnowledgeLookupKeyConfig {
   param([object]$ProjectConfig)
 
