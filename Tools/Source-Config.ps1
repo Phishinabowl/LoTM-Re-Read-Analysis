@@ -11,7 +11,7 @@ if (-not (Get-Command Get-KnowledgeSchemaPackRegistry -ErrorAction SilentlyConti
   . $schemaPackConfigHelper
 }
 
-$script:SupportedSourceSchemaVersion = 10
+$script:SupportedSourceSchemaVersion = 11
 $script:AllowedSourceLifecycles = @("active", "deferred")
 $script:AllowedPositionFieldTypes = @("string", "integer", "number", "timestamp", "boolean")
 $script:AllowedPriorityOrders = @("ascending", "descending")
@@ -213,6 +213,7 @@ function ConvertTo-SourceTemporalWindow {
     if (-not $valid) { throw "Source registry '$windowContext.$($entry.name)' does not match precision '$precision': $($entry.value)" }
   }
   if ($null -ne $timezone -and $precision -ne "datetime") { throw "Source registry '$windowContext.timezone' is only valid for datetime precision." }
+  if($null -ne $start -and $null -ne $end -and (ConvertTo-SourceTemporalBound $start $precision $false) -gt (ConvertTo-SourceTemporalBound $end $precision $true)){throw "Source registry '$windowContext.end' must not precede start."}
   return [pscustomobject]@{ start=$start; end=$end; precision=$precision; certainty=$certainty; timezone=$timezone }
 }
 
@@ -322,14 +323,22 @@ function ConvertTo-MediumConfig {
     if($rawStructuralValidation -isnot [System.Collections.IDictionary]){throw "Source registry '$validationContext' must be a mapping."}
     $strategy=Get-RequiredSourceString $rawStructuralValidation "strategy" $validationContext
     Assert-SourceSchemaPackValues $SchemaPackRegistry "source.position-structure-strategy" @($strategy) "$validationContext.strategy"
-    $partitionField=Get-RequiredSourceString $rawStructuralValidation "partition_field" $validationContext
-    $ordinalField=Get-RequiredSourceString $rawStructuralValidation "ordinal_field" $validationContext
-    foreach($entry in @([pscustomobject]@{name="partition_field";id=$partitionField},[pscustomobject]@{name="ordinal_field";id=$ordinalField})){
-      if(-not $fields.Contains($entry.id) -or $fields[$entry.id] -ne "integer"){throw "Source registry '$validationContext.$($entry.name)' must reference a configured integer position field."}
-    }
-    if($sortFields -notcontains $ordinalField){throw "Source registry '$validationContext.ordinal_field' must also be listed in sort_fields."}
-    if($requiredFields -notcontains $ordinalField){throw "Source registry '$validationContext.ordinal_field' must also be listed in required_fields."}
-    $structuralValidation=[pscustomobject]@{strategy=$strategy;partition_field=$partitionField;ordinal_field=$ordinalField}
+    $partitionField=$null;$ordinalField=$null;$segmentField=$null;$orderingSchemeField=$null
+    if($strategy -eq "work-volume-catalog"){
+      $partitionField=Get-RequiredSourceString $rawStructuralValidation "partition_field" $validationContext
+      $ordinalField=Get-RequiredSourceString $rawStructuralValidation "ordinal_field" $validationContext
+      $configuredFields=@([pscustomobject]@{name="partition_field";id=$partitionField;type="integer"},[pscustomobject]@{name="ordinal_field";id=$ordinalField;type="integer"})
+      $orderedField=$ordinalField;$requiredValidationFields=@($ordinalField)
+    } elseif($strategy -eq "work-segment-ordering"){
+      $segmentField=Get-RequiredSourceString $rawStructuralValidation "segment_field" $validationContext
+      $orderingSchemeField=Get-RequiredSourceString $rawStructuralValidation "ordering_scheme_field" $validationContext
+      $configuredFields=@([pscustomobject]@{name="segment_field";id=$segmentField;type="string"},[pscustomobject]@{name="ordering_scheme_field";id=$orderingSchemeField;type="string"})
+      $orderedField=$segmentField;$requiredValidationFields=@($segmentField,$orderingSchemeField)
+    } else {throw "Source registry '$validationContext.strategy' is not implemented by this loader: '$strategy'."}
+    foreach($entry in $configuredFields){if(-not $fields.Contains($entry.id) -or $fields[$entry.id] -ne $entry.type){throw "Source registry '$validationContext.$($entry.name)' must reference a configured $($entry.type) position field."}}
+    if($sortFields -notcontains $orderedField){throw "Source registry '$validationContext' ordered field must also be listed in sort_fields."}
+    if(@($requiredValidationFields|Where-Object {$requiredFields -notcontains $_}).Count -gt 0){throw "Source registry '$validationContext' structural fields must be listed in required_fields."}
+    $structuralValidation=[pscustomobject]@{strategy=$strategy;partition_field=$partitionField;ordinal_field=$ordinalField;segment_field=$segmentField;ordering_scheme_field=$orderingSchemeField}
   }
   foreach ($entry in @(
     [pscustomobject]@{ name = "required_fields"; values = $requiredFields },
@@ -426,20 +435,39 @@ function Get-SourceControlledValueAncestors {
 }
 
 function Compare-SourcePositions {
-  param([object]$Left,[object]$Right,[object]$Medium)
+  param([object]$Left,[object]$Right,[object]$Medium,[object]$OrderingSchemes=$null,[string]$Context="position range")
+  $validation=$Medium.structural_validation
   foreach($fieldId in $Medium.sort_fields){
     if(-not $Left.Contains($fieldId)){continue}
-    $leftValue=$Left[$fieldId];$rightValue=$Right[$fieldId]
-    if($Medium.fields[$fieldId] -eq "timestamp"){$leftValue=[datetimeoffset]::Parse([string]$leftValue).UtcDateTime;$rightValue=[datetimeoffset]::Parse([string]$rightValue).UtcDateTime}
+    if($null -ne $validation -and $validation.strategy -eq "work-segment-ordering" -and $fieldId -eq $validation.segment_field){
+      if($null -eq $OrderingSchemes){throw "Source registry '$Context' requires ordering schemes for segment comparison."}
+      $schemeField=[string]$validation.ordering_scheme_field
+      if([string]$Left[$schemeField] -ne [string]$Right[$schemeField]){throw "Source registry '$Context' range endpoints must use the same ordering scheme."}
+      $scheme=$OrderingSchemes[[string]$Left[$schemeField]]
+      $leftEntry=@($scheme.entries|Where-Object {$_.target_id -eq [string]$Left[$fieldId]});$rightEntry=@($scheme.entries|Where-Object {$_.target_id -eq [string]$Right[$fieldId]})
+      $leftValue=[int]$leftEntry[0].ordinal;$rightValue=[int]$rightEntry[0].ordinal
+    } else {
+      $leftValue=$Left[$fieldId];$rightValue=$Right[$fieldId]
+      if($Medium.fields[$fieldId] -eq "timestamp"){$leftValue=[datetimeoffset]::Parse([string]$leftValue).UtcDateTime;$rightValue=[datetimeoffset]::Parse([string]$rightValue).UtcDateTime}
+    }
     if($leftValue -lt $rightValue){return -1};if($leftValue -gt $rightValue){return 1}
   }
   return 0
 }
 
 function Assert-SourceStructuralPosition {
-  param([object]$Position,[object]$Medium,[object]$Works,[string]$Context)
+  param([object]$Position,[object]$Medium,[object]$Works,[object]$Segments,[object]$OrderingSchemes,[string]$Context)
   $validation=$Medium.structural_validation;if($null -eq $validation){return}
   $workId=[string]$Position[$Medium.work_scope_field];$work=$Works[$workId]
+  if($validation.strategy -eq "work-segment-ordering"){
+    $segmentId=[string]$Position[$validation.segment_field];$schemeId=[string]$Position[$validation.ordering_scheme_field]
+    if(-not $Segments.Contains($segmentId)){throw "Source registry '$Context.$($validation.segment_field)' references unknown segment '$segmentId'."}
+    if($Segments[$segmentId].work_id -ne $workId){throw "Source registry '$Context' assigns segment '$segmentId' to the wrong work."}
+    if(-not $OrderingSchemes.Contains($schemeId)){throw "Source registry '$Context.$($validation.ordering_scheme_field)' references unknown ordering scheme '$schemeId'."}
+    $scheme=$OrderingSchemes[$schemeId];if($scheme.ordering_mode -ne "total"){throw "Source registry '$Context' requires a total ordering scheme."}
+    if(@($scheme.entries|Where-Object {$_.target_type -eq "segment" -and $_.target_id -eq $segmentId}).Count -ne 1){throw "Source registry '$Context' segment '$segmentId' is absent from ordering scheme '$schemeId'."}
+    return
+  }
   if($validation.strategy -ne "work-volume-catalog"){throw "Source registry '$Context' uses unsupported structural validation strategy '$($validation.strategy)'."}
   if($work.volume_catalog_status -ne "verified"){return}
   $ordinal=[int]$Position[$validation.ordinal_field]
@@ -449,7 +477,7 @@ function Assert-SourceStructuralPosition {
 }
 
 function Assert-SourceEvidencePosition {
-  param([object]$Position,[object]$Medium,[object[]]$SourceWorkIds,[object]$Works,[string]$Context)
+  param([object]$Position,[object]$Medium,[object[]]$SourceWorkIds,[object]$Works,[object]$Segments,[object]$OrderingSchemes,[string]$Context)
   if($null -eq $Position -or $Position -isnot [System.Collections.IDictionary] -or $Position.Count -eq 0){throw "Source registry '$Context' must be a non-empty mapping."}
   $unknown=@($Position.Keys|ForEach-Object {[string]$_}|Where-Object {-not $Medium.fields.Contains($_)})
   if($unknown.Count -gt 0){throw "Source registry '$Context' references unknown position fields: $($unknown -join ', ')."}
@@ -457,7 +485,103 @@ function Assert-SourceEvidencePosition {
   if($missing.Count -gt 0){throw "Source registry '$Context' omits required position fields: $($missing -join ', ')."}
   Assert-SourcePositionValues $Position $Medium.fields $Context
   if($SourceWorkIds -notcontains [string]$Position[$Medium.work_scope_field]){throw "Source registry '$Context' falls outside the evidence source work scope."}
-  Assert-SourceStructuralPosition $Position $Medium $Works $Context
+  Assert-SourceStructuralPosition $Position $Medium $Works $Segments $OrderingSchemes $Context
+}
+
+function Get-SourceTargetWorkScope {
+  param([string]$TargetType,[string]$TargetId,[object]$Segments,[object]$ContentGroups,[object]$Manifestations,[object]$ReleaseComponents,[object]$ReleasePackages)
+  switch($TargetType){
+    "work" {return @($TargetId)}
+    "segment" {return @([string]$Segments[$TargetId].work_id)}
+    "content-group" {
+      $result=@();foreach($member in $ContentGroups[$TargetId].members){$result+=@(Get-SourceTargetWorkScope $member.target_type $member.target_id $Segments $ContentGroups $Manifestations $ReleaseComponents $ReleasePackages)}
+      return @($result|Sort-Object -Unique)
+    }
+    "manifestation" {return @([string]$Manifestations[$TargetId].work_id)}
+    "release-component" {
+      $component=$ReleaseComponents[$TargetId];$result=@($component.segment_ids|ForEach-Object {[string]$Segments[$_].work_id})
+      if($null -ne $component.manifestation_id){$result+=@([string]$Manifestations[$component.manifestation_id].work_id)}
+      return @($result|Sort-Object -Unique)
+    }
+    "release-package" {
+      $package=$ReleasePackages[$TargetId];$result=@($package.segment_ids|ForEach-Object {[string]$Segments[$_].work_id})
+      $result+=@($package.manifestation_ids|ForEach-Object {[string]$Manifestations[$_].work_id})
+      foreach($componentId in $package.release_component_ids){$result+=@(Get-SourceTargetWorkScope "release-component" $componentId $Segments $ContentGroups $Manifestations $ReleaseComponents $ReleasePackages)}
+      return @($result|Sort-Object -Unique)
+    }
+  }
+  return @()
+}
+
+function Get-SourceTargetSegmentScope {
+  param([string]$TargetType,[string]$TargetId,[object]$ContentGroups,[object]$Manifestations,[object]$ReleaseComponents,[object]$ReleasePackages)
+  switch($TargetType){
+    "segment" {return @($TargetId)}
+    "content-group" {$result=@();foreach($member in $ContentGroups[$TargetId].members){$result+=@(Get-SourceTargetSegmentScope $member.target_type $member.target_id $ContentGroups $Manifestations $ReleaseComponents $ReleasePackages)};return @($result|Sort-Object -Unique)}
+    "manifestation" {return @($Manifestations[$TargetId].segment_ids)}
+    "release-component" {return @($ReleaseComponents[$TargetId].segment_ids)}
+    "release-package" {$package=$ReleasePackages[$TargetId];$result=@($package.segment_ids);foreach($id in $package.release_component_ids){$result+=@($ReleaseComponents[$id].segment_ids)};foreach($id in $package.manifestation_ids){$result+=@($Manifestations[$id].segment_ids)};return @($result|Sort-Object -Unique)}
+  }
+  return @()
+}
+
+function Get-SourceTargetCompleteWorkScope {
+  param([string]$TargetType,[string]$TargetId,[object]$ContentGroups,[object]$Manifestations,[object]$ReleaseComponents,[object]$ReleasePackages)
+  switch($TargetType){
+    "work" {return @($TargetId)}
+    "content-group" {$result=@();foreach($member in $ContentGroups[$TargetId].members){$result+=@(Get-SourceTargetCompleteWorkScope $member.target_type $member.target_id $ContentGroups $Manifestations $ReleaseComponents $ReleasePackages)};return @($result|Sort-Object -Unique)}
+    "manifestation" {$item=$Manifestations[$TargetId];if($item.segment_ids.Count -eq 0){return @([string]$item.work_id)};return @()}
+    "release-component" {$item=$ReleaseComponents[$TargetId];if($item.segment_ids.Count -eq 0 -and $null -ne $item.manifestation_id -and $Manifestations[$item.manifestation_id].segment_ids.Count -eq 0){return @([string]$Manifestations[$item.manifestation_id].work_id)};return @()}
+    "release-package" {$item=$ReleasePackages[$TargetId];$result=@();foreach($id in $item.manifestation_ids){if($Manifestations[$id].segment_ids.Count -eq 0){$result+=@([string]$Manifestations[$id].work_id)}};foreach($id in $item.release_component_ids){$result+=@(Get-SourceTargetCompleteWorkScope "release-component" $id $ContentGroups $Manifestations $ReleaseComponents $ReleasePackages)};return @($result|Sort-Object -Unique)}
+  }
+  return @()
+}
+
+function Get-SourcePositionSegmentId {
+  param([object]$Position,[object]$Medium)
+  $validation=$Medium.structural_validation
+  if($null -eq $validation -or $validation.strategy -ne "work-segment-ordering"){return $null}
+  return [string]$Position[$validation.segment_field]
+}
+
+function Test-SourceCoverageRangeContainsPositions {
+  param([object]$CoverageRange,[object[]]$Positions,[object]$Medium,[object]$OrderingSchemes,[string]$Context)
+  $rangeFields=@($CoverageRange.start.Keys|ForEach-Object {[string]$_})
+  foreach($position in $Positions){
+    if(@($rangeFields|Where-Object {-not $position.Contains($_)}).Count -gt 0){return $false}
+    $projected=[ordered]@{};foreach($field in $rangeFields){$projected[$field]=$position[$field]}
+    if((Compare-SourcePositions $CoverageRange.start $projected $Medium $OrderingSchemes $Context) -gt 0 -or (Compare-SourcePositions $projected $CoverageRange.end $Medium $OrderingSchemes $Context) -gt 0){return $false}
+  }
+  return $true
+}
+
+function Assert-SourceLocatorCoverage {
+  param([object]$Source,[object]$Medium,[object[]]$Positions,[object]$Segments,[object]$ContentGroups,[object]$Manifestations,[object]$ReleaseComponents,[object]$ReleasePackages,[object]$OrderingSchemes,[string]$Context)
+  $workId=[string]$Positions[0][$Medium.work_scope_field]
+  if($Medium.id -eq $Source.medium_id -and $Source.coverage.Count -gt 0){
+    $covered=$false
+    foreach($coverage in $Source.coverage){
+      $targetWorks=@(Get-SourceTargetWorkScope $coverage.target_type $coverage.target_id $Segments $ContentGroups $Manifestations $ReleaseComponents $ReleasePackages)
+      if($targetWorks -notcontains $workId){continue}
+      foreach($range in $coverage.position_ranges){if(Test-SourceCoverageRangeContainsPositions $range $Positions $Medium $OrderingSchemes $Context){$covered=$true;break}}
+      if($covered){break}
+      $segmentIds=@($Positions|ForEach-Object {Get-SourcePositionSegmentId $_ $Medium}|Where-Object {$null -ne $_}|Sort-Object -Unique)
+      $targetSegments=@(Get-SourceTargetSegmentScope $coverage.target_type $coverage.target_id $ContentGroups $Manifestations $ReleaseComponents $ReleasePackages)
+      $completeWorks=@(Get-SourceTargetCompleteWorkScope $coverage.target_type $coverage.target_id $ContentGroups $Manifestations $ReleaseComponents $ReleasePackages)
+      if($coverage.coverage_type -eq "complete" -and $coverage.position_ranges.Count -eq 0 -and $completeWorks -contains $workId){$covered=$true;break}
+      if($segmentIds.Count -eq $Positions.Count -and @($segmentIds|Where-Object {$targetSegments -notcontains $_}).Count -eq 0){$covered=$true;break}
+    }
+    if(-not $covered){throw "Source registry '$Context' falls outside the evidence source's declared coverage."}
+  }
+  $scopeSets=@()
+  if($null -ne $Source.manifestation_id){$scope=@($Manifestations[$Source.manifestation_id].segment_ids);if($scope.Count -gt 0){$scopeSets+=,@($scope)}}
+  foreach($componentId in $Source.release_component_ids){$scope=@($ReleaseComponents[$componentId].segment_ids);if($scope.Count -gt 0){$scopeSets+=,@($scope)}}
+  if($null -ne $Source.release_package_id){$package=$ReleasePackages[$Source.release_package_id];if($package.segment_ids.Count -gt 0 -and $package.manifestation_ids.Count -eq 0){$scopeSets+=,@($package.segment_ids)}}
+  if($scopeSets.Count -gt 0){
+    $segmentIds=@($Positions|ForEach-Object {Get-SourcePositionSegmentId $_ $Medium}|Where-Object {$null -ne $_}|Sort-Object -Unique)
+    if($segmentIds.Count -ne $Positions.Count){throw "Source registry '$Context' falls outside the evidence source's segment scope."}
+    foreach($scope in $scopeSets){if(@($segmentIds|Where-Object {$scope -notcontains $_}).Count -gt 0){throw "Source registry '$Context' falls outside the evidence source's segment scope."}}
+  }
 }
 
 function Resolve-SourceRecordFieldPath {
@@ -486,11 +610,11 @@ function ConvertTo-SourceIdMap {
 }
 
 function Test-SourceAuthorityRuleMatch {
-  param([object]$Rule,[object]$Source)
+  param([object]$Rule,[object]$Source,[string]$EvidenceMode=$null)
   return (($Rule.source_ids.Count -eq 0 -or $Rule.source_ids -contains $Source.id) -and
     ($Rule.source_roles.Count -eq 0 -or $Rule.source_roles -contains $Source.role) -and
     ($Rule.medium_ids.Count -eq 0 -or $Rule.medium_ids -contains $Source.medium_id) -and
-    ($Rule.evidence_modes.Count -eq 0 -or @($Rule.evidence_modes|Where-Object {$Source.evidence_modes -contains $_}).Count -gt 0))
+    ($Rule.evidence_modes.Count -eq 0 -or $Rule.evidence_modes -contains $EvidenceMode))
 }
 
 function Resolve-SourceResourceBinding {
@@ -850,7 +974,8 @@ function Get-KnowledgeSourceRegistry {
       $precedence=Get-ProjectMapValue $rule "precedence";if($precedence -is [bool] -or $precedence -isnot [int] -or [int]$precedence -lt 1){throw "Source registry '$ruleContext.precedence' must be a positive integer."}
       $sourceIds=@(Get-SourceStringListAllowEmpty $rule "source_ids" $ruleContext);$sourceRoles=@(Get-SourceStringListAllowEmpty $rule "source_roles" $ruleContext);$mediumIds=@(Get-SourceStringListAllowEmpty $rule "medium_ids" $ruleContext);$evidenceModes=@(Get-SourceStringListAllowEmpty $rule "evidence_modes" $ruleContext)
       if($sourceIds.Count+$sourceRoles.Count+$mediumIds.Count+$evidenceModes.Count -eq 0){throw "Source registry '$ruleContext' must declare at least one source selector."}
-      foreach($sourceId in $sourceIds){Test-StableSourceId $sourceId "$ruleContext.source_ids"};foreach($evidenceMode in $evidenceModes){Test-StableSourceId $evidenceMode "$ruleContext.evidence_modes"}
+      foreach($sourceId in $sourceIds){Test-StableSourceId $sourceId "$ruleContext.source_ids"}
+      Assert-SourceSchemaPackValues $SchemaPackRegistry "provenance.evidence-mode" @($evidenceModes) "$ruleContext.evidence_modes"
       Assert-SourceSchemaPackValues $SchemaPackRegistry "source.source-role" $sourceRoles "$ruleContext.source_roles"
       $unknownRuleMediums=@($mediumIds|Where-Object {-not $mediums.Contains($_)});if($unknownRuleMediums.Count -gt 0){throw "Source registry '$ruleContext.medium_ids' references unknown media: $($unknownRuleMediums -join ', ')."}
       $rank=Get-ProjectMapValue $rule "rank";if($rank -is [bool] -or $rank -isnot [int] -or [int]$rank -lt 1){throw "Source registry '$ruleContext.rank' must be a positive integer."}
@@ -1791,7 +1916,7 @@ function Get-KnowledgeSourceRegistry {
       $sourceAliases[$aliasKey]=$sourceId
     }
     $evidenceModes=@(Get-SourceStringListAllowEmpty $source "evidence_modes" $context)
-    foreach ($mode in $evidenceModes) { Test-StableSourceId $mode "$context.evidence_modes" }
+    Assert-SourceSchemaPackValues $SchemaPackRegistry "provenance.evidence-mode" @($evidenceModes) "$context.evidence_modes"
     $observations=@();$seenObservationIds=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal);$seenObservationTargets=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
     $rawObservations=Get-ProjectMapValue $source "observations"
     if($null -eq $rawObservations){$rawObservations=@()}
@@ -1908,9 +2033,9 @@ function Get-KnowledgeSourceRegistry {
         if(-not $start.Contains($workScopeField)){throw "Source registry '$rangeContext' must include work-scope field '$workScopeField'."}
         $rangeWorkIds=@(@($start[$workScopeField],$end[$workScopeField])|Sort-Object -Unique)
         if($rangeWorkIds.Count -ne 1 -or @($rangeWorkIds|Where-Object {$targetWorkIds -notcontains $_}).Count -gt 0){throw "Source registry '$rangeContext' falls outside its coverage target work scope."}
-        Assert-SourceStructuralPosition $start $mediums[$mediumId] $works "$rangeContext.start"
-        Assert-SourceStructuralPosition $end $mediums[$mediumId] $works "$rangeContext.end"
-        if((Compare-SourcePositions $start $end $mediums[$mediumId]) -gt 0){throw "Source registry '$rangeContext' start must not follow end."}
+        Assert-SourceStructuralPosition $start $mediums[$mediumId] $works $segments $orderingSchemes "$rangeContext.start"
+        Assert-SourceStructuralPosition $end $mediums[$mediumId] $works $segments $orderingSchemes "$rangeContext.end"
+        if((Compare-SourcePositions $start $end $mediums[$mediumId] $orderingSchemes $rangeContext) -gt 0){throw "Source registry '$rangeContext' start must not follow end."}
         $ranges += [pscustomobject]@{id=$rangeId;start=$start;end=$end}
       }
       $coverage += [pscustomobject]@{id=$coverageId;target_type=$targetType;target_id=$targetId;coverage_type=$coverageType;position_ranges=@($ranges)}
@@ -1929,10 +2054,12 @@ function Get-KnowledgeSourceRegistry {
     foreach($claimNamespace in $claimNamespaceAncestors.Keys){
       $ancestors=@($claimNamespaceAncestors[$claimNamespace])
       foreach($source in $sources.Values){
-        $matches=@($profile.claim_authority_rules|Where-Object {$ancestors -contains $_.claim_namespace -and (Test-SourceAuthorityRuleMatch $_ $source)})
-        if($matches.Count -eq 0){continue}
-        $highest=[int](($matches|Measure-Object -Property precedence -Maximum).Maximum);$winners=@($matches|Where-Object {$_.precedence -eq $highest})
-        if($winners.Count -gt 1){throw "Source registry authority profile '$($profile.id)' has ambiguous precedence '$highest' rules for source '$($source.id)' and claim namespace '$claimNamespace'."}
+        foreach($evidenceMode in @($null)+@($source.evidence_modes)){
+          $matches=@($profile.claim_authority_rules|Where-Object {$ancestors -contains $_.claim_namespace -and (Test-SourceAuthorityRuleMatch $_ $source $evidenceMode)})
+          if($matches.Count -eq 0){continue}
+          $highest=[int](($matches|Measure-Object -Property precedence -Maximum).Maximum);$winners=@($matches|Where-Object {$_.precedence -eq $highest})
+          if($winners.Count -gt 1){$modeContext=if($null -eq $evidenceMode){"unspecified"}else{$evidenceMode};throw "Source registry authority profile '$($profile.id)' has ambiguous precedence '$highest' rules for source '$($source.id)', claim namespace '$claimNamespace', and evidence mode '$modeContext'."}
+        }
       }
     }
   }
@@ -2017,23 +2144,28 @@ function Get-KnowledgeSourceRegistry {
         $locatorId=Get-RequiredSourceString $locator "id" $locatorContext;Test-StableSourceId $locatorId "$locatorContext.id";if(-not $seenLocatorIds.Add($locatorId)){throw "Source registry evidence-locator ID '$locatorId' is duplicated."}
         $locatorMediumId=Get-RequiredSourceString $locator "medium_id" $locatorContext;if(-not $mediums.Contains($locatorMediumId)){throw "Source registry '$locatorContext.medium_id' references unknown medium '$locatorMediumId'."}
         if($sources[$evidenceSourceId].locator_medium_ids -notcontains $locatorMediumId){throw "Source registry '$locatorContext.medium_id' is not allowed by the evidence source."}
+        $evidenceMode=Get-RequiredSourceString $locator "evidence_mode" $locatorContext
+        if($sources[$evidenceSourceId].evidence_modes -notcontains $evidenceMode){throw "Source registry '$locatorContext.evidence_mode' is not declared by the evidence source."}
         $locatorType=Get-RequiredSourceString $locator "locator_type" $locatorContext;Assert-SourceSchemaPackValues $SchemaPackRegistry "provenance.locator-type" @($locatorType) "$locatorContext.locator_type"
         $locatorMedium=$mediums[$locatorMediumId];$position=$null;$start=$null;$end=$null
         if($locatorType -eq "point"){
           if($locator.Contains("start") -or $locator.Contains("end")){throw "Source registry '$locatorContext' point locator cannot declare start or end."}
-          $position=Get-ProjectMapValue $locator "position";Assert-SourceEvidencePosition $position $locatorMedium $sources[$evidenceSourceId].work_ids $works "$locatorContext.position"
+          $position=Get-ProjectMapValue $locator "position";Assert-SourceEvidencePosition $position $locatorMedium $sources[$evidenceSourceId].work_ids $works $segments $orderingSchemes "$locatorContext.position"
+          Assert-SourceLocatorCoverage $sources[$evidenceSourceId] $locatorMedium @($position) $segments $contentGroups $manifestations $releaseComponents $releasePackages $orderingSchemes $locatorContext
           $shapeValue=(($position.Keys|Sort-Object|ForEach-Object {"$_=$($position[$_])"}) -join '|')
         } else {
           if($locator.Contains("position")){throw "Source registry '$locatorContext' range locator cannot declare position."}
           $start=Get-ProjectMapValue $locator "start";$end=Get-ProjectMapValue $locator "end"
           if($null -eq $start -or $start -isnot [System.Collections.IDictionary] -or $null -eq $end -or $end -isnot [System.Collections.IDictionary]){throw "Source registry '$locatorContext' range start and end must be mappings."}
           $startKeys=@($start.Keys|ForEach-Object {[string]$_}|Sort-Object);$endKeys=@($end.Keys|ForEach-Object {[string]$_}|Sort-Object);if(@(Compare-Object $startKeys $endKeys).Count -gt 0){throw "Source registry '$locatorContext' range start/end fields must be identical."}
-          Assert-SourceEvidencePosition $start $locatorMedium $sources[$evidenceSourceId].work_ids $works "$locatorContext.start";Assert-SourceEvidencePosition $end $locatorMedium $sources[$evidenceSourceId].work_ids $works "$locatorContext.end"
-          if((Compare-SourcePositions $start $end $locatorMedium) -gt 0){throw "Source registry '$locatorContext' range start must not follow end."}
+          Assert-SourceEvidencePosition $start $locatorMedium $sources[$evidenceSourceId].work_ids $works $segments $orderingSchemes "$locatorContext.start";Assert-SourceEvidencePosition $end $locatorMedium $sources[$evidenceSourceId].work_ids $works $segments $orderingSchemes "$locatorContext.end"
+          $workScopeField=$locatorMedium.work_scope_field;if([string]$start[$workScopeField] -ne [string]$end[$workScopeField]){throw "Source registry '$locatorContext' range endpoints must identify the same work."}
+          if((Compare-SourcePositions $start $end $locatorMedium $orderingSchemes $locatorContext) -gt 0){throw "Source registry '$locatorContext' range start must not follow end."}
+          Assert-SourceLocatorCoverage $sources[$evidenceSourceId] $locatorMedium @($start,$end) $segments $contentGroups $manifestations $releaseComponents $releasePackages $orderingSchemes $locatorContext
           $shapeValue="$(($start.Keys|Sort-Object|ForEach-Object {"$_=$($start[$_])"}) -join '|')->$(($end.Keys|Sort-Object|ForEach-Object {"$_=$($end[$_])"}) -join '|')"
         }
-        $shapeKey="$locatorMediumId|$locatorType|$shapeValue";if(-not $seenLocatorShapes.Add($shapeKey)){throw "Source registry '$evidenceContext.locators' repeats a locator."}
-        $locators += [pscustomobject]@{id=$locatorId;medium_id=$locatorMediumId;locator_type=$locatorType;position=$position;start=$start;end=$end}
+        $shapeKey="$locatorMediumId|$evidenceMode|$locatorType|$shapeValue";if(-not $seenLocatorShapes.Add($shapeKey)){throw "Source registry '$evidenceContext.locators' repeats a locator."}
+        $locators += [pscustomobject]@{id=$locatorId;medium_id=$locatorMediumId;evidence_mode=$evidenceMode;locator_type=$locatorType;position=$position;start=$start;end=$end}
       }
       $evidenceLinks += [pscustomobject]@{source_id=$evidenceSourceId;evidence_role=$evidenceRole;locators=@($locators)}
     }
@@ -2100,15 +2232,22 @@ function Get-KnowledgeSourceRegistry {
   }
 }
 
-function Get-KnowledgeSourceAuthorityRank {
-  param([object]$SourceRegistry,[string]$ProfileId,[string]$ClaimNamespace,[string]$SourceId)
+function Get-KnowledgeSourceAuthorityDecision {
+  param([object]$SourceRegistry,[string]$ProfileId,[string]$ClaimNamespace,[string]$SourceId,[string]$EvidenceMode=$null)
   if(-not $SourceRegistry.authority_profiles.Contains($ProfileId)){throw "Unknown authority profile '$ProfileId'."}
   if(-not $SourceRegistry.sources.Contains($SourceId)){throw "Unknown source '$SourceId'."}
   if(-not $SourceRegistry.claim_namespace_ancestors.Contains($ClaimNamespace)){throw "Unknown claim namespace '$ClaimNamespace'."}
   $profile=$SourceRegistry.authority_profiles[$ProfileId];$source=$SourceRegistry.sources[$SourceId]
-  $ancestors=@($SourceRegistry.claim_namespace_ancestors[$ClaimNamespace]);$matches=@($profile.claim_authority_rules|Where-Object {$ancestors -contains $_.claim_namespace -and (Test-SourceAuthorityRuleMatch $_ $source)})
-  if($matches.Count -eq 0){return [int]$source.priority}
+  if($null -ne $EvidenceMode -and $source.evidence_modes -notcontains $EvidenceMode){throw "Evidence mode '$EvidenceMode' is not declared by source '$SourceId'."}
+  $ancestors=@($SourceRegistry.claim_namespace_ancestors[$ClaimNamespace]);$matches=@($profile.claim_authority_rules|Where-Object {$ancestors -contains $_.claim_namespace -and (Test-SourceAuthorityRuleMatch $_ $source $EvidenceMode)})
+  if($matches.Count -eq 0){return [pscustomobject]@{rank=[int]$source.priority;winning_rule_id=$null;matched_claim_namespace=$ClaimNamespace;inherited=$false;priority_fallback=$true}}
   $highest=[int](($matches|Measure-Object -Property precedence -Maximum).Maximum);$winners=@($matches|Where-Object {$_.precedence -eq $highest})
   if($winners.Count -gt 1){throw "Authority profile '$ProfileId' has ambiguous precedence '$highest' rules for source '$SourceId' and claim namespace '$ClaimNamespace'."}
-  return [int]$winners[0].rank
+  $winner=$winners[0]
+  return [pscustomobject]@{rank=[int]$winner.rank;winning_rule_id=[string]$winner.id;matched_claim_namespace=[string]$winner.claim_namespace;inherited=([string]$winner.claim_namespace -ne $ClaimNamespace);priority_fallback=$false}
+}
+
+function Get-KnowledgeSourceAuthorityRank {
+  param([object]$SourceRegistry,[string]$ProfileId,[string]$ClaimNamespace,[string]$SourceId,[string]$EvidenceMode=$null)
+  return [int](Get-KnowledgeSourceAuthorityDecision $SourceRegistry $ProfileId $ClaimNamespace $SourceId $EvidenceMode).rank
 }

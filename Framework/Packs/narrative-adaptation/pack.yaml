@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-adaptation
-pack_version: 5
+pack_version: 6
 lifecycle: active
 pack_kind: domain
 label: Narrative Adaptation
@@ -8,7 +8,7 @@ description: Work- and segment-level adaptation lineage, mappings, deviations, a
 
 dependencies:
   - pack_id: narrative-media
-    minimum_version: 9
+    minimum_version: 10
 
 capabilities:
   - adaptation-lineage

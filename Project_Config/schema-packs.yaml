@@ -41,6 +41,10 @@ capability_activation:
     - evidence-locator-ranges
     - structural-position-validation
     - semantic-provenance-paths
+    - evidence-mode-attribution
+    - source-bounded-evidence
+    - explainable-authority-decisions
+    - ordered-temporal-windows
     - authority-profiles
     - typed-relationships
     - temporal-positions
@@ -78,6 +82,8 @@ capability_activation:
     - adaptation-mappings
     - reader-disclosure
     - spoiler-bounding
+    - segment-anchored-locators
+    - ordering-backed-position-validation
     - adaptation-comparison
     - manifestations
     - release-components

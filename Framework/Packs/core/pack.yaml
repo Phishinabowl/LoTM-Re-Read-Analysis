@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: core
-pack_version: 6
+pack_version: 7
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -28,6 +28,10 @@ capabilities:
   - evidence-locator-ranges
   - structural-position-validation
   - semantic-provenance-paths
+  - evidence-mode-attribution
+  - source-bounded-evidence
+  - explainable-authority-decisions
+  - ordered-temporal-windows
   - authority-profiles
   - typed-relationships
   - temporal-positions
@@ -56,6 +60,9 @@ controlled_values:
   provenance.locator-type:
     - point
     - range
+  provenance.evidence-mode:
+    - direct-observation
+    - documentary-record
   provenance.subject-type:
     - source
     - source-relationship

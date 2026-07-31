@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-media
-pack_version: 9
+pack_version: 10
 lifecycle: active
 pack_kind: domain
 label: Narrative Media Foundation
@@ -8,7 +8,7 @@ description: Domain-neutral narrative works, media facets, ordering, continuitie
 
 dependencies:
   - pack_id: core
-    minimum_version: 6
+    minimum_version: 7
 
 capabilities:
   - franchises
@@ -31,6 +31,8 @@ capabilities:
   - narrative-time
   - reader-disclosure
   - spoiler-bounding
+  - segment-anchored-locators
+  - ordering-backed-position-validation
   - id: scoped-continuity
     lifecycle: planned
     label: Scoped Continuity
@@ -48,6 +50,10 @@ controlled_values:
   provenance.claim-namespace:
     - canonical-content
     - localization
+  provenance.evidence-mode:
+    - official-illustration
+  source.position-structure-strategy:
+    - work-segment-ordering
   source.source-role:
     - primary-edition
     - official-release

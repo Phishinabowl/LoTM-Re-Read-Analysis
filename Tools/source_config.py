@@ -12,7 +12,7 @@ from resource_config import ResourceConfig
 from schema_pack_config import SchemaPackRegistry, load_schema_pack_registry
 
 
-SUPPORTED_SOURCE_SCHEMA_VERSION = 10
+SUPPORTED_SOURCE_SCHEMA_VERSION = 11
 LIFECYCLES = {"active", "deferred"}
 POSITION_FIELD_TYPES = {"string", "integer", "number", "timestamp", "boolean"}
 PRIORITY_ORDERS = {"ascending", "descending"}
@@ -86,6 +86,15 @@ class AuthorityRule:
 
 
 @dataclass(frozen=True)
+class AuthorityDecision:
+    rank: int
+    winning_rule_id: str | None
+    matched_claim_namespace: str
+    inherited: bool
+    priority_fallback: bool
+
+
+@dataclass(frozen=True)
 class AuthorityProfile:
     id: str
     lifecycle: str
@@ -116,8 +125,10 @@ class RegistryValueConfig:
 @dataclass(frozen=True)
 class PositionStructuralValidation:
     strategy: str
-    partition_field: str
-    ordinal_field: str
+    partition_field: str | None
+    ordinal_field: str | None
+    segment_field: str | None
+    ordering_scheme_field: str | None
 
 
 @dataclass(frozen=True)
@@ -570,6 +581,7 @@ class ProvenanceEvidenceLink:
 class EvidenceLocator:
     id: str
     medium_id: str
+    evidence_mode: str
     locator_type: str
     position: dict[str, object] | None
     start: dict[str, object] | None
@@ -655,9 +667,13 @@ class SourceRegistry:
                 return work_id
         return self.work_aliases.get(normalized)
 
-    def authority_rank(
-        self, profile_id: str, claim_namespace: str, source_id: str
-    ) -> int:
+    def authority_decision(
+        self,
+        profile_id: str,
+        claim_namespace: str,
+        source_id: str,
+        evidence_mode: str | None = None,
+    ) -> AuthorityDecision:
         if profile_id not in self.authority_profiles:
             raise ValueError(f"Unknown authority profile `{profile_id}`.")
         if source_id not in self.sources:
@@ -666,15 +682,22 @@ class SourceRegistry:
             raise ValueError(f"Unknown claim namespace `{claim_namespace}`.")
         profile = self.authority_profiles[profile_id]
         source = self.sources[source_id]
+        if evidence_mode is not None and evidence_mode not in source.evidence_modes:
+            raise ValueError(
+                f"Evidence mode `{evidence_mode}` is not declared by source "
+                f"`{source_id}`."
+            )
         applicable_namespaces = self.claim_namespace_ancestors[claim_namespace]
         matches = [
             rule
             for rule in profile.claim_authority_rules
             if rule.claim_namespace in applicable_namespaces
-            and authority_rule_matches_source(rule, source)
+            and authority_rule_matches_source(rule, source, evidence_mode)
         ]
         if not matches:
-            return source.priority
+            return AuthorityDecision(
+                source.priority, None, claim_namespace, False, True
+            )
         winning_precedence = max(rule.precedence for rule in matches)
         winners = [
             rule for rule in matches if rule.precedence == winning_precedence
@@ -685,11 +708,31 @@ class SourceRegistry:
                 f"`{winning_precedence}` rules for source `{source_id}` and claim "
                 f"namespace `{claim_namespace}`."
             )
-        return winners[0].rank
+        winner = winners[0]
+        return AuthorityDecision(
+            winner.rank,
+            winner.id,
+            winner.claim_namespace,
+            winner.claim_namespace != claim_namespace,
+            False,
+        )
+
+    def authority_rank(
+        self,
+        profile_id: str,
+        claim_namespace: str,
+        source_id: str,
+        evidence_mode: str | None = None,
+    ) -> int:
+        return self.authority_decision(
+            profile_id, claim_namespace, source_id, evidence_mode
+        ).rank
 
 
 def authority_rule_matches_source(
-    rule: AuthorityRule, source: SourceConfig
+    rule: AuthorityRule,
+    source: SourceConfig,
+    evidence_mode: str | None = None,
 ) -> bool:
     return (
         (not rule.source_ids or source.id in rule.source_ids)
@@ -697,7 +740,7 @@ def authority_rule_matches_source(
         and (not rule.medium_ids or source.medium_id in rule.medium_ids)
         and (
             not rule.evidence_modes
-            or bool(set(rule.evidence_modes).intersection(source.evidence_modes))
+            or evidence_mode in rule.evidence_modes
         )
     )
 
@@ -895,6 +938,15 @@ def parse_temporal_window(
             f"Source registry `{window_context}.timezone` is only valid for datetime "
             "precision."
         )
+    if (
+        start is not None
+        and end is not None
+        and temporal_bound(start, precision, upper=False)
+        > temporal_bound(end, precision, upper=True)
+    ):
+        raise ValueError(
+            f"Source registry `{window_context}.end` must not precede start."
+        )
     return TemporalWindow(start, end, precision, certainty, timezone)
 
 
@@ -1022,13 +1074,45 @@ def position_sort_value(value: object, field_type: str) -> object:
 
 
 def compare_positions(
-    left: dict[str, object], right: dict[str, object], medium: MediumConfig
+    left: dict[str, object],
+    right: dict[str, object],
+    medium: MediumConfig,
+    ordering_schemes: dict[str, OrderingScheme] | None = None,
+    context: str = "position range",
 ) -> int:
+    validation = medium.structural_validation
     for field_id in medium.sort_fields:
         if field_id not in left:
             continue
-        left_value = position_sort_value(left[field_id], medium.fields[field_id])
-        right_value = position_sort_value(right[field_id], medium.fields[field_id])
+        if (
+            validation is not None
+            and validation.strategy == "work-segment-ordering"
+            and field_id == validation.segment_field
+        ):
+            if ordering_schemes is None:
+                raise ValueError(
+                    f"Source registry `{context}` requires ordering schemes for "
+                    "segment comparison."
+                )
+            scheme_field = validation.ordering_scheme_field
+            if left[scheme_field] != right[scheme_field]:
+                raise ValueError(
+                    f"Source registry `{context}` range endpoints must use the "
+                    "same ordering scheme."
+                )
+            scheme = ordering_schemes[str(left[scheme_field])]
+            entry_ordinals = {
+                entry.target_id: entry.ordinal for entry in scheme.entries
+            }
+            left_value = entry_ordinals[str(left[field_id])]
+            right_value = entry_ordinals[str(right[field_id])]
+        else:
+            left_value = position_sort_value(
+                left[field_id], medium.fields[field_id]
+            )
+            right_value = position_sort_value(
+                right[field_id], medium.fields[field_id]
+            )
         if left_value < right_value:
             return -1
         if left_value > right_value:
@@ -1040,6 +1124,8 @@ def validate_structural_position(
     position: dict[str, object],
     medium: MediumConfig,
     works: dict[str, WorkConfig],
+    segments: dict[str, SegmentConfig],
+    ordering_schemes: dict[str, OrderingScheme],
     context: str,
 ) -> None:
     validation = medium.structural_validation
@@ -1047,6 +1133,38 @@ def validate_structural_position(
         return
     work_id = position[medium.work_scope_field]
     work = works[work_id]
+    if validation.strategy == "work-segment-ordering":
+        segment_id = str(position[validation.segment_field])
+        scheme_id = str(position[validation.ordering_scheme_field])
+        if segment_id not in segments:
+            raise ValueError(
+                f"Source registry `{context}.{validation.segment_field}` references "
+                f"unknown segment `{segment_id}`."
+            )
+        if segments[segment_id].work_id != work_id:
+            raise ValueError(
+                f"Source registry `{context}` assigns segment `{segment_id}` to "
+                f"the wrong work."
+            )
+        if scheme_id not in ordering_schemes:
+            raise ValueError(
+                f"Source registry `{context}.{validation.ordering_scheme_field}` "
+                f"references unknown ordering scheme `{scheme_id}`."
+            )
+        scheme = ordering_schemes[scheme_id]
+        if scheme.ordering_mode != "total":
+            raise ValueError(
+                f"Source registry `{context}` requires a total ordering scheme."
+            )
+        if not any(
+            entry.target_type == "segment" and entry.target_id == segment_id
+            for entry in scheme.entries
+        ):
+            raise ValueError(
+                f"Source registry `{context}` segment `{segment_id}` is absent "
+                f"from ordering scheme `{scheme_id}`."
+            )
+        return
     if validation.strategy != "work-volume-catalog":
         raise ValueError(
             f"Source registry `{context}` uses unsupported structural validation "
@@ -1080,6 +1198,8 @@ def validate_source_position(
     medium: MediumConfig,
     source_work_ids: tuple[str, ...],
     works: dict[str, WorkConfig],
+    segments: dict[str, SegmentConfig],
+    ordering_schemes: dict[str, OrderingScheme],
     context: str,
 ) -> None:
     if not position:
@@ -1105,7 +1225,9 @@ def validate_source_position(
             f"Source registry `{context}` falls outside the evidence source work "
             "scope."
         )
-    validate_structural_position(position, medium, works, context)
+    validate_structural_position(
+        position, medium, works, segments, ordering_schemes, context
+    )
 
 
 def resolve_record_field_path(record: object, field_path: str, context: str) -> object:
@@ -1485,33 +1607,65 @@ def parse_medium(
             (strategy,),
             f"{validation_context}.strategy",
         )
-        partition_field = require_string(
-            validation, "partition_field", validation_context
-        )
-        ordinal_field = require_string(
-            validation, "ordinal_field", validation_context
-        )
-        for field_name, field_id in (
-            ("partition_field", partition_field),
-            ("ordinal_field", ordinal_field),
-        ):
-            if field_id not in fields or fields[field_id] != "integer":
+        partition_field = None
+        ordinal_field = None
+        segment_field = None
+        ordering_scheme_field = None
+        if strategy == "work-volume-catalog":
+            partition_field = require_string(
+                validation, "partition_field", validation_context
+            )
+            ordinal_field = require_string(
+                validation, "ordinal_field", validation_context
+            )
+            configured_fields = (
+                ("partition_field", partition_field, "integer"),
+                ("ordinal_field", ordinal_field, "integer"),
+            )
+        elif strategy == "work-segment-ordering":
+            segment_field = require_string(
+                validation, "segment_field", validation_context
+            )
+            ordering_scheme_field = require_string(
+                validation, "ordering_scheme_field", validation_context
+            )
+            configured_fields = (
+                ("segment_field", segment_field, "string"),
+                ("ordering_scheme_field", ordering_scheme_field, "string"),
+            )
+        else:
+            raise ValueError(
+                f"Source registry `{validation_context}.strategy` is not "
+                f"implemented by this loader: `{strategy}`."
+            )
+        for field_name, field_id, field_type in configured_fields:
+            if field_id not in fields or fields[field_id] != field_type:
                 raise ValueError(
                     f"Source registry `{validation_context}.{field_name}` must "
-                    "reference a configured integer position field."
+                    f"reference a configured {field_type} position field."
                 )
-            if field_name == "ordinal_field" and field_id not in sort_fields:
-                raise ValueError(
-                    f"Source registry `{validation_context}.ordinal_field` must "
-                    "also be listed in sort_fields."
-                )
-        if ordinal_field not in required_fields:
+        ordered_field = ordinal_field or segment_field
+        required_validation_fields = (
+            {ordinal_field}
+            if strategy == "work-volume-catalog"
+            else {segment_field, ordering_scheme_field}
+        )
+        if ordered_field not in sort_fields:
             raise ValueError(
-                f"Source registry `{validation_context}.ordinal_field` must also "
+                f"Source registry `{validation_context}` ordered field must also "
+                "be listed in sort_fields."
+            )
+        if not required_validation_fields.issubset(required_fields):
+            raise ValueError(
+                f"Source registry `{validation_context}` structural fields must "
                 "be listed in required_fields."
             )
         structural_validation = PositionStructuralValidation(
-            strategy, partition_field, ordinal_field
+            strategy,
+            partition_field,
+            ordinal_field,
+            segment_field,
+            ordering_scheme_field,
         )
     for list_name, values in (
         ("required_fields", required_fields),
@@ -2073,8 +2227,12 @@ def load_source_registry(
                 )
             for source_id in source_ids:
                 validate_id(source_id, f"{rule_context}.source_ids")
-            for evidence_mode in evidence_modes:
-                validate_id(evidence_mode, f"{rule_context}.evidence_modes")
+            validate_pack_values(
+                schema_packs,
+                "provenance.evidence-mode",
+                evidence_modes,
+                f"{rule_context}.evidence_modes",
+            )
             rank = rule.get("rank")
             if isinstance(rank, bool) or not isinstance(rank, int) or rank < 1:
                 raise ValueError(
@@ -4382,8 +4540,12 @@ def load_source_registry(
                 )
             aliases[alias_key] = source_id
         evidence_modes = require_string_list(source, "evidence_modes", context)
-        for evidence_mode in evidence_modes:
-            validate_id(evidence_mode, f"{context}.evidence_modes")
+        validate_pack_values(
+            schema_packs,
+            "provenance.evidence-mode",
+            evidence_modes,
+            f"{context}.evidence_modes",
+        )
         observation_targets = {
             "manifestation": manifestations,
             "release-package": release_packages,
@@ -4626,12 +4788,28 @@ def load_source_registry(
                         "coverage target work scope."
                     )
                 validate_structural_position(
-                    start, mediums[medium_id], works, f"{range_context}.start"
+                    start,
+                    mediums[medium_id],
+                    works,
+                    segments,
+                    ordering_schemes,
+                    f"{range_context}.start",
                 )
                 validate_structural_position(
-                    end, mediums[medium_id], works, f"{range_context}.end"
+                    end,
+                    mediums[medium_id],
+                    works,
+                    segments,
+                    ordering_schemes,
+                    f"{range_context}.end",
                 )
-                if compare_positions(start, end, mediums[medium_id]) > 0:
+                if compare_positions(
+                    start,
+                    end,
+                    mediums[medium_id],
+                    ordering_schemes,
+                    range_context,
+                ) > 0:
                     raise ValueError(
                         f"Source registry `{range_context}` start must not follow end."
                     )
@@ -4706,29 +4884,34 @@ def load_source_registry(
                 )
         for claim_namespace, ancestors in claim_namespace_ancestors.items():
             for source in sources.values():
-                matches = [
-                    rule
-                    for rule in profile.claim_authority_rules
-                    if rule.claim_namespace in ancestors
-                    and authority_rule_matches_source(rule, source)
-                ]
-                if not matches:
-                    continue
-                highest_precedence = max(
-                    rule.precedence for rule in matches
-                )
-                winners = [
-                    rule
-                    for rule in matches
-                    if rule.precedence == highest_precedence
-                ]
-                if len(winners) > 1:
-                    raise ValueError(
-                        f"Source registry authority profile `{profile.id}` has "
-                        f"ambiguous precedence `{highest_precedence}` rules for "
-                        f"source `{source.id}` and claim namespace "
-                        f"`{claim_namespace}`."
+                for evidence_mode in (None, *source.evidence_modes):
+                    matches = [
+                        rule
+                        for rule in profile.claim_authority_rules
+                        if rule.claim_namespace in ancestors
+                        and authority_rule_matches_source(
+                            rule, source, evidence_mode
+                        )
+                    ]
+                    if not matches:
+                        continue
+                    highest_precedence = max(
+                        rule.precedence for rule in matches
                     )
+                    winners = [
+                        rule
+                        for rule in matches
+                        if rule.precedence == highest_precedence
+                    ]
+                    if len(winners) > 1:
+                        mode_context = evidence_mode or "unspecified"
+                        raise ValueError(
+                            f"Source registry authority profile `{profile.id}` has "
+                            f"ambiguous precedence `{highest_precedence}` rules for "
+                            f"source `{source.id}`, claim namespace "
+                            f"`{claim_namespace}`, and evidence mode "
+                            f"`{mode_context}`."
+                        )
 
     raw_source_relationships = registry.get("source_relationships")
     if not isinstance(raw_source_relationships, list):
@@ -4853,6 +5036,201 @@ def load_source_registry(
             for nested_type, nested_records in nested_provenance_targets.items()
         },
     }
+
+    def target_work_scope(target_type: str, target_id: str) -> set[str]:
+        if target_type == "work":
+            return {target_id}
+        if target_type == "segment":
+            return {segments[target_id].work_id}
+        if target_type == "content-group":
+            result: set[str] = set()
+            for member in content_groups[target_id].members:
+                result.update(target_work_scope(member.target_type, member.target_id))
+            return result
+        if target_type == "manifestation":
+            return {manifestations[target_id].work_id}
+        if target_type == "release-component":
+            component = release_components[target_id]
+            result = {segments[item].work_id for item in component.segment_ids}
+            if component.manifestation_id is not None:
+                result.add(manifestations[component.manifestation_id].work_id)
+            return result
+        return release_package_work_ids(target_id)
+
+    def target_segment_scope(target_type: str, target_id: str) -> set[str]:
+        if target_type == "segment":
+            return {target_id}
+        if target_type == "content-group":
+            result: set[str] = set()
+            for member in content_groups[target_id].members:
+                result.update(
+                    target_segment_scope(member.target_type, member.target_id)
+                )
+            return result
+        if target_type == "manifestation":
+            return set(manifestations[target_id].segment_ids)
+        if target_type == "release-component":
+            return set(release_components[target_id].segment_ids)
+        if target_type == "release-package":
+            package = release_packages[target_id]
+            result = set(package.segment_ids)
+            for component_id in package.release_component_ids:
+                result.update(release_components[component_id].segment_ids)
+            for manifestation_id in package.manifestation_ids:
+                result.update(manifestations[manifestation_id].segment_ids)
+            return result
+        return set()
+
+    def target_complete_work_scope(target_type: str, target_id: str) -> set[str]:
+        if target_type == "work":
+            return {target_id}
+        if target_type == "content-group":
+            result: set[str] = set()
+            for member in content_groups[target_id].members:
+                result.update(
+                    target_complete_work_scope(
+                        member.target_type, member.target_id
+                    )
+                )
+            return result
+        if target_type == "manifestation":
+            manifestation = manifestations[target_id]
+            return {manifestation.work_id} if not manifestation.segment_ids else set()
+        if target_type == "release-component":
+            component = release_components[target_id]
+            if component.segment_ids or component.manifestation_id is None:
+                return set()
+            manifestation = manifestations[component.manifestation_id]
+            return {manifestation.work_id} if not manifestation.segment_ids else set()
+        if target_type == "release-package":
+            package = release_packages[target_id]
+            result: set[str] = set()
+            for manifestation_id in package.manifestation_ids:
+                manifestation = manifestations[manifestation_id]
+                if not manifestation.segment_ids:
+                    result.add(manifestation.work_id)
+            for component_id in package.release_component_ids:
+                result.update(
+                    target_complete_work_scope(
+                        "release-component", component_id
+                    )
+                )
+            return result
+        return set()
+
+    def position_segment_id(
+        position: dict[str, object], medium: MediumConfig
+    ) -> str | None:
+        validation = medium.structural_validation
+        if (
+            validation is None
+            or validation.strategy != "work-segment-ordering"
+        ):
+            return None
+        return str(position[validation.segment_field])
+
+    def range_contains_positions(
+        coverage_range: CoveragePositionRange,
+        positions: tuple[dict[str, object], ...],
+        medium: MediumConfig,
+        context: str,
+    ) -> bool:
+        range_fields = set(coverage_range.start)
+        if any(not range_fields.issubset(position) for position in positions):
+            return False
+        for position in positions:
+            projected = {field: position[field] for field in range_fields}
+            if compare_positions(
+                coverage_range.start,
+                projected,
+                medium,
+                ordering_schemes,
+                context,
+            ) > 0 or compare_positions(
+                projected,
+                coverage_range.end,
+                medium,
+                ordering_schemes,
+                context,
+            ) > 0:
+                return False
+        return True
+
+    def assert_locator_covered(
+        source: SourceConfig,
+        medium: MediumConfig,
+        positions: tuple[dict[str, object], ...],
+        context: str,
+    ) -> None:
+        work_id = str(positions[0][medium.work_scope_field])
+        if medium.id == source.medium_id and source.coverage:
+            covered = False
+            for coverage_entry in source.coverage:
+                if work_id not in target_work_scope(
+                    coverage_entry.target_type, coverage_entry.target_id
+                ):
+                    continue
+                if coverage_entry.position_ranges and any(
+                    range_contains_positions(
+                        coverage_range, positions, medium, context
+                    )
+                    for coverage_range in coverage_entry.position_ranges
+                ):
+                    covered = True
+                    break
+                segment_ids = {
+                    position_segment_id(position, medium)
+                    for position in positions
+                }
+                target_segments = target_segment_scope(
+                    coverage_entry.target_type, coverage_entry.target_id
+                )
+                if (
+                    coverage_entry.coverage_type == "complete"
+                    and not coverage_entry.position_ranges
+                    and work_id
+                    in target_complete_work_scope(
+                        coverage_entry.target_type, coverage_entry.target_id
+                    )
+                ):
+                    covered = True
+                    break
+                if None not in segment_ids and segment_ids.issubset(target_segments):
+                    covered = True
+                    break
+            if not covered:
+                raise ValueError(
+                    f"Source registry `{context}` falls outside the evidence "
+                    f"source's declared coverage."
+                )
+
+        scope_sets: list[set[str]] = []
+        if source.manifestation_id is not None:
+            manifestation_segments = set(
+                manifestations[source.manifestation_id].segment_ids
+            )
+            if manifestation_segments:
+                scope_sets.append(manifestation_segments)
+        for component_id in source.release_component_ids:
+            component_segments = set(release_components[component_id].segment_ids)
+            if component_segments:
+                scope_sets.append(component_segments)
+        if source.release_package_id is not None:
+            package = release_packages[source.release_package_id]
+            if package.segment_ids and not package.manifestation_ids:
+                scope_sets.append(set(package.segment_ids))
+        if scope_sets:
+            segment_ids = {
+                position_segment_id(position, medium) for position in positions
+            }
+            if None in segment_ids or any(
+                not segment_ids.issubset(scope) for scope in scope_sets
+            ):
+                raise ValueError(
+                    f"Source registry `{context}` falls outside the evidence "
+                    "source's segment scope."
+                )
+
     raw_provenance_assertions = registry.get("provenance_assertions")
     if not isinstance(raw_provenance_assertions, list):
         raise ValueError(
@@ -4975,7 +5353,7 @@ def load_source_registry(
                     "non-empty list."
                 )
             locators: list[EvidenceLocator] = []
-            seen_locator_shapes: set[tuple[str, str, str]] = set()
+            seen_locator_shapes: set[tuple[str, str, str, str]] = set()
             for locator_index, raw_locator in enumerate(raw_locators):
                 locator_context = (
                     f"{evidence_context}.locators[{locator_index}]"
@@ -5001,6 +5379,14 @@ def load_source_registry(
                     raise ValueError(
                         f"Source registry `{locator_context}.medium_id` is not "
                         "allowed by the evidence source."
+                    )
+                evidence_mode = require_string(
+                    locator, "evidence_mode", locator_context
+                )
+                if evidence_mode not in sources[evidence_source_id].evidence_modes:
+                    raise ValueError(
+                        f"Source registry `{locator_context}.evidence_mode` is not "
+                        "declared by the evidence source."
                     )
                 locator_type = require_string(
                     locator, "locator_type", locator_context
@@ -5029,7 +5415,15 @@ def load_source_registry(
                         locator_medium,
                         sources[evidence_source_id].work_ids,
                         works,
+                        segments,
+                        ordering_schemes,
                         f"{locator_context}.position",
+                    )
+                    assert_locator_covered(
+                        sources[evidence_source_id],
+                        locator_medium,
+                        (position,),
+                        locator_context,
                     )
                     shape_value = repr(sorted(position.items()))
                 else:
@@ -5054,6 +5448,8 @@ def load_source_registry(
                         locator_medium,
                         sources[evidence_source_id].work_ids,
                         works,
+                        segments,
+                        ordering_schemes,
                         f"{locator_context}.start",
                     )
                     validate_source_position(
@@ -5061,19 +5457,40 @@ def load_source_registry(
                         locator_medium,
                         sources[evidence_source_id].work_ids,
                         works,
+                        segments,
+                        ordering_schemes,
                         f"{locator_context}.end",
                     )
-                    if compare_positions(start, end, locator_medium) > 0:
+                    work_scope_field = locator_medium.work_scope_field
+                    if start[work_scope_field] != end[work_scope_field]:
+                        raise ValueError(
+                            f"Source registry `{locator_context}` range endpoints "
+                            "must identify the same work."
+                        )
+                    if compare_positions(
+                        start,
+                        end,
+                        locator_medium,
+                        ordering_schemes,
+                        locator_context,
+                    ) > 0:
                         raise ValueError(
                             f"Source registry `{locator_context}` range start must "
                             "not follow end."
                         )
+                    assert_locator_covered(
+                        sources[evidence_source_id],
+                        locator_medium,
+                        (start, end),
+                        locator_context,
+                    )
                     shape_value = (
                         f"{repr(sorted(start.items()))}|"
                         f"{repr(sorted(end.items()))}"
                     )
                 locator_shape = (
                     locator_medium_id,
+                    evidence_mode,
                     locator_type,
                     shape_value,
                 )
@@ -5087,6 +5504,7 @@ def load_source_registry(
                     EvidenceLocator(
                         locator_id,
                         locator_medium_id,
+                        evidence_mode,
                         locator_type,
                         dict(position) if position is not None else None,
                         dict(start) if start is not None else None,

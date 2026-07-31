@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-screen-audio
-pack_version: 6
+pack_version: 7
 lifecycle: active
 pack_kind: domain
 label: Narrative Screen and Audio
@@ -8,7 +8,7 @@ description: Film, television, animation, audio drama, podcast, episode, special
 
 dependencies:
   - pack_id: narrative-media
-    minimum_version: 9
+    minimum_version: 10
 
 capabilities:
   - screen-works
@@ -40,6 +40,12 @@ controlled_values:
     - id: visual-design
       label: Visual Design
       broader_value: canonical-content
+  provenance.evidence-mode:
+    - animation-visual
+    - dialogue
+    - on-screen-text
+    - subtitle-dialogue
+    - translated-on-screen-text
   source.source-relationship-type:
     - subtitle-track-of
     - has-subtitle-track
