@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-publishing
-pack_version: 6
+pack_version: 7
 lifecycle: active
 pack_kind: domain
 label: Narrative Publishing
@@ -8,7 +8,7 @@ description: Prose and sequential-art serialization, editions, localization, and
 
 dependencies:
   - pack_id: narrative-media
-    minimum_version: 10
+    minimum_version: 11
 
 capabilities:
   - serialization
@@ -32,7 +32,9 @@ controlled_values:
   provenance.claim-namespace:
     - publication-metadata
   provenance.evidence-mode:
-    - canonical-text
+    - id: canonical-text
+      label: Canonical Text
+      broader_value: textual-evidence
   source.position-structure-strategy:
     - work-volume-catalog
   source.work-type:

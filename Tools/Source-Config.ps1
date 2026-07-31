@@ -11,7 +11,7 @@ if (-not (Get-Command Get-KnowledgeSchemaPackRegistry -ErrorAction SilentlyConti
   . $schemaPackConfigHelper
 }
 
-$script:SupportedSourceSchemaVersion = 11
+$script:SupportedSourceSchemaVersion = 12
 $script:AllowedSourceLifecycles = @("active", "deferred")
 $script:AllowedPositionFieldTypes = @("string", "integer", "number", "timestamp", "boolean")
 $script:AllowedPriorityOrders = @("ascending", "descending")
@@ -556,11 +556,12 @@ function Test-SourceCoverageRangeContainsPositions {
 }
 
 function Assert-SourceLocatorCoverage {
-  param([object]$Source,[object]$Medium,[object[]]$Positions,[object]$Segments,[object]$ContentGroups,[object]$Manifestations,[object]$ReleaseComponents,[object]$ReleasePackages,[object]$OrderingSchemes,[string]$Context)
+  param([object]$Source,[object]$Medium,[string]$EvidenceMode,[object[]]$Positions,[object]$Segments,[object]$ContentGroups,[object]$Manifestations,[object]$ReleaseComponents,[object]$ReleasePackages,[object]$OrderingSchemes,[string]$Context)
   $workId=[string]$Positions[0][$Medium.work_scope_field]
-  if($Medium.id -eq $Source.medium_id -and $Source.coverage.Count -gt 0){
+  if($Source.coverage.Count -gt 0){
     $covered=$false
     foreach($coverage in $Source.coverage){
+      if($coverage.medium_id -ne $Medium.id -or $coverage.evidence_modes -notcontains $EvidenceMode){continue}
       $targetWorks=@(Get-SourceTargetWorkScope $coverage.target_type $coverage.target_id $Segments $ContentGroups $Manifestations $ReleaseComponents $ReleasePackages)
       if($targetWorks -notcontains $workId){continue}
       foreach($range in $coverage.position_ranges){if(Test-SourceCoverageRangeContainsPositions $range $Positions $Medium $OrderingSchemes $Context){$covered=$true;break}}
@@ -609,12 +610,32 @@ function ConvertTo-SourceIdMap {
   return $result
 }
 
+function ConvertTo-SourceCanonicalJson {
+  param([object]$Value)
+  if($null -eq $Value){return "null"}
+  if($Value -is [System.Collections.IDictionary]){
+    $members=@($Value.Keys|ForEach-Object {[string]$_}|Sort-Object|ForEach-Object {
+      $keyJson=ConvertTo-Json ([string]$_) -Compress
+      $valueJson=ConvertTo-SourceCanonicalJson $Value[$_]
+      "$keyJson`:$valueJson"
+    })
+    return "{$($members -join ',')}"
+  }
+  if($Value -is [System.Collections.IList] -and $Value -isnot [string]){
+    $members=@($Value|ForEach-Object {ConvertTo-SourceCanonicalJson $_})
+    return "[$($members -join ',')]"
+  }
+  return (ConvertTo-Json $Value -Compress)
+}
+
 function Test-SourceAuthorityRuleMatch {
-  param([object]$Rule,[object]$Source,[string]$EvidenceMode=$null)
+  param([object]$Rule,[object]$Source,[string]$EvidenceMode=$null,[object]$EvidenceModeAncestors=$null)
+  $applicableModes=@($EvidenceMode)
+  if($null -ne $EvidenceMode -and $null -ne $EvidenceModeAncestors -and $EvidenceModeAncestors.Contains($EvidenceMode)){$applicableModes=@($EvidenceModeAncestors[$EvidenceMode])}
   return (($Rule.source_ids.Count -eq 0 -or $Rule.source_ids -contains $Source.id) -and
     ($Rule.source_roles.Count -eq 0 -or $Rule.source_roles -contains $Source.role) -and
     ($Rule.medium_ids.Count -eq 0 -or $Rule.medium_ids -contains $Source.medium_id) -and
-    ($Rule.evidence_modes.Count -eq 0 -or $Rule.evidence_modes -contains $EvidenceMode))
+    ($Rule.evidence_modes.Count -eq 0 -or @($applicableModes|Where-Object {$Rule.evidence_modes -contains $_}).Count -gt 0))
 }
 
 function Resolve-SourceResourceBinding {
@@ -766,6 +787,8 @@ function Get-KnowledgeSourceRegistry {
   }
   $claimNamespaceAncestors=Get-SourceControlledValueAncestors $SchemaPackRegistry "provenance.claim-namespace"
   if($claimNamespaceAncestors.Count -eq 0){throw "Selected schema packs do not provide controlled namespace 'provenance.claim-namespace'."}
+  $evidenceModeAncestors=Get-SourceControlledValueAncestors $SchemaPackRegistry "provenance.evidence-mode"
+  if($evidenceModeAncestors.Count -eq 0){throw "Selected schema packs do not provide controlled namespace 'provenance.evidence-mode'."}
   $registryPath = $ProjectConfig.sources_registry
   $registry = ConvertFrom-Yaml -Yaml ([System.IO.File]::ReadAllText($registryPath, [System.Text.UTF8Encoding]::new($true))) -Ordered
   if ($null -eq $registry -or -not ($registry -is [System.Collections.IDictionary])) {
@@ -1962,7 +1985,7 @@ function Get-KnowledgeSourceRegistry {
       if($observationWorkIds.Count -gt 0 -and @($observationWorkIds|Where-Object {$workIds -notcontains $_}).Count -gt 0){throw "Source registry '$context.observations' includes material outside the source work scope."}
       $observations += [pscustomobject]@{id=$observationId;target_type=$observationType;target_id=$observationTargetId}
     }
-    $coverage=@();$rawCoverage=@(Get-ProjectMapValue $source "coverage");$seenCoverage=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal);$seenCoverageIds=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $coverage=@();$rawCoverage=@(Get-ProjectMapValue $source "coverage");$seenCoverage=[ordered]@{};$seenCoverageIds=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
     for($coverageIndex=0;$coverageIndex -lt $rawCoverage.Count;$coverageIndex++){
       $coverageContext="$context.coverage[$coverageIndex]";$coverageEntry=$rawCoverage[$coverageIndex]
       $coverageId=Get-RequiredSourceString $coverageEntry "id" $coverageContext;Test-StableSourceId $coverageId "$coverageContext.id";if(-not $seenCoverageIds.Add($coverageId)){throw "Source registry '$context.coverage' repeats ID '$coverageId'."}
@@ -1979,9 +2002,14 @@ function Get-KnowledgeSourceRegistry {
         default{$false}
       }
       if(-not $targetExists){throw "Source registry '$coverageContext.target_id' references unknown $targetType '$targetId'."}
-      if(-not $seenCoverage.Add("$targetType|$targetId")){throw "Source registry '$context.coverage' repeats a target."}
       $coverageType=Get-RequiredSourceString $coverageEntry "coverage_type" $coverageContext
       Assert-SourceSchemaPackValues $SchemaPackRegistry "source.coverage-type" @($coverageType) "$coverageContext.coverage_type"
+      $coverageMediumId=Get-RequiredSourceString $coverageEntry "medium_id" $coverageContext
+      if($locatorMediumIds -notcontains $coverageMediumId){throw "Source registry '$coverageContext.medium_id' is not allowed by the source."}
+      $coverageEvidenceModes=@(Get-SourceStringList $coverageEntry "evidence_modes" $coverageContext)
+      if($coverageEvidenceModes.Count -eq 0){throw "Source registry '$coverageContext.evidence_modes' must not be empty."}
+      $unknownCoverageModes=@($coverageEvidenceModes|Where-Object {$evidenceModes -notcontains $_}|Sort-Object -Unique)
+      if($unknownCoverageModes.Count -gt 0){throw "Source registry '$coverageContext.evidence_modes' uses modes not declared by the source: $($unknownCoverageModes -join ', ')."}
       $targetWorkIds=@()
       switch($targetType){
         "work"{$targetWorkIds=@($targetId)}
@@ -2023,22 +2051,38 @@ function Get-KnowledgeSourceRegistry {
         if($null -eq $end -or $end -isnot [System.Collections.IDictionary] -or $end.Count -eq 0){throw "Source registry '$rangeContext.end' must be a non-empty mapping."}
         $startKeys=@($start.Keys|ForEach-Object {[string]$_}|Sort-Object);$endKeys=@($end.Keys|ForEach-Object {[string]$_}|Sort-Object)
         if(($startKeys -join "|") -ne ($endKeys -join "|")){throw "Source registry '$rangeContext' start and end must use identical position fields."}
-        $unknownRangeFields=@($startKeys|Where-Object {-not $mediums[$mediumId].fields.Contains($_)})
+        $unknownRangeFields=@($startKeys|Where-Object {-not $mediums[$coverageMediumId].fields.Contains($_)})
         if($unknownRangeFields.Count -gt 0){throw "Source registry '$rangeContext' references unknown position fields: $($unknownRangeFields -join ', ')."}
-        $missingRangeFields=@($mediums[$mediumId].required_fields|Where-Object {$startKeys -notcontains $_})
+        $missingRangeFields=@($mediums[$coverageMediumId].required_fields|Where-Object {$startKeys -notcontains $_})
         if($missingRangeFields.Count -gt 0){throw "Source registry '$rangeContext' omits required position fields: $($missingRangeFields -join ', ')."}
-        Assert-SourcePositionValues $start $mediums[$mediumId].fields "$rangeContext.start"
-        Assert-SourcePositionValues $end $mediums[$mediumId].fields "$rangeContext.end"
-        $workScopeField=$mediums[$mediumId].work_scope_field
+        Assert-SourcePositionValues $start $mediums[$coverageMediumId].fields "$rangeContext.start"
+        Assert-SourcePositionValues $end $mediums[$coverageMediumId].fields "$rangeContext.end"
+        $workScopeField=$mediums[$coverageMediumId].work_scope_field
         if(-not $start.Contains($workScopeField)){throw "Source registry '$rangeContext' must include work-scope field '$workScopeField'."}
         $rangeWorkIds=@(@($start[$workScopeField],$end[$workScopeField])|Sort-Object -Unique)
         if($rangeWorkIds.Count -ne 1 -or @($rangeWorkIds|Where-Object {$targetWorkIds -notcontains $_}).Count -gt 0){throw "Source registry '$rangeContext' falls outside its coverage target work scope."}
-        Assert-SourceStructuralPosition $start $mediums[$mediumId] $works $segments $orderingSchemes "$rangeContext.start"
-        Assert-SourceStructuralPosition $end $mediums[$mediumId] $works $segments $orderingSchemes "$rangeContext.end"
-        if((Compare-SourcePositions $start $end $mediums[$mediumId] $orderingSchemes $rangeContext) -gt 0){throw "Source registry '$rangeContext' start must not follow end."}
+        Assert-SourceStructuralPosition $start $mediums[$coverageMediumId] $works $segments $orderingSchemes "$rangeContext.start"
+        Assert-SourceStructuralPosition $end $mediums[$coverageMediumId] $works $segments $orderingSchemes "$rangeContext.end"
+        if((Compare-SourcePositions $start $end $mediums[$coverageMediumId] $orderingSchemes $rangeContext) -gt 0){throw "Source registry '$rangeContext' start must not follow end."}
         $ranges += [pscustomobject]@{id=$rangeId;start=$start;end=$end}
       }
-      $coverage += [pscustomobject]@{id=$coverageId;target_type=$targetType;target_id=$targetId;coverage_type=$coverageType;position_ranges=@($ranges)}
+      $newCoverage=[pscustomobject]@{id=$coverageId;target_type=$targetType;target_id=$targetId;coverage_type=$coverageType;medium_id=$coverageMediumId;evidence_modes=@($coverageEvidenceModes);position_ranges=@($ranges)}
+      foreach($coverageEvidenceMode in $coverageEvidenceModes){
+        $coverageKey="$targetType|$targetId|$coverageMediumId|$coverageEvidenceMode"
+        $previousEntries=if($seenCoverage.Contains($coverageKey)){@($seenCoverage[$coverageKey])}else{@()}
+        foreach($previous in $previousEntries){
+          $overlaps=($previous.position_ranges.Count -eq 0 -or $newCoverage.position_ranges.Count -eq 0)
+          if(-not $overlaps){
+            foreach($left in $previous.position_ranges){foreach($right in $newCoverage.position_ranges){
+              $scopeField=$mediums[$coverageMediumId].work_scope_field
+              if([string]$left.start[$scopeField] -eq [string]$right.start[$scopeField] -and (Compare-SourcePositions $left.start $right.end $mediums[$coverageMediumId] $orderingSchemes $coverageContext) -le 0 -and (Compare-SourcePositions $right.start $left.end $mediums[$coverageMediumId] $orderingSchemes $coverageContext) -le 0){$overlaps=$true;break}
+            };if($overlaps){break}}
+          }
+          if($overlaps){throw "Source registry '$context.coverage' overlaps target '$targetType`:$targetId' for medium '$coverageMediumId' and evidence mode '$coverageEvidenceMode'."}
+        }
+        $seenCoverage[$coverageKey]=@($seenCoverage[$coverageKey])+@($newCoverage)
+      }
+      $coverage += $newCoverage
     }
     $bindings=@(); $rawBindings=@(Get-ProjectMapValue $source "resource_bindings")
     for ($i=0; $i -lt $rawBindings.Count; $i++) { $bindings += Resolve-SourceResourceBinding $ProjectConfig $ResourceConfig $rawBindings[$i] "$context.resource_bindings[$i]" }
@@ -2055,7 +2099,7 @@ function Get-KnowledgeSourceRegistry {
       $ancestors=@($claimNamespaceAncestors[$claimNamespace])
       foreach($source in $sources.Values){
         foreach($evidenceMode in @($null)+@($source.evidence_modes)){
-          $matches=@($profile.claim_authority_rules|Where-Object {$ancestors -contains $_.claim_namespace -and (Test-SourceAuthorityRuleMatch $_ $source $evidenceMode)})
+          $matches=@($profile.claim_authority_rules|Where-Object {$ancestors -contains $_.claim_namespace -and (Test-SourceAuthorityRuleMatch $_ $source $evidenceMode $evidenceModeAncestors)})
           if($matches.Count -eq 0){continue}
           $highest=[int](($matches|Measure-Object -Property precedence -Maximum).Maximum);$winners=@($matches|Where-Object {$_.precedence -eq $highest})
           if($winners.Count -gt 1){$modeContext=if($null -eq $evidenceMode){"unspecified"}else{$evidenceMode};throw "Source registry authority profile '$($profile.id)' has ambiguous precedence '$highest' rules for source '$($source.id)', claim namespace '$claimNamespace', and evidence mode '$modeContext'."}
@@ -2109,12 +2153,13 @@ function Get-KnowledgeSourceRegistry {
     "authority-rule"=(ConvertTo-SourceIdMap @($authorityProfiles.Values|ForEach-Object {$_.claim_authority_rules}))
   }
 
-  $provenanceAssertions=@();$seenProvenanceIds=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal);$seenLocatorIds=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+  $provenanceAssertions=@();$seenProvenanceIds=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal);$seenLocatorIds=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal);$claimShapes=[ordered]@{}
   $rawProvenanceAssertions=@(Get-ProjectMapValue $registry "provenance_assertions")
   for($index=0;$index -lt $rawProvenanceAssertions.Count;$index++){
     $context="provenance_assertions[$index]";$assertion=$rawProvenanceAssertions[$index]
     $id=Get-RequiredSourceString $assertion "id" $context;Test-StableSourceId $id "$context.id"
     if(-not $seenProvenanceIds.Add($id)){throw "Source registry provenance assertion ID '$id' is duplicated."}
+    $claimKey=Get-RequiredSourceString $assertion "claim_key" $context;Test-StableSourceId $claimKey "$context.claim_key"
     $subjectType=Get-RequiredSourceString $assertion "subject_type" $context
     Assert-SourceSchemaPackValues $SchemaPackRegistry "provenance.subject-type" @($subjectType) "$context.subject_type"
     $subjectId=Get-RequiredSourceString $assertion "subject_id" $context
@@ -2124,6 +2169,9 @@ function Get-KnowledgeSourceRegistry {
     $fieldPath=Get-OptionalSourceString $assertion "field_path" $context
     if($null -ne $fieldPath -and $fieldPath -notmatch $script:SourceFieldPathPattern){throw "Source registry '$context.field_path' must be a dotted/indexed machine field path."}
     if($null -ne $fieldPath){$null=Resolve-SourceRecordFieldPath $provenanceTargets[$subjectType][$subjectId] $fieldPath "$context.field_path"}
+    $claimShape="$subjectType|$subjectId|$claimNamespace|$fieldPath"
+    if($claimShapes.Contains($claimKey) -and $claimShapes[$claimKey] -ne $claimShape){throw "Source registry claim key '$claimKey' is reused for a different subject, namespace, or field path."}
+    $claimShapes[$claimKey]=$claimShape
     if(-not $assertion.Contains("asserted_value")){throw "Source registry '$context.asserted_value' is required."};$assertedValue=Get-ProjectMapValue $assertion "asserted_value"
     $assertionStatus=Get-RequiredSourceString $assertion "assertion_status" $context
     Assert-SourceSchemaPackValues $SchemaPackRegistry "provenance.assertion-status" @($assertionStatus) "$context.assertion_status"
@@ -2151,7 +2199,7 @@ function Get-KnowledgeSourceRegistry {
         if($locatorType -eq "point"){
           if($locator.Contains("start") -or $locator.Contains("end")){throw "Source registry '$locatorContext' point locator cannot declare start or end."}
           $position=Get-ProjectMapValue $locator "position";Assert-SourceEvidencePosition $position $locatorMedium $sources[$evidenceSourceId].work_ids $works $segments $orderingSchemes "$locatorContext.position"
-          Assert-SourceLocatorCoverage $sources[$evidenceSourceId] $locatorMedium @($position) $segments $contentGroups $manifestations $releaseComponents $releasePackages $orderingSchemes $locatorContext
+          Assert-SourceLocatorCoverage $sources[$evidenceSourceId] $locatorMedium $evidenceMode @($position) $segments $contentGroups $manifestations $releaseComponents $releasePackages $orderingSchemes $locatorContext
           $shapeValue=(($position.Keys|Sort-Object|ForEach-Object {"$_=$($position[$_])"}) -join '|')
         } else {
           if($locator.Contains("position")){throw "Source registry '$locatorContext' range locator cannot declare position."}
@@ -2161,7 +2209,7 @@ function Get-KnowledgeSourceRegistry {
           Assert-SourceEvidencePosition $start $locatorMedium $sources[$evidenceSourceId].work_ids $works $segments $orderingSchemes "$locatorContext.start";Assert-SourceEvidencePosition $end $locatorMedium $sources[$evidenceSourceId].work_ids $works $segments $orderingSchemes "$locatorContext.end"
           $workScopeField=$locatorMedium.work_scope_field;if([string]$start[$workScopeField] -ne [string]$end[$workScopeField]){throw "Source registry '$locatorContext' range endpoints must identify the same work."}
           if((Compare-SourcePositions $start $end $locatorMedium $orderingSchemes $locatorContext) -gt 0){throw "Source registry '$locatorContext' range start must not follow end."}
-          Assert-SourceLocatorCoverage $sources[$evidenceSourceId] $locatorMedium @($start,$end) $segments $contentGroups $manifestations $releaseComponents $releasePackages $orderingSchemes $locatorContext
+          Assert-SourceLocatorCoverage $sources[$evidenceSourceId] $locatorMedium $evidenceMode @($start,$end) $segments $contentGroups $manifestations $releaseComponents $releasePackages $orderingSchemes $locatorContext
           $shapeValue="$(($start.Keys|Sort-Object|ForEach-Object {"$_=$($start[$_])"}) -join '|')->$(($end.Keys|Sort-Object|ForEach-Object {"$_=$($end[$_])"}) -join '|')"
         }
         $shapeKey="$locatorMediumId|$evidenceMode|$locatorType|$shapeValue";if(-not $seenLocatorShapes.Add($shapeKey)){throw "Source registry '$evidenceContext.locators' repeats a locator."}
@@ -2170,7 +2218,7 @@ function Get-KnowledgeSourceRegistry {
       $evidenceLinks += [pscustomobject]@{source_id=$evidenceSourceId;evidence_role=$evidenceRole;locators=@($locators)}
     }
     $roles=@($evidenceLinks|ForEach-Object {$_.evidence_role});if($assertionStatus -in @("verified","inferred") -and $roles -notcontains "supports"){throw "Source registry '$context' status '$assertionStatus' requires supporting evidence."};if($assertionStatus -eq "disputed" -and ($roles -notcontains "supports" -or $roles -notcontains "contradicts")){throw "Source registry '$context' disputed status requires supporting and contradicting evidence."}
-    $provenanceAssertions += [pscustomobject]@{id=$id;subject_type=$subjectType;subject_id=$subjectId;claim_namespace=$claimNamespace;field_path=$fieldPath;asserted_value=$assertedValue;assertion_status=$assertionStatus;observed_at=ConvertTo-SourceTemporalWindow $assertion "observed_at" $context $SchemaPackRegistry;effective_window=ConvertTo-SourceTemporalWindow $assertion "effective_window" $context $SchemaPackRegistry;evidence_links=@($evidenceLinks)}
+    $provenanceAssertions += [pscustomobject]@{id=$id;claim_key=$claimKey;subject_type=$subjectType;subject_id=$subjectId;claim_namespace=$claimNamespace;field_path=$fieldPath;asserted_value=$assertedValue;assertion_status=$assertionStatus;observed_at=ConvertTo-SourceTemporalWindow $assertion "observed_at" $context $SchemaPackRegistry;effective_window=ConvertTo-SourceTemporalWindow $assertion "effective_window" $context $SchemaPackRegistry;evidence_links=@($evidenceLinks)}
   }
 
   $rawExternalIdentifiers=@(Get-ProjectMapValue $registry "external_identifiers")
@@ -2213,7 +2261,7 @@ function Get-KnowledgeSourceRegistry {
   }
 
   return [pscustomobject]@{
-    path=$registryPath; schema_version=[int]$schemaVersion; default_authority_profile_id=$defaultAuthorityProfileId; claim_namespace_ancestors=$claimNamespaceAncestors
+    path=$registryPath; schema_version=[int]$schemaVersion; default_authority_profile_id=$defaultAuthorityProfileId; claim_namespace_ancestors=$claimNamespaceAncestors; evidence_mode_ancestors=$evidenceModeAncestors
     media_modalities=$mediaModalities; cultural_forms=$culturalForms; release_forms=$releaseForms; container_formats=$containerFormats
     mediums=$mediums; work_group_types=$workGroupTypes; work_groups=$workGroups; continuities=$continuities
     continuity_relationship_types=$continuityRelationshipTypes; continuity_relationships=@($continuityRelationships)
@@ -2239,15 +2287,54 @@ function Get-KnowledgeSourceAuthorityDecision {
   if(-not $SourceRegistry.claim_namespace_ancestors.Contains($ClaimNamespace)){throw "Unknown claim namespace '$ClaimNamespace'."}
   $profile=$SourceRegistry.authority_profiles[$ProfileId];$source=$SourceRegistry.sources[$SourceId]
   if($null -ne $EvidenceMode -and $source.evidence_modes -notcontains $EvidenceMode){throw "Evidence mode '$EvidenceMode' is not declared by source '$SourceId'."}
-  $ancestors=@($SourceRegistry.claim_namespace_ancestors[$ClaimNamespace]);$matches=@($profile.claim_authority_rules|Where-Object {$ancestors -contains $_.claim_namespace -and (Test-SourceAuthorityRuleMatch $_ $source $EvidenceMode)})
-  if($matches.Count -eq 0){return [pscustomobject]@{rank=[int]$source.priority;winning_rule_id=$null;matched_claim_namespace=$ClaimNamespace;inherited=$false;priority_fallback=$true}}
+  $ancestors=@($SourceRegistry.claim_namespace_ancestors[$ClaimNamespace]);$matches=@($profile.claim_authority_rules|Where-Object {$ancestors -contains $_.claim_namespace -and (Test-SourceAuthorityRuleMatch $_ $source $EvidenceMode $SourceRegistry.evidence_mode_ancestors)})
+  if($matches.Count -eq 0){return [pscustomobject]@{source_id=$SourceId;evidence_mode=$EvidenceMode;rank=[int]$source.priority;winning_rule_id=$null;winning_precedence=$null;matched_claim_namespace=$ClaimNamespace;inherited=$false;claim_namespace_inherited=$false;evidence_mode_inherited=$false;priority_fallback=$true}}
   $highest=[int](($matches|Measure-Object -Property precedence -Maximum).Maximum);$winners=@($matches|Where-Object {$_.precedence -eq $highest})
   if($winners.Count -gt 1){throw "Authority profile '$ProfileId' has ambiguous precedence '$highest' rules for source '$SourceId' and claim namespace '$ClaimNamespace'."}
   $winner=$winners[0]
-  return [pscustomobject]@{rank=[int]$winner.rank;winning_rule_id=[string]$winner.id;matched_claim_namespace=[string]$winner.claim_namespace;inherited=([string]$winner.claim_namespace -ne $ClaimNamespace);priority_fallback=$false}
+  $namespaceInherited=([string]$winner.claim_namespace -ne $ClaimNamespace);$modeInherited=($null -ne $EvidenceMode -and $winner.evidence_modes.Count -gt 0 -and $winner.evidence_modes -notcontains $EvidenceMode)
+  return [pscustomobject]@{source_id=$SourceId;evidence_mode=$EvidenceMode;rank=[int]$winner.rank;winning_rule_id=[string]$winner.id;winning_precedence=[int]$winner.precedence;matched_claim_namespace=[string]$winner.claim_namespace;inherited=($namespaceInherited -or $modeInherited);claim_namespace_inherited=$namespaceInherited;evidence_mode_inherited=$modeInherited;priority_fallback=$false}
 }
 
 function Get-KnowledgeSourceAuthorityRank {
   param([object]$SourceRegistry,[string]$ProfileId,[string]$ClaimNamespace,[string]$SourceId,[string]$EvidenceMode=$null)
   return [int](Get-KnowledgeSourceAuthorityDecision $SourceRegistry $ProfileId $ClaimNamespace $SourceId $EvidenceMode).rank
+}
+
+function Compare-KnowledgeSourceAuthority {
+  param([object]$SourceRegistry,[string]$ProfileId,[string]$ClaimNamespace,[object[]]$Candidates)
+  if($Candidates.Count -eq 0){throw "Authority comparison requires at least one candidate."}
+  $seen=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal);$decisions=@()
+  foreach($candidate in $Candidates){
+    $candidateId=[string]$candidate.candidate_id
+    if([string]::IsNullOrWhiteSpace($candidateId) -or -not $seen.Add($candidateId)){throw "Authority comparison candidate IDs must be unique."}
+    $decision=Get-KnowledgeSourceAuthorityDecision $SourceRegistry $ProfileId $ClaimNamespace ([string]$candidate.source_id) $candidate.evidence_mode
+    $decisions += [pscustomobject]@{candidate_id=$candidateId;assertion_id=$null;decision=$decision}
+  }
+  $groups=@($decisions|ForEach-Object {$SourceRegistry.sources[$_.decision.source_id].comparison_group}|Sort-Object -Unique)
+  if($groups.Count -ne 1){return [pscustomobject]@{outcome="incomparable";profile_id=$ProfileId;claim_namespace=$ClaimNamespace;best_rank=$null;winning_candidate_ids=@();decisions=@($decisions)}}
+  $profile=$SourceRegistry.authority_profiles[$ProfileId]
+  $bestRank=if($profile.source_priority_order -eq "ascending"){[int](($decisions.decision|Measure-Object -Property rank -Minimum).Minimum)}else{[int](($decisions.decision|Measure-Object -Property rank -Maximum).Maximum)}
+  $winners=@($decisions|Where-Object {$_.decision.rank -eq $bestRank}|ForEach-Object {$_.candidate_id})
+  return [pscustomobject]@{outcome=if($winners.Count -eq 1){"winner"}else{"tie"};profile_id=$ProfileId;claim_namespace=$ClaimNamespace;best_rank=$bestRank;winning_candidate_ids=@($winners);decisions=@($decisions)}
+}
+
+function Get-KnowledgeClaimAuthorityEvaluation {
+  param([object]$SourceRegistry,[string]$ProfileId,[string]$ClaimKey)
+  $assertions=@($SourceRegistry.provenance_assertions|Where-Object {$_.claim_key -eq $ClaimKey})
+  if($assertions.Count -eq 0){throw "Unknown claim key '$ClaimKey'."}
+  $claimNamespace=[string]$assertions[0].claim_namespace;$decisions=@()
+  foreach($assertion in $assertions){foreach($link in @($assertion.evidence_links)){if($link.evidence_role -ne "supports"){continue};foreach($locator in @($link.locators)){
+    $decision=Get-KnowledgeSourceAuthorityDecision $SourceRegistry $ProfileId $claimNamespace ([string]$link.source_id) ([string]$locator.evidence_mode)
+    $decisions += [pscustomobject]@{candidate_id="$($assertion.id):$($link.source_id):$($locator.id)";assertion_id=[string]$assertion.id;decision=$decision}
+  }}}
+  if($decisions.Count -eq 0){throw "Claim key '$ClaimKey' has no supporting evidence locators."}
+  $groups=@($decisions|ForEach-Object {$SourceRegistry.sources[$_.decision.source_id].comparison_group}|Sort-Object -Unique)
+  if($groups.Count -ne 1){return [pscustomobject]@{outcome="incomparable";profile_id=$ProfileId;claim_key=$ClaimKey;best_rank=$null;winning_assertion_ids=@();decisions=@($decisions)}}
+  $profile=$SourceRegistry.authority_profiles[$ProfileId];$bestByAssertion=[ordered]@{}
+  foreach($item in $decisions){$id=[string]$item.assertion_id;$rank=[int]$item.decision.rank;if(-not $bestByAssertion.Contains($id) -or ($profile.source_priority_order -eq "ascending" -and $rank -lt $bestByAssertion[$id]) -or ($profile.source_priority_order -eq "descending" -and $rank -gt $bestByAssertion[$id])){$bestByAssertion[$id]=$rank}}
+  $bestRank=if($profile.source_priority_order -eq "ascending"){[int](($bestByAssertion.Values|Measure-Object -Minimum).Minimum)}else{[int](($bestByAssertion.Values|Measure-Object -Maximum).Maximum)}
+  $winnerIds=@($assertions|Where-Object {$bestByAssertion.Contains($_.id) -and $bestByAssertion[$_.id] -eq $bestRank}|ForEach-Object {$_.id})
+  if($winnerIds.Count -eq 1){$outcome="winner"}else{$values=@($assertions|Where-Object {$winnerIds -contains $_.id}|ForEach-Object {ConvertTo-SourceCanonicalJson $_.asserted_value});$outcome=if(@($values|Sort-Object -Unique).Count -eq 1){"tie"}else{"conflict"}}
+  return [pscustomobject]@{outcome=$outcome;profile_id=$ProfileId;claim_key=$ClaimKey;best_rank=$bestRank;winning_assertion_ids=@($winnerIds);decisions=@($decisions)}
 }

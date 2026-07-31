@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: core
-pack_version: 7
+pack_version: 8
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -32,6 +32,11 @@ capabilities:
   - source-bounded-evidence
   - explainable-authority-decisions
   - ordered-temporal-windows
+  - channel-scoped-evidence-coverage
+  - hierarchical-evidence-modes
+  - stable-claim-identity
+  - multi-source-authority-comparison
+  - claim-authority-evaluation
   - authority-profiles
   - typed-relationships
   - temporal-positions
@@ -63,6 +68,10 @@ controlled_values:
   provenance.evidence-mode:
     - direct-observation
     - documentary-record
+    - textual-evidence
+    - visual-evidence
+    - audio-evidence
+    - metadata-evidence
   provenance.subject-type:
     - source
     - source-relationship

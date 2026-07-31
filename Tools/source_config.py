@@ -12,7 +12,7 @@ from resource_config import ResourceConfig
 from schema_pack_config import SchemaPackRegistry, load_schema_pack_registry
 
 
-SUPPORTED_SOURCE_SCHEMA_VERSION = 11
+SUPPORTED_SOURCE_SCHEMA_VERSION = 12
 LIFECYCLES = {"active", "deferred"}
 POSITION_FIELD_TYPES = {"string", "integer", "number", "timestamp", "boolean"}
 PRIORITY_ORDERS = {"ascending", "descending"}
@@ -87,11 +87,43 @@ class AuthorityRule:
 
 @dataclass(frozen=True)
 class AuthorityDecision:
+    source_id: str
+    evidence_mode: str | None
     rank: int
     winning_rule_id: str | None
+    winning_precedence: int | None
     matched_claim_namespace: str
     inherited: bool
+    claim_namespace_inherited: bool
+    evidence_mode_inherited: bool
     priority_fallback: bool
+
+
+@dataclass(frozen=True)
+class AuthorityCandidateDecision:
+    candidate_id: str
+    assertion_id: str | None
+    decision: AuthorityDecision
+
+
+@dataclass(frozen=True)
+class AuthorityComparison:
+    outcome: str
+    profile_id: str
+    claim_namespace: str
+    best_rank: int | None
+    winning_candidate_ids: tuple[str, ...]
+    decisions: tuple[AuthorityCandidateDecision, ...]
+
+
+@dataclass(frozen=True)
+class ClaimAuthorityEvaluation:
+    outcome: str
+    profile_id: str
+    claim_key: str
+    best_rank: int | None
+    winning_assertion_ids: tuple[str, ...]
+    decisions: tuple[AuthorityCandidateDecision, ...]
 
 
 @dataclass(frozen=True)
@@ -521,6 +553,8 @@ class SourceCoverage:
     target_type: str
     target_id: str
     coverage_type: str
+    medium_id: str
+    evidence_modes: tuple[str, ...]
     position_ranges: tuple["CoveragePositionRange", ...]
 
 
@@ -591,6 +625,7 @@ class EvidenceLocator:
 @dataclass(frozen=True)
 class ProvenanceAssertion:
     id: str
+    claim_key: str
     subject_type: str
     subject_id: str
     claim_namespace: str
@@ -608,6 +643,7 @@ class SourceRegistry:
     schema_version: int
     default_authority_profile_id: str
     claim_namespace_ancestors: dict[str, tuple[str, ...]]
+    evidence_mode_ancestors: dict[str, tuple[str, ...]]
     media_modalities: dict[str, RegistryValueConfig]
     cultural_forms: dict[str, CulturalFormConfig]
     release_forms: dict[str, RegistryValueConfig]
@@ -692,11 +728,22 @@ class SourceRegistry:
             rule
             for rule in profile.claim_authority_rules
             if rule.claim_namespace in applicable_namespaces
-            and authority_rule_matches_source(rule, source, evidence_mode)
+            and authority_rule_matches_source(
+                rule, source, evidence_mode, self.evidence_mode_ancestors
+            )
         ]
         if not matches:
             return AuthorityDecision(
-                source.priority, None, claim_namespace, False, True
+                source.id,
+                evidence_mode,
+                source.priority,
+                None,
+                None,
+                claim_namespace,
+                False,
+                False,
+                False,
+                True,
             )
         winning_precedence = max(rule.precedence for rule in matches)
         winners = [
@@ -709,11 +756,22 @@ class SourceRegistry:
                 f"namespace `{claim_namespace}`."
             )
         winner = winners[0]
+        claim_namespace_inherited = winner.claim_namespace != claim_namespace
+        evidence_mode_inherited = (
+            evidence_mode is not None
+            and bool(winner.evidence_modes)
+            and evidence_mode not in winner.evidence_modes
+        )
         return AuthorityDecision(
+            source.id,
+            evidence_mode,
             winner.rank,
             winner.id,
+            winner.precedence,
             winner.claim_namespace,
-            winner.claim_namespace != claim_namespace,
+            claim_namespace_inherited or evidence_mode_inherited,
+            claim_namespace_inherited,
+            evidence_mode_inherited,
             False,
         )
 
@@ -728,19 +786,158 @@ class SourceRegistry:
             profile_id, claim_namespace, source_id, evidence_mode
         ).rank
 
+    def compare_authority(
+        self,
+        profile_id: str,
+        claim_namespace: str,
+        candidates: tuple[tuple[str, str, str | None], ...],
+    ) -> AuthorityComparison:
+        if not candidates:
+            raise ValueError("Authority comparison requires at least one candidate.")
+        candidate_ids = [candidate[0] for candidate in candidates]
+        if len(candidate_ids) != len(set(candidate_ids)):
+            raise ValueError("Authority comparison candidate IDs must be unique.")
+        decisions = tuple(
+            AuthorityCandidateDecision(
+                candidate_id,
+                None,
+                self.authority_decision(
+                    profile_id, claim_namespace, source_id, evidence_mode
+                ),
+            )
+            for candidate_id, source_id, evidence_mode in candidates
+        )
+        comparison_groups = {
+            self.sources[item.decision.source_id].comparison_group
+            for item in decisions
+        }
+        if len(comparison_groups) != 1:
+            return AuthorityComparison(
+                "incomparable", profile_id, claim_namespace, None, (), decisions
+            )
+        profile = self.authority_profiles[profile_id]
+        ranks = [item.decision.rank for item in decisions]
+        best_rank = (
+            min(ranks)
+            if profile.source_priority_order == "ascending"
+            else max(ranks)
+        )
+        winners = tuple(
+            item.candidate_id
+            for item in decisions
+            if item.decision.rank == best_rank
+        )
+        return AuthorityComparison(
+            "winner" if len(winners) == 1 else "tie",
+            profile_id,
+            claim_namespace,
+            best_rank,
+            winners,
+            decisions,
+        )
+
+    def evaluate_claim_authority(
+        self, profile_id: str, claim_key: str
+    ) -> ClaimAuthorityEvaluation:
+        assertions = tuple(
+            assertion
+            for assertion in self.provenance_assertions
+            if assertion.claim_key == claim_key
+        )
+        if not assertions:
+            raise ValueError(f"Unknown claim key `{claim_key}`.")
+        claim_namespace = assertions[0].claim_namespace
+        decisions = tuple(
+            AuthorityCandidateDecision(
+                f"{assertion.id}:{link.source_id}:{locator.id}",
+                assertion.id,
+                self.authority_decision(
+                    profile_id,
+                    claim_namespace,
+                    link.source_id,
+                    locator.evidence_mode,
+                ),
+            )
+            for assertion in assertions
+            for link in assertion.evidence_links
+            if link.evidence_role == "supports"
+            for locator in link.locators
+        )
+        if not decisions:
+            raise ValueError(
+                f"Claim key `{claim_key}` has no supporting evidence locators."
+            )
+        comparison_groups = {
+            self.sources[item.decision.source_id].comparison_group
+            for item in decisions
+        }
+        if len(comparison_groups) != 1:
+            return ClaimAuthorityEvaluation(
+                "incomparable", profile_id, claim_key, None, (), decisions
+            )
+        profile = self.authority_profiles[profile_id]
+        best_by_assertion: dict[str, int] = {}
+        for item in decisions:
+            assertion_id = str(item.assertion_id)
+            previous = best_by_assertion.get(assertion_id)
+            rank = item.decision.rank
+            if previous is None or (
+                profile.source_priority_order == "ascending" and rank < previous
+            ) or (
+                profile.source_priority_order == "descending" and rank > previous
+            ):
+                best_by_assertion[assertion_id] = rank
+        best_rank = (
+            min(best_by_assertion.values())
+            if profile.source_priority_order == "ascending"
+            else max(best_by_assertion.values())
+        )
+        winning_ids = tuple(
+            assertion.id
+            for assertion in assertions
+            if best_by_assertion.get(assertion.id) == best_rank
+        )
+        if len(winning_ids) == 1:
+            outcome = "winner"
+        else:
+            winning_values = [
+                assertion.asserted_value
+                for assertion in assertions
+                if assertion.id in winning_ids
+            ]
+            outcome = (
+                "tie"
+                if all(value == winning_values[0] for value in winning_values[1:])
+                else "conflict"
+            )
+        return ClaimAuthorityEvaluation(
+            outcome,
+            profile_id,
+            claim_key,
+            best_rank,
+            winning_ids,
+            decisions,
+        )
+
 
 def authority_rule_matches_source(
     rule: AuthorityRule,
     source: SourceConfig,
     evidence_mode: str | None = None,
+    evidence_mode_ancestors: dict[str, tuple[str, ...]] | None = None,
 ) -> bool:
+    applicable_modes = (
+        evidence_mode_ancestors.get(evidence_mode, (evidence_mode,))
+        if evidence_mode is not None and evidence_mode_ancestors is not None
+        else (evidence_mode,)
+    )
     return (
         (not rule.source_ids or source.id in rule.source_ids)
         and (not rule.source_roles or source.role in rule.source_roles)
         and (not rule.medium_ids or source.medium_id in rule.medium_ids)
         and (
             not rule.evidence_modes
-            or evidence_mode in rule.evidence_modes
+            or any(mode in rule.evidence_modes for mode in applicable_modes)
         )
     )
 
@@ -1839,6 +2036,14 @@ def load_source_registry(
         raise ValueError(
             "Selected schema packs do not provide controlled namespace "
             "`provenance.claim-namespace`."
+        )
+    evidence_mode_ancestors = controlled_value_ancestors(
+        schema_packs, "provenance.evidence-mode"
+    )
+    if not evidence_mode_ancestors:
+        raise ValueError(
+            "Selected schema packs do not provide controlled namespace "
+            "`provenance.evidence-mode`."
         )
     try:
         data = yaml.safe_load(project.sources_registry.read_text(encoding="utf-8"))
@@ -4603,7 +4808,9 @@ def load_source_registry(
             )
         coverage: list[SourceCoverage] = []
         seen_coverage_ids: set[str] = set()
-        seen_coverage: set[tuple[str, str]] = set()
+        seen_coverage: dict[
+            tuple[str, str, str, str], list[SourceCoverage]
+        ] = {}
         coverage_targets = {
             "work": works,
             "segment": segments,
@@ -4714,12 +4921,31 @@ def load_source_registry(
                 (coverage_type,),
                 f"{coverage_context}.coverage_type",
             )
-            key = (target_type, target_id)
-            if key in seen_coverage:
+            coverage_medium_id = require_string(
+                coverage_entry, "medium_id", coverage_context
+            )
+            if coverage_medium_id not in locator_medium_ids:
                 raise ValueError(
-                    f"Source registry `{context}.coverage` repeats a target."
+                    f"Source registry `{coverage_context}.medium_id` is not "
+                    "allowed by the source."
                 )
-            seen_coverage.add(key)
+            coverage_evidence_modes = require_string_list(
+                coverage_entry, "evidence_modes", coverage_context
+            )
+            if not coverage_evidence_modes:
+                raise ValueError(
+                    f"Source registry `{coverage_context}.evidence_modes` must "
+                    "not be empty."
+                )
+            unknown_coverage_modes = set(coverage_evidence_modes) - set(
+                evidence_modes
+            )
+            if unknown_coverage_modes:
+                raise ValueError(
+                    f"Source registry `{coverage_context}.evidence_modes` uses "
+                    "modes not declared by the source: "
+                    f"{', '.join(sorted(unknown_coverage_modes))}."
+                )
             target_work_ids = coverage_work_ids(target_type, target_id)
             if target_work_ids and not target_work_ids.issubset(work_ids):
                 raise ValueError(
@@ -4734,7 +4960,8 @@ def load_source_registry(
                 )
             position_ranges: list[CoveragePositionRange] = []
             seen_range_ids: set[str] = set()
-            medium_fields = mediums[medium_id].fields
+            coverage_medium = mediums[coverage_medium_id]
+            medium_fields = coverage_medium.fields
             for range_index, raw_range in enumerate(raw_ranges):
                 range_context = (
                     f"{coverage_context}.position_ranges[{range_index}]"
@@ -4765,7 +4992,7 @@ def load_source_registry(
                         f"Source registry `{range_context}` references unknown "
                         f"position fields: {', '.join(sorted(unknown_fields))}."
                     )
-                missing_fields = set(mediums[medium_id].required_fields) - set(start)
+                missing_fields = set(coverage_medium.required_fields) - set(start)
                 if missing_fields:
                     raise ValueError(
                         f"Source registry `{range_context}` omits required position "
@@ -4773,7 +5000,7 @@ def load_source_registry(
                     )
                 validate_position_values(start, medium_fields, f"{range_context}.start")
                 validate_position_values(end, medium_fields, f"{range_context}.end")
-                work_scope_field = mediums[medium_id].work_scope_field
+                work_scope_field = coverage_medium.work_scope_field
                 if work_scope_field not in start:
                     raise ValueError(
                         f"Source registry `{range_context}` must include work-scope "
@@ -4789,7 +5016,7 @@ def load_source_registry(
                     )
                 validate_structural_position(
                     start,
-                    mediums[medium_id],
+                    coverage_medium,
                     works,
                     segments,
                     ordering_schemes,
@@ -4797,7 +5024,7 @@ def load_source_registry(
                 )
                 validate_structural_position(
                     end,
-                    mediums[medium_id],
+                    coverage_medium,
                     works,
                     segments,
                     ordering_schemes,
@@ -4806,7 +5033,7 @@ def load_source_registry(
                 if compare_positions(
                     start,
                     end,
-                    mediums[medium_id],
+                    coverage_medium,
                     ordering_schemes,
                     range_context,
                 ) > 0:
@@ -4816,15 +5043,58 @@ def load_source_registry(
                 position_ranges.append(
                     CoveragePositionRange(range_id, dict(start), dict(end))
                 )
-            coverage.append(
-                SourceCoverage(
-                    coverage_id,
+            new_coverage = SourceCoverage(
+                coverage_id,
+                target_type,
+                target_id,
+                coverage_type,
+                coverage_medium_id,
+                coverage_evidence_modes,
+                tuple(position_ranges),
+            )
+            for evidence_mode in coverage_evidence_modes:
+                key = (
                     target_type,
                     target_id,
-                    coverage_type,
-                    tuple(position_ranges),
+                    coverage_medium_id,
+                    evidence_mode,
                 )
-            )
+                for previous in seen_coverage.get(key, []):
+                    overlaps = (
+                        not previous.position_ranges
+                        or not new_coverage.position_ranges
+                        or any(
+                            left.start[coverage_medium.work_scope_field]
+                            == right.start[coverage_medium.work_scope_field]
+                            and compare_positions(
+                                    left.start,
+                                    right.end,
+                                    coverage_medium,
+                                    ordering_schemes,
+                                    coverage_context,
+                                )
+                                <= 0
+                            and compare_positions(
+                                    right.start,
+                                    left.end,
+                                    coverage_medium,
+                                    ordering_schemes,
+                                    coverage_context,
+                                )
+                                <= 0
+                            for left in previous.position_ranges
+                            for right in new_coverage.position_ranges
+                        )
+                    )
+                    if overlaps:
+                        raise ValueError(
+                            f"Source registry `{context}.coverage` overlaps target "
+                            f"`{target_type}:{target_id}` for medium "
+                            f"`{coverage_medium_id}` and evidence mode "
+                            f"`{evidence_mode}`."
+                        )
+                seen_coverage.setdefault(key, []).append(new_coverage)
+            coverage.append(new_coverage)
         raw_bindings = source.get("resource_bindings")
         if not isinstance(raw_bindings, list):
             raise ValueError(
@@ -4890,7 +5160,10 @@ def load_source_registry(
                         for rule in profile.claim_authority_rules
                         if rule.claim_namespace in ancestors
                         and authority_rule_matches_source(
-                            rule, source, evidence_mode
+                            rule,
+                            source,
+                            evidence_mode,
+                            evidence_mode_ancestors,
                         )
                     ]
                     if not matches:
@@ -5159,13 +5432,19 @@ def load_source_registry(
     def assert_locator_covered(
         source: SourceConfig,
         medium: MediumConfig,
+        evidence_mode: str,
         positions: tuple[dict[str, object], ...],
         context: str,
     ) -> None:
         work_id = str(positions[0][medium.work_scope_field])
-        if medium.id == source.medium_id and source.coverage:
+        if source.coverage:
             covered = False
             for coverage_entry in source.coverage:
+                if (
+                    coverage_entry.medium_id != medium.id
+                    or evidence_mode not in coverage_entry.evidence_modes
+                ):
+                    continue
                 if work_id not in target_work_scope(
                     coverage_entry.target_type, coverage_entry.target_id
                 ):
@@ -5239,6 +5518,7 @@ def load_source_registry(
     provenance_assertions: list[ProvenanceAssertion] = []
     seen_provenance_ids: set[str] = set()
     seen_locator_ids: set[str] = set()
+    claim_shapes: dict[str, tuple[str, str, str, str | None]] = {}
     for index, raw_assertion in enumerate(raw_provenance_assertions):
         context = f"provenance_assertions[{index}]"
         assertion = require_mapping(raw_assertion, context)
@@ -5250,6 +5530,8 @@ def load_source_registry(
                 "duplicated."
             )
         seen_provenance_ids.add(assertion_id)
+        claim_key = require_string(assertion, "claim_key", context)
+        validate_id(claim_key, f"{context}.claim_key")
         subject_type = require_string(assertion, "subject_type", context)
         validate_pack_values(
             schema_packs,
@@ -5289,6 +5571,14 @@ def load_source_registry(
                 field_path,
                 f"{context}.field_path",
             )
+        claim_shape = (subject_type, subject_id, claim_namespace, field_path)
+        previous_shape = claim_shapes.get(claim_key)
+        if previous_shape is not None and previous_shape != claim_shape:
+            raise ValueError(
+                f"Source registry claim key `{claim_key}` is reused for a "
+                "different subject, namespace, or field path."
+            )
+        claim_shapes[claim_key] = claim_shape
         if "asserted_value" not in assertion:
             raise ValueError(
                 f"Source registry `{context}.asserted_value` is required, "
@@ -5422,6 +5712,7 @@ def load_source_registry(
                     assert_locator_covered(
                         sources[evidence_source_id],
                         locator_medium,
+                        evidence_mode,
                         (position,),
                         locator_context,
                     )
@@ -5481,6 +5772,7 @@ def load_source_registry(
                     assert_locator_covered(
                         sources[evidence_source_id],
                         locator_medium,
+                        evidence_mode,
                         (start, end),
                         locator_context,
                     )
@@ -5533,6 +5825,7 @@ def load_source_registry(
         provenance_assertions.append(
             ProvenanceAssertion(
                 assertion_id,
+                claim_key,
                 subject_type,
                 subject_id,
                 claim_namespace,
@@ -5644,6 +5937,7 @@ def load_source_registry(
         schema_version=schema_version,
         default_authority_profile_id=default_authority_profile_id,
         claim_namespace_ancestors=claim_namespace_ancestors,
+        evidence_mode_ancestors=evidence_mode_ancestors,
         media_modalities=media_modalities,
         cultural_forms=cultural_forms,
         release_forms=release_forms,

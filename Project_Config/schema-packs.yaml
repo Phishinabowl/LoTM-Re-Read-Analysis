@@ -45,6 +45,11 @@ capability_activation:
     - source-bounded-evidence
     - explainable-authority-decisions
     - ordered-temporal-windows
+    - channel-scoped-evidence-coverage
+    - hierarchical-evidence-modes
+    - stable-claim-identity
+    - multi-source-authority-comparison
+    - claim-authority-evaluation
     - authority-profiles
     - typed-relationships
     - temporal-positions
