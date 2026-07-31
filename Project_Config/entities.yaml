@@ -1,4 +1,4 @@
-schema_version: 3
+schema_version: 4
 
 # Conceptual subjects that may have one or more continuity-bound realizations.
 # LoTM does not need explicit incarnation records yet, so the project registry
@@ -180,3 +180,27 @@ incarnation_relationship_types:
     acyclic_group: incarnation-derivation
 
 incarnation_relationships: []
+
+# Addressable phases preserve one identity inside one continuity. Ordinary
+# state changes, disguises, variants, clones, simulations, and mantle holders
+# remain outside this collection unless persistent identity is established.
+identity_phases: {}
+
+# Bindings identify the exact registered material in which a phase applies.
+identity_phase_bindings: []
+
+identity_phase_relationship_types:
+  succeeds:
+    label: Succeeds
+    inverse_type: precedes
+    symmetric: false
+    canonical_direction: true
+    acyclic_group: identity-phase-sequence
+  precedes:
+    label: Precedes
+    inverse_type: succeeds
+    symmetric: false
+    canonical_direction: false
+    acyclic_group: identity-phase-sequence
+
+identity_phase_relationships: []

@@ -128,3 +128,4 @@ capability_activation:
     - semantic-position-coverage
     - shared-universes
     - entity-incarnations
+    - entity-identity-phases

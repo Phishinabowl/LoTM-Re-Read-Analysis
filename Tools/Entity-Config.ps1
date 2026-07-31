@@ -11,7 +11,7 @@ if (-not (Get-Command Get-KnowledgeLookupKeyConfig -ErrorAction SilentlyContinue
   . $lookupKeyConfigHelper
 }
 
-$script:SupportedEntitySchemaVersion = 3
+$script:SupportedEntitySchemaVersion = 4
 $script:EntityStableIdPattern = "^[a-z0-9]+(?:-[a-z0-9]+)*$"
 $script:EntityLifecycles = @("active", "deferred")
 
@@ -469,6 +469,118 @@ function Get-KnowledgeEntityRegistry {
   }
   Assert-AcyclicEntityRelationships $relationships $relationshipTypes "incarnation" "source_incarnation_id" "target_incarnation_id"
 
+  if (-not (Test-SchemaPackCapabilityEnabled $SchemaPackRegistry "entity-identity-phases")) {
+    throw "Entity registry schema 4 requires enabled schema capability 'entity-identity-phases'."
+  }
+
+  $rawIdentityPhases = Get-ProjectMapValue $registry "identity_phases"
+  if ($null -eq $rawIdentityPhases -or $rawIdentityPhases -isnot [System.Collections.IDictionary]) { throw "Entity registry 'identity_phases' must be a mapping." }
+  $identityPhases = [ordered]@{}
+  foreach ($phaseId in $rawIdentityPhases.Keys) {
+    $context = "identity_phases.$phaseId"; Assert-EntityStableId $phaseId $context
+    $phase = $rawIdentityPhases[$phaseId]
+    if ($phase -isnot [System.Collections.IDictionary]) { throw "Entity registry '$context' must be a mapping." }
+    $lifecycle = Get-RequiredEntityString $phase "lifecycle" $context
+    if ($script:EntityLifecycles -notcontains $lifecycle) { throw "Entity registry '$context.lifecycle' must be one of: $($script:EntityLifecycles -join ', ')." }
+    $subjectType = Get-RequiredEntityString $phase "subject_type" $context
+    Assert-EntityPackValue $SchemaPackRegistry "identity.phase-subject-type" $subjectType "$context.subject_type"
+    $subjectId = Get-RequiredEntityString $phase "subject_id" $context
+    if ($subjectType -eq "entity") {
+      if (-not $entities.Contains($subjectId)) { throw "Entity registry '$context.subject_id' references unknown entity '$subjectId'." }
+    } elseif ($subjectType -eq "entity-incarnation") {
+      if (-not $incarnations.Contains($subjectId)) { throw "Entity registry '$context.subject_id' references unknown entity-incarnation '$subjectId'." }
+    } else {
+      throw "Entity registry '$context.subject_type' has no installed identity provider."
+    }
+    $continuityId = Get-RequiredEntityString $phase "continuity_id" $context
+    if (-not $SourceRegistry.continuities.Contains($continuityId)) { throw "Entity registry '$context.continuity_id' references unknown continuity '$continuityId'." }
+    if ($subjectType -eq "entity-incarnation" -and @($incarnations[$subjectId].continuity_memberships.continuity_id) -notcontains $continuityId) { throw "Entity registry '$context.continuity_id' is not a continuity membership of incarnation '$subjectId'." }
+    $phaseType = Get-RequiredEntityString $phase "phase_type" $context
+    Assert-EntityPackValue $SchemaPackRegistry "identity.phase-type" $phaseType "$context.phase_type"
+    $identityPhases[$phaseId] = [pscustomobject]@{
+      id=$phaseId; lifecycle=$lifecycle; subject_type=$subjectType; subject_id=$subjectId
+      continuity_id=$continuityId; phase_type=$phaseType
+      label=Get-RequiredEntityString $phase "label" $context
+      aliases=@(Get-EntityStringList $phase "aliases" $context)
+    }
+  }
+
+  $rawPhaseBindings = Get-ProjectMapValue $registry "identity_phase_bindings"
+  if ($null -eq $rawPhaseBindings) { $rawPhaseBindings = @() }
+  if ($rawPhaseBindings -is [string]) { throw "Entity registry 'identity_phase_bindings' must be a list." }
+  $rawPhaseBindings = @($rawPhaseBindings); $phaseBindings = @()
+  $phaseBindingIds = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+  $phaseBindingShapes = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+  for ($index = 0; $index -lt $rawPhaseBindings.Count; $index += 1) {
+    $context = "identity_phase_bindings[$index]"; $binding = $rawPhaseBindings[$index]
+    if ($binding -isnot [System.Collections.IDictionary]) { throw "Entity registry '$context' must be a mapping." }
+    $id = Get-RequiredEntityString $binding "id" $context; Assert-EntityStableId $id "$context.id"
+    if (-not $phaseBindingIds.Add($id)) { throw "Entity registry repeats identity-phase binding ID '$id'." }
+    $phaseId = Get-RequiredEntityString $binding "identity_phase_id" $context
+    if (-not $identityPhases.Contains($phaseId)) { throw "Entity registry '$context.identity_phase_id' references unknown identity phase '$phaseId'." }
+    $scopeId = Get-RequiredEntityString $binding "applicability_scope_id" $context
+    if (-not $SourceRegistry.applicability_scopes.Contains($scopeId)) { throw "Entity registry '$context.applicability_scope_id' references unknown scope '$scopeId'." }
+    $scope = $SourceRegistry.applicability_scopes[$scopeId]
+    $workIds = @(Get-KnowledgeApplicabilityTargetWorkIds $SourceRegistry $scope.target_type $scope.target_id)
+    if ($workIds.Count -eq 0) { throw "Entity registry '$context.applicability_scope_id' must resolve to source material with a canonical work." }
+    $phaseContinuityId = $identityPhases[$phaseId].continuity_id
+    foreach ($workId in $workIds) {
+      if (@($SourceRegistry.works[$workId].continuity_memberships.continuity_id) -notcontains $phaseContinuityId) { throw "Entity registry '$context.applicability_scope_id' resolves outside phase continuity '$phaseContinuityId'." }
+    }
+    $bindingType = Get-RequiredEntityString $binding "binding_type" $context
+    Assert-EntityPackValue $SchemaPackRegistry "identity.phase-binding-type" $bindingType "$context.binding_type"
+    $status = Get-RequiredEntityString $binding "status" $context
+    if ($allowedMembershipStatuses -notcontains $status) { throw "Entity registry '$context.status' value '$status' is not supplied by selected schema packs." }
+    if (-not $phaseBindingShapes.Add("$phaseId|$scopeId|$bindingType")) { throw "Entity registry '$context' duplicates an identity-phase binding." }
+    $phaseBindings += [pscustomobject]@{ id=$id; identity_phase_id=$phaseId; applicability_scope_id=$scopeId; binding_type=$bindingType; status=$status }
+  }
+
+  $rawPhaseTypes = Get-ProjectMapValue $registry "identity_phase_relationship_types"
+  if ($null -eq $rawPhaseTypes -or $rawPhaseTypes -isnot [System.Collections.IDictionary]) { throw "Entity registry 'identity_phase_relationship_types' must be a mapping." }
+  $phaseRelationshipTypes = [ordered]@{}
+  foreach ($typeId in $rawPhaseTypes.Keys) {
+    $context = "identity_phase_relationship_types.$typeId"; Assert-EntityStableId $typeId $context
+    Assert-EntityPackValue $SchemaPackRegistry "identity.phase-relationship-type" $typeId $context
+    $type = $rawPhaseTypes[$typeId]
+    if ($type -isnot [System.Collections.IDictionary]) { throw "Entity registry '$context' must be a mapping." }
+    $phaseRelationshipTypes[$typeId] = [pscustomobject]@{
+      id=$typeId; label=Get-RequiredEntityString $type "label" $context
+      inverse_type=Get-RequiredEntityString $type "inverse_type" $context
+      symmetric=Get-RequiredEntityBoolean $type "symmetric" $context
+      canonical_direction=Get-RequiredEntityBoolean $type "canonical_direction" $context
+      acyclic_group=Get-OptionalEntityString $type "acyclic_group" $context
+    }
+    if ($null -ne $phaseRelationshipTypes[$typeId].acyclic_group) { Assert-EntityStableId $phaseRelationshipTypes[$typeId].acyclic_group "$context.acyclic_group" }
+  }
+  Assert-EntityRelationshipTypeInverses $phaseRelationshipTypes "identity-phase"
+
+  $rawPhaseRelationships = Get-ProjectMapValue $registry "identity_phase_relationships"
+  if ($null -eq $rawPhaseRelationships) { $rawPhaseRelationships = @() }
+  if ($rawPhaseRelationships -is [string]) { throw "Entity registry 'identity_phase_relationships' must be a list." }
+  $rawPhaseRelationships = @($rawPhaseRelationships); $phaseRelationships = @()
+  $phaseRelationshipIds = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+  $phaseRelationshipShapes = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+  for ($index = 0; $index -lt $rawPhaseRelationships.Count; $index += 1) {
+    $context = "identity_phase_relationships[$index]"; $relationship = $rawPhaseRelationships[$index]
+    if ($relationship -isnot [System.Collections.IDictionary]) { throw "Entity registry '$context' must be a mapping." }
+    $id = Get-RequiredEntityString $relationship "id" $context; Assert-EntityStableId $id "$context.id"
+    if (-not $phaseRelationshipIds.Add($id)) { throw "Entity registry repeats identity-phase relationship ID '$id'." }
+    $sourceId = Get-RequiredEntityString $relationship "source_identity_phase_id" $context
+    $targetId = Get-RequiredEntityString $relationship "target_identity_phase_id" $context
+    if (-not $identityPhases.Contains($sourceId) -or -not $identityPhases.Contains($targetId)) { throw "Entity registry '$context' references an unknown identity-phase endpoint." }
+    if ($sourceId -eq $targetId) { throw "Entity registry '$context' cannot relate an identity phase to itself." }
+    $sourcePhase = $identityPhases[$sourceId]; $targetPhase = $identityPhases[$targetId]
+    if ($sourcePhase.subject_type -ne $targetPhase.subject_type -or $sourcePhase.subject_id -ne $targetPhase.subject_id -or $sourcePhase.continuity_id -ne $targetPhase.continuity_id) { throw "Entity registry '$context' must relate phases of the same identity subject and continuity." }
+    $typeId = Get-RequiredEntityString $relationship "relationship_type" $context
+    if (-not $phaseRelationshipTypes.Contains($typeId)) { throw "Entity registry '$context.relationship_type' references unknown type '$typeId'." }
+    $status = Get-RequiredEntityString $relationship "status" $context
+    if ($allowedMembershipStatuses -notcontains $status) { throw "Entity registry '$context.status' value '$status' is not supplied by selected schema packs." }
+    $shape = Get-CanonicalEntityRelationshipShape $sourceId $typeId $targetId $null $phaseRelationshipTypes
+    if (-not $phaseRelationshipShapes.Add($shape)) { throw "Entity registry '$context' duplicates an identity-phase relationship or its inverse." }
+    $phaseRelationships += [pscustomobject]@{ id=$id; source_identity_phase_id=$sourceId; relationship_type=$typeId; target_identity_phase_id=$targetId; status=$status }
+  }
+  Assert-AcyclicEntityRelationships $phaseRelationships $phaseRelationshipTypes "identity-phase" "source_identity_phase_id" "target_identity_phase_id"
+
   return [pscustomobject]@{
     path=$registryPath
     schema_version=[int]$schemaVersion
@@ -479,9 +591,14 @@ function Get-KnowledgeEntityRegistry {
     incarnation_bindings=@($bindings)
     incarnation_relationship_types=$relationshipTypes
     incarnation_relationships=@($relationships)
+    identity_phases=$identityPhases
+    identity_phase_bindings=@($phaseBindings)
+    identity_phase_relationship_types=$phaseRelationshipTypes
+    identity_phase_relationships=@($phaseRelationships)
     lookup_keys=$lookupKeys
     entity_aliases=New-EntityAliasMap $entities "entity" $lookupKeys
     incarnation_aliases=New-EntityAliasMap $incarnations "incarnation" $lookupKeys
+    identity_phase_aliases=New-EntityAliasMap $identityPhases "identity phase" $lookupKeys
   }
 }
 
@@ -543,8 +660,67 @@ function Get-KnowledgeIncarnationRelationships {
   })
 }
 
+function Resolve-KnowledgeIdentityPhaseIds {
+  param([object]$EntityRegistry, [string]$Value)
+  $normalized = ConvertTo-KnowledgeLookupKey $Value $EntityRegistry.lookup_keys
+  foreach ($phaseId in $EntityRegistry.identity_phases.Keys) { if (Test-KnowledgeLookupKeysEqual (ConvertTo-KnowledgeLookupKey $phaseId $EntityRegistry.lookup_keys) $normalized) { return @($phaseId) } }
+  if ($EntityRegistry.identity_phase_aliases.ContainsKey($normalized)) { return @($EntityRegistry.identity_phase_aliases[$normalized]) }
+  return @()
+}
+
+function Resolve-KnowledgeIdentityPhaseId {
+  param([object]$EntityRegistry, [string]$Value)
+  $matches = @(Resolve-KnowledgeIdentityPhaseIds $EntityRegistry $Value)
+  if ($matches.Count -gt 1) { throw "Ambiguous identity-phase name '$Value' matches: $($matches -join ', ')." }
+  return $(if ($matches.Count -eq 1) { $matches[0] } else { $null })
+}
+
+function Get-KnowledgeIdentitySubjectTypes {
+  return @("entity", "entity-incarnation")
+}
+
+function Get-KnowledgeIdentityTargetTypes {
+  return @("entity", "entity-incarnation", "identity-phase")
+}
+
+function Get-KnowledgeIdentitySubjectTarget {
+  param([object]$EntityRegistry, [string]$SubjectType, [string]$SubjectId)
+  if (@(Get-KnowledgeIdentitySubjectTypes) -notcontains $SubjectType) { throw "Unsupported identity subject type '$SubjectType'." }
+  return Get-KnowledgeIdentityTarget $EntityRegistry $SubjectType $SubjectId
+}
+
+function Get-KnowledgeIdentityTarget {
+  param([object]$EntityRegistry, [string]$SubjectType, [string]$SubjectId)
+  switch ($SubjectType) {
+    "entity" { if ($EntityRegistry.entities.Contains($SubjectId)) { return $EntityRegistry.entities[$SubjectId] } }
+    "entity-incarnation" { if ($EntityRegistry.incarnations.Contains($SubjectId)) { return $EntityRegistry.incarnations[$SubjectId] } }
+    "identity-phase" { if ($EntityRegistry.identity_phases.Contains($SubjectId)) { return $EntityRegistry.identity_phases[$SubjectId] } }
+    default { throw "Unsupported identity target type '$SubjectType'." }
+  }
+  throw "Unknown $SubjectType '$SubjectId'."
+}
+
+function Get-KnowledgeIdentityPhases {
+  param([object]$EntityRegistry, [string]$SubjectType, [string]$SubjectId)
+  $null = Get-KnowledgeIdentityTarget $EntityRegistry $SubjectType $SubjectId
+  if ($SubjectType -eq "identity-phase") { throw "Identity phases cannot own nested identity phases." }
+  return @($EntityRegistry.identity_phases.Values | Where-Object { $_.subject_type -eq $SubjectType -and $_.subject_id -eq $SubjectId })
+}
+
+function Get-KnowledgeIdentityPhaseBindings {
+  param([object]$EntityRegistry, [string]$IdentityPhaseId)
+  if (-not $EntityRegistry.identity_phases.Contains($IdentityPhaseId)) { throw "Unknown identity-phase '$IdentityPhaseId'." }
+  return @($EntityRegistry.identity_phase_bindings | Where-Object identity_phase_id -eq $IdentityPhaseId)
+}
+
+function Get-KnowledgeIdentityPhaseRelationships {
+  param([object]$EntityRegistry, [string]$IdentityPhaseId)
+  if (-not $EntityRegistry.identity_phases.Contains($IdentityPhaseId)) { throw "Unknown identity-phase '$IdentityPhaseId'." }
+  return @($EntityRegistry.identity_phase_relationships | Where-Object { $_.source_identity_phase_id -eq $IdentityPhaseId -or $_.target_identity_phase_id -eq $IdentityPhaseId })
+}
+
 function Get-KnowledgeEntityProvenanceSubjectTypes {
-  return @("entity","entity-relationship","entity-incarnation","incarnation-binding","incarnation-relationship")
+  return @("entity","entity-relationship","entity-incarnation","incarnation-binding","incarnation-relationship","identity-phase","identity-phase-binding","identity-phase-relationship")
 }
 
 function Get-KnowledgeEntityProvenanceTarget {
@@ -567,6 +743,17 @@ function Get-KnowledgeEntityProvenanceTarget {
     }
     "incarnation-relationship" {
       $target = @($EntityRegistry.incarnation_relationships | Where-Object id -eq $SubjectId)
+      if ($target.Count -eq 1) { return $target[0] }
+    }
+    "identity-phase" {
+      if ($EntityRegistry.identity_phases.Contains($SubjectId)) { return $EntityRegistry.identity_phases[$SubjectId] }
+    }
+    "identity-phase-binding" {
+      $target = @($EntityRegistry.identity_phase_bindings | Where-Object id -eq $SubjectId)
+      if ($target.Count -eq 1) { return $target[0] }
+    }
+    "identity-phase-relationship" {
+      $target = @($EntityRegistry.identity_phase_relationships | Where-Object id -eq $SubjectId)
       if ($target.Count -eq 1) { return $target[0] }
     }
     default { throw "Unsupported entity-registry subject type '$SubjectType'." }

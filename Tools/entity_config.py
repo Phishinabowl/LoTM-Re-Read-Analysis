@@ -11,7 +11,7 @@ from source_config import SourceRegistry
 from taxonomy_config import TaxonomyConfig
 
 
-SUPPORTED_ENTITY_SCHEMA_VERSION = 3
+SUPPORTED_ENTITY_SCHEMA_VERSION = 4
 LIFECYCLES = {"active", "deferred"}
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
@@ -94,6 +94,46 @@ class IncarnationRelationship:
 
 
 @dataclass(frozen=True)
+class IdentityPhase:
+    id: str
+    lifecycle: str
+    subject_type: str
+    subject_id: str
+    continuity_id: str
+    phase_type: str
+    label: str
+    aliases: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class IdentityPhaseBinding:
+    id: str
+    identity_phase_id: str
+    applicability_scope_id: str
+    binding_type: str
+    status: str
+
+
+@dataclass(frozen=True)
+class IdentityPhaseRelationshipType:
+    id: str
+    label: str
+    inverse_type: str
+    symmetric: bool
+    canonical_direction: bool
+    acyclic_group: str | None
+
+
+@dataclass(frozen=True)
+class IdentityPhaseRelationship:
+    id: str
+    source_identity_phase_id: str
+    relationship_type: str
+    target_identity_phase_id: str
+    status: str
+
+
+@dataclass(frozen=True)
 class EntityRegistry:
     path: Path
     schema_version: int
@@ -104,9 +144,14 @@ class EntityRegistry:
     incarnation_bindings: tuple[IncarnationBinding, ...]
     incarnation_relationship_types: dict[str, IncarnationRelationshipType]
     incarnation_relationships: tuple[IncarnationRelationship, ...]
+    identity_phases: dict[str, IdentityPhase]
+    identity_phase_bindings: tuple[IdentityPhaseBinding, ...]
+    identity_phase_relationship_types: dict[str, IdentityPhaseRelationshipType]
+    identity_phase_relationships: tuple[IdentityPhaseRelationship, ...]
     lookup_keys: LookupKeyConfig
     entity_aliases: dict[str, tuple[str, ...]]
     incarnation_aliases: dict[str, tuple[str, ...]]
+    identity_phase_aliases: dict[str, tuple[str, ...]]
 
     def resolve_entity_ids(self, value: str) -> tuple[str, ...]:
         normalized = self.lookup_keys.normalize(value)
@@ -183,6 +228,89 @@ class EntityRegistry:
             )
         )
 
+    def phases_for_subject(
+        self, subject_type: str, subject_id: str
+    ) -> tuple[IdentityPhase, ...]:
+        targets = self.identity_subject_targets().get(subject_type)
+        if targets is None:
+            raise ValueError(f"Unsupported identity subject type `{subject_type}`.")
+        if subject_id not in targets:
+            raise ValueError(f"Unknown {subject_type} `{subject_id}`.")
+        return tuple(
+            phase
+            for phase in self.identity_phases.values()
+            if phase.subject_type == subject_type and phase.subject_id == subject_id
+        )
+
+    def bindings_for_identity_phase(
+        self, identity_phase_id: str
+    ) -> tuple[IdentityPhaseBinding, ...]:
+        if identity_phase_id not in self.identity_phases:
+            raise ValueError(f"Unknown identity-phase `{identity_phase_id}`.")
+        return tuple(
+            binding
+            for binding in self.identity_phase_bindings
+            if binding.identity_phase_id == identity_phase_id
+        )
+
+    def relationships_for_identity_phase(
+        self, identity_phase_id: str
+    ) -> tuple[IdentityPhaseRelationship, ...]:
+        if identity_phase_id not in self.identity_phases:
+            raise ValueError(f"Unknown identity-phase `{identity_phase_id}`.")
+        return tuple(
+            relationship
+            for relationship in self.identity_phase_relationships
+            if identity_phase_id
+            in (
+                relationship.source_identity_phase_id,
+                relationship.target_identity_phase_id,
+            )
+        )
+
+    def resolve_identity_phase_ids(self, value: str) -> tuple[str, ...]:
+        normalized = self.lookup_keys.normalize(value)
+        for phase_id in self.identity_phases:
+            if self.lookup_keys.normalize(phase_id) == normalized:
+                return (phase_id,)
+        return self.identity_phase_aliases.get(normalized, ())
+
+    def resolve_identity_phase_id(self, value: str) -> str | None:
+        matches = self.resolve_identity_phase_ids(value)
+        if len(matches) > 1:
+            raise ValueError(
+                f"Ambiguous identity-phase name `{value}` matches: {', '.join(matches)}."
+            )
+        return matches[0] if matches else None
+
+    def identity_subject_targets(self) -> dict[str, dict[str, object]]:
+        return {
+            "entity": self.entities,
+            "entity-incarnation": self.incarnations,
+        }
+
+    def identity_subject_target(self, subject_type: str, subject_id: str) -> object:
+        targets = self.identity_subject_targets().get(subject_type)
+        if targets is None:
+            raise ValueError(f"Unsupported identity subject type `{subject_type}`.")
+        if subject_id not in targets:
+            raise ValueError(f"Unknown {subject_type} `{subject_id}`.")
+        return targets[subject_id]
+
+    def identity_targets(self) -> dict[str, dict[str, object]]:
+        return {
+            **self.identity_subject_targets(),
+            "identity-phase": self.identity_phases,
+        }
+
+    def identity_target(self, subject_type: str, subject_id: str) -> object:
+        targets = self.identity_targets().get(subject_type)
+        if targets is None:
+            raise ValueError(f"Unsupported identity target type `{subject_type}`.")
+        if subject_id not in targets:
+            raise ValueError(f"Unknown {subject_type} `{subject_id}`.")
+        return targets[subject_id]
+
     def provenance_targets(self) -> dict[str, dict[str, object]]:
         return {
             "entity": self.entities,
@@ -197,6 +325,14 @@ class EntityRegistry:
             "incarnation-relationship": {
                 relationship.id: relationship
                 for relationship in self.incarnation_relationships
+            },
+            "identity-phase": self.identity_phases,
+            "identity-phase-binding": {
+                binding.id: binding for binding in self.identity_phase_bindings
+            },
+            "identity-phase-relationship": {
+                relationship.id: relationship
+                for relationship in self.identity_phase_relationships
             },
         }
 
@@ -287,7 +423,7 @@ def validate_pack_value(
 
 
 def build_aliases(
-    records: dict[str, EntityConfig | IncarnationConfig],
+    records: dict[str, EntityConfig | IncarnationConfig | IdentityPhase],
     label: str,
     lookup_keys: LookupKeyConfig,
 ) -> dict[str, tuple[str, ...]]:
@@ -316,7 +452,10 @@ def build_aliases(
 
 def validate_relationship_type_inverses(
     relationship_types: dict[
-        str, EntityRelationshipType | IncarnationRelationshipType
+        str,
+        EntityRelationshipType
+        | IncarnationRelationshipType
+        | IdentityPhaseRelationshipType,
     ],
     label: str,
 ) -> None:
@@ -374,7 +513,10 @@ def canonical_relationship_shape(
     target_id: str,
     scope_id: str | None,
     relationship_types: dict[
-        str, EntityRelationshipType | IncarnationRelationshipType
+        str,
+        EntityRelationshipType
+        | IncarnationRelationshipType
+        | IdentityPhaseRelationshipType,
     ],
 ) -> tuple[str, str, str, str | None]:
     relationship_type = relationship_types[type_id]
@@ -386,18 +528,29 @@ def canonical_relationship_shape(
 
 
 def validate_acyclic_relationships(
-    relationships: list[EntityRelationship | IncarnationRelationship],
-    relationship_types: dict[str, EntityRelationshipType | IncarnationRelationshipType],
+    relationships: list[
+        EntityRelationship | IncarnationRelationship | IdentityPhaseRelationship
+    ],
+    relationship_types: dict[
+        str,
+        EntityRelationshipType
+        | IncarnationRelationshipType
+        | IdentityPhaseRelationshipType,
+    ],
     label: str,
 ) -> None:
     normalized: list[tuple[str, str, str, str | None]] = []
     for relationship in relationships:
-        source_id = getattr(
-            relationship, "source_entity_id", None
-        ) or getattr(relationship, "source_incarnation_id")
-        target_id = getattr(
-            relationship, "target_entity_id", None
-        ) or getattr(relationship, "target_incarnation_id")
+        source_id = (
+            getattr(relationship, "source_entity_id", None)
+            or getattr(relationship, "source_incarnation_id", None)
+            or getattr(relationship, "source_identity_phase_id")
+        )
+        target_id = (
+            getattr(relationship, "target_entity_id", None)
+            or getattr(relationship, "target_incarnation_id", None)
+            or getattr(relationship, "target_identity_phase_id")
+        )
         relationship_type = relationship_types[relationship.relationship_type]
         if relationship_type.acyclic_group is None:
             continue
@@ -405,7 +558,7 @@ def validate_acyclic_relationships(
             source_id,
             relationship.relationship_type,
             target_id,
-            relationship.applicability_scope_id,
+            getattr(relationship, "applicability_scope_id", None),
             relationship_types,
         )
         normalized.append(
@@ -813,6 +966,261 @@ def load_entity_registry(
         relationships, relationship_types, "incarnation"
     )
 
+    if not schema_packs.capability_enabled("entity-identity-phases"):
+        raise ValueError(
+            "Entity registry schema 4 requires enabled schema capability "
+            "`entity-identity-phases`."
+        )
+
+    identity_phases: dict[str, IdentityPhase] = {}
+    raw_identity_phases = require_mapping(
+        registry.get("identity_phases"), "identity_phases"
+    )
+    identity_subject_targets: dict[str, dict[str, object]] = {
+        "entity": entities,
+        "entity-incarnation": incarnations,
+    }
+    for phase_id, raw_phase in raw_identity_phases.items():
+        validate_id(phase_id, f"identity_phases.{phase_id}")
+        context = f"identity_phases.{phase_id}"
+        phase = require_mapping(raw_phase, context)
+        lifecycle = require_string(phase, "lifecycle", context)
+        validate_lifecycle(lifecycle, f"{context}.lifecycle")
+        subject_type = require_string(phase, "subject_type", context)
+        validate_pack_value(
+            schema_packs,
+            "identity.phase-subject-type",
+            subject_type,
+            f"{context}.subject_type",
+        )
+        if subject_type not in identity_subject_targets:
+            raise ValueError(
+                f"Entity registry `{context}.subject_type` has no installed identity provider."
+            )
+        subject_id = require_string(phase, "subject_id", context)
+        if subject_id not in identity_subject_targets[subject_type]:
+            raise ValueError(
+                f"Entity registry `{context}.subject_id` references unknown "
+                f"{subject_type} `{subject_id}`."
+            )
+        continuity_id = require_string(phase, "continuity_id", context)
+        if continuity_id not in sources.continuities:
+            raise ValueError(
+                f"Entity registry `{context}.continuity_id` references unknown "
+                f"continuity `{continuity_id}`."
+            )
+        if subject_type == "entity-incarnation":
+            membership_ids = {
+                membership.continuity_id
+                for membership in incarnations[subject_id].continuity_memberships
+            }
+            if continuity_id not in membership_ids:
+                raise ValueError(
+                    f"Entity registry `{context}.continuity_id` is not a continuity "
+                    f"membership of incarnation `{subject_id}`."
+                )
+        phase_type = require_string(phase, "phase_type", context)
+        validate_pack_value(
+            schema_packs,
+            "identity.phase-type",
+            phase_type,
+            f"{context}.phase_type",
+        )
+        identity_phases[phase_id] = IdentityPhase(
+            id=phase_id,
+            lifecycle=lifecycle,
+            subject_type=subject_type,
+            subject_id=subject_id,
+            continuity_id=continuity_id,
+            phase_type=phase_type,
+            label=require_string(phase, "label", context),
+            aliases=string_list(phase, "aliases", context),
+        )
+
+    phase_bindings: list[IdentityPhaseBinding] = []
+    seen_phase_binding_ids: set[str] = set()
+    seen_phase_binding_shapes: set[tuple[str, str, str]] = set()
+    for index, raw_binding in enumerate(
+        require_list(
+            registry.get("identity_phase_bindings"), "identity_phase_bindings"
+        )
+    ):
+        context = f"identity_phase_bindings[{index}]"
+        binding = require_mapping(raw_binding, context)
+        binding_id = require_string(binding, "id", context)
+        validate_id(binding_id, f"{context}.id")
+        if binding_id in seen_phase_binding_ids:
+            raise ValueError(
+                f"Entity registry repeats identity-phase binding ID `{binding_id}`."
+            )
+        seen_phase_binding_ids.add(binding_id)
+        phase_id = require_string(binding, "identity_phase_id", context)
+        if phase_id not in identity_phases:
+            raise ValueError(
+                f"Entity registry `{context}.identity_phase_id` references unknown "
+                f"identity phase `{phase_id}`."
+            )
+        scope_id = require_string(binding, "applicability_scope_id", context)
+        if scope_id not in sources.applicability_scopes:
+            raise ValueError(
+                f"Entity registry `{context}.applicability_scope_id` references "
+                f"unknown scope `{scope_id}`."
+            )
+        scope = sources.applicability_scopes[scope_id]
+        work_ids = sources.target_work_ids(scope.target_type, scope.target_id)
+        if not work_ids:
+            raise ValueError(
+                f"Entity registry `{context}.applicability_scope_id` must resolve "
+                "to source material with a canonical work."
+            )
+        phase_continuity_id = identity_phases[phase_id].continuity_id
+        if any(
+            phase_continuity_id
+            not in {
+                membership.continuity_id
+                for membership in sources.works[work_id].continuity_memberships
+            }
+            for work_id in work_ids
+        ):
+            raise ValueError(
+                f"Entity registry `{context}.applicability_scope_id` resolves "
+                f"outside phase continuity `{phase_continuity_id}`."
+            )
+        binding_type = require_string(binding, "binding_type", context)
+        validate_pack_value(
+            schema_packs,
+            "identity.phase-binding-type",
+            binding_type,
+            f"{context}.binding_type",
+        )
+        status = require_string(binding, "status", context)
+        if status not in membership_statuses:
+            raise ValueError(
+                f"Entity registry `{context}.status` value `{status}` is not "
+                "supplied by selected schema packs."
+            )
+        shape = (phase_id, scope_id, binding_type)
+        if shape in seen_phase_binding_shapes:
+            raise ValueError(
+                f"Entity registry `{context}` duplicates an identity-phase binding."
+            )
+        seen_phase_binding_shapes.add(shape)
+        phase_bindings.append(
+            IdentityPhaseBinding(
+                binding_id, phase_id, scope_id, binding_type, status
+            )
+        )
+
+    phase_relationship_types: dict[str, IdentityPhaseRelationshipType] = {}
+    for type_id, raw_type in require_mapping(
+        registry.get("identity_phase_relationship_types"),
+        "identity_phase_relationship_types",
+    ).items():
+        context = f"identity_phase_relationship_types.{type_id}"
+        validate_id(type_id, context)
+        validate_pack_value(
+            schema_packs, "identity.phase-relationship-type", type_id, context
+        )
+        relationship_type = require_mapping(raw_type, context)
+        acyclic_group = optional_string(
+            relationship_type, "acyclic_group", context
+        )
+        if acyclic_group is not None:
+            validate_id(acyclic_group, f"{context}.acyclic_group")
+        phase_relationship_types[type_id] = IdentityPhaseRelationshipType(
+            id=type_id,
+            label=require_string(relationship_type, "label", context),
+            inverse_type=require_string(
+                relationship_type, "inverse_type", context
+            ),
+            symmetric=require_bool(relationship_type, "symmetric", context),
+            canonical_direction=require_bool(
+                relationship_type, "canonical_direction", context
+            ),
+            acyclic_group=acyclic_group,
+        )
+    validate_relationship_type_inverses(
+        phase_relationship_types, "identity-phase"
+    )
+
+    phase_relationships: list[IdentityPhaseRelationship] = []
+    seen_phase_relationship_ids: set[str] = set()
+    seen_phase_relationship_shapes: set[tuple[str, str, str, str | None]] = set()
+    for index, raw_relationship in enumerate(
+        require_list(
+            registry.get("identity_phase_relationships"),
+            "identity_phase_relationships",
+        )
+    ):
+        context = f"identity_phase_relationships[{index}]"
+        relationship = require_mapping(raw_relationship, context)
+        relationship_id = require_string(relationship, "id", context)
+        validate_id(relationship_id, f"{context}.id")
+        if relationship_id in seen_phase_relationship_ids:
+            raise ValueError(
+                f"Entity registry repeats identity-phase relationship ID "
+                f"`{relationship_id}`."
+            )
+        seen_phase_relationship_ids.add(relationship_id)
+        source_id = require_string(
+            relationship, "source_identity_phase_id", context
+        )
+        target_id = require_string(
+            relationship, "target_identity_phase_id", context
+        )
+        if source_id not in identity_phases or target_id not in identity_phases:
+            raise ValueError(
+                f"Entity registry `{context}` references an unknown identity-phase endpoint."
+            )
+        if source_id == target_id:
+            raise ValueError(
+                f"Entity registry `{context}` cannot relate an identity phase to itself."
+            )
+        source_phase = identity_phases[source_id]
+        target_phase = identity_phases[target_id]
+        if (
+            source_phase.subject_type,
+            source_phase.subject_id,
+            source_phase.continuity_id,
+        ) != (
+            target_phase.subject_type,
+            target_phase.subject_id,
+            target_phase.continuity_id,
+        ):
+            raise ValueError(
+                f"Entity registry `{context}` must relate phases of the same "
+                "identity subject and continuity."
+            )
+        type_id = require_string(relationship, "relationship_type", context)
+        if type_id not in phase_relationship_types:
+            raise ValueError(
+                f"Entity registry `{context}.relationship_type` references "
+                f"unknown type `{type_id}`."
+            )
+        status = require_string(relationship, "status", context)
+        if status not in membership_statuses:
+            raise ValueError(
+                f"Entity registry `{context}.status` value `{status}` is not "
+                "supplied by selected schema packs."
+            )
+        shape = canonical_relationship_shape(
+            source_id, type_id, target_id, None, phase_relationship_types
+        )
+        if shape in seen_phase_relationship_shapes:
+            raise ValueError(
+                f"Entity registry `{context}` duplicates an identity-phase "
+                "relationship or its inverse."
+            )
+        seen_phase_relationship_shapes.add(shape)
+        phase_relationships.append(
+            IdentityPhaseRelationship(
+                relationship_id, source_id, type_id, target_id, status
+            )
+        )
+    validate_acyclic_relationships(
+        phase_relationships, phase_relationship_types, "identity-phase"
+    )
+
     return EntityRegistry(
         path=project.entities_registry,
         schema_version=schema_version,
@@ -823,7 +1231,14 @@ def load_entity_registry(
         incarnation_bindings=tuple(bindings),
         incarnation_relationship_types=relationship_types,
         incarnation_relationships=tuple(relationships),
+        identity_phases=identity_phases,
+        identity_phase_bindings=tuple(phase_bindings),
+        identity_phase_relationship_types=phase_relationship_types,
+        identity_phase_relationships=tuple(phase_relationships),
         lookup_keys=lookup_keys,
         entity_aliases=build_aliases(entities, "entity", lookup_keys),
         incarnation_aliases=build_aliases(incarnations, "incarnation", lookup_keys),
+        identity_phase_aliases=build_aliases(
+            identity_phases, "identity phase", lookup_keys
+        ),
     )
