@@ -10,7 +10,7 @@ from resource_config import ResourceConfig
 from schema_pack_config import SchemaPackRegistry, load_schema_pack_registry
 
 
-SUPPORTED_SOURCE_SCHEMA_VERSION = 2
+SUPPORTED_SOURCE_SCHEMA_VERSION = 3
 LIFECYCLES = {"active", "deferred"}
 POSITION_FIELD_TYPES = {"string", "integer", "number", "timestamp", "boolean"}
 PRIORITY_ORDERS = {"ascending", "descending"}
@@ -18,8 +18,6 @@ CONFLICT_BEHAVIORS = {"flag"}
 DEVIATION_OWNERS = {"derivative-work"}
 CHAPTER_NUMBERING_MODES = {"work-local", "series-global", "not-applicable"}
 VOLUME_CATALOG_STATUSES = {"verified", "pending-verification", "not-applicable"}
-MEMBERSHIP_STATUSES = {"canonical", "secondary-canon", "non-canon", "disputed", "unknown"}
-RELATIONSHIP_STATUSES = MEMBERSHIP_STATUSES
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 FIELD_ID_PATTERN = re.compile(r"^[a-z][a-z0-9_]*$")
 
@@ -90,11 +88,26 @@ class CitationFormat:
 
 
 @dataclass(frozen=True)
+class RegistryValueConfig:
+    id: str
+    label: str
+
+
+@dataclass(frozen=True)
+class CulturalFormConfig:
+    id: str
+    label: str
+    modality_id: str
+
+
+@dataclass(frozen=True)
 class MediumConfig:
     id: str
     lifecycle: str
     label: str
     plural_label: str
+    modality_ids: tuple[str, ...]
+    cultural_form_ids: tuple[str, ...]
     fields: dict[str, str]
     required_fields: tuple[str, ...]
     sort_fields: tuple[str, ...]
@@ -131,6 +144,8 @@ class WorkConfig:
     short_label: str
     work_type: str
     medium_id: str
+    release_form_id: str
+    work_status: str
     aliases: tuple[str, ...]
     group_memberships: tuple[WorkGroupMembership, ...]
     continuity_memberships: tuple[ContinuityMembership, ...]
@@ -150,6 +165,42 @@ class WorkRelationship:
 
 
 @dataclass(frozen=True)
+class SegmentConfig:
+    id: str
+    work_id: str
+    parent_segment_id: str | None
+    segment_type: str
+    label: str
+    ordinal: int | None
+
+
+@dataclass(frozen=True)
+class OrderingEntry:
+    target_type: str
+    target_id: str
+    ordinal: int
+
+
+@dataclass(frozen=True)
+class OrderingScheme:
+    id: str
+    label: str
+    ordering_type: str
+    entries: tuple[OrderingEntry, ...]
+
+
+@dataclass(frozen=True)
+class AdaptationMapping:
+    id: str
+    source_work_id: str
+    target_work_id: str
+    source_segment_ids: tuple[str, ...]
+    target_segment_ids: tuple[str, ...]
+    mapping_type: str
+    status: str
+
+
+@dataclass(frozen=True)
 class SourceResourceBinding:
     resource_type_id: str
     root_id: str
@@ -165,6 +216,7 @@ class SourceConfig:
     label: str
     work_id: str
     medium_id: str
+    container_format_ids: tuple[str, ...]
     role: str
     comparison_group: str
     priority: int
@@ -186,6 +238,10 @@ class SourceRegistry:
     path: Path
     schema_version: int
     default_authority_profile_id: str
+    media_modalities: dict[str, RegistryValueConfig]
+    cultural_forms: dict[str, CulturalFormConfig]
+    release_forms: dict[str, RegistryValueConfig]
+    container_formats: dict[str, RegistryValueConfig]
     mediums: dict[str, MediumConfig]
     work_group_types: dict[str, WorkGroupTypeConfig]
     work_groups: dict[str, WorkGroupConfig]
@@ -195,7 +251,10 @@ class SourceRegistry:
     authority_profiles: dict[str, AuthorityProfile]
     work_relationship_types: dict[str, RelationshipTypeConfig]
     works: dict[str, WorkConfig]
+    segments: dict[str, SegmentConfig]
+    ordering_schemes: dict[str, OrderingScheme]
     work_relationships: tuple[WorkRelationship, ...]
+    adaptation_mappings: tuple[AdaptationMapping, ...]
     work_aliases: dict[str, str]
     source_relationship_types: dict[str, RelationshipTypeConfig]
     sources: dict[str, SourceConfig]
@@ -293,6 +352,22 @@ def parse_lifecycle(mapping: dict, context: str) -> str:
     return lifecycle
 
 
+def parse_labeled_registry(raw_value, context: str) -> dict[str, RegistryValueConfig]:
+    raw_registry = require_mapping(raw_value, context)
+    parsed: dict[str, RegistryValueConfig] = {}
+    for value_id, raw_definition in raw_registry.items():
+        value_context = f"{context}.{value_id}"
+        validate_id(value_id, value_context)
+        definition = require_mapping(raw_definition, value_context)
+        parsed[value_id] = RegistryValueConfig(
+            id=value_id,
+            label=require_string(definition, "label", value_context),
+        )
+    if not parsed:
+        raise ValueError(f"Source registry `{context}` must not be empty.")
+    return parsed
+
+
 def parse_relationship_types(raw_value, context: str) -> dict[str, RelationshipTypeConfig]:
     raw_types = require_mapping(raw_value, context)
     parsed: dict[str, RelationshipTypeConfig] = {}
@@ -336,6 +411,8 @@ def parse_work(
     work_group_types: dict[str, WorkGroupTypeConfig],
     continuities: dict[str, ContinuityConfig],
     mediums: dict[str, MediumConfig],
+    release_forms: dict[str, RegistryValueConfig],
+    membership_statuses: set[str],
 ) -> WorkConfig:
     context = f"works.{work_id}"
     validate_id(work_id, context)
@@ -349,6 +426,14 @@ def parse_work(
         )
     work_type = require_string(work, "work_type", context)
     validate_id(work_type, f"{context}.work_type")
+    release_form_id = require_string(work, "release_form_id", context)
+    if release_form_id not in release_forms:
+        raise ValueError(
+            f"Source registry `{context}.release_form_id` references unknown release "
+            f"form `{release_form_id}`."
+        )
+    work_status = require_string(work, "work_status", context)
+    validate_id(work_status, f"{context}.work_status")
     chapter_numbering = require_string(work, "chapter_numbering", context)
     if chapter_numbering not in CHAPTER_NUMBERING_MODES:
         raise ValueError(
@@ -425,10 +510,10 @@ def parse_work(
             )
         seen_continuities.add(continuity_id)
         status = require_string(membership, "status", membership_context)
-        if status not in MEMBERSHIP_STATUSES:
+        if status not in membership_statuses:
             raise ValueError(
                 f"Source registry `{membership_context}.status` must be one of: "
-                f"{', '.join(sorted(MEMBERSHIP_STATUSES))}."
+                f"{', '.join(sorted(membership_statuses))}."
             )
         continuity_memberships.append(ContinuityMembership(continuity_id, status))
 
@@ -504,6 +589,8 @@ def parse_work(
         short_label=require_string(work, "short_label", context),
         work_type=work_type,
         medium_id=medium_id,
+        release_form_id=release_form_id,
+        work_status=work_status,
         aliases=aliases,
         group_memberships=tuple(group_memberships),
         continuity_memberships=tuple(continuity_memberships),
@@ -513,7 +600,13 @@ def parse_work(
     )
 
 
-def parse_medium(medium_id: str, raw_medium) -> MediumConfig:
+def parse_medium(
+    medium_id: str,
+    raw_medium,
+    *,
+    media_modalities: dict[str, RegistryValueConfig],
+    cultural_forms: dict[str, CulturalFormConfig],
+) -> MediumConfig:
     context = f"mediums.{medium_id}"
     validate_id(medium_id, context)
     medium = require_mapping(raw_medium, context)
@@ -522,6 +615,35 @@ def parse_medium(medium_id: str, raw_medium) -> MediumConfig:
         raise ValueError(
             f"Source registry `{context}.lifecycle` must be one of: "
             f"{', '.join(sorted(LIFECYCLES))}."
+        )
+    modality_ids = require_string_list(medium, "modality_ids", context)
+    if not modality_ids:
+        raise ValueError(
+            f"Source registry `{context}.modality_ids` must not be empty."
+        )
+    unknown_modalities = set(modality_ids) - set(media_modalities)
+    if unknown_modalities:
+        raise ValueError(
+            f"Source registry `{context}.modality_ids` references unknown media "
+            f"modalities: {', '.join(sorted(unknown_modalities))}."
+        )
+    cultural_form_ids = require_string_list(medium, "cultural_form_ids", context)
+    unknown_cultural_forms = set(cultural_form_ids) - set(cultural_forms)
+    if unknown_cultural_forms:
+        raise ValueError(
+            f"Source registry `{context}.cultural_form_ids` references unknown "
+            f"cultural forms: {', '.join(sorted(unknown_cultural_forms))}."
+        )
+    incompatible_forms = [
+        cultural_form_id
+        for cultural_form_id in cultural_form_ids
+        if cultural_forms[cultural_form_id].modality_id not in modality_ids
+    ]
+    if incompatible_forms:
+        raise ValueError(
+            f"Source registry `{context}.cultural_form_ids` contains forms whose "
+            f"modalities are absent from `modality_ids`: "
+            f"{', '.join(sorted(incompatible_forms))}."
         )
     position = require_mapping(medium.get("position"), f"{context}.position")
     raw_fields = require_mapping(position.get("fields"), f"{context}.position.fields")
@@ -604,6 +726,8 @@ def parse_medium(medium_id: str, raw_medium) -> MediumConfig:
         lifecycle=lifecycle,
         label=require_string(medium, "label", context),
         plural_label=require_string(medium, "plural_label", context),
+        modality_ids=modality_ids,
+        cultural_form_ids=cultural_form_ids,
         fields=fields,
         required_fields=required_fields,
         sort_fields=sort_fields,
@@ -692,6 +816,15 @@ def load_source_registry(
             "Selected schema packs do not provide controlled namespace "
             "`source.source-role` required by `sources.*.role`."
         )
+    membership_statuses = set(
+        schema_packs.allowed_values("source.membership-status")
+    )
+    if not membership_statuses:
+        raise ValueError(
+            "Selected schema packs do not provide controlled namespace "
+            "`source.membership-status` required by continuity memberships and "
+            "relationship statuses."
+        )
     try:
         data = yaml.safe_load(project.sources_registry.read_text(encoding="utf-8"))
     except yaml.YAMLError as exc:
@@ -705,9 +838,66 @@ def load_source_registry(
             f"Unsupported source schema_version {schema_version!r}; "
             f"expected {SUPPORTED_SOURCE_SCHEMA_VERSION}."
         )
+    media_modalities = parse_labeled_registry(
+        registry.get("media_modalities"), "media_modalities"
+    )
+    validate_pack_values(
+        schema_packs,
+        "source.media-modality",
+        media_modalities,
+        "media_modalities",
+    )
+    raw_cultural_forms = require_mapping(
+        registry.get("cultural_forms"), "cultural_forms"
+    )
+    cultural_forms: dict[str, CulturalFormConfig] = {}
+    for cultural_form_id, raw_cultural_form in raw_cultural_forms.items():
+        context = f"cultural_forms.{cultural_form_id}"
+        validate_id(cultural_form_id, context)
+        cultural_form = require_mapping(raw_cultural_form, context)
+        modality_id = require_string(cultural_form, "modality_id", context)
+        if modality_id not in media_modalities:
+            raise ValueError(
+                f"Source registry `{context}.modality_id` references unknown media "
+                f"modality `{modality_id}`."
+            )
+        cultural_forms[cultural_form_id] = CulturalFormConfig(
+            id=cultural_form_id,
+            label=require_string(cultural_form, "label", context),
+            modality_id=modality_id,
+        )
+    validate_pack_values(
+        schema_packs,
+        "source.cultural-form",
+        cultural_forms,
+        "cultural_forms",
+    )
+    release_forms = parse_labeled_registry(
+        registry.get("release_forms"), "release_forms"
+    )
+    validate_pack_values(
+        schema_packs,
+        "source.release-form",
+        release_forms,
+        "release_forms",
+    )
+    container_formats = parse_labeled_registry(
+        registry.get("container_formats"), "container_formats"
+    )
+    validate_pack_values(
+        schema_packs,
+        "source.container-format",
+        container_formats,
+        "container_formats",
+    )
     raw_mediums = require_mapping(registry.get("mediums"), "mediums")
     mediums = {
-        medium_id: parse_medium(medium_id, raw_medium)
+        medium_id: parse_medium(
+            medium_id,
+            raw_medium,
+            media_modalities=media_modalities,
+            cultural_forms=cultural_forms,
+        )
         for medium_id, raw_medium in raw_mediums.items()
     }
     validate_pack_values(
@@ -891,10 +1081,10 @@ def load_source_registry(
                 f"type `{relationship_type}`."
             )
         status = require_string(relationship, "status", context)
-        if status not in RELATIONSHIP_STATUSES:
+        if status not in membership_statuses:
             raise ValueError(
                 f"Source registry `{context}.status` must be one of: "
-                f"{', '.join(sorted(RELATIONSHIP_STATUSES))}."
+                f"{', '.join(sorted(membership_statuses))}."
             )
         continuity_relationships.append(
             ContinuityRelationship(
@@ -924,7 +1114,7 @@ def load_source_registry(
         accepted_statuses = require_string_list(
             profile, "accepted_membership_statuses", context
         )
-        unknown_statuses = set(accepted_statuses) - MEMBERSHIP_STATUSES
+        unknown_statuses = set(accepted_statuses) - membership_statuses
         if unknown_statuses:
             raise ValueError(
                 f"Source registry `{context}.accepted_membership_statuses` contains "
@@ -991,6 +1181,8 @@ def load_source_registry(
             work_group_types=work_group_types,
             continuities=continuities,
             mediums=mediums,
+            release_forms=release_forms,
+            membership_statuses=membership_statuses,
         )
         for work_id, raw_work in raw_works.items()
     }
@@ -999,6 +1191,12 @@ def load_source_registry(
         "source.work-type",
         (work.work_type for work in works.values()),
         "works.*.work_type",
+    )
+    validate_pack_values(
+        schema_packs,
+        "source.work-lifecycle-status",
+        (work.work_status for work in works.values()),
+        "works.*.work_status",
     )
     seen_ordinals: dict[tuple[str, int], str] = {}
     work_aliases: dict[str, str] = {}
@@ -1022,6 +1220,141 @@ def load_source_registry(
                     "with a work ID."
                 )
             work_aliases[alias_key] = work.id
+
+    raw_segments = require_mapping(registry.get("segments"), "segments")
+    segments: dict[str, SegmentConfig] = {}
+    for segment_id, raw_segment in raw_segments.items():
+        context = f"segments.{segment_id}"
+        validate_id(segment_id, context)
+        segment = require_mapping(raw_segment, context)
+        work_id = require_string(segment, "work_id", context)
+        if work_id not in works:
+            raise ValueError(
+                f"Source registry `{context}.work_id` references unknown work "
+                f"`{work_id}`."
+            )
+        parent_segment_id = str(segment.get("parent_segment_id", "")).strip() or None
+        segment_type = require_string(segment, "segment_type", context)
+        validate_id(segment_type, f"{context}.segment_type")
+        ordinal = segment.get("ordinal")
+        if ordinal is not None and (
+            isinstance(ordinal, bool) or not isinstance(ordinal, int) or ordinal < 1
+        ):
+            raise ValueError(
+                f"Source registry `{context}.ordinal` must be a positive integer "
+                "when present."
+            )
+        segments[segment_id] = SegmentConfig(
+            id=segment_id,
+            work_id=work_id,
+            parent_segment_id=parent_segment_id,
+            segment_type=segment_type,
+            label=require_string(segment, "label", context),
+            ordinal=ordinal,
+        )
+    if segments:
+        validate_pack_values(
+            schema_packs,
+            "source.segment-type",
+            (segment.segment_type for segment in segments.values()),
+            "segments.*.segment_type",
+        )
+    for segment in segments.values():
+        if segment.parent_segment_id is None:
+            continue
+        parent = segments.get(segment.parent_segment_id)
+        if parent is None:
+            raise ValueError(
+                f"Source registry `segments.{segment.id}.parent_segment_id` references "
+                f"unknown segment `{segment.parent_segment_id}`."
+            )
+        if parent.id == segment.id:
+            raise ValueError(f"Source registry segment `{segment.id}` cannot parent itself.")
+        if parent.work_id != segment.work_id:
+            raise ValueError(
+                f"Source registry segment `{segment.id}` and its parent must belong "
+                "to the same work."
+            )
+    complete_segments: set[str] = set()
+
+    def visit_segment(segment_id: str, active: set[str]) -> None:
+        if segment_id in active:
+            raise ValueError(
+                f"Source registry contains a segment-parent cycle involving "
+                f"`{segment_id}`."
+            )
+        if segment_id in complete_segments:
+            return
+        active.add(segment_id)
+        parent = segments[segment_id].parent_segment_id
+        if parent:
+            visit_segment(parent, active)
+        active.remove(segment_id)
+        complete_segments.add(segment_id)
+
+    for segment_id in segments:
+        visit_segment(segment_id, set())
+
+    raw_ordering_schemes = require_mapping(
+        registry.get("ordering_schemes"), "ordering_schemes"
+    )
+    ordering_schemes: dict[str, OrderingScheme] = {}
+    for scheme_id, raw_scheme in raw_ordering_schemes.items():
+        context = f"ordering_schemes.{scheme_id}"
+        validate_id(scheme_id, context)
+        scheme = require_mapping(raw_scheme, context)
+        ordering_type = require_string(scheme, "ordering_type", context)
+        validate_id(ordering_type, f"{context}.ordering_type")
+        raw_entries = scheme.get("entries")
+        if not isinstance(raw_entries, list) or not raw_entries:
+            raise ValueError(
+                f"Source registry `{context}.entries` must be a non-empty list."
+            )
+        entries: list[OrderingEntry] = []
+        seen_targets: set[tuple[str, str]] = set()
+        seen_ordinals: set[int] = set()
+        for index, raw_entry in enumerate(raw_entries):
+            entry_context = f"{context}.entries[{index}]"
+            entry = require_mapping(raw_entry, entry_context)
+            target_type = require_string(entry, "target_type", entry_context)
+            if target_type not in {"work", "segment"}:
+                raise ValueError(
+                    f"Source registry `{entry_context}.target_type` must be `work` "
+                    "or `segment`."
+                )
+            target_id = require_string(entry, "target_id", entry_context)
+            targets = works if target_type == "work" else segments
+            if target_id not in targets:
+                raise ValueError(
+                    f"Source registry `{entry_context}.target_id` references unknown "
+                    f"{target_type} `{target_id}`."
+                )
+            ordinal = entry.get("ordinal")
+            if isinstance(ordinal, bool) or not isinstance(ordinal, int) or ordinal < 1:
+                raise ValueError(
+                    f"Source registry `{entry_context}.ordinal` must be a positive integer."
+                )
+            target_key = (target_type, target_id)
+            if target_key in seen_targets or ordinal in seen_ordinals:
+                raise ValueError(
+                    f"Source registry `{context}.entries` repeats a target or ordinal."
+                )
+            seen_targets.add(target_key)
+            seen_ordinals.add(ordinal)
+            entries.append(OrderingEntry(target_type, target_id, ordinal))
+        ordering_schemes[scheme_id] = OrderingScheme(
+            id=scheme_id,
+            label=require_string(scheme, "label", context),
+            ordering_type=ordering_type,
+            entries=tuple(sorted(entries, key=lambda entry: entry.ordinal)),
+        )
+    if ordering_schemes:
+        validate_pack_values(
+            schema_packs,
+            "source.ordering-type",
+            (scheme.ordering_type for scheme in ordering_schemes.values()),
+            "ordering_schemes.*.ordering_type",
+        )
 
     raw_work_relationships = registry.get("work_relationships")
     if not isinstance(raw_work_relationships, list):
@@ -1063,10 +1396,10 @@ def load_source_registry(
                 f"continuities: {', '.join(sorted(unknown_continuities))}."
             )
         status = require_string(relationship, "status", context)
-        if status not in RELATIONSHIP_STATUSES:
+        if status not in membership_statuses:
             raise ValueError(
                 f"Source registry `{context}.status` must be one of: "
-                f"{', '.join(sorted(RELATIONSHIP_STATUSES))}."
+                f"{', '.join(sorted(membership_statuses))}."
             )
         work_relationships.append(
             WorkRelationship(
@@ -1077,6 +1410,74 @@ def load_source_registry(
                 continuity_ids,
                 status,
             )
+        )
+
+    raw_adaptation_mappings = registry.get("adaptation_mappings")
+    if not isinstance(raw_adaptation_mappings, list):
+        raise ValueError("Source registry `adaptation_mappings` must be a list.")
+    adaptation_mappings: list[AdaptationMapping] = []
+    seen_adaptation_mapping_ids: set[str] = set()
+    for index, raw_mapping in enumerate(raw_adaptation_mappings):
+        context = f"adaptation_mappings[{index}]"
+        mapping = require_mapping(raw_mapping, context)
+        mapping_id = require_string(mapping, "id", context)
+        validate_id(mapping_id, f"{context}.id")
+        if mapping_id in seen_adaptation_mapping_ids:
+            raise ValueError(
+                f"Source registry adaptation mapping ID `{mapping_id}` is duplicated."
+            )
+        seen_adaptation_mapping_ids.add(mapping_id)
+        source_work_id = require_string(mapping, "source_work_id", context)
+        target_work_id = require_string(mapping, "target_work_id", context)
+        if source_work_id not in works or target_work_id not in works:
+            raise ValueError(
+                f"Source registry `{context}` references an unknown work."
+            )
+        source_segment_ids = require_string_list(
+            mapping, "source_segment_ids", context
+        )
+        target_segment_ids = require_string_list(
+            mapping, "target_segment_ids", context
+        )
+        for field_name, segment_ids, work_id in (
+            ("source_segment_ids", source_segment_ids, source_work_id),
+            ("target_segment_ids", target_segment_ids, target_work_id),
+        ):
+            for segment_id in segment_ids:
+                if segment_id not in segments:
+                    raise ValueError(
+                        f"Source registry `{context}.{field_name}` references unknown "
+                        f"segment `{segment_id}`."
+                    )
+                if segments[segment_id].work_id != work_id:
+                    raise ValueError(
+                        f"Source registry `{context}.{field_name}` segment "
+                        f"`{segment_id}` belongs to a different work."
+                    )
+        mapping_type = require_string(mapping, "mapping_type", context)
+        status = require_string(mapping, "status", context)
+        if status not in membership_statuses:
+            raise ValueError(
+                f"Source registry `{context}.status` must be one of: "
+                f"{', '.join(sorted(membership_statuses))}."
+            )
+        adaptation_mappings.append(
+            AdaptationMapping(
+                id=mapping_id,
+                source_work_id=source_work_id,
+                target_work_id=target_work_id,
+                source_segment_ids=source_segment_ids,
+                target_segment_ids=target_segment_ids,
+                mapping_type=mapping_type,
+                status=status,
+            )
+        )
+    if adaptation_mappings:
+        validate_pack_values(
+            schema_packs,
+            "source.adaptation-mapping-type",
+            (mapping.mapping_type for mapping in adaptation_mappings),
+            "adaptation_mappings.*.mapping_type",
         )
 
     raw_sources = require_mapping(registry.get("sources"), "sources")
@@ -1092,6 +1493,19 @@ def load_source_registry(
             raise ValueError(
                 f"Source registry `{context}.medium_id` references unknown medium "
                 f"`{medium_id}`."
+            )
+        container_format_ids = require_string_list(
+            source, "container_format_ids", context
+        )
+        if not container_format_ids:
+            raise ValueError(
+                f"Source registry `{context}.container_format_ids` must not be empty."
+            )
+        unknown_container_formats = set(container_format_ids) - set(container_formats)
+        if unknown_container_formats:
+            raise ValueError(
+                f"Source registry `{context}.container_format_ids` references unknown "
+                f"container formats: {', '.join(sorted(unknown_container_formats))}."
             )
         role = require_string(source, "role", context)
         if role not in allowed_source_roles:
@@ -1151,6 +1565,7 @@ def load_source_registry(
             label=require_string(source, "label", context),
             work_id=work_id,
             medium_id=medium_id,
+            container_format_ids=container_format_ids,
             role=role,
             comparison_group=comparison_group,
             priority=priority,
@@ -1207,6 +1622,10 @@ def load_source_registry(
         path=project.sources_registry,
         schema_version=schema_version,
         default_authority_profile_id=default_authority_profile_id,
+        media_modalities=media_modalities,
+        cultural_forms=cultural_forms,
+        release_forms=release_forms,
+        container_formats=container_formats,
         mediums=mediums,
         work_group_types=work_group_types,
         work_groups=work_groups,
@@ -1216,7 +1635,10 @@ def load_source_registry(
         authority_profiles=authority_profiles,
         work_relationship_types=work_relationship_types,
         works=works,
+        segments=segments,
+        ordering_schemes=ordering_schemes,
         work_relationships=tuple(work_relationships),
+        adaptation_mappings=tuple(adaptation_mappings),
         work_aliases=work_aliases,
         source_relationship_types=source_relationship_types,
         sources=sources,

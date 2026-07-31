@@ -11,7 +11,7 @@ if (-not (Get-Command Get-KnowledgeSchemaPackRegistry -ErrorAction SilentlyConti
   . $schemaPackConfigHelper
 }
 
-$script:SupportedSourceSchemaVersion = 2
+$script:SupportedSourceSchemaVersion = 3
 $script:AllowedSourceLifecycles = @("active", "deferred")
 $script:AllowedPositionFieldTypes = @("string", "integer", "number", "timestamp", "boolean")
 $script:AllowedPriorityOrders = @("ascending", "descending")
@@ -19,8 +19,6 @@ $script:AllowedConflictBehaviors = @("flag")
 $script:AllowedDeviationOwners = @("derivative-work")
 $script:AllowedChapterNumberingModes = @("work-local", "series-global", "not-applicable")
 $script:AllowedVolumeCatalogStatuses = @("verified", "pending-verification", "not-applicable")
-$script:AllowedMembershipStatuses = @("canonical", "secondary-canon", "non-canon", "disputed", "unknown")
-$script:AllowedRelationshipStatuses = @("canonical", "secondary-canon", "non-canon", "disputed", "unknown")
 $script:SourceFieldIdPattern = "^[a-z][a-z0-9_]*$"
 
 function Get-RequiredSourceString {
@@ -87,8 +85,38 @@ function Test-SourceFieldId {
     throw "Source registry '$Context' must be a lowercase snake_case field ID: $Value"
   }
 }
+function ConvertTo-LabeledSourceRegistry {
+  param([object]$RawRegistry, [string]$Context)
+
+  if ($null -eq $RawRegistry -or -not ($RawRegistry -is [System.Collections.IDictionary])) {
+    throw "Source registry '$Context' must be a mapping."
+  }
+  if ($RawRegistry.Count -eq 0) {
+    throw "Source registry '$Context' must not be empty."
+  }
+  $parsed = [ordered]@{}
+  foreach ($valueId in $RawRegistry.Keys) {
+    $valueContext = "$Context.$valueId"
+    Test-StableSourceId $valueId $valueContext
+    $definition = $RawRegistry[$valueId]
+    if ($null -eq $definition -or -not ($definition -is [System.Collections.IDictionary])) {
+      throw "Source registry '$valueContext' must be a mapping."
+    }
+    $parsed[$valueId] = [pscustomobject]@{
+      id = $valueId
+      label = Get-RequiredSourceString $definition "label" $valueContext
+    }
+  }
+  return $parsed
+}
+
 function ConvertTo-MediumConfig {
-  param([string]$MediumId, [object]$RawMedium)
+  param(
+    [string]$MediumId,
+    [object]$RawMedium,
+    [object]$MediaModalities,
+    [object]$CulturalForms
+  )
 
   $context = "mediums.$MediumId"
   Test-StableSourceId $MediumId $context
@@ -98,6 +126,23 @@ function ConvertTo-MediumConfig {
   $lifecycle = Get-RequiredSourceString $RawMedium "lifecycle" $context
   if ($script:AllowedSourceLifecycles -notcontains $lifecycle) {
     throw "Source registry '$context.lifecycle' must be one of: $($script:AllowedSourceLifecycles -join ', ')."
+  }
+  $modalityIds = @(Get-SourceStringList $RawMedium "modality_ids" $context)
+  if ($modalityIds.Count -eq 0) {
+    throw "Source registry '$context.modality_ids' must not be empty."
+  }
+  $unknownModalities = @($modalityIds | Where-Object { -not $MediaModalities.Contains($_) } | Sort-Object -Unique)
+  if ($unknownModalities.Count -gt 0) {
+    throw "Source registry '$context.modality_ids' references unknown media modalities: $($unknownModalities -join ', ')."
+  }
+  $culturalFormIds = @(Get-SourceStringListAllowEmpty $RawMedium "cultural_form_ids" $context)
+  $unknownCulturalForms = @($culturalFormIds | Where-Object { -not $CulturalForms.Contains($_) } | Sort-Object -Unique)
+  if ($unknownCulturalForms.Count -gt 0) {
+    throw "Source registry '$context.cultural_form_ids' references unknown cultural forms: $($unknownCulturalForms -join ', ')."
+  }
+  $incompatibleForms = @($culturalFormIds | Where-Object { $modalityIds -notcontains $CulturalForms[$_].modality_id } | Sort-Object -Unique)
+  if ($incompatibleForms.Count -gt 0) {
+    throw "Source registry '$context.cultural_form_ids' contains forms whose modalities are absent from 'modality_ids': $($incompatibleForms -join ', ')."
   }
   $position = Get-ProjectMapValue $RawMedium "position"
   if ($null -eq $position -or -not ($position -is [System.Collections.IDictionary])) {
@@ -168,6 +213,8 @@ function ConvertTo-MediumConfig {
     lifecycle = $lifecycle
     label = Get-RequiredSourceString $RawMedium "label" $context
     plural_label = Get-RequiredSourceString $RawMedium "plural_label" $context
+    modality_ids = @($modalityIds)
+    cultural_form_ids = @($culturalFormIds)
     fields = $fields
     required_fields = @($requiredFields)
     sort_fields = @($sortFields)
@@ -336,6 +383,10 @@ function Get-KnowledgeSourceRegistry {
   if ($allowedSourceRoles.Count -eq 0) {
     throw "Selected schema packs do not provide controlled namespace 'source.source-role' required by 'sources.*.role'."
   }
+  $allowedMembershipStatuses = @(Get-SchemaPackAllowedValues $SchemaPackRegistry "source.membership-status")
+  if ($allowedMembershipStatuses.Count -eq 0) {
+    throw "Selected schema packs do not provide controlled namespace 'source.membership-status' required by continuity memberships and relationship statuses."
+  }
   $registryPath = $ProjectConfig.sources_registry
   $registry = ConvertFrom-Yaml -Yaml ([System.IO.File]::ReadAllText($registryPath, [System.Text.UTF8Encoding]::new($true))) -Ordered
   if ($null -eq $registry -or -not ($registry -is [System.Collections.IDictionary])) {
@@ -346,13 +397,43 @@ function Get-KnowledgeSourceRegistry {
     throw "Unsupported source schema_version '$schemaVersion'; expected $($script:SupportedSourceSchemaVersion)."
   }
 
+  $mediaModalities = ConvertTo-LabeledSourceRegistry (Get-ProjectMapValue $registry "media_modalities") "media_modalities"
+  Assert-SourceSchemaPackValues $SchemaPackRegistry "source.media-modality" @($mediaModalities.Keys) "media_modalities"
+
+  $rawCulturalForms = Get-ProjectMapValue $registry "cultural_forms"
+  if ($null -eq $rawCulturalForms -or -not ($rawCulturalForms -is [System.Collections.IDictionary])) {
+    throw "Source registry 'cultural_forms' must be a mapping."
+  }
+  $culturalForms = [ordered]@{}
+  foreach ($culturalFormId in $rawCulturalForms.Keys) {
+    $context = "cultural_forms.$culturalFormId"
+    Test-StableSourceId $culturalFormId $context
+    $culturalForm = $rawCulturalForms[$culturalFormId]
+    $modalityId = Get-RequiredSourceString $culturalForm "modality_id" $context
+    if (-not $mediaModalities.Contains($modalityId)) {
+      throw "Source registry '$context.modality_id' references unknown media modality '$modalityId'."
+    }
+    $culturalForms[$culturalFormId] = [pscustomobject]@{
+      id = $culturalFormId
+      label = Get-RequiredSourceString $culturalForm "label" $context
+      modality_id = $modalityId
+    }
+  }
+  Assert-SourceSchemaPackValues $SchemaPackRegistry "source.cultural-form" @($culturalForms.Keys) "cultural_forms"
+
+  $releaseForms = ConvertTo-LabeledSourceRegistry (Get-ProjectMapValue $registry "release_forms") "release_forms"
+  Assert-SourceSchemaPackValues $SchemaPackRegistry "source.release-form" @($releaseForms.Keys) "release_forms"
+
+  $containerFormats = ConvertTo-LabeledSourceRegistry (Get-ProjectMapValue $registry "container_formats") "container_formats"
+  Assert-SourceSchemaPackValues $SchemaPackRegistry "source.container-format" @($containerFormats.Keys) "container_formats"
+
   $rawMediums = Get-ProjectMapValue $registry "mediums"
   if ($null -eq $rawMediums -or -not ($rawMediums -is [System.Collections.IDictionary])) {
     throw "Source registry 'mediums' must be a mapping."
   }
   $mediums = [ordered]@{}
   foreach ($mediumId in $rawMediums.Keys) {
-    $mediums[$mediumId] = ConvertTo-MediumConfig $mediumId $rawMediums[$mediumId]
+    $mediums[$mediumId] = ConvertTo-MediumConfig $mediumId $rawMediums[$mediumId] $mediaModalities $culturalForms
   }
   Assert-SourceSchemaPackValues $SchemaPackRegistry "source.medium" @($mediums.Keys) "mediums"
 
@@ -477,7 +558,7 @@ function Get-KnowledgeSourceRegistry {
     if ($sourceId -eq $targetId) { throw "Source registry '$context' cannot relate a continuity to itself." }
     if (-not $continuityRelationshipTypes.Contains($type)) { throw "Source registry '$context.relationship_type' references unknown type '$type'." }
     $status = Get-RequiredSourceString $relationship "status" $context
-    if ($script:AllowedRelationshipStatuses -notcontains $status) { throw "Source registry '$context.status' must be one of: $($script:AllowedRelationshipStatuses -join ', ')." }
+    if ($allowedMembershipStatuses -notcontains $status) { throw "Source registry '$context.status' must be one of: $($allowedMembershipStatuses -join ', ')." }
     $continuityRelationships += [pscustomobject]@{ id=$id; source_continuity_id=$sourceId; relationship_type=$type; target_continuity_id=$targetId; status=$status }
   }
 
@@ -496,7 +577,7 @@ function Get-KnowledgeSourceRegistry {
     if (@($continuityOrder | Sort-Object -Unique).Count -ne $continuityOrder.Count) { throw "Source registry '$context.continuity_order' contains duplicates." }
     foreach ($continuityId in $continuityOrder) { if (-not $continuities.Contains($continuityId)) { throw "Source registry '$context.continuity_order' references unknown continuity '$continuityId'." } }
     $acceptedStatuses = @(Get-SourceStringList $profile "accepted_membership_statuses" $context)
-    foreach ($status in $acceptedStatuses) { if ($script:AllowedMembershipStatuses -notcontains $status) { throw "Source registry '$context.accepted_membership_statuses' contains unknown value '$status'." } }
+    foreach ($status in $acceptedStatuses) { if ($allowedMembershipStatuses -notcontains $status) { throw "Source registry '$context.accepted_membership_statuses' contains unknown value '$status'." } }
     $priorityOrder = Get-RequiredSourceString $profile "source_priority_order" $context
     if ($script:AllowedPriorityOrders -notcontains $priorityOrder) { throw "Source registry '$context.source_priority_order' must be one of: $($script:AllowedPriorityOrders -join ', ')." }
     $comparisonTypes = @(Get-SourceStringListAllowEmpty $profile "comparison_work_relationship_types" $context)
@@ -531,6 +612,10 @@ function Get-KnowledgeSourceRegistry {
     if (-not $mediums.Contains($mediumId)) { throw "Source registry '$context.medium_id' references unknown medium '$mediumId'." }
     $workType = Get-RequiredSourceString $work "work_type" $context
     Test-StableSourceId $workType "$context.work_type"
+    $releaseFormId = Get-RequiredSourceString $work "release_form_id" $context
+    if (-not $releaseForms.Contains($releaseFormId)) { throw "Source registry '$context.release_form_id' references unknown release form '$releaseFormId'." }
+    $workStatus = Get-RequiredSourceString $work "work_status" $context
+    Test-StableSourceId $workStatus "$context.work_status"
     $chapterNumbering = Get-RequiredSourceString $work "chapter_numbering" $context
     if ($script:AllowedChapterNumberingModes -notcontains $chapterNumbering) { throw "Source registry '$context.chapter_numbering' must be one of: $($script:AllowedChapterNumberingModes -join ', ')." }
     $volumeStatus = Get-RequiredSourceString $work "volume_catalog_status" $context
@@ -569,7 +654,7 @@ function Get-KnowledgeSourceRegistry {
       if (-not $continuities.Contains($continuityId)) { throw "Source registry '$context.continuity_memberships.continuity_id' references unknown continuity '$continuityId'." }
       if (-not $seenContinuities.Add($continuityId)) { throw "Source registry '$context' repeats continuity '$continuityId'." }
       $status = Get-RequiredSourceString $membership "status" "$context.continuity_memberships"
-      if ($script:AllowedMembershipStatuses -notcontains $status) { throw "Source registry '$context.continuity_memberships.status' must be one of: $($script:AllowedMembershipStatuses -join ', ')." }
+      if ($allowedMembershipStatuses -notcontains $status) { throw "Source registry '$context.continuity_memberships.status' must be one of: $($allowedMembershipStatuses -join ', ')." }
       $continuityMemberships += [pscustomobject]@{ continuity_id=$continuityId; status=$status }
     }
     if ($continuityMemberships.Count -eq 0) { throw "Source registry '$context.continuity_memberships' must be a non-empty list." }
@@ -598,12 +683,90 @@ function Get-KnowledgeSourceRegistry {
     $works[$workId] = [pscustomobject]@{
       id=$workId; lifecycle=$lifecycle; label=Get-RequiredSourceString $work "label" $context
       short_label=Get-RequiredSourceString $work "short_label" $context; work_type=$workType
-      medium_id=$mediumId; aliases=@($aliases); group_memberships=@($groupMemberships)
+      medium_id=$mediumId; release_form_id=$releaseFormId; work_status=$workStatus
+      aliases=@($aliases); group_memberships=@($groupMemberships)
       continuity_memberships=@($continuityMemberships); chapter_numbering=$chapterNumbering
       volume_catalog_status=$volumeStatus; volumes=@($volumes)
     }
   }
   Assert-SourceSchemaPackValues $SchemaPackRegistry "source.work-type" @($works.Values | ForEach-Object { $_.work_type }) "works.*.work_type"
+  Assert-SourceSchemaPackValues $SchemaPackRegistry "source.work-lifecycle-status" @($works.Values | ForEach-Object { $_.work_status }) "works.*.work_status"
+
+  $rawSegments = Get-ProjectMapValue $registry "segments"
+  if ($null -eq $rawSegments -or -not ($rawSegments -is [System.Collections.IDictionary])) { throw "Source registry 'segments' must be a mapping." }
+  $segments = [ordered]@{}
+  foreach ($segmentId in $rawSegments.Keys) {
+    $context = "segments.$segmentId"
+    Test-StableSourceId $segmentId $context
+    $segment = $rawSegments[$segmentId]
+    $workId = Get-RequiredSourceString $segment "work_id" $context
+    if (-not $works.Contains($workId)) { throw "Source registry '$context.work_id' references unknown work '$workId'." }
+    $parentSegmentId = ([string](Get-ProjectMapValue $segment "parent_segment_id" "")).Trim()
+    $segmentType = Get-RequiredSourceString $segment "segment_type" $context
+    Test-StableSourceId $segmentType "$context.segment_type"
+    $ordinal = Get-ProjectMapValue $segment "ordinal"
+    if ($null -ne $ordinal -and ($ordinal -is [bool] -or $ordinal -isnot [int] -or [int]$ordinal -lt 1)) { throw "Source registry '$context.ordinal' must be a positive integer when present." }
+    $segments[$segmentId] = [pscustomobject]@{
+      id=$segmentId; work_id=$workId
+      parent_segment_id=if([string]::IsNullOrWhiteSpace($parentSegmentId)){$null}else{$parentSegmentId}
+      segment_type=$segmentType; label=Get-RequiredSourceString $segment "label" $context
+      ordinal=if($null -eq $ordinal){$null}else{[int]$ordinal}
+    }
+  }
+  if ($segments.Count -gt 0) {
+    Assert-SourceSchemaPackValues $SchemaPackRegistry "source.segment-type" @($segments.Values | ForEach-Object { $_.segment_type }) "segments.*.segment_type"
+  }
+  foreach ($segment in $segments.Values) {
+    if ($null -eq $segment.parent_segment_id) { continue }
+    if (-not $segments.Contains($segment.parent_segment_id)) { throw "Source registry 'segments.$($segment.id).parent_segment_id' references unknown segment '$($segment.parent_segment_id)'." }
+    $parent = $segments[$segment.parent_segment_id]
+    if ($parent.id -eq $segment.id) { throw "Source registry segment '$($segment.id)' cannot parent itself." }
+    if ($parent.work_id -ne $segment.work_id) { throw "Source registry segment '$($segment.id)' and its parent must belong to the same work." }
+  }
+  foreach ($segmentId in $segments.Keys) {
+    $activeSegments = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $currentSegmentId = $segmentId
+    while ($null -ne $currentSegmentId) {
+      if (-not $activeSegments.Add($currentSegmentId)) { throw "Source registry contains a segment-parent cycle involving '$currentSegmentId'." }
+      $currentSegmentId = $segments[$currentSegmentId].parent_segment_id
+    }
+  }
+
+  $rawOrderingSchemes = Get-ProjectMapValue $registry "ordering_schemes"
+  if ($null -eq $rawOrderingSchemes -or -not ($rawOrderingSchemes -is [System.Collections.IDictionary])) { throw "Source registry 'ordering_schemes' must be a mapping." }
+  $orderingSchemes = [ordered]@{}
+  foreach ($schemeId in $rawOrderingSchemes.Keys) {
+    $context = "ordering_schemes.$schemeId"
+    Test-StableSourceId $schemeId $context
+    $scheme = $rawOrderingSchemes[$schemeId]
+    $orderingType = Get-RequiredSourceString $scheme "ordering_type" $context
+    Test-StableSourceId $orderingType "$context.ordering_type"
+    $rawEntries = @(Get-ProjectMapValue $scheme "entries")
+    if ($rawEntries.Count -eq 0) { throw "Source registry '$context.entries' must be a non-empty list." }
+    $entries = @()
+    $seenTargets = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $seenOrderingOrdinals = New-Object 'System.Collections.Generic.HashSet[int]'
+    for ($index=0; $index -lt $rawEntries.Count; $index++) {
+      $entryContext = "$context.entries[$index]"
+      $entry = $rawEntries[$index]
+      $targetType = Get-RequiredSourceString $entry "target_type" $entryContext
+      if ($targetType -notin @("work","segment")) { throw "Source registry '$entryContext.target_type' must be 'work' or 'segment'." }
+      $targetId = Get-RequiredSourceString $entry "target_id" $entryContext
+      $targetRegistry = if ($targetType -eq "work") { $works } else { $segments }
+      if (-not $targetRegistry.Contains($targetId)) { throw "Source registry '$entryContext.target_id' references unknown $targetType '$targetId'." }
+      $ordinal = Get-ProjectMapValue $entry "ordinal"
+      if ($ordinal -is [bool] -or $ordinal -isnot [int] -or [int]$ordinal -lt 1) { throw "Source registry '$entryContext.ordinal' must be a positive integer." }
+      if (-not $seenTargets.Add("$targetType|$targetId") -or -not $seenOrderingOrdinals.Add([int]$ordinal)) { throw "Source registry '$context.entries' repeats a target or ordinal." }
+      $entries += [pscustomobject]@{ target_type=$targetType; target_id=$targetId; ordinal=[int]$ordinal }
+    }
+    $orderingSchemes[$schemeId] = [pscustomobject]@{
+      id=$schemeId; label=Get-RequiredSourceString $scheme "label" $context
+      ordering_type=$orderingType; entries=@($entries | Sort-Object ordinal)
+    }
+  }
+  if ($orderingSchemes.Count -gt 0) {
+    Assert-SourceSchemaPackValues $SchemaPackRegistry "source.ordering-type" @($orderingSchemes.Values | ForEach-Object { $_.ordering_type }) "ordering_schemes.*.ordering_type"
+  }
 
   $workRelationships = @()
   $rawWorkRelationships = @(Get-ProjectMapValue $registry "work_relationships")
@@ -619,8 +782,44 @@ function Get-KnowledgeSourceRegistry {
     $continuityIds=@(Get-SourceStringList $relationship "continuity_ids" $context)
     foreach ($continuityId in $continuityIds) { if (-not $continuities.Contains($continuityId)) { throw "Source registry '$context.continuity_ids' references unknown continuity '$continuityId'." } }
     $status=Get-RequiredSourceString $relationship "status" $context
-    if ($script:AllowedRelationshipStatuses -notcontains $status) { throw "Source registry '$context.status' must be one of: $($script:AllowedRelationshipStatuses -join ', ')." }
+    if ($allowedMembershipStatuses -notcontains $status) { throw "Source registry '$context.status' must be one of: $($allowedMembershipStatuses -join ', ')." }
     $workRelationships += [pscustomobject]@{ id=$id; source_work_id=$sourceId; relationship_type=$type; target_work_id=$targetId; continuity_ids=@($continuityIds); status=$status }
+  }
+
+  $adaptationMappings = @()
+  $rawAdaptationMappings = @(Get-ProjectMapValue $registry "adaptation_mappings")
+  $seenAdaptationMappingIds = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+  for ($index=0; $index -lt $rawAdaptationMappings.Count; $index++) {
+    $context = "adaptation_mappings[$index]"
+    $mapping = $rawAdaptationMappings[$index]
+    $id = Get-RequiredSourceString $mapping "id" $context
+    Test-StableSourceId $id "$context.id"
+    if (-not $seenAdaptationMappingIds.Add($id)) { throw "Source registry adaptation mapping ID '$id' is duplicated." }
+    $sourceWorkId = Get-RequiredSourceString $mapping "source_work_id" $context
+    $targetWorkId = Get-RequiredSourceString $mapping "target_work_id" $context
+    if (-not $works.Contains($sourceWorkId) -or -not $works.Contains($targetWorkId)) { throw "Source registry '$context' references an unknown work." }
+    $sourceSegmentIds = @(Get-SourceStringListAllowEmpty $mapping "source_segment_ids" $context)
+    $targetSegmentIds = @(Get-SourceStringListAllowEmpty $mapping "target_segment_ids" $context)
+    foreach ($entry in @(
+      [pscustomobject]@{ name="source_segment_ids"; ids=$sourceSegmentIds; work_id=$sourceWorkId },
+      [pscustomobject]@{ name="target_segment_ids"; ids=$targetSegmentIds; work_id=$targetWorkId }
+    )) {
+      foreach ($segmentId in $entry.ids) {
+        if (-not $segments.Contains($segmentId)) { throw "Source registry '$context.$($entry.name)' references unknown segment '$segmentId'." }
+        if ($segments[$segmentId].work_id -ne $entry.work_id) { throw "Source registry '$context.$($entry.name)' segment '$segmentId' belongs to a different work." }
+      }
+    }
+    $mappingType = Get-RequiredSourceString $mapping "mapping_type" $context
+    $status = Get-RequiredSourceString $mapping "status" $context
+    if ($allowedMembershipStatuses -notcontains $status) { throw "Source registry '$context.status' must be one of: $($allowedMembershipStatuses -join ', ')." }
+    $adaptationMappings += [pscustomobject]@{
+      id=$id; source_work_id=$sourceWorkId; target_work_id=$targetWorkId
+      source_segment_ids=@($sourceSegmentIds); target_segment_ids=@($targetSegmentIds)
+      mapping_type=$mappingType; status=$status
+    }
+  }
+  if ($adaptationMappings.Count -gt 0) {
+    Assert-SourceSchemaPackValues $SchemaPackRegistry "source.adaptation-mapping-type" @($adaptationMappings | ForEach-Object { $_.mapping_type }) "adaptation_mappings.*.mapping_type"
   }
 
   $rawSources = Get-ProjectMapValue $registry "sources"
@@ -633,6 +832,10 @@ function Get-KnowledgeSourceRegistry {
     $workId=Get-RequiredSourceString $source "work_id" $context; $mediumId=Get-RequiredSourceString $source "medium_id" $context
     if (-not $works.Contains($workId)) { throw "Source registry '$context.work_id' references unknown work '$workId'." }
     if (-not $mediums.Contains($mediumId)) { throw "Source registry '$context.medium_id' references unknown medium '$mediumId'." }
+    $containerFormatIds = @(Get-SourceStringList $source "container_format_ids" $context)
+    if ($containerFormatIds.Count -eq 0) { throw "Source registry '$context.container_format_ids' must not be empty." }
+    $unknownContainerFormats = @($containerFormatIds | Where-Object { -not $containerFormats.Contains($_) } | Sort-Object -Unique)
+    if ($unknownContainerFormats.Count -gt 0) { throw "Source registry '$context.container_format_ids' references unknown container formats: $($unknownContainerFormats -join ', ')." }
     $role=Get-RequiredSourceString $source "role" $context
     if ($allowedSourceRoles -notcontains $role) { throw "Source registry '$context.role' must be one of: $($allowedSourceRoles -join ', ')." }
     if ($works[$workId].medium_id -ne $mediumId -and $role -notin @("supplemental","reference","extract")) { throw "Source registry '$context' medium does not match work '$workId'." }
@@ -649,7 +852,7 @@ function Get-KnowledgeSourceRegistry {
     foreach ($mode in $evidenceModes) { Test-StableSourceId $mode "$context.evidence_modes" }
     $bindings=@(); $rawBindings=@(Get-ProjectMapValue $source "resource_bindings")
     for ($i=0; $i -lt $rawBindings.Count; $i++) { $bindings += Resolve-SourceResourceBinding $ProjectConfig $ResourceConfig $rawBindings[$i] "$context.resource_bindings[$i]" }
-    $sources[$sourceId]=[pscustomobject]@{ id=$sourceId; lifecycle=$lifecycle; label=Get-RequiredSourceString $source "label" $context; work_id=$workId; medium_id=$mediumId; role=$role; comparison_group=$comparisonGroup; priority=[int]$priority; aliases=@($aliases); evidence_modes=@($evidenceModes); resource_bindings=@($bindings) }
+    $sources[$sourceId]=[pscustomobject]@{ id=$sourceId; lifecycle=$lifecycle; label=Get-RequiredSourceString $source "label" $context; work_id=$workId; medium_id=$mediumId; container_format_ids=@($containerFormatIds); role=$role; comparison_group=$comparisonGroup; priority=[int]$priority; aliases=@($aliases); evidence_modes=@($evidenceModes); resource_bindings=@($bindings) }
   }
   Assert-SourceSchemaPackValues $SchemaPackRegistry "source.source-role" @($sources.Values | ForEach-Object { $_.role }) "sources.*.role"
 
@@ -668,10 +871,13 @@ function Get-KnowledgeSourceRegistry {
 
   return [pscustomobject]@{
     path=$registryPath; schema_version=[int]$schemaVersion; default_authority_profile_id=$defaultAuthorityProfileId
+    media_modalities=$mediaModalities; cultural_forms=$culturalForms; release_forms=$releaseForms; container_formats=$containerFormats
     mediums=$mediums; work_group_types=$workGroupTypes; work_groups=$workGroups; continuities=$continuities
     continuity_relationship_types=$continuityRelationshipTypes; continuity_relationships=@($continuityRelationships)
     authority_profiles=$authorityProfiles; work_relationship_types=$workRelationshipTypes; works=$works
-    work_relationships=@($workRelationships); work_aliases=$workAliases; source_relationship_types=$sourceRelationshipTypes
+    segments=$segments; ordering_schemes=$orderingSchemes
+    work_relationships=@($workRelationships); adaptation_mappings=@($adaptationMappings)
+    work_aliases=$workAliases; source_relationship_types=$sourceRelationshipTypes
     sources=$sources; source_relationships=@($sourceRelationships); source_aliases=$sourceAliases
   }
 }

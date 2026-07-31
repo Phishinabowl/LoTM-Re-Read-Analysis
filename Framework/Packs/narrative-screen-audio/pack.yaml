@@ -1,0 +1,62 @@
+schema_version: 2
+pack_id: narrative-screen-audio
+pack_version: 1
+lifecycle: active
+pack_kind: domain
+label: Narrative Screen and Audio
+description: Film, television, animation, audio drama, podcast, episode, special, and release-cut vocabulary.
+
+dependencies:
+  - pack_id: narrative-media
+    minimum_version: 2
+
+capabilities:
+  - screen-works
+  - audio-works
+  - episodic-releases
+  - release-cuts
+  - embedded-visual-assets
+
+controlled_values:
+  source.source-relationship-type:
+    - subtitle-track-of
+    - has-subtitle-track
+    - dub-of
+    - has-dub
+  source.work-type:
+    - television-series
+    - television-season
+    - television-special
+    - film
+    - short-film
+    - audio-drama-series
+    - audio-drama
+    - podcast-series
+  source.release-form:
+    - television-series
+    - television-season
+    - episode
+    - special
+    - film
+    - short-film
+    - theatrical-cut
+    - directors-cut
+    - extended-cut
+    - compilation-film
+    - audio-drama
+    - podcast-episode
+  source.segment-type:
+    - episode
+    - special
+    - shot
+    - timestamp-range
+    - audio-episode
+  source.container-format:
+    - broadcast
+    - theatrical-release
+    - streaming-release
+    - blu-ray
+    - dvd
+    - video-file
+    - audio-file
+    - subtitle-file

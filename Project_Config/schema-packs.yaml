@@ -7,6 +7,15 @@ selected_packs:
   - pack_id: narrative-media
     path: Framework/Packs/narrative-media/pack.yaml
 
+  - pack_id: narrative-publishing
+    path: Framework/Packs/narrative-publishing/pack.yaml
+
+  - pack_id: narrative-screen-audio
+    path: Framework/Packs/narrative-screen-audio/pack.yaml
+
+  - pack_id: narrative-adaptation
+    path: Framework/Packs/narrative-adaptation/pack.yaml
+
 capability_activation:
   default: disabled
   enabled:
@@ -29,8 +38,22 @@ capability_activation:
     - continuities
     - creative-works
     - installments
-    - adaptation-lineage
+    - media-facets
+    - work-hierarchies
+    - multiple-orderings
+    - narrative-time
+    - serialization
+    - publication-packaging
+    - editions
+    - localization
+    - publication-runs
+    - screen-works
+    - audio-works
+    - episodic-releases
+    - release-cuts
     - embedded-visual-assets
+    - adaptation-lineage
+    - adaptation-mappings
     - reader-disclosure
     - spoiler-bounding
     - adaptation-comparison

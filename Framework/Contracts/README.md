@@ -10,7 +10,7 @@ The current executable contract is enforced by the matching Python and PowerShel
 | `Project_Config/schema-packs.yaml` and selected packs | `Tools/schema_pack_config.py`, `Tools/Schema-Pack-Config.ps1` |
 | `Project_Config/taxonomy.yaml` | `Tools/taxonomy_config.py`, `Tools/Taxonomy-Config.ps1` |
 | `Project_Config/resources.yaml` | `Tools/resource_config.py`, `Tools/Resource-Config.ps1` |
-| `Project_Config/sources.yaml` | `Tools/source_config.py`, `Tools/Source-Config.ps1` |
+| `Project_Config/sources.yaml` | `Tools/source_config.py`, `Tools/Source-Config.ps1`; see `narrative-source-registry.md` |
 
 Future machine-readable schema documents belong here as those loader contracts are stabilized. Do not add a partial schema that claims broader validation coverage than the loaders actually provide.
 

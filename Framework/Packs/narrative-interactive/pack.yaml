@@ -1,0 +1,47 @@
+schema_version: 2
+pack_id: narrative-interactive
+pack_version: 1
+lifecycle: active
+pack_kind: domain
+label: Narrative Interactive
+description: Branching narratives, choices, routes, endings, playthroughs, campaigns, and sessions.
+
+dependencies:
+  - pack_id: narrative-media
+    minimum_version: 2
+
+capabilities:
+  - id: branching-narratives
+    lifecycle: planned
+    label: Branching Narratives
+    description: Choice points, routes, prerequisites, endings, and mutually exclusive claims.
+  - id: narrative-instances
+    lifecycle: planned
+    label: Narrative Instances
+    description: Player-specific playthroughs, tabletop campaigns, and sessions derived from authored works.
+
+controlled_values:
+  source.work-type:
+    - video-game
+    - visual-novel
+    - interactive-film
+    - tabletop-setting
+    - tabletop-ruleset
+    - adventure-module
+    - actual-play-series
+  source.release-form:
+    - game-release
+    - downloadable-content
+    - route
+    - ending
+    - tabletop-edition
+    - campaign-module
+    - session
+  narrative.branch-type:
+    - choice
+    - route
+    - ending
+    - prerequisite
+    - mutually-exclusive
+    - default-route
+    - canonical-route

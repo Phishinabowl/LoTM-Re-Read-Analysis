@@ -1,12 +1,46 @@
-schema_version: 2
+schema_version: 3
 
 default_authority_profile_id: lotm-adaptation-comparison
+
+media_modalities:
+  prose:
+    label: Prose
+  animation:
+    label: Animation
+  still-image:
+    label: Still Image
+
+cultural_forms:
+  donghua:
+    label: Donghua
+    modality_id: animation
+
+release_forms:
+  novel:
+    label: Novel
+  television-season:
+    label: Television Season
+  special:
+    label: Special
+
+container_formats:
+  epub:
+    label: EPUB
+  streaming-release:
+    label: Streaming Release
+  subtitle-file:
+    label: Subtitle File
+  digital-file:
+    label: Digital File
 
 mediums:
   novel:
     lifecycle: active
     label: Novel
     plural_label: Novels
+    modality_ids:
+      - prose
+    cultural_form_ids: []
     position:
       fields:
         book: string
@@ -37,6 +71,10 @@ mediums:
     lifecycle: active
     label: Donghua
     plural_label: Donghua Releases
+    modality_ids:
+      - animation
+    cultural_form_ids:
+      - donghua
     position:
       fields:
         work: string
@@ -68,10 +106,13 @@ mediums:
             - season
             - episode
 
-  official-epub-artwork:
+  illustration:
     lifecycle: active
-    label: Official EPUB Artwork
-    plural_label: Official EPUB Artwork
+    label: Illustration
+    plural_label: Illustrations
+    modality_ids:
+      - still-image
+    cultural_form_ids: []
     position:
       fields:
         work: string
@@ -304,6 +345,8 @@ works:
     short_label: LoTM
     work_type: novel
     medium_id: novel
+    release_form_id: novel
+    work_status: released
     aliases:
       - lotm
       - lord-of-mysteries
@@ -364,6 +407,8 @@ works:
     short_label: COI
     work_type: novel
     medium_id: novel
+    release_form_id: novel
+    work_status: released
     aliases:
       - coi
       - circle-of-inevitability
@@ -384,6 +429,8 @@ works:
     short_label: LoTM Donghua S1
     work_type: television-season
     medium_id: donghua
+    release_form_id: television-season
+    work_status: released
     aliases:
       - lotm-donghua
       - donghua-season-1
@@ -404,6 +451,8 @@ works:
     short_label: City of Silver
     work_type: television-special
     medium_id: donghua
+    release_form_id: special
+    work_status: released
     aliases:
       - donghua-special-1
       - city-of-silver-special
@@ -424,6 +473,8 @@ works:
     short_label: The Marked Hunt Part 1
     work_type: television-special
     medium_id: donghua
+    release_form_id: special
+    work_status: released
     aliases:
       - donghua-special-2
       - marked-hunt-special-1
@@ -444,6 +495,8 @@ works:
     short_label: The Marked Hunt Part 2
     work_type: television-special
     medium_id: donghua
+    release_form_id: special
+    work_status: released
     aliases:
       - donghua-special-3
       - marked-hunt-special-2
@@ -457,6 +510,37 @@ works:
     chapter_numbering: not-applicable
     volume_catalog_status: not-applicable
     volumes: []
+
+segments: {}
+
+ordering_schemes:
+  lotm-primary-publication-order:
+    label: Lord of Mysteries Primary Novel Publication Order
+    ordering_type: publication-order
+    entries:
+      - target_type: work
+        target_id: lotm-1
+        ordinal: 1
+      - target_type: work
+        target_id: lotm-2
+        ordinal: 2
+
+  lotm-donghua-release-order:
+    label: Lord of Mysteries Donghua Release Order
+    ordering_type: release-order
+    entries:
+      - target_type: work
+        target_id: lotm-donghua-season-1
+        ordinal: 1
+      - target_type: work
+        target_id: lotm-donghua-special-1
+        ordinal: 2
+      - target_type: work
+        target_id: lotm-donghua-special-2
+        ordinal: 3
+      - target_type: work
+        target_id: lotm-donghua-special-3
+        ordinal: 4
 
 work_relationships:
   - id: coi-sequel-to-lotm
@@ -502,6 +586,8 @@ work_relationships:
       - lotm-donghua-adaptation
       - lotm-novel-main
     status: canonical
+
+adaptation_mappings: []
 
 source_relationship_types:
   edition-of:
@@ -571,6 +657,8 @@ sources:
     label: Lord of Mysteries Book 1 Novel
     work_id: lotm-1
     medium_id: novel
+    container_format_ids:
+      - epub
     role: primary-edition
     comparison_group: lotm-narrative
     priority: 1
@@ -591,6 +679,8 @@ sources:
     label: Circle of Inevitability Novel
     work_id: lotm-2
     medium_id: novel
+    container_format_ids:
+      - epub
     role: primary-edition
     comparison_group: lotm-narrative
     priority: 1
@@ -610,6 +700,8 @@ sources:
     label: Lord of Mysteries Donghua Season 1 Release
     work_id: lotm-donghua-season-1
     medium_id: donghua
+    container_format_ids:
+      - streaming-release
     role: official-release
     comparison_group: lotm-narrative
     priority: 2
@@ -629,6 +721,8 @@ sources:
     label: Lord of Mysteries Donghua English Subtitles
     work_id: lotm-donghua-season-1
     medium_id: donghua
+    container_format_ids:
+      - subtitle-file
     role: transcript
     comparison_group: lotm-narrative
     priority: 2
@@ -648,6 +742,8 @@ sources:
     label: "Lord of Mysteries Special: City of Silver Release"
     work_id: lotm-donghua-special-1
     medium_id: donghua
+    container_format_ids:
+      - streaming-release
     role: official-release
     comparison_group: lotm-narrative
     priority: 2
@@ -664,6 +760,8 @@ sources:
     label: "Lord of Mysteries Special: The Marked Hunt Part 1 Release"
     work_id: lotm-donghua-special-2
     medium_id: donghua
+    container_format_ids:
+      - streaming-release
     role: official-release
     comparison_group: lotm-narrative
     priority: 2
@@ -680,6 +778,8 @@ sources:
     label: "Lord of Mysteries Special: The Marked Hunt Part 2 Release"
     work_id: lotm-donghua-special-3
     medium_id: donghua
+    container_format_ids:
+      - streaming-release
     role: official-release
     comparison_group: lotm-narrative
     priority: 2
@@ -695,7 +795,10 @@ sources:
     lifecycle: active
     label: Lord of Mysteries Official EPUB Artwork
     work_id: lotm-1
-    medium_id: official-epub-artwork
+    medium_id: illustration
+    container_format_ids:
+      - epub
+      - digital-file
     role: supplemental
     comparison_group: lotm-visual-reference
     priority: 1

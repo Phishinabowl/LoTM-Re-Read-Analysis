@@ -1,0 +1,56 @@
+schema_version: 2
+pack_id: narrative-shared-universe
+pack_version: 1
+lifecycle: active
+pack_kind: domain
+label: Narrative Shared Universe
+description: Multiverses, continuity branches, incarnations, reboots, retcons, and crossover events.
+
+dependencies:
+  - pack_id: narrative-media
+    minimum_version: 2
+
+capabilities:
+  - id: shared-universes
+    lifecycle: available
+    label: Shared Universes
+    description: Multiple related continuities and universe-scoped works.
+  - id: entity-incarnations
+    lifecycle: planned
+    label: Entity Incarnations
+    description: Conceptual entities and continuity-specific incarnations or counterparts.
+  - id: retcon-supersession
+    lifecycle: planned
+    label: Retcon and Supersession
+    description: Claim-level continuity replacement, restoration, and reinterpretation.
+  - id: crossover-events
+    lifecycle: planned
+    label: Crossover Events
+    description: Ordered core entries plus required and optional tie-ins across publication runs.
+
+controlled_values:
+  source.continuity-type:
+    - shared-universe
+    - alternate
+    - parallel
+    - reboot
+    - elseworld
+    - apocryphal
+  source.continuity-relationship-type:
+    - counterpart-of
+    - has-counterpart
+    - reset-from
+    - reset-into
+    - restored-from
+    - restored-as
+  narrative.entity-relationship-type:
+    - incarnation-of
+    - has-incarnation
+    - counterpart-of
+    - crossed-into-continuity
+  narrative.claim-change-type:
+    - supersedes
+    - reinterprets
+    - restores
+    - invalidates
+    - soft-reboots

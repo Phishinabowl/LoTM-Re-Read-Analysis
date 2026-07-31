@@ -1,10 +1,10 @@
 schema_version: 2
 pack_id: narrative-media
-pack_version: 1
+pack_version: 2
 lifecycle: active
 pack_kind: domain
-label: Narrative Media
-description: Franchises, continuities, creative works, adaptations, reader positions, and media evidence.
+label: Narrative Media Foundation
+description: Domain-neutral narrative works, media facets, ordering, continuities, and reader-disclosure primitives.
 
 dependencies:
   - pack_id: core
@@ -17,26 +17,36 @@ capabilities:
   - continuities
   - creative-works
   - installments
-  - adaptation-lineage
-  - embedded-visual-assets
+  - media-facets
+  - work-hierarchies
+  - multiple-orderings
+  - narrative-time
   - reader-disclosure
   - spoiler-bounding
-  - adaptation-comparison
+  - id: scoped-continuity
+    lifecycle: planned
+    label: Scoped Continuity
+    description: Segment- and claim-scoped continuity assertions with temporal validity.
+  - id: entity-incarnations
+    lifecycle: planned
+    label: Entity Incarnations
+    description: Conceptual entities, continuity-specific incarnations, counterparts, and cross-continuity identity.
+  - id: retcon-supersession
+    lifecycle: planned
+    label: Retcon and Supersession
+    description: Claim-level replacement, reinterpretation, restoration, and effective-scope tracking.
 
 controlled_values:
   source.source-role:
     - primary-edition
     - official-release
-  source.source-relationship-type:
-    - subtitle-track-of
-    - has-subtitle-track
-    - dub-of
-    - has-dub
   source.medium:
     - id: novel
       label: Novel
+      description: Prose-narrative reader-position and citation channel.
     - id: animation
       label: Animation
+      description: General animated reader-position and citation channel.
     - id: anime
       label: Anime
       broader_value: animation
@@ -51,16 +61,12 @@ controlled_values:
       label: Film
     - id: illustration
       label: Illustration
-      description: Still visual artwork published independently or embedded within another narrative release.
-    - id: official-epub-artwork
-      label: Official EPUB Artwork
-      broader_value: illustration
-      description: Artwork published as part of an official EPUB edition.
+      description: Still-image reader-position and citation channel; container and provenance are modeled separately.
     - id: audio
       label: Audio
     - id: comic
       label: Comic
-      description: Sequential visual narrative, including region-specific forms such as manga, manhwa, and manhua.
+      description: Sequential-art reader-position and citation channel.
     - id: manga
       label: Manga
       broader_value: comic
@@ -73,21 +79,62 @@ controlled_values:
       label: Manhua
       broader_value: comic
       description: Chinese comics.
-    - id: graphic-novel
-      label: Graphic Novel
+    - id: webtoon
+      label: Webtoon
       broader_value: comic
+      description: Platform-native vertically scrolling sequential art.
     - id: game
       label: Game
+  source.media-modality:
+    - prose
+    - sequential-art
+    - animation
+    - live-action
+    - audio
+    - still-image
+    - interactive
+  source.cultural-form:
+    - id: anime
+      label: Anime
+    - id: donghua
+      label: Donghua
+    - id: manga
+      label: Manga
+    - id: manhwa
+      label: Manhwa
+    - id: manhua
+      label: Manhua
+    - id: webtoon
+      label: Webtoon
+  source.container-format:
+    - print
+    - epub
+    - pdf
+    - web
+    - app
+    - streaming
+    - digital-file
   source.work-group-type:
     - franchise
     - series
     - adaptation-program
     - collection
-  source.work-type:
-    - novel
-    - television-season
-    - television-special
-    - film
+    - anthology
+    - publishing-initiative
+  source.release-form:
+    - creative-work
+    - installment
+    - collection
+  source.segment-type:
+    - work-part
+    - section
+    - scene
+  source.ordering-type:
+    - release-order
+    - publication-order
+    - story-order
+    - production-order
+    - recommended-order
   source.continuity-type:
     - primary
     - adaptation
@@ -99,6 +146,8 @@ controlled_values:
     - reboot-of
     - has-reboot
     - overlaps-with
+    - merged-into
+    - has-merged-continuity
   source.work-relationship-type:
     - sequel-to
     - prequel-to
@@ -106,12 +155,6 @@ controlled_values:
     - has-spinoff
     - side-story-of
     - has-side-story
-    - adaptation-of
-    - has-adaptation
-    - remake-of
-    - has-remake
-    - retelling-of
-    - has-retelling
     - crossover-with
     - contains
     - contained-by
@@ -119,3 +162,23 @@ controlled_values:
     - included-in-compilation
     - inspired-by
     - inspired
+    - shares-setting-with
+    - shares-concepts-with
+    - licensed-derivative-of
+    - has-licensed-derivative
+  source.membership-status:
+    - canonical
+    - secondary-canon
+    - non-canon
+    - disputed
+    - ambiguous
+    - superseded
+    - unknown
+  source.work-lifecycle-status:
+    - announced
+    - in-production
+    - released
+    - on-hiatus
+    - completed
+    - cancelled
+    - unfinished

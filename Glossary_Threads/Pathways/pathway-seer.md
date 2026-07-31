@@ -287,7 +287,7 @@ pathway_profile:
       entity: deity-s0-fool
       relationship_layer: sequence-0
       reveal:
-        medium: official-epub-artwork
+        medium: illustration
         volume: 8
         chapter: artwork-image-95
       status: planned-page-official-artwork-association
@@ -297,7 +297,7 @@ pathway_profile:
       entity: deity-ats-lord-of-the-mysteries
       relationship_layer: ats
       reveal:
-        medium: official-epub-artwork
+        medium: illustration
         volume: 8
         chapter: artwork-image-95
       status: planned-page-official-artwork-association
@@ -321,7 +321,7 @@ pathway_profile:
     - name: Fool Pathway
       usage_type: "artwork-label; formal-sequence-0-endpoint-label"
       reveal:
-        medium: official-epub-artwork
+        medium: illustration
         volume: 8
         chapter: artwork-image-95
       display_active:
@@ -432,7 +432,7 @@ relationships:
     target: tarot-card-the-fool
     relationship_type: associated-tarot-card
     start:
-      medium: official-epub-artwork
+      medium: illustration
       volume: 8
       chapter: artwork-image-95
     status: active
@@ -442,7 +442,7 @@ relationships:
     target: deity-s0-fool
     relationship_type: associated-sequence-0
     start:
-      medium: official-epub-artwork
+      medium: illustration
       volume: 8
       chapter: artwork-image-95
     status: active
@@ -452,7 +452,7 @@ relationships:
     target: deity-ats-lord-of-the-mysteries
     relationship_type: associated-ats
     start:
-      medium: official-epub-artwork
+      medium: illustration
       volume: 8
       chapter: artwork-image-95
     status: active

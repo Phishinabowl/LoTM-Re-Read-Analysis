@@ -1,0 +1,50 @@
+schema_version: 2
+pack_id: narrative-adaptation
+pack_version: 1
+lifecycle: active
+pack_kind: domain
+label: Narrative Adaptation
+description: Work- and segment-level adaptation lineage, mappings, deviations, and comparison policy.
+
+dependencies:
+  - pack_id: narrative-media
+    minimum_version: 2
+
+capabilities:
+  - adaptation-lineage
+  - adaptation-mappings
+  - adaptation-comparison
+
+controlled_values:
+  source.work-relationship-type:
+    - adaptation-of
+    - has-adaptation
+    - remake-of
+    - has-remake
+    - retelling-of
+    - has-retelling
+    - novelization-of
+    - has-novelization
+    - continuation-of
+    - has-continuation
+  source.adaptation-mapping-type:
+    - direct
+    - omitted
+    - combined
+    - split
+    - reordered
+    - expanded
+    - condensed
+    - adaptation-original
+    - recontextualized
+  source.adaptation-deviation-type:
+    - contradiction
+    - early-reveal
+    - delayed-reveal
+    - omission
+    - addition
+    - characterization-change
+    - setting-change
+    - chronology-change
+    - visual-interpretation
+    - localization-change

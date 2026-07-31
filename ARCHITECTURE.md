@@ -71,12 +71,13 @@ Within canonical pages, the visible article and structured page data are two syn
 `Project_Config/schema-packs.yaml` selects reusable schema packs in dependency order and activates project capabilities. Each selected pack is a portable contract stored separately from project-instance data:
 
 - `Framework/Packs/core/pack.yaml` declares domain-neutral platform capabilities and evidence-source vocabulary;
-- `Framework/Packs/narrative-media/pack.yaml` depends on `core` and contributes franchises, continuities, creative works, adaptation programs, narrative media, and creative-lineage vocabulary;
+- `Framework/Packs/narrative-media/pack.yaml` depends on `core` and contributes the narrative foundation;
+- publishing, screen/audio, adaptation, shared-universe, interactive, preservation, and production/rights companion packs add orthogonal domain capabilities without forcing them into every narrative project;
 - future implementations may replace `narrative-media` with packs such as `it-operations`, `legal-matter`, or `medical-knowledge`, or compose compatible packs.
 
 A capability has separate declaration, lifecycle, availability, and project-activation states. String capability entries are shorthand for lifecycle `available`; mapped entries may be `planned`, `available`, or `deprecated`. Planned capabilities remain discoverable to roadmap tooling but cannot be enabled. Available capabilities may be enabled by `capability_activation.enabled`; deprecated capabilities remain activatable for compatibility or migration but should not be recommended for new projects. The activation default must remain `disabled`. An unavailable or unenabled capability is omitted by tools, validators, projections, and interfaces unless project configuration explicitly references its contract, in which case validation must report the invalid reference. Missing or incompatible declared pack dependencies are always errors.
 
-A schema pack may contribute capabilities and controlled values. Controlled values may preserve broader/narrower meaning: `anime` and `donghua` remain distinct beneath `animation`; `manga`, `manhwa`, and `manhua` remain distinct beneath `comic`; and official EPUB artwork remains reusable beneath `illustration`. Narrative sources may contain embedded visual assets regardless of whether the container is an EPUB, comic release, scan, or another supported format. The source record owns evidence provenance, the extracted image is a visual resource, and promotion into a tracked page-ready asset remains a separate project action. Reusable packs do not instantiate LoTM works, categories, pages, paths, source records, or project-specific vocabulary. A project-owned extension pack may contribute local terminology while project registries instantiate actual records. Interface wizards should generate or edit those layers from pack contracts rather than embedding industry or organization assumptions in UI code.
+A schema pack may contribute capabilities and controlled values. Narrative media uses orthogonal axes: medium profiles own reader-position behavior; modalities describe prose, sequential art, animation, live action, audio, still image, or interaction; cultural forms preserve anime, Donghua, manga, manhwa, manhua, and webtoon identity; release forms describe creative packaging; and container formats describe concrete evidence artifacts. Narrative sources may contain embedded visual assets regardless of whether the container is an EPUB, comic release, scan, or another supported format. Official EPUB artwork is therefore an illustration carried by an EPUB source, not a compound medium. The source record owns evidence provenance, the extracted image is a visual resource, and promotion into a tracked page-ready asset remains a separate project action. Reusable packs do not instantiate LoTM works, categories, pages, paths, source records, or project-specific vocabulary. A project-owned extension pack may contribute local terminology while project registries instantiate actual records. Interface wizards should generate or edit those layers from pack contracts rather than embedding industry or organization assumptions in UI code.
 
 `Tools/schema_pack_config.py` and `Tools/Schema-Pack-Config.ps1` are the matching schema-pack loaders. They validate pack identity, version, kind, lifecycle, repository-safe paths, dependency selection and order, capability availability and activation, controlled-value namespaces, and unambiguous ownership. Source-registry loaders consume the aggregate pack contract and reject medium, work, continuity, relationship, or source-role vocabulary not supplied by a selected pack.
 
@@ -127,10 +128,12 @@ Examples include framework contracts and packs, visual assets, local source mate
 
 ### Source Registry
 
-`Project_Config/sources.yaml` owns:
+`Project_Config/sources.yaml` schema version 3 owns:
 
-- stable source and medium IDs;
-- stable franchise/collection/adaptation-program groups, creative works, continuities, and per-work volume identities;
+- stable source and medium-profile IDs plus instantiated modality, cultural-form, release-form, and container-format facets;
+- stable franchise/collection/adaptation-program groups, creative works, work segments, continuities, and per-work volume identities;
+- named publication, release, story, production, or recommended ordering schemes;
+- segment-aware adaptation mappings that preserve source and derivative claims;
 - medium-specific position fields, sort order, and citation formats;
 - authority profiles, comparison groups, and source priority;
 - typed work relationships such as sequel, spinoff, side story, adaptation, remake, retelling, crossover, containment, compilation, and inspiration;
@@ -144,13 +147,15 @@ Current graph and bounded-page implementations predate the work registry and rem
 
 Creative-work lineage and evidence-source lineage are separate. `lotm-donghua-season-1` is an adaptation work in its own continuity; `lotm-donghua-release` is the observed release source for that work; and `lotm-donghua-subtitles` is a subtitle-track source related to that release. A transcript, edition, or scan never becomes the adaptation merely because it supplies evidence about it.
 
-An adaptation program is an ordered, heterogeneous work group. It may contain television seasons, skipped-content specials, character specials, films, or other release formats in one adaptation continuity. Each member remains an independent work with its own release order, evidence sources, spoiler timeline, and relationship to the work or works it adapts.
+An adaptation program is a heterogeneous work group. It may contain television seasons, skipped-content specials, character specials, films, or other release forms in one adaptation continuity. Named ordering schemes preserve release order separately from story, publication, production, or recommended order. Each member remains an independent work with its own evidence sources, spoiler timeline, and relationship to the work or works it adapts.
 
 Priority is interpreted inside a comparison group under a selected authority profile. The current adaptation-comparison profile orders the novel continuity before the Donghua continuity and compares works connected by approved derivative relationships. Primary novel editions have priority 1 and the Donghua release/transcript priority 2. A disagreement therefore becomes a deviation attached to the derivative Donghua work; it does not rewrite the novel work or another continuity. Source-scoped claims and each medium's disclosure timeline remain independently valid.
 
 The resource registry says where source material lives and how that storage is governed. The source registry identifies creative works and evidence sources and defines their separate semantic relationships.
 
-`Tools/source_config.py` and `Tools/Source-Config.ps1` are the matching source-registry loaders. They validate media, work-group types and nesting, continuities, authority profiles, works and ordered memberships, volume ranges, typed work/source relationships, position schemas, citation placeholders, aliases, priorities, comparison groups, and resource bindings constrained to registered placements. Domain clients should use these normalized records rather than hardcoding book names, `novel`, `donghua`, or domain-specific evidence precedence.
+`Tools/source_config.py` and `Tools/Source-Config.ps1` are the matching source-registry loaders. They validate media-facet compatibility, release and container forms, work-group and segment nesting, named orderings, continuities, authority profiles, works and memberships, volume ranges, adaptation mappings, typed work/source relationships, position schemas, citation placeholders, aliases, priorities, comparison groups, and resource bindings constrained to registered placements. Domain clients should use these normalized records rather than hardcoding book names, `novel`, `donghua`, or domain-specific evidence precedence.
+
+Entity incarnations, claim-scoped continuity and retcons, branching narrative state, preservation/access state, textual witnesses, contributor credits, and rights/licensing remain planned capabilities. Pack ownership is established, but project data must not instantiate them until paired executable contracts are implemented.
 
 ### Visualization Configuration
 

@@ -9,3 +9,5 @@ This directory contains reusable framework assets that are portable across proje
 Project-specific composition, paths, activated capabilities, taxonomy, resources, sources, and extension packs remain under `Project_Config/`.
 
 Framework packs must not contain LoTM works, pages, source records, repository paths, or other project instances. A project selects packs through `Project_Config/schema-packs.yaml`. Selection makes capability declarations discoverable; capability lifecycle determines availability, and the project activation policy determines which available capabilities are enabled.
+
+See `Packs/README.md` for the composable narrative pack catalog and media-axis rules. See `Contracts/narrative-source-registry.md` for the executable narrative source schema.

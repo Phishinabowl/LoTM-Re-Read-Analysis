@@ -1,0 +1,35 @@
+# Narrative Pack Catalog
+
+Schema packs are composable contracts, not project instances. Pack files define capabilities and controlled vocabulary; `Project_Config/schema-packs.yaml` selects packs and activates only the available capabilities a project uses.
+
+## Shared Packs
+
+| Pack | Purpose |
+| --- | --- |
+| `core` | Domain-neutral identity, evidence, relationships, temporal positions, visibility, projection, and validation. |
+| `narrative-media` | Narrative foundation: works, media facets, work hierarchy, ordering, continuity, narrative time, and reader disclosure. |
+| `narrative-publishing` | Prose and sequential-art serialization, publication runs, editions, localization, packaging, and future textual-history support. |
+| `narrative-screen-audio` | Film, television, animation, audio works, episodes, specials, cuts, tracks, and embedded visuals. |
+| `narrative-adaptation` | Work lineage, segment mappings, adaptation deviations, and authority-aware comparison. |
+| `narrative-shared-universe` | Optional multiverse, reboot, incarnation, retcon, and crossover-event support. |
+| `narrative-interactive` | Optional branching-story, route, ending, playthrough, campaign, and session support. |
+| `narrative-preservation` | Optional missing, partial, reconstructed, archival, and access-state support. |
+| `narrative-production` | Optional contributor, production-credit, ownership, officiality, and licensing support. |
+
+LoTM currently selects `core`, `narrative-media`, `narrative-publishing`, `narrative-screen-audio`, and `narrative-adaptation`. Other narrative packs remain discoverable templates for projects that need them; their planned capabilities cannot be activated until the corresponding executable contracts exist.
+
+## Media Axes
+
+Do not encode every media property in one value.
+
+- A **medium profile** is the reader-position and citation channel used by page data and boundary tools, such as `novel`, `donghua`, or `illustration`.
+- A **media modality** describes how the work communicates, such as prose, sequential art, animation, live action, audio, still image, or interactive presentation.
+- A **cultural form** preserves a meaningful production tradition such as anime, donghua, manga, manhwa, manhua, or webtoon.
+- A **release form** describes the creative unit or packaging level, such as novel, television season, special, film, issue, or collected volume.
+- A **container format** describes the concrete evidence container, such as EPUB, print, streaming release, subtitle file, Blu-ray, or app.
+
+A Donghua film can therefore use the `donghua` medium profile, `animation` modality, `donghua` cultural form, `film` release form, and a streaming or theatrical container. Official artwork extracted from an EPUB uses the `illustration` profile and `still-image` modality while its source records `epub` and any extracted digital file as containers. `official-epub-artwork` is not a medium.
+
+## Capability Honesty
+
+`available` means the selected contract can be instantiated and validated. `planned` means the concept has stable ownership and vocabulary but the repository must not yet store records that depend on it. In particular, entity incarnations, claim-scoped retcons, branching narrative state, preservation state, contributor credits, rights records, and textual witnesses remain planned until their paired Python and PowerShell contracts are implemented.

@@ -356,7 +356,7 @@ pathway_profile:
       entity: deity-ats-eternal-darkness
       relationship_layer: ats
       reveal:
-        medium: official-epub-artwork
+        medium: illustration
         volume: 1
         chapter: artwork-image-9
       status: planned-page-official-artwork-association
@@ -408,7 +408,7 @@ pathway_profile:
     - name: Darkness Pathway
       usage_type: "artwork-label; formal-label"
       reveal:
-        medium: official-epub-artwork
+        medium: illustration
         volume: 1
         chapter: null
       display_active:
@@ -598,7 +598,7 @@ relationships:
     target: tarot-card-the-star
     relationship_type: associated-tarot-card
     start:
-      medium: official-epub-artwork
+      medium: illustration
       volume: 1
       chapter: artwork-image-9
     status: active
@@ -618,7 +618,7 @@ relationships:
     target: deity-ats-eternal-darkness
     relationship_type: associated-ats
     start:
-      medium: official-epub-artwork
+      medium: illustration
       volume: 1
       chapter: artwork-image-9
     status: active

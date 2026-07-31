@@ -85,9 +85,24 @@ Framework/
   Contracts/
     README.md
   Packs/
+    README.md
     core/
       pack.yaml
     narrative-media/
+      pack.yaml
+    narrative-publishing/
+      pack.yaml
+    narrative-screen-audio/
+      pack.yaml
+    narrative-adaptation/
+      pack.yaml
+    narrative-shared-universe/
+      pack.yaml
+    narrative-interactive/
+      pack.yaml
+    narrative-preservation/
+      pack.yaml
+    narrative-production/
       pack.yaml
   reusable contracts and bundled schema packs shared across project instances
 

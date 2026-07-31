@@ -1,0 +1,39 @@
+schema_version: 2
+pack_id: narrative-preservation
+pack_version: 1
+lifecycle: active
+pack_kind: domain
+label: Narrative Preservation
+description: Survival, reconstruction, archival, accessibility, and release-availability states.
+
+dependencies:
+  - pack_id: narrative-media
+    minimum_version: 2
+
+capabilities:
+  - id: preservation-state
+    lifecycle: planned
+    label: Preservation State
+    description: Whole- and partial-work survival, loss, reconstruction, and archival evidence.
+  - id: access-state
+    lifecycle: planned
+    label: Access State
+    description: Territory, platform, release-window, delisting, and region-access constraints.
+
+controlled_values:
+  source.preservation-status:
+    - complete
+    - partial
+    - missing
+    - lost
+    - reconstructed
+    - archived
+    - unknown
+  source.access-status:
+    - available
+    - unavailable
+    - delisted
+    - region-locked
+    - time-limited
+    - privately-held
+    - unknown

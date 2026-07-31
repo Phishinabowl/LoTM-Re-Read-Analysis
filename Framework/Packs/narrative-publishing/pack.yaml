@@ -1,0 +1,91 @@
+schema_version: 2
+pack_id: narrative-publishing
+pack_version: 1
+lifecycle: active
+pack_kind: domain
+label: Narrative Publishing
+description: Prose and sequential-art serialization, editions, localization, and publication packaging.
+
+dependencies:
+  - pack_id: narrative-media
+    minimum_version: 2
+
+capabilities:
+  - serialization
+  - publication-packaging
+  - editions
+  - localization
+  - publication-runs
+  - id: textual-witnesses
+    lifecycle: planned
+    label: Textual Witnesses
+    description: Manuscripts, drafts, fragments, revisions, and multiple versions of a narrative text.
+  - id: editorial-assembly
+    lifecycle: planned
+    label: Editorial Assembly
+    description: Posthumous editing, compilation, completion, commentary, and synthesis from source material.
+
+controlled_values:
+  source.work-type:
+    - novel
+    - novella
+    - short-story
+    - anthology
+    - comic-series
+    - comic-run
+    - comic-issue
+    - graphic-novel
+    - manga-series
+    - manhwa-series
+    - manhua-series
+    - webtoon-series
+    - light-novel-series
+  source.release-form:
+    - novel
+    - novella
+    - short-story
+    - serialized-chapter
+    - collected-volume
+    - comic-issue
+    - annual
+    - one-shot
+    - trade-paperback
+    - hardcover
+    - omnibus
+    - facsimile-edition
+    - digital-episode
+  source.segment-type:
+    - chapter
+    - issue
+    - page
+    - panel
+    - prose-section
+    - bonus-chapter
+  source.container-format:
+    - hardcover
+    - paperback
+    - magazine
+    - newspaper
+    - digital-comic
+  source.work-relationship-type:
+    - collected-as
+    - collects
+    - serialized-in
+    - contains-serialization
+    - revised-as
+    - revision-of
+    - draft-of
+    - has-draft
+    - version-of
+    - has-version
+    - edited-from
+    - source-for-edition
+    - assembled-from
+    - assembled-as
+    - posthumous-completion-of
+    - has-posthumous-completion
+  source.source-relationship-type:
+    - manuscript-witness-of
+    - has-manuscript-witness
+    - critical-edition-of
+    - has-critical-edition
