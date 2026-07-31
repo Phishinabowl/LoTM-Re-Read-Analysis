@@ -1,6 +1,6 @@
 # Lord of the Mysteries Re-Read Analysis
 
-This repository is a working-memory space for a deep reread analysis of **Lord of the Mysteries (Book 1)**.
+This repository is currently focused on a deep reread analysis of **Lord of the Mysteries (Book 1)** while preserving a series-aware source model for **Circle of Inevitability (Book 2)** and possible later works.
 
 ## AI Agent Bootstrap
 
@@ -84,8 +84,9 @@ Project_Config/
   project.yaml
   taxonomy.yaml
   resources.yaml
+  sources.yaml
   domain-neutral project identity, stable content/resource roots, registry
-  discovery, LoTM content taxonomy, and repository resource configuration
+  discovery, LoTM content taxonomy, repository resources, and source priority
 
 Boards/
   01_LoTM_Main_Reread_Board.md

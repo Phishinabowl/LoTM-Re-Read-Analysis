@@ -47,6 +47,7 @@ class ProjectConfig:
     cleanup_powershell_helper: Path
     taxonomy_registry: Path
     resources_registry: Path
+    sources_registry: Path
 
 
 def is_project_root(path: Path) -> bool:
@@ -287,6 +288,12 @@ def load_project_config(root: Path) -> ProjectConfig:
         "registries.resources",
         must_exist=True,
     )
+    _, sources_registry = resolve_manifest_path(
+        resolved_root,
+        require_string(registries, "sources", "registries"),
+        "registries.sources",
+        must_exist=True,
+    )
 
     return ProjectConfig(
         root=resolved_root,
@@ -306,4 +313,5 @@ def load_project_config(root: Path) -> ProjectConfig:
         cleanup_powershell_helper=cleanup_powershell_helper,
         taxonomy_registry=taxonomy_registry,
         resources_registry=resources_registry,
+        sources_registry=sources_registry,
     )

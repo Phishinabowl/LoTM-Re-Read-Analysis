@@ -49,6 +49,7 @@ Record only what is allowed by the broader spoiler boundary and exact reader kno
 ## Reader Knowledge Boundary
 
 - Novel Volume:
+- Book / Work:
 - Novel Chapter:
 - Reader knowledge state:
 - Donghua:
@@ -583,7 +584,7 @@ subject_attribution_from:
 related_investigations:
 related_boards:
 evidence_basis:
-  - source:
+  - source_id:
     location:
     summary:
     effect_on_confidence:

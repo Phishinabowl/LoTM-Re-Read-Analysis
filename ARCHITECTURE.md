@@ -109,17 +109,25 @@ Examples include visual assets, local source material, executable tools, project
 
 ### Source Registry
 
-The planned `Project_Config/sources.yaml` owns:
+`Project_Config/sources.yaml` owns:
 
 - stable source and medium IDs;
-- source priority;
-- original-versus-adaptation relationships;
-- source-specific labels and reference conventions;
+- stable series, work/book, and per-work volume identities;
+- medium-specific position fields, sort order, and citation formats;
+- comparison groups and source priority;
+- original, adaptation, transcript, supplemental, and derivation relationships;
+- source aliases, evidence modes, and bindings to registered resources;
 - conflict, deviation, and unresolved-difference policy.
 
-Source priority must guide comparison and deviation reporting without erasing independently modeled disclosure timelines.
+Reader positions are work-scoped before they are volume- or chapter-scoped. This prevents chapter 100 in one book from colliding with chapter 100 in a sequel and permits filtering or sorting by series, work, volume, and local chapter. Work aliases may provide familiar labels while canonical work IDs remain stable.
 
-The resource registry says where source material lives and how that storage is governed. The source registry will identify the evidence sources themselves and define their semantic priority and derivation relationships.
+Current graph and bounded-page implementations predate the work registry and remain implicitly scoped to `lotm-1`. Their migration to the normalized content index must add an explicit work selector before those interfaces are used for COI or cross-book output; do not infer a work from a chapter number.
+
+Priority is interpreted only inside a comparison group and, by default, one work. The current LoTM narrative group assigns each original novel source priority 1 and the Book 1 Donghua adaptation priority 2. A disagreement therefore becomes an adaptation deviation attached to the Donghua; it does not rewrite the Book 1 novel claim or affect another book. Source-scoped claims and each medium's disclosure timeline remain independently valid.
+
+The resource registry says where source material lives and how that storage is governed. The source registry identifies the evidence sources themselves and defines their semantic priority and derivation relationships.
+
+`Tools/source_config.py` and `Tools/Source-Config.ps1` are the matching source-registry loaders. They validate source, medium, series, work, and volume IDs; work ordering and volume ranges; position schemas; citation placeholders; aliases; priorities; comparison groups; acyclic adaptation/derivation references; and resource bindings constrained to registered placements. Domain clients should use these normalized records rather than hardcoding book names, `novel`, `donghua`, or domain-specific evidence precedence.
 
 ### Visualization Configuration
 

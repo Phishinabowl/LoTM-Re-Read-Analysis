@@ -32,6 +32,7 @@ Record only reader-safe item state. Do not import later ownership, function, mes
 ## Reader Knowledge Boundary
 
 - Novel Volume:
+- Book / Work:
 - Novel Chapter:
 - Reader knowledge state:
 - Donghua:

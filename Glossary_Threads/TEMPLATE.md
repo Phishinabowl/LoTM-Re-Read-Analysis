@@ -21,7 +21,7 @@ Related Investigations:
 
 Use only controlled tags from `PROJECT_RULES.md`.
 
-For novel timing labels, use `Novel V# Ch#` and include both `volume` and absolute `chapter` in structured data when known. Follow the canonical volume range registry in `PROJECT_RULES.md`.
+For novel timing labels, identify the registered work before its work-local volume and chapter. Use `LoTM V# Ch#` or `COI V# Ch#` in cross-book contexts; `Novel V# Ch#` is acceptable only when the surrounding page/view is already scoped to one work. Structured positions must include canonical `book`, `volume`, and absolute work-local `chapter` when known. Follow the series/work/volume registry in `Project_Config/sources.yaml` and its policy in `PROJECT_RULES.md`.
 
 If this page embeds official artwork, use a promoted page-ready asset under `Artwork/page-assets/` and make the embedded image clickable to its own full-size asset by default. Keep raw extraction and working-crop paths under `Artwork/Source/` out of rendered Markdown links and image tags; record them only as source/provenance metadata when needed.
 
@@ -322,7 +322,7 @@ subject_attribution_from:
 related_investigations:
 related_boards:
 evidence_basis:
-  - source:
+  - source_id:
     location:
     summary:
     effect_on_confidence:

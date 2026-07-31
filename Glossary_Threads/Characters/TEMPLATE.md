@@ -964,7 +964,7 @@ subject_attribution_from:
 related_investigations:
 related_boards:
 evidence_basis:
-  - source:
+  - source_id:
     location:
     summary:
     effect_on_confidence:

@@ -74,3 +74,4 @@ paths:
 registries:
   taxonomy: Project_Config/taxonomy.yaml
   resources: Project_Config/resources.yaml
+  sources: Project_Config/sources.yaml

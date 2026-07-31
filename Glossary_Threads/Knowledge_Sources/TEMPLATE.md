@@ -32,6 +32,7 @@ Record only reader-safe source identity, access, quotes, and claims. Do not impo
 ## Reader Knowledge Boundary
 
 - Novel Volume:
+- Book / Work:
 - Novel Chapter:
 - Reader knowledge state:
 - Donghua:
@@ -401,7 +402,7 @@ subject_attribution_from:
       release_order:
     notes:
 evidence_basis:
-  - source:
+  - source_id:
     location:
     summary:
     effect_on_confidence:

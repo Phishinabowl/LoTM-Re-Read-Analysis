@@ -53,6 +53,7 @@ Project_Config/
   project.yaml
   taxonomy.yaml
   resources.yaml
+  sources.yaml
   domain-neutral project identity, content/resource roots, registries,
   and tool integration paths
 
@@ -155,7 +156,13 @@ These files and folders are the project's working memory.
 
 `Project_Config/taxonomy.yaml` is the machine-readable authority for content-type and category IDs, lifecycle, canonical-page enablement, content roots, category policy, path strategies, metadata behavior, subject/record slug rules, per-content-type placements, templates, QA-page eligibility, and graph defaults. Content type and category are separate dimensions: a glossary article and an investigation may share `category_id: character` while using `content_type_id: glossary-page` and `content_type_id: investigation-record`; `volume-summary`, `analysis-board`, `project-dashboard`, and `navigation-index` forbid subject categories. This document remains authoritative for LoTM-specific authoring and modeling policy and explains how those configured records should be used. Keep the registry, templates, and this policy synchronized; do not introduce a new category or content type only in prose or hardcode a new allowlist in a consumer.
 
-`Project_Config/resources.yaml` is the machine-readable authority for non-content repository resources: visual assets, evidence source material, executable tools, project configuration, generated outputs, design/workspace support, application state, and temporary artifacts. It defines stable resource kinds/types, authority roles, editor eligibility, configured placements, tracking expectations, and required-path behavior. Resource records do not become subject categories or content pages merely because they are important to the repository. A future `sources.yaml` will separately define source identity and priority; `resources.yaml` defines where source material lives and how its storage is governed.
+`Project_Config/resources.yaml` is the machine-readable authority for non-content repository resources: visual assets, evidence source material, executable tools, project configuration, generated outputs, design/workspace support, application state, and temporary artifacts. It defines stable resource kinds/types, authority roles, editor eligibility, configured placements, tracking expectations, and required-path behavior. Resource records do not become subject categories or content pages merely because they are important to the repository.
+
+`Project_Config/sources.yaml` is the machine-readable authority for series, work/book, per-work volume, source, and medium identity; medium position schemas; citation formats; aliases; evidence modes; comparison groups; priority; original/adaptation/derivation relationships; and bindings to registered resources. The resource registry defines where source material lives and how storage is governed; the source registry defines what an evidence source means, which work it belongs to, and how it compares with related sources.
+
+Use `medium` for a reader/viewer position coordinate system, `book` for a canonical work ID, and a registered `source_id` for evidence provenance. Current canonical work IDs are `lotm-1` for Lord of Mysteries and `lotm-2` for Circle of Inevitability; aliases such as `lotm` and `coi` are for input convenience, not stored position identity. New evidence entries should use canonical IDs such as `source_id: lotm-book-1-novel`, `source_id: lotm-book-2-novel`, `source_id: lotm-donghua`, or `source_id: lotm-donghua-subtitles`. Legacy evidence-context values such as `source: novel`, `source: novel-epub`, `source: lotm-novel`, `source: donghua-visual-audit`, and `source: donghua-subtitle-audit` remain resolvable aliases until the containing pages are normalized. Do not apply source-registry validation indiscriminately to every field named `source`: Relationship Seeds use `source` for an entity slug, and some type-specific data rows use it for a causal or semantic source rather than evidence provenance.
+
+Source priority is scoped to both a `comparison_group` and a work by default; never compare unrelated evidence families or different books merely because they share numeric priorities. In `lotm-narrative`, lower numbers have higher authority: each original novel is priority 1 and the Book 1 Donghua adaptation is priority 2. When Book 1 sources differ, preserve both source-scoped claims, treat the Book 1 novel as the original narrative authority, and attach the deviation to the Donghua adaptation. Priority does not allow one book or medium to advance another book or medium's spoiler state.
 
 When conclusions are reached:
 
@@ -189,11 +196,13 @@ When official artwork uses a classic or alternate pathway name that differs from
 
 For Volume 1 progress percentages, use the current verified chapter boundary divided by 213 total chapters. Treat the percentage as a chapter-boundary indicator, not a guarantee of article quality, cross-link completeness, or adaptation completeness.
 
-### Novel Chapter Notation And Volume Ranges
+### Series, Book, Chapter Notation, And Volume Ranges
 
-Novel chapter labels must preserve both the absolute chapter number and the containing volume when the volume is known. Use the compact visible form `Novel V# Ch#` in tables, metadata, graph labels, first-reveal fields, evidence indexes, and concise prose references. Use fuller prose only when readability needs it, such as `Novel Volume 5, Chapter 951`; do not use bare `Novel Ch951` once the volume can be determined.
+Novel positions must identify the work before volume and chapter. Store the canonical work ID in `book`, then the work-local absolute chapter and containing volume when known. This prevents identical chapter or volume numbers in Lord of Mysteries, Circle of Inevitability, and future sequels from colliding.
 
-The canonical Lord of the Mysteries Book 1 volume ranges are derived from the local source EPUB by reading each `OEBPS/Text/volume_N_...` chapter file and its internal `Chapter X` heading:
+Use the registered work's short label in compact cross-book displays: `LoTM V5 Ch951` or `COI V# Ch#`. A page or graph explicitly scoped to one work may retain `Novel V# Ch#` when the work is already unambiguous. Use fuller prose when readability needs it, such as `Lord of Mysteries Volume 5, Chapter 951`. Do not use a bare chapter number once work and volume can be determined.
+
+The canonical series/work hierarchy and volume ranges live in `Project_Config/sources.yaml`. The Lord of Mysteries Book 1 ranges were derived from the local source EPUB by reading each `OEBPS/Text/volume_N_...` chapter file and its internal `Chapter X` heading:
 
 | Volume | Title | Absolute chapter range | Chapter count |
 |---|---|---:|---:|
@@ -213,6 +222,8 @@ from: { book: lotm-1, volume: 5, chapter: 951 }
 ```
 
 If a chapter is known but the volume field is missing on an older row, add the volume from this registry during the next page normalization pass. Use `volume: TBD` only when the absolute chapter is unknown or the source cannot yet be reconciled to this registry.
+
+Circle of Inevitability is registered as work `lotm-2` and source `lotm-book-2-novel`. Its local EPUB currently exposes 1,180 sequential chapter files but no machine-readable volume boundaries recognized by the project tooling, so its `volume_catalog_status` remains `pending-verification`. Do not guess or import COI volume boundaries from outside knowledge. Once boundaries are source-verified, add them beneath `works.lotm-2.volumes`; future sequels should be added as new ordered work records rather than extending another book's chapter namespace.
 
 When a thread spans more than one medium, track novel and adaptation progress separately where practical. Do not let one medium's progress silently advance another.
 
@@ -1492,7 +1503,7 @@ Every major claim in a knowledge unit may include:
 ```yaml
 confidence_level:
 evidence_basis:
-  - source:
+  - source_id:
     location:
     summary:
     effect_on_confidence:

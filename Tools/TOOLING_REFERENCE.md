@@ -400,6 +400,8 @@ Last parity check: 2026-07-07. Preset listing matched exactly. EPUB JSON listing
 | Preferred implementation | `Tools/search_epub.py` | `python Tools\search_epub.py` |
 | Windows fallback | `Tools/Search-Epub.ps1` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1` |
 
+Both current implementations discover the Book 1 EPUB layout. They do not yet consume `Project_Config/sources.yaml`, accept a registered work ID, or discover entries in the current COI EPUB package. Passing the COI path returns an empty entry list and must not be interpreted as an empty book. Multi-book search support requires registry-backed work/source selection plus package-specific discovery adapters.
+
 Purpose: search the local ignored Lord of Mysteries EPUB for source verification. The tool reads EPUB XHTML entries, strips markup, classifies searchable sections, and returns chapter-ordered counts, snippets, context, summaries, or entry listings. It is read-only.
 
 ### Switch Map
@@ -868,6 +870,7 @@ This section tracks durable configuration and generated state files that affect 
 | `Project_Config/project.yaml` | Project manifest | `Tools/project_config.py`, `Tools/Project-Config.ps1`, and consumers such as both Obsidian QA exporters | Maintainers | Identifies the project and configures modeled content/resource roots, provenance behavior, registry paths, default QA output, visualization helpers/settings, cleanup helpers, and manifest schema version without coupling framework code to LoTM directory names. | Project identity or paths change, a content/resource root is added, provenance behavior changes, helper locations move, or the manifest schema changes. |
 | `Project_Config/taxonomy.yaml` | Taxonomy registry | `Tools/taxonomy_config.py`, `Tools/Taxonomy-Config.ps1`, both Obsidian QA exporters, and future content-index, validation, visualization, editor, and migration services | Maintainers through reviewed edits; future category/content-type editors through the mutation service | Defines orthogonal content-type and category IDs, lifecycle, content roots, category policies, path strategies, subject/record slug rules, placements, templates, QA-page eligibility, and graph defaults. | A category/content type is added, promoted, deferred, renamed for display, moved through a planned migration, assigned a template, or given different QA/graph behavior. |
 | `Project_Config/resources.yaml` | Resource registry | `Tools/resource_config.py`, `Tools/Resource-Config.ps1`, and future validation, editor, and migration services | Maintainers through reviewed edits; future resource editors through the mutation service | Defines non-content resource kinds/types, authority roles, editor eligibility, placements beneath configured resource roots, tracking expectations, and required-path behavior. | A resource kind/type or placement is added, renamed for display, moved, given different authority/tracking behavior, or exposed to editors. |
+| `Project_Config/sources.yaml` | Source registry | `Tools/source_config.py`, `Tools/Source-Config.ps1`, and future validation, content-index, visualization, editor, and migration services | Maintainers through reviewed edits; future source editors through the mutation service | Defines series, ordered works/books, per-work volumes, media and their position/citation schemas, evidence sources, aliases, evidence modes, comparison groups, work-scoped priority, adaptation/derivation relationships, comparison policy, and resource bindings. | A series/work/volume/source/medium is added, renamed, reprioritized, related, assigned different citation/position behavior, or bound to a different resource. |
 | `requirements-python.txt` | Dependency registry | `Tools/Test-Python.ps1`; human setup via `python -m pip install -r requirements-python.txt` | Maintainers | Defines Python packages required by preferred Python helper scripts. | Add or change entries when a Python helper gains or removes a third-party package dependency. |
 | `requirements-powershell.txt` | Dependency registry | `Tools/Test-PowerShell.ps1`; human setup via `Install-Module <module> -Scope CurrentUser -Force -AllowClobber` or elevated `-Scope AllUsers` when machine-wide installs are preferred | Maintainers | Defines PowerShell modules required by fallback tools, including `powershell-yaml` for project configuration and structured page data. | Add or change entries when a PowerShell helper gains or removes a module dependency. |
 | `Visualization/config/render-settings.json` | Source config | `Visualization/visualize.py`, `Visualization/visualize.ps1`, `Tools/obsidian_qa_export.py`, `Tools/Obsidian-QA-Export.ps1` | Maintainers | Defines canonical graph views, source Mermaid paths, rendered output paths, render dimensions, validation settings, reader-boundary filters, report path, and semantic snapshot path. The Obsidian QA export also derives its local `_Generated/repo-refresh-check/` dry-run settings from this file. | Add or remove repository graph views, change render sizes, adjust validation rules, change reader-boundary behavior, or redirect canonical report/snapshot paths. |
@@ -882,12 +885,15 @@ This section tracks durable configuration and generated state files that affect 
 | Load and validate project manifest | `load_project_config`, `resolve_manifest_path` in `project_config.py` | `Get-KnowledgeProjectConfig`, `Resolve-ProjectManifestPath` in `Project-Config.ps1` |
 | Load and validate taxonomy registry | `load_taxonomy_config`, `parse_content_type`, `parse_category` in `taxonomy_config.py` | `Get-KnowledgeTaxonomyConfig`, `ConvertTo-ContentTypeConfig`, `ConvertTo-CategoryConfig` in `Taxonomy-Config.ps1` |
 | Load and validate resource registry | `load_resource_config` in `resource_config.py` | `Get-KnowledgeResourceConfig` in `Resource-Config.ps1` |
+| Load and validate source registry | `load_source_registry` in `source_config.py` | `Get-KnowledgeSourceRegistry` in `Source-Config.ps1` |
+| Resolve canonical source IDs and aliases | `SourceRegistry.resolve_source_id` | `Resolve-KnowledgeSourceId` |
+| Resolve canonical work/book IDs and aliases | `SourceRegistry.resolve_work_id` | `Resolve-KnowledgeWorkId` |
 | Select QA page content roots | `TaxonomyConfig.content_roots_for_qa_pages` | `Get-TaxonomyQaPageContentRoots` |
 | Validate category/content-type uniqueness | `ensure_unique`, final checks in `load_taxonomy_config` | `Assert-UniqueTaxonomyValue`, final checks in `Get-KnowledgeTaxonomyConfig` |
 
 Last mapped: 2026-07-30.
 
-Last parity check: 2026-07-31. Python, PowerShell 7, and Windows PowerShell 5.1 loaded manifest schema 2, taxonomy schema 2, and resource schema 1 with five matching content roots, eleven resource roots, 16 active categories, two deferred categories, six active content types, six resource kinds, eleven resource types, and thirteen resource placements. All implementations selected only `glossary` and `volumes` for QA page discovery, leaving investigations, boards, the dashboard, and the navigation index indexed but excluded. Normalized IDs, lifecycle values, policies, paths, authority roles, tracking modes, and QA/graph flags matched.
+Last parity check: 2026-07-31. Python, PowerShell 7, and Windows PowerShell 5.1 loaded manifest schema 2, taxonomy schema 2, resource schema 1, and source schema 1 with five matching content roots, eleven resource roots, 16 active categories, two deferred categories, six active content types, six resource kinds, eleven resource types, thirteen resource placements, three media, one series, two ordered works, eight verified Book 1 volume ranges, five evidence sources, ten source aliases, four source-resource bindings, and four work aliases. All implementations selected only `glossary` and `volumes` for QA page discovery, leaving investigations, boards, the dashboard, and the navigation index indexed but excluded. Normalized IDs, lifecycle values, policies, paths, authority roles, work ordering, volume ranges, source priorities, aliases, relationships, tracking modes, and QA/graph flags matched.
 
 ### Project Manifest Contract
 
@@ -901,7 +907,7 @@ Last parity check: 2026-07-31. Python, PowerShell 7, and Windows PowerShell 5.1 
 
 `paths.resource_roots` declares stable IDs, repository-relative paths, and whether each non-content resource root must exist. Content-root and resource-root IDs share one namespace. `paths.qa_export` defines the default generated QA destination. `paths.visualization` identifies the Python and PowerShell visualization helpers plus render settings and Puppeteer configuration. `paths.cleanup` identifies the matching disposable-cache cleanup helpers.
 
-`registries.taxonomy` and `registries.resources` locate the machine-readable content and resource registries.
+`registries.taxonomy`, `registries.resources`, and `registries.sources` locate the machine-readable content, resource, and source registries.
 
 ### Taxonomy Registry Contract
 
@@ -917,6 +923,18 @@ The QA exporters now use content-type `qa_page_enabled` values to select page ro
 
 Tracking values describe expected storage behavior: `tracked`, `ignored`, or `mixed`. A required placement must exist; optional ignored roots may be absent from a fresh clone. Resource placement does not make a file a content record or graph node. The paired resource loaders reject malformed IDs, unknown kind/root references, unsupported lifecycle/authority/tracking values, absolute or escaping paths, missing required placements, and duplicate placements.
 
-### Future Config Registries
+### Source Registry Contract
 
-The [Architecture Contract](../ARCHITECTURE.md) assigns source identity and priority behavior to a future source registry located through the manifest. The resource registry already governs the storage location and lifecycle of source material; the future source registry will model the evidence sources themselves. Controlled relationship types, field-scoped enums, aliases, and confidence/precedence rules are also planned additions to the taxonomy registry after their reconciliation pass.
+`Project_Config/sources.yaml` separates series, works/books, media, and evidence sources. A series groups ordered works. A work defines stable identity, display aliases, work-local chapter numbering, and a verified or pending per-work volume catalog. A medium defines its position fields, required/sort fields, and citation templates. A source selects a work and medium and defines its role, comparison group, priority, aliases, evidence modes, adaptation/derivation links, and optional bindings to registered resources.
+
+Reader positions use canonical `book` work IDs before work-local volume and chapter values. Priorities are comparable only within one comparison group and work. `priority_order: ascending` means lower numbers have higher authority. Each registered novel is priority 1 in `lotm-narrative`; the Book 1 Donghua and its subtitle transcript are priority 2. Comparison policy preserves source-scoped claims, flags conflicts, and assigns adaptation deviations to the adaptation source instead of mutating the original or another work.
+
+The current Visualization reader-boundary settings and Obsidian bounded graph/page arguments do not yet expose a work selector and are implicitly `lotm-1` workflows. Before generating COI or cross-book bounded output, the normalized content-index/visualization migration must add registry-backed `book`/work selection to those interfaces. A chapter number alone must never select a work.
+
+New evidence-provenance records should use canonical `source_id` values. Legacy evidence labels resolve through aliases during migration. Field-scoped validation must not reinterpret Relationship Seed `source` entity slugs or type-specific causal-source fields as evidence-source IDs.
+
+The paired source loaders reject malformed IDs, invalid position/citation definitions, unknown series/work/medium/resource/source references, duplicate series ordinals, malformed or non-contiguous verified volume catalogs, unsupported roles or policies, duplicate aliases, escaping or out-of-placement resource paths, missing required bindings, cross-group/work or cyclic derivation links, self-references, adaptations without originals, and adaptations that outrank their originals.
+
+### Future Config Extensions
+
+Controlled relationship types, field-scoped enums, aliases, and confidence/precedence rules remain planned additions to the taxonomy registry after their reconciliation pass.

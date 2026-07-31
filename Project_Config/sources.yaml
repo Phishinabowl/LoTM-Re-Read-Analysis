@@ -1,0 +1,270 @@
+schema_version: 1
+
+comparison_policy:
+  priority_order: ascending
+  compare_within_group_only: true
+  compare_within_work_only: true
+  cross_source_conflict: flag
+  adaptation_deviation_owner: adaptation-source
+  preserve_source_scoped_claims: true
+
+mediums:
+  novel:
+    lifecycle: active
+    label: Novel
+    plural_label: Novels
+    position:
+      fields:
+        book: string
+        volume: integer
+        chapter: integer
+        sequence: integer
+      required_fields:
+        - book
+        - chapter
+      sort_fields:
+        - book
+        - chapter
+        - sequence
+      citation_formats:
+        - id: book-volume-chapter
+          template: "{book} V{volume} Ch{chapter}"
+          required_fields:
+            - book
+            - volume
+            - chapter
+        - id: book-chapter
+          template: "{book} Ch{chapter}"
+          required_fields:
+            - book
+            - chapter
+
+  donghua:
+    lifecycle: active
+    label: Donghua
+    plural_label: Donghua Releases
+    position:
+      fields:
+        season: integer
+        installment_type: string
+        episode: string
+        release_order: integer
+        timestamp: timestamp
+        sequence: integer
+      required_fields:
+        - release_order
+      sort_fields:
+        - release_order
+        - sequence
+      citation_formats:
+        - id: season-episode-timestamp
+          template: "Donghua S{season} E{episode} {timestamp}"
+          required_fields:
+            - season
+            - episode
+            - timestamp
+        - id: season-episode
+          template: "Donghua S{season} E{episode}"
+          required_fields:
+            - season
+            - episode
+
+  official-epub-artwork:
+    lifecycle: active
+    label: Official EPUB Artwork
+    plural_label: Official EPUB Artwork
+    position:
+      fields:
+        volume: integer
+        asset_id: string
+        image_index: integer
+      required_fields:
+        - asset_id
+      sort_fields:
+        - volume
+        - image_index
+        - asset_id
+      citation_formats:
+        - id: volume-asset
+          template: "Official EPUB Artwork V{volume} {asset_id}"
+          required_fields:
+            - volume
+            - asset_id
+        - id: asset
+          template: "Official EPUB Artwork {asset_id}"
+          required_fields:
+            - asset_id
+
+series:
+  lord-of-mysteries:
+    lifecycle: active
+    label: Lord of Mysteries
+    short_label: LoTM
+
+works:
+  lotm-1:
+    lifecycle: active
+    series_id: lord-of-mysteries
+    label: Lord of Mysteries
+    short_label: LoTM
+    ordinal: 1
+    work_type: novel
+    medium_id: novel
+    aliases:
+      - lotm
+      - lord-of-mysteries
+    chapter_numbering: work-local
+    volume_catalog_status: verified
+    volumes:
+      - id: volume-1
+        number: 1
+        label: Clown
+        chapter_start: 1
+        chapter_end: 213
+      - id: volume-2
+        number: 2
+        label: Faceless
+        chapter_start: 214
+        chapter_end: 482
+      - id: volume-3
+        number: 3
+        label: Traveler
+        chapter_start: 483
+        chapter_end: 732
+      - id: volume-4
+        number: 4
+        label: Undying
+        chapter_start: 733
+        chapter_end: 946
+      - id: volume-5
+        number: 5
+        label: Red Priest
+        chapter_start: 947
+        chapter_end: 1150
+      - id: volume-6
+        number: 6
+        label: Lightseeker
+        chapter_start: 1151
+        chapter_end: 1266
+      - id: volume-7
+        number: 7
+        label: The Hanged Man
+        chapter_start: 1267
+        chapter_end: 1353
+      - id: volume-8
+        number: 8
+        label: Fool
+        chapter_start: 1354
+        chapter_end: 1394
+
+  lotm-2:
+    lifecycle: active
+    series_id: lord-of-mysteries
+    label: Circle of Inevitability
+    short_label: COI
+    ordinal: 2
+    work_type: novel
+    medium_id: novel
+    aliases:
+      - coi
+      - circle-of-inevitability
+    chapter_numbering: work-local
+    volume_catalog_status: pending-verification
+    volumes: []
+
+sources:
+  lotm-book-1-novel:
+    lifecycle: active
+    label: Lord of Mysteries Book 1 Novel
+    work_id: lotm-1
+    medium_id: novel
+    role: original
+    comparison_group: lotm-narrative
+    priority: 1
+    aliases:
+      - novel
+      - novel-epub
+      - lotm-novel
+    evidence_modes:
+      - canonical-text
+    resource_bindings:
+      - resource_type_id: source-material
+        root_id: source
+        relative_path: Lord of Mysteries - Book 1.epub
+        required: false
+
+  lotm-book-2-novel:
+    lifecycle: active
+    label: Circle of Inevitability Novel
+    work_id: lotm-2
+    medium_id: novel
+    role: original
+    comparison_group: lotm-narrative
+    priority: 1
+    aliases:
+      - coi
+      - coi-epub
+    evidence_modes:
+      - canonical-text
+    resource_bindings:
+      - resource_type_id: source-material
+        root_id: source
+        relative_path: Circle of Inevitability.epub
+        required: false
+
+  lotm-donghua:
+    lifecycle: active
+    label: Lord of Mysteries Donghua
+    work_id: lotm-1
+    medium_id: donghua
+    role: adaptation
+    comparison_group: lotm-narrative
+    priority: 2
+    adapted_from_source_id: lotm-book-1-novel
+    aliases:
+      - donghua
+      - donghua-visual-audit
+      - donghua-subtitle-and-visual-audit
+    evidence_modes:
+      - animation-visual
+      - dialogue
+      - on-screen-text
+    resource_bindings: []
+
+  lotm-donghua-subtitles:
+    lifecycle: active
+    label: Lord of Mysteries Donghua English Subtitles
+    work_id: lotm-1
+    medium_id: donghua
+    role: transcript
+    comparison_group: lotm-narrative
+    priority: 2
+    derived_from_source_id: lotm-donghua
+    aliases:
+      - donghua-subtitle-audit
+    evidence_modes:
+      - subtitle-dialogue
+      - translated-on-screen-text
+    resource_bindings:
+      - resource_type_id: source-material
+        root_id: source
+        relative_path: Donghua_Subtitles/Season_1
+        required: false
+
+  lotm-official-epub-artwork:
+    lifecycle: active
+    label: Lord of Mysteries Official EPUB Artwork
+    work_id: lotm-1
+    medium_id: official-epub-artwork
+    role: supplemental
+    comparison_group: lotm-visual-reference
+    priority: 1
+    aliases:
+      - official-epub-artwork
+    evidence_modes:
+      - official-illustration
+    resource_bindings:
+      - resource_type_id: visual-asset
+        root_id: artwork
+        relative_path: Source
+        required: false

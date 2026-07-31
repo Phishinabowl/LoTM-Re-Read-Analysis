@@ -226,5 +226,6 @@ function Get-KnowledgeProjectConfig {
     cleanup_powershell_helper = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $cleanup "powershell_helper" "paths.cleanup") "paths.cleanup.powershell_helper" $true
     taxonomy_registry = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $registries "taxonomy" "registries") "registries.taxonomy" $true
     resources_registry = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $registries "resources" "registries") "registries.resources" $true
+    sources_registry = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $registries "sources" "registries") "registries.sources" $true
   }
 }
