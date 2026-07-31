@@ -5,6 +5,8 @@ param(
   [string]$InputPath,
   [Alias("Output", "Out")]
   [string[]]$OutputPath,
+  [string]$GraphPath,
+  [switch]$IncludeConfirmedConfidence,
   [Alias("Settings")]
   [string]$SettingsPath = "Visualization/config/render-settings.json",
   [Alias("NoRender")]
@@ -50,8 +52,9 @@ function Resolve-VisualizationMode {
     '^(?i:refresh|update|generate)$' { return "Refresh" }
     '^(?i:render|manual-render|pure-render)$' { return "Render" }
     '^(?i:validate|check|test)$' { return "Validate" }
+    '^(?i:qa-?relationship|qa-relationship-graph|unbounded-relationship)$' { return "QaRelationship" }
     default {
-      throw "Unsupported visualization mode: $Name. Use Refresh, Render, or Validate. Aliases include Update, Generate, Manual-Render, Pure-Render, Check, and Test."
+      throw "Unsupported visualization mode: $Name. Use Refresh, Render, Validate, or QaRelationship. Aliases include Update, Generate, Manual-Render, Pure-Render, Check, Test, Qa-Relationship-Graph, and Unbounded-Relationship."
     }
   }
 }
@@ -1983,7 +1986,8 @@ function Get-MissingRelationshipEndpoints {
 function Format-RelationshipLabel {
   param(
     [object]$Relationship,
-    [switch]$TimingSpoilerFree
+    [switch]$TimingSpoilerFree,
+    [switch]$IncludeConfirmedConfidence
   )
 
   $parts = @($Relationship.relationship_type)
@@ -1999,7 +2003,10 @@ function Format-RelationshipLabel {
     $parts += $Relationship.status
   }
 
-  if (-not [string]::IsNullOrWhiteSpace($Relationship.confidence) -and $Relationship.confidence -ne "confirmed") {
+  if (
+    -not [string]::IsNullOrWhiteSpace($Relationship.confidence) -and
+    ($IncludeConfirmedConfidence -or $Relationship.confidence -ne "confirmed")
+  ) {
     $parts += $Relationship.confidence
   }
 
@@ -2009,7 +2016,8 @@ function Format-RelationshipLabel {
 function Format-RelationshipNodeLabel {
   param(
     [object]$Relationship,
-    [switch]$TimingSpoilerFree
+    [switch]$TimingSpoilerFree,
+    [switch]$IncludeConfirmedConfidence
   )
 
   if (-not [string]::IsNullOrWhiteSpace($Relationship.history_label)) {
@@ -2026,7 +2034,10 @@ function Format-RelationshipNodeLabel {
     $parts += $Relationship.status
   }
 
-  if (-not [string]::IsNullOrWhiteSpace($Relationship.confidence) -and $Relationship.confidence -ne "confirmed") {
+  if (
+    -not [string]::IsNullOrWhiteSpace($Relationship.confidence) -and
+    ($IncludeConfirmedConfidence -or $Relationship.confidence -ne "confirmed")
+  ) {
     $parts += $Relationship.confidence
   }
 
@@ -2041,7 +2052,8 @@ function Write-MermaidGraph {
     [switch]$TimingSpoilerFree,
     [object[]]$KnownNodeIds = $null,
     [object[]]$PendingNodeIds = @(),
-    [object[]]$PendingEndpointNodeIds = @()
+    [object[]]$PendingEndpointNodeIds = @(),
+    [switch]$IncludeConfirmedConfidence
   )
 
   $known = New-Object 'System.Collections.Generic.HashSet[string]'
@@ -2140,14 +2152,14 @@ function Write-MermaidGraph {
     $source = if ($relationship.PSObject.Properties.Name -contains "render_source_node" -and -not [string]::IsNullOrWhiteSpace($relationship.render_source_node)) { $relationship.render_source_node } else { Convert-SlugToNodeId $relationship.source }
     $target = if ($relationship.PSObject.Properties.Name -contains "render_target_node" -and -not [string]::IsNullOrWhiteSpace($relationship.render_target_node)) { $relationship.render_target_node } else { Convert-SlugToNodeId $relationship.target }
 
-    $label = Format-RelationshipLabel $relationship -TimingSpoilerFree:$TimingSpoilerFree
+    $label = Format-RelationshipLabel $relationship -TimingSpoilerFree:$TimingSpoilerFree -IncludeConfirmedConfidence:$IncludeConfirmedConfidence
     $key = "$source|$label|$target"
     if ($seenEdges.Add($key)) {
       $edges += [pscustomobject]@{
         source = $source
         target = $target
         label = $label
-        nodeLabel = (Format-RelationshipNodeLabel $relationship -TimingSpoilerFree:$TimingSpoilerFree)
+        nodeLabel = (Format-RelationshipNodeLabel $relationship -TimingSpoilerFree:$TimingSpoilerFree -IncludeConfirmedConfidence:$IncludeConfirmedConfidence)
       }
     }
   }
@@ -2163,6 +2175,25 @@ function Write-MermaidGraph {
   }
 
   Set-Content -Path $GraphPath -Value $lines -Encoding UTF8
+}
+
+function Write-UnboundedRelationshipGraph {
+  param(
+    [string]$OutputGraphPath,
+    [switch]$IncludeConfirmedConfidence
+  )
+
+  $nodeData = Read-GlossaryNodes
+  $nodes = @{}
+  foreach ($nodeId in $nodeData.Keys) {
+    $nodes[$nodeId] = $nodeData[$nodeId].label
+  }
+  $relationships = Read-RelationshipSeeds
+  $dataProjections = Read-DataProjections
+  $filteredRelationships = Select-RelationshipsForBoundary $relationships $null @($nodes.Keys) @($nodes.Keys) $dataProjections
+  $pendingNodeIds = @($nodeData.Keys | Where-Object { $nodeData[$_].status -eq "pending" })
+  $pendingEndpointNodeIds = Get-MissingRelationshipEndpoints $filteredRelationships @($nodes.Keys)
+  Write-MermaidGraph $OutputGraphPath $nodes.Clone() $filteredRelationships -KnownNodeIds @($nodes.Keys) -PendingNodeIds $pendingNodeIds -PendingEndpointNodeIds $pendingEndpointNodeIds -IncludeConfirmedConfidence:$IncludeConfirmedConfidence
 }
 
 function Update-MermaidGraphs {
@@ -2524,6 +2555,14 @@ function Invoke-RefreshMode {
 }
 
 $Mode = Resolve-VisualizationMode $Mode
+if ($Mode -eq "QaRelationship") {
+  if ([string]::IsNullOrWhiteSpace($GraphPath)) {
+    throw "QaRelationship mode requires -GraphPath."
+  }
+  Write-UnboundedRelationshipGraph (Resolve-RepoPath $GraphPath) -IncludeConfirmedConfidence:$IncludeConfirmedConfidence
+  exit 0
+}
+
 $settingsFullPath = Resolve-RepoPath $SettingsPath
 $settings = Get-Content $settingsFullPath -Raw | ConvertFrom-Json
 $puppeteerConfig = Resolve-RepoPath $settings.puppeteerConfig

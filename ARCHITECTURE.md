@@ -60,25 +60,38 @@ Within canonical pages, the visible article and structured page data are two syn
 
 ### Project Manifest
 
-`Project_Config/project.yaml` is the bootstrap manifest. It identifies the project, locates canonical content roots, and declares tool-integration paths. As supporting registries are added, the manifest will locate them without absorbing their domain definitions.
+`Project_Config/project.yaml` is the bootstrap manifest. It identifies the project, assigns stable IDs to modeled content roots, locates supporting registries, and declares tool-integration paths without absorbing domain definitions.
 
-`Tools/project_config.py` and `Tools/Project-Config.ps1` are the matching manifest-loader implementations. They locate and validate project configuration; they do not own domain taxonomy.
+`Tools/project_config.py` and `Tools/Project-Config.ps1` are the matching manifest-loader implementations. They locate and validate project configuration and registry paths; they do not own domain taxonomy.
 
 ### Taxonomy Registry
 
-The planned `Project_Config/taxonomy.yaml` owns:
+`Project_Config/taxonomy.yaml` is the machine-readable taxonomy registry. Its current category and content-type records own:
 
 - stable category IDs;
-- non-category content-type IDs and their distinction from subject categories;
-- category labels, folders, slug prefixes, and graph classes;
+- stable content-type IDs and their distinction from subject categories;
+- lifecycle and canonical-page enablement;
+- content-type roots, category policy, path strategy, metadata behavior, record-slug rules, default templates, QA-page eligibility, and graph eligibility;
+- category labels, metadata types, subject-slug rules, graph classes, and per-content-type folder/template placements;
+
+The following sections remain planned extensions of this registry:
+
 - controlled relationship types and reciprocal behavior;
 - strict field-scoped enums and their aliases;
 - confidence or precedence orderings that affect generic projection behavior;
 - explicitly extensible domain vocabularies.
 
+`Tools/taxonomy_config.py` and `Tools/Taxonomy-Config.ps1` are the matching registry loaders. They validate registry structure, stable IDs, content-root and content-type references, category/content-type compatibility, safe relative folders, slug expressions, templates, and uniqueness constraints. Domain clients should consume their normalized records instead of adding new category allowlists.
+
 The registry must distinguish strict enums, extensible vocabularies, aliases, and free descriptive fields. There must not be one global `status`, `type`, or `confidence` allowlist when those names serve different model contexts.
 
-Aggregating records such as LoTM Volume Summaries are content types, not subject categories. A content type may define its own root, template, slug prefix, schema, and default projection behavior without appearing in the category editor or becoming a graph node.
+Content type and subject category are orthogonal:
+
+- a Dunn Smith article is `content_type_id: glossary-page` plus `category_id: character`;
+- a Dunn Smith source review is `content_type_id: investigation-record` plus `category_id: character`;
+- a Volume Summary is `content_type_id: volume-summary` with categories forbidden.
+
+A content type defines the record contract, root, path strategy, default template, QA-page behavior, and graph eligibility. A category defines the subject family, subject slug, display/metadata identity, graph class, and its placement under eligible content types. Aggregating records such as Volume Summaries therefore do not appear in the category editor or become subject graph nodes merely because they are canonical records.
 
 ### Source Registry
 

@@ -1,13 +1,18 @@
-schema_version: 1
+schema_version: 2
 project_id: lotm-analysis
 framework: knowledge-model
 domain: lord-of-the-mysteries
 
 paths:
-  canonical_content:
-    - path: Glossary_Threads
+  content_roots:
+    - id: glossary
+      path: Glossary_Threads
       provenance_mode: child-directory
-    - path: Volumes
+    - id: investigations
+      path: Investigations
+      provenance_mode: child-directory
+    - id: volumes
+      path: Volumes
       provenance_mode: fixed
       provenance_label: volume
 
@@ -22,3 +27,6 @@ paths:
   cleanup:
     python_helper: Tools/clean_temp_files.py
     powershell_helper: Tools/Clean-TempFiles.ps1
+
+registries:
+  taxonomy: Project_Config/taxonomy.yaml

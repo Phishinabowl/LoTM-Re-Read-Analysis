@@ -16,6 +16,7 @@ from project_config import (
     load_project_config,
     resolve_project_root,
 )
+from taxonomy_config import load_taxonomy_config
 
 
 ACTIVE_CONTENT_ROOTS: tuple[ContentRootConfig, ...] = ()
@@ -1383,29 +1384,8 @@ def load_visualization_helper(config: ProjectConfig):
 
 def write_visualization_relationship_graph(config: ProjectConfig, output_path: Path) -> None:
     visualize = load_visualization_helper(config)
-
-    node_data = visualize.read_glossary_nodes()
-    nodes = {node_id: data["label"] for node_id, data in node_data.items()}
-    relationships = visualize.read_relationship_seeds()
-    data_projections = visualize.read_data_projections()
-    filtered_relationships = visualize.filter_relationships_for_boundary(
-        relationships,
-        None,
-        set(nodes),
-        set(nodes),
-        data_projections,
-        False,
-    )
-    pending_node_ids = {node_id for node_id, data in node_data.items() if data.get("status") == "pending"}
-    pending_endpoint_node_ids = visualize.get_missing_relationship_endpoints(filtered_relationships, set(nodes))
-    visualize.write_mermaid_graph(
+    visualize.write_unbounded_relationship_graph(
         output_path,
-        dict(nodes),
-        filtered_relationships,
-        False,
-        set(nodes),
-        pending_node_ids,
-        pending_endpoint_node_ids,
         include_confirmed_confidence=True,
     )
 
@@ -2094,7 +2074,16 @@ def render_data_reference_index(data_references: list[DataReference], notes: dic
         "| Source | Context | Target | YAML Block | File |",
         "|---|---|---|---|---|",
     ]
-    for ref in sorted(data_references, key=lambda item: (item.source, item.target, item.context_key)):
+    for ref in sorted(
+        data_references,
+        key=lambda item: (
+            item.source,
+            item.target,
+            item.context_key,
+            item.yaml_block,
+            item.source_file,
+        ),
+    ):
         lines.append(
             "| "
             + " | ".join(
@@ -2301,7 +2290,9 @@ def main() -> int:
     args = build_parser().parse_args()
     root = resolve_project_root(args.root)
     config = load_project_config(root)
-    ACTIVE_CONTENT_ROOTS = config.canonical_content
+    taxonomy = load_taxonomy_config(config)
+    qa_content_roots = taxonomy.content_roots_for_qa_pages(config)
+    ACTIVE_CONTENT_ROOTS = qa_content_roots
     output_dir = (
         (root / args.output_dir).resolve()
         if args.output_dir
@@ -2312,7 +2303,7 @@ def main() -> int:
 
     notes, relationships, data_references, data_projections = discover_notes(
         root,
-        config.canonical_content,
+        qa_content_roots,
         args.include_stubs,
     )
     write_export(

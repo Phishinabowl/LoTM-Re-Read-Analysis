@@ -147,7 +147,9 @@ NOTICE.md
 
 These files and folders are the project's working memory.
 
-`Project_Config/project.yaml` is the domain-neutral repository manifest. Tooling uses it to locate and identify the project and to resolve canonical content roots, source-provenance behavior, QA output, visualization integration, and cleanup helpers. Directory names such as `Glossary_Threads/` and `Volumes/` are LoTM configuration values rather than reusable framework assumptions. The manifest does not replace the LoTM-specific taxonomy and authoring rules in this document; shared controlled vocabularies will move into separate registries as the reusable framework is extracted.
+`Project_Config/project.yaml` is the domain-neutral repository manifest. Tooling uses it to locate and identify the project, assign stable IDs to modeled content roots, and resolve the taxonomy registry, source-provenance behavior, QA output, visualization integration, and cleanup helpers. Directory names such as `Glossary_Threads/`, `Investigations/`, and `Volumes/` are LoTM configuration values rather than reusable framework assumptions.
+
+`Project_Config/taxonomy.yaml` is the machine-readable authority for content-type and category IDs, lifecycle, canonical-page enablement, content roots, category policy, path strategies, metadata behavior, subject/record slug rules, per-content-type placements, templates, QA-page eligibility, and graph defaults. Content type and category are separate dimensions: a glossary article and an investigation may share `category_id: character` while using `content_type_id: glossary-page` and `content_type_id: investigation-record`; a `volume-summary` forbids subject categories. This document remains authoritative for LoTM-specific authoring and modeling policy and explains how those configured records should be used. Keep the registry, templates, and this policy synchronized; do not introduce a new category or content type only in prose or hardcode a new allowlist in a consumer.
 
 When conclusions are reached:
 

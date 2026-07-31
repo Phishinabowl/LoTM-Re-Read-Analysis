@@ -555,12 +555,14 @@ Purpose: generate repository Mermaid graph views from canonical graph inputs, va
 
 | Purpose | Python switch | PowerShell switch | Default | Notes |
 | --- | --- | --- | --- | --- |
-| Select mode | `--mode <mode>` | `-Mode <mode>` | `Refresh` | Modes normalize to refresh, render, or validate. |
+| Select mode | `--mode <mode>` | `-Mode <mode>` | `Refresh` | Modes normalize to refresh, render, validate, or QA relationship graph generation. |
 | Select mode alias | n/a | `-Action <mode>` | n/a | PowerShell alias for `-Mode`. |
 | Input Mermaid file for render mode | `--input-path <path>` | `-InputPath <path>` | none | Required for render mode. |
 | Input aliases | `--input`, `--graph` | `-Input`, `-Graph` | n/a | Aliases for input path. |
 | Render output path(s) | `--output-path <path>` | `-OutputPath <path>[,<path>]` | none | Render mode defaults to SVG and PNG under `Visualization/rendered/` when omitted. Python accepts repeated `--output-path`; PowerShell accepts a string array. |
 | Output aliases | `--output`, `--out` | `-Output`, `-Out` | n/a | Aliases for output path. |
+| Select QA relationship graph output | `--graph-path <path>` | `-GraphPath <path>` | none | Required only for QA relationship mode. Relative paths resolve beneath the repository root. |
+| Preserve confirmed confidence labels | `--include-confirmed-confidence` | `-IncludeConfirmedConfidence` | off | Includes `confirmed` in relationship labels. The Obsidian QA exporters enable this for maintainer provenance review. |
 | Render settings path | `--settings-path <path>` | `-SettingsPath <path>` | `Visualization/config/render-settings.json` | Controls configured views, render settings, report path, snapshot path, validation settings, and output paths. |
 | Settings alias | `--settings` | `-Settings` | n/a | Alias for settings path. |
 | Skip rendering during refresh | `--skip-render` | `-SkipRender` | off | Refreshes Mermaid graph sources, report, and snapshot without rendering PNG/SVG outputs. |
@@ -584,6 +586,11 @@ Validate:
 - Python: `validate`, `Validate`, `check`, `Check`, `test`, `Test`
 - PowerShell: same names case-insensitively
 
+QA relationship graph:
+
+- Python: `qa-relationship`, `Qa-Relationship`, `qa-relationship-graph`, `Qa-Relationship-Graph`, `unbounded-relationship`, `Unbounded-Relationship`
+- PowerShell: the same hyphenated names case-insensitively, plus `QaRelationship`
+
 ### Inputs
 
 | Input | Used For |
@@ -595,6 +602,7 @@ Validate:
 | Repository Markdown files | Broken link scan for refresh report hygiene. |
 | Existing Mermaid files from configured view inputs | Validate mode checks existing graph class/layout hygiene. |
 | Render-mode input Mermaid file | Manual/pure render mode. |
+| Glossary nodes, Relationship Seeds, and projected data-block availability | QA relationship mode writes the unbounded visualization-style graph requested by the QA exporter. |
 
 ### Outputs And Side Effects
 
@@ -604,6 +612,7 @@ Validate:
 | Refresh with skip render | Generated Mermaid graph files, refresh report, semantic snapshot. | Does not render PNG/SVG outputs. Still mutates configured graph/report/snapshot paths. |
 | Validate | Human-readable validation summary. | Does not mutate configured graph/report/snapshot/rendered outputs. Generates temporary graph files under the system temp directory and removes them. |
 | Render | Human-readable render progress. | Writes rendered output files to explicit `--output-path` / `-OutputPath` values or default `Visualization/rendered/<input-name>.svg/.png`. |
+| QA relationship | One unbounded Mermaid graph at `--graph-path` / `-GraphPath`. | Writes only the requested graph. Does not update canonical refresh reports, snapshots, configured views, or rendered images. |
 
 Refresh mode should be treated as a canonical generated-artifact update unless a temporary settings file redirects all outputs into ignored paths.
 
@@ -628,6 +637,7 @@ Refresh mode should be treated as a canonical generated-artifact update unless a
 | Find missing visible endpoints | `get_missing_relationship_endpoints` | `Get-MissingRelationshipEndpoints` |
 | Format relationship labels | `format_relationship_label`, `format_relationship_node_label`, `format_availability_history` | `Format-RelationshipLabel`, `Format-RelationshipNodeLabel`, `Format-AvailabilityHistory` |
 | Write generated Mermaid graph | `write_mermaid_graph` | `Write-MermaidGraph` |
+| Write unbounded QA relationship graph | `write_unbounded_relationship_graph` | `Write-UnboundedRelationshipGraph` |
 | Regenerate configured graph views | `update_mermaid_graphs` | `Update-MermaidGraphs` |
 | Compute graph stats | `get_graph_stats` | `Get-GraphStats` |
 | Compare snapshots | `read_previous_snapshot`, `compare_string_set`, `get_duplicate_relationships`, `get_changed_relationships` | `Read-PreviousSnapshot`, `Compare-StringSet`, `Get-DuplicateRelationships`, `Get-ChangedRelationships` |
@@ -682,7 +692,7 @@ Expected non-semantic differences:
 
 Last mapped: 2026-07-07.
 
-Last parity check: 2026-07-07. Validate mode matched exactly: `nodes=14`, `relationships=115`, zero class/layout issues on existing and generated graphs. No-render refresh mode with redirected `.tmp` settings produced matching Mermaid graph files, matching reports after timestamp/path normalization, and matching snapshots after `generated_at`/path normalization. Render mode succeeded for both scripts on a tiny Mermaid file; both SVG outputs were nonzero, the same size in this run (`10814` bytes), and contained the expected `Alpha` and `Beta` labels.
+Last parity check: 2026-07-30. QA relationship mode with confirmed confidence enabled produced matching 457-line Mermaid files through both CLIs. Earlier checks covered exact Validate results (`nodes=14`, `relationships=115`, zero class/layout issues), matching no-render Refresh graphs/reports/snapshots after runtime-field normalization, and successful Render outputs.
 
 ## Obsidian QA Export
 
@@ -729,8 +739,9 @@ Bounded page spec keys:
 
 | Input | Used For |
 | --- | --- |
-| `Project_Config/project.yaml` | Identifies the project and configures canonical content roots, provenance behavior, QA output, visualization integration, and cleanup helpers. |
-| Configured canonical content roots; currently `Glossary_Threads/**/*.md` and `Volumes/**/*.md` | Canonical notes, metadata, YAML data blocks, and Relationship Seeds. |
+| `Project_Config/project.yaml` | Identifies the project and configures modeled content roots, provenance behavior, registry discovery, QA output, visualization integration, and cleanup helpers. |
+| `Project_Config/taxonomy.yaml` | Selects content types eligible for QA page discovery; currently `glossary-page` and `volume-summary`, excluding `investigation-record`. |
+| Taxonomy-selected QA page roots; currently `Glossary_Threads/**/*.md` and `Volumes/**/*.md` | Canonical notes, metadata, YAML data blocks, and Relationship Seeds. |
 | Configured visualization helpers; currently `Visualization/visualize.py` and `Visualization/visualize.ps1` | Visualization-style graph and repo refresh dry-run generation. |
 | Configured render settings and Puppeteer config under `Visualization/config/` | Source view list and dry-run fidelity settings. Rendering is skipped. |
 | Configured cleanup helpers under `Tools/` | End-of-run transient cache cleanup. |
@@ -771,6 +782,7 @@ The repo refresh check does not update canonical `Visualization/graphs/`, `Visua
 | Render CLI help | argparse generated help | `Show-Help` |
 | Resolve repository root | `resolve_project_root`, `is_project_root` in `project_config.py` | `Resolve-KnowledgeProjectRoot`, `Test-KnowledgeProjectRoot` in `Project-Config.ps1` |
 | Load and validate project configuration | `load_project_config`, `resolve_manifest_path` in `project_config.py` | `Get-KnowledgeProjectConfig`, `Resolve-ProjectManifestPath` in `Project-Config.ps1` |
+| Select taxonomy-enabled QA page roots | `load_taxonomy_config`, `TaxonomyConfig.content_roots_for_qa_pages` | `Get-KnowledgeTaxonomyConfig`, `Get-TaxonomyQaPageContentRoots` |
 | Configure UTF-8 output | `configure_output_encoding` | top-level `$OutputEncoding` / `[Console]::OutputEncoding` |
 | Read canonical Markdown | `discover_notes`, `read_text` | `Get-CanonicalNotes`, `Read-TextFile` |
 | Parse metadata | `parse_metadata`, `extract_section` | `Get-Metadata`, `Get-MarkdownSection` |
@@ -784,7 +796,7 @@ The repo refresh check does not update canonical `Visualization/graphs/`, `Visua
 | Render direct-edge QA graph | `render_labeled_relationship_graph` | `ConvertTo-LabeledRelationshipGraph` |
 | Render relationship-node QA graph | `render_relationship_node_graph` | `ConvertTo-RelationshipNodeGraph` |
 | Build QA graph labels/provenance | `relationship_provenance_lines`, `relationship_source_lines`, `relationship_source_line`, `format_availability_history`, `format_availability_entry` | `Get-RelationshipProvenanceLines`, `Get-RelationshipSourceLines`, `Format-RelationshipSourceLine`, `Format-AvailabilityHistory`, `Format-AvailabilityEntry` |
-| Render visualization-style unbounded graph | `write_visualization_relationship_graph` | `ConvertTo-VisualizationRelationshipGraph` |
+| Request visualization-style unbounded graph | `write_visualization_relationship_graph` -> configured `write_unbounded_relationship_graph` | configured `visualize.ps1 -Mode QaRelationship` -> `Write-UnboundedRelationshipGraph` |
 | Write repo refresh dry-run bundle | `write_repo_refresh_check`, `repo_relative_path` | `Write-RepoRefreshCheck`, `Get-RepoRelativePath` |
 | Parse bounded graph requests | `parse_bounded_graph_specs`, `parse_bounded_graph_spec` | `ConvertFrom-BoundedGraphSpecs`, `ConvertFrom-BoundedGraphSpec` |
 | Write optional bounded graph bundle | `write_bounded_graphs` | `Write-BoundedGraphs` |
@@ -799,7 +811,7 @@ The repo refresh check does not update canonical `Visualization/graphs/`, `Visua
 
 - Python invokes the manifest-configured Python cleanup helper at the end of normal runs. PowerShell invokes the manifest-configured PowerShell cleanup helper with `-Delete` for the same behavior.
 - Both implementations auto-detect the repository root when `--root` / `-Root` is omitted, so they may be launched from the repository root, `Tools/`, or another descendant directory. Detection does not depend on `.git` or a domain-specific content folder; explicit roots are validated against `Project_Config/project.yaml`.
-- Python loads the manifest-configured Python visualization helper directly for the unbounded visualization-style graph and repo refresh dry run. PowerShell mirrors the unbounded graph internally, then shells out to the configured PowerShell visualization helper for the repo refresh dry run.
+- Python loads the manifest-configured Python visualization helper directly for the unbounded visualization-style graph and repo refresh dry run. PowerShell invokes the manifest-configured PowerShell visualization helper for both operations.
 - Python QA generation depends on `PyYAML`. PowerShell QA generation depends on `powershell-yaml`; use the environment checks on a new machine before selecting either implementation.
 - Python has built-in `--help`; PowerShell supports `-Help`, `-?`, and `-h` through `Show-Help`.
 
@@ -845,24 +857,41 @@ Last mapped: 2026-07-30.
 
 Last parity check: 2026-07-30. Python and PowerShell each generated 28 files with matching file lists and summary counts for normal exports launched from both the repository root and `Tools/`. Key Markdown and Mermaid outputs were invariant across launch positions. A bounded Novel V1 Ch30 graph and Dunn Smith page matched after newline normalization; the check also corrected PowerShell timeline-prose parsing so `timeline_id` blocks work with both LF and CRLF source files. Prior boundary checks covered Dunn Smith at Novel V1 Ch10, Ch20, Ch30, and Ch50, including anonymous-preview and Sleepless-pathway progression behavior.
 
+Current content-type and ownership regression: both implementations selected taxonomy-enabled `glossary` and `volumes` roots, excluded `investigations`, and produced matching 28-file lists and summary counts (`notes=16`, `relationships=121`, `data_references=71`). After generated timestamps were normalized, all 25 stable Markdown and Mermaid outputs matched exactly. The check moved PowerShell's unbounded visualization-style graph generation into the configured Visualization helper and added a deterministic YAML-block/file tie-breaker to both data-reference index sort orders.
+
 ## Configuration Files
 
 This section tracks durable configuration and generated state files that affect helper behavior. Add new entries here when a tool starts reading a new config file, writing a new persistent state file, or depending on a shared registry. Do not list ignored one-run artifacts such as `.tmp/`, `Obsidian_Export/`, Python caches, or rendered files generated from an already listed source config.
 
 | File | Kind | Read By | Written By | Purpose | Update When |
 | --- | --- | --- | --- | --- | --- |
-| `Project_Config/project.yaml` | Project manifest | `Tools/project_config.py`, `Tools/Project-Config.ps1`, and consumers such as both Obsidian QA exporters | Maintainers | Identifies the project and configures canonical content roots, provenance behavior, default QA output, visualization helpers/settings, cleanup helpers, and manifest schema version without coupling framework code to LoTM directory names. | Project identity or paths change, a content root is added, provenance behavior changes, helper locations move, or the manifest schema changes. |
+| `Project_Config/project.yaml` | Project manifest | `Tools/project_config.py`, `Tools/Project-Config.ps1`, and consumers such as both Obsidian QA exporters | Maintainers | Identifies the project and configures modeled content roots, provenance behavior, registry paths, default QA output, visualization helpers/settings, cleanup helpers, and manifest schema version without coupling framework code to LoTM directory names. | Project identity or paths change, a content root is added, provenance behavior changes, helper locations move, or the manifest schema changes. |
+| `Project_Config/taxonomy.yaml` | Taxonomy registry | `Tools/taxonomy_config.py`, `Tools/Taxonomy-Config.ps1`, both Obsidian QA exporters, and future content-index, validation, visualization, editor, and migration services | Maintainers through reviewed edits; future category/content-type editors through the mutation service | Defines orthogonal content-type and category IDs, lifecycle, content roots, category policies, path strategies, subject/record slug rules, placements, templates, QA-page eligibility, and graph defaults. | A category/content type is added, promoted, deferred, renamed for display, moved through a planned migration, assigned a template, or given different QA/graph behavior. |
 | `requirements-python.txt` | Dependency registry | `Tools/Test-Python.ps1`; human setup via `python -m pip install -r requirements-python.txt` | Maintainers | Defines Python packages required by preferred Python helper scripts. | Add or change entries when a Python helper gains or removes a third-party package dependency. |
 | `requirements-powershell.txt` | Dependency registry | `Tools/Test-PowerShell.ps1`; human setup via `Install-Module <module> -Scope CurrentUser -Force -AllowClobber` or elevated `-Scope AllUsers` when machine-wide installs are preferred | Maintainers | Defines PowerShell modules required by fallback tools, including `powershell-yaml` for project configuration and structured page data. | Add or change entries when a PowerShell helper gains or removes a module dependency. |
 | `Visualization/config/render-settings.json` | Source config | `Visualization/visualize.py`, `Visualization/visualize.ps1`, `Tools/obsidian_qa_export.py`, `Tools/Obsidian-QA-Export.ps1` | Maintainers | Defines canonical graph views, source Mermaid paths, rendered output paths, render dimensions, validation settings, reader-boundary filters, report path, and semantic snapshot path. The Obsidian QA export also derives its local `_Generated/repo-refresh-check/` dry-run settings from this file. | Add or remove repository graph views, change render sizes, adjust validation rules, change reader-boundary behavior, or redirect canonical report/snapshot paths. |
 | `Visualization/config/puppeteer-config.json` | Source config | `Visualization/visualize.py`, `Visualization/visualize.ps1`, Obsidian QA repo-refresh dry-run helpers through visualization tooling | Maintainers | Configures the browser executable, timeout, and launch args used by Mermaid/Puppeteer rendering. | Browser path changes, rendering starts timing out, CI/local environment changes, or Mermaid rendering needs different launch args. |
 | `Visualization/data/refresh-snapshot.json` | Generated semantic state | `Visualization/visualize.py`, `Visualization/visualize.ps1` | `Visualization/visualize.py --mode Refresh`, `Visualization/visualize.ps1 -Mode Refresh` | Stores the last canonical graph semantic snapshot so refresh reports can detect added/removed nodes, relationships, changed labels, duplicates, and other graph hygiene changes. | Update only through a confirmed canonical graph refresh. Do not edit manually except for explicit debugging that is later reverted or regenerated. |
 
+### Configuration Loader Pair
+
+| Behavior | Python function | PowerShell function |
+| --- | --- | --- |
+| Resolve repository root | `resolve_project_root`, `is_project_root` in `project_config.py` | `Resolve-KnowledgeProjectRoot`, `Test-KnowledgeProjectRoot` in `Project-Config.ps1` |
+| Load and validate project manifest | `load_project_config`, `resolve_manifest_path` in `project_config.py` | `Get-KnowledgeProjectConfig`, `Resolve-ProjectManifestPath` in `Project-Config.ps1` |
+| Load and validate taxonomy registry | `load_taxonomy_config`, `parse_content_type`, `parse_category` in `taxonomy_config.py` | `Get-KnowledgeTaxonomyConfig`, `ConvertTo-ContentTypeConfig`, `ConvertTo-CategoryConfig` in `Taxonomy-Config.ps1` |
+| Select QA page content roots | `TaxonomyConfig.content_roots_for_qa_pages` | `Get-TaxonomyQaPageContentRoots` |
+| Validate category/content-type uniqueness | `ensure_unique`, final checks in `load_taxonomy_config` | `Assert-UniqueTaxonomyValue`, final checks in `Get-KnowledgeTaxonomyConfig` |
+
+Last mapped: 2026-07-30.
+
+Last parity check: 2026-07-30. Python, PowerShell 7, and Windows PowerShell 5.1 loaded manifest schema 2 and taxonomy schema 2 with three matching stable content roots, 16 active categories, two deferred categories, and three active content types. Both implementations selected only `glossary` and `volumes` for QA page discovery, leaving `investigations` indexed but excluded. Normalized IDs, lifecycle values, category policies, subject/record slug rules, and QA/graph flags matched.
+
 ### Project Manifest Contract
 
-`Project_Config/project.yaml` is the bootstrap configuration copied into each framework implementation. `schema_version`, `project_id`, `framework`, and `domain` identify the contract and implementation. All entries under `paths` must be repository-relative; the shared loaders reject absolute paths, paths that escape the repository, missing canonical roots, and missing required helper/config files.
+`Project_Config/project.yaml` is the bootstrap configuration copied into each framework implementation. `schema_version`, `project_id`, `framework`, and `domain` identify the contract and implementation. All configured paths must be repository-relative; the shared loaders reject absolute paths, paths that escape the repository, missing canonical roots, and missing required helper, config, or registry files.
 
-`paths.canonical_content` is an ordered list. Each entry declares a `path` and a provenance rule:
+`paths.content_roots` is an ordered list. Each entry declares a stable `id`, a `path`, and a provenance rule. Content-type records refer to the stable ID so a root path can change through a migration without changing content-type or category identity:
 
 - `child-directory`: derive the provenance label from the first directory beneath the configured root. The LoTM `Glossary_Threads/Characters/` path therefore contributes `character`.
 - `fixed`: use `provenance_label` for every record under that root. The LoTM `Volumes/` root therefore contributes `volume`.
@@ -870,6 +899,16 @@ This section tracks durable configuration and generated state files that affect 
 
 `paths.qa_export` defines the default generated QA destination. `paths.visualization` identifies the Python and PowerShell visualization helpers plus render settings and Puppeteer configuration. `paths.cleanup` identifies the matching disposable-cache cleanup helpers.
 
+`registries.taxonomy` locates the machine-readable taxonomy registry.
+
+### Taxonomy Registry Contract
+
+`Project_Config/taxonomy.yaml` separates `categories` from `content_types`. A Glossary Page requires a category; an Investigation Record permits a category for subject-linked research while allowing uncategorized project investigations; a Volume Summary forbids categories. Categories define subject identity once and provide placements under eligible content types, so Character glossary pages and Character investigations share the `character` category without pretending to be the same record type.
+
+Deferred categories remain visible to planning and future editors but set `canonical_pages_enabled: false` and intentionally omit subject slugs, placements, and graph classes until promotion. The paired taxonomy loaders reject malformed stable IDs, unknown root/content-type references, incompatible category policies, absolute or escaping relative folders, invalid slug regular expressions, missing templates, duplicate metadata types, duplicate subject prefixes, duplicate placements, duplicate active content roots, and duplicate graph classes.
+
+The QA exporters now use content-type `qa_page_enabled` values to select page roots, which keeps investigations out of the Obsidian page mirror. Transitional category output maps and graph semantics remain in QA/visualization code until the normalized content-index and visualization migrations replace them.
+
 ### Future Config Registries
 
-`Project_Config/project.yaml` establishes the shared bootstrap boundary and already defines project paths and content-root provenance behavior. The [Architecture Contract](../ARCHITECTURE.md) assigns planned domain taxonomy, non-category content types, and source-priority behavior to separate registries located through the manifest. Add those files to the configuration table once they exist. Until then, `PROJECT_RULES.md`, the type templates, and the Volume Summary template remain the source of truth for LoTM taxonomy and prose-rendering policy.
+The [Architecture Contract](../ARCHITECTURE.md) assigns source-priority behavior to a future source registry located through the manifest. Controlled relationship types, field-scoped enums, aliases, and confidence/precedence rules are also planned additions to the taxonomy registry after their reconciliation pass.

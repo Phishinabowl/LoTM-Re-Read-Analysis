@@ -1,0 +1,305 @@
+schema_version: 2
+
+content_types:
+  glossary-page:
+    lifecycle: active
+    canonical_pages_enabled: true
+    label: Glossary Page
+    plural_label: Glossary Pages
+    content_root_id: glossary
+    category_policy: required
+    path_strategy: category-file
+    metadata_type_mode: category
+    slug_mode: category
+    default_template: Glossary_Threads/TEMPLATE.md
+    qa_page_enabled: true
+    graph_enabled: true
+
+  investigation-record:
+    lifecycle: active
+    canonical_pages_enabled: true
+    label: Investigation Record
+    plural_label: Investigation Records
+    content_root_id: investigations
+    category_policy: optional
+    path_strategy: category-subject-record
+    metadata_type_mode: none
+    slug_mode: record
+    record_slug_pattern: '^[a-z0-9][a-z0-9-]*$'
+    default_template: Investigations/TEMPLATE.md
+    qa_page_enabled: false
+    graph_enabled: false
+
+  volume-summary:
+    lifecycle: active
+    canonical_pages_enabled: true
+    label: Volume Summary
+    plural_label: Volume Summaries
+    content_root_id: volumes
+    category_policy: forbidden
+    path_strategy: root-file
+    metadata_type_mode: fixed
+    metadata_type: Volume Summary
+    slug_mode: record
+    record_slug_prefix: volume
+    record_slug_pattern: '^volume-[0-9]{2}-[a-z0-9][a-z0-9-]*$'
+    default_template: Volumes/TEMPLATE.md
+    qa_page_enabled: true
+    graph_enabled: false
+
+categories:
+  artifact:
+    lifecycle: active
+    canonical_pages_enabled: true
+    label: Artifact
+    plural_label: Artifacts
+    metadata_type: Artifact
+    subject_slug_prefix: artifact
+    subject_slug_pattern: '^artifact-[a-z0-9][a-z0-9-]*$'
+    graph_class: artifact
+    placements:
+      glossary-page:
+        relative_folder: Artifacts
+      investigation-record:
+        relative_folder: Artifacts
+
+  character:
+    lifecycle: active
+    canonical_pages_enabled: true
+    label: Character
+    plural_label: Characters
+    metadata_type: Character
+    subject_slug_prefix: character
+    subject_slug_pattern: '^character-[a-z0-9][a-z0-9-]*$'
+    graph_class: character
+    placements:
+      glossary-page:
+        relative_folder: Characters
+        template: Glossary_Threads/Characters/TEMPLATE.md
+      investigation-record:
+        relative_folder: Characters
+
+  concept:
+    lifecycle: active
+    canonical_pages_enabled: true
+    label: Concept
+    plural_label: Concepts
+    metadata_type: Concept
+    subject_slug_prefix: concept
+    subject_slug_pattern: '^concept-[a-z0-9][a-z0-9-]*$'
+    graph_class: concept
+    placements:
+      glossary-page:
+        relative_folder: Concepts
+      investigation-record:
+        relative_folder: Concepts
+
+  deity:
+    lifecycle: active
+    canonical_pages_enabled: true
+    label: Deity
+    plural_label: Deities
+    metadata_type: Deity
+    subject_slug_prefix: deity
+    subject_slug_pattern: '^deity-(s0|ats|od)-[a-z0-9][a-z0-9-]*$'
+    graph_class: deity
+    placements:
+      glossary-page:
+        relative_folder: Deities
+      investigation-record:
+        relative_folder: Deities
+
+  epoch:
+    lifecycle: active
+    canonical_pages_enabled: true
+    label: Epoch
+    plural_label: Epochs
+    metadata_type: Epoch
+    subject_slug_prefix: epoch
+    subject_slug_pattern: '^epoch-[a-z0-9][a-z0-9-]*$'
+    graph_class: epoch
+    placements:
+      glossary-page:
+        relative_folder: Epochs
+      investigation-record:
+        relative_folder: Epochs
+
+  event:
+    lifecycle: active
+    canonical_pages_enabled: true
+    label: Event
+    plural_label: Events
+    metadata_type: Event
+    subject_slug_prefix: event
+    subject_slug_pattern: '^event-[a-z0-9][a-z0-9-]*$'
+    graph_class: event
+    placements:
+      glossary-page:
+        relative_folder: Events
+      investigation-record:
+        relative_folder: Events
+
+  faction:
+    lifecycle: active
+    canonical_pages_enabled: true
+    label: Faction
+    plural_label: Factions
+    metadata_type: Faction
+    subject_slug_prefix: faction
+    subject_slug_pattern: '^faction-[a-z0-9][a-z0-9-]*$'
+    graph_class: faction
+    placements:
+      glossary-page:
+        relative_folder: Factions
+      investigation-record:
+        relative_folder: Factions
+
+  family:
+    lifecycle: active
+    canonical_pages_enabled: true
+    label: Family
+    plural_label: Families
+    metadata_type: Family
+    subject_slug_prefix: family
+    subject_slug_pattern: '^family-[a-z0-9][a-z0-9-]*$'
+    graph_class: family
+    placements:
+      glossary-page:
+        relative_folder: Families
+      investigation-record:
+        relative_folder: Families
+
+  item:
+    lifecycle: active
+    canonical_pages_enabled: true
+    label: Item
+    plural_label: Items
+    metadata_type: Item
+    subject_slug_prefix: item
+    subject_slug_pattern: '^item-[a-z0-9][a-z0-9-]*$'
+    graph_class: item
+    placements:
+      glossary-page:
+        relative_folder: Items
+        template: Glossary_Threads/Items/TEMPLATE.md
+      investigation-record:
+        relative_folder: Items
+
+  knowledge-source:
+    lifecycle: active
+    canonical_pages_enabled: true
+    label: Knowledge Source
+    plural_label: Knowledge Sources
+    metadata_type: Knowledge Source
+    subject_slug_prefix: source
+    subject_slug_pattern: '^source-[a-z0-9][a-z0-9-]*$'
+    graph_class: source
+    placements:
+      glossary-page:
+        relative_folder: Knowledge_Sources
+        template: Glossary_Threads/Knowledge_Sources/TEMPLATE.md
+      investigation-record:
+        relative_folder: Knowledge_Sources
+
+  location:
+    lifecycle: active
+    canonical_pages_enabled: true
+    label: Location
+    plural_label: Locations
+    metadata_type: Location
+    subject_slug_prefix: location
+    subject_slug_pattern: '^location-[a-z0-9][a-z0-9-]*$'
+    graph_class: location
+    placements:
+      glossary-page:
+        relative_folder: Locations
+      investigation-record:
+        relative_folder: Locations
+
+  mystery:
+    lifecycle: active
+    canonical_pages_enabled: true
+    label: Mystery
+    plural_label: Mysteries
+    metadata_type: Mystery
+    subject_slug_prefix: mystery
+    subject_slug_pattern: '^mystery-[a-z0-9][a-z0-9-]*$'
+    graph_class: mystery
+    placements:
+      glossary-page:
+        relative_folder: Mysteries
+      investigation-record:
+        relative_folder: Mysteries
+
+  pathway:
+    lifecycle: active
+    canonical_pages_enabled: true
+    label: Pathway
+    plural_label: Pathways
+    metadata_type: Pathway
+    subject_slug_prefix: pathway
+    subject_slug_pattern: '^pathway-[a-z0-9][a-z0-9-]*$'
+    graph_class: pathway
+    placements:
+      glossary-page:
+        relative_folder: Pathways
+        template: Glossary_Threads/Pathways/TEMPLATE.md
+      investigation-record:
+        relative_folder: Pathways
+
+  tarot-card:
+    lifecycle: active
+    canonical_pages_enabled: true
+    label: Tarot Card
+    plural_label: Tarot Cards
+    metadata_type: Tarot Card
+    subject_slug_prefix: tarot-card
+    subject_slug_pattern: '^tarot-card-[a-z0-9][a-z0-9-]*$'
+    graph_class: tarot
+    placements:
+      glossary-page:
+        relative_folder: Tarot_Cards
+      investigation-record:
+        relative_folder: Tarot_Cards
+
+  timeline:
+    lifecycle: active
+    canonical_pages_enabled: true
+    label: Timeline
+    plural_label: Timelines
+    metadata_type: Timeline
+    subject_slug_prefix: timeline
+    subject_slug_pattern: '^timeline-[a-z0-9][a-z0-9-]*$'
+    graph_class: timeline
+    placements:
+      glossary-page:
+        relative_folder: Timelines
+      investigation-record:
+        relative_folder: Timelines
+
+  uniqueness:
+    lifecycle: active
+    canonical_pages_enabled: true
+    label: Uniqueness
+    plural_label: Uniquenesses
+    metadata_type: Uniqueness
+    subject_slug_prefix: uniqueness
+    subject_slug_pattern: '^uniqueness-[a-z0-9][a-z0-9-]*$'
+    graph_class: uniqueness
+    placements:
+      glossary-page:
+        relative_folder: Uniquenesses
+      investigation-record:
+        relative_folder: Uniquenesses
+
+  material:
+    lifecycle: deferred
+    canonical_pages_enabled: false
+    label: Material
+    plural_label: Materials
+
+  preparation:
+    lifecycle: deferred
+    canonical_pages_enabled: false
+    label: Preparation
+    plural_label: Preparations

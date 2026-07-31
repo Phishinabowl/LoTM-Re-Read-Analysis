@@ -19,6 +19,11 @@ if (-not (Test-Path -LiteralPath $projectConfigHelper -PathType Leaf)) {
   throw "Project configuration helper not found: $projectConfigHelper"
 }
 . $projectConfigHelper
+$taxonomyConfigHelper = Join-Path $PSScriptRoot "Taxonomy-Config.ps1"
+if (-not (Test-Path -LiteralPath $taxonomyConfigHelper -PathType Leaf)) {
+  throw "Taxonomy configuration helper not found: $taxonomyConfigHelper"
+}
+. $taxonomyConfigHelper
 
 function Show-Help {
   @"
@@ -1633,157 +1638,6 @@ function Format-AvailabilityEntry {
   return ($parts -join " ")
 }
 
-function ConvertTo-VisualizationRelationshipGraph {
-  param(
-    [object[]]$Relationships,
-    [hashtable]$Notes,
-    [hashtable]$DataProjections
-  )
-  $nodes = @{}
-  $knownNodeIds = New-Object 'System.Collections.Generic.HashSet[string]'
-  foreach ($note in $Notes.Values) {
-    if ($note.type_name -ne "Volume Summary") {
-      $nodeId = ConvertTo-MermaidNodeId $note.slug
-      $nodes[$nodeId] = $note.title
-      [void]$knownNodeIds.Add($nodeId)
-    }
-  }
-  foreach ($rel in $Relationships) {
-    $source = ConvertTo-MermaidNodeId $rel.source
-    $target = ConvertTo-MermaidNodeId $rel.target
-    if (-not $nodes.ContainsKey($source)) { $nodes[$source] = ConvertTo-SlugTitle $rel.source }
-    if (-not $nodes.ContainsKey($target)) { $nodes[$target] = ConvertTo-SlugTitle $rel.target }
-  }
-
-  $selected = @{}
-  foreach ($rel in $Relationships) {
-    if (-not $rel.source -or -not $rel.target -or -not $rel.relationship_type) {
-      continue
-    }
-    $rendered = [pscustomobject]@{
-      source = $rel.source
-      target = $rel.target
-      relationship_type = $rel.relationship_type
-      start_chapter = $rel.start_chapter
-      status = $rel.status
-      confidence = $rel.confidence
-      projection_source = $rel.projection_source
-      history_label = ""
-      has_projection = if ($rel.projection_source) { 1 } else { 0 }
-      has_history = 0
-    }
-    $namespacedProjectionSource = "$($rel.source)|$($rel.projection_source)"
-    if ($rel.projection_source -and ($DataProjections.ContainsKey($namespacedProjectionSource) -or $DataProjections.ContainsKey($rel.projection_source))) {
-      if ($DataProjections.ContainsKey($namespacedProjectionSource)) {
-        $projection = $DataProjections[$namespacedProjectionSource]
-      } else {
-        $projection = $DataProjections[$rel.projection_source]
-      }
-      $history = Format-AvailabilityHistory @($projection.availability)
-      if ($history) {
-        $rendered.history_label = $history
-        $rendered.has_history = 1
-        $availabilityEntries = @($projection.availability)
-        $lastAvailability = $availabilityEntries[$availabilityEntries.Count - 1]
-        if ($lastAvailability.chapter) { $rendered.start_chapter = $lastAvailability.chapter }
-        if ($lastAvailability.status) { $rendered.status = $lastAvailability.status }
-        if ($lastAvailability.confidence) { $rendered.confidence = $lastAvailability.confidence }
-      }
-    }
-
-    $selectionKey = "$($rendered.source)|$($rendered.relationship_type)|$($rendered.target)"
-    $confidenceRank = switch ($rendered.confidence) {
-      "confirmed" { 3 }
-      "strong-evidence" { 2 }
-      "strong-inference" { 2 }
-      "clue" { 1 }
-      default { 0 }
-    }
-    $score = ($rendered.has_history * 1000) + ($rendered.has_projection * 100) + $confidenceRank
-    if (-not $selected.ContainsKey($selectionKey) -or $score -gt $selected[$selectionKey].score) {
-      $selected[$selectionKey] = [pscustomobject]@{
-        relationship = $rendered
-        score = $score
-      }
-    }
-  }
-
-  $edges = @()
-  foreach ($entry in $selected.Values) {
-    $rel = $entry.relationship
-    $source = ConvertTo-MermaidNodeId $rel.source
-    $target = ConvertTo-MermaidNodeId $rel.target
-    if ($rel.history_label) {
-      $parts = @($rel.relationship_type, $rel.history_label)
-    } else {
-      $parts = @($rel.relationship_type)
-      if ($rel.start_chapter) { $parts += "ch$($rel.start_chapter)" }
-      if ($rel.status -and $rel.status -ne "active") { $parts += $rel.status }
-      if ($rel.confidence) { $parts += $rel.confidence }
-    }
-    $label = $parts -join " "
-    $edges += [pscustomobject]@{
-      source = $source
-      target = $target
-      label = $label
-      nodeLabel = (($parts | ForEach-Object { ConvertTo-MermaidEscaped $_ }) -join "<br/>")
-    }
-  }
-
-  $lines = [System.Collections.Generic.List[string]]::new()
-  $lines.Add("graph TD") | Out-Null
-  foreach ($nodeId in @($nodes.Keys | Sort-Object)) {
-    $lines.Add(('  {0}["{1}"]' -f $nodeId, (ConvertTo-MermaidEscaped $nodes[$nodeId]))) | Out-Null
-  }
-  $lines.Add("") | Out-Null
-  $lines.Add("  classDef artifact fill:#f3ead7,stroke:#b7791f,stroke-width:2px,color:#1f2937") | Out-Null
-  $lines.Add("  classDef character fill:#ecebff,stroke:#7c5cff,stroke-width:2px,color:#1f2937") | Out-Null
-  $lines.Add("  classDef concept fill:#e8f5f0,stroke:#2f855a,stroke-width:2px,color:#1f2937") | Out-Null
-  $lines.Add("  classDef deity fill:#fae8ff,stroke:#c026d3,stroke-width:2px,color:#1f2937") | Out-Null
-  $lines.Add("  classDef epoch fill:#ede9fe,stroke:#6d28d9,stroke-width:2px,color:#1f2937") | Out-Null
-  $lines.Add("  classDef event fill:#fff1f2,stroke:#e11d48,stroke-width:2px,color:#1f2937") | Out-Null
-  $lines.Add("  classDef faction fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#1f2937") | Out-Null
-  $lines.Add("  classDef family fill:#fce7f3,stroke:#be185d,stroke-width:2px,color:#1f2937") | Out-Null
-  $lines.Add("  classDef item fill:#ecfccb,stroke:#65a30d,stroke-width:2px,color:#1f2937") | Out-Null
-  $lines.Add("  classDef source fill:#cffafe,stroke:#0891b2,stroke-width:2px,color:#1f2937") | Out-Null
-  $lines.Add("  classDef location fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#1f2937") | Out-Null
-  $lines.Add("  classDef mystery fill:#e5e7eb,stroke:#4b5563,stroke-width:2px,color:#1f2937") | Out-Null
-  $lines.Add("  classDef pathway fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#1f2937") | Out-Null
-  $lines.Add("  classDef tarot fill:#ffedd5,stroke:#ea580c,stroke-width:2px,color:#1f2937") | Out-Null
-  $lines.Add("  classDef timeline fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1f2937") | Out-Null
-  $lines.Add("  classDef uniqueness fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#1f2937") | Out-Null
-  $lines.Add("  classDef missingEndpoint fill:#f8fafc,stroke:#64748b,stroke-width:2px,stroke-dasharray:4 3,color:#1f2937") | Out-Null
-  $lines.Add("  classDef pendingNode stroke:#64748b,stroke-width:2px,stroke-dasharray:4 3") | Out-Null
-  $lines.Add("  classDef pendingEndpoint fill:#f8fafc,stroke:#64748b,stroke-width:2px,stroke-dasharray:4 3,color:#1f2937") | Out-Null
-  $lines.Add("  classDef relationship fill:#f7f2e9,stroke:#c69245,stroke-width:1.5px,color:#1f2937") | Out-Null
-  $lines.Add("") | Out-Null
-  foreach ($nodeId in @($nodes.Keys | Sort-Object)) {
-    if (-not $knownNodeIds.Contains($nodeId)) {
-      $lines.Add("  class $nodeId pendingEndpoint") | Out-Null
-      continue
-    }
-    $className = ($nodeId -split "_")[0]
-    if ($className -in @("artifact", "character", "concept", "deity", "epoch", "event", "faction", "family", "item", "source", "location", "mystery", "pathway", "tarot", "timeline", "uniqueness")) {
-      $lines.Add("  class $nodeId $className") | Out-Null
-    } else {
-      $lines.Add("  class $nodeId missingEndpoint") | Out-Null
-    }
-  }
-  $lines.Add("") | Out-Null
-
-  $relationshipIndex = 1
-  foreach ($edge in @($edges | Sort-Object source,target,label)) {
-    $relationshipId = "rel_{0:d3}" -f $relationshipIndex
-    $lines.Add(('  {0}["{1}"]' -f $relationshipId, $edge.nodeLabel)) | Out-Null
-    $lines.Add("  class $relationshipId relationship") | Out-Null
-    $lines.Add(('  {0} --> {1}' -f $edge.source, $relationshipId)) | Out-Null
-    $lines.Add(('  {0} --> {1}' -f $relationshipId, $edge.target)) | Out-Null
-    $relationshipIndex += 1
-  }
-
-  return ($lines -join "`n")
-}
-
 function ConvertTo-RelationshipIndex {
   param(
     [object[]]$Relationships,
@@ -1824,7 +1678,7 @@ function ConvertTo-DataReferenceIndex {
     "| Source | Context | Target | YAML Block | File |",
     "|---|---|---|---|---|"
   )
-  foreach ($ref in @($DataReferences | Sort-Object source,target,context_key)) {
+  foreach ($ref in @($DataReferences | Sort-Object source,target,context_key,yaml_block,source_file)) {
     $lines += "| " + (@(
       Format-TableWikiLink $ref.source $Notes
       $ref.context_key
@@ -2829,7 +2683,10 @@ function Write-ObsidianExport {
   Write-TextFile (Join-Path $generatedDir "relationship-index.md") (ConvertTo-RelationshipIndex $Relationships $Notes)
   Write-TextFile (Join-Path $generatedDir "QA-relationship-graph.mmd") (ConvertTo-LabeledRelationshipGraph $Relationships $Notes)
   Write-TextFile (Join-Path $generatedDir "QA-relationship-node-graph.mmd") (ConvertTo-RelationshipNodeGraph $Relationships $Notes $DataProjections)
-  Write-TextFile (Join-Path $generatedDir "visualization-relationship-graph.mmd") (ConvertTo-VisualizationRelationshipGraph $Relationships $Notes $DataProjections)
+  & $ProjectConfig.visualization_powershell_helper `
+    -Mode QaRelationship `
+    -GraphPath (Join-Path $generatedDir "visualization-relationship-graph.mmd") `
+    -IncludeConfirmedConfidence
   Write-RepoRefreshCheck $ProjectConfig $generatedDir
   Write-BoundedGraphs $ProjectConfig $generatedDir $BoundedGraphSpecs
   Write-BoundedPages $RepoRoot $generatedDir $Notes $BoundedPageSpecs
@@ -2852,12 +2709,14 @@ function Invoke-DisposableCacheCleanup {
 
 $repoRoot = Resolve-KnowledgeProjectRoot $Root
 $projectConfig = Get-KnowledgeProjectConfig $repoRoot
-$script:ActiveContentRoots = @($projectConfig.canonical_content)
+$taxonomyConfig = Get-KnowledgeTaxonomyConfig $projectConfig
+$qaContentRoots = @(Get-TaxonomyQaPageContentRoots $projectConfig $taxonomyConfig)
+$script:ActiveContentRoots = $qaContentRoots
 $selectedOutputDir = if ([string]::IsNullOrWhiteSpace($OutputDir)) { $projectConfig.qa_export } else { $OutputDir }
 $exportPath = if ([System.IO.Path]::IsPathRooted($selectedOutputDir)) { $selectedOutputDir } else { Join-Path $repoRoot $selectedOutputDir }
 $boundedGraphSpecs = @(ConvertFrom-BoundedGraphSpecs $BoundedGraph)
 $boundedPageSpecs = @(ConvertFrom-BoundedPageSpecs $BoundedPage)
-$discovered = Get-CanonicalNotes $repoRoot $projectConfig.canonical_content ([bool]$IncludeStubs)
+$discovered = Get-CanonicalNotes $repoRoot $qaContentRoots ([bool]$IncludeStubs)
 Write-ObsidianExport $projectConfig $exportPath ([bool]$Clean) $discovered.Notes $discovered.Relationships $discovered.DataReferences $discovered.DataProjections $boundedGraphSpecs $boundedPageSpecs
 
 $orphanData = Get-OrphanAnalysis $discovered.Notes $discovered.Relationships $discovered.DataReferences

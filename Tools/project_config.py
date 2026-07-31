@@ -1,16 +1,19 @@
 from dataclasses import dataclass
 from pathlib import Path
+import re
 
 import yaml
 
 
 PROJECT_MANIFEST_PATH = Path("Project_Config") / "project.yaml"
-SUPPORTED_SCHEMA_VERSION = 1
+SUPPORTED_SCHEMA_VERSION = 2
 PROVENANCE_MODES = {"child-directory", "fixed", "slug-prefix"}
+STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 
 @dataclass(frozen=True)
 class ContentRootConfig:
+    id: str
     relative_path: Path
     path: Path
     provenance_mode: str
@@ -25,7 +28,7 @@ class ProjectConfig:
     project_id: str
     framework: str
     domain: str
-    canonical_content: tuple[ContentRootConfig, ...]
+    content_roots: tuple[ContentRootConfig, ...]
     qa_export: Path
     visualization_python_helper: Path
     visualization_powershell_helper: Path
@@ -33,6 +36,7 @@ class ProjectConfig:
     visualization_puppeteer_config: Path
     cleanup_python_helper: Path
     cleanup_powershell_helper: Path
+    taxonomy_registry: Path
 
 
 def is_project_root(path: Path) -> bool:
@@ -126,14 +130,27 @@ def load_project_config(root: Path) -> ProjectConfig:
     domain = require_string(manifest, "domain", "root")
     paths = require_mapping(manifest.get("paths"), "paths")
 
-    raw_content_roots = paths.get("canonical_content")
+    raw_content_roots = paths.get("content_roots")
     if not isinstance(raw_content_roots, list) or not raw_content_roots:
-        raise ValueError("Project manifest `paths.canonical_content` must be a non-empty list.")
+        raise ValueError("Project manifest `paths.content_roots` must be a non-empty list.")
 
     content_roots: list[ContentRootConfig] = []
+    content_root_ids: set[str] = set()
     for index, raw_entry in enumerate(raw_content_roots):
-        context = f"paths.canonical_content[{index}]"
+        context = f"paths.content_roots[{index}]"
         entry = require_mapping(raw_entry, context)
+        content_root_id = require_string(entry, "id", context)
+        if not STABLE_ID_PATTERN.fullmatch(content_root_id):
+            raise ValueError(
+                f"Project manifest `{context}.id` must be a lowercase kebab-case "
+                f"stable ID: {content_root_id}"
+            )
+        if content_root_id in content_root_ids:
+            raise ValueError(
+                f"Project manifest `{context}.id` duplicates content-root ID "
+                f"`{content_root_id}`."
+            )
+        content_root_ids.add(content_root_id)
         path_value = require_string(entry, "path", context)
         relative_path, resolved_path = resolve_manifest_path(
             resolved_root,
@@ -154,6 +171,7 @@ def load_project_config(root: Path) -> ProjectConfig:
             )
         content_roots.append(
             ContentRootConfig(
+                id=content_root_id,
                 relative_path=relative_path,
                 path=resolved_path,
                 provenance_mode=provenance_mode,
@@ -208,6 +226,14 @@ def load_project_config(root: Path) -> ProjectConfig:
         must_exist=True,
     )
 
+    registries = require_mapping(manifest.get("registries"), "registries")
+    _, taxonomy_registry = resolve_manifest_path(
+        resolved_root,
+        require_string(registries, "taxonomy", "registries"),
+        "registries.taxonomy",
+        must_exist=True,
+    )
+
     return ProjectConfig(
         root=resolved_root,
         manifest_path=manifest_path,
@@ -215,7 +241,7 @@ def load_project_config(root: Path) -> ProjectConfig:
         project_id=project_id,
         framework=framework,
         domain=domain,
-        canonical_content=tuple(content_roots),
+        content_roots=tuple(content_roots),
         qa_export=qa_export,
         visualization_python_helper=visualization_python_helper,
         visualization_powershell_helper=visualization_powershell_helper,
@@ -223,4 +249,5 @@ def load_project_config(root: Path) -> ProjectConfig:
         visualization_puppeteer_config=visualization_puppeteer_config,
         cleanup_python_helper=cleanup_python_helper,
         cleanup_powershell_helper=cleanup_powershell_helper,
+        taxonomy_registry=taxonomy_registry,
     )

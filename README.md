@@ -82,7 +82,9 @@ Do not embed the full graph in this README; it is maintained as a separate gener
 ```text
 Project_Config/
   project.yaml
-  domain-neutral project identity, content roots, and tool integration paths
+  taxonomy.yaml
+  domain-neutral project identity, stable content roots, registry discovery,
+  and orthogonal LoTM content-type/category configuration
 
 Boards/
   01_LoTM_Main_Reread_Board.md
@@ -105,7 +107,8 @@ Investigations/
   Locations/
   Pathways/
   Project/
-  type-specific subfolders for source verification records, split by subject and medium
+  Investigation Record content type, organized by optional subject category,
+  subject slug, medium, and bounded scope
 
 Glossary_Threads/
   TEMPLATE.md
@@ -125,7 +128,8 @@ Glossary_Threads/
   Pathways/
   Tarot_Cards/
   Timelines/
-  type-specific subfolders for recurring thread records and embedded spoiler-aware knowledge units
+  Glossary Page content type, organized by required subject category,
+  with embedded spoiler-aware knowledge units
 
 Visualization/
   README.md

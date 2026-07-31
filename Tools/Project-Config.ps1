@@ -1,6 +1,7 @@
 $script:ProjectManifestPath = "Project_Config/project.yaml"
-$script:SupportedProjectSchemaVersion = 1
+$script:SupportedProjectSchemaVersion = 2
 $script:AllowedProvenanceModes = @("child-directory", "fixed", "slug-prefix")
+$script:StableProjectIdPattern = "^[a-z0-9]+(?:-[a-z0-9]+)*$"
 
 function Test-KnowledgeProjectRoot {
   param([string]$Path)
@@ -132,14 +133,22 @@ function Get-KnowledgeProjectConfig {
     throw "Project manifest 'paths' must be a mapping."
   }
 
-  $rawContentRoots = @(Get-ProjectMapValue $paths "canonical_content")
+  $rawContentRoots = @(Get-ProjectMapValue $paths "content_roots")
   if ($rawContentRoots.Count -eq 0) {
-    throw "Project manifest 'paths.canonical_content' must be a non-empty list."
+    throw "Project manifest 'paths.content_roots' must be a non-empty list."
   }
   $contentRoots = @()
+  $contentRootIds = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
   for ($index = 0; $index -lt $rawContentRoots.Count; $index += 1) {
     $entry = $rawContentRoots[$index]
-    $context = "paths.canonical_content[$index]"
+    $context = "paths.content_roots[$index]"
+    $contentRootId = Get-RequiredProjectString $entry "id" $context
+    if ($contentRootId -notmatch $script:StableProjectIdPattern) {
+      throw "Project manifest '$context.id' must be a lowercase kebab-case stable ID: $contentRootId"
+    }
+    if (-not $contentRootIds.Add($contentRootId)) {
+      throw "Project manifest '$context.id' duplicates content-root ID '$contentRootId'."
+    }
     $pathValue = Get-RequiredProjectString $entry "path" $context
     $provenanceMode = Get-RequiredProjectString $entry "provenance_mode" $context
     if ($script:AllowedProvenanceModes -notcontains $provenanceMode) {
@@ -150,6 +159,7 @@ function Get-KnowledgeProjectConfig {
       throw "Project manifest '$context.provenance_label' is required for fixed provenance."
     }
     $contentRoots += [pscustomobject]@{
+      id = $contentRootId
       relative_path = $pathValue
       path = Resolve-ProjectManifestPath $RepoRoot $pathValue "$context.path" $true
       provenance_mode = $provenanceMode
@@ -165,6 +175,10 @@ function Get-KnowledgeProjectConfig {
   if ($null -eq $cleanup) {
     throw "Project manifest 'paths.cleanup' must be a mapping."
   }
+  $registries = Get-ProjectMapValue $manifest "registries"
+  if ($null -eq $registries) {
+    throw "Project manifest 'registries' must be a mapping."
+  }
 
   return [pscustomobject]@{
     root = [System.IO.Path]::GetFullPath($RepoRoot)
@@ -173,7 +187,7 @@ function Get-KnowledgeProjectConfig {
     project_id = $projectId
     framework = $framework
     domain = $domain
-    canonical_content = @($contentRoots)
+    content_roots = @($contentRoots)
     qa_export = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $paths "qa_export" "paths") "paths.qa_export" $false
     visualization_python_helper = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $visualization "python_helper" "paths.visualization") "paths.visualization.python_helper" $true
     visualization_powershell_helper = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $visualization "powershell_helper" "paths.visualization") "paths.visualization.powershell_helper" $true
@@ -181,5 +195,6 @@ function Get-KnowledgeProjectConfig {
     visualization_puppeteer_config = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $visualization "puppeteer_config" "paths.visualization") "paths.visualization.puppeteer_config" $true
     cleanup_python_helper = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $cleanup "python_helper" "paths.cleanup") "paths.cleanup.python_helper" $true
     cleanup_powershell_helper = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $cleanup "powershell_helper" "paths.cleanup") "paths.cleanup.powershell_helper" $true
+    taxonomy_registry = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $registries "taxonomy" "registries") "registries.taxonomy" $true
   }
 }

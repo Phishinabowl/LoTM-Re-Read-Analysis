@@ -1231,6 +1231,42 @@ def write_mermaid_graph(
     write_text(graph_path, "\n".join(lines) + "\n")
 
 
+def write_unbounded_relationship_graph(
+    graph_path: Path,
+    *,
+    include_confirmed_confidence: bool = False,
+) -> None:
+    node_data = read_glossary_nodes()
+    nodes = {node_id: data["label"] for node_id, data in node_data.items()}
+    relationships = read_relationship_seeds()
+    data_projections = read_data_projections()
+    filtered_relationships = filter_relationships_for_boundary(
+        relationships,
+        None,
+        set(nodes),
+        set(nodes),
+        data_projections,
+        False,
+    )
+    pending_node_ids = {
+        node_id for node_id, data in node_data.items() if data.get("status") == "pending"
+    }
+    pending_endpoint_node_ids = get_missing_relationship_endpoints(
+        filtered_relationships,
+        set(nodes),
+    )
+    write_mermaid_graph(
+        graph_path,
+        dict(nodes),
+        filtered_relationships,
+        False,
+        set(nodes),
+        pending_node_ids,
+        pending_endpoint_node_ids,
+        include_confirmed_confidence=include_confirmed_confidence,
+    )
+
+
 def update_mermaid_graphs(views: list[dict[str, Any]]) -> None:
     nodes = read_glossary_nodes()
     relationships = read_relationship_seeds()
@@ -1690,6 +1726,9 @@ def parse_args() -> argparse.Namespace:
             "generate",
             "manual-render",
             "pure-render",
+            "qa-relationship",
+            "qa-relationship-graph",
+            "unbounded-relationship",
             "Refresh",
             "Render",
             "Validate",
@@ -1699,11 +1738,16 @@ def parse_args() -> argparse.Namespace:
             "Generate",
             "Manual-Render",
             "Pure-Render",
+            "Qa-Relationship",
+            "Qa-Relationship-Graph",
+            "Unbounded-Relationship",
         ],
         default="Refresh",
     )
     parser.add_argument("--input-path", "--input", "--graph", dest="input_path")
     parser.add_argument("--output-path", "--output", "--out", action="append", dest="output_paths")
+    parser.add_argument("--graph-path")
+    parser.add_argument("--include-confirmed-confidence", action="store_true")
     parser.add_argument("--settings-path", "--settings", default="Visualization/config/render-settings.json")
     parser.add_argument("--skip-render", "--no-render", action="store_true")
     args = parser.parse_args()
@@ -1714,6 +1758,12 @@ def parse_args() -> argparse.Namespace:
         args.mode = "render"
     elif args.mode in {"check", "test"}:
         args.mode = "validate"
+    elif args.mode in {
+        "qa-relationship",
+        "qa-relationship-graph",
+        "unbounded-relationship",
+    }:
+        args.mode = "qa-relationship"
     return args
 
 
@@ -1733,6 +1783,18 @@ def clean_disposable_caches() -> None:
 def main() -> None:
     args = parse_args()
     os.chdir(REPO_ROOT)
+    if args.mode == "qa-relationship":
+        if not args.graph_path:
+            raise ValueError("qa-relationship mode requires --graph-path.")
+        try:
+            write_unbounded_relationship_graph(
+                resolve_repo_path(args.graph_path),
+                include_confirmed_confidence=args.include_confirmed_confidence,
+            )
+        finally:
+            clean_disposable_caches()
+        return
+
     settings = load_visualization_settings(args.settings_path)
     puppeteer_config = resolve_repo_path(settings["puppeteerConfig"])
 

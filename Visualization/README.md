@@ -34,6 +34,8 @@ Shared graph authoring rules live in [Graph Authoring Standard](graph-authoring-
 
 For the visualization helper switch map, mode aliases, output side effects, and Python/PowerShell parity notes, see the [Tooling Reference](../Tools/TOOLING_REFERENCE.md#visualization-graph-workflow).
 
+The Obsidian QA exporters request their unbounded visualization-style relationship graph through Visualization's dedicated QA relationship mode/API. Visualization owns its projection, deduplication, styling, pending-node handling, and Mermaid serialization; QA owns only orchestration and the ignored destination.
+
 ## Current Artifacts
 
 - [Volume 1 Knowledge Graph](graphs/volume-1-knowledge-graph.mmd)
@@ -320,6 +322,14 @@ PowerShell fallback:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Validate
+```
+
+Generate a standalone unbounded QA relationship graph without refreshing configured repository views:
+
+```powershell
+python Visualization\visualize.py --mode qa-relationship --graph-path .tmp\qa-relationship.mmd --include-confirmed-confidence
+
+powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode QaRelationship -GraphPath .tmp\qa-relationship.mmd -IncludeConfirmedConfidence
 ```
 
 Validation mode checks glossary node parsing, Relationship Seed parsing, configured graph class/layout validation, and fresh temp graph generation without updating generated graph files, rendered images, the semantic snapshot, or this refresh tracker.
