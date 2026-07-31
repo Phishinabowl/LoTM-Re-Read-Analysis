@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-interactive
-pack_version: 1
+pack_version: 2
 lifecycle: active
 pack_kind: domain
 label: Narrative Interactive
@@ -8,7 +8,7 @@ description: Branching narratives, choices, routes, endings, playthroughs, campa
 
 dependencies:
   - pack_id: narrative-media
-    minimum_version: 2
+    minimum_version: 14
 
 capabilities:
   - id: branching-narratives

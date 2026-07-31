@@ -11,7 +11,7 @@ if (-not (Get-Command Get-KnowledgeSchemaPackRegistry -ErrorAction SilentlyConti
   . $schemaPackConfigHelper
 }
 
-$script:SupportedSourceSchemaVersion = 14
+$script:SupportedSourceSchemaVersion = 15
 $script:AllowedSourceLifecycles = @("active", "deferred")
 $script:AllowedPositionFieldTypes = @("string", "integer", "number", "timestamp", "boolean")
 $script:AllowedPriorityOrders = @("ascending", "descending")
@@ -738,6 +738,198 @@ function Get-KnowledgeHighestPrecedenceScopes {
   }
   $highest=[int](($scopes|Measure-Object -Property precedence -Maximum).Maximum)
   return @($scopes|Where-Object {$_.precedence -eq $highest})
+}
+
+function ConvertTo-KnowledgeApplicabilityInstant {
+  param([object]$EffectiveAt)
+  if($null -eq $EffectiveAt){return $null}
+  if($EffectiveAt -is [datetimeoffset]){return [pscustomobject]@{instant=$EffectiveAt.UtcDateTime;label=$EffectiveAt.ToString("o")}}
+  if($EffectiveAt -is [datetime]){
+    $instant=if($EffectiveAt.Kind -eq [DateTimeKind]::Local){$EffectiveAt.ToUniversalTime()}elseif($EffectiveAt.Kind -eq [DateTimeKind]::Utc){$EffectiveAt}else{[datetime]::SpecifyKind($EffectiveAt,[DateTimeKind]::Unspecified)}
+    return [pscustomobject]@{instant=$instant;label=$EffectiveAt.ToString("o")}
+  }
+  if($EffectiveAt -isnot [string] -or [string]::IsNullOrWhiteSpace($EffectiveAt)){throw "Applicability effective time must be an ISO date, datetime, or null."}
+  $label=$EffectiveAt.Trim()
+  if($label -match '^\d{4}-\d{2}-\d{2}$'){
+    $parsed=[datetime]::MinValue
+    if(-not [datetime]::TryParseExact($label,"yyyy-MM-dd",[Globalization.CultureInfo]::InvariantCulture,[Globalization.DateTimeStyles]::None,[ref]$parsed)){throw "Applicability effective time must be an ISO date or datetime."}
+    return [pscustomobject]@{instant=$parsed;label=$label}
+  }
+  $parsedOffset=[datetimeoffset]::MinValue
+  if(-not [datetimeoffset]::TryParse($label,[Globalization.CultureInfo]::InvariantCulture,[Globalization.DateTimeStyles]::RoundtripKind,[ref]$parsedOffset)){throw "Applicability effective time must be an ISO date or datetime."}
+  return [pscustomobject]@{instant=$parsedOffset.UtcDateTime;label=$label}
+}
+
+function Test-KnowledgeSegmentWithin {
+  param([object]$SourceRegistry,[string]$SegmentId,[string]$AncestorId)
+  $currentId=$SegmentId
+  while($null -ne $currentId){
+    if($currentId -eq $AncestorId){return $true}
+    $currentId=$SourceRegistry.segments[$currentId].parent_segment_id
+  }
+  return $false
+}
+
+function Get-KnowledgeApplicabilityTargetWorkIds {
+  param([object]$SourceRegistry,[string]$TargetType,[string]$TargetId)
+  $result=@()
+  switch($TargetType){
+    "work"{$result=@($TargetId)}
+    "segment"{$result=@($SourceRegistry.segments[$TargetId].work_id)}
+    "content-group"{foreach($member in $SourceRegistry.content_groups[$TargetId].members){$result+=@(Get-KnowledgeApplicabilityTargetWorkIds $SourceRegistry $member.target_type $member.target_id)}}
+    "work-relationship"{$item=@($SourceRegistry.work_relationships|Where-Object {$_.id -eq $TargetId})[0];$result=@($item.source_work_id)}
+    "adaptation-mapping"{$item=@($SourceRegistry.adaptation_mappings|Where-Object {$_.id -eq $TargetId})[0];$result=@($item.target_work_id)}
+    "manifestation"{$result=@($SourceRegistry.manifestations[$TargetId].work_id)}
+    "release-component"{
+      $component=$SourceRegistry.release_components[$TargetId]
+      foreach($segmentId in $component.segment_ids){$result+=@($SourceRegistry.segments[$segmentId].work_id)}
+      if($null -ne $component.manifestation_id){$result+=@($SourceRegistry.manifestations[$component.manifestation_id].work_id)}
+    }
+    "release-package"{
+      $package=$SourceRegistry.release_packages[$TargetId]
+      foreach($segmentId in $package.segment_ids){$result+=@($SourceRegistry.segments[$segmentId].work_id)}
+      foreach($manifestationId in $package.manifestation_ids){$result+=@($SourceRegistry.manifestations[$manifestationId].work_id)}
+      foreach($componentId in $package.release_component_ids){$result+=@(Get-KnowledgeApplicabilityTargetWorkIds $SourceRegistry "release-component" $componentId)}
+    }
+  }
+  return @($result|Sort-Object -Unique)
+}
+
+function Test-KnowledgeApplicabilityTargetWithinSegment {
+  param([object]$SourceRegistry,[string]$TargetType,[string]$TargetId,[string]$SegmentId)
+  if($TargetType -eq "segment"){return Test-KnowledgeSegmentWithin $SourceRegistry $TargetId $SegmentId}
+  if($TargetType -eq "content-group"){
+    $members=@($SourceRegistry.content_groups[$TargetId].members)
+    if($members.Count -eq 0){return $false}
+    foreach($member in $members){if(-not (Test-KnowledgeApplicabilityTargetWithinSegment $SourceRegistry $member.target_type $member.target_id $SegmentId)){return $false}}
+    return $true
+  }
+  if($TargetType -eq "adaptation-mapping"){
+    $mapping=@($SourceRegistry.adaptation_mappings|Where-Object {$_.id -eq $TargetId})[0]
+    if($mapping.target_segment_ids.Count -eq 0){return $false}
+    foreach($item in $mapping.target_segment_ids){if(-not (Test-KnowledgeSegmentWithin $SourceRegistry $item $SegmentId)){return $false}}
+    return $true
+  }
+  if($TargetType -eq "manifestation"){
+    $segmentIds=@($SourceRegistry.manifestations[$TargetId].segment_ids)
+    if($segmentIds.Count -eq 0){return $false}
+    foreach($item in $segmentIds){if(-not (Test-KnowledgeSegmentWithin $SourceRegistry $item $SegmentId)){return $false}}
+    return $true
+  }
+  if($TargetType -eq "release-component"){
+    $component=$SourceRegistry.release_components[$TargetId]
+    if($component.segment_ids.Count -gt 0){foreach($item in $component.segment_ids){if(-not (Test-KnowledgeSegmentWithin $SourceRegistry $item $SegmentId)){return $false}};return $true}
+    if($null -ne $component.manifestation_id){return Test-KnowledgeApplicabilityTargetWithinSegment $SourceRegistry "manifestation" $component.manifestation_id $SegmentId}
+  }
+  return $false
+}
+
+function Test-KnowledgeApplicabilityGroupContains {
+  param([object]$SourceRegistry,[string]$GroupId,[string]$TargetType,[string]$TargetId,[object]$Active)
+  if($TargetType -eq "content-group"){
+    $pending=New-Object System.Collections.ArrayList;[void]$pending.Add($TargetId)
+    $seen=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    while($pending.Count -gt 0){$candidate=[string]$pending[0];$pending.RemoveAt(0);if(-not $seen.Add($candidate)){continue};if(@($SourceRegistry.content_groups[$candidate].parent_group_ids) -contains $GroupId){return $true};foreach($parentId in $SourceRegistry.content_groups[$candidate].parent_group_ids){[void]$pending.Add($parentId)}}
+  }
+  foreach($member in $SourceRegistry.content_groups[$GroupId].members){if($null -ne (Get-KnowledgeApplicabilityTargetMatch $SourceRegistry $member.target_type $member.target_id $TargetType $TargetId $Active)){return $true}}
+  return $false
+}
+
+function Get-KnowledgeApplicabilityTargetMatch {
+  param([object]$SourceRegistry,[string]$ScopeType,[string]$ScopeId,[string]$TargetType,[string]$TargetId,[object]$Active)
+  $key="$ScopeType|$ScopeId|$TargetType|$TargetId"
+  if($Active.Contains($key)){return $null}
+  if($ScopeType -eq $TargetType -and $ScopeId -eq $TargetId){return "exact"}
+  $next=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+  foreach($item in $Active){[void]$next.Add($item)};[void]$next.Add($key)
+  if($TargetType -eq "provenance-claim"){
+    $assertion=@($SourceRegistry.provenance_assertions|Where-Object {$_.claim_key -eq $TargetId})[0]
+    if($null -ne (Get-KnowledgeApplicabilityTargetMatch $SourceRegistry $ScopeType $ScopeId $assertion.subject_type $assertion.subject_id $next)){return "claim-subject"}
+    return $null
+  }
+  if($ScopeType -eq "work"){$workIds=@(Get-KnowledgeApplicabilityTargetWorkIds $SourceRegistry $TargetType $TargetId);if($workIds.Count -eq 1 -and $workIds[0] -eq $ScopeId){return "contained"};return $null}
+  if($ScopeType -eq "segment"){if(Test-KnowledgeApplicabilityTargetWithinSegment $SourceRegistry $TargetType $TargetId $ScopeId){return "contained"};return $null}
+  if($ScopeType -eq "content-group"){if(Test-KnowledgeApplicabilityGroupContains $SourceRegistry $ScopeId $TargetType $TargetId $next){return "contained"};return $null}
+  if($ScopeType -eq "manifestation" -and $TargetType -eq "release-component"){if($SourceRegistry.release_components[$TargetId].manifestation_id -eq $ScopeId){return "contained"};return $null}
+  if($ScopeType -eq "release-package"){
+    $package=$SourceRegistry.release_packages[$ScopeId]
+    if($TargetType -eq "manifestation" -and @($package.manifestation_ids) -contains $TargetId){return "contained"}
+    if($TargetType -eq "release-component" -and @($package.release_component_ids) -contains $TargetId){return "contained"}
+    if($TargetType -eq "segment" -and @($package.segment_ids) -contains $TargetId){return "contained"}
+  }
+  return $null
+}
+
+function Get-KnowledgeApplicabilityTerritoryMatch {
+  param([object]$SourceRegistry,[object]$Scope,[string]$TerritoryId)
+  if($Scope.territory_ids.Count -eq 0){return "unspecified"}
+  if([string]::IsNullOrWhiteSpace($TerritoryId)){return $null}
+  $currentId=$TerritoryId
+  while($null -ne $currentId){if(@($Scope.territory_ids) -contains $currentId){if($currentId -eq $TerritoryId){return "exact"};return "ancestor"};$currentId=$SourceRegistry.territories[$currentId].parent_territory_id}
+  return $null
+}
+
+function Get-KnowledgeApplicabilityTemporalMatch {
+  param([object]$Window,[object]$EffectiveInstant)
+  if($null -eq $Window){return "unbounded"}
+  if($Window.precision -eq "unknown"){return "unknown"}
+  if($null -eq $EffectiveInstant){return $null}
+  $start=ConvertTo-SourceTemporalBound $Window.start $Window.precision $false
+  $end=if($null -eq $Window.end){[datetime]::MaxValue}else{ConvertTo-SourceTemporalBound $Window.end $Window.precision $true}
+  if($EffectiveInstant -ge $start -and $EffectiveInstant -le $end){return "effective"}
+  return $null
+}
+
+function Get-KnowledgeApplicabilityDecision {
+  param(
+    [object]$SourceRegistry,
+    [string]$TargetType,
+    [string]$TargetId,
+    [AllowNull()][AllowEmptyString()][string]$TerritoryId=$null,
+    [object]$EffectiveAt=$null
+  )
+  if([string]::IsNullOrWhiteSpace($TargetType) -or [string]::IsNullOrWhiteSpace($TargetId)){throw "Applicability target type and ID are required."}
+  $TargetType=$TargetType.Trim();$TargetId=$TargetId.Trim()
+  if(-not $PSBoundParameters.ContainsKey("TerritoryId")){$TerritoryId=$null}
+  elseif($null -ne $TerritoryId){if([string]::IsNullOrWhiteSpace($TerritoryId)){throw "Applicability territory ID must not be empty."};$TerritoryId=$TerritoryId.Trim();if(-not $SourceRegistry.territories.Contains($TerritoryId)){throw "Unknown territory '$TerritoryId'."}}
+  $targetExists=$false
+  switch($TargetType){
+    "work"{$targetExists=$SourceRegistry.works.Contains($TargetId)}
+    "segment"{$targetExists=$SourceRegistry.segments.Contains($TargetId)}
+    "content-group"{$targetExists=$SourceRegistry.content_groups.Contains($TargetId)}
+    "work-relationship"{$targetExists=@($SourceRegistry.work_relationships|Where-Object {$_.id -eq $TargetId}).Count -gt 0}
+    "adaptation-mapping"{$targetExists=@($SourceRegistry.adaptation_mappings|Where-Object {$_.id -eq $TargetId}).Count -gt 0}
+    "manifestation"{$targetExists=$SourceRegistry.manifestations.Contains($TargetId)}
+    "release-component"{$targetExists=$SourceRegistry.release_components.Contains($TargetId)}
+    "release-package"{$targetExists=$SourceRegistry.release_packages.Contains($TargetId)}
+    "provenance-claim"{$targetExists=@($SourceRegistry.provenance_assertions|Where-Object {$_.claim_key -eq $TargetId}).Count -gt 0}
+    default{throw "Unknown applicability target type '$TargetType'."}
+  }
+  if(-not $targetExists){throw "Unknown $TargetType applicability target '$TargetId'."}
+  $effective=ConvertTo-KnowledgeApplicabilityInstant $EffectiveAt
+  $effectiveInstant=if($null -eq $effective){$null}else{$effective.instant}
+  $matches=@()
+  foreach($scope in $SourceRegistry.applicability_scopes.Values){
+    $active=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $targetMatch=Get-KnowledgeApplicabilityTargetMatch $SourceRegistry $scope.target_type $scope.target_id $TargetType $TargetId $active
+    if($null -eq $targetMatch){continue}
+    $territoryMatch=Get-KnowledgeApplicabilityTerritoryMatch $SourceRegistry $scope $TerritoryId
+    if($null -eq $territoryMatch){continue}
+    $temporalMatch=Get-KnowledgeApplicabilityTemporalMatch $scope.effective_window $effectiveInstant
+    if($null -eq $temporalMatch){continue}
+    $outcome=if($temporalMatch -eq "unknown"){"indeterminate"}else{"applicable"}
+    $matches+=@([pscustomobject]@{scope_id=$scope.id;outcome=$outcome;target_match=$targetMatch;territory_match=$territoryMatch;temporal_match=$temporalMatch;precedence=[int]$scope.precedence})
+  }
+  $matches=@($matches|Sort-Object @{Expression="precedence";Descending=$true},@{Expression="scope_id";Descending=$false})
+  $applicableMatches=@($matches|Where-Object {$_.outcome -eq "applicable"})
+  $highest=if($applicableMatches.Count -eq 0){$null}else{[int]$applicableMatches[0].precedence}
+  $winners=if($null -eq $highest){@()}else{@($applicableMatches|Where-Object {$_.precedence -eq $highest}|ForEach-Object {$_.scope_id})}
+  return [pscustomobject]@{
+    target_type=$TargetType;target_id=$TargetId;territory_id=if([string]::IsNullOrWhiteSpace($TerritoryId)){$null}else{$TerritoryId}
+    effective_at=if($null -eq $effective){$null}else{$effective.label};matching_scope_ids=@($applicableMatches|ForEach-Object {$_.scope_id})
+    indeterminate_scope_ids=@($matches|Where-Object {$_.outcome -eq "indeterminate"}|ForEach-Object {$_.scope_id})
+    winning_scope_ids=@($winners);highest_precedence=$highest;ambiguous=($winners.Count -gt 1);matches=@($matches)
+  }
 }
 
 function ConvertTo-RelationshipTypeRegistry {

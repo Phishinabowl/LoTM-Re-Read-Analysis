@@ -91,6 +91,7 @@ capability_activation:
     - reader-disclosure
     - spoiler-bounding
     - applicability-scopes
+    - explainable-applicability-decisions
     - segment-anchored-locators
     - ordering-backed-position-validation
     - adaptation-comparison

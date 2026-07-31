@@ -12,7 +12,7 @@ from resource_config import ResourceConfig
 from schema_pack_config import SchemaPackRegistry, load_schema_pack_registry
 
 
-SUPPORTED_SOURCE_SCHEMA_VERSION = 14
+SUPPORTED_SOURCE_SCHEMA_VERSION = 15
 LIFECYCLES = {"active", "deferred"}
 POSITION_FIELD_TYPES = {"string", "integer", "number", "timestamp", "boolean"}
 PRIORITY_ORDERS = {"ascending", "descending"}
@@ -258,6 +258,30 @@ class ApplicabilityScope:
     territory_ids: tuple[str, ...]
     effective_window: "TemporalWindow | None"
     precedence: int
+
+
+@dataclass(frozen=True)
+class ApplicabilityScopeMatch:
+    scope_id: str
+    outcome: str
+    target_match: str
+    territory_match: str
+    temporal_match: str
+    precedence: int
+
+
+@dataclass(frozen=True)
+class ApplicabilityDecision:
+    target_type: str
+    target_id: str
+    territory_id: str | None
+    effective_at: str | None
+    matching_scope_ids: tuple[str, ...]
+    indeterminate_scope_ids: tuple[str, ...]
+    winning_scope_ids: tuple[str, ...]
+    highest_precedence: int | None
+    ambiguous: bool
+    matches: tuple[ApplicabilityScopeMatch, ...]
 
 
 @dataclass(frozen=True)
@@ -763,6 +787,322 @@ class SourceRegistry:
         highest = max(scope.precedence for scope in scopes)
         return tuple(scope for scope in scopes if scope.precedence == highest)
 
+    def applicability_decision(
+        self,
+        target_type: str,
+        target_id: str,
+        *,
+        territory_id: str | None = None,
+        effective_at: str | datetime | None = None,
+    ) -> ApplicabilityDecision:
+        if not isinstance(target_type, str) or not isinstance(target_id, str):
+            raise ValueError("Applicability target type and ID are required.")
+        target_type = target_type.strip()
+        target_id = target_id.strip()
+        if not target_type or not target_id:
+            raise ValueError("Applicability target type and ID are required.")
+        if territory_id is not None:
+            if not isinstance(territory_id, str):
+                raise ValueError(
+                    "Applicability territory ID must be a string or None."
+                )
+            territory_id = territory_id.strip()
+            if territory_id not in self.territories:
+                raise ValueError(f"Unknown territory `{territory_id}`.")
+        effective_instant, effective_label = normalize_effective_at(effective_at)
+        self._validate_applicability_query_target(target_type, target_id)
+
+        matches: list[ApplicabilityScopeMatch] = []
+        for scope in self.applicability_scopes.values():
+            target_match = self._applicability_target_match(
+                scope.target_type,
+                scope.target_id,
+                target_type,
+                target_id,
+                set(),
+            )
+            if target_match is None:
+                continue
+            territory_match = self._applicability_territory_match(
+                scope, territory_id
+            )
+            if territory_match is None:
+                continue
+            temporal_match = applicability_temporal_match(
+                scope.effective_window, effective_instant
+            )
+            if temporal_match is None:
+                continue
+            matches.append(
+                ApplicabilityScopeMatch(
+                    scope_id=scope.id,
+                    outcome=(
+                        "indeterminate"
+                        if temporal_match == "unknown"
+                        else "applicable"
+                    ),
+                    target_match=target_match,
+                    territory_match=territory_match,
+                    temporal_match=temporal_match,
+                    precedence=scope.precedence,
+                )
+            )
+
+        matches.sort(key=lambda item: (-item.precedence, item.scope_id))
+        applicable_matches = [
+            item for item in matches if item.outcome == "applicable"
+        ]
+        highest = applicable_matches[0].precedence if applicable_matches else None
+        winners = tuple(
+            item.scope_id
+            for item in applicable_matches
+            if item.precedence == highest
+        )
+        return ApplicabilityDecision(
+            target_type=target_type,
+            target_id=target_id,
+            territory_id=territory_id,
+            effective_at=effective_label,
+            matching_scope_ids=tuple(
+                item.scope_id for item in applicable_matches
+            ),
+            indeterminate_scope_ids=tuple(
+                item.scope_id
+                for item in matches
+                if item.outcome == "indeterminate"
+            ),
+            winning_scope_ids=winners,
+            highest_precedence=highest,
+            ambiguous=len(winners) > 1,
+            matches=tuple(matches),
+        )
+
+    def _validate_applicability_query_target(
+        self, target_type: str, target_id: str
+    ) -> None:
+        targets = {
+            "work": self.works,
+            "segment": self.segments,
+            "content-group": self.content_groups,
+            "work-relationship": {
+                item.id: item for item in self.work_relationships
+            },
+            "adaptation-mapping": {
+                item.id: item for item in self.adaptation_mappings
+            },
+            "manifestation": self.manifestations,
+            "release-component": self.release_components,
+            "release-package": self.release_packages,
+            "provenance-claim": {
+                item.claim_key: item for item in self.provenance_assertions
+            },
+        }
+        if target_type not in targets:
+            raise ValueError(f"Unknown applicability target type `{target_type}`.")
+        if target_id not in targets[target_type]:
+            raise ValueError(
+                f"Unknown {target_type} applicability target `{target_id}`."
+            )
+
+    def _segment_is_within(self, segment_id: str, ancestor_id: str) -> bool:
+        current_id: str | None = segment_id
+        while current_id is not None:
+            if current_id == ancestor_id:
+                return True
+            current_id = self.segments[current_id].parent_segment_id
+        return False
+
+    def _target_work_ids(self, target_type: str, target_id: str) -> set[str]:
+        if target_type == "work":
+            return {target_id}
+        if target_type == "segment":
+            return {self.segments[target_id].work_id}
+        if target_type == "content-group":
+            result: set[str] = set()
+            for member in self.content_groups[target_id].members:
+                result.update(
+                    self._target_work_ids(member.target_type, member.target_id)
+                )
+            return result
+        if target_type == "work-relationship":
+            item = next(
+                item for item in self.work_relationships if item.id == target_id
+            )
+            return {item.source_work_id}
+        if target_type == "adaptation-mapping":
+            item = next(
+                item for item in self.adaptation_mappings if item.id == target_id
+            )
+            return {item.target_work_id}
+        if target_type == "manifestation":
+            return {self.manifestations[target_id].work_id}
+        if target_type == "release-component":
+            component = self.release_components[target_id]
+            result = {self.segments[item].work_id for item in component.segment_ids}
+            if component.manifestation_id is not None:
+                result.add(self.manifestations[component.manifestation_id].work_id)
+            return result
+        if target_type == "release-package":
+            package = self.release_packages[target_id]
+            result = {self.segments[item].work_id for item in package.segment_ids}
+            for manifestation_id in package.manifestation_ids:
+                result.add(self.manifestations[manifestation_id].work_id)
+            for component_id in package.release_component_ids:
+                result.update(
+                    self._target_work_ids("release-component", component_id)
+                )
+            return result
+        return set()
+
+    def _target_is_within_segment(
+        self, target_type: str, target_id: str, segment_id: str
+    ) -> bool:
+        if target_type == "segment":
+            return self._segment_is_within(target_id, segment_id)
+        if target_type == "content-group":
+            members = self.content_groups[target_id].members
+            return bool(members) and all(
+                self._target_is_within_segment(
+                    member.target_type, member.target_id, segment_id
+                )
+                for member in members
+            )
+        if target_type == "adaptation-mapping":
+            mapping = next(
+                item for item in self.adaptation_mappings if item.id == target_id
+            )
+            return bool(mapping.target_segment_ids) and all(
+                self._segment_is_within(item, segment_id)
+                for item in mapping.target_segment_ids
+            )
+        if target_type == "manifestation":
+            segment_ids = self.manifestations[target_id].segment_ids
+            return bool(segment_ids) and all(
+                self._segment_is_within(item, segment_id) for item in segment_ids
+            )
+        if target_type == "release-component":
+            component = self.release_components[target_id]
+            if component.segment_ids:
+                return all(
+                    self._segment_is_within(item, segment_id)
+                    for item in component.segment_ids
+                )
+            if component.manifestation_id is not None:
+                return self._target_is_within_segment(
+                    "manifestation", component.manifestation_id, segment_id
+                )
+        return False
+
+    def _content_group_contains(
+        self,
+        group_id: str,
+        target_type: str,
+        target_id: str,
+        active: set[tuple[str, str, str, str]],
+    ) -> bool:
+        if target_type == "content-group":
+            current = [target_id]
+            seen: set[str] = set()
+            while current:
+                candidate = current.pop()
+                if candidate in seen:
+                    continue
+                seen.add(candidate)
+                if group_id in self.content_groups[candidate].parent_group_ids:
+                    return True
+                current.extend(self.content_groups[candidate].parent_group_ids)
+        for member in self.content_groups[group_id].members:
+            if self._applicability_target_match(
+                member.target_type,
+                member.target_id,
+                target_type,
+                target_id,
+                active,
+            ) is not None:
+                return True
+        return False
+
+    def _applicability_target_match(
+        self,
+        scope_type: str,
+        scope_id: str,
+        target_type: str,
+        target_id: str,
+        active: set[tuple[str, str, str, str]],
+    ) -> str | None:
+        key = (scope_type, scope_id, target_type, target_id)
+        if key in active:
+            return None
+        if scope_type == target_type and scope_id == target_id:
+            return "exact"
+        active = set(active)
+        active.add(key)
+
+        if target_type == "provenance-claim":
+            assertion = next(
+                item
+                for item in self.provenance_assertions
+                if item.claim_key == target_id
+            )
+            if self._applicability_target_match(
+                scope_type,
+                scope_id,
+                assertion.subject_type,
+                assertion.subject_id,
+                active,
+            ) is not None:
+                return "claim-subject"
+            return None
+        if scope_type == "work":
+            work_ids = self._target_work_ids(target_type, target_id)
+            return "contained" if work_ids == {scope_id} else None
+        if scope_type == "segment":
+            return (
+                "contained"
+                if self._target_is_within_segment(target_type, target_id, scope_id)
+                else None
+            )
+        if scope_type == "content-group":
+            return (
+                "contained"
+                if self._content_group_contains(
+                    scope_id, target_type, target_id, active
+                )
+                else None
+            )
+        if scope_type == "manifestation" and target_type == "release-component":
+            component = self.release_components[target_id]
+            return "contained" if component.manifestation_id == scope_id else None
+        if scope_type == "release-package":
+            package = self.release_packages[scope_id]
+            if (
+                target_type == "manifestation"
+                and target_id in package.manifestation_ids
+            ):
+                return "contained"
+            if (
+                target_type == "release-component"
+                and target_id in package.release_component_ids
+            ):
+                return "contained"
+            if target_type == "segment" and target_id in package.segment_ids:
+                return "contained"
+        return None
+
+    def _applicability_territory_match(
+        self, scope: ApplicabilityScope, territory_id: str | None
+    ) -> str | None:
+        if not scope.territory_ids:
+            return "unspecified"
+        if territory_id is None:
+            return None
+        current_id: str | None = territory_id
+        while current_id is not None:
+            if current_id in scope.territory_ids:
+                return "exact" if current_id == territory_id else "ancestor"
+            current_id = self.territories[current_id].parent_territory_id
+        return None
+
     def authority_decision(
         self,
         profile_id: str,
@@ -1244,6 +1584,52 @@ def temporal_windows_overlap(
         else datetime.max
     )
     return left_start <= right_end and right_start <= left_end
+
+
+def normalize_effective_at(
+    value: str | datetime | None,
+) -> tuple[datetime | None, str | None]:
+    if value is None:
+        return None, None
+    if isinstance(value, datetime):
+        parsed = value
+        label = value.isoformat()
+    elif isinstance(value, str) and value.strip():
+        label = value.strip()
+        try:
+            if re.fullmatch(r"\d{4}-\d{2}-\d{2}", label):
+                parsed = datetime.strptime(label, "%Y-%m-%d")
+            else:
+                parsed = datetime.fromisoformat(label.replace("Z", "+00:00"))
+        except ValueError as exc:
+            raise ValueError(
+                "Applicability effective time must be an ISO date or datetime."
+            ) from exc
+    else:
+        raise ValueError(
+            "Applicability effective time must be an ISO date, datetime, or None."
+        )
+    if parsed.tzinfo is not None:
+        parsed = parsed.astimezone(timezone.utc).replace(tzinfo=None)
+    return parsed, label
+
+
+def applicability_temporal_match(
+    window: TemporalWindow | None, effective_at: datetime | None
+) -> str | None:
+    if window is None:
+        return "unbounded"
+    if window.precision == "unknown":
+        return "unknown"
+    if effective_at is None:
+        return None
+    start = temporal_bound(window.start, window.precision, upper=False)
+    end = (
+        temporal_bound(window.end, window.precision, upper=True)
+        if window.end is not None
+        else datetime.max
+    )
+    return "effective" if start <= effective_at <= end else None
 
 
 def validate_id(value: str, context: str) -> None:

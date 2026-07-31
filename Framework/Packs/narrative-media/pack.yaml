@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-media
-pack_version: 13
+pack_version: 14
 lifecycle: active
 pack_kind: domain
 label: Narrative Media Foundation
@@ -8,7 +8,7 @@ description: Domain-neutral narrative works, media facets, ordering, continuitie
 
 dependencies:
   - pack_id: core
-    minimum_version: 8
+    minimum_version: 10
 
 capabilities:
   - franchises

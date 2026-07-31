@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: core
-pack_version: 9
+pack_version: 10
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -10,6 +10,7 @@ dependencies: []
 
 capabilities:
   - applicability-scopes
+  - explainable-applicability-decisions
   - stable-identity
   - aliases
   - lifecycle
