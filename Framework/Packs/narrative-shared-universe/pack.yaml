@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-shared-universe
-pack_version: 5
+pack_version: 6
 lifecycle: active
 pack_kind: domain
 label: Narrative Shared Universe
@@ -18,7 +18,7 @@ capabilities:
   - id: entity-incarnations
     lifecycle: available
     label: Entity Incarnations
-    description: Stable conceptual entities, category memberships, entity lineage, continuity-bound incarnations, scope-backed bindings, and typed counterpart relationships.
+    description: Stable conceptual entities, ambiguity-safe names, category memberships, direction- and cycle-aware entity lineage, continuity-bound incarnations, scope-backed bindings, and typed counterpart relationships.
   - id: entity-identity-phases
     lifecycle: planned
     label: Entity Identity Phases

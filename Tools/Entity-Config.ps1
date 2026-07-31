@@ -7,7 +7,7 @@ if (-not (Get-Command Get-KnowledgeSchemaPackRegistry -ErrorAction SilentlyConti
   . $schemaPackConfigHelper
 }
 
-$script:SupportedEntitySchemaVersion = 2
+$script:SupportedEntitySchemaVersion = 3
 $script:EntityStableIdPattern = "^[a-z0-9]+(?:-[a-z0-9]+)*$"
 $script:EntityLifecycles = @("active", "deferred")
 
@@ -98,10 +98,8 @@ function New-EntityAliasMap {
       if ($ids.ContainsKey($normalized) -and $ids[$normalized] -ne $record.id) {
         throw "Entity registry $Label alias '$alias' conflicts with ID '$($ids[$normalized])'."
       }
-      if ($aliases.Contains($normalized) -and $aliases[$normalized] -ne $record.id) {
-        throw "Entity registry $Label alias '$alias' is shared by '$($aliases[$normalized])' and '$($record.id)'."
-      }
-      $aliases[$normalized] = $record.id
+      $owners = if ($aliases.Contains($normalized)) { @($aliases[$normalized]) } else { @() }
+      if ($owners -notcontains $record.id) { $aliases[$normalized] = @(@($owners) + @($record.id)) }
     }
   }
   return $aliases
@@ -121,7 +119,42 @@ function Assert-EntityRelationshipTypeInverses {
     if ($type.symmetric -ne ($type.id -eq $type.inverse_type)) {
       throw "Entity registry $Label relationship type '$($type.id)' has inconsistent symmetric and inverse settings."
     }
+    if ($type.symmetric) {
+      if (-not $type.canonical_direction) {
+        throw "Entity registry $Label symmetric relationship type '$($type.id)' must be its canonical direction."
+      }
+      if ($null -ne $type.acyclic_group) {
+        throw "Entity registry $Label symmetric relationship type '$($type.id)' cannot declare an acyclic group."
+      }
+    } else {
+      if ($type.canonical_direction -eq $inverse.canonical_direction) {
+        throw "Entity registry $Label relationship types '$($type.id)' and '$($inverse.id)' must declare exactly one canonical direction."
+      }
+      if ($type.acyclic_group -ne $inverse.acyclic_group) {
+        throw "Entity registry $Label relationship types '$($type.id)' and '$($inverse.id)' must use the same acyclic group."
+      }
+    }
   }
+}
+
+function Get-CanonicalEntityRelationshipParts {
+  param(
+    [string]$SourceId,
+    [string]$TypeId,
+    [string]$TargetId,
+    [AllowNull()][object]$ScopeId,
+    [object]$RelationshipTypes
+  )
+
+  $type = $RelationshipTypes[$TypeId]
+  if ($type.symmetric) {
+    $ends = @($SourceId, $TargetId) | Sort-Object
+    return [pscustomobject]@{ source_id=$ends[0]; type_id=$TypeId; target_id=$ends[1]; scope_id=$ScopeId }
+  }
+  if ($type.canonical_direction) {
+    return [pscustomobject]@{ source_id=$SourceId; type_id=$TypeId; target_id=$TargetId; scope_id=$ScopeId }
+  }
+  return [pscustomobject]@{ source_id=$TargetId; type_id=$type.inverse_type; target_id=$SourceId; scope_id=$ScopeId }
 }
 
 function Get-CanonicalEntityRelationshipShape {
@@ -129,20 +162,74 @@ function Get-CanonicalEntityRelationshipShape {
     [string]$SourceId,
     [string]$TypeId,
     [string]$TargetId,
-    [string]$ScopeId,
+    [AllowNull()][object]$ScopeId,
     [object]$RelationshipTypes
   )
 
-  $type = $RelationshipTypes[$TypeId]
-  if ($type.symmetric) {
-    $ends = @($SourceId, $TargetId) | Sort-Object
-    return "$($ends[0])|$TypeId|$($ends[1])|$ScopeId"
+  $parts = Get-CanonicalEntityRelationshipParts $SourceId $TypeId $TargetId $ScopeId $RelationshipTypes
+  return "$($parts.source_id)|$($parts.type_id)|$($parts.target_id)|$($parts.scope_id)"
+}
+
+function Assert-AcyclicEntityRelationships {
+  param(
+    [object[]]$Relationships,
+    [object]$RelationshipTypes,
+    [string]$Label,
+    [string]$SourceProperty,
+    [string]$TargetProperty
+  )
+
+  $normalized = @()
+  foreach ($relationship in $Relationships) {
+    $type = $RelationshipTypes[$relationship.relationship_type]
+    if ($null -eq $type.acyclic_group) { continue }
+    $parts = Get-CanonicalEntityRelationshipParts $relationship.$SourceProperty $relationship.relationship_type $relationship.$TargetProperty $relationship.applicability_scope_id $RelationshipTypes
+    $normalized += [pscustomobject]@{ group=$type.acyclic_group; source_id=$parts.source_id; target_id=$parts.target_id; scope_id=$parts.scope_id }
   }
-  $canonicalType = @($TypeId, $type.inverse_type) | Sort-Object | Select-Object -First 1
-  if ($TypeId -eq $canonicalType) {
-    return "$SourceId|$canonicalType|$TargetId|$ScopeId"
+
+  foreach ($group in @($normalized.group | Sort-Object -Unique)) {
+    $groupEdges = @($normalized | Where-Object group -eq $group)
+    $scopeIds = @($groupEdges | Where-Object { $null -ne $_.scope_id } | ForEach-Object scope_id | Sort-Object -Unique)
+    foreach ($scopeToken in (@("__unscoped__") + @($scopeIds))) {
+      $isUnscoped = $scopeToken -eq "__unscoped__"
+      $scopeId = if ($isUnscoped) { $null } else { $scopeToken }
+      $edges = if ($isUnscoped) {
+        @($groupEdges | Where-Object { $null -eq $_.scope_id })
+      } else {
+        @($groupEdges | Where-Object { $null -eq $_.scope_id -or $_.scope_id -eq $scopeId })
+      }
+      $nodes = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+      $indegree = @{}
+      $adjacency = @{}
+      foreach ($edge in $edges) {
+        [void]$nodes.Add($edge.source_id); [void]$nodes.Add($edge.target_id)
+        if (-not $indegree.ContainsKey($edge.source_id)) { $indegree[$edge.source_id] = 0 }
+        if (-not $indegree.ContainsKey($edge.target_id)) { $indegree[$edge.target_id] = 0 }
+        if (-not $adjacency.ContainsKey($edge.source_id)) { $adjacency[$edge.source_id] = @() }
+        if ($adjacency[$edge.source_id] -notcontains $edge.target_id) {
+          $adjacency[$edge.source_id] = @($adjacency[$edge.source_id]) + $edge.target_id
+          $indegree[$edge.target_id] += 1
+        }
+      }
+      $queue = New-Object 'System.Collections.Generic.Queue[string]'
+      foreach ($nodeId in $nodes) { if ($indegree[$nodeId] -eq 0) { $queue.Enqueue($nodeId) } }
+      $processed = 0
+      while ($queue.Count -gt 0) {
+        $nodeId = $queue.Dequeue(); $processed += 1
+        if ($adjacency.ContainsKey($nodeId)) {
+          foreach ($targetId in @($adjacency[$nodeId])) {
+            $indegree[$targetId] -= 1
+            if ($indegree[$targetId] -eq 0) { $queue.Enqueue($targetId) }
+          }
+        }
+      }
+      if ($processed -ne $nodes.Count) {
+        $scopeDescription = "unscoped relationships"
+        if (-not $isUnscoped) { $scopeDescription = [string]$scopeId }
+        throw "Entity registry contains a cycle among $Label relationships in acyclic group '$group' for '$scopeDescription'."
+      }
+    }
   }
-  return "$TargetId|$canonicalType|$SourceId|$ScopeId"
 }
 
 function Get-KnowledgeEntityRegistry {
@@ -216,7 +303,10 @@ function Get-KnowledgeEntityRegistry {
       label=Get-RequiredEntityString $type "label" $context
       inverse_type=Get-RequiredEntityString $type "inverse_type" $context
       symmetric=Get-RequiredEntityBoolean $type "symmetric" $context
+      canonical_direction=Get-RequiredEntityBoolean $type "canonical_direction" $context
+      acyclic_group=Get-OptionalEntityString $type "acyclic_group" $context
     }
+    if ($null -ne $entityRelationshipTypes[$typeId].acyclic_group) { Assert-EntityStableId $entityRelationshipTypes[$typeId].acyclic_group "$context.acyclic_group" }
   }
   Assert-EntityRelationshipTypeInverses $entityRelationshipTypes "entity"
 
@@ -250,6 +340,7 @@ function Get-KnowledgeEntityRegistry {
     if (-not $entityRelationshipShapes.Add($shape)) { throw "Entity registry '$context' duplicates an entity relationship or its inverse." }
     $entityRelationships += [pscustomobject]@{ id=$id; source_entity_id=$sourceId; relationship_type=$typeId; target_entity_id=$targetId; status=$status; applicability_scope_id=$scopeId; basis_roles=@($basisRoles) }
   }
+  Assert-AcyclicEntityRelationships $entityRelationships $entityRelationshipTypes "entity" "source_entity_id" "target_entity_id"
 
   $rawIncarnations = Get-ProjectMapValue $registry "incarnations"
   if ($null -eq $rawIncarnations -or $rawIncarnations -isnot [System.Collections.IDictionary]) { throw "Entity registry 'incarnations' must be a mapping." }
@@ -331,7 +422,10 @@ function Get-KnowledgeEntityRegistry {
       label=Get-RequiredEntityString $type "label" $context
       inverse_type=Get-RequiredEntityString $type "inverse_type" $context
       symmetric=Get-RequiredEntityBoolean $type "symmetric" $context
+      canonical_direction=Get-RequiredEntityBoolean $type "canonical_direction" $context
+      acyclic_group=Get-OptionalEntityString $type "acyclic_group" $context
     }
+    if ($null -ne $relationshipTypes[$typeId].acyclic_group) { Assert-EntityStableId $relationshipTypes[$typeId].acyclic_group "$context.acyclic_group" }
   }
   Assert-EntityRelationshipTypeInverses $relationshipTypes "incarnation"
 
@@ -357,11 +451,11 @@ function Get-KnowledgeEntityRegistry {
     if ($allowedMembershipStatuses -notcontains $status) { throw "Entity registry '$context.status' value '$status' is not supplied by selected schema packs." }
     $scopeId = Get-OptionalEntityString $relationship "applicability_scope_id" $context
     if ($null -ne $scopeId -and -not $SourceRegistry.applicability_scopes.Contains($scopeId)) { throw "Entity registry '$context.applicability_scope_id' references unknown scope '$scopeId'." }
-    $type = $relationshipTypes[$typeId]
-    if ($type.symmetric) { $ends = @($sourceId, $targetId) | Sort-Object; $shape = "$($ends[0])|$typeId|$($ends[1])|$scopeId" } else { $shape = "$sourceId|$typeId|$targetId|$scopeId" }
-    if (-not $relationshipShapes.Add($shape)) { throw "Entity registry '$context' duplicates an incarnation relationship." }
+    $shape = Get-CanonicalEntityRelationshipShape $sourceId $typeId $targetId $scopeId $relationshipTypes
+    if (-not $relationshipShapes.Add($shape)) { throw "Entity registry '$context' duplicates an incarnation relationship or its inverse." }
     $relationships += [pscustomobject]@{ id=$id; source_incarnation_id=$sourceId; relationship_type=$typeId; target_incarnation_id=$targetId; status=$status; applicability_scope_id=$scopeId }
   }
+  Assert-AcyclicEntityRelationships $relationships $relationshipTypes "incarnation" "source_incarnation_id" "target_incarnation_id"
 
   return [pscustomobject]@{
     path=$registryPath
@@ -380,18 +474,32 @@ function Get-KnowledgeEntityRegistry {
 
 function Resolve-KnowledgeEntityId {
   param([object]$EntityRegistry, [string]$Value)
+  $matches = @(Resolve-KnowledgeEntityIds $EntityRegistry $Value)
+  if ($matches.Count -gt 1) { throw "Ambiguous entity name '$Value' matches: $($matches -join ', ')." }
+  return $(if ($matches.Count -eq 1) { $matches[0] } else { $null })
+}
+
+function Resolve-KnowledgeEntityIds {
+  param([object]$EntityRegistry, [string]$Value)
   $normalized = $Value.Trim().ToLowerInvariant()
-  foreach ($entityId in $EntityRegistry.entities.Keys) { if ($entityId.ToLowerInvariant() -eq $normalized) { return $entityId } }
-  if ($EntityRegistry.entity_aliases.Contains($normalized)) { return $EntityRegistry.entity_aliases[$normalized] }
-  return $null
+  foreach ($entityId in $EntityRegistry.entities.Keys) { if ($entityId.ToLowerInvariant() -eq $normalized) { return @($entityId) } }
+  if ($EntityRegistry.entity_aliases.Contains($normalized)) { return @($EntityRegistry.entity_aliases[$normalized]) }
+  return @()
 }
 
 function Resolve-KnowledgeIncarnationId {
   param([object]$EntityRegistry, [string]$Value)
+  $matches = @(Resolve-KnowledgeIncarnationIds $EntityRegistry $Value)
+  if ($matches.Count -gt 1) { throw "Ambiguous incarnation name '$Value' matches: $($matches -join ', ')." }
+  return $(if ($matches.Count -eq 1) { $matches[0] } else { $null })
+}
+
+function Resolve-KnowledgeIncarnationIds {
+  param([object]$EntityRegistry, [string]$Value)
   $normalized = $Value.Trim().ToLowerInvariant()
-  foreach ($incarnationId in $EntityRegistry.incarnations.Keys) { if ($incarnationId.ToLowerInvariant() -eq $normalized) { return $incarnationId } }
-  if ($EntityRegistry.incarnation_aliases.Contains($normalized)) { return $EntityRegistry.incarnation_aliases[$normalized] }
-  return $null
+  foreach ($incarnationId in $EntityRegistry.incarnations.Keys) { if ($incarnationId.ToLowerInvariant() -eq $normalized) { return @($incarnationId) } }
+  if ($EntityRegistry.incarnation_aliases.Contains($normalized)) { return @($EntityRegistry.incarnation_aliases[$normalized]) }
+  return @()
 }
 
 function Get-KnowledgeEntityIncarnations {

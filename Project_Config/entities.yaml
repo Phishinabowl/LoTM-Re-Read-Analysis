@@ -1,4 +1,4 @@
-schema_version: 2
+schema_version: 3
 
 # Conceptual subjects that may have one or more continuity-bound realizations.
 # LoTM does not need explicit incarnation records yet, so the project registry
@@ -13,82 +13,114 @@ entity_relationship_types:
     label: Successor To
     inverse_type: has-successor
     symmetric: false
+    canonical_direction: true
+    acyclic_group: succession
   has-successor:
     label: Has Successor
     inverse_type: successor-to
     symmetric: false
+    canonical_direction: false
+    acyclic_group: succession
   namesake-of:
     label: Namesake Of
     inverse_type: has-namesake
     symmetric: false
+    canonical_direction: true
   has-namesake:
     label: Has Namesake
     inverse_type: namesake-of
     symmetric: false
+    canonical_direction: false
   legacy-of:
     label: Legacy Of
     inverse_type: has-legacy
     symmetric: false
+    canonical_direction: true
   has-legacy:
     label: Has Legacy
     inverse_type: legacy-of
     symmetric: false
+    canonical_direction: false
   mantle-holder-of:
     label: Mantle Holder Of
     inverse_type: mantle-held-by
     symmetric: false
+    canonical_direction: true
   mantle-held-by:
     label: Mantle Held By
     inverse_type: mantle-holder-of
     symmetric: false
+    canonical_direction: false
   clone-of:
     label: Clone Of
     inverse_type: has-clone
     symmetric: false
+    canonical_direction: true
+    acyclic_group: clone-lineage
   has-clone:
     label: Has Clone
     inverse_type: clone-of
     symmetric: false
+    canonical_direction: false
+    acyclic_group: clone-lineage
   splintered-from:
     label: Splintered From
     inverse_type: has-splinter
     symmetric: false
+    canonical_direction: true
+    acyclic_group: splinter-lineage
   has-splinter:
     label: Has Splinter
     inverse_type: splintered-from
     symmetric: false
+    canonical_direction: false
+    acyclic_group: splinter-lineage
   derived-from:
     label: Derived From
     inverse_type: source-for
     symmetric: false
+    canonical_direction: true
+    acyclic_group: derivation
   source-for:
     label: Source For
     inverse_type: derived-from
     symmetric: false
+    canonical_direction: false
+    acyclic_group: derivation
   composite-of:
     label: Composite Of
     inverse_type: has-composite
     symmetric: false
+    canonical_direction: true
+    acyclic_group: derivation
   has-composite:
     label: Has Composite
     inverse_type: composite-of
     symmetric: false
+    canonical_direction: false
+    acyclic_group: derivation
   inspired-by:
     label: Inspired By
     inverse_type: inspired
     symmetric: false
+    canonical_direction: true
   inspired:
     label: Inspired
     inverse_type: inspired-by
     symmetric: false
+    canonical_direction: false
   instance-of:
     label: Instance Of
     inverse_type: has-instance
     symmetric: false
+    canonical_direction: true
+    acyclic_group: instance-hierarchy
   has-instance:
     label: Has Instance
     inverse_type: instance-of
     symmetric: false
+    canonical_direction: false
+    acyclic_group: instance-hierarchy
 
 entity_relationships: []
 
@@ -104,33 +136,47 @@ incarnation_relationship_types:
     label: Counterpart Of
     inverse_type: counterpart-of
     symmetric: true
+    canonical_direction: true
   adaptation-counterpart-of:
     label: Adaptation Counterpart Of
     inverse_type: adaptation-counterpart-of
     symmetric: true
+    canonical_direction: true
   branched-from:
     label: Branched From
     inverse_type: has-branch
     symmetric: false
+    canonical_direction: true
+    acyclic_group: incarnation-branch
   has-branch:
     label: Has Branch
     inverse_type: branched-from
     symmetric: false
+    canonical_direction: false
+    acyclic_group: incarnation-branch
   rebooted-from:
     label: Rebooted From
     inverse_type: has-reboot
     symmetric: false
+    canonical_direction: true
+    acyclic_group: incarnation-reboot
   has-reboot:
     label: Has Reboot
     inverse_type: rebooted-from
     symmetric: false
+    canonical_direction: false
+    acyclic_group: incarnation-reboot
   derived-from:
     label: Derived From
     inverse_type: source-for
     symmetric: false
+    canonical_direction: true
+    acyclic_group: incarnation-derivation
   source-for:
     label: Source For
     inverse_type: derived-from
     symmetric: false
+    canonical_direction: false
+    acyclic_group: incarnation-derivation
 
 incarnation_relationships: []

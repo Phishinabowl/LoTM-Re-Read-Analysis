@@ -12,7 +12,7 @@ Schema packs are composable contracts, not project instances. Pack files define 
 | `narrative-screen-audio` | Film, television, animation, web series, audio works, episodes, specials, cuts, tracks, embedded visuals, and planned live-performance production/event support. |
 | `narrative-adaptation` | Work lineage, parody and other transformative derivatives, segment mappings, adaptation deviations, and authority-aware comparison. |
 | `narrative-distribution` | Editions, cuts, builds, manifestation segment mappings, component lineage, release packages/phased runs/events, multi-target source observations, semantically work-scoped coverage ranges, mixed-media evidence locators, structured time, localized platform catalogs/offerings including video-sharing platforms, identifiers, and regional availability. |
-| `narrative-shared-universe` | Optional multiverse, reboot, incarnation, retcon, and crossover-event support. |
+| `narrative-shared-universe` | Optional multiverse, reboot, ambiguity-safe entity identity, semantically directed lineage, incarnation, retcon, and crossover-event support. |
 | `narrative-interactive` | Optional branching-story, route, ending, playthrough, campaign, and session support. |
 | `narrative-preservation` | Optional missing, partial, reconstructed, archival, and access-state support. |
 | `narrative-production` | Scope-backed production origin, authorization, rights basis, and commerciality, plus planned contributor-credit and detailed rights-grant support. |

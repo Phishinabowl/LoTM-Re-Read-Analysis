@@ -10,7 +10,7 @@ from source_config import SourceRegistry
 from taxonomy_config import TaxonomyConfig
 
 
-SUPPORTED_ENTITY_SCHEMA_VERSION = 2
+SUPPORTED_ENTITY_SCHEMA_VERSION = 3
 LIFECYCLES = {"active", "deferred"}
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
@@ -31,6 +31,8 @@ class EntityRelationshipType:
     label: str
     inverse_type: str
     symmetric: bool
+    canonical_direction: bool
+    acyclic_group: str | None
 
 
 @dataclass(frozen=True)
@@ -76,6 +78,8 @@ class IncarnationRelationshipType:
     label: str
     inverse_type: str
     symmetric: bool
+    canonical_direction: bool
+    acyclic_group: str | None
 
 
 @dataclass(frozen=True)
@@ -99,22 +103,38 @@ class EntityRegistry:
     incarnation_bindings: tuple[IncarnationBinding, ...]
     incarnation_relationship_types: dict[str, IncarnationRelationshipType]
     incarnation_relationships: tuple[IncarnationRelationship, ...]
-    entity_aliases: dict[str, str]
-    incarnation_aliases: dict[str, str]
+    entity_aliases: dict[str, tuple[str, ...]]
+    incarnation_aliases: dict[str, tuple[str, ...]]
 
-    def resolve_entity_id(self, value: str) -> str | None:
+    def resolve_entity_ids(self, value: str) -> tuple[str, ...]:
         normalized = value.strip().casefold()
         for entity_id in self.entities:
             if entity_id.casefold() == normalized:
-                return entity_id
-        return self.entity_aliases.get(normalized)
+                return (entity_id,)
+        return self.entity_aliases.get(normalized, ())
 
-    def resolve_incarnation_id(self, value: str) -> str | None:
+    def resolve_entity_id(self, value: str) -> str | None:
+        matches = self.resolve_entity_ids(value)
+        if len(matches) > 1:
+            raise ValueError(
+                f"Ambiguous entity name `{value}` matches: {', '.join(matches)}."
+            )
+        return matches[0] if matches else None
+
+    def resolve_incarnation_ids(self, value: str) -> tuple[str, ...]:
         normalized = value.strip().casefold()
         for incarnation_id in self.incarnations:
             if incarnation_id.casefold() == normalized:
-                return incarnation_id
-        return self.incarnation_aliases.get(normalized)
+                return (incarnation_id,)
+        return self.incarnation_aliases.get(normalized, ())
+
+    def resolve_incarnation_id(self, value: str) -> str | None:
+        matches = self.resolve_incarnation_ids(value)
+        if len(matches) > 1:
+            raise ValueError(
+                f"Ambiguous incarnation name `{value}` matches: {', '.join(matches)}."
+            )
+        return matches[0] if matches else None
 
     def incarnations_for_entity(self, entity_id: str) -> tuple[IncarnationConfig, ...]:
         if entity_id not in self.entities:
@@ -262,8 +282,10 @@ def validate_pack_value(
         )
 
 
-def build_aliases(records: dict[str, EntityConfig | IncarnationConfig], label: str) -> dict[str, str]:
-    aliases: dict[str, str] = {}
+def build_aliases(
+    records: dict[str, EntityConfig | IncarnationConfig], label: str
+) -> dict[str, tuple[str, ...]]:
+    aliases: dict[str, list[str]] = {}
     ids = {record_id.casefold(): record_id for record_id in records}
     for record in records.values():
         for alias in (record.label, *record.aliases):
@@ -272,13 +294,10 @@ def build_aliases(records: dict[str, EntityConfig | IncarnationConfig], label: s
                 raise ValueError(
                     f"Entity registry {label} alias `{alias}` conflicts with ID `{ids[normalized]}`."
                 )
-            owner = aliases.get(normalized)
-            if owner is not None and owner != record.id:
-                raise ValueError(
-                    f"Entity registry {label} alias `{alias}` is shared by `{owner}` and `{record.id}`."
-                )
-            aliases[normalized] = record.id
-    return aliases
+            owners = aliases.setdefault(normalized, [])
+            if record.id not in owners:
+                owners.append(record.id)
+    return {alias: tuple(owners) for alias, owners in aliases.items()}
 
 
 def validate_relationship_type_inverses(
@@ -309,6 +328,30 @@ def validate_relationship_type_inverses(
                 f"`{relationship_type.id}` has inconsistent symmetric and "
                 "inverse settings."
             )
+        if relationship_type.symmetric:
+            if not relationship_type.canonical_direction:
+                raise ValueError(
+                    f"Entity registry {label} symmetric relationship type "
+                    f"`{relationship_type.id}` must be its canonical direction."
+                )
+            if relationship_type.acyclic_group is not None:
+                raise ValueError(
+                    f"Entity registry {label} symmetric relationship type "
+                    f"`{relationship_type.id}` cannot declare an acyclic group."
+                )
+        else:
+            if relationship_type.canonical_direction == inverse.canonical_direction:
+                raise ValueError(
+                    f"Entity registry {label} relationship types "
+                    f"`{relationship_type.id}` and `{inverse.id}` must declare "
+                    "exactly one canonical direction."
+                )
+            if relationship_type.acyclic_group != inverse.acyclic_group:
+                raise ValueError(
+                    f"Entity registry {label} relationship types "
+                    f"`{relationship_type.id}` and `{inverse.id}` must use the "
+                    "same acyclic group."
+                )
 
 
 def canonical_relationship_shape(
@@ -316,15 +359,78 @@ def canonical_relationship_shape(
     type_id: str,
     target_id: str,
     scope_id: str | None,
-    relationship_types: dict[str, EntityRelationshipType],
+    relationship_types: dict[
+        str, EntityRelationshipType | IncarnationRelationshipType
+    ],
 ) -> tuple[str, str, str, str | None]:
     relationship_type = relationship_types[type_id]
     if relationship_type.symmetric:
         return min(source_id, target_id), type_id, max(source_id, target_id), scope_id
-    canonical_type = min(type_id, relationship_type.inverse_type)
-    if type_id == canonical_type:
-        return source_id, canonical_type, target_id, scope_id
-    return target_id, canonical_type, source_id, scope_id
+    if relationship_type.canonical_direction:
+        return source_id, type_id, target_id, scope_id
+    return target_id, relationship_type.inverse_type, source_id, scope_id
+
+
+def validate_acyclic_relationships(
+    relationships: list[EntityRelationship | IncarnationRelationship],
+    relationship_types: dict[str, EntityRelationshipType | IncarnationRelationshipType],
+    label: str,
+) -> None:
+    normalized: list[tuple[str, str, str, str | None]] = []
+    for relationship in relationships:
+        source_id = getattr(
+            relationship, "source_entity_id", None
+        ) or getattr(relationship, "source_incarnation_id")
+        target_id = getattr(
+            relationship, "target_entity_id", None
+        ) or getattr(relationship, "target_incarnation_id")
+        relationship_type = relationship_types[relationship.relationship_type]
+        if relationship_type.acyclic_group is None:
+            continue
+        canonical = canonical_relationship_shape(
+            source_id,
+            relationship.relationship_type,
+            target_id,
+            relationship.applicability_scope_id,
+            relationship_types,
+        )
+        normalized.append(
+            (relationship_type.acyclic_group, canonical[0], canonical[2], canonical[3])
+        )
+
+    for group in sorted({entry[0] for entry in normalized}):
+        group_edges = [entry for entry in normalized if entry[0] == group]
+        scope_ids = sorted({entry[3] for entry in group_edges if entry[3] is not None})
+        for scope_id in (None, *scope_ids):
+            edges = [
+                (source_id, target_id)
+                for _, source_id, target_id, edge_scope_id in group_edges
+                if edge_scope_id is None or edge_scope_id == scope_id
+            ]
+            adjacency: dict[str, set[str]] = {}
+            indegree: dict[str, int] = {}
+            for source_id, target_id in edges:
+                indegree.setdefault(source_id, 0)
+                indegree.setdefault(target_id, 0)
+                targets = adjacency.setdefault(source_id, set())
+                if target_id not in targets:
+                    targets.add(target_id)
+                    indegree[target_id] += 1
+            queue = [node_id for node_id, degree in indegree.items() if degree == 0]
+            processed = 0
+            while queue:
+                node_id = queue.pop()
+                processed += 1
+                for target_id in adjacency.get(node_id, ()):
+                    indegree[target_id] -= 1
+                    if indegree[target_id] == 0:
+                        queue.append(target_id)
+            if processed != len(indegree):
+                scope_label = scope_id or "unscoped relationships"
+                raise ValueError(
+                    f"Entity registry contains a cycle among {label} relationships "
+                    f"in acyclic group `{group}` for `{scope_label}`."
+                )
 
 
 def load_entity_registry(
@@ -406,11 +512,20 @@ def load_entity_registry(
             schema_packs, "narrative.entity-relationship-type", type_id, context
         )
         relationship_type = require_mapping(raw_type, context)
+        acyclic_group = optional_string(
+            relationship_type, "acyclic_group", context
+        )
+        if acyclic_group is not None:
+            validate_id(acyclic_group, f"{context}.acyclic_group")
         entity_relationship_types[type_id] = EntityRelationshipType(
             id=type_id,
             label=require_string(relationship_type, "label", context),
             inverse_type=require_string(relationship_type, "inverse_type", context),
             symmetric=require_bool(relationship_type, "symmetric", context),
+            canonical_direction=require_bool(
+                relationship_type, "canonical_direction", context
+            ),
+            acyclic_group=acyclic_group,
         )
     validate_relationship_type_inverses(
         entity_relationship_types, "entity"
@@ -497,6 +612,9 @@ def load_entity_registry(
                 basis_roles,
             )
         )
+    validate_acyclic_relationships(
+        entity_relationships, entity_relationship_types, "entity"
+    )
 
     incarnations: dict[str, IncarnationConfig] = {}
     raw_incarnations = require_mapping(registry.get("incarnations"), "incarnations")
@@ -606,11 +724,20 @@ def load_entity_registry(
             schema_packs, "narrative.incarnation-relationship-type", type_id, context
         )
         relationship_type = require_mapping(raw_type, context)
+        acyclic_group = optional_string(
+            relationship_type, "acyclic_group", context
+        )
+        if acyclic_group is not None:
+            validate_id(acyclic_group, f"{context}.acyclic_group")
         relationship_types[type_id] = IncarnationRelationshipType(
             id=type_id,
             label=require_string(relationship_type, "label", context),
             inverse_type=require_string(relationship_type, "inverse_type", context),
             symmetric=require_bool(relationship_type, "symmetric", context),
+            canonical_direction=require_bool(
+                relationship_type, "canonical_direction", context
+            ),
+            acyclic_group=acyclic_group,
         )
     validate_relationship_type_inverses(relationship_types, "incarnation")
 
@@ -650,21 +777,26 @@ def load_entity_registry(
             raise ValueError(
                 f"Entity registry `{context}.applicability_scope_id` references unknown scope `{scope_id}`."
             )
-        relationship_type = relationship_types[type_id]
-        shape = (
-            min(source_id, target_id) if relationship_type.symmetric else source_id,
+        shape = canonical_relationship_shape(
+            source_id,
             type_id,
-            max(source_id, target_id) if relationship_type.symmetric else target_id,
+            target_id,
             scope_id,
+            relationship_types,
         )
         if shape in seen_relationship_shapes:
-            raise ValueError(f"Entity registry `{context}` duplicates an incarnation relationship.")
+            raise ValueError(
+                f"Entity registry `{context}` duplicates an incarnation relationship or its inverse."
+            )
         seen_relationship_shapes.add(shape)
         relationships.append(
             IncarnationRelationship(
                 relationship_id, source_id, type_id, target_id, status, scope_id
             )
         )
+    validate_acyclic_relationships(
+        relationships, relationship_types, "incarnation"
+    )
 
     return EntityRegistry(
         path=project.entities_registry,

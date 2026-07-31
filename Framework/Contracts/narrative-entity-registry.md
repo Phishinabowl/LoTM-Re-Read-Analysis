@@ -19,21 +19,25 @@ Those concerns remain owned by page data, taxonomy, source/manifestation records
 
 ## Registry Shape
 
-Schema version 2 contains:
+Schema version 3 contains:
 
 - `entities`: stable IDs with lifecycle, one `primary_category_id`, one or more taxonomy `category_ids`, label, and aliases;
-- `entity_relationship_types`: project-instantiated, pack-constrained relationship definitions with reciprocal inverse and symmetry declarations;
+- `entity_relationship_types`: project-instantiated, pack-constrained relationship definitions with reciprocal inverse, symmetry, canonical-direction, and optional acyclic-group declarations;
 - `entity_relationships`: stable typed edges between conceptual entities, optionally qualified by an applicability scope and semantic `basis_roles` for derivation, inspiration, or composite construction;
 - `incarnations`: stable IDs with an owning entity, label/aliases, one primary continuity, and one or more status-bearing continuity memberships;
 - `incarnation_bindings`: stable records connecting an incarnation to an existing source-registry `applicability_scope_id` with a pack-owned binding type and membership status;
-- `incarnation_relationship_types`: project-instantiated, pack-constrained relationship definitions with reciprocal inverse and symmetry declarations;
+- `incarnation_relationship_types`: project-instantiated, pack-constrained relationship definitions with reciprocal inverse, symmetry, canonical-direction, and optional acyclic-group declarations;
 - `incarnation_relationships`: stable typed edges between incarnation records, optionally qualified by an applicability scope.
 
-All IDs use lowercase kebab case. Every entity category must exist in the taxonomy registry, and the primary category must be one of that entity's category memberships. Continuities and applicability scopes must exist in the source registry. Membership and relationship statuses come from `source.membership-status`; binding, relationship, and basis-role values come from the selected shared-universe pack.
+All IDs and acyclic-group IDs use lowercase kebab case. Every entity category must exist in the taxonomy registry, and the primary category must be one of that entity's category memberships. Continuities and applicability scopes must exist in the source registry. Membership and relationship statuses come from `source.membership-status`; binding, relationship, and basis-role values come from the selected shared-universe pack.
+
+Labels and aliases are search names, not unique identifiers. Multiple distinct entities or incarnations may legitimately share a name. Exact stable-ID lookup always wins. Plural resolution returns every matching stable ID; singular resolution returns a unique match, returns no value when there is no match, and raises an explicit ambiguity error when several records share the name. An alias still cannot impersonate another record's stable ID.
 
 ## Entity Relationship Semantics
 
-Use entity relationships for same-continuity or conceptual distinctions such as succession, namesakes, legacy, mantle holding, cloning, faction splintering, derivation, composites, inspiration, or class/instance identity. Store one direction of an inverse pair; `A successor-to B` and `B has-successor A` are the same fact and cannot coexist as duplicate records.
+Use entity relationships for same-continuity or conceptual distinctions such as succession, namesakes, legacy, mantle holding, cloning, faction splintering, derivation, composites, inspiration, or class/instance identity. Store one direction of an inverse pair; `A successor-to B` and `B has-successor A` are the same fact and cannot coexist as duplicate records. Every asymmetric inverse pair declares exactly one `canonical_direction: true`; symmetric types are self-inverse and canonical. Canonicalization follows that semantic declaration rather than relationship-ID sorting.
+
+An inverse pair may share an `acyclic_group` when cycles are semantically invalid. The loaders normalize every edge into its canonical direction and reject cycles within each group. Unscoped edges act as global defaults and participate in every scoped cycle check; edges from two different explicit scopes are not combined with one another. Succession, cloning, splintering, derivation/composition, class-instance hierarchy, incarnation branching, reboot lineage, and incarnation derivation are acyclic. Inspiration and other relationships that can legitimately be mutual remain outside acyclic groups.
 
 `basis_roles` may appear only on `derived-from`, `composite-of`, or `inspired-by` records. They identify which semantic dimensions came from a basis entity, such as identity, name, appearance, personality, history, abilities, relationships, or narrative function. They do not assign unsupported numeric contribution weights.
 
@@ -55,4 +59,4 @@ Canonical pages do not yet store entity or incarnation IDs. That migration must 
 
 ## Loader Contract
 
-`Tools/entity_config.py` and `Tools/Entity-Config.ps1` must remain behaviorally equivalent. They validate schema version, capability activation, stable IDs, category memberships and primary-category selection, entity and continuity references, applicability-scope bindings, controlled values and basis-role placement, alias uniqueness, inverse relationship definitions, endpoint existence, self-relationships, and duplicate or inverse-duplicate bindings/relationships.
+`Tools/entity_config.py` and `Tools/Entity-Config.ps1` must remain behaviorally equivalent. They validate schema version, capability activation, stable IDs, category memberships and primary-category selection, entity and continuity references, applicability-scope bindings, controlled values and basis-role placement, alias-to-ID conflicts, inverse/canonical relationship definitions, acyclic groups, endpoint existence, self-relationships, and duplicate or inverse-duplicate bindings/relationships. They expose plural ambiguity-preserving name resolution and strict singular resolution for both entities and incarnations.
