@@ -1,0 +1,31 @@
+schema_version: 1
+coordinate_systems:
+  years:
+    label: Years
+    kind: ordinal
+    value_domain: integer
+    direction: ascending
+    zero_policy: present
+    aliases: []
+eras: {}
+positions:
+  year-one:
+    coordinate_system_id: years
+    value: 1
+    era_id: null
+    label: Year One
+    certainty: exact
+  year-two:
+    coordinate_system_id: years
+    value: 2
+    era_id: null
+    label: Year Two
+    certainty: exact
+relations: []
+mappings:
+  - id: invalid-map
+    source_position_id: year-one
+    mapping_kind: equivalent
+    target_position_id: year-two
+    certainty: exact
+narrative_contexts: []

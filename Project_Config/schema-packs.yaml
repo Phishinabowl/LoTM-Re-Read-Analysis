@@ -61,7 +61,8 @@ capability_activation:
     - stable-identity-reconciliation
     - authority-profiles
     - typed-relationships
-    - temporal-positions
+    - temporal-windows
+    - chronology-coordinate-systems
     - visibility-policy
     - graph-projection
     - schema-validation
@@ -81,7 +82,7 @@ capability_activation:
     - nested-content-groups
     - temporal-localized-titles
     - content-group-member-roles
-    - narrative-time
+    - narrative-chronology
     - serialization
     - publication-packaging
     - editions

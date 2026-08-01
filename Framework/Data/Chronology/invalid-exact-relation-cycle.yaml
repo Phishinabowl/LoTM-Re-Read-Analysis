@@ -1,0 +1,61 @@
+schema_version: 1
+coordinate_systems:
+  axis-a:
+    label: Axis A
+    kind: ordinal
+    value_domain: integer
+    direction: ascending
+    zero_policy: present
+    aliases: []
+  axis-b:
+    label: Axis B
+    kind: ordinal
+    value_domain: integer
+    direction: ascending
+    zero_policy: present
+    aliases: []
+  axis-c:
+    label: Axis C
+    kind: ordinal
+    value_domain: integer
+    direction: ascending
+    zero_policy: present
+    aliases: []
+eras: {}
+positions:
+  point-a:
+    coordinate_system_id: axis-a
+    value: 1
+    era_id: null
+    label: Point A
+    certainty: exact
+  point-b:
+    coordinate_system_id: axis-b
+    value: 1
+    era_id: null
+    label: Point B
+    certainty: exact
+  point-c:
+    coordinate_system_id: axis-c
+    value: 1
+    era_id: null
+    label: Point C
+    certainty: exact
+relations:
+  - id: a-before-b
+    source_position_id: point-a
+    relation_type: before
+    target_position_id: point-b
+    certainty: exact
+  - id: b-before-c
+    source_position_id: point-b
+    relation_type: before
+    target_position_id: point-c
+    certainty: exact
+  - id: c-before-a
+    source_position_id: point-c
+    relation_type: before
+    target_position_id: point-a
+    certainty: exact
+mappings: []
+narrative_contexts: []

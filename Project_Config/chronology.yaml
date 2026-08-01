@@ -1,0 +1,56 @@
+schema_version: 1
+
+coordinate_systems:
+  lotm-epochs:
+    label: Lord of Mysteries Epoch Chronology
+    kind: era-ordinal
+    value_domain: positive-integer
+    direction: ascending
+    zero_policy: not-applicable
+    aliases:
+      - lotm-epoch
+
+eras:
+  lotm-first-epoch:
+    coordinate_system_id: lotm-epochs
+    label: First Epoch
+    ordinal: 1
+    aliases: []
+  lotm-second-epoch:
+    coordinate_system_id: lotm-epochs
+    label: Second Epoch
+    ordinal: 2
+    aliases: []
+  lotm-third-epoch:
+    coordinate_system_id: lotm-epochs
+    label: Third Epoch
+    ordinal: 3
+    aliases: []
+  lotm-fourth-epoch:
+    coordinate_system_id: lotm-epochs
+    label: Fourth Epoch
+    ordinal: 4
+    aliases: []
+  lotm-fifth-epoch:
+    coordinate_system_id: lotm-epochs
+    label: Fifth Epoch
+    ordinal: 5
+    aliases:
+      - present-epoch
+
+positions: {}
+spans: []
+relations: []
+mappings: []
+
+narrative_contexts:
+  - id: lotm-novel-main-story-chronology
+    label: Lord of Mysteries Novel Main Story Chronology
+    coordinate_system_id: lotm-epochs
+    role: story
+    continuity_ids:
+      - lotm-novel-main
+    work_ids:
+      - lotm-1
+      - lotm-2
+    branch_id: main

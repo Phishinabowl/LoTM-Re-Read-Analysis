@@ -136,6 +136,7 @@ function Assert-KnowledgeMapKeys {
 function Test-KnowledgeRfc3339Timestamp {
   param([string]$Value)
   if($Value -cnotmatch $script:KnowledgeRfc3339Pattern){return $false}
+  if($Matches.sign -ceq '-' -and $Matches.hour -ceq '00' -and $Matches.minute -ceq '00'){return $false}
   $timeParts=$Matches.time.Split(':');if([int]$timeParts[0] -gt 23 -or [int]$timeParts[1] -gt 59 -or [int]$timeParts[2] -gt 59){return $false}
   if($Matches.hour){$hour=[int]$Matches.hour;$minute=[int]$Matches.minute;if($minute -gt 59 -or $hour -gt 14 -or ($hour -eq 14 -and $minute -ne 0)){return $false}}
   $parsed=[DateTimeOffset]::MinValue

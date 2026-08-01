@@ -54,3 +54,12 @@ windows:
     kind: interval
     start: {kind: known, value: "2025-01-01T00:00:00Z", precision: datetime, certainty: exact, inclusive: false}
     end: {kind: known, value: "2025-01-01T00:00:00Z", precision: datetime, certainty: exact, inclusive: false}
+  unknown-zero-offset:
+    kind: interval
+    start: {kind: known, value: "2025-01-01T00:00:00-00:00", precision: datetime, certainty: exact, inclusive: true}
+  after-maximum-year:
+    kind: interval
+    start: {kind: known, value: "9999", precision: year, certainty: exact, inclusive: false}
+  before-minimum-year:
+    kind: interval
+    end: {kind: known, value: "0001", precision: year, certainty: exact, inclusive: false}

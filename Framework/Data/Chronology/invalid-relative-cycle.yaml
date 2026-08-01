@@ -1,0 +1,35 @@
+schema_version: 1
+coordinate_systems:
+  relative-a:
+    label: Relative A
+    kind: relative
+    value_domain: integer
+    direction: ascending
+    zero_policy: present
+    aliases: []
+    origin_position_id: position-b
+  relative-b:
+    label: Relative B
+    kind: relative
+    value_domain: integer
+    direction: ascending
+    zero_policy: present
+    aliases: []
+    origin_position_id: position-a
+eras: {}
+positions:
+  position-a:
+    coordinate_system_id: relative-a
+    value: 1
+    era_id: null
+    label: Position A
+    certainty: exact
+  position-b:
+    coordinate_system_id: relative-b
+    value: 1
+    era_id: null
+    label: Position B
+    certainty: exact
+relations: []
+mappings: []
+narrative_contexts: []

@@ -6,7 +6,7 @@ Temporal windows and precision-aware temporal queries are domain-neutral framewo
 
 ## Canonical Time Values
 
-Calendar values use the proleptic Gregorian calendar in the inclusive year range `0001` through `9999`. Datetimes are uppercase-`T`, timezone-bearing RFC 3339 strings with no more than six fractional digits. Their UTC-normalized value must remain inside the supported calendar range. Six digits establish one portable microsecond ceiling across Python and PowerShell; runtimes must not silently retain, round, or truncate finer input.
+Calendar values use the proleptic Gregorian calendar in the inclusive year range `0001` through `9999`. Datetimes are uppercase-`T`, timezone-bearing RFC 3339 strings with no more than six fractional digits. The unknown-local-offset form `-00:00` is not an absolute comparable timestamp and is rejected by this profile rather than normalized to UTC. A timestamp's UTC-normalized value must remain inside the supported calendar range. Six digits establish one portable microsecond ceiling across Python and PowerShell; runtimes must not silently retain, round, or truncate finer input.
 
 `year`, `month`, and `date` values represent their complete calendar unit. Internal upper bounds stop at the final portable microsecond of that unit, including the maximum year, month, and date.
 
@@ -23,7 +23,7 @@ A temporal window is either `interval` or `unknown`.
 - Known-bound `certainty` is `exact`, `announced`, `approximate`, or `uncertain`. Certainty belongs to each bound so one interval may preserve different evidence quality at its start and end.
 - `inclusive` controls whether the represented precision unit is included. An inclusive coarse start begins at the start of its unit; an exclusive coarse start begins after the whole unit. An inclusive coarse end includes the whole unit; an exclusive coarse end stops before it.
 
-Reversed and empty intervals are invalid when known bounds prove them invalid. Closed mappings reject unknown fields. A missing window is unbounded and is not equivalent to an explicit unknown window or unknown bound.
+Reversed and empty intervals are invalid when known bounds prove them invalid. This includes an exclusive lower bound at the maximum representable instant and an exclusive upper bound at the minimum representable instant, even when the opposite side is open. Closed mappings reject unknown fields. A missing window is unbounded and is not equivalent to an explicit unknown window or unknown bound.
 
 ## Query Semantics
 

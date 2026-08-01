@@ -284,6 +284,8 @@ def is_rfc3339_timestamp(value: str) -> bool:
     match = RFC3339_PROFILE.fullmatch(value)
     if match is None:
         return False
+    if match.group("sign") == "-" and match.group("hour") == "00" and match.group("minute") == "00":
+        return False
     time_parts = tuple(int(part) for part in match.group("time").split(":"))
     if time_parts[0] > 23 or time_parts[1] > 59 or time_parts[2] > 59:
         return False

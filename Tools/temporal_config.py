@@ -9,6 +9,10 @@ from schema_pack_config import SchemaPackRegistry
 from strict_yaml import assert_allowed_keys, is_rfc3339_timestamp
 
 
+MIN_CALENDAR_INSTANT = datetime(1, 1, 1)
+MAX_CALENDAR_INSTANT = datetime(9999, 12, 31, 23, 59, 59, 999999)
+
+
 @dataclass(frozen=True)
 class TemporalBound:
     kind: str
@@ -158,6 +162,10 @@ def parse_temporal_window(
         raise ValueError(f"{window_context} interval windows require at least one bound.")
     result = TemporalWindow(kind, start, end)
     lower, upper = temporal_window_limits(result)
+    if lower is not None and lower[0] == MAX_CALENDAR_INSTANT and not lower[1]:
+        raise ValueError(f"{window_context} has an empty interval beyond the maximum calendar instant.")
+    if upper is not None and upper[0] == MIN_CALENDAR_INSTANT and not upper[1]:
+        raise ValueError(f"{window_context} has an empty interval before the minimum calendar instant.")
     if lower is not None and upper is not None:
         if lower[0] > upper[0] or (
             lower[0] == upper[0] and not (lower[1] and upper[1])

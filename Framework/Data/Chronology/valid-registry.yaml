@@ -1,0 +1,133 @@
+schema_version: 1
+coordinate_systems:
+  historical-years:
+    label: Historical Era Years
+    kind: era-ordinal
+    value_domain: positive-integer
+    direction: descending
+    zero_policy: absent
+    aliases: []
+  civil-year:
+    label: Civil Year
+    kind: calendar
+    value_domain: integer
+    direction: ascending
+    zero_policy: present
+    aliases: []
+  mission-day:
+    label: Mission Day
+    kind: relative
+    value_domain: integer
+    direction: ascending
+    zero_policy: present
+    aliases: []
+    origin_position_id: civil-anchor
+  countdown:
+    label: Descending Countdown
+    kind: ordinal
+    value_domain: nonnegative-integer
+    direction: descending
+    zero_policy: present
+    aliases: []
+  alternate-year:
+    label: Alternate Year
+    kind: calendar
+    value_domain: integer
+    direction: ascending
+    zero_policy: present
+    aliases: []
+eras:
+  ancient-era:
+    coordinate_system_id: historical-years
+    label: Ancient Era
+    ordinal: 1
+    aliases: []
+    direction: descending
+  modern-era:
+    coordinate_system_id: historical-years
+    label: Modern Era
+    ordinal: 2
+    aliases: []
+    direction: ascending
+positions:
+  ancient-year-five:
+    coordinate_system_id: historical-years
+    value: 5
+    era_id: ancient-era
+    label: Ancient Era Year 5
+    certainty: exact
+  ancient-year-one:
+    coordinate_system_id: historical-years
+    value: 1
+    era_id: ancient-era
+    label: Ancient Era Year 1
+    certainty: exact
+  modern-year-one:
+    coordinate_system_id: historical-years
+    value: 1
+    era_id: modern-era
+    label: Modern Era Year 1
+    certainty: exact
+  civil-anchor:
+    coordinate_system_id: civil-year
+    value: 2025
+    era_id: null
+    label: Civil Year 2025
+    certainty: exact
+  civil-before-zero:
+    coordinate_system_id: civil-year
+    value: -42
+    era_id: null
+    label: Civil Year Minus 42
+    certainty: exact
+  civil-far-future:
+    coordinate_system_id: civil-year
+    value: 12000
+    era_id: null
+    label: Civil Year 12000
+    certainty: exact
+  mission-zero:
+    coordinate_system_id: mission-day
+    value: 0
+    era_id: null
+    label: Mission Day Zero
+    certainty: exact
+  countdown-ten:
+    coordinate_system_id: countdown
+    value: 10
+    era_id: null
+    label: Countdown 10
+    certainty: exact
+  countdown-one:
+    coordinate_system_id: countdown
+    value: 1
+    era_id: null
+    label: Countdown 1
+    certainty: exact
+  alternate-anchor:
+    coordinate_system_id: alternate-year
+    value: 77
+    era_id: null
+    label: Alternate Year 77
+    certainty: exact
+spans:
+  - id: historical-span
+    coordinate_system_id: historical-years
+    start_position_id: ancient-year-five
+    end_position_id: modern-year-one
+    start_inclusive: true
+    end_inclusive: true
+    certainty: exact
+relations:
+  - id: ancient-before-modern
+    source_position_id: ancient-year-five
+    relation_type: before
+    target_position_id: modern-year-one
+    certainty: exact
+mappings:
+  - id: alternate-civil-equivalence
+    source_position_id: alternate-anchor
+    mapping_kind: equivalent
+    target_position_id: civil-anchor
+    certainty: exact
+narrative_contexts: []

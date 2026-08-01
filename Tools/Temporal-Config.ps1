@@ -66,6 +66,10 @@ function ConvertTo-KnowledgeTemporalWindow {
   if($null -eq $start -and $null -eq $end){throw "$windowContext interval windows require at least one bound."}
   $result=[pscustomobject]@{kind=$kind;start=$start;end=$end}
   $limits=Get-KnowledgeTemporalWindowLimits $result
+  $minimum=[datetime]::new(1,1,1,0,0,0,[DateTimeKind]::Unspecified)
+  $maximum=[datetime]::new(9999,12,31,23,59,59).AddTicks(9999990)
+  if($null -ne $limits.lower -and $limits.lower.instant -eq $maximum -and -not $limits.lower.inclusive){throw "$windowContext has an empty interval beyond the maximum calendar instant."}
+  if($null -ne $limits.upper -and $limits.upper.instant -eq $minimum -and -not $limits.upper.inclusive){throw "$windowContext has an empty interval before the minimum calendar instant."}
   if($null -ne $limits.lower -and $null -ne $limits.upper){
     if($limits.lower.instant -gt $limits.upper.instant -or ($limits.lower.instant -eq $limits.upper.instant -and -not ($limits.lower.inclusive -and $limits.upper.inclusive))){throw "$windowContext has an empty or reversed interval."}
   }

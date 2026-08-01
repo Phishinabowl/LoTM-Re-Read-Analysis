@@ -11,6 +11,25 @@ From V30 onward, update this file as part of each version:
 3. Add the subsequent testing section before beginning the next version.
 4. Record defects separately from missing capabilities.
 5. Link the implementing commit after the version is confirmed.
+6. Update the era index when a version begins a genuinely new architectural phase.
+7. Record superseded assumptions, architectural extractions, and promotions when they materially apply; do not force a marker into every version.
+
+## Evolution Eras
+
+- **Foundation:** Manifest, architecture, taxonomy, and resource separation
+- **V1-V6:** Works, media, manifestations, releases, and distribution
+- **V7-V15:** Evidence, authority, production context, scope, and applicability
+- **V16-V23:** Entity identity and cross-registry provenance/reconciliation
+- **V24-V27:** Deterministic configuration ingestion
+- **V28-V30:** Civil time and general chronology
+
+### Marker Conventions
+
+- **Superseded assumption:** Names a prior modeling belief that the version proved incomplete or incorrect.
+- **Architectural extraction:** Marks behavior moved out of one consumer or registry into a reusable service or domain component.
+- **Architectural promotion:** Marks behavior recognized as domain-neutral and moved into the core framework.
+
+Markers are selective architectural annotations, not mandatory fields. A version may use none, one, or several according to the ownership change it actually made.
 
 ## Foundation Before V1
 
@@ -30,6 +49,8 @@ The immediate architecture commits were `39ec486` (manifest-based project config
 ## V1 - Series-Aware Source Registry
 
 **Implemented by:** `0b4c5ff` (`Add series-aware source registry`)
+
+**Superseded assumption:** Volume and chapter numbers identify a position without a work ID.
 
 V1 created the first executable source registry in `Project_Config/sources.yaml`. It separated canonical works, media/position profiles, evidence sources, aliases, evidence modes, comparison groups, priorities, resource bindings, and verified volume catalogs.
 
@@ -78,6 +99,10 @@ The inter-version architecture work was implemented by `21f5da0` (`Separate reus
 
 **Implemented by:** `b6482fb` (`Expand narrative framework model`)
 
+**Superseded assumption:** A compound medium label can safely carry modality, cultural form, release form, and container semantics.
+
+**Architectural extraction:** Narrative-media semantics moved out of LoTM-specific and monolithic source assumptions into composable domain packs built above the core framework.
+
 V3 expanded the framework into composable narrative packs: core, narrative media, publishing, screen/audio, adaptation, shared universe, production, preservation, and interactive media. It separated:
 
 - medium profiles used for reader positions and citations;
@@ -102,6 +127,8 @@ The model represented creative identity well, but testing exposed that "the work
 ## V4 - Manifestations and Distribution
 
 **Implemented by:** `e9129f2` (`Add narrative distribution source model`)
+
+**Superseded assumption:** A creative work and its editions, releases, and distribution are one object.
 
 V4 introduced the narrative-distribution pack and separated creative works from manifestations, release components, release events, catalog placements, and platform offerings. Manifestation relationships modeled edition, translation, cut, remaster, recut, and build lineage.
 
@@ -146,6 +173,8 @@ The tests also showed that a source may cover more than one work and therefore c
 
 **Implemented by:** `212a190` (`Expand source registry for complex releases`)
 
+**Superseded assumption:** One evidence source belongs to one work.
+
 V6 introduced segment groups, manifestation segment mappings, release runs, and multi-work evidence-source scope. Manifestation mappings could now preserve splits, combinations, omissions, reorderings, and other structural differences between editions or cuts. Release runs represented phased publication or distribution over a declared segment order.
 
 This version made room for cours, batches, split seasons, weekly runs with hiatuses, compilation structures, and sources that legitimately inspect multiple creative works.
@@ -164,6 +193,8 @@ The next version needed:
 ## V7 - Content Groups and Assertion Provenance
 
 **Implemented by:** `55bca1e` (`Generalize narrative source registry contracts`)
+
+**Superseded assumption:** Declaring source coverage is enough to support an individual claim.
 
 V7 replaced narrow segment grouping with generic content groups that can contain works, segments, or nested groups. Members received stable identities and controlled participation roles, while role and order remained independent.
 
@@ -203,6 +234,8 @@ The next version needed:
 ## V9 - Claim-Aware Authority
 
 **Implemented by:** `fd7c907` (`Upgrade narrative source registry to v9`)
+
+**Superseded assumption:** One source-priority ranking applies to every kind of claim.
 
 V9 added claim-authority rules to authority profiles. Different evidence could lead for canonical content, dialogue, visual design, localization, and release metadata without forcing one source to dominate every comparison.
 
@@ -284,6 +317,8 @@ The tests found that the next version needed:
 
 **Implemented by:** `3b7df21` (`Model parody and production rights independently`)
 
+**Superseded assumption:** Derivative lineage implies authorization, officiality, commerciality, or legal status.
+
 V13 added parody, retelling, novelization, continuation, and related lineage vocabulary while keeping detailed material correspondence in adaptation mappings. It introduced `work_production_contexts` and expanded the production pack's contributor, authorization, rights-basis, commerciality, and officiality vocabulary.
 
 The governing rule became explicit: being a parody does not prove whether a work is licensed, unlicensed, commercial, fan-made, official, tolerated, infringing, or legally protected. Those are separate claims requiring their own provenance.
@@ -327,6 +362,10 @@ The next version needed a shared applicability decision service that could:
 
 **Implemented by:** `60f707c` (`Add semantic applicability resolution`)
 
+**Superseded assumption:** Storing applicability scopes is sufficient without shared resolution behavior.
+
+**Architectural extraction:** Applicability resolution moved from caller-owned interpretation into paired reusable decision services with explainable outcomes.
+
 V15 added paired Python and PowerShell applicability-decision APIs. The service discovers exact and structurally containing scopes across works, segments, content groups, manifestations, packages, release components, and provenance claims.
 
 Territory matching uses registered ancestry. Bounded time requires a query time; unknown timing produces an indeterminate result. Explicit precedence selects winners, and equal winning precedence remains ambiguous rather than being broken by an undocumented specificity heuristic.
@@ -349,6 +388,8 @@ It found that works and claims were stable, but subjects themselves lacked a ded
 ## V16 - Entity Incarnation Registry
 
 **Implemented by:** `c84a464` (`Add entity incarnation registry contract`)
+
+**Superseded assumption:** One conceptual entity record is sufficient across every continuity.
 
 V16 introduced `Project_Config/entities.yaml`, paired entity loaders, and the narrative entity registry contract. It separated a conceptual entity from continuity-specific incarnations and made category membership explicit.
 
@@ -411,6 +452,10 @@ The next version needed:
 
 **Implemented by:** `05d756b` (`Add deterministic Unicode lookup keys`)
 
+**Superseded assumption:** Runtime-default case normalization is deterministic enough for identity lookup.
+
+**Architectural promotion:** Semantic lookup normalization became a domain-neutral, pinned, cross-runtime framework service.
+
 V19 added the lookup-key normalization contract, a pinned Unicode 16.0.0 data artifact, paired lookup-key tools, and shared normalization for aliases and explicitly case-insensitive semantic values.
 
 Canonical stable IDs and schema keys remained exact machine identifiers. The lookup service performs compatibility normalization and configured case mapping, then consumers compare the resulting key ordinally. This prevents host locale or runtime case-fold behavior from changing identity resolution.
@@ -424,6 +469,10 @@ The broader test then found an architectural duplication: provenance assertions 
 ## V20 - Cross-Registry Provenance
 
 **Implemented by:** `ab60efb` (`Extract cross-registry provenance service`)
+
+**Superseded assumption:** Provenance belongs inside the narrative source registry.
+
+**Architectural promotion:** Provenance became a domain-neutral service over typed targets supplied by multiple registries.
 
 V20 introduced `Project_Config/provenance.yaml`, the provenance registry contract, and paired provenance loaders. Claims and claim supersession moved out of the narrative source registry and began resolving subjects through typed target providers supplied by multiple registries.
 
@@ -465,6 +514,8 @@ The tests found that the next version needed:
 ## V22 - Stable Identity Reconciliation
 
 **Implemented by:** `2430d57` (`Add stable identity reconciliation framework`)
+
+**Superseded assumption:** Aliases are sufficient to preserve every historical stable-ID change.
 
 V22 introduced `Project_Config/reconciliation.yaml`, a reconciliation contract, paired loaders, and target-provider integration across registries. It modeled stable-ID changes as explicit operations rather than destructive renames.
 
@@ -508,6 +559,10 @@ The next version needed a shared strict-ingestion boundary with:
 ## V24 - Strict Configuration Ingestion
 
 **Implemented by:** `658c893` (`Harden configuration ingestion and reconciliation`)
+
+**Superseded assumption:** Successful YAML parsing means every runtime received equivalent executable configuration.
+
+**Architectural promotion:** Strict configuration ingestion became a shared framework boundary rather than registry-local parser behavior.
 
 V24 introduced the strict configuration ingestion contract and paired `strict_yaml` helpers. All registry loaders began sharing a common ingestion boundary instead of depending directly on permissive runtime defaults.
 
@@ -578,6 +633,10 @@ The next version needed a domain-neutral temporal kernel that could represent:
 
 **Implemented by:** `0a9b708` (`Add shared temporal modeling kernel`)
 
+**Superseded assumption:** Each registry can safely define its own temporal semantics.
+
+**Architectural promotion:** Civil-time window semantics moved from source-specific handling into the core framework.
+
 V28 introduced the temporal-model contract, paired temporal tools, and permanent valid/invalid window fixtures. Temporal normalization moved out of source-specific code and became a core framework service used by source and provenance registries.
 
 The kernel supported exact timestamps, reduced precision, intervals, explicit unknown values, open bounds, inclusive endpoints, comparison, and overlap. Narrative distribution retained narrative-specific vocabulary while consuming the shared temporal mechanics.
@@ -598,6 +657,8 @@ The next version needed:
 ## V29 - Temporal Query and Boundary Semantics
 
 **Implemented by:** `f9a9354` (`Harden temporal query and boundary semantics`)
+
+**Superseded assumption:** A reduced-precision date represents one instant.
 
 V29 added reusable query-window normalization and certainty-aware temporal evaluation. Reduced-precision values can represent complete civil units rather than accidental single instants, and query results distinguish definite matches, definite exclusions, and indeterminate outcomes.
 
@@ -623,6 +684,20 @@ V30 should therefore begin by closing the two V29 defects and making capability 
 
 Causal relationships must remain separate from strict chronological order so time loops do not force invalid ordering cycles. Coordinate systems must not be compared without an explicit mapping, and the framework must support multiple axes and genuinely incomparable positions rather than pretending every timeline forms one total order.
 
-## Next Planned Version
+## V30 - Layered Chronology Foundations
 
-V30 is reserved for chronology foundations after the V29 edge corrections. Its implementation and its exact final scope should be recorded here only after the contract, paired runtime behavior, fixtures, and project-layer split are complete.
+**Superseded assumption:** Civil timestamps can represent every meaningful chronology.
+
+**Architectural promotion:** General chronology coordinates and comparison became core framework services, while story-time roles remained a narrative-domain extension and LoTM Epochs remained project-instance data.
+
+V30 first closed the two defects found after V29. Strict RFC 3339 ingestion now rejects `-00:00` rather than silently treating an unknown local offset as UTC, and temporal windows reject exclusive bounds that lie beyond the representable calendar at exact year 0001 or 9999.
+
+It then separated civil effective time from general chronology. The core pack now owns chronology coordinate kinds, integer value domains, ascending and descending directions, zero policies, relation kinds, and mapping kinds. The narrative-media pack adds story-time roles without placing fictional Epoch names or LoTM works in reusable vocabulary. The LoTM project registry instantiates its First through Fifth Epochs and binds that axis to the main novel continuity, but deliberately records no concrete dates or anchors that current evidence does not establish.
+
+Paired Python and PowerShell loaders now validate calendar, era-ordinal, ordinal, and relative axes; era-local direction; positions; open or bounded spans; explicit ordering relations; direct exact mappings; relative-origin cycles; and narrative work, continuity, and branch contexts. Comparison returns `before`, `after`, `concurrent`, or `incomparable` and refuses to manufacture conversions between unrelated axes. Civil timestamps, story chronology, causal order, publication/release order, and reader disclosure remain distinct.
+
+Implementation conformance covers negative years, year 12000, BCE/BBY-style descending era values, ascending eras on the same axis, global countdown coordinates, relative origins, direct equivalence, incomparable systems, valid spans, reversed spans, contradictory and duplicate exact relations, exact order cycles, duplicate era ordinals, unknown narrative targets, and relative-origin cycles. Eleven comparison vectors and eleven malformed chronology registries pass identically in Python, PowerShell 7, and Windows PowerShell 5.1.
+
+The temporal suite also grew permanent `-00:00` and exclusive calendar-extrema cases. Its 17 valid windows, 21 malformed windows, 20 query vectors, and 12 overlap vectors remain equivalent across all three runtimes.
+
+Formula-based calendar transformations, uncertain multi-anchor reconciliation, concrete event/content positions with provenance, and richer branch topology are intentionally outside V30. The post-V30 pressure test must determine which of those or other gaps actually justify V31 before its scope is selected.

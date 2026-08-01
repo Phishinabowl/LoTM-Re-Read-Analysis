@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: core
-pack_version: 20
+pack_version: 21
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -53,7 +53,8 @@ capabilities:
     description: Branch-aware, privacy-aware redirects, merges, splits, retirements, reclassifications, and tombstones across typed stable-record providers.
   - authority-profiles
   - typed-relationships
-  - temporal-positions
+  - temporal-windows
+  - chronology-coordinate-systems
   - visibility-policy
   - graph-projection
   - schema-validation
@@ -79,6 +80,30 @@ controlled_values:
     - approximate
     - announced
     - uncertain
+  chronology.coordinate-kind:
+    - calendar
+    - era-ordinal
+    - ordinal
+    - relative
+  chronology.value-domain:
+    - integer
+    - nonnegative-integer
+    - positive-integer
+  chronology.direction:
+    - ascending
+    - descending
+  chronology.zero-policy:
+    - present
+    - absent
+    - not-applicable
+  chronology.relation-type:
+    - before
+    - after
+    - concurrent
+    - incomparable
+  chronology.mapping-kind:
+    - anchor
+    - equivalent
   source.applicability-target-type:
     - provenance-claim
   provenance.claim-namespace:

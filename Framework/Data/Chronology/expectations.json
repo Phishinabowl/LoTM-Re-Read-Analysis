@@ -1,0 +1,15 @@
+{
+  "comparisons": [
+    ["ancient-year-five", "modern-year-one", "before"],
+    ["ancient-year-five", "ancient-year-one", "before"],
+    ["modern-year-one", "ancient-year-five", "after"],
+    ["civil-anchor", "mission-zero", "concurrent"],
+    ["alternate-anchor", "civil-anchor", "concurrent"],
+    ["ancient-year-five", "civil-anchor", "incomparable"],
+    ["civil-anchor", "civil-anchor", "concurrent"],
+    ["civil-before-zero", "civil-far-future", "before"],
+    ["civil-far-future", "civil-before-zero", "after"],
+    ["countdown-ten", "countdown-one", "before"],
+    ["countdown-one", "countdown-ten", "after"]
+  ]
+}

@@ -1,0 +1,24 @@
+schema_version: 1
+coordinate_systems:
+  epochs:
+    label: Epochs
+    kind: era-ordinal
+    value_domain: positive-integer
+    direction: ascending
+    zero_policy: not-applicable
+    aliases: []
+eras:
+  first-era:
+    coordinate_system_id: epochs
+    label: First Era
+    ordinal: 1
+    aliases: []
+  duplicate-first-era:
+    coordinate_system_id: epochs
+    label: Duplicate First Era
+    ordinal: 1
+    aliases: []
+positions: {}
+relations: []
+mappings: []
+narrative_contexts: []

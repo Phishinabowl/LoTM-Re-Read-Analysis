@@ -1,0 +1,22 @@
+schema_version: 1
+coordinate_systems:
+  story-years:
+    label: Story Years
+    kind: ordinal
+    value_domain: integer
+    direction: ascending
+    zero_policy: present
+    aliases: []
+eras: {}
+positions: {}
+relations: []
+mappings: []
+narrative_contexts:
+  - id: missing-work-context
+    label: Missing Work Context
+    coordinate_system_id: story-years
+    role: story
+    continuity_ids: []
+    work_ids:
+      - missing-work
+    branch_id: main

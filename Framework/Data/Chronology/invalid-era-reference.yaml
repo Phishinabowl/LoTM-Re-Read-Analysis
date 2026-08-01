@@ -1,0 +1,20 @@
+schema_version: 1
+coordinate_systems:
+  era-years:
+    label: Era Years
+    kind: era-ordinal
+    value_domain: positive-integer
+    direction: ascending
+    zero_policy: absent
+    aliases: []
+eras: {}
+positions:
+  missing-era:
+    coordinate_system_id: era-years
+    value: 1
+    era_id: unknown-era
+    label: Missing Era
+    certainty: exact
+relations: []
+mappings: []
+narrative_contexts: []

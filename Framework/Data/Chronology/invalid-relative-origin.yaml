@@ -1,0 +1,15 @@
+schema_version: 1
+coordinate_systems:
+  mission-day:
+    label: Mission Day
+    kind: relative
+    value_domain: integer
+    direction: ascending
+    zero_policy: present
+    aliases: []
+    origin_position_id: missing-anchor
+eras: {}
+positions: {}
+relations: []
+mappings: []
+narrative_contexts: []

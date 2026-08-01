@@ -117,6 +117,7 @@ Project_Config/
   taxonomy.yaml
   resources.yaml
   sources.yaml
+  chronology.yaml
   provenance.yaml
   entities.yaml
   LoTM project identity, selected and activated packs, stable content/resource

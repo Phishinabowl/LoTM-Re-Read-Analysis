@@ -406,6 +406,15 @@ python Tools\test_temporal.py
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Temporal.ps1
 ```
 
+## Chronology Conformance
+
+Run the chronology vectors after changing coordinate-system vocabulary, era, position, or span shapes, comparison behavior, narrative chronology roles, or manifest composition. Both implementations validate `Project_Config/chronology.yaml`, load `Framework/Data/Chronology/`, compare the same positions, and reject the same malformed registries without writing output files. Chronology coordinates are separate from the RFC 3339 civil-time windows exercised by the temporal conformance tools.
+
+```powershell
+python Tools\test_chronology.py
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Chronology.ps1
+```
+
 The generated structure mirrors active canonical pages by type and adds QA reports. Pages with `Status: Stub` are excluded by default; pass `--include-stubs` / `-IncludeStubs` when stub pages should be mirrored for local inspection. Pending pages are treated as normal QA candidates unless the source page itself is omitted by status.
 
 ```text
