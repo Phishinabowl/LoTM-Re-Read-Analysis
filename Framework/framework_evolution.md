@@ -869,7 +869,7 @@ V33 acceptance should replay every permanent V32 vector plus all nine adversaria
 
 ## V33 - Recurrence Rules and State Acquisition Semantics
 
-**Implemented by:** pending confirmation
+**Implemented by:** `433e5d1` (`Add recurrence rules and state acquisition`)
 
 **Superseded assumption:** Carryover can serve as the primary record of memory, knowledge, configuration, or other state merely by naming a kind and payload at an iteration boundary.
 
