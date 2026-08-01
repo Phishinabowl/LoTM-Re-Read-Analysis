@@ -6,7 +6,19 @@
     ["end-only", "2019-12-31", "effective"],
     ["end-only", "2020-01-01", "not-effective"],
     ["datetime-offset", "2024-12-31T23:00:00Z", "effective"],
-    ["uncertain", "2025-06-01", "indeterminate"],
+    ["announced", "2025-06-01", "indeterminate-announced"],
+    ["announced", "1900", "indeterminate-announced"],
+    ["approximate", "2025-06-01", "indeterminate-approximate"],
+    ["uncertain", "2025-06-01", "indeterminate-uncertain"],
+    ["unknown-start", "2025-01-01", "unknown"],
+    ["unknown-start", "2025-07-01", "not-effective"],
+    ["unknown-end", "2025-06-01", "not-effective"],
+    ["unknown-end", "2025-08-01", "unknown"],
+    ["midday-start", "2025-01-01", "indeterminate-partial"],
+    ["midday-start", "2025-01-02", "effective"],
+    ["maximum-year", "9999", "effective"],
+    ["microsecond-start", "2025-01-01T00:00:00Z", "not-effective"],
+    ["microsecond-start", "2025-01-01T00:00:00.000001Z", "effective"],
     ["unknown", "2025-06-01", "unknown"]
   ],
   "overlaps": [
@@ -14,7 +26,13 @@
     ["january-closed", "february-open", "disjoint"],
     ["mixed-precision", "january-closed", "disjoint"],
     ["unknown", "january-closed", "unknown"],
-    ["uncertain", "january-closed", "indeterminate"],
-    ["datetime-offset", "exact-instant", "overlap"]
+    ["unknown-start", "unknown-end", "disjoint"],
+    ["unknown-start", "january-closed", "unknown"],
+    ["announced", "january-closed", "indeterminate-announced"],
+    ["announced", "february-open", "indeterminate-announced"],
+    ["approximate", "january-closed", "indeterminate-approximate"],
+    ["uncertain", "january-closed", "indeterminate-uncertain"],
+    ["datetime-offset", "exact-instant", "overlap"],
+    ["maximum-year", "maximum-year", "overlap"]
   ]
 }

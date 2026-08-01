@@ -1,37 +1,61 @@
-schema_version: 1
+schema_version: 2
 windows:
   january-closed:
     kind: interval
-    start: {value: "2025-01-01", precision: date, certainty: exact, inclusive: true}
-    end: {value: "2025-01-31", precision: date, certainty: exact, inclusive: true}
+    start: {kind: known, value: "2025-01-01", precision: date, certainty: exact, inclusive: true}
+    end: {kind: known, value: "2025-01-31", precision: date, certainty: exact, inclusive: true}
   february-open:
     kind: interval
-    start: {value: "2025-02-01", precision: date, certainty: exact, inclusive: true}
+    start: {kind: known, value: "2025-02-01", precision: date, certainty: exact, inclusive: true}
   handoff-left:
     kind: interval
-    start: {value: "2025-01-01", precision: date, certainty: exact, inclusive: true}
-    end: {value: "2025-02-01", precision: date, certainty: exact, inclusive: false}
+    start: {kind: known, value: "2025-01-01", precision: date, certainty: exact, inclusive: true}
+    end: {kind: known, value: "2025-02-01", precision: date, certainty: exact, inclusive: false}
   handoff-right:
     kind: interval
-    start: {value: "2025-02-01", precision: date, certainty: exact, inclusive: true}
-    end: {value: "2025-03-01", precision: date, certainty: exact, inclusive: false}
+    start: {kind: known, value: "2025-02-01", precision: date, certainty: exact, inclusive: true}
+    end: {kind: known, value: "2025-03-01", precision: date, certainty: exact, inclusive: false}
   mixed-precision:
     kind: interval
-    start: {value: "2020", precision: year, certainty: exact, inclusive: true}
-    end: {value: "2022-06", precision: month, certainty: exact, inclusive: true}
+    start: {kind: known, value: "2020", precision: year, certainty: exact, inclusive: true}
+    end: {kind: known, value: "2022-06", precision: month, certainty: exact, inclusive: true}
   end-only:
     kind: interval
-    end: {value: "2020-01-01", precision: date, certainty: exact, inclusive: false}
+    end: {kind: known, value: "2020-01-01", precision: date, certainty: exact, inclusive: false}
   datetime-offset:
     kind: interval
-    start: {value: "2025-01-01T00:00:00+02:00", precision: datetime, certainty: exact, inclusive: true}
-    end: {value: "2025-01-01T00:00:00Z", precision: datetime, certainty: exact, inclusive: true}
+    start: {kind: known, value: "2025-01-01T00:00:00+02:00", precision: datetime, certainty: exact, inclusive: true}
+    end: {kind: known, value: "2025-01-01T00:00:00Z", precision: datetime, certainty: exact, inclusive: true}
   exact-instant:
     kind: interval
-    start: {value: "2025-01-01T00:00:00Z", precision: datetime, certainty: exact, inclusive: true}
-    end: {value: "2025-01-01T00:00:00Z", precision: datetime, certainty: exact, inclusive: true}
+    start: {kind: known, value: "2025-01-01T00:00:00Z", precision: datetime, certainty: exact, inclusive: true}
+    end: {kind: known, value: "2025-01-01T00:00:00Z", precision: datetime, certainty: exact, inclusive: true}
+  announced:
+    kind: interval
+    start: {kind: known, value: "2025-01-01", precision: date, certainty: announced, inclusive: true}
+  approximate:
+    kind: interval
+    start: {kind: known, value: "2025-01-01", precision: date, certainty: approximate, inclusive: true}
   uncertain:
     kind: interval
-    start: {value: "2025-01-01", precision: date, certainty: approximate, inclusive: true}
+    start: {kind: known, value: "2025-01-01", precision: date, certainty: uncertain, inclusive: true}
+  unknown-start:
+    kind: interval
+    start: {kind: unknown}
+    end: {kind: known, value: "2025-06-30", precision: date, certainty: exact, inclusive: true}
+  unknown-end:
+    kind: interval
+    start: {kind: known, value: "2025-07-01", precision: date, certainty: exact, inclusive: true}
+    end: {kind: unknown}
+  midday-start:
+    kind: interval
+    start: {kind: known, value: "2025-01-01T12:00:00Z", precision: datetime, certainty: exact, inclusive: true}
+  maximum-year:
+    kind: interval
+    start: {kind: known, value: "9999", precision: year, certainty: exact, inclusive: true}
+    end: {kind: known, value: "9999", precision: year, certainty: exact, inclusive: true}
+  microsecond-start:
+    kind: interval
+    start: {kind: known, value: "2025-01-01T00:00:00.000001Z", precision: datetime, certainty: exact, inclusive: true}
   unknown:
     kind: unknown

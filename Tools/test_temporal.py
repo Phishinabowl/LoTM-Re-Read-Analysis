@@ -21,14 +21,14 @@ def main() -> int:
     project = load_project_config(root)
     packs = load_schema_pack_registry(project)
     fixtures = root / "Framework" / "Data" / "Temporal"
-    valid = load_yaml_file(fixtures / "valid-windows.yaml", "temporal fixture", expected_schema_version=1)
+    valid = load_yaml_file(fixtures / "valid-windows.yaml", "temporal fixture", expected_schema_version=2)
     windows = {
         window_id: parse_temporal_window(
             {"window": raw}, "window", f"windows.{window_id}", packs
         )
         for window_id, raw in valid["windows"].items()
     }
-    malformed = load_yaml_file(fixtures / "invalid-windows.yaml", "temporal fixture", expected_schema_version=1)
+    malformed = load_yaml_file(fixtures / "invalid-windows.yaml", "temporal fixture", expected_schema_version=2)
     for window_id, raw in malformed["windows"].items():
         try:
             parse_temporal_window({"window": raw}, "window", f"windows.{window_id}", packs)
@@ -40,8 +40,8 @@ def main() -> int:
     expected = json.loads((fixtures / "expectations.json").read_text(encoding="utf-8"))
     actual_matches = []
     for window_id, effective_at, _ in expected["matches"]:
-        instant, _ = normalize_effective_at(effective_at)
-        outcome = temporal_window_match(windows[window_id], instant) or "not-effective"
+        query, _ = normalize_effective_at(effective_at)
+        outcome = temporal_window_match(windows[window_id], query) or "not-effective"
         actual_matches.append([window_id, effective_at, outcome])
     actual_overlaps = [
         [left, right, temporal_overlap_outcome(windows[left], windows[right])]

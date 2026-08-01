@@ -5,7 +5,7 @@ if (-not (Get-Command Get-KnowledgeEntityProvenanceTarget -ErrorAction SilentlyC
 $reconciliationConfigHelper = Join-Path $PSScriptRoot "Reconciliation-Config.ps1"
 if (-not (Get-Command Get-KnowledgeReconciliationProvenanceTarget -ErrorAction SilentlyContinue)) { . $reconciliationConfigHelper }
 
-$script:SupportedProvenanceSchemaVersion = 2
+$script:SupportedProvenanceSchemaVersion = 3
 $script:ProvenanceFieldPathPattern = "^[a-z][a-z0-9_]*(?:(?:\.[a-z][a-z0-9_]*)|(?:\[[0-9]+\]))*$"
 
 function Get-KnowledgeProvenanceTarget {
@@ -133,10 +133,10 @@ function Get-KnowledgeProvenanceApplicabilityDecision {
   if($TargetType -ne "provenance-claim"){return Get-KnowledgeApplicabilityDecision $ProvenanceRegistry.sources $TargetType $TargetId $TerritoryId $EffectiveAt}
   $assertions=@($ProvenanceRegistry.assertions|Where-Object {$_.claim_key -eq $TargetId});if($assertions.Count -eq 0){throw "Unknown provenance-claim applicability target '$TargetId'."}
   if(-not [string]::IsNullOrWhiteSpace($TerritoryId) -and -not $ProvenanceRegistry.sources.territories.Contains($TerritoryId)){throw "Unknown territory '$TerritoryId'."}
-  $effective=ConvertTo-KnowledgeApplicabilityInstant $EffectiveAt;$effectiveInstant=if($null -eq $effective){$null}else{$effective.instant};$matches=@();$subjectType=[string]$assertions[0].subject_type;$subjectId=[string]$assertions[0].subject_id
+  $effective=ConvertTo-KnowledgeApplicabilityInstant $EffectiveAt;$effectiveQuery=$effective;$matches=@();$subjectType=[string]$assertions[0].subject_type;$subjectId=[string]$assertions[0].subject_id
   foreach($scope in $ProvenanceRegistry.sources.applicability_scopes.Values){
     if($scope.target_type -eq "provenance-claim" -and $scope.target_id -eq $TargetId){$targetMatch="exact"}else{$active=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal);$subjectMatch=Get-KnowledgeApplicabilityTargetMatch $ProvenanceRegistry.sources $scope.target_type $scope.target_id $subjectType $subjectId $active;if($null -eq $subjectMatch){continue};$targetMatch="claim-subject"}
-    $territoryMatch=Get-KnowledgeApplicabilityTerritoryMatch $ProvenanceRegistry.sources $scope $TerritoryId;if($null -eq $territoryMatch){continue};$temporalMatch=Get-KnowledgeApplicabilityTemporalMatch $scope.effective_window $effectiveInstant;if($null -eq $temporalMatch){continue};$matches+=,[pscustomobject]@{scope_id=$scope.id;outcome=if($temporalMatch -in @("unknown","indeterminate")){"indeterminate"}else{"applicable"};target_match=$targetMatch;territory_match=$territoryMatch;temporal_match=$temporalMatch;precedence=[int]$scope.precedence}
+    $territoryMatch=Get-KnowledgeApplicabilityTerritoryMatch $ProvenanceRegistry.sources $scope $TerritoryId;if($null -eq $territoryMatch){continue};$temporalMatch=Get-KnowledgeApplicabilityTemporalMatch $scope.effective_window $effectiveQuery;if($null -eq $temporalMatch){continue};$matches+=,[pscustomobject]@{scope_id=$scope.id;outcome=if(Test-KnowledgeTemporalMatchIndeterminate $temporalMatch){"indeterminate"}else{"applicable"};target_match=$targetMatch;territory_match=$territoryMatch;temporal_match=$temporalMatch;precedence=[int]$scope.precedence}
   }
   $matches=@($matches|Sort-Object @{Expression="precedence";Descending=$true},@{Expression="scope_id";Descending=$false});$applicable=@($matches|Where-Object {$_.outcome -eq "applicable"});$highest=if($applicable.Count -eq 0){$null}else{[int]$applicable[0].precedence};$winners=if($null -eq $highest){@()}else{@($applicable|Where-Object {$_.precedence -eq $highest}|ForEach-Object {$_.scope_id})}
   return [pscustomobject]@{target_type=$TargetType;target_id=$TargetId;territory_id=if([string]::IsNullOrWhiteSpace($TerritoryId)){$null}else{$TerritoryId};effective_at=if($null -eq $effective){$null}else{$effective.label};matching_scope_ids=@($applicable|ForEach-Object {$_.scope_id});indeterminate_scope_ids=@($matches|Where-Object {$_.outcome -eq "indeterminate"}|ForEach-Object {$_.scope_id});winning_scope_ids=@($winners);highest_precedence=$highest;ambiguous=($winners.Count -gt 1);matches=@($matches)}

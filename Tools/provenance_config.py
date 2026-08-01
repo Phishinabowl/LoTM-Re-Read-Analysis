@@ -25,10 +25,11 @@ from temporal_config import (
     normalize_effective_at,
     parse_temporal_window,
     temporal_window_match as applicability_temporal_match,
+    temporal_match_is_indeterminate,
 )
 
 
-SUPPORTED_PROVENANCE_SCHEMA_VERSION = 2
+SUPPORTED_PROVENANCE_SCHEMA_VERSION = 3
 FIELD_PATH_PATTERN = re.compile(
     r"^[a-z][a-z0-9_]*(?:(?:\.[a-z][a-z0-9_]*)|(?:\[[0-9]+\]))*$"
 )
@@ -228,7 +229,7 @@ class ProvenanceRegistry:
             matches.append(ApplicabilityScopeMatch(
                 scope.id,
                 "indeterminate"
-                if temporal_match in {"unknown", "indeterminate"}
+                if temporal_match_is_indeterminate(temporal_match)
                 else "applicable",
                 target_match,
                 territory_match,

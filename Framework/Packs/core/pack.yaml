@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: core
-pack_version: 19
+pack_version: 20
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -63,6 +63,9 @@ capabilities:
     description: Previewed, validated, and reversible repository-wide schema and identity transformations.
 
 controlled_values:
+  temporal.bound-kind:
+    - known
+    - unknown
   temporal.window-kind:
     - interval
     - unknown

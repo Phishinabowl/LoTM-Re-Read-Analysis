@@ -11,7 +11,7 @@ Both runtimes enforce the same baseline rules before registry-specific validatio
 - `schema_version` must be an unquoted integer of the exact supported version, not a Boolean, string, or decimal that a runtime can coerce;
 - registry-defined closed shapes reject unknown keys with their configuration path;
 - stable machine IDs and enum values remain case-sensitive;
-- explicit audit timestamps use uppercase RFC 3339 `T` and `Z`, real calendar/time values, and offsets no larger than `+14:00` or `-14:00`.
+- explicit audit timestamps use uppercase RFC 3339 `T` plus uppercase `Z` or a numeric offset, real calendar/time values, no more than six fractional digits, offsets no larger than `+14:00` or `-14:00`, and a UTC-normalized value inside years `0001` through `9999`.
 
 The portable scalar subset is intentionally narrower than YAML 1.1. Booleans are lowercase `true` or `false`; null must be written explicitly as lowercase `null`; and canonical decimal integers have no leading plus, base prefix, underscore, or leading zero. Canonical integers are the only unquoted numeric form. Quote decimal or exponent-shaped values as strings until the owning field contract defines a precise runtime-independent decimal representation and semantic parser. Legacy Boolean words such as `on`, `off`, `yes`, and `no` remain strings. Explicit tags, anchors, aliases, merge keys, document markers, implicit empty nulls, tilde nulls, and unquoted date/timestamp-like scalars are forbidden. Quote date and timestamp values so registry validation, rather than a runtime-specific YAML resolver, owns their interpretation.
 

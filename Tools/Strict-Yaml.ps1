@@ -1,4 +1,4 @@
-$script:KnowledgeRfc3339Pattern = "^(?<date>\d{4}-\d{2}-\d{2})T(?<time>\d{2}:\d{2}:\d{2})(?:\.\d+)?(?<zone>Z|(?<sign>[+-])(?<hour>\d{2}):(?<minute>\d{2}))$"
+$script:KnowledgeRfc3339Pattern = "^(?<date>\d{4}-\d{2}-\d{2})T(?<time>\d{2}:\d{2}:\d{2})(?:\.\d{1,6})?(?<zone>Z|(?<sign>[+-])(?<hour>\d{2}):(?<minute>\d{2}))$"
 $script:KnowledgeCanonicalIntegerPattern = '^-?(?:0|[1-9][0-9]*)$'
 $script:KnowledgeCanonicalMappingKeyPattern = '^[a-z0-9]+(?:[_.-][a-z0-9]+)*$'
 $script:KnowledgeNumericLikePattern = '^[+-]?(?:[0-9][0-9_]*|0[xX][0-9a-fA-F_]+|0[oO][0-7_]+|0[bB][01_]+|[0-9][0-9_]*(?::[0-9_]+)+|(?:[0-9][0-9_]*\.[0-9_]*|\.[0-9_]+)(?:[eE][+-]?[0-9_]+)?|[0-9][0-9_]*[eE][+-]?[0-9_]+|\.(?:inf|Inf|INF|nan|NaN|NAN))$'

@@ -19,7 +19,7 @@ if (-not (Get-Command ConvertTo-KnowledgeTemporalWindow -ErrorAction SilentlyCon
   . $temporalConfigHelper
 }
 
-$script:SupportedSourceSchemaVersion = 17
+$script:SupportedSourceSchemaVersion = 18
 $script:AllowedSourceLifecycles = @("active", "deferred")
 $script:AllowedPositionFieldTypes = @("string", "integer", "number", "timestamp", "boolean")
 $script:AllowedPriorityOrders = @("ascending", "descending")
@@ -805,7 +805,7 @@ function Get-KnowledgeApplicabilityDecision {
   }
   if(-not $targetExists){throw "Unknown $TargetType applicability target '$TargetId'."}
   $effective=ConvertTo-KnowledgeApplicabilityInstant $EffectiveAt
-  $effectiveInstant=if($null -eq $effective){$null}else{$effective.instant}
+  $effectiveQuery=$effective
   $matches=@()
   foreach($scope in $SourceRegistry.applicability_scopes.Values){
     $active=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
@@ -813,9 +813,9 @@ function Get-KnowledgeApplicabilityDecision {
     if($null -eq $targetMatch){continue}
     $territoryMatch=Get-KnowledgeApplicabilityTerritoryMatch $SourceRegistry $scope $TerritoryId
     if($null -eq $territoryMatch){continue}
-    $temporalMatch=Get-KnowledgeApplicabilityTemporalMatch $scope.effective_window $effectiveInstant
+    $temporalMatch=Get-KnowledgeApplicabilityTemporalMatch $scope.effective_window $effectiveQuery
     if($null -eq $temporalMatch){continue}
-    $outcome=if($temporalMatch -in @("unknown","indeterminate")){"indeterminate"}else{"applicable"}
+    $outcome=if(Test-KnowledgeTemporalMatchIndeterminate $temporalMatch){"indeterminate"}else{"applicable"}
     $matches+=@([pscustomobject]@{scope_id=$scope.id;outcome=$outcome;target_match=$targetMatch;territory_match=$territoryMatch;temporal_match=$temporalMatch;precedence=[int]$scope.precedence})
   }
   $matches=@($matches|Sort-Object @{Expression="precedence";Descending=$true},@{Expression="scope_id";Descending=$false})

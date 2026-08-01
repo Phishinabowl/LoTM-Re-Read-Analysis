@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 import codecs
 import copy
@@ -47,7 +47,7 @@ TIMESTAMP_LIKE = re.compile(
 
 RFC3339_PROFILE = re.compile(
     r"^(?P<date>\d{4}-\d{2}-\d{2})T"
-    r"(?P<time>\d{2}:\d{2}:\d{2})(?:\.\d+)?"
+    r"(?P<time>\d{2}:\d{2}:\d{2})(?:\.\d{1,6})?"
     r"(?P<zone>Z|(?P<sign>[+-])(?P<hour>\d{2}):(?P<minute>\d{2}))$"
 )
 
@@ -295,7 +295,8 @@ def is_rfc3339_timestamp(value: str) -> bool:
         if int(hour) > 14 or (int(hour) == 14 and minute != "00"):
             return False
     try:
-        datetime.fromisoformat(value.replace("Z", "+00:00"))
-    except ValueError:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        parsed.astimezone(timezone.utc)
+    except (ValueError, OverflowError):
         return False
     return True

@@ -11,10 +11,11 @@ from strict_yaml import assert_allowed_keys, is_rfc3339_timestamp
 
 @dataclass(frozen=True)
 class TemporalBound:
-    value: str
-    precision: str
-    certainty: str
-    inclusive: bool
+    kind: str
+    value: str | None
+    precision: str | None
+    certainty: str | None
+    inclusive: bool | None
 
 
 @dataclass(frozen=True)
@@ -24,7 +25,23 @@ class TemporalWindow:
     end: TemporalBound | None
 
 
-TemporalOutcome = Literal["overlap", "disjoint", "indeterminate", "unknown"]
+@dataclass(frozen=True)
+class TemporalQuery:
+    value: str
+    precision: str
+    lower: datetime
+    upper: datetime
+
+
+TemporalOutcome = Literal[
+    "overlap",
+    "disjoint",
+    "indeterminate-announced",
+    "indeterminate-approximate",
+    "indeterminate-partial",
+    "indeterminate-uncertain",
+    "unknown",
+]
 
 
 def _require_mapping(value, context: str) -> dict:
@@ -62,9 +79,20 @@ def parse_temporal_bound(
     bound = _require_mapping(value, context)
     assert_allowed_keys(
         bound,
-        {"value", "precision", "certainty", "inclusive"},
+        {"kind", "value", "precision", "certainty", "inclusive"},
         context,
     )
+    kind = _require_string(bound, "kind", context)
+    _require_pack_value(packs, "temporal.bound-kind", kind, f"{context}.kind")
+    if kind == "unknown":
+        extra = set(bound) - {"kind"}
+        if extra:
+            raise ValueError(
+                f"{context} unknown bounds cannot declare: {', '.join(sorted(extra))}."
+            )
+        return TemporalBound(kind, None, None, None, None)
+    if kind != "known":
+        raise ValueError(f"{context}.kind uses unsupported temporal behavior `{kind}`.")
     raw_value = _require_string(bound, "value", context)
     precision = _require_string(bound, "precision", context)
     certainty = _require_string(bound, "certainty", context)
@@ -91,7 +119,7 @@ def parse_temporal_bound(
         raise ValueError(
             f"{context}.value does not match temporal precision `{precision}`: {raw_value}"
         ) from exc
-    return TemporalBound(raw_value, precision, certainty, inclusive)
+    return TemporalBound(kind, raw_value, precision, certainty, inclusive)
 
 
 def parse_temporal_window(
@@ -108,6 +136,10 @@ def parse_temporal_window(
     assert_allowed_keys(window, {"kind", "start", "end"}, window_context)
     kind = _require_string(window, "kind", window_context)
     _require_pack_value(packs, "temporal.window-kind", kind, f"{window_context}.kind")
+    if kind not in {"interval", "unknown"}:
+        raise ValueError(
+            f"{window_context}.kind uses unsupported temporal behavior `{kind}`."
+        )
     start = (
         parse_temporal_bound(window["start"], f"{window_context}.start", packs)
         if "start" in window
@@ -135,6 +167,8 @@ def parse_temporal_window(
 
 
 def temporal_bound_range(bound: TemporalBound) -> tuple[datetime, datetime]:
+    if bound.kind != "known" or bound.value is None or bound.precision is None:
+        raise ValueError("Unknown temporal bounds do not have a comparable range.")
     if bound.precision == "year":
         year = int(bound.value)
         return datetime(year, 1, 1), datetime(year, 12, 31, 23, 59, 59, 999999)
@@ -157,20 +191,32 @@ def temporal_window_limits(
         return None, None
     lower = None
     upper = None
-    if window.start is not None:
+    if window.start is not None and window.start.kind == "known":
         start_range = temporal_bound_range(window.start)
         lower = (start_range[0] if window.start.inclusive else start_range[1], window.start.inclusive)
-    if window.end is not None:
+    if window.end is not None and window.end.kind == "known":
         end_range = temporal_bound_range(window.end)
         upper = (end_range[1] if window.end.inclusive else end_range[0], window.end.inclusive)
     return lower, upper
 
 
-def _uncertain(window: TemporalWindow) -> bool:
-    return any(
-        bound is not None and bound.certainty != "exact"
+def _has_unknown_bound(window: TemporalWindow) -> bool:
+    return any(bound is not None and bound.kind == "unknown" for bound in (window.start, window.end))
+
+
+def _indeterminate_reason(window: TemporalWindow) -> str | None:
+    rank = {"announced": 1, "approximate": 2, "uncertain": 3}
+    reasons = [
+        bound.certainty
         for bound in (window.start, window.end)
-    )
+        if bound is not None
+        and bound.kind == "known"
+        and bound.certainty in rank
+    ]
+    if not reasons:
+        return None
+    certainty = max(reasons, key=lambda item: rank[item])
+    return f"indeterminate-{certainty}"
 
 
 def temporal_overlap_outcome(
@@ -180,8 +226,6 @@ def temporal_overlap_outcome(
         return "overlap"
     if left.kind == "unknown" or right.kind == "unknown":
         return "unknown"
-    if _uncertain(left) or _uncertain(right):
-        return "indeterminate"
     left_lower, left_upper = temporal_window_limits(left)
     right_lower, right_upper = temporal_window_limits(right)
 
@@ -195,7 +239,24 @@ def temporal_overlap_outcome(
             upper[0] == lower[0] and not (upper[1] and lower[1])
         )
 
-    return "disjoint" if before(left_upper, right_lower) or before(right_upper, left_lower) else "overlap"
+    reasons = [reason for reason in (_indeterminate_reason(left), _indeterminate_reason(right)) if reason]
+    has_unknown = _has_unknown_bound(left) or _has_unknown_bound(right)
+    if has_unknown:
+        if reasons:
+            return "unknown"
+        if before(left_upper, right_lower) or before(right_upper, left_lower):
+            return "disjoint"
+        return "unknown"
+    if reasons:
+        rank = {
+            "indeterminate-announced": 1,
+            "indeterminate-approximate": 2,
+            "indeterminate-uncertain": 3,
+        }
+        return max(reasons, key=lambda item: rank[item])
+    if before(left_upper, right_lower) or before(right_upper, left_lower):
+        return "disjoint"
+    return "overlap"
 
 
 def temporal_windows_overlap(
@@ -204,9 +265,13 @@ def temporal_windows_overlap(
     return temporal_overlap_outcome(left, right) != "disjoint"
 
 
+def temporal_match_is_indeterminate(value: str) -> bool:
+    return value == "unknown" or value.startswith("indeterminate-")
+
+
 def normalize_effective_at(
     value: str | datetime | None,
-) -> tuple[datetime | None, str | None]:
+) -> tuple[TemporalQuery | None, str | None]:
     if value is None:
         return None, None
     if isinstance(value, datetime):
@@ -214,39 +279,70 @@ def normalize_effective_at(
         label = value.isoformat()
         if parsed.tzinfo is not None:
             parsed = parsed.astimezone(timezone.utc).replace(tzinfo=None)
-        return parsed, label
+        return TemporalQuery(label, "datetime", parsed, parsed), label
     if not isinstance(value, str) or not value.strip():
-        raise ValueError("Effective time must be an ISO date, RFC 3339 datetime, or None.")
+        raise ValueError(
+            "Effective time must be an ISO year, month, date, RFC 3339 datetime, or None."
+        )
     label = value.strip()
-    if len(label) == 10:
+    precision = None
+    if len(label) == 4:
+        precision = "year"
+    elif len(label) == 7:
+        precision = "month"
+    elif len(label) == 10:
+        precision = "date"
+    if precision is not None:
         try:
-            return datetime.strptime(label, "%Y-%m-%d"), label
+            lower, upper = temporal_bound_range(
+                TemporalBound("known", label, precision, "exact", True)
+            )
         except ValueError as exc:
-            raise ValueError("Effective time must be an ISO date or RFC 3339 datetime.") from exc
+            raise ValueError(
+                "Effective time must be an ISO year, month, date, or RFC 3339 datetime."
+            ) from exc
+        return TemporalQuery(label, precision, lower, upper), label
     if not is_rfc3339_timestamp(label):
-        raise ValueError("Effective time must be an ISO date or RFC 3339 datetime.")
+        raise ValueError(
+            "Effective time must be an ISO year, month, date, or RFC 3339 datetime."
+        )
     parsed = datetime.fromisoformat(label.replace("Z", "+00:00"))
-    return parsed.astimezone(timezone.utc).replace(tzinfo=None), label
+    normalized = parsed.astimezone(timezone.utc).replace(tzinfo=None)
+    return TemporalQuery(label, "datetime", normalized, normalized), label
 
 
 def temporal_window_match(
-    window: TemporalWindow | None, effective_at: datetime | None
+    window: TemporalWindow | None, query: TemporalQuery | None
 ) -> str | None:
     if window is None:
         return "unbounded"
     if window.kind == "unknown":
         return "unknown"
-    if effective_at is None:
+    if query is None:
         return None
-    if _uncertain(window):
-        return "indeterminate"
     lower, upper = temporal_window_limits(window)
-    if lower is not None and (
-        effective_at < lower[0] or (effective_at == lower[0] and not lower[1])
-    ):
-        return None
+    has_unknown = _has_unknown_bound(window)
+    reason = _indeterminate_reason(window)
+    if has_unknown and reason is not None:
+        return "unknown"
+    if not has_unknown and reason is not None:
+        return reason
     if upper is not None and (
-        effective_at > upper[0] or (effective_at == upper[0] and not upper[1])
+        upper[0] < query.lower or (upper[0] == query.lower and not upper[1])
     ):
         return None
+    if lower is not None and (
+        lower[0] > query.upper or (lower[0] == query.upper and not lower[1])
+    ):
+        return None
+    if has_unknown:
+        return "unknown"
+    lower_contains = lower is None or query.lower > lower[0] or (
+        query.lower == lower[0] and lower[1]
+    )
+    upper_contains = upper is None or query.upper < upper[0] or (
+        query.upper == upper[0] and upper[1]
+    )
+    if not (lower_contains and upper_contains):
+        return "indeterminate-partial"
     return "effective"

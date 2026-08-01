@@ -14,11 +14,12 @@ from temporal_config import (
     normalize_effective_at,
     parse_temporal_window,
     temporal_window_match as applicability_temporal_match,
+    temporal_match_is_indeterminate,
     temporal_windows_overlap,
 )
 
 
-SUPPORTED_SOURCE_SCHEMA_VERSION = 17
+SUPPORTED_SOURCE_SCHEMA_VERSION = 18
 LIFECYCLES = {"active", "deferred"}
 POSITION_FIELD_TYPES = {"string", "integer", "number", "timestamp", "boolean"}
 PRIORITY_ORDERS = {"ascending", "descending"}
@@ -907,7 +908,7 @@ class SourceRegistry:
                     scope_id=scope.id,
                     outcome=(
                         "indeterminate"
-                        if temporal_match in {"unknown", "indeterminate"}
+                        if temporal_match_is_indeterminate(temporal_match)
                         else "applicable"
                     ),
                     target_match=target_match,
