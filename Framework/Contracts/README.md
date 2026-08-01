@@ -2,6 +2,8 @@
 
 This directory is reserved for portable, versioned configuration-shape contracts.
 
+All framework registry rows below share the strict YAML ingestion rules in `strict-configuration-ingestion.md` before their paired loaders apply registry-specific validation.
+
 The current executable contract is enforced by the matching Python and PowerShell loaders:
 
 | Configuration | Current validator pair |

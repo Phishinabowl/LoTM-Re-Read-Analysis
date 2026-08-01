@@ -1,0 +1,4 @@
+schema_version: 3.0
+resolution:
+  max_branches: 65536
+records: []

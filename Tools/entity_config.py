@@ -2,13 +2,12 @@ from dataclasses import dataclass
 from pathlib import Path
 import re
 
-import yaml
-
 from lookup_key_config import LookupKeyConfig, load_lookup_key_config
 from project_config import ProjectConfig
 from schema_pack_config import SchemaPackRegistry, load_schema_pack_registry
 from source_config import SourceRegistry
 from taxonomy_config import TaxonomyConfig
+from strict_yaml import load_yaml_file
 
 
 SUPPORTED_ENTITY_SCHEMA_VERSION = 4
@@ -631,12 +630,7 @@ def load_entity_registry(
         )
     lookup_keys = load_lookup_key_config(project)
 
-    try:
-        data = yaml.safe_load(project.entities_registry.read_text(encoding="utf-8"))
-    except yaml.YAMLError as exc:
-        raise ValueError(
-            f"Unable to parse entity registry {project.entities_registry}: {exc}"
-        ) from exc
+    data = load_yaml_file(project.entities_registry, "entity registry", expected_schema_version=SUPPORTED_ENTITY_SCHEMA_VERSION)
     registry = require_mapping(data, "root")
     schema_version = registry.get("schema_version")
     if schema_version != SUPPORTED_ENTITY_SCHEMA_VERSION:

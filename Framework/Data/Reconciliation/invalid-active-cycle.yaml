@@ -1,4 +1,7 @@
-schema_version: 2
+schema_version: 3
+
+resolution:
+  max_branches: 65536
 records:
   - id: cycle-a-record
     source_type: category

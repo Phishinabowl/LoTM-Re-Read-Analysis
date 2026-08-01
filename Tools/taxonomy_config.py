@@ -2,9 +2,8 @@ from dataclasses import dataclass
 from pathlib import Path
 import re
 
-import yaml
-
 from project_config import ContentRootConfig, ProjectConfig, resolve_manifest_path
+from strict_yaml import load_yaml_file
 
 
 SUPPORTED_TAXONOMY_SCHEMA_VERSION = 2
@@ -454,12 +453,7 @@ def ensure_unique(records, attribute: str, label: str) -> None:
 
 
 def load_taxonomy_config(project: ProjectConfig) -> TaxonomyConfig:
-    try:
-        data = yaml.safe_load(project.taxonomy_registry.read_text(encoding="utf-8"))
-    except yaml.YAMLError as exc:
-        raise ValueError(
-            f"Unable to parse taxonomy registry {project.taxonomy_registry}: {exc}"
-        ) from exc
+    data = load_yaml_file(project.taxonomy_registry, "taxonomy registry", expected_schema_version=SUPPORTED_TAXONOMY_SCHEMA_VERSION)
 
     registry = require_mapping(data, "root")
     schema_version = registry.get("schema_version")

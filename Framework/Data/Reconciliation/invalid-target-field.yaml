@@ -1,17 +1,17 @@
 schema_version: 3
-
 resolution:
   max_branches: 65536
 records:
-  - id: invalid-reclassify
+  - id: invalid-target-field
     source_type: category
-    source_id: invalid-reclassify-source
+    source_id: invalid-target-field-source
     source_state: tombstone
     source_label_mode: omitted
-    operation: reclassify
+    operation: redirect
     targets:
       - target_type: category
         target_id: current-category
-    reason: reclassified
+        typo_target: true
+    reason: renamed
     status: active
     audit: {mode: repository-history}

@@ -58,7 +58,7 @@ function Get-SchemaPackStringList {
 function Assert-SchemaPackStableId {
   param([string]$Value, [string]$Context)
 
-  if ($Value -notmatch $script:StableProjectIdPattern) {
+  if ($Value -cnotmatch $script:StableProjectIdPattern) {
     throw "Schema-pack configuration '$Context' must be a lowercase kebab-case stable ID: $Value"
   }
 }
@@ -83,7 +83,7 @@ function Resolve-SchemaPackPath {
 function ConvertTo-SchemaPackConfig {
   param([string]$Path, [string]$ExpectedPackId)
 
-  $pack = ConvertFrom-Yaml -Yaml ([System.IO.File]::ReadAllText($Path, [System.Text.UTF8Encoding]::new($true))) -Ordered
+  $pack = ConvertFrom-KnowledgeYamlFile $Path $script:SupportedSchemaPackVersion "schema pack"
   if ($null -eq $pack -or -not ($pack -is [System.Collections.IDictionary])) {
     throw "Schema-pack configuration '$ExpectedPackId' must be a mapping."
   }
@@ -98,11 +98,11 @@ function ConvertTo-SchemaPackConfig {
   }
   $packVersion = Get-RequiredSchemaPackPositiveInteger $pack "pack_version" $packId
   $lifecycle = Get-RequiredSchemaPackString $pack "lifecycle" $packId
-  if ($script:AllowedSchemaPackLifecycles -notcontains $lifecycle) {
+  if ($script:AllowedSchemaPackLifecycles -cnotcontains $lifecycle) {
     throw "Schema pack '$packId.lifecycle' must be one of: $($script:AllowedSchemaPackLifecycles -join ', ')."
   }
   $kind = Get-RequiredSchemaPackString $pack "pack_kind" $packId
-  if ($script:AllowedSchemaPackKinds -notcontains $kind) {
+  if ($script:AllowedSchemaPackKinds -cnotcontains $kind) {
     throw "Schema pack '$packId.pack_kind' must be one of: $($script:AllowedSchemaPackKinds -join ', ')."
   }
 
@@ -160,7 +160,7 @@ function ConvertTo-SchemaPackConfig {
       throw "Schema-pack configuration '$context' must be a stable-ID string or capability-definition mapping."
     }
     Assert-SchemaPackStableId $capabilityId $context
-    if ($script:AllowedCapabilityLifecycles -notcontains $capabilityLifecycle) {
+    if ($script:AllowedCapabilityLifecycles -cnotcontains $capabilityLifecycle) {
       throw "Schema pack '$context.lifecycle' must be one of: $($script:AllowedCapabilityLifecycles -join ', ')."
     }
     if (-not $seenCapabilities.Add($capabilityId)) {
@@ -183,7 +183,7 @@ function ConvertTo-SchemaPackConfig {
   $controlledValueDefinitions = [ordered]@{}
   foreach ($namespace in $rawControlled.Keys) {
     $context = "$packId.controlled_values.$namespace"
-    if ($namespace -notmatch $script:SchemaPackNamespacePattern) {
+    if ($namespace -cnotmatch $script:SchemaPackNamespacePattern) {
       throw "Schema-pack controlled-value namespace must use dotted lowercase kebab-case: $namespace"
     }
     $values = @($rawControlled[$namespace])
@@ -259,7 +259,7 @@ function Get-KnowledgeSchemaPackRegistry {
 
   Import-ProjectYamlModule
   $registryPath = $ProjectConfig.schema_packs_registry
-  $registry = ConvertFrom-Yaml -Yaml ([System.IO.File]::ReadAllText($registryPath, [System.Text.UTF8Encoding]::new($true))) -Ordered
+  $registry = ConvertFrom-KnowledgeYamlFile $registryPath $script:SupportedSchemaPackRegistryVersion "schema-pack registry"
   if ($null -eq $registry -or -not ($registry -is [System.Collections.IDictionary])) {
     throw "Schema-pack registry root must be a mapping: $registryPath"
   }
@@ -317,7 +317,7 @@ function Get-KnowledgeSchemaPackRegistry {
       $capabilityProviders[$capability] = @($capabilityProviders[$capability]) + $packId
       $definition = $packs[$packId].capability_definitions[$capability]
       $capabilityDefinitions["$packId|$capability"] = $definition
-      if ($definition.lifecycle -in @("available", "deprecated") -and $availableCapabilities -notcontains $capability) {
+      if ($definition.lifecycle -in @("available", "deprecated") -and $availableCapabilities -cnotcontains $capability) {
         $availableCapabilities += $capability
       }
     }
@@ -341,7 +341,7 @@ function Get-KnowledgeSchemaPackRegistry {
     if (-not $capabilityProviders.ContainsKey($capability)) {
       throw "Schema-pack registry enables capability not declared by selected packs: $capability."
     }
-    if ($availableCapabilities -notcontains $capability) {
+    if ($availableCapabilities -cnotcontains $capability) {
       throw "Schema-pack registry enables capability that is not available or deprecated in selected packs: $capability."
     }
   }
@@ -412,7 +412,7 @@ function Get-KnowledgeSchemaPackRegistry {
 function Test-SchemaPackCapabilityAvailable {
   param([object]$SchemaPackRegistry, [string]$Capability)
 
-  return @($SchemaPackRegistry.available_capabilities) -contains $Capability
+  return @($SchemaPackRegistry.available_capabilities) -ccontains $Capability
 }
 
 function Test-SchemaPackCapabilityDeclared {
@@ -440,7 +440,7 @@ function Get-SchemaPackCapabilityDefinitions {
 function Test-SchemaPackCapabilityEnabled {
   param([object]$SchemaPackRegistry, [string]$Capability)
 
-  return @($SchemaPackRegistry.enabled_capabilities) -contains $Capability
+  return @($SchemaPackRegistry.enabled_capabilities) -ccontains $Capability
 }
 
 function Get-SchemaPackAllowedValues {

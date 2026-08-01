@@ -1,0 +1,5 @@
+schema_version: 3
+resolution:
+  max_branches: 65536
+unknown_root: true
+records: []

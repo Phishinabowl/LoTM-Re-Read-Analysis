@@ -1,18 +1,17 @@
 schema_version: 3
-
 resolution:
   max_branches: 65536
 records:
-  - id: invalid-audit
+  - id: invalid-timestamp-case
     source_type: category
-    source_id: invalid-audit-source
+    source_id: invalid-timestamp-case-source
     source_state: tombstone
-    source_label_mode: redacted
+    source_label_mode: omitted
     operation: retire
     targets: []
     reason: deprecated
     status: active
     audit:
       mode: explicit
-      recorded_at: 2026-07-31
+      recorded_at: "2026-01-01t00:00:00z"
       actor_ref: maintainer:test

@@ -2,6 +2,8 @@ $script:ProjectManifestPath = "Project_Config/project.yaml"
 $script:SupportedProjectSchemaVersion = 7
 $script:AllowedProvenanceModes = @("child-directory", "fixed", "slug-prefix")
 $script:StableProjectIdPattern = "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+$strictYamlHelper = Join-Path $PSScriptRoot "Strict-Yaml.ps1"
+if (-not (Get-Command ConvertFrom-KnowledgeYamlFile -ErrorAction SilentlyContinue)) { . $strictYamlHelper }
 
 function Test-KnowledgeProjectRoot {
   param([string]$Path)
@@ -44,11 +46,7 @@ function Resolve-KnowledgeProjectRoot {
 }
 
 function Import-ProjectYamlModule {
-  try {
-    Import-Module powershell-yaml -ErrorAction Stop
-  } catch {
-    throw "Project configuration requires the PowerShell module 'powershell-yaml'. Install it with: Install-Module powershell-yaml -Scope CurrentUser -Force -AllowClobber"
-  }
+  Import-KnowledgeYamlModule
 }
 
 function Get-ProjectMapValue {
@@ -115,13 +113,10 @@ function Get-KnowledgeProjectConfig {
 
   Import-ProjectYamlModule
   $manifestPath = Join-Path $RepoRoot $script:ProjectManifestPath
-  $manifest = ConvertFrom-Yaml -Yaml ([System.IO.File]::ReadAllText($manifestPath, [System.Text.UTF8Encoding]::new($true))) -Ordered
-  if ($null -eq $manifest -or -not ($manifest -is [System.Collections.IDictionary])) {
-    throw "Project manifest root must be a mapping: $manifestPath"
-  }
+  $manifest = ConvertFrom-KnowledgeYamlFile $manifestPath $script:SupportedProjectSchemaVersion "project manifest"
 
   $schemaVersion = Get-ProjectMapValue $manifest "schema_version"
-  if ([int]$schemaVersion -ne $script:SupportedProjectSchemaVersion) {
+  if ($schemaVersion -isnot [int] -or $schemaVersion -ne $script:SupportedProjectSchemaVersion) {
     throw "Unsupported project manifest schema_version '$schemaVersion'; expected $($script:SupportedProjectSchemaVersion)."
   }
 
@@ -143,7 +138,7 @@ function Get-KnowledgeProjectConfig {
     $entry = $rawContentRoots[$index]
     $context = "paths.content_roots[$index]"
     $contentRootId = Get-RequiredProjectString $entry "id" $context
-    if ($contentRootId -notmatch $script:StableProjectIdPattern) {
+    if ($contentRootId -cnotmatch $script:StableProjectIdPattern) {
       throw "Project manifest '$context.id' must be a lowercase kebab-case stable ID: $contentRootId"
     }
     if (-not $configuredRootIds.Add($contentRootId)) {
@@ -151,7 +146,7 @@ function Get-KnowledgeProjectConfig {
     }
     $pathValue = Get-RequiredProjectString $entry "path" $context
     $provenanceMode = Get-RequiredProjectString $entry "provenance_mode" $context
-    if ($script:AllowedProvenanceModes -notcontains $provenanceMode) {
+    if ($script:AllowedProvenanceModes -cnotcontains $provenanceMode) {
       throw "Project manifest '$context.provenance_mode' must be one of: $($script:AllowedProvenanceModes -join ', ')."
     }
     $provenanceLabel = [string](Get-ProjectMapValue $entry "provenance_label" "")
@@ -176,7 +171,7 @@ function Get-KnowledgeProjectConfig {
     $entry = $rawResourceRoots[$index]
     $context = "paths.resource_roots[$index]"
     $resourceRootId = Get-RequiredProjectString $entry "id" $context
-    if ($resourceRootId -notmatch $script:StableProjectIdPattern) {
+    if ($resourceRootId -cnotmatch $script:StableProjectIdPattern) {
       throw "Project manifest '$context.id' must be a lowercase kebab-case stable ID: $resourceRootId"
     }
     if (-not $configuredRootIds.Add($resourceRootId)) {

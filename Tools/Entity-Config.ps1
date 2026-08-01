@@ -73,7 +73,7 @@ function Get-EntityStringList {
 function Assert-EntityStableId {
   param([string]$Value, [string]$Context)
 
-  if ($Value -notmatch $script:EntityStableIdPattern) {
+  if ($Value -cnotmatch $script:EntityStableIdPattern) {
     throw "Entity registry '$Context' must be a lowercase kebab-case stable ID: $Value"
   }
 }
@@ -85,7 +85,7 @@ function Assert-EntityPackValue {
   if ($allowed.Count -eq 0) {
     throw "Selected schema packs do not provide controlled namespace '$Namespace'."
   }
-  if ($allowed -notcontains $Value) {
+  if ($allowed -cnotcontains $Value) {
     throw "Entity registry '$Context' value '$Value' is not supplied by selected schema packs."
   }
 }
@@ -110,7 +110,7 @@ function New-EntityAliasMap {
         throw "Entity registry $Label alias '$alias' conflicts with ID '$($ids[$normalized])'."
       }
       $owners = if ($aliases.ContainsKey($normalized)) { @($aliases[$normalized]) } else { @() }
-      if ($owners -notcontains $record.id) { $aliases[$normalized] = @(@($owners) + @($record.id)) }
+      if ($owners -cnotcontains $record.id) { $aliases[$normalized] = @(@($owners) + @($record.id)) }
     }
   }
   return $aliases
@@ -217,7 +217,7 @@ function Assert-AcyclicEntityRelationships {
         if (-not $indegree.ContainsKey($edge.source_id)) { $indegree[$edge.source_id] = 0 }
         if (-not $indegree.ContainsKey($edge.target_id)) { $indegree[$edge.target_id] = 0 }
         if (-not $adjacency.ContainsKey($edge.source_id)) { $adjacency[$edge.source_id] = @() }
-        if ($adjacency[$edge.source_id] -notcontains $edge.target_id) {
+        if ($adjacency[$edge.source_id] -cnotcontains $edge.target_id) {
           $adjacency[$edge.source_id] = @($adjacency[$edge.source_id]) + $edge.target_id
           $indegree[$edge.target_id] += 1
         }
@@ -261,12 +261,12 @@ function Get-KnowledgeEntityRegistry {
   $lookupKeys = Get-KnowledgeLookupKeyConfig $ProjectConfig
 
   $registryPath = $ProjectConfig.entities_registry
-  $registry = ConvertFrom-Yaml -Yaml ([System.IO.File]::ReadAllText($registryPath, [System.Text.UTF8Encoding]::new($true))) -Ordered
+  $registry = ConvertFrom-KnowledgeYamlFile $registryPath $script:SupportedEntitySchemaVersion "entity registry"
   if ($null -eq $registry -or $registry -isnot [System.Collections.IDictionary]) {
     throw "Entity registry root must be a mapping: $registryPath"
   }
   $schemaVersion = Get-ProjectMapValue $registry "schema_version"
-  if ([int]$schemaVersion -ne $script:SupportedEntitySchemaVersion) {
+  if ($schemaVersion -isnot [int] -or $schemaVersion -ne $script:SupportedEntitySchemaVersion) {
     throw "Unsupported entity schema_version '$schemaVersion'; expected $($script:SupportedEntitySchemaVersion)."
   }
 
@@ -281,14 +281,14 @@ function Get-KnowledgeEntityRegistry {
     $entity = $rawEntities[$entityId]
     if ($entity -isnot [System.Collections.IDictionary]) { throw "Entity registry '$context' must be a mapping." }
     $lifecycle = Get-RequiredEntityString $entity "lifecycle" $context
-    if ($script:EntityLifecycles -notcontains $lifecycle) { throw "Entity registry '$context.lifecycle' must be one of: $($script:EntityLifecycles -join ', ')." }
+    if ($script:EntityLifecycles -cnotcontains $lifecycle) { throw "Entity registry '$context.lifecycle' must be one of: $($script:EntityLifecycles -join ', ')." }
     $primaryCategoryId = Get-RequiredEntityString $entity "primary_category_id" $context
     $categoryIds = @(Get-EntityStringList $entity "category_ids" $context)
     if ($categoryIds.Count -eq 0) { throw "Entity registry '$context.category_ids' cannot be empty." }
     foreach ($categoryId in $categoryIds) {
       if (-not $TaxonomyConfig.categories.Contains($categoryId)) { throw "Entity registry '$context.category_ids' references unknown category '$categoryId'." }
     }
-    if ($categoryIds -notcontains $primaryCategoryId) { throw "Entity registry '$context.primary_category_id' must appear in category_ids." }
+    if ($categoryIds -cnotcontains $primaryCategoryId) { throw "Entity registry '$context.primary_category_id' must appear in category_ids." }
     $entities[$entityId] = [pscustomobject]@{
       id = $entityId
       lifecycle = $lifecycle
@@ -342,12 +342,12 @@ function Get-KnowledgeEntityRegistry {
     $typeId = Get-RequiredEntityString $relationship "relationship_type" $context
     if (-not $entityRelationshipTypes.Contains($typeId)) { throw "Entity registry '$context.relationship_type' references unknown type '$typeId'." }
     $status = Get-RequiredEntityString $relationship "status" $context
-    if ($allowedMembershipStatuses -notcontains $status) { throw "Entity registry '$context.status' value '$status' is not supplied by selected schema packs." }
+    if ($allowedMembershipStatuses -cnotcontains $status) { throw "Entity registry '$context.status' value '$status' is not supplied by selected schema packs." }
     $scopeId = Get-OptionalEntityString $relationship "applicability_scope_id" $context
     if ($null -ne $scopeId -and -not $SourceRegistry.applicability_scopes.Contains($scopeId)) { throw "Entity registry '$context.applicability_scope_id' references unknown scope '$scopeId'." }
     $basisRoles = if ($relationship.Contains("basis_roles")) { @(Get-EntityStringList $relationship "basis_roles" $context) } else { @() }
     foreach ($basisRole in $basisRoles) { Assert-EntityPackValue $SchemaPackRegistry "narrative.entity-relationship-basis-role" $basisRole "$context.basis_roles" }
-    if ($basisRoles.Count -gt 0 -and $lineageRoleTypes -notcontains $typeId) { throw "Entity registry '$context.basis_roles' is only valid for derived-from, composite-of, or inspired-by relationships." }
+    if ($basisRoles.Count -gt 0 -and $lineageRoleTypes -cnotcontains $typeId) { throw "Entity registry '$context.basis_roles' is only valid for derived-from, composite-of, or inspired-by relationships." }
     $shape = Get-CanonicalEntityRelationshipShape $sourceId $typeId $targetId $scopeId $entityRelationshipTypes
     if (-not $entityRelationshipShapes.Add($shape)) { throw "Entity registry '$context' duplicates an entity relationship or its inverse." }
     $entityRelationships += [pscustomobject]@{ id=$id; source_entity_id=$sourceId; relationship_type=$typeId; target_entity_id=$targetId; status=$status; applicability_scope_id=$scopeId; basis_roles=@($basisRoles) }
@@ -363,7 +363,7 @@ function Get-KnowledgeEntityRegistry {
     $incarnation = $rawIncarnations[$incarnationId]
     if ($incarnation -isnot [System.Collections.IDictionary]) { throw "Entity registry '$context' must be a mapping." }
     $lifecycle = Get-RequiredEntityString $incarnation "lifecycle" $context
-    if ($script:EntityLifecycles -notcontains $lifecycle) { throw "Entity registry '$context.lifecycle' must be one of: $($script:EntityLifecycles -join ', ')." }
+    if ($script:EntityLifecycles -cnotcontains $lifecycle) { throw "Entity registry '$context.lifecycle' must be one of: $($script:EntityLifecycles -join ', ')." }
     $entityId = Get-RequiredEntityString $incarnation "entity_id" $context
     if (-not $entities.Contains($entityId)) { throw "Entity registry '$context.entity_id' references unknown entity '$entityId'." }
     $primaryContinuityId = Get-RequiredEntityString $incarnation "primary_continuity_id" $context
@@ -382,7 +382,7 @@ function Get-KnowledgeEntityRegistry {
       if (-not $SourceRegistry.continuities.Contains($continuityId)) { throw "Entity registry '$membershipContext.continuity_id' references unknown continuity '$continuityId'." }
       if (-not $seenContinuities.Add($continuityId)) { throw "Entity registry '$context.continuity_memberships' repeats '$continuityId'." }
       $status = Get-RequiredEntityString $membership "status" $membershipContext
-      if ($allowedMembershipStatuses -notcontains $status) { throw "Entity registry '$membershipContext.status' value '$status' is not supplied by selected schema packs." }
+      if ($allowedMembershipStatuses -cnotcontains $status) { throw "Entity registry '$membershipContext.status' value '$status' is not supplied by selected schema packs." }
       $memberships += [pscustomobject]@{ continuity_id = $continuityId; status = $status }
     }
     if (-not $seenContinuities.Contains($primaryContinuityId)) { throw "Entity registry '$context.primary_continuity_id' must appear in continuity_memberships." }
@@ -416,7 +416,7 @@ function Get-KnowledgeEntityRegistry {
     $bindingType = Get-RequiredEntityString $binding "binding_type" $context
     Assert-EntityPackValue $SchemaPackRegistry "narrative.incarnation-binding-type" $bindingType "$context.binding_type"
     $status = Get-RequiredEntityString $binding "status" $context
-    if ($allowedMembershipStatuses -notcontains $status) { throw "Entity registry '$context.status' value '$status' is not supplied by selected schema packs." }
+    if ($allowedMembershipStatuses -cnotcontains $status) { throw "Entity registry '$context.status' value '$status' is not supplied by selected schema packs." }
     if (-not $bindingShapes.Add("$incarnationId|$scopeId|$bindingType")) { throw "Entity registry '$context' duplicates an incarnation binding." }
     $bindings += [pscustomobject]@{ id=$id; incarnation_id=$incarnationId; applicability_scope_id=$scopeId; binding_type=$bindingType; status=$status }
   }
@@ -460,7 +460,7 @@ function Get-KnowledgeEntityRegistry {
     $typeId = Get-RequiredEntityString $relationship "relationship_type" $context
     if (-not $relationshipTypes.Contains($typeId)) { throw "Entity registry '$context.relationship_type' references unknown type '$typeId'." }
     $status = Get-RequiredEntityString $relationship "status" $context
-    if ($allowedMembershipStatuses -notcontains $status) { throw "Entity registry '$context.status' value '$status' is not supplied by selected schema packs." }
+    if ($allowedMembershipStatuses -cnotcontains $status) { throw "Entity registry '$context.status' value '$status' is not supplied by selected schema packs." }
     $scopeId = Get-OptionalEntityString $relationship "applicability_scope_id" $context
     if ($null -ne $scopeId -and -not $SourceRegistry.applicability_scopes.Contains($scopeId)) { throw "Entity registry '$context.applicability_scope_id' references unknown scope '$scopeId'." }
     $shape = Get-CanonicalEntityRelationshipShape $sourceId $typeId $targetId $scopeId $relationshipTypes
@@ -481,7 +481,7 @@ function Get-KnowledgeEntityRegistry {
     $phase = $rawIdentityPhases[$phaseId]
     if ($phase -isnot [System.Collections.IDictionary]) { throw "Entity registry '$context' must be a mapping." }
     $lifecycle = Get-RequiredEntityString $phase "lifecycle" $context
-    if ($script:EntityLifecycles -notcontains $lifecycle) { throw "Entity registry '$context.lifecycle' must be one of: $($script:EntityLifecycles -join ', ')." }
+    if ($script:EntityLifecycles -cnotcontains $lifecycle) { throw "Entity registry '$context.lifecycle' must be one of: $($script:EntityLifecycles -join ', ')." }
     $subjectType = Get-RequiredEntityString $phase "subject_type" $context
     Assert-EntityPackValue $SchemaPackRegistry "identity.phase-subject-type" $subjectType "$context.subject_type"
     $subjectId = Get-RequiredEntityString $phase "subject_id" $context
@@ -494,7 +494,7 @@ function Get-KnowledgeEntityRegistry {
     }
     $continuityId = Get-RequiredEntityString $phase "continuity_id" $context
     if (-not $SourceRegistry.continuities.Contains($continuityId)) { throw "Entity registry '$context.continuity_id' references unknown continuity '$continuityId'." }
-    if ($subjectType -eq "entity-incarnation" -and @($incarnations[$subjectId].continuity_memberships.continuity_id) -notcontains $continuityId) { throw "Entity registry '$context.continuity_id' is not a continuity membership of incarnation '$subjectId'." }
+    if ($subjectType -eq "entity-incarnation" -and @($incarnations[$subjectId].continuity_memberships.continuity_id) -cnotcontains $continuityId) { throw "Entity registry '$context.continuity_id' is not a continuity membership of incarnation '$subjectId'." }
     $phaseType = Get-RequiredEntityString $phase "phase_type" $context
     Assert-EntityPackValue $SchemaPackRegistry "identity.phase-type" $phaseType "$context.phase_type"
     $identityPhases[$phaseId] = [pscustomobject]@{
@@ -525,12 +525,12 @@ function Get-KnowledgeEntityRegistry {
     if ($workIds.Count -eq 0) { throw "Entity registry '$context.applicability_scope_id' must resolve to source material with a canonical work." }
     $phaseContinuityId = $identityPhases[$phaseId].continuity_id
     foreach ($workId in $workIds) {
-      if (@($SourceRegistry.works[$workId].continuity_memberships.continuity_id) -notcontains $phaseContinuityId) { throw "Entity registry '$context.applicability_scope_id' resolves outside phase continuity '$phaseContinuityId'." }
+      if (@($SourceRegistry.works[$workId].continuity_memberships.continuity_id) -cnotcontains $phaseContinuityId) { throw "Entity registry '$context.applicability_scope_id' resolves outside phase continuity '$phaseContinuityId'." }
     }
     $bindingType = Get-RequiredEntityString $binding "binding_type" $context
     Assert-EntityPackValue $SchemaPackRegistry "identity.phase-binding-type" $bindingType "$context.binding_type"
     $status = Get-RequiredEntityString $binding "status" $context
-    if ($allowedMembershipStatuses -notcontains $status) { throw "Entity registry '$context.status' value '$status' is not supplied by selected schema packs." }
+    if ($allowedMembershipStatuses -cnotcontains $status) { throw "Entity registry '$context.status' value '$status' is not supplied by selected schema packs." }
     if (-not $phaseBindingShapes.Add("$phaseId|$scopeId|$bindingType")) { throw "Entity registry '$context' duplicates an identity-phase binding." }
     $phaseBindings += [pscustomobject]@{ id=$id; identity_phase_id=$phaseId; applicability_scope_id=$scopeId; binding_type=$bindingType; status=$status }
   }
@@ -574,7 +574,7 @@ function Get-KnowledgeEntityRegistry {
     $typeId = Get-RequiredEntityString $relationship "relationship_type" $context
     if (-not $phaseRelationshipTypes.Contains($typeId)) { throw "Entity registry '$context.relationship_type' references unknown type '$typeId'." }
     $status = Get-RequiredEntityString $relationship "status" $context
-    if ($allowedMembershipStatuses -notcontains $status) { throw "Entity registry '$context.status' value '$status' is not supplied by selected schema packs." }
+    if ($allowedMembershipStatuses -cnotcontains $status) { throw "Entity registry '$context.status' value '$status' is not supplied by selected schema packs." }
     $shape = Get-CanonicalEntityRelationshipShape $sourceId $typeId $targetId $null $phaseRelationshipTypes
     if (-not $phaseRelationshipShapes.Add($shape)) { throw "Entity registry '$context' duplicates an identity-phase relationship or its inverse." }
     $phaseRelationships += [pscustomobject]@{ id=$id; source_identity_phase_id=$sourceId; relationship_type=$typeId; target_identity_phase_id=$targetId; status=$status }
@@ -708,7 +708,7 @@ function Get-KnowledgeEntityReconciliationTarget {
 
 function Get-KnowledgeIdentitySubjectTarget {
   param([object]$EntityRegistry, [string]$SubjectType, [string]$SubjectId)
-  if (@(Get-KnowledgeIdentitySubjectTypes) -notcontains $SubjectType) { throw "Unsupported identity subject type '$SubjectType'." }
+  if (@(Get-KnowledgeIdentitySubjectTypes) -cnotcontains $SubjectType) { throw "Unsupported identity subject type '$SubjectType'." }
   return Get-KnowledgeIdentityTarget $EntityRegistry $SubjectType $SubjectId
 }
 

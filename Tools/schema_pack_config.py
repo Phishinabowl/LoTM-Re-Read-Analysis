@@ -2,9 +2,8 @@ from dataclasses import dataclass
 from pathlib import Path
 import re
 
-import yaml
-
 from project_config import ProjectConfig
+from strict_yaml import load_yaml_file
 
 
 SUPPORTED_SCHEMA_PACK_REGISTRY_VERSION = 2
@@ -169,10 +168,7 @@ def resolve_pack_path(project: ProjectConfig, value: str, context: str) -> Path:
 
 
 def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
-    try:
-        data = yaml.safe_load(path.read_text(encoding="utf-8"))
-    except yaml.YAMLError as exc:
-        raise ValueError(f"Unable to parse schema pack {path}: {exc}") from exc
+    data = load_yaml_file(path, "schema pack", expected_schema_version=SUPPORTED_SCHEMA_PACK_VERSION)
     pack = require_mapping(data, expected_pack_id)
     schema_version = require_positive_int(pack, "schema_version", expected_pack_id)
     if schema_version != SUPPORTED_SCHEMA_PACK_VERSION:
@@ -388,10 +384,7 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
 
 def load_schema_pack_registry(project: ProjectConfig) -> SchemaPackRegistry:
     path = project.schema_packs_registry
-    try:
-        data = yaml.safe_load(path.read_text(encoding="utf-8"))
-    except yaml.YAMLError as exc:
-        raise ValueError(f"Unable to parse schema-pack registry {path}: {exc}") from exc
+    data = load_yaml_file(path, "schema-pack registry", expected_schema_version=SUPPORTED_SCHEMA_PACK_REGISTRY_VERSION)
     registry = require_mapping(data, "root")
     schema_version = require_positive_int(registry, "schema_version", "root")
     if schema_version != SUPPORTED_SCHEMA_PACK_REGISTRY_VERSION:

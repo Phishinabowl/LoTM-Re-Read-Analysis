@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from pathlib import Path
 import re
 
-import yaml
+from strict_yaml import load_yaml_file
 
 
 PROJECT_MANIFEST_PATH = Path("Project_Config") / "project.yaml"
@@ -128,10 +128,11 @@ def resolve_manifest_path(
 def load_project_config(root: Path) -> ProjectConfig:
     resolved_root = root.resolve()
     manifest_path = resolved_root / PROJECT_MANIFEST_PATH
-    try:
-        data = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
-    except yaml.YAMLError as exc:
-        raise ValueError(f"Unable to parse project manifest {manifest_path}: {exc}") from exc
+    data = load_yaml_file(
+        manifest_path,
+        "project manifest",
+        expected_schema_version=SUPPORTED_SCHEMA_VERSION,
+    )
 
     manifest = require_mapping(data, "root")
     schema_version = manifest.get("schema_version")

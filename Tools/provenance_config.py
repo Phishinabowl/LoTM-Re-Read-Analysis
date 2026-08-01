@@ -2,8 +2,6 @@ from dataclasses import dataclass
 from pathlib import Path
 import re
 
-import yaml
-
 from entity_config import EntityRegistry
 from project_config import ProjectConfig
 from reconciliation_config import ReconciliationRegistry
@@ -25,6 +23,7 @@ from source_config import (
     validate_pack_values,
     validate_source_position,
 )
+from strict_yaml import load_yaml_file
 
 
 SUPPORTED_PROVENANCE_SCHEMA_VERSION = 1
@@ -474,10 +473,7 @@ def load_provenance_registry(
 ) -> ProvenanceRegistry:
     if schema_packs is None:
         schema_packs = load_schema_pack_registry(project)
-    try:
-        data = yaml.safe_load(project.provenance_registry.read_text(encoding="utf-8"))
-    except yaml.YAMLError as exc:
-        raise ValueError(f"Unable to parse provenance registry {project.provenance_registry}: {exc}") from exc
+    data = load_yaml_file(project.provenance_registry, "provenance registry", expected_schema_version=SUPPORTED_PROVENANCE_SCHEMA_VERSION)
     registry = require_mapping(data, "root")
     schema_version = registry.get("schema_version")
     if schema_version != SUPPORTED_PROVENANCE_SCHEMA_VERSION:

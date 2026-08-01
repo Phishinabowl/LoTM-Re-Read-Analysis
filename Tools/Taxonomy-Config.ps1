@@ -17,7 +17,7 @@ function Test-StableTaxonomyId {
     [string]$Context
   )
 
-  if ($Value -notmatch $script:StableTaxonomyIdPattern) {
+  if ($Value -cnotmatch $script:StableTaxonomyIdPattern) {
     throw "Taxonomy registry '$Context' must be a lowercase kebab-case stable ID: $Value"
   }
 }
@@ -112,7 +112,7 @@ function ConvertTo-ContentTypeConfig {
   }
 
   $lifecycle = Get-RequiredTaxonomyString $RawContentType "lifecycle" $context
-  if ($script:AllowedTaxonomyLifecycles -notcontains $lifecycle) {
+  if ($script:AllowedTaxonomyLifecycles -cnotcontains $lifecycle) {
     throw "Taxonomy registry '$context.lifecycle' must be one of: $($script:AllowedTaxonomyLifecycles -join ', ')."
   }
   $canonicalPagesEnabled = Get-RequiredTaxonomyBoolean $RawContentType "canonical_pages_enabled" $context
@@ -130,19 +130,19 @@ function ConvertTo-ContentTypeConfig {
   }
 
   $categoryPolicy = Get-RequiredTaxonomyString $RawContentType "category_policy" $context
-  if ($script:AllowedCategoryPolicies -notcontains $categoryPolicy) {
+  if ($script:AllowedCategoryPolicies -cnotcontains $categoryPolicy) {
     throw "Taxonomy registry '$context.category_policy' must be one of: $($script:AllowedCategoryPolicies -join ', ')."
   }
   $pathStrategy = Get-RequiredTaxonomyString $RawContentType "path_strategy" $context
-  if ($script:AllowedPathStrategies -notcontains $pathStrategy) {
+  if ($script:AllowedPathStrategies -cnotcontains $pathStrategy) {
     throw "Taxonomy registry '$context.path_strategy' must be one of: $($script:AllowedPathStrategies -join ', ')."
   }
   $metadataTypeMode = Get-RequiredTaxonomyString $RawContentType "metadata_type_mode" $context
-  if ($script:AllowedMetadataTypeModes -notcontains $metadataTypeMode) {
+  if ($script:AllowedMetadataTypeModes -cnotcontains $metadataTypeMode) {
     throw "Taxonomy registry '$context.metadata_type_mode' must be one of: $($script:AllowedMetadataTypeModes -join ', ')."
   }
   $slugMode = Get-RequiredTaxonomyString $RawContentType "slug_mode" $context
-  if ($script:AllowedSlugModes -notcontains $slugMode) {
+  if ($script:AllowedSlugModes -cnotcontains $slugMode) {
     throw "Taxonomy registry '$context.slug_mode' must be one of: $($script:AllowedSlugModes -join ', ')."
   }
 
@@ -229,7 +229,7 @@ function ConvertTo-CategoryConfig {
   }
 
   $lifecycle = Get-RequiredTaxonomyString $RawCategory "lifecycle" $context
-  if ($script:AllowedTaxonomyLifecycles -notcontains $lifecycle) {
+  if ($script:AllowedTaxonomyLifecycles -cnotcontains $lifecycle) {
     throw "Taxonomy registry '$context.lifecycle' must be one of: $($script:AllowedTaxonomyLifecycles -join ', ')."
   }
   $canonicalPagesEnabled = Get-RequiredTaxonomyBoolean $RawCategory "canonical_pages_enabled" $context
@@ -345,12 +345,12 @@ function Get-KnowledgeTaxonomyConfig {
 
   Import-ProjectYamlModule
   $registryPath = $ProjectConfig.taxonomy_registry
-  $registry = ConvertFrom-Yaml -Yaml ([System.IO.File]::ReadAllText($registryPath, [System.Text.UTF8Encoding]::new($true))) -Ordered
+  $registry = ConvertFrom-KnowledgeYamlFile $registryPath $script:SupportedTaxonomySchemaVersion "taxonomy registry"
   if ($null -eq $registry -or -not ($registry -is [System.Collections.IDictionary])) {
     throw "Taxonomy registry root must be a mapping: $registryPath"
   }
   $schemaVersion = Get-ProjectMapValue $registry "schema_version"
-  if ([int]$schemaVersion -ne $script:SupportedTaxonomySchemaVersion) {
+  if ($schemaVersion -isnot [int] -or $schemaVersion -ne $script:SupportedTaxonomySchemaVersion) {
     throw "Unsupported taxonomy schema_version '$schemaVersion'; expected $($script:SupportedTaxonomySchemaVersion)."
   }
 
@@ -412,7 +412,7 @@ function Get-TaxonomyQaPageContentRoots {
   $enabledRootIds = @($TaxonomyConfig.content_types.Values | Where-Object {
     $_.lifecycle -eq "active" -and $_.qa_page_enabled
   } | ForEach-Object { $_.content_root_id })
-  return @($ProjectConfig.content_roots | Where-Object { $enabledRootIds -contains $_.id })
+  return @($ProjectConfig.content_roots | Where-Object { $enabledRootIds -ccontains $_.id })
 }
 
 function Get-KnowledgeTaxonomyReconciliationTargetTypes {

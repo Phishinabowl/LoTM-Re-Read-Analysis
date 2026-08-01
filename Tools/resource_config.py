@@ -2,9 +2,8 @@ from dataclasses import dataclass
 from pathlib import Path
 import re
 
-import yaml
-
 from project_config import ProjectConfig
+from strict_yaml import load_yaml_file
 
 
 SUPPORTED_RESOURCE_SCHEMA_VERSION = 1
@@ -126,12 +125,7 @@ def resolve_placement(
 
 
 def load_resource_config(project: ProjectConfig) -> ResourceConfig:
-    try:
-        data = yaml.safe_load(project.resources_registry.read_text(encoding="utf-8"))
-    except yaml.YAMLError as exc:
-        raise ValueError(
-            f"Unable to parse resource registry {project.resources_registry}: {exc}"
-        ) from exc
+    data = load_yaml_file(project.resources_registry, "resource registry", expected_schema_version=SUPPORTED_RESOURCE_SCHEMA_VERSION)
 
     registry = require_mapping(data, "root")
     schema_version = registry.get("schema_version")

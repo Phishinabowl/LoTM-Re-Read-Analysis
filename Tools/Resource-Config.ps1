@@ -31,7 +31,7 @@ function Get-RequiredResourceBoolean {
 function Test-StableResourceId {
   param([string]$Value, [string]$Context)
 
-  if ($Value -notmatch $script:StableProjectIdPattern) {
+  if ($Value -cnotmatch $script:StableProjectIdPattern) {
     throw "Resource registry '$Context' must be a lowercase kebab-case stable ID: $Value"
   }
 }
@@ -68,12 +68,12 @@ function Get-KnowledgeResourceConfig {
 
   Import-ProjectYamlModule
   $registryPath = $ProjectConfig.resources_registry
-  $registry = ConvertFrom-Yaml -Yaml ([System.IO.File]::ReadAllText($registryPath, [System.Text.UTF8Encoding]::new($true))) -Ordered
+  $registry = ConvertFrom-KnowledgeYamlFile $registryPath $script:SupportedResourceSchemaVersion "resource registry"
   if ($null -eq $registry -or -not ($registry -is [System.Collections.IDictionary])) {
     throw "Resource registry root must be a mapping: $registryPath"
   }
   $schemaVersion = Get-ProjectMapValue $registry "schema_version"
-  if ([int]$schemaVersion -ne $script:SupportedResourceSchemaVersion) {
+  if ($schemaVersion -isnot [int] -or $schemaVersion -ne $script:SupportedResourceSchemaVersion) {
     throw "Unsupported resource schema_version '$schemaVersion'; expected $($script:SupportedResourceSchemaVersion)."
   }
 
@@ -110,7 +110,7 @@ function Get-KnowledgeResourceConfig {
       throw "Resource registry '$context' must be a mapping."
     }
     $lifecycle = Get-RequiredResourceString $rawType "lifecycle" $context
-    if ($script:AllowedResourceLifecycles -notcontains $lifecycle) {
+    if ($script:AllowedResourceLifecycles -cnotcontains $lifecycle) {
       throw "Resource registry '$context.lifecycle' must be one of: $($script:AllowedResourceLifecycles -join ', ')."
     }
     $kindId = Get-RequiredResourceString $rawType "kind_id" $context
@@ -118,7 +118,7 @@ function Get-KnowledgeResourceConfig {
       throw "Resource registry '$context.kind_id' references unknown kind '$kindId'."
     }
     $authority = Get-RequiredResourceString $rawType "authority" $context
-    if ($script:AllowedResourceAuthorities -notcontains $authority) {
+    if ($script:AllowedResourceAuthorities -cnotcontains $authority) {
       throw "Resource registry '$context.authority' must be one of: $($script:AllowedResourceAuthorities -join ', ')."
     }
     $rawPlacements = @(Get-ProjectMapValue $rawType "placements")
@@ -135,7 +135,7 @@ function Get-KnowledgeResourceConfig {
       $rootId = Get-RequiredResourceString $placement "root_id" $placementContext
       Test-StableResourceId $rootId "$placementContext.root_id"
       $tracking = Get-RequiredResourceString $placement "tracking" $placementContext
-      if ($script:AllowedResourceTrackingModes -notcontains $tracking) {
+      if ($script:AllowedResourceTrackingModes -cnotcontains $tracking) {
         throw "Resource registry '$placementContext.tracking' must be one of: $($script:AllowedResourceTrackingModes -join ', ')."
       }
       $required = Get-RequiredResourceBoolean $placement "required" $placementContext

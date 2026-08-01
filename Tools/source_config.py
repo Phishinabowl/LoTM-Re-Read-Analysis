@@ -5,12 +5,11 @@ from pathlib import Path
 from string import Formatter
 import re
 
-import yaml
-
 from lookup_key_config import LookupKeyConfig, load_lookup_key_config
 from project_config import ProjectConfig
 from resource_config import ResourceConfig
 from schema_pack_config import SchemaPackRegistry, load_schema_pack_registry
+from strict_yaml import load_yaml_file
 
 
 SUPPORTED_SOURCE_SCHEMA_VERSION = 16
@@ -2440,12 +2439,7 @@ def load_source_registry(
             "Selected schema packs do not provide controlled namespace "
             "`provenance.evidence-mode`."
         )
-    try:
-        data = yaml.safe_load(project.sources_registry.read_text(encoding="utf-8"))
-    except yaml.YAMLError as exc:
-        raise ValueError(
-            f"Unable to parse source registry {project.sources_registry}: {exc}"
-        ) from exc
+    data = load_yaml_file(project.sources_registry, "source registry", expected_schema_version=SUPPORTED_SOURCE_SCHEMA_VERSION)
     registry = require_mapping(data, "root")
     schema_version = registry.get("schema_version")
     if schema_version != SUPPORTED_SOURCE_SCHEMA_VERSION:

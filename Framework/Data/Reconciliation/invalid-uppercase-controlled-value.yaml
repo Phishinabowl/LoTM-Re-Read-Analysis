@@ -1,13 +1,12 @@
 schema_version: 3
-
 resolution:
   max_branches: 65536
 records:
-  - id: invalid-label-mode
-    source_type: category
-    source_id: invalid-label-source
+  - id: invalid-uppercase-controlled-value
+    source_type: CATEGORY
+    source_id: invalid-uppercase-source
     source_state: tombstone
-    source_label_mode: snapshot
+    source_label_mode: omitted
     operation: retire
     targets: []
     reason: deprecated

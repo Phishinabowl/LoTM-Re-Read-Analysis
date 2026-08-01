@@ -1,4 +1,8 @@
-schema_version: 2
+schema_version: 3
+
+resolution:
+  # Hard safety bound for terminal branches produced by one split resolution.
+  max_branches: 65536
 
 # Historical identity changes belong here. Empty means no stable IDs have been
 # redirected, merged, split, retired, or reclassified in this project yet.

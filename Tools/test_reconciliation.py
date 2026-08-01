@@ -100,7 +100,11 @@ def deep_registry(depth: int) -> dict:
                 "audit": {"mode": "repository-history"},
             }
         )
-    return {"schema_version": 2, "records": records}
+    return {
+        "schema_version": 3,
+        "resolution": {"max_branches": 65536},
+        "records": records,
+    }
 
 
 def main() -> int:
@@ -112,7 +116,7 @@ def main() -> int:
     fixtures = root / "Framework" / "Data" / "Reconciliation"
     project, packs, providers = build_context(root)
 
-    registry = load_at(project, packs, providers, fixtures / "valid-v2.yaml")
+    registry = load_at(project, packs, providers, fixtures / "valid-v3.yaml")
     expected = json.loads((fixtures / "expectations.json").read_text(encoding="utf-8"))
     actual = [
         normalized_resolution(registry.resolve(case["target_type"], case["target_id"]))
@@ -131,6 +135,19 @@ def main() -> int:
         "invalid-source-state.yaml",
         "invalid-label-mode.yaml",
         "invalid-supersession-cycle.yaml",
+        "invalid-duplicate-key.yaml",
+        "invalid-schema-string.yaml",
+        "invalid-unknown-field.yaml",
+        "invalid-timestamp-case.yaml",
+        "invalid-timestamp-offset.yaml",
+        "invalid-resolution-type.yaml",
+        "invalid-resolution-field.yaml",
+        "invalid-schema-decimal.yaml",
+        "invalid-record-field.yaml",
+        "invalid-target-field.yaml",
+        "invalid-audit-field.yaml",
+        "invalid-present-retire.yaml",
+        "invalid-uppercase-controlled-value.yaml",
     ):
         try:
             load_at(project, packs, providers, fixtures / name)
@@ -138,6 +155,14 @@ def main() -> int:
             pass
         else:
             raise AssertionError(f"Malformed reconciliation fixture was accepted: {name}")
+
+    limited = load_at(project, packs, providers, fixtures / "branch-limit.yaml")
+    try:
+        limited.resolve("category", "branch-limit-source")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("Reconciliation branch limit did not stop expansion.")
 
     with tempfile.TemporaryDirectory(prefix="knowledge-reconciliation-") as temp_dir:
         path = Path(temp_dir) / "deep-chain.yaml"
@@ -149,7 +174,7 @@ def main() -> int:
 
     print(
         f"Reconciliation conformance passed: {len(actual)} vectors, "
-        f"9 malformed fixtures, {args.deep_chain}-hop chain."
+        f"22 malformed fixtures, branch limit, {args.deep_chain}-hop chain."
     )
     return 0
 

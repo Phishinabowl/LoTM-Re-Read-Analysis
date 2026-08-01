@@ -1,19 +1,23 @@
 from dataclasses import dataclass
-from datetime import datetime
 from pathlib import Path
 import re
 
-import yaml
-
 from project_config import ProjectConfig
 from schema_pack_config import SchemaPackRegistry, load_schema_pack_registry
+from strict_yaml import assert_allowed_keys, is_rfc3339_timestamp, load_yaml_file
 
 
-SUPPORTED_RECONCILIATION_SCHEMA_VERSION = 2
+SUPPORTED_RECONCILIATION_SCHEMA_VERSION = 3
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
-RFC3339_PATTERN = re.compile(
-    r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$"
-)
+ROOT_FIELDS = {"schema_version", "resolution", "records"}
+RESOLUTION_FIELDS = {"max_branches"}
+RECORD_FIELDS = {
+    "id", "source_type", "source_id", "source_state", "source_label_mode",
+    "source_label", "operation", "targets", "reason", "status",
+    "superseded_by_id", "audit",
+}
+TARGET_FIELDS = {"target_type", "target_id"}
+AUDIT_FIELDS = {"mode", "recorded_at", "actor_ref", "approval_ref", "migration_id"}
 
 
 @dataclass(frozen=True)
@@ -73,6 +77,7 @@ class ReconciliationRegistry:
     aliases: dict[str, frozenset[str]]
     records_by_id: dict[str, ReconciliationRecord]
     active_records: dict[tuple[str, str], ReconciliationRecord]
+    max_branches: int
 
     def reconciliation_target(self, target_type: str, target_id: str) -> object:
         records = self.targets.get(target_type)
@@ -111,10 +116,18 @@ class ReconciliationRegistry:
             endpoint, path = stack.pop()
             record = self.active_records.get((endpoint.target_type, endpoint.target_id))
             if record is None:
+                if len(branches) >= self.max_branches:
+                    raise ValueError(
+                        f"Reconciliation resolution for `{target_type}:{target_id}` exceeds configured max_branches {self.max_branches}."
+                    )
                 branches.append(ReconciliationBranch("canonical", endpoint, path))
                 continue
             next_path = (*path, record.id)
             if record.operation == "retire":
+                if len(branches) >= self.max_branches:
+                    raise ValueError(
+                        f"Reconciliation resolution for `{target_type}:{target_id}` exceeds configured max_branches {self.max_branches}."
+                    )
                 branches.append(ReconciliationBranch("retired", None, next_path))
                 continue
             for target in reversed(record.targets):
@@ -187,6 +200,7 @@ def parse_audit(
     item: dict, context: str, schema_packs: SchemaPackRegistry
 ) -> ReconciliationAudit:
     audit = require_mapping(item.get("audit"), f"{context}.audit")
+    assert_allowed_keys(audit, AUDIT_FIELDS, f"Reconciliation registry `{context}.audit`")
     mode = require_string(audit, "mode", f"{context}.audit")
     validate_pack_value(schema_packs, "reconciliation.audit-mode", mode, f"{context}.audit.mode")
     recorded_at = optional_string(audit, "recorded_at", f"{context}.audit")
@@ -200,16 +214,10 @@ def parse_audit(
             raise ValueError(
                 f"Reconciliation registry `{context}.audit` explicit mode requires recorded_at and actor_ref."
             )
-        if not RFC3339_PATTERN.fullmatch(recorded_at):
+        if not is_rfc3339_timestamp(recorded_at):
             raise ValueError(
                 f"Reconciliation registry `{context}.audit.recorded_at` must be RFC 3339 with a timezone."
             )
-        try:
-            datetime.fromisoformat(recorded_at.replace("Z", "+00:00"))
-        except ValueError as exc:
-            raise ValueError(
-                f"Reconciliation registry `{context}.audit.recorded_at` is not a valid timestamp."
-            ) from exc
     elif any(value is not None for value in (recorded_at, actor_ref, approval_ref)):
         raise ValueError(
             f"Reconciliation registry `{context}.audit` repository-history mode derives actor, time, and approval from version control."
@@ -313,18 +321,23 @@ def load_reconciliation_registry(
             details.append("unregistered providers: " + ", ".join(sorted(extra)))
         raise ValueError("Reconciliation target-provider mismatch (" + "; ".join(details) + ").")
 
-    try:
-        data = yaml.safe_load(project.reconciliation_registry.read_text(encoding="utf-8"))
-    except yaml.YAMLError as exc:
-        raise ValueError(
-            f"Unable to parse reconciliation registry {project.reconciliation_registry}: {exc}"
-        ) from exc
+    data = load_yaml_file(
+        project.reconciliation_registry,
+        "reconciliation registry",
+        expected_schema_version=SUPPORTED_RECONCILIATION_SCHEMA_VERSION,
+    )
     registry = require_mapping(data, "root")
+    assert_allowed_keys(registry, ROOT_FIELDS, "Reconciliation registry root")
     schema_version = registry.get("schema_version")
     if schema_version != SUPPORTED_RECONCILIATION_SCHEMA_VERSION:
         raise ValueError(
             f"Unsupported reconciliation schema_version {schema_version!r}; expected {SUPPORTED_RECONCILIATION_SCHEMA_VERSION}."
         )
+    resolution = require_mapping(registry.get("resolution"), "resolution")
+    assert_allowed_keys(resolution, RESOLUTION_FIELDS, "Reconciliation registry `resolution`")
+    max_branches = resolution.get("max_branches")
+    if type(max_branches) is not int or max_branches < 1:
+        raise ValueError("Reconciliation registry `resolution.max_branches` must be a positive integer.")
     raw_records = registry.get("records")
     if not isinstance(raw_records, list):
         raise ValueError("Reconciliation registry `records` must be a list.")
@@ -335,6 +348,7 @@ def load_reconciliation_registry(
     for index, raw_record in enumerate(raw_records):
         context = f"records[{index}]"
         item = require_mapping(raw_record, context)
+        assert_allowed_keys(item, RECORD_FIELDS, f"Reconciliation registry `{context}`")
         record_id = require_string(item, "id", context)
         validate_id(record_id, f"{context}.id")
         if record_id in record_ids:
@@ -378,6 +392,7 @@ def load_reconciliation_registry(
         for target_index, raw_target in enumerate(raw_targets):
             target_context = f"{context}.targets[{target_index}]"
             target = require_mapping(raw_target, target_context)
+            assert_allowed_keys(target, TARGET_FIELDS, f"Reconciliation registry `{target_context}`")
             target_type = require_string(target, "target_type", target_context)
             validate_pack_value(schema_packs, "reconciliation.target-type", target_type, f"{target_context}.target_type")
             target_id = require_string(target, "target_id", target_context)
@@ -408,6 +423,10 @@ def load_reconciliation_registry(
         if source_state == "tombstone" and source_id in aliases[source_type]:
             raise ValueError(
                 f"Reconciliation tombstone `{source_type}:{source_id}` conflicts with a provider alias; historical stable IDs belong only to reconciliation."
+            )
+        if status == "active" and operation == "retire" and source_state != "tombstone":
+            raise ValueError(
+                f"Reconciliation registry active retirement `{record_id}` requires a tombstone source."
             )
         if status == "active":
             if superseded_by_id is not None:
@@ -460,15 +479,26 @@ def load_reconciliation_registry(
                 raise ValueError(f"Reconciliation record `{record.id}` targets unknown current or historical `{endpoint.target_type}:{endpoint.target_id}`.")
     validate_active_graph(active)
 
+    supersession_terminal: dict[str, ReconciliationRecord] = {}
     for record in records:
-        seen: set[str] = set()
+        if record.id in supersession_terminal:
+            continue
+        path: list[ReconciliationRecord] = []
+        local_ids: set[str] = set()
         current = record
-        while current.superseded_by_id is not None:
-            if current.id in seen:
+        while current.id not in supersession_terminal:
+            if current.id in local_ids:
                 raise ValueError(f"Reconciliation supersession chain contains a cycle at `{current.id}`.")
-            seen.add(current.id)
+            local_ids.add(current.id)
+            path.append(current)
+            if current.superseded_by_id is None:
+                break
             current = by_id[current.superseded_by_id]
-        if record.status == "superseded" and current.status != "active":
+        terminal = supersession_terminal.get(current.id, current)
+        for item in path:
+            supersession_terminal[item.id] = terminal
+    for record in records:
+        if record.status == "superseded" and supersession_terminal[record.id].status != "active":
             raise ValueError(f"Reconciliation superseded record `{record.id}` must lead to an active record.")
 
     return ReconciliationRegistry(
@@ -479,4 +509,5 @@ def load_reconciliation_registry(
         dict(aliases),
         by_id,
         active,
+        max_branches,
     )
