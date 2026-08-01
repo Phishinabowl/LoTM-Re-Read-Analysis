@@ -703,3 +703,43 @@ Implementation conformance covers negative years, year 12000, BCE/BBY-style desc
 The temporal suite also grew permanent `-00:00` and exclusive calendar-extrema cases. Its 17 valid windows, 21 malformed windows, 20 query vectors, and 12 overlap vectors remain equivalent across all three runtimes.
 
 Formula-based calendar transformations, uncertain multi-anchor reconciliation, concrete event/content positions with provenance, and richer branch topology are intentionally outside V30. The post-V30 pressure test must determine which of those or other gaps actually justify V31 before its scope is selected.
+
+## Testing After V30
+
+The V30 conformance baseline remained equivalent across Python, PowerShell 7, and Windows PowerShell 5.1: eleven comparison vectors and eleven malformed chronology registries passed in every runtime. The broader pressure test then combined ordinary chronology systems with closed causal loops, reset loops, mutable and branching timelines, nested loops, changing reset points, staggered participant awareness, partial escape, temporal duplicates, and repeated occurrences at one world coordinate. Non-narrative cases included IT retries and rollbacks, distributed execution order, recurring medical episodes, periodic legal obligations, workflow cycles, and repeated scientific trials.
+
+The model handled its intended boundary correctly in several important ways. Separate world and traveler axes represented a backward jump while preserving forward subjective experience; unrelated axes remained incomparable; uncertain conflicting order claims did not become exact order; and an explicit exact `A before B before C before A` chronology was rejected. Negative years, year 12000, mixed-direction eras, relative origins, descending counters, spans, and direct mappings remained valid under the established fixtures.
+
+### Correctness Defects
+
+The executable probes found two defects in V30's exact-order consistency rather than merely absent time-loop features:
+
+1. Intrinsic same-axis order and explicit cross-axis order are validated separately. A configuration containing intrinsic `A1 before A2` plus explicit `A2 before B` and `B before A1` currently loads even though the combined exact order is cyclic.
+2. Exact relationships and equivalence mappings are interpreted only one hop at a time. `A equivalent B`, `B equivalent C`, and `A before C` can coexist, while comparison of `A` and `C` without the direct relation remains `incomparable`. Exact equivalence and exact precedence therefore lack the closure needed to detect transitive contradictions and answer derived order consistently.
+
+V31 must close those defects before building higher-level recurrence behavior. Exact chronology must validate one combined graph containing intrinsic coordinate order, relative-origin equivalence, exact mappings, and explicit exact relations without turning uncertain claims into exact edges.
+
+### Missing Capabilities
+
+Time loops demonstrated that chronology coordinates are necessary but not sufficient. V30 has no executable representation for:
+
+- a recurring event template versus distinct occurrence instances;
+- an occurrence bound to a world coordinate, loop iteration, branch, and participant track;
+- a stable recurrence region, ordered iteration identities, or nested iterations;
+- jump, reset, exit, fork, or merge transitions;
+- causal relationships that may legitimately cycle without becoming chronological order;
+- typed state carryover across reset boundaries;
+- participant experience, observation, awareness, or retained memory;
+- reset and termination conditions, changing reset points, or partial participant escape;
+- referential branch topology beyond an opaque `branch_id`; or
+- position-scoped time-travel origin/destination roles rather than axis-wide context labels.
+
+The test also confirmed that V30 deliberately accepts only scalar integer coordinates. Vector clocks and cyclic phase coordinates require separate reviewed contracts; recurrence must not be simulated by weakening strict chronological order or by making one coordinate position stand for several occurrence identities.
+
+### V31 Recommendation
+
+V31 should be **Occurrence and Recurrence Foundations**. Core should gain occurrence-template and occurrence-instance identity, multi-axis coordinate bindings, recurrence and iteration identity, non-chronological transitions, cycle-permitting causal edges, typed carryover, perspective/observation tracks, minimal branch topology, and provenance-addressable query services. The chronology registry should remain the acyclic coordinate and order service consumed by that new layer.
+
+The narrative-media pack should specialize those primitives with time-loop roles, subjective participant histories, awareness, retained memory or knowledge, reset rules, escape conditions, and story-presentation semantics. Project data should own concrete loops, iterations, participants, occurrences, and source-backed claims; the LoTM instance should remain empty until verified material requires one.
+
+V31's acceptance test must answer both "what happened during iteration 7?" and "what did this participant experience immediately before iteration 7 began?" without introducing a chronological cycle. It must also distinguish two occurrences at one world coordinate, permit cyclic causality while rejecting cyclic chronology, support nested loops and staggered awareness, allow one participant to escape while another remains, and let non-narrative projects use recurrence primitives without enabling narrative semantics.
