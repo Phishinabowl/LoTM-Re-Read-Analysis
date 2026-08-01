@@ -570,6 +570,8 @@ def parse_occurrence_registry(
         raise ValueError("Occurrence registry requires enabled capability `deterministic-recurrence-rule-evaluation`.")
     if not packs.capability_enabled("recurrence-schedule-modeling"):
         raise ValueError("Occurrence registry requires enabled capability `recurrence-schedule-modeling`.")
+    if not packs.capability_enabled("recurrence-policy-integrity"):
+        raise ValueError("Occurrence registry requires enabled capability `recurrence-policy-integrity`.")
     root = _mapping(data, "Occurrence registry root")
     assert_allowed_keys(
         root,
@@ -1048,7 +1050,7 @@ def parse_occurrence_registry(
             track_id = _optional_string(condition, "track_id", condition_context)
             comparison_value = _optional_nonnegative_int(condition, "comparison_value", condition_context)
             _validate_rule_condition(
-                packs, condition_kind, target_type, target_id, expected,
+                packs, pattern_id, condition_kind, target_type, target_id, expected,
                 subject_type, subject_id, state_kind, track_id, comparison_value,
                 templates, recurrence_patterns, schedules, branches, recurrences, iterations,
                 occurrences, tracks, outcomes, rule_ids, state_ids, subject_targets,
@@ -1077,12 +1079,20 @@ def parse_occurrence_registry(
                 packs, "occurrence.rule-effect-kind-target-type", f"{effect_kind}-uses-{target_type}",
                 f"{effect_context}.effect_kind/target_type",
             )
+            _value(
+                packs, "occurrence.rule-kind-effect-kind", f"{rule_kind}-uses-{effect_kind}",
+                f"{effect_context}.rule_kind/effect_kind",
+            )
             if target_id not in _target_ids(
                 target_type, branches, templates, recurrence_patterns, recurrences, iterations,
                 occurrences, tracks, {item.id: item for item in outcomes}, rule_ids, state_ids, payload_targets,
                 schedules=schedules,
             ):
                 raise ValueError(f"{effect_context} references unknown target `{target_type}:{target_id}`.")
+            if effect_kind in {"advance-iteration", "terminate-recurrence"} and target_id != pattern_id:
+                raise ValueError(
+                    f"{effect_context} recurrence-control effect must target owning pattern `{pattern_id}`."
+                )
             effects.append(RecurrenceRuleEffect(effect_id, effect_kind, target_type, target_id))
         if not effects:
             raise ValueError(f"{context}.effects must be a non-empty list.")
@@ -1581,6 +1591,7 @@ def _temporal_window_key(window: TemporalWindow | None) -> tuple | None:
 
 def _validate_rule_condition(
     packs: SchemaPackRegistry,
+    pattern_id: str,
     condition_kind: str,
     target_type: str,
     target_id: str,
@@ -1646,10 +1657,14 @@ def _validate_rule_condition(
         _value(packs, "occurrence.rule-comparison", expected_value, f"{context}.expected_value")
         if comparison_value is None or comparison_value < 1 or any(value is not None for value in (*subject_fields, state_kind, track_id)):
             raise ValueError(f"{context} iteration-ordinal conditions require a positive comparison_value only.")
+        if target_id != pattern_id:
+            raise ValueError(f"{context} iteration-ordinal condition must target owning pattern `{pattern_id}`.")
     elif condition_kind == "schedule-due":
         _value(packs, "occurrence.rule-condition-value", expected_value, f"{context}.expected_value")
         if expected_value != "due" or any(value is not None for value in (*subject_fields, state_kind, track_id, comparison_value)):
             raise ValueError(f"{context} schedule-due conditions only accept expected_value `due`.")
+        if schedules[target_id].pattern_id != pattern_id:
+            raise ValueError(f"{context} schedule must belong to owning pattern `{pattern_id}`.")
     else:
         raise ValueError(f"{context} uses unsupported condition kind `{condition_kind}`.")
 
@@ -1789,13 +1804,13 @@ def _rule_applicability_status(
         if not inside:
             return "not-applicable", "occurrence is outside chronology window"
     query, _ = normalize_effective_at(effective_at)
+    if applicability.effective_window is not None and query is None:
+        return "indeterminate", "effective time was not supplied"
     temporal = temporal_window_match(applicability.effective_window, query)
     if temporal is None:
         return "not-applicable", "effective time is outside window"
     if temporal == "unknown" or (isinstance(temporal, str) and temporal.startswith("indeterminate-")):
         return "indeterminate", f"effective window is {temporal}"
-    if applicability.effective_window is not None and query is None:
-        return "indeterminate", "effective time was not supplied"
     return "applicable", "all applicability selectors matched"
 
 

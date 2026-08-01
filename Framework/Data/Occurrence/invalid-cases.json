@@ -59,5 +59,9 @@
   {"name":"state-condition-track-subject-mismatch","changes":[{"path":"rules.3.conditions.2.track_id","value":"observer-experience"}]},
   {"name":"incompatible-subject-outcomes","changes":[{"path":"outcomes.0.outcome_kind","value":"died"}]},
   {"name":"chronology-schedule-era-anchor","changes":[{"path":"schedules.outer-coordinate-schedule.anchor_position_id","value":"ancient-year-five"}]},
-  {"name":"duplicate-semantic-rule-with-distinct-nested-ids","changes":[{"path":"rules.2.applicability.application_level","value":"pattern-default"},{"path":"rules.2.applicability.recurrence_ids","value":[]},{"path":"rules.2.applicability.phase_ids","value":[]},{"path":"rules.2.applicability.branch_ids","value":[]},{"path":"rules.2.applicability.min_iteration_ordinal","value":null},{"path":"rules.2.applicability.max_iteration_ordinal","value":null},{"path":"rules.2.priority","value":20},{"path":"rules.2.override_mode","value":"inherit"}]}
+  {"name":"duplicate-semantic-rule-with-distinct-nested-ids","changes":[{"path":"rules.2.applicability.application_level","value":"pattern-default"},{"path":"rules.2.applicability.recurrence_ids","value":[]},{"path":"rules.2.applicability.phase_ids","value":[]},{"path":"rules.2.applicability.branch_ids","value":[]},{"path":"rules.2.applicability.min_iteration_ordinal","value":null},{"path":"rules.2.applicability.max_iteration_ordinal","value":null},{"path":"rules.2.priority","value":20},{"path":"rules.2.override_mode","value":"inherit"}]},
+  {"name":"foreign-iteration-condition-pattern","changes":[{"path":"rules.0.conditions.1.target_id","value":"inner-loop-pattern"}]},
+  {"name":"foreign-schedule-condition-pattern","changes":[{"path":"schedules.outer-monthly-schedule.pattern_id","value":"inner-loop-pattern"}]},
+  {"name":"foreign-recurrence-control-effect-pattern","changes":[{"path":"rules.0.effects.0.target_id","value":"inner-loop-pattern"}]},
+  {"name":"rule-kind-effect-kind-mismatch","changes":[{"path":"rules.0.rule_kind","value":"termination"}]}
 ]

@@ -2,7 +2,7 @@
 
 ## Ownership
 
-`Project_Config/occurrences.yaml` instantiates occurrence identity, recurrence patterns and executions, phases and schedules, branch topology, subject tracks, transitions, causal relations, outcomes, recurrence rules, state transitions, and iteration carryover. `Tools/occurrence_config.py` and `Tools/Occurrence-Config.ps1` are the behaviorally paired schema-4 loaders and query services.
+`Project_Config/occurrences.yaml` instantiates occurrence identity, recurrence patterns and executions, phases and schedules, branch topology, subject tracks, transitions, causal relations, outcomes, recurrence rules, state transitions, and iteration carryover. `Tools/occurrence_config.py` and `Tools/Occurrence-Config.ps1` are the behaviorally paired schema-4 loaders and query services. V35 strengthens semantic integrity without changing the stored registry shape.
 
 Chronology and occurrence identity remain separate. Chronology answers where or when something is positioned and preserves acyclic exact order. The occurrence registry answers which distinct happening, execution, iteration, branch, experienced step, or subject-state change a record represents. Several occurrences may bind one chronology position without becoming the same occurrence.
 
@@ -34,9 +34,9 @@ Recurrence advance increases the iteration ordinal of one execution. Recurrence 
 
 `rules` belong to recurrence patterns. Pattern defaults may apply broadly; execution overrides must name concrete recurrences and may replace defaults in the same resolution group. Applicability may narrow a rule by concrete execution, phase, branch, positive iteration range, chronology-position window, and civil effective-time window. These selectors compose; an incomparable or uncertain selector is reported as indeterminate rather than guessed.
 
-Conditions are independently evaluable. Occurrence outcomes name the subject; state availability names the subject, state kind, track, and evaluation boundary; ordinal conditions use a typed comparison and positive value; schedule conditions ask whether a typed cadence is due. Occurrence-reached remains the simple current-template predicate. Rules retain bounded `all` or `any` logic and typed effects rather than accepting an unrestricted expression language.
+Conditions are independently evaluable. Occurrence outcomes name the subject; state availability names the subject, state kind, track, and evaluation boundary; ordinal conditions use a typed comparison and positive value; schedule conditions ask whether a typed cadence is due. Occurrence-reached remains the simple current-template predicate. Ordinal conditions must target their rule's recurrence pattern, and schedule conditions must target a schedule owned by that pattern. Rules retain bounded `all` or `any` logic and typed effects rather than accepting an unrestricted expression language.
 
-Each rule has a nonnegative priority, stable resolution group, and `exclusive` or `accumulate` selection mode. Within a group, accumulating matches compose and the highest-priority exclusive match wins. Unequal top-priority effects, advance-plus-terminate combinations, and competing reset points produce an explicit conflict instead of arbitrary selection. Evaluation returns considered rules, applicability, each condition result, selected rules and effects, suppression or rejection reasons, and conflicts.
+Each rule has a nonnegative priority, stable resolution group, and `exclusive` or `accumulate` selection mode. Packs register compatible rule-kind/effect-kind pairs, and recurrence-control effects must target their owning pattern. Within a group, accumulating matches compose and the highest-priority exclusive match wins. Unequal top-priority effects, advance-plus-terminate combinations, and competing reset points produce an explicit conflict instead of arbitrary selection. Evaluation returns considered rules, applicability, each condition result, selected rules and effects, suppression or rejection reasons, and conflicts. Missing effective time required by an applicability window or civil schedule is indeterminate; a supplied time outside the applicable window is a definite non-match.
 
 Schedules are intentionally narrow. `civil-calendar` schedules use day, week, month, or year intervals and an ISO anchor of matching precision. `chronology-step` schedules use integer coordinate steps from one chronology position and do not cross era-ordinal systems. They are recurrence-policy inputs, not replacements for chronology or release-time registries.
 
@@ -73,8 +73,8 @@ Paired services query iteration contents, coordinate reuse, iteration contents a
 
 ## Layering
 
-- Core owns occurrence, pattern, execution, iteration, phase, schedule, branch, outcome, rule evaluation, generic subject-state, carryover, validation, and queries.
-- Domain packs extend kinds, mechanisms, outcomes, incompatibility pairs, and valid typed combinations.
+- Core owns occurrence, pattern, execution, iteration, phase, schedule, branch, outcome, rule evaluation, same-pattern policy integrity, generic subject-state, carryover, validation, and queries.
+- Domain packs extend kinds, mechanisms, outcomes, incompatibility pairs, and valid rule-kind/effect-kind or other typed combinations.
 - Project configuration owns concrete records and source-backed claims.
 - Chronology remains the sole owner of acyclic exact temporal comparison.
 - Provenance remains the sole owner of evidence and claim authority.
@@ -83,4 +83,4 @@ The LoTM project declares only its `main` branch until source-backed occurrences
 
 ## Conformance
 
-`Framework/Data/Occurrence/` contains the portable V31-V34 corpus. Run `python Tools/test_occurrence.py` and `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Test-Occurrence.ps1` after changing occurrence vocabulary, registry shape, chronology composition, recurrence policy or lifecycle, schedules, state semantics, carryover, provenance targets, or query behavior.
+`Framework/Data/Occurrence/` contains the portable V31-V35 corpus. Run `python Tools/test_occurrence.py` and `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Test-Occurrence.ps1` after changing occurrence vocabulary, registry shape, chronology composition, recurrence policy or lifecycle, schedules, state semantics, carryover, provenance targets, or query behavior.

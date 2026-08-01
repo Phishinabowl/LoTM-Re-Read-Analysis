@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: core
-pack_version: 25
+pack_version: 26
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -60,6 +60,7 @@ capabilities:
   - state-availability-acquisition
   - deterministic-recurrence-rule-evaluation
   - recurrence-schedule-modeling
+  - recurrence-policy-integrity
   - visibility-policy
   - graph-projection
   - schema-validation
@@ -207,6 +208,11 @@ controlled_values:
     - terminate-recurrence-uses-recurrence-pattern
     - change-reset-point-uses-occurrence-template
     - activate-state-uses-state-transition
+  occurrence.rule-kind-effect-kind:
+    - reset-uses-advance-iteration
+    - termination-uses-terminate-recurrence
+    - checkpoint-change-uses-change-reset-point
+    - state-activation-uses-activate-state
   occurrence.schedule-kind:
     - civil-calendar
     - chronology-step

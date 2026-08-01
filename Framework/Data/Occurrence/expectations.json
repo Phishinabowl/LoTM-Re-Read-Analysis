@@ -50,11 +50,13 @@
   ],
   "rule_evaluations": [
     ["outer-loop", "reset-one", null, "selected", ["outer-reset-rule"], ["advance-iteration"], []],
+    ["outer-loop", "wake-three", null, "indeterminate", [], [], []],
     ["outer-loop", "wake-three", "2025-03", "selected", ["outer-scheduled-state-rule"], ["activate-state"], []],
     ["outer-loop", "escape-three", null, "selected", ["outer-final-termination-override"], ["terminate-recurrence"], []],
     ["outer-loop", "wake-one", null, "conflict", [], [], ["resolution group 'conflict-demonstration' has conflicting exclusive rules at priority 50"]]
   ],
   "trace_dispositions": [
+    ["outer-loop", "wake-three", null, "outer-scheduled-state-rule", "effective time was not supplied"],
     ["outer-loop", "escape-three", null, "outer-termination-rule", "suppressed by execution override"],
     ["outer-loop", "escape-three", null, "outer-final-termination-override", "selected"],
     ["outer-loop", "wake-one", null, "conflict-advance-rule", "conflicting top-priority exclusive rule"]
