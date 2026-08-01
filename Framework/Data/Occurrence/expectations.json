@@ -27,11 +27,38 @@
     "after-loop": null
   },
   "occurrence_outcomes": {
-    "escape-three": ["protagonist-escaped-loop"]
+    "escape-three": ["protagonist-escaped-loop", "protagonist-survived-loop"]
   },
   "pattern_rules": {
-    "outer-loop-pattern": ["outer-reset-rule", "outer-termination-rule"]
+    "outer-loop-pattern": ["outer-reset-rule", "outer-termination-rule", "outer-final-termination-override", "outer-scheduled-state-rule", "conflict-advance-rule", "conflict-terminate-rule"]
   },
+  "iteration_phases": {
+    "outer-two": "outer-early-phase",
+    "outer-three": "outer-final-phase"
+  },
+  "schedule_values": [
+    ["outer-monthly-schedule", 1, "2025-01"],
+    ["outer-monthly-schedule", 3, "2025-03"],
+    ["outer-coordinate-schedule", 3, 2029]
+  ],
+  "schedule_matches": [
+    ["outer-monthly-schedule", "outer-three", "wake-three", "2025-03", "due"],
+    ["outer-monthly-schedule", "outer-three", "wake-three", "2025-04", "off-schedule"],
+    ["outer-monthly-schedule", "outer-three", "wake-three", null, "indeterminate"],
+    ["outer-coordinate-schedule", "outer-one", "wake-one", null, "due"],
+    ["outer-coordinate-schedule", "outer-three", "wake-three", null, "off-schedule"]
+  ],
+  "rule_evaluations": [
+    ["outer-loop", "reset-one", null, "selected", ["outer-reset-rule"], ["advance-iteration"], []],
+    ["outer-loop", "wake-three", "2025-03", "selected", ["outer-scheduled-state-rule"], ["activate-state"], []],
+    ["outer-loop", "escape-three", null, "selected", ["outer-final-termination-override"], ["terminate-recurrence"], []],
+    ["outer-loop", "wake-one", null, "conflict", [], [], ["resolution group 'conflict-demonstration' has conflicting exclusive rules at priority 50"]]
+  ],
+  "trace_dispositions": [
+    ["outer-loop", "escape-three", null, "outer-termination-rule", "suppressed by execution override"],
+    ["outer-loop", "escape-three", null, "outer-final-termination-override", "selected"],
+    ["outer-loop", "wake-one", null, "conflict-advance-rule", "conflicting top-priority exclusive rule"]
+  ],
   "subject_state_transitions": {
     "character|protagonist": [
       "protagonist-acquires-bell-memory",

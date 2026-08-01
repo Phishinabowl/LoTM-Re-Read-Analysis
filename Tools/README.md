@@ -433,7 +433,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Chronology.ps1
 
 ## Occurrence Conformance
 
-Run the occurrence vectors after changing branches, templates, recurrence patterns or executions, lifecycle, bindings, tracks, transition profiles, causality, outcomes, rules, state acquisition, carryover, chronology composition, or provenance targets. Both implementations validate the empty LoTM project registry, compose `Framework/Data/Occurrence/` with the chronology fixture, answer the same occurrence, boundary, rule, outcome, and subject-state queries, and reject the same malformed mutations. Causal cycles are intentionally accepted; chronology, transition semantics, containment, monotonic track order, lifecycle, typed rule targets, state-chain continuity, and carryover applicability remain constrained.
+Run the occurrence vectors after changing branches, templates, recurrence patterns or executions, phases, schedules, lifecycle, bindings, tracks, transition profiles, causality, outcomes, scoped rules, deterministic evaluation, state acquisition, carryover, chronology composition, or provenance targets. Both implementations validate the empty LoTM project registry, compose `Framework/Data/Occurrence/` with the chronology fixture, answer the same occurrence, boundary, phase, schedule, outcome, state, selection, suppression, and conflict-trace queries, and reject the same malformed mutations. Causal cycles are intentionally accepted; chronology, transition semantics, containment, monotonic track order, lifecycle, typed rule targets, applicability, outcome compatibility, state-chain continuity, and carryover applicability remain constrained.
 
 ```powershell
 python Tools\test_occurrence.py

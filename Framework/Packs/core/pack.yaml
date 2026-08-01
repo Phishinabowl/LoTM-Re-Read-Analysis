@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: core
-pack_version: 24
+pack_version: 25
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -58,6 +58,8 @@ capabilities:
   - occurrence-recurrence-modeling
   - recurrence-rule-modeling
   - state-availability-acquisition
+  - deterministic-recurrence-rule-evaluation
+  - recurrence-schedule-modeling
   - visibility-policy
   - graph-projection
   - schema-validation
@@ -159,6 +161,10 @@ controlled_values:
     - interrupted
     - preserved
     - changed
+  occurrence.outcome-incompatibility-pair:
+    - failed-with-succeeded
+    - completed-with-interrupted
+    - changed-with-preserved
   occurrence.rule-kind:
     - reset
     - termination
@@ -171,8 +177,26 @@ controlled_values:
     - occurrence-outcome
     - occurrence-reached
     - state-availability
+    - iteration-ordinal
+    - schedule-due
   occurrence.rule-condition-value:
     - occurred
+    - due
+  occurrence.rule-comparison:
+    - equals
+    - at-least
+    - at-most
+    - less-than
+    - greater-than
+  occurrence.rule-application-level:
+    - pattern-default
+    - execution-override
+  occurrence.rule-selection-mode:
+    - exclusive
+    - accumulate
+  occurrence.rule-override-mode:
+    - inherit
+    - replace-group
   occurrence.rule-effect-kind:
     - advance-iteration
     - terminate-recurrence
@@ -183,6 +207,15 @@ controlled_values:
     - terminate-recurrence-uses-recurrence-pattern
     - change-reset-point-uses-occurrence-template
     - activate-state-uses-state-transition
+  occurrence.schedule-kind:
+    - civil-calendar
+    - chronology-step
+  occurrence.schedule-unit:
+    - coordinate
+    - day
+    - week
+    - month
+    - year
   occurrence.track-kind:
     - sequence
     - observation
@@ -293,6 +326,8 @@ controlled_values:
     - recurrence-pattern
     - recurrence
     - recurrence-iteration
+    - recurrence-phase
+    - recurrence-schedule
     - occurrence
     - occurrence-binding
     - occurrence-track

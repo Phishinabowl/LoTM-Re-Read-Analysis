@@ -1,4 +1,4 @@
-schema_version: 3
+schema_version: 4
 
 branches:
   main:
@@ -84,6 +84,36 @@ iterations:
     ordinal: 2
     parent_iteration_id: outer-two
     status: completed
+
+phases:
+  outer-early-phase:
+    label: Outer Early Phase
+    recurrence_id: outer-loop
+    start_ordinal: 1
+    end_ordinal: 2
+  outer-final-phase:
+    label: Outer Final Phase
+    recurrence_id: outer-loop
+    start_ordinal: 3
+    end_ordinal: 3
+
+schedules:
+  outer-monthly-schedule:
+    label: Outer Monthly Schedule
+    pattern_id: outer-loop-pattern
+    schedule_kind: civil-calendar
+    interval: 1
+    unit: month
+    anchor_position_id: null
+    anchor_value: 2025-01
+  outer-coordinate-schedule:
+    label: Outer Coordinate Schedule
+    pattern_id: outer-loop-pattern
+    schedule_kind: chronology-step
+    interval: 2
+    unit: coordinate
+    anchor_position_id: civil-anchor
+    anchor_value: null
 
 occurrences:
   wake-one:
@@ -310,6 +340,14 @@ outcomes:
     result_target_type: null
     result_target_id: null
     certainty: exact
+  - id: protagonist-survived-loop
+    occurrence_id: escape-three
+    subject_type: character
+    subject_id: protagonist
+    outcome_kind: survived
+    result_target_type: null
+    result_target_id: null
+    certainty: exact
 
 rules:
   - id: outer-reset-rule
@@ -317,12 +355,40 @@ rules:
     pattern_id: outer-loop-pattern
     rule_kind: reset
     condition_logic: all
+    applicability:
+      application_level: pattern-default
+      recurrence_ids: []
+      phase_ids: []
+      branch_ids: []
+      min_iteration_ordinal: null
+      max_iteration_ordinal: null
+      chronology_window: null
+      effective_window: null
+    priority: 10
+    resolution_group: loop-control
+    selection_mode: exclusive
+    override_mode: inherit
     conditions:
       - id: outer-reset-reached
         condition_kind: occurrence-reached
         target_type: occurrence-template
         target_id: reset
         expected_value: occurred
+        subject_type: null
+        subject_id: null
+        state_kind: null
+        track_id: null
+        comparison_value: null
+      - id: outer-reset-after-first-iteration
+        condition_kind: iteration-ordinal
+        target_type: recurrence-pattern
+        target_id: outer-loop-pattern
+        expected_value: at-least
+        subject_type: null
+        subject_id: null
+        state_kind: null
+        track_id: null
+        comparison_value: 1
     effects:
       - id: outer-reset-advances
         effect_kind: advance-iteration
@@ -333,14 +399,206 @@ rules:
     pattern_id: outer-loop-pattern
     rule_kind: termination
     condition_logic: all
+    applicability:
+      application_level: pattern-default
+      recurrence_ids: []
+      phase_ids: []
+      branch_ids: []
+      min_iteration_ordinal: null
+      max_iteration_ordinal: null
+      chronology_window: null
+      effective_window: null
+    priority: 20
+    resolution_group: loop-control
+    selection_mode: exclusive
+    override_mode: inherit
     conditions:
       - id: outer-escape-outcome
         condition_kind: occurrence-outcome
         target_type: occurrence-template
         target_id: escape
         expected_value: escaped
+        subject_type: character
+        subject_id: protagonist
+        state_kind: null
+        track_id: null
+        comparison_value: null
     effects:
       - id: outer-escape-terminates
+        effect_kind: terminate-recurrence
+        target_type: recurrence-pattern
+        target_id: outer-loop-pattern
+  - id: outer-final-termination-override
+    label: Final execution escape terminates the outer loop
+    pattern_id: outer-loop-pattern
+    rule_kind: termination
+    condition_logic: all
+    applicability:
+      application_level: execution-override
+      recurrence_ids:
+        - outer-loop
+      phase_ids:
+        - outer-final-phase
+      branch_ids:
+        - main
+      min_iteration_ordinal: 3
+      max_iteration_ordinal: 3
+      chronology_window: null
+      effective_window: null
+    priority: 100
+    resolution_group: loop-control
+    selection_mode: exclusive
+    override_mode: replace-group
+    conditions:
+      - id: outer-final-escape-outcome
+        condition_kind: occurrence-outcome
+        target_type: occurrence-template
+        target_id: escape
+        expected_value: escaped
+        subject_type: character
+        subject_id: protagonist
+        state_kind: null
+        track_id: null
+        comparison_value: null
+    effects:
+      - id: outer-final-escape-terminates
+        effect_kind: terminate-recurrence
+        target_type: recurrence-pattern
+        target_id: outer-loop-pattern
+  - id: outer-scheduled-state-rule
+    label: Activate state on a due wake
+    pattern_id: outer-loop-pattern
+    rule_kind: state-activation
+    condition_logic: all
+    applicability:
+      application_level: pattern-default
+      recurrence_ids: []
+      phase_ids: []
+      branch_ids: []
+      min_iteration_ordinal: null
+      max_iteration_ordinal: null
+      chronology_window:
+        start_position_id: civil-anchor
+        end_position_id: civil-far-future
+      effective_window:
+        kind: interval
+        start:
+          kind: known
+          value: 2025-01
+          precision: month
+          certainty: exact
+          inclusive: true
+        end:
+          kind: known
+          value: 2025-12
+          precision: month
+          certainty: exact
+          inclusive: true
+    priority: 10
+    resolution_group: scheduled-state
+    selection_mode: accumulate
+    override_mode: inherit
+    conditions:
+      - id: outer-schedule-is-due
+        condition_kind: schedule-due
+        target_type: recurrence-schedule
+        target_id: outer-monthly-schedule
+        expected_value: due
+        subject_type: null
+        subject_id: null
+        state_kind: null
+        track_id: null
+        comparison_value: null
+      - id: outer-scheduled-wake-reached
+        condition_kind: occurrence-reached
+        target_type: occurrence-template
+        target_id: wake
+        expected_value: occurred
+        subject_type: null
+        subject_id: null
+        state_kind: null
+        track_id: null
+        comparison_value: null
+      - id: outer-scheduled-health-available
+        condition_kind: state-availability
+        target_type: state-record
+        target_id: protagonist-health
+        expected_value: available
+        subject_type: character
+        subject_id: protagonist
+        state_kind: physical-state
+        track_id: protagonist-experience
+        comparison_value: null
+    effects:
+      - id: outer-schedule-activates-health
+        effect_kind: activate-state
+        target_type: state-transition
+        target_id: protagonist-acquires-health-state
+  - id: conflict-advance-rule
+    label: Conflicting advance demonstration
+    pattern_id: outer-loop-pattern
+    rule_kind: reset
+    condition_logic: all
+    applicability:
+      application_level: pattern-default
+      recurrence_ids: []
+      phase_ids: []
+      branch_ids: []
+      min_iteration_ordinal: 1
+      max_iteration_ordinal: 1
+      chronology_window: null
+      effective_window: null
+    priority: 50
+    resolution_group: conflict-demonstration
+    selection_mode: exclusive
+    override_mode: inherit
+    conditions:
+      - id: conflict-advance-wake-reached
+        condition_kind: occurrence-reached
+        target_type: occurrence-template
+        target_id: wake
+        expected_value: occurred
+        subject_type: null
+        subject_id: null
+        state_kind: null
+        track_id: null
+        comparison_value: null
+    effects:
+      - id: conflict-advance-effect
+        effect_kind: advance-iteration
+        target_type: recurrence-pattern
+        target_id: outer-loop-pattern
+  - id: conflict-terminate-rule
+    label: Conflicting termination demonstration
+    pattern_id: outer-loop-pattern
+    rule_kind: termination
+    condition_logic: all
+    applicability:
+      application_level: pattern-default
+      recurrence_ids: []
+      phase_ids: []
+      branch_ids: []
+      min_iteration_ordinal: 1
+      max_iteration_ordinal: 1
+      chronology_window: null
+      effective_window: null
+    priority: 50
+    resolution_group: conflict-demonstration
+    selection_mode: exclusive
+    override_mode: inherit
+    conditions:
+      - id: conflict-terminate-wake-reached
+        condition_kind: occurrence-reached
+        target_type: occurrence-template
+        target_id: wake
+        expected_value: occurred
+        subject_type: null
+        subject_id: null
+        state_kind: null
+        track_id: null
+        comparison_value: null
+    effects:
+      - id: conflict-terminate-effect
         effect_kind: terminate-recurrence
         target_type: recurrence-pattern
         target_id: outer-loop-pattern

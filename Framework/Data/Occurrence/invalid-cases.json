@@ -45,5 +45,18 @@
   {"name":"unknown-carryover-state","changes":[{"path":"carryovers.0.state_transition_id","value":"missing-state"}]},
   {"name":"carryover-state-activates-too-late","changes":[{"path":"state_transitions.0.activation_occurrence_id","value":"wake-two"}]},
   {"name":"carryover-state-superseded-before-target","changes":[{"path":"state_transitions.2.payload_target_type","value":"occurrence-template"},{"path":"state_transitions.2.payload_target_id","value":"bell"},{"path":"state_transitions.2.state_kind","value":"memory"},{"path":"state_transitions.2.change_kind","value":"lost"},{"path":"state_transitions.2.change_profile","value":"remove"},{"path":"state_transitions.2.prior_availability","value":"available"},{"path":"state_transitions.2.resulting_availability","value":"inaccessible"},{"path":"state_transitions.2.prior_attitude","value":"aware"},{"path":"state_transitions.2.resulting_attitude","value":"unaware"},{"path":"state_transitions.2.activation_occurrence_id","value":"reset-one"}]},
-  {"name":"duplicate-semantic-carryover","changes":[{"path":"carryovers.1.source_iteration_id","value":"outer-one"},{"path":"carryovers.1.target_iteration_id","value":"outer-two"},{"path":"carryovers.1.state_transition_id","value":"protagonist-acquires-bell-memory"}]}
+  {"name":"duplicate-semantic-carryover","changes":[{"path":"carryovers.1.source_iteration_id","value":"outer-one"},{"path":"carryovers.1.target_iteration_id","value":"outer-two"},{"path":"carryovers.1.state_transition_id","value":"protagonist-acquires-bell-memory"}]},
+  {"name":"overlapping-recurrence-phases","changes":[{"path":"phases.outer-final-phase.start_ordinal","value":2}]},
+  {"name":"civil-schedule-coordinate-unit","changes":[{"path":"schedules.outer-monthly-schedule.unit","value":"coordinate"}]},
+  {"name":"pattern-default-recurrence-restriction","changes":[{"path":"rules.0.applicability.recurrence_ids","value":["outer-loop"]}]},
+  {"name":"execution-override-without-recurrence","changes":[{"path":"rules.2.applicability.recurrence_ids","value":[]}]},
+  {"name":"replace-group-on-pattern-default","changes":[{"path":"rules.0.override_mode","value":"replace-group"}]},
+  {"name":"unknown-applicability-phase","changes":[{"path":"rules.2.applicability.phase_ids","value":["missing-phase"]}]},
+  {"name":"reversed-iteration-applicability","changes":[{"path":"rules.2.applicability.min_iteration_ordinal","value":4}]},
+  {"name":"outcome-condition-missing-subject","changes":[{"path":"rules.1.conditions.0.subject_id","value":null}]},
+  {"name":"ordinal-condition-zero","changes":[{"path":"rules.0.conditions.1.comparison_value","value":0}]},
+  {"name":"schedule-condition-wrong-target","changes":[{"path":"rules.3.conditions.0.target_type","value":"recurrence-pattern"},{"path":"rules.3.conditions.0.target_id","value":"outer-loop-pattern"}]},
+  {"name":"state-condition-track-subject-mismatch","changes":[{"path":"rules.3.conditions.2.track_id","value":"observer-experience"}]},
+  {"name":"incompatible-subject-outcomes","changes":[{"path":"outcomes.0.outcome_kind","value":"died"}]},
+  {"name":"chronology-schedule-era-anchor","changes":[{"path":"schedules.outer-coordinate-schedule.anchor_position_id","value":"ancient-year-five"}]}
 ]

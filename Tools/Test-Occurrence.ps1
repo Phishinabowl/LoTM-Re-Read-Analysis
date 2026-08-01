@@ -35,7 +35,7 @@ $chronologyFixture=ConvertTo-KnowledgeChronologyRegistry $chronologyFixtureData 
 $fixturePath=Join-Path $fixtureRoot 'valid-registry.yaml'
 $subjectTargets=[ordered]@{character=@('protagonist','observer')}
 $payloadTargets=[ordered]@{'state-record'=@('protagonist-health')}
-$fixtureData=ConvertFrom-KnowledgeYamlFile $fixturePath 3 'occurrence fixture'
+$fixtureData=ConvertFrom-KnowledgeYamlFile $fixturePath 4 'occurrence fixture'
 $fixture=ConvertTo-KnowledgeOccurrenceRegistry $fixtureData $fixturePath $packs $chronologyFixture $subjectTargets $payloadTargets
 $expectations=Get-Content -LiteralPath (Join-Path $fixtureRoot 'expectations.json') -Raw|ConvertFrom-Json
 
@@ -48,19 +48,26 @@ foreach($property in $expectations.carryovers_into.PSObject.Properties){Assert-O
 foreach($property in $expectations.occurrence_recurrences.PSObject.Properties){$recurrence=Get-KnowledgeOccurrenceRecurrence $fixture $property.Name;$actual=$(if($null -eq $recurrence){$null}else{$recurrence.id});if($actual -cne $property.Value){throw "Unexpected recurrence for '$($property.Name)'."}}
 foreach($property in $expectations.occurrence_outcomes.PSObject.Properties){Assert-OccurrenceIds (Get-OccurrenceIds (Get-KnowledgeOutcomesForOccurrence $fixture $property.Name)) @($property.Value) "Outcomes '$($property.Name)'"}
 foreach($property in $expectations.pattern_rules.PSObject.Properties){Assert-OccurrenceIds (Get-OccurrenceIds (Get-KnowledgeRulesForRecurrencePattern $fixture $property.Name)) @($property.Value) "Rules '$($property.Name)'"}
+foreach($property in $expectations.iteration_phases.PSObject.Properties){$phase=Get-KnowledgeRecurrencePhaseForIteration $fixture $property.Name;$actual=$(if($null -eq $phase){$null}else{$phase.id});if($actual -cne $property.Value){throw "Unexpected recurrence phase for '$($property.Name)'."}}
+foreach($vector in @($expectations.schedule_values)){if((Get-KnowledgeRecurrenceScheduleValue $fixture ([string]$vector[0]) ([int]$vector[1])) -cne $vector[2]){throw "Unexpected schedule value for '$($vector[0])' ordinal $($vector[1])."}}
+foreach($vector in @($expectations.schedule_matches)){$effective=$vector[3];if((Get-KnowledgeRecurrenceScheduleMatch $fixture ([string]$vector[0]) ([string]$vector[1]) ([string]$vector[2]) $effective) -cne [string]$vector[4]){throw "Unexpected schedule match for '$($vector[0])' at '$($vector[2])'."}}
+foreach($vector in @($expectations.rule_evaluations)){$evaluation=Get-KnowledgeRecurrenceRuleEvaluation $fixture ([string]$vector[0]) ([string]$vector[1]) $vector[2];Assert-OccurrenceIds @($evaluation.selected_rule_ids) @($vector[4]) "Selected rules at '$($vector[1])'";Assert-OccurrenceIds @($evaluation.effects|ForEach-Object {$_.effect_kind}) @($vector[5]) "Effects at '$($vector[1])'";Assert-OccurrenceIds @($evaluation.conflicts) @($vector[6]) "Conflicts at '$($vector[1])'";if($evaluation.status -cne [string]$vector[3]){throw "Unexpected rule evaluation status at '$($vector[1])'."}}
+foreach($vector in @($expectations.trace_dispositions)){$evaluation=Get-KnowledgeRecurrenceRuleEvaluation $fixture ([string]$vector[0]) ([string]$vector[1]) $vector[2];$trace=@($evaluation.traces|Where-Object {$_.rule_id -ceq [string]$vector[3]})[0];if($trace.disposition -cne [string]$vector[4]){throw "Unexpected trace disposition for rule '$($vector[3])'."}}
 foreach($property in $expectations.subject_state_transitions.PSObject.Properties){$parts=@($property.Name.Split('|',2));Assert-OccurrenceIds (Get-OccurrenceIds (Get-KnowledgeStateTransitionsForSubject $fixture $parts[0] $parts[1])) @($property.Value) "States '$($property.Name)'"}
 foreach($vector in @($expectations.state_at)){$state=Get-KnowledgeStateAt $fixture ([string]$vector[0]) ([string]$vector[1]) ([string]$vector[2]) ([string]$vector[3]) ([string]$vector[4]);$actual=$(if($null -eq $state){$null}else{$state.id});if($actual -cne $vector[5]){throw "Unexpected state at '$($vector[1])' on '$($vector[0])'."}}
 
 $invalidCases=Get-Content -LiteralPath (Join-Path $fixtureRoot 'invalid-cases.json') -Raw|ConvertFrom-Json
-foreach($case in @($invalidCases)){$invalid=ConvertFrom-KnowledgeYamlFile $fixturePath 3 'invalid occurrence fixture';foreach($change in @($case.changes)){Set-OccurrenceFixturePath $invalid ([string]$change.path) $change.value};$rejected=$false;try{$null=ConvertTo-KnowledgeOccurrenceRegistry $invalid $fixturePath $packs $chronologyFixture $subjectTargets $payloadTargets}catch{$rejected=$true};if(-not $rejected){throw "Malformed occurrence case unexpectedly loaded: $($case.name)"}}
+foreach($case in @($invalidCases)){$invalid=ConvertFrom-KnowledgeYamlFile $fixturePath 4 'invalid occurrence fixture';foreach($change in @($case.changes)){Set-OccurrenceFixturePath $invalid ([string]$change.path) $change.value};$rejected=$false;try{$null=ConvertTo-KnowledgeOccurrenceRegistry $invalid $fixturePath $packs $chronologyFixture $subjectTargets $payloadTargets}catch{$rejected=$true};if(-not $rejected){throw "Malformed occurrence case unexpectedly loaded: $($case.name)"}}
 
 $summary=[ordered]@{
   branches=[int]$registry.branches.Count
   carryovers=[int]@($registry.carryovers).Count
   causal_relations=[int]@($registry.causal_relations).Count
-  fixture_queries=26
+  fixture_queries=43
   invalid_cases=[int]@($invalidCases).Count
   iterations=[int]$registry.iterations.Count
+  phases=[int]$registry.phases.Count
+  schedules=[int]$registry.schedules.Count
   occurrences=[int]$registry.occurrences.Count
   outcomes=[int]@($registry.outcomes).Count
   recurrence_patterns=[int]$registry.recurrence_patterns.Count

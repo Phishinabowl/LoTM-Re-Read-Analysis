@@ -53,7 +53,7 @@ def main() -> int:
         continuity_ids=set(),
     )
     fixture_path = fixture_root / "valid-registry.yaml"
-    fixture_data = load_yaml_file(fixture_path, "occurrence fixture", expected_schema_version=3)
+    fixture_data = load_yaml_file(fixture_path, "occurrence fixture", expected_schema_version=4)
     fixture = parse_occurrence_registry(
         fixture_data,
         fixture_path,
@@ -96,6 +96,30 @@ def main() -> int:
     for pattern_id, expected in expectations["pattern_rules"].items():
         if ids(fixture.rules_for_pattern(pattern_id)) != expected:
             raise AssertionError(f"Unexpected rules for recurrence pattern `{pattern_id}`.")
+    for iteration_id, expected in expectations["iteration_phases"].items():
+        phase = fixture.phase_for_iteration(iteration_id)
+        if (phase.id if phase else None) != expected:
+            raise AssertionError(f"Unexpected recurrence phase for `{iteration_id}`.")
+    for schedule_id, ordinal, expected in expectations["schedule_values"]:
+        if fixture.expected_schedule_value(schedule_id, ordinal) != expected:
+            raise AssertionError(f"Unexpected schedule value for `{schedule_id}` ordinal {ordinal}.")
+    for schedule_id, iteration_id, occurrence_id, effective_at, expected in expectations["schedule_matches"]:
+        if fixture.schedule_match(schedule_id, iteration_id, occurrence_id, effective_at) != expected:
+            raise AssertionError(f"Unexpected schedule match for `{schedule_id}` at `{occurrence_id}`.")
+    for recurrence_id, occurrence_id, effective_at, status, selected, effect_kinds, conflicts in expectations["rule_evaluations"]:
+        evaluation = fixture.evaluate_rules(recurrence_id, occurrence_id, effective_at=effective_at)
+        if (
+            evaluation.status != status
+            or list(evaluation.selected_rule_ids) != selected
+            or [effect.effect_kind for effect in evaluation.effects] != effect_kinds
+            or list(evaluation.conflicts) != conflicts
+        ):
+            raise AssertionError(f"Unexpected rule evaluation for `{recurrence_id}` at `{occurrence_id}`: {evaluation}")
+    for recurrence_id, occurrence_id, effective_at, rule_id, disposition in expectations["trace_dispositions"]:
+        evaluation = fixture.evaluate_rules(recurrence_id, occurrence_id, effective_at=effective_at)
+        trace = next(item for item in evaluation.traces if item.rule_id == rule_id)
+        if trace.disposition != disposition:
+            raise AssertionError(f"Unexpected trace disposition for rule `{rule_id}`: {trace.disposition}")
     for key, expected in expectations["subject_state_transitions"].items():
         subject_type, subject_id = key.split("|", 1)
         if ids(fixture.state_transitions_for_subject(subject_type, subject_id)) != expected:
@@ -127,6 +151,8 @@ def main() -> int:
         "recurrence_patterns": len(registry.recurrence_patterns),
         "recurrences": len(registry.recurrences),
         "iterations": len(registry.iterations),
+        "phases": len(registry.phases),
+        "schedules": len(registry.schedules),
         "occurrences": len(registry.occurrences),
         "tracks": len(registry.tracks),
         "transitions": len(registry.transitions),
@@ -145,6 +171,11 @@ def main() -> int:
             + len(expectations["occurrence_recurrences"])
             + len(expectations["occurrence_outcomes"])
             + len(expectations["pattern_rules"])
+            + len(expectations["iteration_phases"])
+            + len(expectations["schedule_values"])
+            + len(expectations["schedule_matches"])
+            + len(expectations["rule_evaluations"])
+            + len(expectations["trace_dispositions"])
             + len(expectations["subject_state_transitions"])
             + len(expectations["state_at"])
         ),
