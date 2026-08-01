@@ -21,7 +21,7 @@ From V30 onward, update this file as part of each version:
 - **V7-V15:** Evidence, authority, production context, scope, and applicability
 - **V16-V23:** Entity identity and cross-registry provenance/reconciliation
 - **V24-V27:** Deterministic configuration ingestion
-- **V28-V35:** Civil time, general chronology, occurrence/recurrence integrity, subject-state acquisition, deterministic recurrence policy, and policy-integrity hardening
+- **V28-V36:** Civil time, general chronology, occurrence/recurrence integrity, subject-state acquisition, deterministic recurrence policy, and extensible policy-integrity hardening
 
 ### Marker Conventions
 
@@ -1066,3 +1066,27 @@ V36 should be **Extensible Policy Semantics and Schedule Boundary Integrity**. I
 The same version should make civil schedule projection honor the temporal model's 0001-9999 domain and return one controlled, behaviorally identical out-of-range result or exception in Python, PowerShell 7, and Windows PowerShell 5.1. Permanent conformance should include nested duplicates, extension-owned and extension-external targets, extension conflicts, leap day, and maximum day/month/year projection.
 
 These are still integrity repairs to V34-V35 behavior. Uncertain iteration cardinality, repeated participation, extratemporal context relations, branch lifecycle, and deeper knowledge-acquisition semantics should remain staged until the policy and schedule contracts are closed under extension and boundary pressure.
+
+## V36 - Extensible Policy Semantics and Schedule Boundary Integrity
+
+**Implemented by:** `61e4a30` (`Add extensible recurrence policy semantics`)
+
+**Superseded assumption:** Pack-defined effect vocabulary is safely extensible once effect target types and rule-kind compatibility are registered, even if target scope and cross-effect conflicts remain known only to the engine's built-in effect names.
+
+**Architectural promotion:** Recurrence-pattern effect scope, effect-kind incompatibility, duplicate nested-rule semantics, and civil-schedule projection boundaries became explicit core framework contracts shared by all runtimes.
+
+V36 closes the two integrity gaps exposed after V35 without expanding the recurrence rule language into a general-purpose expression engine. The occurrence registry remains schema 4. Core advances to pack version 27 and adds the enabled `extensible-recurrence-policy-semantics` and `civil-schedule-boundary-integrity` capabilities; narrative media now requires core version 27.
+
+Every effect targeting a recurrence pattern must now have exactly one pack-declared target-scope profile. `{effect-kind}-uses-owning-pattern` requires the target to match the pattern owning the rule. `{effect-kind}-allows-external-pattern` permits another known recurrence pattern when the domain semantics require signaling or controlling an external pattern. Missing or ambiguous scope declarations are rejected during ingestion. The built-in advance and terminate effects use owning-pattern scope, while conformance introduces synthetic pause and signal effects to prove that the loader applies the declaration rather than recognizing hard-coded effect names.
+
+Packs may also register canonical unordered effect-kind incompatibility pairs. The evaluator compares all distinct selected effect kinds against the composed pack registry and emits deterministic conflict messages for matching pairs. Core's prior advance-plus-terminate rule is therefore represented as pack data instead of a dedicated evaluator branch. A synthetic `advance-iteration-with-pause-recurrence` pair proves that extension-defined conflicts change evaluator behavior without engine modification. Existing multiple-reset-target conflict detection remains a structural evaluator invariant because it depends on effect targets, not only effect kinds.
+
+Within one recurrence rule, semantic condition and effect identities are now unique independently of their nested record IDs. A repeated condition compares condition kind, target, expected value, subject, state, track, and ordinal value; a repeated effect compares effect kind and target. Duplicate components are rejected before they can inflate match evaluation or duplicate emitted effects. Whole-rule semantic duplicate detection remains in force across separate rule records.
+
+Civil-calendar schedule projection now shares the temporal model's year range of `0001` through `9999`. Year and month schedules validate the computed target year before formatting. Day and week arithmetic normalizes platform overflow into the controlled error `Schedule projection exceeds supported civil range 0001-9999.` Python, PowerShell 7, and Windows PowerShell 5.1 therefore fail identically at the upper boundary. Chronology-step schedules remain integer-coordinate operations and are not constrained to the civil year range.
+
+The permanent occurrence fixture adds leap-day progression, maximum day/month/year anchors, an accumulating conflict resolved through the pack-defined advance/terminate pair, and malformed duplicate condition/effect cases. It now supplies fifty-one stored assertions and sixty-seven malformed mutations. The paired conformance tools add three in-memory extension assertions for owning-pattern enforcement, legal external-pattern targeting, and extension-defined effect conflict, bringing the reported total to fifty-four assertions. All results match in Python, PowerShell 7, and Windows PowerShell 5.1. The retained chronology, temporal, and reconciliation suites remain unchanged and green.
+
+## Testing After V36
+
+Pending the post-V36 pressure test. This section will record the adversarial scenarios, confirmed behavior, newly exposed limitations, and the recommendation for the next version before V37 begins.
