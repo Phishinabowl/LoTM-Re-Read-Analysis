@@ -21,7 +21,7 @@ From V30 onward, update this file as part of each version:
 - **V7-V15:** Evidence, authority, production context, scope, and applicability
 - **V16-V23:** Entity identity and cross-registry provenance/reconciliation
 - **V24-V27:** Deterministic configuration ingestion
-- **V28-V34:** Civil time, general chronology, occurrence/recurrence integrity, subject-state acquisition, and deterministic recurrence policy
+- **V28-V35:** Civil time, general chronology, occurrence/recurrence integrity, subject-state acquisition, deterministic recurrence policy, and policy-integrity hardening
 
 ### Marker Conventions
 
@@ -1035,4 +1035,34 @@ The permanent occurrence corpus adds four malformed cases for foreign-pattern or
 
 ## Testing After V35
 
-The post-V35 pressure test should attack ownership through nested recurrences, domain-pack extensions, rules carrying multiple compatible effects, execution overrides, unknown and uncertain effective times, and schedule boundaries. It should replay the Derrick, Loki, changing-checkpoint, retry-exhaustion, medical, and legal scenarios to prove that integrity checks reject cross-pattern leakage without weakening valid composition. Only after that pass should the next version choose among uncertain iteration cardinality, repeated participation in one occurrence, extratemporal context relations, branch lifecycle, or deeper knowledge-acquisition semantics.
+### Ownership And Evaluation Replay
+
+The executable post-V35 pass attacked nested recurrence ownership, domain-pack extensions, multi-effect rules, execution overrides, missing and uncertain temporal context, and civil or coordinate schedule boundaries. A valid inner-loop rule owned its ordinal predicate and advance effect and selected normally. Redirecting that ordinal predicate to the outer pattern was rejected during ingestion. The permanent foreign-schedule, foreign-control-effect, and rule/effect mismatch cases likewise remained rejected in Python, PowerShell 7, and Windows PowerShell 5.1.
+
+Rules carrying two compatible checkpoint effects loaded, and different reset targets produced the expected explicit evaluation conflict. Two equal-priority execution overrides in one exclusive group also produced an explainable conflict with no arbitrary winner. Missing effective time returned `indeterminate` with the trace detail `effective time was not supplied`; unknown and uncertain windows remained indeterminate; a supplied due month selected the scheduled rule; and a supplied time outside the window produced `no-match`.
+
+The structural behaviors shared by the prior Derrick and Loki probes remained intact: a default reset selected advance, the final execution override selected termination, subject state crossed only its declared carryover boundary, and nested recurrence stayed separate from its parent. The same fixture replayed changing-checkpoint conflict handling, retry termination semantics, medical scheduled-state activation, and legal monthly cadence. Civil and coordinate schedules distinguished due, off-schedule, and missing-context results correctly, and leap-day progression produced February 29 followed by March 1.
+
+The retained baselines remained identical in all three runtimes: thirteen chronology comparisons and thirteen malformed chronology registries; twenty temporal matches, twelve overlap vectors, and twenty-one malformed windows; eight reconciliation vectors, forty malformed reconciliation registries, a 1,500-hop chain, and both limits; plus forty-five occurrence query/evaluation assertions and sixty-five malformed occurrence registries.
+
+### Rule-Extension Gaps
+
+The pressure test exposed three related gaps in extensible rule semantics:
+
+1. One rule may contain semantically duplicate conditions under different IDs. The loader accepts both and evaluates the same predicate twice.
+2. One rule may contain semantically duplicate effects under different IDs. The loader accepts both and returns duplicate effects to consumers.
+3. Pack-defined effects have target-type and rule-kind compatibility but no declared target-scope or conflict semantics. A synthetic `pause-recurrence` effect could target another pattern and load successfully because same-pattern enforcement knows only the built-in advance and terminate effects. The synthetic pause and built-in advance effects could also be selected together without conflict because packs cannot declare them incompatible.
+
+The third result does not mean every effect targeting a recurrence pattern must target its owning pattern. A domain may legitimately define an effect that starts, signals, or alters another pattern. The missing primitive is a pack-declared semantic profile, not a broader hard-coded check. Condition kinds remain executable behavior and therefore cannot become functional merely by adding vocabulary; an extension needs an evaluator implementation as well as controlled values.
+
+### Civil-Schedule Boundary Gap
+
+Civil schedule projection beyond year 9999 is neither bounded nor runtime-equivalent. From a maximum anchor, Python day projection raises `OverflowError`, while Python month and year projection return invalid strings such as `10000-01` and `10000`. Both PowerShell runtimes throw platform exceptions for day, month, and year projection. The API therefore lacks a shared controlled out-of-range result or error contract even though the temporal layer already treats years 0001 through 9999 as its valid civil domain.
+
+### V36 Recommendation
+
+V36 should be **Extensible Policy Semantics and Schedule Boundary Integrity**. It should reject semantically duplicate conditions and effects within one rule; let packs declare effect target-scope profiles such as owning-pattern versus external-pattern-allowed; and let packs declare incompatible effect-kind pairs for deterministic conflict detection. These declarations must augment, not replace, executable evaluator support for condition behavior.
+
+The same version should make civil schedule projection honor the temporal model's 0001-9999 domain and return one controlled, behaviorally identical out-of-range result or exception in Python, PowerShell 7, and Windows PowerShell 5.1. Permanent conformance should include nested duplicates, extension-owned and extension-external targets, extension conflicts, leap day, and maximum day/month/year projection.
+
+These are still integrity repairs to V34-V35 behavior. Uncertain iteration cardinality, repeated participation, extratemporal context relations, branch lifecycle, and deeper knowledge-acquisition semantics should remain staged until the policy and schedule contracts are closed under extension and boundary pressure.
