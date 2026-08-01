@@ -746,6 +746,8 @@ V31's acceptance test must answer both "what happened during iteration 7?" and "
 
 ## V31 - Occurrence and Recurrence Foundations
 
+**Implemented by:** `5f7efbb` (`Add occurrence and recurrence foundations`)
+
 **Superseded assumption:** A chronology position and an occurrence at that position can share one identity.
 
 **Architectural promotion:** Occurrence identity, recurrence structure, branch topology, perspective tracks, transitions, causal edges, and typed carryover became core framework services; narrative time-loop and subjective-experience semantics remain in the narrative-media pack.
