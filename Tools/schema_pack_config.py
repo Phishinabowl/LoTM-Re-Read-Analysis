@@ -16,6 +16,13 @@ NAMESPACE_PATTERN = re.compile(
     r"^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)+$"
 )
 
+EFFECT_KINDS_NAMESPACE = "occurrence.rule-effect-kind"
+EFFECT_TARGET_TYPES_NAMESPACE = "occurrence.rule-effect-kind-target-type"
+EFFECT_PATTERN_SCOPES_NAMESPACE = "occurrence.rule-effect-pattern-scope"
+EFFECT_REPETITION_NAMESPACE = "occurrence.rule-effect-repetition-policy"
+EFFECT_GLOBAL_CONFLICTS_NAMESPACE = "occurrence.rule-effect-global-incompatibility-pair"
+EFFECT_TARGET_CONFLICTS_NAMESPACE = "occurrence.rule-effect-same-target-incompatibility-pair"
+
 
 @dataclass(frozen=True)
 class SchemaPackDependency:
@@ -145,6 +152,85 @@ def validate_id(value: str, context: str) -> None:
         raise ValueError(
             f"Schema-pack configuration `{context}` must be a lowercase kebab-case "
             f"stable ID: {value}"
+        )
+
+
+def validate_occurrence_semantic_declarations(
+    controlled_values: dict[str, tuple[str, ...] | list[str]],
+) -> None:
+    effect_kinds = set(controlled_values.get(EFFECT_KINDS_NAMESPACE, ()))
+    if not effect_kinds:
+        return
+
+    target_pairs = set(controlled_values.get(EFFECT_TARGET_TYPES_NAMESPACE, ()))
+    recurrence_effects = {
+        effect for effect in effect_kinds
+        if f"{effect}-uses-recurrence-pattern" in target_pairs
+    }
+
+    scope_profiles: dict[str, set[str]] = {effect: set() for effect in recurrence_effects}
+    valid_scope_values = {
+        f"{effect}-{suffix}": (effect, suffix)
+        for effect in recurrence_effects
+        for suffix in ("uses-owning-pattern", "allows-external-pattern")
+    }
+    for value in controlled_values.get(EFFECT_PATTERN_SCOPES_NAMESPACE, ()):
+        declaration = valid_scope_values.get(value)
+        if declaration is None:
+            raise ValueError(
+                f"Schema-pack occurrence scope declaration `{value}` must reference a known "
+                "recurrence-pattern-capable effect kind."
+            )
+        effect, profile = declaration
+        scope_profiles[effect].add(profile)
+    for effect, profiles in scope_profiles.items():
+        if len(profiles) != 1:
+            raise ValueError(
+                f"Schema-pack effect kind `{effect}` requires exactly one recurrence-pattern scope declaration."
+            )
+
+    repetition_profiles: dict[str, set[str]] = {effect: set() for effect in effect_kinds}
+    valid_repetition_values = {
+        f"{effect}-uses-{policy}": (effect, policy)
+        for effect in effect_kinds
+        for policy in ("idempotent", "accumulating", "invalid")
+    }
+    for value in controlled_values.get(EFFECT_REPETITION_NAMESPACE, ()):
+        declaration = valid_repetition_values.get(value)
+        if declaration is None:
+            raise ValueError(
+                f"Schema-pack effect repetition declaration `{value}` must reference a known effect kind."
+            )
+        effect, policy = declaration
+        repetition_profiles[effect].add(policy)
+    for effect, profiles in repetition_profiles.items():
+        if len(profiles) != 1:
+            raise ValueError(
+                f"Schema-pack effect kind `{effect}` requires exactly one repetition policy declaration."
+            )
+
+    canonical_pairs = {
+        f"{left}-with-{right}"
+        for index, left in enumerate(sorted(effect_kinds))
+        for right in sorted(effect_kinds)[index + 1:]
+    }
+    global_pairs = set(controlled_values.get(EFFECT_GLOBAL_CONFLICTS_NAMESPACE, ()))
+    target_pairs = set(controlled_values.get(EFFECT_TARGET_CONFLICTS_NAMESPACE, ()))
+    for namespace, values in (
+        (EFFECT_GLOBAL_CONFLICTS_NAMESPACE, global_pairs),
+        (EFFECT_TARGET_CONFLICTS_NAMESPACE, target_pairs),
+    ):
+        invalid = values - canonical_pairs
+        if invalid:
+            raise ValueError(
+                f"Schema-pack namespace `{namespace}` contains a noncanonical or unknown effect pair: "
+                f"{', '.join(sorted(invalid))}."
+            )
+    duplicated_pairs = global_pairs & target_pairs
+    if duplicated_pairs:
+        raise ValueError(
+            "Schema-pack effect incompatibility pairs must declare exactly one conflict scope: "
+            f"{', '.join(sorted(duplicated_pairs))}."
         )
 
 
@@ -564,6 +650,8 @@ def load_schema_pack_registry(project: ProjectConfig) -> SchemaPackRegistry:
 
     for key in definitions:
         visit_value(key, set())
+
+    validate_occurrence_semantic_declarations(controlled)
 
     return SchemaPackRegistry(
         path=path,

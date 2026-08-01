@@ -9,7 +9,7 @@ from chronology_config import load_chronology_registry, parse_chronology_registr
 from occurrence_config import load_occurrence_registry, parse_occurrence_registry
 from project_config import load_project_config, resolve_project_root
 from resource_config import load_resource_config
-from schema_pack_config import load_schema_pack_registry
+from schema_pack_config import load_schema_pack_registry, validate_occurrence_semantic_declarations
 from source_config import load_source_registry
 from strict_yaml import load_yaml_file
 
@@ -34,7 +34,19 @@ def with_controlled_values(packs, additions: dict[str, tuple[str, ...]]):
     controlled_values = dict(packs.controlled_values)
     for namespace, values in additions.items():
         controlled_values[namespace] = tuple(controlled_values.get(namespace, ())) + values
+    validate_occurrence_semantic_declarations(controlled_values)
     return replace(packs, controlled_values=controlled_values)
+
+
+def effect_vectors(effects) -> list[list]:
+    return [
+        [
+            effect.effect_kind, effect.target_type, effect.target_id,
+            effect.repetition_policy, effect.contribution_count, effect.execution_count,
+            list(effect.contributing_rule_ids), list(effect.contributing_effect_ids),
+        ]
+        for effect in effects
+    ]
 
 
 def synthetic_rule(
@@ -179,6 +191,10 @@ def main() -> int:
             or list(evaluation.conflicts) != conflicts
         ):
             raise AssertionError(f"Unexpected rule evaluation for `{recurrence_id}` at `{occurrence_id}`: {evaluation}")
+    for recurrence_id, occurrence_id, effective_at, expected in expectations["resolved_effects"]:
+        evaluation = fixture.evaluate_rules(recurrence_id, occurrence_id, effective_at=effective_at)
+        if effect_vectors(evaluation.effects) != expected:
+            raise AssertionError(f"Unexpected resolved effects at `{occurrence_id}`: {evaluation.effects}")
     for recurrence_id, occurrence_id, effective_at, rule_id, disposition in expectations["trace_dispositions"]:
         evaluation = fixture.evaluate_rules(recurrence_id, occurrence_id, effective_at=effective_at)
         trace = next(item for item in evaluation.traces if item.rule_id == rule_id)
@@ -223,7 +239,11 @@ def main() -> int:
             "pause-recurrence-uses-owning-pattern",
             "signal-recurrence-allows-external-pattern",
         ),
-        "occurrence.rule-effect-incompatibility-pair": (
+        "occurrence.rule-effect-repetition-policy": (
+            "pause-recurrence-uses-idempotent",
+            "signal-recurrence-uses-idempotent",
+        ),
+        "occurrence.rule-effect-same-target-incompatibility-pair": (
             "advance-iteration-with-pause-recurrence",
         ),
     })
@@ -240,7 +260,9 @@ def main() -> int:
     if (
         owning_evaluation.status != "conflict"
         or list(owning_evaluation.selected_rule_ids) != ["outer-reset-rule", "synthetic-pause-rule"]
-        or list(owning_evaluation.conflicts) != ["advance-iteration conflicts with pause-recurrence"]
+        or list(owning_evaluation.conflicts) != [
+            "advance-iteration conflicts with pause-recurrence on recurrence-pattern:outer-loop-pattern"
+        ]
     ):
         raise AssertionError(f"Unexpected owning-pattern extension evaluation: {owning_evaluation}")
 
@@ -274,6 +296,118 @@ def main() -> int:
     ):
         raise AssertionError(f"Unexpected external-pattern extension evaluation: {external_evaluation}")
 
+    duplicate_probe = copy.deepcopy(fixture_data)
+    first_signal = synthetic_rule(
+        "first-signal-rule", "signal", "signal-recurrence", "inner-loop-pattern", "bell"
+    )
+    second_signal = synthetic_rule(
+        "second-signal-rule", "signal", "signal-recurrence", "inner-loop-pattern", "bell"
+    )
+    first_signal["resolution_group"] = "first-signal-group"
+    second_signal["resolution_group"] = "second-signal-group"
+    duplicate_probe["rules"].extend((first_signal, second_signal))
+    duplicate_evaluation = parse_occurrence_registry(
+        duplicate_probe, fixture_path, extension_packs, chronology_fixture,
+        subject_targets={"character": {"protagonist", "observer"}},
+        payload_targets={"state-record": {"protagonist-health"}},
+    ).evaluate_rules("outer-loop", "bell-two")
+    if (
+        len(duplicate_evaluation.effects) != 1
+        or duplicate_evaluation.effects[0].contribution_count != 2
+        or duplicate_evaluation.effects[0].execution_count != 1
+        or list(duplicate_evaluation.effects[0].contributing_rule_ids)
+        != ["first-signal-rule", "second-signal-rule"]
+    ):
+        raise AssertionError(f"Unexpected idempotent effect resolution: {duplicate_evaluation.effects}")
+
+    for policy, expected_status, expected_execution_count, expected_conflicts in (
+        ("accumulating", "selected", 2, []),
+        ("invalid", "conflict", 0, [
+            "duplicate signal-recurrence effect on recurrence-pattern:inner-loop-pattern is invalid"
+        ]),
+    ):
+        policy_values = dict(extension_packs.controlled_values)
+        policy_values["occurrence.rule-effect-repetition-policy"] = tuple(
+            value for value in extension_packs.controlled_values["occurrence.rule-effect-repetition-policy"]
+            if value != "signal-recurrence-uses-idempotent"
+        ) + (f"signal-recurrence-uses-{policy}",)
+        validate_occurrence_semantic_declarations(policy_values)
+        policy_evaluation = parse_occurrence_registry(
+            duplicate_probe, fixture_path, replace(extension_packs, controlled_values=policy_values),
+            chronology_fixture,
+            subject_targets={"character": {"protagonist", "observer"}},
+            payload_targets={"state-record": {"protagonist-health"}},
+        ).evaluate_rules("outer-loop", "bell-two")
+        if (
+            policy_evaluation.status != expected_status
+            or policy_evaluation.effects[0].execution_count != expected_execution_count
+            or list(policy_evaluation.conflicts) != expected_conflicts
+        ):
+            raise AssertionError(f"Unexpected `{policy}` effect resolution: {policy_evaluation}")
+
+    scoped_probe = copy.deepcopy(fixture_data)
+    scoped_probe["rules"].append(synthetic_rule(
+        "cross-target-pause-rule", "pause", "pause-recurrence", "inner-loop-pattern", "reset"
+    ))
+    scoped_values = dict(extension_packs.controlled_values)
+    scoped_values["occurrence.rule-effect-pattern-scope"] = tuple(
+        value for value in extension_packs.controlled_values["occurrence.rule-effect-pattern-scope"]
+        if value != "pause-recurrence-uses-owning-pattern"
+    ) + ("pause-recurrence-allows-external-pattern",)
+    validate_occurrence_semantic_declarations(scoped_values)
+    scoped_packs = replace(extension_packs, controlled_values=scoped_values)
+    scoped_evaluation = parse_occurrence_registry(
+        scoped_probe, fixture_path, scoped_packs, chronology_fixture,
+        subject_targets={"character": {"protagonist", "observer"}},
+        payload_targets={"state-record": {"protagonist-health"}},
+    ).evaluate_rules("outer-loop", "reset-two")
+    if scoped_evaluation.status != "selected" or scoped_evaluation.conflicts:
+        raise AssertionError(f"Cross-target same-target pair unexpectedly conflicted: {scoped_evaluation}")
+
+    global_values = dict(scoped_values)
+    global_values["occurrence.rule-effect-same-target-incompatibility-pair"] = (
+        "advance-iteration-with-terminate-recurrence",
+    )
+    global_values["occurrence.rule-effect-global-incompatibility-pair"] = (
+        "advance-iteration-with-pause-recurrence",
+    )
+    validate_occurrence_semantic_declarations(global_values)
+    global_evaluation = parse_occurrence_registry(
+        scoped_probe, fixture_path, replace(scoped_packs, controlled_values=global_values), chronology_fixture,
+        subject_targets={"character": {"protagonist", "observer"}},
+        payload_targets={"state-record": {"protagonist-health"}},
+    ).evaluate_rules("outer-loop", "reset-two")
+    if list(global_evaluation.conflicts) != ["advance-iteration conflicts with pause-recurrence globally"]:
+        raise AssertionError(f"Global incompatibility scope was not enforced: {global_evaluation}")
+
+    declaration_failures = [
+        ("reversed pair", "occurrence.rule-effect-same-target-incompatibility-pair", ("pause-recurrence-with-advance-iteration",)),
+        ("unknown pair", "occurrence.rule-effect-same-target-incompatibility-pair", ("advance-iteration-with-unknown-effect",)),
+        ("orphan scope", "occurrence.rule-effect-pattern-scope", ("unknown-effect-uses-owning-pattern",)),
+        ("ambiguous repetition", "occurrence.rule-effect-repetition-policy", tuple(extension_packs.controlled_values["occurrence.rule-effect-repetition-policy"]) + ("pause-recurrence-uses-accumulating",)),
+        ("missing repetition", "occurrence.rule-effect-repetition-policy", tuple(value for value in extension_packs.controlled_values["occurrence.rule-effect-repetition-policy"] if value != "pause-recurrence-uses-idempotent")),
+    ]
+    for label, namespace, value in declaration_failures:
+        invalid_values = dict(extension_packs.controlled_values)
+        invalid_values[namespace] = value
+        try:
+            validate_occurrence_semantic_declarations(invalid_values)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError(f"Malformed semantic declaration unexpectedly loaded: {label}")
+
+    duplicated_scope_values = dict(extension_packs.controlled_values)
+    duplicated_scope_values["occurrence.rule-effect-global-incompatibility-pair"] = (
+        "advance-iteration-with-pause-recurrence",
+    )
+    try:
+        validate_occurrence_semantic_declarations(duplicated_scope_values)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("Effect incompatibility pair unexpectedly accepted two scopes.")
+
     summary = {
         "schema_version": registry.schema_version,
         "branches": len(registry.branches),
@@ -306,10 +440,11 @@ def main() -> int:
             + len(expectations["schedule_errors"])
             + len(expectations["schedule_matches"])
             + len(expectations["rule_evaluations"])
+            + len(expectations["resolved_effects"])
             + len(expectations["trace_dispositions"])
             + len(expectations["subject_state_transitions"])
             + len(expectations["state_at"])
-            + 3
+            + 14
         ),
         "invalid_cases": len(invalid_cases),
     }

@@ -181,6 +181,18 @@ class RecurrenceRuleEffect:
 
 
 @dataclass(frozen=True)
+class ResolvedRuleEffect:
+    effect_kind: str
+    target_type: str
+    target_id: str
+    repetition_policy: str
+    contribution_count: int
+    execution_count: int
+    contributing_rule_ids: tuple[str, ...]
+    contributing_effect_ids: tuple[str, ...]
+
+
+@dataclass(frozen=True)
 class RecurrenceRule:
     id: str
     label: str
@@ -219,7 +231,7 @@ class RuleEvaluation:
     recurrence_id: str
     occurrence_id: str
     selected_rule_ids: tuple[str, ...]
-    effects: tuple[RecurrenceRuleEffect, ...]
+    effects: tuple[ResolvedRuleEffect, ...]
     conflicts: tuple[str, ...]
     traces: tuple[RuleEvaluationTrace, ...]
 
@@ -285,7 +297,9 @@ class OccurrenceRegistry:
     rules: tuple[RecurrenceRule, ...]
     state_transitions: tuple[StateTransition, ...]
     carryovers: tuple[IterationCarryover, ...]
-    effect_incompatibility_pairs: frozenset[str]
+    effect_global_incompatibility_pairs: frozenset[str]
+    effect_same_target_incompatibility_pairs: frozenset[str]
+    effect_repetition_policies: dict[str, str]
 
     def occurrences_for_iteration(self, iteration_id: str) -> tuple[Occurrence, ...]:
         self._known(self.iterations, iteration_id, "iteration")
@@ -577,6 +591,10 @@ def parse_occurrence_registry(
         raise ValueError("Occurrence registry requires enabled capability `extensible-recurrence-policy-semantics`.")
     if not packs.capability_enabled("civil-schedule-boundary-integrity"):
         raise ValueError("Occurrence registry requires enabled capability `civil-schedule-boundary-integrity`.")
+    if not packs.capability_enabled("semantic-declaration-integrity"):
+        raise ValueError("Occurrence registry requires enabled capability `semantic-declaration-integrity`.")
+    if not packs.capability_enabled("deterministic-effect-resolution"):
+        raise ValueError("Occurrence registry requires enabled capability `deterministic-effect-resolution`.")
     root = _mapping(data, "Occurrence registry root")
     assert_allowed_keys(
         root,
@@ -1306,7 +1324,9 @@ def parse_occurrence_registry(
         path, SUPPORTED_SCHEMA_VERSION, chronology, branches, templates, recurrence_patterns,
         recurrences, iterations, phases, schedules, occurrences, tracks, tuple(transitions),
         tuple(causal_relations), tuple(outcomes), tuple(rules), tuple(states), tuple(carryovers),
-        frozenset(packs.allowed_values("occurrence.rule-effect-incompatibility-pair")),
+        frozenset(packs.allowed_values("occurrence.rule-effect-global-incompatibility-pair")),
+        frozenset(packs.allowed_values("occurrence.rule-effect-same-target-incompatibility-pair")),
+        _effect_repetition_policies(packs),
     )
 
 
@@ -1911,15 +1931,66 @@ def _effect_signature(rule: RecurrenceRule) -> tuple[tuple[str, str, str], ...]:
     return tuple(sorted((item.effect_kind, item.target_type, item.target_id) for item in rule.effects))
 
 
-def _effect_conflicts(
-    effects: tuple[RecurrenceRuleEffect, ...], incompatibility_pairs: frozenset[str]
-) -> tuple[str, ...]:
+def _effect_repetition_policies(packs: SchemaPackRegistry) -> dict[str, str]:
+    declarations = set(packs.allowed_values("occurrence.rule-effect-repetition-policy"))
+    policies: dict[str, str] = {}
+    for effect_kind in packs.allowed_values("occurrence.rule-effect-kind"):
+        for policy in ("idempotent", "accumulating", "invalid"):
+            if f"{effect_kind}-uses-{policy}" in declarations:
+                policies[effect_kind] = policy
+                break
+    return policies
+
+
+def _resolve_effects(
+    selected: list[RecurrenceRule], repetition_policies: dict[str, str]
+) -> tuple[tuple[ResolvedRuleEffect, ...], tuple[str, ...]]:
+    grouped: dict[tuple[str, str, str], list[tuple[str, RecurrenceRuleEffect]]] = {}
+    for rule in sorted(selected, key=lambda item: item.id):
+        for effect in rule.effects:
+            grouped.setdefault(
+                (effect.effect_kind, effect.target_type, effect.target_id), []
+            ).append((rule.id, effect))
+    resolved: list[ResolvedRuleEffect] = []
+    conflicts: set[str] = set()
+    for (effect_kind, target_type, target_id), contributions in sorted(grouped.items()):
+        policy = repetition_policies[effect_kind]
+        count = len(contributions)
+        execution_count = count if policy == "accumulating" else 1
+        if policy == "invalid" and count > 1:
+            execution_count = 0
+            conflicts.add(
+                f"duplicate {effect_kind} effect on {target_type}:{target_id} is invalid"
+            )
+        resolved.append(ResolvedRuleEffect(
+            effect_kind, target_type, target_id, policy, count, execution_count,
+            tuple(rule_id for rule_id, _ in contributions),
+            tuple(effect.id for _, effect in contributions),
+        ))
+    return tuple(resolved), tuple(sorted(conflicts))
+
+
+def _effect_conflicts(registry: OccurrenceRegistry, effects: tuple[ResolvedRuleEffect, ...]) -> tuple[str, ...]:
     conflicts: set[str] = set()
     kinds = sorted({item.effect_kind for item in effects})
     for index, left in enumerate(kinds):
         for right in kinds[index + 1:]:
-            if f"{left}-with-{right}" in incompatibility_pairs:
-                conflicts.add(f"{left} conflicts with {right}")
+            pair = f"{left}-with-{right}"
+            if pair in registry.effect_global_incompatibility_pairs:
+                conflicts.add(f"{left} conflicts with {right} globally")
+            if pair in registry.effect_same_target_incompatibility_pairs:
+                left_effects = [item for item in effects if item.effect_kind == left]
+                right_effects = [item for item in effects if item.effect_kind == right]
+                for left_effect in left_effects:
+                    for right_effect in right_effects:
+                        if (
+                            left_effect.target_type == right_effect.target_type
+                            and left_effect.target_id == right_effect.target_id
+                        ):
+                            conflicts.add(
+                                f"{left} conflicts with {right} on "
+                                f"{left_effect.target_type}:{left_effect.target_id}"
+                            )
     reset_targets = {item.target_id for item in effects if item.effect_kind == "change-reset-point"}
     if len(reset_targets) > 1:
         conflicts.add("multiple change-reset-point effects select different targets")
@@ -2012,8 +2083,9 @@ def _evaluate_rules(
                     working[rule.id]["disposition"] = "lower-priority exclusive rule"
 
     selected_by_id = {rule.id: rule for rule in selected}
-    effects = tuple(effect for rule in sorted(selected, key=lambda item: item.id) for effect in rule.effects)
-    conflicts.update(_effect_conflicts(effects, registry.effect_incompatibility_pairs))
+    effects, repetition_conflicts = _resolve_effects(selected, registry.effect_repetition_policies)
+    conflicts.update(repetition_conflicts)
+    conflicts.update(_effect_conflicts(registry, effects))
     for rule_id in selected_by_id:
         working[rule_id]["selected"] = True
         working[rule_id]["disposition"] = "selected"

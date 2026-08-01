@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: core
-pack_version: 27
+pack_version: 28
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -63,6 +63,8 @@ capabilities:
   - recurrence-policy-integrity
   - extensible-recurrence-policy-semantics
   - civil-schedule-boundary-integrity
+  - semantic-declaration-integrity
+  - deterministic-effect-resolution
   - visibility-policy
   - graph-projection
   - schema-validation
@@ -218,7 +220,12 @@ controlled_values:
   occurrence.rule-effect-pattern-scope:
     - advance-iteration-uses-owning-pattern
     - terminate-recurrence-uses-owning-pattern
-  occurrence.rule-effect-incompatibility-pair:
+  occurrence.rule-effect-repetition-policy:
+    - advance-iteration-uses-idempotent
+    - terminate-recurrence-uses-idempotent
+    - change-reset-point-uses-idempotent
+    - activate-state-uses-idempotent
+  occurrence.rule-effect-same-target-incompatibility-pair:
     - advance-iteration-with-terminate-recurrence
   occurrence.schedule-kind:
     - civil-calendar

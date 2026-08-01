@@ -30,7 +30,7 @@
     "escape-three": ["protagonist-escaped-loop", "protagonist-survived-loop"]
   },
   "pattern_rules": {
-    "outer-loop-pattern": ["outer-reset-rule", "outer-termination-rule", "outer-final-termination-override", "outer-scheduled-state-rule", "conflict-advance-rule", "conflict-terminate-rule", "accumulating-advance-rule", "accumulating-terminate-rule", "checkpoint-integrity-rule"]
+    "outer-loop-pattern": ["outer-reset-rule", "outer-termination-rule", "outer-final-termination-override", "outer-scheduled-state-rule", "conflict-advance-rule", "conflict-terminate-rule", "accumulating-advance-rule", "accumulating-terminate-rule", "checkpoint-integrity-rule", "accumulating-advance-duplicate-rule"]
   },
   "iteration_phases": {
     "outer-two": "outer-early-phase",
@@ -61,7 +61,11 @@
     ["outer-loop", "wake-three", "2025-03", "selected", ["outer-scheduled-state-rule"], ["activate-state"], []],
     ["outer-loop", "escape-three", null, "selected", ["outer-final-termination-override"], ["terminate-recurrence"], []],
     ["outer-loop", "wake-one", null, "conflict", [], [], ["resolution group 'conflict-demonstration' has conflicting exclusive rules at priority 50"]],
-    ["outer-loop", "wake-two", null, "conflict", ["accumulating-advance-rule", "accumulating-terminate-rule"], ["advance-iteration", "terminate-recurrence"], ["advance-iteration conflicts with terminate-recurrence"]]
+    ["outer-loop", "wake-two", null, "conflict", ["accumulating-advance-duplicate-rule", "accumulating-advance-rule", "accumulating-terminate-rule"], ["advance-iteration", "terminate-recurrence"], ["advance-iteration conflicts with terminate-recurrence on recurrence-pattern:outer-loop-pattern"]]
+  ],
+  "resolved_effects": [
+    ["outer-loop", "reset-one", null, [["advance-iteration", "recurrence-pattern", "outer-loop-pattern", "idempotent", 1, 1, ["outer-reset-rule"], ["outer-reset-advances"]]]],
+    ["outer-loop", "wake-two", null, [["advance-iteration", "recurrence-pattern", "outer-loop-pattern", "idempotent", 2, 1, ["accumulating-advance-duplicate-rule", "accumulating-advance-rule"], ["accumulating-advance-duplicate-effect", "accumulating-advance-effect"]], ["terminate-recurrence", "recurrence-pattern", "outer-loop-pattern", "idempotent", 1, 1, ["accumulating-terminate-rule"], ["accumulating-terminate-effect"]]]]
   ],
   "trace_dispositions": [
     ["outer-loop", "wake-three", null, "outer-scheduled-state-rule", "effective time was not supplied"],

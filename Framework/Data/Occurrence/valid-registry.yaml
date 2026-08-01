@@ -740,6 +740,40 @@ rules:
         effect_kind: change-reset-point
         target_type: occurrence-template
         target_id: bell
+  - id: accumulating-advance-duplicate-rule
+    label: Duplicate accumulating advance contribution
+    pattern_id: outer-loop-pattern
+    rule_kind: reset
+    condition_logic: all
+    applicability:
+      application_level: pattern-default
+      recurrence_ids: []
+      phase_ids: []
+      branch_ids: []
+      min_iteration_ordinal: 2
+      max_iteration_ordinal: 2
+      chronology_window: null
+      effective_window: null
+    priority: 10
+    resolution_group: accumulating-advance-duplicate
+    selection_mode: accumulate
+    override_mode: inherit
+    conditions:
+      - id: accumulating-advance-duplicate-wake-reached
+        condition_kind: occurrence-reached
+        target_type: occurrence-template
+        target_id: wake
+        expected_value: occurred
+        subject_type: null
+        subject_id: null
+        state_kind: null
+        track_id: null
+        comparison_value: null
+    effects:
+      - id: accumulating-advance-duplicate-effect
+        effect_kind: advance-iteration
+        target_type: recurrence-pattern
+        target_id: outer-loop-pattern
 
 state_transitions:
   - id: protagonist-acquires-bell-memory

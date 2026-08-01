@@ -400,6 +400,8 @@ function Get-KnowledgeSchemaPackRegistry {
     }
   }
 
+  Assert-SchemaPackOccurrenceSemanticDeclarations $controlledValues
+
   return [pscustomobject]@{
     path = $registryPath
     schema_version = $schemaVersion
@@ -414,6 +416,26 @@ function Get-KnowledgeSchemaPackRegistry {
     controlled_value_owners = $owners
     controlled_value_definitions = $definitions
   }
+}
+
+function Assert-SchemaPackOccurrenceSemanticDeclarations {
+  param([System.Collections.IDictionary]$ControlledValues)
+
+  $effectKinds=@($ControlledValues['occurrence.rule-effect-kind']);if($effectKinds.Count -eq 0){return}
+  $targetPairs=@($ControlledValues['occurrence.rule-effect-kind-target-type'])
+  $recurrenceEffects=@($effectKinds|Where-Object {$targetPairs -ccontains "$_-uses-recurrence-pattern"})
+  $scopeValues=@($ControlledValues['occurrence.rule-effect-pattern-scope'])
+  foreach($value in $scopeValues){$matches=@($recurrenceEffects|Where-Object {$value -ceq "$_-uses-owning-pattern" -or $value -ceq "$_-allows-external-pattern"});if($matches.Count -ne 1){throw "Schema-pack occurrence scope declaration '$value' must reference a known recurrence-pattern-capable effect kind."}}
+  foreach($effect in $recurrenceEffects){$matches=@($scopeValues|Where-Object {$_ -ceq "$effect-uses-owning-pattern" -or $_ -ceq "$effect-allows-external-pattern"});if($matches.Count -ne 1){throw "Schema-pack effect kind '$effect' requires exactly one recurrence-pattern scope declaration."}}
+
+  $repetitionValues=@($ControlledValues['occurrence.rule-effect-repetition-policy'])
+  foreach($value in $repetitionValues){$matches=@($effectKinds|Where-Object {$value -in @("$_-uses-idempotent","$_-uses-accumulating","$_-uses-invalid")});if($matches.Count -ne 1){throw "Schema-pack effect repetition declaration '$value' must reference a known effect kind."}}
+  foreach($effect in $effectKinds){$matches=@($repetitionValues|Where-Object {$_ -in @("$effect-uses-idempotent","$effect-uses-accumulating","$effect-uses-invalid")});if($matches.Count -ne 1){throw "Schema-pack effect kind '$effect' requires exactly one repetition policy declaration."}}
+
+  $canonical=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal);$sorted=@($effectKinds|Sort-Object);for($left=0;$left -lt $sorted.Count;$left++){for($right=$left+1;$right -lt $sorted.Count;$right++){$null=$canonical.Add("$($sorted[$left])-with-$($sorted[$right])")}}
+  $global=@($ControlledValues['occurrence.rule-effect-global-incompatibility-pair']|Where-Object {$null -ne $_});$sameTarget=@($ControlledValues['occurrence.rule-effect-same-target-incompatibility-pair']|Where-Object {$null -ne $_});$conflictNamespaces=[ordered]@{'occurrence.rule-effect-global-incompatibility-pair'=$global;'occurrence.rule-effect-same-target-incompatibility-pair'=$sameTarget}
+  foreach($namespace in $conflictNamespaces.Keys){foreach($value in @($conflictNamespaces[$namespace])){if(-not $canonical.Contains([string]$value)){throw "Schema-pack namespace '$namespace' contains a noncanonical or unknown effect pair: $value."}}}
+  $duplicates=@($global|Where-Object {$sameTarget -ccontains $_}|Sort-Object -Unique);if($duplicates.Count -gt 0){throw "Schema-pack effect incompatibility pairs must declare exactly one conflict scope: $($duplicates -join ', ')."}
 }
 
 function Test-SchemaPackCapabilityAvailable {
