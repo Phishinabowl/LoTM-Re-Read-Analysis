@@ -21,7 +21,7 @@ From V30 onward, update this file as part of each version:
 - **V7-V15:** Evidence, authority, production context, scope, and applicability
 - **V16-V23:** Entity identity and cross-registry provenance/reconciliation
 - **V24-V27:** Deterministic configuration ingestion
-- **V28-V31:** Civil time, general chronology, occurrence, and recurrence
+- **V28-V32:** Civil time, general chronology, occurrence, recurrence, and transition integrity
 
 ### Marker Conventions
 
@@ -794,3 +794,19 @@ Vector clocks and distributed happens-before queries remain outside the chronolo
 V32 should be **Occurrence Integrity and Transition Semantics**. It should close the four correctness defects before expanding recurrence authoring: validate coherent exact primary bindings, require track-attached transitions to follow track order, define kind-specific reset/exit/fork/merge/jump endpoint profiles, and make carryover prove track participation while identifying a typed payload or provenance-addressable state target. Branch lineage checks should use explicit transition semantics so retroactive branches are supported intentionally rather than accepted accidentally. Semantic duplicate detection and deterministic iteration-plus-track boundary queries should be added to the portable corpus.
 
 Recurrence schedules, expression languages for reset or termination conditions, outcome taxonomies, recurrence-template versus execution identity, and distributed vector-clock semantics should remain candidates for later versions. V32 should establish trustworthy occurrence edges and state transfer first, giving those later capabilities a reliable substrate.
+
+## V32 - Occurrence Integrity and Transition Semantics
+
+**Superseded assumption:** A domain transition kind and broad carryover kind provide enough information to validate occurrence edges and retained state.
+
+**Architectural promotion:** Transition profiles, coherent multi-coordinate occurrence identity, explicit branch-lineage edges, and payload-bearing carryover became core framework semantics independent of domain vocabulary.
+
+V32 upgrades the occurrence registry to schema 2. An occurrence may still bind multiple chronology systems, including incomparable world and subjective coordinates, but duplicate semantic bindings are rejected and exact primary positions cannot be known ordered. This preserves legitimate multi-axis identity without allowing one happening to occupy two contradictory exact positions.
+
+Transitions now separate extensible `transition_kind` vocabulary from a core `transition_profile`. The core pack defines ordered, jump, recurrence-advance, recurrence-exit, branch-fork, and branch-merge profiles, while each pack registers which profiles its transition kinds may use. Track-attached transitions must move forward in declared track order; recurrence profiles prove their endpoint scope and direction; branch-fork profiles must match the parent branch's named fork occurrence; and every child branch has exactly one explicit matching fork transition. This supports a retroactive time-travel branch through an explicit forward subjective transition without pretending its world coordinates are chronologically forward.
+
+Carryover now proves that its track participates in both source and target iterations and identifies an exact stable payload through `payload_target_type` and `payload_target_id`. Internal occurrence-registry targets and caller-supplied stable providers can serve as payloads. Semantic duplicate bindings, transitions, and carryover records are rejected so changing IDs cannot disguise duplicate structure; provenance remains the owner of competing evidence or certainty changes.
+
+Paired queries add iteration membership in track order plus previous-before-iteration and next-after-iteration boundaries. The portable fixture exercises all six transition profiles, coherent incomparable primary bindings, explicit branch fork and merge, internal and externally supplied payload targets, nested recurrence, partial escape, repeated coordinates, and cyclic causality. Eighteen query assertions and twenty-seven malformed mutations pass identically in Python, PowerShell 7, and Windows PowerShell 5.1.
+
+The core pack advances to version 23, narrative media advances to version 18 with a core-23 dependency, and the empty LoTM occurrence registry advances to schema 2 without fabricating project events. Recurrence schedules, condition-expression languages, outcome taxonomies, recurrence-template versus execution identity, and distributed vector clocks remain deliberately outside V32.

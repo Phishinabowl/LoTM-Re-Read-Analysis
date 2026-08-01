@@ -41,7 +41,7 @@ Claim namespaces, evidence modes, and content-group member roles are pack-owned 
 
 Core civil-time windows and chronology coordinates are related but separate. `temporal-windows` owns Gregorian/RFC 3339 effective-time mechanics. `chronology-coordinate-systems` owns project-defined calendar, era-ordinal, ordinal, and relative integer axes. Narrative media adds `narrative-chronology` contexts that bind an axis to works, continuities, branches, and story-time roles without conflating story order with release or reader-disclosure order. Epoch names, fictional calendars, and concrete anchors remain project instances rather than reusable pack values.
 
-Core `occurrence-recurrence-modeling` keeps concrete happenings, branches, iterations, transitions, causal edges, tracks, and carryover separate from chronology coordinates. Narrative media adds `narrative-time-loops`, subjective experience, loop reset/escape, and memory/knowledge/awareness carryover. Causal cycles are valid occurrence relationships; chronological cycles remain invalid.
+Core `occurrence-recurrence-modeling` keeps concrete happenings, branches, iterations, profiled transitions, causal edges, tracks, and payload-bearing carryover separate from chronology coordinates. Core transition profiles enforce ordered, jump, recurrence-advance, recurrence-exit, branch-fork, and branch-merge structure independently from extensible domain transition kinds; each pack also registers the allowed kind/profile pairs for its vocabulary. Narrative media adds `narrative-time-loops`, subjective experience, loop reset/escape, and memory/knowledge/awareness carryover. Causal cycles are valid occurrence relationships; chronological cycles remain invalid.
 
 ## Capability Honesty
 

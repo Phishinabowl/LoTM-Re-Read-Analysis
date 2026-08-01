@@ -5,12 +5,21 @@
   "position_occurrences": {
     "civil-anchor": ["wake-one", "wake-two", "wake-three"]
   },
+  "iteration_track_occurrences": {
+    "outer-two|protagonist-experience": ["wake-two", "bell-two", "reset-two"],
+    "outer-two|observer-experience": ["wake-two", "bell-two"]
+  },
+  "track_iteration_boundaries": [
+    ["protagonist-experience", "outer-two", "reset-one", "wake-three"],
+    ["observer-experience", "outer-two", "bell-one", "wake-three"],
+    ["protagonist-experience", "inner-one", "bell-two", "inner-step-two"]
+  ],
   "track_neighbors": [
     ["protagonist-experience", "wake-two", "reset-one", "bell-two"],
     ["observer-experience", "wake-two", "bell-one", "bell-two"]
   ],
   "carryovers_into": {
-    "outer-two": ["memory-one-to-two"]
+    "outer-two": ["memory-one-to-two", "physical-state-one-to-two"]
   },
   "occurrence_recurrences": {
     "wake-two": "outer-loop",

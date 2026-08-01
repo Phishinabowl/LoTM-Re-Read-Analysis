@@ -53,13 +53,14 @@ def main() -> int:
         continuity_ids=set(),
     )
     fixture_path = fixture_root / "valid-registry.yaml"
-    fixture_data = load_yaml_file(fixture_path, "occurrence fixture", expected_schema_version=1)
+    fixture_data = load_yaml_file(fixture_path, "occurrence fixture", expected_schema_version=2)
     fixture = parse_occurrence_registry(
         fixture_data,
         fixture_path,
         packs,
         chronology_fixture,
         subject_targets={"character": {"protagonist", "observer"}},
+        payload_targets={"state-record": {"protagonist-health"}},
     )
     expectations = json.loads((fixture_root / "expectations.json").read_text(encoding="utf-8"))
     for iteration_id, expected in expectations["iteration_occurrences"].items():
@@ -68,6 +69,15 @@ def main() -> int:
     for position_id, expected in expectations["position_occurrences"].items():
         if ids(fixture.occurrences_at_position(position_id)) != expected:
             raise AssertionError(f"Unexpected occurrences at position `{position_id}`.")
+    for key, expected in expectations["iteration_track_occurrences"].items():
+        iteration_id, track_id = key.split("|", 1)
+        if ids(fixture.occurrences_for_iteration_on_track(iteration_id, track_id)) != expected:
+            raise AssertionError(f"Unexpected track occurrence order for `{iteration_id}` on `{track_id}`.")
+    for track_id, iteration_id, expected_previous, expected_next in expectations["track_iteration_boundaries"]:
+        previous = fixture.previous_before_iteration(track_id, iteration_id)
+        following = fixture.next_after_iteration(track_id, iteration_id)
+        if (previous.id if previous else None) != expected_previous or (following.id if following else None) != expected_next:
+            raise AssertionError(f"Unexpected track boundaries for `{iteration_id}` on `{track_id}`.")
     for track_id, occurrence_id, expected_previous, expected_next in expectations["track_neighbors"]:
         previous = fixture.previous_on_track(track_id, occurrence_id)
         following = fixture.next_on_track(track_id, occurrence_id)
@@ -87,7 +97,11 @@ def main() -> int:
         for change in case["changes"]:
             set_path(invalid, change["path"], change["value"])
         try:
-            parse_occurrence_registry(invalid, fixture_path, packs, chronology_fixture, subject_targets={"character": {"protagonist", "observer"}})
+            parse_occurrence_registry(
+                invalid, fixture_path, packs, chronology_fixture,
+                subject_targets={"character": {"protagonist", "observer"}},
+                payload_targets={"state-record": {"protagonist-health"}},
+            )
         except ValueError:
             continue
         raise AssertionError(f"Malformed occurrence case unexpectedly loaded: {case['name']}")
@@ -103,7 +117,15 @@ def main() -> int:
         "transitions": len(registry.transitions),
         "causal_relations": len(registry.causal_relations),
         "carryovers": len(registry.carryovers),
-        "fixture_queries": 10,
+        "fixture_queries": (
+            len(expectations["iteration_occurrences"])
+            + len(expectations["position_occurrences"])
+            + len(expectations["iteration_track_occurrences"])
+            + len(expectations["track_iteration_boundaries"]) * 2
+            + len(expectations["track_neighbors"]) * 2
+            + len(expectations["carryovers_into"])
+            + len(expectations["occurrence_recurrences"])
+        ),
         "invalid_cases": len(invalid_cases),
     }
     if args.json:

@@ -1,4 +1,4 @@
-schema_version: 1
+schema_version: 2
 
 branches:
   main:
@@ -158,6 +158,9 @@ occurrences:
       - id: escape-three-position
         position_id: civil-far-future
         role: primary
+      - id: escape-three-countdown-position
+        position_id: countdown-one
+        role: primary
   after-loop:
     template_id: aftermath
     label: After Loop
@@ -165,6 +168,15 @@ occurrences:
     branch_id: changed-outcome
     bindings:
       - id: after-loop-position
+        position_id: civil-far-future
+        role: contextual
+  restored-main:
+    template_id: aftermath
+    label: Restored Main Branch
+    iteration_id: null
+    branch_id: main
+    bindings:
+      - id: restored-main-position
         position_id: civil-far-future
         role: contextual
 
@@ -186,6 +198,7 @@ tracks:
       - wake-three
       - escape-three
       - after-loop
+      - restored-main
   observer-experience:
     label: Observer Experience
     kind: subjective-experience
@@ -199,10 +212,30 @@ tracks:
       - wake-three
 
 transitions:
+  - id: first-iteration-continues
+    source_occurrence_id: wake-one
+    target_occurrence_id: bell-one
+    transition_kind: continues
+    transition_profile: ordered
+    recurrence_id: outer-loop
+    track_ids:
+      - protagonist-experience
+      - observer-experience
+    certainty: exact
+  - id: first-iteration-jump
+    source_occurrence_id: bell-one
+    target_occurrence_id: reset-one
+    transition_kind: jump
+    transition_profile: jump
+    recurrence_id: outer-loop
+    track_ids:
+      - protagonist-experience
+    certainty: exact
   - id: first-loop-reset
     source_occurrence_id: reset-one
     target_occurrence_id: wake-two
     transition_kind: loop-reset
+    transition_profile: recurrence-advance
     recurrence_id: outer-loop
     track_ids:
       - protagonist-experience
@@ -211,6 +244,7 @@ transitions:
     source_occurrence_id: reset-two
     target_occurrence_id: wake-three
     transition_kind: loop-reset
+    transition_profile: recurrence-advance
     recurrence_id: outer-loop
     track_ids:
       - protagonist-experience
@@ -219,7 +253,26 @@ transitions:
     source_occurrence_id: escape-three
     target_occurrence_id: after-loop
     transition_kind: loop-escape
+    transition_profile: recurrence-exit
     recurrence_id: outer-loop
+    track_ids:
+      - protagonist-experience
+    certainty: exact
+  - id: changed-outcome-fork
+    source_occurrence_id: escape-three
+    target_occurrence_id: after-loop
+    transition_kind: fork
+    transition_profile: branch-fork
+    recurrence_id: null
+    track_ids:
+      - protagonist-experience
+    certainty: exact
+  - id: changed-outcome-merge
+    source_occurrence_id: after-loop
+    target_occurrence_id: restored-main
+    transition_kind: merge
+    transition_profile: branch-merge
+    recurrence_id: null
     track_ids:
       - protagonist-experience
     certainty: exact
@@ -242,10 +295,22 @@ carryovers:
     target_iteration_id: outer-two
     track_id: protagonist-experience
     carryover_kind: memory
+    payload_target_type: occurrence-template
+    payload_target_id: bell
     certainty: exact
   - id: knowledge-two-to-three
     source_iteration_id: outer-two
     target_iteration_id: outer-three
     track_id: protagonist-experience
     carryover_kind: knowledge
+    payload_target_type: occurrence
+    payload_target_id: inner-step-one
+    certainty: exact
+  - id: physical-state-one-to-two
+    source_iteration_id: outer-one
+    target_iteration_id: outer-two
+    track_id: protagonist-experience
+    carryover_kind: state
+    payload_target_type: state-record
+    payload_target_id: protagonist-health
     certainty: exact

@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-media
-pack_version: 17
+pack_version: 18
 lifecycle: active
 pack_kind: domain
 label: Narrative Media Foundation
@@ -8,7 +8,7 @@ description: Domain-neutral narrative works, media facets, ordering, continuitie
 
 dependencies:
   - pack_id: core
-    minimum_version: 10
+    minimum_version: 23
 
 capabilities:
   - franchises
@@ -58,6 +58,10 @@ controlled_values:
     - time-travel-jump
     - loop-reset
     - loop-escape
+  occurrence.transition-kind-profile:
+    - time-travel-jump-uses-jump
+    - loop-reset-uses-recurrence-advance
+    - loop-escape-uses-recurrence-exit
   occurrence.track-kind:
     - subjective-experience
   occurrence.carryover-kind:

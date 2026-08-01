@@ -10,7 +10,7 @@ from schema_pack_config import SchemaPackRegistry
 from strict_yaml import assert_allowed_keys, load_yaml_file
 
 
-SUPPORTED_SCHEMA_VERSION = 1
+SUPPORTED_SCHEMA_VERSION = 2
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 
@@ -80,6 +80,7 @@ class OccurrenceTransition:
     source_occurrence_id: str
     target_occurrence_id: str
     transition_kind: str
+    transition_profile: str
     recurrence_id: str | None
     track_ids: tuple[str, ...]
     certainty: str
@@ -101,6 +102,8 @@ class IterationCarryover:
     target_iteration_id: str
     track_id: str
     carryover_kind: str
+    payload_target_type: str
+    payload_target_id: str
     certainty: str
 
 
@@ -128,6 +131,27 @@ class OccurrenceRegistry:
             for item in self.occurrences.values()
             if any(binding.position_id == position_id for binding in item.bindings)
         )
+
+    def occurrences_for_iteration_on_track(self, iteration_id: str, track_id: str) -> tuple[Occurrence, ...]:
+        self._known(self.iterations, iteration_id, "iteration")
+        track = self._known(self.tracks, track_id, "track")
+        return tuple(
+            self.occurrences[occurrence_id]
+            for occurrence_id in track.occurrence_ids
+            if self.occurrences[occurrence_id].iteration_id == iteration_id
+        )
+
+    def previous_before_iteration(self, track_id: str, iteration_id: str) -> Occurrence | None:
+        occurrences = self.occurrences_for_iteration_on_track(iteration_id, track_id)
+        if not occurrences:
+            return None
+        return self.previous_on_track(track_id, occurrences[0].id)
+
+    def next_after_iteration(self, track_id: str, iteration_id: str) -> Occurrence | None:
+        occurrences = self.occurrences_for_iteration_on_track(iteration_id, track_id)
+        if not occurrences:
+            return None
+        return self.next_on_track(track_id, occurrences[-1].id)
 
     def previous_on_track(self, track_id: str, occurrence_id: str) -> Occurrence | None:
         return self._adjacent_on_track(track_id, occurrence_id, -1)
@@ -250,6 +274,7 @@ def parse_occurrence_registry(
     chronology: ChronologyRegistry,
     *,
     subject_targets: dict[str, set[str]] | None = None,
+    payload_targets: dict[str, set[str]] | None = None,
 ) -> OccurrenceRegistry:
     if not packs.capability_enabled("occurrence-recurrence-modeling"):
         raise ValueError("Occurrence registry requires enabled capability `occurrence-recurrence-modeling`.")
@@ -366,6 +391,21 @@ def parse_occurrence_registry(
             role = _string(binding, "role", binding_context)
             _value(packs, "occurrence.binding-role", role, f"{binding_context}.role")
             bindings.append(OccurrenceBinding(binding_id, position_id, role))
+        semantic_bindings: set[tuple[str, str]] = set()
+        for binding in bindings:
+            semantic_key = (binding.position_id, binding.role)
+            if semantic_key in semantic_bindings:
+                raise ValueError(f"{context}.bindings duplicates `{binding.role}` binding to `{binding.position_id}`.")
+            semantic_bindings.add(semantic_key)
+        primary_bindings = [binding for binding in bindings if binding.role == "primary"]
+        for left_index, left in enumerate(primary_bindings):
+            for right in primary_bindings[left_index + 1:]:
+                comparison = chronology.compare_positions(left.position_id, right.position_id)
+                if comparison in {"before", "after"}:
+                    raise ValueError(
+                        f"{context}.bindings declares ordered chronology positions `{left.position_id}` and "
+                        f"`{right.position_id}` as primary coordinates of one occurrence."
+                    )
         occurrences[occurrence_id] = Occurrence(occurrence_id, template_id, _optional_string(item, "label", context), iteration_id, branch_id, tuple(bindings))
 
     for branch in branches.values():
@@ -404,7 +444,7 @@ def parse_occurrence_registry(
     for index, raw in enumerate(_list(root.get("transitions"), "occurrences.transitions")):
         context = f"transitions[{index}]"
         item = _mapping(raw, context)
-        assert_allowed_keys(item, {"id", "source_occurrence_id", "target_occurrence_id", "transition_kind", "recurrence_id", "track_ids", "certainty"}, context)
+        assert_allowed_keys(item, {"id", "source_occurrence_id", "target_occurrence_id", "transition_kind", "transition_profile", "recurrence_id", "track_ids", "certainty"}, context)
         transition_id = _stable(_string(item, "id", context), f"{context}.id")
         if transition_id in seen_ids:
             raise ValueError(f"{context}.id duplicates `{transition_id}`.")
@@ -415,6 +455,14 @@ def parse_occurrence_registry(
             raise ValueError(f"{context} must reference known source and target occurrences.")
         kind = _string(item, "transition_kind", context)
         _value(packs, "occurrence.transition-kind", kind, f"{context}.transition_kind")
+        profile = _string(item, "transition_profile", context)
+        _value(packs, "occurrence.transition-profile", profile, f"{context}.transition_profile")
+        _value(
+            packs,
+            "occurrence.transition-kind-profile",
+            f"{kind}-uses-{profile}",
+            f"{context}.transition_kind/transition_profile",
+        )
         recurrence_id = _optional_string(item, "recurrence_id", context)
         if recurrence_id is not None and recurrence_id not in recurrences:
             raise ValueError(f"{context}.recurrence_id references unknown recurrence `{recurrence_id}`.")
@@ -425,12 +473,33 @@ def parse_occurrence_registry(
             track_occurrences = tracks[track_id].occurrence_ids
             if source_id not in track_occurrences or target_id not in track_occurrences:
                 raise ValueError(f"{context} endpoints must both appear on track `{track_id}`.")
+            if track_occurrences.index(source_id) >= track_occurrences.index(target_id):
+                raise ValueError(f"{context} must advance in declared track order on `{track_id}`.")
         certainty = _string(item, "certainty", context)
         _value(packs, "temporal.certainty", certainty, f"{context}.certainty")
-        transition = OccurrenceTransition(transition_id, source_id, target_id, kind, recurrence_id, track_ids, certainty)
-        if kind in {"reset", "loop-reset"}:
-            _validate_iteration_advance(transition, occurrences, iterations, recurrence_id, context)
+        transition = OccurrenceTransition(transition_id, source_id, target_id, kind, profile, recurrence_id, track_ids, certainty)
+        _validate_transition_profile(transition, occurrences, iterations, branches, recurrence_id, context)
+        semantic_key = (source_id, target_id, kind, profile, recurrence_id, tuple(sorted(track_ids)))
+        if any(
+            (existing.source_occurrence_id, existing.target_occurrence_id, existing.transition_kind,
+             existing.transition_profile, existing.recurrence_id, tuple(sorted(existing.track_ids))) == semantic_key
+            for existing in transitions
+        ):
+            raise ValueError(f"{context} duplicates an existing semantic transition.")
         transitions.append(transition)
+
+    fork_transitions: dict[str, list[OccurrenceTransition]] = {branch_id: [] for branch_id in branches}
+    for transition in transitions:
+        if transition.transition_profile != "branch-fork":
+            continue
+        target_branch_id = occurrences[transition.target_occurrence_id].branch_id
+        fork_transitions[target_branch_id].append(transition)
+    for branch in branches.values():
+        if branch.parent_branch_id is None:
+            continue
+        matches = fork_transitions[branch.id]
+        if len(matches) != 1:
+            raise ValueError(f"branches.{branch.id} must have exactly one matching branch-fork transition.")
 
     causal_relations: list[CausalRelation] = []
     for index, raw in enumerate(_list(root.get("causal_relations"), "occurrences.causal_relations")):
@@ -455,7 +524,7 @@ def parse_occurrence_registry(
     for index, raw in enumerate(_list(root.get("carryovers"), "occurrences.carryovers")):
         context = f"carryovers[{index}]"
         item = _mapping(raw, context)
-        assert_allowed_keys(item, {"id", "source_iteration_id", "target_iteration_id", "track_id", "carryover_kind", "certainty"}, context)
+        assert_allowed_keys(item, {"id", "source_iteration_id", "target_iteration_id", "track_id", "carryover_kind", "payload_target_type", "payload_target_id", "certainty"}, context)
         carryover_id = _stable(_string(item, "id", context), f"{context}.id")
         if carryover_id in seen_ids:
             raise ValueError(f"{context}.id duplicates `{carryover_id}`.")
@@ -469,30 +538,143 @@ def parse_occurrence_registry(
         target = iterations[target_id]
         if source.recurrence_id != target.recurrence_id or source.ordinal >= target.ordinal:
             raise ValueError(f"{context} must advance between iterations of the same recurrence.")
+        track_iteration_ids = {
+            occurrences[occurrence_id].iteration_id
+            for occurrence_id in tracks[track_id].occurrence_ids
+        }
+        if source_id not in track_iteration_ids or target_id not in track_iteration_ids:
+            raise ValueError(f"{context}.track_id must participate in both source and target iterations.")
         kind = _string(item, "carryover_kind", context)
         _value(packs, "occurrence.carryover-kind", kind, f"{context}.carryover_kind")
+        payload_type = _string(item, "payload_target_type", context)
+        payload_id = _string(item, "payload_target_id", context)
+        _stable(payload_type, f"{context}.payload_target_type")
+        _stable(payload_id, f"{context}.payload_target_id")
+        known_payload_targets = _payload_target_ids(
+            payload_type, branches, templates, recurrences, iterations, occurrences, tracks, payload_targets
+        )
+        if payload_id not in known_payload_targets:
+            raise ValueError(f"{context} references unknown payload target `{payload_type}:{payload_id}`.")
         certainty = _string(item, "certainty", context)
         _value(packs, "temporal.certainty", certainty, f"{context}.certainty")
-        carryovers.append(IterationCarryover(carryover_id, source_id, target_id, track_id, kind, certainty))
+        semantic_key = (source_id, target_id, track_id, kind, payload_type, payload_id)
+        if any(
+            (existing.source_iteration_id, existing.target_iteration_id, existing.track_id, existing.carryover_kind,
+             existing.payload_target_type, existing.payload_target_id) == semantic_key
+            for existing in carryovers
+        ):
+            raise ValueError(f"{context} duplicates an existing semantic carryover.")
+        carryovers.append(IterationCarryover(carryover_id, source_id, target_id, track_id, kind, payload_type, payload_id, certainty))
 
     return OccurrenceRegistry(path, SUPPORTED_SCHEMA_VERSION, branches, templates, recurrences, iterations, occurrences, tracks, tuple(transitions), tuple(causal_relations), tuple(carryovers))
 
 
-def _validate_iteration_advance(
+def _validate_transition_profile(
     transition: OccurrenceTransition,
     occurrences: dict[str, Occurrence],
     iterations: dict[str, RecurrenceIteration],
+    branches: dict[str, OccurrenceBranch],
     recurrence_id: str | None,
     context: str,
 ) -> None:
-    source_iteration_id = occurrences[transition.source_occurrence_id].iteration_id
-    target_iteration_id = occurrences[transition.target_occurrence_id].iteration_id
-    if source_iteration_id is None or target_iteration_id is None or recurrence_id is None:
-        raise ValueError(f"{context} reset transitions require recurrence-bound source and target iterations.")
-    source = iterations[source_iteration_id]
-    target = iterations[target_iteration_id]
-    if source.recurrence_id != recurrence_id or target.recurrence_id != recurrence_id or source.ordinal >= target.ordinal:
-        raise ValueError(f"{context} reset transition must advance iterations in recurrence `{recurrence_id}`.")
+    source_occurrence = occurrences[transition.source_occurrence_id]
+    target_occurrence = occurrences[transition.target_occurrence_id]
+    source_iteration = iterations.get(source_occurrence.iteration_id) if source_occurrence.iteration_id else None
+    target_iteration = iterations.get(target_occurrence.iteration_id) if target_occurrence.iteration_id else None
+
+    if transition.transition_profile in {"ordered", "jump"}:
+        if recurrence_id is not None and (
+            source_iteration is None
+            or target_iteration is None
+            or source_iteration.recurrence_id != recurrence_id
+            or target_iteration.recurrence_id != recurrence_id
+        ):
+            raise ValueError(f"{context} scoped `{transition.transition_profile}` endpoints must belong to recurrence `{recurrence_id}`.")
+        return
+
+    if transition.transition_profile == "recurrence-advance":
+        if source_iteration is None or target_iteration is None or recurrence_id is None:
+            raise ValueError(f"{context} recurrence-advance transitions require recurrence-bound source and target iterations.")
+        if (
+            source_iteration.recurrence_id != recurrence_id
+            or target_iteration.recurrence_id != recurrence_id
+            or source_iteration.ordinal >= target_iteration.ordinal
+        ):
+            raise ValueError(f"{context} recurrence-advance transition must advance iterations in recurrence `{recurrence_id}`.")
+        return
+
+    if transition.transition_profile == "recurrence-exit":
+        if source_iteration is None or recurrence_id is None or source_iteration.recurrence_id != recurrence_id:
+            raise ValueError(f"{context} recurrence-exit source must belong to recurrence `{recurrence_id}`.")
+        if target_iteration is not None and target_iteration.recurrence_id == recurrence_id:
+            raise ValueError(f"{context} recurrence-exit target must leave recurrence `{recurrence_id}`.")
+        return
+
+    if transition.transition_profile == "branch-fork":
+        _validate_optional_transition_recurrence_scope(
+            transition, source_iteration, target_iteration, recurrence_id, context
+        )
+        target_branch = branches[target_occurrence.branch_id]
+        if (
+            target_branch.parent_branch_id is None
+            or target_branch.parent_branch_id != source_occurrence.branch_id
+            or target_branch.fork_occurrence_id != source_occurrence.id
+        ):
+            raise ValueError(f"{context} branch-fork endpoints do not match the target branch lineage.")
+        return
+
+    if transition.transition_profile == "branch-merge":
+        _validate_optional_transition_recurrence_scope(
+            transition, source_iteration, target_iteration, recurrence_id, context
+        )
+        if source_occurrence.branch_id == target_occurrence.branch_id:
+            raise ValueError(f"{context} branch-merge endpoints must belong to different branches.")
+        return
+
+    raise ValueError(f"{context} uses unsupported transition profile `{transition.transition_profile}`.")
+
+
+def _validate_optional_transition_recurrence_scope(
+    transition: OccurrenceTransition,
+    source_iteration: RecurrenceIteration | None,
+    target_iteration: RecurrenceIteration | None,
+    recurrence_id: str | None,
+    context: str,
+) -> None:
+    if recurrence_id is not None and (
+        source_iteration is None
+        or target_iteration is None
+        or source_iteration.recurrence_id != recurrence_id
+        or target_iteration.recurrence_id != recurrence_id
+    ):
+        raise ValueError(
+            f"{context} scoped `{transition.transition_profile}` endpoints must belong to recurrence `{recurrence_id}`."
+        )
+
+
+def _payload_target_ids(
+    target_type: str,
+    branches: dict[str, OccurrenceBranch],
+    templates: dict[str, OccurrenceTemplate],
+    recurrences: dict[str, Recurrence],
+    iterations: dict[str, RecurrenceIteration],
+    occurrences: dict[str, Occurrence],
+    tracks: dict[str, OccurrenceTrack],
+    external_targets: dict[str, set[str]] | None,
+) -> set[str]:
+    internal_targets = {
+        "occurrence-branch": set(branches),
+        "occurrence-template": set(templates),
+        "recurrence": set(recurrences),
+        "recurrence-iteration": set(iterations),
+        "occurrence": set(occurrences),
+        "occurrence-track": set(tracks),
+    }
+    if target_type in internal_targets:
+        return internal_targets[target_type]
+    if external_targets is not None and target_type in external_targets:
+        return external_targets[target_type]
+    return set()
 
 
 def load_occurrence_registry(
@@ -501,6 +683,10 @@ def load_occurrence_registry(
     chronology: ChronologyRegistry,
     *,
     subject_targets: dict[str, set[str]] | None = None,
+    payload_targets: dict[str, set[str]] | None = None,
 ) -> OccurrenceRegistry:
     data = load_yaml_file(project.occurrences_registry, "occurrence registry", expected_schema_version=SUPPORTED_SCHEMA_VERSION)
-    return parse_occurrence_registry(data, project.occurrences_registry, packs, chronology, subject_targets=subject_targets)
+    return parse_occurrence_registry(
+        data, project.occurrences_registry, packs, chronology,
+        subject_targets=subject_targets, payload_targets=payload_targets,
+    )

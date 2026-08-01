@@ -34,24 +34,27 @@ $chronologyFixtureData=ConvertFrom-KnowledgeYamlFile $chronologyFixturePath 1 'c
 $chronologyFixture=ConvertTo-KnowledgeChronologyRegistry $chronologyFixtureData $chronologyFixturePath $packs @() @()
 $fixturePath=Join-Path $fixtureRoot 'valid-registry.yaml'
 $subjectTargets=[ordered]@{character=@('protagonist','observer')}
-$fixtureData=ConvertFrom-KnowledgeYamlFile $fixturePath 1 'occurrence fixture'
-$fixture=ConvertTo-KnowledgeOccurrenceRegistry $fixtureData $fixturePath $packs $chronologyFixture $subjectTargets
+$payloadTargets=[ordered]@{'state-record'=@('protagonist-health')}
+$fixtureData=ConvertFrom-KnowledgeYamlFile $fixturePath 2 'occurrence fixture'
+$fixture=ConvertTo-KnowledgeOccurrenceRegistry $fixtureData $fixturePath $packs $chronologyFixture $subjectTargets $payloadTargets
 $expectations=Get-Content -LiteralPath (Join-Path $fixtureRoot 'expectations.json') -Raw|ConvertFrom-Json
 
 foreach($property in $expectations.iteration_occurrences.PSObject.Properties){Assert-OccurrenceIds (Get-OccurrenceIds (Get-KnowledgeOccurrencesForIteration $fixture $property.Name)) @($property.Value) "Iteration '$($property.Name)'"}
 foreach($property in $expectations.position_occurrences.PSObject.Properties){Assert-OccurrenceIds (Get-OccurrenceIds (Get-KnowledgeOccurrencesAtPosition $fixture $property.Name)) @($property.Value) "Position '$($property.Name)'"}
+foreach($property in $expectations.iteration_track_occurrences.PSObject.Properties){$parts=@($property.Name.Split('|',2));Assert-OccurrenceIds (Get-OccurrenceIds (Get-KnowledgeOccurrencesForIterationOnTrack $fixture $parts[0] $parts[1])) @($property.Value) "Iteration '$($parts[0])' on track '$($parts[1])'"}
+foreach($vector in @($expectations.track_iteration_boundaries)){$previous=Get-KnowledgePreviousBeforeIteration $fixture ([string]$vector[0]) ([string]$vector[1]);$following=Get-KnowledgeNextAfterIteration $fixture ([string]$vector[0]) ([string]$vector[1]);if($previous.id -cne [string]$vector[2] -or $following.id -cne [string]$vector[3]){throw "Unexpected track boundaries for '$($vector[1])' on '$($vector[0])'."}}
 foreach($vector in @($expectations.track_neighbors)){$previous=Get-KnowledgePreviousTrackOccurrence $fixture ([string]$vector[0]) ([string]$vector[1]);$following=Get-KnowledgeNextTrackOccurrence $fixture ([string]$vector[0]) ([string]$vector[1]);if($previous.id -cne [string]$vector[2] -or $following.id -cne [string]$vector[3]){throw "Unexpected track neighbors for '$($vector[1])'."}}
 foreach($property in $expectations.carryovers_into.PSObject.Properties){Assert-OccurrenceIds (Get-OccurrenceIds (Get-KnowledgeCarryoversIntoIteration $fixture $property.Name)) @($property.Value) "Carryover '$($property.Name)'"}
 foreach($property in $expectations.occurrence_recurrences.PSObject.Properties){$recurrence=Get-KnowledgeOccurrenceRecurrence $fixture $property.Name;$actual=$(if($null -eq $recurrence){$null}else{$recurrence.id});if($actual -cne $property.Value){throw "Unexpected recurrence for '$($property.Name)'."}}
 
 $invalidCases=Get-Content -LiteralPath (Join-Path $fixtureRoot 'invalid-cases.json') -Raw|ConvertFrom-Json
-foreach($case in @($invalidCases)){$invalid=ConvertFrom-KnowledgeYamlFile $fixturePath 1 'invalid occurrence fixture';foreach($change in @($case.changes)){Set-OccurrenceFixturePath $invalid ([string]$change.path) $change.value};$rejected=$false;try{$null=ConvertTo-KnowledgeOccurrenceRegistry $invalid $fixturePath $packs $chronologyFixture $subjectTargets}catch{$rejected=$true};if(-not $rejected){throw "Malformed occurrence case unexpectedly loaded: $($case.name)"}}
+foreach($case in @($invalidCases)){$invalid=ConvertFrom-KnowledgeYamlFile $fixturePath 2 'invalid occurrence fixture';foreach($change in @($case.changes)){Set-OccurrenceFixturePath $invalid ([string]$change.path) $change.value};$rejected=$false;try{$null=ConvertTo-KnowledgeOccurrenceRegistry $invalid $fixturePath $packs $chronologyFixture $subjectTargets $payloadTargets}catch{$rejected=$true};if(-not $rejected){throw "Malformed occurrence case unexpectedly loaded: $($case.name)"}}
 
 $summary=[ordered]@{
   branches=[int]$registry.branches.Count
   carryovers=[int]@($registry.carryovers).Count
   causal_relations=[int]@($registry.causal_relations).Count
-  fixture_queries=10
+  fixture_queries=18
   invalid_cases=[int]@($invalidCases).Count
   iterations=[int]$registry.iterations.Count
   occurrences=[int]$registry.occurrences.Count

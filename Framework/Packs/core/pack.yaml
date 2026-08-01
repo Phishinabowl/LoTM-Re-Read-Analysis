@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: core
-pack_version: 22
+pack_version: 23
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -128,6 +128,20 @@ controlled_values:
     - exit
     - fork
     - merge
+  occurrence.transition-profile:
+    - ordered
+    - jump
+    - recurrence-advance
+    - recurrence-exit
+    - branch-fork
+    - branch-merge
+  occurrence.transition-kind-profile:
+    - continues-uses-ordered
+    - jump-uses-jump
+    - reset-uses-recurrence-advance
+    - exit-uses-recurrence-exit
+    - fork-uses-branch-fork
+    - merge-uses-branch-merge
   occurrence.causal-relation-type:
     - causes
     - enables
