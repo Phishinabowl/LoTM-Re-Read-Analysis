@@ -1,0 +1,3 @@
+schema_version: 1
+duplicate_key: first
+duplicate_key: second

@@ -1,5 +1,6 @@
 $script:KnowledgeRfc3339Pattern = "^(?<date>\d{4}-\d{2}-\d{2})T(?<time>\d{2}:\d{2}:\d{2})(?:\.\d+)?(?<zone>Z|(?<sign>[+-])(?<hour>\d{2}):(?<minute>\d{2}))$"
 $script:KnowledgeCanonicalIntegerPattern = '^-?(?:0|[1-9][0-9]*)$'
+$script:KnowledgeCanonicalMappingKeyPattern = '^[a-z0-9]+(?:[_.-][a-z0-9]+)*$'
 $script:KnowledgeNumericLikePattern = '^[+-]?(?:[0-9][0-9_]*|0[xX][0-9a-fA-F_]+|0[oO][0-7_]+|0[bB][01_]+|[0-9][0-9_]*(?::[0-9_]+)+|(?:[0-9][0-9_]*\.[0-9_]*|\.[0-9_]+)(?:[eE][+-]?[0-9_]+)?|[0-9][0-9_]*[eE][+-]?[0-9_]+|\.(?:inf|Inf|INF|nan|NaN|NAN))$'
 $script:KnowledgeTimestampLikePattern = '^[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[Tt ][0-9]{2}:[0-9]{2}:[0-9]{2}.*)?$'
 $script:KnowledgeMaxYamlBytes = 16 * 1024 * 1024
@@ -40,22 +41,51 @@ function Assert-KnowledgeYamlSource {
   $reader=[System.IO.StringReader]::new($Text)
   $parser=[YamlDotNet.Core.Parser]::new($reader)
   $depth=0;$nodeCount=0
+  $frames=New-Object 'System.Collections.Generic.List[object]'
   try{
     while($parser.MoveNext()){
       $event=$parser.Current;$type=$event.GetType().Name
+      $isNode=$type -eq 'MappingStart' -or $type -eq 'SequenceStart' -or $type -eq 'Scalar'
+      $isMappingKey=$false
+      $parent=$null
+      if($isNode -and $frames.Count -gt 0){
+        $parent=$frames[$frames.Count-1]
+        if($parent.kind -eq 'mapping'){
+          $isMappingKey=[bool]$parent.expect_key
+          $parent.expect_key=-not $parent.expect_key
+        }
+      }
       if($type -eq 'AnchorAlias'){throw "$Context uses unsupported YAML aliases: $Path"}
       if(($type -eq 'DocumentStart' -or $type -eq 'DocumentEnd') -and -not $event.IsImplicit){throw "$Context must be one implicit YAML document without document markers: $Path"}
       if($event -is [YamlDotNet.Core.Events.NodeEvent]){
         if(-not $event.Anchor.IsEmpty -or -not $event.Tag.IsEmpty){throw "$Context uses unsupported YAML anchors or tags: $Path"}
       }
       if($type -eq 'MappingStart' -or $type -eq 'SequenceStart'){
+        if($isMappingKey){throw "$Context mapping keys must be scalar strings: $Path"}
         $depth++;$nodeCount++
         if($depth -gt $MaxDepth){throw "$Context exceeds YAML nesting depth $MaxDepth`: $Path"}
-      }elseif($type -eq 'MappingEnd' -or $type -eq 'SequenceEnd'){$depth--}
+        if($type -eq 'MappingStart'){
+          $frames.Add([pscustomobject]@{
+            kind='mapping'
+            expect_key=$true
+            seen_keys=(New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal))
+          })
+        }else{$frames.Add([pscustomobject]@{kind='sequence';expect_key=$false;seen_keys=$null})}
+      }elseif($type -eq 'MappingEnd' -or $type -eq 'SequenceEnd'){
+        $depth--
+        if($frames.Count -gt 0){$frames.RemoveAt($frames.Count-1)}
+      }
       elseif($type -eq 'Scalar'){
         $nodeCount++;$value=[string]$event.Value
         $scalarBytes=[System.Text.Encoding]::UTF8.GetByteCount($value)
         if($scalarBytes -gt $MaxScalarBytes){throw "$Context contains a scalar larger than $MaxScalarBytes UTF-8 bytes: $Path"}
+        if($isMappingKey){
+          if($event.Style -eq [YamlDotNet.Core.ScalarStyle]::Plain -and (
+            @('true','false','null') -ccontains $value -or $value -cmatch $script:KnowledgeNumericLikePattern
+          )){throw "$Context mapping key '$value' must be quoted to remain a string: $Path"}
+          if($value -cnotmatch $script:KnowledgeCanonicalMappingKeyPattern){throw "$Context contains noncanonical mapping key '$value'; keys must be lowercase machine identifiers: $Path"}
+          if(-not $parent.seen_keys.Add($value)){throw "$Context contains duplicate mapping key '$value': $Path"}
+        }
         if($event.Style -eq [YamlDotNet.Core.ScalarStyle]::Plain){
           if($value.Length -eq 0){throw "$Context must write null explicitly as lowercase 'null': $Path"}
           if($value -ceq '<<'){throw "$Context uses unsupported YAML merge keys: $Path"}

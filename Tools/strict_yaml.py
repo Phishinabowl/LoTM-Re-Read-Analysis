@@ -1,7 +1,7 @@
 from datetime import datetime
 from pathlib import Path
-import copy
 import codecs
+import copy
 import re
 
 import yaml
@@ -29,6 +29,7 @@ MAX_YAML_NODES = 500_000
 MAX_YAML_SCALAR_BYTES = 4 * 1024 * 1024
 
 CANONICAL_INTEGER = re.compile(r"^-?(?:0|[1-9][0-9]*)$")
+CANONICAL_MAPPING_KEY = re.compile(r"^[a-z0-9]+(?:[_.-][a-z0-9]+)*$")
 NUMERIC_LIKE = re.compile(
     r"^[+-]?(?:"
     r"[0-9][0-9_]*|"
@@ -220,7 +221,24 @@ def validate_yaml_source(
                     f"{context.capitalize()} must write null explicitly as lowercase `null`: {path}"
                 )
         elif isinstance(node, MappingNode):
+            seen_keys: set[str] = set()
             for key_node, value_node in node.value:
+                if (
+                    not isinstance(key_node, ScalarNode)
+                    or key_node.tag != "tag:yaml.org,2002:str"
+                ):
+                    raise ValueError(
+                        f"{context.capitalize()} mapping keys must be strings: {path}"
+                    )
+                if not CANONICAL_MAPPING_KEY.fullmatch(key_node.value):
+                    raise ValueError(
+                        f"{context.capitalize()} contains noncanonical mapping key `{key_node.value}`; keys must be lowercase machine identifiers: {path}"
+                    )
+                if key_node.value in seen_keys:
+                    raise ValueError(
+                        f"{context.capitalize()} contains duplicate mapping key `{key_node.value}`: {path}"
+                    )
+                seen_keys.add(key_node.value)
                 pending.extend((key_node, value_node))
         elif isinstance(node, SequenceNode):
             pending.extend(node.value)

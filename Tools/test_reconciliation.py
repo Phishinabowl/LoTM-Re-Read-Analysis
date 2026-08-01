@@ -13,7 +13,7 @@ from reconciliation_config import load_reconciliation_registry
 from resource_config import load_resource_config
 from schema_pack_config import load_schema_pack_registry
 from source_config import load_source_registry
-from strict_yaml import validate_yaml_source
+from strict_yaml import load_yaml_file, validate_yaml_source
 from taxonomy_config import load_taxonomy_config
 
 
@@ -120,7 +120,39 @@ def main() -> int:
     args = parser.parse_args()
     root = args.root.resolve()
     fixtures = root / "Framework" / "Data" / "Reconciliation"
+    strict_yaml_fixtures = root / "Framework" / "Data" / "Strict-Yaml"
     project, packs, providers = build_context(root)
+
+    mapping_keys = load_yaml_file(
+        strict_yaml_fixtures / "valid-mapping-keys.yaml",
+        "strict YAML fixture",
+        expected_schema_version=1,
+    )
+    expected_keys = {
+        "1", "true", "on", "dotted.key", "hyphen-key", "underscore_key"
+    }
+    if set(mapping_keys["mapping_keys"]) != expected_keys or not all(
+        type(key) is str for key in mapping_keys["mapping_keys"]
+    ):
+        raise AssertionError("Canonical mapping-key fixture did not preserve string keys.")
+    mapping_key_fixture_names = (
+        "invalid-boolean-key.yaml",
+        "invalid-integer-key.yaml",
+        "invalid-empty-key.yaml",
+        "invalid-uppercase-key.yaml",
+        "invalid-case-collision.yaml",
+        "invalid-unicode-key.yaml",
+        "invalid-punctuation-key.yaml",
+        "invalid-complex-key.yaml",
+        "invalid-duplicate-key.yaml",
+    )
+    for name in mapping_key_fixture_names:
+        try:
+            load_yaml_file(strict_yaml_fixtures / name, "strict YAML fixture")
+        except ValueError:
+            pass
+        else:
+            raise AssertionError(f"Noncanonical mapping-key fixture was accepted: {name}")
 
     registry = load_at(project, packs, providers, fixtures / "valid-v4.yaml")
     scalar_registry = load_at(project, packs, providers, fixtures / "valid-scalar-parity.yaml")
@@ -245,7 +277,8 @@ def main() -> int:
 
     print(
         f"Reconciliation conformance passed: {len(actual)} vectors, "
-        f"40 malformed fixtures, byte/scalar parity, branch and step limits, {args.deep_chain}-hop chain."
+        f"40 malformed reconciliation fixtures, 9 malformed mapping-key fixtures, "
+        f"byte/scalar/key parity, branch and step limits, {args.deep_chain}-hop chain."
     )
     return 0
 

@@ -1,0 +1,8 @@
+schema_version: 1
+mapping_keys:
+  "1": quoted-numeric-key
+  "true": quoted-boolean-key
+  on: legacy-boolean-word-remains-string
+  dotted.key: dotted-key
+  hyphen-key: hyphenated-key
+  underscore_key: underscored-key

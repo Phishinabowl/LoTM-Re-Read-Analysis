@@ -50,6 +50,17 @@ function ConvertTo-NormalizedResolution([object]$Resolution) {
 }
 
 $fixtures=Join-Path $Root "Framework\Data\Reconciliation"
+$strictYamlFixtures=Join-Path $Root "Framework\Data\Strict-Yaml"
+$mappingKeys=ConvertFrom-KnowledgeYamlFile (Join-Path $strictYamlFixtures "valid-mapping-keys.yaml") 1 "Strict YAML fixture"
+$expectedKeys=@("1","true","on","dotted.key","hyphen-key","underscore_key")
+$actualKeys=@($mappingKeys.mapping_keys.Keys|Sort-Object)
+if(($actualKeys -join "|") -cne (($expectedKeys|Sort-Object) -join "|")){throw "Canonical mapping-key fixture did not preserve string keys."}
+foreach($key in $actualKeys){if($key -isnot [string]){throw "Canonical mapping-key fixture produced a non-string key."}}
+foreach($name in @("invalid-boolean-key.yaml","invalid-integer-key.yaml","invalid-empty-key.yaml","invalid-uppercase-key.yaml","invalid-case-collision.yaml","invalid-unicode-key.yaml","invalid-punctuation-key.yaml","invalid-complex-key.yaml","invalid-duplicate-key.yaml")){
+  $rejected=$false
+  try{$null=ConvertFrom-KnowledgeYamlFile (Join-Path $strictYamlFixtures $name) 1 "Strict YAML fixture"}catch{$rejected=$true}
+  if(-not $rejected){throw "Noncanonical mapping-key fixture was accepted: $name"}
+}
 $registry=Get-TestRegistry (Join-Path $fixtures "valid-v4.yaml")
 $scalarRegistry=Get-TestRegistry (Join-Path $fixtures "valid-scalar-parity.yaml")
 if([string]$scalarRegistry.records[0].source_label -cne "on"){throw "Legacy YAML Boolean word did not remain a string."}
@@ -115,4 +126,4 @@ try{
   if(Test-Path -LiteralPath $byteTestPath){Remove-Item -LiteralPath $byteTestPath -Force}
 }
 
-Write-Output "Reconciliation conformance passed: $(@($expectations.resolutions).Count) vectors, 40 malformed fixtures, byte/scalar parity, branch and step limits, $DeepChain-hop chain."
+Write-Output "Reconciliation conformance passed: $(@($expectations.resolutions).Count) vectors, 40 malformed reconciliation fixtures, 9 malformed mapping-key fixtures, byte/scalar/key parity, branch and step limits, $DeepChain-hop chain."
