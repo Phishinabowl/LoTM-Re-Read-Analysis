@@ -1,4 +1,4 @@
-schema_version: 2
+schema_version: 3
 
 branches:
   main:
@@ -7,10 +7,14 @@ branches:
     fork_occurrence_id: null
 
 templates: {}
+recurrence_patterns: {}
 recurrences: {}
 iterations: {}
 occurrences: {}
 tracks: {}
 transitions: []
 causal_relations: []
+outcomes: []
+rules: []
+state_transitions: []
 carryovers: []

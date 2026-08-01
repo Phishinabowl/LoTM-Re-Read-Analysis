@@ -64,6 +64,8 @@ capability_activation:
     - temporal-windows
     - chronology-coordinate-systems
     - occurrence-recurrence-modeling
+    - recurrence-rule-modeling
+    - state-availability-acquisition
     - visibility-policy
     - graph-projection
     - schema-validation

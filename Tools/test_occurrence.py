@@ -53,7 +53,7 @@ def main() -> int:
         continuity_ids=set(),
     )
     fixture_path = fixture_root / "valid-registry.yaml"
-    fixture_data = load_yaml_file(fixture_path, "occurrence fixture", expected_schema_version=2)
+    fixture_data = load_yaml_file(fixture_path, "occurrence fixture", expected_schema_version=3)
     fixture = parse_occurrence_registry(
         fixture_data,
         fixture_path,
@@ -90,6 +90,20 @@ def main() -> int:
         recurrence = fixture.recurrence_for_occurrence(occurrence_id)
         if (recurrence.id if recurrence else None) != expected:
             raise AssertionError(f"Unexpected recurrence for occurrence `{occurrence_id}`.")
+    for occurrence_id, expected in expectations["occurrence_outcomes"].items():
+        if ids(fixture.outcomes_for_occurrence(occurrence_id)) != expected:
+            raise AssertionError(f"Unexpected outcomes for occurrence `{occurrence_id}`.")
+    for pattern_id, expected in expectations["pattern_rules"].items():
+        if ids(fixture.rules_for_pattern(pattern_id)) != expected:
+            raise AssertionError(f"Unexpected rules for recurrence pattern `{pattern_id}`.")
+    for key, expected in expectations["subject_state_transitions"].items():
+        subject_type, subject_id = key.split("|", 1)
+        if ids(fixture.state_transitions_for_subject(subject_type, subject_id)) != expected:
+            raise AssertionError(f"Unexpected state transitions for `{key}`.")
+    for track_id, occurrence_id, payload_type, payload_id, state_kind, expected in expectations["state_at"]:
+        state = fixture.state_at(track_id, occurrence_id, payload_type, payload_id, state_kind)
+        if (state.id if state else None) != expected:
+            raise AssertionError(f"Unexpected state at `{occurrence_id}` on `{track_id}`.")
 
     invalid_cases = json.loads((fixture_root / "invalid-cases.json").read_text(encoding="utf-8"))
     for case in invalid_cases:
@@ -110,12 +124,16 @@ def main() -> int:
         "schema_version": registry.schema_version,
         "branches": len(registry.branches),
         "templates": len(registry.templates),
+        "recurrence_patterns": len(registry.recurrence_patterns),
         "recurrences": len(registry.recurrences),
         "iterations": len(registry.iterations),
         "occurrences": len(registry.occurrences),
         "tracks": len(registry.tracks),
         "transitions": len(registry.transitions),
         "causal_relations": len(registry.causal_relations),
+        "outcomes": len(registry.outcomes),
+        "rules": len(registry.rules),
+        "state_transitions": len(registry.state_transitions),
         "carryovers": len(registry.carryovers),
         "fixture_queries": (
             len(expectations["iteration_occurrences"])
@@ -125,6 +143,10 @@ def main() -> int:
             + len(expectations["track_neighbors"]) * 2
             + len(expectations["carryovers_into"])
             + len(expectations["occurrence_recurrences"])
+            + len(expectations["occurrence_outcomes"])
+            + len(expectations["pattern_rules"])
+            + len(expectations["subject_state_transitions"])
+            + len(expectations["state_at"])
         ),
         "invalid_cases": len(invalid_cases),
     }

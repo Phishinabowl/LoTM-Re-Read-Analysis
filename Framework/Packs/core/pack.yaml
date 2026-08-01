@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: core
-pack_version: 23
+pack_version: 24
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -56,6 +56,8 @@ capabilities:
   - temporal-windows
   - chronology-coordinate-systems
   - occurrence-recurrence-modeling
+  - recurrence-rule-modeling
+  - state-availability-acquisition
   - visibility-policy
   - graph-projection
   - schema-validation
@@ -117,6 +119,10 @@ controlled_values:
   occurrence.recurrence-kind:
     - cycle
     - retry
+  occurrence.recurrence-status:
+    - active
+    - completed
+    - terminated
   occurrence.iteration-status:
     - active
     - completed
@@ -146,12 +152,110 @@ controlled_values:
     - causes
     - enables
     - prevents
+  occurrence.outcome-kind:
+    - succeeded
+    - failed
+    - completed
+    - interrupted
+    - preserved
+    - changed
+  occurrence.rule-kind:
+    - reset
+    - termination
+    - checkpoint-change
+    - state-activation
+  occurrence.rule-condition-logic:
+    - all
+    - any
+  occurrence.rule-condition-kind:
+    - occurrence-outcome
+    - occurrence-reached
+    - state-availability
+  occurrence.rule-condition-value:
+    - occurred
+  occurrence.rule-effect-kind:
+    - advance-iteration
+    - terminate-recurrence
+    - change-reset-point
+    - activate-state
+  occurrence.rule-effect-kind-target-type:
+    - advance-iteration-uses-recurrence-pattern
+    - terminate-recurrence-uses-recurrence-pattern
+    - change-reset-point-uses-occurrence-template
+    - activate-state-uses-state-transition
   occurrence.track-kind:
     - sequence
     - observation
     - execution
   occurrence.carryover-kind:
     - state
+    - context
+  state.state-kind:
+    - generic-state
+    - context
+    - configuration
+    - evidence
+  state.change-kind:
+    - acquired
+    - retained
+    - lost
+    - restored
+    - transferred
+    - merged
+    - derived
+    - activated
+    - invalidated
+  state.change-profile:
+    - acquire
+    - preserve
+    - remove
+    - restore
+    - supply
+    - combine
+    - derive
+    - activate
+    - invalidate
+  state.change-kind-profile:
+    - acquired-uses-acquire
+    - retained-uses-preserve
+    - lost-uses-remove
+    - restored-uses-restore
+    - transferred-uses-supply
+    - merged-uses-combine
+    - derived-uses-derive
+    - activated-uses-activate
+    - invalidated-uses-invalidate
+  state.mechanism:
+    - direct
+    - continuous
+    - external
+    - inferred
+    - conditional
+    - merged
+    - synchronized
+  state.availability-status:
+    - unavailable
+    - latent
+    - partial
+    - available
+    - inaccessible
+    - invalidated
+  state.epistemic-attitude:
+    - unaware
+    - aware
+    - uncertain
+    - suspects-true
+    - accepts-true
+    - accepts-false
+  state.completeness:
+    - none
+    - partial
+    - complete
+    - unknown
+  state.source-role:
+    - origin
+    - contributor
+    - trigger
     - context
   source.applicability-target-type:
     - provenance-claim
@@ -186,6 +290,7 @@ controlled_values:
     - reconciliation-record
     - occurrence-branch
     - occurrence-template
+    - recurrence-pattern
     - recurrence
     - recurrence-iteration
     - occurrence
@@ -193,6 +298,9 @@ controlled_values:
     - occurrence-track
     - occurrence-transition
     - causal-relation
+    - occurrence-outcome
+    - recurrence-rule
+    - state-transition
     - iteration-carryover
   reconciliation.target-type:
     - content-type

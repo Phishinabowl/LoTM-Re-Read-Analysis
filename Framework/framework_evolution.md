@@ -21,7 +21,7 @@ From V30 onward, update this file as part of each version:
 - **V7-V15:** Evidence, authority, production context, scope, and applicability
 - **V16-V23:** Entity identity and cross-registry provenance/reconciliation
 - **V24-V27:** Deterministic configuration ingestion
-- **V28-V32:** Civil time, general chronology, occurrence, recurrence, and transition integrity
+- **V28-V33:** Civil time, general chronology, occurrence/recurrence integrity, recurrence rules, and subject-state acquisition
 
 ### Marker Conventions
 
@@ -866,3 +866,27 @@ Domain packs should specialize the core vocabulary without redefining the mechan
 Alongside that promotion, V33 should define recurrence pattern versus execution identity; model reset and termination rules through typed, provenance-addressable conditions and effects rather than an unrestricted expression language; add typed occurrence outcomes and coherent iteration lifecycle; enforce distinct transition endpoints, chronology-aware ordered profiles, recurrence-containment exits, causal semantic identity, and monotonic contiguous same-recurrence track segments; and preserve legal nested segments, time-travel jumps, causal cycles, partial escape, and sparse observations.
 
 V33 acceptance should replay every permanent V32 vector plus all nine adversarial mutations, the LoTM six-pass restoration case, continuously retained-memory loops, changing-checkpoint loops, partial participant escape, IT retry exhaustion, medical recurrence with later evidence restoration, and legal obligations with explicit cadence and termination. For the LoTM case it must answer what Derrick knew during passes one through five, when the five-pass memory set became available, how that acquisition differed from uninterrupted retention, and why Colin did not gain the same awareness. More generally, the model must answer both experience-boundary and state-availability questions without introducing a chronological cycle, equating experience with knowledge, mistaking externally restored knowledge for uninterrupted memory, or confusing a subject's belief with the payload's provenance-backed truth status.
+
+## V33 - Recurrence Rules and State Acquisition Semantics
+
+**Implemented by:** pending confirmation
+
+**Superseded assumption:** Carryover can serve as the primary record of memory, knowledge, configuration, or other state merely by naming a kind and payload at an iteration boundary.
+
+**Architectural promotion:** Subject-state availability and acquisition became a reusable core capability. Narrative memory, dream, prophecy, revelation, and timeline-reconciliation mechanisms specialize that service rather than defining a loop-only state model.
+
+V33 upgrades the occurrence registry to schema 3 and closes the five integrity classes found after V32. Transitions must connect distinct occurrences. Ordered transitions require forward track, recurrence-ordinal, or exact chronology evidence and reject known backward chronology. Recurrence exit uses descendant-aware containment, causal relations reject semantic duplicates, and each track's direct occurrences move monotonically through a recurrence's iterations without prohibiting nested child-recurrence segments. Recurrence and iteration lifecycle are now validated together.
+
+Recurrence identity is split into reusable `recurrence_patterns` and concrete `recurrences`. Typed occurrence outcomes record what happened to a subject. Pattern-owned rules combine a bounded `all` or `any` condition list with typed effects for iteration advance, recurrence termination, reset-point change, or state activation. This deliberately avoids an unrestricted expression language while making reset and escape behavior addressable, extensible through packs, and available to provenance.
+
+State change is no longer hidden inside carryover. A `state_transition` identifies the subject, exact payload, generic state and change types, structural change profile, acquisition mechanism, prior and resulting availability, optional epistemic attitude, completeness, activation occurrence, optional governing rule, tracks, typed source targets, and certainty. Structural profiles distinguish acquisition, preservation, removal, restoration, supply, combination, derivation, activation, and invalidation. Same-payload state chains on one track must be continuous. Encounter and experience do not imply awareness or knowledge, and subjective belief remains separate from provenance-backed truth.
+
+Carryover now references a concrete state transition. Validation proves that the state applies to the subject track, activates by the end of the source iteration, remains applicable until the target iteration begins, and crosses increasing iterations of one recurrence. This makes continuously retained memory structurally different from memory restored by an external event in a later pass.
+
+The core pack advances to version 24 with `recurrence-rule-modeling` and `state-availability-acquisition`. Narrative media advances to version 19 with typed narrative outcomes, memory/knowledge/awareness/belief/physical-state kinds, and recovered-memory, dream, prophecy, revelation, supernatural-bestowal, and timeline-reconciliation mechanisms. Outcomes, rules, and state transitions join centralized provenance targeting; evidence and claim authority remain outside the occurrence registry.
+
+Paired Python and native PowerShell services add outcome-by-occurrence, rule-by-pattern, state-by-subject, and state-at-track-boundary queries. The portable fixture now performs 26 behavioral assertions and rejects 47 malformed registries in Python, PowerShell 7, and Windows PowerShell 5.1. The empty LoTM project registry moves to schema 3 without fabricating concrete loop records.
+
+## Testing After V33
+
+The broad V33 pressure test has not yet been run. It must include the source-verified LoTM abandoned-temple loop, continuous versus externally restored memory, staggered awareness, changing checkpoints, nested recurrence and partial escape, plus non-narrative retry, medical-state, legal-obligation, and workflow cases. Results, correctness defects, and any V34 recommendation belong here before V34 begins.

@@ -1,4 +1,4 @@
-schema_version: 2
+schema_version: 3
 
 branches:
   main:
@@ -36,15 +36,27 @@ templates:
     kind: state
     aliases: []
 
+recurrence_patterns:
+  outer-loop-pattern:
+    label: Outer Loop Pattern
+    kind: time-loop
+    aliases: []
+  inner-loop-pattern:
+    label: Inner Loop Pattern
+    kind: time-loop
+    aliases: []
+
 recurrences:
   outer-loop:
     label: Outer Loop
-    kind: time-loop
+    pattern_id: outer-loop-pattern
     parent_recurrence_id: null
+    status: terminated
   inner-loop:
     label: Inner Loop
-    kind: time-loop
+    pattern_id: inner-loop-pattern
     parent_recurrence_id: outer-loop
+    status: completed
 
 iterations:
   outer-one:
@@ -289,28 +301,128 @@ causal_relations:
     target_occurrence_id: reset-one
     certainty: exact
 
+outcomes:
+  - id: protagonist-escaped-loop
+    occurrence_id: escape-three
+    subject_type: character
+    subject_id: protagonist
+    outcome_kind: escaped
+    result_target_type: null
+    result_target_id: null
+    certainty: exact
+
+rules:
+  - id: outer-reset-rule
+    label: Reset after reaching the reset occurrence
+    pattern_id: outer-loop-pattern
+    rule_kind: reset
+    condition_logic: all
+    conditions:
+      - id: outer-reset-reached
+        condition_kind: occurrence-reached
+        target_type: occurrence-template
+        target_id: reset
+        expected_value: occurred
+    effects:
+      - id: outer-reset-advances
+        effect_kind: advance-iteration
+        target_type: recurrence-pattern
+        target_id: outer-loop-pattern
+  - id: outer-termination-rule
+    label: Escape terminates the outer loop
+    pattern_id: outer-loop-pattern
+    rule_kind: termination
+    condition_logic: all
+    conditions:
+      - id: outer-escape-outcome
+        condition_kind: occurrence-outcome
+        target_type: occurrence-template
+        target_id: escape
+        expected_value: escaped
+    effects:
+      - id: outer-escape-terminates
+        effect_kind: terminate-recurrence
+        target_type: recurrence-pattern
+        target_id: outer-loop-pattern
+
+state_transitions:
+  - id: protagonist-acquires-bell-memory
+    subject_type: character
+    subject_id: protagonist
+    payload_target_type: occurrence-template
+    payload_target_id: bell
+    state_kind: memory
+    change_kind: acquired
+    change_profile: acquire
+    mechanism: direct
+    prior_availability: unavailable
+    resulting_availability: available
+    prior_attitude: unaware
+    resulting_attitude: aware
+    completeness: complete
+    activation_occurrence_id: bell-one
+    condition_rule_id: null
+    track_ids:
+      - protagonist-experience
+    source_targets: []
+    certainty: exact
+  - id: protagonist-acquires-inner-step-knowledge
+    subject_type: character
+    subject_id: protagonist
+    payload_target_type: occurrence
+    payload_target_id: inner-step-one
+    state_kind: knowledge
+    change_kind: acquired
+    change_profile: acquire
+    mechanism: direct
+    prior_availability: unavailable
+    resulting_availability: available
+    prior_attitude: unaware
+    resulting_attitude: aware
+    completeness: complete
+    activation_occurrence_id: inner-step-one
+    condition_rule_id: null
+    track_ids:
+      - protagonist-experience
+    source_targets: []
+    certainty: exact
+  - id: protagonist-acquires-health-state
+    subject_type: character
+    subject_id: protagonist
+    payload_target_type: state-record
+    payload_target_id: protagonist-health
+    state_kind: physical-state
+    change_kind: acquired
+    change_profile: acquire
+    mechanism: direct
+    prior_availability: unavailable
+    resulting_availability: available
+    prior_attitude: null
+    resulting_attitude: null
+    completeness: complete
+    activation_occurrence_id: wake-one
+    condition_rule_id: null
+    track_ids:
+      - protagonist-experience
+    source_targets: []
+    certainty: exact
+
 carryovers:
   - id: memory-one-to-two
     source_iteration_id: outer-one
     target_iteration_id: outer-two
     track_id: protagonist-experience
-    carryover_kind: memory
-    payload_target_type: occurrence-template
-    payload_target_id: bell
+    state_transition_id: protagonist-acquires-bell-memory
     certainty: exact
   - id: knowledge-two-to-three
     source_iteration_id: outer-two
     target_iteration_id: outer-three
     track_id: protagonist-experience
-    carryover_kind: knowledge
-    payload_target_type: occurrence
-    payload_target_id: inner-step-one
+    state_transition_id: protagonist-acquires-inner-step-knowledge
     certainty: exact
   - id: physical-state-one-to-two
     source_iteration_id: outer-one
     target_iteration_id: outer-two
     track_id: protagonist-experience
-    carryover_kind: state
-    payload_target_type: state-record
-    payload_target_id: protagonist-health
+    state_transition_id: protagonist-acquires-health-state
     certainty: exact
