@@ -1125,7 +1125,7 @@ The broader temporal-topology work remains staged after this integrity release: 
 
 ## V37 - Semantic Declaration Integrity and Effect Resolution
 
-**Implemented by:** `7991f45`
+**Implemented by:** `7991f45` (`Implement V37 semantic effect resolution`)
 
 **Superseded assumption:** It is sufficient to validate recurrence semantic declarations only when a concrete project rule uses them, and selected rule effects can be handed downstream as a flat list without defining repeated-contribution behavior.
 
