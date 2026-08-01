@@ -955,4 +955,28 @@ Core advances to pack version 25 with `deterministic-recurrence-rule-evaluation`
 
 ## Testing After V34
 
-The post-V34 domain pressure test has not yet been run. It must replay the source-grounded Derrick loop and the broader changing-checkpoint, retry-exhaustion, medical, and legal cadence scenarios against the executable evaluator, then record any correctness defect or deferred capability here before V35 begins.
+### Loki Temporal-Architecture Probe
+
+Before the full domain pass, V34 was tested against both seasons of Marvel Studios' *Loki*. The episode-level review separated mechanisms that a casual "time loop" label would conflate: timeline forks and pruning; Loki's punitive Sif memory loop; the TVA Handbook ontological cycle; uncontrolled and later controlled time-slipping through the TVA's own past, present, and future; the self-pruning event encountered twice in Loki's subjective history; repeated Temporal Loom attempts across centuries; retained technical learning; revisiting the He Who Remains decision point; and Loki's eventual destruction of the Loom and preservation of the branching timelines through a replacement structure. Marvel's official coverage confirms that Loki repeatedly relives the Loom scenario over centuries and that the successful resolution is not a repaired Loom but its destruction and replacement.
+
+A temporary schema-4 probe modeled three source-bounded representative Loom passes without asserting a fictional exact total. Early failures selected the pattern-default `advance-iteration` effect. In the late phase, a derived knowledge state made the Loom's impossibility available to Loki; the execution override then suppressed the retry default and selected `terminate-recurrence`, with the evaluation trace identifying both decisions. Loki's knowledge remained available across the modeled resets, the final exit led to a separate aftermath occurrence, and the retained 43-query/60-malformed-case baseline remained green. A TVA-Handbook causal cycle also loaded without introducing a chronology cycle.
+
+The test confirmed four intended separations:
+
+1. The TVA can have an ordered local coordinate system even though it is outside ordinary timeline time. TVA-local and Earth-timeline positions remain incomparable unless a reviewed mapping relates them; "outside time" does not mean unordered.
+2. Repeated Loom passes remain distinct occurrence identities at reused TVA-local coordinates while Loki's subjective track advances and retains state.
+3. The final policy decision can terminate the retry execution because the original repair objective is impossible, without mislabeling the last repair attempt as successful.
+4. Bootstrap causality remains legal in the causal graph while exact chronology remains acyclic.
+
+The same probes exposed four deferred capabilities rather than V34 evaluator defects:
+
+1. Source language such as "centuries" and an unspecified enormous number of attempts cannot be represented as an uncertain, bounded, or aggregate iteration count. Iterations require exact positive ordinals; sparse observations are legal, but compressing an unknown number of passes into ordinal three would be semantically false.
+2. Loki experiences the same concrete self-pruning occurrence first as its recipient and later as its agent. Tracks require unique occurrence IDs, so one subject cannot revisit one physical occurrence twice in subjective order without duplicating the happening or inventing unmodeled participation records.
+3. Separate chronology systems can preserve TVA-local order and timeline order, but chronology contexts have no typed relations such as `outside`, `oversees`, `observes`, or `intervenes-in`. The framework therefore cannot directly answer which timelines an extratemporal institution oversees or how an intervention relates its local action to a target branch.
+4. Occurrence branches have topology but no lifecycle or terminal state. A pruning occurrence can be recorded, but the occurrence registry cannot state that the affected branch was pruned, transferred to the Void, restored, or otherwise inactive at a queried boundary.
+
+Knowledge availability can represent Loki's partial-to-complete understanding and its carryover, but it does not quantify centuries of accumulated expertise. The concrete Loom destruction, timeline transformation, and resulting structure can be represented as occurrences, outcomes, state changes, and causal relations; V34's recurrence evaluator does not need to become a general action or counterfactual-choice engine to own those facts.
+
+### Full V34 Pressure Test Pending
+
+The full post-V34 domain pressure test must still replay the source-grounded Derrick loop and the broader changing-checkpoint, retry-exhaustion, medical, and legal cadence scenarios against the executable evaluator. It should retain the Loki findings above, test them against non-narrative analogues, and determine whether the four deferred capabilities belong together in V35 or should be staged across later versions before V35 begins.
