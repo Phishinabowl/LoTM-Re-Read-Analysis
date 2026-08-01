@@ -797,6 +797,8 @@ Recurrence schedules, expression languages for reset or termination conditions, 
 
 ## V32 - Occurrence Integrity and Transition Semantics
 
+**Implemented by:** `abe8e8c` (`Enforce occurrence transition integrity`)
+
 **Superseded assumption:** A domain transition kind and broad carryover kind provide enough information to validate occurrence edges and retained state.
 
 **Architectural promotion:** Transition profiles, coherent multi-coordinate occurrence identity, explicit branch-lineage edges, and payload-bearing carryover became core framework semantics independent of domain vocabulary.
