@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-media
-pack_version: 16
+pack_version: 17
 lifecycle: active
 pack_kind: domain
 label: Narrative Media Foundation
@@ -29,6 +29,7 @@ capabilities:
   - temporal-localized-titles
   - content-group-member-roles
   - narrative-chronology
+  - narrative-time-loops
   - reader-disclosure
   - spoiler-bounding
   - segment-anchored-locators
@@ -51,6 +52,19 @@ controlled_values:
     - time-travel-origin
     - time-travel-destination
     - alternate-timeline
+  occurrence.recurrence-kind:
+    - time-loop
+  occurrence.transition-kind:
+    - time-travel-jump
+    - loop-reset
+    - loop-escape
+  occurrence.track-kind:
+    - subjective-experience
+  occurrence.carryover-kind:
+    - memory
+    - knowledge
+    - physical-state
+    - awareness
   reconciliation.target-type:
     - medium
     - work-group

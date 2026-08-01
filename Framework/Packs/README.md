@@ -6,8 +6,8 @@ Schema packs are composable contracts, not project instances. Pack files define 
 
 | Pack | Purpose |
 | --- | --- |
-| `core` | Domain-neutral identity, strict configuration ingestion, deterministic Unicode lookup keys, bounded auditable stable-ID reconciliation, stable nested-record and claim identity, composite channel-bounded evidence scope, hierarchical locator-level evidence modes, explainable precedence-aware authority, multi-source and claim-level evaluation, point/range evidence locators, semantic provenance paths, structural position validation, shared civil-time windows, ordered chronology coordinate systems, relationships, visibility, projection, and validation. |
-| `narrative-media` | Narrative foundation: works, media facets, structural segments, segment-anchored locators, ordering-backed position validation, recursively nested content groups with participation roles, temporally scoped localized title variants, continuity, narrative chronology contexts, reader disclosure, and spoiler bounding. |
+| `core` | Domain-neutral identity, strict configuration ingestion, deterministic Unicode lookup keys, bounded auditable stable-ID reconciliation, stable nested-record and claim identity, composite channel-bounded evidence scope, hierarchical locator-level evidence modes, explainable precedence-aware authority, multi-source and claim-level evaluation, point/range evidence locators, semantic provenance paths, structural position validation, shared civil-time windows, ordered chronology coordinate systems, occurrence/recurrence identity, relationships, visibility, projection, and validation. |
+| `narrative-media` | Narrative foundation: works, media facets, structural segments, segment-anchored locators, ordering-backed position validation, recursively nested content groups with participation roles, temporally scoped localized title variants, continuity, narrative chronology contexts and time loops, reader disclosure, and spoiler bounding. |
 | `narrative-publishing` | Prose and sequential-art serialization, editions, localization, packaging, and planned publication-run/textual-history support. |
 | `narrative-screen-audio` | Film, television, animation, web series, audio works, episodes, specials, cuts, tracks, embedded visuals, and planned live-performance production/event support. |
 | `narrative-adaptation` | Work lineage, parody and other transformative derivatives, segment mappings, adaptation deviations, and authority-aware comparison. |
@@ -40,6 +40,8 @@ Claim namespaces, evidence modes, and content-group member roles are pack-owned 
 ## Time And Chronology
 
 Core civil-time windows and chronology coordinates are related but separate. `temporal-windows` owns Gregorian/RFC 3339 effective-time mechanics. `chronology-coordinate-systems` owns project-defined calendar, era-ordinal, ordinal, and relative integer axes. Narrative media adds `narrative-chronology` contexts that bind an axis to works, continuities, branches, and story-time roles without conflating story order with release or reader-disclosure order. Epoch names, fictional calendars, and concrete anchors remain project instances rather than reusable pack values.
+
+Core `occurrence-recurrence-modeling` keeps concrete happenings, branches, iterations, transitions, causal edges, tracks, and carryover separate from chronology coordinates. Narrative media adds `narrative-time-loops`, subjective experience, loop reset/escape, and memory/knowledge/awareness carryover. Causal cycles are valid occurrence relationships; chronological cycles remain invalid.
 
 ## Capability Honesty
 

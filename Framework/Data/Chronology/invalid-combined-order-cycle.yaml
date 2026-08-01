@@ -1,0 +1,50 @@
+schema_version: 1
+coordinate_systems:
+  world:
+    label: World
+    kind: ordinal
+    value_domain: integer
+    direction: ascending
+    zero_policy: present
+    aliases: []
+  other:
+    label: Other
+    kind: ordinal
+    value_domain: integer
+    direction: ascending
+    zero_policy: present
+    aliases: []
+eras: {}
+positions:
+  world-one:
+    coordinate_system_id: world
+    value: 1
+    era_id: null
+    label: World One
+    certainty: exact
+  world-two:
+    coordinate_system_id: world
+    value: 2
+    era_id: null
+    label: World Two
+    certainty: exact
+  other-one:
+    coordinate_system_id: other
+    value: 1
+    era_id: null
+    label: Other One
+    certainty: exact
+spans: []
+relations:
+  - id: world-two-before-other
+    source_position_id: world-two
+    relation_type: before
+    target_position_id: other-one
+    certainty: exact
+  - id: other-before-world-one
+    source_position_id: other-one
+    relation_type: before
+    target_position_id: world-one
+    certainty: exact
+mappings: []
+narrative_contexts: []

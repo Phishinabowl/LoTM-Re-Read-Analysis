@@ -1,5 +1,8 @@
 [CmdletBinding()]
-param([string]$Root)
+param(
+  [string]$Root,
+  [switch]$Json
+)
 
 $ErrorActionPreference="Stop"
 if([string]::IsNullOrWhiteSpace($Root)){$Root=Split-Path -Parent $PSScriptRoot}
@@ -19,4 +22,11 @@ $expected=Get-Content -Raw (Join-Path $fixtures "expectations.json")|ConvertFrom
 foreach($case in @($expected.matches)){$query=ConvertTo-KnowledgeTemporalInstant $case[1];$outcome=Get-KnowledgeTemporalMatch $windows[$case[0]] $query;if($null -eq $outcome){$outcome="not-effective"};if($outcome -ne $case[2]){throw "Temporal match vector failed for $($case[0]) at $($case[1]): $outcome"}}
 foreach($case in @($expected.overlaps)){$outcome=Get-KnowledgeTemporalOverlap $windows[$case[0]] $windows[$case[1]];if($outcome -ne $case[2]){throw "Temporal overlap vector failed for $($case[0]) / $($case[1]): $outcome"}}
 $subMicrosecond=[datetimeoffset]::new(2025,1,1,0,0,0,[timespan]::Zero).AddTicks(1);$rejected=$false;try{$null=ConvertTo-KnowledgeTemporalInstant $subMicrosecond}catch{$rejected=$true};if(-not $rejected){throw "A runtime datetime finer than microsecond precision was accepted."}
-Write-Output "Temporal conformance passed: $($windows.Count) valid windows, $($malformed.windows.Count) malformed windows, $(@($expected.matches).Count) match and $(@($expected.overlaps).Count) overlap vectors."
+$summary=[ordered]@{
+  malformed_windows=[int]$malformed.windows.Count
+  match_vectors=[int]@($expected.matches).Count
+  overlap_vectors=[int]@($expected.overlaps).Count
+  schema_version=2
+  valid_windows=[int]$windows.Count
+}
+if($Json){$summary|ConvertTo-Json -Compress}else{Write-Output "Temporal conformance passed: $($summary.valid_windows) valid windows, $($summary.malformed_windows) malformed windows, $($summary.match_vectors) match and $($summary.overlap_vectors) overlap vectors."}

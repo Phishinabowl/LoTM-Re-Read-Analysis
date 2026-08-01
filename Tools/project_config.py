@@ -6,7 +6,7 @@ from strict_yaml import assert_allowed_keys, load_yaml_file
 
 
 PROJECT_MANIFEST_PATH = Path("Project_Config") / "project.yaml"
-SUPPORTED_SCHEMA_VERSION = 8
+SUPPORTED_SCHEMA_VERSION = 9
 PROVENANCE_MODES = {"child-directory", "fixed", "slug-prefix"}
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
@@ -54,6 +54,7 @@ class ProjectConfig:
     reconciliation_registry: Path
     provenance_registry: Path
     chronology_registry: Path
+    occurrences_registry: Path
 
 
 def is_project_root(path: Path) -> bool:
@@ -317,7 +318,7 @@ def load_project_config(root: Path) -> ProjectConfig:
         registries,
         {
             "lookup_keys", "schema_packs", "taxonomy", "resources", "sources",
-            "entities", "reconciliation", "provenance", "chronology",
+            "entities", "reconciliation", "provenance", "chronology", "occurrences",
         },
         "Project manifest `registries`",
     )
@@ -375,6 +376,12 @@ def load_project_config(root: Path) -> ProjectConfig:
         "registries.chronology",
         must_exist=True,
     )
+    _, occurrences_registry = resolve_manifest_path(
+        resolved_root,
+        require_string(registries, "occurrences", "registries"),
+        "registries.occurrences",
+        must_exist=True,
+    )
 
     return ProjectConfig(
         root=resolved_root,
@@ -401,4 +408,5 @@ def load_project_config(root: Path) -> ProjectConfig:
         reconciliation_registry=reconciliation_registry,
         provenance_registry=provenance_registry,
         chronology_registry=chronology_registry,
+        occurrences_registry=occurrences_registry,
     )

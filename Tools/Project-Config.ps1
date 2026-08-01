@@ -1,5 +1,5 @@
 $script:ProjectManifestPath = "Project_Config/project.yaml"
-$script:SupportedProjectSchemaVersion = 8
+$script:SupportedProjectSchemaVersion = 9
 $script:AllowedProvenanceModes = @("child-directory", "fixed", "slug-prefix")
 $script:StableProjectIdPattern = "^[a-z0-9]+(?:-[a-z0-9]+)*$"
 $strictYamlHelper = Join-Path $PSScriptRoot "Strict-Yaml.ps1"
@@ -208,7 +208,7 @@ function Get-KnowledgeProjectConfig {
   if ($null -eq $registries) {
     throw "Project manifest 'registries' must be a mapping."
   }
-  Assert-KnowledgeMapKeys $registries @("lookup_keys","schema_packs","taxonomy","resources","sources","entities","reconciliation","provenance","chronology") "Project manifest 'registries'"
+  Assert-KnowledgeMapKeys $registries @("lookup_keys","schema_packs","taxonomy","resources","sources","entities","reconciliation","provenance","chronology","occurrences") "Project manifest 'registries'"
 
   return [pscustomobject]@{
     root = [System.IO.Path]::GetFullPath($RepoRoot)
@@ -235,5 +235,6 @@ function Get-KnowledgeProjectConfig {
     reconciliation_registry = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $registries "reconciliation" "registries") "registries.reconciliation" $true
     provenance_registry = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $registries "provenance" "registries") "registries.provenance" $true
     chronology_registry = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $registries "chronology" "registries") "registries.chronology" $true
+    occurrences_registry = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $registries "occurrences" "registries") "registries.occurrences" $true
   }
 }

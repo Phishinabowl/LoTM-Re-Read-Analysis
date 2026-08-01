@@ -20,6 +20,7 @@ The current executable contract is enforced by the matching Python and PowerShel
 | Manifest-selected Unicode lookup data | `Tools/lookup_key_config.py`, `Tools/Lookup-Key-Config.ps1`; see `lookup-key-normalization.md` |
 | Shared temporal windows | `Tools/temporal_config.py`, `Tools/Temporal-Config.ps1`; see `temporal-model.md` |
 | `Project_Config/chronology.yaml` | `Tools/chronology_config.py`, `Tools/Chronology-Config.ps1`; see `chronology-registry.md` |
+| `Project_Config/occurrences.yaml` | `Tools/occurrence_config.py`, `Tools/Occurrence-Config.ps1`; see `occurrence-recurrence-registry.md` |
 
 Future machine-readable schema documents belong here as those loader contracts are stabilized. Do not add a partial schema that claims broader validation coverage than the loaders actually provide.
 

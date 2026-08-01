@@ -68,11 +68,33 @@ function Compare-ChronologyKey {
   return $Left.Count.CompareTo($Right.Count)
 }
 
+function Add-KnowledgeChronologyGraphEdge {
+  param([System.Collections.IDictionary]$Graph,[string]$SourceId,[string]$TargetId)
+  if(-not $Graph.Contains($SourceId)){$Graph[$SourceId]=@()}
+  if(@($Graph[$SourceId]) -cnotcontains $TargetId){$Graph[$SourceId]=@($Graph[$SourceId])+$TargetId}
+}
+
+function Test-KnowledgeChronologyGraphReachable {
+  param([System.Collections.IDictionary]$Graph,[string]$SourceId,[string]$TargetId)
+  $pending=New-Object 'System.Collections.Generic.Stack[string]'
+  if($Graph.Contains($SourceId)){foreach($nextId in @($Graph[$SourceId])){$pending.Push([string]$nextId)}}
+  $seen=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+  while($pending.Count -gt 0){$current=$pending.Pop();if($current -ceq $TargetId){return $true};if(-not $seen.Add($current)){continue};if($Graph.Contains($current)){foreach($nextId in @($Graph[$current])){$pending.Push([string]$nextId)}}}
+  return $false
+}
+
 function Get-KnowledgeChronologyComparison {
   param([object]$ChronologyRegistry,[string]$LeftId,[string]$RightId)
   if(-not $ChronologyRegistry.positions.Contains($LeftId)){throw "Unknown chronology position '$LeftId'."}
   if(-not $ChronologyRegistry.positions.Contains($RightId)){throw "Unknown chronology position '$RightId'."}
   if($LeftId -ceq $RightId){return 'concurrent'}
+  if($ChronologyRegistry.PSObject.Properties.Name -contains 'equivalence_classes' -and $ChronologyRegistry.equivalence_classes.Count -gt 0){
+    $leftClass=[string]$ChronologyRegistry.equivalence_classes[$LeftId];$rightClass=[string]$ChronologyRegistry.equivalence_classes[$RightId]
+    if($leftClass -ceq $rightClass){return 'concurrent'}
+    if(Test-KnowledgeChronologyGraphReachable $ChronologyRegistry.order_edges $leftClass $rightClass){return 'before'}
+    if(Test-KnowledgeChronologyGraphReachable $ChronologyRegistry.order_edges $rightClass $leftClass){return 'after'}
+    return 'incomparable'
+  }
   $left=$ChronologyRegistry.positions[$LeftId];$right=$ChronologyRegistry.positions[$RightId]
   if($left.coordinate_system_id -ceq $right.coordinate_system_id){
     $system=$ChronologyRegistry.coordinate_systems[$left.coordinate_system_id]
@@ -171,23 +193,33 @@ function ConvertTo-KnowledgeChronologyRegistry {
   $contexts=@();$rawContexts=Get-ProjectMapValue $Data 'narrative_contexts';if($null -eq $rawContexts){$rawContexts=@()}elseif($rawContexts -is [System.Collections.IDictionary]){$rawContexts=@($rawContexts)}elseif($rawContexts -isnot [System.Collections.IList]){throw 'chronology.narrative_contexts must be a list.'};if($rawContexts.Count -gt 0){Assert-ChronologyCapability $SchemaPacks 'narrative-chronology'};$seenContexts=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
   for($i=0;$i -lt $rawContexts.Count;$i++){$context="narrative_contexts[$i]";$item=$rawContexts[$i];if($item -isnot [System.Collections.IDictionary]){throw "$context must be a mapping."};Assert-KnowledgeMapKeys $item @('id','label','coordinate_system_id','role','continuity_ids','work_ids','branch_id') $context;$id=Assert-ChronologyStableId (Get-RequiredChronologyString $item 'id' $context) "$context.id";if(-not $seenContexts.Add($id)){throw "$context.id duplicates '$id'."};$systemId=Get-RequiredChronologyString $item 'coordinate_system_id' $context;if(-not $systems.Contains($systemId)){throw "$context.coordinate_system_id references unknown coordinate system '$systemId'."};$role=Get-RequiredChronologyString $item 'role' $context;Assert-ChronologyPackValue $SchemaPacks 'narrative.chronology-role' $role "$context.role";$contextWorks=@(Get-ChronologyStringList $item 'work_ids' $context);$contextContinuities=@(Get-ChronologyStringList $item 'continuity_ids' $context);if($contextWorks.Count -eq 0 -and $contextContinuities.Count -eq 0){throw "$context must name at least one work or continuity."};if($null -eq $WorkIds -or $null -eq $ContinuityIds){throw 'Narrative chronology contexts require composed work and continuity targets.'};$unknownWorks=@($contextWorks|Where-Object {$WorkIds -cnotcontains $_});$unknownContinuities=@($contextContinuities|Where-Object {$ContinuityIds -cnotcontains $_});if($unknownWorks.Count -gt 0){throw "$context.work_ids references unknown works: $($unknownWorks -join ', ')."};if($unknownContinuities.Count -gt 0){throw "$context.continuity_ids references unknown continuities: $($unknownContinuities -join ', ')."};$branch=Get-OptionalChronologyString $item 'branch_id' $context;if($null -ne $branch){$null=Assert-ChronologyStableId $branch "$context.branch_id"};$contexts += [pscustomobject]@{id=$id;label=Get-RequiredChronologyString $item 'label' $context;coordinate_system_id=$systemId;role=$role;continuity_ids=@($contextContinuities);work_ids=@($contextWorks);branch_id=$branch}}
 
-  $registry=[pscustomobject]@{path=$Path;schema_version=[int]$schemaVersion;coordinate_systems=$systems;eras=$eras;positions=$positions;spans=@($spans);relations=@($relations);mappings=@($mappings);narrative_contexts=@($contexts)}
-  foreach($span in @($spans)){if($null -ne $span.start_position_id -and $null -ne $span.end_position_id){$ordering=Get-KnowledgeChronologyComparison $registry $span.start_position_id $span.end_position_id;if($ordering -ceq 'after' -or ($ordering -ceq 'concurrent' -and -not ($span.start_inclusive -and $span.end_inclusive))){throw "Chronology span '$($span.id)' has an empty or reversed span."}}}
-  $coordinateRegistry=[pscustomobject]@{coordinate_systems=$systems;eras=$eras;positions=$positions;spans=@($spans);relations=@();mappings=@($mappings);narrative_contexts=@($contexts)}
-  $exactPairs=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal);$orderEdges=[ordered]@{}
+  $baseRegistry=[pscustomobject]@{path=$Path;schema_version=[int]$schemaVersion;coordinate_systems=$systems;eras=$eras;positions=$positions;spans=@($spans);relations=@($relations);mappings=@($mappings);narrative_contexts=@($contexts)}
+  foreach($span in @($spans)){if($null -ne $span.start_position_id -and $null -ne $span.end_position_id){$ordering=Get-KnowledgeChronologyComparison $baseRegistry $span.start_position_id $span.end_position_id;if($ordering -ceq 'after' -or ($ordering -ceq 'concurrent' -and -not ($span.start_inclusive -and $span.end_inclusive))){throw "Chronology span '$($span.id)' has an empty or reversed span."}}}
+
+  $equivalenceAdj=[ordered]@{};foreach($positionId in @($positions.Keys)){$equivalenceAdj[$positionId]=@()}
+  foreach($system in @($systems.Values)){if($system.kind -ceq 'relative' -and $null -ne $system.origin_position_id){$origin=$positions[$system.origin_position_id];foreach($position in @($positions.Values)){if($position.coordinate_system_id -ceq $system.id -and $position.value -eq 0 -and $position.certainty -ceq 'exact' -and $origin.certainty -ceq 'exact'){Add-KnowledgeChronologyGraphEdge $equivalenceAdj $position.id $origin.id;Add-KnowledgeChronologyGraphEdge $equivalenceAdj $origin.id $position.id}}}}
+  foreach($mapping in @($mappings)){if($mapping.mapping_kind -ceq 'equivalent' -and $mapping.certainty -ceq 'exact'){Add-KnowledgeChronologyGraphEdge $equivalenceAdj $mapping.source_position_id $mapping.target_position_id;Add-KnowledgeChronologyGraphEdge $equivalenceAdj $mapping.target_position_id $mapping.source_position_id}}
+  foreach($relation in @($relations)){if($relation.relation_type -ceq 'concurrent' -and $relation.certainty -ceq 'exact'){Add-KnowledgeChronologyGraphEdge $equivalenceAdj $relation.source_position_id $relation.target_position_id;Add-KnowledgeChronologyGraphEdge $equivalenceAdj $relation.target_position_id $relation.source_position_id}}
+
+  $classes=[ordered]@{};foreach($positionId in @($positions.Keys|Sort-Object -CaseSensitive)){if($classes.Contains($positionId)){continue};$queue=New-Object 'System.Collections.Generic.Queue[string]';$queue.Enqueue([string]$positionId);$component=@();while($queue.Count -gt 0){$current=$queue.Dequeue();if($component -ccontains $current){continue};$component+=([string]$current);foreach($nextId in @($equivalenceAdj[$current])){if($component -cnotcontains $nextId){$queue.Enqueue([string]$nextId)}}};$classId=[string](@($component|Sort-Object -CaseSensitive)[0]);foreach($memberId in @($component)){$classes[$memberId]=$classId}}
+
+  $orderEdges=[ordered]@{}
+  foreach($systemId in @($systems.Keys)){ $systemPositions=@($positions.Values|Where-Object {$_.coordinate_system_id -ceq $systemId});for($i=0;$i -lt $systemPositions.Count;$i++){for($j=$i+1;$j -lt $systemPositions.Count;$j++){$left=$systemPositions[$i];$right=$systemPositions[$j];$comparison=Get-KnowledgeChronologyComparison $baseRegistry $left.id $right.id;$edgeSource=$(if($comparison -ceq 'before'){$left.id}else{$right.id});$edgeTarget=$(if($comparison -ceq 'before'){$right.id}else{$left.id});$sourceClass=[string]$classes[$edgeSource];$targetClass=[string]$classes[$edgeTarget];if($sourceClass -ceq $targetClass){throw "Intrinsic chronology contradicts exact equivalence between '$edgeSource' and '$edgeTarget'."};Add-KnowledgeChronologyGraphEdge $orderEdges $sourceClass $targetClass}}}
+
+  $exactPairs=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal);$exactIncomparables=@()
   foreach($relation in @($relations)){
     if($relation.certainty -cne 'exact'){continue}
     $pair=@($relation.source_position_id,$relation.target_position_id)|Sort-Object -CaseSensitive;$pairKey="$($pair[0])|$($pair[1])"
     if(-not $exactPairs.Add($pairKey)){throw "Chronology relation '$($relation.id)' duplicates an exact relation between '$($pair[0])' and '$($pair[1])'."}
-    $computed=Get-KnowledgeChronologyComparison $coordinateRegistry $relation.source_position_id $relation.target_position_id
-    if($computed -cne 'incomparable' -and $relation.relation_type -cne $computed){throw "Chronology relation '$($relation.id)' contradicts ordered coordinates: declared $($relation.relation_type), computed $computed."}
-    $edgeSource=$null;$edgeTarget=$null;if($relation.relation_type -ceq 'before'){$edgeSource=$relation.source_position_id;$edgeTarget=$relation.target_position_id}elseif($relation.relation_type -ceq 'after'){$edgeSource=$relation.target_position_id;$edgeTarget=$relation.source_position_id}
-    if($null -ne $edgeSource){if(-not $orderEdges.Contains($edgeSource)){$orderEdges[$edgeSource]=@()};$orderEdges[$edgeSource]=@($orderEdges[$edgeSource])+$edgeTarget}
+    $edgeSource=$null;$edgeTarget=$null;if($relation.relation_type -ceq 'before'){$edgeSource=$relation.source_position_id;$edgeTarget=$relation.target_position_id}elseif($relation.relation_type -ceq 'after'){$edgeSource=$relation.target_position_id;$edgeTarget=$relation.source_position_id}elseif($relation.relation_type -ceq 'incomparable'){$exactIncomparables+=,$relation}
+    if($null -ne $edgeSource){$sourceClass=[string]$classes[$edgeSource];$targetClass=[string]$classes[$edgeTarget];if($sourceClass -ceq $targetClass){throw "Chronology relation '$($relation.id)' contradicts exact equivalence between '$edgeSource' and '$edgeTarget'."};Add-KnowledgeChronologyGraphEdge $orderEdges $sourceClass $targetClass}
   }
-  $indegree=[ordered]@{};foreach($positionId in @($orderEdges.Keys)){if(-not $indegree.Contains($positionId)){$indegree[$positionId]=0};foreach($targetId in @($orderEdges[$positionId])){if(-not $indegree.Contains($targetId)){$indegree[$targetId]=0};$indegree[$targetId]=[int]$indegree[$targetId]+1}}
-  $ready=New-Object 'System.Collections.Generic.Queue[string]';foreach($positionId in @($indegree.Keys|Sort-Object -CaseSensitive)){if([int]$indegree[$positionId] -eq 0){$ready.Enqueue([string]$positionId)}};$processed=0
-  while($ready.Count -gt 0){$positionId=$ready.Dequeue();$processed++;if($orderEdges.Contains($positionId)){foreach($targetId in @($orderEdges[$positionId])){$indegree[$targetId]=[int]$indegree[$targetId]-1;if([int]$indegree[$targetId] -eq 0){$ready.Enqueue([string]$targetId)}}}}
-  if($processed -ne $indegree.Count){throw 'Exact chronology relations contain a before/after cycle.'}
+  $indegree=[ordered]@{};foreach($classId in @($classes.Values|Sort-Object -Unique -CaseSensitive)){$indegree[$classId]=0};foreach($sourceId in @($orderEdges.Keys)){foreach($targetId in @($orderEdges[$sourceId])){$indegree[$targetId]=[int]$indegree[$targetId]+1}}
+  $ready=New-Object 'System.Collections.Generic.Queue[string]';foreach($classId in @($indegree.Keys|Sort-Object -CaseSensitive)){if([int]$indegree[$classId] -eq 0){$ready.Enqueue([string]$classId)}};$processed=0
+  while($ready.Count -gt 0){$classId=$ready.Dequeue();$processed++;if($orderEdges.Contains($classId)){foreach($targetId in @($orderEdges[$classId])){$indegree[$targetId]=[int]$indegree[$targetId]-1;if([int]$indegree[$targetId] -eq 0){$ready.Enqueue([string]$targetId)}}}}
+  if($processed -ne $indegree.Count){throw 'Combined exact chronology contains a before/after cycle.'}
+  $registry=[pscustomobject]@{path=$Path;schema_version=[int]$schemaVersion;coordinate_systems=$systems;eras=$eras;positions=$positions;spans=@($spans);relations=@($relations);mappings=@($mappings);narrative_contexts=@($contexts);equivalence_classes=$classes;order_edges=$orderEdges}
+  foreach($relation in @($exactIncomparables)){if((Get-KnowledgeChronologyComparison $registry $relation.source_position_id $relation.target_position_id) -cne 'incomparable'){throw "Chronology relation '$($relation.id)' contradicts derived exact order."}}
   return $registry
 }
 

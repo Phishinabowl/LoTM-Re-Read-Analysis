@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: core
-pack_version: 21
+pack_version: 22
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -55,6 +55,7 @@ capabilities:
   - typed-relationships
   - temporal-windows
   - chronology-coordinate-systems
+  - occurrence-recurrence-modeling
   - visibility-policy
   - graph-projection
   - schema-validation
@@ -104,6 +105,40 @@ controlled_values:
   chronology.mapping-kind:
     - anchor
     - equivalent
+  occurrence.template-kind:
+    - event
+    - action
+    - state
+    - process-step
+    - episode
+  occurrence.binding-role:
+    - primary
+    - contextual
+  occurrence.recurrence-kind:
+    - cycle
+    - retry
+  occurrence.iteration-status:
+    - active
+    - completed
+    - terminated
+  occurrence.transition-kind:
+    - continues
+    - jump
+    - reset
+    - exit
+    - fork
+    - merge
+  occurrence.causal-relation-type:
+    - causes
+    - enables
+    - prevents
+  occurrence.track-kind:
+    - sequence
+    - observation
+    - execution
+  occurrence.carryover-kind:
+    - state
+    - context
   source.applicability-target-type:
     - provenance-claim
   provenance.claim-namespace:
@@ -135,6 +170,16 @@ controlled_values:
     - source-relationship
     - authority-rule
     - reconciliation-record
+    - occurrence-branch
+    - occurrence-template
+    - recurrence
+    - recurrence-iteration
+    - occurrence
+    - occurrence-binding
+    - occurrence-track
+    - occurrence-transition
+    - causal-relation
+    - iteration-carryover
   reconciliation.target-type:
     - content-type
     - category

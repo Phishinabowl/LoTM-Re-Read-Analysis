@@ -1,0 +1,16 @@
+schema_version: 1
+
+branches:
+  main:
+    label: Main
+    parent_branch_id: null
+    fork_occurrence_id: null
+
+templates: {}
+recurrences: {}
+iterations: {}
+occurrences: {}
+tracks: {}
+transitions: []
+causal_relations: []
+carryovers: []

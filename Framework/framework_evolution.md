@@ -21,7 +21,7 @@ From V30 onward, update this file as part of each version:
 - **V7-V15:** Evidence, authority, production context, scope, and applicability
 - **V16-V23:** Entity identity and cross-registry provenance/reconciliation
 - **V24-V27:** Deterministic configuration ingestion
-- **V28-V30:** Civil time and general chronology
+- **V28-V31:** Civil time, general chronology, occurrence, and recurrence
 
 ### Marker Conventions
 
@@ -698,7 +698,7 @@ It then separated civil effective time from general chronology. The core pack no
 
 Paired Python and PowerShell loaders now validate calendar, era-ordinal, ordinal, and relative axes; era-local direction; positions; open or bounded spans; explicit ordering relations; direct exact mappings; relative-origin cycles; and narrative work, continuity, and branch contexts. Comparison returns `before`, `after`, `concurrent`, or `incomparable` and refuses to manufacture conversions between unrelated axes. Civil timestamps, story chronology, causal order, publication/release order, and reader disclosure remain distinct.
 
-Implementation conformance covers negative years, year 12000, BCE/BBY-style descending era values, ascending eras on the same axis, global countdown coordinates, relative origins, direct equivalence, incomparable systems, valid spans, reversed spans, contradictory and duplicate exact relations, exact order cycles, duplicate era ordinals, unknown narrative targets, and relative-origin cycles. Eleven comparison vectors and eleven malformed chronology registries pass identically in Python, PowerShell 7, and Windows PowerShell 5.1.
+Implementation conformance initially covered negative years, year 12000, BCE/BBY-style descending era values, ascending eras on the same axis, global countdown coordinates, relative origins, direct equivalence, incomparable systems, valid spans, reversed spans, contradictory and duplicate exact relations, exact order cycles, duplicate era ordinals, unknown narrative targets, and relative-origin cycles. V31 later expanded this baseline to thirteen comparison vectors and thirteen malformed chronology registries by adding transitive equivalence/order and combined-graph contradictions.
 
 The temporal suite also grew permanent `-00:00` and exclusive calendar-extrema cases. Its 17 valid windows, 21 malformed windows, 20 query vectors, and 12 overlap vectors remain equivalent across all three runtimes.
 
@@ -743,3 +743,21 @@ V31 should be **Occurrence and Recurrence Foundations**. Core should gain occurr
 The narrative-media pack should specialize those primitives with time-loop roles, subjective participant histories, awareness, retained memory or knowledge, reset rules, escape conditions, and story-presentation semantics. Project data should own concrete loops, iterations, participants, occurrences, and source-backed claims; the LoTM instance should remain empty until verified material requires one.
 
 V31's acceptance test must answer both "what happened during iteration 7?" and "what did this participant experience immediately before iteration 7 began?" without introducing a chronological cycle. It must also distinguish two occurrences at one world coordinate, permit cyclic causality while rejecting cyclic chronology, support nested loops and staggered awareness, allow one participant to escape while another remains, and let non-narrative projects use recurrence primitives without enabling narrative semantics.
+
+## V31 - Occurrence and Recurrence Foundations
+
+**Superseded assumption:** A chronology position and an occurrence at that position can share one identity.
+
+**Architectural promotion:** Occurrence identity, recurrence structure, branch topology, perspective tracks, transitions, causal edges, and typed carryover became core framework services; narrative time-loop and subjective-experience semantics remain in the narrative-media pack.
+
+V31 first repaired the two exact-order defects exposed after V30. The chronology services now collapse exact relative origins, equivalent mappings, and concurrent relations into transitive equivalence classes, then validate intrinsic coordinate order and explicit exact precedence as one combined graph. Comparisons use that closure, so transitive order is answerable and a contradiction cannot hide across coordinate-system boundaries. The permanent chronology corpus now contains thirteen comparison vectors and thirteen malformed registries in every supported runtime.
+
+The new schema-1 occurrence registry composes chronology without weakening it. Stable records represent branches, repeatable templates, recurrence structures, ordered iterations, concrete occurrence identities, chronology-position bindings, subject tracks, transitions, causal relations, and carryover. Branch and recurrence topology remains acyclic; iteration ordinals are unique; nested recurrences identify their parent iteration; reset transitions and carryover advance within one recurrence. Causal edges deliberately permit cycles because they never become chronological `before` edges.
+
+The core pack now owns generic occurrence/recurrence kinds and services. The narrative-media pack adds time loops, subjective experience, time-travel jumps, loop reset/escape, and memory, knowledge, physical-state, and awareness carryover. The LoTM project registry activates only its `main` branch and adds no unverified loop or occurrence data.
+
+Paired query APIs answer occurrence membership by iteration, every occurrence bound to one chronology position, previous and next experience on a track, carryover into an iteration, and recurrence identity for an occurrence. Stable occurrence records are also composed into centralized provenance targeting rather than gaining a second assertion system.
+
+The portable fixture proves that three wakes can occupy the same world-time coordinate while remaining distinct occurrences on forward subjective tracks. One participant carries memory and knowledge and exits the loop; another remains on a shorter track without that carryover or escape transition. It also exercises nested recurrence, branch exit, a permitted causal cycle, and eleven malformed mutations. Ten query groups and all eleven rejection cases pass identically in Python, PowerShell 7, and Windows PowerShell 5.1.
+
+The V31 tooling audit also standardized structured conformance summaries. Chronology, occurrence, temporal, and reconciliation now all preserve their default human-readable output while exposing matching `--json` / `-Json` fields in Python, PowerShell 7, and Windows PowerShell 5.1.

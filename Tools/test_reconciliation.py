@@ -117,6 +117,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Run stable-identity reconciliation conformance tests.")
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument("--deep-chain", type=int, default=1500)
+    parser.add_argument("--json", action="store_true", help="Emit a stable JSON summary.")
     args = parser.parse_args()
     root = args.root.resolve()
     fixtures = root / "Framework" / "Data" / "Reconciliation"
@@ -275,11 +276,25 @@ def main() -> int:
         if result.outcome != "redirected" or len(result.reconciliation_ids) != args.deep_chain:
             raise AssertionError("Deep reconciliation chain did not resolve completely.")
 
-    print(
-        f"Reconciliation conformance passed: {len(actual)} vectors, "
-        f"40 malformed reconciliation fixtures, 9 malformed mapping-key fixtures, "
-        f"byte/scalar/key parity, branch and step limits, {args.deep_chain}-hop chain."
-    )
+    summary = {
+        "schema_version": 4,
+        "resolution_vectors": len(actual),
+        "malformed_reconciliation_fixtures": 40,
+        "malformed_mapping_key_fixtures": 9,
+        "byte_scalar_key_parity": True,
+        "branch_limit_checked": True,
+        "step_limit_checked": True,
+        "deep_chain_hops": args.deep_chain,
+    }
+    if args.json:
+        print(json.dumps(summary, sort_keys=True, separators=(",", ":")))
+    else:
+        print(
+            f"Reconciliation conformance passed: {summary['resolution_vectors']} vectors, "
+            f"{summary['malformed_reconciliation_fixtures']} malformed reconciliation fixtures, "
+            f"{summary['malformed_mapping_key_fixtures']} malformed mapping-key fixtures, "
+            f"byte/scalar/key parity, branch and step limits, {summary['deep_chain_hops']}-hop chain."
+        )
     return 0
 
 

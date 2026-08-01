@@ -124,6 +124,16 @@ relations:
     relation_type: before
     target_position_id: modern-year-one
     certainty: exact
+  - id: ancient-before-civil
+    source_position_id: ancient-year-five
+    relation_type: before
+    target_position_id: civil-before-zero
+    certainty: exact
+  - id: civil-before-countdown
+    source_position_id: civil-before-zero
+    relation_type: before
+    target_position_id: countdown-ten
+    certainty: exact
 mappings:
   - id: alternate-civil-equivalence
     source_position_id: alternate-anchor

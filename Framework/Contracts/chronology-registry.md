@@ -23,7 +23,7 @@ Eras belong only to `era-ordinal` systems and have unique positive ordinals with
 
 Positions have stable IDs, one coordinate system, an integer value, optional label, and core temporal certainty. An era is mandatory for `era-ordinal` positions and forbidden elsewhere. Duplicate coordinates are invalid. Relative systems must anchor to a position in another system so their origin cannot recursively define itself.
 
-Positions in one coordinate system are comparable by chronological era ordinal and local value, respecting the era's effective direction within an era. Equal coordinates are concurrent. The exact zero position of a relative system is concurrent with its exact declared origin. Other positions in different systems are incomparable unless an exact direct relationship or equivalent mapping connects them.
+Positions in one coordinate system are comparable by chronological era ordinal and local value, respecting the era's effective direction within an era. Equal coordinates are concurrent. The exact zero position of a relative system is concurrent with its exact declared origin. Other positions in different systems are incomparable unless exact relationships, relative origins, or equivalent mappings connect their equivalence/order classes.
 
 ## Spans
 
@@ -33,9 +33,9 @@ Chronology spans are not civil timestamp windows. They reuse certainty vocabular
 
 ## Relations and Mappings
 
-Relations preserve explicit `before`, `after`, `concurrent`, or `incomparable` claims between positions. An exact relation must agree with coordinate, relative-origin, or exact-equivalence behavior; an unordered position pair cannot carry duplicate exact relations. Exact `before` and `after` relations must remain acyclic. Causal relationships are deliberately outside this ordering vocabulary; time-travel causation must not be encoded as a cycle in chronological order.
+Relations preserve explicit `before`, `after`, `concurrent`, or `incomparable` claims between positions. An exact relation must agree with coordinate, relative-origin, or exact-equivalence behavior; an unordered position pair cannot carry duplicate exact relations. Intrinsic coordinate order and every exact relationship are validated as one transitive acyclic graph after exact equivalence closure. Causal relationships are deliberately outside this ordering vocabulary; time-travel causation must not be encoded as a cycle in chronological order.
 
-Mappings connect positions in different coordinate systems as an `anchor` or `equivalent` with explicit certainty. V30 supports exact direct equivalence for comparison. It does not infer an offset formula, extrapolate from one anchor, or compare entire axes without a later reviewed mapping contract.
+Mappings connect positions in different coordinate systems as an `anchor` or `equivalent` with explicit certainty. Exact equivalence is transitively closed for comparison and contradiction detection. The service does not infer an offset formula, extrapolate from one anchor, or compare entire axes without a later reviewed mapping contract.
 
 ## Narrative Contexts
 

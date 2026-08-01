@@ -3,6 +3,8 @@ from pathlib import Path
 import re
 
 from entity_config import EntityRegistry
+from chronology_config import load_chronology_registry
+from occurrence_config import OccurrenceRegistry, load_occurrence_registry
 from project_config import ProjectConfig
 from reconciliation_config import ReconciliationRegistry
 from schema_pack_config import SchemaPackRegistry, load_schema_pack_registry
@@ -97,6 +99,7 @@ class ProvenanceRegistry:
     sources: SourceRegistry
     entities: EntityRegistry
     reconciliations: ReconciliationRegistry
+    occurrences: OccurrenceRegistry
 
     def assertions_for_claim(self, claim_key: str) -> tuple[ProvenanceAssertion, ...]:
         return tuple(item for item in self.assertions if item.claim_key == claim_key)
@@ -110,12 +113,15 @@ class ProvenanceRegistry:
         source_targets = self.sources.provenance_targets()
         entity_targets = self.entities.provenance_targets()
         reconciliation_targets = self.reconciliations.provenance_targets()
+        occurrence_targets = self.occurrences.provenance_targets()
         if subject_type in source_targets:
             return self.sources.provenance_target(subject_type, subject_id)
         if subject_type in entity_targets:
             return self.entities.provenance_target(subject_type, subject_id)
         if subject_type in reconciliation_targets:
             return self.reconciliations.provenance_target(subject_type, subject_id)
+        if subject_type in occurrence_targets:
+            return self.occurrences.provenance_target(subject_type, subject_id)
         raise ValueError(f"Unsupported provenance subject type `{subject_type}`.")
 
     def evaluate_claim_authority(
@@ -480,9 +486,17 @@ def load_provenance_registry(
     entities: EntityRegistry,
     reconciliations: ReconciliationRegistry,
     schema_packs: SchemaPackRegistry | None = None,
+    occurrences: OccurrenceRegistry | None = None,
 ) -> ProvenanceRegistry:
     if schema_packs is None:
         schema_packs = load_schema_pack_registry(project)
+    if occurrences is None:
+        chronology = load_chronology_registry(
+            project, schema_packs,
+            work_ids=set(sources.works),
+            continuity_ids=set(sources.continuities),
+        )
+        occurrences = load_occurrence_registry(project, schema_packs, chronology)
     data = load_yaml_file(project.provenance_registry, "provenance registry", expected_schema_version=SUPPORTED_PROVENANCE_SCHEMA_VERSION)
     registry = require_mapping(data, "root")
     assert_allowed_keys(
@@ -500,6 +514,7 @@ def load_provenance_registry(
         set(sources.provenance_targets()),
         set(entities.provenance_targets()),
         set(reconciliations.provenance_targets()),
+        set(occurrences.provenance_targets()),
     )
     duplicated_subject_types = set()
     for index, provider in enumerate(provider_types):
@@ -515,6 +530,7 @@ def load_provenance_registry(
         set(sources.provenance_targets())
         | set(entities.provenance_targets())
         | set(reconciliations.provenance_targets())
+        | set(occurrences.provenance_targets())
         | {"claim-supersession"}
     )
     allowed_subject_types = set(
@@ -609,6 +625,8 @@ def load_provenance_registry(
             target = entities.provenance_target(subject_type, subject_id)
         elif subject_type in reconciliations.provenance_targets():
             target = reconciliations.provenance_target(subject_type, subject_id)
+        elif subject_type in occurrences.provenance_targets():
+            target = occurrences.provenance_target(subject_type, subject_id)
         else:
             raise ValueError(f"Unsupported provenance subject type `{subject_type}`.")
         claim_namespace = require_string(assertion, "claim_namespace", context)
@@ -700,5 +718,5 @@ def load_provenance_registry(
 
     return ProvenanceRegistry(
         project.provenance_registry, schema_version, tuple(assertions),
-        tuple(supersessions), sources, entities, reconciliations
+        tuple(supersessions), sources, entities, reconciliations, occurrences
     )

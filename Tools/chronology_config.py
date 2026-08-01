@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 import re
 
@@ -96,6 +96,8 @@ class ChronologyRegistry:
     relations: tuple[ChronologyRelation, ...]
     mappings: tuple[ChronologyMapping, ...]
     narrative_contexts: tuple[NarrativeChronologyContext, ...]
+    equivalence_classes: dict[str, str] = field(default_factory=dict)
+    order_edges: dict[str, frozenset[str]] = field(default_factory=dict)
 
     def compare_positions(self, left_id: str, right_id: str) -> str:
         if left_id not in self.positions:
@@ -104,6 +106,16 @@ class ChronologyRegistry:
             raise ValueError(f"Unknown chronology position `{right_id}`.")
         if left_id == right_id:
             return "concurrent"
+        if self.equivalence_classes:
+            left_class = self.equivalence_classes[left_id]
+            right_class = self.equivalence_classes[right_id]
+            if left_class == right_class:
+                return "concurrent"
+            if self._class_reaches(left_class, right_class):
+                return "before"
+            if self._class_reaches(right_class, left_class):
+                return "after"
+            return "incomparable"
         left = self.positions[left_id]
         right = self.positions[right_id]
         if left.coordinate_system_id == right.coordinate_system_id:
@@ -140,6 +152,19 @@ class ChronologyRegistry:
             if relation.source_position_id == right_id and relation.target_position_id == left_id:
                 return _inverse_relation(relation.relation_type)
         return "incomparable"
+
+    def _class_reaches(self, source_class: str, target_class: str) -> bool:
+        pending = list(self.order_edges.get(source_class, ()))
+        seen: set[str] = set()
+        while pending:
+            current = pending.pop()
+            if current == target_class:
+                return True
+            if current in seen:
+                continue
+            seen.add(current)
+            pending.extend(self.order_edges.get(current, ()))
+        return False
 
     def _is_relative_origin_pair(self, left: ChronologyPosition, right: ChronologyPosition) -> bool:
         for relative, candidate_origin in ((left, right), (right, left)):
@@ -206,6 +231,31 @@ def _require_capability(packs: SchemaPackRegistry, capability: str) -> None:
 
 def _inverse_relation(value: str) -> str:
     return {"before": "after", "after": "before"}.get(value, value)
+
+
+def _intrinsic_comparison(
+    left: ChronologyPosition,
+    right: ChronologyPosition,
+    coordinate_systems: dict[str, CoordinateSystem],
+    eras: dict[str, ChronologyEra],
+) -> str:
+    if left.coordinate_system_id != right.coordinate_system_id:
+        return "incomparable"
+    system = coordinate_systems[left.coordinate_system_id]
+    if left.era_id is not None and right.era_id is not None:
+        left_era = eras[left.era_id]
+        right_era = eras[right.era_id]
+        if left_era.ordinal != right_era.ordinal:
+            return "before" if left_era.ordinal < right_era.ordinal else "after"
+        direction = left_era.direction
+    else:
+        direction = system.direction
+    if left.value == right.value:
+        return "concurrent"
+    before = left.value < right.value
+    if direction == "descending":
+        before = not before
+    return "before" if before else "after"
 
 
 def parse_chronology_registry(
@@ -447,10 +497,71 @@ def parse_chronology_registry(
             _stable_id(branch_id, f"{context}.branch_id")
         contexts.append(NarrativeChronologyContext(context_id, _require_string(item, "label", context), system_id, role, context_continuity_ids, context_work_ids, branch_id))
 
-    registry = ChronologyRegistry(path, SUPPORTED_SCHEMA_VERSION, coordinate_systems, eras, positions, tuple(spans), tuple(relations), tuple(mappings), tuple(contexts))
-    coordinate_registry = ChronologyRegistry(path, SUPPORTED_SCHEMA_VERSION, coordinate_systems, eras, positions, tuple(spans), (), tuple(mappings), tuple(contexts))
+    parent = {position_id: position_id for position_id in positions}
+
+    def find(position_id: str) -> str:
+        current = position_id
+        while parent[current] != current:
+            current = parent[current]
+        root_id = current
+        current = position_id
+        while parent[current] != current:
+            next_id = parent[current]
+            parent[current] = root_id
+            current = next_id
+        return root_id
+
+    def union(left_id: str, right_id: str) -> None:
+        left_root = find(left_id)
+        right_root = find(right_id)
+        if left_root == right_root:
+            return
+        canonical, other = sorted((left_root, right_root))
+        parent[other] = canonical
+
+    for system in coordinate_systems.values():
+        if system.kind != "relative" or system.origin_position_id is None:
+            continue
+        origin = positions[system.origin_position_id]
+        for position in positions.values():
+            if (
+                position.coordinate_system_id == system.id
+                and position.value == 0
+                and position.certainty == "exact"
+                and origin.certainty == "exact"
+            ):
+                union(position.id, origin.id)
+    for mapping in mappings:
+        if mapping.mapping_kind == "equivalent" and mapping.certainty == "exact":
+            union(mapping.source_position_id, mapping.target_position_id)
+    for relation in relations:
+        if relation.relation_type == "concurrent" and relation.certainty == "exact":
+            union(relation.source_position_id, relation.target_position_id)
+
+    equivalence_classes = {position_id: find(position_id) for position_id in positions}
     exact_pairs: set[tuple[str, str]] = set()
     order_edges: dict[str, set[str]] = {}
+    exact_incomparables: list[tuple[str, str, str]] = []
+
+    def add_order_edge(source_id: str, target_id: str, context: str) -> None:
+        source_class = equivalence_classes[source_id]
+        target_class = equivalence_classes[target_id]
+        if source_class == target_class:
+            raise ValueError(f"{context} contradicts exact equivalence between `{source_id}` and `{target_id}`.")
+        order_edges.setdefault(source_class, set()).add(target_class)
+
+    positions_by_system: dict[str, list[ChronologyPosition]] = {}
+    for position in positions.values():
+        positions_by_system.setdefault(position.coordinate_system_id, []).append(position)
+    for system_positions in positions_by_system.values():
+        for index, left in enumerate(system_positions):
+            for right in system_positions[index + 1:]:
+                comparison = _intrinsic_comparison(left, right, coordinate_systems, eras)
+                if comparison == "before":
+                    add_order_edge(left.id, right.id, "Intrinsic chronology")
+                elif comparison == "after":
+                    add_order_edge(right.id, left.id, "Intrinsic chronology")
+
     for relation in relations:
         left = positions[relation.source_position_id]
         right = positions[relation.target_position_id]
@@ -460,13 +571,12 @@ def parse_chronology_registry(
         if pair in exact_pairs:
             raise ValueError(f"Chronology relation `{relation.id}` duplicates an exact relation between `{pair[0]}` and `{pair[1]}`.")
         exact_pairs.add(pair)
-        computed = coordinate_registry.compare_positions(left.id, right.id)
-        if computed != "incomparable" and relation.relation_type != computed:
-            raise ValueError(f"Chronology relation `{relation.id}` contradicts ordered coordinates: declared {relation.relation_type}, computed {computed}.")
         if relation.relation_type == "before":
-            order_edges.setdefault(left.id, set()).add(right.id)
+            add_order_edge(left.id, right.id, f"Chronology relation `{relation.id}`")
         elif relation.relation_type == "after":
-            order_edges.setdefault(right.id, set()).add(left.id)
+            add_order_edge(right.id, left.id, f"Chronology relation `{relation.id}`")
+        elif relation.relation_type == "incomparable":
+            exact_incomparables.append((left.id, right.id, relation.id))
 
     order_nodes = set(order_edges)
     for targets in order_edges.values():
@@ -485,7 +595,17 @@ def parse_chronology_registry(
             if indegree[target_id] == 0:
                 ready.append(target_id)
     if processed != len(order_nodes):
-        raise ValueError("Exact chronology relations contain a before/after cycle.")
+        raise ValueError("Combined exact chronology contains a before/after cycle.")
+
+    frozen_edges = {source_id: frozenset(target_ids) for source_id, target_ids in order_edges.items()}
+    registry = ChronologyRegistry(
+        path, SUPPORTED_SCHEMA_VERSION, coordinate_systems, eras, positions,
+        tuple(spans), tuple(relations), tuple(mappings), tuple(contexts),
+        equivalence_classes, frozen_edges,
+    )
+    for left_id, right_id, relation_id in exact_incomparables:
+        if registry.compare_positions(left_id, right_id) != "incomparable":
+            raise ValueError(f"Chronology relation `{relation_id}` contradicts derived exact order.")
     return registry
 
 

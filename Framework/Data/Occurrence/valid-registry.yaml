@@ -1,0 +1,251 @@
+schema_version: 1
+
+branches:
+  main:
+    label: Main
+    parent_branch_id: null
+    fork_occurrence_id: null
+  changed-outcome:
+    label: Changed Outcome
+    parent_branch_id: main
+    fork_occurrence_id: escape-three
+
+templates:
+  wake:
+    label: Wake
+    kind: event
+    aliases: []
+  bell:
+    label: Bell
+    kind: event
+    aliases: []
+  reset:
+    label: Reset
+    kind: action
+    aliases: []
+  nested-step:
+    label: Nested Step
+    kind: process-step
+    aliases: []
+  escape:
+    label: Escape
+    kind: event
+    aliases: []
+  aftermath:
+    label: Aftermath
+    kind: state
+    aliases: []
+
+recurrences:
+  outer-loop:
+    label: Outer Loop
+    kind: time-loop
+    parent_recurrence_id: null
+  inner-loop:
+    label: Inner Loop
+    kind: time-loop
+    parent_recurrence_id: outer-loop
+
+iterations:
+  outer-one:
+    recurrence_id: outer-loop
+    ordinal: 1
+    parent_iteration_id: null
+    status: completed
+  outer-two:
+    recurrence_id: outer-loop
+    ordinal: 2
+    parent_iteration_id: null
+    status: completed
+  outer-three:
+    recurrence_id: outer-loop
+    ordinal: 3
+    parent_iteration_id: null
+    status: terminated
+  inner-one:
+    recurrence_id: inner-loop
+    ordinal: 1
+    parent_iteration_id: outer-two
+    status: completed
+  inner-two:
+    recurrence_id: inner-loop
+    ordinal: 2
+    parent_iteration_id: outer-two
+    status: completed
+
+occurrences:
+  wake-one:
+    template_id: wake
+    label: First Wake
+    iteration_id: outer-one
+    branch_id: main
+    bindings:
+      - id: wake-one-world-position
+        position_id: civil-anchor
+        role: primary
+  bell-one:
+    template_id: bell
+    label: First Bell
+    iteration_id: outer-one
+    branch_id: main
+    bindings:
+      - id: bell-one-world-position
+        position_id: mission-zero
+        role: contextual
+  reset-one:
+    template_id: reset
+    label: First Reset
+    iteration_id: outer-one
+    branch_id: main
+    bindings: []
+  wake-two:
+    template_id: wake
+    label: Second Wake
+    iteration_id: outer-two
+    branch_id: main
+    bindings:
+      - id: wake-two-world-position
+        position_id: civil-anchor
+        role: primary
+  bell-two:
+    template_id: bell
+    label: Second Bell
+    iteration_id: outer-two
+    branch_id: main
+    bindings:
+      - id: bell-two-world-position
+        position_id: mission-zero
+        role: contextual
+  inner-step-one:
+    template_id: nested-step
+    label: Inner Step One
+    iteration_id: inner-one
+    branch_id: main
+    bindings:
+      - id: inner-step-one-position
+        position_id: countdown-one
+        role: primary
+  inner-step-two:
+    template_id: nested-step
+    label: Inner Step Two
+    iteration_id: inner-two
+    branch_id: main
+    bindings:
+      - id: inner-step-two-position
+        position_id: countdown-one
+        role: primary
+  reset-two:
+    template_id: reset
+    label: Second Reset
+    iteration_id: outer-two
+    branch_id: main
+    bindings: []
+  wake-three:
+    template_id: wake
+    label: Third Wake
+    iteration_id: outer-three
+    branch_id: main
+    bindings:
+      - id: wake-three-world-position
+        position_id: civil-anchor
+        role: primary
+  escape-three:
+    template_id: escape
+    label: Escape
+    iteration_id: outer-three
+    branch_id: main
+    bindings:
+      - id: escape-three-position
+        position_id: civil-far-future
+        role: primary
+  after-loop:
+    template_id: aftermath
+    label: After Loop
+    iteration_id: null
+    branch_id: changed-outcome
+    bindings:
+      - id: after-loop-position
+        position_id: civil-far-future
+        role: contextual
+
+tracks:
+  protagonist-experience:
+    label: Protagonist Subjective Experience
+    kind: subjective-experience
+    subject_type: character
+    subject_id: protagonist
+    occurrence_ids:
+      - wake-one
+      - bell-one
+      - reset-one
+      - wake-two
+      - bell-two
+      - inner-step-one
+      - inner-step-two
+      - reset-two
+      - wake-three
+      - escape-three
+      - after-loop
+  observer-experience:
+    label: Observer Experience
+    kind: subjective-experience
+    subject_type: character
+    subject_id: observer
+    occurrence_ids:
+      - wake-one
+      - bell-one
+      - wake-two
+      - bell-two
+      - wake-three
+
+transitions:
+  - id: first-loop-reset
+    source_occurrence_id: reset-one
+    target_occurrence_id: wake-two
+    transition_kind: loop-reset
+    recurrence_id: outer-loop
+    track_ids:
+      - protagonist-experience
+    certainty: exact
+  - id: second-loop-reset
+    source_occurrence_id: reset-two
+    target_occurrence_id: wake-three
+    transition_kind: loop-reset
+    recurrence_id: outer-loop
+    track_ids:
+      - protagonist-experience
+    certainty: exact
+  - id: protagonist-loop-escape
+    source_occurrence_id: escape-three
+    target_occurrence_id: after-loop
+    transition_kind: loop-escape
+    recurrence_id: outer-loop
+    track_ids:
+      - protagonist-experience
+    certainty: exact
+
+causal_relations:
+  - id: reset-causes-next-wake
+    source_occurrence_id: reset-one
+    relation_type: causes
+    target_occurrence_id: wake-two
+    certainty: exact
+  - id: next-wake-enables-reset
+    source_occurrence_id: wake-two
+    relation_type: enables
+    target_occurrence_id: reset-one
+    certainty: exact
+
+carryovers:
+  - id: memory-one-to-two
+    source_iteration_id: outer-one
+    target_iteration_id: outer-two
+    track_id: protagonist-experience
+    carryover_kind: memory
+    certainty: exact
+  - id: knowledge-two-to-three
+    source_iteration_id: outer-two
+    target_iteration_id: outer-three
+    track_id: protagonist-experience
+    carryover_kind: knowledge
+    certainty: exact

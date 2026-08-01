@@ -4,6 +4,8 @@ This folder contains reusable local helpers for project maintenance and source v
 
 For switch-by-switch maps, function-pipeline notes, side effects, parity checks, and durable config/state files for maintained helper scripts, see [Tooling Reference](TOOLING_REFERENCE.md). That reference should be extended whenever another tool is audited or a tool starts reading a new shared config file.
 
+Paired validation and conformance commands that emit a human-readable summary also support `--json` / `-Json` with matching semantic fields. File-producing tools may instead define structured generated artifacts; see the Tooling Reference rather than assuming every command uses one universal JSON summary.
+
 ## Environment Checks
 
 Use `Test-Python.ps1` to check whether Python is present and actually usable before selecting Python-preferred tools. It tests `python`, `python3`, and `py` in order, verifies that `--version` works, confirms that Python can report `sys.executable`, and checks repository Python requirements from `requirements-python.txt`.
@@ -397,6 +399,13 @@ python Tools\test_reconciliation.py
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Reconciliation.ps1
 ```
 
+Use `--json` / `-Json` for matching structured corpus and stress-test counts:
+
+```powershell
+python Tools\test_reconciliation.py --json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Reconciliation.ps1 -Json
+```
+
 ## Temporal Conformance
 
 Run the permanent temporal vectors after changing shared time parsing, temporal pack vocabulary, timestamp resolution, source applicability, release/title windows, or provenance timing. Both implementations load `Framework/Data/Temporal/`, reject malformed windows and timestamps, and verify identical precision-aware query and window-overlap outcomes without leaving output files.
@@ -406,6 +415,13 @@ python Tools\test_temporal.py
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Temporal.ps1
 ```
 
+Use `--json` / `-Json` for the same stable summary fields in automation:
+
+```powershell
+python Tools\test_temporal.py --json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Temporal.ps1 -Json
+```
+
 ## Chronology Conformance
 
 Run the chronology vectors after changing coordinate-system vocabulary, era, position, or span shapes, comparison behavior, narrative chronology roles, or manifest composition. Both implementations validate `Project_Config/chronology.yaml`, load `Framework/Data/Chronology/`, compare the same positions, and reject the same malformed registries without writing output files. Chronology coordinates are separate from the RFC 3339 civil-time windows exercised by the temporal conformance tools.
@@ -413,6 +429,15 @@ Run the chronology vectors after changing coordinate-system vocabulary, era, pos
 ```powershell
 python Tools\test_chronology.py
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Chronology.ps1
+```
+
+## Occurrence Conformance
+
+Run the occurrence vectors after changing branch, template, recurrence, iteration, binding, track, transition, causality, carryover, chronology-composition, or provenance-target behavior. Both implementations validate the empty LoTM project registry, compose `Framework/Data/Occurrence/` with the chronology fixture, answer the same loop queries, and reject the same malformed mutations. Causal cycles are intentionally accepted; chronology, branch, recurrence, reset, and carryover ordering remain constrained.
+
+```powershell
+python Tools\test_occurrence.py
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Occurrence.ps1
 ```
 
 The generated structure mirrors active canonical pages by type and adds QA reports. Pages with `Status: Stub` are excluded by default; pass `--include-stubs` / `-IncludeStubs` when stub pages should be mirrored for local inspection. Pending pages are treated as normal QA candidates unless the source page itself is omitted by status.

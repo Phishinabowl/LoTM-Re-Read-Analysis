@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param(
   [string]$Root,
-  [int]$DeepChain = 1500
+  [int]$DeepChain = 1500,
+  [switch]$Json
 )
 
 $ErrorActionPreference = "Stop"
@@ -126,4 +127,14 @@ try{
   if(Test-Path -LiteralPath $byteTestPath){Remove-Item -LiteralPath $byteTestPath -Force}
 }
 
-Write-Output "Reconciliation conformance passed: $(@($expectations.resolutions).Count) vectors, 40 malformed reconciliation fixtures, 9 malformed mapping-key fixtures, byte/scalar/key parity, branch and step limits, $DeepChain-hop chain."
+$summary=[ordered]@{
+  branch_limit_checked=$true
+  byte_scalar_key_parity=$true
+  deep_chain_hops=[int]$DeepChain
+  malformed_mapping_key_fixtures=9
+  malformed_reconciliation_fixtures=40
+  resolution_vectors=[int]@($expectations.resolutions).Count
+  schema_version=4
+  step_limit_checked=$true
+}
+if($Json){$summary|ConvertTo-Json -Compress}else{Write-Output "Reconciliation conformance passed: $($summary.resolution_vectors) vectors, $($summary.malformed_reconciliation_fixtures) malformed reconciliation fixtures, $($summary.malformed_mapping_key_fixtures) malformed mapping-key fixtures, byte/scalar/key parity, branch and step limits, $($summary.deep_chain_hops)-hop chain."}

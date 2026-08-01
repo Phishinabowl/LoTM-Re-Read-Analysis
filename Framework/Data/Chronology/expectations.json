@@ -5,11 +5,13 @@
     ["modern-year-one", "ancient-year-five", "after"],
     ["civil-anchor", "mission-zero", "concurrent"],
     ["alternate-anchor", "civil-anchor", "concurrent"],
-    ["ancient-year-five", "civil-anchor", "incomparable"],
+    ["alternate-anchor", "mission-zero", "concurrent"],
+    ["ancient-year-five", "civil-anchor", "before"],
     ["civil-anchor", "civil-anchor", "concurrent"],
     ["civil-before-zero", "civil-far-future", "before"],
     ["civil-far-future", "civil-before-zero", "after"],
     ["countdown-ten", "countdown-one", "before"],
-    ["countdown-one", "countdown-ten", "after"]
+    ["countdown-one", "countdown-ten", "after"],
+    ["ancient-year-five", "countdown-ten", "before"]
   ]
 }

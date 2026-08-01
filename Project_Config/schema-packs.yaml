@@ -63,6 +63,7 @@ capability_activation:
     - typed-relationships
     - temporal-windows
     - chronology-coordinate-systems
+    - occurrence-recurrence-modeling
     - visibility-policy
     - graph-projection
     - schema-validation
@@ -83,6 +84,7 @@ capability_activation:
     - temporal-localized-titles
     - content-group-member-roles
     - narrative-chronology
+    - narrative-time-loops
     - serialization
     - publication-packaging
     - editions

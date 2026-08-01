@@ -16,6 +16,7 @@ from temporal_config import (
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run domain-neutral temporal conformance tests.")
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
+    parser.add_argument("--json", action="store_true", help="Emit a stable JSON summary.")
     args = parser.parse_args()
     root = args.root.resolve()
     project = load_project_config(root)
@@ -51,11 +52,21 @@ def main() -> int:
         raise AssertionError(f"Temporal match vectors differ: {actual_matches}")
     if actual_overlaps != expected["overlaps"]:
         raise AssertionError(f"Temporal overlap vectors differ: {actual_overlaps}")
-    print(
-        f"Temporal conformance passed: {len(windows)} valid windows, "
-        f"{len(malformed['windows'])} malformed windows, "
-        f"{len(actual_matches)} match and {len(actual_overlaps)} overlap vectors."
-    )
+    summary = {
+        "schema_version": 2,
+        "valid_windows": len(windows),
+        "malformed_windows": len(malformed["windows"]),
+        "match_vectors": len(actual_matches),
+        "overlap_vectors": len(actual_overlaps),
+    }
+    if args.json:
+        print(json.dumps(summary, sort_keys=True, separators=(",", ":")))
+    else:
+        print(
+            f"Temporal conformance passed: {summary['valid_windows']} valid windows, "
+            f"{summary['malformed_windows']} malformed windows, "
+            f"{summary['match_vectors']} match and {summary['overlap_vectors']} overlap vectors."
+        )
     return 0
 
 

@@ -1,0 +1,13 @@
+[
+  {"name":"branch-cycle","changes":[{"path":"branches.main.parent_branch_id","value":"changed-outcome"},{"path":"branches.main.fork_occurrence_id","value":"escape-three"}]},
+  {"name":"recurrence-cycle","changes":[{"path":"recurrences.outer-loop.parent_recurrence_id","value":"inner-loop"}]},
+  {"name":"duplicate-iteration-ordinal","changes":[{"path":"iterations.inner-two.ordinal","value":1}]},
+  {"name":"wrong-nested-parent","changes":[{"path":"iterations.inner-one.parent_iteration_id","value":"inner-two"}]},
+  {"name":"unknown-position","changes":[{"path":"occurrences.wake-one.bindings.0.position_id","value":"missing-position"}]},
+  {"name":"duplicate-track-occurrence","changes":[{"path":"tracks.protagonist-experience.occurrence_ids.3","value":"wake-one"}]},
+  {"name":"backward-reset","changes":[{"path":"transitions.1.target_occurrence_id","value":"wake-one"}]},
+  {"name":"unknown-track-subject","changes":[{"path":"tracks.protagonist-experience.subject_id","value":"unknown-person"}]},
+  {"name":"unknown-fork-occurrence","changes":[{"path":"branches.changed-outcome.fork_occurrence_id","value":"missing-occurrence"}]},
+  {"name":"backward-carryover","changes":[{"path":"carryovers.0.target_iteration_id","value":"outer-one"}]},
+  {"name":"fork-occurrence-on-child","changes":[{"path":"branches.changed-outcome.fork_occurrence_id","value":"after-loop"}]}
+]

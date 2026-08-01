@@ -1,4 +1,4 @@
-schema_version: 8
+schema_version: 9
 project_id: lotm-analysis
 framework: knowledge-model
 domain: lord-of-the-mysteries
@@ -84,3 +84,4 @@ registries:
   reconciliation: Project_Config/reconciliation.yaml
   provenance: Project_Config/provenance.yaml
   chronology: Project_Config/chronology.yaml
+  occurrences: Project_Config/occurrences.yaml

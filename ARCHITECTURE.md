@@ -19,6 +19,8 @@ The system must:
 - support controlled repository-wide migrations such as category, folder, slug, or schema changes;
 - preserve Python-preferred tooling with behaviorally compatible PowerShell fallbacks where repository policy requires them.
 
+Paired executable commands that emit a human-readable validation or conformance summary must also expose `--json` and `-Json` forms with the same semantic fields. Library-only loaders do not need command switches. File-producing tools may use durable structured output files instead, but that contract must be explicit rather than an accidental omission.
+
 ## Core Principles
 
 ### Configuration Owns Domain Meaning
@@ -197,7 +199,11 @@ Resolution is read-only. It does not rename folders or files, rewrite page/YAML 
 
 The core `chronology-coordinate-systems` capability is domain-neutral. The narrative-media `narrative-chronology` capability contributes story, backstory, flashback, flashforward, time-travel, and alternate-timeline roles. LoTM Epoch labels and ordering live in project configuration. Story chronology, causal order, publication/release order, and reader disclosure remain separate; incomparable coordinate systems remain incomparable without an explicit relationship or mapping. See `Framework/Contracts/chronology-registry.md`.
 
-The required load order is project manifest, selected packs and foundational registries, source registry, chronology registry with composed work/continuity targets, entity registry, reconciliation registry, then provenance registry. Cross-registry validation is deferred to composition layers so source, chronology, and entity loaders do not depend on one another through evidence claims or historical IDs. A new provenance-addressable registry must expose a typed target-provider API and pack-owned `provenance.subject-type` values rather than implementing another assertion parser.
+`Project_Config/occurrences.yaml` schema version 1 composes chronology into stable branch, occurrence-template, recurrence, iteration, occurrence, position-binding, perspective-track, transition, causal-relation, and carryover records. `Tools/occurrence_config.py` and `Tools/Occurrence-Config.ps1` enforce acyclic branch and recurrence topology, unique ordered iterations, valid nested recurrence, chronology bindings, forward reset/carryover boundaries, and typed provenance targets. Their query services resolve iteration contents, repeated occurrences at one coordinate, track neighbors, carryover, and occurrence recurrence identity. Causal cycles are allowed because causal edges never enter chronology comparison.
+
+Core owns domain-neutral occurrence and recurrence mechanics. Narrative media specializes them with time loops, subjective experience, loop reset/escape, and retained memory, knowledge, physical state, or awareness. The LoTM registry activates only its `main` branch until verified project data requires concrete occurrences. See `Framework/Contracts/occurrence-recurrence-registry.md`.
+
+The required load order is project manifest, selected packs and foundational registries, source registry, chronology registry with composed work/continuity targets, entity and other subject providers, occurrence registry with chronology and subject targets, reconciliation registry, then provenance registry. Cross-registry validation is deferred to composition layers so source, chronology, occurrence, and entity loaders do not depend on one another through evidence claims or historical IDs. A new provenance-addressable registry must expose a typed target-provider API and pack-owned `provenance.subject-type` values rather than implementing another assertion parser.
 
 ### Strict Configuration Ingestion
 
@@ -216,7 +222,7 @@ Visualization settings and presets define graph views, boundaries, filtering cho
 | Project configuration loaders | Root detection, manifest parsing, safe content/resource path resolution, registry discovery | Domain categories, graph semantics, page mutation |
 | Schema-pack loaders | Pack selection, dependency/version validation, capabilities, controlled-value ownership | Project-instance works, pages, paths, or sources |
 | Lookup-key loader | Pinned runtime-independent Unicode normalization for semantic aliases and case-insensitive values | Fuzzy matching, stable-ID rewriting, path or language-tag normalization |
-| Taxonomy, resource, source, chronology, entity, and reconciliation registry loaders | Registry parsing, schema validation, aliases, cross-registry references, pack-controlled value lookup, chronology comparison, read-only stable-ID resolution | Canonical page content, graph serialization, repository mutation |
+| Taxonomy, resource, source, chronology, occurrence, entity, and reconciliation registry loaders | Registry parsing, schema validation, aliases, cross-registry references, pack-controlled value lookup, chronology comparison, occurrence queries, read-only stable-ID resolution | Canonical page content, graph serialization, repository mutation |
 | Content index | Canonical-content discovery and normalized records | Domain constants duplicated from registries, presentation-specific graph decisions |
 | Validation service | Schema, taxonomy, reference, provenance, and consistency findings | Silent canonical rewrites |
 | Repository mutation service | Planned canonical edits, moves, reference updates, validation, rollback data | UI presentation, independent domain rules |

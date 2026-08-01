@@ -4,6 +4,10 @@ $entityConfigHelper = Join-Path $PSScriptRoot "Entity-Config.ps1"
 if (-not (Get-Command Get-KnowledgeEntityProvenanceTarget -ErrorAction SilentlyContinue)) { . $entityConfigHelper }
 $reconciliationConfigHelper = Join-Path $PSScriptRoot "Reconciliation-Config.ps1"
 if (-not (Get-Command Get-KnowledgeReconciliationProvenanceTarget -ErrorAction SilentlyContinue)) { . $reconciliationConfigHelper }
+$chronologyConfigHelper = Join-Path $PSScriptRoot "Chronology-Config.ps1"
+if (-not (Get-Command Get-KnowledgeChronologyRegistry -ErrorAction SilentlyContinue)) { . $chronologyConfigHelper }
+$occurrenceConfigHelper = Join-Path $PSScriptRoot "Occurrence-Config.ps1"
+if (-not (Get-Command Get-KnowledgeOccurrenceProvenanceTargets -ErrorAction SilentlyContinue)) { . $occurrenceConfigHelper }
 
 $script:SupportedProvenanceSchemaVersion = 3
 $script:ProvenanceFieldPathPattern = "^[a-z][a-z0-9_]*(?:(?:\.[a-z][a-z0-9_]*)|(?:\[[0-9]+\]))*$"
@@ -18,6 +22,8 @@ function Get-KnowledgeProvenanceTarget {
   try{return Get-KnowledgeSourceProvenanceTarget $ProvenanceRegistry.sources $SubjectType $SubjectId}catch{if($_.Exception.Message -notlike "Unsupported source-registry*"){throw}}
   try{return Get-KnowledgeEntityProvenanceTarget $ProvenanceRegistry.entities $SubjectType $SubjectId}catch{if($_.Exception.Message -notlike "Unsupported entity-registry*"){throw}}
   try{return Get-KnowledgeReconciliationProvenanceTarget $ProvenanceRegistry.reconciliations $SubjectType $SubjectId}catch{if($_.Exception.Message -notlike "Unsupported reconciliation provenance*"){throw}}
+  $occurrenceTargets=Get-KnowledgeOccurrenceProvenanceTargets $ProvenanceRegistry.occurrences
+  if($occurrenceTargets.Contains($SubjectType)){if(-not $occurrenceTargets[$SubjectType].Contains($SubjectId)){throw "Unknown $SubjectType '$SubjectId'."};return $occurrenceTargets[$SubjectType][$SubjectId]}
   throw "Unsupported provenance subject type '$SubjectType'."
 }
 
@@ -65,17 +71,18 @@ function ConvertTo-ProvenanceLocator {
 }
 
 function Get-KnowledgeProvenanceRegistry {
-  param([object]$ProjectConfig,[object]$SourceRegistry,[object]$EntityRegistry,[object]$ReconciliationRegistry,[object]$SchemaPackRegistry)
+  param([object]$ProjectConfig,[object]$SourceRegistry,[object]$EntityRegistry,[object]$ReconciliationRegistry,[object]$SchemaPackRegistry,[object]$OccurrenceRegistry=$null)
   if($null -eq $SchemaPackRegistry){$SchemaPackRegistry=Get-KnowledgeSchemaPackRegistry $ProjectConfig}
+  if($null -eq $OccurrenceRegistry){$chronology=Get-KnowledgeChronologyRegistry $ProjectConfig $SchemaPackRegistry @($SourceRegistry.works.Keys) @($SourceRegistry.continuities.Keys);$OccurrenceRegistry=Get-KnowledgeOccurrenceRegistry $ProjectConfig $SchemaPackRegistry $chronology}
   $path=$ProjectConfig.provenance_registry
   $registry=ConvertFrom-KnowledgeYamlFile $path $script:SupportedProvenanceSchemaVersion "provenance registry"
   if($null -eq $registry -or $registry -isnot [System.Collections.IDictionary]){throw "Provenance registry root must be a mapping: $path"}
   Assert-KnowledgeMapKeys $registry @("schema_version","claim_supersessions","assertions") "Provenance registry root"
   $schemaVersion=Get-ProjectMapValue $registry "schema_version"
   if($schemaVersion -isnot [int] -or $schemaVersion -ne $script:SupportedProvenanceSchemaVersion){throw "Unsupported provenance schema_version '$schemaVersion'; expected $($script:SupportedProvenanceSchemaVersion)."}
-  $sourceSubjectTypes=@(Get-KnowledgeSourceProvenanceSubjectTypes);$entitySubjectTypes=@(Get-KnowledgeEntityProvenanceSubjectTypes);$reconciliationSubjectTypes=@(Get-KnowledgeReconciliationProvenanceSubjectTypes);$allProviderTypes=@($sourceSubjectTypes+$entitySubjectTypes+$reconciliationSubjectTypes);$duplicates=@($allProviderTypes|Group-Object|Where-Object Count -gt 1|ForEach-Object Name)
+  $sourceSubjectTypes=@(Get-KnowledgeSourceProvenanceSubjectTypes);$entitySubjectTypes=@(Get-KnowledgeEntityProvenanceSubjectTypes);$reconciliationSubjectTypes=@(Get-KnowledgeReconciliationProvenanceSubjectTypes);$occurrenceSubjectTypes=@((Get-KnowledgeOccurrenceProvenanceTargets $OccurrenceRegistry).Keys);$allProviderTypes=@($sourceSubjectTypes+$entitySubjectTypes+$reconciliationSubjectTypes+$occurrenceSubjectTypes);$duplicates=@($allProviderTypes|Group-Object|Where-Object Count -gt 1|ForEach-Object Name)
   if($duplicates.Count -gt 0){throw "Provenance subject types have multiple providers: $($duplicates -join ', ')."}
-  $providedSubjectTypes=@($sourceSubjectTypes+$entitySubjectTypes+$reconciliationSubjectTypes+@("claim-supersession")|Sort-Object -Unique);$allowedSubjectTypes=@(Get-SchemaPackAllowedValues $SchemaPackRegistry "provenance.subject-type")
+  $providedSubjectTypes=@($sourceSubjectTypes+$entitySubjectTypes+$reconciliationSubjectTypes+$occurrenceSubjectTypes+@("claim-supersession")|Sort-Object -Unique);$allowedSubjectTypes=@(Get-SchemaPackAllowedValues $SchemaPackRegistry "provenance.subject-type")
   $missingProviders=@($allowedSubjectTypes|Where-Object {$providedSubjectTypes -cnotcontains $_});$unregisteredProviders=@($providedSubjectTypes|Where-Object {$allowedSubjectTypes -cnotcontains $_})
   if($missingProviders.Count -gt 0 -or $unregisteredProviders.Count -gt 0){$details=@();if($missingProviders.Count -gt 0){$details+=@("missing providers: $($missingProviders -join ', ')")};if($unregisteredProviders.Count -gt 0){$details+=@("unregistered providers: $($unregisteredProviders -join ', ')")};throw "Provenance subject-provider mismatch ($($details -join '; '))."}
 
@@ -96,7 +103,7 @@ function Get-KnowledgeProvenanceRegistry {
 
   $rawAssertions=@(Get-ProjectMapValue $registry "assertions")
   $assertions=@();$seenAssertionIds=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal);$seenLocatorIds=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal);$claimShapes=[ordered]@{}
-  $shell=[pscustomobject]@{sources=$SourceRegistry;entities=$EntityRegistry;reconciliations=$ReconciliationRegistry;claim_supersessions=@($supersessions)}
+  $shell=[pscustomobject]@{sources=$SourceRegistry;entities=$EntityRegistry;reconciliations=$ReconciliationRegistry;occurrences=$OccurrenceRegistry;claim_supersessions=@($supersessions)}
   for($i=0;$i -lt $rawAssertions.Count;$i++){
     $context="assertions[$i]";$item=$rawAssertions[$i]
     if($item -isnot [System.Collections.IDictionary]){throw "Provenance registry '$context' must be a mapping."};Assert-KnowledgeMapKeys $item @("id","claim_key","subject_type","subject_id","claim_namespace","field_path","asserted_value","assertion_status","observed_at","effective_window","evidence_links") "Provenance registry '$context'"
@@ -125,7 +132,7 @@ function Get-KnowledgeProvenanceRegistry {
   $visited=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal);$active=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
   function Visit-ProvenanceClaim([string]$ClaimKey){if($active.Contains($ClaimKey)){throw "Provenance registry contains a claim-supersession cycle involving '$ClaimKey'."};if($visited.Contains($ClaimKey)){return};[void]$active.Add($ClaimKey);if($edges.Contains($ClaimKey)){foreach($target in @($edges[$ClaimKey])){Visit-ProvenanceClaim $target}};[void]$active.Remove($ClaimKey);[void]$visited.Add($ClaimKey)}
   foreach($claimKey in $edges.Keys){Visit-ProvenanceClaim $claimKey}
-  return [pscustomobject]@{path=$path;schema_version=[int]$schemaVersion;assertions=@($assertions);claim_supersessions=@($supersessions);sources=$SourceRegistry;entities=$EntityRegistry;reconciliations=$ReconciliationRegistry}
+  return [pscustomobject]@{path=$path;schema_version=[int]$schemaVersion;assertions=@($assertions);claim_supersessions=@($supersessions);sources=$SourceRegistry;entities=$EntityRegistry;reconciliations=$ReconciliationRegistry;occurrences=$OccurrenceRegistry}
 }
 
 function Get-KnowledgeProvenanceApplicabilityDecision {
