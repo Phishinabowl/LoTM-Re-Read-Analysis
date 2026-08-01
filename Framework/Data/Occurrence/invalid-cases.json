@@ -63,5 +63,7 @@
   {"name":"foreign-iteration-condition-pattern","changes":[{"path":"rules.0.conditions.1.target_id","value":"inner-loop-pattern"}]},
   {"name":"foreign-schedule-condition-pattern","changes":[{"path":"schedules.outer-monthly-schedule.pattern_id","value":"inner-loop-pattern"}]},
   {"name":"foreign-recurrence-control-effect-pattern","changes":[{"path":"rules.0.effects.0.target_id","value":"inner-loop-pattern"}]},
-  {"name":"rule-kind-effect-kind-mismatch","changes":[{"path":"rules.0.rule_kind","value":"termination"}]}
+  {"name":"rule-kind-effect-kind-mismatch","changes":[{"path":"rules.0.rule_kind","value":"termination"}]},
+  {"name":"duplicate-semantic-condition-with-distinct-id","changes":[{"path":"rules.0.conditions.1.condition_kind","value":"occurrence-reached"},{"path":"rules.0.conditions.1.target_type","value":"occurrence-template"},{"path":"rules.0.conditions.1.target_id","value":"reset"},{"path":"rules.0.conditions.1.expected_value","value":"occurred"},{"path":"rules.0.conditions.1.comparison_value","value":null}]},
+  {"name":"duplicate-semantic-effect-with-distinct-id","changes":[{"path":"rules.8.effects.1.target_id","value":"wake"}]}
 ]

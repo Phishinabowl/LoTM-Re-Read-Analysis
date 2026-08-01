@@ -19,6 +19,16 @@ function Set-OccurrenceFixturePath{
 
 function Get-OccurrenceIds{param([object[]]$Items);return @($Items|ForEach-Object {[string]$_.id})}
 function Assert-OccurrenceIds{param([object[]]$Actual,[object[]]$Expected,[string]$Context);if((@($Actual)-join '|') -cne (@($Expected)-join '|')){throw "$Context expected '$(@($Expected)-join ',')', got '$(@($Actual)-join ',')'."}}
+function New-SyntheticOccurrenceRule{
+  param([string]$RuleId,[string]$RuleKind,[string]$EffectKind,[string]$TargetId,[string]$OccurrenceTemplate)
+  return [ordered]@{
+    id=$RuleId;label="Synthetic $EffectKind extension";pattern_id='outer-loop-pattern';rule_kind=$RuleKind;condition_logic='all'
+    applicability=[ordered]@{application_level='pattern-default';recurrence_ids=@();phase_ids=@();branch_ids=@();min_iteration_ordinal=2;max_iteration_ordinal=2;chronology_window=$null;effective_window=$null}
+    priority=10;resolution_group="synthetic-$EffectKind";selection_mode='accumulate';override_mode='inherit'
+    conditions=@([ordered]@{id="$RuleId-condition";condition_kind='occurrence-reached';target_type='occurrence-template';target_id=$OccurrenceTemplate;expected_value='occurred';subject_type=$null;subject_id=$null;state_kind=$null;track_id=$null;comparison_value=$null})
+    effects=@([ordered]@{id="$RuleId-effect";effect_kind=$EffectKind;target_type='recurrence-pattern';target_id=$TargetId})
+  }
+}
 
 $repoRoot=Resolve-KnowledgeProjectRoot $Root
 $project=Get-KnowledgeProjectConfig $repoRoot
@@ -50,6 +60,7 @@ foreach($property in $expectations.occurrence_outcomes.PSObject.Properties){Asse
 foreach($property in $expectations.pattern_rules.PSObject.Properties){Assert-OccurrenceIds (Get-OccurrenceIds (Get-KnowledgeRulesForRecurrencePattern $fixture $property.Name)) @($property.Value) "Rules '$($property.Name)'"}
 foreach($property in $expectations.iteration_phases.PSObject.Properties){$phase=Get-KnowledgeRecurrencePhaseForIteration $fixture $property.Name;$actual=$(if($null -eq $phase){$null}else{$phase.id});if($actual -cne $property.Value){throw "Unexpected recurrence phase for '$($property.Name)'."}}
 foreach($vector in @($expectations.schedule_values)){if((Get-KnowledgeRecurrenceScheduleValue $fixture ([string]$vector[0]) ([int]$vector[1])) -cne $vector[2]){throw "Unexpected schedule value for '$($vector[0])' ordinal $($vector[1])."}}
+foreach($vector in @($expectations.schedule_errors)){$actualError=$null;try{$null=Get-KnowledgeRecurrenceScheduleValue $fixture ([string]$vector[0]) ([int]$vector[1])}catch{$actualError=$_.Exception.Message};if($actualError -cne [string]$vector[2]){throw "Unexpected schedule error for '$($vector[0])': $actualError"}}
 foreach($vector in @($expectations.schedule_matches)){$effective=$vector[3];if((Get-KnowledgeRecurrenceScheduleMatch $fixture ([string]$vector[0]) ([string]$vector[1]) ([string]$vector[2]) $effective) -cne [string]$vector[4]){throw "Unexpected schedule match for '$($vector[0])' at '$($vector[2])'."}}
 foreach($vector in @($expectations.rule_evaluations)){$evaluation=Get-KnowledgeRecurrenceRuleEvaluation $fixture ([string]$vector[0]) ([string]$vector[1]) $vector[2];Assert-OccurrenceIds @($evaluation.selected_rule_ids) @($vector[4]) "Selected rules at '$($vector[1])'";Assert-OccurrenceIds @($evaluation.effects|ForEach-Object {$_.effect_kind}) @($vector[5]) "Effects at '$($vector[1])'";Assert-OccurrenceIds @($evaluation.conflicts) @($vector[6]) "Conflicts at '$($vector[1])'";if($evaluation.status -cne [string]$vector[3]){throw "Unexpected rule evaluation status at '$($vector[1])'."}}
 foreach($vector in @($expectations.trace_dispositions)){$evaluation=Get-KnowledgeRecurrenceRuleEvaluation $fixture ([string]$vector[0]) ([string]$vector[1]) $vector[2];$trace=@($evaluation.traces|Where-Object {$_.rule_id -ceq [string]$vector[3]})[0];if($trace.disposition -cne [string]$vector[4]){throw "Unexpected trace disposition for rule '$($vector[3])'."}}
@@ -59,11 +70,33 @@ foreach($vector in @($expectations.state_at)){$state=Get-KnowledgeStateAt $fixtu
 $invalidCases=Get-Content -LiteralPath (Join-Path $fixtureRoot 'invalid-cases.json') -Raw|ConvertFrom-Json
 foreach($case in @($invalidCases)){$invalid=ConvertFrom-KnowledgeYamlFile $fixturePath 4 'invalid occurrence fixture';foreach($change in @($case.changes)){Set-OccurrenceFixturePath $invalid ([string]$change.path) $change.value};$rejected=$false;try{$null=ConvertTo-KnowledgeOccurrenceRegistry $invalid $fixturePath $packs $chronologyFixture $subjectTargets $payloadTargets}catch{$rejected=$true};if(-not $rejected){throw "Malformed occurrence case unexpectedly loaded: $($case.name)"}}
 
+$extensionValues=[ordered]@{
+  'occurrence.rule-kind'=@('pause','signal')
+  'occurrence.rule-effect-kind'=@('pause-recurrence','signal-recurrence')
+  'occurrence.rule-effect-kind-target-type'=@('pause-recurrence-uses-recurrence-pattern','signal-recurrence-uses-recurrence-pattern')
+  'occurrence.rule-kind-effect-kind'=@('pause-uses-pause-recurrence','signal-uses-signal-recurrence')
+  'occurrence.rule-effect-pattern-scope'=@('pause-recurrence-uses-owning-pattern','signal-recurrence-allows-external-pattern')
+  'occurrence.rule-effect-incompatibility-pair'=@('advance-iteration-with-pause-recurrence')
+}
+foreach($namespace in $extensionValues.Keys){$packs.controlled_values[$namespace]=@($packs.controlled_values[$namespace])+@($extensionValues[$namespace])}
+
+$owningProbe=ConvertFrom-KnowledgeYamlFile $fixturePath 4 'occurrence fixture';$owningProbe['rules']=@($owningProbe['rules'])+@(New-SyntheticOccurrenceRule 'synthetic-pause-rule' 'pause' 'pause-recurrence' 'outer-loop-pattern' 'reset')
+$owningRegistry=ConvertTo-KnowledgeOccurrenceRegistry $owningProbe $fixturePath $packs $chronologyFixture $subjectTargets $payloadTargets
+$owningEvaluation=Get-KnowledgeRecurrenceRuleEvaluation $owningRegistry 'outer-loop' 'reset-two'
+if($owningEvaluation.status -cne 'conflict'){throw 'Owning-pattern extension did not produce a conflict.'};Assert-OccurrenceIds @($owningEvaluation.selected_rule_ids) @('outer-reset-rule','synthetic-pause-rule') 'Owning-pattern extension selected rules';Assert-OccurrenceIds @($owningEvaluation.conflicts) @('advance-iteration conflicts with pause-recurrence') 'Owning-pattern extension conflicts'
+
+$foreignOwningProbe=ConvertFrom-KnowledgeYamlFile $fixturePath 4 'occurrence fixture';$foreignOwningRule=New-SyntheticOccurrenceRule 'synthetic-pause-rule' 'pause' 'pause-recurrence' 'inner-loop-pattern' 'reset';$foreignOwningProbe['rules']=@($foreignOwningProbe['rules'])+@($foreignOwningRule);$foreignRejected=$false;try{$null=ConvertTo-KnowledgeOccurrenceRegistry $foreignOwningProbe $fixturePath $packs $chronologyFixture $subjectTargets $payloadTargets}catch{$foreignRejected=$true};if(-not $foreignRejected){throw 'Owning-pattern extension unexpectedly accepted a foreign pattern target.'}
+
+$externalProbe=ConvertFrom-KnowledgeYamlFile $fixturePath 4 'occurrence fixture';$externalProbe['rules']=@($externalProbe['rules'])+@(New-SyntheticOccurrenceRule 'synthetic-signal-rule' 'signal' 'signal-recurrence' 'inner-loop-pattern' 'bell')
+$externalRegistry=ConvertTo-KnowledgeOccurrenceRegistry $externalProbe $fixturePath $packs $chronologyFixture $subjectTargets $payloadTargets
+$externalEvaluation=Get-KnowledgeRecurrenceRuleEvaluation $externalRegistry 'outer-loop' 'bell-two'
+if($externalEvaluation.status -cne 'selected'){throw 'External-pattern extension was not selected.'};Assert-OccurrenceIds @($externalEvaluation.selected_rule_ids) @('synthetic-signal-rule') 'External-pattern extension selected rules';Assert-OccurrenceIds @($externalEvaluation.effects|ForEach-Object {$_.target_id}) @('inner-loop-pattern') 'External-pattern extension targets'
+
 $summary=[ordered]@{
   branches=[int]$registry.branches.Count
   carryovers=[int]@($registry.carryovers).Count
   causal_relations=[int]@($registry.causal_relations).Count
-  fixture_queries=45
+  fixture_queries=54
   invalid_cases=[int]@($invalidCases).Count
   iterations=[int]$registry.iterations.Count
   phases=[int]$registry.phases.Count

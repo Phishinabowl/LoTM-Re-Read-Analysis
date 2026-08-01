@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+from dataclasses import replace
 import json
 
 from chronology_config import load_chronology_registry, parse_chronology_registry
@@ -27,6 +28,61 @@ def set_path(data: object, path: str, value: object) -> None:
 
 def ids(items) -> list[str]:
     return [item.id for item in items]
+
+
+def with_controlled_values(packs, additions: dict[str, tuple[str, ...]]):
+    controlled_values = dict(packs.controlled_values)
+    for namespace, values in additions.items():
+        controlled_values[namespace] = tuple(controlled_values.get(namespace, ())) + values
+    return replace(packs, controlled_values=controlled_values)
+
+
+def synthetic_rule(
+    rule_id: str,
+    rule_kind: str,
+    effect_kind: str,
+    target_id: str,
+    occurrence_template: str,
+) -> dict:
+    return {
+        "id": rule_id,
+        "label": f"Synthetic {effect_kind} extension",
+        "pattern_id": "outer-loop-pattern",
+        "rule_kind": rule_kind,
+        "condition_logic": "all",
+        "applicability": {
+            "application_level": "pattern-default",
+            "recurrence_ids": [],
+            "phase_ids": [],
+            "branch_ids": [],
+            "min_iteration_ordinal": 2,
+            "max_iteration_ordinal": 2,
+            "chronology_window": None,
+            "effective_window": None,
+        },
+        "priority": 10,
+        "resolution_group": f"synthetic-{effect_kind}",
+        "selection_mode": "accumulate",
+        "override_mode": "inherit",
+        "conditions": [{
+            "id": f"{rule_id}-condition",
+            "condition_kind": "occurrence-reached",
+            "target_type": "occurrence-template",
+            "target_id": occurrence_template,
+            "expected_value": "occurred",
+            "subject_type": None,
+            "subject_id": None,
+            "state_kind": None,
+            "track_id": None,
+            "comparison_value": None,
+        }],
+        "effects": [{
+            "id": f"{rule_id}-effect",
+            "effect_kind": effect_kind,
+            "target_type": "recurrence-pattern",
+            "target_id": target_id,
+        }],
+    }
 
 
 def main() -> int:
@@ -103,6 +159,14 @@ def main() -> int:
     for schedule_id, ordinal, expected in expectations["schedule_values"]:
         if fixture.expected_schedule_value(schedule_id, ordinal) != expected:
             raise AssertionError(f"Unexpected schedule value for `{schedule_id}` ordinal {ordinal}.")
+    for schedule_id, ordinal, expected_error in expectations["schedule_errors"]:
+        try:
+            fixture.expected_schedule_value(schedule_id, ordinal)
+        except ValueError as exc:
+            if str(exc) != expected_error:
+                raise AssertionError(f"Unexpected schedule error for `{schedule_id}`: {exc}") from exc
+        else:
+            raise AssertionError(f"Schedule `{schedule_id}` ordinal {ordinal} unexpectedly projected.")
     for schedule_id, iteration_id, occurrence_id, effective_at, expected in expectations["schedule_matches"]:
         if fixture.schedule_match(schedule_id, iteration_id, occurrence_id, effective_at) != expected:
             raise AssertionError(f"Unexpected schedule match for `{schedule_id}` at `{occurrence_id}`.")
@@ -144,6 +208,72 @@ def main() -> int:
             continue
         raise AssertionError(f"Malformed occurrence case unexpectedly loaded: {case['name']}")
 
+    extension_packs = with_controlled_values(packs, {
+        "occurrence.rule-kind": ("pause", "signal"),
+        "occurrence.rule-effect-kind": ("pause-recurrence", "signal-recurrence"),
+        "occurrence.rule-effect-kind-target-type": (
+            "pause-recurrence-uses-recurrence-pattern",
+            "signal-recurrence-uses-recurrence-pattern",
+        ),
+        "occurrence.rule-kind-effect-kind": (
+            "pause-uses-pause-recurrence",
+            "signal-uses-signal-recurrence",
+        ),
+        "occurrence.rule-effect-pattern-scope": (
+            "pause-recurrence-uses-owning-pattern",
+            "signal-recurrence-allows-external-pattern",
+        ),
+        "occurrence.rule-effect-incompatibility-pair": (
+            "advance-iteration-with-pause-recurrence",
+        ),
+    })
+    owning_probe = copy.deepcopy(fixture_data)
+    owning_probe["rules"].append(synthetic_rule(
+        "synthetic-pause-rule", "pause", "pause-recurrence", "outer-loop-pattern", "reset"
+    ))
+    owning_registry = parse_occurrence_registry(
+        owning_probe, fixture_path, extension_packs, chronology_fixture,
+        subject_targets={"character": {"protagonist", "observer"}},
+        payload_targets={"state-record": {"protagonist-health"}},
+    )
+    owning_evaluation = owning_registry.evaluate_rules("outer-loop", "reset-two")
+    if (
+        owning_evaluation.status != "conflict"
+        or list(owning_evaluation.selected_rule_ids) != ["outer-reset-rule", "synthetic-pause-rule"]
+        or list(owning_evaluation.conflicts) != ["advance-iteration conflicts with pause-recurrence"]
+    ):
+        raise AssertionError(f"Unexpected owning-pattern extension evaluation: {owning_evaluation}")
+
+    foreign_owning_probe = copy.deepcopy(owning_probe)
+    foreign_owning_probe["rules"][-1]["effects"][0]["target_id"] = "inner-loop-pattern"
+    try:
+        parse_occurrence_registry(
+            foreign_owning_probe, fixture_path, extension_packs, chronology_fixture,
+            subject_targets={"character": {"protagonist", "observer"}},
+            payload_targets={"state-record": {"protagonist-health"}},
+        )
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("Owning-pattern extension unexpectedly accepted a foreign pattern target.")
+
+    external_probe = copy.deepcopy(fixture_data)
+    external_probe["rules"].append(synthetic_rule(
+        "synthetic-signal-rule", "signal", "signal-recurrence", "inner-loop-pattern", "bell"
+    ))
+    external_registry = parse_occurrence_registry(
+        external_probe, fixture_path, extension_packs, chronology_fixture,
+        subject_targets={"character": {"protagonist", "observer"}},
+        payload_targets={"state-record": {"protagonist-health"}},
+    )
+    external_evaluation = external_registry.evaluate_rules("outer-loop", "bell-two")
+    if (
+        external_evaluation.status != "selected"
+        or list(external_evaluation.selected_rule_ids) != ["synthetic-signal-rule"]
+        or [effect.target_id for effect in external_evaluation.effects] != ["inner-loop-pattern"]
+    ):
+        raise AssertionError(f"Unexpected external-pattern extension evaluation: {external_evaluation}")
+
     summary = {
         "schema_version": registry.schema_version,
         "branches": len(registry.branches),
@@ -173,11 +303,13 @@ def main() -> int:
             + len(expectations["pattern_rules"])
             + len(expectations["iteration_phases"])
             + len(expectations["schedule_values"])
+            + len(expectations["schedule_errors"])
             + len(expectations["schedule_matches"])
             + len(expectations["rule_evaluations"])
             + len(expectations["trace_dispositions"])
             + len(expectations["subject_state_transitions"])
             + len(expectations["state_at"])
+            + 3
         ),
         "invalid_cases": len(invalid_cases),
     }

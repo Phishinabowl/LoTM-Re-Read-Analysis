@@ -30,7 +30,7 @@
     "escape-three": ["protagonist-escaped-loop", "protagonist-survived-loop"]
   },
   "pattern_rules": {
-    "outer-loop-pattern": ["outer-reset-rule", "outer-termination-rule", "outer-final-termination-override", "outer-scheduled-state-rule", "conflict-advance-rule", "conflict-terminate-rule"]
+    "outer-loop-pattern": ["outer-reset-rule", "outer-termination-rule", "outer-final-termination-override", "outer-scheduled-state-rule", "conflict-advance-rule", "conflict-terminate-rule", "accumulating-advance-rule", "accumulating-terminate-rule", "checkpoint-integrity-rule"]
   },
   "iteration_phases": {
     "outer-two": "outer-early-phase",
@@ -39,7 +39,14 @@
   "schedule_values": [
     ["outer-monthly-schedule", 1, "2025-01"],
     ["outer-monthly-schedule", 3, "2025-03"],
-    ["outer-coordinate-schedule", 3, 2029]
+    ["outer-coordinate-schedule", 3, 2029],
+    ["leap-day-schedule", 2, "2024-02-29"],
+    ["leap-day-schedule", 3, "2024-03-01"]
+  ],
+  "schedule_errors": [
+    ["maximum-day-schedule", 2, "Schedule projection exceeds supported civil range 0001-9999."],
+    ["maximum-month-schedule", 2, "Schedule projection exceeds supported civil range 0001-9999."],
+    ["maximum-year-schedule", 2, "Schedule projection exceeds supported civil range 0001-9999."]
   ],
   "schedule_matches": [
     ["outer-monthly-schedule", "outer-three", "wake-three", "2025-03", "due"],
@@ -53,7 +60,8 @@
     ["outer-loop", "wake-three", null, "indeterminate", [], [], []],
     ["outer-loop", "wake-three", "2025-03", "selected", ["outer-scheduled-state-rule"], ["activate-state"], []],
     ["outer-loop", "escape-three", null, "selected", ["outer-final-termination-override"], ["terminate-recurrence"], []],
-    ["outer-loop", "wake-one", null, "conflict", [], [], ["resolution group 'conflict-demonstration' has conflicting exclusive rules at priority 50"]]
+    ["outer-loop", "wake-one", null, "conflict", [], [], ["resolution group 'conflict-demonstration' has conflicting exclusive rules at priority 50"]],
+    ["outer-loop", "wake-two", null, "conflict", ["accumulating-advance-rule", "accumulating-terminate-rule"], ["advance-iteration", "terminate-recurrence"], ["advance-iteration conflicts with terminate-recurrence"]]
   ],
   "trace_dispositions": [
     ["outer-loop", "wake-three", null, "outer-scheduled-state-rule", "effective time was not supplied"],

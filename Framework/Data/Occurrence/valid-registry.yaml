@@ -114,6 +114,38 @@ schedules:
     unit: coordinate
     anchor_position_id: civil-anchor
     anchor_value: null
+  leap-day-schedule:
+    label: Leap Day Schedule
+    pattern_id: outer-loop-pattern
+    schedule_kind: civil-calendar
+    interval: 1
+    unit: day
+    anchor_position_id: null
+    anchor_value: '2024-02-28'
+  maximum-day-schedule:
+    label: Maximum Civil Day Schedule
+    pattern_id: outer-loop-pattern
+    schedule_kind: civil-calendar
+    interval: 1
+    unit: day
+    anchor_position_id: null
+    anchor_value: '9999-12-31'
+  maximum-month-schedule:
+    label: Maximum Civil Month Schedule
+    pattern_id: outer-loop-pattern
+    schedule_kind: civil-calendar
+    interval: 1
+    unit: month
+    anchor_position_id: null
+    anchor_value: 9999-12
+  maximum-year-schedule:
+    label: Maximum Civil Year Schedule
+    pattern_id: outer-loop-pattern
+    schedule_kind: civil-calendar
+    interval: 1
+    unit: year
+    anchor_position_id: null
+    anchor_value: '9999'
 
 occurrences:
   wake-one:
@@ -602,6 +634,112 @@ rules:
         effect_kind: terminate-recurrence
         target_type: recurrence-pattern
         target_id: outer-loop-pattern
+  - id: accumulating-advance-rule
+    label: Accumulating advance demonstration
+    pattern_id: outer-loop-pattern
+    rule_kind: reset
+    condition_logic: all
+    applicability:
+      application_level: pattern-default
+      recurrence_ids: []
+      phase_ids: []
+      branch_ids: []
+      min_iteration_ordinal: 2
+      max_iteration_ordinal: 2
+      chronology_window: null
+      effective_window: null
+    priority: 10
+    resolution_group: accumulating-advance
+    selection_mode: accumulate
+    override_mode: inherit
+    conditions:
+      - id: accumulating-advance-wake-reached
+        condition_kind: occurrence-reached
+        target_type: occurrence-template
+        target_id: wake
+        expected_value: occurred
+        subject_type: null
+        subject_id: null
+        state_kind: null
+        track_id: null
+        comparison_value: null
+    effects:
+      - id: accumulating-advance-effect
+        effect_kind: advance-iteration
+        target_type: recurrence-pattern
+        target_id: outer-loop-pattern
+  - id: accumulating-terminate-rule
+    label: Accumulating termination demonstration
+    pattern_id: outer-loop-pattern
+    rule_kind: termination
+    condition_logic: all
+    applicability:
+      application_level: pattern-default
+      recurrence_ids: []
+      phase_ids: []
+      branch_ids: []
+      min_iteration_ordinal: 2
+      max_iteration_ordinal: 2
+      chronology_window: null
+      effective_window: null
+    priority: 10
+    resolution_group: accumulating-termination
+    selection_mode: accumulate
+    override_mode: inherit
+    conditions:
+      - id: accumulating-terminate-wake-reached
+        condition_kind: occurrence-reached
+        target_type: occurrence-template
+        target_id: wake
+        expected_value: occurred
+        subject_type: null
+        subject_id: null
+        state_kind: null
+        track_id: null
+        comparison_value: null
+    effects:
+      - id: accumulating-terminate-effect
+        effect_kind: terminate-recurrence
+        target_type: recurrence-pattern
+        target_id: outer-loop-pattern
+  - id: checkpoint-integrity-rule
+    label: Distinct checkpoint effects remain valid
+    pattern_id: outer-loop-pattern
+    rule_kind: checkpoint-change
+    condition_logic: all
+    applicability:
+      application_level: pattern-default
+      recurrence_ids: []
+      phase_ids: []
+      branch_ids: []
+      min_iteration_ordinal: 3
+      max_iteration_ordinal: 3
+      chronology_window: null
+      effective_window: null
+    priority: 10
+    resolution_group: checkpoint-integrity
+    selection_mode: accumulate
+    override_mode: inherit
+    conditions:
+      - id: checkpoint-integrity-bell-reached
+        condition_kind: occurrence-reached
+        target_type: occurrence-template
+        target_id: bell
+        expected_value: occurred
+        subject_type: null
+        subject_id: null
+        state_kind: null
+        track_id: null
+        comparison_value: null
+    effects:
+      - id: checkpoint-integrity-wake-effect
+        effect_kind: change-reset-point
+        target_type: occurrence-template
+        target_id: wake
+      - id: checkpoint-integrity-bell-effect
+        effect_kind: change-reset-point
+        target_type: occurrence-template
+        target_id: bell
 
 state_transitions:
   - id: protagonist-acquires-bell-memory

@@ -285,6 +285,7 @@ class OccurrenceRegistry:
     rules: tuple[RecurrenceRule, ...]
     state_transitions: tuple[StateTransition, ...]
     carryovers: tuple[IterationCarryover, ...]
+    effect_incompatibility_pairs: frozenset[str]
 
     def occurrences_for_iteration(self, iteration_id: str) -> tuple[Occurrence, ...]:
         self._known(self.iterations, iteration_id, "iteration")
@@ -572,6 +573,10 @@ def parse_occurrence_registry(
         raise ValueError("Occurrence registry requires enabled capability `recurrence-schedule-modeling`.")
     if not packs.capability_enabled("recurrence-policy-integrity"):
         raise ValueError("Occurrence registry requires enabled capability `recurrence-policy-integrity`.")
+    if not packs.capability_enabled("extensible-recurrence-policy-semantics"):
+        raise ValueError("Occurrence registry requires enabled capability `extensible-recurrence-policy-semantics`.")
+    if not packs.capability_enabled("civil-schedule-boundary-integrity"):
+        raise ValueError("Occurrence registry requires enabled capability `civil-schedule-boundary-integrity`.")
     root = _mapping(data, "Occurrence registry root")
     assert_allowed_keys(
         root,
@@ -1024,6 +1029,7 @@ def parse_occurrence_registry(
         if override_mode == "replace-group" and applicability.application_level != "execution-override":
             raise ValueError(f"{context}.override_mode `replace-group` requires an execution-override rule.")
         conditions: list[RecurrenceRuleCondition] = []
+        condition_semantics: set[tuple] = set()
         for condition_index, raw_condition in enumerate(_list(item.get("conditions"), f"{context}.conditions")):
             condition_context = f"{context}.conditions[{condition_index}]"
             condition = _mapping(raw_condition, condition_context)
@@ -1056,6 +1062,13 @@ def parse_occurrence_registry(
                 occurrences, tracks, outcomes, rule_ids, state_ids, subject_targets,
                 payload_targets, condition_context,
             )
+            condition_semantic = (
+                condition_kind, target_type, target_id, expected, subject_type, subject_id,
+                state_kind, track_id, comparison_value,
+            )
+            if condition_semantic in condition_semantics:
+                raise ValueError(f"{condition_context} duplicates a semantic condition within its rule.")
+            condition_semantics.add(condition_semantic)
             conditions.append(RecurrenceRuleCondition(
                 condition_id, condition_kind, target_type, target_id, expected,
                 subject_type, subject_id, state_kind, track_id, comparison_value,
@@ -1063,6 +1076,7 @@ def parse_occurrence_registry(
         if not conditions:
             raise ValueError(f"{context}.conditions must be a non-empty list.")
         effects: list[RecurrenceRuleEffect] = []
+        effect_semantics: set[tuple[str, str, str]] = set()
         for effect_index, raw_effect in enumerate(_list(item.get("effects"), f"{context}.effects")):
             effect_context = f"{context}.effects[{effect_index}]"
             effect = _mapping(raw_effect, effect_context)
@@ -1089,10 +1103,26 @@ def parse_occurrence_registry(
                 schedules=schedules,
             ):
                 raise ValueError(f"{effect_context} references unknown target `{target_type}:{target_id}`.")
-            if effect_kind in {"advance-iteration", "terminate-recurrence"} and target_id != pattern_id:
-                raise ValueError(
-                    f"{effect_context} recurrence-control effect must target owning pattern `{pattern_id}`."
-                )
+            if target_type == "recurrence-pattern":
+                owning_scope = f"{effect_kind}-uses-owning-pattern"
+                external_scope = f"{effect_kind}-allows-external-pattern"
+                declared_scopes = {
+                    value for value in (owning_scope, external_scope)
+                    if value in packs.allowed_values("occurrence.rule-effect-pattern-scope")
+                }
+                if len(declared_scopes) != 1:
+                    raise ValueError(
+                        f"{effect_context} requires exactly one declared recurrence-pattern target scope "
+                        f"for effect kind `{effect_kind}`."
+                    )
+                if owning_scope in declared_scopes and target_id != pattern_id:
+                    raise ValueError(
+                        f"{effect_context} effect kind `{effect_kind}` must target owning pattern `{pattern_id}`."
+                    )
+            effect_semantic = (effect_kind, target_type, target_id)
+            if effect_semantic in effect_semantics:
+                raise ValueError(f"{effect_context} duplicates a semantic effect within its rule.")
+            effect_semantics.add(effect_semantic)
             effects.append(RecurrenceRuleEffect(effect_id, effect_kind, target_type, target_id))
         if not effects:
             raise ValueError(f"{context}.effects must be a non-empty list.")
@@ -1276,6 +1306,7 @@ def parse_occurrence_registry(
         path, SUPPORTED_SCHEMA_VERSION, chronology, branches, templates, recurrence_patterns,
         recurrences, iterations, phases, schedules, occurrences, tracks, tuple(transitions),
         tuple(causal_relations), tuple(outcomes), tuple(rules), tuple(states), tuple(carryovers),
+        frozenset(packs.allowed_values("occurrence.rule-effect-incompatibility-pair")),
     )
 
 
@@ -1498,14 +1529,24 @@ def _validate_civil_schedule_anchor(value: str, unit: str, context: str) -> None
 
 
 def _add_civil_interval(value: str, unit: str, offset: int) -> str:
+    boundary_error = "Schedule projection exceeds supported civil range 0001-9999."
     if unit == "year":
-        return f"{int(value) + offset:04d}"
+        target_year = int(value) + offset
+        if not 1 <= target_year <= 9999:
+            raise ValueError(boundary_error)
+        return f"{target_year:04d}"
     if unit == "month":
         year, month = (int(part) for part in value.split("-"))
         absolute = year * 12 + month - 1 + offset
-        return f"{absolute // 12:04d}-{absolute % 12 + 1:02d}"
+        target_year = absolute // 12
+        if not 1 <= target_year <= 9999:
+            raise ValueError(boundary_error)
+        return f"{target_year:04d}-{absolute % 12 + 1:02d}"
     parsed = date.fromisoformat(value)
-    return (parsed + timedelta(days=offset * (7 if unit == "week" else 1))).isoformat()
+    try:
+        return (parsed + timedelta(days=offset * (7 if unit == "week" else 1))).isoformat()
+    except OverflowError as exc:
+        raise ValueError(boundary_error) from exc
 
 
 def _outcomes_incompatible(packs: SchemaPackRegistry, left: str, right: str) -> bool:
@@ -1870,11 +1911,15 @@ def _effect_signature(rule: RecurrenceRule) -> tuple[tuple[str, str, str], ...]:
     return tuple(sorted((item.effect_kind, item.target_type, item.target_id) for item in rule.effects))
 
 
-def _effect_conflicts(effects: tuple[RecurrenceRuleEffect, ...]) -> tuple[str, ...]:
+def _effect_conflicts(
+    effects: tuple[RecurrenceRuleEffect, ...], incompatibility_pairs: frozenset[str]
+) -> tuple[str, ...]:
     conflicts: set[str] = set()
-    kinds = {item.effect_kind for item in effects}
-    if "advance-iteration" in kinds and "terminate-recurrence" in kinds:
-        conflicts.add("advance-iteration conflicts with terminate-recurrence")
+    kinds = sorted({item.effect_kind for item in effects})
+    for index, left in enumerate(kinds):
+        for right in kinds[index + 1:]:
+            if f"{left}-with-{right}" in incompatibility_pairs:
+                conflicts.add(f"{left} conflicts with {right}")
     reset_targets = {item.target_id for item in effects if item.effect_kind == "change-reset-point"}
     if len(reset_targets) > 1:
         conflicts.add("multiple change-reset-point effects select different targets")
@@ -1968,7 +2013,7 @@ def _evaluate_rules(
 
     selected_by_id = {rule.id: rule for rule in selected}
     effects = tuple(effect for rule in sorted(selected, key=lambda item: item.id) for effect in rule.effects)
-    conflicts.update(_effect_conflicts(effects))
+    conflicts.update(_effect_conflicts(effects, registry.effect_incompatibility_pairs))
     for rule_id in selected_by_id:
         working[rule_id]["selected"] = True
         working[rule_id]["disposition"] = "selected"

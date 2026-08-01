@@ -69,6 +69,8 @@ capability_activation:
     - deterministic-recurrence-rule-evaluation
     - recurrence-schedule-modeling
     - recurrence-policy-integrity
+    - extensible-recurrence-policy-semantics
+    - civil-schedule-boundary-integrity
     - visibility-policy
     - graph-projection
     - schema-validation
