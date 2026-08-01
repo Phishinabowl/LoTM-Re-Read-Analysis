@@ -61,7 +61,7 @@ foreach($case in @($expectations.resolutions)){
   if($actualJson -ne $expectedJson){throw "Reconciliation resolution vector failed for $($case.target_type):$($case.target_id).`nExpected: $expectedJson`nActual:   $actualJson"}
 }
 
-foreach($name in @("invalid-operation-reason.yaml","invalid-alias-conflict.yaml","invalid-audit.yaml","invalid-reclassify.yaml","invalid-active-cycle.yaml","invalid-unknown-terminal.yaml","invalid-source-state.yaml","invalid-label-mode.yaml","invalid-supersession-cycle.yaml","invalid-duplicate-key.yaml","invalid-schema-string.yaml","invalid-unknown-field.yaml","invalid-timestamp-case.yaml","invalid-timestamp-offset.yaml","invalid-resolution-type.yaml","invalid-resolution-field.yaml","invalid-schema-decimal.yaml","invalid-record-field.yaml","invalid-target-field.yaml","invalid-audit-field.yaml","invalid-present-retire.yaml","invalid-uppercase-controlled-value.yaml","invalid-schema-explicit-tag.yaml","invalid-schema-hex.yaml","invalid-schema-plus.yaml","invalid-schema-leading-zero.yaml","invalid-merge-key.yaml","invalid-timestamp-hour.yaml","invalid-timestamp-zone-minute.yaml","invalid-present-merge.yaml","invalid-record-limit.yaml","invalid-target-limit.yaml","invalid-document-marker.yaml","invalid-unquoted-timestamp.yaml","invalid-leading-zero-limit.yaml")){
+foreach($name in @("invalid-operation-reason.yaml","invalid-alias-conflict.yaml","invalid-audit.yaml","invalid-reclassify.yaml","invalid-active-cycle.yaml","invalid-unknown-terminal.yaml","invalid-source-state.yaml","invalid-label-mode.yaml","invalid-supersession-cycle.yaml","invalid-duplicate-key.yaml","invalid-schema-string.yaml","invalid-unknown-field.yaml","invalid-timestamp-case.yaml","invalid-timestamp-offset.yaml","invalid-resolution-type.yaml","invalid-resolution-field.yaml","invalid-schema-decimal.yaml","invalid-record-field.yaml","invalid-target-field.yaml","invalid-audit-field.yaml","invalid-present-retire.yaml","invalid-uppercase-controlled-value.yaml","invalid-schema-explicit-tag.yaml","invalid-schema-hex.yaml","invalid-schema-plus.yaml","invalid-schema-leading-zero.yaml","invalid-merge-key.yaml","invalid-timestamp-hour.yaml","invalid-timestamp-zone-minute.yaml","invalid-present-merge.yaml","invalid-record-limit.yaml","invalid-target-limit.yaml","invalid-document-marker.yaml","invalid-unquoted-timestamp.yaml","invalid-leading-zero-limit.yaml","invalid-trailing-decimal.yaml","invalid-negative-trailing-decimal.yaml","invalid-trailing-decimal-exponent.yaml","invalid-tilde-null.yaml","invalid-empty-null.yaml")){
   $rejected=$false
   try{$null=Get-TestRegistry (Join-Path $fixtures $name)}catch{$rejected=$true}
   if(-not $rejected){throw "Malformed reconciliation fixture was accepted: $name"}
@@ -87,13 +87,32 @@ for($i=0;$i -lt $DeepChain;$i++){
   })
 }
 $tempPath=Join-Path ([System.IO.Path]::GetTempPath()) ("knowledge-reconciliation-{0}.yaml" -f [guid]::NewGuid().ToString("N"))
+$byteTestPath=Join-Path ([System.IO.Path]::GetTempPath()) ("knowledge-yaml-bytes-{0}.yaml" -f [guid]::NewGuid().ToString("N"))
 try{
+  foreach($case in @(
+    [pscustomobject]@{Name="invalid UTF-8";Bytes=[byte[]](0x73,0x63,0x68,0x65,0x6D,0x61,0x5F,0x76,0x65,0x72,0x73,0x69,0x6F,0x6E,0x3A,0x20,0x34,0x0A,0xFF)},
+    [pscustomobject]@{Name="UTF-8 BOM";Bytes=[byte[]](@(0xEF,0xBB,0xBF)+[System.IO.File]::ReadAllBytes((Join-Path $fixtures "valid-v4.yaml")))}
+  )){
+    [System.IO.File]::WriteAllBytes($byteTestPath,$case.Bytes)
+    $rejected=$false
+    try{$null=Get-TestRegistry $byteTestPath}catch{$rejected=$true}
+    if(-not $rejected){throw "Byte-level YAML fixture was accepted: $($case.Name)"}
+  }
+  $emoji=[char]::ConvertFromUtf32(0x1F600)
+  $rejected=$false
+  try{Assert-KnowledgeYamlSource "value: $emoji$emoji`n" "Test registry" $byteTestPath -MaxScalarBytes 7}catch{$rejected=$true}
+  if(-not $rejected){throw "UTF-8 scalar-byte budget did not reject two emoji."}
+  $rejected=$false
+  try{Assert-KnowledgeYamlSource "value: 12`n" "Test registry" $byteTestPath -MaxBytes 9}catch{$rejected=$true}
+  if(-not $rejected){throw "UTF-8 file-byte budget was not enforced."}
+
   [System.IO.File]::WriteAllText($tempPath,([ordered]@{schema_version=4;resolution=[ordered]@{max_branches=65536;max_records=[Math]::Max($DeepChain+1,100000);max_targets_per_record=4096;max_resolution_steps=[Math]::Max($DeepChain+1,250000)};records=$records.ToArray()}|ConvertTo-Json -Depth 10),[System.Text.UTF8Encoding]::new($false))
   $deep=Get-TestRegistry $tempPath
   $result=Resolve-KnowledgeReconciliationTarget $deep "category" "deep-0000"
   if($result.outcome -ne "redirected" -or @($result.reconciliation_ids).Count -ne $DeepChain){throw "Deep reconciliation chain did not resolve completely."}
 }finally{
   if(Test-Path -LiteralPath $tempPath){Remove-Item -LiteralPath $tempPath -Force}
+  if(Test-Path -LiteralPath $byteTestPath){Remove-Item -LiteralPath $byteTestPath -Force}
 }
 
-Write-Output "Reconciliation conformance passed: $(@($expectations.resolutions).Count) vectors, 35 malformed fixtures, scalar parity, branch and step limits, $DeepChain-hop chain."
+Write-Output "Reconciliation conformance passed: $(@($expectations.resolutions).Count) vectors, 40 malformed fixtures, byte/scalar parity, branch and step limits, $DeepChain-hop chain."

@@ -1,9 +1,11 @@
 from datetime import datetime
 from pathlib import Path
 import copy
+import codecs
 import re
 
 import yaml
+from yaml.nodes import MappingNode, ScalarNode, SequenceNode
 from yaml.tokens import (
     AliasToken,
     AnchorToken,
@@ -24,16 +26,15 @@ from yaml.tokens import (
 MAX_YAML_BYTES = 16 * 1024 * 1024
 MAX_YAML_DEPTH = 128
 MAX_YAML_NODES = 500_000
-MAX_YAML_SCALAR_LENGTH = 4 * 1024 * 1024
+MAX_YAML_SCALAR_BYTES = 4 * 1024 * 1024
 
 CANONICAL_INTEGER = re.compile(r"^-?(?:0|[1-9][0-9]*)$")
-CANONICAL_DECIMAL = re.compile(r"^-?(?:0|[1-9][0-9]*)\.[0-9]+$")
 NUMERIC_LIKE = re.compile(
     r"^[+-]?(?:"
     r"[0-9][0-9_]*|"
     r"0[xX][0-9a-fA-F_]+|0[oO][0-7_]+|0[bB][01_]+|"
     r"[0-9][0-9_]*(?::[0-9_]+)+|"
-    r"(?:[0-9][0-9_]*)?\.[0-9_]+(?:[eE][+-]?[0-9_]+)?|"
+    r"(?:[0-9][0-9_]*\.[0-9_]*|\.[0-9_]+)(?:[eE][+-]?[0-9_]+)?|"
     r"[0-9][0-9_]*[eE][+-]?[0-9_]+|"
     r"\.(?:inf|Inf|INF|nan|NaN|NAN)"
     r")$"
@@ -75,11 +76,6 @@ StrictSafeLoader.add_implicit_resolver(
 StrictSafeLoader.add_implicit_resolver(
     "tag:yaml.org,2002:int", CANONICAL_INTEGER, list("-0123456789")
 )
-StrictSafeLoader.add_implicit_resolver(
-    "tag:yaml.org,2002:float", CANONICAL_DECIMAL, list("-0123456789")
-)
-
-
 def construct_unique_mapping(loader: StrictSafeLoader, node, deep: bool = False):
     mapping = {}
     for key_node, value_node in node.value:
@@ -109,11 +105,41 @@ StrictSafeLoader.add_constructor(
 )
 
 
-def validate_yaml_source(text: str, context: str, path: Path) -> None:
-    byte_count = len(text.encode("utf-8"))
-    if byte_count > MAX_YAML_BYTES:
+def decode_yaml_bytes(
+    raw: bytes,
+    context: str,
+    path: Path,
+    *,
+    max_bytes: int = MAX_YAML_BYTES,
+) -> str:
+    if len(raw) > max_bytes:
         raise ValueError(
-            f"{context.capitalize()} exceeds the {MAX_YAML_BYTES}-byte YAML limit: {path}"
+            f"{context.capitalize()} exceeds the {max_bytes}-byte YAML limit: {path}"
+        )
+    if raw.startswith(codecs.BOM_UTF8):
+        raise ValueError(f"{context.capitalize()} must not use a UTF-8 BOM: {path}")
+    try:
+        return raw.decode("utf-8", errors="strict")
+    except UnicodeDecodeError as exc:
+        raise ValueError(
+            f"{context.capitalize()} must be valid UTF-8: {path}: {exc}"
+        ) from exc
+
+
+def validate_yaml_source(
+    text: str,
+    context: str,
+    path: Path,
+    *,
+    max_bytes: int = MAX_YAML_BYTES,
+    max_depth: int = MAX_YAML_DEPTH,
+    max_nodes: int = MAX_YAML_NODES,
+    max_scalar_bytes: int = MAX_YAML_SCALAR_BYTES,
+) -> None:
+    byte_count = len(text.encode("utf-8"))
+    if byte_count > max_bytes:
+        raise ValueError(
+            f"{context.capitalize()} exceeds the {max_bytes}-byte YAML limit: {path}"
         )
 
     depth = 0
@@ -139,17 +165,18 @@ def validate_yaml_source(text: str, context: str, path: Path) -> None:
             if isinstance(token, starts):
                 depth += 1
                 node_count += 1
-                if depth > MAX_YAML_DEPTH:
+                if depth > max_depth:
                     raise ValueError(
-                        f"{context.capitalize()} exceeds YAML nesting depth {MAX_YAML_DEPTH}: {path}"
+                        f"{context.capitalize()} exceeds YAML nesting depth {max_depth}: {path}"
                     )
             elif isinstance(token, ends):
                 depth -= 1
             elif isinstance(token, ScalarToken):
                 node_count += 1
-                if len(token.value) > MAX_YAML_SCALAR_LENGTH:
+                scalar_bytes = len(token.value.encode("utf-8"))
+                if scalar_bytes > max_scalar_bytes:
                     raise ValueError(
-                        f"{context.capitalize()} contains a scalar longer than {MAX_YAML_SCALAR_LENGTH} characters: {path}"
+                        f"{context.capitalize()} contains a scalar larger than {max_scalar_bytes} UTF-8 bytes: {path}"
                     )
                 if token.style is None:
                     value = token.value
@@ -157,7 +184,7 @@ def validate_yaml_source(text: str, context: str, path: Path) -> None:
                         raise ValueError(
                             f"{context.capitalize()} uses unsupported YAML merge keys: {path}"
                         )
-                    if value in {"~", "Null", "NULL"}:
+                    if value == "~" or (value.lower() == "null" and value != "null"):
                         raise ValueError(
                             f"{context.capitalize()} must use lowercase `null`: {path}"
                         )
@@ -165,10 +192,7 @@ def validate_yaml_source(text: str, context: str, path: Path) -> None:
                         raise ValueError(
                             f"{context.capitalize()} must use lowercase Boolean scalars: {path}"
                         )
-                    if NUMERIC_LIKE.fullmatch(value) and not (
-                        CANONICAL_INTEGER.fullmatch(value)
-                        or CANONICAL_DECIMAL.fullmatch(value)
-                    ):
+                    if NUMERIC_LIKE.fullmatch(value) and not CANONICAL_INTEGER.fullmatch(value):
                         raise ValueError(
                             f"{context.capitalize()} contains noncanonical numeric scalar `{value}`: {path}"
                         )
@@ -176,12 +200,30 @@ def validate_yaml_source(text: str, context: str, path: Path) -> None:
                         raise ValueError(
                             f"{context.capitalize()} must quote date and timestamp strings: {path}"
                         )
-            if node_count > MAX_YAML_NODES:
+            if node_count > max_nodes:
                 raise ValueError(
-                    f"{context.capitalize()} exceeds the {MAX_YAML_NODES}-node YAML limit: {path}"
+                    f"{context.capitalize()} exceeds the {max_nodes}-node YAML limit: {path}"
                 )
     except yaml.YAMLError as exc:
         raise ValueError(f"Unable to scan {context} {path}: {exc}") from exc
+
+    try:
+        root = yaml.compose(text, Loader=StrictSafeLoader)
+    except yaml.YAMLError as exc:
+        raise ValueError(f"Unable to compose {context} {path}: {exc}") from exc
+    pending = [root] if root is not None else []
+    while pending:
+        node = pending.pop()
+        if isinstance(node, ScalarNode):
+            if node.tag == "tag:yaml.org,2002:null" and node.value == "":
+                raise ValueError(
+                    f"{context.capitalize()} must write null explicitly as lowercase `null`: {path}"
+                )
+        elif isinstance(node, MappingNode):
+            for key_node, value_node in node.value:
+                pending.extend((key_node, value_node))
+        elif isinstance(node, SequenceNode):
+            pending.extend(node.value)
 
 
 def require_exact_schema_version(
@@ -199,7 +241,8 @@ def load_yaml_file(
     path: Path, context: str, *, expected_schema_version: int | None = None
 ):
     try:
-        text = path.read_text(encoding="utf-8")
+        raw = path.read_bytes()
+        text = decode_yaml_bytes(raw, context, path)
         validate_yaml_source(text, context, path)
         data = yaml.load(text, Loader=StrictSafeLoader)
     except (OSError, yaml.YAMLError) as exc:

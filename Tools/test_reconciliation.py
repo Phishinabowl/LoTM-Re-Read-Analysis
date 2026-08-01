@@ -13,6 +13,7 @@ from reconciliation_config import load_reconciliation_registry
 from resource_config import load_resource_config
 from schema_pack_config import load_schema_pack_registry
 from source_config import load_source_registry
+from strict_yaml import validate_yaml_source
 from taxonomy_config import load_taxonomy_config
 
 
@@ -169,6 +170,11 @@ def main() -> int:
         "invalid-document-marker.yaml",
         "invalid-unquoted-timestamp.yaml",
         "invalid-leading-zero-limit.yaml",
+        "invalid-trailing-decimal.yaml",
+        "invalid-negative-trailing-decimal.yaml",
+        "invalid-trailing-decimal-exponent.yaml",
+        "invalid-tilde-null.yaml",
+        "invalid-empty-null.yaml",
     ):
         try:
             load_at(project, packs, providers, fixtures / name)
@@ -194,6 +200,42 @@ def main() -> int:
         raise AssertionError("Reconciliation step limit did not stop traversal.")
 
     with tempfile.TemporaryDirectory(prefix="knowledge-reconciliation-") as temp_dir:
+        temp_root = Path(temp_dir)
+        valid_bytes = (fixtures / "valid-v4.yaml").read_bytes()
+        for name, raw in (
+            ("invalid-utf8.yaml", b"schema_version: 4\ninvalid: \xff\n"),
+            ("utf8-bom.yaml", b"\xef\xbb\xbf" + valid_bytes),
+        ):
+            malformed_path = temp_root / name
+            malformed_path.write_bytes(raw)
+            try:
+                load_at(project, packs, providers, malformed_path)
+            except ValueError:
+                pass
+            else:
+                raise AssertionError(f"Byte-level YAML fixture was accepted: {name}")
+
+        budget_path = temp_root / "budget.yaml"
+        try:
+            validate_yaml_source(
+                "value: \U0001f600\U0001f600\n",
+                "test registry",
+                budget_path,
+                max_scalar_bytes=7,
+            )
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("UTF-8 scalar-byte budget did not reject two emoji.")
+        try:
+            validate_yaml_source(
+                "value: 12\n", "test registry", budget_path, max_bytes=9
+            )
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("UTF-8 file-byte budget was not enforced.")
+
         path = Path(temp_dir) / "deep-chain.yaml"
         path.write_text(yaml.safe_dump(deep_registry(args.deep_chain), sort_keys=False), encoding="utf-8")
         deep = load_at(project, packs, providers, path)
@@ -203,7 +245,7 @@ def main() -> int:
 
     print(
         f"Reconciliation conformance passed: {len(actual)} vectors, "
-        f"35 malformed fixtures, scalar parity, branch and step limits, {args.deep_chain}-hop chain."
+        f"40 malformed fixtures, byte/scalar parity, branch and step limits, {args.deep_chain}-hop chain."
     )
     return 0
 

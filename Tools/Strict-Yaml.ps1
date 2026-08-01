@@ -1,12 +1,11 @@
 $script:KnowledgeRfc3339Pattern = "^(?<date>\d{4}-\d{2}-\d{2})T(?<time>\d{2}:\d{2}:\d{2})(?:\.\d+)?(?<zone>Z|(?<sign>[+-])(?<hour>\d{2}):(?<minute>\d{2}))$"
 $script:KnowledgeCanonicalIntegerPattern = '^-?(?:0|[1-9][0-9]*)$'
-$script:KnowledgeCanonicalDecimalPattern = '^-?(?:0|[1-9][0-9]*)\.[0-9]+$'
-$script:KnowledgeNumericLikePattern = '^[+-]?(?:[0-9][0-9_]*|0[xX][0-9a-fA-F_]+|0[oO][0-7_]+|0[bB][01_]+|[0-9][0-9_]*(?::[0-9_]+)+|(?:[0-9][0-9_]*)?\.[0-9_]+(?:[eE][+-]?[0-9_]+)?|[0-9][0-9_]*[eE][+-]?[0-9_]+|\.(?:inf|Inf|INF|nan|NaN|NAN))$'
+$script:KnowledgeNumericLikePattern = '^[+-]?(?:[0-9][0-9_]*|0[xX][0-9a-fA-F_]+|0[oO][0-7_]+|0[bB][01_]+|[0-9][0-9_]*(?::[0-9_]+)+|(?:[0-9][0-9_]*\.[0-9_]*|\.[0-9_]+)(?:[eE][+-]?[0-9_]+)?|[0-9][0-9_]*[eE][+-]?[0-9_]+|\.(?:inf|Inf|INF|nan|NaN|NAN))$'
 $script:KnowledgeTimestampLikePattern = '^[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[Tt ][0-9]{2}:[0-9]{2}:[0-9]{2}.*)?$'
 $script:KnowledgeMaxYamlBytes = 16 * 1024 * 1024
 $script:KnowledgeMaxYamlDepth = 128
 $script:KnowledgeMaxYamlNodes = 500000
-$script:KnowledgeMaxYamlScalarLength = 4 * 1024 * 1024
+$script:KnowledgeMaxYamlScalarBytes = 4 * 1024 * 1024
 
 function Import-KnowledgeYamlModule {
   try {
@@ -29,9 +28,15 @@ function Get-KnowledgeYamlSchemaToken {
 }
 
 function Assert-KnowledgeYamlSource {
-  param([string]$Text,[string]$Context,[string]$Path)
+  param(
+    [string]$Text,[string]$Context,[string]$Path,
+    [int]$MaxBytes=$script:KnowledgeMaxYamlBytes,
+    [int]$MaxDepth=$script:KnowledgeMaxYamlDepth,
+    [int]$MaxNodes=$script:KnowledgeMaxYamlNodes,
+    [int]$MaxScalarBytes=$script:KnowledgeMaxYamlScalarBytes
+  )
   $byteCount=[System.Text.Encoding]::UTF8.GetByteCount($Text)
-  if($byteCount -gt $script:KnowledgeMaxYamlBytes){throw "$Context exceeds the $($script:KnowledgeMaxYamlBytes)-byte YAML limit: $Path"}
+  if($byteCount -gt $MaxBytes){throw "$Context exceeds the $MaxBytes-byte YAML limit: $Path"}
   $reader=[System.IO.StringReader]::new($Text)
   $parser=[YamlDotNet.Core.Parser]::new($reader)
   $depth=0;$nodeCount=0
@@ -45,20 +50,22 @@ function Assert-KnowledgeYamlSource {
       }
       if($type -eq 'MappingStart' -or $type -eq 'SequenceStart'){
         $depth++;$nodeCount++
-        if($depth -gt $script:KnowledgeMaxYamlDepth){throw "$Context exceeds YAML nesting depth $($script:KnowledgeMaxYamlDepth): $Path"}
+        if($depth -gt $MaxDepth){throw "$Context exceeds YAML nesting depth $MaxDepth`: $Path"}
       }elseif($type -eq 'MappingEnd' -or $type -eq 'SequenceEnd'){$depth--}
       elseif($type -eq 'Scalar'){
         $nodeCount++;$value=[string]$event.Value
-        if($value.Length -gt $script:KnowledgeMaxYamlScalarLength){throw "$Context contains a scalar longer than $($script:KnowledgeMaxYamlScalarLength) characters: $Path"}
+        $scalarBytes=[System.Text.Encoding]::UTF8.GetByteCount($value)
+        if($scalarBytes -gt $MaxScalarBytes){throw "$Context contains a scalar larger than $MaxScalarBytes UTF-8 bytes: $Path"}
         if($event.Style -eq [YamlDotNet.Core.ScalarStyle]::Plain){
+          if($value.Length -eq 0){throw "$Context must write null explicitly as lowercase 'null': $Path"}
           if($value -ceq '<<'){throw "$Context uses unsupported YAML merge keys: $Path"}
-          if(@('~','Null','NULL') -ccontains $value){throw "$Context must use lowercase 'null': $Path"}
+          if($value -ceq '~' -or ($value.ToLowerInvariant() -eq 'null' -and $value -cne 'null')){throw "$Context must use lowercase 'null': $Path"}
           if(@('true','false') -contains $value.ToLowerInvariant() -and @('true','false') -cnotcontains $value){throw "$Context must use lowercase Boolean scalars: $Path"}
-          if($value -cmatch $script:KnowledgeNumericLikePattern -and $value -cnotmatch $script:KnowledgeCanonicalIntegerPattern -and $value -cnotmatch $script:KnowledgeCanonicalDecimalPattern){throw "$Context contains noncanonical numeric scalar '$value': $Path"}
+          if($value -cmatch $script:KnowledgeNumericLikePattern -and $value -cnotmatch $script:KnowledgeCanonicalIntegerPattern){throw "$Context contains noncanonical numeric scalar '$value': $Path"}
           if($value -cmatch $script:KnowledgeTimestampLikePattern){throw "$Context must quote date and timestamp strings: $Path"}
         }
       }
-      if($nodeCount -gt $script:KnowledgeMaxYamlNodes){throw "$Context exceeds the $($script:KnowledgeMaxYamlNodes)-node YAML limit: $Path"}
+      if($nodeCount -gt $MaxNodes){throw "$Context exceeds the $MaxNodes-node YAML limit: $Path"}
     }
   }catch{throw}
   finally{$reader.Dispose()}
@@ -78,7 +85,10 @@ function Assert-KnowledgeSchemaVersion {
 function ConvertFrom-KnowledgeYamlFile {
   param([string]$Path,[int]$ExpectedSchemaVersion,[string]$Context)
   Import-KnowledgeYamlModule
-  $text=[System.IO.File]::ReadAllText($Path,[System.Text.UTF8Encoding]::new($true))
+  $bytes=[System.IO.File]::ReadAllBytes($Path)
+  if($bytes.Length -gt $script:KnowledgeMaxYamlBytes){throw "$Context exceeds the $($script:KnowledgeMaxYamlBytes)-byte YAML limit: $Path"}
+  if($bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF){throw "$Context must not use a UTF-8 BOM: $Path"}
+  try{$text=[System.Text.UTF8Encoding]::new($false,$true).GetString($bytes)}catch{throw "$Context must be valid UTF-8: $Path`: $($_.Exception.Message)"}
   Assert-KnowledgeYamlSource $text $Context $Path
   try{$mapping=ConvertFrom-Yaml -Yaml $text -Ordered}catch{throw "Unable to parse $Context $Path`: $($_.Exception.Message)"}
   if($mapping -isnot [System.Collections.IDictionary]){throw "$Context root must be a mapping: $Path"}

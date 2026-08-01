@@ -4,6 +4,7 @@ Framework registry YAML is executable configuration, not permissive page metadat
 
 Both runtimes enforce the same baseline rules before registry-specific validation:
 
+- files are strict UTF-8 without a byte-order mark; malformed byte sequences and BOM-prefixed files are errors;
 - duplicate mapping keys are errors at every nesting level;
 - the root value must be a mapping;
 - `schema_version` must be an unquoted integer of the exact supported version, not a Boolean, string, or decimal that a runtime can coerce;
@@ -11,9 +12,9 @@ Both runtimes enforce the same baseline rules before registry-specific validatio
 - stable machine IDs and enum values remain case-sensitive;
 - explicit audit timestamps use uppercase RFC 3339 `T` and `Z`, real calendar/time values, and offsets no larger than `+14:00` or `-14:00`.
 
-The portable scalar subset is intentionally narrower than YAML 1.1. Booleans are lowercase `true` or `false`; null is lowercase `null` or `~`; integers are canonical decimal values without a leading plus, base prefix, or leading zero; and finite decimals use ordinary fixed-point notation. Legacy Boolean words such as `on`, `off`, `yes`, and `no` remain strings. Explicit tags, anchors, aliases, merge keys, document markers, and unquoted date/timestamp-like scalars are forbidden. Quote date and timestamp values so registry validation, rather than a runtime-specific YAML resolver, owns their interpretation.
+The portable scalar subset is intentionally narrower than YAML 1.1. Booleans are lowercase `true` or `false`; null must be written explicitly as lowercase `null`; and canonical decimal integers have no leading plus, base prefix, underscore, or leading zero. Canonical integers are the only unquoted numeric form. Quote decimal or exponent-shaped values as strings until the owning field contract defines a precise runtime-independent decimal representation and semantic parser. Legacy Boolean words such as `on`, `off`, `yes`, and `no` remain strings. Explicit tags, anchors, aliases, merge keys, document markers, implicit empty nulls, tilde nulls, and unquoted date/timestamp-like scalars are forbidden. Quote date and timestamp values so registry validation, rather than a runtime-specific YAML resolver, owns their interpretation.
 
-Every registry file is also subject to the same hard ingestion budgets in both runtimes: 16 MiB of UTF-8 YAML, 128 nested collections, 500,000 parsed nodes, and 4 MiB for one scalar. These are framework safety limits, not project tuning knobs. A registry that legitimately outgrows one requires a reviewed contract migration and paired-runtime tests rather than a local parser exception.
+Every registry file is also subject to the same hard ingestion budgets in both runtimes: 16 MiB of raw UTF-8 YAML, 128 nested collections, 500,000 parsed nodes, and 4 MiB of UTF-8 bytes for one scalar. Byte budgets are independent of runtime-native string representation, so supplementary Unicode characters cost the same in Python and PowerShell. These are framework safety limits, not project tuning knobs. A registry that legitimately outgrows one requires a reviewed contract migration and paired-runtime tests rather than a local parser exception.
 
 Registry loaders own their allowed-key sets and semantic validation. Project manifest, schema-pack, taxonomy, resource, source, entity, reconciliation, and provenance mappings are closed at their defined record boundaries. The shared helper owns syntax-sensitive behavior that PyYAML and powershell-yaml would otherwise interpret differently. A schema version or record shape change requires paired Python and PowerShell updates, portable malformed fixtures, and a documented schema migration.
 

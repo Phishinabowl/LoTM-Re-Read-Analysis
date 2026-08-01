@@ -390,7 +390,7 @@ Semantic alias resolution is backed by the manifest-selected `Framework/Data/uni
 
 ## Reconciliation Conformance
 
-Run the permanent stable-ID reconciliation vectors after changing strict registry ingestion, reconciliation, provider, schema-pack, or lookup ownership behavior. Both tools validate strict malformed input, bounded branch-aware resolutions, and a 1,500-hop chain; their temporary deep-chain files are removed automatically.
+Run the permanent stable-ID reconciliation vectors after changing strict registry ingestion, reconciliation, provider, schema-pack, or lookup ownership behavior. Both tools validate strict UTF-8/BOM behavior, canonical scalar and byte-budget parity, malformed input, bounded branch-aware resolutions, and a 1,500-hop chain; their temporary byte probes and deep-chain files are removed automatically.
 
 ```powershell
 python Tools\test_reconciliation.py
