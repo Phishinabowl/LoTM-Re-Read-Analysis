@@ -951,7 +951,7 @@ Every rule has nonnegative priority, stable resolution group, `exclusive` or `ac
 
 Outcome compatibility is pack-defined through canonical unordered pairs. Core registers only generic contradictions; narrative media adds `died-with-survived`. The occurrence loader enforces those pairs only for outcomes sharing occurrence, subject, and result-target scope. Provenance still determines whether an outcome, condition, state, or rule is supported; chronology still determines exact order; the evaluator only decides what the supplied, validated policy means at a requested recurrence boundary.
 
-Core advances to pack version 25 with `deterministic-recurrence-rule-evaluation` and `recurrence-schedule-modeling`. Narrative media advances to version 20 with its scoped outcome incompatibility. The LoTM registry moves to schema 4 but remains empty beyond `main`, adding no fabricated loop records. Paired Python and native PowerShell services expose phase lookup, civil and coordinate schedule calculation and due matching, and deterministic rule evaluation. The permanent fixture now performs 43 queries/evaluations and rejects 60 malformed registries identically in Python, PowerShell 7, and Windows PowerShell 5.1.
+Core advances to pack version 25 with `deterministic-recurrence-rule-evaluation` and `recurrence-schedule-modeling`. Narrative media advances to version 20 with its scoped outcome incompatibility. The LoTM registry moves to schema 4 but remains empty beyond `main`, adding no fabricated loop records. Paired Python and native PowerShell services expose phase lookup, civil and coordinate schedule calculation and due matching, and deterministic rule evaluation. The permanent fixture now performs 43 queries/evaluations and rejects 61 malformed registries identically in Python, PowerShell 7, and Windows PowerShell 5.1.
 
 ## Testing After V34
 
@@ -977,6 +977,40 @@ The same probes exposed four deferred capabilities rather than V34 evaluator def
 
 Knowledge availability can represent Loki's partial-to-complete understanding and its carryover, but it does not quantify centuries of accumulated expertise. The concrete Loom destruction, timeline transformation, and resulting structure can be represented as occurrences, outcomes, state changes, and causal relations; V34's recurrence evaluator does not need to become a general action or counterfactual-choice engine to own those facts.
 
-### Full V34 Pressure Test Pending
+### Full V34 Pressure Test
 
-The full post-V34 domain pressure test must still replay the source-grounded Derrick loop and the broader changing-checkpoint, retry-exhaustion, medical, and legal cadence scenarios against the executable evaluator. It should retain the Loki findings above, test them against non-narrative analogues, and determine whether the four deferred capabilities belong together in V35 or should be staged across later versions before V35 begins.
+The full post-V34 pass replayed the source-grounded Derrick abandoned-temple loop, changing-checkpoint and retry-exhaustion workflows, recurring medical state, and legal cadence against the executable evaluator. It also pressure-tested the same primitives conceptually against retained-memory loops, moving reset points, asynchronous participant awareness, nested and branching recurrences, manufacturing rework, scientific trial repetition, scheduled compliance obligations, and operational retry or rollback processes. These scenarios deliberately separated chronology, recurrence identity, participant state, policy selection, and evidence authority.
+
+The Derrick fixture represented six distinct passes over a shared recurrence pattern. Passes one through five ended with Jack dead and selected the default advance rule. After the gray-fog restoration occurrence, Derrick's complete five-pass memory became available only on his subjective track; Colin received no corresponding state record. The sixth pass placed Derrick in the aware phase, recorded Jack surviving, suppressed the default reset, and selected the higher-priority termination override. The evaluator therefore answered both what happened in the final pass and what Derrick knew immediately before it without creating a chronology cycle.
+
+The operational fixture combined a changing reset checkpoint with an exhausted retry budget. Early failures selected the old checkpoint and `advance-iteration`; the final failed attempt selected the new checkpoint and `terminate-recurrence`, with both defaults suppressed through scoped execution overrides. The legal fixture produced the expected January-through-December monthly values and distinguished March as due from April as off-schedule. The medical fixture selected its state rule when due and rejected it off-schedule. This confirmed that bounded schedules and deterministic overrides compose across narrative, IT, legal, and medical uses without moving claim authority out of provenance.
+
+The retained conformance suites remained green and behaviorally identical in Python, PowerShell 7, and Windows PowerShell 5.1: thirteen chronology comparisons and thirteen malformed chronology registries; twenty temporal matches, twelve overlap vectors, and twenty-one malformed windows; eight reconciliation vectors, forty malformed reconciliation registries, a 1,500-hop chain, and both limits; plus forty-three occurrence query/evaluation assertions and sixty-one malformed occurrence registries. During the test, one PowerShell-only defect was found and repaired: its semantic recurrence-rule key included nested record IDs and omitted several applicability selectors. All runtimes now reject semantically duplicate rules even when their rule, condition, and effect IDs differ, and that case is permanent conformance data.
+
+### V34 Integrity Gaps
+
+Four shared evaluator or ingestion defects remain for the next version:
+
+1. An `iteration-ordinal` condition may target a recurrence pattern other than its owning rule's pattern. The registry loads it, and evaluation incorrectly applies the current iteration ordinal anyway.
+2. A schedule condition may target a schedule owned by another recurrence pattern. The registry loads it, then evaluation raises a pattern-mismatch error instead of rejecting the registry.
+3. Recurrence-control effects such as `advance-iteration` and `terminate-recurrence` may target another recurrence pattern. The registry loads them and returns the foreign effect.
+4. A rule whose applicability requires an effective-time window or schedule returns `no-match` when effective time is absent because the temporal predicate is rejected before the intended indeterminate branch. Missing required query context must produce `indeterminate`, while a supplied off-schedule time may remain `no-match`.
+
+The pass also confirmed that `rule_kind` and effect compatibility is under-specified. A `termination` rule carrying an `advance-iteration` effect loads successfully. Core should not hard-code every semantic combination, but packs need a controlled compatibility registry that the loader can enforce.
+
+### Deferred Capabilities
+
+The Loki probe's four deferred capabilities remain real but should not be folded into the immediate integrity repair:
+
+- uncertain, bounded, aggregate, or source-unspecified iteration cardinality;
+- repeated participation in one concrete occurrence along a subjective track without duplicating the occurrence;
+- typed relations among chronology contexts, including extratemporal observation, oversight, and intervention; and
+- branch lifecycle such as active, pruned, transferred, restored, merged, or inactive at a boundary.
+
+State transitions also need future semantic depth beyond simple availability: partial or quantitative expertise, acquisition through merged memories, prophecy, dreams, or timeline collapse, and conditional knowledge may eventually become a reusable knowledge-acquisition capability. Legal business-day exceptions, grace periods, and irregular schedule adjustments likewise exceed V34's deliberately bounded cadence model. Decision optimization, counterfactual simulation, and distributed vector-clock semantics remain outside the occurrence evaluator.
+
+### V35 Recommendation
+
+V35 should be **Recurrence Policy Integrity and Indeterminate Context**. It should enforce same-pattern ownership for ordinal and schedule predicates and recurrence-control effects, reject mismatched schedule ownership at ingestion, correct missing required effective time to `indeterminate`, and add pack-registered rule-kind/effect compatibility. Every rejection and indeterminate result should remain explainable in the evaluation trace, and the permanent malformed corpus should gain one vector per repaired boundary in all three runtimes.
+
+The broader cardinality, repeated-participation, extratemporal-context, and branch-lifecycle capabilities should be staged after this correctness release. That keeps V35 small enough to harden V34's contract before the framework expands its temporal topology again.

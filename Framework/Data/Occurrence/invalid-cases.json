@@ -58,5 +58,6 @@
   {"name":"schedule-condition-wrong-target","changes":[{"path":"rules.3.conditions.0.target_type","value":"recurrence-pattern"},{"path":"rules.3.conditions.0.target_id","value":"outer-loop-pattern"}]},
   {"name":"state-condition-track-subject-mismatch","changes":[{"path":"rules.3.conditions.2.track_id","value":"observer-experience"}]},
   {"name":"incompatible-subject-outcomes","changes":[{"path":"outcomes.0.outcome_kind","value":"died"}]},
-  {"name":"chronology-schedule-era-anchor","changes":[{"path":"schedules.outer-coordinate-schedule.anchor_position_id","value":"ancient-year-five"}]}
+  {"name":"chronology-schedule-era-anchor","changes":[{"path":"schedules.outer-coordinate-schedule.anchor_position_id","value":"ancient-year-five"}]},
+  {"name":"duplicate-semantic-rule-with-distinct-nested-ids","changes":[{"path":"rules.2.applicability.application_level","value":"pattern-default"},{"path":"rules.2.applicability.recurrence_ids","value":[]},{"path":"rules.2.applicability.phase_ids","value":[]},{"path":"rules.2.applicability.branch_ids","value":[]},{"path":"rules.2.applicability.min_iteration_ordinal","value":null},{"path":"rules.2.applicability.max_iteration_ordinal","value":null},{"path":"rules.2.priority","value":20},{"path":"rules.2.override_mode","value":"inherit"}]}
 ]
