@@ -8,4 +8,4 @@ The current table was generated from the Unicode Character Database 16.0.0 expos
 
 `lookup-key-regression-vectors.json` preserves portable equivalent/distinct conformance cases, including Unicode formatting characters that culture-aware string comparers may ignore. Parity checks must normalize both sides and compare the results ordinally.
 
-`Reconciliation/` contains the portable stable-identity reconciliation corpus: one valid schema-v3 registry, expected branch-aware resolutions, a branch-limit case, and malformed strict-ingestion and policy fixtures. The paired conformance tools also generate and remove a deep-chain fixture at runtime so iterative behavior is tested without storing thousands of repetitive records.
+`Reconciliation/` contains the portable stable-identity reconciliation corpus: one valid schema-v4 registry, expected branch-aware resolutions, branch/traversal-limit cases, and malformed canonical-YAML, timestamp, shape, resource-budget, and policy fixtures. The paired conformance tools also generate and remove a deep-chain fixture at runtime so iterative behavior is tested without storing thousands of repetitive records.

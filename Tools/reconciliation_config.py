@@ -7,10 +7,12 @@ from schema_pack_config import SchemaPackRegistry, load_schema_pack_registry
 from strict_yaml import assert_allowed_keys, is_rfc3339_timestamp, load_yaml_file
 
 
-SUPPORTED_RECONCILIATION_SCHEMA_VERSION = 3
+SUPPORTED_RECONCILIATION_SCHEMA_VERSION = 4
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 ROOT_FIELDS = {"schema_version", "resolution", "records"}
-RESOLUTION_FIELDS = {"max_branches"}
+RESOLUTION_FIELDS = {
+    "max_branches", "max_records", "max_targets_per_record", "max_resolution_steps"
+}
 RECORD_FIELDS = {
     "id", "source_type", "source_id", "source_state", "source_label_mode",
     "source_label", "operation", "targets", "reason", "status",
@@ -78,6 +80,9 @@ class ReconciliationRegistry:
     records_by_id: dict[str, ReconciliationRecord]
     active_records: dict[tuple[str, str], ReconciliationRecord]
     max_branches: int
+    max_records: int
+    max_targets_per_record: int
+    max_resolution_steps: int
 
     def reconciliation_target(self, target_type: str, target_id: str) -> object:
         records = self.targets.get(target_type)
@@ -112,7 +117,13 @@ class ReconciliationRegistry:
 
         branches: list[ReconciliationBranch] = []
         stack: list[tuple[ReconciliationEndpoint, tuple[str, ...]]] = [(requested, ())]
+        resolution_steps = 0
         while stack:
+            resolution_steps += 1
+            if resolution_steps > self.max_resolution_steps:
+                raise ValueError(
+                    f"Reconciliation resolution for `{target_type}:{target_id}` exceeds configured max_resolution_steps {self.max_resolution_steps}."
+                )
             endpoint, path = stack.pop()
             record = self.active_records.get((endpoint.target_type, endpoint.target_id))
             if record is None:
@@ -335,12 +346,21 @@ def load_reconciliation_registry(
         )
     resolution = require_mapping(registry.get("resolution"), "resolution")
     assert_allowed_keys(resolution, RESOLUTION_FIELDS, "Reconciliation registry `resolution`")
-    max_branches = resolution.get("max_branches")
-    if type(max_branches) is not int or max_branches < 1:
-        raise ValueError("Reconciliation registry `resolution.max_branches` must be a positive integer.")
+    limits: dict[str, int] = {}
+    for field in RESOLUTION_FIELDS:
+        value = resolution.get(field)
+        if type(value) is not int or value < 1:
+            raise ValueError(
+                f"Reconciliation registry `resolution.{field}` must be a positive integer."
+            )
+        limits[field] = value
     raw_records = registry.get("records")
     if not isinstance(raw_records, list):
         raise ValueError("Reconciliation registry `records` must be a list.")
+    if len(raw_records) > limits["max_records"]:
+        raise ValueError(
+            f"Reconciliation registry contains {len(raw_records)} records; configured max_records is {limits['max_records']}."
+        )
 
     records: list[ReconciliationRecord] = []
     record_ids: set[str] = set()
@@ -387,6 +407,10 @@ def load_reconciliation_registry(
         raw_targets = item.get("targets")
         if not isinstance(raw_targets, list):
             raise ValueError(f"Reconciliation registry `{context}.targets` must be a list.")
+        if len(raw_targets) > limits["max_targets_per_record"]:
+            raise ValueError(
+                f"Reconciliation registry `{context}.targets` exceeds configured max_targets_per_record {limits['max_targets_per_record']}."
+            )
         endpoints: list[ReconciliationEndpoint] = []
         seen_endpoints: set[tuple[str, str]] = set()
         for target_index, raw_target in enumerate(raw_targets):
@@ -427,6 +451,10 @@ def load_reconciliation_registry(
         if status == "active" and operation == "retire" and source_state != "tombstone":
             raise ValueError(
                 f"Reconciliation registry active retirement `{record_id}` requires a tombstone source."
+            )
+        if status == "active" and source_state == "present" and operation != "redirect":
+            raise ValueError(
+                f"Reconciliation registry active present-source record `{record_id}` must use redirect."
             )
         if status == "active":
             if superseded_by_id is not None:
@@ -509,5 +537,8 @@ def load_reconciliation_registry(
         dict(aliases),
         by_id,
         active,
-        max_branches,
+        limits["max_branches"],
+        limits["max_records"],
+        limits["max_targets_per_record"],
+        limits["max_resolution_steps"],
     )

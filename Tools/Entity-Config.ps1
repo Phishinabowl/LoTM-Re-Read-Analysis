@@ -265,6 +265,7 @@ function Get-KnowledgeEntityRegistry {
   if ($null -eq $registry -or $registry -isnot [System.Collections.IDictionary]) {
     throw "Entity registry root must be a mapping: $registryPath"
   }
+  Assert-KnowledgeMapKeys $registry @("schema_version","entities","entity_relationship_types","entity_relationships","incarnations","incarnation_bindings","incarnation_relationship_types","incarnation_relationships","identity_phases","identity_phase_bindings","identity_phase_relationship_types","identity_phase_relationships") "Entity registry root"
   $schemaVersion = Get-ProjectMapValue $registry "schema_version"
   if ($schemaVersion -isnot [int] -or $schemaVersion -ne $script:SupportedEntitySchemaVersion) {
     throw "Unsupported entity schema_version '$schemaVersion'; expected $($script:SupportedEntitySchemaVersion)."
@@ -280,6 +281,7 @@ function Get-KnowledgeEntityRegistry {
     $context = "entities.$entityId"
     $entity = $rawEntities[$entityId]
     if ($entity -isnot [System.Collections.IDictionary]) { throw "Entity registry '$context' must be a mapping." }
+    Assert-KnowledgeMapKeys $entity @("lifecycle","primary_category_id","category_ids","label","aliases") "Entity registry '$context'"
     $lifecycle = Get-RequiredEntityString $entity "lifecycle" $context
     if ($script:EntityLifecycles -cnotcontains $lifecycle) { throw "Entity registry '$context.lifecycle' must be one of: $($script:EntityLifecycles -join ', ')." }
     $primaryCategoryId = Get-RequiredEntityString $entity "primary_category_id" $context
@@ -310,6 +312,7 @@ function Get-KnowledgeEntityRegistry {
     Assert-EntityPackValue $SchemaPackRegistry "narrative.entity-relationship-type" $typeId $context
     $type = $rawEntityTypes[$typeId]
     if ($type -isnot [System.Collections.IDictionary]) { throw "Entity registry '$context' must be a mapping." }
+    Assert-KnowledgeMapKeys $type @("label","inverse_type","symmetric","canonical_direction","acyclic_group") "Entity registry '$context'"
     $entityRelationshipTypes[$typeId] = [pscustomobject]@{
       id=$typeId
       label=Get-RequiredEntityString $type "label" $context
@@ -333,6 +336,7 @@ function Get-KnowledgeEntityRegistry {
   for ($index = 0; $index -lt $rawEntityRelationships.Count; $index += 1) {
     $context = "entity_relationships[$index]"; $relationship = $rawEntityRelationships[$index]
     if ($relationship -isnot [System.Collections.IDictionary]) { throw "Entity registry '$context' must be a mapping." }
+    Assert-KnowledgeMapKeys $relationship @("id","source_entity_id","target_entity_id","relationship_type","status","applicability_scope_id","basis_roles") "Entity registry '$context'"
     $id = Get-RequiredEntityString $relationship "id" $context; Assert-EntityStableId $id "$context.id"
     if (-not $entityRelationshipIds.Add($id)) { throw "Entity registry repeats entity relationship ID '$id'." }
     $sourceId = Get-RequiredEntityString $relationship "source_entity_id" $context
@@ -362,6 +366,7 @@ function Get-KnowledgeEntityRegistry {
     $context = "incarnations.$incarnationId"
     $incarnation = $rawIncarnations[$incarnationId]
     if ($incarnation -isnot [System.Collections.IDictionary]) { throw "Entity registry '$context' must be a mapping." }
+    Assert-KnowledgeMapKeys $incarnation @("lifecycle","entity_id","label","aliases","primary_continuity_id","continuity_memberships") "Entity registry '$context'"
     $lifecycle = Get-RequiredEntityString $incarnation "lifecycle" $context
     if ($script:EntityLifecycles -cnotcontains $lifecycle) { throw "Entity registry '$context.lifecycle' must be one of: $($script:EntityLifecycles -join ', ')." }
     $entityId = Get-RequiredEntityString $incarnation "entity_id" $context
@@ -378,6 +383,7 @@ function Get-KnowledgeEntityRegistry {
       $membershipContext = "$context.continuity_memberships[$index]"
       $membership = $rawMemberships[$index]
       if ($membership -isnot [System.Collections.IDictionary]) { throw "Entity registry '$membershipContext' must be a mapping." }
+      Assert-KnowledgeMapKeys $membership @("continuity_id","status") "Entity registry '$membershipContext'"
       $continuityId = Get-RequiredEntityString $membership "continuity_id" $membershipContext
       if (-not $SourceRegistry.continuities.Contains($continuityId)) { throw "Entity registry '$membershipContext.continuity_id' references unknown continuity '$continuityId'." }
       if (-not $seenContinuities.Add($continuityId)) { throw "Entity registry '$context.continuity_memberships' repeats '$continuityId'." }
@@ -407,6 +413,7 @@ function Get-KnowledgeEntityRegistry {
   for ($index = 0; $index -lt $rawBindings.Count; $index += 1) {
     $context = "incarnation_bindings[$index]"; $binding = $rawBindings[$index]
     if ($binding -isnot [System.Collections.IDictionary]) { throw "Entity registry '$context' must be a mapping." }
+    Assert-KnowledgeMapKeys $binding @("id","incarnation_id","applicability_scope_id","binding_type","status") "Entity registry '$context'"
     $id = Get-RequiredEntityString $binding "id" $context; Assert-EntityStableId $id "$context.id"
     if (-not $bindingIds.Add($id)) { throw "Entity registry repeats binding ID '$id'." }
     $incarnationId = Get-RequiredEntityString $binding "incarnation_id" $context
@@ -429,6 +436,7 @@ function Get-KnowledgeEntityRegistry {
     Assert-EntityPackValue $SchemaPackRegistry "narrative.incarnation-relationship-type" $typeId $context
     $type = $rawTypes[$typeId]
     if ($type -isnot [System.Collections.IDictionary]) { throw "Entity registry '$context' must be a mapping." }
+    Assert-KnowledgeMapKeys $type @("label","inverse_type","symmetric","canonical_direction","acyclic_group") "Entity registry '$context'"
     $relationshipTypes[$typeId] = [pscustomobject]@{
       id=$typeId
       label=Get-RequiredEntityString $type "label" $context
@@ -451,6 +459,7 @@ function Get-KnowledgeEntityRegistry {
   for ($index = 0; $index -lt $rawRelationships.Count; $index += 1) {
     $context = "incarnation_relationships[$index]"; $relationship = $rawRelationships[$index]
     if ($relationship -isnot [System.Collections.IDictionary]) { throw "Entity registry '$context' must be a mapping." }
+    Assert-KnowledgeMapKeys $relationship @("id","source_incarnation_id","target_incarnation_id","relationship_type","status","applicability_scope_id") "Entity registry '$context'"
     $id = Get-RequiredEntityString $relationship "id" $context; Assert-EntityStableId $id "$context.id"
     if (-not $relationshipIds.Add($id)) { throw "Entity registry repeats relationship ID '$id'." }
     $sourceId = Get-RequiredEntityString $relationship "source_incarnation_id" $context
@@ -480,6 +489,7 @@ function Get-KnowledgeEntityRegistry {
     $context = "identity_phases.$phaseId"; Assert-EntityStableId $phaseId $context
     $phase = $rawIdentityPhases[$phaseId]
     if ($phase -isnot [System.Collections.IDictionary]) { throw "Entity registry '$context' must be a mapping." }
+    Assert-KnowledgeMapKeys $phase @("lifecycle","subject_type","subject_id","continuity_id","phase_type","label","aliases") "Entity registry '$context'"
     $lifecycle = Get-RequiredEntityString $phase "lifecycle" $context
     if ($script:EntityLifecycles -cnotcontains $lifecycle) { throw "Entity registry '$context.lifecycle' must be one of: $($script:EntityLifecycles -join ', ')." }
     $subjectType = Get-RequiredEntityString $phase "subject_type" $context
@@ -514,6 +524,7 @@ function Get-KnowledgeEntityRegistry {
   for ($index = 0; $index -lt $rawPhaseBindings.Count; $index += 1) {
     $context = "identity_phase_bindings[$index]"; $binding = $rawPhaseBindings[$index]
     if ($binding -isnot [System.Collections.IDictionary]) { throw "Entity registry '$context' must be a mapping." }
+    Assert-KnowledgeMapKeys $binding @("id","identity_phase_id","applicability_scope_id","binding_type","status") "Entity registry '$context'"
     $id = Get-RequiredEntityString $binding "id" $context; Assert-EntityStableId $id "$context.id"
     if (-not $phaseBindingIds.Add($id)) { throw "Entity registry repeats identity-phase binding ID '$id'." }
     $phaseId = Get-RequiredEntityString $binding "identity_phase_id" $context
@@ -543,6 +554,7 @@ function Get-KnowledgeEntityRegistry {
     Assert-EntityPackValue $SchemaPackRegistry "identity.phase-relationship-type" $typeId $context
     $type = $rawPhaseTypes[$typeId]
     if ($type -isnot [System.Collections.IDictionary]) { throw "Entity registry '$context' must be a mapping." }
+    Assert-KnowledgeMapKeys $type @("label","inverse_type","symmetric","canonical_direction","acyclic_group") "Entity registry '$context'"
     $phaseRelationshipTypes[$typeId] = [pscustomobject]@{
       id=$typeId; label=Get-RequiredEntityString $type "label" $context
       inverse_type=Get-RequiredEntityString $type "inverse_type" $context
@@ -563,6 +575,7 @@ function Get-KnowledgeEntityRegistry {
   for ($index = 0; $index -lt $rawPhaseRelationships.Count; $index += 1) {
     $context = "identity_phase_relationships[$index]"; $relationship = $rawPhaseRelationships[$index]
     if ($relationship -isnot [System.Collections.IDictionary]) { throw "Entity registry '$context' must be a mapping." }
+    Assert-KnowledgeMapKeys $relationship @("id","source_identity_phase_id","target_identity_phase_id","relationship_type","status") "Entity registry '$context'"
     $id = Get-RequiredEntityString $relationship "id" $context; Assert-EntityStableId $id "$context.id"
     if (-not $phaseRelationshipIds.Add($id)) { throw "Entity registry repeats identity-phase relationship ID '$id'." }
     $sourceId = Get-RequiredEntityString $relationship "source_identity_phase_id" $context

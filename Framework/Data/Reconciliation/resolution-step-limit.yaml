@@ -1,28 +1,31 @@
 schema_version: 4
-
 resolution:
   max_branches: 65536
   max_records: 100000
   max_targets_per_record: 4096
-  max_resolution_steps: 250000
+  max_resolution_steps: 1
 records:
-  - id: cycle-a-record
+  - id: step-limit-a
     source_type: category
-    source_id: cycle-a
+    source_id: step-limit-a
     source_state: tombstone
     source_label_mode: omitted
     operation: redirect
-    targets: [{target_type: category, target_id: cycle-b}]
+    targets:
+      - target_type: category
+        target_id: step-limit-b
     reason: renamed
     status: active
     audit: {mode: repository-history}
-  - id: cycle-b-record
+  - id: step-limit-b
     source_type: category
-    source_id: cycle-b
+    source_id: step-limit-b
     source_state: tombstone
     source_label_mode: omitted
     operation: redirect
-    targets: [{target_type: category, target_id: cycle-a}]
+    targets:
+      - target_type: category
+        target_id: current-category
     reason: renamed
     status: active
     audit: {mode: repository-history}

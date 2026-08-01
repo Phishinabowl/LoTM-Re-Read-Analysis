@@ -101,8 +101,13 @@ def deep_registry(depth: int) -> dict:
             }
         )
     return {
-        "schema_version": 3,
-        "resolution": {"max_branches": 65536},
+        "schema_version": 4,
+        "resolution": {
+            "max_branches": 65536,
+            "max_records": max(depth + 1, 100000),
+            "max_targets_per_record": 4096,
+            "max_resolution_steps": max(depth + 1, 250000),
+        },
         "records": records,
     }
 
@@ -116,7 +121,10 @@ def main() -> int:
     fixtures = root / "Framework" / "Data" / "Reconciliation"
     project, packs, providers = build_context(root)
 
-    registry = load_at(project, packs, providers, fixtures / "valid-v3.yaml")
+    registry = load_at(project, packs, providers, fixtures / "valid-v4.yaml")
+    scalar_registry = load_at(project, packs, providers, fixtures / "valid-scalar-parity.yaml")
+    if scalar_registry.records[0].source_label != "on":
+        raise AssertionError("Legacy YAML Boolean word did not remain a string.")
     expected = json.loads((fixtures / "expectations.json").read_text(encoding="utf-8"))
     actual = [
         normalized_resolution(registry.resolve(case["target_type"], case["target_id"]))
@@ -148,6 +156,19 @@ def main() -> int:
         "invalid-audit-field.yaml",
         "invalid-present-retire.yaml",
         "invalid-uppercase-controlled-value.yaml",
+        "invalid-schema-explicit-tag.yaml",
+        "invalid-schema-hex.yaml",
+        "invalid-schema-plus.yaml",
+        "invalid-schema-leading-zero.yaml",
+        "invalid-merge-key.yaml",
+        "invalid-timestamp-hour.yaml",
+        "invalid-timestamp-zone-minute.yaml",
+        "invalid-present-merge.yaml",
+        "invalid-record-limit.yaml",
+        "invalid-target-limit.yaml",
+        "invalid-document-marker.yaml",
+        "invalid-unquoted-timestamp.yaml",
+        "invalid-leading-zero-limit.yaml",
     ):
         try:
             load_at(project, packs, providers, fixtures / name)
@@ -164,6 +185,14 @@ def main() -> int:
     else:
         raise AssertionError("Reconciliation branch limit did not stop expansion.")
 
+    step_limited = load_at(project, packs, providers, fixtures / "resolution-step-limit.yaml")
+    try:
+        step_limited.resolve("category", "step-limit-a")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("Reconciliation step limit did not stop traversal.")
+
     with tempfile.TemporaryDirectory(prefix="knowledge-reconciliation-") as temp_dir:
         path = Path(temp_dir) / "deep-chain.yaml"
         path.write_text(yaml.safe_dump(deep_registry(args.deep_chain), sort_keys=False), encoding="utf-8")
@@ -174,7 +203,7 @@ def main() -> int:
 
     print(
         f"Reconciliation conformance passed: {len(actual)} vectors, "
-        f"22 malformed fixtures, branch limit, {args.deep_chain}-hop chain."
+        f"35 malformed fixtures, scalar parity, branch and step limits, {args.deep_chain}-hop chain."
     )
     return 0
 

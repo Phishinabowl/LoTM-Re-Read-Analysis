@@ -1,4 +1,12 @@
 $script:KnowledgeRfc3339Pattern = "^(?<date>\d{4}-\d{2}-\d{2})T(?<time>\d{2}:\d{2}:\d{2})(?:\.\d+)?(?<zone>Z|(?<sign>[+-])(?<hour>\d{2}):(?<minute>\d{2}))$"
+$script:KnowledgeCanonicalIntegerPattern = '^-?(?:0|[1-9][0-9]*)$'
+$script:KnowledgeCanonicalDecimalPattern = '^-?(?:0|[1-9][0-9]*)\.[0-9]+$'
+$script:KnowledgeNumericLikePattern = '^[+-]?(?:[0-9][0-9_]*|0[xX][0-9a-fA-F_]+|0[oO][0-7_]+|0[bB][01_]+|[0-9][0-9_]*(?::[0-9_]+)+|(?:[0-9][0-9_]*)?\.[0-9_]+(?:[eE][+-]?[0-9_]+)?|[0-9][0-9_]*[eE][+-]?[0-9_]+|\.(?:inf|Inf|INF|nan|NaN|NAN))$'
+$script:KnowledgeTimestampLikePattern = '^[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[Tt ][0-9]{2}:[0-9]{2}:[0-9]{2}.*)?$'
+$script:KnowledgeMaxYamlBytes = 16 * 1024 * 1024
+$script:KnowledgeMaxYamlDepth = 128
+$script:KnowledgeMaxYamlNodes = 500000
+$script:KnowledgeMaxYamlScalarLength = 4 * 1024 * 1024
 
 function Import-KnowledgeYamlModule {
   try {
@@ -20,6 +28,42 @@ function Get-KnowledgeYamlSchemaToken {
   return $matches[0].Groups['value'].Value
 }
 
+function Assert-KnowledgeYamlSource {
+  param([string]$Text,[string]$Context,[string]$Path)
+  $byteCount=[System.Text.Encoding]::UTF8.GetByteCount($Text)
+  if($byteCount -gt $script:KnowledgeMaxYamlBytes){throw "$Context exceeds the $($script:KnowledgeMaxYamlBytes)-byte YAML limit: $Path"}
+  $reader=[System.IO.StringReader]::new($Text)
+  $parser=[YamlDotNet.Core.Parser]::new($reader)
+  $depth=0;$nodeCount=0
+  try{
+    while($parser.MoveNext()){
+      $event=$parser.Current;$type=$event.GetType().Name
+      if($type -eq 'AnchorAlias'){throw "$Context uses unsupported YAML aliases: $Path"}
+      if(($type -eq 'DocumentStart' -or $type -eq 'DocumentEnd') -and -not $event.IsImplicit){throw "$Context must be one implicit YAML document without document markers: $Path"}
+      if($event -is [YamlDotNet.Core.Events.NodeEvent]){
+        if(-not $event.Anchor.IsEmpty -or -not $event.Tag.IsEmpty){throw "$Context uses unsupported YAML anchors or tags: $Path"}
+      }
+      if($type -eq 'MappingStart' -or $type -eq 'SequenceStart'){
+        $depth++;$nodeCount++
+        if($depth -gt $script:KnowledgeMaxYamlDepth){throw "$Context exceeds YAML nesting depth $($script:KnowledgeMaxYamlDepth): $Path"}
+      }elseif($type -eq 'MappingEnd' -or $type -eq 'SequenceEnd'){$depth--}
+      elseif($type -eq 'Scalar'){
+        $nodeCount++;$value=[string]$event.Value
+        if($value.Length -gt $script:KnowledgeMaxYamlScalarLength){throw "$Context contains a scalar longer than $($script:KnowledgeMaxYamlScalarLength) characters: $Path"}
+        if($event.Style -eq [YamlDotNet.Core.ScalarStyle]::Plain){
+          if($value -ceq '<<'){throw "$Context uses unsupported YAML merge keys: $Path"}
+          if(@('~','Null','NULL') -ccontains $value){throw "$Context must use lowercase 'null': $Path"}
+          if(@('true','false') -contains $value.ToLowerInvariant() -and @('true','false') -cnotcontains $value){throw "$Context must use lowercase Boolean scalars: $Path"}
+          if($value -cmatch $script:KnowledgeNumericLikePattern -and $value -cnotmatch $script:KnowledgeCanonicalIntegerPattern -and $value -cnotmatch $script:KnowledgeCanonicalDecimalPattern){throw "$Context contains noncanonical numeric scalar '$value': $Path"}
+          if($value -cmatch $script:KnowledgeTimestampLikePattern){throw "$Context must quote date and timestamp strings: $Path"}
+        }
+      }
+      if($nodeCount -gt $script:KnowledgeMaxYamlNodes){throw "$Context exceeds the $($script:KnowledgeMaxYamlNodes)-node YAML limit: $Path"}
+    }
+  }catch{throw}
+  finally{$reader.Dispose()}
+}
+
 function Assert-KnowledgeSchemaVersion {
   param([object]$Mapping,[int]$Expected,[string]$Context,[string]$SourceText)
   $token=Get-KnowledgeYamlSchemaToken $SourceText $Context
@@ -35,6 +79,7 @@ function ConvertFrom-KnowledgeYamlFile {
   param([string]$Path,[int]$ExpectedSchemaVersion,[string]$Context)
   Import-KnowledgeYamlModule
   $text=[System.IO.File]::ReadAllText($Path,[System.Text.UTF8Encoding]::new($true))
+  Assert-KnowledgeYamlSource $text $Context $Path
   try{$mapping=ConvertFrom-Yaml -Yaml $text -Ordered}catch{throw "Unable to parse $Context $Path`: $($_.Exception.Message)"}
   if($mapping -isnot [System.Collections.IDictionary]){throw "$Context root must be a mapping: $Path"}
   $null=Assert-KnowledgeSchemaVersion $mapping $ExpectedSchemaVersion $Context $text
@@ -51,7 +96,8 @@ function Assert-KnowledgeMapKeys {
 function Test-KnowledgeRfc3339Timestamp {
   param([string]$Value)
   if($Value -cnotmatch $script:KnowledgeRfc3339Pattern){return $false}
-  if($Matches.hour){$hour=[int]$Matches.hour;$minute=[int]$Matches.minute;if($hour -gt 14 -or ($hour -eq 14 -and $minute -ne 0)){return $false}}
+  $timeParts=$Matches.time.Split(':');if([int]$timeParts[0] -gt 23 -or [int]$timeParts[1] -gt 59 -or [int]$timeParts[2] -gt 59){return $false}
+  if($Matches.hour){$hour=[int]$Matches.hour;$minute=[int]$Matches.minute;if($minute -gt 59 -or $hour -gt 14 -or ($hour -eq 14 -and $minute -ne 0)){return $false}}
   $parsed=[DateTimeOffset]::MinValue
   return [DateTimeOffset]::TryParse($Value,[Globalization.CultureInfo]::InvariantCulture,[Globalization.DateTimeStyles]::RoundtripKind,[ref]$parsed)
 }

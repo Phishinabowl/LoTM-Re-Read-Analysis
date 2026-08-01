@@ -1,30 +1,27 @@
 schema_version: 4
-
 resolution:
   max_branches: 65536
-  max_records: 100000
+  max_records: 1
   max_targets_per_record: 4096
   max_resolution_steps: 250000
 records:
-  - id: supersession-a
+  - id: record-limit-a
     source_type: category
-    source_id: supersession-source
+    source_id: record-limit-a
     source_state: tombstone
     source_label_mode: omitted
     operation: retire
     targets: []
     reason: deprecated
-    status: superseded
-    superseded_by_id: supersession-b
+    status: active
     audit: {mode: repository-history}
-  - id: supersession-b
+  - id: record-limit-b
     source_type: category
-    source_id: supersession-source
+    source_id: record-limit-b
     source_state: tombstone
     source_label_mode: omitted
     operation: retire
     targets: []
     reason: deprecated
-    status: superseded
-    superseded_by_id: supersession-a
+    status: active
     audit: {mode: repository-history}

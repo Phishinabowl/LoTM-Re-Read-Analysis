@@ -1,20 +1,21 @@
 schema_version: 4
-
 resolution:
   max_branches: 65536
   max_records: 100000
-  max_targets_per_record: 4096
+  max_targets_per_record: 1
   max_resolution_steps: 250000
 records:
-  - id: invalid-alias-conflict
+  - id: target-limit
     source_type: category
-    source_id: old-alias
+    source_id: target-limit-source
     source_state: tombstone
     source_label_mode: omitted
-    operation: redirect
+    operation: split
     targets:
       - target_type: category
         target_id: current-category
-    reason: renamed
+      - target_type: category
+        target_id: history-source
+    reason: split-for-clarity
     status: active
     audit: {mode: repository-history}

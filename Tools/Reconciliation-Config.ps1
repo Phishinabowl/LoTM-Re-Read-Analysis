@@ -3,10 +3,10 @@ if (-not (Get-Command Get-KnowledgeProjectConfig -ErrorAction SilentlyContinue))
 $schemaPackHelper = Join-Path $PSScriptRoot "Schema-Pack-Config.ps1"
 if (-not (Get-Command Get-KnowledgeSchemaPackRegistry -ErrorAction SilentlyContinue)) { . $schemaPackHelper }
 
-$script:SupportedReconciliationSchemaVersion = 3
+$script:SupportedReconciliationSchemaVersion = 4
 $script:ReconciliationStableIdPattern = "^[a-z0-9]+(?:-[a-z0-9]+)*$"
 $script:ReconciliationRootFields = @("schema_version","resolution","records")
-$script:ReconciliationResolutionFields = @("max_branches")
+$script:ReconciliationResolutionFields = @("max_branches","max_records","max_targets_per_record","max_resolution_steps")
 $script:ReconciliationRecordFields = @("id","source_type","source_id","source_state","source_label_mode","source_label","operation","targets","reason","status","superseded_by_id","audit")
 $script:ReconciliationTargetFields = @("target_type","target_id")
 $script:ReconciliationAuditFields = @("mode","recorded_at","actor_ref","approval_ref","migration_id")
@@ -75,7 +75,10 @@ function Resolve-KnowledgeReconciliationTarget {
   $stack=New-Object 'System.Collections.Generic.Stack[object]'
   $stack.Push([pscustomobject]@{target_type=$TargetType;target_id=$TargetId;path=@()})
   $branches=New-Object 'System.Collections.Generic.List[object]'
+  $resolutionSteps=0
   while($stack.Count -gt 0){
+    $resolutionSteps++
+    if($resolutionSteps -gt $Registry.max_resolution_steps){throw "Reconciliation resolution for '$TargetType`:$TargetId' exceeds configured max_resolution_steps $($Registry.max_resolution_steps)."}
     $item=$stack.Pop();$key="$($item.target_type)|$($item.target_id)"
     if(-not $Registry.active_records.Contains($key)){
       if($branches.Count -ge $Registry.max_branches){throw "Reconciliation resolution for '$TargetType`:$TargetId' exceeds configured max_branches $($Registry.max_branches)."}
@@ -180,9 +183,11 @@ function Get-KnowledgeReconciliationRegistry {
   Assert-KnowledgeMapKeys $raw $script:ReconciliationRootFields "Reconciliation registry root"
   $schemaVersion=Get-ProjectMapValue $raw "schema_version";if($schemaVersion -isnot [int] -or $schemaVersion -ne $script:SupportedReconciliationSchemaVersion){throw "Unsupported reconciliation schema_version '$schemaVersion'; expected $($script:SupportedReconciliationSchemaVersion)."}
   $resolution=Get-ProjectMapValue $raw "resolution";if($resolution -isnot [System.Collections.IDictionary]){throw "Reconciliation registry 'resolution' must be a mapping."};Assert-KnowledgeMapKeys $resolution $script:ReconciliationResolutionFields "Reconciliation registry 'resolution'"
-  $maxBranches=Get-ProjectMapValue $resolution "max_branches";if($maxBranches -isnot [int] -or $maxBranches -lt 1){throw "Reconciliation registry 'resolution.max_branches' must be a positive integer."}
+  $limits=[ordered]@{}
+  foreach($field in $script:ReconciliationResolutionFields){$value=Get-ProjectMapValue $resolution $field;if($value -isnot [int] -or $value -lt 1){throw "Reconciliation registry 'resolution.$field' must be a positive integer."};$limits[$field]=[int]$value}
   $rawRecords=Get-ProjectMapValue $raw "records" ([System.DBNull]::Value);if($rawRecords -is [System.DBNull] -or $rawRecords -is [string]){throw "Reconciliation registry 'records' must be a list."}
-  $shell=[pscustomobject]@{path=$path;schema_version=[int]$schemaVersion;records=@();target_types=@($targetTypes);targets=$providerTargets;aliases=$providerAliases;records_by_id=[ordered]@{};active_records=[ordered]@{};max_branches=[int]$maxBranches}
+  if(@($rawRecords).Count -gt $limits.max_records){throw "Reconciliation registry contains $(@($rawRecords).Count) records; configured max_records is $($limits.max_records)."}
+  $shell=[pscustomobject]@{path=$path;schema_version=[int]$schemaVersion;records=@();target_types=@($targetTypes);targets=$providerTargets;aliases=$providerAliases;records_by_id=[ordered]@{};active_records=[ordered]@{};max_branches=$limits.max_branches;max_records=$limits.max_records;max_targets_per_record=$limits.max_targets_per_record;max_resolution_steps=$limits.max_resolution_steps}
   $records=@();$ids=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal);$activeSources=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
   $items=@($rawRecords);for($i=0;$i -lt $items.Count;$i++){
     $context="records[$i]";$item=$items[$i];if($item -isnot [System.Collections.IDictionary]){throw "Reconciliation registry '$context' must be a mapping."}
@@ -200,13 +205,14 @@ function Get-KnowledgeReconciliationRegistry {
     $status=Get-RequiredReconciliationString $item "status" $context;Assert-ReconciliationPackValue $SchemaPackRegistry "reconciliation.status" $status "$context.status"
     $supersededBy=Get-OptionalReconciliationString $item "superseded_by_id" $context;if($null -ne $supersededBy){Assert-ReconciliationStableId $supersededBy "$context.superseded_by_id"}
     $audit=ConvertTo-ReconciliationAudit $item $context $SchemaPackRegistry
-    if(-not $item.Contains("targets")){throw "Reconciliation registry '$context.targets' must be a list."};$rawTargets=Get-ProjectMapValue $item "targets";if($rawTargets -is [string]){throw "Reconciliation registry '$context.targets' must be a list."}
+    if(-not $item.Contains("targets")){throw "Reconciliation registry '$context.targets' must be a list."};$rawTargets=Get-ProjectMapValue $item "targets";if($rawTargets -is [string]){throw "Reconciliation registry '$context.targets' must be a list."};if(@($rawTargets).Count -gt $limits.max_targets_per_record){throw "Reconciliation registry '$context.targets' exceeds configured max_targets_per_record $($limits.max_targets_per_record)."}
     $targets=@();$seenTargets=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
     foreach($target in @($rawTargets)){Assert-KnowledgeMapKeys $target $script:ReconciliationTargetFields "Reconciliation registry '$context.targets'";$targetType=Get-RequiredReconciliationString $target "target_type" "$context.targets";Assert-ReconciliationPackValue $SchemaPackRegistry "reconciliation.target-type" $targetType "$context.targets.target_type";$targetId=Get-RequiredReconciliationString $target "target_id" "$context.targets";Assert-ReconciliationStableId $targetId "$context.targets.target_id";if($operation -eq "reclassify"){if($targetType -eq $sourceType){throw "Reconciliation registry '$context.targets' reclassify must change target type."}}elseif($targetType -ne $sourceType){throw "Reconciliation registry '$context.targets' must preserve target type '$sourceType'."};$key="$targetType|$targetId";if($key -eq "$sourceType|$sourceId"){throw "Reconciliation registry '$context.targets' cannot target its own source."};if(-not $seenTargets.Add($key)){throw "Reconciliation registry '$context.targets' repeats '$targetType`:$targetId'."};$targets+=,[pscustomobject]@{target_type=$targetType;target_id=$targetId}}
     $validCount=if($operation -eq "retire"){$targets.Count -eq 0}elseif($operation -eq "split"){$targets.Count -ge 2}else{$targets.Count -eq 1};if(-not $validCount){throw "Reconciliation registry '$context.targets' has invalid cardinality for '$operation'."}
     $exists=Test-ReconciliationCurrentTarget $shell $sourceType $sourceId;if(($sourceState -eq "present") -ne $exists){throw "Reconciliation registry '$context' source existence does not match source_state '$sourceState'."}
     if($sourceState -eq "tombstone" -and $providerAliases[$sourceType].Contains($sourceId)){throw "Reconciliation tombstone '$sourceType`:$sourceId' conflicts with a provider alias; historical stable IDs belong only to reconciliation."}
     if($status -eq "active" -and $operation -eq "retire" -and $sourceState -ne "tombstone"){throw "Reconciliation registry active retirement '$id' requires a tombstone source."}
+    if($status -eq "active" -and $sourceState -eq "present" -and $operation -ne "redirect"){throw "Reconciliation registry active present-source record '$id' must use redirect."}
     if($status -eq "active"){if($null -ne $supersededBy){throw "Reconciliation registry active '$id' cannot have superseded_by_id."};if(-not $activeSources.Add("$sourceType|$sourceId")){throw "Reconciliation source '$sourceType`:$sourceId' has multiple active records."}}
     elseif($status -eq "superseded"){if($null -eq $supersededBy){throw "Reconciliation registry superseded '$id' requires superseded_by_id."}}
     else{if($null -ne $supersededBy){throw "Reconciliation registry reversed '$id' cannot have superseded_by_id."};if($sourceState -ne "present"){throw "Reconciliation registry reversed '$id' requires a present source."}}

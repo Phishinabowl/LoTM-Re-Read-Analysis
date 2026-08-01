@@ -26,6 +26,14 @@ function Assert-KnowledgeJsonObject {
   }
 }
 
+function Assert-KnowledgeJsonObjectKeys {
+  param([object]$Value, [string[]]$Allowed, [string]$Context)
+
+  Assert-KnowledgeJsonObject $Value $Context
+  $unknown=@($Value.PSObject.Properties.Name|Where-Object {$Allowed -cnotcontains $_})
+  if($unknown.Count -gt 0){throw "Lookup-key registry '$Context' contains unsupported field(s): $($unknown -join ', ')."}
+}
+
 function ConvertFrom-KnowledgeCodePointSequence {
   param([object]$Value, [string]$Context)
 
@@ -234,6 +242,7 @@ function Get-KnowledgeLookupKeyConfig {
     throw "Unable to parse lookup-key registry $path`: $($_.Exception.Message)"
   }
   Assert-KnowledgeJsonObject $registry "root"
+  Assert-KnowledgeJsonObjectKeys $registry @("schema_version","unicode_version","algorithm","trim_codepoints","case_folding","canonical_decomposition","canonical_combining_class","canonical_composition","counts") "root"
   if (-not (Test-KnowledgeJsonInteger $registry.schema_version) -or [int]$registry.schema_version -ne $script:SupportedLookupKeySchemaVersion) {
     throw "Unsupported lookup-key schema_version '$($registry.schema_version)'; expected $script:SupportedLookupKeySchemaVersion."
   }
@@ -303,6 +312,7 @@ function Get-KnowledgeLookupKeyConfig {
     canonical_composition = $composition.Count
   }
   Assert-KnowledgeJsonObject $registry.counts "counts"
+  Assert-KnowledgeJsonObjectKeys $registry.counts @("case_folding","canonical_decomposition","canonical_combining_class","canonical_composition") "counts"
   if (@($registry.counts.PSObject.Properties).Count -ne $actualCounts.Count) {
     throw "Lookup-key registry declared counts do not match its mapping data."
   }

@@ -3,7 +3,7 @@ from pathlib import Path
 import re
 
 from project_config import ProjectConfig
-from strict_yaml import load_yaml_file
+from strict_yaml import assert_allowed_keys, load_yaml_file
 
 
 SUPPORTED_SCHEMA_PACK_REGISTRY_VERSION = 2
@@ -170,6 +170,14 @@ def resolve_pack_path(project: ProjectConfig, value: str, context: str) -> Path:
 def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
     data = load_yaml_file(path, "schema pack", expected_schema_version=SUPPORTED_SCHEMA_PACK_VERSION)
     pack = require_mapping(data, expected_pack_id)
+    assert_allowed_keys(
+        pack,
+        {
+            "schema_version", "pack_id", "pack_version", "lifecycle", "pack_kind",
+            "label", "description", "dependencies", "capabilities", "controlled_values",
+        },
+        f"Schema pack `{expected_pack_id}`",
+    )
     schema_version = require_positive_int(pack, "schema_version", expected_pack_id)
     if schema_version != SUPPORTED_SCHEMA_PACK_VERSION:
         raise ValueError(
@@ -204,6 +212,9 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
     for index, raw_dependency in enumerate(raw_dependencies):
         context = f"{pack_id}.dependencies[{index}]"
         dependency = require_mapping(raw_dependency, context)
+        assert_allowed_keys(
+            dependency, {"pack_id", "minimum_version"}, f"Schema pack `{context}`"
+        )
         dependency_id = require_string(dependency, "pack_id", context)
         validate_id(dependency_id, f"{context}.pack_id")
         if dependency_id == pack_id:
@@ -235,6 +246,11 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
             label = None
             description = None
         elif isinstance(raw_capability, dict):
+            assert_allowed_keys(
+                raw_capability,
+                {"id", "lifecycle", "label", "description"},
+                f"Schema pack `{context}`",
+            )
             capability_id = require_string(raw_capability, "id", context)
             lifecycle = require_string(raw_capability, "lifecycle", context)
             label_value = raw_capability.get("label")
@@ -308,6 +324,11 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
                 broader_value = None
             elif isinstance(raw_value, dict):
                 value_context = f"{context}[{index}]"
+                assert_allowed_keys(
+                    raw_value,
+                    {"id", "label", "description", "broader_value"},
+                    f"Schema pack `{value_context}`",
+                )
                 value_id = require_string(raw_value, "id", value_context)
                 label = require_string(raw_value, "label", value_context)
                 description_value = raw_value.get("description")
@@ -386,6 +407,11 @@ def load_schema_pack_registry(project: ProjectConfig) -> SchemaPackRegistry:
     path = project.schema_packs_registry
     data = load_yaml_file(path, "schema-pack registry", expected_schema_version=SUPPORTED_SCHEMA_PACK_REGISTRY_VERSION)
     registry = require_mapping(data, "root")
+    assert_allowed_keys(
+        registry,
+        {"schema_version", "selected_packs", "capability_activation"},
+        "Schema-pack registry root",
+    )
     schema_version = require_positive_int(registry, "schema_version", "root")
     if schema_version != SUPPORTED_SCHEMA_PACK_REGISTRY_VERSION:
         raise ValueError(
@@ -403,6 +429,9 @@ def load_schema_pack_registry(project: ProjectConfig) -> SchemaPackRegistry:
     for index, raw_selection in enumerate(raw_selections):
         context = f"selected_packs[{index}]"
         selection = require_mapping(raw_selection, context)
+        assert_allowed_keys(
+            selection, {"pack_id", "path"}, f"Schema-pack registry `{context}`"
+        )
         pack_id = require_string(selection, "pack_id", context)
         validate_id(pack_id, f"{context}.pack_id")
         if pack_id in packs:
@@ -458,6 +487,11 @@ def load_schema_pack_registry(project: ProjectConfig) -> SchemaPackRegistry:
 
     activation = require_mapping(
         registry.get("capability_activation"), "capability_activation"
+    )
+    assert_allowed_keys(
+        activation,
+        {"default", "enabled"},
+        "Schema-pack registry `capability_activation`",
     )
     activation_default = require_string(
         activation, "default", "capability_activation"

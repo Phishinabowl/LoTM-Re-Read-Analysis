@@ -3,7 +3,7 @@ from pathlib import Path
 import re
 
 from project_config import ProjectConfig
-from strict_yaml import load_yaml_file
+from strict_yaml import assert_allowed_keys, load_yaml_file
 
 
 SUPPORTED_RESOURCE_SCHEMA_VERSION = 1
@@ -128,6 +128,10 @@ def load_resource_config(project: ProjectConfig) -> ResourceConfig:
     data = load_yaml_file(project.resources_registry, "resource registry", expected_schema_version=SUPPORTED_RESOURCE_SCHEMA_VERSION)
 
     registry = require_mapping(data, "root")
+    assert_allowed_keys(
+        registry, {"schema_version", "resource_kinds", "resource_types"},
+        "Resource registry root",
+    )
     schema_version = registry.get("schema_version")
     if schema_version != SUPPORTED_RESOURCE_SCHEMA_VERSION:
         raise ValueError(
@@ -141,6 +145,9 @@ def load_resource_config(project: ProjectConfig) -> ResourceConfig:
         context = f"resource_kinds.{kind_id}"
         validate_id(kind_id, context)
         kind = require_mapping(raw_kind, context)
+        assert_allowed_keys(
+            kind, {"label", "plural_label"}, f"Resource registry `{context}`"
+        )
         kinds[kind_id] = ResourceKindConfig(
             id=kind_id,
             label=require_string(kind, "label", context),
@@ -154,6 +161,14 @@ def load_resource_config(project: ProjectConfig) -> ResourceConfig:
         context = f"resource_types.{type_id}"
         validate_id(type_id, context)
         resource_type = require_mapping(raw_type, context)
+        assert_allowed_keys(
+            resource_type,
+            {
+                "lifecycle", "label", "plural_label", "kind_id", "authority",
+                "editor_enabled", "placements",
+            },
+            f"Resource registry `{context}`",
+        )
         lifecycle = require_string(resource_type, "lifecycle", context)
         if lifecycle not in LIFECYCLES:
             raise ValueError(
@@ -181,6 +196,11 @@ def load_resource_config(project: ProjectConfig) -> ResourceConfig:
         for index, raw_placement in enumerate(raw_placements or []):
             placement_context = f"{context}.placements[{index}]"
             placement = require_mapping(raw_placement, placement_context)
+            assert_allowed_keys(
+                placement,
+                {"root_id", "relative_path", "tracking", "required"},
+                f"Resource registry `{placement_context}`",
+            )
             root_id = require_string(placement, "root_id", placement_context)
             validate_id(root_id, f"{placement_context}.root_id")
             tracking = require_string(placement, "tracking", placement_context)

@@ -1,8 +1,7 @@
-schema_version: 4
+schema_version: 04
 resolution:
   max_branches: 65536
   max_records: 100000
   max_targets_per_record: 4096
   max_resolution_steps: 250000
-records: []
 records: []

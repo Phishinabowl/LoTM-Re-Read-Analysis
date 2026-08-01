@@ -137,6 +137,7 @@ function ConvertTo-SourceLocalizedTitles {
   $seenIds = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
   $scopeWindows = @{}
   foreach ($rawTitle in @(Get-ProjectMapValue $Map "localized_titles")) {
+    if($rawTitle -isnot [System.Collections.IDictionary]){throw "Source registry '$Context.localized_titles' entries must be mappings."};Assert-KnowledgeMapKeys $rawTitle @("id","language_tag","territory_ids","title","title_type","status","is_primary","romanization_scheme","valid_window") "Source registry '$Context.localized_titles'"
     $titleId=Get-RequiredSourceString $rawTitle "id" "$Context.localized_titles";Test-StableSourceId $titleId "$Context.localized_titles.id"
     if(-not $seenIds.Add($titleId)){throw "Source registry '$Context.localized_titles' repeats ID '$titleId'."}
     $languageTag = Get-RequiredSourceString $rawTitle "language_tag" "$Context.localized_titles"
@@ -179,6 +180,7 @@ function ConvertTo-SourceTemporalWindow {
   if ($null -eq $rawWindow) { return $null }
   if ($rawWindow -isnot [System.Collections.IDictionary]) { throw "Source registry '$Context.$Key' must be a mapping." }
   $windowContext = "$Context.$Key"
+  Assert-KnowledgeMapKeys $rawWindow @("start","end","precision","certainty","timezone") "Source registry '$windowContext'"
   $precision = Get-RequiredSourceString $rawWindow "precision" $windowContext
   $certainty = Get-RequiredSourceString $rawWindow "certainty" $windowContext
   Assert-SourceSchemaPackValues $SchemaPackRegistry "source.temporal-precision" @($precision) "$windowContext.precision"
@@ -254,6 +256,7 @@ function ConvertTo-LabeledSourceRegistry {
     if ($null -eq $definition -or -not ($definition -is [System.Collections.IDictionary])) {
       throw "Source registry '$valueContext' must be a mapping."
     }
+    Assert-KnowledgeMapKeys $definition @("label") "Source registry '$valueContext'"
     $parsed[$valueId] = [pscustomobject]@{
       id = $valueId
       label = Get-RequiredSourceString $definition "label" $valueContext
@@ -276,6 +279,7 @@ function ConvertTo-MediumConfig {
   if ($null -eq $RawMedium -or -not ($RawMedium -is [System.Collections.IDictionary])) {
     throw "Source registry '$context' must be a mapping."
   }
+  Assert-KnowledgeMapKeys $RawMedium @("lifecycle","label","plural_label","modality_ids","cultural_form_ids","position") "Source registry '$context'"
   $lifecycle = Get-RequiredSourceString $RawMedium "lifecycle" $context
   if ($script:AllowedSourceLifecycles -cnotcontains $lifecycle) {
     throw "Source registry '$context.lifecycle' must be one of: $($script:AllowedSourceLifecycles -join ', ')."
@@ -301,6 +305,7 @@ function ConvertTo-MediumConfig {
   if ($null -eq $position -or -not ($position -is [System.Collections.IDictionary])) {
     throw "Source registry '$context.position' must be a mapping."
   }
+  Assert-KnowledgeMapKeys $position @("fields","work_scope_field","structural_validation","required_fields","sort_fields","citation_formats") "Source registry '$context.position'"
   $rawFields = Get-ProjectMapValue $position "fields"
   if ($null -eq $rawFields -or -not ($rawFields -is [System.Collections.IDictionary])) {
     throw "Source registry '$context.position.fields' must be a mapping."
@@ -324,6 +329,7 @@ function ConvertTo-MediumConfig {
   if($null -ne $rawStructuralValidation){
     $validationContext="$context.position.structural_validation"
     if($rawStructuralValidation -isnot [System.Collections.IDictionary]){throw "Source registry '$validationContext' must be a mapping."}
+    Assert-KnowledgeMapKeys $rawStructuralValidation @("strategy","partition_field","ordinal_field","segment_field","ordering_scheme_field") "Source registry '$validationContext'"
     $strategy=Get-RequiredSourceString $rawStructuralValidation "strategy" $validationContext
     Assert-SourceSchemaPackValues $SchemaPackRegistry "source.position-structure-strategy" @($strategy) "$validationContext.strategy"
     $partitionField=$null;$ordinalField=$null;$segmentField=$null;$orderingSchemeField=$null
@@ -365,6 +371,7 @@ function ConvertTo-MediumConfig {
     if ($null -eq $citation -or -not ($citation -is [System.Collections.IDictionary])) {
       throw "Source registry '$formatContext' must be a mapping."
     }
+    Assert-KnowledgeMapKeys $citation @("id","template","required_fields") "Source registry '$formatContext'"
     $formatId = Get-RequiredSourceString $citation "id" $formatContext
     Test-StableSourceId $formatId "$formatContext.id"
     if (-not $seenFormatIds.Add($formatId)) {
@@ -925,6 +932,7 @@ function ConvertTo-RelationshipTypeRegistry {
     if ($null -eq $rawType -or -not ($rawType -is [System.Collections.IDictionary])) {
       throw "Source registry '$typeContext' must be a mapping."
     }
+    Assert-KnowledgeMapKeys $rawType @("label","inverse_type","symmetric") "Source registry '$typeContext'"
     $inverseType = Get-RequiredSourceString $rawType "inverse_type" $typeContext
     Test-StableSourceId $inverseType "$typeContext.inverse_type"
     $types[$typeId] = [pscustomobject]@{
@@ -947,6 +955,62 @@ function ConvertTo-RelationshipTypeRegistry {
     }
   }
   return $types
+}
+
+function Assert-SourceRegistryShapes {
+  param([object]$Registry)
+
+  $schemas = [ordered]@{
+    work_group_types=@("label","ordered")
+    work_groups=@("lifecycle","label","short_label","group_type","parent_group_id")
+    continuities=@("lifecycle","label","short_label","continuity_type","aliases")
+    continuity_relationships=@("id","source_continuity_id","relationship_type","target_continuity_id","status")
+    authority_profiles=@("lifecycle","label","continuity_order","accepted_membership_statuses","source_priority_order","comparison_work_relationship_types","cross_source_conflict","derivative_deviation_owner","preserve_source_scoped_claims","claim_authority_rules")
+    segments=@("work_id","parent_segment_id","segment_type","label","aliases","localized_titles","ordinal")
+    content_groups=@("lifecycle","label","group_type","members","parent_group_ids","ordering_scheme_id","localized_titles","aliases")
+    numbering_schemes=@("lifecycle","label","target_type","scope_type","scope_id","entries")
+    ordering_schemes=@("label","ordering_type","ordering_mode","entries")
+    work_relationships=@("id","source_work_id","relationship_type","target_work_id","continuity_ids","status","applicability_scope_id")
+    adaptation_mappings=@("id","basis_inputs","target_work_id","target_segment_ids","mapping_type","status")
+    territories=@("lifecycle","label","territory_type","parent_territory_id","codes")
+    applicability_scopes=@("id","target_type","target_id","territory_ids","effective_window","precedence")
+    scoped_continuity_assertions=@("id","applicability_scope_id","continuity_id","status")
+    work_production_contexts=@("id","work_id","production_origin","authorization_status","rights_basis","commerciality","applicability_scope_id")
+    platforms=@("lifecycle","label","platform_type","aliases")
+    manifestations=@("lifecycle","label","work_id","segment_ids","manifestation_type","language_tags","territory_ids","container_format_ids","localized_titles","aliases")
+    manifestation_relationships=@("id","source_manifestation_id","relationship_type","target_manifestation_id","status")
+    manifestation_segment_mappings=@("id","source_manifestation_id","source_segment_ids","target_manifestation_id","target_segment_ids","mapping_type","status")
+    release_components=@("lifecycle","label","manifestation_id","component_type","segment_ids","language_tag")
+    release_component_relationships=@("id","source_component_id","relationship_type","target_component_id")
+    release_packages=@("lifecycle","label","package_type","manifestation_ids","segment_ids","release_component_ids","container_format_ids","localized_titles","aliases")
+    release_runs=@("lifecycle","label","subject_type","subject_id","segment_ids","ordering_scheme_id","release_event_type","phases","territory_ids","platform_ids","availability_status","exceptions")
+    release_events=@("lifecycle","label","subject_type","subject_id","segment_ids","release_event_type","release_window","territory_ids","platform_ids","availability_status","release_run_id")
+    catalog_placements=@("lifecycle","label","platform_id","placement_type","parent_placement_id","target_type","target_id","ordinal","provider_key","localized_titles")
+    platform_offerings=@("lifecycle","label","platform_id","subject_type","subject_id","segment_ids","release_event_id","offering_type","availability_status","territory_ids","language_tags","availability_window","catalog_placement_ids")
+    identifier_schemes=@("lifecycle","label","target_types","case_sensitive")
+    sources=@("lifecycle","label","work_ids","manifestation_id","release_package_id","release_event_id","release_component_ids","platform_offering_id","medium_id","locator_medium_ids","container_format_ids","role","comparison_group","priority","aliases","evidence_modes","observations","coverage","resource_bindings")
+    source_relationships=@("id","source_source_id","relationship_type","target_source_id")
+    external_identifiers=@("id","scheme_id","target_type","target_id","value","territory_ids","language_tag","status")
+  }
+  $listRegistries=@("continuity_relationships","work_relationships","adaptation_mappings","applicability_scopes","scoped_continuity_assertions","work_production_contexts","manifestation_relationships","manifestation_segment_mappings","release_component_relationships","source_relationships","external_identifiers")
+  foreach($registryName in $schemas.Keys){
+    $raw=Get-ProjectMapValue $Registry $registryName
+    if($listRegistries -ccontains $registryName){$records=@($raw)}elseif($raw -is [System.Collections.IDictionary]){$records=@($raw.Values)}else{$records=@()}
+    for($index=0;$index -lt $records.Count;$index++){$record=$records[$index];if($record -is [System.Collections.IDictionary]){Assert-KnowledgeMapKeys $record $schemas[$registryName] "Source registry '$registryName.$index'"}}
+  }
+  $nestedSchemas=@(
+    [pscustomobject]@{registry="authority_profiles";field="claim_authority_rules";keys=@("id","claim_namespace","precedence","source_ids","source_roles","medium_ids","evidence_modes","rank")},
+    [pscustomobject]@{registry="content_groups";field="members";keys=@("id","target_type","target_id","role")},
+    [pscustomobject]@{registry="numbering_schemes";field="entries";keys=@("target_id","display_number","aliases")},
+    [pscustomobject]@{registry="ordering_schemes";field="entries";keys=@("id","target_type","target_id","ordinal","after_entry_ids")},
+    [pscustomobject]@{registry="adaptation_mappings";field="basis_inputs";keys=@("work_id","segment_ids","basis_role")},
+    [pscustomobject]@{registry="release_runs";field="phases";keys=@("id","segment_ids","first_release_window","cadence_unit","cadence_interval","batch_size")},
+    [pscustomobject]@{registry="release_runs";field="exceptions";keys=@("exception_type","segment_id","release_window","interval_count")},
+    [pscustomobject]@{registry="sources";field="observations";keys=@("id","target_type","target_id")},
+    [pscustomobject]@{registry="sources";field="coverage";keys=@("id","target_type","target_id","coverage_type","medium_id","evidence_modes","position_ranges")},
+    [pscustomobject]@{registry="sources";field="resource_bindings";keys=@("resource_type_id","root_id","relative_path","required")}
+  )
+  foreach($shape in $nestedSchemas){$raw=Get-ProjectMapValue $Registry $shape.registry;if($raw -isnot [System.Collections.IDictionary]){continue};foreach($parent in $raw.Values){if($parent -isnot [System.Collections.IDictionary]){continue};$children=@(Get-ProjectMapValue $parent $shape.field);for($index=0;$index -lt $children.Count;$index++){$child=$children[$index];if($child -is [System.Collections.IDictionary]){Assert-KnowledgeMapKeys $child $shape.keys "Source registry '$($shape.registry).$($shape.field)[$index]'"};if($shape.field -eq "coverage" -and $child -is [System.Collections.IDictionary]){$ranges=@(Get-ProjectMapValue $child "position_ranges");for($rangeIndex=0;$rangeIndex -lt $ranges.Count;$rangeIndex++){if($ranges[$rangeIndex] -is [System.Collections.IDictionary]){Assert-KnowledgeMapKeys $ranges[$rangeIndex] @("id","start","end") "Source registry 'sources.coverage[$index].position_ranges[$rangeIndex]'"}}}}}}
 }
 
 function Get-KnowledgeSourceRegistry {
@@ -978,6 +1042,8 @@ function Get-KnowledgeSourceRegistry {
   if ($null -eq $registry -or -not ($registry -is [System.Collections.IDictionary])) {
     throw "Source registry root must be a mapping: $registryPath"
   }
+  Assert-KnowledgeMapKeys $registry @("schema_version","default_authority_profile_id","media_modalities","cultural_forms","release_forms","container_formats","mediums","work_group_types","work_groups","continuities","continuity_relationship_types","continuity_relationships","authority_profiles","work_relationship_types","works","segments","content_groups","numbering_schemes","ordering_schemes","work_relationships","adaptation_mappings","territories","applicability_scopes","scoped_continuity_assertions","work_production_contexts","platforms","manifestation_relationship_types","manifestations","manifestation_relationships","manifestation_segment_mappings","release_components","release_component_relationship_types","release_component_relationships","release_packages","release_runs","release_events","catalog_placements","platform_offerings","identifier_schemes","source_relationship_types","sources","source_relationships","external_identifiers") "Source registry root"
+  Assert-SourceRegistryShapes $registry
   $schemaVersion = Get-ProjectMapValue $registry "schema_version"
   if ($schemaVersion -isnot [int] -or $schemaVersion -ne $script:SupportedSourceSchemaVersion) {
     throw "Unsupported source schema_version '$schemaVersion'; expected $($script:SupportedSourceSchemaVersion)."
@@ -995,6 +1061,7 @@ function Get-KnowledgeSourceRegistry {
     $context = "cultural_forms.$culturalFormId"
     Test-StableSourceId $culturalFormId $context
     $culturalForm = $rawCulturalForms[$culturalFormId]
+    if($culturalForm -isnot [System.Collections.IDictionary]){throw "Source registry '$context' must be a mapping."};Assert-KnowledgeMapKeys $culturalForm @("label","modality_id") "Source registry '$context'"
     $modalityId = Get-RequiredSourceString $culturalForm "modality_id" $context
     if (-not $mediaModalities.Contains($modalityId)) {
       throw "Source registry '$context.modality_id' references unknown media modality '$modalityId'."
@@ -1032,6 +1099,7 @@ function Get-KnowledgeSourceRegistry {
     $context = "work_group_types.$typeId"
     Test-StableSourceId $typeId $context
     $rawType = $rawGroupTypes[$typeId]
+    if($rawType -isnot [System.Collections.IDictionary]){throw "Source registry '$context' must be a mapping."};Assert-KnowledgeMapKeys $rawType @("label","ordered") "Source registry '$context'"
     $workGroupTypes[$typeId] = [pscustomobject]@{
       id = $typeId
       label = Get-RequiredSourceString $rawType "label" $context
@@ -1049,6 +1117,7 @@ function Get-KnowledgeSourceRegistry {
     $context = "work_groups.$groupId"
     Test-StableSourceId $groupId $context
     $group = $rawGroups[$groupId]
+    if($group -isnot [System.Collections.IDictionary]){throw "Source registry '$context' must be a mapping."};Assert-KnowledgeMapKeys $group @("lifecycle","label","short_label","group_type","parent_group_id") "Source registry '$context'"
     $lifecycle = Get-RequiredSourceString $group "lifecycle" $context
     if ($script:AllowedSourceLifecycles -cnotcontains $lifecycle) {
       throw "Source registry '$context.lifecycle' must be one of: $($script:AllowedSourceLifecycles -join ', ')."
@@ -1097,6 +1166,7 @@ function Get-KnowledgeSourceRegistry {
     $context = "continuities.$continuityId"
     Test-StableSourceId $continuityId $context
     $continuity = $rawContinuities[$continuityId]
+    if($continuity -isnot [System.Collections.IDictionary]){throw "Source registry '$context' must be a mapping."};Assert-KnowledgeMapKeys $continuity @("lifecycle","label","short_label","continuity_type","aliases") "Source registry '$context'"
     $lifecycle = Get-RequiredSourceString $continuity "lifecycle" $context
     if ($script:AllowedSourceLifecycles -cnotcontains $lifecycle) {
       throw "Source registry '$context.lifecycle' must be one of: $($script:AllowedSourceLifecycles -join ', ')."
@@ -1136,6 +1206,7 @@ function Get-KnowledgeSourceRegistry {
   for ($index = 0; $index -lt $rawContinuityRelationships.Count; $index += 1) {
     $context = "continuity_relationships[$index]"
     $relationship = $rawContinuityRelationships[$index]
+    if($relationship -isnot [System.Collections.IDictionary]){throw "Source registry '$context' must be a mapping."};Assert-KnowledgeMapKeys $relationship @("id","source_continuity_id","target_continuity_id","relationship_type","status") "Source registry '$context'"
     $id = Get-RequiredSourceString $relationship "id" $context
     Test-StableSourceId $id "$context.id"
     if (-not $seenRelationshipIds.Add($id)) { throw "Source registry relationship ID '$id' is duplicated." }
@@ -1159,6 +1230,7 @@ function Get-KnowledgeSourceRegistry {
     $context = "authority_profiles.$profileId"
     Test-StableSourceId $profileId $context
     $profile = $rawProfiles[$profileId]
+    if($profile -isnot [System.Collections.IDictionary]){throw "Source registry '$context' must be a mapping."};Assert-KnowledgeMapKeys $profile @("lifecycle","label","continuity_order","accepted_membership_statuses","source_priority_order","comparison_work_relationship_types","cross_source_conflict","derivative_deviation_owner","preserve_source_scoped_claims","claim_authority_rules") "Source registry '$context'"
     $lifecycle = Get-RequiredSourceString $profile "lifecycle" $context
     if ($script:AllowedSourceLifecycles -cnotcontains $lifecycle) { throw "Source registry '$context.lifecycle' must be one of: $($script:AllowedSourceLifecycles -join ', ')." }
     $continuityOrder = @(Get-SourceStringList $profile "continuity_order" $context)
@@ -1178,6 +1250,7 @@ function Get-KnowledgeSourceRegistry {
     $rawRules=@(Get-ProjectMapValue $profile "claim_authority_rules")
     for($ruleIndex=0;$ruleIndex -lt $rawRules.Count;$ruleIndex++){
       $ruleContext="$context.claim_authority_rules[$ruleIndex]";$rule=$rawRules[$ruleIndex]
+      if($rule -isnot [System.Collections.IDictionary]){throw "Source registry '$ruleContext' must be a mapping."};Assert-KnowledgeMapKeys $rule @("id","claim_namespace","precedence","source_ids","source_roles","medium_ids","evidence_modes","rank") "Source registry '$ruleContext'"
       $ruleId=Get-RequiredSourceString $rule "id" $ruleContext;Test-StableSourceId $ruleId "$ruleContext.id";if(-not $seenRuleIds.Add($ruleId)){throw "Source registry '$context.claim_authority_rules' repeats ID '$ruleId'."}
       $claimNamespace=Get-RequiredSourceString $rule "claim_namespace" $ruleContext;Assert-SourceSchemaPackValues $SchemaPackRegistry "provenance.claim-namespace" @($claimNamespace) "$ruleContext.claim_namespace"
       $precedence=Get-ProjectMapValue $rule "precedence";if($precedence -is [bool] -or $precedence -isnot [int] -or [int]$precedence -lt 1){throw "Source registry '$ruleContext.precedence' must be a positive integer."}
@@ -1213,6 +1286,7 @@ function Get-KnowledgeSourceRegistry {
     $context = "works.$workId"
     Test-StableSourceId $workId $context
     $work = $rawWorks[$workId]
+    if($work -isnot [System.Collections.IDictionary]){throw "Source registry '$context' must be a mapping."};Assert-KnowledgeMapKeys $work @("lifecycle","label","short_label","parent_work_id","work_type","medium_id","release_form_id","work_status","aliases","localized_titles","group_memberships","continuity_memberships","chapter_numbering","volume_catalog_status","volumes") "Source registry '$context'"
     $lifecycle = Get-RequiredSourceString $work "lifecycle" $context
     if ($script:AllowedSourceLifecycles -cnotcontains $lifecycle) { throw "Source registry '$context.lifecycle' must be one of: $($script:AllowedSourceLifecycles -join ', ')." }
     $mediumId = Get-RequiredSourceString $work "medium_id" $context
@@ -1237,6 +1311,7 @@ function Get-KnowledgeSourceRegistry {
     $groupMemberships = @()
     $seenGroups = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
     foreach ($membership in @(Get-ProjectMapValue $work "group_memberships")) {
+      if($membership -isnot [System.Collections.IDictionary]){throw "Source registry '$context.group_memberships' entries must be mappings."};Assert-KnowledgeMapKeys $membership @("group_id","role","ordinal") "Source registry '$context.group_memberships'"
       $groupId = Get-RequiredSourceString $membership "group_id" "$context.group_memberships"
       if (-not $workGroups.Contains($groupId)) { throw "Source registry '$context.group_memberships.group_id' references unknown work group '$groupId'." }
       if (-not $seenGroups.Add($groupId)) { throw "Source registry '$context' repeats work group '$groupId'." }
@@ -1257,6 +1332,7 @@ function Get-KnowledgeSourceRegistry {
     $continuityMemberships = @()
     $seenContinuities = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
     foreach ($membership in @(Get-ProjectMapValue $work "continuity_memberships")) {
+      if($membership -isnot [System.Collections.IDictionary]){throw "Source registry '$context.continuity_memberships' entries must be mappings."};Assert-KnowledgeMapKeys $membership @("continuity_id","status") "Source registry '$context.continuity_memberships'"
       $continuityId = Get-RequiredSourceString $membership "continuity_id" "$context.continuity_memberships"
       if (-not $continuities.Contains($continuityId)) { throw "Source registry '$context.continuity_memberships.continuity_id' references unknown continuity '$continuityId'." }
       if (-not $seenContinuities.Add($continuityId)) { throw "Source registry '$context' repeats continuity '$continuityId'." }
@@ -1271,6 +1347,7 @@ function Get-KnowledgeSourceRegistry {
     $seenVolumeIds = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
     $seenVolumeNumbers = New-Object 'System.Collections.Generic.HashSet[int]'
     foreach ($volume in $rawVolumes) {
+      if($volume -isnot [System.Collections.IDictionary]){throw "Source registry '$context.volumes' entries must be mappings."};Assert-KnowledgeMapKeys $volume @("id","number","label","chapter_start","chapter_end") "Source registry '$context.volumes'"
       $volumeId = Get-RequiredSourceString $volume "id" "$context.volumes"
       Test-StableSourceId $volumeId "$context.volumes.id"
       if (-not $seenVolumeIds.Add($volumeId)) { throw "Source registry '$context' duplicates volume ID '$volumeId'." }

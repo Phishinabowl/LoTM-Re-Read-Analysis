@@ -3,7 +3,7 @@ from pathlib import Path
 import re
 
 from project_config import ContentRootConfig, ProjectConfig, resolve_manifest_path
-from strict_yaml import load_yaml_file
+from strict_yaml import assert_allowed_keys, load_yaml_file
 
 
 SUPPORTED_TAXONOMY_SCHEMA_VERSION = 2
@@ -181,6 +181,17 @@ def parse_content_type(
     context = f"content_types.{content_type_id}"
     validate_stable_id(content_type_id, context)
     content_type = require_mapping(raw_content_type, context)
+    assert_allowed_keys(
+        content_type,
+        {
+            "lifecycle", "label", "plural_label", "canonical_pages_enabled",
+            "content_root_id", "category_policy", "path_strategy",
+            "metadata_type_mode", "slug_mode", "default_template",
+            "qa_page_enabled", "graph_enabled", "metadata_type",
+            "record_slug_prefix", "record_slug_pattern", "record_path",
+        },
+        f"Taxonomy registry `{context}`",
+    )
     lifecycle = require_string(content_type, "lifecycle", context)
     if lifecycle not in LIFECYCLES:
         allowed = ", ".join(sorted(LIFECYCLES))
@@ -332,6 +343,15 @@ def parse_category(
     context = f"categories.{category_id}"
     validate_stable_id(category_id, context)
     category = require_mapping(raw_category, context)
+    assert_allowed_keys(
+        category,
+        {
+            "lifecycle", "label", "plural_label", "canonical_pages_enabled",
+            "metadata_type", "subject_slug_prefix", "subject_slug_pattern",
+            "graph_class", "placements",
+        },
+        f"Taxonomy registry `{context}`",
+    )
     lifecycle = require_string(category, "lifecycle", context)
     if lifecycle not in LIFECYCLES:
         allowed = ", ".join(sorted(LIFECYCLES))
@@ -384,6 +404,11 @@ def parse_category(
                 "that forbids categories."
             )
         placement = require_mapping(raw_placement, placement_context)
+        assert_allowed_keys(
+            placement,
+            {"relative_folder", "template"},
+            f"Taxonomy registry `{placement_context}`",
+        )
         relative_folder, folder = resolve_folder(
             project,
             content_type.content_root_id,
@@ -456,6 +481,10 @@ def load_taxonomy_config(project: ProjectConfig) -> TaxonomyConfig:
     data = load_yaml_file(project.taxonomy_registry, "taxonomy registry", expected_schema_version=SUPPORTED_TAXONOMY_SCHEMA_VERSION)
 
     registry = require_mapping(data, "root")
+    assert_allowed_keys(
+        registry, {"schema_version", "content_types", "categories"},
+        "Taxonomy registry root",
+    )
     schema_version = registry.get("schema_version")
     if schema_version != SUPPORTED_TAXONOMY_SCHEMA_VERSION:
         raise ValueError(

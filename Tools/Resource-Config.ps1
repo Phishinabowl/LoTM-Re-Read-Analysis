@@ -72,6 +72,7 @@ function Get-KnowledgeResourceConfig {
   if ($null -eq $registry -or -not ($registry -is [System.Collections.IDictionary])) {
     throw "Resource registry root must be a mapping: $registryPath"
   }
+  Assert-KnowledgeMapKeys $registry @("schema_version","resource_kinds","resource_types") "Resource registry root"
   $schemaVersion = Get-ProjectMapValue $registry "schema_version"
   if ($schemaVersion -isnot [int] -or $schemaVersion -ne $script:SupportedResourceSchemaVersion) {
     throw "Unsupported resource schema_version '$schemaVersion'; expected $($script:SupportedResourceSchemaVersion)."
@@ -89,6 +90,7 @@ function Get-KnowledgeResourceConfig {
     if ($null -eq $rawKind -or -not ($rawKind -is [System.Collections.IDictionary])) {
       throw "Resource registry '$context' must be a mapping."
     }
+    Assert-KnowledgeMapKeys $rawKind @("label","plural_label") "Resource registry '$context'"
     $kinds[$kindId] = [pscustomobject]@{
       id = $kindId
       label = Get-RequiredResourceString $rawKind "label" $context
@@ -109,6 +111,7 @@ function Get-KnowledgeResourceConfig {
     if ($null -eq $rawType -or -not ($rawType -is [System.Collections.IDictionary])) {
       throw "Resource registry '$context' must be a mapping."
     }
+    Assert-KnowledgeMapKeys $rawType @("lifecycle","label","plural_label","kind_id","authority","editor_enabled","placements") "Resource registry '$context'"
     $lifecycle = Get-RequiredResourceString $rawType "lifecycle" $context
     if ($script:AllowedResourceLifecycles -cnotcontains $lifecycle) {
       throw "Resource registry '$context.lifecycle' must be one of: $($script:AllowedResourceLifecycles -join ', ')."
@@ -132,6 +135,7 @@ function Get-KnowledgeResourceConfig {
       if ($null -eq $placement -or -not ($placement -is [System.Collections.IDictionary])) {
         throw "Resource registry '$placementContext' must be a mapping."
       }
+      Assert-KnowledgeMapKeys $placement @("root_id","relative_path","tracking","required") "Resource registry '$placementContext'"
       $rootId = Get-RequiredResourceString $placement "root_id" $placementContext
       Test-StableResourceId $rootId "$placementContext.root_id"
       $tracking = Get-RequiredResourceString $placement "tracking" $placementContext

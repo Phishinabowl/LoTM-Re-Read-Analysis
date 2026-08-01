@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from pathlib import Path
 import re
 
-from strict_yaml import load_yaml_file
+from strict_yaml import assert_allowed_keys, load_yaml_file
 
 
 PROJECT_MANIFEST_PATH = Path("Project_Config") / "project.yaml"
@@ -135,6 +135,11 @@ def load_project_config(root: Path) -> ProjectConfig:
     )
 
     manifest = require_mapping(data, "root")
+    assert_allowed_keys(
+        manifest,
+        {"schema_version", "project_id", "framework", "domain", "paths", "registries"},
+        "Project manifest root",
+    )
     schema_version = manifest.get("schema_version")
     if schema_version != SUPPORTED_SCHEMA_VERSION:
         raise ValueError(
@@ -146,6 +151,11 @@ def load_project_config(root: Path) -> ProjectConfig:
     framework = require_string(manifest, "framework", "root")
     domain = require_string(manifest, "domain", "root")
     paths = require_mapping(manifest.get("paths"), "paths")
+    assert_allowed_keys(
+        paths,
+        {"content_roots", "resource_roots", "qa_export", "visualization", "cleanup"},
+        "Project manifest `paths`",
+    )
 
     raw_content_roots = paths.get("content_roots")
     if not isinstance(raw_content_roots, list) or not raw_content_roots:
@@ -156,6 +166,11 @@ def load_project_config(root: Path) -> ProjectConfig:
     for index, raw_entry in enumerate(raw_content_roots):
         context = f"paths.content_roots[{index}]"
         entry = require_mapping(raw_entry, context)
+        assert_allowed_keys(
+            entry,
+            {"id", "path", "provenance_mode", "provenance_label"},
+            f"Project manifest `{context}`",
+        )
         content_root_id = require_string(entry, "id", context)
         if not STABLE_ID_PATTERN.fullmatch(content_root_id):
             raise ValueError(
@@ -204,6 +219,11 @@ def load_project_config(root: Path) -> ProjectConfig:
     for index, raw_entry in enumerate(raw_resource_roots):
         context = f"paths.resource_roots[{index}]"
         entry = require_mapping(raw_entry, context)
+        assert_allowed_keys(
+            entry,
+            {"id", "path", "required"},
+            f"Project manifest `{context}`",
+        )
         resource_root_id = require_string(entry, "id", context)
         if not STABLE_ID_PATTERN.fullmatch(resource_root_id):
             raise ValueError(
@@ -242,6 +262,11 @@ def load_project_config(root: Path) -> ProjectConfig:
     )
 
     visualization = require_mapping(paths.get("visualization"), "paths.visualization")
+    assert_allowed_keys(
+        visualization,
+        {"python_helper", "powershell_helper", "render_settings", "puppeteer_config"},
+        "Project manifest `paths.visualization`",
+    )
     _, visualization_python_helper = resolve_manifest_path(
         resolved_root,
         require_string(visualization, "python_helper", "paths.visualization"),
@@ -268,6 +293,11 @@ def load_project_config(root: Path) -> ProjectConfig:
     )
 
     cleanup = require_mapping(paths.get("cleanup"), "paths.cleanup")
+    assert_allowed_keys(
+        cleanup,
+        {"python_helper", "powershell_helper"},
+        "Project manifest `paths.cleanup`",
+    )
     _, cleanup_python_helper = resolve_manifest_path(
         resolved_root,
         require_string(cleanup, "python_helper", "paths.cleanup"),
@@ -282,6 +312,14 @@ def load_project_config(root: Path) -> ProjectConfig:
     )
 
     registries = require_mapping(manifest.get("registries"), "registries")
+    assert_allowed_keys(
+        registries,
+        {
+            "lookup_keys", "schema_packs", "taxonomy", "resources", "sources",
+            "entities", "reconciliation", "provenance",
+        },
+        "Project manifest `registries`",
+    )
     _, lookup_keys_registry = resolve_manifest_path(
         resolved_root,
         require_string(registries, "lookup_keys", "registries"),

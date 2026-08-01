@@ -50,7 +50,9 @@ function ConvertTo-NormalizedResolution([object]$Resolution) {
 }
 
 $fixtures=Join-Path $Root "Framework\Data\Reconciliation"
-$registry=Get-TestRegistry (Join-Path $fixtures "valid-v3.yaml")
+$registry=Get-TestRegistry (Join-Path $fixtures "valid-v4.yaml")
+$scalarRegistry=Get-TestRegistry (Join-Path $fixtures "valid-scalar-parity.yaml")
+if([string]$scalarRegistry.records[0].source_label -cne "on"){throw "Legacy YAML Boolean word did not remain a string."}
 $expectations=Get-Content -Raw (Join-Path $fixtures "expectations.json")|ConvertFrom-Json
 foreach($case in @($expectations.resolutions)){
   $actual=ConvertTo-NormalizedResolution (Resolve-KnowledgeReconciliationTarget $registry $case.target_type $case.target_id)
@@ -59,7 +61,7 @@ foreach($case in @($expectations.resolutions)){
   if($actualJson -ne $expectedJson){throw "Reconciliation resolution vector failed for $($case.target_type):$($case.target_id).`nExpected: $expectedJson`nActual:   $actualJson"}
 }
 
-foreach($name in @("invalid-operation-reason.yaml","invalid-alias-conflict.yaml","invalid-audit.yaml","invalid-reclassify.yaml","invalid-active-cycle.yaml","invalid-unknown-terminal.yaml","invalid-source-state.yaml","invalid-label-mode.yaml","invalid-supersession-cycle.yaml","invalid-duplicate-key.yaml","invalid-schema-string.yaml","invalid-unknown-field.yaml","invalid-timestamp-case.yaml","invalid-timestamp-offset.yaml","invalid-resolution-type.yaml","invalid-resolution-field.yaml","invalid-schema-decimal.yaml","invalid-record-field.yaml","invalid-target-field.yaml","invalid-audit-field.yaml","invalid-present-retire.yaml","invalid-uppercase-controlled-value.yaml")){
+foreach($name in @("invalid-operation-reason.yaml","invalid-alias-conflict.yaml","invalid-audit.yaml","invalid-reclassify.yaml","invalid-active-cycle.yaml","invalid-unknown-terminal.yaml","invalid-source-state.yaml","invalid-label-mode.yaml","invalid-supersession-cycle.yaml","invalid-duplicate-key.yaml","invalid-schema-string.yaml","invalid-unknown-field.yaml","invalid-timestamp-case.yaml","invalid-timestamp-offset.yaml","invalid-resolution-type.yaml","invalid-resolution-field.yaml","invalid-schema-decimal.yaml","invalid-record-field.yaml","invalid-target-field.yaml","invalid-audit-field.yaml","invalid-present-retire.yaml","invalid-uppercase-controlled-value.yaml","invalid-schema-explicit-tag.yaml","invalid-schema-hex.yaml","invalid-schema-plus.yaml","invalid-schema-leading-zero.yaml","invalid-merge-key.yaml","invalid-timestamp-hour.yaml","invalid-timestamp-zone-minute.yaml","invalid-present-merge.yaml","invalid-record-limit.yaml","invalid-target-limit.yaml","invalid-document-marker.yaml","invalid-unquoted-timestamp.yaml","invalid-leading-zero-limit.yaml")){
   $rejected=$false
   try{$null=Get-TestRegistry (Join-Path $fixtures $name)}catch{$rejected=$true}
   if(-not $rejected){throw "Malformed reconciliation fixture was accepted: $name"}
@@ -69,6 +71,11 @@ $limited=Get-TestRegistry (Join-Path $fixtures "branch-limit.yaml")
 $limitRejected=$false
 try{$null=Resolve-KnowledgeReconciliationTarget $limited "category" "branch-limit-source"}catch{$limitRejected=$true}
 if(-not $limitRejected){throw "Reconciliation branch limit did not stop expansion."}
+
+$stepLimited=Get-TestRegistry (Join-Path $fixtures "resolution-step-limit.yaml")
+$stepRejected=$false
+try{$null=Resolve-KnowledgeReconciliationTarget $stepLimited "category" "step-limit-a"}catch{$stepRejected=$true}
+if(-not $stepRejected){throw "Reconciliation step limit did not stop traversal."}
 
 $records=New-Object 'System.Collections.Generic.List[object]'
 for($i=0;$i -lt $DeepChain;$i++){
@@ -81,7 +88,7 @@ for($i=0;$i -lt $DeepChain;$i++){
 }
 $tempPath=Join-Path ([System.IO.Path]::GetTempPath()) ("knowledge-reconciliation-{0}.yaml" -f [guid]::NewGuid().ToString("N"))
 try{
-  [System.IO.File]::WriteAllText($tempPath,([ordered]@{schema_version=3;resolution=[ordered]@{max_branches=65536};records=$records.ToArray()}|ConvertTo-Json -Depth 10),[System.Text.UTF8Encoding]::new($false))
+  [System.IO.File]::WriteAllText($tempPath,([ordered]@{schema_version=4;resolution=[ordered]@{max_branches=65536;max_records=[Math]::Max($DeepChain+1,100000);max_targets_per_record=4096;max_resolution_steps=[Math]::Max($DeepChain+1,250000)};records=$records.ToArray()}|ConvertTo-Json -Depth 10),[System.Text.UTF8Encoding]::new($false))
   $deep=Get-TestRegistry $tempPath
   $result=Resolve-KnowledgeReconciliationTarget $deep "category" "deep-0000"
   if($result.outcome -ne "redirected" -or @($result.reconciliation_ids).Count -ne $DeepChain){throw "Deep reconciliation chain did not resolve completely."}
@@ -89,4 +96,4 @@ try{
   if(Test-Path -LiteralPath $tempPath){Remove-Item -LiteralPath $tempPath -Force}
 }
 
-Write-Output "Reconciliation conformance passed: $(@($expectations.resolutions).Count) vectors, 22 malformed fixtures, branch limit, $DeepChain-hop chain."
+Write-Output "Reconciliation conformance passed: $(@($expectations.resolutions).Count) vectors, 35 malformed fixtures, scalar parity, branch and step limits, $DeepChain-hop chain."

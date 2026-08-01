@@ -1,6 +1,6 @@
 # Stable Identity Reconciliation Contract
 
-`Project_Config/reconciliation.yaml` schema version 3 is the domain-neutral project-instance audit registry for stable IDs that have been redirected, merged, split, retired, or reclassified. Target types come from selected schema packs and must have exactly one installed provider from taxonomy, resources, sources, entities, or a future registry. The root, `resolution`, record, target, and audit mappings are closed shapes; unknown fields and duplicate YAML keys are errors.
+`Project_Config/reconciliation.yaml` schema version 4 is the domain-neutral project-instance audit registry for stable IDs that have been redirected, merged, split, retired, or reclassified. Target types come from selected schema packs and must have exactly one installed provider from taxonomy, resources, sources, entities, or a future registry. The root, `resolution`, record, target, and audit mappings are closed shapes; unknown fields and duplicate YAML keys are errors.
 
 ## Record Semantics
 
@@ -26,7 +26,14 @@ An active source may have only one record. Active destination chains must end at
 
 Any split produces multiple branches and therefore remains ambiguous even if all branches converge on one current target or all branches retire. A resolver never chooses one split branch silently.
 
-`resolution.max_branches` is a required positive integer and caps terminal branches produced by one resolution. The resolver raises an explicit limit error before materializing a branch beyond that project-owned bound. This prevents valid-looking split chains from consuming unbounded memory while preserving every branch below the configured limit.
+The `resolution` mapping requires four positive integer budgets:
+
+- `max_branches` caps terminal branches produced by one resolution;
+- `max_records` caps records accepted from one registry;
+- `max_targets_per_record` caps direct fan-out from one reconciliation record;
+- `max_resolution_steps` caps iterative traversal work for one resolution request.
+
+The loader or resolver raises an explicit limit error before exceeding a bound. These project-owned budgets prevent valid-looking but hostile record sets, split chains, and deep traversals from consuming unbounded resources while preserving every result below the configured limits.
 
 ## Audit Modes
 
@@ -45,4 +52,4 @@ Providers expose a stable `provider_id`, current stable-record maps, and alias-k
 
 `Tools/reconciliation_config.py` and `Tools/Reconciliation-Config.ps1` are behaviorally paired read-only loaders and resolvers. They cache current, historical, and active indexes but do not rename files, move folders, rewrite YAML references, modify aliases, update graph IDs, or delete records. Those changes require the planned migration service with preview, validation, rollback information, and an explicit commit boundary.
 
-Portable conformance fixtures live in `Framework/Data/Reconciliation/`. They exercise strict ingestion, closed record shapes, timestamp parity, branch bounds, historical policy, and deep iterative resolution. Run `python Tools/test_reconciliation.py` or `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Test-Reconciliation.ps1` to verify Python, PowerShell 7, or Windows PowerShell 5.1 behavior.
+Portable conformance fixtures live in `Framework/Data/Reconciliation/`. They exercise canonical scalar ingestion, forbidden YAML composition features, closed record shapes, timestamp parity, record/fan-out/branch/traversal bounds, historical policy, and deep iterative resolution. Run `python Tools/test_reconciliation.py` or `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Test-Reconciliation.ps1` to verify Python, PowerShell 7, or Windows PowerShell 5.1 behavior.

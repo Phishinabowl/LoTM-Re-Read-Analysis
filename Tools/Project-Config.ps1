@@ -114,6 +114,7 @@ function Get-KnowledgeProjectConfig {
   Import-ProjectYamlModule
   $manifestPath = Join-Path $RepoRoot $script:ProjectManifestPath
   $manifest = ConvertFrom-KnowledgeYamlFile $manifestPath $script:SupportedProjectSchemaVersion "project manifest"
+  Assert-KnowledgeMapKeys $manifest @("schema_version","project_id","framework","domain","paths","registries") "Project manifest root"
 
   $schemaVersion = Get-ProjectMapValue $manifest "schema_version"
   if ($schemaVersion -isnot [int] -or $schemaVersion -ne $script:SupportedProjectSchemaVersion) {
@@ -127,6 +128,7 @@ function Get-KnowledgeProjectConfig {
   if ($null -eq $paths) {
     throw "Project manifest 'paths' must be a mapping."
   }
+  Assert-KnowledgeMapKeys $paths @("content_roots","resource_roots","qa_export","visualization","cleanup") "Project manifest 'paths'"
 
   $rawContentRoots = @(Get-ProjectMapValue $paths "content_roots")
   if ($rawContentRoots.Count -eq 0) {
@@ -137,6 +139,7 @@ function Get-KnowledgeProjectConfig {
   for ($index = 0; $index -lt $rawContentRoots.Count; $index += 1) {
     $entry = $rawContentRoots[$index]
     $context = "paths.content_roots[$index]"
+    Assert-KnowledgeMapKeys $entry @("id","path","provenance_mode","provenance_label") "Project manifest '$context'"
     $contentRootId = Get-RequiredProjectString $entry "id" $context
     if ($contentRootId -cnotmatch $script:StableProjectIdPattern) {
       throw "Project manifest '$context.id' must be a lowercase kebab-case stable ID: $contentRootId"
@@ -170,6 +173,7 @@ function Get-KnowledgeProjectConfig {
   for ($index = 0; $index -lt $rawResourceRoots.Count; $index += 1) {
     $entry = $rawResourceRoots[$index]
     $context = "paths.resource_roots[$index]"
+    Assert-KnowledgeMapKeys $entry @("id","path","required") "Project manifest '$context'"
     $resourceRootId = Get-RequiredProjectString $entry "id" $context
     if ($resourceRootId -cnotmatch $script:StableProjectIdPattern) {
       throw "Project manifest '$context.id' must be a lowercase kebab-case stable ID: $resourceRootId"
@@ -194,14 +198,17 @@ function Get-KnowledgeProjectConfig {
   if ($null -eq $visualization) {
     throw "Project manifest 'paths.visualization' must be a mapping."
   }
+  Assert-KnowledgeMapKeys $visualization @("python_helper","powershell_helper","render_settings","puppeteer_config") "Project manifest 'paths.visualization'"
   $cleanup = Get-ProjectMapValue $paths "cleanup"
   if ($null -eq $cleanup) {
     throw "Project manifest 'paths.cleanup' must be a mapping."
   }
+  Assert-KnowledgeMapKeys $cleanup @("python_helper","powershell_helper") "Project manifest 'paths.cleanup'"
   $registries = Get-ProjectMapValue $manifest "registries"
   if ($null -eq $registries) {
     throw "Project manifest 'registries' must be a mapping."
   }
+  Assert-KnowledgeMapKeys $registries @("lookup_keys","schema_packs","taxonomy","resources","sources","entities","reconciliation","provenance") "Project manifest 'registries'"
 
   return [pscustomobject]@{
     root = [System.IO.Path]::GetFullPath($RepoRoot)

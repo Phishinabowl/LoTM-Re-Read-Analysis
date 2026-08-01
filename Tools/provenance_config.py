@@ -23,7 +23,7 @@ from source_config import (
     validate_pack_values,
     validate_source_position,
 )
-from strict_yaml import load_yaml_file
+from strict_yaml import assert_allowed_keys, load_yaml_file
 
 
 SUPPORTED_PROVENANCE_SCHEMA_VERSION = 1
@@ -415,6 +415,11 @@ def parse_locator(
     schema_packs: SchemaPackRegistry,
 ) -> EvidenceLocator:
     locator = require_mapping(raw_locator, context)
+    assert_allowed_keys(
+        locator,
+        {"id", "medium_id", "evidence_mode", "locator_type", "position", "start", "end"},
+        f"Provenance registry `{context}`",
+    )
     locator_id = require_string(locator, "id", context)
     validate_id(locator_id, f"{context}.id")
     medium_id = require_string(locator, "medium_id", context)
@@ -475,6 +480,11 @@ def load_provenance_registry(
         schema_packs = load_schema_pack_registry(project)
     data = load_yaml_file(project.provenance_registry, "provenance registry", expected_schema_version=SUPPORTED_PROVENANCE_SCHEMA_VERSION)
     registry = require_mapping(data, "root")
+    assert_allowed_keys(
+        registry,
+        {"schema_version", "claim_supersessions", "assertions"},
+        "Provenance registry root",
+    )
     schema_version = registry.get("schema_version")
     if schema_version != SUPPORTED_PROVENANCE_SCHEMA_VERSION:
         raise ValueError(
@@ -525,6 +535,11 @@ def load_provenance_registry(
     for index, raw_item in enumerate(raw_supersessions):
         context = f"claim_supersessions[{index}]"
         item = require_mapping(raw_item, context)
+        assert_allowed_keys(
+            item,
+            {"id", "source_claim_key", "target_claim_key", "relationship_type", "applicability_scope_id", "continuity_ids"},
+            f"Provenance registry `{context}`",
+        )
         item_id = require_string(item, "id", context)
         validate_id(item_id, f"{context}.id")
         if item_id in seen_supersession_ids:
@@ -564,6 +579,11 @@ def load_provenance_registry(
     for index, raw_assertion in enumerate(raw_assertions):
         context = f"assertions[{index}]"
         assertion = require_mapping(raw_assertion, context)
+        assert_allowed_keys(
+            assertion,
+            {"id", "claim_key", "subject_type", "subject_id", "claim_namespace", "field_path", "asserted_value", "assertion_status", "observed_at", "effective_window", "evidence_links"},
+            f"Provenance registry `{context}`",
+        )
         assertion_id = require_string(assertion, "id", context)
         validate_id(assertion_id, f"{context}.id")
         if assertion_id in seen_assertion_ids:
@@ -609,6 +629,11 @@ def load_provenance_registry(
         for link_index, raw_link in enumerate(raw_links):
             link_context = f"{context}.evidence_links[{link_index}]"
             link = require_mapping(raw_link, link_context)
+            assert_allowed_keys(
+                link,
+                {"source_id", "evidence_role", "locators"},
+                f"Provenance registry `{link_context}`",
+            )
             source_id = require_string(link, "source_id", link_context)
             if source_id not in sources.sources:
                 raise ValueError(f"Provenance registry `{link_context}.source_id` references unknown source `{source_id}`.")

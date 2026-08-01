@@ -186,6 +186,17 @@ def load_lookup_key_config(project: ProjectConfig) -> LookupKeyConfig:
     except json.JSONDecodeError as exc:
         raise ValueError(f"Unable to parse lookup-key registry {path}: {exc}") from exc
     registry = _require_mapping(data, "root")
+    unknown_root = set(registry) - {
+        "schema_version", "unicode_version", "algorithm", "trim_codepoints",
+        "case_folding", "canonical_decomposition", "canonical_combining_class",
+        "canonical_composition", "counts",
+    }
+    if unknown_root:
+        raise ValueError(
+            "Lookup-key registry root contains unsupported field(s): "
+            + ", ".join(sorted(map(str, unknown_root)))
+            + "."
+        )
     schema_version = registry.get("schema_version")
     if schema_version != SUPPORTED_LOOKUP_KEY_SCHEMA_VERSION:
         raise ValueError(
@@ -271,6 +282,16 @@ def load_lookup_key_config(project: ProjectConfig) -> LookupKeyConfig:
         canonical_composition=composition,
     )
     counts = _require_mapping(registry.get("counts"), "counts")
+    unknown_counts = set(counts) - {
+        "case_folding", "canonical_decomposition",
+        "canonical_combining_class", "canonical_composition",
+    }
+    if unknown_counts:
+        raise ValueError(
+            "Lookup-key registry `counts` contains unsupported field(s): "
+            + ", ".join(sorted(map(str, unknown_counts)))
+            + "."
+        )
     actual_counts = {
         "case_folding": len(config.case_folding),
         "canonical_decomposition": len(config.canonical_decomposition),

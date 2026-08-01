@@ -87,6 +87,7 @@ function ConvertTo-SchemaPackConfig {
   if ($null -eq $pack -or -not ($pack -is [System.Collections.IDictionary])) {
     throw "Schema-pack configuration '$ExpectedPackId' must be a mapping."
   }
+  Assert-KnowledgeMapKeys $pack @("schema_version","pack_id","pack_version","lifecycle","pack_kind","label","description","dependencies","capabilities","controlled_values") "Schema pack '$ExpectedPackId'"
   $schemaVersion = Get-RequiredSchemaPackPositiveInteger $pack "schema_version" $ExpectedPackId
   if ($schemaVersion -ne $script:SupportedSchemaPackVersion) {
     throw "Unsupported schema-pack schema_version '$schemaVersion' in $Path; expected $($script:SupportedSchemaPackVersion)."
@@ -112,6 +113,7 @@ function ConvertTo-SchemaPackConfig {
   for ($index = 0; $index -lt $rawDependencies.Count; $index += 1) {
     $context = "$packId.dependencies[$index]"
     $dependency = $rawDependencies[$index]
+    Assert-KnowledgeMapKeys $dependency @("pack_id","minimum_version") "Schema pack '$context'"
     $dependencyId = Get-RequiredSchemaPackString $dependency "pack_id" $context
     Assert-SchemaPackStableId $dependencyId "$context.pack_id"
     if ($dependencyId -eq $packId) {
@@ -142,6 +144,7 @@ function ConvertTo-SchemaPackConfig {
       $capabilityLabel = $null
       $capabilityDescription = $null
     } elseif ($rawCapability -is [System.Collections.IDictionary]) {
+      Assert-KnowledgeMapKeys $rawCapability @("id","lifecycle","label","description") "Schema pack '$context'"
       $capabilityId = Get-RequiredSchemaPackString $rawCapability "id" $context
       $capabilityLifecycle = Get-RequiredSchemaPackString $rawCapability "lifecycle" $context
       $labelValue = Get-ProjectMapValue $rawCapability "label"
@@ -201,6 +204,7 @@ function ConvertTo-SchemaPackConfig {
         $broaderValue = $null
       } elseif ($rawValue -is [System.Collections.IDictionary]) {
         $valueContext = "$context[$index]"
+        Assert-KnowledgeMapKeys $rawValue @("id","label","description","broader_value") "Schema pack '$valueContext'"
         $valueId = Get-RequiredSchemaPackString $rawValue "id" $valueContext
         $label = Get-RequiredSchemaPackString $rawValue "label" $valueContext
         $descriptionValue = Get-ProjectMapValue $rawValue "description"
@@ -263,6 +267,7 @@ function Get-KnowledgeSchemaPackRegistry {
   if ($null -eq $registry -or -not ($registry -is [System.Collections.IDictionary])) {
     throw "Schema-pack registry root must be a mapping: $registryPath"
   }
+  Assert-KnowledgeMapKeys $registry @("schema_version","selected_packs","capability_activation") "Schema-pack registry root"
   $schemaVersion = Get-RequiredSchemaPackPositiveInteger $registry "schema_version" "root"
   if ($schemaVersion -ne $script:SupportedSchemaPackRegistryVersion) {
     throw "Unsupported schema-pack registry version '$schemaVersion'; expected $($script:SupportedSchemaPackRegistryVersion)."
@@ -277,6 +282,7 @@ function Get-KnowledgeSchemaPackRegistry {
   for ($index = 0; $index -lt $rawSelections.Count; $index += 1) {
     $context = "selected_packs[$index]"
     $selection = $rawSelections[$index]
+    Assert-KnowledgeMapKeys $selection @("pack_id","path") "Schema-pack registry '$context'"
     $packId = Get-RequiredSchemaPackString $selection "pack_id" $context
     Assert-SchemaPackStableId $packId "$context.pack_id"
     if ($packs.Contains($packId)) {
@@ -327,6 +333,7 @@ function Get-KnowledgeSchemaPackRegistry {
   if ($null -eq $activation -or -not ($activation -is [System.Collections.IDictionary])) {
     throw "Schema-pack registry 'capability_activation' must be a mapping."
   }
+  Assert-KnowledgeMapKeys $activation @("default","enabled") "Schema-pack registry 'capability_activation'"
   $activationDefault = Get-RequiredSchemaPackString $activation "default" "capability_activation"
   if ($activationDefault -ne "disabled") {
     throw "Schema-pack registry 'capability_activation.default' must be 'disabled' so features remain opt-in."

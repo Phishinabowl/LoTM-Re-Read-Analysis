@@ -34,6 +34,7 @@ function Resolve-ProvenanceRecordFieldPath {
 
 function ConvertTo-ProvenanceLocator {
   param([object]$Raw,[string]$Context,[string]$SourceId,[object]$Sources,[object]$SchemaPacks)
+  if($Raw -isnot [System.Collections.IDictionary]){throw "Provenance registry '$Context' must be a mapping."};Assert-KnowledgeMapKeys $Raw @("id","medium_id","evidence_mode","locator_type","position","start","end") "Provenance registry '$Context'"
   $id=Get-RequiredSourceString $Raw "id" $Context;Test-StableSourceId $id "$Context.id"
   $mediumId=Get-RequiredSourceString $Raw "medium_id" $Context
   if(-not $Sources.mediums.Contains($mediumId)){throw "Provenance registry '$Context.medium_id' references unknown medium '$mediumId'."}
@@ -69,6 +70,7 @@ function Get-KnowledgeProvenanceRegistry {
   $path=$ProjectConfig.provenance_registry
   $registry=ConvertFrom-KnowledgeYamlFile $path $script:SupportedProvenanceSchemaVersion "provenance registry"
   if($null -eq $registry -or $registry -isnot [System.Collections.IDictionary]){throw "Provenance registry root must be a mapping: $path"}
+  Assert-KnowledgeMapKeys $registry @("schema_version","claim_supersessions","assertions") "Provenance registry root"
   $schemaVersion=Get-ProjectMapValue $registry "schema_version"
   if($schemaVersion -isnot [int] -or $schemaVersion -ne $script:SupportedProvenanceSchemaVersion){throw "Unsupported provenance schema_version '$schemaVersion'; expected $($script:SupportedProvenanceSchemaVersion)."}
   $sourceSubjectTypes=@(Get-KnowledgeSourceProvenanceSubjectTypes);$entitySubjectTypes=@(Get-KnowledgeEntityProvenanceSubjectTypes);$reconciliationSubjectTypes=@(Get-KnowledgeReconciliationProvenanceSubjectTypes);$allProviderTypes=@($sourceSubjectTypes+$entitySubjectTypes+$reconciliationSubjectTypes);$duplicates=@($allProviderTypes|Group-Object|Where-Object Count -gt 1|ForEach-Object Name)
@@ -81,6 +83,7 @@ function Get-KnowledgeProvenanceRegistry {
   $supersessions=@();$seenSupersessionIds=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
   for($i=0;$i -lt $rawSupersessions.Count;$i++){
     $context="claim_supersessions[$i]";$item=$rawSupersessions[$i]
+    if($item -isnot [System.Collections.IDictionary]){throw "Provenance registry '$context' must be a mapping."};Assert-KnowledgeMapKeys $item @("id","source_claim_key","target_claim_key","relationship_type","applicability_scope_id","continuity_ids") "Provenance registry '$context'"
     $id=Get-RequiredSourceString $item "id" $context;Test-StableSourceId $id "$context.id";if(-not $seenSupersessionIds.Add($id)){throw "Provenance registry claim-supersession ID '$id' is duplicated."}
     $sourceClaim=Get-RequiredSourceString $item "source_claim_key" $context;$targetClaim=Get-RequiredSourceString $item "target_claim_key" $context;Test-StableSourceId $sourceClaim "$context.source_claim_key";Test-StableSourceId $targetClaim "$context.target_claim_key"
     if($sourceClaim -eq $targetClaim){throw "Provenance registry '$context' cannot supersede a claim with itself."}
@@ -96,6 +99,7 @@ function Get-KnowledgeProvenanceRegistry {
   $shell=[pscustomobject]@{sources=$SourceRegistry;entities=$EntityRegistry;reconciliations=$ReconciliationRegistry;claim_supersessions=@($supersessions)}
   for($i=0;$i -lt $rawAssertions.Count;$i++){
     $context="assertions[$i]";$item=$rawAssertions[$i]
+    if($item -isnot [System.Collections.IDictionary]){throw "Provenance registry '$context' must be a mapping."};Assert-KnowledgeMapKeys $item @("id","claim_key","subject_type","subject_id","claim_namespace","field_path","asserted_value","assertion_status","observed_at","effective_window","evidence_links") "Provenance registry '$context'"
     $id=Get-RequiredSourceString $item "id" $context;Test-StableSourceId $id "$context.id";if(-not $seenAssertionIds.Add($id)){throw "Provenance registry assertion ID '$id' is duplicated."}
     $claimKey=Get-RequiredSourceString $item "claim_key" $context;Test-StableSourceId $claimKey "$context.claim_key"
     $subjectType=Get-RequiredSourceString $item "subject_type" $context;Assert-SourceSchemaPackValues $SchemaPackRegistry "provenance.subject-type" @($subjectType) "$context.subject_type";$subjectId=Get-RequiredSourceString $item "subject_id" $context
@@ -108,6 +112,7 @@ function Get-KnowledgeProvenanceRegistry {
     $rawLinks=@(Get-ProjectMapValue $item "evidence_links");if($rawLinks.Count -eq 0){throw "Provenance registry '$context.evidence_links' must be a non-empty list."};$links=@();$seenSources=New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
     for($j=0;$j -lt $rawLinks.Count;$j++){
       $linkContext="$context.evidence_links[$j]";$link=$rawLinks[$j];$sourceId=Get-RequiredSourceString $link "source_id" $linkContext;if(-not $SourceRegistry.sources.Contains($sourceId)){throw "Provenance registry '$linkContext.source_id' references unknown source '$sourceId'."};if(-not $seenSources.Add($sourceId)){throw "Provenance registry '$context.evidence_links' repeats source '$sourceId'."}
+      if($link -isnot [System.Collections.IDictionary]){throw "Provenance registry '$linkContext' must be a mapping."};Assert-KnowledgeMapKeys $link @("source_id","evidence_role","locators") "Provenance registry '$linkContext'"
       $role=Get-RequiredSourceString $link "evidence_role" $linkContext;Assert-SourceSchemaPackValues $SchemaPackRegistry "provenance.evidence-role" @($role) "$linkContext.evidence_role";$rawLocators=@(Get-ProjectMapValue $link "locators");if($rawLocators.Count -eq 0){throw "Provenance registry '$linkContext.locators' must be a non-empty list."};$locators=@()
       for($k=0;$k -lt $rawLocators.Count;$k++){$locator=ConvertTo-ProvenanceLocator $rawLocators[$k] "$linkContext.locators[$k]" $sourceId $SourceRegistry $SchemaPackRegistry;if(-not $seenLocatorIds.Add([string]$locator.id)){throw "Provenance registry evidence-locator ID '$($locator.id)' is duplicated."};$locators+=,$locator}
       $links+=,[pscustomobject]@{source_id=$sourceId;evidence_role=$role;locators=@($locators)}

@@ -9,7 +9,7 @@ from lookup_key_config import LookupKeyConfig, load_lookup_key_config
 from project_config import ProjectConfig
 from resource_config import ResourceConfig
 from schema_pack_config import SchemaPackRegistry, load_schema_pack_registry
-from strict_yaml import load_yaml_file
+from strict_yaml import assert_allowed_keys, load_yaml_file
 
 
 SUPPORTED_SOURCE_SCHEMA_VERSION = 16
@@ -1381,6 +1381,11 @@ def parse_localized_titles(
     for index, raw_title in enumerate(raw_titles):
         title_context = f"{context}.localized_titles[{index}]"
         value = require_mapping(raw_title, title_context)
+        assert_allowed_keys(
+            value,
+            {"id", "language_tag", "territory_ids", "title", "title_type", "status", "is_primary", "romanization_scheme", "valid_window"},
+            f"Source registry `{title_context}`",
+        )
         title_id = require_string(value, "id", title_context)
         validate_id(title_id, f"{title_context}.id")
         if title_id in seen_ids:
@@ -1453,6 +1458,11 @@ def parse_temporal_window(
         return None
     window_context = f"{context}.{key}"
     window = require_mapping(raw_window, window_context)
+    assert_allowed_keys(
+        window,
+        {"start", "end", "precision", "certainty", "timezone"},
+        f"Source registry `{window_context}`",
+    )
     precision = require_string(window, "precision", window_context)
     certainty = require_string(window, "certainty", window_context)
     validate_pack_values(
@@ -1863,6 +1873,7 @@ def parse_labeled_registry(raw_value, context: str) -> dict[str, RegistryValueCo
         value_context = f"{context}.{value_id}"
         validate_id(value_id, value_context)
         definition = require_mapping(raw_definition, value_context)
+        assert_allowed_keys(definition, {"label"}, f"Source registry `{value_context}`")
         parsed[value_id] = RegistryValueConfig(
             id=value_id,
             label=require_string(definition, "label", value_context),
@@ -1879,6 +1890,11 @@ def parse_relationship_types(raw_value, context: str) -> dict[str, RelationshipT
         type_context = f"{context}.{type_id}"
         validate_id(type_id, type_context)
         value = require_mapping(raw_type, type_context)
+        assert_allowed_keys(
+            value,
+            {"label", "inverse_type", "symmetric"},
+            f"Source registry `{type_context}`",
+        )
         inverse_type = require_string(value, "inverse_type", type_context)
         validate_id(inverse_type, f"{type_context}.inverse_type")
         parsed[type_id] = RelationshipTypeConfig(
@@ -1922,6 +1938,11 @@ def parse_work(
     context = f"works.{work_id}"
     validate_id(work_id, context)
     work = require_mapping(raw_work, context)
+    assert_allowed_keys(
+        work,
+        {"lifecycle", "label", "short_label", "parent_work_id", "work_type", "medium_id", "release_form_id", "work_status", "aliases", "localized_titles", "group_memberships", "continuity_memberships", "chapter_numbering", "volume_catalog_status", "volumes"},
+        f"Source registry `{context}`",
+    )
     lifecycle = parse_lifecycle(work, context)
     medium_id = require_string(work, "medium_id", context)
     if medium_id not in mediums:
@@ -1964,6 +1985,7 @@ def parse_work(
     for index, raw_membership in enumerate(raw_group_memberships):
         membership_context = f"{context}.group_memberships[{index}]"
         membership = require_mapping(raw_membership, membership_context)
+        assert_allowed_keys(membership, {"group_id", "role", "ordinal"}, f"Source registry `{membership_context}`")
         group_id = require_string(membership, "group_id", membership_context)
         if group_id not in work_groups:
             raise ValueError(
@@ -2003,6 +2025,7 @@ def parse_work(
     for index, raw_membership in enumerate(raw_continuity_memberships):
         membership_context = f"{context}.continuity_memberships[{index}]"
         membership = require_mapping(raw_membership, membership_context)
+        assert_allowed_keys(membership, {"continuity_id", "status"}, f"Source registry `{membership_context}`")
         continuity_id = require_string(membership, "continuity_id", membership_context)
         if continuity_id not in continuities:
             raise ValueError(
@@ -2035,6 +2058,7 @@ def parse_work(
     for index, raw_volume in enumerate(raw_volumes):
         volume_context = f"{context}.volumes[{index}]"
         volume = require_mapping(raw_volume, volume_context)
+        assert_allowed_keys(volume, {"id", "number", "label", "chapter_start", "chapter_end"}, f"Source registry `{volume_context}`")
         volume_id = require_string(volume, "id", volume_context)
         validate_id(volume_id, f"{volume_context}.id")
         if volume_id in volume_ids:
@@ -2118,6 +2142,11 @@ def parse_medium(
     context = f"mediums.{medium_id}"
     validate_id(medium_id, context)
     medium = require_mapping(raw_medium, context)
+    assert_allowed_keys(
+        medium,
+        {"lifecycle", "label", "plural_label", "modality_ids", "cultural_form_ids", "position"},
+        f"Source registry `{context}`",
+    )
     lifecycle = require_string(medium, "lifecycle", context)
     if lifecycle not in LIFECYCLES:
         raise ValueError(
@@ -2154,6 +2183,11 @@ def parse_medium(
             f"{', '.join(sorted(incompatible_forms))}."
         )
     position = require_mapping(medium.get("position"), f"{context}.position")
+    assert_allowed_keys(
+        position,
+        {"fields", "work_scope_field", "structural_validation", "required_fields", "sort_fields", "citation_formats"},
+        f"Source registry `{context}.position`",
+    )
     raw_fields = require_mapping(position.get("fields"), f"{context}.position.fields")
     fields: dict[str, str] = {}
     for field_id, field_type in raw_fields.items():
@@ -2189,6 +2223,11 @@ def parse_medium(
         validation_context = f"{context}.position.structural_validation"
         validation = require_mapping(
             raw_structural_validation, validation_context
+        )
+        assert_allowed_keys(
+            validation,
+            {"strategy", "partition_field", "ordinal_field", "segment_field", "ordering_scheme_field"},
+            f"Source registry `{validation_context}`",
         )
         strategy = require_string(validation, "strategy", validation_context)
         validate_pack_values(
@@ -2279,6 +2318,7 @@ def parse_medium(
     for index, raw_format in enumerate(raw_formats):
         format_context = f"{context}.position.citation_formats[{index}]"
         citation = require_mapping(raw_format, format_context)
+        assert_allowed_keys(citation, {"id", "template", "required_fields"}, f"Source registry `{format_context}`")
         format_id = require_string(citation, "id", format_context)
         validate_id(format_id, f"{format_context}.id")
         if format_id in seen_format_ids:
@@ -2338,6 +2378,11 @@ def resolve_resource_binding(
     binding: dict,
     context: str,
 ) -> SourceResourceBinding:
+    assert_allowed_keys(
+        binding,
+        {"resource_type_id", "root_id", "relative_path", "required"},
+        f"Source registry `{context}`",
+    )
     resource_type_id = require_string(binding, "resource_type_id", context)
     validate_id(resource_type_id, f"{context}.resource_type_id")
     if resource_type_id not in resources.types:
@@ -2398,6 +2443,98 @@ def resolve_resource_binding(
     )
 
 
+SOURCE_RECORD_FIELDS: dict[str, set[str]] = {
+    "work_group_types": {"label", "ordered"},
+    "work_groups": {"lifecycle", "label", "short_label", "group_type", "parent_group_id"},
+    "continuities": {"lifecycle", "label", "short_label", "continuity_type", "aliases"},
+    "continuity_relationships": {"id", "source_continuity_id", "relationship_type", "target_continuity_id", "status"},
+    "authority_profiles": {"lifecycle", "label", "continuity_order", "accepted_membership_statuses", "source_priority_order", "comparison_work_relationship_types", "cross_source_conflict", "derivative_deviation_owner", "preserve_source_scoped_claims", "claim_authority_rules"},
+    "segments": {"work_id", "parent_segment_id", "segment_type", "label", "aliases", "localized_titles", "ordinal"},
+    "content_groups": {"lifecycle", "label", "group_type", "members", "parent_group_ids", "ordering_scheme_id", "localized_titles", "aliases"},
+    "numbering_schemes": {"lifecycle", "label", "target_type", "scope_type", "scope_id", "entries"},
+    "ordering_schemes": {"label", "ordering_type", "ordering_mode", "entries"},
+    "work_relationships": {"id", "source_work_id", "relationship_type", "target_work_id", "continuity_ids", "status", "applicability_scope_id"},
+    "adaptation_mappings": {"id", "basis_inputs", "target_work_id", "target_segment_ids", "mapping_type", "status"},
+    "territories": {"lifecycle", "label", "territory_type", "parent_territory_id", "codes"},
+    "applicability_scopes": {"id", "target_type", "target_id", "territory_ids", "effective_window", "precedence"},
+    "scoped_continuity_assertions": {"id", "applicability_scope_id", "continuity_id", "status"},
+    "work_production_contexts": {"id", "work_id", "production_origin", "authorization_status", "rights_basis", "commerciality", "applicability_scope_id"},
+    "platforms": {"lifecycle", "label", "platform_type", "aliases"},
+    "manifestations": {"lifecycle", "label", "work_id", "segment_ids", "manifestation_type", "language_tags", "territory_ids", "container_format_ids", "localized_titles", "aliases"},
+    "manifestation_relationships": {"id", "source_manifestation_id", "relationship_type", "target_manifestation_id", "status"},
+    "manifestation_segment_mappings": {"id", "source_manifestation_id", "source_segment_ids", "target_manifestation_id", "target_segment_ids", "mapping_type", "status"},
+    "release_components": {"lifecycle", "label", "manifestation_id", "component_type", "segment_ids", "language_tag"},
+    "release_component_relationships": {"id", "source_component_id", "relationship_type", "target_component_id"},
+    "release_packages": {"lifecycle", "label", "package_type", "manifestation_ids", "segment_ids", "release_component_ids", "container_format_ids", "localized_titles", "aliases"},
+    "release_runs": {"lifecycle", "label", "subject_type", "subject_id", "segment_ids", "ordering_scheme_id", "release_event_type", "phases", "territory_ids", "platform_ids", "availability_status", "exceptions"},
+    "release_events": {"lifecycle", "label", "subject_type", "subject_id", "segment_ids", "release_event_type", "release_window", "territory_ids", "platform_ids", "availability_status", "release_run_id"},
+    "catalog_placements": {"lifecycle", "label", "platform_id", "placement_type", "parent_placement_id", "target_type", "target_id", "ordinal", "provider_key", "localized_titles"},
+    "platform_offerings": {"lifecycle", "label", "platform_id", "subject_type", "subject_id", "segment_ids", "release_event_id", "offering_type", "availability_status", "territory_ids", "language_tags", "availability_window", "catalog_placement_ids"},
+    "identifier_schemes": {"lifecycle", "label", "target_types", "case_sensitive"},
+    "sources": {"lifecycle", "label", "work_ids", "manifestation_id", "release_package_id", "release_event_id", "release_component_ids", "platform_offering_id", "medium_id", "locator_medium_ids", "container_format_ids", "role", "comparison_group", "priority", "aliases", "evidence_modes", "observations", "coverage", "resource_bindings"},
+    "source_relationships": {"id", "source_source_id", "relationship_type", "target_source_id"},
+    "external_identifiers": {"id", "scheme_id", "target_type", "target_id", "value", "territory_ids", "language_tag", "status"},
+}
+
+SOURCE_LIST_REGISTRIES = {
+    "continuity_relationships", "work_relationships", "adaptation_mappings",
+    "applicability_scopes", "scoped_continuity_assertions",
+    "work_production_contexts", "manifestation_relationships",
+    "manifestation_segment_mappings", "release_component_relationships",
+    "source_relationships", "external_identifiers",
+}
+
+
+def assert_source_registry_shapes(registry: dict) -> None:
+    for registry_name, allowed_fields in SOURCE_RECORD_FIELDS.items():
+        raw_records = registry.get(registry_name)
+        if registry_name in SOURCE_LIST_REGISTRIES:
+            records = enumerate(raw_records) if isinstance(raw_records, list) else ()
+        else:
+            records = raw_records.items() if isinstance(raw_records, dict) else ()
+        for record_id, raw_record in records:
+            if isinstance(raw_record, dict):
+                assert_allowed_keys(
+                    raw_record,
+                    allowed_fields,
+                    f"Source registry `{registry_name}.{record_id}`",
+                )
+
+    nested_shapes = (
+        ("authority_profiles", "claim_authority_rules", {"id", "claim_namespace", "precedence", "source_ids", "source_roles", "medium_ids", "evidence_modes", "rank"}),
+        ("content_groups", "members", {"id", "target_type", "target_id", "role"}),
+        ("numbering_schemes", "entries", {"target_id", "display_number", "aliases"}),
+        ("ordering_schemes", "entries", {"id", "target_type", "target_id", "ordinal", "after_entry_ids"}),
+        ("adaptation_mappings", "basis_inputs", {"work_id", "segment_ids", "basis_role"}),
+        ("release_runs", "phases", {"id", "segment_ids", "first_release_window", "cadence_unit", "cadence_interval", "batch_size"}),
+        ("release_runs", "exceptions", {"exception_type", "segment_id", "release_window", "interval_count"}),
+        ("sources", "observations", {"id", "target_type", "target_id"}),
+        ("sources", "coverage", {"id", "target_type", "target_id", "coverage_type", "medium_id", "evidence_modes", "position_ranges"}),
+        ("sources", "resource_bindings", {"resource_type_id", "root_id", "relative_path", "required"}),
+    )
+    for registry_name, field_name, allowed_fields in nested_shapes:
+        raw_registry = registry.get(registry_name)
+        if isinstance(raw_registry, dict):
+            parent_records = raw_registry.items()
+        elif isinstance(raw_registry, list):
+            parent_records = enumerate(raw_registry)
+        else:
+            parent_records = ()
+        for parent_id, parent in parent_records:
+            children = parent.get(field_name) if isinstance(parent, dict) else None
+            if not isinstance(children, list):
+                continue
+            for index, child in enumerate(children):
+                if isinstance(child, dict):
+                    assert_allowed_keys(child, allowed_fields, f"Source registry `{registry_name}.{parent_id}.{field_name}[{index}]`")
+                if field_name == "coverage" and isinstance(child, dict):
+                    ranges = child.get("position_ranges")
+                    if isinstance(ranges, list):
+                        for range_index, position_range in enumerate(ranges):
+                            if isinstance(position_range, dict):
+                                assert_allowed_keys(position_range, {"id", "start", "end"}, f"Source registry `{registry_name}.{parent_id}.coverage[{index}].position_ranges[{range_index}]`")
+
+
 def load_source_registry(
     project: ProjectConfig,
     resources: ResourceConfig,
@@ -2441,6 +2578,14 @@ def load_source_registry(
         )
     data = load_yaml_file(project.sources_registry, "source registry", expected_schema_version=SUPPORTED_SOURCE_SCHEMA_VERSION)
     registry = require_mapping(data, "root")
+    assert_allowed_keys(
+        registry,
+        {
+            "schema_version", "default_authority_profile_id", "media_modalities", "cultural_forms", "release_forms", "container_formats", "mediums", "work_group_types", "work_groups", "continuities", "continuity_relationship_types", "continuity_relationships", "authority_profiles", "work_relationship_types", "works", "segments", "content_groups", "numbering_schemes", "ordering_schemes", "work_relationships", "adaptation_mappings", "territories", "applicability_scopes", "scoped_continuity_assertions", "work_production_contexts", "platforms", "manifestation_relationship_types", "manifestations", "manifestation_relationships", "manifestation_segment_mappings", "release_components", "release_component_relationship_types", "release_component_relationships", "release_packages", "release_runs", "release_events", "catalog_placements", "platform_offerings", "identifier_schemes", "source_relationship_types", "sources", "source_relationships", "external_identifiers"
+        },
+        "Source registry root",
+    )
+    assert_source_registry_shapes(registry)
     schema_version = registry.get("schema_version")
     if schema_version != SUPPORTED_SOURCE_SCHEMA_VERSION:
         raise ValueError(
@@ -2464,6 +2609,7 @@ def load_source_registry(
         context = f"cultural_forms.{cultural_form_id}"
         validate_id(cultural_form_id, context)
         cultural_form = require_mapping(raw_cultural_form, context)
+        assert_allowed_keys(cultural_form, {"label", "modality_id"}, f"Source registry `{context}`")
         modality_id = require_string(cultural_form, "modality_id", context)
         if modality_id not in media_modalities:
             raise ValueError(
@@ -2522,6 +2668,7 @@ def load_source_registry(
         context = f"work_group_types.{type_id}"
         validate_id(type_id, context)
         value = require_mapping(raw_type, context)
+        assert_allowed_keys(value, {"label", "ordered"}, f"Source registry `{context}`")
         work_group_types[type_id] = WorkGroupTypeConfig(
             id=type_id,
             label=require_string(value, "label", context),
@@ -2540,6 +2687,7 @@ def load_source_registry(
         context = f"work_groups.{group_id}"
         validate_id(group_id, context)
         group = require_mapping(raw_group, context)
+        assert_allowed_keys(group, {"lifecycle", "label", "short_label", "group_type", "parent_group_id"}, f"Source registry `{context}`")
         group_type = require_string(group, "group_type", context)
         if group_type not in work_group_types:
             raise ValueError(
@@ -2595,6 +2743,7 @@ def load_source_registry(
         context = f"continuities.{continuity_id}"
         validate_id(continuity_id, context)
         continuity = require_mapping(raw_continuity, context)
+        assert_allowed_keys(continuity, {"lifecycle", "label", "short_label", "continuity_type", "aliases"}, f"Source registry `{context}`")
         continuity_type = require_string(continuity, "continuity_type", context)
         validate_id(continuity_type, f"{context}.continuity_type")
         aliases = require_string_list(continuity, "aliases", context)
@@ -2661,6 +2810,7 @@ def load_source_registry(
     for index, raw_relationship in enumerate(raw_continuity_relationships):
         context = f"continuity_relationships[{index}]"
         relationship = require_mapping(raw_relationship, context)
+        assert_allowed_keys(relationship, {"id", "source_continuity_id", "target_continuity_id", "relationship_type", "status"}, f"Source registry `{context}`")
         relationship_id = require_string(relationship, "id", context)
         validate_id(relationship_id, f"{context}.id")
         if relationship_id in seen_relationship_ids:
@@ -2710,6 +2860,11 @@ def load_source_registry(
         context = f"authority_profiles.{profile_id}"
         validate_id(profile_id, context)
         profile = require_mapping(raw_profile, context)
+        assert_allowed_keys(
+            profile,
+            {"lifecycle", "label", "continuity_order", "accepted_membership_statuses", "source_priority_order", "comparison_work_relationship_types", "cross_source_conflict", "derivative_deviation_owner", "preserve_source_scoped_claims", "claim_authority_rules"},
+            f"Source registry `{context}`",
+        )
         continuity_order = require_string_list(profile, "continuity_order", context)
         if len(set(continuity_order)) != len(continuity_order):
             raise ValueError(
@@ -2769,6 +2924,7 @@ def load_source_registry(
         for rule_index, raw_rule in enumerate(raw_rules):
             rule_context = f"{context}.claim_authority_rules[{rule_index}]"
             rule = require_mapping(raw_rule, rule_context)
+            assert_allowed_keys(rule, {"id", "claim_namespace", "precedence", "source_ids", "source_roles", "medium_ids", "evidence_modes", "rank"}, f"Source registry `{rule_context}`")
             rule_id = require_string(rule, "id", rule_context)
             validate_id(rule_id, f"{rule_context}.id")
             if rule_id in seen_rule_ids:

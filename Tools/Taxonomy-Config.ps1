@@ -110,6 +110,7 @@ function ConvertTo-ContentTypeConfig {
   if ($null -eq $RawContentType -or -not ($RawContentType -is [System.Collections.IDictionary])) {
     throw "Taxonomy registry '$context' must be a mapping."
   }
+  Assert-KnowledgeMapKeys $RawContentType @("lifecycle","label","plural_label","canonical_pages_enabled","content_root_id","category_policy","path_strategy","metadata_type_mode","slug_mode","default_template","qa_page_enabled","graph_enabled","metadata_type","record_slug_prefix","record_slug_pattern","record_path") "Taxonomy registry '$context'"
 
   $lifecycle = Get-RequiredTaxonomyString $RawContentType "lifecycle" $context
   if ($script:AllowedTaxonomyLifecycles -cnotcontains $lifecycle) {
@@ -227,6 +228,7 @@ function ConvertTo-CategoryConfig {
   if ($null -eq $RawCategory -or -not ($RawCategory -is [System.Collections.IDictionary])) {
     throw "Taxonomy registry '$context' must be a mapping."
   }
+  Assert-KnowledgeMapKeys $RawCategory @("lifecycle","label","plural_label","canonical_pages_enabled","metadata_type","subject_slug_prefix","subject_slug_pattern","graph_class","placements") "Taxonomy registry '$context'"
 
   $lifecycle = Get-RequiredTaxonomyString $RawCategory "lifecycle" $context
   if ($script:AllowedTaxonomyLifecycles -cnotcontains $lifecycle) {
@@ -281,6 +283,7 @@ function ConvertTo-CategoryConfig {
     if ($null -eq $rawPlacement -or -not ($rawPlacement -is [System.Collections.IDictionary])) {
       throw "Taxonomy registry '$placementContext' must be a mapping."
     }
+    Assert-KnowledgeMapKeys $rawPlacement @("relative_folder","template") "Taxonomy registry '$placementContext'"
     $relativeFolder = Get-RequiredTaxonomyString $rawPlacement "relative_folder" $placementContext
     $folder = Resolve-TaxonomyFolder $ProjectConfig $contentType.content_root_id $relativeFolder "$placementContext.relative_folder"
     $templateValue = ([string](Get-ProjectMapValue $rawPlacement "template" "")).Trim()
@@ -349,6 +352,7 @@ function Get-KnowledgeTaxonomyConfig {
   if ($null -eq $registry -or -not ($registry -is [System.Collections.IDictionary])) {
     throw "Taxonomy registry root must be a mapping: $registryPath"
   }
+  Assert-KnowledgeMapKeys $registry @("schema_version","content_types","categories") "Taxonomy registry root"
   $schemaVersion = Get-ProjectMapValue $registry "schema_version"
   if ($schemaVersion -isnot [int] -or $schemaVersion -ne $script:SupportedTaxonomySchemaVersion) {
     throw "Unsupported taxonomy schema_version '$schemaVersion'; expected $($script:SupportedTaxonomySchemaVersion)."

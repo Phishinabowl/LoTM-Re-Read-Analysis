@@ -7,7 +7,7 @@ from project_config import ProjectConfig
 from schema_pack_config import SchemaPackRegistry, load_schema_pack_registry
 from source_config import SourceRegistry
 from taxonomy_config import TaxonomyConfig
-from strict_yaml import load_yaml_file
+from strict_yaml import assert_allowed_keys, load_yaml_file
 
 
 SUPPORTED_ENTITY_SCHEMA_VERSION = 4
@@ -632,6 +632,17 @@ def load_entity_registry(
 
     data = load_yaml_file(project.entities_registry, "entity registry", expected_schema_version=SUPPORTED_ENTITY_SCHEMA_VERSION)
     registry = require_mapping(data, "root")
+    assert_allowed_keys(
+        registry,
+        {
+            "schema_version", "entities", "entity_relationship_types",
+            "entity_relationships", "incarnations", "incarnation_bindings",
+            "incarnation_relationship_types", "incarnation_relationships",
+            "identity_phases", "identity_phase_bindings",
+            "identity_phase_relationship_types", "identity_phase_relationships",
+        },
+        "Entity registry root",
+    )
     schema_version = registry.get("schema_version")
     if schema_version != SUPPORTED_ENTITY_SCHEMA_VERSION:
         raise ValueError(
@@ -644,6 +655,11 @@ def load_entity_registry(
         validate_id(entity_id, f"entities.{entity_id}")
         context = f"entities.{entity_id}"
         entity = require_mapping(raw_entity, context)
+        assert_allowed_keys(
+            entity,
+            {"lifecycle", "primary_category_id", "category_ids", "label", "aliases"},
+            f"Entity registry `{context}`",
+        )
         lifecycle = require_string(entity, "lifecycle", context)
         validate_lifecycle(lifecycle, f"{context}.lifecycle")
         primary_category_id = require_string(
@@ -691,6 +707,11 @@ def load_entity_registry(
             schema_packs, "narrative.entity-relationship-type", type_id, context
         )
         relationship_type = require_mapping(raw_type, context)
+        assert_allowed_keys(
+            relationship_type,
+            {"label", "inverse_type", "symmetric", "canonical_direction", "acyclic_group"},
+            f"Entity registry `{context}`",
+        )
         acyclic_group = optional_string(
             relationship_type, "acyclic_group", context
         )
@@ -719,6 +740,14 @@ def load_entity_registry(
     ):
         context = f"entity_relationships[{index}]"
         relationship = require_mapping(raw_relationship, context)
+        assert_allowed_keys(
+            relationship,
+            {
+                "id", "source_entity_id", "target_entity_id", "relationship_type",
+                "status", "applicability_scope_id", "basis_roles",
+            },
+            f"Entity registry `{context}`",
+        )
         relationship_id = require_string(relationship, "id", context)
         validate_id(relationship_id, f"{context}.id")
         if relationship_id in seen_entity_relationship_ids:
@@ -801,6 +830,14 @@ def load_entity_registry(
         validate_id(incarnation_id, f"incarnations.{incarnation_id}")
         context = f"incarnations.{incarnation_id}"
         incarnation = require_mapping(raw_incarnation, context)
+        assert_allowed_keys(
+            incarnation,
+            {
+                "lifecycle", "entity_id", "label", "aliases",
+                "primary_continuity_id", "continuity_memberships",
+            },
+            f"Entity registry `{context}`",
+        )
         lifecycle = require_string(incarnation, "lifecycle", context)
         validate_lifecycle(lifecycle, f"{context}.lifecycle")
         entity_id = require_string(incarnation, "entity_id", context)
@@ -822,6 +859,11 @@ def load_entity_registry(
         ):
             membership_context = f"{context}.continuity_memberships[{index}]"
             membership = require_mapping(raw_membership, membership_context)
+            assert_allowed_keys(
+                membership,
+                {"continuity_id", "status"},
+                f"Entity registry `{membership_context}`",
+            )
             continuity_id = require_string(membership, "continuity_id", membership_context)
             if continuity_id not in sources.continuities:
                 raise ValueError(
@@ -862,6 +904,11 @@ def load_entity_registry(
     ):
         context = f"incarnation_bindings[{index}]"
         binding = require_mapping(raw_binding, context)
+        assert_allowed_keys(
+            binding,
+            {"id", "incarnation_id", "applicability_scope_id", "binding_type", "status"},
+            f"Entity registry `{context}`",
+        )
         binding_id = require_string(binding, "id", context)
         validate_id(binding_id, f"{context}.id")
         if binding_id in seen_binding_ids:
@@ -903,6 +950,11 @@ def load_entity_registry(
             schema_packs, "narrative.incarnation-relationship-type", type_id, context
         )
         relationship_type = require_mapping(raw_type, context)
+        assert_allowed_keys(
+            relationship_type,
+            {"label", "inverse_type", "symmetric", "canonical_direction", "acyclic_group"},
+            f"Entity registry `{context}`",
+        )
         acyclic_group = optional_string(
             relationship_type, "acyclic_group", context
         )
@@ -928,6 +980,14 @@ def load_entity_registry(
     ):
         context = f"incarnation_relationships[{index}]"
         relationship = require_mapping(raw_relationship, context)
+        assert_allowed_keys(
+            relationship,
+            {
+                "id", "source_incarnation_id", "target_incarnation_id",
+                "relationship_type", "status", "applicability_scope_id",
+            },
+            f"Entity registry `{context}`",
+        )
         relationship_id = require_string(relationship, "id", context)
         validate_id(relationship_id, f"{context}.id")
         if relationship_id in seen_relationship_ids:
@@ -995,6 +1055,14 @@ def load_entity_registry(
         validate_id(phase_id, f"identity_phases.{phase_id}")
         context = f"identity_phases.{phase_id}"
         phase = require_mapping(raw_phase, context)
+        assert_allowed_keys(
+            phase,
+            {
+                "lifecycle", "subject_type", "subject_id", "continuity_id",
+                "phase_type", "label", "aliases",
+            },
+            f"Entity registry `{context}`",
+        )
         lifecycle = require_string(phase, "lifecycle", context)
         validate_lifecycle(lifecycle, f"{context}.lifecycle")
         subject_type = require_string(phase, "subject_type", context)
@@ -1058,6 +1126,11 @@ def load_entity_registry(
     ):
         context = f"identity_phase_bindings[{index}]"
         binding = require_mapping(raw_binding, context)
+        assert_allowed_keys(
+            binding,
+            {"id", "identity_phase_id", "applicability_scope_id", "binding_type", "status"},
+            f"Entity registry `{context}`",
+        )
         binding_id = require_string(binding, "id", context)
         validate_id(binding_id, f"{context}.id")
         if binding_id in seen_phase_binding_ids:
@@ -1133,6 +1206,11 @@ def load_entity_registry(
             schema_packs, "identity.phase-relationship-type", type_id, context
         )
         relationship_type = require_mapping(raw_type, context)
+        assert_allowed_keys(
+            relationship_type,
+            {"label", "inverse_type", "symmetric", "canonical_direction", "acyclic_group"},
+            f"Entity registry `{context}`",
+        )
         acyclic_group = optional_string(
             relationship_type, "acyclic_group", context
         )
@@ -1165,6 +1243,14 @@ def load_entity_registry(
     ):
         context = f"identity_phase_relationships[{index}]"
         relationship = require_mapping(raw_relationship, context)
+        assert_allowed_keys(
+            relationship,
+            {
+                "id", "source_identity_phase_id", "target_identity_phase_id",
+                "relationship_type", "status",
+            },
+            f"Entity registry `{context}`",
+        )
         relationship_id = require_string(relationship, "id", context)
         validate_id(relationship_id, f"{context}.id")
         if relationship_id in seen_phase_relationship_ids:
