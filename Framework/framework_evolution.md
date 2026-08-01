@@ -889,4 +889,46 @@ Paired Python and native PowerShell services add outcome-by-occurrence, rule-by-
 
 ## Testing After V33
 
-The broad V33 pressure test has not yet been run. It must include the source-verified LoTM abandoned-temple loop, continuous versus externally restored memory, staggered awareness, changing checkpoints, nested recurrence and partial escape, plus non-narrative retry, medical-state, legal-obligation, and workflow cases. Results, correctness defects, and any V34 recommendation belong here before V34 begins.
+### Permanent Baseline
+
+The V33 occurrence corpus passed identically in Python, PowerShell 7, and Windows PowerShell 5.1: 26 behavioral query assertions and 47 malformed registries. The retained chronology, temporal, and reconciliation suites also remained green in all three runtimes. Python and PowerShell provenance composition accepted the new recurrence-pattern, outcome, rule, and state-transition provider types. No regression appeared in exact chronology, branch topology, transition profiles, lifecycle, track order, state-chain continuity, or carryover applicability.
+
+### Source-Grounded LoTM Loop
+
+The first dedicated pressure scenario returned to the source-verified City of Silver abandoned-temple loop from Chapters 457-467. It instantiated six passes, fourteen representative occurrences, Derrick and Colin subjective tracks, Jack's deaths in the five failed passes, the interstitial gray-fog restoration, destruction of the anomalous face, Jack's survival in the final pass, five reset transitions, an exit, reset and termination rules, and an exact memory payload representing the first five explorations.
+
+V33 represented the distinction that V32 could not. Derrick's five-pass memory state was explicitly unavailable through the end of pass five, became available at the gray-fog restoration occurrence, and remained available when pass six began. The previous occurrence before Derrick's sixth iteration was correctly returned as the restoration event. Colin's state remained unavailable at pass six because his track had no matching acquisition. The scenario required zero carryover records: the knowledge was acquired between iterations rather than continuously retained across the fifth reset. A separate continuously remembered three-pass loop used one acquisition plus two carryovers and returned available memory in pass three. The two histories are therefore no longer structurally conflated.
+
+### Broad Executable Scenarios
+
+The executable pressure harness also covered:
+
+- changing checkpoints, with old and new reset-template effects represented behind different state conditions;
+- nested recurrence and partial escape, preserving the inner-iteration boundary query while asserting an exit only on the escaping participant's track;
+- IT retry exhaustion, where retry-budget state changed from available to unavailable on the third failed attempt;
+- medical evidence that progressed unavailable, available, inaccessible, then restored across four recurring visits;
+- twelve concrete legal-obligation periods with typed completion outcomes; and
+- a 1,000-iteration recurrence, which loaded and answered its final membership query in approximately 0.005-0.007 seconds in Python.
+
+These tests confirm that occurrence identity, pattern/execution separation, lifecycle, typed outcomes, subject-specific state histories, acquisition mechanisms, carryover, nested recurrence, and partial tracks compose cleanly across narrative and non-narrative domains. Dream, prophecy, merged-memory, timeline-reconciliation, and other pack mechanisms use the same validated state-transition structure; they do not require separate chronology primitives.
+
+### Rule-Semantics Boundary
+
+The pressure test found no new chronology or state-chain integrity defect. It did expose that V33's recurrence rules are validated declarative records, not yet an executable policy service:
+
+1. A `state-availability` condition identifies a payload and expected availability but not the subject, state kind, track, or boundary at which availability should be tested. Different subjects can hold different states for the same payload, as Derrick and Colin do, so the condition is not independently evaluable.
+2. An `occurrence-outcome` condition identifies a template and outcome kind but not the outcome subject. A generic template can produce outcomes for several participants.
+3. Rules have no execution, branch, phase, iteration-range, or effective-window applicability. Changing-checkpoint rules can both be represented, but the registry cannot state that one governs before the checkpoint shift and the other after it except through conditions a future evaluator must interpret.
+4. Rules have no priority, exclusivity, conflict detection, or deterministic resolution trace. The IT scenario's final failed attempt simultaneously matches the generic advance-on-failure rule and the terminate-on-exhausted-budget rule. Two rules with the same condition and incompatible effects also load successfully.
+5. Legal periods can be enumerated, but cadence, due-window, attempt count, ordinal threshold, and maximum-retry policy are not first-class rule operands. The legal scenario therefore proved occurrence history, not an explicit monthly recurrence policy.
+6. Outcome combinations have no pack-defined compatibility policy. The model accepts `died` and `escaped` for one subject at one occurrence. Some narrative settings make that combination meaningful, so incompatibility must be domain-scoped rather than a universal hard-coded rule.
+
+These are limitations in rule applicability and evaluation, not reasons to weaken V33's occurrence, chronology, or state model. Provenance still correctly owns whether each rule, outcome, or state claim is supported; it should not be repurposed as the rule engine.
+
+### V34 Recommendation
+
+V34 should be **Scoped Recurrence Policy and Deterministic Rule Evaluation**. It should make each condition independently evaluable by adding typed subject and boundary selectors to state conditions and subject selectors to outcome conditions. Rules should gain explicit applicability over patterns, concrete executions, branches, phases, and iteration or temporal windows, with project or execution overrides layered over pattern defaults.
+
+Core should provide deterministic matching, priority or exclusivity policy, incompatible-effect detection, and an explainable evaluation result that reports considered rules, matched conditions, selected effects, and rejected conflicts. Bounded predicates should cover iteration ordinal/count, maximum attempts, and composition with chronology or civil-time windows; cadence should remain a typed schedule policy rather than an unrestricted expression language. Domain packs should register outcome compatibility groups and specialized condition/effect vocabulary.
+
+V34 acceptance should evaluate the Derrick reset and termination rules against concrete passes, select the shifted checkpoint only after its activation, terminate the IT retry instead of also advancing it when the budget is exhausted, express and evaluate a monthly legal cadence, and explain every decision without confusing subject state with provenance-backed truth.
