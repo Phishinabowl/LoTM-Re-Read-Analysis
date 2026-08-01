@@ -686,6 +686,8 @@ Causal relationships must remain separate from strict chronological order so tim
 
 ## V30 - Layered Chronology Foundations
 
+**Implemented by:** `efc82f9` (`Add layered chronology foundations`)
+
 **Superseded assumption:** Civil timestamps can represent every meaningful chronology.
 
 **Architectural promotion:** General chronology coordinates and comparison became core framework services, while story-time roles remained a narrative-domain extension and LoTM Epochs remained project-instance data.
