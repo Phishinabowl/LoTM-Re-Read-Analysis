@@ -1014,3 +1014,25 @@ State transitions also need future semantic depth beyond simple availability: pa
 V35 should be **Recurrence Policy Integrity and Indeterminate Context**. It should enforce same-pattern ownership for ordinal and schedule predicates and recurrence-control effects, reject mismatched schedule ownership at ingestion, correct missing required effective time to `indeterminate`, and add pack-registered rule-kind/effect compatibility. Every rejection and indeterminate result should remain explainable in the evaluation trace, and the permanent malformed corpus should gain one vector per repaired boundary in all three runtimes.
 
 The broader cardinality, repeated-participation, extratemporal-context, and branch-lifecycle capabilities should be staged after this correctness release. That keeps V35 small enough to harden V34's contract before the framework expands its temporal topology again.
+
+## V35 - Recurrence Policy Integrity and Indeterminate Context
+
+**Implemented by:** `4efd6b5` (`Harden recurrence policy integrity`)
+
+**Superseded assumption:** A rule is semantically safe whenever each condition and effect independently references a known target of the expected type.
+
+**Architectural promotion:** Same-pattern policy ownership, rule/effect semantic compatibility, and missing-context indeterminacy became explicit core framework guarantees rather than evaluator conventions or domain-specific assumptions.
+
+V35 hardens the schema-4 occurrence contract without changing its stored record shape. The core pack advances to version 26 and adds the enabled `recurrence-policy-integrity` capability. Narrative media now requires core version 26, while projects in unrelated domains may extend the same controlled compatibility vocabulary through their own selected packs.
+
+Iteration-ordinal conditions must target the recurrence pattern that owns their rule. Schedule conditions must use schedules owned by that same pattern. Recurrence-control effects such as `advance-iteration` and `terminate-recurrence` must likewise target the owning pattern. These checks happen during ingestion, so a malformed registry cannot survive loading and fail later during evaluation.
+
+Core now registers valid `rule-kind/effect-kind` pairs separately from existing effect-target-type pairs. The initial domain-neutral combinations are reset/advance, termination/terminate, checkpoint-change/change-reset-point, and state-activation/activate-state. Packs can extend the controlled pair namespace when they add new rule or effect kinds; the evaluator does not infer compatibility from labels.
+
+Applicability evaluation now checks for omitted required effective time before attempting temporal-window matching. A rule that cannot be evaluated without that context reports `indeterminate` and preserves the detail `effective time was not supplied` in its trace. A supplied time outside the window remains a definite non-match. Schedule matching already returned indeterminate when civil effective time was absent, so both applicability and condition paths now share conservative behavior.
+
+The permanent occurrence corpus adds four malformed cases for foreign-pattern ordinal conditions, foreign-pattern schedules, foreign recurrence-control effects, and incompatible rule/effect kinds. It also adds result and trace assertions for missing effective time. Python, PowerShell 7, and Windows PowerShell 5.1 now pass forty-five occurrence query/evaluation assertions and reject sixty-five malformed registries identically. The retained chronology, temporal, and reconciliation suites also remain unchanged and green in all three runtimes.
+
+## Testing After V35
+
+The post-V35 pressure test should attack ownership through nested recurrences, domain-pack extensions, rules carrying multiple compatible effects, execution overrides, unknown and uncertain effective times, and schedule boundaries. It should replay the Derrick, Loki, changing-checkpoint, retry-exhaustion, medical, and legal scenarios to prove that integrity checks reject cross-pattern leakage without weakening valid composition. Only after that pass should the next version choose among uncertain iteration cardinality, repeated participation in one occurrence, extratemporal context relations, branch lifecycle, or deeper knowledge-acquisition semantics.
