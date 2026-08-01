@@ -26,6 +26,13 @@ For repository-answering behavior, read [README-AI-Agent-Specification.md](READM
 - Keep bulk official artwork staging local-only under ignored `Artwork/Source/`; track only deliberately selected page-ready assets under `Artwork/page-assets/`.
 - After completing a commit and push, continue directly into the next discussion or investigation question unless the user pauses or changes direction.
 
+## Git Workflow Notes
+
+- When documentation must cite an implementation commit, use two commits: commit the implementation first, capture its hash, then update and commit the documentation reference.
+- Run `git add` and `git commit` for the documentation-reference commit as separate shell invocations. Combined invocations have intermittently produced `.git/index.lock` permission errors in Codex even when no stale lock exists.
+- If that transient error occurs, verify that no partial commit or unexpected worktree change was created, then retry staging and committing separately.
+- Never delete `.git/index.lock` unless its existence has been independently confirmed and the lock is known to be stale.
+
 The user is strongest at:
 
 - Systems thinking
