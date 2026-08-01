@@ -812,3 +812,20 @@ Carryover now proves that its track participates in both source and target itera
 Paired queries add iteration membership in track order plus previous-before-iteration and next-after-iteration boundaries. The portable fixture exercises all six transition profiles, coherent incomparable primary bindings, explicit branch fork and merge, internal and externally supplied payload targets, nested recurrence, partial escape, repeated coordinates, and cyclic causality. Eighteen query assertions and twenty-seven malformed mutations pass identically in Python, PowerShell 7, and Windows PowerShell 5.1.
 
 The core pack advances to version 23, narrative media advances to version 18 with a core-23 dependency, and the empty LoTM occurrence registry advances to schema 2 without fabricating project events. Recurrence schedules, condition-expression languages, outcome taxonomies, recurrence-template versus execution identity, and distributed vector clocks remain deliberately outside V32.
+
+## Testing After V32
+
+### LoTM Abandoned-Temple Loop
+
+The first V32 test used a source-verified Lord of Mysteries time loop rather than a synthetic pattern. EPUB Chapters 457-458 introduce the City of Silver expedition's encounter with the outsider child Jack and show Colin Iliad defeating him before the party awakens back at its camp. Chapter 460 establishes that this has happened five times with small variations. Derrick does not become aware after the first iteration: when the Tarot gathering draws him above the gray fog, an external force restores the memories of all five completed explorations. Derrick attributes the restoration to Mr. Fool, but Klein is initially surprised by it. Chapters 465-467 cover the deliberately altered sixth pass. Derrick tests possible trigger points, recognizes the cyclic-river and Angel of Fate clues, helps Colin identify the anomalous face on Jack as the loop's anchor, and experiences the cycle breaking when Colin destroys that face. Jack survives the sixth pass; the other expedition members show no immediate awareness of the repeated lives.
+
+A temporary schema-2 probe instantiated six distinct iterations, thirty-two concrete occurrences, Derrick and Colin tracks, five recurrence-advance resets, an externally caused memory-restoration occurrence, five restored-memory payloads entering the sixth iteration, the clue and anchor-destruction causal chain, and a recurrence-exit transition. The V32 Python loader accepted the scenario and correctly answered sixth-iteration membership, Derrick's previous experience at the iteration boundary, Colin's exclusion from Derrick's restoration occurrence, and all five memory payloads entering the final pass. No chronological cycle was introduced.
+
+The test therefore passes V32's structural contract: repeated events retain separate identity, one participant can acquire cross-iteration knowledge without granting it to everyone, subjective order remains forward while the expedition resets, and destroying the anchor can lead to a typed loop exit.
+
+It also exposes two semantic limits rather than V32 integrity defects:
+
+1. `carryovers` can identify the exact memories available in iteration six, but cannot distinguish continuous retention across a reset from memories that were absent and later restored by an external occurrence. The restoration occurrence and causal edge preserve the concrete history, but the acquisition mode and activation point are not first-class carryover semantics.
+2. Concrete reset and escape transitions can record what happened, but the registry still cannot declare the governing rule: Colin killing Jack ended each failed pass, while destroying the anomalous face ended the recurrence and allowed Jack to survive. Reset triggers, termination conditions, and typed occurrence outcomes remain outside schema 2.
+
+The broader V32 pressure test should determine whether these belong together in the next recurrence-semantics version or should be split between state-transfer semantics and rule/outcome semantics.
