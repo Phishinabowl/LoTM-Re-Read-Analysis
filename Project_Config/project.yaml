@@ -1,4 +1,4 @@
-schema_version: 6
+schema_version: 7
 project_id: lotm-analysis
 framework: knowledge-model
 domain: lord-of-the-mysteries
@@ -81,4 +81,5 @@ registries:
   resources: Project_Config/resources.yaml
   sources: Project_Config/sources.yaml
   entities: Project_Config/entities.yaml
+  reconciliation: Project_Config/reconciliation.yaml
   provenance: Project_Config/provenance.yaml

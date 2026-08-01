@@ -173,3 +173,23 @@ function Get-KnowledgeResourceConfig {
     types = $types
   }
 }
+
+function Get-KnowledgeResourceReconciliationTargetTypes {
+  return @("resource-kind", "resource-type")
+}
+
+function Get-KnowledgeResourceReconciliationTargets {
+  param([object]$ResourceConfig)
+  return [ordered]@{"resource-kind"=$ResourceConfig.kinds;"resource-type"=$ResourceConfig.types}
+}
+
+function Get-KnowledgeResourceReconciliationTarget {
+  param([object]$ResourceConfig, [string]$TargetType, [string]$TargetId)
+  $targets = switch ($TargetType) {
+    "resource-kind" { $ResourceConfig.kinds; break }
+    "resource-type" { $ResourceConfig.types; break }
+    default { throw "Unsupported resource reconciliation target type '$TargetType'." }
+  }
+  if (-not $targets.Contains($TargetId)) { throw "Unknown $TargetType '$TargetId'." }
+  return $targets[$TargetId]
+}

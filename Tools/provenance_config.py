@@ -6,6 +6,7 @@ import yaml
 
 from entity_config import EntityRegistry
 from project_config import ProjectConfig
+from reconciliation_config import ReconciliationRegistry
 from schema_pack_config import SchemaPackRegistry, load_schema_pack_registry
 from source_config import (
     ApplicabilityDecision,
@@ -93,6 +94,7 @@ class ProvenanceRegistry:
     claim_supersessions: tuple[ClaimSupersession, ...]
     sources: SourceRegistry
     entities: EntityRegistry
+    reconciliations: ReconciliationRegistry
 
     def assertions_for_claim(self, claim_key: str) -> tuple[ProvenanceAssertion, ...]:
         return tuple(item for item in self.assertions if item.claim_key == claim_key)
@@ -105,10 +107,13 @@ class ProvenanceRegistry:
             return matches[0]
         source_targets = self.sources.provenance_targets()
         entity_targets = self.entities.provenance_targets()
+        reconciliation_targets = self.reconciliations.provenance_targets()
         if subject_type in source_targets:
             return self.sources.provenance_target(subject_type, subject_id)
         if subject_type in entity_targets:
             return self.entities.provenance_target(subject_type, subject_id)
+        if subject_type in reconciliation_targets:
+            return self.reconciliations.provenance_target(subject_type, subject_id)
         raise ValueError(f"Unsupported provenance subject type `{subject_type}`.")
 
     def evaluate_claim_authority(
@@ -464,6 +469,7 @@ def load_provenance_registry(
     project: ProjectConfig,
     sources: SourceRegistry,
     entities: EntityRegistry,
+    reconciliations: ReconciliationRegistry,
     schema_packs: SchemaPackRegistry | None = None,
 ) -> ProvenanceRegistry:
     if schema_packs is None:
@@ -479,9 +485,15 @@ def load_provenance_registry(
             f"Unsupported provenance schema_version {schema_version!r}; expected {SUPPORTED_PROVENANCE_SCHEMA_VERSION}."
         )
 
-    duplicated_subject_types = set(sources.provenance_targets()) & set(
-        entities.provenance_targets()
+    provider_types = (
+        set(sources.provenance_targets()),
+        set(entities.provenance_targets()),
+        set(reconciliations.provenance_targets()),
     )
+    duplicated_subject_types = set()
+    for index, provider in enumerate(provider_types):
+        for other in provider_types[index + 1:]:
+            duplicated_subject_types |= provider & other
     if duplicated_subject_types:
         raise ValueError(
             "Provenance subject types have multiple providers: "
@@ -491,6 +503,7 @@ def load_provenance_registry(
     provided_subject_types = (
         set(sources.provenance_targets())
         | set(entities.provenance_targets())
+        | set(reconciliations.provenance_targets())
         | {"claim-supersession"}
     )
     allowed_subject_types = set(
@@ -573,6 +586,8 @@ def load_provenance_registry(
             target = sources.provenance_target(subject_type, subject_id)
         elif subject_type in entities.provenance_targets():
             target = entities.provenance_target(subject_type, subject_id)
+        elif subject_type in reconciliations.provenance_targets():
+            target = reconciliations.provenance_target(subject_type, subject_id)
         else:
             raise ValueError(f"Unsupported provenance subject type `{subject_type}`.")
         claim_namespace = require_string(assertion, "claim_namespace", context)
@@ -659,5 +674,5 @@ def load_provenance_registry(
 
     return ProvenanceRegistry(
         project.provenance_registry, schema_version, tuple(assertions),
-        tuple(supersessions), sources, entities
+        tuple(supersessions), sources, entities, reconciliations
     )

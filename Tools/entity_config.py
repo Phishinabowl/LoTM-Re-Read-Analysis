@@ -311,6 +311,12 @@ class EntityRegistry:
             raise ValueError(f"Unknown {subject_type} `{subject_id}`.")
         return targets[subject_id]
 
+    def reconciliation_targets(self) -> dict[str, dict[str, object]]:
+        return self.identity_targets()
+
+    def reconciliation_target(self, target_type: str, target_id: str) -> object:
+        return self.identity_target(target_type, target_id)
+
     def provenance_targets(self) -> dict[str, dict[str, object]]:
         return {
             "entity": self.entities,

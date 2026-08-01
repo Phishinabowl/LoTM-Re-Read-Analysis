@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-shared-universe
-pack_version: 8
+pack_version: 9
 lifecycle: active
 pack_kind: domain
 label: Narrative Shared Universe
@@ -23,16 +23,16 @@ capabilities:
     lifecycle: available
     label: Entity Identity Phases
     description: Provenance-addressable, continuity-specific phases in which one entity or incarnation retains identity through an epoch, regeneration, reincarnation, restoration, or transformation.
-  - id: entity-identity-reconciliation
-    lifecycle: planned
-    label: Entity Identity Reconciliation
-    description: Auditable merges, redirects, mistaken duplicates, and superseded stable identity records.
   - id: crossover-events
     lifecycle: planned
     label: Crossover Events
     description: Ordered core entries plus required and optional tie-ins across publication runs.
 
 controlled_values:
+  reconciliation.target-type:
+    - entity
+    - entity-incarnation
+    - identity-phase
   provenance.subject-type:
     - entity
     - entity-relationship

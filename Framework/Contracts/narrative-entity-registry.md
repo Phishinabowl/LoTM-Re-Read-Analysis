@@ -61,13 +61,13 @@ Phase bindings reuse source-owned applicability scopes and classify the phase as
 
 ## Provenance And Pages
 
-Entity, entity-relationship, entity-incarnation, incarnation-binding, incarnation-relationship, identity-phase, identity-phase-binding, and identity-phase-relationship IDs are stable provenance-addressable records. The paired loaders expose typed lookup APIs consumed by the standalone provenance registry. Identity phases also participate in the narrower identity-target provider API that future reconciliation consumes. Do not treat every provenance target as an identity, and do not duplicate locator, evidence, assertion, or claim-supersession logic inside `entities.yaml`.
+Entity, entity-relationship, entity-incarnation, incarnation-binding, incarnation-relationship, identity-phase, identity-phase-binding, and identity-phase-relationship IDs are stable provenance-addressable records. The paired loaders expose typed lookup APIs consumed by the standalone provenance registry. Entities, incarnations, and identity phases also participate in the narrower reconciliation-target provider API. Do not treat every provenance target as an identity, and do not duplicate identity history, locator, evidence, assertion, or claim-supersession logic inside `entities.yaml`.
 
 Canonical pages do not yet store entity or incarnation IDs. That migration must use the shared mutation service and preserve page slugs as presentation/storage identifiers rather than silently treating a rename as a new conceptual entity. Until then, an empty project entity registry is valid and preferable to speculative incarnation splits.
 
 ## Planned Adjacent Contracts
 
-`entity-identity-reconciliation` remains planned for auditable merges, redirects, mistaken duplicates, and superseded stable IDs. Reconciliation will consume the identity-target provider rather than overloading aliases or deleting historical IDs. Do not use phases, incarnations, or aliases to approximate that contract.
+Domain-neutral stable-ID reconciliation is executable through `Project_Config/reconciliation.yaml`. It consumes the entity identity-target provider alongside other stable-record providers rather than overloading aliases or deleting historical IDs. Do not use phases, incarnations, or aliases to approximate redirects, merges, splits, retirements, or tombstones.
 
 ## Loader Contract
 

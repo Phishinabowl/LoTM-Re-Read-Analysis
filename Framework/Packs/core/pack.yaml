@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: core
-pack_version: 12
+pack_version: 13
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -47,6 +47,10 @@ capabilities:
     lifecycle: available
     label: Cross-Registry Provenance
     description: Standalone claims and supersession validated against typed subject providers from multiple registries.
+  - id: stable-identity-reconciliation
+    lifecycle: available
+    label: Stable Identity Reconciliation
+    description: Auditable redirects, merges, splits, retirements, and tombstones across typed stable-record providers.
   - authority-profiles
   - typed-relationships
   - temporal-positions
@@ -89,6 +93,32 @@ controlled_values:
     - source
     - source-relationship
     - authority-rule
+    - reconciliation-record
+  reconciliation.target-type:
+    - content-type
+    - category
+    - resource-kind
+    - resource-type
+  reconciliation.operation:
+    - redirect
+    - merge
+    - split
+    - retire
+  reconciliation.source-state:
+    - present
+    - tombstone
+  reconciliation.status:
+    - active
+    - superseded
+    - reversed
+  reconciliation.reason:
+    - renamed
+    - mistaken-duplicate
+    - consolidated
+    - divided
+    - reclassified
+    - deprecated
+    - erroneous
   source.source-role:
     - transcript
     - supplemental

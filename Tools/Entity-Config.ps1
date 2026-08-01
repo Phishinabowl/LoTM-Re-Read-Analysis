@@ -683,6 +683,20 @@ function Get-KnowledgeIdentityTargetTypes {
   return @("entity", "entity-incarnation", "identity-phase")
 }
 
+function Get-KnowledgeEntityReconciliationTargetTypes {
+  return @(Get-KnowledgeIdentityTargetTypes)
+}
+
+function Get-KnowledgeEntityReconciliationTargets {
+  param([object]$EntityRegistry)
+  return [ordered]@{entity=$EntityRegistry.entities;"entity-incarnation"=$EntityRegistry.incarnations;"identity-phase"=$EntityRegistry.identity_phases}
+}
+
+function Get-KnowledgeEntityReconciliationTarget {
+  param([object]$EntityRegistry, [string]$TargetType, [string]$TargetId)
+  return Get-KnowledgeIdentityTarget $EntityRegistry $TargetType $TargetId
+}
+
 function Get-KnowledgeIdentitySubjectTarget {
   param([object]$EntityRegistry, [string]$SubjectType, [string]$SubjectId)
   if (@(Get-KnowledgeIdentitySubjectTypes) -notcontains $SubjectType) { throw "Unsupported identity subject type '$SubjectType'." }

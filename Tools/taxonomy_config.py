@@ -66,6 +66,20 @@ class TaxonomyConfig:
     categories: dict[str, CategoryConfig]
     content_types: dict[str, ContentTypeConfig]
 
+    def reconciliation_targets(self) -> dict[str, dict[str, object]]:
+        return {
+            "content-type": self.content_types,
+            "category": self.categories,
+        }
+
+    def reconciliation_target(self, target_type: str, target_id: str) -> object:
+        targets = self.reconciliation_targets().get(target_type)
+        if targets is None:
+            raise ValueError(f"Unsupported taxonomy reconciliation target type `{target_type}`.")
+        if target_id not in targets:
+            raise ValueError(f"Unknown {target_type} `{target_id}`.")
+        return targets[target_id]
+
     def content_roots_for_qa_pages(
         self,
         project: ProjectConfig,

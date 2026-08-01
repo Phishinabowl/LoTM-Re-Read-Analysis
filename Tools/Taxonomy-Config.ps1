@@ -414,3 +414,23 @@ function Get-TaxonomyQaPageContentRoots {
   } | ForEach-Object { $_.content_root_id })
   return @($ProjectConfig.content_roots | Where-Object { $enabledRootIds -contains $_.id })
 }
+
+function Get-KnowledgeTaxonomyReconciliationTargetTypes {
+  return @("content-type", "category")
+}
+
+function Get-KnowledgeTaxonomyReconciliationTargets {
+  param([object]$TaxonomyConfig)
+  return [ordered]@{"content-type"=$TaxonomyConfig.content_types;category=$TaxonomyConfig.categories}
+}
+
+function Get-KnowledgeTaxonomyReconciliationTarget {
+  param([object]$TaxonomyConfig, [string]$TargetType, [string]$TargetId)
+  $targets = switch ($TargetType) {
+    "content-type" { $TaxonomyConfig.content_types; break }
+    "category" { $TaxonomyConfig.categories; break }
+    default { throw "Unsupported taxonomy reconciliation target type '$TargetType'." }
+  }
+  if (-not $targets.Contains($TargetId)) { throw "Unknown $TargetType '$TargetId'." }
+  return $targets[$TargetId]
+}

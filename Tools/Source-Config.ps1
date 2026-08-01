@@ -2494,6 +2494,46 @@ function Get-KnowledgeSourceProvenanceSubjectTypes {
   return @("work","work-production-context","applicability-scope","scoped-continuity-assertion","segment","content-group","work-relationship","adaptation-mapping","manifestation","manifestation-relationship","manifestation-segment-mapping","release-component","release-component-relationship","release-package","release-run","release-event","catalog-placement","platform-offering","source","source-relationship","content-group-member","localized-title","release-run-phase","source-coverage","source-observation","coverage-position-range","authority-rule")
 }
 
+function Get-KnowledgeSourceReconciliationTargetTypes {
+  return @("medium","work-group","continuity","authority-profile","work","segment","content-group","manifestation","release-component","release-package","release-run","release-event","territory","platform","catalog-placement","platform-offering","source")
+}
+
+function Get-KnowledgeSourceReconciliationTargets {
+  param([object]$SourceRegistry)
+  return [ordered]@{
+    medium=$SourceRegistry.mediums;"work-group"=$SourceRegistry.work_groups;continuity=$SourceRegistry.continuities;"authority-profile"=$SourceRegistry.authority_profiles
+    work=$SourceRegistry.works;segment=$SourceRegistry.segments;"content-group"=$SourceRegistry.content_groups;manifestation=$SourceRegistry.manifestations
+    "release-component"=$SourceRegistry.release_components;"release-package"=$SourceRegistry.release_packages;"release-run"=$SourceRegistry.release_runs;"release-event"=$SourceRegistry.release_events
+    territory=$SourceRegistry.territories;platform=$SourceRegistry.platforms;"catalog-placement"=$SourceRegistry.catalog_placements;"platform-offering"=$SourceRegistry.platform_offerings;source=$SourceRegistry.sources
+  }
+}
+
+function Get-KnowledgeSourceReconciliationTarget {
+  param([object]$SourceRegistry,[string]$TargetType,[string]$TargetId)
+  $targets = switch($TargetType) {
+    "medium" { $SourceRegistry.mediums; break }
+    "work-group" { $SourceRegistry.work_groups; break }
+    "continuity" { $SourceRegistry.continuities; break }
+    "authority-profile" { $SourceRegistry.authority_profiles; break }
+    "work" { $SourceRegistry.works; break }
+    "segment" { $SourceRegistry.segments; break }
+    "content-group" { $SourceRegistry.content_groups; break }
+    "manifestation" { $SourceRegistry.manifestations; break }
+    "release-component" { $SourceRegistry.release_components; break }
+    "release-package" { $SourceRegistry.release_packages; break }
+    "release-run" { $SourceRegistry.release_runs; break }
+    "release-event" { $SourceRegistry.release_events; break }
+    "territory" { $SourceRegistry.territories; break }
+    "platform" { $SourceRegistry.platforms; break }
+    "catalog-placement" { $SourceRegistry.catalog_placements; break }
+    "platform-offering" { $SourceRegistry.platform_offerings; break }
+    "source" { $SourceRegistry.sources; break }
+    default { throw "Unsupported source reconciliation target type '$TargetType'." }
+  }
+  if (-not $targets.Contains($TargetId)) { throw "Unknown $TargetType '$TargetId'." }
+  return $targets[$TargetId]
+}
+
 function Get-KnowledgeSourceProvenanceTarget {
   param([object]$SourceRegistry,[string]$SubjectType,[string]$SubjectId)
 

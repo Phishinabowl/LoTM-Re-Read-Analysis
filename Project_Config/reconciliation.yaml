@@ -1,0 +1,5 @@
+schema_version: 1
+
+# Historical identity changes belong here. Empty means no stable IDs have been
+# redirected, merged, split, or retired in this project yet.
+records: []

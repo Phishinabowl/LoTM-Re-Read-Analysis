@@ -11,4 +11,4 @@ Project-specific composition, paths, activated capabilities, taxonomy, resources
 
 Framework packs must not contain LoTM works, pages, source records, repository paths, or other project instances. A project selects packs through `Project_Config/schema-packs.yaml`. Selection makes capability declarations discoverable; capability lifecycle determines availability, and the project activation policy determines which available capabilities are enabled.
 
-See `Packs/README.md` for the composable narrative pack catalog and media-axis rules. See `Contracts/lookup-key-normalization.md` for deterministic semantic lookup and `Contracts/narrative-source-registry.md` for the executable narrative source schema.
+See `Packs/README.md` for the composable narrative pack catalog and media-axis rules. See `Contracts/lookup-key-normalization.md` for deterministic semantic lookup, `Contracts/narrative-source-registry.md` for the executable narrative source schema, and `Contracts/reconciliation-registry.md` for auditable stable-ID resolution.

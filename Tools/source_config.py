@@ -698,6 +698,35 @@ class SourceRegistry:
     identifier_schemes: dict[str, IdentifierScheme]
     external_identifiers: tuple[ExternalIdentifier, ...]
 
+    def reconciliation_targets(self) -> dict[str, dict[str, object]]:
+        return {
+            "medium": self.mediums,
+            "work-group": self.work_groups,
+            "continuity": self.continuities,
+            "authority-profile": self.authority_profiles,
+            "work": self.works,
+            "segment": self.segments,
+            "content-group": self.content_groups,
+            "manifestation": self.manifestations,
+            "release-component": self.release_components,
+            "release-package": self.release_packages,
+            "release-run": self.release_runs,
+            "release-event": self.release_events,
+            "territory": self.territories,
+            "platform": self.platforms,
+            "catalog-placement": self.catalog_placements,
+            "platform-offering": self.platform_offerings,
+            "source": self.sources,
+        }
+
+    def reconciliation_target(self, target_type: str, target_id: str) -> object:
+        targets = self.reconciliation_targets().get(target_type)
+        if targets is None:
+            raise ValueError(f"Unsupported source reconciliation target type `{target_type}`.")
+        if target_id not in targets:
+            raise ValueError(f"Unknown {target_type} `{target_id}`.")
+        return targets[target_id]
+
     def provenance_targets(self) -> dict[str, dict[str, object]]:
         nested = {
             "content-group-member": (

@@ -49,6 +49,20 @@ class ResourceConfig:
     kinds: dict[str, ResourceKindConfig]
     types: dict[str, ResourceTypeConfig]
 
+    def reconciliation_targets(self) -> dict[str, dict[str, object]]:
+        return {
+            "resource-kind": self.kinds,
+            "resource-type": self.types,
+        }
+
+    def reconciliation_target(self, target_type: str, target_id: str) -> object:
+        targets = self.reconciliation_targets().get(target_type)
+        if targets is None:
+            raise ValueError(f"Unsupported resource reconciliation target type `{target_type}`.")
+        if target_id not in targets:
+            raise ValueError(f"Unknown {target_type} `{target_id}`.")
+        return targets[target_id]
+
 
 def require_mapping(value, context: str) -> dict:
     if not isinstance(value, dict):

@@ -13,6 +13,7 @@ The current executable contract is enforced by the matching Python and PowerShel
 | `Project_Config/sources.yaml` | `Tools/source_config.py`, `Tools/Source-Config.ps1`; see `narrative-source-registry.md` |
 | `Project_Config/entities.yaml` | `Tools/entity_config.py`, `Tools/Entity-Config.ps1`; see `narrative-entity-registry.md` |
 | Typed identity targets | Entity loader provider APIs; see `identity-target-provider.md` |
+| `Project_Config/reconciliation.yaml` | `Tools/reconciliation_config.py`, `Tools/Reconciliation-Config.ps1`; see `reconciliation-registry.md` |
 | `Project_Config/provenance.yaml` | `Tools/provenance_config.py`, `Tools/Provenance-Config.ps1`; see `provenance-registry.md` |
 | Manifest-selected Unicode lookup data | `Tools/lookup_key_config.py`, `Tools/Lookup-Key-Config.ps1`; see `lookup-key-normalization.md` |
 

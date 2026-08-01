@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-distribution
-pack_version: 12
+pack_version: 13
 lifecycle: active
 pack_kind: domain
 label: Narrative Distribution
@@ -34,6 +34,16 @@ capabilities:
   - semantic-position-coverage
 
 controlled_values:
+  reconciliation.target-type:
+    - manifestation
+    - release-component
+    - release-package
+    - release-run
+    - release-event
+    - territory
+    - platform
+    - catalog-placement
+    - platform-offering
   source.applicability-target-type:
     - manifestation
     - release-component
