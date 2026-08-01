@@ -21,7 +21,7 @@ From V30 onward, update this file as part of each version:
 - **V7-V15:** Evidence, authority, production context, scope, and applicability
 - **V16-V23:** Entity identity and cross-registry provenance/reconciliation
 - **V24-V27:** Deterministic configuration ingestion
-- **V28-V36:** Civil time, general chronology, occurrence/recurrence integrity, subject-state acquisition, deterministic recurrence policy, and extensible policy-integrity hardening
+- **V28-V37:** Civil time, general chronology, occurrence/recurrence integrity, subject-state acquisition, deterministic recurrence policy, and extensible semantic resolution
 
 ### Marker Conventions
 
@@ -1122,3 +1122,25 @@ V37 should be **Semantic Declaration Integrity and Effect Resolution**. Pack com
 Effect incompatibility should gain an explicit scope such as `global` or `same-target`, with deterministic target comparison and trace output. Evaluator results should group semantically identical selected effects into one resolved effect while preserving every contributing rule and nested effect ID; a pack or effect profile should state whether repeated contributions are idempotent, accumulating, or invalid. Permanent conformance should cover reversed and unknown pair members, orphaned and contradictory scope declarations, same-target versus cross-target conflicts, and duplicate contributions from separate selected rules in all three runtimes.
 
 The broader temporal-topology work remains staged after this integrity release: uncertain or aggregate iteration cardinality, repeated participation, extratemporal context relations, branch lifecycle, and deeper knowledge-acquisition semantics are still valid future capabilities. V37 should first make the new V36 extension surface deterministic for pack authors and downstream executors.
+
+## V37 - Semantic Declaration Integrity and Effect Resolution
+
+**Implemented by:** `7991f45`
+
+**Superseded assumption:** It is sufficient to validate recurrence semantic declarations only when a concrete project rule uses them, and selected rule effects can be handed downstream as a flat list without defining repeated-contribution behavior.
+
+**Architectural promotion:** Cross-namespace effect declaration closure and resolved-effect execution semantics became core framework services at pack composition and rule evaluation boundaries.
+
+V37 keeps schema-pack files at schema 2 and the occurrence registry at schema 4. Core advances to pack version 28 with enabled `semantic-declaration-integrity` and `deterministic-effect-resolution` capabilities, and narrative media now requires core version 28. The release uses validated controlled-value namespaces rather than introducing a new top-level pack record family, avoiding an unrelated migration across every existing pack while still making the declarations executable and closed.
+
+Schema-pack composition now validates the complete recurrence effect vocabulary before project registries load. Every effect kind whose target compatibility includes `recurrence-pattern` must have exactly one owning-pattern or external-pattern scope declaration. Every effect kind must have exactly one repetition policy: `idempotent`, `accumulating`, or `invalid`. Scope and repetition declarations must reference known applicable effect kinds. Incompatibility pairs must equal the canonical sorted form of two distinct known effect kinds and must appear under exactly one namespace: global incompatibility or same-target incompatibility. Reversed, unknown, orphaned, missing, contradictory, and multiply scoped declarations fail while packs compose rather than remaining dormant until project data happens to exercise them.
+
+Rule evaluation no longer exposes the raw concatenation of selected effect rows as its execution result. It groups contributions by effect kind, target type, and target ID. Each resolved effect reports repetition policy, contribution count, execution count, contributing rule IDs, and contributing nested effect IDs. Idempotent policy converts any positive number of equivalent contributions into one execution. Accumulating policy preserves one execution per contribution. Invalid policy permits one contribution but converts repeated contributions to zero executions and an explicit conflict. Contributor lineage remains available without treating duplicated execution as provenance.
+
+Effect incompatibility now has explicit scope. Global pairs conflict whenever both kinds are selected. Same-target pairs conflict only when both resolved effects address the same target type and ID, and their message includes that target. Core's advance/terminate incompatibility moves to same-target scope, allowing an owning-pattern action and a permitted external-pattern action to coexist when they concern different recurrences. Competing reset targets remain a structural evaluator conflict independent of pack kind-pair metadata.
+
+The permanent occurrence fixture adds a second independently selected advance contribution and verifies one idempotent resolved effect with both contributor paths. Stored expectations rise from fifty-one to fifty-three. The paired extension probes now cover canonical declaration failures, orphaned and contradictory scope/repetition metadata, global versus same-target conflicts, legal external targeting, and all three repetition policies. Python, PowerShell 7, and Windows PowerShell 5.1 each pass sixty-seven occurrence assertions and reject sixty-seven malformed occurrence registries. The retained chronology, temporal, and reconciliation suites remain green.
+
+## Testing After V37
+
+Pending the post-V37 pressure test. This section will record adversarial pack composition, effect-resolution and execution scenarios, retained Derrick/Loki behavior, cross-domain implications, newly exposed limitations, and the recommendation for the next version before V38 begins.
