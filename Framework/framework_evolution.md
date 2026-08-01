@@ -21,7 +21,7 @@ From V30 onward, update this file as part of each version:
 - **V7-V15:** Evidence, authority, production context, scope, and applicability
 - **V16-V23:** Entity identity and cross-registry provenance/reconciliation
 - **V24-V27:** Deterministic configuration ingestion
-- **V28-V33:** Civil time, general chronology, occurrence/recurrence integrity, recurrence rules, and subject-state acquisition
+- **V28-V34:** Civil time, general chronology, occurrence/recurrence integrity, subject-state acquisition, and deterministic recurrence policy
 
 ### Marker Conventions
 
@@ -932,3 +932,27 @@ V34 should be **Scoped Recurrence Policy and Deterministic Rule Evaluation**. It
 Core should provide deterministic matching, priority or exclusivity policy, incompatible-effect detection, and an explainable evaluation result that reports considered rules, matched conditions, selected effects, and rejected conflicts. Bounded predicates should cover iteration ordinal/count, maximum attempts, and composition with chronology or civil-time windows; cadence should remain a typed schedule policy rather than an unrestricted expression language. Domain packs should register outcome compatibility groups and specialized condition/effect vocabulary.
 
 V34 acceptance should evaluate the Derrick reset and termination rules against concrete passes, select the shifted checkpoint only after its activation, terminate the IT retry instead of also advancing it when the budget is exhausted, express and evaluate a monthly legal cadence, and explain every decision without confusing subject state with provenance-backed truth.
+
+## V34 - Scoped Recurrence Policy and Deterministic Rule Evaluation
+
+**Implemented by:** `189a41f` (`Add scoped recurrence policy evaluation`)
+
+**Superseded assumption:** A validated list of typed recurrence conditions and effects is sufficient even when no service can determine which matching rule governs one concrete execution boundary.
+
+**Architectural promotion:** Scoped recurrence-policy evaluation, typed cadence, deterministic resolution, and conflict explanation became core framework services. Domain packs provide vocabulary and incompatible outcome pairs without owning the evaluator.
+
+V34 upgrades the occurrence registry to schema 4 while preserving the bounded rule language introduced in V33. It does not add a general-purpose expression engine. Concrete recurrence `phases` identify non-overlapping ordinal ranges within one execution. Pattern-owned `schedules` model either ISO civil-calendar cadence by day, week, month, or year or fixed integer steps along one chronology coordinate system. Schedules consume temporal and chronology services rather than duplicating either.
+
+Rules now declare `applicability` across application level, concrete recurrences, phases, branches, positive iteration ranges, chronology-position windows, and civil effective-time windows. Pattern defaults cannot name concrete executions. Execution overrides must name at least one compatible recurrence and may use `replace-group` to suppress matching defaults in the same resolution group. Incomparable chronology and uncertain or missing required effective time return an indeterminate applicability result instead of silently matching or failing.
+
+Conditions are independently evaluable. Occurrence-outcome predicates identify the exact subject. State-availability predicates identify subject, state kind, track, payload, and current occurrence boundary. Iteration predicates use a controlled comparison and positive ordinal, while schedule predicates test typed cadence. Occurrence-reached remains the current-template predicate. This closes the Derrick-versus-Colin ambiguity without treating subjective state as objective truth.
+
+Every rule has nonnegative priority, stable resolution group, `exclusive` or `accumulate` selection, and explicit override behavior. The evaluator composes applicability and `all`/`any` condition results, applies matching execution overrides, selects the highest-priority exclusive rule per group, accumulates declared additive rules, and reports equal-priority incompatible choices. It also rejects a selected advance-plus-terminate combination and competing reset targets. Its result contains selected rules and effects, conflicts, and a per-rule trace with applicability, condition outcomes, selection, suppression, and rejection reasons.
+
+Outcome compatibility is pack-defined through canonical unordered pairs. Core registers only generic contradictions; narrative media adds `died-with-survived`. The occurrence loader enforces those pairs only for outcomes sharing occurrence, subject, and result-target scope. Provenance still determines whether an outcome, condition, state, or rule is supported; chronology still determines exact order; the evaluator only decides what the supplied, validated policy means at a requested recurrence boundary.
+
+Core advances to pack version 25 with `deterministic-recurrence-rule-evaluation` and `recurrence-schedule-modeling`. Narrative media advances to version 20 with its scoped outcome incompatibility. The LoTM registry moves to schema 4 but remains empty beyond `main`, adding no fabricated loop records. Paired Python and native PowerShell services expose phase lookup, civil and coordinate schedule calculation and due matching, and deterministic rule evaluation. The permanent fixture now performs 43 queries/evaluations and rejects 60 malformed registries identically in Python, PowerShell 7, and Windows PowerShell 5.1.
+
+## Testing After V34
+
+The post-V34 domain pressure test has not yet been run. It must replay the source-grounded Derrick loop and the broader changing-checkpoint, retry-exhaustion, medical, and legal cadence scenarios against the executable evaluator, then record any correctness defect or deferred capability here before V35 begins.
