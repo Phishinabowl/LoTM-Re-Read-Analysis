@@ -14,8 +14,12 @@ $lookupKeyConfigHelper = Join-Path $PSScriptRoot "Lookup-Key-Config.ps1"
 if (-not (Get-Command Get-KnowledgeLookupKeyConfig -ErrorAction SilentlyContinue)) {
   . $lookupKeyConfigHelper
 }
+$temporalConfigHelper = Join-Path $PSScriptRoot "Temporal-Config.ps1"
+if (-not (Get-Command ConvertTo-KnowledgeTemporalWindow -ErrorAction SilentlyContinue)) {
+  . $temporalConfigHelper
+}
 
-$script:SupportedSourceSchemaVersion = 16
+$script:SupportedSourceSchemaVersion = 17
 $script:AllowedSourceLifecycles = @("active", "deferred")
 $script:AllowedPositionFieldTypes = @("string", "integer", "number", "timestamp", "boolean")
 $script:AllowedPriorityOrders = @("ascending", "descending")
@@ -149,9 +153,9 @@ function ConvertTo-SourceLocalizedTitles {
     Assert-SourceSchemaPackValues $SchemaPackRegistry "source.localized-title-type" @($titleType) "$Context.localized_titles.title_type"
     Assert-SourceSchemaPackValues $SchemaPackRegistry "source.localized-title-status" @($status) "$Context.localized_titles.status"
     $scope = "$languageTag|$(($territoryIds | Sort-Object) -join ',')|$titleType|$romanizationScheme"
-    $validWindow=ConvertTo-SourceTemporalWindow $rawTitle "valid_window" "$Context.localized_titles" $SchemaPackRegistry
+    $validWindow=ConvertTo-KnowledgeTemporalWindow $rawTitle "valid_window" "$Context.localized_titles" $SchemaPackRegistry
     if(-not $scopeWindows.ContainsKey($scope)){$scopeWindows[$scope]=New-Object System.Collections.ArrayList}
-    foreach($existingWindow in $scopeWindows[$scope]){if(Test-SourceTemporalWindowsOverlap $validWindow $existingWindow){throw "Source registry '$Context.localized_titles' has overlapping validity windows in one locale scope."}}
+    foreach($existingWindow in $scopeWindows[$scope]){if(Test-KnowledgeTemporalWindowsOverlap $validWindow $existingWindow){throw "Source registry '$Context.localized_titles' has overlapping validity windows in one locale scope."}}
     [void]$scopeWindows[$scope].Add($validWindow)
     $titles += [pscustomobject]@{
       id=$titleId
@@ -168,77 +172,6 @@ function ConvertTo-SourceLocalizedTitles {
   return @($titles)
 }
 
-function ConvertTo-SourceTemporalWindow {
-  param(
-    [object]$Map,
-    [string]$Key,
-    [string]$Context,
-    [object]$SchemaPackRegistry
-  )
-
-  $rawWindow = Get-ProjectMapValue $Map $Key
-  if ($null -eq $rawWindow) { return $null }
-  if ($rawWindow -isnot [System.Collections.IDictionary]) { throw "Source registry '$Context.$Key' must be a mapping." }
-  $windowContext = "$Context.$Key"
-  Assert-KnowledgeMapKeys $rawWindow @("start","end","precision","certainty","timezone") "Source registry '$windowContext'"
-  $precision = Get-RequiredSourceString $rawWindow "precision" $windowContext
-  $certainty = Get-RequiredSourceString $rawWindow "certainty" $windowContext
-  Assert-SourceSchemaPackValues $SchemaPackRegistry "source.temporal-precision" @($precision) "$windowContext.precision"
-  Assert-SourceSchemaPackValues $SchemaPackRegistry "source.temporal-certainty" @($certainty) "$windowContext.certainty"
-  $start = Get-OptionalSourceString $rawWindow "start" $windowContext
-  $end = Get-OptionalSourceString $rawWindow "end" $windowContext
-  $timezone = Get-OptionalSourceString $rawWindow "timezone" $windowContext
-  if ($precision -eq "unknown") {
-    if ($null -ne $start -or $null -ne $end -or $null -ne $timezone) { throw "Source registry '$windowContext' with unknown precision cannot declare start, end, or timezone." }
-  } elseif ($null -eq $start) {
-    throw "Source registry '$windowContext.start' is required unless precision is 'unknown'."
-  }
-  foreach ($entry in @(
-    [pscustomobject]@{ name="start"; value=$start },
-    [pscustomobject]@{ name="end"; value=$end }
-  )) {
-    if ($null -eq $entry.value) { continue }
-    $valid = $false
-    switch ($precision) {
-      "year" { $valid = $entry.value -match "^\d{4}$" }
-      "month" {
-        $parsed = [datetime]::MinValue
-        $valid = [datetime]::TryParseExact($entry.value, "yyyy-MM", [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::None, [ref]$parsed)
-      }
-      "date" {
-        $parsed = [datetime]::MinValue
-        $valid = [datetime]::TryParseExact($entry.value, "yyyy-MM-dd", [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::None, [ref]$parsed)
-      }
-      "datetime" {
-        $parsedOffset = [datetimeoffset]::MinValue
-        $valid = [datetimeoffset]::TryParse($entry.value, [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::RoundtripKind, [ref]$parsedOffset)
-      }
-      "unknown" { $valid = $true }
-    }
-    if (-not $valid) { throw "Source registry '$windowContext.$($entry.name)' does not match precision '$precision': $($entry.value)" }
-  }
-  if ($null -ne $timezone -and $precision -ne "datetime") { throw "Source registry '$windowContext.timezone' is only valid for datetime precision." }
-  if($null -ne $start -and $null -ne $end -and (ConvertTo-SourceTemporalBound $start $precision $false) -gt (ConvertTo-SourceTemporalBound $end $precision $true)){throw "Source registry '$windowContext.end' must not precede start."}
-  return [pscustomobject]@{ start=$start; end=$end; precision=$precision; certainty=$certainty; timezone=$timezone }
-}
-
-function ConvertTo-SourceTemporalBound {
-  param([string]$Value,[string]$Precision,[bool]$Upper)
-  switch($Precision){
-    "year"{$year=[int]$Value;if($Upper){return [datetime]::new($year,12,31,23,59,59,999)};return [datetime]::new($year,1,1)}
-    "month"{$parsed=[datetime]::ParseExact($Value,"yyyy-MM",[Globalization.CultureInfo]::InvariantCulture);if($Upper){$day=[datetime]::DaysInMonth($parsed.Year,$parsed.Month);return [datetime]::new($parsed.Year,$parsed.Month,$day,23,59,59,999)};return [datetime]::new($parsed.Year,$parsed.Month,1)}
-    "date"{$parsed=[datetime]::ParseExact($Value,"yyyy-MM-dd",[Globalization.CultureInfo]::InvariantCulture);if($Upper){return $parsed.Date.AddDays(1).AddTicks(-1)};return $parsed.Date}
-    default{$parsed=[datetimeoffset]::Parse($Value,[Globalization.CultureInfo]::InvariantCulture,[Globalization.DateTimeStyles]::RoundtripKind);return $parsed.UtcDateTime}
-  }
-}
-
-function Test-SourceTemporalWindowsOverlap {
-  param([object]$Left,[object]$Right)
-  if($null -eq $Left -or $null -eq $Right -or $Left.precision -eq "unknown" -or $Right.precision -eq "unknown"){return $true}
-  $leftStart=ConvertTo-SourceTemporalBound $Left.start $Left.precision $false;$rightStart=ConvertTo-SourceTemporalBound $Right.start $Right.precision $false
-  $leftEnd=if($null -eq $Left.end){[datetime]::MaxValue}else{ConvertTo-SourceTemporalBound $Left.end $Left.precision $true};$rightEnd=if($null -eq $Right.end){[datetime]::MaxValue}else{ConvertTo-SourceTemporalBound $Right.end $Right.precision $true}
-  return $leftStart -le $rightEnd -and $rightStart -le $leftEnd
-}
 function ConvertTo-LabeledSourceRegistry {
   param([object]$RawRegistry, [string]$Context)
 
@@ -734,22 +667,7 @@ function Get-KnowledgeHighestPrecedenceScopes {
 
 function ConvertTo-KnowledgeApplicabilityInstant {
   param([object]$EffectiveAt)
-  if($null -eq $EffectiveAt){return $null}
-  if($EffectiveAt -is [datetimeoffset]){return [pscustomobject]@{instant=$EffectiveAt.UtcDateTime;label=$EffectiveAt.ToString("o")}}
-  if($EffectiveAt -is [datetime]){
-    $instant=if($EffectiveAt.Kind -eq [DateTimeKind]::Local){$EffectiveAt.ToUniversalTime()}elseif($EffectiveAt.Kind -eq [DateTimeKind]::Utc){$EffectiveAt}else{[datetime]::SpecifyKind($EffectiveAt,[DateTimeKind]::Unspecified)}
-    return [pscustomobject]@{instant=$instant;label=$EffectiveAt.ToString("o")}
-  }
-  if($EffectiveAt -isnot [string] -or [string]::IsNullOrWhiteSpace($EffectiveAt)){throw "Applicability effective time must be an ISO date, datetime, or null."}
-  $label=$EffectiveAt.Trim()
-  if($label -match '^\d{4}-\d{2}-\d{2}$'){
-    $parsed=[datetime]::MinValue
-    if(-not [datetime]::TryParseExact($label,"yyyy-MM-dd",[Globalization.CultureInfo]::InvariantCulture,[Globalization.DateTimeStyles]::None,[ref]$parsed)){throw "Applicability effective time must be an ISO date or datetime."}
-    return [pscustomobject]@{instant=$parsed;label=$label}
-  }
-  $parsedOffset=[datetimeoffset]::MinValue
-  if(-not [datetimeoffset]::TryParse($label,[Globalization.CultureInfo]::InvariantCulture,[Globalization.DateTimeStyles]::RoundtripKind,[ref]$parsedOffset)){throw "Applicability effective time must be an ISO date or datetime."}
-  return [pscustomobject]@{instant=$parsedOffset.UtcDateTime;label=$label}
+  return ConvertTo-KnowledgeTemporalInstant $EffectiveAt
 }
 
 function Test-KnowledgeSegmentWithin {
@@ -858,13 +776,7 @@ function Get-KnowledgeApplicabilityTerritoryMatch {
 
 function Get-KnowledgeApplicabilityTemporalMatch {
   param([object]$Window,[object]$EffectiveInstant)
-  if($null -eq $Window){return "unbounded"}
-  if($Window.precision -eq "unknown"){return "unknown"}
-  if($null -eq $EffectiveInstant){return $null}
-  $start=ConvertTo-SourceTemporalBound $Window.start $Window.precision $false
-  $end=if($null -eq $Window.end){[datetime]::MaxValue}else{ConvertTo-SourceTemporalBound $Window.end $Window.precision $true}
-  if($EffectiveInstant -ge $start -and $EffectiveInstant -le $end){return "effective"}
-  return $null
+  return Get-KnowledgeTemporalMatch $Window $EffectiveInstant
 }
 
 function Get-KnowledgeApplicabilityDecision {
@@ -903,7 +815,7 @@ function Get-KnowledgeApplicabilityDecision {
     if($null -eq $territoryMatch){continue}
     $temporalMatch=Get-KnowledgeApplicabilityTemporalMatch $scope.effective_window $effectiveInstant
     if($null -eq $temporalMatch){continue}
-    $outcome=if($temporalMatch -eq "unknown"){"indeterminate"}else{"applicable"}
+    $outcome=if($temporalMatch -in @("unknown","indeterminate")){"indeterminate"}else{"applicable"}
     $matches+=@([pscustomobject]@{scope_id=$scope.id;outcome=$outcome;target_match=$targetMatch;territory_match=$territoryMatch;temporal_match=$temporalMatch;precedence=[int]$scope.precedence})
   }
   $matches=@($matches|Sort-Object @{Expression="precedence";Descending=$true},@{Expression="scope_id";Descending=$false})
@@ -2004,7 +1916,7 @@ function Get-KnowledgeSourceRegistry {
       $phaseSegmentIds=@(Get-SourceStringList $phase "segment_ids" $phaseContext)
       if($phaseSegmentIds.Count -eq 0){throw "Source registry '$phaseContext.segment_ids' must not be empty."}
       $flattenedPhaseSegments+=@($phaseSegmentIds)
-      $firstReleaseWindow=ConvertTo-SourceTemporalWindow $phase "first_release_window" $phaseContext $SchemaPackRegistry
+      $firstReleaseWindow=ConvertTo-KnowledgeTemporalWindow $phase "first_release_window" $phaseContext $SchemaPackRegistry
       if($null -eq $firstReleaseWindow){throw "Source registry '$phaseContext.first_release_window' is required."}
       $cadence=Get-ProjectMapValue $phase "cadence";if($null -eq $cadence -or -not ($cadence -is [System.Collections.IDictionary])){throw "Source registry '$phaseContext.cadence' must be a mapping."}
       $cadenceUnit=Get-RequiredSourceString $cadence "unit" "$phaseContext.cadence";$cadenceInterval=Get-ProjectMapValue $cadence "interval"
@@ -2022,7 +1934,7 @@ function Get-KnowledgeSourceRegistry {
     for($index=0;$index -lt $rawExceptions.Count;$index++){
       $exceptionContext="$context.exceptions[$index]";$exception=$rawExceptions[$index];$exceptionType=Get-RequiredSourceString $exception "exception_type" $exceptionContext;Assert-SourceSchemaPackValues $SchemaPackRegistry "source.release-run-exception-type" @($exceptionType) "$exceptionContext.exception_type"
       $segmentId=Get-RequiredSourceString $exception "segment_id" $exceptionContext;if($segmentIds -cnotcontains $segmentId){throw "Source registry '$exceptionContext.segment_id' falls outside the release run."};if(-not $seenExceptions.Add("$exceptionType|$segmentId")){throw "Source registry '$context.exceptions' repeats an exception."}
-      $releaseWindow=ConvertTo-SourceTemporalWindow $exception "release_window" $exceptionContext $SchemaPackRegistry;$intervalCount=Get-ProjectMapValue $exception "interval_count"
+      $releaseWindow=ConvertTo-KnowledgeTemporalWindow $exception "release_window" $exceptionContext $SchemaPackRegistry;$intervalCount=Get-ProjectMapValue $exception "interval_count"
       if($null -ne $intervalCount -and ($intervalCount -is [bool] -or $intervalCount -isnot [int] -or [int]$intervalCount -lt 1)){throw "Source registry '$exceptionContext.interval_count' must be a positive integer when present."}
       $validShape=if($exceptionType -eq "rescheduled"){$null -ne $releaseWindow -and $null -eq $intervalCount}elseif($exceptionType -eq "pause"){$null -eq $releaseWindow -and $null -ne $intervalCount}else{$null -eq $releaseWindow -and $null -eq $intervalCount}
       if(-not $validShape){throw "Source registry '$exceptionContext' fields are incompatible with exception type '$exceptionType'."}
@@ -2056,7 +1968,7 @@ function Get-KnowledgeSourceRegistry {
       id=$eventId; lifecycle=Get-RequiredSourceString $event "lifecycle" $context; label=Get-RequiredSourceString $event "label" $context
       subject_type=$subjectType; subject_id=$subjectId; segment_ids=@($segmentIds)
       release_event_type=Get-RequiredSourceString $event "release_event_type" $context
-      release_window=ConvertTo-SourceTemporalWindow (Get-ProjectMapValue $event "release_window") "$context.release_window" $SchemaPackRegistry
+      release_window=ConvertTo-KnowledgeTemporalWindow $event "release_window" $context $SchemaPackRegistry
       territory_ids=@($territoryIds)
       platform_ids=@($platformIds); availability_status=Get-RequiredSourceString $event "availability_status" $context
       release_run_id=$releaseRunId
@@ -2146,7 +2058,7 @@ function Get-KnowledgeSourceRegistry {
       availability_status=Get-RequiredSourceString $offering "availability_status" $context
       territory_ids=@($territoryIds)
       language_tags=@($languageTags)
-      availability_window=ConvertTo-SourceTemporalWindow (Get-ProjectMapValue $offering "availability_window") "$context.availability_window" $SchemaPackRegistry
+      availability_window=ConvertTo-KnowledgeTemporalWindow $offering "availability_window" $context $SchemaPackRegistry
       catalog_placement_ids=@($placementIds)
     }
     if ($script:AllowedSourceLifecycles -cnotcontains $platformOfferings[$offeringId].lifecycle) { throw "Source registry '$context.lifecycle' must be one of: $($script:AllowedSourceLifecycles -join ', ')." }
@@ -2450,10 +2362,10 @@ function Get-KnowledgeSourceRegistry {
     if($unknownTerritories.Count -gt 0){throw "Source registry '$context.territory_ids' references unknown territories: $($unknownTerritories -join ', ')."}
     $precedence=Get-ProjectMapValue $scope "precedence"
     if($precedence -is [bool] -or $precedence -isnot [int] -or [int]$precedence -lt 0){throw "Source registry '$context.precedence' must be a non-negative integer."}
-    $effectiveWindow=ConvertTo-SourceTemporalWindow $scope "effective_window" $context $SchemaPackRegistry
+    $effectiveWindow=ConvertTo-KnowledgeTemporalWindow $scope "effective_window" $context $SchemaPackRegistry
     $windowKey="$targetType|$targetId|$(@($territoryIds|Sort-Object) -join ',')|$precedence"
     $existingWindows=if($scopeWindows.Contains($windowKey)){@($scopeWindows[$windowKey])}else{@()}
-    foreach($existingWindow in $existingWindows){if(Test-SourceTemporalWindowsOverlap $effectiveWindow $existingWindow.window){throw "Source registry '$context' overlaps another applicability scope with the same target, territory set, and precedence."}}
+    foreach($existingWindow in $existingWindows){if(Test-KnowledgeTemporalWindowsOverlap $effectiveWindow $existingWindow.window){throw "Source registry '$context' overlaps another applicability scope with the same target, territory set, and precedence."}}
     $scopeWindows[$windowKey]=@($scopeWindows[$windowKey])+@([pscustomobject]@{window=$effectiveWindow})
     $applicabilityScopes[$scopeId]=[pscustomobject]@{id=$scopeId;target_type=$targetType;target_id=$targetId;territory_ids=@($territoryIds);effective_window=$effectiveWindow;precedence=[int]$precedence}
   }

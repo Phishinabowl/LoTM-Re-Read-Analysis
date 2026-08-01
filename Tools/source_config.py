@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-import calendar
 from datetime import datetime, timezone
 from pathlib import Path
 from string import Formatter
@@ -10,9 +9,16 @@ from project_config import ProjectConfig
 from resource_config import ResourceConfig
 from schema_pack_config import SchemaPackRegistry, load_schema_pack_registry
 from strict_yaml import assert_allowed_keys, load_yaml_file
+from temporal_config import (
+    TemporalWindow,
+    normalize_effective_at,
+    parse_temporal_window,
+    temporal_window_match as applicability_temporal_match,
+    temporal_windows_overlap,
+)
 
 
-SUPPORTED_SOURCE_SCHEMA_VERSION = 16
+SUPPORTED_SOURCE_SCHEMA_VERSION = 17
 LIFECYCLES = {"active", "deferred"}
 POSITION_FIELD_TYPES = {"string", "integer", "number", "timestamp", "boolean"}
 PRIORITY_ORDERS = {"ascending", "descending"}
@@ -376,15 +382,6 @@ class LocalizedTitle:
     is_primary: bool
     romanization_scheme: str | None
     valid_window: "TemporalWindow | None"
-
-
-@dataclass(frozen=True)
-class TemporalWindow:
-    start: str | None
-    end: str | None
-    precision: str
-    certainty: str
-    timezone: str | None
 
 
 @dataclass(frozen=True)
@@ -910,7 +907,7 @@ class SourceRegistry:
                     scope_id=scope.id,
                     outcome=(
                         "indeterminate"
-                        if temporal_match == "unknown"
+                        if temporal_match in {"unknown", "indeterminate"}
                         else "applicable"
                     ),
                     target_match=target_match,
@@ -1445,174 +1442,6 @@ def parse_localized_titles(
             )
         )
     return tuple(titles)
-
-
-def parse_temporal_window(
-    mapping: dict,
-    key: str,
-    context: str,
-    schema_packs: SchemaPackRegistry,
-) -> TemporalWindow | None:
-    raw_window = mapping.get(key)
-    if raw_window is None:
-        return None
-    window_context = f"{context}.{key}"
-    window = require_mapping(raw_window, window_context)
-    assert_allowed_keys(
-        window,
-        {"start", "end", "precision", "certainty", "timezone"},
-        f"Source registry `{window_context}`",
-    )
-    precision = require_string(window, "precision", window_context)
-    certainty = require_string(window, "certainty", window_context)
-    validate_pack_values(
-        schema_packs,
-        "source.temporal-precision",
-        (precision,),
-        f"{window_context}.precision",
-    )
-    validate_pack_values(
-        schema_packs,
-        "source.temporal-certainty",
-        (certainty,),
-        f"{window_context}.certainty",
-    )
-    start = optional_string(window, "start", window_context)
-    end = optional_string(window, "end", window_context)
-    timezone = optional_string(window, "timezone", window_context)
-    if precision == "unknown":
-        if start is not None or end is not None or timezone is not None:
-            raise ValueError(
-                f"Source registry `{window_context}` with unknown precision cannot "
-                "declare start, end, or timezone."
-            )
-    elif start is None:
-        raise ValueError(
-            f"Source registry `{window_context}.start` is required unless precision "
-            "is `unknown`."
-        )
-
-    def validate_value(value: str | None, field_name: str) -> None:
-        if value is None:
-            return
-        try:
-            if precision == "year":
-                if not re.fullmatch(r"\d{4}", value):
-                    raise ValueError
-            elif precision == "month":
-                datetime.strptime(value, "%Y-%m")
-            elif precision == "date":
-                datetime.strptime(value, "%Y-%m-%d")
-            elif precision == "datetime":
-                datetime.fromisoformat(value.replace("Z", "+00:00"))
-        except ValueError as exc:
-            raise ValueError(
-                f"Source registry `{window_context}.{field_name}` does not match "
-                f"precision `{precision}`: {value}"
-            ) from exc
-
-    validate_value(start, "start")
-    validate_value(end, "end")
-    if timezone is not None and precision != "datetime":
-        raise ValueError(
-            f"Source registry `{window_context}.timezone` is only valid for datetime "
-            "precision."
-        )
-    if (
-        start is not None
-        and end is not None
-        and temporal_bound(start, precision, upper=False)
-        > temporal_bound(end, precision, upper=True)
-    ):
-        raise ValueError(
-            f"Source registry `{window_context}.end` must not precede start."
-        )
-    return TemporalWindow(start, end, precision, certainty, timezone)
-
-
-def temporal_bound(value: str, precision: str, *, upper: bool) -> datetime:
-    if precision == "year":
-        year = int(value)
-        return datetime(year, 12 if upper else 1, 31 if upper else 1, 23 if upper else 0, 59 if upper else 0, 59 if upper else 0, 999999 if upper else 0)
-    if precision == "month":
-        parsed = datetime.strptime(value, "%Y-%m")
-        day = calendar.monthrange(parsed.year, parsed.month)[1] if upper else 1
-        return datetime(parsed.year, parsed.month, day, 23 if upper else 0, 59 if upper else 0, 59 if upper else 0, 999999 if upper else 0)
-    if precision == "date":
-        parsed = datetime.strptime(value, "%Y-%m-%d")
-        return parsed.replace(hour=23, minute=59, second=59, microsecond=999999) if upper else parsed
-    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
-    if parsed.tzinfo is not None:
-        parsed = parsed.astimezone(timezone.utc).replace(tzinfo=None)
-    return parsed
-
-
-def temporal_windows_overlap(
-    left: TemporalWindow | None, right: TemporalWindow | None
-) -> bool:
-    if left is None or right is None:
-        return True
-    if left.precision == "unknown" or right.precision == "unknown":
-        return True
-    left_start = temporal_bound(left.start, left.precision, upper=False)
-    right_start = temporal_bound(right.start, right.precision, upper=False)
-    left_end = (
-        temporal_bound(left.end, left.precision, upper=True)
-        if left.end is not None
-        else datetime.max
-    )
-    right_end = (
-        temporal_bound(right.end, right.precision, upper=True)
-        if right.end is not None
-        else datetime.max
-    )
-    return left_start <= right_end and right_start <= left_end
-
-
-def normalize_effective_at(
-    value: str | datetime | None,
-) -> tuple[datetime | None, str | None]:
-    if value is None:
-        return None, None
-    if isinstance(value, datetime):
-        parsed = value
-        label = value.isoformat()
-    elif isinstance(value, str) and value.strip():
-        label = value.strip()
-        try:
-            if re.fullmatch(r"\d{4}-\d{2}-\d{2}", label):
-                parsed = datetime.strptime(label, "%Y-%m-%d")
-            else:
-                parsed = datetime.fromisoformat(label.replace("Z", "+00:00"))
-        except ValueError as exc:
-            raise ValueError(
-                "Applicability effective time must be an ISO date or datetime."
-            ) from exc
-    else:
-        raise ValueError(
-            "Applicability effective time must be an ISO date, datetime, or None."
-        )
-    if parsed.tzinfo is not None:
-        parsed = parsed.astimezone(timezone.utc).replace(tzinfo=None)
-    return parsed, label
-
-
-def applicability_temporal_match(
-    window: TemporalWindow | None, effective_at: datetime | None
-) -> str | None:
-    if window is None:
-        return "unbounded"
-    if window.precision == "unknown":
-        return "unknown"
-    if effective_at is None:
-        return None
-    start = temporal_bound(window.start, window.precision, upper=False)
-    end = (
-        temporal_bound(window.end, window.precision, upper=True)
-        if window.end is not None
-        else datetime.max
-    )
-    return "effective" if start <= effective_at <= end else None
 
 
 def validate_id(value: str, context: str) -> None:

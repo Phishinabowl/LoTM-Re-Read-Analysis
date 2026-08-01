@@ -1,0 +1,20 @@
+{
+  "matches": [
+    ["handoff-left", "2025-01-31", "effective"],
+    ["handoff-left", "2025-02-01", "not-effective"],
+    ["handoff-right", "2025-02-01", "effective"],
+    ["end-only", "2019-12-31", "effective"],
+    ["end-only", "2020-01-01", "not-effective"],
+    ["datetime-offset", "2024-12-31T23:00:00Z", "effective"],
+    ["uncertain", "2025-06-01", "indeterminate"],
+    ["unknown", "2025-06-01", "unknown"]
+  ],
+  "overlaps": [
+    ["handoff-left", "handoff-right", "disjoint"],
+    ["january-closed", "february-open", "disjoint"],
+    ["mixed-precision", "january-closed", "disjoint"],
+    ["unknown", "january-closed", "unknown"],
+    ["uncertain", "january-closed", "indeterminate"],
+    ["datetime-offset", "exact-instant", "overlap"]
+  ]
+}

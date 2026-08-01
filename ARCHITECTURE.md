@@ -132,7 +132,7 @@ Examples include framework contracts and packs, visual assets, local source mate
 
 ### Source Registry
 
-`Project_Config/sources.yaml` schema version 16 owns:
+`Project_Config/sources.yaml` schema version 17 owns:
 
 - stable source and medium-profile IDs plus instantiated modality, cultural-form, release-form, and container-format facets;
 - stable franchise/collection/adaptation-program groups, creative works, structural work segments, recursively nested content groups with stable member identities and controlled participation roles, continuities, and per-work volume identities;
@@ -185,7 +185,11 @@ Resolution is read-only. It does not rename folders or files, rewrite page/YAML 
 
 ### Provenance Registry
 
-`Project_Config/provenance.yaml` schema version 1 owns factual assertions and claim-supersession chains independently of the registries whose records they describe. `Tools/provenance_config.py` and `Tools/Provenance-Config.ps1` compose typed provenance-target providers from source, entity, and reconciliation registries, reject unsupported or missing subjects, resolve semantic field paths, validate evidence locators against source work, coverage, and segment bounds, and evaluate claims through source-owned authority profiles. Subject registries own their records; they do not own evidence assertions about themselves.
+`Project_Config/provenance.yaml` schema version 2 owns factual assertions and claim-supersession chains independently of the registries whose records they describe. `Tools/provenance_config.py` and `Tools/Provenance-Config.ps1` compose typed provenance-target providers from source, entity, and reconciliation registries, reject unsupported or missing subjects, resolve semantic field paths, validate evidence locators against source work, coverage, and segment bounds, and evaluate claims through source-owned authority profiles. Subject registries own their records; they do not own evidence assertions about themselves.
+
+### Temporal Kernel
+
+`Tools/temporal_config.py` and `Tools/Temporal-Config.ps1` own the shared domain-neutral temporal parser and comparison behavior used by source and provenance registries. Core pack vocabulary controls interval/unknown windows, year/month/date/datetime precision, and per-bound certainty. Intervals may be open at either end and independently inclusive or exclusive. Unknown and uncertain timing remain explicit outcomes instead of being coerced into exact dates. See `Framework/Contracts/temporal-model.md`.
 
 The required load order is project manifest, selected packs and foundational registries, source registry, entity registry, reconciliation registry, then provenance registry. Cross-registry validation is deferred to composition layers so source and entity loaders do not depend on one another through evidence claims or historical IDs. A new provenance-addressable registry must expose a typed target-provider API and pack-owned `provenance.subject-type` values rather than implementing another assertion parser.
 

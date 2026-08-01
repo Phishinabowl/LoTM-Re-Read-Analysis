@@ -1,0 +1,38 @@
+schema_version: 1
+windows:
+  unknown-kind:
+    kind: unsupported
+  unknown-with-bound:
+    kind: unknown
+    start: {value: "2025", precision: year, certainty: exact, inclusive: true}
+  interval-without-bounds:
+    kind: interval
+  unknown-bound-field:
+    kind: interval
+    start: {value: "2025", precision: year, certainty: exact, inclusive: true, timezone: UTC}
+  unknown-precision:
+    kind: interval
+    start: {value: "2025", precision: era, certainty: exact, inclusive: true}
+  unknown-certainty:
+    kind: interval
+    start: {value: "2025", precision: year, certainty: guessed, inclusive: true}
+  nonboolean-inclusive:
+    kind: interval
+    start: {value: "2025", precision: year, certainty: exact, inclusive: "true"}
+  invalid-date:
+    kind: interval
+    start: {value: "2025-02-29", precision: date, certainty: exact, inclusive: true}
+  naive-datetime:
+    kind: interval
+    start: {value: "2025-01-01T00:00:00", precision: datetime, certainty: exact, inclusive: true}
+  invalid-offset:
+    kind: interval
+    start: {value: "2025-01-01T00:00:00+14:01", precision: datetime, certainty: exact, inclusive: true}
+  reversed:
+    kind: interval
+    start: {value: "2026", precision: year, certainty: exact, inclusive: true}
+    end: {value: "2025", precision: year, certainty: exact, inclusive: true}
+  empty-exclusive-instant:
+    kind: interval
+    start: {value: "2025-01-01T00:00:00Z", precision: datetime, certainty: exact, inclusive: false}
+    end: {value: "2025-01-01T00:00:00Z", precision: datetime, certainty: exact, inclusive: false}

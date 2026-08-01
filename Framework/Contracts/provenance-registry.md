@@ -2,7 +2,7 @@
 
 ## Ownership
 
-`Project_Config/provenance.yaml` schema version 1 is the sole project-instance store for factual assertions and claim-supersession chains. Subject registries expose stable target records; they do not carry their own assertion collections. Evidence sources, locator media, coverage, position semantics, and authority profiles remain owned by the source registry.
+`Project_Config/provenance.yaml` schema version 2 is the sole project-instance store for factual assertions and claim-supersession chains. Subject registries expose stable target records; they do not carry their own assertion collections. Evidence sources, locator media, coverage, position semantics, and authority profiles remain owned by the source registry. Observation and effective timing use the shared domain-neutral contract in `temporal-model.md`.
 
 `Tools/provenance_config.py` and `Tools/Provenance-Config.ps1` are behaviorally paired loaders. They load only after source, entity, and reconciliation registries and compose those registries through typed provenance-target APIs. A controlled subject type without an installed provider, or a subject ID absent from its provider, is invalid.
 

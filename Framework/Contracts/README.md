@@ -18,6 +18,7 @@ The current executable contract is enforced by the matching Python and PowerShel
 | `Project_Config/reconciliation.yaml` | `Tools/reconciliation_config.py`, `Tools/Reconciliation-Config.ps1`; see `reconciliation-registry.md` |
 | `Project_Config/provenance.yaml` | `Tools/provenance_config.py`, `Tools/Provenance-Config.ps1`; see `provenance-registry.md` |
 | Manifest-selected Unicode lookup data | `Tools/lookup_key_config.py`, `Tools/Lookup-Key-Config.ps1`; see `lookup-key-normalization.md` |
+| Shared temporal windows | `Tools/temporal_config.py`, `Tools/Temporal-Config.ps1`; see `temporal-model.md` |
 
 Future machine-readable schema documents belong here as those loader contracts are stabilized. Do not add a partial schema that claims broader validation coverage than the loaders actually provide.
 

@@ -11,11 +11,7 @@ from source_config import (
     ApplicabilityScopeMatch,
     AuthorityCandidateDecision,
     SourceRegistry,
-    TemporalWindow,
     compare_positions,
-    applicability_temporal_match,
-    normalize_effective_at,
-    parse_temporal_window,
     require_mapping,
     require_string,
     require_string_list,
@@ -24,9 +20,15 @@ from source_config import (
     validate_source_position,
 )
 from strict_yaml import assert_allowed_keys, load_yaml_file
+from temporal_config import (
+    TemporalWindow,
+    normalize_effective_at,
+    parse_temporal_window,
+    temporal_window_match as applicability_temporal_match,
+)
 
 
-SUPPORTED_PROVENANCE_SCHEMA_VERSION = 1
+SUPPORTED_PROVENANCE_SCHEMA_VERSION = 2
 FIELD_PATH_PATTERN = re.compile(
     r"^[a-z][a-z0-9_]*(?:(?:\.[a-z][a-z0-9_]*)|(?:\[[0-9]+\]))*$"
 )
@@ -225,7 +227,9 @@ class ProvenanceRegistry:
                 continue
             matches.append(ApplicabilityScopeMatch(
                 scope.id,
-                "indeterminate" if temporal_match == "unknown" else "applicable",
+                "indeterminate"
+                if temporal_match in {"unknown", "indeterminate"}
+                else "applicable",
                 target_match,
                 territory_match,
                 temporal_match,

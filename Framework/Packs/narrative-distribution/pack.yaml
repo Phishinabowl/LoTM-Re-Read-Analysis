@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: narrative-distribution
-pack_version: 13
+pack_version: 14
 lifecycle: active
 pack_kind: domain
 label: Narrative Distribution
@@ -184,17 +184,6 @@ controlled_values:
     - country
     - market
     - custom
-  source.temporal-precision:
-    - datetime
-    - date
-    - month
-    - year
-    - unknown
-  source.temporal-certainty:
-    - exact
-    - approximate
-    - announced
-    - uncertain
   source.release-run-cadence-unit:
     - day
     - week
