@@ -333,6 +333,22 @@ Use specialized docs for operational detail:
 
 When a rule appears in more than one place, keep the policy statement here and put the commands, examples, and troubleshooting details in the narrower document.
 
+## Framework Release Compatibility Gate
+
+Before a framework evolution version is considered implementation-complete or its post-version pressure test begins, run both the retained framework conformance stack and the existing-project compatibility gate. A green registry suite does not prove that legacy QA, visualization, or bounded projection workflows still work.
+
+The compatibility gate must:
+
+- run chronology, temporal, reconciliation, occurrence, and any other retained framework conformance suites in Python, PowerShell 7, and Windows PowerShell 5.1;
+- run Visualization validation in all three runtimes and require matching source counts plus zero class or layout issues;
+- generate redirected Obsidian QA exports in all three runtimes with at least one representative bounded graph and bounded page set, then compare summary counts, file inventories, stable Markdown/Mermaid outputs, and refresh/bounded snapshot semantics;
+- run at least one redirected Visualization render in all three runtimes and verify successful, nonempty, semantically equivalent output;
+- verify repository-root auto-detection from a descendant such as `Tools/` when manifest discovery, helper paths, or launcher behavior changed;
+- write every generated regression artifact beneath a uniquely scoped ignored `.tmp/` directory, never mutate canonical Visualization or Obsidian outputs, and remove only that run's temporary directory when comparison is complete; and
+- update the applicable last-parity record in `Tools/TOOLING_REFERENCE.md` with the date, runtimes, scenarios, counts, and normalized comparison result.
+
+Any compatibility failure blocks version confirmation and the next pressure-test round until it is fixed or explicitly documented as an accepted contract change. Record implementation conformance and compatibility-gate results in the version section; reserve `Testing After Vn` for the subsequent adversarial pressure test and the capabilities it exposes. Exact commands, expected non-semantic differences, and comparison recipes remain centralized in `Tools/TOOLING_REFERENCE.md`.
+
 ## Evidence Mode And Search-Term Discipline
 
 Before gathering evidence, building a pilot page, refreshing QA outputs, or creating a graph, classify the work by evidence mode and keep search terms inside that mode.

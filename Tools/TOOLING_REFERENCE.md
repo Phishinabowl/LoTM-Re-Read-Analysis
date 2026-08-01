@@ -696,7 +696,7 @@ Expected non-semantic differences:
 
 Last mapped: 2026-07-07.
 
-Last parity check: 2026-07-30. QA relationship mode with confirmed confidence enabled produced matching 457-line Mermaid files through both CLIs. Earlier checks covered exact Validate results (`nodes=14`, `relationships=115`, zero class/layout issues), matching no-render Refresh graphs/reports/snapshots after runtime-field normalization, and successful Render outputs.
+Last parity check: 2026-08-01. Python, PowerShell 7, and Windows PowerShell 5.1 Validate runs matched exactly (`nodes=15`, `relationships=121`, zero class/layout issues for both existing and freshly generated configured views). Redirected Obsidian QA runs exercised each runtime's Visualization helper for the unbounded relationship graph, configured no-render refresh, and a Novel V1 Ch32 bounded graph. Generated Mermaid files matched after newline normalization, and refresh/bounded snapshot node, relationship, view, orphan, pending, and broken-link semantics matched after runtime path and timestamp normalization. Redirected Render runs over the tracked full Volume 1 graph each produced the same nonempty `298269`-byte SVG with an identical SHA-256 hash.
 
 ## Obsidian QA Export
 
@@ -860,7 +860,7 @@ Expected non-semantic differences:
 
 Last mapped: 2026-07-31.
 
-Last parity check: 2026-07-30. Python and PowerShell each generated 28 files with matching file lists and summary counts for normal exports launched from both the repository root and `Tools/`. Key Markdown and Mermaid outputs were invariant across launch positions. A bounded Novel V1 Ch30 graph and Dunn Smith page matched after newline normalization; the check also corrected PowerShell timeline-prose parsing so `timeline_id` blocks work with both LF and CRLF source files. Prior boundary checks covered Dunn Smith at Novel V1 Ch10, Ch20, Ch30, and Ch50, including anonymous-preview and Sleepless-pathway progression behavior.
+Last parity check: 2026-08-01. Python, PowerShell 7, and Windows PowerShell 5.1 each generated the same 35-file inventory and summary counts for a redirected export containing one Novel V1 Ch32 bounded graph plus Dunn Smith Ch10/Ch32 and Leonard Mitchell Ch32 bounded pages. All 29 stable Markdown and Mermaid outputs matched after generated timestamp and newline normalization; the six refresh/bounded report, settings, and snapshot artifacts matched semantically after expected runtime path, timestamp, encoding, and JSON-format differences were normalized. Normal exports launched from `Tools/` also auto-detected the repository root and produced identical summaries (`notes=16`, `relationships=121`, `data_references=71`, no bounded outputs). Prior boundary checks covered Dunn Smith at Novel V1 Ch10, Ch20, Ch30, and Ch50, including anonymous-preview and Sleepless-pathway progression behavior.
 
 Current content-type and ownership regression: both implementations selected taxonomy-enabled `glossary` and `volumes` roots, excluded `investigations`, and produced matching 28-file lists and summary counts (`notes=16`, `relationships=121`, `data_references=71`). After generated timestamps were normalized, all 25 stable Markdown and Mermaid outputs matched exactly. The check moved PowerShell's unbounded visualization-style graph generation into the configured Visualization helper and added a deterministic YAML-block/file tie-breaker to both data-reference index sort orders.
 

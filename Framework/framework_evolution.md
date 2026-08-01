@@ -6,13 +6,14 @@ The version numbers here describe the **framework evolution rounds discussed dur
 
 From V30 onward, update this file as part of each version:
 
-1. Add the version section when the implementation is complete.
+1. Add the version section with `Implemented by: pending` when the implementation is ready for verification.
 2. Record the problem, design decision, implementation surface, and reason for the change.
-3. Add the subsequent testing section before beginning the next version.
-4. Record defects separately from missing capabilities.
-5. Link the implementing commit after the version is confirmed.
-6. Update the era index when a version begins a genuinely new architectural phase.
-7. Record superseded assumptions, architectural extractions, and promotions when they materially apply; do not force a marker into every version.
+3. Run and record both the retained framework conformance stack and the project compatibility gate defined in `PROJECT_RULES.md` before treating implementation as complete. This gate includes redirected Obsidian QA, bounded projection, Visualization validation/rendering, and three-runtime parity without changing canonical generated outputs.
+4. Add the subsequent `Testing After Vn` section before beginning the next version. Keep this adversarial pressure test distinct from implementation conformance and compatibility regression.
+5. Record defects separately from missing capabilities.
+6. Link the implementing commit after the version is confirmed.
+7. Update the era index when a version begins a genuinely new architectural phase.
+8. Record superseded assumptions, architectural extractions, and promotions when they materially apply; do not force a marker into every version.
 
 ## Evolution Eras
 
@@ -1140,6 +1141,8 @@ Rule evaluation no longer exposes the raw concatenation of selected effect rows 
 Effect incompatibility now has explicit scope. Global pairs conflict whenever both kinds are selected. Same-target pairs conflict only when both resolved effects address the same target type and ID, and their message includes that target. Core's advance/terminate incompatibility moves to same-target scope, allowing an owning-pattern action and a permitted external-pattern action to coexist when they concern different recurrences. Competing reset targets remain a structural evaluator conflict independent of pack kind-pair metadata.
 
 The permanent occurrence fixture adds a second independently selected advance contribution and verifies one idempotent resolved effect with both contributor paths. Stored expectations rise from fifty-one to fifty-three. The paired extension probes now cover canonical declaration failures, orphaned and contradictory scope/repetition metadata, global versus same-target conflicts, legal external targeting, and all three repetition policies. Python, PowerShell 7, and Windows PowerShell 5.1 each pass sixty-seven occurrence assertions and reject sixty-seven malformed occurrence registries. The retained chronology, temporal, and reconciliation suites remain green.
+
+The pre-pressure compatibility gate also remains green in all three runtimes. Visualization validation reports fifteen source nodes, 121 relationships, and zero class/layout issues for both configured views. Redirected QA exports produce matching 35-file inventories and summaries with one Novel V1 Chapter 32 bounded graph plus Dunn Smith Chapter 10/32 and Leonard Mitchell Chapter 32 bounded pages; stable Markdown/Mermaid outputs and normalized refresh/bounded snapshot semantics match. Launching normal exports from `Tools/` preserves repository-root discovery. Redirected rendering of the tracked full Volume 1 graph produces the same nonempty 298,269-byte SVG and SHA-256 hash in Python, PowerShell 7, and Windows PowerShell 5.1. No canonical generated output was changed.
 
 ## Testing After V37
 
