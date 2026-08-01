@@ -2508,6 +2508,15 @@ function Get-KnowledgeSourceReconciliationTargets {
   }
 }
 
+function Get-KnowledgeSourceReconciliationProvider {
+  param([object]$SourceRegistry)
+  return [pscustomobject]@{
+    provider_id="source"
+    targets=(Get-KnowledgeSourceReconciliationTargets $SourceRegistry)
+    aliases=[ordered]@{work=$SourceRegistry.work_aliases;source=$SourceRegistry.source_aliases}
+  }
+}
+
 function Get-KnowledgeSourceReconciliationTarget {
   param([object]$SourceRegistry,[string]$TargetType,[string]$TargetId)
   $targets = switch($TargetType) {

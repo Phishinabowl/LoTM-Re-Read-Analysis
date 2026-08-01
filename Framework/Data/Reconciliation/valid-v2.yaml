@@ -1,0 +1,206 @@
+schema_version: 2
+records:
+  - id: redirect-old-record
+    source_type: category
+    source_id: redirect-old
+    source_state: tombstone
+    source_label_mode: snapshot
+    source_label: Redirect Old
+    operation: redirect
+    targets:
+      - target_type: category
+        target_id: redirect-mid
+    reason: renamed
+    status: active
+    audit: {mode: repository-history, migration_id: fixture-migration}
+
+  - id: redirect-mid-record
+    source_type: category
+    source_id: redirect-mid
+    source_state: tombstone
+    source_label_mode: omitted
+    operation: redirect
+    targets:
+      - target_type: category
+        target_id: current-category
+    reason: renamed
+    status: active
+    audit: {mode: repository-history}
+
+  - id: nested-old-record
+    source_type: category
+    source_id: nested-old
+    source_state: tombstone
+    source_label_mode: redacted
+    operation: redirect
+    targets:
+      - target_type: category
+        target_id: split-root
+    reason: renamed
+    status: active
+    audit: {mode: repository-history}
+
+  - id: split-root-record
+    source_type: category
+    source_id: split-root
+    source_state: tombstone
+    source_label_mode: omitted
+    operation: split
+    targets:
+      - target_type: category
+        target_id: converge-left
+      - target_type: category
+        target_id: converge-right
+    reason: divided
+    status: active
+    audit: {mode: repository-history}
+
+  - id: converge-left-record
+    source_type: category
+    source_id: converge-left
+    source_state: tombstone
+    source_label_mode: omitted
+    operation: redirect
+    targets:
+      - target_type: category
+        target_id: current-category
+    reason: renamed
+    status: active
+    audit: {mode: repository-history}
+
+  - id: converge-right-record
+    source_type: category
+    source_id: converge-right
+    source_state: tombstone
+    source_label_mode: omitted
+    operation: redirect
+    targets:
+      - target_type: category
+        target_id: current-category
+    reason: renamed
+    status: active
+    audit: {mode: repository-history}
+
+  - id: retired-split-record
+    source_type: category
+    source_id: retired-split
+    source_state: tombstone
+    source_label_mode: omitted
+    operation: split
+    targets:
+      - target_type: category
+        target_id: retired-left
+      - target_type: category
+        target_id: retired-right
+    reason: divided
+    status: active
+    audit: {mode: repository-history}
+
+  - id: retired-left-record
+    source_type: category
+    source_id: retired-left
+    source_state: tombstone
+    source_label_mode: omitted
+    operation: retire
+    targets: []
+    reason: deprecated
+    status: active
+    audit: {mode: repository-history}
+
+  - id: retired-right-record
+    source_type: category
+    source_id: retired-right
+    source_state: tombstone
+    source_label_mode: omitted
+    operation: retire
+    targets: []
+    reason: erroneous
+    status: active
+    audit: {mode: repository-history}
+
+  - id: reclassify-record
+    source_type: category
+    source_id: old-category-type
+    source_state: tombstone
+    source_label_mode: snapshot
+    source_label: Former Category
+    operation: reclassify
+    targets:
+      - target_type: content-type
+        target_id: current-content-type
+    reason: reclassified
+    status: active
+    audit:
+      mode: explicit
+      recorded_at: "2026-07-31T20:00:00-04:00"
+      actor_ref: maintainer:test
+      approval_ref: review:test
+      migration_id: fixture-migration
+
+  - id: direct-retire-record
+    source_type: category
+    source_id: direct-retire
+    source_state: tombstone
+    source_label_mode: redacted
+    operation: retire
+    targets: []
+    reason: deprecated
+    status: active
+    audit: {mode: repository-history}
+
+  - id: merge-record
+    source_type: category
+    source_id: merge-old
+    source_state: tombstone
+    source_label_mode: snapshot
+    source_label: Duplicate Category
+    operation: merge
+    targets:
+      - target_type: category
+        target_id: current-category
+    reason: mistaken-duplicate
+    status: active
+    audit: {mode: repository-history}
+
+  - id: history-old-record
+    source_type: category
+    source_id: history-source
+    source_state: present
+    source_label_mode: snapshot
+    source_label: History Source
+    operation: redirect
+    targets:
+      - target_type: category
+        target_id: current-category
+    reason: deprecated
+    status: superseded
+    superseded_by_id: history-active-record
+    audit: {mode: repository-history}
+
+  - id: history-active-record
+    source_type: category
+    source_id: history-source
+    source_state: present
+    source_label_mode: snapshot
+    source_label: History Source
+    operation: redirect
+    targets:
+      - target_type: category
+        target_id: current-category
+    reason: renamed
+    status: active
+    audit: {mode: repository-history}
+
+  - id: reversed-record
+    source_type: category
+    source_id: reversed-source
+    source_state: present
+    source_label_mode: snapshot
+    source_label: Reversed Source
+    operation: redirect
+    targets:
+      - target_type: category
+        target_id: current-category
+    reason: renamed
+    status: reversed
+    audit: {mode: repository-history}

@@ -6,7 +6,7 @@ Identity-target providers expose stable records that may participate in identity
 
 ## Provider Rules
 
-A provider exposes controlled subject types and exact stable-ID lookup. Unsupported subject types, missing IDs, and collisions between installed providers are errors. Human-facing labels and aliases do not replace typed stable IDs.
+A reconciliation provider exposes a stable provider ID, controlled subject types, exact stable-ID lookup maps, and owned semantic alias-key maps. Unsupported subject types, missing IDs, duplicate provider IDs, and target-type collisions between installed providers are errors. Human-facing labels and aliases do not replace typed stable IDs, and an alias key may not retain a tombstoned historical stable ID claimed by reconciliation.
 
 The entity provider exposes `entity` and `entity-incarnation` as phase owners and additionally exposes `identity-phase` as a reconciliation target. Identity phases cannot recursively own identity phases.
 

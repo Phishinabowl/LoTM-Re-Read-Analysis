@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 import re
 
@@ -8,8 +9,11 @@ from project_config import ProjectConfig
 from schema_pack_config import SchemaPackRegistry, load_schema_pack_registry
 
 
-SUPPORTED_RECONCILIATION_SCHEMA_VERSION = 1
+SUPPORTED_RECONCILIATION_SCHEMA_VERSION = 2
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+RFC3339_PATTERN = re.compile(
+    r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$"
+)
 
 
 @dataclass(frozen=True)
@@ -19,17 +23,35 @@ class ReconciliationEndpoint:
 
 
 @dataclass(frozen=True)
+class ReconciliationAudit:
+    mode: str
+    recorded_at: str | None
+    actor_ref: str | None
+    approval_ref: str | None
+    migration_id: str | None
+
+
+@dataclass(frozen=True)
 class ReconciliationRecord:
     id: str
     source_type: str
     source_id: str
     source_state: str
-    source_label: str
+    source_label_mode: str
+    source_label: str | None
     operation: str
     targets: tuple[ReconciliationEndpoint, ...]
     reason: str
     status: str
     superseded_by_id: str | None
+    audit: ReconciliationAudit
+
+
+@dataclass(frozen=True)
+class ReconciliationBranch:
+    outcome: str
+    canonical_target: ReconciliationEndpoint | None
+    reconciliation_ids: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -39,6 +61,7 @@ class ReconciliationResolution:
     requested_id: str
     canonical_targets: tuple[ReconciliationEndpoint, ...]
     reconciliation_ids: tuple[str, ...]
+    branches: tuple[ReconciliationBranch, ...]
 
 
 @dataclass(frozen=True)
@@ -47,6 +70,9 @@ class ReconciliationRegistry:
     schema_version: int
     records: tuple[ReconciliationRecord, ...]
     targets: dict[str, dict[str, object]]
+    aliases: dict[str, frozenset[str]]
+    records_by_id: dict[str, ReconciliationRecord]
+    active_records: dict[tuple[str, str], ReconciliationRecord]
 
     def reconciliation_target(self, target_type: str, target_id: str) -> object:
         records = self.targets.get(target_type)
@@ -57,57 +83,65 @@ class ReconciliationRegistry:
         return records[target_id]
 
     def provenance_targets(self) -> dict[str, dict[str, object]]:
-        return {"reconciliation-record": {record.id: record for record in self.records}}
+        return {"reconciliation-record": self.records_by_id}
 
     def provenance_target(self, subject_type: str, subject_id: str) -> object:
         if subject_type != "reconciliation-record":
             raise ValueError(f"Unsupported reconciliation provenance subject type `{subject_type}`.")
-        records = self.provenance_targets()[subject_type]
-        if subject_id not in records:
+        if subject_id not in self.records_by_id:
             raise ValueError(f"Unknown reconciliation-record `{subject_id}`.")
-        return records[subject_id]
+        return self.records_by_id[subject_id]
 
     def resolve(self, target_type: str, target_id: str) -> ReconciliationResolution:
         if target_type not in self.targets:
             raise ValueError(f"Unsupported reconciliation target type `{target_type}`.")
-        active = {
-            (record.source_type, record.source_id): record
-            for record in self.records
-            if record.status == "active"
-        }
         requested = ReconciliationEndpoint(target_type, target_id)
-        if (target_type, target_id) not in active:
+        requested_key = (target_type, target_id)
+        if requested_key not in self.active_records:
             if target_id not in self.targets[target_type]:
                 raise ValueError(f"Unknown current or historical {target_type} `{target_id}`.")
+            branch = ReconciliationBranch("canonical", requested, ())
             return ReconciliationResolution(
-                "canonical", target_type, target_id, (requested,), ()
+                "canonical", target_type, target_id, (requested,), (), (branch,)
             )
 
-        paths: list[str] = []
-
-        def walk(endpoint: ReconciliationEndpoint) -> tuple[ReconciliationEndpoint, ...]:
-            record = active.get((endpoint.target_type, endpoint.target_id))
+        branches: list[ReconciliationBranch] = []
+        stack: list[tuple[ReconciliationEndpoint, tuple[str, ...]]] = [(requested, ())]
+        while stack:
+            endpoint, path = stack.pop()
+            record = self.active_records.get((endpoint.target_type, endpoint.target_id))
             if record is None:
-                return (endpoint,)
-            paths.append(record.id)
+                branches.append(ReconciliationBranch("canonical", endpoint, path))
+                continue
+            next_path = (*path, record.id)
             if record.operation == "retire":
-                return ()
-            resolved: list[ReconciliationEndpoint] = []
-            for target in record.targets:
-                for item in walk(target):
-                    if item not in resolved:
-                        resolved.append(item)
-            return tuple(resolved)
+                branches.append(ReconciliationBranch("retired", None, next_path))
+                continue
+            for target in reversed(record.targets):
+                stack.append((target, next_path))
 
-        canonical = walk(requested)
-        first = active[(target_type, target_id)]
+        canonical_targets: list[ReconciliationEndpoint] = []
+        reconciliation_ids: list[str] = []
+        for branch in branches:
+            if branch.canonical_target is not None and branch.canonical_target not in canonical_targets:
+                canonical_targets.append(branch.canonical_target)
+            for record_id in branch.reconciliation_ids:
+                if record_id not in reconciliation_ids:
+                    reconciliation_ids.append(record_id)
         outcome = (
-            "retired" if not canonical else
-            "ambiguous" if first.operation == "split" or len(canonical) > 1 else
-            "redirected"
+            "ambiguous"
+            if len(branches) > 1
+            else "retired"
+            if branches[0].outcome == "retired"
+            else "redirected"
         )
         return ReconciliationResolution(
-            outcome, target_type, target_id, canonical, tuple(dict.fromkeys(paths))
+            outcome,
+            target_type,
+            target_id,
+            tuple(canonical_targets),
+            tuple(reconciliation_ids),
+            tuple(branches),
         )
 
 
@@ -149,9 +183,117 @@ def validate_pack_value(
         )
 
 
+def parse_audit(
+    item: dict, context: str, schema_packs: SchemaPackRegistry
+) -> ReconciliationAudit:
+    audit = require_mapping(item.get("audit"), f"{context}.audit")
+    mode = require_string(audit, "mode", f"{context}.audit")
+    validate_pack_value(schema_packs, "reconciliation.audit-mode", mode, f"{context}.audit.mode")
+    recorded_at = optional_string(audit, "recorded_at", f"{context}.audit")
+    actor_ref = optional_string(audit, "actor_ref", f"{context}.audit")
+    approval_ref = optional_string(audit, "approval_ref", f"{context}.audit")
+    migration_id = optional_string(audit, "migration_id", f"{context}.audit")
+    if migration_id is not None:
+        validate_id(migration_id, f"{context}.audit.migration_id")
+    if mode == "explicit":
+        if recorded_at is None or actor_ref is None:
+            raise ValueError(
+                f"Reconciliation registry `{context}.audit` explicit mode requires recorded_at and actor_ref."
+            )
+        if not RFC3339_PATTERN.fullmatch(recorded_at):
+            raise ValueError(
+                f"Reconciliation registry `{context}.audit.recorded_at` must be RFC 3339 with a timezone."
+            )
+        try:
+            datetime.fromisoformat(recorded_at.replace("Z", "+00:00"))
+        except ValueError as exc:
+            raise ValueError(
+                f"Reconciliation registry `{context}.audit.recorded_at` is not a valid timestamp."
+            ) from exc
+    elif any(value is not None for value in (recorded_at, actor_ref, approval_ref)):
+        raise ValueError(
+            f"Reconciliation registry `{context}.audit` repository-history mode derives actor, time, and approval from version control."
+        )
+    return ReconciliationAudit(mode, recorded_at, actor_ref, approval_ref, migration_id)
+
+
+def normalize_providers(
+    providers: tuple[dict[str, object], ...]
+) -> tuple[dict[str, dict[str, object]], dict[str, frozenset[str]]]:
+    targets: dict[str, dict[str, object]] = {}
+    aliases: dict[str, frozenset[str]] = {}
+    provider_ids: set[str] = set()
+    for index, provider in enumerate(providers):
+        if not isinstance(provider, dict):
+            raise ValueError(f"Reconciliation provider {index} must be a mapping.")
+        provider_id = provider.get("provider_id")
+        provider_targets = provider.get("targets")
+        provider_aliases = provider.get("aliases", {})
+        if not isinstance(provider_id, str) or not provider_id.strip():
+            raise ValueError(f"Reconciliation provider {index} requires a non-empty provider_id.")
+        validate_id(provider_id.strip(), f"providers[{index}].provider_id")
+        if provider_id in provider_ids:
+            raise ValueError(f"Reconciliation provider ID `{provider_id}` is duplicated.")
+        provider_ids.add(provider_id)
+        if not isinstance(provider_targets, dict) or not isinstance(provider_aliases, dict):
+            raise ValueError(f"Reconciliation provider `{provider_id}` targets and aliases must be mappings.")
+        overlap = set(targets) & set(provider_targets)
+        if overlap:
+            raise ValueError(
+                "Reconciliation target types have multiple providers: " + ", ".join(sorted(overlap)) + "."
+            )
+        for target_type, records in provider_targets.items():
+            if not isinstance(records, dict):
+                raise ValueError(
+                    f"Reconciliation provider `{provider_id}` target `{target_type}` must be a stable-record mapping."
+                )
+            targets[target_type] = dict(records)
+            raw_aliases = provider_aliases.get(target_type, {})
+            if not isinstance(raw_aliases, dict):
+                raise ValueError(
+                    f"Reconciliation provider `{provider_id}` aliases for `{target_type}` must be a mapping."
+                )
+            aliases[target_type] = frozenset(raw_aliases)
+        extra_aliases = set(provider_aliases) - set(provider_targets)
+        if extra_aliases:
+            raise ValueError(
+                f"Reconciliation provider `{provider_id}` has aliases for unprovided target types: "
+                + ", ".join(sorted(extra_aliases))
+                + "."
+            )
+    return targets, aliases
+
+
+def validate_active_graph(active: dict[tuple[str, str], ReconciliationRecord]) -> None:
+    indegree = {key: 0 for key in active}
+    children: dict[tuple[str, str], list[tuple[str, str]]] = {
+        key: [] for key in active
+    }
+    for key, record in active.items():
+        for endpoint in record.targets:
+            child = (endpoint.target_type, endpoint.target_id)
+            if child in active:
+                children[key].append(child)
+                indegree[child] += 1
+    queue = [key for key, degree in indegree.items() if degree == 0]
+    processed = 0
+    while queue:
+        key = queue.pop()
+        processed += 1
+        for child in children[key]:
+            indegree[child] -= 1
+            if indegree[child] == 0:
+                queue.append(child)
+    if processed != len(active):
+        key = next(key for key, degree in indegree.items() if degree > 0)
+        raise ValueError(
+            f"Reconciliation active resolution graph contains a cycle at `{key[0]}:{key[1]}`."
+        )
+
+
 def load_reconciliation_registry(
     project: ProjectConfig,
-    providers: tuple[dict[str, dict[str, object]], ...],
+    providers: tuple[dict[str, object], ...],
     schema_packs: SchemaPackRegistry | None = None,
 ) -> ReconciliationRegistry:
     if schema_packs is None:
@@ -159,31 +301,10 @@ def load_reconciliation_registry(
     if not schema_packs.capability_enabled("stable-identity-reconciliation"):
         raise ValueError("Capability `stable-identity-reconciliation` must be enabled.")
 
-    targets: dict[str, dict[str, object]] = {}
-    for index, provider in enumerate(providers):
-        if not isinstance(provider, dict):
-            raise ValueError(
-                f"Reconciliation provider {index} must be a mapping of target types to stable-record maps."
-            )
-        invalid_maps = [key for key, value in provider.items() if not isinstance(value, dict)]
-        if invalid_maps:
-            raise ValueError(
-                "Reconciliation providers must expose stable-record mappings for: "
-                + ", ".join(sorted(invalid_maps))
-                + "."
-            )
-        overlap = set(targets) & set(provider)
-        if overlap:
-            raise ValueError(
-                "Reconciliation target types have multiple providers: "
-                + ", ".join(sorted(overlap))
-                + "."
-            )
-        targets.update(provider)
+    targets, aliases = normalize_providers(providers)
     allowed_target_types = set(schema_packs.allowed_values("reconciliation.target-type"))
-    provided_target_types = set(targets)
-    missing = allowed_target_types - provided_target_types
-    extra = provided_target_types - allowed_target_types
+    missing = allowed_target_types - set(targets)
+    extra = set(targets) - allowed_target_types
     if missing or extra:
         details = []
         if missing:
@@ -202,8 +323,7 @@ def load_reconciliation_registry(
     schema_version = registry.get("schema_version")
     if schema_version != SUPPORTED_RECONCILIATION_SCHEMA_VERSION:
         raise ValueError(
-            f"Unsupported reconciliation schema_version {schema_version!r}; "
-            f"expected {SUPPORTED_RECONCILIATION_SCHEMA_VERSION}."
+            f"Unsupported reconciliation schema_version {schema_version!r}; expected {SUPPORTED_RECONCILIATION_SCHEMA_VERSION}."
         )
     raw_records = registry.get("records")
     if not isinstance(raw_records, list):
@@ -226,16 +346,29 @@ def load_reconciliation_registry(
         validate_id(source_id, f"{context}.source_id")
         source_state = require_string(item, "source_state", context)
         validate_pack_value(schema_packs, "reconciliation.source-state", source_state, f"{context}.source_state")
-        source_label = require_string(item, "source_label", context)
+        source_label_mode = require_string(item, "source_label_mode", context)
+        validate_pack_value(schema_packs, "reconciliation.source-label-mode", source_label_mode, f"{context}.source_label_mode")
+        source_label = optional_string(item, "source_label", context)
+        if source_label_mode == "snapshot" and source_label is None:
+            raise ValueError(f"Reconciliation registry `{context}` snapshot source_label_mode requires source_label.")
+        if source_label_mode != "snapshot" and source_label is not None:
+            raise ValueError(f"Reconciliation registry `{context}` {source_label_mode} source_label_mode forbids source_label.")
         operation = require_string(item, "operation", context)
         validate_pack_value(schema_packs, "reconciliation.operation", operation, f"{context}.operation")
         reason = require_string(item, "reason", context)
         validate_pack_value(schema_packs, "reconciliation.reason", reason, f"{context}.reason")
+        validate_pack_value(
+            schema_packs,
+            "reconciliation.operation-reason-pair",
+            f"{operation}-{reason}",
+            f"{context}.operation/reason",
+        )
         status = require_string(item, "status", context)
         validate_pack_value(schema_packs, "reconciliation.status", status, f"{context}.status")
         superseded_by_id = optional_string(item, "superseded_by_id", context)
         if superseded_by_id is not None:
             validate_id(superseded_by_id, f"{context}.superseded_by_id")
+        audit = parse_audit(item, context, schema_packs)
 
         raw_targets = item.get("targets")
         if not isinstance(raw_targets, list):
@@ -249,7 +382,10 @@ def load_reconciliation_registry(
             validate_pack_value(schema_packs, "reconciliation.target-type", target_type, f"{target_context}.target_type")
             target_id = require_string(target, "target_id", target_context)
             validate_id(target_id, f"{target_context}.target_id")
-            if target_type != source_type:
+            if operation == "reclassify":
+                if target_type == source_type:
+                    raise ValueError(f"Reconciliation registry `{target_context}` reclassify must change target type.")
+            elif target_type != source_type:
                 raise ValueError(f"Reconciliation registry `{target_context}` must preserve target type `{source_type}`.")
             key = (target_type, target_id)
             if key == (source_type, source_id):
@@ -269,6 +405,10 @@ def load_reconciliation_registry(
         if (source_state == "present") != source_exists:
             expectation = "exist" if source_state == "present" else "be absent"
             raise ValueError(f"Reconciliation registry `{context}` source must {expectation} for source_state `{source_state}`.")
+        if source_state == "tombstone" and source_id in aliases[source_type]:
+            raise ValueError(
+                f"Reconciliation tombstone `{source_type}:{source_id}` conflicts with a provider alias; historical stable IDs belong only to reconciliation."
+            )
         if status == "active":
             if superseded_by_id is not None:
                 raise ValueError(f"Reconciliation registry active `{record_id}` cannot have superseded_by_id.")
@@ -284,10 +424,22 @@ def load_reconciliation_registry(
                 raise ValueError(f"Reconciliation registry reversed `{record_id}` cannot have superseded_by_id.")
             if source_state != "present":
                 raise ValueError(f"Reconciliation registry reversed `{record_id}` requires a present source.")
-        records.append(ReconciliationRecord(
-            record_id, source_type, source_id, source_state, source_label,
-            operation, tuple(endpoints), reason, status, superseded_by_id
-        ))
+        records.append(
+            ReconciliationRecord(
+                record_id,
+                source_type,
+                source_id,
+                source_state,
+                source_label_mode,
+                source_label,
+                operation,
+                tuple(endpoints),
+                reason,
+                status,
+                superseded_by_id,
+                audit,
+            )
+        )
 
     by_id = {record.id: record for record in records}
     for record in records:
@@ -302,24 +454,11 @@ def load_reconciliation_registry(
     for record in active.values():
         for endpoint in record.targets:
             if endpoint.target_id not in targets[endpoint.target_type] and (
-                endpoint.target_type, endpoint.target_id
+                endpoint.target_type,
+                endpoint.target_id,
             ) not in active:
                 raise ValueError(f"Reconciliation record `{record.id}` targets unknown current or historical `{endpoint.target_type}:{endpoint.target_id}`.")
-
-    visiting: set[tuple[str, str]] = set()
-    visited: set[tuple[str, str]] = set()
-    def visit(key: tuple[str, str]) -> None:
-        if key in visiting:
-            raise ValueError(f"Reconciliation active resolution graph contains a cycle at `{key[0]}:{key[1]}`.")
-        if key in visited or key not in active:
-            return
-        visiting.add(key)
-        for endpoint in active[key].targets:
-            visit((endpoint.target_type, endpoint.target_id))
-        visiting.remove(key)
-        visited.add(key)
-    for key in active:
-        visit(key)
+    validate_active_graph(active)
 
     for record in records:
         seen: set[str] = set()
@@ -336,5 +475,8 @@ def load_reconciliation_registry(
         project.reconciliation_registry,
         schema_version,
         tuple(records),
-        targets,
+        {target_type: dict(records) for target_type, records in targets.items()},
+        dict(aliases),
+        by_id,
+        active,
     )

@@ -55,6 +55,13 @@ class ResourceConfig:
             "resource-type": self.types,
         }
 
+    def reconciliation_provider(self) -> dict[str, object]:
+        return {
+            "provider_id": "resource",
+            "targets": self.reconciliation_targets(),
+            "aliases": {},
+        }
+
     def reconciliation_target(self, target_type: str, target_id: str) -> object:
         targets = self.reconciliation_targets().get(target_type)
         if targets is None:

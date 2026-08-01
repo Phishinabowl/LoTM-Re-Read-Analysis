@@ -314,6 +314,17 @@ class EntityRegistry:
     def reconciliation_targets(self) -> dict[str, dict[str, object]]:
         return self.identity_targets()
 
+    def reconciliation_provider(self) -> dict[str, object]:
+        return {
+            "provider_id": "entity",
+            "targets": self.reconciliation_targets(),
+            "aliases": {
+                "entity": dict(self.entity_aliases),
+                "entity-incarnation": dict(self.incarnation_aliases),
+                "identity-phase": dict(self.identity_phase_aliases),
+            },
+        }
+
     def reconciliation_target(self, target_type: str, target_id: str) -> object:
         return self.identity_target(target_type, target_id)
 

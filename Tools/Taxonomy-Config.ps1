@@ -424,6 +424,11 @@ function Get-KnowledgeTaxonomyReconciliationTargets {
   return [ordered]@{"content-type"=$TaxonomyConfig.content_types;category=$TaxonomyConfig.categories}
 }
 
+function Get-KnowledgeTaxonomyReconciliationProvider {
+  param([object]$TaxonomyConfig)
+  return [pscustomobject]@{provider_id="taxonomy";targets=(Get-KnowledgeTaxonomyReconciliationTargets $TaxonomyConfig);aliases=[ordered]@{}}
+}
+
 function Get-KnowledgeTaxonomyReconciliationTarget {
   param([object]$TaxonomyConfig, [string]$TargetType, [string]$TargetId)
   $targets = switch ($TargetType) {

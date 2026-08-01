@@ -1,0 +1,87 @@
+[CmdletBinding()]
+param(
+  [string]$Root,
+  [int]$DeepChain = 1500
+)
+
+$ErrorActionPreference = "Stop"
+if ([string]::IsNullOrWhiteSpace($Root)) { $Root = Split-Path -Parent $PSScriptRoot }
+$Root = [System.IO.Path]::GetFullPath($Root)
+
+. (Join-Path $PSScriptRoot "Taxonomy-Config.ps1")
+. (Join-Path $PSScriptRoot "Resource-Config.ps1")
+. (Join-Path $PSScriptRoot "Source-Config.ps1")
+. (Join-Path $PSScriptRoot "Entity-Config.ps1")
+. (Join-Path $PSScriptRoot "Reconciliation-Config.ps1")
+
+$project=Get-KnowledgeProjectConfig $Root
+$packs=Get-KnowledgeSchemaPackRegistry $project
+$taxonomy=Get-KnowledgeTaxonomyConfig $project
+$resources=Get-KnowledgeResourceConfig $project
+$sources=Get-KnowledgeSourceRegistry $project $resources $packs
+$entities=Get-KnowledgeEntityRegistry $project $taxonomy $sources $packs
+$providers=@(
+  (Get-KnowledgeTaxonomyReconciliationProvider $taxonomy),
+  (Get-KnowledgeResourceReconciliationProvider $resources),
+  (Get-KnowledgeSourceReconciliationProvider $sources),
+  (Get-KnowledgeEntityReconciliationProvider $entities)
+)
+$providers[0].targets["category"]["current-category"]=[pscustomobject]@{id="current-category"}
+$providers[0].targets["category"]["history-source"]=[pscustomobject]@{id="history-source"}
+$providers[0].targets["category"]["reversed-source"]=[pscustomobject]@{id="reversed-source"}
+$providers[0].targets["content-type"]["current-content-type"]=[pscustomobject]@{id="current-content-type"}
+$providers[0].aliases["category"]=[ordered]@{"old-alias"="current-category"}
+
+function Get-TestRegistry([string]$Path) {
+  $testProject=$project.PSObject.Copy()
+  $testProject.reconciliation_registry=[System.IO.Path]::GetFullPath($Path)
+  return Get-KnowledgeReconciliationRegistry $testProject $providers $packs
+}
+
+function ConvertTo-NormalizedResolution([object]$Resolution) {
+  $canonical=@($Resolution.canonical_targets|ForEach-Object {"$($_.target_type):$($_.target_id)"})
+  $branchList=New-Object 'System.Collections.Generic.List[object]'
+  foreach($branch in @($Resolution.branches)) {
+    $target=$null
+    if($null -ne $branch.canonical_target){$target="$($branch.canonical_target.target_type):$($branch.canonical_target.target_id)"}
+    $branchList.Add(@([string]$branch.outcome,$target,@($branch.reconciliation_ids)))
+  }
+  return [ordered]@{target_type=$Resolution.requested_type;target_id=$Resolution.requested_id;outcome=$Resolution.outcome;canonical=@($canonical);branches=$branchList.ToArray()}
+}
+
+$fixtures=Join-Path $Root "Framework\Data\Reconciliation"
+$registry=Get-TestRegistry (Join-Path $fixtures "valid-v2.yaml")
+$expectations=Get-Content -Raw (Join-Path $fixtures "expectations.json")|ConvertFrom-Json
+foreach($case in @($expectations.resolutions)){
+  $actual=ConvertTo-NormalizedResolution (Resolve-KnowledgeReconciliationTarget $registry $case.target_type $case.target_id)
+  $actualJson=$actual|ConvertTo-Json -Depth 20 -Compress
+  $expectedJson=$case|ConvertTo-Json -Depth 20 -Compress
+  if($actualJson -ne $expectedJson){throw "Reconciliation resolution vector failed for $($case.target_type):$($case.target_id).`nExpected: $expectedJson`nActual:   $actualJson"}
+}
+
+foreach($name in @("invalid-operation-reason.yaml","invalid-alias-conflict.yaml","invalid-audit.yaml","invalid-reclassify.yaml","invalid-active-cycle.yaml","invalid-unknown-terminal.yaml","invalid-source-state.yaml","invalid-label-mode.yaml","invalid-supersession-cycle.yaml")){
+  $rejected=$false
+  try{$null=Get-TestRegistry (Join-Path $fixtures $name)}catch{$rejected=$true}
+  if(-not $rejected){throw "Malformed reconciliation fixture was accepted: $name"}
+}
+
+$records=New-Object 'System.Collections.Generic.List[object]'
+for($i=0;$i -lt $DeepChain;$i++){
+  $sourceId="deep-{0:D4}" -f $i
+  if($i+1 -lt $DeepChain){$targetId="deep-{0:D4}" -f ($i+1)}else{$targetId="current-category"}
+  $records.Add([ordered]@{
+    id="deep-record-{0:D4}" -f $i;source_type="category";source_id=$sourceId;source_state="tombstone";source_label_mode="omitted"
+    operation="redirect";targets=@([ordered]@{target_type="category";target_id=$targetId});reason="renamed";status="active";audit=[ordered]@{mode="repository-history"}
+  })
+}
+$tempPath=Join-Path ([System.IO.Path]::GetTempPath()) ("knowledge-reconciliation-{0}.yaml" -f [guid]::NewGuid().ToString("N"))
+try{
+  [System.IO.File]::WriteAllText($tempPath,([ordered]@{schema_version=2;records=$records.ToArray()}|ConvertTo-Json -Depth 10),[System.Text.UTF8Encoding]::new($false))
+  $deep=Get-TestRegistry $tempPath
+  $result=Resolve-KnowledgeReconciliationTarget $deep "category" "deep-0000"
+  if($result.outcome -ne "redirected" -or @($result.reconciliation_ids).Count -ne $DeepChain){throw "Deep reconciliation chain did not resolve completely."}
+}finally{
+  if(Test-Path -LiteralPath $tempPath){Remove-Item -LiteralPath $tempPath -Force}
+}
+
+Write-Output "Reconciliation conformance passed: $(@($expectations.resolutions).Count) vectors, 9 malformed fixtures, $DeepChain-hop chain."

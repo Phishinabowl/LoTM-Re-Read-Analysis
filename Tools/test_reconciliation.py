@@ -1,0 +1,158 @@
+import argparse
+from dataclasses import replace
+import json
+from pathlib import Path
+import sys
+import tempfile
+
+import yaml
+
+from entity_config import load_entity_registry
+from project_config import load_project_config
+from reconciliation_config import load_reconciliation_registry
+from resource_config import load_resource_config
+from schema_pack_config import load_schema_pack_registry
+from source_config import load_source_registry
+from taxonomy_config import load_taxonomy_config
+
+
+FIXTURE_TARGETS = {
+    "category": ("current-category", "history-source", "reversed-source"),
+    "content-type": ("current-content-type",),
+}
+
+
+def build_context(root: Path):
+    project = load_project_config(root)
+    packs = load_schema_pack_registry(project)
+    taxonomy = load_taxonomy_config(project)
+    resources = load_resource_config(project)
+    sources = load_source_registry(project, resources, packs)
+    entities = load_entity_registry(project, taxonomy, sources, packs)
+    providers = []
+    for provider in (
+        taxonomy.reconciliation_provider(),
+        resources.reconciliation_provider(),
+        sources.reconciliation_provider(),
+        entities.reconciliation_provider(),
+    ):
+        providers.append(
+            {
+                "provider_id": provider["provider_id"],
+                "targets": {
+                    target_type: dict(records)
+                    for target_type, records in provider["targets"].items()
+                },
+                "aliases": {
+                    target_type: dict(records)
+                    for target_type, records in provider["aliases"].items()
+                },
+            }
+        )
+    taxonomy_provider = providers[0]
+    for target_type, target_ids in FIXTURE_TARGETS.items():
+        for target_id in target_ids:
+            taxonomy_provider["targets"][target_type][target_id] = {"id": target_id}
+    taxonomy_provider["aliases"]["category"] = {"old-alias": "current-category"}
+    return project, packs, tuple(providers)
+
+
+def normalized_resolution(resolution) -> dict:
+    endpoint = lambda item: f"{item.target_type}:{item.target_id}"
+    return {
+        "target_type": resolution.requested_type,
+        "target_id": resolution.requested_id,
+        "outcome": resolution.outcome,
+        "canonical": [endpoint(item) for item in resolution.canonical_targets],
+        "branches": [
+            [
+                branch.outcome,
+                endpoint(branch.canonical_target) if branch.canonical_target else None,
+                list(branch.reconciliation_ids),
+            ]
+            for branch in resolution.branches
+        ],
+    }
+
+
+def load_at(project, packs, providers, path: Path):
+    return load_reconciliation_registry(
+        replace(project, reconciliation_registry=path), providers, packs
+    )
+
+
+def deep_registry(depth: int) -> dict:
+    records = []
+    for index in range(depth):
+        source_id = f"deep-{index:04d}"
+        target_id = f"deep-{index + 1:04d}" if index + 1 < depth else "current-category"
+        records.append(
+            {
+                "id": f"deep-record-{index:04d}",
+                "source_type": "category",
+                "source_id": source_id,
+                "source_state": "tombstone",
+                "source_label_mode": "omitted",
+                "operation": "redirect",
+                "targets": [{"target_type": "category", "target_id": target_id}],
+                "reason": "renamed",
+                "status": "active",
+                "audit": {"mode": "repository-history"},
+            }
+        )
+    return {"schema_version": 2, "records": records}
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Run stable-identity reconciliation conformance tests.")
+    parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
+    parser.add_argument("--deep-chain", type=int, default=1500)
+    args = parser.parse_args()
+    root = args.root.resolve()
+    fixtures = root / "Framework" / "Data" / "Reconciliation"
+    project, packs, providers = build_context(root)
+
+    registry = load_at(project, packs, providers, fixtures / "valid-v2.yaml")
+    expected = json.loads((fixtures / "expectations.json").read_text(encoding="utf-8"))
+    actual = [
+        normalized_resolution(registry.resolve(case["target_type"], case["target_id"]))
+        for case in expected["resolutions"]
+    ]
+    if actual != expected["resolutions"]:
+        raise AssertionError("Reconciliation resolution vectors did not match expectations.")
+
+    for name in (
+        "invalid-operation-reason.yaml",
+        "invalid-alias-conflict.yaml",
+        "invalid-audit.yaml",
+        "invalid-reclassify.yaml",
+        "invalid-active-cycle.yaml",
+        "invalid-unknown-terminal.yaml",
+        "invalid-source-state.yaml",
+        "invalid-label-mode.yaml",
+        "invalid-supersession-cycle.yaml",
+    ):
+        try:
+            load_at(project, packs, providers, fixtures / name)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError(f"Malformed reconciliation fixture was accepted: {name}")
+
+    with tempfile.TemporaryDirectory(prefix="knowledge-reconciliation-") as temp_dir:
+        path = Path(temp_dir) / "deep-chain.yaml"
+        path.write_text(yaml.safe_dump(deep_registry(args.deep_chain), sort_keys=False), encoding="utf-8")
+        deep = load_at(project, packs, providers, path)
+        result = deep.resolve("category", "deep-0000")
+        if result.outcome != "redirected" or len(result.reconciliation_ids) != args.deep_chain:
+            raise AssertionError("Deep reconciliation chain did not resolve completely.")
+
+    print(
+        f"Reconciliation conformance passed: {len(actual)} vectors, "
+        f"9 malformed fixtures, {args.deep_chain}-hop chain."
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

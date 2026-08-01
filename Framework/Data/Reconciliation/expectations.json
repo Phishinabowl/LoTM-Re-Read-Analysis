@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "resolutions": [
+    {"target_type": "category", "target_id": "current-category", "outcome": "canonical", "canonical": ["category:current-category"], "branches": [["canonical", "category:current-category", []]]},
+    {"target_type": "category", "target_id": "redirect-old", "outcome": "redirected", "canonical": ["category:current-category"], "branches": [["canonical", "category:current-category", ["redirect-old-record", "redirect-mid-record"]]]},
+    {"target_type": "category", "target_id": "nested-old", "outcome": "ambiguous", "canonical": ["category:current-category"], "branches": [["canonical", "category:current-category", ["nested-old-record", "split-root-record", "converge-left-record"]], ["canonical", "category:current-category", ["nested-old-record", "split-root-record", "converge-right-record"]]]},
+    {"target_type": "category", "target_id": "retired-split", "outcome": "ambiguous", "canonical": [], "branches": [["retired", null, ["retired-split-record", "retired-left-record"]], ["retired", null, ["retired-split-record", "retired-right-record"]]]},
+    {"target_type": "category", "target_id": "old-category-type", "outcome": "redirected", "canonical": ["content-type:current-content-type"], "branches": [["canonical", "content-type:current-content-type", ["reclassify-record"]]]},
+    {"target_type": "category", "target_id": "direct-retire", "outcome": "retired", "canonical": [], "branches": [["retired", null, ["direct-retire-record"]]]},
+    {"target_type": "category", "target_id": "history-source", "outcome": "redirected", "canonical": ["category:current-category"], "branches": [["canonical", "category:current-category", ["history-active-record"]]]},
+    {"target_type": "category", "target_id": "reversed-source", "outcome": "canonical", "canonical": ["category:reversed-source"], "branches": [["canonical", "category:reversed-source", []]]}
+  ]
+}

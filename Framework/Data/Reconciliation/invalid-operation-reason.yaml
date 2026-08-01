@@ -1,0 +1,12 @@
+schema_version: 2
+records:
+  - id: invalid-operation-reason
+    source_type: category
+    source_id: invalid-operation-source
+    source_state: tombstone
+    source_label_mode: omitted
+    operation: retire
+    targets: []
+    reason: divided
+    status: active
+    audit: {mode: repository-history}

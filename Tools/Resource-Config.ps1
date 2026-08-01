@@ -183,6 +183,11 @@ function Get-KnowledgeResourceReconciliationTargets {
   return [ordered]@{"resource-kind"=$ResourceConfig.kinds;"resource-type"=$ResourceConfig.types}
 }
 
+function Get-KnowledgeResourceReconciliationProvider {
+  param([object]$ResourceConfig)
+  return [pscustomobject]@{provider_id="resource";targets=(Get-KnowledgeResourceReconciliationTargets $ResourceConfig);aliases=[ordered]@{}}
+}
+
 function Get-KnowledgeResourceReconciliationTarget {
   param([object]$ResourceConfig, [string]$TargetType, [string]$TargetId)
   $targets = switch ($TargetType) {

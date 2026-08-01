@@ -1,0 +1,22 @@
+schema_version: 2
+records:
+  - id: cycle-a-record
+    source_type: category
+    source_id: cycle-a
+    source_state: tombstone
+    source_label_mode: omitted
+    operation: redirect
+    targets: [{target_type: category, target_id: cycle-b}]
+    reason: renamed
+    status: active
+    audit: {mode: repository-history}
+  - id: cycle-b-record
+    source_type: category
+    source_id: cycle-b
+    source_state: tombstone
+    source_label_mode: omitted
+    operation: redirect
+    targets: [{target_type: category, target_id: cycle-a}]
+    reason: renamed
+    status: active
+    audit: {mode: repository-history}

@@ -1,0 +1,24 @@
+schema_version: 2
+records:
+  - id: supersession-a
+    source_type: category
+    source_id: supersession-source
+    source_state: tombstone
+    source_label_mode: omitted
+    operation: retire
+    targets: []
+    reason: deprecated
+    status: superseded
+    superseded_by_id: supersession-b
+    audit: {mode: repository-history}
+  - id: supersession-b
+    source_type: category
+    source_id: supersession-source
+    source_state: tombstone
+    source_label_mode: omitted
+    operation: retire
+    targets: []
+    reason: deprecated
+    status: superseded
+    superseded_by_id: supersession-a
+    audit: {mode: repository-history}

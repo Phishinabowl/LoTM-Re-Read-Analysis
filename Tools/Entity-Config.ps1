@@ -692,6 +692,15 @@ function Get-KnowledgeEntityReconciliationTargets {
   return [ordered]@{entity=$EntityRegistry.entities;"entity-incarnation"=$EntityRegistry.incarnations;"identity-phase"=$EntityRegistry.identity_phases}
 }
 
+function Get-KnowledgeEntityReconciliationProvider {
+  param([object]$EntityRegistry)
+  return [pscustomobject]@{
+    provider_id="entity"
+    targets=(Get-KnowledgeEntityReconciliationTargets $EntityRegistry)
+    aliases=[ordered]@{entity=$EntityRegistry.entity_aliases;"entity-incarnation"=$EntityRegistry.incarnation_aliases;"identity-phase"=$EntityRegistry.identity_phase_aliases}
+  }
+}
+
 function Get-KnowledgeEntityReconciliationTarget {
   param([object]$EntityRegistry, [string]$TargetType, [string]$TargetId)
   return Get-KnowledgeIdentityTarget $EntityRegistry $TargetType $TargetId

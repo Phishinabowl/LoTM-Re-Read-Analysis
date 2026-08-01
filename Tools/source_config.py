@@ -719,6 +719,16 @@ class SourceRegistry:
             "source": self.sources,
         }
 
+    def reconciliation_provider(self) -> dict[str, object]:
+        return {
+            "provider_id": "source",
+            "targets": self.reconciliation_targets(),
+            "aliases": {
+                "work": dict(self.work_aliases),
+                "source": dict(self.source_aliases),
+            },
+        }
+
     def reconciliation_target(self, target_type: str, target_id: str) -> object:
         targets = self.reconciliation_targets().get(target_type)
         if targets is None:

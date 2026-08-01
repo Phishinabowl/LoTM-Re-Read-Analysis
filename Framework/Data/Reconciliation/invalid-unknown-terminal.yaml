@@ -1,0 +1,12 @@
+schema_version: 2
+records:
+  - id: unknown-terminal-record
+    source_type: category
+    source_id: unknown-terminal-source
+    source_state: tombstone
+    source_label_mode: omitted
+    operation: redirect
+    targets: [{target_type: category, target_id: missing-terminal}]
+    reason: renamed
+    status: active
+    audit: {mode: repository-history}

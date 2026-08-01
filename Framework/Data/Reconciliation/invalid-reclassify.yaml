@@ -1,0 +1,14 @@
+schema_version: 2
+records:
+  - id: invalid-reclassify
+    source_type: category
+    source_id: invalid-reclassify-source
+    source_state: tombstone
+    source_label_mode: omitted
+    operation: reclassify
+    targets:
+      - target_type: category
+        target_id: current-category
+    reason: reclassified
+    status: active
+    audit: {mode: repository-history}

@@ -1,0 +1,14 @@
+schema_version: 2
+records:
+  - id: invalid-alias-conflict
+    source_type: category
+    source_id: old-alias
+    source_state: tombstone
+    source_label_mode: omitted
+    operation: redirect
+    targets:
+      - target_type: category
+        target_id: current-category
+    reason: renamed
+    status: active
+    audit: {mode: repository-history}

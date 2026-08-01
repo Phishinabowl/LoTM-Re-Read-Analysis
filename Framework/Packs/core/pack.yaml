@@ -1,6 +1,6 @@
 schema_version: 2
 pack_id: core
-pack_version: 13
+pack_version: 14
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -50,7 +50,7 @@ capabilities:
   - id: stable-identity-reconciliation
     lifecycle: available
     label: Stable Identity Reconciliation
-    description: Auditable redirects, merges, splits, retirements, and tombstones across typed stable-record providers.
+    description: Branch-aware, privacy-aware redirects, merges, splits, retirements, reclassifications, and tombstones across typed stable-record providers.
   - authority-profiles
   - typed-relationships
   - temporal-positions
@@ -104,6 +104,7 @@ controlled_values:
     - merge
     - split
     - retire
+    - reclassify
   reconciliation.source-state:
     - present
     - tombstone
@@ -119,6 +120,24 @@ controlled_values:
     - reclassified
     - deprecated
     - erroneous
+  reconciliation.operation-reason-pair:
+    - redirect-renamed
+    - redirect-deprecated
+    - redirect-erroneous
+    - merge-mistaken-duplicate
+    - merge-consolidated
+    - split-divided
+    - split-reclassified
+    - retire-deprecated
+    - retire-erroneous
+    - reclassify-reclassified
+  reconciliation.source-label-mode:
+    - snapshot
+    - redacted
+    - omitted
+  reconciliation.audit-mode:
+    - repository-history
+    - explicit
   source.source-role:
     - transcript
     - supplemental
