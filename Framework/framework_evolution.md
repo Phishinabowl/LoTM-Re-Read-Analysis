@@ -763,3 +763,34 @@ Paired query APIs answer occurrence membership by iteration, every occurrence bo
 The portable fixture proves that three wakes can occupy the same world-time coordinate while remaining distinct occurrences on forward subjective tracks. One participant carries memory and knowledge and exits the loop; another remains on a shorter track without that carryover or escape transition. It also exercises nested recurrence, branch exit, a permitted causal cycle, and eleven malformed mutations. Ten query groups and all eleven rejection cases pass identically in Python, PowerShell 7, and Windows PowerShell 5.1.
 
 The V31 tooling audit also standardized structured conformance summaries. Chronology, occurrence, temporal, and reconciliation now all preserve their default human-readable output while exposing matching `--json` / `-Json` fields in Python, PowerShell 7, and Windows PowerShell 5.1.
+
+## Testing After V31
+
+The V31 baseline passed identically in Python, PowerShell 7, and Windows PowerShell 5.1: ten occurrence query groups and eleven malformed occurrence registries, thirteen chronology comparisons and thirteen malformed chronology registries, twenty temporal-match and twelve overlap vectors with twenty-one malformed windows, and eight reconciliation vectors with forty malformed registries. The structured JSON summaries also remained identical across all three runtimes.
+
+The broader pressure test covered fixed and changing-reset-point loops, nested loops, staggered participant awareness, partial escape, retained and lost memory, backward world-time travel with forward subjective experience, branch forks and merges, causal cycles, temporal duplicates, and multiple incarnations at one coordinate. Representative narrative patterns included *Groundhog Day*, *Edge of Tomorrow*, *Re:Zero*, *Steins;Gate*, *Dark*, *Primer*, *Tenet*, *Russian Doll*, branching superhero continuities, and alternate-world-line stories. Non-narrative probes included IT retries and rollbacks, distributed process tracks, recurring medical episodes, periodic legal obligations, workflow cycles, and repeated scientific trials.
+
+The central V31 separation held. Distinct occurrences can occupy one world coordinate without sharing identity; chronology remains acyclic while causality may cycle; nested recurrences and participant-specific tracks remain representable; and one participant can leave a loop without forcing every observer onto the escape track. An executable seven-iteration probe answered both which occurrence belongs to iteration seven and which occurrence the participant experienced immediately before it began. A synthetic 1,500-level recurrence hierarchy also loaded successfully, showing no immediate Python scalability failure in the parent-topology validator.
+
+### Correctness Defects
+
+The adversarial probes found four classes of records that V31 accepts even though their declared semantics conflict:
+
+1. One occurrence may have two exact `primary` bindings whose chronology positions are known to be ordered rather than concurrent. Multiple coordinate bindings are valid, but comparable exact primary bindings for one happening cannot contradict each other.
+2. A transition may name a track containing both endpoints while pointing backward in that track's declared order. World chronology may move backward during time travel, but a transition attached to a subjective or execution track must still follow that track's direction.
+3. Specialized transitions validate unevenly. Reset transitions enforce recurrence membership and forward iteration order, while a `loop-escape` can claim an unrelated recurrence and generic `exit`, `fork`, `merge`, or jump records have no kind-specific endpoint rules.
+4. Carryover may be assigned to a track that has no occurrence in either the source or target iteration. It also identifies only a broad kind such as memory or state, so two differently named records can make indistinguishable claims without identifying what actually crossed the boundary.
+
+### Under-Specified Semantics
+
+The test deliberately did not classify every accepted edge case as universally invalid. A child-branch occurrence can currently bind before its named fork occurrence, but retroactive time travel and branch reinterpretation make a blanket chronology rejection unsafe. Iteration statuses can also appear in surprising combinations, but parallel or incompletely observed processes may legitimately prevent one global lifecycle rule. Both need explicit policy rather than assumptions hidden in the loader.
+
+V31 also enumerates concrete recurrence iterations but does not describe a recurrence rule, trigger, expected cadence, reset condition, termination condition, or changing reset-point phase. It has no separate recurrence-template identity for several concrete executions of the same retry or loop pattern. Occurrence outcomes and carryover payloads are not modeled, and nested recurrence invocations are inferred only from each child iteration's parent. These omissions limit periodic legal duties, medical episodes, scheduled jobs, retry policies, changing-save-point stories, and detailed retained-state analysis even though their concrete occurrences can already be listed.
+
+Vector clocks and distributed happens-before queries remain outside the chronology and occurrence contracts. Track order and causal relations can preserve known process observations, but they should not be presented as a substitute for a reviewed partial-order or vector-clock model.
+
+### V32 Recommendation
+
+V32 should be **Occurrence Integrity and Transition Semantics**. It should close the four correctness defects before expanding recurrence authoring: validate coherent exact primary bindings, require track-attached transitions to follow track order, define kind-specific reset/exit/fork/merge/jump endpoint profiles, and make carryover prove track participation while identifying a typed payload or provenance-addressable state target. Branch lineage checks should use explicit transition semantics so retroactive branches are supported intentionally rather than accepted accidentally. Semantic duplicate detection and deterministic iteration-plus-track boundary queries should be added to the portable corpus.
+
+Recurrence schedules, expression languages for reset or termination conditions, outcome taxonomies, recurrence-template versus execution identity, and distributed vector-clock semantics should remain candidates for later versions. V32 should establish trustworthy occurrence edges and state transfer first, giving those later capabilities a reliable substrate.
