@@ -102,6 +102,26 @@ Named works and real-world domains are **test prompts**, not automatic evidence.
 | `STATIC-WORK-ANNOTATIONS` | Run the permanent valid/invalid annotation fixtures, then scan every tracked or nonignored untracked eligible surface; validate tags, local/GitHub ownership, tracking syntax, issue and assignee URLs, ASCII/punctuation, self-exclusions, and prohibited locations. | `WORK_ANNOTATION_STANDARDS.md`, `Tools/Static/work-annotations.json`, `Tools/Static/Fixtures/Work-Annotations/cases.json`, `.vscode/settings.json`, and `Tools/Static/lint_work_annotations.py`. |
 | `STATIC-GITHUB-ACTIONS` | Validate every tracked GitHub Actions workflow with actionlint, immutable third-party action SHAs, explicit least-privilege permissions, bounded timeouts, and stable human-readable check names suitable for repository rules. | `.github/workflows/*.yml`, a local official actionlint executable, and the checksum-pinned actionlint installer in `.github/workflows/ci.yml`. |
 
+#### Registry Coverage Classes
+
+Every permanent registry suite must preserve five distinct classes of evidence. A large malformed corpus does not substitute for accepted behavior, boundary behavior, ambiguity decisions, or scale. When a registry evolves, add or revise the affected vectors and update this matrix in the same change:
+
+- **Positive:** accepted canonical project composition plus vocabulary-neutral fixture behavior and service results.
+- **Malformed:** closed-shape, type, reference, invariant, and unsupported-composition rejection with deterministic failures.
+- **Boundary:** lifecycle transitions, minimum/maximum values, path containment, ranges, ordering, limits, coverage edges, or capability activation boundaries.
+- **Ambiguity:** normalized collisions, duplicate ownership, multiple providers or candidates, overlapping applicability, branch outcomes, ties, conflicts, or explicit uniqueness rejection.
+- **Scale:** generated bounded-load vectors. Full project composition may instead use a reviewed exact instance oracle when its purpose is integration breadth rather than isolated loader capacity.
+
+| Registry Suite | Positive Evidence | Malformed Evidence | Boundary Evidence | Ambiguity Evidence | Scale Evidence |
+| --- | --- | --- | --- | --- | --- |
+| `CONF-PACK-COMPOSITION` | Canonical eight-pack project plus neutral three-pack fixture | 43 structured invalid compositions | Dependency order/version, lifecycle, activation, and occurrence-semantic closure | Duplicate providers, controlled-value ownership, hierarchy cycles, and conflict-scope collisions | Generated 64-pack composition |
+| `CONF-TAXONOMY` | Canonical registry plus neutral content/category fixture and service queries | 48 structured invalid configurations | Active/deferred state, path containment, metadata, slug, template, and required-file behavior | Duplicate IDs, paths, metadata values, prefixes, graph classes, and placement ownership | Generated 128-category composition |
+| `CONF-RESOURCE` | Canonical registry plus neutral kind/type/placement fixture and service queries | 30 structured invalid configurations | Lifecycle, authority, editor policy, path containment/existence, required placement, and tracking modes | Duplicate and case-fold-equivalent placements plus exclusive ownership | Generated 128-type composition |
+| `CONF-SOURCE` | Canonical registry plus neutral mixed-media/source fixture and service queries | 65 structured invalid configurations and 15 invalid queries | Structural ranges, ordering, applicability, authority, coverage, release cadence, and resource requirements | Alias collisions, overlapping scopes/coverage/titles, duplicate ordinals/numbers, and authority selection | Generated 128-source extension |
+| `CONF-ENTITY` | Canonical registry plus neutral entity/incarnation/phase fixture and service queries | 86 structured invalid configurations and 15 invalid queries | Lifecycle, continuity/scoped bindings, relationship direction, phase ordering, and cycle policy | Normalized alias collisions, duplicate inverse edges, ambiguous lookup, and lineage/identity collisions | Generated 128-entity extension |
+| `CONF-PROVENANCE` | Canonical registry plus neutral assertions, supersession, locators, and authority decisions | 68 structured invalid configurations and five invalid queries | Field paths, source coverage, point/range locators, observation/effective windows, applicability, and supersession | Corroborating ties, equal-rank conflicts, incomparable evidence, duplicate evidence, and target/provider ambiguity | Generated 128-assertion extension |
+| `CONF-PROJECT-COMPOSITION` | Two deterministic complete canonical loads | Seven missing, duplicate, unregistered, or capability-disabled compositions | Exact manifest paths/schemas plus available, enabled, and disabled capability boundaries | Reconciliation/provenance provider closure and duplicate-provider rejection | Reviewed exact oracle spanning eight packs, 114 enabled capabilities, 945 controlled values, and 53 provenance subject types |
+
 ### Runtime Parity
 
 | ID | Requirement |
