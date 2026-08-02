@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {"id": "malformed-json"},
+    {"id": "unknown-root-field"},
+    {"id": "schema-version-string"},
+    {"id": "unsupported-algorithm"},
+    {"id": "trim-not-array"},
+    {"id": "trim-surrogate"},
+    {"id": "case-folding-invalid-key"},
+    {"id": "case-folding-empty-sequence"},
+    {"id": "case-folding-noninteger-sequence"},
+    {"id": "combining-class-zero"},
+    {"id": "composition-malformed-key"},
+    {"id": "composition-surrogate-target"},
+    {"id": "declared-count-mismatch"}
+  ]
+}

@@ -7,7 +7,8 @@
     {"id": "kelvin-sign", "left": [8490], "right": [75]},
     {"id": "ligature", "left": [64259], "right": [70, 70, 73]},
     {"id": "dotted-i", "left": [304], "right": [105, 775]},
-    {"id": "ascii-edge-trim", "left": [9, 32, 78, 97, 109, 101, 32, 13], "right": [78, 97, 109, 101]}
+    {"id": "ascii-edge-trim", "left": [9, 32, 78, 97, 109, 101, 32, 13], "right": [78, 97, 109, 101]},
+    {"id": "hangul-composition", "left": [4352, 4449, 4520], "right": [44033]}
   ],
   "distinct": [
     {"id": "dotless-i", "left": [305], "right": [105]},
@@ -23,5 +24,11 @@
     {"id": "zero-width-joiner", "left": [108, 111, 116, 109, 45, 49, 8205], "right": [108, 111, 116, 109, 45, 49]},
     {"id": "word-joiner", "left": [108, 111, 116, 109, 45, 49, 8288], "right": [108, 111, 116, 109, 45, 49]},
     {"id": "byte-order-mark", "left": [108, 111, 116, 109, 45, 49, 65279], "right": [108, 111, 116, 109, 45, 49]}
+  ],
+  "normalized": [
+    {"id": "ascii-case-and-trim", "input": [32, 78, 65, 77, 69, 9], "expected": [110, 97, 109, 101]},
+    {"id": "sharp-s-expansion", "input": [83, 116, 114, 97, 223, 101], "expected": [115, 116, 114, 97, 115, 115, 101]},
+    {"id": "canonical-accent", "input": [80, 111, 107, 101, 769, 109, 111, 110], "expected": [112, 111, 107, 233, 109, 111, 110]},
+    {"id": "hangul-composition", "input": [4352, 4449, 4520], "expected": [44033]}
   ]
 }

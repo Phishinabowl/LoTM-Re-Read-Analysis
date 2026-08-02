@@ -37,6 +37,8 @@ class LookupKeyConfig:
     def normalize(self, value: str) -> str:
         if not isinstance(value, str):
             raise ValueError("Lookup-key input must be a string.")
+        if any(SURROGATE_START <= ord(char) <= SURROGATE_END for char in value):
+            raise ValueError("Lookup-key input must contain only Unicode scalar values.")
         codepoints = [ord(char) for char in value]
         start = 0
         end = len(codepoints)

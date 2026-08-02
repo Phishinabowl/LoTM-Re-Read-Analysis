@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "invalid_sources": [
+    {"id": "uppercase-boolean", "source": "schema_version: 1\nvalue: True\n"},
+    {"id": "tilde-null", "source": "schema_version: 1\nvalue: ~\n"},
+    {"id": "implicit-null", "source": "schema_version: 1\nvalue:\n"},
+    {"id": "leading-plus", "source": "schema_version: 1\nvalue: +1\n"},
+    {"id": "leading-zero", "source": "schema_version: 1\nvalue: 01\n"},
+    {"id": "hexadecimal", "source": "schema_version: 1\nvalue: 0x10\n"},
+    {"id": "numeric-underscore", "source": "schema_version: 1\nvalue: 1_000\n"},
+    {"id": "decimal", "source": "schema_version: 1\nvalue: 1.5\n"},
+    {"id": "exponent", "source": "schema_version: 1\nvalue: 1e3\n"},
+    {"id": "unquoted-date", "source": "schema_version: 1\nvalue: 2026-08-02\n"},
+    {"id": "unquoted-timestamp", "source": "schema_version: 1\nvalue: 2026-08-02T12:00:00Z\n"},
+    {"id": "anchor", "source": "schema_version: 1\nvalue: &shared text\n"},
+    {"id": "alias", "source": "schema_version: 1\nvalue: *missing\n"},
+    {"id": "explicit-tag", "source": "schema_version: 1\nvalue: !!str text\n"},
+    {"id": "merge-key", "source": "schema_version: 1\nmerged:\n  <<:\n    value: text\n"},
+    {"id": "document-marker", "source": "---\nschema_version: 1\n"},
+    {"id": "nested-duplicate", "source": "schema_version: 1\nnested:\n  value: first\n  value: second\n"},
+    {"id": "quoted-schema", "source": "schema_version: \"1\"\n"},
+    {"id": "boolean-schema", "source": "schema_version: true\n"},
+    {"id": "decimal-schema", "source": "schema_version: \"1.0\"\n"},
+    {"id": "sequence-root", "source": "- schema_version\n- 1\n"}
+  ],
+  "rfc3339_valid": [
+    [50, 48, 50, 54, 45, 48, 56, 45, 48, 50, 84, 49, 50, 58, 51, 52, 58, 53, 54, 90],
+    [50, 48, 50, 54, 45, 48, 56, 45, 48, 50, 84, 49, 50, 58, 51, 52, 58, 53, 54, 46, 49, 50, 51, 52, 53, 54, 90],
+    [50, 48, 50, 54, 45, 48, 56, 45, 48, 50, 84, 49, 50, 58, 51, 52, 58, 53, 54, 43, 49, 52, 58, 48, 48],
+    [50, 48, 50, 54, 45, 48, 56, 45, 48, 50, 84, 49, 50, 58, 51, 52, 58, 53, 54, 45, 48, 53, 58, 51, 48]
+  ],
+  "rfc3339_invalid": [
+    [50, 48, 50, 54, 45, 48, 56, 45, 48, 50, 116, 49, 50, 58, 51, 52, 58, 53, 54, 90],
+    [50, 48, 50, 54, 45, 48, 56, 45, 48, 50, 84, 49, 50, 58, 51, 52, 58, 53, 54, 122],
+    [50, 48, 50, 54, 45, 48, 56, 45, 48, 50, 84, 50, 52, 58, 48, 48, 58, 48, 48, 90],
+    [50, 48, 50, 54, 45, 48, 50, 45, 51, 48, 84, 49, 50, 58, 48, 48, 58, 48, 48, 90],
+    [50, 48, 50, 54, 45, 48, 56, 45, 48, 50, 84, 49, 50, 58, 51, 52, 58, 53, 54, 46, 49, 50, 51, 52, 53, 54, 55, 90],
+    [50, 48, 50, 54, 45, 48, 56, 45, 48, 50, 84, 49, 50, 58, 51, 52, 58, 53, 54, 43, 49, 52, 58, 48, 49],
+    [50, 48, 50, 54, 45, 48, 56, 45, 48, 50, 84, 49, 50, 58, 51, 52, 58, 53, 54, 45, 48, 48, 58, 48, 48],
+    [50, 48, 50, 54, 45, 48, 56, 45, 48, 50]
+  ]
+}

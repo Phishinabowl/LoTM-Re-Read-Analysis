@@ -446,6 +446,28 @@ When `--root` / `-Root` is omitted, both implementations search upward from the 
 
 Semantic alias resolution is backed by the manifest-selected `Framework/Data/unicode-lookup-16.0.0.json` registry. `lookup_key_config.py` and `Lookup-Key-Config.ps1` provide identical pinned Unicode normalization for Python, PowerShell 7, and Windows PowerShell 5.1; consumers compare their output ordinally instead of using runtime-default case-insensitive collections.
 
+## Strict YAML Conformance
+
+Run the dedicated strict-ingestion corpus after changing shared YAML parsing, scalar rules, mapping keys, schema-version handling, byte decoding, parser budgets, or RFC 3339 validation. Both implementations consume `Framework/Data/Strict-Yaml/`, create only uniquely named operating-system temporary files, and remove those files before exit.
+
+```powershell
+python Tools\test_strict_yaml.py
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Strict-Yaml.ps1
+```
+
+Use `--json` / `-Json` for matching stable summaries across Python, PowerShell 7, and Windows PowerShell 5.1.
+
+## Lookup-Key Conformance
+
+Run the lookup corpus after changing pinned Unicode data, normalization, aliases, or semantic identifier comparison. The paired runners validate equivalent, distinct, exact-output, Hangul, malformed-registry, and invalid-input cases from `Framework/Data/lookup-key-regression-vectors.json` and `Framework/Data/Lookup-Key/`; temporary registry mutations are removed automatically.
+
+```powershell
+python Tools\test_lookup_key.py
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Lookup-Key.ps1
+```
+
+Use `--json` / `-Json` for parity-comparable corpus counts and the pinned Unicode version.
+
 ## Reconciliation Conformance
 
 Run the permanent stable-ID reconciliation vectors after changing strict registry ingestion, reconciliation, provider, schema-pack, or lookup ownership behavior. Both tools validate strict UTF-8/BOM behavior, canonical mapping-key/scalar and byte-budget parity, malformed input, bounded branch-aware resolutions, and a 1,500-hop chain using `Framework/Data/Strict-Yaml/` and `Framework/Data/Reconciliation/`; their temporary byte probes and deep-chain files are removed automatically.

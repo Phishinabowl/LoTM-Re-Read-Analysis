@@ -1,0 +1,13 @@
+schema_version: 1
+boolean_true: true
+boolean_false: false
+explicit_null: null
+zero: 0
+negative_integer: -12
+positive_integer: 12
+legacy_on: on
+legacy_off: off
+legacy_yes: yes
+legacy_no: no
+quoted_decimal: "1.5"
+quoted_timestamp: "2026-08-02T12:34:56Z"

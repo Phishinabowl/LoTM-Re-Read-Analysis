@@ -82,8 +82,8 @@ Named works and real-world domains are **test prompts**, not automatic evidence.
 | ID | Current Purpose | Permanent Surface |
 | --- | --- | --- |
 | `CONF-PROJECT-COMPOSITION` | Load the canonical manifest, selected packs, activated capabilities, taxonomy, resources, sources, entities, reconciliation, provenance, chronology, and occurrences in dependency order; verify provider closure, expected schema/count summaries, and clean absence of disabled capabilities. | Paired configuration loaders, canonical `Project_Config/`, composed-loader assertions, and the current integrated registry baseline recorded in `Tools/TOOLING_REFERENCE.md`. |
-| `CONF-LOOKUP` | Verify pinned Unicode normalization, equivalent/distinct lookup pairs, ordinal comparison, alias ambiguity, and the boundary between human lookup keys and exact machine IDs. | `Tools/lookup_key_config.py`, `Tools/Lookup-Key-Config.ps1`, `Framework/Data/unicode-lookup-16.0.0.json`, and `Framework/Data/lookup-key-regression-vectors.json`. |
-| `CONF-STRICT-INGESTION` | Reject nonportable YAML, malformed mapping keys/scalars, duplicate keys, unsupported records, and parser-budget violations. | Shared strict loaders and malformed fixture families under `Framework/Data/Strict-Yaml/` and dependent suites. |
+| `CONF-LOOKUP` | Verify pinned Unicode normalization, equivalent/distinct and exact-output lookup vectors, ordinal comparison, malformed registry/input rejection, alias ambiguity, and the boundary between human lookup keys and exact machine IDs. | `Tools/test_lookup_key.py`, `Tools/Test-Lookup-Key.ps1`, `Framework/Data/unicode-lookup-16.0.0.json`, `Framework/Data/lookup-key-regression-vectors.json`, and `Framework/Data/Lookup-Key/`. |
+| `CONF-STRICT-INGESTION` | Reject nonportable YAML, malformed mapping keys/scalars, duplicate keys, invalid bytes and timestamps, and parser-budget violations while preserving the portable scalar subset. | `Tools/test_strict_yaml.py`, `Tools/Test-Strict-Yaml.ps1`, shared strict loaders, and `Framework/Data/Strict-Yaml/`. |
 | `CONF-TEMPORAL` | Verify precision-aware civil-time parsing, matching, overlap, certainty, bounds, and supported range behavior. | `Tools/test_temporal.py`, `Tools/Test-Temporal.ps1`, and `Framework/Data/Temporal/`. |
 | `CONF-CHRONOLOGY` | Verify coordinate systems, exact/partial ordering, spans, mappings, cycles, eras, and cross-context comparison. | `Tools/test_chronology.py`, `Tools/Test-Chronology.ps1`, and `Framework/Data/Chronology/`. |
 | `CONF-RECONCILIATION` | Verify stable-ID redirects, merges, splits, retirements, reclassification, ambiguity, limits, deep chains, and strict ingestion. | `Tools/test_reconciliation.py`, `Tools/Test-Reconciliation.ps1`, and `Framework/Data/Reconciliation/`. |
@@ -214,7 +214,7 @@ Every framework evolution version must run:
 - `CONF-CHRONOLOGY`;
 - `CONF-RECONCILIATION`;
 - `CONF-OCCURRENCE`;
-- integrated `CONF-STRICT-INGESTION` and `CONF-PACK-COMPOSITION` coverage;
+- dedicated `CONF-STRICT-INGESTION` and integrated `CONF-PACK-COMPOSITION` coverage;
 - `PARITY-THREE-RUNTIME`, `PARITY-STRUCTURED-OUTPUT`, and `PARITY-COMMAND-SURFACE` for affected paired commands;
 - `COMPAT-VISUALIZATION`, `COMPAT-QA`, `COMPAT-RENDER`, and `COMPAT-ARTIFACT-LIFECYCLE`;
 - every retained pressure scenario materially affected by the version; and

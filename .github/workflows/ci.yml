@@ -65,6 +65,8 @@ jobs:
 
       - name: Run framework conformance suites
         run: |
+          python Tools/test_strict_yaml.py --json
+          python Tools/test_lookup_key.py --json
           python Tools/test_temporal.py --json
           python Tools/test_chronology.py --json
           python Tools/test_reconciliation.py --json
@@ -120,6 +122,8 @@ jobs:
 
       - name: Run framework conformance suites
         run: |
+          ./Tools/Test-Strict-Yaml.ps1 -Json
+          ./Tools/Test-Lookup-Key.ps1 -Json
           ./Tools/Test-Temporal.ps1 -Json
           ./Tools/Test-Chronology.ps1 -Json
           ./Tools/Test-Reconciliation.ps1 -Json
@@ -183,6 +187,8 @@ jobs:
 
       - name: Run framework conformance suites
         run: |
+          ./Tools/Test-Strict-Yaml.ps1 -Json
+          ./Tools/Test-Lookup-Key.ps1 -Json
           ./Tools/Test-Temporal.ps1 -Json
           ./Tools/Test-Chronology.ps1 -Json
           ./Tools/Test-Reconciliation.ps1 -Json

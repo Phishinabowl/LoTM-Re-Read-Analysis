@@ -210,9 +210,9 @@ function ConvertTo-KnowledgeNfcCodePoints {
 }
 
 function ConvertTo-KnowledgeLookupKey {
-    param([string]$Value, [object]$LookupKeyConfig)
+    param([object]$Value, [object]$LookupKeyConfig)
 
-    if ($null -eq $Value) {
+    if ($Value -isnot [string]) {
         throw "Lookup-key input must be a string."
     }
     $codePoints = @(ConvertTo-KnowledgeCodePoints $Value)
