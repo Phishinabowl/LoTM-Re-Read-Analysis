@@ -12,6 +12,7 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 from collections import defaultdict, deque
 from dataclasses import dataclass
@@ -21,7 +22,14 @@ from typing import Any
 from urllib.parse import unquote
 
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+RUNTIME_ROOT = Path(__file__).resolve().parents[1] / "Tools" / "Runtime" / "Python"
+if str(RUNTIME_ROOT) not in sys.path:
+    sys.path.insert(0, str(RUNTIME_ROOT))
+
+from knowledge_framework.project_paths import resolve_project_root
+
+
+REPO_ROOT = resolve_project_root(executable_path=__file__)
 
 SLUG_PREFIXES = (
     "artifact",
@@ -1871,6 +1879,7 @@ def invoke_validate_mode(settings: dict[str, Any]) -> None:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate and render repository Mermaid visualizations.")
+    parser.add_argument("--root")
     parser.add_argument(
         "--mode",
         choices=[
@@ -1938,8 +1947,10 @@ def clean_disposable_caches() -> None:
 
 
 def main() -> None:
+    global REPO_ROOT
+
     args = parse_args()
-    os.chdir(REPO_ROOT)
+    REPO_ROOT = resolve_project_root(args.root, executable_path=__file__)
     if args.mode == "qa-relationship":
         if not args.graph_path:
             raise ValueError("qa-relationship mode requires --graph-path.")

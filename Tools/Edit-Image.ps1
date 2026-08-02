@@ -1,4 +1,5 @@
 param(
+    [string]$Root,
     [Parameter(Mandatory = $false)]
     [string]$Operation = "Crop",
 
@@ -37,6 +38,24 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+
+$runtimeModule = Join-Path $PSScriptRoot 'Runtime\PowerShell\KnowledgeFramework\KnowledgeFramework.psd1'
+Import-Module $runtimeModule -Force
+$repoRoot = Resolve-KnowledgeProjectRoot -ExplicitRoot $Root -ExecutablePath $PSCommandPath
+
+function Resolve-ProjectPath {
+    param([string]$Path)
+
+    if ([string]::IsNullOrWhiteSpace($Path) -or [System.IO.Path]::IsPathRooted($Path)) {
+        return $Path
+    }
+    return Join-Path $repoRoot $Path
+}
+
+$EpubPath = Resolve-ProjectPath $EpubPath
+$OutputDir = Resolve-ProjectPath $OutputDir
+$SourceImage = Resolve-ProjectPath $SourceImage
+$OutputImage = Resolve-ProjectPath $OutputImage
 
 $presets = @{
     PathwayTarotCard = @{
@@ -167,7 +186,7 @@ function Invoke-Crop {
 
     $outputParent = Split-Path -Parent $OutputImage
     if ($outputParent) {
-        [System.IO.Directory]::CreateDirectory((Join-Path (Get-Location) $outputParent)) | Out-Null
+        [System.IO.Directory]::CreateDirectory($outputParent) | Out-Null
     }
 
     Add-Type -AssemblyName System.Drawing
@@ -191,7 +210,7 @@ function Invoke-Crop {
                 $graphics.Dispose()
             }
 
-            $target.Save((Join-Path (Get-Location) $OutputImage), (Get-OutputImageFormat -Path $OutputImage))
+            $target.Save($OutputImage, (Get-OutputImageFormat -Path $OutputImage))
         }
         finally {
             $target.Dispose()

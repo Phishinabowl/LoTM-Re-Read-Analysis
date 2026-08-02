@@ -42,7 +42,8 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $toolsRoot = Split-Path -Parent $PSScriptRoot
-. (Join-Path $toolsRoot 'Project-Config.ps1')
+$runtimeModule = Join-Path $toolsRoot 'Runtime\PowerShell\KnowledgeFramework\KnowledgeFramework.psd1'
+Import-Module $runtimeModule -Force
 
 $registryRelativePath = 'Tools/Conformance/suites.json'
 $stableIdPattern = '^[a-z0-9]+(?:-[a-z0-9]+)*$'
@@ -348,7 +349,7 @@ function Invoke-ConformanceSuite {
     }
 }
 
-$repoRoot = Resolve-KnowledgeProjectRoot $Root
+$repoRoot = Resolve-KnowledgeProjectRoot -ExplicitRoot $Root -ExecutablePath $PSCommandPath
 $registry = Get-ConformanceRegistry $repoRoot
 if ($List) {
     $listing = [ordered]@{

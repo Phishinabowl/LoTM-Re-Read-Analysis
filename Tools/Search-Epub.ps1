@@ -1,4 +1,5 @@
 param(
+    [string]$Root,
     [string]$EpubPath = "Source/Lord of Mysteries - Book 1.epub",
     [ValidateRange(1, 9999)]
     [int]$StartChapter = 1,
@@ -28,6 +29,13 @@ param(
 $ErrorActionPreference = "Stop"
 $OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+
+$runtimeModule = Join-Path $PSScriptRoot 'Runtime\PowerShell\KnowledgeFramework\KnowledgeFramework.psd1'
+Import-Module $runtimeModule -Force
+$repoRoot = Resolve-KnowledgeProjectRoot -ExplicitRoot $Root -ExecutablePath $PSCommandPath
+if (-not [System.IO.Path]::IsPathRooted($EpubPath)) {
+    $EpubPath = Join-Path $repoRoot $EpubPath
+}
 
 if (-not $ListEntries -and [string]::IsNullOrWhiteSpace($Pattern)) {
     throw "Provide -Pattern. For literal multi-term searches, separate terms with |, such as -Pattern `"Dunn|Captain|Nighthawk`". Use -ListEntries to inspect EPUB entries without a search pattern."

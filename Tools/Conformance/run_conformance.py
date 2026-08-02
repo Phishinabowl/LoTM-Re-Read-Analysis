@@ -9,10 +9,11 @@ import sys
 
 
 TOOLS_ROOT = Path(__file__).resolve().parents[1]
-if str(TOOLS_ROOT) not in sys.path:
-    sys.path.insert(0, str(TOOLS_ROOT))
+RUNTIME_PYTHON_ROOT = TOOLS_ROOT / "Runtime" / "Python"
+if str(RUNTIME_PYTHON_ROOT) not in sys.path:
+    sys.path.insert(0, str(RUNTIME_PYTHON_ROOT))
 
-from project_config import resolve_project_root  # noqa: E402
+from knowledge_framework.project_paths import resolve_project_root  # noqa: E402
 
 
 REGISTRY_PATH = Path("Tools") / "Conformance" / "suites.json"
@@ -175,7 +176,7 @@ def main() -> int:
     parser.add_argument("--json", action="store_true", help="Emit a stable JSON summary.")
     args = parser.parse_args()
 
-    root = resolve_project_root(args.root)
+    root = resolve_project_root(args.root, executable_path=__file__)
     registry, suites = load_registry(root)
     if args.list:
         listing = {"schema_version": 1, "profiles": registry["profiles"], "suites": list(suites)}

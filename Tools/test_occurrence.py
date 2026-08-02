@@ -114,7 +114,7 @@ def main() -> int:
     parser.add_argument("--json", action="store_true", help="Emit a stable JSON summary.")
     args = parser.parse_args()
 
-    root = resolve_project_root(args.root)
+    root = resolve_project_root(args.root, executable_path=__file__)
     project = load_project_config(root)
     packs = load_schema_pack_registry(project)
     resources = load_resource_config(project)

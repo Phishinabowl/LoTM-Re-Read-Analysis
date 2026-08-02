@@ -1,9 +1,20 @@
 param(
+    [string]$Root,
     [switch]$Json,
     [string]$RequirementsPath = "requirements-python.txt"
 )
 
 $ErrorActionPreference = "Stop"
+
+$runtimeModule = Join-Path $PSScriptRoot 'Runtime\PowerShell\KnowledgeFramework\KnowledgeFramework.psd1'
+Import-Module $runtimeModule -Force
+$repoRoot = Resolve-KnowledgeProjectRoot -ExplicitRoot $Root -ExecutablePath $PSCommandPath
+$requirementsFullPath = if ([System.IO.Path]::IsPathRooted($RequirementsPath)) {
+    [System.IO.Path]::GetFullPath($RequirementsPath)
+}
+else {
+    Join-Path $repoRoot $RequirementsPath
+}
 
 $candidates = @("python", "python3", "py")
 $moduleNameOverrides = @{
@@ -54,7 +65,7 @@ $result = [ordered]@{
     command = $null
     version = $null
     executable = $null
-    requirements_path = $RequirementsPath
+    requirements_path = $requirementsFullPath
     requirements_checked = $false
     requirements_available = $true
     requirements = @()
@@ -136,7 +147,7 @@ foreach ($candidate in $candidates) {
     $executable = ($executableOutput -join "`n").Trim()
     $requirements = @()
     $requirementsAvailable = $true
-    $requirementModules = Get-RequirementModules -Path $RequirementsPath
+    $requirementModules = Get-RequirementModules -Path $requirementsFullPath
     foreach ($requirement in $requirementModules) {
         $moduleOutput = $null
         $moduleExitCode = $null
@@ -188,7 +199,7 @@ foreach ($candidate in $candidates) {
         $result.message = "Python available. Use preferred Python scripts."
     }
     else {
-        $result.message = "Python available, but required Python modules are missing. Run: python -m pip install -r $RequirementsPath"
+        $result.message = "Python available, but required Python modules are missing. Run: python -m pip install -r $requirementsFullPath"
     }
     break
 }

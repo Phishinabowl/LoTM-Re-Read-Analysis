@@ -14,6 +14,13 @@ from xml.etree import ElementTree as ET
 from PIL import Image
 
 
+RUNTIME_ROOT = Path(__file__).resolve().parent / "Runtime" / "Python"
+if str(RUNTIME_ROOT) not in sys.path:
+    sys.path.insert(0, str(RUNTIME_ROOT))
+
+from knowledge_framework.project_paths import resolve_project_root
+
+
 PRESETS = {
     "PathwayTarotCard": {
         "operation": "crop",
@@ -107,6 +114,7 @@ def positive_int(value: str) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Repeatable local image operations.")
+    parser.add_argument("--root")
     parser.add_argument("--operation", choices=sorted(OPERATION_ALIASES), default="crop")
     parser.add_argument("--preset", choices=sorted(PRESET_ALIASES))
     parser.add_argument("--list-presets", action="store_true")
@@ -447,6 +455,13 @@ def extract_epub_images(args: argparse.Namespace) -> int:
 def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
+    repo_root = resolve_project_root(args.root, executable_path=__file__)
+    for name in ("epub_path", "output_dir", "source_image", "output_image"):
+        value = getattr(args, name, None)
+        if value:
+            path = Path(value)
+            if not path.is_absolute():
+                setattr(args, name, str(repo_root / path))
     args.operation = normalize_operation(args.operation)
     args.preset = normalize_preset(args.preset)
 

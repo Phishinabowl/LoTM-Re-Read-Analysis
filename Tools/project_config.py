@@ -1,11 +1,23 @@
 from dataclasses import dataclass
 from pathlib import Path
 import re
+import sys
+
+
+RUNTIME_PYTHON_ROOT = Path(__file__).resolve().parent / "Runtime" / "Python"
+if str(RUNTIME_PYTHON_ROOT) not in sys.path:
+    sys.path.insert(0, str(RUNTIME_PYTHON_ROOT))
+
+from knowledge_framework.project_paths import (  # noqa: E402
+    PROJECT_MANIFEST_PATH,
+    is_project_root,
+    path_and_parents,
+    resolve_project_root,
+)
 
 from strict_yaml import assert_allowed_keys, load_yaml_file
 
 
-PROJECT_MANIFEST_PATH = Path("Project_Config") / "project.yaml"
 SUPPORTED_SCHEMA_VERSION = 9
 PROVENANCE_MODES = {"child-directory", "fixed", "slug-prefix"}
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
@@ -55,40 +67,6 @@ class ProjectConfig:
     provenance_registry: Path
     chronology_registry: Path
     occurrences_registry: Path
-
-
-def is_project_root(path: Path) -> bool:
-    return path.is_dir() and (path / PROJECT_MANIFEST_PATH).is_file()
-
-
-def path_and_parents(path: Path):
-    resolved = path.resolve()
-    yield resolved
-    yield from resolved.parents
-
-
-def resolve_project_root(explicit_root: str | None = None) -> Path:
-    if explicit_root:
-        root = Path(explicit_root).resolve()
-        if not is_project_root(root):
-            raise RuntimeError(f"Project root is missing required manifest {PROJECT_MANIFEST_PATH.as_posix()}: {root}")
-        return root
-
-    search_starts = (Path.cwd(), Path(__file__).resolve().parent)
-    checked: set[Path] = set()
-    for start in search_starts:
-        for candidate in path_and_parents(start):
-            if candidate in checked:
-                continue
-            checked.add(candidate)
-            if is_project_root(candidate):
-                return candidate
-
-    starts = ", ".join(str(path.resolve()) for path in search_starts)
-    raise RuntimeError(
-        f"Could not auto-detect the project root from {starts}. "
-        f"Expected manifest: {PROJECT_MANIFEST_PATH.as_posix()}. Pass the root explicitly."
-    )
 
 
 def require_mapping(value, key: str) -> dict:

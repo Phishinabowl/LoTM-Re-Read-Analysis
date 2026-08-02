@@ -7,6 +7,14 @@ import argparse
 import json
 import shutil
 from pathlib import Path
+import sys
+
+
+RUNTIME_PYTHON_ROOT = Path(__file__).resolve().parent / "Runtime" / "Python"
+if str(RUNTIME_PYTHON_ROOT) not in sys.path:
+    sys.path.insert(0, str(RUNTIME_PYTHON_ROOT))
+
+from knowledge_framework.project_paths import resolve_project_root  # noqa: E402
 
 
 CACHE_DIR_NAMES = {
@@ -20,8 +28,8 @@ CACHE_DIR_NAMES = {
 TMP_DIR_NAME = ".tmp"
 
 
-def get_repo_root() -> Path:
-    return Path(__file__).resolve().parents[1]
+def get_repo_root(explicit_root: str | None = None) -> Path:
+    return resolve_project_root(explicit_root, executable_path=__file__)
 
 
 def is_within_repo(path: Path, repo_root: Path) -> bool:
@@ -99,6 +107,10 @@ def main() -> int:
         description="Remove allowlisted Python/tool cache directories under this repository."
     )
     parser.add_argument(
+        "--root",
+        help="Project root; auto-detected when omitted.",
+    )
+    parser.add_argument(
         "--delete",
         action="store_true",
         help="Actually delete matching cache directories. Without this flag, the script only lists matches.",
@@ -124,7 +136,7 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    repo_root = get_repo_root()
+    repo_root = get_repo_root(args.root)
     cache_targets = find_cache_dirs(repo_root)
     tmp_targets = find_tmp_artifacts(repo_root) if args.include_tmp else []
     scoped_tmp_targets = find_scoped_tmp_artifacts(repo_root, args.tmp_path)

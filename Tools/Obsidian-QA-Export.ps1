@@ -2595,7 +2595,15 @@ function Write-RepoRefreshCheck {
     $settingsPath = Join-Path $checkDir "refresh-check-settings.json"
     Write-TextFile $settingsPath ($settings | ConvertTo-Json -Depth 50)
 
-    powershell -NoProfile -ExecutionPolicy Bypass -File $ProjectConfig.visualization_powershell_helper -Mode Refresh -SettingsPath (Get-RepoRelativePath $RepoRoot $settingsPath) -SkipRender
+    powershell -NoProfile -ExecutionPolicy Bypass `
+        -File $ProjectConfig.visualization_powershell_helper `
+        -Root $RepoRoot `
+        -Mode Refresh `
+        -SettingsPath (Get-RepoRelativePath $RepoRoot $settingsPath) `
+        -SkipRender
+    if ($LASTEXITCODE -ne 0) {
+        throw "Visualization refresh check failed with exit code $LASTEXITCODE."
+    }
 }
 
 function Write-BoundedGraphs {
@@ -2657,7 +2665,15 @@ function Write-BoundedGraphs {
     $settingsPath = Join-Path $boundedDir "bounded-graphs-settings.json"
     Write-TextFile $settingsPath ($settings | ConvertTo-Json -Depth 50)
 
-    powershell -NoProfile -ExecutionPolicy Bypass -File $ProjectConfig.visualization_powershell_helper -Mode Refresh -SettingsPath (Get-RepoRelativePath $RepoRoot $settingsPath) -SkipRender
+    powershell -NoProfile -ExecutionPolicy Bypass `
+        -File $ProjectConfig.visualization_powershell_helper `
+        -Root $RepoRoot `
+        -Mode Refresh `
+        -SettingsPath (Get-RepoRelativePath $RepoRoot $settingsPath) `
+        -SkipRender
+    if ($LASTEXITCODE -ne 0) {
+        throw "Bounded visualization generation failed with exit code $LASTEXITCODE."
+    }
 }
 
 function Get-MapValue {
@@ -3677,6 +3693,7 @@ function Write-ObsidianExport {
     Write-TextFile (Join-Path $generatedDir "QA-relationship-graph.mmd") (ConvertTo-LabeledRelationshipGraph $Relationships $Notes)
     Write-TextFile (Join-Path $generatedDir "QA-relationship-node-graph.mmd") (ConvertTo-RelationshipNodeGraph $Relationships $Notes $DataProjections)
     & $ProjectConfig.visualization_powershell_helper `
+        -Root $RepoRoot `
         -Mode QaRelationship `
         -GraphPath (Join-Path $generatedDir "visualization-relationship-graph.mmd") `
         -IncludeConfirmedConfidence
@@ -3701,7 +3718,7 @@ function Invoke-DisposableCacheCleanup {
     }
 }
 
-$repoRoot = Resolve-KnowledgeProjectRoot $Root
+$repoRoot = Resolve-KnowledgeProjectRoot -ExplicitRoot $Root -ExecutablePath $PSCommandPath
 $projectConfig = Get-KnowledgeProjectConfig $repoRoot
 $taxonomyConfig = Get-KnowledgeTaxonomyConfig $projectConfig
 $qaContentRoots = @(Get-TaxonomyQaPageContentRoots $projectConfig $taxonomyConfig)

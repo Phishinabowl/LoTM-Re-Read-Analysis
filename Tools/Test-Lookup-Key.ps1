@@ -5,13 +5,10 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-if ([string]::IsNullOrWhiteSpace($Root)) {
-    $Root = Split-Path -Parent $PSScriptRoot
-}
-$Root = [System.IO.Path]::GetFullPath($Root)
 
 . (Join-Path $PSScriptRoot 'Project-Config.ps1')
 . (Join-Path $PSScriptRoot 'Lookup-Key-Config.ps1')
+$Root = Resolve-KnowledgeProjectRoot -ExplicitRoot $Root -ExecutablePath $PSCommandPath
 
 function ConvertFrom-TestCodePoints {
     param([object[]]$CodePoints)

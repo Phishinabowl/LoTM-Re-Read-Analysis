@@ -100,7 +100,7 @@ function New-SyntheticOccurrenceRule {
     }
 }
 
-$repoRoot = Resolve-KnowledgeProjectRoot $Root
+$repoRoot = Resolve-KnowledgeProjectRoot -ExplicitRoot $Root -ExecutablePath $PSCommandPath
 $project = Get-KnowledgeProjectConfig $repoRoot
 $packs = Get-KnowledgeSchemaPackRegistry $project
 $resources = Get-KnowledgeResourceConfig $project

@@ -88,16 +88,19 @@ The future work-annotation linter and cross-runtime compatibility comparator bel
 
 ### Known Layout-Coupled Transition Debt
 
-The migration must remove, not carry forward, these current assumptions:
+Phase 2 removed fixed-depth project-root discovery from project-aware commands, conformance runners, cleanup, formatting, environment probes, and Visualization. These remaining assumptions belong to the Phase 3 module/path migration:
 
-- `test_strict_yaml.py`, `test_lookup_key.py`, `test_temporal.py`, and `test_reconciliation.py` derive the repository root from their current file depth; their PowerShell partners contain equivalent script-parent defaults.
-- `clean_temp_files.py` and `Clean-TempFiles.ps1` derive the repository root from their current script parent.
-- `Format-PowerShell.ps1` uses Git discovery and keeps its settings beside the script; after the move it must use the shared project root while resolving settings from `Tools/Static/`.
-- `Visualization/visualize.py` and `Visualization/visualize.ps1` assume the parent of their script directory is the repository root and change process location. They must adopt shared root discovery and path-qualified operations without changing the caller's working directory.
+- `Format-PowerShell.ps1` uses shared project discovery and Git only for tracked/nonignored source inventory; after the move it must resolve its settings from `Tools/Static/`.
 - Current Python loaders use flat sibling imports, and current PowerShell loaders and conformance runners dot-source peer scripts through `$PSScriptRoot`.
-- The aggregate runners currently bootstrap the flat `Tools/` directory to obtain project discovery; after package/module extraction they must import the runtime through its final package or module path.
+- Transitional loaders still live at root-level paths even though aggregate runners and project discovery now import through the final runtime package/module locations.
 
-Phase 2 must make root discovery independent of file depth before Phase 3 moves these files. Phase 3 is incomplete until repository searches find no project-root derivation from fixed parent counts, no project-aware `Set-Location` or `os.chdir`, no flat loader imports, and no command/conformance dot-sourcing of root-level loader scripts.
+Phase 3 is incomplete until repository searches find no flat loader imports and no command/conformance dot-sourcing of root-level loader scripts.
+
+## Project Root Discovery
+
+The paired dependency-light runtime services are `Tools/Runtime/Python/knowledge_framework/project_paths.py` and `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1`. Project identity is the presence of `Project_Config/project.yaml`, not `.git` or a domain content folder.
+
+Resolution order is explicit `--root` / `-Root`, absolute `KNOWLEDGE_PROJECT_ROOT`, current-directory ancestors, executable-location ancestors, then a precise failure. An authoritative explicit or environment root with a missing manifest fails instead of falling through. Discovery never changes the caller's working directory. `project-root` is a permanent aggregate conformance suite in both `fast` and `baseline` profiles.
 
 ## Python Environment Check
 
@@ -114,6 +117,7 @@ Purpose: check whether the local machine has a usable Python command and the rep
 | Purpose | Switch | Default | Notes |
 | --- | --- | --- | --- |
 | Print JSON summary | `-Json` | off | Emits structured `available`, `ready`, `command`, `version`, `executable`, `requirements_*`, `checked`, and `message` fields for agent workflows. |
+| Select repository root | `-Root <path>` | Auto-detected | Uses the shared project-root contract. Relative requirements paths resolve beneath this root. |
 | Requirements file | `-RequirementsPath <path>` | `requirements-python.txt` | Checks required Python import modules derived from the repository Python dependency file. |
 
 ### Inputs
@@ -162,7 +166,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1 -Json
 python -m pip install -r requirements-python.txt
 ```
 
-Last mapped: 2026-07-07.
+Last mapped: 2026-08-02.
 
 Last check: 2026-08-01. Normal and JSON modes ran successfully on this machine. The probe detected `python`, Python 3.14.5, executable `C:\Users\ptseb\AppData\Local\Python\pythoncore-3.14-64\python.exe`, and `ready: true` after validating `PyYAML` through `yaml` and Ruff 0.16.1 through `ruff`.
 
@@ -218,6 +222,7 @@ Purpose: check whether the local PowerShell environment has repository-required 
 | Purpose | Switch | Default | Notes |
 | --- | --- | --- | --- |
 | Print JSON summary | `-Json` | off | Emits structured `ready`, `powershell_version`, `edition`, `executable`, `requirements_path`, `modules`, and `message` fields. |
+| Select repository root | `-Root <path>` | Auto-detected | Uses the shared project-root contract. Relative requirements paths resolve beneath this root. |
 | Requirements file | `-RequirementsPath <path>` | `requirements-powershell.txt` | Checks required PowerShell modules from the repository dependency file. |
 
 ### Inputs
@@ -251,7 +256,7 @@ Install-Module powershell-yaml -Scope CurrentUser -Force -AllowClobber
 Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
 ```
 
-Last mapped: 2026-08-01.
+Last mapped: 2026-08-02.
 
 Last check: 2026-08-01. JSON mode ran successfully in PowerShell 7.6.3 and Windows PowerShell 5.1.19041.7548. Both runtimes detected the machine-wide `powershell-yaml` and `PSScriptAnalyzer` requirements.
 
@@ -319,6 +324,7 @@ Purpose: find and optionally remove allowlisted local cache directories under th
 | Purpose | Python switch | PowerShell switch | Default | Notes |
 | --- | --- | --- | --- | --- |
 | Actually delete cache folders/artifacts | `--delete` | `-Delete` | off | Without this switch, both scripts run in dry-run mode and only report matching paths. |
+| Select repository root | `--root <path>` | `-Root <path>` | Auto-detected | Uses the shared project-root contract. |
 | Include ignored `.tmp` artifacts | `--include-tmp` | `-IncludeTmp` | off | Adds direct children of repository `.tmp/` to the cleanup target list. The `.tmp` root itself is left in place. |
 | Include exact scoped `.tmp` path | `--tmp-path <path>` | `-TmpPath <path>[,<path>]` | none | Adds only the specified existing path(s), and only when they resolve under repository `.tmp/`. Intended for automatic cleanup of artifacts created by the current tool run. |
 | Print JSON summary | `--json` | `-Json` | off | Emits structured fields for `repo_root`, `delete`, `allowed_directory_names`, `count`, and `results`. |
@@ -328,7 +334,7 @@ Purpose: find and optionally remove allowlisted local cache directories under th
 
 | Input | Used For |
 | --- | --- |
-| Repository root inferred from the script location | Search boundary. Neither script accepts an alternate root. |
+| Shared project-root resolver | Search boundary selected by explicit root, environment override, current-directory ancestry, or executable ancestry. |
 | Recursive directory walk under the repository root | Finds allowlisted cache directory names. |
 
 ### Allowlist
@@ -402,7 +408,7 @@ Expected non-semantic differences:
 
 - JSON whitespace from Python `json.dumps` versus PowerShell `ConvertTo-Json`.
 
-Last mapped: 2026-07-07.
+Last mapped: 2026-08-02.
 
 Last parity check: 2026-07-07. Dry-run JSON matched semantically for three test cache directories under `.tmp/cleanup-parity/`. Delete-mode JSON matched semantically after recreating the same three test directories between Python and PowerShell runs. Both scripts reported the same allowlist, target paths, counts, and statuses.
 
@@ -422,6 +428,7 @@ Purpose: run repeatable local image operations. Current operations are fixed-geo
 | Purpose | Python switch | PowerShell switch | Default | Notes |
 | --- | --- | --- | --- | --- |
 | Select operation | `--operation <name>` | `-Operation <name>` | `crop` / `Crop` | Supported operation family: crop or EPUB image listing/extraction. |
+| Select repository root | `--root <path>` | `-Root <path>` | Auto-detected | Relative source, EPUB, and output paths resolve beneath this root. |
 | Select crop preset | `--preset <name>` | `-Preset <name>` | none | Presets fill operation, `x`, `y`, `width`, and `height`. |
 | List crop presets | `--list-presets` | `-ListPresets` | off | Prints preset names and geometry without reading or writing images. |
 | Source image for crop | `--source-image <path>` | `-SourceImage <path>` | none | Required for crop mode unless listing presets. |
@@ -563,7 +570,7 @@ Expected non-semantic differences:
 - Extracted `output_path` values differ when different output directories are used.
 - Crop command wording uses `crop` in Python output and `Crop` in PowerShell output.
 
-Last mapped: 2026-07-07.
+Last mapped: 2026-08-02.
 
 Last parity check: 2026-07-07. Preset listing matched exactly. EPUB JSON listing for images 1-5 matched semantically. Single-image EPUB extraction matched semantically after normalizing `output_path`, and the extracted image hashes matched byte-for-byte. Synthetic crop outputs both produced `7x6` images with matching pixel data.
 
@@ -585,6 +592,7 @@ Purpose: search the local ignored Lord of Mysteries EPUB for source verification
 | Purpose | Python switch | PowerShell switch | Default | Notes |
 | --- | --- | --- | --- | --- |
 | EPUB path | `--epub-path <path>` | `-EpubPath <path>` | `Source/Lord of Mysteries - Book 1.epub` | Local ignored EPUB source. |
+| Select repository root | `--root <path>` | `-Root <path>` | Auto-detected | Relative EPUB paths resolve beneath this root. |
 | First chapter | `--start-chapter <number>` | `-StartChapter <number>` | `1` | Must be at least 1. Applies only to entries with chapter numbers. |
 | Last chapter | `--end-chapter <number>` | `-EndChapter <number>` | `9999` | Must be greater than or equal to start chapter. |
 | Filter by EPUB volume | `--volume <number>` | `-Volume <number>[,<number>]` | none | Python accepts repeated `--volume`; PowerShell accepts an integer array. |
@@ -714,7 +722,7 @@ Expected non-semantic differences:
 - JSON whitespace from Python `json.dumps` versus PowerShell `ConvertTo-Json`.
 - Error wording/format differs because Python errors come from argparse and PowerShell errors come from parameter validation or thrown exceptions.
 
-Last mapped: 2026-07-07.
+Last mapped: 2026-08-02.
 
 Last parity check: 2026-07-07. JSON outputs matched semantically for full entry listing (`1553` entries), counts-only chapter search (`9` rows), term summary (`2` rows), context hits with line counts (`3` rows), regex case-sensitive search (`3` rows), empty appendix filter (`0` rows), and non-empty appendix search (`20` rows).
 
@@ -734,6 +742,7 @@ Purpose: generate repository Mermaid graph views from canonical graph inputs, va
 | Purpose | Python switch | PowerShell switch | Default | Notes |
 | --- | --- | --- | --- | --- |
 | Select mode | `--mode <mode>` | `-Mode <mode>` | `Refresh` | Modes normalize to refresh, render, validate, or QA relationship graph generation. |
+| Select repository root | `--root <path>` | `-Root <path>` | Auto-detected | All relative settings, graph, report, snapshot, and output paths resolve beneath this root without changing caller location. |
 | Select mode alias | n/a | `-Action <mode>` | n/a | PowerShell alias for `-Mode`. |
 | Input Mermaid file for render mode | `--input-path <path>` | `-InputPath <path>` | none | Required for render mode. |
 | Input aliases | `--input`, `--graph` | `-Input`, `-Graph` | n/a | Aliases for input path. |
@@ -868,7 +877,7 @@ Expected non-semantic differences:
 - possible encoding marker/newline differences;
 - possible renderer-internal SVG/PNG differences.
 
-Last mapped: 2026-07-07.
+Last mapped: 2026-08-02.
 
 Last parity check: 2026-08-01. Python, PowerShell 7, and Windows PowerShell 5.1 Validate runs matched exactly (`nodes=15`, `relationships=121`, zero class/layout issues for both existing and freshly generated configured views). Redirected Obsidian QA runs exercised each runtime's Visualization helper for the unbounded relationship graph, configured no-render refresh, and a Novel V1 Ch32 bounded graph. Generated Mermaid files matched after newline normalization, and refresh/bounded snapshot node, relationship, view, orphan, pending, and broken-link semantics matched after runtime path and timestamp normalization. Redirected Render runs over the tracked full Volume 1 graph each produced the same nonempty `298269`-byte SVG with an identical SHA-256 hash.
 
@@ -887,7 +896,7 @@ Purpose: compile repository metadata, type-specific YAML data blocks, Relationsh
 
 | Purpose | Python switch | PowerShell switch | Default | Notes |
 | --- | --- | --- | --- | --- |
-| Select repository root | `--root <path>` | `-Root <path>` | Auto-detected | When omitted, searches upward from the current directory and then the script directory. Explicit roots remain authoritative. Project identity comes from `Project_Config/project.yaml`; content-directory names do not participate in root detection. |
+| Select repository root | `--root <path>` | `-Root <path>` | Auto-detected | Uses explicit root, `KNOWLEDGE_PROJECT_ROOT`, current-directory ancestors, then executable-location ancestors. Project identity comes from `Project_Config/project.yaml`; content-directory names and `.git` do not participate in root detection. |
 | Select export directory | `--output-dir <path>` | `-OutputDir <path>` | `Obsidian_Export` | Relative paths are resolved under the repository root. The destination must be a child of the repository root; the root itself and outside paths are rejected. Safe missing parent directories are created automatically. |
 | Include stub pages | `--include-stubs` | `-IncludeStubs` | off | Includes canonical pages whose metadata has `Status: Stub`. Pending pages are not excluded by this switch. |
 | Clean before writing | `--clean` | `-Clean` | off | Deletes the selected export directory before regenerating it, after the path safety check. |
@@ -959,7 +968,7 @@ The repo refresh check does not update canonical `Visualization/graphs/`, `Visua
 | --- | --- | --- |
 | Parse CLI/switches | `build_parser`, `main` | top-level `param(...)`, bottom script block |
 | Render CLI help | argparse generated help | `Show-Help` |
-| Resolve repository root | `resolve_project_root`, `is_project_root` in `project_config.py` | `Resolve-KnowledgeProjectRoot`, `Test-KnowledgeProjectRoot` in `Project-Config.ps1` |
+| Resolve project root | `knowledge_framework.project_paths.resolve_project_root`, `is_project_root` | `Resolve-KnowledgeProjectRoot`, `Test-KnowledgeProjectRoot` from the `KnowledgeFramework` module |
 | Load and validate project configuration | `load_project_config`, `resolve_manifest_path` in `project_config.py` | `Get-KnowledgeProjectConfig`, `Resolve-ProjectManifestPath` in `Project-Config.ps1` |
 | Select taxonomy-enabled QA page roots | `load_taxonomy_config`, `TaxonomyConfig.content_roots_for_qa_pages` | `Get-KnowledgeTaxonomyConfig`, `Get-TaxonomyQaPageContentRoots` |
 | Configure UTF-8 output | `configure_output_encoding` | top-level `$OutputEncoding` / `[Console]::OutputEncoding` |
@@ -1035,7 +1044,7 @@ Expected non-semantic differences:
 - path names inside `refresh-check-settings.json` when different output directories are used;
 - JSON formatting differences between Python `json.dumps` and PowerShell `ConvertTo-Json`.
 
-Last mapped: 2026-07-31.
+Last mapped: 2026-08-02.
 
 Last parity check: 2026-08-01. Python, PowerShell 7, and Windows PowerShell 5.1 each generated the same 35-file inventory and summary counts for a redirected export containing one Novel V1 Ch32 bounded graph plus Dunn Smith Ch10/Ch32 and Leonard Mitchell Ch32 bounded pages. All 29 stable Markdown and Mermaid outputs matched after generated timestamp and newline normalization; the six refresh/bounded report, settings, and snapshot artifacts matched semantically after expected runtime path, timestamp, encoding, and JSON-format differences were normalized. Normal exports launched from `Tools/` also auto-detected the repository root and produced identical summaries (`notes=16`, `relationships=121`, `data_references=71`, no bounded outputs). Prior boundary checks covered Dunn Smith at Novel V1 Ch10, Ch20, Ch30, and Ch50, including anonymous-preview and Sleepless-pathway progression behavior.
 
@@ -1093,7 +1102,7 @@ This section tracks durable configuration and generated state files that affect 
 | Validate the shared RFC 3339 audit profile | `is_rfc3339_timestamp` in `strict_yaml.py` | `Test-KnowledgeRfc3339Timestamp` in `Strict-Yaml.ps1` |
 | Validate and run the registered conformance inventory | `Conformance/run_conformance.py` (`--profile`, `--suite`, `--list`, `--json`) | `Conformance/Run-Conformance.ps1` (`-Profile`, `-Suite`, `-List`, `-Json`) |
 | Run portable strict-ingestion conformance with structured summary output | `test_strict_yaml.py` (`--json`) | `Test-Strict-Yaml.ps1` (`-Json`) |
-| Resolve repository root | `resolve_project_root`, `is_project_root` in `project_config.py` | `Resolve-KnowledgeProjectRoot`, `Test-KnowledgeProjectRoot` in `Project-Config.ps1` |
+| Resolve project root | `knowledge_framework.project_paths.resolve_project_root`, `is_project_root` | `Resolve-KnowledgeProjectRoot`, `Test-KnowledgeProjectRoot` from the `KnowledgeFramework` module |
 | Load and validate project manifest | `load_project_config`, `resolve_manifest_path` in `project_config.py` | `Get-KnowledgeProjectConfig`, `Resolve-ProjectManifestPath` in `Project-Config.ps1` |
 | Load and validate pinned lookup-key data | `load_lookup_key_config` in `lookup_key_config.py` | `Get-KnowledgeLookupKeyConfig` in `Lookup-Key-Config.ps1` |
 | Normalize a semantic lookup value | `LookupKeyConfig.normalize` | `ConvertTo-KnowledgeLookupKey` |
@@ -1239,7 +1248,7 @@ The paired aggregate runners accept an optional repository root, validate `Tools
 
 `baseline` is the CI and framework-version conformance profile. `fast` is a local feedback profile and a future candidate for a lighter feature-branch CI tier; it does not replace baseline, visualization, or QA compatibility validation. Both implementations detect unregistered discovered conformance runners, missing registered files, stale exclusions, duplicate IDs or paths, invalid profiles, and paths outside the repository. Each suite currently runs in an isolated child process to preserve script behavior and PowerShell scope isolation. The planned module extraction may enable cached in-process execution without changing the registry contract.
 
-Last parity check: 2026-08-02. The `baseline` profile passed all six registered suites in Python, PowerShell 7, and Windows PowerShell 5.1 with matching suite IDs, statuses, and semantic summaries. Measured local runtimes were approximately 8 seconds, 74 seconds, and 122 seconds respectively; the PowerShell cost is dominated by isolated child-process startup and repeated loader initialization, not workflow lint installation. Static formatting, actionlint, three-runtime Visualization validation, and redirected Ch32 QA compatibility also passed. The QA runs produced matching summaries and 27 identical stable files after documented timestamp/newline normalization; six report/settings/snapshot artifacts retained expected runtime path and formatting differences.
+Last parity check: 2026-08-02. The `baseline` profile passed all seven registered suites in Python, PowerShell 7, and Windows PowerShell 5.1 with matching suite IDs, statuses, and semantic summaries. The new `project-root` suite passed eleven precedence, invalid-input, marker, failure, and caller-location vectors. Measured local runtimes were approximately 7 seconds, 69 seconds, and 121 seconds respectively; the PowerShell cost remains dominated by isolated child-process startup and repeated loader initialization. Root-aware aggregate launches also passed from `Tools/`, a nested framework directory, and an unrelated working directory. Static formatting, three-runtime Visualization validation, and redirected QA generation passed from outside the repository with matching summaries (`notes=16`, `relationships=121`, `data_references=71`). All three QA inventories matched at 28 files, and all 23 stable files matched after generated timestamp and newline normalization; five refresh-report/settings/snapshot artifacts retained documented runtime formatting and redirected-path differences.
 
 ### Strict YAML Conformance
 

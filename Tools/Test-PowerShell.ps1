@@ -1,4 +1,5 @@
 param(
+    [string]$Root,
     [string]$RequirementsPath = "requirements-powershell.txt",
     [switch]$Json
 )
@@ -6,6 +7,10 @@ param(
 $ErrorActionPreference = "Stop"
 $OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+
+$runtimeModule = Join-Path $PSScriptRoot 'Runtime\PowerShell\KnowledgeFramework\KnowledgeFramework.psd1'
+Import-Module $runtimeModule -Force
+$repoRoot = Resolve-KnowledgeProjectRoot -ExplicitRoot $Root -ExecutablePath $PSCommandPath
 
 function Get-RequiredModules {
     param([string]$Path)
@@ -30,7 +35,7 @@ $requirementsFullPath = if ([System.IO.Path]::IsPathRooted($RequirementsPath)) {
     $RequirementsPath
 }
 else {
-    Join-Path (Get-Location).Path $RequirementsPath
+    Join-Path $repoRoot $RequirementsPath
 }
 
 $requiredModules = @(Get-RequiredModules $requirementsFullPath)

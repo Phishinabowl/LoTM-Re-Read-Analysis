@@ -14,7 +14,7 @@ $sourceHelper = Join-Path $PSScriptRoot 'Source-Config.ps1'
 $chronologyHelper = Join-Path $PSScriptRoot 'Chronology-Config.ps1'
 . $chronologyHelper
 
-$repoRoot = Resolve-KnowledgeProjectRoot $Root
+$repoRoot = Resolve-KnowledgeProjectRoot -ExplicitRoot $Root -ExecutablePath $PSCommandPath
 $project = Get-KnowledgeProjectConfig $repoRoot
 $packs = Get-KnowledgeSchemaPackRegistry $project
 $resources = Get-KnowledgeResourceConfig $project

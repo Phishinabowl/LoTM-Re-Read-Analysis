@@ -6,7 +6,14 @@ import re
 import sys
 import zipfile
 from dataclasses import dataclass
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
+
+
+RUNTIME_ROOT = Path(__file__).resolve().parent / "Runtime" / "Python"
+if str(RUNTIME_ROOT) not in sys.path:
+    sys.path.insert(0, str(RUNTIME_ROOT))
+
+from knowledge_framework.project_paths import resolve_project_root
 
 
 ENTRY_TYPES = ["Chapters", "SideStories", "Appendices", "Artwork", "FrontMatter", "Other", "All"]
@@ -48,6 +55,7 @@ def non_negative_int(value: str) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Search the local Lord of Mysteries EPUB.")
+    parser.add_argument("--root")
     parser.add_argument("--epub-path", default="Source/Lord of Mysteries - Book 1.epub")
     parser.add_argument("--start-chapter", type=positive_int, default=1)
     parser.add_argument("--end-chapter", type=positive_int, default=9999)
@@ -374,6 +382,11 @@ def main() -> int:
     configure_output_encoding()
     parser = build_parser()
     args = parser.parse_args()
+    repo_root = resolve_project_root(args.root, executable_path=__file__)
+    epub_path = Path(args.epub_path)
+    if not epub_path.is_absolute():
+        epub_path = repo_root / epub_path
+    args.epub_path = str(epub_path)
 
     if not args.list_entries and not args.pattern:
         parser.error(

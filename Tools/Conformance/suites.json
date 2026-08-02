@@ -2,12 +2,14 @@
   "schema_version": 1,
   "profiles": {
     "fast": [
+      "project-root",
       "strict-ingestion",
       "lookup-key",
       "temporal",
       "chronology"
     ],
     "baseline": [
+      "project-root",
       "strict-ingestion",
       "lookup-key",
       "temporal",
@@ -17,6 +19,12 @@
     ]
   },
   "suites": [
+    {
+      "id": "project-root",
+      "python": "Tools/Conformance/Suites/test_project_paths.py",
+      "powershell": "Tools/Conformance/Suites/Test-Project-Paths.ps1",
+      "tags": ["baseline", "fast", "runtime"]
+    },
     {
       "id": "strict-ingestion",
       "python": "Tools/test_strict_yaml.py",
@@ -57,12 +65,22 @@
   "discovery": {
     "python": [
       {
+        "directory": "Tools/Conformance/Suites",
+        "pattern": "test_*.py",
+        "exclude": []
+      },
+      {
         "directory": "Tools",
         "pattern": "test_*.py",
         "exclude": []
       }
     ],
     "powershell": [
+      {
+        "directory": "Tools/Conformance/Suites",
+        "pattern": "Test-*.ps1",
+        "exclude": []
+      },
       {
         "directory": "Tools",
         "pattern": "Test-*.ps1",

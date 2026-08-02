@@ -2,7 +2,7 @@ import argparse
 import json
 from pathlib import Path
 
-from project_config import load_project_config
+from project_config import load_project_config, resolve_project_root
 from schema_pack_config import load_schema_pack_registry
 from strict_yaml import load_yaml_file
 from temporal_config import (
@@ -15,10 +15,10 @@ from temporal_config import (
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run domain-neutral temporal conformance tests.")
-    parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
+    parser.add_argument("--root", type=Path, help="Project root; auto-detected when omitted.")
     parser.add_argument("--json", action="store_true", help="Emit a stable JSON summary.")
     args = parser.parse_args()
-    root = args.root.resolve()
+    root = resolve_project_root(args.root, executable_path=__file__)
     project = load_project_config(root)
     packs = load_schema_pack_registry(project)
     fixtures = root / "Framework" / "Data" / "Temporal"

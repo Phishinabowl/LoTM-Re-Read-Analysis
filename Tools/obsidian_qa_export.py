@@ -1380,6 +1380,7 @@ def load_visualization_helper(config: ProjectConfig):
     visualize = importlib.util.module_from_spec(spec)
     sys.modules[module_name] = visualize
     spec.loader.exec_module(visualize)
+    visualize.REPO_ROOT = config.root
     return visualize
 
 
@@ -2553,7 +2554,7 @@ def main() -> int:
 
     configure_output_encoding()
     args = build_parser().parse_args()
-    root = resolve_project_root(args.root)
+    root = resolve_project_root(args.root, executable_path=__file__)
     config = load_project_config(root)
     taxonomy = load_taxonomy_config(config)
     qa_content_roots = taxonomy.content_roots_for_qa_pages(config)

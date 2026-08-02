@@ -1,3 +1,6 @@
+$runtimeModule = Join-Path $PSScriptRoot 'Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1'
+Import-Module $runtimeModule -ErrorAction Stop
+
 $script:ProjectManifestPath = "Project_Config/project.yaml"
 $script:SupportedProjectSchemaVersion = 9
 $script:AllowedProvenanceModes = @("child-directory", "fixed", "slug-prefix")
@@ -5,46 +8,6 @@ $script:StableProjectIdPattern = "^[a-z0-9]+(?:-[a-z0-9]+)*$"
 $strictYamlHelper = Join-Path $PSScriptRoot "Strict-Yaml.ps1"
 if (-not (Get-Command ConvertFrom-KnowledgeYamlFile -ErrorAction SilentlyContinue)) {
     . $strictYamlHelper
-}
-
-function Test-KnowledgeProjectRoot {
-    param([string]$Path)
-
-    return (
-        (Test-Path -LiteralPath $Path -PathType Container) -and
-        (Test-Path -LiteralPath (Join-Path $Path $script:ProjectManifestPath) -PathType Leaf)
-    )
-}
-
-function Resolve-KnowledgeProjectRoot {
-    param([string]$ExplicitRoot)
-
-    if (-not [string]::IsNullOrWhiteSpace($ExplicitRoot)) {
-        $resolved = (Resolve-Path -LiteralPath $ExplicitRoot).Path
-        if (-not (Test-KnowledgeProjectRoot $resolved)) {
-            throw "Project root is missing required manifest $($script:ProjectManifestPath): $resolved"
-        }
-        return $resolved
-    }
-
-    $checked = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
-    $searchStarts = @((Get-Location).Path, $PSScriptRoot)
-    foreach ($start in $searchStarts) {
-        $current = [System.IO.Path]::GetFullPath($start)
-        while ($current) {
-            if ($checked.Add($current) -and (Test-KnowledgeProjectRoot $current)) {
-                return $current
-            }
-            $parent = [System.IO.Directory]::GetParent($current)
-            if ($null -eq $parent) {
-                break
-            }
-            $current = $parent.FullName
-        }
-    }
-
-    $starts = ($searchStarts | ForEach-Object { [System.IO.Path]::GetFullPath($_) }) -join ", "
-    throw "Could not auto-detect the project root from $starts. Expected manifest: $($script:ProjectManifestPath). Pass the root explicitly."
 }
 
 function Import-ProjectYamlModule {

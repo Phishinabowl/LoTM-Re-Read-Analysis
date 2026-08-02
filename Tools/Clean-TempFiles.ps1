@@ -1,4 +1,5 @@
 param(
+    [string]$Root,
     [switch]$Delete,
     [switch]$IncludeTmp,
     [string[]]$TmpPath = @(),
@@ -7,8 +8,10 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$allowedDirectoryNames = @("__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache", ".tox")
+$runtimeModule = Join-Path $PSScriptRoot 'Runtime\PowerShell\KnowledgeFramework\KnowledgeFramework.psd1'
+Import-Module $runtimeModule -Force
+$repoRoot = Resolve-KnowledgeProjectRoot -ExplicitRoot $Root -ExecutablePath $PSCommandPath
+$allowedDirectoryNames = @(".mypy_cache", ".pytest_cache", ".ruff_cache", ".tox", "__pycache__")
 $tmpRoot = Join-Path $repoRoot ".tmp"
 
 function Test-IsWithinRepo {
@@ -93,7 +96,7 @@ foreach ($target in $targets) {
 $output = [ordered]@{
     repo_root = $repoRoot
     delete = [bool]$Delete
-    allowed_directory_names = @($allowedDirectoryNames | Sort-Object)
+    allowed_directory_names = @($allowedDirectoryNames)
     include_tmp = [bool]$IncludeTmp
     tmp_root = $tmpRoot
     cache_count = @($cacheTargets).Count

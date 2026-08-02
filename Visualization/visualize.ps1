@@ -1,4 +1,5 @@
 param(
+    [string]$Root,
     [Alias("Action")]
     [string]$Mode = "Refresh",
     [Alias("Input", "Graph")]
@@ -15,8 +16,9 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$repoRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
-Set-Location $repoRoot
+$runtimeModule = Join-Path $PSScriptRoot '..\Tools\Runtime\PowerShell\KnowledgeFramework\KnowledgeFramework.psd1'
+Import-Module $runtimeModule -Force
+$repoRoot = Resolve-KnowledgeProjectRoot -ExplicitRoot $Root -ExecutablePath $PSCommandPath
 
 $SlugPrefixes = @(
     "artifact",
@@ -1158,7 +1160,7 @@ function Get-PendingGraphNodes {
 
 function Get-BrokenMarkdownLinks {
     $broken = @()
-    $markdownFiles = Get-ChildItem -Recurse -Filter "*.md" |
+    $markdownFiles = Get-ChildItem -Path $repoRoot -Recurse -Filter "*.md" |
         Where-Object {
             $_.FullName -notmatch '\\.git\\' -and
             $_.FullName -notmatch '\\Source\\' -and
@@ -1190,7 +1192,7 @@ function Get-BrokenMarkdownLinks {
                 if ($targetFullPath.StartsWith($plannedGlossaryRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
                     continue
                 }
-                $relativeFile = Resolve-Path -Relative $file.FullName
+                $relativeFile = '.\' + $file.FullName.Substring($repoFullPath.Length).TrimStart('\', '/').Replace('/', '\')
                 $broken += "$relativeFile -> $target"
             }
         }

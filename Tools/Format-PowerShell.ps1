@@ -1,4 +1,5 @@
 param(
+    [string]$Root,
     [string[]]$Path = @(),
     [ValidateRange(80, 1000)]
     [int]$MaximumLineLength = 200,
@@ -11,13 +12,21 @@ $OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 
 $settingsPath = Join-Path $PSScriptRoot 'powershell-format-settings.psd1'
+$runtimeModule = Join-Path $PSScriptRoot 'Runtime\PowerShell\KnowledgeFramework\KnowledgeFramework.psd1'
+Import-Module $runtimeModule -Force
 
 function Get-PowerShellRepositoryRoot {
-    $root = (& git -C $PSScriptRoot rev-parse --show-toplevel 2>$null)
-    if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace([string]$root)) {
+    param([string]$ExplicitRoot)
+
+    $projectRoot = Resolve-KnowledgeProjectRoot -ExplicitRoot $ExplicitRoot -ExecutablePath $PSCommandPath
+    $gitRoot = (& git -C $projectRoot rev-parse --show-toplevel 2>$null)
+    if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace([string]$gitRoot)) {
         throw 'PowerShell formatting requires a Git worktree so tracked and nonignored source discovery is deterministic.'
     }
-    return [System.IO.Path]::GetFullPath(([string]$root).Trim())
+    if ([System.IO.Path]::GetFullPath(([string]$gitRoot).Trim()) -cne $projectRoot) {
+        throw "Knowledge project root '$projectRoot' is not the Git worktree root."
+    }
+    return $projectRoot
 }
 
 function Get-RepositoryPowerShellSourceFiles {
@@ -240,7 +249,7 @@ if (-not (Get-Module -ListAvailable -Name PSScriptAnalyzer)) {
 }
 Import-Module PSScriptAnalyzer -ErrorAction Stop
 
-$repoRoot = Get-PowerShellRepositoryRoot
+$repoRoot = Get-PowerShellRepositoryRoot -ExplicitRoot $Root
 $results = @()
 foreach ($file in Get-PowerShellSourceFiles -RepoRoot $repoRoot -InputPath $Path) {
     $source = Get-Content -LiteralPath $file.FullName -Raw

@@ -5,13 +5,10 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-if ([string]::IsNullOrWhiteSpace($Root)) {
-    $Root = Split-Path -Parent $PSScriptRoot
-}
-$Root = [System.IO.Path]::GetFullPath($Root)
 . (Join-Path $PSScriptRoot "Project-Config.ps1")
 . (Join-Path $PSScriptRoot "Schema-Pack-Config.ps1")
 . (Join-Path $PSScriptRoot "Temporal-Config.ps1")
+$Root = Resolve-KnowledgeProjectRoot -ExplicitRoot $Root -ExecutablePath $PSCommandPath
 $project = Get-KnowledgeProjectConfig $Root
 $packs = Get-KnowledgeSchemaPackRegistry $project
 $fixtures = Join-Path $Root "Framework\Data\Temporal"

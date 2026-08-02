@@ -8,7 +8,7 @@ import tempfile
 import yaml
 
 from entity_config import load_entity_registry
-from project_config import load_project_config
+from project_config import load_project_config, resolve_project_root
 from reconciliation_config import load_reconciliation_registry
 from resource_config import load_resource_config
 from schema_pack_config import load_schema_pack_registry
@@ -107,11 +107,11 @@ def deep_registry(depth: int) -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run stable-identity reconciliation conformance tests.")
-    parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
+    parser.add_argument("--root", type=Path, help="Project root; auto-detected when omitted.")
     parser.add_argument("--deep-chain", type=int, default=1500)
     parser.add_argument("--json", action="store_true", help="Emit a stable JSON summary.")
     args = parser.parse_args()
-    root = args.root.resolve()
+    root = resolve_project_root(args.root, executable_path=__file__)
     fixtures = root / "Framework" / "Data" / "Reconciliation"
     strict_yaml_fixtures = root / "Framework" / "Data" / "Strict-Yaml"
     project, packs, providers = build_context(root)

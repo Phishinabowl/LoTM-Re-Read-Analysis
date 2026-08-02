@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import tempfile
 
+from project_config import resolve_project_root
 from strict_yaml import is_rfc3339_timestamp, load_yaml_file, validate_yaml_source
 
 
@@ -29,10 +30,11 @@ def expect_rejected(action, message: str) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run strict framework-YAML ingestion conformance tests.")
-    parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
+    parser.add_argument("--root", type=Path, help="Project root; auto-detected when omitted.")
     parser.add_argument("--json", action="store_true", help="Emit a stable JSON summary.")
     args = parser.parse_args()
-    fixtures = args.root.resolve() / "Framework" / "Data" / "Strict-Yaml"
+    root = resolve_project_root(args.root, executable_path=__file__)
+    fixtures = root / "Framework" / "Data" / "Strict-Yaml"
     expectations = json.loads((fixtures / "expectations.json").read_text(encoding="utf-8"))
     if expectations.get("schema_version") != 1:
         raise AssertionError("Unsupported strict-YAML expectation schema.")

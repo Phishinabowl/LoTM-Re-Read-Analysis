@@ -6,7 +6,7 @@ from pathlib import Path
 import tempfile
 
 from lookup_key_config import load_lookup_key_config
-from project_config import load_project_config
+from project_config import load_project_config, resolve_project_root
 
 
 def from_codepoints(values: list[int]) -> str:
@@ -58,10 +58,10 @@ def expect_rejected(action, message: str) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run pinned lookup-key normalization conformance tests.")
-    parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
+    parser.add_argument("--root", type=Path, help="Project root; auto-detected when omitted.")
     parser.add_argument("--json", action="store_true", help="Emit a stable JSON summary.")
     args = parser.parse_args()
-    root = args.root.resolve()
+    root = resolve_project_root(args.root, executable_path=__file__)
     data_dir = root / "Framework" / "Data"
     project = load_project_config(root)
     config = load_lookup_key_config(project)
