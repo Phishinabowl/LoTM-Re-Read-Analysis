@@ -1,0 +1,173 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  workflow-policy:
+    name: Workflow Policy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Install actionlint
+        shell: bash
+        env:
+          ACTIONLINT_VERSION: 1.7.12
+          ACTIONLINT_SHA256: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
+        run: |
+          set -euo pipefail
+          archive="actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          url="https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/${archive}"
+          curl --fail --location --silent --show-error --output "/tmp/${archive}" "${url}"
+          echo "${ACTIONLINT_SHA256}  /tmp/${archive}" | sha256sum --check --strict
+          tar --extract --gzip --file "/tmp/${archive}" --directory /tmp actionlint
+          sudo install --mode 0755 /tmp/actionlint /usr/local/bin/actionlint
+
+      - name: Validate GitHub Actions workflows
+        run: actionlint -color
+
+  python-validation:
+    name: Python Validation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      PYTHONUTF8: "1"
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.10"
+          cache: pip
+          cache-dependency-path: requirements-python.txt
+
+      - name: Install Python requirements
+        run: python -m pip install --disable-pip-version-check --requirement requirements-python.txt
+
+      - name: Check Python formatting and lint
+        run: |
+          python -m ruff format --check .
+          python -m ruff check .
+
+      - name: Run framework conformance suites
+        run: |
+          python Tools/test_temporal.py --json
+          python Tools/test_chronology.py --json
+          python Tools/test_reconciliation.py --json
+          python Tools/test_occurrence.py --json
+
+      - name: Validate visualization projection
+        run: python Visualization/visualize.py --mode Validate
+
+      - name: Run redirected QA smoke test
+        run: >-
+          python Tools/obsidian_qa_export.py
+          --clean
+          --output-dir .tmp/ci-qa-python
+          --bounded-graph "name=chapter-32,medium=novel,maxVolume=1,maxChapter=32"
+          --bounded-page "slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=32"
+          --json
+
+  powershell-7-validation:
+    name: PowerShell 7 Validation
+    runs-on: windows-2022
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Install PowerShell requirements
+        run: |
+          $ErrorActionPreference = 'Stop'
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          foreach ($module in Get-Content -LiteralPath requirements-powershell.txt) {
+              $module = $module.Trim()
+              if ($module -and -not $module.StartsWith('#')) {
+                  Install-Module -Name $module -Repository PSGallery -Scope CurrentUser -Force -AllowClobber
+              }
+          }
+
+      - name: Check PowerShell formatting
+        run: ./Tools/Format-PowerShell.ps1
+
+      - name: Run framework conformance suites
+        run: |
+          ./Tools/Test-Temporal.ps1 -Json
+          ./Tools/Test-Chronology.ps1 -Json
+          ./Tools/Test-Reconciliation.ps1 -Json
+          ./Tools/Test-Occurrence.ps1 -Json
+
+      - name: Validate visualization projection
+        run: ./Visualization/visualize.ps1 -Mode Validate
+
+      - name: Run redirected QA smoke test
+        run: >-
+          ./Tools/Obsidian-QA-Export.ps1
+          -Clean
+          -OutputDir '.tmp/ci-qa-pwsh'
+          -BoundedGraph 'name=chapter-32,medium=novel,maxVolume=1,maxChapter=32'
+          -BoundedPage 'slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=32'
+          -Json
+
+  windows-powershell-validation:
+    name: Windows PowerShell 5.1 Validation
+    runs-on: windows-2022
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Install PowerShell requirements
+        run: |
+          $ErrorActionPreference = 'Stop'
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          foreach ($module in Get-Content -LiteralPath requirements-powershell.txt) {
+              $module = $module.Trim()
+              if ($module -and -not $module.StartsWith('#')) {
+                  Install-Module -Name $module -Repository PSGallery -Scope CurrentUser -Force -AllowClobber
+              }
+          }
+
+      - name: Check PowerShell formatting
+        run: ./Tools/Format-PowerShell.ps1
+
+      - name: Run framework conformance suites
+        run: |
+          ./Tools/Test-Temporal.ps1 -Json
+          ./Tools/Test-Chronology.ps1 -Json
+          ./Tools/Test-Reconciliation.ps1 -Json
+          ./Tools/Test-Occurrence.ps1 -Json
+
+      - name: Validate visualization projection
+        run: ./Visualization/visualize.ps1 -Mode Validate
+
+      - name: Run redirected QA smoke test
+        run: >-
+          ./Tools/Obsidian-QA-Export.ps1
+          -Clean
+          -OutputDir '.tmp/ci-qa-windows-powershell'
+          -BoundedGraph 'name=chapter-32,medium=novel,maxVolume=1,maxChapter=32'
+          -BoundedPage 'slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=32'
+          -Json
