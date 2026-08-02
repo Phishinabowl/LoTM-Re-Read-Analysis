@@ -468,7 +468,7 @@ python Tools\Conformance\run_conformance.py --profile baseline --json
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Conformance.ps1 -Profile baseline -Json
 ```
 
-The `baseline` profile runs every registered permanent suite and is the profile used by CI and framework-version validation. The smaller `fast` profile runs project-root, strict-ingestion, lookup-key, temporal, and chronology checks for quick local feedback; it is not a substitute for the baseline. Use repeatable Python `--suite` arguments or a PowerShell `-Suite` array for focused diagnosis, and use `--list` / `-List` to inspect the registered inventory and profiles.
+The `baseline` profile runs every registered permanent suite and is the profile used by CI and framework-version validation. The smaller `fast` profile runs project-root, strict-ingestion, lookup-key, schema-pack, temporal, and chronology checks for quick local feedback; it is not a substitute for the baseline. Schema-pack composition remains in `fast` because its small synthetic corpus diagnoses foundational capability and vocabulary failures before downstream registries obscure them. Use repeatable Python `--suite` arguments or a PowerShell `-Suite` array for focused diagnosis, and use `--list` / `-List` to inspect the registered inventory and profiles.
 
 ```powershell
 python Tools\Conformance\run_conformance.py --profile fast
@@ -514,6 +514,17 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Suites\Tes
 ```
 
 Use `--json` / `-Json` for parity-comparable corpus counts and the pinned Unicode version.
+
+## Schema-Pack Conformance
+
+Run the dedicated schema-pack suite after changing pack shape, dependency composition, capability lifecycle or activation, controlled-value ownership/hierarchy, or occurrence semantic declarations. Both implementations load the canonical project composition, then consume the independent three-pack fixture and 43 structured malformed mutations in `Framework/Data/Schema-Packs/`. A generated 64-pack composition provides a bounded scale check; all operating-system temporary data is removed automatically.
+
+```powershell
+python Tools\Conformance\Suites\test_schema_pack.py
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Suites\Test-Schema-Pack.ps1
+```
+
+Use `--json` / `-Json` for matching canonical, fixture, malformed-case, and scale counts across Python, PowerShell 7, and Windows PowerShell 5.1.
 
 ## Reconciliation Conformance
 

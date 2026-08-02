@@ -1,0 +1,38 @@
+{
+  "schema_version": 2,
+  "pack_id": "fixture-core",
+  "pack_version": 2,
+  "lifecycle": "active",
+  "pack_kind": "core",
+  "label": "Fixture Core",
+  "description": "Domain-neutral schema-pack composition fixture.",
+  "dependencies": [],
+  "capabilities": [
+    "shared-capability",
+    {
+      "id": "planned-capability",
+      "lifecycle": "planned",
+      "label": "Planned Capability",
+      "description": "Declared but unavailable and disabled."
+    },
+    {
+      "id": "deprecated-capability",
+      "lifecycle": "deprecated",
+      "label": "Deprecated Capability",
+      "description": "Available only for compatibility."
+    }
+  ],
+  "controlled_values": {
+    "fixture.kind": [
+      {"id": "root-kind", "label": "Root Kind"},
+      {"id": "child-kind", "label": "Child Kind", "broader_value": "root-kind"}
+    ],
+    "occurrence.rule-effect-kind": ["add-state", "set-state"],
+    "occurrence.rule-effect-kind-target-type": ["add-state-uses-subject", "set-state-uses-subject"],
+    "occurrence.rule-effect-repetition-policy": [
+      "add-state-uses-accumulating",
+      "set-state-uses-idempotent"
+    ],
+    "occurrence.rule-effect-global-incompatibility-pair": ["add-state-with-set-state"]
+  }
+}

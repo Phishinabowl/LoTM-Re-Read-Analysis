@@ -5,6 +5,7 @@
       "project-root",
       "strict-ingestion",
       "lookup-key",
+      "schema-pack",
       "temporal",
       "chronology"
     ],
@@ -12,6 +13,7 @@
       "project-root",
       "strict-ingestion",
       "lookup-key",
+      "schema-pack",
       "temporal",
       "chronology",
       "reconciliation",
@@ -36,6 +38,12 @@
       "python": "Tools/Conformance/Suites/test_lookup_key.py",
       "powershell": "Tools/Conformance/Suites/Test-Lookup-Key.ps1",
       "tags": ["baseline", "fast", "identity"]
+    },
+    {
+      "id": "schema-pack",
+      "python": "Tools/Conformance/Suites/test_schema_pack.py",
+      "powershell": "Tools/Conformance/Suites/Test-Schema-Pack.ps1",
+      "tags": ["baseline", "fast", "composition"]
     },
     {
       "id": "temporal",

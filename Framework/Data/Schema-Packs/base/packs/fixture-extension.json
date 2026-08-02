@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "pack_id": "fixture-extension",
+  "pack_version": 1,
+  "lifecycle": "deferred",
+  "pack_kind": "extension",
+  "label": "Fixture Extension",
+  "description": "Extension schema-pack composition fixture.",
+  "dependencies": [{"pack_id": "fixture-domain", "minimum_version": 3}],
+  "capabilities": [
+    {
+      "id": "extension-capability",
+      "lifecycle": "available",
+      "label": "Extension Capability"
+    }
+  ],
+  "controlled_values": {
+    "fixture.mode": ["extension-mode"]
+  }
+}

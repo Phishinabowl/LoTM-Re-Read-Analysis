@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "selected_packs": [
+    {"pack_id": "fixture-core", "path": "packs/fixture-core.json"},
+    {"pack_id": "fixture-domain", "path": "packs/fixture-domain.json"},
+    {"pack_id": "fixture-extension", "path": "packs/fixture-extension.json"}
+  ],
+  "capability_activation": {
+    "default": "disabled",
+    "enabled": [
+      "shared-capability",
+      "deprecated-capability",
+      "domain-capability",
+      "extension-capability"
+    ]
+  }
+}

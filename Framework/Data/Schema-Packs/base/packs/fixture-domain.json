@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "pack_id": "fixture-domain",
+  "pack_version": 3,
+  "lifecycle": "active",
+  "pack_kind": "domain",
+  "label": "Fixture Domain",
+  "description": "Domain schema-pack composition fixture.",
+  "dependencies": [{"pack_id": "fixture-core", "minimum_version": 2}],
+  "capabilities": ["shared-capability", "domain-capability"],
+  "controlled_values": {
+    "fixture.kind": [
+      {"id": "domain-kind", "label": "Domain Kind", "broader_value": "child-kind"}
+    ],
+    "fixture.mode": ["domain-mode"]
+  }
+}

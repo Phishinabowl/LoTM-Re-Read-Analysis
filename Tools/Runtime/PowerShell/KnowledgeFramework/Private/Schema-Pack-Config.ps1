@@ -457,13 +457,22 @@ function Get-KnowledgeSchemaPackRegistry {
 function Assert-SchemaPackOccurrenceSemanticDeclarations {
     param([System.Collections.IDictionary]$ControlledValues)
 
-    $effectKinds = @($ControlledValues['occurrence.rule-effect-kind'])
+    $effectKinds = @(
+        $ControlledValues['occurrence.rule-effect-kind'] |
+            Where-Object { $null -ne $_ }
+    )
     if ($effectKinds.Count -eq 0) {
         return
     }
-    $targetPairs = @($ControlledValues['occurrence.rule-effect-kind-target-type'])
+    $targetPairs = @(
+        $ControlledValues['occurrence.rule-effect-kind-target-type'] |
+            Where-Object { $null -ne $_ }
+    )
     $recurrenceEffects = @($effectKinds | Where-Object { $targetPairs -ccontains "$_-uses-recurrence-pattern" })
-    $scopeValues = @($ControlledValues['occurrence.rule-effect-pattern-scope'])
+    $scopeValues = @(
+        $ControlledValues['occurrence.rule-effect-pattern-scope'] |
+            Where-Object { $null -ne $_ }
+    )
     foreach ($value in $scopeValues) {
         $matches = @($recurrenceEffects | Where-Object { $value -ceq "$_-uses-owning-pattern" -or $value -ceq "$_-allows-external-pattern" })
         if ($matches.Count -ne 1) {
@@ -477,7 +486,10 @@ function Assert-SchemaPackOccurrenceSemanticDeclarations {
         }
     }
 
-    $repetitionValues = @($ControlledValues['occurrence.rule-effect-repetition-policy'])
+    $repetitionValues = @(
+        $ControlledValues['occurrence.rule-effect-repetition-policy'] |
+            Where-Object { $null -ne $_ }
+    )
     foreach ($value in $repetitionValues) {
         $matches = @($effectKinds | Where-Object { $value -in @("$_-uses-idempotent", "$_-uses-accumulating", "$_-uses-invalid") })
         if ($matches.Count -ne 1) {
