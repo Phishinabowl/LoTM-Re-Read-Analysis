@@ -140,9 +140,16 @@ jobs:
       - name: Reject unsafe QA output paths
         run: |
           foreach ($outputDir in @('.', '..\ci-output-escape')) {
-              pwsh -NoProfile -File ./Tools/Obsidian-QA-Export.ps1 -OutputDir $outputDir -Json *> $null
-              $unsafeExitCode = $LASTEXITCODE
-              $global:LASTEXITCODE = 0
+              $previousErrorActionPreference = $ErrorActionPreference
+              try {
+                  $ErrorActionPreference = 'SilentlyContinue'
+                  pwsh -NoProfile -File ./Tools/Obsidian-QA-Export.ps1 -OutputDir $outputDir -Json *> $null
+                  $unsafeExitCode = $LASTEXITCODE
+              }
+              finally {
+                  $ErrorActionPreference = $previousErrorActionPreference
+                  $global:LASTEXITCODE = 0
+              }
               if ($unsafeExitCode -eq 0) {
                   throw "QA exporter accepted unsafe output directory: $outputDir"
               }
@@ -196,9 +203,16 @@ jobs:
       - name: Reject unsafe QA output paths
         run: |
           foreach ($outputDir in @('.', '..\ci-output-escape')) {
-              powershell -NoProfile -ExecutionPolicy Bypass -File ./Tools/Obsidian-QA-Export.ps1 -OutputDir $outputDir -Json *> $null
-              $unsafeExitCode = $LASTEXITCODE
-              $global:LASTEXITCODE = 0
+              $previousErrorActionPreference = $ErrorActionPreference
+              try {
+                  $ErrorActionPreference = 'SilentlyContinue'
+                  powershell -NoProfile -ExecutionPolicy Bypass -File ./Tools/Obsidian-QA-Export.ps1 -OutputDir $outputDir -Json *> $null
+                  $unsafeExitCode = $LASTEXITCODE
+              }
+              finally {
+                  $ErrorActionPreference = $previousErrorActionPreference
+                  $global:LASTEXITCODE = 0
+              }
               if ($unsafeExitCode -eq 0) {
                   throw "QA exporter accepted unsafe output directory: $outputDir"
               }
