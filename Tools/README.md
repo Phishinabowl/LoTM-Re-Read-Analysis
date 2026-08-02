@@ -8,7 +8,7 @@ Paired validation and conformance commands that emit a human-readable summary al
 
 ## Environment Checks
 
-Use `Test-Python.ps1` to check whether Python is present and actually usable before selecting Python-preferred tools. It tests `python`, `python3`, and `py` in order, verifies that `--version` works, confirms that Python can report `sys.executable`, and checks repository Python requirements from `requirements-python.txt`.
+Use `Test-Python.ps1` to check whether Python is present and actually usable before selecting Python-preferred tools. It tests `python`, `python3`, and `py` in order, verifies that `--version` works, confirms that Python can report `sys.executable`, and checks repository Python requirements from `requirements-python.txt`, including Ruff for source formatting.
 
 Run this probe once for an unfamiliar machine or fresh agent session, then treat the result as the session's Python-availability state. If Python is available, use Python-preferred tools going forward without rerunning the probe before every command. Rerun only if the environment changes, such as PATH edits, Python installation changes, a different shell, a different machine, or a failed Python launch that suggests the earlier state is stale.
 
@@ -24,6 +24,26 @@ python -m pip install -r requirements-python.txt
 ```
 
 For the full candidate order, switch behavior, JSON fields, side effects, and latest local check note, see [Tooling Reference](TOOLING_REFERENCE.md#python-environment-check).
+
+## Python Source Formatting
+
+Ruff formats and checks every tracked or nonignored untracked `.py` or `.pyi` source anywhere in the Git worktree. `pyproject.toml` excludes Markdown code fences and owns the Python 3.10 compatibility target, 120-character line length, LF output, and formatting rules.
+
+Check formatting and line length without writing files:
+
+```powershell
+python -m ruff format --check .
+python -m ruff check .
+```
+
+Apply canonical formatting, then verify the remaining line-length gate:
+
+```powershell
+python -m ruff format .
+python -m ruff check .
+```
+
+Ruff handles deterministic mechanical layout. Manually split long strings, regexes, or report rows that the formatter cannot safely rewrite; do not suppress or weaken the line-length rule merely to make the check green. Gitignored local/generated Python files remain outside the default policy unless passed explicitly.
 
 If the probe reports Python unavailable, use the documented PowerShell fallback scripts for that session. If Python is available but a Python tool fails, treat that as a tool/script failure rather than silently falling back.
 

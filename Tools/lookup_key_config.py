@@ -61,10 +61,7 @@ class LookupKeyConfig:
         hangul_index = codepoint - HANGUL_S_BASE
         if 0 <= hangul_index < HANGUL_S_COUNT:
             output.append(HANGUL_L_BASE + hangul_index // HANGUL_N_COUNT)
-            output.append(
-                HANGUL_V_BASE
-                + (hangul_index % HANGUL_N_COUNT) // HANGUL_T_COUNT
-            )
+            output.append(HANGUL_V_BASE + (hangul_index % HANGUL_N_COUNT) // HANGUL_T_COUNT)
             trailing_index = hangul_index % HANGUL_T_COUNT
             if trailing_index:
                 output.append(HANGUL_T_BASE + trailing_index)
@@ -78,16 +75,12 @@ class LookupKeyConfig:
 
     def _reorder_combining_marks(self, codepoints: list[int]) -> None:
         for index in range(1, len(codepoints)):
-            combining_class = self.canonical_combining_class.get(
-                codepoints[index], 0
-            )
+            combining_class = self.canonical_combining_class.get(codepoints[index], 0)
             if combining_class == 0:
                 continue
             cursor = index
             while cursor > 0:
-                previous_class = self.canonical_combining_class.get(
-                    codepoints[cursor - 1], 0
-                )
+                previous_class = self.canonical_combining_class.get(codepoints[cursor - 1], 0)
                 if previous_class == 0 or previous_class <= combining_class:
                     break
                 codepoints[cursor - 1], codepoints[cursor] = (
@@ -101,16 +94,9 @@ class LookupKeyConfig:
         if 0 <= leading_index < HANGUL_L_COUNT:
             vowel_index = second - HANGUL_V_BASE
             if 0 <= vowel_index < HANGUL_V_COUNT:
-                return (
-                    HANGUL_S_BASE
-                    + (leading_index * HANGUL_V_COUNT + vowel_index)
-                    * HANGUL_T_COUNT
-                )
+                return HANGUL_S_BASE + (leading_index * HANGUL_V_COUNT + vowel_index) * HANGUL_T_COUNT
         syllable_index = first - HANGUL_S_BASE
-        if (
-            0 <= syllable_index < HANGUL_S_COUNT
-            and syllable_index % HANGUL_T_COUNT == 0
-        ):
+        if 0 <= syllable_index < HANGUL_S_COUNT and syllable_index % HANGUL_T_COUNT == 0:
             trailing_index = second - HANGUL_T_BASE
             if 0 < trailing_index < HANGUL_T_COUNT:
                 return first + trailing_index
@@ -126,10 +112,7 @@ class LookupKeyConfig:
         for codepoint in codepoints[1:]:
             combining_class = self.canonical_combining_class.get(codepoint, 0)
             composite = self._compose_pair(starter, codepoint)
-            if composite is not None and (
-                last_combining_class == 0
-                or last_combining_class < combining_class
-            ):
+            if composite is not None and (last_combining_class == 0 or last_combining_class < combining_class):
                 result[starter_position] = composite
                 starter = composite
                 continue
@@ -151,29 +134,19 @@ def _parse_codepoint(value: str, context: str) -> int:
     try:
         codepoint = int(value, 16)
     except (TypeError, ValueError) as exc:
-        raise ValueError(
-            f"Lookup-key registry `{context}` must be a hexadecimal code point."
-        ) from exc
-    if not 0 <= codepoint <= MAX_CODE_POINT or (
-        SURROGATE_START <= codepoint <= SURROGATE_END
-    ):
-        raise ValueError(
-            f"Lookup-key registry `{context}` is not a Unicode scalar value."
-        )
+        raise ValueError(f"Lookup-key registry `{context}` must be a hexadecimal code point.") from exc
+    if not 0 <= codepoint <= MAX_CODE_POINT or (SURROGATE_START <= codepoint <= SURROGATE_END):
+        raise ValueError(f"Lookup-key registry `{context}` is not a Unicode scalar value.")
     return codepoint
 
 
 def _parse_sequence(value: object, context: str) -> tuple[int, ...]:
     if not isinstance(value, list) or not value:
-        raise ValueError(
-            f"Lookup-key registry `{context}` must be a non-empty code-point list."
-        )
+        raise ValueError(f"Lookup-key registry `{context}` must be a non-empty code-point list.")
     result: list[int] = []
     for index, item in enumerate(value):
         if isinstance(item, bool) or not isinstance(item, int):
-            raise ValueError(
-                f"Lookup-key registry `{context}[{index}]` must be an integer."
-            )
+            raise ValueError(f"Lookup-key registry `{context}[{index}]` must be an integer.")
         _parse_codepoint(f"{item:X}", f"{context}[{index}]")
         result.append(item)
     return tuple(result)
@@ -187,50 +160,45 @@ def load_lookup_key_config(project: ProjectConfig) -> LookupKeyConfig:
         raise ValueError(f"Unable to parse lookup-key registry {path}: {exc}") from exc
     registry = _require_mapping(data, "root")
     unknown_root = set(registry) - {
-        "schema_version", "unicode_version", "algorithm", "trim_codepoints",
-        "case_folding", "canonical_decomposition", "canonical_combining_class",
-        "canonical_composition", "counts",
+        "schema_version",
+        "unicode_version",
+        "algorithm",
+        "trim_codepoints",
+        "case_folding",
+        "canonical_decomposition",
+        "canonical_combining_class",
+        "canonical_composition",
+        "counts",
     }
     if unknown_root:
         raise ValueError(
-            "Lookup-key registry root contains unsupported field(s): "
-            + ", ".join(sorted(map(str, unknown_root)))
-            + "."
+            "Lookup-key registry root contains unsupported field(s): " + ", ".join(sorted(map(str, unknown_root))) + "."
         )
     schema_version = registry.get("schema_version")
     if schema_version != SUPPORTED_LOOKUP_KEY_SCHEMA_VERSION:
         raise ValueError(
-            f"Unsupported lookup-key schema_version {schema_version!r}; "
-            f"expected {SUPPORTED_LOOKUP_KEY_SCHEMA_VERSION}."
+            f"Unsupported lookup-key schema_version {schema_version!r}; expected {SUPPORTED_LOOKUP_KEY_SCHEMA_VERSION}."
         )
     unicode_version = registry.get("unicode_version")
     if not isinstance(unicode_version, str) or not unicode_version.strip():
-        raise ValueError(
-            "Lookup-key registry `unicode_version` must be a non-empty string."
-        )
+        raise ValueError("Lookup-key registry `unicode_version` must be a non-empty string.")
     algorithm = registry.get("algorithm")
     if algorithm != SUPPORTED_LOOKUP_KEY_ALGORITHM:
         raise ValueError(
-            f"Unsupported lookup-key algorithm {algorithm!r}; "
-            f"expected {SUPPORTED_LOOKUP_KEY_ALGORITHM!r}."
+            f"Unsupported lookup-key algorithm {algorithm!r}; expected {SUPPORTED_LOOKUP_KEY_ALGORITHM!r}."
         )
 
     raw_trim = registry.get("trim_codepoints")
     if not isinstance(raw_trim, list):
-        raise ValueError(
-            "Lookup-key registry `trim_codepoints` must be a code-point list."
-        )
+        raise ValueError("Lookup-key registry `trim_codepoints` must be a code-point list.")
     trim_codepoints = frozenset(
-        _parse_sequence([item], f"trim_codepoints[{index}]")[0]
-        for index, item in enumerate(raw_trim)
+        _parse_sequence([item], f"trim_codepoints[{index}]")[0] for index, item in enumerate(raw_trim)
     )
 
     def parse_sequence_map(key: str) -> dict[int, tuple[int, ...]]:
         raw = _require_mapping(registry.get(key), key)
         return {
-            _parse_codepoint(source, f"{key}.{source}"): _parse_sequence(
-                target, f"{key}.{source}"
-            )
+            _parse_codepoint(source, f"{key}.{source}"): _parse_sequence(target, f"{key}.{source}")
             for source, target in raw.items()
         }
 
@@ -241,28 +209,17 @@ def load_lookup_key_config(project: ProjectConfig) -> LookupKeyConfig:
     combining_classes: dict[int, int] = {}
     for source, value in raw_classes.items():
         if isinstance(value, bool) or not isinstance(value, int) or not 0 < value <= 255:
-            raise ValueError(
-                "Lookup-key registry canonical combining classes must be "
-                "integers from 1 through 255."
-            )
-        combining_classes[
-            _parse_codepoint(source, f"canonical_combining_class.{source}")
-        ] = value
+            raise ValueError("Lookup-key registry canonical combining classes must be integers from 1 through 255.")
+        combining_classes[_parse_codepoint(source, f"canonical_combining_class.{source}")] = value
 
-    raw_composition = _require_mapping(
-        registry.get("canonical_composition"), "canonical_composition"
-    )
+    raw_composition = _require_mapping(registry.get("canonical_composition"), "canonical_composition")
     composition: dict[tuple[int, int], int] = {}
     for pair, value in raw_composition.items():
         parts = pair.split("+")
         if len(parts) != 2:
-            raise ValueError(
-                f"Lookup-key registry composition key `{pair}` must contain two code points."
-            )
+            raise ValueError(f"Lookup-key registry composition key `{pair}` must contain two code points.")
         if isinstance(value, bool) or not isinstance(value, int):
-            raise ValueError(
-                f"Lookup-key registry composition `{pair}` must target an integer code point."
-            )
+            raise ValueError(f"Lookup-key registry composition `{pair}` must target an integer code point.")
         composition[
             (
                 _parse_codepoint(parts[0], f"canonical_composition.{pair}"),
@@ -283,8 +240,10 @@ def load_lookup_key_config(project: ProjectConfig) -> LookupKeyConfig:
     )
     counts = _require_mapping(registry.get("counts"), "counts")
     unknown_counts = set(counts) - {
-        "case_folding", "canonical_decomposition",
-        "canonical_combining_class", "canonical_composition",
+        "case_folding",
+        "canonical_decomposition",
+        "canonical_combining_class",
+        "canonical_composition",
     }
     if unknown_counts:
         raise ValueError(
@@ -299,7 +258,5 @@ def load_lookup_key_config(project: ProjectConfig) -> LookupKeyConfig:
         "canonical_composition": len(config.canonical_composition),
     }
     if counts != actual_counts:
-        raise ValueError(
-            "Lookup-key registry declared counts do not match its mapping data."
-        )
+        raise ValueError("Lookup-key registry declared counts do not match its mapping data.")
     return config

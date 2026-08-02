@@ -40,14 +40,8 @@ def build_context(root: Path):
         providers.append(
             {
                 "provider_id": provider["provider_id"],
-                "targets": {
-                    target_type: dict(records)
-                    for target_type, records in provider["targets"].items()
-                },
-                "aliases": {
-                    target_type: dict(records)
-                    for target_type, records in provider["aliases"].items()
-                },
+                "targets": {target_type: dict(records) for target_type, records in provider["targets"].items()},
+                "aliases": {target_type: dict(records) for target_type, records in provider["aliases"].items()},
             }
         )
     taxonomy_provider = providers[0]
@@ -77,9 +71,7 @@ def normalized_resolution(resolution) -> dict:
 
 
 def load_at(project, packs, providers, path: Path):
-    return load_reconciliation_registry(
-        replace(project, reconciliation_registry=path), providers, packs
-    )
+    return load_reconciliation_registry(replace(project, reconciliation_registry=path), providers, packs)
 
 
 def deep_registry(depth: int) -> dict:
@@ -129,9 +121,7 @@ def main() -> int:
         "strict YAML fixture",
         expected_schema_version=1,
     )
-    expected_keys = {
-        "1", "true", "on", "dotted.key", "hyphen-key", "underscore_key"
-    }
+    expected_keys = {"1", "true", "on", "dotted.key", "hyphen-key", "underscore_key"}
     if set(mapping_keys["mapping_keys"]) != expected_keys or not all(
         type(key) is str for key in mapping_keys["mapping_keys"]
     ):
@@ -261,9 +251,7 @@ def main() -> int:
         else:
             raise AssertionError("UTF-8 scalar-byte budget did not reject two emoji.")
         try:
-            validate_yaml_source(
-                "value: 12\n", "test registry", budget_path, max_bytes=9
-            )
+            validate_yaml_source("value: 12\n", "test registry", budget_path, max_bytes=9)
         except ValueError:
             pass
         else:

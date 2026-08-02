@@ -736,9 +736,7 @@ class SourceRegistry:
 
     def provenance_targets(self) -> dict[str, dict[str, object]]:
         nested = {
-            "content-group-member": (
-                member for group in self.content_groups.values() for member in group.members
-            ),
+            "content-group-member": (member for group in self.content_groups.values() for member in group.members),
             "localized-title": (
                 title
                 for owner in (
@@ -751,16 +749,10 @@ class SourceRegistry:
                 )
                 for title in owner.localized_titles
             ),
-            "release-run-phase": (
-                phase for run in self.release_runs.values() for phase in run.phases
-            ),
-            "source-coverage": (
-                coverage for source in self.sources.values() for coverage in source.coverage
-            ),
+            "release-run-phase": (phase for run in self.release_runs.values() for phase in run.phases),
+            "source-coverage": (coverage for source in self.sources.values() for coverage in source.coverage),
             "source-observation": (
-                observation
-                for source in self.sources.values()
-                for observation in source.observations
+                observation for source in self.sources.values() for observation in source.observations
             ),
             "coverage-position-range": (
                 position_range
@@ -769,18 +761,14 @@ class SourceRegistry:
                 for position_range in coverage.position_ranges
             ),
             "authority-rule": (
-                rule
-                for profile in self.authority_profiles.values()
-                for rule in profile.claim_authority_rules
+                rule for profile in self.authority_profiles.values() for rule in profile.claim_authority_rules
             ),
         }
         nested = {key: tuple(records) for key, records in nested.items()}
         for subject_type, records in nested.items():
             record_ids = [record.id for record in records]
             if len(record_ids) != len(set(record_ids)):
-                raise ValueError(
-                    f"Source registry {subject_type} IDs must be unique across owners."
-                )
+                raise ValueError(f"Source registry {subject_type} IDs must be unique across owners.")
         return {
             "work": dict(self.works),
             "work-production-context": dict(self.work_production_contexts),
@@ -791,16 +779,10 @@ class SourceRegistry:
             "work-relationship": {item.id: item for item in self.work_relationships},
             "adaptation-mapping": {item.id: item for item in self.adaptation_mappings},
             "manifestation": dict(self.manifestations),
-            "manifestation-relationship": {
-                item.id: item for item in self.manifestation_relationships
-            },
-            "manifestation-segment-mapping": {
-                item.id: item for item in self.manifestation_segment_mappings
-            },
+            "manifestation-relationship": {item.id: item for item in self.manifestation_relationships},
+            "manifestation-segment-mapping": {item.id: item for item in self.manifestation_segment_mappings},
             "release-component": dict(self.release_components),
-            "release-component-relationship": {
-                item.id: item for item in self.release_component_relationships
-            },
+            "release-component-relationship": {item.id: item for item in self.release_component_relationships},
             "release-package": dict(self.release_packages),
             "release-run": dict(self.release_runs),
             "release-event": dict(self.release_events),
@@ -808,10 +790,7 @@ class SourceRegistry:
             "platform-offering": dict(self.platform_offerings),
             "source": dict(self.sources),
             "source-relationship": {item.id: item for item in self.source_relationships},
-            **{
-                subject_type: {record.id: record for record in records}
-                for subject_type, records in nested.items()
-            },
+            **{subject_type: {record.id: record for record in records} for subject_type, records in nested.items()},
         }
 
     def provenance_target(self, subject_type: str, subject_id: str) -> object:
@@ -824,14 +803,8 @@ class SourceRegistry:
 
     def resolve_source_id(self, value: str) -> str | None:
         normalized = self.lookup_keys.normalize(value)
-        if normalized in {
-            self.lookup_keys.normalize(source_id) for source_id in self.sources
-        }:
-            return next(
-                source_id
-                for source_id in self.sources
-                if self.lookup_keys.normalize(source_id) == normalized
-            )
+        if normalized in {self.lookup_keys.normalize(source_id) for source_id in self.sources}:
+            return next(source_id for source_id in self.sources if self.lookup_keys.normalize(source_id) == normalized)
         return self.source_aliases.get(normalized)
 
     def resolve_work_id(self, value: str) -> str | None:
@@ -841,18 +814,12 @@ class SourceRegistry:
                 return work_id
         return self.work_aliases.get(normalized)
 
-    def highest_precedence_scopes(
-        self, scope_ids: tuple[str, ...] | list[str]
-    ) -> tuple[ApplicabilityScope, ...]:
+    def highest_precedence_scopes(self, scope_ids: tuple[str, ...] | list[str]) -> tuple[ApplicabilityScope, ...]:
         if not scope_ids:
             raise ValueError("At least one applicability scope ID is required.")
         unknown = set(scope_ids) - set(self.applicability_scopes)
         if unknown:
-            raise ValueError(
-                "Unknown applicability scope IDs: "
-                + ", ".join(sorted(unknown))
-                + "."
-            )
+            raise ValueError("Unknown applicability scope IDs: " + ", ".join(sorted(unknown)) + ".")
         scopes = tuple(self.applicability_scopes[item] for item in scope_ids)
         highest = max(scope.precedence for scope in scopes)
         return tuple(scope for scope in scopes if scope.precedence == highest)
@@ -873,9 +840,7 @@ class SourceRegistry:
             raise ValueError("Applicability target type and ID are required.")
         if territory_id is not None:
             if not isinstance(territory_id, str):
-                raise ValueError(
-                    "Applicability territory ID must be a string or None."
-                )
+                raise ValueError("Applicability territory ID must be a string or None.")
             territory_id = territory_id.strip()
             if territory_id not in self.territories:
                 raise ValueError(f"Unknown territory `{territory_id}`.")
@@ -893,24 +858,16 @@ class SourceRegistry:
             )
             if target_match is None:
                 continue
-            territory_match = self._applicability_territory_match(
-                scope, territory_id
-            )
+            territory_match = self._applicability_territory_match(scope, territory_id)
             if territory_match is None:
                 continue
-            temporal_match = applicability_temporal_match(
-                scope.effective_window, effective_instant
-            )
+            temporal_match = applicability_temporal_match(scope.effective_window, effective_instant)
             if temporal_match is None:
                 continue
             matches.append(
                 ApplicabilityScopeMatch(
                     scope_id=scope.id,
-                    outcome=(
-                        "indeterminate"
-                        if temporal_match_is_indeterminate(temporal_match)
-                        else "applicable"
-                    ),
+                    outcome=("indeterminate" if temporal_match_is_indeterminate(temporal_match) else "applicable"),
                     target_match=target_match,
                     territory_match=territory_match,
                     temporal_match=temporal_match,
@@ -919,47 +876,29 @@ class SourceRegistry:
             )
 
         matches.sort(key=lambda item: (-item.precedence, item.scope_id))
-        applicable_matches = [
-            item for item in matches if item.outcome == "applicable"
-        ]
+        applicable_matches = [item for item in matches if item.outcome == "applicable"]
         highest = applicable_matches[0].precedence if applicable_matches else None
-        winners = tuple(
-            item.scope_id
-            for item in applicable_matches
-            if item.precedence == highest
-        )
+        winners = tuple(item.scope_id for item in applicable_matches if item.precedence == highest)
         return ApplicabilityDecision(
             target_type=target_type,
             target_id=target_id,
             territory_id=territory_id,
             effective_at=effective_label,
-            matching_scope_ids=tuple(
-                item.scope_id for item in applicable_matches
-            ),
-            indeterminate_scope_ids=tuple(
-                item.scope_id
-                for item in matches
-                if item.outcome == "indeterminate"
-            ),
+            matching_scope_ids=tuple(item.scope_id for item in applicable_matches),
+            indeterminate_scope_ids=tuple(item.scope_id for item in matches if item.outcome == "indeterminate"),
             winning_scope_ids=winners,
             highest_precedence=highest,
             ambiguous=len(winners) > 1,
             matches=tuple(matches),
         )
 
-    def _validate_applicability_query_target(
-        self, target_type: str, target_id: str
-    ) -> None:
+    def _validate_applicability_query_target(self, target_type: str, target_id: str) -> None:
         targets = {
             "work": self.works,
             "segment": self.segments,
             "content-group": self.content_groups,
-            "work-relationship": {
-                item.id: item for item in self.work_relationships
-            },
-            "adaptation-mapping": {
-                item.id: item for item in self.adaptation_mappings
-            },
+            "work-relationship": {item.id: item for item in self.work_relationships},
+            "adaptation-mapping": {item.id: item for item in self.adaptation_mappings},
             "manifestation": self.manifestations,
             "release-component": self.release_components,
             "release-package": self.release_packages,
@@ -967,9 +906,7 @@ class SourceRegistry:
         if target_type not in targets:
             raise ValueError(f"Unknown applicability target type `{target_type}`.")
         if target_id not in targets[target_type]:
-            raise ValueError(
-                f"Unknown {target_type} applicability target `{target_id}`."
-            )
+            raise ValueError(f"Unknown {target_type} applicability target `{target_id}`.")
 
     def _segment_is_within(self, segment_id: str, ancestor_id: str) -> bool:
         current_id: str | None = segment_id
@@ -987,19 +924,13 @@ class SourceRegistry:
         if target_type == "content-group":
             result: set[str] = set()
             for member in self.content_groups[target_id].members:
-                result.update(
-                    self._target_work_ids(member.target_type, member.target_id)
-                )
+                result.update(self._target_work_ids(member.target_type, member.target_id))
             return result
         if target_type == "work-relationship":
-            item = next(
-                item for item in self.work_relationships if item.id == target_id
-            )
+            item = next(item for item in self.work_relationships if item.id == target_id)
             return {item.source_work_id}
         if target_type == "adaptation-mapping":
-            item = next(
-                item for item in self.adaptation_mappings if item.id == target_id
-            )
+            item = next(item for item in self.adaptation_mappings if item.id == target_id)
             return {item.target_work_id}
         if target_type == "manifestation":
             return {self.manifestations[target_id].work_id}
@@ -1015,52 +946,35 @@ class SourceRegistry:
             for manifestation_id in package.manifestation_ids:
                 result.add(self.manifestations[manifestation_id].work_id)
             for component_id in package.release_component_ids:
-                result.update(
-                    self._target_work_ids("release-component", component_id)
-                )
+                result.update(self._target_work_ids("release-component", component_id))
             return result
         return set()
 
     def target_work_ids(self, target_type: str, target_id: str) -> set[str]:
         return self._target_work_ids(target_type, target_id)
 
-    def _target_is_within_segment(
-        self, target_type: str, target_id: str, segment_id: str
-    ) -> bool:
+    def _target_is_within_segment(self, target_type: str, target_id: str, segment_id: str) -> bool:
         if target_type == "segment":
             return self._segment_is_within(target_id, segment_id)
         if target_type == "content-group":
             members = self.content_groups[target_id].members
             return bool(members) and all(
-                self._target_is_within_segment(
-                    member.target_type, member.target_id, segment_id
-                )
-                for member in members
+                self._target_is_within_segment(member.target_type, member.target_id, segment_id) for member in members
             )
         if target_type == "adaptation-mapping":
-            mapping = next(
-                item for item in self.adaptation_mappings if item.id == target_id
-            )
+            mapping = next(item for item in self.adaptation_mappings if item.id == target_id)
             return bool(mapping.target_segment_ids) and all(
-                self._segment_is_within(item, segment_id)
-                for item in mapping.target_segment_ids
+                self._segment_is_within(item, segment_id) for item in mapping.target_segment_ids
             )
         if target_type == "manifestation":
             segment_ids = self.manifestations[target_id].segment_ids
-            return bool(segment_ids) and all(
-                self._segment_is_within(item, segment_id) for item in segment_ids
-            )
+            return bool(segment_ids) and all(self._segment_is_within(item, segment_id) for item in segment_ids)
         if target_type == "release-component":
             component = self.release_components[target_id]
             if component.segment_ids:
-                return all(
-                    self._segment_is_within(item, segment_id)
-                    for item in component.segment_ids
-                )
+                return all(self._segment_is_within(item, segment_id) for item in component.segment_ids)
             if component.manifestation_id is not None:
-                return self._target_is_within_segment(
-                    "manifestation", component.manifestation_id, segment_id
-                )
+                return self._target_is_within_segment("manifestation", component.manifestation_id, segment_id)
         return False
 
     def _content_group_contains(
@@ -1082,13 +996,16 @@ class SourceRegistry:
                     return True
                 current.extend(self.content_groups[candidate].parent_group_ids)
         for member in self.content_groups[group_id].members:
-            if self._applicability_target_match(
-                member.target_type,
-                member.target_id,
-                target_type,
-                target_id,
-                active,
-            ) is not None:
+            if (
+                self._applicability_target_match(
+                    member.target_type,
+                    member.target_id,
+                    target_type,
+                    target_id,
+                    active,
+                )
+                is not None
+            ):
                 return True
         return False
 
@@ -1112,41 +1029,23 @@ class SourceRegistry:
             work_ids = self._target_work_ids(target_type, target_id)
             return "contained" if work_ids == {scope_id} else None
         if scope_type == "segment":
-            return (
-                "contained"
-                if self._target_is_within_segment(target_type, target_id, scope_id)
-                else None
-            )
+            return "contained" if self._target_is_within_segment(target_type, target_id, scope_id) else None
         if scope_type == "content-group":
-            return (
-                "contained"
-                if self._content_group_contains(
-                    scope_id, target_type, target_id, active
-                )
-                else None
-            )
+            return "contained" if self._content_group_contains(scope_id, target_type, target_id, active) else None
         if scope_type == "manifestation" and target_type == "release-component":
             component = self.release_components[target_id]
             return "contained" if component.manifestation_id == scope_id else None
         if scope_type == "release-package":
             package = self.release_packages[scope_id]
-            if (
-                target_type == "manifestation"
-                and target_id in package.manifestation_ids
-            ):
+            if target_type == "manifestation" and target_id in package.manifestation_ids:
                 return "contained"
-            if (
-                target_type == "release-component"
-                and target_id in package.release_component_ids
-            ):
+            if target_type == "release-component" and target_id in package.release_component_ids:
                 return "contained"
             if target_type == "segment" and target_id in package.segment_ids:
                 return "contained"
         return None
 
-    def _applicability_territory_match(
-        self, scope: ApplicabilityScope, territory_id: str | None
-    ) -> str | None:
+    def _applicability_territory_match(self, scope: ApplicabilityScope, territory_id: str | None) -> str | None:
         if not scope.territory_ids:
             return "unspecified"
         if territory_id is None:
@@ -1174,18 +1073,13 @@ class SourceRegistry:
         profile = self.authority_profiles[profile_id]
         source = self.sources[source_id]
         if evidence_mode is not None and evidence_mode not in source.evidence_modes:
-            raise ValueError(
-                f"Evidence mode `{evidence_mode}` is not declared by source "
-                f"`{source_id}`."
-            )
+            raise ValueError(f"Evidence mode `{evidence_mode}` is not declared by source `{source_id}`.")
         applicable_namespaces = self.claim_namespace_ancestors[claim_namespace]
         matches = [
             rule
             for rule in profile.claim_authority_rules
             if rule.claim_namespace in applicable_namespaces
-            and authority_rule_matches_source(
-                rule, source, evidence_mode, self.evidence_mode_ancestors
-            )
+            and authority_rule_matches_source(rule, source, evidence_mode, self.evidence_mode_ancestors)
         ]
         if not matches:
             return AuthorityDecision(
@@ -1201,9 +1095,7 @@ class SourceRegistry:
                 True,
             )
         winning_precedence = max(rule.precedence for rule in matches)
-        winners = [
-            rule for rule in matches if rule.precedence == winning_precedence
-        ]
+        winners = [rule for rule in matches if rule.precedence == winning_precedence]
         if len(winners) > 1:
             raise ValueError(
                 f"Authority profile `{profile_id}` has ambiguous precedence "
@@ -1213,9 +1105,7 @@ class SourceRegistry:
         winner = winners[0]
         claim_namespace_inherited = winner.claim_namespace != claim_namespace
         evidence_mode_inherited = (
-            evidence_mode is not None
-            and bool(winner.evidence_modes)
-            and evidence_mode not in winner.evidence_modes
+            evidence_mode is not None and bool(winner.evidence_modes) and evidence_mode not in winner.evidence_modes
         )
         return AuthorityDecision(
             source.id,
@@ -1237,9 +1127,7 @@ class SourceRegistry:
         source_id: str,
         evidence_mode: str | None = None,
     ) -> int:
-        return self.authority_decision(
-            profile_id, claim_namespace, source_id, evidence_mode
-        ).rank
+        return self.authority_decision(profile_id, claim_namespace, source_id, evidence_mode).rank
 
     def compare_authority(
         self,
@@ -1256,32 +1144,17 @@ class SourceRegistry:
             AuthorityCandidateDecision(
                 candidate_id,
                 None,
-                self.authority_decision(
-                    profile_id, claim_namespace, source_id, evidence_mode
-                ),
+                self.authority_decision(profile_id, claim_namespace, source_id, evidence_mode),
             )
             for candidate_id, source_id, evidence_mode in candidates
         )
-        comparison_groups = {
-            self.sources[item.decision.source_id].comparison_group
-            for item in decisions
-        }
+        comparison_groups = {self.sources[item.decision.source_id].comparison_group for item in decisions}
         if len(comparison_groups) != 1:
-            return AuthorityComparison(
-                "incomparable", profile_id, claim_namespace, None, (), decisions
-            )
+            return AuthorityComparison("incomparable", profile_id, claim_namespace, None, (), decisions)
         profile = self.authority_profiles[profile_id]
         ranks = [item.decision.rank for item in decisions]
-        best_rank = (
-            min(ranks)
-            if profile.source_priority_order == "ascending"
-            else max(ranks)
-        )
-        winners = tuple(
-            item.candidate_id
-            for item in decisions
-            if item.decision.rank == best_rank
-        )
+        best_rank = min(ranks) if profile.source_priority_order == "ascending" else max(ranks)
+        winners = tuple(item.candidate_id for item in decisions if item.decision.rank == best_rank)
         return AuthorityComparison(
             "winner" if len(winners) == 1 else "tie",
             profile_id,
@@ -1290,6 +1163,7 @@ class SourceRegistry:
             winners,
             decisions,
         )
+
 
 def authority_rule_matches_source(
     rule: AuthorityRule,
@@ -1306,10 +1180,7 @@ def authority_rule_matches_source(
         (not rule.source_ids or source.id in rule.source_ids)
         and (not rule.source_roles or source.role in rule.source_roles)
         and (not rule.medium_ids or source.medium_id in rule.medium_ids)
-        and (
-            not rule.evidence_modes
-            or any(mode in rule.evidence_modes for mode in applicable_modes)
-        )
+        and (not rule.evidence_modes or any(mode in rule.evidence_modes for mode in applicable_modes))
     )
 
 
@@ -1335,9 +1206,7 @@ def require_bool(mapping: dict, key: str, context: str) -> bool:
 
 def require_string_list(mapping: dict, key: str, context: str) -> tuple[str, ...]:
     value = mapping.get(key)
-    if not isinstance(value, list) or any(
-        not isinstance(item, str) or not item.strip() for item in value
-    ):
+    if not isinstance(value, list) or any(not isinstance(item, str) or not item.strip() for item in value):
         raise ValueError(f"Source registry `{context}.{key}` must be a list of strings.")
     return tuple(item.strip() for item in value)
 
@@ -1347,17 +1216,13 @@ def optional_string(mapping: dict, key: str, context: str) -> str | None:
     if value is None:
         return None
     if not isinstance(value, str) or not value.strip():
-        raise ValueError(
-            f"Source registry `{context}.{key}` must be a non-empty string when present."
-        )
+        raise ValueError(f"Source registry `{context}.{key}` must be a non-empty string when present.")
     return value.strip()
 
 
 def validate_language_tag(value: str, context: str) -> None:
     if not LANGUAGE_TAG_PATTERN.fullmatch(value):
-        raise ValueError(
-            f"Source registry `{context}` must be a BCP-47-style language tag: {value}"
-        )
+        raise ValueError(f"Source registry `{context}` must be a BCP-47-style language tag: {value}")
 
 
 def parse_localized_titles(
@@ -1367,9 +1232,7 @@ def parse_localized_titles(
 ) -> tuple[LocalizedTitle, ...]:
     raw_titles = mapping.get("localized_titles", [])
     if not isinstance(raw_titles, list):
-        raise ValueError(
-            f"Source registry `{context}.localized_titles` must be a list."
-        )
+        raise ValueError(f"Source registry `{context}.localized_titles` must be a list.")
     titles: list[LocalizedTitle] = []
     seen_ids: set[str] = set()
     scope_windows: dict[
@@ -1381,15 +1244,23 @@ def parse_localized_titles(
         value = require_mapping(raw_title, title_context)
         assert_allowed_keys(
             value,
-            {"id", "language_tag", "territory_ids", "title", "title_type", "status", "is_primary", "romanization_scheme", "valid_window"},
+            {
+                "id",
+                "language_tag",
+                "territory_ids",
+                "title",
+                "title_type",
+                "status",
+                "is_primary",
+                "romanization_scheme",
+                "valid_window",
+            },
             f"Source registry `{title_context}`",
         )
         title_id = require_string(value, "id", title_context)
         validate_id(title_id, f"{title_context}.id")
         if title_id in seen_ids:
-            raise ValueError(
-                f"Source registry `{context}.localized_titles` repeats ID `{title_id}`."
-            )
+            raise ValueError(f"Source registry `{context}.localized_titles` repeats ID `{title_id}`.")
         seen_ids.add(title_id)
         language_tag = require_string(value, "language_tag", title_context)
         validate_language_tag(language_tag, f"{title_context}.language_tag")
@@ -1408,25 +1279,17 @@ def parse_localized_titles(
             (status,),
             f"{title_context}.status",
         )
-        romanization_scheme = optional_string(
-            value, "romanization_scheme", title_context
-        )
+        romanization_scheme = optional_string(value, "romanization_scheme", title_context)
         scope = (
             language_tag.casefold(),
             tuple(sorted(territory_ids)),
             title_type,
             romanization_scheme,
         )
-        valid_window = parse_temporal_window(
-            value, "valid_window", title_context, schema_packs
-        )
-        if any(
-            temporal_windows_overlap(valid_window, existing)
-            for existing in scope_windows.get(scope, [])
-        ):
+        valid_window = parse_temporal_window(value, "valid_window", title_context, schema_packs)
+        if any(temporal_windows_overlap(valid_window, existing) for existing in scope_windows.get(scope, [])):
             raise ValueError(
-                f"Source registry `{context}.localized_titles` has overlapping "
-                "validity windows in one locale scope."
+                f"Source registry `{context}.localized_titles` has overlapping validity windows in one locale scope."
             )
         scope_windows.setdefault(scope, []).append(valid_window)
         titles.append(
@@ -1447,9 +1310,7 @@ def parse_localized_titles(
 
 def validate_id(value: str, context: str) -> None:
     if not STABLE_ID_PATTERN.fullmatch(value):
-        raise ValueError(
-            f"Source registry `{context}` must be a lowercase kebab-case stable ID: {value}"
-        )
+        raise ValueError(f"Source registry `{context}` must be a lowercase kebab-case stable ID: {value}")
 
 
 def validate_position_values(
@@ -1469,17 +1330,12 @@ def validate_position_values(
         elif field_type == "boolean":
             valid = isinstance(value, bool)
         if not valid:
-            raise ValueError(
-                f"Source registry `{context}.{field_id}` must match position "
-                f"field type `{field_type}`."
-            )
+            raise ValueError(f"Source registry `{context}.{field_id}` must match position field type `{field_type}`.")
 
 
 def validate_field_id(value: str, context: str) -> None:
     if not FIELD_ID_PATTERN.fullmatch(value):
-        raise ValueError(
-            f"Source registry `{context}` must be a lowercase snake_case field ID: {value}"
-        )
+        raise ValueError(f"Source registry `{context}` must be a lowercase snake_case field ID: {value}")
 
 
 def validate_pack_values(
@@ -1491,8 +1347,7 @@ def validate_pack_values(
     allowed = set(schema_packs.allowed_values(namespace))
     if not allowed:
         raise ValueError(
-            f"Selected schema packs do not provide controlled namespace "
-            f"`{namespace}` required by `{context}`."
+            f"Selected schema packs do not provide controlled namespace `{namespace}` required by `{context}`."
         )
     unknown = set(values) - allowed
     if unknown:
@@ -1502,9 +1357,7 @@ def validate_pack_values(
         )
 
 
-def controlled_value_ancestors(
-    schema_packs: SchemaPackRegistry, namespace: str
-) -> dict[str, tuple[str, ...]]:
+def controlled_value_ancestors(schema_packs: SchemaPackRegistry, namespace: str) -> dict[str, tuple[str, ...]]:
     ancestors: dict[str, tuple[str, ...]] = {}
     for value in schema_packs.allowed_values(namespace):
         lineage = [value]
@@ -1546,29 +1399,17 @@ def compare_positions(
             and field_id == validation.segment_field
         ):
             if ordering_schemes is None:
-                raise ValueError(
-                    f"Source registry `{context}` requires ordering schemes for "
-                    "segment comparison."
-                )
+                raise ValueError(f"Source registry `{context}` requires ordering schemes for segment comparison.")
             scheme_field = validation.ordering_scheme_field
             if left[scheme_field] != right[scheme_field]:
-                raise ValueError(
-                    f"Source registry `{context}` range endpoints must use the "
-                    "same ordering scheme."
-                )
+                raise ValueError(f"Source registry `{context}` range endpoints must use the same ordering scheme.")
             scheme = ordering_schemes[str(left[scheme_field])]
-            entry_ordinals = {
-                entry.target_id: entry.ordinal for entry in scheme.entries
-            }
+            entry_ordinals = {entry.target_id: entry.ordinal for entry in scheme.entries}
             left_value = entry_ordinals[str(left[field_id])]
             right_value = entry_ordinals[str(right[field_id])]
         else:
-            left_value = position_sort_value(
-                left[field_id], medium.fields[field_id]
-            )
-            right_value = position_sort_value(
-                right[field_id], medium.fields[field_id]
-            )
+            left_value = position_sort_value(left[field_id], medium.fields[field_id])
+            right_value = position_sort_value(right[field_id], medium.fields[field_id])
         if left_value < right_value:
             return -1
         if left_value > right_value:
@@ -1594,14 +1435,10 @@ def validate_structural_position(
         scheme_id = str(position[validation.ordering_scheme_field])
         if segment_id not in segments:
             raise ValueError(
-                f"Source registry `{context}.{validation.segment_field}` references "
-                f"unknown segment `{segment_id}`."
+                f"Source registry `{context}.{validation.segment_field}` references unknown segment `{segment_id}`."
             )
         if segments[segment_id].work_id != work_id:
-            raise ValueError(
-                f"Source registry `{context}` assigns segment `{segment_id}` to "
-                f"the wrong work."
-            )
+            raise ValueError(f"Source registry `{context}` assigns segment `{segment_id}` to the wrong work.")
         if scheme_id not in ordering_schemes:
             raise ValueError(
                 f"Source registry `{context}.{validation.ordering_scheme_field}` "
@@ -1609,39 +1446,27 @@ def validate_structural_position(
             )
         scheme = ordering_schemes[scheme_id]
         if scheme.ordering_mode != "total":
+            raise ValueError(f"Source registry `{context}` requires a total ordering scheme.")
+        if not any(entry.target_type == "segment" and entry.target_id == segment_id for entry in scheme.entries):
             raise ValueError(
-                f"Source registry `{context}` requires a total ordering scheme."
-            )
-        if not any(
-            entry.target_type == "segment" and entry.target_id == segment_id
-            for entry in scheme.entries
-        ):
-            raise ValueError(
-                f"Source registry `{context}` segment `{segment_id}` is absent "
-                f"from ordering scheme `{scheme_id}`."
+                f"Source registry `{context}` segment `{segment_id}` is absent from ordering scheme `{scheme_id}`."
             )
         return
     if validation.strategy != "work-volume-catalog":
         raise ValueError(
-            f"Source registry `{context}` uses unsupported structural validation "
-            f"strategy `{validation.strategy}`."
+            f"Source registry `{context}` uses unsupported structural validation strategy `{validation.strategy}`."
         )
     if work.volume_catalog_status != "verified":
         return
     ordinal = position[validation.ordinal_field]
-    matching_volumes = [
-        volume
-        for volume in work.volumes
-        if volume.chapter_start <= ordinal <= volume.chapter_end
-    ]
+    matching_volumes = [volume for volume in work.volumes if volume.chapter_start <= ordinal <= volume.chapter_end]
     if not matching_volumes:
         raise ValueError(
             f"Source registry `{context}.{validation.ordinal_field}` falls outside "
             f"the verified volume catalog for work `{work_id}`."
         )
     if validation.partition_field in position and all(
-        volume.number != position[validation.partition_field]
-        for volume in matching_volumes
+        volume.number != position[validation.partition_field] for volume in matching_volumes
     ):
         raise ValueError(
             f"Source registry `{context}` assigns {validation.ordinal_field} "
@@ -1659,40 +1484,28 @@ def validate_source_position(
     context: str,
 ) -> None:
     if not position:
-        raise ValueError(
-            f"Source registry `{context}` must be a non-empty mapping."
-        )
+        raise ValueError(f"Source registry `{context}` must be a non-empty mapping.")
     unknown_fields = set(position) - set(medium.fields)
     if unknown_fields:
         raise ValueError(
-            f"Source registry `{context}` references unknown position fields: "
-            f"{', '.join(sorted(unknown_fields))}."
+            f"Source registry `{context}` references unknown position fields: {', '.join(sorted(unknown_fields))}."
         )
     missing_fields = set(medium.required_fields) - set(position)
     if missing_fields:
         raise ValueError(
-            f"Source registry `{context}` omits required position fields: "
-            f"{', '.join(sorted(missing_fields))}."
+            f"Source registry `{context}` omits required position fields: {', '.join(sorted(missing_fields))}."
         )
     validate_position_values(position, medium.fields, context)
     scope_field = medium.work_scope_field
     if position[scope_field] not in source_work_ids:
-        raise ValueError(
-            f"Source registry `{context}` falls outside the evidence source work "
-            "scope."
-        )
-    validate_structural_position(
-        position, medium, works, segments, ordering_schemes, context
-    )
+        raise ValueError(f"Source registry `{context}` falls outside the evidence source work scope.")
+    validate_structural_position(position, medium, works, segments, ordering_schemes, context)
 
 
 def parse_lifecycle(mapping: dict, context: str) -> str:
     lifecycle = require_string(mapping, "lifecycle", context)
     if lifecycle not in LIFECYCLES:
-        raise ValueError(
-            f"Source registry `{context}.lifecycle` must be one of: "
-            f"{', '.join(sorted(LIFECYCLES))}."
-        )
+        raise ValueError(f"Source registry `{context}.lifecycle` must be one of: {', '.join(sorted(LIFECYCLES))}.")
     return lifecycle
 
 
@@ -1770,23 +1583,35 @@ def parse_work(
     work = require_mapping(raw_work, context)
     assert_allowed_keys(
         work,
-        {"lifecycle", "label", "short_label", "parent_work_id", "work_type", "medium_id", "release_form_id", "work_status", "aliases", "localized_titles", "group_memberships", "continuity_memberships", "chapter_numbering", "volume_catalog_status", "volumes"},
+        {
+            "lifecycle",
+            "label",
+            "short_label",
+            "parent_work_id",
+            "work_type",
+            "medium_id",
+            "release_form_id",
+            "work_status",
+            "aliases",
+            "localized_titles",
+            "group_memberships",
+            "continuity_memberships",
+            "chapter_numbering",
+            "volume_catalog_status",
+            "volumes",
+        },
         f"Source registry `{context}`",
     )
     lifecycle = parse_lifecycle(work, context)
     medium_id = require_string(work, "medium_id", context)
     if medium_id not in mediums:
-        raise ValueError(
-            f"Source registry `{context}.medium_id` references unknown medium "
-            f"`{medium_id}`."
-        )
+        raise ValueError(f"Source registry `{context}.medium_id` references unknown medium `{medium_id}`.")
     work_type = require_string(work, "work_type", context)
     validate_id(work_type, f"{context}.work_type")
     release_form_id = require_string(work, "release_form_id", context)
     if release_form_id not in release_forms:
         raise ValueError(
-            f"Source registry `{context}.release_form_id` references unknown release "
-            f"form `{release_form_id}`."
+            f"Source registry `{context}.release_form_id` references unknown release form `{release_form_id}`."
         )
     work_status = require_string(work, "work_status", context)
     validate_id(work_status, f"{context}.work_status")
@@ -1807,9 +1632,7 @@ def parse_work(
         validate_id(alias, f"{context}.aliases")
     raw_group_memberships = work.get("group_memberships")
     if not isinstance(raw_group_memberships, list) or not raw_group_memberships:
-        raise ValueError(
-            f"Source registry `{context}.group_memberships` must be a non-empty list."
-        )
+        raise ValueError(f"Source registry `{context}.group_memberships` must be a non-empty list.")
     group_memberships: list[WorkGroupMembership] = []
     seen_groups: set[str] = set()
     for index, raw_membership in enumerate(raw_group_memberships):
@@ -1819,13 +1642,10 @@ def parse_work(
         group_id = require_string(membership, "group_id", membership_context)
         if group_id not in work_groups:
             raise ValueError(
-                f"Source registry `{membership_context}.group_id` references "
-                f"unknown work group `{group_id}`."
+                f"Source registry `{membership_context}.group_id` references unknown work group `{group_id}`."
             )
         if group_id in seen_groups:
-            raise ValueError(
-                f"Source registry `{context}` repeats work group `{group_id}`."
-            )
+            raise ValueError(f"Source registry `{context}` repeats work group `{group_id}`.")
         seen_groups.add(group_id)
         role = require_string(membership, "role", membership_context)
         validate_id(role, f"{membership_context}.role")
@@ -1838,18 +1658,12 @@ def parse_work(
                     "positive integer for an ordered work group."
                 )
         elif ordinal is not None:
-            raise ValueError(
-                f"Source registry `{membership_context}.ordinal` is only valid for "
-                "ordered work groups."
-            )
+            raise ValueError(f"Source registry `{membership_context}.ordinal` is only valid for ordered work groups.")
         group_memberships.append(WorkGroupMembership(group_id, role, ordinal))
 
     raw_continuity_memberships = work.get("continuity_memberships")
     if not isinstance(raw_continuity_memberships, list) or not raw_continuity_memberships:
-        raise ValueError(
-            f"Source registry `{context}.continuity_memberships` must be a "
-            "non-empty list."
-        )
+        raise ValueError(f"Source registry `{context}.continuity_memberships` must be a non-empty list.")
     continuity_memberships: list[ContinuityMembership] = []
     seen_continuities: set[str] = set()
     for index, raw_membership in enumerate(raw_continuity_memberships):
@@ -1859,13 +1673,10 @@ def parse_work(
         continuity_id = require_string(membership, "continuity_id", membership_context)
         if continuity_id not in continuities:
             raise ValueError(
-                f"Source registry `{membership_context}.continuity_id` references "
-                f"unknown continuity `{continuity_id}`."
+                f"Source registry `{membership_context}.continuity_id` references unknown continuity `{continuity_id}`."
             )
         if continuity_id in seen_continuities:
-            raise ValueError(
-                f"Source registry `{context}` repeats continuity `{continuity_id}`."
-            )
+            raise ValueError(f"Source registry `{context}` repeats continuity `{continuity_id}`.")
         seen_continuities.add(continuity_id)
         status = require_string(membership, "status", membership_context)
         if status not in membership_statuses:
@@ -1879,22 +1690,20 @@ def parse_work(
         raise ValueError(f"Source registry `{context}.volumes` must be a list.")
     raw_volumes = work["volumes"]
     if volume_status == "verified" and not raw_volumes:
-        raise ValueError(
-            f"Source registry verified work `{work_id}` requires volume records."
-        )
+        raise ValueError(f"Source registry verified work `{work_id}` requires volume records.")
     volumes: list[VolumeConfig] = []
     volume_ids: set[str] = set()
     volume_numbers: set[int] = set()
     for index, raw_volume in enumerate(raw_volumes):
         volume_context = f"{context}.volumes[{index}]"
         volume = require_mapping(raw_volume, volume_context)
-        assert_allowed_keys(volume, {"id", "number", "label", "chapter_start", "chapter_end"}, f"Source registry `{volume_context}`")
+        assert_allowed_keys(
+            volume, {"id", "number", "label", "chapter_start", "chapter_end"}, f"Source registry `{volume_context}`"
+        )
         volume_id = require_string(volume, "id", volume_context)
         validate_id(volume_id, f"{volume_context}.id")
         if volume_id in volume_ids:
-            raise ValueError(
-                f"Source registry `{volume_context}.id` duplicates `{volume_id}`."
-            )
+            raise ValueError(f"Source registry `{volume_context}.id` duplicates `{volume_id}`.")
         volume_ids.add(volume_id)
         number = volume.get("number")
         chapter_start = volume.get("chapter_start")
@@ -1905,19 +1714,12 @@ def parse_work(
             ("chapter_end", chapter_end),
         ):
             if isinstance(value, bool) or not isinstance(value, int) or value < 1:
-                raise ValueError(
-                    f"Source registry `{volume_context}.{field_name}` must be a "
-                    "positive integer."
-                )
+                raise ValueError(f"Source registry `{volume_context}.{field_name}` must be a positive integer.")
         if number in volume_numbers:
-            raise ValueError(
-                f"Source registry `{context}` duplicates volume number {number}."
-            )
+            raise ValueError(f"Source registry `{context}` duplicates volume number {number}.")
         volume_numbers.add(number)
         if chapter_end < chapter_start:
-            raise ValueError(
-                f"Source registry `{volume_context}` chapter range is reversed."
-            )
+            raise ValueError(f"Source registry `{volume_context}` chapter range is reversed.")
         volumes.append(
             VolumeConfig(
                 id=volume_id,
@@ -1931,15 +1733,11 @@ def parse_work(
     if volume_status == "verified":
         for expected_number, volume in enumerate(sorted_volumes, start=1):
             if volume.number != expected_number:
-                raise ValueError(
-                    f"Source registry `{context}` verified volume numbers must be "
-                    "contiguous from 1."
-                )
+                raise ValueError(f"Source registry `{context}` verified volume numbers must be contiguous from 1.")
         for previous, current in zip(sorted_volumes, sorted_volumes[1:]):
             if current.chapter_start != previous.chapter_end + 1:
                 raise ValueError(
-                    f"Source registry `{context}` verified chapter ranges must be "
-                    "contiguous and non-overlapping."
+                    f"Source registry `{context}` verified chapter ranges must be contiguous and non-overlapping."
                 )
     return WorkConfig(
         id=work_id,
@@ -1979,15 +1777,10 @@ def parse_medium(
     )
     lifecycle = require_string(medium, "lifecycle", context)
     if lifecycle not in LIFECYCLES:
-        raise ValueError(
-            f"Source registry `{context}.lifecycle` must be one of: "
-            f"{', '.join(sorted(LIFECYCLES))}."
-        )
+        raise ValueError(f"Source registry `{context}.lifecycle` must be one of: {', '.join(sorted(LIFECYCLES))}.")
     modality_ids = require_string_list(medium, "modality_ids", context)
     if not modality_ids:
-        raise ValueError(
-            f"Source registry `{context}.modality_ids` must not be empty."
-        )
+        raise ValueError(f"Source registry `{context}.modality_ids` must not be empty.")
     unknown_modalities = set(modality_ids) - set(media_modalities)
     if unknown_modalities:
         raise ValueError(
@@ -2028,13 +1821,10 @@ def parse_medium(
                 f"{', '.join(sorted(POSITION_FIELD_TYPES))}."
             )
         fields[field_id] = field_type
-    work_scope_field = require_string(
-        position, "work_scope_field", f"{context}.position"
-    )
+    work_scope_field = require_string(position, "work_scope_field", f"{context}.position")
     if work_scope_field not in fields or fields[work_scope_field] != "string":
         raise ValueError(
-            f"Source registry `{context}.position.work_scope_field` must reference "
-            "a configured string position field."
+            f"Source registry `{context}.position.work_scope_field` must reference a configured string position field."
         )
     required_fields = require_string_list(
         position,
@@ -2044,16 +1834,13 @@ def parse_medium(
     sort_fields = require_string_list(position, "sort_fields", f"{context}.position")
     if work_scope_field not in required_fields:
         raise ValueError(
-            f"Source registry `{context}.position.work_scope_field` must also be "
-            "listed in required_fields."
+            f"Source registry `{context}.position.work_scope_field` must also be listed in required_fields."
         )
     structural_validation = None
     raw_structural_validation = position.get("structural_validation")
     if raw_structural_validation is not None:
         validation_context = f"{context}.position.structural_validation"
-        validation = require_mapping(
-            raw_structural_validation, validation_context
-        )
+        validation = require_mapping(raw_structural_validation, validation_context)
         assert_allowed_keys(
             validation,
             {"strategy", "partition_field", "ordinal_field", "segment_field", "ordering_scheme_field"},
@@ -2071,31 +1858,22 @@ def parse_medium(
         segment_field = None
         ordering_scheme_field = None
         if strategy == "work-volume-catalog":
-            partition_field = require_string(
-                validation, "partition_field", validation_context
-            )
-            ordinal_field = require_string(
-                validation, "ordinal_field", validation_context
-            )
+            partition_field = require_string(validation, "partition_field", validation_context)
+            ordinal_field = require_string(validation, "ordinal_field", validation_context)
             configured_fields = (
                 ("partition_field", partition_field, "integer"),
                 ("ordinal_field", ordinal_field, "integer"),
             )
         elif strategy == "work-segment-ordering":
-            segment_field = require_string(
-                validation, "segment_field", validation_context
-            )
-            ordering_scheme_field = require_string(
-                validation, "ordering_scheme_field", validation_context
-            )
+            segment_field = require_string(validation, "segment_field", validation_context)
+            ordering_scheme_field = require_string(validation, "ordering_scheme_field", validation_context)
             configured_fields = (
                 ("segment_field", segment_field, "string"),
                 ("ordering_scheme_field", ordering_scheme_field, "string"),
             )
         else:
             raise ValueError(
-                f"Source registry `{validation_context}.strategy` is not "
-                f"implemented by this loader: `{strategy}`."
+                f"Source registry `{validation_context}.strategy` is not implemented by this loader: `{strategy}`."
             )
         for field_name, field_id, field_type in configured_fields:
             if field_id not in fields or fields[field_id] != field_type:
@@ -2105,19 +1883,15 @@ def parse_medium(
                 )
         ordered_field = ordinal_field or segment_field
         required_validation_fields = (
-            {ordinal_field}
-            if strategy == "work-volume-catalog"
-            else {segment_field, ordering_scheme_field}
+            {ordinal_field} if strategy == "work-volume-catalog" else {segment_field, ordering_scheme_field}
         )
         if ordered_field not in sort_fields:
             raise ValueError(
-                f"Source registry `{validation_context}` ordered field must also "
-                "be listed in sort_fields."
+                f"Source registry `{validation_context}` ordered field must also be listed in sort_fields."
             )
         if not required_validation_fields.issubset(required_fields):
             raise ValueError(
-                f"Source registry `{validation_context}` structural fields must "
-                "be listed in required_fields."
+                f"Source registry `{validation_context}` structural fields must be listed in required_fields."
             )
         structural_validation = PositionStructuralValidation(
             strategy,
@@ -2139,10 +1913,7 @@ def parse_medium(
 
     raw_formats = position.get("citation_formats")
     if not isinstance(raw_formats, list) or not raw_formats:
-        raise ValueError(
-            f"Source registry `{context}.position.citation_formats` must be a "
-            "non-empty list."
-        )
+        raise ValueError(f"Source registry `{context}.position.citation_formats` must be a non-empty list.")
     citation_formats: list[CitationFormat] = []
     seen_format_ids: set[str] = set()
     for index, raw_format in enumerate(raw_formats):
@@ -2152,9 +1923,7 @@ def parse_medium(
         format_id = require_string(citation, "id", format_context)
         validate_id(format_id, f"{format_context}.id")
         if format_id in seen_format_ids:
-            raise ValueError(
-                f"Source registry `{format_context}.id` duplicates `{format_id}`."
-            )
+            raise ValueError(f"Source registry `{format_context}.id` duplicates `{format_id}`.")
         seen_format_ids.add(format_id)
         template = require_string(citation, "template", format_context)
         citation_required = require_string_list(
@@ -2162,16 +1931,9 @@ def parse_medium(
             "required_fields",
             format_context,
         )
-        placeholders = {
-            field_name
-            for _, field_name, _, _ in Formatter().parse(template)
-            if field_name is not None
-        }
+        placeholders = {field_name for _, field_name, _, _ in Formatter().parse(template) if field_name is not None}
         if placeholders != set(citation_required):
-            raise ValueError(
-                f"Source registry `{format_context}` template placeholders must match "
-                "`required_fields`."
-            )
+            raise ValueError(f"Source registry `{format_context}` template placeholders must match `required_fields`.")
         unknown = placeholders - set(fields)
         if unknown:
             raise ValueError(
@@ -2217,21 +1979,15 @@ def resolve_resource_binding(
     validate_id(resource_type_id, f"{context}.resource_type_id")
     if resource_type_id not in resources.types:
         raise ValueError(
-            f"Source registry `{context}.resource_type_id` references unknown resource "
-            f"type `{resource_type_id}`."
+            f"Source registry `{context}.resource_type_id` references unknown resource type `{resource_type_id}`."
         )
     root_id = require_string(binding, "root_id", context)
     validate_id(root_id, f"{context}.root_id")
     roots = {root.id: root for root in project.resource_roots}
     if root_id not in roots:
-        raise ValueError(
-            f"Source registry `{context}.root_id` references unknown resource root "
-            f"`{root_id}`."
-        )
+        raise ValueError(f"Source registry `{context}.root_id` references unknown resource root `{root_id}`.")
     allowed_placements = tuple(
-        placement
-        for placement in resources.types[resource_type_id].placements
-        if placement.root_id == root_id
+        placement for placement in resources.types[resource_type_id].placements if placement.root_id == root_id
     )
     allowed_roots = {placement.root_id for placement in allowed_placements}
     if root_id not in allowed_roots:
@@ -2242,20 +1998,15 @@ def resolve_resource_binding(
     relative_path_value = require_string(binding, "relative_path", context)
     relative_path = Path(relative_path_value)
     if relative_path.is_absolute():
-        raise ValueError(
-            f"Source registry `{context}.relative_path` must be relative: "
-            f"{relative_path_value}"
-        )
+        raise ValueError(f"Source registry `{context}.relative_path` must be relative: {relative_path_value}")
     root_path = roots[root_id].path.resolve()
     path = (root_path / relative_path).resolve()
     if path != root_path and root_path not in path.parents:
         raise ValueError(
-            f"Source registry `{context}.relative_path` escapes resource root "
-            f"`{root_id}`: {relative_path_value}"
+            f"Source registry `{context}.relative_path` escapes resource root `{root_id}`: {relative_path_value}"
         )
     if not any(
-        path == placement.path.resolve() or placement.path.resolve() in path.parents
-        for placement in allowed_placements
+        path == placement.path.resolve() or placement.path.resolve() in path.parents for placement in allowed_placements
     ):
         raise ValueError(
             f"Source registry `{context}` path is outside every configured "
@@ -2278,40 +2029,196 @@ SOURCE_RECORD_FIELDS: dict[str, set[str]] = {
     "work_groups": {"lifecycle", "label", "short_label", "group_type", "parent_group_id"},
     "continuities": {"lifecycle", "label", "short_label", "continuity_type", "aliases"},
     "continuity_relationships": {"id", "source_continuity_id", "relationship_type", "target_continuity_id", "status"},
-    "authority_profiles": {"lifecycle", "label", "continuity_order", "accepted_membership_statuses", "source_priority_order", "comparison_work_relationship_types", "cross_source_conflict", "derivative_deviation_owner", "preserve_source_scoped_claims", "claim_authority_rules"},
+    "authority_profiles": {
+        "lifecycle",
+        "label",
+        "continuity_order",
+        "accepted_membership_statuses",
+        "source_priority_order",
+        "comparison_work_relationship_types",
+        "cross_source_conflict",
+        "derivative_deviation_owner",
+        "preserve_source_scoped_claims",
+        "claim_authority_rules",
+    },
     "segments": {"work_id", "parent_segment_id", "segment_type", "label", "aliases", "localized_titles", "ordinal"},
-    "content_groups": {"lifecycle", "label", "group_type", "members", "parent_group_ids", "ordering_scheme_id", "localized_titles", "aliases"},
+    "content_groups": {
+        "lifecycle",
+        "label",
+        "group_type",
+        "members",
+        "parent_group_ids",
+        "ordering_scheme_id",
+        "localized_titles",
+        "aliases",
+    },
     "numbering_schemes": {"lifecycle", "label", "target_type", "scope_type", "scope_id", "entries"},
     "ordering_schemes": {"label", "ordering_type", "ordering_mode", "entries"},
-    "work_relationships": {"id", "source_work_id", "relationship_type", "target_work_id", "continuity_ids", "status", "applicability_scope_id"},
+    "work_relationships": {
+        "id",
+        "source_work_id",
+        "relationship_type",
+        "target_work_id",
+        "continuity_ids",
+        "status",
+        "applicability_scope_id",
+    },
     "adaptation_mappings": {"id", "basis_inputs", "target_work_id", "target_segment_ids", "mapping_type", "status"},
     "territories": {"lifecycle", "label", "territory_type", "parent_territory_id", "codes"},
     "applicability_scopes": {"id", "target_type", "target_id", "territory_ids", "effective_window", "precedence"},
     "scoped_continuity_assertions": {"id", "applicability_scope_id", "continuity_id", "status"},
-    "work_production_contexts": {"id", "work_id", "production_origin", "authorization_status", "rights_basis", "commerciality", "applicability_scope_id"},
+    "work_production_contexts": {
+        "id",
+        "work_id",
+        "production_origin",
+        "authorization_status",
+        "rights_basis",
+        "commerciality",
+        "applicability_scope_id",
+    },
     "platforms": {"lifecycle", "label", "platform_type", "aliases"},
-    "manifestations": {"lifecycle", "label", "work_id", "segment_ids", "manifestation_type", "language_tags", "territory_ids", "container_format_ids", "localized_titles", "aliases"},
-    "manifestation_relationships": {"id", "source_manifestation_id", "relationship_type", "target_manifestation_id", "status"},
-    "manifestation_segment_mappings": {"id", "source_manifestation_id", "source_segment_ids", "target_manifestation_id", "target_segment_ids", "mapping_type", "status"},
+    "manifestations": {
+        "lifecycle",
+        "label",
+        "work_id",
+        "segment_ids",
+        "manifestation_type",
+        "language_tags",
+        "territory_ids",
+        "container_format_ids",
+        "localized_titles",
+        "aliases",
+    },
+    "manifestation_relationships": {
+        "id",
+        "source_manifestation_id",
+        "relationship_type",
+        "target_manifestation_id",
+        "status",
+    },
+    "manifestation_segment_mappings": {
+        "id",
+        "source_manifestation_id",
+        "source_segment_ids",
+        "target_manifestation_id",
+        "target_segment_ids",
+        "mapping_type",
+        "status",
+    },
     "release_components": {"lifecycle", "label", "manifestation_id", "component_type", "segment_ids", "language_tag"},
     "release_component_relationships": {"id", "source_component_id", "relationship_type", "target_component_id"},
-    "release_packages": {"lifecycle", "label", "package_type", "manifestation_ids", "segment_ids", "release_component_ids", "container_format_ids", "localized_titles", "aliases"},
-    "release_runs": {"lifecycle", "label", "subject_type", "subject_id", "segment_ids", "ordering_scheme_id", "release_event_type", "phases", "territory_ids", "platform_ids", "availability_status", "exceptions"},
-    "release_events": {"lifecycle", "label", "subject_type", "subject_id", "segment_ids", "release_event_type", "release_window", "territory_ids", "platform_ids", "availability_status", "release_run_id"},
-    "catalog_placements": {"lifecycle", "label", "platform_id", "placement_type", "parent_placement_id", "target_type", "target_id", "ordinal", "provider_key", "localized_titles"},
-    "platform_offerings": {"lifecycle", "label", "platform_id", "subject_type", "subject_id", "segment_ids", "release_event_id", "offering_type", "availability_status", "territory_ids", "language_tags", "availability_window", "catalog_placement_ids"},
+    "release_packages": {
+        "lifecycle",
+        "label",
+        "package_type",
+        "manifestation_ids",
+        "segment_ids",
+        "release_component_ids",
+        "container_format_ids",
+        "localized_titles",
+        "aliases",
+    },
+    "release_runs": {
+        "lifecycle",
+        "label",
+        "subject_type",
+        "subject_id",
+        "segment_ids",
+        "ordering_scheme_id",
+        "release_event_type",
+        "phases",
+        "territory_ids",
+        "platform_ids",
+        "availability_status",
+        "exceptions",
+    },
+    "release_events": {
+        "lifecycle",
+        "label",
+        "subject_type",
+        "subject_id",
+        "segment_ids",
+        "release_event_type",
+        "release_window",
+        "territory_ids",
+        "platform_ids",
+        "availability_status",
+        "release_run_id",
+    },
+    "catalog_placements": {
+        "lifecycle",
+        "label",
+        "platform_id",
+        "placement_type",
+        "parent_placement_id",
+        "target_type",
+        "target_id",
+        "ordinal",
+        "provider_key",
+        "localized_titles",
+    },
+    "platform_offerings": {
+        "lifecycle",
+        "label",
+        "platform_id",
+        "subject_type",
+        "subject_id",
+        "segment_ids",
+        "release_event_id",
+        "offering_type",
+        "availability_status",
+        "territory_ids",
+        "language_tags",
+        "availability_window",
+        "catalog_placement_ids",
+    },
     "identifier_schemes": {"lifecycle", "label", "target_types", "case_sensitive"},
-    "sources": {"lifecycle", "label", "work_ids", "manifestation_id", "release_package_id", "release_event_id", "release_component_ids", "platform_offering_id", "medium_id", "locator_medium_ids", "container_format_ids", "role", "comparison_group", "priority", "aliases", "evidence_modes", "observations", "coverage", "resource_bindings"},
+    "sources": {
+        "lifecycle",
+        "label",
+        "work_ids",
+        "manifestation_id",
+        "release_package_id",
+        "release_event_id",
+        "release_component_ids",
+        "platform_offering_id",
+        "medium_id",
+        "locator_medium_ids",
+        "container_format_ids",
+        "role",
+        "comparison_group",
+        "priority",
+        "aliases",
+        "evidence_modes",
+        "observations",
+        "coverage",
+        "resource_bindings",
+    },
     "source_relationships": {"id", "source_source_id", "relationship_type", "target_source_id"},
-    "external_identifiers": {"id", "scheme_id", "target_type", "target_id", "value", "territory_ids", "language_tag", "status"},
+    "external_identifiers": {
+        "id",
+        "scheme_id",
+        "target_type",
+        "target_id",
+        "value",
+        "territory_ids",
+        "language_tag",
+        "status",
+    },
 }
 
 SOURCE_LIST_REGISTRIES = {
-    "continuity_relationships", "work_relationships", "adaptation_mappings",
-    "applicability_scopes", "scoped_continuity_assertions",
-    "work_production_contexts", "manifestation_relationships",
-    "manifestation_segment_mappings", "release_component_relationships",
-    "source_relationships", "external_identifiers",
+    "continuity_relationships",
+    "work_relationships",
+    "adaptation_mappings",
+    "applicability_scopes",
+    "scoped_continuity_assertions",
+    "work_production_contexts",
+    "manifestation_relationships",
+    "manifestation_segment_mappings",
+    "release_component_relationships",
+    "source_relationships",
+    "external_identifiers",
 }
 
 
@@ -2331,15 +2238,36 @@ def assert_source_registry_shapes(registry: dict) -> None:
                 )
 
     nested_shapes = (
-        ("authority_profiles", "claim_authority_rules", {"id", "claim_namespace", "precedence", "source_ids", "source_roles", "medium_ids", "evidence_modes", "rank"}),
+        (
+            "authority_profiles",
+            "claim_authority_rules",
+            {
+                "id",
+                "claim_namespace",
+                "precedence",
+                "source_ids",
+                "source_roles",
+                "medium_ids",
+                "evidence_modes",
+                "rank",
+            },
+        ),
         ("content_groups", "members", {"id", "target_type", "target_id", "role"}),
         ("numbering_schemes", "entries", {"target_id", "display_number", "aliases"}),
         ("ordering_schemes", "entries", {"id", "target_type", "target_id", "ordinal", "after_entry_ids"}),
         ("adaptation_mappings", "basis_inputs", {"work_id", "segment_ids", "basis_role"}),
-        ("release_runs", "phases", {"id", "segment_ids", "first_release_window", "cadence_unit", "cadence_interval", "batch_size"}),
+        (
+            "release_runs",
+            "phases",
+            {"id", "segment_ids", "first_release_window", "cadence_unit", "cadence_interval", "batch_size"},
+        ),
         ("release_runs", "exceptions", {"exception_type", "segment_id", "release_window", "interval_count"}),
         ("sources", "observations", {"id", "target_type", "target_id"}),
-        ("sources", "coverage", {"id", "target_type", "target_id", "coverage_type", "medium_id", "evidence_modes", "position_ranges"}),
+        (
+            "sources",
+            "coverage",
+            {"id", "target_type", "target_id", "coverage_type", "medium_id", "evidence_modes", "position_ranges"},
+        ),
         ("sources", "resource_bindings", {"resource_type_id", "root_id", "relative_path", "required"}),
     )
     for registry_name, field_name, allowed_fields in nested_shapes:
@@ -2356,13 +2284,20 @@ def assert_source_registry_shapes(registry: dict) -> None:
                 continue
             for index, child in enumerate(children):
                 if isinstance(child, dict):
-                    assert_allowed_keys(child, allowed_fields, f"Source registry `{registry_name}.{parent_id}.{field_name}[{index}]`")
+                    assert_allowed_keys(
+                        child, allowed_fields, f"Source registry `{registry_name}.{parent_id}.{field_name}[{index}]`"
+                    )
                 if field_name == "coverage" and isinstance(child, dict):
                     ranges = child.get("position_ranges")
                     if isinstance(ranges, list):
                         for range_index, position_range in enumerate(ranges):
                             if isinstance(position_range, dict):
-                                assert_allowed_keys(position_range, {"id", "start", "end"}, f"Source registry `{registry_name}.{parent_id}.coverage[{index}].position_ranges[{range_index}]`")
+                                assert_allowed_keys(
+                                    position_range,
+                                    {"id", "start", "end"},
+                                    f"Source registry `{registry_name}.{parent_id}.coverage[{index}]"
+                                    f".position_ranges[{range_index}]`",
+                                )
 
 
 def load_source_registry(
@@ -2373,45 +2308,75 @@ def load_source_registry(
     if schema_packs is None:
         schema_packs = load_schema_pack_registry(project)
     lookup_keys = load_lookup_key_config(project)
-    allowed_source_roles = set(
-        schema_packs.allowed_values("source.source-role")
-    )
+    allowed_source_roles = set(schema_packs.allowed_values("source.source-role"))
     if not allowed_source_roles:
         raise ValueError(
             "Selected schema packs do not provide controlled namespace "
             "`source.source-role` required by `sources.*.role`."
         )
-    membership_statuses = set(
-        schema_packs.allowed_values("source.membership-status")
-    )
+    membership_statuses = set(schema_packs.allowed_values("source.membership-status"))
     if not membership_statuses:
         raise ValueError(
             "Selected schema packs do not provide controlled namespace "
             "`source.membership-status` required by continuity memberships and "
             "relationship statuses."
         )
-    claim_namespace_ancestors = controlled_value_ancestors(
-        schema_packs, "provenance.claim-namespace"
-    )
+    claim_namespace_ancestors = controlled_value_ancestors(schema_packs, "provenance.claim-namespace")
     if not claim_namespace_ancestors:
-        raise ValueError(
-            "Selected schema packs do not provide controlled namespace "
-            "`provenance.claim-namespace`."
-        )
-    evidence_mode_ancestors = controlled_value_ancestors(
-        schema_packs, "provenance.evidence-mode"
-    )
+        raise ValueError("Selected schema packs do not provide controlled namespace `provenance.claim-namespace`.")
+    evidence_mode_ancestors = controlled_value_ancestors(schema_packs, "provenance.evidence-mode")
     if not evidence_mode_ancestors:
-        raise ValueError(
-            "Selected schema packs do not provide controlled namespace "
-            "`provenance.evidence-mode`."
-        )
-    data = load_yaml_file(project.sources_registry, "source registry", expected_schema_version=SUPPORTED_SOURCE_SCHEMA_VERSION)
+        raise ValueError("Selected schema packs do not provide controlled namespace `provenance.evidence-mode`.")
+    data = load_yaml_file(
+        project.sources_registry, "source registry", expected_schema_version=SUPPORTED_SOURCE_SCHEMA_VERSION
+    )
     registry = require_mapping(data, "root")
     assert_allowed_keys(
         registry,
         {
-            "schema_version", "default_authority_profile_id", "media_modalities", "cultural_forms", "release_forms", "container_formats", "mediums", "work_group_types", "work_groups", "continuities", "continuity_relationship_types", "continuity_relationships", "authority_profiles", "work_relationship_types", "works", "segments", "content_groups", "numbering_schemes", "ordering_schemes", "work_relationships", "adaptation_mappings", "territories", "applicability_scopes", "scoped_continuity_assertions", "work_production_contexts", "platforms", "manifestation_relationship_types", "manifestations", "manifestation_relationships", "manifestation_segment_mappings", "release_components", "release_component_relationship_types", "release_component_relationships", "release_packages", "release_runs", "release_events", "catalog_placements", "platform_offerings", "identifier_schemes", "source_relationship_types", "sources", "source_relationships", "external_identifiers"
+            "schema_version",
+            "default_authority_profile_id",
+            "media_modalities",
+            "cultural_forms",
+            "release_forms",
+            "container_formats",
+            "mediums",
+            "work_group_types",
+            "work_groups",
+            "continuities",
+            "continuity_relationship_types",
+            "continuity_relationships",
+            "authority_profiles",
+            "work_relationship_types",
+            "works",
+            "segments",
+            "content_groups",
+            "numbering_schemes",
+            "ordering_schemes",
+            "work_relationships",
+            "adaptation_mappings",
+            "territories",
+            "applicability_scopes",
+            "scoped_continuity_assertions",
+            "work_production_contexts",
+            "platforms",
+            "manifestation_relationship_types",
+            "manifestations",
+            "manifestation_relationships",
+            "manifestation_segment_mappings",
+            "release_components",
+            "release_component_relationship_types",
+            "release_component_relationships",
+            "release_packages",
+            "release_runs",
+            "release_events",
+            "catalog_placements",
+            "platform_offerings",
+            "identifier_schemes",
+            "source_relationship_types",
+            "sources",
+            "source_relationships",
+            "external_identifiers",
         },
         "Source registry root",
     )
@@ -2419,21 +2384,16 @@ def load_source_registry(
     schema_version = registry.get("schema_version")
     if schema_version != SUPPORTED_SOURCE_SCHEMA_VERSION:
         raise ValueError(
-            f"Unsupported source schema_version {schema_version!r}; "
-            f"expected {SUPPORTED_SOURCE_SCHEMA_VERSION}."
+            f"Unsupported source schema_version {schema_version!r}; expected {SUPPORTED_SOURCE_SCHEMA_VERSION}."
         )
-    media_modalities = parse_labeled_registry(
-        registry.get("media_modalities"), "media_modalities"
-    )
+    media_modalities = parse_labeled_registry(registry.get("media_modalities"), "media_modalities")
     validate_pack_values(
         schema_packs,
         "source.media-modality",
         media_modalities,
         "media_modalities",
     )
-    raw_cultural_forms = require_mapping(
-        registry.get("cultural_forms"), "cultural_forms"
-    )
+    raw_cultural_forms = require_mapping(registry.get("cultural_forms"), "cultural_forms")
     cultural_forms: dict[str, CulturalFormConfig] = {}
     for cultural_form_id, raw_cultural_form in raw_cultural_forms.items():
         context = f"cultural_forms.{cultural_form_id}"
@@ -2443,8 +2403,7 @@ def load_source_registry(
         modality_id = require_string(cultural_form, "modality_id", context)
         if modality_id not in media_modalities:
             raise ValueError(
-                f"Source registry `{context}.modality_id` references unknown media "
-                f"modality `{modality_id}`."
+                f"Source registry `{context}.modality_id` references unknown media modality `{modality_id}`."
             )
         cultural_forms[cultural_form_id] = CulturalFormConfig(
             id=cultural_form_id,
@@ -2457,18 +2416,14 @@ def load_source_registry(
         cultural_forms,
         "cultural_forms",
     )
-    release_forms = parse_labeled_registry(
-        registry.get("release_forms"), "release_forms"
-    )
+    release_forms = parse_labeled_registry(registry.get("release_forms"), "release_forms")
     validate_pack_values(
         schema_packs,
         "source.release-form",
         release_forms,
         "release_forms",
     )
-    container_formats = parse_labeled_registry(
-        registry.get("container_formats"), "container_formats"
-    )
+    container_formats = parse_labeled_registry(registry.get("container_formats"), "container_formats")
     validate_pack_values(
         schema_packs,
         "source.container-format",
@@ -2486,13 +2441,9 @@ def load_source_registry(
         )
         for medium_id, raw_medium in raw_mediums.items()
     }
-    validate_pack_values(
-        schema_packs, "source.medium", mediums, "mediums"
-    )
+    validate_pack_values(schema_packs, "source.medium", mediums, "mediums")
 
-    raw_group_types = require_mapping(
-        registry.get("work_group_types"), "work_group_types"
-    )
+    raw_group_types = require_mapping(registry.get("work_group_types"), "work_group_types")
     work_group_types: dict[str, WorkGroupTypeConfig] = {}
     for type_id, raw_type in raw_group_types.items():
         context = f"work_group_types.{type_id}"
@@ -2517,12 +2468,15 @@ def load_source_registry(
         context = f"work_groups.{group_id}"
         validate_id(group_id, context)
         group = require_mapping(raw_group, context)
-        assert_allowed_keys(group, {"lifecycle", "label", "short_label", "group_type", "parent_group_id"}, f"Source registry `{context}`")
+        assert_allowed_keys(
+            group,
+            {"lifecycle", "label", "short_label", "group_type", "parent_group_id"},
+            f"Source registry `{context}`",
+        )
         group_type = require_string(group, "group_type", context)
         if group_type not in work_group_types:
             raise ValueError(
-                f"Source registry `{context}.group_type` references unknown work "
-                f"group type `{group_type}`."
+                f"Source registry `{context}.group_type` references unknown work group type `{group_type}`."
             )
         parent_group_id = str(group.get("parent_group_id", "")).strip() or None
         work_groups[group_id] = WorkGroupConfig(
@@ -2547,10 +2501,7 @@ def load_source_registry(
 
     def visit_group(group_id: str, active: set[str]) -> None:
         if group_id in active:
-            raise ValueError(
-                f"Source registry contains a work-group parent cycle involving "
-                f"`{group_id}`."
-            )
+            raise ValueError(f"Source registry contains a work-group parent cycle involving `{group_id}`.")
         if group_id in complete_groups:
             return
         active.add(group_id)
@@ -2566,14 +2517,16 @@ def load_source_registry(
     raw_continuities = require_mapping(registry.get("continuities"), "continuities")
     continuities: dict[str, ContinuityConfig] = {}
     continuity_aliases: set[str] = set()
-    continuity_id_keys = {
-        lookup_keys.normalize(continuity_id) for continuity_id in raw_continuities
-    }
+    continuity_id_keys = {lookup_keys.normalize(continuity_id) for continuity_id in raw_continuities}
     for continuity_id, raw_continuity in raw_continuities.items():
         context = f"continuities.{continuity_id}"
         validate_id(continuity_id, context)
         continuity = require_mapping(raw_continuity, context)
-        assert_allowed_keys(continuity, {"lifecycle", "label", "short_label", "continuity_type", "aliases"}, f"Source registry `{context}`")
+        assert_allowed_keys(
+            continuity,
+            {"lifecycle", "label", "short_label", "continuity_type", "aliases"},
+            f"Source registry `{context}`",
+        )
         continuity_type = require_string(continuity, "continuity_type", context)
         validate_id(continuity_type, f"{context}.continuity_type")
         aliases = require_string_list(continuity, "aliases", context)
@@ -2582,8 +2535,7 @@ def load_source_registry(
             alias_key = lookup_keys.normalize(alias)
             if alias_key in continuity_aliases or alias_key in continuity_id_keys:
                 raise ValueError(
-                    f"Source registry continuity alias `{alias}` is duplicated or "
-                    "collides with a continuity ID."
+                    f"Source registry continuity alias `{alias}` is duplicated or collides with a continuity ID."
                 )
             continuity_aliases.add(alias_key)
         continuities[continuity_id] = ContinuityConfig(
@@ -2632,59 +2584,43 @@ def load_source_registry(
 
     raw_continuity_relationships = registry.get("continuity_relationships")
     if not isinstance(raw_continuity_relationships, list):
-        raise ValueError(
-            "Source registry `continuity_relationships` must be a list."
-        )
+        raise ValueError("Source registry `continuity_relationships` must be a list.")
     continuity_relationships: list[ContinuityRelationship] = []
     seen_relationship_ids: set[str] = set()
     for index, raw_relationship in enumerate(raw_continuity_relationships):
         context = f"continuity_relationships[{index}]"
         relationship = require_mapping(raw_relationship, context)
-        assert_allowed_keys(relationship, {"id", "source_continuity_id", "target_continuity_id", "relationship_type", "status"}, f"Source registry `{context}`")
+        assert_allowed_keys(
+            relationship,
+            {"id", "source_continuity_id", "target_continuity_id", "relationship_type", "status"},
+            f"Source registry `{context}`",
+        )
         relationship_id = require_string(relationship, "id", context)
         validate_id(relationship_id, f"{context}.id")
         if relationship_id in seen_relationship_ids:
-            raise ValueError(
-                f"Source registry relationship ID `{relationship_id}` is duplicated."
-            )
+            raise ValueError(f"Source registry relationship ID `{relationship_id}` is duplicated.")
         seen_relationship_ids.add(relationship_id)
-        source_id = require_string(
-            relationship, "source_continuity_id", context
-        )
-        target_id = require_string(
-            relationship, "target_continuity_id", context
-        )
-        relationship_type = require_string(
-            relationship, "relationship_type", context
-        )
+        source_id = require_string(relationship, "source_continuity_id", context)
+        target_id = require_string(relationship, "target_continuity_id", context)
+        relationship_type = require_string(relationship, "relationship_type", context)
         if source_id not in continuities or target_id not in continuities:
-            raise ValueError(
-                f"Source registry `{context}` references an unknown continuity."
-            )
+            raise ValueError(f"Source registry `{context}` references an unknown continuity.")
         if source_id == target_id:
-            raise ValueError(
-                f"Source registry `{context}` cannot relate a continuity to itself."
-            )
+            raise ValueError(f"Source registry `{context}` cannot relate a continuity to itself.")
         if relationship_type not in continuity_relationship_types:
             raise ValueError(
-                f"Source registry `{context}.relationship_type` references unknown "
-                f"type `{relationship_type}`."
+                f"Source registry `{context}.relationship_type` references unknown type `{relationship_type}`."
             )
         status = require_string(relationship, "status", context)
         if status not in membership_statuses:
             raise ValueError(
-                f"Source registry `{context}.status` must be one of: "
-                f"{', '.join(sorted(membership_statuses))}."
+                f"Source registry `{context}.status` must be one of: {', '.join(sorted(membership_statuses))}."
             )
         continuity_relationships.append(
-            ContinuityRelationship(
-                relationship_id, source_id, relationship_type, target_id, status
-            )
+            ContinuityRelationship(relationship_id, source_id, relationship_type, target_id, status)
         )
 
-    raw_authority_profiles = require_mapping(
-        registry.get("authority_profiles"), "authority_profiles"
-    )
+    raw_authority_profiles = require_mapping(registry.get("authority_profiles"), "authority_profiles")
     authority_profiles: dict[str, AuthorityProfile] = {}
     for profile_id, raw_profile in raw_authority_profiles.items():
         context = f"authority_profiles.{profile_id}"
@@ -2692,23 +2628,30 @@ def load_source_registry(
         profile = require_mapping(raw_profile, context)
         assert_allowed_keys(
             profile,
-            {"lifecycle", "label", "continuity_order", "accepted_membership_statuses", "source_priority_order", "comparison_work_relationship_types", "cross_source_conflict", "derivative_deviation_owner", "preserve_source_scoped_claims", "claim_authority_rules"},
+            {
+                "lifecycle",
+                "label",
+                "continuity_order",
+                "accepted_membership_statuses",
+                "source_priority_order",
+                "comparison_work_relationship_types",
+                "cross_source_conflict",
+                "derivative_deviation_owner",
+                "preserve_source_scoped_claims",
+                "claim_authority_rules",
+            },
             f"Source registry `{context}`",
         )
         continuity_order = require_string_list(profile, "continuity_order", context)
         if len(set(continuity_order)) != len(continuity_order):
-            raise ValueError(
-                f"Source registry `{context}.continuity_order` contains duplicates."
-            )
+            raise ValueError(f"Source registry `{context}.continuity_order` contains duplicates.")
         unknown_continuities = set(continuity_order) - set(continuities)
         if unknown_continuities:
             raise ValueError(
                 f"Source registry `{context}.continuity_order` references unknown "
                 f"continuities: {', '.join(sorted(unknown_continuities))}."
             )
-        accepted_statuses = require_string_list(
-            profile, "accepted_membership_statuses", context
-        )
+        accepted_statuses = require_string_list(profile, "accepted_membership_statuses", context)
         unknown_statuses = set(accepted_statuses) - membership_statuses
         if unknown_statuses:
             raise ValueError(
@@ -2721,9 +2664,7 @@ def load_source_registry(
                 f"Source registry `{context}.source_priority_order` must be one of: "
                 f"{', '.join(sorted(PRIORITY_ORDERS))}."
             )
-        comparison_types = require_string_list(
-            profile, "comparison_work_relationship_types", context
-        )
+        comparison_types = require_string_list(profile, "comparison_work_relationship_types", context)
         unknown_types = set(comparison_types) - set(work_relationship_types)
         if unknown_types:
             raise ValueError(
@@ -2736,9 +2677,7 @@ def load_source_registry(
                 f"Source registry `{context}.cross_source_conflict` must be one of: "
                 f"{', '.join(sorted(CONFLICT_BEHAVIORS))}."
             )
-        deviation_owner = require_string(
-            profile, "derivative_deviation_owner", context
-        )
+        deviation_owner = require_string(profile, "derivative_deviation_owner", context)
         if deviation_owner not in DEVIATION_OWNERS:
             raise ValueError(
                 f"Source registry `{context}.derivative_deviation_owner` must be one "
@@ -2746,26 +2685,32 @@ def load_source_registry(
             )
         raw_rules = profile.get("claim_authority_rules")
         if not isinstance(raw_rules, list):
-            raise ValueError(
-                f"Source registry `{context}.claim_authority_rules` must be a list."
-            )
+            raise ValueError(f"Source registry `{context}.claim_authority_rules` must be a list.")
         rules: list[AuthorityRule] = []
         seen_rule_ids: set[str] = set()
         for rule_index, raw_rule in enumerate(raw_rules):
             rule_context = f"{context}.claim_authority_rules[{rule_index}]"
             rule = require_mapping(raw_rule, rule_context)
-            assert_allowed_keys(rule, {"id", "claim_namespace", "precedence", "source_ids", "source_roles", "medium_ids", "evidence_modes", "rank"}, f"Source registry `{rule_context}`")
+            assert_allowed_keys(
+                rule,
+                {
+                    "id",
+                    "claim_namespace",
+                    "precedence",
+                    "source_ids",
+                    "source_roles",
+                    "medium_ids",
+                    "evidence_modes",
+                    "rank",
+                },
+                f"Source registry `{rule_context}`",
+            )
             rule_id = require_string(rule, "id", rule_context)
             validate_id(rule_id, f"{rule_context}.id")
             if rule_id in seen_rule_ids:
-                raise ValueError(
-                    f"Source registry `{context}.claim_authority_rules` repeats "
-                    f"ID `{rule_id}`."
-                )
+                raise ValueError(f"Source registry `{context}.claim_authority_rules` repeats ID `{rule_id}`.")
             seen_rule_ids.add(rule_id)
-            claim_namespace = require_string(
-                rule, "claim_namespace", rule_context
-            )
+            claim_namespace = require_string(rule, "claim_namespace", rule_context)
             validate_pack_values(
                 schema_packs,
                 "provenance.claim-namespace",
@@ -2773,26 +2718,14 @@ def load_source_registry(
                 f"{rule_context}.claim_namespace",
             )
             precedence = rule.get("precedence")
-            if (
-                isinstance(precedence, bool)
-                or not isinstance(precedence, int)
-                or precedence < 1
-            ):
-                raise ValueError(
-                    f"Source registry `{rule_context}.precedence` must be a "
-                    "positive integer."
-                )
+            if isinstance(precedence, bool) or not isinstance(precedence, int) or precedence < 1:
+                raise ValueError(f"Source registry `{rule_context}.precedence` must be a positive integer.")
             source_ids = require_string_list(rule, "source_ids", rule_context)
             source_roles = require_string_list(rule, "source_roles", rule_context)
             medium_ids = require_string_list(rule, "medium_ids", rule_context)
-            evidence_modes = require_string_list(
-                rule, "evidence_modes", rule_context
-            )
+            evidence_modes = require_string_list(rule, "evidence_modes", rule_context)
             if not any((source_ids, source_roles, medium_ids, evidence_modes)):
-                raise ValueError(
-                    f"Source registry `{rule_context}` must declare at least one "
-                    "source selector."
-                )
+                raise ValueError(f"Source registry `{rule_context}` must declare at least one source selector.")
             validate_pack_values(
                 schema_packs,
                 "source.source-role",
@@ -2815,9 +2748,7 @@ def load_source_registry(
             )
             rank = rule.get("rank")
             if isinstance(rank, bool) or not isinstance(rank, int) or rank < 1:
-                raise ValueError(
-                    f"Source registry `{rule_context}.rank` must be a positive integer."
-                )
+                raise ValueError(f"Source registry `{rule_context}.rank` must be a positive integer.")
             rules.append(
                 AuthorityRule(
                     rule_id,
@@ -2840,14 +2771,10 @@ def load_source_registry(
             comparison_work_relationship_types=comparison_types,
             cross_source_conflict=conflict,
             derivative_deviation_owner=deviation_owner,
-            preserve_source_scoped_claims=require_bool(
-                profile, "preserve_source_scoped_claims", context
-            ),
+            preserve_source_scoped_claims=require_bool(profile, "preserve_source_scoped_claims", context),
             claim_authority_rules=tuple(rules),
         )
-    default_authority_profile_id = require_string(
-        registry, "default_authority_profile_id", "root"
-    )
+    default_authority_profile_id = require_string(registry, "default_authority_profile_id", "root")
     if default_authority_profile_id not in authority_profiles:
         raise ValueError(
             "Source registry `default_authority_profile_id` references unknown "
@@ -2888,8 +2815,7 @@ def load_source_registry(
         if work.parent_work_id is not None:
             if work.parent_work_id not in works:
                 raise ValueError(
-                    f"Source registry `works.{work.id}.parent_work_id` references "
-                    f"unknown work `{work.parent_work_id}`."
+                    f"Source registry `works.{work.id}.parent_work_id` references unknown work `{work.parent_work_id}`."
                 )
             if work.parent_work_id == work.id:
                 raise ValueError(f"Source registry work `{work.id}` cannot parent itself.")
@@ -2906,19 +2832,14 @@ def load_source_registry(
         for alias in work.aliases:
             alias_key = lookup_keys.normalize(alias)
             if alias_key in work_aliases or alias_key in work_id_keys:
-                raise ValueError(
-                    f"Source registry work alias `{alias}` is duplicated or collides "
-                    "with a work ID."
-                )
+                raise ValueError(f"Source registry work alias `{alias}` is duplicated or collides with a work ID.")
             work_aliases[alias_key] = work.id
 
     complete_works: set[str] = set()
 
     def visit_work(work_id: str, active: set[str]) -> None:
         if work_id in active:
-            raise ValueError(
-                f"Source registry contains a work-parent cycle involving `{work_id}`."
-            )
+            raise ValueError(f"Source registry contains a work-parent cycle involving `{work_id}`.")
         if work_id in complete_works:
             return
         active.add(work_id)
@@ -2939,21 +2860,13 @@ def load_source_registry(
         segment = require_mapping(raw_segment, context)
         work_id = require_string(segment, "work_id", context)
         if work_id not in works:
-            raise ValueError(
-                f"Source registry `{context}.work_id` references unknown work "
-                f"`{work_id}`."
-            )
+            raise ValueError(f"Source registry `{context}.work_id` references unknown work `{work_id}`.")
         parent_segment_id = optional_string(segment, "parent_segment_id", context)
         segment_type = require_string(segment, "segment_type", context)
         validate_id(segment_type, f"{context}.segment_type")
         ordinal = segment.get("ordinal")
-        if ordinal is not None and (
-            isinstance(ordinal, bool) or not isinstance(ordinal, int) or ordinal < 1
-        ):
-            raise ValueError(
-                f"Source registry `{context}.ordinal` must be a positive integer "
-                "when present."
-            )
+        if ordinal is not None and (isinstance(ordinal, bool) or not isinstance(ordinal, int) or ordinal < 1):
+            raise ValueError(f"Source registry `{context}.ordinal` must be a positive integer when present.")
         segments[segment_id] = SegmentConfig(
             id=segment_id,
             work_id=work_id,
@@ -2983,18 +2896,12 @@ def load_source_registry(
         if parent.id == segment.id:
             raise ValueError(f"Source registry segment `{segment.id}` cannot parent itself.")
         if parent.work_id != segment.work_id:
-            raise ValueError(
-                f"Source registry segment `{segment.id}` and its parent must belong "
-                "to the same work."
-            )
+            raise ValueError(f"Source registry segment `{segment.id}` and its parent must belong to the same work.")
     complete_segments: set[str] = set()
 
     def visit_segment(segment_id: str, active: set[str]) -> None:
         if segment_id in active:
-            raise ValueError(
-                f"Source registry contains a segment-parent cycle involving "
-                f"`{segment_id}`."
-            )
+            raise ValueError(f"Source registry contains a segment-parent cycle involving `{segment_id}`.")
         if segment_id in complete_segments:
             return
         active.add(segment_id)
@@ -3011,9 +2918,7 @@ def load_source_registry(
     for segment in segments.values():
         aliases = segment_aliases_by_work.setdefault(segment.work_id, set())
         work_segment_ids = {
-            lookup_keys.normalize(item.id)
-            for item in segments.values()
-            if item.work_id == segment.work_id
+            lookup_keys.normalize(item.id) for item in segments.values() if item.work_id == segment.work_id
         }
         for alias in segment.aliases:
             validate_id(alias, f"segments.{segment.id}.aliases")
@@ -3025,9 +2930,7 @@ def load_source_registry(
                 )
             aliases.add(normalized)
 
-    raw_numbering_schemes = require_mapping(
-        registry.get("numbering_schemes"), "numbering_schemes"
-    )
+    raw_numbering_schemes = require_mapping(registry.get("numbering_schemes"), "numbering_schemes")
     numbering_schemes: dict[str, NumberingScheme] = {}
     for scheme_id, raw_scheme in raw_numbering_schemes.items():
         context = f"numbering_schemes.{scheme_id}"
@@ -3049,35 +2952,20 @@ def load_source_registry(
         )
         scope_id = optional_string(scheme, "scope_id", context)
         if scope_type == "none" and scope_id is not None:
-            raise ValueError(
-                f"Source registry `{context}.scope_id` must be omitted for none scope."
-            )
+            raise ValueError(f"Source registry `{context}.scope_id` must be omitted for none scope.")
         if scope_type == "work":
             if scope_id not in works:
-                raise ValueError(
-                    f"Source registry `{context}.scope_id` references unknown work "
-                    f"`{scope_id}`."
-                )
+                raise ValueError(f"Source registry `{context}.scope_id` references unknown work `{scope_id}`.")
             if target_type != "segment":
-                raise ValueError(
-                    f"Source registry `{context}` work scope requires segment targets."
-                )
+                raise ValueError(f"Source registry `{context}` work scope requires segment targets.")
         if scope_type == "work-group":
             if scope_id not in work_groups:
-                raise ValueError(
-                    f"Source registry `{context}.scope_id` references unknown work "
-                    f"group `{scope_id}`."
-                )
+                raise ValueError(f"Source registry `{context}.scope_id` references unknown work group `{scope_id}`.")
             if target_type != "work":
-                raise ValueError(
-                    f"Source registry `{context}` work-group scope requires work "
-                    "targets."
-                )
+                raise ValueError(f"Source registry `{context}` work-group scope requires work targets.")
         raw_entries = scheme.get("entries")
         if not isinstance(raw_entries, list) or not raw_entries:
-            raise ValueError(
-                f"Source registry `{context}.entries` must be a non-empty list."
-            )
+            raise ValueError(f"Source registry `{context}.entries` must be a non-empty list.")
         entries: list[NumberingEntry] = []
         seen_targets: set[str] = set()
         seen_numbers: set[str] = set()
@@ -3088,34 +2976,24 @@ def load_source_registry(
             target_id = require_string(entry, "target_id", entry_context)
             if target_id not in targets:
                 raise ValueError(
-                    f"Source registry `{entry_context}.target_id` references unknown "
-                    f"{target_type} `{target_id}`."
+                    f"Source registry `{entry_context}.target_id` references unknown {target_type} `{target_id}`."
                 )
             if scope_type == "work" and segments[target_id].work_id != scope_id:
-                raise ValueError(
-                    f"Source registry `{entry_context}` target falls outside work "
-                    f"scope `{scope_id}`."
-                )
+                raise ValueError(f"Source registry `{entry_context}` target falls outside work scope `{scope_id}`.")
             if scope_type == "work-group" and not any(
-                membership.group_id == scope_id
-                for membership in works[target_id].group_memberships
+                membership.group_id == scope_id for membership in works[target_id].group_memberships
             ):
                 raise ValueError(
-                    f"Source registry `{entry_context}` target falls outside work "
-                    f"group scope `{scope_id}`."
+                    f"Source registry `{entry_context}` target falls outside work group scope `{scope_id}`."
                 )
-            display_number = require_string(
-                entry, "display_number", entry_context
-            )
+            display_number = require_string(entry, "display_number", entry_context)
             aliases = require_string_list(entry, "aliases", entry_context)
             number_keys = {
                 lookup_keys.normalize(display_number),
                 *(lookup_keys.normalize(alias) for alias in aliases),
             }
             if target_id in seen_targets or seen_numbers.intersection(number_keys):
-                raise ValueError(
-                    f"Source registry `{context}.entries` repeats a target or number."
-                )
+                raise ValueError(f"Source registry `{context}.entries` repeats a target or number.")
             seen_targets.add(target_id)
             seen_numbers.update(number_keys)
             entries.append(NumberingEntry(target_id, display_number, aliases))
@@ -3129,12 +3007,8 @@ def load_source_registry(
             entries=tuple(entries),
         )
 
-    raw_content_groups = require_mapping(
-        registry.get("content_groups"), "content_groups"
-    )
-    raw_ordering_schemes = require_mapping(
-        registry.get("ordering_schemes"), "ordering_schemes"
-    )
+    raw_content_groups = require_mapping(registry.get("content_groups"), "content_groups")
+    raw_ordering_schemes = require_mapping(registry.get("ordering_schemes"), "ordering_schemes")
     ordering_schemes: dict[str, OrderingScheme] = {}
     for scheme_id, raw_scheme in raw_ordering_schemes.items():
         context = f"ordering_schemes.{scheme_id}"
@@ -3145,14 +3019,11 @@ def load_source_registry(
         ordering_mode = require_string(scheme, "ordering_mode", context)
         if ordering_mode not in ORDERING_MODES:
             raise ValueError(
-                f"Source registry `{context}.ordering_mode` must be one of: "
-                f"{', '.join(sorted(ORDERING_MODES))}."
+                f"Source registry `{context}.ordering_mode` must be one of: {', '.join(sorted(ORDERING_MODES))}."
             )
         raw_entries = scheme.get("entries")
         if not isinstance(raw_entries, list) or not raw_entries:
-            raise ValueError(
-                f"Source registry `{context}.entries` must be a non-empty list."
-            )
+            raise ValueError(f"Source registry `{context}.entries` must be a non-empty list.")
         entries: list[OrderingEntry] = []
         seen_entry_ids: set[str] = set()
         seen_targets: set[tuple[str, str]] = set()
@@ -3163,72 +3034,41 @@ def load_source_registry(
             entry_id = require_string(entry, "id", entry_context)
             validate_id(entry_id, f"{entry_context}.id")
             if entry_id in seen_entry_ids:
-                raise ValueError(
-                    f"Source registry `{context}.entries` repeats entry ID `{entry_id}`."
-                )
+                raise ValueError(f"Source registry `{context}.entries` repeats entry ID `{entry_id}`.")
             seen_entry_ids.add(entry_id)
             target_type = require_string(entry, "target_type", entry_context)
             if target_type not in {"work", "segment", "content-group"}:
                 raise ValueError(
-                    f"Source registry `{entry_context}.target_type` must be `work` "
-                    "`segment`, or `content-group`."
+                    f"Source registry `{entry_context}.target_type` must be `work` `segment`, or `content-group`."
                 )
             target_id = require_string(entry, "target_id", entry_context)
-            targets = (
-                works
-                if target_type == "work"
-                else segments
-                if target_type == "segment"
-                else raw_content_groups
-            )
+            targets = works if target_type == "work" else segments if target_type == "segment" else raw_content_groups
             if target_id not in targets:
                 raise ValueError(
-                    f"Source registry `{entry_context}.target_id` references unknown "
-                    f"{target_type} `{target_id}`."
+                    f"Source registry `{entry_context}.target_id` references unknown {target_type} `{target_id}`."
                 )
             ordinal = entry.get("ordinal")
-            after_entry_ids = require_string_list(
-                entry, "after_entry_ids", entry_context
-            )
+            after_entry_ids = require_string_list(entry, "after_entry_ids", entry_context)
             for predecessor_id in after_entry_ids:
-                validate_id(
-                    predecessor_id, f"{entry_context}.after_entry_ids"
-                )
+                validate_id(predecessor_id, f"{entry_context}.after_entry_ids")
             if ordering_mode == "total":
-                if (
-                    isinstance(ordinal, bool)
-                    or not isinstance(ordinal, int)
-                    or ordinal < 1
-                ):
+                if isinstance(ordinal, bool) or not isinstance(ordinal, int) or ordinal < 1:
                     raise ValueError(
-                        f"Source registry `{entry_context}.ordinal` must be a "
-                        "positive integer for total ordering."
+                        f"Source registry `{entry_context}.ordinal` must be a positive integer for total ordering."
                     )
                 if after_entry_ids:
                     raise ValueError(
-                        f"Source registry `{entry_context}.after_entry_ids` must be "
-                        "empty for total ordering."
+                        f"Source registry `{entry_context}.after_entry_ids` must be empty for total ordering."
                     )
             elif ordinal is not None:
-                raise ValueError(
-                    f"Source registry `{entry_context}.ordinal` must be omitted for "
-                    "partial ordering."
-                )
+                raise ValueError(f"Source registry `{entry_context}.ordinal` must be omitted for partial ordering.")
             target_key = (target_type, target_id)
-            if target_key in seen_targets or (
-                ordinal is not None and ordinal in seen_ordinals
-            ):
-                raise ValueError(
-                    f"Source registry `{context}.entries` repeats a target or ordinal."
-                )
+            if target_key in seen_targets or (ordinal is not None and ordinal in seen_ordinals):
+                raise ValueError(f"Source registry `{context}.entries` repeats a target or ordinal.")
             seen_targets.add(target_key)
             if ordinal is not None:
                 seen_ordinals.add(ordinal)
-            entries.append(
-                OrderingEntry(
-                    entry_id, target_type, target_id, ordinal, after_entry_ids
-                )
-            )
+            entries.append(OrderingEntry(entry_id, target_type, target_id, ordinal, after_entry_ids))
         if ordering_mode == "partial":
             entry_ids = {entry.id for entry in entries}
             for entry in entries:
@@ -3239,17 +3079,13 @@ def load_source_registry(
                         f"unknown predecessors: {', '.join(sorted(unknown))}."
                     )
                 if entry.id in entry.after_entry_ids:
-                    raise ValueError(
-                        f"Source registry `{context}` entry `{entry.id}` cannot "
-                        "follow itself."
-                    )
+                    raise ValueError(f"Source registry `{context}` entry `{entry.id}` cannot follow itself.")
             complete_entries: set[str] = set()
 
             def visit_ordering_entry(entry_id: str, active: set[str]) -> None:
                 if entry_id in active:
                     raise ValueError(
-                        f"Source registry `{context}` contains a partial-order cycle "
-                        f"involving `{entry_id}`."
+                        f"Source registry `{context}` contains a partial-order cycle involving `{entry_id}`."
                     )
                 if entry_id in complete_entries:
                     return
@@ -3268,9 +3104,7 @@ def load_source_registry(
             ordering_type=ordering_type,
             ordering_mode=ordering_mode,
             entries=tuple(
-                sorted(entries, key=lambda entry: entry.ordinal or 0)
-                if ordering_mode == "total"
-                else entries
+                sorted(entries, key=lambda entry: entry.ordinal or 0) if ordering_mode == "total" else entries
             ),
         )
     if ordering_schemes:
@@ -3289,9 +3123,7 @@ def load_source_registry(
         group = require_mapping(raw_group, context)
         raw_members = group.get("members")
         if not isinstance(raw_members, list) or not raw_members:
-            raise ValueError(
-                f"Source registry `{context}.members` must be a non-empty list."
-            )
+            raise ValueError(f"Source registry `{context}.members` must be a non-empty list.")
         members: list[ContentGroupMember] = []
         seen_member_ids: set[str] = set()
         seen_members: set[tuple[str, str]] = set()
@@ -3301,13 +3133,9 @@ def load_source_registry(
             member_id = require_string(member, "id", member_context)
             validate_id(member_id, f"{member_context}.id")
             if member_id in seen_member_ids:
-                raise ValueError(
-                    f"Source registry `{context}.members` repeats ID `{member_id}`."
-                )
+                raise ValueError(f"Source registry `{context}.members` repeats ID `{member_id}`.")
             seen_member_ids.add(member_id)
-            target_type = require_string(
-                member, "target_type", member_context
-            )
+            target_type = require_string(member, "target_type", member_context)
             target_id = require_string(member, "target_id", member_context)
             target_registries = {
                 "work": works,
@@ -3316,19 +3144,15 @@ def load_source_registry(
             }
             if target_type not in target_registries:
                 raise ValueError(
-                    f"Source registry `{member_context}.target_type` must be "
-                    "`work`, `segment`, or `content-group`."
+                    f"Source registry `{member_context}.target_type` must be `work`, `segment`, or `content-group`."
                 )
             if target_id not in target_registries[target_type]:
                 raise ValueError(
-                    f"Source registry `{member_context}.target_id` references "
-                    f"unknown {target_type} `{target_id}`."
+                    f"Source registry `{member_context}.target_id` references unknown {target_type} `{target_id}`."
                 )
             member_key = (target_type, target_id)
             if member_key in seen_members:
-                raise ValueError(
-                    f"Source registry `{context}.members` contains duplicates."
-                )
+                raise ValueError(f"Source registry `{context}.members` contains duplicates.")
             seen_members.add(member_key)
             role = require_string(member, "role", member_context)
             validate_pack_values(
@@ -3337,22 +3161,11 @@ def load_source_registry(
                 (role,),
                 f"{member_context}.role",
             )
-            members.append(
-                ContentGroupMember(member_id, target_type, target_id, role)
-            )
-        parent_group_ids = require_string_list(
-            group, "parent_group_ids", context
-        )
-        if group_id in parent_group_ids or len(set(parent_group_ids)) != len(
-            parent_group_ids
-        ):
-            raise ValueError(
-                f"Source registry `{context}.parent_group_ids` contains a self "
-                "reference or duplicate."
-            )
-        ordering_scheme_id = optional_string(
-            group, "ordering_scheme_id", context
-        )
+            members.append(ContentGroupMember(member_id, target_type, target_id, role))
+        parent_group_ids = require_string_list(group, "parent_group_ids", context)
+        if group_id in parent_group_ids or len(set(parent_group_ids)) != len(parent_group_ids):
+            raise ValueError(f"Source registry `{context}.parent_group_ids` contains a self reference or duplicate.")
+        ordering_scheme_id = optional_string(group, "ordering_scheme_id", context)
         if ordering_scheme_id is not None:
             if ordering_scheme_id not in ordering_schemes:
                 raise ValueError(
@@ -3360,13 +3173,11 @@ def load_source_registry(
                     f"unknown ordering scheme `{ordering_scheme_id}`."
                 )
             ordered_targets = {
-                (entry.target_type, entry.target_id)
-                for entry in ordering_schemes[ordering_scheme_id].entries
+                (entry.target_type, entry.target_id) for entry in ordering_schemes[ordering_scheme_id].entries
             }
             if ordered_targets != seen_members:
                 raise ValueError(
-                    f"Source registry `{context}.ordering_scheme_id` must order "
-                    "exactly the group's members."
+                    f"Source registry `{context}.ordering_scheme_id` must order exactly the group's members."
                 )
         aliases = require_string_list(group, "aliases", context)
         for alias in aliases:
@@ -3376,8 +3187,7 @@ def load_source_registry(
                 lookup_keys.normalize(value) for value in raw_content_groups
             }:
                 raise ValueError(
-                    f"Source registry content-group alias `{alias}` is duplicated "
-                    "or collides with a group ID."
+                    f"Source registry content-group alias `{alias}` is duplicated or collides with a group ID."
                 )
             content_group_aliases.add(normalized)
         content_groups[group_id] = ContentGroup(
@@ -3409,10 +3219,7 @@ def load_source_registry(
 
     def visit_content_group(group_id: str, active: set[str]) -> None:
         if group_id in active:
-            raise ValueError(
-                f"Source registry contains a content-group cycle involving "
-                f"`{group_id}`."
-            )
+            raise ValueError(f"Source registry contains a content-group cycle involving `{group_id}`.")
         if group_id in complete_content_groups:
             return
         active.add(group_id)
@@ -3437,29 +3244,20 @@ def load_source_registry(
         relationship_id = require_string(relationship, "id", context)
         validate_id(relationship_id, f"{context}.id")
         if relationship_id in seen_relationship_ids:
-            raise ValueError(
-                f"Source registry relationship ID `{relationship_id}` is duplicated."
-            )
+            raise ValueError(f"Source registry relationship ID `{relationship_id}` is duplicated.")
         seen_relationship_ids.add(relationship_id)
         source_id = require_string(relationship, "source_work_id", context)
         target_id = require_string(relationship, "target_work_id", context)
-        relationship_type = require_string(
-            relationship, "relationship_type", context
-        )
+        relationship_type = require_string(relationship, "relationship_type", context)
         if source_id not in works or target_id not in works:
             raise ValueError(f"Source registry `{context}` references an unknown work.")
         if source_id == target_id:
-            raise ValueError(
-                f"Source registry `{context}` cannot relate a work to itself."
-            )
+            raise ValueError(f"Source registry `{context}` cannot relate a work to itself.")
         if relationship_type not in work_relationship_types:
             raise ValueError(
-                f"Source registry `{context}.relationship_type` references unknown "
-                f"type `{relationship_type}`."
+                f"Source registry `{context}.relationship_type` references unknown type `{relationship_type}`."
             )
-        continuity_ids = require_string_list(
-            relationship, "continuity_ids", context
-        )
+        continuity_ids = require_string_list(relationship, "continuity_ids", context)
         unknown_continuities = set(continuity_ids) - set(continuities)
         if unknown_continuities:
             raise ValueError(
@@ -3469,8 +3267,7 @@ def load_source_registry(
         status = require_string(relationship, "status", context)
         if status not in membership_statuses:
             raise ValueError(
-                f"Source registry `{context}.status` must be one of: "
-                f"{', '.join(sorted(membership_statuses))}."
+                f"Source registry `{context}.status` must be one of: {', '.join(sorted(membership_statuses))}."
             )
         work_relationships.append(
             WorkRelationship(
@@ -3480,9 +3277,7 @@ def load_source_registry(
                 target_id,
                 continuity_ids,
                 status,
-                optional_string(
-                    relationship, "applicability_scope_id", context
-                ),
+                optional_string(relationship, "applicability_scope_id", context),
             )
         )
 
@@ -3497,32 +3292,21 @@ def load_source_registry(
         mapping_id = require_string(mapping, "id", context)
         validate_id(mapping_id, f"{context}.id")
         if mapping_id in seen_adaptation_mapping_ids:
-            raise ValueError(
-                f"Source registry adaptation mapping ID `{mapping_id}` is duplicated."
-            )
+            raise ValueError(f"Source registry adaptation mapping ID `{mapping_id}` is duplicated.")
         seen_adaptation_mapping_ids.add(mapping_id)
         target_work_id = require_string(mapping, "target_work_id", context)
         if target_work_id not in works:
-            raise ValueError(
-                f"Source registry `{context}.target_work_id` references an unknown work."
-            )
-        target_segment_ids = require_string_list(
-            mapping, "target_segment_ids", context
-        )
+            raise ValueError(f"Source registry `{context}.target_work_id` references an unknown work.")
+        target_segment_ids = require_string_list(mapping, "target_segment_ids", context)
         for segment_id in target_segment_ids:
-            if (
-                segment_id not in segments
-                or segments[segment_id].work_id != target_work_id
-            ):
+            if segment_id not in segments or segments[segment_id].work_id != target_work_id:
                 raise ValueError(
                     f"Source registry `{context}.target_segment_ids` references "
                     f"segment `{segment_id}` outside target work `{target_work_id}`."
                 )
         raw_basis_inputs = mapping.get("basis_inputs")
         if not isinstance(raw_basis_inputs, list) or not raw_basis_inputs:
-            raise ValueError(
-                f"Source registry `{context}.basis_inputs` must be a non-empty list."
-            )
+            raise ValueError(f"Source registry `{context}.basis_inputs` must be a non-empty list.")
         basis_inputs: list[AdaptationBasisInput] = []
         seen_basis_works: set[str] = set()
         for basis_index, raw_basis in enumerate(raw_basis_inputs):
@@ -3530,24 +3314,15 @@ def load_source_registry(
             basis = require_mapping(raw_basis, basis_context)
             work_id = require_string(basis, "work_id", basis_context)
             if work_id not in works:
-                raise ValueError(
-                    f"Source registry `{basis_context}.work_id` references unknown "
-                    f"work `{work_id}`."
-                )
+                raise ValueError(f"Source registry `{basis_context}.work_id` references unknown work `{work_id}`.")
             if work_id == target_work_id or work_id in seen_basis_works:
                 raise ValueError(
-                    f"Source registry `{context}.basis_inputs` repeats a work or "
-                    "uses the target as its own basis."
+                    f"Source registry `{context}.basis_inputs` repeats a work or uses the target as its own basis."
                 )
             seen_basis_works.add(work_id)
-            segment_ids = require_string_list(
-                basis, "segment_ids", basis_context
-            )
+            segment_ids = require_string_list(basis, "segment_ids", basis_context)
             for segment_id in segment_ids:
-                if (
-                    segment_id not in segments
-                    or segments[segment_id].work_id != work_id
-                ):
+                if segment_id not in segments or segments[segment_id].work_id != work_id:
                     raise ValueError(
                         f"Source registry `{basis_context}.segment_ids` references "
                         f"segment `{segment_id}` outside work `{work_id}`."
@@ -3563,8 +3338,7 @@ def load_source_registry(
         status = require_string(mapping, "status", context)
         if status not in membership_statuses:
             raise ValueError(
-                f"Source registry `{context}.status` must be one of: "
-                f"{', '.join(sorted(membership_statuses))}."
+                f"Source registry `{context}.status` must be one of: {', '.join(sorted(membership_statuses))}."
             )
         adaptation_mappings.append(
             AdaptationMapping(
@@ -3586,11 +3360,7 @@ def load_source_registry(
         validate_pack_values(
             schema_packs,
             "source.adaptation-basis-role",
-            (
-                basis.basis_role
-                for mapping in adaptation_mappings
-                for basis in mapping.basis_inputs
-            ),
+            (basis.basis_role for mapping in adaptation_mappings for basis in mapping.basis_inputs),
             "adaptation_mappings.*.basis_inputs.*.basis_role",
         )
 
@@ -3605,19 +3375,14 @@ def load_source_registry(
         for scheme_id, code in raw_codes.items():
             validate_id(scheme_id, f"{context}.codes")
             if not isinstance(code, str) or not code.strip():
-                raise ValueError(
-                    f"Source registry `{context}.codes.{scheme_id}` must be a "
-                    "non-empty string."
-                )
+                raise ValueError(f"Source registry `{context}.codes.{scheme_id}` must be a non-empty string.")
             codes[scheme_id] = code.strip()
         territories[territory_id] = TerritoryConfig(
             id=territory_id,
             lifecycle=parse_lifecycle(territory, context),
             label=require_string(territory, "label", context),
             territory_type=require_string(territory, "territory_type", context),
-            parent_territory_id=optional_string(
-                territory, "parent_territory_id", context
-            ),
+            parent_territory_id=optional_string(territory, "parent_territory_id", context),
             codes=codes,
         )
     if territories:
@@ -3635,18 +3400,13 @@ def load_source_registry(
                     f"parent `{territory.parent_territory_id}`."
                 )
             if territory.parent_territory_id == territory.id:
-                raise ValueError(
-                    f"Source registry territory `{territory.id}` cannot parent itself."
-                )
+                raise ValueError(f"Source registry territory `{territory.id}` cannot parent itself.")
     for territory_id in territories:
         seen_territories: set[str] = set()
         current_id: str | None = territory_id
         while current_id is not None:
             if current_id in seen_territories:
-                raise ValueError(
-                    f"Source registry contains a territory cycle involving "
-                    f"`{current_id}`."
-                )
+                raise ValueError(f"Source registry contains a territory cycle involving `{current_id}`.")
             seen_territories.add(current_id)
             current_id = territories[current_id].parent_territory_id
     seen_territory_codes: set[tuple[str, str]] = set()
@@ -3654,16 +3414,12 @@ def load_source_registry(
         for scheme_id, code in territory.codes.items():
             key = (scheme_id, lookup_keys.normalize(code))
             if key in seen_territory_codes:
-                raise ValueError(
-                    f"Source registry repeats territory code `{scheme_id}:{code}`."
-                )
+                raise ValueError(f"Source registry repeats territory code `{scheme_id}:{code}`.")
             seen_territory_codes.add(key)
 
     raw_production_contexts = registry.get("work_production_contexts")
     if not isinstance(raw_production_contexts, list):
-        raise ValueError(
-            "Source registry `work_production_contexts` must be a list."
-        )
+        raise ValueError("Source registry `work_production_contexts` must be a list.")
     work_production_contexts: dict[str, WorkProductionContext] = {}
     for index, raw_context in enumerate(raw_production_contexts):
         context = f"work_production_contexts[{index}]"
@@ -3671,31 +3427,15 @@ def load_source_registry(
         context_id = require_string(production_context, "id", context)
         validate_id(context_id, f"{context}.id")
         if context_id in work_production_contexts:
-            raise ValueError(
-                f"Source registry work-production-context ID `{context_id}` is "
-                "duplicated."
-            )
+            raise ValueError(f"Source registry work-production-context ID `{context_id}` is duplicated.")
         work_id = require_string(production_context, "work_id", context)
         if work_id not in works:
-            raise ValueError(
-                f"Source registry `{context}.work_id` references unknown work "
-                f"`{work_id}`."
-            )
-        production_origin = require_string(
-            production_context, "production_origin", context
-        )
-        authorization_status = require_string(
-            production_context, "authorization_status", context
-        )
-        rights_basis = require_string(
-            production_context, "rights_basis", context
-        )
-        commerciality = require_string(
-            production_context, "commerciality", context
-        )
-        applicability_scope_id = require_string(
-            production_context, "applicability_scope_id", context
-        )
+            raise ValueError(f"Source registry `{context}.work_id` references unknown work `{work_id}`.")
+        production_origin = require_string(production_context, "production_origin", context)
+        authorization_status = require_string(production_context, "authorization_status", context)
+        rights_basis = require_string(production_context, "rights_basis", context)
+        commerciality = require_string(production_context, "commerciality", context)
+        applicability_scope_id = require_string(production_context, "applicability_scope_id", context)
         validate_pack_values(
             schema_packs,
             "source.production-origin",
@@ -3732,14 +3472,8 @@ def load_source_registry(
 
     for owner_context, localized_titles in (
         *((f"works.{work.id}", work.localized_titles) for work in works.values()),
-        *(
-            (f"segments.{segment.id}", segment.localized_titles)
-            for segment in segments.values()
-        ),
-        *(
-            (f"content_groups.{group.id}", group.localized_titles)
-            for group in content_groups.values()
-        ),
+        *((f"segments.{segment.id}", segment.localized_titles) for segment in segments.values()),
+        *((f"content_groups.{group.id}", group.localized_titles) for group in content_groups.values()),
     ):
         for localized_title in localized_titles:
             unknown_territories = set(localized_title.territory_ids) - set(territories)
@@ -3765,8 +3499,7 @@ def load_source_registry(
                 lookup_keys.normalize(value) for value in raw_platforms
             }:
                 raise ValueError(
-                    f"Source registry platform alias `{alias}` is duplicated or "
-                    "collides with a platform ID."
+                    f"Source registry platform alias `{alias}` is duplicated or collides with a platform ID."
                 )
             platform_aliases.add(normalized)
         platforms[platform_id] = PlatformConfig(
@@ -3796,9 +3529,7 @@ def load_source_registry(
             "manifestation_relationship_types",
         )
 
-    raw_manifestations = require_mapping(
-        registry.get("manifestations"), "manifestations"
-    )
+    raw_manifestations = require_mapping(registry.get("manifestations"), "manifestations")
     manifestations: dict[str, ManifestationConfig] = {}
     manifestation_aliases: set[str] = set()
     for manifestation_id, raw_manifestation in raw_manifestations.items():
@@ -3807,28 +3538,16 @@ def load_source_registry(
         manifestation = require_mapping(raw_manifestation, context)
         work_id = require_string(manifestation, "work_id", context)
         if work_id not in works:
-            raise ValueError(
-                f"Source registry `{context}.work_id` references unknown work "
-                f"`{work_id}`."
-            )
-        segment_ids = require_string_list(
-            manifestation, "segment_ids", context
-        )
+            raise ValueError(f"Source registry `{context}.work_id` references unknown work `{work_id}`.")
+        segment_ids = require_string_list(manifestation, "segment_ids", context)
         for segment_id in segment_ids:
-            if (
-                segment_id not in segments
-                or segments[segment_id].work_id != work_id
-            ):
+            if segment_id not in segments or segments[segment_id].work_id != work_id:
                 raise ValueError(
                     f"Source registry `{context}.segment_ids` references segment "
                     f"`{segment_id}` outside work `{work_id}`."
                 )
-        manifestation_type = require_string(
-            manifestation, "manifestation_type", context
-        )
-        container_format_ids = require_string_list(
-            manifestation, "container_format_ids", context
-        )
+        manifestation_type = require_string(manifestation, "manifestation_type", context)
+        container_format_ids = require_string_list(manifestation, "container_format_ids", context)
         unknown_formats = set(container_format_ids) - set(container_formats)
         if unknown_formats:
             raise ValueError(
@@ -3843,27 +3562,20 @@ def load_source_registry(
                 lookup_keys.normalize(value) for value in raw_manifestations
             }:
                 raise ValueError(
-                    f"Source registry manifestation alias `{alias}` is duplicated or "
-                    "collides with a manifestation ID."
+                    f"Source registry manifestation alias `{alias}` is duplicated or collides with a manifestation ID."
                 )
             manifestation_aliases.add(normalized)
-        language_tags = require_string_list(
-            manifestation, "language_tags", context
-        )
+        language_tags = require_string_list(manifestation, "language_tags", context)
         for language_tag in language_tags:
             validate_language_tag(language_tag, f"{context}.language_tags")
-        territory_ids = require_string_list(
-            manifestation, "territory_ids", context
-        )
+        territory_ids = require_string_list(manifestation, "territory_ids", context)
         unknown_territories = set(territory_ids) - set(territories)
         if unknown_territories:
             raise ValueError(
                 f"Source registry `{context}.territory_ids` references unknown "
                 f"territories: {', '.join(sorted(unknown_territories))}."
             )
-        localized_titles = parse_localized_titles(
-            manifestation, context, schema_packs
-        )
+        localized_titles = parse_localized_titles(manifestation, context, schema_packs)
         for localized_title in localized_titles:
             unknown_territories = set(localized_title.territory_ids) - set(territories)
             if unknown_territories:
@@ -3888,18 +3600,13 @@ def load_source_registry(
         validate_pack_values(
             schema_packs,
             "source.manifestation-type",
-            (
-                manifestation.manifestation_type
-                for manifestation in manifestations.values()
-            ),
+            (manifestation.manifestation_type for manifestation in manifestations.values()),
             "manifestations.*.manifestation_type",
         )
 
     raw_manifestation_relationships = registry.get("manifestation_relationships")
     if not isinstance(raw_manifestation_relationships, list):
-        raise ValueError(
-            "Source registry `manifestation_relationships` must be a list."
-        )
+        raise ValueError("Source registry `manifestation_relationships` must be a list.")
     manifestation_relationships: list[ManifestationRelationship] = []
     seen_manifestation_relationship_ids: set[str] = set()
     for index, raw_relationship in enumerate(raw_manifestation_relationships):
@@ -3908,52 +3615,31 @@ def load_source_registry(
         relationship_id = require_string(relationship, "id", context)
         validate_id(relationship_id, f"{context}.id")
         if relationship_id in seen_manifestation_relationship_ids:
-            raise ValueError(
-                f"Source registry manifestation relationship ID `{relationship_id}` "
-                "is duplicated."
-            )
+            raise ValueError(f"Source registry manifestation relationship ID `{relationship_id}` is duplicated.")
         seen_manifestation_relationship_ids.add(relationship_id)
-        source_id = require_string(
-            relationship, "source_manifestation_id", context
-        )
-        target_id = require_string(
-            relationship, "target_manifestation_id", context
-        )
-        relationship_type = require_string(
-            relationship, "relationship_type", context
-        )
+        source_id = require_string(relationship, "source_manifestation_id", context)
+        target_id = require_string(relationship, "target_manifestation_id", context)
+        relationship_type = require_string(relationship, "relationship_type", context)
         if source_id not in manifestations or target_id not in manifestations:
-            raise ValueError(
-                f"Source registry `{context}` references an unknown manifestation."
-            )
+            raise ValueError(f"Source registry `{context}` references an unknown manifestation.")
         if source_id == target_id:
-            raise ValueError(
-                f"Source registry `{context}` cannot relate a manifestation to itself."
-            )
+            raise ValueError(f"Source registry `{context}` cannot relate a manifestation to itself.")
         if relationship_type not in manifestation_relationship_types:
             raise ValueError(
-                f"Source registry `{context}.relationship_type` references unknown "
-                f"type `{relationship_type}`."
+                f"Source registry `{context}.relationship_type` references unknown type `{relationship_type}`."
             )
         status = require_string(relationship, "status", context)
         if status not in membership_statuses:
             raise ValueError(
-                f"Source registry `{context}.status` must be one of: "
-                f"{', '.join(sorted(membership_statuses))}."
+                f"Source registry `{context}.status` must be one of: {', '.join(sorted(membership_statuses))}."
             )
         manifestation_relationships.append(
-            ManifestationRelationship(
-                relationship_id, source_id, relationship_type, target_id, status
-            )
+            ManifestationRelationship(relationship_id, source_id, relationship_type, target_id, status)
         )
 
-    raw_manifestation_segment_mappings = registry.get(
-        "manifestation_segment_mappings"
-    )
+    raw_manifestation_segment_mappings = registry.get("manifestation_segment_mappings")
     if not isinstance(raw_manifestation_segment_mappings, list):
-        raise ValueError(
-            "Source registry `manifestation_segment_mappings` must be a list."
-        )
+        raise ValueError("Source registry `manifestation_segment_mappings` must be a list.")
     manifestation_segment_mappings: list[ManifestationSegmentMapping] = []
     seen_manifestation_mapping_ids: set[str] = set()
     related_manifestation_pairs = {
@@ -3971,41 +3657,22 @@ def load_source_registry(
         mapping_id = require_string(mapping, "id", context)
         validate_id(mapping_id, f"{context}.id")
         if mapping_id in seen_manifestation_mapping_ids:
-            raise ValueError(
-                f"Source registry manifestation segment mapping ID `{mapping_id}` "
-                "is duplicated."
-            )
+            raise ValueError(f"Source registry manifestation segment mapping ID `{mapping_id}` is duplicated.")
         seen_manifestation_mapping_ids.add(mapping_id)
-        source_id = require_string(
-            mapping, "source_manifestation_id", context
-        )
-        target_id = require_string(
-            mapping, "target_manifestation_id", context
-        )
+        source_id = require_string(mapping, "source_manifestation_id", context)
+        target_id = require_string(mapping, "target_manifestation_id", context)
         if source_id not in manifestations or target_id not in manifestations:
-            raise ValueError(
-                f"Source registry `{context}` references an unknown manifestation."
-            )
+            raise ValueError(f"Source registry `{context}` references an unknown manifestation.")
         if source_id == target_id:
-            raise ValueError(
-                f"Source registry `{context}` cannot map a manifestation to itself."
-            )
+            raise ValueError(f"Source registry `{context}` cannot map a manifestation to itself.")
         if manifestations[source_id].work_id != manifestations[target_id].work_id:
-            raise ValueError(
-                f"Source registry `{context}` must map manifestations of the same "
-                "work."
-            )
+            raise ValueError(f"Source registry `{context}` must map manifestations of the same work.")
         if frozenset((source_id, target_id)) not in related_manifestation_pairs:
             raise ValueError(
-                f"Source registry `{context}` requires a manifestation relationship "
-                "between its source and target."
+                f"Source registry `{context}` requires a manifestation relationship between its source and target."
             )
-        source_segment_ids = require_string_list(
-            mapping, "source_segment_ids", context
-        )
-        target_segment_ids = require_string_list(
-            mapping, "target_segment_ids", context
-        )
+        source_segment_ids = require_string_list(mapping, "source_segment_ids", context)
+        target_segment_ids = require_string_list(mapping, "target_segment_ids", context)
         work_id = manifestations[source_id].work_id
         for field_name, values, manifestation_id in (
             ("source_segment_ids", source_segment_ids, source_id),
@@ -4017,8 +3684,7 @@ def load_source_registry(
                     or segments[segment_id].work_id != work_id
                     or (
                         manifestations[manifestation_id].segment_ids
-                        and segment_id
-                        not in manifestations[manifestation_id].segment_ids
+                        and segment_id not in manifestations[manifestation_id].segment_ids
                     )
                 ):
                     raise ValueError(
@@ -4034,14 +3700,12 @@ def load_source_registry(
             valid_shape = bool(source_segment_ids) and bool(target_segment_ids)
         if not valid_shape:
             raise ValueError(
-                f"Source registry `{context}` has segment lists incompatible with "
-                f"mapping type `{mapping_type}`."
+                f"Source registry `{context}` has segment lists incompatible with mapping type `{mapping_type}`."
             )
         status = require_string(mapping, "status", context)
         if status not in membership_statuses:
             raise ValueError(
-                f"Source registry `{context}.status` must be one of: "
-                f"{', '.join(sorted(membership_statuses))}."
+                f"Source registry `{context}.status` must be one of: {', '.join(sorted(membership_statuses))}."
             )
         manifestation_segment_mappings.append(
             ManifestationSegmentMapping(
@@ -4058,44 +3722,29 @@ def load_source_registry(
         validate_pack_values(
             schema_packs,
             "source.manifestation-segment-mapping-type",
-            (
-                mapping.mapping_type
-                for mapping in manifestation_segment_mappings
-            ),
+            (mapping.mapping_type for mapping in manifestation_segment_mappings),
             "manifestation_segment_mappings.*.mapping_type",
         )
 
-    raw_release_components = require_mapping(
-        registry.get("release_components"), "release_components"
-    )
+    raw_release_components = require_mapping(registry.get("release_components"), "release_components")
     release_components: dict[str, ReleaseComponent] = {}
     for component_id, raw_component in raw_release_components.items():
         context = f"release_components.{component_id}"
         validate_id(component_id, context)
         component = require_mapping(raw_component, context)
-        manifestation_id = optional_string(
-            component, "manifestation_id", context
-        )
+        manifestation_id = optional_string(component, "manifestation_id", context)
         if manifestation_id is not None and manifestation_id not in manifestations:
             raise ValueError(
-                f"Source registry `{context}.manifestation_id` references unknown "
-                f"manifestation `{manifestation_id}`."
-        )
+                f"Source registry `{context}.manifestation_id` references unknown manifestation `{manifestation_id}`."
+            )
         segment_ids = require_string_list(component, "segment_ids", context)
         for segment_id in segment_ids:
             if segment_id not in segments:
-                raise ValueError(
-                    f"Source registry `{context}.segment_ids` references segment "
-                    f"`{segment_id}`."
-                )
+                raise ValueError(f"Source registry `{context}.segment_ids` references segment `{segment_id}`.")
             if manifestation_id is not None:
                 manifestation = manifestations[manifestation_id]
-                if (
-                    segments[segment_id].work_id != manifestation.work_id
-                    or (
-                        manifestation.segment_ids
-                        and segment_id not in manifestation.segment_ids
-                    )
+                if segments[segment_id].work_id != manifestation.work_id or (
+                    manifestation.segment_ids and segment_id not in manifestation.segment_ids
                 ):
                     raise ValueError(
                         f"Source registry `{context}.segment_ids` references segment "
@@ -4132,13 +3781,9 @@ def load_source_registry(
             release_component_relationship_types,
             "release_component_relationship_types",
         )
-    raw_component_relationships = registry.get(
-        "release_component_relationships"
-    )
+    raw_component_relationships = registry.get("release_component_relationships")
     if not isinstance(raw_component_relationships, list):
-        raise ValueError(
-            "Source registry `release_component_relationships` must be a list."
-        )
+        raise ValueError("Source registry `release_component_relationships` must be a list.")
     release_component_relationships: list[ReleaseComponentRelationship] = []
     seen_component_relationship_ids: set[str] = set()
     for index, raw_relationship in enumerate(raw_component_relationships):
@@ -4147,36 +3792,18 @@ def load_source_registry(
         relationship_id = require_string(relationship, "id", context)
         validate_id(relationship_id, f"{context}.id")
         if relationship_id in seen_component_relationship_ids:
-            raise ValueError(
-                f"Source registry release-component relationship ID "
-                f"`{relationship_id}` is duplicated."
-            )
+            raise ValueError(f"Source registry release-component relationship ID `{relationship_id}` is duplicated.")
         seen_component_relationship_ids.add(relationship_id)
-        source_component_id = require_string(
-            relationship, "source_component_id", context
-        )
-        target_component_id = require_string(
-            relationship, "target_component_id", context
-        )
-        if (
-            source_component_id not in release_components
-            or target_component_id not in release_components
-        ):
-            raise ValueError(
-                f"Source registry `{context}` references an unknown release "
-                "component."
-            )
+        source_component_id = require_string(relationship, "source_component_id", context)
+        target_component_id = require_string(relationship, "target_component_id", context)
+        if source_component_id not in release_components or target_component_id not in release_components:
+            raise ValueError(f"Source registry `{context}` references an unknown release component.")
         if source_component_id == target_component_id:
-            raise ValueError(
-                f"Source registry `{context}` cannot relate a component to itself."
-            )
-        relationship_type = require_string(
-            relationship, "relationship_type", context
-        )
+            raise ValueError(f"Source registry `{context}` cannot relate a component to itself.")
+        relationship_type = require_string(relationship, "relationship_type", context)
         if relationship_type not in release_component_relationship_types:
             raise ValueError(
-                f"Source registry `{context}.relationship_type` references unknown "
-                f"type `{relationship_type}`."
+                f"Source registry `{context}.relationship_type` references unknown type `{relationship_type}`."
             )
         release_component_relationships.append(
             ReleaseComponentRelationship(
@@ -4187,18 +3814,14 @@ def load_source_registry(
             )
         )
 
-    raw_release_packages = require_mapping(
-        registry.get("release_packages"), "release_packages"
-    )
+    raw_release_packages = require_mapping(registry.get("release_packages"), "release_packages")
     release_packages: dict[str, ReleasePackage] = {}
     release_package_aliases: set[str] = set()
     for package_id, raw_package in raw_release_packages.items():
         context = f"release_packages.{package_id}"
         validate_id(package_id, context)
         package = require_mapping(raw_package, context)
-        manifestation_ids = require_string_list(
-            package, "manifestation_ids", context
-        )
+        manifestation_ids = require_string_list(package, "manifestation_ids", context)
         unknown_manifestations = set(manifestation_ids) - set(manifestations)
         if unknown_manifestations:
             raise ValueError(
@@ -4208,23 +3831,15 @@ def load_source_registry(
         segment_ids = require_string_list(package, "segment_ids", context)
         for segment_id in segment_ids:
             if segment_id not in segments:
-                raise ValueError(
-                    f"Source registry `{context}.segment_ids` references unknown "
-                    f"segment `{segment_id}`."
-                )
-        component_ids = require_string_list(
-            package, "release_component_ids", context
-        )
+                raise ValueError(f"Source registry `{context}.segment_ids` references unknown segment `{segment_id}`.")
+        component_ids = require_string_list(package, "release_component_ids", context)
         component_manifestation_ids: set[str] = set()
         for component_id in component_ids:
             if component_id not in release_components:
                 raise ValueError(
-                    f"Source registry `{context}.release_component_ids` references "
-                    f"unknown component `{component_id}`."
+                    f"Source registry `{context}.release_component_ids` references unknown component `{component_id}`."
                 )
-            component_manifestation_id = release_components[
-                component_id
-            ].manifestation_id
+            component_manifestation_id = release_components[component_id].manifestation_id
             if component_manifestation_id is not None:
                 component_manifestation_ids.add(component_manifestation_id)
             if (
@@ -4238,8 +3853,7 @@ def load_source_registry(
                 )
         effective_manifestation_ids = set(manifestation_ids) | component_manifestation_ids
         package_work_ids = {
-            manifestations[manifestation_id].work_id
-            for manifestation_id in effective_manifestation_ids
+            manifestations[manifestation_id].work_id for manifestation_id in effective_manifestation_ids
         }
         for segment_id in segment_ids:
             if package_work_ids and segments[segment_id].work_id not in package_work_ids:
@@ -4249,12 +3863,9 @@ def load_source_registry(
                 )
         if not manifestation_ids and not segment_ids and not component_ids:
             raise ValueError(
-                f"Source registry `{context}` must contain a manifestation, segment, "
-                "or release component."
+                f"Source registry `{context}` must contain a manifestation, segment, or release component."
             )
-        container_format_ids = require_string_list(
-            package, "container_format_ids", context
-        )
+        container_format_ids = require_string_list(package, "container_format_ids", context)
         unknown_formats = set(container_format_ids) - set(container_formats)
         if unknown_formats:
             raise ValueError(
@@ -4269,8 +3880,7 @@ def load_source_registry(
                 lookup_keys.normalize(value) for value in raw_release_packages
             }:
                 raise ValueError(
-                    f"Source registry release-package alias `{alias}` is duplicated "
-                    "or collides with a package ID."
+                    f"Source registry release-package alias `{alias}` is duplicated or collides with a package ID."
                 )
             release_package_aliases.add(normalized)
         localized_titles = parse_localized_titles(package, context, schema_packs)
@@ -4301,17 +3911,12 @@ def load_source_registry(
             "release_packages.*.package_type",
         )
 
-    packages_by_component: dict[str, set[str]] = {
-        component_id: set() for component_id in release_components
-    }
+    packages_by_component: dict[str, set[str]] = {component_id: set() for component_id in release_components}
     for package in release_packages.values():
         for component_id in package.release_component_ids:
             packages_by_component[component_id].add(package.id)
     for component in release_components.values():
-        if (
-            component.manifestation_id is None
-            and not packages_by_component[component.id]
-        ):
+        if component.manifestation_id is None and not packages_by_component[component.id]:
             raise ValueError(
                 f"Source registry release component `{component.id}` has no "
                 "manifestation and is not included in a release package."
@@ -4319,23 +3924,12 @@ def load_source_registry(
         for package_id in packages_by_component[component.id]:
             package = release_packages[package_id]
             package_work_ids = {
-                manifestations[manifestation_id].work_id
-                for manifestation_id in package.manifestation_ids
-            } | {
-                segments[segment_id].work_id
-                for segment_id in package.segment_ids
-            }
+                manifestations[manifestation_id].work_id for manifestation_id in package.manifestation_ids
+            } | {segments[segment_id].work_id for segment_id in package.segment_ids}
             if component.manifestation_id is not None:
-                package_work_ids.add(
-                    manifestations[component.manifestation_id].work_id
-                )
-            component_work_ids = {
-                segments[segment_id].work_id
-                for segment_id in component.segment_ids
-            }
-            if package_work_ids and not component_work_ids.issubset(
-                package_work_ids
-            ):
+                package_work_ids.add(manifestations[component.manifestation_id].work_id)
+            component_work_ids = {segments[segment_id].work_id for segment_id in component.segment_ids}
+            if package_work_ids and not component_work_ids.issubset(package_work_ids):
                 raise ValueError(
                     f"Source registry release component `{component.id}` has segment "
                     f"scope outside package `{package_id}`."
@@ -4343,23 +3937,13 @@ def load_source_registry(
 
     def release_package_work_ids(package_id: str) -> set[str]:
         package = release_packages[package_id]
-        work_ids = {
-            manifestations[manifestation_id].work_id
-            for manifestation_id in package.manifestation_ids
-        }
-        work_ids.update(
-            segments[segment_id].work_id for segment_id in package.segment_ids
-        )
+        work_ids = {manifestations[manifestation_id].work_id for manifestation_id in package.manifestation_ids}
+        work_ids.update(segments[segment_id].work_id for segment_id in package.segment_ids)
         for component_id in package.release_component_ids:
             component = release_components[component_id]
             if component.manifestation_id is not None:
-                work_ids.add(
-                    manifestations[component.manifestation_id].work_id
-                )
-            work_ids.update(
-                segments[segment_id].work_id
-                for segment_id in component.segment_ids
-            )
+                work_ids.add(manifestations[component.manifestation_id].work_id)
+            work_ids.update(segments[segment_id].work_id for segment_id in component.segment_ids)
         return work_ids
 
     def validate_distribution_scope(
@@ -4377,18 +3961,14 @@ def load_source_registry(
         if subject_type == "manifestation":
             if subject_id not in manifestations:
                 raise ValueError(
-                    f"Source registry `{context}.subject_id` references unknown "
-                    f"manifestation `{subject_id}`."
+                    f"Source registry `{context}.subject_id` references unknown manifestation `{subject_id}`."
                 )
             subject = manifestations[subject_id]
             for segment_id in segment_ids:
                 if (
                     segment_id not in segments
                     or segments[segment_id].work_id != subject.work_id
-                    or (
-                        subject.segment_ids
-                        and segment_id not in subject.segment_ids
-                    )
+                    or (subject.segment_ids and segment_id not in subject.segment_ids)
                 ):
                     raise ValueError(
                         f"Source registry `{context}.segment_ids` references segment "
@@ -4397,18 +3977,14 @@ def load_source_registry(
             return
         if subject_id not in release_packages:
             raise ValueError(
-                f"Source registry `{context}.subject_id` references unknown release "
-                f"package `{subject_id}`."
+                f"Source registry `{context}.subject_id` references unknown release package `{subject_id}`."
             )
         package = release_packages[subject_id]
         package_work_ids = release_package_work_ids(subject_id)
         package_segment_ids = set(package.segment_ids)
         for segment_id in segment_ids:
             if segment_id not in segments:
-                raise ValueError(
-                    f"Source registry `{context}.segment_ids` references unknown "
-                    f"segment `{segment_id}`."
-                )
+                raise ValueError(f"Source registry `{context}.segment_ids` references unknown segment `{segment_id}`.")
             if package_segment_ids:
                 valid = segment_id in package_segment_ids
             else:
@@ -4419,9 +3995,7 @@ def load_source_registry(
                     f"`{segment_id}` outside release-package scope."
                 )
 
-    raw_release_runs = require_mapping(
-        registry.get("release_runs"), "release_runs"
-    )
+    raw_release_runs = require_mapping(registry.get("release_runs"), "release_runs")
     release_runs: dict[str, ReleaseRun] = {}
     for run_id, raw_run in raw_release_runs.items():
         context = f"release_runs.{run_id}"
@@ -4431,27 +4005,16 @@ def load_source_registry(
         subject_id = require_string(run, "subject_id", context)
         segment_ids = require_string_list(run, "segment_ids", context)
         if not segment_ids or len(set(segment_ids)) != len(segment_ids):
-            raise ValueError(
-                f"Source registry `{context}.segment_ids` must be a non-empty "
-                "duplicate-free list."
-            )
-        validate_distribution_scope(
-            subject_type, subject_id, segment_ids, context
-        )
-        ordering_scheme_id = require_string(
-            run, "ordering_scheme_id", context
-        )
+            raise ValueError(f"Source registry `{context}.segment_ids` must be a non-empty duplicate-free list.")
+        validate_distribution_scope(subject_type, subject_id, segment_ids, context)
+        ordering_scheme_id = require_string(run, "ordering_scheme_id", context)
         if ordering_scheme_id not in ordering_schemes:
             raise ValueError(
                 f"Source registry `{context}.ordering_scheme_id` references unknown "
                 f"ordering scheme `{ordering_scheme_id}`."
             )
         ordering = ordering_schemes[ordering_scheme_id]
-        ordered_segment_ids = {
-            entry.target_id
-            for entry in ordering.entries
-            if entry.target_type == "segment"
-        }
+        ordered_segment_ids = {entry.target_id for entry in ordering.entries if entry.target_type == "segment"}
         if (
             ordering.ordering_mode != "total"
             or len(ordered_segment_ids) != len(ordering.entries)
@@ -4463,9 +4026,7 @@ def load_source_registry(
             )
         raw_phases = run.get("phases")
         if not isinstance(raw_phases, list) or not raw_phases:
-            raise ValueError(
-                f"Source registry `{context}.phases` must be a non-empty list."
-            )
+            raise ValueError(f"Source registry `{context}.phases` must be a non-empty list.")
         phases: list[ReleaseRunPhase] = []
         seen_phase_ids: set[str] = set()
         flattened_phase_segments: list[str] = []
@@ -4475,44 +4036,20 @@ def load_source_registry(
             phase_id = require_string(phase, "id", phase_context)
             validate_id(phase_id, f"{phase_context}.id")
             if phase_id in seen_phase_ids:
-                raise ValueError(
-                    f"Source registry `{context}.phases` repeats phase ID "
-                    f"`{phase_id}`."
-                )
+                raise ValueError(f"Source registry `{context}.phases` repeats phase ID `{phase_id}`.")
             seen_phase_ids.add(phase_id)
-            phase_segment_ids = require_string_list(
-                phase, "segment_ids", phase_context
-            )
+            phase_segment_ids = require_string_list(phase, "segment_ids", phase_context)
             if not phase_segment_ids:
-                raise ValueError(
-                    f"Source registry `{phase_context}.segment_ids` must not be "
-                    "empty."
-                )
+                raise ValueError(f"Source registry `{phase_context}.segment_ids` must not be empty.")
             flattened_phase_segments.extend(phase_segment_ids)
-            first_release_window = parse_temporal_window(
-                phase, "first_release_window", phase_context, schema_packs
-            )
+            first_release_window = parse_temporal_window(phase, "first_release_window", phase_context, schema_packs)
             if first_release_window is None:
-                raise ValueError(
-                    f"Source registry `{phase_context}.first_release_window` is "
-                    "required."
-                )
-            cadence = require_mapping(
-                phase.get("cadence"), f"{phase_context}.cadence"
-            )
-            cadence_unit = require_string(
-                cadence, "unit", f"{phase_context}.cadence"
-            )
+                raise ValueError(f"Source registry `{phase_context}.first_release_window` is required.")
+            cadence = require_mapping(phase.get("cadence"), f"{phase_context}.cadence")
+            cadence_unit = require_string(cadence, "unit", f"{phase_context}.cadence")
             cadence_interval = cadence.get("interval")
-            if (
-                isinstance(cadence_interval, bool)
-                or not isinstance(cadence_interval, int)
-                or cadence_interval < 1
-            ):
-                raise ValueError(
-                    f"Source registry `{phase_context}.cadence.interval` must be "
-                    "a positive integer."
-                )
+            if isinstance(cadence_interval, bool) or not isinstance(cadence_interval, int) or cadence_interval < 1:
+                raise ValueError(f"Source registry `{phase_context}.cadence.interval` must be a positive integer.")
             validate_pack_values(
                 schema_packs,
                 "source.release-run-cadence-unit",
@@ -4527,8 +4064,7 @@ def load_source_registry(
                 or batch_size > len(phase_segment_ids)
             ):
                 raise ValueError(
-                    f"Source registry `{phase_context}.batch_size` must be between "
-                    "1 and the number of phase segments."
+                    f"Source registry `{phase_context}.batch_size` must be between 1 and the number of phase segments."
                 )
             phases.append(
                 ReleaseRunPhase(
@@ -4540,9 +4076,7 @@ def load_source_registry(
                     batch_size,
                 )
             )
-        ordered_run_segments = tuple(
-            entry.target_id for entry in ordering.entries
-        )
+        ordered_run_segments = tuple(entry.target_id for entry in ordering.entries)
         if tuple(flattened_phase_segments) != ordered_run_segments:
             raise ValueError(
                 f"Source registry `{context}.phases` must partition the run's "
@@ -4564,35 +4098,24 @@ def load_source_registry(
             )
         raw_exceptions = run.get("exceptions")
         if not isinstance(raw_exceptions, list):
-            raise ValueError(
-                f"Source registry `{context}.exceptions` must be a list."
-            )
+            raise ValueError(f"Source registry `{context}.exceptions` must be a list.")
         exceptions: list[ReleaseRunException] = []
         seen_exceptions: set[tuple[str, str]] = set()
         for index, raw_exception in enumerate(raw_exceptions):
             exception_context = f"{context}.exceptions[{index}]"
             exception = require_mapping(raw_exception, exception_context)
-            exception_type = require_string(
-                exception, "exception_type", exception_context
-            )
+            exception_type = require_string(exception, "exception_type", exception_context)
             validate_pack_values(
                 schema_packs,
                 "source.release-run-exception-type",
                 (exception_type,),
                 f"{exception_context}.exception_type",
             )
-            segment_id = require_string(
-                exception, "segment_id", exception_context
-            )
+            segment_id = require_string(exception, "segment_id", exception_context)
             if segment_id not in segment_ids:
-                raise ValueError(
-                    f"Source registry `{exception_context}.segment_id` falls outside "
-                    "the release run."
-                )
+                raise ValueError(f"Source registry `{exception_context}.segment_id` falls outside the release run.")
             if (exception_type, segment_id) in seen_exceptions:
-                raise ValueError(
-                    f"Source registry `{context}.exceptions` repeats an exception."
-                )
+                raise ValueError(f"Source registry `{context}.exceptions` repeats an exception.")
             seen_exceptions.add((exception_type, segment_id))
             release_window = parse_temporal_window(
                 exception,
@@ -4602,13 +4125,10 @@ def load_source_registry(
             )
             interval_count = exception.get("interval_count")
             if interval_count is not None and (
-                isinstance(interval_count, bool)
-                or not isinstance(interval_count, int)
-                or interval_count < 1
+                isinstance(interval_count, bool) or not isinstance(interval_count, int) or interval_count < 1
             ):
                 raise ValueError(
-                    f"Source registry `{exception_context}.interval_count` must be "
-                    "a positive integer when present."
+                    f"Source registry `{exception_context}.interval_count` must be a positive integer when present."
                 )
             if exception_type == "rescheduled":
                 valid_shape = release_window is not None and interval_count is None
@@ -4637,15 +4157,11 @@ def load_source_registry(
             subject_id=subject_id,
             segment_ids=segment_ids,
             ordering_scheme_id=ordering_scheme_id,
-            release_event_type=require_string(
-                run, "release_event_type", context
-            ),
+            release_event_type=require_string(run, "release_event_type", context),
             phases=tuple(phases),
             territory_ids=territory_ids,
             platform_ids=platform_ids,
-            availability_status=require_string(
-                run, "availability_status", context
-            ),
+            availability_status=require_string(run, "availability_status", context),
             exceptions=tuple(exceptions),
         )
     if release_runs:
@@ -4662,9 +4178,7 @@ def load_source_registry(
             "release_runs.*.availability_status",
         )
 
-    raw_release_events = require_mapping(
-        registry.get("release_events"), "release_events"
-    )
+    raw_release_events = require_mapping(registry.get("release_events"), "release_events")
     release_events: dict[str, ReleaseEvent] = {}
     for event_id, raw_event in raw_release_events.items():
         context = f"release_events.{event_id}"
@@ -4673,9 +4187,7 @@ def load_source_registry(
         subject_type = require_string(event, "subject_type", context)
         subject_id = require_string(event, "subject_id", context)
         segment_ids = require_string_list(event, "segment_ids", context)
-        validate_distribution_scope(
-            subject_type, subject_id, segment_ids, context
-        )
+        validate_distribution_scope(subject_type, subject_id, segment_ids, context)
         platform_ids = require_string_list(event, "platform_ids", context)
         unknown_platforms = set(platform_ids) - set(platforms)
         if unknown_platforms:
@@ -4694,28 +4206,17 @@ def load_source_registry(
         if release_run_id is not None:
             if release_run_id not in release_runs:
                 raise ValueError(
-                    f"Source registry `{context}.release_run_id` references unknown "
-                    f"release run `{release_run_id}`."
+                    f"Source registry `{context}.release_run_id` references unknown release run `{release_run_id}`."
                 )
             release_run = release_runs[release_run_id]
             if (
                 release_run.subject_type != subject_type
                 or release_run.subject_id != subject_id
                 or not set(segment_ids).issubset(release_run.segment_ids)
-                or (
-                    release_run.platform_ids
-                    and not set(platform_ids).issubset(release_run.platform_ids)
-                )
-                or (
-                    release_run.territory_ids
-                    and not set(territory_ids).issubset(
-                        release_run.territory_ids
-                    )
-                )
+                or (release_run.platform_ids and not set(platform_ids).issubset(release_run.platform_ids))
+                or (release_run.territory_ids and not set(territory_ids).issubset(release_run.territory_ids))
             ):
-                raise ValueError(
-                    f"Source registry `{context}` falls outside its release run."
-                )
+                raise ValueError(f"Source registry `{context}` falls outside its release run.")
         release_events[event_id] = ReleaseEvent(
             id=event_id,
             lifecycle=parse_lifecycle(event, context),
@@ -4723,17 +4224,11 @@ def load_source_registry(
             subject_type=subject_type,
             subject_id=subject_id,
             segment_ids=segment_ids,
-            release_event_type=require_string(
-                event, "release_event_type", context
-            ),
-            release_window=parse_temporal_window(
-                event, "release_window", context, schema_packs
-            ),
+            release_event_type=require_string(event, "release_event_type", context),
+            release_window=parse_temporal_window(event, "release_window", context, schema_packs),
             territory_ids=territory_ids,
             platform_ids=platform_ids,
-            availability_status=require_string(
-                event, "availability_status", context
-            ),
+            availability_status=require_string(event, "availability_status", context),
             release_run_id=release_run_id,
         )
     if release_events:
@@ -4750,9 +4245,7 @@ def load_source_registry(
             "release_events.*.availability_status",
         )
 
-    raw_catalog_placements = require_mapping(
-        registry.get("catalog_placements"), "catalog_placements"
-    )
+    raw_catalog_placements = require_mapping(registry.get("catalog_placements"), "catalog_placements")
     catalog_placements: dict[str, CatalogPlacement] = {}
     for placement_id, raw_placement in raw_catalog_placements.items():
         context = f"catalog_placements.{placement_id}"
@@ -4760,10 +4253,7 @@ def load_source_registry(
         placement = require_mapping(raw_placement, context)
         platform_id = require_string(placement, "platform_id", context)
         if platform_id not in platforms:
-            raise ValueError(
-                f"Source registry `{context}.platform_id` references unknown platform "
-                f"`{platform_id}`."
-            )
+            raise ValueError(f"Source registry `{context}.platform_id` references unknown platform `{platform_id}`.")
         target_type = require_string(placement, "target_type", context)
         target_id = require_string(placement, "target_id", context)
         validate_pack_values(
@@ -4780,25 +4270,13 @@ def load_source_registry(
             "release-package": release_packages,
         }
         if target_id not in catalog_targets[target_type]:
-            raise ValueError(
-                f"Source registry `{context}.target_id` references unknown "
-                f"{target_type} `{target_id}`."
-            )
+            raise ValueError(f"Source registry `{context}.target_id` references unknown {target_type} `{target_id}`.")
         ordinal = placement.get("ordinal")
-        if ordinal is not None and (
-            isinstance(ordinal, bool) or not isinstance(ordinal, int) or ordinal < 1
-        ):
-            raise ValueError(
-                f"Source registry `{context}.ordinal` must be a positive integer "
-                "when present."
-            )
-        localized_titles = parse_localized_titles(
-            placement, context, schema_packs
-        )
+        if ordinal is not None and (isinstance(ordinal, bool) or not isinstance(ordinal, int) or ordinal < 1):
+            raise ValueError(f"Source registry `{context}.ordinal` must be a positive integer when present.")
+        localized_titles = parse_localized_titles(placement, context, schema_packs)
         for localized_title in localized_titles:
-            unknown_territories = set(localized_title.territory_ids) - set(
-                territories
-            )
+            unknown_territories = set(localized_title.territory_ids) - set(territories)
             if unknown_territories:
                 raise ValueError(
                     f"Source registry `{context}.localized_titles` references "
@@ -4811,9 +4289,7 @@ def load_source_registry(
             label=require_string(placement, "label", context),
             platform_id=platform_id,
             placement_type=require_string(placement, "placement_type", context),
-            parent_placement_id=optional_string(
-                placement, "parent_placement_id", context
-            ),
+            parent_placement_id=optional_string(placement, "parent_placement_id", context),
             target_type=target_type,
             target_id=target_id,
             ordinal=ordinal,
@@ -4825,14 +4301,10 @@ def load_source_registry(
         if parent_id is not None:
             if parent_id not in catalog_placements:
                 raise ValueError(
-                    f"Source registry `catalog_placements.{placement.id}` references "
-                    f"unknown parent `{parent_id}`."
+                    f"Source registry `catalog_placements.{placement.id}` references unknown parent `{parent_id}`."
                 )
             if parent_id == placement.id:
-                raise ValueError(
-                    f"Source registry catalog placement `{placement.id}` cannot "
-                    "parent itself."
-                )
+                raise ValueError(f"Source registry catalog placement `{placement.id}` cannot parent itself.")
             if catalog_placements[parent_id].platform_id != placement.platform_id:
                 raise ValueError(
                     f"Source registry catalog placement `{placement.id}` and its "
@@ -4842,10 +4314,7 @@ def load_source_registry(
 
     def visit_placement(placement_id: str, active: set[str]) -> None:
         if placement_id in active:
-            raise ValueError(
-                f"Source registry contains a catalog-placement cycle involving "
-                f"`{placement_id}`."
-            )
+            raise ValueError(f"Source registry contains a catalog-placement cycle involving `{placement_id}`.")
         if placement_id in complete_placements:
             return
         active.add(placement_id)
@@ -4865,9 +4334,7 @@ def load_source_registry(
             "catalog_placements.*.placement_type",
         )
 
-    raw_platform_offerings = require_mapping(
-        registry.get("platform_offerings"), "platform_offerings"
-    )
+    raw_platform_offerings = require_mapping(registry.get("platform_offerings"), "platform_offerings")
     platform_offerings: dict[str, PlatformOffering] = {}
     for offering_id, raw_offering in raw_platform_offerings.items():
         context = f"platform_offerings.{offering_id}"
@@ -4877,17 +4344,10 @@ def load_source_registry(
         subject_type = require_string(offering, "subject_type", context)
         subject_id = require_string(offering, "subject_id", context)
         segment_ids = require_string_list(offering, "segment_ids", context)
-        validate_distribution_scope(
-            subject_type, subject_id, segment_ids, context
-        )
-        release_event_id = optional_string(
-            offering, "release_event_id", context
-        )
+        validate_distribution_scope(subject_type, subject_id, segment_ids, context)
+        release_event_id = optional_string(offering, "release_event_id", context)
         if platform_id not in platforms:
-            raise ValueError(
-                f"Source registry `{context}.platform_id` references unknown platform "
-                f"`{platform_id}`."
-            )
+            raise ValueError(f"Source registry `{context}.platform_id` references unknown platform `{platform_id}`.")
         if release_event_id is not None:
             if release_event_id not in release_events:
                 raise ValueError(
@@ -4899,23 +4359,15 @@ def load_source_registry(
                 event.subject_type != subject_type
                 or event.subject_id != subject_id
                 or platform_id not in event.platform_ids
-                or (
-                    event.segment_ids
-                    and not set(segment_ids).issubset(event.segment_ids)
-                )
+                or (event.segment_ids and not set(segment_ids).issubset(event.segment_ids))
             ):
                 raise ValueError(
                     f"Source registry `{context}` release event does not match its "
                     "subject, segment scope, and platform."
                 )
-        placement_ids = require_string_list(
-            offering, "catalog_placement_ids", context
-        )
+        placement_ids = require_string_list(offering, "catalog_placement_ids", context)
         for placement_id in placement_ids:
-            if (
-                placement_id not in catalog_placements
-                or catalog_placements[placement_id].platform_id != platform_id
-            ):
+            if placement_id not in catalog_placements or catalog_placements[placement_id].platform_id != platform_id:
                 raise ValueError(
                     f"Source registry `{context}.catalog_placement_ids` references "
                     f"placement `{placement_id}` outside platform `{platform_id}`."
@@ -4940,14 +4392,10 @@ def load_source_registry(
             segment_ids=segment_ids,
             release_event_id=release_event_id,
             offering_type=require_string(offering, "offering_type", context),
-            availability_status=require_string(
-                offering, "availability_status", context
-            ),
+            availability_status=require_string(offering, "availability_status", context),
             territory_ids=territory_ids,
             language_tags=language_tags,
-            availability_window=parse_temporal_window(
-                offering, "availability_window", context, schema_packs
-            ),
+            availability_window=parse_temporal_window(offering, "availability_window", context, schema_packs),
             catalog_placement_ids=placement_ids,
         )
     if platform_offerings:
@@ -4964,9 +4412,7 @@ def load_source_registry(
             "platform_offerings.*.availability_status",
         )
 
-    raw_identifier_schemes = require_mapping(
-        registry.get("identifier_schemes"), "identifier_schemes"
-    )
+    raw_identifier_schemes = require_mapping(registry.get("identifier_schemes"), "identifier_schemes")
     identifier_schemes: dict[str, IdentifierScheme] = {}
     for scheme_id, raw_scheme in raw_identifier_schemes.items():
         context = f"identifier_schemes.{scheme_id}"
@@ -4974,9 +4420,7 @@ def load_source_registry(
         scheme = require_mapping(raw_scheme, context)
         target_types = require_string_list(scheme, "target_types", context)
         if not target_types:
-            raise ValueError(
-                f"Source registry `{context}.target_types` must not be empty."
-            )
+            raise ValueError(f"Source registry `{context}.target_types` must not be empty.")
         validate_pack_values(
             schema_packs,
             "source.identifier-target-type",
@@ -5001,19 +4445,11 @@ def load_source_registry(
         lifecycle = parse_lifecycle(source, context)
         medium_id = require_string(source, "medium_id", context)
         if medium_id not in mediums:
+            raise ValueError(f"Source registry `{context}.medium_id` references unknown medium `{medium_id}`.")
+        locator_medium_ids = require_string_list(source, "locator_medium_ids", context)
+        if medium_id not in locator_medium_ids or len(set(locator_medium_ids)) != len(locator_medium_ids):
             raise ValueError(
-                f"Source registry `{context}.medium_id` references unknown medium "
-                f"`{medium_id}`."
-            )
-        locator_medium_ids = require_string_list(
-            source, "locator_medium_ids", context
-        )
-        if medium_id not in locator_medium_ids or len(set(locator_medium_ids)) != len(
-            locator_medium_ids
-        ):
-            raise ValueError(
-                f"Source registry `{context}.locator_medium_ids` must be "
-                "duplicate-free and include the source medium."
+                f"Source registry `{context}.locator_medium_ids` must be duplicate-free and include the source medium."
             )
         unknown_locator_media = set(locator_medium_ids) - set(mediums)
         if unknown_locator_media:
@@ -5021,13 +4457,9 @@ def load_source_registry(
                 f"Source registry `{context}.locator_medium_ids` references unknown "
                 f"media: {', '.join(sorted(unknown_locator_media))}."
             )
-        container_format_ids = require_string_list(
-            source, "container_format_ids", context
-        )
+        container_format_ids = require_string_list(source, "container_format_ids", context)
         if not container_format_ids:
-            raise ValueError(
-                f"Source registry `{context}.container_format_ids` must not be empty."
-            )
+            raise ValueError(f"Source registry `{context}.container_format_ids` must not be empty.")
         unknown_container_formats = set(container_format_ids) - set(container_formats)
         if unknown_container_formats:
             raise ValueError(
@@ -5037,20 +4469,15 @@ def load_source_registry(
         role = require_string(source, "role", context)
         if role not in allowed_source_roles:
             raise ValueError(
-                f"Source registry `{context}.role` must be one of: "
-                f"{', '.join(sorted(allowed_source_roles))}."
+                f"Source registry `{context}.role` must be one of: {', '.join(sorted(allowed_source_roles))}."
             )
         work_ids = require_string_list(source, "work_ids", context)
         if not work_ids or len(set(work_ids)) != len(work_ids):
-            raise ValueError(
-                f"Source registry `{context}.work_ids` must be a non-empty "
-                "duplicate-free list."
-            )
+            raise ValueError(f"Source registry `{context}.work_ids` must be a non-empty duplicate-free list.")
         unknown_works = set(work_ids) - set(works)
         if unknown_works:
             raise ValueError(
-                f"Source registry `{context}.work_ids` references unknown works: "
-                f"{', '.join(sorted(unknown_works))}."
+                f"Source registry `{context}.work_ids` references unknown works: {', '.join(sorted(unknown_works))}."
             )
         manifestation_id = optional_string(source, "manifestation_id", context)
         if manifestation_id is not None:
@@ -5061,12 +4488,9 @@ def load_source_registry(
                 )
             if manifestations[manifestation_id].work_id not in work_ids:
                 raise ValueError(
-                    f"Source registry `{context}` manifestation belongs to a "
-                    "work outside the source scope."
+                    f"Source registry `{context}` manifestation belongs to a work outside the source scope."
                 )
-        release_package_id = optional_string(
-            source, "release_package_id", context
-        )
+        release_package_id = optional_string(source, "release_package_id", context)
         if release_package_id is not None:
             if release_package_id not in release_packages:
                 raise ValueError(
@@ -5080,16 +4504,10 @@ def load_source_registry(
                 if release_components[component_id].manifestation_id is not None
             }
             if manifestation_id is not None and manifestation_id not in package_manifestation_ids:
-                raise ValueError(
-                    f"Source registry `{context}` manifestation is not contained by "
-                    "its release package."
-                )
+                raise ValueError(f"Source registry `{context}` manifestation is not contained by its release package.")
             package_work_ids = release_package_work_ids(release_package_id)
             if package_work_ids and not set(work_ids).issubset(package_work_ids):
-                raise ValueError(
-                    f"Source registry `{context}.work_ids` extends beyond its "
-                    "release package."
-                )
+                raise ValueError(f"Source registry `{context}.work_ids` extends beyond its release package.")
         release_event_id = optional_string(source, "release_event_id", context)
         if release_event_id is not None:
             if release_event_id not in release_events:
@@ -5105,21 +4523,15 @@ def load_source_registry(
             )
             if (event.subject_type, event.subject_id) != expected_subject:
                 raise ValueError(
-                    f"Source registry `{context}` release event does not belong to "
-                    "its manifestation or package."
+                    f"Source registry `{context}` release event does not belong to its manifestation or package."
                 )
-        release_component_ids = require_string_list(
-            source, "release_component_ids", context
-        )
+        release_component_ids = require_string_list(source, "release_component_ids", context)
         for component_id in release_component_ids:
             if component_id not in release_components:
                 raise ValueError(
-                    f"Source registry `{context}.release_component_ids` references "
-                    f"unknown component `{component_id}`."
+                    f"Source registry `{context}.release_component_ids` references unknown component `{component_id}`."
                 )
-            component_manifestation_id = release_components[
-                component_id
-            ].manifestation_id
+            component_manifestation_id = release_components[component_id].manifestation_id
             component_matches = component_manifestation_id == manifestation_id
             if release_package_id is not None:
                 component_matches = component_matches or component_id in (
@@ -5131,21 +4543,15 @@ def load_source_registry(
                     "belong to its manifestation or package."
                 )
             component_work_ids = {
-                segments[segment_id].work_id
-                for segment_id in release_components[component_id].segment_ids
+                segments[segment_id].work_id for segment_id in release_components[component_id].segment_ids
             }
             if component_manifestation_id is not None:
-                component_work_ids.add(
-                    manifestations[component_manifestation_id].work_id
-                )
+                component_work_ids.add(manifestations[component_manifestation_id].work_id)
             if component_work_ids and not component_work_ids.intersection(work_ids):
                 raise ValueError(
-                    f"Source registry `{context}` component `{component_id}` falls "
-                    "outside the source work scope."
+                    f"Source registry `{context}` component `{component_id}` falls outside the source work scope."
                 )
-        platform_offering_id = optional_string(
-            source, "platform_offering_id", context
-        )
+        platform_offering_id = optional_string(source, "platform_offering_id", context)
         if platform_offering_id is not None:
             if platform_offering_id not in platform_offerings:
                 raise ValueError(
@@ -5160,41 +4566,28 @@ def load_source_registry(
             )
             if (offering.subject_type, offering.subject_id) != expected_subject:
                 raise ValueError(
-                    f"Source registry `{context}` platform offering does not belong "
-                    "to its manifestation or package."
+                    f"Source registry `{context}` platform offering does not belong to its manifestation or package."
                 )
-        incompatible_work_ids = {
-            work_id
-            for work_id in work_ids
-            if works[work_id].medium_id != medium_id
-        }
+        incompatible_work_ids = {work_id for work_id in work_ids if works[work_id].medium_id != medium_id}
         if incompatible_work_ids and role not in {
             "supplemental",
             "reference",
             "extract",
         }:
             raise ValueError(
-                f"Source registry `{context}` medium does not match works: "
-                f"{', '.join(sorted(incompatible_work_ids))}."
+                f"Source registry `{context}` medium does not match works: {', '.join(sorted(incompatible_work_ids))}."
             )
         comparison_group = require_string(source, "comparison_group", context)
         validate_id(comparison_group, f"{context}.comparison_group")
         priority = source.get("priority")
         if isinstance(priority, bool) or not isinstance(priority, int) or priority < 1:
-            raise ValueError(
-                f"Source registry `{context}.priority` must be a positive integer."
-            )
+            raise ValueError(f"Source registry `{context}.priority` must be a positive integer.")
         source_aliases = require_string_list(source, "aliases", context)
         for alias in source_aliases:
             validate_id(alias, f"{context}.aliases")
             alias_key = lookup_keys.normalize(alias)
-            if alias_key in aliases or alias_key in {
-                lookup_keys.normalize(existing_id) for existing_id in raw_sources
-            }:
-                raise ValueError(
-                    f"Source registry alias `{alias}` is duplicated or collides with "
-                    "a source ID."
-                )
+            if alias_key in aliases or alias_key in {lookup_keys.normalize(existing_id) for existing_id in raw_sources}:
+                raise ValueError(f"Source registry alias `{alias}` is duplicated or collides with a source ID.")
             aliases[alias_key] = source_id
         evidence_modes = require_string_list(source, "evidence_modes", context)
         validate_pack_values(
@@ -5212,57 +4605,34 @@ def load_source_registry(
         }
         raw_observations = source.get("observations")
         if not isinstance(raw_observations, list):
-            raise ValueError(
-                f"Source registry `{context}.observations` must be a list."
-            )
+            raise ValueError(f"Source registry `{context}.observations` must be a list.")
         observations: list[SourceObservation] = []
         seen_observation_ids: set[str] = set()
         seen_observation_targets: set[tuple[str, str]] = set()
         for index, raw_observation in enumerate(raw_observations):
             observation_context = f"{context}.observations[{index}]"
             observation = require_mapping(raw_observation, observation_context)
-            observation_id = require_string(
-                observation, "id", observation_context
-            )
+            observation_id = require_string(observation, "id", observation_context)
             validate_id(observation_id, f"{observation_context}.id")
-            target_type = require_string(
-                observation, "target_type", observation_context
-            )
-            target_id = require_string(
-                observation, "target_id", observation_context
-            )
+            target_type = require_string(observation, "target_type", observation_context)
+            target_id = require_string(observation, "target_id", observation_context)
             if observation_id in seen_observation_ids:
+                raise ValueError(f"Source registry `{context}.observations` repeats ID `{observation_id}`.")
+            if target_type not in observation_targets or target_id not in observation_targets[target_type]:
                 raise ValueError(
-                    f"Source registry `{context}.observations` repeats ID "
-                    f"`{observation_id}`."
-                )
-            if (
-                target_type not in observation_targets
-                or target_id not in observation_targets[target_type]
-            ):
-                raise ValueError(
-                    f"Source registry `{observation_context}` references unknown "
-                    f"{target_type} `{target_id}`."
+                    f"Source registry `{observation_context}` references unknown {target_type} `{target_id}`."
                 )
             if (target_type, target_id) in seen_observation_targets:
-                raise ValueError(
-                    f"Source registry `{context}.observations` repeats a target."
-                )
+                raise ValueError(f"Source registry `{context}.observations` repeats a target.")
             seen_observation_ids.add(observation_id)
             seen_observation_targets.add((target_type, target_id))
-            observations.append(
-                SourceObservation(observation_id, target_type, target_id)
-            )
+            observations.append(SourceObservation(observation_id, target_type, target_id))
         raw_coverage = source.get("coverage")
         if not isinstance(raw_coverage, list):
-            raise ValueError(
-                f"Source registry `{context}.coverage` must be a list."
-            )
+            raise ValueError(f"Source registry `{context}.coverage` must be a list.")
         coverage: list[SourceCoverage] = []
         seen_coverage_ids: set[str] = set()
-        seen_coverage: dict[
-            tuple[str, str, str, str], list[SourceCoverage]
-        ] = {}
+        seen_coverage: dict[tuple[str, str, str, str], list[SourceCoverage]] = {}
         coverage_targets = {
             "work": works,
             "segment": segments,
@@ -5285,23 +4655,16 @@ def load_source_registry(
                     elif member.target_type == "segment":
                         result.add(segments[member.target_id].work_id)
                     else:
-                        result.update(
-                            coverage_work_ids("content-group", member.target_id)
-                        )
+                        result.update(coverage_work_ids("content-group", member.target_id))
                 return result
             if target_type == "manifestation":
                 return {manifestations[target_id].work_id}
             if target_type == "release-package":
                 return release_package_work_ids(target_id)
             component = release_components[target_id]
-            result = {
-                segments[segment_id].work_id
-                for segment_id in component.segment_ids
-            }
+            result = {segments[segment_id].work_id for segment_id in component.segment_ids}
             if component.manifestation_id is not None:
-                result.add(
-                    manifestations[component.manifestation_id].work_id
-                )
+                result.add(manifestations[component.manifestation_id].work_id)
             return result
 
         for observation in observations:
@@ -5320,78 +4683,46 @@ def load_source_registry(
                     else release_package_work_ids(observed.subject_id)
                 )
             else:
-                observed_work_ids = coverage_work_ids(
-                    observation.target_type, observation.target_id
-                )
+                observed_work_ids = coverage_work_ids(observation.target_type, observation.target_id)
             if observed_work_ids and not observed_work_ids.issubset(work_ids):
                 raise ValueError(
-                    f"Source registry `{context}.observations` includes material "
-                    "outside the source work scope."
+                    f"Source registry `{context}.observations` includes material outside the source work scope."
                 )
 
         for index, raw_coverage_entry in enumerate(raw_coverage):
             coverage_context = f"{context}.coverage[{index}]"
-            coverage_entry = require_mapping(
-                raw_coverage_entry, coverage_context
-            )
-            coverage_id = require_string(
-                coverage_entry, "id", coverage_context
-            )
+            coverage_entry = require_mapping(raw_coverage_entry, coverage_context)
+            coverage_id = require_string(coverage_entry, "id", coverage_context)
             validate_id(coverage_id, f"{coverage_context}.id")
             if coverage_id in seen_coverage_ids:
-                raise ValueError(
-                    f"Source registry `{context}.coverage` repeats ID "
-                    f"`{coverage_id}`."
-                )
+                raise ValueError(f"Source registry `{context}.coverage` repeats ID `{coverage_id}`.")
             seen_coverage_ids.add(coverage_id)
-            target_type = require_string(
-                coverage_entry, "target_type", coverage_context
-            )
+            target_type = require_string(coverage_entry, "target_type", coverage_context)
             validate_pack_values(
                 schema_packs,
                 "source.coverage-target-type",
                 (target_type,),
                 f"{coverage_context}.target_type",
             )
-            target_id = require_string(
-                coverage_entry, "target_id", coverage_context
-            )
-            if (
-                target_type not in coverage_targets
-                or target_id not in coverage_targets[target_type]
-            ):
+            target_id = require_string(coverage_entry, "target_id", coverage_context)
+            if target_type not in coverage_targets or target_id not in coverage_targets[target_type]:
                 raise ValueError(
-                    f"Source registry `{coverage_context}.target_id` references "
-                    f"unknown {target_type} `{target_id}`."
+                    f"Source registry `{coverage_context}.target_id` references unknown {target_type} `{target_id}`."
                 )
-            coverage_type = require_string(
-                coverage_entry, "coverage_type", coverage_context
-            )
+            coverage_type = require_string(coverage_entry, "coverage_type", coverage_context)
             validate_pack_values(
                 schema_packs,
                 "source.coverage-type",
                 (coverage_type,),
                 f"{coverage_context}.coverage_type",
             )
-            coverage_medium_id = require_string(
-                coverage_entry, "medium_id", coverage_context
-            )
+            coverage_medium_id = require_string(coverage_entry, "medium_id", coverage_context)
             if coverage_medium_id not in locator_medium_ids:
-                raise ValueError(
-                    f"Source registry `{coverage_context}.medium_id` is not "
-                    "allowed by the source."
-                )
-            coverage_evidence_modes = require_string_list(
-                coverage_entry, "evidence_modes", coverage_context
-            )
+                raise ValueError(f"Source registry `{coverage_context}.medium_id` is not allowed by the source.")
+            coverage_evidence_modes = require_string_list(coverage_entry, "evidence_modes", coverage_context)
             if not coverage_evidence_modes:
-                raise ValueError(
-                    f"Source registry `{coverage_context}.evidence_modes` must "
-                    "not be empty."
-                )
-            unknown_coverage_modes = set(coverage_evidence_modes) - set(
-                evidence_modes
-            )
+                raise ValueError(f"Source registry `{coverage_context}.evidence_modes` must not be empty.")
+            unknown_coverage_modes = set(coverage_evidence_modes) - set(evidence_modes)
             if unknown_coverage_modes:
                 raise ValueError(
                     f"Source registry `{coverage_context}.evidence_modes` uses "
@@ -5400,43 +4731,27 @@ def load_source_registry(
                 )
             target_work_ids = coverage_work_ids(target_type, target_id)
             if target_work_ids and not target_work_ids.issubset(work_ids):
-                raise ValueError(
-                    f"Source registry `{coverage_context}` extends beyond the "
-                    "source work scope."
-                )
+                raise ValueError(f"Source registry `{coverage_context}` extends beyond the source work scope.")
             raw_ranges = coverage_entry.get("position_ranges")
             if not isinstance(raw_ranges, list):
-                raise ValueError(
-                    f"Source registry `{coverage_context}.position_ranges` must "
-                    "be a list."
-                )
+                raise ValueError(f"Source registry `{coverage_context}.position_ranges` must be a list.")
             position_ranges: list[CoveragePositionRange] = []
             seen_range_ids: set[str] = set()
             coverage_medium = mediums[coverage_medium_id]
             medium_fields = coverage_medium.fields
             for range_index, raw_range in enumerate(raw_ranges):
-                range_context = (
-                    f"{coverage_context}.position_ranges[{range_index}]"
-                )
+                range_context = f"{coverage_context}.position_ranges[{range_index}]"
                 position_range = require_mapping(raw_range, range_context)
                 range_id = require_string(position_range, "id", range_context)
                 validate_id(range_id, f"{range_context}.id")
                 if range_id in seen_range_ids:
-                    raise ValueError(
-                        f"Source registry `{coverage_context}.position_ranges` "
-                        f"repeats ID `{range_id}`."
-                    )
+                    raise ValueError(f"Source registry `{coverage_context}.position_ranges` repeats ID `{range_id}`.")
                 seen_range_ids.add(range_id)
-                start = require_mapping(
-                    position_range.get("start"), f"{range_context}.start"
-                )
-                end = require_mapping(
-                    position_range.get("end"), f"{range_context}.end"
-                )
+                start = require_mapping(position_range.get("start"), f"{range_context}.start")
+                end = require_mapping(position_range.get("end"), f"{range_context}.end")
                 if not start or set(start) != set(end):
                     raise ValueError(
-                        f"Source registry `{range_context}` start/end fields must "
-                        "be non-empty and identical."
+                        f"Source registry `{range_context}` start/end fields must be non-empty and identical."
                     )
                 unknown_fields = set(start) - set(medium_fields)
                 if unknown_fields:
@@ -5455,17 +4770,11 @@ def load_source_registry(
                 work_scope_field = coverage_medium.work_scope_field
                 if work_scope_field not in start:
                     raise ValueError(
-                        f"Source registry `{range_context}` must include work-scope "
-                        f"field `{work_scope_field}`."
+                        f"Source registry `{range_context}` must include work-scope field `{work_scope_field}`."
                     )
                 range_work_ids = {start[work_scope_field], end[work_scope_field]}
-                if len(range_work_ids) != 1 or not range_work_ids.issubset(
-                    target_work_ids
-                ):
-                    raise ValueError(
-                        f"Source registry `{range_context}` falls outside its "
-                        "coverage target work scope."
-                    )
+                if len(range_work_ids) != 1 or not range_work_ids.issubset(target_work_ids):
+                    raise ValueError(f"Source registry `{range_context}` falls outside its coverage target work scope.")
                 validate_structural_position(
                     start,
                     coverage_medium,
@@ -5482,19 +4791,18 @@ def load_source_registry(
                     ordering_schemes,
                     f"{range_context}.end",
                 )
-                if compare_positions(
-                    start,
-                    end,
-                    coverage_medium,
-                    ordering_schemes,
-                    range_context,
-                ) > 0:
-                    raise ValueError(
-                        f"Source registry `{range_context}` start must not follow end."
+                if (
+                    compare_positions(
+                        start,
+                        end,
+                        coverage_medium,
+                        ordering_schemes,
+                        range_context,
                     )
-                position_ranges.append(
-                    CoveragePositionRange(range_id, dict(start), dict(end))
-                )
+                    > 0
+                ):
+                    raise ValueError(f"Source registry `{range_context}` start must not follow end.")
+                position_ranges.append(CoveragePositionRange(range_id, dict(start), dict(end)))
             new_coverage = SourceCoverage(
                 coverage_id,
                 target_type,
@@ -5519,21 +4827,21 @@ def load_source_registry(
                             left.start[coverage_medium.work_scope_field]
                             == right.start[coverage_medium.work_scope_field]
                             and compare_positions(
-                                    left.start,
-                                    right.end,
-                                    coverage_medium,
-                                    ordering_schemes,
-                                    coverage_context,
-                                )
-                                <= 0
+                                left.start,
+                                right.end,
+                                coverage_medium,
+                                ordering_schemes,
+                                coverage_context,
+                            )
+                            <= 0
                             and compare_positions(
-                                    right.start,
-                                    left.end,
-                                    coverage_medium,
-                                    ordering_schemes,
-                                    coverage_context,
-                                )
-                                <= 0
+                                right.start,
+                                left.end,
+                                coverage_medium,
+                                ordering_schemes,
+                                coverage_context,
+                            )
+                            <= 0
                             for left in previous.position_ranges
                             for right in new_coverage.position_ranges
                         )
@@ -5549,9 +4857,7 @@ def load_source_registry(
             coverage.append(new_coverage)
         raw_bindings = source.get("resource_bindings")
         if not isinstance(raw_bindings, list):
-            raise ValueError(
-                f"Source registry `{context}.resource_bindings` must be a list."
-            )
+            raise ValueError(f"Source registry `{context}.resource_bindings` must be a list.")
         bindings = tuple(
             resolve_resource_binding(
                 project,
@@ -5593,10 +4899,7 @@ def load_source_registry(
     for profile in authority_profiles.values():
         for rule in profile.claim_authority_rules:
             if rule.id in seen_authority_rule_ids:
-                raise ValueError(
-                    f"Source registry authority-rule ID `{rule.id}` is duplicated "
-                    "across profiles."
-                )
+                raise ValueError(f"Source registry authority-rule ID `{rule.id}` is duplicated across profiles.")
             seen_authority_rule_ids.add(rule.id)
             unknown_rule_sources = set(rule.source_ids) - set(sources)
             if unknown_rule_sources:
@@ -5620,14 +4923,8 @@ def load_source_registry(
                     ]
                     if not matches:
                         continue
-                    highest_precedence = max(
-                        rule.precedence for rule in matches
-                    )
-                    winners = [
-                        rule
-                        for rule in matches
-                        if rule.precedence == highest_precedence
-                    ]
+                    highest_precedence = max(rule.precedence for rule in matches)
+                    winners = [rule for rule in matches if rule.precedence == highest_precedence]
                     if len(winners) > 1:
                         mode_context = evidence_mode or "unspecified"
                         raise ValueError(
@@ -5648,33 +4945,20 @@ def load_source_registry(
         relationship_id = require_string(relationship, "id", context)
         validate_id(relationship_id, f"{context}.id")
         if relationship_id in seen_relationship_ids:
-            raise ValueError(
-                f"Source registry relationship ID `{relationship_id}` is duplicated."
-            )
+            raise ValueError(f"Source registry relationship ID `{relationship_id}` is duplicated.")
         seen_relationship_ids.add(relationship_id)
         source_id = require_string(relationship, "source_source_id", context)
         target_id = require_string(relationship, "target_source_id", context)
-        relationship_type = require_string(
-            relationship, "relationship_type", context
-        )
+        relationship_type = require_string(relationship, "relationship_type", context)
         if source_id not in sources or target_id not in sources:
-            raise ValueError(
-                f"Source registry `{context}` references an unknown source."
-            )
+            raise ValueError(f"Source registry `{context}` references an unknown source.")
         if source_id == target_id:
-            raise ValueError(
-                f"Source registry `{context}` cannot relate a source to itself."
-            )
+            raise ValueError(f"Source registry `{context}` cannot relate a source to itself.")
         if relationship_type not in source_relationship_types:
             raise ValueError(
-                f"Source registry `{context}.relationship_type` references unknown "
-                f"type `{relationship_type}`."
+                f"Source registry `{context}.relationship_type` references unknown type `{relationship_type}`."
             )
-        source_relationships.append(
-            SourceRelationship(
-                relationship_id, source_id, relationship_type, target_id
-            )
-        )
+        source_relationships.append(SourceRelationship(relationship_id, source_id, relationship_type, target_id))
 
     work_relationship_map = {item.id: item for item in work_relationships}
     adaptation_mapping_map = {item.id: item for item in adaptation_mappings}
@@ -5693,18 +4977,14 @@ def load_source_registry(
     if not isinstance(raw_applicability_scopes, list):
         raise ValueError("Source registry `applicability_scopes` must be a list.")
     applicability_scopes: dict[str, ApplicabilityScope] = {}
-    scope_windows: dict[
-        tuple[str, str, tuple[str, ...], int], list[TemporalWindow | None]
-    ] = {}
+    scope_windows: dict[tuple[str, str, tuple[str, ...], int], list[TemporalWindow | None]] = {}
     for index, raw_scope in enumerate(raw_applicability_scopes):
         context = f"applicability_scopes[{index}]"
         scope = require_mapping(raw_scope, context)
         scope_id = require_string(scope, "id", context)
         validate_id(scope_id, f"{context}.id")
         if scope_id in applicability_scopes:
-            raise ValueError(
-                f"Source registry applicability-scope ID `{scope_id}` is duplicated."
-            )
+            raise ValueError(f"Source registry applicability-scope ID `{scope_id}` is duplicated.")
         target_type = require_string(scope, "target_type", context)
         validate_pack_values(
             schema_packs,
@@ -5714,13 +4994,9 @@ def load_source_registry(
         )
         target_id = require_string(scope, "target_id", context)
         if target_type != "provenance-claim" and (
-            target_type not in applicability_targets
-            or target_id not in applicability_targets[target_type]
+            target_type not in applicability_targets or target_id not in applicability_targets[target_type]
         ):
-            raise ValueError(
-                f"Source registry `{context}.target_id` references unknown "
-                f"{target_type} `{target_id}`."
-            )
+            raise ValueError(f"Source registry `{context}.target_id` references unknown {target_type} `{target_id}`.")
         territory_ids = require_string_list(scope, "territory_ids", context)
         unknown_territories = set(territory_ids) - set(territories)
         if unknown_territories:
@@ -5729,28 +5005,16 @@ def load_source_registry(
                 f"territories: {', '.join(sorted(unknown_territories))}."
             )
         precedence = scope.get("precedence")
-        if (
-            isinstance(precedence, bool)
-            or not isinstance(precedence, int)
-            or precedence < 0
-        ):
-            raise ValueError(
-                f"Source registry `{context}.precedence` must be a non-negative "
-                "integer."
-            )
-        effective_window = parse_temporal_window(
-            scope, "effective_window", context, schema_packs
-        )
+        if isinstance(precedence, bool) or not isinstance(precedence, int) or precedence < 0:
+            raise ValueError(f"Source registry `{context}.precedence` must be a non-negative integer.")
+        effective_window = parse_temporal_window(scope, "effective_window", context, schema_packs)
         window_key = (
             target_type,
             target_id,
             tuple(sorted(territory_ids)),
             precedence,
         )
-        if any(
-            temporal_windows_overlap(effective_window, existing)
-            for existing in scope_windows.get(window_key, [])
-        ):
+        if any(temporal_windows_overlap(effective_window, existing) for existing in scope_windows.get(window_key, [])):
             raise ValueError(
                 f"Source registry `{context}` overlaps another applicability "
                 "scope with the same target, territory set, and precedence."
@@ -5790,9 +5054,7 @@ def load_source_registry(
             return {relationship.source_work_id, relationship.target_work_id}
         if target_type == "adaptation-mapping":
             mapping = adaptation_mapping_map[target_id]
-            return {mapping.target_work_id} | {
-                basis.work_id for basis in mapping.basis_inputs
-            }
+            return {mapping.target_work_id} | {basis.work_id for basis in mapping.basis_inputs}
         if target_type == "manifestation":
             return {manifestations[target_id].work_id}
         if target_type == "release-component":
@@ -5814,15 +5076,10 @@ def load_source_registry(
                 f"unknown applicability scope "
                 f"`{relationship.applicability_scope_id}`."
             )
-        relationship_scope = applicability_scopes[
-            relationship.applicability_scope_id
-        ]
-        if applicability_target_work_ids(relationship_scope) != {
-            relationship.source_work_id
-        }:
+        relationship_scope = applicability_scopes[relationship.applicability_scope_id]
+        if applicability_target_work_ids(relationship_scope) != {relationship.source_work_id}:
             raise ValueError(
-                f"Source registry work relationship `{relationship.id}` scope must "
-                "resolve only to its source work."
+                f"Source registry work relationship `{relationship.id}` scope must resolve only to its source work."
             )
 
     for production_context in work_production_contexts.values():
@@ -5832,12 +5089,8 @@ def load_source_registry(
                 f"`{production_context.id}` references unknown applicability scope "
                 f"`{production_context.applicability_scope_id}`."
             )
-        production_scope = applicability_scopes[
-            production_context.applicability_scope_id
-        ]
-        if production_context.work_id not in applicability_target_work_ids(
-            production_scope
-        ):
+        production_scope = applicability_scopes[production_context.applicability_scope_id]
+        if production_context.work_id not in applicability_target_work_ids(production_scope):
             raise ValueError(
                 f"Source registry work production context "
                 f"`{production_context.id}` scope falls outside work "
@@ -5846,9 +5099,7 @@ def load_source_registry(
 
     raw_continuity_assertions = registry.get("scoped_continuity_assertions")
     if not isinstance(raw_continuity_assertions, list):
-        raise ValueError(
-            "Source registry `scoped_continuity_assertions` must be a list."
-        )
+        raise ValueError("Source registry `scoped_continuity_assertions` must be a list.")
     scoped_continuity_assertions: dict[str, ScopedContinuityAssertion] = {}
     seen_continuity_scopes: set[tuple[str, str]] = set()
     for index, raw_assertion in enumerate(raw_continuity_assertions):
@@ -5857,15 +5108,11 @@ def load_source_registry(
         assertion_id = require_string(assertion, "id", context)
         validate_id(assertion_id, f"{context}.id")
         if assertion_id in scoped_continuity_assertions:
-            raise ValueError(
-                f"Source registry scoped-continuity-assertion ID "
-                f"`{assertion_id}` is duplicated."
-            )
+            raise ValueError(f"Source registry scoped-continuity-assertion ID `{assertion_id}` is duplicated.")
         scope_id = require_string(assertion, "applicability_scope_id", context)
         if scope_id not in applicability_scopes:
             raise ValueError(
-                f"Source registry `{context}.applicability_scope_id` references "
-                f"unknown scope `{scope_id}`."
+                f"Source registry `{context}.applicability_scope_id` references unknown scope `{scope_id}`."
             )
         scope = applicability_scopes[scope_id]
         if scope.target_type not in {
@@ -5875,26 +5122,22 @@ def load_source_registry(
             "provenance-claim",
         }:
             raise ValueError(
-                f"Source registry `{context}` scope target type "
-                f"`{scope.target_type}` cannot carry continuity."
+                f"Source registry `{context}` scope target type `{scope.target_type}` cannot carry continuity."
             )
         continuity_id = require_string(assertion, "continuity_id", context)
         if continuity_id not in continuities:
             raise ValueError(
-                f"Source registry `{context}.continuity_id` references unknown "
-                f"continuity `{continuity_id}`."
+                f"Source registry `{context}.continuity_id` references unknown continuity `{continuity_id}`."
             )
         status = require_string(assertion, "status", context)
         if status not in membership_statuses:
             raise ValueError(
-                f"Source registry `{context}.status` must be one of: "
-                f"{', '.join(sorted(membership_statuses))}."
+                f"Source registry `{context}.status` must be one of: {', '.join(sorted(membership_statuses))}."
             )
         continuity_scope = (continuity_id, scope_id)
         if continuity_scope in seen_continuity_scopes:
             raise ValueError(
-                f"Source registry repeats continuity `{continuity_id}` for "
-                f"applicability scope `{scope_id}`."
+                f"Source registry repeats continuity `{continuity_id}` for applicability scope `{scope_id}`."
             )
         seen_continuity_scopes.add(continuity_scope)
         scoped_continuity_assertions[assertion_id] = ScopedContinuityAssertion(
@@ -5906,9 +5149,7 @@ def load_source_registry(
 
     raw_external_identifiers = registry.get("external_identifiers")
     if not isinstance(raw_external_identifiers, list):
-        raise ValueError(
-            "Source registry `external_identifiers` must be a list."
-        )
+        raise ValueError("Source registry `external_identifiers` must be a list.")
     external_identifiers: list[ExternalIdentifier] = []
     seen_external_identifier_ids: set[str] = set()
     seen_scheme_values: set[tuple[str, str]] = set()
@@ -5930,45 +5171,26 @@ def load_source_registry(
         identifier_id = require_string(identifier, "id", context)
         validate_id(identifier_id, f"{context}.id")
         if identifier_id in seen_external_identifier_ids:
-            raise ValueError(
-                f"Source registry external identifier ID `{identifier_id}` is "
-                "duplicated."
-            )
+            raise ValueError(f"Source registry external identifier ID `{identifier_id}` is duplicated.")
         seen_external_identifier_ids.add(identifier_id)
         scheme_id = require_string(identifier, "scheme_id", context)
         if scheme_id not in identifier_schemes:
-            raise ValueError(
-                f"Source registry `{context}.scheme_id` references unknown scheme "
-                f"`{scheme_id}`."
-            )
+            raise ValueError(f"Source registry `{context}.scheme_id` references unknown scheme `{scheme_id}`.")
         target_type = require_string(identifier, "target_type", context)
         if target_type not in identifier_schemes[scheme_id].target_types:
             raise ValueError(
-                f"Source registry `{context}.target_type` is not allowed by "
-                f"identifier scheme `{scheme_id}`."
+                f"Source registry `{context}.target_type` is not allowed by identifier scheme `{scheme_id}`."
             )
         target_id = require_string(identifier, "target_id", context)
         if target_id not in identifier_targets[target_type]:
-            raise ValueError(
-                f"Source registry `{context}.target_id` references unknown "
-                f"{target_type} `{target_id}`."
-            )
+            raise ValueError(f"Source registry `{context}.target_id` references unknown {target_type} `{target_id}`.")
         value = require_string(identifier, "value", context)
-        normalized_value = (
-            value
-            if identifier_schemes[scheme_id].case_sensitive
-            else lookup_keys.normalize(value)
-        )
+        normalized_value = value if identifier_schemes[scheme_id].case_sensitive else lookup_keys.normalize(value)
         scheme_value = (scheme_id, normalized_value)
         if scheme_value in seen_scheme_values:
-            raise ValueError(
-                f"Source registry repeats value `{value}` in identifier scheme "
-                f"`{scheme_id}`."
-            )
+            raise ValueError(f"Source registry repeats value `{value}` in identifier scheme `{scheme_id}`.")
         seen_scheme_values.add(scheme_value)
-        territory_ids = require_string_list(
-            identifier, "territory_ids", context
-        )
+        territory_ids = require_string_list(identifier, "territory_ids", context)
         unknown_territories = set(territory_ids) - set(territories)
         if unknown_territories:
             raise ValueError(
@@ -6031,16 +5253,10 @@ def load_source_registry(
         manifestation_relationship_types=manifestation_relationship_types,
         manifestations=manifestations,
         manifestation_relationships=tuple(manifestation_relationships),
-        manifestation_segment_mappings=tuple(
-            manifestation_segment_mappings
-        ),
+        manifestation_segment_mappings=tuple(manifestation_segment_mappings),
         release_components=release_components,
-        release_component_relationship_types=(
-            release_component_relationship_types
-        ),
-        release_component_relationships=tuple(
-            release_component_relationships
-        ),
+        release_component_relationship_types=(release_component_relationship_types),
+        release_component_relationships=tuple(release_component_relationships),
         release_packages=release_packages,
         release_runs=release_runs,
         release_events=release_events,

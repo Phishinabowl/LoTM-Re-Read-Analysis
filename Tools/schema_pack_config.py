@@ -12,9 +12,7 @@ PACK_LIFECYCLES = {"active", "deferred"}
 PACK_KINDS = {"core", "domain", "extension"}
 CAPABILITY_LIFECYCLES = {"available", "planned", "deprecated"}
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
-NAMESPACE_PATTERN = re.compile(
-    r"^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)+$"
-)
+NAMESPACE_PATTERN = re.compile(r"^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)+$")
 
 EFFECT_KINDS_NAMESPACE = "occurrence.rule-effect-kind"
 EFFECT_TARGET_TYPES_NAMESPACE = "occurrence.rule-effect-kind-target-type"
@@ -76,9 +74,7 @@ class SchemaPackRegistry:
     capability_definitions: dict[tuple[str, str], CapabilityConfig]
     controlled_values: dict[str, tuple[str, ...]]
     controlled_value_owners: dict[tuple[str, str], str]
-    controlled_value_definitions: dict[
-        tuple[str, str], ControlledValueConfig
-    ]
+    controlled_value_definitions: dict[tuple[str, str], ControlledValueConfig]
 
     def allowed_values(self, namespace: str) -> tuple[str, ...]:
         return self.controlled_values.get(namespace, ())
@@ -92,9 +88,7 @@ class SchemaPackRegistry:
     def capability_declared(self, capability: str) -> bool:
         return capability in self.capability_providers
 
-    def capability_definitions_for(
-        self, capability: str
-    ) -> tuple[tuple[str, CapabilityConfig], ...]:
+    def capability_definitions_for(self, capability: str) -> tuple[tuple[str, CapabilityConfig], ...]:
         return tuple(
             (pack_id, self.capability_definitions[(pack_id, capability)])
             for pack_id in self.capability_providers.get(capability, ())
@@ -106,9 +100,7 @@ class SchemaPackRegistry:
     def owner_of(self, namespace: str, value: str) -> str | None:
         return self.controlled_value_owners.get((namespace, value))
 
-    def definition_of(
-        self, namespace: str, value: str
-    ) -> ControlledValueConfig | None:
+    def definition_of(self, namespace: str, value: str) -> ControlledValueConfig | None:
         return self.controlled_value_definitions.get((namespace, value))
 
 
@@ -121,38 +113,27 @@ def require_mapping(value, context: str) -> dict:
 def require_string(mapping: dict, key: str, context: str) -> str:
     value = mapping.get(key)
     if not isinstance(value, str) or not value.strip():
-        raise ValueError(
-            f"Schema-pack configuration `{context}.{key}` must be a non-empty string."
-        )
+        raise ValueError(f"Schema-pack configuration `{context}.{key}` must be a non-empty string.")
     return value.strip()
 
 
 def require_positive_int(mapping: dict, key: str, context: str) -> int:
     value = mapping.get(key)
     if isinstance(value, bool) or not isinstance(value, int) or value < 1:
-        raise ValueError(
-            f"Schema-pack configuration `{context}.{key}` must be a positive integer."
-        )
+        raise ValueError(f"Schema-pack configuration `{context}.{key}` must be a positive integer.")
     return value
 
 
 def require_string_list(mapping: dict, key: str, context: str) -> tuple[str, ...]:
     value = mapping.get(key)
-    if not isinstance(value, list) or any(
-        not isinstance(item, str) or not item.strip() for item in value
-    ):
-        raise ValueError(
-            f"Schema-pack configuration `{context}.{key}` must be a list of strings."
-        )
+    if not isinstance(value, list) or any(not isinstance(item, str) or not item.strip() for item in value):
+        raise ValueError(f"Schema-pack configuration `{context}.{key}` must be a list of strings.")
     return tuple(item.strip() for item in value)
 
 
 def validate_id(value: str, context: str) -> None:
     if not STABLE_ID_PATTERN.fullmatch(value):
-        raise ValueError(
-            f"Schema-pack configuration `{context}` must be a lowercase kebab-case "
-            f"stable ID: {value}"
-        )
+        raise ValueError(f"Schema-pack configuration `{context}` must be a lowercase kebab-case stable ID: {value}")
 
 
 def validate_occurrence_semantic_declarations(
@@ -163,10 +144,7 @@ def validate_occurrence_semantic_declarations(
         return
 
     target_pairs = set(controlled_values.get(EFFECT_TARGET_TYPES_NAMESPACE, ()))
-    recurrence_effects = {
-        effect for effect in effect_kinds
-        if f"{effect}-uses-recurrence-pattern" in target_pairs
-    }
+    recurrence_effects = {effect for effect in effect_kinds if f"{effect}-uses-recurrence-pattern" in target_pairs}
 
     scope_profiles: dict[str, set[str]] = {effect: set() for effect in recurrence_effects}
     valid_scope_values = {
@@ -198,21 +176,17 @@ def validate_occurrence_semantic_declarations(
     for value in controlled_values.get(EFFECT_REPETITION_NAMESPACE, ()):
         declaration = valid_repetition_values.get(value)
         if declaration is None:
-            raise ValueError(
-                f"Schema-pack effect repetition declaration `{value}` must reference a known effect kind."
-            )
+            raise ValueError(f"Schema-pack effect repetition declaration `{value}` must reference a known effect kind.")
         effect, policy = declaration
         repetition_profiles[effect].add(policy)
     for effect, profiles in repetition_profiles.items():
         if len(profiles) != 1:
-            raise ValueError(
-                f"Schema-pack effect kind `{effect}` requires exactly one repetition policy declaration."
-            )
+            raise ValueError(f"Schema-pack effect kind `{effect}` requires exactly one repetition policy declaration.")
 
     canonical_pairs = {
         f"{left}-with-{right}"
         for index, left in enumerate(sorted(effect_kinds))
-        for right in sorted(effect_kinds)[index + 1:]
+        for right in sorted(effect_kinds)[index + 1 :]
     }
     global_pairs = set(controlled_values.get(EFFECT_GLOBAL_CONFLICTS_NAMESPACE, ()))
     target_pairs = set(controlled_values.get(EFFECT_TARGET_CONFLICTS_NAMESPACE, ()))
@@ -237,19 +211,12 @@ def validate_occurrence_semantic_declarations(
 def resolve_pack_path(project: ProjectConfig, value: str, context: str) -> Path:
     relative_path = Path(value)
     if relative_path.is_absolute():
-        raise ValueError(
-            f"Schema-pack configuration `{context}` must be repository-relative: "
-            f"{value}"
-        )
+        raise ValueError(f"Schema-pack configuration `{context}` must be repository-relative: {value}")
     path = (project.root / relative_path).resolve()
     if path != project.root and project.root not in path.parents:
-        raise ValueError(
-            f"Schema-pack configuration `{context}` escapes the repository: {value}"
-        )
+        raise ValueError(f"Schema-pack configuration `{context}` escapes the repository: {value}")
     if not path.is_file():
-        raise ValueError(
-            f"Schema-pack configuration `{context}` file does not exist: {path}"
-        )
+        raise ValueError(f"Schema-pack configuration `{context}` file does not exist: {path}")
     return path
 
 
@@ -259,8 +226,16 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
     assert_allowed_keys(
         pack,
         {
-            "schema_version", "pack_id", "pack_version", "lifecycle", "pack_kind",
-            "label", "description", "dependencies", "capabilities", "controlled_values",
+            "schema_version",
+            "pack_id",
+            "pack_version",
+            "lifecycle",
+            "pack_kind",
+            "label",
+            "description",
+            "dependencies",
+            "capabilities",
+            "controlled_values",
         },
         f"Schema pack `{expected_pack_id}`",
     )
@@ -273,22 +248,14 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
     pack_id = require_string(pack, "pack_id", expected_pack_id)
     validate_id(pack_id, f"{expected_pack_id}.pack_id")
     if pack_id != expected_pack_id:
-        raise ValueError(
-            f"Schema-pack selection `{expected_pack_id}` loads pack `{pack_id}`."
-        )
+        raise ValueError(f"Schema-pack selection `{expected_pack_id}` loads pack `{pack_id}`.")
     pack_version = require_positive_int(pack, "pack_version", pack_id)
     lifecycle = require_string(pack, "lifecycle", pack_id)
     if lifecycle not in PACK_LIFECYCLES:
-        raise ValueError(
-            f"Schema pack `{pack_id}.lifecycle` must be one of: "
-            f"{', '.join(sorted(PACK_LIFECYCLES))}."
-        )
+        raise ValueError(f"Schema pack `{pack_id}.lifecycle` must be one of: {', '.join(sorted(PACK_LIFECYCLES))}.")
     kind = require_string(pack, "pack_kind", pack_id)
     if kind not in PACK_KINDS:
-        raise ValueError(
-            f"Schema pack `{pack_id}.pack_kind` must be one of: "
-            f"{', '.join(sorted(PACK_KINDS))}."
-        )
+        raise ValueError(f"Schema pack `{pack_id}.pack_kind` must be one of: {', '.join(sorted(PACK_KINDS))}.")
 
     raw_dependencies = pack.get("dependencies")
     if not isinstance(raw_dependencies, list):
@@ -298,24 +265,18 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
     for index, raw_dependency in enumerate(raw_dependencies):
         context = f"{pack_id}.dependencies[{index}]"
         dependency = require_mapping(raw_dependency, context)
-        assert_allowed_keys(
-            dependency, {"pack_id", "minimum_version"}, f"Schema pack `{context}`"
-        )
+        assert_allowed_keys(dependency, {"pack_id", "minimum_version"}, f"Schema pack `{context}`")
         dependency_id = require_string(dependency, "pack_id", context)
         validate_id(dependency_id, f"{context}.pack_id")
         if dependency_id == pack_id:
             raise ValueError(f"Schema pack `{pack_id}` cannot depend on itself.")
         if dependency_id in seen_dependencies:
-            raise ValueError(
-                f"Schema pack `{pack_id}` repeats dependency `{dependency_id}`."
-            )
+            raise ValueError(f"Schema pack `{pack_id}` repeats dependency `{dependency_id}`.")
         seen_dependencies.add(dependency_id)
         dependencies.append(
             SchemaPackDependency(
                 pack_id=dependency_id,
-                minimum_version=require_positive_int(
-                    dependency, "minimum_version", context
-                ),
+                minimum_version=require_positive_int(dependency, "minimum_version", context),
             )
         )
 
@@ -345,35 +306,23 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
                 ("label", label_value),
                 ("description", description_value),
             ):
-                if value is not None and (
-                    not isinstance(value, str) or not value.strip()
-                ):
+                if value is not None and (not isinstance(value, str) or not value.strip()):
                     raise ValueError(
-                        f"Schema-pack configuration `{context}.{key}` must be a "
-                        "non-empty string when present."
+                        f"Schema-pack configuration `{context}.{key}` must be a non-empty string when present."
                     )
             label = label_value.strip() if isinstance(label_value, str) else None
-            description = (
-                description_value.strip()
-                if isinstance(description_value, str)
-                else None
-            )
+            description = description_value.strip() if isinstance(description_value, str) else None
         else:
             raise ValueError(
-                f"Schema-pack configuration `{context}` must be a stable-ID string "
-                "or capability-definition mapping."
+                f"Schema-pack configuration `{context}` must be a stable-ID string or capability-definition mapping."
             )
         validate_id(capability_id, context)
         if lifecycle not in CAPABILITY_LIFECYCLES:
             raise ValueError(
-                f"Schema pack `{context}.lifecycle` must be one of: "
-                f"{', '.join(sorted(CAPABILITY_LIFECYCLES))}."
+                f"Schema pack `{context}.lifecycle` must be one of: {', '.join(sorted(CAPABILITY_LIFECYCLES))}."
             )
         if capability_id in capability_definitions:
-            raise ValueError(
-                f"Schema pack `{pack_id}.capabilities` contains duplicate "
-                f"`{capability_id}`."
-            )
+            raise ValueError(f"Schema pack `{pack_id}.capabilities` contains duplicate `{capability_id}`.")
         capabilities.append(capability_id)
         capability_definitions[capability_id] = CapabilityConfig(
             id=capability_id,
@@ -382,24 +331,17 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
             description=description,
         )
 
-    raw_controlled = require_mapping(
-        pack.get("controlled_values"), f"{pack_id}.controlled_values"
-    )
+    raw_controlled = require_mapping(pack.get("controlled_values"), f"{pack_id}.controlled_values")
     controlled_values: dict[str, tuple[str, ...]] = {}
-    controlled_value_definitions: dict[
-        str, dict[str, ControlledValueConfig]
-    ] = {}
+    controlled_value_definitions: dict[str, dict[str, ControlledValueConfig]] = {}
     for namespace, raw_values in raw_controlled.items():
         context = f"{pack_id}.controlled_values.{namespace}"
         if not isinstance(namespace, str) or not NAMESPACE_PATTERN.fullmatch(namespace):
             raise ValueError(
-                f"Schema-pack controlled-value namespace must use dotted "
-                f"lowercase kebab-case: {namespace}"
+                f"Schema-pack controlled-value namespace must use dotted lowercase kebab-case: {namespace}"
             )
         if not isinstance(raw_values, list) or not raw_values:
-            raise ValueError(
-                f"Schema-pack configuration `{context}` must be a non-empty list."
-            )
+            raise ValueError(f"Schema-pack configuration `{context}` must be a non-empty list.")
         values: list[str] = []
         definitions: dict[str, ControlledValueConfig] = {}
         for index, raw_value in enumerate(raw_values):
@@ -419,32 +361,21 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
                 label = require_string(raw_value, "label", value_context)
                 description_value = raw_value.get("description")
                 if description_value is not None and (
-                    not isinstance(description_value, str)
-                    or not description_value.strip()
+                    not isinstance(description_value, str) or not description_value.strip()
                 ):
                     raise ValueError(
                         f"Schema-pack configuration `{value_context}.description` "
                         "must be a non-empty string when present."
                     )
-                description = (
-                    description_value.strip()
-                    if isinstance(description_value, str)
-                    else None
-                )
+                description = description_value.strip() if isinstance(description_value, str) else None
                 broader_value_raw = raw_value.get("broader_value")
                 if broader_value_raw is not None and (
-                    not isinstance(broader_value_raw, str)
-                    or not broader_value_raw.strip()
+                    not isinstance(broader_value_raw, str) or not broader_value_raw.strip()
                 ):
                     raise ValueError(
-                        f"Schema-pack configuration `{value_context}.broader_value` "
-                        "must be a stable ID when present."
+                        f"Schema-pack configuration `{value_context}.broader_value` must be a stable ID when present."
                     )
-                broader_value = (
-                    broader_value_raw.strip()
-                    if isinstance(broader_value_raw, str)
-                    else None
-                )
+                broader_value = broader_value_raw.strip() if isinstance(broader_value_raw, str) else None
             else:
                 raise ValueError(
                     f"Schema-pack configuration `{context}` must contain stable-ID "
@@ -455,8 +386,7 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
                 validate_id(broader_value, f"{context}.broader_value")
                 if broader_value == value_id:
                     raise ValueError(
-                        f"Schema-pack controlled value `{namespace}:{value_id}` "
-                        "cannot be broader than itself."
+                        f"Schema-pack controlled value `{namespace}:{value_id}` cannot be broader than itself."
                     )
             values.append(value_id)
             definitions[value_id] = ControlledValueConfig(
@@ -466,9 +396,7 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
                 broader_value=broader_value,
             )
         if len(set(values)) != len(values):
-            raise ValueError(
-                f"Schema-pack configuration `{context}` contains duplicates."
-            )
+            raise ValueError(f"Schema-pack configuration `{context}` contains duplicates.")
         controlled_values[namespace] = tuple(values)
         controlled_value_definitions[namespace] = definitions
 
@@ -506,18 +434,14 @@ def load_schema_pack_registry(project: ProjectConfig) -> SchemaPackRegistry:
         )
     raw_selections = registry.get("selected_packs")
     if not isinstance(raw_selections, list) or not raw_selections:
-        raise ValueError(
-            "Schema-pack registry `selected_packs` must be a non-empty list."
-        )
+        raise ValueError("Schema-pack registry `selected_packs` must be a non-empty list.")
 
     packs: dict[str, SchemaPackConfig] = {}
     selection_order: list[str] = []
     for index, raw_selection in enumerate(raw_selections):
         context = f"selected_packs[{index}]"
         selection = require_mapping(raw_selection, context)
-        assert_allowed_keys(
-            selection, {"pack_id", "path"}, f"Schema-pack registry `{context}`"
-        )
+        assert_allowed_keys(selection, {"pack_id", "path"}, f"Schema-pack registry `{context}`")
         pack_id = require_string(selection, "pack_id", context)
         validate_id(pack_id, f"{context}.pack_id")
         if pack_id in packs:
@@ -535,15 +459,9 @@ def load_schema_pack_registry(project: ProjectConfig) -> SchemaPackRegistry:
         pack = packs[pack_id]
         for dependency in pack.dependencies:
             if dependency.pack_id not in packs:
-                raise ValueError(
-                    f"Schema pack `{pack_id}` requires unselected pack "
-                    f"`{dependency.pack_id}`."
-                )
+                raise ValueError(f"Schema pack `{pack_id}` requires unselected pack `{dependency.pack_id}`.")
             if dependency.pack_id not in selected_before:
-                raise ValueError(
-                    f"Schema pack `{pack_id}` must be selected after dependency "
-                    f"`{dependency.pack_id}`."
-                )
+                raise ValueError(f"Schema pack `{pack_id}` must be selected after dependency `{dependency.pack_id}`.")
             installed = packs[dependency.pack_id]
             if installed.pack_version < dependency.minimum_version:
                 raise ValueError(
@@ -565,36 +483,23 @@ def load_schema_pack_registry(project: ProjectConfig) -> SchemaPackRegistry:
                 declared_capabilities.append(capability)
             definition = packs[pack_id].capability_definitions[capability]
             capability_definitions[(pack_id, capability)] = definition
-            if (
-                definition.lifecycle in {"available", "deprecated"}
-                and capability not in available_capabilities
-            ):
+            if definition.lifecycle in {"available", "deprecated"} and capability not in available_capabilities:
                 available_capabilities.append(capability)
 
-    activation = require_mapping(
-        registry.get("capability_activation"), "capability_activation"
-    )
+    activation = require_mapping(registry.get("capability_activation"), "capability_activation")
     assert_allowed_keys(
         activation,
         {"default", "enabled"},
         "Schema-pack registry `capability_activation`",
     )
-    activation_default = require_string(
-        activation, "default", "capability_activation"
-    )
+    activation_default = require_string(activation, "default", "capability_activation")
     if activation_default != "disabled":
         raise ValueError(
-            "Schema-pack registry `capability_activation.default` must be "
-            "`disabled` so features remain opt-in."
+            "Schema-pack registry `capability_activation.default` must be `disabled` so features remain opt-in."
         )
-    enabled_capabilities = require_string_list(
-        activation, "enabled", "capability_activation"
-    )
+    enabled_capabilities = require_string_list(activation, "enabled", "capability_activation")
     if len(set(enabled_capabilities)) != len(enabled_capabilities):
-        raise ValueError(
-            "Schema-pack registry `capability_activation.enabled` contains "
-            "duplicates."
-        )
+        raise ValueError("Schema-pack registry `capability_activation.enabled` contains duplicates.")
     for capability in enabled_capabilities:
         validate_id(capability, "capability_activation.enabled")
     unavailable_enabled = set(enabled_capabilities) - set(available_capabilities)
@@ -620,25 +525,19 @@ def load_schema_pack_registry(project: ProjectConfig) -> SchemaPackRegistry:
                     )
                 owners[key] = pack_id
                 target.append(value)
-                definitions[key] = packs[pack_id].controlled_value_definitions[
-                    namespace
-                ][value]
+                definitions[key] = packs[pack_id].controlled_value_definitions[namespace][value]
 
     for (namespace, value), definition in definitions.items():
         broader = definition.broader_value
         if broader and (namespace, broader) not in owners:
             raise ValueError(
-                f"Schema-pack controlled value `{namespace}:{value}` references "
-                f"unknown broader value `{broader}`."
+                f"Schema-pack controlled value `{namespace}:{value}` references unknown broader value `{broader}`."
             )
     complete_values: set[tuple[str, str]] = set()
 
     def visit_value(key: tuple[str, str], active: set[tuple[str, str]]) -> None:
         if key in active:
-            raise ValueError(
-                f"Schema-pack controlled-value hierarchy contains a cycle at "
-                f"`{key[0]}:{key[1]}`."
-            )
+            raise ValueError(f"Schema-pack controlled-value hierarchy contains a cycle at `{key[0]}:{key[1]}`.")
         if key in complete_values:
             return
         active.add(key)
@@ -661,14 +560,9 @@ def load_schema_pack_registry(project: ProjectConfig) -> SchemaPackRegistry:
         declared_capabilities=tuple(declared_capabilities),
         available_capabilities=tuple(available_capabilities),
         enabled_capabilities=enabled_capabilities,
-        capability_providers={
-            capability: tuple(providers)
-            for capability, providers in capability_providers.items()
-        },
+        capability_providers={capability: tuple(providers) for capability, providers in capability_providers.items()},
         capability_definitions=capability_definitions,
-        controlled_values={
-            namespace: tuple(values) for namespace, values in controlled.items()
-        },
+        controlled_values={namespace: tuple(values) for namespace, values in controlled.items()},
         controlled_value_owners=owners,
         controlled_value_definitions=definitions,
     )

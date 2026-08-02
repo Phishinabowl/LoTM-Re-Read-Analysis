@@ -40,9 +40,7 @@ NUMERIC_LIKE = re.compile(
     r"\.(?:inf|Inf|INF|nan|NaN|NAN)"
     r")$"
 )
-TIMESTAMP_LIKE = re.compile(
-    r"^[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[Tt ][0-9]{2}:[0-9]{2}:[0-9]{2}.*)?$"
-)
+TIMESTAMP_LIKE = re.compile(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[Tt ][0-9]{2}:[0-9]{2}:[0-9]{2}.*)?$")
 
 
 RFC3339_PROFILE = re.compile(
@@ -56,14 +54,13 @@ class StrictSafeLoader(yaml.SafeLoader):
     pass
 
 
-StrictSafeLoader.yaml_implicit_resolvers = copy.deepcopy(
-    yaml.SafeLoader.yaml_implicit_resolvers
-)
+StrictSafeLoader.yaml_implicit_resolvers = copy.deepcopy(yaml.SafeLoader.yaml_implicit_resolvers)
 for initial, resolvers in list(StrictSafeLoader.yaml_implicit_resolvers.items()):
     StrictSafeLoader.yaml_implicit_resolvers[initial] = [
         (tag, pattern)
         for tag, pattern in resolvers
-        if tag not in {
+        if tag
+        not in {
             "tag:yaml.org,2002:bool",
             "tag:yaml.org,2002:int",
             "tag:yaml.org,2002:float",
@@ -71,12 +68,10 @@ for initial, resolvers in list(StrictSafeLoader.yaml_implicit_resolvers.items())
         }
     ]
 
-StrictSafeLoader.add_implicit_resolver(
-    "tag:yaml.org,2002:bool", re.compile(r"^(?:true|false)$"), list("tf")
-)
-StrictSafeLoader.add_implicit_resolver(
-    "tag:yaml.org,2002:int", CANONICAL_INTEGER, list("-0123456789")
-)
+StrictSafeLoader.add_implicit_resolver("tag:yaml.org,2002:bool", re.compile(r"^(?:true|false)$"), list("tf"))
+StrictSafeLoader.add_implicit_resolver("tag:yaml.org,2002:int", CANONICAL_INTEGER, list("-0123456789"))
+
+
 def construct_unique_mapping(loader: StrictSafeLoader, node, deep: bool = False):
     mapping = {}
     for key_node, value_node in node.value:
@@ -101,9 +96,7 @@ def construct_unique_mapping(loader: StrictSafeLoader, node, deep: bool = False)
     return mapping
 
 
-StrictSafeLoader.add_constructor(
-    yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, construct_unique_mapping
-)
+StrictSafeLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, construct_unique_mapping)
 
 
 def decode_yaml_bytes(
@@ -114,17 +107,13 @@ def decode_yaml_bytes(
     max_bytes: int = MAX_YAML_BYTES,
 ) -> str:
     if len(raw) > max_bytes:
-        raise ValueError(
-            f"{context.capitalize()} exceeds the {max_bytes}-byte YAML limit: {path}"
-        )
+        raise ValueError(f"{context.capitalize()} exceeds the {max_bytes}-byte YAML limit: {path}")
     if raw.startswith(codecs.BOM_UTF8):
         raise ValueError(f"{context.capitalize()} must not use a UTF-8 BOM: {path}")
     try:
         return raw.decode("utf-8", errors="strict")
     except UnicodeDecodeError as exc:
-        raise ValueError(
-            f"{context.capitalize()} must be valid UTF-8: {path}: {exc}"
-        ) from exc
+        raise ValueError(f"{context.capitalize()} must be valid UTF-8: {path}: {exc}") from exc
 
 
 def validate_yaml_source(
@@ -139,9 +128,7 @@ def validate_yaml_source(
 ) -> None:
     byte_count = len(text.encode("utf-8"))
     if byte_count > max_bytes:
-        raise ValueError(
-            f"{context.capitalize()} exceeds the {max_bytes}-byte YAML limit: {path}"
-        )
+        raise ValueError(f"{context.capitalize()} exceeds the {max_bytes}-byte YAML limit: {path}")
 
     depth = 0
     node_count = 0
@@ -156,9 +143,7 @@ def validate_yaml_source(
         tokens = yaml.scan(text, Loader=StrictSafeLoader)
         for token in tokens:
             if isinstance(token, (AnchorToken, AliasToken, TagToken)):
-                raise ValueError(
-                    f"{context.capitalize()} uses unsupported YAML anchors, aliases, or tags: {path}"
-                )
+                raise ValueError(f"{context.capitalize()} uses unsupported YAML anchors, aliases, or tags: {path}")
             if isinstance(token, (DocumentStartToken, DocumentEndToken)):
                 raise ValueError(
                     f"{context.capitalize()} must be one implicit YAML document without document markers: {path}"
@@ -167,9 +152,7 @@ def validate_yaml_source(
                 depth += 1
                 node_count += 1
                 if depth > max_depth:
-                    raise ValueError(
-                        f"{context.capitalize()} exceeds YAML nesting depth {max_depth}: {path}"
-                    )
+                    raise ValueError(f"{context.capitalize()} exceeds YAML nesting depth {max_depth}: {path}")
             elif isinstance(token, ends):
                 depth -= 1
             elif isinstance(token, ScalarToken):
@@ -182,29 +165,19 @@ def validate_yaml_source(
                 if token.style is None:
                     value = token.value
                     if value == "<<":
-                        raise ValueError(
-                            f"{context.capitalize()} uses unsupported YAML merge keys: {path}"
-                        )
+                        raise ValueError(f"{context.capitalize()} uses unsupported YAML merge keys: {path}")
                     if value == "~" or (value.lower() == "null" and value != "null"):
-                        raise ValueError(
-                            f"{context.capitalize()} must use lowercase `null`: {path}"
-                        )
+                        raise ValueError(f"{context.capitalize()} must use lowercase `null`: {path}")
                     if value.lower() in {"true", "false"} and value not in {"true", "false"}:
-                        raise ValueError(
-                            f"{context.capitalize()} must use lowercase Boolean scalars: {path}"
-                        )
+                        raise ValueError(f"{context.capitalize()} must use lowercase Boolean scalars: {path}")
                     if NUMERIC_LIKE.fullmatch(value) and not CANONICAL_INTEGER.fullmatch(value):
                         raise ValueError(
                             f"{context.capitalize()} contains noncanonical numeric scalar `{value}`: {path}"
                         )
                     if TIMESTAMP_LIKE.fullmatch(value):
-                        raise ValueError(
-                            f"{context.capitalize()} must quote date and timestamp strings: {path}"
-                        )
+                        raise ValueError(f"{context.capitalize()} must quote date and timestamp strings: {path}")
             if node_count > max_nodes:
-                raise ValueError(
-                    f"{context.capitalize()} exceeds the {max_nodes}-node YAML limit: {path}"
-                )
+                raise ValueError(f"{context.capitalize()} exceeds the {max_nodes}-node YAML limit: {path}")
     except yaml.YAMLError as exc:
         raise ValueError(f"Unable to scan {context} {path}: {exc}") from exc
 
@@ -217,22 +190,16 @@ def validate_yaml_source(
         node = pending.pop()
         if isinstance(node, ScalarNode):
             if node.tag == "tag:yaml.org,2002:null" and node.value == "":
-                raise ValueError(
-                    f"{context.capitalize()} must write null explicitly as lowercase `null`: {path}"
-                )
+                raise ValueError(f"{context.capitalize()} must write null explicitly as lowercase `null`: {path}")
         elif isinstance(node, MappingNode):
             seen_keys: set[str] = set()
             for key_node, value_node in node.value:
-                if (
-                    not isinstance(key_node, ScalarNode)
-                    or key_node.tag != "tag:yaml.org,2002:str"
-                ):
-                    raise ValueError(
-                        f"{context.capitalize()} mapping keys must be strings: {path}"
-                    )
+                if not isinstance(key_node, ScalarNode) or key_node.tag != "tag:yaml.org,2002:str":
+                    raise ValueError(f"{context.capitalize()} mapping keys must be strings: {path}")
                 if not CANONICAL_MAPPING_KEY.fullmatch(key_node.value):
                     raise ValueError(
-                        f"{context.capitalize()} contains noncanonical mapping key `{key_node.value}`; keys must be lowercase machine identifiers: {path}"
+                        f"{context.capitalize()} contains noncanonical mapping key `{key_node.value}`; "
+                        f"keys must be lowercase machine identifiers: {path}"
                     )
                 if key_node.value in seen_keys:
                     raise ValueError(
@@ -244,20 +211,14 @@ def validate_yaml_source(
             pending.extend(node.value)
 
 
-def require_exact_schema_version(
-    mapping: dict, expected: int, context: str
-) -> int:
+def require_exact_schema_version(mapping: dict, expected: int, context: str) -> int:
     value = mapping.get("schema_version")
     if type(value) is not int or value != expected:
-        raise ValueError(
-            f"Unsupported {context} schema_version {value!r}; expected integer {expected}."
-        )
+        raise ValueError(f"Unsupported {context} schema_version {value!r}; expected integer {expected}.")
     return value
 
 
-def load_yaml_file(
-    path: Path, context: str, *, expected_schema_version: int | None = None
-):
+def load_yaml_file(path: Path, context: str, *, expected_schema_version: int | None = None):
     try:
         raw = path.read_bytes()
         text = decode_yaml_bytes(raw, context, path)
@@ -275,9 +236,7 @@ def load_yaml_file(
 def assert_allowed_keys(mapping: dict, allowed: set[str], context: str) -> None:
     unknown = set(mapping) - allowed
     if unknown:
-        raise ValueError(
-            f"{context} contains unsupported field(s): {', '.join(sorted(map(str, unknown)))}."
-        )
+        raise ValueError(f"{context} contains unsupported field(s): {', '.join(sorted(map(str, unknown)))}.")
 
 
 def is_rfc3339_timestamp(value: str) -> bool:

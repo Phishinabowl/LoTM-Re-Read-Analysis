@@ -90,6 +90,7 @@ Named works and real-world domains are **test prompts**, not automatic evidence.
 | `CONF-OCCURRENCE` | Verify occurrence identity, recurrence topology, tracks, transitions, causality, outcomes, schedules, rules, state acquisition, carryover, semantic declarations, resolution, and conflicts. | `Tools/test_occurrence.py`, `Tools/Test-Occurrence.ps1`, and `Framework/Data/Occurrence/`. |
 | `CONF-PACK-COMPOSITION` | Verify capability lifecycle, dependency order, controlled-value ownership, cross-namespace semantic closure, and project activation. | Schema-pack loader assertions embedded in affected permanent suites until a dedicated runner is justified. |
 | `STATIC-POWERSHELL` | Discover and check every tracked or nonignored untracked PowerShell source in the Git worktree with the repository formatter in PowerShell 7 and Windows PowerShell 5.1; require successful parsing, token-preserving normalization, CRLF, UTF-8 without BOM, no optional statement terminators or trailing whitespace, and no line above the configured limit. | `Tools/Format-PowerShell.ps1`, `Tools/powershell-format-settings.psd1`, `.gitattributes`, and all repository `.ps1`, `.psm1`, and `.psd1` sources. |
+| `STATIC-PYTHON` | Discover and check every tracked or nonignored untracked Python source with Ruff; require canonical formatting, Python 3.10-compatible parsing, LF, UTF-8 without BOM, and no line above 120 characters. Markdown code fences and Gitignored local/generated files remain outside the default source policy. | `pyproject.toml`, `.gitattributes`, `requirements-python.txt`, and all repository `.py` and `.pyi` sources. |
 
 ### Runtime Parity
 
@@ -204,6 +205,7 @@ Replace `Testing After Vn` placeholders with executed coverage, results, defects
 Every framework evolution version must run:
 
 - `STATIC-POWERSHELL` in PowerShell 7 and Windows PowerShell 5.1;
+- `STATIC-PYTHON` through both Ruff format-check and line-length-check commands;
 - `CONF-PROJECT-COMPOSITION` and `CONF-LOOKUP`;
 - `CONF-TEMPORAL`;
 - `CONF-CHRONOLOGY`;
@@ -237,6 +239,7 @@ Every framework evolution version must run:
 | Manifest discovery, path configuration, launcher behavior, or CLI switches | `COMPAT-ROOT-DISCOVERY`, `PARITY-COMMAND-SURFACE`, help output, explicit-root behavior, output safety, and both preferred/fallback launch positions. |
 | Generated-output cleanup, temporary paths, or output ownership | `COMPAT-ARTIFACT-LIFECYCLE`, stale-output replacement/removal, run-scoped cleanup, unrelated-file preservation, and canonical-output protection. |
 | PowerShell implementation, new PowerShell source location, formatting policy, formatter settings, or line-ending policy | `STATIC-POWERSHELL` in PowerShell 7 and Windows PowerShell 5.1, repository-wide discovery including a temporary nonignored out-of-tree probe when discovery changes, affected runtime conformance, `git diff --check`, and a review of manually wrapped expressions for semantic equivalence. |
+| Python implementation, new Python source location, Ruff configuration, dependency, or line-ending policy | `STATIC-PYTHON`, repository-wide discovery including a temporary nonignored out-of-tree probe when discovery changes, affected runtime conformance, `git diff --check`, and a review of manually split semantic strings or expressions. |
 | Documentation or methodology-only change | Link/path review and `git diff --check`. Run affected executable suites when the edit changes a runtime contract, expected result, command, or claim about current behavior. A historical coverage reclassification may cite the latest recorded green baseline without rerunning unchanged code, but it must identify that baseline and must not present an unexecuted test as a pass. |
 
 When uncertain, run the broader set and record why.

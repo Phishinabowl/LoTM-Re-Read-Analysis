@@ -32,9 +32,7 @@ from temporal_config import (
 
 
 SUPPORTED_PROVENANCE_SCHEMA_VERSION = 3
-FIELD_PATH_PATTERN = re.compile(
-    r"^[a-z][a-z0-9_]*(?:(?:\.[a-z][a-z0-9_]*)|(?:\[[0-9]+\]))*$"
-)
+FIELD_PATH_PATTERN = re.compile(r"^[a-z][a-z0-9_]*(?:(?:\.[a-z][a-z0-9_]*)|(?:\[[0-9]+\]))*$")
 
 
 @dataclass(frozen=True)
@@ -124,9 +122,7 @@ class ProvenanceRegistry:
             return self.occurrences.provenance_target(subject_type, subject_id)
         raise ValueError(f"Unsupported provenance subject type `{subject_type}`.")
 
-    def evaluate_claim_authority(
-        self, profile_id: str, claim_key: str
-    ) -> ClaimAuthorityEvaluation:
+    def evaluate_claim_authority(self, profile_id: str, claim_key: str) -> ClaimAuthorityEvaluation:
         assertions = self.assertions_for_claim(claim_key)
         if not assertions:
             raise ValueError(f"Unknown claim key `{claim_key}`.")
@@ -135,9 +131,7 @@ class ProvenanceRegistry:
             AuthorityCandidateDecision(
                 f"{assertion.id}:{link.source_id}:{locator.id}",
                 assertion.id,
-                self.sources.authority_decision(
-                    profile_id, claim_namespace, link.source_id, locator.evidence_mode
-                ),
+                self.sources.authority_decision(profile_id, claim_namespace, link.source_id, locator.evidence_mode),
             )
             for assertion in assertions
             for link in assertion.evidence_links
@@ -146,24 +140,19 @@ class ProvenanceRegistry:
         )
         if not decisions:
             raise ValueError(f"Claim key `{claim_key}` has no supporting evidence locators.")
-        comparison_groups = {
-            self.sources.sources[item.decision.source_id].comparison_group
-            for item in decisions
-        }
+        comparison_groups = {self.sources.sources[item.decision.source_id].comparison_group for item in decisions}
         if len(comparison_groups) != 1:
-            return ClaimAuthorityEvaluation(
-                "incomparable", profile_id, claim_key, None, (), decisions
-            )
+            return ClaimAuthorityEvaluation("incomparable", profile_id, claim_key, None, (), decisions)
         profile = self.sources.authority_profiles[profile_id]
         best_by_assertion: dict[str, int] = {}
         for item in decisions:
             assertion_id = str(item.assertion_id)
             previous = best_by_assertion.get(assertion_id)
             rank = item.decision.rank
-            if previous is None or (
-                profile.source_priority_order == "ascending" and rank < previous
-            ) or (
-                profile.source_priority_order == "descending" and rank > previous
+            if (
+                previous is None
+                or (profile.source_priority_order == "ascending" and rank < previous)
+                or (profile.source_priority_order == "descending" and rank > previous)
             ):
                 best_by_assertion[assertion_id] = rank
         best_rank = (
@@ -171,18 +160,14 @@ class ProvenanceRegistry:
             if profile.source_priority_order == "ascending"
             else max(best_by_assertion.values())
         )
-        winners = tuple(
-            item.id
-            for item in assertions
-            if best_by_assertion.get(item.id) == best_rank
-        )
+        winners = tuple(item.id for item in assertions if best_by_assertion.get(item.id) == best_rank)
         values = [item.asserted_value for item in assertions if item.id in winners]
-        outcome = "winner" if len(winners) == 1 else (
-            "tie" if all(value == values[0] for value in values[1:]) else "conflict"
+        outcome = (
+            "winner"
+            if len(winners) == 1
+            else ("tie" if all(value == values[0] for value in values[1:]) else "conflict")
         )
-        return ClaimAuthorityEvaluation(
-            outcome, profile_id, claim_key, best_rank, winners, decisions
-        )
+        return ClaimAuthorityEvaluation(outcome, profile_id, claim_key, best_rank, winners, decisions)
 
     def applicability_decision(
         self,
@@ -222,32 +207,26 @@ class ProvenanceRegistry:
                 if subject_match is None:
                     continue
                 target_match = "claim-subject"
-            territory_match = self.sources._applicability_territory_match(
-                scope, territory_id
-            )
+            territory_match = self.sources._applicability_territory_match(scope, territory_id)
             if territory_match is None:
                 continue
-            temporal_match = applicability_temporal_match(
-                scope.effective_window, effective_instant
-            )
+            temporal_match = applicability_temporal_match(scope.effective_window, effective_instant)
             if temporal_match is None:
                 continue
-            matches.append(ApplicabilityScopeMatch(
-                scope.id,
-                "indeterminate"
-                if temporal_match_is_indeterminate(temporal_match)
-                else "applicable",
-                target_match,
-                territory_match,
-                temporal_match,
-                scope.precedence,
-            ))
+            matches.append(
+                ApplicabilityScopeMatch(
+                    scope.id,
+                    "indeterminate" if temporal_match_is_indeterminate(temporal_match) else "applicable",
+                    target_match,
+                    territory_match,
+                    temporal_match,
+                    scope.precedence,
+                )
+            )
         matches.sort(key=lambda item: (-item.precedence, item.scope_id))
         applicable = [item for item in matches if item.outcome == "applicable"]
         highest = applicable[0].precedence if applicable else None
-        winners = tuple(
-            item.scope_id for item in applicable if item.precedence == highest
-        )
+        winners = tuple(item.scope_id for item in applicable if item.precedence == highest)
         return ApplicabilityDecision(
             target_type,
             target_id,
@@ -300,9 +279,8 @@ def validate_locator_coverage(
     medium = sources.mediums[medium_id]
     work_id = str(positions[0][medium.work_scope_field])
     if work_id not in source.work_ids:
-        raise ValueError(
-            f"Provenance registry `{context}` falls outside the evidence source's work scope."
-        )
+        raise ValueError(f"Provenance registry `{context}` falls outside the evidence source's work scope.")
+
     def segment_id(position: dict[str, object]) -> str | None:
         validation = medium.structural_validation
         if validation is None or validation.strategy != "work-segment-ordering":
@@ -371,8 +349,22 @@ def validate_locator_coverage(
                 if any(not fields.issubset(position) for position in positions):
                     continue
                 if all(
-                    compare_positions(position_range.start, {field: position[field] for field in fields}, medium, sources.ordering_schemes, context) <= 0
-                    and compare_positions({field: position[field] for field in fields}, position_range.end, medium, sources.ordering_schemes, context) <= 0
+                    compare_positions(
+                        position_range.start,
+                        {field: position[field] for field in fields},
+                        medium,
+                        sources.ordering_schemes,
+                        context,
+                    )
+                    <= 0
+                    and compare_positions(
+                        {field: position[field] for field in fields},
+                        position_range.end,
+                        medium,
+                        sources.ordering_schemes,
+                        context,
+                    )
+                    <= 0
                     for position in positions
                 ):
                     covered = True
@@ -391,9 +383,7 @@ def validate_locator_coverage(
                 covered = True
                 break
         if not covered:
-            raise ValueError(
-                f"Provenance registry `{context}` falls outside the evidence source's declared coverage."
-            )
+            raise ValueError(f"Provenance registry `{context}` falls outside the evidence source's declared coverage.")
 
     scope_sets: list[set[str]] = []
     if source.manifestation_id is not None:
@@ -410,12 +400,8 @@ def validate_locator_coverage(
             scope_sets.append(set(package.segment_ids))
     if scope_sets:
         position_segments = {segment_id(position) for position in positions}
-        if None in position_segments or any(
-            not position_segments.issubset(scope) for scope in scope_sets
-        ):
-            raise ValueError(
-                f"Provenance registry `{context}` falls outside the evidence source's segment scope."
-            )
+        if None in position_segments or any(not position_segments.issubset(scope) for scope in scope_sets):
+            raise ValueError(f"Provenance registry `{context}` falls outside the evidence source's segment scope.")
 
 
 def parse_locator(
@@ -443,21 +429,22 @@ def parse_locator(
     if evidence_mode not in source.evidence_modes:
         raise ValueError(f"Provenance registry `{context}.evidence_mode` is not declared by the evidence source.")
     locator_type = require_string(locator, "locator_type", context)
-    validate_pack_values(
-        schema_packs, "provenance.locator-type", (locator_type,), f"{context}.locator_type"
-    )
+    validate_pack_values(schema_packs, "provenance.locator-type", (locator_type,), f"{context}.locator_type")
     medium = sources.mediums[medium_id]
     if locator_type == "point":
         if "start" in locator or "end" in locator:
             raise ValueError(f"Provenance registry `{context}` point locator cannot declare start or end.")
         position = require_mapping(locator.get("position"), f"{context}.position")
         validate_source_position(
-            position, medium, source.work_ids, sources.works, sources.segments,
-            sources.ordering_schemes, f"{context}.position"
+            position,
+            medium,
+            source.work_ids,
+            sources.works,
+            sources.segments,
+            sources.ordering_schemes,
+            f"{context}.position",
         )
-        validate_locator_coverage(
-            sources, source_id, medium_id, evidence_mode, (position,), context
-        )
+        validate_locator_coverage(sources, source_id, medium_id, evidence_mode, (position,), context)
         return EvidenceLocator(locator_id, medium_id, evidence_mode, locator_type, dict(position), None, None)
     if "position" in locator:
         raise ValueError(f"Provenance registry `{context}` range locator cannot declare position.")
@@ -467,16 +454,19 @@ def parse_locator(
         raise ValueError(f"Provenance registry `{context}` range start/end fields must be identical.")
     for value, label in ((start, "start"), (end, "end")):
         validate_source_position(
-            value, medium, source.work_ids, sources.works, sources.segments,
-            sources.ordering_schemes, f"{context}.{label}"
+            value,
+            medium,
+            source.work_ids,
+            sources.works,
+            sources.segments,
+            sources.ordering_schemes,
+            f"{context}.{label}",
         )
     if start[medium.work_scope_field] != end[medium.work_scope_field]:
         raise ValueError(f"Provenance registry `{context}` range endpoints must identify the same work.")
     if compare_positions(start, end, medium, sources.ordering_schemes, context) > 0:
         raise ValueError(f"Provenance registry `{context}` range start must not follow end.")
-    validate_locator_coverage(
-        sources, source_id, medium_id, evidence_mode, (start, end), context
-    )
+    validate_locator_coverage(sources, source_id, medium_id, evidence_mode, (start, end), context)
     return EvidenceLocator(locator_id, medium_id, evidence_mode, locator_type, None, dict(start), dict(end))
 
 
@@ -492,12 +482,15 @@ def load_provenance_registry(
         schema_packs = load_schema_pack_registry(project)
     if occurrences is None:
         chronology = load_chronology_registry(
-            project, schema_packs,
+            project,
+            schema_packs,
             work_ids=set(sources.works),
             continuity_ids=set(sources.continuities),
         )
         occurrences = load_occurrence_registry(project, schema_packs, chronology)
-    data = load_yaml_file(project.provenance_registry, "provenance registry", expected_schema_version=SUPPORTED_PROVENANCE_SCHEMA_VERSION)
+    data = load_yaml_file(
+        project.provenance_registry, "provenance registry", expected_schema_version=SUPPORTED_PROVENANCE_SCHEMA_VERSION
+    )
     registry = require_mapping(data, "root")
     assert_allowed_keys(
         registry,
@@ -518,13 +511,11 @@ def load_provenance_registry(
     )
     duplicated_subject_types = set()
     for index, provider in enumerate(provider_types):
-        for other in provider_types[index + 1:]:
+        for other in provider_types[index + 1 :]:
             duplicated_subject_types |= provider & other
     if duplicated_subject_types:
         raise ValueError(
-            "Provenance subject types have multiple providers: "
-            + ", ".join(sorted(duplicated_subject_types))
-            + "."
+            "Provenance subject types have multiple providers: " + ", ".join(sorted(duplicated_subject_types)) + "."
         )
     provided_subject_types = (
         set(sources.provenance_targets())
@@ -533,9 +524,7 @@ def load_provenance_registry(
         | set(occurrences.provenance_targets())
         | {"claim-supersession"}
     )
-    allowed_subject_types = set(
-        schema_packs.allowed_values("provenance.subject-type")
-    )
+    allowed_subject_types = set(schema_packs.allowed_values("provenance.subject-type"))
     missing_providers = allowed_subject_types - provided_subject_types
     unregistered_providers = provided_subject_types - allowed_subject_types
     if missing_providers or unregistered_providers:
@@ -543,9 +532,7 @@ def load_provenance_registry(
         if missing_providers:
             details.append("missing providers: " + ", ".join(sorted(missing_providers)))
         if unregistered_providers:
-            details.append(
-                "unregistered providers: " + ", ".join(sorted(unregistered_providers))
-            )
+            details.append("unregistered providers: " + ", ".join(sorted(unregistered_providers)))
         raise ValueError("Provenance subject-provider mismatch (" + "; ".join(details) + ").")
 
     raw_supersessions = registry.get("claim_supersessions")
@@ -558,7 +545,14 @@ def load_provenance_registry(
         item = require_mapping(raw_item, context)
         assert_allowed_keys(
             item,
-            {"id", "source_claim_key", "target_claim_key", "relationship_type", "applicability_scope_id", "continuity_ids"},
+            {
+                "id",
+                "source_claim_key",
+                "target_claim_key",
+                "relationship_type",
+                "applicability_scope_id",
+                "continuity_ids",
+            },
             f"Provenance registry `{context}`",
         )
         item_id = require_string(item, "id", context)
@@ -574,20 +568,28 @@ def load_provenance_registry(
             raise ValueError(f"Provenance registry `{context}` cannot supersede a claim with itself.")
         relationship_type = require_string(item, "relationship_type", context)
         validate_pack_values(
-            schema_packs, "narrative.claim-change-type", (relationship_type,),
-            f"{context}.relationship_type"
+            schema_packs, "narrative.claim-change-type", (relationship_type,), f"{context}.relationship_type"
         )
         scope_id = require_string(item, "applicability_scope_id", context)
         if scope_id not in sources.applicability_scopes:
-            raise ValueError(f"Provenance registry `{context}.applicability_scope_id` references unknown scope `{scope_id}`.")
+            raise ValueError(
+                f"Provenance registry `{context}.applicability_scope_id` references unknown scope `{scope_id}`."
+            )
         scope = sources.applicability_scopes[scope_id]
         if scope.target_type != "provenance-claim" or scope.target_id != target_claim_key:
-            raise ValueError(f"Provenance registry `{context}` scope must target the superseded claim `{target_claim_key}`.")
+            raise ValueError(
+                f"Provenance registry `{context}` scope must target the superseded claim `{target_claim_key}`."
+            )
         continuity_ids = require_string_list(item, "continuity_ids", context)
         unknown = set(continuity_ids) - set(sources.continuities)
         if unknown:
-            raise ValueError(f"Provenance registry `{context}.continuity_ids` references unknown continuities: {', '.join(sorted(unknown))}.")
-        supersessions.append(ClaimSupersession(item_id, source_claim_key, relationship_type, target_claim_key, scope_id, continuity_ids))
+            raise ValueError(
+                f"Provenance registry `{context}.continuity_ids` references unknown continuities: "
+                f"{', '.join(sorted(unknown))}."
+            )
+        supersessions.append(
+            ClaimSupersession(item_id, source_claim_key, relationship_type, target_claim_key, scope_id, continuity_ids)
+        )
 
     raw_assertions = registry.get("assertions")
     if not isinstance(raw_assertions, list):
@@ -602,7 +604,19 @@ def load_provenance_registry(
         assertion = require_mapping(raw_assertion, context)
         assert_allowed_keys(
             assertion,
-            {"id", "claim_key", "subject_type", "subject_id", "claim_namespace", "field_path", "asserted_value", "assertion_status", "observed_at", "effective_window", "evidence_links"},
+            {
+                "id",
+                "claim_key",
+                "subject_type",
+                "subject_id",
+                "claim_namespace",
+                "field_path",
+                "asserted_value",
+                "assertion_status",
+                "observed_at",
+                "effective_window",
+                "evidence_links",
+            },
             f"Provenance registry `{context}`",
         )
         assertion_id = require_string(assertion, "id", context)
@@ -618,7 +632,9 @@ def load_provenance_registry(
         if subject_type == "claim-supersession":
             target = supersession_targets.get(subject_id)
             if target is None:
-                raise ValueError(f"Provenance registry `{context}.subject_id` references unknown claim-supersession `{subject_id}`.")
+                raise ValueError(
+                    f"Provenance registry `{context}.subject_id` references unknown claim-supersession `{subject_id}`."
+                )
         elif subject_type in sources.provenance_targets():
             target = sources.provenance_target(subject_type, subject_id)
         elif subject_type in entities.provenance_targets():
@@ -630,15 +646,22 @@ def load_provenance_registry(
         else:
             raise ValueError(f"Unsupported provenance subject type `{subject_type}`.")
         claim_namespace = require_string(assertion, "claim_namespace", context)
-        validate_pack_values(schema_packs, "provenance.claim-namespace", (claim_namespace,), f"{context}.claim_namespace")
+        validate_pack_values(
+            schema_packs, "provenance.claim-namespace", (claim_namespace,), f"{context}.claim_namespace"
+        )
         field_path = optional_string(assertion, "field_path", context)
         if field_path is not None:
             if not FIELD_PATH_PATTERN.fullmatch(field_path):
-                raise ValueError(f"Provenance registry `{context}.field_path` must be a dotted/indexed machine field path.")
+                raise ValueError(
+                    f"Provenance registry `{context}.field_path` must be a dotted/indexed machine field path."
+                )
             resolve_provenance_field_path(target, field_path, f"{context}.field_path")
         shape = (subject_type, subject_id, claim_namespace, field_path)
         if claim_key in claim_shapes and claim_shapes[claim_key] != shape:
-            raise ValueError(f"Provenance registry claim key `{claim_key}` is reused for a different subject, namespace, or field path.")
+            raise ValueError(
+                f"Provenance registry claim key `{claim_key}` is reused for a different subject, "
+                "namespace, or field path."
+            )
         claim_shapes[claim_key] = shape
         if "asserted_value" not in assertion:
             raise ValueError(f"Provenance registry `{context}.asserted_value` is required, including when null.")
@@ -659,7 +682,9 @@ def load_provenance_registry(
             )
             source_id = require_string(link, "source_id", link_context)
             if source_id not in sources.sources:
-                raise ValueError(f"Provenance registry `{link_context}.source_id` references unknown source `{source_id}`.")
+                raise ValueError(
+                    f"Provenance registry `{link_context}.source_id` references unknown source `{source_id}`."
+                )
             if source_id in seen_sources:
                 raise ValueError(f"Provenance registry `{context}.evidence_links` repeats source `{source_id}`.")
             seen_sources.add(source_id)
@@ -669,7 +694,9 @@ def load_provenance_registry(
             if not isinstance(raw_locators, list) or not raw_locators:
                 raise ValueError(f"Provenance registry `{link_context}.locators` must be a non-empty list.")
             locators = tuple(
-                parse_locator(raw_locator, f"{link_context}.locators[{locator_index}]", source_id, sources, schema_packs)
+                parse_locator(
+                    raw_locator, f"{link_context}.locators[{locator_index}]", source_id, sources, schema_packs
+                )
                 for locator_index, raw_locator in enumerate(raw_locators)
             )
             for locator in locators:
@@ -681,28 +708,47 @@ def load_provenance_registry(
         if status in {"verified", "inferred"} and "supports" not in roles:
             raise ValueError(f"Provenance registry `{context}` status `{status}` requires supporting evidence.")
         if status == "disputed" and not {"supports", "contradicts"}.issubset(roles):
-            raise ValueError(f"Provenance registry `{context}` disputed status requires supporting and contradicting evidence.")
-        assertions.append(ProvenanceAssertion(
-            assertion_id, claim_key, subject_type, subject_id, claim_namespace,
-            field_path, assertion["asserted_value"], status,
-            parse_temporal_window(assertion, "observed_at", context, schema_packs),
-            parse_temporal_window(assertion, "effective_window", context, schema_packs),
-            tuple(links),
-        ))
+            raise ValueError(
+                f"Provenance registry `{context}` disputed status requires supporting and contradicting evidence."
+            )
+        assertions.append(
+            ProvenanceAssertion(
+                assertion_id,
+                claim_key,
+                subject_type,
+                subject_id,
+                claim_namespace,
+                field_path,
+                assertion["asserted_value"],
+                status,
+                parse_temporal_window(assertion, "observed_at", context, schema_packs),
+                parse_temporal_window(assertion, "effective_window", context, schema_packs),
+                tuple(links),
+            )
+        )
 
     for scope in sources.applicability_scopes.values():
         if scope.target_type == "provenance-claim" and scope.target_id not in claim_shapes:
-            raise ValueError(f"Provenance registry applicability scope `{scope.id}` references unknown provenance claim `{scope.target_id}`.")
+            raise ValueError(
+                f"Provenance registry applicability scope `{scope.id}` references unknown provenance "
+                f"claim `{scope.target_id}`."
+            )
     edges: dict[str, set[str]] = {}
     for item in supersessions:
         for claim_key in (item.source_claim_key, item.target_claim_key):
             if claim_key not in claim_shapes:
-                raise ValueError(f"Provenance registry claim supersession `{item.id}` references unknown claim `{claim_key}`.")
+                raise ValueError(
+                    f"Provenance registry claim supersession `{item.id}` references unknown claim `{claim_key}`."
+                )
         if claim_shapes[item.source_claim_key] != claim_shapes[item.target_claim_key]:
-            raise ValueError(f"Provenance registry claim supersession `{item.id}` must relate claims with the same subject, namespace, and field path.")
+            raise ValueError(
+                f"Provenance registry claim supersession `{item.id}` must relate claims with the same "
+                "subject, namespace, and field path."
+            )
         edges.setdefault(item.source_claim_key, set()).add(item.target_claim_key)
     visited: set[str] = set()
     active: set[str] = set()
+
     def visit(claim_key: str) -> None:
         if claim_key in active:
             raise ValueError(f"Provenance registry contains a claim-supersession cycle involving `{claim_key}`.")
@@ -713,10 +759,17 @@ def load_provenance_registry(
             visit(target)
         active.remove(claim_key)
         visited.add(claim_key)
+
     for claim_key in edges:
         visit(claim_key)
 
     return ProvenanceRegistry(
-        project.provenance_registry, schema_version, tuple(assertions),
-        tuple(supersessions), sources, entities, reconciliations, occurrences
+        project.provenance_registry,
+        schema_version,
+        tuple(assertions),
+        tuple(supersessions),
+        sources,
+        entities,
+        reconciliations,
+        occurrences,
     )

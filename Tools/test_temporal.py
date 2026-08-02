@@ -24,9 +24,7 @@ def main() -> int:
     fixtures = root / "Framework" / "Data" / "Temporal"
     valid = load_yaml_file(fixtures / "valid-windows.yaml", "temporal fixture", expected_schema_version=2)
     windows = {
-        window_id: parse_temporal_window(
-            {"window": raw}, "window", f"windows.{window_id}", packs
-        )
+        window_id: parse_temporal_window({"window": raw}, "window", f"windows.{window_id}", packs)
         for window_id, raw in valid["windows"].items()
     }
     malformed = load_yaml_file(fixtures / "invalid-windows.yaml", "temporal fixture", expected_schema_version=2)

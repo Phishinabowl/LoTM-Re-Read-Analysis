@@ -169,7 +169,9 @@ def get_epub_entries(epub_path: str) -> list[Document]:
 
 def selected_entry(document: Document, args: argparse.Namespace) -> bool:
     entry_types = args.entry_type or ["Chapters"]
-    selected_types = [entry_type for entry_type in ENTRY_TYPES if entry_type != "All"] if "All" in entry_types else entry_types
+    selected_types = (
+        [entry_type for entry_type in ENTRY_TYPES if entry_type != "All"] if "All" in entry_types else entry_types
+    )
     if document.entry_type not in selected_types:
         return False
 
@@ -215,7 +217,9 @@ def split_terms(pattern: str, regex_pattern: bool) -> list[str]:
     return [term.strip() for term in pattern.split("|") if term.strip()]
 
 
-def term_summary_rows(documents: list[Document], terms: list[str], use_regex: bool, match_case: bool) -> list[dict[str, int | str]]:
+def term_summary_rows(
+    documents: list[Document], terms: list[str], use_regex: bool, match_case: bool
+) -> list[dict[str, int | str]]:
     volume_numbers = sorted({document.volume for document in documents if document.volume is not None})
     rows: list[dict[str, int | str]] = []
 
@@ -303,7 +307,10 @@ def search_documents(documents: list[Document], terms: list[str], args: argparse
         for hit_index in hit_indexes:
             if printed >= args.max_hits_per_chapter:
                 if not args.json:
-                    print(f"... hit limit reached for {document_label(document)} ({args.max_hits_per_chapter} shown of {len(hit_indexes)})")
+                    print(
+                        f"... hit limit reached for {document_label(document)} "
+                        f"({args.max_hits_per_chapter} shown of {len(hit_indexes)})"
+                    )
                 break
 
             if args.context_lines <= 0:
@@ -319,7 +326,9 @@ def search_documents(documents: list[Document], terms: list[str], args: argparse
                             }
                         )
                         if args.include_line_match_counts:
-                            hit["line_term_counts"] = term_match_counts(lines[hit_index], terms, args.regex_pattern, args.case_sensitive)
+                            hit["line_term_counts"] = term_match_counts(
+                                lines[hit_index], terms, args.regex_pattern, args.case_sensitive
+                            )
                         json_results.append(hit)
                 else:
                     print(f"[{hit_index}] {format_snippet(lines[hit_index])}")
@@ -328,7 +337,11 @@ def search_documents(documents: list[Document], terms: list[str], args: argparse
                 end = min(len(lines) - 1, hit_index + args.context_lines)
                 if args.json:
                     context = [
-                        {"line": context_index + 1, "line_index": context_index, "snippet": format_snippet(lines[context_index])}
+                        {
+                            "line": context_index + 1,
+                            "line_index": context_index,
+                            "snippet": format_snippet(lines[context_index]),
+                        }
                         for context_index in range(start, end + 1)
                     ]
                     for matched_term in matched_terms(lines[hit_index], terms, args.regex_pattern, args.case_sensitive):
@@ -343,7 +356,9 @@ def search_documents(documents: list[Document], terms: list[str], args: argparse
                             }
                         )
                         if args.include_line_match_counts:
-                            hit["line_term_counts"] = term_match_counts(lines[hit_index], terms, args.regex_pattern, args.case_sensitive)
+                            hit["line_term_counts"] = term_match_counts(
+                                lines[hit_index], terms, args.regex_pattern, args.case_sensitive
+                            )
                         json_results.append(hit)
                 else:
                     for context_index in range(start, end + 1):
@@ -361,7 +376,10 @@ def main() -> int:
     args = parser.parse_args()
 
     if not args.list_entries and not args.pattern:
-        parser.error('provide --pattern. For literal multi-term searches, separate terms with "|". Use --list-entries to inspect EPUB entries without a search pattern.')
+        parser.error(
+            'provide --pattern. For literal multi-term searches, separate terms with "|". '
+            "Use --list-entries to inspect EPUB entries without a search pattern."
+        )
 
     if args.list_entries and args.term_summary:
         parser.error("--term-summary cannot be combined with --list-entries.")
@@ -398,7 +416,9 @@ def main() -> int:
             for document in documents:
                 volume_text = f"Vol {document.volume}" if document.volume is not None else "Vol -"
                 chapter_text = f"Ch {document.chapter}" if document.chapter is not None else "Ch -"
-                print(f"{document.entry_type} | {volume_text} | {chapter_text} | {document.file_name} | {document.title}")
+                print(
+                    f"{document.entry_type} | {volume_text} | {chapter_text} | {document.file_name} | {document.title}"
+                )
     else:
         results = search_documents(documents, terms, args)
         if results is not None:

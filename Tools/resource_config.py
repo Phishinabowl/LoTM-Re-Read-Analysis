@@ -92,9 +92,7 @@ def require_bool(mapping: dict, key: str, context: str) -> bool:
 
 def validate_id(value: str, context: str) -> None:
     if not STABLE_ID_PATTERN.fullmatch(value):
-        raise ValueError(
-            f"Resource registry `{context}` must be a lowercase kebab-case stable ID: {value}"
-        )
+        raise ValueError(f"Resource registry `{context}` must be a lowercase kebab-case stable ID: {value}")
 
 
 def resolve_placement(
@@ -107,36 +105,34 @@ def resolve_placement(
 ) -> tuple[Path, Path]:
     roots = {root.id: root for root in project.resource_roots}
     if root_id not in roots:
-        raise ValueError(
-            f"Resource registry `{context}` references unknown resource root `{root_id}`."
-        )
+        raise ValueError(f"Resource registry `{context}` references unknown resource root `{root_id}`.")
     relative_path = Path(value)
     if relative_path.is_absolute():
         raise ValueError(f"Resource registry `{context}` must be relative: {value}")
     root_path = roots[root_id].path.resolve()
     path = (root_path / relative_path).resolve()
     if path != root_path and root_path not in path.parents:
-        raise ValueError(
-            f"Resource registry `{context}` escapes resource root `{root_id}`: {value}"
-        )
+        raise ValueError(f"Resource registry `{context}` escapes resource root `{root_id}`: {value}")
     if required and not path.exists():
         raise ValueError(f"Resource registry `{context}` path does not exist: {path}")
     return relative_path, path
 
 
 def load_resource_config(project: ProjectConfig) -> ResourceConfig:
-    data = load_yaml_file(project.resources_registry, "resource registry", expected_schema_version=SUPPORTED_RESOURCE_SCHEMA_VERSION)
+    data = load_yaml_file(
+        project.resources_registry, "resource registry", expected_schema_version=SUPPORTED_RESOURCE_SCHEMA_VERSION
+    )
 
     registry = require_mapping(data, "root")
     assert_allowed_keys(
-        registry, {"schema_version", "resource_kinds", "resource_types"},
+        registry,
+        {"schema_version", "resource_kinds", "resource_types"},
         "Resource registry root",
     )
     schema_version = registry.get("schema_version")
     if schema_version != SUPPORTED_RESOURCE_SCHEMA_VERSION:
         raise ValueError(
-            f"Unsupported resource schema_version {schema_version!r}; "
-            f"expected {SUPPORTED_RESOURCE_SCHEMA_VERSION}."
+            f"Unsupported resource schema_version {schema_version!r}; expected {SUPPORTED_RESOURCE_SCHEMA_VERSION}."
         )
 
     raw_kinds = require_mapping(registry.get("resource_kinds"), "resource_kinds")
@@ -145,9 +141,7 @@ def load_resource_config(project: ProjectConfig) -> ResourceConfig:
         context = f"resource_kinds.{kind_id}"
         validate_id(kind_id, context)
         kind = require_mapping(raw_kind, context)
-        assert_allowed_keys(
-            kind, {"label", "plural_label"}, f"Resource registry `{context}`"
-        )
+        assert_allowed_keys(kind, {"label", "plural_label"}, f"Resource registry `{context}`")
         kinds[kind_id] = ResourceKindConfig(
             id=kind_id,
             label=require_string(kind, "label", context),
@@ -164,33 +158,33 @@ def load_resource_config(project: ProjectConfig) -> ResourceConfig:
         assert_allowed_keys(
             resource_type,
             {
-                "lifecycle", "label", "plural_label", "kind_id", "authority",
-                "editor_enabled", "placements",
+                "lifecycle",
+                "label",
+                "plural_label",
+                "kind_id",
+                "authority",
+                "editor_enabled",
+                "placements",
             },
             f"Resource registry `{context}`",
         )
         lifecycle = require_string(resource_type, "lifecycle", context)
         if lifecycle not in LIFECYCLES:
             raise ValueError(
-                f"Resource registry `{context}.lifecycle` must be one of: "
-                f"{', '.join(sorted(LIFECYCLES))}."
+                f"Resource registry `{context}.lifecycle` must be one of: {', '.join(sorted(LIFECYCLES))}."
             )
         kind_id = require_string(resource_type, "kind_id", context)
         if kind_id not in kinds:
-            raise ValueError(
-                f"Resource registry `{context}.kind_id` references unknown kind `{kind_id}`."
-            )
+            raise ValueError(f"Resource registry `{context}.kind_id` references unknown kind `{kind_id}`.")
         authority = require_string(resource_type, "authority", context)
         if authority not in AUTHORITIES:
             raise ValueError(
-                f"Resource registry `{context}.authority` must be one of: "
-                f"{', '.join(sorted(AUTHORITIES))}."
+                f"Resource registry `{context}.authority` must be one of: {', '.join(sorted(AUTHORITIES))}."
             )
         raw_placements = resource_type.get("placements")
         if not isinstance(raw_placements, list) or (lifecycle == "active" and not raw_placements):
             raise ValueError(
-                f"Resource registry `{context}.placements` must be a non-empty list "
-                "for active resource types."
+                f"Resource registry `{context}.placements` must be a non-empty list for active resource types."
             )
         placements: list[ResourcePlacement] = []
         for index, raw_placement in enumerate(raw_placements or []):

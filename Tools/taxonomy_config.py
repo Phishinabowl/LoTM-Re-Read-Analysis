@@ -95,11 +95,7 @@ class TaxonomyConfig:
             for content_type in self.content_types.values()
             if content_type.lifecycle == "active" and content_type.qa_page_enabled
         }
-        return tuple(
-            content_root
-            for content_root in project.content_roots
-            if content_root.id in enabled_ids
-        )
+        return tuple(content_root for content_root in project.content_roots if content_root.id in enabled_ids)
 
 
 def require_mapping(value, context: str) -> dict:
@@ -124,9 +120,7 @@ def require_bool(mapping: dict, key: str, context: str) -> bool:
 
 def validate_stable_id(value: str, context: str) -> None:
     if not STABLE_ID_PATTERN.fullmatch(value):
-        raise ValueError(
-            f"Taxonomy registry `{context}` must be a lowercase kebab-case stable ID: {value}"
-        )
+        raise ValueError(f"Taxonomy registry `{context}` must be a lowercase kebab-case stable ID: {value}")
 
 
 def validate_regex(value: str, context: str) -> None:
@@ -144,10 +138,7 @@ def resolve_folder(
 ) -> tuple[Path, Path]:
     content_roots = {content_root.id: content_root for content_root in project.content_roots}
     if content_root_id not in content_roots:
-        raise ValueError(
-            f"Taxonomy registry `{context}` references unknown content root "
-            f"`{content_root_id}`."
-        )
+        raise ValueError(f"Taxonomy registry `{context}` references unknown content root `{content_root_id}`.")
 
     relative_folder = Path(value)
     if relative_folder.is_absolute():
@@ -156,9 +147,7 @@ def resolve_folder(
     root_path = content_roots[content_root_id].path.resolve()
     folder = (root_path / relative_folder).resolve()
     if folder != root_path and root_path not in folder.parents:
-        raise ValueError(
-            f"Taxonomy registry `{context}` escapes content root `{content_root_id}`: {value}"
-        )
+        raise ValueError(f"Taxonomy registry `{context}` escapes content root `{content_root_id}`: {value}")
     return relative_folder, folder
 
 
@@ -184,11 +173,22 @@ def parse_content_type(
     assert_allowed_keys(
         content_type,
         {
-            "lifecycle", "label", "plural_label", "canonical_pages_enabled",
-            "content_root_id", "category_policy", "path_strategy",
-            "metadata_type_mode", "slug_mode", "default_template",
-            "qa_page_enabled", "graph_enabled", "metadata_type",
-            "record_slug_prefix", "record_slug_pattern", "record_path",
+            "lifecycle",
+            "label",
+            "plural_label",
+            "canonical_pages_enabled",
+            "content_root_id",
+            "category_policy",
+            "path_strategy",
+            "metadata_type_mode",
+            "slug_mode",
+            "default_template",
+            "qa_page_enabled",
+            "graph_enabled",
+            "metadata_type",
+            "record_slug_prefix",
+            "record_slug_pattern",
+            "record_path",
         },
         f"Taxonomy registry `{context}`",
     )
@@ -203,42 +203,30 @@ def parse_content_type(
         context,
     )
     if lifecycle == "deferred" and canonical_pages_enabled:
-        raise ValueError(
-            f"Taxonomy registry `{context}` cannot enable canonical pages while deferred."
-        )
+        raise ValueError(f"Taxonomy registry `{context}` cannot enable canonical pages while deferred.")
     if lifecycle == "active" and not canonical_pages_enabled:
-        raise ValueError(
-            f"Taxonomy registry active content type `{content_type_id}` must enable "
-            "canonical pages."
-        )
+        raise ValueError(f"Taxonomy registry active content type `{content_type_id}` must enable canonical pages.")
 
     content_root_id = require_string(content_type, "content_root_id", context)
     validate_stable_id(content_root_id, f"{context}.content_root_id")
     root_ids = {content_root.id for content_root in project.content_roots}
     if content_root_id not in root_ids:
         raise ValueError(
-            f"Taxonomy registry `{context}.content_root_id` references unknown "
-            f"content root `{content_root_id}`."
+            f"Taxonomy registry `{context}.content_root_id` references unknown content root `{content_root_id}`."
         )
 
     category_policy = require_string(content_type, "category_policy", context)
     if category_policy not in CATEGORY_POLICIES:
         allowed = ", ".join(sorted(CATEGORY_POLICIES))
-        raise ValueError(
-            f"Taxonomy registry `{context}.category_policy` must be one of: {allowed}."
-        )
+        raise ValueError(f"Taxonomy registry `{context}.category_policy` must be one of: {allowed}.")
     path_strategy = require_string(content_type, "path_strategy", context)
     if path_strategy not in PATH_STRATEGIES:
         allowed = ", ".join(sorted(PATH_STRATEGIES))
-        raise ValueError(
-            f"Taxonomy registry `{context}.path_strategy` must be one of: {allowed}."
-        )
+        raise ValueError(f"Taxonomy registry `{context}.path_strategy` must be one of: {allowed}.")
     metadata_type_mode = require_string(content_type, "metadata_type_mode", context)
     if metadata_type_mode not in METADATA_TYPE_MODES:
         allowed = ", ".join(sorted(METADATA_TYPE_MODES))
-        raise ValueError(
-            f"Taxonomy registry `{context}.metadata_type_mode` must be one of: {allowed}."
-        )
+        raise ValueError(f"Taxonomy registry `{context}.metadata_type_mode` must be one of: {allowed}.")
     slug_mode = require_string(content_type, "slug_mode", context)
     if slug_mode not in SLUG_MODES:
         allowed = ", ".join(sorted(SLUG_MODES))
@@ -250,21 +238,15 @@ def parse_content_type(
             "`root-file` or `fixed-file` path strategy."
         )
     if slug_mode == "category" and category_policy == "forbidden":
-        raise ValueError(
-            f"Taxonomy registry `{context}` cannot use category slugs when categories "
-            "are forbidden."
-        )
+        raise ValueError(f"Taxonomy registry `{context}` cannot use category slugs when categories are forbidden.")
     if metadata_type_mode == "category" and category_policy == "forbidden":
         raise ValueError(
-            f"Taxonomy registry `{context}` cannot use category metadata types when "
-            "categories are forbidden."
+            f"Taxonomy registry `{context}` cannot use category metadata types when categories are forbidden."
         )
 
     metadata_type = str(content_type.get("metadata_type", "")).strip()
     if metadata_type_mode == "fixed" and not metadata_type:
-        raise ValueError(
-            f"Taxonomy registry `{context}.metadata_type` is required for fixed mode."
-        )
+        raise ValueError(f"Taxonomy registry `{context}.metadata_type` is required for fixed mode.")
 
     record_slug_prefix = str(content_type.get("record_slug_prefix", "")).strip()
     record_slug_pattern = str(content_type.get("record_slug_pattern", "")).strip()
@@ -272,10 +254,7 @@ def parse_content_type(
         if record_slug_prefix:
             validate_stable_id(record_slug_prefix, f"{context}.record_slug_prefix")
         if not record_slug_pattern:
-            raise ValueError(
-                f"Taxonomy registry `{context}.record_slug_pattern` is required for "
-                "record slug mode."
-            )
+            raise ValueError(f"Taxonomy registry `{context}.record_slug_pattern` is required for record slug mode.")
         validate_regex(record_slug_pattern, f"{context}.record_slug_pattern")
 
     default_template_value = str(content_type.get("default_template", "")).strip()
@@ -292,9 +271,7 @@ def parse_content_type(
     record_path = None
     if path_strategy == "fixed-file":
         if not record_path_value:
-            raise ValueError(
-                f"Taxonomy registry `{context}.record_path` is required for fixed-file."
-            )
+            raise ValueError(f"Taxonomy registry `{context}.record_path` is required for fixed-file.")
         relative_record, resolved_record = resolve_folder(
             project,
             content_root_id,
@@ -302,15 +279,10 @@ def parse_content_type(
             f"{context}.record_path",
         )
         if not resolved_record.is_file():
-            raise ValueError(
-                f"Taxonomy registry `{context}.record_path` does not exist: "
-                f"{resolved_record}"
-            )
+            raise ValueError(f"Taxonomy registry `{context}.record_path` does not exist: {resolved_record}")
         record_path = relative_record
     elif record_path_value:
-        raise ValueError(
-            f"Taxonomy registry `{context}.record_path` is only valid for fixed-file."
-        )
+        raise ValueError(f"Taxonomy registry `{context}.record_path` is only valid for fixed-file.")
 
     return ContentTypeConfig(
         id=content_type_id,
@@ -346,9 +318,15 @@ def parse_category(
     assert_allowed_keys(
         category,
         {
-            "lifecycle", "label", "plural_label", "canonical_pages_enabled",
-            "metadata_type", "subject_slug_prefix", "subject_slug_pattern",
-            "graph_class", "placements",
+            "lifecycle",
+            "label",
+            "plural_label",
+            "canonical_pages_enabled",
+            "metadata_type",
+            "subject_slug_prefix",
+            "subject_slug_pattern",
+            "graph_class",
+            "placements",
         },
         f"Taxonomy registry `{context}`",
     )
@@ -366,9 +344,7 @@ def parse_category(
     plural_label = require_string(category, "plural_label", context)
     if lifecycle == "deferred":
         if canonical_pages_enabled:
-            raise ValueError(
-                f"Taxonomy registry `{context}` cannot enable canonical pages while deferred."
-            )
+            raise ValueError(f"Taxonomy registry `{context}` cannot enable canonical pages while deferred.")
         return CategoryConfig(
             id=category_id,
             lifecycle=lifecycle,
@@ -378,9 +354,7 @@ def parse_category(
         )
 
     if not canonical_pages_enabled:
-        raise ValueError(
-            f"Taxonomy registry active category `{category_id}` must enable canonical pages."
-        )
+        raise ValueError(f"Taxonomy registry active category `{category_id}` must enable canonical pages.")
 
     subject_slug_prefix = require_string(category, "subject_slug_prefix", context)
     validate_stable_id(subject_slug_prefix, f"{context}.subject_slug_prefix")
@@ -394,14 +368,11 @@ def parse_category(
     for content_type_id, raw_placement in raw_placements.items():
         placement_context = f"{context}.placements.{content_type_id}"
         if content_type_id not in content_types:
-            raise ValueError(
-                f"Taxonomy registry `{placement_context}` references unknown content type."
-            )
+            raise ValueError(f"Taxonomy registry `{placement_context}` references unknown content type.")
         content_type = content_types[content_type_id]
         if content_type.category_policy == "forbidden":
             raise ValueError(
-                f"Taxonomy registry `{placement_context}` references content type "
-                "that forbids categories."
+                f"Taxonomy registry `{placement_context}` references content type that forbids categories."
             )
         placement = require_mapping(raw_placement, placement_context)
         assert_allowed_keys(
@@ -445,10 +416,7 @@ def parse_category(
     missing_required = required_category_types - set(placements)
     if missing_required:
         missing = ", ".join(sorted(missing_required))
-        raise ValueError(
-            f"Taxonomy registry `{context}.placements` is missing required "
-            f"content type(s): {missing}."
-        )
+        raise ValueError(f"Taxonomy registry `{context}.placements` is missing required content type(s): {missing}.")
 
     return CategoryConfig(
         id=category_id,
@@ -470,26 +438,25 @@ def ensure_unique(records, attribute: str, label: str) -> None:
         value = getattr(record, attribute)
         key = str(value).casefold()
         if key in seen:
-            raise ValueError(
-                f"Taxonomy registry duplicates {label} `{value}` between "
-                f"`{seen[key]}` and `{record.id}`."
-            )
+            raise ValueError(f"Taxonomy registry duplicates {label} `{value}` between `{seen[key]}` and `{record.id}`.")
         seen[key] = record.id
 
 
 def load_taxonomy_config(project: ProjectConfig) -> TaxonomyConfig:
-    data = load_yaml_file(project.taxonomy_registry, "taxonomy registry", expected_schema_version=SUPPORTED_TAXONOMY_SCHEMA_VERSION)
+    data = load_yaml_file(
+        project.taxonomy_registry, "taxonomy registry", expected_schema_version=SUPPORTED_TAXONOMY_SCHEMA_VERSION
+    )
 
     registry = require_mapping(data, "root")
     assert_allowed_keys(
-        registry, {"schema_version", "content_types", "categories"},
+        registry,
+        {"schema_version", "content_types", "categories"},
         "Taxonomy registry root",
     )
     schema_version = registry.get("schema_version")
     if schema_version != SUPPORTED_TAXONOMY_SCHEMA_VERSION:
         raise ValueError(
-            f"Unsupported taxonomy schema_version {schema_version!r}; "
-            f"expected {SUPPORTED_TAXONOMY_SCHEMA_VERSION}."
+            f"Unsupported taxonomy schema_version {schema_version!r}; expected {SUPPORTED_TAXONOMY_SCHEMA_VERSION}."
         )
 
     raw_content_types = require_mapping(registry.get("content_types"), "content_types")
@@ -512,9 +479,7 @@ def load_taxonomy_config(project: ProjectConfig) -> TaxonomyConfig:
     overlapping_ids = set(raw_categories) & set(raw_content_types)
     if overlapping_ids:
         duplicates = ", ".join(sorted(overlapping_ids))
-        raise ValueError(
-            f"Taxonomy registry IDs cannot be both categories and content types: {duplicates}."
-        )
+        raise ValueError(f"Taxonomy registry IDs cannot be both categories and content types: {duplicates}.")
     categories = {
         category_id: parse_category(
             category_id,
@@ -525,11 +490,7 @@ def load_taxonomy_config(project: ProjectConfig) -> TaxonomyConfig:
         for category_id, raw_category in raw_categories.items()
     }
 
-    active_categories = [
-        category
-        for category in categories.values()
-        if category.lifecycle == "active"
-    ]
+    active_categories = [category for category in categories.values() if category.lifecycle == "active"]
     ensure_unique(active_categories, "metadata_type", "category metadata type")
     ensure_unique(active_categories, "subject_slug_prefix", "subject slug prefix")
     ensure_unique(active_categories, "graph_class", "graph class")

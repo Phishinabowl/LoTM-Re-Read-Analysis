@@ -354,7 +354,8 @@ class OccurrenceRegistry:
     def phase_for_iteration(self, iteration_id: str) -> RecurrencePhase | None:
         iteration = self._known(self.iterations, iteration_id, "iteration")
         matches = [
-            item for item in self.phases.values()
+            item
+            for item in self.phases.values()
             if item.recurrence_id == iteration.recurrence_id
             and item.start_ordinal <= iteration.ordinal
             and (item.end_ordinal is None or iteration.ordinal <= item.end_ordinal)
@@ -399,7 +400,11 @@ class OccurrenceRegistry:
         ]
         if not candidates:
             return "indeterminate"
-        return "due" if any(item.value == expected and item.era_id == anchor.era_id for item in candidates) else "off-schedule"
+        return (
+            "due"
+            if any(item.value == expected and item.era_id == anchor.era_id for item in candidates)
+            else "off-schedule"
+        )
 
     def evaluate_rules(
         self,
@@ -412,7 +417,8 @@ class OccurrenceRegistry:
 
     def state_transitions_for_subject(self, subject_type: str, subject_id: str) -> tuple[StateTransition, ...]:
         return tuple(
-            item for item in self.state_transitions
+            item
+            for item in self.state_transitions
             if item.subject_type == subject_type and item.subject_id == subject_id
         )
 
@@ -429,7 +435,8 @@ class OccurrenceRegistry:
             raise ValueError(f"Occurrence `{occurrence_id}` is not on track `{track_id}`.")
         boundary = track.occurrence_ids.index(occurrence_id)
         candidates = [
-            item for item in self.state_transitions
+            item
+            for item in self.state_transitions
             if track_id in item.track_ids
             and item.payload_target_type == payload_target_type
             and item.payload_target_id == payload_target_id
@@ -457,9 +464,7 @@ class OccurrenceRegistry:
             "recurrence-schedule": self.schedules,
             "occurrence": self.occurrences,
             "occurrence-binding": {
-                binding.id: binding
-                for occurrence in self.occurrences.values()
-                for binding in occurrence.bindings
+                binding.id: binding for occurrence in self.occurrences.values() for binding in occurrence.bindings
             },
             "occurrence-track": self.tracks,
             "occurrence-transition": {item.id: item for item in self.transitions},
@@ -599,14 +604,30 @@ def parse_occurrence_registry(
     assert_allowed_keys(
         root,
         {
-            "schema_version", "branches", "templates", "recurrence_patterns", "recurrences",
-            "iterations", "phases", "schedules", "occurrences", "tracks", "transitions", "causal_relations",
-            "outcomes", "rules", "state_transitions", "carryovers",
+            "schema_version",
+            "branches",
+            "templates",
+            "recurrence_patterns",
+            "recurrences",
+            "iterations",
+            "phases",
+            "schedules",
+            "occurrences",
+            "tracks",
+            "transitions",
+            "causal_relations",
+            "outcomes",
+            "rules",
+            "state_transitions",
+            "carryovers",
         },
         "Occurrence registry root",
     )
     if root.get("schema_version") != SUPPORTED_SCHEMA_VERSION:
-        raise ValueError(f"Unsupported occurrence schema_version {root.get('schema_version')!r}; expected {SUPPORTED_SCHEMA_VERSION}.")
+        raise ValueError(
+            f"Unsupported occurrence schema_version {root.get('schema_version')!r}; "
+            f"expected {SUPPORTED_SCHEMA_VERSION}."
+        )
 
     branches: dict[str, OccurrenceBranch] = {}
     for branch_id, raw in _mapping(root.get("branches"), "occurrences.branches").items():
@@ -627,7 +648,9 @@ def parse_occurrence_registry(
         raise ValueError("occurrences.branches cannot be empty.")
     for branch in branches.values():
         if branch.parent_branch_id is not None and branch.parent_branch_id not in branches:
-            raise ValueError(f"branches.{branch.id}.parent_branch_id references unknown branch `{branch.parent_branch_id}`.")
+            raise ValueError(
+                f"branches.{branch.id}.parent_branch_id references unknown branch `{branch.parent_branch_id}`."
+            )
     _acyclic_parent(branches, "parent_branch_id", "Branch")
 
     templates: dict[str, OccurrenceTemplate] = {}
@@ -638,7 +661,9 @@ def parse_occurrence_registry(
         assert_allowed_keys(item, {"label", "kind", "aliases"}, context)
         kind = _string(item, "kind", context)
         _value(packs, "occurrence.template-kind", kind, f"{context}.kind")
-        templates[template_id] = OccurrenceTemplate(template_id, _string(item, "label", context), kind, _strings(item, "aliases", context))
+        templates[template_id] = OccurrenceTemplate(
+            template_id, _string(item, "label", context), kind, _strings(item, "aliases", context)
+        )
 
     recurrence_patterns: dict[str, RecurrencePattern] = {}
     for pattern_id, raw in _mapping(root.get("recurrence_patterns"), "occurrences.recurrence_patterns").items():
@@ -676,7 +701,10 @@ def parse_occurrence_registry(
         )
     for recurrence in recurrences.values():
         if recurrence.parent_recurrence_id is not None and recurrence.parent_recurrence_id not in recurrences:
-            raise ValueError(f"recurrences.{recurrence.id}.parent_recurrence_id references unknown recurrence `{recurrence.parent_recurrence_id}`.")
+            raise ValueError(
+                f"recurrences.{recurrence.id}.parent_recurrence_id references unknown recurrence "
+                f"`{recurrence.parent_recurrence_id}`."
+            )
     _acyclic_parent(recurrences, "parent_recurrence_id", "Recurrence")
 
     iterations: dict[str, RecurrenceIteration] = {}
@@ -697,17 +725,27 @@ def parse_occurrence_registry(
         ordinals.add((recurrence_id, ordinal))
         status = _string(item, "status", context)
         _value(packs, "occurrence.iteration-status", status, f"{context}.status")
-        iterations[iteration_id] = RecurrenceIteration(iteration_id, recurrence_id, ordinal, _optional_string(item, "parent_iteration_id", context), status)
+        iterations[iteration_id] = RecurrenceIteration(
+            iteration_id, recurrence_id, ordinal, _optional_string(item, "parent_iteration_id", context), status
+        )
     for iteration in iterations.values():
         parent_recurrence_id = recurrences[iteration.recurrence_id].parent_recurrence_id
         if parent_recurrence_id is None:
             if iteration.parent_iteration_id is not None:
-                raise ValueError(f"iterations.{iteration.id}.parent_iteration_id is only valid for a nested recurrence.")
+                raise ValueError(
+                    f"iterations.{iteration.id}.parent_iteration_id is only valid for a nested recurrence."
+                )
         else:
             if iteration.parent_iteration_id not in iterations:
-                raise ValueError(f"iterations.{iteration.id}.parent_iteration_id must reference an iteration of parent recurrence `{parent_recurrence_id}`.")
+                raise ValueError(
+                    f"iterations.{iteration.id}.parent_iteration_id must reference an iteration of "
+                    f"parent recurrence `{parent_recurrence_id}`."
+                )
             if iterations[iteration.parent_iteration_id].recurrence_id != parent_recurrence_id:
-                raise ValueError(f"iterations.{iteration.id}.parent_iteration_id must belong to parent recurrence `{parent_recurrence_id}`.")
+                raise ValueError(
+                    f"iterations.{iteration.id}.parent_iteration_id must belong to parent recurrence "
+                    f"`{parent_recurrence_id}`."
+                )
     _validate_iteration_lifecycle(recurrences, iterations)
 
     phases: dict[str, RecurrencePhase] = {}
@@ -755,7 +793,8 @@ def parse_occurrence_registry(
         if schedule_kind == "chronology-step":
             if unit != "coordinate" or anchor_position_id not in chronology.positions or anchor_value is not None:
                 raise ValueError(
-                    f"{context} chronology-step schedules require unit `coordinate`, a known anchor_position_id, and null anchor_value."
+                    f"{context} chronology-step schedules require unit `coordinate`, a known "
+                    "anchor_position_id, and null anchor_value."
                 )
             anchor = chronology.positions[anchor_position_id]
             if chronology.coordinate_systems[anchor.coordinate_system_id].kind == "era-ordinal":
@@ -763,12 +802,19 @@ def parse_occurrence_registry(
         else:
             if unit == "coordinate" or anchor_position_id is not None or anchor_value is None:
                 raise ValueError(
-                    f"{context} civil-calendar schedules require a civil unit, null anchor_position_id, and anchor_value."
+                    f"{context} civil-calendar schedules require a civil unit, null anchor_position_id, "
+                    "and anchor_value."
                 )
             _validate_civil_schedule_anchor(anchor_value, unit, context)
         schedules[schedule_id] = RecurrenceSchedule(
-            schedule_id, _string(item, "label", context), pattern_id, schedule_kind,
-            interval, unit, anchor_position_id, anchor_value,
+            schedule_id,
+            _string(item, "label", context),
+            pattern_id,
+            schedule_kind,
+            interval,
+            unit,
+            anchor_position_id,
+            anchor_value,
         )
 
     occurrences: dict[str, Occurrence] = {}
@@ -798,7 +844,9 @@ def parse_occurrence_registry(
             binding_ids.add(binding_id)
             position_id = _string(binding, "position_id", binding_context)
             if position_id not in chronology.positions:
-                raise ValueError(f"{binding_context}.position_id references unknown chronology position `{position_id}`.")
+                raise ValueError(
+                    f"{binding_context}.position_id references unknown chronology position `{position_id}`."
+                )
             role = _string(binding, "role", binding_context)
             _value(packs, "occurrence.binding-role", role, f"{binding_context}.role")
             bindings.append(OccurrenceBinding(binding_id, position_id, role))
@@ -810,27 +858,40 @@ def parse_occurrence_registry(
             semantic_bindings.add(semantic_key)
         primary_bindings = [binding for binding in bindings if binding.role == "primary"]
         for left_index, left in enumerate(primary_bindings):
-            for right in primary_bindings[left_index + 1:]:
+            for right in primary_bindings[left_index + 1 :]:
                 comparison = chronology.compare_positions(left.position_id, right.position_id)
                 if comparison in {"before", "after"}:
                     raise ValueError(
                         f"{context}.bindings declares ordered chronology positions `{left.position_id}` and "
                         f"`{right.position_id}` as primary coordinates of one occurrence."
                     )
-        occurrences[occurrence_id] = Occurrence(occurrence_id, template_id, _optional_string(item, "label", context), iteration_id, branch_id, tuple(bindings))
+        occurrences[occurrence_id] = Occurrence(
+            occurrence_id,
+            template_id,
+            _optional_string(item, "label", context),
+            iteration_id,
+            branch_id,
+            tuple(bindings),
+        )
 
     for branch in branches.values():
         if branch.fork_occurrence_id is not None and branch.fork_occurrence_id not in occurrences:
-            raise ValueError(f"branches.{branch.id}.fork_occurrence_id references unknown occurrence `{branch.fork_occurrence_id}`.")
+            raise ValueError(
+                f"branches.{branch.id}.fork_occurrence_id references unknown occurrence `{branch.fork_occurrence_id}`."
+            )
         if (
             branch.fork_occurrence_id is not None
             and occurrences[branch.fork_occurrence_id].branch_id != branch.parent_branch_id
         ):
-            raise ValueError(f"branches.{branch.id}.fork_occurrence_id must belong to parent branch `{branch.parent_branch_id}`.")
+            raise ValueError(
+                f"branches.{branch.id}.fork_occurrence_id must belong to parent branch `{branch.parent_branch_id}`."
+            )
     occurrence_branch_ids = set(branches)
     for context in chronology.narrative_contexts:
         if context.branch_id is not None and context.branch_id not in occurrence_branch_ids:
-            raise ValueError(f"Chronology context `{context.id}` references unknown occurrence branch `{context.branch_id}`.")
+            raise ValueError(
+                f"Chronology context `{context.id}` references unknown occurrence branch `{context.branch_id}`."
+            )
 
     tracks: dict[str, OccurrenceTrack] = {}
     for track_id, raw in _mapping(root.get("tracks"), "occurrences.tracks").items():
@@ -842,13 +903,19 @@ def parse_occurrence_registry(
         _value(packs, "occurrence.track-kind", kind, f"{context}.kind")
         subject_type = _string(item, "subject_type", context)
         subject_id = _string(item, "subject_id", context)
-        if subject_targets is None or subject_type not in subject_targets or subject_id not in subject_targets[subject_type]:
+        if (
+            subject_targets is None
+            or subject_type not in subject_targets
+            or subject_id not in subject_targets[subject_type]
+        ):
             raise ValueError(f"{context} references unknown subject `{subject_type}:{subject_id}`.")
         occurrence_ids = _strings(item, "occurrence_ids", context)
         unknown = set(occurrence_ids) - set(occurrences)
         if unknown:
             raise ValueError(f"{context}.occurrence_ids references unknown occurrences: {', '.join(sorted(unknown))}.")
-        tracks[track_id] = OccurrenceTrack(track_id, _string(item, "label", context), kind, subject_type, subject_id, occurrence_ids)
+        tracks[track_id] = OccurrenceTrack(
+            track_id, _string(item, "label", context), kind, subject_type, subject_id, occurrence_ids
+        )
     _validate_track_iteration_order(tracks, occurrences, iterations)
 
     seen_ids: set[str] = set()
@@ -856,7 +923,20 @@ def parse_occurrence_registry(
     for index, raw in enumerate(_list(root.get("transitions"), "occurrences.transitions")):
         context = f"transitions[{index}]"
         item = _mapping(raw, context)
-        assert_allowed_keys(item, {"id", "source_occurrence_id", "target_occurrence_id", "transition_kind", "transition_profile", "recurrence_id", "track_ids", "certainty"}, context)
+        assert_allowed_keys(
+            item,
+            {
+                "id",
+                "source_occurrence_id",
+                "target_occurrence_id",
+                "transition_kind",
+                "transition_profile",
+                "recurrence_id",
+                "track_ids",
+                "certainty",
+            },
+            context,
+        )
         transition_id = _stable(_string(item, "id", context), f"{context}.id")
         if transition_id in seen_ids:
             raise ValueError(f"{context}.id duplicates `{transition_id}`.")
@@ -891,14 +971,23 @@ def parse_occurrence_registry(
                 raise ValueError(f"{context} must advance in declared track order on `{track_id}`.")
         certainty = _string(item, "certainty", context)
         _value(packs, "temporal.certainty", certainty, f"{context}.certainty")
-        transition = OccurrenceTransition(transition_id, source_id, target_id, kind, profile, recurrence_id, track_ids, certainty)
+        transition = OccurrenceTransition(
+            transition_id, source_id, target_id, kind, profile, recurrence_id, track_ids, certainty
+        )
         _validate_transition_profile(
             transition, occurrences, iterations, recurrences, branches, chronology, recurrence_id, context
         )
         semantic_key = (source_id, target_id, kind, profile, recurrence_id, tuple(sorted(track_ids)))
         if any(
-            (existing.source_occurrence_id, existing.target_occurrence_id, existing.transition_kind,
-             existing.transition_profile, existing.recurrence_id, tuple(sorted(existing.track_ids))) == semantic_key
+            (
+                existing.source_occurrence_id,
+                existing.target_occurrence_id,
+                existing.transition_kind,
+                existing.transition_profile,
+                existing.recurrence_id,
+                tuple(sorted(existing.track_ids)),
+            )
+            == semantic_key
             for existing in transitions
         ):
             raise ValueError(f"{context} duplicates an existing semantic transition.")
@@ -922,7 +1011,9 @@ def parse_occurrence_registry(
     for index, raw in enumerate(_list(root.get("causal_relations"), "occurrences.causal_relations")):
         context = f"causal_relations[{index}]"
         item = _mapping(raw, context)
-        assert_allowed_keys(item, {"id", "source_occurrence_id", "relation_type", "target_occurrence_id", "certainty"}, context)
+        assert_allowed_keys(
+            item, {"id", "source_occurrence_id", "relation_type", "target_occurrence_id", "certainty"}, context
+        )
         relation_id = _stable(_string(item, "id", context), f"{context}.id")
         if relation_id in seen_ids:
             raise ValueError(f"{context}.id duplicates `{relation_id}`.")
@@ -948,7 +1039,16 @@ def parse_occurrence_registry(
         item = _mapping(raw, context)
         assert_allowed_keys(
             item,
-            {"id", "occurrence_id", "subject_type", "subject_id", "outcome_kind", "result_target_type", "result_target_id", "certainty"},
+            {
+                "id",
+                "occurrence_id",
+                "subject_type",
+                "subject_id",
+                "outcome_kind",
+                "result_target_type",
+                "result_target_id",
+                "certainty",
+            },
             context,
         )
         outcome_id = _stable(_string(item, "id", context), f"{context}.id")
@@ -971,9 +1071,20 @@ def parse_occurrence_registry(
             _stable(result_type, f"{context}.result_target_type")
             _stable(result_id, f"{context}.result_target_id")
             if result_id not in _target_ids(
-                result_type, branches, templates, recurrence_patterns, recurrences, iterations,
-                occurrences, tracks, {}, {}, {}, payload_targets,
-                schedules=schedules, phases=phases,
+                result_type,
+                branches,
+                templates,
+                recurrence_patterns,
+                recurrences,
+                iterations,
+                occurrences,
+                tracks,
+                {},
+                {},
+                {},
+                payload_targets,
+                schedules=schedules,
+                phases=phases,
             ):
                 raise ValueError(f"{context} references unknown result target `{result_type}:{result_id}`.")
         certainty = _string(item, "certainty", context)
@@ -995,9 +1106,11 @@ def parse_occurrence_registry(
         if semantic_key in outcome_semantics:
             raise ValueError(f"{context} duplicates an existing semantic occurrence outcome.")
         outcome_semantics.add(semantic_key)
-        outcomes.append(OccurrenceOutcome(
-            outcome_id, occurrence_id, subject_type, subject_id, outcome_kind, result_type, result_id, certainty
-        ))
+        outcomes.append(
+            OccurrenceOutcome(
+                outcome_id, occurrence_id, subject_type, subject_id, outcome_kind, result_type, result_id, certainty
+            )
+        )
 
     raw_rules = _list(root.get("rules"), "occurrences.rules")
     rule_ids = _precollect_list_ids(raw_rules, "rules")
@@ -1013,8 +1126,18 @@ def parse_occurrence_registry(
         assert_allowed_keys(
             item,
             {
-                "id", "label", "pattern_id", "rule_kind", "condition_logic", "applicability",
-                "priority", "resolution_group", "selection_mode", "override_mode", "conditions", "effects",
+                "id",
+                "label",
+                "pattern_id",
+                "rule_kind",
+                "condition_logic",
+                "applicability",
+                "priority",
+                "resolution_group",
+                "selection_mode",
+                "override_mode",
+                "conditions",
+                "effects",
             },
             context,
         )
@@ -1054,8 +1177,16 @@ def parse_occurrence_registry(
             assert_allowed_keys(
                 condition,
                 {
-                    "id", "condition_kind", "target_type", "target_id", "expected_value",
-                    "subject_type", "subject_id", "state_kind", "track_id", "comparison_value",
+                    "id",
+                    "condition_kind",
+                    "target_type",
+                    "target_id",
+                    "expected_value",
+                    "subject_type",
+                    "subject_id",
+                    "state_kind",
+                    "track_id",
+                    "comparison_value",
                 },
                 condition_context,
             )
@@ -1065,7 +1196,9 @@ def parse_occurrence_registry(
             nested_rule_ids.add(condition_id)
             condition_kind = _string(condition, "condition_kind", condition_context)
             _value(packs, "occurrence.rule-condition-kind", condition_kind, f"{condition_context}.condition_kind")
-            target_type = _stable(_string(condition, "target_type", condition_context), f"{condition_context}.target_type")
+            target_type = _stable(
+                _string(condition, "target_type", condition_context), f"{condition_context}.target_type"
+            )
             target_id = _stable(_string(condition, "target_id", condition_context), f"{condition_context}.target_id")
             expected = _string(condition, "expected_value", condition_context)
             subject_type = _optional_string(condition, "subject_type", condition_context)
@@ -1074,23 +1207,60 @@ def parse_occurrence_registry(
             track_id = _optional_string(condition, "track_id", condition_context)
             comparison_value = _optional_nonnegative_int(condition, "comparison_value", condition_context)
             _validate_rule_condition(
-                packs, pattern_id, condition_kind, target_type, target_id, expected,
-                subject_type, subject_id, state_kind, track_id, comparison_value,
-                templates, recurrence_patterns, schedules, branches, recurrences, iterations,
-                occurrences, tracks, outcomes, rule_ids, state_ids, subject_targets,
-                payload_targets, condition_context,
+                packs,
+                pattern_id,
+                condition_kind,
+                target_type,
+                target_id,
+                expected,
+                subject_type,
+                subject_id,
+                state_kind,
+                track_id,
+                comparison_value,
+                templates,
+                recurrence_patterns,
+                schedules,
+                branches,
+                recurrences,
+                iterations,
+                occurrences,
+                tracks,
+                outcomes,
+                rule_ids,
+                state_ids,
+                subject_targets,
+                payload_targets,
+                condition_context,
             )
             condition_semantic = (
-                condition_kind, target_type, target_id, expected, subject_type, subject_id,
-                state_kind, track_id, comparison_value,
+                condition_kind,
+                target_type,
+                target_id,
+                expected,
+                subject_type,
+                subject_id,
+                state_kind,
+                track_id,
+                comparison_value,
             )
             if condition_semantic in condition_semantics:
                 raise ValueError(f"{condition_context} duplicates a semantic condition within its rule.")
             condition_semantics.add(condition_semantic)
-            conditions.append(RecurrenceRuleCondition(
-                condition_id, condition_kind, target_type, target_id, expected,
-                subject_type, subject_id, state_kind, track_id, comparison_value,
-            ))
+            conditions.append(
+                RecurrenceRuleCondition(
+                    condition_id,
+                    condition_kind,
+                    target_type,
+                    target_id,
+                    expected,
+                    subject_type,
+                    subject_id,
+                    state_kind,
+                    track_id,
+                    comparison_value,
+                )
+            )
         if not conditions:
             raise ValueError(f"{context}.conditions must be a non-empty list.")
         effects: list[RecurrenceRuleEffect] = []
@@ -1108,16 +1278,30 @@ def parse_occurrence_registry(
             target_type = _stable(_string(effect, "target_type", effect_context), f"{effect_context}.target_type")
             target_id = _stable(_string(effect, "target_id", effect_context), f"{effect_context}.target_id")
             _value(
-                packs, "occurrence.rule-effect-kind-target-type", f"{effect_kind}-uses-{target_type}",
+                packs,
+                "occurrence.rule-effect-kind-target-type",
+                f"{effect_kind}-uses-{target_type}",
                 f"{effect_context}.effect_kind/target_type",
             )
             _value(
-                packs, "occurrence.rule-kind-effect-kind", f"{rule_kind}-uses-{effect_kind}",
+                packs,
+                "occurrence.rule-kind-effect-kind",
+                f"{rule_kind}-uses-{effect_kind}",
                 f"{effect_context}.rule_kind/effect_kind",
             )
             if target_id not in _target_ids(
-                target_type, branches, templates, recurrence_patterns, recurrences, iterations,
-                occurrences, tracks, {item.id: item for item in outcomes}, rule_ids, state_ids, payload_targets,
+                target_type,
+                branches,
+                templates,
+                recurrence_patterns,
+                recurrences,
+                iterations,
+                occurrences,
+                tracks,
+                {item.id: item for item in outcomes},
+                rule_ids,
+                state_ids,
+                payload_targets,
                 schedules=schedules,
             ):
                 raise ValueError(f"{effect_context} references unknown target `{target_type}:{target_id}`.")
@@ -1125,7 +1309,8 @@ def parse_occurrence_registry(
                 owning_scope = f"{effect_kind}-uses-owning-pattern"
                 external_scope = f"{effect_kind}-allows-external-pattern"
                 declared_scopes = {
-                    value for value in (owning_scope, external_scope)
+                    value
+                    for value in (owning_scope, external_scope)
                     if value in packs.allowed_values("occurrence.rule-effect-pattern-scope")
                 }
                 if len(declared_scopes) != 1:
@@ -1145,33 +1330,61 @@ def parse_occurrence_registry(
         if not effects:
             raise ValueError(f"{context}.effects must be a non-empty list.")
         applicability_key = (
-            applicability.application_level, tuple(sorted(applicability.recurrence_ids)),
-            tuple(sorted(applicability.phase_ids)), tuple(sorted(applicability.branch_ids)),
-            applicability.min_iteration_ordinal, applicability.max_iteration_ordinal,
+            applicability.application_level,
+            tuple(sorted(applicability.recurrence_ids)),
+            tuple(sorted(applicability.phase_ids)),
+            tuple(sorted(applicability.branch_ids)),
+            applicability.min_iteration_ordinal,
+            applicability.max_iteration_ordinal,
             _chronology_window_key(applicability.chronology_window),
             _temporal_window_key(applicability.effective_window),
         )
         semantic_key = (
-            pattern_id, rule_kind, condition_logic, applicability_key, priority, resolution_group,
-            selection_mode, override_mode,
-            tuple(sorted(
-                (
-                    condition.condition_kind, condition.target_type, condition.target_id,
-                    condition.expected_value, condition.subject_type, condition.subject_id,
-                    condition.state_kind, condition.track_id, condition.comparison_value,
+            pattern_id,
+            rule_kind,
+            condition_logic,
+            applicability_key,
+            priority,
+            resolution_group,
+            selection_mode,
+            override_mode,
+            tuple(
+                sorted(
+                    (
+                        condition.condition_kind,
+                        condition.target_type,
+                        condition.target_id,
+                        condition.expected_value,
+                        condition.subject_type,
+                        condition.subject_id,
+                        condition.state_kind,
+                        condition.track_id,
+                        condition.comparison_value,
+                    )
+                    for condition in conditions
                 )
-                for condition in conditions
-            )),
+            ),
             tuple(sorted((effect.effect_kind, effect.target_type, effect.target_id) for effect in effects)),
         )
         if semantic_key in rule_semantics:
             raise ValueError(f"{context} duplicates an existing semantic recurrence rule.")
         rule_semantics.add(semantic_key)
-        rules.append(RecurrenceRule(
-            rule_id, _string(item, "label", context), pattern_id, rule_kind, condition_logic,
-            applicability, priority, resolution_group, selection_mode, override_mode,
-            tuple(conditions), tuple(effects),
-        ))
+        rules.append(
+            RecurrenceRule(
+                rule_id,
+                _string(item, "label", context),
+                pattern_id,
+                rule_kind,
+                condition_logic,
+                applicability,
+                priority,
+                resolution_group,
+                selection_mode,
+                override_mode,
+                tuple(conditions),
+                tuple(effects),
+            )
+        )
 
     states: list[StateTransition] = []
     state_source_ids: set[str] = set()
@@ -1184,10 +1397,25 @@ def parse_occurrence_registry(
         assert_allowed_keys(
             item,
             {
-                "id", "subject_type", "subject_id", "payload_target_type", "payload_target_id",
-                "state_kind", "change_kind", "change_profile", "mechanism", "prior_availability",
-                "resulting_availability", "prior_attitude", "resulting_attitude", "completeness",
-                "activation_occurrence_id", "condition_rule_id", "track_ids", "source_targets", "certainty",
+                "id",
+                "subject_type",
+                "subject_id",
+                "payload_target_type",
+                "payload_target_id",
+                "state_kind",
+                "change_kind",
+                "change_profile",
+                "mechanism",
+                "prior_availability",
+                "resulting_availability",
+                "prior_attitude",
+                "resulting_attitude",
+                "completeness",
+                "activation_occurrence_id",
+                "condition_rule_id",
+                "track_ids",
+                "source_targets",
+                "certainty",
             },
             context,
         )
@@ -1201,9 +1429,20 @@ def parse_occurrence_registry(
         payload_type = _stable(_string(item, "payload_target_type", context), f"{context}.payload_target_type")
         payload_id = _stable(_string(item, "payload_target_id", context), f"{context}.payload_target_id")
         if payload_id not in _target_ids(
-            payload_type, branches, templates, recurrence_patterns, recurrences, iterations,
-            occurrences, tracks, outcome_map, rule_map, state_ids, payload_targets,
-            schedules=schedules, phases=phases,
+            payload_type,
+            branches,
+            templates,
+            recurrence_patterns,
+            recurrences,
+            iterations,
+            occurrences,
+            tracks,
+            outcome_map,
+            rule_map,
+            state_ids,
+            payload_targets,
+            schedules=schedules,
+            phases=phases,
         ):
             raise ValueError(f"{context} references unknown payload `{payload_type}:{payload_id}`.")
         state_kind = _string(item, "state_kind", context)
@@ -1212,7 +1451,12 @@ def parse_occurrence_registry(
         _value(packs, "state.change-kind", change_kind, f"{context}.change_kind")
         change_profile = _string(item, "change_profile", context)
         _value(packs, "state.change-profile", change_profile, f"{context}.change_profile")
-        _value(packs, "state.change-kind-profile", f"{change_kind}-uses-{change_profile}", f"{context}.change_kind/change_profile")
+        _value(
+            packs,
+            "state.change-kind-profile",
+            f"{change_kind}-uses-{change_profile}",
+            f"{context}.change_kind/change_profile",
+        )
         mechanism = _string(item, "mechanism", context)
         _value(packs, "state.mechanism", mechanism, f"{context}.mechanism")
         prior = _string(item, "prior_availability", context)
@@ -1258,9 +1502,20 @@ def parse_occurrence_registry(
             source_type = _stable(_string(source, "target_type", source_context), f"{source_context}.target_type")
             source_target_id = _stable(_string(source, "target_id", source_context), f"{source_context}.target_id")
             if source_target_id not in _target_ids(
-                source_type, branches, templates, recurrence_patterns, recurrences, iterations,
-                occurrences, tracks, outcome_map, rule_map, state_ids, payload_targets,
-                schedules=schedules, phases=phases,
+                source_type,
+                branches,
+                templates,
+                recurrence_patterns,
+                recurrences,
+                iterations,
+                occurrences,
+                tracks,
+                outcome_map,
+                rule_map,
+                state_ids,
+                payload_targets,
+                schedules=schedules,
+                phases=phases,
             ):
                 raise ValueError(f"{source_context} references unknown target `{source_type}:{source_target_id}`.")
             role = _string(source, "role", source_context)
@@ -1269,18 +1524,49 @@ def parse_occurrence_registry(
         certainty = _string(item, "certainty", context)
         _value(packs, "temporal.certainty", certainty, f"{context}.certainty")
         semantic_key = (
-            subject_type, subject_id, payload_type, payload_id, state_kind, change_kind, change_profile,
-            mechanism, prior, resulting, prior_attitude, resulting_attitude, completeness, activation_id,
-            condition_rule_id, tuple(sorted(track_ids)),
+            subject_type,
+            subject_id,
+            payload_type,
+            payload_id,
+            state_kind,
+            change_kind,
+            change_profile,
+            mechanism,
+            prior,
+            resulting,
+            prior_attitude,
+            resulting_attitude,
+            completeness,
+            activation_id,
+            condition_rule_id,
+            tuple(sorted(track_ids)),
         )
         if semantic_key in state_semantics:
             raise ValueError(f"{context} duplicates an existing semantic state transition.")
         state_semantics.add(semantic_key)
-        states.append(StateTransition(
-            state_id, subject_type, subject_id, payload_type, payload_id, state_kind, change_kind,
-            change_profile, mechanism, prior, resulting, prior_attitude, resulting_attitude,
-            completeness, activation_id, condition_rule_id, track_ids, tuple(source_records), certainty,
-        ))
+        states.append(
+            StateTransition(
+                state_id,
+                subject_type,
+                subject_id,
+                payload_type,
+                payload_id,
+                state_kind,
+                change_kind,
+                change_profile,
+                mechanism,
+                prior,
+                resulting,
+                prior_attitude,
+                resulting_attitude,
+                completeness,
+                activation_id,
+                condition_rule_id,
+                track_ids,
+                tuple(source_records),
+                certainty,
+            )
+        )
     state_map = {item.id: item for item in states}
     _validate_state_chains(states, tracks)
 
@@ -1289,7 +1575,11 @@ def parse_occurrence_registry(
     for index, raw in enumerate(_list(root.get("carryovers"), "occurrences.carryovers")):
         context = f"carryovers[{index}]"
         item = _mapping(raw, context)
-        assert_allowed_keys(item, {"id", "source_iteration_id", "target_iteration_id", "track_id", "state_transition_id", "certainty"}, context)
+        assert_allowed_keys(
+            item,
+            {"id", "source_iteration_id", "target_iteration_id", "track_id", "state_transition_id", "certainty"},
+            context,
+        )
         carryover_id = _stable(_string(item, "id", context), f"{context}.id")
         if carryover_id in seen_ids:
             raise ValueError(f"{context}.id duplicates `{carryover_id}`.")
@@ -1298,7 +1588,12 @@ def parse_occurrence_registry(
         target_id = _string(item, "target_iteration_id", context)
         track_id = _string(item, "track_id", context)
         state_id = _string(item, "state_transition_id", context)
-        if source_id not in iterations or target_id not in iterations or track_id not in tracks or state_id not in state_map:
+        if (
+            source_id not in iterations
+            or target_id not in iterations
+            or track_id not in tracks
+            or state_id not in state_map
+        ):
             raise ValueError(f"{context} must reference known source/target iterations, track, and state transition.")
         source = iterations[source_id]
         target = iterations[target_id]
@@ -1321,9 +1616,24 @@ def parse_occurrence_registry(
         carryovers.append(IterationCarryover(carryover_id, source_id, target_id, track_id, state_id, certainty))
 
     return OccurrenceRegistry(
-        path, SUPPORTED_SCHEMA_VERSION, chronology, branches, templates, recurrence_patterns,
-        recurrences, iterations, phases, schedules, occurrences, tracks, tuple(transitions),
-        tuple(causal_relations), tuple(outcomes), tuple(rules), tuple(states), tuple(carryovers),
+        path,
+        SUPPORTED_SCHEMA_VERSION,
+        chronology,
+        branches,
+        templates,
+        recurrence_patterns,
+        recurrences,
+        iterations,
+        phases,
+        schedules,
+        occurrences,
+        tracks,
+        tuple(transitions),
+        tuple(causal_relations),
+        tuple(outcomes),
+        tuple(rules),
+        tuple(states),
+        tuple(carryovers),
         frozenset(packs.allowed_values("occurrence.rule-effect-global-incompatibility-pair")),
         frozenset(packs.allowed_values("occurrence.rule-effect-same-target-incompatibility-pair")),
         _effect_repetition_policies(packs),
@@ -1352,7 +1662,10 @@ def _validate_transition_profile(
             or source_iteration.recurrence_id != recurrence_id
             or target_iteration.recurrence_id != recurrence_id
         ):
-            raise ValueError(f"{context} scoped `{transition.transition_profile}` endpoints must belong to recurrence `{recurrence_id}`.")
+            raise ValueError(
+                f"{context} scoped `{transition.transition_profile}` endpoints must belong to "
+                f"recurrence `{recurrence_id}`."
+            )
         if transition.transition_profile == "ordered":
             ordered_evidence = bool(transition.track_ids)
             if (
@@ -1365,25 +1678,33 @@ def _validate_transition_profile(
                 ordered_evidence = ordered_evidence or source_iteration.ordinal < target_iteration.ordinal
             comparisons = {
                 chronology.compare_positions(source.position_id, target.position_id)
-                for source in source_occurrence.bindings if source.role == "primary"
-                for target in target_occurrence.bindings if target.role == "primary"
+                for source in source_occurrence.bindings
+                if source.role == "primary"
+                for target in target_occurrence.bindings
+                if target.role == "primary"
             }
             if "after" in comparisons:
                 raise ValueError(f"{context} ordered transition contradicts exact chronology position order.")
             ordered_evidence = ordered_evidence or "before" in comparisons
             if not ordered_evidence:
-                raise ValueError(f"{context} ordered transition requires a forward track, iteration, or chronology order.")
+                raise ValueError(
+                    f"{context} ordered transition requires a forward track, iteration, or chronology order."
+                )
         return
 
     if transition.transition_profile == "recurrence-advance":
         if source_iteration is None or target_iteration is None or recurrence_id is None:
-            raise ValueError(f"{context} recurrence-advance transitions require recurrence-bound source and target iterations.")
+            raise ValueError(
+                f"{context} recurrence-advance transitions require recurrence-bound source and target iterations."
+            )
         if (
             source_iteration.recurrence_id != recurrence_id
             or target_iteration.recurrence_id != recurrence_id
             or source_iteration.ordinal >= target_iteration.ordinal
         ):
-            raise ValueError(f"{context} recurrence-advance transition must advance iterations in recurrence `{recurrence_id}`.")
+            raise ValueError(
+                f"{context} recurrence-advance transition must advance iterations in recurrence `{recurrence_id}`."
+            )
         return
 
     if transition.transition_profile == "recurrence-exit":
@@ -1393,9 +1714,8 @@ def _validate_transition_profile(
             or not _recurrence_within(source_iteration.recurrence_id, recurrence_id, recurrences)
         ):
             raise ValueError(f"{context} recurrence-exit source must belong to recurrence `{recurrence_id}`.")
-        if (
-            target_iteration is not None
-            and _recurrence_within(target_iteration.recurrence_id, recurrence_id, recurrences)
+        if target_iteration is not None and _recurrence_within(
+            target_iteration.recurrence_id, recurrence_id, recurrences
         ):
             raise ValueError(f"{context} recurrence-exit target must leave recurrence `{recurrence_id}`.")
         return
@@ -1527,9 +1847,7 @@ def _known_external_target(
         raise ValueError(f"{context} references unknown target `{target_type}:{target_id}`.")
 
 
-def _ordinal_ranges_overlap(
-    left_start: int, left_end: int | None, right_start: int, right_end: int | None
-) -> bool:
+def _ordinal_ranges_overlap(left_start: int, left_end: int | None, right_start: int, right_end: int | None) -> bool:
     left_limit = float("inf") if left_end is None else left_end
     right_limit = float("inf") if right_end is None else right_end
     return left_start <= right_limit and right_start <= left_limit
@@ -1540,7 +1858,9 @@ def _validate_civil_schedule_anchor(value: str, unit: str, context: str) -> None
     if unit not in formats:
         raise ValueError(f"{context}.unit `{unit}` is not valid for a civil-calendar schedule.")
     try:
-        parsed = date.fromisoformat(value if unit in {"day", "week"} else f"{value}-01" if unit == "month" else f"{value}-01-01")
+        parsed = date.fromisoformat(
+            value if unit in {"day", "week"} else f"{value}-01" if unit == "month" else f"{value}-01-01"
+        )
     except ValueError as exc:
         raise ValueError(f"{context}.anchor_value does not match schedule unit `{unit}`: {value}") from exc
     expected = parsed.strftime(formats[unit])
@@ -1592,8 +1912,14 @@ def _parse_rule_applicability(
     assert_allowed_keys(
         raw,
         {
-            "application_level", "recurrence_ids", "phase_ids", "branch_ids",
-            "min_iteration_ordinal", "max_iteration_ordinal", "chronology_window", "effective_window",
+            "application_level",
+            "recurrence_ids",
+            "phase_ids",
+            "branch_ids",
+            "min_iteration_ordinal",
+            "max_iteration_ordinal",
+            "chronology_window",
+            "effective_window",
         },
         app_context,
     )
@@ -1633,8 +1959,14 @@ def _parse_rule_applicability(
         chronology_window = ChronologyApplicabilityWindow(start, end)
     effective_window = parse_temporal_window(raw, "effective_window", app_context, packs)
     return RuleApplicability(
-        application_level, recurrence_ids, phase_ids, branch_ids,
-        minimum, maximum, chronology_window, effective_window,
+        application_level,
+        recurrence_ids,
+        phase_ids,
+        branch_ids,
+        minimum,
+        maximum,
+        chronology_window,
+        effective_window,
     )
 
 
@@ -1645,8 +1977,10 @@ def _chronology_window_key(window: ChronologyApplicabilityWindow | None) -> tupl
 def _temporal_window_key(window: TemporalWindow | None) -> tuple | None:
     if window is None:
         return None
+
     def bound_key(bound):
         return None if bound is None else (bound.kind, bound.value, bound.precision, bound.certainty, bound.inclusive)
+
     return (window.kind, bound_key(window.start), bound_key(window.end))
 
 
@@ -1686,9 +2020,19 @@ def _validate_rule_condition(
     if expected_target is not None and target_type != expected_target:
         raise ValueError(f"{context} condition `{condition_kind}` must target `{expected_target}`.")
     if target_id not in _target_ids(
-        target_type, branches, templates, recurrence_patterns, recurrences, iterations,
-        occurrences, tracks, {item.id: item for item in outcomes}, rule_ids, state_ids,
-        payload_targets, schedules=schedules,
+        target_type,
+        branches,
+        templates,
+        recurrence_patterns,
+        recurrences,
+        iterations,
+        occurrences,
+        tracks,
+        {item.id: item for item in outcomes},
+        rule_ids,
+        state_ids,
+        payload_targets,
+        schedules=schedules,
     ):
         raise ValueError(f"{context} references unknown target `{target_type}:{target_id}`.")
     subject_fields = (subject_type, subject_id)
@@ -1698,7 +2042,9 @@ def _validate_rule_condition(
         _known_external_target(subject_targets, subject_type, subject_id, f"{context}.subject")
     if condition_kind == "occurrence-reached":
         _value(packs, "occurrence.rule-condition-value", expected_value, f"{context}.expected_value")
-        if expected_value != "occurred" or any(value is not None for value in (*subject_fields, state_kind, track_id, comparison_value)):
+        if expected_value != "occurred" or any(
+            value is not None for value in (*subject_fields, state_kind, track_id, comparison_value)
+        ):
             raise ValueError(f"{context} occurrence-reached conditions only accept expected_value `occurred`.")
     elif condition_kind == "occurrence-outcome":
         _value(packs, "occurrence.outcome-kind", expected_value, f"{context}.expected_value")
@@ -1716,13 +2062,19 @@ def _validate_rule_condition(
             raise ValueError(f"{context}.track_id does not track the selected subject.")
     elif condition_kind == "iteration-ordinal":
         _value(packs, "occurrence.rule-comparison", expected_value, f"{context}.expected_value")
-        if comparison_value is None or comparison_value < 1 or any(value is not None for value in (*subject_fields, state_kind, track_id)):
+        if (
+            comparison_value is None
+            or comparison_value < 1
+            or any(value is not None for value in (*subject_fields, state_kind, track_id))
+        ):
             raise ValueError(f"{context} iteration-ordinal conditions require a positive comparison_value only.")
         if target_id != pattern_id:
             raise ValueError(f"{context} iteration-ordinal condition must target owning pattern `{pattern_id}`.")
     elif condition_kind == "schedule-due":
         _value(packs, "occurrence.rule-condition-value", expected_value, f"{context}.expected_value")
-        if expected_value != "due" or any(value is not None for value in (*subject_fields, state_kind, track_id, comparison_value)):
+        if expected_value != "due" or any(
+            value is not None for value in (*subject_fields, state_kind, track_id, comparison_value)
+        ):
             raise ValueError(f"{context} schedule-due conditions only accept expected_value `due`.")
         if schedules[target_id].pattern_id != pattern_id:
             raise ValueError(f"{context} schedule must belong to owning pattern `{pattern_id}`.")
@@ -1757,8 +2109,12 @@ def _validate_state_chains(
     for state in states:
         for track_id in state.track_ids:
             key = (
-                track_id, state.subject_type, state.subject_id,
-                state.payload_target_type, state.payload_target_id, state.state_kind,
+                track_id,
+                state.subject_type,
+                state.subject_id,
+                state.payload_target_type,
+                state.payload_target_id,
+                state.state_kind,
             )
             chains.setdefault(key, []).append(state)
     for key, members in chains.items():
@@ -1791,26 +2147,30 @@ def _validate_carryover_state_window(
 ) -> None:
     indices = {occurrence_id: index for index, occurrence_id in enumerate(track.occurrence_ids)}
     source_indices = [
-        indices[item] for item in track.occurrence_ids
-        if occurrences[item].iteration_id == source_iteration_id
+        indices[item] for item in track.occurrence_ids if occurrences[item].iteration_id == source_iteration_id
     ]
     target_indices = [
-        indices[item] for item in track.occurrence_ids
-        if occurrences[item].iteration_id == target_iteration_id
+        indices[item] for item in track.occurrence_ids if occurrences[item].iteration_id == target_iteration_id
     ]
     activation_index = indices[state.activation_occurrence_id]
     if activation_index > max(source_indices):
         raise ValueError(f"{context}.state_transition_id activates after the source iteration ends.")
     chain_key = (
-        state.subject_type, state.subject_id, state.payload_target_type,
-        state.payload_target_id, state.state_kind,
+        state.subject_type,
+        state.subject_id,
+        state.payload_target_type,
+        state.payload_target_id,
+        state.state_kind,
     )
     for candidate in states:
         if candidate.id == state.id or track.id not in candidate.track_ids:
             continue
         candidate_key = (
-            candidate.subject_type, candidate.subject_id, candidate.payload_target_type,
-            candidate.payload_target_id, candidate.state_kind,
+            candidate.subject_type,
+            candidate.subject_id,
+            candidate.payload_target_type,
+            candidate.payload_target_id,
+            candidate.state_kind,
         )
         candidate_index = indices[candidate.activation_occurrence_id]
         if chain_key == candidate_key and activation_index < candidate_index < min(target_indices):
@@ -1849,11 +2209,13 @@ def _rule_applicability_status(
         for position_id in primary:
             start_relation = (
                 registry.chronology.compare_positions(window.start_position_id, position_id)
-                if window.start_position_id is not None else "before"
+                if window.start_position_id is not None
+                else "before"
             )
             end_relation = (
                 registry.chronology.compare_positions(position_id, window.end_position_id)
-                if window.end_position_id is not None else "before"
+                if window.end_position_id is not None
+                else "before"
             )
             if start_relation != "incomparable" and end_relation != "incomparable":
                 comparable = True
@@ -1888,13 +2250,16 @@ def _evaluate_rule_condition(
         matched = occurrence.template_id == condition.target_id
         detail = f"current template is `{occurrence.template_id}`"
     elif kind == "occurrence-outcome":
-        matched = any(
-            outcome.occurrence_id == occurrence.id
-            and outcome.subject_type == condition.subject_type
-            and outcome.subject_id == condition.subject_id
-            and outcome.outcome_kind == condition.expected_value
-            for outcome in registry.outcomes
-        ) and occurrence.template_id == condition.target_id
+        matched = (
+            any(
+                outcome.occurrence_id == occurrence.id
+                and outcome.subject_type == condition.subject_type
+                and outcome.subject_id == condition.subject_id
+                and outcome.outcome_kind == condition.expected_value
+                for outcome in registry.outcomes
+            )
+            and occurrence.template_id == condition.target_id
+        )
         detail = "matching subject-qualified outcome found" if matched else "matching outcome not found"
     elif kind == "state-availability":
         track = registry.tracks[condition.track_id]
@@ -1948,9 +2313,7 @@ def _resolve_effects(
     grouped: dict[tuple[str, str, str], list[tuple[str, RecurrenceRuleEffect]]] = {}
     for rule in sorted(selected, key=lambda item: item.id):
         for effect in rule.effects:
-            grouped.setdefault(
-                (effect.effect_kind, effect.target_type, effect.target_id), []
-            ).append((rule.id, effect))
+            grouped.setdefault((effect.effect_kind, effect.target_type, effect.target_id), []).append((rule.id, effect))
     resolved: list[ResolvedRuleEffect] = []
     conflicts: set[str] = set()
     for (effect_kind, target_type, target_id), contributions in sorted(grouped.items()):
@@ -1959,14 +2322,19 @@ def _resolve_effects(
         execution_count = count if policy == "accumulating" else 1
         if policy == "invalid" and count > 1:
             execution_count = 0
-            conflicts.add(
-                f"duplicate {effect_kind} effect on {target_type}:{target_id} is invalid"
+            conflicts.add(f"duplicate {effect_kind} effect on {target_type}:{target_id} is invalid")
+        resolved.append(
+            ResolvedRuleEffect(
+                effect_kind,
+                target_type,
+                target_id,
+                policy,
+                count,
+                execution_count,
+                tuple(rule_id for rule_id, _ in contributions),
+                tuple(effect.id for _, effect in contributions),
             )
-        resolved.append(ResolvedRuleEffect(
-            effect_kind, target_type, target_id, policy, count, execution_count,
-            tuple(rule_id for rule_id, _ in contributions),
-            tuple(effect.id for _, effect in contributions),
-        ))
+        )
     return tuple(resolved), tuple(sorted(conflicts))
 
 
@@ -1974,7 +2342,7 @@ def _effect_conflicts(registry: OccurrenceRegistry, effects: tuple[ResolvedRuleE
     conflicts: set[str] = set()
     kinds = sorted({item.effect_kind for item in effects})
     for index, left in enumerate(kinds):
-        for right in kinds[index + 1:]:
+        for right in kinds[index + 1 :]:
             pair = f"{left}-with-{right}"
             if pair in registry.effect_global_incompatibility_pairs:
                 conflicts.add(f"{left} conflicts with {right} globally")
@@ -1988,8 +2356,7 @@ def _effect_conflicts(registry: OccurrenceRegistry, effects: tuple[ResolvedRuleE
                             and left_effect.target_id == right_effect.target_id
                         ):
                             conflicts.add(
-                                f"{left} conflicts with {right} on "
-                                f"{left_effect.target_type}:{left_effect.target_id}"
+                                f"{left} conflicts with {right} on {left_effect.target_type}:{left_effect.target_id}"
                             )
     reset_targets = {item.target_id for item in effects if item.effect_kind == "change-reset-point"}
     if len(reset_targets) > 1:
@@ -2040,8 +2407,12 @@ def _evaluate_rules(
         elif applicability == "indeterminate":
             indeterminate = True
         working[rule.id] = {
-            "rule": rule, "applicability": applicability, "matched": matched,
-            "selected": False, "disposition": disposition, "conditions": evaluations,
+            "rule": rule,
+            "applicability": applicability,
+            "matched": matched,
+            "selected": False,
+            "disposition": disposition,
+            "conditions": evaluations,
         }
 
     matched_rules = [item["rule"] for item in working.values() if item["matched"]]
@@ -2091,15 +2462,24 @@ def _evaluate_rules(
         working[rule_id]["disposition"] = "selected"
     traces = tuple(
         RuleEvaluationTrace(
-            rule.id, working[rule.id]["applicability"], working[rule.id]["matched"],
-            working[rule.id]["selected"], working[rule.id]["disposition"], working[rule.id]["conditions"],
+            rule.id,
+            working[rule.id]["applicability"],
+            working[rule.id]["matched"],
+            working[rule.id]["selected"],
+            working[rule.id]["disposition"],
+            working[rule.id]["conditions"],
         )
         for rule in sorted(registry.rules_for_pattern(recurrence.pattern_id), key=lambda item: item.id)
     )
     status = "conflict" if conflicts else "selected" if selected else "indeterminate" if indeterminate else "no-match"
     return RuleEvaluation(
-        status, recurrence_id, occurrence_id, tuple(sorted(selected_by_id)), effects,
-        tuple(sorted(conflicts)), traces,
+        status,
+        recurrence_id,
+        occurrence_id,
+        tuple(sorted(selected_by_id)),
+        effects,
+        tuple(sorted(conflicts)),
+        traces,
     )
 
 
@@ -2149,8 +2529,14 @@ def load_occurrence_registry(
     subject_targets: dict[str, set[str]] | None = None,
     payload_targets: dict[str, set[str]] | None = None,
 ) -> OccurrenceRegistry:
-    data = load_yaml_file(project.occurrences_registry, "occurrence registry", expected_schema_version=SUPPORTED_SCHEMA_VERSION)
+    data = load_yaml_file(
+        project.occurrences_registry, "occurrence registry", expected_schema_version=SUPPORTED_SCHEMA_VERSION
+    )
     return parse_occurrence_registry(
-        data, project.occurrences_registry, packs, chronology,
-        subject_targets=subject_targets, payload_targets=payload_targets,
+        data,
+        project.occurrences_registry,
+        packs,
+        chronology,
+        subject_targets=subject_targets,
+        payload_targets=payload_targets,
     )

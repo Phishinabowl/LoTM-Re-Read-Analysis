@@ -118,7 +118,9 @@ def get_mermaid_render_size(graph_path: Path, settings: dict[str, Any]) -> Rende
     fan_out_width_step = int(auto_size.get("fanOutWidthStep") or 900)
 
     max_fan_out = max([0, *outgoing_counts.values(), *incoming_counts.values()])
-    fan_out_steps = max(0, math.ceil((max_fan_out - fan_out_threshold) / fan_out_threshold)) if fan_out_threshold > 0 else 0
+    fan_out_steps = (
+        max(0, math.ceil((max_fan_out - fan_out_threshold) / fan_out_threshold)) if fan_out_threshold > 0 else 0
+    )
 
     width = min(max_width, width + (scale_steps * width_step) + (fan_out_steps * fan_out_width_step))
     height = min(max_height, height + (scale_steps * height_step))
@@ -178,7 +180,9 @@ def get_mermaid_class_validation(graph_path: Path, settings: dict[str, Any]) -> 
         for node_id in sorted(used_nodes):
             if any(re.search(pattern, node_id) for pattern in rule.get("patterns") or []):
                 if node_id not in class_assignments or class_name not in class_assignments[node_id]:
-                    issues.append(f"Node `{node_id}` matches semantic class `{class_name}` but is not assigned to that class.")
+                    issues.append(
+                        f"Node `{node_id}` matches semantic class `{class_name}` but is not assigned to that class."
+                    )
 
     return issues
 
@@ -230,8 +234,19 @@ def get_mermaid_layout_validation(graph_path: Path, settings: dict[str, Any]) ->
     section_classes = layout_settings.get("sectionClassNames") or ["group"]
     cross_section_target_classes = layout_settings.get("crossSectionTargetClasses") or ["holder", "sequence"]
     duplicate_label_ignore_classes = layout_settings.get("duplicateLabelIgnoreClasses") or ["relationship"]
-    proxy_node_patterns = layout_settings.get("proxyNodeIdPatterns") or [r"(^|_)ref(erence)?$", r"(^|_)proxy$", "_ref_", "_proxy_"]
-    proxy_label_patterns = layout_settings.get("proxyLabelPatterns") or ["reference", "proxy", "see ", "reconstruction", "summary"]
+    proxy_node_patterns = layout_settings.get("proxyNodeIdPatterns") or [
+        r"(^|_)ref(erence)?$",
+        r"(^|_)proxy$",
+        "_ref_",
+        "_proxy_",
+    ]
+    proxy_label_patterns = layout_settings.get("proxyLabelPatterns") or [
+        "reference",
+        "proxy",
+        "see ",
+        "reconstruction",
+        "summary",
+    ]
     dense_graph_settings = layout_settings.get("denseGraphValidation")
     ordered_series_settings = layout_settings.get("orderedSeriesValidation")
 
@@ -247,13 +262,17 @@ def get_mermaid_layout_validation(graph_path: Path, settings: dict[str, Any]) ->
         if len(graph_node_ids) >= min_node_count:
             if dense_graph_settings.get("requireClassDefinitions") and not class_defs:
                 issues.append(
-                    f"Dense graph has {len(graph_node_ids)} nodes but no `classDef` styling. Use styled node classes so readers can distinguish groups, entities, relationships, evidence, uncertainty, and other semantic roles."
+                    f"Dense graph has {len(graph_node_ids)} nodes but no `classDef` styling. Use styled node classes "
+                    "so readers can distinguish groups, entities, relationships, evidence, uncertainty, and other "
+                    "semantic roles."
                 )
 
             max_subgraph_count = int(dense_graph_settings.get("maxSubgraphCount", 4))
             if subgraph_count > max_subgraph_count:
                 issues.append(
-                    f"Dense graph uses {subgraph_count} Mermaid subgraph clusters. Dense knowledge maps should usually use styled group nodes and a connected semantic spine; reserve subgraph clusters for a few large regions or explicitly requested cluster views."
+                    f"Dense graph uses {subgraph_count} Mermaid subgraph clusters. Dense knowledge maps should usually "
+                    "use styled group nodes and a connected semantic spine; reserve subgraph clusters for a few large "
+                    "regions or explicitly requested cluster views."
                 )
 
             adjacency: dict[str, set[str]] = {node_id: set() for node_id in graph_node_ids}
@@ -279,7 +298,9 @@ def get_mermaid_layout_validation(graph_path: Path, settings: dict[str, Any]) ->
             max_disconnected = int(dense_graph_settings.get("maxDisconnectedComponents", 2))
             if component_count > max_disconnected:
                 issues.append(
-                    f"Dense graph has {component_count} disconnected components. Dense knowledge maps should usually have a connected semantic spine, such as root -> group -> entity -> detail, unless the user explicitly requests separate disconnected diagrams."
+                    f"Dense graph has {component_count} disconnected components. Dense knowledge maps should usually "
+                    "have a connected semantic spine, such as root -> group -> entity -> detail, unless the user "
+                    "explicitly requests separate disconnected diagrams."
                 )
 
     labels_by_text: dict[str, list[str]] = defaultdict(list)
@@ -292,13 +313,19 @@ def get_mermaid_layout_validation(graph_path: Path, settings: dict[str, Any]) ->
     for label, node_ids in sorted(labels_by_text.items()):
         unique_node_ids = sorted(set(node_ids))
         if len(unique_node_ids) > 1:
-            issues.append(f"Duplicate visual label `{label}` appears on multiple node IDs: {', '.join(unique_node_ids)}. Use one canonical node or label local references/proxies explicitly.")
+            issues.append(
+                f"Duplicate visual label `{label}` appears on multiple node IDs: {', '.join(unique_node_ids)}. "
+                "Use one canonical node or label local references/proxies explicitly."
+            )
 
     for node_id, label in sorted(node_labels.items()):
         if not any(re.search(pattern, node_id) for pattern in proxy_node_patterns):
             continue
         if not any(re.search(pattern, label) for pattern in proxy_label_patterns):
-            issues.append(f"Proxy/reference-like node `{node_id}` must label itself as a reference, proxy, reconstruction, summary, or `see ...` node. Current label: `{label}`.")
+            issues.append(
+                f"Proxy/reference-like node `{node_id}` must label itself as a reference, proxy, reconstruction, "
+                f"summary, or `see ...` node. Current label: `{label}`."
+            )
 
     for edge in edges:
         if not has_any_class(edge["Source"], section_classes):
@@ -314,7 +341,11 @@ def get_mermaid_layout_validation(graph_path: Path, settings: dict[str, Any]) ->
         ]
         if other_incoming:
             owners = ", ".join(sorted({candidate["Source"] for candidate in other_incoming}))
-            issues.append(f"Section node `{edge['Source']}` links directly to `{edge['Target']}`, but `{edge['Target']}` already has non-section incoming owner(s): {owners}. Use a local reference/proxy node inside the section instead.")
+            issues.append(
+                f"Section node `{edge['Source']}` links directly to `{edge['Target']}`, but `{edge['Target']}` "
+                f"already has non-section incoming owner(s): {owners}. Use a local reference/proxy node inside the "
+                "section instead."
+            )
 
     if ordered_series_settings and ordered_series_settings.get("enabled"):
         max_direct_children = int(ordered_series_settings.get("maxDirectChildren") or 2)
@@ -337,12 +368,16 @@ def get_mermaid_layout_validation(graph_path: Path, settings: dict[str, Any]) ->
                 {
                     edge["Target"]
                     for edge in source_edges
-                    if edge["Target"] in node_labels and any(re.search(pattern, node_labels[edge["Target"]]) for pattern in child_label_patterns)
+                    if edge["Target"] in node_labels
+                    and any(re.search(pattern, node_labels[edge["Target"]]) for pattern in child_label_patterns)
                 }
             )
             if len(ordered_children) > max_direct_children:
                 issues.append(
-                    f"Node `{source}` has {len(ordered_children)} direct ordered-series children: {', '.join(ordered_children)}. Ordered ladders, timelines, ranks, phases, chapters, steps, and sequences should usually chain child-to-child or use intermediate grouping nodes instead of wide sibling fan-out."
+                    f"Node `{source}` has {len(ordered_children)} direct ordered-series children: "
+                    f"{', '.join(ordered_children)}. Ordered ladders, timelines, ranks, phases, chapters, steps, and "
+                    "sequences should usually chain child-to-child or use intermediate grouping nodes instead of wide "
+                    "sibling fan-out."
                 )
 
     return issues
@@ -358,7 +393,9 @@ def assert_mermaid_layout_validation(graph_path: Path, settings: dict[str, Any])
         raise RuntimeError(f"Mermaid layout validation failed for {graph_path}\n- " + "\n- ".join(issues))
 
 
-def invoke_mermaid_render(input_path: Path, output_path: Path, settings: dict[str, Any], puppeteer_config: Path) -> None:
+def invoke_mermaid_render(
+    input_path: Path, output_path: Path, settings: dict[str, Any], puppeteer_config: Path
+) -> None:
     assert_mermaid_class_validation(input_path, settings)
     assert_mermaid_layout_validation(input_path, settings)
     render_size = get_mermaid_render_size(input_path, settings)
@@ -406,7 +443,12 @@ def convert_slug_to_node_id(slug: str) -> str:
 
 
 def convert_slug_to_fallback_label(slug: str) -> str:
-    name = re.sub(r"^(artifact|character|concept|deity|epoch|event|faction|family|item|source|location|mystery|pathway|tarot-card|timeline|uniqueness)-", "", Path(slug).stem)
+    name = re.sub(
+        r"^(artifact|character|concept|deity|epoch|event|faction|family|item|source|location|mystery|"
+        r"pathway|tarot-card|timeline|uniqueness)-",
+        "",
+        Path(slug).stem,
+    )
     parts = [part for part in name.split("-") if part]
     label_parts = []
     for part in parts:
@@ -481,12 +523,16 @@ def read_first_appearance_graph_displays() -> dict[str, list[dict[str, str]]]:
                 behavior = graph_display.get("behavior", "")
                 label = graph_display.get("label", "")
                 if behavior == "anonymized-node" and label:
-                    medium = graph_display.get("visible_from_medium") or row.get("position_medium") or row.get("medium", "")
+                    medium = (
+                        graph_display.get("visible_from_medium") or row.get("position_medium") or row.get("medium", "")
+                    )
                     volume = graph_display.get("visible_from_volume") or row.get("position_volume", "")
                     chapter = graph_display.get("visible_from_chapter") or row.get("position_chapter", "")
                     season = graph_display.get("visible_from_season") or row.get("position_season", "")
                     episode = graph_display.get("visible_from_episode") or row.get("position_episode", "")
-                    release_order = graph_display.get("visible_from_release_order") or row.get("position_release_order", "")
+                    release_order = graph_display.get("visible_from_release_order") or row.get(
+                        "position_release_order", ""
+                    )
                     displays[canonical_node_id].append(
                         {
                             "node_id": f"anon_{display_index:03d}",
@@ -858,7 +904,9 @@ def read_relationship_seeds() -> list[dict[str, str]]:
     return [
         relationship
         for relationship in relationships
-        if relationship["source"].strip() and relationship["target"].strip() and relationship["relationship_type"].strip()
+        if relationship["source"].strip()
+        and relationship["target"].strip()
+        and relationship["relationship_type"].strip()
     ]
 
 
@@ -876,7 +924,9 @@ def parse_subject_visible_from(value: str) -> dict[str, int | str | None]:
     return {"medium": "novel", "volume": int(match.group(1)), "chapter": int(match.group(2))}
 
 
-def position_is_visible(medium: str, volume: str | int | None, chapter: str | int | None, boundary: dict[str, Any]) -> bool:
+def position_is_visible(
+    medium: str, volume: str | int | None, chapter: str | int | None, boundary: dict[str, Any]
+) -> bool:
     boundary_medium = str(boundary.get("medium") or "").strip().lower()
     if boundary_medium and str(medium or "").strip().lower() != boundary_medium:
         return False
@@ -890,7 +940,12 @@ def position_is_visible(medium: str, volume: str | int | None, chapter: str | in
         return bool(boundary.get("includeUnknownPositions", False))
     if max_volume is not None and volume_number > int(max_volume):
         return False
-    if max_volume is not None and max_chapter is not None and volume_number == int(max_volume) and chapter_number > int(max_chapter):
+    if (
+        max_volume is not None
+        and max_chapter is not None
+        and volume_number == int(max_volume)
+        and chapter_number > int(max_chapter)
+    ):
         return False
     return True
 
@@ -925,10 +980,14 @@ def node_is_visible_at_boundary(node: dict[str, str], boundary: dict[str, Any] |
 def graph_display_is_visible(display: dict[str, str], boundary: dict[str, Any] | None) -> bool:
     if not boundary:
         return False
-    if not position_is_visible(display.get("medium", ""), display.get("volume", ""), display.get("chapter", ""), boundary):
+    if not position_is_visible(
+        display.get("medium", ""), display.get("volume", ""), display.get("chapter", ""), boundary
+    ):
         return False
     resolves_medium = display.get("resolves_medium", "")
-    if resolves_medium and position_is_visible(resolves_medium, display.get("resolves_volume", ""), display.get("resolves_chapter", ""), boundary):
+    if resolves_medium and position_is_visible(
+        resolves_medium, display.get("resolves_volume", ""), display.get("resolves_chapter", ""), boundary
+    ):
         return False
     return True
 
@@ -967,7 +1026,9 @@ def availability_is_pinned(entry: dict[str, str]) -> bool:
 def availability_entry_is_visible(entry: dict[str, str], boundary: dict[str, Any] | None) -> bool:
     if not availability_is_pinned(entry):
         return False
-    if boundary and not position_is_visible(entry.get("medium", ""), entry.get("volume", ""), entry.get("chapter", ""), boundary):
+    if boundary and not position_is_visible(
+        entry.get("medium", ""), entry.get("volume", ""), entry.get("chapter", ""), boundary
+    ):
         return False
     if entry.get("graph_visibility") == "hidden":
         return False
@@ -999,7 +1060,9 @@ def format_availability_history(entries: list[dict[str, str]], timing_spoiler_fr
         return ""
     by_medium: dict[str, list[str]] = defaultdict(list)
     for entry in visible_entries:
-        if entry.get("medium") == "donghua" and not any(entry.get(key) and entry.get(key) != "TBD" for key in ["season", "episode", "release_order"]):
+        if entry.get("medium") == "donghua" and not any(
+            entry.get(key) and entry.get(key) != "TBD" for key in ["season", "episode", "release_order"]
+        ):
             continue
         line = format_availability_entry(entry, timing_spoiler_free)
         if line and line not in by_medium[entry.get("medium", "unknown")]:
@@ -1012,7 +1075,9 @@ def format_availability_history(entries: list[dict[str, str]], timing_spoiler_fr
     return "; ".join(lines)
 
 
-def choose_current_availability(entries: list[dict[str, str]], boundary: dict[str, Any] | None) -> dict[str, str] | None:
+def choose_current_availability(
+    entries: list[dict[str, str]], boundary: dict[str, Any] | None
+) -> dict[str, str] | None:
     visible_entries = [entry for entry in entries if availability_entry_is_visible(entry, boundary)]
     if not visible_entries:
         return None
@@ -1023,7 +1088,9 @@ def relationship_strength(relationship: dict[str, str]) -> tuple[int, int, int, 
     has_projection = 1 if relationship.get("projection_source") else 0
     has_history = 1 if relationship.get("history_label") else 0
     canonical = 1 if relationship.get("projection_scope") == "canonical" else 0
-    confidence_rank = {"confirmed": 3, "strong-evidence": 2, "strong-inference": 2, "clue": 1}.get(relationship.get("confidence", ""), 0)
+    confidence_rank = {"confirmed": 3, "strong-evidence": 2, "strong-inference": 2, "clue": 1}.get(
+        relationship.get("confidence", ""), 0
+    )
     return (has_history, has_projection, canonical, confidence_rank)
 
 
@@ -1072,7 +1139,9 @@ def filter_relationships_for_boundary(
                 [entry for entry in availability if availability_entry_is_visible(entry, boundary)],
                 timing_spoiler_free,
             )
-        elif boundary and not position_is_visible(rendered.get("medium", ""), rendered.get("volume", ""), rendered.get("chapter", ""), boundary):
+        elif boundary and not position_is_visible(
+            rendered.get("medium", ""), rendered.get("volume", ""), rendered.get("chapter", ""), boundary
+        ):
             continue
 
         key = (rendered["render_source_node"], rendered["relationship_type"], rendered["render_target_node"])
@@ -1119,8 +1188,17 @@ def format_relationship_node_label(
     if relationship.get("history_label"):
         parts = [relationship["relationship_type"], relationship["history_label"]]
         return "<br/>".join(part.replace('"', r"\"") for part in parts)
-    return format_relationship_label(relationship, timing_spoiler_free, include_confirmed_confidence).replace(" ", "<br/>", 1) if False else "<br/>".join(
-        part.replace('"', r"\"") for part in format_relationship_label(relationship, timing_spoiler_free, include_confirmed_confidence).split(" ")
+    return (
+        format_relationship_label(relationship, timing_spoiler_free, include_confirmed_confidence).replace(
+            " ", "<br/>", 1
+        )
+        if False
+        else "<br/>".join(
+            part.replace('"', r"\"")
+            for part in format_relationship_label(
+                relationship, timing_spoiler_free, include_confirmed_confidence
+            ).split(" ")
+        )
     )
 
 
@@ -1219,14 +1297,25 @@ def write_mermaid_graph(
         key = f"{source}|{label}|{target}"
         if key not in seen_edges:
             seen_edges.add(key)
-            edges.append({"source": source, "target": target, "label": label, "nodeLabel": format_relationship_node_label(relationship, timing_spoiler_free, include_confirmed_confidence)})
+            edges.append(
+                {
+                    "source": source,
+                    "target": target,
+                    "label": label,
+                    "nodeLabel": format_relationship_node_label(
+                        relationship, timing_spoiler_free, include_confirmed_confidence
+                    ),
+                }
+            )
 
-    for index, edge in enumerate(sorted(edges, key=lambda item: (item["source"], item["target"], item["label"])), start=1):
+    for index, edge in enumerate(
+        sorted(edges, key=lambda item: (item["source"], item["target"], item["label"])), start=1
+    ):
         relationship_id = f"rel_{index:03d}"
         lines.append(f'  {relationship_id}["{edge["nodeLabel"]}"]')
         lines.append(f"  class {relationship_id} relationship")
-        lines.append(f'  {edge["source"]} --> {relationship_id}')
-        lines.append(f'  {relationship_id} --> {edge["target"]}')
+        lines.append(f"  {edge['source']} --> {relationship_id}")
+        lines.append(f"  {relationship_id} --> {edge['target']}")
 
     write_text(graph_path, "\n".join(lines) + "\n")
 
@@ -1248,9 +1337,7 @@ def write_unbounded_relationship_graph(
         data_projections,
         False,
     )
-    pending_node_ids = {
-        node_id for node_id, data in node_data.items() if data.get("status") == "pending"
-    }
+    pending_node_ids = {node_id for node_id, data in node_data.items() if data.get("status") == "pending"}
     pending_endpoint_node_ids = get_missing_relationship_endpoints(
         filtered_relationships,
         set(nodes),
@@ -1313,14 +1400,24 @@ def get_graph_stats(graph_path: Path) -> dict[str, Any]:
         if match := re.match(r'^\s+([A-Za-z0-9_]+)\["(.+)"\]', line):
             node_id, label = match.group(1), match.group(2)
             if re.match(r"^rel_[0-9]+$", node_id):
-                relationship_labels[node_id] = re.sub(r"\s+", " ", label.replace("<br/>", " ").replace(r"\"", '"')).strip()
+                relationship_labels[node_id] = re.sub(
+                    r"\s+", " ", label.replace("<br/>", " ").replace(r"\"", '"')
+                ).strip()
             else:
                 nodes.add(node_id)
             continue
 
         if match := re.match(r"^\s+([A-Za-z0-9_]+)\s+-->\|([^|]+)\|\s+([A-Za-z0-9_]+)", line):
             source, label, target = match.group(1), match.group(2).strip(), match.group(3)
-            edges.append({"source": source, "target": target, "label": label, "key": f"{source}|{label}|{target}", "endpointKey": f"{source}|{target}"})
+            edges.append(
+                {
+                    "source": source,
+                    "target": target,
+                    "label": label,
+                    "key": f"{source}|{label}|{target}",
+                    "endpointKey": f"{source}|{target}",
+                }
+            )
             linked.update([source, target])
             continue
 
@@ -1337,10 +1434,22 @@ def get_graph_stats(graph_path: Path) -> dict[str, Any]:
             continue
         source = relationship_sources[relationship_id]
         target = relationship_targets[relationship_id]
-        edges.append({"source": source, "target": target, "label": label, "key": f"{source}|{label}|{target}", "endpointKey": f"{source}|{target}"})
+        edges.append(
+            {
+                "source": source,
+                "target": target,
+                "label": label,
+                "key": f"{source}|{label}|{target}",
+                "endpointKey": f"{source}|{target}",
+            }
+        )
         linked.update([source, target])
 
-    return {"NodeIds": sorted(nodes), "Relationships": sorted(edges, key=lambda item: item["key"]), "OrphanNodes": sorted(nodes - linked)}
+    return {
+        "NodeIds": sorted(nodes),
+        "Relationships": sorted(edges, key=lambda item: item["key"]),
+        "OrphanNodes": sorted(nodes - linked),
+    }
 
 
 def read_previous_snapshot(snapshot_path: Path) -> dict[str, Any] | None:
@@ -1362,7 +1471,9 @@ def get_duplicate_relationships(relationships: list[dict[str, str]]) -> list[str
     return sorted(f"{key} x{count}" for key, count in counts.items() if count > 1)
 
 
-def get_changed_relationships(previous_relationships: list[dict[str, str]], current_relationships: list[dict[str, str]]) -> list[dict[str, str]]:
+def get_changed_relationships(
+    previous_relationships: list[dict[str, str]], current_relationships: list[dict[str, str]]
+) -> list[dict[str, str]]:
     previous_by_endpoint: dict[str, set[str]] = defaultdict(set)
     current_by_endpoint: dict[str, set[str]] = defaultdict(set)
     for relationship in previous_relationships:
@@ -1378,7 +1489,14 @@ def get_changed_relationships(previous_relationships: list[dict[str, str]], curr
         current_labels_sorted = sorted(current_labels)
         if previous_labels != current_labels_sorted:
             source, target = endpoint.split("|", 1)
-            changes.append({"source": source, "target": target, "previous": "; ".join(previous_labels), "current": "; ".join(current_labels_sorted)})
+            changes.append(
+                {
+                    "source": source,
+                    "target": target,
+                    "previous": "; ".join(previous_labels),
+                    "current": "; ".join(current_labels_sorted),
+                }
+            )
     return sorted(changes, key=lambda item: (item["source"], item["target"]))
 
 
@@ -1401,7 +1519,11 @@ def get_broken_markdown_links() -> list[str]:
     broken: list[str] = []
     for file_path in sorted(REPO_ROOT.rglob("*.md")):
         full_name = str(file_path)
-        if f"{os.sep}.git{os.sep}" in full_name or f"{os.sep}Source{os.sep}" in full_name or file_path.name == "TEMPLATE.md":
+        if (
+            f"{os.sep}.git{os.sep}" in full_name
+            or f"{os.sep}Source{os.sep}" in full_name
+            or file_path.name == "TEMPLATE.md"
+        ):
             continue
         text = read_text(file_path)
         for match in re.finditer(r"\[[^\]]+\]\(([^)#]+)(?:#[^)]+)?\)", text):
@@ -1450,7 +1572,9 @@ def invoke_refresh_mode(settings: dict[str, Any], puppeteer_config: Path, skip_r
     if not skip_render:
         for view in settings["views"]:
             for output in view["outputs"]:
-                invoke_mermaid_render(resolve_repo_path(view["input"]), resolve_repo_path(output), settings, puppeteer_config)
+                invoke_mermaid_render(
+                    resolve_repo_path(view["input"]), resolve_repo_path(output), settings, puppeteer_config
+                )
 
     view_stats: list[dict[str, Any]] = []
     for view in settings["views"]:
@@ -1471,7 +1595,9 @@ def invoke_refresh_mode(settings: dict[str, Any], puppeteer_config: Path, skip_r
     primary_view = view_stats[0]
     pending_nodes = get_pending_graph_nodes()
     broken_links = get_broken_markdown_links()
-    rendered_files = [output for view in settings["views"] for output in view["outputs"] if resolve_repo_path(output).exists()]
+    rendered_files = [
+        output for view in settings["views"] for output in view["outputs"] if resolve_repo_path(output).exists()
+    ]
 
     report_path = resolve_repo_path(settings["reportPath"])
     snapshot_path = resolve_repo_path(settings["snapshotPath"])
@@ -1494,7 +1620,12 @@ def invoke_refresh_mode(settings: dict[str, Any], puppeteer_config: Path, skip_r
     def previous_count(key: str) -> int:
         return 0 if previous_snapshot is None else len(previous_snapshot.get(key) or [])
 
-    previous_view_stats = {view.get("input") or view.get("name"): view for view in (previous_snapshot or {}).get("view_stats") or []}
+    def report_delta(key: str, current_value: int) -> str:
+        return format_snapshot_delta(previous_snapshot, previous_count(key), current_value)
+
+    previous_view_stats = {
+        view.get("input") or view.get("name"): view for view in (previous_snapshot or {}).get("view_stats") or []
+    }
 
     def previous_for_view(view: dict[str, Any], index: int) -> dict[str, Any]:
         previous_view = previous_view_stats.get(view["input"]) or previous_view_stats.get(view["name"])
@@ -1517,7 +1648,11 @@ def invoke_refresh_mode(settings: dict[str, Any], puppeteer_config: Path, skip_r
             [relationship["key"] for relationship in view["relationships"]],
         )
         duplicate_relationships = get_duplicate_relationships(view["relationships"])
-        changed_relationships = [] if previous_snapshot is None else get_changed_relationships(previous_view.get("relationships") or [], view["relationships"])
+        changed_relationships = (
+            []
+            if previous_snapshot is None
+            else get_changed_relationships(previous_view.get("relationships") or [], view["relationships"])
+        )
         view_reports.append(
             {
                 "view": view,
@@ -1542,10 +1677,10 @@ def invoke_refresh_mode(settings: dict[str, Any], puppeteer_config: Path, skip_r
         "",
         "| Metric | Count | Delta |",
         "| --- | ---: | ---: |",
-        f"| Views Updated | {len(settings['views'])} | {format_snapshot_delta(previous_snapshot, previous_count('views'), len(snapshot['views']))} |",
-        f"| Rendered Files | {len(rendered_files)} | {format_snapshot_delta(previous_snapshot, previous_count('rendered_files'), len(rendered_files))} |",
-        f"| Broken Links | {len(broken_links)} | {format_snapshot_delta(previous_snapshot, previous_count('broken_links'), len(broken_links))} |",
-        f"| Pending Nodes | {len(pending_nodes)} | {format_snapshot_delta(previous_snapshot, previous_count('pending_nodes'), len(pending_nodes))} |",
+        f"| Views Updated | {len(settings['views'])} | {report_delta('views', len(snapshot['views']))} |",
+        f"| Rendered Files | {len(rendered_files)} | {report_delta('rendered_files', len(rendered_files))} |",
+        f"| Broken Links | {len(broken_links)} | {report_delta('broken_links', len(broken_links))} |",
+        f"| Pending Nodes | {len(pending_nodes)} | {report_delta('pending_nodes', len(pending_nodes))} |",
         f"| Validation Issues | {validation_issue_count} | n/a |",
         "",
         "### View Summary",
@@ -1556,9 +1691,19 @@ def invoke_refresh_mode(settings: dict[str, Any], puppeteer_config: Path, skip_r
     for view_report in view_reports:
         view = view_report["view"]
         previous_view = view_report["previous"]
+        node_delta = format_snapshot_delta(
+            previous_snapshot,
+            len(previous_view.get("nodes") or []),
+            len(view["nodes"]),
+        )
+        relationship_delta = format_snapshot_delta(
+            previous_snapshot,
+            len(previous_view.get("relationships") or []),
+            len(view["relationships"]),
+        )
         report.append(
-            f"| {view['name']} | {len(view['nodes'])} | {format_snapshot_delta(previous_snapshot, len(previous_view.get('nodes') or []), len(view['nodes']))} | "
-            f"{len(view['relationships'])} | {format_snapshot_delta(previous_snapshot, len(previous_view.get('relationships') or []), len(view['relationships']))} | "
+            f"| {view['name']} | {len(view['nodes'])} | {node_delta} | "
+            f"{len(view['relationships'])} | {relationship_delta} | "
             f"{len(view['orphan_nodes'])} |"
         )
 
@@ -1593,15 +1738,18 @@ def invoke_refresh_mode(settings: dict[str, Any], puppeteer_config: Path, skip_r
     report += ["", "### Rendered Outputs", ""]
     for rendered_file in rendered_files:
         report.append(f"- `{rendered_file}` ({resolve_repo_path(rendered_file).stat().st_size} bytes)")
+    duplicate_count = sum(len(item["duplicate_relationships"]) for item in view_reports)
+    removed_count = sum(len(item["relationship_diff"]["Removed"]) for item in view_reports)
+    changed_count = sum(len(item["changed_relationships"]) for item in view_reports)
     report += [
         "",
         "### Hygiene",
         "",
         f"- Broken links: {len(broken_links)}",
         f"- Orphan nodes: {sum(len(view_report['view']['orphan_nodes']) for view_report in view_reports)}",
-        f"- Duplicate relationships: {sum(len(view_report['duplicate_relationships']) for view_report in view_reports)}",
-        f"- Removed relationships: {sum(len(view_report['relationship_diff']['Removed']) for view_report in view_reports)}",
-        f"- Changed relationship labels: {sum(len(view_report['changed_relationships']) for view_report in view_reports)}",
+        f"- Duplicate relationships: {duplicate_count}",
+        f"- Removed relationships: {removed_count}",
+        f"- Changed relationship labels: {changed_count}",
         f"- Pending graph nodes: {len(pending_nodes)}",
     ]
 
@@ -1622,7 +1770,10 @@ def invoke_refresh_mode(settings: dict[str, Any], puppeteer_config: Path, skip_r
         if view_report["changed_relationships"]:
             report += ["", f"#### {view['name']} - Changed Relationship Labels", ""]
             for relationship in view_report["changed_relationships"]:
-                report.append(f"- `{relationship['source']}` -> `{relationship['target']}` changed from `{relationship['previous']}` to `{relationship['current']}`")
+                report.append(
+                    f"- `{relationship['source']}` -> `{relationship['target']}` changed from "
+                    f"`{relationship['previous']}` to `{relationship['current']}`"
+                )
 
     for title, items in [("Broken Links", broken_links), ("Pending Nodes", pending_nodes)]:
         if items:
@@ -1634,7 +1785,9 @@ def invoke_refresh_mode(settings: dict[str, Any], puppeteer_config: Path, skip_r
     print(f"Visualization refresh tracker updated in {settings['reportPath']}")
 
 
-def invoke_render_mode(settings: dict[str, Any], puppeteer_config: Path, input_path: str | None, output_paths: list[str] | None) -> None:
+def invoke_render_mode(
+    settings: dict[str, Any], puppeteer_config: Path, input_path: str | None, output_paths: list[str] | None
+) -> None:
     if not input_path:
         raise RuntimeError("Render mode requires --input-path. Aliases: --input, --graph.")
 
@@ -1650,7 +1803,9 @@ def invoke_render_mode(settings: dict[str, Any], puppeteer_config: Path, input_p
         invoke_mermaid_render(input_full_path, resolve_repo_path(output_path), settings, puppeteer_config)
 
 
-def load_visualization_settings(settings_path: str | Path = "Visualization/config/render-settings.json") -> dict[str, Any]:
+def load_visualization_settings(
+    settings_path: str | Path = "Visualization/config/render-settings.json",
+) -> dict[str, Any]:
     return json.loads(read_text(resolve_repo_path(settings_path)))
 
 
@@ -1703,7 +1858,9 @@ def invoke_validate_mode(settings: dict[str, Any]) -> None:
             )
             class_issues = get_mermaid_class_validation(temp_graph, settings)
             layout_issues = get_mermaid_layout_validation(temp_graph, settings)
-            print(f"Generated graph: {view['input']} class_issues={len(class_issues)} layout_issues={len(layout_issues)}")
+            print(
+                f"Generated graph: {view['input']} class_issues={len(class_issues)} layout_issues={len(layout_issues)}"
+            )
             issues.extend(f"generated {view['input']}: {issue}" for issue in [*class_issues, *layout_issues])
 
     if issues:

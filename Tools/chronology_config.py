@@ -270,11 +270,23 @@ def parse_chronology_registry(
     root = _require_mapping(data, "Chronology registry root")
     assert_allowed_keys(
         root,
-        {"schema_version", "coordinate_systems", "eras", "positions", "spans", "relations", "mappings", "narrative_contexts"},
+        {
+            "schema_version",
+            "coordinate_systems",
+            "eras",
+            "positions",
+            "spans",
+            "relations",
+            "mappings",
+            "narrative_contexts",
+        },
         "Chronology registry root",
     )
     if root.get("schema_version") != SUPPORTED_SCHEMA_VERSION:
-        raise ValueError(f"Unsupported chronology schema_version {root.get('schema_version')!r}; expected {SUPPORTED_SCHEMA_VERSION}.")
+        raise ValueError(
+            f"Unsupported chronology schema_version {root.get('schema_version')!r}; "
+            f"expected {SUPPORTED_SCHEMA_VERSION}."
+        )
 
     coordinate_systems: dict[str, CoordinateSystem] = {}
     raw_systems = _require_mapping(root.get("coordinate_systems"), "chronology.coordinate_systems")
@@ -284,7 +296,11 @@ def parse_chronology_registry(
         _stable_id(system_id, "chronology coordinate-system ID")
         context = f"coordinate_systems.{system_id}"
         item = _require_mapping(raw, context)
-        assert_allowed_keys(item, {"label", "kind", "value_domain", "direction", "zero_policy", "aliases", "origin_position_id"}, context)
+        assert_allowed_keys(
+            item,
+            {"label", "kind", "value_domain", "direction", "zero_policy", "aliases", "origin_position_id"},
+            context,
+        )
         kind = _require_string(item, "kind", context)
         value_domain = _require_string(item, "value_domain", context)
         direction = _require_string(item, "direction", context)
@@ -303,8 +319,14 @@ def parse_chronology_registry(
         if zero_policy == "absent" and value_domain != "positive-integer":
             raise ValueError(f"{context} with absent zero must use positive-integer values.")
         coordinate_systems[system_id] = CoordinateSystem(
-            system_id, _require_string(item, "label", context), kind, value_domain,
-            direction, zero_policy, _string_list(item, "aliases", context), origin,
+            system_id,
+            _require_string(item, "label", context),
+            kind,
+            value_domain,
+            direction,
+            zero_policy,
+            _string_list(item, "aliases", context),
+            origin,
         )
 
     eras: dict[str, ChronologyEra] = {}
@@ -327,7 +349,14 @@ def parse_chronology_registry(
         era_ordinals.add((system_id, ordinal))
         direction = _optional_string(item, "direction", context) or coordinate_systems[system_id].direction
         _pack_value(packs, "chronology.direction", direction, f"{context}.direction")
-        eras[era_id] = ChronologyEra(era_id, system_id, _require_string(item, "label", context), ordinal, _string_list(item, "aliases", context), direction)
+        eras[era_id] = ChronologyEra(
+            era_id,
+            system_id,
+            _require_string(item, "label", context),
+            ordinal,
+            _string_list(item, "aliases", context),
+            direction,
+        )
 
     positions: dict[str, ChronologyPosition] = {}
     occupied_coordinates: set[tuple[str, str | None, int]] = set()
@@ -361,14 +390,21 @@ def parse_chronology_registry(
         occupied_coordinates.add(coordinate)
         certainty = _require_string(item, "certainty", context)
         _pack_value(packs, "temporal.certainty", certainty, f"{context}.certainty")
-        positions[position_id] = ChronologyPosition(position_id, system_id, value, era_id, _optional_string(item, "label", context), certainty)
+        positions[position_id] = ChronologyPosition(
+            position_id, system_id, value, era_id, _optional_string(item, "label", context), certainty
+        )
 
     for system in coordinate_systems.values():
         if system.origin_position_id is not None:
             if system.origin_position_id not in positions:
-                raise ValueError(f"coordinate_systems.{system.id}.origin_position_id references unknown position `{system.origin_position_id}`.")
+                raise ValueError(
+                    f"coordinate_systems.{system.id}.origin_position_id references unknown position "
+                    f"`{system.origin_position_id}`."
+                )
             if positions[system.origin_position_id].coordinate_system_id == system.id:
-                raise ValueError(f"coordinate_systems.{system.id}.origin_position_id must use another coordinate system.")
+                raise ValueError(
+                    f"coordinate_systems.{system.id}.origin_position_id must use another coordinate system."
+                )
     origin_edges = {
         system.id: positions[system.origin_position_id].coordinate_system_id
         for system in coordinate_systems.values()
@@ -391,7 +427,19 @@ def parse_chronology_registry(
     for index, raw in enumerate(raw_spans):
         context = f"spans[{index}]"
         item = _require_mapping(raw, context)
-        assert_allowed_keys(item, {"id", "coordinate_system_id", "start_position_id", "end_position_id", "start_inclusive", "end_inclusive", "certainty"}, context)
+        assert_allowed_keys(
+            item,
+            {
+                "id",
+                "coordinate_system_id",
+                "start_position_id",
+                "end_position_id",
+                "start_inclusive",
+                "end_inclusive",
+                "certainty",
+            },
+            context,
+        )
         span_id = _stable_id(_require_string(item, "id", context), f"{context}.id")
         if span_id in seen_span_ids:
             raise ValueError(f"{context}.id duplicates `{span_id}`.")
@@ -404,7 +452,9 @@ def parse_chronology_registry(
         if start_id is None and end_id is None:
             raise ValueError(f"{context} requires at least one endpoint.")
         for key, position_id in (("start_position_id", start_id), ("end_position_id", end_id)):
-            if position_id is not None and (position_id not in positions or positions[position_id].coordinate_system_id != system_id):
+            if position_id is not None and (
+                position_id not in positions or positions[position_id].coordinate_system_id != system_id
+            ):
                 raise ValueError(f"{context}.{key} must reference a position in `{system_id}`.")
         start_inclusive = item.get("start_inclusive")
         end_inclusive = item.get("end_inclusive")
@@ -413,7 +463,9 @@ def parse_chronology_registry(
         certainty = _require_string(item, "certainty", context)
         _pack_value(packs, "temporal.certainty", certainty, f"{context}.certainty")
         if start_id is not None and end_id is not None:
-            probe = ChronologyRegistry(path, SUPPORTED_SCHEMA_VERSION, coordinate_systems, eras, positions, (), (), (), ())
+            probe = ChronologyRegistry(
+                path, SUPPORTED_SCHEMA_VERSION, coordinate_systems, eras, positions, (), (), (), ()
+            )
             ordering = probe.compare_positions(start_id, end_id)
             if ordering == "after" or (ordering == "concurrent" and not (start_inclusive and end_inclusive)):
                 raise ValueError(f"{context} has an empty or reversed span.")
@@ -424,7 +476,9 @@ def parse_chronology_registry(
     for index, raw in enumerate(root.get("relations", [])):
         context = f"relations[{index}]"
         item = _require_mapping(raw, context)
-        assert_allowed_keys(item, {"id", "source_position_id", "relation_type", "target_position_id", "certainty"}, context)
+        assert_allowed_keys(
+            item, {"id", "source_position_id", "relation_type", "target_position_id", "certainty"}, context
+        )
         relation_id = _stable_id(_require_string(item, "id", context), f"{context}.id")
         if relation_id in seen_record_ids:
             raise ValueError(f"{context}.id duplicates `{relation_id}`.")
@@ -443,7 +497,9 @@ def parse_chronology_registry(
     for index, raw in enumerate(root.get("mappings", [])):
         context = f"mappings[{index}]"
         item = _require_mapping(raw, context)
-        assert_allowed_keys(item, {"id", "source_position_id", "mapping_kind", "target_position_id", "certainty"}, context)
+        assert_allowed_keys(
+            item, {"id", "source_position_id", "mapping_kind", "target_position_id", "certainty"}, context
+        )
         mapping_id = _stable_id(_require_string(item, "id", context), f"{context}.id")
         if mapping_id in seen_record_ids:
             raise ValueError(f"{context}.id duplicates `{mapping_id}`.")
@@ -470,7 +526,9 @@ def parse_chronology_registry(
     for index, raw in enumerate(raw_contexts):
         context = f"narrative_contexts[{index}]"
         item = _require_mapping(raw, context)
-        assert_allowed_keys(item, {"id", "label", "coordinate_system_id", "role", "continuity_ids", "work_ids", "branch_id"}, context)
+        assert_allowed_keys(
+            item, {"id", "label", "coordinate_system_id", "role", "continuity_ids", "work_ids", "branch_id"}, context
+        )
         context_id = _stable_id(_require_string(item, "id", context), f"{context}.id")
         if context_id in seen_context_ids:
             raise ValueError(f"{context}.id duplicates `{context_id}`.")
@@ -491,11 +549,23 @@ def parse_chronology_registry(
         if unknown_works:
             raise ValueError(f"{context}.work_ids references unknown works: {', '.join(sorted(unknown_works))}.")
         if unknown_continuities:
-            raise ValueError(f"{context}.continuity_ids references unknown continuities: {', '.join(sorted(unknown_continuities))}.")
+            raise ValueError(
+                f"{context}.continuity_ids references unknown continuities: {', '.join(sorted(unknown_continuities))}."
+            )
         branch_id = _optional_string(item, "branch_id", context)
         if branch_id is not None:
             _stable_id(branch_id, f"{context}.branch_id")
-        contexts.append(NarrativeChronologyContext(context_id, _require_string(item, "label", context), system_id, role, context_continuity_ids, context_work_ids, branch_id))
+        contexts.append(
+            NarrativeChronologyContext(
+                context_id,
+                _require_string(item, "label", context),
+                system_id,
+                role,
+                context_continuity_ids,
+                context_work_ids,
+                branch_id,
+            )
+        )
 
     parent = {position_id: position_id for position_id in positions}
 
@@ -555,7 +625,7 @@ def parse_chronology_registry(
         positions_by_system.setdefault(position.coordinate_system_id, []).append(position)
     for system_positions in positions_by_system.values():
         for index, left in enumerate(system_positions):
-            for right in system_positions[index + 1:]:
+            for right in system_positions[index + 1 :]:
                 comparison = _intrinsic_comparison(left, right, coordinate_systems, eras)
                 if comparison == "before":
                     add_order_edge(left.id, right.id, "Intrinsic chronology")
@@ -569,7 +639,9 @@ def parse_chronology_registry(
             continue
         pair = tuple(sorted((left.id, right.id)))
         if pair in exact_pairs:
-            raise ValueError(f"Chronology relation `{relation.id}` duplicates an exact relation between `{pair[0]}` and `{pair[1]}`.")
+            raise ValueError(
+                f"Chronology relation `{relation.id}` duplicates an exact relation between `{pair[0]}` and `{pair[1]}`."
+            )
         exact_pairs.add(pair)
         if relation.relation_type == "before":
             add_order_edge(left.id, right.id, f"Chronology relation `{relation.id}`")
@@ -599,9 +671,17 @@ def parse_chronology_registry(
 
     frozen_edges = {source_id: frozenset(target_ids) for source_id, target_ids in order_edges.items()}
     registry = ChronologyRegistry(
-        path, SUPPORTED_SCHEMA_VERSION, coordinate_systems, eras, positions,
-        tuple(spans), tuple(relations), tuple(mappings), tuple(contexts),
-        equivalence_classes, frozen_edges,
+        path,
+        SUPPORTED_SCHEMA_VERSION,
+        coordinate_systems,
+        eras,
+        positions,
+        tuple(spans),
+        tuple(relations),
+        tuple(mappings),
+        tuple(contexts),
+        equivalence_classes,
+        frozen_edges,
     )
     for left_id, right_id, relation_id in exact_incomparables:
         if registry.compare_positions(left_id, right_id) != "incomparable":
@@ -616,5 +696,9 @@ def load_chronology_registry(
     work_ids: set[str] | None = None,
     continuity_ids: set[str] | None = None,
 ) -> ChronologyRegistry:
-    data = load_yaml_file(project.chronology_registry, "chronology registry", expected_schema_version=SUPPORTED_SCHEMA_VERSION)
-    return parse_chronology_registry(data, project.chronology_registry, packs, work_ids=work_ids, continuity_ids=continuity_ids)
+    data = load_yaml_file(
+        project.chronology_registry, "chronology registry", expected_schema_version=SUPPORTED_SCHEMA_VERSION
+    )
+    return parse_chronology_registry(
+        data, project.chronology_registry, packs, work_ids=work_ids, continuity_ids=continuity_ids
+    )

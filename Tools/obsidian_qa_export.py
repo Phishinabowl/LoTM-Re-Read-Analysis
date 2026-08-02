@@ -59,11 +59,7 @@ SLUG_PREFIXES = (
     "uniqueness",
 )
 
-SLUG_RE = re.compile(
-    r"\b(?:"
-    + "|".join(re.escape(prefix) for prefix in SLUG_PREFIXES)
-    + r")-[a-z0-9][a-z0-9-]*\b"
-)
+SLUG_RE = re.compile(r"\b(?:" + "|".join(re.escape(prefix) for prefix in SLUG_PREFIXES) + r")-[a-z0-9][a-z0-9-]*\b")
 
 DATA_REFERENCE_KEYS = {
     "",
@@ -328,7 +324,9 @@ def parse_bounded_graph_spec(raw_spec: str, index: int) -> BoundedGraphSpec:
     medium = values.get("medium", "novel")
     file_stem = safe_slug(values.get("file_stem") or name, f"bounded-graph-{index}")
 
-    if not any(values.get(key) for key in ["max_volume", "max_chapter", "max_season", "max_episode", "max_release_order"]):
+    if not any(
+        values.get(key) for key in ["max_volume", "max_chapter", "max_season", "max_episode", "max_release_order"]
+    ):
         raise ValueError(f"--bounded-graph `{raw_spec}` must include at least one max boundary, such as maxVolume=1.")
 
     return BoundedGraphSpec(
@@ -346,12 +344,7 @@ def parse_bounded_graph_spec(raw_spec: str, index: int) -> BoundedGraphSpec:
 
 
 def parse_bounded_graph_specs(raw_specs: list[str]) -> list[BoundedGraphSpec]:
-    expanded_specs = [
-        spec.strip()
-        for raw_spec in raw_specs
-        for spec in raw_spec.split(";")
-        if spec.strip()
-    ]
+    expanded_specs = [spec.strip() for raw_spec in raw_specs for spec in raw_spec.split(";") if spec.strip()]
     return [parse_bounded_graph_spec(raw_spec, index) for index, raw_spec in enumerate(expanded_specs, start=1)]
 
 
@@ -397,7 +390,9 @@ def parse_bounded_page_spec(raw_spec: str, index: int) -> BoundedPageSpec:
     slug = values.get("slug", "")
     if not slug:
         raise ValueError(f"--bounded-page `{raw_spec}` must include slug=<canonical-slug>.")
-    if not any(values.get(key) for key in ["max_volume", "max_chapter", "max_season", "max_episode", "max_release_order"]):
+    if not any(
+        values.get(key) for key in ["max_volume", "max_chapter", "max_season", "max_episode", "max_release_order"]
+    ):
         raise ValueError(f"--bounded-page `{raw_spec}` must include at least one max boundary, such as maxChapter=30.")
 
     name = values.get("name", "")
@@ -419,12 +414,7 @@ def parse_bounded_page_spec(raw_spec: str, index: int) -> BoundedPageSpec:
 
 
 def parse_bounded_page_specs(raw_specs: list[str]) -> list[BoundedPageSpec]:
-    expanded_specs = [
-        spec.strip()
-        for raw_spec in raw_specs
-        for spec in raw_spec.split(";")
-        if spec.strip()
-    ]
+    expanded_specs = [spec.strip() for raw_spec in raw_specs for spec in raw_spec.split(";") if spec.strip()]
     return [parse_bounded_page_spec(raw_spec, index) for index, raw_spec in enumerate(expanded_specs, start=1)]
 
 
@@ -604,7 +594,10 @@ def make_availability_entry(data: dict[str, str]) -> AvailabilityEntry:
         season=data.get("from_season", "") or data.get("season", ""),
         episode=data.get("from_episode", "") or data.get("episode", ""),
         release_order=data.get("from_release_order", "") or data.get("release_order", ""),
-        status=data.get("status", "") or data.get("possession_status", "") or data.get("access_status", "") or data.get("outcome_status", ""),
+        status=data.get("status", "")
+        or data.get("possession_status", "")
+        or data.get("access_status", "")
+        or data.get("outcome_status", ""),
         confidence=data.get("confidence", ""),
         graph_visibility=data.get("graph_visibility", ""),
         adaptation_relationship=data.get("adaptation_relationship", ""),
@@ -949,7 +942,9 @@ def mermaid_node_title(slug: str, notes: dict[str, CanonicalNote]) -> str:
 
 def edge_line(rel: Relationship, notes: dict[str, CanonicalNote], incoming: bool = False) -> str:
     subject = wiki_link(rel.source if incoming else rel.target, notes)
-    field_name = f"incoming-{rel.relationship_type or 'relationship'}" if incoming else rel.relationship_type or "relationship"
+    field_name = (
+        f"incoming-{rel.relationship_type or 'relationship'}" if incoming else rel.relationship_type or "relationship"
+    )
     details = []
     if rel.status:
         details.append(f"status: {rel.status}")
@@ -999,9 +994,7 @@ def render_first_appearance_beats(beats: list[FirstAppearanceBeat]) -> list[str]
         ]
     )
     for beat in beats:
-        knowledge = " / ".join(
-            part for part in [beat.reader_knowledge_state, beat.viewer_knowledge_state] if part
-        )
+        knowledge = " / ".join(part for part in [beat.reader_knowledge_state, beat.viewer_knowledge_state] if part)
         graph_display = beat.graph_behavior
         if beat.graph_label:
             graph_display = f"{graph_display}: {beat.graph_label}" if graph_display else beat.graph_label
@@ -1084,7 +1077,10 @@ def render_note(
 
     lines.extend(["", "## Seed Evidence", ""])
     for rel in outgoing + incoming:
-        lines.append(f"- `{rel.source}` --{rel.relationship_type or 'relationship'}--> `{rel.target}` from {source_link(rel.source_file)}")
+        lines.append(
+            f"- `{rel.source}` --{rel.relationship_type or 'relationship'}--> `{rel.target}` "
+            f"from {source_link(rel.source_file)}"
+        )
     if not outgoing and not incoming:
         lines.append("- No Relationship Seeds mention this note.")
 
@@ -1198,7 +1194,9 @@ def relationship_source_lines(
 def relationship_source_line(rel: Relationship, data_projections: dict[str, DataProjection]) -> str:
     domain = source_domain_label(rel.source_file)
     if rel.projection_source:
-        projection = data_projections.get(f"{rel.source}|{rel.projection_source}") or data_projections.get(rel.projection_source)
+        projection = data_projections.get(f"{rel.source}|{rel.projection_source}") or data_projections.get(
+            rel.projection_source
+        )
         if projection:
             history = format_availability_history(projection.availability)
             if history:
@@ -1268,7 +1266,10 @@ def relationship_provenance_lines(
     relationships: list[Relationship], data_projections: dict[str, DataProjection] | None = None
 ) -> list[str]:
     lines: list[str] = []
-    for rel in sorted(relationships, key=lambda item: (source_domain_label(item.source_file), item.confidence, item.start_chapter, item.source_file)):
+    for rel in sorted(
+        relationships,
+        key=lambda item: (source_domain_label(item.source_file), item.confidence, item.start_chapter, item.source_file),
+    ):
         if data_projections:
             line = relationship_source_line(rel, data_projections)
             if line:
@@ -1413,8 +1414,7 @@ def write_repo_refresh_check(config: ProjectConfig, generated_dir: Path) -> None
         input_name = Path(view["input"]).name
         view["input"] = repo_relative_path(root, check_dir / input_name)
         view["outputs"] = [
-            repo_relative_path(root, rendered_dir / Path(output).name)
-            for output in view.get("outputs", [])
+            repo_relative_path(root, rendered_dir / Path(output).name) for output in view.get("outputs", [])
         ]
 
     (check_dir / "refresh-check-settings.json").write_text(
@@ -1643,7 +1643,9 @@ def row_visible_availability(row: dict, boundary: dict[str, int | str]) -> list[
     entries = row.get("availability", [])
     if not isinstance(entries, list):
         return []
-    visible = [entry for entry in entries if isinstance(entry, dict) and position_is_visible(entry_position(entry), boundary)]
+    visible = [
+        entry for entry in entries if isinstance(entry, dict) and position_is_visible(entry_position(entry), boundary)
+    ]
     return sorted(visible, key=lambda entry: position_sort_key(entry_position(entry)))
 
 
@@ -1746,7 +1748,13 @@ def format_availability_progression(row: dict) -> str:
     if entries:
         for entry in entries:
             position = format_position(entry_position(entry))
-            status = entry.get("status") or entry.get("possession_status") or entry.get("access_status") or entry.get("outcome_status") or ""
+            status = (
+                entry.get("status")
+                or entry.get("possession_status")
+                or entry.get("access_status")
+                or entry.get("outcome_status")
+                or ""
+            )
             confidence = entry.get("confidence", "")
             details = " / ".join(item for item in [status, confidence] if item)
             parts.append(f"{position}: {details}" if details else position)
@@ -1780,7 +1788,9 @@ def format_availability_progression(row: dict) -> str:
     return "<br>".join(parts)
 
 
-def graph_display_for_boundary(note: CanonicalNote, filtered: dict[str, list[dict]], page_visible: bool) -> dict[str, str]:
+def graph_display_for_boundary(
+    note: CanonicalNote, filtered: dict[str, list[dict]], page_visible: bool
+) -> dict[str, str]:
     beats = filtered.get("first_appearance_beats", [])
     graph_rows = []
     for beat in beats:
@@ -1817,7 +1827,9 @@ def graph_display_for_boundary(note: CanonicalNote, filtered: dict[str, list[dic
     }
 
 
-def render_generation_stats(note: CanonicalNote, spec: BoundedPageSpec, page_visible: bool, filtered: dict[str, list[dict]]) -> list[str]:
+def render_generation_stats(
+    note: CanonicalNote, spec: BoundedPageSpec, page_visible: bool, filtered: dict[str, list[dict]]
+) -> list[str]:
     graph_display = graph_display_for_boundary(note, filtered, page_visible)
     rows = [
         ("Boundary", boundary_label(spec)),
@@ -1858,26 +1870,255 @@ def render_bounded_table(title: str, rows: list[dict], columns: list[tuple[str, 
 
 
 BOUNDED_CHARACTER_TABLES: list[tuple[str, str, list[tuple[str, str]], bool]] = [
-    ("First Appearance Beats", "first_appearance_beats", [("Title", "title"), ("Type", "beat_type"), ("State", "reader_knowledge_state"), ("Status", "status"), ("Confidence", "confidence")], False),
-    ("Identity / Role", "identities", [("Field", "field"), ("Value", "value"), ("Status", "status"), ("Confidence", "confidence"), ("Notes", "notes")], False),
-    ("Physical Profile", "physical_profile", [("Field", "field"), ("Value", "value"), ("Status", "status"), ("Confidence", "confidence"), ("Notes", "notes")], False),
-    ("Status / Origin / Location", "status_origin_location", [("Field", "field"), ("Value", "value"), ("Status", "status"), ("Confidence", "confidence"), ("Notes", "notes")], False),
-    ("Affiliations", "affiliations", [("Organization", "organization"), ("Target", "target"), ("Relationship", "relationship"), ("Status", "status"), ("Confidence", "confidence")], False),
-    ("Pathway State", "pathway_state", [("Pathway", "pathway"), ("Target", "target"), ("Relationship", "relationship"), ("Status", "status"), ("Confidence", "confidence")], False),
-    ("Sequence State", "sequence_state", [("Sequence", "sequence"), ("Name", "sequence_name"), ("Pathway", "related_pathway"), ("Status", "status"), ("Confidence", "confidence")], False),
-    ("Associated Tarot Card", "associated_tarot_card", [("Card", "card_name"), ("Number", "card_number"), ("Target", "target"), ("Alias", "identity_alias"), ("Association", "association_type"), ("Status", "status"), ("Confidence", "confidence")], True),
-    ("Mythical Creature Form State", "mythical_creature_form_state", [("Form State", "form_state"), ("Stage", "version_stage"), ("Pathway", "related_pathway"), ("Sequence Threshold", "sequence_threshold"), ("Status", "status"), ("Confidence", "confidence")], True),
-    ("Uniqueness State", "uniqueness_state", [("Uniqueness", "uniqueness"), ("Relationship", "relationship_state"), ("Status", "status"), ("Confidence", "confidence"), ("Notes", "notes")], True),
-    ("Ability State", "ability_state", [("Field", "field"), ("Value", "value"), ("Status", "status"), ("Confidence", "confidence"), ("Notes", "notes")], True),
-    ("Abilities", "ability_index", [("Ability", "ability"), ("Source", "source"), ("Target", "target"), ("Status", "status"), ("Confidence", "confidence"), ("Notes", "notes")], False),
-    ("Equipment / Artifacts / Items", "equipment_artifacts", [("Item", "item"), ("Target", "target"), ("Type", "type"), ("Possession", "possession_status"), ("Significance", "item_significance"), ("Graph", "graph_relevance")], False),
-    ("Knowledge Sources & Documents", "knowledge_sources_documents", [("Source", "source"), ("Target", "target"), ("Type", "type"), ("Access", "access_status"), ("Significance", "source_significance"), ("Graph", "graph_relevance")], True),
-    ("Personality", "personality", [("Trait", "trait"), ("Evidence", "evidence"), ("Status", "status"), ("Confidence", "confidence"), ("Notes", "notes")], False),
-    ("Relationships", "relationships", [("Target", "target"), ("Relationship", "relationship"), ("Status", "status"), ("Confidence", "confidence"), ("Notes", "notes")], False),
-    ("Messengers / Servants / Companions", "messengers_servants_companions", [("Entity", "entity"), ("Label", "label"), ("Type", "type"), ("Function", "function"), ("Status", "status"), ("Confidence", "confidence")], True),
-    ("Prayers & Ritual Access", "prayers_ritual_access", [("Label", "label"), ("Type", "type"), ("Function", "function"), ("Concept Link", "concept_link"), ("Status", "status"), ("Confidence", "confidence")], True),
-    ("Major Events", "major_events_fights", [("Event", "event"), ("Target", "target"), ("Type", "event_type"), ("Part", "event_part"), ("Role", "role"), ("Outcome", "outcome_status")], False),
-    ("Timeline Entries", "timeline_entries", [("ID", "id"), ("Title", "title"), ("Type", "entry_type"), ("Summary", "summary"), ("Why It Matters", "why_it_matters")], False),
+    (
+        "First Appearance Beats",
+        "first_appearance_beats",
+        [
+            ("Title", "title"),
+            ("Type", "beat_type"),
+            ("State", "reader_knowledge_state"),
+            ("Status", "status"),
+            ("Confidence", "confidence"),
+        ],
+        False,
+    ),
+    (
+        "Identity / Role",
+        "identities",
+        [
+            ("Field", "field"),
+            ("Value", "value"),
+            ("Status", "status"),
+            ("Confidence", "confidence"),
+            ("Notes", "notes"),
+        ],
+        False,
+    ),
+    (
+        "Physical Profile",
+        "physical_profile",
+        [
+            ("Field", "field"),
+            ("Value", "value"),
+            ("Status", "status"),
+            ("Confidence", "confidence"),
+            ("Notes", "notes"),
+        ],
+        False,
+    ),
+    (
+        "Status / Origin / Location",
+        "status_origin_location",
+        [
+            ("Field", "field"),
+            ("Value", "value"),
+            ("Status", "status"),
+            ("Confidence", "confidence"),
+            ("Notes", "notes"),
+        ],
+        False,
+    ),
+    (
+        "Affiliations",
+        "affiliations",
+        [
+            ("Organization", "organization"),
+            ("Target", "target"),
+            ("Relationship", "relationship"),
+            ("Status", "status"),
+            ("Confidence", "confidence"),
+        ],
+        False,
+    ),
+    (
+        "Pathway State",
+        "pathway_state",
+        [
+            ("Pathway", "pathway"),
+            ("Target", "target"),
+            ("Relationship", "relationship"),
+            ("Status", "status"),
+            ("Confidence", "confidence"),
+        ],
+        False,
+    ),
+    (
+        "Sequence State",
+        "sequence_state",
+        [
+            ("Sequence", "sequence"),
+            ("Name", "sequence_name"),
+            ("Pathway", "related_pathway"),
+            ("Status", "status"),
+            ("Confidence", "confidence"),
+        ],
+        False,
+    ),
+    (
+        "Associated Tarot Card",
+        "associated_tarot_card",
+        [
+            ("Card", "card_name"),
+            ("Number", "card_number"),
+            ("Target", "target"),
+            ("Alias", "identity_alias"),
+            ("Association", "association_type"),
+            ("Status", "status"),
+            ("Confidence", "confidence"),
+        ],
+        True,
+    ),
+    (
+        "Mythical Creature Form State",
+        "mythical_creature_form_state",
+        [
+            ("Form State", "form_state"),
+            ("Stage", "version_stage"),
+            ("Pathway", "related_pathway"),
+            ("Sequence Threshold", "sequence_threshold"),
+            ("Status", "status"),
+            ("Confidence", "confidence"),
+        ],
+        True,
+    ),
+    (
+        "Uniqueness State",
+        "uniqueness_state",
+        [
+            ("Uniqueness", "uniqueness"),
+            ("Relationship", "relationship_state"),
+            ("Status", "status"),
+            ("Confidence", "confidence"),
+            ("Notes", "notes"),
+        ],
+        True,
+    ),
+    (
+        "Ability State",
+        "ability_state",
+        [
+            ("Field", "field"),
+            ("Value", "value"),
+            ("Status", "status"),
+            ("Confidence", "confidence"),
+            ("Notes", "notes"),
+        ],
+        True,
+    ),
+    (
+        "Abilities",
+        "ability_index",
+        [
+            ("Ability", "ability"),
+            ("Source", "source"),
+            ("Target", "target"),
+            ("Status", "status"),
+            ("Confidence", "confidence"),
+            ("Notes", "notes"),
+        ],
+        False,
+    ),
+    (
+        "Equipment / Artifacts / Items",
+        "equipment_artifacts",
+        [
+            ("Item", "item"),
+            ("Target", "target"),
+            ("Type", "type"),
+            ("Possession", "possession_status"),
+            ("Significance", "item_significance"),
+            ("Graph", "graph_relevance"),
+        ],
+        False,
+    ),
+    (
+        "Knowledge Sources & Documents",
+        "knowledge_sources_documents",
+        [
+            ("Source", "source"),
+            ("Target", "target"),
+            ("Type", "type"),
+            ("Access", "access_status"),
+            ("Significance", "source_significance"),
+            ("Graph", "graph_relevance"),
+        ],
+        True,
+    ),
+    (
+        "Personality",
+        "personality",
+        [
+            ("Trait", "trait"),
+            ("Evidence", "evidence"),
+            ("Status", "status"),
+            ("Confidence", "confidence"),
+            ("Notes", "notes"),
+        ],
+        False,
+    ),
+    (
+        "Relationships",
+        "relationships",
+        [
+            ("Target", "target"),
+            ("Relationship", "relationship"),
+            ("Status", "status"),
+            ("Confidence", "confidence"),
+            ("Notes", "notes"),
+        ],
+        False,
+    ),
+    (
+        "Messengers / Servants / Companions",
+        "messengers_servants_companions",
+        [
+            ("Entity", "entity"),
+            ("Label", "label"),
+            ("Type", "type"),
+            ("Function", "function"),
+            ("Status", "status"),
+            ("Confidence", "confidence"),
+        ],
+        True,
+    ),
+    (
+        "Prayers & Ritual Access",
+        "prayers_ritual_access",
+        [
+            ("Label", "label"),
+            ("Type", "type"),
+            ("Function", "function"),
+            ("Concept Link", "concept_link"),
+            ("Status", "status"),
+            ("Confidence", "confidence"),
+        ],
+        True,
+    ),
+    (
+        "Major Events",
+        "major_events_fights",
+        [
+            ("Event", "event"),
+            ("Target", "target"),
+            ("Type", "event_type"),
+            ("Part", "event_part"),
+            ("Role", "role"),
+            ("Outcome", "outcome_status"),
+        ],
+        False,
+    ),
+    (
+        "Timeline Entries",
+        "timeline_entries",
+        [
+            ("ID", "id"),
+            ("Title", "title"),
+            ("Type", "entry_type"),
+            ("Summary", "summary"),
+            ("Why It Matters", "why_it_matters"),
+        ],
+        False,
+    ),
 ]
 
 
@@ -1886,9 +2127,7 @@ def extract_timeline_prose_blocks(text: str) -> dict[str, str]:
     blocks: dict[str, str] = {}
     if not section:
         return blocks
-    pattern = re.compile(
-        r"(?ms)^(#### .+?\n<!-- timeline_id:\s*([a-zA-Z0-9_-]+)\s*-->\n.*?)(?=^#### |\Z)"
-    )
+    pattern = re.compile(r"(?ms)^(#### .+?\n<!-- timeline_id:\s*([a-zA-Z0-9_-]+)\s*-->\n.*?)(?=^#### |\Z)")
     for match in pattern.finditer(section):
         blocks[match.group(2)] = match.group(1).strip()
     return blocks
@@ -1929,8 +2168,7 @@ def render_bounded_character_page(root: Path, note: CanonicalNote, spec: Bounded
         filtered["first_appearance_beats"] = [
             row
             for row in filtered.get("first_appearance_beats", [])
-            if isinstance(row.get("graph_display"), dict)
-            and row["graph_display"].get("behavior") == "anonymized-node"
+            if isinstance(row.get("graph_display"), dict) and row["graph_display"].get("behavior") == "anonymized-node"
         ]
         for key in list(filtered):
             if key != "first_appearance_beats":
@@ -1956,7 +2194,10 @@ def render_bounded_character_page(root: Path, note: CanonicalNote, spec: Bounded
         f"- Canonical Page Visible At Boundary: {'yes' if page_visible else 'no'}",
     ]
     if not page_visible:
-        lines.append("- QA Note: canonical page body is hidden at this boundary; only explicitly modeled anonymous preview beats are shown.")
+        lines.append(
+            "- QA Note: canonical page body is hidden at this boundary; only explicitly modeled "
+            "anonymous preview beats are shown."
+        )
     lines.append("")
     lines.extend(render_generation_stats(note, spec, page_visible, filtered))
 
@@ -1974,7 +2215,9 @@ def render_bounded_character_page(root: Path, note: CanonicalNote, spec: Bounded
     return "\n".join(lines)
 
 
-def write_bounded_pages(root: Path, generated_dir: Path, notes: dict[str, CanonicalNote], specs: list[BoundedPageSpec]) -> None:
+def write_bounded_pages(
+    root: Path, generated_dir: Path, notes: dict[str, CanonicalNote], specs: list[BoundedPageSpec]
+) -> None:
     bounded_dir = generated_dir / "bounded-pages"
     if not specs:
         if bounded_dir.exists():
@@ -2011,7 +2254,9 @@ def write_bounded_pages(root: Path, generated_dir: Path, notes: dict[str, Canoni
 
         output_folder = bounded_dir / note.export_folder
         output_folder.mkdir(parents=True, exist_ok=True)
-        boundary_stem = f"chapter-{spec.max_chapter}" if spec.max_chapter else safe_slug(boundary_label(spec), "boundary")
+        boundary_stem = (
+            f"chapter-{spec.max_chapter}" if spec.max_chapter else safe_slug(boundary_label(spec), "boundary")
+        )
         default_stem = f"{note.export_file_stem} - {boundary_stem}"
         file_stem = safe_file_stem(spec.file_stem or default_stem)
         if note.type_name.lower() == "character":
@@ -2046,7 +2291,9 @@ def render_relationship_index(relationships: list[Relationship], notes: dict[str
         "| Source | Relationship | Target | Status | Confidence | Seed File |",
         "|---|---|---|---|---|---|",
     ]
-    for rel in sorted(relationships, key=lambda item: (item.source, item.relationship_type, item.target, item.source_file)):
+    for rel in sorted(
+        relationships, key=lambda item: (item.source, item.relationship_type, item.target, item.source_file)
+    ):
         lines.append(
             "| "
             + " | ".join(
@@ -2134,11 +2381,18 @@ def render_orphan_report(
         ("Canonical Notes With No Edges Or Data References", "notes_without_any_edges_or_refs"),
         ("Canonical Notes With No Outgoing Relationship Seeds", "notes_without_outgoing_relationships"),
     ]
-    lines = ["# Orphan Report", "", "Unknown entries do not currently resolve to a generated canonical mirror note.", ""]
+    lines = [
+        "# Orphan Report",
+        "",
+        "Unknown entries do not currently resolve to a generated canonical mirror note.",
+        "",
+    ]
     for heading, key in headings:
         lines.extend([f"## {heading}", ""])
         values = data[key]
-        lines.extend(f"- {wiki_link(value, notes)} (`{value}`)" for value in values) if values else lines.append("- None.")
+        lines.extend(f"- {wiki_link(value, notes)} (`{value}`)" for value in values) if values else lines.append(
+            "- None."
+        )
         lines.append("")
     return "\n".join(lines)
 
@@ -2152,9 +2406,7 @@ def analyze_suspicious_edges(relationships: list[Relationship], notes: dict[str,
     for rel in relationships:
         seen.setdefault((rel.source, rel.relationship_type, rel.target), []).append(rel)
     duplicates = [
-        sorted(items, key=rel_sort_key)
-        for _, items in sorted(seen.items(), key=lambda item: item[0])
-        if len(items) > 1
+        sorted(items, key=rel_sort_key) for _, items in sorted(seen.items(), key=lambda item: item[0]) if len(items) > 1
     ]
     edge_types = {(rel.source, rel.relationship_type, rel.target) for rel in relationships}
     missing_reciprocals = sorted(
@@ -2170,7 +2422,9 @@ def analyze_suspicious_edges(relationships: list[Relationship], notes: dict[str,
         [
             rel
             for rel in relationships
-            if rel.source in notes and rel.target in notes and notes[rel.source].type_name == notes[rel.target].type_name
+            if rel.source in notes
+            and rel.target in notes
+            and notes[rel.source].type_name == notes[rel.target].type_name
         ],
         key=rel_sort_key,
     )
@@ -2197,19 +2451,24 @@ def render_suspicious_edges(notes: dict[str, CanonicalNote], relationships: list
         for group in data["duplicate_edges"]:
             rel = group[0]
             files = ", ".join(sorted({item.source_file for item in group}))
-            lines.append(f"- {wiki_link(rel.source, notes)} {rel.relationship_type} -> {wiki_link(rel.target, notes)} appears {len(group)} times. Sources: {files}")
+            lines.append(
+                f"- {wiki_link(rel.source, notes)} {rel.relationship_type} -> "
+                f"{wiki_link(rel.target, notes)} appears {len(group)} times. Sources: {files}"
+            )
     else:
         lines.append("- None.")
 
     lines.extend(["", "## Expected Reciprocals Missing", ""])
     lines.extend(
-        f"- {wiki_link(rel.source, notes)} {rel.relationship_type} -> {wiki_link(rel.target, notes)}; expected `{RECIPROCAL_TYPES[rel.relationship_type]}` back."
+        f"- {wiki_link(rel.source, notes)} {rel.relationship_type} -> {wiki_link(rel.target, notes)}; "
+        f"expected `{RECIPROCAL_TYPES[rel.relationship_type]}` back."
         for rel in data["missing_reciprocals"]
     ) if data["missing_reciprocals"] else lines.append("- None.")
 
     lines.extend(["", "## Same-Type Known Edges", ""])
     lines.extend(
-        f"- {wiki_link(rel.source, notes)} {rel.relationship_type} -> {wiki_link(rel.target, notes)} (`{notes[rel.source].type_name}` to `{notes[rel.target].type_name}`)"
+        f"- {wiki_link(rel.source, notes)} {rel.relationship_type} -> {wiki_link(rel.target, notes)} "
+        f"(`{notes[rel.source].type_name}` to `{notes[rel.target].type_name}`)"
         for rel in data["same_type_known_edges"]
     ) if data["same_type_known_edges"] else lines.append("- None.")
 
@@ -2252,7 +2511,9 @@ def write_export(
         )
 
     generated_dir = output_dir / "_Generated"
-    (generated_dir / "relationship-index.md").write_text(render_relationship_index(relationships, notes), encoding="utf-8")
+    (generated_dir / "relationship-index.md").write_text(
+        render_relationship_index(relationships, notes), encoding="utf-8"
+    )
     (generated_dir / "QA-relationship-graph.mmd").write_text(
         render_labeled_relationship_graph(relationships, notes),
         encoding="utf-8",
@@ -2265,8 +2526,12 @@ def write_export(
     write_repo_refresh_check(config, generated_dir)
     write_bounded_graphs(config, generated_dir, bounded_graph_specs)
     write_bounded_pages(root, generated_dir, notes, bounded_page_specs)
-    (generated_dir / "data-reference-index.md").write_text(render_data_reference_index(data_references, notes), encoding="utf-8")
-    (generated_dir / "orphan-report.md").write_text(render_orphan_report(notes, relationships, data_references), encoding="utf-8")
+    (generated_dir / "data-reference-index.md").write_text(
+        render_data_reference_index(data_references, notes), encoding="utf-8"
+    )
+    (generated_dir / "orphan-report.md").write_text(
+        render_orphan_report(notes, relationships, data_references), encoding="utf-8"
+    )
     (generated_dir / "suspicious-edges.md").write_text(render_suspicious_edges(notes, relationships), encoding="utf-8")
 
 
@@ -2293,11 +2558,7 @@ def main() -> int:
     taxonomy = load_taxonomy_config(config)
     qa_content_roots = taxonomy.content_roots_for_qa_pages(config)
     ACTIVE_CONTENT_ROOTS = qa_content_roots
-    output_dir = (
-        (root / args.output_dir).resolve()
-        if args.output_dir
-        else config.qa_export
-    )
+    output_dir = (root / args.output_dir).resolve() if args.output_dir else config.qa_export
     bounded_graph_specs = parse_bounded_graph_specs(args.bounded_graph)
     bounded_page_specs = parse_bounded_page_specs(args.bounded_page)
 

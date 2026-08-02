@@ -21,7 +21,9 @@ PRESETS = {
         "y": 804,
         "width": 660,
         "height": 1168,
-        "description": "Official EPUB pathway guide tarot-card crop, recovered from the validated Strength/Giant pilot crop.",
+        "description": (
+            "Official EPUB pathway guide tarot-card crop, recovered from the validated Strength/Giant pilot crop."
+        ),
     },
     "PathwaySymbol": {
         "operation": "crop",
@@ -29,8 +31,11 @@ PRESETS = {
         "y": 305,
         "width": 486,
         "height": 486,
-        "description": "Official EPUB pathway guide central symbol crop, recovered from the reviewed Sleepless/Darkness symbol pilot crop.",
-    }
+        "description": (
+            "Official EPUB pathway guide central symbol crop, recovered from the reviewed "
+            "Sleepless/Darkness symbol pilot crop."
+        ),
+    },
 }
 
 PRESET_ALIASES = {
@@ -328,7 +333,11 @@ def discover_epub_images(epub_path: Path) -> list[EpubImage]:
             manifest_items = root.findall("manifest/item")
             spine_items = root.findall("spine/itemref")
 
-        manifest = {item.attrib["id"]: item.attrib["href"] for item in manifest_items if "id" in item.attrib and "href" in item.attrib}
+        manifest = {
+            item.attrib["id"]: item.attrib["href"]
+            for item in manifest_items
+            if "id" in item.attrib and "href" in item.attrib
+        }
 
         current_volume: int | None = None
         in_side_stories = False
@@ -356,7 +365,11 @@ def discover_epub_images(epub_path: Path) -> list[EpubImage]:
                 current_volume = None
                 in_side_stories = True
 
-            href_volume = None if in_side_stories and not re.search(r"volume_\d+_", href) else volume_from_href(href, title, current_volume)
+            href_volume = (
+                None
+                if in_side_stories and not re.search(r"volume_\d+_", href)
+                else volume_from_href(href, title, current_volume)
+            )
 
             if re.search(r"volume_(\d+)_", href) or (title and re.search(r"^Volume\s+\d+:", title)):
                 current_volume = href_volume
@@ -455,10 +468,7 @@ def main() -> int:
     output_image = Path(args.output_image)
     crop_image(source_image, output_image, x, y, width, height, args.force)
 
-    print(
-        f"Wrote {output_image} from {source_image} using {operation} "
-        f"x={x} y={y} width={width} height={height}."
-    )
+    print(f"Wrote {output_image} from {source_image} using {operation} x={x} y={y} width={width} height={height}.")
     return 0
 
 

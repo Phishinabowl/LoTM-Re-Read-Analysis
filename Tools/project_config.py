@@ -71,10 +71,7 @@ def resolve_project_root(explicit_root: str | None = None) -> Path:
     if explicit_root:
         root = Path(explicit_root).resolve()
         if not is_project_root(root):
-            raise RuntimeError(
-                f"Project root is missing required manifest "
-                f"{PROJECT_MANIFEST_PATH.as_posix()}: {root}"
-            )
+            raise RuntimeError(f"Project root is missing required manifest {PROJECT_MANIFEST_PATH.as_posix()}: {root}")
         return root
 
     search_starts = (Path.cwd(), Path(__file__).resolve().parent)
@@ -145,8 +142,7 @@ def load_project_config(root: Path) -> ProjectConfig:
     schema_version = manifest.get("schema_version")
     if schema_version != SUPPORTED_SCHEMA_VERSION:
         raise ValueError(
-            f"Unsupported project manifest schema_version {schema_version!r}; "
-            f"expected {SUPPORTED_SCHEMA_VERSION}."
+            f"Unsupported project manifest schema_version {schema_version!r}; expected {SUPPORTED_SCHEMA_VERSION}."
         )
 
     project_id = require_string(manifest, "project_id", "root")
@@ -176,14 +172,10 @@ def load_project_config(root: Path) -> ProjectConfig:
         content_root_id = require_string(entry, "id", context)
         if not STABLE_ID_PATTERN.fullmatch(content_root_id):
             raise ValueError(
-                f"Project manifest `{context}.id` must be a lowercase kebab-case "
-                f"stable ID: {content_root_id}"
+                f"Project manifest `{context}.id` must be a lowercase kebab-case stable ID: {content_root_id}"
             )
         if content_root_id in configured_root_ids:
-            raise ValueError(
-                f"Project manifest `{context}.id` duplicates content-root ID "
-                f"`{content_root_id}`."
-            )
+            raise ValueError(f"Project manifest `{context}.id` duplicates content-root ID `{content_root_id}`.")
         configured_root_ids.add(content_root_id)
         path_value = require_string(entry, "path", context)
         relative_path, resolved_path = resolve_manifest_path(
@@ -195,14 +187,10 @@ def load_project_config(root: Path) -> ProjectConfig:
         provenance_mode = require_string(entry, "provenance_mode", context)
         if provenance_mode not in PROVENANCE_MODES:
             allowed = ", ".join(sorted(PROVENANCE_MODES))
-            raise ValueError(
-                f"Project manifest `{context}.provenance_mode` must be one of: {allowed}."
-            )
+            raise ValueError(f"Project manifest `{context}.provenance_mode` must be one of: {allowed}.")
         provenance_label = str(entry.get("provenance_label", "")).strip()
         if provenance_mode == "fixed" and not provenance_label:
-            raise ValueError(
-                f"Project manifest `{context}.provenance_label` is required for fixed provenance."
-            )
+            raise ValueError(f"Project manifest `{context}.provenance_label` is required for fixed provenance.")
         content_roots.append(
             ContentRootConfig(
                 id=content_root_id,
@@ -229,14 +217,10 @@ def load_project_config(root: Path) -> ProjectConfig:
         resource_root_id = require_string(entry, "id", context)
         if not STABLE_ID_PATTERN.fullmatch(resource_root_id):
             raise ValueError(
-                f"Project manifest `{context}.id` must be a lowercase kebab-case "
-                f"stable ID: {resource_root_id}"
+                f"Project manifest `{context}.id` must be a lowercase kebab-case stable ID: {resource_root_id}"
             )
         if resource_root_id in configured_root_ids:
-            raise ValueError(
-                f"Project manifest `{context}.id` duplicates configured root ID "
-                f"`{resource_root_id}`."
-            )
+            raise ValueError(f"Project manifest `{context}.id` duplicates configured root ID `{resource_root_id}`.")
         configured_root_ids.add(resource_root_id)
         required = entry.get("required")
         if not isinstance(required, bool):
@@ -317,8 +301,16 @@ def load_project_config(root: Path) -> ProjectConfig:
     assert_allowed_keys(
         registries,
         {
-            "lookup_keys", "schema_packs", "taxonomy", "resources", "sources",
-            "entities", "reconciliation", "provenance", "chronology", "occurrences",
+            "lookup_keys",
+            "schema_packs",
+            "taxonomy",
+            "resources",
+            "sources",
+            "entities",
+            "reconciliation",
+            "provenance",
+            "chronology",
+            "occurrences",
         },
         "Project manifest `registries`",
     )
