@@ -29,7 +29,7 @@ If the probe reports Python unavailable, use the documented PowerShell fallback 
 
 PowerShell fallback commands use `powershell`, which targets Windows PowerShell 5.1 on many Windows machines even when PowerShell 7 is also installed as `pwsh`. Keep `.ps1` fallback scripts compatible with Windows PowerShell 5.1 syntax and APIs unless a tool explicitly documents a PowerShell 7 requirement.
 
-Use `Test-PowerShell.ps1` to check repository PowerShell module requirements from `requirements-powershell.txt` before using fallback tools that need modules. The PowerShell Obsidian QA exporter requires `powershell-yaml` for the shared project manifest and bounded page data.
+Use `Test-PowerShell.ps1` to check repository PowerShell module requirements from `requirements-powershell.txt` before using fallback tools or PowerShell maintenance tools that need modules. The PowerShell Obsidian QA exporter requires `powershell-yaml`; source formatting requires `PSScriptAnalyzer`.
 
 Run this probe once for an unfamiliar machine or fresh agent session, then treat the result as the session's PowerShell-module readiness state. Rerun only if the environment changes, such as module installation changes, a different PowerShell edition, a different machine, or a failed fallback command that suggests the earlier state is stale.
 
@@ -42,7 +42,24 @@ If required PowerShell modules are missing, install them from an internet-enable
 
 ```powershell
 Install-Module powershell-yaml -Scope CurrentUser -Force -AllowClobber
+Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
 ```
+
+## PowerShell Source Formatting
+
+Use `Format-PowerShell.ps1` to check every tracked or nonignored untracked PowerShell source anywhere in the Git worktree. New scripts and new source directories are discovered automatically. Check mode is the default and does not write files:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Format-PowerShell.ps1
+```
+
+Use `-Fix` to apply the repository formatter:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Format-PowerShell.ps1 -Fix
+```
+
+The formatter uses `Tools/powershell-format-settings.psd1`, writes UTF-8 without a BOM and CRLF line endings, removes optional statement-terminating semicolons, preserves required `for (...)` separators, verifies parse/token equivalence, and rejects lines longer than 200 characters. Gitignored files are excluded from the default repository policy. Use `-Path`, `-MaximumLineLength`, or `-Json` for targeted checks, an explicit line-length gate, or structured results. Relative explicit paths resolve from the repository root. Manual wrapping is still required when a long expression cannot be changed mechanically without obscuring semantics.
 
 ## Temporary File Cleanup
 

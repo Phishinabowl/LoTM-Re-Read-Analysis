@@ -125,11 +125,60 @@ Purpose: check whether the local PowerShell environment has repository-required 
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-PowerShell.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-PowerShell.ps1 -Json
 Install-Module powershell-yaml -Scope CurrentUser -Force -AllowClobber
+Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
 ```
 
-Last mapped: 2026-07-07.
+Last mapped: 2026-08-01.
 
-Last check: 2026-07-07. Normal JSON mode ran successfully on this machine with Windows PowerShell 5.1.19041.7417 and detected `powershell-yaml` 0.4.12 from `C:\Program Files\WindowsPowerShell\Modules\powershell-yaml\0.4.12\powershell-yaml.psd1`.
+Last check: 2026-08-01. JSON mode ran successfully in PowerShell 7.6.3 and Windows PowerShell 5.1.19041.7548. Both runtimes detected the machine-wide `powershell-yaml` and `PSScriptAnalyzer` requirements.
+
+## PowerShell Source Formatting
+
+### Script
+
+| Role | Script | Command |
+| --- | --- | --- |
+| PowerShell static formatter and check | `Tools/Format-PowerShell.ps1` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Format-PowerShell.ps1` |
+
+Purpose: deterministically format and statically check maintained PowerShell sources. This tool has no Python pair because its behavior depends on the PowerShell parser and `PSScriptAnalyzer`; it does not implement a project-domain feature that requires a fallback runtime.
+
+### Parameter Map
+
+| Purpose | Parameter | Default | Notes |
+| --- | --- | --- | --- |
+| Select files or directories | `-Path <string[]>` | all tracked and nonignored untracked repository PowerShell sources | Explicit directories recursively include `.ps1`, `.psm1`, and `.psd1` sources. Relative paths resolve from the repository root. |
+| Maximum physical line length | `-MaximumLineLength <int>` | `200` | Values from 80 through 1000 are accepted. Any longer line fails the check even after formatting. |
+| Apply changes | `-Fix` | off | Without this switch the command is read-only and exits nonzero when a file differs from canonical formatting. |
+| Print JSON summary | `-Json` | off | Emits readiness, mode, file/change counts, line-length results, and per-file details. |
+
+### Formatting Contract
+
+- `Tools/powershell-format-settings.psd1` owns PSScriptAnalyzer layout settings.
+- `.gitattributes` owns CRLF checkout line endings for `.ps1`, `.psm1`, and `.psd1` files.
+- Default discovery uses Git's tracked-plus-untracked, exclude-standard inventory, so new nonignored scripts and source folders require no formatter configuration change.
+- Gitignored local or generated PowerShell files are outside the default repository policy; pass an explicit `-Path` when they need an ad hoc check.
+- Output is UTF-8 without a BOM and uses CRLF.
+- Optional statement-terminating semicolons are removed; syntax-required `for (...)` separators are retained.
+- Source must parse before and after formatting, and every non-newline/non-semicolon token must remain equivalent.
+- Trailing whitespace and lines longer than the configured maximum fail the check.
+- Complex semantic expressions that remain overlong must be wrapped manually and then rechecked.
+
+### Check Recipe
+
+```powershell
+# Read-only default check under Windows PowerShell 5.1
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Format-PowerShell.ps1
+
+# Apply canonical formatting
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Format-PowerShell.ps1 -Fix
+
+# PowerShell 7 structured check
+pwsh -NoProfile -File Tools\Format-PowerShell.ps1 -Json
+```
+
+Last mapped: 2026-08-01.
+
+Last check: 2026-08-01. PowerShell 7.6.3 and Windows PowerShell 5.1.19041.7548 each discovered all 26 tracked or nonignored untracked repository PowerShell sources and checked them with zero pending changes, zero lines above 200 characters, successful parsing, and identical source acceptance. A temporary nonignored root-level script was discovered automatically by both runtimes during the discovery regression.
 
 ## Temporary File Cleanup
 
@@ -753,7 +802,7 @@ Bounded page spec keys:
 | Configured render settings and Puppeteer config under `Visualization/config/` | Source view list and dry-run fidelity settings. Rendering is skipped. |
 | Configured cleanup helpers under `Tools/` | End-of-run transient cache cleanup. |
 | `requirements-python.txt` / `PyYAML` | Python project-manifest and structured page-data parsing. |
-| `requirements-powershell.txt` / `powershell-yaml` | PowerShell project-manifest and structured page-data parsing. |
+| `requirements-powershell.txt` / `powershell-yaml` | PowerShell project-manifest and structured page-data parsing. `PSScriptAnalyzer` from the same registry is used by the repository PowerShell formatter. |
 
 ### Outputs
 
@@ -887,7 +936,9 @@ This section tracks durable configuration and generated state files that affect 
 | `Project_Config/reconciliation.yaml` | Stable-ID reconciliation registry | `Tools/reconciliation_config.py`, `Tools/Reconciliation-Config.ps1`, provenance, and future editor/migration services | Maintainers through reviewed edits; future reconciliation editors through the mutation service | Preserves bounded branch-aware redirects, merges, splits, tombstone-backed retirements, cross-type reclassifications, privacy-aware labels, strict audit metadata, and superseded/reversed decisions without mutating repository files. | A stable ID changes disposition, a historical decision is superseded/reversed, any resolution safety bound changes, or a migration establishes a new canonical target or type. |
 | `Project_Config/provenance.yaml` | Cross-registry provenance registry | `Tools/provenance_config.py`, `Tools/Provenance-Config.ps1`, and future validation, editor, comparison, and audit services | Maintainers through reviewed edits; future provenance editors through the mutation service | Owns factual assertions, semantic field paths, evidence links and locators, stable claim grouping, authority evaluation, and acyclic scope-backed claim supersession across typed subject providers. | An assertion, evidence locator, claim value/status/timing, subject field path, or claim-supersession edge changes. |
 | `requirements-python.txt` | Dependency registry | `Tools/Test-Python.ps1`; human setup via `python -m pip install -r requirements-python.txt` | Maintainers | Defines Python packages required by preferred Python helper scripts. | Add or change entries when a Python helper gains or removes a third-party package dependency. |
-| `requirements-powershell.txt` | Dependency registry | `Tools/Test-PowerShell.ps1`; human setup via `Install-Module <module> -Scope CurrentUser -Force -AllowClobber` or elevated `-Scope AllUsers` when machine-wide installs are preferred | Maintainers | Defines PowerShell modules required by fallback tools, including `powershell-yaml` for project configuration and structured page data. | Add or change entries when a PowerShell helper gains or removes a module dependency. |
+| `requirements-powershell.txt` | Dependency registry | `Tools/Test-PowerShell.ps1`; human setup via `Install-Module <module> -Scope CurrentUser -Force -AllowClobber` or elevated `-Scope AllUsers` when machine-wide installs are preferred | Maintainers | Defines PowerShell modules required by repository tools, including `powershell-yaml` for structured configuration/page data and `PSScriptAnalyzer` for source formatting. | Add or change entries when a PowerShell helper gains or removes a module dependency. |
+| `.gitattributes` | Repository text policy | Git and `Tools/Format-PowerShell.ps1` | Maintainers | Enforces CRLF checkout line endings for PowerShell source and module/config files while preserving Git's normalized text storage. | A tracked PowerShell extension or repository line-ending policy changes. |
+| `Tools/powershell-format-settings.psd1` | Formatter configuration | `Tools/Format-PowerShell.ps1` and `Invoke-Formatter` from `PSScriptAnalyzer` | Maintainers | Defines deterministic PowerShell indentation, brace placement, whitespace, and trailing-whitespace behavior. | A formatting rule changes; rerun `STATIC-POWERSHELL` in both supported PowerShell runtimes. |
 | `Visualization/config/render-settings.json` | Source config | `Visualization/visualize.py`, `Visualization/visualize.ps1`, `Tools/obsidian_qa_export.py`, `Tools/Obsidian-QA-Export.ps1` | Maintainers | Defines canonical graph views, source Mermaid paths, rendered output paths, render dimensions, validation settings, reader-boundary filters, report path, and semantic snapshot path. The Obsidian QA export also derives its local `_Generated/repo-refresh-check/` dry-run settings from this file. | Add or remove repository graph views, change render sizes, adjust validation rules, change reader-boundary behavior, or redirect canonical report/snapshot paths. |
 | `Visualization/config/puppeteer-config.json` | Source config | `Visualization/visualize.py`, `Visualization/visualize.ps1`, Obsidian QA repo-refresh dry-run helpers through visualization tooling | Maintainers | Configures the browser executable, timeout, and launch args used by Mermaid/Puppeteer rendering. | Browser path changes, rendering starts timing out, CI/local environment changes, or Mermaid rendering needs different launch args. |
 | `Visualization/data/refresh-snapshot.json` | Generated semantic state | `Visualization/visualize.py`, `Visualization/visualize.ps1` | `Visualization/visualize.py --mode Refresh`, `Visualization/visualize.ps1 -Mode Refresh` | Stores the last canonical graph semantic snapshot so refresh reports can detect added/removed nodes, relationships, changed labels, duplicates, and other graph hygiene changes. | Update only through a confirmed canonical graph refresh. Do not edit manually except for explicit debugging that is later reverted or regenerated. |

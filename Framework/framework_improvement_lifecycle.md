@@ -118,6 +118,8 @@ Implement the accepted contract across every owning layer:
 - downstream consumers affected by the contract; and
 - architecture, tooling, and narrow operational documentation.
 
+When PowerShell source changes or a new PowerShell source location is introduced, apply the repository formatter and manually wrap any remaining overlong semantic expressions before verification. Default formatter discovery must cover every tracked or nonignored untracked PowerShell source across the worktree without requiring a directory allowlist. Formatting must preserve parse/token behavior; it is not permission to rewrite logic during a readability-only pass.
+
 Keep generated outputs redirected and noncanonical during verification. Preserve unrelated worktree changes. A deterministic defect repaired during implementation must become a permanent regression vector.
 
 ### 5. Run Implementation Verification
@@ -125,6 +127,7 @@ Keep generated outputs redirected and noncanonical during verification. Preserve
 Use `Framework/testing_methodology.md`, not memory, to select and execute:
 
 - the complete required framework-version baseline;
+- the `STATIC-POWERSHELL` gate in PowerShell 7 and Windows PowerShell 5.1;
 - all impact-matrix additions;
 - three-runtime and structured-output parity;
 - project compatibility consumers, including QA and visualization; and
