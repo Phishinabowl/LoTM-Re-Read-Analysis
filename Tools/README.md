@@ -468,6 +468,20 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Confor
 
 The current aggregate layer launches each suite in an isolated child runtime. That preserves existing runner behavior and prevents PowerShell script-scope collisions while the shared loaders are migrated into real modules. Once module extraction is complete, safe in-process execution and a separate fast feature-branch CI tier can be evaluated without changing the registry or suite IDs. Visualization and Obsidian QA remain separate compatibility gates because they validate project consumers rather than framework conformance alone.
 
+## Compatibility Validation
+
+Use the canonical compatibility orchestrator after permanent conformance passes. It launches Python, PowerShell 7, and Windows PowerShell 5.1 implementations and compares project-consumer behavior from one registry-driven command:
+
+```powershell
+python Tools\Compatibility\run_compatibility.py --profile local
+python Tools\Compatibility\run_compatibility.py --profile pull-request
+python Tools\Compatibility\run_compatibility.py --profile full-release
+```
+
+`Tools/Compatibility/compatibility.json` owns the executable check inventory, representative bounded requests, render probe, timeouts, and profile membership. `local` compares Visualization and QA outputs; `pull-request` adds root-discovery and artifact-lifecycle safety; `full-release` also renders a representative graph. Use `--list` or `--list --json` to inspect the registry, and repeat `--check` for focused diagnosis.
+
+Every run writes to a unique ignored `.tmp/compatibility/` child, hashes protected canonical outputs before and after execution, and removes its scoped output after success. Failed output is retained automatically. Use `--keep-output` only when a successful comparison needs manual inspection; `--output-root` must remain beneath repository `.tmp/`.
+
 ## Strict YAML Conformance
 
 Run the dedicated strict-ingestion corpus after changing shared YAML parsing, scalar rules, mapping keys, schema-version handling, byte decoding, parser budgets, or RFC 3339 validation. Both implementations consume `Framework/Data/Strict-Yaml/`, create only uniquely named operating-system temporary files, and remove those files before exit.

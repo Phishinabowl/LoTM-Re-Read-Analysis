@@ -106,6 +106,8 @@ Named works and real-world domains are **test prompts**, not automatic evidence.
 
 ### Project Compatibility
 
+`Tools/Compatibility/compatibility.json` is the executable check and profile inventory, and `Tools/Compatibility/run_compatibility.py` is the canonical cross-runtime orchestrator. The registry owns representative inputs and profile membership; this methodology owns when those profiles are required and what each stable compatibility family means. Do not duplicate individual runtime commands in CI once the aggregate compatibility profile is adopted there.
+
 | ID | Requirement |
 | --- | --- |
 | `COMPAT-VISUALIZATION` | Validate existing and freshly generated configured views, exercise unbounded and bounded graph projection, and compare Mermaid plus semantic snapshots. |
@@ -170,7 +172,7 @@ These project-level probes preserve the QA, visualization, launcher, and cleanup
 - Exercise help and structured-summary modes without triggering generation, then compare paired switch meaning, defaults, validation boundaries, and exit behavior.
 - Verify automatic and explicit cleanup remove only artifacts owned by the run or requested scope, preserve unrelated `.tmp/` content, remove stale generated subtrees, and leave canonical outputs untouched.
 
-The exact current commands, expected counts, sample boundaries, and normalization recipe belong in `Tools/TOOLING_REFERENCE.md`. If the representative project data changes, replace a probe deliberately and record why; do not silently stop testing the behavior it represented.
+The executable inventory, sample boundaries, and profile composition belong in `Tools/Compatibility/compatibility.json`; exact switches, expected counts, normalization, and the latest measured baseline belong in `Tools/TOOLING_REFERENCE.md`. If representative project data changes, replace a probe deliberately and record why; do not silently stop testing the behavior it represented.
 
 ## Testing Within The Version Lifecycle
 
@@ -190,7 +192,7 @@ Run the aggregate `baseline` profile in Python, PowerShell 7, and Windows PowerS
 
 ### 4. Run Project Compatibility Gate
 
-Run `COMPAT-VISUALIZATION`, `COMPAT-QA`, and `COMPAT-RENDER` before the version is implementation-complete. Run `COMPAT-ROOT-DISCOVERY` when its impact condition applies. Use the current recipes in `Tools/TOOLING_REFERENCE.md`.
+Run the compatibility `local` profile during implementation. Run `pull-request` before PR readiness, and run `full-release` before a framework version is implementation-complete. These profiles cumulatively exercise `COMPAT-VISUALIZATION`, `COMPAT-QA`, `COMPAT-ROOT-DISCOVERY`, `COMPAT-ARTIFACT-LIFECYCLE`, and `COMPAT-RENDER` according to the executable registry. Use focused `--check` selections only for diagnosis; they do not replace the required profile. Exact switches, current representative inputs, normalization, and the latest measured baseline live in `Tools/TOOLING_REFERENCE.md` and `Tools/Compatibility/compatibility.json`.
 
 ### 5. Confirm Implementation
 

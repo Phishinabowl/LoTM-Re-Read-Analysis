@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "runtimes": [
+    "python",
+    "powershell7",
+    "powershell51"
+  ],
+  "profiles": {
+    "local": [
+      "visualization",
+      "qa"
+    ],
+    "pull-request": [
+      "visualization",
+      "qa",
+      "root-discovery",
+      "artifact-lifecycle"
+    ],
+    "full-release": [
+      "visualization",
+      "qa",
+      "root-discovery",
+      "artifact-lifecycle",
+      "render"
+    ]
+  },
+  "checks": [
+    {
+      "id": "visualization",
+      "kind": "visualization",
+      "timeout_seconds": 180
+    },
+    {
+      "id": "qa",
+      "kind": "qa",
+      "timeout_seconds": 240,
+      "bounded_graphs": [
+        "name=chapter-32,medium=novel,maxVolume=1,maxChapter=32"
+      ],
+      "bounded_pages": [
+        "slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=32",
+        "slug=character-leonard-mitchell,medium=novel,maxVolume=1,maxChapter=50"
+      ]
+    },
+    {
+      "id": "root-discovery",
+      "kind": "root-discovery",
+      "timeout_seconds": 120,
+      "launch_locations": [
+        "repo-root",
+        "tools",
+        "nested",
+        "unrelated"
+      ]
+    },
+    {
+      "id": "artifact-lifecycle",
+      "kind": "artifact-lifecycle",
+      "timeout_seconds": 240
+    },
+    {
+      "id": "render",
+      "kind": "render",
+      "timeout_seconds": 300,
+      "input": "Visualization/graphs/volume-1-knowledge-graph.mmd",
+      "output_format": "svg",
+      "minimum_bytes": 10000,
+      "required_labels": [
+        "Dunn Smith",
+        "Sleepless Pathway"
+      ]
+    }
+  ]
+}
