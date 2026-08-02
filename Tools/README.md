@@ -468,7 +468,7 @@ python Tools\Conformance\run_conformance.py --profile baseline --json
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Conformance.ps1 -Profile baseline -Json
 ```
 
-The `baseline` profile runs every registered permanent suite and is the profile used by CI and framework-version validation. The smaller `fast` profile runs project-root, strict-ingestion, lookup-key, schema-pack, taxonomy, temporal, and chronology checks for quick local feedback; it is not a substitute for the baseline. Schema-pack and taxonomy composition remain in `fast` because their small synthetic corpora diagnose foundational capability, vocabulary, content-routing, and placement failures before downstream registries obscure them. Use repeatable Python `--suite` arguments or a PowerShell `-Suite` array for focused diagnosis, and use `--list` / `-List` to inspect the registered inventory and profiles.
+The `baseline` profile runs every registered permanent suite and is the profile used by CI and framework-version validation. The smaller `fast` profile runs project-root, strict-ingestion, lookup-key, schema-pack, taxonomy, resource, temporal, and chronology checks for quick local feedback; it is not a substitute for the baseline. Schema-pack, taxonomy, and resource composition remain in `fast` because their small synthetic corpora diagnose foundational capability, vocabulary, content-routing, and placement failures before downstream registries obscure them. Use repeatable Python `--suite` arguments or a PowerShell `-Suite` array for focused diagnosis, and use `--list` / `-List` to inspect the registered inventory and profiles.
 
 ```powershell
 python Tools\Conformance\run_conformance.py --profile fast
@@ -533,6 +533,17 @@ Run the dedicated taxonomy suite after changing content-type/category shape, lif
 ```powershell
 python Tools\Conformance\Suites\test_taxonomy.py
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Suites\Test-Taxonomy.ps1
+```
+
+Use `--json` / `-Json` for matching canonical, fixture, malformed-case, invalid-query, and scale counts across Python, PowerShell 7, and Windows PowerShell 5.1.
+
+## Resource Conformance
+
+Run the dedicated resource suite after changing resource-kind/type shape, lifecycle, authority, editor policy, manifest resource roots, placements, tracking, or resource reconciliation targets. Both implementations load the canonical project registry, then consume the neutral fixture and 30 structured malformed mutations in `Framework/Data/Resources/`. A generated 128-type composition provides a bounded scale check without making LoTM resource names part of the framework oracle; all operating-system temporary data is removed automatically.
+
+```powershell
+python Tools\Conformance\Suites\test_resource.py
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Suites\Test-Resource.ps1
 ```
 
 Use `--json` / `-Json` for matching canonical, fixture, malformed-case, invalid-query, and scale counts across Python, PowerShell 7, and Windows PowerShell 5.1.

@@ -7,6 +7,7 @@
       "lookup-key",
       "schema-pack",
       "taxonomy",
+      "resource",
       "temporal",
       "chronology"
     ],
@@ -16,6 +17,7 @@
       "lookup-key",
       "schema-pack",
       "taxonomy",
+      "resource",
       "temporal",
       "chronology",
       "reconciliation",
@@ -52,6 +54,12 @@
       "python": "Tools/Conformance/Suites/test_taxonomy.py",
       "powershell": "Tools/Conformance/Suites/Test-Taxonomy.ps1",
       "tags": ["baseline", "fast", "content"]
+    },
+    {
+      "id": "resource",
+      "python": "Tools/Conformance/Suites/test_resource.py",
+      "powershell": "Tools/Conformance/Suites/Test-Resource.ps1",
+      "tags": ["baseline", "fast", "resource"]
     },
     {
       "id": "temporal",

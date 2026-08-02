@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "resource_kinds": {
+    "document": {
+      "label": "Document",
+      "plural_label": "Documents"
+    },
+    "evidence": {
+      "label": "Evidence",
+      "plural_label": "Evidence"
+    },
+    "output": {
+      "label": "Output",
+      "plural_label": "Outputs"
+    },
+    "workspace": {
+      "label": "Workspace Resource",
+      "plural_label": "Workspace Resources"
+    }
+  },
+  "resource_types": {
+    "canonical-document": {
+      "lifecycle": "active",
+      "label": "Canonical Document",
+      "plural_label": "Canonical Documents",
+      "kind_id": "document",
+      "authority": "canonical",
+      "editor_enabled": true,
+      "placements": [
+        {
+          "root_id": "documents",
+          "relative_path": "canonical",
+          "tracking": "tracked",
+          "required": true
+        }
+      ]
+    },
+    "supporting-note": {
+      "lifecycle": "active",
+      "label": "Supporting Note",
+      "plural_label": "Supporting Notes",
+      "kind_id": "document",
+      "authority": "supporting",
+      "editor_enabled": true,
+      "placements": [
+        {
+          "root_id": "documents",
+          "relative_path": "supporting",
+          "tracking": "mixed",
+          "required": false
+        }
+      ]
+    },
+    "evidence-record": {
+      "lifecycle": "active",
+      "label": "Evidence Record",
+      "plural_label": "Evidence Records",
+      "kind_id": "evidence",
+      "authority": "evidence",
+      "editor_enabled": false,
+      "placements": [
+        {
+          "root_id": "evidence-store",
+          "relative_path": "records",
+          "tracking": "tracked",
+          "required": true
+        }
+      ]
+    },
+    "operational-index": {
+      "lifecycle": "active",
+      "label": "Operational Index",
+      "plural_label": "Operational Indexes",
+      "kind_id": "workspace",
+      "authority": "operational",
+      "editor_enabled": false,
+      "placements": [
+        {
+          "root_id": "workspace",
+          "relative_path": "indexes",
+          "tracking": "mixed",
+          "required": false
+        }
+      ]
+    },
+    "generated-preview": {
+      "lifecycle": "active",
+      "label": "Generated Preview",
+      "plural_label": "Generated Previews",
+      "kind_id": "output",
+      "authority": "generated",
+      "editor_enabled": false,
+      "placements": [
+        {
+          "root_id": "generated",
+          "relative_path": "previews",
+          "tracking": "ignored",
+          "required": false
+        },
+        {
+          "root_id": "workspace",
+          "relative_path": "preview-cache",
+          "tracking": "ignored",
+          "required": false
+        }
+      ]
+    },
+    "temporary-scratch": {
+      "lifecycle": "active",
+      "label": "Temporary Scratch",
+      "plural_label": "Temporary Scratch Resources",
+      "kind_id": "workspace",
+      "authority": "temporary",
+      "editor_enabled": false,
+      "placements": [
+        {
+          "root_id": "workspace",
+          "relative_path": "scratch",
+          "tracking": "ignored",
+          "required": false
+        }
+      ]
+    },
+    "future-export": {
+      "lifecycle": "deferred",
+      "label": "Future Export",
+      "plural_label": "Future Exports",
+      "kind_id": "output",
+      "authority": "generated",
+      "editor_enabled": false,
+      "placements": []
+    }
+  }
+}

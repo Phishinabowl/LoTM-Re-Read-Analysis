@@ -1173,6 +1173,7 @@ This section tracks durable configuration and generated state files that affect 
 | Load and validate taxonomy registry | `load_taxonomy_config`, `parse_content_type`, `parse_category` in `taxonomy_config.py` | `Get-KnowledgeTaxonomyConfig`, `ConvertTo-ContentTypeConfig`, `ConvertTo-CategoryConfig` in `Taxonomy-Config.ps1` |
 | Run taxonomy configuration conformance with structured summary output | `test_taxonomy.py` (`--json`) | `Test-Taxonomy.ps1` (`-Json`) |
 | Load and validate resource registry | `load_resource_config` in `resource_config.py` | `Get-KnowledgeResourceConfig` in `Resource-Config.ps1` |
+| Run resource-registry conformance with structured summary output | `test_resource.py` (`--json`) | `Test-Resource.ps1` (`-Json`) |
 | Load and validate source registry | `load_source_registry` in `source_config.py` | `Get-KnowledgeSourceRegistry` in `Source-Config.ps1` |
 | Load and validate entity/incarnation/phase registry | `load_entity_registry` in `entity_config.py` | `Get-KnowledgeEntityRegistry` in `Entity-Config.ps1` |
 | Expose stable reconciliation targets and owned aliases | Matching `reconciliation_targets` and `reconciliation_provider` methods | Matching `Get-Knowledge*ReconciliationTargets` and `Get-Knowledge*ReconciliationProvider` functions |
@@ -1300,7 +1301,7 @@ Each run creates one unique child beneath `.tmp/compatibility/`. It compares com
 
 Protected canonical Visualization configuration, reports, snapshots, graphs, renders, and the configured QA export are hashed before and after every run. Successful output is removed through the maintained cleanup command unless `--keep-output` is supplied. Failed output is retained for diagnosis. An explicit output root must be a child of repository `.tmp/`; the repository root, `.tmp/` itself, and outside paths are rejected.
 
-Last compatibility check: 2026-08-02 after Phase 5 orchestration. The `local`, `pull-request`, and `full-release` profiles passed in 47.608, 76.648, and 85.655 seconds respectively. Visualization matched 15 nodes and 121 relationships plus five redirected refresh artifacts; QA matched 16 notes, 121 relationships, 71 data references, and all 34 normalized files; root discovery passed all 12 runtime/location launches; artifact lifecycle passed stale-output removal, six unsafe-destination rejections, scoped cleanup, and unrelated-sentinel preservation; render produced matching nonblank semantic dimensions and identical 298,269-byte SVG hashes in all three runtimes. Every successful profile removed its scoped output, and canonical outputs remained unchanged.
+Last compatibility check: 2026-08-02 after adding resource-registry conformance. The `local` profile passed in 49.841 seconds. Visualization matched 15 nodes and 121 relationships plus five redirected refresh artifacts; QA matched 16 notes, 121 relationships, 71 data references, and all 34 normalized files. Redirected output was removed and canonical outputs remained unchanged. The broader `pull-request` and `full-release` profile results from Phase 5 remain 76.648 and 85.655 seconds respectively, including root discovery, artifact lifecycle, and cross-runtime render validation.
 
 ### Aggregate Conformance
 
@@ -1317,7 +1318,7 @@ The paired aggregate runners accept an optional repository root, validate `Tools
 
 `baseline` is the CI and framework-version conformance profile. `fast` is a local feedback profile and a future candidate for a lighter feature-branch CI tier; it does not replace baseline, visualization, or QA compatibility validation. Both implementations detect unregistered discovered conformance runners, missing registered files, stale exclusions, duplicate IDs or paths, invalid profiles, and paths outside the repository. Each suite runs in an isolated child process to preserve script behavior and PowerShell scope isolation. Runtime module extraction alone does not make in-process PowerShell aggregation safe: current suites remain top-level scripts that define functions, import modules with process scope, mutate process-local state, and terminate through script exit behavior. Retain child-process execution until suites expose callable APIs with explicit state-reset and error-return contracts, then prove equivalent isolation before changing the aggregate runner.
 
-Last parity check: 2026-08-02 after adding dedicated taxonomy conformance. The `baseline` profile passed all nine registered suites in Python, PowerShell 7, and Windows PowerShell 5.1 with matching suite IDs, statuses, and canonicalized semantic summaries. Measured local runtimes were 11.8 seconds, 85.6 seconds, and 134.5 seconds respectively; PowerShell remains dominated by isolated child-process startup and repeated suite initialization. The new `taxonomy` suite loaded six canonical content types and eighteen canonical categories, validated a vocabulary-neutral fixture with five content types, three categories, and every policy/path-strategy family, rejected 48 malformed configurations and two invalid target queries, and loaded a generated 128-category scale composition identically in all three runtimes. The seven-suite `fast` profile passed in 8.3, 51.9, and 65.9 seconds respectively. Local compatibility then matched Visualization at 15 nodes and 121 relationships plus all five redirected refresh artifacts, and QA at 16 notes, 121 relationships, and all 34 normalized files; canonical outputs remained unchanged and temporary output was removed.
+Last parity check: 2026-08-02 after adding dedicated resource-registry conformance. The `baseline` profile passed all ten registered suites in Python, PowerShell 7, and Windows PowerShell 5.1 with matching suite IDs, statuses, and canonicalized semantic summaries. Measured local runtimes were 13.1 seconds, 88.9 seconds, and 134.7 seconds respectively; PowerShell remains dominated by isolated child-process startup and repeated suite initialization. The new `resource` suite loaded six canonical kinds and fourteen canonical types, validated a vocabulary-neutral fixture with four kinds, seven types, every lifecycle/authority/tracking family, required/optional and multiple placements, editor policy, and reconciliation lookup, rejected 30 malformed configurations and two invalid target queries, and loaded a generated 128-type scale composition identically in all three runtimes. The eight-suite `fast` profile passed in 7.9, 53.1, and 67.7 seconds respectively. Local compatibility then matched Visualization at 15 nodes and 121 relationships plus all five redirected refresh artifacts, and QA at 16 notes, 121 relationships, 71 data references, and all 34 normalized files; canonical outputs remained unchanged and temporary output was removed.
 
 ### Strict YAML Conformance
 
@@ -1366,6 +1367,18 @@ The paired taxonomy runners accept an optional repository root and leave no pers
 | Select repository root | `--root PATH` | `-Root PATH` |
 
 Both runners load the canonical taxonomy and the vocabulary-neutral corpus in `Framework/Data/Taxonomy/`. The fixture proves active/deferred lifecycle, required/optional/forbidden category policy, all four path strategies, category and record slug modes, all metadata modes, default and overridden templates, fixed records, category placements, reconciliation targets, and QA content-root selection. Forty-eight shared structured mutations must be rejected, two invalid target queries must fail, and a generated 128-category composition must preserve exact counts. Every case runs in a unique operating-system temporary tree that is removed before exit.
+
+### Resource Conformance
+
+The paired resource runners accept an optional repository root and leave no persistent output:
+
+| Behavior | Python | PowerShell |
+| --- | --- | --- |
+| Run canonical, synthetic, malformed, query, and scale checks | `python Tools/Conformance/Suites/test_resource.py` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Resource.ps1` |
+| Emit stable resource counts | `python Tools/Conformance/Suites/test_resource.py --json` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Resource.ps1 -Json` |
+| Select repository root | `--root PATH` | `-Root PATH` |
+
+Both runners load the canonical resource registry and the vocabulary-neutral corpus in `Framework/Data/Resources/`. The fixture proves active/deferred lifecycle, all six authority values, editor eligibility, all three tracking modes, required/optional and multiple placements, root-relative resolution, and reconciliation targets. Thirty shared structured mutations must be rejected, two invalid target queries must fail, and a generated 128-type composition must preserve exact counts. Every case runs in a unique operating-system temporary tree that is removed before exit.
 
 ### Reconciliation Registry Contract
 
