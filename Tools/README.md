@@ -468,7 +468,7 @@ python Tools\Conformance\run_conformance.py --profile baseline --json
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Conformance.ps1 -Profile baseline -Json
 ```
 
-The `baseline` profile runs every registered permanent suite and is the profile used by CI and framework-version validation. The smaller `fast` profile runs project-root, strict-ingestion, lookup-key, schema-pack, taxonomy, resource, temporal, and chronology checks for quick local feedback; it is not a substitute for the baseline. Schema-pack, taxonomy, and resource composition remain in `fast` because their small synthetic corpora diagnose foundational capability, vocabulary, content-routing, and placement failures before downstream registries obscure them. Source, entity, and provenance conformance remain baseline-only because their comprehensive malformed corpora repeatedly compose larger dependency chains. Use repeatable Python `--suite` arguments or a PowerShell `-Suite` array for focused diagnosis, and use `--list` / `-List` to inspect the registered inventory and profiles.
+The `baseline` profile runs every registered permanent suite and is the profile used by CI and framework-version validation. The smaller `fast` profile runs project-root, strict-ingestion, lookup-key, schema-pack, taxonomy, resource, temporal, and chronology checks for quick local feedback; it is not a substitute for the baseline. Schema-pack, taxonomy, and resource composition remain in `fast` because their small synthetic corpora diagnose foundational capability, vocabulary, content-routing, and placement failures before downstream registries obscure them. Source, entity, provenance, and full project-composition conformance remain baseline-only because they repeatedly compose larger dependency chains. Use repeatable Python `--suite` arguments or a PowerShell `-Suite` array for focused diagnosis, and use `--list` / `-List` to inspect the registered inventory and profiles.
 
 ```powershell
 python Tools\Conformance\run_conformance.py --profile fast
@@ -578,6 +578,17 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Suites\Tes
 ```
 
 Use `--json` / `-Json` for matching canonical, fixture, malformed-case, invalid-query, and scale counts across Python, PowerShell 7, and Windows PowerShell 5.1.
+
+## Project Composition Conformance
+
+Run the project-composition suite after changing the manifest, registry paths or schemas, selected packs, capability activation, canonical registry records, or cross-registry providers. Both implementations load the complete canonical project twice in dependency order and compare it with the reviewed LoTM instance oracle in `Project_Config/composition-baseline.json`. They verify exact project roots, registry schemas and counts, pack versions, capability state, provider closure, object wiring, deterministic repeated loads, disabled-capability absence, and seven invalid cross-registry compositions.
+
+```powershell
+python Tools\Conformance\Suites\test_project_composition.py
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Suites\Test-Project-Composition.ps1
+```
+
+Use `--json` / `-Json` for matching stable composition summaries across Python, PowerShell 7, and Windows PowerShell 5.1. This suite is intentionally baseline-only: the oracle describes the current project instance, while reusable registry behavior remains covered by the vocabulary-neutral framework fixtures.
 
 ## Reconciliation Conformance
 

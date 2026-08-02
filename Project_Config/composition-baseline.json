@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "project": {
+    "project_id": "lotm-analysis",
+    "framework": "knowledge-model",
+    "domain": "lord-of-the-mysteries",
+    "content_root_ids": ["repository", "boards", "glossary", "investigations", "volumes"],
+    "resource_root_ids": ["framework", "artwork", "source", "tools", "project-config", "visualization", "qa-export", "testing", "temporary", "ux", "local-workspace", "obsidian-state"]
+  },
+  "schemas": {
+    "project": 9,
+    "lookup": 1,
+    "packs": 2,
+    "taxonomy": 2,
+    "resources": 1,
+    "sources": 18,
+    "chronology": 1,
+    "entities": 4,
+    "occurrences": 4,
+    "reconciliation": 4,
+    "provenance": 3
+  },
+  "packs": {
+    "selection_order": ["core", "narrative-media", "narrative-publishing", "narrative-screen-audio", "narrative-adaptation", "narrative-distribution", "narrative-production", "narrative-shared-universe"],
+    "versions": {
+      "core": 28,
+      "narrative-media": 20,
+      "narrative-publishing": 10,
+      "narrative-screen-audio": 11,
+      "narrative-adaptation": 10,
+      "narrative-distribution": 14,
+      "narrative-production": 4,
+      "narrative-shared-universe": 9
+    },
+    "declared_capabilities": 123,
+    "available_capabilities": 114,
+    "enabled_capabilities": 114,
+    "disabled_capability_ids": ["contributor-credits", "crossover-events", "editorial-assembly", "live-performance-productions", "migration-services", "performance-events", "publication-runs", "rights-grants-and-restrictions", "textual-witnesses"],
+    "controlled_value_namespaces": 124,
+    "controlled_values": 945
+  },
+  "counts": {
+    "taxonomy": {"categories": 18, "content_types": 6},
+    "resources": {"kinds": 6, "types": 14},
+    "sources": {
+      "media_modalities": 3,
+      "cultural_forms": 1,
+      "release_forms": 3,
+      "container_formats": 4,
+      "mediums": 3,
+      "work_groups": 3,
+      "continuities": 2,
+      "authority_profiles": 2,
+      "work_relationship_types": 19,
+      "works": 6,
+      "segments": 0,
+      "content_groups": 0,
+      "ordering_schemes": 2,
+      "numbering_schemes": 0,
+      "work_relationships": 5,
+      "adaptation_mappings": 0,
+      "territories": 0,
+      "applicability_scopes": 0,
+      "manifestations": 6,
+      "release_components": 2,
+      "release_packages": 0,
+      "release_runs": 0,
+      "release_events": 0,
+      "catalog_placements": 0,
+      "platform_offerings": 0,
+      "sources": 8
+    },
+    "chronology": {"coordinate_systems": 1, "eras": 5, "narrative_contexts": 1, "positions": 0, "spans": 0, "relations": 0, "mappings": 0},
+    "entities": {
+      "entities": 0,
+      "entity_relationship_types": 20,
+      "entity_relationships": 0,
+      "incarnations": 0,
+      "incarnation_bindings": 0,
+      "incarnation_relationship_types": 8,
+      "incarnation_relationships": 0,
+      "identity_phases": 0,
+      "identity_phase_bindings": 0,
+      "identity_phase_relationship_types": 2,
+      "identity_phase_relationships": 0
+    },
+    "occurrences": {"branches": 1, "templates": 0, "recurrence_patterns": 0, "recurrences": 0, "iterations": 0, "phases": 0, "schedules": 0, "occurrences": 0, "tracks": 0, "transitions": 0, "causal_relations": 0, "outcomes": 0, "rules": 0, "state_transitions": 0, "carryovers": 0},
+    "reconciliation": {"target_types": 24, "records": 0, "aliases": 26},
+    "provenance": {"assertions": 0, "claim_supersessions": 0}
+  },
+  "providers": {
+    "reconciliation_target_types": 24,
+    "source_provenance_types": 27,
+    "entity_provenance_types": 8,
+    "reconciliation_provenance_types": 1,
+    "occurrence_provenance_types": 16,
+    "total_provenance_subject_types": 53
+  },
+  "composition_passes": 2,
+  "invalid_composition_cases": 7
+}

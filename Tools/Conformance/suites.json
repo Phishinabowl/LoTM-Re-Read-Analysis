@@ -24,7 +24,8 @@
       "temporal",
       "chronology",
       "reconciliation",
-      "occurrence"
+      "occurrence",
+      "project-composition"
     ]
   },
   "suites": [
@@ -105,6 +106,12 @@
       "python": "Tools/Conformance/Suites/test_occurrence.py",
       "powershell": "Tools/Conformance/Suites/Test-Occurrence.ps1",
       "tags": ["baseline", "recurrence", "state"]
+    },
+    {
+      "id": "project-composition",
+      "python": "Tools/Conformance/Suites/test_project_composition.py",
+      "powershell": "Tools/Conformance/Suites/Test-Project-Composition.ps1",
+      "tags": ["baseline", "integration", "composition"]
     }
   ],
   "discovery": {
