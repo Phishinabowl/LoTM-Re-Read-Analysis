@@ -957,7 +957,7 @@ Current content-type and ownership regression: both implementations selected tax
 
 ## GitHub Actions CI
 
-The tracked `.github/workflows/ci.yml` workflow runs on pushes, pull requests, and manual dispatches. Its stable job/check names are `Workflow Policy`, `Python Validation`, `PowerShell 7 Validation`, and `Windows PowerShell 5.1 Validation`. Future repository rules may require these names, so avoid casual renames.
+The tracked `.github/workflows/ci.yml` workflow runs for pull requests, pushes to `main`, and intentional manual dispatches. Ordinary feature-branch checkpoint pushes do not start CI unless the branch participates in an open pull request. Its stable job/check names are `Workflow Policy`, `Python Validation`, `PowerShell 7 Validation`, and `Windows PowerShell 5.1 Validation`. Future repository rules may require these names, so avoid casual renames.
 
 `Workflow Policy` installs the checksum-pinned standalone actionlint release declared in the workflow and validates all workflow files. Local preflight uses a system-installed official executable:
 

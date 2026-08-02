@@ -83,7 +83,7 @@ The formatter uses `Tools/powershell-format-settings.psd1`, writes UTF-8 without
 
 ## Continuous Integration
 
-The tracked workflow at `.github/workflows/ci.yml` runs on pushes, pull requests, and manual dispatches. It preserves four stable check names for future repository rules:
+The tracked workflow at `.github/workflows/ci.yml` runs for pull requests, pushes to `main`, and intentional manual dispatches. Ordinary feature-branch checkpoint pushes do not start CI unless that branch already participates in an open pull request. The workflow preserves four stable check names for future repository rules:
 
 - `Workflow Policy`
 - `Python Validation`
