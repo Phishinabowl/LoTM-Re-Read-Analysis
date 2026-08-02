@@ -11,6 +11,7 @@
     "todo-tree.regex.subTagRegex": "^(?=\\s*\\(([^)]+)\\))",
     "todo-tree.tree.groupedBySubTag": true,
     "todo-tree.tree.scanMode": "workspace",
+    "mermaidChart.aiSkills.enabled": false,
     "todo-tree.filtering.passGlobsToRipgrep": true,
     "todo-tree.filtering.useBuiltInExcludes": "file and search excludes",
     "todo-tree.filtering.excludeGlobs": [
