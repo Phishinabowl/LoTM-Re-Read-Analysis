@@ -1,6 +1,6 @@
 # Narrative Source Registry Contract
 
-`Project_Config/sources.yaml` schema version 18 is the executable project-instance contract for selected narrative packs. `Tools/source_config.py` and `Tools/Source-Config.ps1` enforce the same fields, reference rules, applicability decisions, authority decisions, and provenance-target lookup. All temporal fields delegate to the shared domain-neutral contract in `temporal-model.md`.
+`Project_Config/sources.yaml` schema version 18 is the executable project-instance contract for selected narrative packs. `Tools/Runtime/Python/knowledge_framework/source_config.py` and `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` enforce the same fields, reference rules, applicability decisions, authority decisions, and provenance-target lookup. All temporal fields delegate to the shared domain-neutral contract in `temporal-model.md`.
 
 ## Media Facets
 

@@ -13,88 +13,89 @@ The repository convention is:
 - Treat generated outputs as compiled views unless a tool explicitly edits canonical files.
 - Update this reference whenever a script gains, loses, or changes a switch, output, or important side effect.
 
-## Tool Architecture Migration Inventory
+## Tool Architecture Inventory
 
-The current flat paths remain executable until the architecture migration is performed atomically. [ARCHITECTURE.md](../ARCHITECTURE.md#tool-runtime-and-command-architecture) owns the target boundaries, root-discovery order, parity policy, and wrapper rules. This inventory accounts for every maintained file currently beneath `Tools/` and freezes its destination before files move.
+[ARCHITECTURE.md](../ARCHITECTURE.md#tool-runtime-and-command-architecture) owns the current boundaries, root-discovery order, parity policy, and wrapper rules. This inventory accounts for every maintained runtime, command, conformance, environment, and static-policy surface beneath `Tools/`.
 
 ### Reusable Runtime Pairs
 
-All rows in this table require independent Python, PowerShell 7, and Windows PowerShell 5.1 semantic parity. Python modules move beneath `Tools/Runtime/Python/knowledge_framework/`. PowerShell implementations become internal parts of `Tools/Runtime/PowerShell/KnowledgeFramework/`, with supported functions exported through `KnowledgeFramework.psd1` and `KnowledgeFramework.psm1` rather than peer-script dot sourcing.
+All rows in this table require independent Python, PowerShell 7, and Windows PowerShell 5.1 semantic parity. Python modules live beneath `Tools/Runtime/Python/knowledge_framework/`. PowerShell implementations are internal parts of `Tools/Runtime/PowerShell/KnowledgeFramework/`, with supported functions exported through `KnowledgeFramework.psd1` and `KnowledgeFramework.psm1` rather than peer-script dot sourcing.
 
-| Current Python | Current PowerShell | Target Python Module | Target PowerShell Ownership | Dependency Role |
+| Python Source | PowerShell Source | Python Module | PowerShell Ownership | Dependency Role |
 | --- | --- | --- | --- | --- |
-| `Tools/strict_yaml.py` | `Tools/Strict-Yaml.ps1` | `knowledge_framework.strict_yaml` | `KnowledgeFramework` strict-ingestion implementation | Lowest-level strict byte, syntax, scalar, key, timestamp, and parser-budget service. |
-| `Tools/project_config.py` | `Tools/Project-Config.ps1` | `knowledge_framework.project_paths` plus `knowledge_framework.project_config` | `KnowledgeFramework` project-path and manifest implementation | Dependency-light root/path discovery followed by strict manifest loading. |
-| `Tools/lookup_key_config.py` | `Tools/Lookup-Key-Config.ps1` | `knowledge_framework.lookup_key_config` | `KnowledgeFramework` lookup-key implementation | Pinned Unicode lookup normalization and ordinal comparison. |
-| `Tools/schema_pack_config.py` | `Tools/Schema-Pack-Config.ps1` | `knowledge_framework.schema_pack_config` | `KnowledgeFramework` schema-pack implementation | Pack composition, capability state, and controlled-value ownership. |
-| `Tools/taxonomy_config.py` | `Tools/Taxonomy-Config.ps1` | `knowledge_framework.taxonomy_config` | `KnowledgeFramework` taxonomy implementation | Content-type/category routing and validation. |
-| `Tools/resource_config.py` | `Tools/Resource-Config.ps1` | `knowledge_framework.resource_config` | `KnowledgeFramework` resource implementation | Resource-kind/type and placement validation. |
-| `Tools/temporal_config.py` | `Tools/Temporal-Config.ps1` | `knowledge_framework.temporal_config` | `KnowledgeFramework` temporal implementation | Domain-neutral civil-time parsing and comparison. |
-| `Tools/source_config.py` | `Tools/Source-Config.ps1` | `knowledge_framework.source_config` | `KnowledgeFramework` source implementation | Works, media, releases, evidence, applicability, and authority services. |
-| `Tools/chronology_config.py` | `Tools/Chronology-Config.ps1` | `knowledge_framework.chronology_config` | `KnowledgeFramework` chronology implementation | Non-civil coordinate systems, positions, spans, mappings, and ordering. |
-| `Tools/entity_config.py` | `Tools/Entity-Config.ps1` | `knowledge_framework.entity_config` | `KnowledgeFramework` entity implementation | Entities, incarnations, phases, aliases, relationships, and providers. |
-| `Tools/reconciliation_config.py` | `Tools/Reconciliation-Config.ps1` | `knowledge_framework.reconciliation_config` | `KnowledgeFramework` reconciliation implementation | Stable-ID redirects, merges, splits, retirement, and resolution. |
-| `Tools/occurrence_config.py` | `Tools/Occurrence-Config.ps1` | `knowledge_framework.occurrence_config` | `KnowledgeFramework` occurrence implementation | Occurrence, recurrence, state, schedule, rule, and outcome semantics. |
-| `Tools/provenance_config.py` | `Tools/Provenance-Config.ps1` | `knowledge_framework.provenance_config` | `KnowledgeFramework` provenance implementation | Assertions, evidence locators, claim evaluation, and cross-registry targets. |
+| `Tools/Runtime/Python/knowledge_framework/strict_yaml.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Strict-Yaml.ps1` | `knowledge_framework.strict_yaml` | `KnowledgeFramework` strict-ingestion implementation | Lowest-level strict byte, syntax, scalar, key, timestamp, and parser-budget service. |
+| `Tools/Runtime/Python/knowledge_framework/project_config.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Project-Config.ps1` | `knowledge_framework.project_paths` plus `knowledge_framework.project_config` | `KnowledgeFramework` project-path and manifest implementation | Dependency-light root/path discovery followed by strict manifest loading. |
+| `Tools/Runtime/Python/knowledge_framework/lookup_key_config.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Lookup-Key-Config.ps1` | `knowledge_framework.lookup_key_config` | `KnowledgeFramework` lookup-key implementation | Pinned Unicode lookup normalization and ordinal comparison. |
+| `Tools/Runtime/Python/knowledge_framework/schema_pack_config.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Schema-Pack-Config.ps1` | `knowledge_framework.schema_pack_config` | `KnowledgeFramework` schema-pack implementation | Pack composition, capability state, and controlled-value ownership. |
+| `Tools/Runtime/Python/knowledge_framework/taxonomy_config.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Taxonomy-Config.ps1` | `knowledge_framework.taxonomy_config` | `KnowledgeFramework` taxonomy implementation | Content-type/category routing and validation. |
+| `Tools/Runtime/Python/knowledge_framework/resource_config.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Resource-Config.ps1` | `knowledge_framework.resource_config` | `KnowledgeFramework` resource implementation | Resource-kind/type and placement validation. |
+| `Tools/Runtime/Python/knowledge_framework/temporal_config.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Temporal-Config.ps1` | `knowledge_framework.temporal_config` | `KnowledgeFramework` temporal implementation | Domain-neutral civil-time parsing and comparison. |
+| `Tools/Runtime/Python/knowledge_framework/source_config.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Source-Config.ps1` | `knowledge_framework.source_config` | `KnowledgeFramework` source implementation | Works, media, releases, evidence, applicability, and authority services. |
+| `Tools/Runtime/Python/knowledge_framework/chronology_config.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Chronology-Config.ps1` | `knowledge_framework.chronology_config` | `KnowledgeFramework` chronology implementation | Non-civil coordinate systems, positions, spans, mappings, and ordering. |
+| `Tools/Runtime/Python/knowledge_framework/entity_config.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Entity-Config.ps1` | `knowledge_framework.entity_config` | `KnowledgeFramework` entity implementation | Entities, incarnations, phases, aliases, relationships, and providers. |
+| `Tools/Runtime/Python/knowledge_framework/reconciliation_config.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Reconciliation-Config.ps1` | `knowledge_framework.reconciliation_config` | `KnowledgeFramework` reconciliation implementation | Stable-ID redirects, merges, splits, retirement, and resolution. |
+| `Tools/Runtime/Python/knowledge_framework/occurrence_config.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Occurrence-Config.ps1` | `knowledge_framework.occurrence_config` | `KnowledgeFramework` occurrence implementation | Occurrence, recurrence, state, schedule, rule, and outcome semantics. |
+| `Tools/Runtime/Python/knowledge_framework/provenance_config.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Provenance-Config.ps1` | `knowledge_framework.provenance_config` | `KnowledgeFramework` provenance implementation | Assertions, evidence locators, claim evaluation, and cross-registry targets. |
 
-The target Python package also gains `__init__.py` and exports only deliberately supported entry points. Package consumers use `knowledge_framework.<module>` imports. The PowerShell manifest uses an explicit `FunctionsToExport` list; wildcard exports and command-to-command dot sourcing are prohibited.
+The Python package exports only deliberately supported entry points through `__init__.py`; package consumers use `knowledge_framework.<module>` imports. The PowerShell manifest uses an explicit `FunctionsToExport` list; wildcard exports and command-to-command dot sourcing are prohibited.
 
 ### User Command Pairs
 
-These remain Python-preferred commands with independent PowerShell fallbacks. Their post-migration paths and existing CLI behavior become stable public surfaces.
+These are Python-preferred commands with independent PowerShell fallbacks. Their paths and existing CLI behavior are stable public surfaces.
 
-| Current Pair | Target Pair | Ownership |
-| --- | --- | --- |
-| `Tools/obsidian_qa_export.py`, `Tools/Obsidian-QA-Export.ps1` | `Tools/Commands/QA/obsidian_qa_export.py`, `Tools/Commands/QA/Obsidian-QA-Export.ps1` | Obsidian mirror, bounded-page, and QA orchestration command. |
-| `Tools/clean_temp_files.py`, `Tools/Clean-TempFiles.ps1` | `Tools/Commands/Maintenance/clean_temp_files.py`, `Tools/Commands/Maintenance/Clean-TempFiles.ps1` | Scoped cache and temporary-artifact cleanup command. |
-| `Tools/search_epub.py`, `Tools/Search-Epub.ps1` | `Tools/Commands/Media/search_epub.py`, `Tools/Commands/Media/Search-Epub.ps1` | EPUB text/search command. |
-| `Tools/edit_image.py`, `Tools/Edit-Image.ps1` | `Tools/Commands/Media/edit_image.py`, `Tools/Commands/Media/Edit-Image.ps1` | Image manipulation and EPUB artwork extraction command. |
+| Command Pair | Ownership |
+| --- | --- |
+| `Tools/Commands/QA/obsidian_qa_export.py`, `Tools/Commands/QA/Obsidian-QA-Export.ps1` | Obsidian mirror, bounded-page, and QA orchestration command. |
+| `Tools/Commands/Maintenance/clean_temp_files.py`, `Tools/Commands/Maintenance/Clean-TempFiles.ps1` | Scoped cache and temporary-artifact cleanup command. |
+| `Tools/Commands/Media/search_epub.py`, `Tools/Commands/Media/Search-Epub.ps1` | EPUB text/search command. |
+| `Tools/Commands/Media/edit_image.py`, `Tools/Commands/Media/Edit-Image.ps1` | Image manipulation and EPUB artwork extraction command. |
 
 ### Conformance Inventory
 
-The aggregate entry points and registry are already in their final parent directory. Individual runners move beneath `Tools/Conformance/Suites/`; fixture data remains under `Framework/Data/`.
+The aggregate entry points and registry live directly under `Tools/Conformance/`. Individual runners live beneath `Tools/Conformance/Suites/`; fixture data remains under `Framework/Data/`.
 
-| Current Files | Target | Parity |
+| Files | Location | Parity |
 | --- | --- | --- |
 | `Tools/Conformance/run_conformance.py`, `Tools/Conformance/Run-Conformance.ps1`, `Tools/Conformance/suites.json` | unchanged parent paths | Paired aggregate semantics; each runtime launches its own suite implementations. |
-| `Tools/test_strict_yaml.py`, `Tools/Test-Strict-Yaml.ps1` | `Tools/Conformance/Suites/` with basenames retained | Required. |
-| `Tools/test_lookup_key.py`, `Tools/Test-Lookup-Key.ps1` | `Tools/Conformance/Suites/` with basenames retained | Required. |
-| `Tools/test_temporal.py`, `Tools/Test-Temporal.ps1` | `Tools/Conformance/Suites/` with basenames retained | Required. |
-| `Tools/test_chronology.py`, `Tools/Test-Chronology.ps1` | `Tools/Conformance/Suites/` with basenames retained | Required. |
-| `Tools/test_reconciliation.py`, `Tools/Test-Reconciliation.ps1` | `Tools/Conformance/Suites/` with basenames retained | Required. |
-| `Tools/test_occurrence.py`, `Tools/Test-Occurrence.ps1` | `Tools/Conformance/Suites/` with basenames retained | Required. |
+| `Tools/Conformance/Suites/test_strict_yaml.py`, `Tools/Conformance/Suites/Test-Strict-Yaml.ps1` | `Tools/Conformance/Suites/` with basenames retained | Required. |
+| `Tools/Conformance/Suites/test_lookup_key.py`, `Tools/Conformance/Suites/Test-Lookup-Key.ps1` | `Tools/Conformance/Suites/` with basenames retained | Required. |
+| `Tools/Conformance/Suites/test_temporal.py`, `Tools/Conformance/Suites/Test-Temporal.ps1` | `Tools/Conformance/Suites/` with basenames retained | Required. |
+| `Tools/Conformance/Suites/test_chronology.py`, `Tools/Conformance/Suites/Test-Chronology.ps1` | `Tools/Conformance/Suites/` with basenames retained | Required. |
+| `Tools/Conformance/Suites/test_reconciliation.py`, `Tools/Conformance/Suites/Test-Reconciliation.ps1` | `Tools/Conformance/Suites/` with basenames retained | Required. |
+| `Tools/Conformance/Suites/test_occurrence.py`, `Tools/Conformance/Suites/Test-Occurrence.ps1` | `Tools/Conformance/Suites/` with basenames retained | Required. |
 
 Moving an individual suite changes its Python and PowerShell runner paths only in `Tools/Conformance/suites.json`; CI continues to invoke the unchanged aggregate entry points. Discovery rules move with the suite directory and continue rejecting unregistered runners and stale exclusions.
 
 ### Environment, Static, And Documentation Files
 
-| Current Files | Target | Pairing Decision |
+| Files | Location | Pairing Decision |
 | --- | --- | --- |
-| `Tools/Test-Python.ps1`, `Tools/Test-PowerShell.ps1` | `Tools/Commands/Environment/` | Intentional PowerShell-only environment probes; each inspects a different runtime and is not a domain fallback. |
-| `Tools/Format-PowerShell.ps1`, `Tools/powershell-format-settings.psd1` | `Tools/Static/` | Intentional PowerShell-only parser-native formatter. Ruff remains configured by root `pyproject.toml`. |
+| `Tools/Commands/Environment/Test-Python.ps1`, `Tools/Commands/Environment/Test-PowerShell.ps1` | `Tools/Commands/Environment/` | Intentional PowerShell-only environment probes; each inspects a different runtime and is not a domain fallback. |
+| `Tools/Static/Format-PowerShell.ps1`, `Tools/Static/powershell-format-settings.psd1` | `Tools/Static/` | Intentional PowerShell-only parser-native formatter. Ruff remains configured by root `pyproject.toml`. |
 | `Tools/README.md`, `Tools/TOOLING_REFERENCE.md` | unchanged | Human command guide and detailed tooling contract. |
 
 The future work-annotation linter and cross-runtime compatibility comparator belong under `Tools/Static/` and `Tools/Compatibility/` respectively. Each may have one canonical Python implementation because one enforces repository text policy and the other explicitly orchestrates and compares all runtimes; neither is a user-facing project-domain fallback.
 
-### Public Entry And Migration Rules
+### Public Entry Rules
 
-- Current command paths remain valid until the atomic migration; target paths are not partially advertised as usable.
-- Target command paths preserve current switch meaning, defaults, help, structured output, exit behavior, and side-effect boundaries.
-- Tracked callers, CI, documentation, imports, module loading, and suite-registry paths update in the same migration wave.
+- Command paths beneath `Tools/Commands/` are the stable public CLI entry points and preserve documented switch meaning, defaults, help, structured output, exit behavior, and side-effect boundaries.
+- Runtime implementations beneath `Tools/Runtime/` are library surfaces, not alternate command entry points.
+- Any future path migration must update tracked callers, CI, documentation, imports, module loading, and suite-registry paths in the same migration wave.
 - Root-level compatibility wrappers are not retained by default. Any exception must name an external dependency, emit a deprecation warning, and record a removal checkpoint.
 - Python commands import package-qualified runtime modules. PowerShell commands import the module manifest. Commands do not import or dot-source peer commands.
 - Python implementations do not call PowerShell implementations, and PowerShell implementations do not call Python implementations, except for a future tool whose explicit purpose is cross-runtime comparison.
 - Static tools and environment probes are excluded from domain parity only where the inventory explicitly says so.
 
-### Known Layout-Coupled Transition Debt
+### Layout Boundary Checks
 
-Phase 2 removed fixed-depth project-root discovery from project-aware commands, conformance runners, cleanup, formatting, environment probes, and Visualization. These remaining assumptions belong to the Phase 3 module/path migration:
+Phase 2 removed fixed-depth project-root discovery, and Phase 3 established the final runtime and command boundaries. Preserve those results:
 
-- `Format-PowerShell.ps1` uses shared project discovery and Git only for tracked/nonignored source inventory; after the move it must resolve its settings from `Tools/Static/`.
-- Current Python loaders use flat sibling imports, and current PowerShell loaders and conformance runners dot-source peer scripts through `$PSScriptRoot`.
-- Transitional loaders still live at root-level paths even though aggregate runners and project discovery now import through the final runtime package/module locations.
+- `Format-PowerShell.ps1` uses shared project discovery and Git only for tracked/nonignored source inventory, and resolves its settings beside itself in `Tools/Static/`.
+- Python runtime modules use package-relative imports; commands and suites bootstrap `Tools/Runtime/Python` and import package-qualified modules.
+- PowerShell commands and suites import `KnowledgeFramework.psd1`; internal loader ordering belongs only to `KnowledgeFramework.psm1`.
+- Root-level `Tools/*.py` and `Tools/*.ps1` loader or command implementations are prohibited.
 
-Phase 3 is incomplete until repository searches find no flat loader imports and no command/conformance dot-sourcing of root-level loader scripts.
+Repository searches and aggregate validation must continue to reject flat loader imports, command-to-command imports, and command/conformance dot-sourcing of loader scripts.
 
 ## Project Root Discovery
 
@@ -108,7 +109,7 @@ Resolution order is explicit `--root` / `-Root`, absolute `KNOWLEDGE_PROJECT_ROO
 
 | Role | Script | Command |
 | --- | --- | --- |
-| Environment probe | `Tools/Test-Python.ps1` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1` |
+| Environment probe | `Tools/Commands/Environment/Test-Python.ps1` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Environment\Test-Python.ps1` |
 
 Purpose: check whether the local machine has a usable Python command and the repository's required Python modules before choosing Python-preferred tools or documented PowerShell fallbacks. This is a read-only probe and has no Python pair.
 
@@ -161,8 +162,8 @@ Purpose: check whether the local machine has a usable Python command and the rep
 ### Check Recipe
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1 -Json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Environment\Test-Python.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Environment\Test-Python.ps1 -Json
 python -m pip install -r requirements-python.txt
 ```
 
@@ -213,7 +214,7 @@ Last check: 2026-08-01. Ruff 0.16.1 formatted 21 of 22 existing Python files; on
 
 | Role | Script | Command |
 | --- | --- | --- |
-| Environment probe | `Tools/Test-PowerShell.ps1` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-PowerShell.ps1` |
+| Environment probe | `Tools/Commands/Environment/Test-PowerShell.ps1` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Environment\Test-PowerShell.ps1` |
 
 Purpose: check whether the local PowerShell environment has repository-required modules from `requirements-powershell.txt`. This is a read-only probe and has no Python pair.
 
@@ -250,8 +251,8 @@ Purpose: check whether the local PowerShell environment has repository-required 
 ### Check Recipe
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-PowerShell.ps1
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-PowerShell.ps1 -Json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Environment\Test-PowerShell.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Environment\Test-PowerShell.ps1 -Json
 Install-Module powershell-yaml -Scope CurrentUser -Force -AllowClobber
 Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
 ```
@@ -266,7 +267,7 @@ Last check: 2026-08-01. JSON mode ran successfully in PowerShell 7.6.3 and Windo
 
 | Role | Script | Command |
 | --- | --- | --- |
-| PowerShell static formatter and check | `Tools/Format-PowerShell.ps1` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Format-PowerShell.ps1` |
+| PowerShell static formatter and check | `Tools/Static/Format-PowerShell.ps1` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Static\Format-PowerShell.ps1` |
 
 Purpose: deterministically format and statically check maintained PowerShell sources. This tool has no Python pair because its behavior depends on the PowerShell parser and `PSScriptAnalyzer`; it does not implement a project-domain feature that requires a fallback runtime.
 
@@ -281,7 +282,7 @@ Purpose: deterministically format and statically check maintained PowerShell sou
 
 ### Formatting Contract
 
-- `Tools/powershell-format-settings.psd1` owns PSScriptAnalyzer layout settings.
+- `Tools/Static/powershell-format-settings.psd1` owns PSScriptAnalyzer layout settings.
 - `.gitattributes` owns CRLF checkout line endings for `.ps1`, `.psm1`, and `.psd1` files.
 - Default discovery uses Git's tracked-plus-untracked, exclude-standard inventory, so new nonignored scripts and source folders require no formatter configuration change.
 - Gitignored local or generated PowerShell files are outside the default repository policy; pass an explicit `-Path` when they need an ad hoc check.
@@ -295,13 +296,13 @@ Purpose: deterministically format and statically check maintained PowerShell sou
 
 ```powershell
 # Read-only default check under Windows PowerShell 5.1
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Format-PowerShell.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Static\Format-PowerShell.ps1
 
 # Apply canonical formatting
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Format-PowerShell.ps1 -Fix
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Static\Format-PowerShell.ps1 -Fix
 
 # PowerShell 7 structured check
-pwsh -NoProfile -File Tools\Format-PowerShell.ps1 -Json
+pwsh -NoProfile -File Tools\Static\Format-PowerShell.ps1 -Json
 ```
 
 Last mapped: 2026-08-01.
@@ -314,8 +315,8 @@ Last check: 2026-08-01. PowerShell 7.6.3 and Windows PowerShell 5.1.19041.7548 e
 
 | Role | Script | Command |
 | --- | --- | --- |
-| Preferred implementation | `Tools/clean_temp_files.py` | `python Tools\clean_temp_files.py` |
-| Windows fallback | `Tools/Clean-TempFiles.ps1` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Clean-TempFiles.ps1` |
+| Preferred implementation | `Tools/Commands/Maintenance/clean_temp_files.py` | `python Tools\Commands\Maintenance\clean_temp_files.py` |
+| Windows fallback | `Tools/Commands/Maintenance/Clean-TempFiles.ps1` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Maintenance\Clean-TempFiles.ps1` |
 
 Purpose: find and optionally remove allowlisted local cache directories under the repository root. This tool is for disposable tool/runtime artifacts only, not project source files.
 
@@ -384,22 +385,22 @@ New-Item -ItemType Directory -Force -Path .tmp\cleanup-parity\Tools\__pycache__
 New-Item -ItemType Directory -Force -Path .tmp\cleanup-parity\Nested\.pytest_cache
 New-Item -ItemType Directory -Force -Path .tmp\cleanup-parity\Nested\.ruff_cache
 
-python Tools\clean_temp_files.py --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Clean-TempFiles.ps1 -Json
+python Tools\Commands\Maintenance\clean_temp_files.py --json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Maintenance\Clean-TempFiles.ps1 -Json
 
-python Tools\clean_temp_files.py --include-tmp --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Clean-TempFiles.ps1 -IncludeTmp -Json
+python Tools\Commands\Maintenance\clean_temp_files.py --include-tmp --json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Maintenance\Clean-TempFiles.ps1 -IncludeTmp -Json
 
-python Tools\clean_temp_files.py --tmp-path .tmp\cleanup-parity --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Clean-TempFiles.ps1 -TmpPath .tmp\cleanup-parity -Json
+python Tools\Commands\Maintenance\clean_temp_files.py --tmp-path .tmp\cleanup-parity --json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Maintenance\Clean-TempFiles.ps1 -TmpPath .tmp\cleanup-parity -Json
 
-python Tools\clean_temp_files.py --delete --json
+python Tools\Commands\Maintenance\clean_temp_files.py --delete --json
 
 New-Item -ItemType Directory -Force -Path .tmp\cleanup-parity\Tools\__pycache__
 New-Item -ItemType Directory -Force -Path .tmp\cleanup-parity\Nested\.pytest_cache
 New-Item -ItemType Directory -Force -Path .tmp\cleanup-parity\Nested\.ruff_cache
 
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Clean-TempFiles.ps1 -Delete -Json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Maintenance\Clean-TempFiles.ps1 -Delete -Json
 ```
 
 Automatic tool cleanup should prefer `--tmp-path ... --delete` / `-TmpPath ... -Delete` for exact paths created by the current run. Use `--include-tmp --delete` / `-IncludeTmp -Delete` only when ignored local test outputs under `.tmp/` are no longer needed. This is intentionally opt-in so parity runs that write inspectable outputs under `.tmp/` are not deleted immediately by the tools that created them.
@@ -418,8 +419,8 @@ Last parity check: 2026-07-07. Dry-run JSON matched semantically for three test 
 
 | Role | Script | Command |
 | --- | --- | --- |
-| Preferred implementation | `Tools/edit_image.py` | `python Tools\edit_image.py` |
-| Windows fallback | `Tools/Edit-Image.ps1` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1` |
+| Preferred implementation | `Tools/Commands/Media/edit_image.py` | `python Tools\Commands\Media\edit_image.py` |
+| Windows fallback | `Tools/Commands/Media/Edit-Image.ps1` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Edit-Image.ps1` |
 
 Purpose: run repeatable local image operations. Current operations are fixed-geometry image cropping, named crop presets for official pathway guide assets, and EPUB image listing/extraction in spine order.
 
@@ -539,29 +540,29 @@ Image extraction and bulk crop staging should normally stay under ignored local 
 List presets:
 
 ```powershell
-python Tools\edit_image.py --list-presets
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -ListPresets
+python Tools\Commands\Media\edit_image.py --list-presets
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Edit-Image.ps1 -ListPresets
 ```
 
 List EPUB images:
 
 ```powershell
-python Tools\edit_image.py --operation list-images --start-image-number 1 --end-image-number 5 --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -Operation List-Images -StartImageNumber 1 -EndImageNumber 5 -Json
+python Tools\Commands\Media\edit_image.py --operation list-images --start-image-number 1 --end-image-number 5 --json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Edit-Image.ps1 -Operation List-Images -StartImageNumber 1 -EndImageNumber 5 -Json
 ```
 
 Extract one EPUB image:
 
 ```powershell
-python Tools\edit_image.py --operation ExtractEpubImages --start-image-number 1 --end-image-number 1 --output-dir .tmp\image-parity\python-extract --extract --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -Operation ExtractEpubImages -StartImageNumber 1 -EndImageNumber 1 -OutputDir .tmp\image-parity\powershell-extract -Extract -Json
+python Tools\Commands\Media\edit_image.py --operation ExtractEpubImages --start-image-number 1 --end-image-number 1 --output-dir .tmp\image-parity\python-extract --extract --json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Edit-Image.ps1 -Operation ExtractEpubImages -StartImageNumber 1 -EndImageNumber 1 -OutputDir .tmp\image-parity\powershell-extract -Extract -Json
 ```
 
 Crop a synthetic source image and compare dimensions/pixels:
 
 ```powershell
-python Tools\edit_image.py --operation crop --source-image .tmp\image-parity\source.png --output-image .tmp\image-parity\python-crop.png --x 3 --y 4 --width 7 --height 6 --force
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -Operation Crop -SourceImage .tmp\image-parity\source.png -OutputImage .tmp\image-parity\powershell-crop.png -X 3 -Y 4 -Width 7 -Height 6 -Force
+python Tools\Commands\Media\edit_image.py --operation crop --source-image .tmp\image-parity\source.png --output-image .tmp\image-parity\python-crop.png --x 3 --y 4 --width 7 --height 6 --force
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Edit-Image.ps1 -Operation Crop -SourceImage .tmp\image-parity\source.png -OutputImage .tmp\image-parity\powershell-crop.png -X 3 -Y 4 -Width 7 -Height 6 -Force
 ```
 
 Expected non-semantic differences:
@@ -580,8 +581,8 @@ Last parity check: 2026-07-07. Preset listing matched exactly. EPUB JSON listing
 
 | Role | Script | Command |
 | --- | --- | --- |
-| Preferred implementation | `Tools/search_epub.py` | `python Tools\search_epub.py` |
-| Windows fallback | `Tools/Search-Epub.ps1` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1` |
+| Preferred implementation | `Tools/Commands/Media/search_epub.py` | `python Tools\Commands\Media\search_epub.py` |
+| Windows fallback | `Tools/Commands/Media/Search-Epub.ps1` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1` |
 
 Both current implementations discover the Book 1 EPUB layout. They do not yet consume `Project_Config/sources.yaml`, accept a registered work ID, or discover entries in the current COI EPUB package. Passing the COI path returns an empty entry list and must not be interpreted as an empty book. Multi-book search support requires registry-backed work/source selection plus package-specific discovery adapters.
 
@@ -678,43 +679,43 @@ This tool must not be used to copy long source passages into tracked notes. Reco
 List all EPUB entries:
 
 ```powershell
-python Tools\search_epub.py --entry-type All --list-entries --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -EntryType All -ListEntries -Json
+python Tools\Commands\Media\search_epub.py --entry-type All --list-entries --json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -EntryType All -ListEntries -Json
 ```
 
 Counts-only chapter search:
 
 ```powershell
-python Tools\search_epub.py --start-chapter 1 --end-chapter 5 --pattern "Klein|Zhou" --counts-only --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -StartChapter 1 -EndChapter 5 -Pattern "Klein|Zhou" -CountsOnly -Json
+python Tools\Commands\Media\search_epub.py --start-chapter 1 --end-chapter 5 --pattern "Klein|Zhou" --counts-only --json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -StartChapter 1 -EndChapter 5 -Pattern "Klein|Zhou" -CountsOnly -Json
 ```
 
 Term summary:
 
 ```powershell
-python Tools\search_epub.py --start-chapter 1 --end-chapter 10 --pattern "Klein|Zhou" --term-summary --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -StartChapter 1 -EndChapter 10 -Pattern "Klein|Zhou" -TermSummary -Json
+python Tools\Commands\Media\search_epub.py --start-chapter 1 --end-chapter 10 --pattern "Klein|Zhou" --term-summary --json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -StartChapter 1 -EndChapter 10 -Pattern "Klein|Zhou" -TermSummary -Json
 ```
 
 Context hits with line counts:
 
 ```powershell
-python Tools\search_epub.py --start-chapter 1 --end-chapter 1 --pattern "Klein|Zhou" --context-lines 1 --max-hits-per-chapter 3 --include-line-match-counts --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -StartChapter 1 -EndChapter 1 -Pattern "Klein|Zhou" -ContextLines 1 -MaxHitsPerChapter 3 -IncludeLineMatchCounts -Json
+python Tools\Commands\Media\search_epub.py --start-chapter 1 --end-chapter 1 --pattern "Klein|Zhou" --context-lines 1 --max-hits-per-chapter 3 --include-line-match-counts --json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -StartChapter 1 -EndChapter 1 -Pattern "Klein|Zhou" -ContextLines 1 -MaxHitsPerChapter 3 -IncludeLineMatchCounts -Json
 ```
 
 Regex and case-sensitive search:
 
 ```powershell
-python Tools\search_epub.py --start-chapter 1 --end-chapter 3 --pattern "Klein\b" --regex-pattern --case-sensitive --counts-only --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -StartChapter 1 -EndChapter 3 -Pattern "Klein\b" -RegexPattern -CaseSensitive -CountsOnly -Json
+python Tools\Commands\Media\search_epub.py --start-chapter 1 --end-chapter 3 --pattern "Klein\b" --regex-pattern --case-sensitive --counts-only --json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -StartChapter 1 -EndChapter 3 -Pattern "Klein\b" -RegexPattern -CaseSensitive -CountsOnly -Json
 ```
 
 Non-chapter appendix search:
 
 ```powershell
-python Tools\search_epub.py --entry-type Appendices --entry-name-pattern "*pathways*" --pattern "Pathway|Sequence|Seer" --counts-only --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -EntryType Appendices -EntryNamePattern "*pathways*" -Pattern "Pathway|Sequence|Seer" -CountsOnly -Json
+python Tools\Commands\Media\search_epub.py --entry-type Appendices --entry-name-pattern "*pathways*" --pattern "Pathway|Sequence|Seer" --counts-only --json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -EntryType Appendices -EntryNamePattern "*pathways*" -Pattern "Pathway|Sequence|Seer" -CountsOnly -Json
 ```
 
 Expected non-semantic differences:
@@ -837,7 +838,7 @@ Refresh mode should be treated as a canonical generated-artifact update unless a
 
 ### Important Differences
 
-- Python invokes `Tools/clean_temp_files.py` at the end of normal runs to remove transient Python cache folders. The PowerShell fallback does not call cleanup because it does not create Python cache folders.
+- Python invokes `Tools/Commands/Maintenance/clean_temp_files.py` at the end of normal runs to remove transient Python cache folders. The PowerShell fallback does not call cleanup because it does not create Python cache folders.
 - Python has built-in `--help`; PowerShell switch discovery is through the `param(...)` block and this reference.
 - Python accepts repeated `--output-path` values. PowerShell accepts one or more `-OutputPath` values as a string array.
 - PowerShell also exposes `-Action` as an alias for `-Mode`; Python does not have an `--action` alias.
@@ -887,8 +888,8 @@ Last parity check: 2026-08-01. Python, PowerShell 7, and Windows PowerShell 5.1 
 
 | Role | Script | Command |
 | --- | --- | --- |
-| Preferred implementation | `Tools/obsidian_qa_export.py` | `python Tools\obsidian_qa_export.py` |
-| Windows fallback | `Tools/Obsidian-QA-Export.ps1` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1` |
+| Preferred implementation | `Tools/Commands/QA/obsidian_qa_export.py` | `python Tools\Commands\QA\obsidian_qa_export.py` |
+| Windows fallback | `Tools/Commands/QA/Obsidian-QA-Export.ps1` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\QA\Obsidian-QA-Export.ps1` |
 
 Purpose: compile repository metadata, type-specific YAML data blocks, Relationship Seeds, and graph projections into an ignored Obsidian-friendly QA mirror. The export is for maintainer inspection and visual QA; it is not a source of truth.
 
@@ -1009,14 +1010,14 @@ The repo refresh check does not update canonical `Visualization/graphs/`, `Visua
 Use ignored `.tmp/` output folders so comparison runs do not create trackable artifacts.
 
 ```powershell
-python Tools\obsidian_qa_export.py --clean --output-dir .tmp\obsidian-python-check --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1 -Clean -OutputDir .tmp\obsidian-powershell-check -Json
+python Tools\Commands\QA\obsidian_qa_export.py --clean --output-dir .tmp\obsidian-python-check --json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\QA\Obsidian-QA-Export.ps1 -Clean -OutputDir .tmp\obsidian-powershell-check -Json
 
-python Tools\obsidian_qa_export.py --clean --output-dir .tmp\obsidian-python-bounded --bounded-graph "name=ch10,medium=novel,maxVolume=1,maxChapter=10" --bounded-graph "name=vol1,medium=novel,maxVolume=1" --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1 -Clean -OutputDir .tmp\obsidian-powershell-bounded -BoundedGraph 'name=ch10,medium=novel,maxVolume=1,maxChapter=10;name=vol1,medium=novel,maxVolume=1' -Json
+python Tools\Commands\QA\obsidian_qa_export.py --clean --output-dir .tmp\obsidian-python-bounded --bounded-graph "name=ch10,medium=novel,maxVolume=1,maxChapter=10" --bounded-graph "name=vol1,medium=novel,maxVolume=1" --json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\QA\Obsidian-QA-Export.ps1 -Clean -OutputDir .tmp\obsidian-powershell-bounded -BoundedGraph 'name=ch10,medium=novel,maxVolume=1,maxChapter=10;name=vol1,medium=novel,maxVolume=1' -Json
 
-python Tools\obsidian_qa_export.py --clean --output-dir .tmp\obsidian-python-pages --bounded-page "slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=10" --bounded-page "slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=30" --bounded-page "slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=50" --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Obsidian-QA-Export.ps1 -Clean -OutputDir .tmp\obsidian-powershell-pages -BoundedPage 'slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=10;slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=30;slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=50' -Json
+python Tools\Commands\QA\obsidian_qa_export.py --clean --output-dir .tmp\obsidian-python-pages --bounded-page "slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=10" --bounded-page "slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=30" --bounded-page "slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=50" --json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\QA\Obsidian-QA-Export.ps1 -Clean -OutputDir .tmp\obsidian-powershell-pages -BoundedPage 'slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=10;slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=30;slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=50' -Json
 ```
 
 Compare at minimum:
@@ -1070,26 +1071,26 @@ This section tracks durable configuration and generated state files that affect 
 | --- | --- | --- | --- | --- | --- |
 | `.github/workflows/ci.yml` | Continuous-integration policy | GitHub Actions, actionlint, maintainers, and future repository rules | Maintainers | Defines the four stable validation checks, immutable action pins, runtime environments, dependency setup, and permanent automated smoke/regression coverage. | A permanent gate, runtime, dependency, action pin, stable check name, or repository-rule requirement changes. |
 | `Tools/Conformance/suites.json` | Aggregate conformance registry | `Tools/Conformance/run_conformance.py`, `Tools/Conformance/Run-Conformance.ps1`, CI, and maintainers | Maintainers | Defines stable conformance suite IDs, paired runner paths, named profiles, and discovery exclusions; aggregate validation rejects unregistered or stale runner inventory. | A permanent suite is added, renamed, moved, removed, assigned to a profile, or explicitly excluded from conformance discovery. |
-| `Project_Config/project.yaml` | Project manifest | `Tools/project_config.py`, `Tools/Project-Config.ps1`, and consumers such as both Obsidian QA exporters | Maintainers | Identifies the project and configures modeled content/resource roots, provenance behavior, registry paths, default QA output, visualization helpers/settings, cleanup helpers, and manifest schema version without coupling framework code to LoTM directory names. | Project identity or paths change, a content/resource root is added, provenance behavior changes, helper locations move, or the manifest schema changes. |
+| `Project_Config/project.yaml` | Project manifest | `Tools/Runtime/Python/knowledge_framework/project_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Project-Config.ps1`, and consumers such as both Obsidian QA exporters | Maintainers | Identifies the project and configures modeled content/resource roots, provenance behavior, registry paths, default QA output, visualization helpers/settings, cleanup helpers, and manifest schema version without coupling framework code to LoTM directory names. | Project identity or paths change, a content/resource root is added, provenance behavior changes, helper locations move, or the manifest schema changes. |
 | `Framework/Data/unicode-lookup-16.0.0.json`, `Framework/Data/lookup-key-regression-vectors.json`, `Framework/Data/Lookup-Key/`, `Framework/Data/Strict-Yaml/`, `Framework/Data/Reconciliation/`, `Framework/Data/Temporal/`, `Framework/Data/Chronology/`, and `Framework/Data/Occurrence/` | Pinned framework runtime and conformance data | Strict YAML, lookup, reconciliation, temporal, chronology, and occurrence loaders; paired conformance tools; parity checks; and future semantic identity consumers | Framework maintainers through reviewed data updates | Define deterministic lookup behavior, canonical scalar and mapping-key ingestion, malformed registry boundaries, branch-aware stable-ID reconciliation vectors, civil-time match/overlap vectors, exact chronology closure, and occurrence/recurrence queries shared by every runtime. | An ingestion, lookup, reconciliation, temporal, chronology, or occurrence algorithm changes, or a discovered portability edge case requires a permanent vector. |
 | `Framework/Contracts/README.md`, registry contracts, `Framework/Contracts/strict-configuration-ingestion.md`, `Framework/Contracts/identity-target-provider.md`, and `Framework/Contracts/reconciliation-registry.md` | Framework contract index, registry contracts, strict ingestion rules, and provider boundaries | Framework maintainers and future schema tooling | Framework maintainers | Record executable configuration boundaries, shared YAML semantics, schema ownership, media/work/provenance semantics, identity phases, typed providers, and read-only stable-ID reconciliation. | A configuration contract or provider boundary is introduced, stabilized, moved, or assigned a validator. |
 | `Framework/Packs/core/pack.yaml` | Core schema pack | Schema-pack and temporal loaders plus future validation/editor/wizard services | Framework maintainers | Declares domain-neutral platform capabilities plus controlled temporal, evidence-source, claim-namespace, and evidence-artifact vocabulary. | A reusable core capability or evidence primitive changes. |
 | `Framework/Packs/README.md` and `Framework/Packs/narrative-*/pack.yaml` | Narrative domain pack catalog and companion packs | Schema-pack, source, and entity loaders plus future narrative editors/wizards | Narrative-domain pack maintainers | Split the narrative foundation, publishing, screen/audio, adaptation, shared-universe, interactive, preservation, and production/rights capabilities into composable contracts without LoTM instances. | A reusable narrative concept is introduced, revised, promoted from planned, or assigned to a different owning pack. |
-| `Project_Config/schema-packs.yaml` | Schema-pack composition registry | `Tools/schema_pack_config.py`, `Tools/Schema-Pack-Config.ps1`, source/entity loaders, and future schema/editor/wizard services | Maintainers; future setup and pack-management wizards | Selects portable schema packs in dependency order, locates their repository-relative contract files, and explicitly activates available capabilities for this project. | A reusable pack is selected, removed, replaced, or moved, or project capability activation changes. |
-| `Project_Config/taxonomy.yaml` | Taxonomy registry | `Tools/taxonomy_config.py`, `Tools/Taxonomy-Config.ps1`, both Obsidian QA exporters, and future content-index, validation, visualization, editor, and migration services | Maintainers through reviewed edits; future category/content-type editors through the mutation service | Defines orthogonal content-type and category IDs, lifecycle, content roots, category policies, path strategies, subject/record slug rules, placements, templates, QA-page eligibility, and graph defaults. | A category/content type is added, promoted, deferred, renamed for display, moved through a planned migration, assigned a template, or given different QA/graph behavior. |
-| `Project_Config/resources.yaml` | Resource registry | `Tools/resource_config.py`, `Tools/Resource-Config.ps1`, and future validation, editor, and migration services | Maintainers through reviewed edits; future resource editors through the mutation service | Defines non-content resource kinds/types, authority roles, editor eligibility, placements beneath configured resource roots, tracking expectations, and required-path behavior. | A resource kind/type or placement is added, renamed for display, moved, given different authority/tracking behavior, or exposed to editors. |
-| `Project_Config/sources.yaml` | Source and media registry | `Tools/source_config.py`, `Tools/Source-Config.ps1`, provenance validation, and future content-index, visualization, editor, and migration services | Maintainers through reviewed edits; future source editors through the mutation service | Instantiates media facets, works, structures and orderings, continuities, applicability scopes, authority profiles, adaptation/distribution records, evidence sources, coverage, relationships, identifiers, and resource bindings; exposes stable provenance targets plus evidence/position/authority services without owning assertions. | A media facet, work, scope, continuity record, production context, structural record, authority rule, adaptation/distribution record, source, coverage declaration, relationship, identifier, or resource binding changes. |
-| `Project_Config/chronology.yaml` | Chronology registry | `Tools/chronology_config.py`, `Tools/Chronology-Config.ps1`, paired chronology conformance tools, and future content-index, visualization, and editor services | Maintainers through reviewed edits; future chronology editors through the mutation service | Instantiates domain-neutral coordinate systems, ordered eras, positions, spans, relations, mappings, and pack-gated narrative work/continuity/branch contexts without redefining civil time. | A chronology axis, era, position, span, relation, anchor, story-time role, or project context changes. |
-| `Project_Config/occurrences.yaml` | Occurrence, recurrence-policy, and subject-state registry | `Tools/occurrence_config.py`, `Tools/Occurrence-Config.ps1`, provenance, paired occurrence conformance tools, and future content-index, visualization, and editor services | Maintainers through reviewed edits; future occurrence editors through the mutation service | Instantiates branches, templates, recurrence patterns and executions, iterations, non-overlapping phases, typed schedules, concrete occurrences, chronology bindings, subject tracks, profiled transitions, causal relations, outcomes, scoped defaults and execution overrides, deterministic resolution policy, state transitions, and state-referencing carryover without encoding cycles in chronology. | An occurrence identity, recurrence pattern/execution, phase, schedule, lifecycle, binding, track, transition, causal relation, outcome, rule, state transition, or carryover changes. |
-| `Project_Config/entities.yaml` | Entity, incarnation, and identity-phase registry | `Tools/entity_config.py`, `Tools/Entity-Config.ps1`, provenance, and future content-index, visualization, editor, reconciliation, and migration services | Maintainers through reviewed edits; future entity editors through the mutation service | Instantiates conceptual entities, ambiguity-preserving names, canonical and optionally acyclic lineage, continuity-bound incarnations, scope-backed bindings, incarnation relationships, and persistent-identity phases with explicit scope bindings and succession. | A category membership, shared label/alias, relationship policy, justified incarnation split, continuity membership, scoped appearance, persistent-identity phase, or phase/incarnation relationship changes. |
-| `Project_Config/reconciliation.yaml` | Stable-ID reconciliation registry | `Tools/reconciliation_config.py`, `Tools/Reconciliation-Config.ps1`, provenance, and future editor/migration services | Maintainers through reviewed edits; future reconciliation editors through the mutation service | Preserves bounded branch-aware redirects, merges, splits, tombstone-backed retirements, cross-type reclassifications, privacy-aware labels, strict audit metadata, and superseded/reversed decisions without mutating repository files. | A stable ID changes disposition, a historical decision is superseded/reversed, any resolution safety bound changes, or a migration establishes a new canonical target or type. |
-| `Project_Config/provenance.yaml` | Cross-registry provenance registry | `Tools/provenance_config.py`, `Tools/Provenance-Config.ps1`, and future validation, editor, comparison, and audit services | Maintainers through reviewed edits; future provenance editors through the mutation service | Owns factual assertions, semantic field paths, evidence links and locators, stable claim grouping, authority evaluation, and acyclic scope-backed claim supersession across typed subject providers. | An assertion, evidence locator, claim value/status/timing, subject field path, or claim-supersession edge changes. |
-| `requirements-python.txt` | Dependency registry | `Tools/Test-Python.ps1`; human setup via `python -m pip install -r requirements-python.txt` | Maintainers | Defines Python packages required by preferred Python helpers and source maintenance, including `PyYAML` and the pinned Ruff formatter. | Add or change entries when a Python helper or source-maintenance gate gains or removes a third-party package dependency. |
-| `requirements-powershell.txt` | Dependency registry | `Tools/Test-PowerShell.ps1`; human setup via `Install-Module <module> -Scope CurrentUser -Force -AllowClobber` or elevated `-Scope AllUsers` when machine-wide installs are preferred | Maintainers | Defines PowerShell modules required by repository tools, including `powershell-yaml` for structured configuration/page data and `PSScriptAnalyzer` for source formatting. | Add or change entries when a PowerShell helper gains or removes a module dependency. |
-| `.gitattributes` | Repository text policy | Git, Ruff, and `Tools/Format-PowerShell.ps1` | Maintainers | Enforces LF for Python and CRLF for PowerShell source/module/config files while preserving Git's normalized text storage. | A tracked source extension or repository line-ending policy changes. |
+| `Project_Config/schema-packs.yaml` | Schema-pack composition registry | `Tools/Runtime/Python/knowledge_framework/schema_pack_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Schema-Pack-Config.ps1`, source/entity loaders, and future schema/editor/wizard services | Maintainers; future setup and pack-management wizards | Selects portable schema packs in dependency order, locates their repository-relative contract files, and explicitly activates available capabilities for this project. | A reusable pack is selected, removed, replaced, or moved, or project capability activation changes. |
+| `Project_Config/taxonomy.yaml` | Taxonomy registry | `Tools/Runtime/Python/knowledge_framework/taxonomy_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Taxonomy-Config.ps1`, both Obsidian QA exporters, and future content-index, validation, visualization, editor, and migration services | Maintainers through reviewed edits; future category/content-type editors through the mutation service | Defines orthogonal content-type and category IDs, lifecycle, content roots, category policies, path strategies, subject/record slug rules, placements, templates, QA-page eligibility, and graph defaults. | A category/content type is added, promoted, deferred, renamed for display, moved through a planned migration, assigned a template, or given different QA/graph behavior. |
+| `Project_Config/resources.yaml` | Resource registry | `Tools/Runtime/Python/knowledge_framework/resource_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Resource-Config.ps1`, and future validation, editor, and migration services | Maintainers through reviewed edits; future resource editors through the mutation service | Defines non-content resource kinds/types, authority roles, editor eligibility, placements beneath configured resource roots, tracking expectations, and required-path behavior. | A resource kind/type or placement is added, renamed for display, moved, given different authority/tracking behavior, or exposed to editors. |
+| `Project_Config/sources.yaml` | Source and media registry | `Tools/Runtime/Python/knowledge_framework/source_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Source-Config.ps1`, provenance validation, and future content-index, visualization, editor, and migration services | Maintainers through reviewed edits; future source editors through the mutation service | Instantiates media facets, works, structures and orderings, continuities, applicability scopes, authority profiles, adaptation/distribution records, evidence sources, coverage, relationships, identifiers, and resource bindings; exposes stable provenance targets plus evidence/position/authority services without owning assertions. | A media facet, work, scope, continuity record, production context, structural record, authority rule, adaptation/distribution record, source, coverage declaration, relationship, identifier, or resource binding changes. |
+| `Project_Config/chronology.yaml` | Chronology registry | `Tools/Runtime/Python/knowledge_framework/chronology_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Chronology-Config.ps1`, paired chronology conformance tools, and future content-index, visualization, and editor services | Maintainers through reviewed edits; future chronology editors through the mutation service | Instantiates domain-neutral coordinate systems, ordered eras, positions, spans, relations, mappings, and pack-gated narrative work/continuity/branch contexts without redefining civil time. | A chronology axis, era, position, span, relation, anchor, story-time role, or project context changes. |
+| `Project_Config/occurrences.yaml` | Occurrence, recurrence-policy, and subject-state registry | `Tools/Runtime/Python/knowledge_framework/occurrence_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Occurrence-Config.ps1`, provenance, paired occurrence conformance tools, and future content-index, visualization, and editor services | Maintainers through reviewed edits; future occurrence editors through the mutation service | Instantiates branches, templates, recurrence patterns and executions, iterations, non-overlapping phases, typed schedules, concrete occurrences, chronology bindings, subject tracks, profiled transitions, causal relations, outcomes, scoped defaults and execution overrides, deterministic resolution policy, state transitions, and state-referencing carryover without encoding cycles in chronology. | An occurrence identity, recurrence pattern/execution, phase, schedule, lifecycle, binding, track, transition, causal relation, outcome, rule, state transition, or carryover changes. |
+| `Project_Config/entities.yaml` | Entity, incarnation, and identity-phase registry | `Tools/Runtime/Python/knowledge_framework/entity_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Entity-Config.ps1`, provenance, and future content-index, visualization, editor, reconciliation, and migration services | Maintainers through reviewed edits; future entity editors through the mutation service | Instantiates conceptual entities, ambiguity-preserving names, canonical and optionally acyclic lineage, continuity-bound incarnations, scope-backed bindings, incarnation relationships, and persistent-identity phases with explicit scope bindings and succession. | A category membership, shared label/alias, relationship policy, justified incarnation split, continuity membership, scoped appearance, persistent-identity phase, or phase/incarnation relationship changes. |
+| `Project_Config/reconciliation.yaml` | Stable-ID reconciliation registry | `Tools/Runtime/Python/knowledge_framework/reconciliation_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Reconciliation-Config.ps1`, provenance, and future editor/migration services | Maintainers through reviewed edits; future reconciliation editors through the mutation service | Preserves bounded branch-aware redirects, merges, splits, tombstone-backed retirements, cross-type reclassifications, privacy-aware labels, strict audit metadata, and superseded/reversed decisions without mutating repository files. | A stable ID changes disposition, a historical decision is superseded/reversed, any resolution safety bound changes, or a migration establishes a new canonical target or type. |
+| `Project_Config/provenance.yaml` | Cross-registry provenance registry | `Tools/Runtime/Python/knowledge_framework/provenance_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Provenance-Config.ps1`, and future validation, editor, comparison, and audit services | Maintainers through reviewed edits; future provenance editors through the mutation service | Owns factual assertions, semantic field paths, evidence links and locators, stable claim grouping, authority evaluation, and acyclic scope-backed claim supersession across typed subject providers. | An assertion, evidence locator, claim value/status/timing, subject field path, or claim-supersession edge changes. |
+| `requirements-python.txt` | Dependency registry | `Tools/Commands/Environment/Test-Python.ps1`; human setup via `python -m pip install -r requirements-python.txt` | Maintainers | Defines Python packages required by preferred Python helpers and source maintenance, including `PyYAML` and the pinned Ruff formatter. | Add or change entries when a Python helper or source-maintenance gate gains or removes a third-party package dependency. |
+| `requirements-powershell.txt` | Dependency registry | `Tools/Commands/Environment/Test-PowerShell.ps1`; human setup via `Install-Module <module> -Scope CurrentUser -Force -AllowClobber` or elevated `-Scope AllUsers` when machine-wide installs are preferred | Maintainers | Defines PowerShell modules required by repository tools, including `powershell-yaml` for structured configuration/page data and `PSScriptAnalyzer` for source formatting. | Add or change entries when a PowerShell helper gains or removes a module dependency. |
+| `.gitattributes` | Repository text policy | Git, Ruff, and `Tools/Static/Format-PowerShell.ps1` | Maintainers | Enforces LF for Python and CRLF for PowerShell source/module/config files while preserving Git's normalized text storage. | A tracked source extension or repository line-ending policy changes. |
 | `pyproject.toml` | Python formatter and narrow lint configuration | Ruff | Maintainers | Defines repository-wide Python source inclusion, Python 3.10 compatibility, canonical formatting, LF output, 120-character line length, and the current `E501` check. | Python compatibility, formatting, inclusion, line-length, or lint policy changes. |
-| `Tools/powershell-format-settings.psd1` | Formatter configuration | `Tools/Format-PowerShell.ps1` and `Invoke-Formatter` from `PSScriptAnalyzer` | Maintainers | Defines deterministic PowerShell indentation, brace placement, whitespace, and trailing-whitespace behavior. | A formatting rule changes; rerun `STATIC-POWERSHELL` in both supported PowerShell runtimes. |
-| `Visualization/config/render-settings.json` | Source config | `Visualization/visualize.py`, `Visualization/visualize.ps1`, `Tools/obsidian_qa_export.py`, `Tools/Obsidian-QA-Export.ps1` | Maintainers | Defines canonical graph views, source Mermaid paths, rendered output paths, render dimensions, validation settings, reader-boundary filters, report path, and semantic snapshot path. The Obsidian QA export also derives its local `_Generated/repo-refresh-check/` dry-run settings from this file. | Add or remove repository graph views, change render sizes, adjust validation rules, change reader-boundary behavior, or redirect canonical report/snapshot paths. |
+| `Tools/Static/powershell-format-settings.psd1` | Formatter configuration | `Tools/Static/Format-PowerShell.ps1` and `Invoke-Formatter` from `PSScriptAnalyzer` | Maintainers | Defines deterministic PowerShell indentation, brace placement, whitespace, and trailing-whitespace behavior. | A formatting rule changes; rerun `STATIC-POWERSHELL` in both supported PowerShell runtimes. |
+| `Visualization/config/render-settings.json` | Source config | `Visualization/visualize.py`, `Visualization/visualize.ps1`, `Tools/Commands/QA/obsidian_qa_export.py`, `Tools/Commands/QA/Obsidian-QA-Export.ps1` | Maintainers | Defines canonical graph views, source Mermaid paths, rendered output paths, render dimensions, validation settings, reader-boundary filters, report path, and semantic snapshot path. The Obsidian QA export also derives its local `_Generated/repo-refresh-check/` dry-run settings from this file. | Add or remove repository graph views, change render sizes, adjust validation rules, change reader-boundary behavior, or redirect canonical report/snapshot paths. |
 | `Visualization/config/puppeteer-config.json` | Source config | `Visualization/visualize.py`, `Visualization/visualize.ps1`, Obsidian QA repo-refresh dry-run helpers through visualization tooling | Maintainers | Configures the browser executable, timeout, and launch args used by Mermaid/Puppeteer rendering. | Browser path changes, rendering starts timing out, CI/local environment changes, or Mermaid rendering needs different launch args. |
 | `Visualization/data/refresh-snapshot.json` | Generated semantic state | `Visualization/visualize.py`, `Visualization/visualize.ps1` | `Visualization/visualize.py --mode Refresh`, `Visualization/visualize.ps1 -Mode Refresh` | Stores the last canonical graph semantic snapshot so refresh reports can detect added/removed nodes, relationships, changed labels, duplicates, and other graph hygiene changes. | Update only through a confirmed canonical graph refresh. Do not edit manually except for explicit debugging that is later reverted or regenerated. |
 
@@ -1256,8 +1257,8 @@ The paired strict-ingestion runners accept an optional repository root and leave
 
 | Behavior | Python | PowerShell |
 | --- | --- | --- |
-| Run the portable strict-ingestion corpus | `python Tools/test_strict_yaml.py` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Test-Strict-Yaml.ps1` |
-| Emit stable corpus counts | `python Tools/test_strict_yaml.py --json` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Test-Strict-Yaml.ps1 -Json` |
+| Run the portable strict-ingestion corpus | `python Tools/Conformance/Suites/test_strict_yaml.py` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Strict-Yaml.ps1` |
+| Emit stable corpus counts | `python Tools/Conformance/Suites/test_strict_yaml.py --json` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Strict-Yaml.ps1 -Json` |
 | Select repository root | `--root PATH` | `-Root PATH` |
 
 Both runners validate portable scalar values and types, canonical mapping keys, forbidden YAML constructs, duplicate keys, exact schema-version typing, strict UTF-8 without BOM, byte/depth/node/scalar budgets, and the shared RFC 3339 profile. Source, byte, and budget probes use uniquely named operating-system temporary directories that are removed before exit.
@@ -1268,8 +1269,8 @@ The paired lookup runners accept an optional repository root and leave no persis
 
 | Behavior | Python | PowerShell |
 | --- | --- | --- |
-| Run pinned Unicode and malformed-registry vectors | `python Tools/test_lookup_key.py` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Test-Lookup-Key.ps1` |
-| Emit stable corpus counts and Unicode version | `python Tools/test_lookup_key.py --json` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Test-Lookup-Key.ps1 -Json` |
+| Run pinned Unicode and malformed-registry vectors | `python Tools/Conformance/Suites/test_lookup_key.py` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Lookup-Key.ps1` |
+| Emit stable corpus counts and Unicode version | `python Tools/Conformance/Suites/test_lookup_key.py --json` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Lookup-Key.ps1 -Json` |
 | Select repository root | `--root PATH` | `-Root PATH` |
 
 Both runners load the manifest-selected Unicode registry, consume equivalent, distinct, exact-output, and Hangul vectors, reject non-string and unpaired-surrogate inputs, and apply thirteen process-local malformed registry mutations. Every mutation is written beneath a uniquely named operating-system temporary directory and removed before exit; the 354 KB canonical registry is not duplicated in source control.
@@ -1284,8 +1285,8 @@ The paired conformance tools accept only repository-root and deep-chain-size ove
 
 | Behavior | Python | PowerShell |
 | --- | --- | --- |
-| Run default corpus and 1,500-hop stress case | `python Tools/test_reconciliation.py` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Test-Reconciliation.ps1` |
-| Emit structured corpus and stress-test counts | `python Tools/test_reconciliation.py --json` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Test-Reconciliation.ps1 -Json` |
+| Run default corpus and 1,500-hop stress case | `python Tools/Conformance/Suites/test_reconciliation.py` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Reconciliation.ps1` |
+| Emit structured corpus and stress-test counts | `python Tools/Conformance/Suites/test_reconciliation.py --json` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Reconciliation.ps1 -Json` |
 | Select repository root | `--root PATH` | `-Root PATH` |
 | Override stress depth | `--deep-chain N` | `-DeepChain N` |
 

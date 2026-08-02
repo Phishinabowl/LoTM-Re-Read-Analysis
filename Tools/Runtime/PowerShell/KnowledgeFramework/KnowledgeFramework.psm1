@@ -108,7 +108,21 @@ function Resolve-KnowledgeProjectRoot {
     )
 }
 
-Export-ModuleMember -Function @(
-    'Test-KnowledgeProjectRoot'
-    'Resolve-KnowledgeProjectRoot'
+$implementationFiles = @(
+    'Strict-Yaml.ps1'
+    'Project-Config.ps1'
+    'Lookup-Key-Config.ps1'
+    'Schema-Pack-Config.ps1'
+    'Taxonomy-Config.ps1'
+    'Resource-Config.ps1'
+    'Temporal-Config.ps1'
+    'Source-Config.ps1'
+    'Chronology-Config.ps1'
+    'Entity-Config.ps1'
+    'Reconciliation-Config.ps1'
+    'Occurrence-Config.ps1'
+    'Provenance-Config.ps1'
 )
+foreach ($implementationFile in $implementationFiles) {
+    . (Join-Path $PSScriptRoot (Join-Path 'Private' $implementationFile))
+}

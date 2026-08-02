@@ -49,13 +49,13 @@ If Edge is installed elsewhere, update `executablePath` in the Puppeteer config.
 Before running visualization helpers on an unfamiliar machine or fresh agent session, check whether Python is available:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Environment\Test-Python.ps1
 ```
 
 For structured agent workflows, use JSON output:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Test-Python.ps1 -Json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Environment\Test-Python.ps1 -Json
 ```
 
 For the full environment probe map, candidate order, JSON fields, and latest local check note, see the [Tooling Reference](../Tools/TOOLING_REFERENCE.md#python-environment-check).

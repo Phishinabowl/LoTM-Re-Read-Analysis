@@ -1,6 +1,6 @@
 # Strict Configuration Ingestion Contract
 
-Framework registry YAML is executable configuration, not permissive page metadata. `Tools/strict_yaml.py` and `Tools/Strict-Yaml.ps1` provide the shared ingestion boundary used by the project manifest, schema-pack, taxonomy, resource, source, entity, reconciliation, and provenance loaders.
+Framework registry YAML is executable configuration, not permissive page metadata. `Tools/Runtime/Python/knowledge_framework/strict_yaml.py` and `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` provide the shared ingestion boundary used by the project manifest, schema-pack, taxonomy, resource, source, entity, reconciliation, and provenance loaders.
 
 Both runtimes enforce the same baseline rules before registry-specific validation:
 
@@ -21,6 +21,6 @@ Every registry file is also subject to the same hard ingestion budgets in both r
 
 Registry loaders own their allowed-key sets and semantic validation. Project manifest, schema-pack, taxonomy, resource, source, entity, reconciliation, and provenance mappings are closed at their defined record boundaries. The shared helper owns syntax-sensitive behavior that PyYAML and powershell-yaml would otherwise interpret differently. A schema version or record shape change requires paired Python and PowerShell updates, portable malformed fixtures, and a documented schema migration.
 
-Permanent portable conformance lives in `Framework/Data/Strict-Yaml/` and runs through `Tools/test_strict_yaml.py` or `Tools/Test-Strict-Yaml.ps1`. The paired runners verify exact scalar types, canonical mapping keys, forbidden syntax, UTF-8/BOM handling, all four ingestion budgets, and the shared RFC 3339 profile. Their `--json` / `-Json` summaries must match across Python, PowerShell 7, and Windows PowerShell 5.1.
+Permanent portable conformance lives in `Framework/Data/Strict-Yaml/` and runs through `Tools/Conformance/Suites/test_strict_yaml.py` or `Tools/Conformance/Suites/Test-Strict-Yaml.ps1`. The paired runners verify exact scalar types, canonical mapping keys, forbidden syntax, UTF-8/BOM handling, all four ingestion budgets, and the shared RFC 3339 profile. Their `--json` / `-Json` summaries must match across Python, PowerShell 7, and Windows PowerShell 5.1.
 
 This contract currently covers framework registries only. YAML embedded in human-facing glossary pages is still consumed by transitional page and QA tooling and is not silently promoted to this strict registry contract. The normalized content-index migration must define and test that boundary separately.

@@ -2,7 +2,7 @@
 
 ## Ownership
 
-`Project_Config/chronology.yaml` instantiates domain-neutral chronology primitives owned by the core framework and optional domain annotations owned by selected packs. `Tools/chronology_config.py` and `Tools/Chronology-Config.ps1` are the behaviorally paired schema-1 loaders and comparison service.
+`Project_Config/chronology.yaml` instantiates domain-neutral chronology primitives owned by the core framework and optional domain annotations owned by selected packs. `Tools/Runtime/Python/knowledge_framework/chronology_config.py` and `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` are the behaviorally paired schema-1 loaders and comparison service.
 
 Civil timestamps and effective windows remain owned by `temporal-model.md`. Chronology coordinates do not extend, reinterpret, or weaken RFC 3339. Use chronology coordinates for fictional calendars, named eras, ordinal histories, relative dating systems, scientific or institutional counters, and other axes that are not portable civil timestamps.
 
@@ -54,4 +54,4 @@ The LoTM project therefore stores First through Fifth Epoch labels in `Project_C
 
 ## Conformance
 
-`Framework/Data/Chronology/` contains the portable V30 fixture corpus. Run `python Tools/test_chronology.py` and `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Test-Chronology.ps1` after changing chronology vocabulary, registry shape, comparison behavior, project composition, or narrative chronology roles.
+`Framework/Data/Chronology/` contains the portable V30 fixture corpus. Run `python Tools/Conformance/Suites/test_chronology.py` and `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Chronology.ps1` after changing chronology vocabulary, registry shape, comparison behavior, project composition, or narrative chronology roles.

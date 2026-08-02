@@ -14,16 +14,16 @@ Complete for display-name boundary selection. This record only arbitrates the na
 
 ## Search Strategy
 
-These commands were run with the PowerShell helper. Future reruns should prefer `python Tools\search_epub.py` and use `Tools\Search-Epub.ps1` as the Windows PowerShell fallback.
+These commands were run with the PowerShell helper. Future reruns should prefer `python Tools\Commands\Media\search_epub.py` and use `Tools\Commands\Media\Search-Epub.ps1` as the Windows PowerShell fallback.
 
 - EPUB term summary:
-  - `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Pattern "Evernight pathway|Sleepless pathway|Darkness pathway" -TermSummary`
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -Pattern "Evernight pathway|Sleepless pathway|Darkness pathway" -TermSummary`
 - Early exact-phrase inspection:
-  - `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Pattern "Evernight pathway" -StartChapter 200 -EndChapter 240 -ContextLines 4 -MaxHitsPerChapter 20 -Json -IncludeLineMatchCounts`
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -Pattern "Evernight pathway" -StartChapter 200 -EndChapter 240 -ContextLines 4 -MaxHitsPerChapter 20 -Json -IncludeLineMatchCounts`
 - Early confirmation cluster:
-  - `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Pattern "Evernight pathway" -StartChapter 500 -EndChapter 540 -ContextLines 4 -MaxHitsPerChapter 20 -Json -IncludeLineMatchCounts`
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -Pattern "Evernight pathway" -StartChapter 500 -EndChapter 540 -ContextLines 4 -MaxHitsPerChapter 20 -Json -IncludeLineMatchCounts`
 - Pre-exact wording check:
-  - `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Search-Epub.ps1 -Pattern "pathway of the Evernight|Evernight pathway|Sleepless pathway" -StartChapter 1 -EndChapter 240 -TermSummary`
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -Pattern "pathway of the Evernight|Evernight pathway|Sleepless pathway" -StartChapter 1 -EndChapter 240 -TermSummary`
 
 ## Findings
 

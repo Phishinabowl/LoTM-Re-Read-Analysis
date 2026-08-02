@@ -27,15 +27,15 @@ If the user cannot provide them, continue with repository artifacts only and tre
 
 The public GitHub repository does not include ignored local source materials, so GitHub fallback bootstraps should always perform this availability check and report the missing-source limitation.
 
-If novel EPUB source expansion is available and needed, prefer the repository EPUB search helper `Tools/search_epub.py` for bounded chapter sweeps before using ad hoc EPUB parsing. If Python is unavailable, use the Windows PowerShell fallback `Tools/Search-Epub.ps1`. If both helpers are missing or unusable, report the degraded source-search path.
+If novel EPUB source expansion is available and needed, prefer the repository EPUB search helper `Tools/Commands/Media/search_epub.py` for bounded chapter sweeps before using ad hoc EPUB parsing. If Python is unavailable, use the Windows PowerShell fallback `Tools/Commands/Media/Search-Epub.ps1`. If both helpers are missing or unusable, report the degraded source-search path.
 
 ## Repository Tooling Availability Check
 
 During bootstrap, also check and report whether these repository helpers are present:
 
-- EPUB search helpers: `Tools/search_epub.py` preferred, `Tools/Search-Epub.ps1` fallback;
+- EPUB search helpers: `Tools/Commands/Media/search_epub.py` preferred, `Tools/Commands/Media/Search-Epub.ps1` fallback;
 - visualization helpers: `Visualization/visualize.py` preferred, `Visualization/visualize.ps1` PowerShell fallback;
-- Obsidian QA export helper: `Tools/obsidian_qa_export.py` preferred, `Tools/Obsidian-QA-Export.ps1` PowerShell fallback;
+- Obsidian QA export helper: `Tools/Commands/QA/obsidian_qa_export.py` preferred, `Tools/Commands/QA/Obsidian-QA-Export.ps1` PowerShell fallback;
 - Mermaid browser config: `Visualization/config/puppeteer-config.json`;
 - shared render settings: `Visualization/config/render-settings.json`.
 

@@ -2,7 +2,7 @@
 
 ## Ownership
 
-Temporal windows and precision-aware temporal queries are domain-neutral framework primitives. `Framework/Packs/core/pack.yaml` owns the `temporal.window-kind`, `temporal.bound-kind`, `temporal.precision`, and `temporal.certainty` vocabularies. `Tools/temporal_config.py` and `Tools/Temporal-Config.ps1` are the behaviorally paired parser and comparison kernel. Source, provenance, entity, and future domain registries may consume this kernel; no consuming registry may redefine its own window shape, timestamp resolution, or comparison semantics.
+Temporal windows and precision-aware temporal queries are domain-neutral framework primitives. `Framework/Packs/core/pack.yaml` owns the `temporal.window-kind`, `temporal.bound-kind`, `temporal.precision`, and `temporal.certainty` vocabularies. `Tools/Runtime/Python/knowledge_framework/temporal_config.py` and `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` are the behaviorally paired parser and comparison kernel. Source, provenance, entity, and future domain registries may consume this kernel; no consuming registry may redefine its own window shape, timestamp resolution, or comparison semantics.
 
 ## Canonical Time Values
 
@@ -45,4 +45,4 @@ Applicability and precedence services retain the detailed temporal result but cl
 
 ## Conformance
 
-`Framework/Data/Temporal/` schema 2 is the permanent cross-runtime corpus. It covers open and unknown bounds, exclusive handoffs, mixed precision, precision-aware queries, partial intersections, all certainty outcomes, microsecond resolution, UTC normalization, minimum/maximum calendar safety, and malformed shapes or values. Run `python Tools/test_temporal.py` and `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Test-Temporal.ps1` after changing temporal vocabulary, strict timestamps, parsing, comparison, source applicability, or provenance timing. Add `--json` or `-Json` for matching structured summary fields.
+`Framework/Data/Temporal/` schema 2 is the permanent cross-runtime corpus. It covers open and unknown bounds, exclusive handoffs, mixed precision, precision-aware queries, partial intersections, all certainty outcomes, microsecond resolution, UTC normalization, minimum/maximum calendar safety, and malformed shapes or values. Run `python Tools/Conformance/Suites/test_temporal.py` and `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Temporal.ps1` after changing temporal vocabulary, strict timestamps, parsing, comparison, source applicability, or provenance timing. Add `--json` or `-Json` for matching structured summary fields.

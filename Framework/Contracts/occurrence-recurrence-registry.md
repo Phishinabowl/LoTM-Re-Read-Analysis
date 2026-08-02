@@ -2,7 +2,7 @@
 
 ## Ownership
 
-`Project_Config/occurrences.yaml` instantiates occurrence identity, recurrence patterns and executions, phases and schedules, branch topology, subject tracks, transitions, causal relations, outcomes, recurrence rules, state transitions, and iteration carryover. `Tools/occurrence_config.py` and `Tools/Occurrence-Config.ps1` are the behaviorally paired schema-4 loaders and query services. V37 closes semantic declaration and effect-resolution integrity without changing the stored registry shape.
+`Project_Config/occurrences.yaml` instantiates occurrence identity, recurrence patterns and executions, phases and schedules, branch topology, subject tracks, transitions, causal relations, outcomes, recurrence rules, state transitions, and iteration carryover. `Tools/Runtime/Python/knowledge_framework/occurrence_config.py` and `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` are the behaviorally paired schema-4 loaders and query services. V37 closes semantic declaration and effect-resolution integrity without changing the stored registry shape.
 
 Chronology and occurrence identity remain separate. Chronology answers where or when something is positioned and preserves acyclic exact order. The occurrence registry answers which distinct happening, execution, iteration, branch, experienced step, or subject-state change a record represents. Several occurrences may bind one chronology position without becoming the same occurrence.
 
@@ -85,4 +85,4 @@ The LoTM project declares only its `main` branch until source-backed occurrences
 
 ## Conformance
 
-`Framework/Data/Occurrence/` contains the portable V31-V37 corpus. Its synthetic extension probes prove that selected packs can add rule/effect vocabulary, owning or external recurrence-pattern scopes, scoped conflicts, and repetition behavior without modifying the engine. Run `python Tools/test_occurrence.py` and `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Test-Occurrence.ps1` after changing occurrence vocabulary, registry shape, chronology composition, recurrence policy or lifecycle, schedules, state semantics, carryover, provenance targets, or query behavior.
+`Framework/Data/Occurrence/` contains the portable V31-V37 corpus. Its synthetic extension probes prove that selected packs can add rule/effect vocabulary, owning or external recurrence-pattern scopes, scoped conflicts, and repetition behavior without modifying the engine. Run `python Tools/Conformance/Suites/test_occurrence.py` and `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Occurrence.ps1` after changing occurrence vocabulary, registry shape, chronology composition, recurrence policy or lifecycle, schedules, state semantics, carryover, provenance targets, or query behavior.

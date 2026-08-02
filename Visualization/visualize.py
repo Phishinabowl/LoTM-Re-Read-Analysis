@@ -1935,7 +1935,7 @@ def parse_args() -> argparse.Namespace:
 
 def clean_disposable_caches() -> None:
     try:
-        clean_path = REPO_ROOT / "Tools" / "clean_temp_files.py"
+        clean_path = REPO_ROOT / "Tools" / "Commands" / "Maintenance" / "clean_temp_files.py"
         spec = importlib.util.spec_from_file_location("_lotm_clean_temp_files", clean_path)
         if spec is None or spec.loader is None:
             return

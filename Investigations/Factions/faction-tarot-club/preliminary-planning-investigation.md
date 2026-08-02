@@ -14,11 +14,11 @@ Preliminary planning notes. This investigation is source-backed by the local off
 
 ## Evidence Method
 
-- Checked official EPUB image entries with `Tools/edit_image.py --operation list-epub-images`.
+- Checked official EPUB image entries with `Tools/Commands/Media/edit_image.py --operation list-epub-images`.
 - Used the reviewed `Artwork/official-epub-image-map.md` rows as the canonical local record for visible official character-gallery labels.
 - Treated official character-gallery labels in the form `Character - Card` as direct source evidence for Tarot Club card identity mapping.
 - Preserved identity-state nuance where the same person appears under a later alias or role.
-- Used `Tools/search_epub.py` to sweep and then narrow source-text references for each member's first Tarot Club exposure, card assignment, and first/confirmed participation.
+- Used `Tools/Commands/Media/search_epub.py` to sweep and then narrow source-text references for each member's first Tarot Club exposure, card assignment, and first/confirmed participation.
 - Cross-checked the final main-member order against Chapter 1390, where the visible Tarot Club projections appear in the order they joined.
 - Reran the text sweep after initial drafting to separate three different evidence types: off-page setup, first direct contact/awareness, and first regular gathering participation.
 

@@ -71,8 +71,8 @@ paths:
     puppeteer_config: Visualization/config/puppeteer-config.json
 
   cleanup:
-    python_helper: Tools/clean_temp_files.py
-    powershell_helper: Tools/Clean-TempFiles.ps1
+    python_helper: Tools/Commands/Maintenance/clean_temp_files.py
+    powershell_helper: Tools/Commands/Maintenance/Clean-TempFiles.ps1
 
 registries:
   lookup_keys: Framework/Data/unicode-lookup-16.0.0.json

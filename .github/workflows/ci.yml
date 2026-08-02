@@ -73,7 +73,7 @@ jobs:
 
       - name: Run redirected QA smoke test
         run: >-
-          python Tools/obsidian_qa_export.py
+          python Tools/Commands/QA/obsidian_qa_export.py
           --clean
           --output-dir .tmp/ci-qa-python
           --bounded-graph "name=chapter-32,medium=novel,maxVolume=1,maxChapter=32"
@@ -84,7 +84,7 @@ jobs:
         shell: bash
         run: |
           for output_dir in . ../ci-output-escape; do
-            if python Tools/obsidian_qa_export.py --output-dir "${output_dir}" --json >/dev/null 2>&1; then
+            if python Tools/Commands/QA/obsidian_qa_export.py --output-dir "${output_dir}" --json >/dev/null 2>&1; then
               echo "QA exporter accepted unsafe output directory: ${output_dir}" >&2
               exit 1
             fi
@@ -114,7 +114,7 @@ jobs:
           }
 
       - name: Check PowerShell formatting
-        run: ./Tools/Format-PowerShell.ps1
+        run: ./Tools/Static/Format-PowerShell.ps1
 
       - name: Run framework conformance suites
         run: ./Tools/Conformance/Run-Conformance.ps1 -Profile baseline -Json
@@ -124,7 +124,7 @@ jobs:
 
       - name: Run redirected QA smoke test
         run: >-
-          ./Tools/Obsidian-QA-Export.ps1
+          ./Tools/Commands/QA/Obsidian-QA-Export.ps1
           -Clean
           -OutputDir '.tmp/ci-qa-pwsh'
           -BoundedGraph 'name=chapter-32,medium=novel,maxVolume=1,maxChapter=32'
@@ -137,7 +137,7 @@ jobs:
               $previousErrorActionPreference = $ErrorActionPreference
               try {
                   $ErrorActionPreference = 'SilentlyContinue'
-                  pwsh -NoProfile -File ./Tools/Obsidian-QA-Export.ps1 -OutputDir $outputDir -Json *> $null
+                  pwsh -NoProfile -File ./Tools/Commands/QA/Obsidian-QA-Export.ps1 -OutputDir $outputDir -Json *> $null
                   $unsafeExitCode = $LASTEXITCODE
               }
               finally {
@@ -173,7 +173,7 @@ jobs:
           }
 
       - name: Check PowerShell formatting
-        run: ./Tools/Format-PowerShell.ps1
+        run: ./Tools/Static/Format-PowerShell.ps1
 
       - name: Run framework conformance suites
         run: ./Tools/Conformance/Run-Conformance.ps1 -Profile baseline -Json
@@ -183,7 +183,7 @@ jobs:
 
       - name: Run redirected QA smoke test
         run: >-
-          ./Tools/Obsidian-QA-Export.ps1
+          ./Tools/Commands/QA/Obsidian-QA-Export.ps1
           -Clean
           -OutputDir '.tmp/ci-qa-windows-powershell'
           -BoundedGraph 'name=chapter-32,medium=novel,maxVolume=1,maxChapter=32'
@@ -196,7 +196,7 @@ jobs:
               $previousErrorActionPreference = $ErrorActionPreference
               try {
                   $ErrorActionPreference = 'SilentlyContinue'
-                  powershell -NoProfile -ExecutionPolicy Bypass -File ./Tools/Obsidian-QA-Export.ps1 -OutputDir $outputDir -Json *> $null
+                  powershell -NoProfile -ExecutionPolicy Bypass -File ./Tools/Commands/QA/Obsidian-QA-Export.ps1 -OutputDir $outputDir -Json *> $null
                   $unsafeExitCode = $LASTEXITCODE
               }
               finally {

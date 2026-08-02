@@ -4,7 +4,7 @@
 
 Track official EPUB image assets in spine/reading order so they can later be linked to character, pathway, artifact, faction, location, concept, and event pages as reader-safe visual evidence.
 
-Use `Tools/edit_image.py --operation extract-epub-images` as the preferred source for image order and asset paths. `Tools/Edit-Image.ps1 -Operation ExtractEpubImages` is the Windows PowerShell fallback and should emit the same spine-order image numbering. Extracted image files and derived working crops live under the ignored local `Artwork/Source/` folder.
+Use `Tools/Commands/Media/edit_image.py --operation extract-epub-images` as the preferred source for image order and asset paths. `Tools/Commands/Media/Edit-Image.ps1 -Operation ExtractEpubImages` is the Windows PowerShell fallback and should emit the same spine-order image numbering. Extracted image files and derived working crops live under the ignored local `Artwork/Source/` folder.
 
 ## Source
 
@@ -14,13 +14,13 @@ Use `Tools/edit_image.py --operation extract-epub-images` as the preferred sourc
 - Extraction command for Volume 1 listing:
 
 ```text
-python Tools\edit_image.py --operation extract-epub-images --volume 1
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Edit-Image.ps1 -Operation ExtractEpubImages -Volume 1
+python Tools\Commands\Media\edit_image.py --operation extract-epub-images --volume 1
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Edit-Image.ps1 -Operation ExtractEpubImages -Volume 1
 ```
 
 ## Mapping Rules
 
-- `image_number` is the global EPUB spine-order image number emitted by `Tools/edit_image.py --operation extract-epub-images` or the fallback `Tools/Edit-Image.ps1 -Operation ExtractEpubImages`.
+- `image_number` is the global EPUB spine-order image number emitted by `Tools/Commands/Media/edit_image.py --operation extract-epub-images` or the fallback `Tools/Commands/Media/Edit-Image.ps1 -Operation ExtractEpubImages`.
 - `spine_index` is the XHTML spine position emitted by the tool.
 - `EPUB page` is the human-readable EPUB entry title for the XHTML file that contains the image. The source EPUB does not expose physical page numbers.
 - `Extracted file` and crop paths are local staging references by default; they are intentionally not tracked unless a maintainer selectively promotes a specific page-ready asset for article embedding.

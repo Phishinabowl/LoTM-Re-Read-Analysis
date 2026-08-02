@@ -8,19 +8,19 @@ The current executable contract is enforced by the matching Python and PowerShel
 
 | Configuration | Current validator pair |
 | --- | --- |
-| `Project_Config/project.yaml` | `Tools/project_config.py`, `Tools/Project-Config.ps1` |
-| `Project_Config/schema-packs.yaml` and selected packs | `Tools/schema_pack_config.py`, `Tools/Schema-Pack-Config.ps1` |
-| `Project_Config/taxonomy.yaml` | `Tools/taxonomy_config.py`, `Tools/Taxonomy-Config.ps1` |
-| `Project_Config/resources.yaml` | `Tools/resource_config.py`, `Tools/Resource-Config.ps1` |
-| `Project_Config/sources.yaml` | `Tools/source_config.py`, `Tools/Source-Config.ps1`; see `narrative-source-registry.md` |
-| `Project_Config/entities.yaml` | `Tools/entity_config.py`, `Tools/Entity-Config.ps1`; see `narrative-entity-registry.md` |
+| `Project_Config/project.yaml` | `Tools/Runtime/Python/knowledge_framework/project_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` |
+| `Project_Config/schema-packs.yaml` and selected packs | `Tools/Runtime/Python/knowledge_framework/schema_pack_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` |
+| `Project_Config/taxonomy.yaml` | `Tools/Runtime/Python/knowledge_framework/taxonomy_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` |
+| `Project_Config/resources.yaml` | `Tools/Runtime/Python/knowledge_framework/resource_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` |
+| `Project_Config/sources.yaml` | `Tools/Runtime/Python/knowledge_framework/source_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1`; see `narrative-source-registry.md` |
+| `Project_Config/entities.yaml` | `Tools/Runtime/Python/knowledge_framework/entity_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1`; see `narrative-entity-registry.md` |
 | Typed identity targets | Entity loader provider APIs; see `identity-target-provider.md` |
-| `Project_Config/reconciliation.yaml` | `Tools/reconciliation_config.py`, `Tools/Reconciliation-Config.ps1`; see `reconciliation-registry.md` |
-| `Project_Config/provenance.yaml` | `Tools/provenance_config.py`, `Tools/Provenance-Config.ps1`; see `provenance-registry.md` |
-| Manifest-selected Unicode lookup data | `Tools/lookup_key_config.py`, `Tools/Lookup-Key-Config.ps1`; see `lookup-key-normalization.md` |
-| Shared temporal windows | `Tools/temporal_config.py`, `Tools/Temporal-Config.ps1`; see `temporal-model.md` |
-| `Project_Config/chronology.yaml` | `Tools/chronology_config.py`, `Tools/Chronology-Config.ps1`; see `chronology-registry.md` |
-| `Project_Config/occurrences.yaml` | `Tools/occurrence_config.py`, `Tools/Occurrence-Config.ps1`; see `occurrence-recurrence-registry.md` |
+| `Project_Config/reconciliation.yaml` | `Tools/Runtime/Python/knowledge_framework/reconciliation_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1`; see `reconciliation-registry.md` |
+| `Project_Config/provenance.yaml` | `Tools/Runtime/Python/knowledge_framework/provenance_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1`; see `provenance-registry.md` |
+| Manifest-selected Unicode lookup data | `Tools/Runtime/Python/knowledge_framework/lookup_key_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1`; see `lookup-key-normalization.md` |
+| Shared temporal windows | `Tools/Runtime/Python/knowledge_framework/temporal_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1`; see `temporal-model.md` |
+| `Project_Config/chronology.yaml` | `Tools/Runtime/Python/knowledge_framework/chronology_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1`; see `chronology-registry.md` |
+| `Project_Config/occurrences.yaml` | `Tools/Runtime/Python/knowledge_framework/occurrence_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1`; see `occurrence-recurrence-registry.md` |
 
 Future machine-readable schema documents belong here as those loader contracts are stabilized. Do not add a partial schema that claims broader validation coverage than the loaders actually provide.
 
