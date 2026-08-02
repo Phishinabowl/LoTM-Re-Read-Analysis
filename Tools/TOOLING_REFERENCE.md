@@ -802,7 +802,7 @@ Purpose: compile repository metadata, type-specific YAML data blocks, Relationsh
 | Purpose | Python switch | PowerShell switch | Default | Notes |
 | --- | --- | --- | --- | --- |
 | Select repository root | `--root <path>` | `-Root <path>` | Auto-detected | When omitted, searches upward from the current directory and then the script directory. Explicit roots remain authoritative. Project identity comes from `Project_Config/project.yaml`; content-directory names do not participate in root detection. |
-| Select export directory | `--output-dir <path>` | `-OutputDir <path>` | `Obsidian_Export` | Relative paths are resolved under the repository root. Output must remain inside the repository root. |
+| Select export directory | `--output-dir <path>` | `-OutputDir <path>` | `Obsidian_Export` | Relative paths are resolved under the repository root. The destination must be a child of the repository root; the root itself and outside paths are rejected. Safe missing parent directories are created automatically. |
 | Include stub pages | `--include-stubs` | `-IncludeStubs` | off | Includes canonical pages whose metadata has `Status: Stub`. Pending pages are not excluded by this switch. |
 | Clean before writing | `--clean` | `-Clean` | off | Deletes the selected export directory before regenerating it, after the path safety check. |
 | Print JSON summary | `--json` | `-Json` | off | Prints summary counts as JSON instead of human-readable text. Generated files are still written. |
@@ -904,6 +904,7 @@ The repo refresh check does not update canonical `Visualization/graphs/`, `Visua
 
 - Python invokes the manifest-configured Python cleanup helper at the end of normal runs. PowerShell invokes the manifest-configured PowerShell cleanup helper with `-Delete` for the same behavior.
 - Both implementations auto-detect the repository root when `--root` / `-Root` is omitted, so they may be launched from the repository root, `Tools/`, or another descendant directory. Detection does not depend on `.git` or a domain-specific content folder; explicit roots are validated against `Project_Config/project.yaml`.
+- Both implementations accept existing or not-yet-created export directories beneath the repository root, create missing parent directories, and reject the repository root itself or any outside path before clean-up begins. The default `<repo>/Obsidian_Export/` path remains valid.
 - Python loads the manifest-configured Python visualization helper directly for the unbounded visualization-style graph and repo refresh dry run. PowerShell invokes the manifest-configured PowerShell visualization helper for both operations.
 - Python QA generation depends on `PyYAML`. PowerShell QA generation depends on `powershell-yaml`; use the environment checks on a new machine before selecting either implementation.
 - Python has built-in `--help`; PowerShell supports `-Help`, `-?`, and `-h` through `Show-Help`.
@@ -927,6 +928,8 @@ Compare at minimum:
 
 - generated file counts;
 - JSON summary keys and counts;
+- successful creation beneath a fresh, multi-level missing parent directory;
+- rejection of the repository root itself and paths outside the repository;
 - `relationship-index.md`;
 - `data-reference-index.md`;
 - `orphan-report.md`;

@@ -108,7 +108,7 @@ Named works and real-world domains are **test prompts**, not automatic evidence.
 | `COMPAT-QA` | Generate redirected Obsidian QA mirrors with representative bounded graphs and pages; compare summaries, file inventories, stable Markdown/Mermaid outputs, reports, and snapshot semantics. |
 | `COMPAT-RENDER` | Render at least one redirected representative graph through all supported runtimes and verify successful, nonempty, semantically equivalent output. |
 | `COMPAT-ROOT-DISCOVERY` | Verify manifest-based repository-root discovery from a descendant such as `Tools/` whenever launcher, manifest, or helper-path behavior changes. |
-| `COMPAT-ARTIFACT-LIFECYCLE` | Verify redirected output ownership, stale generated-folder removal, run-scoped temporary cleanup, preservation of unrelated temporary files, and protection of canonical outputs. |
+| `COMPAT-ARTIFACT-LIFECYCLE` | Verify redirected output ownership, safe creation beneath fresh multi-level parent paths, rejection of repository-root and outside-repository destinations, stale generated-folder removal, run-scoped temporary cleanup, preservation of unrelated temporary files, and protection of canonical outputs. |
 
 ### Retained Pressure Scenarios
 
@@ -266,7 +266,7 @@ Never normalize labels, IDs, relationship keys, ordering that is contractually d
 
 ### Generated Artifact Safety
 
-Write compatibility and pressure outputs beneath a uniquely scoped ignored `.tmp/` directory. Never point a test settings file at canonical `Visualization/` outputs or the normal `Obsidian_Export/` destination. After comparison, invoke the cleanup helper with the exact scoped temporary path so unrelated temporary work remains untouched.
+Write compatibility and pressure outputs beneath a uniquely scoped ignored `.tmp/` directory. Never point a test settings file at canonical `Visualization/` outputs or the normal `Obsidian_Export/` destination. File-producing tools must reject the repository root itself and outside-repository destinations before destructive cleanup, while still creating safe missing parent directories beneath the repository. After comparison, invoke the cleanup helper with the exact scoped temporary path so unrelated temporary work remains untouched.
 
 ## Result Classification
 

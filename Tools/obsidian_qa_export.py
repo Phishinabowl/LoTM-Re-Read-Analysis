@@ -2479,8 +2479,8 @@ def render_suspicious_edges(notes: dict[str, CanonicalNote], relationships: list
 def ensure_safe_output(root: Path, output_dir: Path) -> Path:
     resolved_root = root.resolve()
     resolved_output = output_dir.resolve()
-    if resolved_root != resolved_output and resolved_root not in resolved_output.parents:
-        raise ValueError(f"Output directory must stay inside the repository root: {output_dir}")
+    if resolved_root == resolved_output or resolved_root not in resolved_output.parents:
+        raise ValueError(f"Output directory must be a child of the repository root: {output_dir}")
     return resolved_output
 
 

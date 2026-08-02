@@ -2524,16 +2524,25 @@ function Assert-SafeOutputPath {
         [string]$OutputPath
     )
     $resolvedRoot = (Resolve-Path -LiteralPath $RepoRoot).Path
-    if (Test-Path -LiteralPath $OutputPath) {
-        $resolvedOutput = (Resolve-Path -LiteralPath $OutputPath).Path
+    $fullOutput = [System.IO.Path]::GetFullPath($OutputPath)
+    $existingAncestor = $fullOutput
+    $missingSegments = @()
+    while (-not (Test-Path -LiteralPath $existingAncestor)) {
+        $leaf = Split-Path -Leaf $existingAncestor
+        $parent = Split-Path -Parent $existingAncestor
+        if ([string]::IsNullOrWhiteSpace($leaf) -or [string]::IsNullOrWhiteSpace($parent) -or $parent -eq $existingAncestor) {
+            throw "Cannot resolve output directory safely: $OutputPath"
+        }
+        $missingSegments = @($leaf) + $missingSegments
+        $existingAncestor = $parent
     }
-    else {
-        $parent = Split-Path -Parent $OutputPath
-        $leaf = Split-Path -Leaf $OutputPath
-        $resolvedOutput = Join-Path (Resolve-Path -LiteralPath $parent).Path $leaf
+    $resolvedOutput = (Resolve-Path -LiteralPath $existingAncestor).Path
+    foreach ($segment in $missingSegments) {
+        $resolvedOutput = Join-Path $resolvedOutput $segment
     }
-    if ($resolvedOutput -ne $resolvedRoot -and -not $resolvedOutput.StartsWith($resolvedRoot + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)) {
-        throw "Output directory must stay inside the repository root: $OutputPath"
+    $resolvedOutput = [System.IO.Path]::GetFullPath($resolvedOutput)
+    if ($resolvedOutput -eq $resolvedRoot -or -not $resolvedOutput.StartsWith($resolvedRoot + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)) {
+        throw "Output directory must be a child of the repository root: $OutputPath"
     }
     return $resolvedOutput
 }

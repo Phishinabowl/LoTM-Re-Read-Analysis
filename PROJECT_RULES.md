@@ -432,6 +432,8 @@ When requested with bounded page flags, the Obsidian QA export may also create `
 
 The optional bounded output folders are rebuilt per QA export run. If bounded graph or bounded page specs are present, the matching `_Generated/bounded-graphs/` or `_Generated/bounded-pages/` folder should be deleted and regenerated so stale sample files do not linger. If no specs are present for one of those optional bundles, the export should remove any old folder for that bundle.
 
+QA export destinations must be child directories beneath the repository root. The exporter may create safe missing parent directories, but it must reject the repository root itself and outside-repository paths before any clean operation. The normal `<repo>/Obsidian_Export/` destination satisfies this rule.
+
 Use the shared [Graph Authoring Standard](Visualization/graph-authoring-standard.md) for graph construction. It defines canonical versus graph-local evidence, source expansion, pathway/sequence coverage, maintainer confirmation, and output reporting.
 
 For dense Mermaid graphs, prefer semantic relationship nodes over long edge labels. A generated relationship node may hold the relationship type, timing, status, confidence, and provenance, with simple arrows from source to relationship node to target. These relationship nodes are presentation artifacts only. They are not glossary nodes, do not create new canonical entities, and must be regenerated from canonical glossary records such as Relationship Seeds and projected type-specific data-block rows.

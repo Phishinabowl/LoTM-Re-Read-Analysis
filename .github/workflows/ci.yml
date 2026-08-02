@@ -82,6 +82,16 @@ jobs:
           --bounded-page "slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=32"
           --json
 
+      - name: Reject unsafe QA output paths
+        shell: bash
+        run: |
+          for output_dir in . ../ci-output-escape; do
+            if python Tools/obsidian_qa_export.py --output-dir "${output_dir}" --json >/dev/null 2>&1; then
+              echo "QA exporter accepted unsafe output directory: ${output_dir}" >&2
+              exit 1
+            fi
+          done
+
   powershell-7-validation:
     name: PowerShell 7 Validation
     runs-on: windows-2022
@@ -127,6 +137,17 @@ jobs:
           -BoundedPage 'slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=32'
           -Json
 
+      - name: Reject unsafe QA output paths
+        run: |
+          foreach ($outputDir in @('.', '..\ci-output-escape')) {
+              pwsh -NoProfile -File ./Tools/Obsidian-QA-Export.ps1 -OutputDir $outputDir -Json *> $null
+              $unsafeExitCode = $LASTEXITCODE
+              $global:LASTEXITCODE = 0
+              if ($unsafeExitCode -eq 0) {
+                  throw "QA exporter accepted unsafe output directory: $outputDir"
+              }
+          }
+
   windows-powershell-validation:
     name: Windows PowerShell 5.1 Validation
     runs-on: windows-2022
@@ -171,3 +192,14 @@ jobs:
           -BoundedGraph 'name=chapter-32,medium=novel,maxVolume=1,maxChapter=32'
           -BoundedPage 'slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=32'
           -Json
+
+      - name: Reject unsafe QA output paths
+        run: |
+          foreach ($outputDir in @('.', '..\ci-output-escape')) {
+              powershell -NoProfile -ExecutionPolicy Bypass -File ./Tools/Obsidian-QA-Export.ps1 -OutputDir $outputDir -Json *> $null
+              $unsafeExitCode = $LASTEXITCODE
+              $global:LASTEXITCODE = 0
+              if ($unsafeExitCode -eq 0) {
+                  throw "QA exporter accepted unsafe output directory: $outputDir"
+              }
+          }
