@@ -2,7 +2,7 @@
 
 This folder contains reusable local helpers for project maintenance and source verification.
 
-For switch-by-switch maps, function-pipeline notes, side effects, parity checks, and durable config/state files for maintained helper scripts, see [Tooling Reference](TOOLING_REFERENCE.md). That reference should be extended whenever another tool is audited or a tool starts reading a new shared config file.
+For switch-by-switch maps, function-pipeline notes, side effects, parity checks, and durable config/state files for maintained helper scripts, see [Tooling Reference](TOOLING_REFERENCE.md). That reference should be extended whenever another tool is audited or a tool starts reading a new shared config file. The broader version process belongs to the [Framework Improvement Lifecycle](../Framework/framework_improvement_lifecycle.md), while the cumulative requirement for when and why checks run belongs to the [Framework Testing Methodology](../Framework/testing_methodology.md).
 
 Paired validation and conformance commands that emit a human-readable summary also support `--json` / `-Json` with matching semantic fields. File-producing tools may instead define structured generated artifacts; see the Tooling Reference rather than assuming every command uses one universal JSON summary.
 

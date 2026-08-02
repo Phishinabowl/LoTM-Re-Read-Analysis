@@ -2,6 +2,8 @@
 
 This file is the human-facing map for repository helper scripts. It records what each script is for, how Python-preferred and PowerShell-fallback versions line up when a pair exists, which switches are supported, what files are read or written, and how parity or standalone behavior was last checked.
 
+`Framework/framework_improvement_lifecycle.md` is authoritative for the end-to-end version workflow. `Framework/testing_methodology.md` is authoritative for cumulative test requirements, stable families, retention rules, impact matrix, comparison standards, and result classification. This reference remains authoritative for exact commands, tool-specific output contracts, normalization recipes, and dated parity executions.
+
 Paired validation and conformance commands must expose `--json` / `-Json` whenever they emit a human-readable summary. The 2026-08-01 executable audit confirmed structured output for the environment probes, cleanup, EPUB search, EPUB image operations, Obsidian QA export, chronology, occurrence, temporal, and reconciliation commands. Configuration loaders are libraries rather than summary commands. Visualization remains a file-producing multi-mode command whose structured contracts are its Mermaid graphs, refresh report, and semantic snapshot; a future CLI JSON mode must define mode-specific fields rather than reusing an ambiguous generic summary.
 
 The repository convention is:

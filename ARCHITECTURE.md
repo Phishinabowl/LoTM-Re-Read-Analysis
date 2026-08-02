@@ -6,7 +6,7 @@ This document is the authoritative architecture and component-ownership contract
 
 It describes both the required target architecture and the boundaries that new work must follow during migration. When current code does not yet match this contract, treat the mismatch as transition debt to remove, not as precedent for additional duplication.
 
-LoTM-specific authoring, evidence, taxonomy, and spoiler-modeling rules remain in [PROJECT_RULES.md](PROJECT_RULES.md). Tool switches and current implementation details remain in [Tools/TOOLING_REFERENCE.md](Tools/TOOLING_REFERENCE.md).
+LoTM-specific authoring, evidence, taxonomy, and spoiler-modeling rules remain in [PROJECT_RULES.md](PROJECT_RULES.md). Framework iterations enter through [Framework/framework_improvement_lifecycle.md](Framework/framework_improvement_lifecycle.md); cumulative testing and retained coverage live in [Framework/testing_methodology.md](Framework/testing_methodology.md); and [Framework/framework_evolution.md](Framework/framework_evolution.md) remains the historical implementation, pressure-test, and next-version handoff log. Tool switches and current implementation details remain in [Tools/TOOLING_REFERENCE.md](Tools/TOOLING_REFERENCE.md).
 
 ## Architectural Goals
 

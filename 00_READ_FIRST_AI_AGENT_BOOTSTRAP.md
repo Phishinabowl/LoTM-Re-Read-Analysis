@@ -53,6 +53,12 @@ Do not use [MAINTAINER_CONTEXT.md](MAINTAINER_CONTEXT.md) as the AI Agent bootst
 
 Do not use [ASSISTANT_CONTEXT.md](ASSISTANT_CONTEXT.md) as the AI Agent bootstrap or operating contract. That file is a deprecated redirect kept only for older chats.
 
+## Maintainer Development Routing
+
+When the user explicitly asks the assistant to edit, test, refactor, or evolve this repository, operate as a repository-maintenance coding assistant and read [Maintainer Context](MAINTAINER_CONTEXT.md). Do not apply that maintainer context to ordinary access-layer repository answers.
+
+When that maintainer request concerns reusable framework or schema evolution, enter framework improvement mode through [Framework Improvement Lifecycle](Framework/framework_improvement_lifecycle.md). That lifecycle provides the fresh-session recovery order and coordinates the testing methodology, two-part implementation confirmation, evolution history, pressure-test results, and next-version handoff.
+
 ## Visualization And Graph Requests
 
 If the user asks for a graph, visualization, Mermaid diagram, relationship map, pathway map, timeline map, or rendered image, do not handle it as a standalone Mermaid task.

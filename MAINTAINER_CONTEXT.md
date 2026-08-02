@@ -6,6 +6,12 @@ This is not the AI Agent bootstrap or operating contract.
 
 For repository-answering behavior, read [README-AI-Agent-Specification.md](README-AI-Agent-Specification.md) first.
 
+## Framework Improvement Mode
+
+When the maintainer asks to resume framework/schema evolution, begin with [Framework Improvement Lifecycle](Framework/framework_improvement_lifecycle.md). It defines the fresh-session orientation order, version-design and proposed-testing requirements, cumulative verification gates, two-part implementation confirmation, pressure-test closure, evolution logging, and next-version handoff.
+
+Do not resume from conversational memory alone. Reconstruct the current state from Git, the lifecycle, [Framework Testing Methodology](Framework/testing_methodology.md), and the latest completed version plus recommendation in [Framework Evolution History](Framework/framework_evolution.md).
+
 ## User Preferences
 
 - Completed all 8 volumes of LoTM.
@@ -28,7 +34,7 @@ For repository-answering behavior, read [README-AI-Agent-Specification.md](READM
 
 ## Git Workflow Notes
 
-- When documentation must cite an implementation commit, use two commits: commit the implementation first, capture its hash, then update and commit the documentation reference.
+- When documentation must cite an implementation commit, use two commits: commit the implementation first, capture its hash, then update and commit the documentation reference. Framework versions must follow the exact confirmation sequence in `Framework/framework_improvement_lifecycle.md`.
 - Run `git add` and `git commit` for the documentation-reference commit as separate shell invocations. Combined invocations have intermittently produced `.git/index.lock` permission errors in Codex even when no stale lock exists.
 - If that transient error occurs, verify that no partial commit or unexpected worktree change was created, then retry staging and committing separately.
 - Never delete `.git/index.lock` unless its existence has been independently confirmed and the lock is known to be stale.

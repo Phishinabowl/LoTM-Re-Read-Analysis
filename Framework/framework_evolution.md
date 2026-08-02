@@ -2,18 +2,22 @@
 
 This document records how the reusable knowledge-platform framework evolved, why each version was introduced, and what the pressure testing after each version exposed. It is both a design history and a forward-looking engineering log.
 
+The end-to-end version process is governed by `Framework/framework_improvement_lifecycle.md`. Cumulative testing requirements are governed by `Framework/testing_methodology.md`. This file records history and handoff state; it does not independently define either workflow.
+
 The version numbers here describe the **framework evolution rounds discussed during the extraction project**. They are not interchangeable with every registry's internal `schema_version` or every schema pack's `pack_version`. V1-V15 primarily track the narrative source registry as it grew from schema 1 through schema 15. V16 onward expands the framework through additional registries and shared services, each of which retains its own schema and pack version.
 
-From V30 onward, update this file as part of each version:
+From V30 onward, update this file as part of each version. Follow the lifecycle document for the complete sequence:
 
-1. Add the version section with `Implemented by: pending` when the implementation is ready for verification.
+1. Open the version section with `Implemented by: pending` after design is settled and before implementation begins. Beginning with V38, include the mandatory `Proposed testing` and `Proposed candidates` fields plus a pending `Testing After Vn` section.
 2. Record the problem, design decision, implementation surface, and reason for the change.
-3. Run and record both the retained framework conformance stack and the project compatibility gate defined in `PROJECT_RULES.md` before treating implementation as complete. This gate includes redirected Obsidian QA, bounded projection, Visualization validation/rendering, and three-runtime parity without changing canonical generated outputs.
-4. Add the subsequent `Testing After Vn` section before beginning the next version. Keep this adversarial pressure test distinct from implementation conformance and compatibility regression.
-5. Record defects separately from missing capabilities.
-6. Link the implementing commit after the version is confirmed.
+3. Run and record the cumulative implementation-conformance and project-compatibility families required by `Framework/testing_methodology.md` before treating implementation as complete.
+4. Use the lifecycle's two-part confirmation sequence to replace the pending implementation marker with the exact implementation hash and subject.
+5. Replace the pending `Testing After Vn` content before beginning the next version. Record the applicable stable test-family IDs and keep adversarial pressure testing distinct from implementation conformance and compatibility regression.
+6. Record defects separately from missing capabilities.
 7. Update the era index when a version begins a genuinely new architectural phase.
 8. Record superseded assumptions, architectural extractions, and promotions when they materially apply; do not force a marker into every version.
+9. End the testing section with a clear next-version recommendation or an explicit reason no immediate version is recommended.
+10. Record the candidate-catalog entries used and any catalog addition, revision, replacement, or deliberate non-promotion discovered during pressure testing.
 
 ## Evolution Eras
 
@@ -1150,6 +1154,8 @@ The pre-pressure compatibility gate also remains green in all three runtimes. Vi
 
 The permanent post-V37 stack remained behaviorally identical in Python, PowerShell 7, and Windows PowerShell 5.1. Each occurrence runtime passed sixty-seven query, evaluation, resolution, and extension assertions and rejected sixty-seven malformed occurrence registries. The retained suites also passed thirteen chronology comparisons and thirteen malformed chronology registries; twenty temporal matches, twelve overlap vectors, and twenty-one malformed windows; plus eight reconciliation vectors, forty malformed reconciliation registries, a 1,500-hop chain, and both configured resolution limits. The pre-pressure QA/Visualization compatibility gate recorded with V37 remained the current green baseline; no implementation changed during this pressure pass, so canonical or redirected graph generation did not need to be repeated.
 
+Under the testing methodology formalized after this pass, the retained record covers `CONF-STRICT-INGESTION`, `CONF-TEMPORAL`, `CONF-CHRONOLOGY`, `CONF-RECONCILIATION`, `CONF-OCCURRENCE`, `CONF-PACK-COMPOSITION`, `PARITY-THREE-RUNTIME`, `PARITY-STRUCTURED-OUTPUT`, `COMPAT-VISUALIZATION`, `COMPAT-QA`, `COMPAT-RENDER`, `COMPAT-ROOT-DISCOVERY`, `SCENARIO-DERRICK`, `SCENARIO-LOKI`, `PRESSURE-ADVERSARIAL`, and `PRESSURE-CROSS-DOMAIN`.
+
 ### Semantic-Declaration Adversarial Pass
 
 The permanent V37 declaration vectors continued to reject reversed and unknown incompatibility members, missing or contradictory repetition profiles, orphaned scope declarations against a nonempty effect vocabulary, and one pair declared under both global and same-target scope. The expected valid extensions still composed, proving that the ordinary core and domain-pack path is closed under the cases V37 was designed to repair.
@@ -1182,3 +1188,13 @@ V38 should be **Typed Effect Semantics and Fail-Closed Execution**. It should fi
 Evaluation should preserve contribution counts and contributor provenance as diagnostic resolution data while producing an explicit execution disposition. The bounded default should be fail-closed: an evaluation with any unresolved conflict exposes no authorized executions, even though its proposed resolved effects remain inspectable. Partial execution, compensation, transaction boundaries, and effect payload/action semantics should remain unavailable until separately modeled rather than being inferred by consumers.
 
 Permanent V38 conformance should cover an empty effect vocabulary with every orphan declaration family, adversarial delimiter collisions, typed member-reference failures, deterministic migration of the current core declarations, conflict-wide execution blocking, and retained idempotent/accumulating/invalid behavior in all three runtimes. After that integrity boundary is closed, the staged temporal-topology work can resume with uncertain iteration cardinality, repeated participation, extratemporal context relations, and branch lifecycle; deeper knowledge-acquisition semantics remain a separate reusable capability.
+
+## Historical Testing Retention Audit After V37
+
+The testing-methodology formalization was audited against every `Testing After V1` through `Testing After V37` section, the conversation-driven pressure-test portfolio, permanent fixture directories, current conformance tools, and the QA/Visualization parity records. The audit confirmed that strict ingestion, reconciliation, temporal, chronology, occurrence, runtime parity, QA, rendering, Derrick, Loki, adversarial, scale, and broad cross-domain coverage were already represented.
+
+It also found that several durable earlier test dimensions had been compressed too far into the generic `PRESSURE-CROSS-DOMAIN` label. The methodology now retains `PRESSURE-LAYER-PORTABILITY`, `PRESSURE-WORK-CONTINUITY`, `PRESSURE-MEDIA-DISTRIBUTION`, `PRESSURE-EVIDENCE-AUTHORITY`, `PRESSURE-ENTITY-IDENTITY`, `PRESSURE-TEMPORAL-TOPOLOGY`, and `PRESSURE-RECURRENCE-STATE`. A near-start cross-industry candidate catalog explicitly preserves the mixed-media franchise, serialized-form, parody, fictional-calendar, time-loop, IT/operations, medical, legal/compliance, investigative-evidence, and scientific probes that drove V1-V37 while distinguishing conceptual and synthetic cases from source-grounded scenarios.
+
+Three engineering surfaces were also restored as explicit requirements: `CONF-LOOKUP` for pinned Unicode behavior from V18-V19; `CONF-PROJECT-COMPOSITION` across the foundation and later registry additions; and `PARITY-COMMAND-SURFACE` plus `COMPAT-ARTIFACT-LIFECYCLE` from the tooling, QA, root-discovery, stale-output, and cleanup work. The change-impact matrix now routes changes in each historical model area back to the appropriate retained matrix instead of relying on maintainers to remember the old pressure rounds.
+
+This audit changes testing policy, not framework schema behavior. It reclassifies the unchanged green V37 conformance and compatibility baseline rather than presenting newly added IDs as a new execution. The framework lifecycle now requires every new version to select candidates during design, identify them in the evolution entry, review the catalog again after pressure testing, and promote only durable additions under the methodology's retention rules. V38 remains the next recommended implementation version, and its proposed testing must use the expanded cumulative methodology and candidate catalog.

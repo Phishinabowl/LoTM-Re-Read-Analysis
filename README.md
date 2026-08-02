@@ -65,6 +65,8 @@ Reusable helper commands, switch maps, output side effects, and Python/PowerShel
 
 Framework boundaries, component ownership, generated-output rules, stable-identity direction, and the LoTM-to-reusable-framework extraction sequence are defined in the [Architecture Contract](ARCHITECTURE.md).
 
+Maintainer framework/schema iterations enter through the [Framework Improvement Lifecycle](Framework/framework_improvement_lifecycle.md). The cross-industry candidate catalog and cumulative conformance, compatibility, parity, pressure-scenario, and test-retention requirements are defined in the [Framework Testing Methodology](Framework/testing_methodology.md). Version-specific implementation, selected candidates, pressure-test history, and next-version recommendations remain in the [Framework Evolution History](Framework/framework_evolution.md).
+
 ## Visualization
 
 Generated visualization artifacts live in [Visualization](Visualization/README.md).
@@ -82,6 +84,9 @@ Do not embed the full graph in this README; it is maintained as a separate gener
 ```text
 Framework/
   README.md
+  framework_improvement_lifecycle.md
+  testing_methodology.md
+  framework_evolution.md
   Data/
     README.md
     unicode-lookup-16.0.0.json
@@ -109,7 +114,8 @@ Framework/
       pack.yaml
     narrative-production/
       pack.yaml
-  reusable runtime data, contracts, and bundled schema packs shared across project instances
+  reusable runtime data, contracts, bundled schema packs, improvement lifecycle,
+  testing methodology, and framework evolution history shared across project instances
 
 Project_Config/
   project.yaml

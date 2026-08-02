@@ -2,6 +2,8 @@
 
 This directory contains portable machine-readable data required by framework runtime contracts.
 
+`../testing_methodology.md` defines when these conformance families run, how new defects become permanent vectors, how coverage is retained across versions, and how their results are recorded. This file describes the fixture contents rather than redefining that lifecycle.
+
 `unicode-lookup-16.0.0.json` pins canonical normalization and full default case-folding data for deterministic semantic lookup keys. Consumers must load it through `Tools/lookup_key_config.py` or `Tools/Lookup-Key-Config.ps1`; do not depend on the host runtime's Unicode version.
 
 The current table was generated from the Unicode Character Database 16.0.0 exposed by CPython 3.14.5. Its mapping counts and behavior are independently validated by both loaders; replacing it is a reviewed data migration rather than an automatic runtime refresh.

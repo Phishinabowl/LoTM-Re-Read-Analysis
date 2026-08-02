@@ -51,6 +51,9 @@ The project uses the following files and folders:
 ```text
 Framework/
   README.md
+  framework_improvement_lifecycle.md
+  testing_methodology.md
+  framework_evolution.md
   Contracts/
     README.md
     narrative-source-registry.md
@@ -325,6 +328,9 @@ Keep `PROJECT_RULES.md` focused on durable project policy: source of truth, spoi
 
 Use specialized docs for operational detail:
 
+- `Framework/framework_improvement_lifecycle.md`: framework-improvement mode, version iteration order, proposed-testing checkpoint, two-part confirmation, testing closure, and next-version handoff.
+- `Framework/testing_methodology.md`: cross-industry pressure-test candidates, cumulative framework test lifecycle, stable test families, impact matrix, compatibility gate, pressure scenarios, comparison standards, and retention rules.
+- `Framework/framework_evolution.md`: chronological implementation results, pressure-test findings, defects, capability gaps, architectural lessons, and next-version recommendations.
 - `Tools/README.md`: exact helper commands, Python and PowerShell dependency setup, Python/PowerShell fallbacks, EPUB search, Obsidian QA export, artwork extraction, and cleanup behavior.
 - `Visualization/README.md`: current generated graph artifacts, refresh tracker, configured graph views, and visualization workflow entry points.
 - `Visualization/graph-authoring-standard.md`: graph intent, graph-local evidence, source expansion, coverage workflow, graph projection, layout semantics, and graph output reporting.
@@ -333,21 +339,11 @@ Use specialized docs for operational detail:
 
 When a rule appears in more than one place, keep the policy statement here and put the commands, examples, and troubleshooting details in the narrower document.
 
-## Framework Release Compatibility Gate
+## Framework Release Testing Gate
 
-Before a framework evolution version is considered implementation-complete or its post-version pressure test begins, run both the retained framework conformance stack and the existing-project compatibility gate. A green registry suite does not prove that legacy QA, visualization, or bounded projection workflows still work.
+Enter every framework evolution version through `Framework/framework_improvement_lifecycle.md` and follow `Framework/testing_methodology.md` at each testing checkpoint. The lifecycle's proposed-testing and proposed-candidate fields, cumulative verification, candidate-catalog review, two-part implementation confirmation, pressure-test closure, methodology revision, evolution logging, and next-version handoff are mandatory. A green registry suite alone does not prove that QA, visualization, bounded projection, rendering, or another compatibility consumer still works.
 
-The compatibility gate must:
-
-- run chronology, temporal, reconciliation, occurrence, and any other retained framework conformance suites in Python, PowerShell 7, and Windows PowerShell 5.1;
-- run Visualization validation in all three runtimes and require matching source counts plus zero class or layout issues;
-- generate redirected Obsidian QA exports in all three runtimes with at least one representative bounded graph and bounded page set, then compare summary counts, file inventories, stable Markdown/Mermaid outputs, and refresh/bounded snapshot semantics;
-- run at least one redirected Visualization render in all three runtimes and verify successful, nonempty, semantically equivalent output;
-- verify repository-root auto-detection from a descendant such as `Tools/` when manifest discovery, helper paths, or launcher behavior changed;
-- write every generated regression artifact beneath a uniquely scoped ignored `.tmp/` directory, never mutate canonical Visualization or Obsidian outputs, and remove only that run's temporary directory when comparison is complete; and
-- update the applicable last-parity record in `Tools/TOOLING_REFERENCE.md` with the date, runtimes, scenarios, counts, and normalized comparison result.
-
-Any compatibility failure blocks version confirmation and the next pressure-test round until it is fixed or explicitly documented as an accepted contract change. Record implementation conformance and compatibility-gate results in the version section; reserve `Testing After Vn` for the subsequent adversarial pressure test and the capabilities it exposes. Exact commands, expected non-semantic differences, and comparison recipes remain centralized in `Tools/TOOLING_REFERENCE.md`.
+Any required failure blocks version confirmation or the next pressure-test round until it is repaired or explicitly classified as an accepted contract change. Record version-specific execution and findings in `Framework/framework_evolution.md`; keep exact commands and dated tool-parity results in `Tools/TOOLING_REFERENCE.md`. Never silently drop or weaken an inherited test.
 
 ## Evidence Mode And Search-Term Discipline
 
