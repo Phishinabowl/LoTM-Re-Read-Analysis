@@ -12,6 +12,12 @@ When the maintainer asks to resume framework/schema evolution, begin with [Frame
 
 Do not resume from conversational memory alone. Reconstruct the current state from Git, the lifecycle, [Framework Testing Methodology](Framework/testing_methodology.md), and the latest completed version plus recommendation in [Framework Evolution History](Framework/framework_evolution.md).
 
+## Implementation Work Annotations
+
+Use [Todo Tree And GitHub Working Convention](WORK_ANNOTATION_STANDARDS.md) for durable implementation-local follow-ups, defects, questions, assumptions, workarounds, review needs, and verification needs. Local annotations use `OWNER` or `UNASSIGNED`; public GitHub handles appear only after an issue exists and GitHub establishes the assignment. Never expose the maintainer's real name or private identity.
+
+Todo Tree does not replace `CURRENT_STATE.md`, framework evolution/testing records, or GitHub Issues. At task and branch closure, report annotations added, changed, promoted, reconciled, or removed and route anything that has outgrown a source-local comment to its authoritative artifact.
+
 ## User Preferences
 
 - Completed all 8 volumes of LoTM.

@@ -124,6 +124,8 @@ When Python source changes or a new Python source location is introduced, apply 
 
 Keep generated outputs redirected and noncanonical during verification. Preserve unrelated worktree changes. A deterministic defect repaired during implementation must become a permanent regression vector.
 
+Use `WORK_ANNOTATION_STANDARDS.md` for implementation-local annotations discovered during version work. An annotation cannot substitute for completing in-scope work or recording a framework finding in this lifecycle. Any framework limitation, pressure-test finding, or permanent test obligation represented locally must also be routed to the evolution entry or testing methodology that owns it.
+
 ### 5. Run Implementation Verification
 
 Use `Framework/testing_methodology.md`, not memory, to select and execute:
@@ -141,6 +143,8 @@ Use `Tools/TOOLING_REFERENCE.md` for exact commands and comparison recipes. Upda
 Review the testing methodology before closing verification. Add or revise durable coverage there if the version introduced a new test family, retained scenario, candidate, impact trigger, comparison rule, classification need, or retirement. Do not silently omit inherited coverage or repeatedly choose only familiar candidates when another catalog entry would test the abstraction more honestly.
 
 Any unclassified failure blocks implementation confirmation. Repair implementation and parity defects, migrate accepted contract changes explicitly, and preserve missing capabilities or deferrals for the pressure-test record.
+
+Before implementation confirmation, review every annotation added, changed, or exposed by the version. Resolve in-scope items, reconcile promoted GitHub state, and ensure surviving framework findings are represented in `Framework/framework_evolution.md` and `Framework/testing_methodology.md` where applicable.
 
 ### 6. Confirm Implementation In Two Parts
 

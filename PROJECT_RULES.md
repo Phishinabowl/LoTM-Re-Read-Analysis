@@ -349,6 +349,14 @@ Every new or changed `.ps1`, `.psm1`, and `.psd1` source anywhere in the reposit
 
 Every new or changed `.py` and `.pyi` source anywhere in the repository must pass both `python -m ruff format --check .` and `python -m ruff check .`. Default Ruff discovery must include all tracked and nonignored untracked Python sources without formatting Markdown code fences or requiring a directory allowlist. `pyproject.toml` owns the Python 3.10 target, canonical Ruff layout, LF output, and 120-character line-length policy; `.gitattributes` owns repository checkout line endings. Manually split semantic strings, regexes, and generated-report expressions Ruff cannot safely wrap. Do not add blanket suppressions or weaken the gate to admit dense code.
 
+## Implementation Work Annotations
+
+Implementation-local work annotations must follow `WORK_ANNOTATION_STANDARDS.md`. Use them on executable source, comment-capable configuration, framework contracts, architecture documents, testing contracts, and maintainer-facing Markdown. Do not place them in reader-facing glossary pages, investigations, boards, volume summaries, generated exports, canonical source material, or artwork assets.
+
+Before GitHub promotion, use only identity-neutral `OWNER` or `UNASSIGNED` ownership. After an issue exists and is assigned, mirror its exact public GitHub handle, issue number, issue URL, and assignee profile URL. Never put a real name or private identity in an annotation, and never invent an issue, handle, or assignment. GitHub is authoritative after promotion.
+
+Todo Tree is not an authoritative backlog. Route content planning to `CURRENT_STATE.md`, framework-version findings to `Framework/framework_evolution.md`, permanent testing obligations to `Framework/testing_methodology.md` and executable suites, and cross-cutting promoted engineering work to GitHub Issues. Agents must report annotations added, changed, promoted, reconciled, or removed and must review annotations touched by the task before completion.
+
 ## Evidence Mode And Search-Term Discipline
 
 Before gathering evidence, building a pilot page, refreshing QA outputs, or creating a graph, classify the work by evidence mode and keep search terms inside that mode.

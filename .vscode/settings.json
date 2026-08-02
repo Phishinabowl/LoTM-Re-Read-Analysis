@@ -1,0 +1,32 @@
+{
+    "todo-tree.general.tags": [
+        "TODO",
+        "FIXME",
+        "QUESTION",
+        "ASSUMPTION",
+        "HACK",
+        "REVIEW",
+        "VERIFY"
+    ],
+    "todo-tree.regex.subTagRegex": "^(?=\\s*\\(([^)]+)\\))",
+    "todo-tree.tree.groupedBySubTag": true,
+    "todo-tree.tree.scanMode": "workspace",
+    "todo-tree.filtering.passGlobsToRipgrep": true,
+    "todo-tree.filtering.useBuiltInExcludes": "file and search excludes",
+    "todo-tree.filtering.excludeGlobs": [
+        "**/.git/**",
+        "**/.local/**",
+        "**/.obsidian/**",
+        "**/.tmp/**",
+        "**/.vscode/**",
+        "**/Artwork/Source/**",
+        "**/Boards/**",
+        "**/Glossary_Threads/**",
+        "**/Investigations/**",
+        "**/Obsidian_Export/**",
+        "**/Source/**",
+        "**/Testing/**",
+        "**/Volumes/**",
+        "**/WORK_ANNOTATION_STANDARDS.md"
+    ]
+}

@@ -67,6 +67,8 @@ Framework boundaries, component ownership, generated-output rules, stable-identi
 
 Maintainer framework/schema iterations enter through the [Framework Improvement Lifecycle](Framework/framework_improvement_lifecycle.md). The cross-industry candidate catalog and cumulative conformance, compatibility, parity, pressure-scenario, and test-retention requirements are defined in the [Framework Testing Methodology](Framework/testing_methodology.md). Version-specific implementation, selected candidates, pressure-test history, and next-version recommendations remain in the [Framework Evolution History](Framework/framework_evolution.md).
 
+Implementation-local follow-ups, defects, questions, assumptions, workarounds, review needs, and verification needs follow the [Todo Tree And GitHub Working Convention](WORK_ANNOTATION_STANDARDS.md). Todo Tree is a source-local intake layer; content planning, framework evolution, permanent testing obligations, and promoted engineering work remain in their owning artifacts.
+
 ## Visualization
 
 Generated visualization artifacts live in [Visualization](Visualization/README.md).
@@ -201,10 +203,16 @@ Artwork/
   page-assets/
   tracked page-ready artwork and artwork metadata
 
+.vscode/
+  settings.json
+  extensions.json
+  tracked Todo Tree workspace configuration and extension recommendation
+
 00_READ_FIRST_AI_AGENT_BOOTSTRAP.md
 README-AI-Agent-Specification.md
 ARCHITECTURE.md
 MAINTAINER_CONTEXT.md
+WORK_ANNOTATION_STANDARDS.md
 ASSISTANT_CONTEXT.md (deprecated redirect)
 CURRENT_STATE.md
 PROJECT_RULES.md

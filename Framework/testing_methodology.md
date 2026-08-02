@@ -200,6 +200,8 @@ Run `PRESSURE-ADVERSARIAL`, `PRESSURE-CROSS-DOMAIN`, applicable retained scenari
 
 Replace `Testing After Vn` placeholders with executed coverage, results, defects, capability gaps, deferred concerns, and the next-version recommendation. A shared defect across runtimes is still a defect; parity only proves consistent behavior. Do not begin the next version while an unclassified failure remains.
 
+Review implementation-local annotations under `WORK_ANNOTATION_STANDARDS.md` before closing the test round. A test failure, accepted limitation, or missing permanent vector cannot remain only in Todo Tree. Route it to the evolution record, this methodology, an executable suite, or an explicitly requested GitHub Issue according to ownership; retain a source annotation only when its exact location remains useful.
+
 ## Required Framework-Version Baseline
 
 Every framework evolution version must run:

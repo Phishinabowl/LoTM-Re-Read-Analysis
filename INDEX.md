@@ -13,6 +13,7 @@ Navigation hub for the reread analysis workspace.
 - [License](LICENSE)
 - [Third-Party Notice](NOTICE.md)
 - [Maintainer Context](MAINTAINER_CONTEXT.md)
+- [Todo Tree And GitHub Working Convention](WORK_ANNOTATION_STANDARDS.md)
 - [Deprecated Assistant Context Redirect](ASSISTANT_CONTEXT.md)
 - [Tools README](Tools/README.md)
 - [Visualization README](Visualization/README.md)
