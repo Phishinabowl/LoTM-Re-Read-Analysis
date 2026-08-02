@@ -6,6 +6,8 @@ For switch-by-switch maps, function-pipeline notes, side effects, parity checks,
 
 Paired validation and conformance commands that emit a human-readable summary also support `--json` / `-Json` with matching semantic fields. File-producing tools may instead define structured generated artifacts; see the Tooling Reference rather than assuming every command uses one universal JSON summary.
 
+The current flat script paths remain authoritative until the planned Tools migration is performed atomically. The frozen target layout, runtime-package/module boundaries, root-discovery contract, parity policy, and wrapper rules live in [ARCHITECTURE.md](../ARCHITECTURE.md#tool-runtime-and-command-architecture). The complete current-to-target inventory lives in [Tooling Reference](TOOLING_REFERENCE.md#tool-architecture-migration-inventory). Do not move one helper opportunistically or introduce another root-level loader while that migration is pending.
+
 ## Environment Checks
 
 Use `Test-Python.ps1` to check whether Python is present and actually usable before selecting Python-preferred tools. It tests `python`, `python3`, and `py` in order, verifies that `--version` works, confirms that Python can report `sys.executable`, and checks repository Python requirements from `requirements-python.txt`, including Ruff for source formatting.

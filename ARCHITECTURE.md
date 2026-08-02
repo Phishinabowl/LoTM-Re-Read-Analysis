@@ -47,6 +47,87 @@ Fix durable errors in canonical configuration, content, structured data, evidenc
 
 Command-line tools, Streamlit, and future websites are clients of shared framework services. They may collect input, display previews, and choose output destinations, but they must not implement competing taxonomy, validation, graph, or migration rules.
 
+### Tool Runtime And Command Architecture
+
+Reusable model behavior and executable command behavior must be physically separate. The target `Tools/` layout is:
+
+```text
+Tools/
+  Runtime/
+    Python/
+      knowledge_framework/
+    PowerShell/
+      KnowledgeFramework/
+  Commands/
+    QA/
+    Maintenance/
+    Media/
+    Environment/
+  Conformance/
+    Suites/
+  Compatibility/
+  Static/
+  README.md
+  TOOLING_REFERENCE.md
+```
+
+`Visualization/` remains a separate subsystem because it owns graph semantics, projections, rendering, and graph-specific configuration rather than general command support. Framework fixtures remain under `Framework/Data/`; project configuration remains under `Project_Config/`.
+
+The Python runtime is a real `knowledge_framework` package. Its module names remain descriptive and domain-neutral, including `project_paths`, `strict_yaml`, `project_config`, `lookup_key_config`, `schema_pack_config`, `taxonomy_config`, `resource_config`, `temporal_config`, `source_config`, `chronology_config`, `entity_config`, `reconciliation_config`, `occurrence_config`, and `provenance_config`. Commands bootstrap the repository package root and import these modules by package-qualified name; they do not add a flat script directory to `sys.path` or import sibling command files.
+
+The package and PowerShell module preserve this dependency direction:
+
+```text
+project_paths
+strict_yaml
+project_config -> project_paths, strict_yaml
+lookup_key_config -> project_config
+schema_pack_config -> project_config, strict_yaml
+taxonomy_config -> project_config, strict_yaml
+resource_config -> project_config, strict_yaml
+temporal_config -> schema_pack_config, strict_yaml
+source_config -> lookup_key_config, project_config, resource_config,
+                 schema_pack_config, strict_yaml, temporal_config
+chronology_config -> project_config, schema_pack_config, strict_yaml
+entity_config -> lookup_key_config, project_config, schema_pack_config,
+                 source_config, taxonomy_config, strict_yaml
+reconciliation_config -> project_config, schema_pack_config, strict_yaml
+occurrence_config -> chronology_config, project_config, schema_pack_config,
+                     strict_yaml, temporal_config
+provenance_config -> chronology_config, entity_config, occurrence_config,
+                     project_config, reconciliation_config, schema_pack_config,
+                     source_config, strict_yaml, temporal_config
+```
+
+Provider objects may flow into higher services without adding reverse imports. A lower layer must not import a higher layer merely to construct project composition; the future project-composition service owns that orchestration.
+
+The PowerShell runtime is one manifest-backed `KnowledgeFramework` module with `KnowledgeFramework.psd1`, `KnowledgeFramework.psm1`, and internal implementation scripts. The manifest explicitly exports supported functions; commands and conformance runners import the module and do not dot-source a chain of peer scripts. Both PowerShell 7 and Windows PowerShell 5.1 remain supported until a separately reviewed compatibility decision changes that contract.
+
+`project_paths` owns dependency-light project discovery and safe repository-relative path primitives. `project_config` owns manifest parsing and validation on top of those primitives. Project discovery uses `Project_Config/project.yaml`, never `.git`, and resolves in this order: an explicit root, the `KNOWLEDGE_PROJECT_ROOT` environment override, current-directory ancestors, executable-location ancestors, then a precise failure. Discovery must not change the caller's working directory.
+
+The following surfaces require independent Python and PowerShell behavior parity:
+
+- reusable configuration, identity, temporal, chronology, occurrence, and provenance runtime services;
+- durable user commands for QA export, cleanup, EPUB/media search, and image operations;
+- permanent conformance suites and their aggregate runners; and
+- Visualization commands and generated semantic outputs.
+
+Parity means equivalent semantics, validation boundaries, root selection, help, structured summaries, exit behavior, and documented side effects. It does not require identical source layout or implementation technique. Python commands call Python runtime services, and PowerShell commands call PowerShell runtime services; neither implementation silently delegates its domain behavior to the other.
+
+Environment probes, parser-native formatters, Ruff, the future work-annotation linter, and the future cross-runtime compatibility comparator are intentionally single-runtime or canonical orchestration tools. They validate runtimes rather than offering a domain-feature fallback. A cross-runtime comparator may launch all supported runtimes because comparison is its explicit responsibility. Any new exception to parity must be documented here and in `Tools/TOOLING_REFERENCE.md`.
+
+The post-migration command paths are the stable public CLI entry points. This pre-release repository will perform one atomic path migration: tracked callers, CI, documentation, module imports, and conformance registry paths move together. Old root-level script paths do not receive permanent wrappers, because that would recreate the flat directory and duplicate command inventory. A temporary wrapper is permitted only for a specifically identified external dependency, must warn about deprecation, and must have a recorded removal checkpoint.
+
+The migration order is fixed:
+
+1. implement and validate shared project discovery;
+2. create the Python package and PowerShell module without changing command behavior;
+3. move individual conformance runners and update only their centralized `suites.json` runner paths;
+4. move user commands, environment probes, and static tools while updating tracked callers and documentation;
+5. run static, three-runtime aggregate, root-discovery, Visualization, QA, render, and artifact-lifecycle validation;
+6. remove obsolete root-level implementations or approved temporary wrappers; and
+7. add missing registry suites only after final runtime and conformance paths are stable.
+
 ## Source-of-Truth Layers
 
 The repository uses these authority layers:

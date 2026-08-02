@@ -9,9 +9,95 @@ Paired validation and conformance commands must expose `--json` / `-Json` whenev
 The repository convention is:
 
 - Prefer Python tools when Python is available.
-- Keep PowerShell scripts as matching Windows fallbacks for users without Python.
+- Keep independent PowerShell implementations for the parity-required runtime and command surfaces listed in the migration inventory; preserve documented runtime-specific exceptions.
 - Treat generated outputs as compiled views unless a tool explicitly edits canonical files.
 - Update this reference whenever a script gains, loses, or changes a switch, output, or important side effect.
+
+## Tool Architecture Migration Inventory
+
+The current flat paths remain executable until the architecture migration is performed atomically. [ARCHITECTURE.md](../ARCHITECTURE.md#tool-runtime-and-command-architecture) owns the target boundaries, root-discovery order, parity policy, and wrapper rules. This inventory accounts for every maintained file currently beneath `Tools/` and freezes its destination before files move.
+
+### Reusable Runtime Pairs
+
+All rows in this table require independent Python, PowerShell 7, and Windows PowerShell 5.1 semantic parity. Python modules move beneath `Tools/Runtime/Python/knowledge_framework/`. PowerShell implementations become internal parts of `Tools/Runtime/PowerShell/KnowledgeFramework/`, with supported functions exported through `KnowledgeFramework.psd1` and `KnowledgeFramework.psm1` rather than peer-script dot sourcing.
+
+| Current Python | Current PowerShell | Target Python Module | Target PowerShell Ownership | Dependency Role |
+| --- | --- | --- | --- | --- |
+| `Tools/strict_yaml.py` | `Tools/Strict-Yaml.ps1` | `knowledge_framework.strict_yaml` | `KnowledgeFramework` strict-ingestion implementation | Lowest-level strict byte, syntax, scalar, key, timestamp, and parser-budget service. |
+| `Tools/project_config.py` | `Tools/Project-Config.ps1` | `knowledge_framework.project_paths` plus `knowledge_framework.project_config` | `KnowledgeFramework` project-path and manifest implementation | Dependency-light root/path discovery followed by strict manifest loading. |
+| `Tools/lookup_key_config.py` | `Tools/Lookup-Key-Config.ps1` | `knowledge_framework.lookup_key_config` | `KnowledgeFramework` lookup-key implementation | Pinned Unicode lookup normalization and ordinal comparison. |
+| `Tools/schema_pack_config.py` | `Tools/Schema-Pack-Config.ps1` | `knowledge_framework.schema_pack_config` | `KnowledgeFramework` schema-pack implementation | Pack composition, capability state, and controlled-value ownership. |
+| `Tools/taxonomy_config.py` | `Tools/Taxonomy-Config.ps1` | `knowledge_framework.taxonomy_config` | `KnowledgeFramework` taxonomy implementation | Content-type/category routing and validation. |
+| `Tools/resource_config.py` | `Tools/Resource-Config.ps1` | `knowledge_framework.resource_config` | `KnowledgeFramework` resource implementation | Resource-kind/type and placement validation. |
+| `Tools/temporal_config.py` | `Tools/Temporal-Config.ps1` | `knowledge_framework.temporal_config` | `KnowledgeFramework` temporal implementation | Domain-neutral civil-time parsing and comparison. |
+| `Tools/source_config.py` | `Tools/Source-Config.ps1` | `knowledge_framework.source_config` | `KnowledgeFramework` source implementation | Works, media, releases, evidence, applicability, and authority services. |
+| `Tools/chronology_config.py` | `Tools/Chronology-Config.ps1` | `knowledge_framework.chronology_config` | `KnowledgeFramework` chronology implementation | Non-civil coordinate systems, positions, spans, mappings, and ordering. |
+| `Tools/entity_config.py` | `Tools/Entity-Config.ps1` | `knowledge_framework.entity_config` | `KnowledgeFramework` entity implementation | Entities, incarnations, phases, aliases, relationships, and providers. |
+| `Tools/reconciliation_config.py` | `Tools/Reconciliation-Config.ps1` | `knowledge_framework.reconciliation_config` | `KnowledgeFramework` reconciliation implementation | Stable-ID redirects, merges, splits, retirement, and resolution. |
+| `Tools/occurrence_config.py` | `Tools/Occurrence-Config.ps1` | `knowledge_framework.occurrence_config` | `KnowledgeFramework` occurrence implementation | Occurrence, recurrence, state, schedule, rule, and outcome semantics. |
+| `Tools/provenance_config.py` | `Tools/Provenance-Config.ps1` | `knowledge_framework.provenance_config` | `KnowledgeFramework` provenance implementation | Assertions, evidence locators, claim evaluation, and cross-registry targets. |
+
+The target Python package also gains `__init__.py` and exports only deliberately supported entry points. Package consumers use `knowledge_framework.<module>` imports. The PowerShell manifest uses an explicit `FunctionsToExport` list; wildcard exports and command-to-command dot sourcing are prohibited.
+
+### User Command Pairs
+
+These remain Python-preferred commands with independent PowerShell fallbacks. Their post-migration paths and existing CLI behavior become stable public surfaces.
+
+| Current Pair | Target Pair | Ownership |
+| --- | --- | --- |
+| `Tools/obsidian_qa_export.py`, `Tools/Obsidian-QA-Export.ps1` | `Tools/Commands/QA/obsidian_qa_export.py`, `Tools/Commands/QA/Obsidian-QA-Export.ps1` | Obsidian mirror, bounded-page, and QA orchestration command. |
+| `Tools/clean_temp_files.py`, `Tools/Clean-TempFiles.ps1` | `Tools/Commands/Maintenance/clean_temp_files.py`, `Tools/Commands/Maintenance/Clean-TempFiles.ps1` | Scoped cache and temporary-artifact cleanup command. |
+| `Tools/search_epub.py`, `Tools/Search-Epub.ps1` | `Tools/Commands/Media/search_epub.py`, `Tools/Commands/Media/Search-Epub.ps1` | EPUB text/search command. |
+| `Tools/edit_image.py`, `Tools/Edit-Image.ps1` | `Tools/Commands/Media/edit_image.py`, `Tools/Commands/Media/Edit-Image.ps1` | Image manipulation and EPUB artwork extraction command. |
+
+### Conformance Inventory
+
+The aggregate entry points and registry are already in their final parent directory. Individual runners move beneath `Tools/Conformance/Suites/`; fixture data remains under `Framework/Data/`.
+
+| Current Files | Target | Parity |
+| --- | --- | --- |
+| `Tools/Conformance/run_conformance.py`, `Tools/Conformance/Run-Conformance.ps1`, `Tools/Conformance/suites.json` | unchanged parent paths | Paired aggregate semantics; each runtime launches its own suite implementations. |
+| `Tools/test_strict_yaml.py`, `Tools/Test-Strict-Yaml.ps1` | `Tools/Conformance/Suites/` with basenames retained | Required. |
+| `Tools/test_lookup_key.py`, `Tools/Test-Lookup-Key.ps1` | `Tools/Conformance/Suites/` with basenames retained | Required. |
+| `Tools/test_temporal.py`, `Tools/Test-Temporal.ps1` | `Tools/Conformance/Suites/` with basenames retained | Required. |
+| `Tools/test_chronology.py`, `Tools/Test-Chronology.ps1` | `Tools/Conformance/Suites/` with basenames retained | Required. |
+| `Tools/test_reconciliation.py`, `Tools/Test-Reconciliation.ps1` | `Tools/Conformance/Suites/` with basenames retained | Required. |
+| `Tools/test_occurrence.py`, `Tools/Test-Occurrence.ps1` | `Tools/Conformance/Suites/` with basenames retained | Required. |
+
+Moving an individual suite changes its Python and PowerShell runner paths only in `Tools/Conformance/suites.json`; CI continues to invoke the unchanged aggregate entry points. Discovery rules move with the suite directory and continue rejecting unregistered runners and stale exclusions.
+
+### Environment, Static, And Documentation Files
+
+| Current Files | Target | Pairing Decision |
+| --- | --- | --- |
+| `Tools/Test-Python.ps1`, `Tools/Test-PowerShell.ps1` | `Tools/Commands/Environment/` | Intentional PowerShell-only environment probes; each inspects a different runtime and is not a domain fallback. |
+| `Tools/Format-PowerShell.ps1`, `Tools/powershell-format-settings.psd1` | `Tools/Static/` | Intentional PowerShell-only parser-native formatter. Ruff remains configured by root `pyproject.toml`. |
+| `Tools/README.md`, `Tools/TOOLING_REFERENCE.md` | unchanged | Human command guide and detailed tooling contract. |
+
+The future work-annotation linter and cross-runtime compatibility comparator belong under `Tools/Static/` and `Tools/Compatibility/` respectively. Each may have one canonical Python implementation because one enforces repository text policy and the other explicitly orchestrates and compares all runtimes; neither is a user-facing project-domain fallback.
+
+### Public Entry And Migration Rules
+
+- Current command paths remain valid until the atomic migration; target paths are not partially advertised as usable.
+- Target command paths preserve current switch meaning, defaults, help, structured output, exit behavior, and side-effect boundaries.
+- Tracked callers, CI, documentation, imports, module loading, and suite-registry paths update in the same migration wave.
+- Root-level compatibility wrappers are not retained by default. Any exception must name an external dependency, emit a deprecation warning, and record a removal checkpoint.
+- Python commands import package-qualified runtime modules. PowerShell commands import the module manifest. Commands do not import or dot-source peer commands.
+- Python implementations do not call PowerShell implementations, and PowerShell implementations do not call Python implementations, except for a future tool whose explicit purpose is cross-runtime comparison.
+- Static tools and environment probes are excluded from domain parity only where the inventory explicitly says so.
+
+### Known Layout-Coupled Transition Debt
+
+The migration must remove, not carry forward, these current assumptions:
+
+- `test_strict_yaml.py`, `test_lookup_key.py`, `test_temporal.py`, and `test_reconciliation.py` derive the repository root from their current file depth; their PowerShell partners contain equivalent script-parent defaults.
+- `clean_temp_files.py` and `Clean-TempFiles.ps1` derive the repository root from their current script parent.
+- `Format-PowerShell.ps1` uses Git discovery and keeps its settings beside the script; after the move it must use the shared project root while resolving settings from `Tools/Static/`.
+- `Visualization/visualize.py` and `Visualization/visualize.ps1` assume the parent of their script directory is the repository root and change process location. They must adopt shared root discovery and path-qualified operations without changing the caller's working directory.
+- Current Python loaders use flat sibling imports, and current PowerShell loaders and conformance runners dot-source peer scripts through `$PSScriptRoot`.
+- The aggregate runners currently bootstrap the flat `Tools/` directory to obtain project discovery; after package/module extraction they must import the runtime through its final package or module path.
+
+Phase 2 must make root discovery independent of file depth before Phase 3 moves these files. Phase 3 is incomplete until repository searches find no project-root derivation from fixed parent counts, no project-aware `Set-Location` or `os.chdir`, no flat loader imports, and no command/conformance dot-sourcing of root-level loader scripts.
 
 ## Python Environment Check
 
