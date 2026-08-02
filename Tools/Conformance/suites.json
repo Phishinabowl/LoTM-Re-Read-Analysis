@@ -6,6 +6,7 @@
       "strict-ingestion",
       "lookup-key",
       "schema-pack",
+      "taxonomy",
       "temporal",
       "chronology"
     ],
@@ -14,6 +15,7 @@
       "strict-ingestion",
       "lookup-key",
       "schema-pack",
+      "taxonomy",
       "temporal",
       "chronology",
       "reconciliation",
@@ -44,6 +46,12 @@
       "python": "Tools/Conformance/Suites/test_schema_pack.py",
       "powershell": "Tools/Conformance/Suites/Test-Schema-Pack.ps1",
       "tags": ["baseline", "fast", "composition"]
+    },
+    {
+      "id": "taxonomy",
+      "python": "Tools/Conformance/Suites/test_taxonomy.py",
+      "powershell": "Tools/Conformance/Suites/Test-Taxonomy.ps1",
+      "tags": ["baseline", "fast", "content"]
     },
     {
       "id": "temporal",

@@ -1,0 +1,114 @@
+{
+  "schema_version": 2,
+  "content_types": {
+    "subject-page": {
+      "lifecycle": "active",
+      "label": "Subject Page",
+      "plural_label": "Subject Pages",
+      "canonical_pages_enabled": true,
+      "content_root_id": "articles",
+      "category_policy": "required",
+      "path_strategy": "category-file",
+      "metadata_type_mode": "category",
+      "slug_mode": "category",
+      "default_template": "templates/default.md",
+      "qa_page_enabled": true,
+      "graph_enabled": true
+    },
+    "research-record": {
+      "lifecycle": "active",
+      "label": "Research Record",
+      "plural_label": "Research Records",
+      "canonical_pages_enabled": true,
+      "content_root_id": "records",
+      "category_policy": "optional",
+      "path_strategy": "category-subject-record",
+      "metadata_type_mode": "none",
+      "slug_mode": "record",
+      "record_slug_pattern": "^[a-z0-9][a-z0-9-]*$",
+      "default_template": "templates/default.md",
+      "qa_page_enabled": false,
+      "graph_enabled": false
+    },
+    "digest": {
+      "lifecycle": "active",
+      "label": "Digest",
+      "plural_label": "Digests",
+      "canonical_pages_enabled": true,
+      "content_root_id": "records",
+      "category_policy": "forbidden",
+      "path_strategy": "root-file",
+      "metadata_type_mode": "fixed",
+      "metadata_type": "Digest",
+      "slug_mode": "record",
+      "record_slug_prefix": "digest",
+      "record_slug_pattern": "^digest-[a-z0-9][a-z0-9-]*$",
+      "qa_page_enabled": true,
+      "graph_enabled": false
+    },
+    "fixed-index": {
+      "lifecycle": "active",
+      "label": "Fixed Index",
+      "plural_label": "Fixed Indexes",
+      "canonical_pages_enabled": true,
+      "content_root_id": "records",
+      "category_policy": "forbidden",
+      "path_strategy": "fixed-file",
+      "record_path": "index.md",
+      "metadata_type_mode": "none",
+      "slug_mode": "record",
+      "record_slug_pattern": "^index$",
+      "qa_page_enabled": false,
+      "graph_enabled": false
+    },
+    "deferred-content": {
+      "lifecycle": "deferred",
+      "label": "Deferred Content",
+      "plural_label": "Deferred Content",
+      "canonical_pages_enabled": false,
+      "content_root_id": "articles",
+      "category_policy": "optional",
+      "path_strategy": "category-file",
+      "metadata_type_mode": "none",
+      "slug_mode": "record",
+      "record_slug_pattern": "^[a-z0-9][a-z0-9-]*$",
+      "qa_page_enabled": false,
+      "graph_enabled": false
+    }
+  },
+  "categories": {
+    "subject-alpha": {
+      "lifecycle": "active",
+      "label": "Subject Alpha",
+      "plural_label": "Subject Alphas",
+      "canonical_pages_enabled": true,
+      "metadata_type": "Subject Alpha",
+      "subject_slug_prefix": "alpha",
+      "subject_slug_pattern": "^alpha-[a-z0-9][a-z0-9-]*$",
+      "graph_class": "alpha-class",
+      "placements": {
+        "subject-page": {"relative_folder": "Alpha", "template": "templates/special.md"},
+        "research-record": {"relative_folder": "Alpha"}
+      }
+    },
+    "subject-beta": {
+      "lifecycle": "active",
+      "label": "Subject Beta",
+      "plural_label": "Subject Betas",
+      "canonical_pages_enabled": true,
+      "metadata_type": "Subject Beta",
+      "subject_slug_prefix": "beta",
+      "subject_slug_pattern": "^beta-[a-z0-9][a-z0-9-]*$",
+      "graph_class": "beta-class",
+      "placements": {
+        "subject-page": {"relative_folder": "Beta"}
+      }
+    },
+    "deferred-subject": {
+      "lifecycle": "deferred",
+      "label": "Deferred Subject",
+      "plural_label": "Deferred Subjects",
+      "canonical_pages_enabled": false
+    }
+  }
+}

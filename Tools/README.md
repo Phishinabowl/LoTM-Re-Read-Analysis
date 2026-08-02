@@ -468,7 +468,7 @@ python Tools\Conformance\run_conformance.py --profile baseline --json
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Conformance.ps1 -Profile baseline -Json
 ```
 
-The `baseline` profile runs every registered permanent suite and is the profile used by CI and framework-version validation. The smaller `fast` profile runs project-root, strict-ingestion, lookup-key, schema-pack, temporal, and chronology checks for quick local feedback; it is not a substitute for the baseline. Schema-pack composition remains in `fast` because its small synthetic corpus diagnoses foundational capability and vocabulary failures before downstream registries obscure them. Use repeatable Python `--suite` arguments or a PowerShell `-Suite` array for focused diagnosis, and use `--list` / `-List` to inspect the registered inventory and profiles.
+The `baseline` profile runs every registered permanent suite and is the profile used by CI and framework-version validation. The smaller `fast` profile runs project-root, strict-ingestion, lookup-key, schema-pack, taxonomy, temporal, and chronology checks for quick local feedback; it is not a substitute for the baseline. Schema-pack and taxonomy composition remain in `fast` because their small synthetic corpora diagnose foundational capability, vocabulary, content-routing, and placement failures before downstream registries obscure them. Use repeatable Python `--suite` arguments or a PowerShell `-Suite` array for focused diagnosis, and use `--list` / `-List` to inspect the registered inventory and profiles.
 
 ```powershell
 python Tools\Conformance\run_conformance.py --profile fast
@@ -525,6 +525,17 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Suites\Tes
 ```
 
 Use `--json` / `-Json` for matching canonical, fixture, malformed-case, and scale counts across Python, PowerShell 7, and Windows PowerShell 5.1.
+
+## Taxonomy Conformance
+
+Run the dedicated taxonomy suite after changing content-type/category shape, lifecycle, category policy, path or metadata strategy, slug rules, templates, placements, reconciliation targets, or QA-page routing. Both implementations load the canonical project taxonomy, then consume the neutral fixture and 48 structured malformed mutations in `Framework/Data/Taxonomy/`. A generated 128-category composition provides a bounded scale check without making LoTM category names part of the framework oracle; all operating-system temporary data is removed automatically.
+
+```powershell
+python Tools\Conformance\Suites\test_taxonomy.py
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Suites\Test-Taxonomy.ps1
+```
+
+Use `--json` / `-Json` for matching canonical, fixture, malformed-case, invalid-query, and scale counts across Python, PowerShell 7, and Windows PowerShell 5.1.
 
 ## Reconciliation Conformance
 
