@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "resource_kinds": {
+    "source": {"label": "Source", "plural_label": "Sources"}
+  },
+  "resource_types": {
+    "source-material": {
+      "lifecycle": "active",
+      "label": "Source Material",
+      "plural_label": "Source Materials",
+      "kind_id": "source",
+      "authority": "evidence",
+      "editor_enabled": false,
+      "placements": [
+        {
+          "root_id": "source-files",
+          "relative_path": ".",
+          "tracking": "tracked",
+          "required": true
+        }
+      ]
+    }
+  }
+}

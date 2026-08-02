@@ -468,7 +468,7 @@ python Tools\Conformance\run_conformance.py --profile baseline --json
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Conformance.ps1 -Profile baseline -Json
 ```
 
-The `baseline` profile runs every registered permanent suite and is the profile used by CI and framework-version validation. The smaller `fast` profile runs project-root, strict-ingestion, lookup-key, schema-pack, taxonomy, resource, temporal, and chronology checks for quick local feedback; it is not a substitute for the baseline. Schema-pack, taxonomy, and resource composition remain in `fast` because their small synthetic corpora diagnose foundational capability, vocabulary, content-routing, and placement failures before downstream registries obscure them. Use repeatable Python `--suite` arguments or a PowerShell `-Suite` array for focused diagnosis, and use `--list` / `-List` to inspect the registered inventory and profiles.
+The `baseline` profile runs every registered permanent suite and is the profile used by CI and framework-version validation. The smaller `fast` profile runs project-root, strict-ingestion, lookup-key, schema-pack, taxonomy, resource, temporal, and chronology checks for quick local feedback; it is not a substitute for the baseline. Schema-pack, taxonomy, and resource composition remain in `fast` because their small synthetic corpora diagnose foundational capability, vocabulary, content-routing, and placement failures before downstream registries obscure them. Source conformance remains baseline-only because its comprehensive malformed corpus repeatedly composes the larger dependency chain. Use repeatable Python `--suite` arguments or a PowerShell `-Suite` array for focused diagnosis, and use `--list` / `-List` to inspect the registered inventory and profiles.
 
 ```powershell
 python Tools\Conformance\run_conformance.py --profile fast
@@ -544,6 +544,17 @@ Run the dedicated resource suite after changing resource-kind/type shape, lifecy
 ```powershell
 python Tools\Conformance\Suites\test_resource.py
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Suites\Test-Resource.ps1
+```
+
+Use `--json` / `-Json` for matching canonical, fixture, malformed-case, invalid-query, and scale counts across Python, PowerShell 7, and Windows PowerShell 5.1.
+
+## Source Conformance
+
+Run the dedicated source suite after changing work/continuity structure, media or structural positions, authority, applicability, adaptations, manifestations, releases, distribution, evidence sources, observations, coverage, identifiers, resource bindings, or source reconciliation/provenance targets. Both implementations load the canonical project registry, then consume the vocabulary-neutral fixture and 65 structured malformed mutations in `Framework/Data/Sources/`. Fifteen invalid service queries and a generated 128-source composition verify service boundaries and bounded scale; all operating-system temporary data is removed automatically.
+
+```powershell
+python Tools\Conformance\Suites\test_source.py
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Suites\Test-Source.ps1
 ```
 
 Use `--json` / `-Json` for matching canonical, fixture, malformed-case, invalid-query, and scale counts across Python, PowerShell 7, and Windows PowerShell 5.1.

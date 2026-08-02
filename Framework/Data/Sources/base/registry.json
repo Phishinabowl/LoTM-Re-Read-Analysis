@@ -1,0 +1,779 @@
+{
+  "schema_version": 18,
+  "default_authority_profile_id": "comparison-profile",
+  "media_modalities": {
+    "prose": {"label": "Prose"},
+    "animation": {"label": "Animation"}
+  },
+  "cultural_forms": {
+    "anime": {"label": "Anime", "modality_id": "animation"}
+  },
+  "release_forms": {
+    "novel": {"label": "Novel"},
+    "television-series": {"label": "Television Series"}
+  },
+  "container_formats": {
+    "epub": {"label": "EPUB"},
+    "streaming-release": {"label": "Streaming Release"}
+  },
+  "mediums": {
+    "novel": {
+      "lifecycle": "active",
+      "label": "Novel",
+      "plural_label": "Novels",
+      "modality_ids": ["prose"],
+      "cultural_form_ids": [],
+      "position": {
+        "fields": {"work": "string", "volume": "integer", "chapter": "integer", "sequence": "integer"},
+        "work_scope_field": "work",
+        "structural_validation": {
+          "strategy": "work-volume-catalog",
+          "partition_field": "volume",
+          "ordinal_field": "chapter"
+        },
+        "required_fields": ["work", "volume", "chapter"],
+        "sort_fields": ["work", "chapter", "sequence"],
+        "citation_formats": [
+          {
+            "id": "work-chapter",
+            "template": "{work} Ch{chapter}",
+            "required_fields": ["work", "chapter"]
+          }
+        ]
+      }
+    },
+    "anime": {
+      "lifecycle": "active",
+      "label": "Anime",
+      "plural_label": "Anime",
+      "modality_ids": ["animation"],
+      "cultural_form_ids": ["anime"],
+      "position": {
+        "fields": {
+          "work": "string",
+          "segment": "string",
+          "ordering_scheme": "string",
+          "episode": "integer",
+          "timestamp": "timestamp",
+          "sequence": "integer"
+        },
+        "work_scope_field": "work",
+        "structural_validation": {
+          "strategy": "work-segment-ordering",
+          "segment_field": "segment",
+          "ordering_scheme_field": "ordering_scheme"
+        },
+        "required_fields": ["work", "segment", "ordering_scheme", "episode"],
+        "sort_fields": ["work", "segment", "timestamp", "sequence"],
+        "citation_formats": [
+          {
+            "id": "work-episode",
+            "template": "{work} E{episode}",
+            "required_fields": ["work", "episode"]
+          }
+        ]
+      }
+    }
+  },
+  "work_group_types": {
+    "franchise": {"label": "Franchise", "ordered": false},
+    "series": {"label": "Series", "ordered": true}
+  },
+  "work_groups": {
+    "sample-franchise": {
+      "lifecycle": "active",
+      "label": "Sample Franchise",
+      "short_label": "Sample",
+      "group_type": "franchise"
+    },
+    "sample-series": {
+      "lifecycle": "active",
+      "label": "Sample Series",
+      "short_label": "Series",
+      "group_type": "series",
+      "parent_group_id": "sample-franchise"
+    }
+  },
+  "continuities": {
+    "primary-continuity": {
+      "lifecycle": "active",
+      "label": "Primary Continuity",
+      "short_label": "Primary",
+      "continuity_type": "primary",
+      "aliases": ["main-continuity"]
+    },
+    "adaptation-continuity": {
+      "lifecycle": "active",
+      "label": "Adaptation Continuity",
+      "short_label": "Adaptation",
+      "continuity_type": "adaptation",
+      "aliases": []
+    }
+  },
+  "continuity_relationship_types": {
+    "adaptation-of": {
+      "label": "Adaptation Of",
+      "inverse_type": "has-adaptation",
+      "symmetric": false
+    },
+    "has-adaptation": {
+      "label": "Has Adaptation",
+      "inverse_type": "adaptation-of",
+      "symmetric": false
+    }
+  },
+  "continuity_relationships": [
+    {
+      "id": "adaptation-continuity-of-primary",
+      "source_continuity_id": "adaptation-continuity",
+      "relationship_type": "adaptation-of",
+      "target_continuity_id": "primary-continuity",
+      "status": "canonical"
+    }
+  ],
+  "authority_profiles": {
+    "comparison-profile": {
+      "lifecycle": "active",
+      "label": "Comparison Profile",
+      "continuity_order": ["primary-continuity", "adaptation-continuity"],
+      "accepted_membership_statuses": ["canonical"],
+      "source_priority_order": "ascending",
+      "comparison_work_relationship_types": ["adaptation-of"],
+      "cross_source_conflict": "flag",
+      "derivative_deviation_owner": "derivative-work",
+      "preserve_source_scoped_claims": true,
+      "claim_authority_rules": [
+        {
+          "id": "primary-dialogue-rule",
+          "claim_namespace": "dialogue",
+          "precedence": 20,
+          "source_ids": ["primary-source"],
+          "source_roles": [],
+          "medium_ids": [],
+          "evidence_modes": [],
+          "rank": 1
+        },
+        {
+          "id": "adaptation-content-rule",
+          "claim_namespace": "canonical-content",
+          "precedence": 10,
+          "source_ids": ["adaptation-source"],
+          "source_roles": [],
+          "medium_ids": [],
+          "evidence_modes": [],
+          "rank": 2
+        },
+        {
+          "id": "primary-text-mode-rule",
+          "claim_namespace": "canonical-content",
+          "precedence": 15,
+          "source_ids": ["primary-source"],
+          "source_roles": [],
+          "medium_ids": [],
+          "evidence_modes": ["textual-evidence"],
+          "rank": 1
+        }
+      ]
+    }
+  },
+  "work_relationship_types": {
+    "adaptation-of": {
+      "label": "Adaptation Of",
+      "inverse_type": "has-adaptation",
+      "symmetric": false
+    },
+    "has-adaptation": {
+      "label": "Has Adaptation",
+      "inverse_type": "adaptation-of",
+      "symmetric": false
+    }
+  },
+  "works": {
+    "primary-work": {
+      "lifecycle": "active",
+      "label": "Primary Work",
+      "short_label": "Primary",
+      "work_type": "novel",
+      "medium_id": "novel",
+      "release_form_id": "novel",
+      "work_status": "released",
+      "aliases": ["original-work"],
+      "localized_titles": [
+        {
+          "id": "primary-work-french-title",
+          "language_tag": "fr",
+          "territory_ids": ["sample-region"],
+          "title": "Oeuvre principale",
+          "title_type": "official",
+          "status": "active",
+          "is_primary": true,
+          "valid_window": {
+            "kind": "interval",
+            "start": {"kind": "known", "value": "2025-01-01", "precision": "date", "certainty": "exact", "inclusive": true}
+          }
+        }
+      ],
+      "group_memberships": [
+        {"group_id": "sample-series", "role": "primary", "ordinal": 1}
+      ],
+      "continuity_memberships": [
+        {"continuity_id": "primary-continuity", "status": "canonical"}
+      ],
+      "chapter_numbering": "work-local",
+      "volume_catalog_status": "verified",
+      "volumes": [
+        {"id": "volume-one", "number": 1, "label": "Volume One", "chapter_start": 1, "chapter_end": 12}
+      ]
+    },
+    "adaptation-work": {
+      "lifecycle": "active",
+      "label": "Adaptation Work",
+      "short_label": "Adaptation",
+      "work_type": "television-series",
+      "medium_id": "anime",
+      "release_form_id": "television-series",
+      "work_status": "released",
+      "aliases": ["screen-work"],
+      "localized_titles": [],
+      "group_memberships": [
+        {"group_id": "sample-series", "role": "adaptation", "ordinal": 2}
+      ],
+      "continuity_memberships": [
+        {"continuity_id": "adaptation-continuity", "status": "canonical"}
+      ],
+      "chapter_numbering": "not-applicable",
+      "volume_catalog_status": "not-applicable",
+      "volumes": []
+    }
+  },
+  "segments": {
+    "primary-volume": {
+      "work_id": "primary-work",
+      "segment_type": "volume",
+      "label": "Primary Volume",
+      "aliases": [],
+      "localized_titles": [],
+      "ordinal": 1
+    },
+    "primary-chapter-one": {
+      "work_id": "primary-work",
+      "parent_segment_id": "primary-volume",
+      "segment_type": "chapter",
+      "label": "Primary Chapter One",
+      "aliases": ["opening-chapter"],
+      "localized_titles": [],
+      "ordinal": 1
+    },
+    "primary-chapter-two": {
+      "work_id": "primary-work",
+      "parent_segment_id": "primary-volume",
+      "segment_type": "chapter",
+      "label": "Primary Chapter Two",
+      "aliases": [],
+      "localized_titles": [],
+      "ordinal": 2
+    },
+    "adaptation-episode-one": {
+      "work_id": "adaptation-work",
+      "segment_type": "episode",
+      "label": "Adaptation Episode One",
+      "aliases": [],
+      "localized_titles": [],
+      "ordinal": 1
+    },
+    "adaptation-episode-two": {
+      "work_id": "adaptation-work",
+      "segment_type": "episode",
+      "label": "Adaptation Episode Two",
+      "aliases": [],
+      "localized_titles": [],
+      "ordinal": 2
+    }
+  },
+  "content_groups": {
+    "primary-selection": {
+      "lifecycle": "active",
+      "label": "Primary Selection",
+      "group_type": "reading-path",
+      "members": [
+        {"id": "selection-chapter-one", "target_type": "segment", "target_id": "primary-chapter-one", "role": "required"},
+        {"id": "selection-chapter-two", "target_type": "segment", "target_id": "primary-chapter-two", "role": "optional"}
+      ],
+      "parent_group_ids": [],
+      "ordering_scheme_id": "primary-reading-order",
+      "localized_titles": [],
+      "aliases": ["starter-selection"]
+    }
+  },
+  "numbering_schemes": {
+    "primary-chapter-numbers": {
+      "lifecycle": "active",
+      "label": "Primary Chapter Numbers",
+      "target_type": "segment",
+      "scope_type": "work",
+      "scope_id": "primary-work",
+      "entries": [
+        {"target_id": "primary-chapter-one", "display_number": "1", "aliases": ["one"]},
+        {"target_id": "primary-chapter-two", "display_number": "2", "aliases": ["two"]}
+      ]
+    }
+  },
+  "ordering_schemes": {
+    "primary-reading-order": {
+      "label": "Primary Reading Order",
+      "ordering_type": "recommended-order",
+      "ordering_mode": "total",
+      "entries": [
+        {"id": "primary-first", "target_type": "segment", "target_id": "primary-chapter-one", "ordinal": 1, "after_entry_ids": []},
+        {"id": "primary-second", "target_type": "segment", "target_id": "primary-chapter-two", "ordinal": 2, "after_entry_ids": []}
+      ]
+    },
+    "adaptation-release-order": {
+      "label": "Adaptation Release Order",
+      "ordering_type": "release-order",
+      "ordering_mode": "total",
+      "entries": [
+        {"id": "adaptation-first", "target_type": "segment", "target_id": "adaptation-episode-one", "ordinal": 1, "after_entry_ids": []},
+        {"id": "adaptation-second", "target_type": "segment", "target_id": "adaptation-episode-two", "ordinal": 2, "after_entry_ids": []}
+      ]
+    },
+    "primary-partial-order": {
+      "label": "Primary Partial Order",
+      "ordering_type": "story-order",
+      "ordering_mode": "partial",
+      "entries": [
+        {"id": "partial-first", "target_type": "segment", "target_id": "primary-chapter-one", "after_entry_ids": []},
+        {"id": "partial-second", "target_type": "segment", "target_id": "primary-chapter-two", "after_entry_ids": ["partial-first"]}
+      ]
+    }
+  },
+  "work_relationships": [
+    {
+      "id": "adaptation-work-of-primary",
+      "source_work_id": "adaptation-work",
+      "relationship_type": "adaptation-of",
+      "target_work_id": "primary-work",
+      "continuity_ids": ["adaptation-continuity"],
+      "status": "canonical"
+    }
+  ],
+  "adaptation_mappings": [
+    {
+      "id": "chapter-one-to-episode-one",
+      "basis_inputs": [
+        {"work_id": "primary-work", "segment_ids": ["primary-chapter-one"], "basis_role": "primary-source"}
+      ],
+      "target_work_id": "adaptation-work",
+      "target_segment_ids": ["adaptation-episode-one"],
+      "mapping_type": "direct",
+      "status": "canonical"
+    }
+  ],
+  "territories": {
+    "worldwide": {
+      "lifecycle": "active",
+      "label": "Worldwide",
+      "territory_type": "worldwide",
+      "codes": {"iso-region": "001"}
+    },
+    "sample-region": {
+      "lifecycle": "active",
+      "label": "Sample Region",
+      "territory_type": "region",
+      "parent_territory_id": "worldwide",
+      "codes": {"sample-code": "XR"}
+    }
+  },
+  "applicability_scopes": [
+    {
+      "id": "adaptation-work-scope",
+      "target_type": "work",
+      "target_id": "adaptation-work",
+      "territory_ids": [],
+      "precedence": 1
+    },
+    {
+      "id": "chapter-one-region-scope",
+      "target_type": "segment",
+      "target_id": "primary-chapter-one",
+      "territory_ids": ["sample-region"],
+      "effective_window": {
+        "kind": "interval",
+        "start": {"kind": "known", "value": "2025-01-01", "precision": "date", "certainty": "exact", "inclusive": true}
+      },
+      "precedence": 5
+    }
+  ],
+  "scoped_continuity_assertions": [
+    {
+      "id": "chapter-one-primary-continuity",
+      "applicability_scope_id": "chapter-one-region-scope",
+      "continuity_id": "primary-continuity",
+      "status": "canonical"
+    }
+  ],
+  "work_production_contexts": [
+    {
+      "id": "adaptation-production",
+      "work_id": "adaptation-work",
+      "production_origin": "third-party-production",
+      "authorization_status": "authorized",
+      "rights_basis": "license",
+      "commerciality": "commercial",
+      "applicability_scope_id": "adaptation-work-scope"
+    }
+  ],
+  "platforms": {
+    "sample-stream": {
+      "lifecycle": "active",
+      "label": "Sample Stream",
+      "platform_type": "streaming-service",
+      "aliases": ["sample-platform"]
+    }
+  },
+  "manifestation_relationship_types": {
+    "translation-of": {
+      "label": "Translation Of",
+      "inverse_type": "has-translation",
+      "symmetric": false
+    },
+    "has-translation": {
+      "label": "Has Translation",
+      "inverse_type": "translation-of",
+      "symmetric": false
+    }
+  },
+  "manifestations": {
+    "primary-edition": {
+      "lifecycle": "active",
+      "label": "Primary Digital Edition",
+      "work_id": "primary-work",
+      "segment_ids": [],
+      "manifestation_type": "digital-edition",
+      "language_tags": ["en"],
+      "territory_ids": [],
+      "container_format_ids": ["epub"],
+      "localized_titles": [],
+      "aliases": ["digital-primary"]
+    },
+    "adaptation-stream": {
+      "lifecycle": "active",
+      "label": "Adaptation Stream",
+      "work_id": "adaptation-work",
+      "segment_ids": [],
+      "manifestation_type": "streaming-version",
+      "language_tags": ["ja"],
+      "territory_ids": [],
+      "container_format_ids": ["streaming-release"],
+      "localized_titles": [],
+      "aliases": []
+    },
+    "primary-translation": {
+      "lifecycle": "active",
+      "label": "Primary Translation",
+      "work_id": "primary-work",
+      "segment_ids": ["primary-chapter-one", "primary-chapter-two"],
+      "manifestation_type": "translated-edition",
+      "language_tags": ["fr"],
+      "territory_ids": ["sample-region"],
+      "container_format_ids": ["epub"],
+      "localized_titles": [],
+      "aliases": []
+    }
+  },
+  "manifestation_relationships": [
+    {
+      "id": "primary-translation-of-edition",
+      "source_manifestation_id": "primary-translation",
+      "relationship_type": "translation-of",
+      "target_manifestation_id": "primary-edition",
+      "status": "canonical"
+    }
+  ],
+  "manifestation_segment_mappings": [
+    {
+      "id": "translation-retains-chapter-one",
+      "source_manifestation_id": "primary-edition",
+      "source_segment_ids": ["primary-chapter-one"],
+      "target_manifestation_id": "primary-translation",
+      "target_segment_ids": ["primary-chapter-one"],
+      "mapping_type": "retained",
+      "status": "canonical"
+    }
+  ],
+  "release_components": {
+    "adaptation-subtitles": {
+      "lifecycle": "active",
+      "label": "Adaptation Subtitles",
+      "manifestation_id": "adaptation-stream",
+      "component_type": "subtitle-track",
+      "segment_ids": ["adaptation-episode-one", "adaptation-episode-two"],
+      "language_tag": "en"
+    },
+    "adaptation-subtitles-revised": {
+      "lifecycle": "active",
+      "label": "Revised Adaptation Subtitles",
+      "manifestation_id": "adaptation-stream",
+      "component_type": "subtitle-track",
+      "segment_ids": ["adaptation-episode-one", "adaptation-episode-two"],
+      "language_tag": "en"
+    }
+  },
+  "release_component_relationship_types": {
+    "revision-of": {
+      "label": "Revision Of",
+      "inverse_type": "has-revision",
+      "symmetric": false
+    },
+    "has-revision": {
+      "label": "Has Revision",
+      "inverse_type": "revision-of",
+      "symmetric": false
+    }
+  },
+  "release_component_relationships": [
+    {
+      "id": "revised-subtitles-revise-original",
+      "source_component_id": "adaptation-subtitles-revised",
+      "relationship_type": "revision-of",
+      "target_component_id": "adaptation-subtitles"
+    }
+  ],
+  "release_packages": {
+    "adaptation-package": {
+      "lifecycle": "active",
+      "label": "Adaptation Package",
+      "package_type": "bundle",
+      "manifestation_ids": ["adaptation-stream"],
+      "segment_ids": ["adaptation-episode-one", "adaptation-episode-two"],
+      "release_component_ids": ["adaptation-subtitles"],
+      "container_format_ids": ["streaming-release"],
+      "localized_titles": [],
+      "aliases": ["screen-bundle"]
+    }
+  },
+  "release_runs": {
+    "adaptation-weekly-run": {
+      "lifecycle": "active",
+      "label": "Adaptation Weekly Run",
+      "subject_type": "manifestation",
+      "subject_id": "adaptation-stream",
+      "segment_ids": ["adaptation-episode-one", "adaptation-episode-two"],
+      "ordering_scheme_id": "adaptation-release-order",
+      "release_event_type": "streaming",
+      "phases": [
+        {
+          "id": "weekly-phase",
+          "segment_ids": ["adaptation-episode-one", "adaptation-episode-two"],
+          "first_release_window": {
+            "kind": "interval",
+            "start": {"kind": "known", "value": "2025-01-01", "precision": "date", "certainty": "exact", "inclusive": true}
+          },
+          "cadence": {"unit": "week", "interval": 1},
+          "batch_size": 1
+        }
+      ],
+      "territory_ids": ["sample-region"],
+      "platform_ids": ["sample-stream"],
+      "availability_status": "available",
+      "exceptions": [
+        {"exception_type": "pause", "segment_id": "adaptation-episode-two", "interval_count": 1}
+      ]
+    }
+  },
+  "release_events": {
+    "adaptation-premiere": {
+      "lifecycle": "active",
+      "label": "Adaptation Premiere",
+      "subject_type": "manifestation",
+      "subject_id": "adaptation-stream",
+      "segment_ids": ["adaptation-episode-one"],
+      "release_event_type": "streaming",
+      "release_window": {
+        "kind": "interval",
+        "start": {"kind": "known", "value": "2025-01-01", "precision": "date", "certainty": "exact", "inclusive": true}
+      },
+      "territory_ids": ["sample-region"],
+      "platform_ids": ["sample-stream"],
+      "availability_status": "available",
+      "release_run_id": "adaptation-weekly-run"
+    }
+  },
+  "catalog_placements": {
+    "adaptation-title-placement": {
+      "lifecycle": "active",
+      "label": "Adaptation Title Placement",
+      "platform_id": "sample-stream",
+      "placement_type": "title",
+      "target_type": "manifestation",
+      "target_id": "adaptation-stream",
+      "ordinal": 1,
+      "provider_key": "sample-adaptation",
+      "localized_titles": []
+    }
+  },
+  "platform_offerings": {
+    "adaptation-subscription": {
+      "lifecycle": "active",
+      "label": "Adaptation Subscription",
+      "platform_id": "sample-stream",
+      "subject_type": "manifestation",
+      "subject_id": "adaptation-stream",
+      "segment_ids": ["adaptation-episode-one"],
+      "release_event_id": "adaptation-premiere",
+      "offering_type": "subscription",
+      "availability_status": "available",
+      "territory_ids": ["sample-region"],
+      "language_tags": ["ja", "en"],
+      "availability_window": {
+        "kind": "interval",
+        "start": {"kind": "known", "value": "2025-01-01", "precision": "date", "certainty": "exact", "inclusive": true}
+      },
+      "catalog_placement_ids": ["adaptation-title-placement"]
+    }
+  },
+  "identifier_schemes": {
+    "sample-id": {
+      "lifecycle": "active",
+      "label": "Sample Identifier",
+      "target_types": ["work", "manifestation", "source", "release-run"],
+      "case_sensitive": false
+    }
+  },
+  "source_relationship_types": {
+    "edition-of": {
+      "label": "Edition Of",
+      "inverse_type": "has-edition",
+      "symmetric": false
+    },
+    "has-edition": {
+      "label": "Has Edition",
+      "inverse_type": "edition-of",
+      "symmetric": false
+    }
+  },
+  "sources": {
+    "primary-source": {
+      "lifecycle": "active",
+      "label": "Primary Source",
+      "work_ids": ["primary-work"],
+      "manifestation_id": "primary-edition",
+      "release_component_ids": [],
+      "medium_id": "novel",
+      "locator_medium_ids": ["novel"],
+      "container_format_ids": ["epub"],
+      "role": "primary-edition",
+      "comparison_group": "sample-narrative",
+      "priority": 1,
+      "aliases": ["original-source"],
+      "evidence_modes": ["canonical-text"],
+      "observations": [
+        {"id": "primary-edition-observation", "target_type": "manifestation", "target_id": "primary-edition"}
+      ],
+      "coverage": [
+        {
+          "id": "primary-chapter-coverage",
+          "target_type": "work",
+          "target_id": "primary-work",
+          "coverage_type": "partial",
+          "medium_id": "novel",
+          "evidence_modes": ["canonical-text"],
+          "position_ranges": [
+            {
+              "id": "primary-chapters-one-two",
+              "start": {"work": "primary-work", "volume": 1, "chapter": 1},
+              "end": {"work": "primary-work", "volume": 1, "chapter": 2}
+            }
+          ]
+        }
+      ],
+      "resource_bindings": [
+        {
+          "resource_type_id": "source-material",
+          "root_id": "source-files",
+          "relative_path": "primary.txt",
+          "required": true
+        }
+      ]
+    },
+    "adaptation-source": {
+      "lifecycle": "active",
+      "label": "Adaptation Source",
+      "work_ids": ["adaptation-work"],
+      "manifestation_id": "adaptation-stream",
+      "release_event_id": "adaptation-premiere",
+      "release_component_ids": ["adaptation-subtitles"],
+      "platform_offering_id": "adaptation-subscription",
+      "medium_id": "anime",
+      "locator_medium_ids": ["anime"],
+      "container_format_ids": ["streaming-release"],
+      "role": "official-release",
+      "comparison_group": "sample-narrative",
+      "priority": 2,
+      "aliases": ["screen-source"],
+      "evidence_modes": ["animation-visual", "dialogue"],
+      "observations": [
+        {"id": "adaptation-event-observation", "target_type": "release-event", "target_id": "adaptation-premiere"},
+        {"id": "adaptation-offering-observation", "target_type": "platform-offering", "target_id": "adaptation-subscription"},
+        {"id": "adaptation-subtitle-observation", "target_type": "release-component", "target_id": "adaptation-subtitles"}
+      ],
+      "coverage": [
+        {
+          "id": "adaptation-visual-coverage",
+          "target_type": "manifestation",
+          "target_id": "adaptation-stream",
+          "coverage_type": "partial",
+          "medium_id": "anime",
+          "evidence_modes": ["animation-visual"],
+          "position_ranges": [
+            {
+              "id": "adaptation-episodes-one-two",
+              "start": {
+                "work": "adaptation-work",
+                "segment": "adaptation-episode-one",
+                "ordering_scheme": "adaptation-release-order",
+                "episode": 1
+              },
+              "end": {
+                "work": "adaptation-work",
+                "segment": "adaptation-episode-two",
+                "ordering_scheme": "adaptation-release-order",
+                "episode": 2
+              }
+            }
+          ]
+        },
+        {
+          "id": "adaptation-dialogue-coverage",
+          "target_type": "release-component",
+          "target_id": "adaptation-subtitles",
+          "coverage_type": "complete",
+          "medium_id": "anime",
+          "evidence_modes": ["dialogue"],
+          "position_ranges": []
+        }
+      ],
+      "resource_bindings": []
+    }
+  },
+  "source_relationships": [
+    {
+      "id": "adaptation-source-edition-of-primary",
+      "source_source_id": "adaptation-source",
+      "relationship_type": "edition-of",
+      "target_source_id": "primary-source"
+    }
+  ],
+  "external_identifiers": [
+    {
+      "id": "primary-work-sample-id",
+      "scheme_id": "sample-id",
+      "target_type": "work",
+      "target_id": "primary-work",
+      "value": "SAMPLE-001",
+      "territory_ids": [],
+      "language_tag": "en",
+      "status": "active"
+    }
+  ]
+}

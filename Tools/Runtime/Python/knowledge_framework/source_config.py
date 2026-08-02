@@ -2259,7 +2259,7 @@ def assert_source_registry_shapes(registry: dict) -> None:
         (
             "release_runs",
             "phases",
-            {"id", "segment_ids", "first_release_window", "cadence_unit", "cadence_interval", "batch_size"},
+            {"id", "segment_ids", "first_release_window", "cadence", "batch_size"},
         ),
         ("release_runs", "exceptions", {"exception_type", "segment_id", "release_window", "interval_count"}),
         ("sources", "observations", {"id", "target_type", "target_id"}),
@@ -4046,6 +4046,11 @@ def load_source_registry(
             if first_release_window is None:
                 raise ValueError(f"Source registry `{phase_context}.first_release_window` is required.")
             cadence = require_mapping(phase.get("cadence"), f"{phase_context}.cadence")
+            assert_allowed_keys(
+                cadence,
+                {"unit", "interval"},
+                f"Source registry `{phase_context}.cadence`",
+            )
             cadence_unit = require_string(cadence, "unit", f"{phase_context}.cadence")
             cadence_interval = cadence.get("interval")
             if isinstance(cadence_interval, bool) or not isinstance(cadence_interval, int) or cadence_interval < 1:

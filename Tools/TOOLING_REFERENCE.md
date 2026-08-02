@@ -1175,6 +1175,7 @@ This section tracks durable configuration and generated state files that affect 
 | Load and validate resource registry | `load_resource_config` in `resource_config.py` | `Get-KnowledgeResourceConfig` in `Resource-Config.ps1` |
 | Run resource-registry conformance with structured summary output | `test_resource.py` (`--json`) | `Test-Resource.ps1` (`-Json`) |
 | Load and validate source registry | `load_source_registry` in `source_config.py` | `Get-KnowledgeSourceRegistry` in `Source-Config.ps1` |
+| Run source-registry conformance with structured summary output | `test_source.py` (`--json`) | `Test-Source.ps1` (`-Json`) |
 | Load and validate entity/incarnation/phase registry | `load_entity_registry` in `entity_config.py` | `Get-KnowledgeEntityRegistry` in `Entity-Config.ps1` |
 | Expose stable reconciliation targets and owned aliases | Matching `reconciliation_targets` and `reconciliation_provider` methods | Matching `Get-Knowledge*ReconciliationTargets` and `Get-Knowledge*ReconciliationProvider` functions |
 | Load and validate stable-ID reconciliation | `load_reconciliation_registry` in `reconciliation_config.py` | `Get-KnowledgeReconciliationRegistry` in `Reconciliation-Config.ps1` |
@@ -1301,7 +1302,7 @@ Each run creates one unique child beneath `.tmp/compatibility/`. It compares com
 
 Protected canonical Visualization configuration, reports, snapshots, graphs, renders, and the configured QA export are hashed before and after every run. Successful output is removed through the maintained cleanup command unless `--keep-output` is supplied. Failed output is retained for diagnosis. An explicit output root must be a child of repository `.tmp/`; the repository root, `.tmp/` itself, and outside paths are rejected.
 
-Last compatibility check: 2026-08-02 after adding resource-registry conformance. The `local` profile passed in 49.841 seconds. Visualization matched 15 nodes and 121 relationships plus five redirected refresh artifacts; QA matched 16 notes, 121 relationships, 71 data references, and all 34 normalized files. Redirected output was removed and canonical outputs remained unchanged. The broader `pull-request` and `full-release` profile results from Phase 5 remain 76.648 and 85.655 seconds respectively, including root discovery, artifact lifecycle, and cross-runtime render validation.
+Last compatibility check: 2026-08-02 after adding source-registry conformance and paired loader fixes. The `local` profile passed in 50.618 seconds. Visualization matched 15 nodes and 121 relationships plus five redirected refresh artifacts; QA matched 16 notes, 121 relationships, 71 data references, and all 34 normalized files. Redirected output was removed and canonical outputs remained unchanged. The broader `pull-request` and `full-release` profile results from Phase 5 remain 76.648 and 85.655 seconds respectively, including root discovery, artifact lifecycle, and cross-runtime render validation.
 
 ### Aggregate Conformance
 
@@ -1318,7 +1319,7 @@ The paired aggregate runners accept an optional repository root, validate `Tools
 
 `baseline` is the CI and framework-version conformance profile. `fast` is a local feedback profile and a future candidate for a lighter feature-branch CI tier; it does not replace baseline, visualization, or QA compatibility validation. Both implementations detect unregistered discovered conformance runners, missing registered files, stale exclusions, duplicate IDs or paths, invalid profiles, and paths outside the repository. Each suite runs in an isolated child process to preserve script behavior and PowerShell scope isolation. Runtime module extraction alone does not make in-process PowerShell aggregation safe: current suites remain top-level scripts that define functions, import modules with process scope, mutate process-local state, and terminate through script exit behavior. Retain child-process execution until suites expose callable APIs with explicit state-reset and error-return contracts, then prove equivalent isolation before changing the aggregate runner.
 
-Last parity check: 2026-08-02 after adding dedicated resource-registry conformance. The `baseline` profile passed all ten registered suites in Python, PowerShell 7, and Windows PowerShell 5.1 with matching suite IDs, statuses, and canonicalized semantic summaries. Measured local runtimes were 13.1 seconds, 88.9 seconds, and 134.7 seconds respectively; PowerShell remains dominated by isolated child-process startup and repeated suite initialization. The new `resource` suite loaded six canonical kinds and fourteen canonical types, validated a vocabulary-neutral fixture with four kinds, seven types, every lifecycle/authority/tracking family, required/optional and multiple placements, editor policy, and reconciliation lookup, rejected 30 malformed configurations and two invalid target queries, and loaded a generated 128-type scale composition identically in all three runtimes. The eight-suite `fast` profile passed in 7.9, 53.1, and 67.7 seconds respectively. Local compatibility then matched Visualization at 15 nodes and 121 relationships plus all five redirected refresh artifacts, and QA at 16 notes, 121 relationships, 71 data references, and all 34 normalized files; canonical outputs remained unchanged and temporary output was removed.
+Last parity check: 2026-08-02 after adding dedicated source-registry conformance. The `baseline` profile passed all eleven registered suites in Python, PowerShell 7, and Windows PowerShell 5.1 with matching suite IDs, statuses, and canonicalized semantic summaries. Measured local runtimes were 22.5 seconds, 104.7 seconds, and 168.2 seconds respectively. The new baseline-only `source` suite loaded six canonical works and eight canonical evidence sources, validated a vocabulary-neutral schema-18 fixture with two works, two sources, both structural-position strategies, authority inheritance and fallback, scoped applicability, adaptations, manifestations, release/distribution data, evidence coverage, resource bindings, and 27 provenance target types, rejected 65 malformed configurations and 15 invalid service queries, and loaded a generated 128-source composition identically in all three runtimes. The corpus also permanently exposed and fixed PowerShell loss of explicit empty string lists, PowerShell optional evidence-mode null coercion, and a paired release-run cadence preflight/parser mismatch. Source remains outside the eight-suite `fast` profile because its repeated dependency composition is materially expensive.
 
 ### Strict YAML Conformance
 
@@ -1379,6 +1380,18 @@ The paired resource runners accept an optional repository root and leave no pers
 | Select repository root | `--root PATH` | `-Root PATH` |
 
 Both runners load the canonical resource registry and the vocabulary-neutral corpus in `Framework/Data/Resources/`. The fixture proves active/deferred lifecycle, all six authority values, editor eligibility, all three tracking modes, required/optional and multiple placements, root-relative resolution, and reconciliation targets. Thirty shared structured mutations must be rejected, two invalid target queries must fail, and a generated 128-type composition must preserve exact counts. Every case runs in a unique operating-system temporary tree that is removed before exit.
+
+### Source Conformance
+
+The paired source runners accept an optional repository root and leave no persistent output:
+
+| Behavior | Python | PowerShell |
+| --- | --- | --- |
+| Run canonical, synthetic, malformed, query, and scale checks | `python Tools/Conformance/Suites/test_source.py` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Source.ps1` |
+| Emit stable source counts | `python Tools/Conformance/Suites/test_source.py --json` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Source.ps1 -Json` |
+| Select repository root | `--root PATH` | `-Root PATH` |
+
+Both runners load the canonical source registry and the vocabulary-neutral schema-18 corpus in `Framework/Data/Sources/`. The fixture exercises work and continuity structure, media and both structural-position strategies, authority inheritance and fallback, scoped applicability, adaptations, manifestations, release/distribution records, evidence sources, observations, coverage, identifiers, localized titles, resource bindings, and reconciliation/provenance targets. Sixty-five shared structured mutations must be rejected, fifteen invalid service queries must fail, and a generated 128-source composition must preserve exact counts. Every case runs in a unique operating-system temporary tree that is removed before exit.
 
 ### Reconciliation Registry Contract
 

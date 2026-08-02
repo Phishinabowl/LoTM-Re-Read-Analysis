@@ -46,7 +46,18 @@ function Get-OptionalSourceString {
 function Get-SourceStringList {
     param([object]$Map, [string]$Key, [string]$Context)
 
-    $value = Get-ProjectMapValue $Map $Key
+    [object]$value = $null
+    if ($Map -is [System.Collections.IDictionary]) {
+        if ($Map.Contains($Key)) {
+            $value = $Map[$Key]
+        }
+    }
+    else {
+        $property = $Map.PSObject.Properties[$Key]
+        if ($null -ne $property) {
+            $value = $property.Value
+        }
+    }
     if ($null -eq $value) {
         throw "Source registry '$Context.$Key' must be a list of strings."
     }
@@ -1495,7 +1506,7 @@ function Assert-SourceRegistryShapes {
         },
         [pscustomobject]@{registry="release_runs"
             field="phases"
-            keys=@("id", "segment_ids", "first_release_window", "cadence_unit", "cadence_interval", "batch_size")
+            keys=@("id", "segment_ids", "first_release_window", "cadence", "batch_size")
         },
         [pscustomobject]@{registry="release_runs"
             field="exceptions"
@@ -3454,6 +3465,7 @@ function Get-KnowledgeSourceRegistry {
             if ($null -eq $cadence -or -not ($cadence -is [System.Collections.IDictionary])) {
                 throw "Source registry '$phaseContext.cadence' must be a mapping."
             }
+            Assert-KnowledgeMapKeys $cadence @("unit", "interval") "Source registry '$phaseContext.cadence'"
             $cadenceUnit = Get-RequiredSourceString $cadence "unit" "$phaseContext.cadence"
             $cadenceInterval = Get-ProjectMapValue $cadence "interval"
             if ($cadenceInterval -is [bool] -or $cadenceInterval -isnot [int] -or [int]$cadenceInterval -lt 1) {
@@ -5028,7 +5040,13 @@ function Get-KnowledgeSourceProvenanceTarget {
 }
 
 function Get-KnowledgeSourceAuthorityDecision {
-    param([object]$SourceRegistry, [string]$ProfileId, [string]$ClaimNamespace, [string]$SourceId, [string]$EvidenceMode = $null)
+    param(
+        [object]$SourceRegistry,
+        [string]$ProfileId,
+        [string]$ClaimNamespace,
+        [string]$SourceId,
+        [AllowNull()][object]$EvidenceMode = $null
+    )
     if (-not $SourceRegistry.authority_profiles.Contains($ProfileId)) {
         throw "Unknown authority profile '$ProfileId'."
     }
@@ -5088,7 +5106,13 @@ function Get-KnowledgeSourceAuthorityDecision {
 }
 
 function Get-KnowledgeSourceAuthorityRank {
-    param([object]$SourceRegistry, [string]$ProfileId, [string]$ClaimNamespace, [string]$SourceId, [string]$EvidenceMode = $null)
+    param(
+        [object]$SourceRegistry,
+        [string]$ProfileId,
+        [string]$ClaimNamespace,
+        [string]$SourceId,
+        [AllowNull()][object]$EvidenceMode = $null
+    )
     return [int](Get-KnowledgeSourceAuthorityDecision $SourceRegistry $ProfileId $ClaimNamespace $SourceId $EvidenceMode).rank
 }
 

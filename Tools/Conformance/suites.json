@@ -18,6 +18,7 @@
       "schema-pack",
       "taxonomy",
       "resource",
+      "source",
       "temporal",
       "chronology",
       "reconciliation",
@@ -60,6 +61,12 @@
       "python": "Tools/Conformance/Suites/test_resource.py",
       "powershell": "Tools/Conformance/Suites/Test-Resource.ps1",
       "tags": ["baseline", "fast", "resource"]
+    },
+    {
+      "id": "source",
+      "python": "Tools/Conformance/Suites/test_source.py",
+      "powershell": "Tools/Conformance/Suites/Test-Source.ps1",
+      "tags": ["baseline", "source", "evidence"]
     },
     {
       "id": "temporal",
