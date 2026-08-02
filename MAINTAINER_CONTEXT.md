@@ -36,6 +36,7 @@ Todo Tree does not replace `CURRENT_STATE.md`, framework evolution/testing recor
 - Use local Donghua `.ass` files as canonical evidence for their subtitle dialogue and timestamps, while treating silent visual details as separate visual evidence.
 - Keep all local source media under `Source/`, which is ignored by Git; preserve only paraphrased evidence and references in tracked records.
 - Keep bulk official artwork staging local-only under ignored `Artwork/Source/`; track only deliberately selected page-ready assets under `Artwork/page-assets/`.
+- Do not use Computer Use, screen automation, injected clicks, or injected keystrokes to control Visual Studio Code. Use repository file operations, shell commands, tests, and Git normally; ask the maintainer to perform any VS Code-only UI action unless the maintainer explicitly reverses this restriction.
 - After completing a commit and push, continue directly into the next discussion or investigation question unless the user pauses or changes direction.
 
 ## Git Workflow Notes
