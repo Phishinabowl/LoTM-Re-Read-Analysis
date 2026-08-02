@@ -65,6 +65,9 @@ jobs:
           python -m ruff format --check .
           python -m ruff check .
 
+      - name: Validate work annotations
+        run: python Tools/Static/lint_work_annotations.py --json
+
       - name: Run framework conformance suites
         run: python Tools/Conformance/run_conformance.py --profile baseline --json
 

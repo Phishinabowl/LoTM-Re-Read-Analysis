@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "tags": [
+    "TODO",
+    "FIXME",
+    "QUESTION",
+    "ASSUMPTION",
+    "HACK",
+    "REVIEW",
+    "VERIFY"
+  ],
+  "local_owners": [
+    "OWNER",
+    "UNASSIGNED"
+  ],
+  "scannable_extensions": [
+    ".bash",
+    ".cfg",
+    ".conf",
+    ".ini",
+    ".js",
+    ".jsx",
+    ".md",
+    ".ps1",
+    ".psd1",
+    ".psm1",
+    ".py",
+    ".pyi",
+    ".sh",
+    ".toml",
+    ".ts",
+    ".tsx",
+    ".txt",
+    ".yaml",
+    ".yml"
+  ],
+  "excluded_paths": [
+    "WORK_ANNOTATION_STANDARDS.md",
+    "Tools/Static/Fixtures/Work-Annotations"
+  ],
+  "prohibited_paths": [
+    "Artwork/Source",
+    "Boards",
+    "Glossary_Threads",
+    "Investigations",
+    "Obsidian_Export",
+    "Source",
+    "Testing",
+    "Volumes",
+    "Visualization/graphs",
+    "Visualization/rendered"
+  ],
+  "maximum_file_bytes": 2097152
+}

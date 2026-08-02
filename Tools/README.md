@@ -83,6 +83,17 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Static\Format-PowerShe
 
 The formatter uses `Tools/Static/powershell-format-settings.psd1`, writes UTF-8 without a BOM and CRLF line endings, removes optional statement-terminating semicolons, preserves required `for (...)` separators, verifies parse/token equivalence, and rejects lines longer than 200 characters. Gitignored files are excluded from the default repository policy. Use `-Path`, `-MaximumLineLength`, or `-Json` for targeted checks, an explicit line-length gate, or structured results. Relative explicit paths resolve from the repository root. Manual wrapping is still required when a long expression cannot be changed mechanically without obscuring semantics.
 
+## Work-Annotation Validation
+
+Use the canonical Python linter to enforce `WORK_ANNOTATION_STANDARDS.md` across tracked and nonignored untracked implementation surfaces:
+
+```powershell
+python Tools\Static\lint_work_annotations.py
+python Tools\Static\lint_work_annotations.py --json
+```
+
+Every normal run validates the permanent valid/invalid fixture corpus before scanning repository files. Use `--fixtures-only` when changing policy, repeat `--path` for focused diagnosis, and use `--root` only when automatic project discovery is intentionally overridden. `Tools/Static/work-annotations.json` owns the executable tags, owners, extensions, exclusions, prohibited locations, and safety bound. The tool is a canonical repository-policy implementation, not a project-domain feature requiring a PowerShell fallback.
+
 ## Continuous Integration
 
 The tracked workflow at `.github/workflows/ci.yml` runs for pull requests, pushes to `main`, and intentional manual dispatches. Ordinary feature-branch checkpoint pushes do not start CI unless that branch already participates in an open pull request. The workflow preserves four stable check names for future repository rules:
@@ -98,7 +109,7 @@ The tracked workflow at `.github/workflows/ci.yml` runs for pull requests, pushe
 actionlint -color
 ```
 
-The runtime jobs install their declared dependencies, enforce Python and PowerShell formatting, run permanent framework conformance suites, validate the visualization projection, generate redirected QA smoke exports beneath fresh `.tmp/` parents, and reject repository-root or outside-repository QA destinations. Keep action SHAs immutable. Treat the four job names as a public policy surface: rename one only with the same care as changing a required status check.
+The runtime jobs install their declared dependencies, enforce Python and PowerShell formatting, enforce work-annotation policy, run permanent framework conformance suites, validate the visualization projection, generate redirected QA smoke exports beneath fresh `.tmp/` parents, and reject repository-root or outside-repository QA destinations. Keep action SHAs immutable. Treat the four job names as a public policy surface: rename one only with the same care as changing a required status check.
 
 ## Temporary File Cleanup
 

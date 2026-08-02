@@ -27,6 +27,7 @@
         "**/Obsidian_Export/**",
         "**/Source/**",
         "**/Testing/**",
+        "**/Tools/Static/Fixtures/Work-Annotations/**",
         "**/Volumes/**",
         "**/WORK_ANNOTATION_STANDARDS.md"
     ]

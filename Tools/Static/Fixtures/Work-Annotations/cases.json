@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "local-owner",
+      "path": "Tools/Runtime/Python/example.py",
+      "text": "# TODO (OWNER): Extract the repeated boundary filter.",
+      "expected_codes": []
+    },
+    {
+      "id": "local-unassigned",
+      "path": "ARCHITECTURE.md",
+      "text": "QUESTION (UNASSIGNED): Which pack owns participation constraints?",
+      "expected_codes": []
+    },
+    {
+      "id": "assumption-continuation",
+      "path": "Tools/Runtime/Python/example.py",
+      "text": "# ASSUMPTION (OWNER): One occurrence cannot be revisited twice.\n#   Validation target: repeated-participation semantics.",
+      "expected_codes": []
+    },
+    {
+      "id": "github-pending",
+      "path": "Tools/Runtime/Python/example.py",
+      "text": "# FIXME (OWNER): [GH-PENDING] - Repository discovery fails outside the project root.",
+      "expected_codes": []
+    },
+    {
+      "id": "github-assigned",
+      "path": "Tools/Runtime/Python/example.py",
+      "text": "# FIXME (@Phishinabowl): GH #42 - Repository discovery fails outside the project root.\n#   Issue: https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/issues/42\n#   Assignee: https://github.com/Phishinabowl",
+      "expected_codes": []
+    },
+    {
+      "id": "github-unassigned",
+      "path": "Tools/Runtime/Python/example.py",
+      "text": "# REVIEW (UNASSIGNED): GH #7 - Confirm the compatibility boundary.\n#   Issue: https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/issues/7",
+      "expected_codes": []
+    },
+    {
+      "id": "unsupported-tag",
+      "path": "Tools/Runtime/Python/example.py",
+      "text": "# NOTE (OWNER): Preserve this behavior.",
+      "expected_codes": [
+        "unsupported-tag"
+      ]
+    },
+    {
+      "id": "missing-owner",
+      "path": "Tools/Runtime/Python/example.py",
+      "text": "# TODO: Extract the repeated boundary filter.",
+      "expected_codes": [
+        "malformed-format"
+      ]
+    },
+    {
+      "id": "invalid-local-owner",
+      "path": "Tools/Runtime/Python/example.py",
+      "text": "# TODO (Alice): Extract the repeated boundary filter.",
+      "expected_codes": [
+        "invalid-owner"
+      ]
+    },
+    {
+      "id": "handle-without-issue",
+      "path": "Tools/Runtime/Python/example.py",
+      "text": "# TODO (@Phishinabowl): Extract the repeated boundary filter.",
+      "expected_codes": [
+        "github-owner-without-issue"
+      ]
+    },
+    {
+      "id": "local-owner-with-issue",
+      "path": "Tools/Runtime/Python/example.py",
+      "text": "# FIXME (OWNER): GH #42 - Repair project discovery.\n#   Issue: https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/issues/42",
+      "expected_codes": [
+        "github-issue-owner"
+      ]
+    },
+    {
+      "id": "invalid-handle",
+      "path": "Tools/Runtime/Python/example.py",
+      "text": "# FIXME (@-invalid): GH #42 - Repair project discovery.\n#   Issue: https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/issues/42\n#   Assignee: https://github.com/-invalid",
+      "expected_codes": [
+        "invalid-github-handle"
+      ]
+    },
+    {
+      "id": "missing-issue-url",
+      "path": "Tools/Runtime/Python/example.py",
+      "text": "# FIXME (UNASSIGNED): GH #42 - Repair project discovery.",
+      "expected_codes": [
+        "missing-issue-url"
+      ]
+    },
+    {
+      "id": "issue-number-mismatch",
+      "path": "Tools/Runtime/Python/example.py",
+      "text": "# FIXME (UNASSIGNED): GH #42 - Repair project discovery.\n#   Issue: https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/issues/41",
+      "expected_codes": [
+        "issue-url-mismatch"
+      ]
+    },
+    {
+      "id": "missing-assignee-url",
+      "path": "Tools/Runtime/Python/example.py",
+      "text": "# FIXME (@Phishinabowl): GH #42 - Repair project discovery.\n#   Issue: https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/issues/42",
+      "expected_codes": [
+        "missing-assignee-url"
+      ]
+    },
+    {
+      "id": "assignee-mismatch",
+      "path": "Tools/Runtime/Python/example.py",
+      "text": "# FIXME (@Phishinabowl): GH #42 - Repair project discovery.\n#   Issue: https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/issues/42\n#   Assignee: https://github.com/SomeoneElse",
+      "expected_codes": [
+        "assignee-url-mismatch"
+      ]
+    },
+    {
+      "id": "unassigned-with-assignee",
+      "path": "Tools/Runtime/Python/example.py",
+      "text": "# FIXME (UNASSIGNED): GH #42 - Repair project discovery.\n#   Issue: https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/issues/42\n#   Assignee: https://github.com/Phishinabowl",
+      "expected_codes": [
+        "unexpected-assignee-url"
+      ]
+    },
+    {
+      "id": "missing-terminal-punctuation",
+      "path": "Tools/Runtime/Python/example.py",
+      "text": "# TODO (OWNER): Extract the repeated boundary filter",
+      "expected_codes": [
+        "description-punctuation"
+      ]
+    },
+    {
+      "id": "non-ascii-annotation",
+      "path": "Tools/Runtime/Python/example.py",
+      "text": "# TODO (OWNER): Replace the temporary boundary filter — later.",
+      "expected_codes": [
+        "non-ascii-annotation"
+      ]
+    },
+    {
+      "id": "malformed-github-pending",
+      "path": "Tools/Runtime/Python/example.py",
+      "text": "# FIXME (OWNER): [GH_PENDING] - Repair project discovery.",
+      "expected_codes": [
+        "malformed-github-tracking"
+      ]
+    },
+    {
+      "id": "prohibited-glossary-location",
+      "path": "Glossary_Threads/Characters/example.md",
+      "text": "TODO (OWNER): Add another reveal row.",
+      "expected_codes": [
+        "prohibited-location"
+      ]
+    },
+    {
+      "id": "prohibited-investigation-location",
+      "path": "Investigations/example.md",
+      "text": "VERIFY (UNASSIGNED): Recheck the source quotation.",
+      "expected_codes": [
+        "prohibited-location"
+      ]
+    }
+  ]
+}

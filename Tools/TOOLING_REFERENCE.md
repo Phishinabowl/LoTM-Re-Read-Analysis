@@ -72,6 +72,7 @@ Moving an individual suite changes its Python and PowerShell runner paths only i
 | --- | --- | --- |
 | `Tools/Commands/Environment/Test-Python.ps1`, `Tools/Commands/Environment/Test-PowerShell.ps1` | `Tools/Commands/Environment/` | Intentional PowerShell-only environment probes; each inspects a different runtime and is not a domain fallback. |
 | `Tools/Static/Format-PowerShell.ps1`, `Tools/Static/powershell-format-settings.psd1` | `Tools/Static/` | Intentional PowerShell-only parser-native formatter. Ruff remains configured by root `pyproject.toml`. |
+| `Tools/Static/lint_work_annotations.py`, `Tools/Static/work-annotations.json`, annotation fixtures | `Tools/Static/` | Canonical Python repository-policy linter; it does not implement a project-domain feature requiring a PowerShell fallback. |
 | `Tools/README.md`, `Tools/TOOLING_REFERENCE.md` | unchanged | Human command guide and detailed tooling contract. |
 
 The work-annotation linter and cross-runtime compatibility orchestrator belong under `Tools/Static/` and `Tools/Compatibility/` respectively. Each has one canonical Python implementation because one enforces repository text policy and the other explicitly orchestrates and compares all runtimes; neither is a user-facing project-domain fallback.
@@ -83,7 +84,7 @@ The work-annotation linter and cross-runtime compatibility orchestrator belong u
 - Any future path migration must update tracked callers, CI, documentation, imports, module loading, and suite-registry paths in the same migration wave.
 - Root-level compatibility wrappers are not retained by default. Any exception must name an external dependency, emit a deprecation warning, and record a removal checkpoint.
 - Python commands import package-qualified runtime modules. PowerShell commands import the module manifest. Commands do not import or dot-source peer commands.
-- Python implementations do not call PowerShell implementations, and PowerShell implementations do not call Python implementations, except for a future tool whose explicit purpose is cross-runtime comparison.
+- Python implementations do not call PowerShell implementations, and PowerShell implementations do not call Python implementations, except for the compatibility orchestrator whose explicit purpose is cross-runtime comparison.
 - Static tools and environment probes are excluded from domain parity only where the inventory explicitly says so.
 
 ### Layout Boundary Checks
@@ -308,6 +309,47 @@ pwsh -NoProfile -File Tools\Static\Format-PowerShell.ps1 -Json
 Last mapped: 2026-08-01.
 
 Last check: 2026-08-01. PowerShell 7.6.3 and Windows PowerShell 5.1.19041.7548 each discovered all 26 tracked or nonignored untracked repository PowerShell sources and checked them with zero pending changes, zero lines above 200 characters, successful parsing, and identical source acceptance. A temporary nonignored root-level script was discovered automatically by both runtimes during the discovery regression.
+
+## Work-Annotation Validation
+
+### Script
+
+| Role | Script | Command |
+| --- | --- | --- |
+| Canonical repository-policy linter | `Tools/Static/lint_work_annotations.py` | `python Tools\Static\lint_work_annotations.py` |
+
+Purpose: enforce `WORK_ANNOTATION_STANDARDS.md` without creating a second project-domain implementation. A normal invocation validates the permanent fixture corpus and then scans Git's tracked-plus-nonignored-untracked inventory.
+
+### Parameter Map
+
+| Purpose | Parameter | Default | Notes |
+| --- | --- | --- | --- |
+| Select project root | `--root PATH` | auto-detected | Uses the shared manifest-based resolver and never changes caller location. |
+| Select policy registry | `--policy PATH` | `Tools/Static/work-annotations.json` | Relative paths resolve from the project root; the registry uses a closed schema. |
+| Select fixture registry | `--fixtures PATH` | `Tools/Static/Fixtures/Work-Annotations/cases.json` | Relative paths resolve from the project root; fixture cases use a closed schema. |
+| Run fixture conformance only | `--fixtures-only` | off | Useful while changing annotation syntax or fixture expectations. |
+| Select files or directories | repeat `--path PATH` | full Git inventory | Explicit paths must remain inside the project root. Fixtures still run first. |
+| Print JSON summary | `--json` | off | Emits fixture counts, repository counts, stable finding codes, locations, and messages. |
+
+### Policy Contract
+
+- `Tools/Static/work-annotations.json` owns supported tags, the exact `OWNER`/`UNASSIGNED` local-owner list, scannable extensions, self-excluded reference/fixture paths, prohibited locations, and the maximum file size.
+- `Tools/Static/Fixtures/Work-Annotations/cases.json` permanently covers valid local, pending, assigned, and unassigned forms plus malformed tags, owners, handles, issue/assignee links, punctuation, ASCII, and prohibited locations.
+- Markdown fenced examples are not live annotations. `WORK_ANNOTATION_STANDARDS.md` and the deliberate fixture tree are self-excluded; reader-facing/generated locations are still scanned and rejected when they contain annotations.
+- GitHub-linked annotations require matching `GH #number`, full issue URL, and assignment state. The linter validates mirrored syntax and consistency but does not query live GitHub state.
+- The command is read-only. It creates no temporary artifacts and supports repository-root, descendant, unrelated-directory, and explicit-root launches.
+
+### Check Recipe
+
+```powershell
+python Tools\Static\lint_work_annotations.py
+python Tools\Static\lint_work_annotations.py --fixtures-only --json
+python Tools\Static\lint_work_annotations.py --path Tools\Runtime --json
+```
+
+Last mapped: 2026-08-02.
+
+Last check: 2026-08-02. All 22 valid and invalid fixture cases passed. The default scan checked 276 tracked or nonignored untracked eligible files with zero live annotations and zero findings. Temporary nonignored probes proved that a new implementation annotation is discovered and accepted while the same valid syntax in `Glossary_Threads/` is discovered and rejected as `prohibited-location`; targeted scans of the standards document and fixture tree checked zero files. Automatic executable-based and explicit-root launches from an unrelated directory also passed. Ruff, both PowerShell formatter runtimes, actionlint, and all seven aggregate conformance suites in Python, PowerShell 7, and Windows PowerShell 5.1 remained green.
 
 ## Temporary File Cleanup
 
@@ -1072,6 +1114,7 @@ This section tracks durable configuration and generated state files that affect 
 | `.github/workflows/ci.yml` | Continuous-integration policy | GitHub Actions, actionlint, maintainers, and future repository rules | Maintainers | Defines the four stable validation checks, immutable action pins, runtime environments, dependency setup, and permanent automated smoke/regression coverage. | A permanent gate, runtime, dependency, action pin, stable check name, or repository-rule requirement changes. |
 | `Tools/Conformance/suites.json` | Aggregate conformance registry | `Tools/Conformance/run_conformance.py`, `Tools/Conformance/Run-Conformance.ps1`, CI, and maintainers | Maintainers | Defines stable conformance suite IDs, paired runner paths, named profiles, and discovery exclusions; aggregate validation rejects unregistered or stale runner inventory. | A permanent suite is added, renamed, moved, removed, assigned to a profile, or explicitly excluded from conformance discovery. |
 | `Tools/Compatibility/compatibility.json` | Project-compatibility registry | `Tools/Compatibility/run_compatibility.py`, CI, and maintainers | Maintainers | Defines stable compatibility checks, three-runtime execution, representative bounded QA requests, render assertions, timeouts, and the cumulative `local`, `pull-request`, and `full-release` profiles. | A compatibility check, representative probe, timeout, assertion, or profile membership changes. |
+| `Tools/Static/work-annotations.json`, `Tools/Static/Fixtures/Work-Annotations/cases.json` | Static-policy registry and conformance fixtures | `Tools/Static/lint_work_annotations.py`, CI, and maintainers | Maintainers | Define executable annotation tags, ownership, eligible/prohibited surfaces, safety bounds, and permanent valid/invalid policy cases. | Annotation syntax, ownership, GitHub tracking, path eligibility, safety bounds, or a permanent regression case changes. |
 | `Project_Config/project.yaml` | Project manifest | `Tools/Runtime/Python/knowledge_framework/project_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Project-Config.ps1`, and consumers such as both Obsidian QA exporters | Maintainers | Identifies the project and configures modeled content/resource roots, provenance behavior, registry paths, default QA output, visualization helpers/settings, cleanup helpers, and manifest schema version without coupling framework code to LoTM directory names. | Project identity or paths change, a content/resource root is added, provenance behavior changes, helper locations move, or the manifest schema changes. |
 | `Framework/Data/unicode-lookup-16.0.0.json`, `Framework/Data/lookup-key-regression-vectors.json`, `Framework/Data/Lookup-Key/`, `Framework/Data/Strict-Yaml/`, `Framework/Data/Reconciliation/`, `Framework/Data/Temporal/`, `Framework/Data/Chronology/`, and `Framework/Data/Occurrence/` | Pinned framework runtime and conformance data | Strict YAML, lookup, reconciliation, temporal, chronology, and occurrence loaders; paired conformance tools; parity checks; and future semantic identity consumers | Framework maintainers through reviewed data updates | Define deterministic lookup behavior, canonical scalar and mapping-key ingestion, malformed registry boundaries, branch-aware stable-ID reconciliation vectors, civil-time match/overlap vectors, exact chronology closure, and occurrence/recurrence queries shared by every runtime. | An ingestion, lookup, reconciliation, temporal, chronology, or occurrence algorithm changes, or a discovered portability edge case requires a permanent vector. |
 | `Framework/Contracts/README.md`, registry contracts, `Framework/Contracts/strict-configuration-ingestion.md`, `Framework/Contracts/identity-target-provider.md`, and `Framework/Contracts/reconciliation-registry.md` | Framework contract index, registry contracts, strict ingestion rules, and provider boundaries | Framework maintainers and future schema tooling | Framework maintainers | Record executable configuration boundaries, shared YAML semantics, schema ownership, media/work/provenance semantics, identity phases, typed providers, and read-only stable-ID reconciliation. | A configuration contract or provider boundary is introduced, stabilized, moved, or assigned a validator. |

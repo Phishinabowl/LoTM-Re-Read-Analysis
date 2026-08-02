@@ -24,7 +24,7 @@ Use annotations on implementation-bearing surfaces:
 
 Do not place Todo Tree annotations in reader-facing LoTM articles, investigations, boards, volume summaries, generated exports, canonical source material, or artwork assets. Use the owning content artifact instead. Never add comments to JSON or another format that does not support them merely to create an annotation.
 
-The tracked `.vscode/settings.json` excludes reader-facing, generated, ignored, and source-heavy trees from Todo Tree scanning. It also excludes this standards document so its examples do not appear as live work. Exclusion globs are passed directly to ripgrep using Todo Tree's documented default behavior. This configuration has been verified in both `workspace only` and `workspace and open files` modes, including while this excluded standards document is open.
+The tracked `.vscode/settings.json` excludes reader-facing, generated, ignored, source-heavy, and work-annotation fixture trees from Todo Tree scanning. It also excludes this standards document so its examples do not appear as live work. Exclusion globs are passed directly to ripgrep using Todo Tree's documented default behavior. This configuration has been verified in both `workspace only` and `workspace and open files` modes, including while this excluded standards document is open.
 
 Use Todo Tree's `workspace` scan mode, displayed as `Workspace and Open Files`, so eligible annotations in open implementation files remain visible while the exclusion policy suppresses ineligible surfaces. The tracked folder settings and the local VS Code workspace launcher must carry the same complete Todo Tree configuration because workspace-file settings take precedence when the repository is opened through that launcher.
 
@@ -52,6 +52,21 @@ Keep the indexed line concise, specific, and understandable without the originat
 ```
 
 Use ASCII punctuation in annotations. End complete statements with a period.
+
+## Executable Enforcement
+
+`Tools/Static/work-annotations.json` is the executable policy registry for supported tags, local owners, scannable file types, self-excluded reference/fixture paths, prohibited locations, and the file-size safety bound. Keep it synchronized with this standard and the tracked/local VS Code Todo Tree exclusions.
+
+Run the canonical policy tool from any working directory:
+
+```powershell
+python Tools\Static\lint_work_annotations.py
+python Tools\Static\lint_work_annotations.py --json
+```
+
+A normal run first executes every valid and invalid fixture in `Tools/Static/Fixtures/Work-Annotations/cases.json`, then scans Git's tracked-plus-nonignored-untracked inventory. Use `--fixtures-only` for policy development and repeat `--path` for focused diagnosis. The linter validates syntax, ownership state, GitHub issue/assignee URL consistency, ASCII text, terminal punctuation, and repository placement. It does not query GitHub or prove that an issue exists, is open, or has the mirrored assignment; verify live state separately before creating or changing a GitHub-linked annotation.
+
+Reader-facing and generated trees remain excluded from Todo Tree for usability but are prohibited, not ignored, by the linter. A tracked annotation placed there therefore fails policy even though it does not clutter the editor tree. The standards document and deliberate fixture corpus are the only current self-exclusions.
 
 ## Supported Tags
 
