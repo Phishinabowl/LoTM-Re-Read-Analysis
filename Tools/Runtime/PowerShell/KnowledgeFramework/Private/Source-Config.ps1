@@ -61,6 +61,11 @@ function Get-SourceStringList {
     if ($null -eq $value) {
         throw "Source registry '$Context.$Key' must be a list of strings."
     }
+    if ($value -is [string] -or
+        $value -is [System.Collections.IDictionary] -or
+        $value -isnot [System.Collections.IEnumerable]) {
+        throw "Source registry '$Context.$Key' must be a list of strings."
+    }
     $items = @($value)
     foreach ($item in $items) {
         if ($item -isnot [string] -or [string]::IsNullOrWhiteSpace($item)) {
@@ -75,10 +80,6 @@ function Get-SourceStringListAllowEmpty {
 
     if (-not $Map.Contains($Key)) {
         throw "Source registry '$Context.$Key' must be a list of strings."
-    }
-    $value = Get-ProjectMapValue $Map $Key
-    if ($null -eq $value) {
-        return @()
     }
     return @(Get-SourceStringList $Map $Key $Context)
 }

@@ -1,0 +1,257 @@
+{
+  "schema_version": 3,
+  "claim_supersessions": [
+    {
+      "id": "confirmed-name-supersedes-reported-name",
+      "source_claim_key": "confirmed-alpha-name",
+      "relationship_type": "supersedes",
+      "target_claim_key": "reported-alpha-name",
+      "applicability_scope_id": "reported-alpha-name-scope",
+      "continuity_ids": ["primary-continuity"]
+    }
+  ],
+  "assertions": [
+    {
+      "id": "winner-primary",
+      "claim_key": "authority-winner",
+      "subject_type": "entity",
+      "subject_id": "alpha-concept",
+      "claim_namespace": "canonical-content",
+      "field_path": "label",
+      "asserted_value": "Alpha",
+      "assertion_status": "verified",
+      "observed_at": {
+        "kind": "interval",
+        "start": {"kind": "known", "value": "2025-01-01", "precision": "date", "certainty": "exact", "inclusive": true}
+      },
+      "evidence_links": [
+        {
+          "source_id": "primary-source",
+          "evidence_role": "supports",
+          "locators": [
+            {"id": "winner-primary-locator", "medium_id": "novel", "evidence_mode": "canonical-text", "locator_type": "point", "position": {"work": "primary-work", "volume": 1, "chapter": 1}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "winner-adaptation",
+      "claim_key": "authority-winner",
+      "subject_type": "entity",
+      "subject_id": "alpha-concept",
+      "claim_namespace": "canonical-content",
+      "field_path": "label",
+      "asserted_value": "Adapted Alpha",
+      "assertion_status": "verified",
+      "evidence_links": [
+        {
+          "source_id": "adaptation-source",
+          "evidence_role": "supports",
+          "locators": [
+            {"id": "winner-adaptation-locator", "medium_id": "anime", "evidence_mode": "animation-visual", "locator_type": "point", "position": {"work": "adaptation-work", "segment": "adaptation-episode-one", "ordering_scheme": "adaptation-release-order", "episode": 1}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tie-primary",
+      "claim_key": "authority-tie",
+      "subject_type": "entity",
+      "subject_id": "alpha-concept",
+      "claim_namespace": "canonical-content",
+      "field_path": "label",
+      "asserted_value": "Alpha",
+      "assertion_status": "verified",
+      "evidence_links": [
+        {
+          "source_id": "primary-source",
+          "evidence_role": "supports",
+          "locators": [
+            {"id": "tie-primary-locator", "medium_id": "novel", "evidence_mode": "canonical-text", "locator_type": "point", "position": {"work": "primary-work", "volume": 1, "chapter": 1}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tie-corroborating",
+      "claim_key": "authority-tie",
+      "subject_type": "entity",
+      "subject_id": "alpha-concept",
+      "claim_namespace": "canonical-content",
+      "field_path": "label",
+      "asserted_value": "Alpha",
+      "assertion_status": "verified",
+      "evidence_links": [
+        {
+          "source_id": "corroborating-source",
+          "evidence_role": "supports",
+          "locators": [
+            {"id": "tie-corroborating-locator", "medium_id": "novel", "evidence_mode": "canonical-text", "locator_type": "point", "position": {"work": "primary-work", "volume": 1, "chapter": 1}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "conflict-primary",
+      "claim_key": "authority-conflict",
+      "subject_type": "entity",
+      "subject_id": "alpha-concept",
+      "claim_namespace": "canonical-content",
+      "field_path": "label",
+      "asserted_value": "Alpha",
+      "assertion_status": "verified",
+      "evidence_links": [
+        {
+          "source_id": "primary-source",
+          "evidence_role": "supports",
+          "locators": [
+            {"id": "conflict-primary-locator", "medium_id": "novel", "evidence_mode": "canonical-text", "locator_type": "point", "position": {"work": "primary-work", "volume": 1, "chapter": 1}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "conflict-corroborating",
+      "claim_key": "authority-conflict",
+      "subject_type": "entity",
+      "subject_id": "alpha-concept",
+      "claim_namespace": "canonical-content",
+      "field_path": "label",
+      "asserted_value": "Different Alpha",
+      "assertion_status": "verified",
+      "evidence_links": [
+        {
+          "source_id": "corroborating-source",
+          "evidence_role": "supports",
+          "locators": [
+            {"id": "conflict-corroborating-locator", "medium_id": "novel", "evidence_mode": "canonical-text", "locator_type": "point", "position": {"work": "primary-work", "volume": 1, "chapter": 2}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "incomparable-primary",
+      "claim_key": "authority-incomparable",
+      "subject_type": "entity",
+      "subject_id": "alpha-concept",
+      "claim_namespace": "canonical-content",
+      "field_path": "label",
+      "asserted_value": "Alpha",
+      "assertion_status": "verified",
+      "evidence_links": [
+        {
+          "source_id": "primary-source",
+          "evidence_role": "supports",
+          "locators": [
+            {"id": "incomparable-primary-locator", "medium_id": "novel", "evidence_mode": "canonical-text", "locator_type": "point", "position": {"work": "primary-work", "volume": 1, "chapter": 1}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "incomparable-external",
+      "claim_key": "authority-incomparable",
+      "subject_type": "entity",
+      "subject_id": "alpha-concept",
+      "claim_namespace": "canonical-content",
+      "field_path": "label",
+      "asserted_value": "External Alpha",
+      "assertion_status": "verified",
+      "evidence_links": [
+        {
+          "source_id": "incomparable-source",
+          "evidence_role": "supports",
+          "locators": [
+            {"id": "incomparable-external-locator", "medium_id": "novel", "evidence_mode": "canonical-text", "locator_type": "point", "position": {"work": "primary-work", "volume": 1, "chapter": 2}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "reported-name-assertion",
+      "claim_key": "reported-alpha-name",
+      "subject_type": "entity",
+      "subject_id": "alpha-concept",
+      "claim_namespace": "canonical-content",
+      "field_path": "label",
+      "asserted_value": "Reported Alpha",
+      "assertion_status": "inferred",
+      "evidence_links": [
+        {
+          "source_id": "adaptation-source",
+          "evidence_role": "supports",
+          "locators": [
+            {"id": "reported-name-range", "medium_id": "anime", "evidence_mode": "dialogue", "locator_type": "range", "start": {"work": "adaptation-work", "segment": "adaptation-episode-one", "ordering_scheme": "adaptation-release-order", "episode": 1}, "end": {"work": "adaptation-work", "segment": "adaptation-episode-two", "ordering_scheme": "adaptation-release-order", "episode": 2}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "confirmed-name-assertion",
+      "claim_key": "confirmed-alpha-name",
+      "subject_type": "entity",
+      "subject_id": "alpha-concept",
+      "claim_namespace": "canonical-content",
+      "field_path": "label",
+      "asserted_value": "Alpha Concept",
+      "assertion_status": "verified",
+      "effective_window": {
+        "kind": "interval",
+        "start": {"kind": "known", "value": "2025-02-01", "precision": "date", "certainty": "exact", "inclusive": true}
+      },
+      "evidence_links": [
+        {
+          "source_id": "primary-source",
+          "evidence_role": "supports",
+          "locators": [
+            {"id": "confirmed-name-locator", "medium_id": "novel", "evidence_mode": "canonical-text", "locator_type": "point", "position": {"work": "primary-work", "volume": 1, "chapter": 2}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "disputed-name-assertion",
+      "claim_key": "disputed-alpha-name",
+      "subject_type": "entity",
+      "subject_id": "alpha-concept",
+      "claim_namespace": "canonical-content",
+      "field_path": "label",
+      "asserted_value": "Disputed Alpha",
+      "assertion_status": "disputed",
+      "evidence_links": [
+        {
+          "source_id": "primary-source",
+          "evidence_role": "supports",
+          "locators": [
+            {"id": "disputed-support-locator", "medium_id": "novel", "evidence_mode": "canonical-text", "locator_type": "point", "position": {"work": "primary-work", "volume": 1, "chapter": 1}}
+          ]
+        },
+        {
+          "source_id": "adaptation-source",
+          "evidence_role": "contradicts",
+          "locators": [
+            {"id": "disputed-contradiction-locator", "medium_id": "anime", "evidence_mode": "animation-visual", "locator_type": "point", "position": {"work": "adaptation-work", "segment": "adaptation-episode-one", "ordering_scheme": "adaptation-release-order", "episode": 1}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "context-only-assertion",
+      "claim_key": "context-only-claim",
+      "subject_type": "entity",
+      "subject_id": "beta-concept",
+      "claim_namespace": "provenance",
+      "asserted_value": {"note": "Context without authority ranking"},
+      "assertion_status": "unverified",
+      "evidence_links": [
+        {
+          "source_id": "primary-source",
+          "evidence_role": "contextualizes",
+          "locators": [
+            {"id": "context-only-locator", "medium_id": "novel", "evidence_mode": "canonical-text", "locator_type": "point", "position": {"work": "primary-work", "volume": 1, "chapter": 1}}
+          ]
+        }
+      ]
+    }
+  ]
+}

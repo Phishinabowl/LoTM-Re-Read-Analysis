@@ -1,0 +1,469 @@
+[CmdletBinding()]
+param(
+    [string]$Root,
+    [switch]$Json
+)
+
+$ErrorActionPreference = 'Stop'
+
+$toolsRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
+$runtimeModule = Join-Path $toolsRoot 'Runtime\PowerShell\KnowledgeFramework\KnowledgeFramework.psd1'
+Import-Module $runtimeModule -Force
+$Root = Resolve-KnowledgeProjectRoot -ExplicitRoot $Root -ExecutablePath $PSCommandPath
+$utf8NoBom = [System.Text.UTF8Encoding]::new($false)
+
+function Assert-Rejected {
+    param([scriptblock]$Action, [string]$Message)
+
+    $rejected = $false
+    try {
+        & $Action
+    }
+    catch {
+        $rejected = $true
+    }
+    if (-not $rejected) {
+        throw $Message
+    }
+}
+
+function ConvertTo-MutableFixtureValue {
+    param([AllowNull()][object]$Value)
+
+    if ($null -eq $Value -or $Value -is [string] -or $Value.GetType().IsPrimitive) {
+        return $Value
+    }
+    if ($Value -is [System.Collections.IDictionary]) {
+        $mapping = [ordered]@{}
+        foreach ($key in $Value.Keys) {
+            $mapping[[string]$key] = ConvertTo-MutableFixtureValue $Value[$key]
+        }
+        return $mapping
+    }
+    if ($Value -is [System.Management.Automation.PSCustomObject]) {
+        $mapping = [ordered]@{}
+        foreach ($property in $Value.PSObject.Properties) {
+            $mapping[$property.Name] = ConvertTo-MutableFixtureValue $property.Value
+        }
+        return $mapping
+    }
+    if ($Value -is [System.Collections.IEnumerable]) {
+        $list = New-Object System.Collections.ArrayList
+        foreach ($item in $Value) {
+            [void]$list.Add((ConvertTo-MutableFixtureValue $item))
+        }
+        return , $list
+    }
+    return $Value
+}
+
+function Get-FixtureMutationParent {
+    param([object]$Document, [object[]]$Path)
+
+    if ($Path.Count -eq 0) {
+        throw 'Fixture mutation path cannot be empty.'
+    }
+    $current = $Document
+    for ($index = 0; $index -lt $Path.Count - 1; $index += 1) {
+        $current = $current[$Path[$index]]
+    }
+    return [pscustomobject]@{
+        parent = $current
+        final = $Path[$Path.Count - 1]
+    }
+}
+
+function Invoke-FixtureMutation {
+    param([object]$Document, [object]$Operation)
+
+    $location = Get-FixtureMutationParent $Document @($Operation.path)
+    $value = if ($Operation.PSObject.Properties.Name -ccontains 'value') {
+        ConvertTo-MutableFixtureValue $Operation.value
+    }
+    else {
+        $null
+    }
+    switch ([string]$Operation.op) {
+        'set' {
+            $location.parent[$location.final] = $value
+        }
+        'append' {
+            $target = $location.parent[$location.final]
+            if ($target -isnot [System.Collections.ArrayList]) {
+                throw 'Fixture append target must be a mutable list.'
+            }
+            [void]$target.Add($value)
+        }
+        'remove' {
+            if ($location.parent -is [System.Collections.ArrayList]) {
+                $location.parent.RemoveAt([int]$location.final)
+            }
+            else {
+                [void]$location.parent.Remove([string]$location.final)
+            }
+        }
+        default {
+            throw "Unknown fixture mutation operation: $($Operation.op)"
+        }
+    }
+}
+
+function Write-FixtureJson {
+    param([string]$Path, [object]$Value)
+
+    $content = ($Value | ConvertTo-Json -Depth 100) + [Environment]::NewLine
+    [System.IO.File]::WriteAllText($Path, $content, $utf8NoBom)
+}
+
+function New-TaxonomyFixtureProject {
+    param([object]$Project, [string]$FixtureRoot)
+
+    $fixture = $Project.PSObject.Copy()
+    $fixture.root = $FixtureRoot
+    $fixture.taxonomy_registry = Join-Path $FixtureRoot 'registry.json'
+    $fixture.content_roots = @(
+        [pscustomobject]@{
+            id = 'articles'
+            relative_path = 'content/articles'
+            path = Join-Path $FixtureRoot 'content\articles'
+            provenance_mode = 'fixed'
+            provenance_label = 'article'
+        }
+        [pscustomobject]@{
+            id = 'records'
+            relative_path = 'content/records'
+            path = Join-Path $FixtureRoot 'content\records'
+            provenance_mode = 'fixed'
+            provenance_label = 'record'
+        }
+    )
+    return $fixture
+}
+
+function New-SourceFixtureProject {
+    param([object]$Project, [string]$FixtureRoot)
+
+    $fixture = $Project.PSObject.Copy()
+    $fixture.root = $FixtureRoot
+    $fixture.resources_registry = Join-Path $FixtureRoot 'resources.json'
+    $fixture.sources_registry = Join-Path $FixtureRoot 'registry.json'
+    $fixture.resource_roots = @(
+        [pscustomobject]@{
+            id = 'source-files'
+            relative_path = 'source-files'
+            path = Join-Path $FixtureRoot 'source-files'
+            required = $true
+        }
+    )
+    return $fixture
+}
+
+function Add-ProvenanceSourceExtensions {
+    param([object]$Document)
+
+    foreach ($definition in @(
+            [pscustomobject]@{
+                id = 'corroborating-source'
+                label = 'Corroborating Source'
+                comparison_group = 'sample-narrative'
+            }
+            [pscustomobject]@{
+                id = 'incomparable-source'
+                label = 'Incomparable Source'
+                comparison_group = 'external-comparison'
+            }
+        )) {
+        $source = ConvertTo-MutableFixtureValue $Document.sources['primary-source']
+        $source.label = $definition.label
+        $source.aliases = New-Object System.Collections.ArrayList
+        $source.observations = New-Object System.Collections.ArrayList
+        $source.coverage = New-Object System.Collections.ArrayList
+        $source.resource_bindings = New-Object System.Collections.ArrayList
+        $source.comparison_group = $definition.comparison_group
+        $Document.sources[$definition.id] = $source
+    }
+    [void]$Document.applicability_scopes.Add([ordered]@{
+            id = 'reported-alpha-name-scope'
+            target_type = 'provenance-claim'
+            target_id = 'reported-alpha-name'
+            territory_ids = New-Object System.Collections.ArrayList
+            precedence = 20
+        })
+    [void]$Document.applicability_scopes.Add([ordered]@{
+            id = 'confirmed-alpha-name-scope'
+            target_type = 'provenance-claim'
+            target_id = 'confirmed-alpha-name'
+            territory_ids = New-Object System.Collections.ArrayList
+            precedence = 10
+        })
+}
+
+function Get-FixtureProvenanceRegistry {
+    param(
+        [object]$Project,
+        [object]$Sources,
+        [object]$Entities,
+        [object]$Reconciliations,
+        [object]$Packs,
+        [object]$Occurrences,
+        [string]$Path
+    )
+
+    $fixture = $Project.PSObject.Copy()
+    $fixture.provenance_registry = $Path
+    return Get-KnowledgeProvenanceRegistry $fixture $Sources $Entities $Reconciliations $Packs $Occurrences
+}
+
+function Assert-ProvenanceFixtureCounts {
+    param([object]$Registry, [object]$Expected)
+
+    $links = @($Registry.assertions | ForEach-Object { @($_.evidence_links) })
+    $locators = @($links | ForEach-Object { @($_.locators) })
+    $claimKeys = @($Registry.assertions.claim_key | Sort-Object -Unique)
+    if ($Registry.assertions.Count -ne [int]$Expected.assertions -or
+        $Registry.claim_supersessions.Count -ne [int]$Expected.claim_supersessions -or
+        $claimKeys.Count -ne [int]$Expected.claim_keys -or
+        $links.Count -ne [int]$Expected.evidence_links -or
+        $locators.Count -ne [int]$Expected.locators) {
+        throw 'Provenance fixture counts changed.'
+    }
+}
+
+function Assert-ProvenanceAuthorityVectors {
+    param([object]$Registry, [object[]]$Vectors)
+
+    foreach ($expected in $Vectors) {
+        $actual = Get-KnowledgeClaimAuthorityEvaluation $Registry 'comparison-profile' $expected.claim_key
+        $actualRank = if ($null -eq $actual.best_rank) {
+            $null
+        }
+        else {
+            [int]$actual.best_rank
+        }
+        $expectedRank = if ($null -eq $expected.best_rank) {
+            $null
+        }
+        else {
+            [int]$expected.best_rank
+        }
+        if ($actual.outcome -cne $expected.outcome -or
+            $actualRank -ne $expectedRank -or
+            (@($actual.winning_assertion_ids) -join '|') -cne (@($expected.winning_assertion_ids) -join '|')) {
+            throw "Authority vector changed: $($expected.claim_key)"
+        }
+        foreach ($item in @($actual.decisions)) {
+            if (-not $Registry.sources.sources.Contains($item.decision.source_id)) {
+                throw 'Authority decision lost its source identity.'
+            }
+            if ([int]$item.decision.rank -lt 0) {
+                throw 'Authority decision produced a negative rank.'
+            }
+        }
+    }
+}
+
+function Assert-ProvenanceFixtureServices {
+    param([object]$Registry)
+
+    $claimAssertions = @($Registry.assertions | Where-Object claim_key -eq 'authority-winner')
+    if (($claimAssertions.id -join '|') -cne 'winner-primary|winner-adaptation') {
+        throw 'Claim assertion lookup changed.'
+    }
+    $entity = Get-KnowledgeProvenanceTarget $Registry 'entity' 'alpha-concept'
+    if (-not [object]::ReferenceEquals($entity, $Registry.entities.entities['alpha-concept'])) {
+        throw 'Cross-registry provenance target lookup changed.'
+    }
+    $supersession = Get-KnowledgeProvenanceTarget `
+        $Registry `
+        'claim-supersession' `
+        'confirmed-name-supersedes-reported-name'
+    if ($supersession.source_claim_key -cne 'confirmed-alpha-name') {
+        throw 'Claim-supersession target lookup changed.'
+    }
+    $exact = Get-KnowledgeProvenanceApplicabilityDecision `
+        $Registry `
+        'provenance-claim' `
+        'reported-alpha-name'
+    if ((@($exact.winning_scope_ids) -join '|') -cne 'reported-alpha-name-scope' -or
+        [int]$exact.highest_precedence -ne 20) {
+        throw 'Provenance-claim applicability resolution changed.'
+    }
+    $delegated = Get-KnowledgeProvenanceApplicabilityDecision $Registry 'work' 'adaptation-work'
+    if ((@($delegated.winning_scope_ids) -join '|') -cne 'adaptation-work-scope') {
+        throw 'Delegated source applicability resolution changed.'
+    }
+}
+
+function Assert-InvalidProvenanceQueries {
+    param([object]$Registry)
+
+    $actions = @(
+        { Get-KnowledgeProvenanceTarget $Registry 'unknown' 'alpha-concept' }
+        { Get-KnowledgeProvenanceTarget $Registry 'entity' 'unknown' }
+        { Get-KnowledgeClaimAuthorityEvaluation $Registry 'comparison-profile' 'unknown-claim' }
+        { Get-KnowledgeClaimAuthorityEvaluation $Registry 'comparison-profile' 'context-only-claim' }
+        { Get-KnowledgeProvenanceApplicabilityDecision $Registry 'provenance-claim' 'unknown-claim' }
+    )
+    for ($index = 0; $index -lt $actions.Count; $index += 1) {
+        Assert-Rejected $actions[$index] "Invalid provenance service query was accepted: $index"
+    }
+    return $actions.Count
+}
+
+function Add-ScaleAssertions {
+    param([object]$Document, [int]$Count)
+
+    for ($index = 0; $index -lt $Count; $index += 1) {
+        [void]$Document.assertions.Add([ordered]@{
+                id = 'scale-assertion-{0:d3}' -f $index
+                claim_key = 'scale-claim-{0:d3}' -f $index
+                subject_type = 'entity'
+                subject_id = 'alpha-concept'
+                claim_namespace = 'canonical-content'
+                field_path = 'label'
+                asserted_value = 'Scale Value {0:d3}' -f $index
+                assertion_status = 'verified'
+                evidence_links = [System.Collections.ArrayList]@(
+                    [ordered]@{
+                        source_id = 'primary-source'
+                        evidence_role = 'supports'
+                        locators = [System.Collections.ArrayList]@(
+                            [ordered]@{
+                                id = 'scale-locator-{0:d3}' -f $index
+                                medium_id = 'novel'
+                                evidence_mode = 'canonical-text'
+                                locator_type = 'point'
+                                position = [ordered]@{work = 'primary-work'
+                                    volume = 1
+                                    chapter = 1
+                                }
+                            }
+                        )
+                    }
+                )
+            })
+    }
+}
+
+$project = Get-KnowledgeProjectConfig $Root
+$packs = Get-KnowledgeSchemaPackRegistry $project
+$canonicalTaxonomy = Get-KnowledgeTaxonomyConfig $project
+$canonicalResources = Get-KnowledgeResourceConfig $project
+$canonicalSources = Get-KnowledgeSourceRegistry $project $canonicalResources $packs
+$canonicalEntities = Get-KnowledgeEntityRegistry $project $canonicalTaxonomy $canonicalSources $packs
+$canonicalProviders = @(
+    (Get-KnowledgeTaxonomyReconciliationProvider $canonicalTaxonomy)
+    (Get-KnowledgeResourceReconciliationProvider $canonicalResources)
+    (Get-KnowledgeSourceReconciliationProvider $canonicalSources)
+    (Get-KnowledgeEntityReconciliationProvider $canonicalEntities)
+)
+$reconciliations = Get-KnowledgeReconciliationRegistry $project $canonicalProviders $packs
+$chronology = Get-KnowledgeChronologyRegistry `
+    $project `
+    $packs `
+@($canonicalSources.works.Keys) `
+@($canonicalSources.continuities.Keys)
+$occurrences = Get-KnowledgeOccurrenceRegistry $project $packs $chronology
+$canonical = Get-KnowledgeProvenanceRegistry `
+    $project `
+    $canonicalSources `
+    $canonicalEntities `
+    $reconciliations `
+    $packs `
+    $occurrences
+
+$fixtureRoot = Join-Path $Root 'Framework\Data\Provenance'
+$baseDocument = ConvertTo-MutableFixtureValue (
+    Get-Content -LiteralPath (Join-Path $fixtureRoot 'base\registry.json') -Raw | ConvertFrom-Json
+)
+$expectations = Get-Content -LiteralPath (Join-Path $fixtureRoot 'expectations.json') -Raw | ConvertFrom-Json
+if ([int]$expectations.schema_version -ne 1) {
+    throw 'Unsupported provenance conformance expectation schema.'
+}
+
+$tempRoot = Join-Path ([System.IO.Path]::GetTempPath()) ('knowledge-provenance-' + [guid]::NewGuid().ToString('N'))
+try {
+    [void](New-Item -ItemType Directory -Path $tempRoot)
+    $sourceRoot = Join-Path $tempRoot 'sources'
+    Copy-Item -LiteralPath (Join-Path $Root 'Framework\Data\Sources\base') -Destination $sourceRoot -Recurse
+    $sourceDocument = ConvertTo-MutableFixtureValue (
+        Get-Content -LiteralPath (Join-Path $sourceRoot 'registry.json') -Raw | ConvertFrom-Json
+    )
+    Add-ProvenanceSourceExtensions $sourceDocument
+    Write-FixtureJson (Join-Path $sourceRoot 'registry.json') $sourceDocument
+    $sourceProject = New-SourceFixtureProject $project $sourceRoot
+    $resources = Get-KnowledgeResourceConfig $sourceProject
+    $sources = Get-KnowledgeSourceRegistry $sourceProject $resources $packs
+
+    $taxonomyRoot = Join-Path $Root 'Framework\Data\Taxonomy\base'
+    $taxonomy = Get-KnowledgeTaxonomyConfig (New-TaxonomyFixtureProject $project $taxonomyRoot)
+    $entityProject = $project.PSObject.Copy()
+    $entityProject.entities_registry = Join-Path $Root 'Framework\Data\Entities\base\registry.json'
+    $entities = Get-KnowledgeEntityRegistry $entityProject $taxonomy $sources $packs
+
+    $validPath = Join-Path $tempRoot 'valid.json'
+    Write-FixtureJson $validPath $baseDocument
+    $registry = Get-FixtureProvenanceRegistry `
+        $project $sources $entities $reconciliations $packs $occurrences $validPath
+    Assert-ProvenanceFixtureCounts $registry $expectations.valid_counts
+    Assert-ProvenanceAuthorityVectors $registry @($expectations.authority_vectors)
+    Assert-ProvenanceFixtureServices $registry
+    $invalidQueryCount = Assert-InvalidProvenanceQueries $registry
+    if ($invalidQueryCount -ne [int]$expectations.invalid_query_cases) {
+        throw 'Provenance invalid-query expectation count changed.'
+    }
+
+    foreach ($case in $expectations.invalid_cases) {
+        $document = ConvertTo-MutableFixtureValue $baseDocument
+        foreach ($operation in $case.operations) {
+            Invoke-FixtureMutation $document $operation
+        }
+        $casePath = Join-Path $tempRoot ($case.id + '.json')
+        Write-FixtureJson $casePath $document
+        Assert-Rejected {
+            Get-FixtureProvenanceRegistry `
+                $project $sources $entities $reconciliations $packs $occurrences $casePath
+        } "Malformed provenance configuration was accepted: $($case.id)"
+    }
+
+    $scaleDocument = ConvertTo-MutableFixtureValue $baseDocument
+    $scaleCount = [int]$expectations.scale_additional_assertions
+    Add-ScaleAssertions $scaleDocument $scaleCount
+    $scalePath = Join-Path $tempRoot 'scale.json'
+    Write-FixtureJson $scalePath $scaleDocument
+    $scaleRegistry = Get-FixtureProvenanceRegistry `
+        $project $sources $entities $reconciliations $packs $occurrences $scalePath
+    if ($scaleRegistry.assertions.Count -ne $registry.assertions.Count + $scaleCount) {
+        throw 'Provenance scale composition count changed.'
+    }
+}
+finally {
+    if (Test-Path -LiteralPath $tempRoot) {
+        Remove-Item -LiteralPath $tempRoot -Recurse -Force
+    }
+}
+
+$summary = [ordered]@{
+    schema_version = 1
+    canonical_assertions = $canonical.assertions.Count
+    canonical_claim_supersessions = $canonical.claim_supersessions.Count
+    fixture_assertions = $registry.assertions.Count
+    fixture_claim_supersessions = $registry.claim_supersessions.Count
+    authority_vector_cases = @($expectations.authority_vectors).Count
+    invalid_configuration_cases = @($expectations.invalid_cases).Count
+    invalid_query_cases = $invalidQueryCount
+    scale_additional_assertions = $scaleCount
+}
+if ($Json) {
+    $summary | ConvertTo-Json -Compress
+}
+else {
+    Write-Host (
+        'Provenance conformance passed: {0} fixture assertions, {1} authority vectors, ' +
+        '{2} malformed configurations, and {3} additional scale assertions.' -f
+        $summary.fixture_assertions,
+        $summary.authority_vector_cases,
+        $summary.invalid_configuration_cases,
+        $summary.scale_additional_assertions
+    )
+}

@@ -423,7 +423,18 @@ function Get-KnowledgeProvenanceRegistry {
 function Get-KnowledgeProvenanceApplicabilityDecision {
     param([object]$ProvenanceRegistry, [string]$TargetType, [string]$TargetId, [AllowNull()][AllowEmptyString()][string]$TerritoryId = $null, [object]$EffectiveAt = $null)
     if ($TargetType -ne "provenance-claim") {
-        return Get-KnowledgeApplicabilityDecision $ProvenanceRegistry.sources $TargetType $TargetId $TerritoryId $EffectiveAt
+        $arguments = @{
+            SourceRegistry = $ProvenanceRegistry.sources
+            TargetType = $TargetType
+            TargetId = $TargetId
+        }
+        if ($PSBoundParameters.ContainsKey('TerritoryId')) {
+            $arguments.TerritoryId = $TerritoryId
+        }
+        if ($PSBoundParameters.ContainsKey('EffectiveAt')) {
+            $arguments.EffectiveAt = $EffectiveAt
+        }
+        return Get-KnowledgeApplicabilityDecision @arguments
     }
     $assertions = @($ProvenanceRegistry.assertions | Where-Object { $_.claim_key -eq $TargetId })
     if ($assertions.Count -eq 0) {
