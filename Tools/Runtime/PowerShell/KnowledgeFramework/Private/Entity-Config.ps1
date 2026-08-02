@@ -41,21 +41,23 @@ function Get-EntityStringList {
     if (-not $Map.Contains($Key)) {
         throw "Entity registry '$Context.$Key' must be a list."
     }
-    $raw = Get-ProjectMapValue $Map $Key
-    if ($null -eq $raw) {
-        return @()
-    }
-    if ($raw -is [System.Collections.IDictionary]) {
+    [object]$raw = $Map[$Key]
+    if (
+        $null -eq $raw -or
+        $raw -is [string] -or
+        $raw -is [System.Collections.IDictionary] -or
+        $raw -isnot [System.Collections.IEnumerable]
+    ) {
         throw "Entity registry '$Context.$Key' must be a list."
     }
     $raw = @($raw)
     $values = @()
     $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
     for ($index = 0; $index -lt $raw.Count; $index += 1) {
-        $value = [string]$raw[$index]
-        if ([string]::IsNullOrWhiteSpace($value)) {
+        if ($raw[$index] -isnot [string] -or [string]::IsNullOrWhiteSpace([string]$raw[$index])) {
             throw "Entity registry '$Context.$Key[$index]' must be a non-empty string."
         }
+        $value = [string]$raw[$index]
         $value = $value.Trim()
         if (-not $seen.Add($value)) {
             throw "Entity registry '$Context.$Key' contains duplicate values."

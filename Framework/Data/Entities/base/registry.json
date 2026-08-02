@@ -1,0 +1,269 @@
+{
+  "schema_version": 4,
+  "entities": {
+    "alpha-concept": {
+      "lifecycle": "active",
+      "primary_category_id": "subject-alpha",
+      "category_ids": ["subject-alpha"],
+      "label": "Alpha Concept",
+      "aliases": ["shared-subject", "first-concept"]
+    },
+    "beta-concept": {
+      "lifecycle": "active",
+      "primary_category_id": "subject-beta",
+      "category_ids": ["subject-beta", "subject-alpha"],
+      "label": "Beta Concept",
+      "aliases": ["shared-subject", "second-concept"]
+    },
+    "gamma-concept": {
+      "lifecycle": "deferred",
+      "primary_category_id": "deferred-subject",
+      "category_ids": ["deferred-subject"],
+      "label": "Gamma Concept",
+      "aliases": []
+    }
+  },
+  "entity_relationship_types": {
+    "successor-to": {
+      "label": "Successor To",
+      "inverse_type": "has-successor",
+      "symmetric": false,
+      "canonical_direction": true,
+      "acyclic_group": "succession"
+    },
+    "has-successor": {
+      "label": "Has Successor",
+      "inverse_type": "successor-to",
+      "symmetric": false,
+      "canonical_direction": false,
+      "acyclic_group": "succession"
+    },
+    "inspired-by": {
+      "label": "Inspired By",
+      "inverse_type": "inspired",
+      "symmetric": false,
+      "canonical_direction": true
+    },
+    "inspired": {
+      "label": "Inspired",
+      "inverse_type": "inspired-by",
+      "symmetric": false,
+      "canonical_direction": false
+    }
+  },
+  "entity_relationships": [
+    {
+      "id": "beta-succeeds-alpha",
+      "source_entity_id": "beta-concept",
+      "relationship_type": "successor-to",
+      "target_entity_id": "alpha-concept",
+      "status": "canonical"
+    },
+    {
+      "id": "gamma-inspired-by-alpha",
+      "source_entity_id": "gamma-concept",
+      "relationship_type": "inspired-by",
+      "target_entity_id": "alpha-concept",
+      "status": "secondary-canon",
+      "applicability_scope_id": "chapter-one-region-scope",
+      "basis_roles": ["identity", "appearance"]
+    }
+  ],
+  "incarnations": {
+    "alpha-primary": {
+      "lifecycle": "active",
+      "entity_id": "alpha-concept",
+      "label": "Alpha Primary",
+      "aliases": ["shared-incarnation", "alpha-original"],
+      "primary_continuity_id": "primary-continuity",
+      "continuity_memberships": [
+        {"continuity_id": "primary-continuity", "status": "canonical"}
+      ]
+    },
+    "alpha-adaptation": {
+      "lifecycle": "active",
+      "entity_id": "alpha-concept",
+      "label": "Alpha Adaptation",
+      "aliases": ["alpha-screen"],
+      "primary_continuity_id": "adaptation-continuity",
+      "continuity_memberships": [
+        {"continuity_id": "adaptation-continuity", "status": "canonical"}
+      ]
+    },
+    "beta-primary": {
+      "lifecycle": "active",
+      "entity_id": "beta-concept",
+      "label": "Beta Primary",
+      "aliases": ["shared-incarnation"],
+      "primary_continuity_id": "primary-continuity",
+      "continuity_memberships": [
+        {"continuity_id": "primary-continuity", "status": "canonical"}
+      ]
+    },
+    "gamma-primary": {
+      "lifecycle": "deferred",
+      "entity_id": "gamma-concept",
+      "label": "Gamma Primary",
+      "aliases": [],
+      "primary_continuity_id": "primary-continuity",
+      "continuity_memberships": [
+        {"continuity_id": "primary-continuity", "status": "secondary-canon"}
+      ]
+    }
+  },
+  "incarnation_bindings": [
+    {
+      "id": "alpha-primary-binding",
+      "incarnation_id": "alpha-primary",
+      "applicability_scope_id": "chapter-one-region-scope",
+      "binding_type": "primary",
+      "status": "canonical"
+    },
+    {
+      "id": "alpha-adaptation-binding",
+      "incarnation_id": "alpha-adaptation",
+      "applicability_scope_id": "adaptation-work-scope",
+      "binding_type": "appearance",
+      "status": "canonical"
+    },
+    {
+      "id": "beta-primary-binding",
+      "incarnation_id": "beta-primary",
+      "applicability_scope_id": "chapter-one-region-scope",
+      "binding_type": "crossover",
+      "status": "secondary-canon"
+    }
+  ],
+  "incarnation_relationship_types": {
+    "counterpart-of": {
+      "label": "Counterpart Of",
+      "inverse_type": "counterpart-of",
+      "symmetric": true,
+      "canonical_direction": true
+    },
+    "branched-from": {
+      "label": "Branched From",
+      "inverse_type": "has-branch",
+      "symmetric": false,
+      "canonical_direction": true,
+      "acyclic_group": "incarnation-branch"
+    },
+    "has-branch": {
+      "label": "Has Branch",
+      "inverse_type": "branched-from",
+      "symmetric": false,
+      "canonical_direction": false,
+      "acyclic_group": "incarnation-branch"
+    }
+  },
+  "incarnation_relationships": [
+    {
+      "id": "alpha-continuity-counterparts",
+      "source_incarnation_id": "alpha-primary",
+      "relationship_type": "counterpart-of",
+      "target_incarnation_id": "alpha-adaptation",
+      "status": "canonical"
+    },
+    {
+      "id": "gamma-branches-from-beta",
+      "source_incarnation_id": "gamma-primary",
+      "relationship_type": "branched-from",
+      "target_incarnation_id": "beta-primary",
+      "status": "secondary-canon",
+      "applicability_scope_id": "chapter-one-region-scope"
+    }
+  ],
+  "identity_phases": {
+    "alpha-primary-early": {
+      "lifecycle": "active",
+      "subject_type": "entity-incarnation",
+      "subject_id": "alpha-primary",
+      "continuity_id": "primary-continuity",
+      "phase_type": "identity-epoch",
+      "label": "Alpha Primary Early",
+      "aliases": ["shared-phase", "alpha-before"]
+    },
+    "alpha-primary-late": {
+      "lifecycle": "active",
+      "subject_type": "entity-incarnation",
+      "subject_id": "alpha-primary",
+      "continuity_id": "primary-continuity",
+      "phase_type": "restoration",
+      "label": "Alpha Primary Late",
+      "aliases": ["alpha-after"]
+    },
+    "alpha-adaptation-phase": {
+      "lifecycle": "active",
+      "subject_type": "entity-incarnation",
+      "subject_id": "alpha-adaptation",
+      "continuity_id": "adaptation-continuity",
+      "phase_type": "ontological-transformation",
+      "label": "Alpha Adaptation Phase",
+      "aliases": ["screen-phase"]
+    },
+    "beta-concept-phase": {
+      "lifecycle": "deferred",
+      "subject_type": "entity",
+      "subject_id": "beta-concept",
+      "continuity_id": "primary-continuity",
+      "phase_type": "reincarnation",
+      "label": "Beta Concept Phase",
+      "aliases": ["shared-phase"]
+    }
+  },
+  "identity_phase_bindings": [
+    {
+      "id": "alpha-early-binding",
+      "identity_phase_id": "alpha-primary-early",
+      "applicability_scope_id": "chapter-one-region-scope",
+      "binding_type": "primary",
+      "status": "canonical"
+    },
+    {
+      "id": "alpha-late-binding",
+      "identity_phase_id": "alpha-primary-late",
+      "applicability_scope_id": "chapter-one-region-scope",
+      "binding_type": "appearance",
+      "status": "canonical"
+    },
+    {
+      "id": "alpha-adaptation-phase-binding",
+      "identity_phase_id": "alpha-adaptation-phase",
+      "applicability_scope_id": "adaptation-work-scope",
+      "binding_type": "primary",
+      "status": "canonical"
+    },
+    {
+      "id": "beta-concept-phase-binding",
+      "identity_phase_id": "beta-concept-phase",
+      "applicability_scope_id": "chapter-one-region-scope",
+      "binding_type": "appearance",
+      "status": "secondary-canon"
+    }
+  ],
+  "identity_phase_relationship_types": {
+    "succeeds": {
+      "label": "Succeeds",
+      "inverse_type": "precedes",
+      "symmetric": false,
+      "canonical_direction": true,
+      "acyclic_group": "identity-phase-sequence"
+    },
+    "precedes": {
+      "label": "Precedes",
+      "inverse_type": "succeeds",
+      "symmetric": false,
+      "canonical_direction": false,
+      "acyclic_group": "identity-phase-sequence"
+    }
+  },
+  "identity_phase_relationships": [
+    {
+      "id": "alpha-late-succeeds-early",
+      "source_identity_phase_id": "alpha-primary-late",
+      "relationship_type": "succeeds",
+      "target_identity_phase_id": "alpha-primary-early",
+      "status": "canonical"
+    }
+  ]
+}

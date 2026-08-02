@@ -19,6 +19,7 @@
       "taxonomy",
       "resource",
       "source",
+      "entity",
       "temporal",
       "chronology",
       "reconciliation",
@@ -67,6 +68,12 @@
       "python": "Tools/Conformance/Suites/test_source.py",
       "powershell": "Tools/Conformance/Suites/Test-Source.ps1",
       "tags": ["baseline", "source", "evidence"]
+    },
+    {
+      "id": "entity",
+      "python": "Tools/Conformance/Suites/test_entity.py",
+      "powershell": "Tools/Conformance/Suites/Test-Entity.ps1",
+      "tags": ["baseline", "entity", "identity"]
     },
     {
       "id": "temporal",
