@@ -446,6 +446,26 @@ When `--root` / `-Root` is omitted, both implementations search upward from the 
 
 Semantic alias resolution is backed by the manifest-selected `Framework/Data/unicode-lookup-16.0.0.json` registry. `lookup_key_config.py` and `Lookup-Key-Config.ps1` provide identical pinned Unicode normalization for Python, PowerShell 7, and Windows PowerShell 5.1; consumers compare their output ordinally instead of using runtime-default case-insensitive collections.
 
+## Aggregate Conformance
+
+Use the paired aggregate runners as the normal entry point for permanent framework conformance. `Tools/Conformance/suites.json` is the shared suite inventory: it defines stable suite IDs, runtime-specific runner paths, and named profiles. Both aggregate implementations validate the registry and reject discovered conformance runners that are neither registered nor explicitly excluded, preventing new suites from silently falling outside the baseline.
+
+```powershell
+python Tools\Conformance\run_conformance.py --profile baseline --json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Conformance.ps1 -Profile baseline -Json
+```
+
+The `baseline` profile runs every registered permanent suite and is the profile used by CI and framework-version validation. The smaller `fast` profile runs strict ingestion, lookup-key, temporal, and chronology checks for quick local feedback; it is not a substitute for the baseline. Use repeatable Python `--suite` arguments or a PowerShell `-Suite` array for focused diagnosis, and use `--list` / `-List` to inspect the registered inventory and profiles.
+
+```powershell
+python Tools\Conformance\run_conformance.py --profile fast
+python Tools\Conformance\run_conformance.py --suite temporal --suite chronology --json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Conformance.ps1 -Suite temporal,chronology -Json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Conformance.ps1 -List -Json
+```
+
+The current aggregate layer launches each suite in an isolated child runtime. That preserves existing runner behavior and prevents PowerShell script-scope collisions while the shared loaders are migrated into real modules. Once module extraction is complete, safe in-process execution and a separate fast feature-branch CI tier can be evaluated without changing the registry or suite IDs. Visualization and Obsidian QA remain separate compatibility gates because they validate project consumers rather than framework conformance alone.
+
 ## Strict YAML Conformance
 
 Run the dedicated strict-ingestion corpus after changing shared YAML parsing, scalar rules, mapping keys, schema-version handling, byte decoding, parser budgets, or RFC 3339 validation. Both implementations consume `Framework/Data/Strict-Yaml/`, create only uniquely named operating-system temporary files, and remove those files before exit.

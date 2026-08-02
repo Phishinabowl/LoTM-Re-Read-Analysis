@@ -79,6 +79,8 @@ Named works and real-world domains are **test prompts**, not automatic evidence.
 
 ### Permanent Conformance
 
+`Tools/Conformance/suites.json` is the executable inventory for paired permanent runners. The Python and PowerShell aggregate commands validate that registry, reject discovered but unregistered conformance scripts, and execute named profiles with stable structured summaries. Register every new permanent runner before claiming it is part of the baseline; a standalone script is not permanent coverage until the aggregate inventory owns it.
+
 | ID | Current Purpose | Permanent Surface |
 | --- | --- | --- |
 | `CONF-PROJECT-COMPOSITION` | Load the canonical manifest, selected packs, activated capabilities, taxonomy, resources, sources, entities, reconciliation, provenance, chronology, and occurrences in dependency order; verify provider closure, expected schema/count summaries, and clean absence of disabled capabilities. | Paired configuration loaders, canonical `Project_Config/`, composed-loader assertions, and the current integrated registry baseline recorded in `Tools/TOOLING_REFERENCE.md`. |
@@ -183,7 +185,7 @@ Implementation must add permanent vectors for its promised behavior and for ever
 
 ### 3. Run Implementation Conformance
 
-Run all permanent conformance families, not only the newly edited suite. Run the three-runtime parity families for every paired surface. Compare structured summaries and exact expected errors where the contract defines them.
+Run the aggregate `baseline` profile in Python, PowerShell 7, and Windows PowerShell 5.1, not only the newly edited suite. Exercise permanent families that do not yet own standalone registered runners through their documented integrated checks. Run the three-runtime parity families for every paired surface. Compare aggregate structured summaries, suite summaries, and exact expected errors where the contract defines them. The `fast` profile is useful during implementation but cannot close this step.
 
 ### 4. Run Project Compatibility Gate
 
@@ -209,6 +211,7 @@ Every framework evolution version must run:
 
 - `STATIC-POWERSHELL` in PowerShell 7 and Windows PowerShell 5.1;
 - `STATIC-PYTHON` through both Ruff format-check and line-length-check commands;
+- the aggregate conformance `baseline` profile in Python, PowerShell 7, and Windows PowerShell 5.1, with matching registered suite inventory and semantic summaries;
 - `CONF-PROJECT-COMPOSITION` and `CONF-LOOKUP`;
 - `CONF-TEMPORAL`;
 - `CONF-CHRONOLOGY`;

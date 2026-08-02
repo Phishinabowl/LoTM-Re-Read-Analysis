@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "profiles": {
+    "fast": [
+      "strict-ingestion",
+      "lookup-key",
+      "temporal",
+      "chronology"
+    ],
+    "baseline": [
+      "strict-ingestion",
+      "lookup-key",
+      "temporal",
+      "chronology",
+      "reconciliation",
+      "occurrence"
+    ]
+  },
+  "suites": [
+    {
+      "id": "strict-ingestion",
+      "python": "Tools/test_strict_yaml.py",
+      "powershell": "Tools/Test-Strict-Yaml.ps1",
+      "tags": ["baseline", "fast", "ingestion"]
+    },
+    {
+      "id": "lookup-key",
+      "python": "Tools/test_lookup_key.py",
+      "powershell": "Tools/Test-Lookup-Key.ps1",
+      "tags": ["baseline", "fast", "identity"]
+    },
+    {
+      "id": "temporal",
+      "python": "Tools/test_temporal.py",
+      "powershell": "Tools/Test-Temporal.ps1",
+      "tags": ["baseline", "fast", "time"]
+    },
+    {
+      "id": "chronology",
+      "python": "Tools/test_chronology.py",
+      "powershell": "Tools/Test-Chronology.ps1",
+      "tags": ["baseline", "fast", "time"]
+    },
+    {
+      "id": "reconciliation",
+      "python": "Tools/test_reconciliation.py",
+      "powershell": "Tools/Test-Reconciliation.ps1",
+      "tags": ["baseline", "identity"]
+    },
+    {
+      "id": "occurrence",
+      "python": "Tools/test_occurrence.py",
+      "powershell": "Tools/Test-Occurrence.ps1",
+      "tags": ["baseline", "recurrence", "state"]
+    }
+  ],
+  "discovery": {
+    "python": [
+      {
+        "directory": "Tools",
+        "pattern": "test_*.py",
+        "exclude": []
+      }
+    ],
+    "powershell": [
+      {
+        "directory": "Tools",
+        "pattern": "Test-*.ps1",
+        "exclude": [
+          "Tools/Test-PowerShell.ps1",
+          "Tools/Test-Python.ps1"
+        ]
+      }
+    ]
+  }
+}
