@@ -197,6 +197,11 @@ Tools/
   README.md
   Python-preferred helper scripts and documented PowerShell fallbacks
 
+.github/
+  workflows/
+    ci.yml
+  tracked GitHub Actions validation policy
+
 Artwork/
   README.md
   official-epub-image-map.md

@@ -955,12 +955,25 @@ Last parity check: 2026-08-01. Python, PowerShell 7, and Windows PowerShell 5.1 
 
 Current content-type and ownership regression: both implementations selected taxonomy-enabled `glossary` and `volumes` roots, excluded `investigations`, and produced matching 28-file lists and summary counts (`notes=16`, `relationships=121`, `data_references=71`). After generated timestamps were normalized, all 25 stable Markdown and Mermaid outputs matched exactly. The check moved PowerShell's unbounded visualization-style graph generation into the configured Visualization helper and added a deterministic YAML-block/file tie-breaker to both data-reference index sort orders.
 
+## GitHub Actions CI
+
+The tracked `.github/workflows/ci.yml` workflow runs on pushes, pull requests, and manual dispatches. Its stable job/check names are `Workflow Policy`, `Python Validation`, `PowerShell 7 Validation`, and `Windows PowerShell 5.1 Validation`. Future repository rules may require these names, so avoid casual renames.
+
+`Workflow Policy` installs the checksum-pinned standalone actionlint release declared in the workflow and validates all workflow files. Local preflight uses a system-installed official executable:
+
+```powershell
+actionlint -color
+```
+
+The runtime jobs install repository dependencies and execute the static-format, framework-conformance, visualization, redirected-QA, fresh-parent, and unsafe-output checks defined by the testing methodology. Third-party actions are pinned to immutable commit SHAs.
+
 ## Configuration Files
 
 This section tracks durable configuration and generated state files that affect helper behavior. Add new entries here when a tool starts reading a new config file, writing a new persistent state file, or depending on a shared registry. Do not list ignored one-run artifacts such as `.tmp/`, `Obsidian_Export/`, Python caches, or rendered files generated from an already listed source config.
 
 | File | Kind | Read By | Written By | Purpose | Update When |
 | --- | --- | --- | --- | --- | --- |
+| `.github/workflows/ci.yml` | Continuous-integration policy | GitHub Actions, actionlint, maintainers, and future repository rules | Maintainers | Defines the four stable validation checks, immutable action pins, runtime environments, dependency setup, and permanent automated smoke/regression coverage. | A permanent gate, runtime, dependency, action pin, stable check name, or repository-rule requirement changes. |
 | `Project_Config/project.yaml` | Project manifest | `Tools/project_config.py`, `Tools/Project-Config.ps1`, and consumers such as both Obsidian QA exporters | Maintainers | Identifies the project and configures modeled content/resource roots, provenance behavior, registry paths, default QA output, visualization helpers/settings, cleanup helpers, and manifest schema version without coupling framework code to LoTM directory names. | Project identity or paths change, a content/resource root is added, provenance behavior changes, helper locations move, or the manifest schema changes. |
 | `Framework/Data/unicode-lookup-16.0.0.json`, `Framework/Data/lookup-key-regression-vectors.json`, `Framework/Data/Strict-Yaml/`, `Framework/Data/Reconciliation/`, `Framework/Data/Temporal/`, `Framework/Data/Chronology/`, and `Framework/Data/Occurrence/` | Pinned framework runtime and conformance data | Strict YAML, lookup, reconciliation, temporal, chronology, and occurrence loaders; paired conformance tools; parity checks; and future semantic identity consumers | Framework maintainers through reviewed data updates | Define deterministic lookup behavior, canonical mapping-key ingestion, branch-aware stable-ID reconciliation vectors, civil-time match/overlap vectors, exact chronology closure, and occurrence/recurrence queries shared by every runtime. | An ingestion, lookup, reconciliation, temporal, chronology, or occurrence algorithm changes, or a discovered portability edge case requires a permanent vector. |
 | `Framework/Contracts/README.md`, registry contracts, `Framework/Contracts/strict-configuration-ingestion.md`, `Framework/Contracts/identity-target-provider.md`, and `Framework/Contracts/reconciliation-registry.md` | Framework contract index, registry contracts, strict ingestion rules, and provider boundaries | Framework maintainers and future schema tooling | Framework maintainers | Record executable configuration boundaries, shared YAML semantics, schema ownership, media/work/provenance semantics, identity phases, typed providers, and read-only stable-ID reconciliation. | A configuration contract or provider boundary is introduced, stabilized, moved, or assigned a validator. |

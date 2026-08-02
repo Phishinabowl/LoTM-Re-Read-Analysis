@@ -314,6 +314,8 @@ Use each project artifact for a distinct purpose:
 - `Obsidian_Export`: Ignored local QA mirror generated from repository records for Obsidian graph inspection, anomaly detection, relationship review, and no-render repository graph refresh checks.
 - `Project_Config`: Canonical machine-readable project, taxonomy, and resource contracts. Change these through reviewed edits and, later, the shared mutation service.
 
+Tracked GitHub Actions workflows are repository policy. Validate changes with actionlint, pin third-party actions to immutable commits, keep permissions least-privilege, and preserve established job/check names unless the corresponding repository-rule migration is intentional. A workflow is not considered validated until both its local checks and an observed GitHub-hosted run pass.
+
 Do not duplicate granular reveal chronology across boards, volume pages, and glossary threads. Keep the filterable detail in the glossary thread and summarize only the durable volume-level meaning on the appropriate board or volume page.
 
 Boards are `analysis-board` content records and analyst-facing overviews, not the canonical source for automatic spoiler filtering. `CURRENT_STATE.md` is the fixed `project-dashboard` record, while `INDEX.md` is the fixed `navigation-index` record. A future reader-facing system may gate a board by its volume boundary, but glossary knowledge units remain the source for position-specific filtering.

@@ -81,6 +81,23 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Format-PowerShell.ps1 
 
 The formatter uses `Tools/powershell-format-settings.psd1`, writes UTF-8 without a BOM and CRLF line endings, removes optional statement-terminating semicolons, preserves required `for (...)` separators, verifies parse/token equivalence, and rejects lines longer than 200 characters. Gitignored files are excluded from the default repository policy. Use `-Path`, `-MaximumLineLength`, or `-Json` for targeted checks, an explicit line-length gate, or structured results. Relative explicit paths resolve from the repository root. Manual wrapping is still required when a long expression cannot be changed mechanically without obscuring semantics.
 
+## Continuous Integration
+
+The tracked workflow at `.github/workflows/ci.yml` runs on pushes, pull requests, and manual dispatches. It preserves four stable check names for future repository rules:
+
+- `Workflow Policy`
+- `Python Validation`
+- `PowerShell 7 Validation`
+- `Windows PowerShell 5.1 Validation`
+
+`Workflow Policy` validates every GitHub Actions workflow with `actionlint`. The workflow downloads a checksum-pinned standalone actionlint release for itself; local maintainers may install the official executable system-wide and run this preflight from the repository root:
+
+```powershell
+actionlint -color
+```
+
+The runtime jobs install their declared dependencies, enforce Python and PowerShell formatting, run permanent framework conformance suites, validate the visualization projection, generate redirected QA smoke exports beneath fresh `.tmp/` parents, and reject repository-root or outside-repository QA destinations. Keep action SHAs immutable. Treat the four job names as a public policy surface: rename one only with the same care as changing a required status check.
+
 ## Temporary File Cleanup
 
 Use `clean_temp_files.py` to remove disposable local cache directories when Python is available. It is the preferred implementation because it is portable across Windows, macOS, and Linux while matching the rest of the repository's Python-preferred tool convention.
