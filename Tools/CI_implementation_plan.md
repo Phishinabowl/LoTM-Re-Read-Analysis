@@ -187,9 +187,16 @@ The shared job-scoped PowerShell module path worked in both runtimes, Mermaid CL
 
 ## Phase 9: Extraction Readiness
 
-- [ ] Confirm runtime modules contain no LoTM paths or vocabulary.
+- [x] Confirm runtime modules contain no LoTM paths or vocabulary.
 - [ ] Confirm narrative behavior lives in schema packs rather than the core runtime.
 - [ ] Confirm LoTM configuration remains under `Project_Config/`.
 - [ ] Confirm the framework can be copied without canonical LoTM content or generated outputs.
 - [ ] Run the complete conformance, compatibility, static, and pressure-test baseline.
 - [ ] Record the stabilized architecture in the framework evolution and extraction documentation.
+
+### Phase 9.1 Runtime Boundary Audit - 2026-08-02
+
+The audit covered all 30 maintained files under `Tools/Runtime/`: the 15-module Python
+`knowledge_framework` package and the matching 15-file PowerShell `KnowledgeFramework` module. Neither runtime contains LoTM project IDs, titles, entities, user or machine paths, canonical content-folder names, source-file defaults, or generated graph and QA artifact names.
+
+`Project_Config/project.yaml` is the one fixed discovery path in both implementations. It is the framework's generic bootstrap-manifest convention, not a LoTM path. Content roots, resource roots, registry paths, QA output, visualization helpers, render configuration, and cleanup helpers are resolved from that manifest. LoTM-specific defaults that remain in command adapters, such as the local EPUB utilities, are outside the reusable runtime boundary and are not included in this portability claim.
