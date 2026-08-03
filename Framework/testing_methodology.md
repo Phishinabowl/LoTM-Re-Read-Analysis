@@ -132,7 +132,7 @@ Every permanent registry suite must preserve five distinct classes of evidence. 
 
 ### Project Compatibility
 
-`Tools/Compatibility/compatibility.json` is the executable check and profile inventory, and `Tools/Compatibility/run_compatibility.py` is the canonical cross-runtime orchestrator. The registry owns representative inputs and profile membership; this methodology owns when those profiles are required and what each stable compatibility family means. Do not duplicate individual runtime commands in CI once the aggregate compatibility profile is adopted there.
+`Tools/Compatibility/compatibility.json` is the executable check and profile inventory, and `Tools/Compatibility/run_compatibility.py` is the canonical cross-runtime orchestrator. The registry owns representative inputs and profile membership; this methodology owns when those profiles are required and what each stable compatibility family means. Do not duplicate individual runtime commands or extraction rehearsal commands in CI once the aggregate compatibility profile is adopted there.
 
 | ID | Requirement |
 | --- | --- |
@@ -141,6 +141,7 @@ Every permanent registry suite must preserve five distinct classes of evidence. 
 | `COMPAT-RENDER` | Render at least one redirected representative graph through all supported runtimes and verify successful, nonempty, semantically equivalent output. |
 | `COMPAT-ROOT-DISCOVERY` | Verify manifest-based project-root discovery from the repository root, `Tools/`, a nested descendant, and an unrelated working directory. Exercise explicit root, `KNOWLEDGE_PROJECT_ROOT`, current-directory precedence, executable fallback, invalid/missing manifests, and unchanged caller location across affected commands. |
 | `COMPAT-ARTIFACT-LIFECYCLE` | Verify redirected output ownership, safe creation beneath fresh multi-level parent paths, rejection of repository-root and outside-repository destinations, stale generated-folder removal, run-scoped temporary cleanup, preservation of unrelated temporary files, and protection of canonical outputs. |
+| `COMPAT-FRAMEWORK-EXTRACTION` | Copy only reusable framework, runtime, conformance, and dependency-policy assets into an isolated temporary tree; generate a neutral core-only consumer rather than copying project configuration; prove canonical/generated project surfaces are absent; and require matching portable-suite summaries across all three runtimes before removing the rehearsal. |
 
 ### Retained Pressure Scenarios
 
@@ -197,6 +198,7 @@ These project-level probes preserve the QA, visualization, launcher, and cleanup
 - Render at least one redirected graph in all supported runtimes and verify nonempty semantic equivalence without refreshing canonical outputs.
 - Exercise help and structured-summary modes without triggering generation, then compare paired switch meaning, defaults, validation boundaries, and exit behavior.
 - Verify automatic and explicit cleanup remove only artifacts owned by the run or requested scope, preserve unrelated `.tmp/` content, remove stale generated subtrees, and leave canonical outputs untouched.
+- Rehearse an allowlisted framework/runtime/conformance copy with a generated neutral core-only consumer, prove project configuration and canonical/generated LoTM surfaces are absent, and require matching portable-suite summaries in all three runtimes.
 
 The executable inventory, sample boundaries, and profile composition belong in `Tools/Compatibility/compatibility.json`; exact switches, expected counts, normalization, and the latest measured baseline belong in `Tools/TOOLING_REFERENCE.md`. If representative project data changes, replace a probe deliberately and record why; do not silently stop testing the behavior it represented.
 

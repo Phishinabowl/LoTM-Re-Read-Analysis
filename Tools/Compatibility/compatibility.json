@@ -14,13 +14,15 @@
       "visualization",
       "qa",
       "root-discovery",
-      "artifact-lifecycle"
+      "artifact-lifecycle",
+      "framework-extraction"
     ],
     "full-release": [
       "visualization",
       "qa",
       "root-discovery",
       "artifact-lifecycle",
+      "framework-extraction",
       "render"
     ]
   },
@@ -56,6 +58,11 @@
     {
       "id": "artifact-lifecycle",
       "kind": "artifact-lifecycle",
+      "timeout_seconds": 240
+    },
+    {
+      "id": "framework-extraction",
+      "kind": "framework-extraction",
       "timeout_seconds": 240
     },
     {

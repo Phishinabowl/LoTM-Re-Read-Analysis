@@ -110,7 +110,7 @@ The tracked workflow at `.github/workflows/ci.yml` runs for pull requests, pushe
 actionlint -color
 ```
 
-The three runtime jobs install their declared dependencies, enforce Python and PowerShell formatting, enforce work-annotation policy, and run the permanent `baseline` conformance profile. `Project Compatibility` separately compares all three Visualization and QA implementations, root discovery, safe artifact lifecycle, canonical-output preservation, and unsafe destination rejection through the registry-owned compatibility profile. Pull requests use `pull-request`; pushes to `main` and manual dispatches use `full-release`, which adds byte-identical representative Mermaid rendering. Keep action SHAs immutable. Treat all five job names as a public policy surface: rename one only with the same care as changing a required status check.
+The three runtime jobs install their declared dependencies, enforce Python and PowerShell formatting, enforce work-annotation policy, and run the permanent `baseline` conformance profile. `Project Compatibility` separately compares all three Visualization and QA implementations, root discovery, safe artifact lifecycle, isolated framework extraction, canonical-output preservation, and unsafe destination rejection through the registry-owned compatibility profile. Pull requests use `pull-request`; pushes to `main` and manual dispatches use `full-release`, which adds byte-identical representative Mermaid rendering. Keep action SHAs immutable. Treat all five job names as a public policy surface: rename one only with the same care as changing a required status check.
 
 ## Temporary File Cleanup
 
@@ -490,7 +490,14 @@ python Tools\Compatibility\run_compatibility.py --profile pull-request
 python Tools\Compatibility\run_compatibility.py --profile full-release
 ```
 
-`Tools/Compatibility/compatibility.json` owns the executable check inventory, representative bounded requests, render probe, timeouts, and profile membership. `local` compares Visualization and QA outputs; `pull-request` adds root-discovery and artifact-lifecycle safety; `full-release` also renders a representative graph. Use `--list` or `--list --json` to inspect the registry, and repeat `--check` for focused diagnosis.
+`Tools/Compatibility/compatibility.json` owns the executable check inventory, representative bounded requests, extraction and render probes, timeouts, and profile membership. `local` compares Visualization and QA outputs; `pull-request` adds root-discovery, artifact-lifecycle, and isolated-extraction safety; `full-release` also renders a representative graph. Use `--list` or `--list --json` to inspect the registry, and repeat `--check` for focused diagnosis.
+
+Pull-request and full-release compatibility also rehearse framework extraction. The canonical verifier copies only reusable framework, runtime, and conformance assets into an operating-system temporary directory, generates a neutral core-only consumer manifest rather than copying `Project_Config/`, rejects canonical/generated LoTM surfaces, and runs project-root, strict-ingestion, lookup-key, schema-pack, and temporal conformance in Python, PowerShell 7, and Windows PowerShell 5.1. It always removes its isolated copy on exit:
+
+```powershell
+python Tools\Compatibility\verify_framework_extraction.py
+python Tools\Compatibility\verify_framework_extraction.py --json
+```
 
 Every run writes to a unique ignored `.tmp/compatibility/` child, hashes protected canonical outputs before and after execution, and removes its scoped output after success. Failed output is retained automatically. Use `--keep-output` only when a successful comparison needs manual inspection; `--output-root` must remain beneath repository `.tmp/`.
 

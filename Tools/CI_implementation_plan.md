@@ -190,7 +190,7 @@ The shared job-scoped PowerShell module path worked in both runtimes, Mermaid CL
 - [x] Confirm runtime modules contain no LoTM paths or vocabulary.
 - [x] Confirm narrative behavior lives in schema packs rather than the core runtime.
 - [x] Confirm LoTM configuration remains under `Project_Config/`.
-- [ ] Confirm the framework can be copied without canonical LoTM content or generated outputs.
+- [x] Confirm the framework can be copied without canonical LoTM content or generated outputs.
 - [ ] Run the complete conformance, compatibility, static, and pressure-test baseline.
 - [ ] Record the stabilized architecture in the framework evolution and extraction documentation.
 
@@ -216,3 +216,11 @@ All LoTM semantic project configuration remains in the eleven files under `Proje
 This boundary does not classify every project-specific file as configuration. Canonical Markdown and embedded page data remain authored content; `Visualization/data/refresh-snapshot.json` is generated regression evidence; and compatibility, static-policy, formatter, render, editor, and CI settings configure repository tooling rather than instantiate the LoTM world model. Reusable framework packs and synthetic fixtures contain no LoTM project IDs, titles, entities, or canonical paths. General narrative terms such as `donghua` remain correctly owned by reusable narrative packs.
 
 The full project-composition suite passed with matching summaries in Python, PowerShell 7, and Windows PowerShell 5.1: 8 selected packs, 114 enabled and 9 disabled capabilities, 24 reconciliation target types, 53 provenance subject types, two deterministic composition passes, and seven rejected invalid compositions.
+
+### Phase 9.4 Isolated Extraction Rehearsal - 2026-08-02
+
+`Tools/Compatibility/verify_framework_extraction.py` now performs a repeatable standalone-copy rehearsal. It copies only `Framework/`, `Tools/Runtime/`, `Tools/Conformance/`, the Python and PowerShell dependency declarations, and the Python formatter policy into a unique operating-system temporary directory. It does not copy the LoTM `Project_Config/`; instead it generates a neutral core-only `extraction-smoke` consumer manifest and disposable registry placeholders.
+
+The verifier rejects nine canonical or generated project surfaces, runs project-root, strict-ingestion, lookup-key, schema-pack, and temporal conformance from inside the copied tree, compares structured summaries across Python, PowerShell 7, and Windows PowerShell 5.1, and removes the temporary tree on exit. The first rehearsal copied 202 reusable files and passed all five suites in all three runtimes with no LoTM configuration, canonical content, source material, QA export, visualization state, or generated output present.
+
+The permanent `framework-extraction` compatibility check is included in `pull-request` and `full-release` profiles. It remains outside `local` so the three-runtime isolated copy does not slow the rapid Visualization/QA implementation loop.

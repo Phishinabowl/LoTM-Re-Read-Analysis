@@ -29,6 +29,7 @@ from knowledge_framework.project_paths import resolve_project_root  # noqa: E402
 REGISTRY_PATH = Path(__file__).with_name("compatibility.json")
 ALLOWED_CHECK_KINDS = {
     "artifact-lifecycle",
+    "framework-extraction",
     "qa",
     "render",
     "root-discovery",
@@ -36,6 +37,7 @@ ALLOWED_CHECK_KINDS = {
 }
 CHECK_KEYS = {
     "artifact-lifecycle": {"id", "kind", "timeout_seconds"},
+    "framework-extraction": {"id", "kind", "timeout_seconds"},
     "qa": {"id", "kind", "timeout_seconds", "bounded_graphs", "bounded_pages"},
     "render": {
         "id",
@@ -716,8 +718,41 @@ def run_render_check(check: dict[str, Any], runtimes: list[Runtime], root: Path,
     }
 
 
+def run_framework_extraction_check(
+    check: dict[str, Any], runtimes: list[Runtime], root: Path, output_root: Path
+) -> dict[str, Any]:
+    del output_root
+    python_runtime = next(runtime for runtime in runtimes if runtime.id == "python")
+    result = run_command(
+        python_runtime,
+        [
+            python_runtime.executable,
+            str(root / "Tools" / "Compatibility" / "verify_framework_extraction.py"),
+            "--root",
+            str(root),
+            "--json",
+        ],
+        root,
+        check["timeout_seconds"],
+    )
+    summary = parse_json_output(result.stdout)
+    if not isinstance(summary, dict) or summary.get("status") != "passed":
+        raise CompatibilityFailure(f"Framework extraction rehearsal returned an invalid summary: {summary!r}")
+    return {
+        "status": "passed",
+        "copied_files": summary.get("copied_files"),
+        "copied_project_config": summary.get("copied_project_config"),
+        "forbidden_surfaces_absent": summary.get("forbidden_surfaces_absent"),
+        "neutral_project_id": summary.get("neutral_project_id"),
+        "portable_suites": summary.get("portable_suites"),
+        "runtimes": summary.get("runtimes"),
+        "elapsed_seconds": result.elapsed_seconds,
+    }
+
+
 CHECK_HANDLERS = {
     "artifact-lifecycle": run_artifact_lifecycle_check,
+    "framework-extraction": run_framework_extraction_check,
     "qa": run_qa_check,
     "render": run_render_check,
     "root-discovery": run_root_discovery_check,
