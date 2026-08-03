@@ -8,6 +8,7 @@ This directory contains reusable framework assets that are portable across proje
 - `framework_improvement_lifecycle.md` defines the end-to-end version iteration, confirmation, testing, historical closure, and handoff workflow.
 - `testing_methodology.md` defines the cross-industry pressure-test candidate catalog plus cumulative conformance, runtime-parity, compatibility, pressure-scenario, comparison, and test-retention requirements.
 - `framework_evolution.md` records the historical implementation and pressure-test results that drove each framework version.
+- `extraction_readiness.md` records the proven portable bundle, project-owned boundary, extraction rehearsal, stabilization evidence, and limits of the current readiness claim.
 - Future `Migrations/` content will contain versioned transformations between contract revisions.
 
 Project-specific composition, paths, activated capabilities, taxonomy, resources, sources, and extension packs remain under `Project_Config/`.

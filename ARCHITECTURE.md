@@ -6,7 +6,7 @@ This document is the authoritative architecture and component-ownership contract
 
 It describes both the required target architecture and the boundaries that new work must follow during migration. When current code does not yet match this contract, treat the mismatch as transition debt to remove, not as precedent for additional duplication.
 
-LoTM-specific authoring, evidence, taxonomy, and spoiler-modeling rules remain in [PROJECT_RULES.md](PROJECT_RULES.md). Framework iterations enter through [Framework/framework_improvement_lifecycle.md](Framework/framework_improvement_lifecycle.md); cumulative testing and retained coverage live in [Framework/testing_methodology.md](Framework/testing_methodology.md); and [Framework/framework_evolution.md](Framework/framework_evolution.md) remains the historical implementation, pressure-test, and next-version handoff log. Tool switches and current implementation details remain in [Tools/TOOLING_REFERENCE.md](Tools/TOOLING_REFERENCE.md).
+LoTM-specific authoring, evidence, taxonomy, and spoiler-modeling rules remain in [PROJECT_RULES.md](PROJECT_RULES.md). Framework iterations enter through [Framework/framework_improvement_lifecycle.md](Framework/framework_improvement_lifecycle.md); cumulative testing and retained coverage live in [Framework/testing_methodology.md](Framework/testing_methodology.md); [Framework/framework_evolution.md](Framework/framework_evolution.md) remains the historical implementation, pressure-test, and next-version handoff log; and [Framework/extraction_readiness.md](Framework/extraction_readiness.md) records the currently proven portable bundle and the limits of that readiness claim. Tool switches and current implementation details remain in [Tools/TOOLING_REFERENCE.md](Tools/TOOLING_REFERENCE.md).
 
 ## Architectural Goals
 
@@ -379,6 +379,12 @@ The same operations must remain available headlessly so automation and other int
 Category and page forms should eventually be schema-driven. Interface code may customize layout and usability, but field meaning and validation belong to project schemas and registries.
 
 ## Framework Extraction Boundary
+
+The current runtime and conformance kernel has passed an isolated-copy rehearsal. This is a
+foundation-readiness claim, not a claim that every target component below has already been
+implemented or moved. The exact proven allowlist, guarded project surfaces, verification
+commands, and remaining boundaries are recorded in
+`Framework/extraction_readiness.md`.
 
 The reusable framework should contain:
 

@@ -191,8 +191,8 @@ The shared job-scoped PowerShell module path worked in both runtimes, Mermaid CL
 - [x] Confirm narrative behavior lives in schema packs rather than the core runtime.
 - [x] Confirm LoTM configuration remains under `Project_Config/`.
 - [x] Confirm the framework can be copied without canonical LoTM content or generated outputs.
-- [ ] Run the complete conformance, compatibility, static, and pressure-test baseline.
-- [ ] Record the stabilized architecture in the framework evolution and extraction documentation.
+- [x] Run the complete conformance, compatibility, static, and pressure-test baseline.
+- [x] Record the stabilized architecture in the framework evolution and extraction documentation.
 
 ### Phase 9.1 Runtime Boundary Audit - 2026-08-02
 
@@ -224,3 +224,21 @@ The full project-composition suite passed with matching summaries in Python, Pow
 The verifier rejects nine canonical or generated project surfaces, runs project-root, strict-ingestion, lookup-key, schema-pack, and temporal conformance from inside the copied tree, compares structured summaries across Python, PowerShell 7, and Windows PowerShell 5.1, and removes the temporary tree on exit. The first rehearsal copied 202 reusable files and passed all five suites in all three runtimes with no LoTM configuration, canonical content, source material, QA export, visualization state, or generated output present.
 
 The permanent `framework-extraction` compatibility check is included in `pull-request` and `full-release` profiles. It remains outside `local` so the three-runtime isolated copy does not slow the rapid Visualization/QA implementation loop.
+
+### Phase 9.5 Complete Stabilization Baseline - 2026-08-02
+
+The complete static gate passed: actionlint accepted all workflows; Ruff reported all 38 Python files formatted and lint-clean; the work-annotation linter checked 304 files and all 22 fixtures with zero findings; and the PowerShell formatter found 39 clean files, zero changes, and zero over-limit lines in both PowerShell 7 and Windows PowerShell 5.1.
+
+All 14 registered baseline conformance suites passed in Python, PowerShell 7, and Windows PowerShell 5.1 with matching semantic summaries. This includes the complete canonical and synthetic project, ingestion, lookup, pack, taxonomy, resource, source, entity, provenance, temporal, chronology, reconciliation, occurrence, and composition coverage; all malformed and invalid-query corpora; the 1,500-hop reconciliation chain and configured limits; and the registered 64-, 128-, and project-oracle scale cases.
+
+The `full-release` compatibility profile passed all six checks in 148.044 seconds. Visualization remained at 15 nodes and 121 relationships; 34 QA files and their 16-note, 121-relationship, 71-data-reference summary matched across runtimes; all 12 root-launch combinations passed; stale and scoped artifacts were removed while unrelated content was preserved; six unsafe destinations were rejected; the 202-file isolated framework copy passed; and each runtime rendered the same nonblank 298,269-byte SVG with SHA-256 `11b9e70f735004641ab0bd348c21451d1cc2852327caa58d092dd045dfb59f73`. Canonical outputs remained unchanged and compatibility output was cleaned.
+
+The retained pressure portfolio was reviewed under `Framework/testing_methodology.md`. `PRESSURE-LAYER-PORTABILITY` received new executable evidence from the neutral core-only copy. The work/continuity, media/distribution, evidence/authority, entity/identity, temporal/topology, recurrence/state, Derrick, and Loki conclusions remain supported by unchanged green model suites and the V37 record. Adversarial malformed input, unsafe output, ambiguity, cycle, limit, and scale probes all remained green. Conceptual narrative and synthetic IT/operations, medical, legal/compliance, investigative, and scientific replays found no new ownership leak or extraction defect. They do not claim that a non-narrative pack or IT proof of concept already exists.
+
+The replay preserved the V38 recommendation. Empty-vocabulary orphan effect declarations, delimiter-composed effect semantics, and conflict-wide fail-closed execution remain known next-version work; uncertain recurrence cardinality, repeated participation, extratemporal relations, branch lifecycle, and deeper knowledge-acquisition semantics remain later staged capabilities rather than Phase 9 regressions.
+
+### Phase 9.6 Stabilized Extraction Record - 2026-08-02
+
+`Framework/extraction_readiness.md` now separates the proven portable kernel from the eventual complete framework product. It records the exact copy allowlist, project-owned configuration/content boundary, nine enforced exclusions, verification commands, measured baseline, pressure-test conclusion, and known remaining architecture stages. `ARCHITECTURE.md` and `Framework/README.md` point to that status record.
+
+Phase 9 therefore closes the CI implementation plan with an extraction-ready framework foundation: reusable contracts, packs, paired runtimes, conformance, and dependency policy can be copied and validated without LoTM instances. It does not prematurely mark Visualization consolidation, a separate physical repository, an IT pack/POC, mutation services, or the Streamlit interface complete.
