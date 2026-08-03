@@ -1201,7 +1201,7 @@ This audit changes testing policy, not framework schema behavior. It reclassifie
 
 ## Extraction Foundation Stabilization - 2026-08-02
 
-**Implemented by:** `pending`
+**Implemented by:** `1682a6c` (`Stabilize framework extraction readiness`)
 
 The extraction-readiness program did not advance the framework schema beyond V37. It converted the accumulated architecture and testing policy into an enforceable engineering boundary: shared runtime modules are separated from command adapters; the complete registry surface has paired permanent conformance; compatibility consumers are aggregate-owned; static policies cover Actions, Python, PowerShell, and work annotations; and a neutral consumer can execute an isolated copy without LoTM configuration or content.
 
