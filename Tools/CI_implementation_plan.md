@@ -188,7 +188,7 @@ The shared job-scoped PowerShell module path worked in both runtimes, Mermaid CL
 ## Phase 9: Extraction Readiness
 
 - [x] Confirm runtime modules contain no LoTM paths or vocabulary.
-- [ ] Confirm narrative behavior lives in schema packs rather than the core runtime.
+- [x] Confirm narrative behavior lives in schema packs rather than the core runtime.
 - [ ] Confirm LoTM configuration remains under `Project_Config/`.
 - [ ] Confirm the framework can be copied without canonical LoTM content or generated outputs.
 - [ ] Run the complete conformance, compatibility, static, and pressure-test baseline.
@@ -200,3 +200,11 @@ The audit covered all 30 maintained files under `Tools/Runtime/`: the 15-module 
 `knowledge_framework` package and the matching 15-file PowerShell `KnowledgeFramework` module. Neither runtime contains LoTM project IDs, titles, entities, user or machine paths, canonical content-folder names, source-file defaults, or generated graph and QA artifact names.
 
 `Project_Config/project.yaml` is the one fixed discovery path in both implementations. It is the framework's generic bootstrap-manifest convention, not a LoTM path. Content roots, resource roots, registry paths, QA output, visualization helpers, render configuration, and cleanup helpers are resolved from that manifest. LoTM-specific defaults that remain in command adapters, such as the local EPUB utilities, are outside the reusable runtime boundary and are not included in this portability claim.
+
+### Phase 9.2 Pack Ownership Audit - 2026-08-02
+
+The composed LoTM project selects one core pack and seven narrative domain packs. Of 945 composed controlled values, core owns 281 portable chronology, occurrence, state, provenance, reconciliation, and generic evidence-artifact values; the narrative packs own the remaining 664 domain values. Every `narrative.*` and `identity.*` value is domain-pack owned. Core's 18 `source.*` values are limited to a provenance-claim applicability target plus generic reference, transcript, translation, localization, scan, extract, edition, and package-membership evidence roles and relationships. Media, cultural form, work, segment, continuity, adaptation, manifestation, release, distribution, production, and shared-universe vocabularies remain outside core.
+
+Runtime code owns deterministic ingestion, structural invariants, query mechanics, and evaluator implementations; schema packs declaratively own capability availability, controlled vocabulary, extension policy, structural-strategy selection, and semantic compatibility declarations. Packs therefore extend behavior through validated declarations rather than arbitrary executable code. The narrative source loader is an optional domain service within the reusable runtime package, while chronology, recurrence, state, provenance, and reconciliation kernels remain domain-neutral and accept narrative additions only through composed pack values.
+
+Targeted `schema-pack`, `source`, `chronology`, and `occurrence` conformance passed with matching structured summaries in Python, PowerShell 7, and Windows PowerShell 5.1. The corpus includes 43 malformed pack compositions, 65 malformed source configurations, 15 invalid source queries, 13 malformed chronology fixtures, 67 malformed occurrence registries, and extension-defined occurrence semantics that alter validated behavior without an engine edit.
