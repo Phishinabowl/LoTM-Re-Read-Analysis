@@ -200,6 +200,22 @@ These project-level probes preserve the QA, visualization, launcher, and cleanup
 
 The executable inventory, sample boundaries, and profile composition belong in `Tools/Compatibility/compatibility.json`; exact switches, expected counts, normalization, and the latest measured baseline belong in `Tools/TOOLING_REFERENCE.md`. If representative project data changes, replace a probe deliberately and record why; do not silently stop testing the behavior it represented.
 
+## Local-To-CI Execution Hierarchy
+
+Testing becomes more comprehensive as a change approaches integration. A later layer includes the safety obligations of earlier layers; it does not make permanent fixture maintenance optional:
+
+| Stage | Required Execution | Purpose |
+| --- | --- | --- |
+| Edit loop | Affected focused suites, formatters, and static checks | Fast diagnosis while implementation is changing. Add permanent positive, malformed, boundary, ambiguity, decision, or scale vectors with the behavior they protect. |
+| Local checkpoint | Aggregate `fast` profile in the implementation runtime plus affected paired suites | Catch foundational ingestion, lookup, pack, taxonomy, resource, temporal, and chronology failures without waiting for the complete baseline. |
+| Implementation closure | Aggregate `baseline` in Python, PowerShell 7, and Windows PowerShell 5.1 plus compatibility `local` | Prove complete registered conformance and immediate project-consumer parity before confirmation. |
+| PR readiness | Compatibility `pull-request`, required static checks, and affected pressure scenarios | Prove root discovery, artifact lifecycle, QA, Visualization, and cross-runtime semantic equivalence before review. |
+| Hosted pull request | Automatic five-check CI: workflow policy, three full runtime baselines, and `Project Compatibility` with `pull-request` | Provide repository-visible integration evidence. Open-PR updates rerun automatically; concurrency cancels superseded runs. |
+| Hosted `main` or manual dispatch | The same full baseline plus `Project Compatibility` with `full-release` | Add representative byte-identical three-runtime rendering at integration/release boundaries. |
+| Post-version closure | Retained and impact-selected pressure testing followed by evolution-log results | Test broader domains and adversarial scenarios that permanent conformance cannot exhaustively enumerate. |
+
+Ordinary feature-branch pushes intentionally do not start hosted CI. Use local focused and `fast` checks while iterating, and do not weaken permanent fixtures merely to reduce runtime. A newly registered suite flows into hosted baseline jobs through `Tools/Conformance/suites.json`; CI must call aggregate profiles rather than duplicate suite commands. Compatibility cases and profile membership similarly flow through `Tools/Compatibility/compatibility.json`.
+
 ## Testing Within The Version Lifecycle
 
 The numbered steps below are the testing portion of the circular process in `Framework/framework_improvement_lifecycle.md`. They do not replace its orientation, evolution-entry, confirmation, or handoff requirements.

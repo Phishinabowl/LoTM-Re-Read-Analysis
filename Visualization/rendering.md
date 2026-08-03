@@ -21,8 +21,11 @@ The first graph was rendered to:
 Use Mermaid CLI:
 
 ```powershell
-npm install -g @mermaid-js/mermaid-cli
+$packages = Get-Content ..\requirements-node.txt
+npm install --global @packages
 ```
+
+Run that command from `Visualization/`; from the repository root, read `requirements-node.txt` without the `..\` prefix. The registry pins the Mermaid CLI version used by project tooling and CI compatibility rendering.
 
 The default `mmdc` browser launch may time out on Windows. The working approach is to point Puppeteer at local Microsoft Edge through the permanent render config in `Visualization/config`.
 

@@ -96,12 +96,13 @@ Every normal run validates the permanent valid/invalid fixture corpus before sca
 
 ## Continuous Integration
 
-The tracked workflow at `.github/workflows/ci.yml` runs for pull requests, pushes to `main`, and intentional manual dispatches. Ordinary feature-branch checkpoint pushes do not start CI unless that branch already participates in an open pull request. The workflow preserves four stable check names for future repository rules:
+The tracked workflow at `.github/workflows/ci.yml` runs for pull requests, pushes to `main`, and intentional manual dispatches. Ordinary feature-branch checkpoint pushes do not start CI unless that branch already participates in an open pull request. Use the local `fast` conformance profile for immediate iteration; hosted CI preserves five stable check names for future repository rules:
 
 - `Workflow Policy`
 - `Python Validation`
 - `PowerShell 7 Validation`
 - `Windows PowerShell 5.1 Validation`
+- `Project Compatibility`
 
 `Workflow Policy` validates every GitHub Actions workflow with `actionlint`. The workflow downloads a checksum-pinned standalone actionlint release for itself; local maintainers may install the official executable system-wide and run this preflight from the repository root:
 
@@ -109,7 +110,7 @@ The tracked workflow at `.github/workflows/ci.yml` runs for pull requests, pushe
 actionlint -color
 ```
 
-The runtime jobs install their declared dependencies, enforce Python and PowerShell formatting, enforce work-annotation policy, run permanent framework conformance suites, validate the visualization projection, generate redirected QA smoke exports beneath fresh `.tmp/` parents, and reject repository-root or outside-repository QA destinations. Keep action SHAs immutable. Treat the four job names as a public policy surface: rename one only with the same care as changing a required status check.
+The three runtime jobs install their declared dependencies, enforce Python and PowerShell formatting, enforce work-annotation policy, and run the permanent `baseline` conformance profile. `Project Compatibility` separately compares all three Visualization and QA implementations, root discovery, safe artifact lifecycle, canonical-output preservation, and unsafe destination rejection through the registry-owned compatibility profile. Pull requests use `pull-request`; pushes to `main` and manual dispatches use `full-release`, which adds byte-identical representative Mermaid rendering. Keep action SHAs immutable. Treat all five job names as a public policy surface: rename one only with the same care as changing a required status check.
 
 ## Temporary File Cleanup
 
@@ -477,7 +478,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Confor
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Conformance.ps1 -List -Json
 ```
 
-The current aggregate layer launches each suite in an isolated child runtime. That preserves existing runner behavior and prevents PowerShell script-scope collisions while the shared loaders are migrated into real modules. Once module extraction is complete, safe in-process execution and a separate fast feature-branch CI tier can be evaluated without changing the registry or suite IDs. Visualization and Obsidian QA remain separate compatibility gates because they validate project consumers rather than framework conformance alone.
+The current aggregate layer launches each suite in an isolated child runtime. That preserves runner behavior and prevents PowerShell script-scope collisions. The `fast` profile remains a local feedback tool; ordinary feature-branch pushes intentionally do not pay for hosted CI. Pull requests, `main`, and manual dispatches run the full aggregate baseline. Visualization and Obsidian QA remain separate compatibility gates because they validate project consumers rather than framework conformance alone.
 
 ## Compatibility Validation
 

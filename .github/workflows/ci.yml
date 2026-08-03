@@ -71,28 +71,6 @@ jobs:
       - name: Run framework conformance suites
         run: python Tools/Conformance/run_conformance.py --profile baseline --json
 
-      - name: Validate visualization projection
-        run: python Visualization/visualize.py --mode Validate
-
-      - name: Run redirected QA smoke test
-        run: >-
-          python Tools/Commands/QA/obsidian_qa_export.py
-          --clean
-          --output-dir .tmp/ci-qa-python
-          --bounded-graph "name=chapter-32,medium=novel,maxVolume=1,maxChapter=32"
-          --bounded-page "slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=32"
-          --json
-
-      - name: Reject unsafe QA output paths
-        shell: bash
-        run: |
-          for output_dir in . ../ci-output-escape; do
-            if python Tools/Commands/QA/obsidian_qa_export.py --output-dir "${output_dir}" --json >/dev/null 2>&1; then
-              echo "QA exporter accepted unsafe output directory: ${output_dir}" >&2
-              exit 1
-            fi
-          done
-
   powershell-7-validation:
     name: PowerShell 7 Validation
     runs-on: windows-2022
@@ -109,48 +87,22 @@ jobs:
           $ErrorActionPreference = 'Stop'
           [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
           Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          $modulePath = Join-Path $env:RUNNER_TEMP 'knowledge-framework-modules'
+          New-Item -ItemType Directory -Path $modulePath -Force | Out-Null
           foreach ($module in Get-Content -LiteralPath requirements-powershell.txt) {
               $module = $module.Trim()
               if ($module -and -not $module.StartsWith('#')) {
-                  Install-Module -Name $module -Repository PSGallery -Scope CurrentUser -Force -AllowClobber
+                  Save-Module -Name $module -Repository PSGallery -Path $modulePath -Force
               }
           }
+          "PSModulePath=$modulePath;$env:PSModulePath" |
+              Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Check PowerShell formatting
         run: ./Tools/Static/Format-PowerShell.ps1
 
       - name: Run framework conformance suites
         run: ./Tools/Conformance/Run-Conformance.ps1 -Profile baseline -Json
-
-      - name: Validate visualization projection
-        run: ./Visualization/visualize.ps1 -Mode Validate
-
-      - name: Run redirected QA smoke test
-        run: >-
-          ./Tools/Commands/QA/Obsidian-QA-Export.ps1
-          -Clean
-          -OutputDir '.tmp/ci-qa-pwsh'
-          -BoundedGraph 'name=chapter-32,medium=novel,maxVolume=1,maxChapter=32'
-          -BoundedPage 'slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=32'
-          -Json
-
-      - name: Reject unsafe QA output paths
-        run: |
-          foreach ($outputDir in @('.', '..\ci-output-escape')) {
-              $previousErrorActionPreference = $ErrorActionPreference
-              try {
-                  $ErrorActionPreference = 'SilentlyContinue'
-                  pwsh -NoProfile -File ./Tools/Commands/QA/Obsidian-QA-Export.ps1 -OutputDir $outputDir -Json *> $null
-                  $unsafeExitCode = $LASTEXITCODE
-              }
-              finally {
-                  $ErrorActionPreference = $previousErrorActionPreference
-                  $global:LASTEXITCODE = 0
-              }
-              if ($unsafeExitCode -eq 0) {
-                  throw "QA exporter accepted unsafe output directory: $outputDir"
-              }
-          }
 
   windows-powershell-validation:
     name: Windows PowerShell 5.1 Validation
@@ -168,12 +120,16 @@ jobs:
           $ErrorActionPreference = 'Stop'
           [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
           Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          $modulePath = Join-Path $env:RUNNER_TEMP 'knowledge-framework-modules'
+          New-Item -ItemType Directory -Path $modulePath -Force | Out-Null
           foreach ($module in Get-Content -LiteralPath requirements-powershell.txt) {
               $module = $module.Trim()
               if ($module -and -not $module.StartsWith('#')) {
-                  Install-Module -Name $module -Repository PSGallery -Scope CurrentUser -Force -AllowClobber
+                  Save-Module -Name $module -Repository PSGallery -Path $modulePath -Force
               }
           }
+          "PSModulePath=$modulePath;$env:PSModulePath" |
+              Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Check PowerShell formatting
         run: ./Tools/Static/Format-PowerShell.ps1
@@ -181,32 +137,69 @@ jobs:
       - name: Run framework conformance suites
         run: ./Tools/Conformance/Run-Conformance.ps1 -Profile baseline -Json
 
-      - name: Validate visualization projection
-        run: ./Visualization/visualize.ps1 -Mode Validate
+  project-compatibility:
+    name: Project Compatibility
+    runs-on: windows-2022
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      PYTHONUTF8: "1"
+      COMPATIBILITY_PROFILE: ${{ github.event_name == 'pull_request' && 'pull-request' || 'full-release' }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
-      - name: Run redirected QA smoke test
-        run: >-
-          ./Tools/Commands/QA/Obsidian-QA-Export.ps1
-          -Clean
-          -OutputDir '.tmp/ci-qa-windows-powershell'
-          -BoundedGraph 'name=chapter-32,medium=novel,maxVolume=1,maxChapter=32'
-          -BoundedPage 'slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=32'
-          -Json
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.10"
+          cache: pip
+          cache-dependency-path: requirements-python.txt
 
-      - name: Reject unsafe QA output paths
+      - name: Install Python requirements
+        run: python -m pip install --disable-pip-version-check --requirement requirements-python.txt
+
+      - name: Install PowerShell requirements
         run: |
-          foreach ($outputDir in @('.', '..\ci-output-escape')) {
-              $previousErrorActionPreference = $ErrorActionPreference
-              try {
-                  $ErrorActionPreference = 'SilentlyContinue'
-                  powershell -NoProfile -ExecutionPolicy Bypass -File ./Tools/Commands/QA/Obsidian-QA-Export.ps1 -OutputDir $outputDir -Json *> $null
-                  $unsafeExitCode = $LASTEXITCODE
-              }
-              finally {
-                  $ErrorActionPreference = $previousErrorActionPreference
-                  $global:LASTEXITCODE = 0
-              }
-              if ($unsafeExitCode -eq 0) {
-                  throw "QA exporter accepted unsafe output directory: $outputDir"
+          $ErrorActionPreference = 'Stop'
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          $modulePath = Join-Path $env:RUNNER_TEMP 'knowledge-framework-modules'
+          New-Item -ItemType Directory -Path $modulePath -Force | Out-Null
+          foreach ($module in Get-Content -LiteralPath requirements-powershell.txt) {
+              $module = $module.Trim()
+              if ($module -and -not $module.StartsWith('#')) {
+                  Save-Module -Name $module -Repository PSGallery -Path $modulePath -Force
               }
           }
+          "PSModulePath=$modulePath;$env:PSModulePath" |
+              Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Set up Node for rendering
+        if: env.COMPATIBILITY_PROFILE == 'full-release'
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+
+      - name: Install Mermaid CLI
+        if: env.COMPATIBILITY_PROFILE == 'full-release'
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: "true"
+        run: |
+          $packages = @(
+              Get-Content -LiteralPath requirements-node.txt |
+                  ForEach-Object { $_.Trim() } |
+                  Where-Object { $_ -and -not $_.StartsWith('#') }
+          )
+          if ($packages.Count -eq 0) {
+              throw 'requirements-node.txt contains no packages.'
+          }
+          npm install --global @packages
+          if ($LASTEXITCODE -ne 0) {
+              throw "npm install failed with exit code $LASTEXITCODE"
+          }
+
+      - name: Run project compatibility profile
+        run: python Tools/Compatibility/run_compatibility.py --profile $env:COMPATIBILITY_PROFILE --json
