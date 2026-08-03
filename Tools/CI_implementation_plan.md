@@ -189,7 +189,7 @@ The shared job-scoped PowerShell module path worked in both runtimes, Mermaid CL
 
 - [x] Confirm runtime modules contain no LoTM paths or vocabulary.
 - [x] Confirm narrative behavior lives in schema packs rather than the core runtime.
-- [ ] Confirm LoTM configuration remains under `Project_Config/`.
+- [x] Confirm LoTM configuration remains under `Project_Config/`.
 - [ ] Confirm the framework can be copied without canonical LoTM content or generated outputs.
 - [ ] Run the complete conformance, compatibility, static, and pressure-test baseline.
 - [ ] Record the stabilized architecture in the framework evolution and extraction documentation.
@@ -208,3 +208,11 @@ The composed LoTM project selects one core pack and seven narrative domain packs
 Runtime code owns deterministic ingestion, structural invariants, query mechanics, and evaluator implementations; schema packs declaratively own capability availability, controlled vocabulary, extension policy, structural-strategy selection, and semantic compatibility declarations. Packs therefore extend behavior through validated declarations rather than arbitrary executable code. The narrative source loader is an optional domain service within the reusable runtime package, while chronology, recurrence, state, provenance, and reconciliation kernels remain domain-neutral and accept narrative additions only through composed pack values.
 
 Targeted `schema-pack`, `source`, `chronology`, and `occurrence` conformance passed with matching structured summaries in Python, PowerShell 7, and Windows PowerShell 5.1. The corpus includes 43 malformed pack compositions, 65 malformed source configurations, 15 invalid source queries, 13 malformed chronology fixtures, 67 malformed occurrence registries, and extension-defined occurrence semantics that alter validated behavior without an engine edit.
+
+### Phase 9.3 Project Configuration Audit - 2026-08-02
+
+All LoTM semantic project configuration remains in the eleven files under `Project_Config/`: the bootstrap manifest, pack selection and activation, taxonomy, resources, sources, entities, reconciliation, provenance, chronology, occurrences, and the composition baseline. The manifest is the sole registry locator, and no duplicate or shadow project registry was found elsewhere in the repository.
+
+This boundary does not classify every project-specific file as configuration. Canonical Markdown and embedded page data remain authored content; `Visualization/data/refresh-snapshot.json` is generated regression evidence; and compatibility, static-policy, formatter, render, editor, and CI settings configure repository tooling rather than instantiate the LoTM world model. Reusable framework packs and synthetic fixtures contain no LoTM project IDs, titles, entities, or canonical paths. General narrative terms such as `donghua` remain correctly owned by reusable narrative packs.
+
+The full project-composition suite passed with matching summaries in Python, PowerShell 7, and Windows PowerShell 5.1: 8 selected packs, 114 enabled and 9 disabled capabilities, 24 reconciliation target types, 53 provenance subject types, two deterministic composition passes, and seven rejected invalid compositions.
