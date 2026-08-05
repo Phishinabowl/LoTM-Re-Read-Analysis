@@ -19,6 +19,7 @@ from knowledge_framework.chronology_config import (  # noqa: E402
     parse_chronology_registry,
 )
 from knowledge_framework.entity_config import load_entity_registry  # noqa: E402
+from knowledge_framework.interpretation_config import load_interpretation_registry  # noqa: E402
 from knowledge_framework.occurrence_config import (  # noqa: E402
     load_occurrence_registry,
     parse_occurrence_registry,
@@ -148,9 +149,17 @@ def extend_source_document(document: dict) -> None:
     )
 
 
-def load_fixture(project, sources, entities, reconciliations, packs, occurrences, path: Path):
+def load_fixture(project, sources, entities, reconciliations, packs, occurrences, interpretations, path: Path):
     fixture_project = replace(project, provenance_registry=path)
-    return load_provenance_registry(fixture_project, sources, entities, reconciliations, packs, occurrences)
+    return load_provenance_registry(
+        fixture_project,
+        sources,
+        entities,
+        reconciliations,
+        packs,
+        occurrences,
+        interpretations,
+    )
 
 
 def assert_counts(registry, expected: dict) -> None:
@@ -369,9 +378,73 @@ def main() -> int:
             },
         )
 
+        interpretation_document = load_yaml_file(
+            project.interpretations_registry,
+            "structural interpretation registry",
+            expected_schema_version=1,
+        )
+        interpretation_document["interpretations"] = {
+            "candidate-structure": {
+                "lifecycle": "active",
+                "label": "Candidate Structure",
+                "description": "A provenance composition probe.",
+            }
+        }
+        interpretation_document["members"] = [
+            {
+                "id": "candidate-entity",
+                "interpretation_id": "candidate-structure",
+                "target_type": "entity",
+                "target_id": "alpha-concept",
+            },
+            {
+                "id": "candidate-claim",
+                "interpretation_id": "candidate-structure",
+                "target_type": "provenance-claim",
+                "target_id": "forward-structure-label",
+            },
+        ]
+        interpretation_path = temp_root / "interpretations.json"
+        write_json(interpretation_path, interpretation_document)
+        interpretation_project = replace(project, interpretations_registry=interpretation_path)
+        interpretations = load_interpretation_registry(
+            interpretation_project,
+            packs,
+            (sources, entities, reconciliations, chronology_fixture, fixture_occurrences),
+        )
+
+        interpretation_assertion = copy.deepcopy(base_document["assertions"][0])
+        interpretation_assertion.update(
+            {
+                "id": "interpretation-support",
+                "claim_key": "forward-structure-label",
+                "subject_type": "structural-interpretation",
+                "subject_id": "candidate-structure",
+                "claim_namespace": "structural-interpretation",
+                "field_path": "label",
+                "asserted_value": "Candidate Structure",
+            }
+        )
+        interpretation_assertion["evidence_links"][0]["locators"][0]["id"] = "interpretation-support-locator"
+        base_document["assertions"].append(interpretation_assertion)
+
         valid_path = temp_root / "valid.json"
         write_json(valid_path, base_document)
-        registry = load_fixture(project, sources, entities, reconciliations, packs, fixture_occurrences, valid_path)
+        registry = load_fixture(
+            project,
+            sources,
+            entities,
+            reconciliations,
+            packs,
+            fixture_occurrences,
+            interpretations,
+            valid_path,
+        )
+        if (
+            registry.provenance_target("structural-interpretation", "candidate-structure").label
+            != "Candidate Structure"
+        ):
+            raise AssertionError("Structural interpretation provenance dispatch returned the wrong target.")
         assert_counts(registry, expectations["valid_counts"])
         assert_authority_vectors(registry, expectations["authority_vectors"])
         assert_services(registry)
@@ -387,7 +460,14 @@ def main() -> int:
             write_json(case_path, document)
             expect_rejected(
                 lambda case_path=case_path: load_fixture(
-                    project, sources, entities, reconciliations, packs, fixture_occurrences, case_path
+                    project,
+                    sources,
+                    entities,
+                    reconciliations,
+                    packs,
+                    fixture_occurrences,
+                    interpretations,
+                    case_path,
                 ),
                 f"Malformed provenance configuration was accepted: {case['id']}",
             )
@@ -398,7 +478,14 @@ def main() -> int:
         scale_path = temp_root / "scale.json"
         write_json(scale_path, scale_document)
         scale_registry = load_fixture(
-            project, sources, entities, reconciliations, packs, fixture_occurrences, scale_path
+            project,
+            sources,
+            entities,
+            reconciliations,
+            packs,
+            fixture_occurrences,
+            interpretations,
+            scale_path,
         )
         if len(scale_registry.assertions) != len(registry.assertions) + scale_count:
             raise AssertionError("Provenance scale composition count changed.")

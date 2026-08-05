@@ -223,12 +223,20 @@ function Get-FixtureProvenanceRegistry {
         [object]$Reconciliations,
         [object]$Packs,
         [object]$Occurrences,
+        [object]$Interpretations,
         [string]$Path
     )
 
     $fixture = $Project.PSObject.Copy()
     $fixture.provenance_registry = $Path
-    return Get-KnowledgeProvenanceRegistry $fixture $Sources $Entities $Reconciliations $Packs $Occurrences
+    return Get-KnowledgeProvenanceRegistry `
+        $fixture `
+        $Sources `
+        $Entities `
+        $Reconciliations `
+        $Packs `
+        $Occurrences `
+        $Interpretations
 }
 
 function Assert-ProvenanceFixtureCounts {
@@ -500,10 +508,77 @@ try {
         $subjectTargets `
         $payloadTargets
 
+    $interpretationDocument = ConvertTo-MutableFixtureValue (
+        ConvertFrom-KnowledgeYamlFile `
+            $project.interpretations_registry `
+            1 `
+            'structural interpretation registry'
+    )
+    $interpretationDocument['interpretations'] = [ordered]@{
+        'candidate-structure' = [ordered]@{
+            lifecycle = 'active'
+            label = 'Candidate Structure'
+            description = 'A provenance composition probe.'
+        }
+    }
+    $interpretationDocument['members'] = [System.Collections.ArrayList]@(
+        [ordered]@{
+            id = 'candidate-entity'
+            interpretation_id = 'candidate-structure'
+            target_type = 'entity'
+            target_id = 'alpha-concept'
+        },
+        [ordered]@{
+            id = 'candidate-claim'
+            interpretation_id = 'candidate-structure'
+            target_type = 'provenance-claim'
+            target_id = 'forward-structure-label'
+        }
+    )
+    $interpretationPath = Join-Path $tempRoot 'interpretations.json'
+    Write-FixtureJson $interpretationPath $interpretationDocument
+    $interpretationProject = $project.PSObject.Copy()
+    $interpretationProject.interpretations_registry = $interpretationPath
+    $interpretationProviders = Get-KnowledgeInterpretationProjectTargetProviders `
+        $sources `
+        $entities `
+        $reconciliations `
+        $chronologyFixture `
+        $fixtureOccurrences
+    $interpretations = Get-KnowledgeInterpretationRegistry `
+        $interpretationProject `
+        $packs `
+        $interpretationProviders
+
+    $interpretationAssertion = ConvertTo-MutableFixtureValue $baseDocument.assertions[0]
+    $interpretationAssertion['id'] = 'interpretation-support'
+    $interpretationAssertion['claim_key'] = 'forward-structure-label'
+    $interpretationAssertion['subject_type'] = 'structural-interpretation'
+    $interpretationAssertion['subject_id'] = 'candidate-structure'
+    $interpretationAssertion['claim_namespace'] = 'structural-interpretation'
+    $interpretationAssertion['field_path'] = 'label'
+    $interpretationAssertion['asserted_value'] = 'Candidate Structure'
+    $interpretationAssertion['evidence_links'][0]['locators'][0]['id'] = 'interpretation-support-locator'
+    [void]$baseDocument.assertions.Add($interpretationAssertion)
+
     $validPath = Join-Path $tempRoot 'valid.json'
     Write-FixtureJson $validPath $baseDocument
     $registry = Get-FixtureProvenanceRegistry `
-        $project $sources $entities $reconciliations $packs $fixtureOccurrences $validPath
+        $project `
+        $sources `
+        $entities `
+        $reconciliations `
+        $packs `
+        $fixtureOccurrences `
+        $interpretations `
+        $validPath
+    $interpretationTarget = Get-KnowledgeProvenanceTarget `
+        $registry `
+        'structural-interpretation' `
+        'candidate-structure'
+    if ($interpretationTarget.label -cne 'Candidate Structure') {
+        throw 'Structural interpretation provenance dispatch returned the wrong target.'
+    }
     Assert-ProvenanceFixtureCounts $registry $expectations.valid_counts
     Assert-ProvenanceAuthorityVectors $registry @($expectations.authority_vectors)
     Assert-ProvenanceFixtureServices $registry
@@ -521,7 +596,14 @@ try {
         Write-FixtureJson $casePath $document
         Assert-Rejected {
             Get-FixtureProvenanceRegistry `
-                $project $sources $entities $reconciliations $packs $fixtureOccurrences $casePath
+                $project `
+                $sources `
+                $entities `
+                $reconciliations `
+                $packs `
+                $fixtureOccurrences `
+                $interpretations `
+                $casePath
         } "Malformed provenance configuration was accepted: $($case.id)"
     }
 
@@ -531,7 +613,14 @@ try {
     $scalePath = Join-Path $tempRoot 'scale.json'
     Write-FixtureJson $scalePath $scaleDocument
     $scaleRegistry = Get-FixtureProvenanceRegistry `
-        $project $sources $entities $reconciliations $packs $fixtureOccurrences $scalePath
+        $project `
+        $sources `
+        $entities `
+        $reconciliations `
+        $packs `
+        $fixtureOccurrences `
+        $interpretations `
+        $scalePath
     if ($scaleRegistry.assertions.Count -ne $registry.assertions.Count + $scaleCount) {
         throw 'Provenance scale composition count changed.'
     }

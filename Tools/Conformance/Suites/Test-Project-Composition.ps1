@@ -156,13 +156,24 @@ function Get-ProjectComposition {
         (Get-KnowledgeEntityReconciliationProvider $entities)
     )
     $reconciliation = Get-KnowledgeReconciliationRegistry $project $providers $packs
+    $interpretationProviders = Get-KnowledgeInterpretationProjectTargetProviders `
+        $sources `
+        $entities `
+        $reconciliation `
+        $chronology `
+        $occurrences
+    $interpretations = Get-KnowledgeInterpretationRegistry `
+        $project `
+        $packs `
+        $interpretationProviders
     $provenance = Get-KnowledgeProvenanceRegistry `
         $project `
         $sources `
         $entities `
         $reconciliation `
         $packs `
-        $occurrences
+        $occurrences `
+        $interpretations
     return [pscustomobject]@{
         project = $project
         lookup = $lookup
@@ -173,6 +184,7 @@ function Get-ProjectComposition {
         chronology = $chronology
         entities = $entities
         occurrences = $occurrences
+        interpretations = $interpretations
         providers = @($providers)
         reconciliation = $reconciliation
         provenance = $provenance
@@ -222,12 +234,16 @@ function Get-ProjectCompositionSummary {
     $reconciliationProvenanceTypes = @(Get-KnowledgeReconciliationProvenanceSubjectTypes)
     $chronologyProvenanceTypes = @((Get-KnowledgeChronologyProvenanceTargets $Composition.chronology).Keys)
     $occurrenceProvenanceTypes = @((Get-KnowledgeOccurrenceProvenanceTargets $Composition.occurrences).Keys)
+    $interpretationProvenanceTypes = @(
+        (Get-KnowledgeInterpretationProvenanceTargets $Composition.interpretations).Keys
+    )
     $allProvenanceTypes = @(
         $sourceProvenanceTypes +
         $entityProvenanceTypes +
         $reconciliationProvenanceTypes +
         $chronologyProvenanceTypes +
         $occurrenceProvenanceTypes +
+        $interpretationProvenanceTypes +
         @('claim-supersession') |
             Sort-Object -Unique
     )
@@ -253,6 +269,7 @@ function Get-ProjectCompositionSummary {
             chronology = [int]$Composition.chronology.schema_version
             entities = [int]$Composition.entities.schema_version
             occurrences = [int]$Composition.occurrences.schema_version
+            interpretations = [int]$Composition.interpretations.schema_version
             reconciliation = [int]$Composition.reconciliation.schema_version
             provenance = [int]$Composition.provenance.schema_version
         }
@@ -290,6 +307,13 @@ function Get-ProjectCompositionSummary {
             chronology = Get-RegistryCounts $Composition.chronology $chronologyCountFields
             entities = Get-RegistryCounts $Composition.entities $entityCountFields
             occurrences = Get-RegistryCounts $Composition.occurrences $occurrenceCountFields
+            interpretations = [ordered]@{
+                relation_types = $Composition.interpretations.relation_types.Count
+                interpretations = $Composition.interpretations.interpretations.Count
+                members = @($Composition.interpretations.members).Count
+                relations = @($Composition.interpretations.relations).Count
+                comparison_sets = $Composition.interpretations.comparison_sets.Count
+            }
             reconciliation = [ordered]@{
                 target_types = $Composition.reconciliation.targets.Count
                 records = @($Composition.reconciliation.records).Count
@@ -307,6 +331,7 @@ function Get-ProjectCompositionSummary {
             reconciliation_provenance_types = $reconciliationProvenanceTypes.Count
             chronology_provenance_types = $chronologyProvenanceTypes.Count
             occurrence_provenance_types = $occurrenceProvenanceTypes.Count
+            interpretation_provenance_types = $interpretationProvenanceTypes.Count
             total_provenance_subject_types = $allProvenanceTypes.Count
         }
     }
@@ -341,6 +366,9 @@ function Assert-ProjectCompositionWiring {
         [pscustomobject]@{actual = $Composition.occurrences.path
             expected = $project.occurrences_registry
         }
+        [pscustomobject]@{actual = $Composition.interpretations.path
+            expected = $project.interpretations_registry
+        }
         [pscustomobject]@{actual = $Composition.reconciliation.path
             expected = $project.reconciliation_registry
         }
@@ -373,6 +401,9 @@ function Assert-ProjectCompositionWiring {
     if (-not [object]::ReferenceEquals($Composition.provenance.occurrences, $Composition.occurrences)) {
         throw 'Provenance composition did not retain the loaded occurrence instance.'
     }
+    if (-not [object]::ReferenceEquals($Composition.provenance.interpretations, $Composition.interpretations)) {
+        throw 'Provenance composition did not retain the loaded interpretation instance.'
+    }
 }
 
 function Assert-ProjectProviderClosure {
@@ -394,6 +425,7 @@ function Assert-ProjectProviderClosure {
         (Get-KnowledgeReconciliationProvenanceSubjectTypes) +
         @((Get-KnowledgeChronologyProvenanceTargets $Composition.chronology).Keys) +
         @((Get-KnowledgeOccurrenceProvenanceTargets $Composition.occurrences).Keys) +
+        @((Get-KnowledgeInterpretationProvenanceTargets $Composition.interpretations).Keys) +
         @('claim-supersession') |
             Sort-Object -Unique
     )
@@ -444,6 +476,7 @@ function Assert-InvalidProjectCompositions {
     $capabilityPacks = Copy-PacksWithoutCapability $packs 'capability-progression'
     $chronologyContextPacks = Copy-PacksWithoutCapability $packs 'chronology-contexts'
     $reconciliationPacks = Copy-PacksWithoutCapability $packs 'stable-identity-reconciliation'
+    $interpretationPacks = Copy-PacksWithoutCapability $packs 'structural-interpretation-modeling'
     $actions = @(
         { Get-KnowledgeReconciliationRegistry $project @($providers[0..2]) $packs }
         { Get-KnowledgeReconciliationRegistry $project @($providers + @($providers[0])) $packs }
@@ -454,7 +487,8 @@ function Assert-InvalidProjectCompositions {
                 $Composition.entities `
                 $Composition.reconciliation `
                 $missingProviderPacks `
-                $Composition.occurrences
+                $Composition.occurrences `
+                $Composition.interpretations
         }
         {
             Get-KnowledgeProvenanceRegistry `
@@ -463,7 +497,8 @@ function Assert-InvalidProjectCompositions {
                 $Composition.entities `
                 $Composition.reconciliation `
                 $unregisteredProviderPacks `
-                $Composition.occurrences
+                $Composition.occurrences `
+                $Composition.interpretations
         }
         {
             Get-KnowledgeEntityRegistry `
@@ -504,6 +539,18 @@ function Assert-InvalidProjectCompositions {
             @($Composition.sources.continuities.Keys)
         }
         { Get-KnowledgeReconciliationRegistry $project $providers $reconciliationPacks }
+        {
+            $interpretationProviders = Get-KnowledgeInterpretationProjectTargetProviders `
+                $Composition.sources `
+                $Composition.entities `
+                $Composition.reconciliation `
+                $Composition.chronology `
+                $Composition.occurrences
+            Get-KnowledgeInterpretationRegistry `
+                $project `
+                $interpretationPacks `
+                $interpretationProviders
+        }
     )
     for ($index = 0; $index -lt $actions.Count; $index += 1) {
         Assert-Rejected $actions[$index] "Invalid project composition was accepted: $index"

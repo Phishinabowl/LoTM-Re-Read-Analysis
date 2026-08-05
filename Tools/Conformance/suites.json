@@ -25,6 +25,7 @@
       "chronology",
       "reconciliation",
       "occurrence",
+      "interpretation",
       "project-composition"
     ]
   },
@@ -106,6 +107,12 @@
       "python": "Tools/Conformance/Suites/test_occurrence.py",
       "powershell": "Tools/Conformance/Suites/Test-Occurrence.ps1",
       "tags": ["baseline", "recurrence", "state"]
+    },
+    {
+      "id": "interpretation",
+      "python": "Tools/Conformance/Suites/test_interpretation.py",
+      "powershell": "Tools/Conformance/Suites/Test-Interpretation.ps1",
+      "tags": ["baseline", "interpretation", "structure"]
     },
     {
       "id": "project-composition",

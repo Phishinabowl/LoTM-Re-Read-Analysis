@@ -212,15 +212,15 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 ### Phase 1.10 V45 Competing Structural Interpretations
 
-- [ ] Define stable hypothesis or interpretation identity without treating an interpretation as a
+- [x] Define stable hypothesis or interpretation identity without treating an interpretation as a
   continuity, branch, source, authority rule, or canonical fact.
-- [ ] Permit named candidate structures to reference existing occurrences, chronology positions,
+- [x] Permit named candidate structures to reference existing occurrences, chronology positions,
   relations, branches, entities, and claims without duplicating those records.
-- [ ] Represent compatible, competing, and mutually exclusive interpretations while preserving an
+- [x] Represent compatible, competing, and mutually exclusive interpretations while preserving an
   unresolved result when evidence does not justify one winner.
-- [ ] Keep evidence, source priority, authority, supersession, and applicability in provenance rather
+- [x] Keep evidence, source priority, authority, supersession, and applicability in provenance rather
   than allowing interpretation membership to establish truth.
-- [ ] Query one interpretation's internally coherent structure without injecting its ordering edges
+- [x] Query one interpretation's internally coherent structure without injecting its ordering edges
   into canonical chronology or weakening ordinary chronology-cycle rejection.
 - [ ] Replay Primer's deliberately unresolved chronology, Memento's competing reconstructions, and
   the textual-tradition scenario's competing editorial or scholarly structures, then pressure-test

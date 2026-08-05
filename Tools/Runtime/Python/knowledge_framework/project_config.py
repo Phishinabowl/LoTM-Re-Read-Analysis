@@ -12,7 +12,7 @@ from .project_paths import (
 from .strict_yaml import assert_allowed_keys, load_yaml_file
 
 
-SUPPORTED_SCHEMA_VERSION = 9
+SUPPORTED_SCHEMA_VERSION = 10
 PROVENANCE_MODES = {"child-directory", "fixed", "slug-prefix"}
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
@@ -61,6 +61,7 @@ class ProjectConfig:
     provenance_registry: Path
     chronology_registry: Path
     occurrences_registry: Path
+    interpretations_registry: Path
 
 
 def require_mapping(value, key: str) -> dict:
@@ -283,6 +284,7 @@ def load_project_config(root: Path) -> ProjectConfig:
             "provenance",
             "chronology",
             "occurrences",
+            "interpretations",
         },
         "Project manifest `registries`",
     )
@@ -346,6 +348,12 @@ def load_project_config(root: Path) -> ProjectConfig:
         "registries.occurrences",
         must_exist=True,
     )
+    _, interpretations_registry = resolve_manifest_path(
+        resolved_root,
+        require_string(registries, "interpretations", "registries"),
+        "registries.interpretations",
+        must_exist=True,
+    )
 
     return ProjectConfig(
         root=resolved_root,
@@ -373,4 +381,5 @@ def load_project_config(root: Path) -> ProjectConfig:
         provenance_registry=provenance_registry,
         chronology_registry=chronology_registry,
         occurrences_registry=occurrences_registry,
+        interpretations_registry=interpretations_registry,
     )

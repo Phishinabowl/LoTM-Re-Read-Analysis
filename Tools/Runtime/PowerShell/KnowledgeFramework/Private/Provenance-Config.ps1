@@ -48,6 +48,13 @@ function Get-KnowledgeProvenanceTarget {
         }
         return $occurrenceTargets[$SubjectType][$SubjectId]
     }
+    $interpretationTargets = Get-KnowledgeInterpretationProvenanceTargets $ProvenanceRegistry.interpretations
+    if ($interpretationTargets.Contains($SubjectType)) {
+        return Get-KnowledgeInterpretationProvenanceTarget `
+            $ProvenanceRegistry.interpretations `
+            $SubjectType `
+            $SubjectId
+    }
     throw "Unsupported provenance subject type '$SubjectType'."
 }
 
@@ -168,7 +175,15 @@ function ConvertTo-ProvenanceLocator {
 }
 
 function Get-KnowledgeProvenanceRegistry {
-    param([object]$ProjectConfig, [object]$SourceRegistry, [object]$EntityRegistry, [object]$ReconciliationRegistry, [object]$SchemaPackRegistry, [object]$OccurrenceRegistry = $null)
+    param(
+        [object]$ProjectConfig,
+        [object]$SourceRegistry,
+        [object]$EntityRegistry,
+        [object]$ReconciliationRegistry,
+        [object]$SchemaPackRegistry,
+        [object]$OccurrenceRegistry = $null,
+        [object]$InterpretationRegistry = $null
+    )
     if ($null -eq $SchemaPackRegistry) {
         $SchemaPackRegistry = Get-KnowledgeSchemaPackRegistry $ProjectConfig
     }
@@ -178,6 +193,18 @@ function Get-KnowledgeProvenanceRegistry {
     }
     else {
         $chronology = $OccurrenceRegistry.chronology
+    }
+    if ($null -eq $InterpretationRegistry) {
+        $targetProviders = Get-KnowledgeInterpretationProjectTargetProviders `
+            $SourceRegistry `
+            $EntityRegistry `
+            $ReconciliationRegistry `
+            $chronology `
+            $OccurrenceRegistry
+        $InterpretationRegistry = Get-KnowledgeInterpretationRegistry `
+            $ProjectConfig `
+            $SchemaPackRegistry `
+            $targetProviders
     }
     $path = $ProjectConfig.provenance_registry
     $registry = ConvertFrom-KnowledgeYamlFile $path $script:SupportedProvenanceSchemaVersion "provenance registry"
@@ -194,12 +221,16 @@ function Get-KnowledgeProvenanceRegistry {
     $reconciliationSubjectTypes = @(Get-KnowledgeReconciliationProvenanceSubjectTypes)
     $chronologySubjectTypes = @((Get-KnowledgeChronologyProvenanceTargets $chronology).Keys)
     $occurrenceSubjectTypes = @((Get-KnowledgeOccurrenceProvenanceTargets $OccurrenceRegistry).Keys)
+    $interpretationSubjectTypes = @(
+        (Get-KnowledgeInterpretationProvenanceTargets $InterpretationRegistry).Keys
+    )
     $allProviderTypes = @(
         $sourceSubjectTypes +
         $entitySubjectTypes +
         $reconciliationSubjectTypes +
         $chronologySubjectTypes +
-        $occurrenceSubjectTypes
+        $occurrenceSubjectTypes +
+        $interpretationSubjectTypes
     )
     $duplicates = @($allProviderTypes | Group-Object | Where-Object Count -gt 1 | ForEach-Object Name)
     if ($duplicates.Count -gt 0) {
@@ -211,6 +242,7 @@ function Get-KnowledgeProvenanceRegistry {
         $reconciliationSubjectTypes +
         $chronologySubjectTypes +
         $occurrenceSubjectTypes +
+        $interpretationSubjectTypes +
         @("claim-supersession") |
             Sort-Object -Unique
     )
@@ -284,6 +316,7 @@ function Get-KnowledgeProvenanceRegistry {
         reconciliations=$ReconciliationRegistry
         chronology=$chronology
         occurrences=$OccurrenceRegistry
+        interpretations=$InterpretationRegistry
         claim_supersessions=@($supersessions)
     }
     for ($i = 0; $i -lt $rawAssertions.Count; $i++) {
@@ -435,6 +468,7 @@ function Get-KnowledgeProvenanceRegistry {
     foreach ($claimKey in $edges.Keys) {
         Visit-ProvenanceClaim $claimKey
     }
+    Assert-KnowledgeInterpretationClaimTargets $InterpretationRegistry @($claimShapes.Keys)
     return [pscustomobject]@{path=$path
         schema_version=[int]$schemaVersion
         assertions=@($assertions)
@@ -444,6 +478,7 @@ function Get-KnowledgeProvenanceRegistry {
         reconciliations=$ReconciliationRegistry
         chronology=$chronology
         occurrences=$OccurrenceRegistry
+        interpretations=$InterpretationRegistry
     }
 }
 

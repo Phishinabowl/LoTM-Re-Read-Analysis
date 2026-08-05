@@ -37,8 +37,8 @@ remain disabled.
 A consuming project owns and must supply:
 
 - `Project_Config/project.yaml` and its selected-pack composition;
-- project taxonomy, resources, sources, entities, reconciliation, provenance, chronology, and
-  occurrence instances as applicable;
+- project taxonomy, resources, sources, entities, reconciliation, chronology, occurrence,
+  structural-interpretation, and provenance instances as applicable;
 - project extension packs and local controlled vocabulary;
 - canonical content, evidence, source material, and promoted assets;
 - project graph presets, presentation overrides, and generated-output destinations.
@@ -87,7 +87,8 @@ Windows PowerShell 5.1 for:
 - strict configuration ingestion;
 - Unicode lookup-key normalization;
 - schema-pack composition;
-- temporal-window semantics.
+- temporal-window semantics; and
+- structural interpretations, deferred claim closure, and canonical-graph isolation.
 
 The complete gate additionally verifies current LoTM Visualization and Obsidian QA consumers,
 root-independent command execution, generated-artifact lifecycle safety, and byte-identical
@@ -118,13 +119,18 @@ their existing conformance and broad narrative candidate coverage. Synthetic IT/
 medical, legal/compliance, investigative, and scientific replays found no new core ownership
 leak, but they do not substitute for a future non-narrative pack and IT proof of concept.
 
+The V45 implementation rehearsal on 2026-08-05 copied 217 portable files and added the
+structural-interpretation suite to the portable set. Six suites passed with matching summaries in
+Python, PowerShell 7, and Windows PowerShell 5.1 under a neutral core-only consumer; no LoTM
+configuration was copied, and all nine guarded project surfaces remained absent.
+
 ## Known Limits And Next Boundaries
 
 Extraction readiness does not close these known items:
 
-- Aggregate recurrence cardinality, occurrence-participation identity, chronology-context topology,
-  and branch lifecycle are portable through V42. Participation-relative transition/state semantics
-  and knowledge, skill, or expertise acquisition remain later bounded framework work.
+- Recurrence, participation identity, branch lifecycle, chronology topology, epistemic state,
+  capability state, and structural interpretations are portable through V45.
+  Participation-relative chronology/state boundaries and hosted identity remain V46-V47 work.
 - QA graph construction has not yet been fully migrated into one reusable Visualization engine.
 - A normalized content index and generalized bounded-page machinery are not yet complete across
   content types.

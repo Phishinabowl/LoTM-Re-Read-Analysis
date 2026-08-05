@@ -1,0 +1,171 @@
+{
+  "schema_version": 1,
+  "relation_types": {
+    "precedes": {
+      "label": "Precedes",
+      "inverse_type": "follows",
+      "symmetric": false,
+      "canonical_direction": true,
+      "acyclic_group": "interpretation-order"
+    },
+    "follows": {
+      "label": "Follows",
+      "inverse_type": "precedes",
+      "symmetric": false,
+      "canonical_direction": false,
+      "acyclic_group": "interpretation-order"
+    },
+    "causes": {
+      "label": "Causes",
+      "inverse_type": "caused-by",
+      "symmetric": false,
+      "canonical_direction": true,
+      "acyclic_group": null
+    },
+    "caused-by": {
+      "label": "Caused By",
+      "inverse_type": "causes",
+      "symmetric": false,
+      "canonical_direction": false,
+      "acyclic_group": null
+    },
+    "concurrent-with": {
+      "label": "Concurrent With",
+      "inverse_type": "concurrent-with",
+      "symmetric": true,
+      "canonical_direction": false,
+      "acyclic_group": null
+    },
+    "corresponds-with": {
+      "label": "Corresponds With",
+      "inverse_type": "corresponds-with",
+      "symmetric": true,
+      "canonical_direction": false,
+      "acyclic_group": null
+    },
+    "equivalent-with": {
+      "label": "Candidate Equivalent With",
+      "inverse_type": "equivalent-with",
+      "symmetric": true,
+      "canonical_direction": false,
+      "acyclic_group": null
+    }
+  },
+  "interpretations": {
+    "forward-reconstruction": {
+      "lifecycle": "active",
+      "label": "Forward Reconstruction",
+      "description": "The first occurrence precedes the second."
+    },
+    "reverse-reconstruction": {
+      "lifecycle": "active",
+      "label": "Reverse Reconstruction",
+      "description": "The second occurrence precedes the first."
+    },
+    "contextual-reconstruction": {
+      "lifecycle": "retired",
+      "label": "Contextual Reconstruction",
+      "description": null
+    }
+  },
+  "members": [
+    {
+      "id": "forward-first",
+      "interpretation_id": "forward-reconstruction",
+      "target_type": "occurrence",
+      "target_id": "first-occurrence"
+    },
+    {
+      "id": "forward-second",
+      "interpretation_id": "forward-reconstruction",
+      "target_type": "occurrence",
+      "target_id": "second-occurrence"
+    },
+    {
+      "id": "forward-claim",
+      "interpretation_id": "forward-reconstruction",
+      "target_type": "provenance-claim",
+      "target_id": "witness-order-claim"
+    },
+    {
+      "id": "reverse-first",
+      "interpretation_id": "reverse-reconstruction",
+      "target_type": "occurrence",
+      "target_id": "first-occurrence"
+    },
+    {
+      "id": "reverse-second",
+      "interpretation_id": "reverse-reconstruction",
+      "target_type": "occurrence",
+      "target_id": "second-occurrence"
+    },
+    {
+      "id": "context-entity",
+      "interpretation_id": "contextual-reconstruction",
+      "target_type": "entity",
+      "target_id": "observer-entity"
+    },
+    {
+      "id": "context-position",
+      "interpretation_id": "contextual-reconstruction",
+      "target_type": "chronology-position",
+      "target_id": "shared-position"
+    }
+  ],
+  "relations": [
+    {
+      "id": "forward-order",
+      "interpretation_id": "forward-reconstruction",
+      "source_member_id": "forward-first",
+      "relationship_type": "precedes",
+      "target_member_id": "forward-second"
+    },
+    {
+      "id": "forward-claim-cause",
+      "interpretation_id": "forward-reconstruction",
+      "source_member_id": "forward-claim",
+      "relationship_type": "causes",
+      "target_member_id": "forward-second"
+    },
+    {
+      "id": "reverse-order",
+      "interpretation_id": "reverse-reconstruction",
+      "source_member_id": "reverse-second",
+      "relationship_type": "precedes",
+      "target_member_id": "reverse-first"
+    },
+    {
+      "id": "context-correspondence",
+      "interpretation_id": "contextual-reconstruction",
+      "source_member_id": "context-entity",
+      "relationship_type": "corresponds-with",
+      "target_member_id": "context-position"
+    }
+  ],
+  "comparison_sets": {
+    "order-alternatives": {
+      "label": "Order Alternatives",
+      "comparison_mode": "mutually-exclusive",
+      "interpretation_ids": [
+        "forward-reconstruction",
+        "reverse-reconstruction"
+      ]
+    },
+    "research-candidates": {
+      "label": "Research Candidates",
+      "comparison_mode": "competing",
+      "interpretation_ids": [
+        "forward-reconstruction",
+        "contextual-reconstruction"
+      ]
+    },
+    "compatible-contexts": {
+      "label": "Compatible Contexts",
+      "comparison_mode": "compatible",
+      "interpretation_ids": [
+        "reverse-reconstruction",
+        "contextual-reconstruction"
+      ]
+    }
+  }
+}

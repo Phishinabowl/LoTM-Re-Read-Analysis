@@ -4,6 +4,7 @@ import re
 
 from .entity_config import EntityRegistry
 from .chronology_config import ChronologyRegistry, load_chronology_registry
+from .interpretation_config import StructuralInterpretationRegistry, load_interpretation_registry
 from .occurrence_config import OccurrenceRegistry, load_occurrence_registry
 from .project_config import ProjectConfig
 from .reconciliation_config import ReconciliationRegistry
@@ -99,6 +100,7 @@ class ProvenanceRegistry:
     reconciliations: ReconciliationRegistry
     chronology: ChronologyRegistry
     occurrences: OccurrenceRegistry
+    interpretations: StructuralInterpretationRegistry
 
     def assertions_for_claim(self, claim_key: str) -> tuple[ProvenanceAssertion, ...]:
         return tuple(item for item in self.assertions if item.claim_key == claim_key)
@@ -114,6 +116,7 @@ class ProvenanceRegistry:
         reconciliation_targets = self.reconciliations.provenance_targets()
         chronology_targets = self.chronology.provenance_targets()
         occurrence_targets = self.occurrences.provenance_targets()
+        interpretation_targets = self.interpretations.provenance_targets()
         if subject_type in source_targets:
             return self.sources.provenance_target(subject_type, subject_id)
         if subject_type in entity_targets:
@@ -124,6 +127,8 @@ class ProvenanceRegistry:
             return self.chronology.provenance_target(subject_type, subject_id)
         if subject_type in occurrence_targets:
             return self.occurrences.provenance_target(subject_type, subject_id)
+        if subject_type in interpretation_targets:
+            return self.interpretations.provenance_target(subject_type, subject_id)
         raise ValueError(f"Unsupported provenance subject type `{subject_type}`.")
 
     def evaluate_claim_authority(self, profile_id: str, claim_key: str) -> ClaimAuthorityEvaluation:
@@ -481,6 +486,7 @@ def load_provenance_registry(
     reconciliations: ReconciliationRegistry,
     schema_packs: SchemaPackRegistry | None = None,
     occurrences: OccurrenceRegistry | None = None,
+    interpretations: StructuralInterpretationRegistry | None = None,
 ) -> ProvenanceRegistry:
     if schema_packs is None:
         schema_packs = load_schema_pack_registry(project)
@@ -495,6 +501,12 @@ def load_provenance_registry(
         occurrences = load_occurrence_registry(project, schema_packs, chronology)
     else:
         chronology = occurrences.chronology
+    if interpretations is None:
+        interpretations = load_interpretation_registry(
+            project,
+            schema_packs,
+            (sources, entities, reconciliations, chronology, occurrences),
+        )
     data = load_yaml_file(
         project.provenance_registry, "provenance registry", expected_schema_version=SUPPORTED_PROVENANCE_SCHEMA_VERSION
     )
@@ -516,6 +528,7 @@ def load_provenance_registry(
         set(reconciliations.provenance_targets()),
         set(chronology.provenance_targets()),
         set(occurrences.provenance_targets()),
+        set(interpretations.provenance_targets()),
     )
     duplicated_subject_types = set()
     for index, provider in enumerate(provider_types):
@@ -531,6 +544,7 @@ def load_provenance_registry(
         | set(reconciliations.provenance_targets())
         | set(chronology.provenance_targets())
         | set(occurrences.provenance_targets())
+        | set(interpretations.provenance_targets())
         | {"claim-supersession"}
     )
     allowed_subject_types = set(schema_packs.allowed_values("provenance.subject-type"))
@@ -654,6 +668,8 @@ def load_provenance_registry(
             target = chronology.provenance_target(subject_type, subject_id)
         elif subject_type in occurrences.provenance_targets():
             target = occurrences.provenance_target(subject_type, subject_id)
+        elif subject_type in interpretations.provenance_targets():
+            target = interpretations.provenance_target(subject_type, subject_id)
         else:
             raise ValueError(f"Unsupported provenance subject type `{subject_type}`.")
         claim_namespace = require_string(assertion, "claim_namespace", context)
@@ -774,6 +790,8 @@ def load_provenance_registry(
     for claim_key in edges:
         visit(claim_key)
 
+    interpretations.validate_claim_targets(set(claim_shapes))
+
     return ProvenanceRegistry(
         project.provenance_registry,
         schema_version,
@@ -784,4 +802,5 @@ def load_provenance_registry(
         reconciliations,
         chronology,
         occurrences,
+        interpretations,
     )

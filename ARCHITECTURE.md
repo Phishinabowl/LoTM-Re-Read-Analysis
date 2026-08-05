@@ -94,7 +94,8 @@ entity_config -> lookup_key_config, project_config, schema_pack_config,
 reconciliation_config -> project_config, schema_pack_config, strict_yaml
 occurrence_config -> chronology_config, project_config, schema_pack_config,
                      strict_yaml, temporal_config
-provenance_config -> chronology_config, entity_config, occurrence_config,
+interpretation_config -> project_config, schema_pack_config, strict_yaml
+provenance_config -> chronology_config, entity_config, interpretation_config, occurrence_config,
                      project_config, reconciliation_config, schema_pack_config,
                      source_config, strict_yaml, temporal_config
 ```
@@ -268,7 +269,13 @@ Resolution is read-only. It does not rename folders or files, rewrite page/YAML 
 
 ### Provenance Registry
 
-`Project_Config/provenance.yaml` schema version 3 owns factual assertions and claim-supersession chains independently of the registries whose records they describe. `Tools/Runtime/Python/knowledge_framework/provenance_config.py` and `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` compose typed provenance-target providers from source, entity, and reconciliation registries, reject unsupported or missing subjects, resolve semantic field paths, validate evidence locators against source work, coverage, and segment bounds, and evaluate claims through source-owned authority profiles. Subject registries own their records; they do not own evidence assertions about themselves.
+`Project_Config/provenance.yaml` schema version 3 owns factual assertions and claim-supersession chains independently of the registries whose records they describe. `Tools/Runtime/Python/knowledge_framework/provenance_config.py` and `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` compose typed provenance-target providers from source, entity, reconciliation, chronology, occurrence, and structural-interpretation registries, reject unsupported or missing subjects, resolve semantic field paths, validate evidence locators against source work, coverage, and segment bounds, and evaluate claims through source-owned authority profiles. Subject registries own their records; they do not own evidence assertions about themselves.
+
+### Structural Interpretation Registry
+
+`Project_Config/interpretations.yaml` schema version 1 owns named candidate structures, their typed membership references, interpretation-local relations, and compatible, competing, or mutually exclusive comparison sets. `Tools/Runtime/Python/knowledge_framework/interpretation_config.py` and `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` validate canonical target references, inverse and symmetry declarations, local acyclic groups, conservative unresolved decisions, bounded queries, and four provenance-addressable interpretation record types. An interpretation is not a continuity, branch, evidence source, authority rule, canonical chronology, occurrence graph, identity decision, or fact.
+
+Interpretations load after canonical target providers and before provenance. A member may reference a `provenance-claim` as a typed deferred ID; once provenance has loaded assertions and exposes interpretation records as subjects, composition validates every deferred claim key. This two-stage boundary permits evidence about interpretations and claim membership inside interpretations without moving evidence ownership or creating a loader cycle. See `Framework/Contracts/structural-interpretation-registry.md`.
 
 ### Temporal Kernel
 
@@ -284,7 +291,7 @@ The core `chronology-coordinate-systems` capability is domain-neutral. The narra
 
 Core owns domain-neutral occurrence and recurrence mechanics. Narrative media specializes them with time loops, subjective experience, loop reset/escape, and retained memory, knowledge, physical state, or awareness. The LoTM registry activates only its `main` branch until verified project data requires concrete occurrences. See `Framework/Contracts/occurrence-recurrence-registry.md`.
 
-The required load order is project manifest, selected packs and foundational registries, source registry, chronology registry with composed work/continuity targets, entity and other subject providers, occurrence registry with chronology and subject targets, reconciliation registry, then provenance registry. Cross-registry validation is deferred to composition layers so source, chronology, occurrence, and entity loaders do not depend on one another through evidence claims or historical IDs. A new provenance-addressable registry must expose a typed target-provider API and pack-owned `provenance.subject-type` values rather than implementing another assertion parser.
+The required load order is project manifest, selected packs and foundational registries, source registry, chronology registry with composed work/continuity targets, entity and other subject providers, occurrence registry with chronology and subject targets, reconciliation registry, structural interpretations with canonical target providers, then provenance followed by deferred interpretation-claim closure. Cross-registry validation is deferred to composition layers so source, chronology, occurrence, entity, and interpretation loaders do not depend on one another through evidence claims or historical IDs. A new provenance-addressable registry must expose a typed target-provider API and pack-owned `provenance.subject-type` values rather than implementing another assertion parser.
 
 ### Strict Configuration Ingestion
 

@@ -109,6 +109,15 @@
         'Get-KnowledgeIdentitySubjectTypes'
         'Get-KnowledgeIdentityTarget'
         'Get-KnowledgeIdentityTargetTypes'
+        'Get-KnowledgeInterpretationComparisonSets'
+        'Get-KnowledgeInterpretationMembers'
+        'Get-KnowledgeInterpretationProjectTargetProviders'
+        'Get-KnowledgeInterpretationProvenanceTarget'
+        'Get-KnowledgeInterpretationProvenanceTargets'
+        'Get-KnowledgeInterpretationRegistry'
+        'Get-KnowledgeInterpretationRelations'
+        'Get-KnowledgeInterpretationSetDecision'
+        'Get-KnowledgeInterpretationStructure'
         'Get-KnowledgeIncarnationBindings'
         'Get-KnowledgeIncarnationRelationships'
         'Get-KnowledgeLookupKeyConfig'
@@ -214,6 +223,7 @@
         'Import-KnowledgeYamlModule'
         'Import-ProjectYamlModule'
         'New-EntityAliasMap'
+        'New-KnowledgeInterpretationTargetProvider'
         'Resolve-KnowledgeEntityId'
         'Resolve-KnowledgeEntityIds'
         'Resolve-KnowledgeIdentityPhaseId'
@@ -259,6 +269,7 @@
         'Test-StableSourceId'
         'Test-StableTaxonomyId'
         'Test-TaxonomyRegex'
+        'Assert-KnowledgeInterpretationClaimTargets'
     )
     CmdletsToExport = @()
     VariablesToExport = @()

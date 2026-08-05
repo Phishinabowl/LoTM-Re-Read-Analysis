@@ -121,6 +121,7 @@ $implementationFiles = @(
     'Entity-Config.ps1'
     'Reconciliation-Config.ps1'
     'Occurrence-Config.ps1'
+    'Interpretation-Config.ps1'
     'Provenance-Config.ps1'
 )
 foreach ($implementationFile in $implementationFiles) {

@@ -42,7 +42,14 @@ FORBIDDEN_TOP_LEVEL = (
     "Visualization",
     "Volumes",
 )
-PORTABLE_SUITES = ("project-root", "strict-ingestion", "lookup-key", "schema-pack", "temporal")
+PORTABLE_SUITES = (
+    "project-root",
+    "strict-ingestion",
+    "lookup-key",
+    "schema-pack",
+    "temporal",
+    "interpretation",
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -85,7 +92,7 @@ def write_neutral_consumer(target_root: Path) -> None:
 
     write_text(
         target_root / "Project_Config/project.yaml",
-        """schema_version: 9
+        """schema_version: 10
 project_id: extraction-smoke
 framework: knowledge-model
 domain: neutral
@@ -127,6 +134,7 @@ registries:
   provenance: Project_Config/provenance.yaml
   chronology: Project_Config/chronology.yaml
   occurrences: Project_Config/occurrences.yaml
+  interpretations: Project_Config/interpretations.yaml
 """,
     )
     write_text(
@@ -137,7 +145,8 @@ selected_packs:
     path: Framework/Packs/core/pack.yaml
 capability_activation:
   default: disabled
-  enabled: []
+  enabled:
+    - structural-interpretation-modeling
 """,
     )
     for name in (
@@ -149,6 +158,7 @@ capability_activation:
         "provenance",
         "chronology",
         "occurrences",
+        "interpretations",
     ):
         write_text(target_root / f"Project_Config/{name}.yaml", "schema_version: 1\n")
 

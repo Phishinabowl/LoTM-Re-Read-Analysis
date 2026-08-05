@@ -1,6 +1,6 @@
 schema_version: 4
 pack_id: core
-pack_version: 35
+pack_version: 36
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -71,6 +71,7 @@ capabilities:
   - occurrence-participation-identity
   - timeline-branch-lifecycle
   - capability-progression
+  - structural-interpretation-modeling
   - visibility-policy
   - graph-projection
   - schema-validation
@@ -369,6 +370,7 @@ controlled_values:
     - identity
     - chronology
     - provenance
+    - structural-interpretation
   provenance.assertion-status:
     - verified
     - inferred
@@ -418,6 +420,25 @@ controlled_values:
     - state-scale
     - state-transition
     - iteration-carryover
+    - structural-interpretation
+    - structural-interpretation-member
+    - structural-interpretation-relation
+    - structural-interpretation-set
+  interpretation.lifecycle:
+    - active
+    - retired
+  interpretation.comparison-mode:
+    - compatible
+    - competing
+    - mutually-exclusive
+  interpretation.relation-type:
+    - precedes
+    - follows
+    - causes
+    - caused-by
+    - concurrent-with
+    - corresponds-with
+    - equivalent-with
   reconciliation.target-type:
     - content-type
     - category

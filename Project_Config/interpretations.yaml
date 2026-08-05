@@ -1,0 +1,56 @@
+schema_version: 1
+
+relation_types:
+  precedes:
+    label: Precedes
+    inverse_type: follows
+    symmetric: false
+    canonical_direction: true
+    acyclic_group: interpretation-order
+
+  follows:
+    label: Follows
+    inverse_type: precedes
+    symmetric: false
+    canonical_direction: false
+    acyclic_group: interpretation-order
+
+  causes:
+    label: Causes
+    inverse_type: caused-by
+    symmetric: false
+    canonical_direction: true
+    acyclic_group: null
+
+  caused-by:
+    label: Caused By
+    inverse_type: causes
+    symmetric: false
+    canonical_direction: false
+    acyclic_group: null
+
+  concurrent-with:
+    label: Concurrent With
+    inverse_type: concurrent-with
+    symmetric: true
+    canonical_direction: false
+    acyclic_group: null
+
+  corresponds-with:
+    label: Corresponds With
+    inverse_type: corresponds-with
+    symmetric: true
+    canonical_direction: false
+    acyclic_group: null
+
+  equivalent-with:
+    label: Candidate Equivalent With
+    inverse_type: equivalent-with
+    symmetric: true
+    canonical_direction: false
+    acyclic_group: null
+
+interpretations: {}
+members: []
+relations: []
+comparison_sets: {}
