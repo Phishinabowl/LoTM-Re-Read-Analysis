@@ -272,6 +272,8 @@ function Get-ProjectCompositionSummary {
                 effect_policies = $packs.effect_policies.Count
                 effect_incompatibilities = $packs.effect_incompatibilities.Count
                 state_change_profiles = $packs.state_change_profiles.Count
+                state_profiles = $packs.state_profiles.Count
+                state_kind_profiles = $packs.state_kind_profiles.Count
             }
         }
         counts = [ordered]@{

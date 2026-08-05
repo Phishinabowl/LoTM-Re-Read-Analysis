@@ -2,7 +2,7 @@
 
 ## Ownership
 
-`Project_Config/occurrences.yaml` instantiates occurrence identity, occurrence participation, subjective track entries, recurrence patterns and executions, aggregate recurrence cardinality, phases and schedules, branch topology and lifecycle, subject tracks, transitions, causal relations, outcomes, recurrence rules, state transitions, and iteration carryover. `Tools/Runtime/Python/knowledge_framework/occurrence_config.py` and `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` are the behaviorally paired schema-7 loaders and query services. V40 separates one concrete happening from each subject's participation in it and from each participation's ordered placement on a track. V42 adds provenance-addressable branch-state histories without converting branch lifecycle into chronology.
+`Project_Config/occurrences.yaml` instantiates occurrence identity, occurrence participation, subjective track entries, recurrence patterns and executions, aggregate recurrence cardinality, phases and schedules, branch topology and lifecycle, subject tracks, transitions, causal relations, outcomes, recurrence rules, state transitions, and iteration carryover. `Tools/Runtime/Python/knowledge_framework/occurrence_config.py` and `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` are the behaviorally paired schema-8 loaders and query services. V40 separates one concrete happening from each subject's participation in it and from each participation's ordered placement on a track. V42 adds provenance-addressable branch-state histories without converting branch lifecycle into chronology. V43 adds pack-composed epistemic state profiles without treating subject knowledge or belief as objective truth.
 
 Chronology and occurrence identity remain separate. Chronology answers where or when something is positioned and preserves acyclic exact order. The occurrence registry answers which distinct happening, execution, iteration, branch, experienced step, or subject-state change a record represents. Several occurrences may bind one chronology position without becoming the same occurrence.
 
@@ -83,12 +83,15 @@ Recurrence lifecycle is coherent: at most one active or terminated iteration exi
 
 - an exact subject and payload target;
 - state kind, change kind, and structural change profile;
-- acquisition or change mechanism;
+- discrete, gradual, aggregate, or unknown change shape independently from acquisition or change mechanism;
 - prior and resulting availability;
-- optional prior and resulting epistemic attitude;
-- completeness, activation occurrence, optional governing rule, subject tracks, source targets, and certainty.
+- profile-required, optional, or forbidden prior and resulting completeness;
+- profile-required, optional, or forbidden prior and resulting epistemic attitude;
+- activation occurrence, optional governing rule, subject tracks, source targets, and certainty.
 
-Change profiles enforce broad invariants such as unavailable-to-available acquisition, equal-state preservation, removal into unavailable or inaccessible state, restoration, transfer, merge, derivation, activation, and invalidation. On one track, transitions for the same subject, payload, and state kind form a continuous chain: a later prior state must equal the earlier resulting state. Encountering an occurrence does not imply awareness, memory, belief, or access.
+Core pack semantic declarations define typed state profiles. Each profile declares whether availability, completeness, and attitude are required, optional, or forbidden; availability remains mandatory for every current profile. Packs map every controlled state kind to exactly one profile. `epistemic-access` requires availability and completeness but forbids attitude, `epistemic-belief` requires availability and attitude but forbids completeness, and `availability-state` requires only availability. An unmapped state kind, unknown profile, or profile-incompatible dimension is invalid. A reusable profile may remain dormant when no selected domain pack contributes a kind that uses it.
+
+Change profiles enforce broad invariants such as unavailable-to-available acquisition, equal-state preservation, removal into unavailable or inaccessible state, restoration, transfer, merge, derivation, activation, and invalidation. On one track, transitions for the same subject, payload, and state kind form a continuous chain: later prior availability, completeness, and attitude must equal the earlier resulting values for every dimension the profile uses. Encountering an occurrence does not imply awareness, memory, belief, or access. Change shape describes how progression occurs; mechanism describes what caused it. Neither is inferred from elapsed time or repeated participation.
 
 Provenance remains the sole owner of whether a state-change claim or payload is verified, inferred, disputed, or superseded. Epistemic attitude describes the subject's modeled stance, not objective truth.
 
@@ -98,7 +101,7 @@ Carryover no longer duplicates a state kind and payload. It references one concr
 
 ## Narrative Time Loops
 
-The narrative-media pack adds time-loop patterns, subjective experience, loop reset and escape transitions, narrative outcomes and incompatibility policy, memory/knowledge/awareness/belief/physical state, and mechanisms such as recovered memory, dream, prophecy, revelation, supernatural bestowal, and timeline reconciliation. A loop remains distinct occurrences within iterations, never a chronology cycle.
+The narrative-media pack adds time-loop patterns, subjective experience, loop reset and escape transitions, narrative outcomes and incompatibility policy, memory/knowledge/awareness/belief/physical state, and mechanisms such as recovered memory, merged memory, dream, prophecy, revelation, supernatural bestowal, and timeline reconciliation. Memory, knowledge, and awareness use `epistemic-access`; belief uses `epistemic-belief`; physical state is the non-epistemic `availability-state` control. A loop remains distinct occurrences within iterations, never a chronology cycle.
 
 The model can therefore separate the same external coordinate from successive subjective experiences; represent staggered awareness; state exactly when memory becomes available; retain it across selected boundaries; describe reset and termination rules; type different outcomes by pass; nest loops; and let one subject escape without granting that state or track to another.
 
@@ -108,8 +111,8 @@ Paired services query branch-state history and state at a branch-local lifecycle
 
 ## Layering
 
-- Core owns occurrence, participation, track-entry ordering, pattern, execution, aggregate realized-history cardinality, iteration, phase, schedule, branch identity and generic lifecycle, outcome, rule evaluation, semantic declaration validation, deterministic effect resolution, civil schedule boundaries, generic subject-state, carryover, validation, and queries.
-- Domain packs extend branch states and changes, kinds, mechanisms, outcomes, valid rule-kind/effect-kind combinations, recurrence-pattern effect scopes, repetition policy, and globally or same-target incompatible effect-kind pairs.
+- Core owns occurrence, participation, track-entry ordering, pattern, execution, aggregate realized-history cardinality, iteration, phase, schedule, branch identity and generic lifecycle, outcome, rule evaluation, semantic declaration validation, deterministic effect resolution, civil schedule boundaries, generic subject-state profiles and continuity, carryover, validation, and queries.
+- Domain packs extend branch states and changes, state kinds and their required profile mappings, mechanisms, outcomes, valid rule-kind/effect-kind combinations, recurrence-pattern effect scopes, repetition policy, and globally or same-target incompatible effect-kind pairs.
 - Project configuration owns concrete records and source-backed claims.
 - Chronology remains the sole owner of acyclic exact temporal comparison.
 - Provenance remains the sole owner of evidence and claim authority.
@@ -118,4 +121,4 @@ The LoTM project declares only its `main` branch until source-backed occurrences
 
 ## Conformance
 
-`Framework/Data/Occurrence/` contains the portable V31-V42 corpus. Its fixture and generated probes cover branch lifecycle and continuity closure, role-distinct and semantically identical ordered repeated participation, subjective track-entry identity and ambiguity rejection, chronology-context references, cardinality shapes and coverage modes, signed 64-bit boundaries, representative and complete histories, malformed combinations, 128-record scale, typed rule/effect extensions, scoped conflicts, repetition behavior, contributor diagnostics, and fail-closed authorization. Run `python Tools/Conformance/Suites/test_occurrence.py` and `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Occurrence.ps1` after changing branch identity or lifecycle, occurrence vocabulary, participation, track-entry ordering, registry shape, chronology composition, recurrence cardinality, recurrence policy or lifecycle, schedules, state semantics, carryover, provenance targets, or query behavior.
+`Framework/Data/Occurrence/` contains the portable V31-V43 corpus. Its fixture and generated probes cover branch lifecycle and continuity closure, role-distinct and semantically identical ordered repeated participation, subjective track-entry identity and ambiguity rejection, chronology-context references, cardinality shapes and coverage modes, signed 64-bit boundaries, representative and complete histories, typed epistemic profiles and dimension chains, malformed combinations, 128-record scale, typed rule/effect extensions, scoped conflicts, repetition behavior, contributor diagnostics, and fail-closed authorization. Run `python Tools/Conformance/Suites/test_occurrence.py` and `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Occurrence.ps1` after changing branch identity or lifecycle, occurrence vocabulary, participation, track-entry ordering, registry shape, chronology composition, recurrence cardinality, recurrence policy or lifecycle, schedules, state profiles or semantics, carryover, provenance targets, or query behavior.

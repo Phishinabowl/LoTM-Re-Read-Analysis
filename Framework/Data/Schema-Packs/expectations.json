@@ -14,7 +14,9 @@
       "effect_target_compatibilities": 2,
       "rule_effect_compatibilities": 2,
       "effect_policies": 2,
-      "effect_incompatibilities": 1
+      "effect_incompatibilities": 1,
+      "state_profiles": 2,
+      "state_kind_profiles": 1
     }
   },
   "scale_pack_count": 64,
@@ -70,6 +72,10 @@
     {"id": "orphan-effect-target-compatibility", "target": "fixture-domain", "operations": [{"op": "set", "path": ["semantic_declarations"], "value": {"occurrence": {"effect_target_compatibilities": [{"effect_kind": "ghost-effect", "target_type": "subject"}]}}}]},
     {"id": "orphan-rule-effect-compatibility", "target": "fixture-domain", "operations": [{"op": "set", "path": ["semantic_declarations"], "value": {"occurrence": {"rule_effect_compatibilities": [{"rule_kind": "ghost-rule", "effect_kind": "add-state"}]}}}]},
     {"id": "orphan-state-change-profile", "target": "fixture-domain", "operations": [{"op": "set", "path": ["semantic_declarations"], "value": {"state": {"change_profiles": [{"change_kind": "ghost-change", "change_profile": "ghost-profile"}]}}}]},
-    {"id": "effect-scope-on-nonrecurrence-target", "target": "fixture-core", "operations": [{"op": "set", "path": ["semantic_declarations", "occurrence", "effect_policies", 0, "recurrence_pattern_scope"], "value": "owning-pattern"}]}
+    {"id": "effect-scope-on-nonrecurrence-target", "target": "fixture-core", "operations": [{"op": "set", "path": ["semantic_declarations", "occurrence", "effect_policies", 0, "recurrence_pattern_scope"], "value": "owning-pattern"}]},
+    {"id": "state-profile-unsupported-requirement", "target": "fixture-core", "operations": [{"op": "set", "path": ["semantic_declarations", "state", "profiles", 0, "completeness"], "value": "sometimes"}]},
+    {"id": "state-profile-no-dimensions", "target": "fixture-core", "operations": [{"op": "set", "path": ["semantic_declarations", "state", "profiles", 0, "availability"], "value": "forbidden"}]},
+    {"id": "state-kind-profile-missing", "target": "fixture-core", "operations": [{"op": "set", "path": ["semantic_declarations", "state", "kind_profiles"], "value": []}]},
+    {"id": "state-kind-profile-unknown-profile", "target": "fixture-core", "operations": [{"op": "set", "path": ["semantic_declarations", "state", "kind_profiles", 0, "profile_id"], "value": "missing-profile"}]}
   ]
 }

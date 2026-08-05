@@ -13,7 +13,7 @@ from .strict_yaml import assert_allowed_keys, load_yaml_file
 from .temporal_config import TemporalWindow, normalize_effective_at, parse_temporal_window, temporal_window_match
 
 
-SUPPORTED_SCHEMA_VERSION = 7
+SUPPORTED_SCHEMA_VERSION = 8
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 
@@ -303,14 +303,17 @@ class StateTransition:
     payload_target_type: str
     payload_target_id: str
     state_kind: str
+    state_profile: str
     change_kind: str
     change_profile: str
+    change_shape: str
     mechanism: str
     prior_availability: str
     resulting_availability: str
     prior_attitude: str | None
     resulting_attitude: str | None
-    completeness: str
+    prior_completeness: str | None
+    resulting_completeness: str | None
     activation_occurrence_id: str
     condition_rule_id: str | None
     track_ids: tuple[str, ...]
@@ -1847,12 +1850,14 @@ def parse_occurrence_registry(
                 "state_kind",
                 "change_kind",
                 "change_profile",
+                "change_shape",
                 "mechanism",
                 "prior_availability",
                 "resulting_availability",
                 "prior_attitude",
                 "resulting_attitude",
-                "completeness",
+                "prior_completeness",
+                "resulting_completeness",
                 "activation_occurrence_id",
                 "condition_rule_id",
                 "track_ids",
@@ -1889,12 +1894,16 @@ def parse_occurrence_registry(
             raise ValueError(f"{context} references unknown payload `{payload_type}:{payload_id}`.")
         state_kind = _string(item, "state_kind", context)
         _value(packs, "state.state-kind", state_kind, f"{context}.state_kind")
+        state_profile_id = packs.state_kind_profiles[state_kind]
+        state_profile = packs.state_profiles[state_profile_id]
         change_kind = _string(item, "change_kind", context)
         _value(packs, "state.change-kind", change_kind, f"{context}.change_kind")
         change_profile = _string(item, "change_profile", context)
         _value(packs, "state.change-profile", change_profile, f"{context}.change_profile")
         if packs.state_change_profiles.get(change_kind) != change_profile:
             raise ValueError(f"{context}.change_kind/change_profile is not a declared typed mapping.")
+        change_shape = _string(item, "change_shape", context)
+        _value(packs, "state.change-shape", change_shape, f"{context}.change_shape")
         mechanism = _string(item, "mechanism", context)
         _value(packs, "state.mechanism", mechanism, f"{context}.mechanism")
         prior = _string(item, "prior_availability", context)
@@ -1904,13 +1913,28 @@ def parse_occurrence_registry(
         _validate_state_profile(change_profile, prior, resulting, context)
         prior_attitude = _optional_string(item, "prior_attitude", context)
         resulting_attitude = _optional_string(item, "resulting_attitude", context)
-        if (prior_attitude is None) != (resulting_attitude is None):
-            raise ValueError(f"{context} must set both epistemic attitudes, or neither.")
+        _validate_state_dimension(
+            state_profile.attitude,
+            prior_attitude,
+            resulting_attitude,
+            "attitude",
+            context,
+        )
         if prior_attitude is not None:
             _value(packs, "state.epistemic-attitude", prior_attitude, f"{context}.prior_attitude")
             _value(packs, "state.epistemic-attitude", resulting_attitude, f"{context}.resulting_attitude")
-        completeness = _string(item, "completeness", context)
-        _value(packs, "state.completeness", completeness, f"{context}.completeness")
+        prior_completeness = _optional_string(item, "prior_completeness", context)
+        resulting_completeness = _optional_string(item, "resulting_completeness", context)
+        _validate_state_dimension(
+            state_profile.completeness,
+            prior_completeness,
+            resulting_completeness,
+            "completeness",
+            context,
+        )
+        if prior_completeness is not None:
+            _value(packs, "state.completeness", prior_completeness, f"{context}.prior_completeness")
+            _value(packs, "state.completeness", resulting_completeness, f"{context}.resulting_completeness")
         activation_id = _string(item, "activation_occurrence_id", context)
         if activation_id not in occurrences:
             raise ValueError(f"{context}.activation_occurrence_id references unknown occurrence `{activation_id}`.")
@@ -1972,14 +1996,17 @@ def parse_occurrence_registry(
             payload_type,
             payload_id,
             state_kind,
+            state_profile_id,
             change_kind,
             change_profile,
+            change_shape,
             mechanism,
             prior,
             resulting,
             prior_attitude,
             resulting_attitude,
-            completeness,
+            prior_completeness,
+            resulting_completeness,
             activation_id,
             condition_rule_id,
             tuple(sorted(track_ids)),
@@ -1995,14 +2022,17 @@ def parse_occurrence_registry(
                 payload_type,
                 payload_id,
                 state_kind,
+                state_profile_id,
                 change_kind,
                 change_profile,
+                change_shape,
                 mechanism,
                 prior,
                 resulting,
                 prior_attitude,
                 resulting_attitude,
-                completeness,
+                prior_completeness,
+                resulting_completeness,
                 activation_id,
                 condition_rule_id,
                 track_ids,
@@ -2547,6 +2577,22 @@ def _validate_state_profile(profile: str, prior: str, resulting: str, context: s
         )
 
 
+def _validate_state_dimension(
+    requirement: str,
+    prior: str | None,
+    resulting: str | None,
+    dimension: str,
+    context: str,
+) -> None:
+    if (prior is None) != (resulting is None):
+        raise ValueError(f"{context} must set both prior and resulting {dimension}, or neither.")
+    present = prior is not None
+    if requirement == "required" and not present:
+        raise ValueError(f"{context} state profile requires prior and resulting {dimension}.")
+    if requirement == "forbidden" and present:
+        raise ValueError(f"{context} state profile forbids prior and resulting {dimension}.")
+
+
 def _validate_state_chains(
     states: list[StateTransition],
     tracks: dict[str, OccurrenceTrack],
@@ -2578,6 +2624,11 @@ def _validate_state_chains(
             if previous.resulting_attitude != current.prior_attitude:
                 raise ValueError(
                     f"State transition `{current.id}` prior attitude does not continue "
+                    f"state transition `{previous.id}`."
+                )
+            if previous.resulting_completeness != current.prior_completeness:
+                raise ValueError(
+                    f"State transition `{current.id}` prior completeness does not continue "
                     f"state transition `{previous.id}`."
                 )
 

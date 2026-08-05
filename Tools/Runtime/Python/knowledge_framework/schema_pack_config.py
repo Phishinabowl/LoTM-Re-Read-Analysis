@@ -29,6 +29,7 @@ EFFECT_REPETITION_POLICIES = {"idempotent", "accumulating", "invalid"}
 EFFECT_PATTERN_SCOPES = {"owning-pattern", "external-pattern"}
 EFFECT_INCOMPATIBILITY_SCOPES = {"global", "same-target"}
 EFFECT_TARGET_TYPE_NAMESPACE = "occurrence.rule-effect-target-type"
+STATE_DIMENSION_REQUIREMENTS = {"required", "optional", "forbidden"}
 
 
 @dataclass(frozen=True)
@@ -96,6 +97,20 @@ class StateChangeProfileDeclaration:
 
 
 @dataclass(frozen=True)
+class StateProfileDeclaration:
+    profile_id: str
+    availability: str
+    completeness: str
+    attitude: str
+
+
+@dataclass(frozen=True)
+class StateKindProfileDeclaration:
+    state_kind: str
+    profile_id: str
+
+
+@dataclass(frozen=True)
 class SemanticDeclarations:
     transition_profiles: tuple[TransitionProfileDeclaration, ...] = ()
     outcome_incompatibilities: tuple[OutcomeIncompatibilityDeclaration, ...] = ()
@@ -104,6 +119,8 @@ class SemanticDeclarations:
     effect_policies: tuple[EffectPolicyDeclaration, ...] = ()
     effect_incompatibilities: tuple[EffectIncompatibilityDeclaration, ...] = ()
     state_change_profiles: tuple[StateChangeProfileDeclaration, ...] = ()
+    state_profiles: tuple[StateProfileDeclaration, ...] = ()
+    state_kind_profiles: tuple[StateKindProfileDeclaration, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -147,6 +164,8 @@ class SchemaPackRegistry:
     effect_policies: dict[str, EffectPolicyDeclaration]
     effect_incompatibilities: dict[tuple[str, str], str]
     state_change_profiles: dict[str, str]
+    state_profiles: dict[str, StateProfileDeclaration]
+    state_kind_profiles: dict[str, str]
     semantic_declaration_owners: dict[tuple[str, ...], str]
 
     def allowed_values(self, namespace: str) -> tuple[str, ...]:
@@ -254,7 +273,11 @@ def parse_semantic_declarations(pack: dict, pack_id: str) -> SemanticDeclaration
         f"Schema pack `{pack_id}.semantic_declarations.occurrence`",
     )
     state = require_mapping(declarations.get("state", {}), f"{pack_id}.semantic_declarations.state")
-    assert_allowed_keys(state, {"change_profiles"}, f"Schema pack `{pack_id}.semantic_declarations.state`")
+    assert_allowed_keys(
+        state,
+        {"change_profiles", "profiles", "kind_profiles"},
+        f"Schema pack `{pack_id}.semantic_declarations.state`",
+    )
 
     transition_profiles = []
     for index, raw_row in enumerate(_declaration_rows(occurrence, "transition_profiles", pack_id)):
@@ -336,6 +359,37 @@ def parse_semantic_declarations(pack: dict, pack_id: str) -> SemanticDeclaration
         validate_id(change_profile, f"{context}.change_profile")
         change_profiles.append(StateChangeProfileDeclaration(change_kind, change_profile))
 
+    state_profiles = []
+    for index, raw_row in enumerate(_declaration_rows(state, "profiles", pack_id)):
+        context = f"{pack_id}.semantic_declarations.state.profiles[{index}]"
+        row = require_mapping(raw_row, context)
+        assert_allowed_keys(
+            row,
+            {"profile_id", "availability", "completeness", "attitude"},
+            f"Schema pack `{context}`",
+        )
+        profile_id = require_string(row, "profile_id", context)
+        validate_id(profile_id, f"{context}.profile_id")
+        requirements = tuple(require_string(row, key, context) for key in ("availability", "completeness", "attitude"))
+        if any(requirement not in STATE_DIMENSION_REQUIREMENTS for requirement in requirements):
+            raise ValueError(f"Schema-pack configuration `{context}` has an unsupported dimension requirement.")
+        if requirements[0] != "required":
+            raise ValueError(f"Schema-pack configuration `{context}.availability` must be `required`.")
+        if all(requirement == "forbidden" for requirement in requirements):
+            raise ValueError(f"Schema-pack configuration `{context}` must use at least one state dimension.")
+        state_profiles.append(StateProfileDeclaration(profile_id, *requirements))
+
+    state_kind_profiles = []
+    for index, raw_row in enumerate(_declaration_rows(state, "kind_profiles", pack_id)):
+        context = f"{pack_id}.semantic_declarations.state.kind_profiles[{index}]"
+        row = require_mapping(raw_row, context)
+        assert_allowed_keys(row, {"state_kind", "profile_id"}, f"Schema pack `{context}`")
+        state_kind = require_string(row, "state_kind", context)
+        profile_id = require_string(row, "profile_id", context)
+        validate_id(state_kind, f"{context}.state_kind")
+        validate_id(profile_id, f"{context}.profile_id")
+        state_kind_profiles.append(StateKindProfileDeclaration(state_kind, profile_id))
+
     return SemanticDeclarations(
         tuple(transition_profiles),
         tuple(outcome_incompatibilities),
@@ -344,6 +398,8 @@ def parse_semantic_declarations(pack: dict, pack_id: str) -> SemanticDeclaration
         tuple(effect_policies),
         tuple(effect_incompatibilities),
         tuple(change_profiles),
+        tuple(state_profiles),
+        tuple(state_kind_profiles),
     )
 
 
@@ -371,6 +427,8 @@ def compose_semantic_declarations(
     dict[str, EffectPolicyDeclaration],
     dict[tuple[str, str], str],
     dict[str, str],
+    dict[str, StateProfileDeclaration],
+    dict[str, str],
     dict[tuple[str, ...], str],
 ]:
     values = {namespace: set(items) for namespace, items in controlled_values.items()}
@@ -382,6 +440,8 @@ def compose_semantic_declarations(
     effect_policies: dict[str, EffectPolicyDeclaration] = {}
     effect_incompatibilities: dict[tuple[str, str], str] = {}
     state_change_profiles: dict[str, str] = {}
+    state_profiles: dict[str, StateProfileDeclaration] = {}
+    state_kind_profiles: dict[str, str] = {}
 
     def require_atom(namespace: str, value: str, context: str) -> None:
         if value not in values.get(namespace, set()):
@@ -440,6 +500,14 @@ def compose_semantic_declarations(
             require_atom("state.change-profile", declaration.change_profile, context)
             register(("state-change-profile", declaration.change_kind), pack_id)
             state_change_profiles[declaration.change_kind] = declaration.change_profile
+        for declaration in declarations.state_profiles:
+            register(("state-profile", declaration.profile_id), pack_id)
+            state_profiles[declaration.profile_id] = declaration
+        for declaration in declarations.state_kind_profiles:
+            context = f"{pack_id}.kind_profiles.{declaration.state_kind}"
+            require_atom("state.state-kind", declaration.state_kind, context)
+            register(("state-kind-profile", declaration.state_kind), pack_id)
+            state_kind_profiles[declaration.state_kind] = declaration.profile_id
 
     transition_kinds = values.get("occurrence.transition-kind", set())
     if set(transition_profiles) != transition_kinds:
@@ -449,7 +517,13 @@ def compose_semantic_declarations(
     if set(state_change_profiles) != change_kinds:
         missing = sorted(change_kinds - set(state_change_profiles))
         raise ValueError(f"Schema-pack state change kinds require exactly one typed profile: {', '.join(missing)}.")
-
+    state_kinds = values.get("state.state-kind", set())
+    if set(state_kind_profiles) != state_kinds:
+        missing = sorted(state_kinds - set(state_kind_profiles))
+        raise ValueError(f"Schema-pack state kinds require exactly one typed profile: {', '.join(missing)}.")
+    unknown_profiles = sorted(set(state_kind_profiles.values()) - set(state_profiles))
+    if unknown_profiles:
+        raise ValueError(f"Schema-pack state-kind mappings reference unknown profiles: {', '.join(unknown_profiles)}.")
     effect_kinds = values.get("occurrence.rule-effect-kind", set())
     if set(effect_policies) != effect_kinds:
         missing = sorted(effect_kinds - set(effect_policies))
@@ -478,6 +552,8 @@ def compose_semantic_declarations(
         effect_policies,
         effect_incompatibilities,
         state_change_profiles,
+        state_profiles,
+        state_kind_profiles,
         owners,
     )
 
@@ -826,6 +902,8 @@ def load_schema_pack_registry(project: ProjectConfig) -> SchemaPackRegistry:
         effect_policies,
         effect_incompatibilities,
         state_change_profiles,
+        state_profiles,
+        state_kind_profiles,
         semantic_declaration_owners,
     ) = compose_semantic_declarations(packs, selection_order, controlled)
 
@@ -849,5 +927,7 @@ def load_schema_pack_registry(project: ProjectConfig) -> SchemaPackRegistry:
         effect_policies=effect_policies,
         effect_incompatibilities=effect_incompatibilities,
         state_change_profiles=state_change_profiles,
+        state_profiles=state_profiles,
+        state_kind_profiles=state_kind_profiles,
         semantic_declaration_owners=semantic_declaration_owners,
     )

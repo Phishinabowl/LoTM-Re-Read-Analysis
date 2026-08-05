@@ -18,6 +18,7 @@ $script:LegacyCompoundSemanticNamespaces = @(
 $script:EffectRepetitionPolicies = @('idempotent', 'accumulating', 'invalid')
 $script:EffectPatternScopes = @('owning-pattern', 'external-pattern')
 $script:EffectIncompatibilityScopes = @('global', 'same-target')
+$script:StateDimensionRequirements = @('required', 'optional', 'forbidden')
 
 function Get-RequiredSchemaPackString {
     param([object]$Map, [string]$Key, [string]$Context)
@@ -154,7 +155,10 @@ function ConvertTo-SchemaPackSemanticDeclarations {
     if ($state -isnot [System.Collections.IDictionary]) {
         throw "Schema-pack configuration '$PackId.semantic_declarations.state' must be a mapping."
     }
-    Assert-KnowledgeMapKeys $state @('change_profiles') "Schema pack '$PackId.semantic_declarations.state'"
+    Assert-KnowledgeMapKeys `
+        $state `
+    @('change_profiles', 'profiles', 'kind_profiles') `
+        "Schema pack '$PackId.semantic_declarations.state'"
 
     $transitionProfiles = @()
     $rows = @(Get-SchemaPackSemanticRows $occurrence 'transition_profiles' $PackId)
@@ -272,6 +276,54 @@ function ConvertTo-SchemaPackSemanticDeclarations {
         }
     }
 
+    $stateProfiles = @()
+    $rows = @(Get-SchemaPackSemanticRows $state 'profiles' $PackId)
+    for ($index = 0; $index -lt $rows.Count; $index += 1) {
+        $context = "$PackId.semantic_declarations.state.profiles[$index]"
+        $row = $rows[$index]
+        Assert-KnowledgeMapKeys `
+            $row `
+        @('profile_id', 'availability', 'completeness', 'attitude') `
+            "Schema pack '$context'"
+        $profileId = Get-RequiredSchemaPackString $row 'profile_id' $context
+        Assert-SchemaPackStableId $profileId "$context.profile_id"
+        $requirements = @(
+            Get-RequiredSchemaPackString $row 'availability' $context
+            Get-RequiredSchemaPackString $row 'completeness' $context
+            Get-RequiredSchemaPackString $row 'attitude' $context
+        )
+        if (@($requirements | Where-Object { $script:StateDimensionRequirements -cnotcontains $_ }).Count -gt 0) {
+            throw "Schema-pack configuration '$context' has an unsupported dimension requirement."
+        }
+        if ($requirements[0] -cne 'required') {
+            throw "Schema-pack configuration '$context.availability' must be 'required'."
+        }
+        if (@($requirements | Where-Object { $_ -cne 'forbidden' }).Count -eq 0) {
+            throw "Schema-pack configuration '$context' must use at least one state dimension."
+        }
+        $stateProfiles += [pscustomobject]@{
+            profile_id=$profileId
+            availability=$requirements[0]
+            completeness=$requirements[1]
+            attitude=$requirements[2]
+        }
+    }
+
+    $stateKindProfiles = @()
+    $rows = @(Get-SchemaPackSemanticRows $state 'kind_profiles' $PackId)
+    for ($index = 0; $index -lt $rows.Count; $index += 1) {
+        $context = "$PackId.semantic_declarations.state.kind_profiles[$index]"
+        $row = $rows[$index]
+        Assert-KnowledgeMapKeys $row @('state_kind', 'profile_id') "Schema pack '$context'"
+        $stateKind = Get-RequiredSchemaPackString $row 'state_kind' $context
+        $profileId = Get-RequiredSchemaPackString $row 'profile_id' $context
+        Assert-SchemaPackStableId $stateKind "$context.state_kind"
+        Assert-SchemaPackStableId $profileId "$context.profile_id"
+        $stateKindProfiles += [pscustomobject]@{state_kind=$stateKind
+            profile_id=$profileId
+        }
+    }
+
     return [pscustomobject]@{
         transition_profiles=@($transitionProfiles)
         outcome_incompatibilities=@($outcomeIncompatibilities)
@@ -280,6 +332,8 @@ function ConvertTo-SchemaPackSemanticDeclarations {
         effect_policies=@($effectPolicies)
         effect_incompatibilities=@($effectIncompatibilities)
         state_change_profiles=@($changeProfiles)
+        state_profiles=@($stateProfiles)
+        state_kind_profiles=@($stateKindProfiles)
     }
 }
 
@@ -671,6 +725,8 @@ function Get-KnowledgeSchemaPackRegistry {
         effect_policies = $semantics.effect_policies
         effect_incompatibilities = $semantics.effect_incompatibilities
         state_change_profiles = $semantics.state_change_profiles
+        state_profiles = $semantics.state_profiles
+        state_kind_profiles = $semantics.state_kind_profiles
         semantic_declaration_owners = $semantics.owners
     }
 }
@@ -690,6 +746,8 @@ function Merge-SchemaPackSemanticDeclarations {
     $effectPolicies = @{}
     $effectIncompatibilities = @{}
     $stateChangeProfiles = @{}
+    $stateProfiles = @{}
+    $stateKindProfiles = @{}
 
     function Assert-Atom {
         param([string]$Namespace, [string]$Value, [string]$Context)
@@ -761,6 +819,16 @@ function Merge-SchemaPackSemanticDeclarations {
             Add-DeclarationOwner "state-change-profile|$($declaration.change_kind)" $packId
             $stateChangeProfiles[$declaration.change_kind] = $declaration.change_profile
         }
+        foreach ($declaration in @($declarations.state_profiles)) {
+            Add-DeclarationOwner "state-profile|$($declaration.profile_id)" $packId
+            $stateProfiles[$declaration.profile_id] = $declaration
+        }
+        foreach ($declaration in @($declarations.state_kind_profiles)) {
+            $context = "$packId.kind_profiles.$($declaration.state_kind)"
+            Assert-Atom 'state.state-kind' $declaration.state_kind $context
+            Add-DeclarationOwner "state-kind-profile|$($declaration.state_kind)" $packId
+            $stateKindProfiles[$declaration.state_kind] = $declaration.profile_id
+        }
     }
 
     $transitionKinds = @($ControlledValues['occurrence.transition-kind'] | Where-Object { $null -ne $_ })
@@ -772,6 +840,19 @@ function Merge-SchemaPackSemanticDeclarations {
     $missing = @($changeKinds | Where-Object { -not $stateChangeProfiles.ContainsKey($_) })
     if ($missing.Count -gt 0 -or $stateChangeProfiles.Count -ne $changeKinds.Count) {
         throw "Schema-pack state change kinds require exactly one typed profile: $($missing -join ', ')."
+    }
+    $stateKinds = @($ControlledValues['state.state-kind'] | Where-Object { $null -ne $_ })
+    $missing = @($stateKinds | Where-Object { -not $stateKindProfiles.ContainsKey($_) })
+    if ($missing.Count -gt 0 -or $stateKindProfiles.Count -ne $stateKinds.Count) {
+        throw "Schema-pack state kinds require exactly one typed profile: $($missing -join ', ')."
+    }
+    $unknownProfiles = @(
+        $stateKindProfiles.Values |
+            Where-Object { -not $stateProfiles.ContainsKey($_) } |
+            Sort-Object -Unique
+    )
+    if ($unknownProfiles.Count -gt 0) {
+        throw "Schema-pack state-kind mappings reference unknown profiles: $($unknownProfiles -join ', ')."
     }
     $effectKinds = @($ControlledValues['occurrence.rule-effect-kind'] | Where-Object { $null -ne $_ })
     $missing = @($effectKinds | Where-Object { -not $effectPolicies.ContainsKey($_) })
@@ -808,6 +889,8 @@ function Merge-SchemaPackSemanticDeclarations {
         effect_policies=$effectPolicies
         effect_incompatibilities=$effectIncompatibilities
         state_change_profiles=$stateChangeProfiles
+        state_profiles=$stateProfiles
+        state_kind_profiles=$stateKindProfiles
         owners=$owners
     }
 }

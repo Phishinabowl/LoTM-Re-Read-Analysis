@@ -154,14 +154,14 @@ deferred at the stabilization gate.
 
 - [x] Decide that epistemic acquisition and practiced capability reuse one structural
   subject-state transition spine but require separate bounded versions and semantics.
-- [ ] Define core typed state profiles and pack-owned state-kind mappings that declare which
+- [x] Define core typed state profiles and pack-owned state-kind mappings that declare which
   availability, completeness, and attitude dimensions each state kind uses.
-- [ ] Distinguish knowledge, memory, awareness, belief, and non-epistemic physical state without
+- [x] Distinguish knowledge, memory, awareness, belief, and non-epistemic physical state without
   treating a subject's state as objective truth.
-- [ ] Give completeness explicit prior and resulting values, and separate discrete or gradual
+- [x] Give completeness explicit prior and resulting values, and separate discrete or gradual
   change shape from direct, external, conditional, inferred, merged, synchronized, dream,
   prophecy, revelation, and timeline-reconciliation mechanisms.
-- [ ] Preserve acquisition, retention, loss, restoration, invalidation, contradiction, source
+- [x] Preserve acquisition, retention, loss, restoration, invalidation, contradiction, source
   evidence, and applicability without inferring them from chronology or occurrence participation.
 - [ ] Model Loki's progressively completed and retained engineering understanding across Loom
   attempts without labeling it proficiency or quantified expertise.

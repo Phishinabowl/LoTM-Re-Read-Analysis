@@ -180,7 +180,7 @@ def main() -> int:
         continuity_ids=set(),
     )
     fixture_path = fixture_root / "valid-registry.yaml"
-    fixture_data = load_yaml_file(fixture_path, "occurrence fixture", expected_schema_version=7)
+    fixture_data = load_yaml_file(fixture_path, "occurrence fixture", expected_schema_version=8)
     fixture = parse_occurrence_registry(
         fixture_data,
         fixture_path,
@@ -335,6 +335,21 @@ def main() -> int:
         subject_type, subject_id = key.split("|", 1)
         if ids(fixture.state_transitions_for_subject(subject_type, subject_id)) != expected:
             raise AssertionError(f"Unexpected state transitions for `{key}`.")
+    state_transitions = {transition.id: transition for transition in fixture.state_transitions}
+    for transition_id, expected in expectations["state_snapshots"].items():
+        transition = state_transitions[transition_id]
+        actual = [
+            transition.state_profile,
+            transition.change_shape,
+            transition.prior_availability,
+            transition.resulting_availability,
+            transition.prior_completeness,
+            transition.resulting_completeness,
+            transition.prior_attitude,
+            transition.resulting_attitude,
+        ]
+        if actual != expected:
+            raise AssertionError(f"Unexpected state snapshot for `{transition_id}`: {actual}")
     for track_id, occurrence_id, payload_type, payload_id, state_kind, expected in expectations["state_at"]:
         state = fixture.state_at(track_id, occurrence_id, payload_type, payload_id, state_kind)
         if (state.id if state else None) != expected:
@@ -672,6 +687,7 @@ def main() -> int:
             + len(expectations["resolved_effects"])
             + len(expectations["trace_dispositions"])
             + len(expectations["subject_state_transitions"])
+            + len(expectations["state_snapshots"])
             + len(expectations["state_at"])
             + 18
         ),

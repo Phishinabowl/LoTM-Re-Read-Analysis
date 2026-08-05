@@ -230,6 +230,8 @@ def summarize(composition: Composition) -> dict:
                 "effect_policies": len(packs.effect_policies),
                 "effect_incompatibilities": len(packs.effect_incompatibilities),
                 "state_change_profiles": len(packs.state_change_profiles),
+                "state_profiles": len(packs.state_profiles),
+                "state_kind_profiles": len(packs.state_kind_profiles),
             },
         },
         "counts": {

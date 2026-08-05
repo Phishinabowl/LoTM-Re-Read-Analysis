@@ -355,6 +355,25 @@
           ]
         }
       ]
+    },
+    {
+      "id": "knowledge-completeness-primary",
+      "claim_key": "protagonist-inner-step-knowledge-complete",
+      "subject_type": "state-transition",
+      "subject_id": "protagonist-completes-inner-step-knowledge",
+      "claim_namespace": "canonical-content",
+      "field_path": "resulting_completeness",
+      "asserted_value": "complete",
+      "assertion_status": "verified",
+      "evidence_links": [
+        {
+          "source_id": "primary-source",
+          "evidence_role": "supports",
+          "locators": [
+            {"id": "knowledge-completeness-locator", "medium_id": "novel", "evidence_mode": "canonical-text", "locator_type": "point", "position": {"work": "primary-work", "volume": 1, "chapter": 1}}
+          ]
+        }
+      ]
     }
   ]
 }

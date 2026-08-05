@@ -1,6 +1,6 @@
 schema_version: 3
 pack_id: core
-pack_version: 33
+pack_version: 34
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -310,12 +310,16 @@ controlled_values:
     - invalidate
   state.mechanism:
     - direct
-    - continuous
     - external
     - inferred
     - conditional
     - merged
     - synchronized
+  state.change-shape:
+    - discrete
+    - gradual
+    - aggregate
+    - unknown
   state.availability-status:
     - unavailable
     - latent
@@ -510,6 +514,28 @@ semantic_declarations:
       - members: [advance-iteration, terminate-recurrence]
         scope: same-target
   state:
+    profiles:
+      - profile_id: availability-state
+        availability: required
+        completeness: forbidden
+        attitude: forbidden
+      - profile_id: epistemic-access
+        availability: required
+        completeness: required
+        attitude: forbidden
+      - profile_id: epistemic-belief
+        availability: required
+        completeness: forbidden
+        attitude: required
+    kind_profiles:
+      - state_kind: generic-state
+        profile_id: availability-state
+      - state_kind: context
+        profile_id: availability-state
+      - state_kind: configuration
+        profile_id: availability-state
+      - state_kind: evidence
+        profile_id: availability-state
     change_profiles:
       - change_kind: acquired
         change_profile: acquire

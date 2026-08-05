@@ -1,4 +1,4 @@
-$script:SupportedOccurrenceSchemaVersion = 7
+$script:SupportedOccurrenceSchemaVersion = 8
 $script:OccurrenceStableIdPattern = '^[a-z0-9]+(?:-[a-z0-9]+)*$'
 
 function Get-RequiredOccurrenceString {
@@ -1143,8 +1143,8 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
     )
     Assert-KnowledgeMapKeys $Data $rootKeys 'Occurrence registry root'
     $schemaVersion = Get-ProjectMapValue $Data 'schema_version'
-    if ($schemaVersion -isnot [int] -or $schemaVersion -ne 7) {
-        throw "Unsupported occurrence schema_version '$schemaVersion'; expected 7."
+    if ($schemaVersion -isnot [int] -or $schemaVersion -ne 8) {
+        throw "Unsupported occurrence schema_version '$schemaVersion'; expected 8."
     }
 
     $rawBranches = Get-ProjectMapValue $Data 'branches'
@@ -2554,12 +2554,14 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
             'state_kind'
             'change_kind'
             'change_profile'
+            'change_shape'
             'mechanism'
             'prior_availability'
             'resulting_availability'
             'prior_attitude'
             'resulting_attitude'
-            'completeness'
+            'prior_completeness'
+            'resulting_completeness'
             'activation_occurrence_id'
             'condition_rule_id'
             'track_ids'
@@ -2600,6 +2602,8 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
         }
         $stateKind = Get-RequiredOccurrenceString $item 'state_kind' $context
         Assert-OccurrencePackValue $SchemaPacks 'state.state-kind' $stateKind "$context.state_kind"
+        $stateProfileId = $SchemaPacks.state_kind_profiles[$stateKind]
+        $stateProfile = $SchemaPacks.state_profiles[$stateProfileId]
         $changeKind = Get-RequiredOccurrenceString $item 'change_kind' $context
         Assert-OccurrencePackValue $SchemaPacks 'state.change-kind' $changeKind "$context.change_kind"
         $profile = Get-RequiredOccurrenceString $item 'change_profile' $context
@@ -2607,6 +2611,8 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
         if (-not $SchemaPacks.state_change_profiles.ContainsKey($changeKind) -or $SchemaPacks.state_change_profiles[$changeKind] -cne $profile) {
             throw "$context.change_kind/change_profile is not a declared typed mapping."
         }
+        $changeShape = Get-RequiredOccurrenceString $item 'change_shape' $context
+        Assert-OccurrencePackValue $SchemaPacks 'state.change-shape' $changeShape "$context.change_shape"
         $mechanism = Get-RequiredOccurrenceString $item 'mechanism' $context
         Assert-OccurrencePackValue $SchemaPacks 'state.mechanism' $mechanism "$context.mechanism"
         $prior = Get-RequiredOccurrenceString $item 'prior_availability' $context
@@ -2640,14 +2646,33 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
         $priorAttitude = Get-OptionalOccurrenceString $item 'prior_attitude' $context
         $resultAttitude = Get-OptionalOccurrenceString $item 'resulting_attitude' $context
         if (($null -eq $priorAttitude) -ne ($null -eq $resultAttitude)) {
-            throw "$context must set both epistemic attitudes, or neither."
+            throw "$context must set both prior and resulting attitude, or neither."
+        }
+        if ($stateProfile.attitude -ceq 'required' -and $null -eq $priorAttitude) {
+            throw "$context state profile requires prior and resulting attitude."
+        }
+        if ($stateProfile.attitude -ceq 'forbidden' -and $null -ne $priorAttitude) {
+            throw "$context state profile forbids prior and resulting attitude."
         }
         if ($null -ne $priorAttitude) {
             Assert-OccurrencePackValue $SchemaPacks 'state.epistemic-attitude' $priorAttitude "$context.prior_attitude"
             Assert-OccurrencePackValue $SchemaPacks 'state.epistemic-attitude' $resultAttitude "$context.resulting_attitude"
         }
-        $completeness = Get-RequiredOccurrenceString $item 'completeness' $context
-        Assert-OccurrencePackValue $SchemaPacks 'state.completeness' $completeness "$context.completeness"
+        $priorCompleteness = Get-OptionalOccurrenceString $item 'prior_completeness' $context
+        $resultCompleteness = Get-OptionalOccurrenceString $item 'resulting_completeness' $context
+        if (($null -eq $priorCompleteness) -ne ($null -eq $resultCompleteness)) {
+            throw "$context must set both prior and resulting completeness, or neither."
+        }
+        if ($stateProfile.completeness -ceq 'required' -and $null -eq $priorCompleteness) {
+            throw "$context state profile requires prior and resulting completeness."
+        }
+        if ($stateProfile.completeness -ceq 'forbidden' -and $null -ne $priorCompleteness) {
+            throw "$context state profile forbids prior and resulting completeness."
+        }
+        if ($null -ne $priorCompleteness) {
+            Assert-OccurrencePackValue $SchemaPacks 'state.completeness' $priorCompleteness "$context.prior_completeness"
+            Assert-OccurrencePackValue $SchemaPacks 'state.completeness' $resultCompleteness "$context.resulting_completeness"
+        }
         $activationId = Get-RequiredOccurrenceString $item 'activation_occurrence_id' $context
         if (-not $occurrences.Contains($activationId)) {
             throw "$context.activation_occurrence_id references unknown occurrence '$activationId'."
@@ -2721,14 +2746,17 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
             $payloadType
             $payloadId
             $stateKind
+            $stateProfileId
             $changeKind
             $profile
+            $changeShape
             $mechanism
             $prior
             $result
             $priorAttitude
             $resultAttitude
-            $completeness
+            $priorCompleteness
+            $resultCompleteness
             $activationId
             $conditionRuleId
             (@($trackIds | Sort-Object) -join ',')
@@ -2742,14 +2770,17 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
             payload_target_type=$payloadType
             payload_target_id=$payloadId
             state_kind=$stateKind
+            state_profile=$stateProfileId
             change_kind=$changeKind
             change_profile=$profile
+            change_shape=$changeShape
             mechanism=$mechanism
             prior_availability=$prior
             resulting_availability=$result
             prior_attitude=$priorAttitude
             resulting_attitude=$resultAttitude
-            completeness=$completeness
+            prior_completeness=$priorCompleteness
+            resulting_completeness=$resultCompleteness
             activation_occurrence_id=$activationId
             condition_rule_id=$conditionRuleId
             track_ids=$trackIds
@@ -2775,7 +2806,11 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
                 if ($ordered[$i - 1].activation_occurrence_id -ceq $ordered[$i].activation_occurrence_id) {
                     throw "State chain on track '$($track.id)' has multiple transitions at one occurrence."
                 }
-                if ($ordered[$i - 1].resulting_availability -cne $ordered[$i].prior_availability -or $ordered[$i - 1].resulting_attitude -cne $ordered[$i].prior_attitude) {
+                if (
+                    $ordered[$i - 1].resulting_availability -cne $ordered[$i].prior_availability -or
+                    $ordered[$i - 1].resulting_attitude -cne $ordered[$i].prior_attitude -or
+                    $ordered[$i - 1].resulting_completeness -cne $ordered[$i].prior_completeness
+                ) {
                     throw "State transition '$($ordered[$i].id)' does not continue '$($ordered[$i-1].id)'."
                 }
             }
@@ -2895,7 +2930,7 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
         }
     }
     return [pscustomobject]@{path=$Path
-        schema_version=7
+        schema_version=8
         chronology=$Chronology
         branches=$branches
         branch_state_transitions=@($branchStateTransitions)
@@ -2924,6 +2959,6 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
 
 function Get-KnowledgeOccurrenceRegistry {
     param([object]$Project, [object]$SchemaPacks, [object]$Chronology, [System.Collections.IDictionary]$SubjectTargets = $null, [System.Collections.IDictionary]$PayloadTargets = $null)
-    $data = ConvertFrom-KnowledgeYamlFile $Project.occurrences_registry 7 'occurrence registry'
+    $data = ConvertFrom-KnowledgeYamlFile $Project.occurrences_registry 8 'occurrence registry'
     return ConvertTo-KnowledgeOccurrenceRegistry $data $Project.occurrences_registry $SchemaPacks $Chronology $SubjectTargets $PayloadTargets
 }

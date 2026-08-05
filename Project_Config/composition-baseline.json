@@ -16,15 +16,15 @@
     "sources": 18,
     "chronology": 2,
     "entities": 4,
-    "occurrences": 7,
+    "occurrences": 8,
     "reconciliation": 4,
     "provenance": 3
   },
   "packs": {
     "selection_order": ["core", "narrative-media", "narrative-publishing", "narrative-screen-audio", "narrative-adaptation", "narrative-distribution", "narrative-production", "narrative-shared-universe"],
     "versions": {
-      "core": 33,
-      "narrative-media": 23,
+      "core": 34,
+      "narrative-media": 24,
       "narrative-publishing": 10,
       "narrative-screen-audio": 11,
       "narrative-adaptation": 10,
@@ -36,8 +36,8 @@
     "available_capabilities": 119,
     "enabled_capabilities": 119,
     "disabled_capability_ids": ["contributor-credits", "crossover-events", "editorial-assembly", "live-performance-productions", "migration-services", "performance-events", "publication-runs", "rights-grants-and-restrictions", "textual-witnesses"],
-    "controlled_value_namespaces": 126,
-    "controlled_values": 972,
+    "controlled_value_namespaces": 127,
+    "controlled_values": 976,
     "semantic_declarations": {
       "transition_profiles": 9,
       "outcome_incompatibilities": 4,
@@ -45,7 +45,9 @@
       "rule_effect_compatibilities": 4,
       "effect_policies": 4,
       "effect_incompatibilities": 1,
-      "state_change_profiles": 9
+      "state_change_profiles": 9,
+      "state_profiles": 3,
+      "state_kind_profiles": 9
     }
   },
   "counts": {

@@ -1,6 +1,6 @@
 schema_version: 3
 pack_id: narrative-media
-pack_version: 23
+pack_version: 24
 lifecycle: active
 pack_kind: domain
 label: Narrative Media Foundation
@@ -8,7 +8,7 @@ description: Domain-neutral narrative works, media facets, ordering, continuitie
 
 dependencies:
   - pack_id: core
-    minimum_version: 33
+    minimum_version: 34
 
 capabilities:
   - franchises
@@ -83,6 +83,7 @@ controlled_values:
     - physical-state
   state.mechanism:
     - recovered-memory
+    - merged-memory
     - dream
     - prophecy
     - revelation
@@ -347,3 +348,15 @@ semantic_declarations:
         transition_profile: recurrence-exit
     outcome_incompatibilities:
       - members: [died, survived]
+  state:
+    kind_profiles:
+      - state_kind: memory
+        profile_id: epistemic-access
+      - state_kind: knowledge
+        profile_id: epistemic-access
+      - state_kind: awareness
+        profile_id: epistemic-access
+      - state_kind: belief
+        profile_id: epistemic-belief
+      - state_kind: physical-state
+        profile_id: availability-state

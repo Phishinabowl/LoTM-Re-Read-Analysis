@@ -318,6 +318,13 @@ function Assert-ProvenanceFixtureServices {
     if ($trackEntry.participation_id -cne $participation.id -or [int]$trackEntry.ordinal -ne 14) {
         throw 'Occurrence-track-entry provenance target lookup changed.'
     }
+    $state = Get-KnowledgeProvenanceTarget `
+        $Registry `
+        'state-transition' `
+        'protagonist-completes-inner-step-knowledge'
+    if ($state.state_profile -cne 'epistemic-access' -or $state.resulting_completeness -cne 'complete') {
+        throw 'Epistemic state-transition provenance target lookup changed.'
+    }
     $exact = Get-KnowledgeProvenanceApplicabilityDecision `
         $Registry `
         'provenance-claim' `
@@ -479,7 +486,7 @@ try {
     $chronologyFixture = ConvertTo-KnowledgeChronologyRegistry `
         $chronologyFixtureData $chronologyFixturePath $packs @('fixture-work') @()
     $occurrenceFixturePath = Join-Path $Root 'Framework\Data\Occurrence\valid-registry.yaml'
-    $occurrenceFixtureData = ConvertFrom-KnowledgeYamlFile $occurrenceFixturePath 7 'occurrence fixture'
+    $occurrenceFixtureData = ConvertFrom-KnowledgeYamlFile $occurrenceFixturePath 8 'occurrence fixture'
     $subjectTargets = [ordered]@{character = @('protagonist', 'observer') }
     $payloadTargets = [ordered]@{'state-record' = @('protagonist-health') }
     $fixtureOccurrences = ConvertTo-KnowledgeOccurrenceRegistry `

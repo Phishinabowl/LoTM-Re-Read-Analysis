@@ -206,6 +206,9 @@ def assert_services(registry) -> None:
     track_entry = registry.provenance_target("occurrence-track-entry", "protagonist-entry-14")
     if track_entry.participation_id != participation.id or track_entry.ordinal != 14:
         raise AssertionError("Occurrence-track-entry provenance target lookup changed.")
+    state = registry.provenance_target("state-transition", "protagonist-completes-inner-step-knowledge")
+    if state.state_profile != "epistemic-access" or state.resulting_completeness != "complete":
+        raise AssertionError("Epistemic state-transition provenance target lookup changed.")
     exact = registry.applicability_decision("provenance-claim", "reported-alpha-name")
     if exact.winning_scope_ids != ("reported-alpha-name-scope",) or exact.highest_precedence != 20:
         raise AssertionError("Provenance-claim applicability resolution changed.")
@@ -355,7 +358,7 @@ def main() -> int:
         )
         occurrence_fixture_path = root / "Framework" / "Data" / "Occurrence" / "valid-registry.yaml"
         fixture_occurrences = parse_occurrence_registry(
-            load_yaml_file(occurrence_fixture_path, "occurrence fixture", expected_schema_version=7),
+            load_yaml_file(occurrence_fixture_path, "occurrence fixture", expected_schema_version=8),
             occurrence_fixture_path,
             packs,
             chronology_fixture,

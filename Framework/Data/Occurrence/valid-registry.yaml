@@ -1,4 +1,4 @@
-schema_version: 7
+schema_version: 8
 
 branches:
   main:
@@ -62,7 +62,7 @@ branch_state_transitions:
     change_kind: prune
     prior_state: active
     resulting_state: pruned
-    activation_occurrence_id: self-intervention
+    activation_occurrence_id: after-loop
     trigger_transition_id: null
     certainty: exact
   - id: changed-outcome-transferred
@@ -82,7 +82,7 @@ branch_state_transitions:
     change_kind: restore
     prior_state: transferred
     resulting_state: restored
-    activation_occurrence_id: restored-main
+    activation_occurrence_id: after-loop
     trigger_transition_id: null
     certainty: exact
   - id: changed-outcome-merged
@@ -1205,12 +1205,14 @@ state_transitions:
     state_kind: memory
     change_kind: acquired
     change_profile: acquire
+    change_shape: discrete
     mechanism: direct
     prior_availability: unavailable
     resulting_availability: available
-    prior_attitude: unaware
-    resulting_attitude: aware
-    completeness: complete
+    prior_attitude: null
+    resulting_attitude: null
+    prior_completeness: none
+    resulting_completeness: complete
     activation_occurrence_id: bell-one
     condition_rule_id: null
     track_ids:
@@ -1225,13 +1227,111 @@ state_transitions:
     state_kind: knowledge
     change_kind: acquired
     change_profile: acquire
+    change_shape: discrete
     mechanism: direct
     prior_availability: unavailable
-    resulting_availability: available
-    prior_attitude: unaware
-    resulting_attitude: aware
-    completeness: complete
+    resulting_availability: partial
+    prior_attitude: null
+    resulting_attitude: null
+    prior_completeness: none
+    resulting_completeness: partial
     activation_occurrence_id: inner-step-one
+    condition_rule_id: null
+    track_ids:
+      - protagonist-experience
+    source_targets: []
+    certainty: exact
+  - id: protagonist-completes-inner-step-knowledge
+    subject_type: character
+    subject_id: protagonist
+    payload_target_type: occurrence
+    payload_target_id: inner-step-one
+    state_kind: knowledge
+    change_kind: derived
+    change_profile: derive
+    change_shape: gradual
+    mechanism: inferred
+    prior_availability: partial
+    resulting_availability: available
+    prior_attitude: null
+    resulting_attitude: null
+    prior_completeness: partial
+    resulting_completeness: complete
+    activation_occurrence_id: after-loop
+    condition_rule_id: null
+    track_ids:
+      - protagonist-experience
+    source_targets:
+      - id: inner-step-one-contribution
+        target_type: occurrence
+        target_id: inner-step-one
+        role: contributor
+      - id: inner-step-two-contribution
+        target_type: occurrence
+        target_id: inner-step-two
+        role: contributor
+    certainty: exact
+  - id: protagonist-becomes-aware-of-intervention
+    subject_type: character
+    subject_id: protagonist
+    payload_target_type: occurrence
+    payload_target_id: self-intervention
+    state_kind: awareness
+    change_kind: acquired
+    change_profile: acquire
+    change_shape: discrete
+    mechanism: revelation
+    prior_availability: unavailable
+    resulting_availability: available
+    prior_attitude: null
+    resulting_attitude: null
+    prior_completeness: none
+    resulting_completeness: complete
+    activation_occurrence_id: after-loop
+    condition_rule_id: null
+    track_ids:
+      - protagonist-experience
+    source_targets: []
+    certainty: exact
+  - id: protagonist-accepts-bell-claim
+    subject_type: character
+    subject_id: protagonist
+    payload_target_type: occurrence-template
+    payload_target_id: bell
+    state_kind: belief
+    change_kind: acquired
+    change_profile: acquire
+    change_shape: gradual
+    mechanism: inferred
+    prior_availability: latent
+    resulting_availability: available
+    prior_attitude: uncertain
+    resulting_attitude: accepts-true
+    prior_completeness: null
+    resulting_completeness: null
+    activation_occurrence_id: after-loop
+    condition_rule_id: null
+    track_ids:
+      - protagonist-experience
+    source_targets: []
+    certainty: exact
+  - id: protagonist-revises-bell-belief
+    subject_type: character
+    subject_id: protagonist
+    payload_target_type: occurrence-template
+    payload_target_id: bell
+    state_kind: belief
+    change_kind: retained
+    change_profile: preserve
+    change_shape: discrete
+    mechanism: external
+    prior_availability: available
+    resulting_availability: available
+    prior_attitude: accepts-true
+    resulting_attitude: accepts-false
+    prior_completeness: null
+    resulting_completeness: null
+    activation_occurrence_id: restored-main
     condition_rule_id: null
     track_ids:
       - protagonist-experience
@@ -1245,12 +1345,14 @@ state_transitions:
     state_kind: physical-state
     change_kind: acquired
     change_profile: acquire
+    change_shape: discrete
     mechanism: direct
     prior_availability: unavailable
     resulting_availability: available
     prior_attitude: null
     resulting_attitude: null
-    completeness: complete
+    prior_completeness: null
+    resulting_completeness: null
     activation_occurrence_id: wake-one
     condition_rule_id: null
     track_ids:

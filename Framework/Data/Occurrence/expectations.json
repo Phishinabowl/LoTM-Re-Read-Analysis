@@ -118,14 +118,31 @@
     "character|protagonist": [
       "protagonist-acquires-bell-memory",
       "protagonist-acquires-inner-step-knowledge",
+      "protagonist-completes-inner-step-knowledge",
+      "protagonist-becomes-aware-of-intervention",
+      "protagonist-accepts-bell-claim",
+      "protagonist-revises-bell-belief",
       "protagonist-acquires-health-state"
     ]
+  },
+  "state_snapshots": {
+    "protagonist-acquires-bell-memory": ["epistemic-access", "discrete", "unavailable", "available", "none", "complete", null, null],
+    "protagonist-acquires-inner-step-knowledge": ["epistemic-access", "discrete", "unavailable", "partial", "none", "partial", null, null],
+    "protagonist-completes-inner-step-knowledge": ["epistemic-access", "gradual", "partial", "available", "partial", "complete", null, null],
+    "protagonist-becomes-aware-of-intervention": ["epistemic-access", "discrete", "unavailable", "available", "none", "complete", null, null],
+    "protagonist-accepts-bell-claim": ["epistemic-belief", "gradual", "latent", "available", null, null, "uncertain", "accepts-true"],
+    "protagonist-revises-bell-belief": ["epistemic-belief", "discrete", "available", "available", null, null, "accepts-true", "accepts-false"],
+    "protagonist-acquires-health-state": ["availability-state", "discrete", "unavailable", "available", null, null, null, null]
   },
   "state_at": [
     ["protagonist-experience", "wake-one", "occurrence-template", "bell", "memory", null],
     ["protagonist-experience", "bell-one", "occurrence-template", "bell", "memory", "protagonist-acquires-bell-memory"],
     ["protagonist-experience", "wake-two", "occurrence-template", "bell", "memory", "protagonist-acquires-bell-memory"],
     ["protagonist-experience", "bell-two", "occurrence", "inner-step-one", "knowledge", null],
-    ["protagonist-experience", "inner-step-one", "occurrence", "inner-step-one", "knowledge", "protagonist-acquires-inner-step-knowledge"]
+    ["protagonist-experience", "inner-step-one", "occurrence", "inner-step-one", "knowledge", "protagonist-acquires-inner-step-knowledge"],
+    ["protagonist-experience", "wake-three", "occurrence", "inner-step-one", "knowledge", "protagonist-acquires-inner-step-knowledge"],
+    ["protagonist-experience", "after-loop", "occurrence", "inner-step-one", "knowledge", "protagonist-completes-inner-step-knowledge"],
+    ["protagonist-experience", "after-loop", "occurrence-template", "bell", "belief", "protagonist-accepts-bell-claim"],
+    ["protagonist-experience", "restored-main", "occurrence-template", "bell", "belief", "protagonist-revises-bell-belief"]
   ]
 }

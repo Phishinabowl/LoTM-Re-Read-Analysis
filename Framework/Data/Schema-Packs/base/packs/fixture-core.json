@@ -29,7 +29,8 @@
     ],
     "occurrence.rule-kind": ["add", "set"],
     "occurrence.rule-effect-kind": ["add-state", "set-state"],
-    "occurrence.rule-effect-target-type": ["subject"]
+    "occurrence.rule-effect-target-type": ["subject"],
+    "state.state-kind": ["fixture-state"]
   },
   "semantic_declarations": {
     "occurrence": {
@@ -47,6 +48,25 @@
       ],
       "effect_incompatibilities": [
         {"members": ["add-state", "set-state"], "scope": "global"}
+      ]
+    },
+    "state": {
+      "profiles": [
+        {
+          "profile_id": "fixture-availability",
+          "availability": "required",
+          "completeness": "forbidden",
+          "attitude": "forbidden"
+        },
+        {
+          "profile_id": "fixture-dormant-access",
+          "availability": "required",
+          "completeness": "required",
+          "attitude": "forbidden"
+        }
+      ],
+      "kind_profiles": [
+        {"state_kind": "fixture-state", "profile_id": "fixture-availability"}
       ]
     }
   }
