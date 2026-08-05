@@ -26,7 +26,7 @@ From V30 onward, update this file as part of each version. Follow the lifecycle 
 - **V7-V15:** Evidence, authority, production context, scope, and applicability
 - **V16-V23:** Entity identity and cross-registry provenance/reconciliation
 - **V24-V27:** Deterministic configuration ingestion
-- **V28-V40:** Civil time, general chronology, occurrence/recurrence integrity, subject-state acquisition, deterministic recurrence policy, extensible semantic resolution, aggregate cardinality, and participation identity
+- **V28-V42:** Civil time, general chronology, occurrence/recurrence integrity, subject-state acquisition, deterministic recurrence policy, extensible semantic resolution, aggregate cardinality, participation identity, chronology-context topology, and timeline-branch lifecycle
 
 ### Marker Conventions
 
@@ -1408,3 +1408,27 @@ V41 intentionally does not model branch creation, pruning, restoration, transfer
 ### V42 Recommendation
 
 V42 should be **Timeline-Branch Lifecycle**. It should give branches provenance-backed state histories such as emerging, active, pruned, transferred, restored, merged, preserved, and inactive; preserve lineage, continuity membership, applicability, and state at a requested boundary; and model the TVA's pruning, restoration, preservation, and final replacement structure without collapsing branches into one chronology. Source-control branches, environment promotion, alternate histories, and scientific experiment branches should provide the cross-domain pressure cases. Knowledge, memory, skill, and expertise acquisition remain a separate later capability.
+
+## V42 - Timeline-Branch Lifecycle
+
+**Implemented by:** `8aaedc0` (`Implement V42 timeline branch lifecycle`)
+
+**Proposed testing:** `CONF-STRICT-INGESTION`, `CONF-PACK-COMPOSITION`, `CONF-CHRONOLOGY`, `CONF-OCCURRENCE`, `CONF-SOURCE`, `CONF-PROVENANCE`, `CONF-PROJECT-COMPOSITION`, `PARITY-THREE-RUNTIME`, `PARITY-STRUCTURED-OUTPUT`, `COMPAT-VISUALIZATION`, `COMPAT-QA`, `COMPAT-RENDER`, `COMPAT-ROOT-DISCOVERY`, `COMPAT-ARTIFACT-LIFECYCLE`, `COMPAT-FRAMEWORK-EXTRACTION`, `STATIC-POWERSHELL`, `STATIC-PYTHON`, `STATIC-WORK-ANNOTATIONS`, `STATIC-GITHUB-ACTIONS`, `SCENARIO-LOKI`, `PRESSURE-TEMPORAL-TOPOLOGY`, `PRESSURE-EVIDENCE-AUTHORITY`, `PRESSURE-LAYER-PORTABILITY`, `PRESSURE-ADVERSARIAL`, `PRESSURE-CROSS-DOMAIN`, and `PRESSURE-SCALE`.
+
+**Proposed candidates:** Loki's branching timelines, TVA pruning, restored and preserved branches, and final replacement structure; source-control branch creation, archival, restoration, and merge; environment creation, deactivation, promotion, rollback, and preservation; alternate-history branches; and scientific experiment branches with retained lineage.
+
+**Superseded assumption:** Stable branch identity, parent/fork lineage, and a mutable current status or deletion are sufficient to describe branch history.
+
+**Architectural promotion:** Append-only branch lifecycle, continuity membership, and deterministic state-at-lifecycle-boundary queries move into core. Narrative-media owns only narrative-specific lifecycle vocabulary such as pruning.
+
+V42 advances the occurrence registry to schema 7. Branch identity remains stable and acyclic. Optional continuity memberships resolve against the source registry only during composed project loading. Separate branch-state transitions preserve a contiguous branch-local history with explicit prior and resulting states, activation occurrences, and optional occurrence-transition triggers. A child branch begins through its recorded fork trigger, merge state changes require a merge trigger, and lifecycle records remain independently addressable by provenance.
+
+Branch lifecycle order is not chronology. Its positive ordinal is local to one branch, zero means before any recorded state, and an omitted boundary means the latest state. Chronology continues to own temporal comparison; provenance continues to own evidence, authority, supersession, and source or reader applicability. Core registers generic lifecycle vocabulary while packs add domain-specific states and changes without requiring every project to support them.
+
+The paired runtimes must reject unknown branches, continuity memberships, states, changes, activation occurrences, and triggers; noncontiguous ordinals; broken prior/resulting state chains; trigger endpoint mismatches; and child branches whose first lifecycle record is disconnected from the fork that created them. Permanent probes include deterministic boundary queries, 116 malformed mutations, source-continuity composition closure, one provenance-backed branch-state claim, and a generated 128-transition branch history.
+
+V42 does not model knowledge, awareness, memory, skill, proficiency, or accumulated expertise. It does not infer lifecycle transitions from chronology, source continuity, or a domain label. Those remain explicit, provenance-backed project claims and later bounded capabilities.
+
+## Testing After V42
+
+Pending implementation confirmation and pressure testing.
