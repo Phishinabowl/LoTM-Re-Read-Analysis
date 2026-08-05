@@ -148,7 +148,7 @@ deferred at the stabilization gate.
   structure without collapsing branches into one chronology.
 - [x] Replay source-control branches, environment promotion, alternate histories, and scientific
   experiment branches.
-- [ ] Complete the version's lifecycle, confirmation, pressure test, and evolution closure.
+- [x] Complete the version's lifecycle, confirmation, pressure test, and evolution closure.
 
 ### Phase 1.7 Knowledge, Skill, And Acquisition Progression
 
