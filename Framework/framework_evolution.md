@@ -1641,3 +1641,65 @@ Civil-calendar schedules remain intentionally bounded to years 0001-9999, while 
 ### Phase 1 Decision
 
 Phase 1 passes its exit gate. No V37/V38 integrity defect or V39-V44 composition defect blocks the effective project schema service. The retained Loki and Derrick scenarios pass without invented chronology cycles, occurrence duplication, unsupported numeric precision, or silent state transfer. No V45 is justified by this stabilization round. The accepted next step is Phase 2, **Effective Project Schema Service**, beginning with Phase 2.1's domain-neutral `EffectiveProjectSchema` contract.
+
+## Post-Stabilization Pressure Expansion
+
+After the Phase 1.9 record was confirmed, five externally source-grounded probes deliberately widened the candidate portfolio beyond the Loki and Derrick temporal cases. The prior exit decision remains the correct result for the portfolio executed at that gate; these later findings reopen Phase 1 rather than rewriting the historical result.
+
+Source grounding used Shane Carruth's explanation that *Primer* intentionally withholds information unavailable to Abe and Aaron; Eric Heisserer's *Arrival* screenplay and its future Shang disclosure; Christopher Nolan's discussion of *Memento* as an organically unreliable narrator supported by visual and documentary memory aids; the official *Doctor Who* River Song profile's reverse-order meetings; and the *Westworld* creators' and cast's discussion of copied Dolores identities occupying different Host bodies. Exact future implementation probes must retain those evidence boundaries and must not substitute fan reconstruction for source-established mechanics.
+
+### Primer: Deliberately Ambiguous Chronology
+
+The current model can preserve uncertain bounds, incomparable positions, absent exact relations, competing provenance assertions, and explicit unresolved authority. It therefore represents that chronology is unknown. It cannot yet preserve several named, internally coherent structural reconstructions and query each one without either inserting every candidate relation into canonical chronology or flattening the interpretations into opaque assertion values.
+
+This is a reusable gap rather than a Primer-only convenience. IT incident analysis, medical differential diagnosis, legal or investigative reconstruction, and scientific causal modeling also need candidate structures that share canonical records while remaining explicitly hypothetical. Interpretation membership must not establish truth, source priority, continuity, branch identity, or canonical chronology.
+
+**Result:** partially supported; requires a bounded structural-interpretation capability.
+
+### Arrival: Backward Causal Knowledge
+
+The current separation passes this probe. The future Shang conversation remains a future occurrence. Louise's present acquisition of its information is a present epistemic-state transition with the future occurrence as a source and causal contributor. Her present call can help cause the later conversation, producing a legal causal cycle while both occurrence positions remain unchanged and chronology remains acyclic. Nonlinear access does not make every coordinate system comparable.
+
+**Result:** supported; retained as a regression control for structural interpretations and participant-relative chronology.
+
+### Memento: Fundamentally Unreliable Subjective Memory
+
+The current model separates objective occurrence chronology, presentation order, Leonard's subjective track, memory availability and completeness, belief attitude, documentary aids, manipulation, and provenance-backed truth. A memory may be fully available to Leonard while its content remains disputed, false, confabulated, or contradicted. The epistemic record states what Leonard can access or believes; it does not certify the payload.
+
+The later normalized-content and relationship work must preserve stable proposition targets so memories and beliefs can address claims such as an alleged killer relationship rather than only an entity or occurrence. V45 must also prove that competing event reconstructions can reuse those targets without making either interpretation canonical.
+
+**Result:** core epistemic semantics supported; retained as an ambiguity, payload-target, and reconstruction control.
+
+### Doctor Who: Participant-Relative Chronology
+
+Occurrence bindings and independent tracks can currently place one shared meeting on several chronology axes. The remaining defect is association: one `occurrence_participation` carries only one chronology-context reference, while occurrence bindings do not identify which position applies to which participant. A Doctor/River meeting can therefore list both personal positions, but a query cannot distinguish the Doctor-relative binding from the River-relative binding without applying every occurrence position to both participants or inventing duplicate participations.
+
+The same problem occurs in distributed systems when one operation participates in event time, processing time, ingestion time, business time, and observer-local time. The required service is a stable many-to-many binding from participation or track entry to existing occurrence chronology bindings. It must not create precedence, and it should provide a deterministic boundary for state changes during repeated visits to one occurrence.
+
+**Result:** partially supported; requires participant-relative chronology bindings.
+
+### Westworld: Hosted Identity And Embodiment
+
+Entities, continuity-bound incarnations, identity phases, cloning, derivation, and reconciliation can distinguish several Westworld identity relationships. They do not own a body or carrier independently from the identity occupying it, record multiple active or dormant identities in one carrier, move one control unit or identity across carriers, identify the active controller at a boundary, or distinguish copied identities that diverge after transfer.
+
+Treating a Host body as an incarnation or every persona as an identity phase would erase the distinction among persistent identity, physical or virtual carrier, occupancy, control, copying, and divergence. The same need appears outside narrative media in software processes and containers, agents and runtimes, avatars, simulations, and other systems where logical identity and execution carrier are independent.
+
+**Result:** unsupported without approximation; requires a bounded hosted-identity and embodiment capability.
+
+### Durable Testing Promotion
+
+The methodology now retains `SCENARIO-PRIMER`, `SCENARIO-ARRIVAL`, `SCENARIO-MEMENTO`, `SCENARIO-DOCTOR-WHO`, and `SCENARIO-WESTWORLD`. It also adds `PRESSURE-STRUCTURAL-INTERPRETATION`, `PRESSURE-PARTICIPANT-CHRONOLOGY`, and `PRESSURE-HOSTED-IDENTITY` so these discoveries survive context loss and future candidate rotation. Each family includes cross-domain controls and explicit ownership questions rather than relying on a work title as a test specification.
+
+A follow-up audit of the older candidate catalog found four composed regressions that likewise should not depend on candidate rotation. `SCENARIO-PARODY-DERIVATION` preserves the paired parody tests that exposed V13's separation of lineage, production, rights, and legal status. `SCENARIO-SERIALIZED-ADAPTATION` preserves the irregular serialization, manifestation, mapping, and distribution combinations that drove V3-V7. `SCENARIO-CONTINUITY-IDENTITY` preserves the reboot, counterpart, recast, regeneration, mantle, clone, composite, and crossover distinctions that drove V16-V18. `SCENARIO-TEXTUAL-TRADITION` preserves the work, evidence artifact, edition, compilation, posthumous publication, editorial reconstruction, and competing-text questions represented by Tolkien's legendarium and provides an additional V45 ambiguity control.
+
+These four scenarios retain stable structural questions, not unverified franchise lore. Concrete title-specific claims remain conceptual until source-grounded, and the serialized scenario deliberately rotates an additional work so permanent coverage does not become overfit to one publication ecosystem.
+
+### Revised Phase 1 Recommendation
+
+Phase 1 reopens for three bounded versions followed by another stabilization gate:
+
+1. V45 should implement **Competing Structural Interpretations** without moving evidence authority out of provenance or candidate edges into canonical chronology.
+2. V46 should implement **Participation Chronology Bindings** and close participant-relative state boundaries without duplicating occurrences or participations.
+3. V47 should implement **Hosted Identity And Embodiment** while preserving the existing entity, incarnation, phase, relationship, occurrence, state, and reconciliation ownership boundaries.
+
+Phase 1.13 should then replay the five new V45-V47 scenarios together with Loki, Derrick, the four promoted foundational narrative scenarios, the complete permanent baseline, full project compatibility, and the retained cross-industry portfolio. Phase 2 must wait until that expanded gate either passes or explicitly defers a remaining capability with maintainer approval.

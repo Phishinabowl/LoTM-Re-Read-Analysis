@@ -73,9 +73,10 @@ remain protected.
 
 V38 is the fixed entry point to this phase, not its completion condition. Later version numbers and
 scope divisions are provisional: each preceding pressure test may split, combine, reorder, or add
-work through the normal framework improvement lifecycle. Phase 2 must not begin merely because V38
-passes. It begins after the retained Loki gaps have been implemented or explicitly reviewed and
-deferred at the stabilization gate.
+work through the normal framework improvement lifecycle. Phase 2 must not begin merely because an
+earlier stabilization gate passed. It begins only after the retained Loki and Derrick scenarios plus
+the later Primer, Arrival, Memento, Doctor Who, and Westworld probes have been implemented or
+explicitly reviewed and deferred at the expanded stabilization gate.
 
 ### Phase 1.1 V38 Definition
 
@@ -205,6 +206,86 @@ deferred at the stabilization gate.
   test obligations.
 - [x] Confirm and push the final stabilization test record.
 
+Phase 1.9 closed the known V39-V44 temporal gaps. Subsequent deliberate-ambiguity,
+participant-relative chronology, and hosted-identity probes exposed three additional reusable
+capability boundaries. The following phases reopen Phase 1 without rewriting that earlier result.
+
+### Phase 1.10 V45 Competing Structural Interpretations
+
+- [ ] Define stable hypothesis or interpretation identity without treating an interpretation as a
+  continuity, branch, source, authority rule, or canonical fact.
+- [ ] Permit named candidate structures to reference existing occurrences, chronology positions,
+  relations, branches, entities, and claims without duplicating those records.
+- [ ] Represent compatible, competing, and mutually exclusive interpretations while preserving an
+  unresolved result when evidence does not justify one winner.
+- [ ] Keep evidence, source priority, authority, supersession, and applicability in provenance rather
+  than allowing interpretation membership to establish truth.
+- [ ] Query one interpretation's internally coherent structure without injecting its ordering edges
+  into canonical chronology or weakening ordinary chronology-cycle rejection.
+- [ ] Replay Primer's deliberately unresolved chronology, Memento's competing reconstructions, and
+  the textual-tradition scenario's competing editorial or scholarly structures, then pressure-test
+  IT incident hypotheses, medical differential diagnoses, legal case theories, investigative
+  reconstructions, and scientific causal models.
+- [ ] Complete V45 implementation confirmation, pressure testing, evolution recording, and plan
+  closure through the normal framework lifecycle.
+
+### Phase 1.11 V46 Participation Chronology Bindings
+
+- [ ] Define the smallest stable many-to-many binding between an occurrence participation or track
+  entry and the occurrence chronology bindings that apply to that involvement.
+- [ ] Permit one participation to belong to multiple chronology systems without duplicating the
+  occurrence, participation, or subject.
+- [ ] Preserve participant-specific personal order, world order, presentation order, and other
+  temporal axes without applying every occurrence binding indiscriminately to every participant.
+- [ ] Retain coordinate incomparability unless ordinary chronology mappings or relations establish
+  comparison; participation bindings must never become precedence edges.
+- [ ] Review and close the participation-relative state-boundary gap for repeated visits to one
+  occurrence, using a track-entry boundary when occurrence-relative lookup is ambiguous.
+- [ ] Replay Doctor Who's Doctor/River meetings and multi-Doctor encounters, retain Arrival's
+  backward-causal knowledge as a regression control, and pressure-test distributed event,
+  processing, ingestion, business, and observer clocks.
+- [ ] Complete V46 implementation confirmation, pressure testing, evolution recording, and plan
+  closure through the normal framework lifecycle.
+
+### Phase 1.12 V47 Hosted Identity And Embodiment
+
+- [ ] Separate a stable identity-bearing subject from the physical or virtual carrier, body,
+  control unit, avatar, or runtime that hosts it.
+- [ ] Define provenance-addressable occupancy and control records with explicit activation and
+  termination boundaries plus pack-owned roles such as active, dormant, co-resident, or controlling.
+- [ ] Permit multiple identities or personas to occupy one carrier and one identity to move or copy
+  across carriers without silently asserting identity continuity, equivalence, or replacement.
+- [ ] Reuse entity incarnation, identity phase, cloning, derivation, reconciliation, occurrence, and
+  state services instead of duplicating their ownership inside the hosting contract.
+- [ ] Preserve carrier lifecycle independently from hosted-identity lifecycle and make current
+  occupant/controller queries deterministic at an explicit boundary.
+- [ ] Replay Westworld's Dolores/Wyatt states, pearls, Host bodies, copied Dolores identities, and
+  divergence; retain the continuity/identity scenario as a regression against collapsing hosting
+  into incarnation or counterpart identity; then pressure-test software processes and containers,
+  agents and runtimes, avatars, simulations, and carefully bounded medical identity/carrier cases.
+- [ ] Complete V47 implementation confirmation, pressure testing, evolution recording, and plan
+  closure through the normal framework lifecycle.
+
+### Phase 1.13 Expanded Stabilization Pressure Test
+
+- [ ] Replay the complete retained Loki and Derrick scenarios with V39-V47 active together.
+- [ ] Replay Primer, Arrival, Memento, Doctor Who, and Westworld through their stable scenario IDs.
+- [ ] Replay the retained parody/derivation, continuity/identity, serialized-adaptation, and
+  textual-tradition scenarios so the expanded temporal work remains compatible with the earlier
+  narrative architecture it builds upon.
+- [ ] Exercise competing structures, backward causal knowledge, unreliable memory, multi-context
+  participation, hosted identity, aggregate recurrence, branch lifecycle, and state progression in
+  composed rather than isolated probes.
+- [ ] Run the complete cumulative conformance baseline in all three runtimes, full-release project
+  compatibility, static policy, retained cross-industry matrices, adversarial cases, and scale tests.
+- [ ] Confirm that canonical chronology remains acyclic and that hypotheses, causality,
+  participation bindings, identity hosting, recurrence, and context topology retain separate typed
+  ownership.
+- [ ] Record every remaining limitation as supported, explicitly deferred, or outside the intended
+  framework boundary and update the durable methodology when new obligations emerge.
+- [ ] Decide whether another narrowly scoped framework version is required or Phase 2 may begin.
+- [ ] Confirm and push the expanded stabilization test record.
+
 ### Phase 1 Exit Gate
 
 - [x] No known V37/V38 semantic defect blocks higher-level schema composition.
@@ -216,7 +297,16 @@ deferred at the stabilization gate.
   separated into a later capability with maintainer approval.
 - [x] The retained Loki and Derrick scenarios pass without invented chronology cycles, occurrence
   duplication, unsupported precision, or silent state transfer.
-- [x] Framework evolution identifies the accepted next version or Phase 2 handoff.
+- [ ] Competing structural interpretations are preserved without contaminating canonical chronology.
+- [ ] One participation can bind to every applicable chronology system without duplication or
+  participant ambiguity.
+- [ ] Hosted identities, carriers, co-occupancy, transfer, copying, and divergence have explicit
+  ownership without overloading incarnations or identity phases.
+- [ ] Primer, Arrival, Memento, Doctor Who, and Westworld pass their retained scenario questions.
+- [ ] Parody/derivation, continuity/identity, serialized adaptation, and textual tradition pass their
+  retained scenario questions without weakening their earlier ownership boundaries.
+- [ ] Framework evolution identifies the accepted next version or Phase 2 handoff after the expanded
+  stabilization gate.
 
 ## Phase 2: Effective Project Schema Service
 
