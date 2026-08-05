@@ -79,11 +79,11 @@ deferred at the stabilization gate.
 
 ### Phase 1.1 V38 Definition
 
-- [ ] Re-enter framework improvement mode through the lifecycle document.
-- [ ] Recover the confirmed V37 implementation and testing state.
-- [ ] Define V38 around typed effect semantics and fail-closed execution.
-- [ ] Include the two retained V37 declaration defects and conflict-wide execution behavior.
-- [ ] Select required conformance, parity, compatibility, and pressure-test coverage before editing.
+- [x] Re-enter framework improvement mode through the lifecycle document.
+- [x] Recover the confirmed V37 implementation and testing state.
+- [x] Define V38 around typed effect semantics and fail-closed execution.
+- [x] Include the two retained V37 declaration defects and conflict-wide execution behavior.
+- [x] Select required conformance, parity, compatibility, and pressure-test coverage before editing.
 
 ### Phase 1.2 V38 Implementation And Closure
 
