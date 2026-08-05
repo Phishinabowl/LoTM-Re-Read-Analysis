@@ -550,12 +550,12 @@ function Resolve-KnowledgeRecurrenceRuleEffects {
             target_id=$effect.target_id
             repetition_policy=$policy
             contribution_count=$count
-            execution_count=$executionCount
+            proposed_execution_count=$executionCount
             contributing_rule_ids=@($members | ForEach-Object { $_.rule_id })
             contributing_effect_ids=@($members | ForEach-Object { $_.effect.id })
         }
     }
-    return [pscustomobject]@{effects=@($resolved)
+    return [pscustomobject]@{proposed_effects=@($resolved)
         conflicts=@($conflicts | Sort-Object -Unique)
     }
 }
@@ -567,11 +567,11 @@ function Get-KnowledgeResolvedEffectConflicts {
         for ($rightIndex = $leftIndex + 1; $rightIndex -lt $kinds.Count; $rightIndex++) {
             $left = [string]$kinds[$leftIndex]
             $right = [string]$kinds[$rightIndex]
-            $pair = "$left-with-$right"
-            if (@($Registry.effect_global_incompatibility_pairs) -ccontains $pair) {
+            $pair = "$left|$right"
+            if ($Registry.effect_global_incompatibility_pairs.ContainsKey($pair)) {
                 $conflicts += "$left conflicts with $right globally"
             }
-            if (@($Registry.effect_same_target_incompatibility_pairs) -ccontains $pair) {
+            if ($Registry.effect_same_target_incompatibility_pairs.ContainsKey($pair)) {
                 foreach ($leftEffect in @($Effects | Where-Object { $_.effect_kind -ceq $left })) {
                     foreach ($rightEffect in @($Effects | Where-Object { $_.effect_kind -ceq $right })) {
                         if ($leftEffect.target_type -ceq $rightEffect.target_type -and $leftEffect.target_id -ceq $rightEffect.target_id) {
@@ -695,7 +695,7 @@ function Get-KnowledgeRecurrenceRuleEvaluation {
         }
     }
     $resolution = Resolve-KnowledgeRecurrenceRuleEffects $Registry $selected
-    $effects = @($resolution.effects)
+    $effects = @($resolution.proposed_effects)
     $conflicts += @($resolution.conflicts)
     $conflicts += @(Get-KnowledgeResolvedEffectConflicts $Registry $effects)
     foreach ($rule in $selected) {
@@ -724,11 +724,25 @@ function Get-KnowledgeRecurrenceRuleEvaluation {
     else {
         'no-match'
     }
+    $executionDisposition = @{
+        conflict='blocked-conflict'
+        selected='authorized'
+        indeterminate='blocked-indeterminate'
+        'no-match'='not-applicable'
+    }[$status]
+    $authorizedEffects = if ($executionDisposition -ceq 'authorized') {
+        @($effects)
+    }
+    else {
+        @()
+    }
     return [pscustomobject]@{status=$status
         recurrence_id=$RecurrenceId
         occurrence_id=$OccurrenceId
         selected_rule_ids=$selectedIds
-        effects=@($effects)
+        proposed_effects=@($effects)
+        authorized_effects=@($authorizedEffects)
+        execution_disposition=$executionDisposition
         conflicts=$conflicts
         traces=$traces
     }
@@ -1407,7 +1421,9 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
         Assert-OccurrencePackValue $SchemaPacks 'occurrence.transition-kind' $kind "$context.transition_kind"
         $profile = Get-RequiredOccurrenceString $item 'transition_profile' $context
         Assert-OccurrencePackValue $SchemaPacks 'occurrence.transition-profile' $profile "$context.transition_profile"
-        Assert-OccurrencePackValue $SchemaPacks 'occurrence.transition-kind-profile' "$kind-uses-$profile" "$context.transition_kind/transition_profile"
+        if (-not $SchemaPacks.transition_profiles.ContainsKey($kind) -or $SchemaPacks.transition_profiles[$kind] -cne $profile) {
+            throw "$context.transition_kind/transition_profile is not a declared typed mapping."
+        }
         $recurrenceId = Get-OptionalOccurrenceString $item 'recurrence_id' $context
         if ($null -ne $recurrenceId -and -not $recurrences.Contains($recurrenceId)) {
             throw "$context.recurrence_id references unknown recurrence '$recurrenceId'."
@@ -1570,8 +1586,8 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
                 $a.result_target_id -ceq $b.result_target_id
             ) {
                 $pair = @([string]$a.outcome_kind, [string]$b.outcome_kind) | Sort-Object
-                $pairId = "$($pair[0])-with-$($pair[1])"
-                if (@(Get-SchemaPackAllowedValues $SchemaPacks 'occurrence.outcome-incompatibility-pair') -ccontains $pairId) {
+                $pairId = "$($pair[0])|$($pair[1])"
+                if ($SchemaPacks.outcome_incompatibilities.ContainsKey($pairId)) {
                     throw "Outcome '$($b.id)' kind '$($b.outcome_kind)' is incompatible with outcome '$($a.id)' kind '$($a.outcome_kind)'."
                 }
             }
@@ -1852,8 +1868,12 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
             Assert-OccurrencePackValue $SchemaPacks 'occurrence.rule-effect-kind' $effectKind "$context.effects.effect_kind"
             $targetType = Get-RequiredOccurrenceString $effect 'target_type' "$context.effects"
             $targetId = Get-RequiredOccurrenceString $effect 'target_id' "$context.effects"
-            Assert-OccurrencePackValue $SchemaPacks 'occurrence.rule-effect-kind-target-type' "$effectKind-uses-$targetType" "$context.effects.effect_kind/target_type"
-            Assert-OccurrencePackValue $SchemaPacks 'occurrence.rule-kind-effect-kind' "$kind-uses-$effectKind" "$context.effects.rule_kind/effect_kind"
+            if (-not $SchemaPacks.effect_target_compatibilities.ContainsKey("$effectKind|$targetType")) {
+                throw "$context.effects.effect_kind/target_type is not a declared typed compatibility."
+            }
+            if (-not $SchemaPacks.rule_effect_compatibilities.ContainsKey("$kind|$effectKind")) {
+                throw "$context.effects.rule_kind/effect_kind is not a declared typed compatibility."
+            }
             $effectTargetArguments = @(
                 $targetType
                 $targetId
@@ -1875,13 +1895,8 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
                 throw "$context effect references unknown target '$targetType`:$targetId'."
             }
             if ($targetType -ceq 'recurrence-pattern') {
-                $owningScope = "$effectKind-uses-owning-pattern"
-                $externalScope = "$effectKind-allows-external-pattern"
-                $declaredScopes = @(@($owningScope, $externalScope) | Where-Object { @(Get-SchemaPackAllowedValues $SchemaPacks 'occurrence.rule-effect-pattern-scope') -ccontains $_ })
-                if ($declaredScopes.Count -ne 1) {
-                    throw "$context.effects requires exactly one declared recurrence-pattern target scope for effect kind '$effectKind'."
-                }
-                if ($declaredScopes -ccontains $owningScope -and $targetId -cne $patternId) {
+                $declaredScope = $SchemaPacks.effect_policies[$effectKind].recurrence_pattern_scope
+                if ($declaredScope -ceq 'owning-pattern' -and $targetId -cne $patternId) {
                     throw "$context.effects effect kind '$effectKind' must target owning pattern '$patternId'."
                 }
             }
@@ -2039,7 +2054,9 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
         Assert-OccurrencePackValue $SchemaPacks 'state.change-kind' $changeKind "$context.change_kind"
         $profile = Get-RequiredOccurrenceString $item 'change_profile' $context
         Assert-OccurrencePackValue $SchemaPacks 'state.change-profile' $profile "$context.change_profile"
-        Assert-OccurrencePackValue $SchemaPacks 'state.change-kind-profile' "$changeKind-uses-$profile" "$context.change_kind/change_profile"
+        if (-not $SchemaPacks.state_change_profiles.ContainsKey($changeKind) -or $SchemaPacks.state_change_profiles[$changeKind] -cne $profile) {
+            throw "$context.change_kind/change_profile is not a declared typed mapping."
+        }
         $mechanism = Get-RequiredOccurrenceString $item 'mechanism' $context
         Assert-OccurrencePackValue $SchemaPacks 'state.mechanism' $mechanism "$context.mechanism"
         $prior = Get-RequiredOccurrenceString $item 'prior_availability' $context
@@ -2311,13 +2328,17 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
         }
     }
     $repetitionPolicies = [ordered]@{}
-    $repetitionDeclarations = @(Get-SchemaPackAllowedValues $SchemaPacks 'occurrence.rule-effect-repetition-policy')
-    foreach ($effectKind in @(Get-SchemaPackAllowedValues $SchemaPacks 'occurrence.rule-effect-kind')) {
-        foreach ($policy in @('idempotent', 'accumulating', 'invalid')) {
-            if ($repetitionDeclarations -ccontains "$effectKind-uses-$policy") {
-                $repetitionPolicies[$effectKind] = $policy
-                break
-            }
+    foreach ($effectKind in $SchemaPacks.effect_policies.Keys) {
+        $repetitionPolicies[$effectKind] = $SchemaPacks.effect_policies[$effectKind].repetition_policy
+    }
+    $globalIncompatibilities = @{}
+    $sameTargetIncompatibilities = @{}
+    foreach ($pairKey in $SchemaPacks.effect_incompatibilities.Keys) {
+        if ($SchemaPacks.effect_incompatibilities[$pairKey] -ceq 'global') {
+            $globalIncompatibilities[$pairKey] = $true
+        }
+        else {
+            $sameTargetIncompatibilities[$pairKey] = $true
         }
     }
     return [pscustomobject]@{path=$Path
@@ -2338,8 +2359,8 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
         rules=@($rules)
         state_transitions=@($states)
         carryovers=@($carryovers)
-        effect_global_incompatibility_pairs=@(Get-SchemaPackAllowedValues $SchemaPacks 'occurrence.rule-effect-global-incompatibility-pair')
-        effect_same_target_incompatibility_pairs=@(Get-SchemaPackAllowedValues $SchemaPacks 'occurrence.rule-effect-same-target-incompatibility-pair')
+        effect_global_incompatibility_pairs=$globalIncompatibilities
+        effect_same_target_incompatibility_pairs=$sameTargetIncompatibilities
         effect_repetition_policies=$repetitionPolicies
     }
 }

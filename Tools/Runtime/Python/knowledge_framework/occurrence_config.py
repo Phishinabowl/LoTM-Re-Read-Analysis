@@ -187,7 +187,7 @@ class ResolvedRuleEffect:
     target_id: str
     repetition_policy: str
     contribution_count: int
-    execution_count: int
+    proposed_execution_count: int
     contributing_rule_ids: tuple[str, ...]
     contributing_effect_ids: tuple[str, ...]
 
@@ -231,7 +231,9 @@ class RuleEvaluation:
     recurrence_id: str
     occurrence_id: str
     selected_rule_ids: tuple[str, ...]
-    effects: tuple[ResolvedRuleEffect, ...]
+    proposed_effects: tuple[ResolvedRuleEffect, ...]
+    authorized_effects: tuple[ResolvedRuleEffect, ...]
+    execution_disposition: str
     conflicts: tuple[str, ...]
     traces: tuple[RuleEvaluationTrace, ...]
 
@@ -297,8 +299,8 @@ class OccurrenceRegistry:
     rules: tuple[RecurrenceRule, ...]
     state_transitions: tuple[StateTransition, ...]
     carryovers: tuple[IterationCarryover, ...]
-    effect_global_incompatibility_pairs: frozenset[str]
-    effect_same_target_incompatibility_pairs: frozenset[str]
+    effect_global_incompatibility_pairs: frozenset[tuple[str, str]]
+    effect_same_target_incompatibility_pairs: frozenset[tuple[str, str]]
     effect_repetition_policies: dict[str, str]
 
     def occurrences_for_iteration(self, iteration_id: str) -> tuple[Occurrence, ...]:
@@ -951,12 +953,8 @@ def parse_occurrence_registry(
         _value(packs, "occurrence.transition-kind", kind, f"{context}.transition_kind")
         profile = _string(item, "transition_profile", context)
         _value(packs, "occurrence.transition-profile", profile, f"{context}.transition_profile")
-        _value(
-            packs,
-            "occurrence.transition-kind-profile",
-            f"{kind}-uses-{profile}",
-            f"{context}.transition_kind/transition_profile",
-        )
+        if packs.transition_profiles.get(kind) != profile:
+            raise ValueError(f"{context}.transition_kind/transition_profile is not a declared typed mapping.")
         recurrence_id = _optional_string(item, "recurrence_id", context)
         if recurrence_id is not None and recurrence_id not in recurrences:
             raise ValueError(f"{context}.recurrence_id references unknown recurrence `{recurrence_id}`.")
@@ -1277,18 +1275,10 @@ def parse_occurrence_registry(
             _value(packs, "occurrence.rule-effect-kind", effect_kind, f"{effect_context}.effect_kind")
             target_type = _stable(_string(effect, "target_type", effect_context), f"{effect_context}.target_type")
             target_id = _stable(_string(effect, "target_id", effect_context), f"{effect_context}.target_id")
-            _value(
-                packs,
-                "occurrence.rule-effect-kind-target-type",
-                f"{effect_kind}-uses-{target_type}",
-                f"{effect_context}.effect_kind/target_type",
-            )
-            _value(
-                packs,
-                "occurrence.rule-kind-effect-kind",
-                f"{rule_kind}-uses-{effect_kind}",
-                f"{effect_context}.rule_kind/effect_kind",
-            )
+            if (effect_kind, target_type) not in packs.effect_target_compatibilities:
+                raise ValueError(f"{effect_context}.effect_kind/target_type is not a declared typed compatibility.")
+            if (rule_kind, effect_kind) not in packs.rule_effect_compatibilities:
+                raise ValueError(f"{effect_context}.rule_kind/effect_kind is not a declared typed compatibility.")
             if target_id not in _target_ids(
                 target_type,
                 branches,
@@ -1306,19 +1296,8 @@ def parse_occurrence_registry(
             ):
                 raise ValueError(f"{effect_context} references unknown target `{target_type}:{target_id}`.")
             if target_type == "recurrence-pattern":
-                owning_scope = f"{effect_kind}-uses-owning-pattern"
-                external_scope = f"{effect_kind}-allows-external-pattern"
-                declared_scopes = {
-                    value
-                    for value in (owning_scope, external_scope)
-                    if value in packs.allowed_values("occurrence.rule-effect-pattern-scope")
-                }
-                if len(declared_scopes) != 1:
-                    raise ValueError(
-                        f"{effect_context} requires exactly one declared recurrence-pattern target scope "
-                        f"for effect kind `{effect_kind}`."
-                    )
-                if owning_scope in declared_scopes and target_id != pattern_id:
+                declared_scope = packs.effect_policies[effect_kind].recurrence_pattern_scope
+                if declared_scope == "owning-pattern" and target_id != pattern_id:
                     raise ValueError(
                         f"{effect_context} effect kind `{effect_kind}` must target owning pattern `{pattern_id}`."
                     )
@@ -1451,12 +1430,8 @@ def parse_occurrence_registry(
         _value(packs, "state.change-kind", change_kind, f"{context}.change_kind")
         change_profile = _string(item, "change_profile", context)
         _value(packs, "state.change-profile", change_profile, f"{context}.change_profile")
-        _value(
-            packs,
-            "state.change-kind-profile",
-            f"{change_kind}-uses-{change_profile}",
-            f"{context}.change_kind/change_profile",
-        )
+        if packs.state_change_profiles.get(change_kind) != change_profile:
+            raise ValueError(f"{context}.change_kind/change_profile is not a declared typed mapping.")
         mechanism = _string(item, "mechanism", context)
         _value(packs, "state.mechanism", mechanism, f"{context}.mechanism")
         prior = _string(item, "prior_availability", context)
@@ -1634,8 +1609,8 @@ def parse_occurrence_registry(
         tuple(rules),
         tuple(states),
         tuple(carryovers),
-        frozenset(packs.allowed_values("occurrence.rule-effect-global-incompatibility-pair")),
-        frozenset(packs.allowed_values("occurrence.rule-effect-same-target-incompatibility-pair")),
+        frozenset(pair for pair, scope in packs.effect_incompatibilities.items() if scope == "global"),
+        frozenset(pair for pair, scope in packs.effect_incompatibilities.items() if scope == "same-target"),
         _effect_repetition_policies(packs),
     )
 
@@ -1892,8 +1867,7 @@ def _add_civil_interval(value: str, unit: str, offset: int) -> str:
 def _outcomes_incompatible(packs: SchemaPackRegistry, left: str, right: str) -> bool:
     if left == right:
         return False
-    pair = "-with-".join(sorted((left, right)))
-    return pair in packs.allowed_values("occurrence.outcome-incompatibility-pair")
+    return tuple(sorted((left, right))) in packs.outcome_incompatibilities
 
 
 def _parse_rule_applicability(
@@ -2297,14 +2271,7 @@ def _effect_signature(rule: RecurrenceRule) -> tuple[tuple[str, str, str], ...]:
 
 
 def _effect_repetition_policies(packs: SchemaPackRegistry) -> dict[str, str]:
-    declarations = set(packs.allowed_values("occurrence.rule-effect-repetition-policy"))
-    policies: dict[str, str] = {}
-    for effect_kind in packs.allowed_values("occurrence.rule-effect-kind"):
-        for policy in ("idempotent", "accumulating", "invalid"):
-            if f"{effect_kind}-uses-{policy}" in declarations:
-                policies[effect_kind] = policy
-                break
-    return policies
+    return {effect_kind: declaration.repetition_policy for effect_kind, declaration in packs.effect_policies.items()}
 
 
 def _resolve_effects(
@@ -2319,9 +2286,9 @@ def _resolve_effects(
     for (effect_kind, target_type, target_id), contributions in sorted(grouped.items()):
         policy = repetition_policies[effect_kind]
         count = len(contributions)
-        execution_count = count if policy == "accumulating" else 1
+        proposed_execution_count = count if policy == "accumulating" else 1
         if policy == "invalid" and count > 1:
-            execution_count = 0
+            proposed_execution_count = 0
             conflicts.add(f"duplicate {effect_kind} effect on {target_type}:{target_id} is invalid")
         resolved.append(
             ResolvedRuleEffect(
@@ -2330,7 +2297,7 @@ def _resolve_effects(
                 target_id,
                 policy,
                 count,
-                execution_count,
+                proposed_execution_count,
                 tuple(rule_id for rule_id, _ in contributions),
                 tuple(effect.id for _, effect in contributions),
             )
@@ -2343,7 +2310,7 @@ def _effect_conflicts(registry: OccurrenceRegistry, effects: tuple[ResolvedRuleE
     kinds = sorted({item.effect_kind for item in effects})
     for index, left in enumerate(kinds):
         for right in kinds[index + 1 :]:
-            pair = f"{left}-with-{right}"
+            pair = (left, right)
             if pair in registry.effect_global_incompatibility_pairs:
                 conflicts.add(f"{left} conflicts with {right} globally")
             if pair in registry.effect_same_target_incompatibility_pairs:
@@ -2472,12 +2439,21 @@ def _evaluate_rules(
         for rule in sorted(registry.rules_for_pattern(recurrence.pattern_id), key=lambda item: item.id)
     )
     status = "conflict" if conflicts else "selected" if selected else "indeterminate" if indeterminate else "no-match"
+    execution_disposition = {
+        "conflict": "blocked-conflict",
+        "selected": "authorized",
+        "indeterminate": "blocked-indeterminate",
+        "no-match": "not-applicable",
+    }[status]
+    authorized_effects = effects if execution_disposition == "authorized" else ()
     return RuleEvaluation(
         status,
         recurrence_id,
         occurrence_id,
         tuple(sorted(selected_by_id)),
         effects,
+        authorized_effects,
+        execution_disposition,
         tuple(sorted(conflicts)),
         traces,
     )

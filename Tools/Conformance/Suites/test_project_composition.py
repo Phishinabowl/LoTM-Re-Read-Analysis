@@ -208,6 +208,15 @@ def summarize(composition: Composition) -> dict:
             "disabled_capability_ids": sorted(set(packs.declared_capabilities) - set(packs.enabled_capabilities)),
             "controlled_value_namespaces": len(packs.controlled_values),
             "controlled_values": sum(len(values) for values in packs.controlled_values.values()),
+            "semantic_declarations": {
+                "transition_profiles": len(packs.transition_profiles),
+                "outcome_incompatibilities": len(packs.outcome_incompatibilities),
+                "effect_target_compatibilities": len(packs.effect_target_compatibilities),
+                "rule_effect_compatibilities": len(packs.rule_effect_compatibilities),
+                "effect_policies": len(packs.effect_policies),
+                "effect_incompatibilities": len(packs.effect_incompatibilities),
+                "state_change_profiles": len(packs.state_change_profiles),
+            },
         },
         "counts": {
             "taxonomy": {

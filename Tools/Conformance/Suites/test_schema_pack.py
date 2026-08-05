@@ -91,6 +91,10 @@ def assert_valid_fixture(registry, expected: dict) -> None:
         raise AssertionError("Planned schema-pack capability became enabled.")
     if not registry.capability_available("deprecated-capability"):
         raise AssertionError("Deprecated schema-pack capability lost compatibility availability.")
+    semantic = expected["semantic_declarations"]
+    for field, expected_count in semantic.items():
+        if len(getattr(registry, field)) != expected_count:
+            raise AssertionError(f"Schema-pack typed semantic count changed for `{field}`.")
 
 
 def write_scale_fixture(root: Path, pack_count: int) -> Path:
@@ -106,7 +110,7 @@ def write_scale_fixture(root: Path, pack_count: int) -> Path:
         selections.append({"pack_id": pack_id, "path": f"packs/{filename}"})
         enabled.append(capability)
         pack = {
-            "schema_version": 2,
+            "schema_version": 3,
             "pack_id": pack_id,
             "pack_version": 1,
             "lifecycle": "active",
@@ -130,6 +134,46 @@ def write_scale_fixture(root: Path, pack_count: int) -> Path:
     return registry_path
 
 
+def assert_typed_delimiter_collision(project, base_root: Path, temp_root: Path) -> int:
+    collision_root = temp_root / "delimiter-collision"
+    shutil.copytree(base_root, collision_root)
+    core_path = collision_root / "packs" / "fixture-core.json"
+    core = json.loads(core_path.read_text(encoding="utf-8"))
+    effect_kinds = ["a", "a-with-b", "b-with-c", "c"]
+    core["controlled_values"]["occurrence.rule-effect-kind"].extend(effect_kinds)
+    semantics = core["semantic_declarations"]["occurrence"]
+    semantics["effect_target_compatibilities"].extend(
+        {"effect_kind": effect_kind, "target_type": "subject"} for effect_kind in effect_kinds
+    )
+    semantics["rule_effect_compatibilities"].extend(
+        {"rule_kind": "add", "effect_kind": effect_kind} for effect_kind in effect_kinds
+    )
+    semantics["effect_policies"].extend(
+        {"effect_kind": effect_kind, "repetition_policy": "idempotent"} for effect_kind in effect_kinds
+    )
+    semantics["effect_incompatibilities"].extend(
+        (
+            {"members": ["a", "b-with-c"], "scope": "global"},
+            {"members": ["a-with-b", "c"], "scope": "same-target"},
+        )
+    )
+    write_json(core_path, core)
+    collision_project = replace(
+        project,
+        root=collision_root,
+        schema_packs_registry=collision_root / "registry.json",
+    )
+    registry = load_schema_pack_registry(collision_project)
+    expected = {
+        ("a", "b-with-c"): "global",
+        ("a-with-b", "c"): "same-target",
+    }
+    actual = {pair: registry.effect_incompatibilities[pair] for pair in expected}
+    if actual != expected:
+        raise AssertionError("Typed delimiter-collision declarations did not remain distinct.")
+    return len(expected)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run schema-pack composition conformance tests.")
     parser.add_argument("--root", type=Path, help="Project root; auto-detected when omitted.")
@@ -151,6 +195,7 @@ def main() -> int:
         valid_project = replace(project, root=valid_root, schema_packs_registry=valid_root / "registry.json")
         fixture_registry = load_schema_pack_registry(valid_project)
         assert_valid_fixture(fixture_registry, expectations["valid"])
+        typed_collision_pairs = assert_typed_delimiter_collision(project, base_root, temp_root)
 
         for case in expectations["invalid_cases"]:
             case_root = temp_root / case["id"]
@@ -193,6 +238,7 @@ def main() -> int:
         "fixture_controlled_values": sum(len(values) for values in fixture_registry.controlled_values.values()),
         "invalid_composition_cases": len(expectations["invalid_cases"]),
         "scale_pack_count": scale_count,
+        "typed_collision_pairs": typed_collision_pairs,
     }
     if args.json:
         print(json.dumps(summary, sort_keys=True, separators=(",", ":")))

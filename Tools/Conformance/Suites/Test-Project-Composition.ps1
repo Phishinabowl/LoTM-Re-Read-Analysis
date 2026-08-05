@@ -250,6 +250,15 @@ function Get-ProjectCompositionSummary {
             disabled_capability_ids = @($disabledCapabilities)
             controlled_value_namespaces = $packs.controlled_values.Count
             controlled_values = $controlledValueCount
+            semantic_declarations = [ordered]@{
+                transition_profiles = $packs.transition_profiles.Count
+                outcome_incompatibilities = $packs.outcome_incompatibilities.Count
+                effect_target_compatibilities = $packs.effect_target_compatibilities.Count
+                rule_effect_compatibilities = $packs.rule_effect_compatibilities.Count
+                effect_policies = $packs.effect_policies.Count
+                effect_incompatibilities = $packs.effect_incompatibilities.Count
+                state_change_profiles = $packs.state_change_profiles.Count
+            }
         }
         counts = [ordered]@{
             taxonomy = [ordered]@{

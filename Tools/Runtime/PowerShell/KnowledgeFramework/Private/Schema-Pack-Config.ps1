@@ -1,9 +1,23 @@
 $script:SupportedSchemaPackRegistryVersion = 2
-$script:SupportedSchemaPackVersion = 2
+$script:SupportedSchemaPackVersion = 3
 $script:AllowedSchemaPackLifecycles = @("active", "deferred")
 $script:AllowedSchemaPackKinds = @("core", "domain", "extension")
 $script:AllowedCapabilityLifecycles = @("available", "planned", "deprecated")
 $script:SchemaPackNamespacePattern = "^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)+$"
+$script:LegacyCompoundSemanticNamespaces = @(
+    'occurrence.transition-kind-profile'
+    'occurrence.outcome-incompatibility-pair'
+    'occurrence.rule-effect-kind-target-type'
+    'occurrence.rule-kind-effect-kind'
+    'occurrence.rule-effect-pattern-scope'
+    'occurrence.rule-effect-repetition-policy'
+    'occurrence.rule-effect-global-incompatibility-pair'
+    'occurrence.rule-effect-same-target-incompatibility-pair'
+    'state.change-kind-profile'
+)
+$script:EffectRepetitionPolicies = @('idempotent', 'accumulating', 'invalid')
+$script:EffectPatternScopes = @('owning-pattern', 'external-pattern')
+$script:EffectIncompatibilityScopes = @('global', 'same-target')
 
 function Get-RequiredSchemaPackString {
     param([object]$Map, [string]$Key, [string]$Context)
@@ -75,6 +89,200 @@ function Resolve-SchemaPackPath {
     return $path
 }
 
+function Get-SchemaPackSemanticRows {
+    param([System.Collections.IDictionary]$Map, [string]$Key, [string]$Context)
+
+    if (-not $Map.Contains($Key)) {
+        return @()
+    }
+    $value = Get-ProjectMapValue $Map $Key
+    if ($null -eq $value) {
+        throw "Schema-pack configuration '$Context.$Key' must be a list."
+    }
+    return @($value)
+}
+
+function Get-SchemaPackSemanticPairMembers {
+    param([System.Collections.IDictionary]$Map, [string]$Context)
+
+    $members = @(Get-SchemaPackStringList $Map 'members' $Context)
+    if ($members.Count -ne 2) {
+        throw "Schema-pack configuration '$Context.members' must contain exactly two stable IDs."
+    }
+    foreach ($member in $members) {
+        Assert-SchemaPackStableId $member "$Context.members"
+    }
+    if ($members[0] -ceq $members[1]) {
+        throw "Schema-pack configuration '$Context.members' must contain distinct stable IDs."
+    }
+    return @($members | Sort-Object)
+}
+
+function ConvertTo-SchemaPackSemanticDeclarations {
+    param([System.Collections.IDictionary]$Pack, [string]$PackId)
+
+    $declarations = Get-ProjectMapValue $Pack 'semantic_declarations'
+    if ($null -eq $declarations) {
+        $declarations = [ordered]@{}
+    }
+    if ($declarations -isnot [System.Collections.IDictionary]) {
+        throw "Schema-pack configuration '$PackId.semantic_declarations' must be a mapping."
+    }
+    Assert-KnowledgeMapKeys $declarations @('occurrence', 'state') "Schema pack '$PackId.semantic_declarations'"
+
+    $occurrence = Get-ProjectMapValue $declarations 'occurrence'
+    if ($null -eq $occurrence) {
+        $occurrence = [ordered]@{}
+    }
+    if ($occurrence -isnot [System.Collections.IDictionary]) {
+        throw "Schema-pack configuration '$PackId.semantic_declarations.occurrence' must be a mapping."
+    }
+    $occurrenceKeys = @(
+        'transition_profiles'
+        'outcome_incompatibilities'
+        'effect_target_compatibilities'
+        'rule_effect_compatibilities'
+        'effect_policies'
+        'effect_incompatibilities'
+    )
+    Assert-KnowledgeMapKeys $occurrence $occurrenceKeys "Schema pack '$PackId.semantic_declarations.occurrence'"
+
+    $state = Get-ProjectMapValue $declarations 'state'
+    if ($null -eq $state) {
+        $state = [ordered]@{}
+    }
+    if ($state -isnot [System.Collections.IDictionary]) {
+        throw "Schema-pack configuration '$PackId.semantic_declarations.state' must be a mapping."
+    }
+    Assert-KnowledgeMapKeys $state @('change_profiles') "Schema pack '$PackId.semantic_declarations.state'"
+
+    $transitionProfiles = @()
+    $rows = @(Get-SchemaPackSemanticRows $occurrence 'transition_profiles' $PackId)
+    for ($index = 0; $index -lt $rows.Count; $index += 1) {
+        $context = "$PackId.semantic_declarations.occurrence.transition_profiles[$index]"
+        $row = $rows[$index]
+        Assert-KnowledgeMapKeys $row @('transition_kind', 'transition_profile') "Schema pack '$context'"
+        $kind = Get-RequiredSchemaPackString $row 'transition_kind' $context
+        $profile = Get-RequiredSchemaPackString $row 'transition_profile' $context
+        Assert-SchemaPackStableId $kind "$context.transition_kind"
+        Assert-SchemaPackStableId $profile "$context.transition_profile"
+        $transitionProfiles += [pscustomobject]@{transition_kind=$kind
+            transition_profile=$profile
+        }
+    }
+
+    $outcomeIncompatibilities = @()
+    $rows = @(Get-SchemaPackSemanticRows $occurrence 'outcome_incompatibilities' $PackId)
+    for ($index = 0; $index -lt $rows.Count; $index += 1) {
+        $context = "$PackId.semantic_declarations.occurrence.outcome_incompatibilities[$index]"
+        $row = $rows[$index]
+        Assert-KnowledgeMapKeys $row @('members') "Schema pack '$context'"
+        $outcomeIncompatibilities += [pscustomobject]@{
+            members = @(Get-SchemaPackSemanticPairMembers $row $context)
+        }
+    }
+
+    $targetCompatibilities = @()
+    $rows = @(Get-SchemaPackSemanticRows $occurrence 'effect_target_compatibilities' $PackId)
+    for ($index = 0; $index -lt $rows.Count; $index += 1) {
+        $context = "$PackId.semantic_declarations.occurrence.effect_target_compatibilities[$index]"
+        $row = $rows[$index]
+        Assert-KnowledgeMapKeys $row @('effect_kind', 'target_type') "Schema pack '$context'"
+        $effectKind = Get-RequiredSchemaPackString $row 'effect_kind' $context
+        $targetType = Get-RequiredSchemaPackString $row 'target_type' $context
+        Assert-SchemaPackStableId $effectKind "$context.effect_kind"
+        Assert-SchemaPackStableId $targetType "$context.target_type"
+        $targetCompatibilities += [pscustomobject]@{effect_kind=$effectKind
+            target_type=$targetType
+        }
+    }
+
+    $ruleCompatibilities = @()
+    $rows = @(Get-SchemaPackSemanticRows $occurrence 'rule_effect_compatibilities' $PackId)
+    for ($index = 0; $index -lt $rows.Count; $index += 1) {
+        $context = "$PackId.semantic_declarations.occurrence.rule_effect_compatibilities[$index]"
+        $row = $rows[$index]
+        Assert-KnowledgeMapKeys $row @('rule_kind', 'effect_kind') "Schema pack '$context'"
+        $ruleKind = Get-RequiredSchemaPackString $row 'rule_kind' $context
+        $effectKind = Get-RequiredSchemaPackString $row 'effect_kind' $context
+        Assert-SchemaPackStableId $ruleKind "$context.rule_kind"
+        Assert-SchemaPackStableId $effectKind "$context.effect_kind"
+        $ruleCompatibilities += [pscustomobject]@{rule_kind=$ruleKind
+            effect_kind=$effectKind
+        }
+    }
+
+    $effectPolicies = @()
+    $rows = @(Get-SchemaPackSemanticRows $occurrence 'effect_policies' $PackId)
+    for ($index = 0; $index -lt $rows.Count; $index += 1) {
+        $context = "$PackId.semantic_declarations.occurrence.effect_policies[$index]"
+        $row = $rows[$index]
+        Assert-KnowledgeMapKeys $row @('effect_kind', 'repetition_policy', 'recurrence_pattern_scope') "Schema pack '$context'"
+        $effectKind = Get-RequiredSchemaPackString $row 'effect_kind' $context
+        $policy = Get-RequiredSchemaPackString $row 'repetition_policy' $context
+        $scopeValue = Get-ProjectMapValue $row 'recurrence_pattern_scope'
+        $scope = if ($null -eq $scopeValue) {
+            $null
+        }
+        else {
+            ([string]$scopeValue).Trim()
+        }
+        Assert-SchemaPackStableId $effectKind "$context.effect_kind"
+        if ($script:EffectRepetitionPolicies -cnotcontains $policy) {
+            throw "Schema-pack configuration '$context.repetition_policy' is unsupported."
+        }
+        if ($null -ne $scope -and $script:EffectPatternScopes -cnotcontains $scope) {
+            throw "Schema-pack configuration '$context.recurrence_pattern_scope' is unsupported."
+        }
+        $effectPolicies += [pscustomobject]@{
+            effect_kind=$effectKind
+            repetition_policy=$policy
+            recurrence_pattern_scope=$scope
+        }
+    }
+
+    $effectIncompatibilities = @()
+    $rows = @(Get-SchemaPackSemanticRows $occurrence 'effect_incompatibilities' $PackId)
+    for ($index = 0; $index -lt $rows.Count; $index += 1) {
+        $context = "$PackId.semantic_declarations.occurrence.effect_incompatibilities[$index]"
+        $row = $rows[$index]
+        Assert-KnowledgeMapKeys $row @('members', 'scope') "Schema pack '$context'"
+        $scope = Get-RequiredSchemaPackString $row 'scope' $context
+        if ($script:EffectIncompatibilityScopes -cnotcontains $scope) {
+            throw "Schema-pack configuration '$context.scope' is unsupported."
+        }
+        $effectIncompatibilities += [pscustomobject]@{
+            members=@(Get-SchemaPackSemanticPairMembers $row $context)
+            scope=$scope
+        }
+    }
+
+    $changeProfiles = @()
+    $rows = @(Get-SchemaPackSemanticRows $state 'change_profiles' $PackId)
+    for ($index = 0; $index -lt $rows.Count; $index += 1) {
+        $context = "$PackId.semantic_declarations.state.change_profiles[$index]"
+        $row = $rows[$index]
+        Assert-KnowledgeMapKeys $row @('change_kind', 'change_profile') "Schema pack '$context'"
+        $kind = Get-RequiredSchemaPackString $row 'change_kind' $context
+        $profile = Get-RequiredSchemaPackString $row 'change_profile' $context
+        Assert-SchemaPackStableId $kind "$context.change_kind"
+        Assert-SchemaPackStableId $profile "$context.change_profile"
+        $changeProfiles += [pscustomobject]@{change_kind=$kind
+            change_profile=$profile
+        }
+    }
+
+    return [pscustomobject]@{
+        transition_profiles=@($transitionProfiles)
+        outcome_incompatibilities=@($outcomeIncompatibilities)
+        effect_target_compatibilities=@($targetCompatibilities)
+        rule_effect_compatibilities=@($ruleCompatibilities)
+        effect_policies=@($effectPolicies)
+        effect_incompatibilities=@($effectIncompatibilities)
+        state_change_profiles=@($changeProfiles)
+    }
+}
+
 function ConvertTo-SchemaPackConfig {
     param([string]$Path, [string]$ExpectedPackId)
 
@@ -93,6 +301,7 @@ function ConvertTo-SchemaPackConfig {
         "dependencies"
         "capabilities"
         "controlled_values"
+        "semantic_declarations"
     )
     Assert-KnowledgeMapKeys $pack $packKeys "Schema pack '$ExpectedPackId'"
     $schemaVersion = Get-RequiredSchemaPackPositiveInteger $pack "schema_version" $ExpectedPackId
@@ -212,6 +421,9 @@ function ConvertTo-SchemaPackConfig {
         if ($namespace -cnotmatch $script:SchemaPackNamespacePattern) {
             throw "Schema-pack controlled-value namespace must use dotted lowercase kebab-case: $namespace"
         }
+        if ($script:LegacyCompoundSemanticNamespaces -ccontains $namespace) {
+            throw "Schema-pack controlled-value namespace '$namespace' was replaced by typed semantic declarations."
+        }
         $values = @($rawControlled[$namespace])
         if ($values.Count -eq 0) {
             throw "Schema-pack configuration '$context' must be a non-empty list."
@@ -290,6 +502,7 @@ function ConvertTo-SchemaPackConfig {
         capability_definitions = $capabilityDefinitions
         controlled_values = $controlledValues
         controlled_value_definitions = $controlledValueDefinitions
+        semantic_declarations = ConvertTo-SchemaPackSemanticDeclarations $pack $packId
     }
 }
 
@@ -436,7 +649,7 @@ function Get-KnowledgeSchemaPackRegistry {
         }
     }
 
-    Assert-SchemaPackOccurrenceSemanticDeclarations $controlledValues
+    $semantics = Merge-SchemaPackSemanticDeclarations $packs $selectionOrder $controlledValues
 
     return [pscustomobject]@{
         path = $registryPath
@@ -451,80 +664,151 @@ function Get-KnowledgeSchemaPackRegistry {
         controlled_values = $controlledValues
         controlled_value_owners = $owners
         controlled_value_definitions = $definitions
+        transition_profiles = $semantics.transition_profiles
+        outcome_incompatibilities = $semantics.outcome_incompatibilities
+        effect_target_compatibilities = $semantics.effect_target_compatibilities
+        rule_effect_compatibilities = $semantics.rule_effect_compatibilities
+        effect_policies = $semantics.effect_policies
+        effect_incompatibilities = $semantics.effect_incompatibilities
+        state_change_profiles = $semantics.state_change_profiles
+        semantic_declaration_owners = $semantics.owners
     }
 }
 
-function Assert-SchemaPackOccurrenceSemanticDeclarations {
-    param([System.Collections.IDictionary]$ControlledValues)
+function Merge-SchemaPackSemanticDeclarations {
+    param(
+        [System.Collections.IDictionary]$Packs,
+        [string[]]$SelectionOrder,
+        [System.Collections.IDictionary]$ControlledValues
+    )
 
-    $effectKinds = @(
-        $ControlledValues['occurrence.rule-effect-kind'] |
-            Where-Object { $null -ne $_ }
-    )
-    if ($effectKinds.Count -eq 0) {
-        return
-    }
-    $targetPairs = @(
-        $ControlledValues['occurrence.rule-effect-kind-target-type'] |
-            Where-Object { $null -ne $_ }
-    )
-    $recurrenceEffects = @($effectKinds | Where-Object { $targetPairs -ccontains "$_-uses-recurrence-pattern" })
-    $scopeValues = @(
-        $ControlledValues['occurrence.rule-effect-pattern-scope'] |
-            Where-Object { $null -ne $_ }
-    )
-    foreach ($value in $scopeValues) {
-        $matches = @($recurrenceEffects | Where-Object { $value -ceq "$_-uses-owning-pattern" -or $value -ceq "$_-allows-external-pattern" })
-        if ($matches.Count -ne 1) {
-            throw "Schema-pack occurrence scope declaration '$value' must reference a known recurrence-pattern-capable effect kind."
-        }
-    }
-    foreach ($effect in $recurrenceEffects) {
-        $matches = @($scopeValues | Where-Object { $_ -ceq "$effect-uses-owning-pattern" -or $_ -ceq "$effect-allows-external-pattern" })
-        if ($matches.Count -ne 1) {
-            throw "Schema-pack effect kind '$effect' requires exactly one recurrence-pattern scope declaration."
+    $owners = @{}
+    $transitionProfiles = @{}
+    $outcomeIncompatibilities = @{}
+    $targetCompatibilities = @{}
+    $ruleCompatibilities = @{}
+    $effectPolicies = @{}
+    $effectIncompatibilities = @{}
+    $stateChangeProfiles = @{}
+
+    function Assert-Atom {
+        param([string]$Namespace, [string]$Value, [string]$Context)
+        if (@($ControlledValues[$Namespace]) -cnotcontains $Value) {
+            throw "Schema-pack semantic declaration '$Context' references unknown '$Namespace`:$Value'."
         }
     }
 
-    $repetitionValues = @(
-        $ControlledValues['occurrence.rule-effect-repetition-policy'] |
-            Where-Object { $null -ne $_ }
-    )
-    foreach ($value in $repetitionValues) {
-        $matches = @($effectKinds | Where-Object { $value -in @("$_-uses-idempotent", "$_-uses-accumulating", "$_-uses-invalid") })
-        if ($matches.Count -ne 1) {
-            throw "Schema-pack effect repetition declaration '$value' must reference a known effect kind."
+    function Add-DeclarationOwner {
+        param([string]$Key, [string]$PackId)
+        if ($owners.ContainsKey($Key)) {
+            throw "Schema-pack semantic declaration '$Key' is provided by both '$($owners[$Key])' and '$PackId'."
         }
-    }
-    foreach ($effect in $effectKinds) {
-        $matches = @($repetitionValues | Where-Object { $_ -in @("$effect-uses-idempotent", "$effect-uses-accumulating", "$effect-uses-invalid") })
-        if ($matches.Count -ne 1) {
-            throw "Schema-pack effect kind '$effect' requires exactly one repetition policy declaration."
-        }
+        $owners[$Key] = $PackId
     }
 
-    $canonical = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
-    $sorted = @($effectKinds | Sort-Object)
-    for ($left = 0; $left -lt $sorted.Count; $left++) {
-        for ($right = $left + 1; $right -lt $sorted.Count; $right++) {
-            $null = $canonical.Add("$($sorted[$left])-with-$($sorted[$right])")
+    foreach ($packId in $SelectionOrder) {
+        $declarations = $Packs[$packId].semantic_declarations
+        foreach ($declaration in @($declarations.transition_profiles)) {
+            $context = "$packId.transition_profiles.$($declaration.transition_kind)"
+            Assert-Atom 'occurrence.transition-kind' $declaration.transition_kind $context
+            Assert-Atom 'occurrence.transition-profile' $declaration.transition_profile $context
+            $key = "transition-profile|$($declaration.transition_kind)"
+            Add-DeclarationOwner $key $packId
+            $transitionProfiles[$declaration.transition_kind] = $declaration.transition_profile
         }
-    }
-    $global = @($ControlledValues['occurrence.rule-effect-global-incompatibility-pair'] | Where-Object { $null -ne $_ })
-    $sameTarget = @($ControlledValues['occurrence.rule-effect-same-target-incompatibility-pair'] | Where-Object { $null -ne $_ })
-    $conflictNamespaces = [ordered]@{'occurrence.rule-effect-global-incompatibility-pair'=$global
-        'occurrence.rule-effect-same-target-incompatibility-pair'=$sameTarget
-    }
-    foreach ($namespace in $conflictNamespaces.Keys) {
-        foreach ($value in @($conflictNamespaces[$namespace])) {
-            if (-not $canonical.Contains([string]$value)) {
-                throw "Schema-pack namespace '$namespace' contains a noncanonical or unknown effect pair: $value."
+        foreach ($declaration in @($declarations.outcome_incompatibilities)) {
+            foreach ($member in @($declaration.members)) {
+                Assert-Atom 'occurrence.outcome-kind' $member "$packId.outcome_incompatibilities"
             }
+            $pairKey = "$($declaration.members[0])|$($declaration.members[1])"
+            Add-DeclarationOwner "outcome-incompatibility|$pairKey" $packId
+            $outcomeIncompatibilities[$pairKey] = $true
+        }
+        foreach ($declaration in @($declarations.effect_target_compatibilities)) {
+            $context = "$packId.effect_target_compatibilities"
+            Assert-Atom 'occurrence.rule-effect-kind' $declaration.effect_kind $context
+            Assert-Atom 'occurrence.rule-effect-target-type' $declaration.target_type $context
+            $pairKey = "$($declaration.effect_kind)|$($declaration.target_type)"
+            Add-DeclarationOwner "effect-target-compatibility|$pairKey" $packId
+            $targetCompatibilities[$pairKey] = $true
+        }
+        foreach ($declaration in @($declarations.rule_effect_compatibilities)) {
+            $context = "$packId.rule_effect_compatibilities"
+            Assert-Atom 'occurrence.rule-kind' $declaration.rule_kind $context
+            Assert-Atom 'occurrence.rule-effect-kind' $declaration.effect_kind $context
+            $pairKey = "$($declaration.rule_kind)|$($declaration.effect_kind)"
+            Add-DeclarationOwner "rule-effect-compatibility|$pairKey" $packId
+            $ruleCompatibilities[$pairKey] = $true
+        }
+        foreach ($declaration in @($declarations.effect_policies)) {
+            $context = "$packId.effect_policies.$($declaration.effect_kind)"
+            Assert-Atom 'occurrence.rule-effect-kind' $declaration.effect_kind $context
+            Add-DeclarationOwner "effect-policy|$($declaration.effect_kind)" $packId
+            $effectPolicies[$declaration.effect_kind] = $declaration
+        }
+        foreach ($declaration in @($declarations.effect_incompatibilities)) {
+            foreach ($member in @($declaration.members)) {
+                Assert-Atom 'occurrence.rule-effect-kind' $member "$packId.effect_incompatibilities"
+            }
+            $pairKey = "$($declaration.members[0])|$($declaration.members[1])"
+            Add-DeclarationOwner "effect-incompatibility|$pairKey" $packId
+            $effectIncompatibilities[$pairKey] = $declaration.scope
+        }
+        foreach ($declaration in @($declarations.state_change_profiles)) {
+            $context = "$packId.change_profiles.$($declaration.change_kind)"
+            Assert-Atom 'state.change-kind' $declaration.change_kind $context
+            Assert-Atom 'state.change-profile' $declaration.change_profile $context
+            Add-DeclarationOwner "state-change-profile|$($declaration.change_kind)" $packId
+            $stateChangeProfiles[$declaration.change_kind] = $declaration.change_profile
         }
     }
-    $duplicates = @($global | Where-Object { $sameTarget -ccontains $_ } | Sort-Object -Unique)
-    if ($duplicates.Count -gt 0) {
-        throw "Schema-pack effect incompatibility pairs must declare exactly one conflict scope: $($duplicates -join ', ')."
+
+    $transitionKinds = @($ControlledValues['occurrence.transition-kind'] | Where-Object { $null -ne $_ })
+    $missing = @($transitionKinds | Where-Object { -not $transitionProfiles.ContainsKey($_) })
+    if ($missing.Count -gt 0 -or $transitionProfiles.Count -ne $transitionKinds.Count) {
+        throw "Schema-pack transition kinds require exactly one typed profile: $($missing -join ', ')."
+    }
+    $changeKinds = @($ControlledValues['state.change-kind'] | Where-Object { $null -ne $_ })
+    $missing = @($changeKinds | Where-Object { -not $stateChangeProfiles.ContainsKey($_) })
+    if ($missing.Count -gt 0 -or $stateChangeProfiles.Count -ne $changeKinds.Count) {
+        throw "Schema-pack state change kinds require exactly one typed profile: $($missing -join ', ')."
+    }
+    $effectKinds = @($ControlledValues['occurrence.rule-effect-kind'] | Where-Object { $null -ne $_ })
+    $missing = @($effectKinds | Where-Object { -not $effectPolicies.ContainsKey($_) })
+    if ($missing.Count -gt 0 -or $effectPolicies.Count -ne $effectKinds.Count) {
+        throw "Schema-pack effect kinds require exactly one typed policy: $($missing -join ', ')."
+    }
+    foreach ($effectKind in $effectKinds) {
+        $hasTarget = @($targetCompatibilities.Keys | Where-Object { $_.StartsWith("$effectKind|", [StringComparison]::Ordinal) }).Count -gt 0
+        if (-not $hasTarget) {
+            throw "Schema-pack effect kinds require a typed target compatibility: $effectKind."
+        }
+        $hasRule = @($ruleCompatibilities.Keys | Where-Object { $_.EndsWith("|$effectKind", [StringComparison]::Ordinal) }).Count -gt 0
+        if (-not $hasRule) {
+            throw "Schema-pack effect kinds require a typed rule compatibility: $effectKind."
+        }
+        $targetsRecurrence = $targetCompatibilities.ContainsKey("$effectKind|recurrence-pattern")
+        $hasScope = $null -ne $effectPolicies[$effectKind].recurrence_pattern_scope
+        if ($targetsRecurrence -ne $hasScope) {
+            $requirement = if ($targetsRecurrence) {
+                'requires'
+            }
+            else {
+                'must not declare'
+            }
+            throw "Schema-pack effect kind '$effectKind' $requirement a recurrence-pattern scope."
+        }
+    }
+
+    return [pscustomobject]@{
+        transition_profiles=$transitionProfiles
+        outcome_incompatibilities=$outcomeIncompatibilities
+        effect_target_compatibilities=$targetCompatibilities
+        rule_effect_compatibilities=$ruleCompatibilities
+        effect_policies=$effectPolicies
+        effect_incompatibilities=$effectIncompatibilities
+        state_change_profiles=$stateChangeProfiles
+        owners=$owners
     }
 }
 

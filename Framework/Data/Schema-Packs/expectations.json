@@ -9,7 +9,13 @@
     "kind_values": ["root-kind", "child-kind", "domain-kind"],
     "mode_values": ["domain-mode", "extension-mode"],
     "domain_kind_owner": "fixture-domain",
-    "domain_kind_broader": "child-kind"
+    "domain_kind_broader": "child-kind",
+    "semantic_declarations": {
+      "effect_target_compatibilities": 2,
+      "rule_effect_compatibilities": 2,
+      "effect_policies": 2,
+      "effect_incompatibilities": 1
+    }
   },
   "scale_pack_count": 64,
   "invalid_cases": [
@@ -51,10 +57,19 @@
     {"id": "controlled-unknown-broader", "target": "fixture-domain", "operations": [{"op": "set", "path": ["controlled_values", "fixture.kind", 0, "broader_value"], "value": "missing-kind"}]},
     {"id": "controlled-hierarchy-cycle", "target": "fixture-core", "operations": [{"op": "set", "path": ["controlled_values", "fixture.kind", 0, "broader_value"], "value": "domain-kind"}]},
     {"id": "controlled-cross-pack-duplicate", "target": "fixture-domain", "operations": [{"op": "append", "path": ["controlled_values", "fixture.kind"], "value": "root-kind"}]},
-    {"id": "occurrence-missing-repetition", "target": "fixture-core", "operations": [{"op": "set", "path": ["controlled_values", "occurrence.rule-effect-repetition-policy"], "value": ["add-state-uses-accumulating"]}]},
-    {"id": "occurrence-unknown-repetition", "target": "fixture-core", "operations": [{"op": "append", "path": ["controlled_values", "occurrence.rule-effect-repetition-policy"], "value": "unknown-effect-uses-idempotent"}]},
-    {"id": "occurrence-recurrence-scope-missing", "target": "fixture-core", "operations": [{"op": "append", "path": ["controlled_values", "occurrence.rule-effect-kind"], "value": "repeat-state"}, {"op": "append", "path": ["controlled_values", "occurrence.rule-effect-kind-target-type"], "value": "repeat-state-uses-recurrence-pattern"}, {"op": "append", "path": ["controlled_values", "occurrence.rule-effect-repetition-policy"], "value": "repeat-state-uses-idempotent"}]},
-    {"id": "occurrence-noncanonical-pair", "target": "fixture-core", "operations": [{"op": "set", "path": ["controlled_values", "occurrence.rule-effect-global-incompatibility-pair"], "value": ["set-state-with-add-state"]}]},
-    {"id": "occurrence-duplicate-conflict-scope", "target": "fixture-core", "operations": [{"op": "set", "path": ["controlled_values", "occurrence.rule-effect-same-target-incompatibility-pair"], "value": ["add-state-with-set-state"]}]}
+    {"id": "occurrence-missing-policy", "target": "fixture-core", "operations": [{"op": "remove", "path": ["semantic_declarations", "occurrence", "effect_policies", 1]}]},
+    {"id": "occurrence-unknown-policy-effect", "target": "fixture-core", "operations": [{"op": "append", "path": ["semantic_declarations", "occurrence", "effect_policies"], "value": {"effect_kind": "unknown-effect", "repetition_policy": "idempotent"}}]},
+    {"id": "occurrence-recurrence-scope-missing", "target": "fixture-core", "operations": [{"op": "append", "path": ["controlled_values", "occurrence.rule-effect-kind"], "value": "repeat-state"}, {"op": "append", "path": ["controlled_values", "occurrence.rule-effect-target-type"], "value": "recurrence-pattern"}, {"op": "append", "path": ["semantic_declarations", "occurrence", "effect_target_compatibilities"], "value": {"effect_kind": "repeat-state", "target_type": "recurrence-pattern"}}, {"op": "append", "path": ["semantic_declarations", "occurrence", "rule_effect_compatibilities"], "value": {"rule_kind": "add", "effect_kind": "repeat-state"}}, {"op": "append", "path": ["semantic_declarations", "occurrence", "effect_policies"], "value": {"effect_kind": "repeat-state", "repetition_policy": "idempotent"}}]},
+    {"id": "occurrence-unknown-incompatibility-member", "target": "fixture-core", "operations": [{"op": "set", "path": ["semantic_declarations", "occurrence", "effect_incompatibilities", 0, "members", 1], "value": "unknown-effect"}]},
+    {"id": "occurrence-duplicate-conflict-scope", "target": "fixture-core", "operations": [{"op": "append", "path": ["semantic_declarations", "occurrence", "effect_incompatibilities"], "value": {"members": ["set-state", "add-state"], "scope": "same-target"}}]},
+    {"id": "occurrence-legacy-compound-namespace", "target": "fixture-core", "operations": [{"op": "set", "path": ["controlled_values", "occurrence.rule-kind-effect-kind"], "value": ["add-uses-add-state"]}]},
+    {"id": "occurrence-self-incompatibility", "target": "fixture-core", "operations": [{"op": "set", "path": ["semantic_declarations", "occurrence", "effect_incompatibilities", 0, "members"], "value": ["add-state", "add-state"]}]},
+    {"id": "occurrence-unknown-semantic-field", "target": "fixture-core", "operations": [{"op": "set", "path": ["semantic_declarations", "occurrence", "unexpected"], "value": []}]},
+    {"id": "orphan-transition-profile", "target": "fixture-domain", "operations": [{"op": "set", "path": ["semantic_declarations"], "value": {"occurrence": {"transition_profiles": [{"transition_kind": "ghost-transition", "transition_profile": "ghost-profile"}]}}}]},
+    {"id": "orphan-outcome-incompatibility", "target": "fixture-domain", "operations": [{"op": "set", "path": ["semantic_declarations"], "value": {"occurrence": {"outcome_incompatibilities": [{"members": ["ghost-left", "ghost-right"]}]}}}]},
+    {"id": "orphan-effect-target-compatibility", "target": "fixture-domain", "operations": [{"op": "set", "path": ["semantic_declarations"], "value": {"occurrence": {"effect_target_compatibilities": [{"effect_kind": "ghost-effect", "target_type": "subject"}]}}}]},
+    {"id": "orphan-rule-effect-compatibility", "target": "fixture-domain", "operations": [{"op": "set", "path": ["semantic_declarations"], "value": {"occurrence": {"rule_effect_compatibilities": [{"rule_kind": "ghost-rule", "effect_kind": "add-state"}]}}}]},
+    {"id": "orphan-state-change-profile", "target": "fixture-domain", "operations": [{"op": "set", "path": ["semantic_declarations"], "value": {"state": {"change_profiles": [{"change_kind": "ghost-change", "change_profile": "ghost-profile"}]}}}]},
+    {"id": "effect-scope-on-nonrecurrence-target", "target": "fixture-core", "operations": [{"op": "set", "path": ["semantic_declarations", "occurrence", "effect_policies", 0, "recurrence_pattern_scope"], "value": "owning-pattern"}]}
   ]
 }

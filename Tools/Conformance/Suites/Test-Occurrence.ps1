@@ -39,24 +39,6 @@ function Assert-OccurrenceIds {
         throw "$Context expected '$(@($Expected)-join ',')', got '$(@($Actual)-join ',')'."
     }
 }
-function Assert-InvalidOccurrenceDeclarations {
-    param([object]$Packs, [string]$Namespace, [object[]]$Values, [string]$Label)
-    $invalid = [ordered]@{}
-    foreach ($key in $Packs.controlled_values.Keys) {
-        $invalid[$key] = @($Packs.controlled_values[$key])
-    }
-    $invalid[$Namespace] = @($Values)
-    $rejected = $false
-    try {
-        Assert-SchemaPackOccurrenceSemanticDeclarations $invalid
-    }
-    catch {
-        $rejected = $true
-    }
-    if (-not $rejected) {
-        throw "Malformed semantic declaration unexpectedly loaded: $Label"
-    }
-}
 function New-SyntheticOccurrenceRule {
     param([string]$RuleId, [string]$RuleKind, [string]$EffectKind, [string]$TargetId, [string]$OccurrenceTemplate)
     return [ordered]@{
@@ -198,8 +180,27 @@ foreach ($vector in @($expectations.schedule_matches)) {
 }
 foreach ($vector in @($expectations.rule_evaluations)) {
     $evaluation = Get-KnowledgeRecurrenceRuleEvaluation $fixture ([string]$vector[0]) ([string]$vector[1]) $vector[2]
+    if ($evaluation.PSObject.Properties.Name -ccontains 'effects') {
+        throw 'Unsafe legacy rule-evaluation effects alias remains available.'
+    }
     Assert-OccurrenceIds @($evaluation.selected_rule_ids) @($vector[4]) "Selected rules at '$($vector[1])'"
-    Assert-OccurrenceIds @($evaluation.effects | ForEach-Object { $_.effect_kind }) @($vector[5]) "Effects at '$($vector[1])'"
+    Assert-OccurrenceIds @($evaluation.proposed_effects | ForEach-Object { $_.effect_kind }) @($vector[5]) "Effects at '$($vector[1])'"
+    $authorizedKinds = if ([string]$vector[3] -ceq 'selected') {
+        @($vector[5])
+    }
+    else {
+        @()
+    }
+    Assert-OccurrenceIds @($evaluation.authorized_effects | ForEach-Object { $_.effect_kind }) $authorizedKinds "Authorized effects at '$($vector[1])'"
+    $expectedDisposition = @{
+        selected='authorized'
+        conflict='blocked-conflict'
+        indeterminate='blocked-indeterminate'
+        'no-match'='not-applicable'
+    }[[string]$vector[3]]
+    if ($evaluation.execution_disposition -cne $expectedDisposition) {
+        throw "Unexpected execution disposition at '$($vector[1])'."
+    }
     Assert-OccurrenceIds @($evaluation.conflicts) @($vector[6]) "Conflicts at '$($vector[1])'"
     if ($evaluation.status -cne [string]$vector[3]) {
         throw "Unexpected rule evaluation status at '$($vector[1])'."
@@ -208,11 +209,11 @@ foreach ($vector in @($expectations.rule_evaluations)) {
 foreach ($vector in @($expectations.resolved_effects)) {
     $evaluation = Get-KnowledgeRecurrenceRuleEvaluation $fixture ([string]$vector[0]) ([string]$vector[1]) $vector[2]
     $expectedEffects = @($vector[3])
-    if (@($evaluation.effects).Count -ne $expectedEffects.Count) {
+    if (@($evaluation.proposed_effects).Count -ne $expectedEffects.Count) {
         throw "Unexpected resolved effect count at '$($vector[1])'."
     }
     for ($index = 0; $index -lt $expectedEffects.Count; $index++) {
-        $actual = $evaluation.effects[$index]
+        $actual = $evaluation.proposed_effects[$index]
         $expected = $expectedEffects[$index]
         if (
             $actual.effect_kind -cne [string]$expected[0] -or
@@ -220,7 +221,7 @@ foreach ($vector in @($expectations.resolved_effects)) {
             $actual.target_id -cne [string]$expected[2] -or
             $actual.repetition_policy -cne [string]$expected[3] -or
             [int]$actual.contribution_count -ne [int]$expected[4] -or
-            [int]$actual.execution_count -ne [int]$expected[5]
+            [int]$actual.proposed_execution_count -ne [int]$expected[5]
         ) {
             throw "Unexpected resolved effect at '$($vector[1])' index $index."
         }
@@ -273,16 +274,25 @@ foreach ($case in @($invalidCases)) {
 $extensionValues = [ordered]@{
     'occurrence.rule-kind'=@('pause', 'signal')
     'occurrence.rule-effect-kind'=@('pause-recurrence', 'signal-recurrence')
-    'occurrence.rule-effect-kind-target-type'=@('pause-recurrence-uses-recurrence-pattern', 'signal-recurrence-uses-recurrence-pattern')
-    'occurrence.rule-kind-effect-kind'=@('pause-uses-pause-recurrence', 'signal-uses-signal-recurrence')
-    'occurrence.rule-effect-pattern-scope'=@('pause-recurrence-uses-owning-pattern', 'signal-recurrence-allows-external-pattern')
-    'occurrence.rule-effect-repetition-policy'=@('pause-recurrence-uses-idempotent', 'signal-recurrence-uses-idempotent')
-    'occurrence.rule-effect-same-target-incompatibility-pair'=@('advance-iteration-with-pause-recurrence')
 }
 foreach ($namespace in $extensionValues.Keys) {
     $packs.controlled_values[$namespace] = @($packs.controlled_values[$namespace]) + @($extensionValues[$namespace])
 }
-Assert-SchemaPackOccurrenceSemanticDeclarations $packs.controlled_values
+$packs.effect_target_compatibilities['pause-recurrence|recurrence-pattern'] = $true
+$packs.effect_target_compatibilities['signal-recurrence|recurrence-pattern'] = $true
+$packs.rule_effect_compatibilities['pause|pause-recurrence'] = $true
+$packs.rule_effect_compatibilities['signal|signal-recurrence'] = $true
+$packs.effect_policies['pause-recurrence'] = [pscustomobject]@{
+    effect_kind='pause-recurrence'
+    repetition_policy='idempotent'
+    recurrence_pattern_scope='owning-pattern'
+}
+$packs.effect_policies['signal-recurrence'] = [pscustomobject]@{
+    effect_kind='signal-recurrence'
+    repetition_policy='idempotent'
+    recurrence_pattern_scope='external-pattern'
+}
+$packs.effect_incompatibilities['advance-iteration|pause-recurrence'] = 'same-target'
 
 $owningProbe = ConvertFrom-KnowledgeYamlFile $fixturePath 4 'occurrence fixture'
 $owningProbe['rules'] = @($owningProbe['rules']) + @(New-SyntheticOccurrenceRule 'synthetic-pause-rule' 'pause' 'pause-recurrence' 'outer-loop-pattern' 'reset')
@@ -316,7 +326,7 @@ if ($externalEvaluation.status -cne 'selected') {
     throw 'External-pattern extension was not selected.'
 }
 Assert-OccurrenceIds @($externalEvaluation.selected_rule_ids) @('synthetic-signal-rule') 'External-pattern extension selected rules'
-Assert-OccurrenceIds @($externalEvaluation.effects | ForEach-Object { $_.target_id }) @('inner-loop-pattern') 'External-pattern extension targets'
+Assert-OccurrenceIds @($externalEvaluation.authorized_effects | ForEach-Object { $_.target_id }) @('inner-loop-pattern') 'External-pattern extension targets'
 
 $duplicateProbe = ConvertFrom-KnowledgeYamlFile $fixturePath 4 'occurrence fixture'
 $firstSignal = New-SyntheticOccurrenceRule 'first-signal-rule' 'signal' 'signal-recurrence' 'inner-loop-pattern' 'bell'
@@ -328,10 +338,14 @@ $duplicateRegistry = ConvertTo-KnowledgeOccurrenceRegistry `
     $duplicateProbe $fixturePath $packs $chronologyFixture $subjectTargets $payloadTargets
 $duplicateEvaluation = Get-KnowledgeRecurrenceRuleEvaluation `
     $duplicateRegistry 'outer-loop' 'bell-two'
-if (@($duplicateEvaluation.effects).Count -ne 1 -or $duplicateEvaluation.effects[0].contribution_count -ne 2 -or $duplicateEvaluation.effects[0].execution_count -ne 1) {
+if (
+    @($duplicateEvaluation.authorized_effects).Count -ne 1 -or
+    $duplicateEvaluation.authorized_effects[0].contribution_count -ne 2 -or
+    $duplicateEvaluation.authorized_effects[0].proposed_execution_count -ne 1
+) {
     throw 'Unexpected idempotent effect resolution.'
 }
-Assert-OccurrenceIds @($duplicateEvaluation.effects[0].contributing_rule_ids) @('first-signal-rule', 'second-signal-rule') 'Idempotent effect contributors'
+Assert-OccurrenceIds @($duplicateEvaluation.authorized_effects[0].contributing_rule_ids) @('first-signal-rule', 'second-signal-rule') 'Idempotent effect contributors'
 foreach ($policyCase in @([pscustomobject]@{policy='accumulating'
             status='selected'
             execution_count=2
@@ -341,43 +355,34 @@ foreach ($policyCase in @([pscustomobject]@{policy='accumulating'
             execution_count=0
             conflicts=@('duplicate signal-recurrence effect on recurrence-pattern:inner-loop-pattern is invalid')
         })) {
-    $policyValues = [ordered]@{}
-    foreach ($namespace in $packs.controlled_values.Keys) {
-        $policyValues[$namespace] = @($packs.controlled_values[$namespace])
-    }
-    $existingPolicies = @(
-        $policyValues['occurrence.rule-effect-repetition-policy'] |
-            Where-Object { $_ -cne 'signal-recurrence-uses-idempotent' }
-    )
-    $policyValues['occurrence.rule-effect-repetition-policy'] = @(
-        $existingPolicies + "signal-recurrence-uses-$($policyCase.policy)"
-    )
-    Assert-SchemaPackOccurrenceSemanticDeclarations $policyValues
     $policyPacks = $packs.PSObject.Copy()
-    $policyPacks.controlled_values = $policyValues
+    $policyPacks.effect_policies = @{} + $packs.effect_policies
+    $policyPacks.effect_policies['signal-recurrence'] = [pscustomobject]@{
+        effect_kind='signal-recurrence'
+        repetition_policy=$policyCase.policy
+        recurrence_pattern_scope='external-pattern'
+    }
     $policyRegistry = ConvertTo-KnowledgeOccurrenceRegistry `
         $duplicateProbe $fixturePath $policyPacks $chronologyFixture $subjectTargets $payloadTargets
     $policyEvaluation = Get-KnowledgeRecurrenceRuleEvaluation `
         $policyRegistry 'outer-loop' 'bell-two'
-    if ($policyEvaluation.status -cne $policyCase.status -or $policyEvaluation.effects[0].execution_count -ne $policyCase.execution_count) {
+    if (
+        $policyEvaluation.status -cne $policyCase.status -or
+        $policyEvaluation.proposed_effects[0].proposed_execution_count -ne $policyCase.execution_count -or
+        (@($policyEvaluation.authorized_effects).Count -gt 0) -ne ($policyCase.status -ceq 'selected')
+    ) {
         throw "Unexpected '$($policyCase.policy)' effect resolution."
     }
     Assert-OccurrenceIds @($policyEvaluation.conflicts) @($policyCase.conflicts) "$($policyCase.policy) effect conflicts"
 }
 
-$scopedValues = [ordered]@{}
-foreach ($namespace in $packs.controlled_values.Keys) {
-    $scopedValues[$namespace] = @($packs.controlled_values[$namespace])
-}
-$scopedValues['occurrence.rule-effect-pattern-scope'] = @(
-    'advance-iteration-uses-owning-pattern'
-    'terminate-recurrence-uses-owning-pattern'
-    'pause-recurrence-allows-external-pattern'
-    'signal-recurrence-allows-external-pattern'
-)
-Assert-SchemaPackOccurrenceSemanticDeclarations $scopedValues
 $scopedPacks = $packs.PSObject.Copy()
-$scopedPacks.controlled_values = $scopedValues
+$scopedPacks.effect_policies = @{} + $packs.effect_policies
+$scopedPacks.effect_policies['pause-recurrence'] = [pscustomobject]@{
+    effect_kind='pause-recurrence'
+    repetition_policy='idempotent'
+    recurrence_pattern_scope='external-pattern'
+}
 $scopedProbe = ConvertFrom-KnowledgeYamlFile $fixturePath 4 'occurrence fixture'
 $scopedProbe['rules'] = @($scopedProbe['rules']) + @(New-SyntheticOccurrenceRule 'cross-target-pause-rule' 'pause' 'pause-recurrence' 'inner-loop-pattern' 'reset')
 $scopedRegistry = ConvertTo-KnowledgeOccurrenceRegistry `
@@ -388,50 +393,21 @@ if ($scopedEvaluation.status -cne 'selected' -or @($scopedEvaluation.conflicts).
     throw 'Cross-target same-target pair unexpectedly conflicted.'
 }
 
-$globalValues = [ordered]@{}
-foreach ($namespace in $scopedValues.Keys) {
-    $globalValues[$namespace] = @($scopedValues[$namespace])
-}
-$globalValues['occurrence.rule-effect-same-target-incompatibility-pair'] = @('advance-iteration-with-terminate-recurrence')
-$globalValues['occurrence.rule-effect-global-incompatibility-pair'] = @('advance-iteration-with-pause-recurrence')
-Assert-SchemaPackOccurrenceSemanticDeclarations $globalValues
 $globalPacks = $packs.PSObject.Copy()
-$globalPacks.controlled_values = $globalValues
+$globalPacks.effect_policies = $scopedPacks.effect_policies
+$globalPacks.effect_incompatibilities = @{} + $scopedPacks.effect_incompatibilities
+$globalPacks.effect_incompatibilities['advance-iteration|pause-recurrence'] = 'global'
 $globalRegistry = ConvertTo-KnowledgeOccurrenceRegistry `
     $scopedProbe $fixturePath $globalPacks $chronologyFixture $subjectTargets $payloadTargets
 $globalEvaluation = Get-KnowledgeRecurrenceRuleEvaluation `
     $globalRegistry 'outer-loop' 'reset-two'
 Assert-OccurrenceIds @($globalEvaluation.conflicts) @('advance-iteration conflicts with pause-recurrence globally') 'Global effect incompatibility'
-
-Assert-InvalidOccurrenceDeclarations $packs 'occurrence.rule-effect-same-target-incompatibility-pair' @('pause-recurrence-with-advance-iteration') 'reversed pair'
-Assert-InvalidOccurrenceDeclarations $packs 'occurrence.rule-effect-same-target-incompatibility-pair' @('advance-iteration-with-unknown-effect') 'unknown pair'
-Assert-InvalidOccurrenceDeclarations $packs 'occurrence.rule-effect-pattern-scope' @('unknown-effect-uses-owning-pattern') 'orphan scope'
-$ambiguousRepetitionPolicies = @(
-    @($packs.controlled_values['occurrence.rule-effect-repetition-policy']) +
-    @('pause-recurrence-uses-accumulating')
-)
-Assert-InvalidOccurrenceDeclarations `
-    $packs 'occurrence.rule-effect-repetition-policy' $ambiguousRepetitionPolicies 'ambiguous repetition'
-$missingRepetitionPolicies = @(
-    $packs.controlled_values['occurrence.rule-effect-repetition-policy'] |
-        Where-Object { $_ -cne 'pause-recurrence-uses-idempotent' }
-)
-Assert-InvalidOccurrenceDeclarations `
-    $packs 'occurrence.rule-effect-repetition-policy' $missingRepetitionPolicies 'missing repetition'
-$duplicateScope = [ordered]@{}
-foreach ($namespace in $packs.controlled_values.Keys) {
-    $duplicateScope[$namespace] = @($packs.controlled_values[$namespace])
-}
-$duplicateScope['occurrence.rule-effect-global-incompatibility-pair'] = @('advance-iteration-with-pause-recurrence')
-$scopeRejected = $false
-try {
-    Assert-SchemaPackOccurrenceSemanticDeclarations $duplicateScope
-}
-catch {
-    $scopeRejected = $true
-}
-if (-not $scopeRejected) {
-    throw 'Effect incompatibility pair unexpectedly accepted two scopes.'
+if (
+    $globalEvaluation.execution_disposition -cne 'blocked-conflict' -or
+    @($globalEvaluation.authorized_effects).Count -ne 0 -or
+    @($globalEvaluation.proposed_effects).Count -ne 2
+) {
+    throw 'Global conflict did not block the complete execution plan.'
 }
 
 $summary = [ordered]@{

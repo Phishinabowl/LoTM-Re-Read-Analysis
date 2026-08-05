@@ -1,6 +1,6 @@
-schema_version: 2
+schema_version: 3
 pack_id: core
-pack_version: 28
+pack_version: 29
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -148,13 +148,6 @@ controlled_values:
     - recurrence-exit
     - branch-fork
     - branch-merge
-  occurrence.transition-kind-profile:
-    - continues-uses-ordered
-    - jump-uses-jump
-    - reset-uses-recurrence-advance
-    - exit-uses-recurrence-exit
-    - fork-uses-branch-fork
-    - merge-uses-branch-merge
   occurrence.causal-relation-type:
     - causes
     - enables
@@ -166,10 +159,6 @@ controlled_values:
     - interrupted
     - preserved
     - changed
-  occurrence.outcome-incompatibility-pair:
-    - failed-with-succeeded
-    - completed-with-interrupted
-    - changed-with-preserved
   occurrence.rule-kind:
     - reset
     - termination
@@ -207,26 +196,10 @@ controlled_values:
     - terminate-recurrence
     - change-reset-point
     - activate-state
-  occurrence.rule-effect-kind-target-type:
-    - advance-iteration-uses-recurrence-pattern
-    - terminate-recurrence-uses-recurrence-pattern
-    - change-reset-point-uses-occurrence-template
-    - activate-state-uses-state-transition
-  occurrence.rule-kind-effect-kind:
-    - reset-uses-advance-iteration
-    - termination-uses-terminate-recurrence
-    - checkpoint-change-uses-change-reset-point
-    - state-activation-uses-activate-state
-  occurrence.rule-effect-pattern-scope:
-    - advance-iteration-uses-owning-pattern
-    - terminate-recurrence-uses-owning-pattern
-  occurrence.rule-effect-repetition-policy:
-    - advance-iteration-uses-idempotent
-    - terminate-recurrence-uses-idempotent
-    - change-reset-point-uses-idempotent
-    - activate-state-uses-idempotent
-  occurrence.rule-effect-same-target-incompatibility-pair:
-    - advance-iteration-with-terminate-recurrence
+  occurrence.rule-effect-target-type:
+    - recurrence-pattern
+    - occurrence-template
+    - state-transition
   occurrence.schedule-kind:
     - civil-calendar
     - chronology-step
@@ -268,16 +241,6 @@ controlled_values:
     - derive
     - activate
     - invalidate
-  state.change-kind-profile:
-    - acquired-uses-acquire
-    - retained-uses-preserve
-    - lost-uses-remove
-    - restored-uses-restore
-    - transferred-uses-supply
-    - merged-uses-combine
-    - derived-uses-derive
-    - activated-uses-activate
-    - invalidated-uses-invalidate
   state.mechanism:
     - direct
     - continuous
@@ -420,3 +383,75 @@ controlled_values:
     - extract-from
     - has-extract
     - packaged-with
+
+semantic_declarations:
+  occurrence:
+    transition_profiles:
+      - transition_kind: continues
+        transition_profile: ordered
+      - transition_kind: jump
+        transition_profile: jump
+      - transition_kind: reset
+        transition_profile: recurrence-advance
+      - transition_kind: exit
+        transition_profile: recurrence-exit
+      - transition_kind: fork
+        transition_profile: branch-fork
+      - transition_kind: merge
+        transition_profile: branch-merge
+    outcome_incompatibilities:
+      - members: [failed, succeeded]
+      - members: [completed, interrupted]
+      - members: [changed, preserved]
+    effect_target_compatibilities:
+      - effect_kind: advance-iteration
+        target_type: recurrence-pattern
+      - effect_kind: terminate-recurrence
+        target_type: recurrence-pattern
+      - effect_kind: change-reset-point
+        target_type: occurrence-template
+      - effect_kind: activate-state
+        target_type: state-transition
+    rule_effect_compatibilities:
+      - rule_kind: reset
+        effect_kind: advance-iteration
+      - rule_kind: termination
+        effect_kind: terminate-recurrence
+      - rule_kind: checkpoint-change
+        effect_kind: change-reset-point
+      - rule_kind: state-activation
+        effect_kind: activate-state
+    effect_policies:
+      - effect_kind: advance-iteration
+        recurrence_pattern_scope: owning-pattern
+        repetition_policy: idempotent
+      - effect_kind: terminate-recurrence
+        recurrence_pattern_scope: owning-pattern
+        repetition_policy: idempotent
+      - effect_kind: change-reset-point
+        repetition_policy: idempotent
+      - effect_kind: activate-state
+        repetition_policy: idempotent
+    effect_incompatibilities:
+      - members: [advance-iteration, terminate-recurrence]
+        scope: same-target
+  state:
+    change_profiles:
+      - change_kind: acquired
+        change_profile: acquire
+      - change_kind: retained
+        change_profile: preserve
+      - change_kind: lost
+        change_profile: remove
+      - change_kind: restored
+        change_profile: restore
+      - change_kind: transferred
+        change_profile: supply
+      - change_kind: merged
+        change_profile: combine
+      - change_kind: derived
+        change_profile: derive
+      - change_kind: activated
+        change_profile: activate
+      - change_kind: invalidated
+        change_profile: invalidate

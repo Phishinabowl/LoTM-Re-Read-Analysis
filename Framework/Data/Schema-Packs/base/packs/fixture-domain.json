@@ -1,5 +1,5 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "pack_id": "fixture-domain",
   "pack_version": 3,
   "lifecycle": "active",

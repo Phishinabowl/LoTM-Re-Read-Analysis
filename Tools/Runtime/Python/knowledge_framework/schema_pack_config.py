@@ -7,19 +7,28 @@ from .strict_yaml import assert_allowed_keys, load_yaml_file
 
 
 SUPPORTED_SCHEMA_PACK_REGISTRY_VERSION = 2
-SUPPORTED_SCHEMA_PACK_VERSION = 2
+SUPPORTED_SCHEMA_PACK_VERSION = 3
 PACK_LIFECYCLES = {"active", "deferred"}
 PACK_KINDS = {"core", "domain", "extension"}
 CAPABILITY_LIFECYCLES = {"available", "planned", "deprecated"}
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 NAMESPACE_PATTERN = re.compile(r"^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)+$")
 
-EFFECT_KINDS_NAMESPACE = "occurrence.rule-effect-kind"
-EFFECT_TARGET_TYPES_NAMESPACE = "occurrence.rule-effect-kind-target-type"
-EFFECT_PATTERN_SCOPES_NAMESPACE = "occurrence.rule-effect-pattern-scope"
-EFFECT_REPETITION_NAMESPACE = "occurrence.rule-effect-repetition-policy"
-EFFECT_GLOBAL_CONFLICTS_NAMESPACE = "occurrence.rule-effect-global-incompatibility-pair"
-EFFECT_TARGET_CONFLICTS_NAMESPACE = "occurrence.rule-effect-same-target-incompatibility-pair"
+LEGACY_COMPOUND_SEMANTIC_NAMESPACES = {
+    "occurrence.transition-kind-profile",
+    "occurrence.outcome-incompatibility-pair",
+    "occurrence.rule-effect-kind-target-type",
+    "occurrence.rule-kind-effect-kind",
+    "occurrence.rule-effect-pattern-scope",
+    "occurrence.rule-effect-repetition-policy",
+    "occurrence.rule-effect-global-incompatibility-pair",
+    "occurrence.rule-effect-same-target-incompatibility-pair",
+    "state.change-kind-profile",
+}
+EFFECT_REPETITION_POLICIES = {"idempotent", "accumulating", "invalid"}
+EFFECT_PATTERN_SCOPES = {"owning-pattern", "external-pattern"}
+EFFECT_INCOMPATIBILITY_SCOPES = {"global", "same-target"}
+EFFECT_TARGET_TYPE_NAMESPACE = "occurrence.rule-effect-target-type"
 
 
 @dataclass(frozen=True)
@@ -45,6 +54,59 @@ class ControlledValueConfig:
 
 
 @dataclass(frozen=True)
+class TransitionProfileDeclaration:
+    transition_kind: str
+    transition_profile: str
+
+
+@dataclass(frozen=True)
+class OutcomeIncompatibilityDeclaration:
+    members: tuple[str, str]
+
+
+@dataclass(frozen=True)
+class EffectTargetCompatibilityDeclaration:
+    effect_kind: str
+    target_type: str
+
+
+@dataclass(frozen=True)
+class RuleEffectCompatibilityDeclaration:
+    rule_kind: str
+    effect_kind: str
+
+
+@dataclass(frozen=True)
+class EffectPolicyDeclaration:
+    effect_kind: str
+    repetition_policy: str
+    recurrence_pattern_scope: str | None
+
+
+@dataclass(frozen=True)
+class EffectIncompatibilityDeclaration:
+    members: tuple[str, str]
+    scope: str
+
+
+@dataclass(frozen=True)
+class StateChangeProfileDeclaration:
+    change_kind: str
+    change_profile: str
+
+
+@dataclass(frozen=True)
+class SemanticDeclarations:
+    transition_profiles: tuple[TransitionProfileDeclaration, ...] = ()
+    outcome_incompatibilities: tuple[OutcomeIncompatibilityDeclaration, ...] = ()
+    effect_target_compatibilities: tuple[EffectTargetCompatibilityDeclaration, ...] = ()
+    rule_effect_compatibilities: tuple[RuleEffectCompatibilityDeclaration, ...] = ()
+    effect_policies: tuple[EffectPolicyDeclaration, ...] = ()
+    effect_incompatibilities: tuple[EffectIncompatibilityDeclaration, ...] = ()
+    state_change_profiles: tuple[StateChangeProfileDeclaration, ...] = ()
+
+
+@dataclass(frozen=True)
 class SchemaPackConfig:
     id: str
     path: Path
@@ -59,6 +121,7 @@ class SchemaPackConfig:
     capability_definitions: dict[str, CapabilityConfig]
     controlled_values: dict[str, tuple[str, ...]]
     controlled_value_definitions: dict[str, dict[str, ControlledValueConfig]]
+    semantic_declarations: SemanticDeclarations
 
 
 @dataclass(frozen=True)
@@ -77,6 +140,14 @@ class SchemaPackRegistry:
     controlled_values: dict[str, tuple[str, ...]]
     controlled_value_owners: dict[tuple[str, str], str]
     controlled_value_definitions: dict[tuple[str, str], ControlledValueConfig]
+    transition_profiles: dict[str, str]
+    outcome_incompatibilities: frozenset[tuple[str, str]]
+    effect_target_compatibilities: frozenset[tuple[str, str]]
+    rule_effect_compatibilities: frozenset[tuple[str, str]]
+    effect_policies: dict[str, EffectPolicyDeclaration]
+    effect_incompatibilities: dict[tuple[str, str], str]
+    state_change_profiles: dict[str, str]
+    semantic_declaration_owners: dict[tuple[str, ...], str]
 
     def allowed_values(self, namespace: str) -> tuple[str, ...]:
         return self.controlled_values.get(namespace, ())
@@ -138,78 +209,142 @@ def validate_id(value: str, context: str) -> None:
         raise ValueError(f"Schema-pack configuration `{context}` must be a lowercase kebab-case stable ID: {value}")
 
 
-def validate_occurrence_semantic_declarations(
-    controlled_values: dict[str, tuple[str, ...] | list[str]],
-) -> None:
-    effect_kinds = set(controlled_values.get(EFFECT_KINDS_NAMESPACE, ()))
-    # FIXME (OWNER): Framework V38 must reject orphan semantic declarations when no effect kinds exist.
-    if not effect_kinds:
-        return
+def _optional_string(mapping: dict, key: str, context: str) -> str | None:
+    value = mapping.get(key)
+    if value is None:
+        return None
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"Schema-pack configuration `{context}.{key}` must be a non-empty string when present.")
+    return value.strip()
 
-    target_pairs = set(controlled_values.get(EFFECT_TARGET_TYPES_NAMESPACE, ()))
-    recurrence_effects = {effect for effect in effect_kinds if f"{effect}-uses-recurrence-pattern" in target_pairs}
 
-    scope_profiles: dict[str, set[str]] = {effect: set() for effect in recurrence_effects}
-    valid_scope_values = {
-        f"{effect}-{suffix}": (effect, suffix)
-        for effect in recurrence_effects
-        for suffix in ("uses-owning-pattern", "allows-external-pattern")
-    }
-    for value in controlled_values.get(EFFECT_PATTERN_SCOPES_NAMESPACE, ()):
-        declaration = valid_scope_values.get(value)
-        if declaration is None:
-            raise ValueError(
-                f"Schema-pack occurrence scope declaration `{value}` must reference a known "
-                "recurrence-pattern-capable effect kind."
-            )
-        effect, profile = declaration
-        scope_profiles[effect].add(profile)
-    for effect, profiles in scope_profiles.items():
-        if len(profiles) != 1:
-            raise ValueError(
-                f"Schema-pack effect kind `{effect}` requires exactly one recurrence-pattern scope declaration."
-            )
+def _declaration_rows(mapping: dict, key: str, context: str) -> list:
+    value = mapping.get(key, [])
+    if not isinstance(value, list):
+        raise ValueError(f"Schema-pack configuration `{context}.{key}` must be a list.")
+    return value
 
-    repetition_profiles: dict[str, set[str]] = {effect: set() for effect in effect_kinds}
-    valid_repetition_values = {
-        f"{effect}-uses-{policy}": (effect, policy)
-        for effect in effect_kinds
-        for policy in ("idempotent", "accumulating", "invalid")
-    }
-    for value in controlled_values.get(EFFECT_REPETITION_NAMESPACE, ()):
-        declaration = valid_repetition_values.get(value)
-        if declaration is None:
-            raise ValueError(f"Schema-pack effect repetition declaration `{value}` must reference a known effect kind.")
-        effect, policy = declaration
-        repetition_profiles[effect].add(policy)
-    for effect, profiles in repetition_profiles.items():
-        if len(profiles) != 1:
-            raise ValueError(f"Schema-pack effect kind `{effect}` requires exactly one repetition policy declaration.")
 
-    # FIXME (OWNER): Framework V38 must replace delimiter-composed effect pairs with typed declarations.
-    canonical_pairs = {
-        f"{left}-with-{right}"
-        for index, left in enumerate(sorted(effect_kinds))
-        for right in sorted(effect_kinds)[index + 1 :]
-    }
-    global_pairs = set(controlled_values.get(EFFECT_GLOBAL_CONFLICTS_NAMESPACE, ()))
-    target_pairs = set(controlled_values.get(EFFECT_TARGET_CONFLICTS_NAMESPACE, ()))
-    for namespace, values in (
-        (EFFECT_GLOBAL_CONFLICTS_NAMESPACE, global_pairs),
-        (EFFECT_TARGET_CONFLICTS_NAMESPACE, target_pairs),
-    ):
-        invalid = values - canonical_pairs
-        if invalid:
-            raise ValueError(
-                f"Schema-pack namespace `{namespace}` contains a noncanonical or unknown effect pair: "
-                f"{', '.join(sorted(invalid))}."
-            )
-    duplicated_pairs = global_pairs & target_pairs
-    if duplicated_pairs:
-        raise ValueError(
-            "Schema-pack effect incompatibility pairs must declare exactly one conflict scope: "
-            f"{', '.join(sorted(duplicated_pairs))}."
+def _pair_members(mapping: dict, context: str) -> tuple[str, str]:
+    members = require_string_list(mapping, "members", context)
+    if len(members) != 2:
+        raise ValueError(f"Schema-pack configuration `{context}.members` must contain exactly two stable IDs.")
+    for member in members:
+        validate_id(member, f"{context}.members")
+    if members[0] == members[1]:
+        raise ValueError(f"Schema-pack configuration `{context}.members` must contain distinct stable IDs.")
+    return tuple(sorted(members))
+
+
+def parse_semantic_declarations(pack: dict, pack_id: str) -> SemanticDeclarations:
+    raw = pack.get("semantic_declarations", {})
+    declarations = require_mapping(raw, f"{pack_id}.semantic_declarations")
+    assert_allowed_keys(declarations, {"occurrence", "state"}, f"Schema pack `{pack_id}.semantic_declarations`")
+    occurrence = require_mapping(declarations.get("occurrence", {}), f"{pack_id}.semantic_declarations.occurrence")
+    assert_allowed_keys(
+        occurrence,
+        {
+            "transition_profiles",
+            "outcome_incompatibilities",
+            "effect_target_compatibilities",
+            "rule_effect_compatibilities",
+            "effect_policies",
+            "effect_incompatibilities",
+        },
+        f"Schema pack `{pack_id}.semantic_declarations.occurrence`",
+    )
+    state = require_mapping(declarations.get("state", {}), f"{pack_id}.semantic_declarations.state")
+    assert_allowed_keys(state, {"change_profiles"}, f"Schema pack `{pack_id}.semantic_declarations.state`")
+
+    transition_profiles = []
+    for index, raw_row in enumerate(_declaration_rows(occurrence, "transition_profiles", pack_id)):
+        context = f"{pack_id}.semantic_declarations.occurrence.transition_profiles[{index}]"
+        row = require_mapping(raw_row, context)
+        assert_allowed_keys(row, {"transition_kind", "transition_profile"}, f"Schema pack `{context}`")
+        kind = require_string(row, "transition_kind", context)
+        profile = require_string(row, "transition_profile", context)
+        validate_id(kind, f"{context}.transition_kind")
+        validate_id(profile, f"{context}.transition_profile")
+        transition_profiles.append(TransitionProfileDeclaration(kind, profile))
+
+    outcome_incompatibilities = []
+    for index, raw_row in enumerate(_declaration_rows(occurrence, "outcome_incompatibilities", pack_id)):
+        context = f"{pack_id}.semantic_declarations.occurrence.outcome_incompatibilities[{index}]"
+        row = require_mapping(raw_row, context)
+        assert_allowed_keys(row, {"members"}, f"Schema pack `{context}`")
+        outcome_incompatibilities.append(OutcomeIncompatibilityDeclaration(_pair_members(row, context)))
+
+    target_compatibilities = []
+    for index, raw_row in enumerate(_declaration_rows(occurrence, "effect_target_compatibilities", pack_id)):
+        context = f"{pack_id}.semantic_declarations.occurrence.effect_target_compatibilities[{index}]"
+        row = require_mapping(raw_row, context)
+        assert_allowed_keys(row, {"effect_kind", "target_type"}, f"Schema pack `{context}`")
+        effect_kind = require_string(row, "effect_kind", context)
+        target_type = require_string(row, "target_type", context)
+        validate_id(effect_kind, f"{context}.effect_kind")
+        validate_id(target_type, f"{context}.target_type")
+        target_compatibilities.append(EffectTargetCompatibilityDeclaration(effect_kind, target_type))
+
+    rule_compatibilities = []
+    for index, raw_row in enumerate(_declaration_rows(occurrence, "rule_effect_compatibilities", pack_id)):
+        context = f"{pack_id}.semantic_declarations.occurrence.rule_effect_compatibilities[{index}]"
+        row = require_mapping(raw_row, context)
+        assert_allowed_keys(row, {"rule_kind", "effect_kind"}, f"Schema pack `{context}`")
+        rule_kind = require_string(row, "rule_kind", context)
+        effect_kind = require_string(row, "effect_kind", context)
+        validate_id(rule_kind, f"{context}.rule_kind")
+        validate_id(effect_kind, f"{context}.effect_kind")
+        rule_compatibilities.append(RuleEffectCompatibilityDeclaration(rule_kind, effect_kind))
+
+    effect_policies = []
+    for index, raw_row in enumerate(_declaration_rows(occurrence, "effect_policies", pack_id)):
+        context = f"{pack_id}.semantic_declarations.occurrence.effect_policies[{index}]"
+        row = require_mapping(raw_row, context)
+        assert_allowed_keys(
+            row,
+            {"effect_kind", "repetition_policy", "recurrence_pattern_scope"},
+            f"Schema pack `{context}`",
         )
+        effect_kind = require_string(row, "effect_kind", context)
+        repetition_policy = require_string(row, "repetition_policy", context)
+        recurrence_scope = _optional_string(row, "recurrence_pattern_scope", context)
+        validate_id(effect_kind, f"{context}.effect_kind")
+        if repetition_policy not in EFFECT_REPETITION_POLICIES:
+            raise ValueError(f"Schema-pack configuration `{context}.repetition_policy` is unsupported.")
+        if recurrence_scope is not None and recurrence_scope not in EFFECT_PATTERN_SCOPES:
+            raise ValueError(f"Schema-pack configuration `{context}.recurrence_pattern_scope` is unsupported.")
+        effect_policies.append(EffectPolicyDeclaration(effect_kind, repetition_policy, recurrence_scope))
+
+    effect_incompatibilities = []
+    for index, raw_row in enumerate(_declaration_rows(occurrence, "effect_incompatibilities", pack_id)):
+        context = f"{pack_id}.semantic_declarations.occurrence.effect_incompatibilities[{index}]"
+        row = require_mapping(raw_row, context)
+        assert_allowed_keys(row, {"members", "scope"}, f"Schema pack `{context}`")
+        scope = require_string(row, "scope", context)
+        if scope not in EFFECT_INCOMPATIBILITY_SCOPES:
+            raise ValueError(f"Schema-pack configuration `{context}.scope` is unsupported.")
+        effect_incompatibilities.append(EffectIncompatibilityDeclaration(_pair_members(row, context), scope))
+
+    change_profiles = []
+    for index, raw_row in enumerate(_declaration_rows(state, "change_profiles", pack_id)):
+        context = f"{pack_id}.semantic_declarations.state.change_profiles[{index}]"
+        row = require_mapping(raw_row, context)
+        assert_allowed_keys(row, {"change_kind", "change_profile"}, f"Schema pack `{context}`")
+        change_kind = require_string(row, "change_kind", context)
+        change_profile = require_string(row, "change_profile", context)
+        validate_id(change_kind, f"{context}.change_kind")
+        validate_id(change_profile, f"{context}.change_profile")
+        change_profiles.append(StateChangeProfileDeclaration(change_kind, change_profile))
+
+    return SemanticDeclarations(
+        tuple(transition_profiles),
+        tuple(outcome_incompatibilities),
+        tuple(target_compatibilities),
+        tuple(rule_compatibilities),
+        tuple(effect_policies),
+        tuple(effect_incompatibilities),
+        tuple(change_profiles),
+    )
 
 
 def resolve_pack_path(project: ProjectConfig, value: str, context: str) -> Path:
@@ -222,6 +357,129 @@ def resolve_pack_path(project: ProjectConfig, value: str, context: str) -> Path:
     if not path.is_file():
         raise ValueError(f"Schema-pack configuration `{context}` file does not exist: {path}")
     return path
+
+
+def compose_semantic_declarations(
+    packs: dict[str, SchemaPackConfig],
+    selection_order: list[str],
+    controlled_values: dict[str, list[str]],
+) -> tuple[
+    dict[str, str],
+    frozenset[tuple[str, str]],
+    frozenset[tuple[str, str]],
+    frozenset[tuple[str, str]],
+    dict[str, EffectPolicyDeclaration],
+    dict[tuple[str, str], str],
+    dict[str, str],
+    dict[tuple[str, ...], str],
+]:
+    values = {namespace: set(items) for namespace, items in controlled_values.items()}
+    owners: dict[tuple[str, ...], str] = {}
+    transition_profiles: dict[str, str] = {}
+    outcome_incompatibilities: set[tuple[str, str]] = set()
+    target_compatibilities: set[tuple[str, str]] = set()
+    rule_compatibilities: set[tuple[str, str]] = set()
+    effect_policies: dict[str, EffectPolicyDeclaration] = {}
+    effect_incompatibilities: dict[tuple[str, str], str] = {}
+    state_change_profiles: dict[str, str] = {}
+
+    def require_atom(namespace: str, value: str, context: str) -> None:
+        if value not in values.get(namespace, set()):
+            raise ValueError(f"Schema-pack semantic declaration `{context}` references unknown `{namespace}:{value}`.")
+
+    def register(key: tuple[str, ...], pack_id: str) -> None:
+        if key in owners:
+            raise ValueError(
+                f"Schema-pack semantic declaration `{'|'.join(key)}` is provided by both "
+                f"`{owners[key]}` and `{pack_id}`."
+            )
+        owners[key] = pack_id
+
+    for pack_id in selection_order:
+        declarations = packs[pack_id].semantic_declarations
+        for declaration in declarations.transition_profiles:
+            context = f"{pack_id}.transition_profiles.{declaration.transition_kind}"
+            require_atom("occurrence.transition-kind", declaration.transition_kind, context)
+            require_atom("occurrence.transition-profile", declaration.transition_profile, context)
+            key = ("transition-profile", declaration.transition_kind)
+            register(key, pack_id)
+            transition_profiles[declaration.transition_kind] = declaration.transition_profile
+        for declaration in declarations.outcome_incompatibilities:
+            for member in declaration.members:
+                require_atom("occurrence.outcome-kind", member, f"{pack_id}.outcome_incompatibilities")
+            key = ("outcome-incompatibility", *declaration.members)
+            register(key, pack_id)
+            outcome_incompatibilities.add(declaration.members)
+        for declaration in declarations.effect_target_compatibilities:
+            context = f"{pack_id}.effect_target_compatibilities"
+            require_atom("occurrence.rule-effect-kind", declaration.effect_kind, context)
+            require_atom(EFFECT_TARGET_TYPE_NAMESPACE, declaration.target_type, context)
+            pair = (declaration.effect_kind, declaration.target_type)
+            register(("effect-target-compatibility", *pair), pack_id)
+            target_compatibilities.add(pair)
+        for declaration in declarations.rule_effect_compatibilities:
+            context = f"{pack_id}.rule_effect_compatibilities"
+            require_atom("occurrence.rule-kind", declaration.rule_kind, context)
+            require_atom("occurrence.rule-effect-kind", declaration.effect_kind, context)
+            pair = (declaration.rule_kind, declaration.effect_kind)
+            register(("rule-effect-compatibility", *pair), pack_id)
+            rule_compatibilities.add(pair)
+        for declaration in declarations.effect_policies:
+            context = f"{pack_id}.effect_policies.{declaration.effect_kind}"
+            require_atom("occurrence.rule-effect-kind", declaration.effect_kind, context)
+            register(("effect-policy", declaration.effect_kind), pack_id)
+            effect_policies[declaration.effect_kind] = declaration
+        for declaration in declarations.effect_incompatibilities:
+            for member in declaration.members:
+                require_atom("occurrence.rule-effect-kind", member, f"{pack_id}.effect_incompatibilities")
+            register(("effect-incompatibility", *declaration.members), pack_id)
+            effect_incompatibilities[declaration.members] = declaration.scope
+        for declaration in declarations.state_change_profiles:
+            context = f"{pack_id}.change_profiles.{declaration.change_kind}"
+            require_atom("state.change-kind", declaration.change_kind, context)
+            require_atom("state.change-profile", declaration.change_profile, context)
+            register(("state-change-profile", declaration.change_kind), pack_id)
+            state_change_profiles[declaration.change_kind] = declaration.change_profile
+
+    transition_kinds = values.get("occurrence.transition-kind", set())
+    if set(transition_profiles) != transition_kinds:
+        missing = sorted(transition_kinds - set(transition_profiles))
+        raise ValueError(f"Schema-pack transition kinds require exactly one typed profile: {', '.join(missing)}.")
+    change_kinds = values.get("state.change-kind", set())
+    if set(state_change_profiles) != change_kinds:
+        missing = sorted(change_kinds - set(state_change_profiles))
+        raise ValueError(f"Schema-pack state change kinds require exactly one typed profile: {', '.join(missing)}.")
+
+    effect_kinds = values.get("occurrence.rule-effect-kind", set())
+    if set(effect_policies) != effect_kinds:
+        missing = sorted(effect_kinds - set(effect_policies))
+        raise ValueError(f"Schema-pack effect kinds require exactly one typed policy: {', '.join(missing)}.")
+    effects_with_targets = {effect_kind for effect_kind, _ in target_compatibilities}
+    missing_targets = sorted(effect_kinds - effects_with_targets)
+    if missing_targets:
+        raise ValueError(
+            f"Schema-pack effect kinds require a typed target compatibility: {', '.join(missing_targets)}."
+        )
+    effects_with_rules = {effect_kind for _, effect_kind in rule_compatibilities}
+    missing_rules = sorted(effect_kinds - effects_with_rules)
+    if missing_rules:
+        raise ValueError(f"Schema-pack effect kinds require a typed rule compatibility: {', '.join(missing_rules)}.")
+    for effect_kind, policy in effect_policies.items():
+        targets_recurrence = (effect_kind, "recurrence-pattern") in target_compatibilities
+        if targets_recurrence != (policy.recurrence_pattern_scope is not None):
+            requirement = "requires" if targets_recurrence else "must not declare"
+            raise ValueError(f"Schema-pack effect kind `{effect_kind}` {requirement} a recurrence-pattern scope.")
+
+    return (
+        transition_profiles,
+        frozenset(outcome_incompatibilities),
+        frozenset(target_compatibilities),
+        frozenset(rule_compatibilities),
+        effect_policies,
+        effect_incompatibilities,
+        state_change_profiles,
+        owners,
+    )
 
 
 def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
@@ -240,6 +498,7 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
             "dependencies",
             "capabilities",
             "controlled_values",
+            "semantic_declarations",
         },
         f"Schema pack `{expected_pack_id}`",
     )
@@ -346,6 +605,10 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
             )
         if not isinstance(raw_values, list) or not raw_values:
             raise ValueError(f"Schema-pack configuration `{context}` must be a non-empty list.")
+        if namespace in LEGACY_COMPOUND_SEMANTIC_NAMESPACES:
+            raise ValueError(
+                f"Schema-pack controlled-value namespace `{namespace}` was replaced by typed semantic declarations."
+            )
         values: list[str] = []
         definitions: dict[str, ControlledValueConfig] = {}
         for index, raw_value in enumerate(raw_values):
@@ -418,6 +681,7 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
         capability_definitions=capability_definitions,
         controlled_values=controlled_values,
         controlled_value_definitions=controlled_value_definitions,
+        semantic_declarations=parse_semantic_declarations(pack, pack_id),
     )
 
 
@@ -554,7 +818,16 @@ def load_schema_pack_registry(project: ProjectConfig) -> SchemaPackRegistry:
     for key in definitions:
         visit_value(key, set())
 
-    validate_occurrence_semantic_declarations(controlled)
+    (
+        transition_profiles,
+        outcome_incompatibilities,
+        effect_target_compatibilities,
+        rule_effect_compatibilities,
+        effect_policies,
+        effect_incompatibilities,
+        state_change_profiles,
+        semantic_declaration_owners,
+    ) = compose_semantic_declarations(packs, selection_order, controlled)
 
     return SchemaPackRegistry(
         path=path,
@@ -569,4 +842,12 @@ def load_schema_pack_registry(project: ProjectConfig) -> SchemaPackRegistry:
         controlled_values={namespace: tuple(values) for namespace, values in controlled.items()},
         controlled_value_owners=owners,
         controlled_value_definitions=definitions,
+        transition_profiles=transition_profiles,
+        outcome_incompatibilities=outcome_incompatibilities,
+        effect_target_compatibilities=effect_target_compatibilities,
+        rule_effect_compatibilities=rule_effect_compatibilities,
+        effect_policies=effect_policies,
+        effect_incompatibilities=effect_incompatibilities,
+        state_change_profiles=state_change_profiles,
+        semantic_declaration_owners=semantic_declaration_owners,
     )

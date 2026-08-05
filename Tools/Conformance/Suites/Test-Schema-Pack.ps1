@@ -185,6 +185,11 @@ function Assert-ValidSchemaPackFixture {
     if (-not (Test-SchemaPackCapabilityAvailable $Registry 'deprecated-capability')) {
         throw 'Deprecated schema-pack capability lost compatibility availability.'
     }
+    foreach ($property in $Expected.semantic_declarations.PSObject.Properties) {
+        if ([int]$Registry.($property.Name).Count -ne [int]$property.Value) {
+            throw "Schema-pack typed semantic count changed for '$($property.Name)'."
+        }
+    }
 }
 
 function New-ScaleSchemaPackFixture {
@@ -218,7 +223,7 @@ function New-ScaleSchemaPackFixture {
                 })
         }
         $pack = [ordered]@{
-            schema_version = 2
+            schema_version = 3
             pack_id = $packId
             pack_version = 1
             lifecycle = 'active'
@@ -249,6 +254,56 @@ function New-ScaleSchemaPackFixture {
     return $registryPath
 }
 
+function Assert-TypedDelimiterCollision {
+    param([object]$Project, [string]$BaseRoot, [string]$TempRoot)
+
+    $collisionRoot = Join-Path $TempRoot 'delimiter-collision'
+    Copy-Item -LiteralPath $BaseRoot -Destination $collisionRoot -Recurse
+    $corePath = Join-Path $collisionRoot 'packs\fixture-core.json'
+    $core = ConvertTo-MutableFixtureValue (Get-Content -LiteralPath $corePath -Raw | ConvertFrom-Json)
+    $effectKinds = @('a', 'a-with-b', 'b-with-c', 'c')
+    foreach ($effectKind in $effectKinds) {
+        [void]$core['controlled_values']['occurrence.rule-effect-kind'].Add($effectKind)
+        [void]$core['semantic_declarations']['occurrence']['effect_target_compatibilities'].Add(
+            [ordered]@{effect_kind=$effectKind
+                target_type='subject'
+            }
+        )
+        [void]$core['semantic_declarations']['occurrence']['rule_effect_compatibilities'].Add(
+            [ordered]@{rule_kind='add'
+                effect_kind=$effectKind
+            }
+        )
+        [void]$core['semantic_declarations']['occurrence']['effect_policies'].Add(
+            [ordered]@{effect_kind=$effectKind
+                repetition_policy='idempotent'
+            }
+        )
+    }
+    [void]$core['semantic_declarations']['occurrence']['effect_incompatibilities'].Add(
+        [ordered]@{members=@('a', 'b-with-c')
+            scope='global'
+        }
+    )
+    [void]$core['semantic_declarations']['occurrence']['effect_incompatibilities'].Add(
+        [ordered]@{members=@('a-with-b', 'c')
+            scope='same-target'
+        }
+    )
+    Write-FixtureJson $corePath $core
+    $collisionProject = $Project.PSObject.Copy()
+    $collisionProject.root = $collisionRoot
+    $collisionProject.schema_packs_registry = Join-Path $collisionRoot 'registry.json'
+    $registry = Get-KnowledgeSchemaPackRegistry $collisionProject
+    if (
+        $registry.effect_incompatibilities['a|b-with-c'] -cne 'global' -or
+        $registry.effect_incompatibilities['a-with-b|c'] -cne 'same-target'
+    ) {
+        throw 'Typed delimiter-collision declarations did not remain distinct.'
+    }
+    return 2
+}
+
 $project = Get-KnowledgeProjectConfig $Root
 $canonical = Get-KnowledgeSchemaPackRegistry $project
 $fixtureRoot = Join-Path $Root 'Framework\Data\Schema-Packs'
@@ -268,6 +323,7 @@ try {
     $validProject.schema_packs_registry = Join-Path $validRoot 'registry.json'
     $fixtureRegistry = Get-KnowledgeSchemaPackRegistry $validProject
     Assert-ValidSchemaPackFixture $fixtureRegistry $expectations.valid
+    $typedCollisionPairs = Assert-TypedDelimiterCollision $project $baseRoot $tempRoot
 
     foreach ($case in @($expectations.invalid_cases)) {
         $caseRoot = Join-Path $tempRoot ([string]$case.id)
@@ -320,6 +376,7 @@ $summary = [ordered]@{
     fixture_selected_packs = [int]@($fixtureRegistry.selection_order).Count
     invalid_composition_cases = [int]@($expectations.invalid_cases).Count
     scale_pack_count = [int]$scaleCount
+    typed_collision_pairs = [int]$typedCollisionPairs
     schema_version = 1
 }
 if ($Json) {
