@@ -13,7 +13,7 @@ from .strict_yaml import assert_allowed_keys, load_yaml_file
 from .temporal_config import TemporalWindow, normalize_effective_at, parse_temporal_window, temporal_window_match
 
 
-SUPPORTED_SCHEMA_VERSION = 4
+SUPPORTED_SCHEMA_VERSION = 5
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 
@@ -57,6 +57,19 @@ class RecurrenceIteration:
     ordinal: int
     parent_iteration_id: str | None
     status: str
+
+
+@dataclass(frozen=True)
+class RecurrenceCardinality:
+    id: str
+    label: str
+    recurrence_id: str
+    cardinality_kind: str
+    minimum_count: int | None
+    maximum_count: int | None
+    coverage_mode: str
+    representative_iteration_ids: tuple[str, ...]
+    certainty: str
 
 
 @dataclass(frozen=True)
@@ -289,6 +302,7 @@ class OccurrenceRegistry:
     recurrence_patterns: dict[str, RecurrencePattern]
     recurrences: dict[str, Recurrence]
     iterations: dict[str, RecurrenceIteration]
+    recurrence_cardinalities: dict[str, RecurrenceCardinality]
     phases: dict[str, RecurrencePhase]
     schedules: dict[str, RecurrenceSchedule]
     occurrences: dict[str, Occurrence]
@@ -306,6 +320,15 @@ class OccurrenceRegistry:
     def occurrences_for_iteration(self, iteration_id: str) -> tuple[Occurrence, ...]:
         self._known(self.iterations, iteration_id, "iteration")
         return tuple(item for item in self.occurrences.values() if item.iteration_id == iteration_id)
+
+    def cardinalities_for_recurrence(self, recurrence_id: str) -> tuple[RecurrenceCardinality, ...]:
+        self._known(self.recurrences, recurrence_id, "recurrence")
+        return tuple(
+            sorted(
+                (item for item in self.recurrence_cardinalities.values() if item.recurrence_id == recurrence_id),
+                key=lambda item: item.id,
+            )
+        )
 
     def occurrences_at_position(self, position_id: str) -> tuple[Occurrence, ...]:
         return tuple(
@@ -462,6 +485,7 @@ class OccurrenceRegistry:
             "recurrence-pattern": self.recurrence_patterns,
             "recurrence": self.recurrences,
             "recurrence-iteration": self.iterations,
+            "recurrence-cardinality": self.recurrence_cardinalities,
             "recurrence-phase": self.phases,
             "recurrence-schedule": self.schedules,
             "occurrence": self.occurrences,
@@ -544,6 +568,15 @@ def _optional_nonnegative_int(item: dict, key: str, context: str) -> int | None:
     return value
 
 
+def _optional_nonnegative_count(item: dict, key: str, context: str) -> int | None:
+    value = item.get(key)
+    if value is None:
+        return None
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0 or value > 9_223_372_036_854_775_807:
+        raise ValueError(f"{context}.{key} must be a nonnegative signed 64-bit integer or null.")
+    return value
+
+
 def _positive_int(item: dict, key: str, context: str) -> int:
     value = item.get(key)
     if isinstance(value, bool) or not isinstance(value, int) or value < 1:
@@ -602,6 +635,8 @@ def parse_occurrence_registry(
         raise ValueError("Occurrence registry requires enabled capability `semantic-declaration-integrity`.")
     if not packs.capability_enabled("deterministic-effect-resolution"):
         raise ValueError("Occurrence registry requires enabled capability `deterministic-effect-resolution`.")
+    if not packs.capability_enabled("aggregate-recurrence-cardinality"):
+        raise ValueError("Occurrence registry requires enabled capability `aggregate-recurrence-cardinality`.")
     root = _mapping(data, "Occurrence registry root")
     assert_allowed_keys(
         root,
@@ -612,6 +647,7 @@ def parse_occurrence_registry(
             "recurrence_patterns",
             "recurrences",
             "iterations",
+            "recurrence_cardinalities",
             "phases",
             "schedules",
             "occurrences",
@@ -749,6 +785,81 @@ def parse_occurrence_registry(
                     f"`{parent_recurrence_id}`."
                 )
     _validate_iteration_lifecycle(recurrences, iterations)
+
+    recurrence_cardinalities: dict[str, RecurrenceCardinality] = {}
+    cardinality_semantics: set[tuple] = set()
+    for cardinality_id, raw in _mapping(
+        root.get("recurrence_cardinalities"), "occurrences.recurrence_cardinalities"
+    ).items():
+        _stable(cardinality_id, "recurrence cardinality ID")
+        context = f"recurrence_cardinalities.{cardinality_id}"
+        item = _mapping(raw, context)
+        assert_allowed_keys(
+            item,
+            {
+                "label",
+                "recurrence_id",
+                "cardinality_kind",
+                "minimum_count",
+                "maximum_count",
+                "coverage_mode",
+                "representative_iteration_ids",
+                "certainty",
+            },
+            context,
+        )
+        recurrence_id = _string(item, "recurrence_id", context)
+        if recurrence_id not in recurrences:
+            raise ValueError(f"{context}.recurrence_id references unknown recurrence `{recurrence_id}`.")
+        kind = _string(item, "cardinality_kind", context)
+        coverage = _string(item, "coverage_mode", context)
+        _value(packs, "occurrence.cardinality-kind", kind, f"{context}.cardinality_kind")
+        _value(packs, "occurrence.cardinality-coverage", coverage, f"{context}.coverage_mode")
+        minimum = _optional_nonnegative_count(item, "minimum_count", context)
+        maximum = _optional_nonnegative_count(item, "maximum_count", context)
+        expected_bounds = {
+            "exact": minimum is not None and minimum == maximum,
+            "minimum": minimum is not None and maximum is None,
+            "maximum": minimum is None and maximum is not None,
+            "range": minimum is not None and maximum is not None and minimum < maximum,
+            "unknown": minimum is None and maximum is None,
+        }
+        if not expected_bounds.get(kind, False):
+            raise ValueError(f"{context} bounds do not match cardinality_kind `{kind}`.")
+        representative_ids = _strings(item, "representative_iteration_ids", context)
+        for iteration_id in representative_ids:
+            if iteration_id not in iterations or iterations[iteration_id].recurrence_id != recurrence_id:
+                raise ValueError(f"{context}.representative_iteration_ids must belong to recurrence `{recurrence_id}`.")
+        represented_count = len(representative_ids)
+        if maximum is not None and represented_count > maximum:
+            raise ValueError(f"{context} represents more concrete iterations than its maximum_count.")
+        if coverage == "complete":
+            if kind != "exact" or represented_count != minimum:
+                raise ValueError(f"{context} complete coverage requires an exact count and full enumeration.")
+        elif coverage == "representative":
+            if not representative_ids:
+                raise ValueError(f"{context} representative coverage requires concrete iteration IDs.")
+            if kind == "exact" and represented_count == minimum:
+                raise ValueError(f"{context} exact fully enumerated coverage must use `complete`.")
+        elif representative_ids:
+            raise ValueError(f"{context} unmaterialized coverage cannot reference concrete iterations.")
+        certainty = _string(item, "certainty", context)
+        _value(packs, "temporal.certainty", certainty, f"{context}.certainty")
+        semantic_key = (recurrence_id, kind, minimum, maximum, coverage, tuple(sorted(representative_ids)), certainty)
+        if semantic_key in cardinality_semantics:
+            raise ValueError(f"{context} duplicates an existing semantic recurrence cardinality.")
+        cardinality_semantics.add(semantic_key)
+        recurrence_cardinalities[cardinality_id] = RecurrenceCardinality(
+            cardinality_id,
+            _string(item, "label", context),
+            recurrence_id,
+            kind,
+            minimum,
+            maximum,
+            coverage,
+            representative_ids,
+            certainty,
+        )
 
     phases: dict[str, RecurrencePhase] = {}
     phase_ranges: dict[str, list[tuple[int, int | None, str]]] = {}
@@ -1599,6 +1710,7 @@ def parse_occurrence_registry(
         recurrence_patterns,
         recurrences,
         iterations,
+        recurrence_cardinalities,
         phases,
         schedules,
         occurrences,

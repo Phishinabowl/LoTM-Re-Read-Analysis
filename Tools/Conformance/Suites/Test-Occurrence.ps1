@@ -3,6 +3,8 @@ param(
     [switch]$Json
 )
 
+$ErrorActionPreference = 'Stop'
+
 $toolsRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
 $runtimeModule = Join-Path $toolsRoot 'Runtime\PowerShell\KnowledgeFramework\KnowledgeFramework.psd1'
 Import-Module $runtimeModule -Force
@@ -94,12 +96,18 @@ $chronologyFixture = ConvertTo-KnowledgeChronologyRegistry $chronologyFixtureDat
 $fixturePath = Join-Path $fixtureRoot 'valid-registry.yaml'
 $subjectTargets = [ordered]@{character = @('protagonist', 'observer') }
 $payloadTargets = [ordered]@{'state-record' = @('protagonist-health') }
-$fixtureData = ConvertFrom-KnowledgeYamlFile $fixturePath 4 'occurrence fixture'
+$fixtureData = ConvertFrom-KnowledgeYamlFile $fixturePath 5 'occurrence fixture'
 $fixture = ConvertTo-KnowledgeOccurrenceRegistry $fixtureData $fixturePath $packs $chronologyFixture $subjectTargets $payloadTargets
 $expectations = Get-Content -LiteralPath (Join-Path $fixtureRoot 'expectations.json') -Raw | ConvertFrom-Json
 
 foreach ($property in $expectations.iteration_occurrences.PSObject.Properties) {
     Assert-OccurrenceIds (Get-OccurrenceIds (Get-KnowledgeOccurrencesForIteration $fixture $property.Name)) @($property.Value) "Iteration '$($property.Name)'"
+}
+foreach ($property in $expectations.recurrence_cardinalities.PSObject.Properties) {
+    Assert-OccurrenceIds `
+    (Get-OccurrenceIds (Get-KnowledgeCardinalitiesForRecurrence $fixture $property.Name)) `
+    @($property.Value) `
+        "Cardinalities '$($property.Name)'"
 }
 foreach ($property in $expectations.position_occurrences.PSObject.Properties) {
     Assert-OccurrenceIds (Get-OccurrenceIds (Get-KnowledgeOccurrencesAtPosition $fixture $property.Name)) @($property.Value) "Position '$($property.Name)'"
@@ -255,7 +263,7 @@ foreach ($vector in @($expectations.state_at)) {
 
 $invalidCases = Get-Content -LiteralPath (Join-Path $fixtureRoot 'invalid-cases.json') -Raw | ConvertFrom-Json
 foreach ($case in @($invalidCases)) {
-    $invalid = ConvertFrom-KnowledgeYamlFile $fixturePath 4 'invalid occurrence fixture'
+    $invalid = ConvertFrom-KnowledgeYamlFile $fixturePath 5 'invalid occurrence fixture'
     foreach ($change in @($case.changes)) {
         Set-OccurrenceFixturePath $invalid ([string]$change.path) $change.value
     }
@@ -271,8 +279,29 @@ foreach ($case in @($invalidCases)) {
     }
 }
 
-$mixedIndeterminateProbe = ConvertFrom-KnowledgeYamlFile $fixturePath 4 'occurrence fixture'
-$mixedRuleSource = ConvertFrom-KnowledgeYamlFile $fixturePath 4 'occurrence fixture'
+$scaleCount = 128
+$scaleProbe = ConvertFrom-KnowledgeYamlFile $fixturePath 5 'occurrence fixture'
+for ($index = 0; $index -lt $scaleCount; $index++) {
+    $cardinalityId = 'scale-cardinality-{0:d3}' -f $index
+    $scaleProbe['recurrence_cardinalities'][$cardinalityId] = [ordered]@{
+        label = 'Scale cardinality {0:d3}' -f $index
+        recurrence_id = 'inner-loop'
+        cardinality_kind = 'minimum'
+        minimum_count = 1000 + $index
+        maximum_count = $null
+        coverage_mode = 'unmaterialized'
+        representative_iteration_ids = @()
+        certainty = 'uncertain'
+    }
+}
+$scaleRegistry = ConvertTo-KnowledgeOccurrenceRegistry `
+    $scaleProbe $fixturePath $packs $chronologyFixture $subjectTargets $payloadTargets
+if (@(Get-KnowledgeCardinalitiesForRecurrence $scaleRegistry 'inner-loop').Count -ne (5 + $scaleCount)) {
+    throw 'Generated recurrence-cardinality scale probe did not retain every record.'
+}
+
+$mixedIndeterminateProbe = ConvertFrom-KnowledgeYamlFile $fixturePath 5 'occurrence fixture'
+$mixedRuleSource = ConvertFrom-KnowledgeYamlFile $fixturePath 5 'occurrence fixture'
 $mixedRule = $mixedRuleSource['rules'][0]
 $mixedRule['id'] = 'indeterminate-reset-rule'
 $mixedRule['label'] = 'Indeterminate reset policy'
@@ -319,7 +348,7 @@ $packs.effect_policies['signal-recurrence'] = [pscustomobject]@{
 }
 $packs.effect_incompatibilities['advance-iteration|pause-recurrence'] = 'same-target'
 
-$owningProbe = ConvertFrom-KnowledgeYamlFile $fixturePath 4 'occurrence fixture'
+$owningProbe = ConvertFrom-KnowledgeYamlFile $fixturePath 5 'occurrence fixture'
 $owningProbe['rules'] = @($owningProbe['rules']) + @(New-SyntheticOccurrenceRule 'synthetic-pause-rule' 'pause' 'pause-recurrence' 'outer-loop-pattern' 'reset')
 $owningRegistry = ConvertTo-KnowledgeOccurrenceRegistry $owningProbe $fixturePath $packs $chronologyFixture $subjectTargets $payloadTargets
 $owningEvaluation = Get-KnowledgeRecurrenceRuleEvaluation $owningRegistry 'outer-loop' 'reset-two'
@@ -329,7 +358,7 @@ if ($owningEvaluation.status -cne 'conflict') {
 Assert-OccurrenceIds @($owningEvaluation.selected_rule_ids) @('outer-reset-rule', 'synthetic-pause-rule') 'Owning-pattern extension selected rules'
 Assert-OccurrenceIds @($owningEvaluation.conflicts) @('advance-iteration conflicts with pause-recurrence on recurrence-pattern:outer-loop-pattern') 'Owning-pattern extension conflicts'
 
-$foreignOwningProbe = ConvertFrom-KnowledgeYamlFile $fixturePath 4 'occurrence fixture'
+$foreignOwningProbe = ConvertFrom-KnowledgeYamlFile $fixturePath 5 'occurrence fixture'
 $foreignOwningRule = New-SyntheticOccurrenceRule 'synthetic-pause-rule' 'pause' 'pause-recurrence' 'inner-loop-pattern' 'reset'
 $foreignOwningProbe['rules'] = @($foreignOwningProbe['rules']) + @($foreignOwningRule)
 $foreignRejected = $false
@@ -343,7 +372,7 @@ if (-not $foreignRejected) {
     throw 'Owning-pattern extension unexpectedly accepted a foreign pattern target.'
 }
 
-$externalProbe = ConvertFrom-KnowledgeYamlFile $fixturePath 4 'occurrence fixture'
+$externalProbe = ConvertFrom-KnowledgeYamlFile $fixturePath 5 'occurrence fixture'
 $externalProbe['rules'] = @($externalProbe['rules']) + @(New-SyntheticOccurrenceRule 'synthetic-signal-rule' 'signal' 'signal-recurrence' 'inner-loop-pattern' 'bell')
 $externalRegistry = ConvertTo-KnowledgeOccurrenceRegistry $externalProbe $fixturePath $packs $chronologyFixture $subjectTargets $payloadTargets
 $externalEvaluation = Get-KnowledgeRecurrenceRuleEvaluation $externalRegistry 'outer-loop' 'bell-two'
@@ -353,7 +382,7 @@ if ($externalEvaluation.status -cne 'selected') {
 Assert-OccurrenceIds @($externalEvaluation.selected_rule_ids) @('synthetic-signal-rule') 'External-pattern extension selected rules'
 Assert-OccurrenceIds @($externalEvaluation.authorized_effects | ForEach-Object { $_.target_id }) @('inner-loop-pattern') 'External-pattern extension targets'
 
-$duplicateProbe = ConvertFrom-KnowledgeYamlFile $fixturePath 4 'occurrence fixture'
+$duplicateProbe = ConvertFrom-KnowledgeYamlFile $fixturePath 5 'occurrence fixture'
 $firstSignal = New-SyntheticOccurrenceRule 'first-signal-rule' 'signal' 'signal-recurrence' 'inner-loop-pattern' 'bell'
 $secondSignal = New-SyntheticOccurrenceRule 'second-signal-rule' 'signal' 'signal-recurrence' 'inner-loop-pattern' 'bell'
 $firstSignal['resolution_group'] = 'first-signal-group'
@@ -408,7 +437,7 @@ $scopedPacks.effect_policies['pause-recurrence'] = [pscustomobject]@{
     repetition_policy='idempotent'
     recurrence_pattern_scope='external-pattern'
 }
-$scopedProbe = ConvertFrom-KnowledgeYamlFile $fixturePath 4 'occurrence fixture'
+$scopedProbe = ConvertFrom-KnowledgeYamlFile $fixturePath 5 'occurrence fixture'
 $scopedProbe['rules'] = @($scopedProbe['rules']) + @(New-SyntheticOccurrenceRule 'cross-target-pause-rule' 'pause' 'pause-recurrence' 'inner-loop-pattern' 'reset')
 $scopedRegistry = ConvertTo-KnowledgeOccurrenceRegistry `
     $scopedProbe $fixturePath $scopedPacks $chronologyFixture $subjectTargets $payloadTargets
@@ -439,9 +468,11 @@ $summary = [ordered]@{
     branches=[int]$registry.branches.Count
     carryovers=[int]@($registry.carryovers).Count
     causal_relations=[int]@($registry.causal_relations).Count
-    fixture_queries=68
+    fixture_queries=72
     invalid_cases=[int]@($invalidCases).Count
     iterations=[int]$registry.iterations.Count
+    recurrence_cardinalities=[int]$registry.recurrence_cardinalities.Count
+    scale_cardinalities=$scaleCount
     phases=[int]$registry.phases.Count
     schedules=[int]$registry.schedules.Count
     occurrences=[int]$registry.occurrences.Count

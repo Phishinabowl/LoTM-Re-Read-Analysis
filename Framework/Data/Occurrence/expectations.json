@@ -2,6 +2,11 @@
   "iteration_occurrences": {
     "outer-two": ["wake-two", "bell-two", "reset-two"]
   },
+  "recurrence_cardinalities": {
+    "outer-loop": ["outer-complete-count"],
+    "inner-loop": ["inner-large-minimum-count", "inner-maximum-count", "inner-minimum-count", "inner-range-count", "inner-unknown-count"],
+    "empty-loop": ["empty-complete-count"]
+  },
   "position_occurrences": {
     "civil-anchor": ["wake-one", "wake-two", "wake-three"]
   },

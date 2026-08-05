@@ -2,7 +2,7 @@
 
 ## Ownership
 
-`Project_Config/occurrences.yaml` instantiates occurrence identity, recurrence patterns and executions, phases and schedules, branch topology, subject tracks, transitions, causal relations, outcomes, recurrence rules, state transitions, and iteration carryover. `Tools/Runtime/Python/knowledge_framework/occurrence_config.py` and `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` are the behaviorally paired schema-4 loaders and query services. V38 moves executable pack relationships into typed schema-3 semantic declarations and makes rule evaluation authorization fail closed without changing the stored occurrence-registry shape.
+`Project_Config/occurrences.yaml` instantiates occurrence identity, recurrence patterns and executions, aggregate recurrence cardinality, phases and schedules, branch topology, subject tracks, transitions, causal relations, outcomes, recurrence rules, state transitions, and iteration carryover. `Tools/Runtime/Python/knowledge_framework/occurrence_config.py` and `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` are the behaviorally paired schema-5 loaders and query services. V39 adds cardinality records without making stored iteration rows stand in for a complete execution history.
 
 Chronology and occurrence identity remain separate. Chronology answers where or when something is positioned and preserves acyclic exact order. The occurrence registry answers which distinct happening, execution, iteration, branch, experienced step, or subject-state change a record represents. Several occurrences may bind one chronology position without becoming the same occurrence.
 
@@ -21,6 +21,14 @@ Every mapping key and list-row `id` is a stable kebab-case identifier.
 - `tracks` are ordered subject or process perspectives over occurrence IDs. For each recurrence represented directly on a track, iteration ordinals are monotonic; nested child-recurrence segments remain legal.
 
 An occurrence binding has its own stable ID, chronology `position_id`, and role. Duplicate semantic bindings are invalid. Two primary bindings may be concurrent or incomparable, but they cannot be positions known to be ordered.
+
+## Aggregate Cardinality
+
+`recurrence_cardinalities` describe the realized iteration count of one concrete recurrence without requiring every iteration to be materialized. A record has one typed shape: `exact`, `minimum`, `maximum`, `range`, or `unknown`. Canonical `minimum_count` and `maximum_count` bounds must match that shape, use nonnegative signed 64-bit integers, and never imply an inverted range.
+
+Coverage is independent from the numeric claim. `complete` means the representative list enumerates the exact history, including a valid exact-zero empty history. `representative` names a nonempty subset of same-recurrence iteration IDs; the known subset may exceed a stated lower bound but cannot exceed a stated upper bound. `unmaterialized` names no concrete iterations. A fully enumerated exact list must use `complete`; sparse or selective observations must not masquerade as exhaustive history. Multiple nonduplicate cardinality records may coexist so provenance can resolve source-specific or superseding claims rather than forcing the occurrence loader to choose authority.
+
+Cardinality records describe realized history only. They do not describe expected, permitted, configured, or scheduled future repetitions and never invent missing occurrence identities or iteration ordinals. Their `certainty` is a modeled qualifier; evidence, factual status, source priority, reader/source applicability, and supersession remain provenance-owned through the stable `recurrence-cardinality` target.
 
 ## Transitions And Causality
 
@@ -73,11 +81,11 @@ The model can therefore separate the same external coordinate from successive su
 
 ## Queries
 
-Paired services query iteration contents, coordinate reuse, iteration contents and boundaries on a track, ordinary track neighbors, recurrence identity and phase, expected schedule values and due status, incoming carryover, outcomes for an occurrence, rules for a recurrence pattern, state transitions for a subject, the latest applicable state at a track occurrence, and deterministic recurrence-rule evaluation with a trace. These answer both what happened and which bounded policy applies without introducing chronological cycles.
+Paired services query iteration contents, recurrence cardinality claims, coordinate reuse, iteration contents and boundaries on a track, ordinary track neighbors, recurrence identity and phase, expected schedule values and due status, incoming carryover, outcomes for an occurrence, rules for a recurrence pattern, state transitions for a subject, the latest applicable state at a track occurrence, and deterministic recurrence-rule evaluation with a trace. These answer both what happened and which bounded policy applies without introducing chronological cycles.
 
 ## Layering
 
-- Core owns occurrence, pattern, execution, iteration, phase, schedule, branch, outcome, rule evaluation, semantic declaration validation, deterministic effect resolution, civil schedule boundaries, generic subject-state, carryover, validation, and queries.
+- Core owns occurrence, pattern, execution, aggregate realized-history cardinality, iteration, phase, schedule, branch, outcome, rule evaluation, semantic declaration validation, deterministic effect resolution, civil schedule boundaries, generic subject-state, carryover, validation, and queries.
 - Domain packs extend kinds, mechanisms, outcomes, valid rule-kind/effect-kind combinations, recurrence-pattern effect scopes, repetition policy, and globally or same-target incompatible effect-kind pairs.
 - Project configuration owns concrete records and source-backed claims.
 - Chronology remains the sole owner of acyclic exact temporal comparison.
@@ -87,4 +95,4 @@ The LoTM project declares only its `main` branch until source-backed occurrences
 
 ## Conformance
 
-`Framework/Data/Occurrence/` contains the portable V31-V38 corpus. Its synthetic extension probes prove that selected packs can add typed rule/effect compatibility, owning or external recurrence-pattern scopes, scoped conflicts, repetition behavior, contributor diagnostics, and fail-closed authorization without modifying the engine. Run `python Tools/Conformance/Suites/test_occurrence.py` and `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Occurrence.ps1` after changing occurrence vocabulary, registry shape, chronology composition, recurrence policy or lifecycle, schedules, state semantics, carryover, provenance targets, or query behavior.
+`Framework/Data/Occurrence/` contains the portable V31-V39 corpus. Its fixture and generated probes cover cardinality shapes and coverage modes, signed 64-bit boundaries, representative and complete histories, malformed combinations, 128-record scale, typed rule/effect extensions, scoped conflicts, repetition behavior, contributor diagnostics, and fail-closed authorization. Run `python Tools/Conformance/Suites/test_occurrence.py` and `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Occurrence.ps1` after changing occurrence vocabulary, registry shape, chronology composition, recurrence cardinality, recurrence policy or lifecycle, schedules, state semantics, carryover, provenance targets, or query behavior.

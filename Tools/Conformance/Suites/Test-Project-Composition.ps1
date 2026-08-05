@@ -66,6 +66,7 @@ $occurrenceCountFields = @(
     'templates'
     'recurrence_patterns'
     'recurrences'
+    'recurrence_cardinalities'
     'iterations'
     'phases'
     'schedules'

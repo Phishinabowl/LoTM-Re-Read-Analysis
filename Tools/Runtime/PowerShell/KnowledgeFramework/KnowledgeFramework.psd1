@@ -80,6 +80,7 @@
         'Get-KnowledgeApplicabilityTemporalMatch'
         'Get-KnowledgeApplicabilityTerritoryMatch'
         'Get-KnowledgeCanonicalComposition'
+        'Get-KnowledgeCardinalitiesForRecurrence'
         'Get-KnowledgeCarryoversIntoIteration'
         'Get-KnowledgeChronologyComparison'
         'Get-KnowledgeChronologyRegistry'

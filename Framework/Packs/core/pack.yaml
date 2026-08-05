@@ -1,6 +1,6 @@
 schema_version: 3
 pack_id: core
-pack_version: 29
+pack_version: 30
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -65,6 +65,7 @@ capabilities:
   - civil-schedule-boundary-integrity
   - semantic-declaration-integrity
   - deterministic-effect-resolution
+  - aggregate-recurrence-cardinality
   - visibility-policy
   - graph-projection
   - schema-validation
@@ -134,6 +135,16 @@ controlled_values:
     - active
     - completed
     - terminated
+  occurrence.cardinality-kind:
+    - exact
+    - minimum
+    - maximum
+    - range
+    - unknown
+  occurrence.cardinality-coverage:
+    - complete
+    - representative
+    - unmaterialized
   occurrence.transition-kind:
     - continues
     - jump
@@ -309,6 +320,7 @@ controlled_values:
     - recurrence-pattern
     - recurrence
     - recurrence-iteration
+    - recurrence-cardinality
     - recurrence-phase
     - recurrence-schedule
     - occurrence

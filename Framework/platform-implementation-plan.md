@@ -96,11 +96,11 @@ deferred at the stabilization gate.
 
 ### Phase 1.3 Aggregate And Uncertain Recurrence Cardinality
 
-- [ ] Define a bounded framework version after V38 for exact, minimum, maximum, ranged, unknown,
+- [x] Define a bounded framework version after V38 for exact, minimum, maximum, ranged, unknown,
   and aggregate recurrence cardinality.
-- [ ] Represent large or source-unspecified repetition counts without inventing concrete iterations.
-- [ ] Permit representative concrete iterations to coexist with an aggregate execution history.
-- [ ] Preserve evidence, certainty, and reader/source applicability for every cardinality assertion.
+- [x] Represent large or source-unspecified repetition counts without inventing concrete iterations.
+- [x] Permit representative concrete iterations to coexist with an aggregate execution history.
+- [x] Preserve evidence, certainty, and reader/source applicability for every cardinality assertion.
 - [ ] Prove Loki's centuries of Loom attempts without asserting an unsupported exact total.
 - [ ] Replay retry, recurring medical episode, scheduled legal obligation, and scientific-trial
   scenarios so the capability remains domain-neutral.

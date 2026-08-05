@@ -158,7 +158,7 @@ def main() -> int:
         continuity_ids=set(),
     )
     fixture_path = fixture_root / "valid-registry.yaml"
-    fixture_data = load_yaml_file(fixture_path, "occurrence fixture", expected_schema_version=4)
+    fixture_data = load_yaml_file(fixture_path, "occurrence fixture", expected_schema_version=5)
     fixture = parse_occurrence_registry(
         fixture_data,
         fixture_path,
@@ -171,6 +171,9 @@ def main() -> int:
     for iteration_id, expected in expectations["iteration_occurrences"].items():
         if ids(fixture.occurrences_for_iteration(iteration_id)) != expected:
             raise AssertionError(f"Unexpected occurrence order for iteration `{iteration_id}`.")
+    for recurrence_id, expected in expectations["recurrence_cardinalities"].items():
+        if ids(fixture.cardinalities_for_recurrence(recurrence_id)) != expected:
+            raise AssertionError(f"Unexpected cardinalities for recurrence `{recurrence_id}`.")
     for position_id, expected in expectations["position_occurrences"].items():
         if ids(fixture.occurrences_at_position(position_id)) != expected:
             raise AssertionError(f"Unexpected occurrences at position `{position_id}`.")
@@ -280,6 +283,31 @@ def main() -> int:
         except ValueError:
             continue
         raise AssertionError(f"Malformed occurrence case unexpectedly loaded: {case['name']}")
+
+    scale_count = 128
+    scale_probe = copy.deepcopy(fixture_data)
+    for index in range(scale_count):
+        cardinality_id = f"scale-cardinality-{index:03d}"
+        scale_probe["recurrence_cardinalities"][cardinality_id] = {
+            "label": f"Scale cardinality {index:03d}",
+            "recurrence_id": "inner-loop",
+            "cardinality_kind": "minimum",
+            "minimum_count": 1000 + index,
+            "maximum_count": None,
+            "coverage_mode": "unmaterialized",
+            "representative_iteration_ids": [],
+            "certainty": "uncertain",
+        }
+    scale_registry = parse_occurrence_registry(
+        scale_probe,
+        fixture_path,
+        packs,
+        chronology_fixture,
+        subject_targets={"character": {"protagonist", "observer"}},
+        payload_targets={"state-record": {"protagonist-health"}},
+    )
+    if len(scale_registry.cardinalities_for_recurrence("inner-loop")) != 5 + scale_count:
+        raise AssertionError("Generated recurrence-cardinality scale probe did not retain every record.")
 
     mixed_indeterminate_probe = copy.deepcopy(fixture_data)
     mixed_rule = copy.deepcopy(mixed_indeterminate_probe["rules"][0])
@@ -479,6 +507,7 @@ def main() -> int:
         "recurrence_patterns": len(registry.recurrence_patterns),
         "recurrences": len(registry.recurrences),
         "iterations": len(registry.iterations),
+        "recurrence_cardinalities": len(registry.recurrence_cardinalities),
         "phases": len(registry.phases),
         "schedules": len(registry.schedules),
         "occurrences": len(registry.occurrences),
@@ -491,6 +520,7 @@ def main() -> int:
         "carryovers": len(registry.carryovers),
         "fixture_queries": (
             len(expectations["iteration_occurrences"])
+            + len(expectations["recurrence_cardinalities"])
             + len(expectations["position_occurrences"])
             + len(expectations["iteration_track_occurrences"])
             + len(expectations["track_iteration_boundaries"]) * 2
@@ -508,9 +538,10 @@ def main() -> int:
             + len(expectations["trace_dispositions"])
             + len(expectations["subject_state_transitions"])
             + len(expectations["state_at"])
-            + 15
+            + 16
         ),
         "invalid_cases": len(invalid_cases),
+        "scale_cardinalities": scale_count,
     }
     if args.json:
         print(json.dumps(summary, sort_keys=True, separators=(",", ":")))

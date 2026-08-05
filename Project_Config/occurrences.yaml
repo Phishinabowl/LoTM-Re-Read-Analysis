@@ -1,4 +1,4 @@
-schema_version: 4
+schema_version: 5
 
 branches:
   main:
@@ -10,6 +10,7 @@ templates: {}
 recurrence_patterns: {}
 recurrences: {}
 iterations: {}
+recurrence_cardinalities: {}
 phases: {}
 schedules: {}
 occurrences: {}

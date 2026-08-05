@@ -79,6 +79,7 @@ OCCURRENCE_COUNT_FIELDS = (
     "templates",
     "recurrence_patterns",
     "recurrences",
+    "recurrence_cardinalities",
     "iterations",
     "phases",
     "schedules",

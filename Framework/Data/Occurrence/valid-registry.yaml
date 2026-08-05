@@ -1,4 +1,4 @@
-schema_version: 4
+schema_version: 5
 
 branches:
   main:
@@ -57,6 +57,11 @@ recurrences:
     pattern_id: inner-loop-pattern
     parent_recurrence_id: outer-loop
     status: completed
+  empty-loop:
+    label: Empty Loop
+    pattern_id: outer-loop-pattern
+    parent_recurrence_id: null
+    status: active
 
 iterations:
   outer-one:
@@ -84,6 +89,78 @@ iterations:
     ordinal: 2
     parent_iteration_id: outer-two
     status: completed
+
+recurrence_cardinalities:
+  outer-complete-count:
+    label: Complete Outer Loop Count
+    recurrence_id: outer-loop
+    cardinality_kind: exact
+    minimum_count: 3
+    maximum_count: 3
+    coverage_mode: complete
+    representative_iteration_ids:
+      - outer-one
+      - outer-two
+      - outer-three
+    certainty: exact
+  inner-minimum-count:
+    label: Minimum Inner Loop Count
+    recurrence_id: inner-loop
+    cardinality_kind: minimum
+    minimum_count: 1
+    maximum_count: null
+    coverage_mode: representative
+    representative_iteration_ids:
+      - inner-one
+      - inner-two
+    certainty: approximate
+  inner-maximum-count:
+    label: Maximum Inner Loop Count
+    recurrence_id: inner-loop
+    cardinality_kind: maximum
+    minimum_count: null
+    maximum_count: 100
+    coverage_mode: unmaterialized
+    representative_iteration_ids: []
+    certainty: uncertain
+  inner-range-count:
+    label: Ranged Inner Loop Count
+    recurrence_id: inner-loop
+    cardinality_kind: range
+    minimum_count: 5
+    maximum_count: 10
+    coverage_mode: representative
+    representative_iteration_ids:
+      - inner-one
+      - inner-two
+    certainty: approximate
+  inner-unknown-count:
+    label: Unknown Inner Loop Count
+    recurrence_id: inner-loop
+    cardinality_kind: unknown
+    minimum_count: null
+    maximum_count: null
+    coverage_mode: unmaterialized
+    representative_iteration_ids: []
+    certainty: exact
+  empty-complete-count:
+    label: Complete Empty Loop Count
+    recurrence_id: empty-loop
+    cardinality_kind: exact
+    minimum_count: 0
+    maximum_count: 0
+    coverage_mode: complete
+    representative_iteration_ids: []
+    certainty: exact
+  inner-large-minimum-count:
+    label: Large Minimum Inner Loop Count
+    recurrence_id: inner-loop
+    cardinality_kind: minimum
+    minimum_count: 9223372036854775807
+    maximum_count: null
+    coverage_mode: unmaterialized
+    representative_iteration_ids: []
+    certainty: uncertain
 
 phases:
   outer-early-phase:

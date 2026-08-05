@@ -105,6 +105,28 @@ function Get-KnowledgeOccurrencesForIteration {
     }
     return @($Registry.occurrences.Values | Where-Object { $_.iteration_id -ceq $IterationId })
 }
+function Get-OptionalOccurrenceNonnegativeCount {
+    param([object]$Map, [string]$Key, [string]$Context)
+    $value = Get-ProjectMapValue $Map $Key
+    if ($null -eq $value) {
+        return $null
+    }
+    if (($value -isnot [int] -and $value -isnot [long]) -or $value -lt 0) {
+        throw "$Context.$Key must be a nonnegative signed 64-bit integer or null."
+    }
+    return [long]$value
+}
+function Get-KnowledgeCardinalitiesForRecurrence {
+    param([object]$Registry, [string]$RecurrenceId)
+    if (-not $Registry.recurrences.Contains($RecurrenceId)) {
+        throw "Unknown recurrence '$RecurrenceId'."
+    }
+    return @(
+        $Registry.recurrence_cardinalities.Values |
+            Where-Object { $_.recurrence_id -ceq $RecurrenceId } |
+            Sort-Object id
+    )
+}
 function Get-KnowledgeOccurrencesAtPosition {
     param([object]$Registry, [string]$PositionId)
     return @($Registry.occurrences.Values | Where-Object { @($_.bindings | Where-Object { $_.position_id -ceq $PositionId }).Count -gt 0 })
@@ -794,6 +816,7 @@ function Get-KnowledgeOccurrenceProvenanceTargets {
         'recurrence-pattern'=$Registry.recurrence_patterns
         recurrence=$Registry.recurrences
         'recurrence-iteration'=$Registry.iterations
+        'recurrence-cardinality'=$Registry.recurrence_cardinalities
         'recurrence-phase'=$Registry.phases
         'recurrence-schedule'=$Registry.schedules
         occurrence=$Registry.occurrences
@@ -975,6 +998,7 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
         'civil-schedule-boundary-integrity'
         'semantic-declaration-integrity'
         'deterministic-effect-resolution'
+        'aggregate-recurrence-cardinality'
     )
     foreach ($capability in $requiredCapabilities) {
         if (-not (Test-SchemaPackCapabilityEnabled $SchemaPacks $capability)) {
@@ -989,6 +1013,7 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
         'recurrence_patterns'
         'recurrences'
         'iterations'
+        'recurrence_cardinalities'
         'phases'
         'schedules'
         'occurrences'
@@ -1002,8 +1027,8 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
     )
     Assert-KnowledgeMapKeys $Data $rootKeys 'Occurrence registry root'
     $schemaVersion = Get-ProjectMapValue $Data 'schema_version'
-    if ($schemaVersion -isnot [int] -or $schemaVersion -ne 4) {
-        throw "Unsupported occurrence schema_version '$schemaVersion'; expected 4."
+    if ($schemaVersion -isnot [int] -or $schemaVersion -ne 5) {
+        throw "Unsupported occurrence schema_version '$schemaVersion'; expected 5."
     }
 
     $rawBranches = Get-ProjectMapValue $Data 'branches'
@@ -1167,6 +1192,124 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
         }
         if ($recurrence.status -ceq 'completed' -and ($active.Count -gt 0 -or $terminated.Count -gt 0)) {
             throw "Completed recurrence '$($recurrence.id)' cannot contain active or terminated iterations."
+        }
+    }
+
+    $rawCardinalities = Get-ProjectMapValue $Data 'recurrence_cardinalities'
+    Assert-OccurrenceMap $rawCardinalities 'occurrences.recurrence_cardinalities'
+    $cardinalities = [ordered]@{}
+    $cardinalitySemantics = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    foreach ($id in @($rawCardinalities.Keys)) {
+        $null = Assert-OccurrenceStableId ([string]$id) 'recurrence cardinality ID'
+        $context = "recurrence_cardinalities.$id"
+        $item = $rawCardinalities[$id]
+        Assert-OccurrenceMap $item $context
+        Assert-KnowledgeMapKeys $item @(
+            'label'
+            'recurrence_id'
+            'cardinality_kind'
+            'minimum_count'
+            'maximum_count'
+            'coverage_mode'
+            'representative_iteration_ids'
+            'certainty'
+        ) $context
+        $recurrenceId = Get-RequiredOccurrenceString $item 'recurrence_id' $context
+        if (-not $recurrences.Contains($recurrenceId)) {
+            throw "$context.recurrence_id references unknown recurrence '$recurrenceId'."
+        }
+        $kind = Get-RequiredOccurrenceString $item 'cardinality_kind' $context
+        $coverage = Get-RequiredOccurrenceString $item 'coverage_mode' $context
+        Assert-OccurrencePackValue $SchemaPacks 'occurrence.cardinality-kind' $kind "$context.cardinality_kind"
+        Assert-OccurrencePackValue $SchemaPacks 'occurrence.cardinality-coverage' $coverage "$context.coverage_mode"
+        $minimum = Get-OptionalOccurrenceNonnegativeCount $item 'minimum_count' $context
+        $maximum = Get-OptionalOccurrenceNonnegativeCount $item 'maximum_count' $context
+        $boundsValid = switch ($kind) {
+            'exact' {
+                $null -ne $minimum -and $minimum -eq $maximum
+            }
+            'minimum' {
+                $null -ne $minimum -and $null -eq $maximum
+            }
+            'maximum' {
+                $null -eq $minimum -and $null -ne $maximum
+            }
+            'range' {
+                $null -ne $minimum -and $null -ne $maximum -and $minimum -lt $maximum
+            }
+            'unknown' {
+                $null -eq $minimum -and $null -eq $maximum
+            }
+            default {
+                $false
+            }
+        }
+        if (-not $boundsValid) {
+            throw "$context bounds do not match cardinality_kind '$kind'."
+        }
+        $representativeIds = @(Get-OccurrenceStringList $item 'representative_iteration_ids' $context)
+        foreach ($iterationId in $representativeIds) {
+            if (
+                -not $iterations.Contains($iterationId) -or
+                $iterations[$iterationId].recurrence_id -cne $recurrenceId
+            ) {
+                throw "$context.representative_iteration_ids must belong to recurrence '$recurrenceId'."
+            }
+        }
+        $representedCount = $representativeIds.Count
+        if ($null -ne $maximum -and $representedCount -gt $maximum) {
+            throw "$context represents more concrete iterations than its maximum_count."
+        }
+        if ($coverage -ceq 'complete') {
+            if ($kind -cne 'exact' -or $representedCount -ne $minimum) {
+                throw "$context complete coverage requires an exact count and full enumeration."
+            }
+        }
+        elseif ($coverage -ceq 'representative') {
+            if ($representedCount -eq 0) {
+                throw "$context representative coverage requires concrete iteration IDs."
+            }
+            if ($kind -ceq 'exact' -and $representedCount -eq $minimum) {
+                throw "$context exact fully enumerated coverage must use 'complete'."
+            }
+        }
+        elseif ($representedCount -gt 0) {
+            throw "$context unmaterialized coverage cannot reference concrete iterations."
+        }
+        $certainty = Get-RequiredOccurrenceString $item 'certainty' $context
+        Assert-OccurrencePackValue $SchemaPacks 'temporal.certainty' $certainty "$context.certainty"
+        $semanticKey = @(
+            $recurrenceId
+            $kind
+            $(if ($null -eq $minimum) {
+                    '<null>'
+                }
+                else {
+                    $minimum
+                })
+            $(if ($null -eq $maximum) {
+                    '<null>'
+                }
+                else {
+                    $maximum
+                })
+            $coverage
+            (@($representativeIds | Sort-Object) -join ',')
+            $certainty
+        ) -join '|'
+        if (-not $cardinalitySemantics.Add($semanticKey)) {
+            throw "$context duplicates an existing semantic recurrence cardinality."
+        }
+        $cardinalities[$id] = [pscustomobject]@{
+            id=[string]$id
+            label=Get-RequiredOccurrenceString $item 'label' $context
+            recurrence_id=$recurrenceId
+            cardinality_kind=$kind
+            minimum_count=$minimum
+            maximum_count=$maximum
+            coverage_mode=$coverage
+            representative_iteration_ids=@($representativeIds)
+            certainty=$certainty
         }
     }
 
@@ -2352,13 +2495,14 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
         }
     }
     return [pscustomobject]@{path=$Path
-        schema_version=4
+        schema_version=5
         chronology=$Chronology
         branches=$branches
         templates=$templates
         recurrence_patterns=$patterns
         recurrences=$recurrences
         iterations=$iterations
+        recurrence_cardinalities=$cardinalities
         phases=$phases
         schedules=$schedules
         occurrences=$occurrences
@@ -2377,6 +2521,6 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
 
 function Get-KnowledgeOccurrenceRegistry {
     param([object]$Project, [object]$SchemaPacks, [object]$Chronology, [System.Collections.IDictionary]$SubjectTargets = $null, [System.Collections.IDictionary]$PayloadTargets = $null)
-    $data = ConvertFrom-KnowledgeYamlFile $Project.occurrences_registry 4 'occurrence registry'
+    $data = ConvertFrom-KnowledgeYamlFile $Project.occurrences_registry 5 'occurrence registry'
     return ConvertTo-KnowledgeOccurrenceRegistry $data $Project.occurrences_registry $SchemaPacks $Chronology $SubjectTargets $PayloadTargets
 }
