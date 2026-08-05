@@ -392,7 +392,7 @@ if (@(Get-KnowledgeCardinalitiesForRecurrence $scaleRegistry 'inner-loop').Count
     throw 'Generated recurrence-cardinality scale probe did not retain every record.'
 }
 if (
-    @(Get-KnowledgeParticipationsForSubject $scaleRegistry 'character' 'observer').Count -ne (5 + $scaleCount) -or
+    @(Get-KnowledgeParticipationsForSubject $scaleRegistry 'character' 'observer').Count -ne (7 + $scaleCount) -or
     @($scaleRegistry.tracks['scale-observer-experience'].entry_ids).Count -ne $scaleCount
 ) {
     throw 'Generated occurrence-participation scale probe did not retain every record.'
@@ -566,7 +566,7 @@ $summary = [ordered]@{
     branches=[int]$registry.branches.Count
     carryovers=[int]@($registry.carryovers).Count
     causal_relations=[int]@($registry.causal_relations).Count
-    fixture_queries=80
+    fixture_queries=87
     invalid_cases=[int]@($invalidCases).Count
     iterations=[int]$registry.iterations.Count
     recurrence_cardinalities=[int]$registry.recurrence_cardinalities.Count

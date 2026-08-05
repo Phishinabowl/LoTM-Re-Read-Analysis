@@ -92,7 +92,7 @@
   {"name":"unknown-participation-perspective","changes":[{"path":"occurrence_participations.protagonist-wake-one.perspective","value":"omniscient"}]},
   {"name":"unknown-participation-status","changes":[{"path":"occurrence_participations.protagonist-wake-one.status","value":"revisited"}]},
   {"name":"unknown-participation-chronology-context","changes":[{"path":"occurrence_participations.protagonist-wake-one.chronology_context_id","value":"missing-context"}]},
-  {"name":"duplicate-semantic-participation","changes":[{"path":"occurrence_participations.protagonist-self-intervention-agent.role","value":"recipient"},{"path":"occurrence_participations.protagonist-self-intervention-agent.chronology_context_id","value":"recipient-context"}]},
+  {"name":"unordered-duplicate-semantic-participation","changes":[{"path":"occurrence_participations.protagonist-self-intervention-agent.role","value":"recipient"},{"path":"occurrence_participations.protagonist-self-intervention-agent.chronology_context_id","value":"recipient-context"},{"path":"track_entries.protagonist-entry-14.track_id","value":"protagonist-review"},{"path":"track_entries.protagonist-entry-14.ordinal","value":1}]},
   {"name":"unknown-track-entry-track","changes":[{"path":"track_entries.protagonist-entry-01.track_id","value":"missing-track"}]},
   {"name":"unknown-track-entry-participation","changes":[{"path":"track_entries.protagonist-entry-01.participation_id","value":"missing-participation"}]},
   {"name":"track-entry-subject-mismatch","changes":[{"path":"track_entries.observer-entry-01.participation_id","value":"protagonist-wake-one"}]},

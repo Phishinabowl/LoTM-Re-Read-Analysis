@@ -1574,7 +1574,7 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
     $rawParticipations = Get-ProjectMapValue $Data 'occurrence_participations'
     Assert-OccurrenceMap $rawParticipations 'occurrences.occurrence_participations'
     $participations = [ordered]@{}
-    $participationSemantics = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $participationSemantics = [ordered]@{}
     $chronologyContextIds = @($Chronology.narrative_contexts | ForEach-Object { $_.id })
     foreach ($id in @($rawParticipations.Keys)) {
         $null = Assert-OccurrenceStableId ([string]$id) 'occurrence participation ID'
@@ -1621,9 +1621,10 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
             $status,
             $chronologyContextId
         ) -join '|'
-        if (-not $participationSemantics.Add($semanticKey)) {
-            throw "$context duplicates an existing semantic participation."
+        if (-not $participationSemantics.Contains($semanticKey)) {
+            $participationSemantics[$semanticKey] = @()
         }
+        $participationSemantics[$semanticKey] = @($participationSemantics[$semanticKey]) + @([string]$id)
         $participations[$id] = [pscustomobject]@{id=[string]$id
             occurrence_id=$occurrenceId
             subject_type=$subjectType
@@ -1721,6 +1722,31 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
             subject_id=$metadata.subject_id
             entry_ids=$entryIds
             occurrence_ids=$occurrenceIds
+        }
+    }
+    $participationTracks = @{}
+    foreach ($participationId in @($participations.Keys)) {
+        $participationTracks[$participationId] = @()
+    }
+    foreach ($entry in @($trackEntries.Values)) {
+        $participationTracks[$entry.participation_id] = @(
+            @($participationTracks[$entry.participation_id]) + @($entry.track_id) |
+                Sort-Object -Unique
+        )
+    }
+    foreach ($semanticKey in @($participationSemantics.Keys)) {
+        $duplicateIds = @($participationSemantics[$semanticKey])
+        if ($duplicateIds.Count -lt 2) {
+            continue
+        }
+        $sharedTracks = @($participationTracks[$duplicateIds[0]])
+        foreach ($participationId in @($duplicateIds | Select-Object -Skip 1)) {
+            $candidateTracks = @($participationTracks[$participationId])
+            $sharedTracks = @($sharedTracks | Where-Object { $candidateTracks -ccontains $_ })
+        }
+        if ($sharedTracks.Count -eq 0) {
+            $joinedIds = @($duplicateIds | ForEach-Object { "'$_'" }) -join ', '
+            throw "Semantic duplicate participations $joinedIds must share a track that orders each encounter."
         }
     }
     foreach ($track in @($tracks.Values)) {

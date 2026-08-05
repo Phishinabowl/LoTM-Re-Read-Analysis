@@ -386,7 +386,7 @@ def main() -> int:
     if len(scale_registry.cardinalities_for_recurrence("inner-loop")) != 5 + scale_count:
         raise AssertionError("Generated recurrence-cardinality scale probe did not retain every record.")
     if (
-        len(scale_registry.participations_for_subject("character", "observer")) != 5 + scale_count
+        len(scale_registry.participations_for_subject("character", "observer")) != 7 + scale_count
         or len(scale_registry.tracks["scale-observer-experience"].entry_ids) != scale_count
     ):
         raise AssertionError("Generated occurrence-participation scale probe did not retain every record.")

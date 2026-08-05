@@ -1085,7 +1085,7 @@ def parse_occurrence_registry(
             )
 
     occurrence_participations: dict[str, OccurrenceParticipation] = {}
-    participation_semantics: set[tuple[str, str, str, str, str, str, str | None]] = set()
+    participation_semantics: dict[tuple[str, str, str, str, str, str, str | None], list[str]] = {}
     chronology_context_ids = {item.id for item in chronology.narrative_contexts}
     for participation_id, raw in _mapping(
         root.get("occurrence_participations"), "occurrences.occurrence_participations"
@@ -1132,9 +1132,7 @@ def parse_occurrence_registry(
             status,
             chronology_context_id,
         )
-        if semantic_key in participation_semantics:
-            raise ValueError(f"{context} duplicates an existing semantic participation.")
-        participation_semantics.add(semantic_key)
+        participation_semantics.setdefault(semantic_key, []).append(participation_id)
         occurrence_participations[participation_id] = OccurrenceParticipation(
             participation_id,
             occurrence_id,
@@ -1211,6 +1209,20 @@ def parse_occurrence_registry(
             entry_ids,
             occurrence_ids,
         )
+    participation_tracks: dict[str, set[str]] = {item_id: set() for item_id in occurrence_participations}
+    for entry in track_entries.values():
+        participation_tracks[entry.participation_id].add(entry.track_id)
+    for duplicate_ids in participation_semantics.values():
+        if len(duplicate_ids) < 2:
+            continue
+        shared_tracks = set(participation_tracks[duplicate_ids[0]])
+        for participation_id in duplicate_ids[1:]:
+            shared_tracks.intersection_update(participation_tracks[participation_id])
+        if not shared_tracks:
+            joined_ids = ", ".join(f"`{item_id}`" for item_id in duplicate_ids)
+            raise ValueError(
+                f"Semantic duplicate participations {joined_ids} must share a track that orders each encounter."
+            )
     _validate_track_iteration_order(tracks, occurrences, iterations)
 
     seen_ids: set[str] = set()

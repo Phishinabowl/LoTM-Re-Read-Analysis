@@ -340,6 +340,12 @@ occurrences:
     iteration_id: null
     branch_id: main
     bindings: []
+  repeated-observation:
+    template_id: intervention
+    label: Repeated Observation
+    iteration_id: null
+    branch_id: main
+    bindings: []
 
 occurrence_participations:
   protagonist-wake-one:
@@ -494,6 +500,22 @@ occurrence_participations:
     perspective: direct
     status: completed
     chronology_context_id: null
+  observer-repeated-observation-one:
+    occurrence_id: repeated-observation
+    subject_type: character
+    subject_id: observer
+    role: observer
+    perspective: direct
+    status: completed
+    chronology_context_id: null
+  observer-repeated-observation-two:
+    occurrence_id: repeated-observation
+    subject_type: character
+    subject_id: observer
+    role: observer
+    perspective: direct
+    status: completed
+    chronology_context_id: null
 
 tracks:
   protagonist-experience:
@@ -506,6 +528,11 @@ tracks:
     kind: subjective-experience
     subject_type: character
     subject_id: observer
+  protagonist-review:
+    label: Protagonist Review
+    kind: observation
+    subject_type: character
+    subject_id: protagonist
 
 track_entries:
   protagonist-entry-01:
@@ -584,6 +611,14 @@ track_entries:
     track_id: observer-experience
     participation_id: observer-wake-three
     ordinal: 5
+  observer-entry-06:
+    track_id: observer-experience
+    participation_id: observer-repeated-observation-one
+    ordinal: 6
+  observer-entry-07:
+    track_id: observer-experience
+    participation_id: observer-repeated-observation-two
+    ordinal: 7
 
 transitions:
   - id: first-iteration-continues

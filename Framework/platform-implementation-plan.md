@@ -112,11 +112,11 @@ deferred at the stabilization gate.
   and subjective-track entry identity.
 - [x] Permit one subject to participate in or encounter one concrete occurrence more than once
   without duplicating that occurrence.
-- [x] Preserve role, perspective, state, chronology context, and subjective ordering per
+- [x] Preserve role, perspective, participation status, chronology context, and subjective ordering per
   participation.
 - [x] Model Loki's self-pruning occurrence once while retaining his earlier recipient participation
   and later agent participation.
-- [ ] Test repeated observation, review, intervention, retry inspection, and cross-domain
+- [x] Test repeated observation, review, intervention, retry inspection, and cross-domain
   participation cases.
 - [ ] Complete the version's lifecycle, confirmation, pressure test, and evolution closure.
 
