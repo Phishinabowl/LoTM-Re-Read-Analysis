@@ -1,4 +1,4 @@
-schema_version: 1
+schema_version: 2
 coordinate_systems:
   world:
     label: World
@@ -47,4 +47,5 @@ relations:
     target_position_id: world-one
     certainty: exact
 mappings: []
-narrative_contexts: []
+contexts: []
+context_relations: []

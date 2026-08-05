@@ -63,6 +63,8 @@ capability_activation:
     - typed-relationships
     - temporal-windows
     - chronology-coordinate-systems
+    - chronology-contexts
+    - chronology-context-topology
     - occurrence-recurrence-modeling
     - recurrence-rule-modeling
     - state-availability-acquisition

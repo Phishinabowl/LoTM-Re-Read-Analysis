@@ -3,7 +3,7 @@ from pathlib import Path
 import re
 
 from .entity_config import EntityRegistry
-from .chronology_config import load_chronology_registry
+from .chronology_config import ChronologyRegistry, load_chronology_registry
 from .occurrence_config import OccurrenceRegistry, load_occurrence_registry
 from .project_config import ProjectConfig
 from .reconciliation_config import ReconciliationRegistry
@@ -97,6 +97,7 @@ class ProvenanceRegistry:
     sources: SourceRegistry
     entities: EntityRegistry
     reconciliations: ReconciliationRegistry
+    chronology: ChronologyRegistry
     occurrences: OccurrenceRegistry
 
     def assertions_for_claim(self, claim_key: str) -> tuple[ProvenanceAssertion, ...]:
@@ -111,6 +112,7 @@ class ProvenanceRegistry:
         source_targets = self.sources.provenance_targets()
         entity_targets = self.entities.provenance_targets()
         reconciliation_targets = self.reconciliations.provenance_targets()
+        chronology_targets = self.chronology.provenance_targets()
         occurrence_targets = self.occurrences.provenance_targets()
         if subject_type in source_targets:
             return self.sources.provenance_target(subject_type, subject_id)
@@ -118,6 +120,8 @@ class ProvenanceRegistry:
             return self.entities.provenance_target(subject_type, subject_id)
         if subject_type in reconciliation_targets:
             return self.reconciliations.provenance_target(subject_type, subject_id)
+        if subject_type in chronology_targets:
+            return self.chronology.provenance_target(subject_type, subject_id)
         if subject_type in occurrence_targets:
             return self.occurrences.provenance_target(subject_type, subject_id)
         raise ValueError(f"Unsupported provenance subject type `{subject_type}`.")
@@ -480,6 +484,7 @@ def load_provenance_registry(
 ) -> ProvenanceRegistry:
     if schema_packs is None:
         schema_packs = load_schema_pack_registry(project)
+    chronology: ChronologyRegistry
     if occurrences is None:
         chronology = load_chronology_registry(
             project,
@@ -488,6 +493,8 @@ def load_provenance_registry(
             continuity_ids=set(sources.continuities),
         )
         occurrences = load_occurrence_registry(project, schema_packs, chronology)
+    else:
+        chronology = occurrences.chronology
     data = load_yaml_file(
         project.provenance_registry, "provenance registry", expected_schema_version=SUPPORTED_PROVENANCE_SCHEMA_VERSION
     )
@@ -507,6 +514,7 @@ def load_provenance_registry(
         set(sources.provenance_targets()),
         set(entities.provenance_targets()),
         set(reconciliations.provenance_targets()),
+        set(chronology.provenance_targets()),
         set(occurrences.provenance_targets()),
     )
     duplicated_subject_types = set()
@@ -521,6 +529,7 @@ def load_provenance_registry(
         set(sources.provenance_targets())
         | set(entities.provenance_targets())
         | set(reconciliations.provenance_targets())
+        | set(chronology.provenance_targets())
         | set(occurrences.provenance_targets())
         | {"claim-supersession"}
     )
@@ -641,6 +650,8 @@ def load_provenance_registry(
             target = entities.provenance_target(subject_type, subject_id)
         elif subject_type in reconciliations.provenance_targets():
             target = reconciliations.provenance_target(subject_type, subject_id)
+        elif subject_type in chronology.provenance_targets():
+            target = chronology.provenance_target(subject_type, subject_id)
         elif subject_type in occurrences.provenance_targets():
             target = occurrences.provenance_target(subject_type, subject_id)
         else:
@@ -771,5 +782,6 @@ def load_provenance_registry(
         sources,
         entities,
         reconciliations,
+        chronology,
         occurrences,
     )

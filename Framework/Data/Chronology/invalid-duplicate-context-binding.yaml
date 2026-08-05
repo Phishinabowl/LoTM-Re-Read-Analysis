@@ -1,0 +1,42 @@
+schema_version: 2
+coordinate_systems:
+  test-order:
+    label: Test Order
+    kind: ordinal
+    value_domain: positive-integer
+    direction: ascending
+    zero_policy: absent
+    aliases: []
+eras: {}
+positions: {}
+spans: []
+relations: []
+mappings: []
+contexts:
+  - id: context-a
+    label: Context A
+    coordinate_system_id: test-order
+    role: primary
+    continuity_ids: []
+    work_ids: []
+    branch_id: null
+  - id: context-b
+    label: Context B
+    coordinate_system_id: test-order
+    role: external
+    continuity_ids: []
+    work_ids: []
+    branch_id: null
+context_relations:
+  - id: relation-one
+    source_context_id: context-a
+    relation_type: intervenes-in
+    target_context_id: context-b
+    certainty: exact
+    bindings:
+      - id: binding-one
+        target_type: occurrence
+        target_id: incident-one
+      - id: binding-two
+        target_type: occurrence
+        target_id: incident-one

@@ -1,4 +1,4 @@
-schema_version: 1
+schema_version: 2
 
 coordinate_systems:
   lotm-epochs:
@@ -43,7 +43,7 @@ spans: []
 relations: []
 mappings: []
 
-narrative_contexts:
+contexts:
   - id: lotm-novel-main-story-chronology
     label: Lord of Mysteries Novel Main Story Chronology
     coordinate_system_id: lotm-epochs
@@ -54,3 +54,5 @@ narrative_contexts:
       - lotm-1
       - lotm-2
     branch_id: main
+
+context_relations: []

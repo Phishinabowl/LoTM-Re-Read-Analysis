@@ -1,0 +1,29 @@
+schema_version: 2
+coordinate_systems:
+  test-order:
+    label: Test Order
+    kind: ordinal
+    value_domain: positive-integer
+    direction: ascending
+    zero_policy: absent
+    aliases: []
+eras: {}
+positions: {}
+spans: []
+relations: []
+mappings: []
+contexts:
+  - id: one-context
+    label: One Context
+    coordinate_system_id: test-order
+    role: primary
+    continuity_ids: []
+    work_ids: []
+    branch_id: null
+context_relations:
+  - id: invalid-self-relation
+    source_context_id: one-context
+    relation_type: observes
+    target_context_id: one-context
+    certainty: exact
+    bindings: []

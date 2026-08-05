@@ -12,6 +12,23 @@
     ["civil-far-future", "civil-before-zero", "after"],
     ["countdown-ten", "countdown-one", "before"],
     ["countdown-one", "countdown-ten", "after"],
-    ["ancient-year-five", "countdown-ten", "before"]
-  ]
+    ["ancient-year-five", "countdown-ten", "before"],
+    ["control-step-one", "civil-anchor", "incomparable"]
+  ],
+  "context_queries": {
+    "from": [
+      ["control-plane", null, ["control-oversees-timeline"]],
+      ["control-plane", "oversees", ["control-oversees-timeline"]],
+      ["observed-timeline", "receives-from", ["timeline-receives-control"]]
+    ],
+    "to": [
+      ["observed-timeline", null, ["control-oversees-timeline", "archive-observes-timeline"]],
+      ["control-plane", "receives-from", ["timeline-receives-control"]]
+    ]
+  },
+  "context_targets": {
+    "occurrence": ["test-incident"],
+    "occurrence-branch": ["main"],
+    "applicability-scope": ["control-scope"]
+  }
 }

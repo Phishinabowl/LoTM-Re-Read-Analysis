@@ -1078,7 +1078,7 @@ def parse_occurrence_registry(
                 f"branches.{branch.id}.fork_occurrence_id must belong to parent branch `{branch.parent_branch_id}`."
             )
     occurrence_branch_ids = set(branches)
-    for context in chronology.narrative_contexts:
+    for context in chronology.contexts:
         if context.branch_id is not None and context.branch_id not in occurrence_branch_ids:
             raise ValueError(
                 f"Chronology context `{context.id}` references unknown occurrence branch `{context.branch_id}`."
@@ -1086,7 +1086,7 @@ def parse_occurrence_registry(
 
     occurrence_participations: dict[str, OccurrenceParticipation] = {}
     participation_semantics: dict[tuple[str, str, str, str, str, str, str | None], list[str]] = {}
-    chronology_context_ids = {item.id for item in chronology.narrative_contexts}
+    chronology_context_ids = {item.id for item in chronology.contexts}
     for participation_id, raw in _mapping(
         root.get("occurrence_participations"), "occurrences.occurrence_participations"
     ).items():

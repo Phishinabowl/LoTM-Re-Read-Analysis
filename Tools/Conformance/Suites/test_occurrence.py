@@ -150,8 +150,8 @@ def main() -> int:
 
     fixture_root = root / "Framework" / "Data" / "Occurrence"
     chronology_fixture_path = root / "Framework" / "Data" / "Chronology" / "valid-registry.yaml"
-    chronology_fixture_data = load_yaml_file(chronology_fixture_path, "chronology fixture", expected_schema_version=1)
-    chronology_fixture_data["narrative_contexts"] = [
+    chronology_fixture_data = load_yaml_file(chronology_fixture_path, "chronology fixture", expected_schema_version=2)
+    chronology_fixture_data["contexts"] = [
         {
             "id": "recipient-context",
             "label": "Recipient Context",
@@ -171,6 +171,7 @@ def main() -> int:
             "branch_id": "main",
         },
     ]
+    chronology_fixture_data["context_relations"] = []
     chronology_fixture = parse_chronology_registry(
         chronology_fixture_data,
         chronology_fixture_path,

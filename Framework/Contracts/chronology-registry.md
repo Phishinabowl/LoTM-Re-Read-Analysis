@@ -2,7 +2,7 @@
 
 ## Ownership
 
-`Project_Config/chronology.yaml` instantiates domain-neutral chronology primitives owned by the core framework and optional domain annotations owned by selected packs. `Tools/Runtime/Python/knowledge_framework/chronology_config.py` and `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` are the behaviorally paired schema-1 loaders and comparison service.
+`Project_Config/chronology.yaml` instantiates domain-neutral chronology primitives owned by the core framework and optional domain vocabulary owned by selected packs. `Tools/Runtime/Python/knowledge_framework/chronology_config.py` and `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` are the behaviorally paired schema-2 loaders, comparison service, and chronology-context topology service.
 
 Civil timestamps and effective windows remain owned by `temporal-model.md`. Chronology coordinates do not extend, reinterpret, or weaken RFC 3339. Use chronology coordinates for fictional calendars, named eras, ordinal histories, relative dating systems, scientific or institutional counters, and other axes that are not portable civil timestamps.
 
@@ -37,16 +37,26 @@ Relations preserve explicit `before`, `after`, `concurrent`, or `incomparable` c
 
 Mappings connect positions in different coordinate systems as an `anchor` or `equivalent` with explicit certainty. Exact equivalence is transitively closed for comparison and contradiction detection. The service does not infer an offset formula, extrapolate from one anchor, or compare entire axes without a later reviewed mapping contract.
 
-## Narrative Contexts
+## Chronology Contexts
 
-Narrative contexts require the enabled `narrative-chronology` capability. They bind one coordinate system to registered works and/or continuities and assign a narrative role such as story, backstory, flashback, flashforward, time-travel origin/destination, or alternate timeline. An optional stable branch ID preserves branch identity without pretending every continuity is totally ordered with every other continuity.
+Chronology contexts require `chronology-contexts`. They give one coordinate system a stable operating context and a pack-owned role. Optional work, continuity, and branch references connect a context to project data without making narrative ownership mandatory. Core supplies domain-neutral roles such as primary, operational, control-plane, simulation, archive, and external. Narrative media extends that same namespace with story, backstory, flashback, flashforward, time-travel origin/destination, and alternate-timeline roles.
 
-Story chronology, causal order, publication/release order, and reader disclosure are separate axes. A narrative context does not make one of those orders stand in for another.
+A context is not a coordinate, position, occurrence, continuity, or branch. It does not imply that its coordinate system is comparable with another context's coordinate system. Story chronology, causal order, publication/release order, reader disclosure, and operational observation order remain separate axes.
+
+## Context Topology
+
+Context relations require `chronology-context-topology`. They are directed, non-transitive, pack-vocabulary records between two distinct known contexts. Core defines `outside`, `observes`, `oversees`, `intervenes-in`, `projects-into`, and `receives-from`. A semantic duplicate with the same source, relation type, and target is invalid even when certainty differs. Reciprocal or cyclic topology is legal because these relations are not precedence edges.
+
+Each relation may carry stable typed bindings to an `occurrence`, `occurrence-branch`, or `applicability-scope`. Parsing validates binding identity, vocabulary, and local uniqueness. Composed loading validates target existence after the source and occurrence registries are available, avoiding a chronology-to-occurrence dependency cycle. Bindings connect an intervention or observation to concrete data; they do not assert that either context or bound record occurs before another.
+
+Outgoing and incoming relation queries preserve registry order and may be filtered by relation type. Unknown context queries fail explicitly. Contexts, relations, and bindings are independent provenance subjects.
+
+`compare_positions` and `Get-KnowledgeChronologyComparison` never inspect contexts or context relations. Coordinates in different systems remain incomparable unless positions, relative origins, mappings, or ordinary chronology relations explicitly connect them. A context-topology cycle is therefore legal while a combined exact before/after cycle remains invalid.
 
 ## Layering
 
-- Core packs own coordinate kinds, value domains, direction, zero policy, relation kinds, mapping kinds, position/span validation, and comparison.
-- Domain packs own optional annotations such as narrative chronology roles.
+- Core packs own coordinate kinds, value domains, direction, zero policy, relation kinds, mapping kinds, context identity, context-topology primitives, position/span validation, and comparison.
+- Domain packs extend context roles and may extend topology vocabulary without changing precedence semantics.
 - Project configuration owns instantiated systems, era names, labels, contexts, and source-backed anchors.
 - Content records will own concrete event/entity positions and provenance when those migrations are reviewed.
 
@@ -54,4 +64,4 @@ The LoTM project therefore stores First through Fifth Epoch labels in `Project_C
 
 ## Conformance
 
-`Framework/Data/Chronology/` contains the portable V30 fixture corpus. Run `python Tools/Conformance/Suites/test_chronology.py` and `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Chronology.ps1` after changing chronology vocabulary, registry shape, comparison behavior, project composition, or narrative chronology roles.
+`Framework/Data/Chronology/` contains the cumulative portable chronology fixture corpus. The V41 fixture includes legal cyclic topology, typed target closure, provenance targets, and an explicit cross-system incomparability proof. Run `python Tools/Conformance/Suites/test_chronology.py` and `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Chronology.ps1` after changing chronology vocabulary, registry shape, topology behavior, comparison behavior, provenance providers, or project composition.

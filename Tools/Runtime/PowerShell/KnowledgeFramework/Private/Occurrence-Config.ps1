@@ -1565,7 +1565,7 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
             throw "branches.$($branch.id).fork_occurrence_id must belong to parent branch '$($branch.parent_branch_id)'."
         }
     }
-    foreach ($context in @($Chronology.narrative_contexts)) {
+    foreach ($context in @($Chronology.contexts)) {
         if ($null -ne $context.branch_id -and -not $branches.Contains($context.branch_id)) {
             throw "Chronology context '$($context.id)' references unknown occurrence branch '$($context.branch_id)'."
         }
@@ -1575,7 +1575,7 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
     Assert-OccurrenceMap $rawParticipations 'occurrences.occurrence_participations'
     $participations = [ordered]@{}
     $participationSemantics = [ordered]@{}
-    $chronologyContextIds = @($Chronology.narrative_contexts | ForEach-Object { $_.id })
+    $chronologyContextIds = @($Chronology.contexts | ForEach-Object { $_.id })
     foreach ($id in @($rawParticipations.Keys)) {
         $null = Assert-OccurrenceStableId ([string]$id) 'occurrence participation ID'
         $context = "occurrence_participations.$id"

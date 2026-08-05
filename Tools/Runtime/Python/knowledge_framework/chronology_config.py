@@ -9,7 +9,7 @@ from .schema_pack_config import SchemaPackRegistry
 from .strict_yaml import assert_allowed_keys, load_yaml_file
 
 
-SUPPORTED_SCHEMA_VERSION = 1
+SUPPORTED_SCHEMA_VERSION = 2
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 
@@ -75,7 +75,7 @@ class ChronologyMapping:
 
 
 @dataclass(frozen=True)
-class NarrativeChronologyContext:
+class ChronologyContext:
     id: str
     label: str
     coordinate_system_id: str
@@ -83,6 +83,23 @@ class NarrativeChronologyContext:
     continuity_ids: tuple[str, ...]
     work_ids: tuple[str, ...]
     branch_id: str | None
+
+
+@dataclass(frozen=True)
+class ChronologyContextRelationBinding:
+    id: str
+    target_type: str
+    target_id: str
+
+
+@dataclass(frozen=True)
+class ChronologyContextRelation:
+    id: str
+    source_context_id: str
+    relation_type: str
+    target_context_id: str
+    certainty: str
+    bindings: tuple[ChronologyContextRelationBinding, ...]
 
 
 @dataclass(frozen=True)
@@ -95,9 +112,62 @@ class ChronologyRegistry:
     spans: tuple[ChronologySpan, ...]
     relations: tuple[ChronologyRelation, ...]
     mappings: tuple[ChronologyMapping, ...]
-    narrative_contexts: tuple[NarrativeChronologyContext, ...]
+    contexts: tuple[ChronologyContext, ...]
+    context_relations: tuple[ChronologyContextRelation, ...]
     equivalence_classes: dict[str, str] = field(default_factory=dict)
     order_edges: dict[str, frozenset[str]] = field(default_factory=dict)
+
+    def context_relations_from(
+        self, context_id: str, relation_type: str | None = None
+    ) -> tuple[ChronologyContextRelation, ...]:
+        self._require_context(context_id)
+        return tuple(
+            relation
+            for relation in self.context_relations
+            if relation.source_context_id == context_id
+            and (relation_type is None or relation.relation_type == relation_type)
+        )
+
+    def context_relations_to(
+        self, context_id: str, relation_type: str | None = None
+    ) -> tuple[ChronologyContextRelation, ...]:
+        self._require_context(context_id)
+        return tuple(
+            relation
+            for relation in self.context_relations
+            if relation.target_context_id == context_id
+            and (relation_type is None or relation.relation_type == relation_type)
+        )
+
+    def validate_context_relation_targets(self, targets: dict[str, set[str]]) -> None:
+        for relation in self.context_relations:
+            for binding in relation.bindings:
+                if binding.target_type not in targets or binding.target_id not in targets[binding.target_type]:
+                    raise ValueError(
+                        f"Chronology context relation binding `{binding.id}` references unknown target "
+                        f"`{binding.target_type}:{binding.target_id}`."
+                    )
+
+    def provenance_targets(self) -> dict[str, dict[str, object]]:
+        return {
+            "chronology-context": {item.id: item for item in self.contexts},
+            "chronology-context-relation": {item.id: item for item in self.context_relations},
+            "chronology-context-relation-binding": {
+                binding.id: binding for relation in self.context_relations for binding in relation.bindings
+            },
+        }
+
+    def provenance_target(self, subject_type: str, subject_id: str) -> object:
+        targets = self.provenance_targets()
+        if subject_type not in targets:
+            raise ValueError(f"Unsupported chronology provenance subject type `{subject_type}`.")
+        if subject_id not in targets[subject_type]:
+            raise ValueError(f"Unknown {subject_type} `{subject_id}`.")
+        return targets[subject_type][subject_id]
+
+    def _require_context(self, context_id: str) -> None:
+        if context_id not in {item.id for item in self.contexts}:
+            raise ValueError(f"Unknown chronology context `{context_id}`.")
 
     def compare_positions(self, left_id: str, right_id: str) -> str:
         if left_id not in self.positions:
@@ -278,7 +348,8 @@ def parse_chronology_registry(
             "spans",
             "relations",
             "mappings",
-            "narrative_contexts",
+            "contexts",
+            "context_relations",
         },
         "Chronology registry root",
     )
@@ -464,7 +535,7 @@ def parse_chronology_registry(
         _pack_value(packs, "temporal.certainty", certainty, f"{context}.certainty")
         if start_id is not None and end_id is not None:
             probe = ChronologyRegistry(
-                path, SUPPORTED_SCHEMA_VERSION, coordinate_systems, eras, positions, (), (), (), ()
+                path, SUPPORTED_SCHEMA_VERSION, coordinate_systems, eras, positions, (), (), (), (), ()
             )
             ordering = probe.compare_positions(start_id, end_id)
             if ordering == "after" or (ordering == "concurrent" and not (start_inclusive and end_inclusive)):
@@ -516,15 +587,15 @@ def parse_chronology_registry(
         _pack_value(packs, "temporal.certainty", certainty, f"{context}.certainty")
         mappings.append(ChronologyMapping(mapping_id, source_id, mapping_kind, target_id, certainty))
 
-    contexts: list[NarrativeChronologyContext] = []
-    raw_contexts = root.get("narrative_contexts", [])
+    contexts: list[ChronologyContext] = []
+    raw_contexts = root.get("contexts", [])
     if not isinstance(raw_contexts, list):
-        raise ValueError("chronology.narrative_contexts must be a list.")
+        raise ValueError("chronology.contexts must be a list.")
     if raw_contexts:
-        _require_capability(packs, "narrative-chronology")
+        _require_capability(packs, "chronology-contexts")
     seen_context_ids: set[str] = set()
     for index, raw in enumerate(raw_contexts):
-        context = f"narrative_contexts[{index}]"
+        context = f"contexts[{index}]"
         item = _require_mapping(raw, context)
         assert_allowed_keys(
             item, {"id", "label", "coordinate_system_id", "role", "continuity_ids", "work_ids", "branch_id"}, context
@@ -537,15 +608,13 @@ def parse_chronology_registry(
         if system_id not in coordinate_systems:
             raise ValueError(f"{context}.coordinate_system_id references unknown coordinate system `{system_id}`.")
         role = _require_string(item, "role", context)
-        _pack_value(packs, "narrative.chronology-role", role, f"{context}.role")
+        _pack_value(packs, "chronology.context-role", role, f"{context}.role")
         context_work_ids = _string_list(item, "work_ids", context)
         context_continuity_ids = _string_list(item, "continuity_ids", context)
-        if not context_work_ids and not context_continuity_ids:
-            raise ValueError(f"{context} must name at least one work or continuity.")
-        if work_ids is None or continuity_ids is None:
-            raise ValueError("Narrative chronology contexts require composed work and continuity targets.")
-        unknown_works = set(context_work_ids) - work_ids
-        unknown_continuities = set(context_continuity_ids) - continuity_ids
+        if (context_work_ids or context_continuity_ids) and (work_ids is None or continuity_ids is None):
+            raise ValueError("Chronology contexts with project targets require composed work and continuity targets.")
+        unknown_works = set(context_work_ids) - work_ids if work_ids is not None else set()
+        unknown_continuities = set(context_continuity_ids) - continuity_ids if continuity_ids is not None else set()
         if unknown_works:
             raise ValueError(f"{context}.work_ids references unknown works: {', '.join(sorted(unknown_works))}.")
         if unknown_continuities:
@@ -556,7 +625,7 @@ def parse_chronology_registry(
         if branch_id is not None:
             _stable_id(branch_id, f"{context}.branch_id")
         contexts.append(
-            NarrativeChronologyContext(
+            ChronologyContext(
                 context_id,
                 _require_string(item, "label", context),
                 system_id,
@@ -564,6 +633,75 @@ def parse_chronology_registry(
                 context_continuity_ids,
                 context_work_ids,
                 branch_id,
+            )
+        )
+
+    context_relations: list[ChronologyContextRelation] = []
+    raw_context_relations = root.get("context_relations", [])
+    if not isinstance(raw_context_relations, list):
+        raise ValueError("chronology.context_relations must be a list.")
+    if raw_context_relations:
+        _require_capability(packs, "chronology-context-topology")
+    seen_context_relation_ids: set[str] = set()
+    seen_context_relation_semantics: set[tuple[str, str, str]] = set()
+    seen_context_binding_ids: set[str] = set()
+    for index, raw in enumerate(raw_context_relations):
+        context = f"context_relations[{index}]"
+        item = _require_mapping(raw, context)
+        assert_allowed_keys(
+            item,
+            {"id", "source_context_id", "relation_type", "target_context_id", "certainty", "bindings"},
+            context,
+        )
+        relation_id = _stable_id(_require_string(item, "id", context), f"{context}.id")
+        if relation_id in seen_context_relation_ids:
+            raise ValueError(f"{context}.id duplicates `{relation_id}`.")
+        seen_context_relation_ids.add(relation_id)
+        source_context_id = _require_string(item, "source_context_id", context)
+        target_context_id = _require_string(item, "target_context_id", context)
+        if source_context_id not in seen_context_ids or target_context_id not in seen_context_ids:
+            raise ValueError(f"{context} must reference two known chronology contexts.")
+        if source_context_id == target_context_id:
+            raise ValueError(f"{context} cannot relate a chronology context to itself.")
+        relation_type = _require_string(item, "relation_type", context)
+        _pack_value(packs, "chronology.context-relation-type", relation_type, f"{context}.relation_type")
+        semantic_key = (source_context_id, relation_type, target_context_id)
+        if semantic_key in seen_context_relation_semantics:
+            raise ValueError(f"{context} duplicates an existing context relation.")
+        seen_context_relation_semantics.add(semantic_key)
+        certainty = _require_string(item, "certainty", context)
+        _pack_value(packs, "temporal.certainty", certainty, f"{context}.certainty")
+        raw_bindings = item.get("bindings", [])
+        if not isinstance(raw_bindings, list):
+            raise ValueError(f"{context}.bindings must be a list.")
+        bindings: list[ChronologyContextRelationBinding] = []
+        seen_binding_semantics: set[tuple[str, str]] = set()
+        for binding_index, raw_binding in enumerate(raw_bindings):
+            binding_context = f"{context}.bindings[{binding_index}]"
+            binding = _require_mapping(raw_binding, binding_context)
+            assert_allowed_keys(binding, {"id", "target_type", "target_id"}, binding_context)
+            binding_id = _stable_id(_require_string(binding, "id", binding_context), f"{binding_context}.id")
+            if binding_id in seen_context_binding_ids:
+                raise ValueError(f"{binding_context}.id duplicates `{binding_id}`.")
+            seen_context_binding_ids.add(binding_id)
+            target_type = _require_string(binding, "target_type", binding_context)
+            target_id = _stable_id(
+                _require_string(binding, "target_id", binding_context), f"{binding_context}.target_id"
+            )
+            _pack_value(packs, "chronology.context-binding-target-type", target_type, f"{binding_context}.target_type")
+            binding_semantic = (target_type, target_id)
+            if binding_semantic in seen_binding_semantics:
+                raise ValueError(f"{binding_context} duplicates target `{target_type}:{target_id}`.")
+            seen_binding_semantics.add(binding_semantic)
+            bindings.append(ChronologyContextRelationBinding(binding_id, target_type, target_id))
+        context_relations.append(
+            ChronologyContextRelation(
+                relation_id,
+                source_context_id,
+                relation_type,
+                target_context_id,
+                certainty,
+                tuple(bindings),
             )
         )
 
@@ -680,6 +818,7 @@ def parse_chronology_registry(
         tuple(relations),
         tuple(mappings),
         tuple(contexts),
+        tuple(context_relations),
         equivalence_classes,
         frozen_edges,
     )

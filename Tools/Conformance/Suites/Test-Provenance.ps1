@@ -418,6 +418,13 @@ $canonical = Get-KnowledgeProvenanceRegistry `
     $reconciliations `
     $packs `
     $occurrences
+$chronologyContextTarget = Get-KnowledgeProvenanceTarget `
+    $canonical `
+    'chronology-context' `
+    'lotm-novel-main-story-chronology'
+if ($chronologyContextTarget.id -cne 'lotm-novel-main-story-chronology') {
+    throw 'Chronology-context provenance dispatch returned the wrong target.'
+}
 
 $fixtureRoot = Join-Path $Root 'Framework\Data\Provenance'
 $baseDocument = ConvertTo-MutableFixtureValue (
@@ -449,8 +456,8 @@ try {
     $entities = Get-KnowledgeEntityRegistry $entityProject $taxonomy $sources $packs
 
     $chronologyFixturePath = Join-Path $Root 'Framework\Data\Chronology\valid-registry.yaml'
-    $chronologyFixtureData = ConvertFrom-KnowledgeYamlFile $chronologyFixturePath 1 'chronology fixture'
-    $chronologyFixtureData['narrative_contexts'] = @(
+    $chronologyFixtureData = ConvertFrom-KnowledgeYamlFile $chronologyFixturePath 2 'chronology fixture'
+    $chronologyFixtureData['contexts'] = @(
         [ordered]@{id='recipient-context'
             label='Recipient Context'
             coordinate_system_id='civil-year'
@@ -468,6 +475,7 @@ try {
             branch_id='main'
         }
     )
+    $chronologyFixtureData['context_relations'] = @()
     $chronologyFixture = ConvertTo-KnowledgeChronologyRegistry `
         $chronologyFixtureData $chronologyFixturePath $packs @('fixture-work') @()
     $occurrenceFixturePath = Join-Path $Root 'Framework\Data\Occurrence\valid-registry.yaml'

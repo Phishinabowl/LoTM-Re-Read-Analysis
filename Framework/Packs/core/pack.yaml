@@ -1,6 +1,6 @@
 schema_version: 3
 pack_id: core
-pack_version: 31
+pack_version: 32
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -55,6 +55,8 @@ capabilities:
   - typed-relationships
   - temporal-windows
   - chronology-coordinate-systems
+  - chronology-contexts
+  - chronology-context-topology
   - occurrence-recurrence-modeling
   - recurrence-rule-modeling
   - state-availability-acquisition
@@ -116,6 +118,24 @@ controlled_values:
   chronology.mapping-kind:
     - anchor
     - equivalent
+  chronology.context-role:
+    - primary
+    - operational
+    - control-plane
+    - simulation
+    - archive
+    - external
+  chronology.context-relation-type:
+    - outside
+    - observes
+    - oversees
+    - intervenes-in
+    - projects-into
+    - receives-from
+  chronology.context-binding-target-type:
+    - occurrence
+    - occurrence-branch
+    - applicability-scope
   occurrence.template-kind:
     - event
     - action
@@ -330,6 +350,9 @@ controlled_values:
     - metadata-evidence
   provenance.subject-type:
     - applicability-scope
+    - chronology-context
+    - chronology-context-relation
+    - chronology-context-relation-binding
     - source
     - source-relationship
     - authority-rule

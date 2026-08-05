@@ -1,4 +1,4 @@
-schema_version: 1
+schema_version: 2
 coordinate_systems:
   axis-a:
     label: Axis A
@@ -40,4 +40,5 @@ relations:
     target_position_id: point-b
     certainty: exact
 mappings: []
-narrative_contexts: []
+contexts: []
+context_relations: []

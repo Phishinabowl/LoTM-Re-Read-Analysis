@@ -1,4 +1,4 @@
-$script:SupportedChronologySchemaVersion = 1
+$script:SupportedChronologySchemaVersion = 2
 $script:ChronologyStableIdPattern = '^[a-z0-9]+(?:-[a-z0-9]+)*$'
 
 function Get-RequiredChronologyString {
@@ -236,6 +236,69 @@ function Get-KnowledgeChronologyComparison {
     return 'incomparable'
 }
 
+function Get-KnowledgeChronologyContextRelationsFrom {
+    param([object]$ChronologyRegistry, [string]$ContextId, [string]$RelationType)
+    if (@($ChronologyRegistry.contexts | ForEach-Object { $_.id }) -cnotcontains $ContextId) {
+        throw "Unknown chronology context '$ContextId'."
+    }
+    return @(
+        $ChronologyRegistry.context_relations | Where-Object {
+            $_.source_context_id -ceq $ContextId -and
+            ([string]::IsNullOrWhiteSpace($RelationType) -or $_.relation_type -ceq $RelationType)
+        }
+    )
+}
+
+function Get-KnowledgeChronologyContextRelationsTo {
+    param([object]$ChronologyRegistry, [string]$ContextId, [string]$RelationType)
+    if (@($ChronologyRegistry.contexts | ForEach-Object { $_.id }) -cnotcontains $ContextId) {
+        throw "Unknown chronology context '$ContextId'."
+    }
+    return @(
+        $ChronologyRegistry.context_relations | Where-Object {
+            $_.target_context_id -ceq $ContextId -and
+            ([string]::IsNullOrWhiteSpace($RelationType) -or $_.relation_type -ceq $RelationType)
+        }
+    )
+}
+
+function Assert-KnowledgeChronologyContextRelationTargets {
+    param([object]$ChronologyRegistry, [System.Collections.IDictionary]$Targets)
+    foreach ($relation in @($ChronologyRegistry.context_relations)) {
+        foreach ($binding in @($relation.bindings)) {
+            if (
+                $null -eq $Targets -or
+                -not $Targets.Contains($binding.target_type) -or
+                @($Targets[$binding.target_type]) -cnotcontains $binding.target_id
+            ) {
+                throw (
+                    "Chronology context relation binding '$($binding.id)' references unknown target " +
+                    "'$($binding.target_type):$($binding.target_id)'."
+                )
+            }
+        }
+    }
+}
+
+function Get-KnowledgeChronologyProvenanceTargets {
+    param([object]$ChronologyRegistry)
+    $targets = [ordered]@{
+        'chronology-context' = [ordered]@{}
+        'chronology-context-relation' = [ordered]@{}
+        'chronology-context-relation-binding' = [ordered]@{}
+    }
+    foreach ($context in @($ChronologyRegistry.contexts)) {
+        $targets['chronology-context'][$context.id] = $context
+    }
+    foreach ($relation in @($ChronologyRegistry.context_relations)) {
+        $targets['chronology-context-relation'][$relation.id] = $relation
+        foreach ($binding in @($relation.bindings)) {
+            $targets['chronology-context-relation-binding'][$binding.id] = $binding
+        }
+    }
+    return $targets
+}
+
 function ConvertTo-KnowledgeChronologyRegistry {
     param(
         [object]$Data, [string]$Path, [object]$SchemaPacks,
@@ -245,7 +308,7 @@ function ConvertTo-KnowledgeChronologyRegistry {
     if ($Data -isnot [System.Collections.IDictionary]) {
         throw 'Chronology registry root must be a mapping.'
     }
-    Assert-KnowledgeMapKeys $Data @('schema_version', 'coordinate_systems', 'eras', 'positions', 'spans', 'relations', 'mappings', 'narrative_contexts') 'Chronology registry root'
+    Assert-KnowledgeMapKeys $Data @('schema_version', 'coordinate_systems', 'eras', 'positions', 'spans', 'relations', 'mappings', 'contexts', 'context_relations') 'Chronology registry root'
     $schemaVersion = Get-ProjectMapValue $Data 'schema_version'
     if ($schemaVersion -isnot [int] -or $schemaVersion -ne $script:SupportedChronologySchemaVersion) {
         throw "Unsupported chronology schema_version '$schemaVersion'; expected $($script:SupportedChronologySchemaVersion)."
@@ -555,7 +618,7 @@ function ConvertTo-KnowledgeChronologyRegistry {
     }
 
     $contexts = @()
-    $rawContexts = Get-ProjectMapValue $Data 'narrative_contexts'
+    $rawContexts = Get-ProjectMapValue $Data 'contexts'
     if ($null -eq $rawContexts) {
         $rawContexts = @()
     }
@@ -563,14 +626,14 @@ function ConvertTo-KnowledgeChronologyRegistry {
         $rawContexts = @($rawContexts)
     }
     elseif ($rawContexts -isnot [System.Collections.IList]) {
-        throw 'chronology.narrative_contexts must be a list.'
+        throw 'chronology.contexts must be a list.'
     }
     if ($rawContexts.Count -gt 0) {
-        Assert-ChronologyCapability $SchemaPacks 'narrative-chronology'
+        Assert-ChronologyCapability $SchemaPacks 'chronology-contexts'
     }
     $seenContexts = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
     for ($i = 0; $i -lt $rawContexts.Count; $i++) {
-        $context = "narrative_contexts[$i]"
+        $context = "contexts[$i]"
         $item = $rawContexts[$i]
         if ($item -isnot [System.Collections.IDictionary]) {
             throw "$context must be a mapping."
@@ -585,14 +648,14 @@ function ConvertTo-KnowledgeChronologyRegistry {
             throw "$context.coordinate_system_id references unknown coordinate system '$systemId'."
         }
         $role = Get-RequiredChronologyString $item 'role' $context
-        Assert-ChronologyPackValue $SchemaPacks 'narrative.chronology-role' $role "$context.role"
+        Assert-ChronologyPackValue $SchemaPacks 'chronology.context-role' $role "$context.role"
         $contextWorks = @(Get-ChronologyStringList $item 'work_ids' $context)
         $contextContinuities = @(Get-ChronologyStringList $item 'continuity_ids' $context)
-        if ($contextWorks.Count -eq 0 -and $contextContinuities.Count -eq 0) {
-            throw "$context must name at least one work or continuity."
-        }
-        if ($null -eq $WorkIds -or $null -eq $ContinuityIds) {
-            throw 'Narrative chronology contexts require composed work and continuity targets.'
+        if (
+            ($contextWorks.Count -gt 0 -or $contextContinuities.Count -gt 0) -and
+            ($null -eq $WorkIds -or $null -eq $ContinuityIds)
+        ) {
+            throw 'Chronology contexts with project targets require composed work and continuity targets.'
         }
         $unknownWorks = @($contextWorks | Where-Object { $WorkIds -cnotcontains $_ })
         $unknownContinuities = @($contextContinuities | Where-Object { $ContinuityIds -cnotcontains $_ })
@@ -616,6 +679,94 @@ function ConvertTo-KnowledgeChronologyRegistry {
         }
     }
 
+    $rawContextRelations = Get-ProjectMapValue $Data 'context_relations'
+    if ($null -eq $rawContextRelations) {
+        $rawContextRelations = @()
+    }
+    elseif ($rawContextRelations -is [System.Collections.IDictionary]) {
+        $rawContextRelations = @($rawContextRelations)
+    }
+    elseif ($rawContextRelations -isnot [System.Collections.IList]) {
+        throw 'chronology.context_relations must be a list.'
+    }
+    if ($rawContextRelations.Count -gt 0) {
+        Assert-ChronologyCapability $SchemaPacks 'chronology-context-topology'
+    }
+    $contextRelations = @()
+    $seenContextRelations = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $seenContextRelationSemantics = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $seenContextBindings = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    for ($i = 0; $i -lt $rawContextRelations.Count; $i++) {
+        $context = "context_relations[$i]"
+        $item = $rawContextRelations[$i]
+        if ($item -isnot [System.Collections.IDictionary]) {
+            throw "$context must be a mapping."
+        }
+        Assert-KnowledgeMapKeys $item @('id', 'source_context_id', 'relation_type', 'target_context_id', 'certainty', 'bindings') $context
+        $id = Assert-ChronologyStableId (Get-RequiredChronologyString $item 'id' $context) "$context.id"
+        if (-not $seenContextRelations.Add($id)) {
+            throw "$context.id duplicates '$id'."
+        }
+        $sourceContextId = Get-RequiredChronologyString $item 'source_context_id' $context
+        $targetContextId = Get-RequiredChronologyString $item 'target_context_id' $context
+        if (-not $seenContexts.Contains($sourceContextId) -or -not $seenContexts.Contains($targetContextId)) {
+            throw "$context must reference two known chronology contexts."
+        }
+        if ($sourceContextId -ceq $targetContextId) {
+            throw "$context cannot relate a chronology context to itself."
+        }
+        $relationType = Get-RequiredChronologyString $item 'relation_type' $context
+        Assert-ChronologyPackValue $SchemaPacks 'chronology.context-relation-type' $relationType "$context.relation_type"
+        $semanticKey = "$sourceContextId|$relationType|$targetContextId"
+        if (-not $seenContextRelationSemantics.Add($semanticKey)) {
+            throw "$context duplicates an existing context relation."
+        }
+        $certainty = Get-RequiredChronologyString $item 'certainty' $context
+        Assert-ChronologyPackValue $SchemaPacks 'temporal.certainty' $certainty "$context.certainty"
+        $rawBindings = Get-ProjectMapValue $item 'bindings'
+        if ($null -eq $rawBindings) {
+            $rawBindings = @()
+        }
+        elseif ($rawBindings -is [System.Collections.IDictionary]) {
+            $rawBindings = @($rawBindings)
+        }
+        elseif ($rawBindings -isnot [System.Collections.IList]) {
+            throw "$context.bindings must be a list."
+        }
+        $bindings = @()
+        $seenBindingSemantics = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+        for ($bindingIndex = 0; $bindingIndex -lt $rawBindings.Count; $bindingIndex++) {
+            $bindingContext = "$context.bindings[$bindingIndex]"
+            $binding = $rawBindings[$bindingIndex]
+            if ($binding -isnot [System.Collections.IDictionary]) {
+                throw "$bindingContext must be a mapping."
+            }
+            Assert-KnowledgeMapKeys $binding @('id', 'target_type', 'target_id') $bindingContext
+            $bindingId = Assert-ChronologyStableId (Get-RequiredChronologyString $binding 'id' $bindingContext) "$bindingContext.id"
+            if (-not $seenContextBindings.Add($bindingId)) {
+                throw "$bindingContext.id duplicates '$bindingId'."
+            }
+            $targetType = Get-RequiredChronologyString $binding 'target_type' $bindingContext
+            $targetId = Assert-ChronologyStableId (Get-RequiredChronologyString $binding 'target_id' $bindingContext) "$bindingContext.target_id"
+            Assert-ChronologyPackValue $SchemaPacks 'chronology.context-binding-target-type' $targetType "$bindingContext.target_type"
+            $bindingSemantic = "$targetType|$targetId"
+            if (-not $seenBindingSemantics.Add($bindingSemantic)) {
+                throw "$bindingContext duplicates target '$targetType`:$targetId'."
+            }
+            $bindings += [pscustomobject]@{id=$bindingId
+                target_type=$targetType
+                target_id=$targetId
+            }
+        }
+        $contextRelations += [pscustomobject]@{id=$id
+            source_context_id=$sourceContextId
+            relation_type=$relationType
+            target_context_id=$targetContextId
+            certainty=$certainty
+            bindings=@($bindings)
+        }
+    }
+
     $baseRegistry = [pscustomobject]@{path=$Path
         schema_version=[int]$schemaVersion
         coordinate_systems=$systems
@@ -624,7 +775,8 @@ function ConvertTo-KnowledgeChronologyRegistry {
         spans=@($spans)
         relations=@($relations)
         mappings=@($mappings)
-        narrative_contexts=@($contexts)
+        contexts=@($contexts)
+        context_relations=@($contextRelations)
     }
     foreach ($span in @($spans)) {
         if ($null -ne $span.start_position_id -and $null -ne $span.end_position_id) {
@@ -791,7 +943,8 @@ function ConvertTo-KnowledgeChronologyRegistry {
         spans=@($spans)
         relations=@($relations)
         mappings=@($mappings)
-        narrative_contexts=@($contexts)
+        contexts=@($contexts)
+        context_relations=@($contextRelations)
         equivalence_classes=$classes
         order_edges=$orderEdges
     }

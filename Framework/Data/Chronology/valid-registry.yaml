@@ -1,4 +1,4 @@
-schema_version: 1
+schema_version: 2
 coordinate_systems:
   historical-years:
     label: Historical Era Years
@@ -35,6 +35,13 @@ coordinate_systems:
     value_domain: integer
     direction: ascending
     zero_policy: present
+    aliases: []
+  control-step:
+    label: Control Plane Step
+    kind: ordinal
+    value_domain: positive-integer
+    direction: ascending
+    zero_policy: absent
     aliases: []
 eras:
   ancient-era:
@@ -110,6 +117,12 @@ positions:
     era_id: null
     label: Alternate Year 77
     certainty: exact
+  control-step-one:
+    coordinate_system_id: control-step
+    value: 1
+    era_id: null
+    label: Control Step 1
+    certainty: exact
 spans:
   - id: historical-span
     coordinate_system_id: historical-years
@@ -140,4 +153,53 @@ mappings:
     mapping_kind: equivalent
     target_position_id: civil-anchor
     certainty: exact
-narrative_contexts: []
+contexts:
+  - id: observed-timeline
+    label: Observed Timeline
+    coordinate_system_id: civil-year
+    role: primary
+    continuity_ids: []
+    work_ids: []
+    branch_id: main
+  - id: control-plane
+    label: Control Plane
+    coordinate_system_id: control-step
+    role: control-plane
+    continuity_ids: []
+    work_ids: []
+    branch_id: null
+  - id: archive-context
+    label: Archive Context
+    coordinate_system_id: control-step
+    role: archive
+    continuity_ids: []
+    work_ids: []
+    branch_id: null
+context_relations:
+  - id: control-oversees-timeline
+    source_context_id: control-plane
+    relation_type: oversees
+    target_context_id: observed-timeline
+    certainty: exact
+    bindings:
+      - id: control-oversees-incident
+        target_type: occurrence
+        target_id: test-incident
+      - id: control-oversees-main
+        target_type: occurrence-branch
+        target_id: main
+      - id: control-oversees-scope
+        target_type: applicability-scope
+        target_id: control-scope
+  - id: timeline-receives-control
+    source_context_id: observed-timeline
+    relation_type: receives-from
+    target_context_id: control-plane
+    certainty: exact
+    bindings: []
+  - id: archive-observes-timeline
+    source_context_id: archive-context
+    relation_type: observes
+    target_context_id: observed-timeline
+    certainty: exact
+    bindings: []

@@ -293,6 +293,9 @@ def main() -> int:
     canonical = load_provenance_registry(
         project, canonical_sources, canonical_entities, reconciliations, packs, occurrences
     )
+    chronology_context_target = canonical.provenance_target("chronology-context", "lotm-novel-main-story-chronology")
+    if chronology_context_target.id != "lotm-novel-main-story-chronology":
+        raise AssertionError("Chronology-context provenance dispatch returned the wrong target.")
 
     fixture_root = root / "Framework" / "Data" / "Provenance"
     base_document = json.loads((fixture_root / "base" / "registry.json").read_text(encoding="utf-8"))
@@ -320,9 +323,9 @@ def main() -> int:
 
         chronology_fixture_path = root / "Framework" / "Data" / "Chronology" / "valid-registry.yaml"
         chronology_fixture_data = load_yaml_file(
-            chronology_fixture_path, "chronology fixture", expected_schema_version=1
+            chronology_fixture_path, "chronology fixture", expected_schema_version=2
         )
-        chronology_fixture_data["narrative_contexts"] = [
+        chronology_fixture_data["contexts"] = [
             {
                 "id": "recipient-context",
                 "label": "Recipient Context",
@@ -342,6 +345,7 @@ def main() -> int:
                 "branch_id": "main",
             },
         ]
+        chronology_fixture_data["context_relations"] = []
         chronology_fixture = parse_chronology_registry(
             chronology_fixture_data,
             chronology_fixture_path,

@@ -1,4 +1,4 @@
-schema_version: 1
+schema_version: 2
 coordinate_systems:
   mission-day:
     label: Mission Day
@@ -12,4 +12,5 @@ eras: {}
 positions: {}
 relations: []
 mappings: []
-narrative_contexts: []
+contexts: []
+context_relations: []

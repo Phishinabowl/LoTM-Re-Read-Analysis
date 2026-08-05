@@ -14,7 +14,7 @@
     "taxonomy": 2,
     "resources": 1,
     "sources": 18,
-    "chronology": 1,
+    "chronology": 2,
     "entities": 4,
     "occurrences": 6,
     "reconciliation": 4,
@@ -23,8 +23,8 @@
   "packs": {
     "selection_order": ["core", "narrative-media", "narrative-publishing", "narrative-screen-audio", "narrative-adaptation", "narrative-distribution", "narrative-production", "narrative-shared-universe"],
     "versions": {
-      "core": 31,
-      "narrative-media": 21,
+      "core": 32,
+      "narrative-media": 22,
       "narrative-publishing": 10,
       "narrative-screen-audio": 11,
       "narrative-adaptation": 10,
@@ -32,12 +32,12 @@
       "narrative-production": 4,
       "narrative-shared-universe": 9
     },
-    "declared_capabilities": 125,
-    "available_capabilities": 116,
-    "enabled_capabilities": 116,
+    "declared_capabilities": 127,
+    "available_capabilities": 118,
+    "enabled_capabilities": 118,
     "disabled_capability_ids": ["contributor-credits", "crossover-events", "editorial-assembly", "live-performance-productions", "migration-services", "performance-events", "publication-runs", "rights-grants-and-restrictions", "textual-witnesses"],
-    "controlled_value_namespaces": 122,
-    "controlled_values": 937,
+    "controlled_value_namespaces": 124,
+    "controlled_values": 955,
     "semantic_declarations": {
       "transition_profiles": 9,
       "outcome_incompatibilities": 4,
@@ -79,7 +79,7 @@
       "platform_offerings": 0,
       "sources": 8
     },
-    "chronology": {"coordinate_systems": 1, "eras": 5, "narrative_contexts": 1, "positions": 0, "spans": 0, "relations": 0, "mappings": 0},
+    "chronology": {"coordinate_systems": 1, "eras": 5, "contexts": 1, "context_relations": 0, "positions": 0, "spans": 0, "relations": 0, "mappings": 0},
     "entities": {
       "entities": 0,
       "entity_relationship_types": 20,
@@ -102,9 +102,10 @@
     "source_provenance_types": 27,
     "entity_provenance_types": 8,
     "reconciliation_provenance_types": 1,
+    "chronology_provenance_types": 3,
     "occurrence_provenance_types": 19,
-    "total_provenance_subject_types": 56
+    "total_provenance_subject_types": 59
   },
   "composition_passes": 2,
-  "invalid_composition_cases": 8
+  "invalid_composition_cases": 9
 }

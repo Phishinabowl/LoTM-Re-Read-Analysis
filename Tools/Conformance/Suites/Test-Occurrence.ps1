@@ -91,8 +91,8 @@ $registry = Get-KnowledgeOccurrenceRegistry $project $packs $chronology
 
 $fixtureRoot = Join-Path $repoRoot 'Framework\Data\Occurrence'
 $chronologyFixturePath = Join-Path $repoRoot 'Framework\Data\Chronology\valid-registry.yaml'
-$chronologyFixtureData = ConvertFrom-KnowledgeYamlFile $chronologyFixturePath 1 'chronology fixture'
-$chronologyFixtureData['narrative_contexts'] = @(
+$chronologyFixtureData = ConvertFrom-KnowledgeYamlFile $chronologyFixturePath 2 'chronology fixture'
+$chronologyFixtureData['contexts'] = @(
     [ordered]@{id='recipient-context'
         label='Recipient Context'
         coordinate_system_id='civil-year'
@@ -110,6 +110,7 @@ $chronologyFixtureData['narrative_contexts'] = @(
         branch_id='main'
     }
 )
+$chronologyFixtureData['context_relations'] = @()
 $chronologyFixture = ConvertTo-KnowledgeChronologyRegistry `
     $chronologyFixtureData `
     $chronologyFixturePath `

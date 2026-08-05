@@ -1,4 +1,4 @@
-schema_version: 1
+schema_version: 2
 coordinate_systems:
   story-years:
     label: Story Years
@@ -11,7 +11,7 @@ eras: {}
 positions: {}
 relations: []
 mappings: []
-narrative_contexts:
+contexts:
   - id: missing-work-context
     label: Missing Work Context
     coordinate_system_id: story-years
@@ -20,3 +20,4 @@ narrative_contexts:
     work_ids:
       - missing-work
     branch_id: main
+context_relations: []

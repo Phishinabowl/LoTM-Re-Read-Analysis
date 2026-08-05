@@ -42,7 +42,8 @@ $sourceCountFields = @(
 $chronologyCountFields = @(
     'coordinate_systems'
     'eras'
-    'narrative_contexts'
+    'contexts'
+    'context_relations'
     'positions'
     'spans'
     'relations'
@@ -139,6 +140,12 @@ function Get-ProjectComposition {
     @($sources.continuities.Keys)
     $entities = Get-KnowledgeEntityRegistry $project $taxonomy $sources $packs
     $occurrences = Get-KnowledgeOccurrenceRegistry $project $packs $chronology
+    $chronologyTargets = [ordered]@{
+        occurrence = @($occurrences.occurrences.Keys)
+        'occurrence-branch' = @($occurrences.branches.Keys)
+        'applicability-scope' = @($sources.applicability_scopes.Keys)
+    }
+    Assert-KnowledgeChronologyContextRelationTargets $chronology $chronologyTargets
     $providers = @(
         (Get-KnowledgeTaxonomyReconciliationProvider $taxonomy)
         (Get-KnowledgeResourceReconciliationProvider $resources)
@@ -210,11 +217,13 @@ function Get-ProjectCompositionSummary {
     $sourceProvenanceTypes = @(Get-KnowledgeSourceProvenanceSubjectTypes)
     $entityProvenanceTypes = @(Get-KnowledgeEntityProvenanceSubjectTypes)
     $reconciliationProvenanceTypes = @(Get-KnowledgeReconciliationProvenanceSubjectTypes)
+    $chronologyProvenanceTypes = @((Get-KnowledgeChronologyProvenanceTargets $Composition.chronology).Keys)
     $occurrenceProvenanceTypes = @((Get-KnowledgeOccurrenceProvenanceTargets $Composition.occurrences).Keys)
     $allProvenanceTypes = @(
         $sourceProvenanceTypes +
         $entityProvenanceTypes +
         $reconciliationProvenanceTypes +
+        $chronologyProvenanceTypes +
         $occurrenceProvenanceTypes +
         @('claim-supersession') |
             Sort-Object -Unique
@@ -291,6 +300,7 @@ function Get-ProjectCompositionSummary {
             source_provenance_types = $sourceProvenanceTypes.Count
             entity_provenance_types = $entityProvenanceTypes.Count
             reconciliation_provenance_types = $reconciliationProvenanceTypes.Count
+            chronology_provenance_types = $chronologyProvenanceTypes.Count
             occurrence_provenance_types = $occurrenceProvenanceTypes.Count
             total_provenance_subject_types = $allProvenanceTypes.Count
         }
@@ -352,6 +362,9 @@ function Assert-ProjectCompositionWiring {
     if (-not [object]::ReferenceEquals($Composition.provenance.reconciliations, $Composition.reconciliation)) {
         throw 'Provenance composition did not retain the loaded reconciliation instance.'
     }
+    if (-not [object]::ReferenceEquals($Composition.provenance.chronology, $Composition.chronology)) {
+        throw 'Provenance composition did not retain the loaded chronology instance.'
+    }
     if (-not [object]::ReferenceEquals($Composition.provenance.occurrences, $Composition.occurrences)) {
         throw 'Provenance composition did not retain the loaded occurrence instance.'
     }
@@ -374,6 +387,7 @@ function Assert-ProjectProviderClosure {
         (Get-KnowledgeSourceProvenanceSubjectTypes) +
         (Get-KnowledgeEntityProvenanceSubjectTypes) +
         (Get-KnowledgeReconciliationProvenanceSubjectTypes) +
+        @((Get-KnowledgeChronologyProvenanceTargets $Composition.chronology).Keys) +
         @((Get-KnowledgeOccurrenceProvenanceTargets $Composition.occurrences).Keys) +
         @('claim-supersession') |
             Sort-Object -Unique
@@ -421,6 +435,7 @@ function Assert-InvalidProjectCompositions {
     $entityPacks = Copy-PacksWithoutCapability $packs 'entity-incarnations'
     $occurrencePacks = Copy-PacksWithoutCapability $packs 'occurrence-recurrence-modeling'
     $participationPacks = Copy-PacksWithoutCapability $packs 'occurrence-participation-identity'
+    $chronologyContextPacks = Copy-PacksWithoutCapability $packs 'chronology-contexts'
     $reconciliationPacks = Copy-PacksWithoutCapability $packs 'stable-identity-reconciliation'
     $actions = @(
         { Get-KnowledgeReconciliationRegistry $project @($providers[0..2]) $packs }
@@ -461,6 +476,13 @@ function Assert-InvalidProjectCompositions {
                 $project `
                 $participationPacks `
                 $Composition.chronology
+        }
+        {
+            Get-KnowledgeChronologyRegistry `
+                $project `
+                $chronologyContextPacks `
+            @($Composition.sources.works.Keys) `
+            @($Composition.sources.continuities.Keys)
         }
         { Get-KnowledgeReconciliationRegistry $project $providers $reconciliationPacks }
     )

@@ -122,13 +122,13 @@ deferred at the stabilization gate.
 
 ### Phase 1.5 Chronology-Context Topology
 
-- [ ] Define a bounded framework version for typed relations among chronology contexts without
+- [x] Define a bounded framework version for typed relations among chronology contexts without
   turning those relations into chronological precedence.
-- [ ] Model relations such as outside, observes, oversees, intervenes-in, projects-into, and
+- [x] Model relations such as outside, observes, oversees, intervenes-in, projects-into, and
   receives-from through pack-owned vocabulary and validated typed targets.
-- [ ] Preserve incomparability between chronology coordinates unless an explicit mapping relates
+- [x] Preserve incomparability between chronology coordinates unless an explicit mapping relates
   them.
-- [ ] Connect interventions to concrete occurrences, branches, and applicability scopes without
+- [x] Connect interventions to concrete occurrences, branches, and applicability scopes without
   claiming that extratemporal means unordered.
 - [ ] Prove TVA-local order, timeline oversight, and branch intervention while retaining ordinary
   chronology cycle rejection.

@@ -34,6 +34,13 @@ function Get-KnowledgeProvenanceTarget {
             throw
         }
     }
+    $chronologyTargets = Get-KnowledgeChronologyProvenanceTargets $ProvenanceRegistry.chronology
+    if ($chronologyTargets.Contains($SubjectType)) {
+        if (-not $chronologyTargets[$SubjectType].Contains($SubjectId)) {
+            throw "Unknown $SubjectType '$SubjectId'."
+        }
+        return $chronologyTargets[$SubjectType][$SubjectId]
+    }
     $occurrenceTargets = Get-KnowledgeOccurrenceProvenanceTargets $ProvenanceRegistry.occurrences
     if ($occurrenceTargets.Contains($SubjectType)) {
         if (-not $occurrenceTargets[$SubjectType].Contains($SubjectId)) {
@@ -169,6 +176,9 @@ function Get-KnowledgeProvenanceRegistry {
         $chronology = Get-KnowledgeChronologyRegistry $ProjectConfig $SchemaPackRegistry @($SourceRegistry.works.Keys) @($SourceRegistry.continuities.Keys)
         $OccurrenceRegistry = Get-KnowledgeOccurrenceRegistry $ProjectConfig $SchemaPackRegistry $chronology
     }
+    else {
+        $chronology = $OccurrenceRegistry.chronology
+    }
     $path = $ProjectConfig.provenance_registry
     $registry = ConvertFrom-KnowledgeYamlFile $path $script:SupportedProvenanceSchemaVersion "provenance registry"
     if ($null -eq $registry -or $registry -isnot [System.Collections.IDictionary]) {
@@ -182,13 +192,28 @@ function Get-KnowledgeProvenanceRegistry {
     $sourceSubjectTypes = @(Get-KnowledgeSourceProvenanceSubjectTypes)
     $entitySubjectTypes = @(Get-KnowledgeEntityProvenanceSubjectTypes)
     $reconciliationSubjectTypes = @(Get-KnowledgeReconciliationProvenanceSubjectTypes)
+    $chronologySubjectTypes = @((Get-KnowledgeChronologyProvenanceTargets $chronology).Keys)
     $occurrenceSubjectTypes = @((Get-KnowledgeOccurrenceProvenanceTargets $OccurrenceRegistry).Keys)
-    $allProviderTypes = @($sourceSubjectTypes + $entitySubjectTypes + $reconciliationSubjectTypes + $occurrenceSubjectTypes)
+    $allProviderTypes = @(
+        $sourceSubjectTypes +
+        $entitySubjectTypes +
+        $reconciliationSubjectTypes +
+        $chronologySubjectTypes +
+        $occurrenceSubjectTypes
+    )
     $duplicates = @($allProviderTypes | Group-Object | Where-Object Count -gt 1 | ForEach-Object Name)
     if ($duplicates.Count -gt 0) {
         throw "Provenance subject types have multiple providers: $($duplicates -join ', ')."
     }
-    $providedSubjectTypes = @($sourceSubjectTypes + $entitySubjectTypes + $reconciliationSubjectTypes + $occurrenceSubjectTypes + @("claim-supersession") | Sort-Object -Unique)
+    $providedSubjectTypes = @(
+        $sourceSubjectTypes +
+        $entitySubjectTypes +
+        $reconciliationSubjectTypes +
+        $chronologySubjectTypes +
+        $occurrenceSubjectTypes +
+        @("claim-supersession") |
+            Sort-Object -Unique
+    )
     $allowedSubjectTypes = @(Get-SchemaPackAllowedValues $SchemaPackRegistry "provenance.subject-type")
     $missingProviders = @($allowedSubjectTypes | Where-Object { $providedSubjectTypes -cnotcontains $_ })
     $unregisteredProviders = @($providedSubjectTypes | Where-Object { $allowedSubjectTypes -cnotcontains $_ })
@@ -257,6 +282,7 @@ function Get-KnowledgeProvenanceRegistry {
     $shell = [pscustomobject]@{sources=$SourceRegistry
         entities=$EntityRegistry
         reconciliations=$ReconciliationRegistry
+        chronology=$chronology
         occurrences=$OccurrenceRegistry
         claim_supersessions=@($supersessions)
     }
@@ -416,6 +442,7 @@ function Get-KnowledgeProvenanceRegistry {
         sources=$SourceRegistry
         entities=$EntityRegistry
         reconciliations=$ReconciliationRegistry
+        chronology=$chronology
         occurrences=$OccurrenceRegistry
     }
 }

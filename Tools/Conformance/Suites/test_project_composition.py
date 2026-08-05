@@ -55,7 +55,8 @@ SOURCE_COUNT_FIELDS = (
 CHRONOLOGY_COUNT_FIELDS = (
     "coordinate_systems",
     "eras",
-    "narrative_contexts",
+    "contexts",
+    "context_relations",
     "positions",
     "spans",
     "relations",
@@ -135,6 +136,13 @@ def load_composition(root: Path) -> Composition:
     )
     entities = load_entity_registry(project, taxonomy, sources, packs)
     occurrences = load_occurrence_registry(project, packs, chronology)
+    chronology.validate_context_relation_targets(
+        {
+            "occurrence": set(occurrences.occurrences),
+            "occurrence-branch": set(occurrences.branches),
+            "applicability-scope": set(sources.applicability_scopes),
+        }
+    )
     providers = (
         taxonomy.reconciliation_provider(),
         resources.reconciliation_provider(),
@@ -178,6 +186,7 @@ def summarize(composition: Composition) -> dict:
         set(composition.sources.provenance_targets())
         | set(composition.entities.provenance_targets())
         | set(reconciliation.provenance_targets())
+        | set(composition.chronology.provenance_targets())
         | set(composition.occurrences.provenance_targets())
         | {"claim-supersession"}
     )
@@ -249,6 +258,7 @@ def summarize(composition: Composition) -> dict:
             "source_provenance_types": len(composition.sources.provenance_targets()),
             "entity_provenance_types": len(composition.entities.provenance_targets()),
             "reconciliation_provenance_types": len(reconciliation.provenance_targets()),
+            "chronology_provenance_types": len(composition.chronology.provenance_targets()),
             "occurrence_provenance_types": len(composition.occurrences.provenance_targets()),
             "total_provenance_subject_types": len(provenance_types),
         },
@@ -279,6 +289,8 @@ def assert_wiring(composition: Composition) -> None:
         raise AssertionError("Provenance composition did not retain the loaded entity instance.")
     if composition.provenance.reconciliations is not composition.reconciliation:
         raise AssertionError("Provenance composition did not retain the loaded reconciliation instance.")
+    if composition.provenance.chronology is not composition.chronology:
+        raise AssertionError("Provenance composition did not retain the loaded chronology instance.")
     if composition.provenance.occurrences is not composition.occurrences:
         raise AssertionError("Provenance composition did not retain the loaded occurrence instance.")
 
@@ -295,6 +307,7 @@ def assert_provider_closure(composition: Composition) -> None:
         set(composition.sources.provenance_targets())
         | set(composition.entities.provenance_targets())
         | set(composition.reconciliation.provenance_targets())
+        | set(composition.chronology.provenance_targets())
         | set(composition.occurrences.provenance_targets())
         | {"claim-supersession"}
     )
@@ -351,6 +364,12 @@ def assert_invalid_compositions(composition: Composition) -> int:
             project,
             without_capability(packs, "occurrence-participation-identity"),
             composition.chronology,
+        ),
+        lambda: load_chronology_registry(
+            project,
+            without_capability(packs, "chronology-contexts"),
+            work_ids=set(composition.sources.works),
+            continuity_ids=set(composition.sources.continuities),
         ),
         lambda: load_reconciliation_registry(
             project,

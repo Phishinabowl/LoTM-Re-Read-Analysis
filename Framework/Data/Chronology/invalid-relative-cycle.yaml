@@ -1,4 +1,4 @@
-schema_version: 1
+schema_version: 2
 coordinate_systems:
   relative-a:
     label: Relative A
@@ -32,4 +32,5 @@ positions:
     certainty: exact
 relations: []
 mappings: []
-narrative_contexts: []
+contexts: []
+context_relations: []

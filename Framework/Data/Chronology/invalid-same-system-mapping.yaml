@@ -1,4 +1,4 @@
-schema_version: 1
+schema_version: 2
 coordinate_systems:
   years:
     label: Years
@@ -28,4 +28,5 @@ mappings:
     mapping_kind: equivalent
     target_position_id: year-two
     certainty: exact
-narrative_contexts: []
+contexts: []
+context_relations: []
