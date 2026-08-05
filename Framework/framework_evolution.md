@@ -1703,3 +1703,29 @@ Phase 1 reopens for three bounded versions followed by another stabilization gat
 3. V47 should implement **Hosted Identity And Embodiment** while preserving the existing entity, incarnation, phase, relationship, occurrence, state, and reconciliation ownership boundaries.
 
 Phase 1.13 should then replay the five new V45-V47 scenarios together with Loki, Derrick, the four promoted foundational narrative scenarios, the complete permanent baseline, full project compatibility, and the retained cross-industry portfolio. Phase 2 must wait until that expanded gate either passes or explicitly defers a remaining capability with maintainer approval.
+
+## V45 - Competing Structural Interpretations
+
+**Implemented by:** `2ea19e4` (`Implement V45 structural interpretations`)
+
+**Proposed testing:** `CONF-STRICT-INGESTION`, `CONF-PACK-COMPOSITION`, `CONF-INTERPRETATION`, `CONF-PROVENANCE`, `CONF-CHRONOLOGY`, `CONF-OCCURRENCE`, `CONF-PROJECT-COMPOSITION`, `PARITY-THREE-RUNTIME`, `PARITY-STRUCTURED-OUTPUT`, `PARITY-COMMAND-SURFACE`, `COMPAT-VISUALIZATION`, `COMPAT-QA`, `COMPAT-RENDER`, `COMPAT-ROOT-DISCOVERY`, `COMPAT-ARTIFACT-LIFECYCLE`, `COMPAT-FRAMEWORK-EXTRACTION`, `STATIC-POWERSHELL`, `STATIC-PYTHON`, `STATIC-WORK-ANNOTATIONS`, `SCENARIO-PRIMER`, `SCENARIO-MEMENTO`, `SCENARIO-TEXTUAL-TRADITION`, `PRESSURE-STRUCTURAL-INTERPRETATION`, `PRESSURE-EVIDENCE-AUTHORITY`, `PRESSURE-WORK-CONTINUITY`, `PRESSURE-ENTITY-IDENTITY`, `PRESSURE-TEMPORAL-TOPOLOGY`, `PRESSURE-LAYER-PORTABILITY`, `PRESSURE-ADVERSARIAL`, `PRESSURE-CROSS-DOMAIN`, and `PRESSURE-SCALE`.
+
+**Proposed candidates:** Externally source-grounded Primer ambiguity and Memento reconstruction controls; a conceptual Tolkien textual-tradition reconstruction unless exact publication claims are separately source-grounded; synthetic IT incident hypotheses, medical differential diagnoses, legal case theories, investigative reconstructions, and scientific causal models; compatible, competing, and mutually exclusive sets; canonical and deferred provenance-claim members; local precedence, causal, correspondence, and candidate-equivalence relations; unresolved authority, ties, and incomparable evidence; malformed inverse definitions, duplicate structures, cycles, provider collisions, and recursive interpretation attempts.
+
+**Superseded assumption:** Preserving uncertainty about individual records is sufficient to represent several named, internally coherent candidate structures.
+
+**Architectural promotion:** Structural interpretation becomes a domain-neutral core service rather than a narrative chronology convention.
+
+V45 introduces an independently versioned structural-interpretation registry. An interpretation owns stable candidate identity, typed membership references, interpretation-local relations, and membership in comparison sets. It is not a continuity, branch, source, authority rule, canonical chronology, or factual assertion. Candidate structures reuse canonical record IDs instead of copying occurrences, positions, relations, branches, entities, or claims.
+
+Relation definitions follow the established typed-relationship contract: packs allow relation IDs while the project registry declares inverse, symmetry, canonical direction, and local acyclic-group behavior. Candidate edges are validated and queried only inside their owning interpretation. They never enter canonical chronology closure, occurrence causality, entity reconciliation, or another registry's graph.
+
+Compatible, competing, and mutually exclusive sets remain conservative. The structural service reports compatible coexistence or an unresolved candidate set and never chooses a winner from membership, lifecycle, order, or relation count. Provenance may target every structural record, and ordinary claim authority may compare source-backed assertions, but evidence, source priority, applicability, supersession, and factual resolution remain provenance-owned.
+
+Claim membership uses a deliberate two-stage composition boundary. Canonical targets resolve when interpretations load. `provenance-claim` IDs remain typed deferred references until provenance loads with interpretation records exposed as subjects; project composition then validates those claim keys. This permits claims to support interpretations and interpretations to include claims without a circular registry owner.
+
+V45 adds interpretation schema 1, project manifest schema 10, core pack version 36, a paired `interpretation` conformance suite, and provenance/project-composition integration coverage. It does not add probabilistic ranking, automatic theory generation, nested interpretations, an arbitrary expression engine, canonical graph mutation, interpretation-ID reconciliation, a general analytical truth resolver, or UI/editor behavior.
+
+## Testing After V45
+
+Testing is pending implementation confirmation.
