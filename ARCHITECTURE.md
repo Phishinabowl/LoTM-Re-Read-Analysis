@@ -351,6 +351,12 @@ During migration, the content index may derive missing stable IDs from existing 
 
 Non-category records should use the same normalized boundary while leaving `category_id` empty and declaring their content type, for example `record_kind: summary` and `content_type_id: volume-summary`.
 
+Normalized records may feed local JSON, SQLite, Parquet, graph, QA, website, or optional
+lakehouse projections. Those outputs remain rebuildable views; storage technology does not alter
+canonical authority. The logical bronze/silver/gold interpretation, notebook policy, projection
+format roles, and staged Databricks/Delta adoption boundary are defined in
+`Framework/analytical-projection-architecture.md`.
+
 ## Mutation and Migration Contract
 
 Repository-wide changes such as category-folder renames, slug-prefix changes, page moves, and schema migrations must be planned operations.
