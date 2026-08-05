@@ -355,7 +355,7 @@ def main() -> int:
         )
         occurrence_fixture_path = root / "Framework" / "Data" / "Occurrence" / "valid-registry.yaml"
         fixture_occurrences = parse_occurrence_registry(
-            load_yaml_file(occurrence_fixture_path, "occurrence fixture", expected_schema_version=6),
+            load_yaml_file(occurrence_fixture_path, "occurrence fixture", expected_schema_version=7),
             occurrence_fixture_path,
             packs,
             chronology_fixture,

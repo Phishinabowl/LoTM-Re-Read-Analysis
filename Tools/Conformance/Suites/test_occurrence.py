@@ -180,7 +180,7 @@ def main() -> int:
         continuity_ids=set(),
     )
     fixture_path = fixture_root / "valid-registry.yaml"
-    fixture_data = load_yaml_file(fixture_path, "occurrence fixture", expected_schema_version=6)
+    fixture_data = load_yaml_file(fixture_path, "occurrence fixture", expected_schema_version=7)
     fixture = parse_occurrence_registry(
         fixture_data,
         fixture_path,
@@ -189,7 +189,33 @@ def main() -> int:
         subject_targets={"character": {"protagonist", "observer"}},
         payload_targets={"state-record": {"protagonist-health"}},
     )
+    fixture.validate_branch_continuity_targets({"fixture-continuity"})
+    try:
+        fixture.validate_branch_continuity_targets(set())
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("Unknown branch continuity membership unexpectedly validated.")
     expectations = json.loads((fixture_root / "expectations.json").read_text(encoding="utf-8"))
+    for branch_id, expected in expectations["branch_state_histories"].items():
+        if ids(fixture.branch_state_history(branch_id)) != expected:
+            raise AssertionError(f"Unexpected branch-state history for `{branch_id}`.")
+    for branch_id, boundary, expected in expectations["branch_state_at"]:
+        state = fixture.branch_state_at(branch_id, boundary)
+        if (state.id if state else None) != expected:
+            raise AssertionError(f"Unexpected branch state for `{branch_id}` at ordinal {boundary}.")
+    try:
+        fixture.branch_state_history("missing-branch")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("Unknown branch-state history query unexpectedly succeeded.")
+    try:
+        fixture.branch_state_at("main", -1)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("Negative branch-state boundary unexpectedly succeeded.")
     for iteration_id, expected in expectations["iteration_occurrences"].items():
         if ids(fixture.occurrences_for_iteration(iteration_id)) != expected:
             raise AssertionError(f"Unexpected occurrence order for iteration `{iteration_id}`.")
@@ -376,6 +402,20 @@ def main() -> int:
             "participation_id": participation_id,
             "ordinal": index + 1,
         }
+        scale_probe["branch_state_transitions"].append(
+            {
+                "id": f"scale-branch-state-{index:03d}",
+                "label": f"Scale branch state {index:03d}",
+                "branch_id": "main",
+                "ordinal": index + 3,
+                "change_kind": "preserve",
+                "prior_state": "preserved",
+                "resulting_state": "preserved",
+                "activation_occurrence_id": "restored-main",
+                "trigger_transition_id": None,
+                "certainty": "exact",
+            }
+        )
     scale_registry = parse_occurrence_registry(
         scale_probe,
         fixture_path,
@@ -391,6 +431,8 @@ def main() -> int:
         or len(scale_registry.tracks["scale-observer-experience"].entry_ids) != scale_count
     ):
         raise AssertionError("Generated occurrence-participation scale probe did not retain every record.")
+    if len(scale_registry.branch_state_history("main")) != 2 + scale_count:
+        raise AssertionError("Generated branch-state scale probe did not retain every record.")
 
     mixed_indeterminate_probe = copy.deepcopy(fixture_data)
     mixed_rule = copy.deepcopy(mixed_indeterminate_probe["rules"][0])
@@ -586,6 +628,7 @@ def main() -> int:
     summary = {
         "schema_version": registry.schema_version,
         "branches": len(registry.branches),
+        "branch_state_transitions": len(registry.branch_state_transitions),
         "templates": len(registry.templates),
         "recurrence_patterns": len(registry.recurrence_patterns),
         "recurrences": len(registry.recurrences),
@@ -605,6 +648,8 @@ def main() -> int:
         "carryovers": len(registry.carryovers),
         "fixture_queries": (
             len(expectations["iteration_occurrences"])
+            + len(expectations["branch_state_histories"])
+            + len(expectations["branch_state_at"])
             + len(expectations["recurrence_cardinalities"])
             + len(expectations["position_occurrences"])
             + len(expectations["occurrence_participations"])
@@ -628,11 +673,12 @@ def main() -> int:
             + len(expectations["trace_dispositions"])
             + len(expectations["subject_state_transitions"])
             + len(expectations["state_at"])
-            + 16
+            + 18
         ),
         "invalid_cases": len(invalid_cases),
         "scale_cardinalities": scale_count,
         "scale_participations": scale_count,
+        "scale_branch_state_transitions": scale_count,
     }
     if args.json:
         print(json.dumps(summary, sort_keys=True, separators=(",", ":")))

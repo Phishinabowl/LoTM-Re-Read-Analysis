@@ -77,6 +77,7 @@ ENTITY_COUNT_FIELDS = (
 )
 OCCURRENCE_COUNT_FIELDS = (
     "branches",
+    "branch_state_transitions",
     "templates",
     "recurrence_patterns",
     "recurrences",
@@ -136,6 +137,7 @@ def load_composition(root: Path) -> Composition:
     )
     entities = load_entity_registry(project, taxonomy, sources, packs)
     occurrences = load_occurrence_registry(project, packs, chronology)
+    occurrences.validate_branch_continuity_targets(set(sources.continuities))
     chronology.validate_context_relation_targets(
         {
             "occurrence": set(occurrences.occurrences),
@@ -363,6 +365,11 @@ def assert_invalid_compositions(composition: Composition) -> int:
         lambda: load_occurrence_registry(
             project,
             without_capability(packs, "occurrence-participation-identity"),
+            composition.chronology,
+        ),
+        lambda: load_occurrence_registry(
+            project,
+            without_capability(packs, "timeline-branch-lifecycle"),
             composition.chronology,
         ),
         lambda: load_chronology_registry(

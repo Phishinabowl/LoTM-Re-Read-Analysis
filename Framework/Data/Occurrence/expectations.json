@@ -2,6 +2,18 @@
   "iteration_occurrences": {
     "outer-two": ["wake-two", "bell-two", "reset-two"]
   },
+  "branch_state_histories": {
+    "main": ["main-established", "main-preserved"],
+    "changed-outcome": ["changed-outcome-emerged", "changed-outcome-activated", "changed-outcome-merged"]
+  },
+  "branch_state_at": [
+    ["main", 0, null],
+    ["main", 1, "main-established"],
+    ["main", null, "main-preserved"],
+    ["changed-outcome", 1, "changed-outcome-emerged"],
+    ["changed-outcome", 2, "changed-outcome-activated"],
+    ["changed-outcome", 99, "changed-outcome-merged"]
+  ],
   "recurrence_cardinalities": {
     "outer-loop": ["outer-complete-count"],
     "inner-loop": ["inner-large-minimum-count", "inner-maximum-count", "inner-minimum-count", "inner-range-count", "inner-unknown-count"],

@@ -1,10 +1,13 @@
-schema_version: 6
+schema_version: 7
 
 branches:
   main:
     label: Main
     parent_branch_id: null
     fork_occurrence_id: null
+    continuity_ids: []
+
+branch_state_transitions: []
 
 templates: {}
 recurrence_patterns: {}

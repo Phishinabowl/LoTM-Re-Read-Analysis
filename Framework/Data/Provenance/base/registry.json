@@ -336,6 +336,25 @@
           ]
         }
       ]
+    },
+    {
+      "id": "branch-state-merged-primary",
+      "claim_key": "changed-outcome-branch-merged",
+      "subject_type": "occurrence-branch-state-transition",
+      "subject_id": "changed-outcome-merged",
+      "claim_namespace": "canonical-content",
+      "field_path": "resulting_state",
+      "asserted_value": "merged",
+      "assertion_status": "verified",
+      "evidence_links": [
+        {
+          "source_id": "primary-source",
+          "evidence_role": "supports",
+          "locators": [
+            {"id": "branch-state-merged-locator", "medium_id": "novel", "evidence_mode": "canonical-text", "locator_type": "point", "position": {"work": "primary-work", "volume": 1, "chapter": 1}}
+          ]
+        }
+      ]
     }
   ]
 }

@@ -1,6 +1,6 @@
 schema_version: 3
 pack_id: core
-pack_version: 32
+pack_version: 33
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -69,6 +69,7 @@ capabilities:
   - deterministic-effect-resolution
   - aggregate-recurrence-cardinality
   - occurrence-participation-identity
+  - timeline-branch-lifecycle
   - visibility-policy
   - graph-projection
   - schema-validation
@@ -166,6 +167,22 @@ controlled_values:
     - complete
     - representative
     - unmaterialized
+  occurrence.branch-state:
+    - emerging
+    - active
+    - inactive
+    - transferred
+    - restored
+    - merged
+    - preserved
+  occurrence.branch-change-kind:
+    - initialize
+    - activate
+    - deactivate
+    - transfer
+    - restore
+    - merge
+    - preserve
   occurrence.transition-kind:
     - continues
     - jump
@@ -358,6 +375,7 @@ controlled_values:
     - authority-rule
     - reconciliation-record
     - occurrence-branch
+    - occurrence-branch-state-transition
     - occurrence-template
     - recurrence-pattern
     - recurrence

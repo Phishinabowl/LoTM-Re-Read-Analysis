@@ -138,11 +138,11 @@ deferred at the stabilization gate.
 
 ### Phase 1.6 Timeline-Branch Lifecycle
 
-- [ ] Define a bounded framework version for branch identity and state history.
-- [ ] Support pack-owned branch states such as emerging, active, pruned, transferred, restored,
+- [x] Define a bounded framework version for branch identity and state history.
+- [x] Support pack-owned branch states such as emerging, active, pruned, transferred, restored,
   merged, preserved, and inactive without assuming every domain uses every state.
-- [ ] Represent pruning or deactivation as a provenance-backed transition rather than deletion.
-- [ ] Preserve branch lineage, continuity membership, applicability, and state at a requested
+- [x] Represent pruning or deactivation as a provenance-backed transition rather than deletion.
+- [x] Preserve branch lineage, continuity membership, applicability, and state at a requested
   boundary.
 - [ ] Model Loki's branching timelines, TVA pruning, restoration/preservation, and final replacement
   structure without collapsing branches into one chronology.

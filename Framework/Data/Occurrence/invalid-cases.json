@@ -100,5 +100,19 @@
   {"name":"noncontiguous-track-entry-ordinal","changes":[{"path":"track_entries.observer-entry-05.ordinal","value":6}]},
   {"name":"legacy-track-occurrence-list","changes":[{"path":"tracks.protagonist-experience.occurrence_ids","value":["wake-one"]}]},
   {"name":"ambiguous-transition-track-endpoint","changes":[{"path":"transitions.5.source_occurrence_id","value":"self-intervention"}]},
-  {"name":"ambiguous-state-activation","changes":[{"path":"state_transitions.0.activation_occurrence_id","value":"self-intervention"}]}
+  {"name":"ambiguous-state-activation","changes":[{"path":"state_transitions.0.activation_occurrence_id","value":"self-intervention"}]},
+  {"name":"unknown-branch-state-branch","changes":[{"path":"branch_state_transitions.0.branch_id","value":"missing-branch"}]},
+  {"name":"invalid-branch-state-ordinal","changes":[{"path":"branch_state_transitions.0.ordinal","value":0}]},
+  {"name":"duplicate-branch-state-ordinal","changes":[{"path":"branch_state_transitions.1.ordinal","value":1}]},
+  {"name":"noncontiguous-branch-state-ordinal","changes":[{"path":"branch_state_transitions.1.ordinal","value":3}]},
+  {"name":"unknown-branch-change-kind","changes":[{"path":"branch_state_transitions.0.change_kind","value":"erase"}]},
+  {"name":"unknown-branch-prior-state","changes":[{"path":"branch_state_transitions.1.prior_state","value":"missing-state"}]},
+  {"name":"unknown-branch-resulting-state","changes":[{"path":"branch_state_transitions.0.resulting_state","value":"missing-state"}]},
+  {"name":"unknown-branch-state-activation","changes":[{"path":"branch_state_transitions.0.activation_occurrence_id","value":"missing-occurrence"}]},
+  {"name":"unknown-branch-state-trigger","changes":[{"path":"branch_state_transitions.1.trigger_transition_id","value":"missing-transition"}]},
+  {"name":"branch-state-trigger-endpoint-mismatch","changes":[{"path":"branch_state_transitions.1.activation_occurrence_id","value":"wake-one"}]},
+  {"name":"branch-state-discontinuous","changes":[{"path":"branch_state_transitions.1.prior_state","value":"inactive"}]},
+  {"name":"branch-state-first-prior","changes":[{"path":"branch_state_transitions.0.prior_state","value":"emerging"}]},
+  {"name":"child-branch-state-without-fork-trigger","changes":[{"path":"branch_state_transitions.2.trigger_transition_id","value":null}]},
+  {"name":"child-branch-state-wrong-fork-trigger","changes":[{"path":"branch_state_transitions.2.trigger_transition_id","value":"changed-outcome-merge"}]}
 ]

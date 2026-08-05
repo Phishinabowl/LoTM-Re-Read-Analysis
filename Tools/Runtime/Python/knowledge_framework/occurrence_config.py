@@ -13,7 +13,7 @@ from .strict_yaml import assert_allowed_keys, load_yaml_file
 from .temporal_config import TemporalWindow, normalize_effective_at, parse_temporal_window, temporal_window_match
 
 
-SUPPORTED_SCHEMA_VERSION = 6
+SUPPORTED_SCHEMA_VERSION = 7
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 
@@ -23,6 +23,21 @@ class OccurrenceBranch:
     label: str
     parent_branch_id: str | None
     fork_occurrence_id: str | None
+    continuity_ids: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class BranchStateTransition:
+    id: str
+    label: str
+    branch_id: str
+    ordinal: int
+    change_kind: str
+    prior_state: str | None
+    resulting_state: str
+    activation_occurrence_id: str
+    trigger_transition_id: str | None
+    certainty: str
 
 
 @dataclass(frozen=True)
@@ -319,6 +334,7 @@ class OccurrenceRegistry:
     schema_version: int
     chronology: ChronologyRegistry
     branches: dict[str, OccurrenceBranch]
+    branch_state_transitions: tuple[BranchStateTransition, ...]
     templates: dict[str, OccurrenceTemplate]
     recurrence_patterns: dict[str, RecurrencePattern]
     recurrences: dict[str, Recurrence]
@@ -339,6 +355,27 @@ class OccurrenceRegistry:
     effect_global_incompatibility_pairs: frozenset[tuple[str, str]]
     effect_same_target_incompatibility_pairs: frozenset[tuple[str, str]]
     effect_repetition_policies: dict[str, str]
+
+    def branch_state_history(self, branch_id: str) -> tuple[BranchStateTransition, ...]:
+        self._known(self.branches, branch_id, "branch")
+        return tuple(item for item in self.branch_state_transitions if item.branch_id == branch_id)
+
+    def branch_state_at(self, branch_id: str, through_ordinal: int | None = None) -> BranchStateTransition | None:
+        history = self.branch_state_history(branch_id)
+        if through_ordinal is None:
+            return history[-1] if history else None
+        if isinstance(through_ordinal, bool) or not isinstance(through_ordinal, int) or through_ordinal < 0:
+            raise ValueError("Branch-state boundary ordinal must be a nonnegative integer.")
+        candidates = tuple(item for item in history if item.ordinal <= through_ordinal)
+        return candidates[-1] if candidates else None
+
+    def validate_branch_continuity_targets(self, continuity_ids: set[str]) -> None:
+        for branch in self.branches.values():
+            unknown = set(branch.continuity_ids) - continuity_ids
+            if unknown:
+                raise ValueError(
+                    f"branches.{branch.id}.continuity_ids references unknown continuities: {sorted(unknown)}."
+                )
 
     def occurrences_for_iteration(self, iteration_id: str) -> tuple[Occurrence, ...]:
         self._known(self.iterations, iteration_id, "iteration")
@@ -537,6 +574,7 @@ class OccurrenceRegistry:
     def provenance_targets(self) -> dict[str, dict[str, object]]:
         return {
             "occurrence-branch": self.branches,
+            "occurrence-branch-state-transition": {item.id: item for item in self.branch_state_transitions},
             "occurrence-template": self.templates,
             "recurrence-pattern": self.recurrence_patterns,
             "recurrence": self.recurrences,
@@ -713,12 +751,15 @@ def parse_occurrence_registry(
         raise ValueError("Occurrence registry requires enabled capability `aggregate-recurrence-cardinality`.")
     if not packs.capability_enabled("occurrence-participation-identity"):
         raise ValueError("Occurrence registry requires enabled capability `occurrence-participation-identity`.")
+    if not packs.capability_enabled("timeline-branch-lifecycle"):
+        raise ValueError("Occurrence registry requires enabled capability `timeline-branch-lifecycle`.")
     root = _mapping(data, "Occurrence registry root")
     assert_allowed_keys(
         root,
         {
             "schema_version",
             "branches",
+            "branch_state_transitions",
             "templates",
             "recurrence_patterns",
             "recurrences",
@@ -750,7 +791,7 @@ def parse_occurrence_registry(
         _stable(branch_id, "occurrence branch ID")
         context = f"branches.{branch_id}"
         item = _mapping(raw, context)
-        assert_allowed_keys(item, {"label", "parent_branch_id", "fork_occurrence_id"}, context)
+        assert_allowed_keys(item, {"label", "parent_branch_id", "fork_occurrence_id", "continuity_ids"}, context)
         parent_id = _optional_string(item, "parent_branch_id", context)
         fork_id = _optional_string(item, "fork_occurrence_id", context)
         if parent_id is not None:
@@ -759,7 +800,13 @@ def parse_occurrence_registry(
             _stable(fork_id, f"{context}.fork_occurrence_id")
         if (parent_id is None) != (fork_id is None):
             raise ValueError(f"{context} must set both parent_branch_id and fork_occurrence_id, or neither.")
-        branches[branch_id] = OccurrenceBranch(branch_id, _string(item, "label", context), parent_id, fork_id)
+        branches[branch_id] = OccurrenceBranch(
+            branch_id,
+            _string(item, "label", context),
+            parent_id,
+            fork_id,
+            _strings(item, "continuity_ids", context),
+        )
     if not branches:
         raise ValueError("occurrences.branches cannot be empty.")
     for branch in branches.values():
@@ -1313,6 +1360,107 @@ def parse_occurrence_registry(
         matches = fork_transitions[branch.id]
         if len(matches) != 1:
             raise ValueError(f"branches.{branch.id} must have exactly one matching branch-fork transition.")
+
+    transition_by_id = {item.id: item for item in transitions}
+    branch_state_transitions: list[BranchStateTransition] = []
+    branch_state_ordinals: dict[str, set[int]] = {branch_id: set() for branch_id in branches}
+    for index, raw in enumerate(_list(root.get("branch_state_transitions"), "occurrences.branch_state_transitions")):
+        context = f"branch_state_transitions[{index}]"
+        item = _mapping(raw, context)
+        assert_allowed_keys(
+            item,
+            {
+                "id",
+                "label",
+                "branch_id",
+                "ordinal",
+                "change_kind",
+                "prior_state",
+                "resulting_state",
+                "activation_occurrence_id",
+                "trigger_transition_id",
+                "certainty",
+            },
+            context,
+        )
+        state_id = _stable(_string(item, "id", context), f"{context}.id")
+        if state_id in seen_ids:
+            raise ValueError(f"{context}.id duplicates `{state_id}`.")
+        seen_ids.add(state_id)
+        branch_id = _string(item, "branch_id", context)
+        if branch_id not in branches:
+            raise ValueError(f"{context}.branch_id references unknown branch `{branch_id}`.")
+        ordinal = item.get("ordinal")
+        if isinstance(ordinal, bool) or not isinstance(ordinal, int) or ordinal <= 0:
+            raise ValueError(f"{context}.ordinal must be a positive integer.")
+        if ordinal in branch_state_ordinals[branch_id]:
+            raise ValueError(f"{context}.ordinal duplicates ordinal {ordinal} for branch `{branch_id}`.")
+        branch_state_ordinals[branch_id].add(ordinal)
+        change_kind = _string(item, "change_kind", context)
+        _value(packs, "occurrence.branch-change-kind", change_kind, f"{context}.change_kind")
+        prior_state = _optional_string(item, "prior_state", context)
+        if prior_state is not None:
+            _value(packs, "occurrence.branch-state", prior_state, f"{context}.prior_state")
+        resulting_state = _string(item, "resulting_state", context)
+        _value(packs, "occurrence.branch-state", resulting_state, f"{context}.resulting_state")
+        activation_occurrence_id = _string(item, "activation_occurrence_id", context)
+        if activation_occurrence_id not in occurrences:
+            raise ValueError(
+                f"{context}.activation_occurrence_id references unknown occurrence `{activation_occurrence_id}`."
+            )
+        trigger_transition_id = _optional_string(item, "trigger_transition_id", context)
+        if trigger_transition_id is not None:
+            if trigger_transition_id not in transition_by_id:
+                raise ValueError(
+                    f"{context}.trigger_transition_id references unknown transition `{trigger_transition_id}`."
+                )
+            trigger = transition_by_id[trigger_transition_id]
+            if activation_occurrence_id not in {trigger.source_occurrence_id, trigger.target_occurrence_id}:
+                raise ValueError(f"{context}.activation_occurrence_id must be an endpoint of its trigger transition.")
+            source_branch_id = occurrences[trigger.source_occurrence_id].branch_id
+            target_branch_id = occurrences[trigger.target_occurrence_id].branch_id
+            if trigger.transition_profile == "branch-fork" and target_branch_id != branch_id:
+                raise ValueError(f"{context} branch-fork trigger must create branch `{branch_id}`.")
+            if trigger.transition_profile == "branch-merge" and branch_id not in {source_branch_id, target_branch_id}:
+                raise ValueError(f"{context} branch-merge trigger must involve branch `{branch_id}`.")
+        certainty = _string(item, "certainty", context)
+        _value(packs, "temporal.certainty", certainty, f"{context}.certainty")
+        branch_state_transitions.append(
+            BranchStateTransition(
+                state_id,
+                _string(item, "label", context),
+                branch_id,
+                ordinal,
+                change_kind,
+                prior_state,
+                resulting_state,
+                activation_occurrence_id,
+                trigger_transition_id,
+                certainty,
+            )
+        )
+
+    branch_state_transitions.sort(key=lambda item: (item.branch_id, item.ordinal, item.id))
+    for branch_id in branches:
+        history = [item for item in branch_state_transitions if item.branch_id == branch_id]
+        if not history:
+            continue
+        if [item.ordinal for item in history] != list(range(1, len(history) + 1)):
+            raise ValueError(f"Branch `{branch_id}` lifecycle ordinals must be contiguous from 1.")
+        if history[0].prior_state is not None:
+            raise ValueError(f"Branch `{branch_id}` first lifecycle transition must have null prior_state.")
+        for previous, current in zip(history, history[1:]):
+            if current.prior_state != previous.resulting_state:
+                raise ValueError(
+                    f"Branch `{branch_id}` lifecycle state is discontinuous between `{previous.id}` and `{current.id}`."
+                )
+        branch = branches[branch_id]
+        if branch.parent_branch_id is not None:
+            first_trigger = history[0].trigger_transition_id
+            if first_trigger is None or transition_by_id[first_trigger].transition_profile != "branch-fork":
+                raise ValueError(
+                    f"Branch `{branch_id}` first lifecycle transition must reference its branch-fork trigger."
+                )
 
     causal_relations: list[CausalRelation] = []
     causal_semantics: set[tuple[str, str, str]] = set()
@@ -1910,6 +2058,7 @@ def parse_occurrence_registry(
         SUPPORTED_SCHEMA_VERSION,
         chronology,
         branches,
+        tuple(branch_state_transitions),
         templates,
         recurrence_patterns,
         recurrences,

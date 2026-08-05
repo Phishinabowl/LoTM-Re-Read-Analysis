@@ -1,4 +1,4 @@
-$script:SupportedOccurrenceSchemaVersion = 6
+$script:SupportedOccurrenceSchemaVersion = 7
 $script:OccurrenceStableIdPattern = '^[a-z0-9]+(?:-[a-z0-9]+)*$'
 
 function Get-RequiredOccurrenceString {
@@ -874,7 +874,12 @@ function Get-KnowledgeOccurrenceProvenanceTargets {
     foreach ($item in @($Registry.carryovers)) {
         $carryovers[$item.id] = $item
     }
+    $branchStates = [ordered]@{}
+    foreach ($item in @($Registry.branch_state_transitions)) {
+        $branchStates[$item.id] = $item
+    }
     return [ordered]@{'occurrence-branch'=$Registry.branches
+        'occurrence-branch-state-transition'=$branchStates
         'occurrence-template'=$Registry.templates
         'recurrence-pattern'=$Registry.recurrence_patterns
         recurrence=$Registry.recurrences
@@ -893,6 +898,47 @@ function Get-KnowledgeOccurrenceProvenanceTargets {
         'recurrence-rule'=$rules
         'state-transition'=$states
         'iteration-carryover'=$carryovers
+    }
+}
+
+function Get-KnowledgeOccurrenceBranchStateHistory {
+    param([object]$Registry, [string]$BranchId)
+    if (-not $Registry.branches.Contains($BranchId)) {
+        throw "Unknown branch '$BranchId'."
+    }
+    return @($Registry.branch_state_transitions | Where-Object { $_.branch_id -ceq $BranchId } | Sort-Object ordinal, id)
+}
+
+function Get-KnowledgeOccurrenceBranchStateAt {
+    param([object]$Registry, [string]$BranchId, [object]$ThroughOrdinal = $null)
+    $history = @(Get-KnowledgeOccurrenceBranchStateHistory $Registry $BranchId)
+    if ($null -eq $ThroughOrdinal) {
+        return $(if ($history.Count -eq 0) {
+                $null
+            }
+            else {
+                $history[-1]
+            })
+    }
+    if (($ThroughOrdinal -isnot [int] -and $ThroughOrdinal -isnot [long]) -or $ThroughOrdinal -lt 0) {
+        throw 'Branch-state boundary ordinal must be a nonnegative integer.'
+    }
+    $candidates = @($history | Where-Object { $_.ordinal -le $ThroughOrdinal })
+    return $(if ($candidates.Count -eq 0) {
+            $null
+        }
+        else {
+            $candidates[-1]
+        })
+}
+
+function Assert-KnowledgeOccurrenceBranchContinuityTargets {
+    param([object]$Registry, [string[]]$ContinuityIds)
+    foreach ($branch in @($Registry.branches.Values)) {
+        $unknown = @($branch.continuity_ids | Where-Object { $ContinuityIds -cnotcontains $_ } | Sort-Object -Unique)
+        if ($unknown.Count -gt 0) {
+            throw "branches.$($branch.id).continuity_ids references unknown continuities: $($unknown -join ', ')."
+        }
     }
 }
 
@@ -1065,6 +1111,7 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
         'deterministic-effect-resolution'
         'aggregate-recurrence-cardinality'
         'occurrence-participation-identity'
+        'timeline-branch-lifecycle'
     )
     foreach ($capability in $requiredCapabilities) {
         if (-not (Test-SchemaPackCapabilityEnabled $SchemaPacks $capability)) {
@@ -1075,6 +1122,7 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
     $rootKeys = @(
         'schema_version'
         'branches'
+        'branch_state_transitions'
         'templates'
         'recurrence_patterns'
         'recurrences'
@@ -1095,8 +1143,8 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
     )
     Assert-KnowledgeMapKeys $Data $rootKeys 'Occurrence registry root'
     $schemaVersion = Get-ProjectMapValue $Data 'schema_version'
-    if ($schemaVersion -isnot [int] -or $schemaVersion -ne 6) {
-        throw "Unsupported occurrence schema_version '$schemaVersion'; expected 6."
+    if ($schemaVersion -isnot [int] -or $schemaVersion -ne 7) {
+        throw "Unsupported occurrence schema_version '$schemaVersion'; expected 7."
     }
 
     $rawBranches = Get-ProjectMapValue $Data 'branches'
@@ -1110,7 +1158,7 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
         $context = "branches.$id"
         $item = $rawBranches[$id]
         Assert-OccurrenceMap $item $context
-        Assert-KnowledgeMapKeys $item @('label', 'parent_branch_id', 'fork_occurrence_id') $context
+        Assert-KnowledgeMapKeys $item @('label', 'parent_branch_id', 'fork_occurrence_id', 'continuity_ids') $context
         $parent = Get-OptionalOccurrenceString $item 'parent_branch_id' $context
         $fork = Get-OptionalOccurrenceString $item 'fork_occurrence_id' $context
         if (($null -eq $parent) -ne ($null -eq $fork)) {
@@ -1120,6 +1168,7 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
             label=Get-RequiredOccurrenceString $item 'label' $context
             parent_branch_id=$parent
             fork_occurrence_id=$fork
+            continuity_ids=@(Get-OccurrenceStringList $item 'continuity_ids' $context)
         }
     }
     foreach ($branch in @($branches.Values)) {
@@ -1844,6 +1893,124 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
         $matches = @($transitions | Where-Object { $_.transition_profile -ceq 'branch-fork' -and $occurrences[$_.target_occurrence_id].branch_id -ceq $branch.id })
         if ($matches.Count -ne 1) {
             throw "branches.$($branch.id) must have exactly one matching branch-fork transition."
+        }
+    }
+
+    $transitionById = [ordered]@{}
+    foreach ($transition in @($transitions)) {
+        $transitionById[$transition.id] = $transition
+    }
+    $branchStateTransitions = @()
+    $branchStateOrdinals = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $rawBranchStates = $Data['branch_state_transitions']
+    Assert-OccurrenceList $rawBranchStates 'occurrences.branch_state_transitions'
+    $index = 0
+    foreach ($item in @($rawBranchStates)) {
+        $context = "branch_state_transitions[$index]"
+        Assert-OccurrenceMap $item $context
+        Assert-KnowledgeMapKeys $item @(
+            'id'
+            'label'
+            'branch_id'
+            'ordinal'
+            'change_kind'
+            'prior_state'
+            'resulting_state'
+            'activation_occurrence_id'
+            'trigger_transition_id'
+            'certainty'
+        ) $context
+        $id = Assert-OccurrenceStableId (Get-RequiredOccurrenceString $item 'id' $context) "$context.id"
+        if (-not $seenIds.Add($id)) {
+            throw "$context.id duplicates '$id'."
+        }
+        $branchId = Get-RequiredOccurrenceString $item 'branch_id' $context
+        if (-not $branches.Contains($branchId)) {
+            throw "$context.branch_id references unknown branch '$branchId'."
+        }
+        $ordinal = Get-RequiredOccurrencePositiveInteger $item 'ordinal' $context
+        if (-not $branchStateOrdinals.Add("$branchId|$ordinal")) {
+            throw "$context.ordinal duplicates ordinal $ordinal for branch '$branchId'."
+        }
+        $changeKind = Get-RequiredOccurrenceString $item 'change_kind' $context
+        Assert-OccurrencePackValue $SchemaPacks 'occurrence.branch-change-kind' $changeKind "$context.change_kind"
+        $priorState = Get-OptionalOccurrenceString $item 'prior_state' $context
+        if ($null -ne $priorState) {
+            Assert-OccurrencePackValue $SchemaPacks 'occurrence.branch-state' $priorState "$context.prior_state"
+        }
+        $resultingState = Get-RequiredOccurrenceString $item 'resulting_state' $context
+        Assert-OccurrencePackValue $SchemaPacks 'occurrence.branch-state' $resultingState "$context.resulting_state"
+        $activationId = Get-RequiredOccurrenceString $item 'activation_occurrence_id' $context
+        if (-not $occurrences.Contains($activationId)) {
+            throw "$context.activation_occurrence_id references unknown occurrence '$activationId'."
+        }
+        $triggerId = Get-OptionalOccurrenceString $item 'trigger_transition_id' $context
+        if ($null -ne $triggerId) {
+            if (-not $transitionById.Contains($triggerId)) {
+                throw "$context.trigger_transition_id references unknown transition '$triggerId'."
+            }
+            $trigger = $transitionById[$triggerId]
+            if ($activationId -cne $trigger.source_occurrence_id -and $activationId -cne $trigger.target_occurrence_id) {
+                throw "$context.activation_occurrence_id must be an endpoint of its trigger transition."
+            }
+            $sourceBranchId = $occurrences[$trigger.source_occurrence_id].branch_id
+            $targetBranchId = $occurrences[$trigger.target_occurrence_id].branch_id
+            if ($trigger.transition_profile -ceq 'branch-fork' -and $targetBranchId -cne $branchId) {
+                throw "$context branch-fork trigger must create branch '$branchId'."
+            }
+            if (
+                $trigger.transition_profile -ceq 'branch-merge' -and
+                $sourceBranchId -cne $branchId -and
+                $targetBranchId -cne $branchId
+            ) {
+                throw "$context branch-merge trigger must involve branch '$branchId'."
+            }
+        }
+        $certainty = Get-RequiredOccurrenceString $item 'certainty' $context
+        Assert-OccurrencePackValue $SchemaPacks 'temporal.certainty' $certainty "$context.certainty"
+        $branchStateTransitions += [pscustomobject]@{id=$id
+            label=Get-RequiredOccurrenceString $item 'label' $context
+            branch_id=$branchId
+            ordinal=$ordinal
+            change_kind=$changeKind
+            prior_state=$priorState
+            resulting_state=$resultingState
+            activation_occurrence_id=$activationId
+            trigger_transition_id=$triggerId
+            certainty=$certainty
+        }
+        $index++
+    }
+    $branchStateTransitions = @($branchStateTransitions | Sort-Object branch_id, ordinal, id)
+    foreach ($branchId in @($branches.Keys)) {
+        $history = @($branchStateTransitions | Where-Object { $_.branch_id -ceq $branchId })
+        if ($history.Count -eq 0) {
+            continue
+        }
+        for ($historyIndex = 0; $historyIndex -lt $history.Count; $historyIndex++) {
+            if ($history[$historyIndex].ordinal -ne ($historyIndex + 1)) {
+                throw "Branch '$branchId' lifecycle ordinals must be contiguous from 1."
+            }
+        }
+        if ($null -ne $history[0].prior_state) {
+            throw "Branch '$branchId' first lifecycle transition must have null prior_state."
+        }
+        for ($historyIndex = 1; $historyIndex -lt $history.Count; $historyIndex++) {
+            if ($history[$historyIndex].prior_state -cne $history[$historyIndex - 1].resulting_state) {
+                throw (
+                    "Branch '$branchId' lifecycle state is discontinuous between " +
+                    "'$($history[$historyIndex - 1].id)' and '$($history[$historyIndex].id)'."
+                )
+            }
+        }
+        if ($null -ne $branches[$branchId].parent_branch_id) {
+            $firstTriggerId = $history[0].trigger_transition_id
+            if (
+                $null -eq $firstTriggerId -or
+                $transitionById[$firstTriggerId].transition_profile -cne 'branch-fork'
+            ) {
+                throw "Branch '$branchId' first lifecycle transition must reference its branch-fork trigger."
+            }
         }
     }
 
@@ -2720,9 +2887,10 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
         }
     }
     return [pscustomobject]@{path=$Path
-        schema_version=6
+        schema_version=7
         chronology=$Chronology
         branches=$branches
+        branch_state_transitions=@($branchStateTransitions)
         templates=$templates
         recurrence_patterns=$patterns
         recurrences=$recurrences
@@ -2748,6 +2916,6 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
 
 function Get-KnowledgeOccurrenceRegistry {
     param([object]$Project, [object]$SchemaPacks, [object]$Chronology, [System.Collections.IDictionary]$SubjectTargets = $null, [System.Collections.IDictionary]$PayloadTargets = $null)
-    $data = ConvertFrom-KnowledgeYamlFile $Project.occurrences_registry 6 'occurrence registry'
+    $data = ConvertFrom-KnowledgeYamlFile $Project.occurrences_registry 7 'occurrence registry'
     return ConvertTo-KnowledgeOccurrenceRegistry $data $Project.occurrences_registry $SchemaPacks $Chronology $SubjectTargets $PayloadTargets
 }

@@ -1,14 +1,70 @@
-schema_version: 6
+schema_version: 7
 
 branches:
   main:
     label: Main
     parent_branch_id: null
     fork_occurrence_id: null
+    continuity_ids:
+      - fixture-continuity
   changed-outcome:
     label: Changed Outcome
     parent_branch_id: main
     fork_occurrence_id: escape-three
+    continuity_ids:
+      - fixture-continuity
+
+branch_state_transitions:
+  - id: main-established
+    label: Main Branch Established
+    branch_id: main
+    ordinal: 1
+    change_kind: initialize
+    prior_state: null
+    resulting_state: active
+    activation_occurrence_id: wake-one
+    trigger_transition_id: null
+    certainty: exact
+  - id: main-preserved
+    label: Main Branch Preserved
+    branch_id: main
+    ordinal: 2
+    change_kind: preserve
+    prior_state: active
+    resulting_state: preserved
+    activation_occurrence_id: restored-main
+    trigger_transition_id: changed-outcome-merge
+    certainty: exact
+  - id: changed-outcome-emerged
+    label: Changed Outcome Emerged
+    branch_id: changed-outcome
+    ordinal: 1
+    change_kind: initialize
+    prior_state: null
+    resulting_state: emerging
+    activation_occurrence_id: escape-three
+    trigger_transition_id: changed-outcome-fork
+    certainty: exact
+  - id: changed-outcome-activated
+    label: Changed Outcome Activated
+    branch_id: changed-outcome
+    ordinal: 2
+    change_kind: activate
+    prior_state: emerging
+    resulting_state: active
+    activation_occurrence_id: after-loop
+    trigger_transition_id: null
+    certainty: exact
+  - id: changed-outcome-merged
+    label: Changed Outcome Merged
+    branch_id: changed-outcome
+    ordinal: 3
+    change_kind: merge
+    prior_state: active
+    resulting_state: merged
+    activation_occurrence_id: restored-main
+    trigger_transition_id: changed-outcome-merge
+    certainty: exact
 
 templates:
   wake:

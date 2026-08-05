@@ -2,7 +2,7 @@
 
 ## Ownership
 
-`Project_Config/occurrences.yaml` instantiates occurrence identity, occurrence participation, subjective track entries, recurrence patterns and executions, aggregate recurrence cardinality, phases and schedules, branch topology, subject tracks, transitions, causal relations, outcomes, recurrence rules, state transitions, and iteration carryover. `Tools/Runtime/Python/knowledge_framework/occurrence_config.py` and `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` are the behaviorally paired schema-6 loaders and query services. V40 separates one concrete happening from each subject's participation in it and from each participation's ordered placement on a track.
+`Project_Config/occurrences.yaml` instantiates occurrence identity, occurrence participation, subjective track entries, recurrence patterns and executions, aggregate recurrence cardinality, phases and schedules, branch topology and lifecycle, subject tracks, transitions, causal relations, outcomes, recurrence rules, state transitions, and iteration carryover. `Tools/Runtime/Python/knowledge_framework/occurrence_config.py` and `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` are the behaviorally paired schema-7 loaders and query services. V40 separates one concrete happening from each subject's participation in it and from each participation's ordered placement on a track. V42 adds provenance-addressable branch-state histories without converting branch lifecycle into chronology.
 
 Chronology and occurrence identity remain separate. Chronology answers where or when something is positioned and preserves acyclic exact order. The occurrence registry answers which distinct happening, execution, iteration, branch, experienced step, or subject-state change a record represents. Several occurrences may bind one chronology position without becoming the same occurrence.
 
@@ -10,7 +10,8 @@ Chronology and occurrence identity remain separate. Chronology answers where or 
 
 Every mapping key and list-row `id` is a stable kebab-case identifier.
 
-- `branches` form an acyclic parent topology. A child names its parent and fork occurrence.
+- `branches` form an acyclic parent topology. A child names its parent and fork occurrence, and may declare continuity memberships resolved during project composition.
+- `branch_state_transitions` form a contiguous branch-local lifecycle history. Each record names its prior and resulting state, activation occurrence, and optional occurrence transition that caused the change.
 - `templates` identify repeatable occurrence roles; they are not concrete happenings.
 - `recurrence_patterns` identify reusable cycle or retry structures.
 - `recurrences` are concrete executions of one pattern. Executions may nest through acyclic parent recurrence links and have an explicit lifecycle status.
@@ -47,6 +48,16 @@ Cardinality records describe realized history only. They do not describe expecte
 Transitions connect distinct occurrence identities without redefining chronology. Extensible `transition_kind` vocabulary selects a core `transition_profile` through a pack-registered kind/profile pair. Track-attached transitions advance in track order. An `ordered` profile additionally requires forward evidence from a track, recurrence ordinal, or exact chronology and rejects known backward chronology; backward movement uses `jump`.
 
 Recurrence advance increases the iteration ordinal of one execution. Recurrence exit starts inside the named recurrence or a descendant and must target outside that entire containment tree. Branch fork and merge retain their explicit lineage rules. Semantic duplicate transitions and causal relations are invalid, while causal cycles remain legal because causal edges never enter chronology comparison.
+
+## Branch Lifecycle
+
+A branch is never deleted merely because it becomes inactive, pruned, merged, transferred, or otherwise unavailable in a domain-specific sense. `branch_state_transitions` preserve those changes as append-only, provenance-addressable records. Their positive ordinals are unique and contiguous within one branch. The first transition has no prior state; every later transition must continue from the preceding resulting state.
+
+Every lifecycle transition names an activation occurrence. An optional trigger transition must include that occurrence as one endpoint and must involve the affected branch. The first lifecycle transition of a child branch must reference the branch-fork transition that created it. Merge lifecycle changes similarly require a branch-merge trigger. This keeps branch identity, occurrence identity, and transition causality separate while rejecting lifecycle claims that cannot be connected to the branch topology.
+
+Core owns generic states and changes such as emerging, active, inactive, transferred, restored, merged, preserved, initialize, activate, deactivate, transfer, restore, merge, and preserve. Packs may add domain vocabulary. For example, narrative-media owns `pruned` and `prune`; core does not assume that every domain can prune a branch. Change kinds do not hard-code one universal state pair: each record carries explicit prior and resulting states so pack-defined semantics remain inspectable and provenance-backed.
+
+Branch lifecycle ordinals are local sequence coordinates, not chronology positions or reader boundaries. A boundary of zero means before the first recorded lifecycle state, an omitted boundary selects the latest state, and a positive boundary selects the latest transition at or before that branch-local ordinal. Chronology owns temporal comparison. Provenance owns evidence, authority, supersession, and source or reader applicability for every lifecycle claim.
 
 ## Outcomes And Rules
 
@@ -93,12 +104,12 @@ The model can therefore separate the same external coordinate from successive su
 
 ## Queries
 
-Paired services query iteration contents, recurrence cardinality claims, coordinate reuse, participations by occurrence or subject, track entries by occurrence, entry-relative neighbors, unambiguous occurrence-relative neighbors, iteration contents and boundaries on a track, recurrence identity and phase, expected schedule values and due status, incoming carryover, outcomes for an occurrence, rules for a recurrence pattern, state transitions for a subject, the latest applicable state at an unambiguous track occurrence, and deterministic recurrence-rule evaluation with a trace. These answer both what happened and which bounded policy applies without introducing chronological cycles.
+Paired services query branch-state history and state at a branch-local lifecycle ordinal, iteration contents, recurrence cardinality claims, coordinate reuse, participations by occurrence or subject, track entries by occurrence, entry-relative neighbors, unambiguous occurrence-relative neighbors, iteration contents and boundaries on a track, recurrence identity and phase, expected schedule values and due status, incoming carryover, outcomes for an occurrence, rules for a recurrence pattern, state transitions for a subject, the latest applicable state at an unambiguous track occurrence, and deterministic recurrence-rule evaluation with a trace. These answer both what happened and which bounded policy applies without introducing chronological cycles.
 
 ## Layering
 
-- Core owns occurrence, participation, track-entry ordering, pattern, execution, aggregate realized-history cardinality, iteration, phase, schedule, branch, outcome, rule evaluation, semantic declaration validation, deterministic effect resolution, civil schedule boundaries, generic subject-state, carryover, validation, and queries.
-- Domain packs extend kinds, mechanisms, outcomes, valid rule-kind/effect-kind combinations, recurrence-pattern effect scopes, repetition policy, and globally or same-target incompatible effect-kind pairs.
+- Core owns occurrence, participation, track-entry ordering, pattern, execution, aggregate realized-history cardinality, iteration, phase, schedule, branch identity and generic lifecycle, outcome, rule evaluation, semantic declaration validation, deterministic effect resolution, civil schedule boundaries, generic subject-state, carryover, validation, and queries.
+- Domain packs extend branch states and changes, kinds, mechanisms, outcomes, valid rule-kind/effect-kind combinations, recurrence-pattern effect scopes, repetition policy, and globally or same-target incompatible effect-kind pairs.
 - Project configuration owns concrete records and source-backed claims.
 - Chronology remains the sole owner of acyclic exact temporal comparison.
 - Provenance remains the sole owner of evidence and claim authority.
@@ -107,4 +118,4 @@ The LoTM project declares only its `main` branch until source-backed occurrences
 
 ## Conformance
 
-`Framework/Data/Occurrence/` contains the portable V31-V40 corpus. Its fixture and generated probes cover role-distinct and semantically identical ordered repeated participation, subjective track-entry identity and ambiguity rejection, chronology-context references, cardinality shapes and coverage modes, signed 64-bit boundaries, representative and complete histories, malformed combinations, 128-record scale, typed rule/effect extensions, scoped conflicts, repetition behavior, contributor diagnostics, and fail-closed authorization. Run `python Tools/Conformance/Suites/test_occurrence.py` and `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Occurrence.ps1` after changing occurrence vocabulary, participation, track-entry ordering, registry shape, chronology composition, recurrence cardinality, recurrence policy or lifecycle, schedules, state semantics, carryover, provenance targets, or query behavior.
+`Framework/Data/Occurrence/` contains the portable V31-V42 corpus. Its fixture and generated probes cover branch lifecycle and continuity closure, role-distinct and semantically identical ordered repeated participation, subjective track-entry identity and ambiguity rejection, chronology-context references, cardinality shapes and coverage modes, signed 64-bit boundaries, representative and complete histories, malformed combinations, 128-record scale, typed rule/effect extensions, scoped conflicts, repetition behavior, contributor diagnostics, and fail-closed authorization. Run `python Tools/Conformance/Suites/test_occurrence.py` and `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Occurrence.ps1` after changing branch identity or lifecycle, occurrence vocabulary, participation, track-entry ordering, registry shape, chronology composition, recurrence cardinality, recurrence policy or lifecycle, schedules, state semantics, carryover, provenance targets, or query behavior.

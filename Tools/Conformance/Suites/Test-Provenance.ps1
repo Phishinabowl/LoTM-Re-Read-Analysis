@@ -479,7 +479,7 @@ try {
     $chronologyFixture = ConvertTo-KnowledgeChronologyRegistry `
         $chronologyFixtureData $chronologyFixturePath $packs @('fixture-work') @()
     $occurrenceFixturePath = Join-Path $Root 'Framework\Data\Occurrence\valid-registry.yaml'
-    $occurrenceFixtureData = ConvertFrom-KnowledgeYamlFile $occurrenceFixturePath 6 'occurrence fixture'
+    $occurrenceFixtureData = ConvertFrom-KnowledgeYamlFile $occurrenceFixturePath 7 'occurrence fixture'
     $subjectTargets = [ordered]@{character = @('protagonist', 'observer') }
     $payloadTargets = [ordered]@{'state-record' = @('protagonist-health') }
     $fixtureOccurrences = ConvertTo-KnowledgeOccurrenceRegistry `

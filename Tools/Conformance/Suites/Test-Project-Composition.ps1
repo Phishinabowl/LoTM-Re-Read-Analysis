@@ -64,6 +64,7 @@ $entityCountFields = @(
 )
 $occurrenceCountFields = @(
     'branches'
+    'branch_state_transitions'
     'templates'
     'recurrence_patterns'
     'recurrences'
@@ -140,6 +141,7 @@ function Get-ProjectComposition {
     @($sources.continuities.Keys)
     $entities = Get-KnowledgeEntityRegistry $project $taxonomy $sources $packs
     $occurrences = Get-KnowledgeOccurrenceRegistry $project $packs $chronology
+    Assert-KnowledgeOccurrenceBranchContinuityTargets $occurrences @($sources.continuities.Keys)
     $chronologyTargets = [ordered]@{
         occurrence = @($occurrences.occurrences.Keys)
         'occurrence-branch' = @($occurrences.branches.Keys)
@@ -435,6 +437,7 @@ function Assert-InvalidProjectCompositions {
     $entityPacks = Copy-PacksWithoutCapability $packs 'entity-incarnations'
     $occurrencePacks = Copy-PacksWithoutCapability $packs 'occurrence-recurrence-modeling'
     $participationPacks = Copy-PacksWithoutCapability $packs 'occurrence-participation-identity'
+    $branchLifecyclePacks = Copy-PacksWithoutCapability $packs 'timeline-branch-lifecycle'
     $chronologyContextPacks = Copy-PacksWithoutCapability $packs 'chronology-contexts'
     $reconciliationPacks = Copy-PacksWithoutCapability $packs 'stable-identity-reconciliation'
     $actions = @(
@@ -475,6 +478,12 @@ function Assert-InvalidProjectCompositions {
             Get-KnowledgeOccurrenceRegistry `
                 $project `
                 $participationPacks `
+                $Composition.chronology
+        }
+        {
+            Get-KnowledgeOccurrenceRegistry `
+                $project `
+                $branchLifecyclePacks `
                 $Composition.chronology
         }
         {
