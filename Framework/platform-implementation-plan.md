@@ -130,11 +130,11 @@ deferred at the stabilization gate.
   them.
 - [x] Connect interventions to concrete occurrences, branches, and applicability scopes without
   claiming that extratemporal means unordered.
-- [ ] Prove TVA-local order, timeline oversight, and branch intervention while retaining ordinary
+- [x] Prove TVA-local order, timeline oversight, and branch intervention while retaining ordinary
   chronology cycle rejection.
-- [ ] Replay distributed-system control planes, simulations, archival observation, and other
+- [x] Replay distributed-system control planes, simulations, archival observation, and other
   non-narrative context-topology cases.
-- [ ] Complete the version's lifecycle, confirmation, pressure test, and evolution closure.
+- [x] Complete the version's lifecycle, confirmation, pressure test, and evolution closure.
 
 ### Phase 1.6 Timeline-Branch Lifecycle
 
