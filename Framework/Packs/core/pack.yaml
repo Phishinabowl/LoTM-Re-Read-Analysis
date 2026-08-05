@@ -1,6 +1,6 @@
 schema_version: 3
 pack_id: core
-pack_version: 30
+pack_version: 31
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -66,6 +66,7 @@ capabilities:
   - semantic-declaration-integrity
   - deterministic-effect-resolution
   - aggregate-recurrence-cardinality
+  - occurrence-participation-identity
   - visibility-policy
   - graph-projection
   - schema-validation
@@ -224,6 +225,24 @@ controlled_values:
     - sequence
     - observation
     - execution
+  occurrence.participation-role:
+    - participant
+    - agent
+    - recipient
+    - observer
+    - reviewer
+    - intervener
+  occurrence.participation-perspective:
+    - direct
+    - mediated
+    - reconstructed
+    - unknown
+  occurrence.participation-status:
+    - planned
+    - active
+    - completed
+    - interrupted
+    - unknown
   occurrence.carryover-kind:
     - state
     - context
@@ -325,7 +344,9 @@ controlled_values:
     - recurrence-schedule
     - occurrence
     - occurrence-binding
+    - occurrence-participation
     - occurrence-track
+    - occurrence-track-entry
     - occurrence-transition
     - causal-relation
     - occurrence-outcome

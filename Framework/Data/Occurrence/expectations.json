@@ -10,6 +10,22 @@
   "position_occurrences": {
     "civil-anchor": ["wake-one", "wake-two", "wake-three"]
   },
+  "occurrence_participations": {
+    "self-intervention": ["protagonist-self-intervention-recipient", "protagonist-self-intervention-agent"]
+  },
+  "subject_participations": {
+    "character|observer": ["observer-wake-one", "observer-bell-one", "observer-wake-two", "observer-bell-two", "observer-wake-three"]
+  },
+  "track_occurrence_entries": {
+    "protagonist-experience|self-intervention": ["protagonist-entry-11", "protagonist-entry-14"]
+  },
+  "track_entry_neighbors": [
+    ["protagonist-experience", "protagonist-entry-11", "protagonist-entry-10", "protagonist-entry-12"],
+    ["protagonist-experience", "protagonist-entry-14", "protagonist-entry-13", null]
+  ],
+  "ambiguous_occurrence_neighbors": [
+    ["protagonist-experience", "self-intervention", "Occurrence `self-intervention` appears more than once on track `protagonist-experience`; use track-entry navigation."]
+  ],
   "iteration_track_occurrences": {
     "outer-two|protagonist-experience": ["wake-two", "bell-two", "reset-two"],
     "outer-two|observer-experience": ["wake-two", "bell-two"]

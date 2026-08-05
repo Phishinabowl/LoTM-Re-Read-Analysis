@@ -122,8 +122,9 @@ leak, but they do not substitute for a future non-narrative pack and IT proof of
 
 Extraction readiness does not close these known items:
 
-- Aggregate recurrence cardinality is now portable in V39; repeated participation, chronology-context
-  topology, and branch lifecycle remain later bounded framework work.
+- Aggregate recurrence cardinality and occurrence-participation identity are now portable through
+  V40; chronology-context topology, branch lifecycle, and participation-relative transition/state
+  semantics remain later bounded framework work.
 - QA graph construction has not yet been fully migrated into one reusable Visualization engine.
 - A normalized content index and generalized bounded-page machinery are not yet complete across
   content types.

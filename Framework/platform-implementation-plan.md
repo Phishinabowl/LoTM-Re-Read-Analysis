@@ -108,13 +108,13 @@ deferred at the stabilization gate.
 
 ### Phase 1.4 Participation Identity And Revisited Occurrences
 
-- [ ] Define a bounded framework version that separates occurrence identity, participation identity,
+- [x] Define a bounded framework version that separates occurrence identity, participation identity,
   and subjective-track entry identity.
-- [ ] Permit one subject to participate in or encounter one concrete occurrence more than once
+- [x] Permit one subject to participate in or encounter one concrete occurrence more than once
   without duplicating that occurrence.
-- [ ] Preserve role, perspective, state, chronology context, and subjective ordering per
+- [x] Preserve role, perspective, state, chronology context, and subjective ordering per
   participation.
-- [ ] Model Loki's self-pruning occurrence once while retaining his earlier recipient participation
+- [x] Model Loki's self-pruning occurrence once while retaining his earlier recipient participation
   and later agent participation.
 - [ ] Test repeated observation, review, intervention, retry inspection, and cross-domain
   participation cases.

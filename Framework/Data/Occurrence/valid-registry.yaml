@@ -1,4 +1,4 @@
-schema_version: 5
+schema_version: 6
 
 branches:
   main:
@@ -34,6 +34,10 @@ templates:
   aftermath:
     label: Aftermath
     kind: state
+    aliases: []
+  intervention:
+    label: Intervention
+    kind: action
     aliases: []
 
 recurrence_patterns:
@@ -330,6 +334,166 @@ occurrences:
       - id: restored-main-position
         position_id: civil-far-future
         role: contextual
+  self-intervention:
+    template_id: intervention
+    label: Self Intervention
+    iteration_id: null
+    branch_id: main
+    bindings: []
+
+occurrence_participations:
+  protagonist-wake-one:
+    occurrence_id: wake-one
+    subject_type: character
+    subject_id: protagonist
+    role: participant
+    perspective: direct
+    status: completed
+    chronology_context_id: null
+  protagonist-bell-one:
+    occurrence_id: bell-one
+    subject_type: character
+    subject_id: protagonist
+    role: participant
+    perspective: direct
+    status: completed
+    chronology_context_id: null
+  protagonist-reset-one:
+    occurrence_id: reset-one
+    subject_type: character
+    subject_id: protagonist
+    role: participant
+    perspective: direct
+    status: completed
+    chronology_context_id: null
+  protagonist-wake-two:
+    occurrence_id: wake-two
+    subject_type: character
+    subject_id: protagonist
+    role: participant
+    perspective: direct
+    status: completed
+    chronology_context_id: null
+  protagonist-bell-two:
+    occurrence_id: bell-two
+    subject_type: character
+    subject_id: protagonist
+    role: participant
+    perspective: direct
+    status: completed
+    chronology_context_id: null
+  protagonist-inner-step-one:
+    occurrence_id: inner-step-one
+    subject_type: character
+    subject_id: protagonist
+    role: participant
+    perspective: direct
+    status: completed
+    chronology_context_id: null
+  protagonist-inner-step-two:
+    occurrence_id: inner-step-two
+    subject_type: character
+    subject_id: protagonist
+    role: participant
+    perspective: direct
+    status: completed
+    chronology_context_id: null
+  protagonist-reset-two:
+    occurrence_id: reset-two
+    subject_type: character
+    subject_id: protagonist
+    role: participant
+    perspective: direct
+    status: completed
+    chronology_context_id: null
+  protagonist-wake-three:
+    occurrence_id: wake-three
+    subject_type: character
+    subject_id: protagonist
+    role: participant
+    perspective: direct
+    status: completed
+    chronology_context_id: null
+  protagonist-escape-three:
+    occurrence_id: escape-three
+    subject_type: character
+    subject_id: protagonist
+    role: agent
+    perspective: direct
+    status: completed
+    chronology_context_id: null
+  protagonist-self-intervention-recipient:
+    occurrence_id: self-intervention
+    subject_type: character
+    subject_id: protagonist
+    role: recipient
+    perspective: direct
+    status: completed
+    chronology_context_id: recipient-context
+  protagonist-after-loop:
+    occurrence_id: after-loop
+    subject_type: character
+    subject_id: protagonist
+    role: participant
+    perspective: direct
+    status: completed
+    chronology_context_id: null
+  protagonist-restored-main:
+    occurrence_id: restored-main
+    subject_type: character
+    subject_id: protagonist
+    role: participant
+    perspective: direct
+    status: completed
+    chronology_context_id: null
+  protagonist-self-intervention-agent:
+    occurrence_id: self-intervention
+    subject_type: character
+    subject_id: protagonist
+    role: agent
+    perspective: direct
+    status: completed
+    chronology_context_id: agent-context
+  observer-wake-one:
+    occurrence_id: wake-one
+    subject_type: character
+    subject_id: observer
+    role: observer
+    perspective: direct
+    status: completed
+    chronology_context_id: null
+  observer-bell-one:
+    occurrence_id: bell-one
+    subject_type: character
+    subject_id: observer
+    role: observer
+    perspective: direct
+    status: completed
+    chronology_context_id: null
+  observer-wake-two:
+    occurrence_id: wake-two
+    subject_type: character
+    subject_id: observer
+    role: observer
+    perspective: direct
+    status: completed
+    chronology_context_id: null
+  observer-bell-two:
+    occurrence_id: bell-two
+    subject_type: character
+    subject_id: observer
+    role: observer
+    perspective: direct
+    status: completed
+    chronology_context_id: null
+  observer-wake-three:
+    occurrence_id: wake-three
+    subject_type: character
+    subject_id: observer
+    role: observer
+    perspective: direct
+    status: completed
+    chronology_context_id: null
 
 tracks:
   protagonist-experience:
@@ -337,30 +501,89 @@ tracks:
     kind: subjective-experience
     subject_type: character
     subject_id: protagonist
-    occurrence_ids:
-      - wake-one
-      - bell-one
-      - reset-one
-      - wake-two
-      - bell-two
-      - inner-step-one
-      - inner-step-two
-      - reset-two
-      - wake-three
-      - escape-three
-      - after-loop
-      - restored-main
   observer-experience:
     label: Observer Experience
     kind: subjective-experience
     subject_type: character
     subject_id: observer
-    occurrence_ids:
-      - wake-one
-      - bell-one
-      - wake-two
-      - bell-two
-      - wake-three
+
+track_entries:
+  protagonist-entry-01:
+    track_id: protagonist-experience
+    participation_id: protagonist-wake-one
+    ordinal: 1
+  protagonist-entry-02:
+    track_id: protagonist-experience
+    participation_id: protagonist-bell-one
+    ordinal: 2
+  protagonist-entry-03:
+    track_id: protagonist-experience
+    participation_id: protagonist-reset-one
+    ordinal: 3
+  protagonist-entry-04:
+    track_id: protagonist-experience
+    participation_id: protagonist-wake-two
+    ordinal: 4
+  protagonist-entry-05:
+    track_id: protagonist-experience
+    participation_id: protagonist-bell-two
+    ordinal: 5
+  protagonist-entry-06:
+    track_id: protagonist-experience
+    participation_id: protagonist-inner-step-one
+    ordinal: 6
+  protagonist-entry-07:
+    track_id: protagonist-experience
+    participation_id: protagonist-inner-step-two
+    ordinal: 7
+  protagonist-entry-08:
+    track_id: protagonist-experience
+    participation_id: protagonist-reset-two
+    ordinal: 8
+  protagonist-entry-09:
+    track_id: protagonist-experience
+    participation_id: protagonist-wake-three
+    ordinal: 9
+  protagonist-entry-10:
+    track_id: protagonist-experience
+    participation_id: protagonist-escape-three
+    ordinal: 10
+  protagonist-entry-11:
+    track_id: protagonist-experience
+    participation_id: protagonist-self-intervention-recipient
+    ordinal: 11
+  protagonist-entry-12:
+    track_id: protagonist-experience
+    participation_id: protagonist-after-loop
+    ordinal: 12
+  protagonist-entry-13:
+    track_id: protagonist-experience
+    participation_id: protagonist-restored-main
+    ordinal: 13
+  protagonist-entry-14:
+    track_id: protagonist-experience
+    participation_id: protagonist-self-intervention-agent
+    ordinal: 14
+  observer-entry-01:
+    track_id: observer-experience
+    participation_id: observer-wake-one
+    ordinal: 1
+  observer-entry-02:
+    track_id: observer-experience
+    participation_id: observer-bell-one
+    ordinal: 2
+  observer-entry-03:
+    track_id: observer-experience
+    participation_id: observer-wake-two
+    ordinal: 3
+  observer-entry-04:
+    track_id: observer-experience
+    participation_id: observer-bell-two
+    ordinal: 4
+  observer-entry-05:
+    track_id: observer-experience
+    participation_id: observer-wake-three
+    ordinal: 5
 
 transitions:
   - id: first-iteration-continues

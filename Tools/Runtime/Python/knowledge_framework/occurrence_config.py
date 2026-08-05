@@ -13,7 +13,7 @@ from .strict_yaml import assert_allowed_keys, load_yaml_file
 from .temporal_config import TemporalWindow, normalize_effective_at, parse_temporal_window, temporal_window_match
 
 
-SUPPORTED_SCHEMA_VERSION = 5
+SUPPORTED_SCHEMA_VERSION = 6
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 
@@ -111,12 +111,33 @@ class Occurrence:
 
 
 @dataclass(frozen=True)
+class OccurrenceParticipation:
+    id: str
+    occurrence_id: str
+    subject_type: str
+    subject_id: str
+    role: str
+    perspective: str
+    status: str
+    chronology_context_id: str | None
+
+
+@dataclass(frozen=True)
+class OccurrenceTrackEntry:
+    id: str
+    track_id: str
+    participation_id: str
+    ordinal: int
+
+
+@dataclass(frozen=True)
 class OccurrenceTrack:
     id: str
     label: str
     kind: str
     subject_type: str
     subject_id: str
+    entry_ids: tuple[str, ...]
     occurrence_ids: tuple[str, ...]
 
 
@@ -306,7 +327,9 @@ class OccurrenceRegistry:
     phases: dict[str, RecurrencePhase]
     schedules: dict[str, RecurrenceSchedule]
     occurrences: dict[str, Occurrence]
+    occurrence_participations: dict[str, OccurrenceParticipation]
     tracks: dict[str, OccurrenceTrack]
+    track_entries: dict[str, OccurrenceTrackEntry]
     transitions: tuple[OccurrenceTransition, ...]
     causal_relations: tuple[CausalRelation, ...]
     outcomes: tuple[OccurrenceOutcome, ...]
@@ -336,6 +359,33 @@ class OccurrenceRegistry:
             for item in self.occurrences.values()
             if any(binding.position_id == position_id for binding in item.bindings)
         )
+
+    def participations_for_occurrence(self, occurrence_id: str) -> tuple[OccurrenceParticipation, ...]:
+        self._known(self.occurrences, occurrence_id, "occurrence")
+        return tuple(item for item in self.occurrence_participations.values() if item.occurrence_id == occurrence_id)
+
+    def participations_for_subject(self, subject_type: str, subject_id: str) -> tuple[OccurrenceParticipation, ...]:
+        return tuple(
+            item
+            for item in self.occurrence_participations.values()
+            if item.subject_type == subject_type and item.subject_id == subject_id
+        )
+
+    def entries_for_occurrence_on_track(self, track_id: str, occurrence_id: str) -> tuple[OccurrenceTrackEntry, ...]:
+        track = self._known(self.tracks, track_id, "track")
+        self._known(self.occurrences, occurrence_id, "occurrence")
+        return tuple(
+            self.track_entries[entry_id]
+            for entry_id in track.entry_ids
+            if self.occurrence_participations[self.track_entries[entry_id].participation_id].occurrence_id
+            == occurrence_id
+        )
+
+    def previous_track_entry(self, track_id: str, entry_id: str) -> OccurrenceTrackEntry | None:
+        return self._adjacent_track_entry(track_id, entry_id, -1)
+
+    def next_track_entry(self, track_id: str, entry_id: str) -> OccurrenceTrackEntry | None:
+        return self._adjacent_track_entry(track_id, entry_id, 1)
 
     def occurrences_for_iteration_on_track(self, iteration_id: str, track_id: str) -> tuple[Occurrence, ...]:
         self._known(self.iterations, iteration_id, "iteration")
@@ -456,9 +506,15 @@ class OccurrenceRegistry:
         state_kind: str,
     ) -> StateTransition | None:
         track = self._known(self.tracks, track_id, "track")
-        if occurrence_id not in track.occurrence_ids:
+        indices = [index for index, item in enumerate(track.occurrence_ids) if item == occurrence_id]
+        if not indices:
             raise ValueError(f"Occurrence `{occurrence_id}` is not on track `{track_id}`.")
-        boundary = track.occurrence_ids.index(occurrence_id)
+        if len(indices) > 1:
+            raise ValueError(
+                f"Occurrence `{occurrence_id}` appears more than once on track `{track_id}`; "
+                "a participation-relative state query is required."
+            )
+        boundary = indices[0]
         candidates = [
             item
             for item in self.state_transitions
@@ -489,10 +545,12 @@ class OccurrenceRegistry:
             "recurrence-phase": self.phases,
             "recurrence-schedule": self.schedules,
             "occurrence": self.occurrences,
+            "occurrence-participation": self.occurrence_participations,
             "occurrence-binding": {
                 binding.id: binding for occurrence in self.occurrences.values() for binding in occurrence.bindings
             },
             "occurrence-track": self.tracks,
+            "occurrence-track-entry": self.track_entries,
             "occurrence-transition": {item.id: item for item in self.transitions},
             "causal-relation": {item.id: item for item in self.causal_relations},
             "occurrence-outcome": {item.id: item for item in self.outcomes},
@@ -509,12 +567,28 @@ class OccurrenceRegistry:
 
     def _adjacent_on_track(self, track_id: str, occurrence_id: str, offset: int) -> Occurrence | None:
         track = self._known(self.tracks, track_id, "track")
-        if occurrence_id not in track.occurrence_ids:
+        indices = [index for index, item in enumerate(track.occurrence_ids) if item == occurrence_id]
+        if not indices:
             raise ValueError(f"Occurrence `{occurrence_id}` is not on track `{track_id}`.")
-        index = track.occurrence_ids.index(occurrence_id) + offset
+        if len(indices) > 1:
+            raise ValueError(
+                f"Occurrence `{occurrence_id}` appears more than once on track `{track_id}`; "
+                "use track-entry navigation."
+            )
+        index = indices[0] + offset
         if index < 0 or index >= len(track.occurrence_ids):
             return None
         return self.occurrences[track.occurrence_ids[index]]
+
+    def _adjacent_track_entry(self, track_id: str, entry_id: str, offset: int) -> OccurrenceTrackEntry | None:
+        track = self._known(self.tracks, track_id, "track")
+        entry = self._known(self.track_entries, entry_id, "track entry")
+        if entry.track_id != track_id:
+            raise ValueError(f"Track entry `{entry_id}` does not belong to track `{track_id}`.")
+        index = track.entry_ids.index(entry_id) + offset
+        if index < 0 or index >= len(track.entry_ids):
+            return None
+        return self.track_entries[track.entry_ids[index]]
 
     @staticmethod
     def _known(items: dict[str, object], item_id: str, kind: str):
@@ -637,6 +711,8 @@ def parse_occurrence_registry(
         raise ValueError("Occurrence registry requires enabled capability `deterministic-effect-resolution`.")
     if not packs.capability_enabled("aggregate-recurrence-cardinality"):
         raise ValueError("Occurrence registry requires enabled capability `aggregate-recurrence-cardinality`.")
+    if not packs.capability_enabled("occurrence-participation-identity"):
+        raise ValueError("Occurrence registry requires enabled capability `occurrence-participation-identity`.")
     root = _mapping(data, "Occurrence registry root")
     assert_allowed_keys(
         root,
@@ -651,7 +727,9 @@ def parse_occurrence_registry(
             "phases",
             "schedules",
             "occurrences",
+            "occurrence_participations",
             "tracks",
+            "track_entries",
             "transitions",
             "causal_relations",
             "outcomes",
@@ -1006,12 +1084,74 @@ def parse_occurrence_registry(
                 f"Chronology context `{context.id}` references unknown occurrence branch `{context.branch_id}`."
             )
 
-    tracks: dict[str, OccurrenceTrack] = {}
+    occurrence_participations: dict[str, OccurrenceParticipation] = {}
+    participation_semantics: set[tuple[str, str, str, str, str, str, str | None]] = set()
+    chronology_context_ids = {item.id for item in chronology.narrative_contexts}
+    for participation_id, raw in _mapping(
+        root.get("occurrence_participations"), "occurrences.occurrence_participations"
+    ).items():
+        _stable(participation_id, "occurrence participation ID")
+        context = f"occurrence_participations.{participation_id}"
+        item = _mapping(raw, context)
+        assert_allowed_keys(
+            item,
+            {
+                "occurrence_id",
+                "subject_type",
+                "subject_id",
+                "role",
+                "perspective",
+                "status",
+                "chronology_context_id",
+            },
+            context,
+        )
+        occurrence_id = _string(item, "occurrence_id", context)
+        if occurrence_id not in occurrences:
+            raise ValueError(f"{context}.occurrence_id references unknown occurrence `{occurrence_id}`.")
+        subject_type = _string(item, "subject_type", context)
+        subject_id = _string(item, "subject_id", context)
+        _known_external_target(subject_targets, subject_type, subject_id, f"{context}.subject")
+        role = _string(item, "role", context)
+        _value(packs, "occurrence.participation-role", role, f"{context}.role")
+        perspective = _string(item, "perspective", context)
+        _value(packs, "occurrence.participation-perspective", perspective, f"{context}.perspective")
+        status = _string(item, "status", context)
+        _value(packs, "occurrence.participation-status", status, f"{context}.status")
+        chronology_context_id = _optional_string(item, "chronology_context_id", context)
+        if chronology_context_id is not None and chronology_context_id not in chronology_context_ids:
+            raise ValueError(
+                f"{context}.chronology_context_id references unknown chronology context `{chronology_context_id}`."
+            )
+        semantic_key = (
+            occurrence_id,
+            subject_type,
+            subject_id,
+            role,
+            perspective,
+            status,
+            chronology_context_id,
+        )
+        if semantic_key in participation_semantics:
+            raise ValueError(f"{context} duplicates an existing semantic participation.")
+        participation_semantics.add(semantic_key)
+        occurrence_participations[participation_id] = OccurrenceParticipation(
+            participation_id,
+            occurrence_id,
+            subject_type,
+            subject_id,
+            role,
+            perspective,
+            status,
+            chronology_context_id,
+        )
+
+    track_metadata: dict[str, tuple[str, str, str, str]] = {}
     for track_id, raw in _mapping(root.get("tracks"), "occurrences.tracks").items():
         _stable(track_id, "occurrence track ID")
         context = f"tracks.{track_id}"
         item = _mapping(raw, context)
-        assert_allowed_keys(item, {"label", "kind", "subject_type", "subject_id", "occurrence_ids"}, context)
+        assert_allowed_keys(item, {"label", "kind", "subject_type", "subject_id"}, context)
         kind = _string(item, "kind", context)
         _value(packs, "occurrence.track-kind", kind, f"{context}.kind")
         subject_type = _string(item, "subject_type", context)
@@ -1022,12 +1162,54 @@ def parse_occurrence_registry(
             or subject_id not in subject_targets[subject_type]
         ):
             raise ValueError(f"{context} references unknown subject `{subject_type}:{subject_id}`.")
-        occurrence_ids = _strings(item, "occurrence_ids", context)
-        unknown = set(occurrence_ids) - set(occurrences)
-        if unknown:
-            raise ValueError(f"{context}.occurrence_ids references unknown occurrences: {', '.join(sorted(unknown))}.")
+        track_metadata[track_id] = (_string(item, "label", context), kind, subject_type, subject_id)
+
+    track_entries: dict[str, OccurrenceTrackEntry] = {}
+    track_ordinals: set[tuple[str, int]] = set()
+    track_participations: set[tuple[str, str]] = set()
+    for entry_id, raw in _mapping(root.get("track_entries"), "occurrences.track_entries").items():
+        _stable(entry_id, "occurrence track-entry ID")
+        context = f"track_entries.{entry_id}"
+        item = _mapping(raw, context)
+        assert_allowed_keys(item, {"track_id", "participation_id", "ordinal"}, context)
+        track_id = _string(item, "track_id", context)
+        participation_id = _string(item, "participation_id", context)
+        ordinal = _positive_int(item, "ordinal", context)
+        if track_id not in track_metadata:
+            raise ValueError(f"{context}.track_id references unknown track `{track_id}`.")
+        if participation_id not in occurrence_participations:
+            raise ValueError(f"{context}.participation_id references unknown participation `{participation_id}`.")
+        participation = occurrence_participations[participation_id]
+        _, _, track_subject_type, track_subject_id = track_metadata[track_id]
+        if (participation.subject_type, participation.subject_id) != (track_subject_type, track_subject_id):
+            raise ValueError(f"{context}.participation_id subject does not match track `{track_id}`.")
+        if (track_id, ordinal) in track_ordinals:
+            raise ValueError(f"{context}.ordinal duplicates ordinal {ordinal} on track `{track_id}`.")
+        if (track_id, participation_id) in track_participations:
+            raise ValueError(f"{context}.participation_id already appears on track `{track_id}`.")
+        track_ordinals.add((track_id, ordinal))
+        track_participations.add((track_id, participation_id))
+        track_entries[entry_id] = OccurrenceTrackEntry(entry_id, track_id, participation_id, ordinal)
+
+    tracks: dict[str, OccurrenceTrack] = {}
+    for track_id, (label, kind, subject_type, subject_id) in track_metadata.items():
+        entries = sorted(
+            (item for item in track_entries.values() if item.track_id == track_id),
+            key=lambda item: item.ordinal,
+        )
+        expected_ordinals = list(range(1, len(entries) + 1))
+        if [item.ordinal for item in entries] != expected_ordinals:
+            raise ValueError(f"Track `{track_id}` entry ordinals must be contiguous from 1.")
+        entry_ids = tuple(item.id for item in entries)
+        occurrence_ids = tuple(occurrence_participations[item.participation_id].occurrence_id for item in entries)
         tracks[track_id] = OccurrenceTrack(
-            track_id, _string(item, "label", context), kind, subject_type, subject_id, occurrence_ids
+            track_id,
+            label,
+            kind,
+            subject_type,
+            subject_id,
+            entry_ids,
+            occurrence_ids,
         )
     _validate_track_iteration_order(tracks, occurrences, iterations)
 
@@ -1076,6 +1258,11 @@ def parse_occurrence_registry(
             track_occurrences = tracks[track_id].occurrence_ids
             if source_id not in track_occurrences or target_id not in track_occurrences:
                 raise ValueError(f"{context} endpoints must both appear on track `{track_id}`.")
+            if track_occurrences.count(source_id) != 1 or track_occurrences.count(target_id) != 1:
+                raise ValueError(
+                    f"{context} endpoints must each appear exactly once on track `{track_id}`; "
+                    "participation-relative transitions are not available."
+                )
             if track_occurrences.index(source_id) >= track_occurrences.index(target_id):
                 raise ValueError(f"{context} must advance in declared track order on `{track_id}`.")
         certainty = _string(item, "certainty", context)
@@ -1576,6 +1763,11 @@ def parse_occurrence_registry(
                 raise ValueError(f"{context} subject must match track `{track_id}` subject.")
             if activation_id not in track.occurrence_ids:
                 raise ValueError(f"{context}.activation_occurrence_id must appear on track `{track_id}`.")
+            if track.occurrence_ids.count(activation_id) != 1:
+                raise ValueError(
+                    f"{context}.activation_occurrence_id appears more than once on track `{track_id}`; "
+                    "participation-relative state transitions are not available."
+                )
         source_records: list[StateSourceTarget] = []
         for source_index, raw_source in enumerate(_list(item.get("source_targets"), f"{context}.source_targets")):
             source_context = f"{context}.source_targets[{source_index}]"
@@ -1714,7 +1906,9 @@ def parse_occurrence_registry(
         phases,
         schedules,
         occurrences,
+        occurrence_participations,
         tracks,
+        track_entries,
         tuple(transitions),
         tuple(causal_relations),
         tuple(outcomes),

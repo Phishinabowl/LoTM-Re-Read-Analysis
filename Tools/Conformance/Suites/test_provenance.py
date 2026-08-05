@@ -200,6 +200,12 @@ def assert_services(registry) -> None:
     cardinality = registry.provenance_target("recurrence-cardinality", "inner-minimum-count")
     if cardinality.minimum_count != 1:
         raise AssertionError("Recurrence-cardinality provenance target lookup changed.")
+    participation = registry.provenance_target("occurrence-participation", "protagonist-self-intervention-agent")
+    if participation.role != "agent" or participation.chronology_context_id != "agent-context":
+        raise AssertionError("Occurrence-participation provenance target lookup changed.")
+    track_entry = registry.provenance_target("occurrence-track-entry", "protagonist-entry-14")
+    if track_entry.participation_id != participation.id or track_entry.ordinal != 14:
+        raise AssertionError("Occurrence-track-entry provenance target lookup changed.")
     exact = registry.applicability_decision("provenance-claim", "reported-alpha-name")
     if exact.winning_scope_ids != ("reported-alpha-name-scope",) or exact.highest_precedence != 20:
         raise AssertionError("Provenance-claim applicability resolution changed.")
@@ -313,16 +319,39 @@ def main() -> int:
         entities = load_entity_registry(entity_project, taxonomy, sources, packs)
 
         chronology_fixture_path = root / "Framework" / "Data" / "Chronology" / "valid-registry.yaml"
+        chronology_fixture_data = load_yaml_file(
+            chronology_fixture_path, "chronology fixture", expected_schema_version=1
+        )
+        chronology_fixture_data["narrative_contexts"] = [
+            {
+                "id": "recipient-context",
+                "label": "Recipient Context",
+                "coordinate_system_id": "civil-year",
+                "role": "story",
+                "continuity_ids": [],
+                "work_ids": ["fixture-work"],
+                "branch_id": "main",
+            },
+            {
+                "id": "agent-context",
+                "label": "Agent Context",
+                "coordinate_system_id": "civil-year",
+                "role": "time-travel-origin",
+                "continuity_ids": [],
+                "work_ids": ["fixture-work"],
+                "branch_id": "main",
+            },
+        ]
         chronology_fixture = parse_chronology_registry(
-            load_yaml_file(chronology_fixture_path, "chronology fixture", expected_schema_version=1),
+            chronology_fixture_data,
             chronology_fixture_path,
             packs,
-            work_ids=set(),
+            work_ids={"fixture-work"},
             continuity_ids=set(),
         )
         occurrence_fixture_path = root / "Framework" / "Data" / "Occurrence" / "valid-registry.yaml"
         fixture_occurrences = parse_occurrence_registry(
-            load_yaml_file(occurrence_fixture_path, "occurrence fixture", expected_schema_version=5),
+            load_yaml_file(occurrence_fixture_path, "occurrence fixture", expected_schema_version=6),
             occurrence_fixture_path,
             packs,
             chronology_fixture,

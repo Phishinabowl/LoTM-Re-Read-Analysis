@@ -304,6 +304,20 @@ function Assert-ProvenanceFixtureServices {
     if ([long]$cardinality.minimum_count -ne 1) {
         throw 'Recurrence-cardinality provenance target lookup changed.'
     }
+    $participation = Get-KnowledgeProvenanceTarget `
+        $Registry `
+        'occurrence-participation' `
+        'protagonist-self-intervention-agent'
+    if ($participation.role -cne 'agent' -or $participation.chronology_context_id -cne 'agent-context') {
+        throw 'Occurrence-participation provenance target lookup changed.'
+    }
+    $trackEntry = Get-KnowledgeProvenanceTarget `
+        $Registry `
+        'occurrence-track-entry' `
+        'protagonist-entry-14'
+    if ($trackEntry.participation_id -cne $participation.id -or [int]$trackEntry.ordinal -ne 14) {
+        throw 'Occurrence-track-entry provenance target lookup changed.'
+    }
     $exact = Get-KnowledgeProvenanceApplicabilityDecision `
         $Registry `
         'provenance-claim' `
@@ -436,10 +450,28 @@ try {
 
     $chronologyFixturePath = Join-Path $Root 'Framework\Data\Chronology\valid-registry.yaml'
     $chronologyFixtureData = ConvertFrom-KnowledgeYamlFile $chronologyFixturePath 1 'chronology fixture'
+    $chronologyFixtureData['narrative_contexts'] = @(
+        [ordered]@{id='recipient-context'
+            label='Recipient Context'
+            coordinate_system_id='civil-year'
+            role='story'
+            continuity_ids=@()
+            work_ids=@('fixture-work')
+            branch_id='main'
+        },
+        [ordered]@{id='agent-context'
+            label='Agent Context'
+            coordinate_system_id='civil-year'
+            role='time-travel-origin'
+            continuity_ids=@()
+            work_ids=@('fixture-work')
+            branch_id='main'
+        }
+    )
     $chronologyFixture = ConvertTo-KnowledgeChronologyRegistry `
-        $chronologyFixtureData $chronologyFixturePath $packs @() @()
+        $chronologyFixtureData $chronologyFixturePath $packs @('fixture-work') @()
     $occurrenceFixturePath = Join-Path $Root 'Framework\Data\Occurrence\valid-registry.yaml'
-    $occurrenceFixtureData = ConvertFrom-KnowledgeYamlFile $occurrenceFixturePath 5 'occurrence fixture'
+    $occurrenceFixtureData = ConvertFrom-KnowledgeYamlFile $occurrenceFixturePath 6 'occurrence fixture'
     $subjectTargets = [ordered]@{character = @('protagonist', 'observer') }
     $payloadTargets = [ordered]@{'state-record' = @('protagonist-health') }
     $fixtureOccurrences = ConvertTo-KnowledgeOccurrenceRegistry `

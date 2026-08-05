@@ -74,6 +74,7 @@ capability_activation:
     - semantic-declaration-integrity
     - deterministic-effect-resolution
     - aggregate-recurrence-cardinality
+    - occurrence-participation-identity
     - visibility-policy
     - graph-projection
     - schema-validation

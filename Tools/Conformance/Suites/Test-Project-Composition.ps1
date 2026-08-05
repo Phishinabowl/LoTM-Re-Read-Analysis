@@ -71,7 +71,9 @@ $occurrenceCountFields = @(
     'phases'
     'schedules'
     'occurrences'
+    'occurrence_participations'
     'tracks'
+    'track_entries'
     'transitions'
     'causal_relations'
     'outcomes'
@@ -418,6 +420,7 @@ function Assert-InvalidProjectCompositions {
     @($provenanceTypes | Where-Object { $_ -cne 'entity' })
     $entityPacks = Copy-PacksWithoutCapability $packs 'entity-incarnations'
     $occurrencePacks = Copy-PacksWithoutCapability $packs 'occurrence-recurrence-modeling'
+    $participationPacks = Copy-PacksWithoutCapability $packs 'occurrence-participation-identity'
     $reconciliationPacks = Copy-PacksWithoutCapability $packs 'stable-identity-reconciliation'
     $actions = @(
         { Get-KnowledgeReconciliationRegistry $project @($providers[0..2]) $packs }
@@ -451,6 +454,12 @@ function Assert-InvalidProjectCompositions {
             Get-KnowledgeOccurrenceRegistry `
                 $project `
                 $occurrencePacks `
+                $Composition.chronology
+        }
+        {
+            Get-KnowledgeOccurrenceRegistry `
+                $project `
+                $participationPacks `
                 $Composition.chronology
         }
         { Get-KnowledgeReconciliationRegistry $project $providers $reconciliationPacks }

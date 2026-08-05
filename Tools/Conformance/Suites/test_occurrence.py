@@ -150,15 +150,36 @@ def main() -> int:
 
     fixture_root = root / "Framework" / "Data" / "Occurrence"
     chronology_fixture_path = root / "Framework" / "Data" / "Chronology" / "valid-registry.yaml"
+    chronology_fixture_data = load_yaml_file(chronology_fixture_path, "chronology fixture", expected_schema_version=1)
+    chronology_fixture_data["narrative_contexts"] = [
+        {
+            "id": "recipient-context",
+            "label": "Recipient Context",
+            "coordinate_system_id": "civil-year",
+            "role": "story",
+            "continuity_ids": [],
+            "work_ids": ["fixture-work"],
+            "branch_id": "main",
+        },
+        {
+            "id": "agent-context",
+            "label": "Agent Context",
+            "coordinate_system_id": "civil-year",
+            "role": "time-travel-origin",
+            "continuity_ids": [],
+            "work_ids": ["fixture-work"],
+            "branch_id": "main",
+        },
+    ]
     chronology_fixture = parse_chronology_registry(
-        load_yaml_file(chronology_fixture_path, "chronology fixture", expected_schema_version=1),
+        chronology_fixture_data,
         chronology_fixture_path,
         packs,
-        work_ids=set(),
+        work_ids={"fixture-work"},
         continuity_ids=set(),
     )
     fixture_path = fixture_root / "valid-registry.yaml"
-    fixture_data = load_yaml_file(fixture_path, "occurrence fixture", expected_schema_version=5)
+    fixture_data = load_yaml_file(fixture_path, "occurrence fixture", expected_schema_version=6)
     fixture = parse_occurrence_registry(
         fixture_data,
         fixture_path,
@@ -177,6 +198,32 @@ def main() -> int:
     for position_id, expected in expectations["position_occurrences"].items():
         if ids(fixture.occurrences_at_position(position_id)) != expected:
             raise AssertionError(f"Unexpected occurrences at position `{position_id}`.")
+    for occurrence_id, expected in expectations["occurrence_participations"].items():
+        if ids(fixture.participations_for_occurrence(occurrence_id)) != expected:
+            raise AssertionError(f"Unexpected participations for occurrence `{occurrence_id}`.")
+    for key, expected in expectations["subject_participations"].items():
+        subject_type, subject_id = key.split("|", 1)
+        if ids(fixture.participations_for_subject(subject_type, subject_id)) != expected:
+            raise AssertionError(f"Unexpected participations for subject `{key}`.")
+    for key, expected in expectations["track_occurrence_entries"].items():
+        track_id, occurrence_id = key.split("|", 1)
+        if ids(fixture.entries_for_occurrence_on_track(track_id, occurrence_id)) != expected:
+            raise AssertionError(f"Unexpected entries for `{occurrence_id}` on `{track_id}`.")
+    for track_id, entry_id, expected_previous, expected_next in expectations["track_entry_neighbors"]:
+        previous = fixture.previous_track_entry(track_id, entry_id)
+        following = fixture.next_track_entry(track_id, entry_id)
+        if (previous.id if previous else None) != expected_previous or (
+            following.id if following else None
+        ) != expected_next:
+            raise AssertionError(f"Unexpected track-entry neighbors for `{entry_id}`.")
+    for track_id, occurrence_id, expected_error in expectations["ambiguous_occurrence_neighbors"]:
+        try:
+            fixture.previous_on_track(track_id, occurrence_id)
+        except ValueError as exc:
+            if str(exc) != expected_error:
+                raise AssertionError(f"Unexpected ambiguous occurrence error: {exc}") from exc
+        else:
+            raise AssertionError(f"Ambiguous occurrence `{occurrence_id}` unexpectedly resolved on `{track_id}`.")
     for key, expected in expectations["iteration_track_occurrences"].items():
         iteration_id, track_id = key.split("|", 1)
         if ids(fixture.occurrences_for_iteration_on_track(iteration_id, track_id)) != expected:
@@ -286,6 +333,12 @@ def main() -> int:
 
     scale_count = 128
     scale_probe = copy.deepcopy(fixture_data)
+    scale_probe["tracks"]["scale-observer-experience"] = {
+        "label": "Scale Observer Experience",
+        "kind": "observation",
+        "subject_type": "character",
+        "subject_id": "observer",
+    }
     for index in range(scale_count):
         cardinality_id = f"scale-cardinality-{index:03d}"
         scale_probe["recurrence_cardinalities"][cardinality_id] = {
@@ -298,6 +351,30 @@ def main() -> int:
             "representative_iteration_ids": [],
             "certainty": "uncertain",
         }
+        occurrence_id = f"scale-occurrence-{index:03d}"
+        participation_id = f"scale-participation-{index:03d}"
+        entry_id = f"scale-entry-{index:03d}"
+        scale_probe["occurrences"][occurrence_id] = {
+            "template_id": "intervention",
+            "label": f"Scale occurrence {index:03d}",
+            "iteration_id": None,
+            "branch_id": "main",
+            "bindings": [],
+        }
+        scale_probe["occurrence_participations"][participation_id] = {
+            "occurrence_id": occurrence_id,
+            "subject_type": "character",
+            "subject_id": "observer",
+            "role": "reviewer",
+            "perspective": "reconstructed",
+            "status": "completed",
+            "chronology_context_id": None,
+        }
+        scale_probe["track_entries"][entry_id] = {
+            "track_id": "scale-observer-experience",
+            "participation_id": participation_id,
+            "ordinal": index + 1,
+        }
     scale_registry = parse_occurrence_registry(
         scale_probe,
         fixture_path,
@@ -308,6 +385,11 @@ def main() -> int:
     )
     if len(scale_registry.cardinalities_for_recurrence("inner-loop")) != 5 + scale_count:
         raise AssertionError("Generated recurrence-cardinality scale probe did not retain every record.")
+    if (
+        len(scale_registry.participations_for_subject("character", "observer")) != 5 + scale_count
+        or len(scale_registry.tracks["scale-observer-experience"].entry_ids) != scale_count
+    ):
+        raise AssertionError("Generated occurrence-participation scale probe did not retain every record.")
 
     mixed_indeterminate_probe = copy.deepcopy(fixture_data)
     mixed_rule = copy.deepcopy(mixed_indeterminate_probe["rules"][0])
@@ -511,7 +593,9 @@ def main() -> int:
         "phases": len(registry.phases),
         "schedules": len(registry.schedules),
         "occurrences": len(registry.occurrences),
+        "occurrence_participations": len(registry.occurrence_participations),
         "tracks": len(registry.tracks),
+        "track_entries": len(registry.track_entries),
         "transitions": len(registry.transitions),
         "causal_relations": len(registry.causal_relations),
         "outcomes": len(registry.outcomes),
@@ -522,6 +606,11 @@ def main() -> int:
             len(expectations["iteration_occurrences"])
             + len(expectations["recurrence_cardinalities"])
             + len(expectations["position_occurrences"])
+            + len(expectations["occurrence_participations"])
+            + len(expectations["subject_participations"])
+            + len(expectations["track_occurrence_entries"])
+            + len(expectations["track_entry_neighbors"]) * 2
+            + len(expectations["ambiguous_occurrence_neighbors"])
             + len(expectations["iteration_track_occurrences"])
             + len(expectations["track_iteration_boundaries"]) * 2
             + len(expectations["track_neighbors"]) * 2
@@ -542,6 +631,7 @@ def main() -> int:
         ),
         "invalid_cases": len(invalid_cases),
         "scale_cardinalities": scale_count,
+        "scale_participations": scale_count,
     }
     if args.json:
         print(json.dumps(summary, sort_keys=True, separators=(",", ":")))

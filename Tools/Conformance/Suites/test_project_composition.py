@@ -84,7 +84,9 @@ OCCURRENCE_COUNT_FIELDS = (
     "phases",
     "schedules",
     "occurrences",
+    "occurrence_participations",
     "tracks",
+    "track_entries",
     "transitions",
     "causal_relations",
     "outcomes",
@@ -343,6 +345,11 @@ def assert_invalid_compositions(composition: Composition) -> int:
         lambda: load_occurrence_registry(
             project,
             without_capability(packs, "occurrence-recurrence-modeling"),
+            composition.chronology,
+        ),
+        lambda: load_occurrence_registry(
+            project,
+            without_capability(packs, "occurrence-participation-identity"),
             composition.chronology,
         ),
         lambda: load_reconciliation_registry(

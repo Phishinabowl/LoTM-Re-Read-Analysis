@@ -1,4 +1,4 @@
-$script:SupportedOccurrenceSchemaVersion = 4
+$script:SupportedOccurrenceSchemaVersion = 6
 $script:OccurrenceStableIdPattern = '^[a-z0-9]+(?:-[a-z0-9]+)*$'
 
 function Get-RequiredOccurrenceString {
@@ -131,6 +131,62 @@ function Get-KnowledgeOccurrencesAtPosition {
     param([object]$Registry, [string]$PositionId)
     return @($Registry.occurrences.Values | Where-Object { @($_.bindings | Where-Object { $_.position_id -ceq $PositionId }).Count -gt 0 })
 }
+function Get-KnowledgeParticipationsForOccurrence {
+    param([object]$Registry, [string]$OccurrenceId)
+    if (-not $Registry.occurrences.Contains($OccurrenceId)) {
+        throw "Unknown occurrence '$OccurrenceId'."
+    }
+    return @($Registry.occurrence_participations.Values | Where-Object { $_.occurrence_id -ceq $OccurrenceId })
+}
+function Get-KnowledgeParticipationsForSubject {
+    param([object]$Registry, [string]$SubjectType, [string]$SubjectId)
+    return @(
+        $Registry.occurrence_participations.Values |
+            Where-Object { $_.subject_type -ceq $SubjectType -and $_.subject_id -ceq $SubjectId }
+    )
+}
+function Get-KnowledgeTrackEntriesForOccurrence {
+    param([object]$Registry, [string]$TrackId, [string]$OccurrenceId)
+    if (-not $Registry.tracks.Contains($TrackId)) {
+        throw "Unknown track '$TrackId'."
+    }
+    if (-not $Registry.occurrences.Contains($OccurrenceId)) {
+        throw "Unknown occurrence '$OccurrenceId'."
+    }
+    return @(
+        $Registry.tracks[$TrackId].entry_ids |
+            ForEach-Object { $Registry.track_entries[$_] } |
+            Where-Object {
+                $Registry.occurrence_participations[$_.participation_id].occurrence_id -ceq $OccurrenceId
+            }
+    )
+}
+function Get-KnowledgeAdjacentTrackEntry {
+    param([object]$Registry, [string]$TrackId, [string]$EntryId, [int]$Offset)
+    if (-not $Registry.tracks.Contains($TrackId)) {
+        throw "Unknown track '$TrackId'."
+    }
+    if (-not $Registry.track_entries.Contains($EntryId)) {
+        throw "Unknown track entry '$EntryId'."
+    }
+    if ($Registry.track_entries[$EntryId].track_id -cne $TrackId) {
+        throw "Track entry '$EntryId' does not belong to track '$TrackId'."
+    }
+    $ids = @($Registry.tracks[$TrackId].entry_ids)
+    $target = [Array]::IndexOf($ids, $EntryId) + $Offset
+    if ($target -lt 0 -or $target -ge $ids.Count) {
+        return $null
+    }
+    return $Registry.track_entries[$ids[$target]]
+}
+function Get-KnowledgePreviousTrackEntry {
+    param([object]$Registry, [string]$TrackId, [string]$EntryId)
+    return Get-KnowledgeAdjacentTrackEntry $Registry $TrackId $EntryId -1
+}
+function Get-KnowledgeNextTrackEntry {
+    param([object]$Registry, [string]$TrackId, [string]$EntryId)
+    return Get-KnowledgeAdjacentTrackEntry $Registry $TrackId $EntryId 1
+}
 function Get-KnowledgeOccurrencesForIterationOnTrack {
     param([object]$Registry, [string]$IterationId, [string]$TrackId)
     if (-not $Registry.iterations.Contains($IterationId)) {
@@ -147,10 +203,14 @@ function Get-KnowledgeAdjacentTrackOccurrence {
         throw "Unknown track '$TrackId'."
     }
     $ids = @($Registry.tracks[$TrackId].occurrence_ids)
-    $index = [Array]::IndexOf($ids, $OccurrenceId)
-    if ($index -lt 0) {
+    $matches = @($ids | Where-Object { $_ -ceq $OccurrenceId })
+    if ($matches.Count -eq 0) {
         throw "Occurrence '$OccurrenceId' is not on track '$TrackId'."
     }
+    if ($matches.Count -gt 1) {
+        throw "Occurrence ``$OccurrenceId`` appears more than once on track ``$TrackId``; use track-entry navigation."
+    }
+    $index = [Array]::IndexOf($ids, $OccurrenceId)
     $target = $index + $Offset
     if ($target -lt 0 -or $target -ge $ids.Count) {
         return $null
@@ -215,6 +275,9 @@ function Get-KnowledgeStateAt {
     $boundary = [Array]::IndexOf($ids, $OccurrenceId)
     if ($boundary -lt 0) {
         throw "Occurrence '$OccurrenceId' is not on track '$TrackId'."
+    }
+    if (@($ids | Where-Object { $_ -ceq $OccurrenceId }).Count -gt 1) {
+        throw "Occurrence ``$OccurrenceId`` appears more than once on track ``$TrackId``; a participation-relative state query is required."
     }
     $candidates = @(
         $Registry.state_transitions |
@@ -821,7 +884,9 @@ function Get-KnowledgeOccurrenceProvenanceTargets {
         'recurrence-schedule'=$Registry.schedules
         occurrence=$Registry.occurrences
         'occurrence-binding'=$bindings
+        'occurrence-participation'=$Registry.occurrence_participations
         'occurrence-track'=$Registry.tracks
+        'occurrence-track-entry'=$Registry.track_entries
         'occurrence-transition'=$transitions
         'causal-relation'=$causal
         'occurrence-outcome'=$outcomes
@@ -999,6 +1064,7 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
         'semantic-declaration-integrity'
         'deterministic-effect-resolution'
         'aggregate-recurrence-cardinality'
+        'occurrence-participation-identity'
     )
     foreach ($capability in $requiredCapabilities) {
         if (-not (Test-SchemaPackCapabilityEnabled $SchemaPacks $capability)) {
@@ -1017,7 +1083,9 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
         'phases'
         'schedules'
         'occurrences'
+        'occurrence_participations'
         'tracks'
+        'track_entries'
         'transitions'
         'causal_relations'
         'outcomes'
@@ -1027,8 +1095,8 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
     )
     Assert-KnowledgeMapKeys $Data $rootKeys 'Occurrence registry root'
     $schemaVersion = Get-ProjectMapValue $Data 'schema_version'
-    if ($schemaVersion -isnot [int] -or $schemaVersion -ne 5) {
-        throw "Unsupported occurrence schema_version '$schemaVersion'; expected 5."
+    if ($schemaVersion -isnot [int] -or $schemaVersion -ne 6) {
+        throw "Unsupported occurrence schema_version '$schemaVersion'; expected 6."
     }
 
     $rawBranches = Get-ProjectMapValue $Data 'branches'
@@ -1503,15 +1571,79 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
         }
     }
 
+    $rawParticipations = Get-ProjectMapValue $Data 'occurrence_participations'
+    Assert-OccurrenceMap $rawParticipations 'occurrences.occurrence_participations'
+    $participations = [ordered]@{}
+    $participationSemantics = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $chronologyContextIds = @($Chronology.narrative_contexts | ForEach-Object { $_.id })
+    foreach ($id in @($rawParticipations.Keys)) {
+        $null = Assert-OccurrenceStableId ([string]$id) 'occurrence participation ID'
+        $context = "occurrence_participations.$id"
+        $item = $rawParticipations[$id]
+        Assert-OccurrenceMap $item $context
+        Assert-KnowledgeMapKeys `
+            $item `
+        @('occurrence_id', 'subject_type', 'subject_id', 'role', 'perspective', 'status', 'chronology_context_id') `
+            $context
+        $occurrenceId = Get-RequiredOccurrenceString $item 'occurrence_id' $context
+        if (-not $occurrences.Contains($occurrenceId)) {
+            throw "$context.occurrence_id references unknown occurrence '$occurrenceId'."
+        }
+        $subjectType = Get-RequiredOccurrenceString $item 'subject_type' $context
+        $subjectId = Get-RequiredOccurrenceString $item 'subject_id' $context
+        if (
+            $null -eq $SubjectTargets -or
+            -not $SubjectTargets.Contains($subjectType) -or
+            @($SubjectTargets[$subjectType]) -cnotcontains $subjectId
+        ) {
+            throw "$context.subject references unknown target '$subjectType`:$subjectId'."
+        }
+        $role = Get-RequiredOccurrenceString $item 'role' $context
+        Assert-OccurrencePackValue $SchemaPacks 'occurrence.participation-role' $role "$context.role"
+        $perspective = Get-RequiredOccurrenceString $item 'perspective' $context
+        Assert-OccurrencePackValue `
+            $SchemaPacks `
+            'occurrence.participation-perspective' `
+            $perspective `
+            "$context.perspective"
+        $status = Get-RequiredOccurrenceString $item 'status' $context
+        Assert-OccurrencePackValue $SchemaPacks 'occurrence.participation-status' $status "$context.status"
+        $chronologyContextId = Get-OptionalOccurrenceString $item 'chronology_context_id' $context
+        if ($null -ne $chronologyContextId -and $chronologyContextIds -cnotcontains $chronologyContextId) {
+            throw "$context.chronology_context_id references unknown chronology context '$chronologyContextId'."
+        }
+        $semanticKey = @(
+            $occurrenceId,
+            $subjectType,
+            $subjectId,
+            $role,
+            $perspective,
+            $status,
+            $chronologyContextId
+        ) -join '|'
+        if (-not $participationSemantics.Add($semanticKey)) {
+            throw "$context duplicates an existing semantic participation."
+        }
+        $participations[$id] = [pscustomobject]@{id=[string]$id
+            occurrence_id=$occurrenceId
+            subject_type=$subjectType
+            subject_id=$subjectId
+            role=$role
+            perspective=$perspective
+            status=$status
+            chronology_context_id=$chronologyContextId
+        }
+    }
+
     $rawTracks = Get-ProjectMapValue $Data 'tracks'
     Assert-OccurrenceMap $rawTracks 'occurrences.tracks'
-    $tracks = [ordered]@{}
+    $trackMetadata = [ordered]@{}
     foreach ($id in @($rawTracks.Keys)) {
         $null = Assert-OccurrenceStableId ([string]$id) 'occurrence track ID'
         $context = "tracks.$id"
         $item = $rawTracks[$id]
         Assert-OccurrenceMap $item $context
-        Assert-KnowledgeMapKeys $item @('label', 'kind', 'subject_type', 'subject_id', 'occurrence_ids') $context
+        Assert-KnowledgeMapKeys $item @('label', 'kind', 'subject_type', 'subject_id') $context
         $kind = Get-RequiredOccurrenceString $item 'kind' $context
         Assert-OccurrencePackValue $SchemaPacks 'occurrence.track-kind' $kind "$context.kind"
         $subjectType = Get-RequiredOccurrenceString $item 'subject_type' $context
@@ -1519,17 +1651,75 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
         if ($null -eq $SubjectTargets -or -not $SubjectTargets.Contains($subjectType) -or @($SubjectTargets[$subjectType]) -cnotcontains $subjectId) {
             throw "$context references unknown subject '$subjectType`:$subjectId'."
         }
-        $occurrenceIds = @(Get-OccurrenceStringList $item 'occurrence_ids' $context)
-        foreach ($occurrenceId in $occurrenceIds) {
-            if (-not $occurrences.Contains($occurrenceId)) {
-                throw "$context.occurrence_ids references unknown occurrence '$occurrenceId'."
-            }
-        }
-        $tracks[$id] = [pscustomobject]@{id=[string]$id
+        $trackMetadata[$id] = [pscustomobject]@{id=[string]$id
             label=Get-RequiredOccurrenceString $item 'label' $context
             kind=$kind
             subject_type=$subjectType
             subject_id=$subjectId
+        }
+    }
+
+    $rawTrackEntries = Get-ProjectMapValue $Data 'track_entries'
+    Assert-OccurrenceMap $rawTrackEntries 'occurrences.track_entries'
+    $trackEntries = [ordered]@{}
+    $trackOrdinals = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $trackParticipations = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    foreach ($id in @($rawTrackEntries.Keys)) {
+        $null = Assert-OccurrenceStableId ([string]$id) 'occurrence track-entry ID'
+        $context = "track_entries.$id"
+        $item = $rawTrackEntries[$id]
+        Assert-OccurrenceMap $item $context
+        Assert-KnowledgeMapKeys $item @('track_id', 'participation_id', 'ordinal') $context
+        $trackId = Get-RequiredOccurrenceString $item 'track_id' $context
+        $participationId = Get-RequiredOccurrenceString $item 'participation_id' $context
+        $ordinal = Get-RequiredOccurrencePositiveInteger $item 'ordinal' $context
+        if (-not $trackMetadata.Contains($trackId)) {
+            throw "$context.track_id references unknown track '$trackId'."
+        }
+        if (-not $participations.Contains($participationId)) {
+            throw "$context.participation_id references unknown participation '$participationId'."
+        }
+        $participation = $participations[$participationId]
+        $track = $trackMetadata[$trackId]
+        if (
+            $participation.subject_type -cne $track.subject_type -or
+            $participation.subject_id -cne $track.subject_id
+        ) {
+            throw "$context.participation_id subject does not match track '$trackId'."
+        }
+        if (-not $trackOrdinals.Add("$trackId|$ordinal")) {
+            throw "$context.ordinal duplicates ordinal $ordinal on track '$trackId'."
+        }
+        if (-not $trackParticipations.Add("$trackId|$participationId")) {
+            throw "$context.participation_id already appears on track '$trackId'."
+        }
+        $trackEntries[$id] = [pscustomobject]@{id=[string]$id
+            track_id=$trackId
+            participation_id=$participationId
+            ordinal=$ordinal
+        }
+    }
+
+    $tracks = [ordered]@{}
+    foreach ($id in @($trackMetadata.Keys)) {
+        $metadata = $trackMetadata[$id]
+        $entries = @($trackEntries.Values | Where-Object { $_.track_id -ceq $id } | Sort-Object ordinal)
+        for ($index = 0; $index -lt $entries.Count; $index++) {
+            if ([int]$entries[$index].ordinal -ne ($index + 1)) {
+                throw "Track '$id' entry ordinals must be contiguous from 1."
+            }
+        }
+        $entryIds = @($entries | ForEach-Object { $_.id })
+        $occurrenceIds = @(
+            $entries |
+                ForEach-Object { $participations[$_.participation_id].occurrence_id }
+        )
+        $tracks[$id] = [pscustomobject]@{id=[string]$id
+            label=$metadata.label
+            kind=$metadata.kind
+            subject_type=$metadata.subject_type
+            subject_id=$metadata.subject_id
+            entry_ids=$entryIds
             occurrence_ids=$occurrenceIds
         }
     }
@@ -1591,6 +1781,12 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
             $targetIndex = [Array]::IndexOf($trackOccurrences, $targetId)
             if ($sourceIndex -lt 0 -or $targetIndex -lt 0) {
                 throw "$context endpoints must both appear on track '$trackId'."
+            }
+            if (
+                @($trackOccurrences | Where-Object { $_ -ceq $sourceId }).Count -ne 1 -or
+                @($trackOccurrences | Where-Object { $_ -ceq $targetId }).Count -ne 1
+            ) {
+                throw "$context endpoints must each appear exactly once on track '$trackId'; participation-relative transitions are not available."
             }
             if ($sourceIndex -ge $targetIndex) {
                 throw "$context must advance in declared track order on '$trackId'."
@@ -2274,6 +2470,9 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
             if ($track.occurrence_ids -cnotcontains $activationId) {
                 throw "$context activation must appear on track '$trackId'."
             }
+            if (@($track.occurrence_ids | Where-Object { $_ -ceq $activationId }).Count -ne 1) {
+                throw "$context activation appears more than once on track '$trackId'; participation-relative state transitions are not available."
+            }
         }
         $sources = @()
         $rawSources = $item['source_targets']
@@ -2495,7 +2694,7 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
         }
     }
     return [pscustomobject]@{path=$Path
-        schema_version=5
+        schema_version=6
         chronology=$Chronology
         branches=$branches
         templates=$templates
@@ -2506,7 +2705,9 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
         phases=$phases
         schedules=$schedules
         occurrences=$occurrences
+        occurrence_participations=$participations
         tracks=$tracks
+        track_entries=$trackEntries
         transitions=@($transitions)
         causal_relations=@($causal)
         outcomes=@($outcomes)
@@ -2521,6 +2722,6 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
 
 function Get-KnowledgeOccurrenceRegistry {
     param([object]$Project, [object]$SchemaPacks, [object]$Chronology, [System.Collections.IDictionary]$SubjectTargets = $null, [System.Collections.IDictionary]$PayloadTargets = $null)
-    $data = ConvertFrom-KnowledgeYamlFile $Project.occurrences_registry 5 'occurrence registry'
+    $data = ConvertFrom-KnowledgeYamlFile $Project.occurrences_registry 6 'occurrence registry'
     return ConvertTo-KnowledgeOccurrenceRegistry $data $Project.occurrences_registry $SchemaPacks $Chronology $SubjectTargets $PayloadTargets
 }

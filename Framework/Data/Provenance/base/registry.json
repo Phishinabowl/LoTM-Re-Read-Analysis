@@ -298,6 +298,44 @@
           ]
         }
       ]
+    },
+    {
+      "id": "participation-role-primary",
+      "claim_key": "self-intervention-agent-role",
+      "subject_type": "occurrence-participation",
+      "subject_id": "protagonist-self-intervention-agent",
+      "claim_namespace": "canonical-content",
+      "field_path": "role",
+      "asserted_value": "agent",
+      "assertion_status": "verified",
+      "evidence_links": [
+        {
+          "source_id": "primary-source",
+          "evidence_role": "supports",
+          "locators": [
+            {"id": "participation-role-locator", "medium_id": "novel", "evidence_mode": "canonical-text", "locator_type": "point", "position": {"work": "primary-work", "volume": 1, "chapter": 1}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "track-entry-ordinal-primary",
+      "claim_key": "self-intervention-agent-subjective-order",
+      "subject_type": "occurrence-track-entry",
+      "subject_id": "protagonist-entry-14",
+      "claim_namespace": "canonical-content",
+      "field_path": "ordinal",
+      "asserted_value": 14,
+      "assertion_status": "verified",
+      "evidence_links": [
+        {
+          "source_id": "primary-source",
+          "evidence_role": "supports",
+          "locators": [
+            {"id": "track-entry-ordinal-locator", "medium_id": "novel", "evidence_mode": "canonical-text", "locator_type": "point", "position": {"work": "primary-work", "volume": 1, "chapter": 1}}
+          ]
+        }
+      ]
     }
   ]
 }

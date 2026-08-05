@@ -1,4 +1,4 @@
-schema_version: 5
+schema_version: 6
 
 branches:
   main:
@@ -14,7 +14,9 @@ recurrence_cardinalities: {}
 phases: {}
 schedules: {}
 occurrences: {}
+occurrence_participations: {}
 tracks: {}
+track_entries: {}
 transitions: []
 causal_relations: []
 outcomes: []

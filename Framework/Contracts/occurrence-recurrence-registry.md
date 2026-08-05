@@ -2,7 +2,7 @@
 
 ## Ownership
 
-`Project_Config/occurrences.yaml` instantiates occurrence identity, recurrence patterns and executions, aggregate recurrence cardinality, phases and schedules, branch topology, subject tracks, transitions, causal relations, outcomes, recurrence rules, state transitions, and iteration carryover. `Tools/Runtime/Python/knowledge_framework/occurrence_config.py` and `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` are the behaviorally paired schema-5 loaders and query services. V39 adds cardinality records without making stored iteration rows stand in for a complete execution history.
+`Project_Config/occurrences.yaml` instantiates occurrence identity, occurrence participation, subjective track entries, recurrence patterns and executions, aggregate recurrence cardinality, phases and schedules, branch topology, subject tracks, transitions, causal relations, outcomes, recurrence rules, state transitions, and iteration carryover. `Tools/Runtime/Python/knowledge_framework/occurrence_config.py` and `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` are the behaviorally paired schema-6 loaders and query services. V40 separates one concrete happening from each subject's participation in it and from each participation's ordered placement on a track.
 
 Chronology and occurrence identity remain separate. Chronology answers where or when something is positioned and preserves acyclic exact order. The occurrence registry answers which distinct happening, execution, iteration, branch, experienced step, or subject-state change a record represents. Several occurrences may bind one chronology position without becoming the same occurrence.
 
@@ -18,9 +18,21 @@ Every mapping key and list-row `id` is a stable kebab-case identifier.
 - `phases` name non-overlapping ordinal ranges within one concrete recurrence execution.
 - `schedules` belong to reusable patterns and define either a civil-calendar cadence or coordinate-step cadence from a typed anchor.
 - `occurrences` are concrete identities with a template, branch, optional iteration, and chronology bindings.
-- `tracks` are ordered subject or process perspectives over occurrence IDs. For each recurrence represented directly on a track, iteration ordinals are monotonic; nested child-recurrence segments remain legal.
+- `occurrence_participations` give one subject's involvement in one occurrence a stable identity, role, perspective, status, and optional chronology-context reference.
+- `tracks` identify ordered subject or process perspectives without embedding occurrence identity.
+- `track_entries` place one participation on one matching-subject track at a unique contiguous positive ordinal. For each recurrence represented directly on a track, iteration ordinals are monotonic; nested child-recurrence segments and repeated occurrences through distinct participations remain legal.
 
 An occurrence binding has its own stable ID, chronology `position_id`, and role. Duplicate semantic bindings are invalid. Two primary bindings may be concurrent or incomparable, but they cannot be positions known to be ordered.
+
+## Participation And Subjective Order
+
+Occurrence, participation, and track-entry identity are independent. One occurrence remains one concrete happening even when the same subject encounters it repeatedly. Each involvement must use a distinct participation whose controlled role, perspective, status, or chronology-context reference explains the semantic distinction. Exact duplicate participation semantics are rejected.
+
+A participation may reference an already registered chronology context, but V40 does not define relations among contexts. Context topology, extratemporal oversight, and cross-context intervention remain chronology-owned later capabilities. Participation references do not imply chronological comparability and never add chronology edges.
+
+Track entries provide subjective or process order. Their ordinals are unique and contiguous within a track; the participation subject must equal the track subject, and one participation can appear only once on one track. Two entries may resolve to the same occurrence when they name distinct participations. Entry-relative navigation remains deterministic in that case. Occurrence-relative navigation remains a convenience for unique occurrences and fails explicitly when the occurrence appears more than once, preventing consumers from silently choosing the wrong subjective visit.
+
+Participation status describes involvement lifecycle, not subject knowledge or objective truth. State availability and acquisition remain `state_transitions`; evidence and authority remain provenance. Both `occurrence-participation` and `occurrence-track-entry` are stable provenance subjects.
 
 ## Aggregate Cardinality
 
@@ -81,11 +93,11 @@ The model can therefore separate the same external coordinate from successive su
 
 ## Queries
 
-Paired services query iteration contents, recurrence cardinality claims, coordinate reuse, iteration contents and boundaries on a track, ordinary track neighbors, recurrence identity and phase, expected schedule values and due status, incoming carryover, outcomes for an occurrence, rules for a recurrence pattern, state transitions for a subject, the latest applicable state at a track occurrence, and deterministic recurrence-rule evaluation with a trace. These answer both what happened and which bounded policy applies without introducing chronological cycles.
+Paired services query iteration contents, recurrence cardinality claims, coordinate reuse, participations by occurrence or subject, track entries by occurrence, entry-relative neighbors, unambiguous occurrence-relative neighbors, iteration contents and boundaries on a track, recurrence identity and phase, expected schedule values and due status, incoming carryover, outcomes for an occurrence, rules for a recurrence pattern, state transitions for a subject, the latest applicable state at an unambiguous track occurrence, and deterministic recurrence-rule evaluation with a trace. These answer both what happened and which bounded policy applies without introducing chronological cycles.
 
 ## Layering
 
-- Core owns occurrence, pattern, execution, aggregate realized-history cardinality, iteration, phase, schedule, branch, outcome, rule evaluation, semantic declaration validation, deterministic effect resolution, civil schedule boundaries, generic subject-state, carryover, validation, and queries.
+- Core owns occurrence, participation, track-entry ordering, pattern, execution, aggregate realized-history cardinality, iteration, phase, schedule, branch, outcome, rule evaluation, semantic declaration validation, deterministic effect resolution, civil schedule boundaries, generic subject-state, carryover, validation, and queries.
 - Domain packs extend kinds, mechanisms, outcomes, valid rule-kind/effect-kind combinations, recurrence-pattern effect scopes, repetition policy, and globally or same-target incompatible effect-kind pairs.
 - Project configuration owns concrete records and source-backed claims.
 - Chronology remains the sole owner of acyclic exact temporal comparison.
@@ -95,4 +107,4 @@ The LoTM project declares only its `main` branch until source-backed occurrences
 
 ## Conformance
 
-`Framework/Data/Occurrence/` contains the portable V31-V39 corpus. Its fixture and generated probes cover cardinality shapes and coverage modes, signed 64-bit boundaries, representative and complete histories, malformed combinations, 128-record scale, typed rule/effect extensions, scoped conflicts, repetition behavior, contributor diagnostics, and fail-closed authorization. Run `python Tools/Conformance/Suites/test_occurrence.py` and `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Occurrence.ps1` after changing occurrence vocabulary, registry shape, chronology composition, recurrence cardinality, recurrence policy or lifecycle, schedules, state semantics, carryover, provenance targets, or query behavior.
+`Framework/Data/Occurrence/` contains the portable V31-V40 corpus. Its fixture and generated probes cover repeated participation, subjective track-entry identity and ambiguity rejection, chronology-context references, cardinality shapes and coverage modes, signed 64-bit boundaries, representative and complete histories, malformed combinations, 128-record scale, typed rule/effect extensions, scoped conflicts, repetition behavior, contributor diagnostics, and fail-closed authorization. Run `python Tools/Conformance/Suites/test_occurrence.py` and `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Occurrence.ps1` after changing occurrence vocabulary, participation, track-entry ordering, registry shape, chronology composition, recurrence cardinality, recurrence policy or lifecycle, schedules, state semantics, carryover, provenance targets, or query behavior.
