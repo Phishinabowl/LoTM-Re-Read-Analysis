@@ -1218,3 +1218,29 @@ The selected broad-replay candidates were the repository-grounded LoTM/COI/Dongh
 The readiness claim is deliberately bounded. It proves that the framework kernel can be copied and validated independently; it does not claim that all QA graph construction has moved into Visualization, that a normalized content and bounded-page service is complete, that a separate framework repository already exists, or that IT packs, migrations, editors, and Streamlit are implemented.
 
 V38 remains **Typed Effect Semantics and Fail-Closed Execution**. The two known V37 declaration defects and explicit conflict-wide execution disposition remain next-version work. Later temporal-topology and knowledge-acquisition capabilities are unchanged by this stabilization pass.
+
+## V38 - Typed Semantic Declarations and Fail-Closed Execution
+
+**Implemented by:** `5ea5f01` (`Implement V38 typed semantic execution`)
+
+**Proposed testing:** `CONF-STRICT-INGESTION`, `CONF-PACK-COMPOSITION`, `CONF-OCCURRENCE`, `CONF-PROJECT-COMPOSITION`, `PARITY-THREE-RUNTIME`, `PARITY-STRUCTURED-OUTPUT`, `COMPAT-VISUALIZATION`, `COMPAT-QA`, `COMPAT-RENDER`, `COMPAT-ROOT-DISCOVERY`, `COMPAT-ARTIFACT-LIFECYCLE`, `COMPAT-FRAMEWORK-EXTRACTION`, `STATIC-POWERSHELL`, `STATIC-PYTHON`, `STATIC-WORK-ANNOTATIONS`, `SCENARIO-DERRICK`, `SCENARIO-LOKI`, `PRESSURE-RECURRENCE-STATE`, `PRESSURE-TEMPORAL-TOPOLOGY`, `PRESSURE-LAYER-PORTABILITY`, `PRESSURE-ADVERSARIAL`, `PRESSURE-CROSS-DOMAIN`, and `PRESSURE-SCALE`.
+
+**Proposed candidates:** The repository-grounded LoTM/COI/Donghua project and Derrick abandoned-temple scenario; the retained externally source-grounded Loki scenario; delimiter-colliding synthetic pack identifiers; and synthetic IT/operations retry and deployment effects, medical treatment effects, legal/compliance obligations, and scientific repeated-intervention cases.
+
+**Superseded assumption:** Relationships among controlled vocabulary atoms can be represented safely as delimiter-composed controlled-value IDs, and a conflicted evaluation can expose nonzero execution counts so long as consumers are expected to inspect its overall status first.
+
+**Architectural promotion:** Typed semantic relationships and fail-closed execution authorization become core framework services rather than conventions reconstructed independently by pack authors or downstream consumers.
+
+V38 advances schema-pack files from schema 2 to schema 3. It introduces a bounded typed `semantic_declarations` section while retaining atomic vocabulary under `controlled_values`. The migration covers every currently executable compound semantic family for which the V37 ambiguity is real: transition-kind profiles, outcome incompatibilities, rule-effect target compatibility, rule-kind/effect compatibility, recurrence-pattern effect scope, effect repetition policy, effect incompatibilities with explicit scope, and state-change profiles. The corresponding compound controlled-value namespaces are removed rather than parsed heuristically.
+
+Typed declaration composition must validate every referenced atom, singular profile and policy ownership, recurrence-pattern scope completeness, distinct unordered incompatibility members, one incompatibility scope, duplicate declarations within or across packs, and provider ownership. Orphan declarations must fail even when their referenced vocabulary is empty. Existing canonical and synthetic packs require explicit reviewed migration; schema-2 compound declarations receive no ambiguous compatibility parser.
+
+Rule evaluation separates diagnostic proposals from executable authorization. Proposed effects retain repetition policy, contribution count, proposed execution count, contributing rule IDs, and contributing nested effect IDs. Authorized effects are emitted separately with an explicit execution disposition. Any unresolved conflict or indeterminate evaluation authorizes no effects; conflict blocking applies to the complete evaluation rather than attempting partial execution. No-match evaluations remain non-applicable.
+
+V38 does not introduce partial execution, compensation, rollback, transaction boundaries, effect payload/action execution, or a general-purpose expression language. It also does not implement aggregate recurrence cardinality, repeated participation identity, chronology-context topology, branch lifecycle, or deeper knowledge and skill acquisition. Those remain later stabilization versions after this integrity boundary closes.
+
+Acceptance requires paired schema-pack and occurrence behavior in Python, PowerShell 7, and Windows PowerShell 5.1; permanent positive, malformed, delimiter-collision, empty-vocabulary, composition, authorization, blocking, and retained repetition vectors; deterministic structured parity; the complete registered conformance baseline; cumulative QA and Visualization compatibility; and the selected recurrence, cross-domain, adversarial, portability, and scale pressure portfolio.
+
+## Testing After V38
+
+Testing is pending implementation confirmation.
