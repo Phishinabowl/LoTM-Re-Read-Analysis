@@ -1,17 +1,18 @@
 {
   "schema_version": 1,
   "valid_counts": {
-    "assertions": 12,
+    "assertions": 14,
     "claim_supersessions": 1,
-    "claim_keys": 8,
-    "evidence_links": 13,
-    "locators": 13
+    "claim_keys": 9,
+    "evidence_links": 15,
+    "locators": 15
   },
   "authority_vectors": [
     {"claim_key": "authority-winner", "outcome": "winner", "best_rank": 1, "winning_assertion_ids": ["winner-primary"]},
     {"claim_key": "authority-tie", "outcome": "tie", "best_rank": 1, "winning_assertion_ids": ["tie-primary", "tie-corroborating"]},
     {"claim_key": "authority-conflict", "outcome": "conflict", "best_rank": 1, "winning_assertion_ids": ["conflict-primary", "conflict-corroborating"]},
-    {"claim_key": "authority-incomparable", "outcome": "incomparable", "best_rank": null, "winning_assertion_ids": []}
+    {"claim_key": "authority-incomparable", "outcome": "incomparable", "best_rank": null, "winning_assertion_ids": []},
+    {"claim_key": "inner-loop-minimum-cardinality", "outcome": "winner", "best_rank": 1, "winning_assertion_ids": ["cardinality-primary"]}
   ],
   "invalid_query_cases": 5,
   "scale_additional_assertions": 128,

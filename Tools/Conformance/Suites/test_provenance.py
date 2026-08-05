@@ -14,9 +14,15 @@ RUNTIME_ROOT = Path(__file__).resolve().parents[2] / "Runtime" / "Python"
 if str(RUNTIME_ROOT) not in sys.path:
     sys.path.insert(0, str(RUNTIME_ROOT))
 
-from knowledge_framework.chronology_config import load_chronology_registry  # noqa: E402
+from knowledge_framework.chronology_config import (  # noqa: E402
+    load_chronology_registry,
+    parse_chronology_registry,
+)
 from knowledge_framework.entity_config import load_entity_registry  # noqa: E402
-from knowledge_framework.occurrence_config import load_occurrence_registry  # noqa: E402
+from knowledge_framework.occurrence_config import (  # noqa: E402
+    load_occurrence_registry,
+    parse_occurrence_registry,
+)
 from knowledge_framework.project_config import (  # noqa: E402
     ContentRootConfig,
     ResourceRootConfig,
@@ -29,6 +35,7 @@ from knowledge_framework.resource_config import load_resource_config  # noqa: E4
 from knowledge_framework.schema_pack_config import load_schema_pack_registry  # noqa: E402
 from knowledge_framework.source_config import load_source_registry  # noqa: E402
 from knowledge_framework.taxonomy_config import load_taxonomy_config  # noqa: E402
+from knowledge_framework.strict_yaml import load_yaml_file  # noqa: E402
 
 
 def expect_rejected(action, message: str) -> None:
@@ -120,6 +127,23 @@ def extend_source_document(document: dict) -> None:
                 "territory_ids": [],
                 "precedence": 10,
             },
+            {
+                "id": "inner-loop-cardinality-scope",
+                "target_type": "provenance-claim",
+                "target_id": "inner-loop-minimum-cardinality",
+                "territory_ids": [],
+                "effective_window": {
+                    "kind": "interval",
+                    "start": {
+                        "kind": "known",
+                        "value": "2025-01-01",
+                        "precision": "date",
+                        "certainty": "exact",
+                        "inclusive": True,
+                    },
+                },
+                "precedence": 30,
+            },
         ]
     )
 
@@ -173,12 +197,23 @@ def assert_services(registry) -> None:
     supersession = registry.provenance_target("claim-supersession", "confirmed-name-supersedes-reported-name")
     if supersession.source_claim_key != "confirmed-alpha-name":
         raise AssertionError("Claim-supersession target lookup changed.")
+    cardinality = registry.provenance_target("recurrence-cardinality", "inner-minimum-count")
+    if cardinality.minimum_count != 1:
+        raise AssertionError("Recurrence-cardinality provenance target lookup changed.")
     exact = registry.applicability_decision("provenance-claim", "reported-alpha-name")
     if exact.winning_scope_ids != ("reported-alpha-name-scope",) or exact.highest_precedence != 20:
         raise AssertionError("Provenance-claim applicability resolution changed.")
     delegated = registry.applicability_decision("work", "adaptation-work")
     if delegated.winning_scope_ids != ("adaptation-work-scope",):
         raise AssertionError("Delegated source applicability resolution changed.")
+    cardinality_scope = registry.applicability_decision(
+        "provenance-claim", "inner-loop-minimum-cardinality", effective_at="2025-02-01"
+    )
+    if (
+        cardinality_scope.winning_scope_ids != ("inner-loop-cardinality-scope",)
+        or cardinality_scope.highest_precedence != 30
+    ):
+        raise AssertionError("Recurrence-cardinality claim applicability resolution changed.")
 
 
 def assert_invalid_queries(registry) -> int:
@@ -277,9 +312,27 @@ def main() -> int:
         )
         entities = load_entity_registry(entity_project, taxonomy, sources, packs)
 
+        chronology_fixture_path = root / "Framework" / "Data" / "Chronology" / "valid-registry.yaml"
+        chronology_fixture = parse_chronology_registry(
+            load_yaml_file(chronology_fixture_path, "chronology fixture", expected_schema_version=1),
+            chronology_fixture_path,
+            packs,
+            work_ids=set(),
+            continuity_ids=set(),
+        )
+        occurrence_fixture_path = root / "Framework" / "Data" / "Occurrence" / "valid-registry.yaml"
+        fixture_occurrences = parse_occurrence_registry(
+            load_yaml_file(occurrence_fixture_path, "occurrence fixture", expected_schema_version=5),
+            occurrence_fixture_path,
+            packs,
+            chronology_fixture,
+            subject_targets={"character": {"protagonist", "observer"}},
+            payload_targets={"state-record": {"protagonist-health"}},
+        )
+
         valid_path = temp_root / "valid.json"
         write_json(valid_path, base_document)
-        registry = load_fixture(project, sources, entities, reconciliations, packs, occurrences, valid_path)
+        registry = load_fixture(project, sources, entities, reconciliations, packs, fixture_occurrences, valid_path)
         assert_counts(registry, expectations["valid_counts"])
         assert_authority_vectors(registry, expectations["authority_vectors"])
         assert_services(registry)
@@ -295,7 +348,7 @@ def main() -> int:
             write_json(case_path, document)
             expect_rejected(
                 lambda case_path=case_path: load_fixture(
-                    project, sources, entities, reconciliations, packs, occurrences, case_path
+                    project, sources, entities, reconciliations, packs, fixture_occurrences, case_path
                 ),
                 f"Malformed provenance configuration was accepted: {case['id']}",
             )
@@ -305,7 +358,9 @@ def main() -> int:
         add_scale_assertions(scale_document, scale_count)
         scale_path = temp_root / "scale.json"
         write_json(scale_path, scale_document)
-        scale_registry = load_fixture(project, sources, entities, reconciliations, packs, occurrences, scale_path)
+        scale_registry = load_fixture(
+            project, sources, entities, reconciliations, packs, fixture_occurrences, scale_path
+        )
         if len(scale_registry.assertions) != len(registry.assertions) + scale_count:
             raise AssertionError("Provenance scale composition count changed.")
 

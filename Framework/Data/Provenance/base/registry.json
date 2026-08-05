@@ -252,6 +252,52 @@
           ]
         }
       ]
+    },
+    {
+      "id": "cardinality-primary",
+      "claim_key": "inner-loop-minimum-cardinality",
+      "subject_type": "recurrence-cardinality",
+      "subject_id": "inner-minimum-count",
+      "claim_namespace": "canonical-content",
+      "field_path": "minimum_count",
+      "asserted_value": 1,
+      "assertion_status": "verified",
+      "effective_window": {
+        "kind": "interval",
+        "start": {"kind": "known", "value": "2025-01-01", "precision": "date", "certainty": "exact", "inclusive": true}
+      },
+      "evidence_links": [
+        {
+          "source_id": "primary-source",
+          "evidence_role": "supports",
+          "locators": [
+            {"id": "cardinality-primary-locator", "medium_id": "novel", "evidence_mode": "canonical-text", "locator_type": "point", "position": {"work": "primary-work", "volume": 1, "chapter": 1}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cardinality-adaptation",
+      "claim_key": "inner-loop-minimum-cardinality",
+      "subject_type": "recurrence-cardinality",
+      "subject_id": "inner-minimum-count",
+      "claim_namespace": "canonical-content",
+      "field_path": "minimum_count",
+      "asserted_value": 2,
+      "assertion_status": "verified",
+      "effective_window": {
+        "kind": "interval",
+        "start": {"kind": "known", "value": "2025-01-01", "precision": "date", "certainty": "exact", "inclusive": true}
+      },
+      "evidence_links": [
+        {
+          "source_id": "adaptation-source",
+          "evidence_role": "supports",
+          "locators": [
+            {"id": "cardinality-adaptation-locator", "medium_id": "anime", "evidence_mode": "animation-visual", "locator_type": "point", "position": {"work": "adaptation-work", "segment": "adaptation-episode-one", "ordering_scheme": "adaptation-release-order", "episode": 1}}
+          ]
+        }
+      ]
     }
   ]
 }

@@ -579,7 +579,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Suites\Tes
 
 ## Provenance Conformance
 
-Run the dedicated provenance suite after changing assertions, typed provenance subjects, field paths, evidence links or roles, point/range locators, source scope or coverage, observation/effective timing, claim applicability, supersession, or authority evaluation. Both implementations compose the canonical project dependencies and neutral source/entity fixtures, then consume the schema-3 provenance fixture and 68 structured malformed mutations in `Framework/Data/Provenance/`. Four authority vectors, five invalid service queries, and a generated 128-assertion composition verify decision semantics, service boundaries, and bounded scale; all operating-system temporary data is removed automatically.
+Run the dedicated provenance suite after changing assertions, typed provenance subjects, field paths, evidence links or roles, point/range locators, source scope or coverage, observation/effective timing, claim applicability, supersession, or authority evaluation. Both implementations compose the canonical project dependencies and neutral source/entity/chronology/occurrence fixtures, then consume the schema-3 provenance fixture and 68 structured malformed mutations in `Framework/Data/Provenance/`. Fourteen fixture assertions, five authority vectors including a recurrence-cardinality decision, five invalid service queries, and a generated 128-assertion composition verify decision semantics, service boundaries, and bounded scale; all operating-system temporary data is removed automatically.
 
 ```powershell
 python Tools\Conformance\Suites\test_provenance.py

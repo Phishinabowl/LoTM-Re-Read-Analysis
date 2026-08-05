@@ -196,6 +196,23 @@ function Add-ProvenanceSourceExtensions {
             territory_ids = New-Object System.Collections.ArrayList
             precedence = 10
         })
+    [void]$Document.applicability_scopes.Add([ordered]@{
+            id = 'inner-loop-cardinality-scope'
+            target_type = 'provenance-claim'
+            target_id = 'inner-loop-minimum-cardinality'
+            territory_ids = New-Object System.Collections.ArrayList
+            effective_window = [ordered]@{
+                kind = 'interval'
+                start = [ordered]@{
+                    kind = 'known'
+                    value = '2025-01-01'
+                    precision = 'date'
+                    certainty = 'exact'
+                    inclusive = $true
+                }
+            }
+            precedence = 30
+        })
 }
 
 function Get-FixtureProvenanceRegistry {
@@ -280,6 +297,13 @@ function Assert-ProvenanceFixtureServices {
     if ($supersession.source_claim_key -cne 'confirmed-alpha-name') {
         throw 'Claim-supersession target lookup changed.'
     }
+    $cardinality = Get-KnowledgeProvenanceTarget `
+        $Registry `
+        'recurrence-cardinality' `
+        'inner-minimum-count'
+    if ([long]$cardinality.minimum_count -ne 1) {
+        throw 'Recurrence-cardinality provenance target lookup changed.'
+    }
     $exact = Get-KnowledgeProvenanceApplicabilityDecision `
         $Registry `
         'provenance-claim' `
@@ -291,6 +315,15 @@ function Assert-ProvenanceFixtureServices {
     $delegated = Get-KnowledgeProvenanceApplicabilityDecision $Registry 'work' 'adaptation-work'
     if ((@($delegated.winning_scope_ids) -join '|') -cne 'adaptation-work-scope') {
         throw 'Delegated source applicability resolution changed.'
+    }
+    $cardinalityScope = Get-KnowledgeProvenanceApplicabilityDecision `
+        $Registry `
+        'provenance-claim' `
+        'inner-loop-minimum-cardinality' `
+        -EffectiveAt '2025-02-01'
+    if ((@($cardinalityScope.winning_scope_ids) -join '|') -cne 'inner-loop-cardinality-scope' -or
+        [int]$cardinalityScope.highest_precedence -ne 30) {
+        throw 'Recurrence-cardinality claim applicability resolution changed.'
     }
 }
 
@@ -401,10 +434,26 @@ try {
     $entityProject.entities_registry = Join-Path $Root 'Framework\Data\Entities\base\registry.json'
     $entities = Get-KnowledgeEntityRegistry $entityProject $taxonomy $sources $packs
 
+    $chronologyFixturePath = Join-Path $Root 'Framework\Data\Chronology\valid-registry.yaml'
+    $chronologyFixtureData = ConvertFrom-KnowledgeYamlFile $chronologyFixturePath 1 'chronology fixture'
+    $chronologyFixture = ConvertTo-KnowledgeChronologyRegistry `
+        $chronologyFixtureData $chronologyFixturePath $packs @() @()
+    $occurrenceFixturePath = Join-Path $Root 'Framework\Data\Occurrence\valid-registry.yaml'
+    $occurrenceFixtureData = ConvertFrom-KnowledgeYamlFile $occurrenceFixturePath 5 'occurrence fixture'
+    $subjectTargets = [ordered]@{character = @('protagonist', 'observer') }
+    $payloadTargets = [ordered]@{'state-record' = @('protagonist-health') }
+    $fixtureOccurrences = ConvertTo-KnowledgeOccurrenceRegistry `
+        $occurrenceFixtureData `
+        $occurrenceFixturePath `
+        $packs `
+        $chronologyFixture `
+        $subjectTargets `
+        $payloadTargets
+
     $validPath = Join-Path $tempRoot 'valid.json'
     Write-FixtureJson $validPath $baseDocument
     $registry = Get-FixtureProvenanceRegistry `
-        $project $sources $entities $reconciliations $packs $occurrences $validPath
+        $project $sources $entities $reconciliations $packs $fixtureOccurrences $validPath
     Assert-ProvenanceFixtureCounts $registry $expectations.valid_counts
     Assert-ProvenanceAuthorityVectors $registry @($expectations.authority_vectors)
     Assert-ProvenanceFixtureServices $registry
@@ -422,7 +471,7 @@ try {
         Write-FixtureJson $casePath $document
         Assert-Rejected {
             Get-FixtureProvenanceRegistry `
-                $project $sources $entities $reconciliations $packs $occurrences $casePath
+                $project $sources $entities $reconciliations $packs $fixtureOccurrences $casePath
         } "Malformed provenance configuration was accepted: $($case.id)"
     }
 
@@ -432,7 +481,7 @@ try {
     $scalePath = Join-Path $tempRoot 'scale.json'
     Write-FixtureJson $scalePath $scaleDocument
     $scaleRegistry = Get-FixtureProvenanceRegistry `
-        $project $sources $entities $reconciliations $packs $occurrences $scalePath
+        $project $sources $entities $reconciliations $packs $fixtureOccurrences $scalePath
     if ($scaleRegistry.assertions.Count -ne $registry.assertions.Count + $scaleCount) {
         throw 'Provenance scale composition count changed.'
     }
