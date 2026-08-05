@@ -38,6 +38,7 @@ class CategoryConfig:
 
 
 @dataclass(frozen=True)
+# TODO (OWNER): Extend taxonomy composition with pack-provided page modules and field schemas.
 class ContentTypeConfig:
     id: str
     lifecycle: str

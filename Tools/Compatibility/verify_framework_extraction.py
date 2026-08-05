@@ -20,6 +20,7 @@ if str(RUNTIME_ROOT) not in sys.path:
 from knowledge_framework.project_paths import resolve_project_root  # noqa: E402
 
 
+# VERIFY (OWNER): Revisit this allowlist whenever a new portable framework surface is introduced.
 COPY_DIRECTORIES = (
     Path("Framework"),
     Path("Tools/Runtime"),

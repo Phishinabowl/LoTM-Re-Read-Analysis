@@ -27,6 +27,7 @@ from knowledge_framework.project_paths import resolve_project_root  # noqa: E402
 
 
 REGISTRY_PATH = Path(__file__).with_name("compatibility.json")
+# TODO (OWNER): Register effective-schema and normalized-content checks as those consumers land.
 ALLOWED_CHECK_KINDS = {
     "artifact-lifecycle",
     "framework-extraction",

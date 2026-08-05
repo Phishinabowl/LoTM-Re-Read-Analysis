@@ -473,6 +473,7 @@ def convert_node_id_to_fallback_label(node_id: str) -> str:
     return convert_slug_to_fallback_label(node_id.replace("_", "-"))
 
 
+# TODO (OWNER): Replace direct glossary scanning with the normalized content index.
 def read_glossary_nodes() -> dict[str, dict[str, str]]:
     nodes: dict[str, dict[str, str]] = {}
     root = resolve_repo_path("Glossary_Threads")
@@ -725,6 +726,7 @@ def make_availability_entry(data: dict[str, str]) -> dict[str, str]:
     }
 
 
+# TODO (OWNER): Remove ad hoc YAML projection parsing after normalized relationship records are available.
 def read_data_projections() -> dict[str, list[dict[str, str]]]:
     projections: dict[str, list[dict[str, str]]] = {}
     root = resolve_repo_path("Glossary_Threads")

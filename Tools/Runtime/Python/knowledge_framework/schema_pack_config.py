@@ -62,6 +62,8 @@ class SchemaPackConfig:
 
 
 @dataclass(frozen=True)
+# TODO (OWNER): Expose this composition through the planned EffectiveProjectSchema service.
+#   Consumers should not reconstruct pack, capability, and vocabulary state from these maps.
 class SchemaPackRegistry:
     path: Path
     schema_version: int
@@ -140,6 +142,7 @@ def validate_occurrence_semantic_declarations(
     controlled_values: dict[str, tuple[str, ...] | list[str]],
 ) -> None:
     effect_kinds = set(controlled_values.get(EFFECT_KINDS_NAMESPACE, ()))
+    # FIXME (OWNER): Framework V38 must reject orphan semantic declarations when no effect kinds exist.
     if not effect_kinds:
         return
 
@@ -183,6 +186,7 @@ def validate_occurrence_semantic_declarations(
         if len(profiles) != 1:
             raise ValueError(f"Schema-pack effect kind `{effect}` requires exactly one repetition policy declaration.")
 
+    # FIXME (OWNER): Framework V38 must replace delimiter-composed effect pairs with typed declarations.
     canonical_pairs = {
         f"{left}-with-{right}"
         for index, left in enumerate(sorted(effect_kinds))
