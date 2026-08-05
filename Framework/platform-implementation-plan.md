@@ -118,7 +118,7 @@ deferred at the stabilization gate.
   and later agent participation.
 - [x] Test repeated observation, review, intervention, retry inspection, and cross-domain
   participation cases.
-- [ ] Complete the version's lifecycle, confirmation, pressure test, and evolution closure.
+- [x] Complete the version's lifecycle, confirmation, pressure test, and evolution closure.
 
 ### Phase 1.5 Chronology-Context Topology
 
