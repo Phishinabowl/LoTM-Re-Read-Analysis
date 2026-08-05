@@ -182,11 +182,11 @@ deferred at the stabilization gate.
   provenance-backed transitions rather than inference from elapsed time or attempt counts.
 - [x] Keep credentials, qualifications, licenses, authorization, and assessment evidence distinct
   from demonstrated or asserted competence.
-- [ ] Model Loki's retained and accumulated engineering expertise across Loom attempts using the
+- [x] Model Loki's retained and accumulated engineering expertise across Loom attempts using the
   V43 epistemic foundation without collapsing understanding into skill.
-- [ ] Replay education and credential acquisition, incident-response skill, clinical competence,
+- [x] Replay education and credential acquisition, incident-response skill, clinical competence,
   investigative ability, and scientific practice scenarios.
-- [ ] Complete V44 implementation confirmation, pressure testing, evolution recording, and plan
+- [x] Complete V44 implementation confirmation, pressure testing, evolution recording, and plan
   closure.
 
 ### Phase 1.9 Temporal Stabilization Pressure Test
