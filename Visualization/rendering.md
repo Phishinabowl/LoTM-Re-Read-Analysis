@@ -25,9 +25,9 @@ $packages = Get-Content ..\requirements-node.txt
 npm install --global @packages
 ```
 
-Run that command from `Visualization/`; from the repository root, read `requirements-node.txt` without the `..\` prefix. The registry pins the Mermaid CLI version used by project tooling and CI compatibility rendering.
+Run that command from `Visualization/`; from the repository root, read `requirements-node.txt` without the `..\` prefix. The registry pins both Mermaid CLI and its Puppeteer peer so project tooling and CI use the same renderer/browser contract. Do not suppress Puppeteer's browser download: the installed CLI must retain its version-matched Chrome for Testing runtime.
 
-The default `mmdc` browser launch may time out on Windows. The working approach is to point Puppeteer at local Microsoft Edge through the permanent render config in `Visualization/config`.
+The permanent Puppeteer config intentionally does not set `executablePath`. Mermaid CLI therefore uses the browser version installed with its Puppeteer dependency instead of an independently updated system browser. A local Edge or Chrome path may be useful for a one-run diagnostic, but it is not the repository default because Puppeteer does not guarantee compatibility with arbitrary browser versions.
 
 Mermaid CLI is the underlying renderer, not the project workflow entry point. For repository graph work, call the Python visualization helper below first. Use the PowerShell helper as the Windows fallback. Direct `mmdc` commands are fallback/debug commands only.
 
@@ -45,7 +45,7 @@ Graph render settings live at:
 
 Each configured view can define a `readerBoundary`. Refresh mode applies that boundary during Mermaid generation: canonical node eligibility comes from each glossary page's `Subject Visible From`, optional anonymized presentation-node eligibility can come from type-specific `first_appearance_beats.graph_display`, and relationship eligibility comes from the seed's `start.medium`, `start.volume`, and `start.chapter` or projected data-block availability. Use this for reader-safe volume/chapter graph views; use a separate unbounded view only for maintainer/global taxonomy graphs.
 
-If Edge is installed elsewhere, update `executablePath` in the Puppeteer config. Chrome can also be used if available.
+Keep the permanent config browser-neutral. If a diagnostic must use a system browser, make a temporary ignored config with `executablePath`; do not commit that machine-specific path or use its success as a substitute for the registered render compatibility check.
 
 ## Availability Checks
 
@@ -392,7 +392,7 @@ Keep the generated PNG/SVG exports only when they are useful project artifacts.
 
 ## Troubleshooting
 
-If `mmdc` times out after 30 seconds even on a tiny test graph, it is likely failing to launch its default browser. Use the Puppeteer config above.
+If `mmdc` cannot launch its browser even on a tiny test graph, confirm that Mermaid CLI was installed without `PUPPETEER_SKIP_DOWNLOAD` and that Puppeteer's version-matched Chrome for Testing exists in its cache. Reinstall the pinned package from `requirements-node.txt` if the browser download was previously suppressed. Use a temporary system-browser override only to isolate the failure; keep the tracked Puppeteer config browser-neutral.
 
 Tiny test graph:
 

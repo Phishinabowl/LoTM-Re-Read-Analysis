@@ -185,8 +185,6 @@ jobs:
 
       - name: Install Mermaid CLI
         if: env.COMPATIBILITY_PROFILE == 'full-release'
-        env:
-          PUPPETEER_SKIP_DOWNLOAD: "true"
         run: |
           $packages = @(
               Get-Content -LiteralPath requirements-node.txt |
