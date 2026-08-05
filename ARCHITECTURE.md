@@ -428,6 +428,10 @@ The current extraction plan is:
 6. **Mutation services:** stable persisted page IDs, schema-driven creation/editing, migration planning, and linked structured-data evolution.
 7. **Streamlit interface:** category, page, YAML/data, migration, QA, and graph workflows over shared services.
 
+The detailed gated checklist, logical-versus-physical migration sequence, LoTM compatibility
+portfolio, analytical projection stages, add-on lifecycle, IT proof of concept, and interface
+phases are maintained in `Framework/platform-implementation-plan.md`.
+
 ## Current Non-Goals
 
 This contract does not immediately:

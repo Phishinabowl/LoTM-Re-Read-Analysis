@@ -10,6 +10,7 @@ This directory contains reusable framework assets that are portable across proje
 - `framework_evolution.md` records the historical implementation and pressure-test results that drove each framework version.
 - `extraction_readiness.md` records the proven portable bundle, project-owned boundary, extraction rehearsal, stabilization evidence, and limits of the current readiness claim.
 - `analytical-projection-architecture.md` defines the downstream JSON, SQLite, Parquet, notebook, medallion, and optional Databricks/Delta path without changing canonical authority.
+- `platform-implementation-plan.md` is the phased execution checklist for effective schema composition, normalized content, consumer migration, LoTM physical migration, projections, add-on packs, the IT proof of concept, and interfaces.
 - Future `Migrations/` content will contain versioned transformations between contract revisions.
 
 Project-specific composition, paths, activated capabilities, taxonomy, resources, sources, and extension packs remain under `Project_Config/`.
