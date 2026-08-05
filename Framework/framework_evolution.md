@@ -1537,3 +1537,25 @@ V43 offers qualitative `none`, `partial`, and `complete` access rather than an a
 ### V44 Recommendation
 
 V44 should implement **Capability and Proficiency Progression** as Phase 1.8. It should reuse the structural subject-state spine while defining separate capability profiles for skill, proficiency, competence, and expertise; support qualitative levels and only explicitly sourced quantitative measures; separate practice or transfer mechanism from discrete, gradual, or aggregate change shape; preserve improvement, degradation, loss, restoration, and transfer through provenance-backed transitions; and keep credentials, qualifications, licenses, authorization, and assessment evidence distinct from demonstrated or asserted capability. Loki's retained engineering expertise should prove that V44 composes with V43 understanding without collapsing either into the other.
+
+## V44 - Capability And Proficiency Progression
+
+**Implemented by:** `998dceb`
+
+**Proposed testing:** `CONF-STRICT-INGESTION`, `CONF-PACK-COMPOSITION`, `CONF-OCCURRENCE`, `CONF-PROVENANCE`, `CONF-PROJECT-COMPOSITION`, `PARITY-THREE-RUNTIME`, `PARITY-STRUCTURED-OUTPUT`, `COMPAT-VISUALIZATION`, `COMPAT-QA`, `COMPAT-RENDER`, `COMPAT-ROOT-DISCOVERY`, `COMPAT-ARTIFACT-LIFECYCLE`, `COMPAT-FRAMEWORK-EXTRACTION`, `STATIC-POWERSHELL`, `STATIC-PYTHON`, `STATIC-WORK-ANNOTATIONS`, `SCENARIO-LOKI`, `PRESSURE-CAPABILITY-STATE`, `PRESSURE-EPISTEMIC-STATE`, `PRESSURE-RECURRENCE-STATE`, `PRESSURE-EVIDENCE-AUTHORITY`, `PRESSURE-LAYER-PORTABILITY`, `PRESSURE-ADVERSARIAL`, `PRESSURE-CROSS-DOMAIN`, and `PRESSURE-SCALE`.
+
+**Proposed candidates:** Loki's retained and accumulated Temporal Loom engineering expertise alongside his separate V43 understanding; education plus credential acquisition; incident-response skill; clinical competence and licensing; investigative ability and assessment; scientific practice; externally supplied or transferred capability; degradation, loss, and restoration; qualitative progression rubrics; bounded integer assessment scales; and unsupported decimal or universal-ranking attempts as negative controls.
+
+**Superseded assumption:** Availability, epistemic completeness, or elapsed practice can stand in for a separately modeled capability level.
+
+V44 will reuse V43's subject-state transition spine while adding one profile-governed capability dimension. A state scale will give each transition a named local interpretation rather than making `novice`, `expert`, a percentage, or any other level universal. Qualitative scales will own explicit ordered level IDs. Quantitative scales will be bounded signed integers with a named unit; arbitrary decimals, inferred precision, and cross-scale comparison remain outside this version.
+
+Capability, skill, proficiency, competence, and expertise will use a capability-state profile. Credential, qualification, license, and authorization state will remain availability-only so holding a record or permission cannot prove competence. Assessment results remain evidence or provenance-addressable source material; they may support a capability claim but cannot generate one automatically.
+
+Improvement and degradation will be explicit state changes validated against scale order. Practice and training will be mechanisms, while discrete, gradual, aggregate, or unknown change shape continues to describe progression form. Acquisition, retention, transfer, loss, restoration, improvement, and degradation require explicit activation, source targets, certainty, and ordinary provenance rather than inference from elapsed time, recurrence cardinality, occurrence participation, or successful outcomes.
+
+V44 is expected to advance the schema-pack declaration schema to 4, the occurrence registry to schema 9, and core to pack version 35. It will not add a general decimal measurement system, credential issuer registry, license-governance service, assessment engine, universal competence ontology, cross-scale conversion, or gold-layer authority resolver.
+
+## Testing After V44
+
+Pending implementation confirmation and pressure testing.
