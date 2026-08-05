@@ -1270,3 +1270,27 @@ The Loki replay continues to expose supported deferrals rather than V38 regressi
 ### V39 Recommendation
 
 V39 should be **Aggregate and Uncertain Recurrence Cardinality**. It should support exact, minimum, maximum, ranged, unknown, and aggregate counts; permit representative concrete iterations beside an aggregate history; preserve certainty, provenance, and applicability; and avoid inventing an exact total for Loki's Loom attempts. Repeated participation, chronology-context topology, branch lifecycle, and deeper acquisition semantics remain explicitly excluded for their later bounded versions.
+
+## V39 - Aggregate and Uncertain Recurrence Cardinality
+
+**Implemented by:** `513db0a` (`Implement V39 aggregate recurrence cardinality`)
+
+**Proposed testing:** `CONF-STRICT-INGESTION`, `CONF-PACK-COMPOSITION`, `CONF-OCCURRENCE`, `CONF-PROVENANCE`, `CONF-PROJECT-COMPOSITION`, `PARITY-THREE-RUNTIME`, `PARITY-STRUCTURED-OUTPUT`, `COMPAT-VISUALIZATION`, `COMPAT-QA`, `COMPAT-RENDER`, `COMPAT-ROOT-DISCOVERY`, `COMPAT-ARTIFACT-LIFECYCLE`, `COMPAT-FRAMEWORK-EXTRACTION`, `STATIC-POWERSHELL`, `STATIC-PYTHON`, `STATIC-WORK-ANNOTATIONS`, `SCENARIO-DERRICK`, `SCENARIO-LOKI`, `PRESSURE-RECURRENCE-STATE`, `PRESSURE-EVIDENCE-AUTHORITY`, `PRESSURE-LAYER-PORTABILITY`, `PRESSURE-ADVERSARIAL`, `PRESSURE-CROSS-DOMAIN`, and `PRESSURE-SCALE`.
+
+**Proposed candidates:** The repository-grounded Derrick abandoned-temple loop; the retained externally source-grounded Loki Loom attempts; and synthetic IT deployment retries, recurring medical episodes, scheduled legal obligations, and repeated scientific interventions with exact, bounded, unknown, and representative-only histories.
+
+**Superseded assumption:** A concrete recurrence execution can be described adequately only by enumerating every iteration, and the number of stored iteration rows can stand in for the complete execution history.
+
+**Architectural promotion:** Aggregate recurrence cardinality becomes a stable core occurrence service while evidence, authority, effective timing, and reader/source applicability remain centralized in provenance and source applicability services.
+
+V39 advances the occurrence registry to schema 5 and adds stable `recurrence_cardinalities` records. Each record targets one concrete recurrence and describes realized iteration history through a `cardinality_kind` of `exact`, `minimum`, `maximum`, `range`, or `unknown`. Canonical lower and upper bounds preserve the difference between a precise total, one-sided knowledge, a bounded interval, and absence of a numeric claim without creating placeholder iteration identities.
+
+Cardinality shape is independent from materialization. `coverage_mode` distinguishes a complete concrete enumeration, named representative iterations within a larger or uncertain history, and a wholly unmaterialized aggregate. Complete coverage requires an exact total and an iteration list of that size. Representative coverage requires one or more distinct iterations owned by the recurrence and bounds compatible with that evidence. Unmaterialized coverage requires no concrete iteration references. Every record carries controlled certainty, rejects semantic duplicates, is queryable by recurrence, and becomes a first-class provenance subject.
+
+The occurrence record does not copy source IDs, evidence locators, assertion status, authority, effective windows, or reader boundaries. Provenance assertions target the stable cardinality record or one of its fields; source applicability scopes and provenance timing determine when and for which source context the claim applies. Multiple historically or source-distinct cardinality records may therefore coexist without the occurrence loader selecting factual authority.
+
+V39 is bounded to realized recurrence history. It does not model expected, permitted, configured, or scheduled future counts; synthesize omitted occurrences; assign ordinals to aggregate-only attempts; introduce repeated participation identity; add chronology-context topology; define branch lifecycle; or model accumulated knowledge and expertise. Those remain separate capabilities. Acceptance requires paired schema-5 loading and query behavior, positive and malformed cardinality shapes, complete/representative/unmaterialized coverage, provenance closure, zero and large-count boundaries, deterministic scale behavior, complete three-runtime baseline parity, and unchanged project-consumer compatibility.
+
+## Testing After V39
+
+Testing is pending implementation confirmation.
