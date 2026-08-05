@@ -26,7 +26,7 @@ From V30 onward, update this file as part of each version. Follow the lifecycle 
 - **V7-V15:** Evidence, authority, production context, scope, and applicability
 - **V16-V23:** Entity identity and cross-registry provenance/reconciliation
 - **V24-V27:** Deterministic configuration ingestion
-- **V28-V37:** Civil time, general chronology, occurrence/recurrence integrity, subject-state acquisition, deterministic recurrence policy, and extensible semantic resolution
+- **V28-V40:** Civil time, general chronology, occurrence/recurrence integrity, subject-state acquisition, deterministic recurrence policy, extensible semantic resolution, aggregate cardinality, and participation identity
 
 ### Marker Conventions
 
@@ -1320,3 +1320,27 @@ V39 intentionally cannot represent one participant entering the same concrete oc
 ### V40 Recommendation
 
 V40 should be **Participation Identity and Revisited Occurrences**. It should give each subject's involvement in an occurrence a stable identity, permit the same subject to participate more than once without duplicating the occurrence, preserve participation-relative order and role/state distinctions, and support provenance targeting. It must remain separate from entity incarnation, recurrence iteration, chronology-context topology, branch lifecycle, and general knowledge acquisition. Derrick should continue to use distinct recurrence iterations, while the Loki replay should prove that two participations of one entity in one occurrence can be distinguished without introducing a chronological cycle.
+
+## V40 - Participation Identity And Revisited Occurrences
+
+**Implemented by:** `73956d4` (`Implement V40 participation identity`)
+
+**Proposed testing:** `CONF-STRICT-INGESTION`, `CONF-PACK-COMPOSITION`, `CONF-OCCURRENCE`, `CONF-PROVENANCE`, `CONF-PROJECT-COMPOSITION`, `PARITY-THREE-RUNTIME`, `PARITY-STRUCTURED-OUTPUT`, `COMPAT-VISUALIZATION`, `COMPAT-QA`, `COMPAT-RENDER`, `COMPAT-ROOT-DISCOVERY`, `COMPAT-ARTIFACT-LIFECYCLE`, `COMPAT-FRAMEWORK-EXTRACTION`, `STATIC-POWERSHELL`, `STATIC-PYTHON`, `STATIC-WORK-ANNOTATIONS`, `SCENARIO-DERRICK`, `SCENARIO-LOKI`, `PRESSURE-RECURRENCE-STATE`, `PRESSURE-EVIDENCE-AUTHORITY`, `PRESSURE-LAYER-PORTABILITY`, `PRESSURE-TEMPORAL-TOPOLOGY`, `PRESSURE-ADVERSARIAL`, `PRESSURE-CROSS-DOMAIN`, and `PRESSURE-SCALE`.
+
+**Proposed candidates:** Loki's self-pruning encounter with distinct recipient and agent participations in one occurrence; the Derrick abandoned-temple loop as a negative control that must continue to use distinct recurrence iterations; and synthetic repeated observation, record review, intervention, retry inspection, medical encounter review, legal evidence review, and scientific re-observation cases.
+
+**Superseded assumption:** An occurrence's presence in a subject track is sufficient identity for that subject's involvement, and one occurrence can appear at most once on one subject track.
+
+**Architectural promotion:** Participation identity and subjective track-entry identity become domain-neutral core occurrence services rather than narrative-only conventions or duplicated occurrence records.
+
+V40 advances the occurrence registry to schema 6. `occurrence_participations` give one subject's involvement in one concrete occurrence a stable identity with a controlled role, perspective, participation status, and optional reference to an already registered chronology context. Multiple participations by the same subject in the same occurrence are legal when their complete semantics differ; exact semantic duplicates are rejected. A participation is neither an entity incarnation nor a recurrence iteration, and its status does not replace subject-state acquisition or provenance.
+
+`track_entries` independently place participations on matching-subject tracks using unique contiguous positive ordinals. This preserves subjective or process order even when two entries resolve to the same occurrence. Entry-relative navigation remains deterministic. Existing occurrence-relative neighbor and state convenience queries remain available for unique track occurrences but fail explicitly when repeated participation makes the occurrence boundary ambiguous.
+
+Both stable record families are provenance subjects. The portable fixture models one self-intervention occurrence with an earlier recipient participation and a later agent participation, distinct chronology-context references, and two independently ordered track entries. The chronology references do not define relations among contexts or add chronology edges; typed chronology-context topology remains V41 work. Core pack 31 supplies domain-neutral participation role, perspective, and status vocabulary plus the `occurrence-participation-identity` capability. Narrative media requires core 31 without redefining the mechanism.
+
+Acceptance requires paired schema-6 loading and query behavior; positive repeated-participation, chronology-context, track-entry, ambiguity, and provenance vectors; malformed target, vocabulary, semantic-duplicate, ownership, and ordinal cases; project capability and provider closure; deterministic three-runtime summaries; the complete aggregate baseline; and unchanged project-consumer compatibility. V40 does not define chronology-context topology, branch lifecycle, participation-relative state acquisition, accumulated expertise, or general knowledge acquisition.
+
+## Testing After V40
+
+Testing is pending implementation confirmation.
