@@ -83,8 +83,8 @@ if (-not $capabilityRejected) {
 }
 $provenanceTargets = Get-KnowledgeChronologyProvenanceTargets $fixture
 if (
-    $provenanceTargets['chronology-context'].Count -ne 3 -or
-    $provenanceTargets['chronology-context-relation'].Count -ne 3 -or
+    $provenanceTargets['chronology-context'].Count -ne 4 -or
+    $provenanceTargets['chronology-context-relation'].Count -ne 7 -or
     $provenanceTargets['chronology-context-relation-binding'].Count -ne 3
 ) {
     throw 'Chronology provenance target counts did not match the V41 fixture.'

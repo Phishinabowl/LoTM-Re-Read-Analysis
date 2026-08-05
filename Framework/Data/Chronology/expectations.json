@@ -17,13 +17,19 @@
   ],
   "context_queries": {
     "from": [
-      ["control-plane", null, ["control-oversees-timeline"]],
+      ["control-plane", null, ["control-outside-timeline", "control-oversees-timeline", "control-intervenes-timeline", "control-projects-simulation"]],
+      ["control-plane", "outside", ["control-outside-timeline"]],
       ["control-plane", "oversees", ["control-oversees-timeline"]],
-      ["observed-timeline", "receives-from", ["timeline-receives-control"]]
+      ["control-plane", "intervenes-in", ["control-intervenes-timeline"]],
+      ["control-plane", "projects-into", ["control-projects-simulation"]],
+      ["observed-timeline", "receives-from", ["timeline-receives-control"]],
+      ["simulation-context", "receives-from", ["simulation-receives-control"]]
     ],
     "to": [
-      ["observed-timeline", null, ["control-oversees-timeline", "archive-observes-timeline"]],
-      ["control-plane", "receives-from", ["timeline-receives-control"]]
+      ["observed-timeline", null, ["control-outside-timeline", "control-oversees-timeline", "control-intervenes-timeline", "archive-observes-timeline"]],
+      ["observed-timeline", "observes", ["archive-observes-timeline"]],
+      ["control-plane", "receives-from", ["timeline-receives-control", "simulation-receives-control"]],
+      ["simulation-context", "projects-into", ["control-projects-simulation"]]
     ]
   },
   "context_targets": {

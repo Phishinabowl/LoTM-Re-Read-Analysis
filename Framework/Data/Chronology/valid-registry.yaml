@@ -175,24 +175,55 @@ contexts:
     continuity_ids: []
     work_ids: []
     branch_id: null
+  - id: simulation-context
+    label: Simulation Context
+    coordinate_system_id: control-step
+    role: simulation
+    continuity_ids: []
+    work_ids: []
+    branch_id: null
 context_relations:
+  - id: control-outside-timeline
+    source_context_id: control-plane
+    relation_type: outside
+    target_context_id: observed-timeline
+    certainty: exact
+    bindings: []
   - id: control-oversees-timeline
     source_context_id: control-plane
     relation_type: oversees
     target_context_id: observed-timeline
     certainty: exact
+    bindings: []
+  - id: control-intervenes-timeline
+    source_context_id: control-plane
+    relation_type: intervenes-in
+    target_context_id: observed-timeline
+    certainty: exact
     bindings:
-      - id: control-oversees-incident
+      - id: control-intervenes-incident
         target_type: occurrence
         target_id: test-incident
-      - id: control-oversees-main
+      - id: control-intervenes-main
         target_type: occurrence-branch
         target_id: main
-      - id: control-oversees-scope
+      - id: control-intervenes-scope
         target_type: applicability-scope
         target_id: control-scope
   - id: timeline-receives-control
     source_context_id: observed-timeline
+    relation_type: receives-from
+    target_context_id: control-plane
+    certainty: exact
+    bindings: []
+  - id: control-projects-simulation
+    source_context_id: control-plane
+    relation_type: projects-into
+    target_context_id: simulation-context
+    certainty: exact
+    bindings: []
+  - id: simulation-receives-control
+    source_context_id: simulation-context
     relation_type: receives-from
     target_context_id: control-plane
     certainty: exact

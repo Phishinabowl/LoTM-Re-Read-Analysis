@@ -109,8 +109,8 @@ def main() -> int:
         raise AssertionError("Chronology context topology loaded without its capability.")
     provenance_targets = fixture.provenance_targets()
     if {key: len(value) for key, value in provenance_targets.items()} != {
-        "chronology-context": 3,
-        "chronology-context-relation": 3,
+        "chronology-context": 4,
+        "chronology-context-relation": 7,
         "chronology-context-relation-binding": 3,
     }:
         raise AssertionError("Chronology provenance target counts did not match the V41 fixture.")
