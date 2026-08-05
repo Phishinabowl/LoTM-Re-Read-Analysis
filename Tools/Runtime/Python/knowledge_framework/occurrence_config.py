@@ -126,6 +126,9 @@ class Occurrence:
 
 
 @dataclass(frozen=True)
+# TODO (OWNER): Implement V46 many-to-many chronology bindings for each participation.
+#   Migration target: preserve or translate the legacy singular chronology_context_id
+#   field in the paired Python and PowerShell loaders.
 class OccurrenceParticipation:
     id: str
     occurrence_id: str
