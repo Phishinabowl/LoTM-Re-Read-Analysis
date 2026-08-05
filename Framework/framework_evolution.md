@@ -1425,10 +1425,48 @@ V42 advances the occurrence registry to schema 7. Branch identity remains stable
 
 Branch lifecycle order is not chronology. Its positive ordinal is local to one branch, zero means before any recorded state, and an omitted boundary means the latest state. Chronology continues to own temporal comparison; provenance continues to own evidence, authority, supersession, and source or reader applicability. Core registers generic lifecycle vocabulary while packs add domain-specific states and changes without requiring every project to support them.
 
-The paired runtimes must reject unknown branches, continuity memberships, states, changes, activation occurrences, and triggers; noncontiguous ordinals; broken prior/resulting state chains; trigger endpoint mismatches; and child branches whose first lifecycle record is disconnected from the fork that created them. Permanent probes include deterministic boundary queries, 116 malformed mutations, source-continuity composition closure, one provenance-backed branch-state claim, and a generated 128-transition branch history.
+The paired runtimes must reject unknown branches, continuity memberships, states, changes, activation occurrences, and triggers; noncontiguous ordinals; broken prior/resulting state chains; trigger endpoint mismatches; and child branches whose first lifecycle record is disconnected from the fork that created them. Permanent probes include deterministic boundary queries, 118 malformed mutations, source-continuity composition closure, one provenance-backed branch-state claim, and a generated 128-transition branch history.
 
 V42 does not model knowledge, awareness, memory, skill, proficiency, or accumulated expertise. It does not infer lifecycle transitions from chronology, source continuity, or a domain label. Those remain explicit, provenance-backed project claims and later bounded capabilities.
 
 ## Testing After V42
 
-Pending implementation confirmation and pressure testing.
+**Pressure corrections:** `26ab95a` (`Fix V42 pressure-test findings`)
+
+### Executed Coverage
+
+The cumulative V42 pressure round executed `CONF-STRICT-INGESTION`, `CONF-PACK-COMPOSITION`, `CONF-SOURCE`, `CONF-CHRONOLOGY`, `CONF-OCCURRENCE`, `CONF-PROVENANCE`, `CONF-PROJECT-COMPOSITION`, `PARITY-THREE-RUNTIME`, `PARITY-STRUCTURED-OUTPUT`, every registered `full-release` compatibility check, both source-format policies, work-annotation and workflow validation, the retained externally source-grounded Loki scenario, and the recurrence-state, temporal-topology, evidence-authority, layer-portability, adversarial, cross-domain, and scale pressure families selected before implementation. Existing catalog candidates covered the round; no new candidate or test-family ID was required.
+
+### Defects And Corrections
+
+Pressure testing found one loader defect and two permanent-coverage defects. A lifecycle record with `change_kind: merge` could omit its trigger or point to a non-merge transition even though the contract requires a concrete branch merge. Both runtimes now require a matching `branch-merge` trigger, and two new malformed cases retain the missing-trigger and wrong-profile failures.
+
+The positive occurrence fixture had registered pruning, transfer, and restoration vocabulary without making the loader consume it. Its changed branch now progresses through emergence, activation, pruning, transfer, restoration, and merge. Boundary queries increased from 97 to 100 while the generated 128-transition history remained intact. That expectation growth exposed a second defect: PowerShell reported a hard-coded 97-query summary even though it executed the new queries. The PowerShell summary now derives its count from the shared expectations, including mapping-shaped phase vectors, and matches Python at 100. The malformed corpus increased from 116 to 118.
+
+### Permanent And Compatibility Baseline
+
+The complete registered `baseline` passed all 14 suites with matching semantic summaries in Python, PowerShell 7, and Windows PowerShell 5.1. Concurrently measured runtimes were 41.0, 169.2, and 283.3 seconds. Occurrence conformance now reports 100 query/evaluation assertions, 118 malformed registries, source-continuity closure, and generated 128-record branch-state, cardinality, and participation/track-entry probes. The remaining registry counts stayed unchanged. Ruff passed 38 files; the PowerShell formatter passed 39 files in both runtimes with no remaining changes or long lines; work-annotation validation passed 312 files and all 22 fixtures; and actionlint passed every workflow.
+
+The `full-release` compatibility profile passed all six registered checks in 163.213 seconds. Visualization retained 15 nodes and 121 relationships. QA retained 16 notes, 121 relationships, 71 data references, and all 34 normalized files. All 12 root-discovery launches passed; artifact cleanup and six unsafe-destination rejections passed; isolated extraction copied 209 files and passed its portable suites in all three runtimes; and all renderers produced the same nonblank 298,269-byte SVG with identical SHA-256 hashes. Canonical outputs remained unchanged.
+
+### Loki Branch-Lifecycle Replay
+
+Loki's timeline forks retain stable branch identities and parent/fork lineage. TVA pruning is an activation occurrence followed by a `prune` lifecycle change into the narrative-owned `pruned` state; transfer toward the Void, restoration, and later preservation remain separate lifecycle records rather than deletion and recreation. Branch-local ordinals answer the state before pruning, after pruning, after restoration, and at the final known boundary without adding chronology edges. TVA-local order and ordinary timeline coordinates remain separate chronology systems connected by V41 context topology, and provenance remains able to target each lifecycle claim independently.
+
+The Loom's destruction and Loki's preservation of the surviving timelines are concrete occurrences and outcomes. The resulting multiversal replacement structure is not itself a timeline branch and must not be forced into branch lifecycle. It remains an entity, context, or other project target related to those occurrences and branches through the appropriate owning registries. Centuries of accumulated engineering expertise also remain outside branch lifecycle and recurrence cardinality.
+
+### Cross-Domain Replay
+
+Source-control branches can progress from emerging to active to merged or inactive while retaining fork lineage and history after merge. Environment lineages can be activated, deactivated, restored, transferred, or preserved without overwriting earlier deployment state. Alternate histories and experimental branches retain continuity membership and provenance-backed lifecycle claims while chronology remains partial or incomparable where appropriate. A branch label never makes two environment, history, or experiment coordinates comparable.
+
+The replay also sharpened the boundary around what counts as a branch. An environment, clinical course, legal matter, experiment, or control structure should use branch lifecycle only when it represents a forked lineage of happenings or state. Generic entity or resource lifecycle remains owned elsewhere. Promotion destinations, the Void, and replacement structures are related targets, not additional state labels.
+
+### Remaining Limitations
+
+`branch_state_at` returns structural lifecycle state at a branch-local ordinal. It does not yet combine provenance authority and applicability into a source-aware or reader-aware state decision; downstream analytical projection must perform that composition before presenting a gold-layer answer. Lifecycle records also do not carry a generic typed destination or replacement target. A transfer occurrence or relationship can preserve that fact today, but a future reusable binding service may be justified if several lifecycle-bearing registries need the same destination semantics.
+
+V42 still does not quantify knowledge, skill, proficiency, or accumulated expertise, and it does not infer any of them from elapsed time, repeated attempts, or branch survival. Those are missing capabilities rather than V42 regressions.
+
+### V43 Recommendation
+
+V43 should begin Phase 1.7 by deciding the smallest reusable boundary for knowledge, belief, awareness, memory, skill, proficiency, and expertise progression. The design must determine whether epistemic acquisition and practiced capability can share one transition contract without conflating truth, access, confidence, and competence. Loki's retained engineering learning should be the narrative pressure case, with education, credentialing, incident diagnosis, clinical understanding, investigative inference, and scientific learning providing cross-domain pressure. Applicability-aware analytical resolution and generic lifecycle destination bindings should remain recorded boundaries unless that design proves one is a prerequisite rather than a separate later service.
