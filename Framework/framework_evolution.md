@@ -1358,3 +1358,25 @@ V40 still intentionally does not define relations among chronology contexts, bra
 ### V41 Recommendation
 
 V41 should be **Chronology-Context Topology**. It should model typed non-precedence relations such as outside, observes, oversees, intervenes-in, projects-into, and receives-from among chronology contexts; preserve coordinate incomparability unless an explicit mapping relates them; connect cross-context interventions to concrete occurrences and applicability without inventing chronology edges; and keep branch lifecycle, participation-relative state, and knowledge progression outside its bounded scope. The Loki TVA replay should prove TVA-local order, timeline oversight, and intervention while ordinary chronology cycle rejection remains intact, with distributed control planes, simulations, and archival observation providing cross-domain pressure.
+
+## V41 - Chronology-Context Topology
+
+**Implemented by:** `16865c4` (`Implement V41 chronology context topology`)
+
+**Proposed testing:** `CONF-STRICT-INGESTION`, `CONF-PACK-COMPOSITION`, `CONF-CHRONOLOGY`, `CONF-OCCURRENCE`, `CONF-PROVENANCE`, `CONF-PROJECT-COMPOSITION`, `PARITY-THREE-RUNTIME`, `PARITY-STRUCTURED-OUTPUT`, `COMPAT-VISUALIZATION`, `COMPAT-QA`, `COMPAT-RENDER`, `COMPAT-ROOT-DISCOVERY`, `COMPAT-ARTIFACT-LIFECYCLE`, `COMPAT-FRAMEWORK-EXTRACTION`, `STATIC-POWERSHELL`, `STATIC-PYTHON`, `STATIC-WORK-ANNOTATIONS`, `SCENARIO-LOKI`, `PRESSURE-TEMPORAL-TOPOLOGY`, `PRESSURE-LAYER-PORTABILITY`, `PRESSURE-ADVERSARIAL`, `PRESSURE-CROSS-DOMAIN`, and `PRESSURE-SCALE`.
+
+**Proposed candidates:** TVA-local chronology overseeing and intervening in timeline contexts; cross-context projection and receipt without coordinate equivalence; distributed-system control planes; simulation hosts and simulated worlds; archival observers; and scientific or operational monitoring contexts.
+
+**Superseded assumption:** Chronology contexts are exclusively narrative annotations, and relations among them must either be omitted or approximated as chronology-position order.
+
+**Architectural promotion:** Chronology-context identity and non-precedence topology move from the narrative-media layer into core; domain packs retain ownership only of domain-specific context roles and relation vocabulary extensions.
+
+V41 advances the chronology registry to schema 2. Core contexts bind coordinate systems to optional project targets while pack-owned roles preserve domain meaning. Directed context relations describe topology without contributing comparison edges. Stable typed bindings connect a relation to concrete occurrences, occurrence branches, or applicability scopes, and composed loading validates those targets only after their owning registries exist.
+
+The topology service must answer incoming and outgoing relation queries deterministically, reject unknown contexts, malformed bindings, semantic duplicates, and unregistered vocabulary, and preserve coordinate incomparability unless the chronology registry contains an explicit ordering or mapping primitive. Topology cycles are legal because observation, oversight, projection, and receipt are not chronological precedence; ordinary exact before/after cycles remain invalid.
+
+V41 does not define branch lifecycle, participation-relative state transitions, accumulated expertise, or general knowledge acquisition. Those remain later bounded capabilities rather than implicit consequences of context topology.
+
+## Testing After V41
+
+Pending implementation confirmation and pressure testing.
