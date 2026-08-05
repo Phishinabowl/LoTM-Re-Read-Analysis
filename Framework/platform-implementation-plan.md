@@ -101,10 +101,10 @@ deferred at the stabilization gate.
 - [x] Represent large or source-unspecified repetition counts without inventing concrete iterations.
 - [x] Permit representative concrete iterations to coexist with an aggregate execution history.
 - [x] Preserve evidence, certainty, and reader/source applicability for every cardinality assertion.
-- [ ] Prove Loki's centuries of Loom attempts without asserting an unsupported exact total.
-- [ ] Replay retry, recurring medical episode, scheduled legal obligation, and scientific-trial
+- [x] Prove Loki's centuries of Loom attempts without asserting an unsupported exact total.
+- [x] Replay retry, recurring medical episode, scheduled legal obligation, and scientific-trial
   scenarios so the capability remains domain-neutral.
-- [ ] Complete the version's lifecycle, confirmation, pressure test, and evolution closure.
+- [x] Complete the version's lifecycle, confirmation, pressure test, and evolution closure.
 
 ### Phase 1.4 Participation Identity And Revisited Occurrences
 
