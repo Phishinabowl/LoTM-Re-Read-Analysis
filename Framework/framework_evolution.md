@@ -1494,4 +1494,46 @@ V43 does not model skill, proficiency, competence, expertise, credentials, autho
 
 ## Testing After V43
 
-Pending implementation confirmation and pressure testing.
+**Compatibility correction:** `4a7d6b9` (`Stabilize Mermaid browser rendering`)
+
+### Executed Coverage
+
+The cumulative V43 pressure round executed the complete 14-suite `baseline` profile in Python, PowerShell 7, and Windows PowerShell 5.1; every registered `full-release` compatibility check; Ruff formatting and lint; PowerShell formatting in both supported runtimes; work-annotation fixture and repository validation; actionlint; the retained source-grounded Derrick and Loki scenarios; and `PRESSURE-EPISTEMIC-STATE`, `PRESSURE-RECURRENCE-STATE`, `PRESSURE-EVIDENCE-AUTHORITY`, `PRESSURE-LAYER-PORTABILITY`, `PRESSURE-ADVERSARIAL`, `PRESSURE-CROSS-DOMAIN`, and `PRESSURE-SCALE`. The existing candidate catalog covered the round, so no new candidate or stable test-family ID was required.
+
+### Compatibility Correction
+
+The first render gate exposed a project-consumer compatibility regression rather than a V43 model defect. The tracked Puppeteer config forced independently updated Microsoft Edge 151 while Mermaid CLI's installed Puppeteer 25.3 runtime expected its version-matched Chrome for Testing 150; the browser process exited before Puppeteer could connect. A temporary Chrome-based diagnostic rendered the representative graph at the prior 298,269-byte size and isolated browser selection as the failure.
+
+The permanent correction removed the machine-specific Edge path, retained Puppeteer's browser download in hosted CI, pinned `puppeteer@25.3.0` beside Mermaid CLI 11.16.0, and documented bundled-browser ownership. The focused three-runtime render check then produced byte-identical 298,269-byte SVGs with matching dimensions and required labels. The subsequent aggregate `full-release` run passed rendering with every other compatibility consumer. This correction changes renderer environment policy only; it does not alter graph semantics or canonical outputs.
+
+### Permanent And Compatibility Baseline
+
+All 14 registered conformance suites passed with the same canonicalized semantic summary SHA-256, `85604836cd5cc7f1f19562a2c3293007f5ae80e603d26b2f66198f442d1402b5`, in Python, PowerShell 7, and Windows PowerShell 5.1. Concurrently measured runtimes were 52.7, 189.4, and 306.6 seconds. The permanent corpus remains at three state profiles, nine state-kind mappings, 111 occurrence query/evaluation assertions, 125 malformed occurrence registries, 18 provenance assertions, and the generated 128-record branch-state, cardinality, participation/track-entry, and provenance scale probes.
+
+Ruff passed all 38 Python files. The PowerShell formatter passed 39 files in both runtimes with no changes or long lines. Work-annotation validation passed 312 eligible files and all 22 fixtures with ten valid annotations. Actionlint passed every workflow. The `full-release` compatibility profile passed all six registered checks in 187.3 seconds: Visualization, QA, root discovery, artifact lifecycle, isolated framework extraction, and rendering. Canonical outputs remained unchanged and temporary artifacts were removed.
+
+### Loki Epistemic-State Replay
+
+The retained source-grounded Loom scenario maps to qualitative epistemic progression without inventing competence. An early transition can make Loki's technical understanding available but partial; a later gradual transition can move the same knowledge payload from partial to complete; subsequent track positions retain that resulting state across representative attempts. Recurrence cardinality continues to own the unknown or bounded number of attempts, chronology and participation own their respective order and identity, and provenance can independently support the completeness claim and its source applicability.
+
+The state record does not infer progression from elapsed centuries, attempt count, branch survival, successful action, or eventual outcome. `complete` means complete access relative to the modeled knowledge payload, not objectively correct knowledge, universal understanding, engineering proficiency, or quantified expertise. The latter capability remains deliberately unavailable until V44.
+
+### Derrick And Colin Replay
+
+Derrick's delayed awareness or restored memory is an `epistemic-access` transition for Derrick, activated before the later recurrence pass and retained only across an explicit applicable boundary. Colin's participation in the same expedition and loop does not create a corresponding state transition, so Colin remains an independent negative control. Reset, carryover, recurrence exit, chronology, and knowledge state retain separate ownership; no chronology cycle or accidental cross-subject state transfer is required.
+
+This replay also preserves the distinction between memory, awareness, knowledge, and belief. Discovering that the expedition is repeating can use awareness or knowledge completeness, retaining the prior pass can use memory, and accepting or rejecting an explanation can use belief attitude. None establishes the objective truth of the explanation without provenance authority.
+
+### Cross-Domain Replay
+
+Education and scientific learning can progress from unavailable through partial to complete understanding without claiming a credential or skill level. Incident diagnosis can be acquired, revised, invalidated, lost, or restored through explicit activation occurrences and source evidence. Clinical understanding can remain distinct from verified patient state and can change when new evidence arrives. Investigative inference can use belief attitude independently from knowledge completeness, preserving uncertainty and contradiction without turning an investigator's conclusion into truth. Physical state remains a non-epistemic `availability-state` control and cannot accept epistemic completeness or attitude fields.
+
+Adversarial pressure retained rejection of unmapped kinds, unknown profiles, absent required dimensions, forbidden dimensions, unknown change shapes, broken state chains, invalid targets, ambiguous queries, and malformed provenance field paths. Core-only extraction retained dormant reusable profiles without importing narrative vocabulary. The existing generated scale probes stayed deterministic and introduced no new traversal or memory concern.
+
+### Remaining Limitations
+
+V43 offers qualitative `none`, `partial`, and `complete` access rather than an arbitrary numeric knowledge scale. It does not derive a current gold-layer answer by combining state, evidence authority, and applicability; analytical projection must still perform that composition. It also does not model skill, proficiency, competence, expertise, practice effects, credentials, qualifications, licenses, assessment results, or authorization. These are intentional boundaries, not V43 regressions.
+
+### V44 Recommendation
+
+V44 should implement **Capability and Proficiency Progression** as Phase 1.8. It should reuse the structural subject-state spine while defining separate capability profiles for skill, proficiency, competence, and expertise; support qualitative levels and only explicitly sourced quantitative measures; separate practice or transfer mechanism from discrete, gradual, or aggregate change shape; preserve improvement, degradation, loss, restoration, and transfer through provenance-backed transitions; and keep credentials, qualifications, licenses, authorization, and assessment evidence distinct from demonstrated or asserted capability. Loki's retained engineering expertise should prove that V44 composes with V43 understanding without collapsing either into the other.

@@ -163,11 +163,11 @@ deferred at the stabilization gate.
   prophecy, revelation, and timeline-reconciliation mechanisms.
 - [x] Preserve acquisition, retention, loss, restoration, invalidation, contradiction, source
   evidence, and applicability without inferring them from chronology or occurrence participation.
-- [ ] Model Loki's progressively completed and retained engineering understanding across Loom
+- [x] Model Loki's progressively completed and retained engineering understanding across Loom
   attempts without labeling it proficiency or quantified expertise.
-- [ ] Replay Derrick and Colin as independent state controls plus education, incident diagnosis,
+- [x] Replay Derrick and Colin as independent state controls plus education, incident diagnosis,
   clinical understanding, investigative inference, and scientific learning scenarios.
-- [ ] Complete V43 implementation confirmation, pressure testing, evolution recording, and plan
+- [x] Complete V43 implementation confirmation, pressure testing, evolution recording, and plan
   closure.
 
 ### Phase 1.8 V44 Capability And Proficiency Progression
