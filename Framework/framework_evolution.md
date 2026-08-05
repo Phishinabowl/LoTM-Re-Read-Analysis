@@ -27,6 +27,7 @@ From V30 onward, update this file as part of each version. Follow the lifecycle 
 - **V16-V23:** Entity identity and cross-registry provenance/reconciliation
 - **V24-V27:** Deterministic configuration ingestion
 - **V28-V42:** Civil time, general chronology, occurrence/recurrence integrity, subject-state acquisition, deterministic recurrence policy, extensible semantic resolution, aggregate cardinality, participation identity, chronology-context topology, and timeline-branch lifecycle
+- **V43-V44:** Epistemic state and capability/proficiency progression
 
 ### Marker Conventions
 
@@ -1470,3 +1471,25 @@ V42 still does not quantify knowledge, skill, proficiency, or accumulated expert
 ### V43 Recommendation
 
 V43 should begin Phase 1.7 by deciding the smallest reusable boundary for knowledge, belief, awareness, memory, skill, proficiency, and expertise progression. The design must determine whether epistemic acquisition and practiced capability can share one transition contract without conflating truth, access, confidence, and competence. Loki's retained engineering learning should be the narrative pressure case, with education, credentialing, incident diagnosis, clinical understanding, investigative inference, and scientific learning providing cross-domain pressure. Applicability-aware analytical resolution and generic lifecycle destination bindings should remain recorded boundaries unless that design proves one is a prerequisite rather than a separate later service.
+
+## V43 - Epistemic State Progression
+
+**Implemented by:** pending
+
+**Proposed testing:** `CONF-STRICT-INGESTION`, `CONF-PACK-COMPOSITION`, `CONF-OCCURRENCE`, `CONF-PROVENANCE`, `CONF-PROJECT-COMPOSITION`, `PARITY-THREE-RUNTIME`, `PARITY-STRUCTURED-OUTPUT`, `COMPAT-VISUALIZATION`, `COMPAT-QA`, `COMPAT-RENDER`, `COMPAT-ROOT-DISCOVERY`, `COMPAT-ARTIFACT-LIFECYCLE`, `COMPAT-FRAMEWORK-EXTRACTION`, `STATIC-POWERSHELL`, `STATIC-PYTHON`, `STATIC-WORK-ANNOTATIONS`, `SCENARIO-DERRICK`, `SCENARIO-LOKI`, `PRESSURE-RECURRENCE-STATE`, `PRESSURE-EVIDENCE-AUTHORITY`, `PRESSURE-LAYER-PORTABILITY`, `PRESSURE-ADVERSARIAL`, `PRESSURE-CROSS-DOMAIN`, and `PRESSURE-SCALE`.
+
+**Proposed candidates:** Loki's retained and progressively completed understanding across repeated Loom attempts; Derrick's delayed restored knowledge and Colin's independent state as regression controls; direct, gradual, externally supplied, conditional, inferred, merged-memory, dream, prophecy, and timeline-reconciliation acquisition; education and incident diagnosis; clinical understanding and revision; investigative inference and contradictory belief; scientific learning from repeated trials; and physical state as a non-epistemic negative control.
+
+**Superseded assumption:** Availability plus one resulting completeness value and an optional epistemic attitude are sufficient to model both epistemic progression and later practiced competence.
+
+V43 records the Phase 1.7 decision that epistemic acquisition and practiced capability require separate bounded versions. Both may reuse the generic subject-state transition spine, but they must not share meaning merely because both change over time. V43 covers knowledge, memory, awareness, and belief. V44 will cover skill, proficiency, competence, expertise, and qualification evidence.
+
+Core will own typed state-profile declarations and structural continuity for the dimensions each profile uses. Packs will map their state kinds to those profiles and contribute domain mechanisms. Epistemic availability, completeness, and attitude remain independently modeled dimensions with explicit prior and resulting values. A discrete or gradual change shape remains separate from the mechanism that caused the change. Objective truth, evidence authority, contradiction among claims, supersession, and applicability remain owned by provenance; a subject's belief or access state cannot establish that a payload is true.
+
+V43 must preserve acquisition, retention, loss, restoration, and invalidation without inferring state from elapsed time, occurrence participation, source existence, or repeated exposure. It must represent partial-to-complete understanding without inventing numeric precision. The Loki replay may model retained and accumulated understanding across Loom attempts, but it must not label that understanding as quantified expertise. Derrick's restored knowledge remains distinct from uninterrupted memory, and Colin must not gain the same state through shared occurrence membership.
+
+V43 does not model skill, proficiency, competence, expertise, credentials, authorization, practice-derived capability, or bounded quantitative proficiency scales. Those belong to V44. Participation-relative state transitions, generic lifecycle destination bindings, and applicability-aware analytical projection also remain outside V43 unless implementation proves one is a strict prerequisite.
+
+## Testing After V43
+
+Pending implementation confirmation and pressure testing.

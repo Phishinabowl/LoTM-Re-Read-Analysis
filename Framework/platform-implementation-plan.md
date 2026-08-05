@@ -150,26 +150,46 @@ deferred at the stabilization gate.
   experiment branches.
 - [x] Complete the version's lifecycle, confirmation, pressure test, and evolution closure.
 
-### Phase 1.7 Knowledge, Skill, And Acquisition Progression
+### Phase 1.7 V43 Epistemic State Progression
 
-- [ ] Decide through version design whether knowledge acquisition and skill progression form one
-  bounded capability or require separate versions.
-- [ ] Distinguish knowledge, belief, awareness, memory, skill, proficiency, and physical state where
-  the selected packs require those distinctions.
-- [ ] Support continuous, sudden, external, partial, conditional, inferred, merged-memory,
-  dream/prophecy, timeline-reconciliation, and practice-based acquisition mechanisms without
-  forcing narrative vocabulary into core.
-- [ ] Represent qualitative or bounded quantitative progression without inventing unsupported
-  precision.
-- [ ] Preserve retention, loss, restoration, contradiction, source evidence, and applicability
-  independently from chronology.
-- [ ] Model Loki's accumulated engineering understanding and retained expertise across Loom attempts.
-- [ ] Replay education, credential acquisition, incident diagnosis, clinical understanding,
-  investigative inference, and scientific learning scenarios.
-- [ ] Complete every resulting version's lifecycle, confirmation, pressure test, and evolution
+- [x] Decide that epistemic acquisition and practiced capability reuse one structural
+  subject-state transition spine but require separate bounded versions and semantics.
+- [ ] Define core typed state profiles and pack-owned state-kind mappings that declare which
+  availability, completeness, and attitude dimensions each state kind uses.
+- [ ] Distinguish knowledge, memory, awareness, belief, and non-epistemic physical state without
+  treating a subject's state as objective truth.
+- [ ] Give completeness explicit prior and resulting values, and separate discrete or gradual
+  change shape from direct, external, conditional, inferred, merged, synchronized, dream,
+  prophecy, revelation, and timeline-reconciliation mechanisms.
+- [ ] Preserve acquisition, retention, loss, restoration, invalidation, contradiction, source
+  evidence, and applicability without inferring them from chronology or occurrence participation.
+- [ ] Model Loki's progressively completed and retained engineering understanding across Loom
+  attempts without labeling it proficiency or quantified expertise.
+- [ ] Replay Derrick and Colin as independent state controls plus education, incident diagnosis,
+  clinical understanding, investigative inference, and scientific learning scenarios.
+- [ ] Complete V43 implementation confirmation, pressure testing, evolution recording, and plan
   closure.
 
-### Phase 1.8 Temporal Stabilization Pressure Test
+### Phase 1.8 V44 Capability And Proficiency Progression
+
+- [ ] Define capability-state profiles for skill, proficiency, competence, and expertise without
+  reusing epistemic access or belief semantics.
+- [ ] Represent qualitative levels and explicitly bounded quantitative measures without inventing
+  unsupported precision or a universal competence scale.
+- [ ] Support practice-based, continuous, sudden, externally supplied, transferred, and conditional
+  capability changes while keeping mechanism separate from progression shape.
+- [ ] Preserve improvement, retention, degradation, loss, restoration, and transfer as explicit
+  provenance-backed transitions rather than inference from elapsed time or attempt counts.
+- [ ] Keep credentials, qualifications, licenses, authorization, and assessment evidence distinct
+  from demonstrated or asserted competence.
+- [ ] Model Loki's retained and accumulated engineering expertise across Loom attempts using the
+  V43 epistemic foundation without collapsing understanding into skill.
+- [ ] Replay education and credential acquisition, incident-response skill, clinical competence,
+  investigative ability, and scientific practice scenarios.
+- [ ] Complete V44 implementation confirmation, pressure testing, evolution recording, and plan
+  closure.
+
+### Phase 1.9 Temporal Stabilization Pressure Test
 
 - [ ] Replay the complete source-grounded Loki scenario across both seasons.
 - [ ] Replay the source-grounded Derrick abandoned-temple loop.
