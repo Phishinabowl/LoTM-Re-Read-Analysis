@@ -1540,7 +1540,7 @@ V44 should implement **Capability and Proficiency Progression** as Phase 1.8. It
 
 ## V44 - Capability And Proficiency Progression
 
-**Implemented by:** `998dceb`
+**Implemented by:** `998dceb` (`Implement V44 capability progression`)
 
 **Proposed testing:** `CONF-STRICT-INGESTION`, `CONF-PACK-COMPOSITION`, `CONF-OCCURRENCE`, `CONF-PROVENANCE`, `CONF-PROJECT-COMPOSITION`, `PARITY-THREE-RUNTIME`, `PARITY-STRUCTURED-OUTPUT`, `COMPAT-VISUALIZATION`, `COMPAT-QA`, `COMPAT-RENDER`, `COMPAT-ROOT-DISCOVERY`, `COMPAT-ARTIFACT-LIFECYCLE`, `COMPAT-FRAMEWORK-EXTRACTION`, `STATIC-POWERSHELL`, `STATIC-PYTHON`, `STATIC-WORK-ANNOTATIONS`, `SCENARIO-LOKI`, `PRESSURE-CAPABILITY-STATE`, `PRESSURE-EPISTEMIC-STATE`, `PRESSURE-RECURRENCE-STATE`, `PRESSURE-EVIDENCE-AUTHORITY`, `PRESSURE-LAYER-PORTABILITY`, `PRESSURE-ADVERSARIAL`, `PRESSURE-CROSS-DOMAIN`, and `PRESSURE-SCALE`.
 
@@ -1558,4 +1558,34 @@ V44 is expected to advance the schema-pack declaration schema to 4, the occurren
 
 ## Testing After V44
 
-Pending implementation confirmation and pressure testing.
+**Pressure corrections:** `b0647f4` (`Close V44 pressure-test coverage`)
+
+### Permanent And Compatibility Baseline
+
+The implementation-confirmation pass ran all fourteen registered baseline suites in Python, PowerShell 7, and Windows PowerShell 5.1 with matching semantic summaries. The full-release compatibility profile passed all six registered checks: Visualization, Obsidian QA, root discovery, artifact lifecycle, isolated framework extraction, and three-runtime rendering. Ruff, PowerShell formatting in both runtimes, and work-annotation validation also passed. The resulting V44 baseline uses schema-pack declaration schema 4, occurrence schema 9, core pack version 35, 120 enabled capabilities, 994 controlled values, four state profiles, eighteen state-kind mappings, and sixty-one provenance subject types.
+
+After conceptual pressure analysis, `CONF-OCCURRENCE` and `CONF-PROVENANCE` were rerun directly in all three runtimes. All runs agreed on 128 occurrence queries, 147 rejected occurrence configurations, twenty provenance assertions, 68 rejected provenance configurations, five rejected provenance queries, and the retained 128-record scale probes. Windows PowerShell 5.1 required its ordinary extended timeout but returned the same result; no implementation or parity defect was found.
+
+### Loki Understanding And Expertise Replay
+
+The retained externally source-grounded *Loki* episode review from V34 was replayed through `SCENARIO-LOKI`, `PRESSURE-CAPABILITY-STATE`, `PRESSURE-EPISTEMIC-STATE`, `PRESSURE-RECURRENCE-STATE`, and `PRESSURE-EVIDENCE-AUTHORITY`. Loki's understanding of the Temporal Loom and his engineering expertise can target the same Loom payload, use the same subjective track, cite the same representative attempts, and cross explicitly declared carryover boundaries while remaining separate state chains. `knowledge` uses completeness under `epistemic-access`; `expertise` uses a project-defined local scale under `capability-state`. Neither profile accepts the other's dimension.
+
+The source statement that Loki spent centuries learning and retrying does not authorize an exact attempt count or a universal expertise score. Aggregate or uncertain recurrence cardinality records the unmaterialized attempts, representative occurrences ground the sourced transitions, and gradual or aggregate practice describes progression shape. The final successful intervention is an occurrence and outcome, not automatic proof of expertise. This preserves the distinction between what Loki understood, what he could do, what happened, and what the source actually establishes.
+
+### Cross-Domain And Adversarial Replay
+
+Synthetic replays covered education and credentialing, IT incident response, clinical practice, legal authorization, investigative work, and scientific experimentation under `PRESSURE-CROSS-DOMAIN`, `PRESSURE-LAYER-PORTABILITY`, `PRESSURE-ADVERSARIAL`, and `PRESSURE-SCALE`:
+
+- Education separates subject knowledge, practiced ability, assessment evidence, and an awarded qualification. Passing an assessment or receiving a credential does not create a capability transition.
+- IT separates incident knowledge from diagnostic or recovery skill and from vendor certification. Repeated successful recoveries do not silently increase proficiency.
+- Clinical practice separates understanding, demonstrated competence, licensure, and observations or assessments; no license or outcome is treated as clinical ability.
+- Legal and investigative cases separate domain knowledge, practiced analysis, authorization or badge state, and source-governed evidence. Authority to act is not competence, and stronger evidence does not upgrade skill automatically.
+- Scientific practice separates theory knowledge, experimental technique, degree or training records, repeated trials, and reproducibility evidence. Trial count and elapsed research time do not imply progression.
+
+The permanent malformed corpus also retained the intended fail-closed boundaries: decimals are rejected, bounded integers must remain within their declared scale, qualitative levels require stable contiguous order, one transition cannot change scales, improvement and degradation must move in the declared direction, credentials forbid capability values, and epistemic profiles cannot receive capability dimensions. Local scales cannot be compared or converted without a future explicit capability; this is an intended boundary rather than a defect.
+
+### Conclusion And Next Step
+
+V44 closes Phase 1.8 without a model, parity, or consumer regression. Capability is now reusable across industries without becoming a universal ranking, credential resolver, assessment engine, or inferred gold-layer truth. Project data must still assert and source each capability transition explicitly. Multidimensional competency frameworks can use separate payloads and scales, but automatic cross-scale conversion, credential governance, and assessment-derived state remain deliberately deferred.
+
+The next step is Phase 1.9, **Temporal Stabilization Pressure Test**, rather than opening V45 immediately. It should replay the complete source-grounded Loki and Derrick scenarios with V39-V44 active together, run the cumulative retained portfolio, classify every remaining temporal limitation, and decide whether the Phase 1 exit gate is satisfied or a narrowly scoped V45 is still required.
