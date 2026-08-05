@@ -1379,4 +1379,32 @@ V41 does not define branch lifecycle, participation-relative state transitions, 
 
 ## Testing After V41
 
-Pending implementation confirmation and pressure testing.
+**Pressure corrections:** `1092846` (`Fix V41 pressure-test findings`)
+
+### Executed Coverage
+
+The cumulative V41 pressure round executed `CONF-STRICT-INGESTION`, `CONF-PACK-COMPOSITION`, `CONF-CHRONOLOGY`, `CONF-OCCURRENCE`, `CONF-PROVENANCE`, `CONF-PROJECT-COMPOSITION`, `PARITY-THREE-RUNTIME`, `PARITY-STRUCTURED-OUTPUT`, every registered `full-release` compatibility check, both source-format policies, work-annotation and workflow validation, the retained externally source-grounded Loki scenario, and the temporal-topology, layer-portability, adversarial, cross-domain, and scale pressure families selected before implementation. Existing catalog candidates covered the pressure round; no new candidate was required.
+
+### Defects And Corrections
+
+Pressure testing found no V41 loader or query defect. It exposed two permanent-coverage defects. The original chronology fixture exercised only `oversees`, `observes`, and `receives-from`, while intervention bindings were attached to the broader oversight relation. The corrected fixture now distinguishes a control plane that is outside, oversees, and intervenes in an observed timeline; binds intervention to one occurrence, branch, and applicability scope; projects into a simulation context that receives from it; and retains an archival observer. All six core relation types now participate in 11 deterministic incoming or outgoing queries, four contexts and seven relations are independently available to provenance, and the existing 128-relation topology cycle remains legal. The occurrence contract also no longer carries the superseded V40 statement that chronology-context topology is future work.
+
+### Permanent And Compatibility Baseline
+
+The complete registered `baseline` passed all 14 suites with matching semantic summaries in Python, PowerShell 7, and Windows PowerShell 5.1. Measured runtimes were 40.1, 161.3, and 253.8 seconds. Chronology conformance retained 14 position comparisons, 17 malformed registries, typed-target closure, coordinate incomparability, exact-order cycle rejection, and the generated 128-relation cyclic topology probe while expanding from five to 11 context queries. Ruff passed 38 files; the PowerShell formatter passed 39 files in both runtimes with no remaining changes or long lines; work-annotation validation passed 312 files and all 22 fixtures; and actionlint passed every workflow.
+
+The `full-release` compatibility profile passed all six registered checks in 168.632 seconds. Visualization retained 15 nodes and 121 relationships. QA retained 16 notes, 121 relationships, 71 data references, and all 34 normalized files. All 12 root-discovery launches passed; artifact cleanup and six unsafe-destination rejections passed; isolated extraction copied 209 files and passed its portable suites in all three runtimes; and all renderers produced the same nonblank 298,269-byte SVG with identical SHA-256 hashes. Canonical outputs remained unchanged.
+
+### Loki And Cross-Domain Replay
+
+The TVA can be represented as a chronology context with its own locally ordered coordinate system rather than as an unordered or timeless exception. Timeline and branch contexts retain their own coordinates. `outside` and `oversees` describe topology; `intervenes-in` binds the TVA action to the affected occurrence, branch, and applicability scope. Those relations do not make TVA-local and timeline coordinates comparable. Reciprocal receipt and observation paths may form legal topology cycles, while an exact chronological before/after cycle continues to fail.
+
+The same contract models an IT control plane overseeing and intervening in a workload environment, a simulation host projecting into a simulated world, an archive observing an operational context, and a scientific instrument or monitoring service observing and intervening in an experiment. Medical monitoring and legal/compliance oversight use the same core topology without narrative vocabulary. A later review, deployment, intervention, or observation remains its own occurrence; context topology describes where that happening operates, not whether it is the same event.
+
+### Remaining Limitations
+
+V41 intentionally does not model branch creation, pruning, restoration, transfer, merge, or state history. It also does not model Loki's retained learning and accumulated expertise across repeated Loom attempts. Direct context-relation queries are deterministic but do not infer transitive topology paths. Multiple concrete interventions may share one stable topology relation through distinct typed bindings, while the intervention happenings themselves remain occurrence records. These are bounded separations rather than chronology-context failures.
+
+### V42 Recommendation
+
+V42 should be **Timeline-Branch Lifecycle**. It should give branches provenance-backed state histories such as emerging, active, pruned, transferred, restored, merged, preserved, and inactive; preserve lineage, continuity membership, applicability, and state at a requested boundary; and model the TVA's pruning, restoration, preservation, and final replacement structure without collapsing branches into one chronology. Source-control branches, environment promotion, alternate histories, and scientific experiment branches should provide the cross-domain pressure cases. Knowledge, memory, skill, and expertise acquisition remain a separate later capability.
