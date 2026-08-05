@@ -80,6 +80,7 @@ $occurrenceCountFields = @(
     'causal_relations'
     'outcomes'
     'rules'
+    'state_scales'
     'state_transitions'
     'carryovers'
 )
@@ -440,6 +441,7 @@ function Assert-InvalidProjectCompositions {
     $occurrencePacks = Copy-PacksWithoutCapability $packs 'occurrence-recurrence-modeling'
     $participationPacks = Copy-PacksWithoutCapability $packs 'occurrence-participation-identity'
     $branchLifecyclePacks = Copy-PacksWithoutCapability $packs 'timeline-branch-lifecycle'
+    $capabilityPacks = Copy-PacksWithoutCapability $packs 'capability-progression'
     $chronologyContextPacks = Copy-PacksWithoutCapability $packs 'chronology-contexts'
     $reconciliationPacks = Copy-PacksWithoutCapability $packs 'stable-identity-reconciliation'
     $actions = @(
@@ -486,6 +488,12 @@ function Assert-InvalidProjectCompositions {
             Get-KnowledgeOccurrenceRegistry `
                 $project `
                 $branchLifecyclePacks `
+                $Composition.chronology
+        }
+        {
+            Get-KnowledgeOccurrenceRegistry `
+                $project `
+                $capabilityPacks `
                 $Composition.chronology
         }
         {

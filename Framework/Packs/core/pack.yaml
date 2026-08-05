@@ -1,6 +1,6 @@
-schema_version: 3
+schema_version: 4
 pack_id: core
-pack_version: 34
+pack_version: 35
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -70,6 +70,7 @@ capabilities:
   - aggregate-recurrence-cardinality
   - occurrence-participation-identity
   - timeline-branch-lifecycle
+  - capability-progression
   - visibility-policy
   - graph-projection
   - schema-validation
@@ -288,6 +289,15 @@ controlled_values:
     - context
     - configuration
     - evidence
+    - capability
+    - skill
+    - proficiency
+    - competence
+    - expertise
+    - credential
+    - qualification
+    - license
+    - authorization
   state.change-kind:
     - acquired
     - retained
@@ -298,6 +308,8 @@ controlled_values:
     - derived
     - activated
     - invalidated
+    - improved
+    - degraded
   state.change-profile:
     - acquire
     - preserve
@@ -308,6 +320,8 @@ controlled_values:
     - derive
     - activate
     - invalidate
+    - improve
+    - degrade
   state.mechanism:
     - direct
     - external
@@ -315,6 +329,8 @@ controlled_values:
     - conditional
     - merged
     - synchronized
+    - practice
+    - training
   state.change-shape:
     - discrete
     - gradual
@@ -339,6 +355,9 @@ controlled_values:
     - partial
     - complete
     - unknown
+  state.capability-scale-kind:
+    - qualitative
+    - bounded-integer
   state.source-role:
     - origin
     - contributor
@@ -396,6 +415,7 @@ controlled_values:
     - causal-relation
     - occurrence-outcome
     - recurrence-rule
+    - state-scale
     - state-transition
     - iteration-carryover
   reconciliation.target-type:
@@ -519,14 +539,22 @@ semantic_declarations:
         availability: required
         completeness: forbidden
         attitude: forbidden
+        capability: forbidden
       - profile_id: epistemic-access
         availability: required
         completeness: required
         attitude: forbidden
+        capability: forbidden
       - profile_id: epistemic-belief
         availability: required
         completeness: forbidden
         attitude: required
+        capability: forbidden
+      - profile_id: capability-state
+        availability: required
+        completeness: forbidden
+        attitude: forbidden
+        capability: required
     kind_profiles:
       - state_kind: generic-state
         profile_id: availability-state
@@ -535,6 +563,24 @@ semantic_declarations:
       - state_kind: configuration
         profile_id: availability-state
       - state_kind: evidence
+        profile_id: availability-state
+      - state_kind: capability
+        profile_id: capability-state
+      - state_kind: skill
+        profile_id: capability-state
+      - state_kind: proficiency
+        profile_id: capability-state
+      - state_kind: competence
+        profile_id: capability-state
+      - state_kind: expertise
+        profile_id: capability-state
+      - state_kind: credential
+        profile_id: availability-state
+      - state_kind: qualification
+        profile_id: availability-state
+      - state_kind: license
+        profile_id: availability-state
+      - state_kind: authorization
         profile_id: availability-state
     change_profiles:
       - change_kind: acquired
@@ -555,3 +601,7 @@ semantic_declarations:
         change_profile: activate
       - change_kind: invalidated
         change_profile: invalidate
+      - change_kind: improved
+        change_profile: improve
+      - change_kind: degraded
+        change_profile: degrade

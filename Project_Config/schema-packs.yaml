@@ -78,6 +78,7 @@ capability_activation:
     - aggregate-recurrence-cardinality
     - occurrence-participation-identity
     - timeline-branch-lifecycle
+    - capability-progression
     - visibility-policy
     - graph-projection
     - schema-validation

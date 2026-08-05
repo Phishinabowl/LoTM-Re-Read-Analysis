@@ -60,7 +60,7 @@
     ["observer-experience", "wake-two", "bell-one", "bell-two"]
   ],
   "carryovers_into": {
-    "outer-two": ["memory-one-to-two", "physical-state-one-to-two"]
+    "outer-two": ["memory-one-to-two", "physical-state-one-to-two", "skill-one-to-two"]
   },
   "occurrence_recurrences": {
     "wake-two": "outer-loop",
@@ -122,17 +122,39 @@
       "protagonist-becomes-aware-of-intervention",
       "protagonist-accepts-bell-claim",
       "protagonist-revises-bell-belief",
-      "protagonist-acquires-health-state"
+      "protagonist-acquires-health-state",
+      "protagonist-acquires-bell-skill",
+      "protagonist-improves-bell-skill",
+      "protagonist-retains-bell-skill",
+      "protagonist-degrades-bell-skill",
+      "protagonist-records-assessment-proficiency",
+      "protagonist-acquires-qualification",
+      "protagonist-loses-bell-skill",
+      "protagonist-restores-bell-skill",
+      "protagonist-receives-engineering-expertise"
     ]
   },
+  "state_scales": {
+    "engineering-capability": ["qualitative", ["none", "novice", "practiced", "advanced", "expert"], null, null, null],
+    "assessment-score": ["bounded-integer", [], 0, 100, "points"]
+  },
   "state_snapshots": {
-    "protagonist-acquires-bell-memory": ["epistemic-access", "discrete", "unavailable", "available", "none", "complete", null, null],
-    "protagonist-acquires-inner-step-knowledge": ["epistemic-access", "discrete", "unavailable", "partial", "none", "partial", null, null],
-    "protagonist-completes-inner-step-knowledge": ["epistemic-access", "gradual", "partial", "available", "partial", "complete", null, null],
-    "protagonist-becomes-aware-of-intervention": ["epistemic-access", "discrete", "unavailable", "available", "none", "complete", null, null],
-    "protagonist-accepts-bell-claim": ["epistemic-belief", "gradual", "latent", "available", null, null, "uncertain", "accepts-true"],
-    "protagonist-revises-bell-belief": ["epistemic-belief", "discrete", "available", "available", null, null, "accepts-true", "accepts-false"],
-    "protagonist-acquires-health-state": ["availability-state", "discrete", "unavailable", "available", null, null, null, null]
+    "protagonist-acquires-bell-memory": ["epistemic-access", "discrete", "unavailable", "available", "none", "complete", null, null, null, null],
+    "protagonist-acquires-inner-step-knowledge": ["epistemic-access", "discrete", "unavailable", "partial", "none", "partial", null, null, null, null],
+    "protagonist-completes-inner-step-knowledge": ["epistemic-access", "gradual", "partial", "available", "partial", "complete", null, null, null, null],
+    "protagonist-becomes-aware-of-intervention": ["epistemic-access", "discrete", "unavailable", "available", "none", "complete", null, null, null, null],
+    "protagonist-accepts-bell-claim": ["epistemic-belief", "gradual", "latent", "available", null, null, "uncertain", "accepts-true", null, null],
+    "protagonist-revises-bell-belief": ["epistemic-belief", "discrete", "available", "available", null, null, "accepts-true", "accepts-false", null, null],
+    "protagonist-acquires-health-state": ["availability-state", "discrete", "unavailable", "available", null, null, null, null, null, null],
+    "protagonist-acquires-bell-skill": ["capability-state", "discrete", "unavailable", "partial", null, null, null, null, "engineering-capability:none", "engineering-capability:novice"],
+    "protagonist-improves-bell-skill": ["capability-state", "gradual", "partial", "partial", null, null, null, null, "engineering-capability:novice", "engineering-capability:practiced"],
+    "protagonist-retains-bell-skill": ["capability-state", "aggregate", "partial", "partial", null, null, null, null, "engineering-capability:practiced", "engineering-capability:practiced"],
+    "protagonist-degrades-bell-skill": ["capability-state", "gradual", "partial", "partial", null, null, null, null, "engineering-capability:practiced", "engineering-capability:novice"],
+    "protagonist-records-assessment-proficiency": ["capability-state", "discrete", "available", "available", null, null, null, null, "assessment-score:40", "assessment-score:75"],
+    "protagonist-acquires-qualification": ["availability-state", "discrete", "unavailable", "available", null, null, null, null, null, null],
+    "protagonist-loses-bell-skill": ["capability-state", "discrete", "partial", "inaccessible", null, null, null, null, "engineering-capability:novice", "engineering-capability:none"],
+    "protagonist-restores-bell-skill": ["capability-state", "aggregate", "inaccessible", "available", null, null, null, null, "engineering-capability:none", "engineering-capability:practiced"],
+    "protagonist-receives-engineering-expertise": ["capability-state", "discrete", "unavailable", "available", null, null, null, null, "engineering-capability:none", "engineering-capability:advanced"]
   },
   "state_at": [
     ["protagonist-experience", "wake-one", "occurrence-template", "bell", "memory", null],
@@ -143,6 +165,12 @@
     ["protagonist-experience", "wake-three", "occurrence", "inner-step-one", "knowledge", "protagonist-acquires-inner-step-knowledge"],
     ["protagonist-experience", "after-loop", "occurrence", "inner-step-one", "knowledge", "protagonist-completes-inner-step-knowledge"],
     ["protagonist-experience", "after-loop", "occurrence-template", "bell", "belief", "protagonist-accepts-bell-claim"],
-    ["protagonist-experience", "restored-main", "occurrence-template", "bell", "belief", "protagonist-revises-bell-belief"]
+    ["protagonist-experience", "restored-main", "occurrence-template", "bell", "belief", "protagonist-revises-bell-belief"],
+    ["protagonist-experience", "bell-one", "occurrence-template", "bell", "skill", "protagonist-acquires-bell-skill"],
+    ["protagonist-experience", "bell-two", "occurrence-template", "bell", "skill", "protagonist-improves-bell-skill"],
+    ["protagonist-experience", "wake-three", "occurrence-template", "bell", "skill", "protagonist-retains-bell-skill"],
+    ["protagonist-experience", "escape-three", "occurrence-template", "bell", "skill", "protagonist-degrades-bell-skill"],
+    ["protagonist-experience", "after-loop", "occurrence-template", "bell", "skill", "protagonist-loses-bell-skill"],
+    ["protagonist-experience", "restored-main", "occurrence-template", "bell", "skill", "protagonist-restores-bell-skill"]
   ]
 }

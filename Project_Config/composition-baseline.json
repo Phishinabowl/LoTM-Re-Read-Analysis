@@ -16,14 +16,14 @@
     "sources": 18,
     "chronology": 2,
     "entities": 4,
-    "occurrences": 8,
+    "occurrences": 9,
     "reconciliation": 4,
     "provenance": 3
   },
   "packs": {
     "selection_order": ["core", "narrative-media", "narrative-publishing", "narrative-screen-audio", "narrative-adaptation", "narrative-distribution", "narrative-production", "narrative-shared-universe"],
     "versions": {
-      "core": 34,
+      "core": 35,
       "narrative-media": 24,
       "narrative-publishing": 10,
       "narrative-screen-audio": 11,
@@ -32,12 +32,12 @@
       "narrative-production": 4,
       "narrative-shared-universe": 9
     },
-    "declared_capabilities": 128,
-    "available_capabilities": 119,
-    "enabled_capabilities": 119,
+    "declared_capabilities": 129,
+    "available_capabilities": 120,
+    "enabled_capabilities": 120,
     "disabled_capability_ids": ["contributor-credits", "crossover-events", "editorial-assembly", "live-performance-productions", "migration-services", "performance-events", "publication-runs", "rights-grants-and-restrictions", "textual-witnesses"],
-    "controlled_value_namespaces": 127,
-    "controlled_values": 976,
+    "controlled_value_namespaces": 128,
+    "controlled_values": 994,
     "semantic_declarations": {
       "transition_profiles": 9,
       "outcome_incompatibilities": 4,
@@ -45,9 +45,9 @@
       "rule_effect_compatibilities": 4,
       "effect_policies": 4,
       "effect_incompatibilities": 1,
-      "state_change_profiles": 9,
-      "state_profiles": 3,
-      "state_kind_profiles": 9
+      "state_change_profiles": 11,
+      "state_profiles": 4,
+      "state_kind_profiles": 18
     }
   },
   "counts": {
@@ -95,7 +95,7 @@
       "identity_phase_relationship_types": 2,
       "identity_phase_relationships": 0
     },
-    "occurrences": {"branches": 1, "branch_state_transitions": 0, "templates": 0, "recurrence_patterns": 0, "recurrences": 0, "recurrence_cardinalities": 0, "iterations": 0, "phases": 0, "schedules": 0, "occurrences": 0, "occurrence_participations": 0, "tracks": 0, "track_entries": 0, "transitions": 0, "causal_relations": 0, "outcomes": 0, "rules": 0, "state_transitions": 0, "carryovers": 0},
+    "occurrences": {"branches": 1, "branch_state_transitions": 0, "templates": 0, "recurrence_patterns": 0, "recurrences": 0, "recurrence_cardinalities": 0, "iterations": 0, "phases": 0, "schedules": 0, "occurrences": 0, "occurrence_participations": 0, "tracks": 0, "track_entries": 0, "transitions": 0, "causal_relations": 0, "outcomes": 0, "rules": 0, "state_scales": 0, "state_transitions": 0, "carryovers": 0},
     "reconciliation": {"target_types": 24, "records": 0, "aliases": 26},
     "provenance": {"assertions": 0, "claim_supersessions": 0}
   },
@@ -105,9 +105,9 @@
     "entity_provenance_types": 8,
     "reconciliation_provenance_types": 1,
     "chronology_provenance_types": 3,
-    "occurrence_provenance_types": 20,
-    "total_provenance_subject_types": 60
+    "occurrence_provenance_types": 21,
+    "total_provenance_subject_types": 61
   },
   "composition_passes": 2,
-  "invalid_composition_cases": 10
+  "invalid_composition_cases": 11
 }

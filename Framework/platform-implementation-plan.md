@@ -172,15 +172,15 @@ deferred at the stabilization gate.
 
 ### Phase 1.8 V44 Capability And Proficiency Progression
 
-- [ ] Define capability-state profiles for skill, proficiency, competence, and expertise without
+- [x] Define capability-state profiles for skill, proficiency, competence, and expertise without
   reusing epistemic access or belief semantics.
-- [ ] Represent qualitative levels and explicitly bounded quantitative measures without inventing
+- [x] Represent qualitative levels and explicitly bounded quantitative measures without inventing
   unsupported precision or a universal competence scale.
-- [ ] Support practice-based, continuous, sudden, externally supplied, transferred, and conditional
+- [x] Support practice-based, continuous, sudden, externally supplied, transferred, and conditional
   capability changes while keeping mechanism separate from progression shape.
-- [ ] Preserve improvement, retention, degradation, loss, restoration, and transfer as explicit
+- [x] Preserve improvement, retention, degradation, loss, restoration, and transfer as explicit
   provenance-backed transitions rather than inference from elapsed time or attempt counts.
-- [ ] Keep credentials, qualifications, licenses, authorization, and assessment evidence distinct
+- [x] Keep credentials, qualifications, licenses, authorization, and assessment evidence distinct
   from demonstrated or asserted competence.
 - [ ] Model Loki's retained and accumulated engineering expertise across Loom attempts using the
   V43 epistemic foundation without collapsing understanding into skill.

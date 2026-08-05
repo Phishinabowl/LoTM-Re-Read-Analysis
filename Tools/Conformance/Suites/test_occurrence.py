@@ -180,14 +180,18 @@ def main() -> int:
         continuity_ids=set(),
     )
     fixture_path = fixture_root / "valid-registry.yaml"
-    fixture_data = load_yaml_file(fixture_path, "occurrence fixture", expected_schema_version=8)
+    fixture_data = load_yaml_file(fixture_path, "occurrence fixture", expected_schema_version=9)
+    payload_targets = {
+        "state-record": {"protagonist-health"},
+        "credential-record": {"protagonist-qualification"},
+    }
     fixture = parse_occurrence_registry(
         fixture_data,
         fixture_path,
         packs,
         chronology_fixture,
         subject_targets={"character": {"protagonist", "observer"}},
-        payload_targets={"state-record": {"protagonist-health"}},
+        payload_targets=payload_targets,
     )
     fixture.validate_branch_continuity_targets({"fixture-continuity"})
     try:
@@ -335,6 +339,17 @@ def main() -> int:
         subject_type, subject_id = key.split("|", 1)
         if ids(fixture.state_transitions_for_subject(subject_type, subject_id)) != expected:
             raise AssertionError(f"Unexpected state transitions for `{key}`.")
+    for scale_id, expected in expectations["state_scales"].items():
+        scale = fixture.state_scales[scale_id]
+        actual = [
+            scale.kind,
+            [level.id for level in scale.levels],
+            scale.minimum,
+            scale.maximum,
+            scale.unit,
+        ]
+        if actual != expected:
+            raise AssertionError(f"Unexpected state scale `{scale_id}`: {actual}")
     state_transitions = {transition.id: transition for transition in fixture.state_transitions}
     for transition_id, expected in expectations["state_snapshots"].items():
         transition = state_transitions[transition_id]
@@ -347,6 +362,16 @@ def main() -> int:
             transition.resulting_completeness,
             transition.prior_attitude,
             transition.resulting_attitude,
+            (
+                f"{transition.prior_capability.scale_id}:{transition.prior_capability.value}"
+                if transition.prior_capability
+                else None
+            ),
+            (
+                f"{transition.resulting_capability.scale_id}:{transition.resulting_capability.value}"
+                if transition.resulting_capability
+                else None
+            ),
         ]
         if actual != expected:
             raise AssertionError(f"Unexpected state snapshot for `{transition_id}`: {actual}")
@@ -367,7 +392,10 @@ def main() -> int:
                 packs,
                 chronology_fixture,
                 subject_targets={"character": {"protagonist", "observer"}},
-                payload_targets={"state-record": {"protagonist-health"}},
+                payload_targets={
+                    "state-record": {"protagonist-health"},
+                    "credential-record": {"protagonist-qualification"},
+                },
             )
         except ValueError:
             continue
@@ -437,7 +465,7 @@ def main() -> int:
         packs,
         chronology_fixture,
         subject_targets={"character": {"protagonist", "observer"}},
-        payload_targets={"state-record": {"protagonist-health"}},
+        payload_targets=payload_targets,
     )
     if len(scale_registry.cardinalities_for_recurrence("inner-loop")) != 5 + scale_count:
         raise AssertionError("Generated recurrence-cardinality scale probe did not retain every record.")
@@ -467,7 +495,7 @@ def main() -> int:
         packs,
         chronology_fixture,
         subject_targets={"character": {"protagonist", "observer"}},
-        payload_targets={"state-record": {"protagonist-health"}},
+        payload_targets=payload_targets,
     ).evaluate_rules("outer-loop", "reset-one")
     if (
         mixed_indeterminate_evaluation.status != "indeterminate"
@@ -507,7 +535,7 @@ def main() -> int:
         extension_packs,
         chronology_fixture,
         subject_targets={"character": {"protagonist", "observer"}},
-        payload_targets={"state-record": {"protagonist-health"}},
+        payload_targets=payload_targets,
     )
     owning_evaluation = owning_registry.evaluate_rules("outer-loop", "reset-two")
     if (
@@ -527,7 +555,7 @@ def main() -> int:
             extension_packs,
             chronology_fixture,
             subject_targets={"character": {"protagonist", "observer"}},
-            payload_targets={"state-record": {"protagonist-health"}},
+            payload_targets=payload_targets,
         )
     except ValueError:
         pass
@@ -544,7 +572,7 @@ def main() -> int:
         extension_packs,
         chronology_fixture,
         subject_targets={"character": {"protagonist", "observer"}},
-        payload_targets={"state-record": {"protagonist-health"}},
+        payload_targets=payload_targets,
     )
     external_evaluation = external_registry.evaluate_rules("outer-loop", "bell-two")
     if (
@@ -566,7 +594,7 @@ def main() -> int:
         extension_packs,
         chronology_fixture,
         subject_targets={"character": {"protagonist", "observer"}},
-        payload_targets={"state-record": {"protagonist-health"}},
+        payload_targets=payload_targets,
     ).evaluate_rules("outer-loop", "bell-two")
     if (
         len(duplicate_evaluation.authorized_effects) != 1
@@ -594,7 +622,7 @@ def main() -> int:
             replace(extension_packs, effect_policies=policies),
             chronology_fixture,
             subject_targets={"character": {"protagonist", "observer"}},
-            payload_targets={"state-record": {"protagonist-health"}},
+            payload_targets=payload_targets,
         ).evaluate_rules("outer-loop", "bell-two")
         if (
             policy_evaluation.status != expected_status
@@ -617,7 +645,7 @@ def main() -> int:
         scoped_packs,
         chronology_fixture,
         subject_targets={"character": {"protagonist", "observer"}},
-        payload_targets={"state-record": {"protagonist-health"}},
+        payload_targets=payload_targets,
     ).evaluate_rules("outer-loop", "reset-two")
     if scoped_evaluation.status != "selected" or scoped_evaluation.conflicts:
         raise AssertionError(f"Cross-target same-target pair unexpectedly conflicted: {scoped_evaluation}")
@@ -630,7 +658,7 @@ def main() -> int:
         replace(scoped_packs, effect_incompatibilities=global_incompatibilities),
         chronology_fixture,
         subject_targets={"character": {"protagonist", "observer"}},
-        payload_targets={"state-record": {"protagonist-health"}},
+        payload_targets=payload_targets,
     ).evaluate_rules("outer-loop", "reset-two")
     if (
         list(global_evaluation.conflicts) != ["advance-iteration conflicts with pause-recurrence globally"]
@@ -659,6 +687,7 @@ def main() -> int:
         "causal_relations": len(registry.causal_relations),
         "outcomes": len(registry.outcomes),
         "rules": len(registry.rules),
+        "state_scales": len(registry.state_scales),
         "state_transitions": len(registry.state_transitions),
         "carryovers": len(registry.carryovers),
         "fixture_queries": (
@@ -687,6 +716,7 @@ def main() -> int:
             + len(expectations["resolved_effects"])
             + len(expectations["trace_dispositions"])
             + len(expectations["subject_state_transitions"])
+            + len(expectations["state_scales"])
             + len(expectations["state_snapshots"])
             + len(expectations["state_at"])
             + 18

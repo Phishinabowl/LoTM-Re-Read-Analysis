@@ -1,5 +1,5 @@
 {
-  "schema_version": 3,
+  "schema_version": 4,
   "pack_id": "fixture-core",
   "pack_version": 2,
   "lifecycle": "active",
@@ -56,13 +56,15 @@
           "profile_id": "fixture-availability",
           "availability": "required",
           "completeness": "forbidden",
-          "attitude": "forbidden"
+          "attitude": "forbidden",
+          "capability": "forbidden"
         },
         {
           "profile_id": "fixture-dormant-access",
           "availability": "required",
           "completeness": "required",
-          "attitude": "forbidden"
+          "attitude": "forbidden",
+          "capability": "forbidden"
         }
       ],
       "kind_profiles": [

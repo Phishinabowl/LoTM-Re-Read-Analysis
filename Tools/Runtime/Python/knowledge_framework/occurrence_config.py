@@ -13,7 +13,7 @@ from .strict_yaml import assert_allowed_keys, load_yaml_file
 from .temporal_config import TemporalWindow, normalize_effective_at, parse_temporal_window, temporal_window_match
 
 
-SUPPORTED_SCHEMA_VERSION = 8
+SUPPORTED_SCHEMA_VERSION = 9
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 
@@ -296,6 +296,28 @@ class StateSourceTarget:
 
 
 @dataclass(frozen=True)
+class StateScaleLevel:
+    id: str
+    ordinal: int
+
+
+@dataclass(frozen=True)
+class StateScale:
+    id: str
+    kind: str
+    levels: tuple[StateScaleLevel, ...]
+    minimum: int | None
+    maximum: int | None
+    unit: str | None
+
+
+@dataclass(frozen=True)
+class CapabilityValue:
+    scale_id: str
+    value: str | int
+
+
+@dataclass(frozen=True)
 class StateTransition:
     id: str
     subject_type: str
@@ -314,6 +336,8 @@ class StateTransition:
     resulting_attitude: str | None
     prior_completeness: str | None
     resulting_completeness: str | None
+    prior_capability: CapabilityValue | None
+    resulting_capability: CapabilityValue | None
     activation_occurrence_id: str
     condition_rule_id: str | None
     track_ids: tuple[str, ...]
@@ -353,6 +377,7 @@ class OccurrenceRegistry:
     causal_relations: tuple[CausalRelation, ...]
     outcomes: tuple[OccurrenceOutcome, ...]
     rules: tuple[RecurrenceRule, ...]
+    state_scales: dict[str, StateScale]
     state_transitions: tuple[StateTransition, ...]
     carryovers: tuple[IterationCarryover, ...]
     effect_global_incompatibility_pairs: frozenset[tuple[str, str]]
@@ -596,6 +621,7 @@ class OccurrenceRegistry:
             "causal-relation": {item.id: item for item in self.causal_relations},
             "occurrence-outcome": {item.id: item for item in self.outcomes},
             "recurrence-rule": {item.id: item for item in self.rules},
+            "state-scale": self.state_scales,
             "state-transition": {item.id: item for item in self.state_transitions},
             "iteration-carryover": {item.id: item for item in self.carryovers},
         }
@@ -692,6 +718,18 @@ def _optional_nonnegative_count(item: dict, key: str, context: str) -> int | Non
     return value
 
 
+def _signed_64_int(item: dict, key: str, context: str) -> int:
+    value = item.get(key)
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, int)
+        or value < -9_223_372_036_854_775_808
+        or value > 9_223_372_036_854_775_807
+    ):
+        raise ValueError(f"{context}.{key} must be a signed 64-bit integer.")
+    return value
+
+
 def _positive_int(item: dict, key: str, context: str) -> int:
     value = item.get(key)
     if isinstance(value, bool) or not isinstance(value, int) or value < 1:
@@ -756,6 +794,8 @@ def parse_occurrence_registry(
         raise ValueError("Occurrence registry requires enabled capability `occurrence-participation-identity`.")
     if not packs.capability_enabled("timeline-branch-lifecycle"):
         raise ValueError("Occurrence registry requires enabled capability `timeline-branch-lifecycle`.")
+    if not packs.capability_enabled("capability-progression"):
+        raise ValueError("Occurrence registry requires enabled capability `capability-progression`.")
     root = _mapping(data, "Occurrence registry root")
     assert_allowed_keys(
         root,
@@ -778,6 +818,7 @@ def parse_occurrence_registry(
             "causal_relations",
             "outcomes",
             "rules",
+            "state_scales",
             "state_transitions",
             "carryovers",
         },
@@ -1576,6 +1617,51 @@ def parse_occurrence_registry(
             )
         )
 
+    state_scales: dict[str, StateScale] = {}
+    for index, raw_scale in enumerate(_list(root.get("state_scales"), "occurrences.state_scales")):
+        context = f"state_scales[{index}]"
+        scale = _mapping(raw_scale, context)
+        assert_allowed_keys(scale, {"id", "kind", "levels", "minimum", "maximum", "unit"}, context)
+        scale_id = _stable(_string(scale, "id", context), f"{context}.id")
+        if scale_id in state_scales:
+            raise ValueError(f"{context}.id duplicates `{scale_id}`.")
+        kind = _string(scale, "kind", context)
+        _value(packs, "state.capability-scale-kind", kind, f"{context}.kind")
+        raw_levels = _list(scale.get("levels"), f"{context}.levels")
+        levels: list[StateScaleLevel] = []
+        minimum = maximum = None
+        unit = None
+        if kind == "qualitative":
+            if scale.get("minimum") is not None or scale.get("maximum") is not None or scale.get("unit") is not None:
+                raise ValueError(f"{context} qualitative scales forbid minimum, maximum, and unit.")
+            seen_level_ids: set[str] = set()
+            seen_ordinals: set[int] = set()
+            for level_index, raw_level in enumerate(raw_levels):
+                level_context = f"{context}.levels[{level_index}]"
+                level = _mapping(raw_level, level_context)
+                assert_allowed_keys(level, {"id", "ordinal"}, level_context)
+                level_id = _stable(_string(level, "id", level_context), f"{level_context}.id")
+                ordinal = _optional_nonnegative_int(level, "ordinal", level_context)
+                if ordinal is None:
+                    raise ValueError(f"{level_context}.ordinal must be a nonnegative integer.")
+                if level_id in seen_level_ids or ordinal in seen_ordinals:
+                    raise ValueError(f"{level_context} duplicates a qualitative level ID or ordinal.")
+                seen_level_ids.add(level_id)
+                seen_ordinals.add(ordinal)
+                levels.append(StateScaleLevel(level_id, ordinal))
+            if not levels or sorted(seen_ordinals) != list(range(len(levels))):
+                raise ValueError(f"{context}.levels must use contiguous ordinals beginning at zero.")
+            levels.sort(key=lambda item: item.ordinal)
+        else:
+            if raw_levels:
+                raise ValueError(f"{context} bounded-integer scales forbid qualitative levels.")
+            minimum = _signed_64_int(scale, "minimum", context)
+            maximum = _signed_64_int(scale, "maximum", context)
+            unit = _stable(_string(scale, "unit", context), f"{context}.unit")
+            if minimum >= maximum:
+                raise ValueError(f"{context}.minimum must be less than maximum.")
+        state_scales[scale_id] = StateScale(scale_id, kind, tuple(levels), minimum, maximum, unit)
+
     raw_rules = _list(root.get("rules"), "occurrences.rules")
     rule_ids = _precollect_list_ids(raw_rules, "rules")
     raw_states = _list(root.get("state_transitions"), "occurrences.state_transitions")
@@ -1858,6 +1944,8 @@ def parse_occurrence_registry(
                 "resulting_attitude",
                 "prior_completeness",
                 "resulting_completeness",
+                "prior_capability",
+                "resulting_capability",
                 "activation_occurrence_id",
                 "condition_rule_id",
                 "track_ids",
@@ -1935,6 +2023,21 @@ def parse_occurrence_registry(
         if prior_completeness is not None:
             _value(packs, "state.completeness", prior_completeness, f"{context}.prior_completeness")
             _value(packs, "state.completeness", resulting_completeness, f"{context}.resulting_completeness")
+        prior_capability = _capability_value(item.get("prior_capability"), state_scales, f"{context}.prior_capability")
+        resulting_capability = _capability_value(
+            item.get("resulting_capability"), state_scales, f"{context}.resulting_capability"
+        )
+        _validate_state_dimension(
+            state_profile.capability,
+            prior_capability,
+            resulting_capability,
+            "capability",
+            context,
+        )
+        if prior_capability is not None and resulting_capability is not None:
+            if prior_capability.scale_id != resulting_capability.scale_id:
+                raise ValueError(f"{context} prior and resulting capability must use the same scale.")
+            _validate_capability_change(change_profile, prior_capability, resulting_capability, state_scales, context)
         activation_id = _string(item, "activation_occurrence_id", context)
         if activation_id not in occurrences:
             raise ValueError(f"{context}.activation_occurrence_id references unknown occurrence `{activation_id}`.")
@@ -2007,6 +2110,8 @@ def parse_occurrence_registry(
             resulting_attitude,
             prior_completeness,
             resulting_completeness,
+            prior_capability,
+            resulting_capability,
             activation_id,
             condition_rule_id,
             tuple(sorted(track_ids)),
@@ -2033,6 +2138,8 @@ def parse_occurrence_registry(
                 resulting_attitude,
                 prior_completeness,
                 resulting_completeness,
+                prior_capability,
+                resulting_capability,
                 activation_id,
                 condition_rule_id,
                 track_ids,
@@ -2109,6 +2216,7 @@ def parse_occurrence_registry(
         tuple(causal_relations),
         tuple(outcomes),
         tuple(rules),
+        state_scales,
         tuple(states),
         tuple(carryovers),
         frozenset(pair for pair, scope in packs.effect_incompatibilities.items() if scope == "global"),
@@ -2569,6 +2677,8 @@ def _validate_state_profile(profile: str, prior: str, resulting: str, context: s
         "derive": resulting in {"partial", "available"},
         "activate": prior in {"latent", "inaccessible"} and resulting in {"partial", "available"},
         "invalidate": resulting == "invalidated",
+        "improve": prior == resulting and resulting in {"partial", "available"},
+        "degrade": prior == resulting and resulting in {"partial", "available"},
     }
     if not valid.get(profile, False):
         raise ValueError(
@@ -2577,10 +2687,57 @@ def _validate_state_profile(profile: str, prior: str, resulting: str, context: s
         )
 
 
+def _capability_value(value: object, scales: dict[str, StateScale], context: str) -> CapabilityValue | None:
+    if value is None:
+        return None
+    item = _mapping(value, context)
+    assert_allowed_keys(item, {"scale_id", "value"}, context)
+    scale_id = _stable(_string(item, "scale_id", context), f"{context}.scale_id")
+    if scale_id not in scales:
+        raise ValueError(f"{context}.scale_id references unknown state scale `{scale_id}`.")
+    scale = scales[scale_id]
+    raw_value = item.get("value")
+    if scale.kind == "qualitative":
+        if not isinstance(raw_value, str) or raw_value not in {level.id for level in scale.levels}:
+            raise ValueError(f"{context}.value must be a level from qualitative scale `{scale_id}`.")
+        parsed_value: str | int = raw_value
+    else:
+        if isinstance(raw_value, bool) or not isinstance(raw_value, int):
+            raise ValueError(f"{context}.value must be an integer for bounded scale `{scale_id}`.")
+        if raw_value < scale.minimum or raw_value > scale.maximum:
+            raise ValueError(f"{context}.value falls outside bounded scale `{scale_id}`.")
+        parsed_value = raw_value
+    return CapabilityValue(scale_id, parsed_value)
+
+
+def _capability_rank(value: CapabilityValue, scales: dict[str, StateScale]) -> int:
+    scale = scales[value.scale_id]
+    if scale.kind == "qualitative":
+        return next(level.ordinal for level in scale.levels if level.id == value.value)
+    return int(value.value)
+
+
+def _validate_capability_change(
+    profile: str,
+    prior: CapabilityValue,
+    resulting: CapabilityValue,
+    scales: dict[str, StateScale],
+    context: str,
+) -> None:
+    prior_rank = _capability_rank(prior, scales)
+    resulting_rank = _capability_rank(resulting, scales)
+    if profile == "preserve" and prior_rank != resulting_rank:
+        raise ValueError(f"{context} preserve requires an unchanged capability value.")
+    if profile == "improve" and resulting_rank <= prior_rank:
+        raise ValueError(f"{context} improve requires an increasing capability value.")
+    if profile == "degrade" and resulting_rank >= prior_rank:
+        raise ValueError(f"{context} degrade requires a decreasing capability value.")
+
+
 def _validate_state_dimension(
     requirement: str,
-    prior: str | None,
-    resulting: str | None,
+    prior: object | None,
+    resulting: object | None,
     dimension: str,
     context: str,
 ) -> None:
@@ -2629,6 +2786,11 @@ def _validate_state_chains(
             if previous.resulting_completeness != current.prior_completeness:
                 raise ValueError(
                     f"State transition `{current.id}` prior completeness does not continue "
+                    f"state transition `{previous.id}`."
+                )
+            if previous.resulting_capability != current.prior_capability:
+                raise ValueError(
+                    f"State transition `{current.id}` prior capability does not continue "
                     f"state transition `{previous.id}`."
                 )
 

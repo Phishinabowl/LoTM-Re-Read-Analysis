@@ -358,12 +358,15 @@ def main() -> int:
         )
         occurrence_fixture_path = root / "Framework" / "Data" / "Occurrence" / "valid-registry.yaml"
         fixture_occurrences = parse_occurrence_registry(
-            load_yaml_file(occurrence_fixture_path, "occurrence fixture", expected_schema_version=8),
+            load_yaml_file(occurrence_fixture_path, "occurrence fixture", expected_schema_version=9),
             occurrence_fixture_path,
             packs,
             chronology_fixture,
             subject_targets={"character": {"protagonist", "observer"}},
-            payload_targets={"state-record": {"protagonist-health"}},
+            payload_targets={
+                "state-record": {"protagonist-health"},
+                "credential-record": {"protagonist-qualification"},
+            },
         )
 
         valid_path = temp_root / "valid.json"

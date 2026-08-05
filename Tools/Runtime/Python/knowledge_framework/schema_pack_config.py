@@ -7,7 +7,7 @@ from .strict_yaml import assert_allowed_keys, load_yaml_file
 
 
 SUPPORTED_SCHEMA_PACK_REGISTRY_VERSION = 2
-SUPPORTED_SCHEMA_PACK_VERSION = 3
+SUPPORTED_SCHEMA_PACK_VERSION = 4
 PACK_LIFECYCLES = {"active", "deferred"}
 PACK_KINDS = {"core", "domain", "extension"}
 CAPABILITY_LIFECYCLES = {"available", "planned", "deprecated"}
@@ -102,6 +102,7 @@ class StateProfileDeclaration:
     availability: str
     completeness: str
     attitude: str
+    capability: str
 
 
 @dataclass(frozen=True)
@@ -365,12 +366,14 @@ def parse_semantic_declarations(pack: dict, pack_id: str) -> SemanticDeclaration
         row = require_mapping(raw_row, context)
         assert_allowed_keys(
             row,
-            {"profile_id", "availability", "completeness", "attitude"},
+            {"profile_id", "availability", "completeness", "attitude", "capability"},
             f"Schema pack `{context}`",
         )
         profile_id = require_string(row, "profile_id", context)
         validate_id(profile_id, f"{context}.profile_id")
-        requirements = tuple(require_string(row, key, context) for key in ("availability", "completeness", "attitude"))
+        requirements = tuple(
+            require_string(row, key, context) for key in ("availability", "completeness", "attitude", "capability")
+        )
         if any(requirement not in STATE_DIMENSION_REQUIREMENTS for requirement in requirements):
             raise ValueError(f"Schema-pack configuration `{context}` has an unsupported dimension requirement.")
         if requirements[0] != "required":

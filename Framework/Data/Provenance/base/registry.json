@@ -374,6 +374,44 @@
           ]
         }
       ]
+    },
+    {
+      "id": "engineering-scale-kind-primary",
+      "claim_key": "engineering-capability-uses-qualitative-scale",
+      "subject_type": "state-scale",
+      "subject_id": "engineering-capability",
+      "claim_namespace": "canonical-content",
+      "field_path": "kind",
+      "asserted_value": "qualitative",
+      "assertion_status": "verified",
+      "evidence_links": [
+        {
+          "source_id": "primary-source",
+          "evidence_role": "supports",
+          "locators": [
+            {"id": "engineering-scale-kind-locator", "medium_id": "novel", "evidence_mode": "canonical-text", "locator_type": "point", "position": {"work": "primary-work", "volume": 1, "chapter": 1}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bell-skill-level-primary",
+      "claim_key": "protagonist-bell-skill-novice",
+      "subject_type": "state-transition",
+      "subject_id": "protagonist-acquires-bell-skill",
+      "claim_namespace": "canonical-content",
+      "field_path": "resulting_capability.value",
+      "asserted_value": "novice",
+      "assertion_status": "verified",
+      "evidence_links": [
+        {
+          "source_id": "primary-source",
+          "evidence_role": "supports",
+          "locators": [
+            {"id": "bell-skill-level-locator", "medium_id": "novel", "evidence_mode": "canonical-text", "locator_type": "point", "position": {"work": "primary-work", "volume": 1, "chapter": 1}}
+          ]
+        }
+      ]
     }
   ]
 }

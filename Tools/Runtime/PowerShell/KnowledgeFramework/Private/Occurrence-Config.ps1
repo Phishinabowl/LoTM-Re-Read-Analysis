@@ -1,4 +1,4 @@
-$script:SupportedOccurrenceSchemaVersion = 8
+$script:SupportedOccurrenceSchemaVersion = 9
 $script:OccurrenceStableIdPattern = '^[a-z0-9]+(?:-[a-z0-9]+)*$'
 
 function Get-RequiredOccurrenceString {
@@ -82,6 +82,66 @@ function Get-RequiredOccurrencePositiveInteger {
         throw "$Context.$Key must be a positive integer."
     }
     return [int]$value
+}
+
+function Get-RequiredOccurrenceSigned64Integer {
+    param([object]$Map, [string]$Key, [string]$Context)
+    $value = Get-ProjectMapValue $Map $Key
+    if ($value -isnot [int] -and $value -isnot [long]) {
+        throw "$Context.$Key must be a signed 64-bit integer."
+    }
+    return [long]$value
+}
+
+function ConvertTo-OccurrenceCapabilityValue {
+    param(
+        [object]$Value,
+        [System.Collections.IDictionary]$Scales,
+        [string]$Context
+    )
+    if ($null -eq $Value) {
+        return $null
+    }
+    Assert-OccurrenceMap $Value $Context
+    Assert-KnowledgeMapKeys $Value @('scale_id', 'value') $Context
+    $scaleId = Assert-OccurrenceStableId (Get-RequiredOccurrenceString $Value 'scale_id' $Context) "$Context.scale_id"
+    if (-not $Scales.Contains($scaleId)) {
+        throw "$Context.scale_id references unknown state scale '$scaleId'."
+    }
+    $scale = $Scales[$scaleId]
+    $rawValue = Get-ProjectMapValue $Value 'value'
+    if ($scale.kind -ceq 'qualitative') {
+        if ($rawValue -isnot [string] -or @($scale.levels.id) -cnotcontains $rawValue) {
+            throw "$Context.value must be a level from qualitative scale '$scaleId'."
+        }
+        $parsedValue = $rawValue
+    }
+    else {
+        if (($rawValue -isnot [int] -and $rawValue -isnot [long]) -or $rawValue -lt $scale.minimum -or $rawValue -gt $scale.maximum) {
+            throw "$Context.value must be an integer within bounded scale '$scaleId'."
+        }
+        $parsedValue = [long]$rawValue
+    }
+    return [pscustomobject]@{scale_id=$scaleId
+        value=$parsedValue
+    }
+}
+
+function Get-OccurrenceCapabilityRank {
+    param([object]$Capability, [System.Collections.IDictionary]$Scales)
+    $scale = $Scales[$Capability.scale_id]
+    if ($scale.kind -ceq 'qualitative') {
+        return [long](@($scale.levels | Where-Object { $_.id -ceq $Capability.value })[0].ordinal)
+    }
+    return [long]$Capability.value
+}
+
+function Test-OccurrenceCapabilityEqual {
+    param([object]$Left, [object]$Right)
+    if ($null -eq $Left -or $null -eq $Right) {
+        return $null -eq $Left -and $null -eq $Right
+    }
+    return $Left.scale_id -ceq $Right.scale_id -and $Left.value -ceq $Right.value
 }
 
 function Assert-OccurrenceParentAcyclic {
@@ -896,6 +956,7 @@ function Get-KnowledgeOccurrenceProvenanceTargets {
         'causal-relation'=$causal
         'occurrence-outcome'=$outcomes
         'recurrence-rule'=$rules
+        'state-scale'=$Registry.state_scales
         'state-transition'=$states
         'iteration-carryover'=$carryovers
     }
@@ -1112,6 +1173,7 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
         'aggregate-recurrence-cardinality'
         'occurrence-participation-identity'
         'timeline-branch-lifecycle'
+        'capability-progression'
     )
     foreach ($capability in $requiredCapabilities) {
         if (-not (Test-SchemaPackCapabilityEnabled $SchemaPacks $capability)) {
@@ -1138,13 +1200,14 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
         'causal_relations'
         'outcomes'
         'rules'
+        'state_scales'
         'state_transitions'
         'carryovers'
     )
     Assert-KnowledgeMapKeys $Data $rootKeys 'Occurrence registry root'
     $schemaVersion = Get-ProjectMapValue $Data 'schema_version'
-    if ($schemaVersion -isnot [int] -or $schemaVersion -ne 8) {
-        throw "Unsupported occurrence schema_version '$schemaVersion'; expected 8."
+    if ($schemaVersion -isnot [int] -or $schemaVersion -ne 9) {
+        throw "Unsupported occurrence schema_version '$schemaVersion'; expected 9."
     }
 
     $rawBranches = Get-ProjectMapValue $Data 'branches'
@@ -2144,6 +2207,74 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
         }
     }
 
+    $stateScales = [ordered]@{}
+    $rawStateScales = $Data['state_scales']
+    Assert-OccurrenceList $rawStateScales 'occurrences.state_scales'
+    $index = 0
+    foreach ($item in @($rawStateScales)) {
+        $context = "state_scales[$index]"
+        Assert-OccurrenceMap $item $context
+        Assert-KnowledgeMapKeys $item @('id', 'kind', 'levels', 'minimum', 'maximum', 'unit') $context
+        $id = Assert-OccurrenceStableId (Get-RequiredOccurrenceString $item 'id' $context) "$context.id"
+        if ($stateScales.Contains($id)) {
+            throw "$context.id duplicates '$id'."
+        }
+        $kind = Get-RequiredOccurrenceString $item 'kind' $context
+        Assert-OccurrencePackValue $SchemaPacks 'state.capability-scale-kind' $kind "$context.kind"
+        $rawLevels = $item['levels']
+        Assert-OccurrenceList $rawLevels "$context.levels"
+        $levels = @()
+        $minimum = $null
+        $maximum = $null
+        $unit = $null
+        if ($kind -ceq 'qualitative') {
+            if ($null -ne (Get-ProjectMapValue $item 'minimum') -or $null -ne (Get-ProjectMapValue $item 'maximum') -or $null -ne (Get-ProjectMapValue $item 'unit')) {
+                throw "$context qualitative scales forbid minimum, maximum, and unit."
+            }
+            $levelIds = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+            $ordinals = New-Object 'System.Collections.Generic.HashSet[long]'
+            $levelIndex = 0
+            foreach ($rawLevel in @($rawLevels)) {
+                $levelContext = "$context.levels[$levelIndex]"
+                Assert-OccurrenceMap $rawLevel $levelContext
+                Assert-KnowledgeMapKeys $rawLevel @('id', 'ordinal') $levelContext
+                $levelId = Assert-OccurrenceStableId (Get-RequiredOccurrenceString $rawLevel 'id' $levelContext) "$levelContext.id"
+                $ordinal = Get-OptionalOccurrenceNonnegativeInteger $rawLevel 'ordinal' $levelContext
+                if ($null -eq $ordinal -or -not $levelIds.Add($levelId) -or -not $ordinals.Add([long]$ordinal)) {
+                    throw "$levelContext duplicates a qualitative level ID or ordinal."
+                }
+                $levels += [pscustomobject]@{id=$levelId
+                    ordinal=[long]$ordinal
+                }
+                $levelIndex++
+            }
+            $sortedOrdinals = @($levels | Sort-Object ordinal | ForEach-Object { $_.ordinal })
+            if ($levels.Count -eq 0 -or ($sortedOrdinals -join ',') -cne ((0..($levels.Count - 1)) -join ',')) {
+                throw "$context.levels must use contiguous ordinals beginning at zero."
+            }
+            $levels = @($levels | Sort-Object ordinal)
+        }
+        else {
+            if (@($rawLevels).Count -gt 0) {
+                throw "$context bounded-integer scales forbid qualitative levels."
+            }
+            $minimum = Get-RequiredOccurrenceSigned64Integer $item 'minimum' $context
+            $maximum = Get-RequiredOccurrenceSigned64Integer $item 'maximum' $context
+            $unit = Assert-OccurrenceStableId (Get-RequiredOccurrenceString $item 'unit' $context) "$context.unit"
+            if ($minimum -ge $maximum) {
+                throw "$context.minimum must be less than maximum."
+            }
+        }
+        $stateScales[$id] = [pscustomobject]@{id=$id
+            kind=$kind
+            levels=@($levels)
+            minimum=$minimum
+            maximum=$maximum
+            unit=$unit
+        }
+        $index++
+    }
+
     $rawRules = $Data['rules']
     Assert-OccurrenceList $rawRules 'occurrences.rules'
     $ruleIds = [ordered]@{}
@@ -2562,6 +2693,8 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
             'resulting_attitude'
             'prior_completeness'
             'resulting_completeness'
+            'prior_capability'
+            'resulting_capability'
             'activation_occurrence_id'
             'condition_rule_id'
             'track_ids'
@@ -2638,7 +2771,8 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
                 $prior -in @('latent', 'inaccessible') -and
                 $result -in @('partial', 'available')
             ) -or
-            ($profile -ceq 'invalidate' -and $result -ceq 'invalidated')
+            ($profile -ceq 'invalidate' -and $result -ceq 'invalidated') -or
+            ($profile -in @('improve', 'degrade') -and $prior -ceq $result -and $result -in @('partial', 'available'))
         )
         if (-not $validProfile) {
             throw "$context state profile '$profile' is incompatible with '$prior' -> '$result'."
@@ -2672,6 +2806,33 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
         if ($null -ne $priorCompleteness) {
             Assert-OccurrencePackValue $SchemaPacks 'state.completeness' $priorCompleteness "$context.prior_completeness"
             Assert-OccurrencePackValue $SchemaPacks 'state.completeness' $resultCompleteness "$context.resulting_completeness"
+        }
+        $priorCapability = ConvertTo-OccurrenceCapabilityValue $item['prior_capability'] $stateScales "$context.prior_capability"
+        $resultCapability = ConvertTo-OccurrenceCapabilityValue $item['resulting_capability'] $stateScales "$context.resulting_capability"
+        if (($null -eq $priorCapability) -ne ($null -eq $resultCapability)) {
+            throw "$context must set both prior and resulting capability, or neither."
+        }
+        if ($stateProfile.capability -ceq 'required' -and $null -eq $priorCapability) {
+            throw "$context state profile requires prior and resulting capability."
+        }
+        if ($stateProfile.capability -ceq 'forbidden' -and $null -ne $priorCapability) {
+            throw "$context state profile forbids prior and resulting capability."
+        }
+        if ($null -ne $priorCapability) {
+            if ($priorCapability.scale_id -cne $resultCapability.scale_id) {
+                throw "$context prior and resulting capability must use the same scale."
+            }
+            $priorRank = Get-OccurrenceCapabilityRank $priorCapability $stateScales
+            $resultRank = Get-OccurrenceCapabilityRank $resultCapability $stateScales
+            if ($profile -ceq 'preserve' -and $priorRank -ne $resultRank) {
+                throw "$context preserve requires an unchanged capability value."
+            }
+            if ($profile -ceq 'improve' -and $resultRank -le $priorRank) {
+                throw "$context improve requires an increasing capability value."
+            }
+            if ($profile -ceq 'degrade' -and $resultRank -ge $priorRank) {
+                throw "$context degrade requires a decreasing capability value."
+            }
         }
         $activationId = Get-RequiredOccurrenceString $item 'activation_occurrence_id' $context
         if (-not $occurrences.Contains($activationId)) {
@@ -2757,6 +2918,18 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
             $resultAttitude
             $priorCompleteness
             $resultCompleteness
+            $(if ($null -eq $priorCapability) {
+                    ''
+                }
+                else {
+                    "$($priorCapability.scale_id):$($priorCapability.value)"
+                })
+            $(if ($null -eq $resultCapability) {
+                    ''
+                }
+                else {
+                    "$($resultCapability.scale_id):$($resultCapability.value)"
+                })
             $activationId
             $conditionRuleId
             (@($trackIds | Sort-Object) -join ',')
@@ -2781,6 +2954,8 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
             resulting_attitude=$resultAttitude
             prior_completeness=$priorCompleteness
             resulting_completeness=$resultCompleteness
+            prior_capability=$priorCapability
+            resulting_capability=$resultCapability
             activation_occurrence_id=$activationId
             condition_rule_id=$conditionRuleId
             track_ids=$trackIds
@@ -2809,7 +2984,8 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
                 if (
                     $ordered[$i - 1].resulting_availability -cne $ordered[$i].prior_availability -or
                     $ordered[$i - 1].resulting_attitude -cne $ordered[$i].prior_attitude -or
-                    $ordered[$i - 1].resulting_completeness -cne $ordered[$i].prior_completeness
+                    $ordered[$i - 1].resulting_completeness -cne $ordered[$i].prior_completeness -or
+                    -not (Test-OccurrenceCapabilityEqual $ordered[$i - 1].resulting_capability $ordered[$i].prior_capability)
                 ) {
                     throw "State transition '$($ordered[$i].id)' does not continue '$($ordered[$i-1].id)'."
                 }
@@ -2930,7 +3106,7 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
         }
     }
     return [pscustomobject]@{path=$Path
-        schema_version=8
+        schema_version=9
         chronology=$Chronology
         branches=$branches
         branch_state_transitions=@($branchStateTransitions)
@@ -2949,6 +3125,7 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
         causal_relations=@($causal)
         outcomes=@($outcomes)
         rules=@($rules)
+        state_scales=$stateScales
         state_transitions=@($states)
         carryovers=@($carryovers)
         effect_global_incompatibility_pairs=$globalIncompatibilities
@@ -2959,6 +3136,6 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
 
 function Get-KnowledgeOccurrenceRegistry {
     param([object]$Project, [object]$SchemaPacks, [object]$Chronology, [System.Collections.IDictionary]$SubjectTargets = $null, [System.Collections.IDictionary]$PayloadTargets = $null)
-    $data = ConvertFrom-KnowledgeYamlFile $Project.occurrences_registry 8 'occurrence registry'
+    $data = ConvertFrom-KnowledgeYamlFile $Project.occurrences_registry 9 'occurrence registry'
     return ConvertTo-KnowledgeOccurrenceRegistry $data $Project.occurrences_registry $SchemaPacks $Chronology $SubjectTargets $PayloadTargets
 }

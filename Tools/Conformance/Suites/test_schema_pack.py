@@ -112,7 +112,7 @@ def write_scale_fixture(root: Path, pack_count: int) -> Path:
         selections.append({"pack_id": pack_id, "path": f"packs/{filename}"})
         enabled.append(capability)
         pack = {
-            "schema_version": 3,
+            "schema_version": 4,
             "pack_id": pack_id,
             "pack_version": 1,
             "lifecycle": "active",

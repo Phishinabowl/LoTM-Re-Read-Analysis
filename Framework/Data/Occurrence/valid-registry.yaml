@@ -1,4 +1,4 @@
-schema_version: 8
+schema_version: 9
 
 branches:
   main:
@@ -1196,6 +1196,30 @@ rules:
         target_type: recurrence-pattern
         target_id: outer-loop-pattern
 
+state_scales:
+  - id: engineering-capability
+    kind: qualitative
+    levels:
+      - id: none
+        ordinal: 0
+      - id: novice
+        ordinal: 1
+      - id: practiced
+        ordinal: 2
+      - id: advanced
+        ordinal: 3
+      - id: expert
+        ordinal: 4
+    minimum: null
+    maximum: null
+    unit: null
+  - id: assessment-score
+    kind: bounded-integer
+    levels: []
+    minimum: 0
+    maximum: 100
+    unit: points
+
 state_transitions:
   - id: protagonist-acquires-bell-memory
     subject_type: character
@@ -1359,6 +1383,270 @@ state_transitions:
       - protagonist-experience
     source_targets: []
     certainty: exact
+  - id: protagonist-acquires-bell-skill
+    subject_type: character
+    subject_id: protagonist
+    payload_target_type: occurrence-template
+    payload_target_id: bell
+    state_kind: skill
+    change_kind: acquired
+    change_profile: acquire
+    change_shape: discrete
+    mechanism: training
+    prior_availability: unavailable
+    resulting_availability: partial
+    prior_attitude: null
+    resulting_attitude: null
+    prior_completeness: null
+    resulting_completeness: null
+    prior_capability:
+      scale_id: engineering-capability
+      value: none
+    resulting_capability:
+      scale_id: engineering-capability
+      value: novice
+    activation_occurrence_id: bell-one
+    condition_rule_id: null
+    track_ids:
+      - protagonist-experience
+    source_targets:
+      - id: bell-one-skill-source
+        target_type: occurrence
+        target_id: bell-one
+        role: contributor
+    certainty: exact
+  - id: protagonist-improves-bell-skill
+    subject_type: character
+    subject_id: protagonist
+    payload_target_type: occurrence-template
+    payload_target_id: bell
+    state_kind: skill
+    change_kind: improved
+    change_profile: improve
+    change_shape: gradual
+    mechanism: practice
+    prior_availability: partial
+    resulting_availability: partial
+    prior_attitude: null
+    resulting_attitude: null
+    prior_completeness: null
+    resulting_completeness: null
+    prior_capability:
+      scale_id: engineering-capability
+      value: novice
+    resulting_capability:
+      scale_id: engineering-capability
+      value: practiced
+    activation_occurrence_id: bell-two
+    condition_rule_id: null
+    track_ids:
+      - protagonist-experience
+    source_targets:
+      - id: bell-two-practice-source
+        target_type: occurrence
+        target_id: bell-two
+        role: contributor
+    certainty: exact
+  - id: protagonist-retains-bell-skill
+    subject_type: character
+    subject_id: protagonist
+    payload_target_type: occurrence-template
+    payload_target_id: bell
+    state_kind: skill
+    change_kind: retained
+    change_profile: preserve
+    change_shape: aggregate
+    mechanism: practice
+    prior_availability: partial
+    resulting_availability: partial
+    prior_attitude: null
+    resulting_attitude: null
+    prior_completeness: null
+    resulting_completeness: null
+    prior_capability:
+      scale_id: engineering-capability
+      value: practiced
+    resulting_capability:
+      scale_id: engineering-capability
+      value: practiced
+    activation_occurrence_id: wake-three
+    condition_rule_id: null
+    track_ids:
+      - protagonist-experience
+    source_targets: []
+    certainty: exact
+  - id: protagonist-degrades-bell-skill
+    subject_type: character
+    subject_id: protagonist
+    payload_target_type: occurrence-template
+    payload_target_id: bell
+    state_kind: skill
+    change_kind: degraded
+    change_profile: degrade
+    change_shape: gradual
+    mechanism: conditional
+    prior_availability: partial
+    resulting_availability: partial
+    prior_attitude: null
+    resulting_attitude: null
+    prior_completeness: null
+    resulting_completeness: null
+    prior_capability:
+      scale_id: engineering-capability
+      value: practiced
+    resulting_capability:
+      scale_id: engineering-capability
+      value: novice
+    activation_occurrence_id: escape-three
+    condition_rule_id: null
+    track_ids:
+      - protagonist-experience
+    source_targets: []
+    certainty: exact
+  - id: protagonist-records-assessment-proficiency
+    subject_type: character
+    subject_id: protagonist
+    payload_target_type: occurrence-template
+    payload_target_id: nested-step
+    state_kind: proficiency
+    change_kind: improved
+    change_profile: improve
+    change_shape: discrete
+    mechanism: external
+    prior_availability: available
+    resulting_availability: available
+    prior_attitude: null
+    resulting_attitude: null
+    prior_completeness: null
+    resulting_completeness: null
+    prior_capability:
+      scale_id: assessment-score
+      value: 40
+    resulting_capability:
+      scale_id: assessment-score
+      value: 75
+    activation_occurrence_id: inner-step-two
+    condition_rule_id: null
+    track_ids:
+      - protagonist-experience
+    source_targets:
+      - id: assessment-observation-source
+        target_type: occurrence
+        target_id: inner-step-two
+        role: contributor
+    certainty: exact
+  - id: protagonist-acquires-qualification
+    subject_type: character
+    subject_id: protagonist
+    payload_target_type: credential-record
+    payload_target_id: protagonist-qualification
+    state_kind: qualification
+    change_kind: acquired
+    change_profile: acquire
+    change_shape: discrete
+    mechanism: external
+    prior_availability: unavailable
+    resulting_availability: available
+    prior_attitude: null
+    resulting_attitude: null
+    prior_completeness: null
+    resulting_completeness: null
+    prior_capability: null
+    resulting_capability: null
+    activation_occurrence_id: after-loop
+    condition_rule_id: null
+    track_ids:
+      - protagonist-experience
+    source_targets: []
+    certainty: exact
+  - id: protagonist-loses-bell-skill
+    subject_type: character
+    subject_id: protagonist
+    payload_target_type: occurrence-template
+    payload_target_id: bell
+    state_kind: skill
+    change_kind: lost
+    change_profile: remove
+    change_shape: discrete
+    mechanism: conditional
+    prior_availability: partial
+    resulting_availability: inaccessible
+    prior_attitude: null
+    resulting_attitude: null
+    prior_completeness: null
+    resulting_completeness: null
+    prior_capability:
+      scale_id: engineering-capability
+      value: novice
+    resulting_capability:
+      scale_id: engineering-capability
+      value: none
+    activation_occurrence_id: after-loop
+    condition_rule_id: null
+    track_ids:
+      - protagonist-experience
+    source_targets: []
+    certainty: exact
+  - id: protagonist-restores-bell-skill
+    subject_type: character
+    subject_id: protagonist
+    payload_target_type: occurrence-template
+    payload_target_id: bell
+    state_kind: skill
+    change_kind: restored
+    change_profile: restore
+    change_shape: aggregate
+    mechanism: training
+    prior_availability: inaccessible
+    resulting_availability: available
+    prior_attitude: null
+    resulting_attitude: null
+    prior_completeness: null
+    resulting_completeness: null
+    prior_capability:
+      scale_id: engineering-capability
+      value: none
+    resulting_capability:
+      scale_id: engineering-capability
+      value: practiced
+    activation_occurrence_id: restored-main
+    condition_rule_id: null
+    track_ids:
+      - protagonist-experience
+    source_targets: []
+    certainty: exact
+  - id: protagonist-receives-engineering-expertise
+    subject_type: character
+    subject_id: protagonist
+    payload_target_type: occurrence-template
+    payload_target_id: nested-step
+    state_kind: expertise
+    change_kind: transferred
+    change_profile: supply
+    change_shape: discrete
+    mechanism: external
+    prior_availability: unavailable
+    resulting_availability: available
+    prior_attitude: null
+    resulting_attitude: null
+    prior_completeness: null
+    resulting_completeness: null
+    prior_capability:
+      scale_id: engineering-capability
+      value: none
+    resulting_capability:
+      scale_id: engineering-capability
+      value: advanced
+    activation_occurrence_id: inner-step-one
+    condition_rule_id: null
+    track_ids:
+      - protagonist-experience
+    source_targets:
+      - id: transferred-expertise-source
+        target_type: occurrence
+        target_id: inner-step-one
+        role: origin
+    certainty: exact
 
 carryovers:
   - id: memory-one-to-two
@@ -1378,4 +1666,10 @@ carryovers:
     target_iteration_id: outer-two
     track_id: protagonist-experience
     state_transition_id: protagonist-acquires-health-state
+    certainty: exact
+  - id: skill-one-to-two
+    source_iteration_id: outer-one
+    target_iteration_id: outer-two
+    track_id: protagonist-experience
+    state_transition_id: protagonist-acquires-bell-skill
     certainty: exact

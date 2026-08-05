@@ -225,7 +225,7 @@ function New-ScaleSchemaPackFixture {
                 })
         }
         $pack = [ordered]@{
-            schema_version = 3
+            schema_version = 4
             pack_id = $packId
             pack_version = 1
             lifecycle = 'active'

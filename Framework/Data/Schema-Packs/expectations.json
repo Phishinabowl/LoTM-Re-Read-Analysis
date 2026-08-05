@@ -76,6 +76,7 @@
     {"id": "state-profile-unsupported-requirement", "target": "fixture-core", "operations": [{"op": "set", "path": ["semantic_declarations", "state", "profiles", 0, "completeness"], "value": "sometimes"}]},
     {"id": "state-profile-no-dimensions", "target": "fixture-core", "operations": [{"op": "set", "path": ["semantic_declarations", "state", "profiles", 0, "availability"], "value": "forbidden"}]},
     {"id": "state-kind-profile-missing", "target": "fixture-core", "operations": [{"op": "set", "path": ["semantic_declarations", "state", "kind_profiles"], "value": []}]},
-    {"id": "state-kind-profile-unknown-profile", "target": "fixture-core", "operations": [{"op": "set", "path": ["semantic_declarations", "state", "kind_profiles", 0, "profile_id"], "value": "missing-profile"}]}
+    {"id": "state-kind-profile-unknown-profile", "target": "fixture-core", "operations": [{"op": "set", "path": ["semantic_declarations", "state", "kind_profiles", 0, "profile_id"], "value": "missing-profile"}]},
+    {"id": "state-profile-missing-capability-dimension", "target": "fixture-core", "operations": [{"op": "remove", "path": ["semantic_declarations", "state", "profiles", 0, "capability"]}]}
   ]
 }

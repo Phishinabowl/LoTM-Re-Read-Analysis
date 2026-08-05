@@ -1,5 +1,5 @@
 $script:SupportedSchemaPackRegistryVersion = 2
-$script:SupportedSchemaPackVersion = 3
+$script:SupportedSchemaPackVersion = 4
 $script:AllowedSchemaPackLifecycles = @("active", "deferred")
 $script:AllowedSchemaPackKinds = @("core", "domain", "extension")
 $script:AllowedCapabilityLifecycles = @("available", "planned", "deprecated")
@@ -283,7 +283,7 @@ function ConvertTo-SchemaPackSemanticDeclarations {
         $row = $rows[$index]
         Assert-KnowledgeMapKeys `
             $row `
-        @('profile_id', 'availability', 'completeness', 'attitude') `
+        @('profile_id', 'availability', 'completeness', 'attitude', 'capability') `
             "Schema pack '$context'"
         $profileId = Get-RequiredSchemaPackString $row 'profile_id' $context
         Assert-SchemaPackStableId $profileId "$context.profile_id"
@@ -291,6 +291,7 @@ function ConvertTo-SchemaPackSemanticDeclarations {
             Get-RequiredSchemaPackString $row 'availability' $context
             Get-RequiredSchemaPackString $row 'completeness' $context
             Get-RequiredSchemaPackString $row 'attitude' $context
+            Get-RequiredSchemaPackString $row 'capability' $context
         )
         if (@($requirements | Where-Object { $script:StateDimensionRequirements -cnotcontains $_ }).Count -gt 0) {
             throw "Schema-pack configuration '$context' has an unsupported dimension requirement."
@@ -306,6 +307,7 @@ function ConvertTo-SchemaPackSemanticDeclarations {
             availability=$requirements[0]
             completeness=$requirements[1]
             attitude=$requirements[2]
+            capability=$requirements[3]
         }
     }
 

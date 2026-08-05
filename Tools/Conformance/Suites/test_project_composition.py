@@ -93,6 +93,7 @@ OCCURRENCE_COUNT_FIELDS = (
     "causal_relations",
     "outcomes",
     "rules",
+    "state_scales",
     "state_transitions",
     "carryovers",
 )
@@ -372,6 +373,11 @@ def assert_invalid_compositions(composition: Composition) -> int:
         lambda: load_occurrence_registry(
             project,
             without_capability(packs, "timeline-branch-lifecycle"),
+            composition.chronology,
+        ),
+        lambda: load_occurrence_registry(
+            project,
+            without_capability(packs, "capability-progression"),
             composition.chronology,
         ),
         lambda: load_chronology_registry(
