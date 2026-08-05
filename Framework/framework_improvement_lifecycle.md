@@ -21,7 +21,7 @@ For a new machine, checkout, Codex task, or context-recovery pass, read and insp
 3. This lifecycle for the current iterative workflow.
 4. `Framework/testing_methodology.md` for retained test families and impact rules.
 5. The era index, latest completed version, latest `Testing After Vn` section, and next-version recommendation in `Framework/framework_evolution.md`.
-6. The affected contracts, packs, project registries, fixtures, and `Tools/TOOLING_REFERENCE.md` sections.
+6. The affected contracts, packs, project registries, fixtures, `Tools/Conformance/suites.json`, `Tools/Compatibility/compatibility.json`, and `Tools/TOOLING_REFERENCE.md` sections.
 7. Git branch, status, recent history, and local source/tool availability relevant to the proposed work.
 
 Before designing a version, identify:
@@ -44,6 +44,8 @@ Use Repository Mode evidence discipline unless the maintainer explicitly authori
 | `Framework/testing_methodology.md` | Defines candidate selection and retention, what must be tested, stable test-family IDs, impact-based additions, comparison rules, and result classification. |
 | `Framework/framework_evolution.md` | Records version intent, exact implementation commit, architectural lessons, executed tests, findings, and next-version recommendation. |
 | `Tools/TOOLING_REFERENCE.md` | Defines exact current commands, switches, output contracts, parity recipes, normalization rules, and dated executions. |
+| `Tools/Conformance/suites.json` | Owns the permanent paired conformance inventory, runner paths, discovery boundary, and aggregate profile membership. |
+| `Tools/Compatibility/compatibility.json` | Owns project-consumer checks, representative inputs, timeouts, and cumulative compatibility profiles. |
 | `PROJECT_RULES.md` | Makes the lifecycle and its testing gates mandatory project policy. |
 | Contracts, packs, registries, fixtures, and tools | Implement the current framework and its permanent executable proof. |
 
@@ -80,6 +82,8 @@ Derive the proposed version primarily from the preceding `Testing After Vn` reco
 - explicitly excluded work and deferred capabilities;
 - acceptance criteria; and
 - recommended testing by stable methodology ID, selected catalog candidates, and any new version-specific probes.
+
+For every promised behavior, identify its executable home before implementation: an existing conformance suite, a justified new registered suite, an existing compatibility check, a justified new compatibility check, a static-policy tool, or a pressure-only probe. Most new assertions belong in the existing suite that owns the affected contract. A new suite is warranted only when the behavior forms an independently runnable permanent boundary with its own fixtures and summary contract.
 
 Every proposed version must name its recommended testing before implementation. At minimum, apply the required framework-version baseline and change-impact matrix from `Framework/testing_methodology.md`, review its pressure-test candidate catalog, and select candidates that stress the affected matrices. If the version exposes a durable new risk class, scenario, candidate, comparison rule, or consumer, propose the methodology revision at this stage rather than treating it as an informal one-off.
 
@@ -118,6 +122,16 @@ Implement the accepted contract across every owning layer:
 - downstream consumers affected by the contract; and
 - architecture, tooling, and narrow operational documentation.
 
+Permanent conformance work must follow the shared runner architecture:
+
+1. revise the existing owning Python and PowerShell suite plus shared fixtures whenever that suite can express the behavior coherently;
+2. when a genuinely new permanent boundary requires a suite, add both runtime runners under `Tools/Conformance/Suites/` and register them immediately in `Tools/Conformance/suites.json`;
+3. place every permanent suite in `baseline`; add it to `fast` only when it is foundational, deterministic, and inexpensive enough to improve the local edit loop;
+4. update the suite's structured summary and paired expectations together when meaningful counts or fields change; and
+5. never leave a discovered conformance runner unregistered, duplicate its invocation in CI, or treat a focused direct run as permanent aggregate coverage.
+
+Project-consumer behavior belongs in an existing or newly registered check in `Tools/Compatibility/compatibility.json`. Static repository policy remains under `Tools/Static/`. Conceptual and temporary pressure probes do not enter either registry unless they become durable executable coverage.
+
 When PowerShell source changes or a new PowerShell source location is introduced, apply the repository formatter and manually wrap any remaining overlong semantic expressions before verification. Default formatter discovery must cover every tracked or nonignored untracked PowerShell source across the worktree without requiring a directory allowlist. Formatting must preserve parse/token behavior; it is not permission to rewrite logic during a readability-only pass.
 
 When Python source changes or a new Python source location is introduced, apply Ruff and manually split remaining overlong semantic strings or expressions before verification. Default discovery must cover tracked and nonignored untracked `.py` and `.pyi` sources across the worktree while excluding Markdown code fences and Gitignored generated/local material. Formatting is mechanical maintenance, not permission to alter runtime behavior.
@@ -137,6 +151,8 @@ Use `Framework/testing_methodology.md`, not memory, to select and execute:
 - three-runtime and structured-output parity;
 - project compatibility consumers, including QA and visualization; and
 - root-discovery, rendering, artifact-safety, or scale tests when triggered.
+
+Use focused suite or compatibility-check selection for diagnosis while editing. Before implementation confirmation, run the aggregate conformance `baseline` profile in Python, PowerShell 7, and Windows PowerShell 5.1 and compare its registered inventory and semantic summaries. Run the cumulative compatibility profile required by the methodology rather than assembling individual consumer commands. The aggregate runners are the closure gates; direct suite commands are not substitutes.
 
 Use `Tools/TOOLING_REFERENCE.md` for exact commands and comparison recipes. Update that reference when a command, switch, output contract, expected count, normalization rule, or dated parity record changes.
 
@@ -178,13 +194,14 @@ Start from the proposed testing recorded in the version entry, then consult the 
 
 Pressure testing must try to break the version's assumptions. Distinguish consistent missing capability from implementation correctness: three runtimes can agree on the same defect.
 
-Classify every meaningful result using the methodology's result classes. If a deterministic defect is fixed during pressure testing, add permanent regression coverage, rerun the affected cumulative and compatibility gates, and cite the corrective commit in the evolution results. If testing discovers a durable new testing obligation or a reusable candidate that exposes a distinct structural pressure pattern or fills an industry gap, revise `Framework/testing_methodology.md` before closing the round. Do not promote every one-off example; apply the catalog retention rules.
+Classify every meaningful result using the methodology's result classes. If a deterministic defect is fixed during pressure testing, add permanent regression coverage to the owning registered suite, or create and register a new suite only when the defect reveals an independent test boundary. Rerun the affected focused suite in both implementations, the complete aggregate baseline in all three runtimes, and required compatibility profiles before citing the corrective commit in the evolution results. If testing discovers a durable new testing obligation or a reusable candidate that exposes a distinct structural pressure pattern or fills an industry gap, revise `Framework/testing_methodology.md` before closing the round. Do not promote every one-off example; apply the catalog retention rules.
 
 ### 8. Close The Evolution Record
 
 Replace the `Testing After Vn` placeholder with a concise but complete record of:
 
 - stable test-family IDs actually run;
+- aggregate profile names, registered suite/check inventories, and any intentional profile-membership changes;
 - permanent fixture/assertion counts and meaningful count changes;
 - runtime parity and structured-output results;
 - QA, visualization, render, root-discovery, and other compatibility results;
@@ -218,6 +235,8 @@ A framework version may not advance when:
 - its scope or proposed testing is still undefined;
 - its evolution entry does not identify the planned verification;
 - implementation conformance, parity, or required compatibility has an unclassified failure;
+- a permanent conformance runner is missing from `suites.json`, a required suite is missing from `baseline`, or CI invokes it outside the aggregate profile;
+- a project-consumer check exists outside `compatibility.json` without an explicit temporary-test justification;
 - its implementation commit is not cited through the two-part confirmation sequence;
 - post-version pressure testing has not consulted the current methodology;
 - the candidate catalog was not reviewed or the evolution record does not identify which candidates were used;
@@ -231,6 +250,8 @@ In this project, when the maintainer says `confirm` or `confirmed` about complet
 
 For a framework version implementation, confirmation means the two-part implementation sequence above. For a completed pressure-test record with no implementation changes, confirmation normally means one evolution-results commit and push. Stop at an explicitly requested checkpoint even when later lifecycle work is already known.
 
-## Future Automation
+## Current And Future Automation
 
-This document is the human and coding-assistant workflow authority. Stable test-family IDs and the structured lifecycle are designed to support a future framework-version runner, machine-readable test profile, editor, or wizard. Automation must implement this lifecycle rather than creating a competing definition of version completion.
+The shared conformance and compatibility registries already provide machine-readable inventories and aggregate profiles. CI consumes those profiles rather than duplicating individual test commands. This lifecycle remains the human and coding-assistant authority for selecting impact coverage, pressure candidates, classifications, confirmation boundaries, and historical closure.
+
+A future framework-version runner, editor, or wizard may orchestrate the existing static, conformance, compatibility, and pressure-test stages. It must consume the current registries and implement this lifecycle rather than inventing another suite inventory or a competing definition of version completion.

@@ -96,8 +96,9 @@ Every normal run validates the permanent valid/invalid fixture corpus before sca
 
 ## Continuous Integration
 
-The tracked workflow at `.github/workflows/ci.yml` runs for pull requests, pushes to `main`, and intentional manual dispatches. Ordinary feature-branch checkpoint pushes do not start CI unless that branch already participates in an open pull request. Use the local `fast` conformance profile for immediate iteration; hosted CI preserves five stable check names for future repository rules:
+The tracked workflow at `.github/workflows/ci.yml` runs for pull requests, pushes to `main`, and intentional manual dispatches. The lightweight `.github/workflows/work-annotations.yml` workflow runs `Work Annotation Policy` on every non-`main` branch push without installing project dependencies or starting full conformance. Use the local `fast` conformance profile for immediate iteration; hosted CI preserves six stable check names across both workflows for future repository rules:
 
+- `Work Annotation Policy`
 - `Workflow Policy`
 - `Python Validation`
 - `PowerShell 7 Validation`
@@ -110,7 +111,7 @@ The tracked workflow at `.github/workflows/ci.yml` runs for pull requests, pushe
 actionlint -color
 ```
 
-The three runtime jobs install their declared dependencies, enforce Python and PowerShell formatting, enforce work-annotation policy, and run the permanent `baseline` conformance profile. `Project Compatibility` separately compares all three Visualization and QA implementations, root discovery, safe artifact lifecycle, isolated framework extraction, canonical-output preservation, and unsafe destination rejection through the registry-owned compatibility profile. Pull requests use `pull-request`; pushes to `main` and manual dispatches use `full-release`, which adds byte-identical representative Mermaid rendering. Keep action SHAs immutable. Treat all five job names as a public policy surface: rename one only with the same care as changing a required status check.
+The three runtime jobs install their declared dependencies, enforce Python and PowerShell formatting, enforce work-annotation policy, and run the permanent `baseline` conformance profile. `Project Compatibility` separately compares all three Visualization and QA implementations, root discovery, safe artifact lifecycle, isolated framework extraction, canonical-output preservation, and unsafe destination rejection through the registry-owned compatibility profile. Pull requests use `pull-request`; pushes to `main` and manual dispatches use `full-release`, which adds byte-identical representative Mermaid rendering. Keep action SHAs immutable. Treat all six job names as a public policy surface: rename one only with the same care as changing a required status check.
 
 ## Temporary File Cleanup
 
@@ -478,7 +479,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Confor
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Conformance.ps1 -List -Json
 ```
 
-The current aggregate layer launches each suite in an isolated child runtime. That preserves runner behavior and prevents PowerShell script-scope collisions. The `fast` profile remains a local feedback tool; ordinary feature-branch pushes intentionally do not pay for hosted CI. Pull requests, `main`, and manual dispatches run the full aggregate baseline. Visualization and Obsidian QA remain separate compatibility gates because they validate project consumers rather than framework conformance alone.
+The current aggregate layer launches each suite in an isolated child runtime. That preserves runner behavior and prevents PowerShell script-scope collisions. The `fast` profile remains a local feedback tool; ordinary feature-branch pushes pay only for the standalone work-annotation check, not hosted conformance or compatibility. Pull requests, `main`, and manual dispatches run the full aggregate baseline. Visualization and Obsidian QA remain separate compatibility gates because they validate project consumers rather than framework conformance alone.
 
 ## Compatibility Validation
 

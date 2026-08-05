@@ -17,6 +17,8 @@ The methodology was formalized after V37. Git history owns its revision history;
 | `Framework/framework_improvement_lifecycle.md` | End-to-end version workflow, required checkpoints, two-part implementation confirmation, and closure gates. |
 | `Framework/testing_methodology.md` | Pressure-test candidate selection and retention, test lifecycle, required layers, stable test-family IDs, impact rules, comparison standards, and result classification. |
 | `Tools/TOOLING_REFERENCE.md` | Exact commands, switches, current output shapes, tool-specific parity recipes, expected runtime-only differences, and dated execution records. |
+| `Tools/Conformance/suites.json` | Executable paired-suite inventory, discovery rules, runner paths, tags, and aggregate conformance profiles. |
+| `Tools/Compatibility/compatibility.json` | Executable project-consumer check inventory, representative inputs, timeouts, and cumulative compatibility profiles. |
 | `Framework/framework_evolution.md` | Historical results, defects, capability gaps, architectural conclusions, implementing commits, and next-version recommendations. |
 | `PROJECT_RULES.md` | The short mandatory policy requiring this methodology and blocking advancement when required tests fail. |
 | `Framework/Data/` and paired test tools | Permanent executable fixtures, expected results, malformed cases, scale vectors, and runtime assertions. |
@@ -75,11 +77,39 @@ Named works and real-world domains are **test prompts**, not automatic evidence.
 - Rotate candidates over time. Do not repeatedly use one franchise or one retry scenario as proof of generality.
 - Record the selected candidates, whether each was conceptual, synthetic, repository-grounded, or externally source-grounded, and which test-family IDs it exercised.
 
+## Executable Test Architecture
+
+Permanent testing is split by ownership rather than by whichever command first exposed a defect:
+
+| Layer | Executable Authority | Owns |
+| --- | --- | --- |
+| Framework conformance | `Tools/Conformance/suites.json` plus the paired aggregate runners | Permanent suite IDs, Python/PowerShell runner paths, discovery, tags, and `fast`/`baseline` profile membership. |
+| Project compatibility | `Tools/Compatibility/compatibility.json` plus `run_compatibility.py` | Cross-runtime consumer checks, representative requests, safety probes, timeouts, and `local`/`pull-request`/`full-release` profiles. |
+| Repository static policy | `Tools/Static/`, Ruff configuration, and actionlint | Source formatting, syntax and line-ending policy, work annotations, and GitHub Actions policy. |
+| Pressure testing | This methodology and version-specific probes | Adversarial assumptions, cross-domain portability, retained scenarios, and capability discovery that permanent fixtures cannot yet express. |
+
+The registries are executable inventories; this methodology remains the policy authority. Registry membership proves that a runner is discoverable and included in a named profile. It does not decide which pressure families apply, whether an accepted output change is legitimate, or whether a version may advance.
+
+### Adding Or Revising Executable Coverage
+
+Use this decision order whenever implementation or pressure testing requires a permanent test:
+
+1. **Classify the behavior.** Framework contract and loader semantics belong to conformance; compiled project consumers and file lifecycle belong to compatibility; repository-wide source policy belongs to static tooling; exploratory structural questions remain pressure tests.
+2. **Extend the owning suite by default.** Add positive, malformed, boundary, ambiguity, decision, or scale vectors to the suite that already owns the contract. Do not create one suite per defect or feature.
+3. **Create a suite only for an independent boundary.** A new conformance suite must have a stable purpose, paired Python and PowerShell runners, shared or semantically equivalent fixtures, deterministic structured summaries, and enough independent value to run by itself.
+4. **Register immediately.** Add both runner paths to `Tools/Conformance/suites.json` in the same change. Discovery must reject unregistered runners and stale registry paths. A standalone script is not permanent conformance.
+5. **Assign profiles deliberately.** Every permanent conformance suite belongs to `baseline`. Add it to `fast` only when its foundational diagnostic value justifies its local runtime cost. Profile order must respect dependency and diagnostic order.
+6. **Preserve parity.** Update both runtime implementations and compare structured summaries. If counts or fields change intentionally, update fixtures, suite summaries, project-composition expectations, documentation, and the evolution record together.
+7. **Register consumer checks separately.** Add or revise `compatibility.json` when the behavior crosses runtime implementations, generated artifacts, root discovery, cleanup, extraction, rendering, or another project-consumer boundary. Put representative inputs and profile membership in the registry, not CI YAML.
+8. **Keep CI aggregate-only.** A registered baseline suite automatically flows into each runtime CI job. A registered compatibility check flows through its selected compatibility profiles. CI must not duplicate individual suite or check commands.
+
+Focused direct runner commands are encouraged for diagnosis, but closure claims must use aggregate profiles. Temporary pressure probes may remain unregistered only while they are explicitly labeled, isolated under safe temporary output, and not cited as permanent regression coverage.
+
 ## Stable Test Families
 
 ### Permanent Conformance
 
-`Tools/Conformance/suites.json` is the executable inventory for paired permanent runners. The Python and PowerShell aggregate commands validate that registry, reject discovered but unregistered conformance scripts, and execute named profiles with stable structured summaries. Register every new permanent runner before claiming it is part of the baseline; a standalone script is not permanent coverage until the aggregate inventory owns it.
+`Tools/Conformance/suites.json` is the executable inventory for paired permanent runners. The Python and PowerShell aggregate commands validate that registry, reject missing paths and discovered-but-unregistered conformance scripts, execute named profiles, and emit stable structured summaries. Stable `CONF-*` IDs in this methodology describe policy-level coverage; executable suite IDs in the registry identify the current runners that provide it. One suite may satisfy several related obligations, and an obligation may also require integrated downstream checks.
 
 | ID | Current Purpose | Permanent Surface |
 | --- | --- | --- |
@@ -210,13 +240,15 @@ Testing becomes more comprehensive as a change approaches integration. A later l
 | --- | --- | --- |
 | Edit loop | Affected focused suites, formatters, and static checks | Fast diagnosis while implementation is changing. Add permanent positive, malformed, boundary, ambiguity, decision, or scale vectors with the behavior they protect. |
 | Local checkpoint | Aggregate `fast` profile in the implementation runtime plus affected paired suites | Catch foundational ingestion, lookup, pack, taxonomy, resource, temporal, and chronology failures without waiting for the complete baseline. |
+| Hosted feature-branch push | Standalone `Work Annotation Policy` check | Catch malformed, misplaced, or incorrectly tracked implementation annotations on every non-`main` branch push without running the full framework baseline. |
 | Implementation closure | Aggregate `baseline` in Python, PowerShell 7, and Windows PowerShell 5.1 plus compatibility `local` | Prove complete registered conformance and immediate project-consumer parity before confirmation. |
+| Framework-version confirmation | Compatibility `full-release`, required static checks, and clean aggregate inventory comparison | Exercise every registered compatibility check, including isolated extraction and rendering, before the two-part implementation confirmation. |
 | PR readiness | Compatibility `pull-request`, required static checks, and affected pressure scenarios | Prove root discovery, artifact lifecycle, QA, Visualization, and cross-runtime semantic equivalence before review. |
 | Hosted pull request | Automatic five-check CI: workflow policy, three full runtime baselines, and `Project Compatibility` with `pull-request` | Provide repository-visible integration evidence. Open-PR updates rerun automatically; concurrency cancels superseded runs. |
 | Hosted `main` or manual dispatch | The same full baseline plus `Project Compatibility` with `full-release` | Add representative byte-identical three-runtime rendering at integration/release boundaries. |
 | Post-version closure | Retained and impact-selected pressure testing followed by evolution-log results | Test broader domains and adversarial scenarios that permanent conformance cannot exhaustively enumerate. |
 
-Ordinary feature-branch pushes intentionally do not start hosted CI. Use local focused and `fast` checks while iterating, and do not weaken permanent fixtures merely to reduce runtime. A newly registered suite flows into hosted baseline jobs through `Tools/Conformance/suites.json`; CI must call aggregate profiles rather than duplicate suite commands. Compatibility cases and profile membership similarly flow through `Tools/Compatibility/compatibility.json`.
+Ordinary feature-branch pushes run only the standalone work-annotation workflow. They intentionally do not start hosted conformance, compatibility, formatting, rendering, or workflow-policy jobs unless the branch participates in an open pull request. Use local focused and `fast` checks while iterating, and do not weaken permanent fixtures merely to reduce runtime. A newly registered suite flows into hosted baseline jobs through `Tools/Conformance/suites.json`; CI must call aggregate profiles rather than duplicate suite commands. Compatibility cases and profile membership similarly flow through `Tools/Compatibility/compatibility.json`.
 
 ## Testing Within The Version Lifecycle
 
@@ -228,11 +260,11 @@ Before testing, identify every changed contract, loader, pack, registry, fixture
 
 ### 2. Add Or Update Permanent Tests
 
-Implementation must add permanent vectors for its promised behavior and for every deterministic defect it repairs. Positive cases prove accepted behavior; malformed cases prove rejection boundaries; decision vectors prove exact outcomes and traces. Update both runtime implementations before claiming parity.
+Implementation must add permanent vectors for its promised behavior and for every deterministic defect it repairs. Positive cases prove accepted behavior; malformed cases prove rejection boundaries; decision vectors prove exact outcomes and traces. Extend the existing owning suite unless the behavior creates a genuinely independent permanent boundary. New suites require paired runners, immediate registry membership, `baseline` inclusion, deliberate `fast` consideration, structured-summary parity, and documentation in the stable-family and coverage matrices where applicable.
 
 ### 3. Run Implementation Conformance
 
-Run the aggregate `baseline` profile in Python, PowerShell 7, and Windows PowerShell 5.1, not only the newly edited suite. Exercise permanent families that do not yet own standalone registered runners through their documented integrated checks. Run the three-runtime parity families for every paired surface. Compare aggregate structured summaries, suite summaries, and exact expected errors where the contract defines them. The `fast` profile is useful during implementation but cannot close this step.
+Run the aggregate `baseline` profile in Python, PowerShell 7, and Windows PowerShell 5.1, not only the newly edited suite. Confirm that all three aggregates report the same registered suite inventory and semantically matching summaries. Exercise permanent families represented by integrated checks through their owning registered suites and compatibility profiles. Run the three-runtime parity families for every paired surface. Compare exact expected errors where the contract defines them. The `fast` profile is useful during implementation but cannot close this step.
 
 ### 4. Run Project Compatibility Gate
 
@@ -259,15 +291,11 @@ Every framework evolution version must run:
 - `STATIC-POWERSHELL` in PowerShell 7 and Windows PowerShell 5.1;
 - `STATIC-PYTHON` through both Ruff format-check and line-length-check commands;
 - `STATIC-WORK-ANNOTATIONS` through its fixture-backed repository scan;
+- `STATIC-GITHUB-ACTIONS` when workflows, action pins, CI commands, triggers, permissions, or check names change;
 - the aggregate conformance `baseline` profile in Python, PowerShell 7, and Windows PowerShell 5.1, with matching registered suite inventory and semantic summaries;
-- `CONF-PROJECT-COMPOSITION` and `CONF-LOOKUP`;
-- `CONF-TEMPORAL`;
-- `CONF-CHRONOLOGY`;
-- `CONF-RECONCILIATION`;
-- `CONF-OCCURRENCE`;
-- dedicated `CONF-STRICT-INGESTION`, `CONF-PACK-COMPOSITION`, `CONF-TAXONOMY`, `CONF-RESOURCE`, `CONF-SOURCE`, and `CONF-ENTITY` coverage;
+- every permanent conformance suite registered in `baseline`, currently covering project-root discovery, strict ingestion, lookup, pack composition, taxonomy, resources, sources, entities, provenance, temporal semantics, chronology, reconciliation, occurrences, and complete project composition;
 - `PARITY-THREE-RUNTIME`, `PARITY-STRUCTURED-OUTPUT`, and `PARITY-COMMAND-SURFACE` for affected paired commands;
-- `COMPAT-VISUALIZATION`, `COMPAT-QA`, `COMPAT-RENDER`, and `COMPAT-ARTIFACT-LIFECYCLE`;
+- compatibility `local` during implementation and `full-release` before implementation confirmation, thereby exercising the currently registered Visualization, QA, root-discovery, artifact-lifecycle, framework-extraction, and render checks;
 - every retained pressure scenario materially affected by the version; and
 - `PRESSURE-ADVERSARIAL`, `PRESSURE-CROSS-DOMAIN`, and every materially affected historical pressure matrix after implementation confirmation.
 
@@ -277,6 +305,8 @@ Every framework evolution version must run:
 
 | Change | Additional Required Coverage |
 | --- | --- |
+| Conformance runner, fixture inventory, suite registration, discovery rule, tag, or profile membership | Registry validation, focused execution of the affected suite in both implementations, aggregate `fast` when membership applies, aggregate `baseline` in all three runtimes, inventory/summary comparison, and CI review to confirm no duplicated direct command was added. |
+| Compatibility check, representative input, timeout, normalization, or profile membership | Focused `--check` diagnosis, every cumulative compatibility profile containing the check, canonical-output protection, registry/list output review, and CI review to confirm profile-driven invocation. |
 | Manifest, composition order, project roots, capability activation, or registry discovery | `CONF-PROJECT-COMPOSITION`, `CONF-PACK-COMPOSITION`, `PRESSURE-LAYER-PORTABILITY`, downstream consumers, and full runtime parity. |
 | Unicode lookup, aliases, human-facing identifiers, or exact-ID boundaries | `CONF-LOOKUP`, ambiguous/plural and strict/singular lookup, alias-to-ID collisions, pinned Unicode vectors, ordinal comparison, and every consuming registry. |
 | Strict ingestion or mapping/scalar parsing | Every registry loader, `CONF-STRICT-INGESTION`, all permanent conformance suites, parser budgets, and full runtime parity. |
@@ -340,6 +370,10 @@ Write compatibility and pressure outputs beneath a uniquely scoped ignored `.tmp
 ## Retention And Revision Rules
 
 - Add a new stable test-family ID only for a durable class of coverage, not every individual assertion.
+- Add a new executable suite only for an independently runnable permanent boundary; put ordinary feature and defect vectors in the existing owning suite.
+- Register every new paired conformance runner immediately, include it in `baseline`, and document any `fast` membership decision.
+- Move or rename a suite only by updating both runner paths in `suites.json` in the same change; the aggregate discovery check must remain green.
+- Retire a suite only when its permanent obligations move to identified replacement suites or disappear through an explicit contract removal. Update profile membership, discovery, stable-family mapping, tooling documentation, and evolution history together.
 - Never reuse a retired ID for different semantics.
 - Retire a family only when its owning capability is removed or fully subsumed; identify the replacement ID and reason here.
 - When a scenario becomes executable, preserve its earlier conceptual question and add permanent fixtures for the newly testable behavior.
@@ -358,6 +392,7 @@ Write compatibility and pressure outputs beneath a uniquely scoped ignored `.tmp
 Each version entry should be able to answer:
 
 - Which stable test families ran?
+- Which aggregate profiles and registered suite/check inventories ran, and did profile membership change?
 - What permanent counts changed, and why?
 - Did all required runtimes agree?
 - Did project compatibility consumers remain green?
@@ -370,6 +405,8 @@ Each version entry should be able to answer:
 
 A concise reference such as `Passed: CONF-*, PARITY-*, COMPAT-*; pressure: SCENARIO-DERRICK, SCENARIO-LOKI, PRESSURE-ADVERSARIAL, PRESSURE-CROSS-DOMAIN` is sufficient when the surrounding entry records concrete counts and findings.
 
-## Future Automation
+## Current And Future Automation
 
-Stable test-family IDs are intended to support a later machine-readable test profile and unified runner. Do not create that registry or orchestration layer until the framework extraction boundary and paired-runtime ownership are stable enough to avoid another drifting implementation pair. Until then, this methodology is authoritative and `Tools/TOOLING_REFERENCE.md` remains the command source.
+The machine-readable conformance suite registry, paired aggregate runners, compatibility registry, compatibility orchestrator, and CI profile consumption are implemented. They are the current execution layer and must be extended rather than bypassed.
+
+Future automation may add a higher-level framework-version runner that invokes static policy, all three conformance runtimes, compatibility profiles, and selected pressure-test records. It must consume `suites.json` and `compatibility.json`, preserve this methodology's impact and retention decisions, and leave exact command contracts in `Tools/TOOLING_REFERENCE.md`. It must not create a second suite inventory or infer that an aggregate pass replaces pressure testing and evolution closure.

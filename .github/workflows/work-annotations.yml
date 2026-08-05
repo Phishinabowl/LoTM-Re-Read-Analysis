@@ -1,0 +1,30 @@
+name: Work Annotation Policy
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: work-annotations-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  work-annotations:
+    name: Work Annotation Policy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.10"
+
+      - name: Validate work annotations
+        run: python Tools/Static/lint_work_annotations.py --json
