@@ -526,7 +526,7 @@ Use `--json` / `-Json` for parity-comparable corpus counts and the pinned Unicod
 
 ## Schema-Pack Conformance
 
-Run the dedicated schema-pack suite after changing pack shape, dependency composition, capability lifecycle or activation, controlled-value ownership/hierarchy, or typed semantic declarations. Both implementations load the canonical project composition, then consume the independent three-pack fixture, 52 structured malformed mutations, and two delimiter-collision identity probes in `Framework/Data/Schema-Packs/`. A generated 64-pack composition provides a bounded scale check; all operating-system temporary data is removed automatically.
+Run the dedicated schema-pack suite after changing pack shape, dependency composition, capability lifecycle or activation, controlled-value ownership/hierarchy, or typed semantic declarations. Both implementations load the canonical project composition, then consume the independent three-pack fixture, 52 structured malformed mutations, and two delimiter-collision identity probes in `Framework/Data/Schema-Packs/`. A generated 64-pack composition with one owned typed declaration per pack provides a bounded scale check; all operating-system temporary data is removed automatically.
 
 ```powershell
 python Tools\Conformance\Suites\test_schema_pack.py

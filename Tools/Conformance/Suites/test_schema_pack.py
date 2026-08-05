@@ -106,6 +106,8 @@ def write_scale_fixture(root: Path, pack_count: int) -> Path:
         pack_id = "scale-core" if index == 0 else f"scale-pack-{index:03d}"
         capability = f"scale-capability-{index:03d}"
         value = f"scale-value-{index:03d}"
+        transition_kind = f"scale-transition-{index:03d}"
+        transition_profile = f"scale-profile-{index:03d}"
         filename = f"{pack_id}.json"
         selections.append({"pack_id": pack_id, "path": f"packs/{filename}"})
         enabled.append(capability)
@@ -119,7 +121,21 @@ def write_scale_fixture(root: Path, pack_count: int) -> Path:
             "description": "Generated schema-pack scale fixture.",
             "dependencies": [] if index == 0 else [{"pack_id": "scale-core", "minimum_version": 1}],
             "capabilities": [capability],
-            "controlled_values": {"scale.value": [value]},
+            "controlled_values": {
+                "scale.value": [value],
+                "occurrence.transition-kind": [transition_kind],
+                "occurrence.transition-profile": [transition_profile],
+            },
+            "semantic_declarations": {
+                "occurrence": {
+                    "transition_profiles": [
+                        {
+                            "transition_kind": transition_kind,
+                            "transition_profile": transition_profile,
+                        }
+                    ]
+                }
+            },
         }
         write_json(packs_dir / filename, pack)
     registry_path = root / "registry.json"
@@ -224,6 +240,7 @@ def main() -> int:
             == len(scale_registry.declared_capabilities)
             == len(scale_registry.enabled_capabilities)
             == len(scale_registry.allowed_values("scale.value"))
+            == len(scale_registry.transition_profiles)
             == scale_count
         ):
             raise AssertionError("Schema-pack scale composition counts changed.")
@@ -238,6 +255,7 @@ def main() -> int:
         "fixture_controlled_values": sum(len(values) for values in fixture_registry.controlled_values.values()),
         "invalid_composition_cases": len(expectations["invalid_cases"]),
         "scale_pack_count": scale_count,
+        "scale_typed_declarations": len(scale_registry.transition_profiles),
         "typed_collision_pairs": typed_collision_pairs,
     }
     if args.json:

@@ -271,6 +271,31 @@ foreach ($case in @($invalidCases)) {
     }
 }
 
+$mixedIndeterminateProbe = ConvertFrom-KnowledgeYamlFile $fixturePath 4 'occurrence fixture'
+$mixedRuleSource = ConvertFrom-KnowledgeYamlFile $fixturePath 4 'occurrence fixture'
+$mixedRule = $mixedRuleSource['rules'][0]
+$mixedRule['id'] = 'indeterminate-reset-rule'
+$mixedRule['label'] = 'Indeterminate reset policy'
+$mixedRule['resolution_group'] = 'indeterminate-control'
+$mixedRule['applicability']['effective_window'] = $mixedIndeterminateProbe['rules'][3]['applicability']['effective_window']
+$mixedRule['conditions'][0]['id'] = 'indeterminate-reset-reached'
+$mixedRule['conditions'][1]['id'] = 'indeterminate-reset-ordinal'
+$mixedRule['effects'][0]['id'] = 'indeterminate-reset-advances'
+$mixedIndeterminateProbe['rules'] = @($mixedIndeterminateProbe['rules']) + @($mixedRule)
+$mixedIndeterminateRegistry = ConvertTo-KnowledgeOccurrenceRegistry `
+    $mixedIndeterminateProbe $fixturePath $packs $chronologyFixture $subjectTargets $payloadTargets
+$mixedIndeterminateEvaluation = Get-KnowledgeRecurrenceRuleEvaluation `
+    $mixedIndeterminateRegistry 'outer-loop' 'reset-one'
+if (
+    $mixedIndeterminateEvaluation.status -cne 'indeterminate' -or
+    $mixedIndeterminateEvaluation.execution_disposition -cne 'blocked-indeterminate' -or
+    @($mixedIndeterminateEvaluation.authorized_effects).Count -ne 0
+) {
+    throw 'Mixed selected/indeterminate evaluation did not fail closed.'
+}
+Assert-OccurrenceIds @($mixedIndeterminateEvaluation.selected_rule_ids) @('outer-reset-rule') 'Mixed indeterminate selected rules'
+Assert-OccurrenceIds @($mixedIndeterminateEvaluation.proposed_effects | ForEach-Object { $_.effect_kind }) @('advance-iteration') 'Mixed indeterminate proposed effects'
+
 $extensionValues = [ordered]@{
     'occurrence.rule-kind'=@('pause', 'signal')
     'occurrence.rule-effect-kind'=@('pause-recurrence', 'signal-recurrence')
@@ -414,7 +439,7 @@ $summary = [ordered]@{
     branches=[int]$registry.branches.Count
     carryovers=[int]@($registry.carryovers).Count
     causal_relations=[int]@($registry.causal_relations).Count
-    fixture_queries=67
+    fixture_queries=68
     invalid_cases=[int]@($invalidCases).Count
     iterations=[int]$registry.iterations.Count
     phases=[int]$registry.phases.Count

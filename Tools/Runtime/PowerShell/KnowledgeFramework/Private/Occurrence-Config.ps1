@@ -613,32 +613,42 @@ function Get-KnowledgeRecurrenceRuleEvaluation {
         $evaluations = @()
         $matched = $false
         $disposition = $app.detail
-        if ($app.status -ceq 'applicable') {
+        if ($app.status -cin @('applicable', 'indeterminate')) {
             $evaluations = @($rule.conditions | ForEach-Object { Get-KnowledgeRuleConditionEvaluation $Registry $_ $iteration $occurrence $EffectiveAt })
             $statuses = @($evaluations | ForEach-Object { $_.status })
             if ($rule.condition_logic -ceq 'all') {
-                $matched = @($statuses | Where-Object { $_ -cne 'matched' }).Count -eq 0
+                $conditionsMatched = @($statuses | Where-Object { $_ -cne 'matched' }).Count -eq 0
+                $conditionsRejected = $statuses -ccontains 'not-matched'
                 $conditionIndeterminate = ($statuses -ccontains 'indeterminate') -and ($statuses -cnotcontains 'not-matched')
             }
             else {
-                $matched = $statuses -ccontains 'matched'
-                $conditionIndeterminate = -not $matched -and ($statuses -ccontains 'indeterminate')
+                $conditionsMatched = $statuses -ccontains 'matched'
+                $conditionsRejected = -not $conditionsMatched -and ($statuses -cnotcontains 'indeterminate')
+                $conditionIndeterminate = -not $conditionsMatched -and ($statuses -ccontains 'indeterminate')
             }
-            if ($conditionIndeterminate) {
-                $indeterminate = $true
-                $disposition = 'conditions indeterminate'
-            }
-            else {
-                $disposition = if ($matched) {
-                    'conditions matched'
+            if ($app.status -ceq 'indeterminate') {
+                if ($conditionsRejected) {
+                    $disposition = 'conditions did not match'
                 }
                 else {
-                    'conditions did not match'
+                    $indeterminate = $true
                 }
             }
-        }
-        elseif ($app.status -ceq 'indeterminate') {
-            $indeterminate = $true
+            else {
+                $matched = $conditionsMatched
+                if ($conditionIndeterminate) {
+                    $indeterminate = $true
+                    $disposition = 'conditions indeterminate'
+                }
+                else {
+                    $disposition = if ($matched) {
+                        'conditions matched'
+                    }
+                    else {
+                        'conditions did not match'
+                    }
+                }
+            }
         }
         $working[$rule.id] = [ordered]@{rule=$rule
             applicability=$app.status
@@ -715,11 +725,11 @@ function Get-KnowledgeRecurrenceRuleEvaluation {
     $status = if ($conflicts.Count -gt 0) {
         'conflict'
     }
-    elseif ($selectedIds.Count -gt 0) {
-        'selected'
-    }
     elseif ($indeterminate) {
         'indeterminate'
+    }
+    elseif ($selectedIds.Count -gt 0) {
+        'selected'
     }
     else {
         'no-match'

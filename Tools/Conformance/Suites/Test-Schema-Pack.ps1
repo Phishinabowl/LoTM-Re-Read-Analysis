@@ -211,6 +211,8 @@ function New-ScaleSchemaPackFixture {
         }
         $capability = 'scale-capability-{0:d3}' -f $index
         $value = 'scale-value-{0:d3}' -f $index
+        $transitionKind = 'scale-transition-{0:d3}' -f $index
+        $transitionProfile = 'scale-profile-{0:d3}' -f $index
         $filename = "$packId.json"
         $selections += [ordered]@{pack_id=$packId
             path = "packs/$filename"
@@ -237,7 +239,20 @@ function New-ScaleSchemaPackFixture {
             description = 'Generated schema-pack scale fixture.'
             dependencies = $dependencies
             capabilities = @($capability)
-            controlled_values = [ordered]@{'scale.value'=@($value)
+            controlled_values = [ordered]@{
+                'scale.value'=@($value)
+                'occurrence.transition-kind'=@($transitionKind)
+                'occurrence.transition-profile'=@($transitionProfile)
+            }
+            semantic_declarations = [ordered]@{
+                occurrence = [ordered]@{
+                    transition_profiles = @(
+                        [ordered]@{
+                            transition_kind=$transitionKind
+                            transition_profile=$transitionProfile
+                        }
+                    )
+                }
             }
         }
         Write-FixtureJson (Join-Path $packsRoot $filename) $pack
@@ -352,7 +367,8 @@ try {
         @($scaleRegistry.selection_order).Count -ne $scaleCount -or
         @($scaleRegistry.declared_capabilities).Count -ne $scaleCount -or
         @($scaleRegistry.enabled_capabilities).Count -ne $scaleCount -or
-        @(Get-SchemaPackAllowedValues $scaleRegistry 'scale.value').Count -ne $scaleCount
+        @(Get-SchemaPackAllowedValues $scaleRegistry 'scale.value').Count -ne $scaleCount -or
+        @($scaleRegistry.transition_profiles.Keys).Count -ne $scaleCount
     ) {
         throw 'Schema-pack scale composition counts changed.'
     }
@@ -376,6 +392,7 @@ $summary = [ordered]@{
     fixture_selected_packs = [int]@($fixtureRegistry.selection_order).Count
     invalid_composition_cases = [int]@($expectations.invalid_cases).Count
     scale_pack_count = [int]$scaleCount
+    scale_typed_declarations = [int]@($scaleRegistry.transition_profiles.Keys).Count
     typed_collision_pairs = [int]$typedCollisionPairs
     schema_version = 1
 }

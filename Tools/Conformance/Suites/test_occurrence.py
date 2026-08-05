@@ -281,6 +281,37 @@ def main() -> int:
             continue
         raise AssertionError(f"Malformed occurrence case unexpectedly loaded: {case['name']}")
 
+    mixed_indeterminate_probe = copy.deepcopy(fixture_data)
+    mixed_rule = copy.deepcopy(mixed_indeterminate_probe["rules"][0])
+    mixed_rule["id"] = "indeterminate-reset-rule"
+    mixed_rule["label"] = "Indeterminate reset policy"
+    mixed_rule["resolution_group"] = "indeterminate-control"
+    mixed_rule["applicability"]["effective_window"] = copy.deepcopy(
+        fixture_data["rules"][3]["applicability"]["effective_window"]
+    )
+    mixed_rule["conditions"][0]["id"] = "indeterminate-reset-reached"
+    mixed_rule["conditions"][1]["id"] = "indeterminate-reset-ordinal"
+    mixed_rule["effects"][0]["id"] = "indeterminate-reset-advances"
+    mixed_indeterminate_probe["rules"].append(mixed_rule)
+    mixed_indeterminate_evaluation = parse_occurrence_registry(
+        mixed_indeterminate_probe,
+        fixture_path,
+        packs,
+        chronology_fixture,
+        subject_targets={"character": {"protagonist", "observer"}},
+        payload_targets={"state-record": {"protagonist-health"}},
+    ).evaluate_rules("outer-loop", "reset-one")
+    if (
+        mixed_indeterminate_evaluation.status != "indeterminate"
+        or mixed_indeterminate_evaluation.execution_disposition != "blocked-indeterminate"
+        or list(mixed_indeterminate_evaluation.selected_rule_ids) != ["outer-reset-rule"]
+        or [effect.effect_kind for effect in mixed_indeterminate_evaluation.proposed_effects] != ["advance-iteration"]
+        or mixed_indeterminate_evaluation.authorized_effects
+    ):
+        raise AssertionError(
+            f"Mixed selected/indeterminate evaluation did not fail closed: {mixed_indeterminate_evaluation}"
+        )
+
     extension_packs = with_semantic_extension(
         packs,
         {
@@ -477,7 +508,7 @@ def main() -> int:
             + len(expectations["trace_dispositions"])
             + len(expectations["subject_state_transitions"])
             + len(expectations["state_at"])
-            + 14
+            + 15
         ),
         "invalid_cases": len(invalid_cases),
     }

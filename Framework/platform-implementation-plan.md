@@ -88,10 +88,10 @@ deferred at the stabilization gate.
 ### Phase 1.2 V38 Implementation And Closure
 
 - [x] Implement V38 across contracts, packs, Python, PowerShell, fixtures, and documentation.
-- [ ] Complete the two-part implementation confirmation with the implementation commit recorded in
+- [x] Complete the two-part implementation confirmation with the implementation commit recorded in
   `framework_evolution.md`.
-- [ ] Run the cumulative V38 pressure test under `Framework/testing_methodology.md`.
-- [ ] Record findings, update durable methodology where needed, confirm, and push the testing record.
+- [x] Run the cumulative V38 pressure test under `Framework/testing_methodology.md`.
+- [x] Record findings, update durable methodology where needed, confirm, and push the testing record.
 - [x] Verify the LoTM Visualization and QA compatibility baseline remains green.
 
 ### Phase 1.3 Aggregate And Uncertain Recurrence Cardinality

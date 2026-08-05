@@ -2354,25 +2354,32 @@ def _evaluate_rules(
         evaluations: tuple[RuleConditionEvaluation, ...] = ()
         matched = False
         disposition = app_detail
-        if applicability == "applicable":
+        if applicability in {"applicable", "indeterminate"}:
             evaluations = tuple(
                 _evaluate_rule_condition(registry, condition, recurrence, iteration, occurrence, effective_at)
                 for condition in rule.conditions
             )
             statuses = [item.status for item in evaluations]
             if rule.condition_logic == "all":
-                matched = all(status == "matched" for status in statuses)
+                conditions_matched = all(status == "matched" for status in statuses)
+                conditions_rejected = "not-matched" in statuses
                 condition_indeterminate = "indeterminate" in statuses and "not-matched" not in statuses
             else:
-                matched = "matched" in statuses
-                condition_indeterminate = not matched and "indeterminate" in statuses
-            if condition_indeterminate:
-                indeterminate = True
-                disposition = "conditions indeterminate"
+                conditions_matched = "matched" in statuses
+                conditions_rejected = not conditions_matched and "indeterminate" not in statuses
+                condition_indeterminate = not conditions_matched and "indeterminate" in statuses
+            if applicability == "indeterminate":
+                if conditions_rejected:
+                    disposition = "conditions did not match"
+                else:
+                    indeterminate = True
             else:
-                disposition = "conditions matched" if matched else "conditions did not match"
-        elif applicability == "indeterminate":
-            indeterminate = True
+                matched = conditions_matched
+                if condition_indeterminate:
+                    indeterminate = True
+                    disposition = "conditions indeterminate"
+                else:
+                    disposition = "conditions matched" if matched else "conditions did not match"
         working[rule.id] = {
             "rule": rule,
             "applicability": applicability,
@@ -2438,7 +2445,7 @@ def _evaluate_rules(
         )
         for rule in sorted(registry.rules_for_pattern(recurrence.pattern_id), key=lambda item: item.id)
     )
-    status = "conflict" if conflicts else "selected" if selected else "indeterminate" if indeterminate else "no-match"
+    status = "conflict" if conflicts else "indeterminate" if indeterminate else "selected" if selected else "no-match"
     execution_disposition = {
         "conflict": "blocked-conflict",
         "selected": "authorized",
