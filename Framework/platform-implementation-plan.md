@@ -191,32 +191,32 @@ deferred at the stabilization gate.
 
 ### Phase 1.9 Temporal Stabilization Pressure Test
 
-- [ ] Replay the complete source-grounded Loki scenario across both seasons.
-- [ ] Replay the source-grounded Derrick abandoned-temple loop.
-- [ ] Exercise aggregate attempts, repeated participation, extratemporal context topology, branch
+- [x] Replay the complete source-grounded Loki scenario across both seasons.
+- [x] Replay the source-grounded Derrick abandoned-temple loop.
+- [x] Exercise aggregate attempts, repeated participation, extratemporal context topology, branch
   lifecycle, retained state, and expertise progression together rather than only in isolation.
-- [ ] Run the complete cumulative conformance, three-runtime parity, project compatibility, and
+- [x] Run the complete cumulative conformance, three-runtime parity, project compatibility, and
   retained cross-industry pressure portfolio.
-- [ ] Confirm that chronology remains acyclic while causal, recurrence, participation, and context
+- [x] Confirm that chronology remains acyclic while causal, recurrence, participation, and context
   topology use their own typed relations.
-- [ ] Record every remaining limitation as supported, explicitly deferred, or outside the intended
+- [x] Record every remaining limitation as supported, explicitly deferred, or outside the intended
   framework boundary.
-- [ ] Update the testing methodology and candidate catalog when this phase discovers durable new
+- [x] Update the testing methodology and candidate catalog when this phase discovers durable new
   test obligations.
-- [ ] Confirm and push the final stabilization test record.
+- [x] Confirm and push the final stabilization test record.
 
 ### Phase 1 Exit Gate
 
-- [ ] No known V37/V38 semantic defect blocks higher-level schema composition.
-- [ ] Uncertain/aggregate recurrence cardinality is supported or explicitly deferred.
-- [ ] Repeated participation in one concrete occurrence is supported or explicitly deferred.
-- [ ] Typed extratemporal chronology-context relations are supported or explicitly deferred.
-- [ ] Timeline-branch lifecycle is supported or explicitly deferred.
-- [ ] Knowledge and expertise progression is supported at the agreed boundary or explicitly
+- [x] No known V37/V38 semantic defect blocks higher-level schema composition.
+- [x] Uncertain/aggregate recurrence cardinality is supported or explicitly deferred.
+- [x] Repeated participation in one concrete occurrence is supported or explicitly deferred.
+- [x] Typed extratemporal chronology-context relations are supported or explicitly deferred.
+- [x] Timeline-branch lifecycle is supported or explicitly deferred.
+- [x] Knowledge and expertise progression is supported at the agreed boundary or explicitly
   separated into a later capability with maintainer approval.
-- [ ] The retained Loki and Derrick scenarios pass without invented chronology cycles, occurrence
+- [x] The retained Loki and Derrick scenarios pass without invented chronology cycles, occurrence
   duplication, unsupported precision, or silent state transfer.
-- [ ] Framework evolution identifies the accepted next version or Phase 2 handoff.
+- [x] Framework evolution identifies the accepted next version or Phase 2 handoff.
 
 ## Phase 2: Effective Project Schema Service
 
