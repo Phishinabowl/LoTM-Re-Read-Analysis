@@ -144,9 +144,9 @@ deferred at the stabilization gate.
 - [x] Represent pruning or deactivation as a provenance-backed transition rather than deletion.
 - [x] Preserve branch lineage, continuity membership, applicability, and state at a requested
   boundary.
-- [ ] Model Loki's branching timelines, TVA pruning, restoration/preservation, and final replacement
+- [x] Model Loki's branching timelines, TVA pruning, restoration/preservation, and final replacement
   structure without collapsing branches into one chronology.
-- [ ] Replay source-control branches, environment promotion, alternate histories, and scientific
+- [x] Replay source-control branches, environment promotion, alternate histories, and scientific
   experiment branches.
 - [ ] Complete the version's lifecycle, confirmation, pressure test, and evolution closure.
 

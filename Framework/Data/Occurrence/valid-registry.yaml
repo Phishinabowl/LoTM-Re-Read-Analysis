@@ -55,12 +55,42 @@ branch_state_transitions:
     activation_occurrence_id: after-loop
     trigger_transition_id: null
     certainty: exact
+  - id: changed-outcome-pruned
+    label: Changed Outcome Pruned
+    branch_id: changed-outcome
+    ordinal: 3
+    change_kind: prune
+    prior_state: active
+    resulting_state: pruned
+    activation_occurrence_id: self-intervention
+    trigger_transition_id: null
+    certainty: exact
+  - id: changed-outcome-transferred
+    label: Changed Outcome Transferred
+    branch_id: changed-outcome
+    ordinal: 4
+    change_kind: transfer
+    prior_state: pruned
+    resulting_state: transferred
+    activation_occurrence_id: repeated-observation
+    trigger_transition_id: null
+    certainty: exact
+  - id: changed-outcome-restored
+    label: Changed Outcome Restored
+    branch_id: changed-outcome
+    ordinal: 5
+    change_kind: restore
+    prior_state: transferred
+    resulting_state: restored
+    activation_occurrence_id: restored-main
+    trigger_transition_id: null
+    certainty: exact
   - id: changed-outcome-merged
     label: Changed Outcome Merged
     branch_id: changed-outcome
-    ordinal: 3
+    ordinal: 6
     change_kind: merge
-    prior_state: active
+    prior_state: restored
     resulting_state: merged
     activation_occurrence_id: restored-main
     trigger_transition_id: changed-outcome-merge

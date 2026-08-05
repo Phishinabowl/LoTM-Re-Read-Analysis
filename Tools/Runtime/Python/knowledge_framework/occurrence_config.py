@@ -1423,6 +1423,11 @@ def parse_occurrence_registry(
                 raise ValueError(f"{context} branch-fork trigger must create branch `{branch_id}`.")
             if trigger.transition_profile == "branch-merge" and branch_id not in {source_branch_id, target_branch_id}:
                 raise ValueError(f"{context} branch-merge trigger must involve branch `{branch_id}`.")
+        if change_kind == "merge" and (
+            trigger_transition_id is None
+            or transition_by_id[trigger_transition_id].transition_profile != "branch-merge"
+        ):
+            raise ValueError(f"{context} merge change must reference a branch-merge trigger.")
         certainty = _string(item, "certainty", context)
         _value(packs, "temporal.certainty", certainty, f"{context}.certainty")
         branch_state_transitions.append(

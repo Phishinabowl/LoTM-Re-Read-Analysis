@@ -114,5 +114,7 @@
   {"name":"branch-state-discontinuous","changes":[{"path":"branch_state_transitions.1.prior_state","value":"inactive"}]},
   {"name":"branch-state-first-prior","changes":[{"path":"branch_state_transitions.0.prior_state","value":"emerging"}]},
   {"name":"child-branch-state-without-fork-trigger","changes":[{"path":"branch_state_transitions.2.trigger_transition_id","value":null}]},
-  {"name":"child-branch-state-wrong-fork-trigger","changes":[{"path":"branch_state_transitions.2.trigger_transition_id","value":"changed-outcome-merge"}]}
+  {"name":"child-branch-state-wrong-fork-trigger","changes":[{"path":"branch_state_transitions.2.trigger_transition_id","value":"changed-outcome-merge"}]},
+  {"name":"merge-branch-state-without-merge-trigger","changes":[{"path":"branch_state_transitions.7.trigger_transition_id","value":null}]},
+  {"name":"merge-branch-state-with-wrong-trigger-profile","changes":[{"path":"branch_state_transitions.7.activation_occurrence_id","value":"escape-three"},{"path":"branch_state_transitions.7.trigger_transition_id","value":"changed-outcome-fork"}]}
 ]

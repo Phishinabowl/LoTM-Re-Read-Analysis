@@ -630,12 +630,55 @@ if (
     throw 'Global conflict did not block the complete execution plan.'
 }
 
+$mappingExpectationNames = @(
+    'iteration_occurrences'
+    'branch_state_histories'
+    'recurrence_cardinalities'
+    'position_occurrences'
+    'occurrence_participations'
+    'subject_participations'
+    'track_occurrence_entries'
+    'iteration_track_occurrences'
+    'carryovers_into'
+    'occurrence_recurrences'
+    'occurrence_outcomes'
+    'pattern_rules'
+    'iteration_phases'
+    'subject_state_transitions'
+)
+$listExpectationNames = @(
+    'branch_state_at'
+    'ambiguous_occurrence_neighbors'
+    'schedule_values'
+    'schedule_errors'
+    'schedule_matches'
+    'rule_evaluations'
+    'resolved_effects'
+    'trace_dispositions'
+    'state_at'
+)
+$weightedListExpectations = [ordered]@{
+    track_entry_neighbors=2
+    track_iteration_boundaries=2
+    track_neighbors=2
+}
+$fixtureQueryCount = 18
+foreach ($name in $mappingExpectationNames) {
+    $fixtureQueryCount += @($expectations.$name.PSObject.Properties).Count
+}
+foreach ($name in $listExpectationNames) {
+    $fixtureQueryCount += @($expectations.$name).Count
+}
+foreach ($name in $weightedListExpectations.Keys) {
+    $fixtureQueryCount += @($expectations.$name).Count * $weightedListExpectations[$name]
+}
+
 $summary = [ordered]@{
     branch_state_transitions=[int]@($registry.branch_state_transitions).Count
     branches=[int]$registry.branches.Count
     carryovers=[int]@($registry.carryovers).Count
     causal_relations=[int]@($registry.causal_relations).Count
-    fixture_queries=97
+    fixture_queries=$fixtureQueryCount
     invalid_cases=[int]@($invalidCases).Count
     iterations=[int]$registry.iterations.Count
     recurrence_cardinalities=[int]$registry.recurrence_cardinalities.Count

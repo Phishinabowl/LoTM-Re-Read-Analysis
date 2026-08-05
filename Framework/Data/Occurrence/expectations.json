@@ -4,7 +4,7 @@
   },
   "branch_state_histories": {
     "main": ["main-established", "main-preserved"],
-    "changed-outcome": ["changed-outcome-emerged", "changed-outcome-activated", "changed-outcome-merged"]
+    "changed-outcome": ["changed-outcome-emerged", "changed-outcome-activated", "changed-outcome-pruned", "changed-outcome-transferred", "changed-outcome-restored", "changed-outcome-merged"]
   },
   "branch_state_at": [
     ["main", 0, null],
@@ -12,6 +12,9 @@
     ["main", null, "main-preserved"],
     ["changed-outcome", 1, "changed-outcome-emerged"],
     ["changed-outcome", 2, "changed-outcome-activated"],
+    ["changed-outcome", 3, "changed-outcome-pruned"],
+    ["changed-outcome", 4, "changed-outcome-transferred"],
+    ["changed-outcome", 5, "changed-outcome-restored"],
     ["changed-outcome", 99, "changed-outcome-merged"]
   ],
   "recurrence_cardinalities": {

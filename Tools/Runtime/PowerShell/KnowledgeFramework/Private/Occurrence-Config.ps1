@@ -1966,6 +1966,14 @@ function ConvertTo-KnowledgeOccurrenceRegistry {
                 throw "$context branch-merge trigger must involve branch '$branchId'."
             }
         }
+        if (
+            $changeKind -ceq 'merge' -and (
+                $null -eq $triggerId -or
+                $transitionById[$triggerId].transition_profile -cne 'branch-merge'
+            )
+        ) {
+            throw "$context merge change must reference a branch-merge trigger."
+        }
         $certainty = Get-RequiredOccurrenceString $item 'certainty' $context
         Assert-OccurrencePackValue $SchemaPacks 'temporal.certainty' $certainty "$context.certainty"
         $branchStateTransitions += [pscustomobject]@{id=$id
