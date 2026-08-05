@@ -1293,4 +1293,30 @@ V39 is bounded to realized recurrence history. It does not model expected, permi
 
 ## Testing After V39
 
-Testing is pending implementation confirmation.
+**Pressure corrections:** `dc45237` (`Fix V39 pressure-test findings`)
+
+### Executed Coverage
+
+The cumulative V39 round executed `CONF-STRICT-INGESTION`, `CONF-PACK-COMPOSITION`, `CONF-OCCURRENCE`, `CONF-PROVENANCE`, `CONF-PROJECT-COMPOSITION`, `PARITY-THREE-RUNTIME`, `PARITY-STRUCTURED-OUTPUT`, every registered `full-release` compatibility check, both source-format policies, work-annotation validation, the Derrick and Loki retained scenarios, and the recurrence, evidence-authority, temporal-topology, portability, adversarial, cross-domain, and scale pressure families selected before implementation. The existing LoTM, Loki, IT/operations, medical, legal/compliance, and scientific candidates covered the new semantics without requiring another candidate-catalog entry.
+
+### Defects And Corrections
+
+Pressure testing found no V39 loader or query defect. It did expose a permanent coverage gap: `recurrence-cardinality` was a registered provenance target, but the provenance corpus did not prove a cardinality field through source priority, effective applicability, and authority resolution. The neutral corpus now composes chronology and occurrence fixtures, targets `recurrence-cardinality:inner-minimum-count.minimum_count`, and supplies competing primary and adaptation assertions. At the effective boundary, the primary source wins deterministically without moving source authority into the occurrence loader. Provenance coverage therefore increased from 12 to 14 fixture assertions and from four to five authority vectors while retaining 68 malformed configurations, five invalid queries, and the generated 128-assertion scale extension.
+
+### Permanent And Compatibility Baseline
+
+The complete registered `baseline` passed all 14 suites with matching semantic summaries in Python, PowerShell 7, and Windows PowerShell 5.1. Measured runtimes were 58.9, 216.9, and 331.8 seconds. Ruff passed 38 files; the PowerShell formatter passed 39 files in both runtimes with no changes or long lines; work-annotation validation passed 308 files and all 22 fixtures. The `full-release` compatibility profile passed all six checks in 240.455 seconds: Visualization retained 15 nodes and 121 relationships; QA retained 16 notes, 121 relationships, 71 data references, and all 34 normalized files; all 12 root launches passed; artifact cleanup and six unsafe-destination rejections passed; isolated extraction copied 205 files and passed its portable suites in all three runtimes; and all renderers produced the same nonblank 298,269-byte SVG. Canonical outputs remained unchanged.
+
+### Derrick, Loki, And Cross-Domain Replay
+
+The repository-grounded Derrick loop can now distinguish at least six realized iterations from the smaller representative set that needs concrete identities. Derrick's retained memory, Colin's unaffected state, the recurrence exit, and the chronology remain separate; cardinality adds no cycle and does not synthesize absent passes. The Loki Loom replay can preserve representative attempts while recording an unknown or supported minimum total instead of turning centuries of subjective learning into an invented exact iteration count. That duration remains temporal evidence, not recurrence cardinality.
+
+Synthetic IT deployment retries can record exact or bounded realized attempts while schedules continue to own permitted future retries. Medical recurring episodes can retain representative encounters beside a minimum or ranged history. Legal obligations can distinguish realized misses or completions from future scheduled duties. Scientific interventions can retain sampled trials beside an aggregate count. In each domain, provenance and source applicability determine which count applies; cardinality does not select its own factual authority.
+
+### Remaining Limitations
+
+V39 intentionally cannot represent one participant entering the same concrete occurrence more than once under distinct participation identities. That blocks a faithful account of cases such as Loki interacting with or pruning another participation of himself without cloning the occurrence itself. Typed extratemporal chronology-context topology, branch lifecycle, and accumulated knowledge or expertise also remain deferred. None should be approximated with aggregate cardinality, iteration identity, or provenance records.
+
+### V40 Recommendation
+
+V40 should be **Participation Identity and Revisited Occurrences**. It should give each subject's involvement in an occurrence a stable identity, permit the same subject to participate more than once without duplicating the occurrence, preserve participation-relative order and role/state distinctions, and support provenance targeting. It must remain separate from entity incarnation, recurrence iteration, chronology-context topology, branch lifecycle, and general knowledge acquisition. Derrick should continue to use distinct recurrence iterations, while the Loki replay should prove that two participations of one entity in one occurrence can be distinguished without introducing a chronological cycle.
