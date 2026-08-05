@@ -1243,4 +1243,30 @@ Acceptance requires paired schema-pack and occurrence behavior in Python, PowerS
 
 ## Testing After V38
 
-Testing is pending implementation confirmation.
+**Pressure corrections:** `a103827` (`Fix V38 pressure-test findings`)
+
+### Executed Coverage
+
+The cumulative V38 round executed `CONF-STRICT-INGESTION`, `CONF-PACK-COMPOSITION`, `CONF-OCCURRENCE`, `CONF-PROJECT-COMPOSITION`, `PARITY-THREE-RUNTIME`, `PARITY-STRUCTURED-OUTPUT`, every registered `full-release` compatibility check, both source-format policies, work-annotation validation, the Derrick and Loki retained scenarios, and the recurrence, temporal-topology, portability, adversarial, cross-domain, and scale pressure families selected before implementation. The candidate catalog did not need a new permanent entry: its existing LoTM, Loki, IT/operations, medical, legal/compliance, and scientific candidates exposed the relevant structures without adding a distinct reusable pressure pattern.
+
+### Defects And Corrections
+
+Pressure testing found one implementation defect. Evaluation originally preferred an already selected rule over an unresolved rule, which could authorize an effect while another plausibly applicable policy remained indeterminate. The first global fix also showed why simple precedence reversal was too blunt: a scheduled rule with unknown applicability but definitively false independent conditions must not block an unrelated reset. The corrected tri-state evaluation examines conditions when applicability is indeterminate, eliminates the rule only when those conditions prove it cannot match, and otherwise returns `blocked-indeterminate`. A permanent mixed selected-plus-indeterminate vector now preserves the selected reset as a diagnostic proposal while exposing no authorized effects. Occurrence coverage therefore increased from 67 to 68 query/evaluation assertions while retaining 67 malformed cases.
+
+The scale audit found a coverage gap rather than a runtime defect. The generated 64-pack probe scaled atomic vocabulary but not schema-3 semantic declarations. Every generated pack now owns one transition kind, one transition profile, and one typed mapping between them, proving composition of 64 additional declarations in all three runtimes. The schema-pack suite retains 52 malformed compositions and two delimiter-collision identity pairs. This strengthens the existing `PRESSURE-SCALE` obligation rather than creating another test family.
+
+### Permanent And Compatibility Baseline
+
+The complete registered `baseline` passed all 14 suites with identical semantic summaries in Python, PowerShell 7, and Windows PowerShell 5.1. Measured runtimes were 41.7, 162.2, and 247.3 seconds. Ruff passed 38 files; the PowerShell formatter passed 39 files in both runtimes with no changes or long lines; work-annotation validation passed 308 files and all 22 fixtures. The `full-release` compatibility profile passed all six checks in 170.918 seconds: Visualization retained 15 nodes and 121 relationships; QA retained 16 notes, 121 relationships, 71 data references, and all 34 normalized files; all 12 root launches passed; artifact cleanup and six unsafe-destination rejections passed; isolated extraction copied 205 files and passed its portable suites in all three runtimes; and all renderers produced the same nonblank 298,269-byte SVG. Canonical outputs remained unchanged.
+
+### Derrick, Loki, And Cross-Domain Replay
+
+The repository-grounded Derrick replay remains coherent: passes retain distinct occurrence identities, Derrick-only restored memory precedes the sixth pass, Colin receives no accidental state, reset and termination remain incompatible executable decisions, and exit introduces no chronology cycle. The externally source-grounded Loki replay likewise preserves idempotent retry proposals, conflict-wide blocking, and final termination through an execution override. Synthetic deployment retries, treatment decisions, legal obligations, and scientific interventions all preserve typed ownership, contributor lineage, accumulating versus idempotent repetition, same-target conflict scope, and fail-closed uncertainty without importing narrative vocabulary into core.
+
+### Remaining Limitations
+
+The Loki replay continues to expose supported deferrals rather than V38 regressions: uncertain or aggregate centuries of attempts, repeated participation in one occurrence, typed extratemporal TVA/timeline topology, branch lifecycle, and accumulated knowledge or expertise are not represented yet. These remain explicitly separated capabilities rather than being approximated through V38's effect semantics.
+
+### V39 Recommendation
+
+V39 should be **Aggregate and Uncertain Recurrence Cardinality**. It should support exact, minimum, maximum, ranged, unknown, and aggregate counts; permit representative concrete iterations beside an aggregate history; preserve certainty, provenance, and applicability; and avoid inventing an exact total for Loki's Loom attempts. Repeated participation, chronology-context topology, branch lifecycle, and deeper acquisition semantics remain explicitly excluded for their later bounded versions.
