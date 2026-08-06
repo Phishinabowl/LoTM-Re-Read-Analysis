@@ -222,11 +222,11 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
   than allowing interpretation membership to establish truth.
 - [x] Query one interpretation's internally coherent structure without injecting its ordering edges
   into canonical chronology or weakening ordinary chronology-cycle rejection.
-- [ ] Replay Primer's deliberately unresolved chronology, Memento's competing reconstructions, and
+- [x] Replay Primer's deliberately unresolved chronology, Memento's competing reconstructions, and
   the textual-tradition scenario's competing editorial or scholarly structures, then pressure-test
   IT incident hypotheses, medical differential diagnoses, legal case theories, investigative
   reconstructions, and scientific causal models.
-- [ ] Complete V45 implementation confirmation, pressure testing, evolution recording, and plan
+- [x] Complete V45 implementation confirmation, pressure testing, evolution recording, and plan
   closure through the normal framework lifecycle.
 
 ### Phase 1.11 V46 Participation Chronology Bindings

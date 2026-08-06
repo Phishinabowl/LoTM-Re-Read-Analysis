@@ -1728,4 +1728,33 @@ V45 adds interpretation schema 1, project manifest schema 10, core pack version 
 
 ## Testing After V45
 
-Testing is pending implementation confirmation.
+### Executed Coverage
+
+The V45 implementation-confirmation baseline passed all fifteen registered conformance suites in Python, PowerShell 7, and Windows PowerShell 5.1 with matching canonicalized semantic summaries. The `full-release` compatibility profile passed all six registered checks: Visualization, Obsidian QA, root discovery, artifact lifecycle, isolated framework extraction, and three-runtime rendering. Ruff, PowerShell formatting in both supported runtimes, work-annotation validation, and workflow policy also remained green. Canonical generated output was unchanged and redirected artifacts were removed.
+
+Post-confirmation focused execution replayed `CONF-INTERPRETATION`, `CONF-PROVENANCE`, and `CONF-CHRONOLOGY` in all three runtimes. Interpretation summaries matched at three candidate structures, seven members, four local relations, three comparison sets, seven relation types, four provenance target types, 36 rejected configurations, eight rejected queries, and a generated 128-member/127-relation structure. Provenance matched at twenty-one composed assertions, one claim-supersession relation, five authority vectors, 68 rejected configurations, five rejected queries, and 128 additional scale assertions. Chronology retained fourteen comparison vectors, eleven context queries, seventeen rejected fixtures, and its 128-relation context scale probe. No interpretation-local relation entered canonical chronology or changed an occurrence, entity, branch, claim, or source record.
+
+### Narrative Reconstruction Replay
+
+The retained externally source-grounded *Primer* control now passes `SCENARIO-PRIMER` and `PRESSURE-STRUCTURAL-INTERPRETATION`. Several candidate reconstructions can reuse the same occurrence and chronology-position records while declaring different local precedence or causal edges. Competing or mutually exclusive sets remain explicitly unresolved, and missing source information remains missing rather than being filled by a preferred fan reconstruction. Local acyclicity protects each candidate without weakening canonical chronology-cycle rejection.
+
+The retained externally source-grounded *Memento* control now separates objective occurrences, presentation order, subjective track order, memory state, documentary aids, and normalized claims from candidate event reconstructions. Interpretations may reuse those occurrences and claims and relate them locally through precedence, causality, correspondence, or candidate equivalence. A fully available memory or coherent reconstruction still does not certify its payload, override provenance, or become canonical fact.
+
+The conceptual Tolkien textual-tradition control likewise permits competing editorial or scholarly structures to reference shared works, source segments, evidence artifacts, editions, and claims without duplicating or redefining them. Exact publication or textual-history claims still require separate source grounding. An interpretation can organize a proposed reconstruction, but it cannot silently become canonical work structure, continuity, source authority, or accepted textual history.
+
+### Cross-Domain And Adversarial Replay
+
+Synthetic cross-domain replays confirmed the domain-neutral boundary:
+
+- IT incident hypotheses can be competing root-cause structures or compatible contributing-failure structures while logs, observations, and source authority remain provenance-owned.
+- Medical differential diagnoses can organize candidate findings and causal relations without asserting a diagnosis, ranking probability, or becoming a clinical decision engine.
+- Legal case theories and investigative reconstructions can share people, events, evidence, and claims while remaining unresolved and without inferring guilt, liability, or an official finding.
+- Scientific causal models can reuse observations, trials, entities, and claims while preserving incompatible or source-incomparable explanations without inventing statistics or model selection.
+
+Adversarial pressure retained fail-closed rejection of recursive or nested interpretation targets, interpretation-local precedence cycles, self-relations, duplicate canonical or inverse edges, malformed inverse declarations, unknown providers, provider collisions, missing deferred claims, duplicate comparison sets, and attempts to use lifecycle as acceptance state. Schema 1 intentionally permits only flat candidate structures; a candidate may reference canonical records and claims but cannot contain another interpretation or its internal records. Compatible sets report coexistence, while competing and mutually exclusive sets remain unresolved. None selects a winner from membership, relation count, lifecycle, or evidence presence.
+
+### Findings And V46 Recommendation
+
+No implementation defect, parity defect, compatibility regression, or new durable test-family requirement was found. The existing candidate catalog and `PRESSURE-STRUCTURAL-INTERPRETATION` family covered the round, so the testing methodology did not need revision. Probabilistic ranking, automatic hypothesis generation, nested interpretations, interpretation-ID reconciliation, analytical truth resolution, and UI/editor behavior remain explicit later capabilities rather than V45 failures.
+
+V46 should proceed with **Participation Chronology Bindings**. It should let one occurrence participation or track entry bind to several applicable chronology positions and contexts without duplicating the occurrence, while permitting another participant in that same occurrence to receive a different set. It must preserve incomparable chronology systems, repeated participation, participant-relative state boundaries, and exact rejection of bindings unrelated to the occurrence. *Doctor Who* and *Arrival* remain the primary narrative controls, with distributed event, workflow, healthcare, legal, and scientific chronology systems providing cross-domain pressure. Hosted identity and embodiment remain reserved for V47.
