@@ -88,6 +88,7 @@
         'Get-KnowledgeChronologyComparison'
         'Get-KnowledgeChronologyContextRelationsFrom'
         'Get-KnowledgeChronologyContextRelationsTo'
+        'Get-KnowledgeChronologyProvenanceTarget'
         'Get-KnowledgeChronologyProvenanceTargets'
         'Get-KnowledgeChronologyRegistry'
         'Get-KnowledgeClaimAuthorityEvaluation'

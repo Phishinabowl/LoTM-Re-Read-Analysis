@@ -43,7 +43,7 @@ An interpretation contains `lifecycle`, `label`, and optional `description`. Lif
 
 A member contains `id`, `interpretation_id`, `target_type`, and `target_id`. Within one interpretation, one typed target may appear only once. Supported targets come from installed provenance-target providers plus `provenance-claim`.
 
-Canonical target IDs resolve while the interpretation registry loads. Claim IDs are deferred because provenance also consumes interpretation records as subjects. Project composition must load the structural registry, load provenance with structural interpretation targets available, then validate every deferred `provenance-claim` member against the completed provenance claim-key inventory. No other unresolved target is legal.
+Canonical target IDs resolve through installed providers while the interpretation registry loads. That includes exact `chronology-position` records when an interpretation needs to reuse a canonical coordinate without changing canonical chronology. Claim IDs are deferred because provenance also consumes interpretation records as subjects. Project composition must load the structural registry, load provenance with structural interpretation targets available, then validate every deferred `provenance-claim` member against the completed provenance claim-key inventory. No other unresolved target is legal.
 
 Interpretations cannot contain themselves, another interpretation, or another interpretation's member, relation, or comparison set in schema 1. This prevents recursive hypothesis graphs and keeps the dependency boundary acyclic.
 

@@ -83,11 +83,31 @@ if (-not $capabilityRejected) {
 }
 $provenanceTargets = Get-KnowledgeChronologyProvenanceTargets $fixture
 if (
+    $provenanceTargets['chronology-position'].Count -ne $fixture.positions.Count -or
     $provenanceTargets['chronology-context'].Count -ne 4 -or
     $provenanceTargets['chronology-context-relation'].Count -ne 7 -or
     $provenanceTargets['chronology-context-relation-binding'].Count -ne 3
 ) {
-    throw 'Chronology provenance target counts did not match the V41 fixture.'
+    throw 'Chronology provenance target counts did not match the V50 fixture.'
+}
+$positionTarget = Get-KnowledgeChronologyProvenanceTarget $fixture 'chronology-position' 'civil-anchor'
+if (-not [object]::ReferenceEquals($positionTarget, $fixture.positions['civil-anchor'])) {
+    throw 'Chronology-position provenance lookup returned the wrong canonical record.'
+}
+foreach ($invalidLookup in @(
+        @('chronology-position', 'missing-position'),
+        @('unknown', 'civil-anchor')
+    )) {
+    $rejected = $false
+    try {
+        $null = Get-KnowledgeChronologyProvenanceTarget $fixture $invalidLookup[0] $invalidLookup[1]
+    }
+    catch {
+        $rejected = $true
+    }
+    if (-not $rejected) {
+        throw "Invalid chronology provenance lookup succeeded: $($invalidLookup[0]):$($invalidLookup[1])"
+    }
 }
 
 $scaleCount = 128
@@ -95,6 +115,13 @@ $scaleData = ConvertFrom-KnowledgeYamlFile $fixturePath 2 'chronology scale fixt
 $scaleContexts = @($scaleData['contexts'])
 $scaleRelations = @($scaleData['context_relations'])
 for ($index = 0; $index -lt $scaleCount; $index++) {
+    $scaleData['positions']['scale-position-{0:d3}' -f $index] = [ordered]@{
+        coordinate_system_id = 'control-step'
+        value = 1000 + $index
+        era_id = $null
+        label = 'Scale Position {0:d3}' -f $index
+        certainty = 'exact'
+    }
     $scaleContexts += [ordered]@{
         id = "scale-context-$index"
         label = "Scale Context $index"
@@ -123,6 +150,10 @@ $scaleFixture = ConvertTo-KnowledgeChronologyRegistry `
 @()
 if (@($scaleFixture.context_relations).Count -ne @($fixture.context_relations).Count + $scaleCount) {
     throw 'Chronology context topology scale extension did not retain every generated relation.'
+}
+$scaleProvenanceTargets = Get-KnowledgeChronologyProvenanceTargets $scaleFixture
+if ($scaleProvenanceTargets['chronology-position'].Count -ne $fixture.positions.Count + $scaleCount) {
+    throw 'Chronology-position provider did not retain every generated scale position.'
 }
 
 $invalidPaths = @(Get-ChildItem -LiteralPath $fixtureRoot -Filter 'invalid-*.yaml' | Sort-Object Name)
@@ -153,6 +184,7 @@ $summary = [ordered]@{
     relations=[int]@($registry.relations).Count
     schema_version=[int]$registry.schema_version
     scale_context_relations=[int]$scaleCount
+    scale_positions=[int]$scaleCount
     spans=[int]@($registry.spans).Count
 }
 if ($Json) {

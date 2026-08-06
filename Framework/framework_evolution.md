@@ -28,7 +28,7 @@ From V30 onward, update this file as part of each version. Follow the lifecycle 
 - **V24-V27:** Deterministic configuration ingestion
 - **V28-V42:** Civil time, general chronology, occurrence/recurrence integrity, subject-state acquisition, deterministic recurrence policy, extensible semantic resolution, aggregate cardinality, participation identity, chronology-context topology, and timeline-branch lifecycle
 - **V43-V44:** Epistemic state and capability/proficiency progression
-- **V45-V49:** Competing structural interpretations, participant-relative chronology, hosted identity/embodiment, bounded carrier topology, and optional hosting-pack isolation
+- **V45-V50:** Competing structural interpretations, participant-relative chronology, hosted identity/embodiment, bounded carrier topology, optional hosting-pack isolation, and chronology-position provider closure
 
 ### Marker Conventions
 
@@ -2089,3 +2089,33 @@ V50 should implement **Chronology-Position Provider Closure** as a bounded corre
 **Proposed testing:** `CONF-PACK-COMPOSITION`, `CONF-CHRONOLOGY`, `CONF-INTERPRETATION`, `CONF-HOSTING`, `CONF-PROVENANCE`, `CONF-PROJECT-COMPOSITION`, `PARITY-THREE-RUNTIME`, `PARITY-STRUCTURED-OUTPUT`, `COMPAT-VISUALIZATION`, `COMPAT-QA`, `COMPAT-ROOT-DISCOVERY`, `COMPAT-ARTIFACT-LIFECYCLE`, `COMPAT-FRAMEWORK-EXTRACTION`, `COMPAT-RENDER`, `STATIC-POWERSHELL`, `STATIC-PYTHON`, `STATIC-WORK-ANNOTATIONS`, `SCENARIO-PRIMER`, `SCENARIO-TEXTUAL-TRADITION`, `PRESSURE-STRUCTURAL-INTERPRETATION`, `PRESSURE-EVIDENCE-AUTHORITY`, `PRESSURE-CROSS-DOMAIN`, `PRESSURE-ADVERSARIAL`, and `PRESSURE-SCALE`.
 
 Phase 1.16 now owns V50. Phase 2 remains blocked until the correction passes its two-part implementation and pressure-test confirmation and the expanded stabilization decision is replayed. No other V50 scope is accepted by this checkpoint.
+
+## V50 - Chronology-Position Provider Closure
+
+**Implemented by:** pending
+
+**Proposed testing:** `CONF-PACK-COMPOSITION`, `CONF-CHRONOLOGY`, `CONF-INTERPRETATION`, `CONF-HOSTING`, `CONF-PROVENANCE`, `CONF-PROJECT-COMPOSITION`, `PARITY-THREE-RUNTIME`, `PARITY-STRUCTURED-OUTPUT`, `COMPAT-VISUALIZATION`, `COMPAT-QA`, `COMPAT-ROOT-DISCOVERY`, `COMPAT-ARTIFACT-LIFECYCLE`, `COMPAT-FRAMEWORK-EXTRACTION`, `COMPAT-RENDER`, `STATIC-POWERSHELL`, `STATIC-PYTHON`, `STATIC-WORK-ANNOTATIONS`, `SCENARIO-PRIMER`, `SCENARIO-TEXTUAL-TRADITION`, `PRESSURE-STRUCTURAL-INTERPRETATION`, `PRESSURE-EVIDENCE-AUTHORITY`, `PRESSURE-CROSS-DOMAIN`, `PRESSURE-ADVERSARIAL`, and `PRESSURE-SCALE`.
+
+**Proposed candidates:** Competing reconstructions that reuse exact chronology positions; the retained *Primer* and textual-tradition scenarios; incident, clinical, legal, investigative, and scientific candidate structures; direct positive and unknown-ID provider queries; provenance assertions over position fields; provider omission, duplicate ownership, and unregistered-type compositions; a canonical project with no instantiated positions; and the existing chronology, interpretation, provenance, hosting, and extraction scale probes.
+
+**Superseded assumption:** Exposing chronology contexts through the shared provider was sufficient for structural interpretations that need to reuse exact canonical chronology coordinates.
+
+**Architectural promotion:** Existing canonical chronology positions become addressable through the core provenance and interpretation provider boundary without changing their storage owner or chronology semantics.
+
+V50 is a bounded provider-closure correction. It does not change chronology schema 2, comparison behavior, coordinate semantics, or persisted project data. Core pack version 41 registers `chronology-position` as one provenance subject type. The paired chronology providers expose the registry's existing canonical position objects and reject unsupported types or unknown IDs. Coordinate systems, eras, spans, chronology relations, and mappings remain unexposed because the Phase 1.15 evidence established no corresponding requirement.
+
+The composed interpretation fixture now targets `civil-anchor` through the real chronology provider instead of using a temporary chronology-context substitute. Paired hosting assertions prove the member resolves while competing structures remain unresolved and the surrounding recurrence, causality, participation, state, branch, and carrier owners remain unchanged. Paired provenance fixtures add an assertion over the position's coordinate-system field and verify that dispatch returns the exact chronology-owned object. Direct chronology tests cover successful lookup, unknown position IDs, unsupported subject types, and exact provider inventory. Project composition advances its reviewed oracle to 1,039 controlled values and 71 provenance subject types while retaining ten packs, 123 enabled capabilities, 25 reconciliation target types, and fourteen rejected invalid compositions.
+
+## Testing After V50
+
+Focused `schema-pack`, `chronology`, `interpretation`, `hosting`, `provenance`, and `project-composition` conformance passed with matching structured semantics in Python, PowerShell 7, and Windows PowerShell 5.1. Direct chronology tests resolve the exact registry-owned `civil-anchor` object and reject an unknown position plus an unsupported subject type. The composed fixture resolves a real chronology-position member, rejects a second provider for that same type, and retains ten cross-service assertions. Provenance validates 23 fixture assertions, including a position field-path assertion, and rejects six invalid service queries. Project composition retains two deterministic loads and fourteen rejected invalid compositions while advancing to core pack 41, 1,039 controlled values, and 71 provenance subject types.
+
+All sixteen registered `baseline` suites then passed against the exact final corpus in Python, PowerShell 7, and Windows PowerShell 5.1. The three aggregate executions completed in 647.8 seconds and returned matching suite IDs, statuses, and canonicalized semantic summaries. Existing malformed, parser-budget, ambiguity, depth, and scale families remained green; chronology now additionally creates 128 canonical positions and verifies complete provider enumeration, while the interpretation and hosting scales retain their 128-member and 128-carrier families.
+
+The `full-release` compatibility profile passed all six checks in 184.0 seconds. Visualization retained 15 nodes and 121 relationships. QA retained 16 notes, 121 relationships, 71 data references, one bounded graph, two bounded pages, and all 34 normalized files. All twelve root-discovery launches passed; artifact lifecycle rejected six unsafe destinations; isolated extraction copied 229 files and passed its six portable suites in all three runtimes; and all renderers produced the same nonblank 298,269-byte SVG with identical hashes. Canonical outputs were unchanged and run-owned artifacts were removed.
+
+Ruff formatting and lint passed all 42 Python files. The repository PowerShell formatter passed all 43 files in PowerShell 7 and Windows PowerShell 5.1 with zero drift and no over-limit lines. Work-annotation validation passed 329 eligible files, ten annotations, and all 22 fixtures; actionlint and `git diff --check` were clean.
+
+The implementation-time retained replay covered `SCENARIO-PRIMER`, `SCENARIO-TEXTUAL-TRADITION`, `PRESSURE-STRUCTURAL-INTERPRETATION`, `PRESSURE-EVIDENCE-AUTHORITY`, `PRESSURE-CROSS-DOMAIN`, `PRESSURE-ADVERSARIAL`, and `PRESSURE-SCALE`. Candidate structures can now include exact chronology positions in narrative reconstruction, incident analysis, differential diagnosis, legal or investigative theory, and scientific causal models without adding a chronology edge or selecting a winner. Unknown IDs, unsupported types, duplicate providers, and a canonical project with no instantiated positions all fail or remain empty at the correct boundary. Coordinate systems, eras, spans, chronology relations, and mappings remain unavailable as provider targets. No `implementation-defect`, `parity-defect`, `compatibility-regression`, or additional `missing-capability` was found.
+
+V50 implementation is ready for the first confirmation commit. The mandatory post-confirmation pressure execution and expanded stabilization decision remain pending; Phase 2 must not begin until those results replace this handoff state and the two-part confirmation sequence is complete.

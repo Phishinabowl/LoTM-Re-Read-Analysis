@@ -577,7 +577,31 @@ function Assert-ComposedOwnership {
     if ($controlUnit.Count -ne 1) {
         throw 'Composed hosted-identity reachability changed.'
     }
-    return 8
+    $positionMembers = @(
+        Get-KnowledgeInterpretationMembers $interpretations 'forward-reconstruction' |
+            Where-Object id -CEQ 'forward-position'
+    )
+    if ($positionMembers.Count -ne 1 -or $positionMembers[0].target_type -cne 'chronology-position') {
+        throw 'Composed structural interpretation lost its chronology-position member.'
+    }
+    $positionTarget = Get-KnowledgeChronologyProvenanceTarget `
+        $Occurrences.chronology `
+        'chronology-position' `
+        'civil-anchor'
+    if (-not [object]::ReferenceEquals($positionTarget, $Occurrences.chronology.positions['civil-anchor'])) {
+        throw 'Composed structural interpretation did not use the canonical chronology provider.'
+    }
+    $duplicatePositionProvider = New-KnowledgeInterpretationTargetProvider `
+        'duplicate-chronology-position' `
+    @('chronology-position') `
+    { param($Type, $Id) [pscustomobject]@{id = $Id } }
+    Assert-Rejected {
+        Get-KnowledgeInterpretationRegistry `
+            $fixtureProject `
+            $Packs `
+        @($providers + $duplicatePositionProvider)
+    } 'Duplicate chronology-position interpretation provider unexpectedly loaded.'
+    return 10
 }
 
 function Assert-InvalidQueries {

@@ -349,19 +349,19 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 ### Phase 1.16 V50 Chronology-Position Provider Closure
 
-- [ ] Define V50 as a bounded provider-closure correction, not a chronology-schema expansion.
-- [ ] Register `chronology-position` as a core provenance subject type.
-- [ ] Expose canonical chronology positions through the Python and PowerShell chronology provider
+- [x] Define V50 as a bounded provider-closure correction, not a chronology-schema expansion.
+- [x] Register `chronology-position` as a core provenance subject type.
+- [x] Expose canonical chronology positions through the Python and PowerShell chronology provider
   surfaces without exposing unrelated coordinate-system, era, span, relation, or mapping records.
-- [ ] Replace the composed fixture's temporary chronology-context member with a real
+- [x] Replace the composed fixture's temporary chronology-context member with a real
   chronology-position member and prove interpretation resolution through the actual provider.
-- [ ] Add direct chronology and provenance positive/negative coverage for chronology-position lookup,
+- [x] Add direct chronology and provenance positive/negative coverage for chronology-position lookup,
   assertion dispatch, provider uniqueness, and unknown IDs in both runtimes.
-- [ ] Update project-composition expectations, core/pack versions, contracts, extraction readiness,
+- [x] Update project-composition expectations, core/pack versions, contracts, extraction readiness,
   and framework evolution without changing the chronology registry's persisted schema.
-- [ ] Run focused chronology, interpretation, provenance, hosting, schema-pack, and project-composition
+- [x] Run focused chronology, interpretation, provenance, hosting, schema-pack, and project-composition
   suites in Python, PowerShell 7, and Windows PowerShell 5.1.
-- [ ] Run the complete three-runtime baseline, full-release compatibility, static policy, retained
+- [x] Run the complete three-runtime baseline, full-release compatibility, static policy, retained
   structural-interpretation and cross-domain scenarios, adversarial cases, and scale tests.
 - [ ] Complete the normal two-part V50 implementation and pressure-test confirmation sequence.
 - [ ] Re-run the expanded stabilization decision and either close the Phase 1 exit gate or record a

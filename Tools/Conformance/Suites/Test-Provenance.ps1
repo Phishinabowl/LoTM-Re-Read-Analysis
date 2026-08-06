@@ -374,6 +374,7 @@ function Assert-InvalidProvenanceQueries {
     $actions = @(
         { Get-KnowledgeProvenanceTarget $Registry 'unknown' 'alpha-concept' }
         { Get-KnowledgeProvenanceTarget $Registry 'entity' 'unknown' }
+        { Get-KnowledgeProvenanceTarget $Registry 'chronology-position' 'unknown' }
         { Get-KnowledgeClaimAuthorityEvaluation $Registry 'comparison-profile' 'unknown-claim' }
         { Get-KnowledgeClaimAuthorityEvaluation $Registry 'comparison-profile' 'context-only-claim' }
         { Get-KnowledgeProvenanceApplicabilityDecision $Registry 'provenance-claim' 'unknown-claim' }
@@ -627,6 +628,17 @@ try {
     $bindingAssertion['evidence_links'][0]['locators'][0]['id'] = 'carrier-binding-kind-support-locator'
     [void]$baseDocument.assertions.Add($bindingAssertion)
 
+    $positionAssertion = ConvertTo-MutableFixtureValue $baseDocument.assertions[0]
+    $positionAssertion['id'] = 'chronology-position-system-support'
+    $positionAssertion['claim_key'] = 'civil-anchor-coordinate-system'
+    $positionAssertion['subject_type'] = 'chronology-position'
+    $positionAssertion['subject_id'] = 'civil-anchor'
+    $positionAssertion['claim_namespace'] = 'canonical-content'
+    $positionAssertion['field_path'] = 'coordinate_system_id'
+    $positionAssertion['asserted_value'] = 'civil-year'
+    $positionAssertion['evidence_links'][0]['locators'][0]['id'] = 'chronology-position-support-locator'
+    [void]$baseDocument.assertions.Add($positionAssertion)
+
     $validPath = Join-Path $tempRoot 'valid.json'
     Write-FixtureJson $validPath $baseDocument
     $registry = Get-FixtureProvenanceRegistry `
@@ -652,6 +664,10 @@ try {
         'vessel-body-b'
     if ($bindingTarget.binding_kind -cne 'installed-in') {
         throw 'Host-carrier-binding provenance dispatch returned the wrong target.'
+    }
+    $positionTarget = Get-KnowledgeProvenanceTarget $registry 'chronology-position' 'civil-anchor'
+    if (-not [object]::ReferenceEquals($positionTarget, $chronologyFixture.positions['civil-anchor'])) {
+        throw 'Chronology-position provenance dispatch returned the wrong canonical target.'
     }
     Assert-ProvenanceFixtureCounts $registry $expectations.valid_counts
     Assert-ProvenanceAuthorityVectors $registry @($expectations.authority_vectors)

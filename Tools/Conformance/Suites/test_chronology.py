@@ -109,17 +109,33 @@ def main() -> int:
         raise AssertionError("Chronology context topology loaded without its capability.")
     provenance_targets = fixture.provenance_targets()
     if {key: len(value) for key, value in provenance_targets.items()} != {
+        "chronology-position": len(fixture.positions),
         "chronology-context": 4,
         "chronology-context-relation": 7,
         "chronology-context-relation-binding": 3,
     }:
-        raise AssertionError("Chronology provenance target counts did not match the V41 fixture.")
+        raise AssertionError("Chronology provenance target counts did not match the V50 fixture.")
+    if fixture.provenance_target("chronology-position", "civil-anchor") is not fixture.positions["civil-anchor"]:
+        raise AssertionError("Chronology-position provenance lookup returned the wrong canonical record.")
+    for subject_type, subject_id in (("chronology-position", "missing-position"), ("unknown", "civil-anchor")):
+        try:
+            fixture.provenance_target(subject_type, subject_id)
+        except ValueError:
+            continue
+        raise AssertionError(f"Invalid chronology provenance lookup succeeded: {subject_type}:{subject_id}")
 
     scale_count = 128
     scale_data = copy.deepcopy(fixture_data)
     scale_data["contexts"] = list(scale_data["contexts"])
     scale_data["context_relations"] = list(scale_data["context_relations"])
     for index in range(scale_count):
+        scale_data["positions"][f"scale-position-{index:03d}"] = {
+            "coordinate_system_id": "control-step",
+            "value": 1000 + index,
+            "era_id": None,
+            "label": f"Scale Position {index:03d}",
+            "certainty": "exact",
+        }
         scale_data["contexts"].append(
             {
                 "id": f"scale-context-{index}",
@@ -150,6 +166,8 @@ def main() -> int:
     )
     if len(scale_fixture.context_relations) != len(fixture.context_relations) + scale_count:
         raise AssertionError("Chronology context topology scale extension did not retain every generated relation.")
+    if len(scale_fixture.provenance_targets()["chronology-position"]) != len(fixture.positions) + scale_count:
+        raise AssertionError("Chronology-position provider did not retain every generated scale position.")
 
     invalid_paths = sorted(fixture_root.glob("invalid-*.yaml"))
     for path in invalid_paths:
@@ -174,6 +192,7 @@ def main() -> int:
         "fixture_comparisons": len(expectations["comparisons"]),
         "invalid_fixtures": len(invalid_paths),
         "scale_context_relations": scale_count,
+        "scale_positions": scale_count,
     }
     if args.json:
         print(json.dumps(summary, sort_keys=True, separators=(",", ":")))

@@ -57,6 +57,14 @@ class FixtureProvider:
         return self.relationships[target_type][target_id]
 
 
+class DuplicateChronologyPositionProvider:
+    def provenance_targets(self):
+        return {"chronology-position": {"duplicate-position": {"id": "duplicate-position"}}}
+
+    def provenance_target(self, target_type: str, target_id: str):
+        return self.provenance_targets()[target_type][target_id]
+
+
 PACK_PATHS = {
     "core": "Framework/Packs/core/pack.yaml",
     "hosting-foundation": "Framework/Packs/hosting-foundation/pack.yaml",
@@ -408,7 +416,25 @@ def assert_composed_ownership(project, packs, occurrences, hosting, root: Path) 
         for item in reachable
     ):
         raise AssertionError("Composed hosted-identity reachability changed.")
-    return 8
+    position_members = [
+        item
+        for item in interpretations.members_for_interpretation("forward-reconstruction")
+        if item.id == "forward-position"
+    ]
+    if len(position_members) != 1 or position_members[0].target_type != "chronology-position":
+        raise AssertionError("Composed structural interpretation lost its chronology-position member.")
+    chronology = occurrences.chronology
+    if chronology.provenance_target("chronology-position", "civil-anchor") is not chronology.positions["civil-anchor"]:
+        raise AssertionError("Composed structural interpretation did not use the canonical chronology provider.")
+    expect_rejected(
+        lambda: load_interpretation_registry(
+            fixture_project,
+            packs,
+            (occurrences, chronology, hosting, DuplicateChronologyPositionProvider()),
+        ),
+        "Duplicate chronology-position interpretation provider unexpectedly loaded.",
+    )
+    return 10
 
 
 def assert_invalid_queries(registry) -> int:

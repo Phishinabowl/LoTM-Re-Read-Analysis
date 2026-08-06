@@ -245,6 +245,7 @@ def assert_invalid_queries(registry) -> int:
     actions = (
         lambda: registry.provenance_target("unknown", "alpha-concept"),
         lambda: registry.provenance_target("entity", "unknown"),
+        lambda: registry.provenance_target("chronology-position", "unknown"),
         lambda: registry.evaluate_claim_authority("comparison-profile", "unknown-claim"),
         lambda: registry.evaluate_claim_authority("comparison-profile", "context-only-claim"),
         lambda: registry.applicability_decision("provenance-claim", "unknown-claim"),
@@ -481,6 +482,21 @@ def main() -> int:
         binding_assertion["evidence_links"][0]["locators"][0]["id"] = "carrier-binding-kind-support-locator"
         base_document["assertions"].append(binding_assertion)
 
+        position_assertion = copy.deepcopy(base_document["assertions"][0])
+        position_assertion.update(
+            {
+                "id": "chronology-position-system-support",
+                "claim_key": "civil-anchor-coordinate-system",
+                "subject_type": "chronology-position",
+                "subject_id": "civil-anchor",
+                "claim_namespace": "canonical-content",
+                "field_path": "coordinate_system_id",
+                "asserted_value": "civil-year",
+            }
+        )
+        position_assertion["evidence_links"][0]["locators"][0]["id"] = "chronology-position-support-locator"
+        base_document["assertions"].append(position_assertion)
+
         valid_path = temp_root / "valid.json"
         write_json(valid_path, base_document)
         registry = load_fixture(
@@ -502,6 +518,9 @@ def main() -> int:
         binding_target = registry.provenance_target("host-carrier-binding", "vessel-body-b")
         if binding_target.binding_kind != "installed-in":
             raise AssertionError("Host-carrier-binding provenance dispatch returned the wrong target.")
+        position_target = registry.provenance_target("chronology-position", "civil-anchor")
+        if position_target is not chronology_fixture.positions["civil-anchor"]:
+            raise AssertionError("Chronology-position provenance dispatch returned the wrong canonical target.")
         assert_counts(registry, expectations["valid_counts"])
         assert_authority_vectors(registry, expectations["authority_vectors"])
         assert_services(registry)

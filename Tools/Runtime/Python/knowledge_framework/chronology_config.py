@@ -150,6 +150,7 @@ class ChronologyRegistry:
 
     def provenance_targets(self) -> dict[str, dict[str, object]]:
         return {
+            "chronology-position": self.positions,
             "chronology-context": {item.id: item for item in self.contexts},
             "chronology-context-relation": {item.id: item for item in self.context_relations},
             "chronology-context-relation-binding": {

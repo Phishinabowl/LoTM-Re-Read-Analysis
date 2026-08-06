@@ -283,9 +283,13 @@ function Assert-KnowledgeChronologyContextRelationTargets {
 function Get-KnowledgeChronologyProvenanceTargets {
     param([object]$ChronologyRegistry)
     $targets = [ordered]@{
+        'chronology-position' = [ordered]@{}
         'chronology-context' = [ordered]@{}
         'chronology-context-relation' = [ordered]@{}
         'chronology-context-relation-binding' = [ordered]@{}
+    }
+    foreach ($position in @($ChronologyRegistry.positions.Values)) {
+        $targets['chronology-position'][$position.id] = $position
     }
     foreach ($context in @($ChronologyRegistry.contexts)) {
         $targets['chronology-context'][$context.id] = $context
@@ -297,6 +301,19 @@ function Get-KnowledgeChronologyProvenanceTargets {
         }
     }
     return $targets
+}
+
+function Get-KnowledgeChronologyProvenanceTarget {
+    param([object]$ChronologyRegistry, [string]$SubjectType, [string]$SubjectId)
+
+    $targets = Get-KnowledgeChronologyProvenanceTargets $ChronologyRegistry
+    if (-not $targets.Contains($SubjectType)) {
+        throw "Unsupported chronology provenance subject type '$SubjectType'."
+    }
+    if (-not $targets[$SubjectType].Contains($SubjectId)) {
+        throw "Unknown $SubjectType '$SubjectId'."
+    }
+    return $targets[$SubjectType][$SubjectId]
 }
 
 function ConvertTo-KnowledgeChronologyRegistry {

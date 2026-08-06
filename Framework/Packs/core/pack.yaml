@@ -1,6 +1,6 @@
 schema_version: 4
 pack_id: core
-pack_version: 40
+pack_version: 41
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -396,6 +396,7 @@ controlled_values:
     - metadata-evidence
   provenance.subject-type:
     - applicability-scope
+    - chronology-position
     - chronology-context
     - chronology-context-relation
     - chronology-context-relation-binding

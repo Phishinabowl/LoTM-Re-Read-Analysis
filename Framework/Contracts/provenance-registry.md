@@ -20,4 +20,4 @@ Claim evaluation delegates every supporting locator to the source registry's aut
 
 ## Extension Boundary
 
-New registries become provenance-addressable by exposing normalized target lookup and contributing their subject types through schema packs. They must not copy locator, evidence, claim, or supersession fields into their own schemas. The stable load order is project and packs, foundational registries, sources, chronology, entities or other track-subject providers, occurrences, reconciliation, then provenance.
+New registries become provenance-addressable by exposing normalized target lookup and contributing their subject types through schema packs. Chronology contributes canonical `chronology-position`, context, context-relation, and context-relation-binding targets without duplicating those records or exposing unrelated chronology internals. Providers must not copy locator, evidence, claim, or supersession fields into their own schemas. The stable load order is project and packs, foundational registries, sources, chronology, entities or other track-subject providers, occurrences, reconciliation, then provenance.

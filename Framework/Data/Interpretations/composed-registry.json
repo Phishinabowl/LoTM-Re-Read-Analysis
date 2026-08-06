@@ -55,10 +55,10 @@
       "target_id": "body-a"
     },
     {
-      "id": "forward-context",
+      "id": "forward-position",
       "interpretation_id": "forward-reconstruction",
-      "target_type": "chronology-context",
-      "target_id": "recipient-context"
+      "target_type": "chronology-position",
+      "target_id": "civil-anchor"
     },
     {
       "id": "reverse-wake",
@@ -82,11 +82,11 @@
       "target_member_id": "forward-bell"
     },
     {
-      "id": "forward-host-context",
+      "id": "forward-host-position",
       "interpretation_id": "forward-reconstruction",
       "source_member_id": "forward-host",
       "relationship_type": "corresponds-with",
-      "target_member_id": "forward-context"
+      "target_member_id": "forward-position"
     },
     {
       "id": "reverse-order",

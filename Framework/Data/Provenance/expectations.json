@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "valid_counts": {
-    "assertions": 22,
+    "assertions": 23,
     "claim_supersessions": 1,
-    "claim_keys": 17,
-    "evidence_links": 23,
-    "locators": 23
+    "claim_keys": 18,
+    "evidence_links": 24,
+    "locators": 24
   },
   "authority_vectors": [
     {"claim_key": "authority-winner", "outcome": "winner", "best_rank": 1, "winning_assertion_ids": ["winner-primary"]},
@@ -14,7 +14,7 @@
     {"claim_key": "authority-incomparable", "outcome": "incomparable", "best_rank": null, "winning_assertion_ids": []},
     {"claim_key": "inner-loop-minimum-cardinality", "outcome": "winner", "best_rank": 1, "winning_assertion_ids": ["cardinality-primary"]}
   ],
-  "invalid_query_cases": 5,
+  "invalid_query_cases": 6,
   "scale_additional_assertions": 128,
   "invalid_cases": [
     {"id":"root-unknown-field","operations":[{"op":"set","path":["unknown"],"value":true}]},

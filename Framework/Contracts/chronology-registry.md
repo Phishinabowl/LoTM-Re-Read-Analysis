@@ -49,7 +49,7 @@ Context relations require `chronology-context-topology`. They are directed, non-
 
 Each relation may carry stable typed bindings to an `occurrence`, `occurrence-branch`, or `applicability-scope`. Parsing validates binding identity, vocabulary, and local uniqueness. Composed loading validates target existence after the source and occurrence registries are available, avoiding a chronology-to-occurrence dependency cycle. Bindings connect an intervention or observation to concrete data; they do not assert that either context or bound record occurs before another.
 
-Outgoing and incoming relation queries preserve registry order and may be filtered by relation type. Unknown context queries fail explicitly. Contexts, relations, and bindings are independent provenance subjects.
+Outgoing and incoming relation queries preserve registry order and may be filtered by relation type. Unknown context queries fail explicitly. Positions, contexts, relations, and bindings are independent provenance subjects. The provider exposes the canonical position objects already owned by the registry; it does not copy them or promote coordinate systems, eras, spans, chronology relations, or mappings into provenance subjects.
 
 `compare_positions` and `Get-KnowledgeChronologyComparison` never inspect contexts or context relations. Coordinates in different systems remain incomparable unless positions, relative origins, mappings, or ordinary chronology relations explicitly connect them. A context-topology cycle is therefore legal while a combined exact before/after cycle remains invalid.
 
@@ -64,4 +64,4 @@ The LoTM project therefore stores First through Fifth Epoch labels in `Project_C
 
 ## Conformance
 
-`Framework/Data/Chronology/` contains the cumulative portable chronology fixture corpus. The V41 fixture includes legal cyclic topology, typed target closure, provenance targets, and an explicit cross-system incomparability proof. Run `python Tools/Conformance/Suites/test_chronology.py` and `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Chronology.ps1` after changing chronology vocabulary, registry shape, topology behavior, comparison behavior, provenance providers, or project composition.
+`Framework/Data/Chronology/` contains the cumulative portable chronology fixture corpus. The V50 fixture includes legal cyclic topology, typed target closure, direct positive and negative chronology-position provider lookup, context provenance targets, and an explicit cross-system incomparability proof. Run `python Tools/Conformance/Suites/test_chronology.py` and `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Chronology.ps1` after changing chronology vocabulary, registry shape, topology behavior, comparison behavior, provenance providers, or project composition.
