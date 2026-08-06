@@ -1850,7 +1850,7 @@ Ruff passed all 42 Python files. The repository PowerShell formatter passed all 
 
 ### Post-Confirmation Pressure Execution
 
-**Pressure corrections:** pending
+**Pressure corrections:** `1aba9bd` (`Close V47 pressure-test coverage`)
 
 The V47 pressure round executed `SCENARIO-WESTWORLD`, `SCENARIO-CONTINUITY-IDENTITY`, `PRESSURE-HOSTED-IDENTITY`, `PRESSURE-ENTITY-IDENTITY`, `PRESSURE-PARTICIPANT-CHRONOLOGY`, `PRESSURE-EPISTEMIC-STATE`, `PRESSURE-CAPABILITY-STATE`, `PRESSURE-EVIDENCE-AUTHORITY`, `PRESSURE-LAYER-PORTABILITY`, `PRESSURE-ADVERSARIAL`, `PRESSURE-CROSS-DOMAIN`, and `PRESSURE-SCALE`. It reused the complete three-runtime baseline and `full-release` compatibility results recorded above as the unchanged implementation-closure gate, then reran `CONF-HOSTING` directly after strengthening its permanent positive fixture. Python, PowerShell 7, and Windows PowerShell 5.1 produced identical schema-1 summaries with three carriers, nine occupancies, three transitions, eleven service assertions, 31 rejected configurations, seven rejected queries, and generated 128-carrier and 128-occupancy scale probes.
 
