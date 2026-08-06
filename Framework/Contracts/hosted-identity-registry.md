@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`Project_Config/hosting.yaml` schema version 1 separates a stable identity-bearing subject from
+`Project_Config/hosting.yaml` schema version 2 separates a stable identity-bearing subject from
 the physical or virtual carrier that hosts it. The registry models carrier lifecycle, occupancy,
 control, movement, copy, and handoff without treating a body, control unit, avatar, container,
 vessel, or runtime as the identity that occupies it.
@@ -23,9 +23,28 @@ an optional exclusive termination entry. Carrier lifecycle is independent from e
 Destroying, replacing, or deactivating a carrier does not by itself retire, merge, split, or
 reconcile an identity.
 
-Carriers are provenance-addressable and participate in stable-ID reconciliation. Occupancy and
-transition records are provenance-addressable nested operational records, not reconciliation
-targets.
+Carriers are provenance-addressable and participate in stable-ID reconciliation. Binding,
+occupancy, and transition records are provenance-addressable nested operational records, not
+reconciliation targets.
+
+### Host Carrier Bindings
+
+A `host-carrier-binding` relates one child carrier to one parent carrier without treating either
+carrier as an identity. Its pack-owned kind describes structural use such as installation,
+containment, attachment, virtual execution, or projection. Domain packs may add narrower labels;
+the registry owns the common child/parent shape only.
+
+Each binding supplies activation entries for both carrier lifecycle tracks. Optional termination
+entries must be supplied for both sides together. Paired activation entries resolve to one
+occurrence, as do paired termination entries, but each carrier retains its independent track and
+lifecycle. Activation is inclusive and termination is exclusive. Moving a child carrier between
+parents therefore ends one binding and activates another; it does not move, copy, hand off,
+reconcile, or retire the identity directly occupying that child.
+
+Bindings reject unknown or identical endpoints, unsupported kinds, boundaries outside either
+carrier lifecycle, mismatched paired occurrences, semantic duplicate intervals, and cycles. A
+carrier chain never infers identity continuity, equivalence, incarnation, direct occupancy, or
+truth.
 
 ### Hosted Identity Occupancies
 
@@ -66,10 +85,21 @@ claim. Activation is inclusive and termination is exclusive. A carrier or occupa
 entry is therefore inactive at that entry, allowing an exact handoff without overlapping the old
 and new controller accidentally.
 
-Queries require an explicit carrier and track-entry boundary. They reject unknown carriers,
+Occupancy queries require an explicit carrier and track-entry boundary. They reject unknown carriers,
 unknown entries, and entries from another track. `occupancies_at` returns every active occupancy;
 `controllers_at` filters that set to the `controlling` role. Empty results are valid. Co-control is
 represented as several results, not an ambiguity error or automatic priority decision.
+
+Carrier-topology queries accept an explicit boundary-entry mapping keyed by lifecycle track ID.
+This keeps incomparable carrier tracks independent: the caller supplies the exact entry for each
+track traversed, and the registry never invents a chronology mapping. Direct child/parent queries
+return active binding records only. Ancestor and descendant queries return every active path in
+deterministic distance, carrier-ID, and binding-ID order. Multiple routes remain multiple paths.
+
+`reachable_occupancies_at` returns direct occupancy records together with the carrier path through
+which each is reachable. An empty path is direct occupancy of the requested carrier; a nonempty
+path is indirect reachability. The service never copies an indirect occupancy onto an ancestor or
+selects one path as canonical.
 
 ## Ownership Boundaries
 
@@ -81,7 +111,8 @@ represented as several results, not an ambiguity error or automatic priority dec
 - Availability, memory, belief, capability, and other subject-state changes remain state concerns.
 - Evidence, claims, applicability, source authority, and truth resolution remain provenance
   concerns.
-- Hosting owns only carrier identity, bounded occupancy/control, and explicit carrier transitions.
+- Hosting owns only carrier identity, bounded carrier topology, occupancy/control, and explicit
+  carrier transitions.
 
 The registry must never infer that a subject moved because two occupancies touch, that a copy is
 the same identity because memories match, that a controller is the carrier, or that carrier loss
@@ -92,8 +123,9 @@ means identity death. Those conclusions require explicit records in their owning
 `Tools/Runtime/Python/knowledge_framework/hosting_config.py` and the manifest-backed PowerShell
 `KnowledgeFramework` module are behaviorally paired. They enforce schema and closed-shape
 ingestion, pack capability and vocabulary ownership, stable IDs, provider closure, exact boundary
-membership, carrier/occupancy interval containment, transition-kind rules, relationship target
-resolution, semantic duplicate rejection, deterministic queries, provenance targets,
+membership, carrier/binding/occupancy interval containment, transition-kind rules, relationship
+target resolution, semantic duplicate and cycle rejection, deterministic direct/transitive
+queries, provenance targets,
 reconciliation-provider shape, and bounded scale.
 
 Portable fixtures live under `Framework/Data/Hosting/`. Run

@@ -329,6 +329,7 @@ function Get-ProjectCompositionSummary {
             }
             hosting = [ordered]@{
                 carriers = $Composition.hosting.carriers.Count
+                bindings = $Composition.hosting.bindings.Count
                 occupancies = $Composition.hosting.occupancies.Count
                 transitions = $Composition.hosting.transitions.Count
             }

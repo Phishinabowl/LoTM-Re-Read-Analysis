@@ -155,7 +155,7 @@ function Assert-Services {
         'Carrier occupancy query'
     Assert-Ids `
     (Get-KnowledgeHostedIdentityOccupancies $Registry 'entity' 'alpha') `
-    @('alpha-controller', 'alpha-runtime-source', 'alpha-controller-body-b') `
+    @('alpha-controller', 'alpha-control-unit', 'alpha-runtime-source', 'alpha-controller-body-b') `
         'Subject occupancy query'
     Assert-Ids `
     (Get-KnowledgeHostCarrierControllersAt $Registry 'body-a' 'protagonist-entry-04') `
@@ -199,7 +199,82 @@ function Assert-Services {
     if (@($reconciliation.targets.Keys) -join ',' -cne 'host-carrier') {
         throw 'Hosted identity reconciliation target boundary changed.'
     }
-    return 11
+    $boundary05 = [ordered]@{
+        'protagonist-experience' = 'protagonist-entry-05'
+        'observer-experience' = 'observer-entry-04'
+    }
+    $boundary10 = [ordered]@{
+        'protagonist-experience' = 'protagonist-entry-10'
+        'observer-experience' = 'observer-entry-07'
+    }
+    Assert-Ids `
+    (Get-KnowledgeHostCarrierBindingsForChild $Registry 'control-unit-a') `
+    @('control-unit-body-a', 'control-unit-body-b') `
+        'Direct child binding query'
+    Assert-Ids `
+    (Get-KnowledgeHostCarrierParentsAt $Registry 'control-unit-a' $boundary05) `
+    @('control-unit-body-a') `
+        'Control-unit parent before movement'
+    Assert-Ids `
+    (Get-KnowledgeHostCarrierParentsAt $Registry 'control-unit-a' $boundary10) `
+    @('control-unit-body-b') `
+        'Control-unit parent at movement boundary'
+    $ancestors = @(Get-KnowledgeHostCarrierAncestorsAt $Registry 'runtime-a' $boundary10)
+    $ancestorShape = @($ancestors | ForEach-Object { "$($_.carrier_id):$(@($_.binding_ids) -join ',')" })
+    $expectedAncestors = @(
+        'observer-host-a:runtime-observer-host'
+        'process-a:runtime-process'
+        'container-a:runtime-process,process-container'
+        'virtual-machine-a:runtime-process,process-container,container-virtual-machine'
+    ) -join '|'
+    if (($ancestorShape -join '|') -cne $expectedAncestors) {
+        throw "Transitive ancestor query changed: $($ancestorShape -join '|')"
+    }
+    if (-not (Test-KnowledgeHostCarrierBindingActiveAt $Registry 'runtime-observer-host' $boundary05)) {
+        throw 'Cross-track paired binding boundary changed.'
+    }
+    $descendants = @(Get-KnowledgeHostCarrierDescendantsAt $Registry 'virtual-machine-a' $boundary10)
+    $descendantShape = @($descendants | ForEach-Object { "$($_.carrier_id):$(@($_.binding_ids) -join ',')" })
+    $expectedDescendants = @(
+        'container-a:container-virtual-machine'
+        'process-a:container-virtual-machine,process-container'
+        'runtime-a:container-virtual-machine,process-container,runtime-process'
+    ) -join '|'
+    if (($descendantShape -join '|') -cne $expectedDescendants) {
+        throw "Transitive descendant query changed: $($descendantShape -join '|')"
+    }
+    $reachableRuntime = @(Get-KnowledgeHostCarrierReachableOccupanciesAt $Registry 'virtual-machine-a' $boundary10)
+    if (
+        $reachableRuntime.Count -ne 1 -or
+        $reachableRuntime[0].occupancy.id -cne 'alpha-runtime-source' -or
+        $reachableRuntime[0].carrier_path.carrier_id -cne 'runtime-a'
+    ) {
+        throw 'Reachable occupancy query changed.'
+    }
+    if (@(Get-KnowledgeHostCarrierOccupancies $Registry 'virtual-machine-a').Count -ne 0) {
+        throw 'Indirect occupancy was promoted to direct occupancy.'
+    }
+    $reachableBody = @(Get-KnowledgeHostCarrierReachableOccupanciesAt $Registry 'body-b' $boundary10)
+    $controlUnitOccupancy = @(
+        $reachableBody | Where-Object {
+            $_.occupancy.id -ceq 'alpha-control-unit' -and
+            (@($_.carrier_path.binding_ids) -join ',') -ceq 'control-unit-body-b'
+        }
+    )
+    if ($controlUnitOccupancy.Count -ne 1) {
+        throw 'Identity did not remain reachable through the moved control unit.'
+    }
+    if ($Registry.occupancies['alpha-control-unit'].carrier_id -cne 'control-unit-a') {
+        throw 'Control-unit movement falsely moved its direct identity occupancy.'
+    }
+    $bindingTarget = Get-KnowledgeHostingProvenanceTarget `
+        $Registry `
+        'host-carrier-binding' `
+        'control-unit-body-b'
+    if ($bindingTarget.binding_kind -cne 'installed-in') {
+        throw 'Host carrier binding provenance lookup changed.'
+    }
+    return 22
 }
 
 function Assert-InvalidQueries {
@@ -213,6 +288,28 @@ function Assert-InvalidQueries {
         { Get-KnowledgeHostCarrierOccupanciesAt $Registry 'missing' 'protagonist-entry-01' }
         { Get-KnowledgeHostingProvenanceTarget $Registry 'missing' 'body-a' }
         { Get-KnowledgeHostingProvenanceTarget $Registry 'host-carrier' 'missing' }
+        { Get-KnowledgeHostCarrierBindingsForChild $Registry 'missing' }
+        { Get-KnowledgeHostCarrierBindingsForParent $Registry 'missing' }
+        {
+            Test-KnowledgeHostCarrierBindingActiveAt `
+                $Registry `
+                'missing' `
+            ([ordered]@{ 'protagonist-experience' = 'protagonist-entry-01' })
+        }
+        { Test-KnowledgeHostCarrierBindingActiveAt $Registry 'control-unit-body-a' ([ordered]@{}) }
+        {
+            Get-KnowledgeHostCarrierParentsAt `
+                $Registry `
+                'control-unit-a' `
+            ([ordered]@{ 'protagonist-experience' = 'observer-entry-01' })
+        }
+        {
+            Get-KnowledgeHostCarrierReachableOccupanciesAt `
+                $Registry `
+                'missing' `
+            ([ordered]@{ 'protagonist-experience' = 'protagonist-entry-01' })
+        }
+        { Get-KnowledgeHostingProvenanceTarget $Registry 'host-carrier-binding' 'missing' }
     )
     foreach ($action in $actions) {
         Assert-Rejected $action 'Hosted identity invalid query unexpectedly succeeded.'
@@ -234,6 +331,7 @@ function Get-ScaleResult {
     $scale['carriers'] = [ordered]@{}
     $scale['occupancies'] = New-Object System.Collections.ArrayList
     $scale['transitions'] = New-Object System.Collections.ArrayList
+    $scale['bindings'] = New-Object System.Collections.ArrayList
     for ($index = 0; $index -lt 128; $index += 1) {
         $carrierId = 'scale-carrier-{0:D3}' -f $index
         $scale['carriers'][$carrierId] = [ordered]@{
@@ -253,12 +351,29 @@ function Get-ScaleResult {
                 activated_at_entry_id = 'protagonist-entry-01'
                 terminated_at_entry_id = $null
             })
+        if ($index -gt 0) {
+            [void]$scale['bindings'].Add([ordered]@{
+                    id = 'scale-binding-{0:D3}' -f $index
+                    child_carrier_id = $carrierId
+                    parent_carrier_id = 'scale-carrier-{0:D3}' -f ($index - 1)
+                    binding_kind = 'contained-in'
+                    child_activated_at_entry_id = 'protagonist-entry-01'
+                    parent_activated_at_entry_id = 'protagonist-entry-01'
+                    child_terminated_at_entry_id = $null
+                    parent_terminated_at_entry_id = $null
+                })
+        }
     }
     Write-FixtureJson $Path $scale
     $registry = Get-FixtureRegistry $Project $Packs $Occurrences @($Provider) $Path
+    $boundary = [ordered]@{ 'protagonist-experience' = 'protagonist-entry-10' }
+    if (@(Get-KnowledgeHostCarrierAncestorsAt $registry 'scale-carrier-127' $boundary).Count -ne 127) {
+        throw 'Hosted identity binding scale traversal changed.'
+    }
     return [pscustomobject]@{
         carriers = $registry.carriers.Count
         occupancies = $registry.occupancies.Count
+        bindings = $registry.bindings.Count
     }
 }
 
@@ -319,6 +434,7 @@ try {
         carriers = $registry.carriers.Count
         occupancies = $registry.occupancies.Count
         transitions = $registry.transitions.Count
+        bindings = $registry.bindings.Count
         provenance_target_types = (Get-KnowledgeHostingProvenanceTargets $registry).Count
         reconciliation_target_types = (Get-KnowledgeHostingReconciliationProvider $registry).targets.Count
     }
@@ -375,6 +491,7 @@ $summary = [ordered]@{
     invalid_queries = $invalidQueries
     scale_carriers = [int]$scale.carriers
     scale_occupancies = [int]$scale.occupancies
+    scale_bindings = [int]$scale.bindings
 }
 if ($Json) {
     $summary | ConvertTo-Json -Compress -Depth 10

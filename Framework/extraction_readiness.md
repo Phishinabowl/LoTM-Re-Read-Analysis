@@ -132,15 +132,21 @@ includes hosted-identity schema 1, manifest schema 11, and core pack version 38.
 occupancy, and hosting-transition semantics remain domain-neutral and do not copy the empty LoTM
 hosting registry into the neutral extraction consumer.
 
+The V48 implementation rehearsal on 2026-08-06 again copied 224 portable files. Its six-suite
+smoke profile passed with matching summaries in Python, PowerShell 7, and Windows PowerShell 5.1,
+and all guarded project surfaces remained absent. The portable hosted-identity service now uses
+schema 2 and core pack version 39. Carrier bindings add pack-typed, occurrence-bounded child/parent
+topology plus deterministic direct, transitive, and reachable-occupancy queries without adding a
+project registry, LoTM vocabulary, or new extraction dependency.
+
 ## Known Limits And Next Boundaries
 
 Extraction readiness does not close these known items:
 
 - Recurrence, participation identity, participant-relative chronology selection, exact entry-relative
   state boundaries, branch lifecycle, chronology topology, epistemic state, capability state,
-  structural interpretations, and direct hosted identity are portable through V47. V47 pressure
-  testing identified nested carrier topology as focused V48 work; the composed Phase 1.14
-  stabilization replay remains open.
+  structural interpretations, hosted identity, and nested carrier topology are implemented through
+  V48. The composed Phase 1.14 stabilization replay remains open.
 - QA graph construction has not yet been fully migrated into one reusable Visualization engine.
 - A normalized content index and generalized bounded-page machinery are not yet complete across
   content types.

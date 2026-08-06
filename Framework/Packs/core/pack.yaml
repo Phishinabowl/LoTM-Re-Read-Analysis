@@ -1,6 +1,6 @@
 schema_version: 4
 pack_id: core
-pack_version: 38
+pack_version: 39
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -308,6 +308,12 @@ controlled_values:
     - move
     - copy
     - control-handoff
+  hosting.binding-kind:
+    - installed-in
+    - contained-in
+    - attached-to
+    - executes-in
+    - projected-through
   hosting.identity-relationship-target-type:
     - entity-relationship
     - incarnation-relationship
@@ -457,6 +463,7 @@ controlled_values:
     - structural-interpretation-relation
     - structural-interpretation-set
     - host-carrier
+    - host-carrier-binding
     - hosted-identity-occupancy
     - hosted-identity-transition
   interpretation.lifecycle:

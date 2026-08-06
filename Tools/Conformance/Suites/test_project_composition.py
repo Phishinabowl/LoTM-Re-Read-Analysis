@@ -277,6 +277,7 @@ def summarize(composition: Composition) -> dict:
             },
             "hosting": {
                 "carriers": len(composition.hosting.carriers),
+                "bindings": len(composition.hosting.bindings),
                 "occupancies": len(composition.hosting.occupancies),
                 "transitions": len(composition.hosting.transitions),
             },

@@ -1,14 +1,15 @@
 {
   "counts": {
-    "carriers": 3,
-    "occupancies": 9,
+    "carriers": 8,
+    "bindings": 6,
+    "occupancies": 10,
     "transitions": 3,
-    "provenance_target_types": 3,
+    "provenance_target_types": 4,
     "reconciliation_target_types": 1
   },
-  "invalid_queries": 7,
+  "invalid_queries": 14,
   "invalid_cases": [
-    {"id": "bad-schema", "operations": [{"op": "set", "path": ["schema_version"], "value": 2}]},
+    {"id": "bad-schema", "operations": [{"op": "set", "path": ["schema_version"], "value": 3}]},
     {"id": "unknown-root-key", "operations": [{"op": "set", "path": ["extra"], "value": true}]},
     {"id": "bad-carrier-id", "operations": [{"op": "set", "path": ["carriers", "Bad Carrier"], "value": {"lifecycle": "active", "carrier_kind": "runtime", "label": "Bad", "lifecycle_track_id": "protagonist-experience", "activated_at_entry_id": "protagonist-entry-01", "terminated_at_entry_id": null}}]},
     {"id": "unknown-carrier-key", "operations": [{"op": "set", "path": ["carriers", "body-a", "extra"], "value": true}]},
@@ -36,6 +37,21 @@
     {"id": "copy-missing-relationship", "operations": [{"op": "set", "path": ["transitions", 2, "identity_relationship_type"], "value": null}, {"op": "set", "path": ["transitions", 2, "identity_relationship_id"], "value": null}]},
     {"id": "copy-unknown-relationship", "operations": [{"op": "set", "path": ["transitions", 2, "identity_relationship_id"], "value": "missing"}]},
     {"id": "handoff-crosses-carriers", "operations": [{"op": "set", "path": ["transitions", 0, "target_occupancy_id"], "value": "gamma-body-b"}]},
-    {"id": "semantic-duplicate-transition", "operations": [{"op": "append", "path": ["transitions"], "value": {"id": "duplicate-move", "transition_kind": "move", "source_occupancy_id": "gamma-body-a", "target_occupancy_id": "gamma-body-b", "occurrence_id": "escape-three", "source_entry_id": "protagonist-entry-10", "target_entry_id": "protagonist-entry-10", "identity_relationship_type": null, "identity_relationship_id": null}}]}
+    {"id": "semantic-duplicate-transition", "operations": [{"op": "append", "path": ["transitions"], "value": {"id": "duplicate-move", "transition_kind": "move", "source_occupancy_id": "gamma-body-a", "target_occupancy_id": "gamma-body-b", "occurrence_id": "escape-three", "source_entry_id": "protagonist-entry-10", "target_entry_id": "protagonist-entry-10", "identity_relationship_type": null, "identity_relationship_id": null}}]},
+    {"id": "bad-binding-id", "operations": [{"op": "set", "path": ["bindings", 0, "id"], "value": "Bad Binding"}]},
+    {"id": "duplicate-binding-id", "operations": [{"op": "set", "path": ["bindings", 1, "id"], "value": "control-unit-body-a"}]},
+    {"id": "unknown-binding-key", "operations": [{"op": "set", "path": ["bindings", 0, "extra"], "value": true}]},
+    {"id": "unknown-child-carrier", "operations": [{"op": "set", "path": ["bindings", 0, "child_carrier_id"], "value": "missing"}]},
+    {"id": "unknown-parent-carrier", "operations": [{"op": "set", "path": ["bindings", 0, "parent_carrier_id"], "value": "missing"}]},
+    {"id": "self-binding", "operations": [{"op": "set", "path": ["bindings", 0, "parent_carrier_id"], "value": "control-unit-a"}]},
+    {"id": "unknown-binding-kind", "operations": [{"op": "set", "path": ["bindings", 0, "binding_kind"], "value": "missing"}]},
+    {"id": "binding-unpaired-termination", "operations": [{"op": "set", "path": ["bindings", 0, "parent_terminated_at_entry_id"], "value": null}]},
+    {"id": "binding-activation-occurrence-mismatch", "operations": [{"op": "set", "path": ["bindings", 0, "parent_activated_at_entry_id"], "value": "protagonist-entry-02"}]},
+    {"id": "binding-termination-occurrence-mismatch", "operations": [{"op": "set", "path": ["bindings", 0, "parent_terminated_at_entry_id"], "value": "protagonist-entry-11"}]},
+    {"id": "binding-child-reversed-window", "operations": [{"op": "set", "path": ["bindings", 0, "child_terminated_at_entry_id"], "value": "protagonist-entry-01"}, {"op": "set", "path": ["bindings", 0, "parent_terminated_at_entry_id"], "value": "protagonist-entry-01"}]},
+    {"id": "binding-parent-wrong-track", "operations": [{"op": "set", "path": ["bindings", 0, "parent_activated_at_entry_id"], "value": "observer-entry-01"}]},
+    {"id": "binding-outside-carrier", "operations": [{"op": "set", "path": ["carriers", "body-a", "activated_at_entry_id"], "value": "protagonist-entry-02"}]},
+    {"id": "semantic-duplicate-binding", "operations": [{"op": "append", "path": ["bindings"], "value": {"id": "duplicate-control-unit-body-a", "child_carrier_id": "control-unit-a", "parent_carrier_id": "body-a", "binding_kind": "installed-in", "child_activated_at_entry_id": "protagonist-entry-01", "parent_activated_at_entry_id": "protagonist-entry-01", "child_terminated_at_entry_id": "protagonist-entry-10", "parent_terminated_at_entry_id": "protagonist-entry-10"}}]},
+    {"id": "binding-cycle", "operations": [{"op": "append", "path": ["bindings"], "value": {"id": "body-a-control-unit", "child_carrier_id": "body-a", "parent_carrier_id": "control-unit-a", "binding_kind": "contained-in", "child_activated_at_entry_id": "protagonist-entry-01", "parent_activated_at_entry_id": "protagonist-entry-01", "child_terminated_at_entry_id": "protagonist-entry-10", "parent_terminated_at_entry_id": "protagonist-entry-10"}}]}
   ]
 }

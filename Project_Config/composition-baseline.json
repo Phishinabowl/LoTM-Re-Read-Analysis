@@ -18,14 +18,14 @@
     "entities": 4,
     "occurrences": 10,
     "interpretations": 1,
-    "hosting": 1,
+    "hosting": 2,
     "reconciliation": 4,
     "provenance": 3
   },
   "packs": {
     "selection_order": ["core", "narrative-media", "narrative-publishing", "narrative-screen-audio", "narrative-adaptation", "narrative-distribution", "narrative-production", "narrative-shared-universe"],
     "versions": {
-      "core": 38,
+      "core": 39,
       "narrative-media": 24,
       "narrative-publishing": 10,
       "narrative-screen-audio": 11,
@@ -38,8 +38,8 @@
     "available_capabilities": 123,
     "enabled_capabilities": 123,
     "disabled_capability_ids": ["contributor-credits", "crossover-events", "editorial-assembly", "live-performance-productions", "migration-services", "performance-events", "publication-runs", "rights-grants-and-restrictions", "textual-witnesses"],
-    "controlled_value_namespaces": 137,
-    "controlled_values": 1039,
+    "controlled_value_namespaces": 138,
+    "controlled_values": 1045,
     "semantic_declarations": {
       "transition_profiles": 9,
       "outcome_incompatibilities": 4,
@@ -99,7 +99,7 @@
     },
     "occurrences": {"branches": 1, "branch_state_transitions": 0, "templates": 0, "recurrence_patterns": 0, "recurrences": 0, "recurrence_cardinalities": 0, "iterations": 0, "phases": 0, "schedules": 0, "occurrences": 0, "occurrence_participations": 0, "participation_chronology_bindings": 0, "tracks": 0, "track_entries": 0, "transitions": 0, "causal_relations": 0, "outcomes": 0, "rules": 0, "state_scales": 0, "state_transitions": 0, "carryovers": 0},
     "interpretations": {"relation_types": 7, "interpretations": 0, "members": 0, "relations": 0, "comparison_sets": 0},
-    "hosting": {"carriers": 0, "occupancies": 0, "transitions": 0},
+    "hosting": {"carriers": 0, "bindings": 0, "occupancies": 0, "transitions": 0},
     "reconciliation": {"target_types": 25, "records": 0, "aliases": 26},
     "provenance": {"assertions": 0, "claim_supersessions": 0}
   },
@@ -111,8 +111,8 @@
     "chronology_provenance_types": 3,
     "occurrence_provenance_types": 22,
     "interpretation_provenance_types": 4,
-    "hosting_provenance_types": 3,
-    "total_provenance_subject_types": 69
+    "hosting_provenance_types": 4,
+    "total_provenance_subject_types": 70
   },
   "composition_passes": 2,
   "invalid_composition_cases": 14

@@ -268,21 +268,21 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 ### Phase 1.13 V48 Nested Carrier Topology
 
-- [ ] Define provenance-addressable carrier-to-carrier bindings without treating either carrier as
+- [x] Define provenance-addressable carrier-to-carrier bindings without treating either carrier as
   the identity that occupies or controls it.
-- [ ] Support pack-owned binding kinds for physical installation/containment and virtual execution
+- [x] Support pack-owned binding kinds for physical installation/containment and virtual execution
   or projection while keeping domain-facing labels outside core.
-- [ ] Give each binding explicit activation and optional termination boundaries while preserving
+- [x] Give each binding explicit activation and optional termination boundaries while preserving
   independent child-carrier, parent-carrier, and identity-occupancy lifecycles.
-- [ ] Reject self-bindings, cycles, duplicate semantic bindings, unknown carriers, invalid
+- [x] Reject self-bindings, cycles, duplicate semantic bindings, unknown carriers, invalid
   boundaries, and attempts to infer identity continuity or direct occupancy from a carrier chain.
-- [ ] Expose deterministic direct and transitive carrier-chain queries that preserve the distinction
+- [x] Expose deterministic direct and transitive carrier-chain queries that preserve the distinction
   between direct occupancy and an identity reachable through an installed or hosted child carrier.
-- [ ] Model a pearl or control unit moving between Host bodies without falsely moving or copying the
+- [x] Model a pearl or control unit moving between Host bodies without falsely moving or copying the
   identity stored in that control unit; preserve explicit identity copy/divergence separately.
-- [ ] Replay Westworld, process/container/VM stacks, agents in runtimes, avatars projected through
+- [x] Replay Westworld, process/container/VM stacks, agents in runtimes, avatars projected through
   simulation hosts, and carefully bounded device/body examples.
-- [ ] Add paired Python/PowerShell fixtures, malformed/adversarial vectors, provenance and
+- [x] Add paired Python/PowerShell fixtures, malformed/adversarial vectors, provenance and
   reconciliation closure, scale pressure, project composition, extraction, and compatibility gates.
 - [ ] Complete V48 implementation confirmation, pressure testing, evolution recording, and plan
   closure through the normal framework lifecycle.

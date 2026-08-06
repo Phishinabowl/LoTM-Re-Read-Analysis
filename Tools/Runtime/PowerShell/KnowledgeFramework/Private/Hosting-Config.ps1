@@ -1,4 +1,4 @@
-$script:SupportedHostingSchemaVersion = 1
+$script:SupportedHostingSchemaVersion = 2
 
 function Assert-HostingStableId {
     param([string]$Value, [string]$Context)
@@ -118,6 +118,42 @@ function Get-HostingEntryIndex {
     return [array]::IndexOf(@($Occurrences.tracks[$TrackId].entry_ids), $EntryId)
 }
 
+function Get-HostingEntryOccurrenceId {
+    param([object]$Occurrences, [string]$EntryId)
+
+    $entry = $Occurrences.track_entries[$EntryId]
+    return $Occurrences.occurrence_participations[$entry.participation_id].occurrence_id
+}
+
+function Assert-HostingBindingAcyclic {
+    param([object]$Bindings)
+
+    $parents = [ordered]@{}
+    foreach ($binding in $Bindings.Values) {
+        if (-not $parents.Contains($binding.child_carrier_id)) {
+            $parents[$binding.child_carrier_id] = New-Object System.Collections.ArrayList
+        }
+        [void]$parents[$binding.child_carrier_id].Add($binding.parent_carrier_id)
+    }
+    foreach ($binding in $Bindings.Values) {
+        $pending = New-Object System.Collections.Stack
+        $pending.Push($binding.parent_carrier_id)
+        $visited = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+        while ($pending.Count -gt 0) {
+            $current = [string]$pending.Pop()
+            if ($current -ceq $binding.child_carrier_id) {
+                throw "Host carrier bindings contain a cycle through '$current'."
+            }
+            if (-not $visited.Add($current) -or -not $parents.Contains($current)) {
+                continue
+            }
+            foreach ($parentId in @($parents[$current])) {
+                $pending.Push($parentId)
+            }
+        }
+    }
+}
+
 function Get-KnowledgeHostedIdentityRegistry {
     param(
         [object]$Project,
@@ -135,7 +171,7 @@ function Get-KnowledgeHostedIdentityRegistry {
         'hosted identity registry'
     Assert-KnowledgeMapKeys `
         $root `
-    @('schema_version', 'carriers', 'occupancies', 'transitions') `
+    @('schema_version', 'carriers', 'bindings', 'occupancies', 'transitions') `
         'Hosted identity registry root'
 
     $identityTargets = Get-HostingProviderMaps $IdentityProviders 'identity_targets' 'identity-target'
@@ -181,6 +217,160 @@ function Get-KnowledgeHostedIdentityRegistry {
             terminated_at_entry_id = $terminatedId
         }
     }
+
+    $bindings = [ordered]@{}
+    $semanticBindings = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    for ($index = 0; $index -lt @($root.bindings).Count; $index += 1) {
+        $context = "bindings[$index]"
+        $item = @($root.bindings)[$index]
+        Assert-KnowledgeMapKeys `
+            $item `
+        @(
+            'id'
+            'child_carrier_id'
+            'parent_carrier_id'
+            'binding_kind'
+            'child_activated_at_entry_id'
+            'parent_activated_at_entry_id'
+            'child_terminated_at_entry_id'
+            'parent_terminated_at_entry_id'
+        ) `
+            "Hosted identity registry '$context'"
+        $bindingId = Get-RequiredHostingString $item 'id' $context
+        Assert-HostingStableId $bindingId "$context.id"
+        if ($bindings.Contains($bindingId)) {
+            throw "Host carrier binding ID '$bindingId' is duplicated."
+        }
+        $childId = Get-RequiredHostingString $item 'child_carrier_id' $context
+        $parentId = Get-RequiredHostingString $item 'parent_carrier_id' $context
+        if (
+            $childId -ceq $parentId -or
+            -not $carriers.Contains($childId) -or
+            -not $carriers.Contains($parentId)
+        ) {
+            throw "$context must reference two distinct known carrier endpoints."
+        }
+        $kind = Get-RequiredHostingString $item 'binding_kind' $context
+        Assert-HostingPackValue $Packs 'hosting.binding-kind' $kind "$context.binding_kind"
+        $child = $carriers[$childId]
+        $parent = $carriers[$parentId]
+        $childActivatedId = Get-RequiredHostingString $item 'child_activated_at_entry_id' $context
+        $parentActivatedId = Get-RequiredHostingString $item 'parent_activated_at_entry_id' $context
+        $childTerminatedId = Get-OptionalHostingString $item 'child_terminated_at_entry_id' $context
+        $parentTerminatedId = Get-OptionalHostingString $item 'parent_terminated_at_entry_id' $context
+        if (($null -eq $childTerminatedId) -ne ($null -eq $parentTerminatedId)) {
+            throw "$context child and parent termination boundaries must be supplied together."
+        }
+        $childActivated = Get-HostingEntryIndex `
+            $Occurrences `
+            $child.lifecycle_track_id `
+            $childActivatedId `
+            "$context.child_activated_at_entry_id"
+        $parentActivated = Get-HostingEntryIndex `
+            $Occurrences `
+            $parent.lifecycle_track_id `
+            $parentActivatedId `
+            "$context.parent_activated_at_entry_id"
+        $childTerminated = if ($null -ne $childTerminatedId) {
+            Get-HostingEntryIndex `
+                $Occurrences `
+                $child.lifecycle_track_id `
+                $childTerminatedId `
+                "$context.child_terminated_at_entry_id"
+        }
+        else {
+            $null
+        }
+        $parentTerminated = if ($null -ne $parentTerminatedId) {
+            Get-HostingEntryIndex `
+                $Occurrences `
+                $parent.lifecycle_track_id `
+                $parentTerminatedId `
+                "$context.parent_terminated_at_entry_id"
+        }
+        else {
+            $null
+        }
+        $childActivationOccurrence = Get-HostingEntryOccurrenceId $Occurrences $childActivatedId
+        $parentActivationOccurrence = Get-HostingEntryOccurrenceId $Occurrences $parentActivatedId
+        if ($childActivationOccurrence -cne $parentActivationOccurrence) {
+            throw "$context activation boundaries must resolve to one occurrence."
+        }
+        if ($null -ne $childTerminatedId) {
+            $childTerminationOccurrence = Get-HostingEntryOccurrenceId $Occurrences $childTerminatedId
+            $parentTerminationOccurrence = Get-HostingEntryOccurrenceId $Occurrences $parentTerminatedId
+            if ($childTerminationOccurrence -cne $parentTerminationOccurrence) {
+                throw "$context termination boundaries must resolve to one occurrence."
+            }
+        }
+        if ($null -ne $childTerminated -and $childTerminated -le $childActivated) {
+            throw "$context child termination must follow activation."
+        }
+        if ($null -ne $parentTerminated -and $parentTerminated -le $parentActivated) {
+            throw "$context parent termination must follow activation."
+        }
+        foreach ($boundary in @(
+                [pscustomobject]@{ carrier = $child
+                    activated = $childActivated
+                    terminated = $childTerminated
+                }
+                [pscustomobject]@{ carrier = $parent
+                    activated = $parentActivated
+                    terminated = $parentTerminated
+                }
+            )) {
+            $carrierStart = Get-HostingEntryIndex `
+                $Occurrences `
+                $boundary.carrier.lifecycle_track_id `
+                $boundary.carrier.activated_at_entry_id `
+                "carriers.$($boundary.carrier.id)"
+            $carrierEnd = if ($null -ne $boundary.carrier.terminated_at_entry_id) {
+                Get-HostingEntryIndex `
+                    $Occurrences `
+                    $boundary.carrier.lifecycle_track_id `
+                    $boundary.carrier.terminated_at_entry_id `
+                    "carriers.$($boundary.carrier.id)"
+            }
+            else {
+                $null
+            }
+            if (
+                $boundary.activated -lt $carrierStart -or
+                ($null -ne $carrierEnd -and $boundary.activated -ge $carrierEnd)
+            ) {
+                throw "$context activates outside carrier '$($boundary.carrier.id)' lifecycle."
+            }
+            if (
+                $null -ne $carrierEnd -and
+                ($null -eq $boundary.terminated -or $boundary.terminated -gt $carrierEnd)
+            ) {
+                throw "$context extends beyond carrier '$($boundary.carrier.id)' lifecycle."
+            }
+        }
+        $shape = @(
+            $childId
+            $parentId
+            $kind
+            $childActivated
+            $parentActivated
+            $childTerminated
+            $parentTerminated
+        ) -join "`0"
+        if (-not $semanticBindings.Add($shape)) {
+            throw "Host carrier binding '$bindingId' duplicates another binding."
+        }
+        $bindings[$bindingId] = [pscustomobject]@{
+            id = $bindingId
+            child_carrier_id = $childId
+            parent_carrier_id = $parentId
+            binding_kind = $kind
+            child_activated_at_entry_id = $childActivatedId
+            parent_activated_at_entry_id = $parentActivatedId
+            child_terminated_at_entry_id = $childTerminatedId
+            parent_terminated_at_entry_id = $parentTerminatedId
+        }
+    }
+    Assert-HostingBindingAcyclic $bindings
 
     $occupancies = [ordered]@{}
     $semanticOccupancies = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
@@ -421,6 +611,7 @@ function Get-KnowledgeHostedIdentityRegistry {
         carriers = $carriers
         occupancies = $occupancies
         transitions = $transitions
+        bindings = $bindings
         occurrences = $Occurrences
     }
 }
@@ -515,11 +706,191 @@ function Get-KnowledgeHostCarrierControllersAt {
     )
 }
 
+function Get-KnowledgeHostCarrierBindingsForChild {
+    param([object]$Registry, [string]$CarrierId)
+
+    if (-not $Registry.carriers.Contains($CarrierId)) {
+        throw "Unknown host carrier '$CarrierId'."
+    }
+    return @($Registry.bindings.Values | Where-Object { $_.child_carrier_id -ceq $CarrierId })
+}
+
+function Get-KnowledgeHostCarrierBindingsForParent {
+    param([object]$Registry, [string]$CarrierId)
+
+    if (-not $Registry.carriers.Contains($CarrierId)) {
+        throw "Unknown host carrier '$CarrierId'."
+    }
+    return @($Registry.bindings.Values | Where-Object { $_.parent_carrier_id -ceq $CarrierId })
+}
+
+function Get-HostingBoundaryEntry {
+    param([object]$Registry, [object]$BoundaryEntries, [string]$TrackId)
+
+    if ($BoundaryEntries -isnot [System.Collections.IDictionary] -or -not $BoundaryEntries.Contains($TrackId)) {
+        throw "Host carrier boundary entries are missing lifecycle track '$TrackId'."
+    }
+    $entryId = $BoundaryEntries[$TrackId]
+    if ($entryId -isnot [string] -or [string]::IsNullOrWhiteSpace($entryId)) {
+        throw "Host carrier boundary entry for lifecycle track '$TrackId' must be a non-empty string."
+    }
+    [void](Get-HostingEntryIndex $Registry.occurrences $TrackId $entryId 'carrier binding query')
+    return $entryId
+}
+
+function Test-KnowledgeHostCarrierBindingActiveAt {
+    param([object]$Registry, [string]$BindingId, [object]$BoundaryEntries)
+
+    if (-not $Registry.bindings.Contains($BindingId)) {
+        throw "Unknown host carrier binding '$BindingId'."
+    }
+    $binding = $Registry.bindings[$BindingId]
+    foreach ($side in @('child', 'parent')) {
+        $carrierId = $binding."${side}_carrier_id"
+        $carrier = $Registry.carriers[$carrierId]
+        $entryId = Get-HostingBoundaryEntry $Registry $BoundaryEntries $carrier.lifecycle_track_id
+        $boundary = Get-HostingEntryIndex `
+            $Registry.occurrences `
+            $carrier.lifecycle_track_id `
+            $entryId `
+            'carrier binding query'
+        $activated = Get-HostingEntryIndex `
+            $Registry.occurrences `
+            $carrier.lifecycle_track_id `
+            $binding."${side}_activated_at_entry_id" `
+            'carrier binding query'
+        $terminatedId = $binding."${side}_terminated_at_entry_id"
+        $terminated = if ($null -ne $terminatedId) {
+            Get-HostingEntryIndex `
+                $Registry.occurrences `
+                $carrier.lifecycle_track_id `
+                $terminatedId `
+                'carrier binding query'
+        }
+        else {
+            $null
+        }
+        if ($boundary -lt $activated -or ($null -ne $terminated -and $boundary -ge $terminated)) {
+            return $false
+        }
+    }
+    return $true
+}
+
+function Get-KnowledgeHostCarrierParentsAt {
+    param([object]$Registry, [string]$CarrierId, [object]$BoundaryEntries)
+
+    return @(
+        Get-KnowledgeHostCarrierBindingsForChild $Registry $CarrierId |
+            Where-Object { Test-KnowledgeHostCarrierBindingActiveAt $Registry $_.id $BoundaryEntries }
+    )
+}
+
+function Get-KnowledgeHostCarrierChildrenAt {
+    param([object]$Registry, [string]$CarrierId, [object]$BoundaryEntries)
+
+    return @(
+        Get-KnowledgeHostCarrierBindingsForParent $Registry $CarrierId |
+            Where-Object { Test-KnowledgeHostCarrierBindingActiveAt $Registry $_.id $BoundaryEntries }
+    )
+}
+
+function Get-HostingCarrierPathsAt {
+    param(
+        [object]$Registry,
+        [string]$CarrierId,
+        [object]$BoundaryEntries,
+        [ValidateSet('parent', 'child')][string]$Direction
+    )
+
+    if (-not $Registry.carriers.Contains($CarrierId)) {
+        throw "Unknown host carrier '$CarrierId'."
+    }
+    $pending = New-Object System.Collections.Queue
+    $pending.Enqueue([pscustomobject]@{ carrier_id = $CarrierId
+            binding_ids = @()
+        })
+    $result = New-Object System.Collections.ArrayList
+    while ($pending.Count -gt 0) {
+        $current = $pending.Dequeue()
+        $bindings = if ($Direction -ceq 'parent') {
+            Get-KnowledgeHostCarrierParentsAt $Registry $current.carrier_id $BoundaryEntries
+        }
+        else {
+            Get-KnowledgeHostCarrierChildrenAt $Registry $current.carrier_id $BoundaryEntries
+        }
+        foreach ($binding in $bindings) {
+            $nextId = if ($Direction -ceq 'parent') {
+                $binding.parent_carrier_id
+            }
+            else {
+                $binding.child_carrier_id
+            }
+            $path = [pscustomobject]@{
+                carrier_id = $nextId
+                binding_ids = @($current.binding_ids) + @($binding.id)
+            }
+            [void]$result.Add($path)
+            $pending.Enqueue($path)
+        }
+    }
+    return @(
+        $result | Sort-Object `
+        @{ Expression = { @($_.binding_ids).Count } }, `
+            carrier_id, `
+        @{ Expression = { @($_.binding_ids) -join "`0" } }
+    )
+}
+
+function Get-KnowledgeHostCarrierAncestorsAt {
+    param([object]$Registry, [string]$CarrierId, [object]$BoundaryEntries)
+
+    return @(Get-HostingCarrierPathsAt $Registry $CarrierId $BoundaryEntries 'parent')
+}
+
+function Get-KnowledgeHostCarrierDescendantsAt {
+    param([object]$Registry, [string]$CarrierId, [object]$BoundaryEntries)
+
+    return @(Get-HostingCarrierPathsAt $Registry $CarrierId $BoundaryEntries 'child')
+}
+
+function Get-KnowledgeHostCarrierReachableOccupanciesAt {
+    param([object]$Registry, [string]$CarrierId, [object]$BoundaryEntries)
+
+    if (-not $Registry.carriers.Contains($CarrierId)) {
+        throw "Unknown host carrier '$CarrierId'."
+    }
+    $paths = @(
+        [pscustomobject]@{ carrier_id = $CarrierId
+            binding_ids = @()
+        }
+        Get-KnowledgeHostCarrierDescendantsAt $Registry $CarrierId $BoundaryEntries
+    )
+    $result = New-Object System.Collections.ArrayList
+    foreach ($path in $paths) {
+        $carrier = $Registry.carriers[$path.carrier_id]
+        $entryId = Get-HostingBoundaryEntry $Registry $BoundaryEntries $carrier.lifecycle_track_id
+        foreach ($occupancy in @(Get-KnowledgeHostCarrierOccupanciesAt $Registry $path.carrier_id $entryId)) {
+            [void]$result.Add([pscustomobject]@{
+                    occupancy = $occupancy
+                    carrier_path = $path
+                })
+        }
+    }
+    return @(
+        $result | Sort-Object `
+        @{ Expression = { @($_.carrier_path.binding_ids).Count } }, `
+        @{ Expression = { @($_.carrier_path.binding_ids) -join "`0" } }, `
+        @{ Expression = { $_.occupancy.id } }
+    )
+}
+
 function Get-KnowledgeHostingProvenanceTargets {
     param([object]$Registry)
 
     return [ordered]@{
         'host-carrier' = $Registry.carriers
+        'host-carrier-binding' = $Registry.bindings
         'hosted-identity-occupancy' = $Registry.occupancies
         'hosted-identity-transition' = $Registry.transitions
     }

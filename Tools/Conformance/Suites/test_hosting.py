@@ -142,6 +142,7 @@ def assert_services(registry) -> int:
         raise AssertionError("Carrier occupancy query changed.")
     if [item.id for item in registry.occupancies_for_subject("entity", "alpha")] != [
         "alpha-controller",
+        "alpha-control-unit",
         "alpha-runtime-source",
         "alpha-controller-body-b",
     ]:
@@ -173,7 +174,56 @@ def assert_services(registry) -> int:
         raise AssertionError("Hosted identity provenance lookup changed.")
     if tuple(registry.reconciliation_targets()) != ("host-carrier",):
         raise AssertionError("Hosted identity reconciliation target boundary changed.")
-    return 11
+    boundary_05 = {
+        "protagonist-experience": "protagonist-entry-05",
+        "observer-experience": "observer-entry-04",
+    }
+    boundary_10 = {
+        "protagonist-experience": "protagonist-entry-10",
+        "observer-experience": "observer-entry-07",
+    }
+    if [item.id for item in registry.bindings_for_child("control-unit-a")] != [
+        "control-unit-body-a",
+        "control-unit-body-b",
+    ]:
+        raise AssertionError("Direct child binding query changed.")
+    if [item.id for item in registry.parents_at("control-unit-a", boundary_05)] != ["control-unit-body-a"]:
+        raise AssertionError("Control-unit parent before movement changed.")
+    if [item.id for item in registry.parents_at("control-unit-a", boundary_10)] != ["control-unit-body-b"]:
+        raise AssertionError("Control-unit parent at movement boundary changed.")
+    if [(item.carrier_id, item.binding_ids) for item in registry.ancestors_at("runtime-a", boundary_10)] != [
+        ("observer-host-a", ("runtime-observer-host",)),
+        ("process-a", ("runtime-process",)),
+        ("container-a", ("runtime-process", "process-container")),
+        ("virtual-machine-a", ("runtime-process", "process-container", "container-virtual-machine")),
+    ]:
+        raise AssertionError("Transitive ancestor query changed.")
+    if not registry.binding_active_at("runtime-observer-host", boundary_05):
+        raise AssertionError("Cross-track paired binding boundary changed.")
+    if [(item.carrier_id, item.binding_ids) for item in registry.descendants_at("virtual-machine-a", boundary_10)] != [
+        ("container-a", ("container-virtual-machine",)),
+        ("process-a", ("container-virtual-machine", "process-container")),
+        ("runtime-a", ("container-virtual-machine", "process-container", "runtime-process")),
+    ]:
+        raise AssertionError("Transitive descendant query changed.")
+    reachable_runtime = registry.reachable_occupancies_at("virtual-machine-a", boundary_10)
+    if [(item.occupancy.id, item.carrier_path.carrier_id) for item in reachable_runtime] != [
+        ("alpha-runtime-source", "runtime-a")
+    ]:
+        raise AssertionError("Reachable occupancy query changed.")
+    if registry.occupancies_for_carrier("virtual-machine-a"):
+        raise AssertionError("Indirect occupancy was promoted to direct occupancy.")
+    reachable_body = registry.reachable_occupancies_at("body-b", boundary_10)
+    if not any(
+        item.occupancy.id == "alpha-control-unit" and item.carrier_path.binding_ids == ("control-unit-body-b",)
+        for item in reachable_body
+    ):
+        raise AssertionError("Identity did not remain reachable through the moved control unit.")
+    if registry.occupancies["alpha-control-unit"].carrier_id != "control-unit-a":
+        raise AssertionError("Control-unit movement falsely moved its direct identity occupancy.")
+    if registry.provenance_target("host-carrier-binding", "control-unit-body-b").binding_kind != "installed-in":
+        raise AssertionError("Host carrier binding provenance lookup changed.")
+    return 22
 
 
 def assert_invalid_queries(registry) -> int:
@@ -185,17 +235,25 @@ def assert_invalid_queries(registry) -> int:
         lambda: registry.occupancies_at("missing", "protagonist-entry-01"),
         lambda: registry.provenance_target("missing", "body-a"),
         lambda: registry.provenance_target("host-carrier", "missing"),
+        lambda: registry.bindings_for_child("missing"),
+        lambda: registry.bindings_for_parent("missing"),
+        lambda: registry.binding_active_at("missing", {"protagonist-experience": "protagonist-entry-01"}),
+        lambda: registry.binding_active_at("control-unit-body-a", {}),
+        lambda: registry.parents_at("control-unit-a", {"protagonist-experience": "observer-entry-01"}),
+        lambda: registry.reachable_occupancies_at("missing", {"protagonist-experience": "protagonist-entry-01"}),
+        lambda: registry.provenance_target("host-carrier-binding", "missing"),
     )
     for action in actions:
         expect_rejected(action, "Hosted identity invalid query unexpectedly succeeded.")
     return len(actions)
 
 
-def assert_scale(project, packs, occurrences, provider, base: dict, path: Path) -> tuple[int, int]:
+def assert_scale(project, packs, occurrences, provider, base: dict, path: Path) -> tuple[int, int, int]:
     scale = copy.deepcopy(base)
     scale["carriers"] = {}
     scale["occupancies"] = []
     scale["transitions"] = []
+    scale["bindings"] = []
     for index in range(128):
         carrier_id = f"scale-carrier-{index:03d}"
         scale["carriers"][carrier_id] = {
@@ -217,9 +275,25 @@ def assert_scale(project, packs, occurrences, provider, base: dict, path: Path) 
                 "terminated_at_entry_id": None,
             }
         )
+        if index:
+            scale["bindings"].append(
+                {
+                    "id": f"scale-binding-{index:03d}",
+                    "child_carrier_id": carrier_id,
+                    "parent_carrier_id": f"scale-carrier-{index - 1:03d}",
+                    "binding_kind": "contained-in",
+                    "child_activated_at_entry_id": "protagonist-entry-01",
+                    "parent_activated_at_entry_id": "protagonist-entry-01",
+                    "child_terminated_at_entry_id": None,
+                    "parent_terminated_at_entry_id": None,
+                }
+            )
     path.write_text(json.dumps(scale, indent=2) + "\n", encoding="utf-8")
     registry = load_fixture(project, packs, occurrences, provider, path)
-    return len(registry.carriers), len(registry.occupancies)
+    boundary = {"protagonist-experience": "protagonist-entry-10"}
+    if len(registry.ancestors_at("scale-carrier-127", boundary)) != 127:
+        raise AssertionError("Hosted identity binding scale traversal changed.")
+    return len(registry.carriers), len(registry.occupancies), len(registry.bindings)
 
 
 def main() -> int:
@@ -245,6 +319,7 @@ def main() -> int:
             "carriers": len(registry.carriers),
             "occupancies": len(registry.occupancies),
             "transitions": len(registry.transitions),
+            "bindings": len(registry.bindings),
             "provenance_target_types": len(registry.provenance_targets()),
             "reconciliation_target_types": len(registry.reconciliation_targets()),
         }
@@ -288,7 +363,9 @@ def main() -> int:
             "Duplicate hosted identity provider unexpectedly loaded.",
         )
         invalid_configurations += 1
-        scale_carriers, scale_occupancies = assert_scale(project, packs, occurrences, provider, base, path)
+        scale_carriers, scale_occupancies, scale_bindings = assert_scale(
+            project, packs, occurrences, provider, base, path
+        )
 
     summary = {
         "schema_version": registry.schema_version,
@@ -298,6 +375,7 @@ def main() -> int:
         "invalid_queries": invalid_queries,
         "scale_carriers": scale_carriers,
         "scale_occupancies": scale_occupancies,
+        "scale_bindings": scale_bindings,
     }
     if args.json:
         print(json.dumps(summary, separators=(",", ":"), sort_keys=True))

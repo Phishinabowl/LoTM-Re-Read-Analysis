@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "carriers": {
     "body-a": {
       "lifecycle": "active",
@@ -24,8 +24,110 @@
       "lifecycle_track_id": "protagonist-experience",
       "activated_at_entry_id": "protagonist-entry-01",
       "terminated_at_entry_id": null
+    },
+    "control-unit-a": {
+      "lifecycle": "active",
+      "carrier_kind": "control-unit",
+      "label": "Control Unit A",
+      "lifecycle_track_id": "protagonist-experience",
+      "activated_at_entry_id": "protagonist-entry-01",
+      "terminated_at_entry_id": null
+    },
+    "process-a": {
+      "lifecycle": "active",
+      "carrier_kind": "runtime",
+      "label": "Process A",
+      "lifecycle_track_id": "protagonist-experience",
+      "activated_at_entry_id": "protagonist-entry-01",
+      "terminated_at_entry_id": null
+    },
+    "container-a": {
+      "lifecycle": "active",
+      "carrier_kind": "container",
+      "label": "Container A",
+      "lifecycle_track_id": "protagonist-experience",
+      "activated_at_entry_id": "protagonist-entry-01",
+      "terminated_at_entry_id": null
+    },
+    "virtual-machine-a": {
+      "lifecycle": "active",
+      "carrier_kind": "virtual-host",
+      "label": "Virtual Machine A",
+      "lifecycle_track_id": "protagonist-experience",
+      "activated_at_entry_id": "protagonist-entry-01",
+      "terminated_at_entry_id": null
+    },
+    "observer-host-a": {
+      "lifecycle": "active",
+      "carrier_kind": "virtual-host",
+      "label": "Observer Host A",
+      "lifecycle_track_id": "observer-experience",
+      "activated_at_entry_id": "observer-entry-01",
+      "terminated_at_entry_id": null
     }
   },
+  "bindings": [
+    {
+      "id": "control-unit-body-a",
+      "child_carrier_id": "control-unit-a",
+      "parent_carrier_id": "body-a",
+      "binding_kind": "installed-in",
+      "child_activated_at_entry_id": "protagonist-entry-01",
+      "parent_activated_at_entry_id": "protagonist-entry-01",
+      "child_terminated_at_entry_id": "protagonist-entry-10",
+      "parent_terminated_at_entry_id": "protagonist-entry-10"
+    },
+    {
+      "id": "control-unit-body-b",
+      "child_carrier_id": "control-unit-a",
+      "parent_carrier_id": "body-b",
+      "binding_kind": "installed-in",
+      "child_activated_at_entry_id": "protagonist-entry-10",
+      "parent_activated_at_entry_id": "protagonist-entry-10",
+      "child_terminated_at_entry_id": null,
+      "parent_terminated_at_entry_id": null
+    },
+    {
+      "id": "runtime-process",
+      "child_carrier_id": "runtime-a",
+      "parent_carrier_id": "process-a",
+      "binding_kind": "executes-in",
+      "child_activated_at_entry_id": "protagonist-entry-01",
+      "parent_activated_at_entry_id": "protagonist-entry-01",
+      "child_terminated_at_entry_id": null,
+      "parent_terminated_at_entry_id": null
+    },
+    {
+      "id": "process-container",
+      "child_carrier_id": "process-a",
+      "parent_carrier_id": "container-a",
+      "binding_kind": "executes-in",
+      "child_activated_at_entry_id": "protagonist-entry-01",
+      "parent_activated_at_entry_id": "protagonist-entry-01",
+      "child_terminated_at_entry_id": null,
+      "parent_terminated_at_entry_id": null
+    },
+    {
+      "id": "container-virtual-machine",
+      "child_carrier_id": "container-a",
+      "parent_carrier_id": "virtual-machine-a",
+      "binding_kind": "contained-in",
+      "child_activated_at_entry_id": "protagonist-entry-01",
+      "parent_activated_at_entry_id": "protagonist-entry-01",
+      "child_terminated_at_entry_id": null,
+      "parent_terminated_at_entry_id": null
+    },
+    {
+      "id": "runtime-observer-host",
+      "child_carrier_id": "runtime-a",
+      "parent_carrier_id": "observer-host-a",
+      "binding_kind": "projected-through",
+      "child_activated_at_entry_id": "protagonist-entry-01",
+      "parent_activated_at_entry_id": "observer-entry-01",
+      "child_terminated_at_entry_id": null,
+      "parent_terminated_at_entry_id": null
+    }
+  ],
   "occupancies": [
     {
       "id": "alpha-controller",
@@ -61,6 +163,15 @@
       "carrier_id": "body-b",
       "role": "active",
       "activated_at_entry_id": "protagonist-entry-10",
+      "terminated_at_entry_id": null
+    },
+    {
+      "id": "alpha-control-unit",
+      "subject_type": "entity",
+      "subject_id": "alpha",
+      "carrier_id": "control-unit-a",
+      "role": "active",
+      "activated_at_entry_id": "protagonist-entry-01",
       "terminated_at_entry_id": null
     },
     {
