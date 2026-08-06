@@ -231,15 +231,15 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 ### Phase 1.11 V46 Participation Chronology Bindings
 
-- [ ] Define the smallest stable many-to-many binding between an occurrence participation or track
+- [x] Define the smallest stable many-to-many binding between an occurrence participation or track
   entry and the occurrence chronology bindings that apply to that involvement.
-- [ ] Permit one participation to belong to multiple chronology systems without duplicating the
+- [x] Permit one participation to belong to multiple chronology systems without duplicating the
   occurrence, participation, or subject.
-- [ ] Preserve participant-specific personal order, world order, presentation order, and other
+- [x] Preserve participant-specific personal order, world order, presentation order, and other
   temporal axes without applying every occurrence binding indiscriminately to every participant.
-- [ ] Retain coordinate incomparability unless ordinary chronology mappings or relations establish
+- [x] Retain coordinate incomparability unless ordinary chronology mappings or relations establish
   comparison; participation bindings must never become precedence edges.
-- [ ] Review and close the participation-relative state-boundary gap for repeated visits to one
+- [x] Review and close the participation-relative state-boundary gap for repeated visits to one
   occurrence, using a track-entry boundary when occurrence-relative lookup is ambiguous.
 - [ ] Replay Doctor Who's Doctor/River meetings and multi-Doctor encounters, retain Arrival's
   backward-causal knowledge as a regression control, and pressure-test distributed event,

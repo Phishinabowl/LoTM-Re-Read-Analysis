@@ -23,7 +23,7 @@
     "empty-loop": ["empty-complete-count"]
   },
   "position_occurrences": {
-    "civil-anchor": ["wake-one", "wake-two", "wake-three"]
+    "civil-anchor": ["wake-one", "wake-two", "wake-three", "self-intervention"]
   },
   "occurrence_participations": {
     "self-intervention": ["protagonist-self-intervention-recipient", "protagonist-self-intervention-agent"],
@@ -31,6 +31,14 @@
   },
   "subject_participations": {
     "character|observer": ["observer-wake-one", "observer-bell-one", "observer-wake-two", "observer-bell-two", "observer-wake-three", "observer-repeated-observation-one", "observer-repeated-observation-two"]
+  },
+  "participation_chronology_bindings": {
+    "protagonist-self-intervention-recipient": ["recipient-world-binding", "recipient-personal-binding"],
+    "protagonist-self-intervention-agent": ["agent-world-binding", "agent-personal-binding"]
+  },
+  "track_entry_chronology_bindings": {
+    "protagonist-entry-11": ["recipient-world-binding", "recipient-personal-binding", "recipient-presentation-binding"],
+    "protagonist-entry-14": ["agent-world-binding", "agent-personal-binding"]
   },
   "track_occurrence_entries": {
     "protagonist-experience|self-intervention": ["protagonist-entry-11", "protagonist-entry-14"],
@@ -132,6 +140,10 @@
       "protagonist-loses-bell-skill",
       "protagonist-restores-bell-skill",
       "protagonist-receives-engineering-expertise"
+    ],
+    "character|observer": [
+      "observer-detects-repeated-observation",
+      "observer-confirms-repeated-observation"
     ]
   },
   "state_scales": {
@@ -154,7 +166,9 @@
     "protagonist-acquires-qualification": ["availability-state", "discrete", "unavailable", "available", null, null, null, null, null, null],
     "protagonist-loses-bell-skill": ["capability-state", "discrete", "partial", "inaccessible", null, null, null, null, "engineering-capability:novice", "engineering-capability:none"],
     "protagonist-restores-bell-skill": ["capability-state", "aggregate", "inaccessible", "available", null, null, null, null, "engineering-capability:none", "engineering-capability:practiced"],
-    "protagonist-receives-engineering-expertise": ["capability-state", "discrete", "unavailable", "available", null, null, null, null, "engineering-capability:none", "engineering-capability:advanced"]
+    "protagonist-receives-engineering-expertise": ["capability-state", "discrete", "unavailable", "available", null, null, null, null, "engineering-capability:none", "engineering-capability:advanced"],
+    "observer-detects-repeated-observation": ["epistemic-access", "discrete", "unavailable", "partial", "none", "partial", null, null, null, null],
+    "observer-confirms-repeated-observation": ["epistemic-access", "gradual", "partial", "available", "partial", "complete", null, null, null, null]
   },
   "state_at": [
     ["protagonist-experience", "wake-one", "occurrence-template", "bell", "memory", null],
@@ -172,5 +186,10 @@
     ["protagonist-experience", "escape-three", "occurrence-template", "bell", "skill", "protagonist-degrades-bell-skill"],
     ["protagonist-experience", "after-loop", "occurrence-template", "bell", "skill", "protagonist-loses-bell-skill"],
     ["protagonist-experience", "restored-main", "occurrence-template", "bell", "skill", "protagonist-restores-bell-skill"]
+  ],
+  "state_at_track_entry": [
+    ["observer-experience", "observer-entry-05", "occurrence", "repeated-observation", "awareness", null],
+    ["observer-experience", "observer-entry-06", "occurrence", "repeated-observation", "awareness", "observer-detects-repeated-observation"],
+    ["observer-experience", "observer-entry-07", "occurrence", "repeated-observation", "awareness", "observer-confirms-repeated-observation"]
   ]
 }

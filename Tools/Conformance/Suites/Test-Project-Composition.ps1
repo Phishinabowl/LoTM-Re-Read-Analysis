@@ -74,6 +74,7 @@ $occurrenceCountFields = @(
     'schedules'
     'occurrences'
     'occurrence_participations'
+    'participation_chronology_bindings'
     'tracks'
     'track_entries'
     'transitions'
@@ -472,6 +473,7 @@ function Assert-InvalidProjectCompositions {
     $entityPacks = Copy-PacksWithoutCapability $packs 'entity-incarnations'
     $occurrencePacks = Copy-PacksWithoutCapability $packs 'occurrence-recurrence-modeling'
     $participationPacks = Copy-PacksWithoutCapability $packs 'occurrence-participation-identity'
+    $participationChronologyPacks = Copy-PacksWithoutCapability $packs 'participation-chronology-bindings'
     $branchLifecyclePacks = Copy-PacksWithoutCapability $packs 'timeline-branch-lifecycle'
     $capabilityPacks = Copy-PacksWithoutCapability $packs 'capability-progression'
     $chronologyContextPacks = Copy-PacksWithoutCapability $packs 'chronology-contexts'
@@ -517,6 +519,12 @@ function Assert-InvalidProjectCompositions {
             Get-KnowledgeOccurrenceRegistry `
                 $project `
                 $participationPacks `
+                $Composition.chronology
+        }
+        {
+            Get-KnowledgeOccurrenceRegistry `
+                $project `
+                $participationChronologyPacks `
                 $Composition.chronology
         }
         {

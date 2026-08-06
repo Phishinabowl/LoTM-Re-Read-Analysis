@@ -210,11 +210,16 @@ def assert_services(registry) -> None:
     if cardinality.minimum_count != 1:
         raise AssertionError("Recurrence-cardinality provenance target lookup changed.")
     participation = registry.provenance_target("occurrence-participation", "protagonist-self-intervention-agent")
-    if participation.role != "agent" or participation.chronology_context_id != "agent-context":
+    if participation.role != "agent":
         raise AssertionError("Occurrence-participation provenance target lookup changed.")
     track_entry = registry.provenance_target("occurrence-track-entry", "protagonist-entry-14")
     if track_entry.participation_id != participation.id or track_entry.ordinal != 14:
         raise AssertionError("Occurrence-track-entry provenance target lookup changed.")
+    chronology_binding = registry.provenance_target(
+        "occurrence-participation-chronology-binding", "agent-personal-binding"
+    )
+    if chronology_binding.target_id != participation.id or chronology_binding.chronology_context_id != "agent-context":
+        raise AssertionError("Participation chronology-binding provenance target lookup changed.")
     state = registry.provenance_target("state-transition", "protagonist-completes-inner-step-knowledge")
     if state.state_profile != "epistemic-access" or state.resulting_completeness != "complete":
         raise AssertionError("Epistemic state-transition provenance target lookup changed.")
@@ -341,7 +346,7 @@ def main() -> int:
             {
                 "id": "recipient-context",
                 "label": "Recipient Context",
-                "coordinate_system_id": "civil-year",
+                "coordinate_system_id": "mission-day",
                 "role": "story",
                 "continuity_ids": [],
                 "work_ids": ["fixture-work"],
@@ -350,7 +355,7 @@ def main() -> int:
             {
                 "id": "agent-context",
                 "label": "Agent Context",
-                "coordinate_system_id": "civil-year",
+                "coordinate_system_id": "control-step",
                 "role": "time-travel-origin",
                 "continuity_ids": [],
                 "work_ids": ["fixture-work"],
@@ -367,7 +372,7 @@ def main() -> int:
         )
         occurrence_fixture_path = root / "Framework" / "Data" / "Occurrence" / "valid-registry.yaml"
         fixture_occurrences = parse_occurrence_registry(
-            load_yaml_file(occurrence_fixture_path, "occurrence fixture", expected_schema_version=9),
+            load_yaml_file(occurrence_fixture_path, "occurrence fixture", expected_schema_version=10),
             occurrence_fixture_path,
             packs,
             chronology_fixture,

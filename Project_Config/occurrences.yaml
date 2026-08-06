@@ -1,4 +1,4 @@
-schema_version: 9
+schema_version: 10
 
 branches:
   main:
@@ -20,6 +20,7 @@ occurrences: {}
 occurrence_participations: {}
 tracks: {}
 track_entries: {}
+participation_chronology_bindings: {}
 transitions: []
 causal_relations: []
 outcomes: []

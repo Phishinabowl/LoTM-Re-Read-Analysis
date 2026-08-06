@@ -1,6 +1,6 @@
 schema_version: 4
 pack_id: core
-pack_version: 36
+pack_version: 37
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -69,6 +69,7 @@ capabilities:
   - deterministic-effect-resolution
   - aggregate-recurrence-cardinality
   - occurrence-participation-identity
+  - participation-chronology-bindings
   - timeline-branch-lifecycle
   - capability-progression
   - structural-interpretation-modeling
@@ -148,6 +149,9 @@ controlled_values:
   occurrence.binding-role:
     - primary
     - contextual
+  occurrence.participation-chronology-target-type:
+    - occurrence-participation
+    - occurrence-track-entry
   occurrence.recurrence-kind:
     - cycle
     - retry
@@ -413,6 +417,7 @@ controlled_values:
     - occurrence-participation
     - occurrence-track
     - occurrence-track-entry
+    - occurrence-participation-chronology-binding
     - occurrence-transition
     - causal-relation
     - occurrence-outcome

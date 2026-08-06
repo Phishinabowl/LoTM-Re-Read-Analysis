@@ -1,4 +1,4 @@
-schema_version: 9
+schema_version: 10
 
 branches:
   main:
@@ -425,7 +425,19 @@ occurrences:
     label: Self Intervention
     iteration_id: null
     branch_id: main
-    bindings: []
+    bindings:
+      - id: self-intervention-world-position
+        position_id: civil-anchor
+        role: primary
+      - id: self-intervention-recipient-position
+        position_id: mission-zero
+        role: contextual
+      - id: self-intervention-agent-position
+        position_id: control-step-one
+        role: contextual
+      - id: self-intervention-presentation-position
+        position_id: alternate-anchor
+        role: contextual
   repeated-observation:
     template_id: intervention
     label: Repeated Observation
@@ -441,7 +453,6 @@ occurrence_participations:
     role: participant
     perspective: direct
     status: completed
-    chronology_context_id: null
   protagonist-bell-one:
     occurrence_id: bell-one
     subject_type: character
@@ -449,7 +460,6 @@ occurrence_participations:
     role: participant
     perspective: direct
     status: completed
-    chronology_context_id: null
   protagonist-reset-one:
     occurrence_id: reset-one
     subject_type: character
@@ -457,7 +467,6 @@ occurrence_participations:
     role: participant
     perspective: direct
     status: completed
-    chronology_context_id: null
   protagonist-wake-two:
     occurrence_id: wake-two
     subject_type: character
@@ -465,7 +474,6 @@ occurrence_participations:
     role: participant
     perspective: direct
     status: completed
-    chronology_context_id: null
   protagonist-bell-two:
     occurrence_id: bell-two
     subject_type: character
@@ -473,7 +481,6 @@ occurrence_participations:
     role: participant
     perspective: direct
     status: completed
-    chronology_context_id: null
   protagonist-inner-step-one:
     occurrence_id: inner-step-one
     subject_type: character
@@ -481,7 +488,6 @@ occurrence_participations:
     role: participant
     perspective: direct
     status: completed
-    chronology_context_id: null
   protagonist-inner-step-two:
     occurrence_id: inner-step-two
     subject_type: character
@@ -489,7 +495,6 @@ occurrence_participations:
     role: participant
     perspective: direct
     status: completed
-    chronology_context_id: null
   protagonist-reset-two:
     occurrence_id: reset-two
     subject_type: character
@@ -497,7 +502,6 @@ occurrence_participations:
     role: participant
     perspective: direct
     status: completed
-    chronology_context_id: null
   protagonist-wake-three:
     occurrence_id: wake-three
     subject_type: character
@@ -505,7 +509,6 @@ occurrence_participations:
     role: participant
     perspective: direct
     status: completed
-    chronology_context_id: null
   protagonist-escape-three:
     occurrence_id: escape-three
     subject_type: character
@@ -513,7 +516,6 @@ occurrence_participations:
     role: agent
     perspective: direct
     status: completed
-    chronology_context_id: null
   protagonist-self-intervention-recipient:
     occurrence_id: self-intervention
     subject_type: character
@@ -521,7 +523,6 @@ occurrence_participations:
     role: recipient
     perspective: direct
     status: completed
-    chronology_context_id: recipient-context
   protagonist-after-loop:
     occurrence_id: after-loop
     subject_type: character
@@ -529,7 +530,6 @@ occurrence_participations:
     role: participant
     perspective: direct
     status: completed
-    chronology_context_id: null
   protagonist-restored-main:
     occurrence_id: restored-main
     subject_type: character
@@ -537,7 +537,6 @@ occurrence_participations:
     role: participant
     perspective: direct
     status: completed
-    chronology_context_id: null
   protagonist-self-intervention-agent:
     occurrence_id: self-intervention
     subject_type: character
@@ -545,7 +544,6 @@ occurrence_participations:
     role: agent
     perspective: direct
     status: completed
-    chronology_context_id: agent-context
   observer-wake-one:
     occurrence_id: wake-one
     subject_type: character
@@ -553,7 +551,6 @@ occurrence_participations:
     role: observer
     perspective: direct
     status: completed
-    chronology_context_id: null
   observer-bell-one:
     occurrence_id: bell-one
     subject_type: character
@@ -561,7 +558,6 @@ occurrence_participations:
     role: observer
     perspective: direct
     status: completed
-    chronology_context_id: null
   observer-wake-two:
     occurrence_id: wake-two
     subject_type: character
@@ -569,7 +565,6 @@ occurrence_participations:
     role: observer
     perspective: direct
     status: completed
-    chronology_context_id: null
   observer-bell-two:
     occurrence_id: bell-two
     subject_type: character
@@ -577,7 +572,6 @@ occurrence_participations:
     role: observer
     perspective: direct
     status: completed
-    chronology_context_id: null
   observer-wake-three:
     occurrence_id: wake-three
     subject_type: character
@@ -585,7 +579,6 @@ occurrence_participations:
     role: observer
     perspective: direct
     status: completed
-    chronology_context_id: null
   observer-repeated-observation-one:
     occurrence_id: repeated-observation
     subject_type: character
@@ -593,7 +586,6 @@ occurrence_participations:
     role: observer
     perspective: direct
     status: completed
-    chronology_context_id: null
   observer-repeated-observation-two:
     occurrence_id: repeated-observation
     subject_type: character
@@ -601,7 +593,6 @@ occurrence_participations:
     role: observer
     perspective: direct
     status: completed
-    chronology_context_id: null
 
 tracks:
   protagonist-experience:
@@ -705,6 +696,33 @@ track_entries:
     track_id: observer-experience
     participation_id: observer-repeated-observation-two
     ordinal: 7
+
+participation_chronology_bindings:
+  recipient-world-binding:
+    target_type: occurrence-participation
+    target_id: protagonist-self-intervention-recipient
+    occurrence_binding_id: self-intervention-world-position
+    chronology_context_id: null
+  recipient-personal-binding:
+    target_type: occurrence-participation
+    target_id: protagonist-self-intervention-recipient
+    occurrence_binding_id: self-intervention-recipient-position
+    chronology_context_id: recipient-context
+  agent-world-binding:
+    target_type: occurrence-participation
+    target_id: protagonist-self-intervention-agent
+    occurrence_binding_id: self-intervention-world-position
+    chronology_context_id: null
+  agent-personal-binding:
+    target_type: occurrence-participation
+    target_id: protagonist-self-intervention-agent
+    occurrence_binding_id: self-intervention-agent-position
+    chronology_context_id: agent-context
+  recipient-presentation-binding:
+    target_type: occurrence-track-entry
+    target_id: protagonist-entry-11
+    occurrence_binding_id: self-intervention-presentation-position
+    chronology_context_id: null
 
 transitions:
   - id: first-iteration-continues
@@ -1646,6 +1664,54 @@ state_transitions:
         target_type: occurrence
         target_id: inner-step-one
         role: origin
+    certainty: exact
+  - id: observer-detects-repeated-observation
+    subject_type: character
+    subject_id: observer
+    payload_target_type: occurrence
+    payload_target_id: repeated-observation
+    state_kind: awareness
+    change_kind: acquired
+    change_profile: acquire
+    change_shape: discrete
+    mechanism: direct
+    prior_availability: unavailable
+    resulting_availability: partial
+    prior_attitude: null
+    resulting_attitude: null
+    prior_completeness: none
+    resulting_completeness: partial
+    activation_occurrence_id: repeated-observation
+    activation_track_entry_ids:
+      - observer-entry-06
+    condition_rule_id: null
+    track_ids:
+      - observer-experience
+    source_targets: []
+    certainty: exact
+  - id: observer-confirms-repeated-observation
+    subject_type: character
+    subject_id: observer
+    payload_target_type: occurrence
+    payload_target_id: repeated-observation
+    state_kind: awareness
+    change_kind: derived
+    change_profile: derive
+    change_shape: gradual
+    mechanism: inferred
+    prior_availability: partial
+    resulting_availability: available
+    prior_attitude: null
+    resulting_attitude: null
+    prior_completeness: partial
+    resulting_completeness: complete
+    activation_occurrence_id: repeated-observation
+    activation_track_entry_ids:
+      - observer-entry-07
+    condition_rule_id: null
+    track_ids:
+      - observer-experience
+    source_targets: []
     certainty: exact
 
 carryovers:

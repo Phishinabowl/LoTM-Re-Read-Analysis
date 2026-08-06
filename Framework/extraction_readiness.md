@@ -119,18 +119,20 @@ their existing conformance and broad narrative candidate coverage. Synthetic IT/
 medical, legal/compliance, investigative, and scientific replays found no new core ownership
 leak, but they do not substitute for a future non-narrative pack and IT proof of concept.
 
-The V45 implementation rehearsal on 2026-08-05 copied 217 portable files and added the
-structural-interpretation suite to the portable set. Six suites passed with matching summaries in
-Python, PowerShell 7, and Windows PowerShell 5.1 under a neutral core-only consumer; no LoTM
-configuration was copied, and all nine guarded project surfaces remained absent.
+The V46 implementation rehearsal on 2026-08-05 copied 217 portable files. Six suites passed with
+matching summaries in Python, PowerShell 7, and Windows PowerShell 5.1 under a neutral core-only
+consumer; no LoTM configuration was copied, and all nine guarded project surfaces remained absent.
+The portable kernel now includes the schema-10 occurrence runtime and core pack version 37, while
+the intentionally small extraction smoke profile remains independent of project-specific occurrence
+fixtures.
 
 ## Known Limits And Next Boundaries
 
 Extraction readiness does not close these known items:
 
-- Recurrence, participation identity, branch lifecycle, chronology topology, epistemic state,
-  capability state, and structural interpretations are portable through V45.
-  Participation-relative chronology/state boundaries and hosted identity remain V46-V47 work.
+- Recurrence, participation identity, participant-relative chronology selection, exact entry-relative
+  state boundaries, branch lifecycle, chronology topology, epistemic state, capability state, and
+  structural interpretations are portable through V46. Hosted identity remains V47 work.
 - QA graph construction has not yet been fully migrated into one reusable Visualization engine.
 - A normalized content index and generalized bounded-page machinery are not yet complete across
   content types.

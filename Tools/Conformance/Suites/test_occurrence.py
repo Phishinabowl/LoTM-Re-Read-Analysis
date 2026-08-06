@@ -155,7 +155,7 @@ def main() -> int:
         {
             "id": "recipient-context",
             "label": "Recipient Context",
-            "coordinate_system_id": "civil-year",
+            "coordinate_system_id": "mission-day",
             "role": "story",
             "continuity_ids": [],
             "work_ids": ["fixture-work"],
@@ -164,7 +164,7 @@ def main() -> int:
         {
             "id": "agent-context",
             "label": "Agent Context",
-            "coordinate_system_id": "civil-year",
+            "coordinate_system_id": "control-step",
             "role": "time-travel-origin",
             "continuity_ids": [],
             "work_ids": ["fixture-work"],
@@ -180,7 +180,7 @@ def main() -> int:
         continuity_ids=set(),
     )
     fixture_path = fixture_root / "valid-registry.yaml"
-    fixture_data = load_yaml_file(fixture_path, "occurrence fixture", expected_schema_version=9)
+    fixture_data = load_yaml_file(fixture_path, "occurrence fixture", expected_schema_version=10)
     payload_targets = {
         "state-record": {"protagonist-health"},
         "credential-record": {"protagonist-qualification"},
@@ -236,6 +236,12 @@ def main() -> int:
         subject_type, subject_id = key.split("|", 1)
         if ids(fixture.participations_for_subject(subject_type, subject_id)) != expected:
             raise AssertionError(f"Unexpected participations for subject `{key}`.")
+    for participation_id, expected in expectations["participation_chronology_bindings"].items():
+        if ids(fixture.chronology_bindings_for_participation(participation_id)) != expected:
+            raise AssertionError(f"Unexpected chronology bindings for participation `{participation_id}`.")
+    for entry_id, expected in expectations["track_entry_chronology_bindings"].items():
+        if ids(fixture.chronology_bindings_for_track_entry(entry_id)) != expected:
+            raise AssertionError(f"Unexpected chronology bindings for track entry `{entry_id}`.")
     for key, expected in expectations["track_occurrence_entries"].items():
         track_id, occurrence_id = key.split("|", 1)
         if ids(fixture.entries_for_occurrence_on_track(track_id, occurrence_id)) != expected:
@@ -379,6 +385,22 @@ def main() -> int:
         state = fixture.state_at(track_id, occurrence_id, payload_type, payload_id, state_kind)
         if (state.id if state else None) != expected:
             raise AssertionError(f"Unexpected state at `{occurrence_id}` on `{track_id}`.")
+    for track_id, entry_id, payload_type, payload_id, state_kind, expected in expectations["state_at_track_entry"]:
+        state = fixture.state_at_track_entry(track_id, entry_id, payload_type, payload_id, state_kind)
+        if (state.id if state else None) != expected:
+            raise AssertionError(f"Unexpected state at track entry `{entry_id}` on `{track_id}`.")
+    try:
+        fixture.state_at(
+            "observer-experience",
+            "repeated-observation",
+            "occurrence",
+            "repeated-observation",
+            "awareness",
+        )
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("Ambiguous occurrence-relative state lookup unexpectedly succeeded.")
 
     invalid_cases = json.loads((fixture_root / "invalid-cases.json").read_text(encoding="utf-8"))
     for case in invalid_cases:
@@ -429,7 +451,13 @@ def main() -> int:
             "label": f"Scale occurrence {index:03d}",
             "iteration_id": None,
             "branch_id": "main",
-            "bindings": [],
+            "bindings": [
+                {
+                    "id": f"scale-occurrence-binding-{index:03d}",
+                    "position_id": "civil-anchor",
+                    "role": "primary",
+                }
+            ],
         }
         scale_probe["occurrence_participations"][participation_id] = {
             "occurrence_id": occurrence_id,
@@ -438,12 +466,17 @@ def main() -> int:
             "role": "reviewer",
             "perspective": "reconstructed",
             "status": "completed",
-            "chronology_context_id": None,
         }
         scale_probe["track_entries"][entry_id] = {
             "track_id": "scale-observer-experience",
             "participation_id": participation_id,
             "ordinal": index + 1,
+        }
+        scale_probe["participation_chronology_bindings"][f"scale-participation-binding-{index:03d}"] = {
+            "target_type": "occurrence-participation",
+            "target_id": participation_id,
+            "occurrence_binding_id": f"scale-occurrence-binding-{index:03d}",
+            "chronology_context_id": None,
         }
         scale_probe["branch_state_transitions"].append(
             {
@@ -472,6 +505,7 @@ def main() -> int:
     if (
         len(scale_registry.participations_for_subject("character", "observer")) != 7 + scale_count
         or len(scale_registry.tracks["scale-observer-experience"].entry_ids) != scale_count
+        or len(scale_registry.participation_chronology_bindings) != 5 + scale_count
     ):
         raise AssertionError("Generated occurrence-participation scale probe did not retain every record.")
     if len(scale_registry.branch_state_history("main")) != 2 + scale_count:
@@ -683,6 +717,7 @@ def main() -> int:
         "occurrence_participations": len(registry.occurrence_participations),
         "tracks": len(registry.tracks),
         "track_entries": len(registry.track_entries),
+        "participation_chronology_bindings": len(registry.participation_chronology_bindings),
         "transitions": len(registry.transitions),
         "causal_relations": len(registry.causal_relations),
         "outcomes": len(registry.outcomes),
@@ -698,6 +733,8 @@ def main() -> int:
             + len(expectations["position_occurrences"])
             + len(expectations["occurrence_participations"])
             + len(expectations["subject_participations"])
+            + len(expectations["participation_chronology_bindings"])
+            + len(expectations["track_entry_chronology_bindings"])
             + len(expectations["track_occurrence_entries"])
             + len(expectations["track_entry_neighbors"]) * 2
             + len(expectations["ambiguous_occurrence_neighbors"])
@@ -719,11 +756,13 @@ def main() -> int:
             + len(expectations["state_scales"])
             + len(expectations["state_snapshots"])
             + len(expectations["state_at"])
-            + 18
+            + len(expectations["state_at_track_entry"])
+            + 19
         ),
         "invalid_cases": len(invalid_cases),
         "scale_cardinalities": scale_count,
         "scale_participations": scale_count,
+        "scale_participation_chronology_bindings": scale_count,
         "scale_branch_state_transitions": scale_count,
     }
     if args.json:

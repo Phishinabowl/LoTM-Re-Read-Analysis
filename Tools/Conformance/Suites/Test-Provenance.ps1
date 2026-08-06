@@ -316,7 +316,7 @@ function Assert-ProvenanceFixtureServices {
         $Registry `
         'occurrence-participation' `
         'protagonist-self-intervention-agent'
-    if ($participation.role -cne 'agent' -or $participation.chronology_context_id -cne 'agent-context') {
+    if ($participation.role -cne 'agent') {
         throw 'Occurrence-participation provenance target lookup changed.'
     }
     $trackEntry = Get-KnowledgeProvenanceTarget `
@@ -325,6 +325,16 @@ function Assert-ProvenanceFixtureServices {
         'protagonist-entry-14'
     if ($trackEntry.participation_id -cne $participation.id -or [int]$trackEntry.ordinal -ne 14) {
         throw 'Occurrence-track-entry provenance target lookup changed.'
+    }
+    $chronologyBinding = Get-KnowledgeProvenanceTarget `
+        $Registry `
+        'occurrence-participation-chronology-binding' `
+        'agent-personal-binding'
+    if (
+        $chronologyBinding.target_id -cne $participation.id -or
+        $chronologyBinding.chronology_context_id -cne 'agent-context'
+    ) {
+        throw 'Participation chronology-binding provenance target lookup changed.'
     }
     $state = Get-KnowledgeProvenanceTarget `
         $Registry `
@@ -475,7 +485,7 @@ try {
     $chronologyFixtureData['contexts'] = @(
         [ordered]@{id='recipient-context'
             label='Recipient Context'
-            coordinate_system_id='civil-year'
+            coordinate_system_id='mission-day'
             role='story'
             continuity_ids=@()
             work_ids=@('fixture-work')
@@ -483,7 +493,7 @@ try {
         },
         [ordered]@{id='agent-context'
             label='Agent Context'
-            coordinate_system_id='civil-year'
+            coordinate_system_id='control-step'
             role='time-travel-origin'
             continuity_ids=@()
             work_ids=@('fixture-work')
@@ -494,7 +504,7 @@ try {
     $chronologyFixture = ConvertTo-KnowledgeChronologyRegistry `
         $chronologyFixtureData $chronologyFixturePath $packs @('fixture-work') @()
     $occurrenceFixturePath = Join-Path $Root 'Framework\Data\Occurrence\valid-registry.yaml'
-    $occurrenceFixtureData = ConvertFrom-KnowledgeYamlFile $occurrenceFixturePath 9 'occurrence fixture'
+    $occurrenceFixtureData = ConvertFrom-KnowledgeYamlFile $occurrenceFixturePath 10 'occurrence fixture'
     $subjectTargets = [ordered]@{character = @('protagonist', 'observer') }
     $payloadTargets = [ordered]@{
         'state-record' = @('protagonist-health')

@@ -13,7 +13,7 @@ from .strict_yaml import assert_allowed_keys, load_yaml_file
 from .temporal_config import TemporalWindow, normalize_effective_at, parse_temporal_window, temporal_window_match
 
 
-SUPPORTED_SCHEMA_VERSION = 9
+SUPPORTED_SCHEMA_VERSION = 10
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 
@@ -126,9 +126,6 @@ class Occurrence:
 
 
 @dataclass(frozen=True)
-# TODO (OWNER): Implement V46 many-to-many chronology bindings for each participation.
-#   Migration target: preserve or translate the legacy singular chronology_context_id
-#   field in the paired Python and PowerShell loaders.
 class OccurrenceParticipation:
     id: str
     occurrence_id: str
@@ -137,7 +134,6 @@ class OccurrenceParticipation:
     role: str
     perspective: str
     status: str
-    chronology_context_id: str | None
 
 
 @dataclass(frozen=True)
@@ -146,6 +142,15 @@ class OccurrenceTrackEntry:
     track_id: str
     participation_id: str
     ordinal: int
+
+
+@dataclass(frozen=True)
+class ParticipationChronologyBinding:
+    id: str
+    target_type: str
+    target_id: str
+    occurrence_binding_id: str
+    chronology_context_id: str | None
 
 
 @dataclass(frozen=True)
@@ -342,6 +347,7 @@ class StateTransition:
     prior_capability: CapabilityValue | None
     resulting_capability: CapabilityValue | None
     activation_occurrence_id: str
+    activation_track_entry_ids: tuple[str, ...]
     condition_rule_id: str | None
     track_ids: tuple[str, ...]
     source_targets: tuple[StateSourceTarget, ...]
@@ -376,6 +382,7 @@ class OccurrenceRegistry:
     occurrence_participations: dict[str, OccurrenceParticipation]
     tracks: dict[str, OccurrenceTrack]
     track_entries: dict[str, OccurrenceTrackEntry]
+    participation_chronology_bindings: dict[str, ParticipationChronologyBinding]
     transitions: tuple[OccurrenceTransition, ...]
     causal_relations: tuple[CausalRelation, ...]
     outcomes: tuple[OccurrenceOutcome, ...]
@@ -438,6 +445,26 @@ class OccurrenceRegistry:
             for item in self.occurrence_participations.values()
             if item.subject_type == subject_type and item.subject_id == subject_id
         )
+
+    def chronology_bindings_for_participation(
+        self, participation_id: str
+    ) -> tuple[ParticipationChronologyBinding, ...]:
+        self._known(self.occurrence_participations, participation_id, "occurrence participation")
+        return tuple(
+            item
+            for item in self.participation_chronology_bindings.values()
+            if item.target_type == "occurrence-participation" and item.target_id == participation_id
+        )
+
+    def chronology_bindings_for_track_entry(self, entry_id: str) -> tuple[ParticipationChronologyBinding, ...]:
+        entry = self._known(self.track_entries, entry_id, "occurrence track entry")
+        inherited = self.chronology_bindings_for_participation(entry.participation_id)
+        direct = tuple(
+            item
+            for item in self.participation_chronology_bindings.values()
+            if item.target_type == "occurrence-track-entry" and item.target_id == entry_id
+        )
+        return inherited + direct
 
     def entries_for_occurrence_on_track(self, track_id: str, occurrence_id: str) -> tuple[OccurrenceTrackEntry, ...]:
         track = self._known(self.tracks, track_id, "track")
@@ -590,11 +617,37 @@ class OccurrenceRegistry:
             and item.payload_target_type == payload_target_type
             and item.payload_target_id == payload_target_id
             and item.state_kind == state_kind
-            and track.occurrence_ids.index(item.activation_occurrence_id) <= boundary
+            and self._state_activation_index(item, track) <= boundary
         ]
         if not candidates:
             return None
-        return max(candidates, key=lambda item: track.occurrence_ids.index(item.activation_occurrence_id))
+        return max(candidates, key=lambda item: self._state_activation_index(item, track))
+
+    def state_at_track_entry(
+        self,
+        track_id: str,
+        entry_id: str,
+        payload_target_type: str,
+        payload_target_id: str,
+        state_kind: str,
+    ) -> StateTransition | None:
+        track = self._known(self.tracks, track_id, "track")
+        entry = self._known(self.track_entries, entry_id, "track entry")
+        if entry.track_id != track_id:
+            raise ValueError(f"Track entry `{entry_id}` does not belong to track `{track_id}`.")
+        boundary = track.entry_ids.index(entry_id)
+        candidates = [
+            item
+            for item in self.state_transitions
+            if track_id in item.track_ids
+            and item.payload_target_type == payload_target_type
+            and item.payload_target_id == payload_target_id
+            and item.state_kind == state_kind
+            and self._state_activation_index(item, track) <= boundary
+        ]
+        if not candidates:
+            return None
+        return max(candidates, key=lambda item: self._state_activation_index(item, track))
 
     def recurrence_for_occurrence(self, occurrence_id: str) -> Recurrence | None:
         occurrence = self._known(self.occurrences, occurrence_id, "occurrence")
@@ -620,6 +673,7 @@ class OccurrenceRegistry:
             },
             "occurrence-track": self.tracks,
             "occurrence-track-entry": self.track_entries,
+            "occurrence-participation-chronology-binding": self.participation_chronology_bindings,
             "occurrence-transition": {item.id: item for item in self.transitions},
             "causal-relation": {item.id: item for item in self.causal_relations},
             "occurrence-outcome": {item.id: item for item in self.outcomes},
@@ -659,6 +713,9 @@ class OccurrenceRegistry:
         if index < 0 or index >= len(track.entry_ids):
             return None
         return self.track_entries[track.entry_ids[index]]
+
+    def _state_activation_index(self, state: StateTransition, track: OccurrenceTrack) -> int:
+        return _state_activation_index(state, track, self.track_entries)
 
     @staticmethod
     def _known(items: dict[str, object], item_id: str, kind: str):
@@ -795,6 +852,8 @@ def parse_occurrence_registry(
         raise ValueError("Occurrence registry requires enabled capability `aggregate-recurrence-cardinality`.")
     if not packs.capability_enabled("occurrence-participation-identity"):
         raise ValueError("Occurrence registry requires enabled capability `occurrence-participation-identity`.")
+    if not packs.capability_enabled("participation-chronology-bindings"):
+        raise ValueError("Occurrence registry requires enabled capability `participation-chronology-bindings`.")
     if not packs.capability_enabled("timeline-branch-lifecycle"):
         raise ValueError("Occurrence registry requires enabled capability `timeline-branch-lifecycle`.")
     if not packs.capability_enabled("capability-progression"):
@@ -817,6 +876,7 @@ def parse_occurrence_registry(
             "occurrence_participations",
             "tracks",
             "track_entries",
+            "participation_chronology_bindings",
             "transitions",
             "causal_relations",
             "outcomes",
@@ -1179,8 +1239,7 @@ def parse_occurrence_registry(
             )
 
     occurrence_participations: dict[str, OccurrenceParticipation] = {}
-    participation_semantics: dict[tuple[str, str, str, str, str, str, str | None], list[str]] = {}
-    chronology_context_ids = {item.id for item in chronology.contexts}
+    participation_semantics: dict[tuple[str, str, str, str, str, str], list[str]] = {}
     for participation_id, raw in _mapping(
         root.get("occurrence_participations"), "occurrences.occurrence_participations"
     ).items():
@@ -1196,7 +1255,6 @@ def parse_occurrence_registry(
                 "role",
                 "perspective",
                 "status",
-                "chronology_context_id",
             },
             context,
         )
@@ -1212,11 +1270,6 @@ def parse_occurrence_registry(
         _value(packs, "occurrence.participation-perspective", perspective, f"{context}.perspective")
         status = _string(item, "status", context)
         _value(packs, "occurrence.participation-status", status, f"{context}.status")
-        chronology_context_id = _optional_string(item, "chronology_context_id", context)
-        if chronology_context_id is not None and chronology_context_id not in chronology_context_ids:
-            raise ValueError(
-                f"{context}.chronology_context_id references unknown chronology context `{chronology_context_id}`."
-            )
         semantic_key = (
             occurrence_id,
             subject_type,
@@ -1224,7 +1277,6 @@ def parse_occurrence_registry(
             role,
             perspective,
             status,
-            chronology_context_id,
         )
         participation_semantics.setdefault(semantic_key, []).append(participation_id)
         occurrence_participations[participation_id] = OccurrenceParticipation(
@@ -1235,7 +1287,6 @@ def parse_occurrence_registry(
             role,
             perspective,
             status,
-            chronology_context_id,
         )
 
     track_metadata: dict[str, tuple[str, str, str, str]] = {}
@@ -1318,6 +1369,100 @@ def parse_occurrence_registry(
                 f"Semantic duplicate participations {joined_ids} must share a track that orders each encounter."
             )
     _validate_track_iteration_order(tracks, occurrences, iterations)
+
+    occurrence_bindings = {
+        binding.id: (occurrence.id, binding) for occurrence in occurrences.values() for binding in occurrence.bindings
+    }
+    chronology_contexts = {item.id: item for item in chronology.contexts}
+    participation_chronology_bindings: dict[str, ParticipationChronologyBinding] = {}
+    chronology_binding_semantics: set[tuple[str, str, str, str | None]] = set()
+    for link_id, raw in _mapping(
+        root.get("participation_chronology_bindings"),
+        "occurrences.participation_chronology_bindings",
+    ).items():
+        _stable(link_id, "participation chronology-binding ID")
+        context = f"participation_chronology_bindings.{link_id}"
+        item = _mapping(raw, context)
+        assert_allowed_keys(
+            item,
+            {"target_type", "target_id", "occurrence_binding_id", "chronology_context_id"},
+            context,
+        )
+        target_type = _string(item, "target_type", context)
+        _value(
+            packs,
+            "occurrence.participation-chronology-target-type",
+            target_type,
+            f"{context}.target_type",
+        )
+        target_id = _string(item, "target_id", context)
+        if target_type == "occurrence-participation":
+            if target_id not in occurrence_participations:
+                raise ValueError(f"{context}.target_id references unknown participation `{target_id}`.")
+            target_occurrence_id = occurrence_participations[target_id].occurrence_id
+        else:
+            if target_id not in track_entries:
+                raise ValueError(f"{context}.target_id references unknown track entry `{target_id}`.")
+            target_occurrence_id = occurrence_participations[track_entries[target_id].participation_id].occurrence_id
+        occurrence_binding_id = _string(item, "occurrence_binding_id", context)
+        if occurrence_binding_id not in occurrence_bindings:
+            raise ValueError(
+                f"{context}.occurrence_binding_id references unknown occurrence binding `{occurrence_binding_id}`."
+            )
+        binding_occurrence_id, occurrence_binding = occurrence_bindings[occurrence_binding_id]
+        if binding_occurrence_id != target_occurrence_id:
+            raise ValueError(
+                f"{context}.occurrence_binding_id belongs to occurrence `{binding_occurrence_id}`, "
+                f"not `{target_occurrence_id}`."
+            )
+        chronology_context_id = _optional_string(item, "chronology_context_id", context)
+        if chronology_context_id is not None:
+            if chronology_context_id not in chronology_contexts:
+                raise ValueError(
+                    f"{context}.chronology_context_id references unknown chronology context `{chronology_context_id}`."
+                )
+            position = chronology.positions[occurrence_binding.position_id]
+            if chronology_contexts[chronology_context_id].coordinate_system_id != position.coordinate_system_id:
+                raise ValueError(
+                    f"{context}.chronology_context_id coordinate system does not match occurrence binding "
+                    f"`{occurrence_binding_id}`."
+                )
+        semantic_key = (target_type, target_id, occurrence_binding_id, chronology_context_id)
+        if semantic_key in chronology_binding_semantics:
+            raise ValueError(f"{context} duplicates an existing participation chronology binding.")
+        if target_type == "occurrence-track-entry":
+            participation_id = track_entries[target_id].participation_id
+            inherited_key = (
+                "occurrence-participation",
+                participation_id,
+                occurrence_binding_id,
+                chronology_context_id,
+            )
+            if inherited_key in chronology_binding_semantics:
+                raise ValueError(f"{context} redundantly repeats a participation-level chronology binding.")
+        chronology_binding_semantics.add(semantic_key)
+        participation_chronology_bindings[link_id] = ParticipationChronologyBinding(
+            link_id,
+            target_type,
+            target_id,
+            occurrence_binding_id,
+            chronology_context_id,
+        )
+    for link in participation_chronology_bindings.values():
+        if link.target_type != "occurrence-track-entry":
+            continue
+        participation_id = track_entries[link.target_id].participation_id
+        if any(
+            inherited.target_type == "occurrence-participation"
+            and inherited.target_id == participation_id
+            and inherited.occurrence_binding_id == link.occurrence_binding_id
+            and inherited.chronology_context_id == link.chronology_context_id
+            for inherited in participation_chronology_bindings.values()
+        ):
+            raise ValueError(
+                f"participation_chronology_bindings.{link.id} redundantly repeats a "
+                "participation-level chronology binding."
+            )
 
     seen_ids: set[str] = set()
     transitions: list[OccurrenceTransition] = []
@@ -1950,6 +2095,7 @@ def parse_occurrence_registry(
                 "prior_capability",
                 "resulting_capability",
                 "activation_occurrence_id",
+                "activation_track_entry_ids",
                 "condition_rule_id",
                 "track_ids",
                 "source_targets",
@@ -2044,6 +2190,22 @@ def parse_occurrence_registry(
         activation_id = _string(item, "activation_occurrence_id", context)
         if activation_id not in occurrences:
             raise ValueError(f"{context}.activation_occurrence_id references unknown occurrence `{activation_id}`.")
+        activation_track_entry_ids = (
+            _strings(item, "activation_track_entry_ids", context) if "activation_track_entry_ids" in item else ()
+        )
+        activation_entries_by_track: dict[str, str] = {}
+        for entry_id in activation_track_entry_ids:
+            if entry_id not in track_entries:
+                raise ValueError(f"{context}.activation_track_entry_ids references unknown entry `{entry_id}`.")
+            entry = track_entries[entry_id]
+            if entry.track_id in activation_entries_by_track:
+                raise ValueError(f"{context}.activation_track_entry_ids repeats track `{entry.track_id}`.")
+            if occurrence_participations[entry.participation_id].occurrence_id != activation_id:
+                raise ValueError(
+                    f"{context}.activation_track_entry_ids entry `{entry_id}` does not resolve to "
+                    f"activation occurrence `{activation_id}`."
+                )
+            activation_entries_by_track[entry.track_id] = entry_id
         condition_rule_id = _optional_string(item, "condition_rule_id", context)
         if condition_rule_id is not None and condition_rule_id not in rule_map:
             raise ValueError(f"{context}.condition_rule_id references unknown rule `{condition_rule_id}`.")
@@ -2058,11 +2220,17 @@ def parse_occurrence_registry(
                 raise ValueError(f"{context} subject must match track `{track_id}` subject.")
             if activation_id not in track.occurrence_ids:
                 raise ValueError(f"{context}.activation_occurrence_id must appear on track `{track_id}`.")
-            if track.occurrence_ids.count(activation_id) != 1:
+            if track.occurrence_ids.count(activation_id) != 1 and track_id not in activation_entries_by_track:
                 raise ValueError(
                     f"{context}.activation_occurrence_id appears more than once on track `{track_id}`; "
-                    "participation-relative state transitions are not available."
+                    "activation_track_entry_ids must select the intended visit."
                 )
+        unknown_activation_tracks = set(activation_entries_by_track) - set(track_ids)
+        if unknown_activation_tracks:
+            raise ValueError(
+                f"{context}.activation_track_entry_ids references tracks outside track_ids: "
+                f"{sorted(unknown_activation_tracks)}."
+            )
         source_records: list[StateSourceTarget] = []
         for source_index, raw_source in enumerate(_list(item.get("source_targets"), f"{context}.source_targets")):
             source_context = f"{context}.source_targets[{source_index}]"
@@ -2116,6 +2284,7 @@ def parse_occurrence_registry(
             prior_capability,
             resulting_capability,
             activation_id,
+            tuple(sorted(activation_track_entry_ids)),
             condition_rule_id,
             tuple(sorted(track_ids)),
         )
@@ -2144,6 +2313,7 @@ def parse_occurrence_registry(
                 prior_capability,
                 resulting_capability,
                 activation_id,
+                tuple(activation_track_entry_ids),
                 condition_rule_id,
                 track_ids,
                 tuple(source_records),
@@ -2151,7 +2321,7 @@ def parse_occurrence_registry(
             )
         )
     state_map = {item.id: item for item in states}
-    _validate_state_chains(states, tracks)
+    _validate_state_chains(states, tracks, track_entries)
 
     carryovers: list[IterationCarryover] = []
     carryover_semantics: set[tuple[str, str, str, str]] = set()
@@ -2189,7 +2359,16 @@ def parse_occurrence_registry(
         state = state_map[state_id]
         if track_id not in state.track_ids:
             raise ValueError(f"{context}.state_transition_id must apply to track `{track_id}`.")
-        _validate_carryover_state_window(state, source_id, target_id, track, states, occurrences, context)
+        _validate_carryover_state_window(
+            state,
+            source_id,
+            target_id,
+            track,
+            states,
+            occurrences,
+            track_entries,
+            context,
+        )
         certainty = _string(item, "certainty", context)
         _value(packs, "temporal.certainty", certainty, f"{context}.certainty")
         semantic_key = (source_id, target_id, track_id, state_id)
@@ -2215,6 +2394,7 @@ def parse_occurrence_registry(
         occurrence_participations,
         tracks,
         track_entries,
+        participation_chronology_bindings,
         tuple(transitions),
         tuple(causal_relations),
         tuple(outcomes),
@@ -2756,6 +2936,7 @@ def _validate_state_dimension(
 def _validate_state_chains(
     states: list[StateTransition],
     tracks: dict[str, OccurrenceTrack],
+    track_entries: dict[str, OccurrenceTrackEntry],
 ) -> None:
     chains: dict[tuple[str, str, str, str, str, str], list[StateTransition]] = {}
     for state in states:
@@ -2771,10 +2952,10 @@ def _validate_state_chains(
             chains.setdefault(key, []).append(state)
     for key, members in chains.items():
         track = tracks[key[0]]
-        members.sort(key=lambda item: track.occurrence_ids.index(item.activation_occurrence_id))
-        activation_ids = [item.activation_occurrence_id for item in members]
-        if len(activation_ids) != len(set(activation_ids)):
-            raise ValueError(f"State chain on track `{track.id}` has multiple transitions at one occurrence.")
+        members.sort(key=lambda item: _state_activation_index(item, track, track_entries))
+        activation_indices = [_state_activation_index(item, track, track_entries) for item in members]
+        if len(activation_indices) != len(set(activation_indices)):
+            raise ValueError(f"State chain on track `{track.id}` has multiple transitions at one track entry.")
         for previous, current in zip(members, members[1:]):
             if previous.resulting_availability != current.prior_availability:
                 raise ValueError(
@@ -2805,16 +2986,20 @@ def _validate_carryover_state_window(
     track: OccurrenceTrack,
     states: list[StateTransition],
     occurrences: dict[str, Occurrence],
+    track_entries: dict[str, OccurrenceTrackEntry],
     context: str,
 ) -> None:
-    indices = {occurrence_id: index for index, occurrence_id in enumerate(track.occurrence_ids)}
     source_indices = [
-        indices[item] for item in track.occurrence_ids if occurrences[item].iteration_id == source_iteration_id
+        index
+        for index, occurrence_id in enumerate(track.occurrence_ids)
+        if occurrences[occurrence_id].iteration_id == source_iteration_id
     ]
     target_indices = [
-        indices[item] for item in track.occurrence_ids if occurrences[item].iteration_id == target_iteration_id
+        index
+        for index, occurrence_id in enumerate(track.occurrence_ids)
+        if occurrences[occurrence_id].iteration_id == target_iteration_id
     ]
-    activation_index = indices[state.activation_occurrence_id]
+    activation_index = _state_activation_index(state, track, track_entries)
     if activation_index > max(source_indices):
         raise ValueError(f"{context}.state_transition_id activates after the source iteration ends.")
     chain_key = (
@@ -2834,11 +3019,30 @@ def _validate_carryover_state_window(
             candidate.payload_target_id,
             candidate.state_kind,
         )
-        candidate_index = indices[candidate.activation_occurrence_id]
+        candidate_index = _state_activation_index(candidate, track, track_entries)
         if chain_key == candidate_key and activation_index < candidate_index < min(target_indices):
             raise ValueError(
                 f"{context}.state_transition_id is superseded by `{candidate.id}` before the target iteration begins."
             )
+
+
+def _state_activation_index(
+    state: StateTransition,
+    track: OccurrenceTrack,
+    track_entries: dict[str, OccurrenceTrackEntry],
+) -> int:
+    for entry_id in state.activation_track_entry_ids:
+        entry = track_entries[entry_id]
+        if entry.track_id == track.id:
+            return track.entry_ids.index(entry_id)
+    indices = [
+        index
+        for index, occurrence_id in enumerate(track.occurrence_ids)
+        if occurrence_id == state.activation_occurrence_id
+    ]
+    if len(indices) != 1:
+        raise ValueError(f"State transition `{state.id}` requires an activation track entry on track `{track.id}`.")
+    return indices[0]
 
 
 def _rule_applicability_status(

@@ -597,7 +597,7 @@ Use `--json` / `-Json` for matching canonical, fixture, malformed-case, invalid-
 
 ## Project Composition Conformance
 
-Run the project-composition suite after changing the manifest, registry paths or schemas, selected packs, capability activation, canonical registry records, or cross-registry providers. Both implementations load the complete canonical project twice in dependency order and compare it with the reviewed LoTM instance oracle in `Project_Config/composition-baseline.json`. They verify exact project roots, registry schemas and counts, pack versions, capability state, provider closure, object wiring, deterministic repeated loads, disabled-capability absence, and twelve invalid cross-registry compositions.
+Run the project-composition suite after changing the manifest, registry paths or schemas, selected packs, capability activation, canonical registry records, or cross-registry providers. Both implementations load the complete canonical project twice in dependency order and compare it with the reviewed LoTM instance oracle in `Project_Config/composition-baseline.json`. They verify exact project roots, registry schemas and counts, pack versions, capability state, provider closure, object wiring, deterministic repeated loads, disabled-capability absence, and thirteen invalid cross-registry compositions.
 
 ```powershell
 python Tools\Conformance\Suites\test_project_composition.py
