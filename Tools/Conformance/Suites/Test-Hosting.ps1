@@ -104,6 +104,8 @@ function Get-FixtureProvider {
         entity = [ordered]@{
             alpha = [pscustomobject]@{ id = 'alpha' }
             beta = [pscustomobject]@{ id = 'beta' }
+            delta = [pscustomobject]@{ id = 'delta' }
+            epsilon = [pscustomobject]@{ id = 'epsilon' }
         }
         'entity-incarnation' = [ordered]@{
             'gamma-incarnation' = [pscustomobject]@{ id = 'gamma-incarnation' }
@@ -153,7 +155,7 @@ function Assert-Services {
         'Carrier occupancy query'
     Assert-Ids `
     (Get-KnowledgeHostedIdentityOccupancies $Registry 'entity' 'alpha') `
-    @('alpha-controller', 'alpha-runtime-source') `
+    @('alpha-controller', 'alpha-runtime-source', 'alpha-controller-body-b') `
         'Subject occupancy query'
     Assert-Ids `
     (Get-KnowledgeHostCarrierControllersAt $Registry 'body-a' 'protagonist-entry-04') `
@@ -165,8 +167,21 @@ function Assert-Services {
         'Controller lookup at handoff'
     Assert-Ids `
     (Get-KnowledgeHostCarrierOccupanciesAt $Registry 'body-b' 'protagonist-entry-10') `
-    @('beta-copy-body-b', 'gamma-body-b') `
+    @(
+        'alpha-controller-body-b',
+        'beta-copy-body-b',
+        'delta-dormant-body-b',
+        'epsilon-controller-body-b',
+        'gamma-body-b'
+    ) `
         'Co-resident occupancy lookup'
+    Assert-Ids `
+    (Get-KnowledgeHostCarrierControllersAt $Registry 'body-b' 'protagonist-entry-10') `
+    @('alpha-controller-body-b', 'epsilon-controller-body-b') `
+        'Co-control lookup'
+    if ($Registry.occupancies['delta-dormant-body-b'].role -cne 'dormant') {
+        throw 'Dormant co-residence changed.'
+    }
     if (-not (Test-KnowledgeHostCarrierActiveAt $Registry 'body-a' 'protagonist-entry-13')) {
         throw 'Carrier unexpectedly inactive before termination.'
     }
@@ -184,7 +199,7 @@ function Assert-Services {
     if (@($reconciliation.targets.Keys) -join ',' -cne 'host-carrier') {
         throw 'Hosted identity reconciliation target boundary changed.'
     }
-    return 9
+    return 11
 }
 
 function Assert-InvalidQueries {

@@ -259,16 +259,37 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
   state services instead of duplicating their ownership inside the hosting contract.
 - [x] Preserve carrier lifecycle independently from hosted-identity lifecycle and make current
   occupant/controller queries deterministic at an explicit boundary.
-- [ ] Replay Westworld's Dolores/Wyatt states, pearls, Host bodies, copied Dolores identities, and
+- [x] Replay Westworld's Dolores/Wyatt states, pearls, Host bodies, copied Dolores identities, and
   divergence; retain the continuity/identity scenario as a regression against collapsing hosting
   into incarnation or counterpart identity; then pressure-test software processes and containers,
   agents and runtimes, avatars, simulations, and carefully bounded medical identity/carrier cases.
-- [ ] Complete V47 implementation confirmation, pressure testing, evolution recording, and plan
+- [x] Complete V47 implementation confirmation, pressure testing, evolution recording, and plan
   closure through the normal framework lifecycle.
 
-### Phase 1.13 Expanded Stabilization Pressure Test
+### Phase 1.13 V48 Nested Carrier Topology
 
-- [ ] Replay the complete retained Loki and Derrick scenarios with V39-V47 active together.
+- [ ] Define provenance-addressable carrier-to-carrier bindings without treating either carrier as
+  the identity that occupies or controls it.
+- [ ] Support pack-owned binding kinds for physical installation/containment and virtual execution
+  or projection while keeping domain-facing labels outside core.
+- [ ] Give each binding explicit activation and optional termination boundaries while preserving
+  independent child-carrier, parent-carrier, and identity-occupancy lifecycles.
+- [ ] Reject self-bindings, cycles, duplicate semantic bindings, unknown carriers, invalid
+  boundaries, and attempts to infer identity continuity or direct occupancy from a carrier chain.
+- [ ] Expose deterministic direct and transitive carrier-chain queries that preserve the distinction
+  between direct occupancy and an identity reachable through an installed or hosted child carrier.
+- [ ] Model a pearl or control unit moving between Host bodies without falsely moving or copying the
+  identity stored in that control unit; preserve explicit identity copy/divergence separately.
+- [ ] Replay Westworld, process/container/VM stacks, agents in runtimes, avatars projected through
+  simulation hosts, and carefully bounded device/body examples.
+- [ ] Add paired Python/PowerShell fixtures, malformed/adversarial vectors, provenance and
+  reconciliation closure, scale pressure, project composition, extraction, and compatibility gates.
+- [ ] Complete V48 implementation confirmation, pressure testing, evolution recording, and plan
+  closure through the normal framework lifecycle.
+
+### Phase 1.14 Expanded Stabilization Pressure Test
+
+- [ ] Replay the complete retained Loki and Derrick scenarios with V39-V48 active together.
 - [ ] Replay Primer, Arrival, Memento, Doctor Who, and Westworld through their stable scenario IDs.
 - [ ] Replay the retained parody/derivation, continuity/identity, serialized-adaptation, and
   textual-tradition scenarios so the expanded temporal work remains compatible with the earlier

@@ -138,8 +138,9 @@ Extraction readiness does not close these known items:
 
 - Recurrence, participation identity, participant-relative chronology selection, exact entry-relative
   state boundaries, branch lifecycle, chronology topology, epistemic state, capability state,
-  structural interpretations, and hosted identity are portable through V47. V47 pressure testing
-  and the composed Phase 1.13 stabilization replay remain open.
+  structural interpretations, and direct hosted identity are portable through V47. V47 pressure
+  testing identified nested carrier topology as focused V48 work; the composed Phase 1.14
+  stabilization replay remains open.
 - QA graph construction has not yet been fully migrated into one reusable Visualization engine.
 - A normalized content index and generalized bounded-page machinery are not yet complete across
   content types.

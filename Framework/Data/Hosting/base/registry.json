@@ -80,6 +80,33 @@
       "role": "co-resident",
       "activated_at_entry_id": "protagonist-entry-10",
       "terminated_at_entry_id": null
+    },
+    {
+      "id": "delta-dormant-body-b",
+      "subject_type": "entity",
+      "subject_id": "delta",
+      "carrier_id": "body-b",
+      "role": "dormant",
+      "activated_at_entry_id": "protagonist-entry-10",
+      "terminated_at_entry_id": null
+    },
+    {
+      "id": "alpha-controller-body-b",
+      "subject_type": "entity",
+      "subject_id": "alpha",
+      "carrier_id": "body-b",
+      "role": "controlling",
+      "activated_at_entry_id": "protagonist-entry-10",
+      "terminated_at_entry_id": null
+    },
+    {
+      "id": "epsilon-controller-body-b",
+      "subject_type": "entity",
+      "subject_id": "epsilon",
+      "carrier_id": "body-b",
+      "role": "controlling",
+      "activated_at_entry_id": "protagonist-entry-10",
+      "terminated_at_entry_id": null
     }
   ],
   "transitions": [

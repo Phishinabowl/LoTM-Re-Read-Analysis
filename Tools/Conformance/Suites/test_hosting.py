@@ -24,7 +24,12 @@ from knowledge_framework.strict_yaml import load_yaml_file  # noqa: E402
 class FixtureProvider:
     def __init__(self) -> None:
         self.identities = {
-            "entity": {"alpha": {"id": "alpha"}, "beta": {"id": "beta"}},
+            "entity": {
+                "alpha": {"id": "alpha"},
+                "beta": {"id": "beta"},
+                "delta": {"id": "delta"},
+                "epsilon": {"id": "epsilon"},
+            },
             "entity-incarnation": {"gamma-incarnation": {"id": "gamma-incarnation"}},
             "identity-phase": {"beta-phase": {"id": "beta-phase"}},
         }
@@ -138,6 +143,7 @@ def assert_services(registry) -> int:
     if [item.id for item in registry.occupancies_for_subject("entity", "alpha")] != [
         "alpha-controller",
         "alpha-runtime-source",
+        "alpha-controller-body-b",
     ]:
         raise AssertionError("Subject occupancy query changed.")
     if [item.id for item in registry.controllers_at("body-a", "protagonist-entry-04")] != ["alpha-controller"]:
@@ -145,10 +151,20 @@ def assert_services(registry) -> int:
     if [item.id for item in registry.controllers_at("body-a", "protagonist-entry-05")] != ["beta-controller"]:
         raise AssertionError("Controller lookup at handoff changed.")
     if [item.id for item in registry.occupancies_at("body-b", "protagonist-entry-10")] != [
+        "alpha-controller-body-b",
         "beta-copy-body-b",
+        "delta-dormant-body-b",
+        "epsilon-controller-body-b",
         "gamma-body-b",
     ]:
         raise AssertionError("Co-resident occupancy lookup changed.")
+    if [item.id for item in registry.controllers_at("body-b", "protagonist-entry-10")] != [
+        "alpha-controller-body-b",
+        "epsilon-controller-body-b",
+    ]:
+        raise AssertionError("Co-control lookup changed.")
+    if registry.occupancies["delta-dormant-body-b"].role != "dormant":
+        raise AssertionError("Dormant co-residence changed.")
     if not registry.carrier_active_at("body-a", "protagonist-entry-13"):
         raise AssertionError("Carrier unexpectedly inactive before termination.")
     if registry.carrier_active_at("body-a", "protagonist-entry-14"):
@@ -157,7 +173,7 @@ def assert_services(registry) -> int:
         raise AssertionError("Hosted identity provenance lookup changed.")
     if tuple(registry.reconciliation_targets()) != ("host-carrier",):
         raise AssertionError("Hosted identity reconciliation target boundary changed.")
-    return 9
+    return 11
 
 
 def assert_invalid_queries(registry) -> int:

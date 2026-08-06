@@ -1232,7 +1232,7 @@ This section tracks durable configuration and generated state files that affect 
 
 Last mapped: 2026-08-05.
 
-Last focused parity check: 2026-08-05. Python, PowerShell 7, and Windows PowerShell 5.1 load manifest schema 11, schema-pack selection registry schema 2, schema-4 pack files, eight selected packs (`core` 38, `narrative-media` 24, `narrative-publishing` 10, `narrative-screen-audio` 11, `narrative-adaptation` 10, `narrative-distribution` 14, `narrative-production` 4, and `narrative-shared-universe` 9), taxonomy schema 2, resource schema 1, source schema 18, entity schema 4, reconciliation schema 4, chronology schema 2, occurrence schema 10, hosted-identity schema 1, interpretation schema 1, provenance schema 3, and lookup-key schema 1 with Unicode 16.0.0. V47 adds stable physical or virtual carriers, exact occupancy intervals, deterministic occupant/controller queries, and explicit move, copy, and control-handoff transitions without inferring identity equivalence or continuity. The current composition contains 137 atomic controlled-value namespaces, 1,039 values, four state profiles, 18 state-kind mappings, 123 enabled capabilities, 25 reconciliation target types, and 69 provenance subject types. Focused hosting conformance passes nine service assertions, rejects 31 invalid configurations and seven invalid queries, and exercises generated 128-carrier and 128-occupancy scale probes; provenance validates 21 composed assertions including carrier, occupancy, and transition targets.
+Last focused parity check: 2026-08-06. Python, PowerShell 7, and Windows PowerShell 5.1 load manifest schema 11, schema-pack selection registry schema 2, schema-4 pack files, eight selected packs (`core` 38, `narrative-media` 24, `narrative-publishing` 10, `narrative-screen-audio` 11, `narrative-adaptation` 10, `narrative-distribution` 14, `narrative-production` 4, and `narrative-shared-universe` 9), taxonomy schema 2, resource schema 1, source schema 18, entity schema 4, reconciliation schema 4, chronology schema 2, occurrence schema 10, hosted-identity schema 1, interpretation schema 1, provenance schema 3, and lookup-key schema 1 with Unicode 16.0.0. V47 adds stable physical or virtual carriers, exact occupancy intervals, deterministic occupant/controller queries, and explicit move, copy, and control-handoff transitions without inferring identity equivalence or continuity. The current composition contains 137 atomic controlled-value namespaces, 1,039 values, four state profiles, 18 state-kind mappings, 123 enabled capabilities, 25 reconciliation target types, and 69 provenance subject types. Post-confirmation focused hosting conformance passes eleven service assertions across nine occupancies, including dormant co-residence and two simultaneous controllers returned without invented priority; it rejects 31 invalid configurations and seven invalid queries and exercises generated 128-carrier and 128-occupancy scale probes. Provenance validates 21 composed assertions including carrier, occupancy, and transition targets.
 
 ### Project Manifest Contract
 
@@ -1449,10 +1449,11 @@ Both runners load the canonical registry chain and compose the vocabulary-neutra
 ### Hosted Identity Conformance
 
 The paired hosting suites load the canonical empty project registry and a vocabulary-neutral
-schema-1 fixture with three carriers, six occupancies, and explicit control-handoff, move, and copy
+schema-1 fixture with three carriers, nine occupancies, and explicit control-handoff, move, and copy
 transitions. They verify independent carrier lifecycle, inclusive activation and exclusive
-termination, co-resident occupants, deterministic controller sets, identity/relationship provider
-closure, reconciliation and provenance targets, 31 invalid configurations, seven invalid queries,
+termination, active/dormant/co-resident occupants, deterministic single- and co-controller sets,
+identity/relationship provider closure, reconciliation and provenance targets, 31 invalid
+configurations, seven invalid queries,
 and generated 128-carrier/128-occupancy scale probes. The suite is baseline-only and removes its
 uniquely named operating-system temporary tree before exit.
 

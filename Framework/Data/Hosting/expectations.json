@@ -1,7 +1,7 @@
 {
   "counts": {
     "carriers": 3,
-    "occupancies": 6,
+    "occupancies": 9,
     "transitions": 3,
     "provenance_target_types": 3,
     "reconciliation_target_types": 1
