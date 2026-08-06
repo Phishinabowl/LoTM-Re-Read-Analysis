@@ -241,10 +241,10 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
   comparison; participation bindings must never become precedence edges.
 - [x] Review and close the participation-relative state-boundary gap for repeated visits to one
   occurrence, using a track-entry boundary when occurrence-relative lookup is ambiguous.
-- [ ] Replay Doctor Who's Doctor/River meetings and multi-Doctor encounters, retain Arrival's
+- [x] Replay Doctor Who's Doctor/River meetings and multi-Doctor encounters, retain Arrival's
   backward-causal knowledge as a regression control, and pressure-test distributed event,
   processing, ingestion, business, and observer clocks.
-- [ ] Complete V46 implementation confirmation, pressure testing, evolution recording, and plan
+- [x] Complete V46 implementation confirmation, pressure testing, evolution recording, and plan
   closure through the normal framework lifecycle.
 
 ### Phase 1.12 V47 Hosted Identity And Embodiment
