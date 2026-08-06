@@ -284,12 +284,41 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
   simulation hosts, and carefully bounded device/body examples.
 - [x] Add paired Python/PowerShell fixtures, malformed/adversarial vectors, provenance and
   reconciliation closure, scale pressure, project composition, extraction, and compatibility gates.
-- [ ] Complete V48 implementation confirmation, pressure testing, evolution recording, and plan
+- [x] Complete V48 implementation confirmation, pressure testing, evolution recording, and plan
   closure through the normal framework lifecycle.
 
-### Phase 1.14 Expanded Stabilization Pressure Test
+### Phase 1.14 V49 Hosting Pack Boundary Reconciliation
 
-- [ ] Replay the complete retained Loki and Derrick scenarios with V39-V48 active together.
+- [ ] Inventory every hosting capability, controlled-value namespace, semantic declaration, and
+  provider registration currently supplied by core; classify each as universal structure,
+  domain-neutral optional capability, or domain-facing vocabulary.
+- [ ] Keep carrier, binding, occupancy, transition, lifecycle-boundary, provenance, reconciliation,
+  and query mechanics in the reusable framework without requiring unrelated projects to activate
+  hosted-identity behavior.
+- [ ] Define the minimal core-owned hosting vocabulary, if any, and relocate narrative/simulation
+  terms such as bodies, control units, avatars, vessels, and projection into an appropriate optional
+  pack rather than exposing them to every industry.
+- [ ] Relocate compute-facing terms such as runtimes, containers, virtual hosts, and execution into
+  an optional reusable pack that an IT project may select without inheriting narrative vocabulary.
+- [ ] Leave medical, legal, and other industry-specific carrier terms absent until their own packs
+  deliberately define them; an absent pack must disable its vocabulary without producing unrelated
+  project errors.
+- [ ] Decide whether `hosted-identity-embodiment` itself remains a core capability, becomes a
+  domain-neutral optional capability pack, or is split into a core service plus opt-in activation;
+  record the ownership and dependency rule explicitly.
+- [ ] Update the LoTM pack selection only for capabilities and vocabulary the project actually uses,
+  preserving its empty canonical hosting registry until LoTM records are intentionally authored.
+- [ ] Add paired composition fixtures proving core-only, narrative-only, compute-only, combined, and
+  absent-hosting projects receive exactly their selected vocabulary with no cross-pack leakage.
+- [ ] Re-run hosted identity, pack composition, project composition, provenance closure, isolated
+  extraction, three-runtime parity, malformed/adversarial, and cross-domain pressure through the
+  normal framework-version lifecycle.
+- [ ] Complete V49 implementation confirmation, pressure testing, evolution recording, and plan
+  closure before beginning the expanded stabilization replay.
+
+### Phase 1.15 Expanded Stabilization Pressure Test
+
+- [ ] Replay the complete retained Loki and Derrick scenarios with V39-V49 active together.
 - [ ] Replay Primer, Arrival, Memento, Doctor Who, and Westworld through their stable scenario IDs.
 - [ ] Replay the retained parody/derivation, continuity/identity, serialized-adaptation, and
   textual-tradition scenarios so the expanded temporal work remains compatible with the earlier
@@ -322,7 +351,8 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [ ] One participation can bind to every applicable chronology system without duplication or
   participant ambiguity.
 - [ ] Hosted identities, carriers, co-occupancy, transfer, copying, and divergence have explicit
-  ownership without overloading incarnations or identity phases.
+  ownership without overloading incarnations or identity phases, and hosting vocabulary remains
+  isolated to selected packs rather than bleeding across industries.
 - [ ] Primer, Arrival, Memento, Doctor Who, and Westworld pass their retained scenario questions.
 - [ ] Parody/derivation, continuity/identity, serialized adaptation, and textual tradition pass their
   retained scenario questions without weakening their earlier ownership boundaries.

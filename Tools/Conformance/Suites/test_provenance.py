@@ -386,7 +386,15 @@ def main() -> int:
                 "credential-record": {"protagonist-qualification"},
             },
         )
-        fixture_hosting = load_hosted_identity_registry(project, packs, fixture_occurrences, (entities,))
+        hosting_document = json.loads(
+            (root / "Framework" / "Data" / "Hosting" / "base" / "registry.json").read_text(encoding="utf-8")
+        )
+        hosting_document["occupancies"] = []
+        hosting_document["transitions"] = []
+        hosting_path = temp_root / "hosting.json"
+        write_json(hosting_path, hosting_document)
+        hosting_project = replace(project, hosting_registry=hosting_path)
+        fixture_hosting = load_hosted_identity_registry(hosting_project, packs, fixture_occurrences, (entities,))
 
         interpretation_document = load_yaml_file(
             project.interpretations_registry,
@@ -438,6 +446,21 @@ def main() -> int:
         interpretation_assertion["evidence_links"][0]["locators"][0]["id"] = "interpretation-support-locator"
         base_document["assertions"].append(interpretation_assertion)
 
+        binding_assertion = copy.deepcopy(base_document["assertions"][0])
+        binding_assertion.update(
+            {
+                "id": "carrier-binding-kind-support",
+                "claim_key": "control-unit-body-b-binding-kind",
+                "subject_type": "host-carrier-binding",
+                "subject_id": "control-unit-body-b",
+                "claim_namespace": "canonical-content",
+                "field_path": "binding_kind",
+                "asserted_value": "installed-in",
+            }
+        )
+        binding_assertion["evidence_links"][0]["locators"][0]["id"] = "carrier-binding-kind-support-locator"
+        base_document["assertions"].append(binding_assertion)
+
         valid_path = temp_root / "valid.json"
         write_json(valid_path, base_document)
         registry = load_fixture(
@@ -456,6 +479,9 @@ def main() -> int:
             != "Candidate Structure"
         ):
             raise AssertionError("Structural interpretation provenance dispatch returned the wrong target.")
+        binding_target = registry.provenance_target("host-carrier-binding", "control-unit-body-b")
+        if binding_target.binding_kind != "installed-in":
+            raise AssertionError("Host-carrier-binding provenance dispatch returned the wrong target.")
         assert_counts(registry, expectations["valid_counts"])
         assert_authority_vectors(registry, expectations["authority_vectors"])
         assert_services(registry)

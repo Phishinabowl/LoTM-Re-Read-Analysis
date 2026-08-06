@@ -527,8 +527,18 @@ try {
         $chronologyFixture `
         $subjectTargets `
         $payloadTargets
+    $hostingProject = $project.PSObject.Copy()
+    $hostingFixturePath = Join-Path $Root 'Framework\Data\Hosting\base\registry.json'
+    $hostingDocument = ConvertTo-MutableFixtureValue (
+        ConvertFrom-KnowledgeYamlFile $hostingFixturePath 2 'hosted identity registry'
+    )
+    $hostingDocument['occupancies'] = [System.Collections.ArrayList]@()
+    $hostingDocument['transitions'] = [System.Collections.ArrayList]@()
+    $hostingPath = Join-Path $tempRoot 'hosting.json'
+    Write-FixtureJson $hostingPath $hostingDocument
+    $hostingProject.hosting_registry = $hostingPath
     $fixtureHosting = Get-KnowledgeHostedIdentityRegistry `
-        $project `
+        $hostingProject `
         $packs `
         $fixtureOccurrences `
     @((New-KnowledgeHostingEntityProvider $entities))
@@ -587,6 +597,17 @@ try {
     $interpretationAssertion['evidence_links'][0]['locators'][0]['id'] = 'interpretation-support-locator'
     [void]$baseDocument.assertions.Add($interpretationAssertion)
 
+    $bindingAssertion = ConvertTo-MutableFixtureValue $baseDocument.assertions[0]
+    $bindingAssertion['id'] = 'carrier-binding-kind-support'
+    $bindingAssertion['claim_key'] = 'control-unit-body-b-binding-kind'
+    $bindingAssertion['subject_type'] = 'host-carrier-binding'
+    $bindingAssertion['subject_id'] = 'control-unit-body-b'
+    $bindingAssertion['claim_namespace'] = 'canonical-content'
+    $bindingAssertion['field_path'] = 'binding_kind'
+    $bindingAssertion['asserted_value'] = 'installed-in'
+    $bindingAssertion['evidence_links'][0]['locators'][0]['id'] = 'carrier-binding-kind-support-locator'
+    [void]$baseDocument.assertions.Add($bindingAssertion)
+
     $validPath = Join-Path $tempRoot 'valid.json'
     Write-FixtureJson $validPath $baseDocument
     $registry = Get-FixtureProvenanceRegistry `
@@ -605,6 +626,13 @@ try {
         'candidate-structure'
     if ($interpretationTarget.label -cne 'Candidate Structure') {
         throw 'Structural interpretation provenance dispatch returned the wrong target.'
+    }
+    $bindingTarget = Get-KnowledgeProvenanceTarget `
+        $registry `
+        'host-carrier-binding' `
+        'control-unit-body-b'
+    if ($bindingTarget.binding_kind -cne 'installed-in') {
+        throw 'Host-carrier-binding provenance dispatch returned the wrong target.'
     }
     Assert-ProvenanceFixtureCounts $registry $expectations.valid_counts
     Assert-ProvenanceAuthorityVectors $registry @($expectations.authority_vectors)

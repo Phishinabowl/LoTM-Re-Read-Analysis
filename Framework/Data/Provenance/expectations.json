@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "valid_counts": {
-    "assertions": 21,
+    "assertions": 22,
     "claim_supersessions": 1,
-    "claim_keys": 16,
-    "evidence_links": 22,
-    "locators": 22
+    "claim_keys": 17,
+    "evidence_links": 23,
+    "locators": 23
   },
   "authority_vectors": [
     {"claim_key": "authority-winner", "outcome": "winner", "best_rank": 1, "winning_assertion_ids": ["winner-primary"]},
