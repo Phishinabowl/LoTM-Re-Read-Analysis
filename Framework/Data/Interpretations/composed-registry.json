@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "relation_types": {
+    "precedes": {
+      "label": "Precedes",
+      "inverse_type": "follows",
+      "symmetric": false,
+      "canonical_direction": true,
+      "acyclic_group": "interpretation-order"
+    },
+    "follows": {
+      "label": "Follows",
+      "inverse_type": "precedes",
+      "symmetric": false,
+      "canonical_direction": false,
+      "acyclic_group": "interpretation-order"
+    },
+    "corresponds-with": {
+      "label": "Corresponds With",
+      "inverse_type": "corresponds-with",
+      "symmetric": true,
+      "canonical_direction": false,
+      "acyclic_group": null
+    }
+  },
+  "interpretations": {
+    "forward-reconstruction": {
+      "lifecycle": "active",
+      "label": "Forward Reconstruction",
+      "description": "Wake precedes bell."
+    },
+    "reverse-reconstruction": {
+      "lifecycle": "active",
+      "label": "Reverse Reconstruction",
+      "description": "Bell precedes wake."
+    }
+  },
+  "members": [
+    {
+      "id": "forward-wake",
+      "interpretation_id": "forward-reconstruction",
+      "target_type": "occurrence",
+      "target_id": "wake-one"
+    },
+    {
+      "id": "forward-bell",
+      "interpretation_id": "forward-reconstruction",
+      "target_type": "occurrence",
+      "target_id": "bell-one"
+    },
+    {
+      "id": "forward-host",
+      "interpretation_id": "forward-reconstruction",
+      "target_type": "host-carrier",
+      "target_id": "body-a"
+    },
+    {
+      "id": "forward-context",
+      "interpretation_id": "forward-reconstruction",
+      "target_type": "chronology-context",
+      "target_id": "recipient-context"
+    },
+    {
+      "id": "reverse-wake",
+      "interpretation_id": "reverse-reconstruction",
+      "target_type": "occurrence",
+      "target_id": "wake-one"
+    },
+    {
+      "id": "reverse-bell",
+      "interpretation_id": "reverse-reconstruction",
+      "target_type": "occurrence",
+      "target_id": "bell-one"
+    }
+  ],
+  "relations": [
+    {
+      "id": "forward-order",
+      "interpretation_id": "forward-reconstruction",
+      "source_member_id": "forward-wake",
+      "relationship_type": "precedes",
+      "target_member_id": "forward-bell"
+    },
+    {
+      "id": "forward-host-context",
+      "interpretation_id": "forward-reconstruction",
+      "source_member_id": "forward-host",
+      "relationship_type": "corresponds-with",
+      "target_member_id": "forward-context"
+    },
+    {
+      "id": "reverse-order",
+      "interpretation_id": "reverse-reconstruction",
+      "source_member_id": "reverse-bell",
+      "relationship_type": "precedes",
+      "target_member_id": "reverse-wake"
+    }
+  ],
+  "comparison_sets": {
+    "order-alternatives": {
+      "label": "Order Alternatives",
+      "comparison_mode": "mutually-exclusive",
+      "interpretation_ids": [
+        "forward-reconstruction",
+        "reverse-reconstruction"
+      ]
+    }
+  }
+}

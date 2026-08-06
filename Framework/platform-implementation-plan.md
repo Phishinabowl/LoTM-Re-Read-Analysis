@@ -318,34 +318,54 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 ### Phase 1.15 Expanded Stabilization Pressure Test
 
-- [ ] Replay the complete retained Loki and Derrick scenarios with V39-V49 active together.
-- [ ] Replay Primer, Arrival, Memento, Doctor Who, and Westworld through their stable scenario IDs.
-- [ ] Replay the retained parody/derivation, continuity/identity, serialized-adaptation, and
+- [x] Replay the complete retained Loki and Derrick scenarios with V39-V49 active together.
+- [x] Replay Primer, Arrival, Memento, Doctor Who, and Westworld through their stable scenario IDs.
+- [x] Replay the retained parody/derivation, continuity/identity, serialized-adaptation, and
   textual-tradition scenarios so the expanded temporal work remains compatible with the earlier
   narrative architecture it builds upon.
-- [ ] Exercise competing structures, backward causal knowledge, unreliable memory, multi-context
+- [x] Exercise competing structures, backward causal knowledge, unreliable memory, multi-context
   participation, hosted identity, aggregate recurrence, branch lifecycle, and state progression in
   composed rather than isolated probes.
-- [ ] Run the complete cumulative conformance baseline in all three runtimes, full-release project
+- [x] Run the complete cumulative conformance baseline in all three runtimes, full-release project
   compatibility, static policy, retained cross-industry matrices, adversarial cases, and scale tests.
-- [ ] Confirm that canonical chronology remains acyclic and that hypotheses, causality,
+- [x] Confirm that canonical chronology remains acyclic and that hypotheses, causality,
   participation bindings, identity hosting, recurrence, and context topology retain separate typed
   ownership.
-- [ ] Perform a pack-boundary audit across every selected and bundled pack before Phase 2. For each
+- [x] Perform a pack-boundary audit across every selected and bundled pack before Phase 2. For each
   pack, distinguish reusable mechanics, domain vocabulary, bridge vocabulary, project instances,
   and presentation-only recommendations; verify that unselected families remain absent.
-- [ ] Review `narrative-preservation`, `narrative-production`, `narrative-distribution`,
+- [x] Review `narrative-preservation`, `narrative-production`, `narrative-distribution`,
   `narrative-interactive`, and `narrative-shared-universe` as extraction candidates. Decide whether
   each remains domain-owned, requires a narrowly scoped reusable foundation and bridge pack, or is
   explicitly deferred pending a second real consumer. Similar terminology alone is not sufficient
   evidence for extraction.
-- [ ] Record every pack-boundary decision in framework evolution as retained ownership, accepted
+- [x] Record every pack-boundary decision in framework evolution as retained ownership, accepted
   extraction, or explicit deferral, including the cross-domain invariant that justified any
   promotion. Add another framework version only for a concrete executable boundary change.
-- [ ] Record every remaining limitation as supported, explicitly deferred, or outside the intended
+- [x] Record every remaining limitation as supported, explicitly deferred, or outside the intended
   framework boundary and update the durable methodology when new obligations emerge.
-- [ ] Decide whether another narrowly scoped framework version is required or Phase 2 may begin.
-- [ ] Confirm and push the expanded stabilization test record.
+- [x] Decide whether another narrowly scoped framework version is required or Phase 2 may begin.
+- [x] Confirm and push the expanded stabilization test record.
+
+### Phase 1.16 V50 Chronology-Position Provider Closure
+
+- [ ] Define V50 as a bounded provider-closure correction, not a chronology-schema expansion.
+- [ ] Register `chronology-position` as a core provenance subject type.
+- [ ] Expose canonical chronology positions through the Python and PowerShell chronology provider
+  surfaces without exposing unrelated coordinate-system, era, span, relation, or mapping records.
+- [ ] Replace the composed fixture's temporary chronology-context member with a real
+  chronology-position member and prove interpretation resolution through the actual provider.
+- [ ] Add direct chronology and provenance positive/negative coverage for chronology-position lookup,
+  assertion dispatch, provider uniqueness, and unknown IDs in both runtimes.
+- [ ] Update project-composition expectations, core/pack versions, contracts, extraction readiness,
+  and framework evolution without changing the chronology registry's persisted schema.
+- [ ] Run focused chronology, interpretation, provenance, hosting, schema-pack, and project-composition
+  suites in Python, PowerShell 7, and Windows PowerShell 5.1.
+- [ ] Run the complete three-runtime baseline, full-release compatibility, static policy, retained
+  structural-interpretation and cross-domain scenarios, adversarial cases, and scale tests.
+- [ ] Complete the normal two-part V50 implementation and pressure-test confirmation sequence.
+- [ ] Re-run the expanded stabilization decision and either close the Phase 1 exit gate or record a
+  newly evidenced blocker.
 
 ### Phase 1 Exit Gate
 
@@ -358,14 +378,14 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
   separated into a later capability with maintainer approval.
 - [x] The retained Loki and Derrick scenarios pass without invented chronology cycles, occurrence
   duplication, unsupported precision, or silent state transfer.
-- [ ] Competing structural interpretations are preserved without contaminating canonical chronology.
-- [ ] One participation can bind to every applicable chronology system without duplication or
+- [x] Competing structural interpretations are preserved without contaminating canonical chronology.
+- [x] One participation can bind to every applicable chronology system without duplication or
   participant ambiguity.
-- [ ] Hosted identities, carriers, co-occupancy, transfer, copying, and divergence have explicit
+- [x] Hosted identities, carriers, co-occupancy, transfer, copying, and divergence have explicit
   ownership without overloading incarnations or identity phases, and hosting vocabulary remains
   isolated to selected packs rather than bleeding across industries.
-- [ ] Primer, Arrival, Memento, Doctor Who, and Westworld pass their retained scenario questions.
-- [ ] Parody/derivation, continuity/identity, serialized adaptation, and textual tradition pass their
+- [x] Primer, Arrival, Memento, Doctor Who, and Westworld pass their retained scenario questions.
+- [x] Parody/derivation, continuity/identity, serialized adaptation, and textual tradition pass their
   retained scenario questions without weakening their earlier ownership boundaries.
 - [ ] Framework evolution identifies the accepted next version or Phase 2 handoff after the expanded
   stabilization gate.

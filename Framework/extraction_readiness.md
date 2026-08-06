@@ -154,8 +154,10 @@ Extraction readiness does not close these known items:
 - Recurrence, participation identity, participant-relative chronology selection, exact entry-relative
   state boundaries, branch lifecycle, chronology topology, epistemic state, capability state,
   structural interpretations, hosted identity, nested carrier topology, and optional hosting-pack
-  isolation are implemented through V49. Phase 1.15 must complete the composed V39-V49
-  stabilization replay.
+  isolation are implemented through V49. Phase 1.15's composed replay passed those boundaries but
+  exposed one provider-closure defect: canonical chronology positions cannot yet be targeted through
+  the real interpretation/provenance provider. Phase 1.16 owns that bounded V50 correction before
+  the Phase 1 exit gate can close.
 - QA graph construction has not yet been fully migrated into one reusable Visualization engine.
 - A normalized content index and generalized bounded-page machinery are not yet complete across
   content types.

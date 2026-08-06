@@ -15,6 +15,7 @@ if str(RUNTIME_ROOT) not in sys.path:
 
 from knowledge_framework.chronology_config import parse_chronology_registry  # noqa: E402
 from knowledge_framework.hosting_config import load_hosted_identity_registry  # noqa: E402
+from knowledge_framework.interpretation_config import load_interpretation_registry  # noqa: E402
 from knowledge_framework.occurrence_config import parse_occurrence_registry  # noqa: E402
 from knowledge_framework.project_config import load_project_config, resolve_project_root  # noqa: E402
 from knowledge_framework.schema_pack_config import load_schema_pack_registry  # noqa: E402
@@ -345,6 +346,71 @@ def assert_services(registry) -> int:
     return 22
 
 
+def assert_composed_ownership(project, packs, occurrences, hosting, root: Path) -> int:
+    fixture_project = replace(
+        project,
+        interpretations_registry=root / "Framework" / "Data" / "Interpretations" / "composed-registry.json",
+    )
+    interpretations = load_interpretation_registry(
+        fixture_project,
+        packs,
+        (occurrences, occurrences.chronology, hosting),
+    )
+    decision = interpretations.comparison_set_decision("order-alternatives")
+    if decision.disposition != "unresolved" or decision.selected_interpretation_ids:
+        raise AssertionError("Competing composed structures no longer remain unresolved.")
+
+    branch_state = occurrences.branch_state_at("changed-outcome", 3)
+    if branch_state is None or branch_state.resulting_state != "pruned":
+        raise AssertionError("Composed branch-lifecycle lookup changed.")
+
+    cardinality_kinds = {item.cardinality_kind for item in occurrences.cardinalities_for_recurrence("inner-loop")}
+    if cardinality_kinds != {"minimum", "maximum", "range", "unknown"}:
+        raise AssertionError("Composed aggregate-recurrence cardinalities changed.")
+
+    causal = next(item for item in occurrences.causal_relations if item.id == "next-wake-enables-reset")
+    if causal.source_occurrence_id != "wake-two" or causal.target_occurrence_id != "reset-one":
+        raise AssertionError("Backward causal knowledge relation changed.")
+
+    recipient_bindings = occurrences.chronology_bindings_for_participation("protagonist-self-intervention-recipient")
+    agent_bindings = occurrences.chronology_bindings_for_participation("protagonist-self-intervention-agent")
+    if {item.chronology_context_id for item in recipient_bindings} != {None, "recipient-context"} or {
+        item.chronology_context_id for item in agent_bindings
+    } != {None, "agent-context"}:
+        raise AssertionError("Composed participant-relative chronology bindings changed.")
+
+    belief = occurrences.state_at(
+        "protagonist-experience",
+        "restored-main",
+        "occurrence-template",
+        "bell",
+        "belief",
+    )
+    if belief is None or belief.resulting_attitude != "accepts-false":
+        raise AssertionError("Composed unreliable-belief revision changed.")
+
+    skill = occurrences.state_at(
+        "protagonist-experience",
+        "restored-main",
+        "occurrence-template",
+        "bell",
+        "skill",
+    )
+    if skill is None or skill.resulting_capability is None or skill.resulting_capability.value != "practiced":
+        raise AssertionError("Composed state progression changed.")
+
+    reachable = hosting.reachable_occupancies_at(
+        "body-b",
+        {"protagonist-experience": "protagonist-entry-10", "observer-experience": "observer-entry-07"},
+    )
+    if not any(
+        item.occupancy.id == "alpha-control-unit" and item.carrier_path.binding_ids == ("control-unit-body-b",)
+        for item in reachable
+    ):
+        raise AssertionError("Composed hosted-identity reachability changed.")
+    return 8
+
+
 def assert_invalid_queries(registry) -> int:
     actions = (
         lambda: registry.occupancies_for_carrier("missing"),
@@ -449,6 +515,9 @@ def main() -> int:
         if counts != expectations["counts"]:
             raise AssertionError("Hosted identity fixture counts changed.")
         service_assertions = assert_services(registry)
+        composed_assertions = assert_composed_ownership(project, packs, occurrences, registry, root)
+        if composed_assertions != expectations["composed_assertions"]:
+            raise AssertionError("Hosted identity composed-ownership assertion count changed.")
         invalid_queries = assert_invalid_queries(registry)
         if invalid_queries != expectations["invalid_queries"]:
             raise AssertionError("Hosted identity invalid-query count changed.")
@@ -524,6 +593,7 @@ def main() -> int:
         "schema_version": registry.schema_version,
         "counts": counts,
         "service_assertions": service_assertions,
+        "composed_assertions": composed_assertions,
         "invalid_configurations": invalid_configurations,
         "invalid_queries": invalid_queries,
         "pack_compositions": len(pack_variants),

@@ -7,6 +7,7 @@
     "provenance_target_types": 4,
     "reconciliation_target_types": 1
   },
+  "composed_assertions": 8,
   "invalid_queries": 14,
   "pack_compositions": 7,
   "invalid_cases": [

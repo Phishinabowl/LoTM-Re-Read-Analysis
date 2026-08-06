@@ -435,6 +435,151 @@ function Assert-Services {
     return 22
 }
 
+function Assert-ComposedOwnership {
+    param(
+        [object]$Project,
+        [object]$Packs,
+        [object]$Occurrences,
+        [object]$Hosting,
+        [string]$Root
+    )
+
+    $occurrenceTargets = Get-KnowledgeOccurrenceProvenanceTargets $Occurrences
+    $occurrenceResolver = {
+        param($Type, $Id)
+        if (-not $occurrenceTargets.Contains($Type) -or -not $occurrenceTargets[$Type].Contains($Id)) {
+            throw "Unknown occurrence target '$Type`:$Id'."
+        }
+        return $occurrenceTargets[$Type][$Id]
+    }.GetNewClosure()
+    $chronologyTargets = Get-KnowledgeChronologyProvenanceTargets $Occurrences.chronology
+    $chronologyResolver = {
+        param($Type, $Id)
+        if (-not $chronologyTargets.Contains($Type) -or -not $chronologyTargets[$Type].Contains($Id)) {
+            throw "Unknown chronology target '$Type`:$Id'."
+        }
+        return $chronologyTargets[$Type][$Id]
+    }.GetNewClosure()
+    $hostingTargets = Get-KnowledgeHostingProvenanceTargets $Hosting
+    $hostingResolver = {
+        param($Type, $Id)
+        Get-KnowledgeHostingProvenanceTarget $Hosting $Type $Id
+    }.GetNewClosure()
+    $providers = @(
+        (New-KnowledgeInterpretationTargetProvider `
+            'occurrence' `
+        @($occurrenceTargets.Keys) `
+            $occurrenceResolver)
+        (New-KnowledgeInterpretationTargetProvider `
+            'chronology' `
+        @($chronologyTargets.Keys) `
+            $chronologyResolver)
+        (New-KnowledgeInterpretationTargetProvider `
+            'hosting' `
+        @($hostingTargets.Keys) `
+            $hostingResolver)
+    )
+    $fixtureProject = $Project.PSObject.Copy()
+    $fixtureProject.interpretations_registry = Join-Path `
+        $Root `
+        'Framework\Data\Interpretations\composed-registry.json'
+    $interpretations = Get-KnowledgeInterpretationRegistry $fixtureProject $Packs $providers
+    $decision = Get-KnowledgeInterpretationSetDecision $interpretations 'order-alternatives'
+    if ($decision.disposition -cne 'unresolved' -or @($decision.selected_interpretation_ids).Count -ne 0) {
+        throw 'Competing composed structures no longer remain unresolved.'
+    }
+
+    $branchState = Get-KnowledgeOccurrenceBranchStateAt $Occurrences 'changed-outcome' 3
+    if ($null -eq $branchState -or $branchState.resulting_state -cne 'pruned') {
+        throw 'Composed branch-lifecycle lookup changed.'
+    }
+
+    $cardinalityKinds = @(
+        Get-KnowledgeCardinalitiesForRecurrence $Occurrences 'inner-loop' |
+            ForEach-Object cardinality_kind |
+            Sort-Object -Unique
+    )
+    if (($cardinalityKinds -join ',') -cne 'maximum,minimum,range,unknown') {
+        throw 'Composed aggregate-recurrence cardinalities changed.'
+    }
+
+    $causal = @($Occurrences.causal_relations | Where-Object id -CEQ 'next-wake-enables-reset')
+    if ($causal.Count -ne 1 -or
+        $causal[0].source_occurrence_id -cne 'wake-two' -or
+        $causal[0].target_occurrence_id -cne 'reset-one') {
+        throw 'Backward causal knowledge relation changed.'
+    }
+
+    $recipientContexts = @(
+        Get-KnowledgeParticipationChronologyBindings `
+            $Occurrences `
+            'protagonist-self-intervention-recipient' |
+            ForEach-Object { if ($null -eq $_.chronology_context_id) {
+                    '<none>'
+                }
+                else {
+                    $_.chronology_context_id
+                } } |
+            Sort-Object
+    )
+    $agentContexts = @(
+        Get-KnowledgeParticipationChronologyBindings `
+            $Occurrences `
+            'protagonist-self-intervention-agent' |
+            ForEach-Object { if ($null -eq $_.chronology_context_id) {
+                    '<none>'
+                }
+                else {
+                    $_.chronology_context_id
+                } } |
+            Sort-Object
+    )
+    if (($recipientContexts -join ',') -cne '<none>,recipient-context' -or
+        ($agentContexts -join ',') -cne '<none>,agent-context') {
+        throw 'Composed participant-relative chronology bindings changed.'
+    }
+
+    $belief = Get-KnowledgeStateAt `
+        $Occurrences `
+        'protagonist-experience' `
+        'restored-main' `
+        'occurrence-template' `
+        'bell' `
+        'belief'
+    if ($null -eq $belief -or $belief.resulting_attitude -cne 'accepts-false') {
+        throw 'Composed unreliable-belief revision changed.'
+    }
+
+    $skill = Get-KnowledgeStateAt `
+        $Occurrences `
+        'protagonist-experience' `
+        'restored-main' `
+        'occurrence-template' `
+        'bell' `
+        'skill'
+    if ($null -eq $skill -or
+        $null -eq $skill.resulting_capability -or
+        $skill.resulting_capability.value -cne 'practiced') {
+        throw 'Composed state progression changed.'
+    }
+
+    $boundary = [ordered]@{
+        'protagonist-experience' = 'protagonist-entry-10'
+        'observer-experience' = 'observer-entry-07'
+    }
+    $reachable = @(Get-KnowledgeHostCarrierReachableOccupanciesAt $Hosting 'body-b' $boundary)
+    $controlUnit = @(
+        $reachable | Where-Object {
+            $_.occupancy.id -ceq 'alpha-control-unit' -and
+            (@($_.carrier_path.binding_ids) -join ',') -ceq 'control-unit-body-b'
+        }
+    )
+    if ($controlUnit.Count -ne 1) {
+        throw 'Composed hosted-identity reachability changed.'
+    }
+    return 8
+}
+
 function Assert-InvalidQueries {
     param([object]$Registry)
 
@@ -606,6 +751,10 @@ try {
         }
     }
     $serviceAssertions = Assert-Services $registry
+    $composedAssertions = Assert-ComposedOwnership $project $packs $occurrences $registry $Root
+    if ($composedAssertions -ne [int]$expectations.composed_assertions) {
+        throw 'Hosted identity composed-ownership assertion count changed.'
+    }
     $invalidQueries = Assert-InvalidQueries $registry
     if ($invalidQueries -ne [int]$expectations.invalid_queries) {
         throw 'Hosted identity invalid-query count changed.'
@@ -686,6 +835,7 @@ $summary = [ordered]@{
     schema_version = [int]$registry.schema_version
     counts = $counts
     service_assertions = $serviceAssertions
+    composed_assertions = $composedAssertions
     invalid_configurations = $invalidConfigurations
     invalid_queries = $invalidQueries
     pack_compositions = $packVariants.Count
