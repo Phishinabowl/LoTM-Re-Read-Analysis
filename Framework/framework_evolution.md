@@ -1910,7 +1910,7 @@ Ruff formatting and lint passed all 42 Python files. The PowerShell formatter pa
 
 ### Post-Confirmation Pressure Execution
 
-**Pressure corrections:** pending
+**Pressure corrections:** `92a12d1` (`Close V48 pressure-test coverage`)
 
 The V48 pressure round executed `SCENARIO-WESTWORLD`, `SCENARIO-CONTINUITY-IDENTITY`, `SCENARIO-DOCTOR-WHO`, `PRESSURE-HOSTED-IDENTITY`, `PRESSURE-ENTITY-IDENTITY`, `PRESSURE-PARTICIPANT-CHRONOLOGY`, `PRESSURE-EVIDENCE-AUTHORITY`, `PRESSURE-LAYER-PORTABILITY`, `PRESSURE-ADVERSARIAL`, `PRESSURE-CROSS-DOMAIN`, and `PRESSURE-SCALE`. After correcting one permanent coverage gap, the complete sixteen-suite `baseline` passed in Python, PowerShell 7, and Windows PowerShell 5.1 with matching IDs, statuses, and canonicalized semantic summaries. Measured runtimes were 51.4, 209.0, and 371.2 seconds. Focused hosting remained at eight carriers, six bindings, ten occupancies, three transitions, 22 service assertions, 46 rejected configurations, 14 rejected queries, and generated 128-carrier, 128-occupancy, and 127-binding probes.
 
