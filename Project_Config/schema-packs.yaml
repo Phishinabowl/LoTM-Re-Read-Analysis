@@ -85,7 +85,6 @@ capability_activation:
     - occurrence-participation-identity
     - participation-chronology-bindings
     - hosted-identity-embodiment
-    - narrative-hosting-vocabulary
     - timeline-branch-lifecycle
     - capability-progression
     - structural-interpretation-modeling

@@ -140,11 +140,19 @@ target resolution, semantic duplicate and cycle rejection, deterministic direct/
 queries, provenance targets,
 reconciliation-provider shape, and bounded scale.
 
-An empty schema-2 registry is valid when `hosted-identity-embodiment` is disabled. In that state
-the loader returns an explicitly disabled registry and exposes no hosting provenance or
-reconciliation providers. Any carrier, binding, occupancy, or transition record fails closed until
-the capability is enabled. This permits one common project manifest shape without silently
-activating hosting in projects that do not select it.
+An empty schema-2 registry is valid when `hosted-identity-embodiment` is disabled. Provider
+registration has three deliberate states:
+
+- If `hosting-foundation` is not selected, the service is unavailable and exposes no hosting
+  provenance or reconciliation target types.
+- If the foundation is selected but the capability is disabled, the loader exposes the registered
+  hosting target types with empty target maps. This preserves project-wide provider closure without
+  activating behavior or inventing records.
+- If the capability is enabled, the same typed providers expose the validated registry records.
+
+Any carrier, binding, occupancy, or transition record fails closed until the capability is enabled.
+This permits one common project manifest shape without silently activating hosting in projects that
+do not select it.
 
 Portable fixtures live under `Framework/Data/Hosting/`. Run
 `python Tools/Conformance/Suites/test_hosting.py` or

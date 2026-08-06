@@ -87,24 +87,32 @@ def assert_pack_isolation(project, temp_root: Path):
         "foundation": {
             "selected": ("core", "hosting-foundation"),
             "enabled": ("hosted-identity-embodiment",),
+            "hosting_enabled": True,
+            "carriers": (),
+            "bindings": ("installed-in", "contained-in", "attached-to"),
+        },
+        "foundation-disabled": {
+            "selected": ("core", "hosting-foundation"),
+            "enabled": (),
+            "hosting_enabled": False,
             "carriers": (),
             "bindings": ("installed-in", "contained-in", "attached-to"),
         },
         "narrative": {
             "selected": ("core", "hosting-foundation", "narrative-media", "hosting-narrative"),
-            "enabled": ("hosted-identity-embodiment", "narrative-hosting-vocabulary"),
+            "enabled": ("hosted-identity-embodiment",),
             "carriers": ("physical-body", "vessel"),
             "bindings": ("installed-in", "contained-in", "attached-to"),
         },
         "simulation": {
             "selected": ("core", "hosting-foundation", "hosting-simulation"),
-            "enabled": ("hosted-identity-embodiment", "simulation-hosting-vocabulary"),
+            "enabled": ("hosted-identity-embodiment",),
             "carriers": ("control-unit", "avatar"),
             "bindings": ("installed-in", "contained-in", "attached-to", "projected-through"),
         },
         "compute": {
             "selected": ("core", "hosting-foundation", "hosting-compute"),
-            "enabled": ("hosted-identity-embodiment", "compute-hosting-vocabulary"),
+            "enabled": ("hosted-identity-embodiment",),
             "carriers": ("runtime", "container", "virtual-host"),
             "bindings": ("installed-in", "contained-in", "attached-to", "executes-in"),
         },
@@ -117,12 +125,7 @@ def assert_pack_isolation(project, temp_root: Path):
                 "hosting-simulation",
                 "hosting-compute",
             ),
-            "enabled": (
-                "hosted-identity-embodiment",
-                "narrative-hosting-vocabulary",
-                "simulation-hosting-vocabulary",
-                "compute-hosting-vocabulary",
-            ),
+            "enabled": ("hosted-identity-embodiment",),
             "carriers": (
                 "physical-body",
                 "vessel",
@@ -153,7 +156,7 @@ def assert_pack_isolation(project, temp_root: Path):
             raise AssertionError(f"Hosting carrier vocabulary leaked in `{variant_id}` composition.")
         if packs.allowed_values("hosting.binding-kind") != expected["bindings"]:
             raise AssertionError(f"Hosting binding vocabulary leaked in `{variant_id}` composition.")
-        expected_hosting = variant_id != "core"
+        expected_hosting = expected.get("hosting_enabled", variant_id != "core")
         if packs.capability_enabled("hosted-identity-embodiment") != expected_hosting:
             raise AssertionError(f"Hosted identity capability activation changed in `{variant_id}` composition.")
         loaded[variant_id] = packs
@@ -168,7 +171,6 @@ def load_combined_fixture_packs(project, path: Path):
             {"pack_id": "hosting-compute", "path": PACK_PATHS["hosting-compute"]},
         ]
     )
-    document["capability_activation"]["enabled"].extend(["simulation-hosting-vocabulary", "compute-hosting-vocabulary"])
     path.write_text(json.dumps(document, indent=2) + "\n", encoding="utf-8")
     return load_schema_pack_registry(replace(project, schema_packs_registry=path))
 
@@ -480,11 +482,31 @@ def main() -> int:
         path.write_text(json.dumps(empty, indent=2) + "\n", encoding="utf-8")
         disabled_registry = load_fixture(project, pack_variants["core"], occurrences, provider, path)
         if (
-            disabled_registry.enabled
+            disabled_registry.registered
+            or disabled_registry.enabled
             or disabled_registry.provenance_targets()
             or disabled_registry.reconciliation_targets()
         ):
             raise AssertionError("Disabled empty hosting registry exposed active providers.")
+
+        selected_disabled_registry = load_fixture(
+            project, pack_variants["foundation-disabled"], occurrences, provider, path
+        )
+        expected_provenance_types = {
+            "host-carrier",
+            "host-carrier-binding",
+            "hosted-identity-occupancy",
+            "hosted-identity-transition",
+        }
+        if (
+            not selected_disabled_registry.registered
+            or selected_disabled_registry.enabled
+            or set(selected_disabled_registry.provenance_targets()) != expected_provenance_types
+            or set(selected_disabled_registry.reconciliation_targets()) != {"host-carrier"}
+            or any(selected_disabled_registry.provenance_targets().values())
+            or any(selected_disabled_registry.reconciliation_targets().values())
+        ):
+            raise AssertionError("Selected disabled hosting did not expose empty typed providers.")
 
         duplicate_provider = FixtureProvider()
         expect_rejected(

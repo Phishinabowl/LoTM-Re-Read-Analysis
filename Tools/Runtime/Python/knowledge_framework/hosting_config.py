@@ -77,6 +77,7 @@ class ReachableHostedIdentityOccupancy:
 class HostedIdentityRegistry:
     path: Path
     schema_version: int
+    registered: bool
     enabled: bool
     carriers: dict[str, HostCarrier]
     occupancies: dict[str, HostedIdentityOccupancy]
@@ -187,7 +188,7 @@ class HostedIdentityRegistry:
         )
 
     def provenance_targets(self) -> dict[str, dict[str, object]]:
-        if not self.enabled:
+        if not self.registered:
             return {}
         return {
             "host-carrier": self.carriers,
@@ -203,12 +204,12 @@ class HostedIdentityRegistry:
         return self._known(targets, subject_id, subject_type)
 
     def reconciliation_targets(self) -> dict[str, dict[str, object]]:
-        if not self.enabled:
+        if not self.registered:
             return {}
         return {"host-carrier": self.carriers}
 
     def reconciliation_provider(self) -> dict[str, object]:
-        aliases = {"host-carrier": {}} if self.enabled else {}
+        aliases = {"host-carrier": {}} if self.registered else {}
         return {"provider_id": "hosting", "targets": self.reconciliation_targets(), "aliases": aliases}
 
     def _entry_index(self, track_id: str, entry_id: str) -> int:
@@ -378,12 +379,14 @@ def load_hosted_identity_registry(
     occupancy_rows = _list(root.get("occupancies"), "occupancies")
     transition_rows = _list(root.get("transitions"), "transitions")
     enabled = packs.capability_enabled("hosted-identity-embodiment")
+    registered = packs.capability_available("hosted-identity-embodiment")
     if not enabled:
         if carrier_rows or binding_rows or occupancy_rows or transition_rows:
             raise ValueError("Hosted identity records require enabled capability `hosted-identity-embodiment`.")
         return HostedIdentityRegistry(
             project.hosting_registry,
             SUPPORTED_SCHEMA_VERSION,
+            registered,
             False,
             {},
             {},
@@ -735,6 +738,7 @@ def load_hosted_identity_registry(
     return HostedIdentityRegistry(
         project.hosting_registry,
         SUPPORTED_SCHEMA_VERSION,
+        True,
         True,
         carriers,
         occupancies,

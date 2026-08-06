@@ -400,10 +400,18 @@ function ConvertTo-SchemaPackConfig {
         }
     }
 
-    $rawCapabilities = @(Get-ProjectMapValue $pack "capabilities")
-    if ($rawCapabilities.Count -eq 0) {
-        throw "Schema pack '$packId.capabilities' cannot be empty."
+    if (-not $pack.Contains('capabilities')) {
+        throw "Schema pack '$packId.capabilities' must be a list."
     }
+    $rawCapabilityValue = $pack['capabilities']
+    if (
+        $null -eq $rawCapabilityValue -or
+        $rawCapabilityValue -is [string] -or
+        $rawCapabilityValue -isnot [System.Collections.IEnumerable]
+    ) {
+        throw "Schema pack '$packId.capabilities' must be a list."
+    }
+    $rawCapabilities = @($rawCapabilityValue)
     $capabilities = @()
     $capabilityDefinitions = [ordered]@{}
     $seenCapabilities = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)

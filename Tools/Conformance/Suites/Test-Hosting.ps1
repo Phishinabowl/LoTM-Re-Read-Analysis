@@ -150,24 +150,32 @@ function Assert-PackIsolation {
         foundation = [ordered]@{
             selected = @('core', 'hosting-foundation')
             enabled = @('hosted-identity-embodiment')
+            hosting_enabled = $true
+            carriers = @()
+            bindings = @('installed-in', 'contained-in', 'attached-to')
+        }
+        'foundation-disabled' = [ordered]@{
+            selected = @('core', 'hosting-foundation')
+            enabled = @()
+            hosting_enabled = $false
             carriers = @()
             bindings = @('installed-in', 'contained-in', 'attached-to')
         }
         narrative = [ordered]@{
             selected = @('core', 'hosting-foundation', 'narrative-media', 'hosting-narrative')
-            enabled = @('hosted-identity-embodiment', 'narrative-hosting-vocabulary')
+            enabled = @('hosted-identity-embodiment')
             carriers = @('physical-body', 'vessel')
             bindings = @('installed-in', 'contained-in', 'attached-to')
         }
         simulation = [ordered]@{
             selected = @('core', 'hosting-foundation', 'hosting-simulation')
-            enabled = @('hosted-identity-embodiment', 'simulation-hosting-vocabulary')
+            enabled = @('hosted-identity-embodiment')
             carriers = @('control-unit', 'avatar')
             bindings = @('installed-in', 'contained-in', 'attached-to', 'projected-through')
         }
         compute = [ordered]@{
             selected = @('core', 'hosting-foundation', 'hosting-compute')
-            enabled = @('hosted-identity-embodiment', 'compute-hosting-vocabulary')
+            enabled = @('hosted-identity-embodiment')
             carriers = @('runtime', 'container', 'virtual-host')
             bindings = @('installed-in', 'contained-in', 'attached-to', 'executes-in')
         }
@@ -180,12 +188,7 @@ function Assert-PackIsolation {
                 'hosting-simulation'
                 'hosting-compute'
             )
-            enabled = @(
-                'hosted-identity-embodiment'
-                'narrative-hosting-vocabulary'
-                'simulation-hosting-vocabulary'
-                'compute-hosting-vocabulary'
-            )
+            enabled = @('hosted-identity-embodiment')
             carriers = @(
                 'physical-body'
                 'vessel'
@@ -220,7 +223,12 @@ function Assert-PackIsolation {
             (@($expected.bindings) -join "`0")) {
             throw "Hosting binding vocabulary leaked in '$variantId' composition."
         }
-        $expectedHosting = $variantId -cne 'core'
+        $expectedHosting = if ($expected.Contains('hosting_enabled')) {
+            [bool]$expected.hosting_enabled
+        }
+        else {
+            $variantId -cne 'core'
+        }
         if ((Test-SchemaPackCapabilityEnabled $packs 'hosted-identity-embodiment') -ne $expectedHosting) {
             throw "Hosted identity capability activation changed in '$variantId' composition."
         }
@@ -243,8 +251,6 @@ function Get-CombinedFixturePacks {
             pack_id = 'hosting-compute'
             path = $script:HostingPackPaths['hosting-compute']
         })
-    [void]$document.capability_activation.enabled.Add('simulation-hosting-vocabulary')
-    [void]$document.capability_activation.enabled.Add('compute-hosting-vocabulary')
     Write-FixtureJson $Path $document
     $fixtureProject = $Project.PSObject.Copy()
     $fixtureProject.schema_packs_registry = $Path
@@ -636,10 +642,33 @@ try {
     }
     Write-FixtureJson $path $empty
     $disabledRegistry = Get-FixtureRegistry $project $packVariants.core $occurrences @($provider) $path
-    if ($disabledRegistry.enabled -or
+    if ($disabledRegistry.registered -or
+        $disabledRegistry.enabled -or
         (Get-KnowledgeHostingProvenanceTargets $disabledRegistry).Count -ne 0 -or
         (Get-KnowledgeHostingReconciliationProvider $disabledRegistry).targets.Count -ne 0) {
         throw 'Disabled empty hosting registry exposed active providers.'
+    }
+    $selectedDisabledRegistry = Get-FixtureRegistry `
+        $project `
+        $packVariants['foundation-disabled'] `
+        $occurrences `
+    @($provider) `
+        $path
+    $selectedDisabledProvenance = Get-KnowledgeHostingProvenanceTargets $selectedDisabledRegistry
+    $selectedDisabledReconciliation = Get-KnowledgeHostingReconciliationProvider $selectedDisabledRegistry
+    $expectedProvenanceTypes = @(
+        'host-carrier'
+        'host-carrier-binding'
+        'hosted-identity-occupancy'
+        'hosted-identity-transition'
+    )
+    if (-not $selectedDisabledRegistry.registered -or
+        $selectedDisabledRegistry.enabled -or
+        (@($selectedDisabledProvenance.Keys) -join "`0") -cne ($expectedProvenanceTypes -join "`0") -or
+        (@($selectedDisabledReconciliation.targets.Keys) -join "`0") -cne 'host-carrier' -or
+        @($selectedDisabledProvenance.Values | Where-Object Count -ne 0).Count -ne 0 -or
+        @($selectedDisabledReconciliation.targets.Values | Where-Object Count -ne 0).Count -ne 0) {
+        throw 'Selected disabled hosting did not expose empty typed providers.'
     }
     Assert-Rejected `
     { Get-FixtureRegistry $project $packs $occurrences @($provider, $provider) $path } `

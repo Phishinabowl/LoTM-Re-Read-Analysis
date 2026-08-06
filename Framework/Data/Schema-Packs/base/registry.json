@@ -10,8 +10,7 @@
     "enabled": [
       "shared-capability",
       "deprecated-capability",
-      "domain-capability",
-      "extension-capability"
+      "domain-capability"
     ]
   }
 }

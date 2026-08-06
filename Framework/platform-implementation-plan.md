@@ -313,7 +313,7 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [x] Re-run hosted identity, pack composition, project composition, provenance closure, isolated
   extraction, three-runtime parity, malformed/adversarial, and cross-domain pressure through the
   normal framework-version lifecycle.
-- [ ] Complete V49 implementation confirmation, pressure testing, evolution recording, and plan
+- [x] Complete V49 implementation confirmation, pressure testing, evolution recording, and plan
   closure before beginning the expanded stabilization replay.
 
 ### Phase 1.15 Expanded Stabilization Pressure Test

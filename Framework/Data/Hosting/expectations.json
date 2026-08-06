@@ -8,7 +8,7 @@
     "reconciliation_target_types": 1
   },
   "invalid_queries": 14,
-  "pack_compositions": 6,
+  "pack_compositions": 7,
   "invalid_cases": [
     {"id": "bad-schema", "operations": [{"op": "set", "path": ["schema_version"], "value": 3}]},
     {"id": "unknown-root-key", "operations": [{"op": "set", "path": ["extra"], "value": true}]},

@@ -2,6 +2,11 @@
 
 Schema packs are composable contracts, not project instances. Pack files define capabilities and controlled vocabulary; `Project_Config/schema-packs.yaml` selects packs and activates only the available capabilities a project uses.
 
+Pack selection and capability activation are different controls. Selecting a pack composes its
+controlled vocabulary. Enabling a capability activates executable behavior. A vocabulary-only
+extension therefore declares `capabilities: []` rather than inventing an enabled capability whose
+state cannot govern its values.
+
 ## Shared Packs
 
 | Pack | Purpose |
@@ -49,7 +54,7 @@ Core `occurrence-recurrence-modeling` keeps concrete happenings, branches, itera
 
 Core `structural-interpretation-modeling` owns stable candidate structures that reuse canonical target IDs while keeping membership and local relations outside chronology, occurrence causality, entity identity, and reconciliation. Comparison sets may be compatible, competing, or mutually exclusive; the service preserves unresolved outcomes and leaves evidence priority, applicability, supersession, and authority to provenance.
 
-Optional `hosting-foundation` keeps an identity-bearing subject separate from the carrier that hosts it. Carrier lifecycle, bounded child/parent bindings, direct and reachable occupancy, co-residence, active control, movement, copies, and handoffs reuse occurrence track-entry boundaries. The foundation owns only generic installation, containment, and attachment vocabulary. Narrative, simulation, compute, and future industry packs add their own carrier and binding kinds without cross-pack leakage. Copy records cite existing identity relationships; hosting never infers continuity, equivalence, replacement, divergence, direct occupancy, or truth from shared carrier, code, memory, appearance, or reachability. An empty hosting registry remains valid when the capability is disabled, but nonempty hosting records fail closed.
+Optional `hosting-foundation` keeps an identity-bearing subject separate from the carrier that hosts it. Carrier lifecycle, bounded child/parent bindings, direct and reachable occupancy, co-residence, active control, movement, copies, and handoffs reuse occurrence track-entry boundaries. The foundation owns only generic installation, containment, and attachment vocabulary. Narrative, simulation, compute, and future industry packs add their own carrier and binding kinds without cross-pack leakage. Copy records cite existing identity relationships; hosting never infers continuity, equivalence, replacement, divergence, direct occupancy, or truth from shared carrier, code, memory, appearance, or reachability. An empty hosting registry remains valid when the capability is disabled. An unselected foundation registers no hosting target types; a selected but disabled foundation registers empty typed providers for composition closure; nonempty hosting records fail closed until activation.
 
 ## Capability Honesty
 

@@ -12,8 +12,7 @@ dependencies:
   - pack_id: narrative-media
     minimum_version: 24
 
-capabilities:
-  - narrative-hosting-vocabulary
+capabilities: []
 
 controlled_values:
   hosting.carrier-kind:

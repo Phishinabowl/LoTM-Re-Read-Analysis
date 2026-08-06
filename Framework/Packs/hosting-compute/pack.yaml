@@ -10,8 +10,7 @@ dependencies:
   - pack_id: hosting-foundation
     minimum_version: 1
 
-capabilities:
-  - compute-hosting-vocabulary
+capabilities: []
 
 controlled_values:
   hosting.carrier-kind:

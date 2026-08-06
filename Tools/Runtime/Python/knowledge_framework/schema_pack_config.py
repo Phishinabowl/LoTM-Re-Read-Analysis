@@ -623,8 +623,8 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
         )
 
     raw_capabilities = pack.get("capabilities")
-    if not isinstance(raw_capabilities, list) or not raw_capabilities:
-        raise ValueError(f"Schema pack `{pack_id}.capabilities` cannot be empty.")
+    if not isinstance(raw_capabilities, list):
+        raise ValueError(f"Schema pack `{pack_id}.capabilities` must be a list.")
     capabilities: list[str] = []
     capability_definitions: dict[str, CapabilityConfig] = {}
     for index, raw_capability in enumerate(raw_capabilities):
