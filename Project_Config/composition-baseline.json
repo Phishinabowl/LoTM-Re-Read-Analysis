@@ -23,23 +23,25 @@
     "provenance": 3
   },
   "packs": {
-    "selection_order": ["core", "narrative-media", "narrative-publishing", "narrative-screen-audio", "narrative-adaptation", "narrative-distribution", "narrative-production", "narrative-shared-universe"],
+    "selection_order": ["core", "hosting-foundation", "narrative-media", "narrative-publishing", "narrative-screen-audio", "narrative-adaptation", "narrative-distribution", "narrative-production", "narrative-shared-universe", "hosting-narrative"],
     "versions": {
-      "core": 39,
+      "core": 40,
+      "hosting-foundation": 1,
       "narrative-media": 24,
       "narrative-publishing": 10,
       "narrative-screen-audio": 11,
       "narrative-adaptation": 10,
       "narrative-distribution": 14,
       "narrative-production": 4,
-      "narrative-shared-universe": 9
+      "narrative-shared-universe": 9,
+      "hosting-narrative": 1
     },
-    "declared_capabilities": 132,
-    "available_capabilities": 123,
-    "enabled_capabilities": 123,
+    "declared_capabilities": 133,
+    "available_capabilities": 124,
+    "enabled_capabilities": 124,
     "disabled_capability_ids": ["contributor-credits", "crossover-events", "editorial-assembly", "live-performance-productions", "migration-services", "performance-events", "publication-runs", "rights-grants-and-restrictions", "textual-witnesses"],
     "controlled_value_namespaces": 138,
-    "controlled_values": 1045,
+    "controlled_values": 1038,
     "semantic_declarations": {
       "transition_profiles": 9,
       "outcome_incompatibilities": 4,

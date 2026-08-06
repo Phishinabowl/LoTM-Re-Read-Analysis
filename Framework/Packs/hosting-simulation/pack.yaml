@@ -1,0 +1,23 @@
+schema_version: 4
+pack_id: hosting-simulation
+pack_version: 1
+lifecycle: active
+pack_kind: extension
+label: Simulation Hosting Vocabulary
+description: Control-unit, avatar, and projection vocabulary for simulated or mediated identity hosting.
+
+dependencies:
+  - pack_id: hosting-foundation
+    minimum_version: 1
+
+capabilities:
+  - simulation-hosting-vocabulary
+
+controlled_values:
+  hosting.carrier-kind:
+    - control-unit
+    - avatar
+  hosting.binding-kind:
+    - projected-through
+
+semantic_declarations: {}

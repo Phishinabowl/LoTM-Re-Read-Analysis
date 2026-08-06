@@ -506,6 +506,10 @@ function Assert-InvalidProjectCompositions {
     $reconciliationPacks = Copy-PacksWithoutCapability $packs 'stable-identity-reconciliation'
     $interpretationPacks = Copy-PacksWithoutCapability $packs 'structural-interpretation-modeling'
     $hostingPacks = Copy-PacksWithoutCapability $packs 'hosted-identity-embodiment'
+    $nonemptyHostingProject = $project.PSObject.Copy()
+    $nonemptyHostingProject.hosting_registry = Join-Path `
+        $project.root `
+        'Framework\Data\Hosting\base\registry.json'
     $actions = @(
         { Get-KnowledgeReconciliationRegistry $project @($providers[0..2]) $packs }
         { Get-KnowledgeReconciliationRegistry $project @($providers + @($providers[0])) $packs }
@@ -591,7 +595,7 @@ function Assert-InvalidProjectCompositions {
         }
         {
             Get-KnowledgeHostedIdentityRegistry `
-                $project `
+                $nonemptyHostingProject `
                 $hostingPacks `
                 $Composition.occurrences `
             @((New-KnowledgeHostingEntityProvider $Composition.entities))

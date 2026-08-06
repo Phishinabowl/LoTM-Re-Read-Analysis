@@ -162,9 +162,6 @@ function Get-KnowledgeHostedIdentityRegistry {
         [object[]]$IdentityProviders
     )
 
-    if (-not (Test-SchemaPackCapabilityEnabled $Packs 'hosted-identity-embodiment')) {
-        throw "Hosted identity registry requires enabled capability 'hosted-identity-embodiment'."
-    }
     $root = ConvertFrom-KnowledgeYamlFile `
         $Project.hosting_registry `
         $script:SupportedHostingSchemaVersion `
@@ -173,6 +170,27 @@ function Get-KnowledgeHostedIdentityRegistry {
         $root `
     @('schema_version', 'carriers', 'bindings', 'occupancies', 'transitions') `
         'Hosted identity registry root'
+
+    $enabled = Test-SchemaPackCapabilityEnabled $Packs 'hosted-identity-embodiment'
+    if (-not $enabled) {
+        $hasRecords = @($root.carriers.Keys).Count -gt 0 -or
+        @($root.bindings).Count -gt 0 -or
+        @($root.occupancies).Count -gt 0 -or
+        @($root.transitions).Count -gt 0
+        if ($hasRecords) {
+            throw "Hosted identity records require enabled capability 'hosted-identity-embodiment'."
+        }
+        return [pscustomobject]@{
+            path = $Project.hosting_registry
+            schema_version = $script:SupportedHostingSchemaVersion
+            enabled = $false
+            carriers = [ordered]@{}
+            occupancies = [ordered]@{}
+            transitions = [ordered]@{}
+            bindings = [ordered]@{}
+            occurrences = $Occurrences
+        }
+    }
 
     $identityTargets = Get-HostingProviderMaps $IdentityProviders 'identity_targets' 'identity-target'
     $provenanceTargets = Get-HostingProviderMaps $IdentityProviders 'provenance_targets' 'relationship-target'
@@ -608,6 +626,7 @@ function Get-KnowledgeHostedIdentityRegistry {
     return [pscustomobject]@{
         path = $Project.hosting_registry
         schema_version = $script:SupportedHostingSchemaVersion
+        enabled = $true
         carriers = $carriers
         occupancies = $occupancies
         transitions = $transitions
@@ -888,6 +907,9 @@ function Get-KnowledgeHostCarrierReachableOccupanciesAt {
 function Get-KnowledgeHostingProvenanceTargets {
     param([object]$Registry)
 
+    if (-not $Registry.enabled) {
+        return [ordered]@{}
+    }
     return [ordered]@{
         'host-carrier' = $Registry.carriers
         'host-carrier-binding' = $Registry.bindings
@@ -912,6 +934,13 @@ function Get-KnowledgeHostingProvenanceTarget {
 function Get-KnowledgeHostingReconciliationProvider {
     param([object]$Registry)
 
+    if (-not $Registry.enabled) {
+        return [ordered]@{
+            provider_id = 'hosting'
+            targets = [ordered]@{}
+            aliases = [ordered]@{}
+        }
+    }
     return [ordered]@{
         provider_id = 'hosting'
         targets = [ordered]@{ 'host-carrier' = $Registry.carriers }

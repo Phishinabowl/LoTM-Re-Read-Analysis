@@ -375,6 +375,10 @@ def with_provenance_types(packs, values: tuple[str, ...]):
 
 def assert_invalid_compositions(composition: Composition) -> int:
     project = composition.project
+    nonempty_hosting_project = replace(
+        project,
+        hosting_registry=project.root / "Framework" / "Data" / "Hosting" / "base" / "registry.json",
+    )
     providers = composition.providers
     packs = composition.packs
     provenance_types = packs.allowed_values("provenance.subject-type")
@@ -456,7 +460,7 @@ def assert_invalid_compositions(composition: Composition) -> int:
             ),
         ),
         lambda: load_hosted_identity_registry(
-            project,
+            nonempty_hosting_project,
             without_capability(packs, "hosted-identity-embodiment"),
             composition.occurrences,
             (composition.entities,),

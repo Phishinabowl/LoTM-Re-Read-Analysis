@@ -1,0 +1,24 @@
+schema_version: 4
+pack_id: hosting-compute
+pack_version: 1
+lifecycle: active
+pack_kind: extension
+label: Compute Hosting Vocabulary
+description: Runtime, container, virtual-host, and execution vocabulary for software and agent infrastructure.
+
+dependencies:
+  - pack_id: hosting-foundation
+    minimum_version: 1
+
+capabilities:
+  - compute-hosting-vocabulary
+
+controlled_values:
+  hosting.carrier-kind:
+    - runtime
+    - container
+    - virtual-host
+  hosting.binding-kind:
+    - executes-in
+
+semantic_declarations: {}

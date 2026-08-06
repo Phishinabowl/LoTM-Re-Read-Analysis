@@ -1,6 +1,6 @@
 schema_version: 4
 pack_id: core
-pack_version: 39
+pack_version: 40
 lifecycle: active
 pack_kind: core
 label: Knowledge Platform Core
@@ -70,7 +70,6 @@ capabilities:
   - aggregate-recurrence-cardinality
   - occurrence-participation-identity
   - participation-chronology-bindings
-  - hosted-identity-embodiment
   - timeline-branch-lifecycle
   - capability-progression
   - structural-interpretation-modeling
@@ -287,37 +286,6 @@ controlled_values:
     - completed
     - interrupted
     - unknown
-  hosting.record-lifecycle:
-    - active
-    - deferred
-    - retired
-  hosting.carrier-kind:
-    - physical-body
-    - control-unit
-    - avatar
-    - runtime
-    - container
-    - vessel
-    - virtual-host
-  hosting.occupancy-role:
-    - active
-    - dormant
-    - co-resident
-    - controlling
-  hosting.transition-kind:
-    - move
-    - copy
-    - control-handoff
-  hosting.binding-kind:
-    - installed-in
-    - contained-in
-    - attached-to
-    - executes-in
-    - projected-through
-  hosting.identity-relationship-target-type:
-    - entity-relationship
-    - incarnation-relationship
-    - identity-phase-relationship
   occurrence.carryover-kind:
     - state
     - context
@@ -407,7 +375,6 @@ controlled_values:
     - chronology
     - provenance
     - structural-interpretation
-    - hosted-identity
   provenance.assertion-status:
     - verified
     - inferred
@@ -462,10 +429,6 @@ controlled_values:
     - structural-interpretation-member
     - structural-interpretation-relation
     - structural-interpretation-set
-    - host-carrier
-    - host-carrier-binding
-    - hosted-identity-occupancy
-    - hosted-identity-transition
   interpretation.lifecycle:
     - active
     - retired
@@ -486,7 +449,6 @@ controlled_values:
     - category
     - resource-kind
     - resource-type
-    - host-carrier
   reconciliation.operation:
     - redirect
     - merge

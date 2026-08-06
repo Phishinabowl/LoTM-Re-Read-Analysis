@@ -532,6 +532,25 @@ try {
     $hostingDocument = ConvertTo-MutableFixtureValue (
         ConvertFrom-KnowledgeYamlFile $hostingFixturePath 2 'hosted identity registry'
     )
+    $vessel = ConvertTo-MutableFixtureValue $hostingDocument['carriers']['body-a']
+    $vessel['carrier_kind'] = 'vessel'
+    $vessel['label'] = 'Vessel A'
+    $hostingDocument['carriers'] = [ordered]@{
+        'vessel-a' = $vessel
+        'body-b' = $hostingDocument['carriers']['body-b']
+    }
+    $hostingDocument['bindings'] = [System.Collections.ArrayList]@(
+        [ordered]@{
+            id = 'vessel-body-b'
+            child_carrier_id = 'vessel-a'
+            parent_carrier_id = 'body-b'
+            binding_kind = 'installed-in'
+            child_activated_at_entry_id = 'protagonist-entry-01'
+            parent_activated_at_entry_id = 'protagonist-entry-01'
+            child_terminated_at_entry_id = 'protagonist-entry-10'
+            parent_terminated_at_entry_id = 'protagonist-entry-10'
+        }
+    )
     $hostingDocument['occupancies'] = [System.Collections.ArrayList]@()
     $hostingDocument['transitions'] = [System.Collections.ArrayList]@()
     $hostingPath = Join-Path $tempRoot 'hosting.json'
@@ -599,9 +618,9 @@ try {
 
     $bindingAssertion = ConvertTo-MutableFixtureValue $baseDocument.assertions[0]
     $bindingAssertion['id'] = 'carrier-binding-kind-support'
-    $bindingAssertion['claim_key'] = 'control-unit-body-b-binding-kind'
+    $bindingAssertion['claim_key'] = 'vessel-body-b-binding-kind'
     $bindingAssertion['subject_type'] = 'host-carrier-binding'
-    $bindingAssertion['subject_id'] = 'control-unit-body-b'
+    $bindingAssertion['subject_id'] = 'vessel-body-b'
     $bindingAssertion['claim_namespace'] = 'canonical-content'
     $bindingAssertion['field_path'] = 'binding_kind'
     $bindingAssertion['asserted_value'] = 'installed-in'
@@ -630,7 +649,7 @@ try {
     $bindingTarget = Get-KnowledgeProvenanceTarget `
         $registry `
         'host-carrier-binding' `
-        'control-unit-body-b'
+        'vessel-body-b'
     if ($bindingTarget.binding_kind -cne 'installed-in') {
         throw 'Host-carrier-binding provenance dispatch returned the wrong target.'
     }

@@ -98,6 +98,14 @@ Framework/
     README.md
     core/
       pack.yaml
+    hosting-foundation/
+      pack.yaml
+    hosting-narrative/
+      pack.yaml
+    hosting-simulation/
+      pack.yaml
+    hosting-compute/
+      pack.yaml
     narrative-media/
       pack.yaml
     narrative-publishing/

@@ -99,6 +99,158 @@ function Write-FixtureJson {
     )
 }
 
+$script:HostingPackPaths = [ordered]@{
+    core = 'Framework/Packs/core/pack.yaml'
+    'hosting-foundation' = 'Framework/Packs/hosting-foundation/pack.yaml'
+    'narrative-media' = 'Framework/Packs/narrative-media/pack.yaml'
+    'hosting-narrative' = 'Framework/Packs/hosting-narrative/pack.yaml'
+    'hosting-simulation' = 'Framework/Packs/hosting-simulation/pack.yaml'
+    'hosting-compute' = 'Framework/Packs/hosting-compute/pack.yaml'
+}
+
+function Get-PackVariantRegistry {
+    param(
+        [object]$Project,
+        [string]$Path,
+        [string[]]$Selected,
+        [string[]]$Enabled
+    )
+
+    $selections = New-Object System.Collections.ArrayList
+    foreach ($packId in $Selected) {
+        [void]$selections.Add([ordered]@{
+                pack_id = $packId
+                path = $script:HostingPackPaths[$packId]
+            })
+    }
+    $document = [ordered]@{
+        schema_version = 2
+        selected_packs = $selections
+        capability_activation = [ordered]@{
+            default = 'disabled'
+            enabled = [System.Collections.ArrayList]@($Enabled)
+        }
+    }
+    Write-FixtureJson $Path $document
+    $fixtureProject = $Project.PSObject.Copy()
+    $fixtureProject.schema_packs_registry = $Path
+    return Get-KnowledgeSchemaPackRegistry $fixtureProject
+}
+
+function Assert-PackIsolation {
+    param([object]$Project, [string]$TemporaryRoot)
+
+    $variants = [ordered]@{
+        core = [ordered]@{
+            selected = @('core')
+            enabled = @()
+            carriers = @()
+            bindings = @()
+        }
+        foundation = [ordered]@{
+            selected = @('core', 'hosting-foundation')
+            enabled = @('hosted-identity-embodiment')
+            carriers = @()
+            bindings = @('installed-in', 'contained-in', 'attached-to')
+        }
+        narrative = [ordered]@{
+            selected = @('core', 'hosting-foundation', 'narrative-media', 'hosting-narrative')
+            enabled = @('hosted-identity-embodiment', 'narrative-hosting-vocabulary')
+            carriers = @('physical-body', 'vessel')
+            bindings = @('installed-in', 'contained-in', 'attached-to')
+        }
+        simulation = [ordered]@{
+            selected = @('core', 'hosting-foundation', 'hosting-simulation')
+            enabled = @('hosted-identity-embodiment', 'simulation-hosting-vocabulary')
+            carriers = @('control-unit', 'avatar')
+            bindings = @('installed-in', 'contained-in', 'attached-to', 'projected-through')
+        }
+        compute = [ordered]@{
+            selected = @('core', 'hosting-foundation', 'hosting-compute')
+            enabled = @('hosted-identity-embodiment', 'compute-hosting-vocabulary')
+            carriers = @('runtime', 'container', 'virtual-host')
+            bindings = @('installed-in', 'contained-in', 'attached-to', 'executes-in')
+        }
+        combined = [ordered]@{
+            selected = @(
+                'core'
+                'hosting-foundation'
+                'narrative-media'
+                'hosting-narrative'
+                'hosting-simulation'
+                'hosting-compute'
+            )
+            enabled = @(
+                'hosted-identity-embodiment'
+                'narrative-hosting-vocabulary'
+                'simulation-hosting-vocabulary'
+                'compute-hosting-vocabulary'
+            )
+            carriers = @(
+                'physical-body'
+                'vessel'
+                'control-unit'
+                'avatar'
+                'runtime'
+                'container'
+                'virtual-host'
+            )
+            bindings = @(
+                'installed-in'
+                'contained-in'
+                'attached-to'
+                'projected-through'
+                'executes-in'
+            )
+        }
+    }
+    $loaded = [ordered]@{}
+    foreach ($variantId in $variants.Keys) {
+        $expected = $variants[$variantId]
+        $packs = Get-PackVariantRegistry `
+            $Project `
+        (Join-Path $TemporaryRoot "packs-$variantId.json") `
+            $expected.selected `
+            $expected.enabled
+        if ((@($packs.controlled_values['hosting.carrier-kind']) -join "`0") -cne
+            (@($expected.carriers) -join "`0")) {
+            throw "Hosting carrier vocabulary leaked in '$variantId' composition."
+        }
+        if ((@($packs.controlled_values['hosting.binding-kind']) -join "`0") -cne
+            (@($expected.bindings) -join "`0")) {
+            throw "Hosting binding vocabulary leaked in '$variantId' composition."
+        }
+        $expectedHosting = $variantId -cne 'core'
+        if ((Test-SchemaPackCapabilityEnabled $packs 'hosted-identity-embodiment') -ne $expectedHosting) {
+            throw "Hosted identity capability activation changed in '$variantId' composition."
+        }
+        $loaded[$variantId] = $packs
+    }
+    return $loaded
+}
+
+function Get-CombinedFixturePacks {
+    param([object]$Project, [string]$Path)
+
+    $document = ConvertTo-MutableFixtureValue (
+        ConvertFrom-KnowledgeYamlFile $Project.schema_packs_registry 2 'schema-pack registry'
+    )
+    [void]$document.selected_packs.Add([ordered]@{
+            pack_id = 'hosting-simulation'
+            path = $script:HostingPackPaths['hosting-simulation']
+        })
+    [void]$document.selected_packs.Add([ordered]@{
+            pack_id = 'hosting-compute'
+            path = $script:HostingPackPaths['hosting-compute']
+        })
+    [void]$document.capability_activation.enabled.Add('simulation-hosting-vocabulary')
+    [void]$document.capability_activation.enabled.Add('compute-hosting-vocabulary')
+    Write-FixtureJson $Path $document
+    $fixtureProject = $Project.PSObject.Copy()
+    $fixtureProject.schema_packs_registry = $Path
+    return Get-KnowledgeSchemaPackRegistry $fixtureProject
+}
+
 function Get-FixtureProvider {
     $identities = [ordered]@{
         entity = [ordered]@{
@@ -381,7 +533,13 @@ $fixtureRoot = Join-Path $Root 'Framework\Data\Hosting'
 $base = Get-Content -LiteralPath (Join-Path $fixtureRoot 'base\registry.json') -Raw | ConvertFrom-Json
 $expectations = Get-Content -LiteralPath (Join-Path $fixtureRoot 'expectations.json') -Raw | ConvertFrom-Json
 $project = Get-KnowledgeProjectConfig $Root
-$packs = Get-KnowledgeSchemaPackRegistry $project
+$temporaryRoot = Join-Path ([System.IO.Path]::GetTempPath()) ('hosting-conformance-' + [guid]::NewGuid())
+[void](New-Item -ItemType Directory -Path $temporaryRoot)
+$packVariants = Assert-PackIsolation $project $temporaryRoot
+if ($packVariants.Count -ne [int]$expectations.pack_compositions) {
+    throw 'Hosted identity pack-composition count changed.'
+}
+$packs = Get-CombinedFixturePacks $project (Join-Path $temporaryRoot 'packs-fixture.json')
 $chronologyPath = Join-Path $Root 'Framework\Data\Chronology\valid-registry.yaml'
 $chronologyData = ConvertFrom-KnowledgeYamlFile $chronologyPath 2 'chronology fixture'
 $chronologyData['contexts'] = @(
@@ -424,8 +582,6 @@ $occurrences = ConvertTo-KnowledgeOccurrenceRegistry `
         'credential-record' = @('protagonist-qualification')
     })
 $provider = Get-FixtureProvider
-$temporaryRoot = Join-Path ([System.IO.Path]::GetTempPath()) ('hosting-conformance-' + [guid]::NewGuid())
-[void](New-Item -ItemType Directory -Path $temporaryRoot)
 $path = Join-Path $temporaryRoot 'registry.json'
 try {
     Write-FixtureJson $path $base
@@ -471,6 +627,20 @@ try {
     { Get-FixtureRegistry $project $disabledPacks $occurrences @($provider) $path } `
         'Disabled hosted identity capability unexpectedly loaded.'
     $invalidConfigurations += 1
+    $empty = [ordered]@{
+        schema_version = 2
+        carriers = [ordered]@{}
+        bindings = [System.Collections.ArrayList]@()
+        occupancies = [System.Collections.ArrayList]@()
+        transitions = [System.Collections.ArrayList]@()
+    }
+    Write-FixtureJson $path $empty
+    $disabledRegistry = Get-FixtureRegistry $project $packVariants.core $occurrences @($provider) $path
+    if ($disabledRegistry.enabled -or
+        (Get-KnowledgeHostingProvenanceTargets $disabledRegistry).Count -ne 0 -or
+        (Get-KnowledgeHostingReconciliationProvider $disabledRegistry).targets.Count -ne 0) {
+        throw 'Disabled empty hosting registry exposed active providers.'
+    }
     Assert-Rejected `
     { Get-FixtureRegistry $project $packs $occurrences @($provider, $provider) $path } `
         'Duplicate hosted identity provider unexpectedly loaded.'
@@ -489,6 +659,7 @@ $summary = [ordered]@{
     service_assertions = $serviceAssertions
     invalid_configurations = $invalidConfigurations
     invalid_queries = $invalidQueries
+    pack_compositions = $packVariants.Count
     scale_carriers = [int]$scale.carriers
     scale_occupancies = [int]$scale.occupancies
     scale_bindings = [int]$scale.bindings

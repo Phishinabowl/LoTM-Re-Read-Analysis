@@ -1,0 +1,51 @@
+schema_version: 4
+pack_id: hosting-foundation
+pack_version: 1
+lifecycle: active
+pack_kind: extension
+label: Hosted Identity Foundation
+description: Domain-neutral carrier topology, occupancy, control, and transition mechanics.
+
+dependencies:
+  - pack_id: core
+    minimum_version: 40
+
+capabilities:
+  - id: hosted-identity-embodiment
+    lifecycle: available
+    label: Hosted Identity And Carrier Topology
+    description: Bounded identity occupancy, control, transfer, copy, and carrier-to-carrier topology.
+
+controlled_values:
+  hosting.record-lifecycle:
+    - active
+    - deferred
+    - retired
+  hosting.occupancy-role:
+    - active
+    - dormant
+    - co-resident
+    - controlling
+  hosting.transition-kind:
+    - move
+    - copy
+    - control-handoff
+  hosting.binding-kind:
+    - installed-in
+    - contained-in
+    - attached-to
+  hosting.identity-relationship-target-type:
+    - entity-relationship
+    - incarnation-relationship
+    - identity-phase-relationship
+  provenance.claim-namespace:
+    - hosted-identity
+  provenance.subject-type:
+    - host-carrier
+    - host-carrier-binding
+    - hosted-identity-occupancy
+    - hosted-identity-transition
+  reconciliation.target-type:
+    - host-carrier
+
+semantic_declarations: {}

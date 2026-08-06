@@ -289,28 +289,28 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 ### Phase 1.14 V49 Hosting Pack Boundary Reconciliation
 
-- [ ] Inventory every hosting capability, controlled-value namespace, semantic declaration, and
+- [x] Inventory every hosting capability, controlled-value namespace, semantic declaration, and
   provider registration currently supplied by core; classify each as universal structure,
   domain-neutral optional capability, or domain-facing vocabulary.
-- [ ] Keep carrier, binding, occupancy, transition, lifecycle-boundary, provenance, reconciliation,
+- [x] Keep carrier, binding, occupancy, transition, lifecycle-boundary, provenance, reconciliation,
   and query mechanics in the reusable framework without requiring unrelated projects to activate
   hosted-identity behavior.
-- [ ] Define the minimal core-owned hosting vocabulary, if any, and relocate narrative/simulation
+- [x] Define the minimal core-owned hosting vocabulary, if any, and relocate narrative/simulation
   terms such as bodies, control units, avatars, vessels, and projection into an appropriate optional
   pack rather than exposing them to every industry.
-- [ ] Relocate compute-facing terms such as runtimes, containers, virtual hosts, and execution into
+- [x] Relocate compute-facing terms such as runtimes, containers, virtual hosts, and execution into
   an optional reusable pack that an IT project may select without inheriting narrative vocabulary.
-- [ ] Leave medical, legal, and other industry-specific carrier terms absent until their own packs
+- [x] Leave medical, legal, and other industry-specific carrier terms absent until their own packs
   deliberately define them; an absent pack must disable its vocabulary without producing unrelated
   project errors.
-- [ ] Decide whether `hosted-identity-embodiment` itself remains a core capability, becomes a
+- [x] Decide whether `hosted-identity-embodiment` itself remains a core capability, becomes a
   domain-neutral optional capability pack, or is split into a core service plus opt-in activation;
   record the ownership and dependency rule explicitly.
-- [ ] Update the LoTM pack selection only for capabilities and vocabulary the project actually uses,
+- [x] Update the LoTM pack selection only for capabilities and vocabulary the project actually uses,
   preserving its empty canonical hosting registry until LoTM records are intentionally authored.
-- [ ] Add paired composition fixtures proving core-only, narrative-only, compute-only, combined, and
+- [x] Add paired composition fixtures proving core-only, narrative-only, compute-only, combined, and
   absent-hosting projects receive exactly their selected vocabulary with no cross-pack leakage.
-- [ ] Re-run hosted identity, pack composition, project composition, provenance closure, isolated
+- [x] Re-run hosted identity, pack composition, project composition, provenance closure, isolated
   extraction, three-runtime parity, malformed/adversarial, and cross-domain pressure through the
   normal framework-version lifecycle.
 - [ ] Complete V49 implementation confirmation, pressure testing, evolution recording, and plan
@@ -331,6 +331,17 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [ ] Confirm that canonical chronology remains acyclic and that hypotheses, causality,
   participation bindings, identity hosting, recurrence, and context topology retain separate typed
   ownership.
+- [ ] Perform a pack-boundary audit across every selected and bundled pack before Phase 2. For each
+  pack, distinguish reusable mechanics, domain vocabulary, bridge vocabulary, project instances,
+  and presentation-only recommendations; verify that unselected families remain absent.
+- [ ] Review `narrative-preservation`, `narrative-production`, `narrative-distribution`,
+  `narrative-interactive`, and `narrative-shared-universe` as extraction candidates. Decide whether
+  each remains domain-owned, requires a narrowly scoped reusable foundation and bridge pack, or is
+  explicitly deferred pending a second real consumer. Similar terminology alone is not sufficient
+  evidence for extraction.
+- [ ] Record every pack-boundary decision in framework evolution as retained ownership, accepted
+  extraction, or explicit deferral, including the cross-domain invariant that justified any
+  promotion. Add another framework version only for a concrete executable boundary change.
 - [ ] Record every remaining limitation as supported, explicitly deferred, or outside the intended
   framework boundary and update the durable methodology when new obligations emerge.
 - [ ] Decide whether another narrowly scoped framework version is required or Phase 2 may begin.
@@ -405,6 +416,13 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [ ] Define structured short and long descriptions, intended audience, use cases, examples,
   prerequisites, provided behavior, exclusions, maturity, documentation links, search keywords,
   and optional visual identifiers.
+- [ ] Define machine-readable pack classification independently from the existing validation-facing
+  `pack_kind`. Include an extensible `family` such as `hosting`, `narrative`, or `preservation`; an
+  architectural `role` such as `foundation`, `domain`, `bridge`, or `extension`; and a `scope` such
+  as `domain-neutral`, `cross-domain`, or `domain-specific`.
+- [ ] Define validation and composition rules for family, role, and scope without assuming that a
+  name prefix proves ownership. A bridge must declare all foundations it joins, and a
+  domain-neutral pack must not export domain-facing vocabulary.
 - [ ] Require friendly labels and useful descriptions for every user-selectable pack and capability.
 - [ ] Backfill string-shorthand capabilities that need user-facing metadata.
 - [ ] Keep presentation metadata localizable and independent of UI layout code.
@@ -416,7 +434,8 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
   ownership.
 - [ ] Represent dependencies, recommendations, conflicts, and planned-only features clearly.
 - [ ] Distinguish installed, selected, available, enabled, deprecated, and used-by-project states.
-- [ ] Add effective-schema output for groups and presentation metadata.
+- [ ] Add effective-schema output for groups, presentation metadata, family, architectural role,
+  scope, dependency explanations, and bridge relationships.
 
 ### Phase 3.3 Plugin And Entitlement Boundary
 
@@ -429,6 +448,9 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 ### Phase 3 Exit Gate
 
 - [ ] A headless client can present packs and capabilities coherently without reading README prose.
+- [ ] A headless client can explain whether a pack is a foundation, domain pack, bridge, or
+  extension; which family and scope it belongs to; why it was selected; and which vocabulary would
+  appear or disappear if its selection changed.
 - [ ] No licensing assumption leaks into reusable schema contracts.
 
 ## Phase 4: Page Modules, Fields, Defaults, And Validation Levels
@@ -766,6 +788,8 @@ wave is confirmed.
 ### Phase 14.1 Solution Profiles
 
 - [ ] Define versioned industry solutions and starter profiles separately from packs.
+- [ ] Keep solution profiles out of pack-role classification: they select and recommend packs but do
+  not own controlled vocabulary, runtime mechanics, or project facts.
 - [ ] Allow profiles to recommend packs, capabilities, categories, modules, graph presets, and
   project settings without inventing project facts.
 - [ ] Add initial narrative profiles such as serialized fiction, shared-universe fiction, screen
@@ -809,7 +833,12 @@ wave is confirmed.
 - [ ] Define source-priority and authority examples appropriate to operational evidence.
 - [ ] Build sample content, summaries, graphs, QA, JSON, and SQLite projections.
 - [ ] Use Parquet/DuckDB only where the POC has concrete analytical questions.
-- [ ] Pressure-test whether any supposedly universal behavior still belongs in narrative packs.
+- [ ] Pressure-test both ownership directions: whether any supposedly universal behavior still
+  belongs in narrative packs, and whether reusable mechanics remain trapped inside a narrative
+  pack merely because LoTM was the first consumer.
+- [ ] Prove that IT may select `hosting-foundation` and `hosting-compute` without receiving
+  narrative hosting vocabulary, while LoTM may select `hosting-foundation` and
+  `hosting-narrative` without receiving compute or simulation vocabulary.
 
 ### Phase 15 Exit Gate
 

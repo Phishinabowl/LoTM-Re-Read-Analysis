@@ -4,6 +4,9 @@ selected_packs:
   - pack_id: core
     path: Framework/Packs/core/pack.yaml
 
+  - pack_id: hosting-foundation
+    path: Framework/Packs/hosting-foundation/pack.yaml
+
   - pack_id: narrative-media
     path: Framework/Packs/narrative-media/pack.yaml
 
@@ -24,6 +27,9 @@ selected_packs:
 
   - pack_id: narrative-shared-universe
     path: Framework/Packs/narrative-shared-universe/pack.yaml
+
+  - pack_id: hosting-narrative
+    path: Framework/Packs/hosting-narrative/pack.yaml
 
 capability_activation:
   default: disabled
@@ -79,6 +85,7 @@ capability_activation:
     - occurrence-participation-identity
     - participation-chronology-bindings
     - hosted-identity-embodiment
+    - narrative-hosting-vocabulary
     - timeline-branch-lifecycle
     - capability-progression
     - structural-interpretation-modeling

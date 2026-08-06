@@ -1,0 +1,23 @@
+schema_version: 4
+pack_id: hosting-narrative
+pack_version: 1
+lifecycle: active
+pack_kind: extension
+label: Narrative Hosting Vocabulary
+description: Physical embodiment and vessel vocabulary for narrative projects using hosted identity.
+
+dependencies:
+  - pack_id: hosting-foundation
+    minimum_version: 1
+  - pack_id: narrative-media
+    minimum_version: 24
+
+capabilities:
+  - narrative-hosting-vocabulary
+
+controlled_values:
+  hosting.carrier-kind:
+    - physical-body
+    - vessel
+
+semantic_declarations: {}

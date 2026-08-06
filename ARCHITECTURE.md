@@ -161,17 +161,30 @@ Within canonical pages, the visible article and structured page data are two syn
 `Project_Config/schema-packs.yaml` selects reusable schema packs in dependency order and activates project capabilities. Each selected pack is a portable contract stored separately from project-instance data:
 
 - `Framework/Packs/core/pack.yaml` declares domain-neutral platform capabilities and evidence-source vocabulary;
+- `Framework/Packs/hosting-foundation/pack.yaml` optionally activates domain-neutral carrier,
+  topology, occupancy, control, transition, query, and provider mechanics without exposing
+  domain-facing carrier vocabulary through core;
+- `hosting-narrative`, `hosting-simulation`, and `hosting-compute` extend that foundation with
+  independently selectable physical embodiment, simulation/projection, and compute/runtime
+  vocabulary;
 - `Framework/Packs/narrative-media/pack.yaml` depends on `core` and contributes the narrative foundation;
 - publishing, screen/audio, adaptation, distribution, shared-universe, interactive, preservation, and production/rights companion packs add orthogonal domain capabilities without forcing them into every narrative project;
 - future implementations may replace `narrative-media` with packs such as `it-operations`, `legal-matter`, or `medical-knowledge`, or compose compatible packs.
 
 A capability has separate declaration, lifecycle, availability, and project-activation states. String capability entries are shorthand for lifecycle `available`; mapped entries may be `planned`, `available`, or `deprecated`. Planned capabilities remain discoverable to roadmap tooling but cannot be enabled. Available capabilities may be enabled by `capability_activation.enabled`; deprecated capabilities remain activatable for compatibility or migration but should not be recommended for new projects. The activation default must remain `disabled`. An unavailable or unenabled capability is omitted by tools, validators, projections, and interfaces unless project configuration explicitly references its contract, in which case validation must report the invalid reference. Missing or incompatible declared pack dependencies are always errors.
 
-A schema pack may contribute capabilities and controlled values. Narrative media uses orthogonal axes: medium profiles own reader-position behavior; modalities describe prose, sequential art, animation, live action, audio, still image, or interaction; cultural forms preserve anime, Donghua, manga, manhwa, manhua, and webtoon identity; release forms describe creative packaging; and container formats describe concrete evidence artifacts. Narrative sources may contain embedded visual assets regardless of whether the container is an EPUB, comic release, scan, or another supported format. Official EPUB artwork is therefore an illustration carried by an EPUB source, not a compound medium. The source record owns evidence provenance, the extracted image is a visual resource, and promotion into a tracked page-ready asset remains a separate project action. Reusable packs do not instantiate LoTM works, categories, pages, paths, source records, or project-specific vocabulary. A project-owned extension pack may contribute local terminology while project registries instantiate actual records. Interface wizards should generate or edit those layers from pack contracts rather than embedding industry or organization assumptions in UI code.
+A schema pack may contribute capabilities and controlled values. Optional capability foundations own
+reusable mechanics, domain packs own domain vocabulary, and bridge extensions may depend on both
+without moving either concern into core. Pack selection must not expose vocabulary from an
+unselected family. Narrative media uses orthogonal axes: medium profiles own reader-position behavior; modalities describe prose, sequential art, animation, live action, audio, still image, or interaction; cultural forms preserve anime, Donghua, manga, manhwa, manhua, and webtoon identity; release forms describe creative packaging; and container formats describe concrete evidence artifacts. Narrative sources may contain embedded visual assets regardless of whether the container is an EPUB, comic release, scan, or another supported format. Official EPUB artwork is therefore an illustration carried by an EPUB source, not a compound medium. The source record owns evidence provenance, the extracted image is a visual resource, and promotion into a tracked page-ready asset remains a separate project action. Reusable packs do not instantiate LoTM works, categories, pages, paths, source records, or project-specific vocabulary. A project-owned extension pack may contribute local terminology while project registries instantiate actual records. Interface wizards should generate or edit those layers from pack contracts rather than embedding industry or organization assumptions in UI code.
 
 `Tools/Runtime/Python/knowledge_framework/schema_pack_config.py` and `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` are the matching schema-pack loaders. They validate pack identity, version, kind, lifecycle, repository-safe paths, dependency selection and order, capability availability and activation, atomic controlled-value namespaces, typed semantic declarations, and unambiguous ownership. Compound semantic relationships must use typed schema-3 records rather than delimiter-composed IDs. Source-registry loaders consume the aggregate pack contract and reject medium, work, continuity, relationship, or source-role vocabulary not supplied by a selected pack.
 
-The initial pack boundary is deliberately narrow. It proves executable ownership for source-model vocabulary before taxonomy fields, page modules, graph projections, and editor forms are migrated into the same pack mechanism.
+The current pack boundary is compositional. Core owns mandatory universal mechanics; optional
+foundations own reusable services; domain and bridge extensions contribute controlled vocabulary
+without leaking it into unrelated projects. Taxonomy fields, page modules, graph projections, and
+editor forms will migrate into the same effective-schema mechanism through the ordered platform
+implementation phases rather than defining parallel ownership rules.
 
 ### Taxonomy Registry
 
@@ -271,7 +284,18 @@ Resolution is read-only. It does not rename folders or files, rewrite page/YAML 
 
 ### Hosted Identity And Embodiment Registry
 
-`Project_Config/hosting.yaml` schema version 2 separates stable identity-bearing subjects from physical or virtual carriers. Host carriers own independent lifecycle tracks and exact activation/termination entries. Carrier bindings relate child and parent carriers through pack-owned installation, containment, attachment, execution, or projection kinds with paired occurrence-backed boundaries on each lifecycle track. Occupancy records bind entity, incarnation, or identity-phase targets directly to carriers with pack-owned active, dormant, co-resident, or controlling roles. Transition records describe move, copy, and control-handoff topology at concrete occurrence/track-entry boundaries without redefining identity lineage, occurrence order, subject state, reconciliation, or evidence.
+`Project_Config/hosting.yaml` schema version 2 separates stable identity-bearing subjects from
+carriers. `hosting-foundation` owns the optional domain-neutral service and generic installation,
+containment, and attachment vocabulary; `core` does not activate or expose hosting. Narrative,
+simulation, compute, and future industry packs contribute only their selected carrier and binding
+labels. Host carriers own independent lifecycle tracks and exact activation/termination entries.
+Carrier bindings relate child and parent carriers through pack-owned kinds with paired
+occurrence-backed boundaries on each lifecycle track. Occupancy records bind entity, incarnation,
+or identity-phase targets directly to carriers with pack-owned active, dormant, co-resident, or
+controlling roles. Transition records describe move, copy, and control-handoff topology at concrete
+occurrence/track-entry boundaries without redefining identity lineage, occurrence order, subject
+state, reconciliation, or evidence. An empty registry is valid when hosting is disabled and exposes
+no hosting providers; nonempty hosting records require explicit capability activation.
 
 `Tools/Runtime/Python/knowledge_framework/hosting_config.py` and `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` are behaviorally paired. Carriers are provenance and reconciliation targets; bindings, occupancies, and transitions are provenance-addressable operational records. Copy transitions must cite an existing identity relationship, while carrier movement, identity movement, and control handoff remain distinct records. Explicit boundary-map queries return deterministic direct and transitive carrier paths while preserving direct versus reachable occupancy, co-control, and multiple valid routes instead of inventing a winner. See `Framework/Contracts/hosted-identity-registry.md`.
 

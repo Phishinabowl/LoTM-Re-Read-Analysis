@@ -1,4 +1,4 @@
-# Narrative Pack Catalog
+# Schema Pack Catalog
 
 Schema packs are composable contracts, not project instances. Pack files define capabilities and controlled vocabulary; `Project_Config/schema-packs.yaml` selects packs and activates only the available capabilities a project uses.
 
@@ -6,7 +6,11 @@ Schema packs are composable contracts, not project instances. Pack files define 
 
 | Pack | Purpose |
 | --- | --- |
-| `core` | Domain-neutral identity, strict configuration ingestion, deterministic Unicode lookup keys, bounded auditable stable-ID reconciliation, stable nested-record and claim identity, composite channel-bounded evidence scope, hierarchical locator-level evidence modes, explainable precedence-aware authority, multi-source and claim-level evaluation, point/range evidence locators, semantic provenance paths, structural position validation, shared civil-time windows, ordered chronology coordinate systems, occurrence/recurrence identity, aggregate and uncertain recurrence cardinality, scoped recurrence policy and schedules, deterministic rule evaluation and policy integrity, subject-state availability, epistemic change, local capability progression, hosted identity, bounded carrier topology, occupancy/control, and competing structural interpretations that remain outside canonical graphs, plus relationships, visibility, projection, and validation. |
+| `core` | Domain-neutral identity, strict configuration ingestion, deterministic Unicode lookup keys, bounded auditable stable-ID reconciliation, stable nested-record and claim identity, composite channel-bounded evidence scope, hierarchical locator-level evidence modes, explainable precedence-aware authority, multi-source and claim-level evaluation, point/range evidence locators, semantic provenance paths, structural position validation, shared civil-time windows, ordered chronology coordinate systems, occurrence/recurrence identity, aggregate and uncertain recurrence cardinality, scoped recurrence policy and schedules, deterministic rule evaluation and policy integrity, subject-state availability, epistemic change, local capability progression, and competing structural interpretations that remain outside canonical graphs, plus relationships, visibility, projection, and validation. |
+| `hosting-foundation` | Optional domain-neutral hosted-identity service: carrier lifecycle and topology, occupancy/control, explicit transitions, generic structural bindings, queries, and provider interfaces. |
+| `hosting-narrative` | Optional physical-body and vessel vocabulary for narrative embodiment. |
+| `hosting-simulation` | Optional control-unit, avatar, and projection vocabulary for simulated or mediated embodiment. |
+| `hosting-compute` | Optional runtime, container, virtual-host, and execution vocabulary for compute hosting. |
 | `narrative-media` | Narrative foundation: works, media facets, structural segments, segment-anchored locators, ordering-backed position validation, recursively nested content groups with participation roles, temporally scoped localized title variants, continuity, narrative chronology contexts and time loops, reader disclosure, and spoiler bounding. |
 | `narrative-publishing` | Prose and sequential-art serialization, editions, localization, packaging, and planned publication-run/textual-history support. |
 | `narrative-screen-audio` | Film, television, animation, web series, audio works, episodes, specials, cuts, tracks, embedded visuals, and planned live-performance production/event support. |
@@ -17,7 +21,7 @@ Schema packs are composable contracts, not project instances. Pack files define 
 | `narrative-preservation` | Optional missing, partial, reconstructed, archival, and access-state support. |
 | `narrative-production` | Scope-backed production origin, authorization, rights basis, and commerciality, plus planned contributor-credit and detailed rights-grant support. |
 
-LoTM currently selects `core`, `narrative-media`, `narrative-publishing`, `narrative-screen-audio`, `narrative-adaptation`, `narrative-distribution`, `narrative-production`, and `narrative-shared-universe`. The shared-universe pack supplies executable shared-universe and entity-incarnation contracts; its crossover-event capability remains planned. Other narrative packs remain discoverable templates for projects that need them; their planned capabilities cannot be activated until the corresponding executable contracts exist.
+LoTM currently selects `core`, `hosting-foundation`, `hosting-narrative`, `narrative-media`, `narrative-publishing`, `narrative-screen-audio`, `narrative-adaptation`, `narrative-distribution`, `narrative-production`, and `narrative-shared-universe`. It intentionally does not select simulation or compute hosting vocabulary. The shared-universe pack supplies executable shared-universe and entity-incarnation contracts; its crossover-event capability remains planned. Other narrative packs remain discoverable templates for projects that need them; their planned capabilities cannot be activated until the corresponding executable contracts exist.
 
 ## Media Axes
 
@@ -45,7 +49,7 @@ Core `occurrence-recurrence-modeling` keeps concrete happenings, branches, itera
 
 Core `structural-interpretation-modeling` owns stable candidate structures that reuse canonical target IDs while keeping membership and local relations outside chronology, occurrence causality, entity identity, and reconciliation. Comparison sets may be compatible, competing, or mutually exclusive; the service preserves unresolved outcomes and leaves evidence priority, applicability, supersession, and authority to provenance.
 
-Core `hosted-identity-embodiment` keeps an identity-bearing subject separate from the physical or virtual carrier that hosts it. Carrier lifecycle, bounded child/parent bindings, direct and reachable occupancy, co-residence, active control, movement, copies, and handoffs reuse occurrence track-entry boundaries. Pack-owned binding kinds distinguish installation, containment, attachment, execution, and projection. Copy records cite existing identity relationships; hosting never infers continuity, equivalence, replacement, divergence, direct occupancy, or truth from shared carrier, code, memory, appearance, or reachability.
+Optional `hosting-foundation` keeps an identity-bearing subject separate from the carrier that hosts it. Carrier lifecycle, bounded child/parent bindings, direct and reachable occupancy, co-residence, active control, movement, copies, and handoffs reuse occurrence track-entry boundaries. The foundation owns only generic installation, containment, and attachment vocabulary. Narrative, simulation, compute, and future industry packs add their own carrier and binding kinds without cross-pack leakage. Copy records cite existing identity relationships; hosting never infers continuity, equivalence, replacement, divergence, direct occupancy, or truth from shared carrier, code, memory, appearance, or reachability. An empty hosting registry remains valid when the capability is disabled, but nonempty hosting records fail closed.
 
 ## Capability Honesty
 

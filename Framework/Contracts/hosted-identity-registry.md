@@ -3,15 +3,27 @@
 ## Purpose
 
 `Project_Config/hosting.yaml` schema version 2 separates a stable identity-bearing subject from
-the physical or virtual carrier that hosts it. The registry models carrier lifecycle, occupancy,
-control, movement, copy, and handoff without treating a body, control unit, avatar, container,
-vessel, or runtime as the identity that occupies it.
+the carrier that hosts it. The registry models carrier lifecycle, occupancy, control, movement,
+copy, and handoff without treating a carrier as the identity that occupies it.
 
-This is a domain-neutral service. Narrative projects may use it for bodies, personas, control
-units, copied minds, or simulated avatars. Other projects may use it for software processes and
-containers, agents and runtimes, virtual avatars, or carefully bounded medical identity/carrier
-records. Pack vocabulary supplies domain-facing labels; the registry owns only the common
-structure.
+This is a domain-neutral optional service. Pack vocabulary supplies domain-facing labels; the
+registry owns only the common structure. A project activates the service by selecting
+`hosting-foundation` and enabling `hosted-identity-embodiment`. Unrelated projects do not inherit
+hosting capability or vocabulary from `core`.
+
+## Pack Ownership
+
+| Pack | Ownership |
+| --- | --- |
+| `core` | No hosting capability or controlled values. It supplies only shared dependencies used by the optional service. |
+| `hosting-foundation` | The executable hosting capability, carrier/binding/occupancy/transition mechanics, lifecycle and occupancy roles, generic `installed-in`, `contained-in`, and `attached-to` bindings, and hosting provenance/reconciliation target vocabulary. |
+| `hosting-narrative` | Narrative embodiment vocabulary: `physical-body` and `vessel`. |
+| `hosting-simulation` | Simulation vocabulary: `control-unit`, `avatar`, and `projected-through`. |
+| `hosting-compute` | Compute vocabulary: `runtime`, `container`, `virtual-host`, and `executes-in`. |
+
+Narrative, simulation, compute, medical, legal, and other industry-facing terms must be absent
+unless their owning pack is selected. New industries extend `hosting-foundation`; they do not add
+their carrier labels to core or reinterpret the registry's identity semantics.
 
 ## Record Families
 
@@ -127,6 +139,12 @@ membership, carrier/binding/occupancy interval containment, transition-kind rule
 target resolution, semantic duplicate and cycle rejection, deterministic direct/transitive
 queries, provenance targets,
 reconciliation-provider shape, and bounded scale.
+
+An empty schema-2 registry is valid when `hosted-identity-embodiment` is disabled. In that state
+the loader returns an explicitly disabled registry and exposes no hosting provenance or
+reconciliation providers. Any carrier, binding, occupancy, or transition record fails closed until
+the capability is enabled. This permits one common project manifest shape without silently
+activating hosting in projects that do not select it.
 
 Portable fixtures live under `Framework/Data/Hosting/`. Run
 `python Tools/Conformance/Suites/test_hosting.py` or

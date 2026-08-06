@@ -56,6 +56,123 @@ class FixtureProvider:
         return self.relationships[target_type][target_id]
 
 
+PACK_PATHS = {
+    "core": "Framework/Packs/core/pack.yaml",
+    "hosting-foundation": "Framework/Packs/hosting-foundation/pack.yaml",
+    "narrative-media": "Framework/Packs/narrative-media/pack.yaml",
+    "hosting-narrative": "Framework/Packs/hosting-narrative/pack.yaml",
+    "hosting-simulation": "Framework/Packs/hosting-simulation/pack.yaml",
+    "hosting-compute": "Framework/Packs/hosting-compute/pack.yaml",
+}
+
+
+def load_pack_variant(project, path: Path, selected: tuple[str, ...], enabled: tuple[str, ...]):
+    document = {
+        "schema_version": 2,
+        "selected_packs": [{"pack_id": pack_id, "path": PACK_PATHS[pack_id]} for pack_id in selected],
+        "capability_activation": {"default": "disabled", "enabled": list(enabled)},
+    }
+    path.write_text(json.dumps(document, indent=2) + "\n", encoding="utf-8")
+    return load_schema_pack_registry(replace(project, schema_packs_registry=path))
+
+
+def assert_pack_isolation(project, temp_root: Path):
+    variants = {
+        "core": {
+            "selected": ("core",),
+            "enabled": (),
+            "carriers": (),
+            "bindings": (),
+        },
+        "foundation": {
+            "selected": ("core", "hosting-foundation"),
+            "enabled": ("hosted-identity-embodiment",),
+            "carriers": (),
+            "bindings": ("installed-in", "contained-in", "attached-to"),
+        },
+        "narrative": {
+            "selected": ("core", "hosting-foundation", "narrative-media", "hosting-narrative"),
+            "enabled": ("hosted-identity-embodiment", "narrative-hosting-vocabulary"),
+            "carriers": ("physical-body", "vessel"),
+            "bindings": ("installed-in", "contained-in", "attached-to"),
+        },
+        "simulation": {
+            "selected": ("core", "hosting-foundation", "hosting-simulation"),
+            "enabled": ("hosted-identity-embodiment", "simulation-hosting-vocabulary"),
+            "carriers": ("control-unit", "avatar"),
+            "bindings": ("installed-in", "contained-in", "attached-to", "projected-through"),
+        },
+        "compute": {
+            "selected": ("core", "hosting-foundation", "hosting-compute"),
+            "enabled": ("hosted-identity-embodiment", "compute-hosting-vocabulary"),
+            "carriers": ("runtime", "container", "virtual-host"),
+            "bindings": ("installed-in", "contained-in", "attached-to", "executes-in"),
+        },
+        "combined": {
+            "selected": (
+                "core",
+                "hosting-foundation",
+                "narrative-media",
+                "hosting-narrative",
+                "hosting-simulation",
+                "hosting-compute",
+            ),
+            "enabled": (
+                "hosted-identity-embodiment",
+                "narrative-hosting-vocabulary",
+                "simulation-hosting-vocabulary",
+                "compute-hosting-vocabulary",
+            ),
+            "carriers": (
+                "physical-body",
+                "vessel",
+                "control-unit",
+                "avatar",
+                "runtime",
+                "container",
+                "virtual-host",
+            ),
+            "bindings": (
+                "installed-in",
+                "contained-in",
+                "attached-to",
+                "projected-through",
+                "executes-in",
+            ),
+        },
+    }
+    loaded = {}
+    for variant_id, expected in variants.items():
+        packs = load_pack_variant(
+            project,
+            temp_root / f"packs-{variant_id}.json",
+            expected["selected"],
+            expected["enabled"],
+        )
+        if packs.allowed_values("hosting.carrier-kind") != expected["carriers"]:
+            raise AssertionError(f"Hosting carrier vocabulary leaked in `{variant_id}` composition.")
+        if packs.allowed_values("hosting.binding-kind") != expected["bindings"]:
+            raise AssertionError(f"Hosting binding vocabulary leaked in `{variant_id}` composition.")
+        expected_hosting = variant_id != "core"
+        if packs.capability_enabled("hosted-identity-embodiment") != expected_hosting:
+            raise AssertionError(f"Hosted identity capability activation changed in `{variant_id}` composition.")
+        loaded[variant_id] = packs
+    return loaded
+
+
+def load_combined_fixture_packs(project, path: Path):
+    document = load_yaml_file(project.schema_packs_registry, "schema-pack registry", expected_schema_version=2)
+    document["selected_packs"].extend(
+        [
+            {"pack_id": "hosting-simulation", "path": PACK_PATHS["hosting-simulation"]},
+            {"pack_id": "hosting-compute", "path": PACK_PATHS["hosting-compute"]},
+        ]
+    )
+    document["capability_activation"]["enabled"].extend(["simulation-hosting-vocabulary", "compute-hosting-vocabulary"])
+    path.write_text(json.dumps(document, indent=2) + "\n", encoding="utf-8")
+    return load_schema_pack_registry(replace(project, schema_packs_registry=path))
+
+
 def set_path(data: object, path: list[object], value: object, operation: str) -> None:
     current = data
     for part in path[:-1]:
@@ -307,11 +424,15 @@ def main() -> int:
     base = json.loads((fixture_root / "base" / "registry.json").read_text(encoding="utf-8"))
     expectations = json.loads((fixture_root / "expectations.json").read_text(encoding="utf-8"))
     project = load_project_config(root)
-    packs = load_schema_pack_registry(project)
-    occurrences = fixture_occurrences(root, packs)
     provider = FixtureProvider()
 
     with tempfile.TemporaryDirectory(prefix="hosting-conformance-") as temporary:
+        temp_root = Path(temporary)
+        pack_variants = assert_pack_isolation(project, temp_root)
+        if len(pack_variants) != expectations["pack_compositions"]:
+            raise AssertionError("Hosted identity pack-composition count changed.")
+        packs = load_combined_fixture_packs(project, temp_root / "packs-fixture.json")
+        occurrences = fixture_occurrences(root, packs)
         path = Path(temporary) / "registry.json"
         path.write_text(json.dumps(base, indent=2) + "\n", encoding="utf-8")
         registry = load_fixture(project, packs, occurrences, provider, path)
@@ -355,6 +476,16 @@ def main() -> int:
         )
         invalid_configurations += 1
 
+        empty = {"schema_version": 2, "carriers": {}, "bindings": [], "occupancies": [], "transitions": []}
+        path.write_text(json.dumps(empty, indent=2) + "\n", encoding="utf-8")
+        disabled_registry = load_fixture(project, pack_variants["core"], occurrences, provider, path)
+        if (
+            disabled_registry.enabled
+            or disabled_registry.provenance_targets()
+            or disabled_registry.reconciliation_targets()
+        ):
+            raise AssertionError("Disabled empty hosting registry exposed active providers.")
+
         duplicate_provider = FixtureProvider()
         expect_rejected(
             lambda: load_hosted_identity_registry(
@@ -373,6 +504,7 @@ def main() -> int:
         "service_assertions": service_assertions,
         "invalid_configurations": invalid_configurations,
         "invalid_queries": invalid_queries,
+        "pack_compositions": len(pack_variants),
         "scale_carriers": scale_carriers,
         "scale_occupancies": scale_occupancies,
         "scale_bindings": scale_bindings,

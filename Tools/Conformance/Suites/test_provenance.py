@@ -389,6 +389,26 @@ def main() -> int:
         hosting_document = json.loads(
             (root / "Framework" / "Data" / "Hosting" / "base" / "registry.json").read_text(encoding="utf-8")
         )
+        hosting_document["carriers"] = {
+            "vessel-a": {
+                **hosting_document["carriers"]["body-a"],
+                "carrier_kind": "vessel",
+                "label": "Vessel A",
+            },
+            "body-b": hosting_document["carriers"]["body-b"],
+        }
+        hosting_document["bindings"] = [
+            {
+                "id": "vessel-body-b",
+                "child_carrier_id": "vessel-a",
+                "parent_carrier_id": "body-b",
+                "binding_kind": "installed-in",
+                "child_activated_at_entry_id": "protagonist-entry-01",
+                "parent_activated_at_entry_id": "protagonist-entry-01",
+                "child_terminated_at_entry_id": "protagonist-entry-10",
+                "parent_terminated_at_entry_id": "protagonist-entry-10",
+            }
+        ]
         hosting_document["occupancies"] = []
         hosting_document["transitions"] = []
         hosting_path = temp_root / "hosting.json"
@@ -450,9 +470,9 @@ def main() -> int:
         binding_assertion.update(
             {
                 "id": "carrier-binding-kind-support",
-                "claim_key": "control-unit-body-b-binding-kind",
+                "claim_key": "vessel-body-b-binding-kind",
                 "subject_type": "host-carrier-binding",
-                "subject_id": "control-unit-body-b",
+                "subject_id": "vessel-body-b",
                 "claim_namespace": "canonical-content",
                 "field_path": "binding_kind",
                 "asserted_value": "installed-in",
@@ -479,7 +499,7 @@ def main() -> int:
             != "Candidate Structure"
         ):
             raise AssertionError("Structural interpretation provenance dispatch returned the wrong target.")
-        binding_target = registry.provenance_target("host-carrier-binding", "control-unit-body-b")
+        binding_target = registry.provenance_target("host-carrier-binding", "vessel-body-b")
         if binding_target.binding_kind != "installed-in":
             raise AssertionError("Host-carrier-binding provenance dispatch returned the wrong target.")
         assert_counts(registry, expectations["valid_counts"])

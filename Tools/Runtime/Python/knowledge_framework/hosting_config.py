@@ -77,6 +77,7 @@ class ReachableHostedIdentityOccupancy:
 class HostedIdentityRegistry:
     path: Path
     schema_version: int
+    enabled: bool
     carriers: dict[str, HostCarrier]
     occupancies: dict[str, HostedIdentityOccupancy]
     transitions: dict[str, HostedIdentityTransition]
@@ -186,6 +187,8 @@ class HostedIdentityRegistry:
         )
 
     def provenance_targets(self) -> dict[str, dict[str, object]]:
+        if not self.enabled:
+            return {}
         return {
             "host-carrier": self.carriers,
             "hosted-identity-occupancy": self.occupancies,
@@ -200,10 +203,13 @@ class HostedIdentityRegistry:
         return self._known(targets, subject_id, subject_type)
 
     def reconciliation_targets(self) -> dict[str, dict[str, object]]:
+        if not self.enabled:
+            return {}
         return {"host-carrier": self.carriers}
 
     def reconciliation_provider(self) -> dict[str, object]:
-        return {"provider_id": "hosting", "targets": self.reconciliation_targets(), "aliases": {"host-carrier": {}}}
+        aliases = {"host-carrier": {}} if self.enabled else {}
+        return {"provider_id": "hosting", "targets": self.reconciliation_targets(), "aliases": aliases}
 
     def _entry_index(self, track_id: str, entry_id: str) -> int:
         track = self._known(self.occurrences.tracks, track_id, "occurrence track")
@@ -355,9 +361,6 @@ def load_hosted_identity_registry(
     occurrences: OccurrenceRegistry,
     identity_providers: tuple[object, ...],
 ) -> HostedIdentityRegistry:
-    if not packs.capability_enabled("hosted-identity-embodiment"):
-        raise ValueError("Hosted identity registry requires enabled capability `hosted-identity-embodiment`.")
-
     data = load_yaml_file(
         project.hosting_registry,
         "hosted identity registry",
@@ -370,11 +373,30 @@ def load_hosted_identity_registry(
         "Hosted identity registry root",
     )
 
+    carrier_rows = _mapping(root.get("carriers"), "carriers")
+    binding_rows = _list(root.get("bindings"), "bindings")
+    occupancy_rows = _list(root.get("occupancies"), "occupancies")
+    transition_rows = _list(root.get("transitions"), "transitions")
+    enabled = packs.capability_enabled("hosted-identity-embodiment")
+    if not enabled:
+        if carrier_rows or binding_rows or occupancy_rows or transition_rows:
+            raise ValueError("Hosted identity records require enabled capability `hosted-identity-embodiment`.")
+        return HostedIdentityRegistry(
+            project.hosting_registry,
+            SUPPORTED_SCHEMA_VERSION,
+            False,
+            {},
+            {},
+            {},
+            {},
+            occurrences,
+        )
+
     identity_targets = _provider_maps(identity_providers, "identity_targets", "identity-target")
     provenance_targets = _provider_maps(identity_providers, "provenance_targets", "relationship-target")
 
     carriers: dict[str, HostCarrier] = {}
-    for carrier_id, raw in _mapping(root.get("carriers"), "carriers").items():
+    for carrier_id, raw in carrier_rows.items():
         _stable(carrier_id, f"carriers.{carrier_id}")
         context = f"carriers.{carrier_id}"
         item = _mapping(raw, context)
@@ -412,7 +434,7 @@ def load_hosted_identity_registry(
 
     bindings: dict[str, HostCarrierBinding] = {}
     semantic_bindings: set[tuple[str, str, str, int, int, int | None, int | None]] = set()
-    for index, raw in enumerate(_list(root.get("bindings"), "bindings")):
+    for index, raw in enumerate(binding_rows):
         context = f"bindings[{index}]"
         item = _mapping(raw, context)
         assert_allowed_keys(
@@ -535,7 +557,7 @@ def load_hosted_identity_registry(
 
     occupancies: dict[str, HostedIdentityOccupancy] = {}
     semantic_occupancies: set[tuple[str, str, str, str, int, int | None]] = set()
-    for index, raw in enumerate(_list(root.get("occupancies"), "occupancies")):
+    for index, raw in enumerate(occupancy_rows):
         context = f"occupancies[{index}]"
         item = _mapping(raw, context)
         assert_allowed_keys(
@@ -601,7 +623,7 @@ def load_hosted_identity_registry(
 
     transitions: dict[str, HostedIdentityTransition] = {}
     semantic_transitions: set[tuple[str, str, str, str]] = set()
-    for index, raw in enumerate(_list(root.get("transitions"), "transitions")):
+    for index, raw in enumerate(transition_rows):
         context = f"transitions[{index}]"
         item = _mapping(raw, context)
         assert_allowed_keys(
@@ -713,6 +735,7 @@ def load_hosted_identity_registry(
     return HostedIdentityRegistry(
         project.hosting_registry,
         SUPPORTED_SCHEMA_VERSION,
+        True,
         carriers,
         occupancies,
         transitions,

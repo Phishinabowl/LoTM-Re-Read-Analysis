@@ -139,15 +139,23 @@ schema 2 and core pack version 39. Carrier bindings add pack-typed, occurrence-b
 topology plus deterministic direct, transitive, and reachable-occupancy queries without adding a
 project registry, LoTM vocabulary, or new extraction dependency.
 
+The V49 implementation rehearsal on 2026-08-06 copied 228 portable files after adding four
+optional hosting packs. Its six-suite smoke profile passed with matching summaries in Python,
+PowerShell 7, and Windows PowerShell 5.1, and all nine guarded project surfaces remained absent.
+Core pack version 40 no longer activates hosting or exports hosting vocabulary. The extracted
+kernel instead carries a selectable domain-neutral foundation plus narrative, simulation, and
+compute vocabulary extensions. A neutral core-only consumer selects none of them and remains
+valid, proving that the added files do not add an activation or project dependency.
+
 ## Known Limits And Next Boundaries
 
 Extraction readiness does not close these known items:
 
 - Recurrence, participation identity, participant-relative chronology selection, exact entry-relative
   state boundaries, branch lifecycle, chronology topology, epistemic state, capability state,
-  structural interpretations, hosted identity, and nested carrier topology are implemented through
-  V48. Phase 1.14 must reconcile hosting capability and vocabulary ownership before the composed
-  V39-V49 Phase 1.15 stabilization replay.
+  structural interpretations, hosted identity, nested carrier topology, and optional hosting-pack
+  isolation are implemented through V49. Phase 1.15 must complete the composed V39-V49
+  stabilization replay.
 - QA graph construction has not yet been fully migrated into one reusable Visualization engine.
 - A normalized content index and generalized bounded-page machinery are not yet complete across
   content types.
