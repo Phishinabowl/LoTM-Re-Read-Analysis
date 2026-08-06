@@ -38,7 +38,7 @@ A consuming project owns and must supply:
 
 - `Project_Config/project.yaml` and its selected-pack composition;
 - project taxonomy, resources, sources, entities, reconciliation, chronology, occurrence,
-  structural-interpretation, and provenance instances as applicable;
+  hosted-identity, structural-interpretation, and provenance instances as applicable;
 - project extension packs and local controlled vocabulary;
 - canonical content, evidence, source material, and promoted assets;
 - project graph presets, presentation overrides, and generated-output destinations.
@@ -126,13 +126,20 @@ The portable kernel now includes the schema-10 occurrence runtime and core pack 
 the intentionally small extraction smoke profile remains independent of project-specific occurrence
 fixtures.
 
+The V47 implementation rehearsal on 2026-08-05 copied 224 portable files with the same six-suite,
+three-runtime semantic parity and all guarded project surfaces absent. The portable kernel now
+includes hosted-identity schema 1, manifest schema 11, and core pack version 38. Carrier,
+occupancy, and hosting-transition semantics remain domain-neutral and do not copy the empty LoTM
+hosting registry into the neutral extraction consumer.
+
 ## Known Limits And Next Boundaries
 
 Extraction readiness does not close these known items:
 
 - Recurrence, participation identity, participant-relative chronology selection, exact entry-relative
-  state boundaries, branch lifecycle, chronology topology, epistemic state, capability state, and
-  structural interpretations are portable through V46. Hosted identity remains V47 work.
+  state boundaries, branch lifecycle, chronology topology, epistemic state, capability state,
+  structural interpretations, and hosted identity are portable through V47. V47 pressure testing
+  and the composed Phase 1.13 stabilization replay remain open.
 - QA graph construction has not yet been fully migrated into one reusable Visualization engine.
 - A normalized content index and generalized bounded-page machinery are not yet complete across
   content types.

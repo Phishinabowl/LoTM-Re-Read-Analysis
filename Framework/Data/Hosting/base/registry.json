@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "carriers": {
+    "body-a": {
+      "lifecycle": "active",
+      "carrier_kind": "physical-body",
+      "label": "Body A",
+      "lifecycle_track_id": "protagonist-experience",
+      "activated_at_entry_id": "protagonist-entry-01",
+      "terminated_at_entry_id": "protagonist-entry-14"
+    },
+    "body-b": {
+      "lifecycle": "active",
+      "carrier_kind": "physical-body",
+      "label": "Body B",
+      "lifecycle_track_id": "protagonist-experience",
+      "activated_at_entry_id": "protagonist-entry-01",
+      "terminated_at_entry_id": null
+    },
+    "runtime-a": {
+      "lifecycle": "active",
+      "carrier_kind": "runtime",
+      "label": "Runtime A",
+      "lifecycle_track_id": "protagonist-experience",
+      "activated_at_entry_id": "protagonist-entry-01",
+      "terminated_at_entry_id": null
+    }
+  },
+  "occupancies": [
+    {
+      "id": "alpha-controller",
+      "subject_type": "entity",
+      "subject_id": "alpha",
+      "carrier_id": "body-a",
+      "role": "controlling",
+      "activated_at_entry_id": "protagonist-entry-01",
+      "terminated_at_entry_id": "protagonist-entry-05"
+    },
+    {
+      "id": "beta-controller",
+      "subject_type": "identity-phase",
+      "subject_id": "beta-phase",
+      "carrier_id": "body-a",
+      "role": "controlling",
+      "activated_at_entry_id": "protagonist-entry-05",
+      "terminated_at_entry_id": "protagonist-entry-10"
+    },
+    {
+      "id": "gamma-body-a",
+      "subject_type": "entity-incarnation",
+      "subject_id": "gamma-incarnation",
+      "carrier_id": "body-a",
+      "role": "active",
+      "activated_at_entry_id": "protagonist-entry-01",
+      "terminated_at_entry_id": "protagonist-entry-10"
+    },
+    {
+      "id": "gamma-body-b",
+      "subject_type": "entity-incarnation",
+      "subject_id": "gamma-incarnation",
+      "carrier_id": "body-b",
+      "role": "active",
+      "activated_at_entry_id": "protagonist-entry-10",
+      "terminated_at_entry_id": null
+    },
+    {
+      "id": "alpha-runtime-source",
+      "subject_type": "entity",
+      "subject_id": "alpha",
+      "carrier_id": "runtime-a",
+      "role": "active",
+      "activated_at_entry_id": "protagonist-entry-01",
+      "terminated_at_entry_id": null
+    },
+    {
+      "id": "beta-copy-body-b",
+      "subject_type": "entity",
+      "subject_id": "beta",
+      "carrier_id": "body-b",
+      "role": "co-resident",
+      "activated_at_entry_id": "protagonist-entry-10",
+      "terminated_at_entry_id": null
+    }
+  ],
+  "transitions": [
+    {
+      "id": "controller-handoff",
+      "transition_kind": "control-handoff",
+      "source_occupancy_id": "alpha-controller",
+      "target_occupancy_id": "beta-controller",
+      "occurrence_id": "bell-two",
+      "source_entry_id": "protagonist-entry-05",
+      "target_entry_id": "protagonist-entry-05",
+      "identity_relationship_type": null,
+      "identity_relationship_id": null
+    },
+    {
+      "id": "gamma-move",
+      "transition_kind": "move",
+      "source_occupancy_id": "gamma-body-a",
+      "target_occupancy_id": "gamma-body-b",
+      "occurrence_id": "escape-three",
+      "source_entry_id": "protagonist-entry-10",
+      "target_entry_id": "protagonist-entry-10",
+      "identity_relationship_type": null,
+      "identity_relationship_id": null
+    },
+    {
+      "id": "alpha-copy-to-beta",
+      "transition_kind": "copy",
+      "source_occupancy_id": "alpha-runtime-source",
+      "target_occupancy_id": "beta-copy-body-b",
+      "occurrence_id": "escape-three",
+      "source_entry_id": "protagonist-entry-10",
+      "target_entry_id": "protagonist-entry-10",
+      "identity_relationship_type": "entity-relationship",
+      "identity_relationship_id": "beta-derived-from-alpha"
+    }
+  ]
+}

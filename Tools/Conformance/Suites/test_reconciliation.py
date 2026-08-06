@@ -13,6 +13,9 @@ if str(RUNTIME_ROOT) not in sys.path:
     sys.path.insert(0, str(RUNTIME_ROOT))
 
 from knowledge_framework.entity_config import load_entity_registry
+from knowledge_framework.chronology_config import load_chronology_registry
+from knowledge_framework.hosting_config import load_hosted_identity_registry
+from knowledge_framework.occurrence_config import load_occurrence_registry
 from knowledge_framework.project_config import load_project_config, resolve_project_root
 from knowledge_framework.reconciliation_config import load_reconciliation_registry
 from knowledge_framework.resource_config import load_resource_config
@@ -34,13 +37,22 @@ def build_context(root: Path):
     taxonomy = load_taxonomy_config(project)
     resources = load_resource_config(project)
     sources = load_source_registry(project, resources, packs)
+    chronology = load_chronology_registry(
+        project,
+        packs,
+        work_ids=set(sources.works),
+        continuity_ids=set(sources.continuities),
+    )
     entities = load_entity_registry(project, taxonomy, sources, packs)
+    occurrences = load_occurrence_registry(project, packs, chronology)
+    hosting = load_hosted_identity_registry(project, packs, occurrences, (entities,))
     providers = []
     for provider in (
         taxonomy.reconciliation_provider(),
         resources.reconciliation_provider(),
         sources.reconciliation_provider(),
         entities.reconciliation_provider(),
+        hosting.reconciliation_provider(),
     ):
         providers.append(
             {

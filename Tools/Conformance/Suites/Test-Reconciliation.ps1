@@ -17,12 +17,24 @@ $packs = Get-KnowledgeSchemaPackRegistry $project
 $taxonomy = Get-KnowledgeTaxonomyConfig $project
 $resources = Get-KnowledgeResourceConfig $project
 $sources = Get-KnowledgeSourceRegistry $project $resources $packs
+$chronology = Get-KnowledgeChronologyRegistry `
+    $project `
+    $packs `
+@($sources.works.Keys) `
+@($sources.continuities.Keys)
 $entities = Get-KnowledgeEntityRegistry $project $taxonomy $sources $packs
+$occurrences = Get-KnowledgeOccurrenceRegistry $project $packs $chronology
+$hosting = Get-KnowledgeHostedIdentityRegistry `
+    $project `
+    $packs `
+    $occurrences `
+@((New-KnowledgeHostingEntityProvider $entities))
 $providers = @(
     (Get-KnowledgeTaxonomyReconciliationProvider $taxonomy),
     (Get-KnowledgeResourceReconciliationProvider $resources),
     (Get-KnowledgeSourceReconciliationProvider $sources),
-    (Get-KnowledgeEntityReconciliationProvider $entities)
+    (Get-KnowledgeEntityReconciliationProvider $entities),
+    (Get-KnowledgeHostingReconciliationProvider $hosting)
 )
 $providers[0].targets["category"]["current-category"] = [pscustomobject]@{id = "current-category" }
 $providers[0].targets["category"]["history-source"] = [pscustomobject]@{id = "history-source" }

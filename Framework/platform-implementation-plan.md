@@ -249,15 +249,15 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 ### Phase 1.12 V47 Hosted Identity And Embodiment
 
-- [ ] Separate a stable identity-bearing subject from the physical or virtual carrier, body,
+- [x] Separate a stable identity-bearing subject from the physical or virtual carrier, body,
   control unit, avatar, or runtime that hosts it.
-- [ ] Define provenance-addressable occupancy and control records with explicit activation and
+- [x] Define provenance-addressable occupancy and control records with explicit activation and
   termination boundaries plus pack-owned roles such as active, dormant, co-resident, or controlling.
-- [ ] Permit multiple identities or personas to occupy one carrier and one identity to move or copy
+- [x] Permit multiple identities or personas to occupy one carrier and one identity to move or copy
   across carriers without silently asserting identity continuity, equivalence, or replacement.
-- [ ] Reuse entity incarnation, identity phase, cloning, derivation, reconciliation, occurrence, and
+- [x] Reuse entity incarnation, identity phase, cloning, derivation, reconciliation, occurrence, and
   state services instead of duplicating their ownership inside the hosting contract.
-- [ ] Preserve carrier lifecycle independently from hosted-identity lifecycle and make current
+- [x] Preserve carrier lifecycle independently from hosted-identity lifecycle and make current
   occupant/controller queries deterministic at an explicit boundary.
 - [ ] Replay Westworld's Dolores/Wyatt states, pearls, Host bodies, copied Dolores identities, and
   divergence; retain the continuity/identity scenario as a regression against collapsing hosting

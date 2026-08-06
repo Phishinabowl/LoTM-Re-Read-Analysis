@@ -25,6 +25,7 @@
       "chronology",
       "reconciliation",
       "occurrence",
+      "hosting",
       "interpretation",
       "project-composition"
     ]
@@ -107,6 +108,12 @@
       "python": "Tools/Conformance/Suites/test_occurrence.py",
       "powershell": "Tools/Conformance/Suites/Test-Occurrence.ps1",
       "tags": ["baseline", "recurrence", "state"]
+    },
+    {
+      "id": "hosting",
+      "python": "Tools/Conformance/Suites/test_hosting.py",
+      "powershell": "Tools/Conformance/Suites/Test-Hosting.ps1",
+      "tags": ["baseline", "identity", "state", "hosting"]
     },
     {
       "id": "interpretation",

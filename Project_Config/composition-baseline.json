@@ -8,7 +8,7 @@
     "resource_root_ids": ["framework", "artwork", "source", "tools", "project-config", "visualization", "qa-export", "testing", "temporary", "ux", "local-workspace", "obsidian-state"]
   },
   "schemas": {
-    "project": 10,
+    "project": 11,
     "lookup": 1,
     "packs": 2,
     "taxonomy": 2,
@@ -18,13 +18,14 @@
     "entities": 4,
     "occurrences": 10,
     "interpretations": 1,
+    "hosting": 1,
     "reconciliation": 4,
     "provenance": 3
   },
   "packs": {
     "selection_order": ["core", "narrative-media", "narrative-publishing", "narrative-screen-audio", "narrative-adaptation", "narrative-distribution", "narrative-production", "narrative-shared-universe"],
     "versions": {
-      "core": 37,
+      "core": 38,
       "narrative-media": 24,
       "narrative-publishing": 10,
       "narrative-screen-audio": 11,
@@ -33,12 +34,12 @@
       "narrative-production": 4,
       "narrative-shared-universe": 9
     },
-    "declared_capabilities": 131,
-    "available_capabilities": 122,
-    "enabled_capabilities": 122,
+    "declared_capabilities": 132,
+    "available_capabilities": 123,
+    "enabled_capabilities": 123,
     "disabled_capability_ids": ["contributor-credits", "crossover-events", "editorial-assembly", "live-performance-productions", "migration-services", "performance-events", "publication-runs", "rights-grants-and-restrictions", "textual-witnesses"],
-    "controlled_value_namespaces": 132,
-    "controlled_values": 1014,
+    "controlled_value_namespaces": 137,
+    "controlled_values": 1039,
     "semantic_declarations": {
       "transition_profiles": 9,
       "outcome_incompatibilities": 4,
@@ -98,19 +99,21 @@
     },
     "occurrences": {"branches": 1, "branch_state_transitions": 0, "templates": 0, "recurrence_patterns": 0, "recurrences": 0, "recurrence_cardinalities": 0, "iterations": 0, "phases": 0, "schedules": 0, "occurrences": 0, "occurrence_participations": 0, "participation_chronology_bindings": 0, "tracks": 0, "track_entries": 0, "transitions": 0, "causal_relations": 0, "outcomes": 0, "rules": 0, "state_scales": 0, "state_transitions": 0, "carryovers": 0},
     "interpretations": {"relation_types": 7, "interpretations": 0, "members": 0, "relations": 0, "comparison_sets": 0},
-    "reconciliation": {"target_types": 24, "records": 0, "aliases": 26},
+    "hosting": {"carriers": 0, "occupancies": 0, "transitions": 0},
+    "reconciliation": {"target_types": 25, "records": 0, "aliases": 26},
     "provenance": {"assertions": 0, "claim_supersessions": 0}
   },
   "providers": {
-    "reconciliation_target_types": 24,
+    "reconciliation_target_types": 25,
     "source_provenance_types": 27,
     "entity_provenance_types": 8,
     "reconciliation_provenance_types": 1,
     "chronology_provenance_types": 3,
     "occurrence_provenance_types": 22,
     "interpretation_provenance_types": 4,
-    "total_provenance_subject_types": 66
+    "hosting_provenance_types": 3,
+    "total_provenance_subject_types": 69
   },
   "composition_passes": 2,
-  "invalid_composition_cases": 13
+  "invalid_composition_cases": 14
 }

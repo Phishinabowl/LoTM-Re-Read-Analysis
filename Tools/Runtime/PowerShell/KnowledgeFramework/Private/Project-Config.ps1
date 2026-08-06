@@ -1,5 +1,5 @@
 $script:ProjectManifestPath = "Project_Config/project.yaml"
-$script:SupportedProjectSchemaVersion = 10
+$script:SupportedProjectSchemaVersion = 11
 $script:AllowedProvenanceModes = @("child-directory", "fixed", "slug-prefix")
 $script:StableProjectIdPattern = "^[a-z0-9]+(?:-[a-z0-9]+)*$"
 function Import-ProjectYamlModule {
@@ -177,6 +177,7 @@ function Get-KnowledgeProjectConfig {
         "chronology"
         "occurrences"
         "interpretations"
+        "hosting"
     )
     Assert-KnowledgeMapKeys $registries $registryKeys "Project manifest 'registries'"
 
@@ -217,5 +218,6 @@ function Get-KnowledgeProjectConfig {
         chronology_registry = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $registries "chronology" "registries") "registries.chronology" $true
         occurrences_registry = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $registries "occurrences" "registries") "registries.occurrences" $true
         interpretations_registry = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $registries "interpretations" "registries") "registries.interpretations" $true
+        hosting_registry = Resolve-ProjectManifestPath $RepoRoot (Get-RequiredProjectString $registries "hosting" "registries") "registries.hosting" $true
     }
 }

@@ -1,0 +1,41 @@
+{
+  "counts": {
+    "carriers": 3,
+    "occupancies": 6,
+    "transitions": 3,
+    "provenance_target_types": 3,
+    "reconciliation_target_types": 1
+  },
+  "invalid_queries": 7,
+  "invalid_cases": [
+    {"id": "bad-schema", "operations": [{"op": "set", "path": ["schema_version"], "value": 2}]},
+    {"id": "unknown-root-key", "operations": [{"op": "set", "path": ["extra"], "value": true}]},
+    {"id": "bad-carrier-id", "operations": [{"op": "set", "path": ["carriers", "Bad Carrier"], "value": {"lifecycle": "active", "carrier_kind": "runtime", "label": "Bad", "lifecycle_track_id": "protagonist-experience", "activated_at_entry_id": "protagonist-entry-01", "terminated_at_entry_id": null}}]},
+    {"id": "unknown-carrier-key", "operations": [{"op": "set", "path": ["carriers", "body-a", "extra"], "value": true}]},
+    {"id": "unknown-carrier-lifecycle", "operations": [{"op": "set", "path": ["carriers", "body-a", "lifecycle"], "value": "missing"}]},
+    {"id": "unknown-carrier-kind", "operations": [{"op": "set", "path": ["carriers", "body-a", "carrier_kind"], "value": "missing"}]},
+    {"id": "unknown-carrier-track", "operations": [{"op": "set", "path": ["carriers", "body-a", "lifecycle_track_id"], "value": "missing"}]},
+    {"id": "carrier-entry-wrong-track", "operations": [{"op": "set", "path": ["carriers", "body-a", "activated_at_entry_id"], "value": "observer-entry-01"}]},
+    {"id": "carrier-reversed-window", "operations": [{"op": "set", "path": ["carriers", "body-a", "terminated_at_entry_id"], "value": "protagonist-entry-01"}]},
+    {"id": "duplicate-occupancy-id", "operations": [{"op": "set", "path": ["occupancies", 1, "id"], "value": "alpha-controller"}]},
+    {"id": "unknown-occupancy-key", "operations": [{"op": "set", "path": ["occupancies", 0, "extra"], "value": true}]},
+    {"id": "unknown-subject-type", "operations": [{"op": "set", "path": ["occupancies", 0, "subject_type"], "value": "missing"}]},
+    {"id": "unknown-subject-id", "operations": [{"op": "set", "path": ["occupancies", 0, "subject_id"], "value": "missing"}]},
+    {"id": "unknown-carrier", "operations": [{"op": "set", "path": ["occupancies", 0, "carrier_id"], "value": "missing"}]},
+    {"id": "unknown-role", "operations": [{"op": "set", "path": ["occupancies", 0, "role"], "value": "missing"}]},
+    {"id": "occupancy-before-carrier", "operations": [{"op": "set", "path": ["carriers", "body-a", "activated_at_entry_id"], "value": "protagonist-entry-02"}]},
+    {"id": "occupancy-after-carrier", "operations": [{"op": "set", "path": ["occupancies", 1, "terminated_at_entry_id"], "value": null}]},
+    {"id": "occupancy-reversed-window", "operations": [{"op": "set", "path": ["occupancies", 0, "terminated_at_entry_id"], "value": "protagonist-entry-01"}]},
+    {"id": "duplicate-transition-id", "operations": [{"op": "set", "path": ["transitions", 1, "id"], "value": "controller-handoff"}]},
+    {"id": "unknown-transition-key", "operations": [{"op": "set", "path": ["transitions", 0, "extra"], "value": true}]},
+    {"id": "unknown-transition-kind", "operations": [{"op": "set", "path": ["transitions", 0, "transition_kind"], "value": "missing"}]},
+    {"id": "same-transition-endpoint", "operations": [{"op": "set", "path": ["transitions", 0, "target_occupancy_id"], "value": "alpha-controller"}]},
+    {"id": "unknown-transition-occurrence", "operations": [{"op": "set", "path": ["transitions", 0, "occurrence_id"], "value": "missing"}]},
+    {"id": "transition-entry-occurrence-mismatch", "operations": [{"op": "set", "path": ["transitions", 0, "occurrence_id"], "value": "escape-three"}]},
+    {"id": "move-changes-subject", "operations": [{"op": "set", "path": ["transitions", 1, "target_occupancy_id"], "value": "beta-copy-body-b"}]},
+    {"id": "copy-missing-relationship", "operations": [{"op": "set", "path": ["transitions", 2, "identity_relationship_type"], "value": null}, {"op": "set", "path": ["transitions", 2, "identity_relationship_id"], "value": null}]},
+    {"id": "copy-unknown-relationship", "operations": [{"op": "set", "path": ["transitions", 2, "identity_relationship_id"], "value": "missing"}]},
+    {"id": "handoff-crosses-carriers", "operations": [{"op": "set", "path": ["transitions", 0, "target_occupancy_id"], "value": "gamma-body-b"}]},
+    {"id": "semantic-duplicate-transition", "operations": [{"op": "append", "path": ["transitions"], "value": {"id": "duplicate-move", "transition_kind": "move", "source_occupancy_id": "gamma-body-a", "target_occupancy_id": "gamma-body-b", "occurrence_id": "escape-three", "source_entry_id": "protagonist-entry-10", "target_entry_id": "protagonist-entry-10", "identity_relationship_type": null, "identity_relationship_id": null}}]}
+  ]
+}

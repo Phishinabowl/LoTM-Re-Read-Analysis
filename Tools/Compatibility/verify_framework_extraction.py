@@ -92,7 +92,7 @@ def write_neutral_consumer(target_root: Path) -> None:
 
     write_text(
         target_root / "Project_Config/project.yaml",
-        """schema_version: 10
+        """schema_version: 11
 project_id: extraction-smoke
 framework: knowledge-model
 domain: neutral
@@ -135,6 +135,7 @@ registries:
   chronology: Project_Config/chronology.yaml
   occurrences: Project_Config/occurrences.yaml
   interpretations: Project_Config/interpretations.yaml
+  hosting: Project_Config/hosting.yaml
 """,
     )
     write_text(
@@ -159,6 +160,7 @@ capability_activation:
         "chronology",
         "occurrences",
         "interpretations",
+        "hosting",
     ):
         write_text(target_root / f"Project_Config/{name}.yaml", "schema_version: 1\n")
 

@@ -55,6 +55,10 @@ function Get-KnowledgeProvenanceTarget {
             $SubjectType `
             $SubjectId
     }
+    $hostingTargets = Get-KnowledgeHostingProvenanceTargets $ProvenanceRegistry.hosting
+    if ($hostingTargets.Contains($SubjectType)) {
+        return Get-KnowledgeHostingProvenanceTarget $ProvenanceRegistry.hosting $SubjectType $SubjectId
+    }
     throw "Unsupported provenance subject type '$SubjectType'."
 }
 
@@ -182,7 +186,8 @@ function Get-KnowledgeProvenanceRegistry {
         [object]$ReconciliationRegistry,
         [object]$SchemaPackRegistry,
         [object]$OccurrenceRegistry = $null,
-        [object]$InterpretationRegistry = $null
+        [object]$InterpretationRegistry = $null,
+        [object]$HostingRegistry = $null
     )
     if ($null -eq $SchemaPackRegistry) {
         $SchemaPackRegistry = Get-KnowledgeSchemaPackRegistry $ProjectConfig
@@ -194,13 +199,22 @@ function Get-KnowledgeProvenanceRegistry {
     else {
         $chronology = $OccurrenceRegistry.chronology
     }
+    if ($null -eq $HostingRegistry) {
+        $identityProvider = New-KnowledgeHostingEntityProvider $EntityRegistry
+        $HostingRegistry = Get-KnowledgeHostedIdentityRegistry `
+            $ProjectConfig `
+            $SchemaPackRegistry `
+            $OccurrenceRegistry `
+        @($identityProvider)
+    }
     if ($null -eq $InterpretationRegistry) {
         $targetProviders = Get-KnowledgeInterpretationProjectTargetProviders `
             $SourceRegistry `
             $EntityRegistry `
             $ReconciliationRegistry `
             $chronology `
-            $OccurrenceRegistry
+            $OccurrenceRegistry `
+            $HostingRegistry
         $InterpretationRegistry = Get-KnowledgeInterpretationRegistry `
             $ProjectConfig `
             $SchemaPackRegistry `
@@ -224,13 +238,15 @@ function Get-KnowledgeProvenanceRegistry {
     $interpretationSubjectTypes = @(
         (Get-KnowledgeInterpretationProvenanceTargets $InterpretationRegistry).Keys
     )
+    $hostingSubjectTypes = @((Get-KnowledgeHostingProvenanceTargets $HostingRegistry).Keys)
     $allProviderTypes = @(
         $sourceSubjectTypes +
         $entitySubjectTypes +
         $reconciliationSubjectTypes +
         $chronologySubjectTypes +
         $occurrenceSubjectTypes +
-        $interpretationSubjectTypes
+        $interpretationSubjectTypes +
+        $hostingSubjectTypes
     )
     $duplicates = @($allProviderTypes | Group-Object | Where-Object Count -gt 1 | ForEach-Object Name)
     if ($duplicates.Count -gt 0) {
@@ -243,6 +259,7 @@ function Get-KnowledgeProvenanceRegistry {
         $chronologySubjectTypes +
         $occurrenceSubjectTypes +
         $interpretationSubjectTypes +
+        $hostingSubjectTypes +
         @("claim-supersession") |
             Sort-Object -Unique
     )
@@ -317,6 +334,7 @@ function Get-KnowledgeProvenanceRegistry {
         chronology=$chronology
         occurrences=$OccurrenceRegistry
         interpretations=$InterpretationRegistry
+        hosting=$HostingRegistry
         claim_supersessions=@($supersessions)
     }
     for ($i = 0; $i -lt $rawAssertions.Count; $i++) {
@@ -479,6 +497,7 @@ function Get-KnowledgeProvenanceRegistry {
         chronology=$chronology
         occurrences=$OccurrenceRegistry
         interpretations=$InterpretationRegistry
+        hosting=$HostingRegistry
     }
 }
 

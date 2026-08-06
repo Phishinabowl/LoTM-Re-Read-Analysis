@@ -73,7 +73,7 @@ Tools/
 
 `Visualization/` remains a separate subsystem because it owns graph semantics, projections, rendering, and graph-specific configuration rather than general command support. Framework fixtures remain under `Framework/Data/`; project configuration remains under `Project_Config/`.
 
-The Python runtime is a real `knowledge_framework` package. Its module names remain descriptive and domain-neutral, including `project_paths`, `strict_yaml`, `project_config`, `lookup_key_config`, `schema_pack_config`, `taxonomy_config`, `resource_config`, `temporal_config`, `source_config`, `chronology_config`, `entity_config`, `reconciliation_config`, `occurrence_config`, and `provenance_config`. Commands bootstrap the repository package root and import these modules by package-qualified name; they do not add a flat script directory to `sys.path` or import sibling command files.
+The Python runtime is a real `knowledge_framework` package. Its module names remain descriptive and domain-neutral, including `project_paths`, `strict_yaml`, `project_config`, `lookup_key_config`, `schema_pack_config`, `taxonomy_config`, `resource_config`, `temporal_config`, `source_config`, `chronology_config`, `entity_config`, `reconciliation_config`, `occurrence_config`, `hosting_config`, and `provenance_config`. Commands bootstrap the repository package root and import these modules by package-qualified name; they do not add a flat script directory to `sys.path` or import sibling command files.
 
 The package and PowerShell module preserve this dependency direction:
 
@@ -94,8 +94,10 @@ entity_config -> lookup_key_config, project_config, schema_pack_config,
 reconciliation_config -> project_config, schema_pack_config, strict_yaml
 occurrence_config -> chronology_config, project_config, schema_pack_config,
                      strict_yaml, temporal_config
+hosting_config -> occurrence_config, project_config, schema_pack_config, strict_yaml
 interpretation_config -> project_config, schema_pack_config, strict_yaml
-provenance_config -> chronology_config, entity_config, interpretation_config, occurrence_config,
+provenance_config -> chronology_config, entity_config, hosting_config, interpretation_config,
+                     occurrence_config,
                      project_config, reconciliation_config, schema_pack_config,
                      source_config, strict_yaml, temporal_config
 ```
@@ -263,13 +265,19 @@ The resource registry says where source material lives and how that storage is g
 
 ### Stable-ID Reconciliation
 
-`Project_Config/reconciliation.yaml` schema version 4 owns auditable redirects, merges, splits, retirements, reclassifications, and tombstones across stable-record providers. `Tools/Runtime/Python/knowledge_framework/reconciliation_config.py` and `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` compose exact pack-controlled providers from taxonomy, resources, sources, and entities; validate closed record shapes, provider alias ownership, source existence, operation/reason compatibility, operation cardinality, same-type behavior except explicit reclassification, redirect-only compatibility for present sources, tombstone-backed active retirement, privacy-aware source-label retention, strict audit timestamps, historical supersession, terminal targets, and acyclic active resolution. Memoized iterative resolution returns canonical, redirected, ambiguous, or retired outcomes with both convenience summaries and branch-specific traversal provenance, subject to project-owned record, target-fan-out, branch, and traversal-step safety bounds. Reconciliation records are themselves provenance-addressable.
+`Project_Config/reconciliation.yaml` schema version 4 owns auditable redirects, merges, splits, retirements, reclassifications, and tombstones across stable-record providers. `Tools/Runtime/Python/knowledge_framework/reconciliation_config.py` and `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` compose exact pack-controlled providers from taxonomy, resources, sources, entities, and host carriers; validate closed record shapes, provider alias ownership, source existence, operation/reason compatibility, operation cardinality, same-type behavior except explicit reclassification, redirect-only compatibility for present sources, tombstone-backed active retirement, privacy-aware source-label retention, strict audit timestamps, historical supersession, terminal targets, and acyclic active resolution. Memoized iterative resolution returns canonical, redirected, ambiguous, or retired outcomes with both convenience summaries and branch-specific traversal provenance, subject to project-owned record, target-fan-out, branch, and traversal-step safety bounds. Reconciliation records are themselves provenance-addressable.
 
 Resolution is read-only. It does not rename folders or files, rewrite page/YAML references, mutate aliases, or update generated graph IDs. The later migration service consumes reconciliation decisions through previewed, validated, reversible repository operations. Every split stays ambiguous even when its branches converge or all retire, and a tombstone reserves a historical ID against both record reuse and alias ownership.
 
+### Hosted Identity And Embodiment Registry
+
+`Project_Config/hosting.yaml` schema version 1 separates stable identity-bearing subjects from physical or virtual carriers. Host carriers own independent lifecycle tracks and exact activation/termination entries. Occupancy records bind entity, incarnation, or identity-phase targets to carriers with pack-owned active, dormant, co-resident, or controlling roles. Transition records describe move, copy, and control-handoff topology at concrete occurrence/track-entry boundaries without redefining identity lineage, occurrence order, subject state, reconciliation, or evidence.
+
+`Tools/Runtime/Python/knowledge_framework/hosting_config.py` and `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` are behaviorally paired. Carriers are provenance and reconciliation targets; occupancies and transitions are provenance-addressable operational records. Copy transitions must cite an existing identity relationship, while move and control handoff make no new identity assertion. Boundary queries return deterministic occupant/controller sets and preserve co-control instead of selecting a winner. See `Framework/Contracts/hosted-identity-registry.md`.
+
 ### Provenance Registry
 
-`Project_Config/provenance.yaml` schema version 3 owns factual assertions and claim-supersession chains independently of the registries whose records they describe. `Tools/Runtime/Python/knowledge_framework/provenance_config.py` and `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` compose typed provenance-target providers from source, entity, reconciliation, chronology, occurrence, and structural-interpretation registries, reject unsupported or missing subjects, resolve semantic field paths, validate evidence locators against source work, coverage, and segment bounds, and evaluate claims through source-owned authority profiles. Subject registries own their records; they do not own evidence assertions about themselves.
+`Project_Config/provenance.yaml` schema version 3 owns factual assertions and claim-supersession chains independently of the registries whose records they describe. `Tools/Runtime/Python/knowledge_framework/provenance_config.py` and `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` compose typed provenance-target providers from source, entity, reconciliation, chronology, occurrence, hosted-identity, and structural-interpretation registries, reject unsupported or missing subjects, resolve semantic field paths, validate evidence locators against source work, coverage, and segment bounds, and evaluate claims through source-owned authority profiles. Subject registries own their records; they do not own evidence assertions about themselves.
 
 ### Structural Interpretation Registry
 
@@ -291,7 +299,7 @@ The core `chronology-coordinate-systems` capability is domain-neutral. The narra
 
 Core owns domain-neutral occurrence and recurrence mechanics. Narrative media specializes them with time loops, subjective experience, loop reset/escape, and retained memory, knowledge, physical state, or awareness. The LoTM registry activates only its `main` branch until verified project data requires concrete occurrences. See `Framework/Contracts/occurrence-recurrence-registry.md`.
 
-The required load order is project manifest, selected packs and foundational registries, source registry, chronology registry with composed work/continuity targets, entity and other subject providers, occurrence registry with chronology and subject targets, reconciliation registry, structural interpretations with canonical target providers, then provenance followed by deferred interpretation-claim closure. Cross-registry validation is deferred to composition layers so source, chronology, occurrence, entity, and interpretation loaders do not depend on one another through evidence claims or historical IDs. A new provenance-addressable registry must expose a typed target-provider API and pack-owned `provenance.subject-type` values rather than implementing another assertion parser.
+The required load order is project manifest, selected packs and foundational registries, source registry, chronology registry with composed work/continuity targets, entity and other subject providers, occurrence registry with chronology and subject targets, hosted identity with identity and occurrence providers, reconciliation including carrier targets, structural interpretations with canonical target providers, then provenance followed by deferred interpretation-claim closure. Cross-registry validation is deferred to composition layers so source, chronology, occurrence, entity, hosting, and interpretation loaders do not depend on one another through evidence claims or historical IDs. A new provenance-addressable registry must expose a typed target-provider API and pack-owned `provenance.subject-type` values rather than implementing another assertion parser.
 
 ### Strict Configuration Ingestion
 

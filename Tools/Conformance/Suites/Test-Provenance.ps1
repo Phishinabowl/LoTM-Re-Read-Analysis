@@ -224,6 +224,7 @@ function Get-FixtureProvenanceRegistry {
         [object]$Packs,
         [object]$Occurrences,
         [object]$Interpretations,
+        [object]$Hosting,
         [string]$Path
     )
 
@@ -236,7 +237,8 @@ function Get-FixtureProvenanceRegistry {
         $Reconciliations `
         $Packs `
         $Occurrences `
-        $Interpretations
+        $Interpretations `
+        $Hosting
 }
 
 function Assert-ProvenanceFixtureCounts {
@@ -423,26 +425,34 @@ $canonicalTaxonomy = Get-KnowledgeTaxonomyConfig $project
 $canonicalResources = Get-KnowledgeResourceConfig $project
 $canonicalSources = Get-KnowledgeSourceRegistry $project $canonicalResources $packs
 $canonicalEntities = Get-KnowledgeEntityRegistry $project $canonicalTaxonomy $canonicalSources $packs
-$canonicalProviders = @(
-    (Get-KnowledgeTaxonomyReconciliationProvider $canonicalTaxonomy)
-    (Get-KnowledgeResourceReconciliationProvider $canonicalResources)
-    (Get-KnowledgeSourceReconciliationProvider $canonicalSources)
-    (Get-KnowledgeEntityReconciliationProvider $canonicalEntities)
-)
-$reconciliations = Get-KnowledgeReconciliationRegistry $project $canonicalProviders $packs
 $chronology = Get-KnowledgeChronologyRegistry `
     $project `
     $packs `
 @($canonicalSources.works.Keys) `
 @($canonicalSources.continuities.Keys)
 $occurrences = Get-KnowledgeOccurrenceRegistry $project $packs $chronology
+$canonicalHosting = Get-KnowledgeHostedIdentityRegistry `
+    $project `
+    $packs `
+    $occurrences `
+@((New-KnowledgeHostingEntityProvider $canonicalEntities))
+$canonicalProviders = @(
+    (Get-KnowledgeTaxonomyReconciliationProvider $canonicalTaxonomy)
+    (Get-KnowledgeResourceReconciliationProvider $canonicalResources)
+    (Get-KnowledgeSourceReconciliationProvider $canonicalSources)
+    (Get-KnowledgeEntityReconciliationProvider $canonicalEntities)
+    (Get-KnowledgeHostingReconciliationProvider $canonicalHosting)
+)
+$reconciliations = Get-KnowledgeReconciliationRegistry $project $canonicalProviders $packs
 $canonical = Get-KnowledgeProvenanceRegistry `
     $project `
     $canonicalSources `
     $canonicalEntities `
     $reconciliations `
     $packs `
-    $occurrences
+    $occurrences `
+    $null `
+    $canonicalHosting
 $chronologyContextTarget = Get-KnowledgeProvenanceTarget `
     $canonical `
     'chronology-context' `
@@ -517,6 +527,11 @@ try {
         $chronologyFixture `
         $subjectTargets `
         $payloadTargets
+    $fixtureHosting = Get-KnowledgeHostedIdentityRegistry `
+        $project `
+        $packs `
+        $fixtureOccurrences `
+    @((New-KnowledgeHostingEntityProvider $entities))
 
     $interpretationDocument = ConvertTo-MutableFixtureValue (
         ConvertFrom-KnowledgeYamlFile `
@@ -554,7 +569,8 @@ try {
         $entities `
         $reconciliations `
         $chronologyFixture `
-        $fixtureOccurrences
+        $fixtureOccurrences `
+        $fixtureHosting
     $interpretations = Get-KnowledgeInterpretationRegistry `
         $interpretationProject `
         $packs `
@@ -581,6 +597,7 @@ try {
         $packs `
         $fixtureOccurrences `
         $interpretations `
+        $fixtureHosting `
         $validPath
     $interpretationTarget = Get-KnowledgeProvenanceTarget `
         $registry `
@@ -613,6 +630,7 @@ try {
                 $packs `
                 $fixtureOccurrences `
                 $interpretations `
+                $fixtureHosting `
                 $casePath
         } "Malformed provenance configuration was accepted: $($case.id)"
     }
@@ -630,6 +648,7 @@ try {
         $packs `
         $fixtureOccurrences `
         $interpretations `
+        $fixtureHosting `
         $scalePath
     if ($scaleRegistry.assertions.Count -ne $registry.assertions.Count + $scaleCount) {
         throw 'Provenance scale composition count changed.'

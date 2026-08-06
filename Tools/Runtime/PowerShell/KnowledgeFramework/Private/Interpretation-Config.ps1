@@ -108,7 +108,8 @@ function Get-KnowledgeInterpretationProjectTargetProviders {
         [object]$Entities,
         [object]$Reconciliation,
         [object]$Chronology,
-        [object]$Occurrences
+        [object]$Occurrences,
+        [object]$Hosting = $null
     )
 
     $sourceResolver = { param($Type, $Id) Get-KnowledgeSourceProvenanceTarget $Sources $Type $Id }.GetNewClosure()
@@ -134,7 +135,7 @@ function Get-KnowledgeInterpretationProjectTargetProviders {
         return $occurrenceTargets[$Type][$Id]
     }.GetNewClosure()
 
-    return @(
+    $providers = @(
         (New-KnowledgeInterpretationTargetProvider `
             'source' `
         (Get-KnowledgeSourceProvenanceSubjectTypes) `
@@ -156,6 +157,20 @@ function Get-KnowledgeInterpretationProjectTargetProviders {
         @($occurrenceTargets.Keys) `
             $occurrenceResolver)
     )
+    if ($null -ne $Hosting) {
+        $hostingTargets = Get-KnowledgeHostingProvenanceTargets $Hosting
+        $hostingResolver = {
+            param($Type, $Id)
+            Get-KnowledgeHostingProvenanceTarget $Hosting $Type $Id
+        }.GetNewClosure()
+        $providers += @(
+            (New-KnowledgeInterpretationTargetProvider `
+                'hosting' `
+            @($hostingTargets.Keys) `
+                $hostingResolver)
+        )
+    }
+    return $providers
 }
 
 function Get-CanonicalInterpretationRelationShape {

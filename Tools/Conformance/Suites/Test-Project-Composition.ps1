@@ -143,6 +143,11 @@ function Get-ProjectComposition {
     @($sources.continuities.Keys)
     $entities = Get-KnowledgeEntityRegistry $project $taxonomy $sources $packs
     $occurrences = Get-KnowledgeOccurrenceRegistry $project $packs $chronology
+    $hosting = Get-KnowledgeHostedIdentityRegistry `
+        $project `
+        $packs `
+        $occurrences `
+    @((New-KnowledgeHostingEntityProvider $entities))
     Assert-KnowledgeOccurrenceBranchContinuityTargets $occurrences @($sources.continuities.Keys)
     $chronologyTargets = [ordered]@{
         occurrence = @($occurrences.occurrences.Keys)
@@ -155,6 +160,7 @@ function Get-ProjectComposition {
         (Get-KnowledgeResourceReconciliationProvider $resources)
         (Get-KnowledgeSourceReconciliationProvider $sources)
         (Get-KnowledgeEntityReconciliationProvider $entities)
+        (Get-KnowledgeHostingReconciliationProvider $hosting)
     )
     $reconciliation = Get-KnowledgeReconciliationRegistry $project $providers $packs
     $interpretationProviders = Get-KnowledgeInterpretationProjectTargetProviders `
@@ -162,7 +168,8 @@ function Get-ProjectComposition {
         $entities `
         $reconciliation `
         $chronology `
-        $occurrences
+        $occurrences `
+        $hosting
     $interpretations = Get-KnowledgeInterpretationRegistry `
         $project `
         $packs `
@@ -174,7 +181,8 @@ function Get-ProjectComposition {
         $reconciliation `
         $packs `
         $occurrences `
-        $interpretations
+        $interpretations `
+        $hosting
     return [pscustomobject]@{
         project = $project
         lookup = $lookup
@@ -186,6 +194,7 @@ function Get-ProjectComposition {
         entities = $entities
         occurrences = $occurrences
         interpretations = $interpretations
+        hosting = $hosting
         providers = @($providers)
         reconciliation = $reconciliation
         provenance = $provenance
@@ -238,6 +247,7 @@ function Get-ProjectCompositionSummary {
     $interpretationProvenanceTypes = @(
         (Get-KnowledgeInterpretationProvenanceTargets $Composition.interpretations).Keys
     )
+    $hostingProvenanceTypes = @((Get-KnowledgeHostingProvenanceTargets $Composition.hosting).Keys)
     $allProvenanceTypes = @(
         $sourceProvenanceTypes +
         $entityProvenanceTypes +
@@ -245,6 +255,7 @@ function Get-ProjectCompositionSummary {
         $chronologyProvenanceTypes +
         $occurrenceProvenanceTypes +
         $interpretationProvenanceTypes +
+        $hostingProvenanceTypes +
         @('claim-supersession') |
             Sort-Object -Unique
     )
@@ -271,6 +282,7 @@ function Get-ProjectCompositionSummary {
             entities = [int]$Composition.entities.schema_version
             occurrences = [int]$Composition.occurrences.schema_version
             interpretations = [int]$Composition.interpretations.schema_version
+            hosting = [int]$Composition.hosting.schema_version
             reconciliation = [int]$Composition.reconciliation.schema_version
             provenance = [int]$Composition.provenance.schema_version
         }
@@ -315,6 +327,11 @@ function Get-ProjectCompositionSummary {
                 relations = @($Composition.interpretations.relations).Count
                 comparison_sets = $Composition.interpretations.comparison_sets.Count
             }
+            hosting = [ordered]@{
+                carriers = $Composition.hosting.carriers.Count
+                occupancies = $Composition.hosting.occupancies.Count
+                transitions = $Composition.hosting.transitions.Count
+            }
             reconciliation = [ordered]@{
                 target_types = $Composition.reconciliation.targets.Count
                 records = @($Composition.reconciliation.records).Count
@@ -333,6 +350,7 @@ function Get-ProjectCompositionSummary {
             chronology_provenance_types = $chronologyProvenanceTypes.Count
             occurrence_provenance_types = $occurrenceProvenanceTypes.Count
             interpretation_provenance_types = $interpretationProvenanceTypes.Count
+            hosting_provenance_types = $hostingProvenanceTypes.Count
             total_provenance_subject_types = $allProvenanceTypes.Count
         }
     }
@@ -370,6 +388,9 @@ function Assert-ProjectCompositionWiring {
         [pscustomobject]@{actual = $Composition.interpretations.path
             expected = $project.interpretations_registry
         }
+        [pscustomobject]@{actual = $Composition.hosting.path
+            expected = $project.hosting_registry
+        }
         [pscustomobject]@{actual = $Composition.reconciliation.path
             expected = $project.reconciliation_registry
         }
@@ -405,6 +426,9 @@ function Assert-ProjectCompositionWiring {
     if (-not [object]::ReferenceEquals($Composition.provenance.interpretations, $Composition.interpretations)) {
         throw 'Provenance composition did not retain the loaded interpretation instance.'
     }
+    if (-not [object]::ReferenceEquals($Composition.provenance.hosting, $Composition.hosting)) {
+        throw 'Provenance composition did not retain the loaded hosting instance.'
+    }
 }
 
 function Assert-ProjectProviderClosure {
@@ -427,6 +451,7 @@ function Assert-ProjectProviderClosure {
         @((Get-KnowledgeChronologyProvenanceTargets $Composition.chronology).Keys) +
         @((Get-KnowledgeOccurrenceProvenanceTargets $Composition.occurrences).Keys) +
         @((Get-KnowledgeInterpretationProvenanceTargets $Composition.interpretations).Keys) +
+        @((Get-KnowledgeHostingProvenanceTargets $Composition.hosting).Keys) +
         @('claim-supersession') |
             Sort-Object -Unique
     )
@@ -479,6 +504,7 @@ function Assert-InvalidProjectCompositions {
     $chronologyContextPacks = Copy-PacksWithoutCapability $packs 'chronology-contexts'
     $reconciliationPacks = Copy-PacksWithoutCapability $packs 'stable-identity-reconciliation'
     $interpretationPacks = Copy-PacksWithoutCapability $packs 'structural-interpretation-modeling'
+    $hostingPacks = Copy-PacksWithoutCapability $packs 'hosted-identity-embodiment'
     $actions = @(
         { Get-KnowledgeReconciliationRegistry $project @($providers[0..2]) $packs }
         { Get-KnowledgeReconciliationRegistry $project @($providers + @($providers[0])) $packs }
@@ -490,7 +516,8 @@ function Assert-InvalidProjectCompositions {
                 $Composition.reconciliation `
                 $missingProviderPacks `
                 $Composition.occurrences `
-                $Composition.interpretations
+                $Composition.interpretations `
+                $Composition.hosting
         }
         {
             Get-KnowledgeProvenanceRegistry `
@@ -500,7 +527,8 @@ function Assert-InvalidProjectCompositions {
                 $Composition.reconciliation `
                 $unregisteredProviderPacks `
                 $Composition.occurrences `
-                $Composition.interpretations
+                $Composition.interpretations `
+                $Composition.hosting
         }
         {
             Get-KnowledgeEntityRegistry `
@@ -553,11 +581,19 @@ function Assert-InvalidProjectCompositions {
                 $Composition.entities `
                 $Composition.reconciliation `
                 $Composition.chronology `
-                $Composition.occurrences
+                $Composition.occurrences `
+                $Composition.hosting
             Get-KnowledgeInterpretationRegistry `
                 $project `
                 $interpretationPacks `
                 $interpretationProviders
+        }
+        {
+            Get-KnowledgeHostedIdentityRegistry `
+                $project `
+                $hostingPacks `
+                $Composition.occurrences `
+            @((New-KnowledgeHostingEntityProvider $Composition.entities))
         }
     )
     for ($index = 0; $index -lt $actions.Count; $index += 1) {

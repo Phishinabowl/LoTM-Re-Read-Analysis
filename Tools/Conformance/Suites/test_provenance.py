@@ -20,6 +20,7 @@ from knowledge_framework.chronology_config import (  # noqa: E402
 )
 from knowledge_framework.entity_config import load_entity_registry  # noqa: E402
 from knowledge_framework.interpretation_config import load_interpretation_registry  # noqa: E402
+from knowledge_framework.hosting_config import load_hosted_identity_registry  # noqa: E402
 from knowledge_framework.occurrence_config import (  # noqa: E402
     load_occurrence_registry,
     parse_occurrence_registry,
@@ -149,7 +150,7 @@ def extend_source_document(document: dict) -> None:
     )
 
 
-def load_fixture(project, sources, entities, reconciliations, packs, occurrences, interpretations, path: Path):
+def load_fixture(project, sources, entities, reconciliations, packs, occurrences, interpretations, hosting, path: Path):
     fixture_project = replace(project, provenance_registry=path)
     return load_provenance_registry(
         fixture_project,
@@ -159,6 +160,7 @@ def load_fixture(project, sources, entities, reconciliations, packs, occurrences
         packs,
         occurrences,
         interpretations,
+        hosting,
     )
 
 
@@ -296,19 +298,21 @@ def main() -> int:
     canonical_resources = load_resource_config(project)
     canonical_sources = load_source_registry(project, canonical_resources, packs)
     canonical_entities = load_entity_registry(project, canonical_taxonomy, canonical_sources, packs)
+    chronology = load_chronology_registry(
+        project, packs, work_ids=set(canonical_sources.works), continuity_ids=set(canonical_sources.continuities)
+    )
+    occurrences = load_occurrence_registry(project, packs, chronology)
+    canonical_hosting = load_hosted_identity_registry(project, packs, occurrences, (canonical_entities,))
     canonical_providers = (
         canonical_taxonomy.reconciliation_provider(),
         canonical_resources.reconciliation_provider(),
         canonical_sources.reconciliation_provider(),
         canonical_entities.reconciliation_provider(),
+        canonical_hosting.reconciliation_provider(),
     )
     reconciliations = load_reconciliation_registry(project, canonical_providers, packs)
-    chronology = load_chronology_registry(
-        project, packs, work_ids=set(canonical_sources.works), continuity_ids=set(canonical_sources.continuities)
-    )
-    occurrences = load_occurrence_registry(project, packs, chronology)
     canonical = load_provenance_registry(
-        project, canonical_sources, canonical_entities, reconciliations, packs, occurrences
+        project, canonical_sources, canonical_entities, reconciliations, packs, occurrences, hosting=canonical_hosting
     )
     chronology_context_target = canonical.provenance_target("chronology-context", "lotm-novel-main-story-chronology")
     if chronology_context_target.id != "lotm-novel-main-story-chronology":
@@ -382,6 +386,7 @@ def main() -> int:
                 "credential-record": {"protagonist-qualification"},
             },
         )
+        fixture_hosting = load_hosted_identity_registry(project, packs, fixture_occurrences, (entities,))
 
         interpretation_document = load_yaml_file(
             project.interpretations_registry,
@@ -415,7 +420,7 @@ def main() -> int:
         interpretations = load_interpretation_registry(
             interpretation_project,
             packs,
-            (sources, entities, reconciliations, chronology_fixture, fixture_occurrences),
+            (sources, entities, reconciliations, chronology_fixture, fixture_occurrences, fixture_hosting),
         )
 
         interpretation_assertion = copy.deepcopy(base_document["assertions"][0])
@@ -443,6 +448,7 @@ def main() -> int:
             packs,
             fixture_occurrences,
             interpretations,
+            fixture_hosting,
             valid_path,
         )
         if (
@@ -472,6 +478,7 @@ def main() -> int:
                     packs,
                     fixture_occurrences,
                     interpretations,
+                    fixture_hosting,
                     case_path,
                 ),
                 f"Malformed provenance configuration was accepted: {case['id']}",
@@ -490,6 +497,7 @@ def main() -> int:
             packs,
             fixture_occurrences,
             interpretations,
+            fixture_hosting,
             scale_path,
         )
         if len(scale_registry.assertions) != len(registry.assertions) + scale_count:

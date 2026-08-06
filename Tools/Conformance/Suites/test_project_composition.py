@@ -14,6 +14,7 @@ if str(RUNTIME_ROOT) not in sys.path:
 from knowledge_framework.chronology_config import load_chronology_registry  # noqa: E402
 from knowledge_framework.entity_config import load_entity_registry  # noqa: E402
 from knowledge_framework.interpretation_config import load_interpretation_registry  # noqa: E402
+from knowledge_framework.hosting_config import load_hosted_identity_registry  # noqa: E402
 from knowledge_framework.lookup_key_config import load_lookup_key_config  # noqa: E402
 from knowledge_framework.occurrence_config import load_occurrence_registry  # noqa: E402
 from knowledge_framework.project_config import load_project_config, resolve_project_root  # noqa: E402
@@ -113,6 +114,7 @@ class Composition:
     entities: object
     occurrences: object
     interpretations: object
+    hosting: object
     providers: tuple[dict[str, object], ...]
     reconciliation: object
     provenance: object
@@ -141,6 +143,7 @@ def load_composition(root: Path) -> Composition:
     )
     entities = load_entity_registry(project, taxonomy, sources, packs)
     occurrences = load_occurrence_registry(project, packs, chronology)
+    hosting = load_hosted_identity_registry(project, packs, occurrences, (entities,))
     occurrences.validate_branch_continuity_targets(set(sources.continuities))
     chronology.validate_context_relation_targets(
         {
@@ -154,12 +157,13 @@ def load_composition(root: Path) -> Composition:
         resources.reconciliation_provider(),
         sources.reconciliation_provider(),
         entities.reconciliation_provider(),
+        hosting.reconciliation_provider(),
     )
     reconciliation = load_reconciliation_registry(project, providers, packs)
     interpretations = load_interpretation_registry(
         project,
         packs,
-        (sources, entities, reconciliation, chronology, occurrences),
+        (sources, entities, reconciliation, chronology, occurrences, hosting),
     )
     provenance = load_provenance_registry(
         project,
@@ -169,6 +173,7 @@ def load_composition(root: Path) -> Composition:
         packs,
         occurrences,
         interpretations,
+        hosting,
     )
     return Composition(
         project,
@@ -181,6 +186,7 @@ def load_composition(root: Path) -> Composition:
         entities,
         occurrences,
         interpretations,
+        hosting,
         providers,
         reconciliation,
         provenance,
@@ -202,6 +208,7 @@ def summarize(composition: Composition) -> dict:
         | set(composition.chronology.provenance_targets())
         | set(composition.occurrences.provenance_targets())
         | set(composition.interpretations.provenance_targets())
+        | set(composition.hosting.provenance_targets())
         | {"claim-supersession"}
     )
     return {
@@ -223,6 +230,7 @@ def summarize(composition: Composition) -> dict:
             "entities": composition.entities.schema_version,
             "occurrences": composition.occurrences.schema_version,
             "interpretations": composition.interpretations.schema_version,
+            "hosting": composition.hosting.schema_version,
             "reconciliation": reconciliation.schema_version,
             "provenance": composition.provenance.schema_version,
         },
@@ -267,6 +275,11 @@ def summarize(composition: Composition) -> dict:
                 "relations": len(composition.interpretations.relations),
                 "comparison_sets": len(composition.interpretations.comparison_sets),
             },
+            "hosting": {
+                "carriers": len(composition.hosting.carriers),
+                "occupancies": len(composition.hosting.occupancies),
+                "transitions": len(composition.hosting.transitions),
+            },
             "reconciliation": {
                 "target_types": len(reconciliation.targets),
                 "records": len(reconciliation.records),
@@ -285,6 +298,7 @@ def summarize(composition: Composition) -> dict:
             "chronology_provenance_types": len(composition.chronology.provenance_targets()),
             "occurrence_provenance_types": len(composition.occurrences.provenance_targets()),
             "interpretation_provenance_types": len(composition.interpretations.provenance_targets()),
+            "hosting_provenance_types": len(composition.hosting.provenance_targets()),
             "total_provenance_subject_types": len(provenance_types),
         },
     }
@@ -302,6 +316,7 @@ def assert_wiring(composition: Composition) -> None:
         (composition.entities.path, project.entities_registry),
         (composition.occurrences.path, project.occurrences_registry),
         (composition.interpretations.path, project.interpretations_registry),
+        (composition.hosting.path, project.hosting_registry),
         (composition.reconciliation.path, project.reconciliation_registry),
         (composition.provenance.path, project.provenance_registry),
     )
@@ -321,6 +336,8 @@ def assert_wiring(composition: Composition) -> None:
         raise AssertionError("Provenance composition did not retain the loaded occurrence instance.")
     if composition.provenance.interpretations is not composition.interpretations:
         raise AssertionError("Provenance composition did not retain the loaded interpretation instance.")
+    if composition.provenance.hosting is not composition.hosting:
+        raise AssertionError("Provenance composition did not retain the loaded hosting instance.")
 
 
 def assert_provider_closure(composition: Composition) -> None:
@@ -338,6 +355,7 @@ def assert_provider_closure(composition: Composition) -> None:
         | set(composition.chronology.provenance_targets())
         | set(composition.occurrences.provenance_targets())
         | set(composition.interpretations.provenance_targets())
+        | set(composition.hosting.provenance_targets())
         | {"claim-supersession"}
     )
     if provenance_types != set(composition.packs.allowed_values("provenance.subject-type")):
@@ -370,6 +388,7 @@ def assert_invalid_compositions(composition: Composition) -> int:
             with_provenance_types(packs, provenance_types + ("unprovided-subject",)),
             composition.occurrences,
             composition.interpretations,
+            composition.hosting,
         ),
         lambda: load_provenance_registry(
             project,
@@ -379,6 +398,7 @@ def assert_invalid_compositions(composition: Composition) -> int:
             with_provenance_types(packs, tuple(item for item in provenance_types if item != "entity")),
             composition.occurrences,
             composition.interpretations,
+            composition.hosting,
         ),
         lambda: load_entity_registry(
             project,
@@ -431,7 +451,14 @@ def assert_invalid_compositions(composition: Composition) -> int:
                 composition.reconciliation,
                 composition.chronology,
                 composition.occurrences,
+                composition.hosting,
             ),
+        ),
+        lambda: load_hosted_identity_registry(
+            project,
+            without_capability(packs, "hosted-identity-embodiment"),
+            composition.occurrences,
+            (composition.entities,),
         ),
     )
     for index, action in enumerate(actions):

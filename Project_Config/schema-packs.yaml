@@ -78,6 +78,7 @@ capability_activation:
     - aggregate-recurrence-cardinality
     - occurrence-participation-identity
     - participation-chronology-bindings
+    - hosted-identity-embodiment
     - timeline-branch-lifecycle
     - capability-progression
     - structural-interpretation-modeling
