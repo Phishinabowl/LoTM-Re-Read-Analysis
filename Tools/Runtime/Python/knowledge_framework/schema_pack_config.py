@@ -143,8 +143,6 @@ class SchemaPackConfig:
 
 
 @dataclass(frozen=True)
-# TODO (OWNER): Expose this composition through the planned EffectiveProjectSchema service.
-#   Consumers should not reconstruct pack, capability, and vocabulary state from these maps.
 class SchemaPackRegistry:
     path: Path
     schema_version: int
@@ -592,8 +590,8 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
     if pack_id != expected_pack_id:
         raise ValueError(f"Schema-pack selection `{expected_pack_id}` loads pack `{pack_id}`.")
     pack_version = require_positive_int(pack, "pack_version", pack_id)
-    lifecycle = require_string(pack, "lifecycle", pack_id)
-    if lifecycle not in PACK_LIFECYCLES:
+    pack_lifecycle = require_string(pack, "lifecycle", pack_id)
+    if pack_lifecycle not in PACK_LIFECYCLES:
         raise ValueError(f"Schema pack `{pack_id}.lifecycle` must be one of: {', '.join(sorted(PACK_LIFECYCLES))}.")
     kind = require_string(pack, "pack_kind", pack_id)
     if kind not in PACK_KINDS:
@@ -751,7 +749,7 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
         path=path,
         schema_version=schema_version,
         pack_version=pack_version,
-        lifecycle=lifecycle,
+        lifecycle=pack_lifecycle,
         kind=kind,
         label=require_string(pack, "label", pack_id),
         description=require_string(pack, "description", pack_id),

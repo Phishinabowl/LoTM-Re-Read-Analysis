@@ -223,22 +223,22 @@ message, and related IDs using ordinal comparison.
 
 Fatal malformed input, missing dependencies, dependency cycles or ordering failures, conflicting
 ownership, unknown references, and invalid activation do not produce a partial
-`EffectiveProjectSchema`. Phase 2.2 must give the service and command surface a machine-readable
-failure result using the same diagnostic row shape with severity `error`, while preserving existing
+`EffectiveProjectSchema`. The service and command surface give callers a machine-readable failure
+result using the same diagnostic row shape with severity `error`, while preserving existing
 fail-closed loaders. That failure result contains no schema and is not an effective-schema document.
 
 The initial diagnostic code catalog includes:
 
 - `deprecated-capability-enabled`;
-- `deprecated-pack-selected`;
+- `deferred-pack-selected`;
 - `multiple-capability-providers`;
 - `deferred-content-type`;
 - `deferred-category`;
 - `deferred-resource-type`.
 
-The Phase 2.2 failure catalog must provide stable codes for malformed input, missing or incompatible
-dependencies, dependency ordering, provider or ownership conflicts, invalid activation, and unknown
-references. Human-readable exception text is not itself a stable diagnostic code.
+The failure catalog provides stable codes for malformed input, missing or incompatible dependencies,
+dependency ordering, provider or ownership conflicts, invalid activation, and unknown references.
+Human-readable exception text is not itself a stable diagnostic code.
 
 Implementations may add diagnostics only with stable codes, deterministic ordering, and matching
 Python/PowerShell behavior. Diagnostics never mutate or complete canonical configuration.
@@ -265,8 +265,8 @@ canonical shape.
 
 Running composition twice against identical canonical inputs must produce byte-identical JSON.
 Python, PowerShell 7, and Windows PowerShell 5.1 must produce semantically identical documents; the
-paired conformance suite will additionally compare canonical JSON bytes where runtime newline
-handling permits.
+permanent compatibility check additionally compares canonical export bytes across all three
+runtimes.
 
 ## Compatibility And Evolution
 
@@ -282,6 +282,38 @@ They may accept an older supported version through an explicit adapter.
 The service implementation may evolve without changing the contract version when canonical output
 and semantics remain identical. Generated snapshots may be used for tests and diagnostics, but they
 must not become an alternate source of truth or an input required to load the project.
+
+## Runtime And Command API
+
+Python library consumers import `EffectiveProjectSchema`, `compose_effective_project_schema`,
+`load_effective_project_schema`, `effective_schema_json`, or `effective_schema_failure` from
+`knowledge_framework.effective_schema`. PowerShell library consumers import
+`KnowledgeFramework.psd1` and call `New-KnowledgeEffectiveProjectSchema`,
+`Get-KnowledgeEffectiveProjectSchema`, or `New-KnowledgeEffectiveSchemaFailure`.
+
+The paired headless commands are:
+
+```powershell
+python Tools\Commands\Framework\inspect_effective_schema.py [--root PATH] [--json] [--output PATH] [--show SECTION]
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 [-Root PATH] [-Json] [-Output PATH] [-Show SECTION[,SECTION]]
+```
+
+Without structured-output switches, each command prints a concise project, pack, capability,
+content, resource, and diagnostic summary. `--json` / `-Json` writes the canonical document to
+standard output. `--output` / `-Output` additionally writes canonical UTF-8 JSON beneath the
+resolved project root and refuses an escaping path. Failure exits nonzero; structured mode emits an
+`effective-project-schema-result` envelope containing `schema: null` and one stable error diagnostic.
+
+Human mode accepts repeatable Python `--show` selections or one comma-separated PowerShell `-Show`
+list for `packs`, `capabilities`, `namespaces`, `content`, `resources`, `diagnostics`, or `all`.
+Selections are deduplicated in requested order, and `all` expands in the documented canonical section
+order. They append raw contract-backed detail to the compact summary; they do not add Phase 3
+presentation metadata or change canonical JSON output.
+
+The permanent `effective-schema` conformance suite covers positive composition, available-disabled,
+planned, deprecated, multiple-provider, dependency-failure, malformed, deterministic, path-safety,
+and generated 400-capability scale behavior. The compatibility orchestrator compares the complete
+document, export, and failure envelope across Python, PowerShell 7, and Windows PowerShell 5.1.
 
 ## Consumer Rules
 

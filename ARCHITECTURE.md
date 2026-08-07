@@ -199,11 +199,12 @@ portable normalized paths relative to their declared repository, content-root, o
 base, and excludes timestamps, host state, and absolute paths so identical canonical inputs
 serialize identically across runtimes.
 
-The effective schema is not canonical data and must never be edited as configuration. Runtime and
-command implementation belongs to Platform Phase 2.2; QA and Visualization adoption belongs to
-Phase 2.3. Page-module, normalized-content, relationship, and projection declarations join the same
-service only after their owning phases implement those contracts. See
-`Framework/Contracts/effective-project-schema.md`.
+The effective schema is not canonical data and must never be edited as configuration. The paired
+runtime services live in `Tools/Runtime/Python/knowledge_framework/effective_schema.py` and the
+`KnowledgeFramework` PowerShell module; the paired public inspection/export commands live beneath
+`Tools/Commands/Framework/`. QA and Visualization adoption belongs to Phase 2.3. Page-module,
+normalized-content, relationship, and projection declarations join the same service only after their
+owning phases implement those contracts. See `Framework/Contracts/effective-project-schema.md`.
 
 ### Taxonomy Registry
 

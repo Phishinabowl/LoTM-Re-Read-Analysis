@@ -22,12 +22,13 @@ The current executable contract is enforced by the matching Python and PowerShel
 | `Project_Config/chronology.yaml` | `Tools/Runtime/Python/knowledge_framework/chronology_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1`; see `chronology-registry.md` |
 | `Project_Config/occurrences.yaml` | `Tools/Runtime/Python/knowledge_framework/occurrence_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1`; see `occurrence-recurrence-registry.md` |
 | `Project_Config/interpretations.yaml` | `Tools/Runtime/Python/knowledge_framework/interpretation_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1`; see `structural-interpretation-registry.md` |
+| Generated `EffectiveProjectSchema` | `Tools/Runtime/Python/knowledge_framework/effective_schema.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1`; see `effective-project-schema.md` |
 
 Future machine-readable schema documents belong here as those loader contracts are stabilized. Do not add a partial schema that claims broader validation coverage than the loaders actually provide.
 
-`effective-project-schema.md` defines the generated composition contract that Platform Phase 2.2
-will implement. It is not another canonical registry and is not included in the executable-validator
-table until paired runtime composition exists.
+`effective-project-schema.md` defines the generated composition contract implemented by the paired
+runtime services and inspection/export commands. It is diagnostic output over the canonical
+registries, not another canonical registry.
 
 ## Capability Semantics
 

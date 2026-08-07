@@ -411,12 +411,12 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 ### Phase 2.2 Runtime And Command Surface
 
-- [ ] Implement matching effective-schema composition in Python and PowerShell where parity applies.
-- [ ] Add a headless inspection/export command with human-readable and JSON output.
-- [ ] Ensure library consumers import the service rather than shelling out to the command.
-- [ ] Add positive, disabled, planned, deprecated, dependency, ambiguity, malformed, and scale tests.
-- [ ] Register new permanent coverage in the aggregate conformance inventory.
-- [ ] Document the API, command, output schema, and compatibility rules.
+- [x] Implement matching effective-schema composition in Python and PowerShell where parity applies.
+- [x] Add a headless inspection/export command with human-readable and JSON output.
+- [x] Ensure library consumers import the service rather than shelling out to the command.
+- [x] Add positive, disabled, planned, deprecated, dependency, ambiguity, malformed, and scale tests.
+- [x] Register new permanent coverage in the aggregate conformance inventory.
+- [x] Document the API, command, output schema, and compatibility rules.
 
 ### Phase 2.3 Initial Consumer Adoption
 
@@ -449,6 +449,11 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [ ] Require friendly labels and useful descriptions for every user-selectable pack and capability.
 - [ ] Backfill string-shorthand capabilities that need user-facing metadata.
 - [ ] Keep presentation metadata localizable and independent of UI layout code.
+- [ ] Define a stable human-facing inspection model for singular pack and capability lookup without
+  making CLI layout part of the effective-schema contract.
+- [ ] Add ambiguity-safe `--pack PACK_ID` / `-Pack PACK_ID` and
+  `--capability CAPABILITY_ID` / `-Capability CAPABILITY_ID` command selectors after the required
+  presentation metadata exists.
 
 ### Phase 3.2 Capability Grouping
 
@@ -459,6 +464,10 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [ ] Distinguish installed, selected, available, enabled, deprecated, and used-by-project states.
 - [ ] Add effective-schema output for groups, presentation metadata, family, architectural role,
   scope, dependency explanations, and bridge relationships.
+- [ ] Let headless inspection filter capabilities by group, provider pack, lifecycle, availability,
+  activation, and project usage while preserving deterministic result order.
+- [ ] Make singular pack/capability inspection explain dependencies, providers, recommendations,
+  conflicts, unavailable reasons, and relevant controlled-value contributions.
 
 ### Phase 3.3 Plugin And Entitlement Boundary
 
@@ -488,6 +497,8 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [ ] A headless client can explain whether a pack is a foundation, domain pack, bridge, or
   extension; which family and scope it belongs to; why it was selected; and which vocabulary would
   appear or disappear if its selection changed.
+- [ ] Human and JSON clients can inspect one pack or capability by stable ID and navigate its groups,
+  dependencies, providers, lifecycle, activation, recommendations, conflicts, and contributions.
 - [ ] Every declared planned capability is machine-discoverable and traceable to a delivery phase or
   accepted deferral.
 - [ ] No licensing assumption leaks into reusable schema contracts.

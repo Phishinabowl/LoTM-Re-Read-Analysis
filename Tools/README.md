@@ -8,6 +8,30 @@ Paired validation and conformance commands that emit a human-readable summary al
 
 The runtime-package/module boundaries, command layout, root-discovery contract, parity policy, and wrapper rules live in [ARCHITECTURE.md](../ARCHITECTURE.md#tool-runtime-and-command-architecture). The complete current inventory lives in [Tooling Reference](TOOLING_REFERENCE.md#tool-architecture-inventory). Reusable loaders belong under `Runtime/`, executable user workflows under `Commands/`, registered test runners under `Conformance/`, and repository policy tools under `Static/`; do not add new flat root-level scripts.
 
+## Effective Project Schema
+
+Inspect the one generated composition of project identity, selected packs, capability state,
+controlled values, taxonomy, resources, and diagnostics:
+
+```powershell
+python Tools\Commands\Framework\inspect_effective_schema.py
+python Tools\Commands\Framework\inspect_effective_schema.py --show packs --show capabilities
+python Tools\Commands\Framework\inspect_effective_schema.py --json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Show packs,capabilities
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Json
+```
+
+Add `--output PATH` / `-Output PATH` to write canonical JSON beneath the project root. The export is
+a compiled diagnostic view and must not be edited or ingested as canonical configuration. Library
+consumers import the paired effective-schema runtime service; exact APIs and verification commands
+are in [Tooling Reference](TOOLING_REFERENCE.md#effective-project-schema).
+
+Human inspection supports `packs`, `capabilities`, `namespaces`, `content`, `resources`,
+`diagnostics`, and `all`. Repeat Python `--show SECTION` to combine sections; pass one
+comma-separated PowerShell `-Show SECTION,SECTION` list. Duplicate selections are removed while
+preserving requested order. These raw contract views intentionally precede Phase 3's singular lookup,
+friendly grouping, recommendations, and dependency explanations.
+
 ## Environment Checks
 
 Use `Test-Python.ps1` to check whether Python is present and actually usable before selecting Python-preferred tools. It tests `python`, `python3`, and `py` in order, verifies that `--version` works, confirms that Python can report `sys.executable`, and checks repository Python requirements from `requirements-python.txt`, including Ruff for source formatting.
@@ -111,7 +135,7 @@ The tracked workflow at `.github/workflows/ci.yml` runs for pull requests, pushe
 actionlint -color
 ```
 
-The three runtime jobs install their declared dependencies, enforce Python and PowerShell formatting, enforce work-annotation policy, and run the permanent `baseline` conformance profile. `Project Compatibility` separately compares all three Visualization and QA implementations, root discovery, safe artifact lifecycle, isolated framework extraction, canonical-output preservation, and unsafe destination rejection through the registry-owned compatibility profile. Pull requests use `pull-request`; pushes to `main` and manual dispatches use `full-release`, which adds byte-identical representative Mermaid rendering. Keep action SHAs immutable. Treat all six job names as a public policy surface: rename one only with the same care as changing a required status check.
+The three runtime jobs install their declared dependencies, enforce Python and PowerShell formatting, enforce work-annotation policy, and run the permanent `baseline` conformance profile. `Project Compatibility` separately compares all three EffectiveProjectSchema, Visualization, and QA implementations, root discovery, safe artifact lifecycle, isolated framework extraction, canonical-output preservation, and unsafe destination rejection through the registry-owned compatibility profile. Pull requests use `pull-request`; pushes to `main` and manual dispatches use `full-release`, which adds byte-identical representative Mermaid rendering. Keep action SHAs immutable. Treat all six job names as a public policy surface: rename one only with the same care as changing a required status check.
 
 ## Temporary File Cleanup
 

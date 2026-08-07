@@ -195,7 +195,7 @@ These files and folders are the project's working memory.
 
 Treat `EffectiveProjectSchema` as generated diagnostic output over the canonical project manifest,
 selected packs, taxonomy, and resource registries. Consumers must import the shared composition
-service once Phase 2.2 implements it; do not independently rebuild capability lifecycle, controlled
+service; do not independently rebuild capability lifecycle, controlled
 value ownership, content eligibility, or resource placement rules. Do not edit or ingest an exported
 effective schema as project configuration. Preserve deterministic ordering, repository-relative
 or declared-root-relative forward-slash paths, and the serialization rules in

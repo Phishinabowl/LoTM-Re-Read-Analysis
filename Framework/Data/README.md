@@ -16,6 +16,12 @@ The current table was generated from the Unicode Character Database 16.0.0 expos
 
 `Resources/` contains the portable resource-registry corpus. Its neutral fixture covers active and deferred resource types, all authority and tracking values, editor eligibility, required and optional placements, multiple placements, manifest-root resolution, and reconciliation targets without treating LoTM resource names as framework vocabulary. Thirty structured mutations cover malformed structure, unknown references, unsafe or missing paths, invalid policy values, and case-insensitive placement collisions; a generated 128-type probe verifies bounded scale.
 
+`Effective-Schema/` contains the canonical summary fixture for the generated project-composition
+boundary. The paired suite composes independent project, schema-pack, taxonomy, and resource
+services; verifies positive, disabled, planned, deprecated, dependency, ambiguity, malformed,
+deterministic, and path-safe behavior; and generates a 400-capability scale probe without storing a
+large repeated fixture.
+
 `Sources/` contains the portable source-registry corpus. Its neutral schema-18 fixture spans work and continuity structure, authority and applicability decisions, segment numbering and ordering, adaptation mappings, production context, manifestations, release and distribution records, evidence sources, observations, coverage positions, identifiers, localized titles, resource bindings, and reconciliation/provenance targets without making narrative titles project vocabulary. Sixty-five structured mutations cover malformed shape, references, cycles, scope, release cadence, evidence, locators, and binding policy; fifteen invalid service queries and a generated 128-source composition protect behavior and bounded scale.
 
 `Entities/` contains the portable entity-registry corpus. Its neutral schema-4 fixture composes against the independent taxonomy and source corpora and covers conceptual entities, category membership, active/deferred lifecycle, ambiguous human aliases, typed and cycle-aware relationships, lineage basis roles, continuity-bound incarnations, scope bindings, entity- and incarnation-subject identity phases, ordered phase relationships, and reconciliation/provenance targets. Eighty-six structured mutations cover malformed shape, aliases, references, inverse/canonical policy, cycles, continuity constraints, scope bindings, and pack vocabulary; fifteen invalid service queries and a generated 128-entity composition protect behavior and bounded scale.

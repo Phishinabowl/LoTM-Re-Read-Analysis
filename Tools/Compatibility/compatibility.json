@@ -7,10 +7,12 @@
   ],
   "profiles": {
     "local": [
+      "effective-schema",
       "visualization",
       "qa"
     ],
     "pull-request": [
+      "effective-schema",
       "visualization",
       "qa",
       "root-discovery",
@@ -18,6 +20,7 @@
       "framework-extraction"
     ],
     "full-release": [
+      "effective-schema",
       "visualization",
       "qa",
       "root-discovery",
@@ -27,6 +30,11 @@
     ]
   },
   "checks": [
+    {
+      "id": "effective-schema",
+      "kind": "effective-schema",
+      "timeout_seconds": 120
+    },
     {
       "id": "visualization",
       "kind": "visualization",

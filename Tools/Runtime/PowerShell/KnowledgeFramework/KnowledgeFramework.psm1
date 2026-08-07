@@ -124,6 +124,7 @@ $implementationFiles = @(
     'Interpretation-Config.ps1'
     'Hosting-Config.ps1'
     'Provenance-Config.ps1'
+    'Effective-Project-Schema.ps1'
 )
 foreach ($implementationFile in $implementationFiles) {
     . (Join-Path $PSScriptRoot (Join-Path 'Private' $implementationFile))

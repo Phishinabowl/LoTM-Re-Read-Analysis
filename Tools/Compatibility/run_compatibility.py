@@ -27,9 +27,10 @@ from knowledge_framework.project_paths import resolve_project_root  # noqa: E402
 
 
 REGISTRY_PATH = Path(__file__).with_name("compatibility.json")
-# TODO (OWNER): Register effective-schema and normalized-content checks as those consumers land.
+# TODO (OWNER): Register normalized-content compatibility as that consumer boundary lands.
 ALLOWED_CHECK_KINDS = {
     "artifact-lifecycle",
+    "effective-schema",
     "framework-extraction",
     "qa",
     "render",
@@ -38,6 +39,7 @@ ALLOWED_CHECK_KINDS = {
 }
 CHECK_KEYS = {
     "artifact-lifecycle": {"id", "kind", "timeout_seconds"},
+    "effective-schema": {"id", "kind", "timeout_seconds"},
     "framework-extraction": {"id", "kind", "timeout_seconds"},
     "qa": {"id", "kind", "timeout_seconds", "bounded_graphs", "bounded_pages"},
     "render": {
@@ -751,8 +753,149 @@ def run_framework_extraction_check(
     }
 
 
+def run_effective_schema_check(
+    check: dict[str, Any], runtimes: list[Runtime], root: Path, output_root: Path
+) -> dict[str, Any]:
+    python_script = root / "Tools" / "Commands" / "Framework" / "inspect_effective_schema.py"
+    powershell_script = root / "Tools" / "Commands" / "Framework" / "Get-EffectiveProjectSchema.ps1"
+    documents: dict[str, dict[str, Any]] = {}
+    export_bytes: dict[str, bytes] = {}
+    human_reports: dict[str, dict[str, str]] = {}
+    failure_codes: dict[str, str] = {}
+    selection_failures: dict[str, str] = {}
+    elapsed: dict[str, float] = {}
+
+    for runtime in runtimes:
+        command = python_or_powershell_command(
+            runtime,
+            python_script,
+            powershell_script,
+            ["--root", str(root), "--json"],
+            ["-Root", str(root), "-Json"],
+        )
+        result = run_command(runtime, command, root, check["timeout_seconds"])
+        document = parse_json_output(result.stdout)
+        if not isinstance(document, dict) or document.get("contract") != "effective-project-schema":
+            raise CompatibilityFailure(f"{runtime.id} returned an invalid effective schema: {document!r}")
+        documents[runtime.id] = document
+        elapsed[runtime.id] = result.elapsed_seconds
+
+        human_reports[runtime.id] = {}
+        human_cases = {
+            "combined": (
+                ["--root", str(root), "--show", "packs", "--show", "capabilities"],
+                ["-Root", str(root), "-Show", "packs,capabilities"],
+            ),
+            "all-deduplicated": (
+                ["--root", str(root), "--show", "packs", "--show", "all", "--show", "packs"],
+                ["-Root", str(root), "-Show", "packs,all,packs"],
+            ),
+        }
+        for case_id, (python_args, powershell_args) in human_cases.items():
+            human_command = python_or_powershell_command(
+                runtime,
+                python_script,
+                powershell_script,
+                python_args,
+                powershell_args,
+            )
+            human_result = run_command(runtime, human_command, root, check["timeout_seconds"])
+            human_reports[runtime.id][case_id] = human_result.stdout.replace("\r\n", "\n")
+
+        export_path = output_root / f"{runtime.id}.json"
+        export_command = python_or_powershell_command(
+            runtime,
+            python_script,
+            powershell_script,
+            ["--root", str(root), "--output", str(export_path)],
+            ["-Root", str(root), "-Output", str(export_path)],
+        )
+        run_command(runtime, export_command, root, check["timeout_seconds"])
+        exported = json.loads(export_path.read_text(encoding="utf-8-sig"))
+        if exported != document:
+            raise CompatibilityFailure(f"{runtime.id} file export differs from its JSON command output.")
+        export_bytes[runtime.id] = export_path.read_bytes()
+
+        invalid_root = output_root / "missing-project-root"
+        failure_command = python_or_powershell_command(
+            runtime,
+            python_script,
+            powershell_script,
+            ["--root", str(invalid_root), "--json"],
+            ["-Root", str(invalid_root), "-Json"],
+        )
+        failure_result = run_command(
+            runtime,
+            failure_command,
+            root,
+            check["timeout_seconds"],
+            expect_success=False,
+        )
+        failure = parse_json_output(failure_result.stdout)
+        if (
+            not isinstance(failure, dict)
+            or failure.get("schema") is not None
+            or not isinstance(failure.get("diagnostics"), list)
+            or len(failure["diagnostics"]) != 1
+            or failure["diagnostics"][0].get("severity") != "error"
+        ):
+            raise CompatibilityFailure(f"{runtime.id} returned an invalid failure envelope: {failure!r}")
+        failure_codes[runtime.id] = failure["diagnostics"][0]["code"]
+
+        invalid_show_command = python_or_powershell_command(
+            runtime,
+            python_script,
+            powershell_script,
+            ["--root", str(root), "--show", "not-a-section"],
+            ["-Root", str(root), "-Show", "not-a-section"],
+        )
+        invalid_show_result = run_command(
+            runtime,
+            invalid_show_command,
+            root,
+            check["timeout_seconds"],
+            expect_success=False,
+        )
+        selection_failures[runtime.id] = invalid_show_result.stderr.strip()
+
+    reference_runtime = runtimes[0].id
+    reference = documents[reference_runtime]
+    for runtime_id, document in documents.items():
+        if document != reference:
+            raise CompatibilityFailure(f"Effective-schema output differs between {reference_runtime} and {runtime_id}.")
+    if len(set(export_bytes.values())) != 1:
+        raise CompatibilityFailure("Canonical effective-schema export bytes differ between runtimes.")
+    for case_id in human_reports[reference_runtime]:
+        outputs = {reports[case_id] for reports in human_reports.values()}
+        if len(outputs) != 1:
+            raise CompatibilityFailure(f"Effective-schema human inspection case `{case_id}` differs between runtimes.")
+    if len(set(failure_codes.values())) != 1:
+        raise CompatibilityFailure(f"Effective-schema failure codes differ by runtime: {failure_codes}")
+    if len(set(selection_failures.values())) != 1:
+        raise CompatibilityFailure(f"Effective-schema selector failures differ by runtime: {selection_failures}")
+    canonical_export = export_bytes[reference_runtime]
+
+    return {
+        "status": "passed",
+        "contract_version": reference["contract_version"],
+        "packs": len(reference["packs"]),
+        "capabilities": len(reference["capabilities"]),
+        "controlled_value_namespaces": len(reference["controlled_value_namespaces"]),
+        "diagnostics": len(reference["diagnostics"]),
+        "canonical_export_bytes": len(canonical_export),
+        "canonical_export_sha256": hashlib.sha256(canonical_export).hexdigest(),
+        "human_sections": ["packs", "capabilities"],
+        "human_report_lines": len(human_reports[reference_runtime]["combined"].splitlines()),
+        "human_all_report_lines": len(human_reports[reference_runtime]["all-deduplicated"].splitlines()),
+        "invalid_selector_cases": 1,
+        "failure_code": next(iter(failure_codes.values())),
+        "elapsed_seconds": elapsed,
+    }
+
+
 CHECK_HANDLERS = {
     "artifact-lifecycle": run_artifact_lifecycle_check,
+    "effective-schema": run_effective_schema_check,
     "framework-extraction": run_framework_extraction_check,
     "qa": run_qa_check,
     "render": run_render_check,
