@@ -154,6 +154,14 @@ copying LoTM configuration or allowing callers to remove registry state. All nin
 surfaces remained absent, and the full compatibility profile preserved canonical Visualization and
 QA outputs.
 
+Platform Phase 2.3.5 closed effective-schema consumer adoption on 2026-08-07. The isolated
+full-release rehearsal copied 236 portable files and passed its six portable suites in Python,
+PowerShell 7, and Windows PowerShell 5.1 while excluding all nine guarded project surfaces. QA and
+Visualization now consume direct projections from one in-memory effective schema; the temporary
+legacy projection and shadow-comparison APIs are absent. The complete 17-suite baseline and all
+seven full-release compatibility checks passed, and canonical Visualization and QA outputs remained
+unchanged.
+
 ## Known Limits And Next Boundaries
 
 Extraction readiness does not close these known items:
@@ -162,8 +170,8 @@ Extraction readiness does not close these known items:
   state boundaries, branch lifecycle, chronology topology, epistemic state, capability state,
   structural interpretations, hosted identity, nested carrier topology, optional hosting-pack
   isolation, and canonical chronology-position provider closure are implemented and pressure-tested
-  through V50. The Phase 1 model gate is closed; Phase 2 effective-schema work is the next platform
-  implementation boundary.
+  through V50. The Phase 1 model gate and Phase 2 effective-schema consumer-adoption gate are closed;
+  pack presentation and configuration are the next platform implementation boundary.
 - Historical continuity-membership transitions, manifestation- or release-scoped continuity,
   occurrence-linked continuity transitions, first-class continuity systems, and sliding-chronology
   policies remain later normalized-content or deferred narrative capability work. They do not weaken

@@ -373,21 +373,6 @@ def _consumer_enablement_field(consumer_id: str) -> str:
         ) from exc
 
 
-def _legacy_capability_state(packs: SchemaPackRegistry, capability_id: str) -> dict[str, Any]:
-    lifecycles = [
-        packs.capability_definitions[(pack_id, capability_id)].lifecycle
-        for pack_id in packs.capability_providers[capability_id]
-    ]
-    effective_lifecycle = (
-        "available" if "available" in lifecycles else "deprecated" if "deprecated" in lifecycles else "planned"
-    )
-    return {
-        "effective_lifecycle": effective_lifecycle,
-        "available": effective_lifecycle in {"available", "deprecated"},
-        "enabled": capability_id in packs.enabled_capabilities,
-    }
-
-
 def _consumer_record_projection(
     roots: dict[str, dict[str, Any]],
     content_types: dict[str, dict[str, Any]],
@@ -441,98 +426,6 @@ def _consumer_record_projection(
             "graph_class": slug_prefix or content_type_id,
         }
     return dict(sorted(records.items()))
-
-
-def compose_legacy_consumer_schema_projection(
-    project: ProjectConfig,
-    packs: SchemaPackRegistry,
-    taxonomy: TaxonomyConfig,
-    consumer_id: str,
-) -> dict[str, Any]:
-    """Project the pre-effective-schema loader results used during consumer shadow adoption."""
-
-    enablement_field = _consumer_enablement_field(consumer_id)
-    content_types = {
-        content_type.id: content_type
-        for content_type in taxonomy.content_types.values()
-        if content_type.lifecycle == "active"
-        and content_type.canonical_pages_enabled
-        and getattr(content_type, enablement_field)
-    }
-    root_ids = {content_type.content_root_id for content_type in content_types.values()}
-    roots = {
-        root.id: {
-            "relative_path": _portable_path(root.relative_path),
-            "provenance_mode": root.provenance_mode,
-            "provenance_label": root.provenance_label,
-        }
-        for root in project.content_roots
-        if root.id in root_ids
-    }
-    content_type_rows = {
-        content_type_id: {
-            "label": item.label,
-            "plural_label": item.plural_label,
-            "content_root_id": item.content_root_id,
-            "category_policy": item.category_policy,
-            "path_strategy": item.path_strategy,
-            "metadata_type_mode": item.metadata_type_mode,
-            "slug_mode": item.slug_mode,
-            "default_template": _repository_relative(item.default_template, project.root),
-            "metadata_type": item.metadata_type,
-            "record_slug_prefix": item.record_slug_prefix,
-            "record_slug_pattern": item.record_slug_pattern,
-            "record_path": _repository_relative(item.record_path, project.root),
-            "qa_page_enabled": item.qa_page_enabled,
-            "graph_enabled": item.graph_enabled,
-        }
-        for content_type_id, item in sorted(content_types.items())
-    }
-
-    categories: dict[str, dict[str, Any]] = {}
-    placements: dict[str, dict[str, Any]] = {}
-    graph_classes: dict[str, str] = {}
-    for category_id, category in sorted(taxonomy.categories.items()):
-        eligible_placements = {
-            content_type_id: placement
-            for content_type_id, placement in (category.placements or {}).items()
-            if content_type_id in content_types
-        }
-        if category.lifecycle != "active" or not category.canonical_pages_enabled or not eligible_placements:
-            continue
-        categories[category_id] = {
-            "label": category.label,
-            "plural_label": category.plural_label,
-            "metadata_type": category.metadata_type,
-            "subject_slug_prefix": category.subject_slug_prefix,
-            "subject_slug_pattern": category.subject_slug_pattern,
-            "graph_class": category.graph_class,
-        }
-        if category.graph_class:
-            graph_classes[category_id] = category.graph_class
-        for content_type_id, placement in sorted(eligible_placements.items()):
-            placement_id = f"{category_id}|{content_type_id}"
-            placements[placement_id] = {
-                "category_id": category_id,
-                "content_type_id": content_type_id,
-                "content_root_id": content_types[content_type_id].content_root_id,
-                "relative_folder": _portable_path(placement.relative_folder),
-                "template": _portable_path(placement.template),
-            }
-
-    return {
-        "consumer_id": consumer_id,
-        "roots": dict(sorted(roots.items())),
-        "content_types": content_type_rows,
-        "categories": categories,
-        "placements": placements,
-        "records": _consumer_record_projection(roots, content_type_rows, categories, placements),
-        "graph_classes": graph_classes,
-        "capability_state": {
-            capability_id: _legacy_capability_state(packs, capability_id)
-            for capability_id in sorted(packs.declared_capabilities)
-        },
-    }
 
 
 def compose_effective_consumer_schema_projection(
@@ -625,36 +518,6 @@ def compose_effective_consumer_schema_projection(
             for row in schema.capabilities
         },
     }
-
-
-def compare_consumer_schema_projections(legacy: Any, effective: Any, path: str = "") -> tuple[str, ...]:
-    """Return stable path-specific differences between legacy and effective projections."""
-
-    differences: list[str] = []
-    if isinstance(legacy, dict) and isinstance(effective, dict):
-        for key in sorted(set(legacy) | set(effective)):
-            child_path = f"{path}.{key}" if path else str(key)
-            if key not in legacy:
-                differences.append(f"{child_path}: missing from legacy; effective={effective[key]!r}")
-            elif key not in effective:
-                differences.append(f"{child_path}: legacy={legacy[key]!r}; missing from effective schema")
-            else:
-                differences.extend(compare_consumer_schema_projections(legacy[key], effective[key], child_path))
-        return tuple(differences)
-    if legacy != effective:
-        differences.append(f"{path or '<root>'}: legacy={legacy!r}; effective={effective!r}")
-    return tuple(differences)
-
-
-def assert_consumer_schema_shadow(
-    consumer_id: str,
-    legacy: dict[str, Any],
-    effective: dict[str, Any],
-) -> None:
-    differences = compare_consumer_schema_projections(legacy, effective)
-    if differences:
-        details = "\n".join(f"- {difference}" for difference in differences)
-        raise ValueError(f"{consumer_id} effective-schema shadow mismatch:\n{details}")
 
 
 def load_effective_project_schema(root: Path) -> EffectiveProjectSchema:

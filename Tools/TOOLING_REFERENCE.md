@@ -27,7 +27,7 @@ All rows in this table require independent Python, PowerShell 7, and Windows Pow
 | `Tools/Runtime/Python/knowledge_framework/project_config.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Project-Config.ps1` | `knowledge_framework.project_paths` plus `knowledge_framework.project_config` | `KnowledgeFramework` project-path and manifest implementation | Dependency-light root/path discovery followed by strict manifest loading. |
 | `Tools/Runtime/Python/knowledge_framework/lookup_key_config.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Lookup-Key-Config.ps1` | `knowledge_framework.lookup_key_config` | `KnowledgeFramework` lookup-key implementation | Pinned Unicode lookup normalization and ordinal comparison. |
 | `Tools/Runtime/Python/knowledge_framework/schema_pack_config.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Schema-Pack-Config.ps1` | `knowledge_framework.schema_pack_config` | `KnowledgeFramework` schema-pack implementation | Pack composition, capability state, and controlled-value ownership. |
-| `Tools/Runtime/Python/knowledge_framework/effective_schema.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Effective-Project-Schema.ps1` | `knowledge_framework.effective_schema` | `KnowledgeFramework` effective-schema implementation | Deterministic project, pack, capability, controlled-value, taxonomy, resource, and diagnostic composition plus fail-closed consumer projections used for staged authority migration. |
+| `Tools/Runtime/Python/knowledge_framework/effective_schema.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Effective-Project-Schema.ps1` | `knowledge_framework.effective_schema` | `KnowledgeFramework` effective-schema implementation | Deterministic project, pack, capability, controlled-value, taxonomy, resource, and diagnostic composition plus direct consumer projections. |
 | `Tools/Runtime/Python/knowledge_framework/taxonomy_config.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Taxonomy-Config.ps1` | `knowledge_framework.taxonomy_config` | `KnowledgeFramework` taxonomy implementation | Content-type/category routing and validation. |
 | `Tools/Runtime/Python/knowledge_framework/resource_config.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Resource-Config.ps1` | `knowledge_framework.resource_config` | `KnowledgeFramework` resource implementation | Resource-kind/type and placement validation. |
 | `Tools/Runtime/Python/knowledge_framework/temporal_config.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Temporal-Config.ps1` | `knowledge_framework.temporal_config` | `KnowledgeFramework` temporal implementation | Domain-neutral civil-time parsing and comparison. |
@@ -1117,21 +1117,19 @@ Current content-type and ownership regression: both implementations selected tax
 
 Library consumers import the service. They must not launch the command to recover the same object.
 Python exposes `EffectiveProjectSchema`, `compose_effective_project_schema`,
-`load_effective_project_schema`, consumer projection/comparison/assertion helpers,
+`load_effective_project_schema`, `compose_effective_consumer_schema_projection`,
 `effective_schema_json`, and `effective_schema_failure`.
 PowerShell exposes `New-KnowledgeEffectiveProjectSchema`, `Get-KnowledgeEffectiveProjectSchema`,
-the paired consumer projection/comparison/assertion functions, and
-`New-KnowledgeEffectiveSchemaFailure` from module version 0.3.0.
+`New-KnowledgeEffectiveConsumerSchemaProjection`, and `New-KnowledgeEffectiveSchemaFailure` from
+module version 0.4.0.
 
 QA and Visualization compose one effective schema in-process from the project, pack, taxonomy, and
-resource objects already loaded by their supported runtime. Temporary shadow projections compare
-roots, content types, categories, placements, graph classes, and complete declared capability state
-with the legacy loader view. Differences use keyed paths such as
-`placements.character|glossary-page.template`; any difference stops the command before output.
-QA and Visualization now use their effective projections for discovery and record eligibility while
-retaining the legacy projection as a fail-closed comparison through Phase 2.3.5. Their Markdown/YAML
-interpretation and generated semantics remain compatibility adapters until later normalized-content
-phases replace them.
+resource objects already loaded by their supported runtime. QA and Visualization use direct
+effective projections for discovery and record eligibility. Python QA passes that same composed
+object into Visualization's explicit library initializer when requesting graphs. Direct
+Markdown/YAML interpretation and generated semantics remain compatibility adapters until later
+normalized-content phases replace them. The temporary legacy projection, comparison, and shadow
+assertion APIs were retired after Phase 2.3.5 closure.
 
 ### Switch Map
 
@@ -1168,8 +1166,9 @@ with JSON output/export, and its destination follows the same project-root confi
 
 `effective-schema` belongs to both aggregate profiles. Its paired suite covers positive,
 available-disabled, planned, deprecated, multiple-provider, dependency-failure, malformed,
-deterministic, working-directory-independent path serialization, consumer shadow parity, exact-path
-shadow failure, path-safety, and generated 400-capability scale behavior. The compatibility check of
+deterministic, working-directory-independent path serialization, direct QA/Visualization projection
+shape, retired shadow-API absence, path-safety, and generated
+400-capability scale behavior. The compatibility check of
 the same ID compares complete in-memory JSON, byte-identical canonical file exports, combined
 `packs` plus `capabilities` human inspection and byte-identical report exports, deduplicated `all`
 expansion, invalid selection, and
@@ -1184,10 +1183,11 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Confor
 python Tools\Compatibility\run_compatibility.py --check effective-schema --json
 ```
 
-Last focused parity check: 2026-08-07 for Platform Phase 2.3.2. All three runtimes produced the same
+Last focused parity check: 2026-08-07 for Platform Phase 2.3.5. All three runtimes produced the same
 10-pack, 132-capability, 138-namespace effective schema with two deterministic diagnostics. The
-paired suite also passed QA and Visualization consumer-shadow projections, one exact-path synthetic
-drift failure, and three deterministic compositions including an unrelated working directory. The compatibility
+paired suite also passed direct QA and Visualization projections, proved all three retired shadow
+APIs absent, and completed three deterministic compositions including an unrelated working
+directory. The compatibility
 check also produced the same 297,916-byte canonical export with SHA-256
 `46c42decd28af5e8ba4653e9b51465b0b0289284d3fbb3619c48730d298953e2` and matched the
 319-line combined pack/capability report, 1,621-line deduplicated `all` report, and byte-identical
@@ -1273,7 +1273,7 @@ This section tracks durable configuration and generated state files that affect 
 | Resolve controlled-value ownership | `SchemaPackRegistry.allowed_values`, `owner_of`, `owns_value` | `Get-SchemaPackAllowedValues`, `Test-SchemaPackOwnsValue` |
 | Resolve controlled-value labels, descriptions, and broader values | `SchemaPackRegistry.definition_of` | `Get-SchemaPackValueDefinition` |
 | Compose or load the generated effective project schema | `compose_effective_project_schema`, `load_effective_project_schema` in `effective_schema.py` | `New-KnowledgeEffectiveProjectSchema`, `Get-KnowledgeEffectiveProjectSchema` in `Effective-Project-Schema.ps1` |
-| Compose, compare, and assert a consumer projection | `compose_legacy_consumer_schema_projection`, `compose_effective_consumer_schema_projection`, `compare_consumer_schema_projections`, `assert_consumer_schema_shadow` | `New-KnowledgeLegacyConsumerSchemaProjection`, `New-KnowledgeEffectiveConsumerSchemaProjection`, `Compare-KnowledgeConsumerSchemaProjection`, `Assert-KnowledgeConsumerSchemaShadow` |
+| Compose a consumer projection | `compose_effective_consumer_schema_projection` | `New-KnowledgeEffectiveConsumerSchemaProjection` |
 | Serialize an effective schema or classify failed composition | `effective_schema_json`, `effective_schema_failure` | command serialization plus `New-KnowledgeEffectiveSchemaFailure` |
 | Run effective-schema conformance with structured summary output | `test_effective_schema.py` (`--json`) | `Test-Effective-Schema.ps1` (`-Json`) |
 | Parse a shared temporal bound or window | `parse_temporal_bound`, `parse_temporal_window` in `temporal_config.py` | `ConvertTo-KnowledgeTemporalBound`, `ConvertTo-KnowledgeTemporalWindow` in `Temporal-Config.ps1` |
@@ -1454,19 +1454,17 @@ matching semantic dimensions.
 
 Protected canonical Visualization configuration, reports, snapshots, graphs, renders, and the configured QA export are hashed before and after every run. Successful output is removed through the maintained cleanup command unless `--keep-output` is supplied. Failed output is retained for diagnosis. An explicit output root must be a child of repository `.tmp/`; the repository root, `.tmp/` itself, and outside paths are rejected.
 
-Last compatibility check: 2026-08-07 for Platform Phase 2.3.4. The focused 38.9-second
-`visualization` check passed Python, PowerShell 7, and Windows PowerShell 5.1 after Visualization
-discovery authority moved to the effective schema. It preserved 15 nodes, 121 relationships, all
-five redirected refresh files, refresh tree SHA-256
+Last compatibility check: 2026-08-07 for Platform Phase 2.3.5. The 293.4-second `full-release`
+profile passed all seven registered checks after the temporary consumer-shadow APIs were retired.
+Visualization preserved 15 nodes, 121 relationships, all five redirected refresh files, refresh
+tree SHA-256
 `dfb0ffd4a11d304ab2ffd2571bfba4717b087c512d46abd6120f920835577fe6` and unbounded graph SHA-256
 `477eb74726f1c8430ad52c5a187db3bfd402404115f36ce2bf1750f8c6531cc4`.
-Canonical outputs remained unchanged, and the retained review bundle is under
-`.tmp/visualization-discovery-migration-review/`. The paired effective-schema conformance suite also
-passed all three runtimes with one Visualization content type, sixteen categories and records,
-schema-owned tarot-card class mapping, and the four required enabled projection capabilities. The
-latest combined `local` profile remains the 158.9-second Phase 2.3.2 run. The latest
-render-bearing `full-release` result remains the 2026-08-06 V49 run, which passed all six
-then-registered checks and produced identical nonblank SVG output.
+QA preserved 16 notes, 121 relationships, 71 data references, all 34 files, and tree SHA-256
+`2b754c78c5ed76d782f152b68d73df680029f1e40e5b7be5c4280fcc9c4bc292`. All twelve root launches,
+six unsafe artifact destinations, the 236-file neutral framework extraction, and three identical
+298,269-byte nonblank SVG renders passed. Canonical outputs remained unchanged and successful scoped
+output was removed.
 
 ### Aggregate Conformance
 
@@ -1483,10 +1481,10 @@ The paired aggregate runners accept an optional repository root, validate `Tools
 
 `baseline` is the CI and framework-version conformance profile. `fast` is the local feedback profile; ordinary feature-branch pushes run only the separate hosted work-annotation policy rather than a lighter conformance tier. It does not replace baseline, visualization, or QA compatibility validation. Both implementations detect unregistered discovered conformance runners, missing registered files, stale exclusions, duplicate IDs or paths, invalid profiles, and paths outside the repository. Each suite runs in an isolated child process to preserve script behavior and PowerShell scope isolation. Runtime module extraction alone does not make in-process PowerShell aggregation safe: current suites remain top-level scripts that define functions, import modules with process scope, mutate process-local state, and terminate through script exit behavior. Retain child-process execution until suites expose callable APIs with explicit state-reset and error-return contracts, then prove equivalent isolation before changing the aggregate runner.
 
-Last aggregate parity check: 2026-08-07 for Platform Phase 2.2. The `baseline` profile passed all
+Last aggregate parity check: 2026-08-07 for Platform Phase 2.3.5. The `baseline` profile passed all
 seventeen registered suites in Python, PowerShell 7, and Windows PowerShell 5.1 with matching suite
-IDs, statuses, and canonicalized semantic summaries. Exact runtimes were 44.9, 209.5, and 374.2
-seconds. The new effective-schema suite preserved 10 active packs, 132 declared capabilities, 123
+IDs, statuses, and canonicalized semantic summaries in 618.5 seconds combined. The effective-schema
+suite preserved 10 active packs, 132 declared capabilities, 123
 enabled capabilities, nine planned capabilities, 138 controlled-value namespaces, and two
 deterministic deferred-category diagnostics while exercising four synthetic lifecycle/provider states,
 one classified dependency failure, and a 400-capability scale composition. The complete baseline
@@ -1494,11 +1492,8 @@ also preserved 25 reconciliation target types, 71 provenance subject types, four
 cross-registry compositions, every existing registry corpus, and the established hosting and
 interpretation scale probes. Source, entity, provenance, hosting, interpretation, and project
 composition remain outside the nine-suite `fast` profile because their repeated dependency
-composition is materially expensive. The latest full-release compatibility result remains the
-2026-08-06 V49 run; Phase 2.2 separately added and passed the focused three-runtime effective-schema
-compatibility check before consumer adoption. Phases 2.3.3 and 2.3.4 reran the focused
-effective-schema suite in all three runtimes and added permanent QA and Visualization discovery
-coverage without changing the aggregate profile membership.
+composition is materially expensive. Phase 2.3.5 replaced shadow-parity probes with direct consumer
+projection and retired-API assertions without changing aggregate profile membership.
 
 ### Strict YAML Conformance
 

@@ -27,13 +27,7 @@ $effectiveSchema = New-KnowledgeEffectiveProjectSchema `
     $schemaPacks `
     $taxonomyConfig `
 (Get-KnowledgeResourceConfig $projectConfig)
-$legacyConsumerSchema = New-KnowledgeLegacyConsumerSchemaProjection `
-    $projectConfig `
-    $schemaPacks `
-    $taxonomyConfig `
-    'visualization'
 $effectiveConsumerSchema = New-KnowledgeEffectiveConsumerSchemaProjection $effectiveSchema 'visualization'
-Assert-KnowledgeConsumerSchemaShadow 'visualization' $legacyConsumerSchema $effectiveConsumerSchema
 
 $script:VisualizationDiscovery = $null
 $RequiredVisualizationCapabilities = @(

@@ -22,10 +22,9 @@ from knowledge_framework.project_config import (
     resolve_project_root,
 )
 from knowledge_framework.effective_schema import (
-    assert_consumer_schema_shadow,
+    EffectiveProjectSchema,
     compose_effective_project_schema,
     compose_effective_consumer_schema_projection,
-    compose_legacy_consumer_schema_projection,
 )
 from knowledge_framework.resource_config import load_resource_config
 from knowledge_framework.schema_pack_config import load_schema_pack_registry
@@ -1454,7 +1453,7 @@ def append_qa_graph_class_assignments(lines: list[str], used_slugs: list[str], n
         lines.append(f"  class {mermaid_node_id(slug)} {class_name}")
 
 
-def load_visualization_helper(config: ProjectConfig):
+def load_visualization_helper(config: ProjectConfig, effective_schema: EffectiveProjectSchema):
     visualize_path = config.visualization_python_helper
     if not visualize_path.exists():
         raise RuntimeError(f"Visualization helper not found: {visualize_path}")
@@ -1468,11 +1467,16 @@ def load_visualization_helper(config: ProjectConfig):
     sys.modules[module_name] = visualize
     spec.loader.exec_module(visualize)
     visualize.REPO_ROOT = config.root
+    visualize.configure_visualization_discovery(config, effective_schema)
     return visualize
 
 
-def write_visualization_relationship_graph(config: ProjectConfig, output_path: Path) -> None:
-    visualize = load_visualization_helper(config)
+def write_visualization_relationship_graph(
+    config: ProjectConfig,
+    effective_schema: EffectiveProjectSchema,
+    output_path: Path,
+) -> None:
+    visualize = load_visualization_helper(config, effective_schema)
     visualize.write_unbounded_relationship_graph(
         output_path,
         include_confirmed_confidence=True,
@@ -1486,9 +1490,13 @@ def repo_relative_path(root: Path, path: Path) -> str:
         return str(path)
 
 
-def write_repo_refresh_check(config: ProjectConfig, generated_dir: Path) -> None:
+def write_repo_refresh_check(
+    config: ProjectConfig,
+    effective_schema: EffectiveProjectSchema,
+    generated_dir: Path,
+) -> None:
     root = config.root
-    visualize = load_visualization_helper(config)
+    visualize = load_visualization_helper(config, effective_schema)
     source_settings_path = config.visualization_render_settings
     settings = json.loads(source_settings_path.read_text(encoding="utf-8"))
     check_dir = generated_dir / "repo-refresh-check"
@@ -1518,6 +1526,7 @@ def write_repo_refresh_check(config: ProjectConfig, generated_dir: Path) -> None
 
 def write_bounded_graphs(
     config: ProjectConfig,
+    effective_schema: EffectiveProjectSchema,
     generated_dir: Path,
     specs: list[BoundedGraphSpec],
 ) -> None:
@@ -1528,7 +1537,7 @@ def write_bounded_graphs(
             shutil.rmtree(bounded_dir)
         return
 
-    visualize = load_visualization_helper(config)
+    visualize = load_visualization_helper(config, effective_schema)
     source_settings_path = config.visualization_render_settings
     settings = json.loads(source_settings_path.read_text(encoding="utf-8"))
     if bounded_dir.exists():
@@ -2576,6 +2585,7 @@ def ensure_safe_output(root: Path, output_dir: Path) -> Path:
 
 def write_export(
     config: ProjectConfig,
+    effective_schema: EffectiveProjectSchema,
     output_dir: Path,
     clean: bool,
     notes: dict[str, CanonicalNote],
@@ -2612,9 +2622,13 @@ def write_export(
         render_relationship_node_graph(relationships, notes, data_projections),
         encoding="utf-8",
     )
-    write_visualization_relationship_graph(config, generated_dir / "visualization-relationship-graph.mmd")
-    write_repo_refresh_check(config, generated_dir)
-    write_bounded_graphs(config, generated_dir, bounded_graph_specs)
+    write_visualization_relationship_graph(
+        config,
+        effective_schema,
+        generated_dir / "visualization-relationship-graph.mmd",
+    )
+    write_repo_refresh_check(config, effective_schema, generated_dir)
+    write_bounded_graphs(config, effective_schema, generated_dir, bounded_graph_specs)
     write_bounded_pages(root, generated_dir, notes, bounded_page_specs)
     (generated_dir / "data-reference-index.md").write_text(
         render_data_reference_index(data_references, notes), encoding="utf-8"
@@ -2653,13 +2667,7 @@ def main() -> int:
         taxonomy,
         load_resource_config(config),
     )
-    legacy_consumer_schema = compose_legacy_consumer_schema_projection(config, schema_packs, taxonomy, "qa")
     effective_consumer_schema = compose_effective_consumer_schema_projection(effective_schema, "qa")
-    assert_consumer_schema_shadow(
-        "qa",
-        legacy_consumer_schema,
-        effective_consumer_schema,
-    )
     ACTIVE_QA_DISCOVERY = compose_qa_discovery_config(config, effective_consumer_schema)
     qa_content_roots = ACTIVE_QA_DISCOVERY.content_roots
     ACTIVE_CONTENT_ROOTS = qa_content_roots
@@ -2674,6 +2682,7 @@ def main() -> int:
     )
     write_export(
         config,
+        effective_schema,
         output_dir,
         args.clean,
         notes,

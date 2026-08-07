@@ -27,13 +27,13 @@ a compiled diagnostic view and must not be edited or ingested as canonical confi
 consumers import the paired effective-schema runtime service; exact APIs and verification commands
 are in [Tooling Reference](TOOLING_REFERENCE.md#effective-project-schema).
 
-QA and Visualization use that service with a fail-closed legacy/effective comparison before
-generation. QA now takes enabled roots, content types, category/fixed-record eligibility, labels,
+QA and Visualization use that service directly before generation. QA takes enabled roots, content
+types, category/fixed-record eligibility, labels,
 plural labels, placement/export folders, exact slug rules, and graph-class lookup from the matching
 effective projection. Visualization takes graph-enabled roots and content types, category records,
 exact slug rules, graph classes, and enabled projection capabilities from its matching projection.
-Both retain direct page/YAML parsing and all generated semantics as compatibility adapters. Any
-projection mismatch reports exact keyed paths and stops the command.
+Both retain direct page/YAML parsing and all generated semantics as compatibility adapters until the
+normalized-content phases replace them.
 
 Add `--report-output PATH` / `-ReportOutput PATH` to write the selected human-readable report
 directly to a UTF-8 text file beneath the project root. This suppresses the report body on standard

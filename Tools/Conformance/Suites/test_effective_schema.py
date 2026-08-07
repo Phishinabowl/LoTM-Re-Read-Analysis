@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import copy
 from dataclasses import replace
 import json
 import os
@@ -15,12 +14,10 @@ RUNTIME_ROOT = Path(__file__).resolve().parents[2] / "Runtime" / "Python"
 if str(RUNTIME_ROOT) not in sys.path:
     sys.path.insert(0, str(RUNTIME_ROOT))
 
+import knowledge_framework  # noqa: E402
 from knowledge_framework.effective_schema import (  # noqa: E402
-    assert_consumer_schema_shadow,
-    compare_consumer_schema_projections,
     compose_effective_project_schema,
     compose_effective_consumer_schema_projection,
-    compose_legacy_consumer_schema_projection,
     effective_schema_failure,
     effective_schema_json,
 )
@@ -117,13 +114,17 @@ def main() -> int:
     if alternate_directory_json != effective_schema_json(schema):
         raise AssertionError("Effective-schema composition changed with the process working directory.")
 
-    consumer_shadow_modes = ("qa", "visualization")
-    consumer_projections: dict[str, dict] = {}
-    for consumer_id in consumer_shadow_modes:
-        legacy_projection = compose_legacy_consumer_schema_projection(project, packs, taxonomy, consumer_id)
-        effective_projection = compose_effective_consumer_schema_projection(schema, consumer_id)
-        assert_consumer_schema_shadow(consumer_id, legacy_projection, effective_projection)
-        consumer_projections[consumer_id] = effective_projection
+    consumer_ids = ("qa", "visualization")
+    consumer_projections = {
+        consumer_id: compose_effective_consumer_schema_projection(schema, consumer_id) for consumer_id in consumer_ids
+    }
+    retired_consumer_apis = (
+        "assert_consumer_schema_shadow",
+        "compare_consumer_schema_projections",
+        "compose_legacy_consumer_schema_projection",
+    )
+    if any(hasattr(knowledge_framework, name) for name in retired_consumer_apis):
+        raise AssertionError("Retired effective-schema shadow APIs remain publicly exported.")
 
     qa_projection = consumer_projections["qa"]
     if set(qa_projection["roots"]) != {"glossary", "volumes"}:
@@ -170,21 +171,6 @@ def main() -> int:
     }
     if not required_visualization_capabilities <= enabled_visualization_capabilities:
         raise AssertionError("Effective Visualization projection capabilities changed.")
-
-    legacy_projection = compose_legacy_consumer_schema_projection(project, packs, taxonomy, "qa")
-    drifted_projection = copy.deepcopy(compose_effective_consumer_schema_projection(schema, "qa"))
-    drifted_projection["roots"]["glossary"]["relative_path"] = "Changed_Glossary"
-    expected_difference = "roots.glossary.relative_path: legacy='Glossary_Threads'; effective='Changed_Glossary'"
-    differences = compare_consumer_schema_projections(legacy_projection, drifted_projection)
-    if differences != (expected_difference,):
-        raise AssertionError(f"Consumer shadow mismatch detail changed: {differences}")
-    try:
-        assert_consumer_schema_shadow("qa", legacy_projection, drifted_projection)
-    except ValueError as exc:
-        if expected_difference not in str(exc):
-            raise AssertionError(f"Consumer shadow failure omitted its exact path: {exc}") from exc
-    else:
-        raise AssertionError("Consumer shadow accepted a drifted effective projection.")
 
     capability_by_id = {row["id"]: row for row in document["capabilities"]}
     planned_id = next(row["id"] for row in document["capabilities"] if row["planned"])
@@ -275,8 +261,8 @@ def main() -> int:
         "deterministic_passes": 3,
         "synthetic_states": 4,
         "failure_cases": 1,
-        "consumer_shadow_modes": len(consumer_shadow_modes),
-        "consumer_shadow_failure_cases": 1,
+        "consumer_projection_modes": len(consumer_ids),
+        "retired_consumer_apis": len(retired_consumer_apis),
         "qa_discovery_content_types": len(qa_projection["content_types"]),
         "qa_discovery_categories": len(qa_projection["categories"]),
         "qa_discovery_placements": len(qa_projection["placements"]),

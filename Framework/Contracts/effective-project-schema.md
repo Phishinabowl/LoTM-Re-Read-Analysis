@@ -324,6 +324,8 @@ document, export, and failure envelope across Python, PowerShell 7, and Windows 
 
 - Library consumers import the effective-schema service; they do not invoke its CLI as a subprocess.
 - CLI, QA, Visualization, and interface consumers read the same composed object.
+- QA and Visualization derive discovery and eligibility from direct effective-schema projections;
+  no legacy discovery projection or shadow comparison remains in their runtime path.
 - Consumers may filter the effective schema for presentation but must not reinterpret lifecycle,
   activation, ownership, eligibility, or path policy.
 - A disabled capability is normally omitted from feature UI without warning; diagnostics explain

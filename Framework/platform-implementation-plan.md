@@ -471,23 +471,23 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 #### Phase 2.3.5 Consumer Adoption Closure
 
-- [ ] Remove the temporary legacy side of shadow comparisons only after the effective-schema path
+- [x] Remove the temporary legacy side of shadow comparisons only after the effective-schema path
   passes the permanent baselines; retain explicit compatibility adapters still required by the
   Phase 5 legacy-content migration.
-- [ ] Run effective-schema, QA, Visualization, root-discovery, artifact-lifecycle, framework
+- [x] Run effective-schema, QA, Visualization, root-discovery, artifact-lifecycle, framework
   extraction, static policy, formatting, and full-release compatibility coverage in every supported
   runtime.
-- [ ] Confirm canonical outputs remain unchanged, scoped temporary artifacts are removed, and the
+- [x] Confirm canonical outputs remain unchanged, scoped temporary artifacts are removed, and the
   full LoTM QA and Visualization portfolio remains compatibility-equivalent.
-- [ ] Update architecture, tooling, testing, extraction-readiness, and implementation documentation
+- [x] Update architecture, tooling, testing, extraction-readiness, and implementation documentation
   to describe the new consumer dependency without claiming Phase 5-8 migrations are complete.
-- [ ] Regenerate canonical graph or QA artifacts only through a separate reviewed action after the
+- [x] Regenerate canonical graph or QA artifacts only through a separate reviewed action after the
   redirected equivalence results are accepted.
 
 ### Phase 2 Exit Gate
 
-- [ ] QA, Visualization, CLI, and future UI code can inspect one identical effective schema.
-- [ ] Existing LoTM outputs remain compatibility-equivalent.
+- [x] QA, Visualization, CLI, and future UI code can inspect one identical effective schema.
+- [x] Existing LoTM outputs remain compatibility-equivalent.
 
 ## Phase 3: Pack Presentation And Configuration Model
 

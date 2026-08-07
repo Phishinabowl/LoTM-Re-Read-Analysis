@@ -93,13 +93,19 @@ if ($firstJson -cne $alternateDirectoryJson) {
     throw 'Effective-schema composition changed with the process working directory.'
 }
 
-$consumerShadowModes = @('qa', 'visualization')
+$consumerIds = @('qa', 'visualization')
 $consumerProjections = @{}
-foreach ($consumerId in $consumerShadowModes) {
-    $legacyProjection = New-KnowledgeLegacyConsumerSchemaProjection $project $packs $taxonomy $consumerId
-    $effectiveProjection = New-KnowledgeEffectiveConsumerSchemaProjection $schema $consumerId
-    Assert-KnowledgeConsumerSchemaShadow $consumerId $legacyProjection $effectiveProjection
-    $consumerProjections[$consumerId] = $effectiveProjection
+foreach ($consumerId in $consumerIds) {
+    $consumerProjections[$consumerId] = New-KnowledgeEffectiveConsumerSchemaProjection $schema $consumerId
+}
+$retiredConsumerApis = @(
+    'Assert-KnowledgeConsumerSchemaShadow'
+    'Compare-KnowledgeConsumerSchemaProjection'
+    'New-KnowledgeLegacyConsumerSchemaProjection'
+)
+$exportedCommands = @(Get-Module KnowledgeFramework).ExportedCommands
+if (@($retiredConsumerApis | Where-Object { $exportedCommands.ContainsKey($_) }).Count -gt 0) {
+    throw 'Retired effective-schema shadow APIs remain publicly exported.'
 }
 
 $qaProjection = $consumerProjections['qa']
@@ -156,24 +162,6 @@ $missingVisualizationCapabilities = @(
 )
 if ($missingVisualizationCapabilities.Count -gt 0) {
     throw 'Effective Visualization projection capabilities changed.'
-}
-
-$legacyProjection = New-KnowledgeLegacyConsumerSchemaProjection $project $packs $taxonomy 'qa'
-$driftedProjection = New-KnowledgeEffectiveConsumerSchemaProjection $schema 'qa'
-$driftedProjection.roots.glossary.relative_path = 'Changed_Glossary'
-$expectedDifference = 'roots.glossary.relative_path: legacy="Glossary_Threads"; effective="Changed_Glossary"'
-$differences = @(Compare-KnowledgeConsumerSchemaProjection $legacyProjection $driftedProjection)
-if ($differences.Count -ne 1 -or $differences[0] -cne $expectedDifference) {
-    throw "Consumer shadow mismatch detail changed: $($differences -join ' | ')"
-}
-try {
-    Assert-KnowledgeConsumerSchemaShadow 'qa' $legacyProjection $driftedProjection
-    throw 'Consumer shadow accepted a drifted effective projection.'
-}
-catch {
-    if (-not $_.Exception.Message.Contains($expectedDifference)) {
-        throw "Consumer shadow failure omitted its exact path: $($_.Exception.Message)"
-    }
 }
 
 $planned = @($schema.capabilities | Where-Object planned | Select-Object -First 1)
@@ -268,8 +256,8 @@ $result = [ordered]@{
     deterministic_passes = 3
     synthetic_states = 4
     failure_cases = 1
-    consumer_shadow_modes = $consumerShadowModes.Count
-    consumer_shadow_failure_cases = 1
+    consumer_projection_modes = $consumerIds.Count
+    retired_consumer_apis = $retiredConsumerApis.Count
     qa_discovery_content_types = $qaProjection.content_types.Count
     qa_discovery_categories = $qaProjection.categories.Count
     qa_discovery_placements = $qaProjection.placements.Count

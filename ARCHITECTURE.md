@@ -206,11 +206,11 @@ runtime services live in `Tools/Runtime/Python/knowledge_framework/effective_sch
 normalized-content, relationship, and projection declarations join the same service only after their
 owning phases implement those contracts. See `Framework/Contracts/effective-project-schema.md`.
 
-During Phase 2.3 adoption, QA and Visualization compose the effective schema in-process from their
-already-loaded project, pack, taxonomy, and resource objects. Each consumer compares a read-only
-effective projection with its legacy loader projection for roots, content types, categories,
-placements, graph classes, capability state, and record-path/slug details before generation begins.
-Any mismatch fails closed with exact keyed paths.
+QA and Visualization compose the effective schema in-process from their already-loaded project,
+pack, taxonomy, and resource objects. Each reads a consumer-specific projection from that one
+composed object for roots, content types, categories, placements, graph classes, capability state,
+and record-path/slug details before generation begins. The temporary legacy projection and shadow
+comparison APIs were retired when Phase 2.3 compatibility closure passed.
 
 QA discovery consumes the matching effective projection for enabled roots and content types,
 category and fixed-type eligibility, labels, plural labels, placement/export folders, exact slug

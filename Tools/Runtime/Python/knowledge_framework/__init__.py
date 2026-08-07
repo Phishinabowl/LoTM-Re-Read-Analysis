@@ -8,11 +8,8 @@ from .project_paths import (
 )
 from .effective_schema import (
     EffectiveProjectSchema,
-    assert_consumer_schema_shadow,
-    compare_consumer_schema_projections,
     compose_effective_project_schema,
     compose_effective_consumer_schema_projection,
-    compose_legacy_consumer_schema_projection,
     effective_schema_failure,
     effective_schema_json,
     load_effective_project_schema,
@@ -24,11 +21,8 @@ __all__ = [
     "is_project_root",
     "resolve_project_root",
     "EffectiveProjectSchema",
-    "assert_consumer_schema_shadow",
-    "compare_consumer_schema_projections",
     "compose_effective_project_schema",
     "compose_effective_consumer_schema_projection",
-    "compose_legacy_consumer_schema_projection",
     "effective_schema_failure",
     "effective_schema_json",
     "load_effective_project_schema",

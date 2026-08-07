@@ -3798,13 +3798,7 @@ $effectiveSchema = New-KnowledgeEffectiveProjectSchema `
     $schemaPacks `
     $taxonomyConfig `
 (Get-KnowledgeResourceConfig $projectConfig)
-$legacyConsumerSchema = New-KnowledgeLegacyConsumerSchemaProjection `
-    $projectConfig `
-    $schemaPacks `
-    $taxonomyConfig `
-    'qa'
 $effectiveConsumerSchema = New-KnowledgeEffectiveConsumerSchemaProjection $effectiveSchema 'qa'
-Assert-KnowledgeConsumerSchemaShadow 'qa' $legacyConsumerSchema $effectiveConsumerSchema
 $script:QaDiscovery = New-QaDiscoveryConfig $projectConfig $effectiveConsumerSchema
 $qaContentRoots = @($script:QaDiscovery.content_roots)
 $script:ActiveContentRoots = $qaContentRoots

@@ -27,10 +27,9 @@ if str(RUNTIME_ROOT) not in sys.path:
     sys.path.insert(0, str(RUNTIME_ROOT))
 
 from knowledge_framework.effective_schema import (
-    assert_consumer_schema_shadow,
+    EffectiveProjectSchema,
     compose_effective_project_schema,
     compose_effective_consumer_schema_projection,
-    compose_legacy_consumer_schema_projection,
 )
 from knowledge_framework.project_config import ProjectConfig, load_project_config
 from knowledge_framework.project_paths import resolve_project_root
@@ -143,6 +142,17 @@ def compose_visualization_discovery_config(
 def active_visualization_discovery() -> VisualizationDiscoveryConfig:
     if ACTIVE_VISUALIZATION_DISCOVERY is None:
         raise RuntimeError("Visualization effective-schema discovery has not been initialized.")
+    return ACTIVE_VISUALIZATION_DISCOVERY
+
+
+def configure_visualization_discovery(
+    project: ProjectConfig,
+    effective_schema: EffectiveProjectSchema,
+) -> VisualizationDiscoveryConfig:
+    global ACTIVE_VISUALIZATION_DISCOVERY
+
+    effective_projection = compose_effective_consumer_schema_projection(effective_schema, "visualization")
+    ACTIVE_VISUALIZATION_DISCOVERY = compose_visualization_discovery_config(project, effective_projection)
     return ACTIVE_VISUALIZATION_DISCOVERY
 
 
@@ -2034,7 +2044,7 @@ def clean_disposable_caches() -> None:
 
 
 def main() -> None:
-    global ACTIVE_VISUALIZATION_DISCOVERY, REPO_ROOT
+    global REPO_ROOT
 
     args = parse_args()
     REPO_ROOT = resolve_project_root(args.root, executable_path=__file__)
@@ -2047,13 +2057,7 @@ def main() -> None:
         taxonomy,
         load_resource_config(project),
     )
-    effective_consumer_schema = compose_effective_consumer_schema_projection(effective_schema, "visualization")
-    assert_consumer_schema_shadow(
-        "visualization",
-        compose_legacy_consumer_schema_projection(project, schema_packs, taxonomy, "visualization"),
-        effective_consumer_schema,
-    )
-    ACTIVE_VISUALIZATION_DISCOVERY = compose_visualization_discovery_config(project, effective_consumer_schema)
+    configure_visualization_discovery(project, effective_schema)
     if args.mode == "qa-relationship":
         if not args.graph_path:
             raise ValueError("qa-relationship mode requires --graph-path.")
