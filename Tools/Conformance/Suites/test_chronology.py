@@ -117,6 +117,15 @@ def main() -> int:
         raise AssertionError("Chronology provenance target counts did not match the V50 fixture.")
     if fixture.provenance_target("chronology-position", "civil-anchor") is not fixture.positions["civil-anchor"]:
         raise AssertionError("Chronology-position provenance lookup returned the wrong canonical record.")
+    if registry.provenance_targets()["chronology-position"] != {}:
+        raise AssertionError("An empty chronology registry did not expose an empty chronology-position provider.")
+    detached_targets = fixture.provenance_targets()
+    del detached_targets["chronology-position"]["civil-anchor"]
+    if (
+        "civil-anchor" not in fixture.positions
+        or "civil-anchor" not in fixture.provenance_targets()["chronology-position"]
+    ):
+        raise AssertionError("Mutating the chronology provider inventory changed canonical registry state.")
     for subject_type, subject_id in (("chronology-position", "missing-position"), ("unknown", "civil-anchor")):
         try:
             fixture.provenance_target(subject_type, subject_id)
@@ -193,6 +202,8 @@ def main() -> int:
         "invalid_fixtures": len(invalid_paths),
         "scale_context_relations": scale_count,
         "scale_positions": scale_count,
+        "provider_isolation_checks": 1,
+        "empty_provider_checks": 1,
     }
     if args.json:
         print(json.dumps(summary, sort_keys=True, separators=(",", ":")))

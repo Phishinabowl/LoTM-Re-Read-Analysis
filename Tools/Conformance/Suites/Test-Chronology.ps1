@@ -94,6 +94,15 @@ $positionTarget = Get-KnowledgeChronologyProvenanceTarget $fixture 'chronology-p
 if (-not [object]::ReferenceEquals($positionTarget, $fixture.positions['civil-anchor'])) {
     throw 'Chronology-position provenance lookup returned the wrong canonical record.'
 }
+if ((Get-KnowledgeChronologyProvenanceTargets $registry)['chronology-position'].Count -ne 0) {
+    throw 'An empty chronology registry did not expose an empty chronology-position provider.'
+}
+$detachedTargets = Get-KnowledgeChronologyProvenanceTargets $fixture
+[void]$detachedTargets['chronology-position'].Remove('civil-anchor')
+if (-not $fixture.positions.Contains('civil-anchor') -or
+    -not (Get-KnowledgeChronologyProvenanceTargets $fixture)['chronology-position'].Contains('civil-anchor')) {
+    throw 'Mutating the chronology provider inventory changed canonical registry state.'
+}
 foreach ($invalidLookup in @(
         @('chronology-position', 'missing-position'),
         @('unknown', 'civil-anchor')
@@ -181,6 +190,8 @@ $summary = [ordered]@{
     mappings=[int]@($registry.mappings).Count
     fixture_context_queries=[int]@($expectations.context_queries.from).Count + [int]@($expectations.context_queries.to).Count
     positions=[int]$registry.positions.Count
+    empty_provider_checks=1
+    provider_isolation_checks=1
     relations=[int]@($registry.relations).Count
     schema_version=[int]$registry.schema_version
     scale_context_relations=[int]$scaleCount

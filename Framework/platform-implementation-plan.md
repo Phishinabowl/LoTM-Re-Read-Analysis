@@ -364,7 +364,7 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [x] Run the complete three-runtime baseline, full-release compatibility, static policy, retained
   structural-interpretation and cross-domain scenarios, adversarial cases, and scale tests.
 - [ ] Complete the normal two-part V50 implementation and pressure-test confirmation sequence.
-- [ ] Re-run the expanded stabilization decision and either close the Phase 1 exit gate or record a
+- [x] Re-run the expanded stabilization decision and either close the Phase 1 exit gate or record a
   newly evidenced blocker.
 
 ### Phase 1 Exit Gate
@@ -387,7 +387,7 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [x] Primer, Arrival, Memento, Doctor Who, and Westworld pass their retained scenario questions.
 - [x] Parody/derivation, continuity/identity, serialized adaptation, and textual tradition pass their
   retained scenario questions without weakening their earlier ownership boundaries.
-- [ ] Framework evolution identifies the accepted next version or Phase 2 handoff after the expanded
+- [x] Framework evolution identifies the accepted next version or Phase 2 handoff after the expanded
   stabilization gate.
 
 ## Phase 2: Effective Project Schema Service
