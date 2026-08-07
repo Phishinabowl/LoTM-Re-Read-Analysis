@@ -522,6 +522,12 @@ python Tools\Compatibility\run_compatibility.py --profile full-release
 
 `Tools/Compatibility/compatibility.json` owns the executable check inventory, representative bounded requests, extraction and render probes, timeouts, and profile membership. `local` compares Visualization and QA outputs; `pull-request` adds root-discovery, artifact-lifecycle, and isolated-extraction safety; `full-release` also renders a representative graph. Use `--list` or `--list --json` to inspect the registry, and repeat `--check` for focused diagnosis.
 
+Visualization and QA must agree across all three runtimes and match the reviewed LoTM consumer
+oracle in `Tools/Compatibility/Baselines/lotm-consumers.json`. The oracle pins semantic summaries,
+complete normalized inventories, per-file hashes, and aggregate tree hashes so an identical
+regression in every runtime still fails. Update it only after diagnosing and approving an intentional
+content, graph, QA, preset, or representative-boundary change.
+
 Pull-request and full-release compatibility also rehearse framework extraction. The canonical verifier copies only reusable framework, runtime, and conformance assets into an operating-system temporary directory, generates a neutral core-only consumer manifest rather than copying `Project_Config/`, rejects canonical/generated LoTM surfaces, and runs project-root, strict-ingestion, lookup-key, schema-pack, temporal, and structural-interpretation conformance in Python, PowerShell 7, and Windows PowerShell 5.1. It always removes its isolated copy on exit:
 
 ```powershell

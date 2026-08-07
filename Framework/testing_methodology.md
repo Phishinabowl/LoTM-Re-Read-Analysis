@@ -183,8 +183,8 @@ Every permanent registry suite must preserve five distinct classes of evidence. 
 
 | ID | Requirement |
 | --- | --- |
-| `COMPAT-VISUALIZATION` | Validate existing and freshly generated configured views, exercise unbounded and bounded graph projection, and compare Mermaid plus semantic snapshots. |
-| `COMPAT-QA` | Generate redirected Obsidian QA mirrors with representative bounded graphs and pages; compare summaries, file inventories, stable Markdown/Mermaid outputs, reports, and snapshot semantics. |
+| `COMPAT-VISUALIZATION` | Validate existing and freshly generated configured views, exercise unbounded and bounded graph projection, compare Mermaid plus semantic snapshots across runtimes, and require the reviewed project semantic summary, complete redirected refresh inventory, per-file hashes, aggregate tree hash, and unbounded-relationship hash. |
+| `COMPAT-QA` | Generate redirected Obsidian QA mirrors with representative bounded graphs and pages; compare summaries, file inventories, stable Markdown/Mermaid outputs, reports, and snapshot semantics across runtimes; and require the reviewed project semantic summary, complete 34-file inventory, per-file hashes, and aggregate tree hash. |
 | `COMPAT-RENDER` | Render at least one redirected representative graph through all supported runtimes and verify successful, nonempty, semantically equivalent output. |
 | `COMPAT-ROOT-DISCOVERY` | Verify manifest-based project-root discovery from the repository root, `Tools/`, a nested descendant, and an unrelated working directory. Exercise explicit root, `KNOWLEDGE_PROJECT_ROOT`, current-directory precedence, executable fallback, invalid/missing manifests, and unchanged caller location across affected commands. |
 | `COMPAT-ARTIFACT-LIFECYCLE` | Verify redirected output ownership, safe creation beneath fresh multi-level parent paths, rejection of repository-root and outside-repository destinations, stale generated-folder removal, run-scoped temporary cleanup, preservation of unrelated temporary files, and protection of canonical outputs. |
@@ -268,13 +268,21 @@ These project-level probes preserve the QA, visualization, launcher, and cleanup
 - Generate a redirected bounded graph and bounded character pages at an early reader boundary. Retain Dunn Smith's hidden/anonymous/canonical reveal transition and pathway-status progression as the primary current boundary regression; include Leonard Mitchell when later-reveal or optional-module behavior is affected.
 - Rerun without bounded requests and verify stale bounded graphs/pages are removed and no empty optional output folder remains.
 - Compare Python, PowerShell 7, and Windows PowerShell 5.1 QA file inventories, stable Markdown/Mermaid output, reports, and semantic snapshots after only documented normalization.
+- Compare Visualization and QA with the reviewed project oracle so a matching regression in every
+  runtime still fails. Treat missing, unexpected, or changed files and semantic-summary drift as
+  review blockers rather than automatically replacing expected hashes.
 - Validate both tracked and freshly generated configured Visualization views; exercise unbounded and bounded projection; verify expected node/relationship counts and zero class/layout issues.
 - Render at least one redirected graph in all supported runtimes and verify nonempty semantic equivalence without refreshing canonical outputs.
 - Exercise help and structured-summary modes without triggering generation, then compare paired switch meaning, defaults, validation boundaries, and exit behavior.
 - Verify automatic and explicit cleanup remove only artifacts owned by the run or requested scope, preserve unrelated `.tmp/` content, remove stale generated subtrees, and leave canonical outputs untouched.
 - Rehearse an allowlisted framework/runtime/conformance copy with a generated neutral core-only consumer, prove project configuration and canonical/generated LoTM surfaces are absent, and require matching portable-suite summaries in all three runtimes.
 
-The executable inventory, sample boundaries, and profile composition belong in `Tools/Compatibility/compatibility.json`; exact switches, expected counts, normalization, and the latest measured baseline belong in `Tools/TOOLING_REFERENCE.md`. If representative project data changes, replace a probe deliberately and record why; do not silently stop testing the behavior it represented.
+The executable inventory, sample boundaries, and profile composition belong in
+`Tools/Compatibility/compatibility.json`; the project-specific per-file oracle belongs in
+`Tools/Compatibility/Baselines/lotm-consumers.json`; and exact switches, expected counts,
+normalization, and the latest measured baseline belong in `Tools/TOOLING_REFERENCE.md`. If
+representative project data changes, replace a probe or accepted hash deliberately and record why;
+do not silently stop testing the behavior it represented or refresh an oracle without diagnosis.
 
 ## Local-To-CI Execution Hierarchy
 

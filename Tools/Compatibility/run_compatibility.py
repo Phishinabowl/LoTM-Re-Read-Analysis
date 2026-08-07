@@ -41,7 +41,7 @@ CHECK_KEYS = {
     "artifact-lifecycle": {"id", "kind", "timeout_seconds"},
     "effective-schema": {"id", "kind", "timeout_seconds"},
     "framework-extraction": {"id", "kind", "timeout_seconds"},
-    "qa": {"id", "kind", "timeout_seconds", "bounded_graphs", "bounded_pages"},
+    "qa": {"id", "kind", "timeout_seconds", "baseline", "bounded_graphs", "bounded_pages"},
     "render": {
         "id",
         "kind",
@@ -52,7 +52,7 @@ CHECK_KEYS = {
         "required_labels",
     },
     "root-discovery": {"id", "kind", "timeout_seconds", "launch_locations"},
-    "visualization": {"id", "kind", "timeout_seconds"},
+    "visualization": {"id", "kind", "timeout_seconds", "baseline"},
 }
 GENERATED_KEYS = {"generated_at", "generatedAt"}
 MACHINE_ID = re.compile(r"^[a-z][a-z0-9-]*$")
@@ -115,8 +115,11 @@ def validate_check(check: dict[str, Any]) -> None:
     if check["timeout_seconds"] <= 0:
         raise CompatibilityFailure(f"Compatibility check {check['id']} requires a positive timeout_seconds.")
     if kind == "qa":
+        validate_relative_path(check, "baseline")
         require_string_list(check, "bounded_graphs")
         require_string_list(check, "bounded_pages")
+    elif kind == "visualization":
+        validate_relative_path(check, "baseline")
     elif kind == "root-discovery":
         launch_locations = require_string_list(check, "launch_locations")
         expected = ["repo-root", "tools", "nested", "unrelated"]
@@ -158,8 +161,8 @@ def load_registry(path: Path) -> dict[str, Any]:
     unknown = set(registry) - allowed
     if unknown:
         raise CompatibilityFailure(f"Unknown compatibility registry keys: {sorted(unknown)}")
-    if registry.get("schema_version") != 1:
-        raise CompatibilityFailure("Compatibility registry schema_version must be integer 1.")
+    if registry.get("schema_version") != 2:
+        raise CompatibilityFailure("Compatibility registry schema_version must be integer 2.")
     runtimes = registry.get("runtimes")
     if runtimes != ["python", "powershell7", "powershell51"]:
         raise CompatibilityFailure("Compatibility runtimes must be python, powershell7, powershell51 in order.")
@@ -303,6 +306,11 @@ def normalize_string(value: str, output_roots: list[Path]) -> str:
             if len(output_root.parents) > 2
             else str(output_root),
         }
+        parts = output_root.resolve().parts
+        if ".tmp" in parts:
+            tmp_index = parts.index(".tmp")
+            tmp_relative = str(Path(*parts[tmp_index:]))
+            variants.update({tmp_relative, tmp_relative.replace("\\", "/")})
         for variant in sorted(variants, key=len, reverse=True):
             normalized = normalized.replace(variant, "<compat-output>")
             normalized = normalized.replace(variant.replace("/", "\\"), "<compat-output>")
@@ -333,6 +341,85 @@ def normalized_file(path: Path, output_roots: list[Path]) -> str:
             normalize_value(value, output_roots), ensure_ascii=False, sort_keys=True, separators=(",", ":")
         )
     return normalize_string(text, output_roots)
+
+
+def normalized_file_sha256(path: Path, output_roots: list[Path]) -> str:
+    return hashlib.sha256(normalized_file(path, output_roots).encode("utf-8")).hexdigest()
+
+
+def normalized_tree_manifest(root: Path, output_roots: list[Path]) -> dict[str, str]:
+    return {
+        path.relative_to(root).as_posix(): normalized_file_sha256(path, output_roots)
+        for path in sorted(root.rglob("*"))
+        if path.is_file()
+    }
+
+
+def normalized_tree_sha256(manifest: dict[str, str]) -> str:
+    serialized = json.dumps(manifest, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n"
+    return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
+
+
+def validate_hash_manifest(value: Any, label: str) -> dict[str, str]:
+    if not isinstance(value, dict) or not value:
+        raise CompatibilityFailure(f"Consumer baseline requires a nonempty file-hash mapping: {label}")
+    for relative_path, digest in value.items():
+        if not isinstance(relative_path, str) or not relative_path:
+            raise CompatibilityFailure(f"Consumer baseline contains an invalid file path: {label}")
+        path = Path(relative_path)
+        if path.is_absolute() or ".." in path.parts or "\\" in relative_path:
+            raise CompatibilityFailure(f"Consumer baseline contains an unsafe portable path: {relative_path}")
+        if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
+            raise CompatibilityFailure(f"Consumer baseline contains an invalid SHA-256 for {relative_path}.")
+    return value
+
+
+def load_consumer_baseline(check: dict[str, Any], root: Path, section: str) -> dict[str, Any]:
+    path = resolve_registry_path(check["baseline"], root)
+    try:
+        document = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise CompatibilityFailure(f"Unable to load consumer baseline {path}: {exc}") from exc
+    expected_keys = {"schema_version", "normalization_version", "project_id", "visualization", "qa"}
+    if not isinstance(document, dict) or set(document) != expected_keys:
+        raise CompatibilityFailure(f"Consumer baseline has an invalid root shape: {path}")
+    if document["schema_version"] != 1 or document["normalization_version"] != 1:
+        raise CompatibilityFailure(f"Consumer baseline uses an unsupported schema or normalization version: {path}")
+    project = load_project_config(root)
+    if document["project_id"] != project.project_id:
+        raise CompatibilityFailure(
+            f"Consumer baseline project_id `{document['project_id']}` does not match `{project.project_id}`."
+        )
+    value = document.get(section)
+    if not isinstance(value, dict):
+        raise CompatibilityFailure(f"Consumer baseline requires an object section: {section}")
+    return value
+
+
+def assert_semantic_baseline(label: str, actual: dict[str, Any], expected: Any) -> None:
+    if not isinstance(expected, dict) or actual != expected:
+        raise CompatibilityFailure(f"{label} semantic baseline changed: expected {expected}, actual {actual}")
+
+
+def assert_tree_baseline(
+    label: str,
+    actual: dict[str, str],
+    expected: Any,
+    expected_tree_sha256: Any,
+) -> str:
+    expected_manifest = validate_hash_manifest(expected, f"{label}.files")
+    missing = sorted(set(expected_manifest) - set(actual))
+    unexpected = sorted(set(actual) - set(expected_manifest))
+    changed = sorted(path for path in set(actual) & set(expected_manifest) if actual[path] != expected_manifest[path])
+    actual_tree_sha256 = normalized_tree_sha256(actual)
+    if not isinstance(expected_tree_sha256, str) or not re.fullmatch(r"[0-9a-f]{64}", expected_tree_sha256):
+        raise CompatibilityFailure(f"Consumer baseline contains an invalid tree SHA-256: {label}")
+    if missing or unexpected or changed or actual_tree_sha256 != expected_tree_sha256:
+        raise CompatibilityFailure(
+            f"{label} content baseline changed: missing={missing}, unexpected={unexpected}, changed={changed}, "
+            f"expected_tree_sha256={expected_tree_sha256}, actual_tree_sha256={actual_tree_sha256}"
+        )
+    return actual_tree_sha256
 
 
 def tree_inventory(root: Path) -> list[str]:
@@ -398,6 +485,7 @@ def run_visualization_check(
     check: dict[str, Any], runtimes: list[Runtime], root: Path, output_root: Path
 ) -> dict[str, Any]:
     timeout = check["timeout_seconds"]
+    baseline = load_consumer_baseline(check, root, "visualization")
     validate_outputs: dict[str, str] = {}
     refresh_roots: dict[str, Path] = {}
     unbounded_paths: dict[str, Path] = {}
@@ -447,12 +535,33 @@ def run_visualization_check(
     if len(set(unbounded_values.values())) != 1:
         raise CompatibilityFailure("Unbounded Visualization Mermaid output differs across runtimes.")
     match = re.search(r"Source parse: nodes=(\d+) relationships=(\d+)", next(iter(validate_outputs.values())))
-    return {
-        "status": "passed",
+    semantic_summary = {
         "nodes": int(match.group(1)) if match else None,
         "relationships": int(match.group(2)) if match else None,
+    }
+    assert_semantic_baseline("Visualization", semantic_summary, baseline.get("semantic_summary"))
+    refresh_output_roots = list(refresh_roots.values())
+    refresh_manifest = normalized_tree_manifest(refresh_roots["python"], refresh_output_roots)
+    refresh_tree_sha256 = assert_tree_baseline(
+        "Visualization refresh",
+        refresh_manifest,
+        baseline.get("refresh_files"),
+        baseline.get("refresh_tree_sha256"),
+    )
+    unbounded_sha256 = normalized_file_sha256(unbounded_paths["python"], list(unbounded_paths.values()))
+    expected_unbounded_sha256 = baseline.get("unbounded_relationship_sha256")
+    if unbounded_sha256 != expected_unbounded_sha256:
+        raise CompatibilityFailure(
+            "Visualization unbounded relationship baseline changed: "
+            f"expected {expected_unbounded_sha256}, actual {unbounded_sha256}"
+        )
+    return {
+        "status": "passed",
+        **semantic_summary,
         "refresh": refresh_comparison,
+        "refresh_tree_sha256": refresh_tree_sha256,
         "unbounded_graph_match": True,
+        "unbounded_relationship_sha256": unbounded_sha256,
         "elapsed_seconds": elapsed,
     }
 
@@ -484,6 +593,7 @@ def qa_command(
 
 
 def run_qa_check(check: dict[str, Any], runtimes: list[Runtime], root: Path, output_root: Path) -> dict[str, Any]:
+    baseline = load_consumer_baseline(check, root, "qa")
     roots = {runtime.id: output_root / runtime.id for runtime in runtimes}
     summaries: dict[str, Any] = {}
     elapsed: dict[str, float] = {}
@@ -508,10 +618,21 @@ def run_qa_check(check: dict[str, Any], runtimes: list[Runtime], root: Path, out
     if len(set(canonical.values())) != 1:
         raise CompatibilityFailure(f"QA structured summaries differ: {summaries}")
     comparison = compare_trees(roots)
+    semantic_summary = summaries["python"]
+    assert_semantic_baseline("QA", semantic_summary, baseline.get("semantic_summary"))
+    output_roots = list(roots.values())
+    file_manifest = normalized_tree_manifest(roots["python"], output_roots)
+    tree_sha256 = assert_tree_baseline(
+        "QA export",
+        file_manifest,
+        baseline.get("files"),
+        baseline.get("tree_sha256"),
+    )
     return {
         "status": "passed",
-        "summary": summaries["python"],
+        "summary": semantic_summary,
         "files": comparison,
+        "tree_sha256": tree_sha256,
         "elapsed_seconds": elapsed,
     }
 

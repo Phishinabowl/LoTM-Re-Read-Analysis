@@ -422,15 +422,15 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 #### Phase 2.3.1 Compatibility Baseline Lock
 
-- [ ] Extend permanent compatibility coverage to pin the normalized current Visualization and QA
+- [x] Extend permanent compatibility coverage to pin the normalized current Visualization and QA
   output inventories, semantic summaries, and content hashes rather than proving only
   cross-runtime agreement.
-- [ ] Include canonical repository presets, redirected refresh output, the unbounded relationship
+- [x] Include canonical repository presets, redirected refresh output, the unbounded relationship
   graph, direct-edge and intermediary-node QA graphs, representative bounded graphs, and
   representative bounded pages in the protected baseline.
-- [ ] Record the accepted pre-migration node, relationship, data-reference, file, and normalized
+- [x] Record the accepted pre-migration node, relationship, data-reference, file, and normalized
   hash results without writing or regenerating canonical project outputs.
-- [ ] Prove Python, PowerShell 7, and Windows PowerShell 5.1 reproduce the accepted baseline before
+- [x] Prove Python, PowerShell 7, and Windows PowerShell 5.1 reproduce the accepted baseline before
   changing either consumer.
 
 #### Phase 2.3.2 Shadow Effective-Schema Adoption

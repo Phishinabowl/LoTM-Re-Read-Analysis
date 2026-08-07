@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "normalization_version": 1,
+  "project_id": "lotm-analysis",
+  "visualization": {
+    "semantic_summary": {
+      "nodes": 15,
+      "relationships": 121
+    },
+    "refresh_files": {
+      "refresh-report.md": "3b8879cfcb15315bfd8317347dba7d12e550747817eaf1adba1852ca0173e470",
+      "refresh-snapshot.json": "81d7bd36e665a08d71956b0943cb1af97221824a44de77eefde203086ac68a84",
+      "render-settings.json": "905adcc962d1ef8a8cf0b0df7a7ef28bc867a9951bd97f689047488d954cd534",
+      "view-1.mmd": "657237ef409b40ccd340afa3838305a9b3792dcd7e9bcd388937a74ff944bc04",
+      "view-2.mmd": "657237ef409b40ccd340afa3838305a9b3792dcd7e9bcd388937a74ff944bc04"
+    },
+    "refresh_tree_sha256": "dfb0ffd4a11d304ab2ffd2571bfba4717b087c512d46abd6120f920835577fe6",
+    "unbounded_relationship_sha256": "477eb74726f1c8430ad52c5a187db3bfd402404115f36ce2bf1750f8c6531cc4"
+  },
+  "qa": {
+    "semantic_summary": {
+      "notes": 16,
+      "relationships": 121,
+      "data_references": 71,
+      "unknown_relationship_sources": 11,
+      "unknown_relationship_targets": 12,
+      "unknown_data_targets": 15,
+      "self_loops": 0,
+      "duplicate_edge_groups": 29,
+      "missing_reciprocals": 11,
+      "bounded_graphs": 1,
+      "bounded_pages": 2
+    },
+    "files": {
+      "_Generated/bounded-graphs/bounded-graphs-report.md": "712f65d9892fc17bf538f836b24f65914023b1011fdab7f4bb6a4ac9c3b96eca",
+      "_Generated/bounded-graphs/bounded-graphs-settings.json": "37b280844a35d3c409c7b8681deb0bf6b7c007a1a7af6cfc5dfe6c7a800fb8cb",
+      "_Generated/bounded-graphs/bounded-graphs-snapshot.json": "1d8af926c485046a436473ed54d5b45b8331f9a74784952b32dd1580d6f2a898",
+      "_Generated/bounded-graphs/chapter-32.mmd": "38c8ac02d2389f4d85b84ff54147c998247e19743ad874f3c4b5ce6e285069d7",
+      "_Generated/bounded-pages/Characters/Dunn Smith - chapter-32.md": "07f952ba600ae3a76057ec696d58eee9bf6a4ee767ef9246e728eca3736c600c",
+      "_Generated/bounded-pages/Characters/Leonard Mitchell - chapter-50.md": "1397e1a1f7f61e604f73da33cbe5a303d2de94957ea3396beb5bf25f68a1f112",
+      "_Generated/data-reference-index.md": "8d4c1f201e477aca35be813573e4de04af99b1cd2ea25ef5724c43a050459bca",
+      "_Generated/orphan-report.md": "dcb93865fcc2291f10e05d66be03912416cee402fe55acf7f21aea58b0da0dd3",
+      "_Generated/QA-relationship-graph.mmd": "755993d138996783b8b51c10d3cb6f129117512eb2087a5c3fac2100879a987f",
+      "_Generated/QA-relationship-node-graph.mmd": "f410f13d993613ca22f1f0812dd5a54589217c7a5d0915e83021db097579e0d0",
+      "_Generated/relationship-index.md": "221499891795c64773e841c906537144fe6042d7851b369cd16370d603187895",
+      "_Generated/repo-refresh-check/refresh-check-report.md": "47a411189a3edbc4dc30a004ac8c1b5d48bc467572d405ac79e65781e06eff78",
+      "_Generated/repo-refresh-check/refresh-check-settings.json": "0e7a4d9ba6a07cdd53364f04b9c19f75204d9cde0f5d632c1dcb4770e548644f",
+      "_Generated/repo-refresh-check/refresh-check-snapshot.json": "78c70f55d77a774a455ff5588817529532f09fdc6fbfb4e416ff35422c83f53e",
+      "_Generated/repo-refresh-check/volume-1-knowledge-graph-timing-spoiler-free.mmd": "3dac466cb350b052ad3a044e03c1f9778a5909d64dddcc183ca2d739f411b8ae",
+      "_Generated/repo-refresh-check/volume-1-knowledge-graph.mmd": "657237ef409b40ccd340afa3838305a9b3792dcd7e9bcd388937a74ff944bc04",
+      "_Generated/suspicious-edges.md": "982f0ba1a2b4e242e47158af1e00a22a6f30c2db8cddcfaeef15800ebe65e066",
+      "_Generated/visualization-relationship-graph.mmd": "477eb74726f1c8430ad52c5a187db3bfd402404115f36ce2bf1750f8c6531cc4",
+      "Artifacts/0-08.md": "59e2cb7c781662f808e1a2ad74713a810818fd0c393ed7bf307d5a5616b98cfc",
+      "Artifacts/Antigonus Notebook.md": "ca60f65c1eb07b70fe0d8030c670b1f04d9b3193d3a1f3b30ecfbdabda71958b",
+      "Characters/Dunn Smith.md": "e46f3c7a06356eba7781b3659fa9dbb6fbbea99f24bfe9ff7ff4909ed224b1d7",
+      "Characters/Leonard Mitchell.md": "48670a810af2b2622d62056db2b30d5bd9e28f16016c0ce0cae7fa344da0217a",
+      "Characters/Old Neil.md": "4b3dc1b61472e5190cad7452070a4f3640bdea464785d4e1454275431bba64a2",
+      "Concepts/Beyonder Characteristics.md": "6005807544cc962fb4b79511a7f013afc085cff1734ea3c145d9ae3409c5c5de",
+      "Concepts/Beyonders.md": "1410ef430311e97377a1eb070375f754c48da2a282c5ff2256bbb6c23a7cd40e",
+      "Concepts/Divination.md": "0363a382a58b87ed65588f21006853f4b3bca4359329cd843e31d5d9cc1c5f08",
+      "Concepts/Prayers & Rituals.md": "75a662af74674dc40849af6aacea13484bf51c30fb15fa6808eb99a71c746017",
+      "Events/Klein Becomes a Seer.md": "82d22d7ef9e38f4df0ef552de1abb634479ed9ed0c0e79c6c78be949e52884bc",
+      "Factions/Church of Evernight.md": "2af49e1dbab2c0a4cd221cf903cde2be86af783e0c5cb317cd93e4b0563997a2",
+      "Locations/Blackthorn Security Company.md": "7e629fb56e3af66e4b19cff1d5c76e53a66f6f5a3b8b0cdaee8ae1c9e7127e3a",
+      "Locations/Saint Selena Cathedral.md": "7d99c32fb39257333ba59c30c736d2bccd06fb1a8d5440290f7edb3ea5468389",
+      "Pathways/Seer Pathway.md": "6658b99f6b70d26c7dbedadad443160643889b9590575a22e2485b8dea11563a",
+      "Pathways/Sleepless Pathway.md": "1cec4a0e002bd2b92a5f47bfd1e2b94781e49d78bd3b5e741c0cbfe3f3384b4d",
+      "Volumes/Volume 1- Clown.md": "2e7575a2175fdaf72d7ed65d6bddd5815abde7a3a523f02b97f432f31c49008d"
+    },
+    "tree_sha256": "2b754c78c5ed76d782f152b68d73df680029f1e40e5b7be5c4280fcc9c4bc292"
+  }
+}

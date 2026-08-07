@@ -1209,6 +1209,7 @@ This section tracks durable configuration and generated state files that affect 
 | `.github/workflows/work-annotations.yml` | Feature-branch annotation policy | GitHub Actions, work-annotation linter, maintainers, and future repository rules | Maintainers | Defines the stable lightweight `Work Annotation Policy` check for every non-`main` branch push without project dependency installation or full validation. | Annotation trigger, Python runtime, action pin, command, permissions, concurrency, timeout, or stable check name changes. |
 | `Tools/Conformance/suites.json` | Aggregate conformance registry | `Tools/Conformance/run_conformance.py`, `Tools/Conformance/Run-Conformance.ps1`, CI, and maintainers | Maintainers | Defines stable conformance suite IDs, paired runner paths, named profiles, and discovery exclusions; aggregate validation rejects unregistered or stale runner inventory. | A permanent suite is added, renamed, moved, removed, assigned to a profile, or explicitly excluded from conformance discovery. |
 | `Tools/Compatibility/compatibility.json` | Project-compatibility registry | `Tools/Compatibility/run_compatibility.py`, CI, and maintainers | Maintainers | Defines stable compatibility checks, three-runtime execution, representative bounded QA requests, isolated extraction, render assertions, timeouts, and the cumulative `local`, `pull-request`, and `full-release` profiles. | A compatibility check, representative probe, timeout, assertion, or profile membership changes. |
+| `Tools/Compatibility/Baselines/lotm-consumers.json` | LoTM consumer compatibility oracle | `Tools/Compatibility/run_compatibility.py`, CI, and maintainers | Maintainers through reviewed output changes | Pins accepted Visualization and QA semantic summaries, complete normalized file inventories, per-file hashes, and aggregate tree hashes so identical cross-runtime regressions cannot pass. It remains project-owned and is excluded from the portable framework rehearsal. | Accepted LoTM content, graph, QA, preset, or representative-boundary behavior intentionally changes after mismatch diagnosis and review. |
 | `Tools/Static/work-annotations.json`, `Tools/Static/Fixtures/Work-Annotations/cases.json` | Static-policy registry and conformance fixtures | `Tools/Static/lint_work_annotations.py`, CI, and maintainers | Maintainers | Define executable annotation tags, ownership, eligible/prohibited surfaces, safety bounds, and permanent valid/invalid policy cases. | Annotation syntax, ownership, GitHub tracking, path eligibility, safety bounds, or a permanent regression case changes. |
 | `Project_Config/project.yaml` | Project manifest | `Tools/Runtime/Python/knowledge_framework/project_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Project-Config.ps1`, and consumers such as both Obsidian QA exporters | Maintainers | Identifies the project and configures modeled content/resource roots, provenance behavior, registry paths, default QA output, visualization helpers/settings, cleanup helpers, and manifest schema version without coupling framework code to LoTM directory names. | Project identity or paths change, a content/resource root is added, provenance behavior changes, helper locations move, or the manifest schema changes. |
 | `Project_Config/composition-baseline.json` | Reviewed project-composition oracle | `Tools/Conformance/Suites/test_project_composition.py`, `Tools/Conformance/Suites/Test-Project-Composition.ps1`, aggregate conformance, CI, and maintainers | Maintainers through reviewed canonical-instance updates | Pins expected project/root identity, registry schemas and counts, selected pack versions, capability state, provider totals, repeated-load passes, and invalid-composition probes without making LoTM values framework fixtures. | A reviewed canonical project registry, selected pack, capability state, provider surface, or composition test obligation intentionally changes. |
@@ -1396,7 +1397,12 @@ The loaders reject unsupported schema/capability state, malformed IDs, unknown o
 
 ### Compatibility Orchestration
 
-`Tools/Compatibility/run_compatibility.py` is the canonical Python orchestrator for cross-runtime project-consumer comparisons and isolated framework extraction. It loads the strict `Tools/Compatibility/compatibility.json` registry, requires Python, PowerShell 7, and Windows PowerShell 5.1, launches each runtime's own implementation, and does not implement domain behavior itself. This canonical orchestration exception does not relax parity requirements for Visualization, QA export, cleanup, conformance, or their runtime services.
+`Tools/Compatibility/run_compatibility.py` is the canonical Python orchestrator for cross-runtime
+project-consumer comparisons and isolated framework extraction. It loads the strict schema-2
+`Tools/Compatibility/compatibility.json` registry, requires Python, PowerShell 7, and Windows
+PowerShell 5.1, launches each runtime's own implementation, and does not implement domain behavior
+itself. This canonical orchestration exception does not relax parity requirements for Visualization,
+QA export, cleanup, conformance, or their runtime services.
 
 | Behavior | Command |
 | --- | --- |
@@ -1413,18 +1419,30 @@ The extraction verifier copies `Framework/`, `Tools/Runtime/`, `Tools/Conformanc
 
 The registry rejects unknown top-level and check-specific keys, duplicate IDs or selections, unsupported check kinds, unsafe render paths, invalid timeouts/assertions, stale profile references, and altered required runtime order. The profiles are cumulative: `local` contains `effective-schema`, `visualization`, and `qa`; `pull-request` adds `root-discovery`, `artifact-lifecycle`, and `framework-extraction`; `full-release` adds `render`.
 
-Each run creates one unique child beneath `.tmp/compatibility/`. It compares complete redirected trees and structured summaries after normalizing only generated timestamps, redirected output roots, accepted newline differences, and JSON property formatting. It does not normalize semantic IDs, labels, relationship data, visibility boundaries, counts, inventories, or ordering. The render check permits renderer-internal byte differences only while requiring nonblank SVG output, configured labels, minimum size, and matching semantic dimensions.
+Each run creates one unique child beneath `.tmp/compatibility/`. It compares complete redirected
+trees and structured summaries after normalizing only generated timestamps, redirected `.tmp`
+output roots, accepted newline differences, and JSON property formatting. It does not normalize
+semantic IDs, labels, relationship data, visibility boundaries, counts, inventories, or ordering.
+Visualization and QA must also match the project-owned oracle in
+`Tools/Compatibility/Baselines/lotm-consumers.json`, including semantic summaries, complete file
+inventories, per-file hashes, and aggregate tree hashes. The render check permits renderer-internal
+byte differences only while requiring nonblank SVG output, configured labels, minimum size, and
+matching semantic dimensions.
 
 Protected canonical Visualization configuration, reports, snapshots, graphs, renders, and the configured QA export are hashed before and after every run. Successful output is removed through the maintained cleanup command unless `--keep-output` is supplied. Failed output is retained for diagnosis. An explicit output root must be a child of repository `.tmp/`; the repository root, `.tmp/` itself, and outside paths are rejected.
 
-Last compatibility check: 2026-08-07 for Platform Phase 2.2. The 68.7-second `local` profile
+Last compatibility check: 2026-08-07 for Platform Phase 2.3.1. The 119.7-second `local` profile
 passed `effective-schema`, `visualization`, and `qa` across all three runtimes. Effective schema
 matched 10 packs, 132 capabilities, 138 controlled-value namespaces, two diagnostics, canonical
 file exports, and the `malformed-configuration` failure envelope. Visualization preserved 15 nodes
-and 121 relationships. QA preserved 16 notes, 121 relationships, 71 data references, one bounded
-graph, two bounded pages, and all 34 normalized files. Canonical outputs remained unchanged and the
-scoped run output was removed. The latest render-bearing `full-release` result remains the 2026-08-06
-V49 run, which passed all six then-registered checks and produced identical nonblank SVG output.
+and 121 relationships while matching refresh tree SHA-256
+`dfb0ffd4a11d304ab2ffd2571bfba4717b087c512d46abd6120f920835577fe6` and unbounded graph SHA-256
+`477eb74726f1c8430ad52c5a187db3bfd402404115f36ce2bf1750f8c6531cc4`. QA preserved 16 notes,
+121 relationships, 71 data references, one bounded graph, two bounded pages, and all 34 normalized
+files with tree SHA-256 `2b754c78c5ed76d782f152b68d73df680029f1e40e5b7be5c4280fcc9c4bc292`.
+Canonical outputs remained unchanged and the scoped run output was removed. The latest
+render-bearing `full-release` result remains the 2026-08-06 V49 run, which passed all six
+then-registered checks and produced identical nonblank SVG output.
 
 ### Aggregate Conformance
 

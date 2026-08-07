@@ -1,6 +1,9 @@
 # Compatibility
 
-`run_compatibility.py` is the canonical cross-runtime project-compatibility orchestrator. `compatibility.json` is its durable check registry and profile inventory. The orchestrator may launch Python, PowerShell 7, and Windows PowerShell 5.1 because comparison is its explicit responsibility; domain commands must not use that exception to delegate their own behavior across runtimes.
+`run_compatibility.py` is the canonical cross-runtime project-compatibility orchestrator.
+`compatibility.json` is its durable check registry and profile inventory. The orchestrator may launch
+Python, PowerShell 7, and Windows PowerShell 5.1 because comparison is its explicit responsibility;
+domain commands must not use that exception to delegate their own behavior across runtimes.
 
 Run the rapid local comparison:
 
@@ -16,3 +19,14 @@ representative rendering. `--list --json` exposes the registered inventory. Ever
 a uniquely scoped ignored `.tmp/compatibility/` folder, protects canonical outputs by hash, and
 removes its output after success. Use `--keep-output` only when the generated comparison artifacts
 need inspection; failed runs retain their scoped output automatically.
+
+Visualization and QA also compare their normalized semantic summaries, complete expected file
+inventories, per-file SHA-256 hashes, and aggregate tree hashes with the reviewed project oracle in
+`Baselines/lotm-consumers.json`. Cross-runtime agreement is therefore necessary but insufficient:
+an identical regression in all three runtimes still fails. Normalization removes only generated
+timestamps, redirected `.tmp` roots, accepted newline differences, and JSON property formatting.
+
+The baseline is LoTM project compatibility data, not a portable framework fixture. Update it only
+when a reviewed content, graph, QA, preset, or representative-boundary change intentionally alters
+the accepted output. Diagnose the reported missing, unexpected, and changed paths first; never
+refresh hashes merely to make a failing check green.

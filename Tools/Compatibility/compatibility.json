@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "runtimes": [
     "python",
     "powershell7",
@@ -38,12 +38,14 @@
     {
       "id": "visualization",
       "kind": "visualization",
-      "timeout_seconds": 180
+      "timeout_seconds": 180,
+      "baseline": "Tools/Compatibility/Baselines/lotm-consumers.json"
     },
     {
       "id": "qa",
       "kind": "qa",
       "timeout_seconds": 240,
+      "baseline": "Tools/Compatibility/Baselines/lotm-consumers.json",
       "bounded_graphs": [
         "name=chapter-32,medium=novel,maxVolume=1,maxChapter=32"
       ],
