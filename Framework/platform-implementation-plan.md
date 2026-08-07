@@ -550,6 +550,11 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [ ] Preserve typed targets below whole-work scope, including segments, content groups,
   manifestations, release objects, continuity memberships, and occurrences, without promoting a
   cut, release, event, or assertion into the wrong identity class.
+- [ ] Require an explicit identity decision for paired editions, sibling game versions, rebuilt
+  releases, and mechanically equivalent creative variants so similarity does not silently collapse
+  distinct works or inflate one work into several manifestations.
+- [ ] Permit one resource or source artifact to fulfill several typed semantic roles while retaining
+  one resource identity and independent role-specific relationships.
 - [ ] Keep normalized records independent of Markdown/YAML physical layout.
 
 ### Phase 5.2 Legacy LoTM Adapter
@@ -589,6 +594,9 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [ ] Allow a continuity transition relationship to reference the occurrence that activates or
   causes it while keeping the in-world occurrence, branch lifecycle, publication decision, and
   continuity relationship as distinct records.
+- [ ] Define typed correspondence among release or performance events, diegetic occurrences,
+  participant narrative instances, evidence recordings, replays, and reenactments without merging
+  their identities or chronology systems.
 - [ ] Preserve conflicting and lower-priority evidence rather than overwriting it.
 - [ ] Define inverse normalization, deduplication, supersession, and ambiguity behavior.
 
@@ -778,9 +786,19 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [ ] Regenerate or invalidate every affected projection.
 - [ ] Expose a complete Git diff for maintainer review.
 
+### Phase 12.3 Editorial Governance Boundary
+
+- [ ] Define content ownership, stewardship, reviewer, approval, and lifecycle metadata separately
+  from authorship credits, factual authority, canon status, legal ownership, and Git identity.
+- [ ] Preserve review and approval decisions as auditable governance history without converting them
+  into source evidence or truth claims.
+- [ ] Allow migration plans to identify required reviewers or governed scopes without making the
+  mutation service the owner of organization-specific workflow policy.
+
 ### Phase 12 Exit Gate
 
 - [ ] Physical migrations no longer depend on hand-editing repeated schema or relationship data.
+- [ ] Editorial approval and factual/source authority remain independently explainable.
 
 ## Phase 13: Physical LoTM Data Migration
 
@@ -920,6 +938,8 @@ wave is confirmed.
 
 - [ ] Add authentication, authorization, concurrency, audit, deployment, and server persistence only
   when the chosen product boundary requires them.
+- [ ] Add configurable stewardship, review, and approval workflows only through the governance
+  contract, keeping workflow identity separate from contributor credit and evidence authority.
 - [ ] Re-evaluate SQLite versus a multi-user database for collaborative deployments.
 - [ ] Re-evaluate Databricks/Delta only for justified analytical or enterprise ingestion workloads.
 
@@ -951,6 +971,8 @@ Consumer evidence may reorder these waves, but a capability must not move from `
   alternatives.
 - [ ] Implement `publication-runs` for publisher-, imprint-, territory-, date-, serialization-, and
   format-scoped runs beneath works and editions without collapsing manifestations or releases.
+- [ ] Preserve collaborative-wiki revisions, editorial rewrites, deletions, restorations, errata,
+  and reconstructed text or media as versioned history rather than one overwritten current record.
 - [ ] Pressure-test Tolkien-style textual traditions, serialized prose and comics, translated and
   revised editions, incomplete works, posthumous compilations, variant covers, legacy numbering,
   relaunches, and competing stemmata.
@@ -974,8 +996,11 @@ Consumer evidence may reorder these waves, but a capability must not move from `
   archival custody, and supporting evidence.
 - [ ] Implement `access-state` for platform, territory, release window, availability, delisting, and
   restoration without conflating access with preservation or rights.
+- [ ] Support segment- and release-scoped vaulting, removal, restoration, reconstruction, and
+  temporary unavailability so a live service or incomplete archive need not treat a whole work as
+  uniformly present or absent.
 - [ ] Pressure-test lost media, surviving fragments, archival restorations, regional catalog changes,
-  and temporarily unavailable works.
+  reconstructed episodes, live-service content vaults, and temporarily unavailable works.
 
 ### Phase 17.5 Interactive Narrative
 
@@ -983,17 +1008,25 @@ Consumer evidence may reorder these waves, but a capability must not move from `
   and mutually exclusive claims without overloading continuity or ordinary timeline branches.
 - [ ] Implement `narrative-instances` for playthroughs, campaigns, sessions, save states, and
   participant-specific outcomes derived from authored structures.
+- [ ] Model aggregate and participant-contributed live-world outcomes separately from authored
+  possibilities, individual sessions, later canonical promotion, and retrospective summaries.
+- [ ] Preserve save import, character or asset transfer, seasonal state, and shared-world campaign
+  progression without inferring that every participant experienced every promoted event.
 - [ ] Pressure-test games, visual novels, tabletop campaigns, live-service story revisions, and
-  replayed routes with different participant knowledge.
+  replayed routes with different participant knowledge, including Destiny- and EVE-style collective
+  history.
 
-### Phase 17.6 Live Performance
+### Phase 17.6 Live And Synchronized Performance
 
 - [ ] Implement `live-performance-productions` for stagings, revivals, tours, venues, casts, and
   production-scoped creative choices.
 - [ ] Implement `performance-events` for individual scheduled or recorded performances without
   confusing the event, production, authored work, recording, or release manifestation.
+- [ ] Extend the event boundary to synchronized digital performances and one-time live-service
+  events while keeping the scheduled event, diegetic occurrence, participant session, recording,
+  replay, and later reenactment distinct and explicitly related.
 - [ ] Pressure-test theatre, musicals, touring productions, understudy substitutions, revivals, and
-  captured live performances.
+  captured live performances alongside Fortnite-style one-time events and historical replays.
 
 ### Phase 17.7 Shared-Universe Crossover Events
 
@@ -1034,7 +1067,21 @@ Consumer evidence may reorder these waves, but a capability must not move from `
 - [ ] Keep the capability narrative-owned unless a cross-domain use case justifies architectural
   promotion through the framework improvement lifecycle.
 
-### Phase 17.10 Promotion And Regression Gate
+### Phase 17.10 Versioned Rulesets And Normative Policy
+
+- [ ] Evaluate a domain-neutral candidate for versioned normative rules, effective scope, precedence,
+  override, exception, amendment, selected-version context, and directional compatibility without
+  treating a rule as a descriptive fact, recurrence rule, provenance authority rule, or continuity.
+- [ ] Define narrative-interactive extensions for game mechanics, format legality, campaign or table
+  selections, house rules, errata, and mechanically equivalent objects with distinct names, art, or
+  creative identity.
+- [ ] Pressure-test D&D rules revisions, Magic format legality and mechanically equivalent cards,
+  paired game versions, IT policy, medical protocol, and legal/compliance controls before deciding
+  whether the foundation belongs in core or a reusable cross-industry pack.
+- [ ] Revisit ownership after the Phase 15 IT proof of concept; add pack declarations only after the
+  domain-neutral boundary and any narrative bridge have executable contracts and permanent tests.
+
+### Phase 17.11 Promotion And Regression Gate
 
 - [ ] For every promoted capability, add paired runtime fixtures and conformance where parity
   applies, register aggregate coverage, update retained pressure scenarios, and run required
