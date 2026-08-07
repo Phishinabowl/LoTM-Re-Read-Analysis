@@ -363,7 +363,7 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
   suites in Python, PowerShell 7, and Windows PowerShell 5.1.
 - [x] Run the complete three-runtime baseline, full-release compatibility, static policy, retained
   structural-interpretation and cross-domain scenarios, adversarial cases, and scale tests.
-- [ ] Complete the normal two-part V50 implementation and pressure-test confirmation sequence.
+- [x] Complete the normal two-part V50 implementation and pressure-test confirmation sequence.
 - [x] Re-run the expanded stabilization decision and either close the Phase 1 exit gate or record a
   newly evidenced blocker.
 
