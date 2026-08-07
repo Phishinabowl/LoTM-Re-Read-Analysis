@@ -938,14 +938,43 @@ wave is confirmed.
   dependency explanations, and impact previews.
 - [ ] Keep setup and editing workflows distinct.
 
-### Phase 16.3 Category And Page Editing
+### Phase 16.3 Portable Project Bundles
+
+- [ ] Define a versioned logical project-bundle contract independently from its physical container
+  so import, export, validation, and migration services do not depend on ZIP-specific behavior.
+- [ ] Use ZIP as the initial portable container format, with a documented extension and media type;
+  evaluate alternative containers only when measured size, streaming, random-access, signing, or
+  deployment requirements justify them.
+- [ ] Keep `project.yaml` at a stable internal location as the bundle entrypoint. Preserve its
+  referenced canonical registries, project-owned extension packs, content, and selected resources
+  as separate internal files rather than flattening the project into one monolithic YAML document.
+- [ ] Add a generated bundle manifest that records the bundle-contract version, project entrypoint,
+  included paths, file digests, framework and pack compatibility metadata, and the selected
+  inclusion profile without becoming canonical project configuration.
+- [ ] Define reviewed inclusion profiles for configuration-only, portable working project, and
+  complete archival export. Make generated outputs, ignored workspace state, temporary files,
+  source material, and large resources explicit opt-in or opt-out decisions rather than accidental
+  ZIP contents.
+- [ ] Keep bundle paths portable and relative. Reject absolute paths, traversal, unsafe links,
+  duplicate normalized destinations, undeclared files, digest mismatches, and unsupported bundle
+  or schema versions before extraction or project mutation.
+- [ ] Validate an imported bundle and preview dependencies, missing packs, compatibility findings,
+  migrations, file creation, and conflicts before applying it through shared mutation services.
+- [ ] Recompose the effective schema from imported canonical files. Never treat an exported
+  effective-schema JSON document or another generated projection as canonical bundle input.
+- [ ] Add deterministic headless pack/unpack and round-trip tests before exposing bundle operations
+  in the interface; the UI remains a client of those shared services.
+- [ ] Let project setup export, import, clone, and inspect one portable artifact while still showing
+  its internal manifest, registries, content, resources, dependencies, and validation state.
+
+### Phase 16.4 Category And Page Editing
 
 - [ ] Add schema-driven category generator/editor and page generator/editor.
 - [ ] Add structured-data editing with required/optional/derived behavior.
 - [ ] Add linked prose/data editing without duplicating schema definitions.
 - [ ] Route every mutation through preview, validation, and migration services.
 
-### Phase 16.4 Operational Hardening
+### Phase 16.5 Operational Hardening
 
 - [ ] Add authentication, authorization, concurrency, audit, deployment, and server persistence only
   when the chosen product boundary requires them.
@@ -958,6 +987,9 @@ wave is confirmed.
 
 - [ ] The interface is a replaceable client over tested headless services rather than the owner of
   schema or domain behavior.
+- [ ] A project can round-trip through the initial ZIP-based portable bundle without flattening its
+  canonical registries, ingesting generated projections as authority, escaping its destination, or
+  changing its recomposed effective schema.
 
 ## Phase 17: Deferred Capability Delivery Program
 
