@@ -567,16 +567,20 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 ### Phase 3.2 Framework Catalog And Capability Grouping
 
-#### Phase 3.2.1 Framework Catalog And Discovery
+#### Phase 3.2.1 Framework Catalog Contract And Discovery
 
 - [ ] Define a generated `FrameworkCatalog` contract distinct from the project-scoped
   `EffectiveProjectSchema` contract.
+- [ ] Keep canonical pack files authoritative. Define one shared validated pack/capability record
+  model from which both catalog inspection and project composition are derived; neither generated
+  document becomes canonical configuration.
 - [ ] Discover every installed pack deterministically without pretending unselected packs are one
   valid project composition.
 - [ ] Compose complete pack and capability catalog metadata, dependencies, lifecycle, architectural
   classification, presentation, and discoverability state.
-- [ ] Project installed, selected, available, enabled, deprecated, planned, and used-by-project
-  states against an optional project composition without changing catalog identity.
+- [ ] Preserve project-independent catalog loading so installed and potentially available packs can
+  be inspected before a project exists or without treating one project's selection as catalog
+  identity.
 - [ ] Provide concise and detailed human reports, canonical JSON export, and ambiguity-safe singular
   pack/capability lookup across the complete catalog.
 - [ ] Implement paired Python and PowerShell services and commands with permanent positive,
@@ -584,7 +588,30 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [ ] Keep wizard, editor, and UI consumers on the shared catalog service rather than allowing
   independent pack-directory scans.
 
-#### Phase 3.2.2 Capability Grouping
+#### Phase 3.2.2 Effective-Schema Catalog Integration
+
+- [ ] Make `EffectiveProjectSchema` resolve the project's selected pack IDs and dependency closure
+  through the shared validated `FrameworkCatalog` model rather than independently scanning,
+  reparsing, or reconstructing pack and capability metadata.
+- [ ] Keep effective-schema composition project-specific: combine the selected catalog subset with
+  the project manifest, capability activation, taxonomy, resources, diagnostics, and later project
+  registries instead of treating the effective schema as only a filtered catalog.
+- [ ] Define an acyclic data flow in which project-independent catalog records feed project
+  composition and the resulting selected, available, enabled, deprecated, planned, and
+  used-by-project states may be projected back into a catalog view without mutating catalog identity.
+- [ ] Preserve one implementation authority for pack parsing, normalization, lookup, presentation,
+  classification, lifecycle, dependency, and provider records across catalog and effective-schema
+  services in both runtimes.
+- [ ] Introduce the catalog-backed path behind an exact shadow comparison against the current direct
+  effective-schema composition before allowing it to drive project output.
+- [ ] Prove byte-identical contract-version-2 effective-schema JSON, selection envelopes, human
+  reports, failure behavior, QA/Visualization projections, and canonical consumer artifacts across
+  Python, PowerShell 7, and Windows PowerShell 5.1 before retiring the direct path.
+- [ ] Remove the superseded direct selected-pack discovery/composition path only after permanent
+  catalog, effective-schema, project-composition, compatibility, extraction, and scale coverage
+  proves the shared model.
+
+#### Phase 3.2.3 Capability Grouping
 
 - [ ] Define stable capability groups suitable for wizard steps and editor navigation.
 - [ ] Allow packs to contribute capabilities to ordered groups without duplicating capability
@@ -627,6 +654,11 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [ ] A headless client can explain whether a pack is a foundation, domain pack, bridge, or
   extension; which family and scope it belongs to; why it was selected; and which vocabulary would
   appear or disappear if its selection changed.
+- [ ] `EffectiveProjectSchema` derives its selected pack/capability records from the same validated
+  model as `FrameworkCatalog`, adds project-owned composition state, and retains no independent pack
+  metadata parser or discovery authority.
+- [ ] Catalog inspection can project optional project state without making the project mandatory,
+  mutating catalog identity, or introducing a circular dependency.
 - [ ] Human and JSON clients can inspect one pack or capability by stable ID and navigate its groups,
   dependencies, providers, lifecycle, activation, recommendations, conflicts, and contributions.
 - [ ] Every declared planned capability is machine-discoverable and traceable to a delivery phase or
