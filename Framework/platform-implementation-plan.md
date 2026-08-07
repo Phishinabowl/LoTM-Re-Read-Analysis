@@ -588,9 +588,9 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [ ] Add paired `inspect_framework_catalog.py` and `Get-FrameworkCatalog.ps1` commands with
   project-independent root resolution plus human, JSON, confined file-export, composable `show`,
   pack-selector, and capability-selector behavior parallel to the existing effective-schema command.
-- [ ] Share selector normalization, report/export primitives, failure envelopes, and path-safety
-  helpers where their contracts are genuinely identical while keeping catalog and effective-schema
-  serializers and record identities distinct.
+- [ ] Share selector normalization, semantic report models, deterministic text/Markdown rendering,
+  export primitives, failure envelopes, and path-safety helpers where their contracts are genuinely
+  identical while keeping catalog and effective-schema serializers and record identities distinct.
 - [ ] Implement paired Python and PowerShell catalog services and commands with permanent positive,
   malformed, ambiguity, path-safety, scale, and three-runtime parity coverage. Commands import their
   runtime services and never invoke one another as subprocesses.
@@ -635,7 +635,27 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
   catalog, effective-schema, project-composition, compatibility, extraction, and scale coverage
   proves the shared model.
 
-#### Phase 3.2.3 Capability Grouping
+#### Phase 3.2.3 Effective-Schema QA Publication
+
+- [ ] Add a proper Markdown effective-schema report rendered from the shared runtime service rather
+  than converting the existing plain-text report by filename alone.
+- [ ] Keep `inspect_effective_schema.py`, `Get-EffectiveProjectSchema.ps1`, both Obsidian QA
+  exporters, and future interface clients on the same semantic report model while allowing each
+  consumer to select the appropriate text or Markdown presentation.
+- [ ] Make both QA exporters render the already-composed in-memory `EffectiveProjectSchema`; neither
+  exporter may invoke an inspection command or another runtime as a subprocess.
+- [ ] Generate `_Generated/effective-schema.md` on every Obsidian QA run with generated-report
+  metadata, a concise project/contract summary, selected-pack overview, capability overview, and
+  diagnostics. Do not embed the multi-thousand-line `all` inspection report by default.
+- [ ] Keep the generated Markdown deterministic and portable: no machine-specific absolute paths,
+  wall-clock timestamps, unstable ordering, or canonical-configuration authority.
+- [ ] Include the report in clean regeneration, scoped artifact lifecycle, complete QA inventories,
+  project-owned compatibility baselines, and Python/PowerShell parity checks so stale or drifting
+  output cannot survive unnoticed.
+- [ ] Document the generated report, its noncanonical QA role, its relationship to the effective
+  schema inspection commands, and the later separate `FrameworkCatalog` report boundary.
+
+#### Phase 3.2.4 Capability Grouping
 
 - [ ] Define stable capability groups suitable for wizard steps and editor navigation.
 - [ ] Allow packs to contribute capabilities to ordered groups without duplicating capability
@@ -688,6 +708,9 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
   catalog identity, or introducing a circular dependency.
 - [ ] Human and JSON clients can inspect one pack or capability by stable ID and navigate its groups,
   dependencies, providers, lifecycle, activation, recommendations, conflicts, and contributions.
+- [ ] Obsidian QA publishes one deterministic Markdown view of the effective project schema from the
+  same in-process report authority used by supported inspection clients, with three-runtime parity
+  and reviewed artifact compatibility.
 - [ ] Every declared planned capability is machine-discoverable and traceable to a delivery phase or
   accepted deferral.
 - [ ] No licensing assumption leaks into reusable schema contracts.
