@@ -16,6 +16,7 @@ controlled values, taxonomy, resources, and diagnostics:
 ```powershell
 python Tools\Commands\Framework\inspect_effective_schema.py
 python Tools\Commands\Framework\inspect_effective_schema.py --show packs --show capabilities
+python Tools\Commands\Framework\inspect_effective_schema.py --show all --report-output .local\effective-schema.txt
 python Tools\Commands\Framework\inspect_effective_schema.py --json
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Show packs,capabilities
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Json
@@ -25,6 +26,10 @@ Add `--output PATH` / `-Output PATH` to write canonical JSON beneath the project
 a compiled diagnostic view and must not be edited or ingested as canonical configuration. Library
 consumers import the paired effective-schema runtime service; exact APIs and verification commands
 are in [Tooling Reference](TOOLING_REFERENCE.md#effective-project-schema).
+
+Add `--report-output PATH` / `-ReportOutput PATH` to write the selected human-readable report
+directly to a UTF-8 text file beneath the project root. This suppresses the report body on standard
+output and leaves a concise export confirmation, which is especially useful with `--show all`.
 
 Human inspection supports `packs`, `capabilities`, `namespaces`, `content`, `resources`,
 `diagnostics`, and `all`. Repeat Python `--show SECTION` to combine sections; pass one

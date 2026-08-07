@@ -294,8 +294,8 @@ Python library consumers import `EffectiveProjectSchema`, `compose_effective_pro
 The paired headless commands are:
 
 ```powershell
-python Tools\Commands\Framework\inspect_effective_schema.py [--root PATH] [--json] [--output PATH] [--show SECTION]
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 [-Root PATH] [-Json] [-Output PATH] [-Show SECTION[,SECTION]]
+python Tools\Commands\Framework\inspect_effective_schema.py [--root PATH] [--json] [--output PATH] [--report-output PATH] [--show SECTION]
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 [-Root PATH] [-Json] [-Output PATH] [-ReportOutput PATH] [-Show SECTION[,SECTION]]
 ```
 
 Without structured-output switches, each command prints a concise project, pack, capability,
@@ -303,6 +303,11 @@ content, resource, and diagnostic summary. `--json` / `-Json` writes the canonic
 standard output. `--output` / `-Output` additionally writes canonical UTF-8 JSON beneath the
 resolved project root and refuses an escaping path. Failure exits nonzero; structured mode emits an
 `effective-project-schema-result` envelope containing `schema: null` and one stable error diagnostic.
+
+`--report-output` / `-ReportOutput` writes the selected human report beneath the resolved project
+root as UTF-8 without a byte-order mark, with LF line endings and one final newline. In human mode,
+the command then prints only export confirmations instead of duplicating the report on standard
+output. It may be combined with the JSON switches when both compiled artifacts are needed.
 
 Human mode accepts repeatable Python `--show` selections or one comma-separated PowerShell `-Show`
 list for `packs`, `capabilities`, `namespaces`, `content`, `resources`, `diagnostics`, or `all`.

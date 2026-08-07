@@ -1129,6 +1129,7 @@ and `New-KnowledgeEffectiveSchemaFailure` from module version 0.3.0.
 | Explicit project root | `--root PATH` | `-Root PATH` |
 | Canonical JSON on standard output | `--json` | `-Json` |
 | Also export canonical JSON | `--output PATH` | `-Output PATH` |
+| Export the selected human report | `--report-output PATH` | `-ReportOutput PATH` |
 | Append detailed human sections | repeat `--show SECTION` | `-Show SECTION[,SECTION]` |
 | Help | `--help` | `-Help`, `-?`, or `-h` |
 
@@ -1146,13 +1147,19 @@ expands to the six sections in the order listed above. With no selection, output
 summary. `--json` / `-Json` always emits the complete canonical document and ignores presentation
 selection.
 
+Report export writes the selected compact or expanded human view directly to UTF-8 text without a
+byte-order mark, using LF line endings and one final newline. It suppresses the report body on
+standard output and prints only a short relative-path confirmation in human mode. It may be combined
+with JSON output/export, and its destination follows the same project-root confinement policy.
+
 ### Verification
 
 `effective-schema` belongs to both aggregate profiles. Its paired suite covers positive,
 available-disabled, planned, deprecated, multiple-provider, dependency-failure, malformed,
 deterministic, path-safety, and generated 400-capability scale behavior. The compatibility check of
 the same ID compares complete in-memory JSON, byte-identical canonical file exports, combined
-`packs` plus `capabilities` human inspection, deduplicated `all` expansion, invalid selection, and
+`packs` plus `capabilities` human inspection and byte-identical report exports, deduplicated `all`
+expansion, invalid selection, and
 malformed-root failure envelopes in Python, PowerShell 7, and Windows PowerShell 5.1 while protecting
 canonical outputs.
 
@@ -1168,9 +1175,11 @@ Last focused parity check: 2026-08-07. All three runtimes produced the same 10-p
 132-capability, 138-namespace effective schema with two deterministic diagnostics. The compatibility
 check also produced the same 297,916-byte canonical export with SHA-256
 `46c42decd28af5e8ba4653e9b51465b0b0289284d3fbb3619c48730d298953e2` and matched the
-319-line combined pack/capability report, 1,621-line deduplicated `all` report, one invalid-selector
-failure, and the `malformed-configuration` failure envelope without changing canonical project
-output.
+319-line combined pack/capability report, 1,621-line deduplicated `all` report, and byte-identical
+126,473-byte `all` report export with SHA-256
+`61e4969cd7fa1fdd1438d95976f5fe3f0d2e58648f8098d7876f64ca40a4da83`. It also matched one
+invalid-selector failure and the `malformed-configuration` failure envelope without changing
+canonical project output.
 
 ## GitHub Actions CI
 

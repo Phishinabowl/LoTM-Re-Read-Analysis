@@ -233,6 +233,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="Also write canonical JSON beneath the project root.",
     )
     parser.add_argument(
+        "--report-output",
+        metavar="PATH",
+        help="Write the selected human-readable report beneath the project root.",
+    )
+    parser.add_argument(
         "--show",
         action="append",
         default=[],
@@ -252,16 +257,24 @@ def main() -> int:
         schema = load_effective_project_schema(root)
         document = schema.to_dict()
         serialized = effective_schema_json(schema)
+        sections = normalize_show_sections(args.show)
         if args.output:
             output = resolve_output_path(root, args.output)
             output.parent.mkdir(parents=True, exist_ok=True)
             output.write_text(serialized, encoding="utf-8", newline="\n")
+        if args.report_output:
+            report_output = resolve_output_path(root, args.report_output)
+            report_output.parent.mkdir(parents=True, exist_ok=True)
+            report_output.write_text(human_report(document, sections) + "\n", encoding="utf-8", newline="\n")
         if args.json:
             sys.stdout.write(serialized)
         else:
-            print(human_report(document, normalize_show_sections(args.show)))
+            if not args.report_output:
+                print(human_report(document, sections))
             if args.output:
                 print(f"Exported JSON: {output.relative_to(root).as_posix()}")
+            if args.report_output:
+                print(f"Exported report: {report_output.relative_to(root).as_posix()}")
         return 0
     except (KeyError, OSError, RuntimeError, TypeError, ValueError) as error:
         if args.json:

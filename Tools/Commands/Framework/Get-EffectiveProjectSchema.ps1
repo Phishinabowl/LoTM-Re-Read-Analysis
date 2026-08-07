@@ -5,6 +5,7 @@ param(
     [string]$Root,
     [switch]$Json,
     [string]$Output,
+    [string]$ReportOutput,
     [string]$Show
 )
 
@@ -28,6 +29,9 @@ Options:
                    directory and this script's directory.
   -Json            Write canonical schema JSON to standard output.
   -Output <path>   Also write JSON beneath the project root.
+  -ReportOutput <path>
+                   Write the selected human-readable report beneath the
+                   project root.
   -Show <section>  Append detailed human output for packs, capabilities,
                    namespaces, content, resources, diagnostics, or all.
                    Pass a comma-separated list to combine sections.
@@ -38,6 +42,7 @@ Examples:
   powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Json
   powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Show packs,capabilities
   powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Output .tmp\effective-schema.json
+  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Show all -ReportOutput .local\effective-schema.txt
 "@
 }
 
@@ -464,6 +469,7 @@ try {
     $resolvedRoot = Resolve-KnowledgeProjectRoot -ExplicitRoot $Root -ExecutablePath $PSCommandPath
     $schema = Get-KnowledgeEffectiveProjectSchema -Root $resolvedRoot
     $serialized = ConvertTo-EffectiveSchemaJson $schema
+    $sections = @(Get-EffectiveSchemaShowSections $Show)
     if (-not [string]::IsNullOrWhiteSpace($Output)) {
         $outputPath = Resolve-EffectiveSchemaOutputPath $resolvedRoot $Output
         $parent = [System.IO.Path]::GetDirectoryName($outputPath)
@@ -472,14 +478,34 @@ try {
         }
         [System.IO.File]::WriteAllText($outputPath, $serialized, [System.Text.UTF8Encoding]::new($false))
     }
+    if (-not [string]::IsNullOrWhiteSpace($ReportOutput)) {
+        $reportOutputPath = Resolve-EffectiveSchemaOutputPath $resolvedRoot $ReportOutput
+        $parent = [System.IO.Path]::GetDirectoryName($reportOutputPath)
+        if (-not [string]::IsNullOrWhiteSpace($parent)) {
+            [System.IO.Directory]::CreateDirectory($parent) | Out-Null
+        }
+        $reportLines = @(Write-EffectiveSchemaReport $schema $sections)
+        $reportText = ($reportLines -join "`n") + "`n"
+        [System.IO.File]::WriteAllText(
+            $reportOutputPath,
+            $reportText,
+            [System.Text.UTF8Encoding]::new($false)
+        )
+    }
     if ($Json) {
         [Console]::Out.Write($serialized)
     }
     else {
-        Write-EffectiveSchemaReport $schema (Get-EffectiveSchemaShowSections $Show)
+        if ([string]::IsNullOrWhiteSpace($ReportOutput)) {
+            Write-EffectiveSchemaReport $schema $sections
+        }
         if (-not [string]::IsNullOrWhiteSpace($Output)) {
             $relative = $outputPath.Substring($resolvedRoot.TrimEnd('\', '/').Length + 1).Replace('\', '/')
             Write-Output "Exported JSON: $relative"
+        }
+        if (-not [string]::IsNullOrWhiteSpace($ReportOutput)) {
+            $relative = $reportOutputPath.Substring($resolvedRoot.TrimEnd('\', '/').Length + 1).Replace('\', '/')
+            Write-Output "Exported report: $relative"
         }
     }
     exit 0

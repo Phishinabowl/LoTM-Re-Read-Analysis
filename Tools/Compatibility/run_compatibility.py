@@ -760,9 +760,11 @@ def run_effective_schema_check(
     powershell_script = root / "Tools" / "Commands" / "Framework" / "Get-EffectiveProjectSchema.ps1"
     documents: dict[str, dict[str, Any]] = {}
     export_bytes: dict[str, bytes] = {}
+    report_export_bytes: dict[str, bytes] = {}
     human_reports: dict[str, dict[str, str]] = {}
     failure_codes: dict[str, str] = {}
     selection_failures: dict[str, str] = {}
+    unsafe_report_failures: dict[str, str] = {}
     elapsed: dict[str, float] = {}
 
     for runtime in runtimes:
@@ -801,6 +803,40 @@ def run_effective_schema_check(
             )
             human_result = run_command(runtime, human_command, root, check["timeout_seconds"])
             human_reports[runtime.id][case_id] = human_result.stdout.replace("\r\n", "\n")
+
+        report_export_path = output_root / f"{runtime.id}.txt"
+        report_export_command = python_or_powershell_command(
+            runtime,
+            python_script,
+            powershell_script,
+            [
+                "--root",
+                str(root),
+                "--show",
+                "packs",
+                "--show",
+                "all",
+                "--show",
+                "packs",
+                "--report-output",
+                str(report_export_path),
+            ],
+            [
+                "-Root",
+                str(root),
+                "-Show",
+                "packs,all,packs",
+                "-ReportOutput",
+                str(report_export_path),
+            ],
+        )
+        report_export_result = run_command(runtime, report_export_command, root, check["timeout_seconds"])
+        expected_confirmation = f"Exported report: {report_export_path.relative_to(root).as_posix()}\n"
+        if report_export_result.stdout.replace("\r\n", "\n") != expected_confirmation:
+            raise CompatibilityFailure(f"{runtime.id} returned an invalid report-export confirmation.")
+        report_export_bytes[runtime.id] = report_export_path.read_bytes()
+        if report_export_bytes[runtime.id].decode("utf-8") != human_reports[runtime.id]["all-deduplicated"]:
+            raise CompatibilityFailure(f"{runtime.id} report export differs from its human command output.")
 
         export_path = output_root / f"{runtime.id}.json"
         export_command = python_or_powershell_command(
@@ -858,6 +894,25 @@ def run_effective_schema_check(
         )
         selection_failures[runtime.id] = invalid_show_result.stderr.strip()
 
+        unsafe_report_path = root.parent / ".effective-schema-report-outside.txt"
+        unsafe_report_command = python_or_powershell_command(
+            runtime,
+            python_script,
+            powershell_script,
+            ["--root", str(root), "--report-output", str(unsafe_report_path)],
+            ["-Root", str(root), "-ReportOutput", str(unsafe_report_path)],
+        )
+        unsafe_report_result = run_command(
+            runtime,
+            unsafe_report_command,
+            root,
+            check["timeout_seconds"],
+            expect_success=False,
+        )
+        if unsafe_report_path.exists():
+            raise CompatibilityFailure(f"{runtime.id} created an unsafe report export outside the project root.")
+        unsafe_report_failures[runtime.id] = unsafe_report_result.stderr.strip()
+
     reference_runtime = runtimes[0].id
     reference = documents[reference_runtime]
     for runtime_id, document in documents.items():
@@ -865,6 +920,8 @@ def run_effective_schema_check(
             raise CompatibilityFailure(f"Effective-schema output differs between {reference_runtime} and {runtime_id}.")
     if len(set(export_bytes.values())) != 1:
         raise CompatibilityFailure("Canonical effective-schema export bytes differ between runtimes.")
+    if len(set(report_export_bytes.values())) != 1:
+        raise CompatibilityFailure("Effective-schema human report export bytes differ between runtimes.")
     for case_id in human_reports[reference_runtime]:
         outputs = {reports[case_id] for reports in human_reports.values()}
         if len(outputs) != 1:
@@ -873,6 +930,10 @@ def run_effective_schema_check(
         raise CompatibilityFailure(f"Effective-schema failure codes differ by runtime: {failure_codes}")
     if len(set(selection_failures.values())) != 1:
         raise CompatibilityFailure(f"Effective-schema selector failures differ by runtime: {selection_failures}")
+    if len(set(unsafe_report_failures.values())) != 1:
+        raise CompatibilityFailure(
+            f"Effective-schema unsafe report failures differ by runtime: {unsafe_report_failures}"
+        )
     canonical_export = export_bytes[reference_runtime]
 
     return {
@@ -884,10 +945,13 @@ def run_effective_schema_check(
         "diagnostics": len(reference["diagnostics"]),
         "canonical_export_bytes": len(canonical_export),
         "canonical_export_sha256": hashlib.sha256(canonical_export).hexdigest(),
+        "human_report_export_bytes": len(report_export_bytes[reference_runtime]),
+        "human_report_export_sha256": hashlib.sha256(report_export_bytes[reference_runtime]).hexdigest(),
         "human_sections": ["packs", "capabilities"],
         "human_report_lines": len(human_reports[reference_runtime]["combined"].splitlines()),
         "human_all_report_lines": len(human_reports[reference_runtime]["all-deduplicated"].splitlines()),
         "invalid_selector_cases": 1,
+        "unsafe_report_path_cases": 1,
         "failure_code": next(iter(failure_codes.values())),
         "elapsed_seconds": elapsed,
     }
