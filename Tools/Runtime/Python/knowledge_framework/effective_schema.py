@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from .lookup_key_config import LookupKeyConfig
 from .project_config import ProjectConfig, load_project_config
 from .resource_config import ResourceConfig, load_resource_config
 from .schema_pack_config import SchemaPackRegistry, load_schema_pack_registry
@@ -12,7 +13,9 @@ from .taxonomy_config import TaxonomyConfig, load_taxonomy_config
 
 
 CONTRACT_ID = "effective-project-schema"
-CONTRACT_VERSION = 1
+CONTRACT_VERSION = 2
+SELECTION_CONTRACT_ID = "effective-project-schema-selection"
+SELECTION_CONTRACT_VERSION = 1
 SEVERITY_ORDER = {"warning": 0, "info": 1}
 CONSUMER_ENABLEMENT_FIELDS = {
     "qa": "qa_page_enabled",
@@ -89,6 +92,73 @@ def _diagnostic_key(row: dict[str, Any]) -> tuple[Any, ...]:
     )
 
 
+def _presentation_entry(entry: Any) -> dict[str, str]:
+    return {
+        "id": entry.id,
+        "label": entry.label,
+        "description": entry.description,
+    }
+
+
+def _pack_classification(classification: Any) -> dict[str, Any] | None:
+    if classification is None:
+        return None
+    return {
+        "family": classification.family,
+        "role": classification.role,
+        "scope": classification.scope,
+        "domains": list(classification.domains),
+        "bridge_pack_ids": list(classification.bridge_pack_ids),
+    }
+
+
+def _pack_presentation(presentation: Any) -> dict[str, Any] | None:
+    if presentation is None:
+        return None
+    return {
+        "localization_key": presentation.localization_key,
+        "default_locale": presentation.default_locale,
+        "label": presentation.label,
+        "short_description": presentation.short_description,
+        "long_description": presentation.long_description,
+        "maturity": presentation.maturity,
+        "intended_audiences": [_presentation_entry(entry) for entry in presentation.intended_audiences],
+        "use_cases": [_presentation_entry(entry) for entry in presentation.use_cases],
+        "examples": [_presentation_entry(entry) for entry in presentation.examples],
+        "prerequisites": [_presentation_entry(entry) for entry in presentation.prerequisites],
+        "provided_behaviors": [_presentation_entry(entry) for entry in presentation.provided_behaviors],
+        "exclusions": [_presentation_entry(entry) for entry in presentation.exclusions],
+        "documentation": [
+            {
+                "id": entry.id,
+                "label": entry.label,
+                "target_kind": entry.target_kind,
+                "target": entry.target,
+            }
+            for entry in presentation.documentation
+        ],
+        "search_keywords": list(presentation.search_keywords),
+        "visual": (
+            None
+            if presentation.visual is None
+            else {
+                "icon_id": presentation.visual.icon_id,
+                "accent_token": presentation.visual.accent_token,
+            }
+        ),
+    }
+
+
+def _capability_presentation(presentation: Any) -> dict[str, str] | None:
+    if presentation is None:
+        return None
+    return {
+        "localization_key": presentation.localization_key,
+        "label": presentation.label,
+        "description": presentation.description,
+    }
+
+
 def compose_effective_project_schema(
     project: ProjectConfig,
     packs: SchemaPackRegistry,
@@ -118,6 +188,8 @@ def compose_effective_project_schema(
                 "pack_version": pack.pack_version,
                 "label": pack.label,
                 "description": pack.description,
+                "classification": _pack_classification(pack.classification),
+                "presentation": _pack_presentation(pack.presentation),
                 "dependencies": dependency_rows,
             }
         )
@@ -138,15 +210,20 @@ def compose_effective_project_schema(
         provider_ids = packs.capability_providers[capability_id]
         providers = []
         lifecycles = []
+        effective_presentation = None
         for pack_id in provider_ids:
             definition = packs.capability_definitions[(pack_id, capability_id)]
             lifecycles.append(definition.lifecycle)
+            provider_presentation = _capability_presentation(definition.presentation)
+            if effective_presentation is None and provider_presentation is not None:
+                effective_presentation = provider_presentation
             providers.append(
                 {
                     "pack_id": pack_id,
                     "lifecycle": definition.lifecycle,
                     "label": definition.label,
                     "description": definition.description,
+                    "presentation": provider_presentation,
                 }
             )
         effective_lifecycle = (
@@ -163,6 +240,7 @@ def compose_effective_project_schema(
                 "planned": effective_lifecycle == "planned",
                 "enabled": is_enabled,
                 "disabled": not is_enabled,
+                "presentation": effective_presentation,
                 "providers": providers,
             }
         )
@@ -532,6 +610,51 @@ def load_effective_project_schema(root: Path) -> EffectiveProjectSchema:
 
 def effective_schema_json(schema: EffectiveProjectSchema, *, indent: int | None = 2) -> str:
     return json.dumps(schema.to_dict(), ensure_ascii=False, indent=indent) + "\n"
+
+
+def _resolve_effective_schema_row(
+    rows: tuple[dict[str, Any], ...],
+    value: str,
+    record_name: str,
+    lookup_keys: LookupKeyConfig,
+) -> dict[str, Any]:
+    exact = [row for row in rows if row["id"] == value]
+    if exact:
+        return exact[0]
+    normalized = lookup_keys.normalize(value)
+    matches = [row for row in rows if lookup_keys.normalize(row["id"]) == normalized]
+    if not matches:
+        raise ValueError(f"Unknown effective-schema {record_name} ID `{value}`.")
+    if len(matches) > 1:
+        match_ids = ", ".join(row["id"] for row in matches)
+        raise ValueError(f"Ambiguous effective-schema {record_name} ID `{value}`; matches: {match_ids}.")
+    return matches[0]
+
+
+def compose_effective_schema_selection(
+    schema: EffectiveProjectSchema,
+    lookup_keys: LookupKeyConfig,
+    *,
+    pack_id: str | None = None,
+    capability_id: str | None = None,
+) -> dict[str, Any]:
+    if pack_id is None and capability_id is None:
+        raise ValueError("Effective-schema selection requires a pack or capability ID.")
+    return {
+        "contract": SELECTION_CONTRACT_ID,
+        "contract_version": SELECTION_CONTRACT_VERSION,
+        "source_contract": schema.contract,
+        "source_contract_version": schema.contract_version,
+        "project_id": schema.project["project_id"],
+        "packs": (
+            [] if pack_id is None else [_resolve_effective_schema_row(schema.packs, pack_id, "pack", lookup_keys)]
+        ),
+        "capabilities": (
+            []
+            if capability_id is None
+            else [_resolve_effective_schema_row(schema.capabilities, capability_id, "capability", lookup_keys)]
+        ),
+    }
 
 
 def classify_composition_error(error: Exception) -> str:

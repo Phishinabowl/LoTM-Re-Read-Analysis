@@ -15,10 +15,14 @@ controlled values, taxonomy, resources, and diagnostics:
 
 ```powershell
 python Tools\Commands\Framework\inspect_effective_schema.py
+python Tools\Commands\Framework\inspect_effective_schema.py --show overview
 python Tools\Commands\Framework\inspect_effective_schema.py --show packs --show capabilities
+python Tools\Commands\Framework\inspect_effective_schema.py --pack narrative-media --capability narrative-time-loops
 python Tools\Commands\Framework\inspect_effective_schema.py --show all --report-output .local\effective-schema.txt
 python Tools\Commands\Framework\inspect_effective_schema.py --json
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Show packs,capabilities
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Show overview
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Pack narrative-media -Capability narrative-time-loops
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Json
 ```
 
@@ -39,11 +43,17 @@ Add `--report-output PATH` / `-ReportOutput PATH` to write the selected human-re
 directly to a UTF-8 text file beneath the project root. This suppresses the report body on standard
 output and leaves a concise export confirmation, which is especially useful with `--show all`.
 
-Human inspection supports `packs`, `capabilities`, `namespaces`, `content`, `resources`,
-`diagnostics`, and `all`. Repeat Python `--show SECTION` to combine sections; pass one
+Human inspection supports `overview`, `packs`, `capabilities`, `namespaces`, `content`, `resources`,
+`diagnostics`, and `all`. `overview` is the concise friendly-name and description report for the
+selected project composition. Repeat Python `--show SECTION` to combine sections; pass one
 comma-separated PowerShell `-Show SECTION,SECTION` list. Duplicate selections are removed while
-preserving requested order. These raw contract views intentionally precede Phase 3's singular lookup,
-friendly grouping, recommendations, and dependency explanations.
+preserving requested order. `all` expands only the six detailed contract sections so it does not
+duplicate the overview. Use `--pack` / `-Pack` or `--capability` / `-Capability` for singular
+inspection by exact ID or deterministic normalized lookup key. Selectors compose with each other
+and with `show`; structured selector output uses the filtered
+`effective-project-schema-selection` envelope rather than replacing the canonical full-schema
+export contract. Friendly grouping, recommendations, and dependency explanations remain later
+Phase 3 work.
 
 ## Environment Checks
 

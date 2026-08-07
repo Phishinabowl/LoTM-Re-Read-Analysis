@@ -30,11 +30,13 @@ function Get-EffectiveSchemaSummary {
         project_id = $Document.project.project_id
         packs = @($Document.packs).Count
         active_packs = @($Document.packs | Where-Object lifecycle -eq 'active').Count
+        pack_presentations = @($Document.packs | Where-Object { $null -ne $_.presentation }).Count
         capabilities = $capabilities.Count
         available_capabilities = @($capabilities | Where-Object available).Count
         enabled_capabilities = @($capabilities | Where-Object enabled).Count
         planned_capabilities = @($capabilities | Where-Object planned).Count
         deprecated_capabilities = @($capabilities | Where-Object deprecated).Count
+        capability_presentations = @($capabilities | Where-Object { $null -ne $_.presentation }).Count
         controlled_value_namespaces = @($Document.controlled_value_namespaces).Count
         content_roots = @($Document.content.roots).Count
         content_types = @($Document.content.content_types).Count
@@ -71,6 +73,15 @@ if ((@($schema.Keys) -join '|') -cne ($expectedKeys -join '|')) {
 if (@($schema.packs | Where-Object lifecycle -ne 'active').Count -ne 0) {
     throw 'Effective schema did not preserve selected pack lifecycle.'
 }
+if (@($schema.packs | Where-Object { $null -eq $_.classification -or $null -eq $_.presentation }).Count -ne 0) {
+    throw 'Effective schema lost selected-pack classification or presentation.'
+}
+if (@($schema.capabilities | Where-Object { $null -eq $_.presentation }).Count -ne 0) {
+    throw 'Effective schema lost capability presentation.'
+}
+if (@($schema.packs | Where-Object { $null -ne $_.presentation.visual }).Count -ne 0) {
+    throw 'Effective schema invented optional pack visual metadata.'
+}
 $firstJson = ConvertTo-CompactJson $schema
 $secondJson = ConvertTo-CompactJson (New-KnowledgeEffectiveProjectSchema $project $packs $taxonomy $resources)
 if ($firstJson -cne $secondJson) {
@@ -91,6 +102,54 @@ finally {
 }
 if ($firstJson -cne $alternateDirectoryJson) {
     throw 'Effective-schema composition changed with the process working directory.'
+}
+
+$lookupKeys = Get-KnowledgeLookupKeyConfig $project
+$selection = New-KnowledgeEffectiveSchemaSelection `
+    $schema `
+    $lookupKeys `
+    'Narrative-Media' `
+    'Narrative-Time-Loops'
+if (
+    [int]$selection.source_contract_version -ne [int]$schema.contract_version -or
+    (@($selection.packs | ForEach-Object id) -join '|') -cne 'narrative-media' -or
+    (@($selection.capabilities | ForEach-Object id) -join '|') -cne 'narrative-time-loops'
+) {
+    throw 'Effective-schema normalized singular selection changed.'
+}
+$unknownRejected = $false
+try {
+    $null = New-KnowledgeEffectiveSchemaSelection $schema $lookupKeys 'missing-pack' $null
+}
+catch {
+    $unknownRejected = $true
+}
+if (-not $unknownRejected) {
+    throw 'Effective-schema selection accepted an unknown pack ID.'
+}
+$duplicatePack = [ordered]@{}
+foreach ($key in $schema.packs[0].Keys) {
+    $duplicatePack[$key] = $schema.packs[0][$key]
+}
+$duplicatePack.id = $schema.packs[0].id.ToUpperInvariant()
+$originalPacks = @($schema.packs)
+$schema.packs = @($originalPacks) + @($duplicatePack)
+$ambiguousRejected = $false
+try {
+    $null = New-KnowledgeEffectiveSchemaSelection `
+        $schema `
+        $lookupKeys `
+    ([System.Globalization.CultureInfo]::InvariantCulture.TextInfo.ToTitleCase($originalPacks[0].id)) `
+        $null
+}
+catch {
+    $ambiguousRejected = $true
+}
+finally {
+    $schema.packs = $originalPacks
+}
+if (-not $ambiguousRejected) {
+    throw 'Effective-schema selection accepted an ambiguous normalized pack ID.'
 }
 
 $consumerIds = @('qa', 'visualization')
@@ -255,6 +314,7 @@ $result = [ordered]@{
     summary = $actual
     deterministic_passes = 3
     synthetic_states = 4
+    selection_cases = 3
     failure_cases = 1
     consumer_projection_modes = $consumerIds.Count
     retired_consumer_apis = $retiredConsumerApis.Count

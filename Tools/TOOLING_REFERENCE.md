@@ -1118,10 +1118,10 @@ Current content-type and ownership regression: both implementations selected tax
 Library consumers import the service. They must not launch the command to recover the same object.
 Python exposes `EffectiveProjectSchema`, `compose_effective_project_schema`,
 `load_effective_project_schema`, `compose_effective_consumer_schema_projection`,
-`effective_schema_json`, and `effective_schema_failure`.
+`compose_effective_schema_selection`, `effective_schema_json`, and `effective_schema_failure`.
 PowerShell exposes `New-KnowledgeEffectiveProjectSchema`, `Get-KnowledgeEffectiveProjectSchema`,
-`New-KnowledgeEffectiveConsumerSchemaProjection`, and `New-KnowledgeEffectiveSchemaFailure` from
-module version 0.5.0.
+`New-KnowledgeEffectiveConsumerSchemaProjection`, `New-KnowledgeEffectiveSchemaSelection`, and
+`New-KnowledgeEffectiveSchemaFailure` from module version 0.6.0.
 
 QA and Visualization compose one effective schema in-process from the project, pack, taxonomy, and
 resource objects already loaded by their supported runtime. QA and Visualization use direct
@@ -1141,6 +1141,8 @@ assertion APIs were retired after Phase 2.3.5 closure.
 | Also export canonical JSON | `--output PATH` | `-Output PATH` |
 | Export the selected human report | `--report-output PATH` | `-ReportOutput PATH` |
 | Append detailed human sections | repeat `--show SECTION` | `-Show SECTION[,SECTION]` |
+| Inspect one selected pack | `--pack PACK_ID` | `-Pack PACK_ID` |
+| Inspect one selected capability | `--capability CAPABILITY_ID` | `-Capability CAPABILITY_ID` |
 | Help | `--help` | `-Help`, `-?`, or `-h` |
 
 The output destination may be absolute or relative but must resolve beneath the detected project
@@ -1150,12 +1152,23 @@ and diagnostics. JSON mode emits the contract-defined document. Failed structure
 an `effective-project-schema-result` envelope with `schema: null`, one stable error diagnostic, and a
 nonzero exit code; human mode writes the loader error to standard error.
 
-`SECTION` is `packs`, `capabilities`, `namespaces`, `content`, `resources`, `diagnostics`, or `all`.
+`SECTION` is `overview`, `packs`, `capabilities`, `namespaces`, `content`, `resources`, `diagnostics`,
+or `all`. `overview` lists friendly pack/capability labels, stable IDs, and descriptions for the
+selected project composition without detailed lifecycle, provider, classification, or dependency
+rows.
 Python repeats `--show`; PowerShell uses one comma-separated `-Show` value because external `-File`
 invocation does not portably bind native arrays. Selections are deduplicated in request order. `all`
-expands to the six sections in the order listed above. With no selection, output remains the compact
-summary. `--json` / `-Json` always emits the complete canonical document and ignores presentation
-selection.
+expands to the six detailed sections and excludes the redundant overview. With no selection, output
+remains the compact summary. Without singular selectors, `--json` / `-Json` always emits the complete canonical
+document and ignores presentation selection.
+
+Pack and capability selectors resolve an exact stable ID first, then use the project's pinned
+lookup-key normalization. Unknown and ambiguous values fail rather than guessing. The selectors
+may be combined with each other and with any human `show` selection. Human mode appends complete
+inspection blocks, including authored presentation and pack classification. Structured mode emits
+an `effective-project-schema-selection` envelope containing zero or one complete row for each
+requested kind and identifying effective-schema contract version 2 as its source. With no selector,
+the canonical full-schema JSON and export behavior remains unchanged.
 
 Report export writes the selected compact or expanded human view directly to UTF-8 text without a
 byte-order mark, using LF line endings and one final newline. It suppresses the report body on
@@ -1167,7 +1180,9 @@ with JSON output/export, and its destination follows the same project-root confi
 `effective-schema` belongs to both aggregate profiles. Its paired suite covers positive,
 available-disabled, planned, deprecated, multiple-provider, dependency-failure, malformed,
 deterministic, working-directory-independent path serialization, direct QA/Visualization projection
-shape, retired shadow-API absence, path-safety, and generated
+shape, pack classification and presentation, effective/provider capability presentation, exact and
+normalized combined selection, unknown and ambiguous selection, retired shadow-API absence,
+path-safety, and generated
 400-capability scale behavior. The compatibility check of
 the same ID compares complete in-memory JSON, byte-identical canonical file exports, combined
 `packs` plus `capabilities` human inspection and byte-identical report exports, deduplicated `all`

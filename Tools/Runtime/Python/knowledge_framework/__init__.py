@@ -8,6 +8,7 @@ from .project_paths import (
 )
 from .effective_schema import (
     EffectiveProjectSchema,
+    compose_effective_schema_selection,
     compose_effective_project_schema,
     compose_effective_consumer_schema_projection,
     effective_schema_failure,
@@ -21,6 +22,7 @@ __all__ = [
     "is_project_root",
     "resolve_project_root",
     "EffectiveProjectSchema",
+    "compose_effective_schema_selection",
     "compose_effective_project_schema",
     "compose_effective_consumer_schema_projection",
     "effective_schema_failure",

@@ -6,7 +6,9 @@ param(
     [switch]$Json,
     [string]$Output,
     [string]$ReportOutput,
-    [string]$Show
+    [string]$Show,
+    [string]$Pack,
+    [string]$Capability
 )
 
 $ErrorActionPreference = 'Stop'
@@ -32,15 +34,20 @@ Options:
   -ReportOutput <path>
                    Write the selected human-readable report beneath the
                    project root.
-  -Show <section>  Append detailed human output for packs, capabilities,
+  -Show <section>  Append human output for overview, packs, capabilities,
                    namespaces, content, resources, diagnostics, or all.
                    Pass a comma-separated list to combine sections.
+  -Pack <pack-id>  Inspect one selected pack by stable ID.
+  -Capability <id> Inspect one declared capability by stable ID.
   -Help, -?, -h    Show this help and exit.
 
 Examples:
   powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1
   powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Json
+  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Show overview
   powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Show packs,capabilities
+  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Pack narrative-media
+  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Capability narrative-time-loops -Json
   powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Output .tmp\effective-schema.json
   powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Show all -ReportOutput .local\effective-schema.txt
 "@
@@ -245,17 +252,124 @@ function Write-EffectiveSchemaSummary {
     }
 }
 
-function Write-EffectiveSchemaPacks {
+function Write-EffectiveSchemaPresentationEntries {
+    param(
+        [string]$Label,
+        [object[]]$Entries
+    )
+
+    Write-Output "  $Label ($(@($Entries).Count)):"
+    if (@($Entries).Count -eq 0) {
+        Write-Output '    - none'
+    }
+    foreach ($entry in @($Entries)) {
+        Write-Output "    - $($entry.id) | $($entry.label): $($entry.description)"
+    }
+}
+
+function Write-EffectiveSchemaOverview {
     param([object]$Schema)
 
+    Write-Output 'Pack And Capability Overview'
     Write-Output "Selected Packs ($(@($Schema.packs).Count))"
     foreach ($row in @($Schema.packs)) {
+        if ($null -eq $row.presentation) {
+            $label = Get-EffectiveSchemaDisplayValue $row.label
+            $description = Get-EffectiveSchemaDisplayValue $row.description
+        }
+        else {
+            $label = $row.presentation.label
+            $description = $row.presentation.short_description
+        }
+        Write-Output "- $label ($($row.id)): $description"
+    }
+
+    Write-Output "Capabilities ($(@($Schema.capabilities).Count))"
+    foreach ($row in @($Schema.capabilities)) {
+        if ($null -eq $row.presentation) {
+            $label = Get-EffectiveSchemaDisplayValue $row.providers[0].label
+            $description = Get-EffectiveSchemaDisplayValue $row.providers[0].description
+        }
+        else {
+            $label = $row.presentation.label
+            $description = $row.presentation.description
+        }
+        Write-Output "- $label ($($row.id)): $description"
+    }
+}
+
+function Write-EffectiveSchemaPackRows {
+    param(
+        [object[]]$Rows,
+        [string]$Heading
+    )
+
+    Write-Output "$Heading ($(@($Rows).Count))"
+    foreach ($row in @($Rows)) {
         Write-Output (
             "- $($row.id) | lifecycle=$($row.lifecycle) | kind=$($row.kind) | " +
             "schema=$($row.schema_version) | version=$($row.pack_version)"
         )
-        Write-Output "  label: $(Get-EffectiveSchemaDisplayValue $row.label)"
-        Write-Output "  description: $(Get-EffectiveSchemaDisplayValue $row.description)"
+        if ($null -eq $row.classification) {
+            Write-Output '  classification: legacy / unavailable'
+        }
+        else {
+            $domains = @($row.classification.domains) -join ','
+            if ([string]::IsNullOrEmpty($domains)) {
+                $domains = 'none'
+            }
+            $joins = @($row.classification.bridge_pack_ids) -join ','
+            if ([string]::IsNullOrEmpty($joins)) {
+                $joins = 'none'
+            }
+            Write-Output (
+                "  classification: family=$($row.classification.family) | role=$($row.classification.role) | " +
+                "scope=$($row.classification.scope) | domains=$domains | joins=$joins"
+            )
+        }
+        if ($null -eq $row.presentation) {
+            Write-Output "  label: $(Get-EffectiveSchemaDisplayValue $row.label)"
+            Write-Output "  description: $(Get-EffectiveSchemaDisplayValue $row.description)"
+        }
+        else {
+            Write-Output (
+                "  presentation: key=$($row.presentation.localization_key) | " +
+                "locale=$($row.presentation.default_locale) | maturity=$($row.presentation.maturity)"
+            )
+            Write-Output "  label: $($row.presentation.label)"
+            Write-Output "  short description: $($row.presentation.short_description)"
+            Write-Output "  long description: $($row.presentation.long_description)"
+            $keywords = @($row.presentation.search_keywords) -join ', '
+            if ([string]::IsNullOrEmpty($keywords)) {
+                $keywords = 'none'
+            }
+            Write-Output "  search keywords: $keywords"
+            if ($null -eq $row.presentation.visual) {
+                Write-Output '  visual: none'
+            }
+            else {
+                Write-Output (
+                    "  visual: icon=$(Get-EffectiveSchemaDisplayValue $row.presentation.visual.icon_id) | " +
+                    "accent=$(Get-EffectiveSchemaDisplayValue $row.presentation.visual.accent_token)"
+                )
+            }
+            Write-EffectiveSchemaPresentationEntries 'intended audiences' $row.presentation.intended_audiences
+            Write-EffectiveSchemaPresentationEntries 'use cases' $row.presentation.use_cases
+            Write-EffectiveSchemaPresentationEntries 'examples' $row.presentation.examples
+            Write-EffectiveSchemaPresentationEntries 'prerequisites' $row.presentation.prerequisites
+            Write-EffectiveSchemaPresentationEntries 'provided behaviors' $row.presentation.provided_behaviors
+            Write-EffectiveSchemaPresentationEntries 'exclusions' $row.presentation.exclusions
+            Write-Output "  documentation ($(@($row.presentation.documentation).Count)):"
+            if (@($row.presentation.documentation).Count -eq 0) {
+                Write-Output '    - none'
+            }
+            foreach ($entry in @($row.presentation.documentation)) {
+                Write-Output (
+                    "    - $($entry.id) | $($entry.label) | " +
+                    "$($entry.target_kind)=$($entry.target)"
+                )
+            }
+        }
         $dependencies = @($row.dependencies)
         if ($dependencies.Count -eq 0) {
             Write-Output '  dependencies: none'
@@ -271,11 +385,20 @@ function Write-EffectiveSchemaPacks {
     }
 }
 
-function Write-EffectiveSchemaCapabilities {
+function Write-EffectiveSchemaPacks {
     param([object]$Schema)
 
-    Write-Output "Capabilities ($(@($Schema.capabilities).Count))"
-    foreach ($row in @($Schema.capabilities)) {
+    Write-EffectiveSchemaPackRows @($Schema.packs) 'Selected Packs'
+}
+
+function Write-EffectiveSchemaCapabilityRows {
+    param(
+        [object[]]$Rows,
+        [string]$Heading
+    )
+
+    Write-Output "$Heading ($(@($Rows).Count))"
+    foreach ($row in @($Rows)) {
         $providerIds = @($row.providers | ForEach-Object pack_id) -join ','
         Write-Output (
             "- $($row.id) | lifecycle=$($row.effective_lifecycle) | " +
@@ -283,14 +406,31 @@ function Write-EffectiveSchemaCapabilities {
             "enabled=$(Get-EffectiveSchemaDisplayValue $row.enabled) | " +
             "deprecated=$(Get-EffectiveSchemaDisplayValue $row.deprecated) | providers=$providerIds"
         )
+        if ($null -eq $row.presentation) {
+            Write-Output '  presentation: legacy / unavailable'
+        }
+        else {
+            Write-Output "  presentation key: $($row.presentation.localization_key)"
+            Write-Output "  label: $($row.presentation.label)"
+            Write-Output "  description: $($row.presentation.description)"
+        }
         foreach ($provider in @($row.providers)) {
             Write-Output (
                 "  - $($provider.pack_id) | lifecycle=$($provider.lifecycle) | " +
                 "label=$(Get-EffectiveSchemaDisplayValue $provider.label) | " +
                 "description=$(Get-EffectiveSchemaDisplayValue $provider.description)"
             )
+            if ($null -ne $provider.presentation) {
+                Write-Output "    presentation key: $($provider.presentation.localization_key)"
+            }
         }
     }
+}
+
+function Write-EffectiveSchemaCapabilities {
+    param([object]$Schema)
+
+    Write-EffectiveSchemaCapabilityRows @($Schema.capabilities) 'Capabilities'
 }
 
 function Write-EffectiveSchemaNamespaces {
@@ -400,7 +540,8 @@ function Write-EffectiveSchemaDiagnostics {
 function Get-EffectiveSchemaShowSections {
     param([string]$Value)
 
-    $available = @('packs', 'capabilities', 'namespaces', 'content', 'resources', 'diagnostics')
+    $available = @('overview', 'packs', 'capabilities', 'namespaces', 'content', 'resources', 'diagnostics')
+    $allSections = @('packs', 'capabilities', 'namespaces', 'content', 'resources', 'diagnostics')
     $selected = @()
     $values = if ([string]::IsNullOrWhiteSpace($Value)) {
         @()
@@ -414,7 +555,7 @@ function Get-EffectiveSchemaShowSections {
             throw "Unknown effective-schema section ``$requested``; choose from: $($available -join ', '), all."
         }
         $candidates = if ($requested -eq 'all') {
-            $available
+            $allSections
         }
         else {
             @($requested)
@@ -431,13 +572,17 @@ function Get-EffectiveSchemaShowSections {
 function Write-EffectiveSchemaReport {
     param(
         [object]$Schema,
-        [string[]]$Sections
+        [string[]]$Sections,
+        [AllowNull()][object]$Selection
     )
 
     Write-EffectiveSchemaSummary $Schema ($Sections -cnotcontains 'diagnostics')
     foreach ($section in $Sections) {
         Write-Output ''
         switch ($section) {
+            'overview' {
+                Write-EffectiveSchemaOverview $Schema
+            }
             'packs' {
                 Write-EffectiveSchemaPacks $Schema
             }
@@ -458,6 +603,16 @@ function Write-EffectiveSchemaReport {
             }
         }
     }
+    if ($null -ne $Selection) {
+        if (@($Selection.packs).Count -gt 0) {
+            Write-Output ''
+            Write-EffectiveSchemaPackRows @($Selection.packs) 'Pack Inspection'
+        }
+        if (@($Selection.capabilities).Count -gt 0) {
+            Write-Output ''
+            Write-EffectiveSchemaCapabilityRows @($Selection.capabilities) 'Capability Inspection'
+        }
+    }
 }
 
 if ($Help) {
@@ -467,8 +622,27 @@ if ($Help) {
 
 try {
     $resolvedRoot = Resolve-KnowledgeProjectRoot -ExplicitRoot $Root -ExecutablePath $PSCommandPath
+    $project = Get-KnowledgeProjectConfig $resolvedRoot
     $schema = Get-KnowledgeEffectiveProjectSchema -Root $resolvedRoot
-    $serialized = ConvertTo-EffectiveSchemaJson $schema
+    $selection = if (
+        -not [string]::IsNullOrWhiteSpace($Pack) -or
+        -not [string]::IsNullOrWhiteSpace($Capability)
+    ) {
+        New-KnowledgeEffectiveSchemaSelection `
+            $schema `
+        (Get-KnowledgeLookupKeyConfig $project) `
+            $Pack `
+            $Capability
+    }
+    else {
+        $null
+    }
+    $serialized = ConvertTo-EffectiveSchemaJson $(if ($null -eq $selection) {
+            $schema
+        }
+        else {
+            $selection
+        })
     $sections = @(Get-EffectiveSchemaShowSections $Show)
     if (-not [string]::IsNullOrWhiteSpace($Output)) {
         $outputPath = Resolve-EffectiveSchemaOutputPath $resolvedRoot $Output
@@ -484,7 +658,7 @@ try {
         if (-not [string]::IsNullOrWhiteSpace($parent)) {
             [System.IO.Directory]::CreateDirectory($parent) | Out-Null
         }
-        $reportLines = @(Write-EffectiveSchemaReport $schema $sections)
+        $reportLines = @(Write-EffectiveSchemaReport $schema $sections $selection)
         $reportText = ($reportLines -join "`n") + "`n"
         [System.IO.File]::WriteAllText(
             $reportOutputPath,
@@ -497,7 +671,7 @@ try {
     }
     else {
         if ([string]::IsNullOrWhiteSpace($ReportOutput)) {
-            Write-EffectiveSchemaReport $schema $sections
+            Write-EffectiveSchemaReport $schema $sections $selection
         }
         if (-not [string]::IsNullOrWhiteSpace($Output)) {
             $relative = $outputPath.Substring($resolvedRoot.TrimEnd('\', '/').Length + 1).Replace('\', '/')

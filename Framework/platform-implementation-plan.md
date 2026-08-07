@@ -529,12 +529,12 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 #### Phase 3.1.4 Effective Schema And Singular Inspection
 
-- [ ] Add pack and capability presentation metadata plus pack classification to the effective schema
+- [x] Add pack and capability presentation metadata plus pack classification to the effective schema
   with deterministic ordering and JSON parity.
-- [ ] Add ambiguity-safe `--pack PACK_ID` / `-Pack PACK_ID` and
+- [x] Add ambiguity-safe `--pack PACK_ID` / `-Pack PACK_ID` and
   `--capability CAPABILITY_ID` / `-Capability CAPABILITY_ID` command selectors after the required
   presentation metadata exists.
-- [ ] Preserve composable `--show` / `-Show` reports while making singular lookup useful to both
+- [x] Preserve composable `--show` / `-Show` reports while making singular lookup useful to both
   humans and headless clients.
 
 #### Phase 3.1.5 Compatibility Closure
@@ -547,13 +547,33 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [ ] Update architecture, tooling, testing, extraction-readiness, framework-evolution, pack-catalog,
   and implementation documentation before closing Phase 3.1.
 
-### Phase 3.2 Capability Grouping
+### Phase 3.2 Framework Catalog And Capability Grouping
+
+#### Phase 3.2.1 Framework Catalog And Discovery
+
+- [ ] Define a generated `FrameworkCatalog` contract distinct from the project-scoped
+  `EffectiveProjectSchema` contract.
+- [ ] Discover every installed pack deterministically without pretending unselected packs are one
+  valid project composition.
+- [ ] Compose complete pack and capability catalog metadata, dependencies, lifecycle, architectural
+  classification, presentation, and discoverability state.
+- [ ] Project installed, selected, available, enabled, deprecated, planned, and used-by-project
+  states against an optional project composition without changing catalog identity.
+- [ ] Provide concise and detailed human reports, canonical JSON export, and ambiguity-safe singular
+  pack/capability lookup across the complete catalog.
+- [ ] Implement paired Python and PowerShell services and commands with permanent positive,
+  malformed, ambiguity, path-safety, scale, and three-runtime parity coverage.
+- [ ] Keep wizard, editor, and UI consumers on the shared catalog service rather than allowing
+  independent pack-directory scans.
+
+#### Phase 3.2.2 Capability Grouping
 
 - [ ] Define stable capability groups suitable for wizard steps and editor navigation.
 - [ ] Allow packs to contribute capabilities to ordered groups without duplicating capability
   ownership.
 - [ ] Represent dependencies, recommendations, conflicts, and planned-only features clearly.
-- [ ] Distinguish installed, selected, available, enabled, deprecated, and used-by-project states.
+- [ ] Present catalog-owned installed, selected, available, enabled, deprecated, and
+  used-by-project states coherently within groups.
 - [ ] Add effective-schema output for groups, presentation metadata, family, architectural role,
   scope, dependency explanations, and bridge relationships.
 - [ ] Let headless inspection filter capabilities by group, provider pack, lifecycle, availability,

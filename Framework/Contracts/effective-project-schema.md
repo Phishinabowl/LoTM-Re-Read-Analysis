@@ -20,7 +20,13 @@ Core owns the effective-schema shape, lifecycle resolution, diagnostics model, d
 ordering, and serialization contract. Selected packs own capability and controlled-value
 definitions. Project registries own instantiated taxonomy, roots, placements, and resource policy.
 
-Contract version 1 includes:
+Contract version 2 retains every version-1 field and adds:
+
+- selected-pack architectural classification and complete pack presentation;
+- effective and provider-level capability presentation;
+- deterministic singular pack and capability selection over the composed document.
+
+The complete contract includes:
 
 - project identity and input schema versions;
 - selected packs in validated dependency order;
@@ -33,7 +39,7 @@ Contract version 1 includes:
 
 Page modules, normalized content records, canonical relationships, and projection declarations join
 the effective schema only when their later platform contracts are implemented. Their absence from
-version 1 is not an empty declaration that they exist.
+version 2 is not an empty declaration that they exist.
 
 ## Document Shape
 
@@ -42,7 +48,7 @@ The serialized document uses this top-level order:
 ```json
 {
   "contract": "effective-project-schema",
-  "contract_version": 1,
+  "contract_version": 2,
   "project": {},
   "registry_schema_versions": [],
   "packs": [],
@@ -89,6 +95,8 @@ release versions remain on each pack row because independently versioned packs m
 | `pack_version` | Pack's independently incremented release version. |
 | `label` | Human-facing pack label. |
 | `description` | Human-facing pack description. |
+| `classification` | Authored family, architectural role, scope, domains, and bridge joins. |
+| `presentation` | Complete localizable pack presentation, or `null` for a legacy schema-4 input. |
 | `dependencies` | Ordered dependency rows. |
 
 Each dependency row contains `pack_id`, `minimum_version`, `selected_version`, and `status`.
@@ -114,10 +122,13 @@ ordered by capability ID. Each row contains:
 | `planned` | Whether the capability is declared for future work but unavailable. |
 | `enabled` | Whether this project activates it. |
 | `disabled` | Exact inverse of `enabled`. |
+| `presentation` | Effective capability presentation, or `null` for legacy providers. |
 | `providers` | Definitions contributed by selected packs. |
 
 Provider rows appear in selected-pack dependency order and contain `pack_id`, `lifecycle`, `label`,
-and `description`. Provider labels and descriptions may be `null` when the pack used shorthand.
+`description`, and `presentation`. Compatibility labels and descriptions may be `null` when a
+legacy pack used shorthand. Schema-5 providers always include presentation. Multiple schema-5
+providers must have equivalent presentation, so the effective row uses that shared value.
 
 Lifecycle resolution is deterministic:
 
@@ -155,7 +166,7 @@ hierarchy cycles are fatal composition errors rather than diagnostics on a succe
 
 Typed semantic declarations remain runtime contract data rather than generic controlled values.
 They may receive a dedicated effective-schema section in a later contract version when an editor or
-consumer requirement is defined; version 1 must not flatten them into synthetic namespaces.
+consumer requirement is defined; version 2 must not flatten them into synthetic namespaces.
 
 ## Content Configuration
 
@@ -286,16 +297,17 @@ must not become an alternate source of truth or an input required to load the pr
 ## Runtime And Command API
 
 Python library consumers import `EffectiveProjectSchema`, `compose_effective_project_schema`,
-`load_effective_project_schema`, `effective_schema_json`, or `effective_schema_failure` from
-`knowledge_framework.effective_schema`. PowerShell library consumers import
+`load_effective_project_schema`, `compose_effective_schema_selection`, `effective_schema_json`, or
+`effective_schema_failure` from `knowledge_framework.effective_schema`. PowerShell library consumers import
 `KnowledgeFramework.psd1` and call `New-KnowledgeEffectiveProjectSchema`,
-`Get-KnowledgeEffectiveProjectSchema`, or `New-KnowledgeEffectiveSchemaFailure`.
+`Get-KnowledgeEffectiveProjectSchema`, `New-KnowledgeEffectiveSchemaSelection`, or
+`New-KnowledgeEffectiveSchemaFailure`.
 
 The paired headless commands are:
 
 ```powershell
-python Tools\Commands\Framework\inspect_effective_schema.py [--root PATH] [--json] [--output PATH] [--report-output PATH] [--show SECTION]
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 [-Root PATH] [-Json] [-Output PATH] [-ReportOutput PATH] [-Show SECTION[,SECTION]]
+python Tools\Commands\Framework\inspect_effective_schema.py [--root PATH] [--json] [--output PATH] [--report-output PATH] [--show SECTION] [--pack PACK_ID] [--capability CAPABILITY_ID]
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 [-Root PATH] [-Json] [-Output PATH] [-ReportOutput PATH] [-Show SECTION[,SECTION]] [-Pack PACK_ID] [-Capability CAPABILITY_ID]
 ```
 
 Without structured-output switches, each command prints a concise project, pack, capability,
@@ -310,15 +322,41 @@ the command then prints only export confirmations instead of duplicating the rep
 output. It may be combined with the JSON switches when both compiled artifacts are needed.
 
 Human mode accepts repeatable Python `--show` selections or one comma-separated PowerShell `-Show`
-list for `packs`, `capabilities`, `namespaces`, `content`, `resources`, `diagnostics`, or `all`.
+list for `overview`, `packs`, `capabilities`, `namespaces`, `content`, `resources`, `diagnostics`, or
+`all`. `overview` emits only friendly pack/capability labels, stable IDs, and descriptions for the
+project composition. `all` expands to the six detailed contract sections and deliberately excludes
+the redundant overview.
 Selections are deduplicated in requested order, and `all` expands in the documented canonical section
-order. They append raw contract-backed detail to the compact summary; they do not add Phase 3
-presentation metadata or change canonical JSON output.
+order. They append raw contract-backed detail to the compact summary; they do not add semantics or
+reinterpret canonical JSON.
 
-The permanent `effective-schema` conformance suite covers positive composition, available-disabled,
-planned, deprecated, multiple-provider, dependency-failure, malformed, deterministic, path-safety,
-and generated 400-capability scale behavior. The compatibility orchestrator compares the complete
-document, export, and failure envelope across Python, PowerShell 7, and Windows PowerShell 5.1.
+`--pack` / `-Pack` and `--capability` / `-Capability` are independently optional and may be
+combined with each other or any `show` selection. Exact stable IDs win. Otherwise, the project
+lookup-key service resolves the supplied value; zero matches fail as unknown and multiple matches
+fail as ambiguous. Human mode appends detailed inspection blocks. Structured mode emits:
+
+```json
+{
+  "contract": "effective-project-schema-selection",
+  "contract_version": 1,
+  "source_contract": "effective-project-schema",
+  "source_contract_version": 2,
+  "project_id": "example-project",
+  "packs": [],
+  "capabilities": []
+}
+```
+
+Each selected collection contains zero or one complete row copied from the composed effective
+schema. The envelope is a filtered view, not a second schema authority. Without selectors, JSON
+and output files remain the complete canonical effective-schema document.
+
+The permanent `effective-schema` conformance suite covers positive composition, pack and capability
+presentation, classification, exact and normalized singular selection, unknown and ambiguous
+selection, available-disabled, planned, deprecated, multiple-provider, dependency-failure,
+malformed, deterministic, path-safety, and generated 400-capability scale behavior. The
+compatibility orchestrator compares the complete document, export, selection, and failure envelopes
+across Python, PowerShell 7, and Windows PowerShell 5.1.
 
 ## Consumer Rules
 

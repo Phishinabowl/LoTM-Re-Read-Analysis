@@ -1,4 +1,5 @@
-$script:EffectiveProjectSchemaContractVersion = 1
+$script:EffectiveProjectSchemaContractVersion = 2
+$script:EffectiveProjectSchemaSelectionContractVersion = 1
 
 function ConvertTo-KnowledgePortablePath {
     param([AllowNull()][object]$Path)
@@ -170,6 +171,99 @@ function New-KnowledgeEffectiveProjectSchema {
                 status = 'satisfied'
             }
         }
+        $classification = if ($null -eq $pack.classification) {
+            $null
+        }
+        else {
+            [ordered]@{
+                family = $pack.classification.family
+                role = $pack.classification.role
+                scope = $pack.classification.scope
+                domains = @($pack.classification.domains)
+                bridge_pack_ids = @($pack.classification.bridge_pack_ids)
+            }
+        }
+        $presentation = if ($null -eq $pack.presentation) {
+            $null
+        }
+        else {
+            [ordered]@{
+                localization_key = $pack.presentation.localization_key
+                default_locale = $pack.presentation.default_locale
+                label = $pack.presentation.label
+                short_description = $pack.presentation.short_description
+                long_description = $pack.presentation.long_description
+                maturity = $pack.presentation.maturity
+                intended_audiences = @(
+                    $pack.presentation.intended_audiences | ForEach-Object {
+                        [ordered]@{ id=$_.id
+                            label=$_.label
+                            description=$_.description
+                        }
+                    }
+                )
+                use_cases = @(
+                    $pack.presentation.use_cases | ForEach-Object {
+                        [ordered]@{ id=$_.id
+                            label=$_.label
+                            description=$_.description
+                        }
+                    }
+                )
+                examples = @(
+                    $pack.presentation.examples | ForEach-Object {
+                        [ordered]@{ id=$_.id
+                            label=$_.label
+                            description=$_.description
+                        }
+                    }
+                )
+                prerequisites = @(
+                    $pack.presentation.prerequisites | ForEach-Object {
+                        [ordered]@{ id=$_.id
+                            label=$_.label
+                            description=$_.description
+                        }
+                    }
+                )
+                provided_behaviors = @(
+                    $pack.presentation.provided_behaviors | ForEach-Object {
+                        [ordered]@{ id=$_.id
+                            label=$_.label
+                            description=$_.description
+                        }
+                    }
+                )
+                exclusions = @(
+                    $pack.presentation.exclusions | ForEach-Object {
+                        [ordered]@{ id=$_.id
+                            label=$_.label
+                            description=$_.description
+                        }
+                    }
+                )
+                documentation = @(
+                    $pack.presentation.documentation | ForEach-Object {
+                        [ordered]@{
+                            id = $_.id
+                            label = $_.label
+                            target_kind = $_.target_kind
+                            target = $_.target
+                        }
+                    }
+                )
+                search_keywords = @($pack.presentation.search_keywords)
+                visual = if ($null -eq $pack.presentation.visual) {
+                    $null
+                }
+                else {
+                    [ordered]@{
+                        icon_id = $pack.presentation.visual.icon_id
+                        accent_token = $pack.presentation.visual.accent_token
+                    }
+                }
+            }
+        }
         $packRows += [ordered]@{
             id = $pack.id
             kind = $pack.kind
@@ -178,6 +272,8 @@ function New-KnowledgeEffectiveProjectSchema {
             pack_version = [int]$pack.pack_version
             label = $pack.label
             description = $pack.description
+            classification = $classification
+            presentation = $presentation
             dependencies = @($dependencies)
         }
         if ($pack.lifecycle -eq 'deferred') {
@@ -195,14 +291,29 @@ function New-KnowledgeEffectiveProjectSchema {
         $providerIds = @($SchemaPacks.capability_providers[$capabilityId])
         $providers = @()
         $lifecycles = @()
+        $effectivePresentation = $null
         foreach ($packId in $providerIds) {
             $definition = $SchemaPacks.capability_definitions["$packId|$capabilityId"]
             $lifecycles += $definition.lifecycle
+            $providerPresentation = if ($null -eq $definition.presentation) {
+                $null
+            }
+            else {
+                [ordered]@{
+                    localization_key = $definition.presentation.localization_key
+                    label = $definition.presentation.label
+                    description = $definition.presentation.description
+                }
+            }
+            if ($null -eq $effectivePresentation -and $null -ne $providerPresentation) {
+                $effectivePresentation = $providerPresentation
+            }
             $providers += [ordered]@{
                 pack_id = $packId
                 lifecycle = $definition.lifecycle
                 label = $definition.label
                 description = $definition.description
+                presentation = $providerPresentation
             }
         }
         $effectiveLifecycle = if ($lifecycles -ccontains 'available') {
@@ -224,6 +335,7 @@ function New-KnowledgeEffectiveProjectSchema {
             planned = $effectiveLifecycle -eq 'planned'
             enabled = $isEnabled
             disabled = -not $isEnabled
+            presentation = $effectivePresentation
             providers = @($providers)
         }
         if ($effectiveLifecycle -eq 'deprecated' -and $isEnabled) {
@@ -443,6 +555,68 @@ function Get-KnowledgeConsumerEnablementField {
         default {
             throw "Unsupported effective-schema consumer '$ConsumerId'; expected one of: qa, visualization."
         }
+    }
+}
+
+function Resolve-KnowledgeEffectiveSchemaRow {
+    param(
+        [object[]]$Rows,
+        [string]$Value,
+        [string]$RecordName,
+        [object]$LookupKeys
+    )
+
+    $exact = @($Rows | Where-Object { $_.id -ceq $Value })
+    if ($exact.Count -gt 0) {
+        return $exact[0]
+    }
+    $normalized = ConvertTo-KnowledgeLookupKey $Value $LookupKeys
+    $matches = @(
+        $Rows | Where-Object {
+            (ConvertTo-KnowledgeLookupKey ([string]$_.id) $LookupKeys) -ceq $normalized
+        }
+    )
+    if ($matches.Count -eq 0) {
+        throw "Unknown effective-schema $RecordName ID ``$Value``."
+    }
+    if ($matches.Count -gt 1) {
+        $matchIds = @($matches | ForEach-Object id) -join ', '
+        throw "Ambiguous effective-schema $RecordName ID ``$Value``; matches: $matchIds."
+    }
+    return $matches[0]
+}
+
+function New-KnowledgeEffectiveSchemaSelection {
+    param(
+        [object]$Schema,
+        [object]$LookupKeys,
+        [string]$PackId,
+        [string]$CapabilityId
+    )
+
+    if ([string]::IsNullOrWhiteSpace($PackId) -and [string]::IsNullOrWhiteSpace($CapabilityId)) {
+        throw 'Effective-schema selection requires a pack or capability ID.'
+    }
+    $selectedPacks = if ([string]::IsNullOrWhiteSpace($PackId)) {
+        @()
+    }
+    else {
+        @(Resolve-KnowledgeEffectiveSchemaRow @($Schema.packs) $PackId 'pack' $LookupKeys)
+    }
+    $selectedCapabilities = if ([string]::IsNullOrWhiteSpace($CapabilityId)) {
+        @()
+    }
+    else {
+        @(Resolve-KnowledgeEffectiveSchemaRow @($Schema.capabilities) $CapabilityId 'capability' $LookupKeys)
+    }
+    return [ordered]@{
+        contract = 'effective-project-schema-selection'
+        contract_version = $script:EffectiveProjectSchemaSelectionContractVersion
+        source_contract = $Schema.contract
+        source_contract_version = [int]$Schema.contract_version
+        project_id = $Schema.project.project_id
+        packs = @($selectedPacks)
+        capabilities = @($selectedCapabilities)
     }
 }
 

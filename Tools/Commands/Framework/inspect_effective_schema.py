@@ -11,14 +11,17 @@ if str(RUNTIME_ROOT) not in sys.path:
     sys.path.insert(0, str(RUNTIME_ROOT))
 
 from knowledge_framework.effective_schema import (  # noqa: E402
+    compose_effective_schema_selection,
     effective_schema_failure,
     effective_schema_json,
     load_effective_project_schema,
 )
-from knowledge_framework.project_config import resolve_project_root  # noqa: E402
+from knowledge_framework.lookup_key_config import load_lookup_key_config  # noqa: E402
+from knowledge_framework.project_config import load_project_config, resolve_project_root  # noqa: E402
 
 
-SHOW_SECTIONS = ("packs", "capabilities", "namespaces", "content", "resources", "diagnostics")
+SHOW_SECTIONS = ("overview", "packs", "capabilities", "namespaces", "content", "resources", "diagnostics")
+ALL_SECTIONS = ("packs", "capabilities", "namespaces", "content", "resources", "diagnostics")
 
 
 def resolve_output_path(root: Path, value: str) -> Path:
@@ -74,15 +77,87 @@ def human_summary(document: dict, *, include_diagnostic_rows: bool = True) -> st
     return "\n".join(lines)
 
 
-def show_packs(document: dict) -> str:
-    lines = [f"Selected Packs ({len(document['packs'])})"]
+def append_presentation_entries(lines: list[str], label: str, entries: list[dict]) -> None:
+    lines.append(f"  {label} ({len(entries)}):")
+    if not entries:
+        lines.append("    - none")
+    for entry in entries:
+        lines.append(f"    - {entry['id']} | {entry['label']}: {entry['description']}")
+
+
+def show_overview(document: dict) -> str:
+    lines = ["Pack And Capability Overview", f"Selected Packs ({len(document['packs'])})"]
     for row in document["packs"]:
+        presentation = row["presentation"]
+        label = presentation["label"] if presentation is not None else display_value(row["label"])
+        description = (
+            presentation["short_description"] if presentation is not None else display_value(row["description"])
+        )
+        lines.append(f"- {label} ({row['id']}): {description}")
+
+    lines.append(f"Capabilities ({len(document['capabilities'])})")
+    for row in document["capabilities"]:
+        presentation = row["presentation"]
+        if presentation is None:
+            label = display_value(row["providers"][0]["label"])
+            description = display_value(row["providers"][0]["description"])
+        else:
+            label = presentation["label"]
+            description = presentation["description"]
+        lines.append(f"- {label} ({row['id']}): {description}")
+    return "\n".join(lines)
+
+
+def render_pack_rows(rows: list[dict], heading: str) -> str:
+    lines = [f"{heading} ({len(rows)})"]
+    for row in rows:
         lines.append(
             f"- {row['id']} | lifecycle={row['lifecycle']} | kind={row['kind']} | "
             f"schema={row['schema_version']} | version={row['pack_version']}"
         )
-        lines.append(f"  label: {display_value(row['label'])}")
-        lines.append(f"  description: {display_value(row['description'])}")
+        classification = row["classification"]
+        if classification is None:
+            lines.append("  classification: legacy / unavailable")
+        else:
+            domains = ",".join(classification["domains"]) or "none"
+            joins = ",".join(classification["bridge_pack_ids"]) or "none"
+            lines.append(
+                f"  classification: family={classification['family']} | role={classification['role']} | "
+                f"scope={classification['scope']} | domains={domains} | joins={joins}"
+            )
+        presentation = row["presentation"]
+        if presentation is None:
+            lines.append(f"  label: {display_value(row['label'])}")
+            lines.append(f"  description: {display_value(row['description'])}")
+        else:
+            lines.append(
+                f"  presentation: key={presentation['localization_key']} | "
+                f"locale={presentation['default_locale']} | maturity={presentation['maturity']}"
+            )
+            lines.append(f"  label: {presentation['label']}")
+            lines.append(f"  short description: {presentation['short_description']}")
+            lines.append(f"  long description: {presentation['long_description']}")
+            lines.append(f"  search keywords: {', '.join(presentation['search_keywords']) or 'none'}")
+            visual = presentation["visual"]
+            lines.append(
+                "  visual: none"
+                if visual is None
+                else (
+                    f"  visual: icon={display_value(visual['icon_id'])} | "
+                    f"accent={display_value(visual['accent_token'])}"
+                )
+            )
+            append_presentation_entries(lines, "intended audiences", presentation["intended_audiences"])
+            append_presentation_entries(lines, "use cases", presentation["use_cases"])
+            append_presentation_entries(lines, "examples", presentation["examples"])
+            append_presentation_entries(lines, "prerequisites", presentation["prerequisites"])
+            append_presentation_entries(lines, "provided behaviors", presentation["provided_behaviors"])
+            append_presentation_entries(lines, "exclusions", presentation["exclusions"])
+            lines.append(f"  documentation ({len(presentation['documentation'])}):")
+            if not presentation["documentation"]:
+                lines.append("    - none")
+            for entry in presentation["documentation"]:
+                lines.append(f"    - {entry['id']} | {entry['label']} | {entry['target_kind']}={entry['target']}")
         dependencies = row["dependencies"]
         if dependencies:
             values = ", ".join(
@@ -96,21 +171,39 @@ def show_packs(document: dict) -> str:
     return "\n".join(lines)
 
 
-def show_capabilities(document: dict) -> str:
-    lines = [f"Capabilities ({len(document['capabilities'])})"]
-    for row in document["capabilities"]:
+def show_packs(document: dict) -> str:
+    return render_pack_rows(document["packs"], "Selected Packs")
+
+
+def render_capability_rows(rows: list[dict], heading: str) -> str:
+    lines = [f"{heading} ({len(rows)})"]
+    for row in rows:
         provider_ids = ",".join(provider["pack_id"] for provider in row["providers"])
         lines.append(
             f"- {row['id']} | lifecycle={row['effective_lifecycle']} | available={display_value(row['available'])} "
             f"| enabled={display_value(row['enabled'])} | deprecated={display_value(row['deprecated'])} "
             f"| providers={provider_ids}"
         )
+        presentation = row["presentation"]
+        if presentation is None:
+            lines.append("  presentation: legacy / unavailable")
+        else:
+            lines.append(f"  presentation key: {presentation['localization_key']}")
+            lines.append(f"  label: {presentation['label']}")
+            lines.append(f"  description: {presentation['description']}")
         for provider in row["providers"]:
+            provider_presentation = provider["presentation"]
             lines.append(
                 f"  - {provider['pack_id']} | lifecycle={provider['lifecycle']} | "
                 f"label={display_value(provider['label'])} | description={display_value(provider['description'])}"
             )
+            if provider_presentation is not None:
+                lines.append(f"    presentation key: {provider_presentation['localization_key']}")
     return "\n".join(lines)
+
+
+def show_capabilities(document: dict) -> str:
+    return render_capability_rows(document["capabilities"], "Capabilities")
 
 
 def show_namespaces(document: dict) -> str:
@@ -189,6 +282,7 @@ def show_diagnostics(document: dict) -> str:
 
 
 SECTION_RENDERERS = {
+    "overview": show_overview,
     "packs": show_packs,
     "capabilities": show_capabilities,
     "namespaces": show_namespaces,
@@ -204,16 +298,21 @@ def normalize_show_sections(values: list[str]) -> list[str]:
         if value not in (*SHOW_SECTIONS, "all"):
             choices = ", ".join((*SHOW_SECTIONS, "all"))
             raise ValueError(f"Unknown effective-schema section `{value}`; choose from: {choices}.")
-        candidates = SHOW_SECTIONS if value == "all" else (value,)
+        candidates = ALL_SECTIONS if value == "all" else (value,)
         for candidate in candidates:
             if candidate not in selected:
                 selected.append(candidate)
     return selected
 
 
-def human_report(document: dict, sections: list[str]) -> str:
+def human_report(document: dict, sections: list[str], selection: dict | None = None) -> str:
     blocks = [human_summary(document, include_diagnostic_rows="diagnostics" not in sections)]
     blocks.extend(SECTION_RENDERERS[section](document) for section in sections)
+    if selection is not None:
+        if selection["packs"]:
+            blocks.append(render_pack_rows(selection["packs"], "Pack Inspection"))
+        if selection["capabilities"]:
+            blocks.append(render_capability_rows(selection["capabilities"], "Capability Inspection"))
     return "\n\n".join(blocks)
 
 
@@ -243,9 +342,15 @@ def build_parser() -> argparse.ArgumentParser:
         default=[],
         metavar="SECTION",
         help=(
-            "Append packs, capabilities, namespaces, content, resources, diagnostics, or all; "
+            "Append overview, packs, capabilities, namespaces, content, resources, diagnostics, or all; "
             "repeat to combine sections."
         ),
+    )
+    parser.add_argument("--pack", metavar="PACK_ID", help="Inspect one selected pack by stable ID.")
+    parser.add_argument(
+        "--capability",
+        metavar="CAPABILITY_ID",
+        help="Inspect one declared capability by stable ID.",
     )
     return parser
 
@@ -256,7 +361,20 @@ def main() -> int:
         root = resolve_project_root(args.root, executable_path=Path(__file__))
         schema = load_effective_project_schema(root)
         document = schema.to_dict()
-        serialized = effective_schema_json(schema)
+        selection = None
+        if args.pack or args.capability:
+            project = load_project_config(root)
+            selection = compose_effective_schema_selection(
+                schema,
+                load_lookup_key_config(project),
+                pack_id=args.pack,
+                capability_id=args.capability,
+            )
+        serialized = (
+            effective_schema_json(schema)
+            if selection is None
+            else json.dumps(selection, ensure_ascii=False, indent=2) + "\n"
+        )
         sections = normalize_show_sections(args.show)
         if args.output:
             output = resolve_output_path(root, args.output)
@@ -265,12 +383,16 @@ def main() -> int:
         if args.report_output:
             report_output = resolve_output_path(root, args.report_output)
             report_output.parent.mkdir(parents=True, exist_ok=True)
-            report_output.write_text(human_report(document, sections) + "\n", encoding="utf-8", newline="\n")
+            report_output.write_text(
+                human_report(document, sections, selection) + "\n",
+                encoding="utf-8",
+                newline="\n",
+            )
         if args.json:
             sys.stdout.write(serialized)
         else:
             if not args.report_output:
-                print(human_report(document, sections))
+                print(human_report(document, sections, selection))
             if args.output:
                 print(f"Exported JSON: {output.relative_to(root).as_posix()}")
             if args.report_output:

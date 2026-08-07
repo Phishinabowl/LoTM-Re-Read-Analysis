@@ -16,11 +16,13 @@ if str(RUNTIME_ROOT) not in sys.path:
 
 import knowledge_framework  # noqa: E402
 from knowledge_framework.effective_schema import (  # noqa: E402
+    compose_effective_schema_selection,
     compose_effective_project_schema,
     compose_effective_consumer_schema_projection,
     effective_schema_failure,
     effective_schema_json,
 )
+from knowledge_framework.lookup_key_config import load_lookup_key_config  # noqa: E402
 from knowledge_framework.project_config import load_project_config, resolve_project_root  # noqa: E402
 from knowledge_framework.resource_config import load_resource_config  # noqa: E402
 from knowledge_framework.schema_pack_config import (  # noqa: E402
@@ -53,11 +55,13 @@ def summary(document: dict, scale_capabilities: int) -> dict:
         "project_id": document["project"]["project_id"],
         "packs": len(document["packs"]),
         "active_packs": sum(row["lifecycle"] == "active" for row in document["packs"]),
+        "pack_presentations": sum(row["presentation"] is not None for row in document["packs"]),
         "capabilities": len(capabilities),
         "available_capabilities": sum(row["available"] for row in capabilities),
         "enabled_capabilities": sum(row["enabled"] for row in capabilities),
         "planned_capabilities": sum(row["planned"] for row in capabilities),
         "deprecated_capabilities": sum(row["deprecated"] for row in capabilities),
+        "capability_presentations": sum(row["presentation"] is not None for row in capabilities),
         "controlled_value_namespaces": len(document["controlled_value_namespaces"]),
         "content_roots": len(document["content"]["roots"]),
         "content_types": len(document["content"]["content_types"]),
@@ -96,6 +100,12 @@ def main() -> int:
             raise AssertionError(f"Effective schema {key} are not ordered by stable ID.")
     if any(row["lifecycle"] != "active" for row in document["packs"]):
         raise AssertionError("Effective schema did not preserve selected pack lifecycle.")
+    if any(row["classification"] is None or row["presentation"] is None for row in document["packs"]):
+        raise AssertionError("Effective schema lost selected-pack classification or presentation.")
+    if any(row["presentation"] is None for row in document["capabilities"]):
+        raise AssertionError("Effective schema lost capability presentation.")
+    if any(row["presentation"]["visual"] is not None for row in document["packs"]):
+        raise AssertionError("Effective schema invented optional pack visual metadata.")
     if str(root.resolve()) in effective_schema_json(schema):
         raise AssertionError("Effective schema leaked an absolute project path.")
     if effective_schema_json(schema) != effective_schema_json(
@@ -113,6 +123,36 @@ def main() -> int:
             os.chdir(original_directory)
     if alternate_directory_json != effective_schema_json(schema):
         raise AssertionError("Effective-schema composition changed with the process working directory.")
+
+    lookup_keys = load_lookup_key_config(project)
+    selection = compose_effective_schema_selection(
+        schema,
+        lookup_keys,
+        pack_id="Narrative-Media",
+        capability_id="Narrative-Time-Loops",
+    )
+    if (
+        selection["source_contract_version"] != document["contract_version"]
+        or [row["id"] for row in selection["packs"]] != ["narrative-media"]
+        or [row["id"] for row in selection["capabilities"]] != ["narrative-time-loops"]
+    ):
+        raise AssertionError("Effective-schema normalized singular selection changed.")
+    try:
+        compose_effective_schema_selection(schema, lookup_keys, pack_id="missing-pack")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("Effective-schema selection accepted an unknown pack ID.")
+    ambiguous_schema = replace(
+        schema,
+        packs=(*schema.packs, {**schema.packs[0], "id": schema.packs[0]["id"].upper()}),
+    )
+    try:
+        compose_effective_schema_selection(ambiguous_schema, lookup_keys, pack_id=schema.packs[0]["id"].title())
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("Effective-schema selection accepted an ambiguous normalized pack ID.")
 
     consumer_ids = ("qa", "visualization")
     consumer_projections = {
@@ -260,6 +300,7 @@ def main() -> int:
         "summary": actual,
         "deterministic_passes": 3,
         "synthetic_states": 4,
+        "selection_cases": 3,
         "failure_cases": 1,
         "consumer_projection_modes": len(consumer_ids),
         "retired_consumer_apis": len(retired_consumer_apis),
