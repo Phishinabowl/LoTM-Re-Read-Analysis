@@ -493,24 +493,59 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 ### Phase 3.1 Pack Presentation Metadata
 
-- [ ] Define structured short and long descriptions, intended audience, use cases, examples,
+#### Phase 3.1.1 Presentation And Classification Contract
+
+- [x] Define structured short and long descriptions, intended audience, use cases, examples,
   prerequisites, provided behavior, exclusions, maturity, documentation links, search keywords,
   and optional visual identifiers.
-- [ ] Define machine-readable pack classification independently from the existing validation-facing
+- [x] Define machine-readable pack classification independently from the existing validation-facing
   `pack_kind`. Include an extensible `family` such as `hosting`, `narrative`, or `preservation`; an
   architectural `role` such as `foundation`, `domain`, `bridge`, or `extension`; and a `scope` such
   as `domain-neutral`, `cross-domain`, or `domain-specific`.
-- [ ] Define validation and composition rules for family, role, and scope without assuming that a
+- [x] Define validation and composition rules for family, role, and scope without assuming that a
   name prefix proves ownership. A bridge must declare all foundations it joins, and a
   domain-neutral pack must not export domain-facing vocabulary.
+- [x] Keep presentation metadata localizable and independent of UI layout code.
+- [x] Define a stable human-facing inspection model for singular pack and capability lookup without
+  making CLI layout part of the effective-schema contract.
+
+#### Phase 3.1.2 Paired Loader And Conformance Support
+
+- [ ] Implement the contract in the Python and PowerShell schema-pack loaders with matching
+  structured output and failure behavior.
+- [ ] Add shared positive, malformed, dependency, bridge, scope, localization, path-safety, and scale
+  fixtures without weakening strict ingestion or existing schema-pack composition guarantees.
+- [ ] Keep `pack_kind` backward compatible and prove that classification is an independent
+  architectural concern.
+
+#### Phase 3.1.3 Catalog Metadata Backfill
+
 - [ ] Require friendly labels and useful descriptions for every user-selectable pack and capability.
 - [ ] Backfill string-shorthand capabilities that need user-facing metadata.
-- [ ] Keep presentation metadata localizable and independent of UI layout code.
-- [ ] Define a stable human-facing inspection model for singular pack and capability lookup without
-  making CLI layout part of the effective-schema contract.
+- [ ] Classify every catalog pack explicitly and document intentional families, roles, scopes, and
+  bridge joins without inferring them from IDs or folder names.
+- [ ] Preserve optional visual metadata as absent unless a reviewed identifier is useful and backed
+  by a renderer-independent contract.
+
+#### Phase 3.1.4 Effective Schema And Singular Inspection
+
+- [ ] Add pack and capability presentation metadata plus pack classification to the effective schema
+  with deterministic ordering and JSON parity.
 - [ ] Add ambiguity-safe `--pack PACK_ID` / `-Pack PACK_ID` and
   `--capability CAPABILITY_ID` / `-Capability CAPABILITY_ID` command selectors after the required
   presentation metadata exists.
+- [ ] Preserve composable `--show` / `-Show` reports while making singular lookup useful to both
+  humans and headless clients.
+
+#### Phase 3.1.5 Compatibility Closure
+
+- [ ] Run schema-pack, effective-schema, project-composition, static policy, formatting, aggregate,
+  extraction, QA, Visualization, and full-release compatibility coverage in every supported
+  runtime.
+- [ ] Confirm existing LoTM graph and QA artifacts remain compatibility-equivalent and canonical
+  destinations remain unchanged.
+- [ ] Update architecture, tooling, testing, extraction-readiness, framework-evolution, pack-catalog,
+  and implementation documentation before closing Phase 3.1.
 
 ### Phase 3.2 Capability Grouping
 
