@@ -54,20 +54,6 @@ if ($Help) {
     exit 0
 }
 
-$TypeFolders = @{
-    "artifact" = "Artifacts"
-    "character" = "Characters"
-    "concept" = "Concepts"
-    "event" = "Events"
-    "faction" = "Factions"
-    "item" = "Items"
-    "knowledge source" = "Knowledge_Sources"
-    "location" = "Locations"
-    "pathway" = "Pathways"
-    "uniqueness" = "Uniquenesses"
-    "volume summary" = "Volumes"
-}
-
 $ReciprocalTypes = @{
     "superior" = "subordinate"
     "subordinate" = "superior"
@@ -77,22 +63,7 @@ $ReciprocalTypes = @{
     "investigated-by" = "investigates"
 }
 
-$SlugPrefixes = @(
-    "artifact",
-    "character",
-    "concept",
-    "deity",
-    "event",
-    "faction",
-    "item",
-    "source",
-    "location",
-    "pathway",
-    "tarot-card",
-    "uniqueness"
-)
-
-$SlugPattern = "\b(?:" + (($SlugPrefixes | ForEach-Object { [regex]::Escape($_) }) -join "|") + ")-[a-z0-9][a-z0-9-]*\b"
+$script:QaDiscovery = $null
 $DataReferenceKeys = New-Object 'System.Collections.Generic.HashSet[string]'
 @(
     "",
@@ -116,6 +87,120 @@ $DataReferenceKeys = New-Object 'System.Collections.Generic.HashSet[string]'
     "source_node",
     "target"
 ) | ForEach-Object { [void]$DataReferenceKeys.Add($_) }
+
+function Get-QaDiscoveryConfig {
+    if ($null -eq $script:QaDiscovery) {
+        throw 'QA effective-schema discovery has not been initialized.'
+    }
+    return $script:QaDiscovery
+}
+
+function New-QaDiscoveryConfig {
+    param(
+        [object]$ProjectConfig,
+        [object]$EffectiveProjection
+    )
+
+    $projectRoots = @{}
+    foreach ($root in @($ProjectConfig.content_roots)) {
+        $projectRoots[$root.id] = $root
+    }
+    $contentRoots = @()
+    foreach ($rootId in @($EffectiveProjection.roots.Keys | Sort-Object)) {
+        if ($projectRoots.ContainsKey($rootId)) {
+            $contentRoots += $projectRoots[$rootId]
+        }
+    }
+
+    $records = @{}
+    $slugPrefixes = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $slugPatterns = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $sourceDomains = @{}
+    foreach ($metadataKey in @($EffectiveProjection.records.Keys | Sort-Object)) {
+        $row = $EffectiveProjection.records[$metadataKey]
+        $record = [pscustomobject]@{
+            content_type_id = [string]$row.content_type_id
+            content_root_id = [string]$row.content_root_id
+            metadata_type = [string]$row.metadata_type
+            label = [string]$row.label
+            plural_label = [string]$row.plural_label
+            relative_folder = [string]$row.relative_folder
+            relative_file = [string]$row.relative_file
+            export_folder = [string]$row.export_folder
+            slug_prefix = [string]$row.slug_prefix
+            slug_pattern = [regex]::new([string]$row.slug_pattern)
+            graph_class = [string]$row.graph_class
+        }
+        $records[$metadataKey] = $record
+        if ($record.slug_prefix) {
+            [void]$slugPrefixes.Add($record.slug_prefix)
+        }
+        [void]$slugPatterns.Add($record.slug_pattern.ToString())
+        $folderKey = $record.relative_folder.ToLowerInvariant().Replace('_', '-')
+        if ($folderKey) {
+            $sourceDomains[$folderKey] = $record.graph_class
+        }
+        $rootFolder = (Split-Path -Leaf ([string]$projectRoots[$record.content_root_id].relative_path)).ToLowerInvariant().Replace('_', '-')
+        $sourceDomains[$rootFolder] = $record.graph_class
+        $sourceDomains[$record.plural_label.ToLowerInvariant().Replace(' ', '-')] = $record.graph_class
+    }
+
+    $orderedPrefixes = @($slugPrefixes | Sort-Object { - $_.Length }, { $_ })
+    if ($orderedPrefixes.Count -eq 0) {
+        throw 'Effective QA discovery schema does not provide any slug prefixes.'
+    }
+    $normalizedPatterns = @(
+        $slugPatterns |
+            ForEach-Object { $_ -replace '^\^', '' -replace '\$$', '' } |
+            Sort-Object
+    )
+    $slugPattern = '(?:' + (($normalizedPatterns | ForEach-Object { "(?:$_)" }) -join '|') + ')'
+    $graphClasses = @{}
+    foreach ($metadataType in @($records.Keys | Sort-Object)) {
+        $graphClasses[$metadataType] = $records[$metadataType].graph_class
+    }
+    return [pscustomobject]@{
+        content_roots = @($contentRoots)
+        records_by_metadata_type = $records
+        slug_prefixes = @($orderedPrefixes)
+        slug_pattern = $slugPattern
+        graph_classes_by_metadata_type = $graphClasses
+        source_domains_by_folder = $sourceDomains
+        output_folders = @($records.Values | ForEach-Object export_folder | Sort-Object -Unique)
+    }
+}
+
+function Get-QaRecordEligibility {
+    param(
+        [string]$ContentRootId,
+        [string]$RelativePath,
+        [string]$MetadataType,
+        [string]$Slug
+    )
+
+    $discovery = Get-QaDiscoveryConfig
+    $metadataKey = $MetadataType.Trim().ToLowerInvariant()
+    if (-not $discovery.records_by_metadata_type.ContainsKey($metadataKey)) {
+        return $null
+    }
+    $record = $discovery.records_by_metadata_type[$metadataKey]
+    if ($record.content_root_id -cne $ContentRootId) {
+        return $null
+    }
+    $portablePath = $RelativePath.Replace('\', '/')
+    if ($record.relative_file -and $portablePath -cne $record.relative_file) {
+        return $null
+    }
+    $parent = [System.IO.Path]::GetDirectoryName($portablePath)
+    if ($null -eq $parent) {
+        $parent = ''
+    }
+    $parent = $parent.Replace('\', '/')
+    if ($parent -cne $record.relative_folder -or -not $record.slug_pattern.IsMatch($Slug)) {
+        return $null
+    }
+    return $record
+}
 
 function Read-TextFile {
     param([string]$Path)
@@ -143,7 +228,8 @@ function ConvertTo-RelativePath {
 
 function ConvertTo-SlugTitle {
     param([string]$Slug)
-    $prefixPattern = "^(?:" + (($SlugPrefixes | ForEach-Object { [regex]::Escape($_) }) -join "|") + ")-"
+    $prefixes = @(Get-QaDiscoveryConfig).slug_prefixes
+    $prefixPattern = "^(?:" + (($prefixes | ForEach-Object { [regex]::Escape($_) }) -join "|") + ")-"
     $cleaned = $Slug -replace $prefixPattern, ""
     return (($cleaned -split "-" | Where-Object { $_ } | ForEach-Object {
                 if ($_.Length -le 1) {
@@ -346,7 +432,7 @@ function ConvertTo-ProjectionSlug {
     if (-not $value) {
         return ""
     }
-    if ([regex]::IsMatch($value, "^$SlugPattern$")) {
+    if ([regex]::IsMatch($value, "^$((Get-QaDiscoveryConfig).slug_pattern)$")) {
         return $value
     }
     $value = [regex]::Replace($value, "[/\\]+", " ")
@@ -366,7 +452,7 @@ function Get-ProjectionKeysForRow {
             continue
         }
         [void]$keys.Add($slug)
-        foreach ($prefix in $SlugPrefixes) {
+        foreach ($prefix in @((Get-QaDiscoveryConfig).slug_prefixes)) {
             [void]$keys.Add("$prefix-$slug")
         }
     }
@@ -1046,11 +1132,12 @@ function Get-SlugCandidatesFromYamlValue {
     if (-not $value -or $value.StartsWith("{") -or $value.StartsWith("[")) {
         return @()
     }
-    if ([regex]::IsMatch($value, "^$SlugPattern$")) {
+    $slugPattern = (Get-QaDiscoveryConfig).slug_pattern
+    if ([regex]::IsMatch($value, "^$slugPattern$")) {
         return @($value)
     }
-    $pathMatch = [regex]::Match($value, "(?:^|/|\\)($SlugPattern)\.md$")
-    if ($pathMatch.Success) {
+    $pathMatch = [regex]::Match($value, "(?:^|/|\\)([^/\\]+)\.md$")
+    if ($pathMatch.Success -and [regex]::IsMatch($pathMatch.Groups[1].Value, "^$slugPattern$")) {
         return @($pathMatch.Groups[1].Value)
     }
     return @()
@@ -1106,8 +1193,9 @@ function Get-DataReferences {
 function Get-ExportFolder {
     param([string]$TypeName)
     $key = $TypeName.ToLowerInvariant()
-    if ($TypeFolders.ContainsKey($key)) {
-        return $TypeFolders[$key]
+    $records = (Get-QaDiscoveryConfig).records_by_metadata_type
+    if ($records.ContainsKey($key)) {
+        return $records[$key].export_folder
     }
     return "Other"
 }
@@ -1469,6 +1557,11 @@ function Get-CanonicalNotes {
 
             $relativeSource = (ConvertTo-RelativePath $file.FullName $RepoRoot) -replace "\\", "/"
             $slug = [System.IO.Path]::GetFileNameWithoutExtension($file.Name)
+            $relativeContentPath = (ConvertTo-RelativePath $file.FullName $searchPath) -replace "\\", "/"
+            $eligibility = Get-QaRecordEligibility $contentRoot.id $relativeContentPath $metadata["type"] $slug
+            if ($null -eq $eligibility) {
+                continue
+            }
             $noteRelationships = @(Get-RelationshipsFromYaml (Get-RelationshipYaml $text) $relativeSource)
             $noteDataRefs = @(Get-DataReferences $text $slug $relativeSource)
             $noteDataProjections = Get-DataProjections $text $slug
@@ -1876,22 +1969,17 @@ function Add-QAGraphClassAssignments {
         [string[]]$UsedSlugs,
         [hashtable]$Notes
     )
-    $classMap = @{
-        "Character" = "character"
-        "Faction" = "faction"
-        "Artifact" = "artifact"
-        "Concept" = "concept"
-        "Pathway" = "pathway"
-        "Location" = "location"
-        "Event" = "event"
-        "Item" = "item"
-        "Knowledge Source" = "source"
-        "Volume Summary" = "volume"
-    }
+    $classMap = (Get-QaDiscoveryConfig).graph_classes_by_metadata_type
     foreach ($slug in $UsedSlugs) {
         $className = "unknown"
-        if ($Notes.ContainsKey($slug) -and $classMap.ContainsKey($Notes[$slug].type_name)) {
-            $className = $classMap[$Notes[$slug].type_name]
+        $metadataType = if ($Notes.ContainsKey($slug)) {
+            $Notes[$slug].type_name.ToLowerInvariant()
+        }
+        else {
+            ''
+        }
+        if ($metadataType -and $classMap.ContainsKey($metadataType)) {
+            $className = $classMap[$metadataType]
         }
         $Lines.Add("  class $(ConvertTo-MermaidNodeId $slug) $className") | Out-Null
     }
@@ -1933,22 +2021,7 @@ function Get-UsedSlugs {
 function Get-SingularDomainLabel {
     param([string]$Value)
     $normalized = $Value.Trim().ToLowerInvariant().Replace("_", "-")
-    $mapping = @{
-        "artifacts" = "artifact"
-        "characters" = "character"
-        "concepts" = "concept"
-        "deities" = "deity"
-        "events" = "event"
-        "factions" = "faction"
-        "items" = "item"
-        "knowledge-sources" = "source"
-        "knowledge_sources" = "source"
-        "locations" = "location"
-        "pathways" = "pathway"
-        "tarot-cards" = "tarot"
-        "uniquenesses" = "uniqueness"
-        "volumes" = "volume"
-    }
+    $mapping = (Get-QaDiscoveryConfig).source_domains_by_folder
     if ($mapping.ContainsKey($normalized)) {
         return $mapping[$normalized]
     }
@@ -1990,10 +2063,15 @@ function Get-RelationshipSourceDomain {
     }
 
     $stem = [System.IO.Path]::GetFileNameWithoutExtension($SourceFile)
-    foreach ($prefix in $SlugPrefixes) {
+    foreach ($prefix in @((Get-QaDiscoveryConfig).slug_prefixes)) {
         if ($stem.StartsWith("$prefix-")) {
-            if ($prefix -eq "tarot-card") {
-                return "tarot"
+            $record = @(
+                (Get-QaDiscoveryConfig).records_by_metadata_type.Values |
+                    Where-Object slug_prefix -CEQ $prefix |
+                    Select-Object -First 1
+            )
+            if ($record.Count -eq 1) {
+                return $record[0].graph_class
             }
             return $prefix
         }
@@ -3672,7 +3750,7 @@ function Write-ObsidianExport {
         Remove-Item -LiteralPath $exportPath -Recurse -Force
     }
     New-Item -ItemType Directory -Path $exportPath -Force | Out-Null
-    $folders = @($TypeFolders.Values + @("Other", "_Generated") | Sort-Object -Unique)
+    $folders = @((Get-QaDiscoveryConfig).output_folders + @("Other", "_Generated") | Sort-Object -Unique)
     foreach ($folder in $folders) {
         New-Item -ItemType Directory -Path (Join-Path $exportPath $folder) -Force | Out-Null
     }
@@ -3727,7 +3805,8 @@ $legacyConsumerSchema = New-KnowledgeLegacyConsumerSchemaProjection `
     'qa'
 $effectiveConsumerSchema = New-KnowledgeEffectiveConsumerSchemaProjection $effectiveSchema 'qa'
 Assert-KnowledgeConsumerSchemaShadow 'qa' $legacyConsumerSchema $effectiveConsumerSchema
-$qaContentRoots = @(Get-TaxonomyQaPageContentRoots $projectConfig $taxonomyConfig)
+$script:QaDiscovery = New-QaDiscoveryConfig $projectConfig $effectiveConsumerSchema
+$qaContentRoots = @($script:QaDiscovery.content_roots)
 $script:ActiveContentRoots = $qaContentRoots
 $selectedOutputDir = if ([string]::IsNullOrWhiteSpace($OutputDir)) {
     $projectConfig.qa_export

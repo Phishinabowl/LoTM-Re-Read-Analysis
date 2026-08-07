@@ -34,21 +34,6 @@ from knowledge_framework.taxonomy_config import load_taxonomy_config
 
 ACTIVE_CONTENT_ROOTS: tuple[ContentRootConfig, ...] = ()
 
-# TODO (OWNER): Replace QA-local type, folder, slug, and relationship vocabulary with effective-schema services.
-TYPE_FOLDERS = {
-    "artifact": "Artifacts",
-    "character": "Characters",
-    "concept": "Concepts",
-    "event": "Events",
-    "faction": "Factions",
-    "item": "Items",
-    "knowledge source": "Knowledge_Sources",
-    "location": "Locations",
-    "pathway": "Pathways",
-    "uniqueness": "Uniquenesses",
-    "volume summary": "Volumes",
-}
-
 RECIPROCAL_TYPES = {
     "superior": "subordinate",
     "subordinate": "superior",
@@ -57,23 +42,6 @@ RECIPROCAL_TYPES = {
     "investigates": "investigated-by",
     "investigated-by": "investigates",
 }
-
-SLUG_PREFIXES = (
-    "artifact",
-    "character",
-    "concept",
-    "deity",
-    "event",
-    "faction",
-    "item",
-    "source",
-    "location",
-    "pathway",
-    "tarot-card",
-    "uniqueness",
-)
-
-SLUG_RE = re.compile(r"\b(?:" + "|".join(re.escape(prefix) for prefix in SLUG_PREFIXES) + r")-[a-z0-9][a-z0-9-]*\b")
 
 DATA_REFERENCE_KEYS = {
     "",
@@ -97,6 +65,113 @@ DATA_REFERENCE_KEYS = {
     "source_node",
     "target",
 }
+
+
+@dataclass(frozen=True)
+class QaRecordEligibility:
+    content_type_id: str
+    content_root_id: str
+    metadata_type: str
+    label: str
+    plural_label: str
+    relative_folder: Path
+    relative_file: Path | None
+    export_folder: str
+    slug_prefix: str
+    slug_pattern: re.Pattern[str]
+    graph_class: str
+
+
+@dataclass(frozen=True)
+class QaDiscoveryConfig:
+    content_roots: tuple[ContentRootConfig, ...]
+    records_by_metadata_type: dict[str, QaRecordEligibility]
+    slug_prefixes: tuple[str, ...]
+    slug_pattern: re.Pattern[str]
+    graph_classes_by_metadata_type: dict[str, str]
+    source_domains_by_folder: dict[str, str]
+    output_folders: tuple[str, ...]
+
+    def record_for(
+        self,
+        content_root_id: str,
+        relative_path: Path,
+        metadata_type: str,
+        slug: str,
+    ) -> QaRecordEligibility | None:
+        record = self.records_by_metadata_type.get(metadata_type.strip().lower())
+        if record is None or record.content_root_id != content_root_id:
+            return None
+        if record.relative_file is not None and relative_path != record.relative_file:
+            return None
+        if relative_path.parent != record.relative_folder:
+            return None
+        if not record.slug_pattern.fullmatch(slug):
+            return None
+        return record
+
+
+ACTIVE_QA_DISCOVERY: QaDiscoveryConfig | None = None
+
+
+def compose_qa_discovery_config(
+    project: ProjectConfig,
+    effective_projection: dict,
+) -> QaDiscoveryConfig:
+    project_roots = {root.id: root for root in project.content_roots}
+    content_roots = tuple(
+        project_roots[root_id] for root_id in sorted(effective_projection["roots"]) if root_id in project_roots
+    )
+    records: dict[str, QaRecordEligibility] = {}
+    slug_prefixes: set[str] = set()
+    slug_patterns: set[str] = set()
+    source_domains_by_folder: dict[str, str] = {}
+    for metadata_key, row in effective_projection["records"].items():
+        relative_file = Path(row["relative_file"]) if row["relative_file"] else None
+        record = QaRecordEligibility(
+            content_type_id=row["content_type_id"],
+            content_root_id=row["content_root_id"],
+            metadata_type=row["metadata_type"],
+            label=row["label"],
+            plural_label=row["plural_label"],
+            relative_folder=Path(row["relative_folder"] or "."),
+            relative_file=relative_file,
+            export_folder=row["export_folder"],
+            slug_prefix=row["slug_prefix"],
+            slug_pattern=re.compile(row["slug_pattern"]),
+            graph_class=row["graph_class"],
+        )
+        records[metadata_key] = record
+        if record.slug_prefix:
+            slug_prefixes.add(record.slug_prefix)
+        slug_patterns.add(record.slug_pattern.pattern)
+        folder_key = record.relative_folder.as_posix().lower().replace("_", "-")
+        if folder_key != ".":
+            source_domains_by_folder[folder_key] = record.graph_class
+        root_folder = project_roots[record.content_root_id].relative_path.name.lower().replace("_", "-")
+        source_domains_by_folder[root_folder] = record.graph_class
+        source_domains_by_folder[record.plural_label.lower().replace(" ", "-")] = record.graph_class
+
+    ordered_prefixes = tuple(sorted(slug_prefixes, key=lambda item: (-len(item), item)))
+    if not ordered_prefixes:
+        raise ValueError("Effective QA discovery schema does not provide any slug prefixes.")
+    normalized_patterns = tuple(sorted(pattern.removeprefix("^").removesuffix("$") for pattern in slug_patterns))
+    slug_pattern = re.compile(r"(?:" + "|".join(f"(?:{pattern})" for pattern in normalized_patterns) + r")")
+    return QaDiscoveryConfig(
+        content_roots=content_roots,
+        records_by_metadata_type=dict(sorted(records.items())),
+        slug_prefixes=ordered_prefixes,
+        slug_pattern=slug_pattern,
+        graph_classes_by_metadata_type={key: value.graph_class for key, value in sorted(records.items())},
+        source_domains_by_folder=dict(sorted(source_domains_by_folder.items())),
+        output_folders=tuple(sorted({record.export_folder for record in records.values()})),
+    )
+
+
+def active_qa_discovery() -> QaDiscoveryConfig:
+    if ACTIVE_QA_DISCOVERY is None:
+        raise RuntimeError("QA effective-schema discovery has not been initialized.")
+    return ACTIVE_QA_DISCOVERY
 
 
 @dataclass
@@ -206,7 +281,8 @@ class CanonicalNote:
 
     @property
     def export_folder(self) -> str:
-        return TYPE_FOLDERS.get(self.type_name.lower(), "Other")
+        record = active_qa_discovery().records_by_metadata_type.get(self.type_name.lower())
+        return record.export_folder if record is not None else "Other"
 
     @property
     def export_file_stem(self) -> str:
@@ -273,7 +349,8 @@ def normalize_rel_path(path: Path) -> str:
 
 
 def slug_to_title(slug: str) -> str:
-    cleaned = re.sub(r"^(?:" + "|".join(re.escape(p) for p in SLUG_PREFIXES) + r")-", "", slug)
+    prefixes = active_qa_discovery().slug_prefixes
+    cleaned = re.sub(r"^(?:" + "|".join(re.escape(prefix) for prefix in prefixes) + r")-", "", slug)
     return " ".join(part.capitalize() for part in cleaned.split("-") if part)
 
 
@@ -566,7 +643,7 @@ def slugify_projection_value(value: str) -> str:
     value = strip_scalar(value).strip()
     if not value:
         return ""
-    if SLUG_RE.fullmatch(value):
+    if active_qa_discovery().slug_pattern.fullmatch(value):
         return value
     value = re.sub(r"[/\\]+", " ", value)
     value = re.sub(r"[^A-Za-z0-9]+", "-", value).strip("-").lower()
@@ -597,7 +674,7 @@ def projection_keys_for_row(row: dict[str, str]) -> set[str]:
         slug_value = slugify_projection_value(value)
         if slug_value:
             keys.add(slug_value)
-            for prefix in SLUG_PREFIXES:
+            for prefix in active_qa_discovery().slug_prefixes:
                 keys.add(f"{prefix}-{slug_value}")
     return keys
 
@@ -829,11 +906,12 @@ def slug_candidates_from_yaml_value(value: str) -> set[str]:
     if not value or value.startswith("{") or value.startswith("["):
         return set()
 
-    if SLUG_RE.fullmatch(value):
+    slug_pattern = active_qa_discovery().slug_pattern
+    if slug_pattern.fullmatch(value):
         return {value}
 
-    path_match = re.search(r"(?:^|/|\\)(" + SLUG_RE.pattern[2:-2] + r")\.md$", value)
-    if path_match:
+    path_match = re.search(r"(?:^|/|\\)([^/\\]+)\.md$", value)
+    if path_match and slug_pattern.fullmatch(path_match.group(1)):
         return {path_match.group(1)}
 
     return set()
@@ -890,10 +968,20 @@ def discover_notes(
             if not metadata.get("type"):
                 continue
 
+            slug = path.stem
+            eligibility = active_qa_discovery().record_for(
+                content_root.id,
+                path.relative_to(search_root),
+                metadata["type"],
+                slug,
+            )
+            if eligibility is None:
+                continue
+
             relative_source = normalize_rel_path(path.relative_to(root))
             note = CanonicalNote(
-                slug=path.stem,
-                title=first_heading(text, slug_to_title(path.stem)),
+                slug=slug,
+                title=first_heading(text, slug_to_title(slug)),
                 source_path=path,
                 relative_source=relative_source,
                 metadata=metadata,
@@ -1320,31 +1408,23 @@ def source_domain_label(source_file: str) -> str:
         break
 
     stem = Path(source_file).stem
-    for prefix in SLUG_PREFIXES:
+    for prefix in active_qa_discovery().slug_prefixes:
         if stem.startswith(f"{prefix}-"):
-            return prefix.replace("tarot-card", "tarot")
+            record = next(
+                (
+                    item
+                    for item in active_qa_discovery().records_by_metadata_type.values()
+                    if item.slug_prefix == prefix
+                ),
+                None,
+            )
+            return record.graph_class if record is not None else prefix
     return "source"
 
 
 def singular_domain(value: str) -> str:
     normalized = value.strip().lower().replace("_", "-")
-    mapping = {
-        "artifacts": "artifact",
-        "characters": "character",
-        "concepts": "concept",
-        "deities": "deity",
-        "events": "event",
-        "factions": "faction",
-        "items": "item",
-        "knowledge-sources": "source",
-        "knowledge_sources": "source",
-        "locations": "location",
-        "pathways": "pathway",
-        "tarot-cards": "tarot",
-        "uniquenesses": "uniqueness",
-        "volumes": "volume",
-    }
-    return mapping.get(normalized, normalized.rstrip("s") or "source")
+    return active_qa_discovery().source_domains_by_folder.get(normalized, normalized.rstrip("s") or "source")
 
 
 def qa_graph_class_definitions(include_relationship: bool = False) -> list[str]:
@@ -1368,20 +1448,9 @@ def qa_graph_class_definitions(include_relationship: bool = False) -> list[str]:
 
 
 def append_qa_graph_class_assignments(lines: list[str], used_slugs: list[str], notes: dict[str, CanonicalNote]) -> None:
-    class_map = {
-        "Character": "character",
-        "Faction": "faction",
-        "Artifact": "artifact",
-        "Concept": "concept",
-        "Pathway": "pathway",
-        "Location": "location",
-        "Event": "event",
-        "Item": "item",
-        "Knowledge Source": "source",
-        "Volume Summary": "volume",
-    }
+    class_map = active_qa_discovery().graph_classes_by_metadata_type
     for slug in used_slugs:
-        class_name = class_map.get(notes[slug].type_name, "unknown") if slug in notes else "unknown"
+        class_name = class_map.get(notes[slug].type_name.lower(), "unknown") if slug in notes else "unknown"
         lines.append(f"  class {mermaid_node_id(slug)} {class_name}")
 
 
@@ -2522,7 +2591,7 @@ def write_export(
         shutil.rmtree(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    for folder in sorted(set(TYPE_FOLDERS.values()) | {"Other", "_Generated"}):
+    for folder in sorted(set(active_qa_discovery().output_folders) | {"Other", "_Generated"}):
         (output_dir / folder).mkdir(parents=True, exist_ok=True)
 
     for note in notes.values():
@@ -2570,7 +2639,7 @@ def clean_disposable_caches(config: ProjectConfig) -> None:
 
 
 def main() -> int:
-    global ACTIVE_CONTENT_ROOTS
+    global ACTIVE_CONTENT_ROOTS, ACTIVE_QA_DISCOVERY
 
     configure_output_encoding()
     args = build_parser().parse_args()
@@ -2584,12 +2653,15 @@ def main() -> int:
         taxonomy,
         load_resource_config(config),
     )
+    legacy_consumer_schema = compose_legacy_consumer_schema_projection(config, schema_packs, taxonomy, "qa")
+    effective_consumer_schema = compose_effective_consumer_schema_projection(effective_schema, "qa")
     assert_consumer_schema_shadow(
         "qa",
-        compose_legacy_consumer_schema_projection(config, schema_packs, taxonomy, "qa"),
-        compose_effective_consumer_schema_projection(effective_schema, "qa"),
+        legacy_consumer_schema,
+        effective_consumer_schema,
     )
-    qa_content_roots = taxonomy.content_roots_for_qa_pages(config)
+    ACTIVE_QA_DISCOVERY = compose_qa_discovery_config(config, effective_consumer_schema)
+    qa_content_roots = ACTIVE_QA_DISCOVERY.content_roots
     ACTIVE_CONTENT_ROOTS = qa_content_roots
     output_dir = (root / args.output_dir).resolve() if args.output_dir else config.qa_export
     bounded_graph_specs = parse_bounded_graph_specs(args.bounded_graph)

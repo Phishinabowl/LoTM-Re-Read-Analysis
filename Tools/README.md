@@ -27,10 +27,12 @@ a compiled diagnostic view and must not be edited or ingested as canonical confi
 consumers import the paired effective-schema runtime service; exact APIs and verification commands
 are in [Tooling Reference](TOOLING_REFERENCE.md#effective-project-schema).
 
-QA and Visualization currently use that service in fail-closed shadow mode. Before generation, each
-compares its legacy loader projection with the in-memory effective-schema projection for roots,
-content types, categories, placements, graph classes, and capability state. A mismatch reports exact
-keyed paths and stops the command; a match does not yet transfer output authority from legacy code.
+QA and Visualization use that service with a fail-closed legacy/effective comparison before
+generation. QA now takes enabled roots, content types, category/fixed-record eligibility, labels,
+plural labels, placement/export folders, exact slug rules, and graph-class lookup from the matching
+effective projection. Its page parsing and all generated semantics remain legacy compatibility
+adapters. Visualization remains shadow-only until its own migration. Any projection mismatch reports
+exact keyed paths and stops the command.
 
 Add `--report-output PATH` / `-ReportOutput PATH` to write the selected human-readable report
 directly to a UTF-8 text file beneath the project root. This suppresses the report body on standard

@@ -94,10 +94,36 @@ if ($firstJson -cne $alternateDirectoryJson) {
 }
 
 $consumerShadowModes = @('qa', 'visualization')
+$consumerProjections = @{}
 foreach ($consumerId in $consumerShadowModes) {
     $legacyProjection = New-KnowledgeLegacyConsumerSchemaProjection $project $packs $taxonomy $consumerId
     $effectiveProjection = New-KnowledgeEffectiveConsumerSchemaProjection $schema $consumerId
     Assert-KnowledgeConsumerSchemaShadow $consumerId $legacyProjection $effectiveProjection
+    $consumerProjections[$consumerId] = $effectiveProjection
+}
+
+$qaProjection = $consumerProjections['qa']
+if ((@($qaProjection.roots.Keys | Sort-Object) -join '|') -cne 'glossary|volumes') {
+    throw 'Effective QA discovery roots changed.'
+}
+$character = $qaProjection.categories.character
+if ($character.label -cne 'Character' -or $character.plural_label -cne 'Characters') {
+    throw 'Effective QA category labels changed.'
+}
+if ($qaProjection.placements['character|glossary-page'].relative_folder -cne 'Characters') {
+    throw 'Effective QA category placement changed.'
+}
+$volume = $qaProjection.records['volume summary']
+if (
+    $volume.content_type_id -cne 'volume-summary' -or
+    $volume.export_folder -cne 'Volumes' -or
+    $volume.slug_prefix -cne 'volume' -or
+    'volume-01-clown' -cnotmatch $volume.slug_pattern
+) {
+    throw 'Effective QA fixed-record slug configuration changed.'
+}
+if ('volume-1' -cmatch $volume.slug_pattern) {
+    throw 'Effective QA fixed-record slug matching accepted a non-page volume identifier.'
 }
 
 $legacyProjection = New-KnowledgeLegacyConsumerSchemaProjection $project $packs $taxonomy 'qa'
@@ -212,6 +238,10 @@ $result = [ordered]@{
     failure_cases = 1
     consumer_shadow_modes = $consumerShadowModes.Count
     consumer_shadow_failure_cases = 1
+    qa_discovery_content_types = $qaProjection.content_types.Count
+    qa_discovery_categories = $qaProjection.categories.Count
+    qa_discovery_placements = $qaProjection.placements.Count
+    qa_discovery_records = $qaProjection.records.Count
 }
 if ($Json) {
     $result | ConvertTo-Json -Depth 100 -Compress

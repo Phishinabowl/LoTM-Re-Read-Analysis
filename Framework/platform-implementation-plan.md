@@ -447,13 +447,13 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 #### Phase 2.3.3 QA Discovery Migration
 
-- [ ] Make QA discover enabled QA content roots, content types, categories, labels, plural labels,
+- [x] Make QA discover enabled QA content roots, content types, categories, labels, plural labels,
   slug prefixes, placement/export folders, and eligibility from the effective schema.
-- [ ] Remove only the QA-local type, folder, slug, category, and capability allowlists fully
+- [x] Remove only the QA-local type, folder, slug, category, and capability allowlists fully
   replaced by effective-schema records; retain legacy parsing adapters required until Phase 5.
-- [ ] Preserve Markdown and embedded-YAML parsing, Relationship Seeds, data projections, anomaly
+- [x] Preserve Markdown and embedded-YAML parsing, Relationship Seeds, data projections, anomaly
   reports, bounded pages, graph requests, output paths, filenames, and cleanup behavior.
-- [ ] Run the pinned QA comparison in all three runtimes and stop for maintainer inspection of the
+- [x] Run the pinned QA comparison in all three runtimes and stop for maintainer inspection of the
   redirected Obsidian export before continuing to Visualization.
 
 #### Phase 2.3.4 Visualization Discovery Migration

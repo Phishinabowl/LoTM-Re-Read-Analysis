@@ -388,6 +388,61 @@ def _legacy_capability_state(packs: SchemaPackRegistry, capability_id: str) -> d
     }
 
 
+def _consumer_record_projection(
+    roots: dict[str, dict[str, Any]],
+    content_types: dict[str, dict[str, Any]],
+    categories: dict[str, dict[str, Any]],
+    placements: dict[str, dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    records: dict[str, dict[str, Any]] = {}
+    for placement in placements.values():
+        category = categories[placement["category_id"]]
+        metadata_type = category["metadata_type"]
+        records[metadata_type.lower()] = {
+            "content_type_id": placement["content_type_id"],
+            "content_root_id": placement["content_root_id"],
+            "metadata_type": metadata_type,
+            "label": category["label"],
+            "plural_label": category["plural_label"],
+            "relative_folder": placement["relative_folder"],
+            "relative_file": "",
+            "export_folder": placement["relative_folder"] or category["plural_label"].replace(" ", "_"),
+            "slug_prefix": category["subject_slug_prefix"],
+            "slug_pattern": category["subject_slug_pattern"],
+            "graph_class": category["graph_class"] or placement["category_id"],
+        }
+
+    for content_type_id, content_type in content_types.items():
+        if content_type["metadata_type_mode"] != "fixed":
+            continue
+        root_path = Path(roots[content_type["content_root_id"]]["relative_path"])
+        relative_file = Path()
+        if content_type["path_strategy"] == "fixed-file":
+            configured_path = Path(content_type["record_path"])
+            try:
+                relative_file = configured_path.relative_to(root_path)
+            except ValueError as exc:
+                raise ValueError(
+                    f"Consumer content type `{content_type_id}` record path is outside its effective content root."
+                ) from exc
+        slug_prefix = content_type["record_slug_prefix"]
+        metadata_type = content_type["metadata_type"]
+        records[metadata_type.lower()] = {
+            "content_type_id": content_type_id,
+            "content_root_id": content_type["content_root_id"],
+            "metadata_type": metadata_type,
+            "label": content_type["label"],
+            "plural_label": content_type["plural_label"],
+            "relative_folder": _portable_path(relative_file.parent) if relative_file.parts else "",
+            "relative_file": _portable_path(relative_file) if relative_file.parts else "",
+            "export_folder": root_path.name,
+            "slug_prefix": slug_prefix,
+            "slug_pattern": content_type["record_slug_pattern"],
+            "graph_class": slug_prefix or content_type_id,
+        }
+    return dict(sorted(records.items()))
+
+
 def compose_legacy_consumer_schema_projection(
     project: ProjectConfig,
     packs: SchemaPackRegistry,
@@ -423,8 +478,11 @@ def compose_legacy_consumer_schema_projection(
             "path_strategy": item.path_strategy,
             "metadata_type_mode": item.metadata_type_mode,
             "slug_mode": item.slug_mode,
+            "default_template": _repository_relative(item.default_template, project.root),
             "metadata_type": item.metadata_type,
             "record_slug_prefix": item.record_slug_prefix,
+            "record_slug_pattern": item.record_slug_pattern,
+            "record_path": _repository_relative(item.record_path, project.root),
             "qa_page_enabled": item.qa_page_enabled,
             "graph_enabled": item.graph_enabled,
         }
@@ -468,6 +526,7 @@ def compose_legacy_consumer_schema_projection(
         "content_types": content_type_rows,
         "categories": categories,
         "placements": placements,
+        "records": _consumer_record_projection(roots, content_type_rows, categories, placements),
         "graph_classes": graph_classes,
         "capability_state": {
             capability_id: _legacy_capability_state(packs, capability_id)
@@ -507,8 +566,11 @@ def compose_effective_consumer_schema_projection(
             "path_strategy": row["path_strategy"],
             "metadata_type_mode": row["metadata_type_mode"],
             "slug_mode": row["slug_mode"],
+            "default_template": row["default_template"],
             "metadata_type": row["metadata_type"],
             "record_slug_prefix": row["record_slug_prefix"],
+            "record_slug_pattern": row["record_slug_pattern"],
+            "record_path": row["record_path"],
             "qa_page_enabled": row["qa_page_enabled"],
             "graph_enabled": row["graph_enabled"],
         }
@@ -552,6 +614,7 @@ def compose_effective_consumer_schema_projection(
         "content_types": content_type_rows,
         "categories": categories,
         "placements": placements,
+        "records": _consumer_record_projection(roots, content_type_rows, categories, placements),
         "graph_classes": graph_classes,
         "capability_state": {
             row["id"]: {

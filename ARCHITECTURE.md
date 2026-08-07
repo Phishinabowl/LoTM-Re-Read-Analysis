@@ -206,13 +206,19 @@ runtime services live in `Tools/Runtime/Python/knowledge_framework/effective_sch
 normalized-content, relationship, and projection declarations join the same service only after their
 owning phases implement those contracts. See `Framework/Contracts/effective-project-schema.md`.
 
-During Phase 2.3 shadow adoption, QA and Visualization compose the effective schema in-process from
-their already-loaded project, pack, taxonomy, and resource objects. Each consumer compares a
-read-only effective projection with its legacy loader projection for roots, content types,
-categories, placements, graph classes, and capability state before generation begins. Any mismatch
-fails closed with exact keyed paths; matching shadow data does not yet make discovery, parsing,
-projection, rendering, naming, placement, output, or cleanup decisions. That authority remains with
-the legacy consumer path until its explicit migration and compatibility gate are complete.
+During Phase 2.3 adoption, QA and Visualization compose the effective schema in-process from their
+already-loaded project, pack, taxonomy, and resource objects. Each consumer compares a read-only
+effective projection with its legacy loader projection for roots, content types, categories,
+placements, graph classes, capability state, and record-path/slug details before generation begins.
+Any mismatch fails closed with exact keyed paths.
+
+QA discovery now consumes the matching effective projection for enabled roots and content types,
+category and fixed-type eligibility, labels, plural labels, placement/export folders, exact slug
+patterns, slug prefixes, and graph-class lookup. Its Markdown and embedded-YAML parsing,
+Relationship Seeds, data projections, anomaly reports, bounded pages, graph requests, filenames,
+output ownership, and cleanup remain legacy compatibility adapters. Visualization remains entirely
+shadow-only until its separate discovery migration. Neither consumer may bypass its pinned
+compatibility gate when authority changes.
 
 ### Taxonomy Registry
 

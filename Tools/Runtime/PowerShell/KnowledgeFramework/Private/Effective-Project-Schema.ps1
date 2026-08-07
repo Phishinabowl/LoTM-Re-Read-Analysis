@@ -473,6 +473,89 @@ function Get-KnowledgeLegacyCapabilityState {
     }
 }
 
+function Get-KnowledgeConsumerRecordProjection {
+    param(
+        [object]$Roots,
+        [object]$ContentTypes,
+        [object]$Categories,
+        [object]$Placements
+    )
+
+    $records = [ordered]@{}
+    foreach ($placementId in @(Get-KnowledgeOrdinalStrings $Placements.Keys)) {
+        $placement = $Placements[$placementId]
+        $category = $Categories[$placement.category_id]
+        $metadataType = [string]$category.metadata_type
+        $records[$metadataType.ToLowerInvariant()] = [ordered]@{
+            content_type_id = $placement.content_type_id
+            content_root_id = $placement.content_root_id
+            metadata_type = $metadataType
+            label = $category.label
+            plural_label = $category.plural_label
+            relative_folder = $placement.relative_folder
+            relative_file = ''
+            export_folder = if ($placement.relative_folder) {
+                $placement.relative_folder
+            }
+            else {
+                ([string]$category.plural_label).Replace(' ', '_')
+            }
+            slug_prefix = $category.subject_slug_prefix
+            slug_pattern = $category.subject_slug_pattern
+            graph_class = if ($category.graph_class) {
+                $category.graph_class
+            }
+            else {
+                $placement.category_id
+            }
+        }
+    }
+
+    foreach ($contentTypeId in @(Get-KnowledgeOrdinalStrings $ContentTypes.Keys)) {
+        $contentType = $ContentTypes[$contentTypeId]
+        if ($contentType.metadata_type_mode -cne 'fixed') {
+            continue
+        }
+        $rootPath = ([string]$Roots[$contentType.content_root_id].relative_path).Replace('\', '/').Trim('/')
+        $relativeFile = ''
+        $relativeFolder = ''
+        if ($contentType.path_strategy -ceq 'fixed-file') {
+            $recordPath = ([string]$contentType.record_path).Replace('\', '/').Trim('/')
+            $rootPrefix = "$rootPath/"
+            if (-not $recordPath.StartsWith($rootPrefix, [System.StringComparison]::Ordinal)) {
+                throw "Consumer content type '$contentTypeId' record path is outside its effective content root."
+            }
+            $relativeFile = $recordPath.Substring($rootPrefix.Length)
+            $relativeFolder = [System.IO.Path]::GetDirectoryName($relativeFile)
+            if ($null -eq $relativeFolder) {
+                $relativeFolder = ''
+            }
+            $relativeFolder = $relativeFolder.Replace('\', '/')
+        }
+        $slugPrefix = [string]$contentType.record_slug_prefix
+        $metadataType = [string]$contentType.metadata_type
+        $records[$metadataType.ToLowerInvariant()] = [ordered]@{
+            content_type_id = $contentTypeId
+            content_root_id = $contentType.content_root_id
+            metadata_type = $metadataType
+            label = $contentType.label
+            plural_label = $contentType.plural_label
+            relative_folder = $relativeFolder
+            relative_file = $relativeFile
+            export_folder = Split-Path -Leaf $rootPath
+            slug_prefix = $slugPrefix
+            slug_pattern = $contentType.record_slug_pattern
+            graph_class = if ($slugPrefix) {
+                $slugPrefix
+            }
+            else {
+                $contentTypeId
+            }
+        }
+    }
+    return $records
+}
+
 function New-KnowledgeLegacyConsumerSchemaProjection {
     param(
         [object]$ProjectConfig,
@@ -517,8 +600,11 @@ function New-KnowledgeLegacyConsumerSchemaProjection {
             path_strategy = $item.path_strategy
             metadata_type_mode = $item.metadata_type_mode
             slug_mode = $item.slug_mode
+            default_template = ConvertTo-KnowledgeRepositoryRelativePath $item.default_template $ProjectConfig.root
             metadata_type = $item.metadata_type
             record_slug_prefix = $item.record_slug_prefix
+            record_slug_pattern = $item.record_slug_pattern
+            record_path = ConvertTo-KnowledgeRepositoryRelativePath $item.record_path $ProjectConfig.root
             qa_page_enabled = [bool]$item.qa_page_enabled
             graph_enabled = [bool]$item.graph_enabled
         }
@@ -575,6 +661,7 @@ function New-KnowledgeLegacyConsumerSchemaProjection {
         content_types = $contentTypeRows
         categories = $categories
         placements = $placements
+        records = Get-KnowledgeConsumerRecordProjection $roots $contentTypeRows $categories $placements
         graph_classes = $graphClasses
         capability_state = $capabilityState
     }
@@ -620,8 +707,11 @@ function New-KnowledgeEffectiveConsumerSchemaProjection {
             path_strategy = $item.path_strategy
             metadata_type_mode = $item.metadata_type_mode
             slug_mode = $item.slug_mode
+            default_template = $item.default_template
             metadata_type = $item.metadata_type
             record_slug_prefix = $item.record_slug_prefix
+            record_slug_pattern = $item.record_slug_pattern
+            record_path = $item.record_path
             qa_page_enabled = [bool]$item.qa_page_enabled
             graph_enabled = [bool]$item.graph_enabled
         }
@@ -680,6 +770,7 @@ function New-KnowledgeEffectiveConsumerSchemaProjection {
         content_types = $contentTypeRows
         categories = $categories
         placements = $placements
+        records = Get-KnowledgeConsumerRecordProjection $roots $contentTypeRows $categories $placements
         graph_classes = $graphClasses
         capability_state = $capabilityState
     }

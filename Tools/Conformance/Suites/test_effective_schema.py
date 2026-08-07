@@ -6,6 +6,7 @@ from dataclasses import replace
 import json
 import os
 from pathlib import Path
+import re
 import sys
 import tempfile
 
@@ -117,10 +118,31 @@ def main() -> int:
         raise AssertionError("Effective-schema composition changed with the process working directory.")
 
     consumer_shadow_modes = ("qa", "visualization")
+    consumer_projections: dict[str, dict] = {}
     for consumer_id in consumer_shadow_modes:
         legacy_projection = compose_legacy_consumer_schema_projection(project, packs, taxonomy, consumer_id)
         effective_projection = compose_effective_consumer_schema_projection(schema, consumer_id)
         assert_consumer_schema_shadow(consumer_id, legacy_projection, effective_projection)
+        consumer_projections[consumer_id] = effective_projection
+
+    qa_projection = consumer_projections["qa"]
+    if set(qa_projection["roots"]) != {"glossary", "volumes"}:
+        raise AssertionError("Effective QA discovery roots changed.")
+    character = qa_projection["categories"].get("character", {})
+    if character.get("label") != "Character" or character.get("plural_label") != "Characters":
+        raise AssertionError("Effective QA category labels changed.")
+    if qa_projection["placements"]["character|glossary-page"]["relative_folder"] != "Characters":
+        raise AssertionError("Effective QA category placement changed.")
+    volume = qa_projection["records"].get("volume summary", {})
+    if (
+        volume.get("content_type_id") != "volume-summary"
+        or volume.get("export_folder") != "Volumes"
+        or volume.get("slug_prefix") != "volume"
+        or not re.fullmatch(volume.get("slug_pattern", ""), "volume-01-clown")
+    ):
+        raise AssertionError("Effective QA fixed-record slug configuration changed.")
+    if re.fullmatch(volume["slug_pattern"], "volume-1"):
+        raise AssertionError("Effective QA fixed-record slug matching accepted a non-page volume identifier.")
 
     legacy_projection = compose_legacy_consumer_schema_projection(project, packs, taxonomy, "qa")
     drifted_projection = copy.deepcopy(compose_effective_consumer_schema_projection(schema, "qa"))
@@ -228,6 +250,10 @@ def main() -> int:
         "failure_cases": 1,
         "consumer_shadow_modes": len(consumer_shadow_modes),
         "consumer_shadow_failure_cases": 1,
+        "qa_discovery_content_types": len(qa_projection["content_types"]),
+        "qa_discovery_categories": len(qa_projection["categories"]),
+        "qa_discovery_placements": len(qa_projection["placements"]),
+        "qa_discovery_records": len(qa_projection["records"]),
     }
     if args.json:
         print(json.dumps(result, ensure_ascii=False, separators=(",", ":")))
