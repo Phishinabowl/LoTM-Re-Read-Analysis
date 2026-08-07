@@ -27,6 +27,9 @@ Use this document together with:
   documented, committed, and pushed unless its wording explicitly describes a design decision.
 - Add or revise permanent conformance, compatibility, and static-policy coverage as behavior moves
   into shared services. Do not create a second test inventory in this document.
+- Keep every declared `planned` capability traceable to an implementation phase, an explicitly
+  accepted deferral, or a documented removal decision. Update that mapping whenever pack
+  capabilities or roadmap prerequisites change.
 - Preserve current LoTM canonical files and generated-output behavior until a phase's equivalence
   gate passes.
 - Perform logical migration before physical migration. Existing files may feed a new normalized
@@ -465,12 +468,28 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [ ] Allow an entitlement service to control discoverability or installation without changing pack
   composition rules.
 
+### Phase 3.4 Planned-Capability Lifecycle And Traceability
+
+- [ ] Make the effective schema expose every declared planned capability with its owning pack,
+  dependencies, lifecycle, description, and unavailable reason.
+- [ ] Define promotion criteria from `planned` to `available`, including an executable contract,
+  matching runtime support where parity applies, permanent positive/malformed/scale coverage,
+  documentation, extraction review, and compatibility impact analysis.
+- [ ] Require each planned capability to map to a concrete implementation phase or an explicitly
+  accepted deferral; reject silent lifecycle drift between pack declarations and this roadmap.
+- [ ] Distinguish platform prerequisites from domain-capability delivery so a deferred narrative
+  feature does not block unrelated framework, IT, or interface work.
+- [ ] Require roadmap, pack metadata, testing methodology, and framework evolution to be updated
+  together when a capability is introduced, promoted, deprecated, removed, or materially reshaped.
+
 ### Phase 3 Exit Gate
 
 - [ ] A headless client can present packs and capabilities coherently without reading README prose.
 - [ ] A headless client can explain whether a pack is a foundation, domain pack, bridge, or
   extension; which family and scope it belongs to; why it was selected; and which vocabulary would
   appear or disappear if its selection changed.
+- [ ] Every declared planned capability is machine-discoverable and traceable to a delivery phase or
+  accepted deferral.
 - [ ] No licensing assumption leaks into reusable schema contracts.
 
 ## Phase 4: Page Modules, Fields, Defaults, And Validation Levels
@@ -896,6 +915,97 @@ wave is confirmed.
 - [ ] The interface is a replaceable client over tested headless services rather than the owner of
   schema or domain behavior.
 
+## Phase 17: Deferred Capability Delivery Program
+
+This phase is an ordered capability backlog, not a prerequisite for beginning Phases 2-16. Promote
+one capability or tightly coupled family at a time through the framework improvement lifecycle.
+Consumer evidence may reorder these waves, but a capability must not move from `planned` to
+`available` until its executable contract and permanent tests exist.
+
+### Phase 17.1 Core Migration Services
+
+- [ ] Complete the core `migration-services` capability through Phase 12 rather than implementing a
+  second migration owner here.
+- [ ] Promote it from `planned` only after preview, validation, apply, recovery, projection
+  invalidation, and Git-diff contracts pass the Phase 12 exit gate.
+
+### Phase 17.2 Narrative Publishing And Textual History
+
+- [ ] Implement `textual-witnesses` for manuscripts, drafts, fragments, revisions, and parallel text
+  versions without treating every witness as a distinct creative work.
+- [ ] Implement `editorial-assembly` for compilation, completion, commentary, synthesis, and
+  posthumous editing with ordered inputs, contributor roles, provenance, and unresolved scholarly
+  alternatives.
+- [ ] Implement `publication-runs` for publisher-, imprint-, territory-, date-, serialization-, and
+  format-scoped runs beneath works and editions without collapsing manifestations or releases.
+- [ ] Pressure-test Tolkien-style textual traditions, serialized prose and comics, translated and
+  revised editions, incomplete works, posthumous compilations, and competing stemmata.
+
+### Phase 17.3 Narrative Production, Credits, And Rights
+
+- [ ] Implement `contributor-credits` with contributor identity, role, credited-as text, scope,
+  ordering, effective windows, and source-backed uncertainty.
+- [ ] Implement `rights-grants-and-restrictions` with parties, assets, right types, instruments,
+  territory, windows, exclusivity, restrictions, and obligations while making no automatic legal
+  conclusion.
+- [ ] Keep authorship, production contribution, ownership, authorization, canon authority, and
+  commerciality separate throughout composition and pressure testing.
+
+### Phase 17.4 Preservation And Access
+
+- [ ] Implement `preservation-state` for whole or partial survival, loss, damage, reconstruction,
+  archival custody, and supporting evidence.
+- [ ] Implement `access-state` for platform, territory, release window, availability, delisting, and
+  restoration without conflating access with preservation or rights.
+- [ ] Pressure-test lost media, surviving fragments, archival restorations, regional catalog changes,
+  and temporarily unavailable works.
+
+### Phase 17.5 Interactive Narrative
+
+- [ ] Implement `branching-narratives` for authored choice points, routes, prerequisites, endings,
+  and mutually exclusive claims without overloading continuity or ordinary timeline branches.
+- [ ] Implement `narrative-instances` for playthroughs, campaigns, sessions, save states, and
+  participant-specific outcomes derived from authored structures.
+- [ ] Pressure-test games, visual novels, tabletop campaigns, live-service story revisions, and
+  replayed routes with different participant knowledge.
+
+### Phase 17.6 Live Performance
+
+- [ ] Implement `live-performance-productions` for stagings, revivals, tours, venues, casts, and
+  production-scoped creative choices.
+- [ ] Implement `performance-events` for individual scheduled or recorded performances without
+  confusing the event, production, authored work, recording, or release manifestation.
+- [ ] Pressure-test theatre, musicals, touring productions, understudy substitutions, revivals, and
+  captured live performances.
+
+### Phase 17.7 Shared-Universe Crossover Events
+
+- [ ] Implement `crossover-events` with ordered core entries, required and optional tie-ins,
+  publication-run placement, continuity scope, participant works, and reader-order alternatives.
+- [ ] Keep crossover event identity separate from an in-world occurrence, publication event,
+  adaptation lineage, or generic content group.
+- [ ] Pressure-test comic-event reading orders, television crossovers, film/series tie-ins, and
+  continuity-specific retellings.
+
+### Phase 17.8 Promotion And Regression Gate
+
+- [ ] For every promoted capability, add paired runtime fixtures and conformance where parity
+  applies, register aggregate coverage, update retained pressure scenarios, and run required
+  compatibility and extraction profiles.
+- [ ] Update pack versions and lifecycle metadata only in the implementation commit that makes the
+  capability usable.
+- [ ] Record superseded assumptions, architectural promotions, implementation evidence, pressure
+  findings, and any remaining limitations in framework evolution.
+- [ ] Reconcile this phase against all pack declarations and confirm that no `planned` capability is
+  orphaned from an implementation path or accepted deferral.
+
+### Phase 17 Exit Gate
+
+- [ ] Every currently declared planned capability is implemented, deliberately retained as deferred
+  with current rationale, or removed through a documented compatibility decision.
+- [ ] No pack advertises an available capability whose executable contract and permanent coverage
+  are absent.
+
 ## Final Completion Gate
 
 - [ ] Effective schema composition is inspectable and deterministic.
@@ -907,5 +1017,7 @@ wave is confirmed.
 - [ ] LoTM is physically migrated without information loss.
 - [ ] JSON, SQLite, and justified analytical projections remain rebuildable.
 - [ ] Add-on packs can be installed, activated, upgraded, disabled, and removed safely.
+- [ ] Every declared planned capability remains traceable, and every available capability is backed
+  by an executable contract and permanent coverage.
 - [ ] The extracted framework supports the IT proof of concept.
 - [ ] Streamlit and future interfaces depend only on shared headless services.
