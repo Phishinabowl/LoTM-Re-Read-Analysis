@@ -114,7 +114,7 @@ graph generation. Pack presentation and configuration became the accepted Phase 
 (`Implement schema pack presentation loaders`), `9fc8bba` (`Backfill schema pack catalog
 metadata`), and `8160c6d` (`Add effective schema catalog inspection`).
 
-**Closure implemented by:** pending
+**Closure implemented by:** `149d37b` (`Close platform pack presentation phase`)
 
 Phase 3.1 made pack and capability configuration presentable without moving canonical ownership into
 commands or interfaces. Schema-pack schema 5 adds localizable pack/capability presentation and
