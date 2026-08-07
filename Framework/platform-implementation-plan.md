@@ -9,7 +9,8 @@ Use this document together with:
 - `ARCHITECTURE.md` for component ownership and dependency boundaries;
 - `Framework/framework_improvement_lifecycle.md` for every numbered framework version;
 - `Framework/testing_methodology.md` for cumulative verification and pressure testing;
-- `Framework/framework_evolution.md` for confirmed implementation and test history;
+- `Framework/framework_evolution.md` for numbered framework-version and pressure-test history;
+- `Framework/platform_evolution.md` for confirmed platform-phase implementation and closure history;
 - `Tools/Compatibility/compatibility.json` for executable consumer-regression coverage; and
 - `Tools/CI_implementation_plan.md` for the completed tooling, conformance, CI, and extraction
   foundation on which this plan depends.
@@ -25,6 +26,10 @@ Use this document together with:
   closure.
 - Update this checklist as each subphase is confirmed. A checked item means implemented, tested,
   documented, committed, and pushed unless its wording explicitly describes a design decision.
+- At each major platform phase closure, update `Framework/platform_evolution.md` with the confirmed
+  implementation commits, migrations, compatibility evidence, exclusions, and accepted next phase.
+  Use its pending closure marker and two-part confirmation pattern when the history is part of the
+  closure commit; do not turn this checklist into the historical narrative.
 - Add or revise permanent conformance, compatibility, and static-policy coverage as behavior moves
   into shared services. Do not create a second test inventory in this document.
 - Keep every declared `planned` capability traceable to an implementation phase, an explicitly
@@ -539,13 +544,26 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 #### Phase 3.1.5 Compatibility Closure
 
-- [ ] Run schema-pack, effective-schema, project-composition, static policy, formatting, aggregate,
+- [x] Run schema-pack, effective-schema, project-composition, static policy, formatting, aggregate,
   extraction, QA, Visualization, and full-release compatibility coverage in every supported
   runtime.
-- [ ] Confirm existing LoTM graph and QA artifacts remain compatibility-equivalent and canonical
+- [x] Confirm existing LoTM graph and QA artifacts remain compatibility-equivalent and canonical
   destinations remain unchanged.
-- [ ] Update architecture, tooling, testing, extraction-readiness, framework-evolution, pack-catalog,
-  and implementation documentation before closing Phase 3.1.
+- [x] Update architecture, tooling, testing, extraction-readiness, framework- and
+  platform-evolution, pack-catalog, and implementation documentation before closing Phase 3.1.
+
+### Phase 3.1 Exit Gate
+
+- [x] Every installed pack and declared capability has validated presentation metadata, and every
+  pack has explicit architectural classification independent from compatibility `pack_kind`.
+- [x] The project-scoped effective schema exposes deterministic classification, presentation,
+  overview, and singular pack/capability inspection with Python and PowerShell parity.
+- [x] Existing QA, Visualization, extraction, rendering, and canonical-output behavior remains
+  compatibility-equivalent after the effective-schema contract and command changes.
+- [x] `EffectiveProjectSchema` remains limited to one selected project composition and does not
+  pretend unselected installed packs form one valid composition.
+- [x] Complete installed-pack discovery is explicitly handed off to the separate
+  `FrameworkCatalog` boundary in Phase 3.2.1.
 
 ### Phase 3.2 Framework Catalog And Capability Grouping
 

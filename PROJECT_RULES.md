@@ -54,6 +54,7 @@ Framework/
   framework_improvement_lifecycle.md
   testing_methodology.md
   framework_evolution.md
+  platform_evolution.md
   Contracts/
     README.md
     narrative-source-registry.md
@@ -342,7 +343,8 @@ Use specialized docs for operational detail:
 
 - `Framework/framework_improvement_lifecycle.md`: framework-improvement mode, version iteration order, proposed-testing checkpoint, two-part confirmation, testing closure, and next-version handoff.
 - `Framework/testing_methodology.md`: cross-industry pressure-test candidates, cumulative framework test lifecycle, stable test families, impact matrix, compatibility gate, pressure scenarios, comparison standards, and retention rules.
-- `Framework/framework_evolution.md`: chronological implementation results, pressure-test findings, defects, capability gaps, architectural lessons, and next-version recommendations.
+- `Framework/framework_evolution.md`: numbered semantic/model-version results, pressure-test findings, defects, capability gaps, architectural lessons, and next-version recommendations.
+- `Framework/platform_evolution.md`: confirmed platform-phase implementation, migrations, compatibility closure, implementing commits, and next-phase handoffs.
 - `Tools/README.md`: exact helper commands, Python and PowerShell dependency setup, Python/PowerShell fallbacks, EPUB search, Obsidian QA export, artwork extraction, and cleanup behavior.
 - `Visualization/README.md`: current generated graph artifacts, refresh tracker, configured graph views, and visualization workflow entry points.
 - `Visualization/graph-authoring-standard.md`: graph intent, graph-local evidence, source expansion, coverage workflow, graph projection, layout semantics, and graph output reporting.
@@ -351,13 +353,15 @@ Use specialized docs for operational detail:
 
 When a rule appears in more than one place, keep the policy statement here and put the commands, examples, and troubleshooting details in the narrower document.
 
-## Framework Release Testing Gate
+## Framework And Platform Release Testing Gate
 
 Enter every framework evolution version through `Framework/framework_improvement_lifecycle.md` and follow `Framework/testing_methodology.md` at each testing checkpoint. The lifecycle's proposed-testing and proposed-candidate fields, cumulative verification, candidate-catalog review, two-part implementation confirmation, pressure-test closure, methodology revision, evolution logging, and next-version handoff are mandatory. A green registry suite alone does not prove that QA, visualization, bounded projection, rendering, or another compatibility consumer still works.
 
-After permanent conformance passes, run project compatibility through `Tools/Compatibility/run_compatibility.py`. `Tools/Compatibility/compatibility.json` is the sole executable inventory for compatibility checks, profiles, representative bounded requests, and the render probe; do not duplicate that inventory in CI or prose. Use the `local` profile during implementation, `pull-request` before PR readiness, and `full-release` for framework-version closure. Compatibility output must remain in a uniquely scoped ignored `.tmp/` child, canonical Visualization and Obsidian outputs must remain unchanged, and failed runs must retain their scoped evidence for diagnosis.
+Execute platform implementation through `Framework/platform-implementation-plan.md`. Apply every relevant permanent family and compatibility gate from `Framework/testing_methodology.md`, update the plan checkboxes only with corresponding implementation evidence, and record each major phase closure in `Framework/platform_evolution.md`. A platform entry summarizes the delivered capability and migration; it must not duplicate a numbered version's detailed pressure history.
 
-Any required failure blocks version confirmation or the next pressure-test round until it is repaired or explicitly classified as an accepted contract change. Record version-specific execution and findings in `Framework/framework_evolution.md`; keep exact commands and dated tool-parity results in `Tools/TOOLING_REFERENCE.md`. Never silently drop or weaken an inherited test.
+After permanent conformance passes, run project compatibility through `Tools/Compatibility/run_compatibility.py`. `Tools/Compatibility/compatibility.json` is the sole executable inventory for compatibility checks, profiles, representative bounded requests, and the render probe; do not duplicate that inventory in CI or prose. Use the `local` profile during implementation, `pull-request` before PR readiness, and `full-release` for framework-version or major platform-phase closure. Compatibility output must remain in a uniquely scoped ignored `.tmp/` child, canonical Visualization and Obsidian outputs must remain unchanged, and failed runs must retain their scoped evidence for diagnosis.
+
+Any required failure blocks version confirmation, platform-phase closure, or the next pressure-test round until it is repaired or explicitly classified as an accepted contract change. Record version-specific execution and pressure findings in `Framework/framework_evolution.md`; record confirmed platform implementation and closure in `Framework/platform_evolution.md`; keep exact commands and dated tool-parity results in `Tools/TOOLING_REFERENCE.md`. Never silently drop or weaken an inherited test.
 
 Every new or changed `.ps1`, `.psm1`, and `.psd1` source anywhere in the repository must pass `Tools/Static/Format-PowerShell.ps1` in both PowerShell 7 and Windows PowerShell 5.1. Default discovery must include all tracked and nonignored untracked PowerShell sources, so adding a new source folder must not require a formatter allowlist update. Gitignored local/generated scripts are excluded unless explicitly checked with `-Path`. The formatter owns deterministic layout, UTF-8-without-BOM output, CRLF line endings, optional-semicolon removal, parse/token preservation, and the default 200-character line gate. `.gitattributes` owns repository checkout line endings for PowerShell files. Wrap complex expressions manually when needed to preserve clear semantics; do not weaken the line-length gate or compress code into dense lines to satisfy formatting mechanically.
 

@@ -4,7 +4,7 @@
 
 This document is the authoritative cumulative testing methodology for the reusable knowledge framework and its current project integrations. It defines what must be tested, when each test layer runs, how parity and generated artifacts are compared, and how results enter permanent project history.
 
-The broader version workflow is governed by `Framework/framework_improvement_lifecycle.md`. Enter framework improvement mode there, then return to this document at version design, implementation verification, pressure testing, and testing-methodology review checkpoints.
+The broader version workflow is governed by `Framework/framework_improvement_lifecycle.md`. Enter framework improvement mode there, then return to this document at version design, implementation verification, pressure testing, and testing-methodology review checkpoints. Platform implementation phases use the same applicable permanent test families through `Framework/platform-implementation-plan.md` and record their confirmed closure in `Framework/platform_evolution.md`.
 
 Testing grows with the framework. A later version inherits every still-applicable earlier test family and pressure scenario. Do not silently omit a retained test, weaken an expectation, or replace a difficult case with an easier one. Revise or retire coverage only through an explicit methodology change that records why the old expectation no longer represents the contract.
 
@@ -20,6 +20,7 @@ The methodology was formalized after V37. Git history owns its revision history;
 | `Tools/Conformance/suites.json` | Executable paired-suite inventory, discovery rules, runner paths, tags, and aggregate conformance profiles. |
 | `Tools/Compatibility/compatibility.json` | Executable project-consumer check inventory, representative inputs, timeouts, and cumulative compatibility profiles. |
 | `Framework/framework_evolution.md` | Historical results, defects, capability gaps, architectural conclusions, implementing commits, and next-version recommendations. |
+| `Framework/platform_evolution.md` | Confirmed platform-phase implementation, migrations, compatibility results, closure commits, and next-phase handoffs. |
 | `PROJECT_RULES.md` | The short mandatory policy requiring this methodology and blocking advancement when required tests fail. |
 | `Framework/Data/` and paired test tools | Permanent executable fixtures, expected results, malformed cases, scale vectors, and runtime assertions. |
 
@@ -184,6 +185,7 @@ Every permanent registry suite must preserve five distinct classes of evidence. 
 
 | ID | Requirement |
 | --- | --- |
+| `COMPAT-EFFECTIVE-SCHEMA` | Compare the complete project-scoped effective schema, canonical JSON export, concise overview, detailed and deduplicated human reports, normalized singular pack/capability selection envelope and export, malformed-root failure envelope, unknown/invalid selector failures, and confined report destinations across Python, PowerShell 7, and Windows PowerShell 5.1 while protecting canonical outputs. |
 | `COMPAT-VISUALIZATION` | Validate existing and freshly generated configured views, exercise unbounded and bounded graph projection, compare Mermaid plus semantic snapshots across runtimes, and require the reviewed project semantic summary, complete redirected refresh inventory, per-file hashes, aggregate tree hash, and unbounded-relationship hash. |
 | `COMPAT-QA` | Generate redirected Obsidian QA mirrors with representative bounded graphs and pages; compare summaries, file inventories, stable Markdown/Mermaid outputs, reports, and snapshot semantics across runtimes; and require the reviewed project semantic summary, complete 34-file inventory, per-file hashes, and aggregate tree hash. |
 | `COMPAT-RENDER` | Render at least one redirected representative graph through all supported runtimes and verify successful, nonempty, semantically equivalent output. |
@@ -445,9 +447,15 @@ Write compatibility and pressure outputs beneath a uniquely scoped ignored `.tmp
 - Do not add every title, incident, case, or synthetic fixture. One-off examples remain in the evolution result unless retaining them would help a future maintainer choose a meaningfully different test.
 - Every added or revised candidate must state what it is particularly useful for and whether exact use normally requires source verification, synthetic data, governed data, or another evidence constraint.
 - Replace or retire a candidate only through an explicit methodology edit and evolution note that preserves the structural behavior the old candidate represented.
-- Keep dated execution details in `Tools/TOOLING_REFERENCE.md` and version-specific results in `Framework/framework_evolution.md`; this document remains cumulative policy.
+- Keep dated execution details in `Tools/TOOLING_REFERENCE.md`, version-specific results in `Framework/framework_evolution.md`, and platform-phase closure results in `Framework/platform_evolution.md`; this document remains cumulative policy.
 
-## Evolution Log Record Shape
+## Framework-Version Evolution Log Record Shape
+
+The record shape below applies to numbered semantic/model versions in
+`Framework/framework_evolution.md`. Platform phase entries in `Framework/platform_evolution.md`
+instead identify their implementation commits, delivered service or migration boundary, applicable
+compatibility closure, exclusions, and accepted next phase while referring back to any numbered
+version whose detailed pressure evidence remains in the framework history.
 
 Each version entry should be able to answer:
 

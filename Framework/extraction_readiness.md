@@ -162,6 +162,15 @@ legacy projection and shadow-comparison APIs are absent. The complete 17-suite b
 seven full-release compatibility checks passed, and canonical Visualization and QA outputs remained
 unchanged.
 
+Platform Phase 3.1 closed pack presentation and project-scoped inspection on 2026-08-07. The
+isolated full-release rehearsal copied 239 portable files, copied no LoTM project configuration,
+excluded all nine guarded project surfaces, and passed its six portable suites in Python,
+PowerShell 7, and Windows PowerShell 5.1. The effective-schema contract advanced to version 2 with
+selected-pack classification/presentation, capability presentation, a 157-line concise overview,
+and a deterministic singular-selection envelope. The complete 17-suite baseline passed in all
+three runtimes, all seven full-release checks passed, and canonical Visualization, QA, and rendered
+outputs remained unchanged.
+
 ## Known Limits And Next Boundaries
 
 Extraction readiness does not close these known items:
@@ -170,12 +179,13 @@ Extraction readiness does not close these known items:
   state boundaries, branch lifecycle, chronology topology, epistemic state, capability state,
   structural interpretations, hosted identity, nested carrier topology, optional hosting-pack
   isolation, and canonical chronology-position provider closure are implemented and pressure-tested
-  through V50. The Phase 1 model gate and Phase 2 effective-schema consumer-adoption gate are closed;
-  pack presentation and configuration are the next platform implementation boundary.
+  through V50. The Phase 1 model gate, Phase 2 effective-schema consumer-adoption gate, and Phase
+  3.1 pack-presentation gate are closed. Complete installed-pack discovery and capability grouping
+  through a separate `FrameworkCatalog` are the next platform implementation boundary.
 - Historical continuity-membership transitions, manifestation- or release-scoped continuity,
   occurrence-linked continuity transitions, first-class continuity systems, and sliding-chronology
   policies remain later normalized-content or deferred narrative capability work. They do not weaken
-  the current portable-kernel claim or block Phase 2.
+  the current portable-kernel claim or block the next platform phase.
 - QA graph construction has not yet been fully migrated into one reusable Visualization engine.
 - A normalized content index and generalized bounded-page machinery are not yet complete across
   content types.

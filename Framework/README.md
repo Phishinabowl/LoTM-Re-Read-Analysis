@@ -8,10 +8,15 @@ This directory contains reusable framework assets that are portable across proje
 - `framework_improvement_lifecycle.md` defines the end-to-end version iteration, confirmation, testing, historical closure, and handoff workflow.
 - `testing_methodology.md` defines the cross-industry pressure-test candidate catalog plus cumulative conformance, runtime-parity, compatibility, pressure-scenario, comparison, and test-retention requirements.
 - `framework_evolution.md` records the historical implementation and pressure-test results that drove each framework version.
+- `platform_evolution.md` records confirmed platform-phase implementation, migration, compatibility closure, and handoff history without duplicating numbered framework-version pressure records.
 - `extraction_readiness.md` records the proven portable bundle, project-owned boundary, extraction rehearsal, stabilization evidence, and limits of the current readiness claim.
 - `analytical-projection-architecture.md` defines the downstream JSON, SQLite, Parquet, notebook, medallion, and optional Databricks/Delta path without changing canonical authority.
 - `platform-implementation-plan.md` is the phased execution checklist for effective schema composition, normalized content, consumer migration, LoTM physical migration, projections, add-on packs, the IT proof of concept, interfaces, and the ordered deferred-capability program. It also records capability candidates that are not yet pack declarations.
 - Future `Migrations/` content will contain versioned transformations between contract revisions.
+
+Platform Phases 1 through 3.1 are complete. Phase 3.2.1 is the current next boundary: a generated
+`FrameworkCatalog` for all installed packs, kept distinct from each project's selected
+`EffectiveProjectSchema`, before capability grouping and later interface work.
 
 Project-specific composition, paths, activated capabilities, taxonomy, resources, sources, and extension packs remain under `Project_Config/`.
 

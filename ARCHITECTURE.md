@@ -6,7 +6,7 @@ This document is the authoritative architecture and component-ownership contract
 
 It describes both the required target architecture and the boundaries that new work must follow during migration. When current code does not yet match this contract, treat the mismatch as transition debt to remove, not as precedent for additional duplication.
 
-LoTM-specific authoring, evidence, taxonomy, and spoiler-modeling rules remain in [PROJECT_RULES.md](PROJECT_RULES.md). Framework iterations enter through [Framework/framework_improvement_lifecycle.md](Framework/framework_improvement_lifecycle.md); cumulative testing and retained coverage live in [Framework/testing_methodology.md](Framework/testing_methodology.md); [Framework/framework_evolution.md](Framework/framework_evolution.md) remains the historical implementation, pressure-test, and next-version handoff log; and [Framework/extraction_readiness.md](Framework/extraction_readiness.md) records the currently proven portable bundle and the limits of that readiness claim. Tool switches and current implementation details remain in [Tools/TOOLING_REFERENCE.md](Tools/TOOLING_REFERENCE.md).
+LoTM-specific authoring, evidence, taxonomy, and spoiler-modeling rules remain in [PROJECT_RULES.md](PROJECT_RULES.md). Framework iterations enter through [Framework/framework_improvement_lifecycle.md](Framework/framework_improvement_lifecycle.md); cumulative testing and retained coverage live in [Framework/testing_methodology.md](Framework/testing_methodology.md); [Framework/framework_evolution.md](Framework/framework_evolution.md) records numbered semantic/model versions and pressure-test handoffs; [Framework/platform_evolution.md](Framework/platform_evolution.md) records confirmed platform-phase implementation and compatibility closure; and [Framework/extraction_readiness.md](Framework/extraction_readiness.md) records the currently proven portable bundle and the limits of that readiness claim. Tool switches and current implementation details remain in [Tools/TOOLING_REFERENCE.md](Tools/TOOLING_REFERENCE.md).
 
 ## Architectural Goals
 
@@ -194,7 +194,10 @@ implementation phases rather than defining parallel ownership rules.
 manifest, selected schema packs, capability state, controlled values, taxonomy, and resource policy.
 It exposes project and registry versions, validated pack dependency order, provider-aware capability
 lifecycle and activation, controlled-value ownership and hierarchy, content configuration, resource
-integration, and deterministic diagnostics through one stable JSON contract. It contains only
+integration, deterministic diagnostics, selected-pack architectural classification and presentation,
+and effective/provider capability presentation through one stable JSON contract. Contract version 2
+also supports deterministic singular pack/capability selection as a filtered inspection envelope.
+It contains only
 portable normalized paths relative to their declared repository, content-root, or resource-root
 base, and excludes timestamps, host state, and absolute paths so identical canonical inputs
 serialize identically across runtimes.
@@ -202,9 +205,15 @@ serialize identically across runtimes.
 The effective schema is not canonical data and must never be edited as configuration. The paired
 runtime services live in `Tools/Runtime/Python/knowledge_framework/effective_schema.py` and the
 `KnowledgeFramework` PowerShell module; the paired public inspection/export commands live beneath
-`Tools/Commands/Framework/`. QA and Visualization adoption belongs to Phase 2.3. Page-module,
+`Tools/Commands/Framework/`. QA and Visualization adoption was completed in Phase 2.3. Page-module,
 normalized-content, relationship, and projection declarations join the same service only after their
 owning phases implement those contracts. See `Framework/Contracts/effective-project-schema.md`.
+
+Human command clients may request a concise project overview, detailed contract sections, or one
+selected pack/capability. These are views over the same composition and never become configuration.
+The effective schema intentionally excludes unselected packs. Phase 3.2.1 owns a separate
+`FrameworkCatalog` discovery contract for all installed packs and capabilities; catalog discovery
+must not pretend those independently available packs form one valid project composition.
 
 QA and Visualization compose the effective schema in-process from their already-loaded project,
 pack, taxonomy, and resource objects. Each reads a consumer-specific projection from that one

@@ -1185,8 +1185,9 @@ normalized combined selection, unknown and ambiguous selection, retired shadow-A
 path-safety, and generated
 400-capability scale behavior. The compatibility check of
 the same ID compares complete in-memory JSON, byte-identical canonical file exports, combined
-`packs` plus `capabilities` human inspection and byte-identical report exports, deduplicated `all`
-expansion, invalid selection, and
+`packs` plus `capabilities` human inspection, the concise overview, byte-identical report exports,
+deduplicated `all` expansion, normalized combined selection envelopes and exports, invalid section
+and singular selection, and
 malformed-root failure envelopes in Python, PowerShell 7, and Windows PowerShell 5.1 while protecting
 canonical outputs.
 
@@ -1198,18 +1199,17 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Confor
 python Tools\Compatibility\run_compatibility.py --check effective-schema --json
 ```
 
-Last focused parity check: 2026-08-07 for Platform Phase 2.3.5. All three runtimes produced the same
+Last focused parity check: 2026-08-07 for Platform Phase 3.1.5. All three runtimes produced the same
 10-pack, 132-capability, 138-namespace effective schema with two deterministic diagnostics. The
 paired suite also passed direct QA and Visualization projections, proved all three retired shadow
 APIs absent, and completed three deterministic compositions including an unrelated working
-directory. The compatibility
-check also produced the same 297,916-byte canonical export with SHA-256
-`46c42decd28af5e8ba4653e9b51465b0b0289284d3fbb3619c48730d298953e2` and matched the
-319-line combined pack/capability report, 1,621-line deduplicated `all` report, and byte-identical
-126,473-byte `all` report export with SHA-256
-`61e4969cd7fa1fdd1438d95976f5fe3f0d2e58648f8098d7876f64ca40a4da83`. It also matched one
-invalid-selector failure and the `malformed-configuration` failure envelope without changing
-canonical project output.
+directory. The compatibility check produced the same 403,469-byte canonical export with SHA-256
+`9cc0b397e6aec1eecd7e35f4b4aed9dc25dcd9c8baf3f539601355dae3df582c`, 157-line concise
+overview, 1,038-line combined pack/capability report, and 2,340-line deduplicated `all` report. The
+selection contract emitted a matching 4,278-byte combined normalized lookup export with SHA-256
+`bc6af21c44e71e1f264517041f774c7acb2b1e1e27a8273c638ab7c43b136713`. Two invalid selector
+cases, unsafe report confinement, and the `malformed-configuration` failure envelope also matched
+without changing canonical project output.
 
 ## GitHub Actions CI
 
@@ -1469,15 +1469,15 @@ matching semantic dimensions.
 
 Protected canonical Visualization configuration, reports, snapshots, graphs, renders, and the configured QA export are hashed before and after every run. Successful output is removed through the maintained cleanup command unless `--keep-output` is supplied. Failed output is retained for diagnosis. An explicit output root must be a child of repository `.tmp/`; the repository root, `.tmp/` itself, and outside paths are rejected.
 
-Last compatibility check: 2026-08-07 for Platform Phase 2.3.5. The 293.4-second `full-release`
-profile passed all seven registered checks after the temporary consumer-shadow APIs were retired.
+Last compatibility check: 2026-08-07 for Platform Phase 3.1.5. The 469.2-second `full-release`
+profile passed all seven registered checks with effective-schema presentation and selection closure.
 Visualization preserved 15 nodes, 121 relationships, all five redirected refresh files, refresh
 tree SHA-256
 `dfb0ffd4a11d304ab2ffd2571bfba4717b087c512d46abd6120f920835577fe6` and unbounded graph SHA-256
 `477eb74726f1c8430ad52c5a187db3bfd402404115f36ce2bf1750f8c6531cc4`.
 QA preserved 16 notes, 121 relationships, 71 data references, all 34 files, and tree SHA-256
 `2b754c78c5ed76d782f152b68d73df680029f1e40e5b7be5c4280fcc9c4bc292`. All twelve root launches,
-six unsafe artifact destinations, the 236-file neutral framework extraction, and three identical
+six unsafe artifact destinations, the 239-file neutral framework extraction, and three identical
 298,269-byte nonblank SVG renders passed. Canonical outputs remained unchanged and successful scoped
 output was removed.
 
@@ -1496,19 +1496,19 @@ The paired aggregate runners accept an optional repository root, validate `Tools
 
 `baseline` is the CI and framework-version conformance profile. `fast` is the local feedback profile; ordinary feature-branch pushes run only the separate hosted work-annotation policy rather than a lighter conformance tier. It does not replace baseline, visualization, or QA compatibility validation. Both implementations detect unregistered discovered conformance runners, missing registered files, stale exclusions, duplicate IDs or paths, invalid profiles, and paths outside the repository. Each suite runs in an isolated child process to preserve script behavior and PowerShell scope isolation. Runtime module extraction alone does not make in-process PowerShell aggregation safe: current suites remain top-level scripts that define functions, import modules with process scope, mutate process-local state, and terminate through script exit behavior. Retain child-process execution until suites expose callable APIs with explicit state-reset and error-return contracts, then prove equivalent isolation before changing the aggregate runner.
 
-Last aggregate parity check: 2026-08-07 for Platform Phase 2.3.5. The `baseline` profile passed all
+Last aggregate parity check: 2026-08-07 for Platform Phase 3.1.5. The `baseline` profile passed all
 seventeen registered suites in Python, PowerShell 7, and Windows PowerShell 5.1 with matching suite
-IDs, statuses, and canonicalized semantic summaries in 618.5 seconds combined. The effective-schema
+IDs, statuses, and canonicalized semantic summaries in 51.6, 222.2, and 408.0 seconds. The effective-schema
 suite preserved 10 active packs, 132 declared capabilities, 123
 enabled capabilities, nine planned capabilities, 138 controlled-value namespaces, and two
-deterministic deferred-category diagnostics while exercising four synthetic lifecycle/provider states,
-one classified dependency failure, and a 400-capability scale composition. The complete baseline
+deterministic deferred-category diagnostics while exercising three singular-selection cases, four
+synthetic lifecycle/provider states, one classified dependency failure, and a 400-capability scale composition. The complete baseline
 also preserved 25 reconciliation target types, 71 provenance subject types, fourteen invalid
 cross-registry compositions, every existing registry corpus, and the established hosting and
 interpretation scale probes. Source, entity, provenance, hosting, interpretation, and project
 composition remain outside the nine-suite `fast` profile because their repeated dependency
-composition is materially expensive. Phase 2.3.5 replaced shadow-parity probes with direct consumer
-projection and retired-API assertions without changing aggregate profile membership.
+composition is materially expensive. Phase 3.1 added presentation/classification and singular
+inspection coverage without changing aggregate profile membership.
 
 ### Strict YAML Conformance
 

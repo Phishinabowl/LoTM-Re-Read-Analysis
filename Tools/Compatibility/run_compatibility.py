@@ -882,9 +882,13 @@ def run_effective_schema_check(
     documents: dict[str, dict[str, Any]] = {}
     export_bytes: dict[str, bytes] = {}
     report_export_bytes: dict[str, bytes] = {}
+    overview_export_bytes: dict[str, bytes] = {}
+    selection_documents: dict[str, dict[str, Any]] = {}
+    selection_export_bytes: dict[str, bytes] = {}
     human_reports: dict[str, dict[str, str]] = {}
     failure_codes: dict[str, str] = {}
-    selection_failures: dict[str, str] = {}
+    invalid_show_failures: dict[str, str] = {}
+    singular_selection_failures: dict[str, str] = {}
     unsafe_report_failures: dict[str, str] = {}
     elapsed: dict[str, float] = {}
 
@@ -905,6 +909,10 @@ def run_effective_schema_check(
 
         human_reports[runtime.id] = {}
         human_cases = {
+            "overview": (
+                ["--root", str(root), "--show", "overview"],
+                ["-Root", str(root), "-Show", "overview"],
+            ),
             "combined": (
                 ["--root", str(root), "--show", "packs", "--show", "capabilities"],
                 ["-Root", str(root), "-Show", "packs,capabilities"],
@@ -959,6 +967,22 @@ def run_effective_schema_check(
         if report_export_bytes[runtime.id].decode("utf-8") != human_reports[runtime.id]["all-deduplicated"]:
             raise CompatibilityFailure(f"{runtime.id} report export differs from its human command output.")
 
+        overview_export_path = output_root / f"{runtime.id}-overview.txt"
+        overview_export_command = python_or_powershell_command(
+            runtime,
+            python_script,
+            powershell_script,
+            ["--root", str(root), "--show", "overview", "--report-output", str(overview_export_path)],
+            ["-Root", str(root), "-Show", "overview", "-ReportOutput", str(overview_export_path)],
+        )
+        overview_export_result = run_command(runtime, overview_export_command, root, check["timeout_seconds"])
+        expected_overview_confirmation = f"Exported report: {overview_export_path.relative_to(root).as_posix()}\n"
+        if overview_export_result.stdout.replace("\r\n", "\n") != expected_overview_confirmation:
+            raise CompatibilityFailure(f"{runtime.id} returned an invalid overview-export confirmation.")
+        overview_export_bytes[runtime.id] = overview_export_path.read_bytes()
+        if overview_export_bytes[runtime.id].decode("utf-8") != human_reports[runtime.id]["overview"]:
+            raise CompatibilityFailure(f"{runtime.id} overview export differs from its human command output.")
+
         export_path = output_root / f"{runtime.id}.json"
         export_command = python_or_powershell_command(
             runtime,
@@ -972,6 +996,74 @@ def run_effective_schema_check(
         if exported != document:
             raise CompatibilityFailure(f"{runtime.id} file export differs from its JSON command output.")
         export_bytes[runtime.id] = export_path.read_bytes()
+
+        selection_command = python_or_powershell_command(
+            runtime,
+            python_script,
+            powershell_script,
+            [
+                "--root",
+                str(root),
+                "--pack",
+                "Narrative-Media",
+                "--capability",
+                "Narrative-Time-Loops",
+                "--json",
+            ],
+            [
+                "-Root",
+                str(root),
+                "-Pack",
+                "Narrative-Media",
+                "-Capability",
+                "Narrative-Time-Loops",
+                "-Json",
+            ],
+        )
+        selection_result = run_command(runtime, selection_command, root, check["timeout_seconds"])
+        selection_document = parse_json_output(selection_result.stdout)
+        if (
+            not isinstance(selection_document, dict)
+            or selection_document.get("contract") != "effective-project-schema-selection"
+            or [row.get("id") for row in selection_document.get("packs", [])] != ["narrative-media"]
+            or [row.get("id") for row in selection_document.get("capabilities", [])] != ["narrative-time-loops"]
+        ):
+            raise CompatibilityFailure(
+                f"{runtime.id} returned an invalid effective-schema selection: {selection_document!r}"
+            )
+        selection_documents[runtime.id] = selection_document
+
+        selection_export_path = output_root / f"{runtime.id}-selection.json"
+        selection_export_command = python_or_powershell_command(
+            runtime,
+            python_script,
+            powershell_script,
+            [
+                "--root",
+                str(root),
+                "--pack",
+                "Narrative-Media",
+                "--capability",
+                "Narrative-Time-Loops",
+                "--output",
+                str(selection_export_path),
+            ],
+            [
+                "-Root",
+                str(root),
+                "-Pack",
+                "Narrative-Media",
+                "-Capability",
+                "Narrative-Time-Loops",
+                "-Output",
+                str(selection_export_path),
+            ],
+        )
+        run_command(runtime, selection_export_command, root, check["timeout_seconds"])
+        exported_selection = json.loads(selection_export_path.read_text(encoding="utf-8-sig"))
+        if exported_selection != selection_document:
+            raise CompatibilityFailure(f"{runtime.id} selection export differs from its JSON command output.")
+        selection_export_bytes[runtime.id] = selection_export_path.read_bytes()
 
         invalid_root = output_root / "missing-project-root"
         failure_command = python_or_powershell_command(
@@ -1013,7 +1105,23 @@ def run_effective_schema_check(
             check["timeout_seconds"],
             expect_success=False,
         )
-        selection_failures[runtime.id] = invalid_show_result.stderr.strip()
+        invalid_show_failures[runtime.id] = invalid_show_result.stderr.strip()
+
+        unknown_pack_command = python_or_powershell_command(
+            runtime,
+            python_script,
+            powershell_script,
+            ["--root", str(root), "--pack", "missing-pack"],
+            ["-Root", str(root), "-Pack", "missing-pack"],
+        )
+        unknown_pack_result = run_command(
+            runtime,
+            unknown_pack_command,
+            root,
+            check["timeout_seconds"],
+            expect_success=False,
+        )
+        singular_selection_failures[runtime.id] = unknown_pack_result.stderr.strip()
 
         unsafe_report_path = root.parent / ".effective-schema-report-outside.txt"
         unsafe_report_command = python_or_powershell_command(
@@ -1043,14 +1151,27 @@ def run_effective_schema_check(
         raise CompatibilityFailure("Canonical effective-schema export bytes differ between runtimes.")
     if len(set(report_export_bytes.values())) != 1:
         raise CompatibilityFailure("Effective-schema human report export bytes differ between runtimes.")
+    if len(set(overview_export_bytes.values())) != 1:
+        raise CompatibilityFailure("Effective-schema overview export bytes differ between runtimes.")
+    for runtime_id, selection_document in selection_documents.items():
+        if selection_document != selection_documents[reference_runtime]:
+            raise CompatibilityFailure(
+                f"Effective-schema selection differs between {reference_runtime} and {runtime_id}."
+            )
+    if len(set(selection_export_bytes.values())) != 1:
+        raise CompatibilityFailure("Effective-schema selection export bytes differ between runtimes.")
     for case_id in human_reports[reference_runtime]:
         outputs = {reports[case_id] for reports in human_reports.values()}
         if len(outputs) != 1:
             raise CompatibilityFailure(f"Effective-schema human inspection case `{case_id}` differs between runtimes.")
     if len(set(failure_codes.values())) != 1:
         raise CompatibilityFailure(f"Effective-schema failure codes differ by runtime: {failure_codes}")
-    if len(set(selection_failures.values())) != 1:
-        raise CompatibilityFailure(f"Effective-schema selector failures differ by runtime: {selection_failures}")
+    if len(set(invalid_show_failures.values())) != 1:
+        raise CompatibilityFailure(f"Effective-schema show failures differ by runtime: {invalid_show_failures}")
+    if len(set(singular_selection_failures.values())) != 1:
+        raise CompatibilityFailure(
+            f"Effective-schema singular selector failures differ by runtime: {singular_selection_failures}"
+        )
     if len(set(unsafe_report_failures.values())) != 1:
         raise CompatibilityFailure(
             f"Effective-schema unsafe report failures differ by runtime: {unsafe_report_failures}"
@@ -1068,10 +1189,16 @@ def run_effective_schema_check(
         "canonical_export_sha256": hashlib.sha256(canonical_export).hexdigest(),
         "human_report_export_bytes": len(report_export_bytes[reference_runtime]),
         "human_report_export_sha256": hashlib.sha256(report_export_bytes[reference_runtime]).hexdigest(),
+        "overview_report_bytes": len(overview_export_bytes[reference_runtime]),
+        "overview_report_sha256": hashlib.sha256(overview_export_bytes[reference_runtime]).hexdigest(),
+        "overview_report_lines": len(human_reports[reference_runtime]["overview"].splitlines()),
         "human_sections": ["packs", "capabilities"],
         "human_report_lines": len(human_reports[reference_runtime]["combined"].splitlines()),
         "human_all_report_lines": len(human_reports[reference_runtime]["all-deduplicated"].splitlines()),
-        "invalid_selector_cases": 1,
+        "selection_contract_version": selection_documents[reference_runtime]["contract_version"],
+        "selection_export_bytes": len(selection_export_bytes[reference_runtime]),
+        "selection_export_sha256": hashlib.sha256(selection_export_bytes[reference_runtime]).hexdigest(),
+        "invalid_selector_cases": 2,
         "unsafe_report_path_cases": 1,
         "failure_code": next(iter(failure_codes.values())),
         "elapsed_seconds": elapsed,

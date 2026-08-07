@@ -10,6 +10,12 @@ It coordinates three separate authorities without merging their responsibilities
 - `Framework/testing_methodology.md` owns the pressure-test candidate catalog and cumulative test requirements; and
 - `Framework/framework_evolution.md` owns the historical record of what changed, why it changed, what testing found, and what should happen next.
 
+This lifecycle governs numbered semantic/model versions. The separate
+`Framework/platform-implementation-plan.md` governs platform implementation phases, and
+`Framework/platform_evolution.md` records their confirmed history. A platform phase that contains a
+numbered framework version must use this lifecycle for that version, then record only the resulting
+platform capability and closure in the platform history.
+
 The process is circular. A version begins from the prior evolution recommendation, proposes testing from the retained methodology, implements and verifies the change, records its implementation commit, runs pressure testing, improves the methodology when durable coverage is discovered, records the results and next recommendation in the evolution history, and begins again.
 
 ## Entering Framework Improvement Mode
@@ -43,6 +49,7 @@ Use Repository Mode evidence discipline unless the maintainer explicitly authori
 | `Framework/framework_improvement_lifecycle.md` | Defines how a version moves from recommendation through implementation, confirmation, testing, historical closure, and handoff. |
 | `Framework/testing_methodology.md` | Defines candidate selection and retention, what must be tested, stable test-family IDs, impact-based additions, comparison rules, and result classification. |
 | `Framework/framework_evolution.md` | Records version intent, exact implementation commit, architectural lessons, executed tests, findings, and next-version recommendation. |
+| `Framework/platform_evolution.md` | Records confirmed platform-phase implementation, migration, compatibility closure, and next-phase handoff without duplicating version pressure history. |
 | `Tools/TOOLING_REFERENCE.md` | Defines exact current commands, switches, output contracts, parity recipes, normalization rules, and dated executions. |
 | `Tools/Conformance/suites.json` | Owns the permanent paired conformance inventory, runner paths, discovery boundary, and aggregate profile membership. |
 | `Tools/Compatibility/compatibility.json` | Owns project-consumer checks, representative inputs, timeouts, and cumulative compatibility profiles. |

@@ -4,6 +4,10 @@ This document records how the reusable knowledge-platform framework evolved, why
 
 The end-to-end version process is governed by `Framework/framework_improvement_lifecycle.md`. Cumulative testing requirements are governed by `Framework/testing_methodology.md`. This file records history and handoff state; it does not independently define either workflow.
 
+This file owns numbered semantic/model versions. Confirmed implementation phases from the separate
+platform roadmap belong in `Framework/platform_evolution.md`; do not append platform-phase closure
+entries here or duplicate a version's detailed pressure history there.
+
 The version numbers here describe the **framework evolution rounds discussed during the extraction project**. They are not interchangeable with every registry's internal `schema_version` or every schema pack's `pack_version`. V1-V15 primarily track the narrative source registry as it grew from schema 1 through schema 15. V16 onward expands the framework through additional registries and shared services, each of which retains its own schema and pack version.
 
 From V30 onward, update this file as part of each version. Follow the lifecycle document for the complete sequence:

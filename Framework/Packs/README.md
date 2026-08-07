@@ -13,6 +13,18 @@ controlled vocabulary. Enabling a capability activates executable behavior. A vo
 extension therefore declares `capabilities: []` rather than inventing an enabled capability whose
 state cannot govern its values.
 
+## Inspection Boundaries
+
+`EffectiveProjectSchema` exposes presentation and classification only for packs selected by one
+project and capabilities declared by those packs. Its concise overview, detailed sections, and
+singular selectors are compiled project views, not a complete framework inventory.
+
+This README remains the current human-maintained catalog summary, while schema-pack conformance
+validates all 14 installed pack files and their capability presentations. Phase 3.2.1 will replace
+directory scanning and README dependence for machine clients with a generated `FrameworkCatalog`
+service and report. That catalog must preserve independently available packs, dependencies, and
+discoverability state without composing every installed pack as though one project selected it.
+
 ## Architectural Classification
 
 | Pack | Family | Role | Scope | Domains / joins |
