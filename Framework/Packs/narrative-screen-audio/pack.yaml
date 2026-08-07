@@ -1,34 +1,104 @@
-schema_version: 4
+schema_version: 5
 pack_id: narrative-screen-audio
-pack_version: 11
+pack_version: 12
 lifecycle: active
 pack_kind: domain
-label: Narrative Screen and Audio
-description: Film, television, animation, audio drama, podcast, episode, special, and release-cut vocabulary.
+classification:
+  family: narrative
+  role: extension
+  scope: domain-specific
+  domains:
+  - narrative
+  bridge_pack_ids: []
+presentation:
+  localization_key: pack.narrative-screen-audio
+  default_locale: en
+  label: Narrative Screen and Audio
+  short_description: Film, television, animation, audio drama, podcast, episode, special, and release-cut vocabulary.
+  long_description: Extends narrative works with screen, animation, audio, episodic, live-performance, release-cut, and embedded-visual semantics.
+  maturity: preview
+  intended_audiences:
+  - id: narrative-modeler
+    label: Narrative modelers
+    description: People building structured knowledge projects for stories, media, sources, and fictional worlds.
+  use_cases:
+  - id: use-narrative-screen-audio
+    label: Use Narrative Screen and Audio
+    description: Film, television, animation, audio drama, podcast, episode, special, and release-cut vocabulary.
+  examples: []
+  prerequisites:
+  - id: narrative-media
+    label: Narrative Media
+    description: Requires the Narrative Media pack at a compatible version.
+  provided_behaviors:
+  - id: behavior-narrative-screen-audio
+    label: Narrative Screen and Audio semantics
+    description: Extends narrative works with screen, animation, audio, episodic, live-performance, release-cut, and embedded-visual semantics.
+  exclusions:
+  - id: no-implicit-activation
+    label: No implicit activation
+    description: Selecting this pack does not enable its capabilities or infer project usage.
+  documentation:
+  - id: pack-catalog
+    label: Schema Pack Catalog
+    target_kind: repository-path
+    target: Framework/Packs/README.md
+  search_keywords:
+  - narrative
+  - screen
+  - audio
 
 dependencies:
   - pack_id: narrative-media
     minimum_version: 14
 
 capabilities:
-  - screen-works
-  - audio-works
-  - id: episodic-releases
-    lifecycle: available
+- id: screen-works
+  lifecycle: available
+  presentation:
+    localization_key: capability.screen-works
+    label: Screen Works
+    description: Models and validates screen works for narrative works, sources, and project consumers.
+- id: audio-works
+  lifecycle: available
+  presentation:
+    localization_key: capability.audio-works
+    label: Audio Works
+    description: Models and validates audio works for narrative works, sources, and project consumers.
+- id: episodic-releases
+  lifecycle: available
+  presentation:
+    localization_key: capability.episodic-releases
     label: Episodic Releases
     description: Episode and cour work-part identity plus segment-scoped release runs, events, and offerings when narrative-distribution is selected.
-  - release-cuts
-  - embedded-visual-assets
-  - id: live-performance-works
-    lifecycle: available
+- id: release-cuts
+  lifecycle: available
+  presentation:
+    localization_key: capability.release-cuts
+    label: Release Cuts
+    description: Models and validates release cuts for narrative works, sources, and project consumers.
+- id: embedded-visual-assets
+  lifecycle: available
+  presentation:
+    localization_key: capability.embedded-visual-assets
+    label: Embedded Visual Assets
+    description: Models and validates embedded visual assets for narrative works, sources, and project consumers.
+- id: live-performance-works
+  lifecycle: available
+  presentation:
+    localization_key: capability.live-performance-works
     label: Live Performance Works
     description: Stable creative identity for stage plays, musicals, and related authored works.
-  - id: live-performance-productions
-    lifecycle: planned
+- id: live-performance-productions
+  lifecycle: planned
+  presentation:
+    localization_key: capability.live-performance-productions
     label: Live Performance Productions
     description: Production-, revival-, tour-, venue-, and cast-scoped stagings of a live-performance work.
-  - id: performance-events
-    lifecycle: planned
+- id: performance-events
+  lifecycle: planned
+  presentation:
+    localization_key: capability.performance-events
     label: Performance Events
     description: Individual scheduled performances and recorded performance instances.
 

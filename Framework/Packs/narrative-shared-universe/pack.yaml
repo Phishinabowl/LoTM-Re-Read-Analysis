@@ -1,30 +1,80 @@
-schema_version: 4
+schema_version: 5
 pack_id: narrative-shared-universe
-pack_version: 9
+pack_version: 10
 lifecycle: active
 pack_kind: domain
-label: Narrative Shared Universe
-description: Multiverses, continuity branches, incarnations, reboots, retcons, and crossover events.
+classification:
+  family: narrative
+  role: extension
+  scope: domain-specific
+  domains:
+  - narrative
+  bridge_pack_ids: []
+presentation:
+  localization_key: pack.narrative-shared-universe
+  default_locale: en
+  label: Narrative Shared Universe
+  short_description: Multiverses, continuity branches, incarnations, reboots, retcons, and crossover events.
+  long_description: Extends narrative identity across universes, continuity branches, incarnations, identity phases, reboots, retcons, counterparts, and crossover structures.
+  maturity: preview
+  intended_audiences:
+  - id: narrative-modeler
+    label: Narrative modelers
+    description: People building structured knowledge projects for stories, media, sources, and fictional worlds.
+  use_cases:
+  - id: use-narrative-shared-universe
+    label: Use Narrative Shared Universe
+    description: Multiverses, continuity branches, incarnations, reboots, retcons, and crossover events.
+  examples: []
+  prerequisites:
+  - id: narrative-media
+    label: Narrative Media
+    description: Requires the Narrative Media pack at a compatible version.
+  provided_behaviors:
+  - id: behavior-narrative-shared-universe
+    label: Narrative Shared Universe semantics
+    description: Extends narrative identity across universes, continuity branches, incarnations, identity phases, reboots, retcons, counterparts, and crossover structures.
+  exclusions:
+  - id: no-implicit-activation
+    label: No implicit activation
+    description: Selecting this pack does not enable its capabilities or infer project usage.
+  documentation:
+  - id: pack-catalog
+    label: Schema Pack Catalog
+    target_kind: repository-path
+    target: Framework/Packs/README.md
+  search_keywords:
+  - narrative
+  - shared
+  - universe
 
 dependencies:
   - pack_id: narrative-media
     minimum_version: 14
 
 capabilities:
-  - id: shared-universes
-    lifecycle: available
+- id: shared-universes
+  lifecycle: available
+  presentation:
+    localization_key: capability.shared-universes
     label: Shared Universes
     description: Multiple related continuities and universe-scoped works.
-  - id: entity-incarnations
-    lifecycle: available
+- id: entity-incarnations
+  lifecycle: available
+  presentation:
+    localization_key: capability.entity-incarnations
     label: Entity Incarnations
     description: Stable conceptual entities, ambiguity-safe names, category memberships, direction- and cycle-aware entity lineage, continuity-bound incarnations, scope-backed bindings, and typed counterpart relationships.
-  - id: entity-identity-phases
-    lifecycle: available
+- id: entity-identity-phases
+  lifecycle: available
+  presentation:
+    localization_key: capability.entity-identity-phases
     label: Entity Identity Phases
     description: Provenance-addressable, continuity-specific phases in which one entity or incarnation retains identity through an epoch, regeneration, reincarnation, restoration, or transformation.
-  - id: crossover-events
-    lifecycle: planned
+- id: crossover-events
+  lifecycle: planned
+  presentation:
+    localization_key: capability.crossover-events
     label: Crossover Events
     description: Ordered core entries plus required and optional tie-ins across publication runs.
 

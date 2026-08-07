@@ -1,45 +1,205 @@
-schema_version: 4
+schema_version: 5
 pack_id: narrative-media
-pack_version: 24
+pack_version: 25
 lifecycle: active
 pack_kind: domain
-label: Narrative Media Foundation
-description: Domain-neutral narrative works, media facets, ordering, continuities, and reader-disclosure primitives.
+classification:
+  family: narrative
+  role: domain
+  scope: domain-specific
+  domains:
+  - narrative
+  bridge_pack_ids: []
+presentation:
+  localization_key: pack.narrative-media
+  default_locale: en
+  label: Narrative Media Foundation
+  short_description: Domain-neutral narrative works, media facets, ordering, continuities, and reader-disclosure primitives.
+  long_description: Supplies the principal model for franchises, works, installments, continuities, ordering, content groups, disclosure, chronology, and narrative source structure.
+  maturity: preview
+  intended_audiences:
+  - id: narrative-modeler
+    label: Narrative modelers
+    description: People building structured knowledge projects for stories, media, sources, and fictional worlds.
+  use_cases:
+  - id: use-narrative-media
+    label: Use Narrative Media Foundation
+    description: Domain-neutral narrative works, media facets, ordering, continuities, and reader-disclosure primitives.
+  examples: []
+  prerequisites:
+  - id: core
+    label: Core
+    description: Requires the Core pack at a compatible version.
+  provided_behaviors:
+  - id: behavior-narrative-media
+    label: Narrative Media Foundation semantics
+    description: Supplies the principal model for franchises, works, installments, continuities, ordering, content groups, disclosure, chronology, and narrative source structure.
+  exclusions:
+  - id: no-implicit-activation
+    label: No implicit activation
+    description: Selecting this pack does not enable its capabilities or infer project usage.
+  documentation:
+  - id: pack-catalog
+    label: Schema Pack Catalog
+    target_kind: repository-path
+    target: Framework/Packs/README.md
+  search_keywords:
+  - narrative
+  - media
 
 dependencies:
   - pack_id: core
     minimum_version: 34
 
 capabilities:
-  - franchises
-  - ordered-series
-  - adaptation-programs
-  - continuities
-  - creative-works
-  - installments
-  - media-facets
-  - work-hierarchies
-  - multiple-orderings
-  - numbering-schemes
-  - external-identifiers
-  - localized-segment-metadata
-  - localized-title-variants
-  - content-groups
-  - nested-content-groups
-  - temporal-localized-titles
-  - content-group-member-roles
-  - narrative-chronology
-  - narrative-time-loops
-  - reader-disclosure
-  - spoiler-bounding
-  - segment-anchored-locators
-  - ordering-backed-position-validation
-  - id: scoped-continuity
-    lifecycle: available
+- id: franchises
+  lifecycle: available
+  presentation:
+    localization_key: capability.franchises
+    label: Franchises
+    description: Models and validates franchises for narrative works, sources, and project consumers.
+- id: ordered-series
+  lifecycle: available
+  presentation:
+    localization_key: capability.ordered-series
+    label: Ordered Series
+    description: Models and validates ordered series for narrative works, sources, and project consumers.
+- id: adaptation-programs
+  lifecycle: available
+  presentation:
+    localization_key: capability.adaptation-programs
+    label: Adaptation Programs
+    description: Models and validates adaptation programs for narrative works, sources, and project consumers.
+- id: continuities
+  lifecycle: available
+  presentation:
+    localization_key: capability.continuities
+    label: Continuities
+    description: Models and validates continuities for narrative works, sources, and project consumers.
+- id: creative-works
+  lifecycle: available
+  presentation:
+    localization_key: capability.creative-works
+    label: Creative Works
+    description: Models and validates creative works for narrative works, sources, and project consumers.
+- id: installments
+  lifecycle: available
+  presentation:
+    localization_key: capability.installments
+    label: Installments
+    description: Models and validates installments for narrative works, sources, and project consumers.
+- id: media-facets
+  lifecycle: available
+  presentation:
+    localization_key: capability.media-facets
+    label: Media Facets
+    description: Models and validates media facets for narrative works, sources, and project consumers.
+- id: work-hierarchies
+  lifecycle: available
+  presentation:
+    localization_key: capability.work-hierarchies
+    label: Work Hierarchies
+    description: Models and validates work hierarchies for narrative works, sources, and project consumers.
+- id: multiple-orderings
+  lifecycle: available
+  presentation:
+    localization_key: capability.multiple-orderings
+    label: Multiple Orderings
+    description: Models and validates multiple orderings for narrative works, sources, and project consumers.
+- id: numbering-schemes
+  lifecycle: available
+  presentation:
+    localization_key: capability.numbering-schemes
+    label: Numbering Schemes
+    description: Models and validates numbering schemes for narrative works, sources, and project consumers.
+- id: external-identifiers
+  lifecycle: available
+  presentation:
+    localization_key: capability.external-identifiers
+    label: External Identifiers
+    description: Models and validates external identifiers for narrative works, sources, and project consumers.
+- id: localized-segment-metadata
+  lifecycle: available
+  presentation:
+    localization_key: capability.localized-segment-metadata
+    label: Localized Segment Metadata
+    description: Models and validates localized segment metadata for narrative works, sources, and project consumers.
+- id: localized-title-variants
+  lifecycle: available
+  presentation:
+    localization_key: capability.localized-title-variants
+    label: Localized Title Variants
+    description: Models and validates localized title variants for narrative works, sources, and project consumers.
+- id: content-groups
+  lifecycle: available
+  presentation:
+    localization_key: capability.content-groups
+    label: Content Groups
+    description: Models and validates content groups for narrative works, sources, and project consumers.
+- id: nested-content-groups
+  lifecycle: available
+  presentation:
+    localization_key: capability.nested-content-groups
+    label: Nested Content Groups
+    description: Models and validates nested content groups for narrative works, sources, and project consumers.
+- id: temporal-localized-titles
+  lifecycle: available
+  presentation:
+    localization_key: capability.temporal-localized-titles
+    label: Temporal Localized Titles
+    description: Models and validates temporal localized titles for narrative works, sources, and project consumers.
+- id: content-group-member-roles
+  lifecycle: available
+  presentation:
+    localization_key: capability.content-group-member-roles
+    label: Content Group Member Roles
+    description: Models and validates content group member roles for narrative works, sources, and project consumers.
+- id: narrative-chronology
+  lifecycle: available
+  presentation:
+    localization_key: capability.narrative-chronology
+    label: Narrative Chronology
+    description: Models and validates narrative chronology for narrative works, sources, and project consumers.
+- id: narrative-time-loops
+  lifecycle: available
+  presentation:
+    localization_key: capability.narrative-time-loops
+    label: Narrative Time Loops
+    description: Models and validates narrative time loops for narrative works, sources, and project consumers.
+- id: reader-disclosure
+  lifecycle: available
+  presentation:
+    localization_key: capability.reader-disclosure
+    label: Reader Disclosure
+    description: Models and validates reader disclosure for narrative works, sources, and project consumers.
+- id: spoiler-bounding
+  lifecycle: available
+  presentation:
+    localization_key: capability.spoiler-bounding
+    label: Spoiler Bounding
+    description: Models and validates spoiler bounding for narrative works, sources, and project consumers.
+- id: segment-anchored-locators
+  lifecycle: available
+  presentation:
+    localization_key: capability.segment-anchored-locators
+    label: Segment Anchored Locators
+    description: Models and validates segment anchored locators for narrative works, sources, and project consumers.
+- id: ordering-backed-position-validation
+  lifecycle: available
+  presentation:
+    localization_key: capability.ordering-backed-position-validation
+    label: Ordering Backed Position Validation
+    description: Models and validates ordering backed position validation for narrative works, sources, and project consumers.
+- id: scoped-continuity
+  lifecycle: available
+  presentation:
+    localization_key: capability.scoped-continuity
     label: Scoped Continuity
     description: Work-, segment-, content-group-, and claim-scoped continuity assertions with territorial, temporal, and precedence-aware applicability.
-  - id: retcon-supersession
-    lifecycle: available
+- id: retcon-supersession
+  lifecycle: available
+  presentation:
+    localization_key: capability.retcon-supersession
     label: Retcon and Supersession
     description: Claim-level replacement, reinterpretation, restoration, and effective-scope tracking.
 

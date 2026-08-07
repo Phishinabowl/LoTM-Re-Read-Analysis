@@ -1,26 +1,73 @@
-schema_version: 4
+schema_version: 5
 pack_id: narrative-production
-pack_version: 4
+pack_version: 5
 lifecycle: active
 pack_kind: domain
-label: Narrative Production and Rights
-description: Creative contributions, production credits, ownership, licensing, and official-release authority.
+classification:
+  family: narrative
+  role: extension
+  scope: domain-specific
+  domains:
+  - narrative
+  bridge_pack_ids: []
+presentation:
+  localization_key: pack.narrative-production
+  default_locale: en
+  label: Narrative Production and Rights
+  short_description: Creative contributions, production credits, ownership, licensing, and official-release authority.
+  long_description: Models contributor roles, production origin, authorization, ownership, licensing, rights scope, commerciality, territory, and effective windows independently from canon.
+  maturity: preview
+  intended_audiences:
+  - id: narrative-modeler
+    label: Narrative modelers
+    description: People building structured knowledge projects for stories, media, sources, and fictional worlds.
+  use_cases:
+  - id: use-narrative-production
+    label: Use Narrative Production and Rights
+    description: Creative contributions, production credits, ownership, licensing, and official-release authority.
+  examples: []
+  prerequisites:
+  - id: narrative-media
+    label: Narrative Media
+    description: Requires the Narrative Media pack at a compatible version.
+  provided_behaviors:
+  - id: behavior-narrative-production
+    label: Narrative Production and Rights semantics
+    description: Models contributor roles, production origin, authorization, ownership, licensing, rights scope, commerciality, territory, and effective windows independently from canon.
+  exclusions:
+  - id: no-implicit-activation
+    label: No implicit activation
+    description: Selecting this pack does not enable its capabilities or infer project usage.
+  documentation:
+  - id: pack-catalog
+    label: Schema Pack Catalog
+    target_kind: repository-path
+    target: Framework/Packs/README.md
+  search_keywords:
+  - narrative
+  - production
 
 dependencies:
   - pack_id: narrative-media
     minimum_version: 14
 
 capabilities:
-  - id: contributor-credits
-    lifecycle: planned
+- id: contributor-credits
+  lifecycle: planned
+  presentation:
+    localization_key: capability.contributor-credits
     label: Contributor Credits
     description: Authorship, illustration, editing, translation, direction, performance, and production roles.
-  - id: production-rights-contexts
-    lifecycle: available
+- id: production-rights-contexts
+  lifecycle: available
+  presentation:
+    localization_key: capability.production-rights-contexts
     label: Production and Rights Contexts
     description: Scope-backed work production origin, authorization, rights basis, commerciality, territory, and effective-window records independent of canon.
-  - id: rights-grants-and-restrictions
-    lifecycle: planned
+- id: rights-grants-and-restrictions
+  lifecycle: planned
+  presentation:
+    localization_key: capability.rights-grants-and-restrictions
     label: Rights Grants and Restrictions
     description: Party-, asset-, right-type-, instrument-, territory-, and time-scoped grants, restrictions, exclusivity, and obligations.
 

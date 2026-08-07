@@ -1,37 +1,183 @@
-schema_version: 4
+schema_version: 5
 pack_id: narrative-distribution
-pack_version: 14
+pack_version: 15
 lifecycle: active
 pack_kind: domain
-label: Narrative Distribution
-description: Editions, cuts, localized manifestations, releases, platform catalogs, offerings, tracks, and regional availability.
+classification:
+  family: narrative
+  role: extension
+  scope: domain-specific
+  domains:
+  - narrative
+  bridge_pack_ids: []
+presentation:
+  localization_key: pack.narrative-distribution
+  default_locale: en
+  label: Narrative Distribution
+  short_description: Editions, cuts, localized manifestations, releases, platform catalogs, offerings, tracks, and regional availability.
+  long_description: Models manifestations, components, packages, releases, platforms, offerings, localization, regional availability, source coverage, and release lineage.
+  maturity: preview
+  intended_audiences:
+  - id: narrative-modeler
+    label: Narrative modelers
+    description: People building structured knowledge projects for stories, media, sources, and fictional worlds.
+  use_cases:
+  - id: use-narrative-distribution
+    label: Use Narrative Distribution
+    description: Editions, cuts, localized manifestations, releases, platform catalogs, offerings, tracks, and regional availability.
+  examples: []
+  prerequisites:
+  - id: narrative-media
+    label: Narrative Media
+    description: Requires the Narrative Media pack at a compatible version.
+  provided_behaviors:
+  - id: behavior-narrative-distribution
+    label: Narrative Distribution semantics
+    description: Models manifestations, components, packages, releases, platforms, offerings, localization, regional availability, source coverage, and release lineage.
+  exclusions:
+  - id: no-implicit-activation
+    label: No implicit activation
+    description: Selecting this pack does not enable its capabilities or infer project usage.
+  documentation:
+  - id: pack-catalog
+    label: Schema Pack Catalog
+    target_kind: repository-path
+    target: Framework/Packs/README.md
+  search_keywords:
+  - narrative
+  - distribution
 
 dependencies:
   - pack_id: narrative-media
     minimum_version: 14
 
 capabilities:
-  - manifestations
-  - release-components
-  - release-events
-  - release-packages
-  - platform-catalogs
-  - platform-offerings
-  - regional-availability
-  - localized-work-metadata
-  - segment-scoped-distribution
-  - structured-release-time
-  - package-scoped-components
-  - manifestation-segment-mappings
-  - localized-catalog-metadata
-  - release-runs
-  - phased-release-runs
-  - source-coverage
-  - release-component-lineage
-  - multi-target-source-observations
-  - position-range-coverage
-  - mixed-media-evidence-locators
-  - semantic-position-coverage
+- id: manifestations
+  lifecycle: available
+  presentation:
+    localization_key: capability.manifestations
+    label: Manifestations
+    description: Models and validates manifestations for narrative works, sources, and project consumers.
+- id: release-components
+  lifecycle: available
+  presentation:
+    localization_key: capability.release-components
+    label: Release Components
+    description: Models and validates release components for narrative works, sources, and project consumers.
+- id: release-events
+  lifecycle: available
+  presentation:
+    localization_key: capability.release-events
+    label: Release Events
+    description: Models and validates release events for narrative works, sources, and project consumers.
+- id: release-packages
+  lifecycle: available
+  presentation:
+    localization_key: capability.release-packages
+    label: Release Packages
+    description: Models and validates release packages for narrative works, sources, and project consumers.
+- id: platform-catalogs
+  lifecycle: available
+  presentation:
+    localization_key: capability.platform-catalogs
+    label: Platform Catalogs
+    description: Models and validates platform catalogs for narrative works, sources, and project consumers.
+- id: platform-offerings
+  lifecycle: available
+  presentation:
+    localization_key: capability.platform-offerings
+    label: Platform Offerings
+    description: Models and validates platform offerings for narrative works, sources, and project consumers.
+- id: regional-availability
+  lifecycle: available
+  presentation:
+    localization_key: capability.regional-availability
+    label: Regional Availability
+    description: Models and validates regional availability for narrative works, sources, and project consumers.
+- id: localized-work-metadata
+  lifecycle: available
+  presentation:
+    localization_key: capability.localized-work-metadata
+    label: Localized Work Metadata
+    description: Models and validates localized work metadata for narrative works, sources, and project consumers.
+- id: segment-scoped-distribution
+  lifecycle: available
+  presentation:
+    localization_key: capability.segment-scoped-distribution
+    label: Segment Scoped Distribution
+    description: Models and validates segment scoped distribution for narrative works, sources, and project consumers.
+- id: structured-release-time
+  lifecycle: available
+  presentation:
+    localization_key: capability.structured-release-time
+    label: Structured Release Time
+    description: Models and validates structured release time for narrative works, sources, and project consumers.
+- id: package-scoped-components
+  lifecycle: available
+  presentation:
+    localization_key: capability.package-scoped-components
+    label: Package Scoped Components
+    description: Models and validates package scoped components for narrative works, sources, and project consumers.
+- id: manifestation-segment-mappings
+  lifecycle: available
+  presentation:
+    localization_key: capability.manifestation-segment-mappings
+    label: Manifestation Segment Mappings
+    description: Models and validates manifestation segment mappings for narrative works, sources, and project consumers.
+- id: localized-catalog-metadata
+  lifecycle: available
+  presentation:
+    localization_key: capability.localized-catalog-metadata
+    label: Localized Catalog Metadata
+    description: Models and validates localized catalog metadata for narrative works, sources, and project consumers.
+- id: release-runs
+  lifecycle: available
+  presentation:
+    localization_key: capability.release-runs
+    label: Release Runs
+    description: Models and validates release runs for narrative works, sources, and project consumers.
+- id: phased-release-runs
+  lifecycle: available
+  presentation:
+    localization_key: capability.phased-release-runs
+    label: Phased Release Runs
+    description: Models and validates phased release runs for narrative works, sources, and project consumers.
+- id: source-coverage
+  lifecycle: available
+  presentation:
+    localization_key: capability.source-coverage
+    label: Source Coverage
+    description: Models and validates source coverage for narrative works, sources, and project consumers.
+- id: release-component-lineage
+  lifecycle: available
+  presentation:
+    localization_key: capability.release-component-lineage
+    label: Release Component Lineage
+    description: Models and validates release component lineage for narrative works, sources, and project consumers.
+- id: multi-target-source-observations
+  lifecycle: available
+  presentation:
+    localization_key: capability.multi-target-source-observations
+    label: Multi Target Source Observations
+    description: Models and validates multi target source observations for narrative works, sources, and project consumers.
+- id: position-range-coverage
+  lifecycle: available
+  presentation:
+    localization_key: capability.position-range-coverage
+    label: Position Range Coverage
+    description: Models and validates position range coverage for narrative works, sources, and project consumers.
+- id: mixed-media-evidence-locators
+  lifecycle: available
+  presentation:
+    localization_key: capability.mixed-media-evidence-locators
+    label: Mixed Media Evidence Locators
+    description: Models and validates mixed media evidence locators for narrative works, sources, and project consumers.
+- id: semantic-position-coverage
+  lifecycle: available
+  presentation:
+    localization_key: capability.semantic-position-coverage
+    label: Semantic Position Coverage
+    description: Models and validates semantic position coverage for narrative works, sources, and project consumers.
 
 controlled_values:
   reconciliation.target-type:

@@ -1,22 +1,67 @@
-schema_version: 4
+schema_version: 5
 pack_id: narrative-preservation
-pack_version: 2
+pack_version: 3
 lifecycle: active
 pack_kind: domain
-label: Narrative Preservation
-description: Survival, reconstruction, archival, accessibility, and release-availability states.
+classification:
+  family: narrative
+  role: extension
+  scope: domain-specific
+  domains:
+  - narrative
+  bridge_pack_ids: []
+presentation:
+  localization_key: pack.narrative-preservation
+  default_locale: en
+  label: Narrative Preservation
+  short_description: Survival, reconstruction, archival, accessibility, and release-availability states.
+  long_description: Prepares narrative projects to record survival, loss, reconstruction, archival evidence, accessibility, delisting, and release availability as scoped states.
+  maturity: preview
+  intended_audiences:
+  - id: narrative-modeler
+    label: Narrative modelers
+    description: People building structured knowledge projects for stories, media, sources, and fictional worlds.
+  use_cases:
+  - id: use-narrative-preservation
+    label: Use Narrative Preservation
+    description: Survival, reconstruction, archival, accessibility, and release-availability states.
+  examples: []
+  prerequisites:
+  - id: narrative-media
+    label: Narrative Media
+    description: Requires the Narrative Media pack at a compatible version.
+  provided_behaviors:
+  - id: behavior-narrative-preservation
+    label: Narrative Preservation semantics
+    description: Prepares narrative projects to record survival, loss, reconstruction, archival evidence, accessibility, delisting, and release availability as scoped states.
+  exclusions:
+  - id: no-implicit-activation
+    label: No implicit activation
+    description: Selecting this pack does not enable its capabilities or infer project usage.
+  documentation:
+  - id: pack-catalog
+    label: Schema Pack Catalog
+    target_kind: repository-path
+    target: Framework/Packs/README.md
+  search_keywords:
+  - narrative
+  - preservation
 
 dependencies:
   - pack_id: narrative-media
     minimum_version: 14
 
 capabilities:
-  - id: preservation-state
-    lifecycle: planned
+- id: preservation-state
+  lifecycle: planned
+  presentation:
+    localization_key: capability.preservation-state
     label: Preservation State
     description: Whole- and partial-work survival, loss, reconstruction, and archival evidence.
-  - id: access-state
-    lifecycle: planned
+- id: access-state
+  lifecycle: planned
+  presentation:
+    localization_key: capability.access-state
     label: Access State
     description: Territory, platform, release-window, delisting, and region-access constraints.
 

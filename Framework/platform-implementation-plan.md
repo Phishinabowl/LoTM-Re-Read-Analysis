@@ -520,11 +520,11 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 #### Phase 3.1.3 Catalog Metadata Backfill
 
-- [ ] Require friendly labels and useful descriptions for every user-selectable pack and capability.
-- [ ] Backfill string-shorthand capabilities that need user-facing metadata.
-- [ ] Classify every catalog pack explicitly and document intentional families, roles, scopes, and
+- [x] Require friendly labels and useful descriptions for every user-selectable pack and capability.
+- [x] Backfill string-shorthand capabilities that need user-facing metadata.
+- [x] Classify every catalog pack explicitly and document intentional families, roles, scopes, and
   bridge joins without inferring them from IDs or folder names.
-- [ ] Preserve optional visual metadata as absent unless a reviewed identifier is useful and backed
+- [x] Preserve optional visual metadata as absent unless a reviewed identifier is useful and backed
   by a renderer-independent contract.
 
 #### Phase 3.1.4 Effective Schema And Singular Inspection

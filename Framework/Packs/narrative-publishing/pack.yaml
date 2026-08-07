@@ -1,30 +1,97 @@
-schema_version: 4
+schema_version: 5
 pack_id: narrative-publishing
-pack_version: 10
+pack_version: 11
 lifecycle: active
 pack_kind: domain
-label: Narrative Publishing
-description: Prose and sequential-art serialization, editions, localization, and publication packaging.
+classification:
+  family: narrative
+  role: extension
+  scope: domain-specific
+  domains:
+  - narrative
+  bridge_pack_ids: []
+presentation:
+  localization_key: pack.narrative-publishing
+  default_locale: en
+  label: Narrative Publishing
+  short_description: Prose and sequential-art serialization, editions, localization, and publication packaging.
+  long_description: Extends narrative works with prose and sequential-art serialization, publication packaging, editions, localization, and planned textual-witness modeling.
+  maturity: preview
+  intended_audiences:
+  - id: narrative-modeler
+    label: Narrative modelers
+    description: People building structured knowledge projects for stories, media, sources, and fictional worlds.
+  use_cases:
+  - id: use-narrative-publishing
+    label: Use Narrative Publishing
+    description: Prose and sequential-art serialization, editions, localization, and publication packaging.
+  examples: []
+  prerequisites:
+  - id: narrative-media
+    label: Narrative Media
+    description: Requires the Narrative Media pack at a compatible version.
+  provided_behaviors:
+  - id: behavior-narrative-publishing
+    label: Narrative Publishing semantics
+    description: Extends narrative works with prose and sequential-art serialization, publication packaging, editions, localization, and planned textual-witness modeling.
+  exclusions:
+  - id: no-implicit-activation
+    label: No implicit activation
+    description: Selecting this pack does not enable its capabilities or infer project usage.
+  documentation:
+  - id: pack-catalog
+    label: Schema Pack Catalog
+    target_kind: repository-path
+    target: Framework/Packs/README.md
+  search_keywords:
+  - narrative
+  - publishing
 
 dependencies:
   - pack_id: narrative-media
     minimum_version: 14
 
 capabilities:
-  - serialization
-  - publication-packaging
-  - editions
-  - localization
-  - id: publication-runs
-    lifecycle: planned
+- id: serialization
+  lifecycle: available
+  presentation:
+    localization_key: capability.serialization
+    label: Serialization
+    description: Models and validates serialization for narrative works, sources, and project consumers.
+- id: publication-packaging
+  lifecycle: available
+  presentation:
+    localization_key: capability.publication-packaging
+    label: Publication Packaging
+    description: Models and validates publication packaging for narrative works, sources, and project consumers.
+- id: editions
+  lifecycle: available
+  presentation:
+    localization_key: capability.editions
+    label: Editions
+    description: Models and validates editions for narrative works, sources, and project consumers.
+- id: localization
+  lifecycle: available
+  presentation:
+    localization_key: capability.localization
+    label: Localization
+    description: Models and validates localization for narrative works, sources, and project consumers.
+- id: publication-runs
+  lifecycle: planned
+  presentation:
+    localization_key: capability.publication-runs
     label: Publication Runs
     description: Publisher-, imprint-, territory-, and date-scoped print or serialization runs beyond edition manifestations.
-  - id: textual-witnesses
-    lifecycle: planned
+- id: textual-witnesses
+  lifecycle: planned
+  presentation:
+    localization_key: capability.textual-witnesses
     label: Textual Witnesses
     description: Manuscripts, drafts, fragments, revisions, and multiple versions of a narrative text.
-  - id: editorial-assembly
-    lifecycle: planned
+- id: editorial-assembly
+  lifecycle: planned
+  presentation:
+    localization_key: capability.editorial-assembly
     label: Editorial Assembly
     description: Posthumous editing, compilation, completion, commentary, and synthesis from source material.
 

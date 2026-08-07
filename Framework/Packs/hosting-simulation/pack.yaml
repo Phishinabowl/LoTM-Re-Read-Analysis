@@ -1,10 +1,51 @@
-schema_version: 4
+schema_version: 5
 pack_id: hosting-simulation
-pack_version: 1
+pack_version: 2
 lifecycle: active
 pack_kind: extension
-label: Simulation Hosting Vocabulary
-description: Control-unit, avatar, and projection vocabulary for simulated or mediated identity hosting.
+classification:
+  family: hosting
+  role: extension
+  scope: domain-specific
+  domains:
+  - simulation
+  bridge_pack_ids: []
+presentation:
+  localization_key: pack.hosting-simulation
+  default_locale: en
+  label: Simulation Hosting Vocabulary
+  short_description: Control-unit, avatar, and projection vocabulary for simulated or mediated identity hosting.
+  long_description: Adds control-unit, avatar, projection, and mediated-hosting vocabulary while preserving independent identity, carrier, occupancy, and control records.
+  maturity: preview
+  intended_audiences:
+  - id: identity-modeler
+    label: Identity modelers
+    description: People modeling identities, carriers, occupancy, control, and transitions.
+  use_cases:
+  - id: use-hosting-simulation
+    label: Use Simulation Hosting Vocabulary
+    description: Control-unit, avatar, and projection vocabulary for simulated or mediated identity hosting.
+  examples: []
+  prerequisites:
+  - id: hosting-foundation
+    label: Hosting Foundation
+    description: Requires the Hosting Foundation pack at a compatible version.
+  provided_behaviors:
+  - id: behavior-hosting-simulation
+    label: Simulation Hosting Vocabulary semantics
+    description: Adds control-unit, avatar, projection, and mediated-hosting vocabulary while preserving independent identity, carrier, occupancy, and control records.
+  exclusions:
+  - id: no-implicit-activation
+    label: No implicit activation
+    description: Selecting this pack does not enable its capabilities or infer project usage.
+  documentation:
+  - id: pack-catalog
+    label: Schema Pack Catalog
+    target_kind: repository-path
+    target: Framework/Packs/README.md
+  search_keywords:
+  - hosting
+  - simulation
 
 dependencies:
   - pack_id: hosting-foundation

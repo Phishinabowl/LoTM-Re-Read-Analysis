@@ -1,23 +1,81 @@
-schema_version: 4
+schema_version: 5
 pack_id: narrative-adaptation
-pack_version: 10
+pack_version: 11
 lifecycle: active
 pack_kind: domain
-label: Narrative Adaptation
-description: Work- and segment-level adaptation lineage, mappings, deviations, and comparison policy.
+classification:
+  family: narrative
+  role: extension
+  scope: domain-specific
+  domains:
+  - narrative
+  bridge_pack_ids: []
+presentation:
+  localization_key: pack.narrative-adaptation
+  default_locale: en
+  label: Narrative Adaptation
+  short_description: Work- and segment-level adaptation lineage, mappings, deviations, and comparison policy.
+  long_description: Represents adaptation lineage, basis works, segment mappings, deviations, comparison, and transformative derivatives without changing source authority.
+  maturity: preview
+  intended_audiences:
+  - id: narrative-modeler
+    label: Narrative modelers
+    description: People building structured knowledge projects for stories, media, sources, and fictional worlds.
+  use_cases:
+  - id: use-narrative-adaptation
+    label: Use Narrative Adaptation
+    description: Work- and segment-level adaptation lineage, mappings, deviations, and comparison policy.
+  examples: []
+  prerequisites:
+  - id: narrative-media
+    label: Narrative Media
+    description: Requires the Narrative Media pack at a compatible version.
+  provided_behaviors:
+  - id: behavior-narrative-adaptation
+    label: Narrative Adaptation semantics
+    description: Represents adaptation lineage, basis works, segment mappings, deviations, comparison, and transformative derivatives without changing source authority.
+  exclusions:
+  - id: no-implicit-activation
+    label: No implicit activation
+    description: Selecting this pack does not enable its capabilities or infer project usage.
+  documentation:
+  - id: pack-catalog
+    label: Schema Pack Catalog
+    target_kind: repository-path
+    target: Framework/Packs/README.md
+  search_keywords:
+  - narrative
+  - adaptation
 
 dependencies:
   - pack_id: narrative-media
     minimum_version: 14
 
 capabilities:
-  - adaptation-lineage
-  - id: adaptation-mappings
-    lifecycle: available
+- id: adaptation-lineage
+  lifecycle: available
+  presentation:
+    localization_key: capability.adaptation-lineage
+    label: Adaptation Lineage
+    description: Models and validates adaptation lineage for narrative works, sources, and project consumers.
+- id: adaptation-mappings
+  lifecycle: available
+  presentation:
+    localization_key: capability.adaptation-mappings
     label: Adaptation Mappings
     description: Segment-aware mappings from one or more classified basis works into a derivative work.
-  - adaptation-comparison
-  - transformative-derivatives
+- id: adaptation-comparison
+  lifecycle: available
+  presentation:
+    localization_key: capability.adaptation-comparison
+    label: Adaptation Comparison
+    description: Models and validates adaptation comparison for narrative works, sources, and project consumers.
+- id: transformative-derivatives
+  lifecycle: available
+  presentation:
+    localization_key: capability.transformative-derivatives
+    label: Transformative Derivatives
+    description: Models and validates transformative derivatives for narrative works, sources, and project consumers.
 
 controlled_values:
   source.applicability-target-type:

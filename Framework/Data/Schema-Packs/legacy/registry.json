@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "selected_packs": [
+    {"pack_id": "legacy-core", "path": "packs/legacy-core.json"}
+  ],
+  "capability_activation": {
+    "default": "disabled",
+    "enabled": ["legacy-capability"]
+  }
+}

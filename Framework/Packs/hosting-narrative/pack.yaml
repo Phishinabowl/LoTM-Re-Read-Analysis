@@ -1,10 +1,57 @@
-schema_version: 4
+schema_version: 5
 pack_id: hosting-narrative
-pack_version: 1
+pack_version: 2
 lifecycle: active
 pack_kind: extension
-label: Narrative Hosting Vocabulary
-description: Physical embodiment and vessel vocabulary for narrative projects using hosted identity.
+classification:
+  family: hosting
+  role: bridge
+  scope: cross-domain
+  domains:
+  - hosting
+  - narrative
+  bridge_pack_ids:
+  - hosting-foundation
+  - narrative-media
+presentation:
+  localization_key: pack.hosting-narrative
+  default_locale: en
+  label: Narrative Hosting Vocabulary
+  short_description: Physical embodiment and vessel vocabulary for narrative projects using hosted identity.
+  long_description: Connects hosted identity with narrative embodiment through physical-body and vessel vocabulary while retaining explicit identity and carrier boundaries.
+  maturity: preview
+  intended_audiences:
+  - id: identity-modeler
+    label: Identity modelers
+    description: People modeling identities, carriers, occupancy, control, and transitions.
+  use_cases:
+  - id: use-hosting-narrative
+    label: Use Narrative Hosting Vocabulary
+    description: Physical embodiment and vessel vocabulary for narrative projects using hosted identity.
+  examples: []
+  prerequisites:
+  - id: hosting-foundation
+    label: Hosting Foundation
+    description: Requires the Hosting Foundation pack at a compatible version.
+  - id: narrative-media
+    label: Narrative Media
+    description: Requires the Narrative Media pack at a compatible version.
+  provided_behaviors:
+  - id: behavior-hosting-narrative
+    label: Narrative Hosting Vocabulary semantics
+    description: Connects hosted identity with narrative embodiment through physical-body and vessel vocabulary while retaining explicit identity and carrier boundaries.
+  exclusions:
+  - id: no-implicit-activation
+    label: No implicit activation
+    description: Selecting this pack does not enable its capabilities or infer project usage.
+  documentation:
+  - id: pack-catalog
+    label: Schema Pack Catalog
+    target_kind: repository-path
+    target: Framework/Packs/README.md
+  search_keywords:
+  - hosting
+  - narrative
 
 dependencies:
   - pack_id: hosting-foundation

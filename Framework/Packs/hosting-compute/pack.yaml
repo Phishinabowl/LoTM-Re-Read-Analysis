@@ -1,10 +1,51 @@
-schema_version: 4
+schema_version: 5
 pack_id: hosting-compute
-pack_version: 1
+pack_version: 2
 lifecycle: active
 pack_kind: extension
-label: Compute Hosting Vocabulary
-description: Runtime, container, virtual-host, and execution vocabulary for software and agent infrastructure.
+classification:
+  family: hosting
+  role: extension
+  scope: domain-specific
+  domains:
+  - compute
+  bridge_pack_ids: []
+presentation:
+  localization_key: pack.hosting-compute
+  default_locale: en
+  label: Compute Hosting Vocabulary
+  short_description: Runtime, container, virtual-host, and execution vocabulary for software and agent infrastructure.
+  long_description: Adds runtime, container, virtual-host, and execution vocabulary to the domain-neutral hosting foundation for software and agent infrastructure.
+  maturity: preview
+  intended_audiences:
+  - id: identity-modeler
+    label: Identity modelers
+    description: People modeling identities, carriers, occupancy, control, and transitions.
+  use_cases:
+  - id: use-hosting-compute
+    label: Use Compute Hosting Vocabulary
+    description: Runtime, container, virtual-host, and execution vocabulary for software and agent infrastructure.
+  examples: []
+  prerequisites:
+  - id: hosting-foundation
+    label: Hosting Foundation
+    description: Requires the Hosting Foundation pack at a compatible version.
+  provided_behaviors:
+  - id: behavior-hosting-compute
+    label: Compute Hosting Vocabulary semantics
+    description: Adds runtime, container, virtual-host, and execution vocabulary to the domain-neutral hosting foundation for software and agent infrastructure.
+  exclusions:
+  - id: no-implicit-activation
+    label: No implicit activation
+    description: Selecting this pack does not enable its capabilities or infer project usage.
+  documentation:
+  - id: pack-catalog
+    label: Schema Pack Catalog
+    target_kind: repository-path
+    target: Framework/Packs/README.md
+  search_keywords:
+  - hosting
+  - compute
 
 dependencies:
   - pack_id: hosting-foundation

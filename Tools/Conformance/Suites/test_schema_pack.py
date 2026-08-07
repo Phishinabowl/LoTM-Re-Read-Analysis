@@ -15,7 +15,7 @@ if str(RUNTIME_ROOT) not in sys.path:
     sys.path.insert(0, str(RUNTIME_ROOT))
 
 from knowledge_framework.project_config import load_project_config, resolve_project_root  # noqa: E402
-from knowledge_framework.schema_pack_config import load_schema_pack_registry  # noqa: E402
+from knowledge_framework.schema_pack_config import load_pack, load_schema_pack_registry  # noqa: E402
 
 
 TARGET_PATHS = {
@@ -299,6 +299,32 @@ def assert_presentation_only_change(project, base_root: Path, temp_root: Path, b
     return 2
 
 
+def assert_catalog_metadata(root: Path) -> tuple[int, int]:
+    pack_paths = sorted((root / "Framework" / "Packs").glob("*/pack.yaml"))
+    if not pack_paths:
+        raise AssertionError("Schema-pack catalog is empty.")
+    capability_count = 0
+    localization_keys: set[str] = set()
+    for path in pack_paths:
+        pack = load_pack(path, path.parent.name)
+        if pack.schema_version != 5 or pack.classification is None or pack.presentation is None:
+            raise AssertionError(f"Catalog pack `{pack.id}` lacks required schema-5 metadata.")
+        if pack.presentation.visual is not None:
+            raise AssertionError(f"Catalog pack `{pack.id}` invents unreviewed visual metadata.")
+        if pack.presentation.localization_key in localization_keys:
+            raise AssertionError("Catalog pack localization keys are not unique.")
+        localization_keys.add(pack.presentation.localization_key)
+        for capability_id in pack.capabilities:
+            capability = pack.capability_definitions[capability_id]
+            if capability.presentation is None:
+                raise AssertionError(f"Catalog capability `{capability_id}` lacks presentation metadata.")
+            if capability.presentation.localization_key in localization_keys:
+                raise AssertionError("Catalog capability localization keys are not unique.")
+            localization_keys.add(capability.presentation.localization_key)
+            capability_count += 1
+    return len(pack_paths), capability_count
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run schema-pack composition conformance tests.")
     parser.add_argument("--root", type=Path, help="Project root; auto-detected when omitted.")
@@ -307,8 +333,10 @@ def main() -> int:
     root = resolve_project_root(args.root, executable_path=__file__)
     project = load_project_config(root)
     canonical = load_schema_pack_registry(project)
+    catalog_packs, catalog_capabilities = assert_catalog_metadata(root)
     fixture_root = root / "Framework" / "Data" / "Schema-Packs"
     base_root = fixture_root / "base"
+    legacy_root = fixture_root / "legacy"
     expectations = json.loads((fixture_root / "expectations.json").read_text(encoding="utf-8"))
     if expectations.get("schema_version") != 1:
         raise AssertionError("Unsupported schema-pack conformance expectation schema.")
@@ -320,6 +348,14 @@ def main() -> int:
         valid_project = replace(project, root=valid_root, schema_packs_registry=valid_root / "registry.json")
         fixture_registry = load_schema_pack_registry(valid_project)
         assert_valid_fixture(fixture_registry, expectations["valid"])
+        legacy_project = replace(
+            project,
+            root=legacy_root,
+            schema_packs_registry=legacy_root / "registry.json",
+        )
+        legacy_registry = load_schema_pack_registry(legacy_project)
+        if len(legacy_registry.packs) != 1 or any(pack.schema_version != 4 for pack in legacy_registry.packs.values()):
+            raise AssertionError("Schema-4 positive compatibility fixture changed.")
         typed_collision_pairs = assert_typed_delimiter_collision(project, base_root, temp_root)
         presentation_only_changes = assert_presentation_only_change(project, base_root, temp_root, fixture_registry)
 
@@ -360,6 +396,8 @@ def main() -> int:
     summary = {
         "schema_version": 1,
         "canonical_selected_packs": len(canonical.selection_order),
+        "catalog_capabilities": catalog_capabilities,
+        "catalog_packs": catalog_packs,
         "fixture_selected_packs": len(fixture_registry.selection_order),
         "fixture_declared_capabilities": len(fixture_registry.declared_capabilities),
         "fixture_available_capabilities": len(fixture_registry.available_capabilities),
@@ -371,7 +409,7 @@ def main() -> int:
         "scale_presentations": sum(1 for pack in scale_registry.packs.values() if pack.presentation is not None),
         "typed_collision_pairs": typed_collision_pairs,
         "presentation_only_changes": presentation_only_changes,
-        "legacy_schema_packs": sum(1 for pack in canonical.packs.values() if pack.schema_version == 4),
+        "legacy_schema_packs": len(legacy_registry.packs),
     }
     if args.json:
         print(json.dumps(summary, sort_keys=True, separators=(",", ":")))

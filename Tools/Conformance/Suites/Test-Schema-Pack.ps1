@@ -36,6 +36,55 @@ function Assert-Rejected {
     }
 }
 
+function Assert-CatalogMetadata {
+    param([string]$ProjectRoot)
+
+    $packPaths = @(
+        Get-ChildItem -LiteralPath (Join-Path $ProjectRoot 'Framework\Packs') -Directory |
+            ForEach-Object { Join-Path $_.FullName 'pack.yaml' } |
+            Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } |
+            Sort-Object
+    )
+    if ($packPaths.Count -eq 0) {
+        throw 'Schema-pack catalog is empty.'
+    }
+    $localizationKeys = New-Object `
+        'System.Collections.Generic.HashSet[string]' `
+    ([System.StringComparer]::Ordinal)
+    $capabilityCount = 0
+    foreach ($path in $packPaths) {
+        $packId = Split-Path (Split-Path $path -Parent) -Leaf
+        $pack = ConvertTo-SchemaPackConfig $path $packId
+        if (
+            [int]$pack.schema_version -ne 5 -or
+            $null -eq $pack.classification -or
+            $null -eq $pack.presentation
+        ) {
+            throw "Catalog pack '$packId' lacks required schema-5 metadata."
+        }
+        if ($null -ne $pack.presentation.visual) {
+            throw "Catalog pack '$packId' invents unreviewed visual metadata."
+        }
+        if (-not $localizationKeys.Add([string]$pack.presentation.localization_key)) {
+            throw 'Catalog pack localization keys are not unique.'
+        }
+        foreach ($capabilityId in @($pack.capabilities)) {
+            $capability = $pack.capability_definitions[$capabilityId]
+            if ($null -eq $capability.presentation) {
+                throw "Catalog capability '$capabilityId' lacks presentation metadata."
+            }
+            if (-not $localizationKeys.Add([string]$capability.presentation.localization_key)) {
+                throw 'Catalog capability localization keys are not unique.'
+            }
+            $capabilityCount += 1
+        }
+    }
+    return [pscustomobject]@{
+        packs = [int]$packPaths.Count
+        capabilities = [int]$capabilityCount
+    }
+}
+
 function ConvertTo-MutableFixtureValue {
     param([AllowNull()][object]$Value)
 
@@ -423,8 +472,10 @@ function Assert-PresentationOnlyChange {
 
 $project = Get-KnowledgeProjectConfig $Root
 $canonical = Get-KnowledgeSchemaPackRegistry $project
+$catalog = Assert-CatalogMetadata $Root
 $fixtureRoot = Join-Path $Root 'Framework\Data\Schema-Packs'
 $baseRoot = Join-Path $fixtureRoot 'base'
+$legacyRoot = Join-Path $fixtureRoot 'legacy'
 $expectations = Get-Content -LiteralPath (Join-Path $fixtureRoot 'expectations.json') -Raw | ConvertFrom-Json
 if (-not (Test-KnowledgeJsonInteger $expectations.schema_version) -or [int]$expectations.schema_version -ne 1) {
     throw 'Unsupported schema-pack conformance expectation schema.'
@@ -440,6 +491,16 @@ try {
     $validProject.schema_packs_registry = Join-Path $validRoot 'registry.json'
     $fixtureRegistry = Get-KnowledgeSchemaPackRegistry $validProject
     Assert-ValidSchemaPackFixture $fixtureRegistry $expectations.valid
+    $legacyProject = $project.PSObject.Copy()
+    $legacyProject.root = $legacyRoot
+    $legacyProject.schema_packs_registry = Join-Path $legacyRoot 'registry.json'
+    $legacyRegistry = Get-KnowledgeSchemaPackRegistry $legacyProject
+    if (
+        @($legacyRegistry.packs.Values).Count -ne 1 -or
+        @($legacyRegistry.packs.Values | Where-Object { [int]$_.schema_version -ne 4 }).Count -ne 0
+    ) {
+        throw 'Schema-4 positive compatibility fixture changed.'
+    }
     $typedCollisionPairs = Assert-TypedDelimiterCollision $project $baseRoot $tempRoot
     $presentationOnlyChanges = Assert-PresentationOnlyChange $project $baseRoot $tempRoot $fixtureRegistry
 
@@ -491,6 +552,8 @@ foreach ($namespace in $fixtureRegistry.controlled_values.Keys) {
 }
 $summary = [ordered]@{
     canonical_selected_packs = [int]@($canonical.selection_order).Count
+    catalog_capabilities = [int]$catalog.capabilities
+    catalog_packs = [int]$catalog.packs
     fixture_available_capabilities = [int]@($fixtureRegistry.available_capabilities).Count
     fixture_controlled_values = [int]$fixtureControlledValueCount
     fixture_declared_capabilities = [int]@($fixtureRegistry.declared_capabilities).Count
@@ -502,7 +565,7 @@ $summary = [ordered]@{
     scale_presentations = [int]@($scaleRegistry.packs.Values | Where-Object { $null -ne $_.presentation }).Count
     typed_collision_pairs = [int]$typedCollisionPairs
     presentation_only_changes = [int]$presentationOnlyChanges
-    legacy_schema_packs = [int]@($canonical.packs.Values | Where-Object { [int]$_.schema_version -eq 4 }).Count
+    legacy_schema_packs = [int]@($legacyRegistry.packs.Values).Count
     schema_version = 1
 }
 if ($Json) {

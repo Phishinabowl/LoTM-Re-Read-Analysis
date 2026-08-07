@@ -1,18 +1,60 @@
-schema_version: 4
+schema_version: 5
 pack_id: hosting-foundation
-pack_version: 1
+pack_version: 2
 lifecycle: active
 pack_kind: extension
-label: Hosted Identity Foundation
-description: Domain-neutral carrier topology, occupancy, control, and transition mechanics.
+classification:
+  family: hosting
+  role: foundation
+  scope: domain-neutral
+  domains: []
+  bridge_pack_ids: []
+presentation:
+  localization_key: pack.hosting-foundation
+  default_locale: en
+  label: Hosted Identity Foundation
+  short_description: Domain-neutral carrier topology, occupancy, control, and transition mechanics.
+  long_description: Separates stable identities from carriers, occupancy, control, and transitions so embodiment and execution can be modeled without inferring identity equivalence.
+  maturity: preview
+  intended_audiences:
+  - id: identity-modeler
+    label: Identity modelers
+    description: People modeling identities, carriers, occupancy, control, and transitions.
+  use_cases:
+  - id: use-hosting-foundation
+    label: Use Hosted Identity Foundation
+    description: Domain-neutral carrier topology, occupancy, control, and transition mechanics.
+  examples: []
+  prerequisites:
+  - id: core
+    label: Core
+    description: Requires the Core pack at a compatible version.
+  provided_behaviors:
+  - id: behavior-hosting-foundation
+    label: Hosted Identity Foundation semantics
+    description: Separates stable identities from carriers, occupancy, control, and transitions so embodiment and execution can be modeled without inferring identity equivalence.
+  exclusions:
+  - id: no-implicit-activation
+    label: No implicit activation
+    description: Selecting this pack does not enable its capabilities or infer project usage.
+  documentation:
+  - id: pack-catalog
+    label: Schema Pack Catalog
+    target_kind: repository-path
+    target: Framework/Packs/README.md
+  search_keywords:
+  - hosting
+  - foundation
 
 dependencies:
   - pack_id: core
     minimum_version: 40
 
 capabilities:
-  - id: hosted-identity-embodiment
-    lifecycle: available
+- id: hosted-identity-embodiment
+  lifecycle: available
+  presentation:
+    localization_key: capability.hosted-identity-embodiment
     label: Hosted Identity And Carrier Topology
     description: Bounded identity occupancy, control, transfer, copy, and carrier-to-carrier topology.
 

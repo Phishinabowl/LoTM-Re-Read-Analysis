@@ -1,83 +1,403 @@
-schema_version: 4
+schema_version: 5
 pack_id: core
-pack_version: 41
+pack_version: 42
 lifecycle: active
 pack_kind: core
-label: Knowledge Platform Core
-description: Domain-neutral identity, evidence, relationship, temporal, visibility, validation, and projection primitives.
+classification:
+  family: platform
+  role: foundation
+  scope: domain-neutral
+  domains: []
+  bridge_pack_ids: []
+presentation:
+  localization_key: pack.core
+  default_locale: en
+  label: Knowledge Platform Core
+  short_description: Domain-neutral identity, evidence, relationship, temporal, visibility, validation, and projection primitives.
+  long_description: Supplies reusable identity, evidence, provenance, relationship, temporal, visibility, validation, reconciliation, and projection contracts without imposing an industry model.
+  maturity: stable
+  intended_audiences:
+  - id: platform-architect
+    label: Platform architects
+    description: People composing reusable knowledge schemas across projects and industries.
+  use_cases:
+  - id: use-core
+    label: Use Knowledge Platform Core
+    description: Domain-neutral identity, evidence, relationship, temporal, visibility, validation, and projection primitives.
+  examples: []
+  prerequisites: []
+  provided_behaviors:
+  - id: behavior-core
+    label: Knowledge Platform Core semantics
+    description: Supplies reusable identity, evidence, provenance, relationship, temporal, visibility, validation, reconciliation, and projection contracts without imposing an industry model.
+  exclusions:
+  - id: no-implicit-activation
+    label: No implicit activation
+    description: Selecting this pack does not enable its capabilities or infer project usage.
+  documentation:
+  - id: pack-catalog
+    label: Schema Pack Catalog
+    target_kind: repository-path
+    target: Framework/Packs/README.md
+  search_keywords:
+  - core
+  - platform
 
 dependencies: []
 
 capabilities:
-  - applicability-scopes
-  - explainable-applicability-decisions
-  - stable-identity
-  - aliases
-  - id: deterministic-lookup-keys
-    lifecycle: available
+- id: applicability-scopes
+  lifecycle: available
+  presentation:
+    localization_key: capability.applicability-scopes
+    label: Applicability Scopes
+    description: Provides reusable, domain-neutral semantics for applicability scopes.
+- id: explainable-applicability-decisions
+  lifecycle: available
+  presentation:
+    localization_key: capability.explainable-applicability-decisions
+    label: Explainable Applicability Decisions
+    description: Provides reusable, domain-neutral semantics for explainable applicability decisions.
+- id: stable-identity
+  lifecycle: available
+  presentation:
+    localization_key: capability.stable-identity
+    label: Stable Identity
+    description: Provides reusable, domain-neutral semantics for stable identity.
+- id: aliases
+  lifecycle: available
+  presentation:
+    localization_key: capability.aliases
+    label: Aliases
+    description: Provides reusable, domain-neutral semantics for aliases.
+- id: deterministic-lookup-keys
+  lifecycle: available
+  presentation:
+    localization_key: capability.deterministic-lookup-keys
     label: Deterministic Lookup Keys
     description: Runtime-independent Unicode normalization for human-facing aliases and semantic lookup values.
-  - lifecycle
-  - content-types
-  - subject-categories
-  - resources
-  - evidence-sources
-  - composite-evidence-scope
-  - assertion-provenance
-  - nested-record-identity
-  - provenance-snapshots
-  - evidence-locators
-  - multi-position-evidence
-  - claim-aware-authority
-  - authority-rule-precedence
-  - hierarchical-claim-authority
-  - evidence-locator-ranges
-  - structural-position-validation
-  - semantic-provenance-paths
-  - evidence-mode-attribution
-  - source-bounded-evidence
-  - explainable-authority-decisions
-  - ordered-temporal-windows
-  - channel-scoped-evidence-coverage
-  - hierarchical-evidence-modes
-  - stable-claim-identity
-  - multi-source-authority-comparison
-  - claim-authority-evaluation
-  - id: cross-registry-provenance
-    lifecycle: available
+- id: lifecycle
+  lifecycle: available
+  presentation:
+    localization_key: capability.lifecycle
+    label: Lifecycle
+    description: Provides reusable, domain-neutral semantics for lifecycle.
+- id: content-types
+  lifecycle: available
+  presentation:
+    localization_key: capability.content-types
+    label: Content Types
+    description: Provides reusable, domain-neutral semantics for content types.
+- id: subject-categories
+  lifecycle: available
+  presentation:
+    localization_key: capability.subject-categories
+    label: Subject Categories
+    description: Provides reusable, domain-neutral semantics for subject categories.
+- id: resources
+  lifecycle: available
+  presentation:
+    localization_key: capability.resources
+    label: Resources
+    description: Provides reusable, domain-neutral semantics for resources.
+- id: evidence-sources
+  lifecycle: available
+  presentation:
+    localization_key: capability.evidence-sources
+    label: Evidence Sources
+    description: Provides reusable, domain-neutral semantics for evidence sources.
+- id: composite-evidence-scope
+  lifecycle: available
+  presentation:
+    localization_key: capability.composite-evidence-scope
+    label: Composite Evidence Scope
+    description: Provides reusable, domain-neutral semantics for composite evidence scope.
+- id: assertion-provenance
+  lifecycle: available
+  presentation:
+    localization_key: capability.assertion-provenance
+    label: Assertion Provenance
+    description: Provides reusable, domain-neutral semantics for assertion provenance.
+- id: nested-record-identity
+  lifecycle: available
+  presentation:
+    localization_key: capability.nested-record-identity
+    label: Nested Record Identity
+    description: Provides reusable, domain-neutral semantics for nested record identity.
+- id: provenance-snapshots
+  lifecycle: available
+  presentation:
+    localization_key: capability.provenance-snapshots
+    label: Provenance Snapshots
+    description: Provides reusable, domain-neutral semantics for provenance snapshots.
+- id: evidence-locators
+  lifecycle: available
+  presentation:
+    localization_key: capability.evidence-locators
+    label: Evidence Locators
+    description: Provides reusable, domain-neutral semantics for evidence locators.
+- id: multi-position-evidence
+  lifecycle: available
+  presentation:
+    localization_key: capability.multi-position-evidence
+    label: Multi Position Evidence
+    description: Provides reusable, domain-neutral semantics for multi position evidence.
+- id: claim-aware-authority
+  lifecycle: available
+  presentation:
+    localization_key: capability.claim-aware-authority
+    label: Claim Aware Authority
+    description: Provides reusable, domain-neutral semantics for claim aware authority.
+- id: authority-rule-precedence
+  lifecycle: available
+  presentation:
+    localization_key: capability.authority-rule-precedence
+    label: Authority Rule Precedence
+    description: Provides reusable, domain-neutral semantics for authority rule precedence.
+- id: hierarchical-claim-authority
+  lifecycle: available
+  presentation:
+    localization_key: capability.hierarchical-claim-authority
+    label: Hierarchical Claim Authority
+    description: Provides reusable, domain-neutral semantics for hierarchical claim authority.
+- id: evidence-locator-ranges
+  lifecycle: available
+  presentation:
+    localization_key: capability.evidence-locator-ranges
+    label: Evidence Locator Ranges
+    description: Provides reusable, domain-neutral semantics for evidence locator ranges.
+- id: structural-position-validation
+  lifecycle: available
+  presentation:
+    localization_key: capability.structural-position-validation
+    label: Structural Position Validation
+    description: Provides reusable, domain-neutral semantics for structural position validation.
+- id: semantic-provenance-paths
+  lifecycle: available
+  presentation:
+    localization_key: capability.semantic-provenance-paths
+    label: Semantic Provenance Paths
+    description: Provides reusable, domain-neutral semantics for semantic provenance paths.
+- id: evidence-mode-attribution
+  lifecycle: available
+  presentation:
+    localization_key: capability.evidence-mode-attribution
+    label: Evidence Mode Attribution
+    description: Provides reusable, domain-neutral semantics for evidence mode attribution.
+- id: source-bounded-evidence
+  lifecycle: available
+  presentation:
+    localization_key: capability.source-bounded-evidence
+    label: Source Bounded Evidence
+    description: Provides reusable, domain-neutral semantics for source bounded evidence.
+- id: explainable-authority-decisions
+  lifecycle: available
+  presentation:
+    localization_key: capability.explainable-authority-decisions
+    label: Explainable Authority Decisions
+    description: Provides reusable, domain-neutral semantics for explainable authority decisions.
+- id: ordered-temporal-windows
+  lifecycle: available
+  presentation:
+    localization_key: capability.ordered-temporal-windows
+    label: Ordered Temporal Windows
+    description: Provides reusable, domain-neutral semantics for ordered temporal windows.
+- id: channel-scoped-evidence-coverage
+  lifecycle: available
+  presentation:
+    localization_key: capability.channel-scoped-evidence-coverage
+    label: Channel Scoped Evidence Coverage
+    description: Provides reusable, domain-neutral semantics for channel scoped evidence coverage.
+- id: hierarchical-evidence-modes
+  lifecycle: available
+  presentation:
+    localization_key: capability.hierarchical-evidence-modes
+    label: Hierarchical Evidence Modes
+    description: Provides reusable, domain-neutral semantics for hierarchical evidence modes.
+- id: stable-claim-identity
+  lifecycle: available
+  presentation:
+    localization_key: capability.stable-claim-identity
+    label: Stable Claim Identity
+    description: Provides reusable, domain-neutral semantics for stable claim identity.
+- id: multi-source-authority-comparison
+  lifecycle: available
+  presentation:
+    localization_key: capability.multi-source-authority-comparison
+    label: Multi Source Authority Comparison
+    description: Provides reusable, domain-neutral semantics for multi source authority comparison.
+- id: claim-authority-evaluation
+  lifecycle: available
+  presentation:
+    localization_key: capability.claim-authority-evaluation
+    label: Claim Authority Evaluation
+    description: Provides reusable, domain-neutral semantics for claim authority evaluation.
+- id: cross-registry-provenance
+  lifecycle: available
+  presentation:
+    localization_key: capability.cross-registry-provenance
     label: Cross-Registry Provenance
     description: Standalone claims and supersession validated against typed subject providers from multiple registries.
-  - id: stable-identity-reconciliation
-    lifecycle: available
+- id: stable-identity-reconciliation
+  lifecycle: available
+  presentation:
+    localization_key: capability.stable-identity-reconciliation
     label: Stable Identity Reconciliation
     description: Branch-aware, privacy-aware redirects, merges, splits, retirements, reclassifications, and tombstones across typed stable-record providers.
-  - authority-profiles
-  - typed-relationships
-  - temporal-windows
-  - chronology-coordinate-systems
-  - chronology-contexts
-  - chronology-context-topology
-  - occurrence-recurrence-modeling
-  - recurrence-rule-modeling
-  - state-availability-acquisition
-  - deterministic-recurrence-rule-evaluation
-  - recurrence-schedule-modeling
-  - recurrence-policy-integrity
-  - extensible-recurrence-policy-semantics
-  - civil-schedule-boundary-integrity
-  - semantic-declaration-integrity
-  - deterministic-effect-resolution
-  - aggregate-recurrence-cardinality
-  - occurrence-participation-identity
-  - participation-chronology-bindings
-  - timeline-branch-lifecycle
-  - capability-progression
-  - structural-interpretation-modeling
-  - visibility-policy
-  - graph-projection
-  - schema-validation
-  - id: migration-services
-    lifecycle: planned
+- id: authority-profiles
+  lifecycle: available
+  presentation:
+    localization_key: capability.authority-profiles
+    label: Authority Profiles
+    description: Provides reusable, domain-neutral semantics for authority profiles.
+- id: typed-relationships
+  lifecycle: available
+  presentation:
+    localization_key: capability.typed-relationships
+    label: Typed Relationships
+    description: Provides reusable, domain-neutral semantics for typed relationships.
+- id: temporal-windows
+  lifecycle: available
+  presentation:
+    localization_key: capability.temporal-windows
+    label: Temporal Windows
+    description: Provides reusable, domain-neutral semantics for temporal windows.
+- id: chronology-coordinate-systems
+  lifecycle: available
+  presentation:
+    localization_key: capability.chronology-coordinate-systems
+    label: Chronology Coordinate Systems
+    description: Provides reusable, domain-neutral semantics for chronology coordinate systems.
+- id: chronology-contexts
+  lifecycle: available
+  presentation:
+    localization_key: capability.chronology-contexts
+    label: Chronology Contexts
+    description: Provides reusable, domain-neutral semantics for chronology contexts.
+- id: chronology-context-topology
+  lifecycle: available
+  presentation:
+    localization_key: capability.chronology-context-topology
+    label: Chronology Context Topology
+    description: Provides reusable, domain-neutral semantics for chronology context topology.
+- id: occurrence-recurrence-modeling
+  lifecycle: available
+  presentation:
+    localization_key: capability.occurrence-recurrence-modeling
+    label: Occurrence Recurrence Modeling
+    description: Provides reusable, domain-neutral semantics for occurrence recurrence modeling.
+- id: recurrence-rule-modeling
+  lifecycle: available
+  presentation:
+    localization_key: capability.recurrence-rule-modeling
+    label: Recurrence Rule Modeling
+    description: Provides reusable, domain-neutral semantics for recurrence rule modeling.
+- id: state-availability-acquisition
+  lifecycle: available
+  presentation:
+    localization_key: capability.state-availability-acquisition
+    label: State Availability Acquisition
+    description: Provides reusable, domain-neutral semantics for state availability acquisition.
+- id: deterministic-recurrence-rule-evaluation
+  lifecycle: available
+  presentation:
+    localization_key: capability.deterministic-recurrence-rule-evaluation
+    label: Deterministic Recurrence Rule Evaluation
+    description: Provides reusable, domain-neutral semantics for deterministic recurrence rule evaluation.
+- id: recurrence-schedule-modeling
+  lifecycle: available
+  presentation:
+    localization_key: capability.recurrence-schedule-modeling
+    label: Recurrence Schedule Modeling
+    description: Provides reusable, domain-neutral semantics for recurrence schedule modeling.
+- id: recurrence-policy-integrity
+  lifecycle: available
+  presentation:
+    localization_key: capability.recurrence-policy-integrity
+    label: Recurrence Policy Integrity
+    description: Provides reusable, domain-neutral semantics for recurrence policy integrity.
+- id: extensible-recurrence-policy-semantics
+  lifecycle: available
+  presentation:
+    localization_key: capability.extensible-recurrence-policy-semantics
+    label: Extensible Recurrence Policy Semantics
+    description: Provides reusable, domain-neutral semantics for extensible recurrence policy semantics.
+- id: civil-schedule-boundary-integrity
+  lifecycle: available
+  presentation:
+    localization_key: capability.civil-schedule-boundary-integrity
+    label: Civil Schedule Boundary Integrity
+    description: Provides reusable, domain-neutral semantics for civil schedule boundary integrity.
+- id: semantic-declaration-integrity
+  lifecycle: available
+  presentation:
+    localization_key: capability.semantic-declaration-integrity
+    label: Semantic Declaration Integrity
+    description: Provides reusable, domain-neutral semantics for semantic declaration integrity.
+- id: deterministic-effect-resolution
+  lifecycle: available
+  presentation:
+    localization_key: capability.deterministic-effect-resolution
+    label: Deterministic Effect Resolution
+    description: Provides reusable, domain-neutral semantics for deterministic effect resolution.
+- id: aggregate-recurrence-cardinality
+  lifecycle: available
+  presentation:
+    localization_key: capability.aggregate-recurrence-cardinality
+    label: Aggregate Recurrence Cardinality
+    description: Provides reusable, domain-neutral semantics for aggregate recurrence cardinality.
+- id: occurrence-participation-identity
+  lifecycle: available
+  presentation:
+    localization_key: capability.occurrence-participation-identity
+    label: Occurrence Participation Identity
+    description: Provides reusable, domain-neutral semantics for occurrence participation identity.
+- id: participation-chronology-bindings
+  lifecycle: available
+  presentation:
+    localization_key: capability.participation-chronology-bindings
+    label: Participation Chronology Bindings
+    description: Provides reusable, domain-neutral semantics for participation chronology bindings.
+- id: timeline-branch-lifecycle
+  lifecycle: available
+  presentation:
+    localization_key: capability.timeline-branch-lifecycle
+    label: Timeline Branch Lifecycle
+    description: Provides reusable, domain-neutral semantics for timeline branch lifecycle.
+- id: capability-progression
+  lifecycle: available
+  presentation:
+    localization_key: capability.capability-progression
+    label: Capability Progression
+    description: Provides reusable, domain-neutral semantics for capability progression.
+- id: structural-interpretation-modeling
+  lifecycle: available
+  presentation:
+    localization_key: capability.structural-interpretation-modeling
+    label: Structural Interpretation Modeling
+    description: Provides reusable, domain-neutral semantics for structural interpretation modeling.
+- id: visibility-policy
+  lifecycle: available
+  presentation:
+    localization_key: capability.visibility-policy
+    label: Visibility Policy
+    description: Provides reusable, domain-neutral semantics for visibility policy.
+- id: graph-projection
+  lifecycle: available
+  presentation:
+    localization_key: capability.graph-projection
+    label: Graph Projection
+    description: Provides reusable, domain-neutral semantics for graph projection.
+- id: schema-validation
+  lifecycle: available
+  presentation:
+    localization_key: capability.schema-validation
+    label: Schema Validation
+    description: Provides reusable, domain-neutral semantics for schema validation.
+- id: migration-services
+  lifecycle: planned
+  presentation:
+    localization_key: capability.migration-services
     label: Migration Services
     description: Previewed, validated, and reversible repository-wide schema and identity transformations.
 

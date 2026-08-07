@@ -1,0 +1,15 @@
+{
+  "schema_version": 4,
+  "pack_id": "legacy-core",
+  "pack_version": 1,
+  "lifecycle": "active",
+  "pack_kind": "core",
+  "label": "Legacy Core Fixture",
+  "description": "Positive compatibility fixture for schema-4 pack ingestion.",
+  "dependencies": [],
+  "capabilities": ["legacy-capability"],
+  "controlled_values": {
+    "legacy.kind": ["legacy-value"]
+  },
+  "semantic_declarations": {}
+}

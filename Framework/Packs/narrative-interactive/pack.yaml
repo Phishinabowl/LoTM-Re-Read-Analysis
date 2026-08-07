@@ -1,22 +1,67 @@
-schema_version: 4
+schema_version: 5
 pack_id: narrative-interactive
-pack_version: 2
+pack_version: 3
 lifecycle: active
 pack_kind: domain
-label: Narrative Interactive
-description: Branching narratives, choices, routes, endings, playthroughs, campaigns, and sessions.
+classification:
+  family: narrative
+  role: extension
+  scope: domain-specific
+  domains:
+  - narrative
+  bridge_pack_ids: []
+presentation:
+  localization_key: pack.narrative-interactive
+  default_locale: en
+  label: Narrative Interactive
+  short_description: Branching narratives, choices, routes, endings, playthroughs, campaigns, and sessions.
+  long_description: Prepares narrative projects to represent authored choices, routes, endings, playthroughs, campaigns, and sessions without collapsing authored works into individual experiences.
+  maturity: preview
+  intended_audiences:
+  - id: narrative-modeler
+    label: Narrative modelers
+    description: People building structured knowledge projects for stories, media, sources, and fictional worlds.
+  use_cases:
+  - id: use-narrative-interactive
+    label: Use Narrative Interactive
+    description: Branching narratives, choices, routes, endings, playthroughs, campaigns, and sessions.
+  examples: []
+  prerequisites:
+  - id: narrative-media
+    label: Narrative Media
+    description: Requires the Narrative Media pack at a compatible version.
+  provided_behaviors:
+  - id: behavior-narrative-interactive
+    label: Narrative Interactive semantics
+    description: Prepares narrative projects to represent authored choices, routes, endings, playthroughs, campaigns, and sessions without collapsing authored works into individual experiences.
+  exclusions:
+  - id: no-implicit-activation
+    label: No implicit activation
+    description: Selecting this pack does not enable its capabilities or infer project usage.
+  documentation:
+  - id: pack-catalog
+    label: Schema Pack Catalog
+    target_kind: repository-path
+    target: Framework/Packs/README.md
+  search_keywords:
+  - narrative
+  - interactive
 
 dependencies:
   - pack_id: narrative-media
     minimum_version: 14
 
 capabilities:
-  - id: branching-narratives
-    lifecycle: planned
+- id: branching-narratives
+  lifecycle: planned
+  presentation:
+    localization_key: capability.branching-narratives
     label: Branching Narratives
     description: Choice points, routes, prerequisites, endings, and mutually exclusive claims.
-  - id: narrative-instances
-    lifecycle: planned
+- id: narrative-instances
+  lifecycle: planned
+  presentation:
+    localization_key: capability.narrative-instances
     label: Narrative Instances
     description: Player-specific playthroughs, tabletop campaigns, and sessions derived from authored works.
 
