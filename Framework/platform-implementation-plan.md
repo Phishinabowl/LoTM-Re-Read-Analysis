@@ -420,12 +420,69 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 ### Phase 2.3 Initial Consumer Adoption
 
-- [ ] Make QA discover enabled content roots, content types, categories, labels, and eligibility from
-  the effective schema.
-- [ ] Make Visualization discover graph classes and enabled projection capabilities from the
-  effective schema where current configuration permits.
-- [ ] Remove replaced consumer-local category and capability allowlists.
-- [ ] Preserve current page parsing and graph construction until later phases replace them.
+#### Phase 2.3.1 Compatibility Baseline Lock
+
+- [ ] Extend permanent compatibility coverage to pin the normalized current Visualization and QA
+  output inventories, semantic summaries, and content hashes rather than proving only
+  cross-runtime agreement.
+- [ ] Include canonical repository presets, redirected refresh output, the unbounded relationship
+  graph, direct-edge and intermediary-node QA graphs, representative bounded graphs, and
+  representative bounded pages in the protected baseline.
+- [ ] Record the accepted pre-migration node, relationship, data-reference, file, and normalized
+  hash results without writing or regenerating canonical project outputs.
+- [ ] Prove Python, PowerShell 7, and Windows PowerShell 5.1 reproduce the accepted baseline before
+  changing either consumer.
+
+#### Phase 2.3.2 Shadow Effective-Schema Adoption
+
+- [ ] Make QA and Visualization load the same in-memory effective schema through their supported
+  runtime libraries rather than invoking the inspection command as a subprocess.
+- [ ] Add temporary fail-closed shadow comparisons between each consumer's legacy discovery result
+  and the equivalent effective-schema roots, content types, categories, placements, graph classes,
+  and capability state.
+- [ ] Report every mismatch precisely and make no output decision from the new path until the
+  shadow results agree for the current LoTM project.
+- [ ] Preserve all current page parsing, relationship/data-block interpretation, graph generation,
+  rendering, presets, filenames, output ownership, and cleanup behavior during shadow adoption.
+
+#### Phase 2.3.3 QA Discovery Migration
+
+- [ ] Make QA discover enabled QA content roots, content types, categories, labels, plural labels,
+  slug prefixes, placement/export folders, and eligibility from the effective schema.
+- [ ] Remove only the QA-local type, folder, slug, category, and capability allowlists fully
+  replaced by effective-schema records; retain legacy parsing adapters required until Phase 5.
+- [ ] Preserve Markdown and embedded-YAML parsing, Relationship Seeds, data projections, anomaly
+  reports, bounded pages, graph requests, output paths, filenames, and cleanup behavior.
+- [ ] Run the pinned QA comparison in all three runtimes and stop for maintainer inspection of the
+  redirected Obsidian export before continuing to Visualization.
+
+#### Phase 2.3.4 Visualization Discovery Migration
+
+- [ ] Make Visualization discover graph-enabled content roots and types, enabled categories, slug
+  prefixes, graph classes, and enabled projection capabilities from the effective schema where the
+  current configuration supplies them.
+- [ ] Remove only the Visualization-local discovery allowlists fully replaced by effective-schema
+  records; retain direct Markdown/YAML scanning until the normalized content index replaces it.
+- [ ] Preserve node and relationship extraction, first-appearance behavior, pending nodes, reader
+  boundaries, progression and deduplication semantics, Mermaid styling, render settings, presets,
+  destinations, and cleanup behavior.
+- [ ] Run the pinned Visualization comparison in all three runtimes and stop for maintainer review
+  of every redirected Mermaid output before any canonical regeneration.
+
+#### Phase 2.3.5 Consumer Adoption Closure
+
+- [ ] Remove the temporary legacy side of shadow comparisons only after the effective-schema path
+  passes the permanent baselines; retain explicit compatibility adapters still required by the
+  Phase 5 legacy-content migration.
+- [ ] Run effective-schema, QA, Visualization, root-discovery, artifact-lifecycle, framework
+  extraction, static policy, formatting, and full-release compatibility coverage in every supported
+  runtime.
+- [ ] Confirm canonical outputs remain unchanged, scoped temporary artifacts are removed, and the
+  full LoTM QA and Visualization portfolio remains compatibility-equivalent.
+- [ ] Update architecture, tooling, testing, extraction-readiness, and implementation documentation
+  to describe the new consumer dependency without claiming Phase 5-8 migrations are complete.
+- [ ] Regenerate canonical graph or QA artifacts only through a separate reviewed action after the
+  redirected equivalence results are accepted.
 
 ### Phase 2 Exit Gate
 
