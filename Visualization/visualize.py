@@ -26,7 +26,17 @@ RUNTIME_ROOT = Path(__file__).resolve().parents[1] / "Tools" / "Runtime" / "Pyth
 if str(RUNTIME_ROOT) not in sys.path:
     sys.path.insert(0, str(RUNTIME_ROOT))
 
+from knowledge_framework.effective_schema import (
+    assert_consumer_schema_shadow,
+    compose_effective_project_schema,
+    compose_effective_consumer_schema_projection,
+    compose_legacy_consumer_schema_projection,
+)
+from knowledge_framework.project_config import load_project_config
 from knowledge_framework.project_paths import resolve_project_root
+from knowledge_framework.resource_config import load_resource_config
+from knowledge_framework.schema_pack_config import load_schema_pack_registry
+from knowledge_framework.taxonomy_config import load_taxonomy_config
 
 
 REPO_ROOT = resolve_project_root(executable_path=__file__)
@@ -1953,6 +1963,20 @@ def main() -> None:
 
     args = parse_args()
     REPO_ROOT = resolve_project_root(args.root, executable_path=__file__)
+    project = load_project_config(REPO_ROOT)
+    taxonomy = load_taxonomy_config(project)
+    schema_packs = load_schema_pack_registry(project)
+    effective_schema = compose_effective_project_schema(
+        project,
+        schema_packs,
+        taxonomy,
+        load_resource_config(project),
+    )
+    assert_consumer_schema_shadow(
+        "visualization",
+        compose_legacy_consumer_schema_projection(project, schema_packs, taxonomy, "visualization"),
+        compose_effective_consumer_schema_projection(effective_schema, "visualization"),
+    )
     if args.mode == "qa-relationship":
         if not args.graph_path:
             raise ValueError("qa-relationship mode requires --graph-path.")

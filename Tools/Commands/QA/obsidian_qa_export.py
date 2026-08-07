@@ -21,6 +21,14 @@ from knowledge_framework.project_config import (
     load_project_config,
     resolve_project_root,
 )
+from knowledge_framework.effective_schema import (
+    assert_consumer_schema_shadow,
+    compose_effective_project_schema,
+    compose_effective_consumer_schema_projection,
+    compose_legacy_consumer_schema_projection,
+)
+from knowledge_framework.resource_config import load_resource_config
+from knowledge_framework.schema_pack_config import load_schema_pack_registry
 from knowledge_framework.taxonomy_config import load_taxonomy_config
 
 
@@ -2569,6 +2577,18 @@ def main() -> int:
     root = resolve_project_root(args.root, executable_path=__file__)
     config = load_project_config(root)
     taxonomy = load_taxonomy_config(config)
+    schema_packs = load_schema_pack_registry(config)
+    effective_schema = compose_effective_project_schema(
+        config,
+        schema_packs,
+        taxonomy,
+        load_resource_config(config),
+    )
+    assert_consumer_schema_shadow(
+        "qa",
+        compose_legacy_consumer_schema_projection(config, schema_packs, taxonomy, "qa"),
+        compose_effective_consumer_schema_projection(effective_schema, "qa"),
+    )
     qa_content_roots = taxonomy.content_roots_for_qa_pages(config)
     ACTIVE_CONTENT_ROOTS = qa_content_roots
     output_dir = (root / args.output_dir).resolve() if args.output_dir else config.qa_export

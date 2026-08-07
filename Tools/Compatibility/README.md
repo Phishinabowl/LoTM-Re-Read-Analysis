@@ -30,3 +30,7 @@ The baseline is LoTM project compatibility data, not a portable framework fixtur
 when a reviewed content, graph, QA, preset, or representative-boundary change intentionally alters
 the accepted output. Diagnose the reported missing, unexpected, and changed paths first; never
 refresh hashes merely to make a failing check green.
+
+QA and Visualization also run their effective-schema shadow assertions before generation. The
+compatibility profiles therefore prove both that legacy and effective discovery projections agree
+and that the shadow load changes none of the accepted consumer artifacts.

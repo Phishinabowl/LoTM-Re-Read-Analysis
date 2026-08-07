@@ -19,6 +19,21 @@ $ErrorActionPreference = "Stop"
 $runtimeModule = Join-Path $PSScriptRoot '..\Tools\Runtime\PowerShell\KnowledgeFramework\KnowledgeFramework.psd1'
 Import-Module $runtimeModule -Force
 $repoRoot = Resolve-KnowledgeProjectRoot -ExplicitRoot $Root -ExecutablePath $PSCommandPath
+$projectConfig = Get-KnowledgeProjectConfig $repoRoot
+$taxonomyConfig = Get-KnowledgeTaxonomyConfig $projectConfig
+$schemaPacks = Get-KnowledgeSchemaPackRegistry $projectConfig
+$effectiveSchema = New-KnowledgeEffectiveProjectSchema `
+    $projectConfig `
+    $schemaPacks `
+    $taxonomyConfig `
+(Get-KnowledgeResourceConfig $projectConfig)
+$legacyConsumerSchema = New-KnowledgeLegacyConsumerSchemaProjection `
+    $projectConfig `
+    $schemaPacks `
+    $taxonomyConfig `
+    'visualization'
+$effectiveConsumerSchema = New-KnowledgeEffectiveConsumerSchemaProjection $effectiveSchema 'visualization'
+Assert-KnowledgeConsumerSchemaShadow 'visualization' $legacyConsumerSchema $effectiveConsumerSchema
 
 $SlugPrefixes = @(
     "artifact",

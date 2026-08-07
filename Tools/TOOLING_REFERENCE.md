@@ -27,7 +27,7 @@ All rows in this table require independent Python, PowerShell 7, and Windows Pow
 | `Tools/Runtime/Python/knowledge_framework/project_config.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Project-Config.ps1` | `knowledge_framework.project_paths` plus `knowledge_framework.project_config` | `KnowledgeFramework` project-path and manifest implementation | Dependency-light root/path discovery followed by strict manifest loading. |
 | `Tools/Runtime/Python/knowledge_framework/lookup_key_config.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Lookup-Key-Config.ps1` | `knowledge_framework.lookup_key_config` | `KnowledgeFramework` lookup-key implementation | Pinned Unicode lookup normalization and ordinal comparison. |
 | `Tools/Runtime/Python/knowledge_framework/schema_pack_config.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Schema-Pack-Config.ps1` | `knowledge_framework.schema_pack_config` | `KnowledgeFramework` schema-pack implementation | Pack composition, capability state, and controlled-value ownership. |
-| `Tools/Runtime/Python/knowledge_framework/effective_schema.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Effective-Project-Schema.ps1` | `knowledge_framework.effective_schema` | `KnowledgeFramework` effective-schema implementation | Deterministic project, pack, capability, controlled-value, taxonomy, resource, and diagnostic composition. |
+| `Tools/Runtime/Python/knowledge_framework/effective_schema.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Effective-Project-Schema.ps1` | `knowledge_framework.effective_schema` | `KnowledgeFramework` effective-schema implementation | Deterministic project, pack, capability, controlled-value, taxonomy, resource, and diagnostic composition plus fail-closed consumer shadow projections. |
 | `Tools/Runtime/Python/knowledge_framework/taxonomy_config.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Taxonomy-Config.ps1` | `knowledge_framework.taxonomy_config` | `KnowledgeFramework` taxonomy implementation | Content-type/category routing and validation. |
 | `Tools/Runtime/Python/knowledge_framework/resource_config.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Resource-Config.ps1` | `knowledge_framework.resource_config` | `KnowledgeFramework` resource implementation | Resource-kind/type and placement validation. |
 | `Tools/Runtime/Python/knowledge_framework/temporal_config.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Temporal-Config.ps1` | `knowledge_framework.temporal_config` | `KnowledgeFramework` temporal implementation | Domain-neutral civil-time parsing and comparison. |
@@ -1117,9 +1117,19 @@ Current content-type and ownership regression: both implementations selected tax
 
 Library consumers import the service. They must not launch the command to recover the same object.
 Python exposes `EffectiveProjectSchema`, `compose_effective_project_schema`,
-`load_effective_project_schema`, `effective_schema_json`, and `effective_schema_failure`.
+`load_effective_project_schema`, consumer projection/comparison/assertion helpers,
+`effective_schema_json`, and `effective_schema_failure`.
 PowerShell exposes `New-KnowledgeEffectiveProjectSchema`, `Get-KnowledgeEffectiveProjectSchema`,
-and `New-KnowledgeEffectiveSchemaFailure` from module version 0.3.0.
+the paired consumer projection/comparison/assertion functions, and
+`New-KnowledgeEffectiveSchemaFailure` from module version 0.3.0.
+
+QA and Visualization compose one effective schema in-process from the project, pack, taxonomy, and
+resource objects already loaded by their supported runtime. Temporary shadow projections compare
+roots, content types, categories, placements, graph classes, and complete declared capability state
+with the legacy loader view. Differences use keyed paths such as
+`placements.character|glossary-page.template`; any difference stops the command before output.
+Successful comparison is observational only until Phases 2.3.3-2.3.5 migrate and retire the legacy
+decision paths.
 
 ### Switch Map
 
@@ -1156,7 +1166,8 @@ with JSON output/export, and its destination follows the same project-root confi
 
 `effective-schema` belongs to both aggregate profiles. Its paired suite covers positive,
 available-disabled, planned, deprecated, multiple-provider, dependency-failure, malformed,
-deterministic, path-safety, and generated 400-capability scale behavior. The compatibility check of
+deterministic, working-directory-independent path serialization, consumer shadow parity, exact-path
+shadow failure, path-safety, and generated 400-capability scale behavior. The compatibility check of
 the same ID compares complete in-memory JSON, byte-identical canonical file exports, combined
 `packs` plus `capabilities` human inspection and byte-identical report exports, deduplicated `all`
 expansion, invalid selection, and
@@ -1171,8 +1182,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Confor
 python Tools\Compatibility\run_compatibility.py --check effective-schema --json
 ```
 
-Last focused parity check: 2026-08-07. All three runtimes produced the same 10-pack,
-132-capability, 138-namespace effective schema with two deterministic diagnostics. The compatibility
+Last focused parity check: 2026-08-07 for Platform Phase 2.3.2. All three runtimes produced the same
+10-pack, 132-capability, 138-namespace effective schema with two deterministic diagnostics. The
+paired suite also passed QA and Visualization consumer-shadow projections, one exact-path synthetic
+drift failure, and three deterministic compositions including an unrelated working directory. The compatibility
 check also produced the same 297,916-byte canonical export with SHA-256
 `46c42decd28af5e8ba4653e9b51465b0b0289284d3fbb3619c48730d298953e2` and matched the
 319-line combined pack/capability report, 1,621-line deduplicated `all` report, and byte-identical
@@ -1431,10 +1444,11 @@ matching semantic dimensions.
 
 Protected canonical Visualization configuration, reports, snapshots, graphs, renders, and the configured QA export are hashed before and after every run. Successful output is removed through the maintained cleanup command unless `--keep-output` is supplied. Failed output is retained for diagnosis. An explicit output root must be a child of repository `.tmp/`; the repository root, `.tmp/` itself, and outside paths are rejected.
 
-Last compatibility check: 2026-08-07 for Platform Phase 2.3.1. The 119.7-second `local` profile
+Last compatibility check: 2026-08-07 for Platform Phase 2.3.2. The 158.9-second `local` profile
 passed `effective-schema`, `visualization`, and `qa` across all three runtimes. Effective schema
 matched 10 packs, 132 capabilities, 138 controlled-value namespaces, two diagnostics, canonical
-file exports, and the `malformed-configuration` failure envelope. Visualization preserved 15 nodes
+file exports, and the `malformed-configuration` failure envelope. Both consumers passed fail-closed
+legacy/effective shadow comparison before generation. Visualization preserved 15 nodes
 and 121 relationships while matching refresh tree SHA-256
 `dfb0ffd4a11d304ab2ffd2571bfba4717b087c512d46abd6120f920835577fe6` and unbounded graph SHA-256
 `477eb74726f1c8430ad52c5a187db3bfd402404115f36ce2bf1750f8c6531cc4`. QA preserved 16 notes,

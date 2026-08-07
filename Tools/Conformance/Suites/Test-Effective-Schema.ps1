@@ -79,6 +79,44 @@ if ($firstJson -cne $secondJson) {
 if ($firstJson.Contains([System.IO.Path]::GetFullPath($Root))) {
     throw 'Effective schema leaked an absolute project path.'
 }
+$originalDirectory = (Get-Location).Path
+try {
+    Set-Location ([System.IO.Path]::GetTempPath())
+    $alternateDirectoryJson = ConvertTo-CompactJson (
+        New-KnowledgeEffectiveProjectSchema $project $packs $taxonomy $resources
+    )
+}
+finally {
+    Set-Location $originalDirectory
+}
+if ($firstJson -cne $alternateDirectoryJson) {
+    throw 'Effective-schema composition changed with the process working directory.'
+}
+
+$consumerShadowModes = @('qa', 'visualization')
+foreach ($consumerId in $consumerShadowModes) {
+    $legacyProjection = New-KnowledgeLegacyConsumerSchemaProjection $project $packs $taxonomy $consumerId
+    $effectiveProjection = New-KnowledgeEffectiveConsumerSchemaProjection $schema $consumerId
+    Assert-KnowledgeConsumerSchemaShadow $consumerId $legacyProjection $effectiveProjection
+}
+
+$legacyProjection = New-KnowledgeLegacyConsumerSchemaProjection $project $packs $taxonomy 'qa'
+$driftedProjection = New-KnowledgeEffectiveConsumerSchemaProjection $schema 'qa'
+$driftedProjection.roots.glossary.relative_path = 'Changed_Glossary'
+$expectedDifference = 'roots.glossary.relative_path: legacy="Glossary_Threads"; effective="Changed_Glossary"'
+$differences = @(Compare-KnowledgeConsumerSchemaProjection $legacyProjection $driftedProjection)
+if ($differences.Count -ne 1 -or $differences[0] -cne $expectedDifference) {
+    throw "Consumer shadow mismatch detail changed: $($differences -join ' | ')"
+}
+try {
+    Assert-KnowledgeConsumerSchemaShadow 'qa' $legacyProjection $driftedProjection
+    throw 'Consumer shadow accepted a drifted effective projection.'
+}
+catch {
+    if (-not $_.Exception.Message.Contains($expectedDifference)) {
+        throw "Consumer shadow failure omitted its exact path: $($_.Exception.Message)"
+    }
+}
 
 $planned = @($schema.capabilities | Where-Object planned | Select-Object -First 1)
 if ($planned.Count -ne 1 -or $planned[0].available -or -not $planned[0].disabled) {
@@ -169,9 +207,11 @@ $result = [ordered]@{
     schema_version = 1
     status = 'passed'
     summary = $actual
-    deterministic_passes = 2
+    deterministic_passes = 3
     synthetic_states = 4
     failure_cases = 1
+    consumer_shadow_modes = $consumerShadowModes.Count
+    consumer_shadow_failure_cases = 1
 }
 if ($Json) {
     $result | ConvertTo-Json -Depth 100 -Compress

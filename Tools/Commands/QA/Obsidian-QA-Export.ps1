@@ -3714,6 +3714,19 @@ function Invoke-DisposableCacheCleanup {
 $repoRoot = Resolve-KnowledgeProjectRoot -ExplicitRoot $Root -ExecutablePath $PSCommandPath
 $projectConfig = Get-KnowledgeProjectConfig $repoRoot
 $taxonomyConfig = Get-KnowledgeTaxonomyConfig $projectConfig
+$schemaPacks = Get-KnowledgeSchemaPackRegistry $projectConfig
+$effectiveSchema = New-KnowledgeEffectiveProjectSchema `
+    $projectConfig `
+    $schemaPacks `
+    $taxonomyConfig `
+(Get-KnowledgeResourceConfig $projectConfig)
+$legacyConsumerSchema = New-KnowledgeLegacyConsumerSchemaProjection `
+    $projectConfig `
+    $schemaPacks `
+    $taxonomyConfig `
+    'qa'
+$effectiveConsumerSchema = New-KnowledgeEffectiveConsumerSchemaProjection $effectiveSchema 'qa'
+Assert-KnowledgeConsumerSchemaShadow 'qa' $legacyConsumerSchema $effectiveConsumerSchema
 $qaContentRoots = @(Get-TaxonomyQaPageContentRoots $projectConfig $taxonomyConfig)
 $script:ActiveContentRoots = $qaContentRoots
 $selectedOutputDir = if ([string]::IsNullOrWhiteSpace($OutputDir)) {

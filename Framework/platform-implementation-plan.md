@@ -435,14 +435,14 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 #### Phase 2.3.2 Shadow Effective-Schema Adoption
 
-- [ ] Make QA and Visualization load the same in-memory effective schema through their supported
+- [x] Make QA and Visualization load the same in-memory effective schema through their supported
   runtime libraries rather than invoking the inspection command as a subprocess.
-- [ ] Add temporary fail-closed shadow comparisons between each consumer's legacy discovery result
+- [x] Add temporary fail-closed shadow comparisons between each consumer's legacy discovery result
   and the equivalent effective-schema roots, content types, categories, placements, graph classes,
   and capability state.
-- [ ] Report every mismatch precisely and make no output decision from the new path until the
+- [x] Report every mismatch precisely and make no output decision from the new path until the
   shadow results agree for the current LoTM project.
-- [ ] Preserve all current page parsing, relationship/data-block interpretation, graph generation,
+- [x] Preserve all current page parsing, relationship/data-block interpretation, graph generation,
   rendering, presets, filenames, output ownership, and cleanup behavior during shadow adoption.
 
 #### Phase 2.3.3 QA Discovery Migration

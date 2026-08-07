@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import argparse
+import copy
 from dataclasses import replace
 import json
+import os
 from pathlib import Path
 import sys
+import tempfile
 
 
 RUNTIME_ROOT = Path(__file__).resolve().parents[2] / "Runtime" / "Python"
@@ -12,7 +15,11 @@ if str(RUNTIME_ROOT) not in sys.path:
     sys.path.insert(0, str(RUNTIME_ROOT))
 
 from knowledge_framework.effective_schema import (  # noqa: E402
+    assert_consumer_schema_shadow,
+    compare_consumer_schema_projections,
     compose_effective_project_schema,
+    compose_effective_consumer_schema_projection,
+    compose_legacy_consumer_schema_projection,
     effective_schema_failure,
     effective_schema_json,
 )
@@ -97,6 +104,38 @@ def main() -> int:
         compose_effective_project_schema(project, packs, taxonomy, resources)
     ):
         raise AssertionError("Repeated effective-schema composition was not byte deterministic.")
+    original_directory = Path.cwd()
+    with tempfile.TemporaryDirectory(prefix="effective-schema-cwd-") as temp_directory:
+        try:
+            os.chdir(temp_directory)
+            alternate_directory_json = effective_schema_json(
+                compose_effective_project_schema(project, packs, taxonomy, resources)
+            )
+        finally:
+            os.chdir(original_directory)
+    if alternate_directory_json != effective_schema_json(schema):
+        raise AssertionError("Effective-schema composition changed with the process working directory.")
+
+    consumer_shadow_modes = ("qa", "visualization")
+    for consumer_id in consumer_shadow_modes:
+        legacy_projection = compose_legacy_consumer_schema_projection(project, packs, taxonomy, consumer_id)
+        effective_projection = compose_effective_consumer_schema_projection(schema, consumer_id)
+        assert_consumer_schema_shadow(consumer_id, legacy_projection, effective_projection)
+
+    legacy_projection = compose_legacy_consumer_schema_projection(project, packs, taxonomy, "qa")
+    drifted_projection = copy.deepcopy(compose_effective_consumer_schema_projection(schema, "qa"))
+    drifted_projection["roots"]["glossary"]["relative_path"] = "Changed_Glossary"
+    expected_difference = "roots.glossary.relative_path: legacy='Glossary_Threads'; effective='Changed_Glossary'"
+    differences = compare_consumer_schema_projections(legacy_projection, drifted_projection)
+    if differences != (expected_difference,):
+        raise AssertionError(f"Consumer shadow mismatch detail changed: {differences}")
+    try:
+        assert_consumer_schema_shadow("qa", legacy_projection, drifted_projection)
+    except ValueError as exc:
+        if expected_difference not in str(exc):
+            raise AssertionError(f"Consumer shadow failure omitted its exact path: {exc}") from exc
+    else:
+        raise AssertionError("Consumer shadow accepted a drifted effective projection.")
 
     capability_by_id = {row["id"]: row for row in document["capabilities"]}
     planned_id = next(row["id"] for row in document["capabilities"] if row["planned"])
@@ -184,9 +223,11 @@ def main() -> int:
         "schema_version": 1,
         "status": "passed",
         "summary": actual,
-        "deterministic_passes": 2,
+        "deterministic_passes": 3,
         "synthetic_states": 4,
         "failure_cases": 1,
+        "consumer_shadow_modes": len(consumer_shadow_modes),
+        "consumer_shadow_failure_cases": 1,
     }
     if args.json:
         print(json.dumps(result, ensure_ascii=False, separators=(",", ":")))

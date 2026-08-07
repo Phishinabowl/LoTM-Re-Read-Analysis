@@ -206,6 +206,14 @@ runtime services live in `Tools/Runtime/Python/knowledge_framework/effective_sch
 normalized-content, relationship, and projection declarations join the same service only after their
 owning phases implement those contracts. See `Framework/Contracts/effective-project-schema.md`.
 
+During Phase 2.3 shadow adoption, QA and Visualization compose the effective schema in-process from
+their already-loaded project, pack, taxonomy, and resource objects. Each consumer compares a
+read-only effective projection with its legacy loader projection for roots, content types,
+categories, placements, graph classes, and capability state before generation begins. Any mismatch
+fails closed with exact keyed paths; matching shadow data does not yet make discovery, parsing,
+projection, rendering, naming, placement, output, or cleanup decisions. That authority remains with
+the legacy consumer path until its explicit migration and compatibility gate are complete.
+
 ### Taxonomy Registry
 
 `Project_Config/taxonomy.yaml` is the machine-readable taxonomy registry. Its current category and content-type records own:

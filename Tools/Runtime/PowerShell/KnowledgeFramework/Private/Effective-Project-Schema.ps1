@@ -19,7 +19,13 @@ function ConvertTo-KnowledgeRepositoryRelativePath {
         return $null
     }
     $rootPath = [System.IO.Path]::GetFullPath($Root).TrimEnd('\', '/')
-    $fullPath = [System.IO.Path]::GetFullPath([string]$Path)
+    $pathValue = [string]$Path
+    $fullPath = if ([System.IO.Path]::IsPathRooted($pathValue)) {
+        [System.IO.Path]::GetFullPath($pathValue)
+    }
+    else {
+        [System.IO.Path]::GetFullPath((Join-Path $rootPath $pathValue))
+    }
     $prefix = $rootPath + [System.IO.Path]::DirectorySeparatorChar
     if (-not $fullPath.StartsWith($prefix, [System.StringComparison]::OrdinalIgnoreCase)) {
         throw "Effective-schema path escapes the project root: $fullPath"
@@ -421,6 +427,323 @@ function New-KnowledgeEffectiveProjectSchema {
             types = @($resourceTypes)
         }
         diagnostics = @(Get-KnowledgeSortedEffectiveSchemaDiagnostic $diagnostics)
+    }
+}
+
+function Get-KnowledgeConsumerEnablementField {
+    param([string]$ConsumerId)
+
+    switch ($ConsumerId) {
+        'qa' {
+            return 'qa_page_enabled'
+        }
+        'visualization' {
+            return 'graph_enabled'
+        }
+        default {
+            throw "Unsupported effective-schema consumer '$ConsumerId'; expected one of: qa, visualization."
+        }
+    }
+}
+
+function Get-KnowledgeLegacyCapabilityState {
+    param(
+        [object]$SchemaPacks,
+        [string]$CapabilityId
+    )
+
+    $lifecycles = @(
+        foreach ($packId in @($SchemaPacks.capability_providers[$CapabilityId])) {
+            $SchemaPacks.capability_definitions["$packId|$CapabilityId"].lifecycle
+        }
+    )
+    $effectiveLifecycle = if ($lifecycles -ccontains 'available') {
+        'available'
+    }
+    elseif ($lifecycles -ccontains 'deprecated') {
+        'deprecated'
+    }
+    else {
+        'planned'
+    }
+    return [ordered]@{
+        effective_lifecycle = $effectiveLifecycle
+        available = $effectiveLifecycle -in @('available', 'deprecated')
+        enabled = @($SchemaPacks.enabled_capabilities) -ccontains $CapabilityId
+    }
+}
+
+function New-KnowledgeLegacyConsumerSchemaProjection {
+    param(
+        [object]$ProjectConfig,
+        [object]$SchemaPacks,
+        [object]$TaxonomyConfig,
+        [string]$ConsumerId
+    )
+
+    $enablementField = Get-KnowledgeConsumerEnablementField $ConsumerId
+    $contentTypes = [ordered]@{}
+    foreach ($contentTypeId in @(Get-KnowledgeOrdinalStrings $TaxonomyConfig.content_types.Keys)) {
+        $item = $TaxonomyConfig.content_types[$contentTypeId]
+        $enabled = [bool]$item.PSObject.Properties[$enablementField].Value
+        if ($item.lifecycle -ceq 'active' -and [bool]$item.canonical_pages_enabled -and $enabled) {
+            $contentTypes[$contentTypeId] = $item
+        }
+    }
+
+    $rootIds = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    foreach ($item in $contentTypes.Values) {
+        [void]$rootIds.Add($item.content_root_id)
+    }
+    $roots = [ordered]@{}
+    foreach ($root in @($ProjectConfig.content_roots | Sort-Object id)) {
+        if ($rootIds.Contains($root.id)) {
+            $roots[$root.id] = [ordered]@{
+                relative_path = ConvertTo-KnowledgePortablePath $root.relative_path
+                provenance_mode = $root.provenance_mode
+                provenance_label = $root.provenance_label
+            }
+        }
+    }
+
+    $contentTypeRows = [ordered]@{}
+    foreach ($contentTypeId in $contentTypes.Keys) {
+        $item = $contentTypes[$contentTypeId]
+        $contentTypeRows[$contentTypeId] = [ordered]@{
+            label = $item.label
+            plural_label = $item.plural_label
+            content_root_id = $item.content_root_id
+            category_policy = $item.category_policy
+            path_strategy = $item.path_strategy
+            metadata_type_mode = $item.metadata_type_mode
+            slug_mode = $item.slug_mode
+            metadata_type = $item.metadata_type
+            record_slug_prefix = $item.record_slug_prefix
+            qa_page_enabled = [bool]$item.qa_page_enabled
+            graph_enabled = [bool]$item.graph_enabled
+        }
+    }
+
+    $categories = [ordered]@{}
+    $placements = [ordered]@{}
+    $graphClasses = [ordered]@{}
+    foreach ($categoryId in @(Get-KnowledgeOrdinalStrings $TaxonomyConfig.categories.Keys)) {
+        $category = $TaxonomyConfig.categories[$categoryId]
+        $eligiblePlacementIds = @(
+            Get-KnowledgeOrdinalStrings @(
+                $category.placements.Keys | Where-Object { $contentTypes.Contains($_) }
+            )
+        )
+        if (
+            $category.lifecycle -cne 'active' -or
+            -not [bool]$category.canonical_pages_enabled -or
+            $eligiblePlacementIds.Count -eq 0
+        ) {
+            continue
+        }
+        $categories[$categoryId] = [ordered]@{
+            label = $category.label
+            plural_label = $category.plural_label
+            metadata_type = $category.metadata_type
+            subject_slug_prefix = $category.subject_slug_prefix
+            subject_slug_pattern = $category.subject_slug_pattern
+            graph_class = $category.graph_class
+        }
+        if (-not [string]::IsNullOrWhiteSpace($category.graph_class)) {
+            $graphClasses[$categoryId] = $category.graph_class
+        }
+        foreach ($contentTypeId in $eligiblePlacementIds) {
+            $placement = $category.placements[$contentTypeId]
+            $placementId = "$categoryId|$contentTypeId"
+            $placements[$placementId] = [ordered]@{
+                category_id = $categoryId
+                content_type_id = $contentTypeId
+                content_root_id = $contentTypes[$contentTypeId].content_root_id
+                relative_folder = ConvertTo-KnowledgePortablePath $placement.relative_folder
+                template = ConvertTo-KnowledgePortablePath $placement.template
+            }
+        }
+    }
+
+    $capabilityState = [ordered]@{}
+    foreach ($capabilityId in @(Get-KnowledgeOrdinalStrings $SchemaPacks.declared_capabilities)) {
+        $capabilityState[$capabilityId] = Get-KnowledgeLegacyCapabilityState $SchemaPacks $capabilityId
+    }
+    return [ordered]@{
+        consumer_id = $ConsumerId
+        roots = $roots
+        content_types = $contentTypeRows
+        categories = $categories
+        placements = $placements
+        graph_classes = $graphClasses
+        capability_state = $capabilityState
+    }
+}
+
+function New-KnowledgeEffectiveConsumerSchemaProjection {
+    param(
+        [object]$EffectiveSchema,
+        [string]$ConsumerId
+    )
+
+    $enablementField = Get-KnowledgeConsumerEnablementField $ConsumerId
+    $contentTypes = [ordered]@{}
+    foreach ($item in @($EffectiveSchema.content.content_types | Sort-Object id)) {
+        $enabled = [bool]$item[$enablementField]
+        if ($item.lifecycle -ceq 'active' -and [bool]$item.canonical_pages_enabled -and $enabled) {
+            $contentTypes[$item.id] = $item
+        }
+    }
+    $rootIds = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    foreach ($item in $contentTypes.Values) {
+        [void]$rootIds.Add($item.content_root_id)
+    }
+    $roots = [ordered]@{}
+    foreach ($root in @($EffectiveSchema.content.roots | Sort-Object id)) {
+        if ($rootIds.Contains($root.id)) {
+            $roots[$root.id] = [ordered]@{
+                relative_path = $root.relative_path
+                provenance_mode = $root.provenance_mode
+                provenance_label = $root.provenance_label
+            }
+        }
+    }
+
+    $contentTypeRows = [ordered]@{}
+    foreach ($contentTypeId in $contentTypes.Keys) {
+        $item = $contentTypes[$contentTypeId]
+        $contentTypeRows[$contentTypeId] = [ordered]@{
+            label = $item.label
+            plural_label = $item.plural_label
+            content_root_id = $item.content_root_id
+            category_policy = $item.category_policy
+            path_strategy = $item.path_strategy
+            metadata_type_mode = $item.metadata_type_mode
+            slug_mode = $item.slug_mode
+            metadata_type = $item.metadata_type
+            record_slug_prefix = $item.record_slug_prefix
+            qa_page_enabled = [bool]$item.qa_page_enabled
+            graph_enabled = [bool]$item.graph_enabled
+        }
+    }
+
+    $categories = [ordered]@{}
+    $placements = [ordered]@{}
+    $graphClasses = [ordered]@{}
+    foreach ($category in @($EffectiveSchema.content.categories | Sort-Object id)) {
+        $eligiblePlacements = @(
+            $category.placements | Where-Object { $contentTypes.Contains($_.content_type_id) } | Sort-Object content_type_id
+        )
+        if (
+            $category.lifecycle -cne 'active' -or
+            -not [bool]$category.canonical_pages_enabled -or
+            $eligiblePlacements.Count -eq 0
+        ) {
+            continue
+        }
+        $categoryId = $category.id
+        $categories[$categoryId] = [ordered]@{
+            label = $category.label
+            plural_label = $category.plural_label
+            metadata_type = $category.metadata_type
+            subject_slug_prefix = $category.subject_slug_prefix
+            subject_slug_pattern = $category.subject_slug_pattern
+            graph_class = $category.graph_class
+        }
+        if (-not [string]::IsNullOrWhiteSpace($category.graph_class)) {
+            $graphClasses[$categoryId] = $category.graph_class
+        }
+        foreach ($placement in $eligiblePlacements) {
+            $contentTypeId = $placement.content_type_id
+            $placementId = "$categoryId|$contentTypeId"
+            $placements[$placementId] = [ordered]@{
+                category_id = $categoryId
+                content_type_id = $contentTypeId
+                content_root_id = $contentTypes[$contentTypeId].content_root_id
+                relative_folder = $placement.relative_folder
+                template = $placement.template
+            }
+        }
+    }
+
+    $capabilityState = [ordered]@{}
+    foreach ($capability in @($EffectiveSchema.capabilities | Sort-Object id)) {
+        $capabilityState[$capability.id] = [ordered]@{
+            effective_lifecycle = $capability.effective_lifecycle
+            available = [bool]$capability.available
+            enabled = [bool]$capability.enabled
+        }
+    }
+    return [ordered]@{
+        consumer_id = $ConsumerId
+        roots = $roots
+        content_types = $contentTypeRows
+        categories = $categories
+        placements = $placements
+        graph_classes = $graphClasses
+        capability_state = $capabilityState
+    }
+}
+
+function Compare-KnowledgeConsumerSchemaProjection {
+    param(
+        [object]$Legacy,
+        [object]$Effective,
+        [string]$Path = ''
+    )
+
+    $differences = @()
+    $legacyIsMap = $Legacy -is [System.Collections.IDictionary]
+    $effectiveIsMap = $Effective -is [System.Collections.IDictionary]
+    if ($legacyIsMap -and $effectiveIsMap) {
+        $keys = @($Legacy.Keys) + @($Effective.Keys) | Sort-Object -Unique
+        foreach ($key in $keys) {
+            $childPath = if ([string]::IsNullOrWhiteSpace($Path)) {
+                [string]$key
+            }
+            else {
+                "$Path.$key"
+            }
+            if (-not $Legacy.Contains($key)) {
+                $value = $Effective[$key] | ConvertTo-Json -Depth 100 -Compress
+                $differences += "${childPath}: missing from legacy; effective=$value"
+            }
+            elseif (-not $Effective.Contains($key)) {
+                $value = $Legacy[$key] | ConvertTo-Json -Depth 100 -Compress
+                $differences += "${childPath}: legacy=$value; missing from effective schema"
+            }
+            else {
+                $differences += @(Compare-KnowledgeConsumerSchemaProjection $Legacy[$key] $Effective[$key] $childPath)
+            }
+        }
+        return @($differences)
+    }
+
+    $legacyJson = $Legacy | ConvertTo-Json -Depth 100 -Compress
+    $effectiveJson = $Effective | ConvertTo-Json -Depth 100 -Compress
+    if ($legacyJson -cne $effectiveJson) {
+        $displayPath = if ([string]::IsNullOrWhiteSpace($Path)) {
+            '<root>'
+        }
+        else {
+            $Path
+        }
+        $differences += "${displayPath}: legacy=$legacyJson; effective=$effectiveJson"
+    }
+    return @($differences)
+}
+
+function Assert-KnowledgeConsumerSchemaShadow {
+    param(
+        [string]$ConsumerId,
+        [object]$Legacy,
+        [object]$Effective
+    )
+
+    $differences = @(Compare-KnowledgeConsumerSchemaProjection $Legacy $Effective)
+    if ($differences.Count -gt 0) {
+        $details = @($differences | ForEach-Object { "- $_" }) -join [Environment]::NewLine
+        throw "$ConsumerId effective-schema shadow mismatch:$([Environment]::NewLine)$details"
     }
 }
 
