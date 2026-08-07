@@ -581,10 +581,19 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [ ] Preserve project-independent catalog loading so installed and potentially available packs can
   be inspected before a project exists or without treating one project's selection as catalog
   identity.
+- [ ] Define distinct `framework-catalog` and `framework-catalog-selection` structured contracts;
+  do not reuse the project-scoped effective-schema or effective-schema-selection contract names.
 - [ ] Provide concise and detailed human reports, canonical JSON export, and ambiguity-safe singular
   pack/capability lookup across the complete catalog.
-- [ ] Implement paired Python and PowerShell services and commands with permanent positive,
-  malformed, ambiguity, path-safety, scale, and three-runtime parity coverage.
+- [ ] Add paired `inspect_framework_catalog.py` and `Get-FrameworkCatalog.ps1` commands with
+  project-independent root resolution plus human, JSON, confined file-export, composable `show`,
+  pack-selector, and capability-selector behavior parallel to the existing effective-schema command.
+- [ ] Share selector normalization, report/export primitives, failure envelopes, and path-safety
+  helpers where their contracts are genuinely identical while keeping catalog and effective-schema
+  serializers and record identities distinct.
+- [ ] Implement paired Python and PowerShell catalog services and commands with permanent positive,
+  malformed, ambiguity, path-safety, scale, and three-runtime parity coverage. Commands import their
+  runtime services and never invoke one another as subprocesses.
 - [ ] Keep wizard, editor, and UI consumers on the shared catalog service rather than allowing
   independent pack-directory scans.
 
@@ -596,9 +605,20 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [ ] Keep effective-schema composition project-specific: combine the selected catalog subset with
   the project manifest, capability activation, taxonomy, resources, diagnostics, and later project
   registries instead of treating the effective schema as only a filtered catalog.
-- [ ] Define an acyclic data flow in which project-independent catalog records feed project
-  composition and the resulting selected, available, enabled, deprecated, planned, and
-  used-by-project states may be projected back into a catalog view without mutating catalog identity.
+- [ ] Preserve the existing `inspect_effective_schema.py` and `Get-EffectiveProjectSchema.ps1`
+  command names, project-root behavior, switches, human reports, complete JSON contract, selection
+  envelope, and output confinement while changing only their internal pack-data dependency.
+- [ ] Implement a separate generated `FrameworkCatalogProjectView` contract, serialized as
+  `framework-catalog-project-view`, from `FrameworkCatalog` plus `EffectiveProjectSchema`. The view
+  annotates installed catalog records with selected, available, enabled, deprecated, planned,
+  used-by-project, and unavailable-reason state without mutating the base catalog or becoming
+  canonical configuration.
+- [ ] Make project annotation an explicit catalog-command opt-in such as `--project-root` /
+  `-ProjectRoot`; ordinary catalog inspection remains project-independent even when executed inside
+  a project checkout.
+- [ ] Keep the dependency flow acyclic: project-independent catalog records feed effective-schema
+  composition, and the completed effective schema may feed only the derived catalog project view.
+  The base catalog must never depend on an effective schema.
 - [ ] Preserve one implementation authority for pack parsing, normalization, lookup, presentation,
   classification, lifecycle, dependency, and provider records across catalog and effective-schema
   services in both runtimes.
@@ -607,6 +627,10 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [ ] Prove byte-identical contract-version-2 effective-schema JSON, selection envelopes, human
   reports, failure behavior, QA/Visualization projections, and canonical consumer artifacts across
   Python, PowerShell 7, and Windows PowerShell 5.1 before retiring the direct path.
+- [ ] Add permanent `FrameworkCatalogProjectView` coverage for explicit project attachment,
+  selected and unselected packs, enabled and disabled capabilities, planned/deprecated state,
+  unavailable reasons, unknown or malformed project input, selectors, deterministic JSON/report
+  export, base-catalog immutability, and three-runtime parity.
 - [ ] Remove the superseded direct selected-pack discovery/composition path only after permanent
   catalog, effective-schema, project-composition, compatibility, extraction, and scale coverage
   proves the shared model.
@@ -619,6 +643,8 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [ ] Represent dependencies, recommendations, conflicts, and planned-only features clearly.
 - [ ] Present catalog-owned installed, selected, available, enabled, deprecated, and
   used-by-project states coherently within groups.
+- [ ] Expose group navigation through the catalog command, effective-schema command, and
+  catalog project view without defining a third pack/capability metadata model.
 - [ ] Add effective-schema output for groups, presentation metadata, family, architectural role,
   scope, dependency explanations, and bridge relationships.
 - [ ] Let headless inspection filter capabilities by group, provider pack, lifecycle, availability,
@@ -657,8 +683,9 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [ ] `EffectiveProjectSchema` derives its selected pack/capability records from the same validated
   model as `FrameworkCatalog`, adds project-owned composition state, and retains no independent pack
   metadata parser or discovery authority.
-- [ ] Catalog inspection can project optional project state without making the project mandatory,
-  mutating catalog identity, or introducing a circular dependency.
+- [ ] Catalog inspection implements `FrameworkCatalogProjectView` whenever project context is
+  explicitly supplied, without making that context mandatory for base catalog inspection, mutating
+  catalog identity, or introducing a circular dependency.
 - [ ] Human and JSON clients can inspect one pack or capability by stable ID and navigate its groups,
   dependencies, providers, lifecycle, activation, recommendations, conflicts, and contributions.
 - [ ] Every declared planned capability is machine-discoverable and traceable to a delivery phase or

@@ -25,6 +25,17 @@ directory scanning and README dependence for machine clients with a generated `F
 service and report. That catalog must preserve independently available packs, dependencies, and
 discoverability state without composing every installed pack as though one project selected it.
 
+The planned paired `inspect_framework_catalog.py` and `Get-FrameworkCatalog.ps1` commands will
+inspect that complete project-independent inventory. The existing effective-schema commands remain
+separate because they describe one valid project composition. Both command families will consume
+the same validated pack/capability records rather than maintaining separate parsers or metadata.
+
+Phase 3.2.2 will make `EffectiveProjectSchema` resolve its selected dependency closure through the
+shared catalog model and then add project activation, taxonomy, resources, diagnostics, and later
+project registries. An explicit project-root argument on catalog inspection produces the required
+derived `FrameworkCatalogProjectView` with selected/enabled/used state; the base catalog remains
+project-independent and never depends on that view.
+
 ## Architectural Classification
 
 | Pack | Family | Role | Scope | Domains / joins |

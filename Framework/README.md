@@ -16,7 +16,9 @@ This directory contains reusable framework assets that are portable across proje
 
 Platform Phases 1 through 3.1 are complete. Phase 3.2.1 is the current next boundary: a generated
 `FrameworkCatalog` for all installed packs, kept distinct from each project's selected
-`EffectiveProjectSchema`, before capability grouping and later interface work.
+`EffectiveProjectSchema`. Phase 3.2.2 then moves effective-schema composition onto the shared
+validated catalog model while preserving its project-specific contract and command behavior before
+capability grouping and later interface work.
 
 Project-specific composition, paths, activated capabilities, taxonomy, resources, sources, and extension packs remain under `Project_Config/`.
 

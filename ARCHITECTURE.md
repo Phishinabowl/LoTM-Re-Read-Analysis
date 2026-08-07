@@ -215,6 +215,42 @@ The effective schema intentionally excludes unselected packs. Phase 3.2.1 owns a
 `FrameworkCatalog` discovery contract for all installed packs and capabilities; catalog discovery
 must not pretend those independently available packs form one valid project composition.
 
+### Framework Catalog Target Boundary
+
+Phase 3.2 introduces `FrameworkCatalog` as a generated, project-independent inventory over canonical
+installed pack files. The catalog preserves complete pack/capability metadata, dependencies,
+lifecycle, classification, presentation, and discoverability without composing every installed pack
+into one project. Canonical pack files remain authoritative; neither the catalog nor an effective
+schema may be edited as configuration.
+
+Catalog inspection and project inspection remain separate public contracts and commands. The paired
+catalog commands will be `inspect_framework_catalog.py` and `Get-FrameworkCatalog.ps1`; the existing
+`inspect_effective_schema.py` and `Get-EffectiveProjectSchema.ps1` commands remain project-scoped.
+They may share lookup, report, export, failure, and path-safety primitives, but they must not invoke
+one another as subprocesses or maintain separate pack parsers.
+
+Phase 3.2.2 replaces the effective schema's direct selected-pack loading with the shared validated
+catalog model. `EffectiveProjectSchema` remains more than a catalog filter: it resolves one project's
+selected dependency closure and combines it with activation, taxonomy, resources, diagnostics, and
+later project registries. The migration must preserve its existing command/API behavior and
+byte-identical contract-version-2 output before the direct path is retired.
+
+Phase 3.2.2 must implement project annotations through a separate generated
+`FrameworkCatalogProjectView` contract:
+
+```mermaid
+flowchart TD
+    Packs["Canonical pack files"] --> Catalog["FrameworkCatalog"]
+    Catalog --> Effective["EffectiveProjectSchema"]
+    Project["Project configuration"] --> Effective
+    Catalog --> ProjectView["FrameworkCatalogProjectView"]
+    Effective --> ProjectView
+```
+
+The base catalog never depends on an effective schema. The catalog project view reports installed,
+selected, available, enabled, deprecated, planned, used-by-project, and unavailable-reason state,
+but it must not mutate catalog identity, make a project mandatory, or become canonical input.
+
 QA and Visualization compose the effective schema in-process from their already-loaded project,
 pack, taxonomy, and resource objects. Each reads a consumer-specific projection from that one
 composed object for roots, content types, categories, placements, graph classes, capability state,

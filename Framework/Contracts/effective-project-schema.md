@@ -294,6 +294,20 @@ The service implementation may evolve without changing the contract version when
 and semantics remain identical. Generated snapshots may be used for tests and diagnostics, but they
 must not become an alternate source of truth or an input required to load the project.
 
+### Planned Framework-Catalog Integration
+
+Contract version 2 currently composes the project's selected packs through the project configuration
+services. Platform Phase 3.2.2 will change that internal dependency so selected packs resolve through
+the shared validated `FrameworkCatalog` model. This is an implementation migration, not permission
+to change the effective-schema contract, command names, selection envelope, ordering, diagnostics,
+or output bytes.
+
+`FrameworkCatalog` remains a project-independent installed inventory. `EffectiveProjectSchema`
+remains the project composition that adds selected dependency closure, activation, taxonomy,
+resources, and diagnostics. Phase 3.2.2 must implement a derived `FrameworkCatalogProjectView` that
+combines both for catalog presentation, but the base catalog must not depend on the effective schema
+and no generated document becomes canonical input.
+
 ## Runtime And Command API
 
 Python library consumers import `EffectiveProjectSchema`, `compose_effective_project_schema`,
