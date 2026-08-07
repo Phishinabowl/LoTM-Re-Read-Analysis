@@ -565,6 +565,84 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [x] Complete installed-pack discovery is explicitly handed off to the separate
   `FrameworkCatalog` boundary in Phase 3.2.1.
 
+### Phase 3.1.6 Post-Closure Validation Reporting Optimization
+
+#### Phase 3.1.6.1 Baseline Measurement And Output Contract
+
+- [ ] Keep this phase limited to validation reporting and adoption. Do not reopen the completed
+  pack-presentation contract or alter selected tests, failure semantics, or framework behavior.
+- [ ] Measure line count, byte count, elapsed time, and payload shape for representative focused,
+  `fast`, `baseline`, `local`, `pull-request`, and `full-release` conformance/compatibility runs in
+  their current human and JSON modes. Record the measurements before changing presentation, but
+  reuse one captured execution result where possible rather than rerunning an identical expensive
+  test selection solely to measure another renderer.
+- [ ] Inventory every tracked consumer of aggregate `--json` / `-Json` output, including CI,
+  extraction rehearsal, documentation, and compatibility helpers, so an optimization cannot silently
+  break a machine client.
+- [ ] Define a stable concise structured-summary contract containing run status, selected profile or
+  IDs, passed/failed counts, ordered suite/check statuses, elapsed time where measured, canonical
+  output state where applicable, retained diagnostic/report paths, and bounded failure excerpts.
+- [ ] Keep existing detailed `--json` / `-Json` behavior backward compatible. Add explicit concise
+  structured output and confined detailed-report export rather than changing the meaning of an
+  established switch.
+- [ ] Define deterministic console and report budgets. Successful console output must remain compact;
+  complete child output and nested semantic details must remain available in a retained report when
+  requested or when a failure requires diagnosis.
+
+#### Phase 3.1.6.2 Aggregate Conformance Reporting
+
+- [ ] Add matching concise structured-summary and detailed-report export switches to the Python and
+  PowerShell aggregate conformance runners, with identical field meaning, ordering, path safety,
+  overwrite behavior, and failure classification.
+- [ ] Preserve the current detailed aggregate JSON payload for existing clients and retain complete
+  child suite summaries in detailed reports while omitting them from concise successful output.
+- [ ] Bound console failure excerpts by a documented deterministic limit without truncating the
+  retained full diagnostic record. A failed run must identify every failed suite and the detailed
+  report location when one exists.
+- [ ] Add permanent command-surface, success, failure, malformed-report-path, deterministic-summary,
+  and Python/PowerShell parity coverage without adding a second conformance inventory.
+
+#### Phase 3.1.6.3 Compatibility Reporting
+
+- [ ] Add concise structured-summary and confined detailed-report export modes to the canonical
+  compatibility orchestrator while preserving its current detailed JSON payload and check registry.
+- [ ] Summarize successful comparisons through stable check IDs, statuses, semantic counts or tree
+  digests where useful, elapsed time, canonical-output protection, and cleanup state rather than
+  printing every nested runtime result.
+- [ ] Retain complete failure diagnostics and scoped compatibility artifacts automatically on failure;
+  print only a bounded diagnostic excerpt plus the retained output/report paths to routine console or
+  concise structured output.
+- [ ] Add permanent focused, profile, path-safety, cleanup, deterministic-summary, and detailed-report
+  coverage without weakening Visualization, QA, extraction, root-discovery, lifecycle, or rendering
+  comparisons.
+
+#### Phase 3.1.6.4 Adoption And Documentation
+
+- [ ] Update local testing recipes to use concise structured output for routine successful runs,
+  focused detailed reports for intentional baseline review, and verbose/full diagnostics only during
+  failure investigation.
+- [ ] Update CI commands only after measurement proves the concise mode preserves useful hosted-run
+  status. Keep complete diagnostics accessible through retained logs or uploaded artifacts when a
+  hosted failure would otherwise lose evidence.
+- [ ] Update the testing methodology, framework improvement lifecycle, tooling reference, command
+  help, README guidance, extraction rehearsal, and work annotations to distinguish execution strength
+  from output verbosity. Reducing output must never reduce selected suites, checks, fixtures, or
+  compatibility assertions.
+- [ ] Record implemented behavior, measurements, compatibility evidence, and commit references in
+  `Framework/platform_evolution.md` through the normal two-part confirmation sequence.
+
+#### Phase 3.1.6.5 Closure And Handoff
+
+- [ ] Run static policy, formatting, focused reporting-contract tests, aggregate `baseline` in Python,
+  PowerShell 7, and Windows PowerShell 5.1, and compatibility `full-release` with matching concise and
+  detailed semantic results.
+- [ ] Confirm successful concise output is materially smaller than the retained detailed payload,
+  deliberate failures remain diagnosable without rerunning, canonical outputs remain unchanged, and
+  temporary reports obey scoped cleanup policy.
+- [ ] Produce a compact fresh-task handoff for Phase 3.2 that names the branch, current commit, clean
+  status, next unchecked roadmap item, required orientation documents, focused commands, and known
+  deferred boundaries without reproducing the full conversation history.
+
 ### Phase 3.2 Framework Catalog And Capability Grouping
 
 #### Phase 3.2.1 Framework Catalog Contract And Discovery
