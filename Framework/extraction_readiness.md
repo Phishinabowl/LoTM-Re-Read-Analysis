@@ -147,6 +147,13 @@ kernel instead carries a selectable domain-neutral foundation plus narrative, si
 compute vocabulary extensions. A neutral core-only consumer selects none of them and remains
 valid, proving that the added files do not add an activation or project dependency.
 
+The V50 pressure-confirmed rehearsal copied 229 portable files and passed its six portable suites
+in Python, PowerShell 7, and Windows PowerShell 5.1. Core pack version 41 and the paired chronology
+services expose canonical chronology positions through a detached provider inventory without
+copying LoTM configuration or allowing callers to remove registry state. All nine guarded project
+surfaces remained absent, and the full compatibility profile preserved canonical Visualization and
+QA outputs.
+
 ## Known Limits And Next Boundaries
 
 Extraction readiness does not close these known items:
@@ -154,9 +161,13 @@ Extraction readiness does not close these known items:
 - Recurrence, participation identity, participant-relative chronology selection, exact entry-relative
   state boundaries, branch lifecycle, chronology topology, epistemic state, capability state,
   structural interpretations, hosted identity, nested carrier topology, optional hosting-pack
-  isolation, and canonical chronology-position provider closure are implemented through V50.
-  Phase 1.16 must complete V50's cumulative pressure confirmation and stabilization decision before
-  the Phase 1 exit gate can close.
+  isolation, and canonical chronology-position provider closure are implemented and pressure-tested
+  through V50. The Phase 1 model gate is closed; Phase 2 effective-schema work is the next platform
+  implementation boundary.
+- Historical continuity-membership transitions, manifestation- or release-scoped continuity,
+  occurrence-linked continuity transitions, first-class continuity systems, and sliding-chronology
+  policies remain later normalized-content or deferred narrative capability work. They do not weaken
+  the current portable-kernel claim or block Phase 2.
 - QA graph construction has not yet been fully migrated into one reusable Visualization engine.
 - A normalized content index and generalized bounded-page machinery are not yet complete across
   content types.

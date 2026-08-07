@@ -547,6 +547,9 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
   modules, relationships, evidence links, visibility, and diagnostics.
 - [ ] Define normalized relationship identity, endpoints, type, state history, provenance,
   applicability, and projection metadata.
+- [ ] Preserve typed targets below whole-work scope, including segments, content groups,
+  manifestations, release objects, continuity memberships, and occurrences, without promoting a
+  cut, release, event, or assertion into the wrong identity class.
 - [ ] Keep normalized records independent of Markdown/YAML physical layout.
 
 ### Phase 5.2 Legacy LoTM Adapter
@@ -578,6 +581,14 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [ ] Make normalized structured relationships own facts, timing, confidence/state progression,
   provenance, applicability, and stable identity.
 - [ ] Define universal relationship fields plus pack/category-specific extensions.
+- [ ] Represent continuity and incarnation membership as provenance-backed state history so entry,
+  departure, transfer, restoration, ambiguity, and supersession remain queryable at a boundary.
+- [ ] Permit applicability and continuity assertions to target manifestations and release objects
+  when alternate cuts or editions have different continuity treatment, without requiring them to
+  become separate creative works.
+- [ ] Allow a continuity transition relationship to reference the occurrence that activates or
+  causes it while keeping the in-world occurrence, branch lifecycle, publication decision, and
+  continuity relationship as distinct records.
 - [ ] Preserve conflicting and lower-priority evidence rather than overwriting it.
 - [ ] Define inverse normalization, deduplication, supersession, and ambiguity behavior.
 
@@ -601,6 +612,8 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 - [ ] One normalized relationship contract can explain every current QA relationship.
 - [ ] No consumer needs to choose independently between seed facts and data-block facts.
+- [ ] Marvel/DC acceptance probes can explain continuity transfers, history-changing occurrences,
+  and cut-specific continuity claims without overwriting prior states or collapsing record types.
 
 ## Phase 7: Visualization Consolidation
 
@@ -939,7 +952,8 @@ Consumer evidence may reorder these waves, but a capability must not move from `
 - [ ] Implement `publication-runs` for publisher-, imprint-, territory-, date-, serialization-, and
   format-scoped runs beneath works and editions without collapsing manifestations or releases.
 - [ ] Pressure-test Tolkien-style textual traditions, serialized prose and comics, translated and
-  revised editions, incomplete works, posthumous compilations, and competing stemmata.
+  revised editions, incomplete works, posthumous compilations, variant covers, legacy numbering,
+  relaunches, and competing stemmata.
 
 ### Phase 17.3 Narrative Production, Credits, And Rights
 
@@ -950,6 +964,9 @@ Consumer evidence may reorder these waves, but a capability must not move from `
   conclusion.
 - [ ] Keep authorship, production contribution, ownership, authorization, canon authority, and
   commerciality separate throughout composition and pressure testing.
+- [ ] Pressure-test cross-company publications and composite properties without inferring shared
+  ownership, continuing authorization, canon equivalence, or unrestricted reuse from creative
+  lineage alone.
 
 ### Phase 17.4 Preservation And Access
 
@@ -985,9 +1002,39 @@ Consumer evidence may reorder these waves, but a capability must not move from `
 - [ ] Keep crossover event identity separate from an in-world occurrence, publication event,
   adaptation lineage, or generic content group.
 - [ ] Pressure-test comic-event reading orders, television crossovers, film/series tie-ins, and
-  continuity-specific retellings.
+  continuity-specific retellings, including Marvel/DC main-event, tie-in, alternate-order, and
+  cross-company structures.
 
-### Phase 17.8 Promotion And Regression Gate
+### Phase 17.8 Shared-Universe Continuity Topology
+
+- [ ] Evaluate and contract a candidate `continuity-systems` capability for universes, multiverses,
+  realms, domains, and other named continuity containers without treating a container as a creative
+  work or ordinary continuity relationship.
+- [ ] Represent scoped membership, containment, externality, accessibility, and movement among
+  continuity systems while preserving pairwise branch, counterpart, reset, merge, and restoration
+  relationships.
+- [ ] Keep continuity topology separate from chronology-context topology, spatial location,
+  publication grouping, canon authority, and entity incarnation identity.
+- [ ] Pressure-test Battleworld-style constituent domains, DC multiverse/omniverse organization,
+  realms external to ordinary universes, and cross-system visitors.
+- [ ] Add a pack declaration only when the contract, ownership boundary, runtime behavior, and
+  permanent conformance meet the Phase 3.4 promotion criteria.
+
+### Phase 17.9 Narrative Sliding Chronology Policies
+
+- [ ] Evaluate and contract a candidate `sliding-chronology-policies` capability for long-running
+  serials whose publication history advances while in-world history remains compressed, revised,
+  or only partially mapped.
+- [ ] Define versioned, scoped, explainable mapping policies without weakening core exact-position
+  semantics or silently extrapolating from sparse chronology anchors.
+- [ ] Preserve publication order, story order, reader disclosure, explicit retcons, and unresolved
+  chronology as independent structures.
+- [ ] Pressure-test long-running Marvel/DC comics, rolling character ages, continuity relaunches,
+  and contradictory editorial eras before promoting the capability.
+- [ ] Keep the capability narrative-owned unless a cross-domain use case justifies architectural
+  promotion through the framework improvement lifecycle.
+
+### Phase 17.10 Promotion And Regression Gate
 
 - [ ] For every promoted capability, add paired runtime fixtures and conformance where parity
   applies, register aggregate coverage, update retained pressure scenarios, and run required
