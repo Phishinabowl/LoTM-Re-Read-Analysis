@@ -1,0 +1,294 @@
+# Effective Project Schema Contract
+
+## Purpose
+
+`EffectiveProjectSchema` is the domain-neutral, generated description of the schema that one
+project can actually use after project configuration, selected schema packs, capability lifecycle,
+capability activation, taxonomy, and resource configuration have been composed.
+
+It is the common inspection boundary for headless tools, QA, Visualization, editors, and future
+interfaces. Consumers must not reconstruct equivalent pack, capability, vocabulary, taxonomy, or
+resource state from the individual registries.
+
+The effective schema is diagnostic output, not canonical configuration. Its inputs remain the
+project manifest, selected packs, and project registries. Editing an export has no effect on the
+project.
+
+## Ownership And Scope
+
+Core owns the effective-schema shape, lifecycle resolution, diagnostics model, deterministic
+ordering, and serialization contract. Selected packs own capability and controlled-value
+definitions. Project registries own instantiated taxonomy, roots, placements, and resource policy.
+
+Contract version 1 includes:
+
+- project identity and input schema versions;
+- selected packs in validated dependency order;
+- declared capability providers, lifecycle, availability, and activation state;
+- composed controlled-value namespaces, definitions, broader-value relationships, and owners;
+- configured content roots, content types, categories, placements, templates, QA eligibility, and
+  graph eligibility;
+- configured resource roots, kinds, types, placements, authority, tracking, and editor eligibility;
+- deterministic diagnostics that can be produced after successful composition.
+
+Page modules, normalized content records, canonical relationships, and projection declarations join
+the effective schema only when their later platform contracts are implemented. Their absence from
+version 1 is not an empty declaration that they exist.
+
+## Document Shape
+
+The serialized document uses this top-level order:
+
+```json
+{
+  "contract": "effective-project-schema",
+  "contract_version": 1,
+  "project": {},
+  "registry_schema_versions": [],
+  "packs": [],
+  "capabilities": [],
+  "controlled_value_namespaces": [],
+  "content": {},
+  "resources": {},
+  "diagnostics": []
+}
+```
+
+Every listed key is required. Collections are present as empty arrays or objects when validly empty;
+they are not omitted. JSON `null` is used only where this contract explicitly permits it.
+
+## Project Identity
+
+`project` contains:
+
+| Field | Meaning |
+| --- | --- |
+| `project_id` | Stable project ID from the project manifest. |
+| `framework_id` | Selected framework ID. |
+| `domain_id` | Selected domain ID. |
+| `project_manifest_schema_version` | Validated project-manifest schema version. |
+
+The export never contains the repository's absolute path, current working directory, machine name,
+user profile, or generation timestamp. Those values are environmental rather than schema identity
+and would make otherwise identical compositions compare differently.
+
+`registry_schema_versions` is an array of `{ "registry_id", "schema_version" }` rows for every
+registry whose data contributes to the export. It is ordered by `registry_id`. Pack schema and pack
+release versions remain on each pack row because independently versioned packs may differ.
+
+## Selected Packs
+
+`packs` contains one row per selected pack in validated dependency order:
+
+| Field | Meaning |
+| --- | --- |
+| `id` | Stable pack ID. |
+| `kind` | Pack kind such as `core`, `domain`, or `extension`. |
+| `lifecycle` | Pack lifecycle. |
+| `schema_version` | Pack document schema version. |
+| `pack_version` | Pack's independently incremented release version. |
+| `label` | Human-facing pack label. |
+| `description` | Human-facing pack description. |
+| `dependencies` | Ordered dependency rows. |
+
+Each dependency row contains `pack_id`, `minimum_version`, `selected_version`, and `status`.
+Successful composition uses status `satisfied`. A missing, out-of-order, or incompatible hard
+dependency is fatal and therefore cannot produce an `EffectiveProjectSchema`; the command boundary
+reports it through the failure behavior defined for Phase 2.2.
+
+Dependency order is the schema-pack registry's validated selection order. It is meaningful and must
+not be alphabetized by serializers.
+
+## Capability Resolution
+
+`capabilities` contains one row for every capability declared by at least one selected pack. Rows are
+ordered by capability ID. Each row contains:
+
+| Field | Meaning |
+| --- | --- |
+| `id` | Stable capability ID. |
+| `declared` | Always `true` for a serialized capability row. |
+| `effective_lifecycle` | Resolved `available`, `deprecated`, or `planned` lifecycle. |
+| `available` | Whether the capability may legally be activated. |
+| `deprecated` | Whether every activatable provider is deprecated. |
+| `planned` | Whether the capability is declared for future work but unavailable. |
+| `enabled` | Whether this project activates it. |
+| `disabled` | Exact inverse of `enabled`. |
+| `providers` | Definitions contributed by selected packs. |
+
+Provider rows appear in selected-pack dependency order and contain `pack_id`, `lifecycle`, `label`,
+and `description`. Provider labels and descriptions may be `null` when the pack used shorthand.
+
+Lifecycle resolution is deterministic:
+
+1. Any `available` provider makes the effective lifecycle `available`.
+2. Otherwise, any `deprecated` provider makes it `deprecated`.
+3. Otherwise, all providers are `planned` and the effective lifecycle is `planned`.
+
+`available` is true for effective lifecycle `available` or `deprecated`. `deprecated` and `planned`
+are true only for their matching effective lifecycle and are otherwise false. A `planned` capability
+is unavailable, disabled, and cannot appear in the project's enabled list. An available or
+deprecated capability omitted from activation is available but disabled. A deprecated enabled
+capability is valid but produces a warning diagnostic. Capabilities from unselected packs do not
+appear as rows; they are undeclared, unavailable, and disabled for this composition.
+
+The export does not merge provider labels or descriptions into one synthetic definition. Consumers
+may choose a display definition, but must retain provider identity and must not infer that two
+providers are interchangeable.
+
+## Controlled Values
+
+`controlled_value_namespaces` contains rows ordered by namespace ID. Each row contains `id` and a
+`values` array. Value rows are ordered by stable value ID and contain:
+
+| Field | Meaning |
+| --- | --- |
+| `id` | Stable controlled value ID. |
+| `label` | Human-facing label or `null`. |
+| `description` | Human-facing description or `null`. |
+| `broader_value_id` | Direct broader value in the same namespace or `null`. |
+| `owner_pack_id` | The one selected pack that owns the value. |
+
+The effective schema preserves direct broader-value relationships and never emits a delimiter-built
+hierarchy or silently computed transitive closure. Duplicate ownership, unknown broader values, and
+hierarchy cycles are fatal composition errors rather than diagnostics on a successful schema.
+
+Typed semantic declarations remain runtime contract data rather than generic controlled values.
+They may receive a dedicated effective-schema section in a later contract version when an editor or
+consumer requirement is defined; version 1 must not flatten them into synthetic namespaces.
+
+## Content Configuration
+
+`content` has `roots`, `content_types`, and `categories` arrays.
+
+Content roots retain manifest order and contain `id`, `relative_path`, `provenance_mode`, and
+`provenance_label`. Their `relative_path` uses repository-relative forward slashes.
+
+Content-type rows are ordered by stable ID and contain the normalized fields already owned by the
+taxonomy registry:
+
+- `id`, `lifecycle`, `label`, `plural_label`, and `canonical_pages_enabled`;
+- `content_root_id`, `category_policy`, `path_strategy`, `metadata_type_mode`, and `slug_mode`;
+- `default_template`, `qa_page_enabled`, and `graph_enabled`;
+- `metadata_type`, `record_slug_prefix`, `record_slug_pattern`, and `record_path`.
+
+`default_template` and `record_path` are repository-relative forward-slash strings or `null`.
+Optional textual values use the registry's normalized empty string where empty and null have
+different existing semantics.
+
+Category rows are ordered by stable ID and contain:
+
+- `id`, `lifecycle`, `label`, `plural_label`, and `canonical_pages_enabled`;
+- `metadata_type`, `subject_slug_prefix`, `subject_slug_pattern`, and `graph_class`;
+- `placements` ordered by `content_type_id`.
+
+Each placement contains `content_type_id`, `relative_folder`, and `template`. `relative_folder` is
+relative to the referenced content type's content root; `template` is repository-relative. Both use
+forward slashes. Content-type eligibility remains authoritative: category graph class does not make
+a record graphable when its content type disables graph projection, and a category placement does
+not override QA-page eligibility.
+
+## Resource Integration
+
+`resources` has `roots`, `kinds`, and `types` arrays.
+
+Resource roots retain manifest order and contain `id`, `relative_path`, and `required`. Resource-kind
+rows are ordered by stable ID and contain `id`, `label`, and `plural_label`. Resource-type rows are
+ordered by stable ID and contain:
+
+- `id`, `lifecycle`, `label`, `plural_label`, and `kind_id`;
+- `authority` and `editor_enabled`;
+- `placements` in registry order.
+
+Each resource placement contains `root_id`, `relative_path`, `tracking`, and `required`.
+`relative_path` is relative to the referenced resource root and uses forward slashes. The effective
+schema describes configured placement and policy; it does not inventory every concrete file beneath
+a resource root.
+
+## Diagnostics
+
+`diagnostics` contains explainable non-fatal findings produced while composing a valid schema. Each
+row contains:
+
+| Field | Meaning |
+| --- | --- |
+| `severity` | `warning` or `info` in a successful schema; the shared diagnostic type also permits `error` for a failed composition result. |
+| `code` | Stable machine-readable diagnostic code. |
+| `message` | Human-readable explanation. |
+| `path` | Stable configuration field path or `null`. |
+| `related_ids` | Sorted stable IDs relevant to the finding. |
+
+Diagnostics are ordered by severity (`warning` before `info`), then code, path with null first,
+message, and related IDs using ordinal comparison.
+
+Fatal malformed input, missing dependencies, dependency cycles or ordering failures, conflicting
+ownership, unknown references, and invalid activation do not produce a partial
+`EffectiveProjectSchema`. Phase 2.2 must give the service and command surface a machine-readable
+failure result using the same diagnostic row shape with severity `error`, while preserving existing
+fail-closed loaders. That failure result contains no schema and is not an effective-schema document.
+
+The initial diagnostic code catalog includes:
+
+- `deprecated-capability-enabled`;
+- `deprecated-pack-selected`;
+- `multiple-capability-providers`;
+- `deferred-content-type`;
+- `deferred-category`;
+- `deferred-resource-type`.
+
+The Phase 2.2 failure catalog must provide stable codes for malformed input, missing or incompatible
+dependencies, dependency ordering, provider or ownership conflicts, invalid activation, and unknown
+references. Human-readable exception text is not itself a stable diagnostic code.
+
+Implementations may add diagnostics only with stable codes, deterministic ordering, and matching
+Python/PowerShell behavior. Diagnostics never mutate or complete canonical configuration.
+
+## Deterministic JSON Serialization
+
+Canonical effective-schema JSON uses:
+
+- UTF-8 without a byte-order mark;
+- two-space indentation;
+- LF line endings and one final newline for file output;
+- the property order defined by this contract and its row definitions;
+- JSON `true`, `false`, and `null` literals;
+- no ASCII escaping of ordinary Unicode display text;
+- ordinal ordering by stable machine ID unless a section explicitly preserves validated input order;
+- portable forward-slash paths relative to the repository, content root, or resource root defined
+  for each field;
+- no absolute paths, generation timestamps, host state, or filesystem discovery results.
+
+Object property order is part of canonical file serialization for parity snapshots even though JSON
+object semantics are unordered. In-memory consumers must address fields by name. Human-readable
+output may present the same data differently, but JSON output and exported files must use the
+canonical shape.
+
+Running composition twice against identical canonical inputs must produce byte-identical JSON.
+Python, PowerShell 7, and Windows PowerShell 5.1 must produce semantically identical documents; the
+paired conformance suite will additionally compare canonical JSON bytes where runtime newline
+handling permits.
+
+## Compatibility And Evolution
+
+`contract_version` versions this generated shape independently from every input registry. A change
+that removes or renames a field, changes field meaning, changes lifecycle resolution, changes
+required ordering, or changes null/empty behavior requires a contract-version increment and a
+documented compatibility decision.
+
+Additive fields also require a contract-version increment until a future negotiated extension
+mechanism exists. Consumers must reject an unsupported newer contract version rather than guessing.
+They may accept an older supported version through an explicit adapter.
+
+The service implementation may evolve without changing the contract version when canonical output
+and semantics remain identical. Generated snapshots may be used for tests and diagnostics, but they
+must not become an alternate source of truth or an input required to load the project.
+
+## Consumer Rules
+
+- Library consumers import the effective-schema service; they do not invoke its CLI as a subprocess.
+- CLI, QA, Visualization, and interface consumers read the same composed object.
+- Consumers may filter the effective schema for presentation but must not reinterpret lifecycle,
+  activation, ownership, eligibility, or path policy.
+- A disabled capability is normally omitted from feature UI without warning; diagnostics explain
+  deprecation or configuration concerns, not ordinary opt-in absence.
+- No consumer may write canonical project state by editing or replaying the generated JSON.

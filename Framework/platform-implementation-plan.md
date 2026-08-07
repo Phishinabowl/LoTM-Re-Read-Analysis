@@ -397,17 +397,17 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 ### Phase 2.1 Effective-Schema Contract
 
-- [ ] Define one domain-neutral `EffectiveProjectSchema` contract.
-- [ ] Include project identity and schema versions.
-- [ ] Include selected packs, dependency order, lifecycle, versions, labels, and descriptions.
-- [ ] Include declared, available, deprecated, planned, enabled, and disabled capabilities.
-- [ ] Include capability providers and dependency/conflict diagnostics.
-- [ ] Include composed controlled-value namespaces, definitions, broader-value relationships, and
+- [x] Define one domain-neutral `EffectiveProjectSchema` contract.
+- [x] Include project identity and schema versions.
+- [x] Include selected packs, dependency order, lifecycle, versions, labels, and descriptions.
+- [x] Include declared, available, deprecated, planned, enabled, and disabled capabilities.
+- [x] Include capability providers and dependency/conflict diagnostics.
+- [x] Include composed controlled-value namespaces, definitions, broader-value relationships, and
   owning packs.
-- [ ] Include current content types, categories, placements, templates, graph/QA eligibility, and
+- [x] Include current content types, categories, placements, templates, graph/QA eligibility, and
   resource integration where relevant.
-- [ ] Define deterministic ordering and a stable JSON serialization contract.
-- [ ] Keep the exported schema generated and diagnostic rather than canonical.
+- [x] Define deterministic ordering and a stable JSON serialization contract.
+- [x] Keep the exported schema generated and diagnostic rather than canonical.
 
 ### Phase 2.2 Runtime And Command Surface
 

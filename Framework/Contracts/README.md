@@ -25,6 +25,10 @@ The current executable contract is enforced by the matching Python and PowerShel
 
 Future machine-readable schema documents belong here as those loader contracts are stabilized. Do not add a partial schema that claims broader validation coverage than the loaders actually provide.
 
+`effective-project-schema.md` defines the generated composition contract that Platform Phase 2.2
+will implement. It is not another canonical registry and is not included in the executable-validator
+table until paired runtime composition exists.
+
 ## Capability Semantics
 
 Schema packs declare capabilities; capability lifecycle controls availability; projects enable available capabilities.

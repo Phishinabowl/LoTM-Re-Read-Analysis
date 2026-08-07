@@ -188,6 +188,23 @@ without leaking it into unrelated projects. Taxonomy fields, page modules, graph
 editor forms will migrate into the same effective-schema mechanism through the ordered platform
 implementation phases rather than defining parallel ownership rules.
 
+### Effective Project Schema
+
+`EffectiveProjectSchema` is the generated, domain-neutral inspection boundary over the project
+manifest, selected schema packs, capability state, controlled values, taxonomy, and resource policy.
+It exposes project and registry versions, validated pack dependency order, provider-aware capability
+lifecycle and activation, controlled-value ownership and hierarchy, content configuration, resource
+integration, and deterministic diagnostics through one stable JSON contract. It contains only
+portable normalized paths relative to their declared repository, content-root, or resource-root
+base, and excludes timestamps, host state, and absolute paths so identical canonical inputs
+serialize identically across runtimes.
+
+The effective schema is not canonical data and must never be edited as configuration. Runtime and
+command implementation belongs to Platform Phase 2.2; QA and Visualization adoption belongs to
+Phase 2.3. Page-module, normalized-content, relationship, and projection declarations join the same
+service only after their owning phases implement those contracts. See
+`Framework/Contracts/effective-project-schema.md`.
+
 ### Taxonomy Registry
 
 `Project_Config/taxonomy.yaml` is the machine-readable taxonomy registry. Its current category and content-type records own:
