@@ -1128,8 +1128,10 @@ resource objects already loaded by their supported runtime. Temporary shadow pro
 roots, content types, categories, placements, graph classes, and complete declared capability state
 with the legacy loader view. Differences use keyed paths such as
 `placements.character|glossary-page.template`; any difference stops the command before output.
-Successful comparison is observational only until Phases 2.3.3-2.3.5 migrate and retire the legacy
-decision paths.
+QA and Visualization now use their effective projections for discovery and record eligibility while
+retaining the legacy projection as a fail-closed comparison through Phase 2.3.5. Their Markdown/YAML
+interpretation and generated semantics remain compatibility adapters until later normalized-content
+phases replace them.
 
 ### Switch Map
 
@@ -1452,18 +1454,17 @@ matching semantic dimensions.
 
 Protected canonical Visualization configuration, reports, snapshots, graphs, renders, and the configured QA export are hashed before and after every run. Successful output is removed through the maintained cleanup command unless `--keep-output` is supplied. Failed output is retained for diagnosis. An explicit output root must be a child of repository `.tmp/`; the repository root, `.tmp/` itself, and outside paths are rejected.
 
-Last compatibility check: 2026-08-07 for Platform Phase 2.3.3. The focused 49.3-second `qa` check
-passed Python, PowerShell 7, and Windows PowerShell 5.1 after QA discovery authority moved to the
-effective schema. It preserved 16 notes, 121 relationships, 71 data references, one representative
-bounded graph, two representative bounded pages, all 34 normalized files, and tree SHA-256
-`2b754c78c5ed76d782f152b68d73df680029f1e40e5b7be5c4280fcc9c4bc292`; canonical outputs remained
-unchanged. The paired effective-schema conformance check also passed all three runtimes with two QA
-content types, sixteen eligible categories and placements, seventeen compiled discovery records,
-and rejection of `volume-1` as a volume-summary page slug. The latest combined `local` profile remains the 158.9-second Phase 2.3.2
-run: Visualization preserved 15 nodes and 121 relationships while matching refresh tree SHA-256
+Last compatibility check: 2026-08-07 for Platform Phase 2.3.4. The focused 38.9-second
+`visualization` check passed Python, PowerShell 7, and Windows PowerShell 5.1 after Visualization
+discovery authority moved to the effective schema. It preserved 15 nodes, 121 relationships, all
+five redirected refresh files, refresh tree SHA-256
 `dfb0ffd4a11d304ab2ffd2571bfba4717b087c512d46abd6120f920835577fe6` and unbounded graph SHA-256
 `477eb74726f1c8430ad52c5a187db3bfd402404115f36ce2bf1750f8c6531cc4`.
-Canonical outputs remained unchanged and the scoped run output was removed. The latest
+Canonical outputs remained unchanged, and the retained review bundle is under
+`.tmp/visualization-discovery-migration-review/`. The paired effective-schema conformance suite also
+passed all three runtimes with one Visualization content type, sixteen categories and records,
+schema-owned tarot-card class mapping, and the four required enabled projection capabilities. The
+latest combined `local` profile remains the 158.9-second Phase 2.3.2 run. The latest
 render-bearing `full-release` result remains the 2026-08-06 V49 run, which passed all six
 then-registered checks and produced identical nonblank SVG output.
 
@@ -1495,8 +1496,8 @@ interpretation scale probes. Source, entity, provenance, hosting, interpretation
 composition remain outside the nine-suite `fast` profile because their repeated dependency
 composition is materially expensive. The latest full-release compatibility result remains the
 2026-08-06 V49 run; Phase 2.2 separately added and passed the focused three-runtime effective-schema
-compatibility check before consumer adoption. Phase 2.3.3 reran the focused effective-schema suite in
-all three runtimes after expanding its consumer projection fields and added permanent QA discovery
+compatibility check before consumer adoption. Phases 2.3.3 and 2.3.4 reran the focused
+effective-schema suite in all three runtimes and added permanent QA and Visualization discovery
 coverage without changing the aggregate profile membership.
 
 ### Strict YAML Conformance

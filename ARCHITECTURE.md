@@ -212,13 +212,15 @@ effective projection with its legacy loader projection for roots, content types,
 placements, graph classes, capability state, and record-path/slug details before generation begins.
 Any mismatch fails closed with exact keyed paths.
 
-QA discovery now consumes the matching effective projection for enabled roots and content types,
+QA discovery consumes the matching effective projection for enabled roots and content types,
 category and fixed-type eligibility, labels, plural labels, placement/export folders, exact slug
-patterns, slug prefixes, and graph-class lookup. Its Markdown and embedded-YAML parsing,
-Relationship Seeds, data projections, anomaly reports, bounded pages, graph requests, filenames,
-output ownership, and cleanup remain legacy compatibility adapters. Visualization remains entirely
-shadow-only until its separate discovery migration. Neither consumer may bypass its pinned
-compatibility gate when authority changes.
+patterns, slug prefixes, and graph-class lookup. Visualization discovery consumes its graph-enabled
+roots, content types, category records, exact slug rules, graph classes, and enabled projection
+capabilities from the same effective schema. Both retain direct Markdown and embedded-YAML parsing
+as compatibility adapters until normalized content replaces it. Relationship Seeds, data
+projections, anomaly reports, reader boundaries, graph semantics, filenames, output ownership, and
+cleanup remain unchanged. Neither consumer may bypass its pinned compatibility gate when authority
+changes.
 
 ### Taxonomy Registry
 

@@ -32,7 +32,7 @@ from knowledge_framework.effective_schema import (
     compose_effective_consumer_schema_projection,
     compose_legacy_consumer_schema_projection,
 )
-from knowledge_framework.project_config import load_project_config
+from knowledge_framework.project_config import ProjectConfig, load_project_config
 from knowledge_framework.project_paths import resolve_project_root
 from knowledge_framework.resource_config import load_resource_config
 from knowledge_framework.schema_pack_config import load_schema_pack_registry
@@ -41,22 +41,14 @@ from knowledge_framework.taxonomy_config import load_taxonomy_config
 
 REPO_ROOT = resolve_project_root(executable_path=__file__)
 
-SLUG_PREFIXES = (
-    "artifact",
-    "character",
-    "concept",
-    "deity",
-    "event",
-    "faction",
-    "item",
-    "source",
-    "location",
-    "pathway",
-    "tarot-card",
-    "uniqueness",
+REQUIRED_VISUALIZATION_CAPABILITIES = frozenset(
+    {
+        "graph-projection",
+        "reader-disclosure",
+        "spoiler-bounding",
+        "visibility-policy",
+    }
 )
-
-SLUG_RE = re.compile(r"\b(?:" + "|".join(re.escape(prefix) for prefix in SLUG_PREFIXES) + r")-[a-z0-9][a-z0-9-]*\b")
 
 
 @dataclass
@@ -69,6 +61,116 @@ class RenderSize:
     scale_steps: int
     max_fan_out: int
     fan_out_steps: int
+
+
+@dataclass(frozen=True)
+class VisualizationRecordEligibility:
+    content_root_id: str
+    relative_folder: Path
+    relative_file: Path | None
+    slug_prefix: str
+    slug_pattern: re.Pattern[str]
+    graph_class: str
+
+
+@dataclass(frozen=True)
+class VisualizationDiscoveryConfig:
+    content_root_paths: dict[str, Path]
+    records: tuple[VisualizationRecordEligibility, ...]
+    slug_prefixes: tuple[str, ...]
+    slug_pattern: re.Pattern[str]
+    graph_classes_by_node_prefix: dict[str, str]
+    enabled_capabilities: frozenset[str]
+
+
+ACTIVE_VISUALIZATION_DISCOVERY: VisualizationDiscoveryConfig | None = None
+
+
+def compose_visualization_discovery_config(
+    project: ProjectConfig,
+    effective_projection: dict[str, Any],
+) -> VisualizationDiscoveryConfig:
+    project_roots = {root.id: root.path for root in project.content_roots}
+    content_root_paths = {
+        root_id: project_roots[root_id] for root_id in sorted(effective_projection["roots"]) if root_id in project_roots
+    }
+    records: list[VisualizationRecordEligibility] = []
+    slug_prefixes: set[str] = set()
+    slug_patterns: set[str] = set()
+    graph_classes_by_node_prefix: dict[str, str] = {}
+    for row in effective_projection["records"].values():
+        record = VisualizationRecordEligibility(
+            content_root_id=row["content_root_id"],
+            relative_folder=Path(row["relative_folder"] or "."),
+            relative_file=Path(row["relative_file"]) if row["relative_file"] else None,
+            slug_prefix=row["slug_prefix"],
+            slug_pattern=re.compile(row["slug_pattern"]),
+            graph_class=row["graph_class"],
+        )
+        records.append(record)
+        if record.slug_prefix:
+            slug_prefixes.add(record.slug_prefix)
+            graph_classes_by_node_prefix[record.slug_prefix.replace("-", "_")] = record.graph_class
+        slug_patterns.add(record.slug_pattern.pattern)
+
+    ordered_prefixes = tuple(sorted(slug_prefixes, key=lambda item: (-len(item), item)))
+    if not ordered_prefixes:
+        raise ValueError("Effective Visualization discovery schema does not provide any slug prefixes.")
+    normalized_patterns = tuple(sorted(pattern.removeprefix("^").removesuffix("$") for pattern in slug_patterns))
+    slug_pattern = re.compile(r"(?:" + "|".join(f"(?:{pattern})" for pattern in normalized_patterns) + r")")
+    enabled_capabilities = frozenset(
+        capability_id
+        for capability_id, state in effective_projection["capability_state"].items()
+        if state["available"] and state["enabled"]
+    )
+    missing_capabilities = sorted(REQUIRED_VISUALIZATION_CAPABILITIES - enabled_capabilities)
+    if missing_capabilities:
+        raise ValueError(
+            "Effective Visualization schema is missing required enabled capabilities: "
+            + ", ".join(missing_capabilities)
+            + "."
+        )
+    return VisualizationDiscoveryConfig(
+        content_root_paths=content_root_paths,
+        records=tuple(sorted(records, key=lambda item: (item.content_root_id, item.relative_folder.as_posix()))),
+        slug_prefixes=ordered_prefixes,
+        slug_pattern=slug_pattern,
+        graph_classes_by_node_prefix=dict(sorted(graph_classes_by_node_prefix.items())),
+        enabled_capabilities=enabled_capabilities,
+    )
+
+
+def active_visualization_discovery() -> VisualizationDiscoveryConfig:
+    if ACTIVE_VISUALIZATION_DISCOVERY is None:
+        raise RuntimeError("Visualization effective-schema discovery has not been initialized.")
+    return ACTIVE_VISUALIZATION_DISCOVERY
+
+
+def visualization_content_files() -> tuple[Path, ...]:
+    discovery = active_visualization_discovery()
+    files: set[Path] = set()
+    for record in discovery.records:
+        root = discovery.content_root_paths[record.content_root_id]
+        if record.relative_file is not None:
+            candidates = (root / record.relative_file,)
+        else:
+            folder = root / record.relative_folder
+            candidates = tuple(folder.rglob("*.md")) if folder.is_dir() else ()
+        for file_path in candidates:
+            if (
+                file_path.is_file()
+                and file_path.name != "TEMPLATE.md"
+                and record.slug_pattern.fullmatch(file_path.stem)
+            ):
+                files.add(file_path)
+    return tuple(sorted(files))
+
+
+def graph_class_for_node_id(node_id: str) -> str:
+    for prefix, graph_class in active_visualization_discovery().graph_classes_by_node_prefix.items():
+        if node_id == prefix or node_id.startswith(f"{prefix}_"):
+            return graph_class
+    return ""
 
 
 def resolve_repo_path(path: str | Path) -> Path:
@@ -461,9 +563,9 @@ def convert_slug_to_node_id(slug: str) -> str:
 
 
 def convert_slug_to_fallback_label(slug: str) -> str:
+    prefixes = "|".join(re.escape(prefix) for prefix in active_visualization_discovery().slug_prefixes)
     name = re.sub(
-        r"^(artifact|character|concept|deity|epoch|event|faction|family|item|source|location|mystery|"
-        r"pathway|tarot-card|timeline|uniqueness)-",
+        rf"^(?:{prefixes})-",
         "",
         Path(slug).stem,
     )
@@ -483,13 +585,10 @@ def convert_node_id_to_fallback_label(node_id: str) -> str:
     return convert_slug_to_fallback_label(node_id.replace("_", "-"))
 
 
-# TODO (OWNER): Replace direct glossary scanning with the normalized content index.
+# TODO (OWNER): Replace direct eligible-page scanning with the normalized content index.
 def read_glossary_nodes() -> dict[str, dict[str, str]]:
     nodes: dict[str, dict[str, str]] = {}
-    root = resolve_repo_path("Glossary_Threads")
-    for file_path in sorted(root.rglob("*.md")):
-        if file_path.name == "TEMPLATE.md":
-            continue
+    for file_path in visualization_content_files():
         slug = file_path.stem
         node_id = convert_slug_to_node_id(slug)
         label = None
@@ -515,11 +614,8 @@ def read_glossary_nodes() -> dict[str, dict[str, str]]:
 
 def read_first_appearance_graph_displays() -> dict[str, list[dict[str, str]]]:
     displays: dict[str, list[dict[str, str]]] = defaultdict(list)
-    root = resolve_repo_path("Glossary_Threads")
     display_index = 1
-    for file_path in sorted(root.rglob("*.md")):
-        if file_path.name == "TEMPLATE.md":
-            continue
+    for file_path in visualization_content_files():
         note_slug = file_path.stem
         canonical_node_id = convert_slug_to_node_id(note_slug)
         text = read_text(file_path)
@@ -685,7 +781,7 @@ def projection_slug(value: str) -> str:
     value = strip_yaml_scalar(value)
     if not value:
         return ""
-    if SLUG_RE.fullmatch(value):
+    if active_visualization_discovery().slug_pattern.fullmatch(value):
         return value
     return re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
 
@@ -714,7 +810,7 @@ def projection_keys_for_row(row: dict[str, str]) -> set[str]:
         if not slug:
             continue
         keys.add(slug)
-        for prefix in SLUG_PREFIXES:
+        for prefix in active_visualization_discovery().slug_prefixes:
             keys.add(f"{prefix}-{slug}")
     return keys
 
@@ -739,10 +835,7 @@ def make_availability_entry(data: dict[str, str]) -> dict[str, str]:
 # TODO (OWNER): Remove ad hoc YAML projection parsing after normalized relationship records are available.
 def read_data_projections() -> dict[str, list[dict[str, str]]]:
     projections: dict[str, list[dict[str, str]]] = {}
-    root = resolve_repo_path("Glossary_Threads")
-    for file_path in sorted(root.rglob("*.md")):
-        if file_path.name == "TEMPLATE.md":
-            continue
+    for file_path in visualization_content_files():
         note_slug = file_path.stem
         text = read_text(file_path)
         relationship_block = extract_relationship_yaml(text)
@@ -846,11 +939,7 @@ def read_data_projections() -> dict[str, list[dict[str, str]]]:
 
 def read_relationship_seeds() -> list[dict[str, str]]:
     relationships: list[dict[str, str]] = []
-    root = resolve_repo_path("Glossary_Threads")
-    for file_path in sorted(root.rglob("*.md")):
-        if file_path.name == "TEMPLATE.md":
-            continue
-
+    for file_path in visualization_content_files():
         in_section = False
         in_code = False
         current: dict[str, str] | None = None
@@ -1284,25 +1373,8 @@ def write_mermaid_graph(
             class_name = "pendingEndpoint" if node_id in pending_endpoint_node_ids else "missingEndpoint"
             lines.append(f"  class {node_id} {class_name}")
             continue
-        class_name = node_id.split("_")[0]
-        if class_name in {
-            "artifact",
-            "character",
-            "concept",
-            "deity",
-            "epoch",
-            "event",
-            "faction",
-            "family",
-            "item",
-            "source",
-            "location",
-            "mystery",
-            "pathway",
-            "tarot",
-            "timeline",
-            "uniqueness",
-        }:
+        class_name = graph_class_for_node_id(node_id)
+        if class_name:
             lines.append(f"  class {node_id} {class_name}")
         if node_id in pending_node_ids:
             lines.append(f"  class {node_id} pendingNode")
@@ -1553,8 +1625,11 @@ def get_broken_markdown_links() -> list[str]:
             target_path = file_path.parent / unquote(target)
             if not target_path.exists():
                 try:
-                    relative_target = target_path.resolve().relative_to(REPO_ROOT)
-                    if relative_target.parts and relative_target.parts[0] == "Glossary_Threads":
+                    resolved_target = target_path.resolve()
+                    if any(
+                        resolved_target == content_root or content_root in resolved_target.parents
+                        for content_root in active_visualization_discovery().content_root_paths.values()
+                    ):
                         continue
                 except ValueError:
                     pass
@@ -1959,7 +2034,7 @@ def clean_disposable_caches() -> None:
 
 
 def main() -> None:
-    global REPO_ROOT
+    global ACTIVE_VISUALIZATION_DISCOVERY, REPO_ROOT
 
     args = parse_args()
     REPO_ROOT = resolve_project_root(args.root, executable_path=__file__)
@@ -1972,11 +2047,13 @@ def main() -> None:
         taxonomy,
         load_resource_config(project),
     )
+    effective_consumer_schema = compose_effective_consumer_schema_projection(effective_schema, "visualization")
     assert_consumer_schema_shadow(
         "visualization",
         compose_legacy_consumer_schema_projection(project, schema_packs, taxonomy, "visualization"),
-        compose_effective_consumer_schema_projection(effective_schema, "visualization"),
+        effective_consumer_schema,
     )
+    ACTIVE_VISUALIZATION_DISCOVERY = compose_visualization_discovery_config(project, effective_consumer_schema)
     if args.mode == "qa-relationship":
         if not args.graph_path:
             raise ValueError("qa-relationship mode requires --graph-path.")

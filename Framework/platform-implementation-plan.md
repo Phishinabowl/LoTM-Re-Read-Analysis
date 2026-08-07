@@ -458,15 +458,15 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 #### Phase 2.3.4 Visualization Discovery Migration
 
-- [ ] Make Visualization discover graph-enabled content roots and types, enabled categories, slug
+- [x] Make Visualization discover graph-enabled content roots and types, enabled categories, slug
   prefixes, graph classes, and enabled projection capabilities from the effective schema where the
   current configuration supplies them.
-- [ ] Remove only the Visualization-local discovery allowlists fully replaced by effective-schema
+- [x] Remove only the Visualization-local discovery allowlists fully replaced by effective-schema
   records; retain direct Markdown/YAML scanning until the normalized content index replaces it.
-- [ ] Preserve node and relationship extraction, first-appearance behavior, pending nodes, reader
+- [x] Preserve node and relationship extraction, first-appearance behavior, pending nodes, reader
   boundaries, progression and deduplication semantics, Mermaid styling, render settings, presets,
   destinations, and cleanup behavior.
-- [ ] Run the pinned Visualization comparison in all three runtimes and stop for maintainer review
+- [x] Run the pinned Visualization comparison in all three runtimes and stop for maintainer review
   of every redirected Mermaid output before any canonical regeneration.
 
 #### Phase 2.3.5 Consumer Adoption Closure

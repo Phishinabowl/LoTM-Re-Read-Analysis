@@ -14,6 +14,12 @@ Generated graph files are not the source of truth. The canonical project data re
 
 Generated Mermaid graphs are generated from glossary metadata, Relationship Seeds, and projected type-specific data-block availability. If a canonical graph refresh exposes missing, stale, or incorrect information, fix the glossary thread, investigation record, data block, or relationship seed first, then regenerate the graph. Manual maintainer graphs may include clearly marked graph-local evidence before those project-data updates are confirmed.
 
+Visualization discovers graph-enabled content roots, content types, category placements, exact slug
+rules, graph classes, and required projection capabilities through the in-memory effective project
+schema. It still reads the eligible Markdown pages and embedded YAML directly until normalized
+content replaces that compatibility adapter. Taxonomy configuration owns which page categories are
+eligible; this script does not maintain a second folder or slug allowlist.
+
 Page-level reader visibility belongs to glossary metadata through `Subject Visible From`; do not model it as a Relationship Seed. Filtered graph views use that metadata as the node-level gate before applying relationship or claim-level timing.
 
 Configured graph views may declare a `readerBoundary` in `config/render-settings.json`. When present, generation includes only nodes whose `Subject Visible From` is eligible for that medium/volume/chapter boundary, plus any eligible anonymized first-appearance display nodes declared in type-specific data blocks. Relationship Seeds that declare `projection_source` read their timing, confidence, and current display state from the projected type-specific data-block row's `availability` list; other seeds fall back to their own start fields. Projection sources resolve against the seed source page first so repeated local row keys do not collide across pages. Unknown subject visibility or unknown relationship positions are excluded unless the view explicitly opts into them. The current Volume 1 graph views are novel-only reader-boundary views through Volume 1 Chapter 213, so official-artwork taxonomy seeds and later cosmology links do not appear there.

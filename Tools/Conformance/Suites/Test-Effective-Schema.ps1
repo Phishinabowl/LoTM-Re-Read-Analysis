@@ -126,6 +126,38 @@ if ('volume-1' -cmatch $volume.slug_pattern) {
     throw 'Effective QA fixed-record slug matching accepted a non-page volume identifier.'
 }
 
+$visualizationProjection = $consumerProjections['visualization']
+if ((@($visualizationProjection.roots.Keys | Sort-Object) -join '|') -cne 'glossary') {
+    throw 'Effective Visualization discovery roots changed.'
+}
+if ((@($visualizationProjection.content_types.Keys | Sort-Object) -join '|') -cne 'glossary-page') {
+    throw 'Effective Visualization content types changed.'
+}
+$tarotCard = $visualizationProjection.records['tarot card']
+if (
+    $tarotCard.relative_folder -cne 'Tarot_Cards' -or
+    $tarotCard.slug_prefix -cne 'tarot-card' -or
+    $tarotCard.graph_class -cne 'tarot' -or
+    'tarot-card-the-star' -cnotmatch $tarotCard.slug_pattern
+) {
+    throw 'Effective Visualization record discovery changed.'
+}
+$requiredVisualizationCapabilities = @(
+    'graph-projection'
+    'reader-disclosure'
+    'spoiler-bounding'
+    'visibility-policy'
+)
+$missingVisualizationCapabilities = @(
+    $requiredVisualizationCapabilities | Where-Object {
+        $state = $visualizationProjection.capability_state[$_]
+        -not [bool]$state.available -or -not [bool]$state.enabled
+    }
+)
+if ($missingVisualizationCapabilities.Count -gt 0) {
+    throw 'Effective Visualization projection capabilities changed.'
+}
+
 $legacyProjection = New-KnowledgeLegacyConsumerSchemaProjection $project $packs $taxonomy 'qa'
 $driftedProjection = New-KnowledgeEffectiveConsumerSchemaProjection $schema 'qa'
 $driftedProjection.roots.glossary.relative_path = 'Changed_Glossary'
@@ -242,6 +274,9 @@ $result = [ordered]@{
     qa_discovery_categories = $qaProjection.categories.Count
     qa_discovery_placements = $qaProjection.placements.Count
     qa_discovery_records = $qaProjection.records.Count
+    visualization_discovery_content_types = $visualizationProjection.content_types.Count
+    visualization_discovery_categories = $visualizationProjection.categories.Count
+    visualization_discovery_records = $visualizationProjection.records.Count
 }
 if ($Json) {
     $result | ConvertTo-Json -Depth 100 -Compress

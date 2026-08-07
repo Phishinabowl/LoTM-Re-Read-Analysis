@@ -31,8 +31,8 @@ when a reviewed content, graph, QA, preset, or representative-boundary change in
 the accepted output. Diagnose the reported missing, unexpected, and changed paths first; never
 refresh hashes merely to make a failing check green.
 
-QA and Visualization also run their effective-schema shadow assertions before generation. QA then
-uses the effective projection for discovery and record eligibility while retaining legacy
-Markdown/YAML interpretation and output generation; Visualization remains shadow-only. The
-compatibility profiles therefore prove both that legacy and effective projections agree and that
-each staged authority handoff preserves every accepted consumer artifact.
+QA and Visualization also run their effective-schema shadow assertions before generation. Each now
+uses its effective projection for discovery and record eligibility while retaining legacy
+Markdown/YAML interpretation and output generation. The compatibility profiles therefore prove both
+that legacy and effective projections agree and that each staged authority handoff preserves every
+accepted consumer artifact.

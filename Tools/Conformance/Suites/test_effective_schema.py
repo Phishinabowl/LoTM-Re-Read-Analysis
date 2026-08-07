@@ -144,6 +144,33 @@ def main() -> int:
     if re.fullmatch(volume["slug_pattern"], "volume-1"):
         raise AssertionError("Effective QA fixed-record slug matching accepted a non-page volume identifier.")
 
+    visualization_projection = consumer_projections["visualization"]
+    if set(visualization_projection["roots"]) != {"glossary"}:
+        raise AssertionError("Effective Visualization discovery roots changed.")
+    if set(visualization_projection["content_types"]) != {"glossary-page"}:
+        raise AssertionError("Effective Visualization content types changed.")
+    tarot_card = visualization_projection["records"].get("tarot card", {})
+    if (
+        tarot_card.get("relative_folder") != "Tarot_Cards"
+        or tarot_card.get("slug_prefix") != "tarot-card"
+        or tarot_card.get("graph_class") != "tarot"
+        or not re.fullmatch(tarot_card.get("slug_pattern", ""), "tarot-card-the-star")
+    ):
+        raise AssertionError("Effective Visualization record discovery changed.")
+    required_visualization_capabilities = {
+        "graph-projection",
+        "reader-disclosure",
+        "spoiler-bounding",
+        "visibility-policy",
+    }
+    enabled_visualization_capabilities = {
+        capability_id
+        for capability_id, state in visualization_projection["capability_state"].items()
+        if state["available"] and state["enabled"]
+    }
+    if not required_visualization_capabilities <= enabled_visualization_capabilities:
+        raise AssertionError("Effective Visualization projection capabilities changed.")
+
     legacy_projection = compose_legacy_consumer_schema_projection(project, packs, taxonomy, "qa")
     drifted_projection = copy.deepcopy(compose_effective_consumer_schema_projection(schema, "qa"))
     drifted_projection["roots"]["glossary"]["relative_path"] = "Changed_Glossary"
@@ -254,6 +281,9 @@ def main() -> int:
         "qa_discovery_categories": len(qa_projection["categories"]),
         "qa_discovery_placements": len(qa_projection["placements"]),
         "qa_discovery_records": len(qa_projection["records"]),
+        "visualization_discovery_content_types": len(visualization_projection["content_types"]),
+        "visualization_discovery_categories": len(visualization_projection["categories"]),
+        "visualization_discovery_records": len(visualization_projection["records"]),
     }
     if args.json:
         print(json.dumps(result, ensure_ascii=False, separators=(",", ":")))

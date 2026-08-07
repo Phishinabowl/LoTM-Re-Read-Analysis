@@ -35,22 +35,13 @@ $legacyConsumerSchema = New-KnowledgeLegacyConsumerSchemaProjection `
 $effectiveConsumerSchema = New-KnowledgeEffectiveConsumerSchemaProjection $effectiveSchema 'visualization'
 Assert-KnowledgeConsumerSchemaShadow 'visualization' $legacyConsumerSchema $effectiveConsumerSchema
 
-$SlugPrefixes = @(
-    "artifact",
-    "character",
-    "concept",
-    "deity",
-    "event",
-    "faction",
-    "item",
-    "source",
-    "location",
-    "pathway",
-    "tarot-card",
-    "uniqueness"
+$script:VisualizationDiscovery = $null
+$RequiredVisualizationCapabilities = @(
+    'graph-projection'
+    'reader-disclosure'
+    'spoiler-bounding'
+    'visibility-policy'
 )
-
-$SlugPattern = "\b(?:" + (($SlugPrefixes | ForEach-Object { [regex]::Escape($_) }) -join "|") + ")-[a-z0-9][a-z0-9-]*\b"
 
 function Resolve-RepoPath {
     param([string]$Path)
@@ -60,6 +51,132 @@ function Resolve-RepoPath {
     }
 
     return (Join-Path $repoRoot $Path)
+}
+
+function New-VisualizationDiscoveryConfig {
+    param(
+        [object]$ProjectConfig,
+        [object]$EffectiveProjection
+    )
+
+    $projectRoots = @{}
+    foreach ($root in @($ProjectConfig.content_roots)) {
+        $projectRoots[$root.id] = $root.path
+    }
+    $contentRootPaths = @{}
+    foreach ($rootId in @($EffectiveProjection.roots.Keys | Sort-Object)) {
+        if ($projectRoots.ContainsKey($rootId)) {
+            $contentRootPaths[$rootId] = $projectRoots[$rootId]
+        }
+    }
+
+    $records = @()
+    $slugPrefixes = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $slugPatterns = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $graphClassesByNodePrefix = @{}
+    foreach ($metadataKey in @($EffectiveProjection.records.Keys | Sort-Object)) {
+        $row = $EffectiveProjection.records[$metadataKey]
+        $record = [pscustomobject]@{
+            content_root_id = [string]$row.content_root_id
+            relative_folder = [string]$row.relative_folder
+            relative_file = [string]$row.relative_file
+            slug_prefix = [string]$row.slug_prefix
+            slug_pattern = [regex]::new([string]$row.slug_pattern)
+            graph_class = [string]$row.graph_class
+        }
+        $records += $record
+        if ($record.slug_prefix) {
+            [void]$slugPrefixes.Add($record.slug_prefix)
+            $graphClassesByNodePrefix[$record.slug_prefix.Replace('-', '_')] = $record.graph_class
+        }
+        [void]$slugPatterns.Add($record.slug_pattern.ToString())
+    }
+
+    $orderedPrefixes = @($slugPrefixes | Sort-Object { - $_.Length }, { $_ })
+    if ($orderedPrefixes.Count -eq 0) {
+        throw 'Effective Visualization discovery schema does not provide any slug prefixes.'
+    }
+    $normalizedPatterns = @(
+        $slugPatterns |
+            ForEach-Object { $_ -replace '^\^', '' -replace '\$$', '' } |
+            Sort-Object
+    )
+    $slugPattern = [regex]::new('(?:' + (($normalizedPatterns | ForEach-Object { "(?:$_)" }) -join '|') + ')')
+    $enabledCapabilities = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    foreach ($capabilityId in @($EffectiveProjection.capability_state.Keys | Sort-Object)) {
+        $state = $EffectiveProjection.capability_state[$capabilityId]
+        if ([bool]$state.available -and [bool]$state.enabled) {
+            [void]$enabledCapabilities.Add($capabilityId)
+        }
+    }
+    $missingCapabilities = @(
+        $RequiredVisualizationCapabilities |
+            Where-Object { -not $enabledCapabilities.Contains($_) } |
+            Sort-Object
+    )
+    if ($missingCapabilities.Count -gt 0) {
+        throw 'Effective Visualization schema is missing required enabled capabilities: ' +
+        (($missingCapabilities -join ', ') + '.')
+    }
+    return [pscustomobject]@{
+        content_root_paths = $contentRootPaths
+        records = @($records | Sort-Object content_root_id, relative_folder)
+        slug_prefixes = @($orderedPrefixes)
+        slug_pattern = $slugPattern
+        graph_classes_by_node_prefix = $graphClassesByNodePrefix
+        enabled_capabilities = $enabledCapabilities
+    }
+}
+
+function Get-VisualizationDiscoveryConfig {
+    if ($null -eq $script:VisualizationDiscovery) {
+        throw 'Visualization effective-schema discovery has not been initialized.'
+    }
+    return $script:VisualizationDiscovery
+}
+
+function Get-VisualizationContentFiles {
+    $discovery = Get-VisualizationDiscoveryConfig
+    $filePaths = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+    foreach ($record in @($discovery.records)) {
+        $root = [string]$discovery.content_root_paths[$record.content_root_id]
+        if ($record.relative_file) {
+            $candidates = @(Get-Item -LiteralPath (Join-Path $root $record.relative_file) -ErrorAction SilentlyContinue)
+        }
+        else {
+            $folder = if ($record.relative_folder) {
+                Join-Path $root $record.relative_folder
+            }
+            else {
+                $root
+            }
+            $candidates = if (Test-Path -LiteralPath $folder -PathType Container) {
+                @(Get-ChildItem -LiteralPath $folder -Recurse -Filter '*.md' -File)
+            }
+            else {
+                @()
+            }
+        }
+        foreach ($file in $candidates) {
+            $slug = [System.IO.Path]::GetFileNameWithoutExtension($file.Name)
+            if ($file.Name -cne 'TEMPLATE.md' -and $record.slug_pattern.IsMatch($slug)) {
+                [void]$filePaths.Add($file.FullName)
+            }
+        }
+    }
+    return @($filePaths | Sort-Object | ForEach-Object { Get-Item -LiteralPath $_ })
+}
+
+function Get-VisualizationGraphClass {
+    param([string]$NodeId)
+
+    $discovery = Get-VisualizationDiscoveryConfig
+    foreach ($prefix in @($discovery.graph_classes_by_node_prefix.Keys | Sort-Object)) {
+        if ($NodeId -ceq $prefix -or $NodeId.StartsWith("${prefix}_", [System.StringComparison]::Ordinal)) {
+            return [string]$discovery.graph_classes_by_node_prefix[$prefix]
+        }
+    }
+    return ''
 }
 
 function Resolve-VisualizationMode {
@@ -1203,8 +1320,17 @@ function Get-BrokenMarkdownLinks {
             if (-not (Test-Path $targetPath)) {
                 $targetFullPath = [System.IO.Path]::GetFullPath($targetPath)
                 $repoFullPath = [System.IO.Path]::GetFullPath($repoRoot)
-                $plannedGlossaryRoot = [System.IO.Path]::GetFullPath((Join-Path $repoFullPath "Glossary_Threads"))
-                if ($targetFullPath.StartsWith($plannedGlossaryRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
+                $plannedContentRoot = @(
+                    (Get-VisualizationDiscoveryConfig).content_root_paths.Values | Where-Object {
+                        $contentRoot = [System.IO.Path]::GetFullPath([string]$_).TrimEnd('\', '/')
+                        $targetFullPath -ceq $contentRoot -or
+                        $targetFullPath.StartsWith(
+                            $contentRoot + [System.IO.Path]::DirectorySeparatorChar,
+                            [System.StringComparison]::OrdinalIgnoreCase
+                        )
+                    }
+                ).Count -gt 0
+                if ($plannedContentRoot) {
                     continue
                 }
                 $relativeFile = '.\' + $file.FullName.Substring($repoFullPath.Length).TrimStart('\', '/').Replace('/', '\')
@@ -1226,8 +1352,9 @@ function Convert-SlugToNodeId {
 function Convert-SlugToFallbackLabel {
     param([string]$Slug)
 
+    $prefixPattern = ((Get-VisualizationDiscoveryConfig).slug_prefixes | ForEach-Object { [regex]::Escape($_) }) -join '|'
     $name = [System.IO.Path]::GetFileNameWithoutExtension($Slug)
-    $name = $name -replace '^(artifact|character|concept|deity|epoch|event|faction|family|item|source|location|mystery|pathway|tarot-card|timeline|uniqueness)-', ''
+    $name = $name -replace "^(?:$prefixPattern)-", ''
     $parts = @($name -split '-' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
     $labelParts = foreach ($part in $parts) {
         if ($part -match '^[0-9]+$') {
@@ -1253,8 +1380,7 @@ function Convert-NodeIdToFallbackLabel {
 
 function Read-GlossaryNodes {
     $nodes = @{}
-    $files = Get-ChildItem -Path (Resolve-RepoPath "Glossary_Threads") -Recurse -Filter "*.md" |
-        Where-Object { $_.Name -ne "TEMPLATE.md" }
+    $files = Get-VisualizationContentFiles
 
     foreach ($file in $files) {
         $slug = [System.IO.Path]::GetFileNameWithoutExtension($file.Name)
@@ -1292,9 +1418,7 @@ function Read-GlossaryNodes {
 function Read-FirstAppearanceGraphDisplays {
     $displays = @{}
     $displayIndex = 1
-    $files = Get-ChildItem -Path (Resolve-RepoPath "Glossary_Threads") -Recurse -Filter "*.md" |
-        Where-Object { $_.Name -ne "TEMPLATE.md" } |
-        Sort-Object FullName
+    $files = Get-VisualizationContentFiles
 
     foreach ($file in $files) {
         $noteSlug = [System.IO.Path]::GetFileNameWithoutExtension($file.Name)
@@ -1571,7 +1695,7 @@ function ConvertTo-ProjectionSlug {
     if (-not $value) {
         return ""
     }
-    if ([regex]::IsMatch($value, "^$SlugPattern$")) {
+    if ((Get-VisualizationDiscoveryConfig).slug_pattern.IsMatch($value)) {
         return $value
     }
     $value = [regex]::Replace($value, "[/\\]+", " ")
@@ -1592,7 +1716,7 @@ function Get-ProjectionKeysForRow {
             continue
         }
         [void]$keys.Add($slug)
-        foreach ($prefix in $SlugPrefixes) {
+        foreach ($prefix in (Get-VisualizationDiscoveryConfig).slug_prefixes) {
             [void]$keys.Add("$prefix-$slug")
         }
     }
@@ -1705,8 +1829,7 @@ function Add-ProjectionRow {
 
 function Read-DataProjections {
     $projections = @{}
-    $files = Get-ChildItem -Path (Resolve-RepoPath "Glossary_Threads") -Recurse -Filter "*.md" |
-        Where-Object { $_.Name -ne "TEMPLATE.md" }
+    $files = Get-VisualizationContentFiles
 
     foreach ($file in $files) {
         $text = [System.IO.File]::ReadAllText($file.FullName, [System.Text.UTF8Encoding]::new($true))
@@ -1853,8 +1976,7 @@ function Read-DataProjections {
 
 function Read-RelationshipSeeds {
     $relationships = @()
-    $files = Get-ChildItem -Path (Resolve-RepoPath "Glossary_Threads") -Recurse -Filter "*.md" |
-        Where-Object { $_.Name -ne "TEMPLATE.md" }
+    $files = Get-VisualizationContentFiles
 
     foreach ($file in $files) {
         $inSection = $false
@@ -2574,26 +2696,8 @@ function Write-MermaidGraph {
             $lines += ('  class {0} {1}' -f $nodeId, $className)
             continue
         }
-        $className = ($nodeId -split '_')[0]
-        $knownClasses = @(
-            "artifact"
-            "character"
-            "concept"
-            "deity"
-            "epoch"
-            "event"
-            "faction"
-            "family"
-            "item"
-            "source"
-            "location"
-            "mystery"
-            "pathway"
-            "tarot"
-            "timeline"
-            "uniqueness"
-        )
-        if ($knownClasses -contains $className) {
+        $className = Get-VisualizationGraphClass $nodeId
+        if ($className) {
             $lines += ('  class {0} {1}' -f $nodeId, $className)
         }
         if ($pendingNodes.Contains($nodeId)) {
@@ -3106,6 +3210,8 @@ function Invoke-RefreshMode {
     $snapshot | ConvertTo-Json -Depth 10 | Set-Content -Path $snapshotPath -Encoding UTF8
     Write-Output "Visualization refresh tracker updated in $($Settings.reportPath)"
 }
+
+$script:VisualizationDiscovery = New-VisualizationDiscoveryConfig $projectConfig $effectiveConsumerSchema
 
 $Mode = Resolve-VisualizationMode $Mode
 if ($Mode -eq "QaRelationship") {
