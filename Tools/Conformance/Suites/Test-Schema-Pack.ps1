@@ -185,6 +185,34 @@ function Assert-ValidSchemaPackFixture {
     if (-not (Test-SchemaPackCapabilityAvailable $Registry 'deprecated-capability')) {
         throw 'Deprecated schema-pack capability lost compatibility availability.'
     }
+    $presentation = $Expected.presentation
+    $core = $Registry.packs['fixture-core']
+    $bridge = $Registry.packs['fixture-extension']
+    if ([int]$core.schema_version -ne [int]$presentation.schema_version) {
+        throw 'Schema-pack presentation fixture version changed.'
+    }
+    $coreClassification = @($core.classification.family, $core.classification.role, $core.classification.scope)
+    if (($coreClassification -join '|') -cne (@($presentation.core_classification) -join '|')) {
+        throw 'Schema-pack core classification changed.'
+    }
+    if ((@($bridge.classification.bridge_pack_ids) -join '|') -cne (@($presentation.bridge_pack_ids) -join '|')) {
+        throw 'Schema-pack bridge joins changed.'
+    }
+    if ((@($bridge.kind, $bridge.classification.role) -join '|') -cne (@($presentation.bridge_kind_and_role) -join '|')) {
+        throw 'Schema-pack compatibility kind and architectural role became coupled.'
+    }
+    $packLocalizationKeys = @($Registry.packs.Values | ForEach-Object { $_.presentation.localization_key } | Sort-Object -Unique)
+    if ($packLocalizationKeys.Count -ne [int]$presentation.pack_localization_keys) {
+        throw 'Schema-pack localization-key composition changed.'
+    }
+    $capabilityLocalizationKeys = @(
+        $Registry.capability_definitions.Values |
+            ForEach-Object { $_.presentation.localization_key } |
+            Sort-Object -Unique
+    )
+    if ($capabilityLocalizationKeys.Count -ne [int]$presentation.capability_localization_keys) {
+        throw 'Capability localization-key composition changed.'
+    }
     foreach ($property in $Expected.semantic_declarations.PSObject.Properties) {
         if ([int]$Registry.($property.Name).Count -ne [int]$property.Value) {
             throw "Schema-pack typed semantic count changed for '$($property.Name)'."
@@ -225,7 +253,7 @@ function New-ScaleSchemaPackFixture {
                 })
         }
         $pack = [ordered]@{
-            schema_version = 4
+            schema_version = 5
             pack_id = $packId
             pack_version = 1
             lifecycle = 'active'
@@ -235,10 +263,56 @@ function New-ScaleSchemaPackFixture {
             else {
                 'extension'
             }
-            label = 'Scale Pack {0:d3}' -f $index
-            description = 'Generated schema-pack scale fixture.'
+            classification = [ordered]@{
+                family = 'scale'
+                role = if ($index -eq 0) {
+                    'foundation'
+                }
+                else {
+                    'extension'
+                }
+                scope = 'domain-neutral'
+                domains = @()
+                bridge_pack_ids = @()
+            }
+            presentation = [ordered]@{
+                localization_key = "pack.$packId"
+                default_locale = 'en'
+                label = 'Scale Pack {0:d3}' -f $index
+                short_description = 'Generated schema-pack scale fixture.'
+                long_description = 'Exercises deterministic rich presentation composition at scale.'
+                maturity = 'experimental'
+                intended_audiences = @([ordered]@{id='scale-tester'
+                        label='Scale testers'
+                        description='Maintainers running generated composition probes.'
+                    })
+                use_cases = @([ordered]@{id='scale-probe'
+                        label='Scale probe'
+                        description='Measure rich pack composition behavior.'
+                    })
+                examples = @()
+                prerequisites = @()
+                provided_behaviors = @([ordered]@{id='generated-record'
+                        label='Generated record'
+                        description='Provides one generated capability and vocabulary set.'
+                    })
+                exclusions = @([ordered]@{id='project-content'
+                        label='No project content'
+                        description='Contains no project instance data.'
+                    })
+                documentation = @()
+                search_keywords = @('scale')
+            }
             dependencies = $dependencies
-            capabilities = @($capability)
+            capabilities = @([ordered]@{
+                    id = $capability
+                    lifecycle = 'available'
+                    presentation = [ordered]@{
+                        localization_key = "capability.$capability"
+                        label = 'Scale Capability {0:d3}' -f $index
+                        description = 'Generated capability presentation used by the scale probe.'
+                    }
+                })
             controlled_values = [ordered]@{
                 'scale.value'=@($value)
                 'occurrence.transition-kind'=@($transitionKind)
@@ -319,6 +393,34 @@ function Assert-TypedDelimiterCollision {
     return 2
 }
 
+function Assert-PresentationOnlyChange {
+    param([object]$Project, [string]$BaseRoot, [string]$TempRoot, [object]$Baseline)
+
+    $changedRoot = Join-Path $TempRoot 'presentation-only-change'
+    Copy-Item -LiteralPath $BaseRoot -Destination $changedRoot -Recurse
+    $corePath = Join-Path $changedRoot 'packs\fixture-core.json'
+    $core = ConvertTo-MutableFixtureValue (Get-Content -LiteralPath $corePath -Raw | ConvertFrom-Json)
+    $core['presentation']['long_description'] = 'Changed presentation text with no semantic effect.'
+    $core['capabilities'][1]['presentation']['description'] = 'Changed planned-capability help text.'
+    Write-FixtureJson $corePath $core
+    $changedProject = $Project.PSObject.Copy()
+    $changedProject.root = $changedRoot
+    $changedProject.schema_packs_registry = Join-Path $changedRoot 'registry.json'
+    $changed = Get-KnowledgeSchemaPackRegistry $changedProject
+    foreach ($field in @(
+            'selection_order', 'declared_capabilities', 'available_capabilities',
+            'enabled_capabilities', 'controlled_values', 'transition_profiles',
+            'effect_policies', 'state_kind_profiles'
+        )) {
+        $changedJson = $changed.$field | ConvertTo-Json -Depth 100 -Compress
+        $baselineJson = $Baseline.$field | ConvertTo-Json -Depth 100 -Compress
+        if ($changedJson -cne $baselineJson) {
+            throw 'Presentation-only edits changed semantic schema-pack composition.'
+        }
+    }
+    return 2
+}
+
 $project = Get-KnowledgeProjectConfig $Root
 $canonical = Get-KnowledgeSchemaPackRegistry $project
 $fixtureRoot = Join-Path $Root 'Framework\Data\Schema-Packs'
@@ -339,6 +441,7 @@ try {
     $fixtureRegistry = Get-KnowledgeSchemaPackRegistry $validProject
     Assert-ValidSchemaPackFixture $fixtureRegistry $expectations.valid
     $typedCollisionPairs = Assert-TypedDelimiterCollision $project $baseRoot $tempRoot
+    $presentationOnlyChanges = Assert-PresentationOnlyChange $project $baseRoot $tempRoot $fixtureRegistry
 
     foreach ($case in @($expectations.invalid_cases)) {
         $caseRoot = Join-Path $tempRoot ([string]$case.id)
@@ -372,6 +475,9 @@ try {
     ) {
         throw 'Schema-pack scale composition counts changed.'
     }
+    if (@($scaleRegistry.packs.Values | Where-Object { $null -ne $_.presentation }).Count -ne $scaleCount) {
+        throw 'Schema-pack scale presentation count changed.'
+    }
 }
 finally {
     if (Test-Path -LiteralPath $tempRoot) {
@@ -393,7 +499,10 @@ $summary = [ordered]@{
     invalid_composition_cases = [int]@($expectations.invalid_cases).Count
     scale_pack_count = [int]$scaleCount
     scale_typed_declarations = [int]@($scaleRegistry.transition_profiles.Keys).Count
+    scale_presentations = [int]@($scaleRegistry.packs.Values | Where-Object { $null -ne $_.presentation }).Count
     typed_collision_pairs = [int]$typedCollisionPairs
+    presentation_only_changes = [int]$presentationOnlyChanges
+    legacy_schema_packs = [int]@($canonical.packs.Values | Where-Object { [int]$_.schema_version -eq 4 }).Count
     schema_version = 1
 }
 if ($Json) {

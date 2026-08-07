@@ -511,11 +511,11 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 #### Phase 3.1.2 Paired Loader And Conformance Support
 
-- [ ] Implement the contract in the Python and PowerShell schema-pack loaders with matching
+- [x] Implement the contract in the Python and PowerShell schema-pack loaders with matching
   structured output and failure behavior.
-- [ ] Add shared positive, malformed, dependency, bridge, scope, localization, path-safety, and scale
+- [x] Add shared positive, malformed, dependency, bridge, scope, localization, path-safety, and scale
   fixtures without weakening strict ingestion or existing schema-pack composition guarantees.
-- [ ] Keep `pack_kind` backward compatible and prove that classification is an independent
+- [x] Keep `pack_kind` backward compatible and prove that classification is an independent
   architectural concern.
 
 #### Phase 3.1.3 Catalog Metadata Backfill

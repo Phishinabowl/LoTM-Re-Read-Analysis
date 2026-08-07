@@ -1,25 +1,60 @@
 {
-  "schema_version": 4,
+  "schema_version": 5,
   "pack_id": "fixture-core",
   "pack_version": 2,
   "lifecycle": "active",
   "pack_kind": "core",
-  "label": "Fixture Core",
-  "description": "Domain-neutral schema-pack composition fixture.",
+  "classification": {
+    "family": "platform",
+    "role": "foundation",
+    "scope": "domain-neutral",
+    "domains": [],
+    "bridge_pack_ids": []
+  },
+  "presentation": {
+    "localization_key": "pack.fixture-core",
+    "default_locale": "en",
+    "label": "Fixture Core",
+    "short_description": "Domain-neutral schema-pack composition fixture.",
+    "long_description": "Provides neutral fixture primitives for dependency, capability, vocabulary, and presentation composition tests.",
+    "maturity": "stable",
+    "intended_audiences": [{"id": "framework-tester", "label": "Framework testers", "description": "Maintainers validating portable schema-pack behavior."}],
+    "use_cases": [{"id": "composition-baseline", "label": "Composition baseline", "description": "Provide the root pack for synthetic compositions."}],
+    "examples": [],
+    "prerequisites": [],
+    "provided_behaviors": [{"id": "neutral-primitives", "label": "Neutral primitives", "description": "Supplies reusable fixture capabilities and controlled values."}],
+    "exclusions": [{"id": "domain-semantics", "label": "No domain semantics", "description": "Does not contribute domain-facing vocabulary."}],
+    "documentation": [{"id": "pack-catalog", "label": "Schema Pack Catalog", "target_kind": "repository-path", "target": "Framework/Packs/README.md"}],
+    "search_keywords": ["composition", "core", "fixture"]
+  },
   "dependencies": [],
   "capabilities": [
-    "shared-capability",
+    {
+      "id": "shared-capability",
+      "lifecycle": "available",
+      "presentation": {
+        "localization_key": "capability.shared-capability",
+        "label": "Shared Capability",
+        "description": "Exercises equivalent presentation across multiple providers."
+      }
+    },
     {
       "id": "planned-capability",
       "lifecycle": "planned",
-      "label": "Planned Capability",
-      "description": "Declared but unavailable and disabled."
+      "presentation": {
+        "localization_key": "capability.planned-capability",
+        "label": "Planned Capability",
+        "description": "Declared but unavailable and disabled."
+      }
     },
     {
       "id": "deprecated-capability",
       "lifecycle": "deprecated",
-      "label": "Deprecated Capability",
-      "description": "Available only for compatibility."
+      "presentation": {
+        "localization_key": "capability.deprecated-capability",
+        "label": "Deprecated Capability",
+        "description": "Available only for compatibility."
+      }
     }
   ],
   "controlled_values": {

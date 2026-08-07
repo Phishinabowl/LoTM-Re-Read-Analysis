@@ -1,18 +1,25 @@
 from dataclasses import dataclass
 from pathlib import Path
 import re
+from urllib.parse import urlparse
 
 from .project_config import ProjectConfig
 from .strict_yaml import assert_allowed_keys, load_yaml_file
 
 
 SUPPORTED_SCHEMA_PACK_REGISTRY_VERSION = 2
-SUPPORTED_SCHEMA_PACK_VERSION = 4
+SUPPORTED_SCHEMA_PACK_VERSIONS = (4, 5)
+CURRENT_SCHEMA_PACK_VERSION = 5
 PACK_LIFECYCLES = {"active", "deferred"}
 PACK_KINDS = {"core", "domain", "extension"}
 CAPABILITY_LIFECYCLES = {"available", "planned", "deprecated"}
+PACK_ROLES = {"foundation", "domain", "bridge", "extension"}
+PACK_SCOPES = {"domain-neutral", "domain-specific", "cross-domain"}
+PACK_MATURITIES = {"experimental", "preview", "stable", "legacy"}
+DOCUMENTATION_TARGET_KINDS = {"repository-path", "external-url"}
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 NAMESPACE_PATTERN = re.compile(r"^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)+$")
+LOCALIZATION_KEY_PATTERN = NAMESPACE_PATTERN
 
 LEGACY_COMPOUND_SEMANTIC_NAMESPACES = {
     "occurrence.transition-kind-profile",
@@ -39,11 +46,68 @@ class SchemaPackDependency:
 
 
 @dataclass(frozen=True)
+class PackClassification:
+    family: str
+    role: str
+    scope: str
+    domains: tuple[str, ...]
+    bridge_pack_ids: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class PresentationEntry:
+    id: str
+    label: str
+    description: str
+
+
+@dataclass(frozen=True)
+class DocumentationEntry:
+    id: str
+    label: str
+    target_kind: str
+    target: str
+
+
+@dataclass(frozen=True)
+class VisualIdentity:
+    icon_id: str | None
+    accent_token: str | None
+
+
+@dataclass(frozen=True)
+class PackPresentation:
+    localization_key: str
+    default_locale: str
+    label: str
+    short_description: str
+    long_description: str
+    maturity: str
+    intended_audiences: tuple[PresentationEntry, ...]
+    use_cases: tuple[PresentationEntry, ...]
+    examples: tuple[PresentationEntry, ...]
+    prerequisites: tuple[PresentationEntry, ...]
+    provided_behaviors: tuple[PresentationEntry, ...]
+    exclusions: tuple[PresentationEntry, ...]
+    documentation: tuple[DocumentationEntry, ...]
+    search_keywords: tuple[str, ...]
+    visual: VisualIdentity | None
+
+
+@dataclass(frozen=True)
+class CapabilityPresentation:
+    localization_key: str
+    label: str
+    description: str
+
+
+@dataclass(frozen=True)
 class CapabilityConfig:
     id: str
     lifecycle: str
     label: str | None
     description: str | None
+    presentation: CapabilityPresentation | None = None
 
 
 @dataclass(frozen=True)
@@ -134,6 +198,8 @@ class SchemaPackConfig:
     kind: str
     label: str
     description: str
+    classification: PackClassification | None
+    presentation: PackPresentation | None
     dependencies: tuple[SchemaPackDependency, ...]
     capabilities: tuple[str, ...]
     capability_definitions: dict[str, CapabilityConfig]
@@ -234,6 +300,221 @@ def _optional_string(mapping: dict, key: str, context: str) -> str | None:
     if not isinstance(value, str) or not value.strip():
         raise ValueError(f"Schema-pack configuration `{context}.{key}` must be a non-empty string when present.")
     return value.strip()
+
+
+def _stable_string_list(mapping: dict, key: str, context: str) -> tuple[str, ...]:
+    values = require_string_list(mapping, key, context)
+    seen: set[str] = set()
+    for value in values:
+        validate_id(value, f"{context}.{key}")
+        if value in seen:
+            raise ValueError(f"Schema-pack configuration `{context}.{key}` contains duplicate `{value}`.")
+        seen.add(value)
+    return values
+
+
+def _parse_presentation_entries(
+    presentation: dict,
+    key: str,
+    context: str,
+    *,
+    required: bool,
+) -> tuple[PresentationEntry, ...]:
+    raw_entries = presentation.get(key)
+    if not isinstance(raw_entries, list) or (required and not raw_entries):
+        qualifier = "a non-empty" if required else "a"
+        raise ValueError(f"Schema-pack configuration `{context}.{key}` must be {qualifier} list.")
+    entries: list[PresentationEntry] = []
+    seen: set[str] = set()
+    for index, raw_entry in enumerate(raw_entries):
+        entry_context = f"{context}.{key}[{index}]"
+        entry = require_mapping(raw_entry, entry_context)
+        assert_allowed_keys(entry, {"id", "label", "description"}, f"Schema pack `{entry_context}`")
+        entry_id = require_string(entry, "id", entry_context)
+        validate_id(entry_id, f"{entry_context}.id")
+        if entry_id in seen:
+            raise ValueError(f"Schema-pack configuration `{context}.{key}` contains duplicate `{entry_id}`.")
+        seen.add(entry_id)
+        entries.append(
+            PresentationEntry(
+                entry_id,
+                require_string(entry, "label", entry_context),
+                require_string(entry, "description", entry_context),
+            )
+        )
+    return tuple(entries)
+
+
+def _parse_documentation_entries(presentation: dict, context: str) -> tuple[DocumentationEntry, ...]:
+    raw_entries = presentation.get("documentation")
+    if not isinstance(raw_entries, list):
+        raise ValueError(f"Schema-pack configuration `{context}.documentation` must be a list.")
+    entries: list[DocumentationEntry] = []
+    seen: set[str] = set()
+    for index, raw_entry in enumerate(raw_entries):
+        entry_context = f"{context}.documentation[{index}]"
+        entry = require_mapping(raw_entry, entry_context)
+        assert_allowed_keys(
+            entry,
+            {"id", "label", "target_kind", "target"},
+            f"Schema pack `{entry_context}`",
+        )
+        entry_id = require_string(entry, "id", entry_context)
+        validate_id(entry_id, f"{entry_context}.id")
+        if entry_id in seen:
+            raise ValueError(f"Schema-pack configuration `{context}.documentation` contains duplicate `{entry_id}`.")
+        seen.add(entry_id)
+        target_kind = require_string(entry, "target_kind", entry_context)
+        if target_kind not in DOCUMENTATION_TARGET_KINDS:
+            raise ValueError(f"Schema-pack configuration `{entry_context}.target_kind` is unsupported.")
+        target = require_string(entry, "target", entry_context)
+        if target_kind == "repository-path":
+            path = Path(target)
+            if path.is_absolute() or ".." in path.parts:
+                raise ValueError(f"Schema-pack configuration `{entry_context}.target` must remain repository-relative.")
+            target = path.as_posix()
+        else:
+            parsed = urlparse(target)
+            if parsed.scheme != "https" or not parsed.netloc or parsed.username or parsed.password:
+                raise ValueError(f"Schema-pack configuration `{entry_context}.target` must be an absolute HTTPS URL.")
+        entries.append(
+            DocumentationEntry(
+                entry_id,
+                require_string(entry, "label", entry_context),
+                target_kind,
+                target,
+            )
+        )
+    return tuple(entries)
+
+
+def _parse_visual_identity(presentation: dict, context: str) -> VisualIdentity | None:
+    raw_visual = presentation.get("visual")
+    if raw_visual is None:
+        return None
+    visual = require_mapping(raw_visual, f"{context}.visual")
+    assert_allowed_keys(visual, {"icon_id", "accent_token"}, f"Schema pack `{context}.visual`")
+    icon_id = _optional_string(visual, "icon_id", f"{context}.visual")
+    accent_token = _optional_string(visual, "accent_token", f"{context}.visual")
+    if icon_id is None and accent_token is None:
+        raise ValueError(f"Schema-pack configuration `{context}.visual` must declare at least one identifier.")
+    for key, value in (("icon_id", icon_id), ("accent_token", accent_token)):
+        if value is not None:
+            validate_id(value, f"{context}.visual.{key}")
+    return VisualIdentity(icon_id, accent_token)
+
+
+def _parse_pack_classification(pack: dict, pack_id: str) -> PackClassification:
+    context = f"{pack_id}.classification"
+    classification = require_mapping(pack.get("classification"), context)
+    assert_allowed_keys(
+        classification,
+        {"family", "role", "scope", "domains", "bridge_pack_ids"},
+        f"Schema pack `{context}`",
+    )
+    family = require_string(classification, "family", context)
+    validate_id(family, f"{context}.family")
+    role = require_string(classification, "role", context)
+    if role not in PACK_ROLES:
+        raise ValueError(f"Schema-pack configuration `{context}.role` is unsupported.")
+    scope = require_string(classification, "scope", context)
+    if scope not in PACK_SCOPES:
+        raise ValueError(f"Schema-pack configuration `{context}.scope` is unsupported.")
+    domains = _stable_string_list(classification, "domains", context)
+    bridge_ids = _stable_string_list(classification, "bridge_pack_ids", context)
+    if scope == "domain-neutral" and domains:
+        raise ValueError(f"Schema-pack configuration `{context}.domains` must be empty for domain-neutral scope.")
+    if scope == "domain-specific" and not domains:
+        raise ValueError(f"Schema-pack configuration `{context}.domains` must identify at least one domain.")
+    if scope == "cross-domain" and len(domains) < 2:
+        raise ValueError(f"Schema-pack configuration `{context}.domains` must identify at least two domains.")
+    if role == "bridge":
+        if scope != "cross-domain" or len(bridge_ids) < 2:
+            raise ValueError(
+                f"Schema-pack configuration `{context}` bridges require cross-domain scope and at least two joins."
+            )
+    elif bridge_ids:
+        raise ValueError(f"Schema-pack configuration `{context}.bridge_pack_ids` is only valid for bridges.")
+    return PackClassification(family, role, scope, domains, bridge_ids)
+
+
+def _parse_pack_presentation(pack: dict, pack_id: str) -> PackPresentation:
+    context = f"{pack_id}.presentation"
+    presentation = require_mapping(pack.get("presentation"), context)
+    assert_allowed_keys(
+        presentation,
+        {
+            "localization_key",
+            "default_locale",
+            "label",
+            "short_description",
+            "long_description",
+            "maturity",
+            "intended_audiences",
+            "use_cases",
+            "examples",
+            "prerequisites",
+            "provided_behaviors",
+            "exclusions",
+            "documentation",
+            "search_keywords",
+            "visual",
+        },
+        f"Schema pack `{context}`",
+    )
+    localization_key = require_string(presentation, "localization_key", context)
+    if not LOCALIZATION_KEY_PATTERN.fullmatch(localization_key):
+        raise ValueError(f"Schema-pack configuration `{context}.localization_key` must be a dotted stable key.")
+    default_locale = require_string(presentation, "default_locale", context)
+    if default_locale != "en":
+        raise ValueError(f"Schema-pack configuration `{context}.default_locale` must currently be `en`.")
+    maturity = require_string(presentation, "maturity", context)
+    if maturity not in PACK_MATURITIES:
+        raise ValueError(f"Schema-pack configuration `{context}.maturity` is unsupported.")
+    raw_keywords = presentation.get("search_keywords")
+    if not isinstance(raw_keywords, list) or any(
+        not isinstance(item, str) or not item.strip() for item in raw_keywords
+    ):
+        raise ValueError(f"Schema-pack configuration `{context}.search_keywords` must be a list of strings.")
+    keywords = tuple(item.strip() for item in raw_keywords)
+    if len({item.casefold() for item in keywords}) != len(keywords):
+        raise ValueError(f"Schema-pack configuration `{context}.search_keywords` contains duplicates.")
+    return PackPresentation(
+        localization_key,
+        default_locale,
+        require_string(presentation, "label", context),
+        require_string(presentation, "short_description", context),
+        require_string(presentation, "long_description", context),
+        maturity,
+        _parse_presentation_entries(presentation, "intended_audiences", context, required=True),
+        _parse_presentation_entries(presentation, "use_cases", context, required=True),
+        _parse_presentation_entries(presentation, "examples", context, required=False),
+        _parse_presentation_entries(presentation, "prerequisites", context, required=False),
+        _parse_presentation_entries(presentation, "provided_behaviors", context, required=True),
+        _parse_presentation_entries(presentation, "exclusions", context, required=True),
+        _parse_documentation_entries(presentation, context),
+        keywords,
+        _parse_visual_identity(presentation, context),
+    )
+
+
+def _parse_capability_presentation(raw: dict, context: str) -> CapabilityPresentation:
+    presentation = require_mapping(raw.get("presentation"), f"{context}.presentation")
+    assert_allowed_keys(
+        presentation,
+        {"localization_key", "label", "description"},
+        f"Schema pack `{context}.presentation`",
+    )
+    localization_key = require_string(presentation, "localization_key", f"{context}.presentation")
+    if not LOCALIZATION_KEY_PATTERN.fullmatch(localization_key):
+        raise ValueError(
+            f"Schema-pack configuration `{context}.presentation.localization_key` must be a dotted stable key."
+        )
+    return CapabilityPresentation(
+        localization_key,
+        require_string(presentation, "label", f"{context}.presentation"),
+        require_string(presentation, "description", f"{context}.presentation"),
+    )
 
 
 def _declaration_rows(mapping: dict, key: str, context: str) -> list:
@@ -560,30 +841,31 @@ def compose_semantic_declarations(
 
 
 def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
-    data = load_yaml_file(path, "schema pack", expected_schema_version=SUPPORTED_SCHEMA_PACK_VERSION)
+    data = load_yaml_file(path, "schema pack", expected_schema_version=SUPPORTED_SCHEMA_PACK_VERSIONS)
     pack = require_mapping(data, expected_pack_id)
+    schema_version = require_positive_int(pack, "schema_version", expected_pack_id)
+    legacy = schema_version == 4
+    allowed_keys = {
+        "schema_version",
+        "pack_id",
+        "pack_version",
+        "lifecycle",
+        "pack_kind",
+        "dependencies",
+        "capabilities",
+        "controlled_values",
+        "semantic_declarations",
+    }
+    allowed_keys.update({"label", "description"} if legacy else {"classification", "presentation"})
     assert_allowed_keys(
         pack,
-        {
-            "schema_version",
-            "pack_id",
-            "pack_version",
-            "lifecycle",
-            "pack_kind",
-            "label",
-            "description",
-            "dependencies",
-            "capabilities",
-            "controlled_values",
-            "semantic_declarations",
-        },
+        allowed_keys,
         f"Schema pack `{expected_pack_id}`",
     )
-    schema_version = require_positive_int(pack, "schema_version", expected_pack_id)
-    if schema_version != SUPPORTED_SCHEMA_PACK_VERSION:
+    if schema_version not in SUPPORTED_SCHEMA_PACK_VERSIONS:
         raise ValueError(
             f"Unsupported schema-pack schema_version {schema_version!r} in {path}; "
-            f"expected {SUPPORTED_SCHEMA_PACK_VERSION}."
+            f"expected one of {SUPPORTED_SCHEMA_PACK_VERSIONS}."
         )
     pack_id = require_string(pack, "pack_id", expected_pack_id)
     validate_id(pack_id, f"{expected_pack_id}.pack_id")
@@ -596,6 +878,10 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
     kind = require_string(pack, "pack_kind", pack_id)
     if kind not in PACK_KINDS:
         raise ValueError(f"Schema pack `{pack_id}.pack_kind` must be one of: {', '.join(sorted(PACK_KINDS))}.")
+    classification = None if legacy else _parse_pack_classification(pack, pack_id)
+    presentation = None if legacy else _parse_pack_presentation(pack, pack_id)
+    pack_label = require_string(pack, "label", pack_id) if legacy else presentation.label
+    pack_description = require_string(pack, "description", pack_id) if legacy else presentation.short_description
 
     raw_dependencies = pack.get("dependencies")
     if not isinstance(raw_dependencies, list):
@@ -628,30 +914,47 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
     for index, raw_capability in enumerate(raw_capabilities):
         context = f"{pack_id}.capabilities[{index}]"
         if isinstance(raw_capability, str):
+            if not legacy:
+                raise ValueError(
+                    f"Schema-pack configuration `{context}` must be a capability-definition mapping in schema 5."
+                )
             capability_id = raw_capability.strip()
             lifecycle = "available"
             label = None
             description = None
+            capability_presentation = None
         elif isinstance(raw_capability, dict):
+            allowed_capability_keys = (
+                {"id", "lifecycle", "label", "description"}
+                if legacy
+                else {
+                    "id",
+                    "lifecycle",
+                    "presentation",
+                }
+            )
             assert_allowed_keys(
                 raw_capability,
-                {"id", "lifecycle", "label", "description"},
+                allowed_capability_keys,
                 f"Schema pack `{context}`",
             )
             capability_id = require_string(raw_capability, "id", context)
             lifecycle = require_string(raw_capability, "lifecycle", context)
-            label_value = raw_capability.get("label")
-            description_value = raw_capability.get("description")
-            for key, value in (
-                ("label", label_value),
-                ("description", description_value),
-            ):
-                if value is not None and (not isinstance(value, str) or not value.strip()):
-                    raise ValueError(
-                        f"Schema-pack configuration `{context}.{key}` must be a non-empty string when present."
-                    )
-            label = label_value.strip() if isinstance(label_value, str) else None
-            description = description_value.strip() if isinstance(description_value, str) else None
+            if legacy:
+                label_value = raw_capability.get("label")
+                description_value = raw_capability.get("description")
+                for key, value in (("label", label_value), ("description", description_value)):
+                    if value is not None and (not isinstance(value, str) or not value.strip()):
+                        raise ValueError(
+                            f"Schema-pack configuration `{context}.{key}` must be a non-empty string when present."
+                        )
+                label = label_value.strip() if isinstance(label_value, str) else None
+                description = description_value.strip() if isinstance(description_value, str) else None
+                capability_presentation = None
+            else:
+                capability_presentation = _parse_capability_presentation(raw_capability, context)
+                label = capability_presentation.label
+                description = capability_presentation.description
         else:
             raise ValueError(
                 f"Schema-pack configuration `{context}` must be a stable-ID string or capability-definition mapping."
@@ -669,6 +972,7 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
             lifecycle=lifecycle,
             label=label,
             description=description,
+            presentation=capability_presentation,
         )
 
     raw_controlled = require_mapping(pack.get("controlled_values"), f"{pack_id}.controlled_values")
@@ -751,8 +1055,10 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
         pack_version=pack_version,
         lifecycle=pack_lifecycle,
         kind=kind,
-        label=require_string(pack, "label", pack_id),
-        description=require_string(pack, "description", pack_id),
+        label=pack_label,
+        description=pack_description,
+        classification=classification,
+        presentation=presentation,
         dependencies=tuple(dependencies),
         capabilities=tuple(capabilities),
         capability_definitions=capability_definitions,
@@ -760,6 +1066,102 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
         controlled_value_definitions=controlled_value_definitions,
         semantic_declarations=parse_semantic_declarations(pack, pack_id),
     )
+
+
+def _validate_pack_presentation_composition(
+    packs: dict[str, SchemaPackConfig],
+    selection_order: list[str],
+) -> None:
+    versions = {pack.schema_version for pack in packs.values()}
+    if versions == {4}:
+        return
+    if versions != {CURRENT_SCHEMA_PACK_VERSION}:
+        raise ValueError("Schema-pack composition must not mix legacy schema 4 and presentation schema 5 packs.")
+
+    localization_owners: dict[str, str] = {}
+    capability_presentations: dict[str, CapabilityPresentation] = {}
+    for pack_id in selection_order:
+        pack = packs[pack_id]
+        classification = pack.classification
+        presentation = pack.presentation
+        if classification is None or presentation is None:
+            raise ValueError(f"Schema pack `{pack_id}` is missing schema-5 presentation metadata.")
+        prior_owner = localization_owners.get(presentation.localization_key)
+        if prior_owner is not None:
+            raise ValueError(
+                f"Schema-pack localization key `{presentation.localization_key}` is shared by "
+                f"`{prior_owner}` and `{pack_id}`."
+            )
+        localization_owners[presentation.localization_key] = f"pack:{pack_id}"
+
+        dependency_ids = {dependency.pack_id for dependency in pack.dependencies}
+        if classification.scope == "domain-neutral":
+            nonneutral = [
+                dependency_id
+                for dependency_id in dependency_ids
+                if packs[dependency_id].classification is None
+                or packs[dependency_id].classification.scope != "domain-neutral"
+            ]
+            if nonneutral:
+                raise ValueError(
+                    f"Domain-neutral schema pack `{pack_id}` depends on domain-facing pack(s): "
+                    f"{', '.join(sorted(nonneutral))}."
+                )
+        elif classification.scope == "domain-specific":
+            incompatible = []
+            own_domains = set(classification.domains)
+            for dependency_id in dependency_ids:
+                dependency_classification = packs[dependency_id].classification
+                if dependency_classification is None or dependency_classification.scope == "domain-neutral":
+                    continue
+                if not own_domains.intersection(dependency_classification.domains):
+                    incompatible.append(dependency_id)
+            if incompatible:
+                raise ValueError(
+                    f"Domain-specific schema pack `{pack_id}` has incompatible dependency scope: "
+                    f"{', '.join(sorted(incompatible))}."
+                )
+
+        if classification.role == "bridge":
+            bridge_ids = set(classification.bridge_pack_ids)
+            if not bridge_ids <= dependency_ids:
+                missing = sorted(bridge_ids - dependency_ids)
+                raise ValueError(f"Bridge schema pack `{pack_id}` joins nondependency pack(s): {', '.join(missing)}.")
+            joinable_dependencies = {
+                dependency_id
+                for dependency_id in dependency_ids
+                if packs[dependency_id].classification is not None
+                and packs[dependency_id].classification.role in {"foundation", "domain"}
+            }
+            if bridge_ids != joinable_dependencies:
+                raise ValueError(f"Bridge schema pack `{pack_id}` must declare every joined foundation or domain.")
+            joined_domains: set[str] = set()
+            for dependency_id in bridge_ids:
+                joined = packs[dependency_id].classification
+                if joined is None:
+                    raise ValueError(f"Bridge schema pack `{pack_id}` joins an unclassified pack.")
+                joined_domains.update(joined.domains or (joined.family,))
+            if set(classification.domains) != joined_domains:
+                raise ValueError(f"Bridge schema pack `{pack_id}` domains do not match its declared joins.")
+        elif classification.scope == "cross-domain":
+            raise ValueError(f"Cross-domain schema pack `{pack_id}` must use the bridge role.")
+
+        for capability_id in pack.capabilities:
+            capability_presentation = pack.capability_definitions[capability_id].presentation
+            if capability_presentation is None:
+                raise ValueError(f"Schema pack `{pack_id}` capability `{capability_id}` lacks presentation metadata.")
+            owner_key = localization_owners.get(capability_presentation.localization_key)
+            expected_owner = f"capability:{capability_id}"
+            if owner_key is not None and owner_key != expected_owner:
+                raise ValueError(
+                    f"Schema-pack localization key `{capability_presentation.localization_key}` "
+                    f"conflicts with `{owner_key}`."
+                )
+            localization_owners[capability_presentation.localization_key] = expected_owner
+            prior = capability_presentations.get(capability_id)
+            if prior is not None and prior != capability_presentation:
+                raise ValueError(f"Capability `{capability_id}` providers declare conflicting presentation metadata.")
+            capability_presentations[capability_id] = capability_presentation
 
 
 def load_schema_pack_registry(project: ProjectConfig) -> SchemaPackRegistry:
@@ -815,6 +1217,8 @@ def load_schema_pack_registry(project: ProjectConfig) -> SchemaPackRegistry:
                     f"{installed.pack_version}."
                 )
         selected_before.add(pack_id)
+
+    _validate_pack_presentation_composition(packs, selection_order)
 
     declared_capabilities: list[str] = []
     available_capabilities: list[str] = []

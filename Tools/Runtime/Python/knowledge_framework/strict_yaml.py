@@ -211,14 +211,25 @@ def validate_yaml_source(
             pending.extend(node.value)
 
 
-def require_exact_schema_version(mapping: dict, expected: int, context: str) -> int:
+def require_exact_schema_version(mapping: dict, expected: int | tuple[int, ...], context: str) -> int:
     value = mapping.get("schema_version")
-    if type(value) is not int or value != expected:
-        raise ValueError(f"Unsupported {context} schema_version {value!r}; expected integer {expected}.")
+    expected_versions = (expected,) if isinstance(expected, int) else expected
+    if type(value) is not int or value not in expected_versions:
+        expectation = (
+            f"integer {expected_versions[0]}"
+            if len(expected_versions) == 1
+            else f"one of integers: {', '.join(str(item) for item in expected_versions)}"
+        )
+        raise ValueError(f"Unsupported {context} schema_version {value!r}; expected {expectation}.")
     return value
 
 
-def load_yaml_file(path: Path, context: str, *, expected_schema_version: int | None = None):
+def load_yaml_file(
+    path: Path,
+    context: str,
+    *,
+    expected_schema_version: int | tuple[int, ...] | None = None,
+):
     try:
         raw = path.read_bytes()
         text = decode_yaml_bytes(raw, context, path)

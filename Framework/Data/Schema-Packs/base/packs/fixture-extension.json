@@ -1,12 +1,36 @@
 {
-  "schema_version": 4,
+  "schema_version": 5,
   "pack_id": "fixture-extension",
   "pack_version": 1,
   "lifecycle": "deferred",
   "pack_kind": "extension",
-  "label": "Fixture Extension",
-  "description": "Extension schema-pack composition fixture.",
-  "dependencies": [{"pack_id": "fixture-domain", "minimum_version": 3}],
+  "classification": {
+    "family": "integration",
+    "role": "bridge",
+    "scope": "cross-domain",
+    "domains": ["platform", "fixture"],
+    "bridge_pack_ids": ["fixture-core", "fixture-domain"]
+  },
+  "presentation": {
+    "localization_key": "pack.fixture-extension",
+    "default_locale": "en",
+    "label": "Fixture Bridge",
+    "short_description": "Cross-domain schema-pack bridge fixture.",
+    "long_description": "Connects the neutral platform foundation and fixture domain while remaining capability-free.",
+    "maturity": "experimental",
+    "intended_audiences": [{"id": "integration-tester", "label": "Integration testers", "description": "Maintainers validating explicit bridge composition."}],
+    "use_cases": [{"id": "bridge-validation", "label": "Bridge validation", "description": "Exercise explicit joins between foundation and domain packs."}],
+    "examples": [],
+    "prerequisites": [{"id": "joined-packs", "label": "Joined packs", "description": "Requires both declared bridge dependencies."}],
+    "provided_behaviors": [{"id": "bridge-vocabulary", "label": "Bridge vocabulary", "description": "Adds integration vocabulary without inventing a capability."}],
+    "exclusions": [{"id": "capability-ownership", "label": "No capability ownership", "description": "Remains a vocabulary-only bridge."}],
+    "documentation": [],
+    "search_keywords": ["bridge", "fixture", "integration"]
+  },
+  "dependencies": [
+    {"pack_id": "fixture-core", "minimum_version": 2},
+    {"pack_id": "fixture-domain", "minimum_version": 3}
+  ],
   "capabilities": [],
   "controlled_values": {
     "fixture.mode": ["extension-mode"]

@@ -1,8 +1,13 @@
 $script:SupportedSchemaPackRegistryVersion = 2
-$script:SupportedSchemaPackVersion = 4
+$script:SupportedSchemaPackVersions = @(4, 5)
+$script:CurrentSchemaPackVersion = 5
 $script:AllowedSchemaPackLifecycles = @("active", "deferred")
 $script:AllowedSchemaPackKinds = @("core", "domain", "extension")
 $script:AllowedCapabilityLifecycles = @("available", "planned", "deprecated")
+$script:AllowedSchemaPackRoles = @('foundation', 'domain', 'bridge', 'extension')
+$script:AllowedSchemaPackScopes = @('domain-neutral', 'domain-specific', 'cross-domain')
+$script:AllowedSchemaPackMaturities = @('experimental', 'preview', 'stable', 'legacy')
+$script:AllowedDocumentationTargetKinds = @('repository-path', 'external-url')
 $script:SchemaPackNamespacePattern = "^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)+$"
 $script:LegacyCompoundSemanticNamespaces = @(
     'occurrence.transition-kind-profile'
@@ -70,6 +75,247 @@ function Assert-SchemaPackStableId {
 
     if ($Value -cnotmatch $script:StableProjectIdPattern) {
         throw "Schema-pack configuration '$Context' must be a lowercase kebab-case stable ID: $Value"
+    }
+}
+
+function Get-SchemaPackStableIdList {
+    param([object]$Map, [string]$Key, [string]$Context)
+
+    $values = @(Get-SchemaPackStringList $Map $Key $Context $true)
+    $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    foreach ($value in $values) {
+        Assert-SchemaPackStableId $value "$Context.$Key"
+        if (-not $seen.Add($value)) {
+            throw "Schema-pack configuration '$Context.$Key' contains duplicate '$value'."
+        }
+    }
+    return @($values)
+}
+
+function ConvertTo-SchemaPackPresentationEntries {
+    param(
+        [System.Collections.IDictionary]$Presentation,
+        [string]$Key,
+        [string]$Context,
+        [bool]$Required
+    )
+
+    if (-not $Presentation.Contains($Key)) {
+        throw "Schema-pack configuration '$Context.$Key' must be a list."
+    }
+    $entries = @(Get-ProjectMapValue $Presentation $Key)
+    if ($Required -and $entries.Count -eq 0) {
+        throw "Schema-pack configuration '$Context.$Key' must be a non-empty list."
+    }
+    $result = @()
+    $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    for ($index = 0; $index -lt $entries.Count; $index += 1) {
+        $entry = $entries[$index]
+        $entryContext = "$Context.$Key[$index]"
+        Assert-KnowledgeMapKeys $entry @('id', 'label', 'description') "Schema pack '$entryContext'"
+        $entryId = Get-RequiredSchemaPackString $entry 'id' $entryContext
+        Assert-SchemaPackStableId $entryId "$entryContext.id"
+        if (-not $seen.Add($entryId)) {
+            throw "Schema-pack configuration '$Context.$Key' contains duplicate '$entryId'."
+        }
+        $result += [pscustomobject]@{
+            id = $entryId
+            label = Get-RequiredSchemaPackString $entry 'label' $entryContext
+            description = Get-RequiredSchemaPackString $entry 'description' $entryContext
+        }
+    }
+    return @($result)
+}
+
+function ConvertTo-SchemaPackDocumentationEntries {
+    param([System.Collections.IDictionary]$Presentation, [string]$Context)
+
+    if (-not $Presentation.Contains('documentation')) {
+        throw "Schema-pack configuration '$Context.documentation' must be a list."
+    }
+    $entries = @(Get-ProjectMapValue $Presentation 'documentation')
+    $result = @()
+    $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    for ($index = 0; $index -lt $entries.Count; $index += 1) {
+        $entry = $entries[$index]
+        $entryContext = "$Context.documentation[$index]"
+        Assert-KnowledgeMapKeys $entry @('id', 'label', 'target_kind', 'target') "Schema pack '$entryContext'"
+        $entryId = Get-RequiredSchemaPackString $entry 'id' $entryContext
+        Assert-SchemaPackStableId $entryId "$entryContext.id"
+        if (-not $seen.Add($entryId)) {
+            throw "Schema-pack configuration '$Context.documentation' contains duplicate '$entryId'."
+        }
+        $targetKind = Get-RequiredSchemaPackString $entry 'target_kind' $entryContext
+        if ($script:AllowedDocumentationTargetKinds -cnotcontains $targetKind) {
+            throw "Schema-pack configuration '$entryContext.target_kind' is unsupported."
+        }
+        $target = Get-RequiredSchemaPackString $entry 'target' $entryContext
+        if ($targetKind -ceq 'repository-path') {
+            $segments = @($target.Replace('\', '/').Split('/'))
+            if ([System.IO.Path]::IsPathRooted($target) -or $segments -ccontains '..') {
+                throw "Schema-pack configuration '$entryContext.target' must remain repository-relative."
+            }
+            $target = $target.Replace('\', '/')
+        }
+        else {
+            $uri = $null
+            if (
+                -not [System.Uri]::TryCreate($target, [System.UriKind]::Absolute, [ref]$uri) -or
+                $uri.Scheme -cne 'https' -or
+                [string]::IsNullOrWhiteSpace($uri.Host) -or
+                -not [string]::IsNullOrEmpty($uri.UserInfo)
+            ) {
+                throw "Schema-pack configuration '$entryContext.target' must be an absolute HTTPS URL."
+            }
+        }
+        $result += [pscustomobject]@{
+            id = $entryId
+            label = Get-RequiredSchemaPackString $entry 'label' $entryContext
+            target_kind = $targetKind
+            target = $target
+        }
+    }
+    return @($result)
+}
+
+function ConvertTo-SchemaPackClassification {
+    param([System.Collections.IDictionary]$Pack, [string]$PackId)
+
+    $context = "$PackId.classification"
+    $classification = Get-ProjectMapValue $Pack 'classification'
+    Assert-KnowledgeMapKeys $classification @('family', 'role', 'scope', 'domains', 'bridge_pack_ids') "Schema pack '$context'"
+    $family = Get-RequiredSchemaPackString $classification 'family' $context
+    Assert-SchemaPackStableId $family "$context.family"
+    $role = Get-RequiredSchemaPackString $classification 'role' $context
+    if ($script:AllowedSchemaPackRoles -cnotcontains $role) {
+        throw "Schema-pack configuration '$context.role' is unsupported."
+    }
+    $scope = Get-RequiredSchemaPackString $classification 'scope' $context
+    if ($script:AllowedSchemaPackScopes -cnotcontains $scope) {
+        throw "Schema-pack configuration '$context.scope' is unsupported."
+    }
+    $domains = @(Get-SchemaPackStableIdList $classification 'domains' $context)
+    $bridgePackIds = @(Get-SchemaPackStableIdList $classification 'bridge_pack_ids' $context)
+    if ($scope -ceq 'domain-neutral' -and $domains.Count -gt 0) {
+        throw "Schema-pack configuration '$context.domains' must be empty for domain-neutral scope."
+    }
+    if ($scope -ceq 'domain-specific' -and $domains.Count -eq 0) {
+        throw "Schema-pack configuration '$context.domains' must identify at least one domain."
+    }
+    if ($scope -ceq 'cross-domain' -and $domains.Count -lt 2) {
+        throw "Schema-pack configuration '$context.domains' must identify at least two domains."
+    }
+    if ($role -ceq 'bridge') {
+        if ($scope -cne 'cross-domain' -or $bridgePackIds.Count -lt 2) {
+            throw "Schema-pack configuration '$context' bridges require cross-domain scope and at least two joins."
+        }
+    }
+    elseif ($bridgePackIds.Count -gt 0) {
+        throw "Schema-pack configuration '$context.bridge_pack_ids' is only valid for bridges."
+    }
+    return [pscustomobject]@{
+        family = $family
+        role = $role
+        scope = $scope
+        domains = @($domains)
+        bridge_pack_ids = @($bridgePackIds)
+    }
+}
+
+function ConvertTo-SchemaPackPresentation {
+    param([System.Collections.IDictionary]$Pack, [string]$PackId)
+
+    $context = "$PackId.presentation"
+    $presentation = Get-ProjectMapValue $Pack 'presentation'
+    Assert-KnowledgeMapKeys $presentation @(
+        'localization_key', 'default_locale', 'label', 'short_description', 'long_description',
+        'maturity', 'intended_audiences', 'use_cases', 'examples', 'prerequisites',
+        'provided_behaviors', 'exclusions', 'documentation', 'search_keywords', 'visual'
+    ) "Schema pack '$context'"
+    $localizationKey = Get-RequiredSchemaPackString $presentation 'localization_key' $context
+    if ($localizationKey -cnotmatch $script:SchemaPackNamespacePattern) {
+        throw "Schema-pack configuration '$context.localization_key' must be a dotted stable key."
+    }
+    $defaultLocale = Get-RequiredSchemaPackString $presentation 'default_locale' $context
+    if ($defaultLocale -cne 'en') {
+        throw "Schema-pack configuration '$context.default_locale' must currently be 'en'."
+    }
+    $maturity = Get-RequiredSchemaPackString $presentation 'maturity' $context
+    if ($script:AllowedSchemaPackMaturities -cnotcontains $maturity) {
+        throw "Schema-pack configuration '$context.maturity' is unsupported."
+    }
+    $keywords = @(Get-SchemaPackStringList $presentation 'search_keywords' $context $true)
+    $seenKeywords = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+    foreach ($keyword in $keywords) {
+        if (-not $seenKeywords.Add($keyword)) {
+            throw "Schema-pack configuration '$context.search_keywords' contains duplicates."
+        }
+    }
+    $visual = $null
+    if ($presentation.Contains('visual')) {
+        $rawVisual = Get-ProjectMapValue $presentation 'visual'
+        Assert-KnowledgeMapKeys $rawVisual @('icon_id', 'accent_token') "Schema pack '$context.visual'"
+        $iconId = if ($rawVisual.Contains('icon_id')) {
+            Get-RequiredSchemaPackString $rawVisual 'icon_id' "$context.visual"
+        }
+        else {
+            $null
+        }
+        $accentToken = if ($rawVisual.Contains('accent_token')) {
+            Get-RequiredSchemaPackString $rawVisual 'accent_token' "$context.visual"
+        }
+        else {
+            $null
+        }
+        if ($null -eq $iconId -and $null -eq $accentToken) {
+            throw "Schema-pack configuration '$context.visual' must declare at least one identifier."
+        }
+        foreach ($field in @([pscustomobject]@{name='icon_id'
+                    value=$iconId
+                }, [pscustomobject]@{name='accent_token'
+                    value=$accentToken
+                })) {
+            if ($null -ne $field.value) {
+                Assert-SchemaPackStableId $field.value "$context.visual.$($field.name)"
+            }
+        }
+        $visual = [pscustomobject]@{icon_id=$iconId
+            accent_token=$accentToken
+        }
+    }
+    return [pscustomobject]@{
+        localization_key = $localizationKey
+        default_locale = $defaultLocale
+        label = Get-RequiredSchemaPackString $presentation 'label' $context
+        short_description = Get-RequiredSchemaPackString $presentation 'short_description' $context
+        long_description = Get-RequiredSchemaPackString $presentation 'long_description' $context
+        maturity = $maturity
+        intended_audiences = @(ConvertTo-SchemaPackPresentationEntries $presentation 'intended_audiences' $context $true)
+        use_cases = @(ConvertTo-SchemaPackPresentationEntries $presentation 'use_cases' $context $true)
+        examples = @(ConvertTo-SchemaPackPresentationEntries $presentation 'examples' $context $false)
+        prerequisites = @(ConvertTo-SchemaPackPresentationEntries $presentation 'prerequisites' $context $false)
+        provided_behaviors = @(ConvertTo-SchemaPackPresentationEntries $presentation 'provided_behaviors' $context $true)
+        exclusions = @(ConvertTo-SchemaPackPresentationEntries $presentation 'exclusions' $context $true)
+        documentation = @(ConvertTo-SchemaPackDocumentationEntries $presentation $context)
+        search_keywords = @($keywords)
+        visual = $visual
+    }
+}
+
+function ConvertTo-SchemaPackCapabilityPresentation {
+    param([System.Collections.IDictionary]$Capability, [string]$Context)
+
+    $presentationContext = "$Context.presentation"
+    $presentation = Get-ProjectMapValue $Capability 'presentation'
+    Assert-KnowledgeMapKeys $presentation @('localization_key', 'label', 'description') "Schema pack '$presentationContext'"
+    $localizationKey = Get-RequiredSchemaPackString $presentation 'localization_key' $presentationContext
+    if ($localizationKey -cnotmatch $script:SchemaPackNamespacePattern) {
+        throw "Schema-pack configuration '$presentationContext.localization_key' must be a dotted stable key."
+    }
+    return [pscustomobject]@{
+        localization_key = $localizationKey
+        label = Get-RequiredSchemaPackString $presentation 'label' $presentationContext
+        description = Get-RequiredSchemaPackString $presentation 'description' $presentationContext
     }
 }
 
@@ -342,27 +588,32 @@ function ConvertTo-SchemaPackSemanticDeclarations {
 function ConvertTo-SchemaPackConfig {
     param([string]$Path, [string]$ExpectedPackId)
 
-    $pack = ConvertFrom-KnowledgeYamlFile $Path $script:SupportedSchemaPackVersion "schema pack"
+    $pack = ConvertFrom-KnowledgeYamlFile $Path $script:SupportedSchemaPackVersions "schema pack"
     if ($null -eq $pack -or -not ($pack -is [System.Collections.IDictionary])) {
         throw "Schema-pack configuration '$ExpectedPackId' must be a mapping."
     }
+    $schemaVersion = Get-RequiredSchemaPackPositiveInteger $pack "schema_version" $ExpectedPackId
+    $legacy = $schemaVersion -eq 4
     $packKeys = @(
         "schema_version"
         "pack_id"
         "pack_version"
         "lifecycle"
         "pack_kind"
-        "label"
-        "description"
         "dependencies"
         "capabilities"
         "controlled_values"
         "semantic_declarations"
     )
+    $packKeys += if ($legacy) {
+        @('label', 'description')
+    }
+    else {
+        @('classification', 'presentation')
+    }
     Assert-KnowledgeMapKeys $pack $packKeys "Schema pack '$ExpectedPackId'"
-    $schemaVersion = Get-RequiredSchemaPackPositiveInteger $pack "schema_version" $ExpectedPackId
-    if ($schemaVersion -ne $script:SupportedSchemaPackVersion) {
-        throw "Unsupported schema-pack schema_version '$schemaVersion' in $Path; expected $($script:SupportedSchemaPackVersion)."
+    if ($script:SupportedSchemaPackVersions -notcontains $schemaVersion) {
+        throw "Unsupported schema-pack schema_version '$schemaVersion' in $Path."
     }
     $packId = Get-RequiredSchemaPackString $pack "pack_id" $ExpectedPackId
     Assert-SchemaPackStableId $packId "$ExpectedPackId.pack_id"
@@ -377,6 +628,30 @@ function ConvertTo-SchemaPackConfig {
     $kind = Get-RequiredSchemaPackString $pack "pack_kind" $packId
     if ($script:AllowedSchemaPackKinds -cnotcontains $kind) {
         throw "Schema pack '$packId.pack_kind' must be one of: $($script:AllowedSchemaPackKinds -join ', ')."
+    }
+    $classification = if ($legacy) {
+        $null
+    }
+    else {
+        ConvertTo-SchemaPackClassification $pack $packId
+    }
+    $presentation = if ($legacy) {
+        $null
+    }
+    else {
+        ConvertTo-SchemaPackPresentation $pack $packId
+    }
+    $packLabel = if ($legacy) {
+        Get-RequiredSchemaPackString $pack 'label' $packId
+    }
+    else {
+        $presentation.label
+    }
+    $packDescription = if ($legacy) {
+        Get-RequiredSchemaPackString $pack 'description' $packId
+    }
+    else {
+        $presentation.short_description
     }
 
     $dependencies = @()
@@ -419,40 +694,58 @@ function ConvertTo-SchemaPackConfig {
         $rawCapability = $rawCapabilities[$index]
         $context = "$packId.capabilities[$index]"
         if ($rawCapability -is [string]) {
+            if (-not $legacy) {
+                throw "Schema-pack configuration '$context' must be a capability-definition mapping in schema 5."
+            }
             $capabilityId = $rawCapability.Trim()
             $capabilityLifecycle = "available"
             $capabilityLabel = $null
             $capabilityDescription = $null
+            $capabilityPresentation = $null
         }
         elseif ($rawCapability -is [System.Collections.IDictionary]) {
-            Assert-KnowledgeMapKeys $rawCapability @("id", "lifecycle", "label", "description") "Schema pack '$context'"
+            $capabilityKeys = if ($legacy) {
+                @('id', 'lifecycle', 'label', 'description')
+            }
+            else {
+                @('id', 'lifecycle', 'presentation')
+            }
+            Assert-KnowledgeMapKeys $rawCapability $capabilityKeys "Schema pack '$context'"
             $capabilityId = Get-RequiredSchemaPackString $rawCapability "id" $context
             $capabilityLifecycle = Get-RequiredSchemaPackString $rawCapability "lifecycle" $context
-            $labelValue = Get-ProjectMapValue $rawCapability "label"
-            $descriptionValue = Get-ProjectMapValue $rawCapability "description"
-            foreach ($field in @(
-                    [pscustomobject]@{ name = "label"
-                        value = $labelValue
-                    },
-                    [pscustomobject]@{ name = "description"
-                        value = $descriptionValue
+            if ($legacy) {
+                $labelValue = Get-ProjectMapValue $rawCapability "label"
+                $descriptionValue = Get-ProjectMapValue $rawCapability "description"
+                foreach ($field in @(
+                        [pscustomobject]@{ name = "label"
+                            value = $labelValue
+                        },
+                        [pscustomobject]@{ name = "description"
+                            value = $descriptionValue
+                        }
+                    )) {
+                    if ($null -ne $field.value -and [string]::IsNullOrWhiteSpace([string]$field.value)) {
+                        throw "Schema-pack configuration '$context.$($field.name)' must be a non-empty string when present."
                     }
-                )) {
-                if ($null -ne $field.value -and [string]::IsNullOrWhiteSpace([string]$field.value)) {
-                    throw "Schema-pack configuration '$context.$($field.name)' must be a non-empty string when present."
                 }
-            }
-            $capabilityLabel = if ($null -eq $labelValue) {
-                $null
+                $capabilityLabel = if ($null -eq $labelValue) {
+                    $null
+                }
+                else {
+                    ([string]$labelValue).Trim()
+                }
+                $capabilityDescription = if ($null -eq $descriptionValue) {
+                    $null
+                }
+                else {
+                    ([string]$descriptionValue).Trim()
+                }
+                $capabilityPresentation = $null
             }
             else {
-                ([string]$labelValue).Trim()
-            }
-            $capabilityDescription = if ($null -eq $descriptionValue) {
-                $null
-            }
-            else {
-                ([string]$descriptionValue).Trim()
+                $capabilityPresentation = ConvertTo-SchemaPackCapabilityPresentation $rawCapability $context
+                $capabilityLabel = $capabilityPresentation.label
+                $capabilityDescription = $capabilityPresentation.description
             }
         }
         else {
@@ -471,6 +764,7 @@ function ConvertTo-SchemaPackConfig {
             lifecycle = $capabilityLifecycle
             label = $capabilityLabel
             description = $capabilityDescription
+            presentation = $capabilityPresentation
         }
     }
 
@@ -559,14 +853,134 @@ function ConvertTo-SchemaPackConfig {
         pack_version = $packVersion
         lifecycle = $lifecycle
         kind = $kind
-        label = Get-RequiredSchemaPackString $pack "label" $packId
-        description = Get-RequiredSchemaPackString $pack "description" $packId
+        label = $packLabel
+        description = $packDescription
+        classification = $classification
+        presentation = $presentation
         dependencies = @($dependencies)
         capabilities = @($capabilities)
         capability_definitions = $capabilityDefinitions
         controlled_values = $controlledValues
         controlled_value_definitions = $controlledValueDefinitions
         semantic_declarations = ConvertTo-SchemaPackSemanticDeclarations $pack $packId
+    }
+}
+
+function Assert-SchemaPackPresentationComposition {
+    param(
+        [System.Collections.IDictionary]$Packs,
+        [string[]]$SelectionOrder
+    )
+
+    $versions = @($Packs.Values | ForEach-Object schema_version | Sort-Object -Unique)
+    if ($versions.Count -eq 1 -and [int]$versions[0] -eq 4) {
+        return
+    }
+    if ($versions.Count -ne 1 -or [int]$versions[0] -ne $script:CurrentSchemaPackVersion) {
+        throw 'Schema-pack composition must not mix legacy schema 4 and presentation schema 5 packs.'
+    }
+
+    $localizationOwners = @{}
+    $capabilityPresentations = @{}
+    foreach ($packId in $SelectionOrder) {
+        $pack = $Packs[$packId]
+        $classification = $pack.classification
+        $presentation = $pack.presentation
+        if ($null -eq $classification -or $null -eq $presentation) {
+            throw "Schema pack '$packId' is missing schema-5 presentation metadata."
+        }
+        if ($localizationOwners.ContainsKey($presentation.localization_key)) {
+            throw "Schema-pack localization key '$($presentation.localization_key)' is shared by multiple packs."
+        }
+        $localizationOwners[$presentation.localization_key] = "pack:$packId"
+
+        $dependencyIds = @($pack.dependencies | ForEach-Object pack_id)
+        if ($classification.scope -ceq 'domain-neutral') {
+            $nonneutral = @(
+                $dependencyIds | Where-Object {
+                    $null -eq $Packs[$_].classification -or
+                    $Packs[$_].classification.scope -cne 'domain-neutral'
+                }
+            )
+            if ($nonneutral.Count -gt 0) {
+                throw "Domain-neutral schema pack '$packId' depends on domain-facing pack(s): $($nonneutral -join ', ')."
+            }
+        }
+        elseif ($classification.scope -ceq 'domain-specific') {
+            $incompatible = @()
+            foreach ($dependencyId in $dependencyIds) {
+                $dependencyClassification = $Packs[$dependencyId].classification
+                if ($null -eq $dependencyClassification -or $dependencyClassification.scope -ceq 'domain-neutral') {
+                    continue
+                }
+                $overlap = @($classification.domains | Where-Object { @($dependencyClassification.domains) -ccontains $_ })
+                if ($overlap.Count -eq 0) {
+                    $incompatible += $dependencyId
+                }
+            }
+            if ($incompatible.Count -gt 0) {
+                throw "Domain-specific schema pack '$packId' has incompatible dependency scope: $($incompatible -join ', ')."
+            }
+        }
+
+        if ($classification.role -ceq 'bridge') {
+            $bridgeIds = @($classification.bridge_pack_ids)
+            $missing = @($bridgeIds | Where-Object { $dependencyIds -cnotcontains $_ })
+            if ($missing.Count -gt 0) {
+                throw "Bridge schema pack '$packId' joins nondependency pack(s): $($missing -join ', ')."
+            }
+            $joinable = @(
+                $dependencyIds | Where-Object {
+                    $null -ne $Packs[$_].classification -and
+                    @('foundation', 'domain') -ccontains $Packs[$_].classification.role
+                }
+            )
+            if ((@($bridgeIds | Sort-Object) -join '|') -cne (@($joinable | Sort-Object) -join '|')) {
+                throw "Bridge schema pack '$packId' must declare every joined foundation or domain."
+            }
+            $joinedDomains = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+            foreach ($dependencyId in $bridgeIds) {
+                $joined = $Packs[$dependencyId].classification
+                $values = if (@($joined.domains).Count -gt 0) {
+                    @($joined.domains)
+                }
+                else {
+                    @($joined.family)
+                }
+                foreach ($value in $values) {
+                    $null = $joinedDomains.Add($value)
+                }
+            }
+            if ((@($classification.domains | Sort-Object) -join '|') -cne (@($joinedDomains | Sort-Object) -join '|')) {
+                throw "Bridge schema pack '$packId' domains do not match its declared joins."
+            }
+        }
+        elseif ($classification.scope -ceq 'cross-domain') {
+            throw "Cross-domain schema pack '$packId' must use the bridge role."
+        }
+
+        foreach ($capabilityId in @($pack.capabilities)) {
+            $capabilityPresentation = $pack.capability_definitions[$capabilityId].presentation
+            if ($null -eq $capabilityPresentation) {
+                throw "Schema pack '$packId' capability '$capabilityId' lacks presentation metadata."
+            }
+            $owner = "capability:$capabilityId"
+            if (
+                $localizationOwners.ContainsKey($capabilityPresentation.localization_key) -and
+                $localizationOwners[$capabilityPresentation.localization_key] -cne $owner
+            ) {
+                throw "Schema-pack localization key '$($capabilityPresentation.localization_key)' conflicts with another record."
+            }
+            $localizationOwners[$capabilityPresentation.localization_key] = $owner
+            $serialized = $capabilityPresentation | ConvertTo-Json -Compress
+            if (
+                $capabilityPresentations.ContainsKey($capabilityId) -and
+                $capabilityPresentations[$capabilityId] -cne $serialized
+            ) {
+                throw "Capability '$capabilityId' providers declare conflicting presentation metadata."
+            }
+            $capabilityPresentations[$capabilityId] = $serialized
+        }
     }
 }
 
@@ -621,6 +1035,8 @@ function Get-KnowledgeSchemaPackRegistry {
         }
         $null = $selectedBefore.Add($packId)
     }
+
+    Assert-SchemaPackPresentationComposition $packs $selectionOrder
 
     $declaredCapabilities = @()
     $availableCapabilities = @()

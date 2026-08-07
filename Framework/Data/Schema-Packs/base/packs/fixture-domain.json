@@ -1,13 +1,53 @@
 {
-  "schema_version": 4,
+  "schema_version": 5,
   "pack_id": "fixture-domain",
   "pack_version": 3,
   "lifecycle": "active",
   "pack_kind": "domain",
-  "label": "Fixture Domain",
-  "description": "Domain schema-pack composition fixture.",
+  "classification": {
+    "family": "fixture",
+    "role": "domain",
+    "scope": "domain-specific",
+    "domains": ["fixture"],
+    "bridge_pack_ids": []
+  },
+  "presentation": {
+    "localization_key": "pack.fixture-domain",
+    "default_locale": "en",
+    "label": "Fixture Domain",
+    "short_description": "Domain schema-pack composition fixture.",
+    "long_description": "Adds fixture-domain behavior and vocabulary over the neutral synthetic foundation.",
+    "maturity": "preview",
+    "intended_audiences": [{"id": "domain-tester", "label": "Domain testers", "description": "Maintainers validating scoped domain composition."}],
+    "use_cases": [{"id": "domain-extension", "label": "Domain extension", "description": "Exercise domain-scoped capabilities and vocabulary."}],
+    "examples": [{"id": "domain-kind", "label": "Domain kind", "description": "Adds a domain child to neutral controlled vocabulary."}],
+    "prerequisites": [{"id": "fixture-core", "label": "Fixture core", "description": "Requires the neutral fixture foundation."}],
+    "provided_behaviors": [{"id": "domain-vocabulary", "label": "Domain vocabulary", "description": "Supplies domain-specific kinds and modes."}],
+    "exclusions": [{"id": "cross-domain-bridge", "label": "No bridge behavior", "description": "Does not connect unrelated domains."}],
+    "documentation": [],
+    "search_keywords": ["domain", "fixture"]
+  },
   "dependencies": [{"pack_id": "fixture-core", "minimum_version": 2}],
-  "capabilities": ["shared-capability", "domain-capability"],
+  "capabilities": [
+    {
+      "id": "shared-capability",
+      "lifecycle": "available",
+      "presentation": {
+        "localization_key": "capability.shared-capability",
+        "label": "Shared Capability",
+        "description": "Exercises equivalent presentation across multiple providers."
+      }
+    },
+    {
+      "id": "domain-capability",
+      "lifecycle": "available",
+      "presentation": {
+        "localization_key": "capability.domain-capability",
+        "label": "Domain Capability",
+        "description": "Provides the synthetic domain behavior used by composition tests."
+      }
+    }
+  ],
   "controlled_values": {
     "fixture.kind": [
       {"id": "domain-kind", "label": "Domain Kind", "broader_value": "child-kind"}

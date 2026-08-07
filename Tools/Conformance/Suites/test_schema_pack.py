@@ -91,6 +91,31 @@ def assert_valid_fixture(registry, expected: dict) -> None:
         raise AssertionError("Planned schema-pack capability became enabled.")
     if not registry.capability_available("deprecated-capability"):
         raise AssertionError("Deprecated schema-pack capability lost compatibility availability.")
+    presentation = expected["presentation"]
+    core = registry.packs["fixture-core"]
+    bridge = registry.packs["fixture-extension"]
+    if core.schema_version != presentation["schema_version"]:
+        raise AssertionError("Schema-pack presentation fixture version changed.")
+    if (
+        core.classification is None
+        or [core.classification.family, core.classification.role, core.classification.scope]
+        != presentation["core_classification"]
+    ):
+        raise AssertionError("Schema-pack core classification changed.")
+    if bridge.classification is None or list(bridge.classification.bridge_pack_ids) != presentation["bridge_pack_ids"]:
+        raise AssertionError("Schema-pack bridge joins changed.")
+    if [bridge.kind, bridge.classification.role] != presentation["bridge_kind_and_role"]:
+        raise AssertionError("Schema-pack compatibility kind and architectural role became coupled.")
+    pack_keys = {pack.presentation.localization_key for pack in registry.packs.values() if pack.presentation}
+    if len(pack_keys) != presentation["pack_localization_keys"]:
+        raise AssertionError("Schema-pack localization-key composition changed.")
+    capability_keys = {
+        definition.presentation.localization_key
+        for definition in registry.capability_definitions.values()
+        if definition.presentation
+    }
+    if len(capability_keys) != presentation["capability_localization_keys"]:
+        raise AssertionError("Capability localization-key composition changed.")
     semantic = expected["semantic_declarations"]
     for field, expected_count in semantic.items():
         if len(getattr(registry, field)) != expected_count:
@@ -112,15 +137,70 @@ def write_scale_fixture(root: Path, pack_count: int) -> Path:
         selections.append({"pack_id": pack_id, "path": f"packs/{filename}"})
         enabled.append(capability)
         pack = {
-            "schema_version": 4,
+            "schema_version": 5,
             "pack_id": pack_id,
             "pack_version": 1,
             "lifecycle": "active",
             "pack_kind": "core" if index == 0 else "extension",
-            "label": f"Scale Pack {index:03d}",
-            "description": "Generated schema-pack scale fixture.",
+            "classification": {
+                "family": "scale",
+                "role": "foundation" if index == 0 else "extension",
+                "scope": "domain-neutral",
+                "domains": [],
+                "bridge_pack_ids": [],
+            },
+            "presentation": {
+                "localization_key": f"pack.{pack_id}",
+                "default_locale": "en",
+                "label": f"Scale Pack {index:03d}",
+                "short_description": "Generated schema-pack scale fixture.",
+                "long_description": "Exercises deterministic rich presentation composition at scale.",
+                "maturity": "experimental",
+                "intended_audiences": [
+                    {
+                        "id": "scale-tester",
+                        "label": "Scale testers",
+                        "description": "Maintainers running generated composition probes.",
+                    }
+                ],
+                "use_cases": [
+                    {
+                        "id": "scale-probe",
+                        "label": "Scale probe",
+                        "description": "Measure rich pack composition behavior.",
+                    }
+                ],
+                "examples": [],
+                "prerequisites": [],
+                "provided_behaviors": [
+                    {
+                        "id": "generated-record",
+                        "label": "Generated record",
+                        "description": "Provides one generated capability and vocabulary set.",
+                    }
+                ],
+                "exclusions": [
+                    {
+                        "id": "project-content",
+                        "label": "No project content",
+                        "description": "Contains no project instance data.",
+                    }
+                ],
+                "documentation": [],
+                "search_keywords": ["scale"],
+            },
             "dependencies": [] if index == 0 else [{"pack_id": "scale-core", "minimum_version": 1}],
-            "capabilities": [capability],
+            "capabilities": [
+                {
+                    "id": capability,
+                    "lifecycle": "available",
+                    "presentation": {
+                        "localization_key": f"capability.{capability}",
+                        "label": f"Scale Capability {index:03d}",
+                        "description": "Generated capability presentation used by the scale probe.",
+                    },
+                }
+            ],
             "controlled_values": {
                 "scale.value": [value],
                 "occurrence.transition-kind": [transition_kind],
@@ -190,6 +270,35 @@ def assert_typed_delimiter_collision(project, base_root: Path, temp_root: Path) 
     return len(expected)
 
 
+def assert_presentation_only_change(project, base_root: Path, temp_root: Path, baseline) -> int:
+    changed_root = temp_root / "presentation-only-change"
+    shutil.copytree(base_root, changed_root)
+    core_path = changed_root / "packs" / "fixture-core.json"
+    core = json.loads(core_path.read_text(encoding="utf-8"))
+    core["presentation"]["long_description"] = "Changed presentation text with no semantic effect."
+    core["capabilities"][1]["presentation"]["description"] = "Changed planned-capability help text."
+    write_json(core_path, core)
+    changed_project = replace(
+        project,
+        root=changed_root,
+        schema_packs_registry=changed_root / "registry.json",
+    )
+    changed = load_schema_pack_registry(changed_project)
+    fields = (
+        "selection_order",
+        "declared_capabilities",
+        "available_capabilities",
+        "enabled_capabilities",
+        "controlled_values",
+        "transition_profiles",
+        "effect_policies",
+        "state_kind_profiles",
+    )
+    if any(getattr(changed, field) != getattr(baseline, field) for field in fields):
+        raise AssertionError("Presentation-only edits changed semantic schema-pack composition.")
+    return 2
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run schema-pack composition conformance tests.")
     parser.add_argument("--root", type=Path, help="Project root; auto-detected when omitted.")
@@ -212,6 +321,7 @@ def main() -> int:
         fixture_registry = load_schema_pack_registry(valid_project)
         assert_valid_fixture(fixture_registry, expectations["valid"])
         typed_collision_pairs = assert_typed_delimiter_collision(project, base_root, temp_root)
+        presentation_only_changes = assert_presentation_only_change(project, base_root, temp_root, fixture_registry)
 
         for case in expectations["invalid_cases"]:
             case_root = temp_root / case["id"]
@@ -244,6 +354,8 @@ def main() -> int:
             == scale_count
         ):
             raise AssertionError("Schema-pack scale composition counts changed.")
+        if sum(1 for pack in scale_registry.packs.values() if pack.presentation is not None) != scale_count:
+            raise AssertionError("Schema-pack scale presentation count changed.")
 
     summary = {
         "schema_version": 1,
@@ -256,7 +368,10 @@ def main() -> int:
         "invalid_composition_cases": len(expectations["invalid_cases"]),
         "scale_pack_count": scale_count,
         "scale_typed_declarations": len(scale_registry.transition_profiles),
+        "scale_presentations": sum(1 for pack in scale_registry.packs.values() if pack.presentation is not None),
         "typed_collision_pairs": typed_collision_pairs,
+        "presentation_only_changes": presentation_only_changes,
+        "legacy_schema_packs": sum(1 for pack in canonical.packs.values() if pack.schema_version == 4),
     }
     if args.json:
         print(json.dumps(summary, sort_keys=True, separators=(",", ":")))

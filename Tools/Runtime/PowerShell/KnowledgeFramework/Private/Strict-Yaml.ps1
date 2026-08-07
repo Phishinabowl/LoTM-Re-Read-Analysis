@@ -163,7 +163,7 @@ function Assert-KnowledgeYamlSource {
 }
 
 function Assert-KnowledgeSchemaVersion {
-    param([object]$Mapping, [int]$Expected, [string]$Context, [string]$SourceText)
+    param([object]$Mapping, [int[]]$Expected, [string]$Context, [string]$SourceText)
     $token = Get-KnowledgeYamlSchemaToken $SourceText $Context
     if ($token -cnotmatch '^[1-9][0-9]*$') {
         throw "$Context schema_version must be an unquoted positive integer; found '$token'."
@@ -178,14 +178,20 @@ function Assert-KnowledgeSchemaVersion {
             $value = $property.Value
         }
     }
-    if ($value -isnot [int] -or $value -ne $Expected) {
-        throw "Unsupported $Context schema_version '$value'; expected integer $Expected."
+    if ($value -isnot [int] -or $Expected -notcontains $value) {
+        $expectation = if ($Expected.Count -eq 1) {
+            "integer $($Expected[0])"
+        }
+        else {
+            "one of integers: $($Expected -join ', ')"
+        }
+        throw "Unsupported $Context schema_version '$value'; expected $expectation."
     }
     return [int]$value
 }
 
 function ConvertFrom-KnowledgeYamlFile {
-    param([string]$Path, [int]$ExpectedSchemaVersion, [string]$Context)
+    param([string]$Path, [int[]]$ExpectedSchemaVersion, [string]$Context)
     Import-KnowledgeYamlModule
     $bytes = [System.IO.File]::ReadAllBytes($Path)
     if ($bytes.Length -gt $script:KnowledgeMaxYamlBytes) {
