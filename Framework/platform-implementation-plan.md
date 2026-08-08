@@ -569,23 +569,23 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 #### Phase 3.1.6.1 Baseline Measurement And Output Contract
 
-- [ ] Keep this phase limited to validation reporting and adoption. Do not reopen the completed
+- [x] Keep this phase limited to validation reporting and adoption. Do not reopen the completed
   pack-presentation contract or alter selected tests, failure semantics, or framework behavior.
-- [ ] Measure line count, byte count, elapsed time, and payload shape for representative focused,
+- [x] Measure line count, byte count, elapsed time, and payload shape for representative focused,
   `fast`, `baseline`, `local`, `pull-request`, and `full-release` conformance/compatibility runs in
   their current human and JSON modes. Record the measurements before changing presentation, but
   reuse one captured execution result where possible rather than rerunning an identical expensive
   test selection solely to measure another renderer.
-- [ ] Inventory every tracked consumer of aggregate `--json` / `-Json` output, including CI,
+- [x] Inventory every tracked consumer of aggregate `--json` / `-Json` output, including CI,
   extraction rehearsal, documentation, and compatibility helpers, so an optimization cannot silently
   break a machine client.
-- [ ] Define a stable concise structured-summary contract containing run status, selected profile or
+- [x] Define a stable concise structured-summary contract containing run status, selected profile or
   IDs, passed/failed counts, ordered suite/check statuses, elapsed time where measured, canonical
   output state where applicable, retained diagnostic/report paths, and bounded failure excerpts.
-- [ ] Keep existing detailed `--json` / `-Json` behavior backward compatible. Add explicit concise
+- [x] Keep existing detailed `--json` / `-Json` behavior backward compatible. Add explicit concise
   structured output and confined detailed-report export rather than changing the meaning of an
   established switch.
-- [ ] Define deterministic console and report budgets. Successful console output must remain compact;
+- [x] Define deterministic console and report budgets. Successful console output must remain compact;
   complete child output and nested semantic details must remain available in a retained report when
   requested or when a failure requires diagnosis.
 

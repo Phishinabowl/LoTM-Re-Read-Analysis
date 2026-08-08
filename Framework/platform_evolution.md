@@ -159,3 +159,49 @@ validation passed 338 eligible files, eight annotations, and all 22 fixtures; ac
 `git diff --check` were clean. No implementation defect, parity defect, compatibility regression,
 canonical artifact change, or extraction-boundary leak remains. Phase 3.1 is complete, and Phase
 3.2.1 Framework Catalog And Discovery is the accepted next platform step.
+
+## Platform Phase 3.1.6 - Validation Reporting Optimization
+
+**Implementation commits:** pending
+
+**Closure implemented by:** pending
+
+Phase 3.1.6 is a post-closure tooling optimization before framework-catalog work. It does not reopen
+the completed pack-presentation contract or reduce validation coverage. It separates concise routine
+status from complete semantic diagnostics so humans, agents, and hosted logs do not need to parse
+every nested passing result while detailed clients retain their established contracts.
+
+### Phase 3.1.6.1 Baseline Measurement And Contract
+
+Before runner changes, all measured selections passed and cleaned their successful scoped output.
+Human sizes below were rendered from the captured result of the matching JSON execution rather than
+rerunning an identical expensive selection solely to measure presentation.
+
+| Run | Elapsed | Detailed JSON | Concise Human | Selected |
+| --- | ---: | ---: | ---: | ---: |
+| Python focused `effective-schema` | 0.913s | 1,120 bytes / 1 line | 89 bytes / 3 lines | 1 suite |
+| Python `fast` | 11.242s | 3,379 bytes / 1 line | 371 bytes / 19 lines | 9 suites |
+| Python `baseline` | 50.332s | 6,186 bytes / 1 line | 668 bytes / 35 lines | 17 suites |
+| PowerShell 7 `baseline` | 234.746s | 6,186 bytes / 1 line | 668 bytes / 35 lines | 17 suites |
+| Windows PowerShell 5.1 `baseline` | 410.422s | 6,186 bytes / 1 line | 668 bytes / 35 lines | 17 suites |
+| Compatibility `local` | 271.846s | 3,005 bytes / 101 lines | 109 bytes / 4 lines | 3 checks |
+| Compatibility `pull-request` | 426.265s | 5,615 bytes / 206 lines | 194 bytes / 7 lines | 6 checks |
+| Compatibility `full-release` | 462.666s | 6,790 bytes / 250 lines | 211 bytes / 8 lines | 7 checks |
+
+The three conformance baselines produced byte-identical detailed payloads. Nested passing-suite rows
+accounted for 6,094 of 6,186 bytes. Compatibility's nested check records accounted for 1,996,
+3,551, and 4,255 compact bytes as profiles expanded. The measured detailed success payloads were
+about nine times the concise human baseline for conformance and 28-32 times the concise human
+baseline for compatibility. Output reduction is therefore worthwhile, but it does not reduce the
+underlying runtime of PowerShell fixtures, cross-runtime consumer checks, extraction, or rendering.
+
+Tracked machine consumers divide into two groups. GitHub Actions currently requests complete JSON
+for all three conformance runtimes and project compatibility even though its routine status role can
+use a concise envelope. The isolated extraction rehearsal intentionally parses and compares complete
+nested conformance summaries and must remain on detailed output. Documentation commands are human
+entry points rather than parsers. No other tracked code consumes an aggregate runner's nested JSON.
+
+`Framework/Contracts/validation-run-reporting.md` defines the accepted additive boundary: preserve
+existing detailed JSON, add a versioned concise `validation-run-summary`, support confined detailed
+report export, bound console failure excerpts while retaining complete diagnostics, and treat
+elapsed values and run-unique retained paths as operational rather than semantic parity fields.
