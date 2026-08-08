@@ -343,7 +343,6 @@ def main() -> int:
         print(
             json.dumps(
                 concise_summary(profile, results, elapsed_seconds, report_relative),
-                sort_keys=True,
                 separators=(",", ":"),
             )
         )
@@ -360,5 +359,5 @@ if __name__ == "__main__":
     except Exception as error:
         if "--summary-json" not in sys.argv:
             raise
-        print(json.dumps(concise_orchestration_failure(error), sort_keys=True, separators=(",", ":")))
+        print(json.dumps(concise_orchestration_failure(error), separators=(",", ":")))
         raise SystemExit(1) from None

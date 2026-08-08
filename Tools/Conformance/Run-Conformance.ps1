@@ -469,35 +469,35 @@ function New-ConciseConformanceSummary {
         if ($result.status -ceq 'failed') {
             $bounded = Get-BoundedFailureExcerpt $result.error
             $failures.Add([ordered]@{
+                    id = [string]$result.id
                     classification = 'suite-failure'
                     excerpt = [string]$bounded.excerpt
                     excerpt_truncated = [bool]$bounded.truncated
-                    id = [string]$result.id
                 })
         }
     }
     $requestedIds = @($Results | ForEach-Object { [string]$_.id })
     return [ordered]@{
-        canonical_outputs_unchanged = $null
         contract = 'validation-run-summary'
         contract_version = 1
-        elapsed_seconds = [math]::Round($ElapsedSeconds, 3)
-        failed = [int]$failures.Count
-        failures = $failures.ToArray()
-        output_kept = $null -ne $normalizedReportPath
-        passed = [int]($Results.Count - $failures.Count)
-        profile = $ProfileId
-        report_path = $normalizedReportPath
-        requested_ids = $requestedIds
-        results = $conciseResults.ToArray()
         runner = 'framework-conformance'
-        selected_count = [int]$requestedIds.Count
         status = if ($failures.Count -gt 0) {
             'failed'
         }
         else {
             'passed'
         }
+        profile = $ProfileId
+        requested_ids = $requestedIds
+        selected_count = [int]$requestedIds.Count
+        passed = [int]($Results.Count - $failures.Count)
+        failed = [int]$failures.Count
+        elapsed_seconds = [math]::Round($ElapsedSeconds, 3)
+        canonical_outputs_unchanged = $null
+        output_kept = $null -ne $normalizedReportPath
+        report_path = $normalizedReportPath
+        results = $conciseResults.ToArray()
+        failures = $failures.ToArray()
     }
 }
 
@@ -506,28 +506,28 @@ function New-ConciseConformanceFailure {
 
     $bounded = Get-BoundedFailureExcerpt $ErrorValue
     return [ordered]@{
-        canonical_outputs_unchanged = $null
         contract = 'validation-run-summary'
         contract_version = 1
-        elapsed_seconds = $null
+        runner = 'framework-conformance'
+        status = 'failed'
+        profile = $null
+        requested_ids = @()
+        selected_count = 0
+        passed = 0
         failed = 1
+        elapsed_seconds = $null
+        canonical_outputs_unchanged = $null
+        output_kept = $false
+        report_path = $null
+        results = @()
         failures = @(
             [ordered]@{
+                id = $null
                 classification = 'orchestration-failure'
                 excerpt = [string]$bounded.excerpt
                 excerpt_truncated = [bool]$bounded.truncated
-                id = $null
             }
         )
-        output_kept = $false
-        passed = 0
-        profile = $null
-        report_path = $null
-        requested_ids = @()
-        results = @()
-        runner = 'framework-conformance'
-        selected_count = 0
-        status = 'failed'
     }
 }
 

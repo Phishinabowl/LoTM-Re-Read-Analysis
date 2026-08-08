@@ -7,12 +7,14 @@
   ],
   "profiles": {
     "local": [
+      "compatibility-reporting",
       "conformance-reporting",
       "effective-schema",
       "visualization",
       "qa"
     ],
     "pull-request": [
+      "compatibility-reporting",
       "conformance-reporting",
       "effective-schema",
       "visualization",
@@ -22,6 +24,7 @@
       "framework-extraction"
     ],
     "full-release": [
+      "compatibility-reporting",
       "conformance-reporting",
       "effective-schema",
       "visualization",
@@ -33,6 +36,11 @@
     ]
   },
   "checks": [
+    {
+      "id": "compatibility-reporting",
+      "kind": "compatibility-reporting",
+      "timeout_seconds": 60
+    },
     {
       "id": "conformance-reporting",
       "kind": "conformance-reporting",

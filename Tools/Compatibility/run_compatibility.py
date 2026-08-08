@@ -30,6 +30,7 @@ REGISTRY_PATH = Path(__file__).with_name("compatibility.json")
 # TODO (OWNER): Register normalized-content compatibility as that consumer boundary lands.
 ALLOWED_CHECK_KINDS = {
     "artifact-lifecycle",
+    "compatibility-reporting",
     "conformance-reporting",
     "effective-schema",
     "framework-extraction",
@@ -40,6 +41,7 @@ ALLOWED_CHECK_KINDS = {
 }
 CHECK_KEYS = {
     "artifact-lifecycle": {"id", "kind", "timeout_seconds"},
+    "compatibility-reporting": {"id", "kind", "timeout_seconds"},
     "conformance-reporting": {"id", "kind", "timeout_seconds"},
     "effective-schema": {"id", "kind", "timeout_seconds"},
     "framework-extraction": {"id", "kind", "timeout_seconds"},
@@ -59,6 +61,8 @@ CHECK_KEYS = {
 GENERATED_KEYS = {"generated_at", "generatedAt"}
 MACHINE_ID = re.compile(r"^[a-z][a-z0-9-]*$")
 TEXT_EXTENSIONS = {".json", ".md", ".mmd", ".txt", ".yaml", ".yml"}
+FAILURE_EXCERPT_LINES = 20
+FAILURE_EXCERPT_BYTES = 4096
 
 
 @dataclass(frozen=True)
@@ -146,7 +150,18 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--profile", default="local", help="Registered compatibility profile.")
     parser.add_argument("--check", action="append", default=[], help="Run only a registered check; repeatable.")
     parser.add_argument("--list", action="store_true", help="List registered profiles and checks.")
-    parser.add_argument("--json", action="store_true", help="Emit a structured JSON summary.")
+    output_group = parser.add_mutually_exclusive_group()
+    output_group.add_argument("--json", action="store_true", help="Emit the complete structured JSON result.")
+    output_group.add_argument(
+        "--summary-json",
+        action="store_true",
+        help="Emit a concise validation-run-summary without nested check details.",
+    )
+    parser.add_argument(
+        "--report-output",
+        metavar="PATH",
+        help="Write the complete structured JSON result to a file beneath the project root.",
+    )
     parser.add_argument("--keep-output", action="store_true", help="Keep the scoped .tmp output for inspection.")
     parser.add_argument("--output-root", help="Explicit ignored output root beneath repository .tmp.")
     return parser.parse_args()
@@ -211,6 +226,16 @@ def resolve_output_root(value: str | None, root: Path) -> Path:
         output = tmp_root / "compatibility" / f"run-{int(time.time())}-{os.getpid()}"
     if output == tmp_root or tmp_root not in output.parents:
         raise CompatibilityFailure(f"Compatibility output must be a child of {tmp_root}: {output}")
+    return output
+
+
+def resolve_report_output(value: str, root: Path) -> Path:
+    candidate = Path(value)
+    output = (candidate if candidate.is_absolute() else root / candidate).resolve()
+    if output == root or root not in output.parents:
+        raise CompatibilityFailure(f"Compatibility report output must be a file beneath the project root: {output}")
+    if output.exists() and not output.is_file():
+        raise CompatibilityFailure(f"Compatibility report output must be a file path: {output}")
     return output
 
 
@@ -649,6 +674,305 @@ def root_suite_command(runtime: Runtime, root: Path) -> list[str]:
     )
 
 
+def compatibility_child_command(
+    root: Path,
+    registry_path: Path,
+    output_root: Path,
+    *,
+    check_id: str | None = None,
+    profile: str | None = None,
+    output_mode: str | None = None,
+    report_output: Path | None = None,
+    keep_output: bool = False,
+) -> list[str]:
+    command = [
+        sys.executable,
+        str(root / "Tools" / "Compatibility" / "run_compatibility.py"),
+        "--root",
+        str(root),
+        "--registry",
+        str(registry_path),
+        "--output-root",
+        str(output_root),
+    ]
+    if check_id is not None:
+        command.extend(["--check", check_id])
+    elif profile is not None:
+        command.extend(["--profile", profile])
+    if output_mode == "detailed":
+        command.append("--json")
+    elif output_mode == "concise":
+        command.append("--summary-json")
+    if report_output is not None:
+        command.extend(["--report-output", str(report_output)])
+    if keep_output:
+        command.append("--keep-output")
+    return command
+
+
+def create_compatibility_reporting_registry(root: Path, destination: Path) -> Path:
+    registry_path = destination / "reporting-registry.json"
+    registry = {
+        "schema_version": 2,
+        "runtimes": ["python", "powershell7", "powershell51"],
+        "profiles": {
+            "reporting": ["reporting-root-discovery"],
+            "failing": ["reporting-failing-render"],
+        },
+        "checks": [
+            {
+                "id": "reporting-root-discovery",
+                "kind": "root-discovery",
+                "timeout_seconds": 30,
+                "launch_locations": ["repo-root", "tools", "nested", "unrelated"],
+            },
+            {
+                "id": "reporting-failing-render",
+                "kind": "render",
+                "timeout_seconds": 30,
+                "input": ".tmp/compatibility-reporting-missing-input.mmd",
+                "output_format": "svg",
+                "minimum_bytes": 1,
+                "required_labels": ["never-rendered"],
+            },
+        ],
+    }
+    registry_path.write_text(json.dumps(registry, indent=2) + "\n", encoding="utf-8", newline="\n")
+    return registry_path
+
+
+def validate_concise_compatibility_summary(document: Any, *, expected_status: str) -> None:
+    if not isinstance(document, dict):
+        raise CompatibilityFailure("Compatibility concise output must be a JSON object.")
+    expected_fields = [
+        "contract",
+        "contract_version",
+        "runner",
+        "status",
+        "profile",
+        "requested_ids",
+        "selected_count",
+        "passed",
+        "failed",
+        "elapsed_seconds",
+        "canonical_outputs_unchanged",
+        "output_kept",
+        "report_path",
+        "results",
+        "failures",
+    ]
+    if list(document) != expected_fields:
+        raise CompatibilityFailure(f"Compatibility concise fields differ: {sorted(document)}")
+    if (
+        document["contract"] != "validation-run-summary"
+        or document["contract_version"] != 1
+        or document["runner"] != "project-compatibility"
+        or document["status"] != expected_status
+    ):
+        raise CompatibilityFailure(f"Invalid compatibility concise identity/status: {document}")
+    if document["elapsed_seconds"] is not None and (
+        not isinstance(document["elapsed_seconds"], (int, float)) or document["elapsed_seconds"] < 0
+    ):
+        raise CompatibilityFailure("Compatibility concise elapsed_seconds must be null or nonnegative.")
+    if len(document["requested_ids"]) != document["selected_count"]:
+        raise CompatibilityFailure("Compatibility concise selection counts are inconsistent.")
+    for result in document["results"]:
+        if set(result) != {"id", "kind", "status"}:
+            raise CompatibilityFailure(f"Invalid concise compatibility result row: {result}")
+
+
+def normalized_compatibility_summary(document: dict[str, Any]) -> str:
+    normalized = copy.deepcopy(document)
+    normalized["elapsed_seconds"] = 0
+    return json.dumps(normalized, sort_keys=True, separators=(",", ":"))
+
+
+def run_compatibility_reporting_check(
+    check: dict[str, Any], runtimes: list[Runtime], root: Path, output_root: Path
+) -> dict[str, Any]:
+    del runtimes
+    registry_path = create_compatibility_reporting_registry(root, output_root)
+    report_root = output_root / "reports"
+    help_result = run_command(
+        Runtime("python", sys.executable),
+        [sys.executable, str(root / "Tools" / "Compatibility" / "run_compatibility.py"), "--help"],
+        root,
+        check["timeout_seconds"],
+    )
+    if any(token not in help_result.stdout for token in ("--summary-json", "--report-output")):
+        raise CompatibilityFailure("Compatibility help lacks reporting switches.")
+
+    detailed_output = output_root / "runs" / "detailed"
+    detailed_report = report_root / "detailed.json"
+    detailed_result = run_command(
+        Runtime("python", sys.executable),
+        compatibility_child_command(
+            root,
+            registry_path,
+            detailed_output,
+            check_id="reporting-root-discovery",
+            output_mode="detailed",
+            report_output=detailed_report,
+        ),
+        root,
+        check["timeout_seconds"],
+    )
+    detailed_document = parse_json_output(detailed_result.stdout)
+    expected_detailed_fields = {
+        "schema_version",
+        "profile",
+        "requested_checks",
+        "status",
+        "passed",
+        "failed",
+        "elapsed_seconds",
+        "canonical_outputs_unchanged",
+        "output_root",
+        "output_kept",
+        "checks",
+    }
+    if set(detailed_document) != expected_detailed_fields or detailed_document["status"] != "passed":
+        raise CompatibilityFailure("Detailed compatibility output changed shape or failed.")
+    if detailed_report.read_bytes() != detailed_result.stdout.encode("utf-8"):
+        raise CompatibilityFailure("Detailed compatibility report differs from detailed stdout bytes.")
+    if detailed_output.exists():
+        raise CompatibilityFailure("Successful focused compatibility output was not cleaned.")
+
+    concise_report = report_root / "concise.json"
+    concise_documents = []
+    for index in range(2):
+        run_root = output_root / "runs" / f"concise-{index + 1}"
+        concise_result = run_command(
+            Runtime("python", sys.executable),
+            compatibility_child_command(
+                root,
+                registry_path,
+                run_root,
+                profile="reporting",
+                output_mode="concise",
+                report_output=concise_report,
+            ),
+            root,
+            check["timeout_seconds"],
+        )
+        document = parse_json_output(concise_result.stdout)
+        validate_concise_compatibility_summary(document, expected_status="passed")
+        if (
+            document["profile"] != "reporting"
+            or document["requested_ids"] != ["reporting-root-discovery"]
+            or document["output_kept"] is not True
+            or not document["report_path"]
+            or run_root.exists()
+        ):
+            raise CompatibilityFailure("Compatibility concise profile/report cleanup semantics differ.")
+        concise_documents.append(document)
+    if len({normalized_compatibility_summary(document) for document in concise_documents}) != 1:
+        raise CompatibilityFailure("Compatibility concise output is nondeterministic.")
+    concise_detail = parse_json_output(concise_report.read_text(encoding="utf-8"))
+    if concise_detail["status"] != "passed" or len(concise_detail["checks"]) != 1:
+        raise CompatibilityFailure("Compatibility concise detailed report is incomplete.")
+
+    unsafe_report = root.parent / f"compatibility-reporting-unsafe-{os.getpid()}.json"
+    unsafe_output = output_root / "runs" / "unsafe"
+    if unsafe_report.exists():
+        raise CompatibilityFailure(f"Unsafe compatibility probe already exists: {unsafe_report}")
+    unsafe_result = run_command(
+        Runtime("python", sys.executable),
+        compatibility_child_command(
+            root,
+            registry_path,
+            unsafe_output,
+            profile="reporting",
+            output_mode="concise",
+            report_output=unsafe_report,
+        ),
+        root,
+        check["timeout_seconds"],
+        expect_success=False,
+    )
+    unsafe_document = parse_json_output(unsafe_result.stdout)
+    validate_concise_compatibility_summary(unsafe_document, expected_status="failed")
+    if (
+        unsafe_document["failures"][0].get("classification") != "orchestration-failure"
+        or unsafe_report.exists()
+        or unsafe_output.exists()
+    ):
+        raise CompatibilityFailure("Unsafe compatibility report path was not rejected before execution.")
+
+    failure_output = output_root / "runs" / "failure"
+    failure_result = run_command(
+        Runtime("python", sys.executable),
+        compatibility_child_command(
+            root,
+            registry_path,
+            failure_output,
+            check_id="reporting-failing-render",
+            output_mode="concise",
+        ),
+        root,
+        check["timeout_seconds"],
+        expect_success=False,
+    )
+    failure_document = parse_json_output(failure_result.stdout)
+    validate_concise_compatibility_summary(failure_document, expected_status="failed")
+    if (
+        failure_document["failures"][0].get("classification") != "check-failure"
+        or failure_document["failures"][0].get("id") != "reporting-failing-render"
+        or not failure_document["output_kept"]
+        or not failure_document["report_path"]
+    ):
+        raise CompatibilityFailure("Failed compatibility reporting envelope lacks retained diagnostics.")
+    retained_report = root / failure_document["report_path"]
+    if not retained_report.is_file() or failure_output not in retained_report.parents:
+        raise CompatibilityFailure("Failed compatibility detailed report was not retained with scoped output.")
+    retained_detail = parse_json_output(retained_report.read_text(encoding="utf-8"))
+    if retained_detail["status"] != "failed" or not retained_detail.get("error"):
+        raise CompatibilityFailure("Failed compatibility detailed report lacks complete diagnostics.")
+
+    human_failure_output = output_root / "runs" / "human-failure"
+    human_failure_result = run_command(
+        Runtime("python", sys.executable),
+        compatibility_child_command(
+            root,
+            registry_path,
+            human_failure_output,
+            check_id="reporting-failing-render",
+        ),
+        root,
+        check["timeout_seconds"],
+        expect_success=False,
+    )
+    if (
+        "Output retained:" not in human_failure_result.stderr
+        or "Detailed report:" not in human_failure_result.stderr
+        or not (human_failure_output / "report.json").is_file()
+    ):
+        raise CompatibilityFailure("Human compatibility failure did not identify retained diagnostics.")
+
+    long_error = "\n".join(f"synthetic compatibility failure line {index:02d}" for index in range(1, 31))
+    excerpt, truncated = bounded_failure_excerpt(long_error)
+    if not truncated or len(excerpt.splitlines()) > 20 or len(excerpt.encode("utf-8")) > 4096:
+        raise CompatibilityFailure("Compatibility failure excerpt violates the reporting budget.")
+
+    return {
+        "status": "passed",
+        "contract": "validation-run-summary",
+        "contract_version": 1,
+        "focused_cases": 1,
+        "profile_cases": 2,
+        "determinism_cases": 2,
+        "failure_cases": 2,
+        "unsafe_report_path_cases": 1,
+        "cleanup_cases": 3,
+        "detailed_bytes": len(detailed_result.stdout.encode("utf-8")),
+        "concise_bytes": len(json.dumps(concise_documents[-1], separators=(",", ":")).encode("utf-8")),
+        "elapsed_seconds": round(
+            detailed_result.elapsed_seconds + sum(document["elapsed_seconds"] for document in concise_documents),
+            3,
+        ),
+    }
+
+
 def aggregate_conformance_command(
     runtime: Runtime,
     project_root: Path,
@@ -776,7 +1100,7 @@ def validate_concise_conformance_summary(document: Any, *, expected_status: str)
         "results",
         "failures",
     ]
-    if set(document) != set(expected_fields):
+    if list(document) != expected_fields:
         raise CompatibilityFailure(f"Conformance concise fields differ: {sorted(document)}")
     if (
         document["contract"] != "validation-run-summary"
@@ -1526,6 +1850,7 @@ def run_effective_schema_check(
 
 CHECK_HANDLERS = {
     "artifact-lifecycle": run_artifact_lifecycle_check,
+    "compatibility-reporting": run_compatibility_reporting_check,
     "conformance-reporting": run_conformance_reporting_check,
     "effective-schema": run_effective_schema_check,
     "framework-extraction": run_framework_extraction_check,
@@ -1591,9 +1916,104 @@ def cleanup_output(root: Path, output_root: Path) -> None:
         raise CompatibilityFailure(f"Compatibility cleanup failed: {completed.stdout}\n{completed.stderr}")
 
 
+def write_detailed_report(path: Path, payload: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8", newline="\n")
+
+
+def bounded_failure_excerpt(value: object) -> tuple[str, bool]:
+    normalized = str(value or "Runner exited without output.").replace("\r\n", "\n").replace("\r", "\n")
+    lines = normalized.split("\n")
+    truncated = len(lines) > FAILURE_EXCERPT_LINES
+    excerpt = "\n".join(lines[:FAILURE_EXCERPT_LINES])
+    encoded = excerpt.encode("utf-8")
+    if len(encoded) > FAILURE_EXCERPT_BYTES:
+        truncated = True
+        encoded = encoded[:FAILURE_EXCERPT_BYTES]
+        while True:
+            try:
+                excerpt = encoded.decode("utf-8")
+                break
+            except UnicodeDecodeError as error:
+                encoded = encoded[: error.start]
+    return excerpt, truncated
+
+
+def concise_compatibility_summary(
+    payload: dict[str, Any],
+    *,
+    report_path: str | None,
+    failed_check: dict[str, Any] | None,
+    failure_classification: str | None,
+) -> dict[str, Any]:
+    results = [{"id": result["id"], "kind": result["kind"], "status": result["status"]} for result in payload["checks"]]
+    failures = []
+    if "error" in payload:
+        failed_id = failed_check["id"] if failed_check is not None else None
+        if failed_check is not None and not any(result["id"] == failed_id for result in results):
+            results.append({"id": failed_id, "kind": failed_check["kind"], "status": "failed"})
+        excerpt, truncated = bounded_failure_excerpt(payload["error"])
+        failures.append(
+            {
+                "id": failed_id,
+                "classification": failure_classification or "orchestration-failure",
+                "excerpt": excerpt,
+                "excerpt_truncated": truncated,
+            }
+        )
+    return {
+        "contract": "validation-run-summary",
+        "contract_version": 1,
+        "runner": "project-compatibility",
+        "status": payload["status"],
+        "profile": payload["profile"],
+        "requested_ids": payload["requested_checks"],
+        "selected_count": len(payload["requested_checks"]),
+        "passed": payload["passed"],
+        "failed": payload["failed"],
+        "elapsed_seconds": payload["elapsed_seconds"],
+        "canonical_outputs_unchanged": payload["canonical_outputs_unchanged"],
+        "output_kept": payload["output_kept"] or report_path is not None,
+        "report_path": report_path,
+        "results": results,
+        "failures": failures,
+    }
+
+
+def concise_compatibility_orchestration_failure(error: Exception) -> dict[str, Any]:
+    excerpt, truncated = bounded_failure_excerpt(error)
+    return {
+        "contract": "validation-run-summary",
+        "contract_version": 1,
+        "runner": "project-compatibility",
+        "status": "failed",
+        "profile": None,
+        "requested_ids": [],
+        "selected_count": 0,
+        "passed": 0,
+        "failed": 1,
+        "elapsed_seconds": None,
+        "canonical_outputs_unchanged": None,
+        "output_kept": False,
+        "report_path": None,
+        "results": [],
+        "failures": [
+            {
+                "id": None,
+                "classification": "orchestration-failure",
+                "excerpt": excerpt,
+                "excerpt_truncated": truncated,
+            }
+        ],
+    }
+
+
 def main() -> int:
     args = parse_args()
     root = resolve_project_root(args.root, executable_path=__file__)
+    if args.list and (args.summary_json or args.report_output):
+        raise CompatibilityFailure("--list cannot be combined with --summary-json or --report-output.")
+    report_output = resolve_report_output(args.report_output, root) if args.report_output else None
     registry_path = resolve_registry_path(args.registry, root)
     registry = load_registry(registry_path)
     if args.list:
@@ -1611,26 +2031,34 @@ def main() -> int:
     checks = select_checks(registry, args.profile, args.check)
     runtimes = [find_runtime(runtime_id) for runtime_id in registry["runtimes"]]
     output_root = resolve_output_root(args.output_root, root)
+    if report_output == output_root:
+        raise CompatibilityFailure("Compatibility report output cannot be the scoped output directory itself.")
     output_root.mkdir(parents=True, exist_ok=False)
     results: list[dict[str, Any]] = []
     started = time.perf_counter()
     failure: Exception | None = None
+    failed_check: dict[str, Any] | None = None
+    failure_classification: str | None = None
     before: dict[str, str] | None = None
     canonical_unchanged = False
     try:
         before = sha256_tree(protected_paths(root))
         for check in checks:
+            failed_check = check
             check_root = output_root / check["id"]
             check_root.mkdir(parents=True, exist_ok=True)
             result = CHECK_HANDLERS[check["kind"]](check, runtimes, root, check_root)
             results.append({"id": check["id"], "kind": check["kind"], **result})
+            failed_check = None
     except Exception as exc:  # preserve scoped output for the failure summary before cleanup
         failure = exc
+        failure_classification = "check-failure" if failed_check is not None else "orchestration-failure"
     if before is not None:
         after = sha256_tree(protected_paths(root))
         canonical_unchanged = before == after
         if not canonical_unchanged and failure is None:
             failure = CompatibilityFailure("Compatibility run modified protected canonical outputs.")
+            failure_classification = "canonical-output-change"
     payload = {
         "schema_version": 1,
         "profile": args.profile if not args.check else None,
@@ -1646,12 +2074,42 @@ def main() -> int:
     }
     if failure:
         payload["error"] = str(failure)
-    if not args.keep_output and failure is None:
-        cleanup_output(root, output_root)
-        payload["output_root"] = None
-        payload["output_kept"] = False
+    report_inside_output = report_output is not None and (
+        report_output == output_root or output_root in report_output.parents
+    )
+    if report_inside_output:
+        payload["output_kept"] = True
+    if not args.keep_output and failure is None and not report_inside_output:
+        try:
+            cleanup_output(root, output_root)
+            payload["output_root"] = None
+            payload["output_kept"] = False
+        except Exception as exc:
+            failure = exc
+            failure_classification = "cleanup-failure"
+            payload["status"] = "failed"
+            payload["failed"] = 1
+            payload["output_kept"] = True
+            payload["error"] = str(exc)
+    if failure is not None and report_output is None:
+        report_output = output_root / "report.json"
+    if report_output is not None:
+        write_detailed_report(report_output, payload)
+    report_relative = report_output.relative_to(root).as_posix() if report_output is not None else None
     if args.json:
         print(json.dumps(payload, indent=2))
+    elif args.summary_json:
+        print(
+            json.dumps(
+                concise_compatibility_summary(
+                    payload,
+                    report_path=report_relative,
+                    failed_check=failed_check,
+                    failure_classification=failure_classification,
+                ),
+                separators=(",", ":"),
+            )
+        )
     else:
         print(
             f"Compatibility {payload['status']}: {len(results)}/{len(checks)} checks in {payload['elapsed_seconds']}s"
@@ -1659,8 +2117,12 @@ def main() -> int:
         for result in results:
             print(f"- {result['id']}: {result['status']}")
         if failure:
-            print(f"Error: {failure}", file=sys.stderr)
+            excerpt, truncated = bounded_failure_excerpt(failure)
+            print(f"Error: {excerpt}", file=sys.stderr)
+            if truncated:
+                print("Error excerpt truncated; see the detailed report.", file=sys.stderr)
             print(f"Output retained: {output_root}", file=sys.stderr)
+            print(f"Detailed report: {report_relative}", file=sys.stderr)
     return 1 if failure else 0
 
 
@@ -1668,7 +2130,9 @@ def cli() -> int:
     try:
         return main()
     except CompatibilityFailure as exc:
-        if "--json" in sys.argv:
+        if "--summary-json" in sys.argv:
+            print(json.dumps(concise_compatibility_orchestration_failure(exc), separators=(",", ":")))
+        elif "--json" in sys.argv:
             print(
                 json.dumps(
                     {

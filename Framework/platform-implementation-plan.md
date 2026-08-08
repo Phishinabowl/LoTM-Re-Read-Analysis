@@ -604,15 +604,15 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 #### Phase 3.1.6.3 Compatibility Reporting
 
-- [ ] Add concise structured-summary and confined detailed-report export modes to the canonical
+- [x] Add concise structured-summary and confined detailed-report export modes to the canonical
   compatibility orchestrator while preserving its current detailed JSON payload and check registry.
-- [ ] Summarize successful comparisons through stable check IDs, statuses, semantic counts or tree
+- [x] Summarize successful comparisons through stable check IDs, statuses, semantic counts or tree
   digests where useful, elapsed time, canonical-output protection, and cleanup state rather than
   printing every nested runtime result.
-- [ ] Retain complete failure diagnostics and scoped compatibility artifacts automatically on failure;
+- [x] Retain complete failure diagnostics and scoped compatibility artifacts automatically on failure;
   print only a bounded diagnostic excerpt plus the retained output/report paths to routine console or
   concise structured output.
-- [ ] Add permanent focused, profile, path-safety, cleanup, deterministic-summary, and detailed-report
+- [x] Add permanent focused, profile, path-safety, cleanup, deterministic-summary, and detailed-report
   coverage without weakening Visualization, QA, extraction, root-discovery, lifecycle, or rendering
   comparisons.
 

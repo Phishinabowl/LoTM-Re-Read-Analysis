@@ -227,3 +227,30 @@ unsafe-path failures. Successful detailed reports were byte-identical at 297 byt
 `cc1a59485058e9f2201ea8d28ff2e0c1798e069462122cbe6feec13431c557f9`; concise success payloads
 were 465-472 bytes, differing only in operational elapsed values and report paths before
 normalization. The check preserved canonical project outputs and cleaned successful scoped output.
+
+### Phase 3.1.6.3 Compatibility Reporting
+
+The canonical Python compatibility orchestrator now implements the shared reporting contract through
+`--summary-json` and `--report-output PATH`. Existing `--json` output and the registry-owned check
+implementations remain unchanged. Concise results identify selected check IDs, kinds, statuses,
+elapsed time, canonical-output protection, scoped-output retention, and a repository-relative report
+path without embedding runtime comparisons, generated trees, hashes, or nested semantic summaries.
+An explicit report may safely replace one file beneath the project root. Successful automatically
+owned output is still cleaned unless `--keep-output` is selected or the report itself lives there.
+Both aggregate runners now serialize concise documents in the contract-first field order defined by
+`validation-run-reporting.md`; permanent checks enforce that order across all supported runtimes.
+
+Failed checks and cleanup failures retain scoped compatibility output and automatically write the
+complete detailed payload to that retained run. Human and concise failure output is limited to the
+contract's 20-line, 4,096-byte excerpt and identifies both retained output and detailed report paths.
+Malformed report destinations return a structured `orchestration-failure` before output creation or
+check execution. Failed check attempts use `check-failure`; canonical-output and cleanup failures use
+their own stable classifications.
+
+The permanent `compatibility-reporting` check uses a private synthetic registry to exercise the same
+orchestrator without recursively selecting the production compatibility profile. It passed in
+29.379 seconds with public command-surface validation, one focused detailed/report case, two profile
+and determinism cases, two failure-presentation cases, one unsafe-path case, and three successful
+cleanup cases. The representative concise payload was 498 bytes versus 1,938 bytes for the detailed
+result. The check is now the first member of `local`, `pull-request`, and `full-release`, making those
+profiles contain five, eight, and nine checks respectively while preserving all prior comparisons.
