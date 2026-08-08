@@ -162,7 +162,10 @@ canonical artifact change, or extraction-boundary leak remains. Phase 3.1 is com
 
 ## Platform Phase 3.1.6 - Validation Reporting Optimization
 
-**Implementation commits:** pending
+**Implementation commits:** `18b5536` (`Plan validation reporting optimization`), `860e5d6`
+(`Define validation reporting contract`), `2b844c5` (`Add aggregate conformance reporting`),
+`505c73e` (`Add compatibility reporting modes`), and `791fffb` (`Adopt concise validation
+reporting`).
 
 **Closure implemented by:** pending
 

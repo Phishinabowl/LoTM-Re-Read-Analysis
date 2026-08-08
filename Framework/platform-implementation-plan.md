@@ -628,7 +628,7 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
   help, README guidance, extraction rehearsal, and work annotations to distinguish execution strength
   from output verbosity. Reducing output must never reduce selected suites, checks, fixtures, or
   compatibility assertions.
-- [ ] Record implemented behavior, measurements, compatibility evidence, and commit references in
+- [x] Record implemented behavior, measurements, compatibility evidence, and commit references in
   `Framework/platform_evolution.md` through the normal two-part confirmation sequence.
 
 #### Phase 3.1.6.5 Closure And Handoff
