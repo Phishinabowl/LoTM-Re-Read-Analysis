@@ -647,7 +647,7 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 #### Phase 3.2.1 Framework Catalog Contract And Discovery
 
-- [ ] Define a generated `FrameworkCatalog` contract distinct from the project-scoped
+- [x] Define a generated `FrameworkCatalog` contract distinct from the project-scoped
   `EffectiveProjectSchema` contract.
 - [ ] Keep canonical pack files authoritative. Define one shared validated pack/capability record
   model from which both catalog inspection and project composition are derived; neither generated
