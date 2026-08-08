@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "framework_id": "knowledge-model",
+  "packs_relative_path": "Packs",
+  "lookup_keys_relative_path": "Data/unicode-lookup-16.0.0.json",
+  "unicode_version": "16.0.0",
+  "algorithm": "trim-nfc-default-casefold-nfc",
+  "root_vectors": 11,
+  "invalid_cases": [
+    {"file": "invalid-unknown-field.yaml", "error": "unsupported field"},
+    {"file": "invalid-framework-id.yaml", "error": "lowercase kebab-case stable ID"},
+    {"file": "invalid-backslash-path.yaml", "error": "must use forward slashes"},
+    {"file": "invalid-parent-path.yaml", "error": "confined relative path"},
+    {"file": "invalid-absolute-path.yaml", "error": "confined relative path"},
+    {"file": "invalid-empty-segment.yaml", "error": "confined relative path"},
+    {"file": "invalid-missing-packs.yaml", "error": "directory does not exist"},
+    {"file": "invalid-missing-lookup.yaml", "error": "file does not exist"},
+    {"file": "invalid-lookup-registry.yaml", "error": "Unsupported lookup-key schema_version"}
+  ]
+}

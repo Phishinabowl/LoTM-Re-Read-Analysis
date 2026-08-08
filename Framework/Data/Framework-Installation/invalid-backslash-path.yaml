@@ -1,0 +1,6 @@
+schema_version: 1
+framework_id: knowledge-model
+paths:
+  packs: Packs
+registries:
+  lookup_keys: Data\unicode-lookup-16.0.0.json

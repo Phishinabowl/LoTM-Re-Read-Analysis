@@ -19,17 +19,17 @@ state cannot govern its values.
 project and capabilities declared by those packs. Its concise overview, detailed sections, and
 singular selectors are compiled project views, not a complete framework inventory.
 
-This README remains the current human-maintained catalog summary, while schema-pack conformance
-validates all 14 installed pack files and their capability presentations. Phase 3.2.1 will replace
-directory scanning and README dependence for machine clients with a generated `FrameworkCatalog`
-service and report. That catalog must preserve independently available packs, dependencies, and
+This README remains a human-maintained architectural summary, while schema-pack conformance
+validates all 14 installed pack files and their capability presentations. The generated
+`FrameworkCatalog` service and report replace README dependence for machine clients. The catalog
+preserves independently available packs, dependencies, and
 discoverability state without composing every installed pack as though one project selected it.
 
 Catalog discovery starts from `Framework/framework.yaml`, which explicitly selects the installed
 pack root and lookup-key registry. It must not infer either input from filenames or depend on
 `Project_Config/`; multiple portable lookup datasets may coexist in one framework installation.
 
-The planned paired `inspect_framework_catalog.py` and `Get-FrameworkCatalog.ps1` commands will
+The paired `inspect_framework_catalog.py` and `Get-FrameworkCatalog.ps1` commands
 inspect that complete project-independent inventory. The existing effective-schema commands remain
 separate because they describe one valid project composition. Both command families will consume
 the same validated pack/capability records rather than maintaining separate parsers or metadata.
@@ -37,7 +37,7 @@ the same validated pack/capability records rather than maintaining separate pars
 Phase 3.2.2 will make `EffectiveProjectSchema` resolve its selected dependency closure through the
 shared catalog model and then add project activation, taxonomy, resources, diagnostics, and later
 project registries. An explicit project-root argument on catalog inspection produces the required
-derived `FrameworkCatalogProjectView` with selected/enabled/used state; the base catalog remains
+derived `FrameworkCatalogProjectView` with selected/enabled/used state after that phase; the base catalog remains
 project-independent and never depends on that view.
 
 ## Architectural Classification

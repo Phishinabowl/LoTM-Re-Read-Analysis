@@ -13,6 +13,26 @@ JSON summary.
 
 The runtime-package/module boundaries, command layout, root-discovery contract, parity policy, and wrapper rules live in [ARCHITECTURE.md](../ARCHITECTURE.md#tool-runtime-and-command-architecture). The complete current inventory lives in [Tooling Reference](TOOLING_REFERENCE.md#tool-architecture-inventory). Reusable loaders belong under `Runtime/`, executable user workflows under `Commands/`, registered test runners under `Conformance/`, and repository policy tools under `Static/`; do not add new flat root-level scripts.
 
+## Framework Catalog
+
+Inspect every installed pack and capability without requiring or projecting one project:
+
+```powershell
+python Tools\Commands\Framework\inspect_framework_catalog.py
+python Tools\Commands\Framework\inspect_framework_catalog.py --show overview
+python Tools\Commands\Framework\inspect_framework_catalog.py --show packs --show capabilities
+python Tools\Commands\Framework\inspect_framework_catalog.py --pack narrative-media --capability narrative-time-loops
+python Tools\Commands\Framework\inspect_framework_catalog.py --show all --report-output .local\framework-catalog.txt
+python Tools\Commands\Framework\inspect_framework_catalog.py --json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Show packs,capabilities
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Json
+```
+
+The command auto-detects `Framework/framework.yaml` independently of project configuration.
+Add `--output PATH` / `-Output PATH` for canonical JSON beneath the framework repository root.
+Generated catalog documents are inspection output, not configuration. Library consumers import the
+paired catalog service; see [Tooling Reference](TOOLING_REFERENCE.md#framework-catalog).
+
 ## Effective Project Schema
 
 Inspect the one generated composition of project identity, selected packs, capability state,
@@ -165,7 +185,8 @@ actionlint -color
 
 The three runtime jobs install their declared dependencies, enforce Python and PowerShell formatting,
 enforce work-annotation policy, and run the permanent `baseline` conformance profile. `Project
-Compatibility` separately compares all three EffectiveProjectSchema, Visualization, and QA
+Compatibility` separately compares all three FrameworkCatalog, EffectiveProjectSchema,
+Visualization, and QA
 implementations, root discovery, safe artifact lifecycle, isolated framework extraction,
 canonical-output preservation, and unsafe destination rejection through the registry-owned
 compatibility profile. Pull requests use `pull-request`; pushes to `main` and manual dispatches use
@@ -561,7 +582,7 @@ python Tools\Compatibility\run_compatibility.py --profile full-release --summary
 
 `Tools/Compatibility/compatibility.json` owns the executable check inventory, representative bounded
 requests, extraction and render probes, timeouts, and profile membership. Every profile validates
-compatibility/conformance reporting and EffectiveProjectSchema before consumer checks. `local` then
+compatibility/conformance reporting, FrameworkCatalog, and EffectiveProjectSchema before consumer checks. `local` then
 compares Visualization and QA outputs; `pull-request` adds root-discovery, artifact-lifecycle, and
 isolated-extraction safety; `full-release` also renders a representative graph. Use `--list` or
 `--list --json` to inspect the registry, and repeat `--check` for focused diagnosis.

@@ -202,6 +202,12 @@ effective schema as project configuration. Preserve deterministic ordering, repo
 or declared-root-relative forward-slash paths, and the serialization rules in
 `Framework/Contracts/effective-project-schema.md`.
 
+Treat `FrameworkCatalog` as the generated project-independent inventory of every installed pack
+and declared capability selected by `Framework/framework.yaml`. Canonical pack files remain
+authoritative. Setup, wizard, editor, and UI code must import the shared catalog service rather than
+scan pack directories or ingest exported catalog JSON. Do not infer project selection, activation,
+or usage from catalog availability; those remain EffectiveProjectSchema and project-view concerns.
+
 Do not collapse modality, cultural form, release form, container format, and reader-position channel into one `medium` value. A Donghua film is animation by modality, Donghua by cultural form, film by release form, and may have theatrical or streaming containers. `medium` remains the configured reader/viewer position and citation profile. Official artwork extracted from an EPUB uses the `illustration` medium profile and `still-image` modality; the evidence source records `epub` and any extracted digital file as containers. `official-epub-artwork` is not a medium. Embedded artwork may be extracted from EPUBs, comic releases, scans, or other supported narrative sources: preserve the originating evidence source, register the extracted image as a visual resource, and treat promotion into tracked page-ready artwork as a separate action. LoTM registries may instantiate values supplied by selected packs but must not silently introduce a new engine, industry, or project concept. Add reusable concepts to the appropriate reusable pack and organization/project-specific terms to a compatible extension pack before using them in project data. Reusable packs must not contain LoTM works, pages, paths, or source records; project extension packs may contribute local vocabulary but still must not instantiate those records.
 
 Treat schema packs as the source for future setup wizards, recommended schemas, template modules, validators, editor forms, and migration plans. A wizard may recommend a pack and collect project-specific labels or records, but UI code must not redefine the pack's field meaning or controlled values.

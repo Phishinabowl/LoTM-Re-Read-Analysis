@@ -314,3 +314,74 @@ and every renderer produced the same nonblank 298,269-byte SVG with SHA-256
 Phase 3.1.6 is closed by `8757468` (`Close validation reporting optimization`). The fresh-task
 handoff is finalized after the traceability commit and push so it can name the exact remote head and
 verified clean status without creating a self-referential tracked document.
+
+## Platform Phase 3.2.1 - Framework Catalog And Discovery
+
+**Implementation commits:** pending confirmation.
+
+**Closure implemented by:** pending confirmation.
+
+Phase 3.2.1 adds the project-independent `FrameworkCatalog` without changing the authority or
+output of the project-scoped `EffectiveProjectSchema`. `Framework/framework.yaml` explicitly
+selects the installed pack root and one pinned Unicode lookup registry. Paired root discovery checks
+an explicit root, `KNOWLEDGE_FRAMEWORK_ROOT`, current-directory ancestry, and executable ancestry
+without changing the process working directory or inferring a lookup dataset by filename.
+
+The Python and PowerShell catalog services reuse the existing strict schema-pack parser and
+validated pack/capability records. They deterministically discover immediate child directories
+containing `pack.yaml`, reject malformed packs, ID mismatches, missing or incompatible
+dependencies, dependency cycles, and conflicting presentation, and compile complete pack and
+capability rows. Canonical pack files remain authoritative; generated catalogs and selection
+envelopes are inspection output only.
+
+Paired `inspect_framework_catalog.py` and `Get-FrameworkCatalog.ps1` commands provide a concise
+summary, composable overview/pack/capability reports, exact-then-normalized combined selectors,
+canonical JSON, confined JSON/report exports, structured path-safe failures, and independent
+framework-root discovery. The PowerShell module now owns a shared deterministic JSON serializer
+used by both catalog and effective-schema commands; catalog and effective-schema contract IDs,
+records, and public commands remain distinct.
+
+### Phase 3.2.1 Verification
+
+Permanent `framework-installation` conformance covers 11 root vectors, strict manifest loading,
+explicit selection among multiple lookup datasets, nine malformed configurations, and exact
+three-runtime summaries. Permanent baseline-only `framework-catalog` conformance covers the
+canonical 14 packs and 136 capabilities, deterministic repeated loading, ignored directories,
+deferred/planned/deprecated discoverability, multiple providers, normalized and ambiguous
+selection, eight classified malformed catalog compositions, and a generated 64-pack scale case. It
+passed on the final focused run in 3.2 seconds in Python, 39.7 seconds in PowerShell 7, and 69.4
+seconds in Windows PowerShell 5.1 with
+byte-identical semantic summaries.
+
+The registered `framework-catalog` compatibility check passed base and combined-selection JSON,
+concise/combined/deduplicated reports, confined file exports, invalid roots and sections, unknown
+selectors, outside-root rejection, and absolute-path-safe structured failures across all three
+runtimes in 206.0 seconds. Base catalog JSON, selection JSON, and full reports were byte-identical.
+The pre-existing `effective-schema` compatibility check passed in 167.6 seconds after shared
+serializer extraction, proving its contract-version-2 JSON, selections, reports, failures, and
+exports remained unchanged. Aggregate baseline, consumer, extraction, and release closure results
+are recorded below.
+
+All 19 registered `baseline` suites passed in Python, PowerShell 7, and Windows PowerShell 5.1 in
+56.7, 277.9, and 474.6 seconds. Their detailed 6,796-byte reports were byte-identical and preserved
+the same suite order and semantic summaries. Ruff passed the complete Tools tree; the PowerShell
+formatter passed all 51 files with zero changed or over-limit lines; work-annotation validation
+passed 364 eligible files, eight annotations, and all 22 fixtures; command help, registry loading,
+and `git diff --check` were clean.
+
+The final exact-tree 10-check `full-release` compatibility profile passed in 816.2 seconds with canonical
+outputs unchanged and scoped output removed. The catalog retained 14 packs and 136 capabilities
+with byte-identical 367,416-byte canonical JSON, 44,493-byte combined selection JSON, and
+152,060-byte detailed reports. EffectiveProjectSchema retained contract version 2, ten selected
+packs, 132 capabilities, 138 controlled-value namespaces, and its prior canonical hashes.
+Visualization retained 15 nodes and 121 relationships. QA retained 16 notes, 121 relationships, 71
+data references, one bounded graph, and two bounded pages. All 12 root launches passed; six unsafe
+destinations were rejected; isolated extraction copied 266 reusable files without project
+configuration and passed eight portable suites in all three runtimes; and representative rendering
+remained byte-identical and nonblank.
+
+Phase 3.2.1 is implementation-complete and awaits its two-part confirmation so this entry can cite
+the implementation and traceability commits without a self-referential Git update. Phase 3.2.2
+remains the next boundary: reconcile project/framework lookup pins, derive EffectiveProjectSchema
+pack records through the catalog under exact shadow comparison, and add the explicit
+`FrameworkCatalogProjectView`.

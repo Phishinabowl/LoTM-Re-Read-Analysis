@@ -185,8 +185,8 @@ Extraction readiness does not close these known items:
   structural interpretations, hosted identity, nested carrier topology, optional hosting-pack
   isolation, and canonical chronology-position provider closure are implemented and pressure-tested
   through V50. The Phase 1 model gate, Phase 2 effective-schema consumer-adoption gate, and Phase
-  3.1 pack-presentation gate are closed. Complete installed-pack discovery and capability grouping
-  through a separate `FrameworkCatalog` are the next platform implementation boundary.
+  3.1 pack-presentation gate and Phase 3.2.1 project-independent installed-pack catalog are closed.
+  Effective-schema catalog integration and project-state annotation are the next platform boundary.
 - Historical continuity-membership transitions, manifestation- or release-scoped continuity,
   occurrence-linked continuity transitions, first-class continuity systems, and sliding-chronology
   policies remain later normalized-content or deferred narrative capability work. They do not weaken

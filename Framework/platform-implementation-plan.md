@@ -649,34 +649,34 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 - [x] Define a generated `FrameworkCatalog` contract distinct from the project-scoped
   `EffectiveProjectSchema` contract.
-- [ ] Implement the strict `Framework/framework.yaml` installation bootstrap with explicit pack-root
+- [x] Implement the strict `Framework/framework.yaml` installation bootstrap with explicit pack-root
   and lookup-registry selection, project-independent root discovery, confined relative paths, and
   three-runtime parity. Do not discover lookup registries by filename globbing; multiple versions
   may coexist and exactly one is selected by the manifest.
-- [ ] Keep canonical pack files authoritative. Define one shared validated pack/capability record
+- [x] Keep canonical pack files authoritative. Define one shared validated pack/capability record
   model from which both catalog inspection and project composition are derived; neither generated
   document becomes canonical configuration.
-- [ ] Discover every installed pack deterministically without pretending unselected packs are one
+- [x] Discover every installed pack deterministically without pretending unselected packs are one
   valid project composition.
-- [ ] Compose complete pack and capability catalog metadata, dependencies, lifecycle, architectural
+- [x] Compose complete pack and capability catalog metadata, dependencies, lifecycle, architectural
   classification, presentation, and discoverability state.
-- [ ] Preserve project-independent catalog loading so installed and potentially available packs can
+- [x] Preserve project-independent catalog loading so installed and potentially available packs can
   be inspected before a project exists or without treating one project's selection as catalog
   identity.
-- [ ] Define distinct `framework-catalog` and `framework-catalog-selection` structured contracts;
+- [x] Define distinct `framework-catalog` and `framework-catalog-selection` structured contracts;
   do not reuse the project-scoped effective-schema or effective-schema-selection contract names.
-- [ ] Provide concise and detailed human reports, canonical JSON export, and ambiguity-safe singular
+- [x] Provide concise and detailed human reports, canonical JSON export, and ambiguity-safe singular
   pack/capability lookup across the complete catalog.
-- [ ] Add paired `inspect_framework_catalog.py` and `Get-FrameworkCatalog.ps1` commands with
+- [x] Add paired `inspect_framework_catalog.py` and `Get-FrameworkCatalog.ps1` commands with
   project-independent root resolution plus human, JSON, confined file-export, composable `show`,
   pack-selector, and capability-selector behavior parallel to the existing effective-schema command.
-- [ ] Share selector normalization, semantic report models, deterministic text/Markdown rendering,
+- [x] Share selector normalization, semantic report models, deterministic text/Markdown rendering,
   export primitives, failure envelopes, and path-safety helpers where their contracts are genuinely
   identical while keeping catalog and effective-schema serializers and record identities distinct.
-- [ ] Implement paired Python and PowerShell catalog services and commands with permanent positive,
+- [x] Implement paired Python and PowerShell catalog services and commands with permanent positive,
   malformed, ambiguity, path-safety, scale, and three-runtime parity coverage. Commands import their
   runtime services and never invoke one another as subprocesses.
-- [ ] Keep wizard, editor, and UI consumers on the shared catalog service rather than allowing
+- [x] Keep wizard, editor, and UI consumers on the shared catalog service rather than allowing
   independent pack-directory scans.
 
 #### Phase 3.2.2 Effective-Schema Catalog Integration

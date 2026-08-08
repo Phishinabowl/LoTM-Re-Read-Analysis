@@ -6,6 +6,21 @@ from .project_paths import (
     is_project_root,
     resolve_project_root,
 )
+from .framework_config import FrameworkConfig, load_framework_config
+from .framework_catalog import (
+    FrameworkCatalog,
+    FrameworkCatalogError,
+    compose_framework_catalog_selection,
+    framework_catalog_failure,
+    framework_catalog_json,
+    load_framework_catalog,
+)
+from .framework_paths import (
+    FRAMEWORK_MANIFEST_PATH,
+    FRAMEWORK_ROOT_ENVIRONMENT_VARIABLE,
+    is_framework_root,
+    resolve_framework_root,
+)
 from .effective_schema import (
     EffectiveProjectSchema,
     compose_effective_schema_selection,
@@ -21,6 +36,18 @@ __all__ = [
     "PROJECT_ROOT_ENVIRONMENT_VARIABLE",
     "is_project_root",
     "resolve_project_root",
+    "FRAMEWORK_MANIFEST_PATH",
+    "FRAMEWORK_ROOT_ENVIRONMENT_VARIABLE",
+    "FrameworkConfig",
+    "FrameworkCatalog",
+    "FrameworkCatalogError",
+    "compose_framework_catalog_selection",
+    "framework_catalog_failure",
+    "framework_catalog_json",
+    "is_framework_root",
+    "load_framework_config",
+    "load_framework_catalog",
+    "resolve_framework_root",
     "EffectiveProjectSchema",
     "compose_effective_schema_selection",
     "compose_effective_project_schema",

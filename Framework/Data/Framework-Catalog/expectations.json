@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "canonical_pack_count": 14,
+  "canonical_capability_count": 136,
+  "canonical_available_capability_count": 123,
+  "canonical_planned_capability_count": 13,
+  "canonical_deprecated_capability_count": 0,
+  "fixture_pack_count": 3,
+  "fixture_capability_count": 4,
+  "scale_pack_count": 64,
+  "invalid_cases": 8
+}

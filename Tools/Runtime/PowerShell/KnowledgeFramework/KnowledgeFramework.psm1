@@ -1,5 +1,101 @@
 $script:ProjectManifestPath = 'Project_Config/project.yaml'
 $script:ProjectRootEnvironmentVariable = 'KNOWLEDGE_PROJECT_ROOT'
+$script:FrameworkManifestPath = 'Framework/framework.yaml'
+$script:FrameworkRootEnvironmentVariable = 'KNOWLEDGE_FRAMEWORK_ROOT'
+
+function Test-KnowledgeFrameworkRoot {
+    param([string]$Path)
+
+    if ([string]::IsNullOrWhiteSpace($Path)) {
+        return $false
+    }
+    $resolved = [System.IO.Path]::GetFullPath($Path)
+    return (
+        (Test-Path -LiteralPath $resolved -PathType Container) -and
+        (Test-Path -LiteralPath (Join-Path $resolved $script:FrameworkManifestPath) -PathType Leaf)
+    )
+}
+
+function Resolve-KnowledgeValidatedFrameworkRoot {
+    param(
+        [string]$Value,
+        [string]$Source,
+        [switch]$RequireAbsolute
+    )
+
+    if ($RequireAbsolute -and -not [System.IO.Path]::IsPathRooted($Value)) {
+        throw "$Source must be an absolute path: $Value"
+    }
+    $resolved = [System.IO.Path]::GetFullPath($Value)
+    if (-not (Test-KnowledgeFrameworkRoot $resolved)) {
+        throw "Framework root from $Source is missing required manifest $($script:FrameworkManifestPath): $resolved"
+    }
+    return $resolved
+}
+
+function Resolve-KnowledgeFrameworkRoot {
+    param(
+        [string]$ExplicitRoot,
+        [string]$ExecutablePath,
+        [string]$CurrentDirectory
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($ExplicitRoot)) {
+        return Resolve-KnowledgeValidatedFrameworkRoot $ExplicitRoot 'explicit root'
+    }
+
+    $environmentRoot = [Environment]::GetEnvironmentVariable($script:FrameworkRootEnvironmentVariable)
+    if (-not [string]::IsNullOrWhiteSpace($environmentRoot)) {
+        return Resolve-KnowledgeValidatedFrameworkRoot `
+            $environmentRoot.Trim() `
+            "environment variable $($script:FrameworkRootEnvironmentVariable)" `
+            -RequireAbsolute
+    }
+
+    $workingDirectory = if ([string]::IsNullOrWhiteSpace($CurrentDirectory)) {
+        (Get-Location).Path
+    }
+    else {
+        $CurrentDirectory
+    }
+    $searchStarts = @(
+        [pscustomobject]@{ label = 'current directory'
+            path = $workingDirectory
+        }
+    )
+    $executableStart = Get-KnowledgeProjectSearchStart $ExecutablePath
+    if ($null -ne $executableStart) {
+        $searchStarts += [pscustomobject]@{ label = 'executable location'
+            path = $executableStart
+        }
+    }
+
+    $checked = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+    foreach ($start in $searchStarts) {
+        $current = [System.IO.Path]::GetFullPath($start.path)
+        while ($current) {
+            if ($checked.Add($current) -and (Test-KnowledgeFrameworkRoot $current)) {
+                return $current
+            }
+            $parent = [System.IO.Directory]::GetParent($current)
+            if ($null -eq $parent) {
+                break
+            }
+            $current = $parent.FullName
+        }
+    }
+
+    $starts = @(
+        $searchStarts | ForEach-Object {
+            '{0}={1}' -f $_.label, [System.IO.Path]::GetFullPath($_.path)
+        }
+    ) -join ', '
+    throw (
+        "Could not auto-detect the framework root from $starts. " +
+        "Expected manifest: $($script:FrameworkManifestPath). " +
+        "Pass the root explicitly or set $($script:FrameworkRootEnvironmentVariable) to an absolute framework path."
+    )
+}
 
 function Test-KnowledgeProjectRoot {
     param([string]$Path)
@@ -110,9 +206,12 @@ function Resolve-KnowledgeProjectRoot {
 
 $implementationFiles = @(
     'Strict-Yaml.ps1'
+    'Serialization.ps1'
     'Project-Config.ps1'
     'Lookup-Key-Config.ps1'
+    'Framework-Config.ps1'
     'Schema-Pack-Config.ps1'
+    'Framework-Catalog.ps1'
     'Taxonomy-Config.ps1'
     'Resource-Config.ps1'
     'Temporal-Config.ps1'

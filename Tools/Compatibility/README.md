@@ -12,9 +12,10 @@ python Tools\Compatibility\run_compatibility.py --profile local --summary-json
 ```
 
 Every profile first validates compatibility and conformance reporting, then compares the generated
-`EffectiveProjectSchema`, its byte-identical canonical export, combined and deduplicated human
-inspection, invalid selectors, and its malformed-input failure envelope across Python, PowerShell 7,
-and Windows PowerShell 5.1. Use
+project-independent `FrameworkCatalog` and project-scoped `EffectiveProjectSchema`. Both checks
+cover byte-identical canonical and selection exports, combined and deduplicated human inspection,
+invalid selectors, malformed-input failure envelopes, and confined output across Python,
+PowerShell 7, and Windows PowerShell 5.1. Use
 `--profile pull-request` for root and artifact-lifecycle guards, or `--profile full-release` to add
 representative rendering. `--list --json` exposes the registered inventory. Use `--summary-json` for
 routine status, `--json` for the complete nested result, and `--report-output PATH` to write that

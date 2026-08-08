@@ -262,10 +262,10 @@ function Test-KnowledgeLookupKeysEqual {
     return [string]::Equals($Left, $Right, [System.StringComparison]::Ordinal)
 }
 
-function Get-KnowledgeLookupKeyConfig {
-    param([object]$ProjectConfig)
+function Get-KnowledgeLookupKeyRegistryConfig {
+    param([string]$RegistryPath)
 
-    $path = [System.IO.Path]::GetFullPath($ProjectConfig.lookup_keys_registry)
+    $path = [System.IO.Path]::GetFullPath($RegistryPath)
     if ($script:LookupKeyConfigCache.ContainsKey($path)) {
         return $script:LookupKeyConfigCache[$path]
     }
@@ -379,4 +379,10 @@ function Get-KnowledgeLookupKeyConfig {
     }
     $script:LookupKeyConfigCache[$path] = $config
     return $config
+}
+
+function Get-KnowledgeLookupKeyConfig {
+    param([object]$ProjectConfig)
+
+    return Get-KnowledgeLookupKeyRegistryConfig $ProjectConfig.lookup_keys_registry
 }

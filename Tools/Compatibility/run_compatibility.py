@@ -33,6 +33,7 @@ ALLOWED_CHECK_KINDS = {
     "compatibility-reporting",
     "conformance-reporting",
     "effective-schema",
+    "framework-catalog",
     "framework-extraction",
     "qa",
     "render",
@@ -44,6 +45,7 @@ CHECK_KEYS = {
     "compatibility-reporting": {"id", "kind", "timeout_seconds"},
     "conformance-reporting": {"id", "kind", "timeout_seconds"},
     "effective-schema": {"id", "kind", "timeout_seconds"},
+    "framework-catalog": {"id", "kind", "timeout_seconds"},
     "framework-extraction": {"id", "kind", "timeout_seconds"},
     "qa": {"id", "kind", "timeout_seconds", "baseline", "bounded_graphs", "bounded_pages"},
     "render": {
@@ -1528,6 +1530,307 @@ def run_framework_extraction_check(
     }
 
 
+def run_framework_catalog_check(
+    check: dict[str, Any], runtimes: list[Runtime], root: Path, output_root: Path
+) -> dict[str, Any]:
+    python_script = root / "Tools" / "Commands" / "Framework" / "inspect_framework_catalog.py"
+    powershell_script = root / "Tools" / "Commands" / "Framework" / "Get-FrameworkCatalog.ps1"
+    documents: dict[str, dict[str, Any]] = {}
+    export_bytes: dict[str, bytes] = {}
+    report_export_bytes: dict[str, bytes] = {}
+    selection_documents: dict[str, dict[str, Any]] = {}
+    selection_export_bytes: dict[str, bytes] = {}
+    human_reports: dict[str, dict[str, str]] = {}
+    failure_classifications: dict[str, str] = {}
+    invalid_show_failures: dict[str, str] = {}
+    singular_selection_failures: dict[str, str] = {}
+    unsafe_report_failures: dict[str, str] = {}
+    elapsed: dict[str, float] = {}
+
+    for runtime in runtimes:
+        command = python_or_powershell_command(
+            runtime,
+            python_script,
+            powershell_script,
+            ["--root", str(root), "--json"],
+            ["-Root", str(root), "-Json"],
+        )
+        result = run_command(runtime, command, root, check["timeout_seconds"])
+        document = parse_json_output(result.stdout)
+        if not isinstance(document, dict) or document.get("contract") != "framework-catalog":
+            raise CompatibilityFailure(f"{runtime.id} returned an invalid framework catalog: {document!r}")
+        documents[runtime.id] = document
+        elapsed[runtime.id] = result.elapsed_seconds
+
+        human_reports[runtime.id] = {}
+        human_cases = {
+            "overview": (
+                ["--root", str(root), "--show", "overview"],
+                ["-Root", str(root), "-Show", "overview"],
+            ),
+            "combined": (
+                ["--root", str(root), "--show", "packs", "--show", "capabilities"],
+                ["-Root", str(root), "-Show", "packs,capabilities"],
+            ),
+            "all-deduplicated": (
+                ["--root", str(root), "--show", "packs", "--show", "all", "--show", "packs"],
+                ["-Root", str(root), "-Show", "packs,all,packs"],
+            ),
+        }
+        for case_id, (python_args, powershell_args) in human_cases.items():
+            human_command = python_or_powershell_command(
+                runtime,
+                python_script,
+                powershell_script,
+                python_args,
+                powershell_args,
+            )
+            human_result = run_command(runtime, human_command, root, check["timeout_seconds"])
+            human_reports[runtime.id][case_id] = human_result.stdout.replace("\r\n", "\n")
+
+        report_export_path = output_root / f"{runtime.id}.txt"
+        report_export_command = python_or_powershell_command(
+            runtime,
+            python_script,
+            powershell_script,
+            [
+                "--root",
+                str(root),
+                "--show",
+                "packs",
+                "--show",
+                "all",
+                "--show",
+                "packs",
+                "--report-output",
+                str(report_export_path),
+            ],
+            [
+                "-Root",
+                str(root),
+                "-Show",
+                "packs,all,packs",
+                "-ReportOutput",
+                str(report_export_path),
+            ],
+        )
+        report_result = run_command(runtime, report_export_command, root, check["timeout_seconds"])
+        expected_confirmation = f"Exported report: {report_export_path.relative_to(root).as_posix()}\n"
+        if report_result.stdout.replace("\r\n", "\n") != expected_confirmation:
+            raise CompatibilityFailure(f"{runtime.id} returned an invalid framework-catalog report confirmation.")
+        report_export_bytes[runtime.id] = report_export_path.read_bytes()
+        if report_export_bytes[runtime.id].decode("utf-8") != human_reports[runtime.id]["all-deduplicated"]:
+            raise CompatibilityFailure(f"{runtime.id} framework-catalog report export differs from human output.")
+
+        export_path = output_root / f"{runtime.id}.json"
+        export_command = python_or_powershell_command(
+            runtime,
+            python_script,
+            powershell_script,
+            ["--root", str(root), "--output", str(export_path)],
+            ["-Root", str(root), "-Output", str(export_path)],
+        )
+        run_command(runtime, export_command, root, check["timeout_seconds"])
+        exported = json.loads(export_path.read_text(encoding="utf-8-sig"))
+        if exported != document:
+            raise CompatibilityFailure(f"{runtime.id} framework-catalog export differs from JSON output.")
+        export_bytes[runtime.id] = export_path.read_bytes()
+
+        selection_command = python_or_powershell_command(
+            runtime,
+            python_script,
+            powershell_script,
+            [
+                "--root",
+                str(root),
+                "--pack",
+                "Narrative-Media",
+                "--capability",
+                "Narrative-Time-Loops",
+                "--json",
+            ],
+            [
+                "-Root",
+                str(root),
+                "-Pack",
+                "Narrative-Media",
+                "-Capability",
+                "Narrative-Time-Loops",
+                "-Json",
+            ],
+        )
+        selection_result = run_command(runtime, selection_command, root, check["timeout_seconds"])
+        selection = parse_json_output(selection_result.stdout)
+        if (
+            not isinstance(selection, dict)
+            or selection.get("contract") != "framework-catalog-selection"
+            or [row.get("id") for row in selection.get("packs", [])] != ["narrative-media"]
+            or [row.get("id") for row in selection.get("capabilities", [])] != ["narrative-time-loops"]
+        ):
+            raise CompatibilityFailure(f"{runtime.id} returned an invalid catalog selection: {selection!r}")
+        selection_documents[runtime.id] = selection
+
+        selection_export_path = output_root / f"{runtime.id}-selection.json"
+        selection_export_command = python_or_powershell_command(
+            runtime,
+            python_script,
+            powershell_script,
+            [
+                "--root",
+                str(root),
+                "--pack",
+                "Narrative-Media",
+                "--capability",
+                "Narrative-Time-Loops",
+                "--output",
+                str(selection_export_path),
+            ],
+            [
+                "-Root",
+                str(root),
+                "-Pack",
+                "Narrative-Media",
+                "-Capability",
+                "Narrative-Time-Loops",
+                "-Output",
+                str(selection_export_path),
+            ],
+        )
+        run_command(runtime, selection_export_command, root, check["timeout_seconds"])
+        exported_selection = json.loads(selection_export_path.read_text(encoding="utf-8-sig"))
+        if exported_selection != selection:
+            raise CompatibilityFailure(f"{runtime.id} catalog selection export differs from JSON output.")
+        selection_export_bytes[runtime.id] = selection_export_path.read_bytes()
+
+        invalid_root = output_root / "missing-framework-root"
+        failure_command = python_or_powershell_command(
+            runtime,
+            python_script,
+            powershell_script,
+            ["--root", str(invalid_root), "--json"],
+            ["-Root", str(invalid_root), "-Json"],
+        )
+        failure_result = run_command(
+            runtime,
+            failure_command,
+            root,
+            check["timeout_seconds"],
+            expect_success=False,
+        )
+        failure = parse_json_output(failure_result.stdout)
+        if (
+            not isinstance(failure, dict)
+            or failure.get("contract") != "framework-catalog-result"
+            or failure.get("catalog") is not None
+            or failure.get("status") != "failed"
+            or not isinstance(failure.get("diagnostic"), dict)
+        ):
+            raise CompatibilityFailure(f"{runtime.id} returned an invalid catalog failure envelope: {failure!r}")
+        if str(root.parent).casefold() in json.dumps(failure).casefold():
+            raise CompatibilityFailure(f"{runtime.id} leaked an absolute path in a catalog failure.")
+        failure_classifications[runtime.id] = failure["diagnostic"].get("classification")
+
+        invalid_show_command = python_or_powershell_command(
+            runtime,
+            python_script,
+            powershell_script,
+            ["--root", str(root), "--show", "not-a-section"],
+            ["-Root", str(root), "-Show", "not-a-section"],
+        )
+        invalid_show_result = run_command(
+            runtime,
+            invalid_show_command,
+            root,
+            check["timeout_seconds"],
+            expect_success=False,
+        )
+        invalid_show_failures[runtime.id] = invalid_show_result.stderr.strip()
+
+        unknown_pack_command = python_or_powershell_command(
+            runtime,
+            python_script,
+            powershell_script,
+            ["--root", str(root), "--pack", "missing-pack"],
+            ["-Root", str(root), "-Pack", "missing-pack"],
+        )
+        unknown_pack_result = run_command(
+            runtime,
+            unknown_pack_command,
+            root,
+            check["timeout_seconds"],
+            expect_success=False,
+        )
+        singular_selection_failures[runtime.id] = unknown_pack_result.stderr.strip()
+
+        unsafe_report_path = root.parent / ".framework-catalog-report-outside.txt"
+        unsafe_report_command = python_or_powershell_command(
+            runtime,
+            python_script,
+            powershell_script,
+            ["--root", str(root), "--report-output", str(unsafe_report_path)],
+            ["-Root", str(root), "-ReportOutput", str(unsafe_report_path)],
+        )
+        unsafe_report_result = run_command(
+            runtime,
+            unsafe_report_command,
+            root,
+            check["timeout_seconds"],
+            expect_success=False,
+        )
+        if unsafe_report_path.exists():
+            raise CompatibilityFailure(f"{runtime.id} created a catalog report outside the framework root.")
+        unsafe_report_failures[runtime.id] = unsafe_report_result.stderr.strip()
+
+    reference_runtime = runtimes[0].id
+    reference = documents[reference_runtime]
+    for runtime_id, document in documents.items():
+        if document != reference:
+            raise CompatibilityFailure(f"Framework catalog differs between {reference_runtime} and {runtime_id}.")
+    if len(set(export_bytes.values())) != 1:
+        raise CompatibilityFailure("Canonical framework-catalog export bytes differ between runtimes.")
+    if len(set(report_export_bytes.values())) != 1:
+        raise CompatibilityFailure("Framework-catalog human report bytes differ between runtimes.")
+    for runtime_id, selection in selection_documents.items():
+        if selection != selection_documents[reference_runtime]:
+            raise CompatibilityFailure(
+                f"Framework-catalog selection differs between {reference_runtime} and {runtime_id}."
+            )
+    if len(set(selection_export_bytes.values())) != 1:
+        raise CompatibilityFailure("Framework-catalog selection export bytes differ between runtimes.")
+    for case_id in human_reports[reference_runtime]:
+        outputs = {reports[case_id] for reports in human_reports.values()}
+        if len(outputs) != 1:
+            raise CompatibilityFailure(f"Framework-catalog human case `{case_id}` differs between runtimes.")
+    if len(set(failure_classifications.values())) != 1:
+        raise CompatibilityFailure(f"Framework-catalog failure classes differ: {failure_classifications}")
+    if len(set(invalid_show_failures.values())) != 1:
+        raise CompatibilityFailure(f"Framework-catalog show failures differ: {invalid_show_failures}")
+    if len(set(singular_selection_failures.values())) != 1:
+        raise CompatibilityFailure(f"Framework-catalog selector failures differ: {singular_selection_failures}")
+    if len(set(unsafe_report_failures.values())) != 1:
+        raise CompatibilityFailure(f"Framework-catalog unsafe-path failures differ: {unsafe_report_failures}")
+
+    canonical_export = export_bytes[reference_runtime]
+    return {
+        "status": "passed",
+        "contract_version": reference["contract_version"],
+        "packs": len(reference["packs"]),
+        "capabilities": len(reference["capabilities"]),
+        "canonical_export_bytes": len(canonical_export),
+        "canonical_export_sha256": hashlib.sha256(canonical_export).hexdigest(),
+        "human_report_export_bytes": len(report_export_bytes[reference_runtime]),
+        "human_report_export_sha256": hashlib.sha256(report_export_bytes[reference_runtime]).hexdigest(),
+        "human_sections": ["packs", "capabilities"],
+        "selection_contract_version": selection_documents[reference_runtime]["contract_version"],
+        "selection_export_bytes": len(selection_export_bytes[reference_runtime]),
+        "selection_export_sha256": hashlib.sha256(selection_export_bytes[reference_runtime]).hexdigest(),
+        "invalid_selector_cases": 2,
+        "unsafe_report_path_cases": 1,
+        "failure_classification": next(iter(failure_classifications.values())),
+        "elapsed_seconds": elapsed,
+    }
+
+
 def run_effective_schema_check(
     check: dict[str, Any], runtimes: list[Runtime], root: Path, output_root: Path
 ) -> dict[str, Any]:
@@ -1864,6 +2167,7 @@ CHECK_HANDLERS = {
     "compatibility-reporting": run_compatibility_reporting_check,
     "conformance-reporting": run_conformance_reporting_check,
     "effective-schema": run_effective_schema_check,
+    "framework-catalog": run_framework_catalog_check,
     "framework-extraction": run_framework_extraction_check,
     "qa": run_qa_check,
     "render": run_render_check,

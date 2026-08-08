@@ -9,6 +9,7 @@
     "local": [
       "compatibility-reporting",
       "conformance-reporting",
+      "framework-catalog",
       "effective-schema",
       "visualization",
       "qa"
@@ -16,6 +17,7 @@
     "pull-request": [
       "compatibility-reporting",
       "conformance-reporting",
+      "framework-catalog",
       "effective-schema",
       "visualization",
       "qa",
@@ -26,6 +28,7 @@
     "full-release": [
       "compatibility-reporting",
       "conformance-reporting",
+      "framework-catalog",
       "effective-schema",
       "visualization",
       "qa",
@@ -45,6 +48,11 @@
       "id": "conformance-reporting",
       "kind": "conformance-reporting",
       "timeout_seconds": 60
+    },
+    {
+      "id": "framework-catalog",
+      "kind": "framework-catalog",
+      "timeout_seconds": 120
     },
     {
       "id": "effective-schema",

@@ -2,8 +2,8 @@
 
 ## Status And Purpose
 
-This document defines the accepted Phase 3.2.1 generated `FrameworkCatalog` contract. Paired
-runtime implementation and conformance coverage are still pending. The catalog is a
+This document defines the implemented Phase 3.2.1 generated `FrameworkCatalog` contract. Paired
+runtime services, commands, conformance, scale, and compatibility coverage enforce it. The catalog is a
 project-independent, deterministic inventory of installed schema packs and their capabilities. It
 exists so setup tools, documentation, editors, and later user interfaces can inspect what the
 framework installation offers before a project exists or without treating one project's selected

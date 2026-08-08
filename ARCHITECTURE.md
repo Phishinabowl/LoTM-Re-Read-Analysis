@@ -211,13 +211,13 @@ owning phases implement those contracts. See `Framework/Contracts/effective-proj
 
 Human command clients may request a concise project overview, detailed contract sections, or one
 selected pack/capability. These are views over the same composition and never become configuration.
-The effective schema intentionally excludes unselected packs. Phase 3.2.1 owns a separate
+The effective schema intentionally excludes unselected packs. Phase 3.2.1 implements a separate
 `FrameworkCatalog` discovery contract for all installed packs and capabilities; catalog discovery
 must not pretend those independently available packs form one valid project composition.
 
 ### Framework Catalog Target Boundary
 
-Phase 3.2 introduces `FrameworkCatalog` as a generated, project-independent inventory over canonical
+Phase 3.2.1 implements `FrameworkCatalog` as a generated, project-independent inventory over canonical
 installed pack files. The catalog preserves complete pack/capability metadata, dependencies,
 lifecycle, classification, presentation, and discoverability without composing every installed pack
 into one project. Canonical pack files remain authoritative; neither the catalog nor an effective
@@ -230,7 +230,7 @@ configuration. Phase 3.2.2 must explicitly reconcile the existing project lookup
 framework default before changing any project inheritance behavior.
 
 Catalog inspection and project inspection remain separate public contracts and commands. The paired
-catalog commands will be `inspect_framework_catalog.py` and `Get-FrameworkCatalog.ps1`; the existing
+catalog commands are `inspect_framework_catalog.py` and `Get-FrameworkCatalog.ps1`; the existing
 `inspect_effective_schema.py` and `Get-EffectiveProjectSchema.ps1` commands remain project-scoped.
 They may share lookup, report, export, failure, and path-safety primitives, but they must not invoke
 one another as subprocesses or maintain separate pack parsers.

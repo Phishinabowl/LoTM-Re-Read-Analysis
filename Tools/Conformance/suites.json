@@ -3,6 +3,7 @@
   "profiles": {
     "fast": [
       "project-root",
+      "framework-installation",
       "strict-ingestion",
       "lookup-key",
       "schema-pack",
@@ -14,6 +15,8 @@
     ],
     "baseline": [
       "project-root",
+      "framework-installation",
+      "framework-catalog",
       "strict-ingestion",
       "lookup-key",
       "schema-pack",
@@ -38,6 +41,18 @@
       "python": "Tools/Conformance/Suites/test_project_paths.py",
       "powershell": "Tools/Conformance/Suites/Test-Project-Paths.ps1",
       "tags": ["baseline", "fast", "runtime"]
+    },
+    {
+      "id": "framework-installation",
+      "python": "Tools/Conformance/Suites/test_framework_installation.py",
+      "powershell": "Tools/Conformance/Suites/Test-Framework-Installation.ps1",
+      "tags": ["baseline", "fast", "runtime", "framework"]
+    },
+    {
+      "id": "framework-catalog",
+      "python": "Tools/Conformance/Suites/test_framework_catalog.py",
+      "powershell": "Tools/Conformance/Suites/Test-Framework-Catalog.ps1",
+      "tags": ["baseline", "framework", "composition", "catalog"]
     },
     {
       "id": "strict-ingestion",

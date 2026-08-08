@@ -16,9 +16,9 @@ This directory contains reusable framework assets that are portable across proje
 - `platform-implementation-plan.md` is the phased execution checklist for effective schema composition, normalized content, consumer migration, LoTM physical migration, projections, add-on packs, the IT proof of concept, interfaces, and the ordered deferred-capability program. It also records capability candidates that are not yet pack declarations.
 - Future `Migrations/` content will contain versioned transformations between contract revisions.
 
-Platform Phases 1 through 3.1 are complete. Phase 3.2.1 is the current next boundary: a generated
-`FrameworkCatalog` for all installed packs, kept distinct from each project's selected
-`EffectiveProjectSchema`. Phase 3.2.2 then moves effective-schema composition onto the shared
+Platform Phases 1 through 3.2.1 are complete. The generated project-independent `FrameworkCatalog`
+inventories all installed packs while remaining distinct from each project's selected
+`EffectiveProjectSchema`. Phase 3.2.2 is the next boundary: move effective-schema composition onto the shared
 validated catalog model while preserving its project-specific contract and command behavior before
 capability grouping and later interface work.
 

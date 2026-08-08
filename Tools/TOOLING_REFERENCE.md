@@ -51,6 +51,7 @@ These are Python-preferred commands with independent PowerShell fallbacks. Their
 | `Tools/Commands/Media/search_epub.py`, `Tools/Commands/Media/Search-Epub.ps1` | EPUB text/search command. |
 | `Tools/Commands/Media/edit_image.py`, `Tools/Commands/Media/Edit-Image.ps1` | Image manipulation and EPUB artwork extraction command. |
 | `Tools/Commands/Framework/inspect_effective_schema.py`, `Tools/Commands/Framework/Get-EffectiveProjectSchema.ps1` | Generated effective-schema inspection and JSON export command. |
+| `Tools/Commands/Framework/inspect_framework_catalog.py`, `Tools/Commands/Framework/Get-FrameworkCatalog.ps1` | Project-independent installed-pack/capability catalog inspection and export command. |
 
 ### Conformance Inventory
 
@@ -1105,6 +1106,74 @@ Last parity check: 2026-08-01. Python, PowerShell 7, and Windows PowerShell 5.1 
 
 Current content-type and ownership regression: both implementations selected taxonomy-enabled `glossary` and `volumes` roots, excluded `investigations`, and produced matching 28-file lists and summary counts (`notes=16`, `relationships=121`, `data_references=71`). After generated timestamps were normalized, all 25 stable Markdown and Mermaid outputs matched exactly. The check moved PowerShell's unbounded visualization-style graph generation into the configured Visualization helper and added a deterministic YAML-block/file tie-breaker to both data-reference index sort orders.
 
+## Framework Catalog
+
+### Runtime And Command Pair
+
+| Surface | Python | PowerShell |
+| --- | --- | --- |
+| Installation/root service | `Tools/Runtime/Python/knowledge_framework/framework_config.py`, `framework_paths.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Framework-Config.ps1` plus module root helpers |
+| Catalog service | `Tools/Runtime/Python/knowledge_framework/framework_catalog.py` | `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Framework-Catalog.ps1`, exported by `KnowledgeFramework.psd1` |
+| Public command | `Tools/Commands/Framework/inspect_framework_catalog.py` | `Tools/Commands/Framework/Get-FrameworkCatalog.ps1` |
+| Installation conformance | `Tools/Conformance/Suites/test_framework_installation.py` | `Tools/Conformance/Suites/Test-Framework-Installation.ps1` |
+| Catalog conformance | `Tools/Conformance/Suites/test_framework_catalog.py` | `Tools/Conformance/Suites/Test-Framework-Catalog.ps1` |
+| Cross-runtime compatibility | `framework-catalog` in `Tools/Compatibility/compatibility.json` | Same canonical orchestrated check |
+
+Library consumers import the catalog service and must not launch the command or scan
+`Framework/Packs/` to recover the same object. Python exposes `FrameworkConfig`,
+`FrameworkCatalog`, `load_framework_config`, `load_framework_catalog`,
+`compose_framework_catalog_selection`, `framework_catalog_json`, and
+`framework_catalog_failure`. PowerShell exposes the corresponding
+`Get-KnowledgeFrameworkConfig`, `Get-KnowledgeFrameworkCatalog`,
+`New-KnowledgeFrameworkCatalogSelection`, `New-KnowledgeFrameworkCatalogFailure`, root
+resolution, and shared canonical JSON functions from module version 0.7.0.
+
+The installation service resolves `Framework/framework.yaml` through explicit root,
+`KNOWLEDGE_FRAMEWORK_ROOT`, current-directory ancestry, then executable ancestry. The manifest
+selects one pack root and one pinned lookup registry. It never globs lookup datasets or depends on
+`Project_Config/`.
+
+### Switch Map
+
+| Behavior | Python | PowerShell |
+| --- | --- | --- |
+| Auto-detect and summarize | `python Tools\Commands\Framework\inspect_framework_catalog.py` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1` |
+| Explicit framework repository root | `--root PATH` | `-Root PATH` |
+| Canonical JSON on standard output | `--json` | `-Json` |
+| Also export canonical JSON | `--output PATH` | `-Output PATH` |
+| Export selected human report | `--report-output PATH` | `-ReportOutput PATH` |
+| Append detailed human sections | repeat `--show SECTION` | `-Show SECTION[,SECTION]` |
+| Inspect one installed pack | `--pack PACK_ID` | `-Pack PACK_ID` |
+| Inspect one capability | `--capability CAPABILITY_ID` | `-Capability CAPABILITY_ID` |
+| Help | `--help` | `-Help`, `-?`, or `-h` |
+
+`SECTION` is `overview`, `packs`, `capabilities`, or `all`. Python repeats `--show`;
+PowerShell accepts one comma-separated value. Selections are deduplicated in request order.
+Selectors attempt exact stable ID first and then the manifest-selected lookup normalization. They
+may be combined and return a distinct `framework-catalog-selection` envelope without mutating or
+filtering the base catalog.
+
+JSON and report outputs must resolve to files beneath the framework repository root. Exports use
+UTF-8 without a byte-order mark, LF endings, and one final newline. Structured failure uses the
+`framework-catalog-result` envelope and does not expose absolute machine paths.
+
+### Verification
+
+`framework-installation` belongs to `fast` and `baseline`. It proves root precedence,
+working-directory preservation, strict manifests, confined paths, explicit lookup selection when
+multiple datasets coexist, and three-runtime parity. `framework-catalog` is baseline-only because
+its permanent 64-pack generated scale probe is intentionally broader and materially slower in
+Windows PowerShell 5.1. It also covers canonical 14-pack/136-capability discovery, deterministic
+repeat loading, ignored directories, dependencies and cycles, directory/ID mismatch, malformed
+packs, deferred/planned/deprecated state, multiple providers, normalized and ambiguous selectors,
+and exact three-runtime summaries.
+
+The registered `framework-catalog` compatibility check covers byte-identical base and selection
+JSON, concise/combined/deduplicated reports, report and JSON file exports, invalid roots, invalid
+sections, unknown selectors, outside-root rejection, and path-safe structured failures in Python,
+PowerShell 7, and Windows PowerShell 5.1. EffectiveProjectSchema remains a separate project-scoped
+contract until Phase 3.2.2 changes its internal pack-data dependency under shadow comparison.
+
 ## Effective Project Schema
 
 ### Runtime And Command Pair
@@ -1121,7 +1190,7 @@ Python exposes `EffectiveProjectSchema`, `compose_effective_project_schema`,
 `compose_effective_schema_selection`, `effective_schema_json`, and `effective_schema_failure`.
 PowerShell exposes `New-KnowledgeEffectiveProjectSchema`, `Get-KnowledgeEffectiveProjectSchema`,
 `New-KnowledgeEffectiveConsumerSchemaProjection`, `New-KnowledgeEffectiveSchemaSelection`, and
-`New-KnowledgeEffectiveSchemaFailure` from module version 0.6.0.
+`New-KnowledgeEffectiveSchemaFailure` from module version 0.7.0.
 
 QA and Visualization compose one effective schema in-process from the project, pack, taxonomy, and
 resource objects already loaded by their supported runtime. QA and Visualization use direct

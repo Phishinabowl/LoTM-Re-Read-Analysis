@@ -44,6 +44,8 @@ FORBIDDEN_TOP_LEVEL = (
 )
 PORTABLE_SUITES = (
     "project-root",
+    "framework-installation",
+    "framework-catalog",
     "strict-ingestion",
     "lookup-key",
     "schema-pack",

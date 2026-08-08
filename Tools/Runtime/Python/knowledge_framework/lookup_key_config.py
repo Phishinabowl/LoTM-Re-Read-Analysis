@@ -154,8 +154,7 @@ def _parse_sequence(value: object, context: str) -> tuple[int, ...]:
     return tuple(result)
 
 
-def load_lookup_key_config(project: ProjectConfig) -> LookupKeyConfig:
-    path = project.lookup_keys_registry
+def load_lookup_key_registry(path: Path) -> LookupKeyConfig:
     try:
         data = json.loads(path.read_text(encoding="ascii"))
     except json.JSONDecodeError as exc:
@@ -262,3 +261,7 @@ def load_lookup_key_config(project: ProjectConfig) -> LookupKeyConfig:
     if counts != actual_counts:
         raise ValueError("Lookup-key registry declared counts do not match its mapping data.")
     return config
+
+
+def load_lookup_key_config(project: ProjectConfig) -> LookupKeyConfig:
+    return load_lookup_key_registry(project.lookup_keys_registry)

@@ -23,17 +23,11 @@ The current executable contract is enforced by the matching Python and PowerShel
 | `Project_Config/occurrences.yaml` | `Tools/Runtime/Python/knowledge_framework/occurrence_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1`; see `occurrence-recurrence-registry.md` |
 | `Project_Config/interpretations.yaml` | `Tools/Runtime/Python/knowledge_framework/interpretation_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1`; see `structural-interpretation-registry.md` |
 | Generated `EffectiveProjectSchema` | `Tools/Runtime/Python/knowledge_framework/effective_schema.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1`; see `effective-project-schema.md` |
+| `Framework/framework.yaml` | `Tools/Runtime/Python/knowledge_framework/framework_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1`; see `framework-installation.md` |
+| Generated `FrameworkCatalog` | `Tools/Runtime/Python/knowledge_framework/framework_catalog.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1`; see `framework-catalog.md` |
 | Aggregate validation reporting | `Tools/Conformance/run_conformance.py`, `Tools/Conformance/Run-Conformance.ps1`, and `Tools/Compatibility/run_compatibility.py`; see `validation-run-reporting.md` |
 
 Future machine-readable schema documents belong here as those loader contracts are stabilized. Do not add a partial schema that claims broader validation coverage than the loaders actually provide.
-
-## Accepted Pending Contracts
-
-- `framework-installation.md` defines the accepted `Framework/framework.yaml` bootstrap contract.
-- `framework-catalog.md` defines the accepted generated `FrameworkCatalog` and selection contracts.
-
-Their paired loaders, commands, and conformance suites remain Phase 3.2.1 work. Move them into the
-current executable table only after that closure gate passes.
 
 `effective-project-schema.md` defines the generated composition contract implemented by the paired
 runtime services and inspection/export commands. It is diagnostic output over the canonical
@@ -41,8 +35,9 @@ registries, not another canonical registry.
 
 `framework-catalog.md` defines the distinct project-independent installed-pack inventory and its
 selection envelope. `framework-installation.md` defines its explicit project-independent bootstrap.
-Canonical pack files remain authoritative; runtime implementation is owned by Phase 3.2.1 and
-project annotation remains deferred to Phase 3.2.2.
+Canonical pack files remain authoritative. Paired installation/catalog loaders, inspection
+commands, conformance, scale, and compatibility checks are executable. Project annotation and
+effective-schema catalog integration remain deferred to Phase 3.2.2.
 
 ## Capability Semantics
 

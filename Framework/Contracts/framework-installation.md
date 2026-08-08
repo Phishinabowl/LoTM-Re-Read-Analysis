@@ -2,8 +2,8 @@
 
 ## Status And Purpose
 
-This is the accepted Phase 3.2.1 design contract. Paired runtime implementation and conformance
-coverage are still pending.
+This Phase 3.2.1 contract is implemented by paired runtime loaders, root discovery, conformance, and
+framework-catalog commands.
 
 `Framework/framework.yaml` is the project-independent bootstrap for an installed framework. It
 selects the pack root and portable lookup registry needed to construct `FrameworkCatalog` without
