@@ -30,6 +30,7 @@ REGISTRY_PATH = Path(__file__).with_name("compatibility.json")
 # TODO (OWNER): Register normalized-content compatibility as that consumer boundary lands.
 ALLOWED_CHECK_KINDS = {
     "artifact-lifecycle",
+    "conformance-reporting",
     "effective-schema",
     "framework-extraction",
     "qa",
@@ -39,6 +40,7 @@ ALLOWED_CHECK_KINDS = {
 }
 CHECK_KEYS = {
     "artifact-lifecycle": {"id", "kind", "timeout_seconds"},
+    "conformance-reporting": {"id", "kind", "timeout_seconds"},
     "effective-schema": {"id", "kind", "timeout_seconds"},
     "framework-extraction": {"id", "kind", "timeout_seconds"},
     "qa": {"id", "kind", "timeout_seconds", "baseline", "bounded_graphs", "bounded_pages"},
@@ -647,6 +649,323 @@ def root_suite_command(runtime: Runtime, root: Path) -> list[str]:
     )
 
 
+def aggregate_conformance_command(
+    runtime: Runtime,
+    project_root: Path,
+    *,
+    suite_id: str,
+    output_mode: str | None = None,
+    report_output: Path | None = None,
+) -> list[str]:
+    python_args = ["--root", str(project_root), "--suite", suite_id]
+    powershell_args = ["-Root", str(project_root), "-Suite", suite_id]
+    if output_mode == "detailed":
+        python_args.append("--json")
+        powershell_args.append("-Json")
+    elif output_mode == "concise":
+        python_args.append("--summary-json")
+        powershell_args.append("-SummaryJson")
+    if report_output is not None:
+        python_args.extend(["--report-output", str(report_output)])
+        powershell_args.extend(["-ReportOutput", str(report_output)])
+    return python_or_powershell_command(
+        runtime,
+        project_root / "Tools" / "Conformance" / "run_conformance.py",
+        project_root / "Tools" / "Conformance" / "Run-Conformance.ps1",
+        python_args,
+        powershell_args,
+    )
+
+
+def powershell_conformance_parameter_command(runtime: Runtime, root: Path) -> list[str]:
+    script_path = str(root / "Tools" / "Conformance" / "Run-Conformance.ps1").replace("'", "''")
+    expression = f"(Get-Command '{script_path}').Parameters.Keys | Sort-Object"
+    return [*powershell_prefix(runtime), "-Command", expression]
+
+
+def create_failing_conformance_project(root: Path, destination: Path) -> Path:
+    project_root = destination / "failing-project"
+    (project_root / "Project_Config").mkdir(parents=True)
+    (project_root / "Project_Config" / "project.yaml").write_text("schema_version: 1\n", encoding="utf-8")
+    shutil.copytree(root / "Tools" / "Runtime", project_root / "Tools" / "Runtime")
+    conformance_root = project_root / "Tools" / "Conformance"
+    fixture_root = conformance_root / "Fixtures"
+    fixture_root.mkdir(parents=True)
+    shutil.copy2(root / "Tools" / "Conformance" / "run_conformance.py", conformance_root)
+    shutil.copy2(root / "Tools" / "Conformance" / "Run-Conformance.ps1", conformance_root)
+    (fixture_root / "fail_suite.py").write_text(
+        """import argparse
+import sys
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--root")
+parser.add_argument("--json", action="store_true")
+parser.parse_args()
+print("\\n".join(f"synthetic failure line {index:02d}" for index in range(1, 31)), file=sys.stderr)
+raise SystemExit(7)
+""",
+        encoding="utf-8",
+        newline="\n",
+    )
+    (fixture_root / "Fail-Suite.ps1").write_text(
+        """param(
+    [string]$Root,
+    [switch]$Json
+)
+1..30 | ForEach-Object {
+    Write-Output "synthetic failure line $($_.ToString('00'))"
+}
+exit 7
+""",
+        encoding="utf-8",
+        newline="\n",
+    )
+    registry = {
+        "schema_version": 1,
+        "profiles": {"fast": ["fixture-failure"], "baseline": ["fixture-failure"]},
+        "suites": [
+            {
+                "id": "fixture-failure",
+                "python": "Tools/Conformance/Fixtures/fail_suite.py",
+                "powershell": "Tools/Conformance/Fixtures/Fail-Suite.ps1",
+                "tags": ["fixture"],
+            }
+        ],
+        "discovery": {
+            "python": [
+                {
+                    "directory": "Tools/Conformance/Fixtures",
+                    "pattern": "*_suite.py",
+                    "exclude": [],
+                }
+            ],
+            "powershell": [
+                {
+                    "directory": "Tools/Conformance/Fixtures",
+                    "pattern": "*-Suite.ps1",
+                    "exclude": [],
+                }
+            ],
+        },
+    }
+    (conformance_root / "suites.json").write_text(
+        json.dumps(registry, indent=2) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    return project_root
+
+
+def validate_concise_conformance_summary(document: Any, *, expected_status: str) -> None:
+    if not isinstance(document, dict):
+        raise CompatibilityFailure("Conformance concise output must be a JSON object.")
+    expected_fields = [
+        "contract",
+        "contract_version",
+        "runner",
+        "status",
+        "profile",
+        "requested_ids",
+        "selected_count",
+        "passed",
+        "failed",
+        "elapsed_seconds",
+        "canonical_outputs_unchanged",
+        "output_kept",
+        "report_path",
+        "results",
+        "failures",
+    ]
+    if set(document) != set(expected_fields):
+        raise CompatibilityFailure(f"Conformance concise fields differ: {sorted(document)}")
+    if (
+        document["contract"] != "validation-run-summary"
+        or document["contract_version"] != 1
+        or document["runner"] != "framework-conformance"
+        or document["status"] != expected_status
+        or document["canonical_outputs_unchanged"] is not None
+    ):
+        raise CompatibilityFailure(f"Invalid conformance concise identity/status: {document}")
+    if document["elapsed_seconds"] is not None and (
+        not isinstance(document["elapsed_seconds"], (int, float)) or document["elapsed_seconds"] < 0
+    ):
+        raise CompatibilityFailure("Conformance concise elapsed_seconds must be null or nonnegative.")
+    if (
+        len(document["requested_ids"]) != document["selected_count"]
+        or len(document["results"]) != document["selected_count"]
+    ):
+        raise CompatibilityFailure("Conformance concise selection counts are inconsistent.")
+    for result in document["results"]:
+        if set(result) != {"id", "kind", "status"} or result["kind"] is not None:
+            raise CompatibilityFailure(f"Invalid concise conformance result row: {result}")
+        if "summary" in result:
+            raise CompatibilityFailure("Concise conformance output leaked a nested suite summary.")
+
+
+def normalized_concise_summary(document: dict[str, Any]) -> str:
+    normalized = copy.deepcopy(document)
+    normalized["elapsed_seconds"] = 0
+    normalized["report_path"] = "REPORT" if normalized["report_path"] is not None else None
+    return json.dumps(normalized, sort_keys=True, separators=(",", ":"))
+
+
+def run_conformance_reporting_check(
+    check: dict[str, Any], runtimes: list[Runtime], root: Path, output_root: Path
+) -> dict[str, Any]:
+    failing_root = create_failing_conformance_project(root, output_root)
+    detailed_documents: dict[str, Any] = {}
+    concise_documents: dict[str, Any] = {}
+    report_bytes: dict[str, bytes] = {}
+    concise_sizes: dict[str, int] = {}
+    detailed_sizes: dict[str, int] = {}
+    elapsed: dict[str, float] = {}
+    failure_report_sizes: dict[str, int] = {}
+
+    for runtime in runtimes:
+        help_command = (
+            [runtime.executable, str(root / "Tools" / "Conformance" / "run_conformance.py"), "--help"]
+            if runtime.id == "python"
+            else powershell_conformance_parameter_command(runtime, root)
+        )
+        help_result = run_command(runtime, help_command, root, check["timeout_seconds"])
+        help_text = help_result.stdout + help_result.stderr
+        required_help = (
+            ["--summary-json", "--report-output"] if runtime.id == "python" else ["SummaryJson", "ReportOutput"]
+        )
+        if any(token not in help_text for token in required_help):
+            raise CompatibilityFailure(f"{runtime.id} conformance help lacks reporting switches.")
+
+        detailed_result = run_command(
+            runtime,
+            aggregate_conformance_command(runtime, root, suite_id="project-root", output_mode="detailed"),
+            root,
+            check["timeout_seconds"],
+        )
+        detailed_document = parse_json_output(detailed_result.stdout)
+        detailed_documents[runtime.id] = detailed_document
+        detailed_sizes[runtime.id] = len(detailed_result.stdout.encode("utf-8"))
+
+        report_path = output_root / runtime.id / "success-report.json"
+        concise_result = run_command(
+            runtime,
+            aggregate_conformance_command(
+                runtime,
+                root,
+                suite_id="project-root",
+                output_mode="concise",
+                report_output=report_path,
+            ),
+            root,
+            check["timeout_seconds"],
+        )
+        concise_document = parse_json_output(concise_result.stdout)
+        validate_concise_conformance_summary(concise_document, expected_status="passed")
+        if not concise_document["output_kept"] or not concise_document["report_path"]:
+            raise CompatibilityFailure(f"{runtime.id} did not expose its explicit detailed report.")
+        concise_documents[runtime.id] = concise_document
+        concise_sizes[runtime.id] = len(concise_result.stdout.encode("utf-8"))
+        elapsed[runtime.id] = round(detailed_result.elapsed_seconds + concise_result.elapsed_seconds, 3)
+        report_bytes[runtime.id] = report_path.read_bytes()
+        if parse_json_output(report_bytes[runtime.id].decode("utf-8")) != detailed_document:
+            raise CompatibilityFailure(f"{runtime.id} detailed report differs from detailed stdout semantics.")
+
+        deterministic_results = []
+        for _ in range(2):
+            result = run_command(
+                runtime,
+                aggregate_conformance_command(runtime, root, suite_id="project-root", output_mode="concise"),
+                root,
+                check["timeout_seconds"],
+            )
+            document = parse_json_output(result.stdout)
+            validate_concise_conformance_summary(document, expected_status="passed")
+            deterministic_results.append(normalized_concise_summary(document))
+        if len(set(deterministic_results)) != 1:
+            raise CompatibilityFailure(f"{runtime.id} concise conformance output is nondeterministic.")
+
+        outside_report = root.parent / f"validation-reporting-unsafe-{os.getpid()}-{runtime.id}.json"
+        if outside_report.exists():
+            raise CompatibilityFailure(f"Unsafe conformance probe already exists: {outside_report}")
+        unsafe_result = run_command(
+            runtime,
+            aggregate_conformance_command(
+                runtime,
+                root,
+                suite_id="project-root",
+                output_mode="concise",
+                report_output=outside_report,
+            ),
+            root,
+            check["timeout_seconds"],
+            expect_success=False,
+        )
+        unsafe_document = parse_json_output(unsafe_result.stdout)
+        validate_concise_conformance_summary(unsafe_document, expected_status="failed")
+        if (
+            outside_report.exists()
+            or "RUN:" in unsafe_result.stdout
+            or unsafe_document["failures"][0].get("classification") != "orchestration-failure"
+        ):
+            raise CompatibilityFailure(f"{runtime.id} unsafe report validation occurred after suite execution.")
+
+        failure_result = run_command(
+            runtime,
+            aggregate_conformance_command(
+                runtime,
+                failing_root,
+                suite_id="fixture-failure",
+                output_mode="concise",
+            ),
+            failing_root,
+            check["timeout_seconds"],
+            expect_success=False,
+        )
+        failure_document = parse_json_output(failure_result.stdout)
+        validate_concise_conformance_summary(failure_document, expected_status="failed")
+        if not failure_document["output_kept"] or not failure_document["report_path"]:
+            raise CompatibilityFailure(f"{runtime.id} failed conformance did not retain its detailed report.")
+        failure_row = failure_document["failures"][0]
+        if (
+            failure_row.get("classification") != "suite-failure"
+            or not failure_row.get("excerpt_truncated")
+            or len(failure_row.get("excerpt", "").splitlines()) > 20
+            or len(failure_row.get("excerpt", "").encode("utf-8")) > 4096
+        ):
+            raise CompatibilityFailure(f"{runtime.id} failure excerpt violates the reporting budget.")
+        failure_report = (failing_root / failure_document["report_path"]).resolve()
+        if failing_root not in failure_report.parents or not failure_report.is_file():
+            raise CompatibilityFailure(f"{runtime.id} retained failure report is missing or unsafe.")
+        failure_detail = parse_json_output(failure_report.read_text(encoding="utf-8"))
+        if "synthetic failure line 30" not in failure_detail["suites"][0]["error"]:
+            raise CompatibilityFailure(f"{runtime.id} retained failure report truncated full diagnostics.")
+        failure_report_sizes[runtime.id] = failure_report.stat().st_size
+
+    reference_runtime = runtimes[0].id
+    if len({json.dumps(value, sort_keys=True) for value in detailed_documents.values()}) != 1:
+        raise CompatibilityFailure("Detailed conformance JSON differs across runtimes.")
+    if len({normalized_concise_summary(value) for value in concise_documents.values()}) != 1:
+        raise CompatibilityFailure("Concise conformance summaries differ across runtimes.")
+    if len(set(report_bytes.values())) != 1:
+        raise CompatibilityFailure("Detailed conformance report bytes differ across runtimes.")
+
+    return {
+        "status": "passed",
+        "contract": "validation-run-summary",
+        "contract_version": 1,
+        "runtimes": [runtime.id for runtime in runtimes],
+        "success_cases": 3,
+        "determinism_cases": 6,
+        "failure_cases": 3,
+        "unsafe_report_path_cases": 3,
+        "detailed_bytes": detailed_sizes[reference_runtime],
+        "concise_bytes": concise_sizes,
+        "report_bytes": len(report_bytes[reference_runtime]),
+        "report_sha256": hashlib.sha256(report_bytes[reference_runtime]).hexdigest(),
+        "failure_report_bytes": failure_report_sizes,
+        "elapsed_seconds": elapsed,
+    }
+
+
 def run_root_discovery_check(
     check: dict[str, Any], runtimes: list[Runtime], root: Path, output_root: Path
 ) -> dict[str, Any]:
@@ -1207,6 +1526,7 @@ def run_effective_schema_check(
 
 CHECK_HANDLERS = {
     "artifact-lifecycle": run_artifact_lifecycle_check,
+    "conformance-reporting": run_conformance_reporting_check,
     "effective-schema": run_effective_schema_check,
     "framework-extraction": run_framework_extraction_check,
     "qa": run_qa_check,

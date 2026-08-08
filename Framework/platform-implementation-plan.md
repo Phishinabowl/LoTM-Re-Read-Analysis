@@ -591,15 +591,15 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 #### Phase 3.1.6.2 Aggregate Conformance Reporting
 
-- [ ] Add matching concise structured-summary and detailed-report export switches to the Python and
+- [x] Add matching concise structured-summary and detailed-report export switches to the Python and
   PowerShell aggregate conformance runners, with identical field meaning, ordering, path safety,
   overwrite behavior, and failure classification.
-- [ ] Preserve the current detailed aggregate JSON payload for existing clients and retain complete
+- [x] Preserve the current detailed aggregate JSON payload for existing clients and retain complete
   child suite summaries in detailed reports while omitting them from concise successful output.
-- [ ] Bound console failure excerpts by a documented deterministic limit without truncating the
+- [x] Bound console failure excerpts by a documented deterministic limit without truncating the
   retained full diagnostic record. A failed run must identify every failed suite and the detailed
   report location when one exists.
-- [ ] Add permanent command-surface, success, failure, malformed-report-path, deterministic-summary,
+- [x] Add permanent command-surface, success, failure, malformed-report-path, deterministic-summary,
   and Python/PowerShell parity coverage without adding a second conformance inventory.
 
 #### Phase 3.1.6.3 Compatibility Reporting

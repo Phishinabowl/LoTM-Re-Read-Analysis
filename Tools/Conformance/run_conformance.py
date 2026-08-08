@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 import re
 import subprocess
 import sys
+import time
 
 
 TOOLS_ROOT = Path(__file__).resolve().parents[1]
@@ -21,6 +23,8 @@ ROOT_KEYS = {"schema_version", "profiles", "suites", "discovery"}
 SUITE_KEYS = {"id", "python", "powershell", "tags"}
 DISCOVERY_KEYS = {"directory", "pattern", "exclude"}
 STABLE_ID = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+FAILURE_EXCERPT_LINES = 20
+FAILURE_EXCERPT_BYTES = 4096
 
 
 def require_mapping(value: object, context: str) -> dict:
@@ -167,16 +171,138 @@ def run_suite(root: Path, suite: dict) -> dict:
     return {"id": suite["id"], "status": "passed", "summary": summary}
 
 
+def resolve_report_output(root: Path, value: str) -> Path:
+    candidate = Path(value)
+    resolved = (candidate if candidate.is_absolute() else root / candidate).resolve()
+    if resolved == root or root not in resolved.parents:
+        raise ValueError(f"Conformance report output must be a file beneath the project root: {resolved}")
+    if resolved.exists() and not resolved.is_file():
+        raise ValueError(f"Conformance report output must be a file path: {resolved}")
+    return resolved
+
+
+def automatic_failure_report(root: Path) -> Path:
+    run_id = f"run-{time.time_ns()}-{os.getpid()}"
+    return root / ".tmp" / "conformance" / run_id / "report.json"
+
+
+def write_detailed_report(path: Path, summary: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    serialized = json.dumps(summary, sort_keys=True, separators=(",", ":")) + "\n"
+    path.write_text(serialized, encoding="utf-8", newline="\n")
+
+
+def bounded_failure_excerpt(value: object) -> tuple[str, bool]:
+    normalized = str(value or "Runner exited without output.").replace("\r\n", "\n").replace("\r", "\n")
+    lines = normalized.split("\n")
+    truncated = len(lines) > FAILURE_EXCERPT_LINES
+    excerpt = "\n".join(lines[:FAILURE_EXCERPT_LINES])
+    encoded = excerpt.encode("utf-8")
+    if len(encoded) > FAILURE_EXCERPT_BYTES:
+        truncated = True
+        encoded = encoded[:FAILURE_EXCERPT_BYTES]
+        while True:
+            try:
+                excerpt = encoded.decode("utf-8")
+                break
+            except UnicodeDecodeError as error:
+                encoded = encoded[: error.start]
+    return excerpt, truncated
+
+
+def concise_summary(
+    profile: str,
+    results: list[dict],
+    elapsed_seconds: float,
+    report_path: str | None,
+) -> dict:
+    failures = []
+    concise_results = []
+    for result in results:
+        concise_results.append({"id": result["id"], "kind": None, "status": result["status"]})
+        if result["status"] == "failed":
+            excerpt, truncated = bounded_failure_excerpt(result.get("error"))
+            failures.append(
+                {
+                    "id": result["id"],
+                    "classification": "suite-failure",
+                    "excerpt": excerpt,
+                    "excerpt_truncated": truncated,
+                }
+            )
+    failed = len(failures)
+    requested_ids = [result["id"] for result in results]
+    return {
+        "contract": "validation-run-summary",
+        "contract_version": 1,
+        "runner": "framework-conformance",
+        "status": "failed" if failed else "passed",
+        "profile": profile,
+        "requested_ids": requested_ids,
+        "selected_count": len(requested_ids),
+        "passed": len(results) - failed,
+        "failed": failed,
+        "elapsed_seconds": round(elapsed_seconds, 3),
+        "canonical_outputs_unchanged": None,
+        "output_kept": report_path is not None,
+        "report_path": report_path,
+        "results": concise_results,
+        "failures": failures,
+    }
+
+
+def concise_orchestration_failure(error: Exception) -> dict:
+    excerpt, truncated = bounded_failure_excerpt(error)
+    return {
+        "contract": "validation-run-summary",
+        "contract_version": 1,
+        "runner": "framework-conformance",
+        "status": "failed",
+        "profile": None,
+        "requested_ids": [],
+        "selected_count": 0,
+        "passed": 0,
+        "failed": 1,
+        "elapsed_seconds": None,
+        "canonical_outputs_unchanged": None,
+        "output_kept": False,
+        "report_path": None,
+        "results": [],
+        "failures": [
+            {
+                "id": None,
+                "classification": "orchestration-failure",
+                "excerpt": excerpt,
+                "excerpt_truncated": truncated,
+            }
+        ],
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run registered Python framework conformance suites.")
     parser.add_argument("--root", help="Project root; auto-detected when omitted.")
     parser.add_argument("--profile", default="baseline", help="Registered profile to run (default: baseline).")
     parser.add_argument("--suite", action="append", help="Run one registered suite; repeat for multiple suites.")
     parser.add_argument("--list", action="store_true", help="List registered profiles and suites without running them.")
-    parser.add_argument("--json", action="store_true", help="Emit a stable JSON summary.")
+    output_group = parser.add_mutually_exclusive_group()
+    output_group.add_argument("--json", action="store_true", help="Emit the complete stable JSON result.")
+    output_group.add_argument(
+        "--summary-json",
+        action="store_true",
+        help="Emit a concise validation-run-summary without nested suite summaries.",
+    )
+    parser.add_argument(
+        "--report-output",
+        metavar="PATH",
+        help="Write the complete stable JSON result to a file beneath the project root.",
+    )
     args = parser.parse_args()
 
     root = resolve_project_root(args.root, executable_path=__file__)
+    if args.list and (args.summary_json or args.report_output):
+        parser.error("--list cannot be combined with --summary-json or --report-output.")
+    report_output = resolve_report_output(root, args.report_output) if args.report_output else None
     registry, suites = load_registry(root)
     if args.list:
         listing = {"schema_version": 1, "profiles": registry["profiles"], "suites": list(suites)}
@@ -187,13 +313,15 @@ def main() -> int:
 
     profile, selected = select_suites(args, registry, suites)
     results = []
+    started = time.perf_counter()
     for suite in selected:
-        if not args.json:
+        if not args.json and not args.summary_json:
             print(f"RUN: {suite['id']}")
         result = run_suite(root, suite)
         results.append(result)
-        if not args.json:
+        if not args.json and not args.summary_json:
             print(f"{result['status'].upper()}: {suite['id']}")
+    elapsed_seconds = time.perf_counter() - started
 
     failed = sum(result["status"] == "failed" for result in results)
     summary = {
@@ -204,12 +332,33 @@ def main() -> int:
         "failed": failed,
         "suites": results,
     }
+    if failed and report_output is None and not args.json:
+        report_output = automatic_failure_report(root)
+    if report_output is not None:
+        write_detailed_report(report_output, summary)
+    report_relative = report_output.relative_to(root).as_posix() if report_output is not None else None
     if args.json:
         print(json.dumps(summary, sort_keys=True, separators=(",", ":")))
+    elif args.summary_json:
+        print(
+            json.dumps(
+                concise_summary(profile, results, elapsed_seconds, report_relative),
+                sort_keys=True,
+                separators=(",", ":"),
+            )
+        )
     else:
         print(f"Conformance {profile}: {summary['passed']} passed, {summary['failed']} failed.")
+        if report_relative is not None:
+            print(f"Detailed report: {report_relative}")
     return 1 if failed else 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except Exception as error:
+        if "--summary-json" not in sys.argv:
+            raise
+        print(json.dumps(concise_orchestration_failure(error), sort_keys=True, separators=(",", ":")))
+        raise SystemExit(1) from None

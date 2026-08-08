@@ -23,7 +23,13 @@ One or more registered suite IDs to run instead of a profile.
 Lists registered profiles and suites without running conformance.
 
 .PARAMETER Json
-Emits a stable structured summary suitable for parity checks and automation.
+Emits the complete stable structured result suitable for parity checks and semantic automation.
+
+.PARAMETER SummaryJson
+Emits a concise validation-run-summary without nested suite summaries.
+
+.PARAMETER ReportOutput
+Writes the complete stable JSON result to a file beneath the project root.
 
 .EXAMPLE
 ./Tools/Conformance/Run-Conformance.ps1 -Profile baseline -Json
@@ -37,7 +43,9 @@ param(
     [string]$Profile = 'baseline',
     [string[]]$Suite = @(),
     [switch]$List,
-    [switch]$Json
+    [switch]$Json,
+    [switch]$SummaryJson,
+    [string]$ReportOutput
 )
 
 $ErrorActionPreference = 'Stop'
@@ -47,6 +55,8 @@ Import-Module $runtimeModule -Force
 
 $registryRelativePath = 'Tools/Conformance/suites.json'
 $stableIdPattern = '^[a-z0-9]+(?:-[a-z0-9]+)*$'
+$failureExcerptLines = 20
+$failureExcerptBytes = 4096
 
 function Assert-JsonObject {
     param(
@@ -349,7 +359,202 @@ function Invoke-ConformanceSuite {
     }
 }
 
+function Resolve-ConformanceReportOutput {
+    param(
+        [string]$RepoRoot,
+        [string]$Value
+    )
+
+    $candidate = if ([System.IO.Path]::IsPathRooted($Value)) {
+        $Value
+    }
+    else {
+        Join-Path $RepoRoot $Value
+    }
+    $resolved = [System.IO.Path]::GetFullPath($candidate)
+    $rootPath = [System.IO.Path]::GetFullPath($RepoRoot).TrimEnd(
+        [System.IO.Path]::DirectorySeparatorChar,
+        [System.IO.Path]::AltDirectorySeparatorChar
+    )
+    $rootPrefix = $rootPath + [System.IO.Path]::DirectorySeparatorChar
+    if (
+        $resolved -ceq $rootPath -or
+        -not $resolved.StartsWith($rootPrefix, [System.StringComparison]::OrdinalIgnoreCase)
+    ) {
+        throw "Conformance report output must be a file beneath the project root: $resolved"
+    }
+    if ((Test-Path -LiteralPath $resolved) -and (Get-Item -LiteralPath $resolved).PSIsContainer) {
+        throw "Conformance report output must be a file path: $resolved"
+    }
+    return $resolved
+}
+
+function New-AutomaticFailureReportPath {
+    param([string]$RepoRoot)
+
+    $runId = "run-$([DateTime]::UtcNow.Ticks)-$PID"
+    return Join-Path $RepoRoot ".tmp\conformance\$runId\report.json"
+}
+
+function Write-DetailedConformanceReport {
+    param(
+        [string]$Path,
+        [object]$Summary
+    )
+
+    $parent = Split-Path -Parent $Path
+    [void](New-Item -ItemType Directory -Path $parent -Force)
+    $serialized = ($Summary | ConvertTo-Json -Depth 100 -Compress) + "`n"
+    $utf8 = New-Object System.Text.UTF8Encoding($false)
+    [System.IO.File]::WriteAllText($Path, $serialized, $utf8)
+}
+
+function Get-BoundedFailureExcerpt {
+    param([object]$Value)
+
+    $normalized = if ($null -eq $Value -or -not ([string]$Value)) {
+        'Runner exited without output.'
+    }
+    else {
+        ([string]$Value).Replace("`r`n", "`n").Replace("`r", "`n")
+    }
+    $lines = @($normalized.Split([char]"`n"))
+    $truncated = $lines.Count -gt $failureExcerptLines
+    $selectedLines = @($lines | Select-Object -First $failureExcerptLines)
+    $excerpt = $selectedLines -join "`n"
+    $bytes = [System.Text.Encoding]::UTF8.GetBytes($excerpt)
+    if ($bytes.Length -gt $failureExcerptBytes) {
+        $truncated = $true
+        $length = $failureExcerptBytes
+        $strictUtf8 = New-Object System.Text.UTF8Encoding($false, $true)
+        while ($length -gt 0) {
+            try {
+                $excerpt = $strictUtf8.GetString($bytes, 0, $length)
+                break
+            }
+            catch [System.Text.DecoderFallbackException] {
+                $length--
+            }
+        }
+    }
+    return [ordered]@{
+        excerpt = $excerpt
+        truncated = [bool]$truncated
+    }
+}
+
+function New-ConciseConformanceSummary {
+    param(
+        [string]$ProfileId,
+        [object[]]$Results,
+        [double]$ElapsedSeconds,
+        [AllowNull()]
+        [string]$ReportPath
+    )
+
+    $normalizedReportPath = if ([string]::IsNullOrEmpty($ReportPath)) {
+        $null
+    }
+    else {
+        $ReportPath
+    }
+    $conciseResults = New-Object 'System.Collections.Generic.List[object]'
+    $failures = New-Object 'System.Collections.Generic.List[object]'
+    foreach ($result in @($Results)) {
+        $conciseResults.Add([ordered]@{
+                id = [string]$result.id
+                kind = $null
+                status = [string]$result.status
+            })
+        if ($result.status -ceq 'failed') {
+            $bounded = Get-BoundedFailureExcerpt $result.error
+            $failures.Add([ordered]@{
+                    classification = 'suite-failure'
+                    excerpt = [string]$bounded.excerpt
+                    excerpt_truncated = [bool]$bounded.truncated
+                    id = [string]$result.id
+                })
+        }
+    }
+    $requestedIds = @($Results | ForEach-Object { [string]$_.id })
+    return [ordered]@{
+        canonical_outputs_unchanged = $null
+        contract = 'validation-run-summary'
+        contract_version = 1
+        elapsed_seconds = [math]::Round($ElapsedSeconds, 3)
+        failed = [int]$failures.Count
+        failures = $failures.ToArray()
+        output_kept = $null -ne $normalizedReportPath
+        passed = [int]($Results.Count - $failures.Count)
+        profile = $ProfileId
+        report_path = $normalizedReportPath
+        requested_ids = $requestedIds
+        results = $conciseResults.ToArray()
+        runner = 'framework-conformance'
+        selected_count = [int]$requestedIds.Count
+        status = if ($failures.Count -gt 0) {
+            'failed'
+        }
+        else {
+            'passed'
+        }
+    }
+}
+
+function New-ConciseConformanceFailure {
+    param([object]$ErrorValue)
+
+    $bounded = Get-BoundedFailureExcerpt $ErrorValue
+    return [ordered]@{
+        canonical_outputs_unchanged = $null
+        contract = 'validation-run-summary'
+        contract_version = 1
+        elapsed_seconds = $null
+        failed = 1
+        failures = @(
+            [ordered]@{
+                classification = 'orchestration-failure'
+                excerpt = [string]$bounded.excerpt
+                excerpt_truncated = [bool]$bounded.truncated
+                id = $null
+            }
+        )
+        output_kept = $false
+        passed = 0
+        profile = $null
+        report_path = $null
+        requested_ids = @()
+        results = @()
+        runner = 'framework-conformance'
+        selected_count = 0
+        status = 'failed'
+    }
+}
+
+trap {
+    if ($SummaryJson) {
+        New-ConciseConformanceFailure $_.Exception.Message | ConvertTo-Json -Depth 100 -Compress
+    }
+    else {
+        Write-Error $_
+    }
+    exit 1
+}
+
+if ($Json -and $SummaryJson) {
+    throw '-Json and -SummaryJson are mutually exclusive.'
+}
+if ($List -and ($SummaryJson -or $ReportOutput)) {
+    throw '-List cannot be combined with -SummaryJson or -ReportOutput.'
+}
+
 $repoRoot = Resolve-KnowledgeProjectRoot -ExplicitRoot $Root -ExecutablePath $PSCommandPath
+$reportOutputPath = if ($ReportOutput) {
+    Resolve-ConformanceReportOutput $repoRoot $ReportOutput
+}
+else {
+    $null
+}
 $registry = Get-ConformanceRegistry $repoRoot
 if ($List) {
     $listing = [ordered]@{
@@ -368,16 +573,18 @@ if ($List) {
 
 $selection = Get-SelectedSuites $registry $Profile $Suite
 $results = New-Object 'System.Collections.Generic.List[object]'
+$stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 foreach ($suiteDefinition in @($selection.suites)) {
-    if (-not $Json) {
+    if (-not $Json -and -not $SummaryJson) {
         Write-Output "RUN: $($suiteDefinition.id)"
     }
     $result = Invoke-ConformanceSuite $repoRoot $suiteDefinition
     $results.Add($result)
-    if (-not $Json) {
+    if (-not $Json -and -not $SummaryJson) {
         Write-Output "$(([string]$result.status).ToUpper()): $($suiteDefinition.id)"
     }
 }
+$stopwatch.Stop()
 $failed = @($results | Where-Object { $_.status -ceq 'failed' }).Count
 $summary = [ordered]@{
     failed = [int]$failed
@@ -387,11 +594,34 @@ $summary = [ordered]@{
     suite_count = [int]$results.Count
     suites = $results.ToArray()
 }
+if ($failed -gt 0 -and $null -eq $reportOutputPath -and -not $Json) {
+    $reportOutputPath = New-AutomaticFailureReportPath $repoRoot
+}
+if ($null -ne $reportOutputPath) {
+    Write-DetailedConformanceReport $reportOutputPath $summary
+}
+$reportRelativePath = if ($null -ne $reportOutputPath) {
+    $reportOutputPath.Substring($repoRoot.TrimEnd('\').Length + 1).Replace('\', '/')
+}
+else {
+    $null
+}
 if ($Json) {
     $summary | ConvertTo-Json -Depth 100 -Compress
 }
+elseif ($SummaryJson) {
+    New-ConciseConformanceSummary `
+        -ProfileId $selection.profile `
+        -Results $results.ToArray() `
+        -ElapsedSeconds $stopwatch.Elapsed.TotalSeconds `
+        -ReportPath $reportRelativePath |
+        ConvertTo-Json -Depth 100 -Compress
+}
 else {
     Write-Output "Conformance $($selection.profile): $($summary.passed) passed, $($summary.failed) failed."
+    if ($null -ne $reportRelativePath) {
+        Write-Output "Detailed report: $reportRelativePath"
+    }
 }
 if ($failed -gt 0) {
     exit 1

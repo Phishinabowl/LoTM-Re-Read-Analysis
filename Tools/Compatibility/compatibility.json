@@ -7,11 +7,13 @@
   ],
   "profiles": {
     "local": [
+      "conformance-reporting",
       "effective-schema",
       "visualization",
       "qa"
     ],
     "pull-request": [
+      "conformance-reporting",
       "effective-schema",
       "visualization",
       "qa",
@@ -20,6 +22,7 @@
       "framework-extraction"
     ],
     "full-release": [
+      "conformance-reporting",
       "effective-schema",
       "visualization",
       "qa",
@@ -30,6 +33,11 @@
     ]
   },
   "checks": [
+    {
+      "id": "conformance-reporting",
+      "kind": "conformance-reporting",
+      "timeout_seconds": 60
+    },
     {
       "id": "effective-schema",
       "kind": "effective-schema",

@@ -35,8 +35,9 @@ registries, not another canonical registry.
 `validation-run-reporting.md` is the accepted Phase 3.1.6 contract for separating validation
 execution strength from report verbosity. It preserves established detailed runner documents while
 defining a low-volume structured summary and confined detailed-report export for humans, agents, CI,
-and diagnostic clients. Move it into the executable-contract table only after both aggregate
-conformance implementations and the compatibility orchestrator satisfy the contract.
+and diagnostic clients. Aggregate conformance reporting now satisfies its portion; move the contract
+into the executable-contract table only after the compatibility orchestrator and final adoption also
+satisfy it.
 
 ## Capability Semantics
 

@@ -1,7 +1,7 @@
 # Validation Run Reporting Contract
 
-**Status:** Accepted Phase 3.1.6 design. Concise and report-export command surfaces remain pending
-until the aggregate conformance and compatibility implementation subphases are complete.
+**Status:** Accepted Phase 3.1.6 design. Aggregate conformance reporting is implemented; matching
+compatibility-orchestrator reporting and final adoption remain pending.
 
 ## Purpose
 

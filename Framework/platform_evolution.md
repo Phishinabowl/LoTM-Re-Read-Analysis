@@ -205,3 +205,25 @@ entry points rather than parsers. No other tracked code consumes an aggregate ru
 existing detailed JSON, add a versioned concise `validation-run-summary`, support confined detailed
 report export, bound console failure excerpts while retaining complete diagnostics, and treat
 elapsed values and run-unique retained paths as operational rather than semantic parity fields.
+
+### Phase 3.1.6.2 Aggregate Conformance Reporting
+
+The Python, PowerShell 7, and Windows PowerShell 5.1 aggregate conformance runners now expose
+`--summary-json` / `-SummaryJson` for the concise `validation-run-summary` contract and
+`--report-output` / `-ReportOutput` for a complete detailed JSON report beneath the project root.
+The established `--json` / `-Json` document remains unchanged for semantic consumers. Explicit
+reports are retained on success; concise and human failures automatically retain a run-scoped
+report beneath `.tmp/conformance/`. Successful concise output omits nested suite summaries, while
+failure rows identify every failed suite through a maximum 20-line, 4,096-byte excerpt and link to
+the complete diagnostic record.
+
+The permanent `conformance-reporting` compatibility check reuses the canonical conformance runners
+and registry rather than creating a second suite inventory. Across all three runtimes it verifies
+command surfaces, unchanged detailed output, concise success, explicit report export, normalized
+determinism, rejection of report paths outside the project root, bounded synthetic failure excerpts,
+and automatic retention of complete diagnostics. The focused check passed 13 cases in 19.244
+seconds: three success cases, six repeat/determinism cases, three synthetic failures, and three
+unsafe-path failures. Successful detailed reports were byte-identical at 297 bytes with SHA-256
+`cc1a59485058e9f2201ea8d28ff2e0c1798e069462122cbe6feec13431c557f9`; concise success payloads
+were 465-472 bytes, differing only in operational elapsed values and report paths before
+normalization. The check preserved canonical project outputs and cleaned successful scoped output.
