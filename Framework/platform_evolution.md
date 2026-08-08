@@ -164,10 +164,10 @@ canonical artifact change, or extraction-boundary leak remains. Phase 3.1 is com
 
 **Implementation commits:** `18b5536` (`Plan validation reporting optimization`), `860e5d6`
 (`Define validation reporting contract`), `2b844c5` (`Add aggregate conformance reporting`),
-`505c73e` (`Add compatibility reporting modes`), and `791fffb` (`Adopt concise validation
-reporting`).
+`505c73e` (`Add compatibility reporting modes`), `791fffb` (`Adopt concise validation
+reporting`), and `8757468` (`Close validation reporting optimization`).
 
-**Closure implemented by:** pending
+**Closure implemented by:** `8757468` (`Close validation reporting optimization`)
 
 Phase 3.1.6 is a post-closure tooling optimization before framework-catalog work. It does not reopen
 the completed pack-presentation contract or reduce validation coverage. It separates concise routine
@@ -311,5 +311,6 @@ reusable files without project configuration and passed six portable suites in a
 and every renderer produced the same nonblank 298,269-byte SVG with SHA-256
 `11b9e70f735004641ab0bd348c21451d1cc2852327caa58d092dd045dfb59f73`.
 
-Phase 3.1.6 is behaviorally closed. Its fresh-task handoff is drafted; the final confirmation commit,
-exact pushed head, and clean-status fields remain pending the normal two-part confirmation sequence.
+Phase 3.1.6 is closed by `8757468` (`Close validation reporting optimization`). The fresh-task
+handoff is finalized after the traceability commit and push so it can name the exact remote head and
+verified clean status without creating a self-referential tracked document.

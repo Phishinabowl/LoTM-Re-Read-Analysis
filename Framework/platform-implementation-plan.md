@@ -639,7 +639,7 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [x] Confirm successful concise output is materially smaller than the retained detailed payload,
   deliberate failures remain diagnosable without rerunning, canonical outputs remain unchanged, and
   temporary reports obey scoped cleanup policy.
-- [ ] Produce a compact fresh-task handoff for Phase 3.2 that names the branch, current commit, clean
+- [x] Produce a compact fresh-task handoff for Phase 3.2 that names the branch, current commit, clean
   status, next unchecked roadmap item, required orientation documents, focused commands, and known
   deferred boundaries without reproducing the full conversation history.
 
