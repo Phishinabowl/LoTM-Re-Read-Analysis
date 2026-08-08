@@ -4,20 +4,24 @@
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import re
 import subprocess
-import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 
-RUNTIME_ROOT = Path(__file__).resolve().parents[1] / "Runtime" / "Python"
-if str(RUNTIME_ROOT) not in sys.path:
-    sys.path.insert(0, str(RUNTIME_ROOT))
-
-from knowledge_framework.project_paths import resolve_project_root  # noqa: E402
+PROJECT_PATHS_PATH = (
+    Path(__file__).resolve().parents[1] / "Runtime" / "Python" / "knowledge_framework" / "project_paths.py"
+)
+PROJECT_PATHS_SPEC = importlib.util.spec_from_file_location("_knowledge_framework_project_paths", PROJECT_PATHS_PATH)
+if PROJECT_PATHS_SPEC is None or PROJECT_PATHS_SPEC.loader is None:
+    raise RuntimeError(f"Could not load shared project-path service: {PROJECT_PATHS_PATH}")
+PROJECT_PATHS_MODULE = importlib.util.module_from_spec(PROJECT_PATHS_SPEC)
+PROJECT_PATHS_SPEC.loader.exec_module(PROJECT_PATHS_MODULE)
+resolve_project_root = PROJECT_PATHS_MODULE.resolve_project_root
 
 
 POLICY_PATH = Path(__file__).with_name("work-annotations.json")
