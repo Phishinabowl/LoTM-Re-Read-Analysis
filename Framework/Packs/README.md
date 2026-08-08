@@ -25,6 +25,10 @@ directory scanning and README dependence for machine clients with a generated `F
 service and report. That catalog must preserve independently available packs, dependencies, and
 discoverability state without composing every installed pack as though one project selected it.
 
+Catalog discovery starts from `Framework/framework.yaml`, which explicitly selects the installed
+pack root and lookup-key registry. It must not infer either input from filenames or depend on
+`Project_Config/`; multiple portable lookup datasets may coexist in one framework installation.
+
 The planned paired `inspect_framework_catalog.py` and `Get-FrameworkCatalog.ps1` commands will
 inspect that complete project-independent inventory. The existing effective-schema commands remain
 separate because they describe one valid project composition. Both command families will consume

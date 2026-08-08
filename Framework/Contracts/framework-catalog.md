@@ -2,7 +2,8 @@
 
 ## Status And Purpose
 
-This document defines the Phase 3.2.1 generated `FrameworkCatalog` contract. The catalog is a
+This document defines the accepted Phase 3.2.1 generated `FrameworkCatalog` contract. Paired
+runtime implementation and conformance coverage are still pending. The catalog is a
 project-independent, deterministic inventory of installed schema packs and their capabilities. It
 exists so setup tools, documentation, editors, and later user interfaces can inspect what the
 framework installation offers before a project exists or without treating one project's selected
@@ -17,7 +18,7 @@ must never be edited or ingested as configuration.
 
 | Contract | Question | Required inputs |
 | --- | --- | --- |
-| `framework-catalog` | What packs and capabilities are installed in this framework? | Framework root and canonical pack files. |
+| `framework-catalog` | What packs and capabilities are installed in this framework? | Framework installation manifest, its selected lookup registry, and canonical pack files. |
 | `effective-project-schema` | What schema is effective for this validated project composition? | Project manifest, selected packs, activation, taxonomy, resources, and later project registries. |
 
 Catalog discovery does not select packs, activate capabilities, merge controlled vocabulary into a
@@ -49,11 +50,12 @@ diagnostics. Catalog loading must not call the project schema-pack registry load
 ## Root Resolution And Installed-Pack Discovery
 
 Catalog loading accepts a framework repository root, not a configured project root. A valid root
-contains `Framework/Packs/`. It does not require `Project_Config/project.yaml` or
+contains `Framework/framework.yaml`, whose installation contract explicitly selects the pack root
+and lookup-key registry. Catalog loading does not require `Project_Config/project.yaml` or
 `Project_Config/schema-packs.yaml`.
 
-Installed bundled packs are immediate child directories of `Framework/Packs/` that contain exactly
-one canonical `pack.yaml`. Discovery follows these rules:
+Installed bundled packs are immediate child directories of the manifest-selected pack root that
+contain exactly one canonical `pack.yaml`. Discovery follows these rules:
 
 - resolve the supplied root to an absolute directory for safe filesystem access, but never serialize
   that absolute path;
@@ -64,6 +66,10 @@ one canonical `pack.yaml`. Discovery follows these rules:
 - reject duplicate IDs, duplicate resolved files, case-colliding directories, missing dependency
   targets, incompatible dependency versions, and dependency cycles;
 - order catalog pack rows by ordinal stable pack ID, independent of filesystem enumeration order.
+
+Pack and capability selector normalization uses the manifest-selected lookup registry. Runtimes
+must validate that registry through the shared lookup-key contract and must not search for a
+matching filename. Multiple lookup datasets may coexist in one framework installation.
 
 A directory without `pack.yaml` is not an installed pack and is ignored. A discovered `pack.yaml`
 that is malformed fails catalog construction; discovery must not silently omit a broken installed
@@ -79,7 +85,12 @@ The canonical JSON document uses this top-level order:
   "contract": "framework-catalog",
   "contract_version": 1,
   "framework": {
-    "packs_root": "Framework/Packs"
+    "id": "knowledge-model",
+    "manifest_path": "Framework/framework.yaml",
+    "packs_root": "Framework/Packs",
+    "lookup_registry": "Framework/Data/unicode-lookup-16.0.0.json",
+    "lookup_algorithm": "trim-nfc-default-casefold-nfc",
+    "unicode_version": "16.0.0"
   },
   "summary": {
     "pack_count": 0,
@@ -93,8 +104,10 @@ The canonical JSON document uses this top-level order:
 }
 ```
 
-Every field is required. Counts are nonnegative integers derived from the emitted rows. The document
-contains no project fields, activation state, timestamps, host details, or absolute paths.
+Every field is required. Framework metadata is validated from the manifest and selected lookup
+registry rather than inferred from path names. Counts are nonnegative integers derived from the
+emitted rows. The document contains no project fields, activation state, timestamps, host details,
+or absolute paths.
 
 ### Pack Rows
 
@@ -181,9 +194,10 @@ invoke one another.
 ## Failure Envelope
 
 Structured failures use `framework-catalog-result`, contract version 1, with `catalog: null` and one
-stable diagnostic. Failure classification distinguishes root discovery, installed-pack discovery,
-pack parsing, catalog composition, selector, and output-path errors. Diagnostics may include
-repository-relative paths and stable IDs but never absolute machine paths.
+stable diagnostic. Failure classification distinguishes root discovery, installation-manifest,
+lookup-registry, installed-pack discovery, pack parsing, catalog composition, selector, and
+output-path errors. Diagnostics may include repository-relative paths and stable IDs but never
+absolute machine paths.
 
 ## Determinism And Versioning
 
@@ -202,9 +216,11 @@ may support tests and diagnostics but never become a loader input.
 
 ## Phase 3.2.1 Conformance
 
-Permanent paired coverage must prove canonical 14-pack discovery, complete capability presentation,
-deterministic repeat loading, dependency and classification validation, deferred/planned/deprecated
-discoverability, multi-provider capability handling, exact and normalized singular lookup,
-ambiguity rejection, malformed root and pack failures, path confinement, generated scale behavior,
-and Python/PowerShell 7/Windows PowerShell 5.1 parity. Existing effective-schema, schema-pack, QA, and
-Visualization behavior remains unchanged during this phase.
+Permanent paired coverage must prove installation-manifest loading, explicit pinned lookup selection
+when multiple lookup datasets coexist, canonical 14-pack discovery, complete capability
+presentation, deterministic repeat loading, dependency and classification validation,
+deferred/planned/deprecated discoverability, multi-provider capability handling, exact and
+normalized singular lookup, ambiguity rejection, malformed root, manifest, registry, and pack
+failures, path confinement, generated scale behavior, and Python/PowerShell 7/Windows PowerShell
+5.1 parity. Existing effective-schema, schema-pack, QA, and Visualization behavior remains unchanged
+during this phase.

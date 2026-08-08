@@ -5,6 +5,8 @@ This directory contains reusable framework assets that are portable across proje
 - `Contracts/` documents the configuration formats and ownership boundaries enforced by framework loaders.
 - `Data/` contains portable pinned runtime data used by framework contracts.
 - `Packs/` contains reusable capability and vocabulary bundles.
+- `framework.yaml` is the project-independent installation bootstrap that explicitly selects the
+  pack root and pinned lookup registry used by framework catalog discovery.
 - `framework_improvement_lifecycle.md` defines the end-to-end version iteration, confirmation, testing, historical closure, and handoff workflow.
 - `testing_methodology.md` defines the cross-industry pressure-test candidate catalog plus cumulative conformance, runtime-parity, compatibility, pressure-scenario, comparison, and test-retention requirements.
 - `framework_evolution.md` records the historical implementation and pressure-test results that drove each framework version.
@@ -20,7 +22,7 @@ Platform Phases 1 through 3.1 are complete. Phase 3.2.1 is the current next boun
 validated catalog model while preserving its project-specific contract and command behavior before
 capability grouping and later interface work.
 
-Project-specific composition, paths, activated capabilities, taxonomy, resources, sources, and extension packs remain under `Project_Config/`.
+Project-specific composition, paths, activated capabilities, taxonomy, resources, sources, and extension packs remain under `Project_Config/`. See `Contracts/framework-installation.md` for the bootstrap boundary; it does not replace a project manifest or select project packs.
 
 Framework packs must not contain LoTM works, pages, source records, repository paths, or other project instances. A project selects packs through `Project_Config/schema-packs.yaml`. Selection makes capability declarations discoverable; capability lifecycle determines availability, and the project activation policy determines which available capabilities are enabled.
 

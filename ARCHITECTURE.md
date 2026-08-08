@@ -223,6 +223,12 @@ lifecycle, classification, presentation, and discoverability without composing e
 into one project. Canonical pack files remain authoritative; neither the catalog nor an effective
 schema may be edited as configuration.
 
+`Framework/framework.yaml` is the project-independent installation bootstrap. It explicitly selects
+the pack root and pinned lookup registry used for catalog discovery, allowing multiple portable
+lookup datasets to coexist without filename inference. It neither reads nor replaces project
+configuration. Phase 3.2.2 must explicitly reconcile the existing project lookup pin with this
+framework default before changing any project inheritance behavior.
+
 Catalog inspection and project inspection remain separate public contracts and commands. The paired
 catalog commands will be `inspect_framework_catalog.py` and `Get-FrameworkCatalog.ps1`; the existing
 `inspect_effective_schema.py` and `Get-EffectiveProjectSchema.ps1` commands remain project-scoped.

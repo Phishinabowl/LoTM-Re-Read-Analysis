@@ -649,6 +649,10 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 - [x] Define a generated `FrameworkCatalog` contract distinct from the project-scoped
   `EffectiveProjectSchema` contract.
+- [ ] Implement the strict `Framework/framework.yaml` installation bootstrap with explicit pack-root
+  and lookup-registry selection, project-independent root discovery, confined relative paths, and
+  three-runtime parity. Do not discover lookup registries by filename globbing; multiple versions
+  may coexist and exactly one is selected by the manifest.
 - [ ] Keep canonical pack files authoritative. Define one shared validated pack/capability record
   model from which both catalog inspection and project composition are derived; neither generated
   document becomes canonical configuration.
@@ -677,6 +681,9 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 #### Phase 3.2.2 Effective-Schema Catalog Integration
 
+- [ ] Explicitly reconcile the project manifest's pinned lookup registry with the framework
+  installation default. Preserve current project selection semantics until that policy is reviewed
+  and covered; do not silently substitute or inherit the framework default.
 - [ ] Make `EffectiveProjectSchema` resolve the project's selected pack IDs and dependency closure
   through the shared validated `FrameworkCatalog` model rather than independently scanning,
   reparsing, or reconstructing pack and capability metadata.
