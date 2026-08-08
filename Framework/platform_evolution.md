@@ -254,3 +254,27 @@ and determinism cases, two failure-presentation cases, one unsafe-path case, and
 cleanup cases. The representative concise payload was 498 bytes versus 1,938 bytes for the detailed
 result. The check is now the first member of `local`, `pull-request`, and `full-release`, making those
 profiles contain five, eight, and nine checks respectively while preserving all prior comparisons.
+
+### Phase 3.1.6.4 Adoption And Documentation
+
+Routine local, agent, and hosted validation now uses concise structured summaries while writing the
+complete established result to a confined detailed report. GitHub Actions retains the same baseline
+suite and compatibility-profile selections, writes explicit reports beneath `.tmp/ci/`, and prints a
+complete report only when the owning validation step fails. No suite, fixture, runtime, compatibility
+check, canonical-output guard, or rendering boundary was removed or weakened.
+
+The testing methodology, improvement lifecycle, project rules, extraction rehearsal, tooling
+reference, command help, and runner READMEs now distinguish execution strength from presentation
+verbosity. Direct detailed JSON remains intentional for semantic clients, including effective-schema
+parity review and isolated extraction rehearsal. The work-annotation inventory was reviewed; no
+reporting-specific deferred implementation remains, and the unrelated normalized-content migration
+annotation remains valid.
+
+Actionlint, Ruff formatting and lint, PowerShell formatting in both supported runtimes, all 22 work-
+annotation fixtures, repository annotation policy, and `git diff --check` passed. Focused concise plus
+report executions passed for `project-root` in Python, PowerShell 7, and Windows PowerShell 5.1; the
+three detailed reports were byte-identical at 297 bytes. A focused `root-discovery` compatibility run
+also passed with canonical outputs unchanged and a 1,920-byte detailed report. All four explicit
+reports were removed without touching unrelated temporary content. Full three-runtime baselines and
+`full-release` compatibility remain deliberately assigned to Phase 3.1.6.5 so adoption does not
+duplicate the closure gate.

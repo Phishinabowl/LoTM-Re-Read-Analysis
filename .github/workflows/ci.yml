@@ -69,7 +69,17 @@ jobs:
         run: python Tools/Static/lint_work_annotations.py --json
 
       - name: Run framework conformance suites
-        run: python Tools/Conformance/run_conformance.py --profile baseline --json
+        run: >-
+          python Tools/Conformance/run_conformance.py --profile baseline --summary-json
+          --report-output .tmp/ci/python-conformance.json
+
+      - name: Print detailed conformance report on failure
+        if: failure()
+        shell: bash
+        run: |
+          if [[ -f .tmp/ci/python-conformance.json ]]; then
+            cat .tmp/ci/python-conformance.json
+          fi
 
   powershell-7-validation:
     name: PowerShell 7 Validation
@@ -102,7 +112,16 @@ jobs:
         run: ./Tools/Static/Format-PowerShell.ps1
 
       - name: Run framework conformance suites
-        run: ./Tools/Conformance/Run-Conformance.ps1 -Profile baseline -Json
+        run: >-
+          ./Tools/Conformance/Run-Conformance.ps1 -Profile baseline -SummaryJson
+          -ReportOutput .tmp/ci/powershell7-conformance.json
+
+      - name: Print detailed conformance report on failure
+        if: failure()
+        run: |
+          if (Test-Path -LiteralPath .tmp/ci/powershell7-conformance.json) {
+              Get-Content -LiteralPath .tmp/ci/powershell7-conformance.json -Raw
+          }
 
   windows-powershell-validation:
     name: Windows PowerShell 5.1 Validation
@@ -135,7 +154,16 @@ jobs:
         run: ./Tools/Static/Format-PowerShell.ps1
 
       - name: Run framework conformance suites
-        run: ./Tools/Conformance/Run-Conformance.ps1 -Profile baseline -Json
+        run: >-
+          ./Tools/Conformance/Run-Conformance.ps1 -Profile baseline -SummaryJson
+          -ReportOutput .tmp/ci/powershell51-conformance.json
+
+      - name: Print detailed conformance report on failure
+        if: failure()
+        run: |
+          if (Test-Path -LiteralPath .tmp/ci/powershell51-conformance.json) {
+              Get-Content -LiteralPath .tmp/ci/powershell51-conformance.json -Raw
+          }
 
   project-compatibility:
     name: Project Compatibility
@@ -200,4 +228,13 @@ jobs:
           }
 
       - name: Run project compatibility profile
-        run: python Tools/Compatibility/run_compatibility.py --profile $env:COMPATIBILITY_PROFILE --json
+        run: >-
+          python Tools/Compatibility/run_compatibility.py --profile $env:COMPATIBILITY_PROFILE
+          --summary-json --report-output .tmp/ci/project-compatibility.json
+
+      - name: Print detailed compatibility report on failure
+        if: failure()
+        run: |
+          if (Test-Path -LiteralPath .tmp/ci/project-compatibility.json) {
+              Get-Content -LiteralPath .tmp/ci/project-compatibility.json -Raw
+          }

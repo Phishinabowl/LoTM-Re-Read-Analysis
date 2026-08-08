@@ -161,6 +161,12 @@ Use `Framework/testing_methodology.md`, not memory, to select and execute:
 
 Use focused suite or compatibility-check selection for diagnosis while editing. Before implementation confirmation, run the aggregate conformance `baseline` profile in Python, PowerShell 7, and Windows PowerShell 5.1 and compare its registered inventory and semantic summaries. Run the cumulative compatibility profile required by the methodology rather than assembling individual consumer commands. The aggregate runners are the closure gates; direct suite commands are not substitutes.
 
+Use concise structured output for routine progress and retain detailed reports for aggregate closure
+evidence. Compare those detailed reports when nested semantic parity is required; do not print every
+successful child summary into agent context or hosted logs. The isolated extraction rehearsal remains
+on complete structured output because it consumes nested suite summaries. Reporting mode never
+changes the selected profile, suite/check inventory, or completion gate.
+
 Use `Tools/TOOLING_REFERENCE.md` for exact commands and comparison recipes. Update that reference when a command, switch, output contract, expected count, normalization rule, or dated parity record changes.
 
 Review the testing methodology before closing verification. Add or revise durable coverage there if the version introduced a new test family, retained scenario, candidate, impact trigger, comparison rule, classification need, or retirement. Do not silently omit inherited coverage or repeatedly choose only familiar candidates when another catalog entry would test the abstraction more honestly.

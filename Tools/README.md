@@ -4,7 +4,12 @@ This folder contains reusable local helpers for project maintenance and source v
 
 For switch-by-switch maps, function-pipeline notes, side effects, parity checks, and durable config/state files for maintained helper scripts, see [Tooling Reference](TOOLING_REFERENCE.md). That reference should be extended whenever another tool is audited or a tool starts reading a new shared config file. The broader version process belongs to the [Framework Improvement Lifecycle](../Framework/framework_improvement_lifecycle.md), while the cumulative requirement for when and why checks run belongs to the [Framework Testing Methodology](../Framework/testing_methodology.md).
 
-Paired validation and conformance commands that emit a human-readable summary also support `--json` / `-Json` with matching semantic fields. File-producing tools may instead define structured generated artifacts; see the Tooling Reference rather than assuming every command uses one universal JSON summary.
+Paired validation and conformance commands that emit a human-readable summary also support
+`--json` / `-Json` with matching complete semantic fields. Aggregate runners additionally provide
+`--summary-json` / `-SummaryJson` for routine low-volume status and `--report-output` /
+`-ReportOutput` for the complete detailed record. File-producing tools may instead define structured
+generated artifacts; see the Tooling Reference rather than assuming every command uses one universal
+JSON summary.
 
 The runtime-package/module boundaries, command layout, root-discovery contract, parity policy, and wrapper rules live in [ARCHITECTURE.md](../ARCHITECTURE.md#tool-runtime-and-command-architecture). The complete current inventory lives in [Tooling Reference](TOOLING_REFERENCE.md#tool-architecture-inventory). Reusable loaders belong under `Runtime/`, executable user workflows under `Commands/`, registered test runners under `Conformance/`, and repository policy tools under `Static/`; do not add new flat root-level scripts.
 
@@ -158,7 +163,17 @@ The tracked workflow at `.github/workflows/ci.yml` runs for pull requests, pushe
 actionlint -color
 ```
 
-The three runtime jobs install their declared dependencies, enforce Python and PowerShell formatting, enforce work-annotation policy, and run the permanent `baseline` conformance profile. `Project Compatibility` separately compares all three EffectiveProjectSchema, Visualization, and QA implementations, root discovery, safe artifact lifecycle, isolated framework extraction, canonical-output preservation, and unsafe destination rejection through the registry-owned compatibility profile. Pull requests use `pull-request`; pushes to `main` and manual dispatches use `full-release`, which adds byte-identical representative Mermaid rendering. Keep action SHAs immutable. Treat all six job names as a public policy surface: rename one only with the same care as changing a required status check.
+The three runtime jobs install their declared dependencies, enforce Python and PowerShell formatting,
+enforce work-annotation policy, and run the permanent `baseline` conformance profile. `Project
+Compatibility` separately compares all three EffectiveProjectSchema, Visualization, and QA
+implementations, root discovery, safe artifact lifecycle, isolated framework extraction,
+canonical-output preservation, and unsafe destination rejection through the registry-owned
+compatibility profile. Pull requests use `pull-request`; pushes to `main` and manual dispatches use
+`full-release`, which adds byte-identical representative Mermaid rendering. Routine hosted output uses
+the concise validation envelope while every job writes a detailed report beneath `.tmp/ci/`; a
+failure-only follow-up step prints that report into the hosted log. Keep action SHAs immutable. Treat
+all six job names as a public policy surface: rename one only with the same care as changing a
+required status check.
 
 ## Temporary File Cleanup
 
@@ -513,18 +528,24 @@ Semantic alias resolution is backed by the manifest-selected `Framework/Data/uni
 Use the paired aggregate runners as the normal entry point for permanent framework conformance. `Tools/Conformance/suites.json` is the shared suite inventory: it defines stable suite IDs, runtime-specific runner paths, and named profiles. Both aggregate implementations validate the registry and reject discovered conformance runners that are neither registered nor explicitly excluded, preventing new suites from silently falling outside the baseline.
 
 ```powershell
-python Tools\Conformance\run_conformance.py --profile baseline --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Conformance.ps1 -Profile baseline -Json
+python Tools\Conformance\run_conformance.py --profile baseline --summary-json --report-output .tmp\validation\python-baseline.json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Conformance.ps1 -Profile baseline -SummaryJson -ReportOutput .tmp\validation\powershell-baseline.json
 ```
 
 The `baseline` profile runs every registered permanent suite and is the profile used by CI and framework-version validation. The smaller `fast` profile runs project-root, strict-ingestion, lookup-key, schema-pack, taxonomy, resource, temporal, and chronology checks for quick local feedback; it is not a substitute for the baseline. Schema-pack, taxonomy, and resource composition remain in `fast` because their small synthetic corpora diagnose foundational capability, vocabulary, content-routing, and placement failures before downstream registries obscure them. Source, entity, provenance, structural-interpretation, and full project-composition conformance remain baseline-only because they repeatedly compose larger dependency chains or provide narrower diagnostics. Use repeatable Python `--suite` arguments or a PowerShell `-Suite` array for focused diagnosis, and use `--list` / `-List` to inspect the registered inventory and profiles. The authoritative positive, malformed, boundary, ambiguity, and scale obligations for every registry suite are defined in the Registry Coverage Classes matrix in `Framework/testing_methodology.md`.
 
 ```powershell
 python Tools\Conformance\run_conformance.py --profile fast
-python Tools\Conformance\run_conformance.py --suite temporal --suite chronology --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Conformance.ps1 -Suite temporal,chronology -Json
+python Tools\Conformance\run_conformance.py --suite temporal --suite chronology --summary-json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Conformance.ps1 -Suite temporal,chronology -SummaryJson
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Conformance.ps1 -List -Json
 ```
+
+Use concise structured output for routine successful validation and focused agent diagnosis. Use
+`--json` / `-Json` when a semantic client must consume every nested suite summary. Add a report path
+to concise or human output when the complete result must remain available without entering the
+console. Concise output never changes selected suites, fixtures, assertions, or exit behavior;
+failures retain a complete run-scoped report automatically.
 
 The current aggregate layer launches each suite in an isolated child runtime. That preserves runner behavior and prevents PowerShell script-scope collisions. The `fast` profile remains a local feedback tool; ordinary feature-branch pushes pay only for the standalone work-annotation check, not hosted conformance or compatibility. Pull requests, `main`, and manual dispatches run the full aggregate baseline. Visualization and Obsidian QA remain separate compatibility gates because they validate project consumers rather than framework conformance alone.
 
@@ -533,12 +554,17 @@ The current aggregate layer launches each suite in an isolated child runtime. Th
 Use the canonical compatibility orchestrator after permanent conformance passes. It launches Python, PowerShell 7, and Windows PowerShell 5.1 implementations and compares project-consumer behavior from one registry-driven command:
 
 ```powershell
-python Tools\Compatibility\run_compatibility.py --profile local
-python Tools\Compatibility\run_compatibility.py --profile pull-request
-python Tools\Compatibility\run_compatibility.py --profile full-release
+python Tools\Compatibility\run_compatibility.py --profile local --summary-json
+python Tools\Compatibility\run_compatibility.py --profile pull-request --summary-json --report-output .tmp\validation\pull-request-compatibility.json
+python Tools\Compatibility\run_compatibility.py --profile full-release --summary-json --report-output .tmp\validation\full-release-compatibility.json
 ```
 
-`Tools/Compatibility/compatibility.json` owns the executable check inventory, representative bounded requests, extraction and render probes, timeouts, and profile membership. `local` compares Visualization and QA outputs; `pull-request` adds root-discovery, artifact-lifecycle, and isolated-extraction safety; `full-release` also renders a representative graph. Use `--list` or `--list --json` to inspect the registry, and repeat `--check` for focused diagnosis.
+`Tools/Compatibility/compatibility.json` owns the executable check inventory, representative bounded
+requests, extraction and render probes, timeouts, and profile membership. Every profile validates
+compatibility/conformance reporting and EffectiveProjectSchema before consumer checks. `local` then
+compares Visualization and QA outputs; `pull-request` adds root-discovery, artifact-lifecycle, and
+isolated-extraction safety; `full-release` also renders a representative graph. Use `--list` or
+`--list --json` to inspect the registry, and repeat `--check` for focused diagnosis.
 
 Visualization and QA must agree across all three runtimes and match the reviewed LoTM consumer
 oracle in `Tools/Compatibility/Baselines/lotm-consumers.json`. The oracle pins semantic summaries,
@@ -553,7 +579,13 @@ python Tools\Compatibility\verify_framework_extraction.py
 python Tools\Compatibility\verify_framework_extraction.py --json
 ```
 
-Every run writes to a unique ignored `.tmp/compatibility/` child, hashes protected canonical outputs before and after execution, and removes its scoped output after success. Failed output is retained automatically. Use `--keep-output` only when a successful comparison needs manual inspection; `--output-root` must remain beneath repository `.tmp/`.
+Every run writes to a unique ignored `.tmp/compatibility/` child, hashes protected canonical outputs
+before and after execution, and removes its scoped output after success. Failed output and a complete
+detailed report are retained automatically. Use `--summary-json` for routine status, `--json` for a
+complete nested result on standard output, and `--report-output PATH` to retain that complete result
+while keeping standard output concise or human-readable. Use `--keep-output` only when successful
+generated comparison artifacts need manual inspection; `--output-root` must remain beneath
+repository `.tmp/`.
 
 ## Strict YAML Conformance
 

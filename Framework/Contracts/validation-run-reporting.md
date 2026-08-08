@@ -1,7 +1,7 @@
 # Validation Run Reporting Contract
 
 **Status:** Accepted Phase 3.1.6 design. Aggregate conformance and compatibility reporting are
-implemented; final adoption and closure validation remain pending.
+implemented and adopted; final closure validation remains pending.
 
 ## Purpose
 

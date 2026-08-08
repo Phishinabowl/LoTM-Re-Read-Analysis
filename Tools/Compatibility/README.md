@@ -8,17 +8,20 @@ domain commands must not use that exception to delegate their own behavior acros
 Run the rapid local comparison:
 
 ```powershell
-python Tools\Compatibility\run_compatibility.py --profile local
+python Tools\Compatibility\run_compatibility.py --profile local --summary-json
 ```
 
-Every profile first compares the generated `EffectiveProjectSchema`, its byte-identical canonical
-export, combined and deduplicated human inspection, invalid selectors, and its malformed-input
-failure envelope across Python, PowerShell 7, and Windows PowerShell 5.1. Use
+Every profile first validates compatibility and conformance reporting, then compares the generated
+`EffectiveProjectSchema`, its byte-identical canonical export, combined and deduplicated human
+inspection, invalid selectors, and its malformed-input failure envelope across Python, PowerShell 7,
+and Windows PowerShell 5.1. Use
 `--profile pull-request` for root and artifact-lifecycle guards, or `--profile full-release` to add
-representative rendering. `--list --json` exposes the registered inventory. Every run writes beneath
+representative rendering. `--list --json` exposes the registered inventory. Use `--summary-json` for
+routine status, `--json` for the complete nested result, and `--report-output PATH` to write that
+complete result while retaining concise or human standard output. Every run writes beneath
 a uniquely scoped ignored `.tmp/compatibility/` folder, protects canonical outputs by hash, and
 removes its output after success. Use `--keep-output` only when the generated comparison artifacts
-need inspection; failed runs retain their scoped output automatically.
+need inspection; failed runs retain their scoped output and detailed report automatically.
 
 Visualization and QA also compare their normalized semantic summaries, complete expected file
 inventories, per-file SHA-256 hashes, and aggregate tree hashes with the reviewed project oracle in

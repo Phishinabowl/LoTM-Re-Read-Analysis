@@ -176,7 +176,7 @@ Every permanent registry suite must preserve five distinct classes of evidence. 
 | ID | Requirement |
 | --- | --- |
 | `PARITY-THREE-RUNTIME` | Run every affected paired conformance or compatibility surface in Python, PowerShell 7, and Windows PowerShell 5.1. Compare semantics after only documented non-semantic normalization. |
-| `PARITY-STRUCTURED-OUTPUT` | Paired summary commands must expose matching `--json` / `-Json` fields and values. File-producing tools must expose a documented structured artifact contract instead of an ambiguous generic summary. |
+| `PARITY-STRUCTURED-OUTPUT` | Paired summary commands must expose matching complete `--json` / `-Json` fields and values. Aggregate runners must also preserve matching concise `validation-run-summary` meaning, ordering, failure classification, excerpt budgets, and report lifecycle. File-producing tools must expose a documented structured artifact contract instead of an ambiguous generic summary. |
 | `PARITY-COMMAND-SURFACE` | Paired commands must expose equivalent help, switch/parameter meaning, defaults, validation boundaries, exit behavior, root selection, preferred/fallback delegation, and documented side effects. Help must not accidentally execute the command. |
 
 ### Project Compatibility
@@ -192,6 +192,25 @@ Every permanent registry suite must preserve five distinct classes of evidence. 
 | `COMPAT-ROOT-DISCOVERY` | Verify manifest-based project-root discovery from the repository root, `Tools/`, a nested descendant, and an unrelated working directory. Exercise explicit root, `KNOWLEDGE_PROJECT_ROOT`, current-directory precedence, executable fallback, invalid/missing manifests, and unchanged caller location across affected commands. |
 | `COMPAT-ARTIFACT-LIFECYCLE` | Verify redirected output ownership, safe creation beneath fresh multi-level parent paths, rejection of repository-root and outside-repository destinations, stale generated-folder removal, run-scoped temporary cleanup, preservation of unrelated temporary files, and protection of canonical outputs. |
 | `COMPAT-FRAMEWORK-EXTRACTION` | Copy only reusable framework, runtime, conformance, and dependency-policy assets into an isolated temporary tree; generate a neutral core-only consumer rather than copying project configuration; prove canonical/generated project surfaces are absent; and require matching portable-suite summaries across all three runtimes before removing the rehearsal. |
+| `COMPAT-VALIDATION-REPORTING` | Preserve complete aggregate result contracts while proving concise success/failure envelopes, deterministic contract-first ordering, explicit and automatic detailed reports, bounded excerpts, path confinement, successful cleanup, retained failure evidence, command help, and Python/PowerShell conformance parity. The compatibility orchestrator remains the single Python cross-runtime referee and tests itself through a nonrecursive private registry. |
+
+### Validation Reporting Discipline
+
+Validation strength and report verbosity are independent. Selecting concise output must never select
+fewer suites, checks, runtimes, fixtures, assertions, safety guards, or compatibility comparisons.
+
+- Use concise structured output for routine local, agent, and hosted status consumption.
+- Add a confined detailed report when complete evidence must survive without entering routine console
+  context. CI writes this report on every aggregate run and prints it only after failure.
+- Use complete `--json` / `-Json` output directly only when a semantic client parses nested suite or
+  check details. The isolated extraction rehearsal is such a client and remains detailed.
+- During parity or baseline review, compare retained detailed reports programmatically rather than
+  printing all successful nested records. Normalize only the operational elapsed/path fields allowed
+  by `Framework/Contracts/validation-run-reporting.md`.
+- Diagnose failures from the bounded console excerpt first, then inspect the retained detailed report
+  and scoped output. Never increase routine verbosity as a substitute for preserving diagnostics.
+- Record selected profiles and test inventories independently from reporting mode so an evolution log
+  cannot mistake smaller output for reduced coverage.
 
 ### Retained Pressure Scenarios
 

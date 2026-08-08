@@ -77,7 +77,7 @@ python Tools\Compatibility\verify_framework_extraction.py --json
 Run the complete extraction-readiness compatibility gate with:
 
 ```powershell
-python Tools\Compatibility\run_compatibility.py --profile full-release --json
+python Tools\Compatibility\run_compatibility.py --profile full-release --summary-json --report-output .tmp\validation\extraction-readiness.json
 ```
 
 The permanent rehearsal requires matching structured summaries from Python, PowerShell 7, and
@@ -93,6 +93,11 @@ Windows PowerShell 5.1 for:
 The complete gate additionally verifies current LoTM Visualization and Obsidian QA consumers,
 root-independent command execution, generated-artifact lifecycle safety, and byte-identical
 nonblank Mermaid rendering without changing canonical outputs.
+
+The outer gate uses concise status plus a retained detailed report. The embedded
+`verify_framework_extraction.py` rehearsal intentionally continues to invoke aggregate conformance
+with complete `--json` / `-Json` output because it compares nested portable-suite summaries across
+all three runtimes.
 
 ## Stabilization Evidence
 

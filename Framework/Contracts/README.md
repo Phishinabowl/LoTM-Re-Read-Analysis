@@ -36,8 +36,8 @@ registries, not another canonical registry.
 execution strength from report verbosity. It preserves established detailed runner documents while
 defining a low-volume structured summary and confined detailed-report export for humans, agents, CI,
 and diagnostic clients. Aggregate conformance and compatibility reporting now satisfy the executable
-boundary; move the contract into the executable-contract table after final adoption and closure
-validation also satisfy it.
+and adoption boundaries; move the contract into the executable-contract table after final closure
+validation also satisfies it.
 
 ## Capability Semantics
 

@@ -1199,6 +1199,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Confor
 python Tools\Compatibility\run_compatibility.py --check effective-schema --json
 ```
 
+These commands intentionally request detailed JSON because this focused parity workflow compares
+nested semantic results. Routine status-only runs should use the concise reporting forms documented
+for the aggregate runners above.
+
 Last focused parity check: 2026-08-07 for Platform Phase 3.1.5. All three runtimes produced the same
 10-pack, 132-capability, 138-namespace effective schema with two deterministic diagnostics. The
 paired suite also passed direct QA and Visualization projections, proved all three retired shadow
@@ -1235,7 +1239,7 @@ This section tracks durable configuration and generated state files that affect 
 
 | File | Kind | Read By | Written By | Purpose | Update When |
 | --- | --- | --- | --- | --- | --- |
-| `.github/workflows/ci.yml` | Full continuous-integration policy | GitHub Actions, actionlint, maintainers, and future repository rules | Maintainers | Defines five stable full-validation checks, immutable action pins, runtime environments, dependency setup, full conformance, and profile-selected project compatibility for PRs, `main`, and manual dispatches. | A permanent full gate, trigger, runtime, dependency, action pin, compatibility profile, stable check name, or repository-rule requirement changes. |
+| `.github/workflows/ci.yml` | Full continuous-integration policy | GitHub Actions, actionlint, maintainers, and future repository rules | Maintainers | Defines five stable full-validation checks, immutable action pins, runtime environments, dependency setup, full conformance, profile-selected project compatibility, concise routine logs, and failure-only detailed-report publication for PRs, `main`, and manual dispatches. | A permanent full gate, trigger, runtime, dependency, action pin, reporting contract, compatibility profile, stable check name, or repository-rule requirement changes. |
 | `.github/workflows/work-annotations.yml` | Feature-branch annotation policy | GitHub Actions, work-annotation linter, maintainers, and future repository rules | Maintainers | Defines the stable lightweight `Work Annotation Policy` check for every non-`main` branch push without project dependency installation or full validation. | Annotation trigger, Python runtime, action pin, command, permissions, concurrency, timeout, or stable check name changes. |
 | `Tools/Conformance/suites.json` | Aggregate conformance registry | `Tools/Conformance/run_conformance.py`, `Tools/Conformance/Run-Conformance.ps1`, CI, and maintainers | Maintainers | Defines stable conformance suite IDs, paired runner paths, named profiles, and discovery exclusions; aggregate validation rejects unregistered or stale runner inventory. | A permanent suite is added, renamed, moved, removed, assigned to a profile, or explicitly excluded from conformance discovery. |
 | `Tools/Compatibility/compatibility.json` | Project-compatibility registry | `Tools/Compatibility/run_compatibility.py`, CI, and maintainers | Maintainers | Defines stable compatibility checks, three-runtime execution, representative bounded QA requests, isolated extraction, render assertions, timeouts, and the cumulative `local`, `pull-request`, and `full-release` profiles. | A compatibility check, representative probe, timeout, assertion, or profile membership changes. |
@@ -1274,7 +1278,7 @@ This section tracks durable configuration and generated state files that affect 
 | Decode and load strict framework-registry YAML, enforcing UTF-8 and byte budgets before parsing | `decode_yaml_bytes`, `validate_yaml_source`, and `load_yaml_file` in `strict_yaml.py` | strict byte decoding, `Assert-KnowledgeYamlSource`, and `ConvertFrom-KnowledgeYamlFile` in `Strict-Yaml.ps1` |
 | Reject unknown keys in a closed mapping | `assert_allowed_keys` in `strict_yaml.py` | `Assert-KnowledgeMapKeys` in `Strict-Yaml.ps1` |
 | Validate the shared RFC 3339 audit profile | `is_rfc3339_timestamp` in `strict_yaml.py` | `Test-KnowledgeRfc3339Timestamp` in `Strict-Yaml.ps1` |
-| Validate and run the registered conformance inventory | `Conformance/run_conformance.py` (`--profile`, `--suite`, `--list`, `--json`) | `Conformance/Run-Conformance.ps1` (`-Profile`, `-Suite`, `-List`, `-Json`) |
+| Validate and run the registered conformance inventory | `Conformance/run_conformance.py` (`--profile`, `--suite`, `--list`, `--json`, `--summary-json`, `--report-output`) | `Conformance/Run-Conformance.ps1` (`-Profile`, `-Suite`, `-List`, `-Json`, `-SummaryJson`, `-ReportOutput`) |
 | Run portable strict-ingestion conformance with structured summary output | `test_strict_yaml.py` (`--json`) | `Test-Strict-Yaml.ps1` (`-Json`) |
 | Resolve project root | `knowledge_framework.project_paths.resolve_project_root`, `is_project_root` | `Resolve-KnowledgeProjectRoot`, `Test-KnowledgeProjectRoot` from the `KnowledgeFramework` module |
 | Load and validate project manifest | `load_project_config`, `resolve_manifest_path` in `project_config.py` | `Get-KnowledgeProjectConfig`, `Resolve-ProjectManifestPath` in `Project-Config.ps1` |
@@ -1444,9 +1448,9 @@ QA export, cleanup, conformance, or their runtime services.
 
 | Behavior | Command |
 | --- | --- |
-| Compare Visualization and redirected QA output during implementation | `python Tools/Compatibility/run_compatibility.py --profile local` |
-| Add root-discovery and artifact-lifecycle protection before PR readiness | `python Tools/Compatibility/run_compatibility.py --profile pull-request` |
-| Add representative three-runtime rendering for version closure | `python Tools/Compatibility/run_compatibility.py --profile full-release` |
+| Compare Visualization and redirected QA output during implementation | `python Tools/Compatibility/run_compatibility.py --profile local --summary-json` |
+| Add root-discovery and artifact-lifecycle protection before PR readiness | `python Tools/Compatibility/run_compatibility.py --profile pull-request --summary-json` |
+| Add representative three-runtime rendering for version closure | `python Tools/Compatibility/run_compatibility.py --profile full-release --summary-json --report-output .tmp/validation/full-release-compatibility.json` |
 | Rehearse a neutral standalone framework copy directly | `python Tools/Compatibility/verify_framework_extraction.py --json` |
 
 The extraction verifier copies `Framework/`, `Tools/Runtime/`, `Tools/Conformance/`, the Python and PowerShell dependency declarations, and the Python formatter policy into a unique operating-system temporary directory. It does not copy the LoTM `Project_Config/`; it generates a neutral core-only `extraction-smoke` manifest and placeholder consumer registry paths. The copied tree must omit nine canonical or generated project surfaces, then pass project-root, strict-ingestion, lookup-key, schema-pack, temporal, and structural-interpretation conformance with identical structured summaries in Python, PowerShell 7, and Windows PowerShell 5.1. The temporary copy is removed automatically on success or failure.
@@ -1454,8 +1458,17 @@ The extraction verifier copies `Framework/`, `Tools/Runtime/`, `Tools/Conformanc
 | List profiles and checks | `--list`; add `--json` for structured output |
 | Select project root or registry | `--root PATH`, `--registry PATH` |
 | Retain successful output or choose its scoped destination | `--keep-output`, `--output-root .tmp/PATH` |
+| Emit concise contract-first status | `--summary-json` |
+| Emit the complete nested result | `--json` |
+| Write the complete nested result while keeping standard output concise or human-readable | `--report-output PATH` |
 
-The registry rejects unknown top-level and check-specific keys, duplicate IDs or selections, unsupported check kinds, unsafe render paths, invalid timeouts/assertions, stale profile references, and altered required runtime order. The profiles are cumulative: `local` contains `effective-schema`, `visualization`, and `qa`; `pull-request` adds `root-discovery`, `artifact-lifecycle`, and `framework-extraction`; `full-release` adds `render`.
+The registry rejects unknown top-level and check-specific keys, duplicate IDs or selections,
+unsupported check kinds, unsafe render paths, invalid timeouts/assertions, stale profile references,
+and altered required runtime order. The profiles are cumulative. All profiles begin with permanent
+`compatibility-reporting` and `conformance-reporting` contract checks. `local` then contains
+`effective-schema`, `visualization`, and `qa`; `pull-request` adds `root-discovery`,
+`artifact-lifecycle`, and `framework-extraction`; `full-release` adds `render`. Current profile sizes
+are five, eight, and nine checks.
 
 Each run creates one unique child beneath `.tmp/compatibility/`. It compares complete redirected
 trees and structured summaries after normalizing only generated timestamps, redirected `.tmp`
@@ -1467,7 +1480,27 @@ inventories, per-file hashes, and aggregate tree hashes. The render check permit
 byte differences only while requiring nonblank SVG output, configured labels, minimum size, and
 matching semantic dimensions.
 
-Protected canonical Visualization configuration, reports, snapshots, graphs, renders, and the configured QA export are hashed before and after every run. Successful output is removed through the maintained cleanup command unless `--keep-output` is supplied. Failed output is retained for diagnosis. An explicit output root must be a child of repository `.tmp/`; the repository root, `.tmp/` itself, and outside paths are rejected.
+Protected canonical Visualization configuration, reports, snapshots, graphs, renders, and the
+configured QA export are hashed before and after every run. Successful output is removed through the
+maintained cleanup command unless `--keep-output` is supplied or an explicit detailed report is
+placed inside it. Failed output and a complete detailed report are retained for diagnosis. Explicit
+report paths must remain beneath the project root; explicit output roots must be children of
+repository `.tmp/`. Repository-root, `.tmp/` itself, and outside paths are rejected before execution.
+
+The concise `validation-run-summary` contains only stable check IDs, kinds, statuses, selected and
+pass/fail counts, elapsed time, canonical-output protection, retention state, report path, and bounded
+failure rows. It never embeds runtime comparisons or generated inventories. `--json` preserves the
+established complete document for semantic consumers. CI uses concise output with an explicit report
+and prints the report only on failure. The isolated extraction verifier remains on detailed aggregate
+conformance JSON because it compares nested suite summaries.
+
+Last focused reporting check: 2026-08-07 for Platform Phase 3.1.6.3. The combined
+`conformance-reporting` and `compatibility-reporting` checks passed in 46.936 seconds. Conformance
+exercised 13 cross-runtime success, determinism, failure, and unsafe-path cases with byte-identical
+297-byte detailed reports. Compatibility exercised public help, focused and profile selection,
+deterministic concise output, exact detailed report export, three cleanup cases, two retained failure
+paths, and unsafe-path rejection. Its representative concise payload was 498 bytes versus 1,940
+bytes detailed. Canonical outputs remained unchanged and successful scoped output was removed.
 
 Last compatibility check: 2026-08-07 for Platform Phase 3.1.5. The 469.2-second `full-release`
 profile passed all seven registered checks with effective-schema presentation and selection closure.
@@ -1491,10 +1524,24 @@ The paired aggregate runners accept an optional repository root, validate `Tools
 | Run the quick local profile | `python Tools/Conformance/run_conformance.py --profile fast` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Run-Conformance.ps1 -Profile fast` |
 | Select focused suites | repeat `--suite SUITE_ID` | pass an array with `-Suite ID1,ID2` |
 | List registered suites and profiles | `--list` | `-List` |
-| Emit stable aggregate results | `--json` | `-Json` |
+| Emit concise contract-first status | `--summary-json` | `-SummaryJson` |
+| Emit complete nested aggregate results | `--json` | `-Json` |
+| Write complete nested results to a confined report | `--report-output PATH` | `-ReportOutput PATH` |
 | Select repository root | `--root PATH` | `-Root PATH` |
 
-`baseline` is the CI and framework-version conformance profile. `fast` is the local feedback profile; ordinary feature-branch pushes run only the separate hosted work-annotation policy rather than a lighter conformance tier. It does not replace baseline, visualization, or QA compatibility validation. Both implementations detect unregistered discovered conformance runners, missing registered files, stale exclusions, duplicate IDs or paths, invalid profiles, and paths outside the repository. Each suite runs in an isolated child process to preserve script behavior and PowerShell scope isolation. Runtime module extraction alone does not make in-process PowerShell aggregation safe: current suites remain top-level scripts that define functions, import modules with process scope, mutate process-local state, and terminate through script exit behavior. Retain child-process execution until suites expose callable APIs with explicit state-reset and error-return contracts, then prove equivalent isolation before changing the aggregate runner.
+`baseline` is the CI and framework-version conformance profile. `fast` is the local feedback profile;
+ordinary feature-branch pushes run only the separate hosted work-annotation policy rather than a
+lighter conformance tier. It does not replace baseline, visualization, or QA compatibility
+validation. Routine users and CI request concise output plus a detailed report; semantic clients use
+complete JSON. Failures in concise or human mode automatically retain a complete report beneath a
+unique `.tmp/conformance/` run. Both implementations detect unregistered discovered conformance
+runners, missing registered files, stale exclusions, duplicate IDs or paths, invalid profiles, and
+paths outside the repository. Each suite runs in an isolated child process to preserve script
+behavior and PowerShell scope isolation. Runtime module extraction alone does not make in-process
+PowerShell aggregation safe: current suites remain top-level scripts that define functions, import
+modules with process scope, mutate process-local state, and terminate through script exit behavior.
+Retain child-process execution until suites expose callable APIs with explicit state-reset and
+error-return contracts, then prove equivalent isolation before changing the aggregate runner.
 
 Last aggregate parity check: 2026-08-07 for Platform Phase 3.1.5. The `baseline` profile passed all
 seventeen registered suites in Python, PowerShell 7, and Windows PowerShell 5.1 with matching suite

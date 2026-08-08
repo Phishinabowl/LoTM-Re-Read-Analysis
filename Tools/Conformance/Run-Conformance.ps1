@@ -36,6 +36,9 @@ Writes the complete stable JSON result to a file beneath the project root.
 
 .EXAMPLE
 ./Tools/Conformance/Run-Conformance.ps1 -Suite temporal,chronology
+
+.EXAMPLE
+./Tools/Conformance/Run-Conformance.ps1 -Profile baseline -SummaryJson -ReportOutput .tmp\validation\powershell-baseline.json
 #>
 [CmdletBinding()]
 param(

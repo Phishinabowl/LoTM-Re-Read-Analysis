@@ -618,13 +618,13 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 #### Phase 3.1.6.4 Adoption And Documentation
 
-- [ ] Update local testing recipes to use concise structured output for routine successful runs,
+- [x] Update local testing recipes to use concise structured output for routine successful runs,
   focused detailed reports for intentional baseline review, and verbose/full diagnostics only during
   failure investigation.
-- [ ] Update CI commands only after measurement proves the concise mode preserves useful hosted-run
+- [x] Update CI commands only after measurement proves the concise mode preserves useful hosted-run
   status. Keep complete diagnostics accessible through retained logs or uploaded artifacts when a
   hosted failure would otherwise lose evidence.
-- [ ] Update the testing methodology, framework improvement lifecycle, tooling reference, command
+- [x] Update the testing methodology, framework improvement lifecycle, tooling reference, command
   help, README guidance, extraction rehearsal, and work annotations to distinguish execution strength
   from output verbosity. Reducing output must never reduce selected suites, checks, fixtures, or
   compatibility assertions.
