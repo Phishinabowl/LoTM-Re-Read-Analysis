@@ -14,6 +14,12 @@ The effective schema is diagnostic output, not canonical configuration. Its inpu
 project manifest, selected packs, and project registries. Editing an export has no effect on the
 project.
 
+It contains project-scoped declarative composition, not executable-extension state. Installed code,
+implementation candidates, publishers, signatures, trust decisions, permissions, entitlement, and
+runtime health remain outside this contract. A future host diagnostic may join those facts by stable
+capability ID without changing pack selection, capability lifecycle, activation, or effective-schema
+identity. See `trusted-executable-extension.md`.
+
 ## Ownership And Scope
 
 Core owns the effective-schema shape, lifecycle resolution, diagnostics model, deterministic

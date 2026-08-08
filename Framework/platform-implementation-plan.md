@@ -774,13 +774,14 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 #### Phase 3.3.2 Trusted Executable Extension Boundary
 
-- [ ] Define a separate architectural boundary for any future executable extension, including its
+- [x] Define a separate architectural boundary for any future executable extension, including its
   own manifest, registry, identity, compatibility, trust, permission, and lifecycle concerns.
-- [ ] Prevent a schema-pack manifest from doubling as an executable-extension manifest or silently
+- [x] Prevent a schema-pack manifest from doubling as an executable-extension manifest or silently
   referencing executable code.
-- [ ] Keep extension loading, execution, sandboxing, publisher verification, signing, and runtime
-  permission enforcement explicitly deferred until a reviewed executable-extension phase.
-- [ ] Leave room for a trusted extension to provide a capability implementation later without
+- [x] Keep extension loading, execution, sandboxing, publisher verification, signing, and runtime
+  permission enforcement explicitly deferred until the reviewed Phase 14.4 executable-extension
+  host.
+- [x] Leave room for a trusted extension to provide a capability implementation later without
   moving capability declarations or portable schema semantics into executable code.
 
 #### Phase 3.3.3 Distribution And Entitlement Seam
@@ -1252,9 +1253,31 @@ wave is confirmed.
   migration resolves that dependency.
 - [ ] Prove adding shared-universe/parallel-continuity support to an existing narrative project.
 
+### Phase 14.4 Trusted Executable Extension Host
+
+- [ ] Define dedicated executable-extension manifest and host-registry schemas without extending
+  or reusing `pack.yaml`.
+- [ ] Implement deterministic framework/host API compatibility and capability-implementation
+  binding only for capabilities already declared by selected schema packs.
+- [ ] Define package integrity, publisher identity, signing, trust roots, revocation, and update
+  continuity before loading extension code.
+- [ ] Define explicit least-privilege permissions, pre-execution inspection, deny-by-default host
+  policy, and bounded process or sandbox isolation.
+- [ ] Define installation, enablement, loading, health, failure, quarantine, rollback, update,
+  disablement, revocation, removal, and audit semantics as distinct operational state.
+- [ ] Preserve built-in-only and no-extension behavior, and keep entitlement independent from
+  trust, permissions, project activation, and runtime execution.
+- [ ] Prove an extension cannot declare capabilities or controlled values, satisfy pack
+  dependencies, select packs, activate capabilities, mutate project facts, or rewrite catalog and
+  effective-schema records.
+- [ ] Add permanent positive, malformed, boundary, ambiguity, scale, extraction, failure-isolation,
+  and security coverage before any executable-extension loading becomes available.
+
 ### Phase 14 Exit Gate
 
 - [ ] A project can safely gain a new capability family after creation through shared services.
+- [ ] Any supported code-bearing extension executes through a separate reviewed host boundary and
+  cannot acquire schema or project authority from installation, trust, permission, or entitlement.
 
 ## Phase 15: Framework Extraction And IT Proof Of Concept
 

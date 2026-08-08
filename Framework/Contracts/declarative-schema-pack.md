@@ -79,13 +79,14 @@ entitlement seam; Phase 14.3 owns eventual add-on operations.
 
 ## Executable Extension Separation
 
-Any future executable extension requires a separate reviewed contract with its own manifest,
-registry, identity, compatibility, trust, permission, and lifecycle rules. A schema-pack manifest
-cannot double as that executable manifest or reference code that a runtime silently loads.
+Any future executable extension follows `trusted-executable-extension.md` and requires a separate
+reviewed contract with its own manifest, registry, identity, compatibility, trust, permission, and
+lifecycle rules. A schema-pack manifest cannot double as that executable manifest or reference code
+that a runtime silently loads.
 
 A future trusted extension may implement a capability declared through portable schema contracts,
 but that relationship must not move capability identity, pack composition, or project data into
-executable code. Phase 3.3.2 reserves this boundary without implementing an extension host.
+executable code. Phase 3.3.2 defines this boundary without implementing an extension host.
 
 ## Conformance Requirements
 
@@ -98,4 +99,3 @@ Paired schema-pack conformance must prove:
 - malformed rejection is equivalent in Python, PowerShell 7, and Windows PowerShell 5.1; and
 - the added safety vectors do not change canonical pack, catalog, effective-schema, QA,
   Visualization, or extraction outputs.
-

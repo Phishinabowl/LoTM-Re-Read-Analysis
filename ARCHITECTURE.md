@@ -198,6 +198,15 @@ manifest, registry, trust, compatibility, permission, and lifecycle boundary. Co
 and entitlement mappings likewise remain outside portable packs, projects, installed catalogs, and
 effective schemas. See `Framework/Contracts/declarative-schema-pack.md`.
 
+The future trusted executable-extension boundary is host-local and code-bearing. It owns a separate
+extension/package identity, software compatibility, implementation binding, installation state,
+publisher and signature evidence, trust decisions, requested and granted permissions, loading, and
+runtime health. An extension may eventually implement only an already declared capability; it may
+not declare capabilities or controlled values, satisfy pack dependencies, select packs, activate
+capabilities, or mutate project facts. Trust, permissions, and commercial entitlement remain
+independent decisions. No current tool loads extension code. See
+`Framework/Contracts/trusted-executable-extension.md`.
+
 ### Effective Project Schema
 
 `EffectiveProjectSchema` is the generated, domain-neutral inspection boundary over the project

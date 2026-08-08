@@ -599,5 +599,52 @@ effective schema, Visualization, QA, root discovery, artifact lifecycle, extract
 canonical outputs remained unchanged and successful scoped output was removed. Ruff, both
 PowerShell formatter runtimes, the work-annotation linter, and `git diff --check` also passed.
 
-Phase 3.3.1 is ready for its two-part confirmation. Phase 3.3.2, the trusted executable extension
-boundary, is next.
+Phase 3.3.1 was implemented by `a5fecca` (`Define declarative schema pack boundary`). Phase 3.3.2,
+the trusted executable extension boundary, is next.
+
+## Platform Phase 3.3.2 - Trusted Executable Extension Boundary
+
+**Closure implemented by:** pending
+
+Phase 3.3.2 defines a separate future host boundary for code-bearing extensions without implementing
+an extension host. Executable extensions require their own package and manifest, stable extension
+and release identity, host-local registry state, framework and host API compatibility, publisher and
+signature evidence, trust decisions, requested and granted permissions, capability-implementation
+bindings, loading state, health, audit, and lifecycle. None of those concerns belong in `pack.yaml`
+or portable project configuration.
+
+Schema packs remain authoritative for capability identity, lifecycle, presentation, relationships,
+controlled values, and portable semantics. Project configuration remains authoritative for pack
+selection and capability activation. A future extension may advertise an implementation only for
+an already declared capability and cannot create capabilities, satisfy pack dependencies, select
+packs, activate behavior, mutate project facts, or rewrite catalog and effective-schema records.
+
+Trust, permissions, and entitlement remain independent decisions: signatures do not establish
+trust, trust does not grant permissions, entitlement does not authorize execution, and installation
+does not imply enablement or loading. Built-in trusted framework code remains the only current
+implementation authority. Phase 14.4 now owns the future executable-extension host, including
+manifest and registry schemas, compatibility, signing, trust, permissions, isolation, lifecycle,
+failure handling, audit, and security conformance.
+
+### Phase 3.3.2 Verification
+
+The schema-pack malformed corpus adds explicit extension-manifest, extension-package, and
+capability-implementation-binding attempts. Python, PowerShell 7, and Windows PowerShell 5.1
+produced matching passing summaries for all 117 malformed compositions while retaining the same 14
+installed packs, 136 capabilities, 17 groups, three-pack fixture, legacy compatibility fixture,
+typed-collision probes, and 64-pack scale result. A forbidden-field search found no executable
+manifest, registry, package, trust, permission-grant, or implementation-binding state in current
+framework, project, or tool configuration.
+
+The isolated extraction rehearsal copied 268 portable files, copied no project configuration,
+excluded all nine guarded project surfaces, passed the eight portable suites in Python, PowerShell
+7, and Windows PowerShell 5.1, and removed its temporary copy. The six-check `local` compatibility
+profile passed reporting, framework catalog, effective schema, Visualization, and QA in 857.5
+seconds with canonical outputs unchanged and successful scoped output removed. An initial attempt
+was discarded after its 600-second shell wrapper expired before the registered profile's cumulative
+check budget; the passing replay used a 900-second outer ceiling without changing the profile.
+Ruff, both PowerShell formatter runtimes, the 366-file work-annotation scan and all 22 fixtures,
+contract-link existence, JSON parsing, and `git diff --check` also passed.
+
+Phase 3.3.2 is ready for its two-part confirmation. Phase 3.3.3, the optional distribution and
+entitlement seam, is next.

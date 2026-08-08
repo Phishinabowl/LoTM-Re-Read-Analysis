@@ -45,6 +45,11 @@ the existing closed pack shape an explicit safety boundary, prohibits executable
 host state, and reserves future executable extensions and entitlement services as separate
 contracts.
 
+`trusted-executable-extension.md` defines the separate future host boundary for code-bearing
+extensions. It separates package, extension, publisher, trust, permission, installation, and
+runtime identity from packs and projects; reserves capability implementation binding without
+moving capability authority into code; and explicitly implements no extension host.
+
 ## Capability Semantics
 
 Schema packs declare capabilities; capability lifecycle controls availability; projects enable available capabilities.

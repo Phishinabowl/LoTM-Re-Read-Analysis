@@ -201,9 +201,16 @@ Platform Phase 3.2.4 closed capability grouping and relationship-aware inspectio
 Schema-6 packs expose 17 stable groups across 14 installed packs, while catalog and effective-schema
 clients preserve the distinct installed and project-scoped views. Phase 3.3.1 then made the existing
 declarative plugin boundary explicit: schema packs are versioned data-only units and cannot contain
-executable code, host permissions, credentials, commercial offerings, or entitlement state. The
-current isolated rehearsal copied 267 portable files and passed eight suites in all three runtimes;
-the ten-check full-release profile passed in 1,203.0 seconds with canonical outputs unchanged.
+executable code, host permissions, credentials, commercial offerings, or entitlement state. Its
+isolated rehearsal copied 267 portable files and passed eight suites in all three runtimes; the
+ten-check full-release profile passed in 1,203.0 seconds with canonical outputs unchanged.
+
+Phase 3.3.2 defines the future trusted executable-extension seam without adding an extension host.
+The portable bundle contains the boundary contract only: no extension manifest, registry, package,
+loader, publisher trust, signing, permission, entitlement, or execution state is present. Future
+extension code may implement only an already declared capability and cannot acquire schema-pack or
+project authority. The updated isolated rehearsal copied 268 portable files, excluded all nine
+guarded project surfaces, and passed the same eight suites in all three runtimes.
 
 ## Known Limits And Next Boundaries
 
@@ -217,7 +224,8 @@ Extraction readiness does not close these known items:
   pack-presentation gate, Phase 3.2.1 project-independent installed-pack catalog, Phase 3.2.2
   effective-schema catalog integration and project-state annotation, Phase 3.2.3 shared-report QA
   publication, Phase 3.2.4 capability grouping, and the Phase 3.3.1 declarative schema-pack boundary
-  are closed. The trusted executable-extension boundary is next.
+  are closed. The trusted executable-extension boundary is defined; the optional distribution and
+  entitlement seam is next.
 - Historical continuity-membership transitions, manifestation- or release-scoped continuity,
   occurrence-linked continuity transitions, first-class continuity systems, and sliding-chronology
   policies remain later normalized-content or deferred narrative capability work. They do not weaken

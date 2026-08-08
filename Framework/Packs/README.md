@@ -8,6 +8,11 @@ host permissions, credentials, commercial offerings, or entitlement state. See
 [`Framework/Contracts/declarative-schema-pack.md`](../Contracts/declarative-schema-pack.md) for the
 enforced ownership and safety boundary.
 
+Any future code-bearing plugin follows the separate
+[`trusted-executable-extension.md`](../Contracts/trusted-executable-extension.md) boundary. It may
+reference an existing capability as an implementation candidate, but it cannot own pack semantics,
+controlled values, dependency composition, project activation, or project facts.
+
 Pack presentation and architectural classification follow
 [`Framework/Contracts/schema-pack-presentation.md`](../Contracts/schema-pack-presentation.md).
 `pack_kind` remains the compatibility-facing validation class; family, role, scope, declared

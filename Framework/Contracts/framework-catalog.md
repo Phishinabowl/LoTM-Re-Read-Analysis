@@ -12,6 +12,12 @@ packs as the complete framework.
 The catalog is diagnostic output. Canonical `pack.yaml` files remain authoritative and the catalog
 must never be edited or ingested as configuration.
 
+The catalog inventories declarative schema packs and their capability declarations. It does not
+discover executable-extension packages, installed software, publishers, signatures, trust,
+permissions, entitlement, or runtime health. A future extension host may reference catalog
+capability IDs, but its implementation candidates and operational state remain a separate host
+overlay and cannot rewrite catalog records. See `trusted-executable-extension.md`.
+
 ## Boundary From EffectiveProjectSchema
 
 `FrameworkCatalog` and `EffectiveProjectSchema` answer different questions:
