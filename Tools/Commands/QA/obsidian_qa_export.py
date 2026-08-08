@@ -263,7 +263,7 @@ class BoundedPageSpec:
 
 
 @dataclass
-# ASSUMPTION (OWNER): Legacy note identity remains filename-derived until persisted content IDs land.
+# ASSUMPTION (OWNER): Phase 5.1 - Legacy note identity remains filename-derived until persisted content IDs land.
 #   Validation target: normalized-content migration and physical page migration.
 class CanonicalNote:
     slug: str
@@ -1193,7 +1193,8 @@ def render_note(
     return "\n".join(lines)
 
 
-# TODO (OWNER): Move both QA graph variants into Visualization after normalized relationships are available.
+# TODO (OWNER): Phase 8.1 - Move both QA graph variants into Visualization.
+#   Dependency: normalized relationship records.
 #   Parity target: Python and PowerShell QA exporters.
 def render_labeled_relationship_graph(relationships: list[Relationship], notes: dict[str, CanonicalNote]) -> str:
     grouped: dict[tuple[str, str, str], list[Relationship]] = {}
@@ -2255,7 +2256,8 @@ def render_bounded_timeline_prose(text: str, visible_timeline_rows: list[dict]) 
     return lines
 
 
-# TODO (OWNER): Generalize bounded-page rendering through composed page modules instead of character-only tables.
+# TODO (OWNER): Phase 8.2 - Drive bounded-page rendering from composed page modules.
+#   Current limitation: character-only tables.
 #   Parity target: Python and PowerShell QA exporters.
 def render_bounded_character_page(root: Path, note: CanonicalNote, spec: BoundedPageSpec) -> str:
     text = read_text(note.source_path)

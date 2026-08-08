@@ -27,7 +27,7 @@ from knowledge_framework.project_paths import resolve_project_root  # noqa: E402
 
 
 REGISTRY_PATH = Path(__file__).with_name("compatibility.json")
-# TODO (OWNER): Register normalized-content compatibility as that consumer boundary lands.
+# TODO (OWNER): Phase 5.3 - Register compatibility coverage for normalized-content consumers.
 ALLOWED_CHECK_KINDS = {
     "artifact-lifecycle",
     "compatibility-reporting",
