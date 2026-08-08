@@ -317,9 +317,10 @@ verified clean status without creating a self-referential tracked document.
 
 ## Platform Phase 3.2.1 - Framework Catalog And Discovery
 
-**Implementation commits:** pending confirmation.
+**Implementation commits:** `e44bf32` (`Define framework catalog contract`), `1dc52e8` (`Define
+framework installation bootstrap`), and `db446da` (`Implement framework catalog discovery`).
 
-**Closure implemented by:** pending confirmation.
+**Closure implemented by:** `db446da` (`Implement framework catalog discovery`)
 
 Phase 3.2.1 adds the project-independent `FrameworkCatalog` without changing the authority or
 output of the project-scoped `EffectiveProjectSchema`. `Framework/framework.yaml` explicitly
@@ -380,8 +381,7 @@ destinations were rejected; isolated extraction copied 266 reusable files withou
 configuration and passed eight portable suites in all three runtimes; and representative rendering
 remained byte-identical and nonblank.
 
-Phase 3.2.1 is implementation-complete and awaits its two-part confirmation so this entry can cite
-the implementation and traceability commits without a self-referential Git update. Phase 3.2.2
-remains the next boundary: reconcile project/framework lookup pins, derive EffectiveProjectSchema
-pack records through the catalog under exact shadow comparison, and add the explicit
+Phase 3.2.1 is closed by `db446da` (`Implement framework catalog discovery`). Phase 3.2.2 remains
+the next boundary: reconcile project/framework lookup pins, derive EffectiveProjectSchema pack
+records through the catalog under exact shadow comparison, and add the explicit
 `FrameworkCatalogProjectView`.
