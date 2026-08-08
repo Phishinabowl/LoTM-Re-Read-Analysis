@@ -1,6 +1,6 @@
-schema_version: 5
+schema_version: 6
 pack_id: narrative-distribution
-pack_version: 15
+pack_version: 16
 lifecycle: active
 pack_kind: domain
 classification:
@@ -178,6 +178,49 @@ capabilities:
     localization_key: capability.semantic-position-coverage
     label: Semantic Position Coverage
     description: Models and validates semantic position coverage for narrative works, sources, and project consumers.
+
+capability_groups:
+- id: release-and-distribution
+  order: 1400
+  presentation:
+    localization_key: group.release-and-distribution
+    label: Release and Distribution
+    description: Manifestations, components, releases, packages, catalogs, offerings, availability, localization, and release runs.
+- id: distribution-evidence-and-coverage
+  order: 1410
+  presentation:
+    localization_key: group.distribution-evidence-and-coverage
+    label: Distribution Evidence and Coverage
+    description: Source coverage, lineage, observations, position ranges, mixed-media locators, and semantic coverage.
+
+capability_group_memberships:
+- group_id: release-and-distribution
+  order: 100
+  capability_ids:
+  - manifestations
+  - release-components
+  - release-events
+  - release-packages
+  - platform-catalogs
+  - platform-offerings
+  - regional-availability
+  - localized-work-metadata
+  - segment-scoped-distribution
+  - structured-release-time
+  - package-scoped-components
+  - manifestation-segment-mappings
+  - localized-catalog-metadata
+  - release-runs
+  - phased-release-runs
+- group_id: distribution-evidence-and-coverage
+  order: 200
+  capability_ids:
+  - source-coverage
+  - release-component-lineage
+  - multi-target-source-observations
+  - position-range-coverage
+  - mixed-media-evidence-locators
+  - semantic-position-coverage
 
 controlled_values:
   reconciliation.target-type:

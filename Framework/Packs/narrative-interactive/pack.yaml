@@ -1,6 +1,6 @@
-schema_version: 5
+schema_version: 6
 pack_id: narrative-interactive
-pack_version: 3
+pack_version: 4
 lifecycle: active
 pack_kind: domain
 classification:
@@ -64,6 +64,21 @@ capabilities:
     localization_key: capability.narrative-instances
     label: Narrative Instances
     description: Player-specific playthroughs, tabletop campaigns, and sessions derived from authored works.
+
+capability_groups:
+- id: interactive-narrative
+  order: 1700
+  presentation:
+    localization_key: group.interactive-narrative
+    label: Interactive Narrative
+    description: Models branching authored stories and playthrough-specific narrative instances.
+
+capability_group_memberships:
+- group_id: interactive-narrative
+  order: 100
+  capability_ids:
+  - branching-narratives
+  - narrative-instances
 
 controlled_values:
   source.work-type:

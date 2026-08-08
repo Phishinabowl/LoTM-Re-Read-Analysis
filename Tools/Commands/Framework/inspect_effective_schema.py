@@ -21,8 +21,8 @@ from knowledge_framework.lookup_key_config import load_lookup_key_config  # noqa
 from knowledge_framework.project_config import load_project_config, resolve_project_root  # noqa: E402
 
 
-SHOW_SECTIONS = ("overview", "packs", "capabilities", "namespaces", "content", "resources", "diagnostics")
-ALL_SECTIONS = ("packs", "capabilities", "namespaces", "content", "resources", "diagnostics")
+SHOW_SECTIONS = ("overview", "packs", "groups", "capabilities", "namespaces", "content", "resources", "diagnostics")
+ALL_SECTIONS = ("packs", "groups", "capabilities", "namespaces", "content", "resources", "diagnostics")
 
 
 def resolve_output_path(root: Path, value: str) -> Path:
@@ -55,6 +55,11 @@ def human_summary(document: dict, *, include_diagnostic_rows: bool = True) -> st
         f"Contract: {document['contract']} v{document['contract_version']}",
         f"Framework/domain: {document['project']['framework_id']} / {document['project']['domain_id']}",
         f"Selected packs: {len(document['packs'])}",
+        (
+            "Capability groups: "
+            f"{len(document['capability_groups'])} selected, "
+            f"{sum(row['enabled'] for row in document['capability_groups'])} enabled"
+        ),
         (
             "Capabilities: "
             f"{len(capabilities)} declared, {available} available, {enabled} enabled, "
@@ -176,6 +181,23 @@ def show_packs(document: dict) -> str:
     return render_pack_rows(document["packs"], "Selected Packs")
 
 
+def render_group_rows(rows: list[dict], heading: str) -> str:
+    lines = [f"{heading} ({len(rows)})"]
+    for row in rows:
+        lines.append(
+            f"- {row['id']} | order={row['order']} | owner={row['owner_pack_id']} | "
+            f"available={display_value(row['available'])} | enabled={display_value(row['enabled'])}"
+        )
+        lines.append(f"  label: {row['presentation']['label']}")
+        lines.append(f"  description: {row['presentation']['description']}")
+        lines.append(f"  capabilities: {', '.join(row['capability_ids']) or 'none'}")
+    return "\n".join(lines)
+
+
+def show_groups(document: dict) -> str:
+    return render_group_rows(document["capability_groups"], "Capability Groups")
+
+
 def render_capability_rows(rows: list[dict], heading: str) -> str:
     lines = [f"{heading} ({len(rows)})"]
     for row in rows:
@@ -192,6 +214,14 @@ def render_capability_rows(rows: list[dict], heading: str) -> str:
             lines.append(f"  presentation key: {presentation['localization_key']}")
             lines.append(f"  label: {presentation['label']}")
             lines.append(f"  description: {presentation['description']}")
+        lines.append(f"  groups: {', '.join(row['group_ids']) or 'none'}")
+        relationships = row["relationships"]
+        lines.append(
+            "  relationships: "
+            f"requires={','.join(relationships['requires']) or 'none'} | "
+            f"recommends={','.join(relationships['recommends']) or 'none'} | "
+            f"conflicts={','.join(relationships['conflicts_with']) or 'none'}"
+        )
         for provider in row["providers"]:
             provider_presentation = provider["presentation"]
             lines.append(
@@ -200,6 +230,10 @@ def render_capability_rows(rows: list[dict], heading: str) -> str:
             )
             if provider_presentation is not None:
                 lines.append(f"    presentation key: {provider_presentation['localization_key']}")
+            lines.append(
+                f"    dependencies={','.join(provider['pack_dependencies']) or 'none'} | "
+                f"controlled namespaces={','.join(provider['controlled_value_namespace_ids']) or 'none'}"
+            )
     return "\n".join(lines)
 
 
@@ -285,6 +319,7 @@ def show_diagnostics(document: dict) -> str:
 SECTION_RENDERERS = {
     "overview": show_overview,
     "packs": show_packs,
+    "groups": show_groups,
     "capabilities": show_capabilities,
     "namespaces": show_namespaces,
     "content": show_content,
@@ -312,6 +347,8 @@ def human_report(document: dict, sections: list[str], selection: dict | None = N
     if selection is not None:
         if selection["packs"]:
             blocks.append(render_pack_rows(selection["packs"], "Pack Inspection"))
+        if selection["capability_groups"]:
+            blocks.append(render_group_rows(selection["capability_groups"], "Capability Group Inspection"))
         if selection["capabilities"]:
             blocks.append(render_capability_rows(selection["capabilities"], "Capability Inspection"))
     return "\n\n".join(blocks)
@@ -343,15 +380,47 @@ def build_parser() -> argparse.ArgumentParser:
         default=[],
         metavar="SECTION",
         help=(
-            "Append overview, packs, capabilities, namespaces, content, resources, diagnostics, or all; "
+            "Append overview, packs, groups, capabilities, namespaces, content, resources, diagnostics, or all; "
             "repeat to combine sections."
         ),
     )
     parser.add_argument("--pack", metavar="PACK_ID", help="Inspect one selected pack by stable ID.")
+    parser.add_argument("--group", metavar="GROUP_ID", help="Inspect one selected capability group by stable ID.")
     parser.add_argument(
         "--capability",
         metavar="CAPABILITY_ID",
         help="Inspect one declared capability by stable ID.",
+    )
+    parser.add_argument(
+        "--provider",
+        action="append",
+        default=[],
+        metavar="PACK_ID",
+        help="Filter by provider pack; repeat to combine providers.",
+    )
+    parser.add_argument(
+        "--lifecycle",
+        action="append",
+        default=[],
+        choices=("available", "deprecated", "planned"),
+        help="Filter by effective capability lifecycle.",
+    )
+    parser.add_argument(
+        "--availability",
+        action="append",
+        default=[],
+        choices=("available", "unavailable"),
+        help="Filter by capability availability.",
+    )
+    parser.add_argument(
+        "--activation",
+        action="append",
+        default=[],
+        choices=("enabled", "disabled"),
+        help="Filter by capability activation.",
+    )
+    parser.add_argument(
+        "--project-usage", action="append", default=[], choices=("used", "unused"), help="Filter by project usage."
     )
     return parser
 
@@ -363,13 +432,30 @@ def main() -> int:
         schema = load_effective_project_schema(root)
         document = compose_effective_schema_report_model(schema)
         selection = None
-        if args.pack or args.capability:
+        if any(
+            (
+                args.pack,
+                args.group,
+                args.capability,
+                args.provider,
+                args.lifecycle,
+                args.availability,
+                args.activation,
+                args.project_usage,
+            )
+        ):
             project = load_project_config(root)
             selection = compose_effective_schema_selection(
                 schema,
                 load_lookup_key_config(project),
                 pack_id=args.pack,
+                group_id=args.group,
                 capability_id=args.capability,
+                provider_pack_ids=tuple(args.provider),
+                lifecycles=tuple(args.lifecycle),
+                availability=tuple(args.availability),
+                activation=tuple(args.activation),
+                usage=tuple(args.project_usage),
             )
         serialized = (
             effective_schema_json(schema)

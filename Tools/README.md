@@ -21,11 +21,14 @@ Inspect every installed pack and capability without requiring or projecting one 
 python Tools\Commands\Framework\inspect_framework_catalog.py
 python Tools\Commands\Framework\inspect_framework_catalog.py --show overview
 python Tools\Commands\Framework\inspect_framework_catalog.py --show packs --show capabilities
+python Tools\Commands\Framework\inspect_framework_catalog.py --show groups --group narrative-time-continuity-and-disclosure
+python Tools\Commands\Framework\inspect_framework_catalog.py --project-root . --provider narrative-media --activation enabled
 python Tools\Commands\Framework\inspect_framework_catalog.py --pack narrative-media --capability narrative-time-loops
 python Tools\Commands\Framework\inspect_framework_catalog.py --show all --report-output .local\framework-catalog.txt
 python Tools\Commands\Framework\inspect_framework_catalog.py --json
 python Tools\Commands\Framework\inspect_framework_catalog.py --project-root . --show overview
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Show packs,capabilities
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Group narrative-time-continuity-and-disclosure
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Json
 ```
 
@@ -33,6 +36,10 @@ The command auto-detects `Framework/framework.yaml` independently of project con
 Add `--output PATH` / `-Output PATH` for canonical JSON beneath the framework repository root.
 Add explicit `--project-root PATH` / `-ProjectRoot PATH` to derive a project-annotated catalog view;
 ordinary catalog inspection remains project-independent.
+Use `--group` / `-Group` for one navigation group. Repeat `--provider`, `--lifecycle`,
+`--availability`, `--activation`, or `--project-usage` to filter capabilities; PowerShell accepts
+the corresponding array parameters. Activation and usage require `--project-root` / `-ProjectRoot`
+because the base catalog has no project state.
 Generated catalog documents are inspection output, not configuration. Library consumers import the
 paired catalog service; see [Tooling Reference](TOOLING_REFERENCE.md#framework-catalog).
 
@@ -45,10 +52,13 @@ controlled values, taxonomy, resources, and diagnostics:
 python Tools\Commands\Framework\inspect_effective_schema.py
 python Tools\Commands\Framework\inspect_effective_schema.py --show overview
 python Tools\Commands\Framework\inspect_effective_schema.py --show packs --show capabilities
+python Tools\Commands\Framework\inspect_effective_schema.py --show groups --group narrative-time-continuity-and-disclosure
+python Tools\Commands\Framework\inspect_effective_schema.py --provider narrative-media --activation enabled
 python Tools\Commands\Framework\inspect_effective_schema.py --pack narrative-media --capability narrative-time-loops
 python Tools\Commands\Framework\inspect_effective_schema.py --show all --report-output .local\effective-schema.txt
 python Tools\Commands\Framework\inspect_effective_schema.py --json
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Show packs,capabilities
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Group narrative-time-continuity-and-disclosure
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Show overview
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Pack narrative-media -Capability narrative-time-loops
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Json
@@ -58,6 +68,8 @@ Add `--output PATH` / `-Output PATH` to write canonical JSON beneath the project
 a compiled diagnostic view and must not be edited or ingested as canonical configuration. Library
 consumers import the paired effective-schema runtime service; exact APIs and verification commands
 are in [Tooling Reference](TOOLING_REFERENCE.md#effective-project-schema).
+The effective-schema commands support the same group and capability filters directly because every
+effective schema is already project-scoped.
 
 QA and Visualization use that service directly before generation. QA takes enabled roots, content
 types, category/fixed-record eligibility, labels,
@@ -643,7 +655,7 @@ Use `--json` / `-Json` for parity-comparable corpus counts and the pinned Unicod
 
 ## Schema-Pack Conformance
 
-Run the dedicated schema-pack suite after changing pack shape, dependency composition, capability lifecycle or activation, controlled-value ownership/hierarchy, typed semantic declarations, architectural classification, or presentation metadata. Both implementations load the canonical schema-5 project composition, validate all 14 catalog packs and 136 capability presentations, then consume the independent schema-5 three-pack fixture, one-pack schema-4 compatibility fixture, 91 structured malformed mutations, and two delimiter-collision identity probes in `Framework/Data/Schema-Packs/`. The corpus includes a capability-free bridge whose `pack_kind` remains independent from its architectural role, localized pack and capability presentation, one legal vocabulary-only extension, typed state profiles, and state-kind mappings with required, optional, and forbidden dimension validation; reusable profiles may remain dormant in a reduced composition. A generated 64-pack composition with one owned typed declaration and complete presentation metadata per pack provides a bounded scale check; all operating-system temporary data is removed automatically.
+Run the dedicated schema-pack suite after changing pack shape, dependency composition, capability lifecycle or activation, capability groups or relationships, controlled-value ownership/hierarchy, typed semantic declarations, architectural classification, or presentation metadata. Both implementations load the canonical schema-6 project composition, validate all 14 catalog packs, 17 groups, and 136 capability presentations, then consume the independent schema-6 three-pack fixture, one-pack schema-4 compatibility fixture, 102 structured malformed mutations, and two delimiter-collision identity probes in `Framework/Data/Schema-Packs/`. The corpus includes capability-group ownership/contributions, relationship parity and hard-dependency cycles, a capability-free bridge whose `pack_kind` remains independent from its architectural role, localized presentation, one legal vocabulary-only extension, typed state profiles, and state-kind mappings with required, optional, and forbidden dimension validation. A generated 64-pack composition with one owned typed declaration and complete presentation metadata per pack provides a bounded scale check; all operating-system temporary data is removed automatically.
 
 ```powershell
 python Tools\Conformance\Suites\test_schema_pack.py
@@ -809,7 +821,8 @@ Obsidian_Export/
 
 Each mirror note includes source metadata, a canonical source link, outgoing Relationship Seed edges, incoming edges, data-block references, incoming data-block references, and seed-file evidence.
 
-`effective-schema.md` summarizes project and contract identity, selected packs, capabilities, and
+`effective-schema.md` summarizes project and contract identity, selected packs, capability groups,
+capabilities, and
 diagnostics. It is rebuilt on every run, contains no absolute path or timestamp, and remains an
 ignored QA projection rather than portable project configuration.
 

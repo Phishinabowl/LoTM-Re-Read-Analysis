@@ -1,6 +1,6 @@
-schema_version: 5
+schema_version: 6
 pack_id: narrative-preservation
-pack_version: 3
+pack_version: 4
 lifecycle: active
 pack_kind: domain
 classification:
@@ -64,6 +64,21 @@ capabilities:
     localization_key: capability.access-state
     label: Access State
     description: Territory, platform, release-window, delisting, and region-access constraints.
+
+capability_groups:
+- id: preservation-and-access
+  order: 1800
+  presentation:
+    localization_key: group.preservation-and-access
+    label: Preservation and Access
+    description: Tracks preservation condition and practical access state for narrative resources.
+
+capability_group_memberships:
+- group_id: preservation-and-access
+  order: 100
+  capability_ids:
+  - preservation-state
+  - access-state
 
 controlled_values:
   source.preservation-status:

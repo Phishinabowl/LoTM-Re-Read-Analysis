@@ -52,15 +52,16 @@ function Assert-CatalogMetadata {
         'System.Collections.Generic.HashSet[string]' `
     ([System.StringComparer]::Ordinal)
     $capabilityCount = 0
+    $groupCount = 0
     foreach ($path in $packPaths) {
         $packId = Split-Path (Split-Path $path -Parent) -Leaf
         $pack = ConvertTo-SchemaPackConfig $path $packId
         if (
-            [int]$pack.schema_version -ne 5 -or
+            [int]$pack.schema_version -ne 6 -or
             $null -eq $pack.classification -or
             $null -eq $pack.presentation
         ) {
-            throw "Catalog pack '$packId' lacks required schema-5 metadata."
+            throw "Catalog pack '$packId' lacks required schema-6 metadata."
         }
         if ($null -ne $pack.presentation.visual) {
             throw "Catalog pack '$packId' invents unreviewed visual metadata."
@@ -78,10 +79,17 @@ function Assert-CatalogMetadata {
             }
             $capabilityCount += 1
         }
+        foreach ($group in @($pack.capability_groups)) {
+            if (-not $localizationKeys.Add([string]$group.presentation.localization_key)) {
+                throw 'Catalog capability-group localization keys are not unique.'
+            }
+            $groupCount += 1
+        }
     }
     return [pscustomobject]@{
         packs = [int]$packPaths.Count
         capabilities = [int]$capabilityCount
+        capability_groups = [int]$groupCount
     }
 }
 
@@ -261,6 +269,29 @@ function Assert-ValidSchemaPackFixture {
     )
     if ($capabilityLocalizationKeys.Count -ne [int]$presentation.capability_localization_keys) {
         throw 'Capability localization-key composition changed.'
+    }
+    $orderedGroups = @($Registry.capability_groups.Values | Sort-Object order, id)
+    if ((@($orderedGroups.id) -join '|') -cne (@($presentation.capability_groups) -join '|')) {
+        throw 'Capability-group composition order changed.'
+    }
+    $groupLocalizationKeys = @($orderedGroups.presentation.localization_key | Sort-Object -Unique)
+    if ($groupLocalizationKeys.Count -ne [int]$presentation.group_localization_keys) {
+        throw 'Capability-group localization-key composition changed.'
+    }
+    $domainMembership = @($Registry.capability_group_memberships['fixture-domain-behavior'])[0]
+    if ((@($domainMembership.capability_ids) -join '|') -cne (@($presentation.domain_group_capabilities) -join '|')) {
+        throw 'Capability-group membership composition changed.'
+    }
+    $planned = $Registry.capability_definitions['fixture-core|planned-capability'].relationships
+    $domain = $Registry.capability_definitions['fixture-domain|domain-capability'].relationships
+    if ((@($planned.recommends) -join '|') -cne (@($presentation.planned_recommendations) -join '|')) {
+        throw 'Capability recommendations changed.'
+    }
+    if ((@($domain.requires) -join '|') -cne (@($presentation.domain_requirements) -join '|')) {
+        throw 'Capability requirements changed.'
+    }
+    if ((@($domain.conflicts_with) -join '|') -cne (@($presentation.domain_conflicts) -join '|')) {
+        throw 'Capability conflicts changed.'
     }
     foreach ($property in $Expected.semantic_declarations.PSObject.Properties) {
         if ([int]$Registry.($property.Name).Count -ne [int]$property.Value) {
@@ -553,6 +584,7 @@ foreach ($namespace in $fixtureRegistry.controlled_values.Keys) {
 $summary = [ordered]@{
     canonical_selected_packs = [int]@($canonical.selection_order).Count
     catalog_capabilities = [int]$catalog.capabilities
+    catalog_capability_groups = [int]$catalog.capability_groups
     catalog_packs = [int]$catalog.packs
     fixture_available_capabilities = [int]@($fixtureRegistry.available_capabilities).Count
     fixture_controlled_values = [int]$fixtureControlledValueCount

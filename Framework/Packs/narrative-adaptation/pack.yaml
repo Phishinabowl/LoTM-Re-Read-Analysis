@@ -1,6 +1,6 @@
-schema_version: 5
+schema_version: 6
 pack_id: narrative-adaptation
-pack_version: 11
+pack_version: 12
 lifecycle: active
 pack_kind: domain
 classification:
@@ -76,6 +76,23 @@ capabilities:
     localization_key: capability.transformative-derivatives
     label: Transformative Derivatives
     description: Models and validates transformative derivatives for narrative works, sources, and project consumers.
+
+capability_groups:
+- id: adaptation-and-derivation
+  order: 1300
+  presentation:
+    localization_key: group.adaptation-and-derivation
+    label: Adaptation and Derivation
+    description: Models adaptation lineage, mappings, comparisons, and transformative derivatives.
+
+capability_group_memberships:
+- group_id: adaptation-and-derivation
+  order: 100
+  capability_ids:
+  - adaptation-lineage
+  - adaptation-mappings
+  - adaptation-comparison
+  - transformative-derivatives
 
 controlled_values:
   source.applicability-target-type:

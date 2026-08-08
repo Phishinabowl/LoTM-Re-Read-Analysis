@@ -742,19 +742,19 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 #### Phase 3.2.4 Capability Grouping
 
-- [ ] Define stable capability groups suitable for wizard steps and editor navigation.
-- [ ] Allow packs to contribute capabilities to ordered groups without duplicating capability
+- [x] Define stable capability groups suitable for wizard steps and editor navigation.
+- [x] Allow packs to contribute capabilities to ordered groups without duplicating capability
   ownership.
-- [ ] Represent dependencies, recommendations, conflicts, and planned-only features clearly.
-- [ ] Present catalog-owned installed, selected, available, enabled, deprecated, and
+- [x] Represent dependencies, recommendations, conflicts, and planned-only features clearly.
+- [x] Present catalog-owned installed, selected, available, enabled, deprecated, and
   used-by-project states coherently within groups.
-- [ ] Expose group navigation through the catalog command, effective-schema command, and
+- [x] Expose group navigation through the catalog command, effective-schema command, and
   catalog project view without defining a third pack/capability metadata model.
-- [ ] Add effective-schema output for groups, presentation metadata, family, architectural role,
+- [x] Add effective-schema output for groups, presentation metadata, family, architectural role,
   scope, dependency explanations, and bridge relationships.
-- [ ] Let headless inspection filter capabilities by group, provider pack, lifecycle, availability,
+- [x] Let headless inspection filter capabilities by group, provider pack, lifecycle, availability,
   activation, and project usage while preserving deterministic result order.
-- [ ] Make singular pack/capability inspection explain dependencies, providers, recommendations,
+- [x] Make singular pack/capability inspection explain dependencies, providers, recommendations,
   conflicts, unavailable reasons, and relevant controlled-value contributions.
 
 ### Phase 3.3 Plugin And Entitlement Boundary

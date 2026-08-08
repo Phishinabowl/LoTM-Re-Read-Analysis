@@ -43,6 +43,7 @@ TOP_LEVEL_KEYS = [
     "project",
     "registry_schema_versions",
     "packs",
+    "capability_groups",
     "capabilities",
     "controlled_value_namespaces",
     "content",
@@ -61,6 +62,8 @@ def summary(document: dict, scale_capabilities: int) -> dict:
         "packs": len(document["packs"]),
         "active_packs": sum(row["lifecycle"] == "active" for row in document["packs"]),
         "pack_presentations": sum(row["presentation"] is not None for row in document["packs"]),
+        "capability_groups": len(document["capability_groups"]),
+        "enabled_capability_groups": sum(row["enabled"] for row in document["capability_groups"]),
         "capabilities": len(capabilities),
         "available_capabilities": sum(row["available"] for row in capabilities),
         "enabled_capabilities": sum(row["enabled"] for row in capabilities),
@@ -115,6 +118,7 @@ def main() -> int:
         "canonical: false",
         "# Effective Project Schema",
         "## Selected Packs",
+        "## Capability Groups",
         "## Capabilities",
         "## Diagnostics",
     )
@@ -157,6 +161,8 @@ def main() -> int:
         raise AssertionError("Effective schema lost selected-pack classification or presentation.")
     if any(row["presentation"] is None for row in document["capabilities"]):
         raise AssertionError("Effective schema lost capability presentation.")
+    if any(row["presentation"] is None for row in document["capability_groups"]):
+        raise AssertionError("Effective schema lost capability-group presentation.")
     if any(row["presentation"]["visual"] is not None for row in document["packs"]):
         raise AssertionError("Effective schema invented optional pack visual metadata.")
     if str(root.resolve()) in effective_schema_json(schema):
@@ -182,14 +188,55 @@ def main() -> int:
         schema,
         lookup_keys,
         pack_id="Narrative-Media",
+        group_id="Narrative-Time-Continuity-and-Disclosure",
         capability_id="Narrative-Time-Loops",
     )
     if (
         selection["source_contract_version"] != document["contract_version"]
         or [row["id"] for row in selection["packs"]] != ["narrative-media"]
+        or [row["id"] for row in selection["capability_groups"]] != ["narrative-time-continuity-and-disclosure"]
         or [row["id"] for row in selection["capabilities"]] != ["narrative-time-loops"]
     ):
         raise AssertionError("Effective-schema normalized singular selection changed.")
+    selected_capability = selection["capabilities"][0]
+    if set(selected_capability["relationships"]) != {"requires", "recommends", "conflicts_with"}:
+        raise AssertionError("Effective-schema capability relationship explanation changed.")
+    if not selected_capability["providers"][0]["controlled_value_namespace_ids"]:
+        raise AssertionError("Effective-schema provider namespace explanation disappeared.")
+    group_selection = compose_effective_schema_selection(
+        schema,
+        lookup_keys,
+        group_id="Narrative-Time-Continuity-and-Disclosure",
+    )
+    group_capability_ids = set(group_selection["capability_groups"][0]["capability_ids"])
+    if [row["id"] for row in group_selection["capabilities"]] != [
+        row["id"] for row in document["capabilities"] if row["id"] in group_capability_ids
+    ]:
+        raise AssertionError("Effective-schema capability-group expansion changed.")
+    filtered_selection = compose_effective_schema_selection(
+        schema,
+        lookup_keys,
+        provider_pack_ids=("Narrative-Media",),
+        lifecycles=("available",),
+        activation=("enabled",),
+        usage=("used",),
+    )
+    filtered_ids = [row["id"] for row in filtered_selection["capabilities"]]
+    expected_filtered_ids = [
+        row["id"]
+        for row in document["capabilities"]
+        if row["effective_lifecycle"] == "available"
+        and row["enabled"]
+        and any(provider["pack_id"] == "narrative-media" for provider in row["providers"])
+    ]
+    if filtered_ids != expected_filtered_ids or not filtered_ids:
+        raise AssertionError("Effective-schema compound capability filtering changed.")
+    try:
+        compose_effective_schema_selection(schema, lookup_keys, lifecycles=("future",))
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("Effective-schema selection accepted an unknown lifecycle filter.")
     try:
         compose_effective_schema_selection(schema, lookup_keys, pack_id="missing-pack")
     except ValueError:
@@ -353,7 +400,7 @@ def main() -> int:
         "summary": actual,
         "deterministic_passes": 3,
         "synthetic_states": 4,
-        "selection_cases": 3,
+        "selection_cases": 7,
         "failure_cases": 1,
         "consumer_projection_modes": len(consumer_ids),
         "retired_consumer_apis": len(retired_consumer_apis),

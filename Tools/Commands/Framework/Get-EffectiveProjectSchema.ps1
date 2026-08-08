@@ -8,7 +8,13 @@ param(
     [string]$ReportOutput,
     [string]$Show,
     [string]$Pack,
-    [string]$Capability
+    [string]$Group,
+    [string]$Capability,
+    [string[]]$Provider = @(),
+    [string[]]$Lifecycle = @(),
+    [string[]]$Availability = @(),
+    [string[]]$Activation = @(),
+    [string[]]$ProjectUsage = @()
 )
 
 $ErrorActionPreference = 'Stop'
@@ -34,11 +40,17 @@ Options:
   -ReportOutput <path>
                    Write the selected human-readable report beneath the
                    project root.
-  -Show <section>  Append human output for overview, packs, capabilities,
+  -Show <section>  Append human output for overview, packs, groups, capabilities,
                    namespaces, content, resources, diagnostics, or all.
                    Pass a comma-separated list to combine sections.
   -Pack <pack-id>  Inspect one selected pack by stable ID.
+  -Group <group-id> Inspect one selected capability group by stable ID.
   -Capability <id> Inspect one declared capability by stable ID.
+  -Provider <pack-id[]> Filter capabilities by provider pack.
+  -Lifecycle <state[]> Filter by available, deprecated, or planned lifecycle.
+  -Availability <state[]> Filter by available or unavailable.
+  -Activation <state[]> Filter by enabled or disabled project state.
+  -ProjectUsage <state[]> Filter by used or unused project state.
   -Help, -?, -h    Show this help and exit.
 
 Examples:
@@ -48,6 +60,8 @@ Examples:
   powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Show packs,capabilities
   powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Pack narrative-media
   powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Capability narrative-time-loops -Json
+  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Group narrative-temporality -Activation enabled -Json
+  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Provider core,narrative-media -Lifecycle available -Json
   powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Output .tmp\effective-schema.json
   powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Show all -ReportOutput .local\effective-schema.txt
 "@
@@ -102,6 +116,10 @@ function Write-EffectiveSchemaSummary {
     Write-Output "Contract: $($Schema.contract) v$($Schema.contract_version)"
     Write-Output "Framework/domain: $($Schema.project.framework_id) / $($Schema.project.domain_id)"
     Write-Output "Selected packs: $(@($Schema.packs).Count)"
+    Write-Output (
+        "Capability groups: $(@($Schema.capability_groups).Count) selected, " +
+        "$(@($Schema.capability_groups | Where-Object enabled).Count) enabled"
+    )
     Write-Output (
         'Capabilities: {0} declared, {1} available, {2} enabled, {3} planned, {4} deprecated' -f
         $capabilities.Count,
@@ -293,6 +311,32 @@ function Write-EffectiveSchemaCapabilityRows {
             Write-Output "  label: $($row.presentation.label)"
             Write-Output "  description: $($row.presentation.description)"
         }
+        $groups = if (@($row.group_ids).Count -eq 0) {
+            'none'
+        }
+        else {
+            @($row.group_ids) -join ', '
+        }
+        Write-Output "  groups: $groups"
+        $requires = if (@($row.relationships.requires).Count -eq 0) {
+            'none'
+        }
+        else {
+            @($row.relationships.requires) -join ','
+        }
+        $recommends = if (@($row.relationships.recommends).Count -eq 0) {
+            'none'
+        }
+        else {
+            @($row.relationships.recommends) -join ','
+        }
+        $conflicts = if (@($row.relationships.conflicts_with).Count -eq 0) {
+            'none'
+        }
+        else {
+            @($row.relationships.conflicts_with) -join ','
+        }
+        Write-Output "  relationships: requires=$requires | recommends=$recommends | conflicts=$conflicts"
         foreach ($provider in @($row.providers)) {
             Write-Output (
                 "  - $($provider.pack_id) | lifecycle=$($provider.lifecycle) | " +
@@ -302,7 +346,42 @@ function Write-EffectiveSchemaCapabilityRows {
             if ($null -ne $provider.presentation) {
                 Write-Output "    presentation key: $($provider.presentation.localization_key)"
             }
+            $dependencies = if (@($provider.pack_dependencies).Count -eq 0) {
+                'none'
+            }
+            else {
+                @($provider.pack_dependencies) -join ','
+            }
+            $namespaces = if (@($provider.controlled_value_namespace_ids).Count -eq 0) {
+                'none'
+            }
+            else {
+                @($provider.controlled_value_namespace_ids) -join ','
+            }
+            Write-Output "    dependencies=$dependencies | controlled namespaces=$namespaces"
         }
+    }
+}
+
+function Write-EffectiveSchemaGroupRows {
+    param([object[]]$Rows, [string]$Heading)
+
+    Write-Output "$Heading ($(@($Rows).Count))"
+    foreach ($row in @($Rows)) {
+        Write-Output (
+            "- $($row.id) | order=$($row.order) | owner=$($row.owner_pack_id) | " +
+            "available=$(Get-EffectiveSchemaDisplayValue $row.available) | " +
+            "enabled=$(Get-EffectiveSchemaDisplayValue $row.enabled)"
+        )
+        Write-Output "  label: $($row.presentation.label)"
+        Write-Output "  description: $($row.presentation.description)"
+        $capabilities = if (@($row.capability_ids).Count -eq 0) {
+            'none'
+        }
+        else {
+            @($row.capability_ids) -join ', '
+        }
+        Write-Output "  capabilities: $capabilities"
     }
 }
 
@@ -419,8 +498,8 @@ function Write-EffectiveSchemaDiagnostics {
 function Get-EffectiveSchemaShowSections {
     param([string]$Value)
 
-    $available = @('overview', 'packs', 'capabilities', 'namespaces', 'content', 'resources', 'diagnostics')
-    $allSections = @('packs', 'capabilities', 'namespaces', 'content', 'resources', 'diagnostics')
+    $available = @('overview', 'packs', 'groups', 'capabilities', 'namespaces', 'content', 'resources', 'diagnostics')
+    $allSections = @('packs', 'groups', 'capabilities', 'namespaces', 'content', 'resources', 'diagnostics')
     $selected = @()
     $values = if ([string]::IsNullOrWhiteSpace($Value)) {
         @()
@@ -465,6 +544,9 @@ function Write-EffectiveSchemaReport {
             'packs' {
                 Write-EffectiveSchemaPacks $Schema
             }
+            'groups' {
+                Write-EffectiveSchemaGroupRows @($Schema.capability_groups) 'Capability Groups'
+            }
             'capabilities' {
                 Write-EffectiveSchemaCapabilities $Schema
             }
@@ -487,6 +569,10 @@ function Write-EffectiveSchemaReport {
             Write-Output ''
             Write-EffectiveSchemaPackRows @($Selection.packs) 'Pack Inspection'
         }
+        if (@($Selection.capability_groups).Count -gt 0) {
+            Write-Output ''
+            Write-EffectiveSchemaGroupRows @($Selection.capability_groups) 'Capability Group Inspection'
+        }
         if (@($Selection.capabilities).Count -gt 0) {
             Write-Output ''
             Write-EffectiveSchemaCapabilityRows @($Selection.capabilities) 'Capability Inspection'
@@ -506,13 +592,23 @@ try {
     $reportModel = New-KnowledgeEffectiveSchemaReportModel $schema
     $selection = if (
         -not [string]::IsNullOrWhiteSpace($Pack) -or
-        -not [string]::IsNullOrWhiteSpace($Capability)
+        -not [string]::IsNullOrWhiteSpace($Group) -or
+        -not [string]::IsNullOrWhiteSpace($Capability) -or
+        @($Provider).Count -gt 0 -or @($Lifecycle).Count -gt 0 -or
+        @($Availability).Count -gt 0 -or @($Activation).Count -gt 0 -or
+        @($ProjectUsage).Count -gt 0
     ) {
         New-KnowledgeEffectiveSchemaSelection `
-            $schema `
-        (Get-KnowledgeLookupKeyConfig $project) `
-            $Pack `
-            $Capability
+            -Schema $schema `
+            -LookupKeys (Get-KnowledgeLookupKeyConfig $project) `
+            -PackId $Pack `
+            -GroupId $Group `
+            -CapabilityId $Capability `
+            -ProviderPackIds $Provider `
+            -Lifecycles $Lifecycle `
+            -Availability $Availability `
+            -Activation $Activation `
+            -Usage $ProjectUsage
     }
     else {
         $null

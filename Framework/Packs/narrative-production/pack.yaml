@@ -1,6 +1,6 @@
-schema_version: 5
+schema_version: 6
 pack_id: narrative-production
-pack_version: 5
+pack_version: 6
 lifecycle: active
 pack_kind: domain
 classification:
@@ -70,6 +70,22 @@ capabilities:
     localization_key: capability.rights-grants-and-restrictions
     label: Rights Grants and Restrictions
     description: Party-, asset-, right-type-, instrument-, territory-, and time-scoped grants, restrictions, exclusivity, and obligations.
+
+capability_groups:
+- id: production-and-rights
+  order: 1500
+  presentation:
+    localization_key: group.production-and-rights
+    label: Production and Rights
+    description: Models contributor credits, production contexts, and rights grants or restrictions.
+
+capability_group_memberships:
+- group_id: production-and-rights
+  order: 100
+  capability_ids:
+  - contributor-credits
+  - production-rights-contexts
+  - rights-grants-and-restrictions
 
 controlled_values:
   narrative.contributor-role:

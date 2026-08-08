@@ -1,6 +1,6 @@
-schema_version: 5
+schema_version: 6
 pack_id: narrative-shared-universe
-pack_version: 10
+pack_version: 11
 lifecycle: active
 pack_kind: domain
 classification:
@@ -77,6 +77,23 @@ capabilities:
     localization_key: capability.crossover-events
     label: Crossover Events
     description: Ordered core entries plus required and optional tie-ins across publication runs.
+
+capability_groups:
+- id: shared-universe-identity
+  order: 1600
+  presentation:
+    localization_key: group.shared-universe-identity
+    label: Shared Universe Identity
+    description: Models shared universes, incarnations, identity phases, and crossover events.
+
+capability_group_memberships:
+- group_id: shared-universe-identity
+  order: 100
+  capability_ids:
+  - shared-universes
+  - entity-incarnations
+  - entity-identity-phases
+  - crossover-events
 
 controlled_values:
   reconciliation.target-type:

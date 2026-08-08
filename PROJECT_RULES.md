@@ -194,6 +194,13 @@ These files and folders are the project's working memory.
 
 `Project_Config/schema-packs.yaml` selects schema contracts in dependency order and explicitly enables the capabilities used by this project. `Framework/Packs/core/pack.yaml` owns domain-neutral platform and evidence primitives. Optional domain-neutral mechanics belong in capability foundations rather than core when unrelated projects may omit them. LoTM selects `hosting-foundation` plus `hosting-narrative` for physical embodiment support; it does not select simulation or compute hosting vocabulary. The narrative domain remains composable: `narrative-media` supplies the foundation, while `narrative-publishing`, `narrative-screen-audio`, `narrative-adaptation`, `narrative-distribution`, `narrative-production`, and `narrative-shared-universe` supply the other capabilities LoTM currently uses. Interactive and preservation packs remain optional for projects that need them. Capability lifecycle uses `planned`, `available`, or `deprecated`; string entries are shorthand for `available`. Planned capabilities are roadmap declarations and cannot be enabled. A capability absent from selected packs is unavailable and disabled. An available or deprecated capability omitted from `capability_activation.enabled` is disabled; tools and interfaces must omit that feature without warning. Internal composition may still register empty typed providers for a selected but disabled capability when provider closure requires stable target types; this does not activate behavior or permit records. Missing hard dependencies and explicit project references to unavailable or disabled contracts remain validation errors.
 
+Schema-pack capability groups are stable navigation metadata for setup wizards and editors, not a
+second capability owner or activation mechanism. Packs may contribute only their own or dependency
+capabilities to known ordered groups. Capability `requires`, `recommends`, and `conflicts_with`
+relationships must remain explicit and provider-equivalent; hard requirements are acyclic,
+recommendations do not activate anything, and conflicts do not silently choose policy. Catalog and
+effective-schema consumers must use the shared group/relationship model rather than reconstruct it.
+
 Treat `EffectiveProjectSchema` as generated diagnostic output over the canonical project manifest,
 selected packs, taxonomy, and resource registries. Consumers must import the shared composition
 service; do not independently rebuild capability lifecycle, controlled

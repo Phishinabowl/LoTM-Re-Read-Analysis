@@ -999,7 +999,7 @@ Default output root: the manifest's `paths.qa_export`, currently `Obsidian_Expor
 | Output | Description |
 | --- | --- |
 | Type folders such as `Characters/`, `Artifacts/`, `Items/`, `Knowledge_Sources/`, `Pathways/`, and `Volumes/` | Generated mirror notes grouped by canonical page type. Notes include metadata, first-appearance beat mirrors when present, relationship seeds, data references, incoming references, and seed evidence. |
-| `_Generated/effective-schema.md` | Concise deterministic report over the in-memory effective schema, including noncanonical metadata, project/contract summary, selected packs, capabilities, and diagnostics. |
+| `_Generated/effective-schema.md` | Concise deterministic report over the in-memory effective schema, including noncanonical metadata, project/contract summary, selected packs, capability groups, capabilities, and diagnostics. |
 | `_Generated/relationship-index.md` | Relationship Seed table with source, relationship, target, status, confidence, and seed file. |
 | `_Generated/data-reference-index.md` | Non-Relationship-Seed YAML slug references discovered in data blocks. |
 | `_Generated/orphan-report.md` | Unknown sources/targets, unknown data targets, and generated notes with no edges or references. |
@@ -1104,7 +1104,7 @@ Expected non-semantic differences:
 
 Last mapped: 2026-08-08.
 
-Last parity check: 2026-08-08. Python, PowerShell 7, and Windows PowerShell 5.1 each generated the same reviewed 35-file inventory and summary counts for a redirected export containing one Novel V1 Ch32 bounded graph plus Dunn Smith Ch32 and Leonard Mitchell Ch50 bounded pages. The inventory now includes the deterministic `_Generated/effective-schema.md` report with normalized SHA-256 `a05f55e3a05f4f25f90fbfa2998766e1c00acc1ba08c08d320b5ca17cf6eb220`; its report-model semantics and 26,347-character Markdown matched in all three runtimes. The focused effective-schema/QA compatibility gate and complete ten-check `full-release` profile passed with canonical outputs unchanged. Prior boundary checks covered Dunn Smith at Novel V1 Ch10, Ch20, Ch30, and Ch50, including anonymous-preview and Sleepless-pathway progression behavior.
+Last parity check: 2026-08-08. Python, PowerShell 7, and Windows PowerShell 5.1 each generated the same reviewed 35-file inventory and summary counts for a redirected export containing one Novel V1 Ch32 bounded graph plus Dunn Smith Ch32 and Leonard Mitchell Ch50 bounded pages. The inventory includes the deterministic `_Generated/effective-schema.md` report with capability groups and normalized SHA-256 `58b1397fa199bac223b34d69a05e02183f0c92b5c962e41b6091b3c034adbbb2`; its 29,749-character Markdown matched in all three runtimes. The focused QA compatibility gate passed with canonical outputs unchanged. Prior boundary checks covered Dunn Smith at Novel V1 Ch10, Ch20, Ch30, and Ch50, including anonymous-preview and Sleepless-pathway progression behavior.
 
 Current content-type and ownership regression: both implementations selected taxonomy-enabled `glossary` and `volumes` roots, excluded `investigations`, and produced matching 28-file lists and summary counts (`notes=16`, `relationships=121`, `data_references=71`). After generated timestamps were normalized, all 25 stable Markdown and Mermaid outputs matched exactly. The check moved PowerShell's unbounded visualization-style graph generation into the configured Visualization helper and added a deterministic YAML-block/file tie-breaker to both data-reference index sort orders.
 
@@ -1130,7 +1130,7 @@ Library consumers import the catalog service and must not launch the command or 
 `Get-KnowledgeFrameworkConfig`, `Get-KnowledgeFrameworkCatalog`,
 `New-KnowledgeFrameworkCatalogSelection`, `New-KnowledgeFrameworkCatalogProjectView`,
 `New-KnowledgeFrameworkCatalogProjectViewSelection`, `New-KnowledgeFrameworkCatalogFailure`, root
-resolution, and shared canonical JSON functions from module version 0.9.0.
+resolution, and shared canonical JSON functions from module version 0.10.0.
 
 The installation service resolves `Framework/framework.yaml` through explicit root,
 `KNOWLEDGE_FRAMEWORK_ROOT`, current-directory ancestry, then executable ancestry. The manifest
@@ -1149,10 +1149,16 @@ selects one pack root and one pinned lookup registry. It never globs lookup data
 | Export selected human report | `--report-output PATH` | `-ReportOutput PATH` |
 | Append detailed human sections | repeat `--show SECTION` | `-Show SECTION[,SECTION]` |
 | Inspect one installed pack | `--pack PACK_ID` | `-Pack PACK_ID` |
+| Inspect one capability group | `--group GROUP_ID` | `-Group GROUP_ID` |
 | Inspect one capability | `--capability CAPABILITY_ID` | `-Capability CAPABILITY_ID` |
+| Filter by provider | repeat `--provider PACK_ID` | `-Provider PACK_ID[,PACK_ID]` |
+| Filter by lifecycle | repeat `--lifecycle STATE` | `-Lifecycle STATE[,STATE]` |
+| Filter by availability | repeat `--availability STATE` | `-Availability STATE[,STATE]` |
+| Filter project-view activation | repeat `--activation STATE` | `-Activation STATE[,STATE]` |
+| Filter project-view usage | repeat `--project-usage STATE` | `-ProjectUsage STATE[,STATE]` |
 | Help | `--help` | `-Help`, `-?`, or `-h` |
 
-`SECTION` is `overview`, `packs`, `capabilities`, or `all`. Python repeats `--show`;
+`SECTION` is `overview`, `packs`, `groups`, `capabilities`, or `all`. Python repeats `--show`;
 PowerShell accepts one comma-separated value. Selections are deduplicated in request order.
 Selectors attempt exact stable ID first and then the manifest-selected lookup normalization. They
 may be combined and return a distinct `framework-catalog-selection` envelope without mutating or
@@ -1161,7 +1167,9 @@ filtering the base catalog.
 Project attachment is opt-in even when the command runs inside a project. It emits the distinct
 `framework-catalog-project-view` contract, preserves all installed rows, and annotates copied rows
 with selected, available, enabled, deprecated, planned, used, and unavailable-reason state.
-Selectors then emit `framework-catalog-project-view-selection`.
+Selectors then emit `framework-catalog-project-view-selection`. Group expansion and compound
+filters preserve canonical catalog order. Activation and usage filters fail without project
+attachment rather than inventing project state.
 
 JSON and report outputs must resolve to files beneath the framework repository root. Exports use
 UTF-8 without a byte-order mark, LF endings, and one final newline. Structured failure uses the
@@ -1211,7 +1219,7 @@ Python exposes `EffectiveProjectSchema`, `compose_effective_project_schema`,
 PowerShell exposes `New-KnowledgeEffectiveProjectSchema`, `Get-KnowledgeEffectiveProjectSchema`,
 `New-KnowledgeEffectiveConsumerSchemaProjection`, `New-KnowledgeEffectiveSchemaSelection`, and
 `New-KnowledgeEffectiveSchemaFailure`, plus `New-KnowledgeEffectiveSchemaReportModel` and
-`ConvertTo-KnowledgeEffectiveSchemaMarkdown`, from module version 0.9.0.
+`ConvertTo-KnowledgeEffectiveSchemaMarkdown`, from module version 0.10.0.
 
 QA and Visualization compose one effective schema in-process from the project, pack, taxonomy, and
 resource objects already loaded by their supported runtime. QA and Visualization use direct
@@ -1234,7 +1242,13 @@ assertion APIs were retired after Phase 2.3.5 closure.
 | Export the selected human report | `--report-output PATH` | `-ReportOutput PATH` |
 | Append detailed human sections | repeat `--show SECTION` | `-Show SECTION[,SECTION]` |
 | Inspect one selected pack | `--pack PACK_ID` | `-Pack PACK_ID` |
+| Inspect one capability group | `--group GROUP_ID` | `-Group GROUP_ID` |
 | Inspect one selected capability | `--capability CAPABILITY_ID` | `-Capability CAPABILITY_ID` |
+| Filter by provider | repeat `--provider PACK_ID` | `-Provider PACK_ID[,PACK_ID]` |
+| Filter by lifecycle | repeat `--lifecycle STATE` | `-Lifecycle STATE[,STATE]` |
+| Filter by availability | repeat `--availability STATE` | `-Availability STATE[,STATE]` |
+| Filter by activation | repeat `--activation STATE` | `-Activation STATE[,STATE]` |
+| Filter by project usage | repeat `--project-usage STATE` | `-ProjectUsage STATE[,STATE]` |
 | Help | `--help` | `-Help`, `-?`, or `-h` |
 
 The output destination may be absolute or relative but must resolve beneath the detected project
@@ -1244,7 +1258,7 @@ and diagnostics. JSON mode emits the contract-defined document. Failed structure
 an `effective-project-schema-result` envelope with `schema: null`, one stable error diagnostic, and a
 nonzero exit code; human mode writes the loader error to standard error.
 
-`SECTION` is `overview`, `packs`, `capabilities`, `namespaces`, `content`, `resources`, `diagnostics`,
+`SECTION` is `overview`, `packs`, `groups`, `capabilities`, `namespaces`, `content`, `resources`, `diagnostics`,
 or `all`. `overview` lists friendly pack/capability labels, stable IDs, and descriptions for the
 selected project composition without detailed lifecycle, provider, classification, or dependency
 rows.
@@ -1252,14 +1266,15 @@ Python repeats `--show`; PowerShell uses one comma-separated `-Show` value becau
 invocation does not portably bind native arrays. Selections are deduplicated in request order. `all`
 expands to the six detailed sections and excludes the redundant overview. With no selection, output
 remains the compact summary. Without singular selectors, `--json` / `-Json` always emits the complete canonical
-document and ignores presentation selection.
+document and ignores presentation selection. Group and filter selections emit the version-2
+selection envelope over the contract-version-3 effective schema and preserve source order.
 
 Pack and capability selectors resolve an exact stable ID first, then use the project's pinned
 lookup-key normalization. Unknown and ambiguous values fail rather than guessing. The selectors
 may be combined with each other and with any human `show` selection. Human mode appends complete
 inspection blocks, including authored presentation and pack classification. Structured mode emits
 an `effective-project-schema-selection` envelope containing zero or one complete row for each
-requested kind and identifying effective-schema contract version 2 as its source. With no selector,
+requested kind and identifying effective-schema contract version 3 as its source. With no selector,
 the canonical full-schema JSON and export behavior remains unchanged.
 
 Report export writes the selected compact or expanded human view directly to UTF-8 text without a
@@ -1464,9 +1479,9 @@ Last focused parity check: 2026-08-06 for V49 pressure closure. Python, PowerShe
 
 ### Schema-Pack Contract
 
-`Project_Config/schema-packs.yaml` selects portable packs from `Framework/Packs/` or a project-owned extension location in dependency order. Each pack declares a stable ID, independent pack version, lifecycle, compatibility kind (`core`, `domain`, or `extension`), capabilities, dependencies, and namespaced controlled values. Schema-5 packs additionally require the presentation and classification contract in `Framework/Contracts/schema-pack-presentation.md`: family, architectural role, scope, explicit domains and bridge joins, localizable pack text, and rich capability presentation. A dependent pack must follow every dependency and satisfy its minimum version.
+`Project_Config/schema-packs.yaml` selects portable packs from `Framework/Packs/` or a project-owned extension location in dependency order. Each pack declares a stable ID, independent pack version, lifecycle, compatibility kind (`core`, `domain`, or `extension`), capabilities, dependencies, and namespaced controlled values. Schema-6 packs require the presentation, classification, capability-group, and capability-relationship contract in `Framework/Contracts/schema-pack-presentation.md`: family, architectural role, scope, explicit domains and bridge joins, localizable pack and group text, rich capability presentation, ordered group contributions, and explicit requirements, recommendations, and conflicts. A dependent pack must follow every dependency and satisfy its minimum version.
 
-Pack selection makes capability declarations discoverable. Schema-5 capabilities are mapped definitions with lifecycle `planned`, `available`, or `deprecated` plus a stable localization key, friendly label, and useful description; string shorthand remains accepted only while loading legacy schema-4 packs. Planned capabilities cannot be enabled, available capabilities may be enabled, and deprecated capabilities remain activatable only for compatibility or migration. `capability_activation.enabled` enables only eligible capabilities used by the project, and `capability_activation.default` must be `disabled`. Missing capabilities therefore disappear cleanly from unrelated industry implementations, while missing pack dependencies and explicit references to unavailable or disabled contracts remain validation errors. Pack files keep controlled vocabulary atomic and express executable relationships through typed `semantic_declarations`; loaders reject the superseded delimiter-composed semantic namespaces and enforce exact ownership, known members, completeness, and cross-pack closure.
+Pack selection makes capability declarations discoverable. Schema-6 capabilities are mapped definitions with lifecycle `planned`, `available`, or `deprecated` plus a stable localization key, friendly label, useful description, group membership, and explicit relationships; string shorthand remains accepted only while loading legacy schema-4 packs. Planned capabilities cannot be enabled, available capabilities may be enabled, and deprecated capabilities remain activatable only for compatibility or migration. `capability_activation.enabled` enables only eligible capabilities used by the project, and `capability_activation.default` must be `disabled`. Missing capabilities therefore disappear cleanly from unrelated industry implementations, while missing pack dependencies and explicit references to unavailable or disabled contracts remain validation errors. Pack files keep controlled vocabulary atomic and express executable relationships through typed `semantic_declarations`; loaders reject the superseded delimiter-composed semantic namespaces and enforce exact ownership, known members, completeness, and cross-pack closure.
 
 Controlled values use dotted ownership namespaces such as `source.work-type`. Values may be extended by multiple selected packs, but one exact namespace/value pair has one owner. A value may provide a display label, description, and broader value in the same namespace. The current `core` pack owns generic evidence-source roles and evidence-artifact relationships. `narrative-media` owns the foundation and media-axis vocabularies; publishing, screen/audio, adaptation, distribution, production, and shared-universe companion packs own their narrower release, segment, container, lineage, mapping, manifestation, platform, production/rights, and incarnation values. `anime`, `donghua`, `manga`, `manhwa`, `manhua`, and `webtoon` remain meaningful cultural forms while modality is modeled separately. Embedded visuals may originate in EPUBs, comics, scans, or future supported containers; extraction preserves the `illustration` medium profile, still-image modality, source container, evidence provenance, and any promoted page-ready derivative as separate facts. Source and entity loaders reject configured vocabulary outside the aggregate selected-pack contract.
 
@@ -1687,7 +1702,7 @@ The paired schema-pack runners accept an optional repository root and leave no p
 | Emit stable composition counts | `python Tools/Conformance/Suites/test_schema_pack.py --json` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Schema-Pack.ps1 -Json` |
 | Select repository root | `--root PATH` | `-Root PATH` |
 
-Both runners load the canonical schema-5 selected packs, validate the complete 14-pack catalog and its 136 capability presentations, and consume the shared independent schema-5 corpus plus one-pack schema-4 compatibility fixture in `Framework/Data/Schema-Packs/`. The synthetic composition proves independent compatibility kind and architectural role, foundation/domain/bridge classification, scope and domain closure, exact bridge joins, localizable pack presentation, equivalent multi-provider capability presentation, dependency-version boundaries, lifecycle, activation, controlled-value hierarchy and ownership, and typed occurrence semantic closure. Ninety-one shared structured mutations must be rejected, presentation-only text changes must preserve semantic composition, and two typed pair declarations that collide under the superseded delimiter encoding must remain distinct. A generated 64-pack schema-5 composition must retain exact pack, capability, activation, value, presentation, and typed-declaration counts. Mixed schema-4/schema-5 compositions fail closed. Each case runs in a unique operating-system temporary tree that is removed before exit.
+Both runners load the canonical schema-6 selected packs, validate the complete 14-pack catalog with 17 capability groups and 136 capability presentations, and consume the shared independent schema-6 corpus plus one-pack schema-4 compatibility fixture in `Framework/Data/Schema-Packs/`. The synthetic composition proves independent compatibility kind and architectural role, foundation/domain/bridge classification, scope and domain closure, exact bridge joins, localizable pack/group/capability presentation, ordered group contributions without ownership transfer, equivalent multi-provider capability presentation and relationships, dependency-version boundaries, lifecycle, activation, controlled-value hierarchy and ownership, and typed occurrence semantic closure. One hundred two shared structured mutations must be rejected, including group ownership/membership and relationship-cycle failures; presentation-only text changes must preserve semantic composition, and two typed pair declarations that collide under the superseded delimiter encoding must remain distinct. A generated 64-pack schema-6 composition must retain exact pack, group, capability, activation, value, presentation, and typed-declaration counts. Mixed schema-4/schema-5/schema-6 compositions fail closed. Each case runs in a unique operating-system temporary tree that is removed before exit.
 
 ### Taxonomy Conformance
 

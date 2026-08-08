@@ -31,6 +31,8 @@ function Get-EffectiveSchemaSummary {
         packs = @($Document.packs).Count
         active_packs = @($Document.packs | Where-Object lifecycle -eq 'active').Count
         pack_presentations = @($Document.packs | Where-Object { $null -ne $_.presentation }).Count
+        capability_groups = @($Document.capability_groups).Count
+        enabled_capability_groups = @($Document.capability_groups | Where-Object enabled).Count
         capabilities = $capabilities.Count
         available_capabilities = @($capabilities | Where-Object available).Count
         enabled_capabilities = @($capabilities | Where-Object enabled).Count
@@ -93,6 +95,7 @@ $requiredMarkdown = @(
     'canonical: false'
     '# Effective Project Schema'
     '## Selected Packs'
+    '## Capability Groups'
     '## Capabilities'
     '## Diagnostics'
 )
@@ -139,6 +142,7 @@ $expectedKeys = @(
     'project',
     'registry_schema_versions',
     'packs',
+    'capability_groups',
     'capabilities',
     'controlled_value_namespaces',
     'content',
@@ -156,6 +160,9 @@ if (@($schema.packs | Where-Object { $null -eq $_.classification -or $null -eq $
 }
 if (@($schema.capabilities | Where-Object { $null -eq $_.presentation }).Count -ne 0) {
     throw 'Effective schema lost capability presentation.'
+}
+if (@($schema.capability_groups | Where-Object { $null -eq $_.presentation }).Count -ne 0) {
+    throw 'Effective schema lost capability-group presentation.'
 }
 if (@($schema.packs | Where-Object { $null -ne $_.presentation.visual }).Count -ne 0) {
     throw 'Effective schema invented optional pack visual metadata.'
@@ -187,17 +194,66 @@ $selection = New-KnowledgeEffectiveSchemaSelection `
     $schema `
     $lookupKeys `
     'Narrative-Media' `
+    'Narrative-Time-Continuity-and-Disclosure' `
     'Narrative-Time-Loops'
 if (
     [int]$selection.source_contract_version -ne [int]$schema.contract_version -or
     (@($selection.packs | ForEach-Object id) -join '|') -cne 'narrative-media' -or
+    (@($selection.capability_groups | ForEach-Object id) -join '|') -cne 'narrative-time-continuity-and-disclosure' -or
     (@($selection.capabilities | ForEach-Object id) -join '|') -cne 'narrative-time-loops'
 ) {
     throw 'Effective-schema normalized singular selection changed.'
 }
+$selectedCapability = @($selection.capabilities)[0]
+if ((@($selectedCapability.relationships.Keys | Sort-Object) -join ',') -cne 'conflicts_with,recommends,requires') {
+    throw 'Effective-schema capability relationship explanation changed.'
+}
+if (@($selectedCapability.providers[0].controlled_value_namespace_ids).Count -eq 0) {
+    throw 'Effective-schema provider namespace explanation disappeared.'
+}
+$groupSelection = New-KnowledgeEffectiveSchemaSelection `
+    -Schema $schema `
+    -LookupKeys $lookupKeys `
+    -GroupId 'Narrative-Time-Continuity-and-Disclosure'
+$groupCapabilityIds = @($groupSelection.capability_groups[0].capability_ids)
+$expectedGroupCapabilityIds = @(
+    $schema.capabilities | Where-Object { $groupCapabilityIds -ccontains $_.id } | ForEach-Object id
+)
+if ((@($groupSelection.capabilities | ForEach-Object id) -join ',') -cne ($expectedGroupCapabilityIds -join ',')) {
+    throw 'Effective-schema capability-group expansion changed.'
+}
+$filteredSelection = New-KnowledgeEffectiveSchemaSelection `
+    -Schema $schema `
+    -LookupKeys $lookupKeys `
+    -ProviderPackIds 'Narrative-Media' `
+    -Lifecycles 'available' `
+    -Activation 'enabled' `
+    -Usage 'used'
+$expectedFilteredIds = @(
+    $schema.capabilities | Where-Object {
+        $_.effective_lifecycle -ceq 'available' -and $_.enabled -and
+        @($_.providers | Where-Object pack_id -CEQ 'narrative-media').Count -gt 0
+    } | ForEach-Object id
+)
+if (
+    $expectedFilteredIds.Count -eq 0 -or
+    (@($filteredSelection.capabilities | ForEach-Object id) -join ',') -cne ($expectedFilteredIds -join ',')
+) {
+    throw 'Effective-schema compound capability filtering changed.'
+}
+$invalidFilterRejected = $false
+try {
+    $null = New-KnowledgeEffectiveSchemaSelection -Schema $schema -LookupKeys $lookupKeys -Lifecycles 'future'
+}
+catch {
+    $invalidFilterRejected = $true
+}
+if (-not $invalidFilterRejected) {
+    throw 'Effective-schema selection accepted an unknown lifecycle filter.'
+}
 $unknownRejected = $false
 try {
-    $null = New-KnowledgeEffectiveSchemaSelection $schema $lookupKeys 'missing-pack' $null
+    $null = New-KnowledgeEffectiveSchemaSelection $schema $lookupKeys 'missing-pack' $null $null
 }
 catch {
     $unknownRejected = $true
@@ -218,6 +274,7 @@ try {
         $schema `
         $lookupKeys `
     ([System.Globalization.CultureInfo]::InvariantCulture.TextInfo.ToTitleCase($originalPacks[0].id)) `
+        $null `
         $null
 }
 catch {
@@ -340,6 +397,11 @@ $packs.capability_definitions[$secondaryKey] = [pscustomobject]@{
     lifecycle = 'planned'
     label = 'Synthetic secondary provider'
     description = $null
+    presentation = $packs.capability_definitions["$providerId|$capabilityId"].presentation
+    relationships = [pscustomobject]@{ requires = @()
+        recommends = @()
+        conflicts_with = @()
+    }
 }
 $ambiguousSchema = New-KnowledgeEffectiveProjectSchema $project $packs $taxonomy $resources
 $ambiguous = @($ambiguousSchema.capabilities | Where-Object id -eq $capabilityId)[0]
@@ -363,6 +425,11 @@ for ($index = 0; $index -lt $scaleCount; $index += 1) {
         lifecycle = 'available'
         label = $null
         description = $null
+        presentation = $null
+        relationships = [pscustomobject]@{ requires = @()
+            recommends = @()
+            conflicts_with = @()
+        }
     }
 }
 $packs.declared_capabilities = @($packs.declared_capabilities) + $scaleIds
@@ -392,7 +459,7 @@ $result = [ordered]@{
     summary = $actual
     deterministic_passes = 3
     synthetic_states = 4
-    selection_cases = 3
+    selection_cases = 7
     failure_cases = 1
     consumer_projection_modes = $consumerIds.Count
     retired_consumer_apis = $retiredConsumerApis.Count

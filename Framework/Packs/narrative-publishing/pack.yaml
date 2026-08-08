@@ -1,6 +1,6 @@
-schema_version: 5
+schema_version: 6
 pack_id: narrative-publishing
-pack_version: 11
+pack_version: 12
 lifecycle: active
 pack_kind: domain
 classification:
@@ -94,6 +94,26 @@ capabilities:
     localization_key: capability.editorial-assembly
     label: Editorial Assembly
     description: Posthumous editing, compilation, completion, commentary, and synthesis from source material.
+
+capability_groups:
+- id: publishing-and-textual-history
+  order: 1100
+  presentation:
+    localization_key: group.publishing-and-textual-history
+    label: Publishing and Textual History
+    description: Models serialization, editions, localization, textual witnesses, and editorial assembly.
+
+capability_group_memberships:
+- group_id: publishing-and-textual-history
+  order: 100
+  capability_ids:
+  - serialization
+  - publication-packaging
+  - editions
+  - localization
+  - publication-runs
+  - textual-witnesses
+  - editorial-assembly
 
 controlled_values:
   provenance.claim-namespace:

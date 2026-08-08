@@ -186,6 +186,9 @@ try {
     if ([int]$canonical.summary.capability_count -ne [int]$expectations.canonical_capability_count) {
         throw 'Canonical framework catalog capability count changed.'
     }
+    if ([int]$canonical.summary.capability_group_count -ne [int]$expectations.canonical_capability_group_count) {
+        throw 'Canonical framework catalog capability-group count changed.'
+    }
     if (
         [int]$canonical.summary.available_capability_count -ne
         [int]$expectations.canonical_available_capability_count
@@ -227,6 +230,8 @@ try {
     if (
         [int]$projectView.summary.pack_count -ne @($canonical.packs).Count -or
         [int]$projectView.summary.selected_pack_count -ne @($effectiveSchema.packs).Count -or
+        [int]$projectView.summary.capability_group_count -ne @($canonical.capability_groups).Count -or
+        [int]$projectView.summary.selected_capability_group_count -ne @($effectiveSchema.capability_groups).Count -or
         [int]$projectView.summary.capability_count -ne @($canonical.capabilities).Count -or
         [int]$projectView.summary.selected_capability_count -ne @($effectiveSchema.capabilities).Count -or
         [int]$projectView.summary.enabled_capability_count -ne
@@ -244,10 +249,18 @@ try {
     if ((ConvertTo-KnowledgeCanonicalJson $canonical) -cne $catalogBeforeView) {
         throw 'Framework catalog project-view composition mutated the base catalog.'
     }
-    $selectedPackId = [string]@($effectiveSchema.packs)[0].id
+    $selectedPackId = [string](@($effectiveSchema.packs)[0].id)
     $selectedPack = @($projectView.packs | Where-Object id -CEQ $selectedPackId)[0]
     $unselectedPack = @($projectView.packs | Where-Object { -not $_.project_state.selected })[0]
-    $enabledCapabilityId = [string]@($effectiveSchema.capabilities | Where-Object enabled)[0].id
+    $selectedGroupId = [string](@($effectiveSchema.capability_groups)[0].id)
+    $selectedGroupCapabilityIds = @($effectiveSchema.capability_groups[0].capability_ids)
+    $enabledCapabilityId = [string](
+        @(
+            $effectiveSchema.capabilities | Where-Object {
+                $_.enabled -and $selectedGroupCapabilityIds -ccontains $_.id
+            }
+        )[0].id
+    )
     $enabledCapability = @($projectView.capabilities | Where-Object id -CEQ $enabledCapabilityId)[0]
     $plannedCapability = @($projectView.capabilities | Where-Object { $_.project_state.planned })[0]
     if (-not $selectedPack.project_state.selected -or -not $selectedPack.project_state.used_by_project) {
@@ -275,13 +288,35 @@ try {
         $projectView `
     (Get-KnowledgeFrameworkConfig $actualRoot).lookup_keys `
         $selectedPackId.ToUpperInvariant() `
+        $selectedGroupId.ToUpperInvariant() `
         $enabledCapabilityId.ToUpperInvariant()
     if (
         $projectSelection.contract -cne 'framework-catalog-project-view-selection' -or
         (@($projectSelection.packs | ForEach-Object id) -join ',') -cne $selectedPackId -or
+        (@($projectSelection.capability_groups | ForEach-Object id) -join ',') -cne $selectedGroupId -or
         (@($projectSelection.capabilities | ForEach-Object id) -join ',') -cne $enabledCapabilityId
     ) {
         throw 'Framework catalog project-view selection changed.'
+    }
+    $projectFilter = New-KnowledgeFrameworkCatalogProjectViewSelection `
+        -Catalog $canonical `
+        -ProjectView $projectView `
+        -LookupKeys (Get-KnowledgeFrameworkConfig $actualRoot).lookup_keys `
+        -ProviderPackIds 'Narrative-Media' `
+        -Lifecycles 'available' `
+        -Activation 'enabled' `
+        -Usage 'used'
+    $expectedProjectFilterIds = @(
+        $projectView.capabilities | Where-Object {
+            $_.effective_lifecycle -ceq 'available' -and $_.project_state.enabled -and
+            @($_.providers | Where-Object pack_id -CEQ 'narrative-media').Count -gt 0
+        } | ForEach-Object id
+    )
+    if (
+        $expectedProjectFilterIds.Count -eq 0 -or
+        (@($projectFilter.capabilities | ForEach-Object id) -join ',') -cne ($expectedProjectFilterIds -join ',')
+    ) {
+        throw 'Framework catalog project-view compound filtering changed.'
     }
 
     $frameworkConfig = Get-KnowledgeFrameworkConfig $actualRoot
@@ -289,6 +324,7 @@ try {
         $canonical `
         $frameworkConfig.lookup_keys `
         'NARRATIVE-MEDIA' `
+        'NARRATIVE-TIME-CONTINUITY-AND-DISCLOSURE' `
         'NARRATIVE-TIME-LOOPS'
     if (@($selection.packs | ForEach-Object id) -cne 'narrative-media') {
         throw 'Normalized framework-catalog pack selection changed.'
@@ -296,11 +332,59 @@ try {
     if (@($selection.capabilities | ForEach-Object id) -cne 'narrative-time-loops') {
         throw 'Normalized framework-catalog capability selection changed.'
     }
+    if (@($selection.capability_groups | ForEach-Object id) -cne 'narrative-time-continuity-and-disclosure') {
+        throw 'Normalized framework-catalog capability-group selection changed.'
+    }
+    $selectedCapability = @($selection.capabilities)[0]
+    if ((@($selectedCapability.relationships.Keys | Sort-Object) -join ',') -cne 'conflicts_with,recommends,requires') {
+        throw 'Framework-catalog capability relationship explanation changed.'
+    }
+    if (@($selectedCapability.providers[0].controlled_value_namespace_ids).Count -eq 0) {
+        throw 'Framework-catalog provider namespace explanation disappeared.'
+    }
+    $groupSelection = New-KnowledgeFrameworkCatalogSelection `
+        -Catalog $canonical `
+        -LookupKeys $frameworkConfig.lookup_keys `
+        -GroupId 'NARRATIVE-TIME-CONTINUITY-AND-DISCLOSURE'
+    $groupCapabilityIds = @($groupSelection.capability_groups[0].capability_ids)
+    $expectedGroupCapabilityIds = @(
+        $canonical.capabilities | Where-Object { $groupCapabilityIds -ccontains $_.id } | ForEach-Object id
+    )
+    if ((@($groupSelection.capabilities | ForEach-Object id) -join ',') -cne ($expectedGroupCapabilityIds -join ',')) {
+        throw 'Framework-catalog capability-group expansion changed.'
+    }
+    $providerSelection = New-KnowledgeFrameworkCatalogSelection `
+        -Catalog $canonical `
+        -LookupKeys $frameworkConfig.lookup_keys `
+        -ProviderPackIds 'Narrative-Media' `
+        -Lifecycles 'available'
+    $expectedProviderIds = @(
+        $canonical.capabilities | Where-Object {
+            $_.effective_lifecycle -ceq 'available' -and
+            @($_.providers | Where-Object pack_id -CEQ 'narrative-media').Count -gt 0
+        } | ForEach-Object id
+    )
+    if ((@($providerSelection.capabilities | ForEach-Object id) -join ',') -cne ($expectedProviderIds -join ',')) {
+        throw 'Framework-catalog provider/lifecycle filtering changed.'
+    }
+    Assert-Rejected {
+        New-KnowledgeFrameworkCatalogSelection `
+            -Catalog $canonical `
+            -LookupKeys $frameworkConfig.lookup_keys `
+            -Activation 'enabled'
+    } 'require a catalog project view'
+    Assert-Rejected {
+        New-KnowledgeFrameworkCatalogSelection `
+            -Catalog $canonical `
+            -LookupKeys $frameworkConfig.lookup_keys `
+            -Lifecycles 'future'
+    } 'Unknown capability lifecycle filter'
     Assert-Rejected {
         New-KnowledgeFrameworkCatalogSelection `
             $canonical `
             $frameworkConfig.lookup_keys `
             'unknown-pack' `
+            $null `
             $null
     } 'Unknown framework-catalog pack ID'
 
@@ -321,6 +405,7 @@ try {
             $ambiguous `
             $frameworkConfig.lookup_keys `
             'Ambiguous-Pack' `
+            $null `
             $null
     } 'Ambiguous framework-catalog pack ID'
 
@@ -467,7 +552,7 @@ $result = [ordered]@{
     invalid_cases = $invalidCases
     project_view_cases = 8
     scale_pack_count = [int]$expectations.scale_pack_count
-    selection_cases = 3
+    selection_cases = 8
 }
 if ($Json) {
     $result | ConvertTo-Json -Compress

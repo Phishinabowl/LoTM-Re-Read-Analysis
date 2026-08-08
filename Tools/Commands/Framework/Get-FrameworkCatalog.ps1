@@ -9,7 +9,13 @@ param(
     [string]$ReportOutput,
     [string]$Show,
     [string]$Pack,
-    [string]$Capability
+    [string]$Group,
+    [string]$Capability,
+    [string[]]$Provider = @(),
+    [string[]]$Lifecycle = @(),
+    [string[]]$Availability = @(),
+    [string[]]$Activation = @(),
+    [string[]]$ProjectUsage = @()
 )
 
 $ErrorActionPreference = 'Stop'
@@ -37,10 +43,16 @@ Options:
   -ReportOutput <path>
                    Write the selected human-readable report beneath the
                    framework root.
-  -Show <section>  Append human output for overview, packs, capabilities, or
+  -Show <section>  Append human output for overview, packs, groups, capabilities, or
                    all. Pass a comma-separated list to combine sections.
   -Pack <pack-id>  Inspect one installed pack by stable ID.
+  -Group <group-id> Inspect one capability group by stable ID.
   -Capability <id> Inspect one capability by stable ID.
+  -Provider <pack-id[]> Filter capabilities by provider pack.
+  -Lifecycle <state[]> Filter by available, deprecated, or planned lifecycle.
+  -Availability <state[]> Filter by available or unavailable.
+  -Activation <state[]> Filter project views by enabled or disabled state.
+  -ProjectUsage <state[]> Filter project views by used or unused state.
   -Help, -?, -h    Show this help and exit.
 
 Examples:
@@ -50,6 +62,8 @@ Examples:
   powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Show packs,capabilities
   powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Pack narrative-media
   powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Capability narrative-time-loops -Json
+  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Group narrative-temporality -Json
+  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -ProjectRoot . -Provider narrative-media -Activation enabled -Json
   powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -ProjectRoot . -Show overview
   powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Output .tmp\framework-catalog.json
   powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Show all -ReportOutput .local\framework-catalog.txt
@@ -101,6 +115,11 @@ function Write-FrameworkCatalogSummary {
             "$($Catalog.summary.pack_count) installed"
         )
         Write-Output (
+            "Capability groups: $($Catalog.summary.enabled_capability_group_count) enabled, " +
+            "$($Catalog.summary.selected_capability_group_count) selected, " +
+            "$($Catalog.summary.capability_group_count) installed"
+        )
+        Write-Output (
             "Capabilities: $($Catalog.summary.enabled_capability_count) enabled, " +
             "$($Catalog.summary.selected_capability_count) selected, " +
             "$($Catalog.summary.capability_count) installed"
@@ -116,6 +135,7 @@ function Write-FrameworkCatalogSummary {
         "($($Catalog.framework.unicode_version))"
     )
     Write-Output "Installed packs: $($Catalog.summary.pack_count)"
+    Write-Output "Capability groups: $($Catalog.summary.capability_group_count)"
     Write-Output (
         "Capabilities: $($Catalog.summary.capability_count) declared, " +
         "$($Catalog.summary.available_capability_count) available, " +
@@ -325,6 +345,32 @@ function Write-FrameworkCatalogCapabilityRows {
         }
         Write-Output "  label: $label"
         Write-Output "  description: $description"
+        $groups = if (@($row.group_ids).Count -eq 0) {
+            'none'
+        }
+        else {
+            @($row.group_ids) -join ', '
+        }
+        Write-Output "  groups: $groups"
+        $requires = if (@($row.relationships.requires).Count -eq 0) {
+            'none'
+        }
+        else {
+            @($row.relationships.requires) -join ','
+        }
+        $recommends = if (@($row.relationships.recommends).Count -eq 0) {
+            'none'
+        }
+        else {
+            @($row.relationships.recommends) -join ','
+        }
+        $conflicts = if (@($row.relationships.conflicts_with).Count -eq 0) {
+            'none'
+        }
+        else {
+            @($row.relationships.conflicts_with) -join ','
+        }
+        Write-Output "  relationships: requires=$requires | recommends=$recommends | conflicts=$conflicts"
         if ($null -ne $row.presentation) {
             Write-Output "  presentation key: $($row.presentation.localization_key)"
         }
@@ -340,7 +386,48 @@ function Write-FrameworkCatalogCapabilityRows {
                 "    - $($provider.pack_id) | lifecycle=$($provider.lifecycle) | " +
                 "label=$providerLabel"
             )
+            $dependencies = if (@($provider.pack_dependencies).Count -eq 0) {
+                'none'
+            }
+            else {
+                @($provider.pack_dependencies) -join ','
+            }
+            $namespaces = if (@($provider.controlled_value_namespace_ids).Count -eq 0) {
+                'none'
+            }
+            else {
+                @($provider.controlled_value_namespace_ids) -join ','
+            }
+            Write-Output "      dependencies=$dependencies | controlled namespaces=$namespaces"
         }
+    }
+}
+
+function Write-FrameworkCatalogGroupRows {
+    param([object[]]$Rows, [string]$Heading)
+
+    Write-Output "$Heading ($(@($Rows).Count))"
+    foreach ($row in @($Rows)) {
+        Write-Output (
+            "- $($row.id) | order=$($row.order) | owner=$($row.owner_pack_id) | " +
+            "capabilities=$(@($row.capability_ids).Count)"
+        )
+        if ($null -ne $row.project_state) {
+            $stateParts = @()
+            foreach ($key in $row.project_state.Keys) {
+                $stateParts += "$key=$(Get-FrameworkCatalogDisplayValue $row.project_state[$key])"
+            }
+            Write-Output ('  project state: ' + ($stateParts -join ' | '))
+        }
+        Write-Output "  label: $($row.presentation.label)"
+        Write-Output "  description: $($row.presentation.description)"
+        $capabilities = if (@($row.capability_ids).Count -eq 0) {
+            'none'
+        }
+        else {
+            @($row.capability_ids) -join ', '
+        }
+        Write-Output "  capabilities: $capabilities"
     }
 }
 
@@ -351,14 +438,14 @@ function Get-FrameworkCatalogShowSections {
     if (-not [string]::IsNullOrWhiteSpace($Value)) {
         foreach ($entry in @($Value -split ',')) {
             $section = $entry.Trim()
-            if ($section -cnotin @('overview', 'packs', 'capabilities', 'all')) {
+            if ($section -cnotin @('overview', 'packs', 'groups', 'capabilities', 'all')) {
                 throw (
                     "Unknown framework-catalog section ``$section``; choose from: " +
-                    'overview, packs, capabilities, all.'
+                    'overview, packs, groups, capabilities, all.'
                 )
             }
             $candidates = if ($section -ceq 'all') {
-                @('packs', 'capabilities')
+                @('packs', 'groups', 'capabilities')
             }
             else {
                 @($section)
@@ -386,6 +473,9 @@ function Write-FrameworkCatalogReport {
             'packs' {
                 Write-FrameworkCatalogPackRows @($Catalog.packs) 'Packs'
             }
+            'groups' {
+                Write-FrameworkCatalogGroupRows @($Catalog.capability_groups) 'Capability Groups'
+            }
             'capabilities' {
                 Write-FrameworkCatalogCapabilityRows @($Catalog.capabilities) 'Capabilities'
             }
@@ -395,6 +485,10 @@ function Write-FrameworkCatalogReport {
         if (@($Selection.packs).Count -gt 0) {
             Write-Output ''
             Write-FrameworkCatalogPackRows @($Selection.packs) 'Pack Inspection'
+        }
+        if (@($Selection.capability_groups).Count -gt 0) {
+            Write-Output ''
+            Write-FrameworkCatalogGroupRows @($Selection.capability_groups) 'Capability Group Inspection'
         }
         if (@($Selection.capabilities).Count -gt 0) {
             Write-Output ''
@@ -426,23 +520,39 @@ try {
     }
     $selection = if (
         -not [string]::IsNullOrWhiteSpace($Pack) -or
-        -not [string]::IsNullOrWhiteSpace($Capability)
+        -not [string]::IsNullOrWhiteSpace($Group) -or
+        -not [string]::IsNullOrWhiteSpace($Capability) -or
+        @($Provider).Count -gt 0 -or @($Lifecycle).Count -gt 0 -or
+        @($Availability).Count -gt 0 -or @($Activation).Count -gt 0 -or
+        @($ProjectUsage).Count -gt 0
     ) {
         $classification = 'selector'
         if ([string]::IsNullOrWhiteSpace($ProjectRoot)) {
             New-KnowledgeFrameworkCatalogSelection `
-                $catalog `
-                $frameworkConfig.lookup_keys `
-                $Pack `
-                $Capability
+                -Catalog $catalog `
+                -LookupKeys $frameworkConfig.lookup_keys `
+                -PackId $Pack `
+                -GroupId $Group `
+                -CapabilityId $Capability `
+                -ProviderPackIds $Provider `
+                -Lifecycles $Lifecycle `
+                -Availability $Availability `
+                -Activation $Activation `
+                -Usage $ProjectUsage
         }
         else {
             New-KnowledgeFrameworkCatalogProjectViewSelection `
-                $catalog `
-                $document `
-                $frameworkConfig.lookup_keys `
-                $Pack `
-                $Capability
+                -Catalog $catalog `
+                -ProjectView $document `
+                -LookupKeys $frameworkConfig.lookup_keys `
+                -PackId $Pack `
+                -GroupId $Group `
+                -CapabilityId $Capability `
+                -ProviderPackIds $Provider `
+                -Lifecycles $Lifecycle `
+                -Availability $Availability `
+                -Activation $Activation `
+                -Usage $ProjectUsage
         }
     }
     else {

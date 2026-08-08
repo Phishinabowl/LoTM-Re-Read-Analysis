@@ -1,6 +1,6 @@
-schema_version: 5
+schema_version: 6
 pack_id: hosting-foundation
-pack_version: 2
+pack_version: 3
 lifecycle: active
 pack_kind: extension
 classification:
@@ -57,6 +57,20 @@ capabilities:
     localization_key: capability.hosted-identity-embodiment
     label: Hosted Identity And Carrier Topology
     description: Bounded identity occupancy, control, transfer, copy, and carrier-to-carrier topology.
+
+capability_groups:
+- id: identity-hosting
+  order: 500
+  presentation:
+    localization_key: group.identity-hosting
+    label: Identity Hosting
+    description: Connects stable entities to bodies, avatars, vessels, accounts, and other hosts.
+
+capability_group_memberships:
+- group_id: identity-hosting
+  order: 100
+  capability_ids:
+  - hosted-identity-embodiment
 
 controlled_values:
   hosting.record-lifecycle:

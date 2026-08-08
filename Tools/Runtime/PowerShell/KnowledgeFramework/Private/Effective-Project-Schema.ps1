@@ -1,6 +1,6 @@
-$script:EffectiveProjectSchemaContractVersion = 2
-$script:EffectiveProjectSchemaSelectionContractVersion = 1
-$script:EffectiveProjectSchemaReportModelContractVersion = 1
+$script:EffectiveProjectSchemaContractVersion = 3
+$script:EffectiveProjectSchemaSelectionContractVersion = 2
+$script:EffectiveProjectSchemaReportModelContractVersion = 2
 
 function ConvertTo-KnowledgePortablePath {
     param([AllowNull()][object]$Path)
@@ -315,6 +315,10 @@ function New-KnowledgeEffectiveProjectSchema {
                 label = $definition.label
                 description = $definition.description
                 presentation = $providerPresentation
+                pack_dependencies = @($SchemaPacks.packs[$packId].dependencies | ForEach-Object pack_id)
+                controlled_value_namespace_ids = @(
+                    Get-KnowledgeOrdinalStrings $SchemaPacks.packs[$packId].controlled_values.Keys
+                )
             }
         }
         $effectiveLifecycle = if ($lifecycles -ccontains 'available') {
@@ -337,6 +341,22 @@ function New-KnowledgeEffectiveProjectSchema {
             enabled = $isEnabled
             disabled = -not $isEnabled
             presentation = $effectivePresentation
+            group_ids = @(
+                $SchemaPacks.capability_group_memberships.Keys |
+                    Where-Object {
+                        @(
+                            $SchemaPacks.capability_group_memberships[$_] |
+                                Where-Object { @($_.capability_ids) -ccontains $capabilityId }
+                            ).Count -gt 0
+                        }
+            )
+            relationships = [ordered]@{
+                requires = @($SchemaPacks.capability_definitions["$($providerIds[0])|$capabilityId"].relationships.requires)
+                recommends = @($SchemaPacks.capability_definitions["$($providerIds[0])|$capabilityId"].relationships.recommends)
+                conflicts_with = @(
+                    $SchemaPacks.capability_definitions["$($providerIds[0])|$capabilityId"].relationships.conflicts_with
+                )
+            }
             providers = @($providers)
         }
         if ($effectiveLifecycle -eq 'deprecated' -and $isEnabled) {
@@ -354,6 +374,52 @@ function New-KnowledgeEffectiveProjectSchema {
                 "Capability ``$capabilityId`` has multiple selected providers." `
                 "capabilities.$capabilityId.providers" `
             @($capabilityId) + $providerIds
+        }
+    }
+
+    $capabilitiesById = @{}
+    foreach ($row in $capabilityRows) {
+        $capabilitiesById[$row.id] = $row
+    }
+    $capabilityGroupRows = @()
+    foreach ($group in @($SchemaPacks.capability_groups.Values | Sort-Object order, id)) {
+        $memberships = @($SchemaPacks.capability_group_memberships[$group.id])
+        $capabilityIds = @()
+        foreach ($membership in $memberships) {
+            foreach ($capabilityId in @($membership.capability_ids)) {
+                if ($capabilityIds -cnotcontains $capabilityId) {
+                    $capabilityIds += $capabilityId
+                }
+            }
+        }
+        $groupedCapabilities = @($capabilityIds | ForEach-Object { $capabilitiesById[$_] })
+        $capabilityGroupRows += [ordered]@{
+            id = $group.id
+            order = [int]$group.order
+            presentation = [ordered]@{
+                localization_key = $group.presentation.localization_key
+                label = $group.presentation.label
+                description = $group.presentation.description
+            }
+            owner_pack_id = $SchemaPacks.capability_group_owners[$group.id]
+            contributions = @(
+                $memberships | ForEach-Object {
+                    [ordered]@{
+                        provider_pack_id = $_.provider_pack_id
+                        order = [int]$_.order
+                        capability_ids = @($_.capability_ids)
+                    }
+                }
+            )
+            capability_ids = @($capabilityIds)
+            available = @($groupedCapabilities | Where-Object available).Count -gt 0
+            enabled = @($groupedCapabilities | Where-Object enabled).Count -gt 0
+            deprecated = $groupedCapabilities.Count -gt 0 -and @(
+                $groupedCapabilities | Where-Object { -not $_.deprecated }
+            ).Count -eq 0
+            planned = $groupedCapabilities.Count -gt 0 -and @(
+                $groupedCapabilities | Where-Object { -not $_.planned }
+            ).Count -eq 0
         }
     }
 
@@ -527,6 +593,7 @@ function New-KnowledgeEffectiveProjectSchema {
             }
         )
         packs = @($packRows)
+        capability_groups = @($capabilityGroupRows)
         capabilities = @($capabilityRows)
         controlled_value_namespaces = @($namespaceRows)
         content = [ordered]@{
@@ -587,28 +654,164 @@ function Resolve-KnowledgeEffectiveSchemaRow {
     return $matches[0]
 }
 
+function Select-KnowledgeEffectiveCapabilities {
+    param(
+        [object[]]$Rows,
+        [string[]]$ProviderPackIds,
+        [string[]]$Lifecycles,
+        [string[]]$Availability,
+        [string[]]$Activation,
+        [string[]]$Usage
+    )
+
+    $allowed = @{
+        lifecycle = @('available', 'deprecated', 'planned')
+        availability = @('available', 'unavailable')
+        activation = @('enabled', 'disabled')
+        'project usage' = @('used', 'unused')
+    }
+    foreach ($specification in @(
+            [pscustomobject]@{ label = 'lifecycle'
+                values = @($Lifecycles)
+            },
+            [pscustomobject]@{ label = 'availability'
+                values = @($Availability)
+            },
+            [pscustomobject]@{ label = 'activation'
+                values = @($Activation)
+            },
+            [pscustomobject]@{ label = 'project usage'
+                values = @($Usage)
+            }
+        )) {
+        $unknown = @($specification.values | Where-Object { $allowed[$specification.label] -cnotcontains $_ })
+        if ($unknown.Count -gt 0) {
+            throw "Unknown capability $($specification.label) filter(s): $($unknown -join ', ')."
+        }
+    }
+    $filtered = @($Rows)
+    if (@($ProviderPackIds).Count -gt 0) {
+        $filtered = @($filtered | Where-Object {
+                @($_.providers | Where-Object { $ProviderPackIds -ccontains $_.pack_id }).Count -gt 0
+            })
+    }
+    if (@($Lifecycles).Count -gt 0) {
+        $filtered = @($filtered | Where-Object { $Lifecycles -ccontains $_.effective_lifecycle })
+    }
+    if (@($Availability).Count -gt 0) {
+        $filtered = @($filtered | Where-Object {
+                $state = if ($_.available) {
+                    'available'
+                }
+                else {
+                    'unavailable'
+                }
+                $Availability -ccontains $state
+            })
+    }
+    if (@($Activation).Count -gt 0) {
+        $filtered = @($filtered | Where-Object {
+                $state = if ($_.enabled) {
+                    'enabled'
+                }
+                else {
+                    'disabled'
+                }
+                $Activation -ccontains $state
+            })
+    }
+    if (@($Usage).Count -gt 0) {
+        $filtered = @($filtered | Where-Object {
+                $state = if ($_.enabled) {
+                    'used'
+                }
+                else {
+                    'unused'
+                }
+                $Usage -ccontains $state
+            })
+    }
+    return @($filtered)
+}
+
 function New-KnowledgeEffectiveSchemaSelection {
     param(
         [object]$Schema,
         [object]$LookupKeys,
         [string]$PackId,
-        [string]$CapabilityId
+        [string]$GroupId,
+        [string]$CapabilityId,
+        [string[]]$ProviderPackIds = @(),
+        [string[]]$Lifecycles = @(),
+        [string[]]$Availability = @(),
+        [string[]]$Activation = @(),
+        [string[]]$Usage = @()
     )
 
-    if ([string]::IsNullOrWhiteSpace($PackId) -and [string]::IsNullOrWhiteSpace($CapabilityId)) {
-        throw 'Effective-schema selection requires a pack or capability ID.'
+    if (
+        [string]::IsNullOrWhiteSpace($PackId) -and
+        [string]::IsNullOrWhiteSpace($GroupId) -and
+        [string]::IsNullOrWhiteSpace($CapabilityId) -and
+        @($ProviderPackIds).Count -eq 0 -and @($Lifecycles).Count -eq 0 -and
+        @($Availability).Count -eq 0 -and @($Activation).Count -eq 0 -and @($Usage).Count -eq 0
+    ) {
+        throw 'Effective-schema selection requires an ID or capability filter.'
     }
+    $selectedGroups = if ([string]::IsNullOrWhiteSpace($GroupId)) {
+        @()
+    }
+    else {
+        @(Resolve-KnowledgeEffectiveSchemaRow @($Schema.capability_groups) $GroupId 'capability group' $LookupKeys)
+    }
+    $selectedGroups = @($selectedGroups)
     $selectedPacks = if ([string]::IsNullOrWhiteSpace($PackId)) {
         @()
     }
     else {
         @(Resolve-KnowledgeEffectiveSchemaRow @($Schema.packs) $PackId 'pack' $LookupKeys)
     }
+    $selectedPacks = @($selectedPacks)
+    $normalizedProviderIds = @(
+        $ProviderPackIds | ForEach-Object {
+            (Resolve-KnowledgeEffectiveSchemaRow @($Schema.packs) $_ 'pack' $LookupKeys).id
+        }
+    )
+    $capabilityQueryRequested = (
+        -not [string]::IsNullOrWhiteSpace($GroupId) -or
+        -not [string]::IsNullOrWhiteSpace($CapabilityId) -or
+        @($ProviderPackIds).Count -gt 0 -or @($Lifecycles).Count -gt 0 -or
+        @($Availability).Count -gt 0 -or @($Activation).Count -gt 0 -or @($Usage).Count -gt 0
+    )
     $selectedCapabilities = if ([string]::IsNullOrWhiteSpace($CapabilityId)) {
-        @()
+        if ($capabilityQueryRequested) {
+            @($Schema.capabilities)
+        }
+        else {
+            @()
+        }
     }
     else {
         @(Resolve-KnowledgeEffectiveSchemaRow @($Schema.capabilities) $CapabilityId 'capability' $LookupKeys)
+    }
+    $selectedCapabilities = @($selectedCapabilities)
+    if ($selectedGroups.Count -gt 0) {
+        $groupCapabilityIds = @($selectedGroups[0].capability_ids)
+        $selectedCapabilities = @($selectedCapabilities | Where-Object { $groupCapabilityIds -ccontains $_.id })
+    }
+    $selectedCapabilities = @(
+        Select-KnowledgeEffectiveCapabilities `
+            -Rows $selectedCapabilities `
+            -ProviderPackIds $normalizedProviderIds `
+            -Lifecycles $Lifecycles `
+            -Availability $Availability `
+            -Activation $Activation `
+            -Usage $Usage
+    )
+    if ([string]::IsNullOrWhiteSpace($GroupId) -and $capabilityQueryRequested) {
+        $capabilityIds = @($selectedCapabilities | ForEach-Object id)
+        $selectedGroups = @($Schema.capability_groups | Where-Object {
+                @($_.capability_ids | Where-Object { $capabilityIds -ccontains $_ }).Count -gt 0
+            })
     }
     return [ordered]@{
         contract = 'effective-project-schema-selection'
@@ -616,7 +819,35 @@ function New-KnowledgeEffectiveSchemaSelection {
         source_contract = $Schema.contract
         source_contract_version = [int]$Schema.contract_version
         project_id = $Schema.project.project_id
+        requested = [ordered]@{
+            pack = if ([string]::IsNullOrWhiteSpace($PackId)) {
+                $null
+            }
+            else {
+                $PackId
+            }
+            capability_group = if ([string]::IsNullOrWhiteSpace($GroupId)) {
+                $null
+            }
+            else {
+                $GroupId
+            }
+            capability = if ([string]::IsNullOrWhiteSpace($CapabilityId)) {
+                $null
+            }
+            else {
+                $CapabilityId
+            }
+            filters = [ordered]@{
+                provider_pack_ids = @($normalizedProviderIds)
+                lifecycles = @($Lifecycles)
+                availability = @($Availability)
+                activation = @($Activation)
+                usage = @($Usage)
+            }
+        }
         packs = @($selectedPacks)
+        capability_groups = @($selectedGroups)
         capabilities = @($selectedCapabilities)
     }
 }
@@ -840,6 +1071,7 @@ function New-KnowledgeEffectiveSchemaReportModel {
         project = $Schema.project
         registry_schema_versions = @($Schema.registry_schema_versions)
         packs = @($Schema.packs)
+        capability_groups = @($Schema.capability_groups)
         capabilities = $capabilities
         controlled_value_namespaces = @($Schema.controlled_value_namespaces)
         content = $Schema.content
@@ -847,6 +1079,8 @@ function New-KnowledgeEffectiveSchemaReportModel {
         diagnostics = @($Schema.diagnostics)
         summary = [ordered]@{
             selected_packs = @($Schema.packs).Count
+            capability_groups = @($Schema.capability_groups).Count
+            enabled_capability_groups = @($Schema.capability_groups | Where-Object enabled).Count
             capabilities = $capabilities.Count
             enabled_capabilities = @($capabilities | Where-Object enabled).Count
             available_capabilities = @($capabilities | Where-Object available).Count
@@ -900,6 +1134,8 @@ function ConvertTo-KnowledgeEffectiveSchemaMarkdown {
         '| --- | ---: |'
         "| Project manifest schema version | $($project.project_manifest_schema_version) |"
         "| Selected packs | $($summary.selected_packs) |"
+        "| Capability groups | $($summary.capability_groups) |"
+        "| Enabled capability groups | $($summary.enabled_capability_groups) |"
         "| Capabilities | $($summary.capabilities) |"
         "| Enabled capabilities | $($summary.enabled_capabilities) |"
         "| Available capabilities | $($summary.available_capabilities) |"
@@ -921,6 +1157,25 @@ function ConvertTo-KnowledgeEffectiveSchemaMarkdown {
             $row.classification.role
             $row.classification.scope
             $row.presentation.short_description
+        ) | ForEach-Object { ConvertTo-KnowledgeMarkdownCell $_ }
+        $lines.Add('| ' + ($values -join ' | ') + ' |')
+    }
+    @(
+        ''
+        '## Capability Groups'
+        ''
+        '| Group | Label | Owner | Capabilities | Available | Enabled | Description |'
+        '| --- | --- | --- | ---: | --- | --- | --- |'
+    ) | ForEach-Object { $lines.Add($_) }
+    foreach ($row in @($model.capability_groups)) {
+        $values = @(
+            $row.id
+            $row.presentation.label
+            $row.owner_pack_id
+            @($row.capability_ids).Count
+            ([string][bool]$row.available).ToLowerInvariant()
+            ([string][bool]$row.enabled).ToLowerInvariant()
+            $row.presentation.description
         ) | ForEach-Object { ConvertTo-KnowledgeMarkdownCell $_ }
         $lines.Add('| ' + ($values -join ' | ') + ' |')
     }

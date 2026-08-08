@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "pack_id": "fixture-domain",
   "pack_version": 3,
   "lifecycle": "active",
@@ -45,7 +45,29 @@
         "localization_key": "capability.domain-capability",
         "label": "Domain Capability",
         "description": "Provides the synthetic domain behavior used by composition tests."
+      },
+      "relationships": {
+        "requires": ["shared-capability"],
+        "conflicts_with": ["deprecated-capability"]
       }
+    }
+  ],
+  "capability_groups": [
+    {
+      "id": "fixture-domain-behavior",
+      "order": 200,
+      "presentation": {
+        "localization_key": "group.fixture-domain-behavior",
+        "label": "Fixture Domain Behavior",
+        "description": "Groups capabilities that exercise domain-specific composition."
+      }
+    }
+  ],
+  "capability_group_memberships": [
+    {
+      "group_id": "fixture-domain-behavior",
+      "order": 100,
+      "capability_ids": ["shared-capability", "domain-capability"]
     }
   ],
   "controlled_values": {

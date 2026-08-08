@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "pack_id": "fixture-core",
   "pack_version": 2,
   "lifecycle": "active",
@@ -45,6 +45,9 @@
         "localization_key": "capability.planned-capability",
         "label": "Planned Capability",
         "description": "Declared but unavailable and disabled."
+      },
+      "relationships": {
+        "recommends": ["shared-capability"]
       }
     },
     {
@@ -55,6 +58,24 @@
         "label": "Deprecated Capability",
         "description": "Available only for compatibility."
       }
+    }
+  ],
+  "capability_groups": [
+    {
+      "id": "fixture-foundation",
+      "order": 100,
+      "presentation": {
+        "localization_key": "group.fixture-foundation",
+        "label": "Fixture Foundation",
+        "description": "Groups the neutral capabilities used by schema-pack composition fixtures."
+      }
+    }
+  ],
+  "capability_group_memberships": [
+    {
+      "group_id": "fixture-foundation",
+      "order": 100,
+      "capability_ids": ["shared-capability", "planned-capability", "deprecated-capability"]
     }
   ],
   "controlled_values": {

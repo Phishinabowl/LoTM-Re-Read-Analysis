@@ -1,7 +1,7 @@
-$script:FrameworkCatalogContractVersion = 1
-$script:FrameworkCatalogSelectionContractVersion = 1
-$script:FrameworkCatalogProjectViewContractVersion = 1
-$script:FrameworkCatalogProjectViewSelectionContractVersion = 1
+$script:FrameworkCatalogContractVersion = 2
+$script:FrameworkCatalogSelectionContractVersion = 2
+$script:FrameworkCatalogProjectViewContractVersion = 2
+$script:FrameworkCatalogProjectViewSelectionContractVersion = 2
 
 function New-FrameworkCatalogClassifiedException {
     param([string]$Classification, [string]$Message, [System.Exception]$InnerException)
@@ -276,6 +276,9 @@ function New-KnowledgeFrameworkCatalog {
 
     $packRows = @()
     $capabilityProviders = [ordered]@{}
+    $capabilityGroupDefinitions = [ordered]@{}
+    $capabilityGroupContributions = [ordered]@{}
+    $capabilityGroupIdsByCapability = [ordered]@{}
     foreach ($packId in @(Get-FrameworkCatalogOrdinalStrings $PackConfigs.Keys)) {
         $pack = $PackConfigs[$packId]
         $dependencies = @(
@@ -300,6 +303,8 @@ function New-KnowledgeFrameworkCatalog {
             presentation = ConvertTo-FrameworkCatalogPackPresentation $pack.presentation
             dependencies = @($dependencies)
             capability_ids = @($pack.capabilities)
+            capability_group_ids = @($pack.capability_groups | ForEach-Object id)
+            capability_group_contribution_ids = @($pack.capability_group_memberships | ForEach-Object group_id)
             controlled_value_namespaces = @(ConvertTo-FrameworkCatalogControlledNamespaces $pack)
             discoverability = [ordered]@{
                 installed = $true
@@ -314,6 +319,66 @@ function New-KnowledgeFrameworkCatalog {
                 pack_id = $packId
                 definition = $pack.capability_definitions[$capabilityId]
             }
+        }
+        foreach ($group in @($pack.capability_groups)) {
+            $capabilityGroupDefinitions[$group.id] = [pscustomobject]@{
+                owner_pack_id = $packId
+                definition = $group
+            }
+        }
+        foreach ($membership in @($pack.capability_group_memberships)) {
+            if (-not $capabilityGroupContributions.Contains($membership.group_id)) {
+                $capabilityGroupContributions[$membership.group_id] = @()
+            }
+            $capabilityGroupContributions[$membership.group_id] = @(
+                $capabilityGroupContributions[$membership.group_id]
+            ) + [ordered]@{
+                provider_pack_id = $packId
+                order = [int]$membership.order
+                capability_ids = @($membership.capability_ids)
+            }
+            foreach ($capabilityId in @($membership.capability_ids)) {
+                if (-not $capabilityGroupIdsByCapability.Contains($capabilityId)) {
+                    $capabilityGroupIdsByCapability[$capabilityId] = @()
+                }
+                if (@($capabilityGroupIdsByCapability[$capabilityId]) -cnotcontains $membership.group_id) {
+                    $capabilityGroupIdsByCapability[$capabilityId] = @(
+                        $capabilityGroupIdsByCapability[$capabilityId]
+                    ) + $membership.group_id
+                }
+            }
+        }
+    }
+
+    $capabilityGroupRows = @()
+    foreach ($entry in @($capabilityGroupDefinitions.GetEnumerator() | Sort-Object { $_.Value.definition.order }, Key)) {
+        $groupId = [string]$entry.Key
+        $definition = $entry.Value.definition
+        $contributions = @(
+            @($capabilityGroupContributions[$groupId]) |
+                Sort-Object @{ Expression = 'order'
+                    Ascending = $true
+                },
+                @{ Expression = 'provider_pack_id'
+                    Ascending = $true
+                }
+        )
+        $capabilityIds = @()
+        foreach ($contribution in $contributions) {
+            foreach ($capabilityId in @($contribution.capability_ids)) {
+                if ($capabilityIds -cnotcontains $capabilityId) {
+                    $capabilityIds += $capabilityId
+                }
+            }
+        }
+        $capabilityGroupRows += [ordered]@{
+            id = $groupId
+            record_id = "framework-catalog:capability-group:$groupId"
+            order = [int]$definition.order
+            presentation = ConvertTo-FrameworkCatalogCapabilityPresentation $definition.presentation
+            owner_pack_id = [string]$entry.Value.owner_pack_id
+            contributions = @($contributions)
+            capability_ids = @($capabilityIds)
         }
     }
 
@@ -338,12 +403,22 @@ function New-KnowledgeFrameworkCatalog {
             available = $effectiveLifecycle -ceq 'available'
             deprecated = $effectiveLifecycle -ceq 'deprecated'
             planned = $effectiveLifecycle -ceq 'planned'
+            group_ids = @($capabilityGroupIdsByCapability[$capabilityId])
+            relationships = [ordered]@{
+                requires = @($providers[0].definition.relationships.requires)
+                recommends = @($providers[0].definition.relationships.recommends)
+                conflicts_with = @($providers[0].definition.relationships.conflicts_with)
+            }
             providers = @(
                 $providers | ForEach-Object {
                     [ordered]@{
                         pack_id = [string]$_.pack_id
                         lifecycle = [string]$_.definition.lifecycle
                         presentation = ConvertTo-FrameworkCatalogCapabilityPresentation $_.definition.presentation
+                        pack_dependencies = @($PackConfigs[$_.pack_id].dependencies | ForEach-Object pack_id)
+                        controlled_value_namespace_ids = @(
+                            Get-FrameworkCatalogOrdinalStrings $PackConfigs[$_.pack_id].controlled_values.Keys
+                        )
                     }
                 }
             )
@@ -365,12 +440,14 @@ function New-KnowledgeFrameworkCatalog {
         }
         summary = [ordered]@{
             pack_count = $packRows.Count
+            capability_group_count = $capabilityGroupRows.Count
             capability_count = $capabilityRows.Count
             available_capability_count = @($capabilityRows | Where-Object available).Count
             deprecated_capability_count = @($capabilityRows | Where-Object deprecated).Count
             planned_capability_count = @($capabilityRows | Where-Object planned).Count
         }
         packs = @($packRows)
+        capability_groups = @($capabilityGroupRows)
         capabilities = @($capabilityRows)
     }
 }
@@ -440,25 +517,148 @@ function Resolve-KnowledgeFrameworkCatalogRow {
     return $matches[0]
 }
 
+function Select-FrameworkCatalogCapabilities {
+    param(
+        [object[]]$Rows,
+        [string[]]$ProviderPackIds,
+        [string[]]$Lifecycles,
+        [string[]]$Availability,
+        [string[]]$Activation,
+        [string[]]$Usage,
+        [bool]$ProjectView
+    )
+
+    $allowed = @{
+        lifecycle = @('available', 'deprecated', 'planned')
+        availability = @('available', 'unavailable')
+        activation = @('enabled', 'disabled')
+        'project usage' = @('used', 'unused')
+    }
+    foreach ($specification in @(
+            [pscustomobject]@{ label = 'lifecycle'
+                values = @($Lifecycles)
+            },
+            [pscustomobject]@{ label = 'availability'
+                values = @($Availability)
+            },
+            [pscustomobject]@{ label = 'activation'
+                values = @($Activation)
+            },
+            [pscustomobject]@{ label = 'project usage'
+                values = @($Usage)
+            }
+        )) {
+        $unknown = @($specification.values | Where-Object { $allowed[$specification.label] -cnotcontains $_ })
+        if ($unknown.Count -gt 0) {
+            throw "Unknown capability $($specification.label) filter(s): $($unknown -join ', ')."
+        }
+    }
+    if (-not $ProjectView -and (@($Activation).Count -gt 0 -or @($Usage).Count -gt 0)) {
+        throw 'Capability activation and project-usage filters require a catalog project view.'
+    }
+    $filtered = @($Rows)
+    if (@($ProviderPackIds).Count -gt 0) {
+        $filtered = @($filtered | Where-Object {
+                @($_.providers | Where-Object { $ProviderPackIds -ccontains $_.pack_id }).Count -gt 0
+            })
+    }
+    if (@($Lifecycles).Count -gt 0) {
+        $filtered = @($filtered | Where-Object { $Lifecycles -ccontains $_.effective_lifecycle })
+    }
+    if (@($Availability).Count -gt 0) {
+        $filtered = @($filtered | Where-Object {
+                $state = if ($_.available) {
+                    'available'
+                }
+                else {
+                    'unavailable'
+                }
+                $Availability -ccontains $state
+            })
+    }
+    if (@($Activation).Count -gt 0) {
+        $filtered = @($filtered | Where-Object {
+                $state = if ($_.project_state.enabled) {
+                    'enabled'
+                }
+                else {
+                    'disabled'
+                }
+                $Activation -ccontains $state
+            })
+    }
+    if (@($Usage).Count -gt 0) {
+        $filtered = @($filtered | Where-Object {
+                $state = if ($_.project_state.used_by_project) {
+                    'used'
+                }
+                else {
+                    'unused'
+                }
+                $Usage -ccontains $state
+            })
+    }
+    return @($filtered)
+}
+
 function New-KnowledgeFrameworkCatalogSelection {
     param(
         [object]$Catalog,
         [object]$LookupKeys,
         [string]$PackId,
-        [string]$CapabilityId
+        [string]$GroupId,
+        [string]$CapabilityId,
+        [string[]]$ProviderPackIds = @(),
+        [string[]]$Lifecycles = @(),
+        [string[]]$Availability = @(),
+        [string[]]$Activation = @(),
+        [string[]]$Usage = @()
     )
 
-    if ([string]::IsNullOrWhiteSpace($PackId) -and [string]::IsNullOrWhiteSpace($CapabilityId)) {
-        throw 'Framework-catalog selection requires a pack or capability ID.'
+    if (
+        [string]::IsNullOrWhiteSpace($PackId) -and
+        [string]::IsNullOrWhiteSpace($GroupId) -and
+        [string]::IsNullOrWhiteSpace($CapabilityId) -and
+        @($ProviderPackIds).Count -eq 0 -and
+        @($Lifecycles).Count -eq 0 -and
+        @($Availability).Count -eq 0 -and
+        @($Activation).Count -eq 0 -and
+        @($Usage).Count -eq 0
+    ) {
+        throw 'Framework-catalog selection requires an ID or capability filter.'
     }
+    $selectedGroups = if ([string]::IsNullOrWhiteSpace($GroupId)) {
+        @()
+    }
+    else {
+        @(Resolve-KnowledgeFrameworkCatalogRow @($Catalog.capability_groups) $GroupId 'capability group' $LookupKeys)
+    }
+    $selectedGroups = @($selectedGroups)
     $selectedPacks = if ([string]::IsNullOrWhiteSpace($PackId)) {
         @()
     }
     else {
         @(Resolve-KnowledgeFrameworkCatalogRow @($Catalog.packs) $PackId 'pack' $LookupKeys)
     }
+    $selectedPacks = @($selectedPacks)
+    $normalizedProviderIds = @(
+        $ProviderPackIds | ForEach-Object {
+            (Resolve-KnowledgeFrameworkCatalogRow @($Catalog.packs) $_ 'pack' $LookupKeys).id
+        }
+    )
+    $capabilityQueryRequested = (
+        -not [string]::IsNullOrWhiteSpace($GroupId) -or
+        -not [string]::IsNullOrWhiteSpace($CapabilityId) -or
+        @($ProviderPackIds).Count -gt 0 -or @($Lifecycles).Count -gt 0 -or
+        @($Availability).Count -gt 0 -or @($Activation).Count -gt 0 -or @($Usage).Count -gt 0
+    )
     $selectedCapabilities = if ([string]::IsNullOrWhiteSpace($CapabilityId)) {
-        @()
+        if ($capabilityQueryRequested) {
+            @($Catalog.capabilities)
+        }
+        else {
+            @()
+        }
     }
     else {
         @(
@@ -468,6 +668,34 @@ function New-KnowledgeFrameworkCatalogSelection {
                 'capability' `
                 $LookupKeys
         )
+    }
+    $selectedCapabilities = @($selectedCapabilities)
+    if ($selectedGroups.Count -gt 0) {
+        $groupCapabilityIds = @($selectedGroups[0].capability_ids)
+        $selectedCapabilities = @($selectedCapabilities | Where-Object { $groupCapabilityIds -ccontains $_.id })
+    }
+    $selectedCapabilities = @(
+        Select-FrameworkCatalogCapabilities `
+            -Rows $selectedCapabilities `
+            -ProviderPackIds $normalizedProviderIds `
+            -Lifecycles $Lifecycles `
+            -Availability $Availability `
+            -Activation $Activation `
+            -Usage $Usage `
+            -ProjectView $false
+    )
+    if ([string]::IsNullOrWhiteSpace($GroupId) -and (
+            -not [string]::IsNullOrWhiteSpace($CapabilityId) -or
+            @($ProviderPackIds).Count -gt 0 -or
+            @($Lifecycles).Count -gt 0 -or
+            @($Availability).Count -gt 0 -or
+            @($Activation).Count -gt 0 -or
+            @($Usage).Count -gt 0
+        )) {
+        $capabilityIds = @($selectedCapabilities | ForEach-Object id)
+        $selectedGroups = @($Catalog.capability_groups | Where-Object {
+                @($_.capability_ids | Where-Object { $capabilityIds -ccontains $_ }).Count -gt 0
+            })
     }
     return [ordered]@{
         contract = 'framework-catalog-selection'
@@ -480,14 +708,28 @@ function New-KnowledgeFrameworkCatalogSelection {
             else {
                 $PackId
             }
+            capability_group = if ([string]::IsNullOrWhiteSpace($GroupId)) {
+                $null
+            }
+            else {
+                $GroupId
+            }
             capability = if ([string]::IsNullOrWhiteSpace($CapabilityId)) {
                 $null
             }
             else {
                 $CapabilityId
             }
+            filters = [ordered]@{
+                provider_pack_ids = @($normalizedProviderIds)
+                lifecycles = @($Lifecycles)
+                availability = @($Availability)
+                activation = @($Activation)
+                usage = @($Usage)
+            }
         }
         packs = @($selectedPacks)
+        capability_groups = @($selectedGroups)
         capabilities = @($selectedCapabilities)
     }
 }
@@ -533,7 +775,12 @@ function New-KnowledgeFrameworkCatalogProjectView {
     foreach ($row in @($EffectiveSchema.capabilities)) {
         $selectedCapabilities[[string]$row.id] = $row
     }
+    $selectedGroups = @{}
+    foreach ($row in @($EffectiveSchema.capability_groups)) {
+        $selectedGroups[[string]$row.id] = $row
+    }
     $catalogPackIds = @($Catalog.packs | ForEach-Object id)
+    $catalogGroupIds = @($Catalog.capability_groups | ForEach-Object id)
     $catalogCapabilityIds = @($Catalog.capabilities | ForEach-Object id)
     $missingPacks = @($selectedPacks.Keys | Where-Object { $catalogPackIds -cnotcontains $_ } | Sort-Object)
     if ($missingPacks.Count -gt 0) {
@@ -549,6 +796,10 @@ function New-KnowledgeFrameworkCatalogProjectView {
             'Effective schema declares capability or capabilities absent from the framework catalog: ' +
             "$($missingCapabilities -join ', ')."
         )
+    }
+    $missingGroups = @($selectedGroups.Keys | Where-Object { $catalogGroupIds -cnotcontains $_ } | Sort-Object)
+    if ($missingGroups.Count -gt 0) {
+        throw "Effective schema includes capability group(s) absent from the framework catalog: $($missingGroups -join ', ')."
     }
 
     $packRows = @()
@@ -572,6 +823,41 @@ function New-KnowledgeFrameworkCatalogProjectView {
             }
         }
         $packRows += $row
+    }
+
+    $groupRows = @()
+    foreach ($catalogRow in @($Catalog.capability_groups)) {
+        $row = Copy-FrameworkCatalogRow $catalogRow
+        $selectedCapabilityRows = @(
+            $catalogRow.capability_ids |
+                Where-Object { $selectedCapabilities.ContainsKey([string]$_) } |
+                ForEach-Object { $selectedCapabilities[[string]$_] }
+        )
+        $available = @($selectedCapabilityRows | Where-Object available).Count -gt 0
+        $enabled = @($selectedCapabilityRows | Where-Object enabled).Count -gt 0
+        $deprecated = $selectedCapabilityRows.Count -gt 0 -and @(
+            $selectedCapabilityRows | Where-Object { -not $_.deprecated }
+        ).Count -eq 0
+        $planned = $selectedCapabilityRows.Count -gt 0 -and @(
+            $selectedCapabilityRows | Where-Object { -not $_.planned }
+        ).Count -eq 0
+        $row.catalog_record_id = $row.record_id
+        $row.record_id = "framework-catalog-project-view:capability-group:$($row.id)"
+        $row.project_state = [ordered]@{
+            selected = $selectedGroups.ContainsKey([string]$catalogRow.id)
+            available = $available
+            enabled = $enabled
+            deprecated = $deprecated
+            planned = $planned
+            used_by_project = $enabled
+            unavailable_reason = if ($available) {
+                $null
+            }
+            else {
+                'no-selected-available-capabilities'
+            }
+        }
+        $groupRows += $row
     }
 
     $capabilityRows = @()
@@ -613,6 +899,13 @@ function New-KnowledgeFrameworkCatalogProjectView {
             selected_pack_count = @($packRows | Where-Object { $_.project_state.selected }).Count
             available_pack_count = @($packRows | Where-Object { $_.project_state.available }).Count
             capability_count = $capabilityRows.Count
+            capability_group_count = $groupRows.Count
+            selected_capability_group_count = @(
+                $groupRows | Where-Object { $_.project_state.selected }
+            ).Count
+            enabled_capability_group_count = @(
+                $groupRows | Where-Object { $_.project_state.enabled }
+            ).Count
             selected_capability_count = @(
                 $capabilityRows | Where-Object { $_.project_state.selected }
             ).Count
@@ -630,6 +923,7 @@ function New-KnowledgeFrameworkCatalogProjectView {
             ).Count
         }
         packs = @($packRows)
+        capability_groups = @($groupRows)
         capabilities = @($capabilityRows)
     }
 }
@@ -640,23 +934,62 @@ function New-KnowledgeFrameworkCatalogProjectViewSelection {
         [object]$ProjectView,
         [object]$LookupKeys,
         [string]$PackId,
-        [string]$CapabilityId
+        [string]$GroupId,
+        [string]$CapabilityId,
+        [string[]]$ProviderPackIds = @(),
+        [string[]]$Lifecycles = @(),
+        [string[]]$Availability = @(),
+        [string[]]$Activation = @(),
+        [string[]]$Usage = @()
     )
 
     if ($ProjectView.contract -cne 'framework-catalog-project-view') {
         throw 'Project-view selection requires a FrameworkCatalogProjectView.'
     }
-    if ([string]::IsNullOrWhiteSpace($PackId) -and [string]::IsNullOrWhiteSpace($CapabilityId)) {
-        throw 'Framework-catalog project-view selection requires a pack or capability ID.'
+    if (
+        [string]::IsNullOrWhiteSpace($PackId) -and
+        [string]::IsNullOrWhiteSpace($GroupId) -and
+        [string]::IsNullOrWhiteSpace($CapabilityId) -and
+        @($ProviderPackIds).Count -eq 0 -and
+        @($Lifecycles).Count -eq 0 -and
+        @($Availability).Count -eq 0 -and
+        @($Activation).Count -eq 0 -and
+        @($Usage).Count -eq 0
+    ) {
+        throw 'Framework-catalog project-view selection requires an ID or capability filter.'
     }
+    $groupRows = if ([string]::IsNullOrWhiteSpace($GroupId)) {
+        @()
+    }
+    else {
+        @(Resolve-KnowledgeFrameworkCatalogRow @($ProjectView.capability_groups) $GroupId 'capability group' $LookupKeys)
+    }
+    $groupRows = @($groupRows)
     $packRows = if ([string]::IsNullOrWhiteSpace($PackId)) {
         @()
     }
     else {
         @(Resolve-KnowledgeFrameworkCatalogRow @($ProjectView.packs) $PackId 'pack' $LookupKeys)
     }
+    $packRows = @($packRows)
+    $normalizedProviderIds = @(
+        $ProviderPackIds | ForEach-Object {
+            (Resolve-KnowledgeFrameworkCatalogRow @($ProjectView.packs) $_ 'pack' $LookupKeys).id
+        }
+    )
+    $capabilityQueryRequested = (
+        -not [string]::IsNullOrWhiteSpace($GroupId) -or
+        -not [string]::IsNullOrWhiteSpace($CapabilityId) -or
+        @($ProviderPackIds).Count -gt 0 -or @($Lifecycles).Count -gt 0 -or
+        @($Availability).Count -gt 0 -or @($Activation).Count -gt 0 -or @($Usage).Count -gt 0
+    )
     $capabilityRows = if ([string]::IsNullOrWhiteSpace($CapabilityId)) {
-        @()
+        if ($capabilityQueryRequested) {
+            @($ProjectView.capabilities)
+        }
+        else {
+            @()
+        }
     }
     else {
         @(
@@ -666,6 +999,34 @@ function New-KnowledgeFrameworkCatalogProjectViewSelection {
                 'capability' `
                 $LookupKeys
         )
+    }
+    $capabilityRows = @($capabilityRows)
+    if ($groupRows.Count -gt 0) {
+        $groupCapabilityIds = @($groupRows[0].capability_ids)
+        $capabilityRows = @($capabilityRows | Where-Object { $groupCapabilityIds -ccontains $_.id })
+    }
+    $capabilityRows = @(
+        Select-FrameworkCatalogCapabilities `
+            -Rows $capabilityRows `
+            -ProviderPackIds $normalizedProviderIds `
+            -Lifecycles $Lifecycles `
+            -Availability $Availability `
+            -Activation $Activation `
+            -Usage $Usage `
+            -ProjectView $true
+    )
+    if ([string]::IsNullOrWhiteSpace($GroupId) -and (
+            -not [string]::IsNullOrWhiteSpace($CapabilityId) -or
+            @($ProviderPackIds).Count -gt 0 -or
+            @($Lifecycles).Count -gt 0 -or
+            @($Availability).Count -gt 0 -or
+            @($Activation).Count -gt 0 -or
+            @($Usage).Count -gt 0
+        )) {
+        $capabilityIds = @($capabilityRows | ForEach-Object id)
+        $groupRows = @($ProjectView.capability_groups | Where-Object {
+                @($_.capability_ids | Where-Object { $capabilityIds -ccontains $_ }).Count -gt 0
+            })
     }
     return [ordered]@{
         contract = 'framework-catalog-project-view-selection'
@@ -678,14 +1039,28 @@ function New-KnowledgeFrameworkCatalogProjectViewSelection {
             else {
                 $PackId
             }
+            capability_group = if ([string]::IsNullOrWhiteSpace($GroupId)) {
+                $null
+            }
+            else {
+                $GroupId
+            }
             capability = if ([string]::IsNullOrWhiteSpace($CapabilityId)) {
                 $null
             }
             else {
                 $CapabilityId
             }
+            filters = [ordered]@{
+                provider_pack_ids = @($normalizedProviderIds)
+                lifecycles = @($Lifecycles)
+                availability = @($Availability)
+                activation = @($Activation)
+                usage = @($Usage)
+            }
         }
         packs = @($packRows)
+        capability_groups = @($groupRows)
         capabilities = @($capabilityRows)
     }
 }

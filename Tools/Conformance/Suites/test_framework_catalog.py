@@ -157,6 +157,7 @@ def main() -> int:
         summary = canonical_document["summary"]
         assert summary["pack_count"] == expectations["canonical_pack_count"]
         assert summary["capability_count"] == expectations["canonical_capability_count"]
+        assert summary["capability_group_count"] == expectations["canonical_capability_group_count"]
         assert summary["available_capability_count"] == expectations["canonical_available_capability_count"]
         assert summary["planned_capability_count"] == expectations["canonical_planned_capability_count"]
         assert summary["deprecated_capability_count"] == expectations["canonical_deprecated_capability_count"]
@@ -171,6 +172,8 @@ def main() -> int:
         assert project_view["summary"]["pack_count"] == len(canonical.packs)
         assert project_view["summary"]["selected_pack_count"] == len(effective_schema.packs)
         assert project_view["summary"]["capability_count"] == len(canonical.capabilities)
+        assert project_view["summary"]["capability_group_count"] == len(canonical.capability_groups)
+        assert project_view["summary"]["selected_capability_group_count"] == len(effective_schema.capability_groups)
         assert project_view["summary"]["selected_capability_count"] == len(effective_schema.capabilities)
         assert project_view["summary"]["enabled_capability_count"] == sum(
             row["enabled"] for row in effective_schema.capabilities
@@ -182,7 +185,13 @@ def main() -> int:
         selected_pack_id = effective_schema.packs[0]["id"]
         selected_pack = next(row for row in project_view["packs"] if row["id"] == selected_pack_id)
         unselected_pack = next(row for row in project_view["packs"] if not row["project_state"]["selected"])
-        enabled_capability_id = next(row["id"] for row in effective_schema.capabilities if row["enabled"])
+        selected_group_id = effective_schema.capability_groups[0]["id"]
+        selected_group_capability_ids = set(effective_schema.capability_groups[0]["capability_ids"])
+        enabled_capability_id = next(
+            row["id"]
+            for row in effective_schema.capabilities
+            if row["enabled"] and row["id"] in selected_group_capability_ids
+        )
         enabled_capability = next(row for row in project_view["capabilities"] if row["id"] == enabled_capability_id)
         planned_capability = next(row for row in project_view["capabilities"] if row["project_state"]["planned"])
         assert selected_pack["project_state"]["selected"] and selected_pack["project_state"]["used_by_project"]
@@ -202,11 +211,30 @@ def main() -> int:
             canonical,
             project_view,
             pack_id=selected_pack_id.upper(),
+            group_id=selected_group_id.upper(),
             capability_id=enabled_capability_id.upper(),
         )
         assert project_selection["contract"] == "framework-catalog-project-view-selection"
         assert [row["id"] for row in project_selection["packs"]] == [selected_pack_id]
+        assert [row["id"] for row in project_selection["capability_groups"]] == [selected_group_id]
         assert [row["id"] for row in project_selection["capabilities"]] == [enabled_capability_id]
+        project_filter = compose_framework_catalog_project_view_selection(
+            canonical,
+            project_view,
+            provider_pack_ids=("Narrative-Media",),
+            lifecycles=("available",),
+            activation=("enabled",),
+            usage=("used",),
+        )
+        expected_project_filter_ids = [
+            row["id"]
+            for row in project_view["capabilities"]
+            if row["effective_lifecycle"] == "available"
+            and row["project_state"]["enabled"]
+            and any(provider["pack_id"] == "narrative-media" for provider in row["providers"])
+        ]
+        assert [row["id"] for row in project_filter["capabilities"]] == expected_project_filter_ids
+        assert expected_project_filter_ids
         assert_rejected(
             lambda: compose_framework_catalog_project_view(
                 canonical,
@@ -235,6 +263,37 @@ def main() -> int:
         )
         assert [row["id"] for row in selection["packs"]] == ["narrative-media"]
         assert [row["id"] for row in selection["capabilities"]] == ["narrative-time-loops"]
+        selected_capability = selection["capabilities"][0]
+        assert set(selected_capability["relationships"]) == {"requires", "recommends", "conflicts_with"}
+        assert selected_capability["providers"][0]["controlled_value_namespace_ids"]
+        group_selection = compose_framework_catalog_selection(
+            canonical,
+            group_id="NARRATIVE-TIME-CONTINUITY-AND-DISCLOSURE",
+        )
+        group_capability_ids = set(group_selection["capability_groups"][0]["capability_ids"])
+        assert [row["id"] for row in group_selection["capabilities"]] == [
+            row["id"] for row in canonical.capabilities if row["id"] in group_capability_ids
+        ]
+        provider_selection = compose_framework_catalog_selection(
+            canonical,
+            provider_pack_ids=("Narrative-Media",),
+            lifecycles=("available",),
+        )
+        expected_provider_ids = [
+            row["id"]
+            for row in canonical.capabilities
+            if row["effective_lifecycle"] == "available"
+            and any(provider["pack_id"] == "narrative-media" for provider in row["providers"])
+        ]
+        assert [row["id"] for row in provider_selection["capabilities"]] == expected_provider_ids
+        assert_rejected(
+            lambda: compose_framework_catalog_selection(canonical, activation=("enabled",)),
+            "require a catalog project view",
+        )
+        assert_rejected(
+            lambda: compose_framework_catalog_selection(canonical, lifecycles=("future",)),
+            "Unknown capability lifecycle filter",
+        )
         assert_rejected(
             lambda: compose_framework_catalog_selection(canonical, pack_id="unknown-pack"),
             "Unknown framework-catalog pack ID",
@@ -379,7 +438,7 @@ def main() -> int:
         "invalid_cases": invalid_cases,
         "project_view_cases": 8,
         "scale_pack_count": expectations["scale_pack_count"],
-        "selection_cases": 3,
+        "selection_cases": 8,
     }
     if args.json:
         print(json.dumps(result, sort_keys=True, separators=(",", ":")))

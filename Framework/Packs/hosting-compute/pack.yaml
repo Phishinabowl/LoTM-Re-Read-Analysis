@@ -1,6 +1,6 @@
-schema_version: 5
+schema_version: 6
 pack_id: hosting-compute
-pack_version: 2
+pack_version: 3
 lifecycle: active
 pack_kind: extension
 classification:
@@ -52,6 +52,10 @@ dependencies:
     minimum_version: 1
 
 capabilities: []
+
+capability_groups: []
+
+capability_group_memberships: []
 
 controlled_values:
   hosting.carrier-kind:

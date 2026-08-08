@@ -486,3 +486,63 @@ successful scoped output was removed.
 
 Phase 3.2.3 is implemented by `4f801cd` (`Publish effective schema in QA exports`). Capability
 grouping is the next platform boundary.
+
+## Platform Phase 3.2.4 - Capability Grouping
+
+**Implemented by:** pending
+
+Phase 3.2.4 advances canonical packs to schema version 6 and introduces 17 stable, ordered,
+localizable capability groups across the 14 installed packs. A group has one owning pack, while the
+owner and dependent packs may contribute their own capabilities in deterministic order without
+transferring capability ownership. Every schema-6 capability belongs to at least one group.
+
+Capability declarations now carry explicit hard requirements, recommendations, and conflicts.
+Composition rejects unknown or self relationships, overlapping relationship kinds, provider drift,
+and cycles in the hard-requirement graph. Recommendations do not activate dependencies, conflicts
+do not silently resolve project policy, and planned capabilities remain visible but unavailable.
+
+`FrameworkCatalog` version 2, `FrameworkCatalogProjectView` version 2, and
+`EffectiveProjectSchema` version 3 expose the same group and relationship metadata under distinct
+installed-versus-project-scoped record identities. Pack rows explain architectural family, role,
+scope, dependencies, bridges, groups, and controlled-value contributions. Capability rows explain
+groups, relationships, providers, provider dependencies, and provider-controlled namespaces.
+Effective-schema QA Markdown now includes the selected capability groups.
+
+The paired catalog and effective-schema commands add `groups` report sections, singular group
+navigation, and deterministic capability filters for provider, lifecycle, availability, activation,
+and project usage. Activation and usage are rejected by the project-independent catalog unless an
+explicit project view is attached. Selection envelopes record normalized requests and reuse the
+catalog/effective-schema records rather than defining a third metadata model. PowerShell module
+version 0.10.0 exposes the matching service APIs.
+
+### Phase 3.2.4 Verification
+
+Paired schema-pack conformance passed with 14 installed packs, 136 capabilities, 17 groups, a
+three-pack contribution fixture, 102 malformed cases, multi-provider relationship parity, hard-cycle
+rejection, uniform legacy-schema support, and a generated 64-pack scale case. Paired catalog and
+effective-schema suites passed with matching summaries in Python and PowerShell 7: catalog selection
+covered eight group/filter/explanation cases, while effective-schema selection covered seven.
+
+Direct Python and PowerShell 7 command probes produced byte-identical JSON for group plus activation
+selection and provider plus project-view activation filtering. The permanent catalog and
+effective-schema compatibility checks now repeat a representative compound group, provider,
+lifecycle, availability, activation, and project-usage selection across all three runtimes. A
+conformance failure exposed and corrected a PowerShell array-binding defect: singleton group records
+and empty positional arrays are now explicitly array-wrapped and passed through named parameters.
+
+The six-check `local` compatibility profile passed framework catalog, effective schema,
+Visualization, compatibility reporting, and conformance reporting while preserving every canonical
+output. QA reported only the intentional `_Generated/effective-schema.md` group-section change. The
+reviewed LoTM QA oracle advanced that one file hash and aggregate tree hash; the subsequent focused
+three-runtime QA compatibility check passed all 35 files in 61.5 seconds with canonical outputs
+unchanged. Ruff passed all 51 Python files, and the repository PowerShell formatter passed all 52
+files in PowerShell 7 and Windows PowerShell 5.1 with zero drift or over-limit lines.
+
+After the compound-filter probes became permanent compatibility obligations, the focused
+three-runtime framework-catalog check passed in 398.3 seconds and the focused effective-schema check
+passed in 295.9 seconds. Both checks removed their scoped temporary output and reported canonical
+project outputs unchanged. The work-annotation linter also passed 364 eligible files and all 22
+fixtures.
+
+Phase 3.2.4 is ready for its two-part confirmation. Phase 3.3, the declarative plugin and
+entitlement boundary, is next.

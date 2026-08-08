@@ -1,6 +1,6 @@
 $script:SupportedSchemaPackRegistryVersion = 2
-$script:SupportedSchemaPackVersions = @(4, 5)
-$script:CurrentSchemaPackVersion = 5
+$script:SupportedSchemaPackVersions = @(4, 5, 6)
+$script:CurrentSchemaPackVersion = 6
 $script:AllowedSchemaPackLifecycles = @("active", "deferred")
 $script:AllowedSchemaPackKinds = @("core", "domain", "extension")
 $script:AllowedCapabilityLifecycles = @("available", "planned", "deprecated")
@@ -319,6 +319,100 @@ function ConvertTo-SchemaPackCapabilityPresentation {
     }
 }
 
+function ConvertTo-SchemaPackCapabilityRelationships {
+    param([System.Collections.IDictionary]$Capability, [string]$Context)
+
+    $raw = Get-ProjectMapValue $Capability 'relationships'
+    if ($null -eq $raw) {
+        $raw = [ordered]@{}
+    }
+    if ($raw -isnot [System.Collections.IDictionary]) {
+        throw "Schema-pack configuration '$Context.relationships' must be a mapping."
+    }
+    Assert-KnowledgeMapKeys $raw @('requires', 'recommends', 'conflicts_with') "Schema pack '$Context.relationships'"
+    $result = [ordered]@{}
+    foreach ($key in @('requires', 'recommends', 'conflicts_with')) {
+        $values = if ($raw.Contains($key)) {
+            @(Get-SchemaPackStableIdList $raw $key "$Context.relationships")
+        }
+        else {
+            @()
+        }
+        $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+        foreach ($value in $values) {
+            if (-not $seen.Add($value)) {
+                throw "Schema-pack configuration '$Context.relationships.$key' contains duplicates."
+            }
+        }
+        $result[$key] = @($values)
+    }
+    return [pscustomobject]$result
+}
+
+function ConvertTo-SchemaPackCapabilityGroups {
+    param([System.Collections.IDictionary]$Pack, [string]$PackId)
+
+    $rawGroups = @(Get-ProjectMapValue $Pack 'capability_groups')
+    $groups = @()
+    $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    for ($index = 0; $index -lt $rawGroups.Count; $index += 1) {
+        $context = "$PackId.capability_groups[$index]"
+        $group = $rawGroups[$index]
+        if ($group -isnot [System.Collections.IDictionary]) {
+            throw "Schema-pack configuration '$context' must be a mapping."
+        }
+        Assert-KnowledgeMapKeys $group @('id', 'order', 'presentation') "Schema pack '$context'"
+        $groupId = Get-RequiredSchemaPackString $group 'id' $context
+        Assert-SchemaPackStableId $groupId "$context.id"
+        if (-not $seen.Add($groupId)) {
+            throw "Schema pack '$PackId' repeats capability group '$groupId'."
+        }
+        $groups += [pscustomobject]@{
+            id = $groupId
+            order = Get-RequiredSchemaPackPositiveInteger $group 'order' $context
+            presentation = ConvertTo-SchemaPackCapabilityPresentation $group $context
+        }
+    }
+    return @($groups)
+}
+
+function ConvertTo-SchemaPackCapabilityGroupMemberships {
+    param([System.Collections.IDictionary]$Pack, [string]$PackId)
+
+    $rawMemberships = @(Get-ProjectMapValue $Pack 'capability_group_memberships')
+    $memberships = @()
+    $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    for ($index = 0; $index -lt $rawMemberships.Count; $index += 1) {
+        $context = "$PackId.capability_group_memberships[$index]"
+        $membership = $rawMemberships[$index]
+        if ($membership -isnot [System.Collections.IDictionary]) {
+            throw "Schema-pack configuration '$context' must be a mapping."
+        }
+        Assert-KnowledgeMapKeys $membership @('group_id', 'order', 'capability_ids') "Schema pack '$context'"
+        $groupId = Get-RequiredSchemaPackString $membership 'group_id' $context
+        Assert-SchemaPackStableId $groupId "$context.group_id"
+        if (-not $seen.Add($groupId)) {
+            throw "Schema pack '$PackId' repeats membership contribution for '$groupId'."
+        }
+        if (-not $membership.Contains('capability_ids')) {
+            throw "Schema-pack configuration '$context.capability_ids' must not be empty."
+        }
+        $capabilityIds = @(Get-SchemaPackStableIdList $membership 'capability_ids' $context)
+        if ($capabilityIds.Count -eq 0) {
+            throw "Schema-pack configuration '$context.capability_ids' must not be empty."
+        }
+        if (@($capabilityIds | Sort-Object -Unique).Count -ne $capabilityIds.Count) {
+            throw "Schema-pack configuration '$context.capability_ids' contains duplicates."
+        }
+        $memberships += [pscustomobject]@{
+            group_id = $groupId
+            order = Get-RequiredSchemaPackPositiveInteger $membership 'order' $context
+            capability_ids = @($capabilityIds)
+        }
+    }
+    return @($memberships)
+}
+
 function Resolve-SchemaPackPath {
     param([object]$ProjectConfig, [string]$Value, [string]$Context)
 
@@ -611,6 +705,9 @@ function ConvertTo-SchemaPackConfig {
     else {
         @('classification', 'presentation')
     }
+    if ($schemaVersion -ge 6) {
+        $packKeys += @('capability_groups', 'capability_group_memberships')
+    }
     Assert-KnowledgeMapKeys $pack $packKeys "Schema pack '$ExpectedPackId'"
     if ($script:SupportedSchemaPackVersions -notcontains $schemaVersion) {
         throw "Unsupported schema-pack schema_version '$schemaVersion' in $Path."
@@ -708,7 +805,12 @@ function ConvertTo-SchemaPackConfig {
                 @('id', 'lifecycle', 'label', 'description')
             }
             else {
-                @('id', 'lifecycle', 'presentation')
+                @('id', 'lifecycle', 'presentation') + $(if ($schemaVersion -ge 6) {
+                        @('relationships')
+                    }
+                    else {
+                        @()
+                    })
             }
             Assert-KnowledgeMapKeys $rawCapability $capabilityKeys "Schema pack '$context'"
             $capabilityId = Get-RequiredSchemaPackString $rawCapability "id" $context
@@ -746,6 +848,15 @@ function ConvertTo-SchemaPackConfig {
                 $capabilityPresentation = ConvertTo-SchemaPackCapabilityPresentation $rawCapability $context
                 $capabilityLabel = $capabilityPresentation.label
                 $capabilityDescription = $capabilityPresentation.description
+                $capabilityRelationships = if ($schemaVersion -ge 6) {
+                    ConvertTo-SchemaPackCapabilityRelationships $rawCapability $context
+                }
+                else {
+                    [pscustomobject]@{ requires = @()
+                        recommends = @()
+                        conflicts_with = @()
+                    }
+                }
             }
         }
         else {
@@ -765,6 +876,15 @@ function ConvertTo-SchemaPackConfig {
             label = $capabilityLabel
             description = $capabilityDescription
             presentation = $capabilityPresentation
+            relationships = if ($legacy) {
+                [pscustomobject]@{ requires = @()
+                    recommends = @()
+                    conflicts_with = @()
+                }
+            }
+            else {
+                $capabilityRelationships
+            }
         }
     }
 
@@ -860,6 +980,18 @@ function ConvertTo-SchemaPackConfig {
         dependencies = @($dependencies)
         capabilities = @($capabilities)
         capability_definitions = $capabilityDefinitions
+        capability_groups = if ($schemaVersion -ge 6) {
+            @(ConvertTo-SchemaPackCapabilityGroups $pack $packId)
+        }
+        else {
+            @()
+        }
+        capability_group_memberships = if ($schemaVersion -ge 6) {
+            @(ConvertTo-SchemaPackCapabilityGroupMemberships $pack $packId)
+        }
+        else {
+            @()
+        }
         controlled_values = $controlledValues
         controlled_value_definitions = $controlledValueDefinitions
         semantic_declarations = ConvertTo-SchemaPackSemanticDeclarations $pack $packId
@@ -876,12 +1008,23 @@ function Assert-SchemaPackPresentationComposition {
     if ($versions.Count -eq 1 -and [int]$versions[0] -eq 4) {
         return
     }
-    if ($versions.Count -ne 1 -or [int]$versions[0] -ne $script:CurrentSchemaPackVersion) {
-        throw 'Schema-pack composition must not mix legacy schema 4 and presentation schema 5 packs.'
+    if ($versions.Count -ne 1 -or [int]$versions[0] -notin @(5, $script:CurrentSchemaPackVersion)) {
+        throw 'Schema-pack composition must use one uniform supported presentation-schema version.'
     }
+    $compositionVersion = [int]$versions[0]
 
     $localizationOwners = @{}
     $capabilityPresentations = @{}
+    $capabilityRelationships = @{}
+    $knownCapabilities = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    foreach ($pack in $Packs.Values) {
+        foreach ($capabilityId in @($pack.capabilities)) {
+            $null = $knownCapabilities.Add($capabilityId)
+        }
+    }
+    $groupOwners = @{}
+    $groupDefinitions = @{}
+    $groupedCapabilities = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
     foreach ($packId in $SelectionOrder) {
         $pack = $Packs[$packId]
         $classification = $pack.classification
@@ -980,6 +1123,126 @@ function Assert-SchemaPackPresentationComposition {
                 throw "Capability '$capabilityId' providers declare conflicting presentation metadata."
             }
             $capabilityPresentations[$capabilityId] = $serialized
+
+            $relationships = $pack.capability_definitions[$capabilityId].relationships
+            $serializedRelationships = $relationships | ConvertTo-Json -Compress
+            if (
+                $capabilityRelationships.ContainsKey($capabilityId) -and
+                $capabilityRelationships[$capabilityId] -cne $serializedRelationships
+            ) {
+                throw "Capability '$capabilityId' providers declare conflicting relationships."
+            }
+            $capabilityRelationships[$capabilityId] = $serializedRelationships
+            $relationshipSets = [ordered]@{
+                requires = @($relationships.requires)
+                recommends = @($relationships.recommends)
+                conflicts_with = @($relationships.conflicts_with)
+            }
+            foreach ($relationshipName in $relationshipSets.Keys) {
+                $targets = @($relationshipSets[$relationshipName])
+                if ($targets -ccontains $capabilityId) {
+                    throw "Capability '$capabilityId' cannot declare itself in '$relationshipName'."
+                }
+                $unknown = @($targets | Where-Object { -not $knownCapabilities.Contains($_) })
+                if ($unknown.Count -gt 0) {
+                    throw "Capability '$capabilityId' has unknown '$relationshipName' target(s): $($unknown -join ', ')."
+                }
+            }
+            $overlap = @(
+                @($relationshipSets.requires) |
+                    Where-Object {
+                        @($relationshipSets.conflicts_with) -ccontains $_
+                    }
+            ) + @(
+                @($relationshipSets.recommends) |
+                    Where-Object {
+                        @($relationshipSets.conflicts_with) -ccontains $_
+                    }
+            )
+            if (@($overlap | Sort-Object -Unique).Count -gt 0) {
+                throw "Capability '$capabilityId' both supports and conflicts with: $(@($overlap | Sort-Object -Unique) -join ', ')."
+            }
+        }
+
+        if ($compositionVersion -lt 6) {
+            continue
+        }
+        foreach ($group in @($pack.capability_groups)) {
+            if ($groupOwners.ContainsKey($group.id)) {
+                throw "Capability group '$($group.id)' is defined by both '$($groupOwners[$group.id])' and '$packId'."
+            }
+            $groupOwners[$group.id] = $packId
+            $groupDefinitions[$group.id] = $group
+            if ($localizationOwners.ContainsKey($group.presentation.localization_key)) {
+                throw "Schema-pack localization key '$($group.presentation.localization_key)' conflicts with another record."
+            }
+            $localizationOwners[$group.presentation.localization_key] = "group:$($group.id)"
+        }
+    }
+
+    if ($compositionVersion -lt 6) {
+        return
+    }
+
+    foreach ($packId in $SelectionOrder) {
+        $pack = $Packs[$packId]
+        $permittedCapabilities = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+        foreach ($capabilityId in @($pack.capabilities)) {
+            $null = $permittedCapabilities.Add($capabilityId)
+        }
+        foreach ($dependency in @($pack.dependencies)) {
+            foreach ($capabilityId in @($Packs[$dependency.pack_id].capabilities)) {
+                $null = $permittedCapabilities.Add($capabilityId)
+            }
+        }
+        foreach ($membership in @($pack.capability_group_memberships)) {
+            if (-not $groupDefinitions.ContainsKey($membership.group_id)) {
+                throw "Schema pack '$packId' contributes to unknown capability group '$($membership.group_id)'."
+            }
+            $disallowed = @($membership.capability_ids | Where-Object { -not $permittedCapabilities.Contains($_) })
+            if ($disallowed.Count -gt 0) {
+                throw "Schema pack '$packId' groups capabilities it neither provides nor receives from a dependency: $($disallowed -join ', ')."
+            }
+            foreach ($capabilityId in @($membership.capability_ids)) {
+                $null = $groupedCapabilities.Add($capabilityId)
+            }
+        }
+    }
+    $ungrouped = @($knownCapabilities | Where-Object { -not $groupedCapabilities.Contains($_) })
+    if ($ungrouped.Count -gt 0) {
+        throw "Schema-pack composition leaves capabilities outside every capability group: $($ungrouped -join ', ')."
+    }
+
+    foreach ($startCapability in $knownCapabilities) {
+        $active = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+        $pending = [System.Collections.Generic.Stack[object]]::new()
+        $pending.Push([pscustomobject]@{ id = $startCapability
+                leaving = $false
+            })
+        while ($pending.Count -gt 0) {
+            $step = $pending.Pop()
+            if ($step.leaving) {
+                $null = $active.Remove($step.id)
+                continue
+            }
+            if (-not $active.Add($step.id)) {
+                throw "Capability requirement graph contains a cycle at '$($step.id)'."
+            }
+            $pending.Push([pscustomobject]@{ id = $step.id
+                    leaving = $true
+                })
+            $definition = $null
+            foreach ($packId in $SelectionOrder) {
+                if ($Packs[$packId].capability_definitions.Contains($step.id)) {
+                    $definition = $Packs[$packId].capability_definitions[$step.id]
+                    break
+                }
+            }
+            foreach ($requiredId in @($definition.relationships.requires)) {
+                $pending.Push([pscustomobject]@{ id = $requiredId
+                        leaving = $false
+                    })
+            }
         }
     }
 }
@@ -1076,6 +1339,40 @@ function Get-KnowledgeSchemaPackRegistry {
         }
     }
 
+    $capabilityGroups = [ordered]@{}
+    $capabilityGroupOwners = @{}
+    $capabilityGroupMemberships = [ordered]@{}
+    foreach ($packId in $selectionOrder) {
+        $pack = $packs[$packId]
+        foreach ($group in @($pack.capability_groups)) {
+            $capabilityGroups[$group.id] = $group
+            $capabilityGroupOwners[$group.id] = $packId
+        }
+        foreach ($membership in @($pack.capability_group_memberships)) {
+            if (-not $capabilityGroupMemberships.Contains($membership.group_id)) {
+                $capabilityGroupMemberships[$membership.group_id] = @()
+            }
+            $capabilityGroupMemberships[$membership.group_id] = @(
+                $capabilityGroupMemberships[$membership.group_id]
+            ) + [pscustomobject]@{
+                provider_pack_id = $packId
+                order = $membership.order
+                capability_ids = @($membership.capability_ids)
+            }
+        }
+    }
+    foreach ($groupId in @($capabilityGroupMemberships.Keys)) {
+        $capabilityGroupMemberships[$groupId] = @(
+            $capabilityGroupMemberships[$groupId] |
+                Sort-Object @{ Expression = 'order'
+                    Ascending = $true
+                },
+                @{ Expression = 'provider_pack_id'
+                    Ascending = $true
+                }
+        )
+    }
+
     $activation = Get-ProjectMapValue $registry "capability_activation"
     if ($null -eq $activation -or -not ($activation -is [System.Collections.IDictionary])) {
         throw "Schema-pack registry 'capability_activation' must be a mapping."
@@ -1160,6 +1457,9 @@ function Get-KnowledgeSchemaPackRegistry {
         enabled_capabilities = @($enabledCapabilities)
         capability_providers = $capabilityProviders
         capability_definitions = $capabilityDefinitions
+        capability_groups = $capabilityGroups
+        capability_group_owners = $capabilityGroupOwners
+        capability_group_memberships = $capabilityGroupMemberships
         controlled_values = $controlledValues
         controlled_value_owners = $owners
         controlled_value_definitions = $definitions

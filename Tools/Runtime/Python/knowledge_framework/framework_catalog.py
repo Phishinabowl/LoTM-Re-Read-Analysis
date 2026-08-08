@@ -21,13 +21,13 @@ from .schema_pack_config import (
 
 
 CONTRACT_ID = "framework-catalog"
-CONTRACT_VERSION = 1
+CONTRACT_VERSION = 2
 SELECTION_CONTRACT_ID = "framework-catalog-selection"
-SELECTION_CONTRACT_VERSION = 1
+SELECTION_CONTRACT_VERSION = 2
 PROJECT_VIEW_CONTRACT_ID = "framework-catalog-project-view"
-PROJECT_VIEW_CONTRACT_VERSION = 1
+PROJECT_VIEW_CONTRACT_VERSION = 2
 PROJECT_VIEW_SELECTION_CONTRACT_ID = "framework-catalog-project-view-selection"
-PROJECT_VIEW_SELECTION_CONTRACT_VERSION = 1
+PROJECT_VIEW_SELECTION_CONTRACT_VERSION = 2
 CAPABILITY_LIFECYCLE_PRECEDENCE = ("available", "deprecated", "planned")
 
 
@@ -42,6 +42,7 @@ class FrameworkCatalog:
     config: FrameworkConfig
     pack_configs: dict[str, SchemaPackConfig]
     packs: tuple[dict[str, Any], ...]
+    capability_groups: tuple[dict[str, Any], ...]
     capabilities: tuple[dict[str, Any], ...]
     contract: str = CONTRACT_ID
     contract_version: int = CONTRACT_VERSION
@@ -60,12 +61,14 @@ class FrameworkCatalog:
             },
             "summary": {
                 "pack_count": len(self.packs),
+                "capability_group_count": len(self.capability_groups),
                 "capability_count": len(self.capabilities),
                 "available_capability_count": sum(row["available"] for row in self.capabilities),
                 "deprecated_capability_count": sum(row["deprecated"] for row in self.capabilities),
                 "planned_capability_count": sum(row["planned"] for row in self.capabilities),
             },
             "packs": list(self.packs),
+            "capability_groups": list(self.capability_groups),
             "capabilities": list(self.capabilities),
         }
 
@@ -131,6 +134,14 @@ def _capability_presentation(value: CapabilityPresentation | None) -> dict[str, 
         "localization_key": value.localization_key,
         "label": value.label,
         "description": value.description,
+    }
+
+
+def _capability_relationships(value: Any) -> dict[str, list[str]]:
+    return {
+        "requires": list(value.requires),
+        "recommends": list(value.recommends),
+        "conflicts_with": list(value.conflicts_with),
     }
 
 
@@ -257,6 +268,10 @@ def _compose_pack_rows(config: FrameworkConfig, packs: dict[str, SchemaPackConfi
                     for dependency in pack.dependencies
                 ],
                 "capability_ids": list(pack.capabilities),
+                "capability_group_ids": [group.id for group in pack.capability_groups],
+                "capability_group_contribution_ids": [
+                    membership.group_id for membership in pack.capability_group_memberships
+                ],
                 "controlled_value_namespaces": _controlled_value_namespaces(pack),
                 "discoverability": {"installed": True, "selectable": pack.lifecycle == "active"},
             }
@@ -264,12 +279,63 @@ def _compose_pack_rows(config: FrameworkConfig, packs: dict[str, SchemaPackConfi
     return tuple(rows)
 
 
+def _compose_capability_group_rows(packs: dict[str, SchemaPackConfig]) -> tuple[dict[str, Any], ...]:
+    definitions: dict[str, tuple[str, Any]] = {}
+    contributions: dict[str, list[dict[str, Any]]] = {}
+    for pack_id in sorted(packs):
+        pack = packs[pack_id]
+        for group in pack.capability_groups:
+            definitions[group.id] = (pack_id, group)
+        for membership in pack.capability_group_memberships:
+            contributions.setdefault(membership.group_id, []).append(
+                {
+                    "provider_pack_id": pack_id,
+                    "order": membership.order,
+                    "capability_ids": list(membership.capability_ids),
+                }
+            )
+
+    rows: list[dict[str, Any]] = []
+    for group_id, (owner_pack_id, definition) in sorted(
+        definitions.items(), key=lambda item: (item[1][1].order, item[0])
+    ):
+        group_contributions = sorted(
+            contributions.get(group_id, []),
+            key=lambda row: (row["order"], row["provider_pack_id"]),
+        )
+        capability_ids = list(
+            dict.fromkeys(
+                capability_id
+                for contribution in group_contributions
+                for capability_id in contribution["capability_ids"]
+            )
+        )
+        rows.append(
+            {
+                "id": group_id,
+                "record_id": f"framework-catalog:capability-group:{group_id}",
+                "order": definition.order,
+                "presentation": _capability_presentation(definition.presentation),
+                "owner_pack_id": owner_pack_id,
+                "contributions": group_contributions,
+                "capability_ids": capability_ids,
+            }
+        )
+    return tuple(rows)
+
+
 def _compose_capability_rows(packs: dict[str, SchemaPackConfig]) -> tuple[dict[str, Any], ...]:
     providers: dict[str, list[tuple[str, Any]]] = {}
+    capability_groups: dict[str, list[str]] = {}
     for pack_id in sorted(packs):
         pack = packs[pack_id]
         for capability_id in pack.capabilities:
             providers.setdefault(capability_id, []).append((pack_id, pack.capability_definitions[capability_id]))
+        for membership in pack.capability_group_memberships:
+            for capability_id in membership.capability_ids:
+                groups = capability_groups.setdefault(capability_id, [])
+                if membership.group_id not in groups:
+                    groups.append(membership.group_id)
 
     rows: list[dict[str, Any]] = []
     for capability_id in sorted(providers):
@@ -286,11 +352,15 @@ def _compose_capability_rows(packs: dict[str, SchemaPackConfig]) -> tuple[dict[s
                 "available": effective_lifecycle == "available",
                 "deprecated": effective_lifecycle == "deprecated",
                 "planned": effective_lifecycle == "planned",
+                "group_ids": capability_groups.get(capability_id, []),
+                "relationships": _capability_relationships(definitions[0][1].relationships),
                 "providers": [
                     {
                         "pack_id": pack_id,
                         "lifecycle": definition.lifecycle,
                         "presentation": _capability_presentation(definition.presentation),
+                        "pack_dependencies": [dependency.pack_id for dependency in packs[pack_id].dependencies],
+                        "controlled_value_namespace_ids": sorted(packs[pack_id].controlled_values),
                     }
                     for pack_id, definition in definitions
                 ],
@@ -310,6 +380,7 @@ def load_framework_catalog(root: Path) -> FrameworkCatalog:
         config=config,
         pack_configs=packs,
         packs=_compose_pack_rows(config, packs),
+        capability_groups=_compose_capability_group_rows(packs),
         capabilities=_compose_capability_rows(packs),
     )
 
@@ -333,10 +404,13 @@ def compose_framework_catalog_project_view(
         )
 
     selected_packs = {row["id"]: row for row in schema["packs"]}
+    selected_groups = {row["id"]: row for row in schema.get("capability_groups", [])}
     selected_capabilities = {row["id"]: row for row in schema["capabilities"]}
     catalog_pack_ids = {row["id"] for row in catalog.packs}
+    catalog_group_ids = {row["id"] for row in catalog.capability_groups}
     catalog_capability_ids = {row["id"] for row in catalog.capabilities}
     missing_packs = sorted(set(selected_packs) - catalog_pack_ids)
+    missing_groups = sorted(set(selected_groups) - catalog_group_ids)
     missing_capabilities = sorted(set(selected_capabilities) - catalog_capability_ids)
     if missing_packs:
         raise ValueError(
@@ -346,6 +420,12 @@ def compose_framework_catalog_project_view(
         raise ValueError(
             "Effective schema declares capability or capabilities absent from the framework catalog: "
             + ", ".join(missing_capabilities)
+            + "."
+        )
+    if missing_groups:
+        raise ValueError(
+            "Effective schema includes capability group(s) absent from the framework catalog: "
+            + ", ".join(missing_groups)
             + "."
         )
 
@@ -365,6 +445,34 @@ def compose_framework_catalog_project_view(
             "unavailable_reason": (None if catalog_row["discoverability"]["selectable"] else "pack-lifecycle-deferred"),
         }
         pack_rows.append(row)
+
+    group_rows: list[dict[str, Any]] = []
+    for catalog_row in catalog.capability_groups:
+        row = deepcopy(catalog_row)
+        effective_row = selected_groups.get(catalog_row["id"])
+        selected_capability_rows = [
+            selected_capabilities[capability_id]
+            for capability_id in catalog_row["capability_ids"]
+            if capability_id in selected_capabilities
+        ]
+        row["catalog_record_id"] = row["record_id"]
+        row["record_id"] = f"framework-catalog-project-view:capability-group:{row['id']}"
+        row["project_state"] = {
+            "selected": effective_row is not None,
+            "available": any(capability["available"] for capability in selected_capability_rows),
+            "enabled": any(capability["enabled"] for capability in selected_capability_rows),
+            "deprecated": bool(selected_capability_rows)
+            and all(capability["deprecated"] for capability in selected_capability_rows),
+            "planned": bool(selected_capability_rows)
+            and all(capability["planned"] for capability in selected_capability_rows),
+            "used_by_project": any(capability["enabled"] for capability in selected_capability_rows),
+            "unavailable_reason": (
+                None
+                if any(capability["available"] for capability in selected_capability_rows)
+                else "no-selected-available-capabilities"
+            ),
+        }
+        group_rows.append(row)
 
     capability_rows: list[dict[str, Any]] = []
     for catalog_row in catalog.capabilities:
@@ -400,6 +508,9 @@ def compose_framework_catalog_project_view(
             "selected_pack_count": sum(row["project_state"]["selected"] for row in pack_rows),
             "available_pack_count": sum(row["project_state"]["available"] for row in pack_rows),
             "capability_count": len(capability_rows),
+            "capability_group_count": len(group_rows),
+            "selected_capability_group_count": sum(row["project_state"]["selected"] for row in group_rows),
+            "enabled_capability_group_count": sum(row["project_state"]["enabled"] for row in group_rows),
             "selected_capability_count": sum(row["project_state"]["selected"] for row in capability_rows),
             "enabled_capability_count": sum(row["project_state"]["enabled"] for row in capability_rows),
             "available_capability_count": sum(row["project_state"]["available"] for row in capability_rows),
@@ -407,6 +518,7 @@ def compose_framework_catalog_project_view(
             "planned_capability_count": sum(row["project_state"]["planned"] for row in capability_rows),
         },
         "packs": pack_rows,
+        "capability_groups": group_rows,
         "capabilities": capability_rows,
     }
 
@@ -434,25 +546,120 @@ def _resolve_catalog_row(
     return matches[0]
 
 
+def _filter_catalog_capabilities(
+    rows: list[dict[str, Any]],
+    *,
+    provider_pack_ids: tuple[str, ...],
+    lifecycles: tuple[str, ...],
+    availability: tuple[str, ...],
+    activation: tuple[str, ...],
+    usage: tuple[str, ...],
+    project_view: bool,
+) -> list[dict[str, Any]]:
+    allowed_lifecycles = {"available", "deprecated", "planned"}
+    allowed_availability = {"available", "unavailable"}
+    allowed_activation = {"enabled", "disabled"}
+    allowed_usage = {"used", "unused"}
+    for values, allowed, label in (
+        (lifecycles, allowed_lifecycles, "lifecycle"),
+        (availability, allowed_availability, "availability"),
+        (activation, allowed_activation, "activation"),
+        (usage, allowed_usage, "project usage"),
+    ):
+        unknown = set(values) - allowed
+        if unknown:
+            raise ValueError(f"Unknown capability {label} filter(s): {', '.join(sorted(unknown))}.")
+    if not project_view and (activation or usage):
+        raise ValueError("Capability activation and project-usage filters require a catalog project view.")
+
+    filtered = rows
+    if provider_pack_ids:
+        providers = set(provider_pack_ids)
+        filtered = [
+            row for row in filtered if providers.intersection(provider["pack_id"] for provider in row["providers"])
+        ]
+    if lifecycles:
+        filtered = [row for row in filtered if row["effective_lifecycle"] in set(lifecycles)]
+    if availability:
+        requested = set(availability)
+        filtered = [row for row in filtered if ("available" if row["available"] else "unavailable") in requested]
+    if activation:
+        requested = set(activation)
+        filtered = [
+            row for row in filtered if ("enabled" if row["project_state"]["enabled"] else "disabled") in requested
+        ]
+    if usage:
+        requested = set(usage)
+        filtered = [
+            row for row in filtered if ("used" if row["project_state"]["used_by_project"] else "unused") in requested
+        ]
+    return filtered
+
+
 def compose_framework_catalog_selection(
     catalog: FrameworkCatalog,
     *,
     pack_id: str | None = None,
+    group_id: str | None = None,
     capability_id: str | None = None,
+    provider_pack_ids: tuple[str, ...] = (),
+    lifecycles: tuple[str, ...] = (),
+    availability: tuple[str, ...] = (),
+    activation: tuple[str, ...] = (),
+    usage: tuple[str, ...] = (),
 ) -> dict[str, Any]:
-    if pack_id is None and capability_id is None:
-        raise ValueError("Framework-catalog selection requires a pack or capability ID.")
+    if not any((pack_id, group_id, capability_id, provider_pack_ids, lifecycles, availability, activation, usage)):
+        raise ValueError("Framework-catalog selection requires an ID or capability filter.")
+    selected_groups = (
+        []
+        if group_id is None
+        else [_resolve_catalog_row(catalog.capability_groups, group_id, "capability group", catalog)]
+    )
+    normalized_provider_ids = [
+        _resolve_catalog_row(catalog.packs, value, "pack", catalog)["id"] for value in provider_pack_ids
+    ]
+    capability_query_requested = any(
+        (group_id, capability_id, provider_pack_ids, lifecycles, availability, activation, usage)
+    )
+    capabilities = list(catalog.capabilities) if capability_query_requested else []
+    if capability_id is not None:
+        capabilities = [_resolve_catalog_row(catalog.capabilities, capability_id, "capability", catalog)]
+    if selected_groups:
+        group_capabilities = set(selected_groups[0]["capability_ids"])
+        capabilities = [row for row in capabilities if row["id"] in group_capabilities]
+    capabilities = _filter_catalog_capabilities(
+        capabilities,
+        provider_pack_ids=tuple(normalized_provider_ids),
+        lifecycles=lifecycles,
+        availability=availability,
+        activation=activation,
+        usage=usage,
+        project_view=False,
+    )
+    if group_id is None and any((provider_pack_ids, lifecycles, availability, activation, usage, capability_id)):
+        capability_ids = {row["id"] for row in capabilities}
+        selected_groups = [
+            row for row in catalog.capability_groups if capability_ids.intersection(row["capability_ids"])
+        ]
     return {
         "contract": SELECTION_CONTRACT_ID,
         "contract_version": SELECTION_CONTRACT_VERSION,
         "catalog_contract_version": catalog.contract_version,
-        "requested": {"pack": pack_id, "capability": capability_id},
+        "requested": {
+            "pack": pack_id,
+            "capability_group": group_id,
+            "capability": capability_id,
+            "filters": {
+                "provider_pack_ids": normalized_provider_ids,
+                "lifecycles": list(lifecycles),
+                "availability": list(availability),
+                "activation": list(activation),
+                "usage": list(usage),
+            },
+        },
         "packs": [] if pack_id is None else [_resolve_catalog_row(catalog.packs, pack_id, "pack", catalog)],
-        "capabilities": (
-            []
-            if capability_id is None
-            else [_resolve_catalog_row(catalog.capabilities, capability_id, "capability", catalog)]
-        ),
+        "capability_groups": selected_groups,
+        "capabilities": capabilities,
     }
 
 
@@ -461,23 +668,68 @@ def compose_framework_catalog_project_view_selection(
     view: dict[str, Any],
     *,
     pack_id: str | None = None,
+    group_id: str | None = None,
     capability_id: str | None = None,
+    provider_pack_ids: tuple[str, ...] = (),
+    lifecycles: tuple[str, ...] = (),
+    availability: tuple[str, ...] = (),
+    activation: tuple[str, ...] = (),
+    usage: tuple[str, ...] = (),
 ) -> dict[str, Any]:
     if view.get("contract") != PROJECT_VIEW_CONTRACT_ID:
         raise TypeError("Project-view selection requires a FrameworkCatalogProjectView.")
-    if pack_id is None and capability_id is None:
-        raise ValueError("Framework-catalog project-view selection requires a pack or capability ID.")
+    if not any((pack_id, group_id, capability_id, provider_pack_ids, lifecycles, availability, activation, usage)):
+        raise ValueError("Framework-catalog project-view selection requires an ID or capability filter.")
+    selected_groups = (
+        []
+        if group_id is None
+        else [_resolve_catalog_row(tuple(view["capability_groups"]), group_id, "capability group", catalog)]
+    )
+    normalized_provider_ids = [
+        _resolve_catalog_row(tuple(view["packs"]), value, "pack", catalog)["id"] for value in provider_pack_ids
+    ]
+    capability_query_requested = any(
+        (group_id, capability_id, provider_pack_ids, lifecycles, availability, activation, usage)
+    )
+    capabilities = list(view["capabilities"]) if capability_query_requested else []
+    if capability_id is not None:
+        capabilities = [_resolve_catalog_row(tuple(view["capabilities"]), capability_id, "capability", catalog)]
+    if selected_groups:
+        group_capabilities = set(selected_groups[0]["capability_ids"])
+        capabilities = [row for row in capabilities if row["id"] in group_capabilities]
+    capabilities = _filter_catalog_capabilities(
+        capabilities,
+        provider_pack_ids=tuple(normalized_provider_ids),
+        lifecycles=lifecycles,
+        availability=availability,
+        activation=activation,
+        usage=usage,
+        project_view=True,
+    )
+    if group_id is None and any((provider_pack_ids, lifecycles, availability, activation, usage, capability_id)):
+        capability_ids = {row["id"] for row in capabilities}
+        selected_groups = [
+            row for row in view["capability_groups"] if capability_ids.intersection(row["capability_ids"])
+        ]
     return {
         "contract": PROJECT_VIEW_SELECTION_CONTRACT_ID,
         "contract_version": PROJECT_VIEW_SELECTION_CONTRACT_VERSION,
         "project_view_contract_version": view["contract_version"],
-        "requested": {"pack": pack_id, "capability": capability_id},
+        "requested": {
+            "pack": pack_id,
+            "capability_group": group_id,
+            "capability": capability_id,
+            "filters": {
+                "provider_pack_ids": normalized_provider_ids,
+                "lifecycles": list(lifecycles),
+                "availability": list(availability),
+                "activation": list(activation),
+                "usage": list(usage),
+            },
+        },
         "packs": ([] if pack_id is None else [_resolve_catalog_row(tuple(view["packs"]), pack_id, "pack", catalog)]),
-        "capabilities": (
-            []
-            if capability_id is None
-            else [_resolve_catalog_row(tuple(view["capabilities"]), capability_id, "capability", catalog)]
-        ),
+        "capability_groups": selected_groups,
+        "capabilities": capabilities,
     }
 
 

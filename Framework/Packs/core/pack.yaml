@@ -1,6 +1,6 @@
-schema_version: 5
+schema_version: 6
 pack_id: core
-pack_version: 42
+pack_version: 43
 lifecycle: active
 pack_kind: core
 classification:
@@ -400,6 +400,105 @@ capabilities:
     localization_key: capability.migration-services
     label: Migration Services
     description: Previewed, validated, and reversible repository-wide schema and identity transformations.
+
+capability_groups:
+- id: identity-and-content-foundation
+  order: 100
+  presentation:
+    localization_key: group.identity-and-content-foundation
+    label: Identity and Content Foundation
+    description: Stable identity, naming, lifecycle, content classification, resource, and reconciliation primitives.
+- id: evidence-provenance-and-authority
+  order: 200
+  presentation:
+    localization_key: group.evidence-provenance-and-authority
+    label: Evidence, Provenance, and Authority
+    description: Evidence attribution, provenance, authority evaluation, applicability, and decision explanation primitives.
+- id: relationships-time-and-state
+  order: 300
+  presentation:
+    localization_key: group.relationships-time-and-state
+    label: Relationships, Time, and State
+    description: Typed relationships, chronology, recurrence, participation, branching, and state progression primitives.
+- id: visibility-projection-and-governance
+  order: 400
+  presentation:
+    localization_key: group.visibility-projection-and-governance
+    label: Visibility, Projection, and Governance
+    description: Interpretation, visibility, graph projection, validation, and migration governance primitives.
+
+capability_group_memberships:
+- group_id: identity-and-content-foundation
+  order: 100
+  capability_ids:
+  - stable-identity
+  - aliases
+  - deterministic-lookup-keys
+  - lifecycle
+  - content-types
+  - subject-categories
+  - resources
+  - nested-record-identity
+  - stable-claim-identity
+  - stable-identity-reconciliation
+- group_id: evidence-provenance-and-authority
+  order: 200
+  capability_ids:
+  - applicability-scopes
+  - explainable-applicability-decisions
+  - evidence-sources
+  - composite-evidence-scope
+  - assertion-provenance
+  - provenance-snapshots
+  - evidence-locators
+  - multi-position-evidence
+  - claim-aware-authority
+  - authority-rule-precedence
+  - hierarchical-claim-authority
+  - evidence-locator-ranges
+  - structural-position-validation
+  - semantic-provenance-paths
+  - evidence-mode-attribution
+  - source-bounded-evidence
+  - explainable-authority-decisions
+  - ordered-temporal-windows
+  - channel-scoped-evidence-coverage
+  - hierarchical-evidence-modes
+  - multi-source-authority-comparison
+  - claim-authority-evaluation
+  - cross-registry-provenance
+  - authority-profiles
+- group_id: relationships-time-and-state
+  order: 300
+  capability_ids:
+  - typed-relationships
+  - temporal-windows
+  - chronology-coordinate-systems
+  - chronology-contexts
+  - chronology-context-topology
+  - occurrence-recurrence-modeling
+  - recurrence-rule-modeling
+  - state-availability-acquisition
+  - deterministic-recurrence-rule-evaluation
+  - recurrence-schedule-modeling
+  - recurrence-policy-integrity
+  - extensible-recurrence-policy-semantics
+  - civil-schedule-boundary-integrity
+  - semantic-declaration-integrity
+  - deterministic-effect-resolution
+  - aggregate-recurrence-cardinality
+  - occurrence-participation-identity
+  - participation-chronology-bindings
+  - timeline-branch-lifecycle
+  - capability-progression
+- group_id: visibility-projection-and-governance
+  order: 400
+  capability_ids:
+  - structural-interpretation-modeling
+  - visibility-policy
+  - graph-projection
+  - schema-validation
+  - migration-services
 
 controlled_values:
   temporal.bound-kind:

@@ -2,7 +2,7 @@
 
 ## Status And Purpose
 
-This document defines the implemented Phase 3.2.1 generated `FrameworkCatalog` contract. Paired
+This document defines the implemented generated `FrameworkCatalog` contract through Phase 3.2.4. Paired
 runtime services, commands, conformance, scale, and compatibility coverage enforce it. The catalog is a
 project-independent, deterministic inventory of installed schema packs and their capabilities. It
 exists so setup tools, documentation, editors, and later user interfaces can inspect what the
@@ -83,7 +83,7 @@ The canonical JSON document uses this top-level order:
 ```json
 {
   "contract": "framework-catalog",
-  "contract_version": 1,
+  "contract_version": 2,
   "framework": {
     "id": "knowledge-model",
     "manifest_path": "Framework/framework.yaml",
@@ -94,12 +94,14 @@ The canonical JSON document uses this top-level order:
   },
   "summary": {
     "pack_count": 0,
+    "capability_group_count": 0,
     "capability_count": 0,
     "available_capability_count": 0,
     "deprecated_capability_count": 0,
     "planned_capability_count": 0
   },
   "packs": [],
+  "capability_groups": [],
   "capabilities": []
 }
 ```
@@ -121,6 +123,7 @@ Each `packs` row contains:
 - `dependencies`, in declared order, each with `pack_id`, `minimum_version`,
   `installed_version`, and `status: satisfied`;
 - `capability_ids`, in declared order;
+- defined and contributed capability-group IDs;
 - `controlled_value_namespaces`, ordered by ordinal namespace ID, each containing its declared values
   without merging contributions from other packs;
 - `discoverability`, containing `installed: true` and `selectable`.
@@ -129,6 +132,13 @@ Each `packs` row contains:
 satisfied. Deferred packs remain installed and inspectable but are not selectable. Because catalog
 construction fails for broken dependency installation, Phase 3.2.1 does not serialize speculative
 missing-dependency states.
+
+### Capability Group Rows
+
+`capability_groups` contains one composed row per installed schema-6 group. Rows preserve stable
+group ID, global order, presentation, owner pack, ordered pack contributions, and the resulting
+capability IDs. Groups organize discovery and wizard/editor navigation; they do not own, select, or
+activate capabilities. Every installed schema-6 capability belongs to at least one group.
 
 ### Capability Rows
 
@@ -140,8 +150,9 @@ Each `capabilities` row contains:
 - `effective_lifecycle`, resolved as `available` when any provider declares available, otherwise
   `deprecated` when any provider declares deprecated, otherwise `planned`;
 - derived `available`, `deprecated`, and `planned` booleans;
+- ordered `group_ids` and `relationships` for requirements, recommendations, and conflicts;
 - `providers`, ordered by ordinal pack ID, each containing `pack_id`, declaration lifecycle, and the
-  provider declaration's presentation.
+  provider declaration's presentation, pack dependencies, and controlled-value namespaces.
 
 Catalog capability rows never contain `enabled`, `disabled`, `selected`, or `used_by_project`.
 Multiple providers do not imply that their packs form a valid project selection; they only describe
@@ -154,18 +165,24 @@ Singular lookup emits a separate envelope:
 ```json
 {
   "contract": "framework-catalog-selection",
-  "contract_version": 1,
-  "catalog_contract_version": 1,
+  "contract_version": 2,
+  "catalog_contract_version": 2,
   "requested": {
     "pack": null,
-    "capability": null
+    "capability_group": null,
+    "capability": null,
+    "filters": {}
   },
   "packs": [],
+  "capability_groups": [],
   "capabilities": []
 }
 ```
 
-Pack and capability selectors are independent and may be combined. Each non-null selector returns
+Pack, group, and capability selectors are independent and may be combined. Group selection expands
+to its capabilities in canonical catalog order. Provider, lifecycle, and availability filters are
+valid for the base catalog; activation and project-usage filters require a project view. Each
+non-null singular selector returns
 exactly one complete catalog row. Exact stable-ID matching is attempted before shared lookup-key
 normalization. No match fails with the requested value and record kind. Multiple normalized matches
 fail as ambiguous and report every candidate stable ID in ordinal order; the service never chooses a
@@ -174,12 +191,12 @@ winner. Selection does not change or filter the base catalog object.
 ## Project View Contract
 
 Project attachment is explicit. Combining one validated catalog with one completed
-`EffectiveProjectSchema` emits `framework-catalog-project-view`, contract version 1. The base
+`EffectiveProjectSchema` emits `framework-catalog-project-view`, contract version 2. The base
 catalog remains project-independent and unchanged; the effective schema remains the authority for
 project selection and activation. The dependency flow is strictly catalog to effective schema,
 then catalog plus effective schema to project view.
 
-The project view preserves every complete catalog pack and capability row. Each copied row replaces
+The project view preserves every complete catalog pack, group, and capability row. Each copied row replaces
 its catalog `record_id` with `framework-catalog-project-view:<kind>:<id>`, retains the original as
 `catalog_record_id`, and appends `project_state`:
 
@@ -197,17 +214,18 @@ domain ID, then reports installed, selected, available, and enabled counts befor
 rows. Selected pack and capability IDs must exist in the catalog. Framework IDs must match. The
 service rejects disagreement rather than inventing an unavailable installed record.
 
-Project-view singular lookup emits `framework-catalog-project-view-selection`, contract version 1.
+Project-view lookup emits `framework-catalog-project-view-selection`, contract version 2.
 It uses the catalog's pinned lookup-key service and returns complete annotated rows without
-mutating either source object.
+mutating either source object. It additionally filters activation and project usage.
 
 ## Reports And Export
 
 Paired catalog commands provide:
 
 - a concise default overview;
-- composable detailed `packs` and `capabilities` sections;
-- singular pack and capability inspection;
+- composable detailed `packs`, `groups`, and `capabilities` sections;
+- singular pack, group, and capability inspection;
+- deterministic capability filtering by provider, lifecycle, availability, activation, and usage;
 - canonical JSON on standard output or in a confined export file;
 - a human-readable report written to a confined file.
 

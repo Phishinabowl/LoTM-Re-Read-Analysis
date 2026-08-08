@@ -24,8 +24,8 @@ from knowledge_framework.framework_paths import resolve_framework_root  # noqa: 
 from knowledge_framework.project_paths import resolve_project_root  # noqa: E402
 
 
-SHOW_SECTIONS = ("overview", "packs", "capabilities")
-ALL_SECTIONS = ("packs", "capabilities")
+SHOW_SECTIONS = ("overview", "packs", "groups", "capabilities")
+ALL_SECTIONS = ("packs", "groups", "capabilities")
 
 
 def resolve_output_path(root: Path, value: str) -> Path:
@@ -56,6 +56,12 @@ def human_summary(document: dict) -> str:
                 f"Domain: {project['domain_id']}",
                 f"Packs: {summary['selected_pack_count']} selected of {summary['pack_count']} installed",
                 (
+                    "Capability groups: "
+                    f"{summary['enabled_capability_group_count']} enabled, "
+                    f"{summary['selected_capability_group_count']} selected, "
+                    f"{summary['capability_group_count']} installed"
+                ),
+                (
                     "Capabilities: "
                     f"{summary['enabled_capability_count']} enabled, "
                     f"{summary['selected_capability_count']} selected, "
@@ -72,6 +78,7 @@ def human_summary(document: dict) -> str:
             f"Pack root: {framework['packs_root']}",
             f"Lookup registry: {framework['lookup_registry']} ({framework['unicode_version']})",
             f"Installed packs: {summary['pack_count']}",
+            f"Capability groups: {summary['capability_group_count']}",
             (
                 "Capabilities: "
                 f"{summary['capability_count']} declared, "
@@ -194,6 +201,28 @@ def show_packs(document: dict) -> str:
     return render_pack_rows(document["packs"], "Packs")
 
 
+def render_group_rows(rows: list[dict], heading: str) -> str:
+    lines = [f"{heading} ({len(rows)})"]
+    for row in rows:
+        lines.append(
+            f"- {row['id']} | order={row['order']} | owner={row['owner_pack_id']} | "
+            f"capabilities={len(row['capability_ids'])}"
+        )
+        state = row.get("project_state")
+        if state is not None:
+            lines.append(
+                "  project state: " + " | ".join(f"{key}={display_value(value)}" for key, value in state.items())
+            )
+        lines.append(f"  label: {row['presentation']['label']}")
+        lines.append(f"  description: {row['presentation']['description']}")
+        lines.append(f"  capabilities: {', '.join(row['capability_ids']) or 'none'}")
+    return "\n".join(lines)
+
+
+def show_groups(document: dict) -> str:
+    return render_group_rows(document["capability_groups"], "Capability Groups")
+
+
 def render_capability_rows(rows: list[dict], heading: str) -> str:
     lines = [f"{heading} ({len(rows)})"]
     for row in rows:
@@ -216,6 +245,14 @@ def render_capability_rows(rows: list[dict], heading: str) -> str:
             )
         lines.append(f"  label: {label}")
         lines.append(f"  description: {description}")
+        lines.append(f"  groups: {', '.join(row['group_ids']) or 'none'}")
+        relationships = row["relationships"]
+        lines.append(
+            "  relationships: "
+            f"requires={','.join(relationships['requires']) or 'none'} | "
+            f"recommends={','.join(relationships['recommends']) or 'none'} | "
+            f"conflicts={','.join(relationships['conflicts_with']) or 'none'}"
+        )
         if presentation is not None:
             lines.append(f"  presentation key: {presentation['localization_key']}")
         lines.append(f"  providers ({len(row['providers'])}):")
@@ -223,6 +260,10 @@ def render_capability_rows(rows: list[dict], heading: str) -> str:
             provider_presentation = provider["presentation"]
             provider_label = provider["pack_id"] if provider_presentation is None else provider_presentation["label"]
             lines.append(f"    - {provider['pack_id']} | lifecycle={provider['lifecycle']} | label={provider_label}")
+            lines.append(
+                f"      dependencies={','.join(provider['pack_dependencies']) or 'none'} | "
+                f"controlled namespaces={','.join(provider['controlled_value_namespace_ids']) or 'none'}"
+            )
     return "\n".join(lines)
 
 
@@ -233,6 +274,7 @@ def show_capabilities(document: dict) -> str:
 SECTION_RENDERERS = {
     "overview": show_overview,
     "packs": show_packs,
+    "groups": show_groups,
     "capabilities": show_capabilities,
 }
 
@@ -256,6 +298,8 @@ def human_report(document: dict, sections: list[str], selection: dict | None = N
     if selection is not None:
         if selection["packs"]:
             blocks.append(render_pack_rows(selection["packs"], "Pack Inspection"))
+        if selection["capability_groups"]:
+            blocks.append(render_group_rows(selection["capability_groups"], "Capability Group Inspection"))
         if selection["capabilities"]:
             blocks.append(render_capability_rows(selection["capabilities"], "Capability Inspection"))
     return "\n\n".join(blocks)
@@ -287,10 +331,46 @@ def build_parser() -> argparse.ArgumentParser:
         action="append",
         default=[],
         metavar="SECTION",
-        help="Append overview, packs, capabilities, or all; repeat to combine sections.",
+        help="Append overview, packs, groups, capabilities, or all; repeat to combine sections.",
     )
     parser.add_argument("--pack", metavar="PACK_ID", help="Inspect one installed pack by stable ID.")
+    parser.add_argument("--group", metavar="GROUP_ID", help="Inspect one capability group by stable ID.")
     parser.add_argument("--capability", metavar="CAPABILITY_ID", help="Inspect one capability by stable ID.")
+    parser.add_argument(
+        "--provider",
+        action="append",
+        default=[],
+        metavar="PACK_ID",
+        help="Filter by provider pack; repeat to combine providers.",
+    )
+    parser.add_argument(
+        "--lifecycle",
+        action="append",
+        default=[],
+        choices=("available", "deprecated", "planned"),
+        help="Filter by effective capability lifecycle.",
+    )
+    parser.add_argument(
+        "--availability",
+        action="append",
+        default=[],
+        choices=("available", "unavailable"),
+        help="Filter by capability availability.",
+    )
+    parser.add_argument(
+        "--activation",
+        action="append",
+        default=[],
+        choices=("enabled", "disabled"),
+        help="Filter project-view activation state.",
+    )
+    parser.add_argument(
+        "--project-usage",
+        action="append",
+        default=[],
+        choices=("used", "unused"),
+        help="Filter project-view usage state.",
+    )
     return parser
 
 
@@ -309,20 +389,43 @@ def main() -> int:
             effective_schema = load_effective_project_schema(project_root)
             document = compose_framework_catalog_project_view(catalog, effective_schema)
         selection = None
-        if args.pack or args.capability:
+        if any(
+            (
+                args.pack,
+                args.group,
+                args.capability,
+                args.provider,
+                args.lifecycle,
+                args.availability,
+                args.activation,
+                args.project_usage,
+            )
+        ):
             classification = "selector"
             selection = (
                 compose_framework_catalog_selection(
                     catalog,
                     pack_id=args.pack,
+                    group_id=args.group,
                     capability_id=args.capability,
+                    provider_pack_ids=tuple(args.provider),
+                    lifecycles=tuple(args.lifecycle),
+                    availability=tuple(args.availability),
+                    activation=tuple(args.activation),
+                    usage=tuple(args.project_usage),
                 )
                 if args.project_root is None
                 else compose_framework_catalog_project_view_selection(
                     catalog,
                     document,
                     pack_id=args.pack,
+                    group_id=args.group,
                     capability_id=args.capability,
+                    provider_pack_ids=tuple(args.provider),
+                    lifecycles=tuple(args.lifecycle),
+                    availability=tuple(args.availability),
+                    activation=tuple(args.activation),
+                    usage=tuple(args.project_usage),
                 )
             )
         classification = "catalog-composition"

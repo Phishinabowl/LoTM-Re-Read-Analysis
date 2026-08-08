@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "pack_id": "fixture-extension",
   "pack_version": 1,
   "lifecycle": "deferred",
@@ -32,6 +32,8 @@
     {"pack_id": "fixture-domain", "minimum_version": 3}
   ],
   "capabilities": [],
+  "capability_groups": [],
+  "capability_group_memberships": [],
   "controlled_values": {
     "fixture.mode": ["extension-mode"]
   }

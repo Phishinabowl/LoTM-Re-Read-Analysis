@@ -116,6 +116,23 @@ def assert_valid_fixture(registry, expected: dict) -> None:
     }
     if len(capability_keys) != presentation["capability_localization_keys"]:
         raise AssertionError("Capability localization-key composition changed.")
+    ordered_groups = sorted(registry.capability_groups.values(), key=lambda group: (group.order, group.id))
+    if [group.id for group in ordered_groups] != presentation["capability_groups"]:
+        raise AssertionError("Capability-group composition order changed.")
+    group_keys = {group.presentation.localization_key for group in registry.capability_groups.values()}
+    if len(group_keys) != presentation["group_localization_keys"]:
+        raise AssertionError("Capability-group localization-key composition changed.")
+    domain_memberships = registry.capability_group_memberships["fixture-domain-behavior"]
+    if list(domain_memberships[0]["capability_ids"]) != presentation["domain_group_capabilities"]:
+        raise AssertionError("Capability-group membership composition changed.")
+    planned = registry.capability_definitions[("fixture-core", "planned-capability")].relationships
+    domain = registry.capability_definitions[("fixture-domain", "domain-capability")].relationships
+    if list(planned.recommends) != presentation["planned_recommendations"]:
+        raise AssertionError("Capability recommendations changed.")
+    if list(domain.requires) != presentation["domain_requirements"]:
+        raise AssertionError("Capability requirements changed.")
+    if list(domain.conflicts_with) != presentation["domain_conflicts"]:
+        raise AssertionError("Capability conflicts changed.")
     semantic = expected["semantic_declarations"]
     for field, expected_count in semantic.items():
         if len(getattr(registry, field)) != expected_count:
@@ -299,16 +316,17 @@ def assert_presentation_only_change(project, base_root: Path, temp_root: Path, b
     return 2
 
 
-def assert_catalog_metadata(root: Path) -> tuple[int, int]:
+def assert_catalog_metadata(root: Path) -> tuple[int, int, int]:
     pack_paths = sorted((root / "Framework" / "Packs").glob("*/pack.yaml"))
     if not pack_paths:
         raise AssertionError("Schema-pack catalog is empty.")
     capability_count = 0
+    group_count = 0
     localization_keys: set[str] = set()
     for path in pack_paths:
         pack = load_pack(path, path.parent.name)
-        if pack.schema_version != 5 or pack.classification is None or pack.presentation is None:
-            raise AssertionError(f"Catalog pack `{pack.id}` lacks required schema-5 metadata.")
+        if pack.schema_version != 6 or pack.classification is None or pack.presentation is None:
+            raise AssertionError(f"Catalog pack `{pack.id}` lacks required schema-6 metadata.")
         if pack.presentation.visual is not None:
             raise AssertionError(f"Catalog pack `{pack.id}` invents unreviewed visual metadata.")
         if pack.presentation.localization_key in localization_keys:
@@ -322,7 +340,12 @@ def assert_catalog_metadata(root: Path) -> tuple[int, int]:
                 raise AssertionError("Catalog capability localization keys are not unique.")
             localization_keys.add(capability.presentation.localization_key)
             capability_count += 1
-    return len(pack_paths), capability_count
+        for group in pack.capability_groups:
+            if group.presentation.localization_key in localization_keys:
+                raise AssertionError("Catalog capability-group localization keys are not unique.")
+            localization_keys.add(group.presentation.localization_key)
+            group_count += 1
+    return len(pack_paths), capability_count, group_count
 
 
 def main() -> int:
@@ -333,7 +356,7 @@ def main() -> int:
     root = resolve_project_root(args.root, executable_path=__file__)
     project = load_project_config(root)
     canonical = load_schema_pack_registry(project)
-    catalog_packs, catalog_capabilities = assert_catalog_metadata(root)
+    catalog_packs, catalog_capabilities, catalog_capability_groups = assert_catalog_metadata(root)
     fixture_root = root / "Framework" / "Data" / "Schema-Packs"
     base_root = fixture_root / "base"
     legacy_root = fixture_root / "legacy"
@@ -397,6 +420,7 @@ def main() -> int:
         "schema_version": 1,
         "canonical_selected_packs": len(canonical.selection_order),
         "catalog_capabilities": catalog_capabilities,
+        "catalog_capability_groups": catalog_capability_groups,
         "catalog_packs": catalog_packs,
         "fixture_selected_packs": len(fixture_registry.selection_order),
         "fixture_declared_capabilities": len(fixture_registry.declared_capabilities),

@@ -20,11 +20,13 @@ Core owns the effective-schema shape, lifecycle resolution, diagnostics model, d
 ordering, and serialization contract. Selected packs own capability and controlled-value
 definitions. Project registries own instantiated taxonomy, roots, placements, and resource policy.
 
-Contract version 2 retains every version-1 field and adds:
+Contract version 3 retains every version-2 field and adds:
 
 - selected-pack architectural classification and complete pack presentation;
 - effective and provider-level capability presentation;
-- deterministic singular pack and capability selection over the composed document.
+- ordered capability groups and pack contributions;
+- capability relationships and provider dependency/vocabulary explanations;
+- deterministic pack, group, capability, and filtered selection over the composed document.
 
 The complete contract includes:
 
@@ -39,7 +41,7 @@ The complete contract includes:
 
 Page modules, normalized content records, canonical relationships, and projection declarations join
 the effective schema only when their later platform contracts are implemented. Their absence from
-version 2 is not an empty declaration that they exist.
+version 3 is not an empty declaration that they exist.
 
 ## Document Shape
 
@@ -48,10 +50,11 @@ The serialized document uses this top-level order:
 ```json
 {
   "contract": "effective-project-schema",
-  "contract_version": 2,
+  "contract_version": 3,
   "project": {},
   "registry_schema_versions": [],
   "packs": [],
+  "capability_groups": [],
   "capabilities": [],
   "controlled_value_namespaces": [],
   "content": {},
@@ -107,6 +110,15 @@ reports it through the failure behavior defined for Phase 2.2.
 Dependency order is the schema-pack registry's validated selection order. It is meaningful and must
 not be alphabetized by serializers.
 
+## Capability Groups
+
+`capability_groups` contains the selected packs' composed schema-6 groups in deterministic group
+order. Each row contains stable `id`, authored `order`, localizable `presentation`, one
+`owner_pack_id`, ordered pack `contributions`, the resulting `capability_ids`, and derived
+`available`, `enabled`, `deprecated`, and `planned` state. Contribution rows preserve provider pack,
+authored contribution order, and contributed capability IDs. Group state summarizes its selected
+capabilities; it does not create another activation control or metadata authority.
+
 ## Capability Resolution
 
 `capabilities` contains one row for every capability declared by at least one selected pack. Rows are
@@ -123,12 +135,15 @@ ordered by capability ID. Each row contains:
 | `enabled` | Whether this project activates it. |
 | `disabled` | Exact inverse of `enabled`. |
 | `presentation` | Effective capability presentation, or `null` for legacy providers. |
+| `group_ids` | Ordered groups containing this capability. |
+| `relationships` | Hard requirements, recommendations, and conflicts. |
 | `providers` | Definitions contributed by selected packs. |
 
 Provider rows appear in selected-pack dependency order and contain `pack_id`, `lifecycle`, `label`,
-`description`, and `presentation`. Compatibility labels and descriptions may be `null` when a
-legacy pack used shorthand. Schema-5 providers always include presentation. Multiple schema-5
-providers must have equivalent presentation, so the effective row uses that shared value.
+`description`, `presentation`, `pack_dependencies`, and `controlled_value_namespace_ids`.
+Compatibility labels and descriptions may be `null` when a legacy pack used shorthand. Schema-5
+and schema-6 providers always include presentation. Multiple providers must have equivalent
+presentation and schema-6 relationships, so the effective row uses those shared values.
 
 Lifecycle resolution is deterministic:
 
@@ -166,7 +181,7 @@ hierarchy cycles are fatal composition errors rather than diagnostics on a succe
 
 Typed semantic declarations remain runtime contract data rather than generic controlled values.
 They may receive a dedicated effective-schema section in a later contract version when an editor or
-consumer requirement is defined; version 2 must not flatten them into synthetic namespaces.
+consumer requirement is defined; version 3 must not flatten them into synthetic namespaces.
 
 ## Content Configuration
 
@@ -304,7 +319,7 @@ configuration, persisted project state, or a substitute for the effective schema
 The paired runtimes render a concise Markdown presentation from that model. The Obsidian QA export
 writes it to `_Generated/effective-schema.md` on every run. The report includes generated and
 noncanonical metadata, project and source-contract identity, summary counts, selected packs,
-capabilities, and diagnostics. It excludes the complete detailed `all` inspection view, absolute
+capability groups, capabilities, and diagnostics. It excludes the complete detailed `all` inspection view, absolute
 paths, wall-clock timestamps, and runtime-specific state.
 
 Inspection commands, QA exporters, and future interface clients must use this shared semantic model.
@@ -314,7 +329,7 @@ schema in process and must not invoke an inspection command or another runtime a
 
 ### Framework-Catalog Integration
 
-Contract version 2 resolves the project's selected packs through the shared validated
+Contract version 2 introduced selected-pack resolution through the shared validated
 `FrameworkCatalog` model. The project registry still owns authored selection order and capability
 activation. Each selected ID and configured path must match an installed catalog pack exactly;
 project and framework IDs and lookup-registry pins must also agree. No project value silently
@@ -324,8 +339,8 @@ inherits from the framework installation manifest.
 remains the project composition that adds selected dependency closure, activation, taxonomy,
 resources, and diagnostics. The derived `FrameworkCatalogProjectView` combines both for explicit
 catalog presentation, but the base catalog does not depend on the effective schema and no generated
-document becomes canonical input. The migration preserves contract-version-2 output bytes,
-commands, selectors, diagnostics, and consumer projections.
+document becomes canonical input. Contract version 3 keeps that dependency direction while adding
+schema-6 group and relationship output.
 
 ## Runtime And Command API
 
@@ -341,8 +356,8 @@ consumers import `KnowledgeFramework.psd1` and call `New-KnowledgeEffectiveProje
 The paired headless commands are:
 
 ```powershell
-python Tools\Commands\Framework\inspect_effective_schema.py [--root PATH] [--json] [--output PATH] [--report-output PATH] [--show SECTION] [--pack PACK_ID] [--capability CAPABILITY_ID]
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 [-Root PATH] [-Json] [-Output PATH] [-ReportOutput PATH] [-Show SECTION[,SECTION]] [-Pack PACK_ID] [-Capability CAPABILITY_ID]
+python Tools\Commands\Framework\inspect_effective_schema.py [--root PATH] [--json] [--output PATH] [--report-output PATH] [--show SECTION] [--pack PACK_ID] [--group GROUP_ID] [--capability CAPABILITY_ID] [filters]
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 [-Root PATH] [-Json] [-Output PATH] [-ReportOutput PATH] [-Show SECTION[,SECTION]] [-Pack PACK_ID] [-Group GROUP_ID] [-Capability CAPABILITY_ID] [filters]
 ```
 
 Without structured-output switches, each command prints a concise project, pack, capability,
@@ -357,7 +372,7 @@ the command then prints only export confirmations instead of duplicating the rep
 output. It may be combined with the JSON switches when both compiled artifacts are needed.
 
 Human mode accepts repeatable Python `--show` selections or one comma-separated PowerShell `-Show`
-list for `overview`, `packs`, `capabilities`, `namespaces`, `content`, `resources`, `diagnostics`, or
+list for `overview`, `packs`, `groups`, `capabilities`, `namespaces`, `content`, `resources`, `diagnostics`, or
 `all`. `overview` emits only friendly pack/capability labels, stable IDs, and descriptions for the
 project composition. `all` expands to the six detailed contract sections and deliberately excludes
 the redundant overview.
@@ -365,7 +380,7 @@ Selections are deduplicated in requested order, and `all` expands in the documen
 order. They append raw contract-backed detail to the compact summary; they do not add semantics or
 reinterpret canonical JSON.
 
-`--pack` / `-Pack` and `--capability` / `-Capability` are independently optional and may be
+`--pack` / `-Pack`, `--group` / `-Group`, and `--capability` / `-Capability` are independently optional and may be
 combined with each other or any `show` selection. Exact stable IDs win. Otherwise, the project
 lookup-key service resolves the supplied value; zero matches fail as unknown and multiple matches
 fail as ambiguous. Human mode appends detailed inspection blocks. Structured mode emits:
@@ -373,21 +388,26 @@ fail as ambiguous. Human mode appends detailed inspection blocks. Structured mod
 ```json
 {
   "contract": "effective-project-schema-selection",
-  "contract_version": 1,
+  "contract_version": 2,
   "source_contract": "effective-project-schema",
-  "source_contract_version": 2,
+  "source_contract_version": 3,
   "project_id": "example-project",
+  "requested": {},
   "packs": [],
+  "capability_groups": [],
   "capabilities": []
 }
 ```
 
-Each selected collection contains zero or one complete row copied from the composed effective
-schema. The envelope is a filtered view, not a second schema authority. Without selectors, JSON
+Group selection expands to member capabilities in canonical effective-schema order. Repeatable
+provider, lifecycle, availability, activation, and project-usage filters may further constrain
+capabilities; the envelope records normalized filters under `requested`. The envelope is a filtered
+view, not a second schema authority. Without selectors or filters, JSON
 and output files remain the complete canonical effective-schema document.
 
 The permanent `effective-schema` conformance suite covers positive composition, pack and capability
-presentation, classification, exact and normalized singular selection, unknown and ambiguous
+presentation, classification, group expansion, relationship/provider explanations, deterministic
+compound filtering, exact and normalized singular selection, unknown and ambiguous
 selection, available-disabled, planned, deprecated, multiple-provider, dependency-failure,
 malformed, deterministic, path-safety, and generated 400-capability scale behavior. The
 compatibility orchestrator compares the complete document, export, selection, and failure envelopes

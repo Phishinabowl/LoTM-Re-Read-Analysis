@@ -1,6 +1,6 @@
-schema_version: 5
+schema_version: 6
 pack_id: narrative-media
-pack_version: 25
+pack_version: 26
 lifecycle: active
 pack_kind: domain
 classification:
@@ -202,6 +202,62 @@ capabilities:
     localization_key: capability.retcon-supersession
     label: Retcon and Supersession
     description: Claim-level replacement, reinterpretation, restoration, and effective-scope tracking.
+
+capability_groups:
+- id: narrative-world-and-work-structure
+  order: 1000
+  presentation:
+    localization_key: group.narrative-world-and-work-structure
+    label: Narrative World and Work Structure
+    description: Franchises, series, programs, continuities, works, installments, facets, hierarchies, and numbering.
+- id: narrative-content-and-localization
+  order: 1010
+  presentation:
+    localization_key: group.narrative-content-and-localization
+    label: Narrative Content and Localization
+    description: External identifiers, localized metadata, title variants, and nested content groups.
+- id: narrative-time-continuity-and-disclosure
+  order: 1020
+  presentation:
+    localization_key: group.narrative-time-continuity-and-disclosure
+    label: Narrative Time, Continuity, and Disclosure
+    description: Chronology, loops, disclosure, spoiler bounds, positional locators, continuity, and retcons.
+
+capability_group_memberships:
+- group_id: narrative-world-and-work-structure
+  order: 100
+  capability_ids:
+  - franchises
+  - ordered-series
+  - adaptation-programs
+  - continuities
+  - creative-works
+  - installments
+  - media-facets
+  - work-hierarchies
+  - multiple-orderings
+  - numbering-schemes
+- group_id: narrative-content-and-localization
+  order: 200
+  capability_ids:
+  - external-identifiers
+  - localized-segment-metadata
+  - localized-title-variants
+  - content-groups
+  - nested-content-groups
+  - temporal-localized-titles
+  - content-group-member-roles
+- group_id: narrative-time-continuity-and-disclosure
+  order: 300
+  capability_ids:
+  - narrative-chronology
+  - narrative-time-loops
+  - reader-disclosure
+  - spoiler-bounding
+  - segment-anchored-locators
+  - ordering-backed-position-validation
+  - scoped-continuity
+  - retcon-supersession
 
 controlled_values:
   chronology.context-role:

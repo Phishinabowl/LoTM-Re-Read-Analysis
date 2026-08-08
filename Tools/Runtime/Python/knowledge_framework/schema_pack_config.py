@@ -8,8 +8,8 @@ from .strict_yaml import assert_allowed_keys, load_yaml_file
 
 
 SUPPORTED_SCHEMA_PACK_REGISTRY_VERSION = 2
-SUPPORTED_SCHEMA_PACK_VERSIONS = (4, 5)
-CURRENT_SCHEMA_PACK_VERSION = 5
+SUPPORTED_SCHEMA_PACK_VERSIONS = (4, 5, 6)
+CURRENT_SCHEMA_PACK_VERSION = 6
 PACK_LIFECYCLES = {"active", "deferred"}
 PACK_KINDS = {"core", "domain", "extension"}
 CAPABILITY_LIFECYCLES = {"available", "planned", "deprecated"}
@@ -102,12 +102,34 @@ class CapabilityPresentation:
 
 
 @dataclass(frozen=True)
+class CapabilityRelationships:
+    requires: tuple[str, ...] = ()
+    recommends: tuple[str, ...] = ()
+    conflicts_with: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
 class CapabilityConfig:
     id: str
     lifecycle: str
     label: str | None
     description: str | None
     presentation: CapabilityPresentation | None = None
+    relationships: CapabilityRelationships = CapabilityRelationships()
+
+
+@dataclass(frozen=True)
+class CapabilityGroupConfig:
+    id: str
+    order: int
+    presentation: CapabilityPresentation
+
+
+@dataclass(frozen=True)
+class CapabilityGroupMembership:
+    group_id: str
+    order: int
+    capability_ids: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -203,6 +225,8 @@ class SchemaPackConfig:
     dependencies: tuple[SchemaPackDependency, ...]
     capabilities: tuple[str, ...]
     capability_definitions: dict[str, CapabilityConfig]
+    capability_groups: tuple[CapabilityGroupConfig, ...]
+    capability_group_memberships: tuple[CapabilityGroupMembership, ...]
     controlled_values: dict[str, tuple[str, ...]]
     controlled_value_definitions: dict[str, dict[str, ControlledValueConfig]]
     semantic_declarations: SemanticDeclarations
@@ -219,6 +243,9 @@ class SchemaPackRegistry:
     enabled_capabilities: tuple[str, ...]
     capability_providers: dict[str, tuple[str, ...]]
     capability_definitions: dict[tuple[str, str], CapabilityConfig]
+    capability_groups: dict[str, CapabilityGroupConfig]
+    capability_group_owners: dict[str, str]
+    capability_group_memberships: dict[str, tuple[dict[str, object], ...]]
     controlled_values: dict[str, tuple[str, ...]]
     controlled_value_owners: dict[tuple[str, str], str]
     controlled_value_definitions: dict[tuple[str, str], ControlledValueConfig]
@@ -515,6 +542,101 @@ def _parse_capability_presentation(raw: dict, context: str) -> CapabilityPresent
         require_string(presentation, "label", f"{context}.presentation"),
         require_string(presentation, "description", f"{context}.presentation"),
     )
+
+
+def _parse_capability_relationships(raw: dict, context: str) -> CapabilityRelationships:
+    value = raw.get("relationships", {})
+    relationships = require_mapping(value, f"{context}.relationships")
+    assert_allowed_keys(
+        relationships,
+        {"requires", "recommends", "conflicts_with"},
+        f"Schema pack `{context}.relationships`",
+    )
+
+    def parse_ids(key: str) -> tuple[str, ...]:
+        values = relationships.get(key, [])
+        if not isinstance(values, list):
+            raise ValueError(f"Schema-pack configuration `{context}.relationships.{key}` must be a list.")
+        result: list[str] = []
+        for item in values:
+            if not isinstance(item, str) or not item.strip():
+                raise ValueError(f"Schema-pack configuration `{context}.relationships.{key}` must contain stable IDs.")
+            capability_id = item.strip()
+            validate_id(capability_id, f"{context}.relationships.{key}")
+            result.append(capability_id)
+        if len(set(result)) != len(result):
+            raise ValueError(f"Schema-pack configuration `{context}.relationships.{key}` contains duplicates.")
+        return tuple(result)
+
+    return CapabilityRelationships(
+        requires=parse_ids("requires"),
+        recommends=parse_ids("recommends"),
+        conflicts_with=parse_ids("conflicts_with"),
+    )
+
+
+def _parse_capability_groups(pack: dict, pack_id: str) -> tuple[CapabilityGroupConfig, ...]:
+    raw_groups = pack.get("capability_groups", [])
+    if not isinstance(raw_groups, list):
+        raise ValueError(f"Schema-pack configuration `{pack_id}.capability_groups` must be a list.")
+    groups: list[CapabilityGroupConfig] = []
+    seen: set[str] = set()
+    for index, raw_group in enumerate(raw_groups):
+        context = f"{pack_id}.capability_groups[{index}]"
+        group = require_mapping(raw_group, context)
+        assert_allowed_keys(group, {"id", "order", "presentation"}, f"Schema pack `{context}`")
+        group_id = require_string(group, "id", context)
+        validate_id(group_id, f"{context}.id")
+        if group_id in seen:
+            raise ValueError(f"Schema pack `{pack_id}` repeats capability group `{group_id}`.")
+        seen.add(group_id)
+        groups.append(
+            CapabilityGroupConfig(
+                id=group_id,
+                order=require_positive_int(group, "order", context),
+                presentation=_parse_capability_presentation(group, context),
+            )
+        )
+    return tuple(groups)
+
+
+def _parse_capability_group_memberships(
+    pack: dict,
+    pack_id: str,
+) -> tuple[CapabilityGroupMembership, ...]:
+    raw_memberships = pack.get("capability_group_memberships", [])
+    if not isinstance(raw_memberships, list):
+        raise ValueError(f"Schema-pack configuration `{pack_id}.capability_group_memberships` must be a list.")
+    memberships: list[CapabilityGroupMembership] = []
+    seen: set[str] = set()
+    for index, raw_membership in enumerate(raw_memberships):
+        context = f"{pack_id}.capability_group_memberships[{index}]"
+        membership = require_mapping(raw_membership, context)
+        assert_allowed_keys(
+            membership,
+            {"group_id", "order", "capability_ids"},
+            f"Schema pack `{context}`",
+        )
+        group_id = require_string(membership, "group_id", context)
+        validate_id(group_id, f"{context}.group_id")
+        if group_id in seen:
+            raise ValueError(f"Schema pack `{pack_id}` repeats membership contribution for `{group_id}`.")
+        seen.add(group_id)
+        capability_ids = require_string_list(membership, "capability_ids", context)
+        if not capability_ids:
+            raise ValueError(f"Schema-pack configuration `{context}.capability_ids` must not be empty.")
+        for capability_id in capability_ids:
+            validate_id(capability_id, f"{context}.capability_ids")
+        if len(set(capability_ids)) != len(capability_ids):
+            raise ValueError(f"Schema-pack configuration `{context}.capability_ids` contains duplicates.")
+        memberships.append(
+            CapabilityGroupMembership(
+                group_id=group_id,
+                order=require_positive_int(membership, "order", context),
+                capability_ids=tuple(capability_ids),
+            )
+        )
+    return tuple(memberships)
 
 
 def _declaration_rows(mapping: dict, key: str, context: str) -> list:
@@ -856,6 +978,8 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
         "controlled_values",
         "semantic_declarations",
     }
+    if schema_version >= 6:
+        allowed_keys.update({"capability_groups", "capability_group_memberships"})
     allowed_keys.update({"label", "description"} if legacy else {"classification", "presentation"})
     assert_allowed_keys(
         pack,
@@ -927,11 +1051,7 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
             allowed_capability_keys = (
                 {"id", "lifecycle", "label", "description"}
                 if legacy
-                else {
-                    "id",
-                    "lifecycle",
-                    "presentation",
-                }
+                else {"id", "lifecycle", "presentation"} | ({"relationships"} if schema_version >= 6 else set())
             )
             assert_allowed_keys(
                 raw_capability,
@@ -953,6 +1073,11 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
                 capability_presentation = None
             else:
                 capability_presentation = _parse_capability_presentation(raw_capability, context)
+                capability_relationships = (
+                    _parse_capability_relationships(raw_capability, context)
+                    if schema_version >= 6
+                    else CapabilityRelationships()
+                )
                 label = capability_presentation.label
                 description = capability_presentation.description
         else:
@@ -973,6 +1098,7 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
             label=label,
             description=description,
             presentation=capability_presentation,
+            relationships=(capability_relationships if not legacy else CapabilityRelationships()),
         )
 
     raw_controlled = require_mapping(pack.get("controlled_values"), f"{pack_id}.controlled_values")
@@ -1062,6 +1188,10 @@ def load_pack(path: Path, expected_pack_id: str) -> SchemaPackConfig:
         dependencies=tuple(dependencies),
         capabilities=tuple(capabilities),
         capability_definitions=capability_definitions,
+        capability_groups=(_parse_capability_groups(pack, pack_id) if schema_version >= 6 else ()),
+        capability_group_memberships=(
+            _parse_capability_group_memberships(pack, pack_id) if schema_version >= 6 else ()
+        ),
         controlled_values=controlled_values,
         controlled_value_definitions=controlled_value_definitions,
         semantic_declarations=parse_semantic_declarations(pack, pack_id),
@@ -1075,11 +1205,17 @@ def _validate_pack_presentation_composition(
     versions = {pack.schema_version for pack in packs.values()}
     if versions == {4}:
         return
-    if versions != {CURRENT_SCHEMA_PACK_VERSION}:
-        raise ValueError("Schema-pack composition must not mix legacy schema 4 and presentation schema 5 packs.")
+    if len(versions) != 1 or next(iter(versions)) not in {5, CURRENT_SCHEMA_PACK_VERSION}:
+        raise ValueError("Schema-pack composition must use one uniform supported presentation-schema version.")
+    composition_version = next(iter(versions))
 
     localization_owners: dict[str, str] = {}
     capability_presentations: dict[str, CapabilityPresentation] = {}
+    capability_relationships: dict[str, CapabilityRelationships] = {}
+    known_capabilities = {capability_id for pack in packs.values() for capability_id in pack.capabilities}
+    group_owners: dict[str, str] = {}
+    group_definitions: dict[str, CapabilityGroupConfig] = {}
+    grouped_capabilities: set[str] = set()
     for pack_id in selection_order:
         pack = packs[pack_id]
         classification = pack.classification
@@ -1162,6 +1298,94 @@ def _validate_pack_presentation_composition(
             if prior is not None and prior != capability_presentation:
                 raise ValueError(f"Capability `{capability_id}` providers declare conflicting presentation metadata.")
             capability_presentations[capability_id] = capability_presentation
+
+            relationships = pack.capability_definitions[capability_id].relationships
+            prior_relationships = capability_relationships.get(capability_id)
+            if prior_relationships is not None and prior_relationships != relationships:
+                raise ValueError(f"Capability `{capability_id}` providers declare conflicting relationships.")
+            capability_relationships[capability_id] = relationships
+            relationship_sets = {
+                "requires": set(relationships.requires),
+                "recommends": set(relationships.recommends),
+                "conflicts_with": set(relationships.conflicts_with),
+            }
+            for relationship_name, targets in relationship_sets.items():
+                if capability_id in targets:
+                    raise ValueError(f"Capability `{capability_id}` cannot declare itself in `{relationship_name}`.")
+                unknown = targets - known_capabilities
+                if unknown:
+                    raise ValueError(
+                        f"Capability `{capability_id}` has unknown `{relationship_name}` target(s): "
+                        f"{', '.join(sorted(unknown))}."
+                    )
+            overlap = (relationship_sets["requires"] & relationship_sets["conflicts_with"]) | (
+                relationship_sets["recommends"] & relationship_sets["conflicts_with"]
+            )
+            if overlap:
+                raise ValueError(
+                    f"Capability `{capability_id}` both supports and conflicts with: {', '.join(sorted(overlap))}."
+                )
+
+        if composition_version < 6:
+            continue
+
+        for group in pack.capability_groups:
+            prior_owner = group_owners.get(group.id)
+            if prior_owner is not None:
+                raise ValueError(f"Capability group `{group.id}` is defined by both `{prior_owner}` and `{pack_id}`.")
+            group_owners[group.id] = pack_id
+            group_definitions[group.id] = group
+            owner_key = localization_owners.get(group.presentation.localization_key)
+            if owner_key is not None:
+                raise ValueError(
+                    f"Schema-pack localization key `{group.presentation.localization_key}` "
+                    f"conflicts with `{owner_key}`."
+                )
+            localization_owners[group.presentation.localization_key] = f"group:{group.id}"
+
+    if composition_version < 6:
+        return
+
+    for pack_id in selection_order:
+        pack = packs[pack_id]
+        permitted_capabilities = set(pack.capabilities)
+        for dependency in pack.dependencies:
+            permitted_capabilities.update(packs[dependency.pack_id].capabilities)
+        for membership in pack.capability_group_memberships:
+            if membership.group_id not in group_definitions:
+                raise ValueError(
+                    f"Schema pack `{pack_id}` contributes to unknown capability group `{membership.group_id}`."
+                )
+            disallowed = set(membership.capability_ids) - permitted_capabilities
+            if disallowed:
+                raise ValueError(
+                    f"Schema pack `{pack_id}` groups capabilities it neither provides nor receives "
+                    f"from a dependency: {', '.join(sorted(disallowed))}."
+                )
+            grouped_capabilities.update(membership.capability_ids)
+
+    ungrouped = known_capabilities - grouped_capabilities
+    if ungrouped:
+        raise ValueError(
+            "Schema-pack composition leaves capabilities outside every capability group: "
+            f"{', '.join(sorted(ungrouped))}."
+        )
+
+    complete: set[str] = set()
+
+    def visit_capability(capability_id: str, active: set[str]) -> None:
+        if capability_id in active:
+            raise ValueError(f"Capability requirement graph contains a cycle at `{capability_id}`.")
+        if capability_id in complete:
+            return
+        active.add(capability_id)
+        for dependency_id in capability_relationships[capability_id].requires:
+            visit_capability(dependency_id, active)
+        active.remove(capability_id)
+        complete.add(capability_id)
+
+    for capability_id in known_capabilities:
+        visit_capability(capability_id, set())
 
 
 def load_schema_pack_registry(
@@ -1248,6 +1472,25 @@ def load_schema_pack_registry(
             capability_definitions[(pack_id, capability)] = definition
             if definition.lifecycle in {"available", "deprecated"} and capability not in available_capabilities:
                 available_capabilities.append(capability)
+
+    capability_groups: dict[str, CapabilityGroupConfig] = {}
+    capability_group_owners: dict[str, str] = {}
+    capability_group_memberships: dict[str, list[dict[str, object]]] = {}
+    for pack_id in selection_order:
+        pack = packs[pack_id]
+        for group in pack.capability_groups:
+            capability_groups[group.id] = group
+            capability_group_owners[group.id] = pack_id
+        for membership in pack.capability_group_memberships:
+            capability_group_memberships.setdefault(membership.group_id, []).append(
+                {
+                    "provider_pack_id": pack_id,
+                    "order": membership.order,
+                    "capability_ids": membership.capability_ids,
+                }
+            )
+    for memberships in capability_group_memberships.values():
+        memberships.sort(key=lambda row: (int(row["order"]), str(row["provider_pack_id"])))
 
     activation = require_mapping(registry.get("capability_activation"), "capability_activation")
     assert_allowed_keys(
@@ -1336,6 +1579,11 @@ def load_schema_pack_registry(
         enabled_capabilities=enabled_capabilities,
         capability_providers={capability: tuple(providers) for capability, providers in capability_providers.items()},
         capability_definitions=capability_definitions,
+        capability_groups=capability_groups,
+        capability_group_owners=capability_group_owners,
+        capability_group_memberships={
+            group_id: tuple(memberships) for group_id, memberships in capability_group_memberships.items()
+        },
         controlled_values={namespace: tuple(values) for namespace, values in controlled.items()},
         controlled_value_owners=owners,
         controlled_value_definitions=definitions,

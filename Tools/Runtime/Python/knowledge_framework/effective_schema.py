@@ -14,11 +14,11 @@ from .taxonomy_config import TaxonomyConfig, load_taxonomy_config
 
 
 CONTRACT_ID = "effective-project-schema"
-CONTRACT_VERSION = 2
+CONTRACT_VERSION = 3
 SELECTION_CONTRACT_ID = "effective-project-schema-selection"
-SELECTION_CONTRACT_VERSION = 1
+SELECTION_CONTRACT_VERSION = 2
 REPORT_MODEL_CONTRACT_ID = "effective-project-schema-report-model"
-REPORT_MODEL_CONTRACT_VERSION = 1
+REPORT_MODEL_CONTRACT_VERSION = 2
 SEVERITY_ORDER = {"warning": 0, "info": 1}
 CONSUMER_ENABLEMENT_FIELDS = {
     "qa": "qa_page_enabled",
@@ -31,6 +31,7 @@ class EffectiveProjectSchema:
     project: dict[str, Any]
     registry_schema_versions: tuple[dict[str, Any], ...]
     packs: tuple[dict[str, Any], ...]
+    capability_groups: tuple[dict[str, Any], ...]
     capabilities: tuple[dict[str, Any], ...]
     controlled_value_namespaces: tuple[dict[str, Any], ...]
     content: dict[str, Any]
@@ -46,6 +47,7 @@ class EffectiveProjectSchema:
             "project": self.project,
             "registry_schema_versions": list(self.registry_schema_versions),
             "packs": list(self.packs),
+            "capability_groups": list(self.capability_groups),
             "capabilities": list(self.capabilities),
             "controlled_value_namespaces": list(self.controlled_value_namespaces),
             "content": self.content,
@@ -162,6 +164,14 @@ def _capability_presentation(presentation: Any) -> dict[str, str] | None:
     }
 
 
+def _capability_relationships(relationships: Any) -> dict[str, list[str]]:
+    return {
+        "requires": list(relationships.requires),
+        "recommends": list(relationships.recommends),
+        "conflicts_with": list(relationships.conflicts_with),
+    }
+
+
 def compose_effective_project_schema(
     project: ProjectConfig,
     packs: SchemaPackRegistry,
@@ -227,6 +237,8 @@ def compose_effective_project_schema(
                     "label": definition.label,
                     "description": definition.description,
                     "presentation": provider_presentation,
+                    "pack_dependencies": [dependency.pack_id for dependency in packs.packs[pack_id].dependencies],
+                    "controlled_value_namespace_ids": sorted(packs.packs[pack_id].controlled_values),
                 }
             )
         effective_lifecycle = (
@@ -244,6 +256,14 @@ def compose_effective_project_schema(
                 "enabled": is_enabled,
                 "disabled": not is_enabled,
                 "presentation": effective_presentation,
+                "group_ids": [
+                    group_id
+                    for group_id, memberships in packs.capability_group_memberships.items()
+                    if any(capability_id in membership["capability_ids"] for membership in memberships)
+                ],
+                "relationships": _capability_relationships(
+                    packs.capability_definitions[(provider_ids[0], capability_id)].relationships
+                ),
                 "providers": providers,
             }
         )
@@ -268,6 +288,35 @@ def compose_effective_project_schema(
                 )
             )
 
+    capabilities_by_id = {row["id"]: row for row in capability_rows}
+    capability_group_rows: list[dict[str, Any]] = []
+    for group in sorted(packs.capability_groups.values(), key=lambda row: (row.order, row.id)):
+        memberships = list(packs.capability_group_memberships.get(group.id, ()))
+        capability_ids = list(
+            dict.fromkeys(capability_id for membership in memberships for capability_id in membership["capability_ids"])
+        )
+        grouped_capabilities = [capabilities_by_id[capability_id] for capability_id in capability_ids]
+        capability_group_rows.append(
+            {
+                "id": group.id,
+                "order": group.order,
+                "presentation": _capability_presentation(group.presentation),
+                "owner_pack_id": packs.capability_group_owners[group.id],
+                "contributions": [
+                    {
+                        "provider_pack_id": membership["provider_pack_id"],
+                        "order": membership["order"],
+                        "capability_ids": list(membership["capability_ids"]),
+                    }
+                    for membership in memberships
+                ],
+                "capability_ids": capability_ids,
+                "available": any(row["available"] for row in grouped_capabilities),
+                "enabled": any(row["enabled"] for row in grouped_capabilities),
+                "deprecated": bool(grouped_capabilities) and all(row["deprecated"] for row in grouped_capabilities),
+                "planned": bool(grouped_capabilities) and all(row["planned"] for row in grouped_capabilities),
+            }
+        )
     namespace_rows: list[dict[str, Any]] = []
     for namespace in sorted(packs.controlled_values):
         values = []
@@ -428,6 +477,7 @@ def compose_effective_project_schema(
             {"registry_id": "taxonomy", "schema_version": taxonomy.schema_version},
         ),
         packs=tuple(pack_rows),
+        capability_groups=tuple(capability_group_rows),
         capabilities=tuple(capability_rows),
         controlled_value_namespaces=tuple(namespace_rows),
         content={
@@ -629,6 +679,8 @@ def compose_effective_schema_report_model(schema: EffectiveProjectSchema) -> dic
         **document,
         "summary": {
             "selected_packs": len(document["packs"]),
+            "capability_groups": len(document["capability_groups"]),
+            "enabled_capability_groups": sum(bool(row["enabled"]) for row in document["capability_groups"]),
             "capabilities": len(capabilities),
             "enabled_capabilities": sum(bool(row["enabled"]) for row in capabilities),
             "available_capabilities": sum(bool(row["available"]) for row in capabilities),
@@ -674,6 +726,8 @@ def effective_schema_markdown(report: EffectiveProjectSchema | dict[str, Any]) -
         "| --- | ---: |",
         f"| Project manifest schema version | {project['project_manifest_schema_version']} |",
         f"| Selected packs | {summary['selected_packs']} |",
+        f"| Capability groups | {summary['capability_groups']} |",
+        f"| Enabled capability groups | {summary['enabled_capability_groups']} |",
         f"| Capabilities | {summary['capabilities']} |",
         f"| Enabled capabilities | {summary['enabled_capabilities']} |",
         f"| Available capabilities | {summary['available_capabilities']} |",
@@ -701,6 +755,33 @@ def effective_schema_markdown(report: EffectiveProjectSchema | dict[str, Any]) -
                     classification["role"],
                     classification["scope"],
                     presentation["short_description"],
+                )
+            )
+            + " |"
+        )
+
+    lines.extend(
+        [
+            "",
+            "## Capability Groups",
+            "",
+            "| Group | Label | Owner | Capabilities | Available | Enabled | Description |",
+            "| --- | --- | --- | ---: | --- | --- | --- |",
+        ]
+    )
+    for row in model["capability_groups"]:
+        lines.append(
+            "| "
+            + " | ".join(
+                _markdown_cell(value)
+                for value in (
+                    row["id"],
+                    row["presentation"]["label"],
+                    row["owner_pack_id"],
+                    len(row["capability_ids"]),
+                    str(bool(row["available"])).lower(),
+                    str(bool(row["enabled"])).lower(),
+                    row["presentation"]["description"],
                 )
             )
             + " |"
@@ -764,29 +845,122 @@ def _resolve_effective_schema_row(
     return matches[0]
 
 
+def _filter_effective_capabilities(
+    rows: list[dict[str, Any]],
+    *,
+    provider_pack_ids: tuple[str, ...],
+    lifecycles: tuple[str, ...],
+    availability: tuple[str, ...],
+    activation: tuple[str, ...],
+    usage: tuple[str, ...],
+) -> list[dict[str, Any]]:
+    allowed = {
+        "lifecycle": {"available", "deprecated", "planned"},
+        "availability": {"available", "unavailable"},
+        "activation": {"enabled", "disabled"},
+        "project usage": {"used", "unused"},
+    }
+    for label, values in (
+        ("lifecycle", lifecycles),
+        ("availability", availability),
+        ("activation", activation),
+        ("project usage", usage),
+    ):
+        unknown = set(values) - allowed[label]
+        if unknown:
+            raise ValueError(f"Unknown capability {label} filter(s): {', '.join(sorted(unknown))}.")
+    filtered = rows
+    if provider_pack_ids:
+        providers = set(provider_pack_ids)
+        filtered = [
+            row for row in filtered if providers.intersection(provider["pack_id"] for provider in row["providers"])
+        ]
+    if lifecycles:
+        filtered = [row for row in filtered if row["effective_lifecycle"] in set(lifecycles)]
+    if availability:
+        requested = set(availability)
+        filtered = [row for row in filtered if ("available" if row["available"] else "unavailable") in requested]
+    if activation:
+        requested = set(activation)
+        filtered = [row for row in filtered if ("enabled" if row["enabled"] else "disabled") in requested]
+    if usage:
+        requested = set(usage)
+        filtered = [row for row in filtered if ("used" if row["enabled"] else "unused") in requested]
+    return filtered
+
+
 def compose_effective_schema_selection(
     schema: EffectiveProjectSchema,
     lookup_keys: LookupKeyConfig,
     *,
     pack_id: str | None = None,
+    group_id: str | None = None,
     capability_id: str | None = None,
+    provider_pack_ids: tuple[str, ...] = (),
+    lifecycles: tuple[str, ...] = (),
+    availability: tuple[str, ...] = (),
+    activation: tuple[str, ...] = (),
+    usage: tuple[str, ...] = (),
 ) -> dict[str, Any]:
-    if pack_id is None and capability_id is None:
-        raise ValueError("Effective-schema selection requires a pack or capability ID.")
+    if not any((pack_id, group_id, capability_id, provider_pack_ids, lifecycles, availability, activation, usage)):
+        raise ValueError("Effective-schema selection requires an ID or capability filter.")
+    selected_groups = (
+        []
+        if group_id is None
+        else [
+            _resolve_effective_schema_row(
+                schema.capability_groups,
+                group_id,
+                "capability group",
+                lookup_keys,
+            )
+        ]
+    )
+    normalized_provider_ids = [
+        _resolve_effective_schema_row(schema.packs, value, "pack", lookup_keys)["id"] for value in provider_pack_ids
+    ]
+    capabilities = list(schema.capabilities)
+    if capability_id is not None:
+        capabilities = [_resolve_effective_schema_row(schema.capabilities, capability_id, "capability", lookup_keys)]
+    if selected_groups:
+        group_capabilities = set(selected_groups[0]["capability_ids"])
+        capabilities = [row for row in capabilities if row["id"] in group_capabilities]
+    capabilities = _filter_effective_capabilities(
+        capabilities,
+        provider_pack_ids=tuple(normalized_provider_ids),
+        lifecycles=lifecycles,
+        availability=availability,
+        activation=activation,
+        usage=usage,
+    )
+    if group_id is None and any((provider_pack_ids, lifecycles, availability, activation, usage, capability_id)):
+        capability_ids = {row["id"] for row in capabilities}
+        selected_groups = [
+            row for row in schema.capability_groups if capability_ids.intersection(row["capability_ids"])
+        ]
     return {
         "contract": SELECTION_CONTRACT_ID,
         "contract_version": SELECTION_CONTRACT_VERSION,
         "source_contract": schema.contract,
         "source_contract_version": schema.contract_version,
         "project_id": schema.project["project_id"],
+        "requested": {
+            "pack": pack_id,
+            "capability_group": group_id,
+            "capability": capability_id,
+            "filters": {
+                "provider_pack_ids": normalized_provider_ids,
+                "lifecycles": list(lifecycles),
+                "availability": list(availability),
+                "activation": list(activation),
+                "usage": list(usage),
+            },
+        },
         "packs": (
             [] if pack_id is None else [_resolve_effective_schema_row(schema.packs, pack_id, "pack", lookup_keys)]
         ),
-        "capabilities": (
-            []
-            if capability_id is None
-            else [_resolve_effective_schema_row(schema.capabilities, capability_id, "capability", lookup_keys)]
-        ),
+        "capability_groups": selected_groups,
+        "capabilities": capabilities,
     }
 
 

@@ -1545,6 +1545,7 @@ def run_framework_catalog_check(
     project_view_reports: dict[str, str] = {}
     project_view_report_bytes: dict[str, bytes] = {}
     project_view_selections: dict[str, dict[str, Any]] = {}
+    filtered_project_view_selections: dict[str, dict[str, Any]] = {}
     project_attachment_failures: dict[str, str] = {}
     human_reports: dict[str, dict[str, str]] = {}
     failure_classifications: dict[str, str] = {}
@@ -1844,6 +1845,68 @@ def run_framework_catalog_check(
             )
         project_view_selections[runtime.id] = project_view_selection
 
+        filtered_project_view_command = python_or_powershell_command(
+            runtime,
+            python_script,
+            powershell_script,
+            [
+                "--root",
+                str(root),
+                "--project-root",
+                str(root),
+                "--group",
+                "narrative-time-continuity-and-disclosure",
+                "--provider",
+                "narrative-media",
+                "--lifecycle",
+                "available",
+                "--availability",
+                "available",
+                "--activation",
+                "enabled",
+                "--project-usage",
+                "used",
+                "--json",
+            ],
+            [
+                "-Root",
+                str(root),
+                "-ProjectRoot",
+                str(root),
+                "-Group",
+                "narrative-time-continuity-and-disclosure",
+                "-Provider",
+                "narrative-media",
+                "-Lifecycle",
+                "available",
+                "-Availability",
+                "available",
+                "-Activation",
+                "enabled",
+                "-ProjectUsage",
+                "used",
+                "-Json",
+            ],
+        )
+        filtered_project_view_result = run_command(
+            runtime,
+            filtered_project_view_command,
+            root,
+            check["timeout_seconds"],
+        )
+        filtered_project_view = parse_json_output(filtered_project_view_result.stdout)
+        if (
+            not isinstance(filtered_project_view, dict)
+            or filtered_project_view.get("contract") != "framework-catalog-project-view-selection"
+            or [row.get("id") for row in filtered_project_view.get("capability_groups", [])]
+            != ["narrative-time-continuity-and-disclosure"]
+            or len(filtered_project_view.get("capabilities", [])) != 8
+        ):
+            raise CompatibilityFailure(
+                f"{runtime.id} returned an invalid filtered catalog project view: {filtered_project_view!r}"
+            )
+        filtered_project_view_selections[runtime.id] = filtered_project_view
+
         missing_project_root = output_root / "missing-project-root"
         project_attachment_command = python_or_powershell_command(
             runtime,
@@ -1979,6 +2042,11 @@ def run_framework_catalog_check(
             raise CompatibilityFailure(
                 f"Framework-catalog project-view selection differs between {reference_runtime} and {runtime_id}."
             )
+    for runtime_id, filtered_project_view in filtered_project_view_selections.items():
+        if filtered_project_view != filtered_project_view_selections[reference_runtime]:
+            raise CompatibilityFailure(
+                f"Filtered framework-catalog project view differs between {reference_runtime} and {runtime_id}."
+            )
     if len(set(project_attachment_failures.values())) != 1:
         raise CompatibilityFailure(
             f"Framework-catalog project-attachment failures differ: {project_attachment_failures}"
@@ -2015,6 +2083,7 @@ def run_framework_catalog_check(
         "project_view_export_sha256": hashlib.sha256(project_view_export_bytes[reference_runtime]).hexdigest(),
         "project_view_report_bytes": len(project_view_report_bytes[reference_runtime]),
         "project_view_selection_contract_version": project_view_selections[reference_runtime]["contract_version"],
+        "filtered_project_view_capabilities": len(filtered_project_view_selections[reference_runtime]["capabilities"]),
         "project_attachment_cases": 1,
         "invalid_selector_cases": 2,
         "unsafe_report_path_cases": 1,
@@ -2034,6 +2103,7 @@ def run_effective_schema_check(
     overview_export_bytes: dict[str, bytes] = {}
     selection_documents: dict[str, dict[str, Any]] = {}
     selection_export_bytes: dict[str, bytes] = {}
+    filtered_selection_documents: dict[str, dict[str, Any]] = {}
     human_reports: dict[str, dict[str, str]] = {}
     failure_codes: dict[str, str] = {}
     invalid_show_failures: dict[str, str] = {}
@@ -2214,6 +2284,64 @@ def run_effective_schema_check(
             raise CompatibilityFailure(f"{runtime.id} selection export differs from its JSON command output.")
         selection_export_bytes[runtime.id] = selection_export_path.read_bytes()
 
+        filtered_selection_command = python_or_powershell_command(
+            runtime,
+            python_script,
+            powershell_script,
+            [
+                "--root",
+                str(root),
+                "--group",
+                "narrative-time-continuity-and-disclosure",
+                "--provider",
+                "narrative-media",
+                "--lifecycle",
+                "available",
+                "--availability",
+                "available",
+                "--activation",
+                "enabled",
+                "--project-usage",
+                "used",
+                "--json",
+            ],
+            [
+                "-Root",
+                str(root),
+                "-Group",
+                "narrative-time-continuity-and-disclosure",
+                "-Provider",
+                "narrative-media",
+                "-Lifecycle",
+                "available",
+                "-Availability",
+                "available",
+                "-Activation",
+                "enabled",
+                "-ProjectUsage",
+                "used",
+                "-Json",
+            ],
+        )
+        filtered_selection_result = run_command(
+            runtime,
+            filtered_selection_command,
+            root,
+            check["timeout_seconds"],
+        )
+        filtered_selection = parse_json_output(filtered_selection_result.stdout)
+        if (
+            not isinstance(filtered_selection, dict)
+            or filtered_selection.get("contract") != "effective-project-schema-selection"
+            or [row.get("id") for row in filtered_selection.get("capability_groups", [])]
+            != ["narrative-time-continuity-and-disclosure"]
+            or len(filtered_selection.get("capabilities", [])) != 8
+        ):
+            raise CompatibilityFailure(
+                f"{runtime.id} returned an invalid filtered effective-schema selection: {filtered_selection!r}"
+            )
+        filtered_selection_documents[runtime.id] = filtered_selection
+
         invalid_root = output_root / "missing-project-root"
         failure_command = python_or_powershell_command(
             runtime,
@@ -2309,6 +2437,11 @@ def run_effective_schema_check(
             )
     if len(set(selection_export_bytes.values())) != 1:
         raise CompatibilityFailure("Effective-schema selection export bytes differ between runtimes.")
+    for runtime_id, filtered_selection in filtered_selection_documents.items():
+        if filtered_selection != filtered_selection_documents[reference_runtime]:
+            raise CompatibilityFailure(
+                f"Filtered effective-schema selection differs between {reference_runtime} and {runtime_id}."
+            )
     for case_id in human_reports[reference_runtime]:
         outputs = {reports[case_id] for reports in human_reports.values()}
         if len(outputs) != 1:
@@ -2347,6 +2480,7 @@ def run_effective_schema_check(
         "selection_contract_version": selection_documents[reference_runtime]["contract_version"],
         "selection_export_bytes": len(selection_export_bytes[reference_runtime]),
         "selection_export_sha256": hashlib.sha256(selection_export_bytes[reference_runtime]).hexdigest(),
+        "filtered_selection_capabilities": len(filtered_selection_documents[reference_runtime]["capabilities"]),
         "invalid_selector_cases": 2,
         "unsafe_report_path_cases": 1,
         "failure_code": next(iter(failure_codes.values())),

@@ -1,6 +1,6 @@
-schema_version: 5
+schema_version: 6
 pack_id: narrative-screen-audio
-pack_version: 12
+pack_version: 13
 lifecycle: active
 pack_kind: domain
 classification:
@@ -101,6 +101,27 @@ capabilities:
     localization_key: capability.performance-events
     label: Performance Events
     description: Individual scheduled performances and recorded performance instances.
+
+capability_groups:
+- id: screen-audio-and-performance
+  order: 1200
+  presentation:
+    localization_key: group.screen-audio-and-performance
+    label: Screen, Audio, and Performance
+    description: Models screen, audio, episodic, cut, visual-asset, and live-performance structures.
+
+capability_group_memberships:
+- group_id: screen-audio-and-performance
+  order: 100
+  capability_ids:
+  - screen-works
+  - audio-works
+  - episodic-releases
+  - release-cuts
+  - embedded-visual-assets
+  - live-performance-works
+  - live-performance-productions
+  - performance-events
 
 controlled_values:
   provenance.claim-namespace:

@@ -199,6 +199,26 @@ localization key, friendly label, and useful description. Multiple providers of 
 must use the same localization key and semantically equivalent default text; composition rejects
 conflicting presentation.
 
+## Capability Groups And Relationships
+
+Schema-pack version 6 adds two composition surfaces without changing capability ownership:
+
+- `capability_groups` defines a stable, ordered, localizable navigation group in exactly one owner
+  pack;
+- `capability_group_memberships` lets the owning pack and its dependents contribute their own
+  capabilities to a known group in authored order;
+- each capability declaration contains `relationships.requires`, `relationships.recommends`, and
+  `relationships.conflicts_with` stable capability IDs.
+
+Group membership is presentation and navigation metadata, not capability ownership or activation.
+A contribution may name only capabilities declared by that pack or one of its dependencies. Every
+schema-6 capability belongs to at least one group. Group IDs and localization keys are globally
+unique; contributions are ordered by group order, provider dependency order, contribution order,
+then authored capability order. Composition rejects unknown/self relationships, overlap among the
+three relationship sets, provider disagreement for a shared capability, and cycles in the hard
+`requires` graph. Recommendations do not activate dependencies, and conflicts describe incompatible
+selection intent without resolving project policy automatically.
+
 ## Human-Facing Inspection Model
 
 Singular inspection is a filtered view over `EffectiveProjectSchema`, not a second schema authority.
@@ -214,7 +234,8 @@ A capability inspection record contains:
 - stable ID and presentation;
 - effective lifecycle, availability, activation, and deprecation state;
 - provider packs and each provider's declaration;
-- dependencies, recommendations, conflicts, groups, and project usage when later phases add them.
+- dependencies, recommendations, conflicts, groups, controlled-value contributions, and project
+  usage when project context is attached.
 
 CLI selectors may render these records for humans or emit deterministic JSON, but spacing, headings,
 and terminal styling are not part of this contract. Unknown IDs fail with exact stable-ID context.
@@ -233,11 +254,16 @@ If normalization would match multiple IDs, selection fails as ambiguous rather t
 
 ## Versioning And Migration
 
-The implementation of this contract advances schema-pack files to schema version 5. Existing
+The implementation supports schema-pack versions 4, 5, and 6. Schema version 5 introduced complete
+presentation. Existing
 top-level pack `label` and `description` values migrate into `presentation.label` and
 `presentation.short_description`; authored long descriptions must add useful detail rather than
 repeat the short text. Runtime objects may retain read-only label and description accessors during
-consumer migration, but schema-5 pack files have one presentation authority.
+consumer migration, but schema-5 and schema-6 pack files have one presentation authority.
+
+Schema version 6 requires capability groups, group memberships, and explicit relationship mappings.
+Schema versions 4 and 5 remain supported only as uniform legacy compositions; mixed schema versions
+fail closed.
 
 String-shorthand capability declarations are not valid in schema 5. The catalog migration must
 backfill every capability with lifecycle and presentation metadata before singular capability
@@ -254,6 +280,9 @@ Paired Python and PowerShell suites must prove:
 - equivalent multi-provider capability presentation;
 - rejection of conflicting provider presentation;
 - deterministic composition and singular lookup;
+- capability-group ownership, contribution ordering, complete membership, and hard-dependency
+  acyclicity;
+- provider-equivalent dependency, recommendation, and conflict declarations;
 - generated scale behavior with rich metadata;
 - unchanged semantic composition when only presentation text changes;
 - full QA and Visualization compatibility after catalog migration.
