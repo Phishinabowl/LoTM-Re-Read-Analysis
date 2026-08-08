@@ -759,11 +759,64 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 ### Phase 3.3 Plugin And Entitlement Boundary
 
-- [ ] Treat declarative schema packs as versioned plugins without granting arbitrary code execution.
-- [ ] Define a separate trusted extension boundary for any future executable plugin.
-- [ ] Keep commercial entitlement/licensing outside portable pack semantics.
-- [ ] Allow an entitlement service to control discoverability or installation without changing pack
-  composition rules.
+#### Phase 3.3.1 Declarative Plugin Contract
+
+- [ ] Define schema packs as versioned, data-only extension units that may be presented as plugins
+  without granting arbitrary code execution.
+- [ ] Preserve `schema-pack` as the internal contract name so declarative packs cannot be confused
+  with executable extensions.
+- [ ] Prohibit executable entrypoints, scripts, commands, install hooks, arbitrary imports, network
+  behavior, embedded credentials, and executable dependency declarations in schema packs.
+- [ ] Keep canonical pack identity, version, dependencies, lifecycle, presentation, capabilities,
+  and controlled-value contributions authoritative regardless of distribution or entitlement.
+- [ ] Distinguish commercial offerings from packs and capabilities. An offering may grant several
+  packs, one pack may belong to several offerings, and neither relationship belongs in `pack.yaml`.
+
+#### Phase 3.3.2 Trusted Executable Extension Boundary
+
+- [ ] Define a separate architectural boundary for any future executable extension, including its
+  own manifest, registry, identity, compatibility, trust, permission, and lifecycle concerns.
+- [ ] Prevent a schema-pack manifest from doubling as an executable-extension manifest or silently
+  referencing executable code.
+- [ ] Keep extension loading, execution, sandboxing, publisher verification, signing, and runtime
+  permission enforcement explicitly deferred until a reviewed executable-extension phase.
+- [ ] Leave room for a trusted extension to provide a capability implementation later without
+  moving capability declarations or portable schema semantics into executable code.
+
+#### Phase 3.3.3 Distribution And Entitlement Seam
+
+- [ ] Define commercial entitlement as an optional host or distribution-service concern rather than
+  a portable schema-pack, project, catalog, or effective-schema concern.
+- [ ] Preserve distinct `discoverable`, `entitled`, `acquirable`, `installed`, `selectable`,
+  `selected`, and `enabled` states without overloading the existing `available` lifecycle meaning.
+- [ ] Keep the base `FrameworkCatalog` a factual inventory of valid locally installed packs. A
+  commercial policy may govern remote offering discovery, acquisition, installation, or update,
+  but must not rewrite installed pack records or composition semantics.
+- [ ] Make the no-provider path the default: local declarative packs retain current deterministic,
+  offline behavior with no entitlement configuration, identity, token, or network dependency.
+- [ ] Keep account, organization, tenant, SKU, product tier, subscription, pricing, token, and grant
+  records outside canonical packs, portable projects, generated catalogs, and effective schemas.
+- [ ] Model product prerequisites separately from technical pack dependencies. Entitlement may grant
+  acquisition, while the existing pack graph remains authoritative for compatibility and
+  composition.
+- [ ] Use pack or pack-bundle grants as the initial commercial granularity. Defer capability-level
+  licensing and post-install runtime enforcement until a demonstrated product requirement exists.
+
+#### Phase 3.3.4 Boundary Conformance And Handoff
+
+- [ ] Add explicit malformed fixtures proving executable, hook, credential, commercial-offering,
+  and entitlement fields are rejected from declarative schema packs.
+- [ ] Prove the no-provider path preserves current catalog, effective-schema, QA, Visualization,
+  extraction, and project-composition behavior across supported runtimes.
+- [ ] Prove entitlement or distribution metadata cannot satisfy pack dependencies, change pack or
+  capability lifecycle, select packs, activate capabilities, or alter controlled-value composition.
+- [ ] Verify the extracted framework and portable project contracts contain no commercial account,
+  product, pricing, or enforcement assumptions.
+- [ ] Record executable extension loading, remote distribution, package acquisition, installation,
+  update, revocation, offline-grace, and post-install enforcement as explicit later work rather than
+  partially implementing them in Phase 3.3.
+- [ ] Hand future add-on discovery, entitlement-aware acquisition, installation preview, and project
+  mutation to Phase 14.3 without weakening the boundaries established here.
 
 ### Phase 3.4 Planned-Capability Lifecycle And Traceability
 
@@ -796,6 +849,12 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [ ] Obsidian QA publishes one deterministic Markdown view of the effective project schema from the
   same in-process report authority used by supported inspection clients, with three-runtime parity
   and reviewed artifact compatibility.
+- [ ] Declarative schema packs cannot execute code, and future executable extensions have a separate
+  explicit trust boundary.
+- [ ] With no entitlement provider configured, locally installed packs retain deterministic offline
+  behavior and existing catalog/effective-schema results.
+- [ ] Commercial offerings and grants remain external to portable pack and project semantics, while
+  the installed catalog remains factual and project selection remains project-owned.
 - [ ] Every declared planned capability is machine-discoverable and traceable to a delivery phase or
   accepted deferral.
 - [ ] No licensing assumption leaks into reusable schema contracts.
@@ -1183,7 +1242,10 @@ wave is confirmed.
 
 ### Phase 14.3 Add-On Operations
 
-- [ ] Discover compatible add-on packs.
+- [ ] Discover compatible add-on packs from configured local or remote distribution sources without
+  treating a commercial offering catalog as the installed `FrameworkCatalog`.
+- [ ] Apply an optional entitlement provider to offering discovery, acquisition, installation, and
+  update decisions while preserving the entitlement-free local default.
 - [ ] Preview dependency selection, capability activation, schema changes, and migrations.
 - [ ] Activate additive capabilities without rewriting unrelated records.
 - [ ] Block disabling or removing packs while project data still depends on them unless an accepted
