@@ -3735,6 +3735,7 @@ function Write-BoundedPages {
 function Write-ObsidianExport {
     param(
         [object]$ProjectConfig,
+        [object]$EffectiveSchema,
         [string]$ExportPath,
         [bool]$CleanOutput,
         [hashtable]$Notes,
@@ -3760,6 +3761,10 @@ function Write-ObsidianExport {
     }
 
     $generatedDir = Join-Path $exportPath "_Generated"
+    $effectiveSchemaReport = New-KnowledgeEffectiveSchemaReportModel $EffectiveSchema
+    Write-TextFile `
+    (Join-Path $generatedDir "effective-schema.md") `
+    (ConvertTo-KnowledgeEffectiveSchemaMarkdown $effectiveSchemaReport)
     Write-TextFile (Join-Path $generatedDir "relationship-index.md") (ConvertTo-RelationshipIndex $Relationships $Notes)
     Write-TextFile (Join-Path $generatedDir "QA-relationship-graph.mmd") (ConvertTo-LabeledRelationshipGraph $Relationships $Notes)
     Write-TextFile (Join-Path $generatedDir "QA-relationship-node-graph.mmd") (ConvertTo-RelationshipNodeGraph $Relationships $Notes $DataProjections)
@@ -3817,7 +3822,17 @@ else {
 $boundedGraphSpecs = @(ConvertFrom-BoundedGraphSpecs $BoundedGraph)
 $boundedPageSpecs = @(ConvertFrom-BoundedPageSpecs $BoundedPage)
 $discovered = Get-CanonicalNotes $repoRoot $qaContentRoots ([bool]$IncludeStubs)
-Write-ObsidianExport $projectConfig $exportPath ([bool]$Clean) $discovered.Notes $discovered.Relationships $discovered.DataReferences $discovered.DataProjections $boundedGraphSpecs $boundedPageSpecs
+Write-ObsidianExport `
+    $projectConfig `
+    $effectiveSchema `
+    $exportPath `
+([bool]$Clean) `
+    $discovered.Notes `
+    $discovered.Relationships `
+    $discovered.DataReferences `
+    $discovered.DataProjections `
+    $boundedGraphSpecs `
+    $boundedPageSpecs
 
 $orphanData = Get-OrphanAnalysis $discovered.Notes $discovered.Relationships $discovered.DataReferences
 $suspiciousData = Get-SuspiciousEdgeAnalysis $discovered.Relationships $discovered.Notes

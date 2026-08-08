@@ -1,5 +1,6 @@
 $script:EffectiveProjectSchemaContractVersion = 2
 $script:EffectiveProjectSchemaSelectionContractVersion = 1
+$script:EffectiveProjectSchemaReportModelContractVersion = 1
 
 function ConvertTo-KnowledgePortablePath {
     param([AllowNull()][object]$Path)
@@ -823,6 +824,150 @@ function Get-KnowledgeEffectiveProjectSchema {
     (Get-KnowledgeSchemaPackRegistryFromCatalog $project $catalogModel) `
     (Get-KnowledgeTaxonomyConfig $project) `
     (Get-KnowledgeResourceConfig $project)
+}
+
+function New-KnowledgeEffectiveSchemaReportModel {
+    param([object]$Schema)
+
+    $capabilities = @($Schema.capabilities)
+    return [ordered]@{
+        report_contract = 'effective-project-schema-report-model'
+        report_contract_version = $script:EffectiveProjectSchemaReportModelContractVersion
+        source_contract = $Schema.contract
+        source_contract_version = [int]$Schema.contract_version
+        contract = $Schema.contract
+        contract_version = [int]$Schema.contract_version
+        project = $Schema.project
+        registry_schema_versions = @($Schema.registry_schema_versions)
+        packs = @($Schema.packs)
+        capabilities = $capabilities
+        controlled_value_namespaces = @($Schema.controlled_value_namespaces)
+        content = $Schema.content
+        resources = $Schema.resources
+        diagnostics = @($Schema.diagnostics)
+        summary = [ordered]@{
+            selected_packs = @($Schema.packs).Count
+            capabilities = $capabilities.Count
+            enabled_capabilities = @($capabilities | Where-Object enabled).Count
+            available_capabilities = @($capabilities | Where-Object available).Count
+            planned_capabilities = @($capabilities | Where-Object planned).Count
+            deprecated_capabilities = @($capabilities | Where-Object deprecated).Count
+            diagnostics = @($Schema.diagnostics).Count
+        }
+    }
+}
+
+function ConvertTo-KnowledgeMarkdownCell {
+    param([AllowNull()][object]$Value)
+
+    if ($null -eq $Value -or [string]::IsNullOrEmpty([string]$Value)) {
+        return '-'
+    }
+    return ([string]$Value).Replace('\', '\\').Replace('|', '\|').Replace("`r", ' ').Replace("`n", ' ')
+}
+
+function ConvertTo-KnowledgeEffectiveSchemaMarkdown {
+    param([object]$Report)
+
+    $model = if ($null -ne $Report.report_contract) {
+        $Report
+    }
+    else {
+        New-KnowledgeEffectiveSchemaReportModel $Report
+    }
+    $project = $model.project
+    $summary = $model.summary
+    $lines = [System.Collections.Generic.List[string]]::new()
+    @(
+        '---'
+        'generated: true'
+        'generated_type: effective-schema-qa-report'
+        'canonical: false'
+        "source_contract: $($model.source_contract)"
+        "source_contract_version: $($model.source_contract_version)"
+        "project_id: $($project.project_id)"
+        "framework_id: $($project.framework_id)"
+        "domain_id: $($project.domain_id)"
+        '---'
+        ''
+        '# Effective Project Schema'
+        ''
+        '> Generated QA projection. Canonical authority remains with the project manifest, registries, and selected pack manifests.'
+        ''
+        '## Summary'
+        ''
+        '| Field | Value |'
+        '| --- | ---: |'
+        "| Project manifest schema version | $($project.project_manifest_schema_version) |"
+        "| Selected packs | $($summary.selected_packs) |"
+        "| Capabilities | $($summary.capabilities) |"
+        "| Enabled capabilities | $($summary.enabled_capabilities) |"
+        "| Available capabilities | $($summary.available_capabilities) |"
+        "| Planned capabilities | $($summary.planned_capabilities) |"
+        "| Deprecated capabilities | $($summary.deprecated_capabilities) |"
+        "| Diagnostics | $($summary.diagnostics) |"
+        ''
+        '## Selected Packs'
+        ''
+        '| Pack | Label | Lifecycle | Version | Role | Scope | Description |'
+        '| --- | --- | --- | ---: | --- | --- | --- |'
+    ) | ForEach-Object { $lines.Add($_) }
+    foreach ($row in @($model.packs)) {
+        $values = @(
+            $row.id
+            $row.presentation.label
+            $row.lifecycle
+            $row.pack_version
+            $row.classification.role
+            $row.classification.scope
+            $row.presentation.short_description
+        ) | ForEach-Object { ConvertTo-KnowledgeMarkdownCell $_ }
+        $lines.Add('| ' + ($values -join ' | ') + ' |')
+    }
+    @(
+        ''
+        '## Capabilities'
+        ''
+        '| Capability | Label | State | Enabled | Providers | Description |'
+        '| --- | --- | --- | --- | --- | --- |'
+    ) | ForEach-Object { $lines.Add($_) }
+    foreach ($row in @($model.capabilities)) {
+        $providerIds = @($row.providers | ForEach-Object pack_id) -join ', '
+        $values = @(
+            $row.id
+            $row.presentation.label
+            $row.effective_lifecycle
+            ([string][bool]$row.enabled).ToLowerInvariant()
+            $providerIds
+            $row.presentation.description
+        ) | ForEach-Object { ConvertTo-KnowledgeMarkdownCell $_ }
+        $lines.Add('| ' + ($values -join ' | ') + ' |')
+    }
+    $lines.Add('')
+    $lines.Add('## Diagnostics')
+    $lines.Add('')
+    if (@($model.diagnostics).Count -eq 0) {
+        $lines.Add('- None.')
+    }
+    else {
+        foreach ($row in @($model.diagnostics)) {
+            $location = if ([string]::IsNullOrEmpty([string]$row.path)) {
+                ''
+            }
+            else {
+                " at ``$($row.path)``"
+            }
+            $related = if (@($row.related_ids).Count -eq 0) {
+                ''
+            }
+            else {
+                $relatedIds = @($row.related_ids | ForEach-Object { "``$_``" }) -join ', '
+                " Related: $relatedIds."
+            }
+            $lines.Add("- **$($row.severity) / ``$($row.code)``**${location}: $($row.message)$related")
+        }
+    }
+    return ($lines -join "`n") + "`n"
 }
 
 function Get-KnowledgeEffectiveSchemaErrorCode {

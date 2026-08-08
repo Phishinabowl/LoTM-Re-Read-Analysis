@@ -999,6 +999,7 @@ Default output root: the manifest's `paths.qa_export`, currently `Obsidian_Expor
 | Output | Description |
 | --- | --- |
 | Type folders such as `Characters/`, `Artifacts/`, `Items/`, `Knowledge_Sources/`, `Pathways/`, and `Volumes/` | Generated mirror notes grouped by canonical page type. Notes include metadata, first-appearance beat mirrors when present, relationship seeds, data references, incoming references, and seed evidence. |
+| `_Generated/effective-schema.md` | Concise deterministic report over the in-memory effective schema, including noncanonical metadata, project/contract summary, selected packs, capabilities, and diagnostics. |
 | `_Generated/relationship-index.md` | Relationship Seed table with source, relationship, target, status, confidence, and seed file. |
 | `_Generated/data-reference-index.md` | Non-Relationship-Seed YAML slug references discovered in data blocks. |
 | `_Generated/orphan-report.md` | Unknown sources/targets, unknown data targets, and generated notes with no edges or references. |
@@ -1081,6 +1082,7 @@ Compare at minimum:
 - JSON summary keys and counts;
 - successful creation beneath a fresh, multi-level missing parent directory;
 - rejection of the repository root itself and paths outside the repository;
+- `effective-schema.md` and its absence of absolute paths or timestamps;
 - `relationship-index.md`;
 - `data-reference-index.md`;
 - `orphan-report.md`;
@@ -1100,9 +1102,9 @@ Expected non-semantic differences:
 - path names inside `refresh-check-settings.json` when different output directories are used;
 - JSON formatting differences between Python `json.dumps` and PowerShell `ConvertTo-Json`.
 
-Last mapped: 2026-08-02.
+Last mapped: 2026-08-08.
 
-Last parity check: 2026-08-01. Python, PowerShell 7, and Windows PowerShell 5.1 each generated the same 35-file inventory and summary counts for a redirected export containing one Novel V1 Ch32 bounded graph plus Dunn Smith Ch10/Ch32 and Leonard Mitchell Ch32 bounded pages. All 29 stable Markdown and Mermaid outputs matched after generated timestamp and newline normalization; the six refresh/bounded report, settings, and snapshot artifacts matched semantically after expected runtime path, timestamp, encoding, and JSON-format differences were normalized. Normal exports launched from `Tools/` also auto-detected the repository root and produced identical summaries (`notes=16`, `relationships=121`, `data_references=71`, no bounded outputs). Prior boundary checks covered Dunn Smith at Novel V1 Ch10, Ch20, Ch30, and Ch50, including anonymous-preview and Sleepless-pathway progression behavior.
+Last parity check: 2026-08-08. Python, PowerShell 7, and Windows PowerShell 5.1 each generated the same reviewed 35-file inventory and summary counts for a redirected export containing one Novel V1 Ch32 bounded graph plus Dunn Smith Ch32 and Leonard Mitchell Ch50 bounded pages. The inventory now includes the deterministic `_Generated/effective-schema.md` report with normalized SHA-256 `a05f55e3a05f4f25f90fbfa2998766e1c00acc1ba08c08d320b5ca17cf6eb220`; its report-model semantics and 26,347-character Markdown matched in all three runtimes. The focused effective-schema/QA compatibility gate and complete ten-check `full-release` profile passed with canonical outputs unchanged. Prior boundary checks covered Dunn Smith at Novel V1 Ch10, Ch20, Ch30, and Ch50, including anonymous-preview and Sleepless-pathway progression behavior.
 
 Current content-type and ownership regression: both implementations selected taxonomy-enabled `glossary` and `volumes` roots, excluded `investigations`, and produced matching 28-file lists and summary counts (`notes=16`, `relationships=121`, `data_references=71`). After generated timestamps were normalized, all 25 stable Markdown and Mermaid outputs matched exactly. The check moved PowerShell's unbounded visualization-style graph generation into the configured Visualization helper and added a deterministic YAML-block/file tie-breaker to both data-reference index sort orders.
 
@@ -1128,7 +1130,7 @@ Library consumers import the catalog service and must not launch the command or 
 `Get-KnowledgeFrameworkConfig`, `Get-KnowledgeFrameworkCatalog`,
 `New-KnowledgeFrameworkCatalogSelection`, `New-KnowledgeFrameworkCatalogProjectView`,
 `New-KnowledgeFrameworkCatalogProjectViewSelection`, `New-KnowledgeFrameworkCatalogFailure`, root
-resolution, and shared canonical JSON functions from module version 0.8.0.
+resolution, and shared canonical JSON functions from module version 0.9.0.
 
 The installation service resolves `Framework/framework.yaml` through explicit root,
 `KNOWLEDGE_FRAMEWORK_ROOT`, current-directory ancestry, then executable ancestry. The manifest
@@ -1204,15 +1206,19 @@ registry allows 360 seconds for that measured approximately 248-second check.
 Library consumers import the service. They must not launch the command to recover the same object.
 Python exposes `EffectiveProjectSchema`, `compose_effective_project_schema`,
 `load_effective_project_schema`, `compose_effective_consumer_schema_projection`,
-`compose_effective_schema_selection`, `effective_schema_json`, and `effective_schema_failure`.
+`compose_effective_schema_selection`, `compose_effective_schema_report_model`,
+`effective_schema_markdown`, `effective_schema_json`, and `effective_schema_failure`.
 PowerShell exposes `New-KnowledgeEffectiveProjectSchema`, `Get-KnowledgeEffectiveProjectSchema`,
 `New-KnowledgeEffectiveConsumerSchemaProjection`, `New-KnowledgeEffectiveSchemaSelection`, and
-`New-KnowledgeEffectiveSchemaFailure` from module version 0.8.0.
+`New-KnowledgeEffectiveSchemaFailure`, plus `New-KnowledgeEffectiveSchemaReportModel` and
+`ConvertTo-KnowledgeEffectiveSchemaMarkdown`, from module version 0.9.0.
 
 QA and Visualization compose one effective schema in-process from the project, pack, taxonomy, and
 resource objects already loaded by their supported runtime. QA and Visualization use direct
 effective projections for discovery and record eligibility. Python QA passes that same composed
 object into Visualization's explicit library initializer when requesting graphs. Direct
+QA publication passes the same object through the runtime-owned report model and Markdown renderer;
+the generated report is not recovered by launching the inspection command. Page-local
 Markdown/YAML interpretation and generated semantics remain compatibility adapters until later
 normalized-content phases replace them. The temporary legacy projection, comparison, and shadow
 assertion APIs were retired after Phase 2.3.5 closure.

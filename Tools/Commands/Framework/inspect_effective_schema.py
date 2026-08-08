@@ -11,6 +11,7 @@ if str(RUNTIME_ROOT) not in sys.path:
     sys.path.insert(0, str(RUNTIME_ROOT))
 
 from knowledge_framework.effective_schema import (  # noqa: E402
+    compose_effective_schema_report_model,
     compose_effective_schema_selection,
     effective_schema_failure,
     effective_schema_json,
@@ -360,7 +361,7 @@ def main() -> int:
     try:
         root = resolve_project_root(args.root, executable_path=Path(__file__))
         schema = load_effective_project_schema(root)
-        document = schema.to_dict()
+        document = compose_effective_schema_report_model(schema)
         selection = None
         if args.pack or args.capability:
             project = load_project_config(root)

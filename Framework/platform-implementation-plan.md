@@ -722,22 +722,22 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 #### Phase 3.2.3 Effective-Schema QA Publication
 
-- [ ] Add a proper Markdown effective-schema report rendered from the shared runtime service rather
+- [x] Add a proper Markdown effective-schema report rendered from the shared runtime service rather
   than converting the existing plain-text report by filename alone.
-- [ ] Keep `inspect_effective_schema.py`, `Get-EffectiveProjectSchema.ps1`, both Obsidian QA
+- [x] Keep `inspect_effective_schema.py`, `Get-EffectiveProjectSchema.ps1`, both Obsidian QA
   exporters, and future interface clients on the same semantic report model while allowing each
   consumer to select the appropriate text or Markdown presentation.
-- [ ] Make both QA exporters render the already-composed in-memory `EffectiveProjectSchema`; neither
+- [x] Make both QA exporters render the already-composed in-memory `EffectiveProjectSchema`; neither
   exporter may invoke an inspection command or another runtime as a subprocess.
-- [ ] Generate `_Generated/effective-schema.md` on every Obsidian QA run with generated-report
+- [x] Generate `_Generated/effective-schema.md` on every Obsidian QA run with generated-report
   metadata, a concise project/contract summary, selected-pack overview, capability overview, and
   diagnostics. Do not embed the multi-thousand-line `all` inspection report by default.
-- [ ] Keep the generated Markdown deterministic and portable: no machine-specific absolute paths,
+- [x] Keep the generated Markdown deterministic and portable: no machine-specific absolute paths,
   wall-clock timestamps, unstable ordering, or canonical-configuration authority.
-- [ ] Include the report in clean regeneration, scoped artifact lifecycle, complete QA inventories,
+- [x] Include the report in clean regeneration, scoped artifact lifecycle, complete QA inventories,
   project-owned compatibility baselines, and Python/PowerShell parity checks so stale or drifting
   output cannot survive unnoticed.
-- [ ] Document the generated report, its noncanonical QA role, its relationship to the effective
+- [x] Document the generated report, its noncanonical QA role, its relationship to the effective
   schema inspection commands, and the later separate `FrameworkCatalog` report boundary.
 
 #### Phase 3.2.4 Capability Grouping

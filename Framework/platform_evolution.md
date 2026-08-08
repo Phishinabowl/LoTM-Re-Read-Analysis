@@ -447,3 +447,41 @@ unchanged and successful scoped output was removed. Phase 3.2.3, effective-schem
 is the next platform boundary.
 
 Phase 3.2.2 is closed by `8eca229` (`Integrate effective schema with framework catalog`).
+
+## Platform Phase 3.2.3 - Effective-Schema QA Publication
+
+**Implementation commits:** `pending`.
+
+**Closure implemented by:** `pending`
+
+Phase 3.2.3 adds `effective-project-schema-report-model` version 1 as the shared semantic input for
+human-facing project-schema reports. It preserves the source contract sections and adds only derived
+summary counts. Python and PowerShell module version 0.9.0 provide paired report-model composers and
+deterministic Markdown renderers; the existing inspection commands now consume the same model while
+their canonical JSON and human-report behavior remains compatible.
+
+Both Obsidian QA exporters render `_Generated/effective-schema.md` directly from the
+`EffectiveProjectSchema` already composed for discovery and graph requests. Neither exporter invokes
+an inspection command or another runtime. The report contains generated/noncanonical metadata,
+project and contract identity, concise counts, ten selected packs, 132 capabilities, and two
+diagnostics. It excludes the multi-thousand-line detailed report, absolute paths, timestamps, and
+runtime state. Clean generation owns the file on every run, and the project baseline now protects a
+complete 35-file QA inventory plus its aggregate tree hash.
+
+### Phase 3.2.3 Verification
+
+Focused effective-schema conformance passed with three permanent report-model cases in Python,
+PowerShell 7, and Windows PowerShell 5.1. Repeated Markdown rendering was deterministic, required
+metadata and sections were present, and machine-specific paths and timestamp fields were absent.
+Redirected QA exports produced identical normalized 26,347-character reports in all three runtimes;
+the reviewed file hash is `a05f55e3a05f4f25f90fbfa2998766e1c00acc1ba08c08d320b5ca17cf6eb220`.
+
+Focused effective-schema plus QA compatibility passed in 301.2 seconds with canonical outputs
+unchanged. All 19 registered `baseline` suites then passed in Python, PowerShell 7, and Windows
+PowerShell 5.1 in 59.3, 284.0, and 514.6 seconds. Ruff and the PowerShell formatter passed the final
+tree. The ten-check `full-release` profile passed in 1,017.8 seconds across compatibility reporting,
+conformance reporting, framework catalog, effective schema, Visualization, QA, root discovery,
+artifact lifecycle, isolated extraction, and rendering. Canonical outputs remained unchanged and
+successful scoped output was removed.
+
+Phase 3.2.3 is implemented by `pending`. Capability grouping is the next platform boundary.

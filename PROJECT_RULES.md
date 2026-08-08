@@ -201,6 +201,10 @@ value ownership, content eligibility, or resource placement rules. Do not edit o
 effective schema as project configuration. Preserve deterministic ordering, repository-relative
 or declared-root-relative forward-slash paths, and the serialization rules in
 `Framework/Contracts/effective-project-schema.md`.
+Human-facing effective-schema reports must consume the paired runtime-owned semantic report model.
+The Obsidian QA exporter writes `_Generated/effective-schema.md` from its in-memory composition on
+every run; it must not invoke an inspection command or another runtime. Treat that Markdown as an
+ignored, noncanonical QA projection covered by clean regeneration and compatibility baselines.
 
 Treat `FrameworkCatalog` as the generated project-independent inventory of every installed pack
 and declared capability selected by `Framework/framework.yaml`. Canonical pack files remain
@@ -443,6 +447,7 @@ Generated Obsidian QA outputs may include:
 
 - Obsidian-friendly mirror notes
 - relationship and data-reference indexes
+- a concise `_Generated/effective-schema.md` report over the selected project composition
 - local-only QA Mermaid `.mmd` files
 - a `_Generated/repo-refresh-check/` dry run of configured repository graph views, including generated Mermaid sources, a refresh report, a semantic snapshot, and generated check settings
 - optional `_Generated/bounded-pages/` QA Markdown projections for requested reader/viewer boundaries

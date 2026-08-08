@@ -23,8 +23,10 @@ from knowledge_framework.project_config import (
 )
 from knowledge_framework.effective_schema import (
     EffectiveProjectSchema,
+    compose_effective_schema_report_model,
     compose_effective_project_schema,
     compose_effective_consumer_schema_projection,
+    effective_schema_markdown,
 )
 from knowledge_framework.resource_config import load_resource_config
 from knowledge_framework.schema_pack_config import load_schema_pack_registry
@@ -2611,6 +2613,10 @@ def write_export(
         )
 
     generated_dir = output_dir / "_Generated"
+    (generated_dir / "effective-schema.md").write_text(
+        effective_schema_markdown(compose_effective_schema_report_model(effective_schema)),
+        encoding="utf-8",
+    )
     (generated_dir / "relationship-index.md").write_text(
         render_relationship_index(relationships, notes), encoding="utf-8"
     )

@@ -27,10 +27,12 @@ from .framework_paths import (
 from .effective_schema import (
     EffectiveProjectSchema,
     compose_effective_schema_selection,
+    compose_effective_schema_report_model,
     compose_effective_project_schema,
     compose_effective_consumer_schema_projection,
     effective_schema_failure,
     effective_schema_json,
+    effective_schema_markdown,
     load_effective_project_schema,
 )
 
@@ -56,9 +58,11 @@ __all__ = [
     "resolve_framework_root",
     "EffectiveProjectSchema",
     "compose_effective_schema_selection",
+    "compose_effective_schema_report_model",
     "compose_effective_project_schema",
     "compose_effective_consumer_schema_projection",
     "effective_schema_failure",
     "effective_schema_json",
+    "effective_schema_markdown",
     "load_effective_project_schema",
 ]

@@ -17,6 +17,8 @@ CONTRACT_ID = "effective-project-schema"
 CONTRACT_VERSION = 2
 SELECTION_CONTRACT_ID = "effective-project-schema-selection"
 SELECTION_CONTRACT_VERSION = 1
+REPORT_MODEL_CONTRACT_ID = "effective-project-schema-report-model"
+REPORT_MODEL_CONTRACT_VERSION = 1
 SEVERITY_ORDER = {"warning": 0, "info": 1}
 CONSUMER_ENABLEMENT_FIELDS = {
     "qa": "qa_page_enabled",
@@ -612,6 +614,135 @@ def load_effective_project_schema(root: Path) -> EffectiveProjectSchema:
 
 def effective_schema_json(schema: EffectiveProjectSchema, *, indent: int | None = 2) -> str:
     return json.dumps(schema.to_dict(), ensure_ascii=False, indent=indent) + "\n"
+
+
+def compose_effective_schema_report_model(schema: EffectiveProjectSchema) -> dict[str, Any]:
+    """Build the shared semantic model used by human-facing schema reports."""
+
+    document = schema.to_dict()
+    capabilities = document["capabilities"]
+    return {
+        "report_contract": REPORT_MODEL_CONTRACT_ID,
+        "report_contract_version": REPORT_MODEL_CONTRACT_VERSION,
+        "source_contract": schema.contract,
+        "source_contract_version": schema.contract_version,
+        **document,
+        "summary": {
+            "selected_packs": len(document["packs"]),
+            "capabilities": len(capabilities),
+            "enabled_capabilities": sum(bool(row["enabled"]) for row in capabilities),
+            "available_capabilities": sum(bool(row["available"]) for row in capabilities),
+            "planned_capabilities": sum(bool(row["planned"]) for row in capabilities),
+            "deprecated_capabilities": sum(bool(row["deprecated"]) for row in capabilities),
+            "diagnostics": len(document["diagnostics"]),
+        },
+    }
+
+
+def _markdown_cell(value: Any) -> str:
+    if value is None or value == "":
+        return "-"
+    return str(value).replace("\\", "\\\\").replace("|", "\\|").replace("\r", " ").replace("\n", " ")
+
+
+def effective_schema_markdown(report: EffectiveProjectSchema | dict[str, Any]) -> str:
+    """Render a deterministic, concise Markdown QA report from the shared report model."""
+
+    model = compose_effective_schema_report_model(report) if isinstance(report, EffectiveProjectSchema) else report
+    project = model["project"]
+    summary = model["summary"]
+    lines = [
+        "---",
+        "generated: true",
+        "generated_type: effective-schema-qa-report",
+        "canonical: false",
+        f"source_contract: {model['source_contract']}",
+        f"source_contract_version: {model['source_contract_version']}",
+        f"project_id: {project['project_id']}",
+        f"framework_id: {project['framework_id']}",
+        f"domain_id: {project['domain_id']}",
+        "---",
+        "",
+        "# Effective Project Schema",
+        "",
+        "> Generated QA projection. Canonical authority remains with the project manifest, "
+        "registries, and selected pack manifests.",
+        "",
+        "## Summary",
+        "",
+        "| Field | Value |",
+        "| --- | ---: |",
+        f"| Project manifest schema version | {project['project_manifest_schema_version']} |",
+        f"| Selected packs | {summary['selected_packs']} |",
+        f"| Capabilities | {summary['capabilities']} |",
+        f"| Enabled capabilities | {summary['enabled_capabilities']} |",
+        f"| Available capabilities | {summary['available_capabilities']} |",
+        f"| Planned capabilities | {summary['planned_capabilities']} |",
+        f"| Deprecated capabilities | {summary['deprecated_capabilities']} |",
+        f"| Diagnostics | {summary['diagnostics']} |",
+        "",
+        "## Selected Packs",
+        "",
+        "| Pack | Label | Lifecycle | Version | Role | Scope | Description |",
+        "| --- | --- | --- | ---: | --- | --- | --- |",
+    ]
+    for row in model["packs"]:
+        classification = row["classification"]
+        presentation = row["presentation"]
+        lines.append(
+            "| "
+            + " | ".join(
+                _markdown_cell(value)
+                for value in (
+                    row["id"],
+                    presentation["label"],
+                    row["lifecycle"],
+                    row["pack_version"],
+                    classification["role"],
+                    classification["scope"],
+                    presentation["short_description"],
+                )
+            )
+            + " |"
+        )
+
+    lines.extend(
+        [
+            "",
+            "## Capabilities",
+            "",
+            "| Capability | Label | State | Enabled | Providers | Description |",
+            "| --- | --- | --- | --- | --- | --- |",
+        ]
+    )
+    for row in model["capabilities"]:
+        lines.append(
+            "| "
+            + " | ".join(
+                _markdown_cell(value)
+                for value in (
+                    row["id"],
+                    row["presentation"]["label"],
+                    row["effective_lifecycle"],
+                    str(bool(row["enabled"])).lower(),
+                    ", ".join(provider["pack_id"] for provider in row["providers"]),
+                    row["presentation"]["description"],
+                )
+            )
+            + " |"
+        )
+
+    lines.extend(["", "## Diagnostics", ""])
+    if not model["diagnostics"]:
+        lines.append("- None.")
+    else:
+        for row in model["diagnostics"]:
+            location = f" at `{row['path']}`" if row["path"] else ""
+            related = (
+                f" Related: {', '.join(f'`{item}`' for item in row['related_ids'])}." if row["related_ids"] else ""
+            )
+            lines.append(f"- **{row['severity']} / `{row['code']}`**{location}: {row['message']}{related}")
+    return "\n".join(lines) + "\n"
 
 
 def _resolve_effective_schema_row(

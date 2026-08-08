@@ -503,6 +503,7 @@ try {
     $resolvedRoot = Resolve-KnowledgeProjectRoot -ExplicitRoot $Root -ExecutablePath $PSCommandPath
     $project = Get-KnowledgeProjectConfig $resolvedRoot
     $schema = Get-KnowledgeEffectiveProjectSchema -Root $resolvedRoot
+    $reportModel = New-KnowledgeEffectiveSchemaReportModel $schema
     $selection = if (
         -not [string]::IsNullOrWhiteSpace($Pack) -or
         -not [string]::IsNullOrWhiteSpace($Capability)
@@ -537,7 +538,7 @@ try {
         if (-not [string]::IsNullOrWhiteSpace($parent)) {
             [System.IO.Directory]::CreateDirectory($parent) | Out-Null
         }
-        $reportLines = @(Write-EffectiveSchemaReport $schema $sections $selection)
+        $reportLines = @(Write-EffectiveSchemaReport $reportModel $sections $selection)
         $reportText = ($reportLines -join "`n") + "`n"
         [System.IO.File]::WriteAllText(
             $reportOutputPath,
@@ -550,7 +551,7 @@ try {
     }
     else {
         if ([string]::IsNullOrWhiteSpace($ReportOutput)) {
-            Write-EffectiveSchemaReport $schema $sections $selection
+            Write-EffectiveSchemaReport $reportModel $sections $selection
         }
         if (-not [string]::IsNullOrWhiteSpace($Output)) {
             $relative = $outputPath.Substring($resolvedRoot.TrimEnd('\', '/').Length + 1).Replace('\', '/')

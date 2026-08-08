@@ -1,6 +1,6 @@
 @{
     RootModule = 'KnowledgeFramework.psm1'
-    ModuleVersion = '0.8.0'
+    ModuleVersion = '0.9.0'
     GUID = '9fbb6c88-07d1-4ed9-a99d-f72475ee53c3'
     Author = 'Knowledge Framework Maintainers'
     Description = 'Reusable knowledge-framework runtime services.'
@@ -56,6 +56,7 @@
         'ConvertTo-KnowledgeCodePoints'
         'ConvertTo-KnowledgeLookupKey'
         'ConvertTo-KnowledgeCanonicalJson'
+        'ConvertTo-KnowledgeEffectiveSchemaMarkdown'
         'ConvertTo-KnowledgeNfcCodePoints'
         'ConvertTo-KnowledgeOccurrenceRegistry'
         'ConvertTo-KnowledgeTemporalBound'
@@ -252,6 +253,7 @@
         'Import-ProjectYamlModule'
         'New-EntityAliasMap'
         'New-KnowledgeEffectiveProjectSchema'
+        'New-KnowledgeEffectiveSchemaReportModel'
         'New-KnowledgeFrameworkCatalog'
         'New-KnowledgeFrameworkCatalogFailure'
         'New-KnowledgeFrameworkCatalogProjectView'

@@ -532,6 +532,10 @@ For the full EPUB search switch map, entry-type behavior, side effects, and Pyth
 
 Use `obsidian_qa_export.py` to compile glossary metadata, Relationship Seeds, YAML data-block references, and projected data-block availability into a generated Obsidian-friendly mirror. It is the preferred implementation when Python is available. If Python is unavailable, use the Windows PowerShell fallback `Obsidian-QA-Export.ps1`. The export is a QA view, not a source of truth. Canonical project notes remain under `Glossary_Threads/`, `Investigations/`, `Volumes/`, and related source folders.
 
+Every run also writes `_Generated/effective-schema.md`, a concise noncanonical report over the
+already-composed project schema. Both exporters use their runtime's shared report model and Markdown
+renderer in process; they do not launch the effective-schema inspection command or another runtime.
+
 The [Architecture Contract](../ARCHITECTURE.md) assigns all graph semantics and generation to the reusable Visualization engine while QA retains orchestration and ignored output destinations. The two directly generated QA relationship graph variants are current transition behavior; migrate their builders into Visualization rather than adding new graph logic to the QA exporter.
 
 Default output goes to ignored local directory `Obsidian_Export/`:
@@ -784,6 +788,7 @@ Obsidian_Export/
   Pathways/
   Volumes/
   _Generated/
+    effective-schema.md
     relationship-index.md
     QA-relationship-graph.mmd
     QA-relationship-node-graph.mmd
@@ -803,6 +808,10 @@ Obsidian_Export/
 ```
 
 Each mirror note includes source metadata, a canonical source link, outgoing Relationship Seed edges, incoming edges, data-block references, incoming data-block references, and seed-file evidence.
+
+`effective-schema.md` summarizes project and contract identity, selected packs, capabilities, and
+diagnostics. It is rebuilt on every run, contains no absolute path or timestamp, and remains an
+ignored QA projection rather than portable project configuration.
 
 `QA-relationship-graph.mmd` is a QA-only Mermaid graph that labels relationship edges directly. It collapses duplicate `source + relationship + target` seeds into one edge with an `xN` suffix so the diagram stays readable. When a seed declares `projection_source`, the label includes the projected availability history from the matching data-block row. The canonical/public visualization workflow remains under `Visualization/`; this labeled graph is only for local Obsidian inspection.
 

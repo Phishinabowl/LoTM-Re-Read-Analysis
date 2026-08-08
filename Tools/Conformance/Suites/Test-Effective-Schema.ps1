@@ -73,6 +73,37 @@ if (
 ) {
     throw 'Effective-schema loading did not use the catalog-backed composition.'
 }
+$reportModel = New-KnowledgeEffectiveSchemaReportModel $schema
+if ($reportModel.report_contract -cne 'effective-project-schema-report-model') {
+    throw 'Effective-schema report model contract changed.'
+}
+if ($reportModel.source_contract -cne $schema.contract -or $reportModel.contract -cne $schema.contract) {
+    throw 'Effective-schema report model lost source-contract identity.'
+}
+if ([int]$reportModel.summary.selected_packs -ne @($schema.packs).Count) {
+    throw 'Effective-schema report summary does not describe the composed schema.'
+}
+$markdown = ConvertTo-KnowledgeEffectiveSchemaMarkdown $reportModel
+$secondMarkdown = ConvertTo-KnowledgeEffectiveSchemaMarkdown (New-KnowledgeEffectiveSchemaReportModel $schema)
+if ($markdown -cne $secondMarkdown) {
+    throw 'Effective-schema Markdown rendering is not deterministic.'
+}
+$requiredMarkdown = @(
+    'generated_type: effective-schema-qa-report'
+    'canonical: false'
+    '# Effective Project Schema'
+    '## Selected Packs'
+    '## Capabilities'
+    '## Diagnostics'
+)
+foreach ($value in $requiredMarkdown) {
+    if (-not $markdown.Contains($value)) {
+        throw 'Effective-schema Markdown report is missing required sections or metadata.'
+    }
+}
+if ($markdown.Contains([System.IO.Path]::GetFullPath($Root)) -or $markdown.Contains('generated_at')) {
+    throw 'Effective-schema Markdown report contains machine-specific or temporal data.'
+}
 $wrongFramework = $project.PSObject.Copy()
 $wrongFramework.framework = 'wrong-framework'
 try {
@@ -372,6 +403,7 @@ $result = [ordered]@{
     visualization_discovery_content_types = $visualizationProjection.content_types.Count
     visualization_discovery_categories = $visualizationProjection.categories.Count
     visualization_discovery_records = $visualizationProjection.records.Count
+    report_model_cases = 3
 }
 if ($Json) {
     $result | ConvertTo-Json -Depth 100 -Compress

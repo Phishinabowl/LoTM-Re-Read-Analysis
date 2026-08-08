@@ -294,6 +294,24 @@ The service implementation may evolve without changing the contract version when
 and semantics remain identical. Generated snapshots may be used for tests and diagnostics, but they
 must not become an alternate source of truth or an input required to load the project.
 
+### Shared Report Model And QA Markdown
+
+Human-facing clients compose `effective-project-schema-report-model` version 1 from an already
+validated in-memory `EffectiveProjectSchema`. The report model preserves the source schema sections
+and adds only deterministic derived summary counts. It is a presentation input, not canonical
+configuration, persisted project state, or a substitute for the effective schema itself.
+
+The paired runtimes render a concise Markdown presentation from that model. The Obsidian QA export
+writes it to `_Generated/effective-schema.md` on every run. The report includes generated and
+noncanonical metadata, project and source-contract identity, summary counts, selected packs,
+capabilities, and diagnostics. It excludes the complete detailed `all` inspection view, absolute
+paths, wall-clock timestamps, and runtime-specific state.
+
+Inspection commands, QA exporters, and future interface clients must use this shared semantic model.
+Consumers may select plain-text or Markdown presentation, but must not independently derive pack,
+capability, lifecycle, provider, or diagnostic semantics. QA exporters render their already-composed
+schema in process and must not invoke an inspection command or another runtime as a subprocess.
+
 ### Framework-Catalog Integration
 
 Contract version 2 resolves the project's selected packs through the shared validated
@@ -313,10 +331,12 @@ commands, selectors, diagnostics, and consumer projections.
 
 Python library consumers import `EffectiveProjectSchema`, `compose_effective_project_schema`,
 `load_effective_project_schema`, `compose_effective_schema_selection`, `effective_schema_json`, or
-`effective_schema_failure` from `knowledge_framework.effective_schema`. PowerShell library consumers import
-`KnowledgeFramework.psd1` and call `New-KnowledgeEffectiveProjectSchema`,
+`effective_schema_failure`, plus `compose_effective_schema_report_model` and
+`effective_schema_markdown`, from `knowledge_framework.effective_schema`. PowerShell library
+consumers import `KnowledgeFramework.psd1` and call `New-KnowledgeEffectiveProjectSchema`,
 `Get-KnowledgeEffectiveProjectSchema`, `New-KnowledgeEffectiveSchemaSelection`, or
-`New-KnowledgeEffectiveSchemaFailure`.
+`New-KnowledgeEffectiveSchemaFailure`, plus `New-KnowledgeEffectiveSchemaReportModel` and
+`ConvertTo-KnowledgeEffectiveSchemaMarkdown`.
 
 The paired headless commands are:
 

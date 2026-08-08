@@ -211,6 +211,10 @@ owning phases implement those contracts. See `Framework/Contracts/effective-proj
 
 Human command clients may request a concise project overview, detailed contract sections, or one
 selected pack/capability. These are views over the same composition and never become configuration.
+Plain-text inspection and Markdown QA presentation consume one shared semantic report model. The
+Obsidian exporter renders `_Generated/effective-schema.md` directly from its already-composed schema;
+it does not launch an inspection command or another runtime. The generated report is deterministic,
+portable, noncanonical, and covered by the complete QA artifact inventory.
 The effective schema intentionally excludes unselected packs. Phase 3.2.1 implements a separate
 `FrameworkCatalog` discovery contract for all installed packs and capabilities; catalog discovery
 must not pretend those independently available packs form one valid project composition.

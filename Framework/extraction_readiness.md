@@ -188,6 +188,15 @@ in 247.8 seconds; the registered extraction timeout is 360 seconds to retain a m
 complete ten-check `full-release` profile passed in 1,050.1 seconds with canonical Visualization,
 QA, and rendered outputs unchanged and all successful scoped output removed.
 
+Platform Phase 3.2.3 closed effective-schema QA publication on 2026-08-08. The paired runtime owns
+one `effective-project-schema-report-model` and deterministic Markdown renderer, while inspection
+commands and both QA exporters consume that shared semantic model. Each QA run now publishes a
+concise `_Generated/effective-schema.md` directly from its in-memory composition without subprocess
+inspection, timestamps, absolute paths, or canonical authority. The reviewed QA inventory contains
+35 files and exact Python, PowerShell 7, and Windows PowerShell 5.1 parity. All 19 baseline suites
+passed in the three runtimes, and the ten-check full-release profile passed in 1,017.8 seconds with
+canonical outputs unchanged and successful scoped output removed.
+
 ## Known Limits And Next Boundaries
 
 Extraction readiness does not close these known items:
@@ -197,9 +206,9 @@ Extraction readiness does not close these known items:
   structural interpretations, hosted identity, nested carrier topology, optional hosting-pack
   isolation, and canonical chronology-position provider closure are implemented and pressure-tested
   through V50. The Phase 1 model gate, Phase 2 effective-schema consumer-adoption gate, Phase 3.1
-  pack-presentation gate, Phase 3.2.1 project-independent installed-pack catalog, and Phase 3.2.2
-  effective-schema catalog integration and project-state annotation are closed. Effective-schema QA
-  publication is the next platform boundary.
+  pack-presentation gate, Phase 3.2.1 project-independent installed-pack catalog, Phase 3.2.2
+  effective-schema catalog integration and project-state annotation, and Phase 3.2.3 shared-report
+  QA publication are closed. Capability grouping is the next platform boundary.
 - Historical continuity-membership transitions, manifestation- or release-scoped continuity,
   occurrence-linked continuity transitions, first-class continuity systems, and sliding-chronology
   policies remain later normalized-content or deferred narrative capability work. They do not weaken

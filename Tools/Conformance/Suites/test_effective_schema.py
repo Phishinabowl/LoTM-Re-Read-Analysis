@@ -16,11 +16,13 @@ if str(RUNTIME_ROOT) not in sys.path:
 
 import knowledge_framework  # noqa: E402
 from knowledge_framework.effective_schema import (  # noqa: E402
+    compose_effective_schema_report_model,
     compose_effective_schema_selection,
     compose_effective_project_schema,
     compose_effective_consumer_schema_projection,
     effective_schema_failure,
     effective_schema_json,
+    effective_schema_markdown,
     load_effective_project_schema,
 )
 from knowledge_framework.framework_catalog import load_framework_catalog  # noqa: E402
@@ -98,6 +100,28 @@ def main() -> int:
         raise AssertionError("Catalog-backed effective schema differs from the direct shadow composition.")
     if effective_schema_json(load_effective_project_schema(root)) != effective_schema_json(catalog_schema):
         raise AssertionError("Effective-schema loading did not use the catalog-backed composition.")
+    report_model = compose_effective_schema_report_model(schema)
+    if report_model["report_contract"] != "effective-project-schema-report-model":
+        raise AssertionError("Effective-schema report model contract changed.")
+    if report_model["source_contract"] != schema.contract or report_model["contract"] != schema.contract:
+        raise AssertionError("Effective-schema report model lost source-contract identity.")
+    if report_model["summary"]["selected_packs"] != len(schema.packs):
+        raise AssertionError("Effective-schema report summary does not describe the composed schema.")
+    markdown = effective_schema_markdown(report_model)
+    if markdown != effective_schema_markdown(compose_effective_schema_report_model(schema)):
+        raise AssertionError("Effective-schema Markdown rendering is not deterministic.")
+    required_markdown = (
+        "generated_type: effective-schema-qa-report",
+        "canonical: false",
+        "# Effective Project Schema",
+        "## Selected Packs",
+        "## Capabilities",
+        "## Diagnostics",
+    )
+    if any(value not in markdown for value in required_markdown):
+        raise AssertionError("Effective-schema Markdown report is missing required sections or metadata.")
+    if str(root.resolve()) in markdown or "generated_at" in markdown:
+        raise AssertionError("Effective-schema Markdown report contains machine-specific or temporal data.")
     try:
         load_schema_pack_registry_from_catalog(replace(project, framework="wrong-framework"), catalog)
     except ValueError as error:
@@ -340,6 +364,7 @@ def main() -> int:
         "visualization_discovery_content_types": len(visualization_projection["content_types"]),
         "visualization_discovery_categories": len(visualization_projection["categories"]),
         "visualization_discovery_records": len(visualization_projection["records"]),
+        "report_model_cases": 3,
     }
     if args.json:
         print(json.dumps(result, ensure_ascii=False, separators=(",", ":")))
