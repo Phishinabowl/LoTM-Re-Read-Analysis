@@ -74,8 +74,8 @@ acquisition, installation, or update, but it cannot rewrite an installed pack's 
 satisfy technical dependencies, select the pack for a project, or activate its capabilities.
 
 With no entitlement provider configured, valid locally installed declarative packs retain their
-current deterministic and offline behavior. Phase 3.3.3 owns the fuller distribution and
-entitlement seam; Phase 14.3 owns eventual add-on operations.
+current deterministic and offline behavior. Phase 3.3.3 defines the fuller boundary in
+`distribution-entitlement-boundary.md`; Phase 14.3 owns eventual add-on operations.
 
 ## Executable Extension Separation
 

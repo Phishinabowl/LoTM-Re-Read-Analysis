@@ -50,6 +50,11 @@ extensions. It separates package, extension, publisher, trust, permission, insta
 runtime identity from packs and projects; reserves capability implementation binding without
 moving capability authority into code; and explicitly implements no extension host.
 
+`distribution-entitlement-boundary.md` defines optional offering, grant, and acquisition concerns
+outside portable packs and projects. It preserves the factual installed catalog, separates product
+prerequisites from technical dependencies, and makes entitlement-free local behavior the default
+without implementing a commercial service.
+
 ## Capability Semantics
 
 Schema packs declare capabilities; capability lifecycle controls availability; projects enable available capabilities.

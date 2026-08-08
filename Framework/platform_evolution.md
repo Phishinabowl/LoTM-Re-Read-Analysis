@@ -646,5 +646,50 @@ check budget; the passing replay used a 900-second outer ceiling without changin
 Ruff, both PowerShell formatter runtimes, the 366-file work-annotation scan and all 22 fixtures,
 contract-link existence, JSON parsing, and `git diff --check` also passed.
 
-Phase 3.3.2 is ready for its two-part confirmation. Phase 3.3.3, the optional distribution and
-entitlement seam, is next.
+Phase 3.3.2 was implemented by `66f7ad5` (`Define trusted executable extension boundary`). Phase
+3.3.3, the optional distribution and entitlement seam, is next.
+
+## Platform Phase 3.3.3 - Distribution And Entitlement Seam
+
+**Closure implemented by:** pending
+
+Phase 3.3.3 defines commercial distribution and entitlement as optional host-service concerns around
+artifact discovery and acquisition. Offering catalogs, accounts, organizations, tenants, SKUs,
+product tiers, subscriptions, pricing, tokens, and grants remain outside `pack.yaml`, portable
+projects, `FrameworkCatalog`, and `EffectiveProjectSchema`. No provider, account, network connection,
+or token is required to load and use valid local packs.
+
+Offering-discoverable, entitled, acquirable, installed, selectable, selected, and enabled state are
+separate dimensions. The catalog remains the factual local installed-pack inventory and retains its
+technical `selectable` decision. Project configuration remains authoritative for selection and
+capability activation. Commercial state may govern a future acquisition operation but cannot
+rewrite installed records, satisfy pack dependencies, change pack or capability lifecycle, compose
+controlled values, or mutate project facts.
+
+Offerings may initially grant a pack or named pack bundle through external many-to-many mappings.
+Product prerequisites govern commercial acquisition and remain separate from the technical pack
+dependency graph. Capability-level commercial grants and post-install enforcement are deferred.
+Provider failure may block only a remote operation that requires a grant; it cannot uninstall,
+deselect, disable, or rewrite already installed local state. Phase 14.3 now owns the detailed
+offering, provider, acquisition, installation, update, and project-mutation operations.
+
+### Phase 3.3.3 Verification
+
+Structured key inspection found no account, organization, tenant, offering, product tier, SKU,
+pricing, token, grant, entitlement-provider, entitled, acquirable, or product-prerequisite fields in
+canonical framework/project YAML, the generated 14-pack `FrameworkCatalog`, or the generated
+10-pack/123-enabled-capability `EffectiveProjectSchema`. Narrative distribution's controlled value
+`subscription` remains domain evidence vocabulary rather than a platform subscription field.
+
+The isolated extraction rehearsal copied 269 portable files, copied no project configuration,
+excluded all nine guarded project surfaces, passed the eight portable suites in Python, PowerShell
+7, and Windows PowerShell 5.1, and removed its temporary copy. No loader, schema pack, project
+registry, catalog serializer, effective-schema serializer, QA consumer, or Visualization consumer
+changed in this contract-only phase. The immediately preceding Phase 3.3.2 local compatibility pass
+therefore remains the consumer baseline; Phase 3.3.4 owns the new permanent no-provider,
+provider-metadata isolation, and full-release closure checks.
+
+Ruff formatting and linting passed for all 50 Python files. PowerShell 7 and Windows PowerShell 5.1
+each checked 52 PowerShell files with zero formatting changes and zero long-line violations. The
+367-file work-annotation scan and all 22 fixtures passed with zero findings; contract-link
+existence and `git diff --check` also passed. Phase 3.3.3 is ready for its two-part confirmation.

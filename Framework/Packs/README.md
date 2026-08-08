@@ -13,6 +13,11 @@ Any future code-bearing plugin follows the separate
 reference an existing capability as an implementation candidate, but it cannot own pack semantics,
 controlled values, dependency composition, project activation, or project facts.
 
+Commercial offerings are separate again. A future offering may grant several packs or a named pack
+bundle, but product prerequisites, pricing, accounts, subscriptions, and grants do not become pack
+metadata or technical dependencies. See
+[`distribution-entitlement-boundary.md`](../Contracts/distribution-entitlement-boundary.md).
+
 Pack presentation and architectural classification follow
 [`Framework/Contracts/schema-pack-presentation.md`](../Contracts/schema-pack-presentation.md).
 `pack_kind` remains the compatibility-facing validation class; family, role, scope, declared

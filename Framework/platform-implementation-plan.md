@@ -786,21 +786,21 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 #### Phase 3.3.3 Distribution And Entitlement Seam
 
-- [ ] Define commercial entitlement as an optional host or distribution-service concern rather than
+- [x] Define commercial entitlement as an optional host or distribution-service concern rather than
   a portable schema-pack, project, catalog, or effective-schema concern.
-- [ ] Preserve distinct `discoverable`, `entitled`, `acquirable`, `installed`, `selectable`,
+- [x] Preserve distinct `discoverable`, `entitled`, `acquirable`, `installed`, `selectable`,
   `selected`, and `enabled` states without overloading the existing `available` lifecycle meaning.
-- [ ] Keep the base `FrameworkCatalog` a factual inventory of valid locally installed packs. A
+- [x] Keep the base `FrameworkCatalog` a factual inventory of valid locally installed packs. A
   commercial policy may govern remote offering discovery, acquisition, installation, or update,
   but must not rewrite installed pack records or composition semantics.
-- [ ] Make the no-provider path the default: local declarative packs retain current deterministic,
+- [x] Make the no-provider path the default: local declarative packs retain current deterministic,
   offline behavior with no entitlement configuration, identity, token, or network dependency.
-- [ ] Keep account, organization, tenant, SKU, product tier, subscription, pricing, token, and grant
+- [x] Keep account, organization, tenant, SKU, product tier, subscription, pricing, token, and grant
   records outside canonical packs, portable projects, generated catalogs, and effective schemas.
-- [ ] Model product prerequisites separately from technical pack dependencies. Entitlement may grant
+- [x] Model product prerequisites separately from technical pack dependencies. Entitlement may grant
   acquisition, while the existing pack graph remains authoritative for compatibility and
   composition.
-- [ ] Use pack or pack-bundle grants as the initial commercial granularity. Defer capability-level
+- [x] Use pack or pack-bundle grants as the initial commercial granularity. Defer capability-level
   licensing and post-install runtime enforcement until a demonstrated product requirement exists.
 
 #### Phase 3.3.4 Boundary Conformance And Handoff
@@ -1245,8 +1245,13 @@ wave is confirmed.
 
 - [ ] Discover compatible add-on packs from configured local or remote distribution sources without
   treating a commercial offering catalog as the installed `FrameworkCatalog`.
+- [ ] Define offering identity, pack and named pack-bundle grants, and product prerequisites without
+  extending `pack.yaml` or replacing technical dependency closure.
 - [ ] Apply an optional entitlement provider to offering discovery, acquisition, installation, and
-  update decisions while preserving the entitlement-free local default.
+  update decisions while preserving the entitlement-free local default, explicit provider-failure
+  outcomes, and already installed local behavior.
+- [ ] Preserve distinct offering-discoverable, entitled, acquirable, installed, selectable,
+  selected, and enabled state in explainable previews and decisions.
 - [ ] Preview dependency selection, capability activation, schema changes, and migrations.
 - [ ] Activate additive capabilities without rewriting unrelated records.
 - [ ] Block disabling or removing packs while project data still depends on them unless an accepted

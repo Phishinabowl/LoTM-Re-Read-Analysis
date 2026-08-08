@@ -20,6 +20,11 @@ runtime health remain outside this contract. A future host diagnostic may join t
 capability ID without changing pack selection, capability lifecycle, activation, or effective-schema
 identity. See `trusted-executable-extension.md`.
 
+Commercial distribution is likewise outside this project contract. Offering visibility, account or
+organization identity, product tier, subscription, pricing, grants, tokens, and entitlement state
+cannot change pack selection, capability lifecycle or activation, controlled values, taxonomy,
+resources, or effective-schema identity. See `distribution-entitlement-boundary.md`.
+
 ## Ownership And Scope
 
 Core owns the effective-schema shape, lifecycle resolution, diagnostics model, deterministic

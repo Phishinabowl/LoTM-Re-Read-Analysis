@@ -18,6 +18,12 @@ permissions, entitlement, or runtime health. A future extension host may referen
 capability IDs, but its implementation candidates and operational state remain a separate host
 overlay and cannot rewrite catalog records. See `trusted-executable-extension.md`.
 
+Commercial distribution is also external. Offering visibility, acquisition eligibility, account or
+tenant identity, subscription, price, grant, token, and entitlement state do not appear in the base
+catalog. A future distribution view may join external offerings to installed pack IDs, but
+`discoverability.installed` and `selectable` remain factual local and technical state. See
+`distribution-entitlement-boundary.md`.
+
 ## Boundary From EffectiveProjectSchema
 
 `FrameworkCatalog` and `EffectiveProjectSchema` answer different questions:

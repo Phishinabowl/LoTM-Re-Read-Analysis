@@ -207,6 +207,14 @@ capabilities, or mutate project facts. Trust, permissions, and commercial entitl
 independent decisions. No current tool loads extension code. See
 `Framework/Contracts/trusted-executable-extension.md`.
 
+Commercial distribution and entitlement form another optional host boundary. Offerings may grant
+packs or pack bundles, but offering identity, SKU, product prerequisites, pricing, account or tenant
+state, subscriptions, tokens, and grants remain outside packs and portable projects. Entitlement may
+govern acquisition; it cannot satisfy technical pack dependencies, change installed-catalog state,
+select packs, activate capabilities, or mutate project facts. With no provider configured, valid
+local packs retain deterministic offline behavior. See
+`Framework/Contracts/distribution-entitlement-boundary.md`.
+
 ### Effective Project Schema
 
 `EffectiveProjectSchema` is the generated, domain-neutral inspection boundary over the project

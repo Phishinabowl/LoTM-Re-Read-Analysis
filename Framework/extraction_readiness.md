@@ -212,6 +212,14 @@ extension code may implement only an already declared capability and cannot acqu
 project authority. The updated isolated rehearsal copied 268 portable files, excluded all nine
 guarded project surfaces, and passed the same eight suites in all three runtimes.
 
+Phase 3.3.3 defines optional distribution and entitlement without adding an offering catalog,
+account system, provider, network client, installer, token, subscription, or enforcement state. The
+installed catalog remains factual, commercial product prerequisites remain separate from technical
+pack dependencies, and local packs require no entitlement provider. Pack and named pack-bundle
+grants are the initial future acquisition granularity; capability licensing remains deferred. The
+updated isolated rehearsal copied 269 portable files, excluded all nine guarded project surfaces,
+and passed eight suites in all three runtimes without adding commercial host state.
+
 ## Known Limits And Next Boundaries
 
 Extraction readiness does not close these known items:
@@ -224,8 +232,8 @@ Extraction readiness does not close these known items:
   pack-presentation gate, Phase 3.2.1 project-independent installed-pack catalog, Phase 3.2.2
   effective-schema catalog integration and project-state annotation, Phase 3.2.3 shared-report QA
   publication, Phase 3.2.4 capability grouping, and the Phase 3.3.1 declarative schema-pack boundary
-  are closed. The trusted executable-extension boundary is defined; the optional distribution and
-  entitlement seam is next.
+  are closed. The trusted executable-extension and optional distribution/entitlement boundaries are
+  defined; Phase 3.3.4 boundary conformance and handoff are next.
 - Historical continuity-membership transitions, manifestation- or release-scoped continuity,
   occurrence-linked continuity transitions, first-class continuity systems, and sliding-chronology
   policies remain later normalized-content or deferred narrative capability work. They do not weaken

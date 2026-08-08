@@ -90,8 +90,9 @@ and evaluated by the host rather than by schema packs or project facts. Future t
 must define publisher identity, signature verification, trust roots, revocation, update continuity,
 and failure behavior before any extension code can load.
 
-Entitlement remains optional and external. A local trusted extension must not require commercial
-identity merely because a future distribution service can sell or distribute extensions.
+Entitlement remains optional and external under `distribution-entitlement-boundary.md`. A local
+trusted extension must not require commercial identity merely because a future distribution service
+can sell or distribute extensions.
 
 ## Loading And Mutation Boundary
 
