@@ -385,3 +385,63 @@ Phase 3.2.1 is closed by `db446da` (`Implement framework catalog discovery`). Ph
 the next boundary: reconcile project/framework lookup pins, derive EffectiveProjectSchema pack
 records through the catalog under exact shadow comparison, and add the explicit
 `FrameworkCatalogProjectView`.
+
+## Platform Phase 3.2.2 - Effective-Schema Catalog Integration
+
+**Implementation commits:** pending confirmation.
+
+**Closure implemented by:** pending confirmation.
+
+Phase 3.2.2 makes the project-independent catalog the one runtime authority for installed pack
+parsing while preserving `EffectiveProjectSchema` as a distinct project-scoped composition. The
+project manifest's framework ID and pinned lookup registry must exactly match the installation
+manifest, and each selected pack ID and configured path must resolve to the corresponding validated
+catalog record. Mismatch fails closed; the service does not silently inherit, substitute, rescan,
+or reparse project pack metadata.
+
+The effective schema still owns project selection order, dependency closure, capability activation,
+controlled-value composition, taxonomy, resources, and diagnostics. Its contract-version-2 JSON,
+selection envelope, report surface, command names, output confinement, and QA/Visualization
+projections remain unchanged. The prior direct composition remains only as a conformance shadow
+oracle; supported effective-schema loading now uses catalog-retained pack objects.
+
+An explicit `FrameworkCatalogProjectView` combines an unchanged base catalog with one completed
+effective schema. It copies every installed pack and capability row under distinct project-view
+record identities, preserves the source catalog record ID, and annotates selected, available,
+enabled, deprecated, planned, used-by-project, and unavailable-reason state. Catalog commands attach
+project context only through `--project-root` / `-ProjectRoot`; ordinary catalog inspection remains
+project-independent. Project-view selectors, deterministic JSON, reports, exports, failures, and
+path safety are paired across Python and PowerShell module version 0.8.0.
+
+### Phase 3.2.2 Verification
+
+Exact shadow comparison proved the direct and catalog-backed schema-pack registries and effective
+schemas equal before the catalog path became authoritative. The canonical project view contains 14
+installed packs, ten selected packs, 136 installed capabilities, 132 selected capabilities, and 123
+enabled capabilities. Python and PowerShell 7 produced byte-identical 417,162-byte complete
+project-view JSON with SHA-256
+`63ae30eea4ccfb3c6dbe68958294166cc1458fc64a694c673194be8085386fb4`, plus byte-identical
+45,156-byte selection JSON and 20,446-byte human reports. Permanent project-view conformance covers
+selected and unselected records, enabled and planned state, unavailable reasons, deterministic
+composition, selectors, malformed attachment, and base-catalog immutability.
+
+All 19 registered `baseline` suites passed on the final formatted tree in Python, PowerShell 7, and
+Windows PowerShell 5.1 in 55.9, 276.2, and 499.6 seconds with matching semantic summaries. Focused framework-catalog and
+effective-schema compatibility passed across all three runtimes in 333.0 and 245.0 seconds;
+Visualization plus QA compatibility passed in 99.3 seconds with canonical project artifacts
+unchanged.
+
+The extraction gate exposed two integration defects before closure. Its neutral consumer still used
+an obsolete placeholder taxonomy document, and project-view conformance assumed LoTM-specific pack
+IDs and counts. The rehearsal now creates valid empty taxonomy/resource registries, derives portable
+assertions from the neutral effective schema while retaining the stricter LoTM snapshot, and passes
+eight suites in all three runtimes. The direct rehearsal copied 266 files and completed in 247.8
+seconds. The registered timeout increased from 240 to 360 seconds after the aggregate runner correctly
+reported the stale limit; root discovery, artifact lifecycle, and extraction then passed together in
+290.1 seconds.
+
+The final ten-check `full-release` profile passed in 1,050.1 seconds. Compatibility reporting,
+conformance reporting, framework catalog, effective schema, Visualization, QA, root discovery,
+artifact lifecycle, isolated extraction, and rendering all passed; canonical outputs remained
+unchanged and successful scoped output was removed. Phase 3.2.3, effective-schema QA publication,
+is the next platform boundary.

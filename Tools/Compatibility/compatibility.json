@@ -97,7 +97,7 @@
     {
       "id": "framework-extraction",
       "kind": "framework-extraction",
-      "timeout_seconds": 240
+      "timeout_seconds": 360
     },
     {
       "id": "render",

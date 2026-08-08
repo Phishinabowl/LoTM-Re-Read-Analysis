@@ -36,8 +36,9 @@ registries, not another canonical registry.
 `framework-catalog.md` defines the distinct project-independent installed-pack inventory and its
 selection envelope. `framework-installation.md` defines its explicit project-independent bootstrap.
 Canonical pack files remain authoritative. Paired installation/catalog loaders, inspection
-commands, conformance, scale, and compatibility checks are executable. Project annotation and
-effective-schema catalog integration remain deferred to Phase 3.2.2.
+commands, conformance, scale, and compatibility checks are executable. Effective-schema composition
+uses validated catalog records, and explicit project attachment emits the separate
+`FrameworkCatalogProjectView` without changing the base catalog.
 
 ## Capability Semantics
 

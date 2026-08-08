@@ -51,9 +51,56 @@ function Get-EffectiveSchemaSummary {
 
 $project = Get-KnowledgeProjectConfig $Root
 $packs = Get-KnowledgeSchemaPackRegistry $project
+$module = Get-Module KnowledgeFramework
+$catalogModel = & $module { param($Value) Get-KnowledgeFrameworkCatalogModel $Value } $Root
+$catalogPacks = & $module {
+    param($Project, $Catalog)
+    Get-KnowledgeSchemaPackRegistryFromCatalog $Project $Catalog
+} $project $catalogModel
+if ((ConvertTo-KnowledgeCanonicalJson $packs) -cne (ConvertTo-KnowledgeCanonicalJson $catalogPacks)) {
+    throw 'Catalog-backed schema-pack composition differs from the direct shadow path.'
+}
 $taxonomy = Get-KnowledgeTaxonomyConfig $project
 $resources = Get-KnowledgeResourceConfig $project
 $schema = New-KnowledgeEffectiveProjectSchema $project $packs $taxonomy $resources
+$catalogSchema = New-KnowledgeEffectiveProjectSchema $project $catalogPacks $taxonomy $resources
+if ((ConvertTo-KnowledgeCanonicalJson $schema) -cne (ConvertTo-KnowledgeCanonicalJson $catalogSchema)) {
+    throw 'Catalog-backed effective schema differs from the direct shadow composition.'
+}
+if (
+    (ConvertTo-KnowledgeCanonicalJson (Get-KnowledgeEffectiveProjectSchema $Root)) -cne
+    (ConvertTo-KnowledgeCanonicalJson $catalogSchema)
+) {
+    throw 'Effective-schema loading did not use the catalog-backed composition.'
+}
+$wrongFramework = $project.PSObject.Copy()
+$wrongFramework.framework = 'wrong-framework'
+try {
+    $null = & $module {
+        param($Project, $Catalog)
+        Get-KnowledgeSchemaPackRegistryFromCatalog $Project $Catalog
+    } $wrongFramework $catalogModel
+    throw 'Catalog-backed composition accepted a mismatched framework ID.'
+}
+catch {
+    if ($_.Exception.Message -cnotmatch 'does not match installed framework') {
+        throw
+    }
+}
+$wrongLookup = $project.PSObject.Copy()
+$wrongLookup.lookup_keys_registry = $project.manifest_path
+try {
+    $null = & $module {
+        param($Project, $Catalog)
+        Get-KnowledgeSchemaPackRegistryFromCatalog $Project $Catalog
+    } $wrongLookup $catalogModel
+    throw 'Catalog-backed composition accepted a mismatched lookup-key registry.'
+}
+catch {
+    if ($_.Exception.Message -cnotmatch 'does not match the framework installation') {
+        throw
+    }
+}
 
 $expectedKeys = @(
     'contract',

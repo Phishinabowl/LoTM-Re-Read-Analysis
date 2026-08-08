@@ -58,10 +58,11 @@ process working directory, and structured output must not expose absolute machin
 This manifest describes framework installation defaults and locations. It does not select project
 packs, activate capabilities, or replace `Project_Config/project.yaml`.
 
-During Phase 3.2.1, existing project lookup-registry selection remains unchanged. Phase 3.2.2 must
-explicitly define and test how a project's pinned lookup registry is reconciled with the framework
-default. Runtime code must not silently substitute the framework default for a project selection or
-change project inheritance semantics.
+Project and framework manifests retain independent explicit lookup-registry pins. Catalog-backed
+project composition requires those pins to resolve to the same file and requires the project
+framework ID to equal the installed framework ID. Disagreement fails before pack selection. Runtime
+code never substitutes the framework default for the project pin, copies one registry over another,
+or changes project inheritance semantics.
 
 ## Conformance
 

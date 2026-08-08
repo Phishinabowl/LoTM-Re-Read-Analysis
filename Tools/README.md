@@ -24,12 +24,15 @@ python Tools\Commands\Framework\inspect_framework_catalog.py --show packs --show
 python Tools\Commands\Framework\inspect_framework_catalog.py --pack narrative-media --capability narrative-time-loops
 python Tools\Commands\Framework\inspect_framework_catalog.py --show all --report-output .local\framework-catalog.txt
 python Tools\Commands\Framework\inspect_framework_catalog.py --json
+python Tools\Commands\Framework\inspect_framework_catalog.py --project-root . --show overview
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Show packs,capabilities
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Json
 ```
 
 The command auto-detects `Framework/framework.yaml` independently of project configuration.
 Add `--output PATH` / `-Output PATH` for canonical JSON beneath the framework repository root.
+Add explicit `--project-root PATH` / `-ProjectRoot PATH` to derive a project-annotated catalog view;
+ordinary catalog inspection remains project-independent.
 Generated catalog documents are inspection output, not configuration. Library consumers import the
 paired catalog service; see [Tooling Reference](TOOLING_REFERENCE.md#framework-catalog).
 

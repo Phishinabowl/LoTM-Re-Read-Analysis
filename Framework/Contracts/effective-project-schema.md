@@ -294,19 +294,20 @@ The service implementation may evolve without changing the contract version when
 and semantics remain identical. Generated snapshots may be used for tests and diagnostics, but they
 must not become an alternate source of truth or an input required to load the project.
 
-### Planned Framework-Catalog Integration
+### Framework-Catalog Integration
 
-Contract version 2 currently composes the project's selected packs through the project configuration
-services. Platform Phase 3.2.2 will change that internal dependency so selected packs resolve through
-the shared validated `FrameworkCatalog` model. This is an implementation migration, not permission
-to change the effective-schema contract, command names, selection envelope, ordering, diagnostics,
-or output bytes.
+Contract version 2 resolves the project's selected packs through the shared validated
+`FrameworkCatalog` model. The project registry still owns authored selection order and capability
+activation. Each selected ID and configured path must match an installed catalog pack exactly;
+project and framework IDs and lookup-registry pins must also agree. No project value silently
+inherits from the framework installation manifest.
 
 `FrameworkCatalog` remains a project-independent installed inventory. `EffectiveProjectSchema`
 remains the project composition that adds selected dependency closure, activation, taxonomy,
-resources, and diagnostics. Phase 3.2.2 must implement a derived `FrameworkCatalogProjectView` that
-combines both for catalog presentation, but the base catalog must not depend on the effective schema
-and no generated document becomes canonical input.
+resources, and diagnostics. The derived `FrameworkCatalogProjectView` combines both for explicit
+catalog presentation, but the base catalog does not depend on the effective schema and no generated
+document becomes canonical input. The migration preserves contract-version-2 output bytes,
+commands, selectors, diagnostics, and consumer projections.
 
 ## Runtime And Command API
 

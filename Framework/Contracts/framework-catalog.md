@@ -23,8 +23,8 @@ must never be edited or ingested as configuration.
 
 Catalog discovery does not select packs, activate capabilities, merge controlled vocabulary into a
 project schema, or claim that every installed pack can be selected together. The base catalog has no
-project identity or project-state fields. Phase 3.2.2 may combine a catalog with an effective schema
-only through the separate `framework-catalog-project-view` contract.
+project identity or project-state fields. A catalog combines with an effective schema only through
+the separate `framework-catalog-project-view` contract.
 
 The contracts may reuse the canonical pack and capability stable IDs as references because those IDs
 come from the same pack files. Their generated document identities, record meanings, serializers,
@@ -171,6 +171,36 @@ normalization. No match fails with the requested value and record kind. Multiple
 fail as ambiguous and report every candidate stable ID in ordinal order; the service never chooses a
 winner. Selection does not change or filter the base catalog object.
 
+## Project View Contract
+
+Project attachment is explicit. Combining one validated catalog with one completed
+`EffectiveProjectSchema` emits `framework-catalog-project-view`, contract version 1. The base
+catalog remains project-independent and unchanged; the effective schema remains the authority for
+project selection and activation. The dependency flow is strictly catalog to effective schema,
+then catalog plus effective schema to project view.
+
+The project view preserves every complete catalog pack and capability row. Each copied row replaces
+its catalog `record_id` with `framework-catalog-project-view:<kind>:<id>`, retains the original as
+`catalog_record_id`, and appends `project_state`:
+
+- `selected` means the pack or capability is present in the effective project composition;
+- `available` preserves installed pack selectability or the catalog capability's effective
+  availability;
+- `enabled` means a pack is selected or a selected capability is activated;
+- `deprecated` and `planned` preserve catalog lifecycle state;
+- `used_by_project` means the selected pack contributes to the composition or the capability is
+  enabled;
+- `unavailable_reason` is `pack-lifecycle-deferred`, `capability-lifecycle-planned`, or `null`.
+
+The top-level document identifies both source contract versions, the project ID, framework ID, and
+domain ID, then reports installed, selected, available, and enabled counts before the annotated
+rows. Selected pack and capability IDs must exist in the catalog. Framework IDs must match. The
+service rejects disagreement rather than inventing an unavailable installed record.
+
+Project-view singular lookup emits `framework-catalog-project-view-selection`, contract version 1.
+It uses the catalog's pinned lookup-key service and returns complete annotated rows without
+mutating either source object.
+
 ## Reports And Export
 
 Paired catalog commands provide:
@@ -180,6 +210,11 @@ Paired catalog commands provide:
 - singular pack and capability inspection;
 - canonical JSON on standard output or in a confined export file;
 - a human-readable report written to a confined file.
+
+`--project-root PATH` / `-ProjectRoot PATH` is the only command-level project attachment mechanism.
+Without it, catalog commands remain project-independent even when launched from inside a configured
+project. With it, JSON, reports, and selectors operate on `FrameworkCatalogProjectView`; output
+files remain confined beneath the framework root.
 
 Human spacing and terminal styling are not contract fields. Python and PowerShell render the same
 semantic rows and deterministic section order. Shared selector normalization, report models, text or
@@ -195,8 +230,8 @@ invoke one another.
 
 Structured failures use `framework-catalog-result`, contract version 1, with `catalog: null` and one
 stable diagnostic. Failure classification distinguishes root discovery, installation-manifest,
-lookup-registry, installed-pack discovery, pack parsing, catalog composition, selector, and
-output-path errors. Diagnostics may include repository-relative paths and stable IDs but never
+lookup-registry, installed-pack discovery, pack parsing, catalog composition, selector,
+project-attachment, and output-path errors. Diagnostics may include repository-relative paths and stable IDs but never
 absolute machine paths.
 
 ## Determinism And Versioning
@@ -214,7 +249,7 @@ Removing or renaming a field, changing field meaning or ordering, or changing nu
 requires a `contract_version` increment and an explicit compatibility decision. Generated snapshots
 may support tests and diagnostics but never become a loader input.
 
-## Phase 3.2.1 Conformance
+## Phase 3.2 Conformance
 
 Permanent paired coverage must prove installation-manifest loading, explicit pinned lookup selection
 when multiple lookup datasets coexist, canonical 14-pack discovery, complete capability
@@ -224,3 +259,8 @@ normalized singular lookup, ambiguity rejection, malformed root, manifest, regis
 failures, path confinement, generated scale behavior, and Python/PowerShell 7/Windows PowerShell
 5.1 parity. Existing effective-schema, schema-pack, QA, and Visualization behavior remains unchanged
 during this phase.
+
+Phase 3.2.2 additionally proves explicit project attachment, base-catalog immutability, selected and
+unselected packs, enabled and disabled capabilities, planned and deprecated state, unavailable
+reasons, normalized project-view selectors, mismatched or malformed project input, deterministic
+JSON and report export, and exact three-runtime parity.

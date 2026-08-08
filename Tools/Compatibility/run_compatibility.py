@@ -1540,6 +1540,12 @@ def run_framework_catalog_check(
     report_export_bytes: dict[str, bytes] = {}
     selection_documents: dict[str, dict[str, Any]] = {}
     selection_export_bytes: dict[str, bytes] = {}
+    project_view_documents: dict[str, dict[str, Any]] = {}
+    project_view_export_bytes: dict[str, bytes] = {}
+    project_view_reports: dict[str, str] = {}
+    project_view_report_bytes: dict[str, bytes] = {}
+    project_view_selections: dict[str, dict[str, Any]] = {}
+    project_attachment_failures: dict[str, str] = {}
     human_reports: dict[str, dict[str, str]] = {}
     failure_classifications: dict[str, str] = {}
     invalid_show_failures: dict[str, str] = {}
@@ -1702,6 +1708,168 @@ def run_framework_catalog_check(
             raise CompatibilityFailure(f"{runtime.id} catalog selection export differs from JSON output.")
         selection_export_bytes[runtime.id] = selection_export_path.read_bytes()
 
+        project_view_command = python_or_powershell_command(
+            runtime,
+            python_script,
+            powershell_script,
+            ["--root", str(root), "--project-root", str(root), "--json"],
+            ["-Root", str(root), "-ProjectRoot", str(root), "-Json"],
+        )
+        project_view_result = run_command(runtime, project_view_command, root, check["timeout_seconds"])
+        project_view = parse_json_output(project_view_result.stdout)
+        if (
+            not isinstance(project_view, dict)
+            or project_view.get("contract") != "framework-catalog-project-view"
+            or project_view.get("summary", {}).get("selected_pack_count") != 10
+            or project_view.get("summary", {}).get("enabled_capability_count") != 123
+        ):
+            raise CompatibilityFailure(f"{runtime.id} returned an invalid catalog project view: {project_view!r}")
+        project_view_documents[runtime.id] = project_view
+
+        project_view_export_path = output_root / f"{runtime.id}-project-view.json"
+        project_view_export_command = python_or_powershell_command(
+            runtime,
+            python_script,
+            powershell_script,
+            [
+                "--root",
+                str(root),
+                "--project-root",
+                str(root),
+                "--output",
+                str(project_view_export_path),
+            ],
+            [
+                "-Root",
+                str(root),
+                "-ProjectRoot",
+                str(root),
+                "-Output",
+                str(project_view_export_path),
+            ],
+        )
+        run_command(runtime, project_view_export_command, root, check["timeout_seconds"])
+        exported_project_view = json.loads(project_view_export_path.read_text(encoding="utf-8-sig"))
+        if exported_project_view != project_view:
+            raise CompatibilityFailure(f"{runtime.id} catalog project-view export differs from JSON output.")
+        project_view_export_bytes[runtime.id] = project_view_export_path.read_bytes()
+
+        project_view_report_command = python_or_powershell_command(
+            runtime,
+            python_script,
+            powershell_script,
+            ["--root", str(root), "--project-root", str(root), "--show", "overview"],
+            ["-Root", str(root), "-ProjectRoot", str(root), "-Show", "overview"],
+        )
+        project_view_report_result = run_command(
+            runtime,
+            project_view_report_command,
+            root,
+            check["timeout_seconds"],
+        )
+        project_view_reports[runtime.id] = project_view_report_result.stdout.replace("\r\n", "\n")
+        project_view_report_path = output_root / f"{runtime.id}-project-view.txt"
+        project_view_report_export_command = python_or_powershell_command(
+            runtime,
+            python_script,
+            powershell_script,
+            [
+                "--root",
+                str(root),
+                "--project-root",
+                str(root),
+                "--show",
+                "overview",
+                "--report-output",
+                str(project_view_report_path),
+            ],
+            [
+                "-Root",
+                str(root),
+                "-ProjectRoot",
+                str(root),
+                "-Show",
+                "overview",
+                "-ReportOutput",
+                str(project_view_report_path),
+            ],
+        )
+        run_command(runtime, project_view_report_export_command, root, check["timeout_seconds"])
+        project_view_report_bytes[runtime.id] = project_view_report_path.read_bytes()
+        if project_view_report_bytes[runtime.id].decode("utf-8") != project_view_reports[runtime.id]:
+            raise CompatibilityFailure(f"{runtime.id} catalog project-view report export differs from human output.")
+
+        project_view_selection_command = python_or_powershell_command(
+            runtime,
+            python_script,
+            powershell_script,
+            [
+                "--root",
+                str(root),
+                "--project-root",
+                str(root),
+                "--pack",
+                "Narrative-Media",
+                "--capability",
+                "Narrative-Time-Loops",
+                "--json",
+            ],
+            [
+                "-Root",
+                str(root),
+                "-ProjectRoot",
+                str(root),
+                "-Pack",
+                "Narrative-Media",
+                "-Capability",
+                "Narrative-Time-Loops",
+                "-Json",
+            ],
+        )
+        project_view_selection_result = run_command(
+            runtime,
+            project_view_selection_command,
+            root,
+            check["timeout_seconds"],
+        )
+        project_view_selection = parse_json_output(project_view_selection_result.stdout)
+        if (
+            not isinstance(project_view_selection, dict)
+            or project_view_selection.get("contract") != "framework-catalog-project-view-selection"
+            or [row.get("id") for row in project_view_selection.get("packs", [])] != ["narrative-media"]
+            or [row.get("id") for row in project_view_selection.get("capabilities", [])] != ["narrative-time-loops"]
+        ):
+            raise CompatibilityFailure(
+                f"{runtime.id} returned an invalid catalog project-view selection: {project_view_selection!r}"
+            )
+        project_view_selections[runtime.id] = project_view_selection
+
+        missing_project_root = output_root / "missing-project-root"
+        project_attachment_command = python_or_powershell_command(
+            runtime,
+            python_script,
+            powershell_script,
+            ["--root", str(root), "--project-root", str(missing_project_root), "--json"],
+            ["-Root", str(root), "-ProjectRoot", str(missing_project_root), "-Json"],
+        )
+        project_attachment_result = run_command(
+            runtime,
+            project_attachment_command,
+            root,
+            check["timeout_seconds"],
+            expect_success=False,
+        )
+        project_attachment_failure = parse_json_output(project_attachment_result.stdout)
+        if (
+            not isinstance(project_attachment_failure, dict)
+            or project_attachment_failure.get("contract") != "framework-catalog-result"
+            or project_attachment_failure.get("diagnostic", {}).get("classification") != "project-attachment"
+        ):
+            raise CompatibilityFailure(
+                f"{runtime.id} returned an invalid project-attachment failure: {project_attachment_failure!r}"
+            )
+        project_attachment_failures[runtime.id] = project_attachment_failure["diagnostic"]["classification"]
+
         invalid_root = output_root / "missing-framework-root"
         failure_command = python_or_powershell_command(
             runtime,
@@ -1797,6 +1965,24 @@ def run_framework_catalog_check(
             )
     if len(set(selection_export_bytes.values())) != 1:
         raise CompatibilityFailure("Framework-catalog selection export bytes differ between runtimes.")
+    for runtime_id, project_view in project_view_documents.items():
+        if project_view != project_view_documents[reference_runtime]:
+            raise CompatibilityFailure(
+                f"Framework-catalog project view differs between {reference_runtime} and {runtime_id}."
+            )
+    if len(set(project_view_export_bytes.values())) != 1:
+        raise CompatibilityFailure("Framework-catalog project-view export bytes differ between runtimes.")
+    if len(set(project_view_reports.values())) != 1 or len(set(project_view_report_bytes.values())) != 1:
+        raise CompatibilityFailure("Framework-catalog project-view reports differ between runtimes.")
+    for runtime_id, project_view_selection in project_view_selections.items():
+        if project_view_selection != project_view_selections[reference_runtime]:
+            raise CompatibilityFailure(
+                f"Framework-catalog project-view selection differs between {reference_runtime} and {runtime_id}."
+            )
+    if len(set(project_attachment_failures.values())) != 1:
+        raise CompatibilityFailure(
+            f"Framework-catalog project-attachment failures differ: {project_attachment_failures}"
+        )
     for case_id in human_reports[reference_runtime]:
         outputs = {reports[case_id] for reports in human_reports.values()}
         if len(outputs) != 1:
@@ -1824,6 +2010,12 @@ def run_framework_catalog_check(
         "selection_contract_version": selection_documents[reference_runtime]["contract_version"],
         "selection_export_bytes": len(selection_export_bytes[reference_runtime]),
         "selection_export_sha256": hashlib.sha256(selection_export_bytes[reference_runtime]).hexdigest(),
+        "project_view_contract_version": project_view_documents[reference_runtime]["contract_version"],
+        "project_view_export_bytes": len(project_view_export_bytes[reference_runtime]),
+        "project_view_export_sha256": hashlib.sha256(project_view_export_bytes[reference_runtime]).hexdigest(),
+        "project_view_report_bytes": len(project_view_report_bytes[reference_runtime]),
+        "project_view_selection_contract_version": project_view_selections[reference_runtime]["contract_version"],
+        "project_attachment_cases": 1,
         "invalid_selector_cases": 2,
         "unsafe_report_path_cases": 1,
         "failure_classification": next(iter(failure_classifications.values())),

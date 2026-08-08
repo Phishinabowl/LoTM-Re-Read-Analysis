@@ -29,16 +29,16 @@ Catalog discovery starts from `Framework/framework.yaml`, which explicitly selec
 pack root and lookup-key registry. It must not infer either input from filenames or depend on
 `Project_Config/`; multiple portable lookup datasets may coexist in one framework installation.
 
-The paired `inspect_framework_catalog.py` and `Get-FrameworkCatalog.ps1` commands
-inspect that complete project-independent inventory. The existing effective-schema commands remain
-separate because they describe one valid project composition. Both command families will consume
-the same validated pack/capability records rather than maintaining separate parsers or metadata.
+The paired `inspect_framework_catalog.py` and `Get-FrameworkCatalog.ps1` commands inspect that
+complete project-independent inventory. The existing effective-schema commands remain separate
+because they describe one valid project composition. Both command families consume the same
+validated pack/capability records rather than maintaining separate parsers or metadata.
 
-Phase 3.2.2 will make `EffectiveProjectSchema` resolve its selected dependency closure through the
-shared catalog model and then add project activation, taxonomy, resources, diagnostics, and later
-project registries. An explicit project-root argument on catalog inspection produces the required
-derived `FrameworkCatalogProjectView` with selected/enabled/used state after that phase; the base catalog remains
-project-independent and never depends on that view.
+`EffectiveProjectSchema` resolves its selected dependency closure through the shared catalog model
+and then adds project activation, taxonomy, resources, diagnostics, and later project registries. An
+explicit project-root argument on catalog inspection produces the derived
+`FrameworkCatalogProjectView` with selected, enabled, available, planned, and used state; the base
+catalog remains project-independent and never depends on that view.
 
 ## Architectural Classification
 

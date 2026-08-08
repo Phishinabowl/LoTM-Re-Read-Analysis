@@ -226,8 +226,9 @@ schema may be edited as configuration.
 `Framework/framework.yaml` is the project-independent installation bootstrap. It explicitly selects
 the pack root and pinned lookup registry used for catalog discovery, allowing multiple portable
 lookup datasets to coexist without filename inference. It neither reads nor replaces project
-configuration. Phase 3.2.2 must explicitly reconcile the existing project lookup pin with this
-framework default before changing any project inheritance behavior.
+configuration. Catalog-backed project composition requires the existing project lookup pin and
+framework installation pin to resolve to the same registry; disagreement fails without changing
+project inheritance behavior.
 
 Catalog inspection and project inspection remain separate public contracts and commands. The paired
 catalog commands are `inspect_framework_catalog.py` and `Get-FrameworkCatalog.ps1`; the existing
@@ -238,10 +239,11 @@ one another as subprocesses or maintain separate pack parsers.
 Phase 3.2.2 replaces the effective schema's direct selected-pack loading with the shared validated
 catalog model. `EffectiveProjectSchema` remains more than a catalog filter: it resolves one project's
 selected dependency closure and combines it with activation, taxonomy, resources, diagnostics, and
-later project registries. The migration must preserve its existing command/API behavior and
-byte-identical contract-version-2 output before the direct path is retired.
+later project registries. The catalog-backed path preserves existing command/API behavior and
+byte-identical contract-version-2 output; the effective-schema runtime no longer reparses selected
+pack files independently.
 
-Phase 3.2.2 must implement project annotations through a separate generated
+Project annotations use a separate generated
 `FrameworkCatalogProjectView` contract:
 
 ```mermaid

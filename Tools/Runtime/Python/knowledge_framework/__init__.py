@@ -10,9 +10,12 @@ from .framework_config import FrameworkConfig, load_framework_config
 from .framework_catalog import (
     FrameworkCatalog,
     FrameworkCatalogError,
+    compose_framework_catalog_project_view,
+    compose_framework_catalog_project_view_selection,
     compose_framework_catalog_selection,
     framework_catalog_failure,
     framework_catalog_json,
+    framework_catalog_project_view_json,
     load_framework_catalog,
 )
 from .framework_paths import (
@@ -41,9 +44,12 @@ __all__ = [
     "FrameworkConfig",
     "FrameworkCatalog",
     "FrameworkCatalogError",
+    "compose_framework_catalog_project_view",
+    "compose_framework_catalog_project_view_selection",
     "compose_framework_catalog_selection",
     "framework_catalog_failure",
     "framework_catalog_json",
+    "framework_catalog_project_view_json",
     "is_framework_root",
     "load_framework_config",
     "load_framework_catalog",

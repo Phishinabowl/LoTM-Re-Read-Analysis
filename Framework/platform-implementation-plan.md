@@ -681,42 +681,42 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 #### Phase 3.2.2 Effective-Schema Catalog Integration
 
-- [ ] Explicitly reconcile the project manifest's pinned lookup registry with the framework
+- [x] Explicitly reconcile the project manifest's pinned lookup registry with the framework
   installation default. Preserve current project selection semantics until that policy is reviewed
   and covered; do not silently substitute or inherit the framework default.
-- [ ] Make `EffectiveProjectSchema` resolve the project's selected pack IDs and dependency closure
+- [x] Make `EffectiveProjectSchema` resolve the project's selected pack IDs and dependency closure
   through the shared validated `FrameworkCatalog` model rather than independently scanning,
   reparsing, or reconstructing pack and capability metadata.
-- [ ] Keep effective-schema composition project-specific: combine the selected catalog subset with
+- [x] Keep effective-schema composition project-specific: combine the selected catalog subset with
   the project manifest, capability activation, taxonomy, resources, diagnostics, and later project
   registries instead of treating the effective schema as only a filtered catalog.
-- [ ] Preserve the existing `inspect_effective_schema.py` and `Get-EffectiveProjectSchema.ps1`
+- [x] Preserve the existing `inspect_effective_schema.py` and `Get-EffectiveProjectSchema.ps1`
   command names, project-root behavior, switches, human reports, complete JSON contract, selection
   envelope, and output confinement while changing only their internal pack-data dependency.
-- [ ] Implement a separate generated `FrameworkCatalogProjectView` contract, serialized as
+- [x] Implement a separate generated `FrameworkCatalogProjectView` contract, serialized as
   `framework-catalog-project-view`, from `FrameworkCatalog` plus `EffectiveProjectSchema`. The view
   annotates installed catalog records with selected, available, enabled, deprecated, planned,
   used-by-project, and unavailable-reason state without mutating the base catalog or becoming
   canonical configuration.
-- [ ] Make project annotation an explicit catalog-command opt-in such as `--project-root` /
+- [x] Make project annotation an explicit catalog-command opt-in such as `--project-root` /
   `-ProjectRoot`; ordinary catalog inspection remains project-independent even when executed inside
   a project checkout.
-- [ ] Keep the dependency flow acyclic: project-independent catalog records feed effective-schema
+- [x] Keep the dependency flow acyclic: project-independent catalog records feed effective-schema
   composition, and the completed effective schema may feed only the derived catalog project view.
   The base catalog must never depend on an effective schema.
-- [ ] Preserve one implementation authority for pack parsing, normalization, lookup, presentation,
+- [x] Preserve one implementation authority for pack parsing, normalization, lookup, presentation,
   classification, lifecycle, dependency, and provider records across catalog and effective-schema
   services in both runtimes.
-- [ ] Introduce the catalog-backed path behind an exact shadow comparison against the current direct
+- [x] Introduce the catalog-backed path behind an exact shadow comparison against the current direct
   effective-schema composition before allowing it to drive project output.
-- [ ] Prove byte-identical contract-version-2 effective-schema JSON, selection envelopes, human
+- [x] Prove byte-identical contract-version-2 effective-schema JSON, selection envelopes, human
   reports, failure behavior, QA/Visualization projections, and canonical consumer artifacts across
   Python, PowerShell 7, and Windows PowerShell 5.1 before retiring the direct path.
-- [ ] Add permanent `FrameworkCatalogProjectView` coverage for explicit project attachment,
+- [x] Add permanent `FrameworkCatalogProjectView` coverage for explicit project attachment,
   selected and unselected packs, enabled and disabled capabilities, planned/deprecated state,
   unavailable reasons, unknown or malformed project input, selectors, deterministic JSON/report
   export, base-catalog immutability, and three-runtime parity.
-- [ ] Remove the superseded direct selected-pack discovery/composition path only after permanent
+- [x] Remove the superseded direct selected-pack discovery/composition path only after permanent
   catalog, effective-schema, project-composition, compatibility, extraction, and scale coverage
   proves the shared model.
 

@@ -3,6 +3,7 @@ param(
     [Alias('?', 'h')]
     [switch]$Help,
     [string]$Root,
+    [string]$ProjectRoot,
     [switch]$Json,
     [string]$Output,
     [string]$ReportOutput,
@@ -29,6 +30,8 @@ Usage:
 Options:
   -Root <path>     Framework repository root. When omitted, searches upward
                    from the current directory and this script's directory.
+  -ProjectRoot <path>
+                   Attach a project and emit a FrameworkCatalogProjectView.
   -Json            Write canonical catalog JSON to standard output.
   -Output <path>   Also write JSON beneath the framework root.
   -ReportOutput <path>
@@ -47,6 +50,7 @@ Examples:
   powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Show packs,capabilities
   powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Pack narrative-media
   powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Capability narrative-time-loops -Json
+  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -ProjectRoot . -Show overview
   powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Output .tmp\framework-catalog.json
   powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Show all -ReportOutput .local\framework-catalog.txt
 "@
@@ -87,6 +91,22 @@ function Get-FrameworkCatalogDisplayValue {
 function Write-FrameworkCatalogSummary {
     param([object]$Catalog)
 
+    if ($Catalog.contract -ceq 'framework-catalog-project-view') {
+        Write-Output "Framework catalog project view: $($Catalog.project.project_id)"
+        Write-Output "Contract: $($Catalog.contract) v$($Catalog.contract_version)"
+        Write-Output "Framework: $($Catalog.project.framework_id)"
+        Write-Output "Domain: $($Catalog.project.domain_id)"
+        Write-Output (
+            "Packs: $($Catalog.summary.selected_pack_count) selected of " +
+            "$($Catalog.summary.pack_count) installed"
+        )
+        Write-Output (
+            "Capabilities: $($Catalog.summary.enabled_capability_count) enabled, " +
+            "$($Catalog.summary.selected_capability_count) selected, " +
+            "$($Catalog.summary.capability_count) installed"
+        )
+        return
+    }
     Write-Output "Framework catalog: $($Catalog.framework.id)"
     Write-Output "Contract: $($Catalog.contract) v$($Catalog.contract_version)"
     Write-Output "Manifest: $($Catalog.framework.manifest_path)"
@@ -122,9 +142,15 @@ function Write-FrameworkCatalogOverview {
             $row.presentation.short_description
         }
         $selectable = Get-FrameworkCatalogDisplayValue $row.discoverability.selectable
+        $projectText = if ($null -eq $row.project_state) {
+            ''
+        }
+        else {
+            ' | selected=' + (Get-FrameworkCatalogDisplayValue $row.project_state.selected)
+        }
         Write-Output (
             "- $label ($($row.id)) | lifecycle=$($row.lifecycle) | " +
-            "selectable=$selectable`: $description"
+            "selectable=$selectable$projectText`: $description"
         )
     }
 }
@@ -151,6 +177,17 @@ function Write-FrameworkCatalogPackRows {
             "- $($row.id) | lifecycle=$($row.lifecycle) | kind=$($row.kind) | " +
             "schema=$($row.schema_version) | version=$($row.pack_version) | selectable=$selectable"
         )
+        if ($null -ne $row.project_state) {
+            Write-Output (
+                '  project state: ' +
+                "selected=$(Get-FrameworkCatalogDisplayValue $row.project_state.selected) | " +
+                "available=$(Get-FrameworkCatalogDisplayValue $row.project_state.available) | " +
+                "enabled=$(Get-FrameworkCatalogDisplayValue $row.project_state.enabled) | " +
+                "planned=$(Get-FrameworkCatalogDisplayValue $row.project_state.planned) | " +
+                "used=$(Get-FrameworkCatalogDisplayValue $row.project_state.used_by_project) | " +
+                "unavailable=$(Get-FrameworkCatalogDisplayValue $row.project_state.unavailable_reason)"
+            )
+        }
         Write-Output "  path: $($row.path)"
         if ($null -eq $row.classification) {
             Write-Output '  classification: legacy / unavailable'
@@ -262,6 +299,18 @@ function Write-FrameworkCatalogCapabilityRows {
             "- $($row.id) | lifecycle=$($row.effective_lifecycle) | available=$available | " +
             "deprecated=$deprecated | planned=$planned"
         )
+        if ($null -ne $row.project_state) {
+            Write-Output (
+                '  project state: ' +
+                "selected=$(Get-FrameworkCatalogDisplayValue $row.project_state.selected) | " +
+                "available=$(Get-FrameworkCatalogDisplayValue $row.project_state.available) | " +
+                "enabled=$(Get-FrameworkCatalogDisplayValue $row.project_state.enabled) | " +
+                "deprecated=$(Get-FrameworkCatalogDisplayValue $row.project_state.deprecated) | " +
+                "planned=$(Get-FrameworkCatalogDisplayValue $row.project_state.planned) | " +
+                "used=$(Get-FrameworkCatalogDisplayValue $row.project_state.used_by_project) | " +
+                "unavailable=$(Get-FrameworkCatalogDisplayValue $row.project_state.unavailable_reason)"
+            )
+        }
         $label = if ($null -eq $row.presentation) {
             $row.id
         }
@@ -366,23 +415,42 @@ try {
     $classification = 'catalog-composition'
     $frameworkConfig = Get-KnowledgeFrameworkConfig $resolvedRoot
     $catalog = Get-KnowledgeFrameworkCatalog $resolvedRoot
+    $document = $catalog
+    if (-not [string]::IsNullOrWhiteSpace($ProjectRoot)) {
+        $classification = 'project-attachment'
+        $resolvedProjectRoot = Resolve-KnowledgeProjectRoot `
+            -ExplicitRoot $ProjectRoot `
+            -ExecutablePath $PSCommandPath
+        $effectiveSchema = Get-KnowledgeEffectiveProjectSchema $resolvedProjectRoot
+        $document = New-KnowledgeFrameworkCatalogProjectView $catalog $effectiveSchema
+    }
     $selection = if (
         -not [string]::IsNullOrWhiteSpace($Pack) -or
         -not [string]::IsNullOrWhiteSpace($Capability)
     ) {
         $classification = 'selector'
-        New-KnowledgeFrameworkCatalogSelection `
-            $catalog `
-            $frameworkConfig.lookup_keys `
-            $Pack `
-            $Capability
+        if ([string]::IsNullOrWhiteSpace($ProjectRoot)) {
+            New-KnowledgeFrameworkCatalogSelection `
+                $catalog `
+                $frameworkConfig.lookup_keys `
+                $Pack `
+                $Capability
+        }
+        else {
+            New-KnowledgeFrameworkCatalogProjectViewSelection `
+                $catalog `
+                $document `
+                $frameworkConfig.lookup_keys `
+                $Pack `
+                $Capability
+        }
     }
     else {
         $null
     }
     $classification = 'catalog-composition'
     $serialized = ConvertTo-KnowledgeCanonicalJson $(if ($null -eq $selection) {
-            $catalog
+            $document
         }
         else {
             $selection
@@ -404,7 +472,7 @@ try {
         if (-not [string]::IsNullOrWhiteSpace($parent)) {
             [System.IO.Directory]::CreateDirectory($parent) | Out-Null
         }
-        $reportLines = @(Write-FrameworkCatalogReport $catalog $sections $selection)
+        $reportLines = @(Write-FrameworkCatalogReport $document $sections $selection)
         $reportText = ($reportLines -join "`n") + "`n"
         [System.IO.File]::WriteAllText(
             $reportOutputPath,
@@ -417,7 +485,7 @@ try {
     }
     else {
         if ([string]::IsNullOrWhiteSpace($ReportOutput)) {
-            Write-FrameworkCatalogReport $catalog $sections $selection
+            Write-FrameworkCatalogReport $document $sections $selection
         }
         if (-not [string]::IsNullOrWhiteSpace($Output)) {
             $relative = $outputPath.Substring($resolvedRoot.TrimEnd('\', '/').Length + 1).Replace('\', '/')

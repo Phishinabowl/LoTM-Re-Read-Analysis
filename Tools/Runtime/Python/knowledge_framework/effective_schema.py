@@ -5,10 +5,11 @@ import json
 from pathlib import Path
 from typing import Any
 
+from .framework_catalog import load_framework_catalog
 from .lookup_key_config import LookupKeyConfig
 from .project_config import ProjectConfig, load_project_config
 from .resource_config import ResourceConfig, load_resource_config
-from .schema_pack_config import SchemaPackRegistry, load_schema_pack_registry
+from .schema_pack_config import SchemaPackRegistry, load_schema_pack_registry_from_catalog
 from .taxonomy_config import TaxonomyConfig, load_taxonomy_config
 
 
@@ -600,9 +601,10 @@ def compose_effective_consumer_schema_projection(
 
 def load_effective_project_schema(root: Path) -> EffectiveProjectSchema:
     project = load_project_config(root)
+    catalog = load_framework_catalog(project.root)
     return compose_effective_project_schema(
         project,
-        load_schema_pack_registry(project),
+        load_schema_pack_registry_from_catalog(project, catalog),
         load_taxonomy_config(project),
         load_resource_config(project),
     )

@@ -11,12 +11,17 @@ if str(RUNTIME_ROOT) not in sys.path:
     sys.path.insert(0, str(RUNTIME_ROOT))
 
 from knowledge_framework.framework_catalog import (  # noqa: E402
+    compose_framework_catalog_project_view,
+    compose_framework_catalog_project_view_selection,
     compose_framework_catalog_selection,
     framework_catalog_failure,
     framework_catalog_json,
+    framework_catalog_project_view_json,
     load_framework_catalog,
 )
+from knowledge_framework.effective_schema import load_effective_project_schema  # noqa: E402
 from knowledge_framework.framework_paths import resolve_framework_root  # noqa: E402
+from knowledge_framework.project_paths import resolve_project_root  # noqa: E402
 
 
 SHOW_SECTIONS = ("overview", "packs", "capabilities")
@@ -41,6 +46,23 @@ def display_value(value: object) -> str:
 
 def human_summary(document: dict) -> str:
     summary = document["summary"]
+    if document["contract"] == "framework-catalog-project-view":
+        project = document["project"]
+        return "\n".join(
+            [
+                f"Framework catalog project view: {project['project_id']}",
+                f"Contract: {document['contract']} v{document['contract_version']}",
+                f"Framework: {project['framework_id']}",
+                f"Domain: {project['domain_id']}",
+                f"Packs: {summary['selected_pack_count']} selected of {summary['pack_count']} installed",
+                (
+                    "Capabilities: "
+                    f"{summary['enabled_capability_count']} enabled, "
+                    f"{summary['selected_capability_count']} selected, "
+                    f"{summary['capability_count']} installed"
+                ),
+            ]
+        )
     framework = document["framework"]
     return "\n".join(
         [
@@ -68,7 +90,12 @@ def show_overview(document: dict) -> str:
         label = row["id"] if presentation is None else presentation["label"]
         description = "-" if presentation is None else presentation["short_description"]
         selectable = display_value(row["discoverability"]["selectable"])
-        lines.append(f"- {label} ({row['id']}) | lifecycle={row['lifecycle']} | selectable={selectable}: {description}")
+        state = row.get("project_state")
+        project_text = "" if state is None else f" | selected={display_value(state['selected'])}"
+        lines.append(
+            f"- {label} ({row['id']}) | lifecycle={row['lifecycle']} | "
+            f"selectable={selectable}{project_text}: {description}"
+        )
     return "\n".join(lines)
 
 
@@ -88,6 +115,15 @@ def render_pack_rows(rows: list[dict], heading: str) -> str:
             f"schema={row['schema_version']} | version={row['pack_version']} | "
             f"selectable={display_value(row['discoverability']['selectable'])}"
         )
+        state = row.get("project_state")
+        if state is not None:
+            lines.append(
+                "  project state: "
+                f"selected={display_value(state['selected'])} | available={display_value(state['available'])} | "
+                f"enabled={display_value(state['enabled'])} | planned={display_value(state['planned'])} | "
+                f"used={display_value(state['used_by_project'])} | "
+                f"unavailable={display_value(state['unavailable_reason'])}"
+            )
         lines.append(f"  path: {row['path']}")
         classification = row["classification"]
         if classification is None:
@@ -169,6 +205,15 @@ def render_capability_rows(rows: list[dict], heading: str) -> str:
             f"available={display_value(row['available'])} | deprecated={display_value(row['deprecated'])} | "
             f"planned={display_value(row['planned'])}"
         )
+        state = row.get("project_state")
+        if state is not None:
+            lines.append(
+                "  project state: "
+                f"selected={display_value(state['selected'])} | available={display_value(state['available'])} | "
+                f"enabled={display_value(state['enabled'])} | deprecated={display_value(state['deprecated'])} | "
+                f"planned={display_value(state['planned'])} | used={display_value(state['used_by_project'])} | "
+                f"unavailable={display_value(state['unavailable_reason'])}"
+            )
         lines.append(f"  label: {label}")
         lines.append(f"  description: {description}")
         if presentation is not None:
@@ -225,6 +270,11 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         help="Framework repository root. When omitted, searches from the current directory and script location.",
     )
+    parser.add_argument(
+        "--project-root",
+        type=Path,
+        help="Attach an explicit project and emit a FrameworkCatalogProjectView.",
+    )
     parser.add_argument("--json", action="store_true", help="Write canonical JSON to standard output.")
     parser.add_argument("--output", metavar="PATH", help="Also write canonical JSON beneath the framework root.")
     parser.add_argument(
@@ -253,17 +303,35 @@ def main() -> int:
         classification = "catalog-composition"
         catalog = load_framework_catalog(root)
         document = catalog.to_dict()
+        if args.project_root is not None:
+            classification = "project-attachment"
+            project_root = resolve_project_root(args.project_root, executable_path=Path(__file__))
+            effective_schema = load_effective_project_schema(project_root)
+            document = compose_framework_catalog_project_view(catalog, effective_schema)
         selection = None
         if args.pack or args.capability:
             classification = "selector"
-            selection = compose_framework_catalog_selection(
-                catalog,
-                pack_id=args.pack,
-                capability_id=args.capability,
+            selection = (
+                compose_framework_catalog_selection(
+                    catalog,
+                    pack_id=args.pack,
+                    capability_id=args.capability,
+                )
+                if args.project_root is None
+                else compose_framework_catalog_project_view_selection(
+                    catalog,
+                    document,
+                    pack_id=args.pack,
+                    capability_id=args.capability,
+                )
             )
         classification = "catalog-composition"
         serialized = (
-            framework_catalog_json(catalog)
+            (
+                framework_catalog_json(catalog)
+                if args.project_root is None
+                else framework_catalog_project_view_json(document)
+            )
             if selection is None
             else json.dumps(selection, ensure_ascii=False, indent=2) + "\n"
         )

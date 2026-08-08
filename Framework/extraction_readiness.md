@@ -84,6 +84,8 @@ The permanent rehearsal requires matching structured summaries from Python, Powe
 Windows PowerShell 5.1 for:
 
 - project-root discovery;
+- framework-installation discovery and pinned lookup selection;
+- framework-catalog discovery, composition, selection, and project attachment;
 - strict configuration ingestion;
 - Unicode lookup-key normalization;
 - schema-pack composition;
@@ -176,6 +178,16 @@ and a deterministic singular-selection envelope. The complete 17-suite baseline 
 three runtimes, all seven full-release checks passed, and canonical Visualization, QA, and rendered
 outputs remained unchanged.
 
+Platform Phase 3.2.2 closed effective-schema catalog integration on 2026-08-08. The isolated
+rehearsal copied 266 portable files, copied no LoTM project configuration, excluded all nine guarded
+project surfaces, and passed eight portable suites in Python, PowerShell 7, and Windows PowerShell
+5.1. The generated neutral consumer now provides valid empty taxonomy and resource registries so it
+can exercise catalog-backed `EffectiveProjectSchema` composition and
+`FrameworkCatalogProjectView` without project-specific assumptions. The direct rehearsal completed
+in 247.8 seconds; the registered extraction timeout is 360 seconds to retain a measured margin. The
+complete ten-check `full-release` profile passed in 1,050.1 seconds with canonical Visualization,
+QA, and rendered outputs unchanged and all successful scoped output removed.
+
 ## Known Limits And Next Boundaries
 
 Extraction readiness does not close these known items:
@@ -184,9 +196,10 @@ Extraction readiness does not close these known items:
   state boundaries, branch lifecycle, chronology topology, epistemic state, capability state,
   structural interpretations, hosted identity, nested carrier topology, optional hosting-pack
   isolation, and canonical chronology-position provider closure are implemented and pressure-tested
-  through V50. The Phase 1 model gate, Phase 2 effective-schema consumer-adoption gate, and Phase
-  3.1 pack-presentation gate and Phase 3.2.1 project-independent installed-pack catalog are closed.
-  Effective-schema catalog integration and project-state annotation are the next platform boundary.
+  through V50. The Phase 1 model gate, Phase 2 effective-schema consumer-adoption gate, Phase 3.1
+  pack-presentation gate, Phase 3.2.1 project-independent installed-pack catalog, and Phase 3.2.2
+  effective-schema catalog integration and project-state annotation are closed. Effective-schema QA
+  publication is the next platform boundary.
 - Historical continuity-membership transitions, manifestation- or release-scoped continuity,
   occurrence-linked continuity transitions, first-class continuity systems, and sliding-chronology
   policies remain later normalized-content or deferred narrative capability work. They do not weaken

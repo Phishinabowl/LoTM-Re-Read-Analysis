@@ -17,10 +17,14 @@ if str(RUNTIME_ROOT) not in sys.path:
     sys.path.insert(0, str(RUNTIME_ROOT))
 
 from knowledge_framework.framework_catalog import (  # noqa: E402
+    compose_framework_catalog_project_view,
+    compose_framework_catalog_project_view_selection,
     compose_framework_catalog_selection,
     framework_catalog_json,
+    framework_catalog_project_view_json,
     load_framework_catalog,
 )
+from knowledge_framework.effective_schema import load_effective_project_schema  # noqa: E402
 from knowledge_framework.framework_paths import resolve_framework_root  # noqa: E402
 
 
@@ -157,6 +161,72 @@ def main() -> int:
         assert summary["planned_capability_count"] == expectations["canonical_planned_capability_count"]
         assert summary["deprecated_capability_count"] == expectations["canonical_deprecated_capability_count"]
         assert framework_catalog_json(canonical) == framework_catalog_json(load_framework_catalog(root))
+
+        effective_schema = load_effective_project_schema(root)
+        catalog_before_view = framework_catalog_json(canonical)
+        project_view = compose_framework_catalog_project_view(canonical, effective_schema)
+        assert project_view["contract"] == "framework-catalog-project-view"
+        if effective_schema.project["project_id"] == "lotm-analysis":
+            assert project_view["summary"] == expectations["project_view_summary"]
+        assert project_view["summary"]["pack_count"] == len(canonical.packs)
+        assert project_view["summary"]["selected_pack_count"] == len(effective_schema.packs)
+        assert project_view["summary"]["capability_count"] == len(canonical.capabilities)
+        assert project_view["summary"]["selected_capability_count"] == len(effective_schema.capabilities)
+        assert project_view["summary"]["enabled_capability_count"] == sum(
+            row["enabled"] for row in effective_schema.capabilities
+        )
+        assert framework_catalog_project_view_json(project_view) == framework_catalog_project_view_json(
+            compose_framework_catalog_project_view(canonical, effective_schema)
+        )
+        assert framework_catalog_json(canonical) == catalog_before_view
+        selected_pack_id = effective_schema.packs[0]["id"]
+        selected_pack = next(row for row in project_view["packs"] if row["id"] == selected_pack_id)
+        unselected_pack = next(row for row in project_view["packs"] if not row["project_state"]["selected"])
+        enabled_capability_id = next(row["id"] for row in effective_schema.capabilities if row["enabled"])
+        enabled_capability = next(row for row in project_view["capabilities"] if row["id"] == enabled_capability_id)
+        planned_capability = next(row for row in project_view["capabilities"] if row["project_state"]["planned"])
+        assert selected_pack["project_state"]["selected"] and selected_pack["project_state"]["used_by_project"]
+        assert not unselected_pack["project_state"]["selected"] and unselected_pack["project_state"]["available"]
+        assert enabled_capability["project_state"]["enabled"]
+        planned_selected = planned_capability["id"] in {row["id"] for row in effective_schema.capabilities}
+        assert planned_capability["project_state"] == {
+            "selected": planned_selected,
+            "available": False,
+            "enabled": False,
+            "deprecated": False,
+            "planned": True,
+            "used_by_project": False,
+            "unavailable_reason": "capability-lifecycle-planned",
+        }
+        project_selection = compose_framework_catalog_project_view_selection(
+            canonical,
+            project_view,
+            pack_id=selected_pack_id.upper(),
+            capability_id=enabled_capability_id.upper(),
+        )
+        assert project_selection["contract"] == "framework-catalog-project-view-selection"
+        assert [row["id"] for row in project_selection["packs"]] == [selected_pack_id]
+        assert [row["id"] for row in project_selection["capabilities"]] == [enabled_capability_id]
+        assert_rejected(
+            lambda: compose_framework_catalog_project_view(
+                canonical,
+                replace(
+                    effective_schema,
+                    project={**effective_schema.project, "framework_id": "wrong-framework"},
+                ),
+            ),
+            "does not match catalog framework",
+        )
+        assert_rejected(
+            lambda: compose_framework_catalog_project_view(
+                canonical,
+                replace(
+                    effective_schema,
+                    packs=(*effective_schema.packs, {**effective_schema.packs[0], "id": "missing-pack"}),
+                ),
+            ),
+            "absent from the framework catalog",
+        )
 
         selection = compose_framework_catalog_selection(
             canonical,
@@ -307,8 +377,9 @@ def main() -> int:
         "fixture_capability_count": expectations["fixture_capability_count"],
         "fixture_pack_count": expectations["fixture_pack_count"],
         "invalid_cases": invalid_cases,
+        "project_view_cases": 8,
         "scale_pack_count": expectations["scale_pack_count"],
-        "selection_cases": 2,
+        "selection_cases": 3,
     }
     if args.json:
         print(json.dumps(result, sort_keys=True, separators=(",", ":")))

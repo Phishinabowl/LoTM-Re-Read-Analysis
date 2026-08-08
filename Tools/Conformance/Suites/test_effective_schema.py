@@ -21,13 +21,16 @@ from knowledge_framework.effective_schema import (  # noqa: E402
     compose_effective_consumer_schema_projection,
     effective_schema_failure,
     effective_schema_json,
+    load_effective_project_schema,
 )
+from knowledge_framework.framework_catalog import load_framework_catalog  # noqa: E402
 from knowledge_framework.lookup_key_config import load_lookup_key_config  # noqa: E402
 from knowledge_framework.project_config import load_project_config, resolve_project_root  # noqa: E402
 from knowledge_framework.resource_config import load_resource_config  # noqa: E402
 from knowledge_framework.schema_pack_config import (  # noqa: E402
     CapabilityConfig,
     load_schema_pack_registry,
+    load_schema_pack_registry_from_catalog,
 )
 from knowledge_framework.taxonomy_config import load_taxonomy_config  # noqa: E402
 
@@ -83,9 +86,35 @@ def main() -> int:
 
     project = load_project_config(root)
     packs = load_schema_pack_registry(project)
+    catalog = load_framework_catalog(root)
+    catalog_packs = load_schema_pack_registry_from_catalog(project, catalog)
+    if packs != catalog_packs:
+        raise AssertionError("Catalog-backed schema-pack composition differs from the direct shadow path.")
     taxonomy = load_taxonomy_config(project)
     resources = load_resource_config(project)
     schema = compose_effective_project_schema(project, packs, taxonomy, resources)
+    catalog_schema = compose_effective_project_schema(project, catalog_packs, taxonomy, resources)
+    if effective_schema_json(schema) != effective_schema_json(catalog_schema):
+        raise AssertionError("Catalog-backed effective schema differs from the direct shadow composition.")
+    if effective_schema_json(load_effective_project_schema(root)) != effective_schema_json(catalog_schema):
+        raise AssertionError("Effective-schema loading did not use the catalog-backed composition.")
+    try:
+        load_schema_pack_registry_from_catalog(replace(project, framework="wrong-framework"), catalog)
+    except ValueError as error:
+        if "does not match installed framework" not in str(error):
+            raise
+    else:
+        raise AssertionError("Catalog-backed composition accepted a mismatched framework ID.")
+    try:
+        load_schema_pack_registry_from_catalog(
+            replace(project, lookup_keys_registry=project.manifest_path),
+            catalog,
+        )
+    except ValueError as error:
+        if "does not match the framework installation" not in str(error):
+            raise
+    else:
+        raise AssertionError("Catalog-backed composition accepted a mismatched lookup-key registry.")
     document = schema.to_dict()
 
     if list(document) != TOP_LEVEL_KEYS:

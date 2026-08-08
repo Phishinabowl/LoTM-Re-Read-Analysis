@@ -1,5 +1,7 @@
 $script:FrameworkCatalogContractVersion = 1
 $script:FrameworkCatalogSelectionContractVersion = 1
+$script:FrameworkCatalogProjectViewContractVersion = 1
+$script:FrameworkCatalogProjectViewSelectionContractVersion = 1
 
 function New-FrameworkCatalogClassifiedException {
     param([string]$Classification, [string]$Message, [System.Exception]$InnerException)
@@ -373,7 +375,7 @@ function New-KnowledgeFrameworkCatalog {
     }
 }
 
-function Get-KnowledgeFrameworkCatalog {
+function Get-KnowledgeFrameworkCatalogModel {
     param([string]$Root)
 
     try {
@@ -393,11 +395,21 @@ function Get-KnowledgeFrameworkCatalog {
     }
     $packs = Get-FrameworkCatalogPackConfigs $config
     try {
-        return New-KnowledgeFrameworkCatalog $config $packs
+        return [pscustomobject]@{
+            config = $config
+            pack_configs = $packs
+            document = New-KnowledgeFrameworkCatalog $config $packs
+        }
     }
     catch {
         throw (New-FrameworkCatalogClassifiedException 'catalog-composition' $_.Exception.Message $_.Exception)
     }
+}
+
+function Get-KnowledgeFrameworkCatalog {
+    param([string]$Root)
+
+    return (Get-KnowledgeFrameworkCatalogModel $Root).document
 }
 
 function Resolve-KnowledgeFrameworkCatalogRow {
@@ -477,6 +489,204 @@ function New-KnowledgeFrameworkCatalogSelection {
         }
         packs = @($selectedPacks)
         capabilities = @($selectedCapabilities)
+    }
+}
+
+function Copy-FrameworkCatalogRow {
+    param([object]$Row)
+
+    $copy = [ordered]@{}
+    if ($Row -is [System.Collections.IDictionary]) {
+        foreach ($key in $Row.Keys) {
+            $copy[[string]$key] = $Row[$key]
+        }
+    }
+    else {
+        foreach ($property in $Row.PSObject.Properties) {
+            $copy[$property.Name] = $property.Value
+        }
+    }
+    return $copy
+}
+
+function New-KnowledgeFrameworkCatalogProjectView {
+    param(
+        [object]$Catalog,
+        [object]$EffectiveSchema
+    )
+
+    if ($EffectiveSchema.contract -cne 'effective-project-schema') {
+        throw 'Framework catalog project view requires a validated EffectiveProjectSchema.'
+    }
+    if ($EffectiveSchema.project.framework_id -cne $Catalog.framework.id) {
+        throw (
+            "Project framework '$($EffectiveSchema.project.framework_id)' does not match catalog framework " +
+            "'$($Catalog.framework.id)'."
+        )
+    }
+
+    $selectedPacks = @{}
+    foreach ($row in @($EffectiveSchema.packs)) {
+        $selectedPacks[[string]$row.id] = $row
+    }
+    $selectedCapabilities = @{}
+    foreach ($row in @($EffectiveSchema.capabilities)) {
+        $selectedCapabilities[[string]$row.id] = $row
+    }
+    $catalogPackIds = @($Catalog.packs | ForEach-Object id)
+    $catalogCapabilityIds = @($Catalog.capabilities | ForEach-Object id)
+    $missingPacks = @($selectedPacks.Keys | Where-Object { $catalogPackIds -cnotcontains $_ } | Sort-Object)
+    if ($missingPacks.Count -gt 0) {
+        throw "Effective schema selects pack(s) absent from the framework catalog: $($missingPacks -join ', ')."
+    }
+    $missingCapabilities = @(
+        $selectedCapabilities.Keys |
+            Where-Object { $catalogCapabilityIds -cnotcontains $_ } |
+            Sort-Object
+    )
+    if ($missingCapabilities.Count -gt 0) {
+        throw (
+            'Effective schema declares capability or capabilities absent from the framework catalog: ' +
+            "$($missingCapabilities -join ', ')."
+        )
+    }
+
+    $packRows = @()
+    foreach ($catalogRow in @($Catalog.packs)) {
+        $row = Copy-FrameworkCatalogRow $catalogRow
+        $selected = $selectedPacks.ContainsKey([string]$catalogRow.id)
+        $row.catalog_record_id = $row.record_id
+        $row.record_id = "framework-catalog-project-view:pack:$($row.id)"
+        $row.project_state = [ordered]@{
+            selected = $selected
+            available = [bool]$catalogRow.discoverability.selectable
+            enabled = $selected
+            deprecated = $false
+            planned = $catalogRow.lifecycle -ceq 'deferred'
+            used_by_project = $selected
+            unavailable_reason = if ($catalogRow.discoverability.selectable) {
+                $null
+            }
+            else {
+                'pack-lifecycle-deferred'
+            }
+        }
+        $packRows += $row
+    }
+
+    $capabilityRows = @()
+    foreach ($catalogRow in @($Catalog.capabilities)) {
+        $row = Copy-FrameworkCatalogRow $catalogRow
+        $selected = $selectedCapabilities.ContainsKey([string]$catalogRow.id)
+        $enabled = $selected -and [bool]$selectedCapabilities[[string]$catalogRow.id].enabled
+        $row.catalog_record_id = $row.record_id
+        $row.record_id = "framework-catalog-project-view:capability:$($row.id)"
+        $row.project_state = [ordered]@{
+            selected = $selected
+            available = [bool]$catalogRow.available
+            enabled = $enabled
+            deprecated = [bool]$catalogRow.deprecated
+            planned = [bool]$catalogRow.planned
+            used_by_project = $enabled
+            unavailable_reason = if ($catalogRow.planned) {
+                'capability-lifecycle-planned'
+            }
+            else {
+                $null
+            }
+        }
+        $capabilityRows += $row
+    }
+
+    return [ordered]@{
+        contract = 'framework-catalog-project-view'
+        contract_version = $script:FrameworkCatalogProjectViewContractVersion
+        catalog_contract_version = [int]$Catalog.contract_version
+        effective_schema_contract_version = [int]$EffectiveSchema.contract_version
+        project = [ordered]@{
+            project_id = [string]$EffectiveSchema.project.project_id
+            framework_id = [string]$EffectiveSchema.project.framework_id
+            domain_id = [string]$EffectiveSchema.project.domain_id
+        }
+        summary = [ordered]@{
+            pack_count = $packRows.Count
+            selected_pack_count = @($packRows | Where-Object { $_.project_state.selected }).Count
+            available_pack_count = @($packRows | Where-Object { $_.project_state.available }).Count
+            capability_count = $capabilityRows.Count
+            selected_capability_count = @(
+                $capabilityRows | Where-Object { $_.project_state.selected }
+            ).Count
+            enabled_capability_count = @(
+                $capabilityRows | Where-Object { $_.project_state.enabled }
+            ).Count
+            available_capability_count = @(
+                $capabilityRows | Where-Object { $_.project_state.available }
+            ).Count
+            deprecated_capability_count = @(
+                $capabilityRows | Where-Object { $_.project_state.deprecated }
+            ).Count
+            planned_capability_count = @(
+                $capabilityRows | Where-Object { $_.project_state.planned }
+            ).Count
+        }
+        packs = @($packRows)
+        capabilities = @($capabilityRows)
+    }
+}
+
+function New-KnowledgeFrameworkCatalogProjectViewSelection {
+    param(
+        [object]$Catalog,
+        [object]$ProjectView,
+        [object]$LookupKeys,
+        [string]$PackId,
+        [string]$CapabilityId
+    )
+
+    if ($ProjectView.contract -cne 'framework-catalog-project-view') {
+        throw 'Project-view selection requires a FrameworkCatalogProjectView.'
+    }
+    if ([string]::IsNullOrWhiteSpace($PackId) -and [string]::IsNullOrWhiteSpace($CapabilityId)) {
+        throw 'Framework-catalog project-view selection requires a pack or capability ID.'
+    }
+    $packRows = if ([string]::IsNullOrWhiteSpace($PackId)) {
+        @()
+    }
+    else {
+        @(Resolve-KnowledgeFrameworkCatalogRow @($ProjectView.packs) $PackId 'pack' $LookupKeys)
+    }
+    $capabilityRows = if ([string]::IsNullOrWhiteSpace($CapabilityId)) {
+        @()
+    }
+    else {
+        @(
+            Resolve-KnowledgeFrameworkCatalogRow `
+            @($ProjectView.capabilities) `
+                $CapabilityId `
+                'capability' `
+                $LookupKeys
+        )
+    }
+    return [ordered]@{
+        contract = 'framework-catalog-project-view-selection'
+        contract_version = $script:FrameworkCatalogProjectViewSelectionContractVersion
+        project_view_contract_version = [int]$ProjectView.contract_version
+        requested = [ordered]@{
+            pack = if ([string]::IsNullOrWhiteSpace($PackId)) {
+                $null
+            }
+            else {
+                $PackId
+            }
+            capability = if ([string]::IsNullOrWhiteSpace($CapabilityId)) {
+                $null
+            }
+            else {
+                $CapabilityId
+            }
+        }
+        packs = @($packRows)
+        capabilities = @($capabilityRows)
     }
 }
 

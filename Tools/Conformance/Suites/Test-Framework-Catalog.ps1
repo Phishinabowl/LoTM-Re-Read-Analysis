@@ -210,6 +210,80 @@ try {
         throw 'Repeated framework catalog loading was not deterministic.'
     }
 
+    $effectiveSchema = Get-KnowledgeEffectiveProjectSchema $actualRoot
+    $catalogBeforeView = ConvertTo-KnowledgeCanonicalJson $canonical
+    $projectView = New-KnowledgeFrameworkCatalogProjectView $canonical $effectiveSchema
+    if ($projectView.contract -cne 'framework-catalog-project-view') {
+        throw 'Framework catalog project-view contract changed.'
+    }
+    if ($effectiveSchema.project.project_id -ceq 'lotm-analysis') {
+        if (
+            (ConvertTo-KnowledgeCanonicalJson $projectView.summary) -cne
+            (ConvertTo-KnowledgeCanonicalJson $expectations.project_view_summary)
+        ) {
+            throw 'Framework catalog project-view summary changed.'
+        }
+    }
+    if (
+        [int]$projectView.summary.pack_count -ne @($canonical.packs).Count -or
+        [int]$projectView.summary.selected_pack_count -ne @($effectiveSchema.packs).Count -or
+        [int]$projectView.summary.capability_count -ne @($canonical.capabilities).Count -or
+        [int]$projectView.summary.selected_capability_count -ne @($effectiveSchema.capabilities).Count -or
+        [int]$projectView.summary.enabled_capability_count -ne
+        @($effectiveSchema.capabilities | Where-Object enabled).Count
+    ) {
+        throw 'Framework catalog project-view invariant counts changed.'
+    }
+    $repeatedProjectView = New-KnowledgeFrameworkCatalogProjectView $canonical $effectiveSchema
+    if (
+        (ConvertTo-KnowledgeCanonicalJson $projectView) -cne
+        (ConvertTo-KnowledgeCanonicalJson $repeatedProjectView)
+    ) {
+        throw 'Repeated framework catalog project-view composition was not deterministic.'
+    }
+    if ((ConvertTo-KnowledgeCanonicalJson $canonical) -cne $catalogBeforeView) {
+        throw 'Framework catalog project-view composition mutated the base catalog.'
+    }
+    $selectedPackId = [string]@($effectiveSchema.packs)[0].id
+    $selectedPack = @($projectView.packs | Where-Object id -CEQ $selectedPackId)[0]
+    $unselectedPack = @($projectView.packs | Where-Object { -not $_.project_state.selected })[0]
+    $enabledCapabilityId = [string]@($effectiveSchema.capabilities | Where-Object enabled)[0].id
+    $enabledCapability = @($projectView.capabilities | Where-Object id -CEQ $enabledCapabilityId)[0]
+    $plannedCapability = @($projectView.capabilities | Where-Object { $_.project_state.planned })[0]
+    if (-not $selectedPack.project_state.selected -or -not $selectedPack.project_state.used_by_project) {
+        throw 'Selected project-view pack state changed.'
+    }
+    if ($unselectedPack.project_state.selected -or -not $unselectedPack.project_state.available) {
+        throw 'Unselected project-view pack state changed.'
+    }
+    if (-not $enabledCapability.project_state.enabled) {
+        throw 'Enabled project-view capability state changed.'
+    }
+    if (
+        $plannedCapability.project_state.selected -ne
+        (@($effectiveSchema.capabilities | Where-Object id -CEQ $plannedCapability.id).Count -gt 0) -or
+        $plannedCapability.project_state.available -or
+        $plannedCapability.project_state.enabled -or
+        -not $plannedCapability.project_state.planned -or
+        $plannedCapability.project_state.used_by_project -or
+        $plannedCapability.project_state.unavailable_reason -cne 'capability-lifecycle-planned'
+    ) {
+        throw 'Planned project-view capability state changed.'
+    }
+    $projectSelection = New-KnowledgeFrameworkCatalogProjectViewSelection `
+        $canonical `
+        $projectView `
+    (Get-KnowledgeFrameworkConfig $actualRoot).lookup_keys `
+        $selectedPackId.ToUpperInvariant() `
+        $enabledCapabilityId.ToUpperInvariant()
+    if (
+        $projectSelection.contract -cne 'framework-catalog-project-view-selection' -or
+        (@($projectSelection.packs | ForEach-Object id) -join ',') -cne $selectedPackId -or
+        (@($projectSelection.capabilities | ForEach-Object id) -join ',') -cne $enabledCapabilityId
+    ) {
+        throw 'Framework catalog project-view selection changed.'
+    }
+
     $frameworkConfig = Get-KnowledgeFrameworkConfig $actualRoot
     $selection = New-KnowledgeFrameworkCatalogSelection `
         $canonical `
@@ -391,8 +465,9 @@ $result = [ordered]@{
     fixture_capability_count = [int]$expectations.fixture_capability_count
     fixture_pack_count = [int]$expectations.fixture_pack_count
     invalid_cases = $invalidCases
+    project_view_cases = 8
     scale_pack_count = [int]$expectations.scale_pack_count
-    selection_cases = 2
+    selection_cases = 3
 }
 if ($Json) {
     $result | ConvertTo-Json -Compress

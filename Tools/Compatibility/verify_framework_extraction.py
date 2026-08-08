@@ -152,9 +152,21 @@ capability_activation:
     - structural-interpretation-modeling
 """,
     )
+    write_text(
+        target_root / "Project_Config/taxonomy.yaml",
+        """schema_version: 2
+content_types: {}
+categories: {}
+""",
+    )
+    write_text(
+        target_root / "Project_Config/resources.yaml",
+        """schema_version: 1
+resource_kinds: {}
+resource_types: {}
+""",
+    )
     for name in (
-        "taxonomy",
-        "resources",
         "sources",
         "entities",
         "reconciliation",

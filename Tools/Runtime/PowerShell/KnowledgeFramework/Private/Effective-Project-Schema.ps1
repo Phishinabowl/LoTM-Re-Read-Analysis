@@ -817,9 +817,10 @@ function Get-KnowledgeEffectiveProjectSchema {
 
     $resolvedRoot = Resolve-KnowledgeProjectRoot -ExplicitRoot $Root
     $project = Get-KnowledgeProjectConfig $resolvedRoot
+    $catalogModel = Get-KnowledgeFrameworkCatalogModel $project.root
     return New-KnowledgeEffectiveProjectSchema `
         $project `
-    (Get-KnowledgeSchemaPackRegistry $project) `
+    (Get-KnowledgeSchemaPackRegistryFromCatalog $project $catalogModel) `
     (Get-KnowledgeTaxonomyConfig $project) `
     (Get-KnowledgeResourceConfig $project)
 }

@@ -1164,7 +1164,11 @@ def _validate_pack_presentation_composition(
             capability_presentations[capability_id] = capability_presentation
 
 
-def load_schema_pack_registry(project: ProjectConfig) -> SchemaPackRegistry:
+def load_schema_pack_registry(
+    project: ProjectConfig,
+    *,
+    installed_packs: dict[str, SchemaPackConfig] | None = None,
+) -> SchemaPackRegistry:
     path = project.schema_packs_registry
     data = load_yaml_file(path, "schema-pack registry", expected_schema_version=SUPPORTED_SCHEMA_PACK_REGISTRY_VERSION)
     registry = require_mapping(data, "root")
@@ -1198,7 +1202,17 @@ def load_schema_pack_registry(project: ProjectConfig) -> SchemaPackRegistry:
             require_string(selection, "path", context),
             f"{context}.path",
         )
-        packs[pack_id] = load_pack(pack_path, pack_id)
+        if installed_packs is None:
+            packs[pack_id] = load_pack(pack_path, pack_id)
+        else:
+            installed = installed_packs.get(pack_id)
+            if installed is None:
+                raise ValueError(f"Schema-pack registry selects pack `{pack_id}` that is not installed.")
+            if installed.path.resolve() != pack_path.resolve():
+                raise ValueError(
+                    f"Schema-pack registry path for `{pack_id}` does not match the installed catalog path."
+                )
+            packs[pack_id] = installed
         selection_order.append(pack_id)
 
     selected_before: set[str] = set()
@@ -1336,3 +1350,17 @@ def load_schema_pack_registry(project: ProjectConfig) -> SchemaPackRegistry:
         state_kind_profiles=state_kind_profiles,
         semantic_declaration_owners=semantic_declaration_owners,
     )
+
+
+def load_schema_pack_registry_from_catalog(project: ProjectConfig, catalog: object) -> SchemaPackRegistry:
+    config = getattr(catalog, "config", None)
+    installed_packs = getattr(catalog, "pack_configs", None)
+    if config is None or installed_packs is None:
+        raise TypeError("Catalog-backed schema-pack loading requires a validated FrameworkCatalog.")
+    if project.framework != config.framework_id:
+        raise ValueError(
+            f"Project framework `{project.framework}` does not match installed framework `{config.framework_id}`."
+        )
+    if project.lookup_keys_registry.resolve() != config.lookup_keys_registry.resolve():
+        raise ValueError("Project lookup-key registry does not match the framework installation lookup-key registry.")
+    return load_schema_pack_registry(project, installed_packs=installed_packs)

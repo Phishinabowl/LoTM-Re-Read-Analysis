@@ -5,6 +5,17 @@
   "canonical_available_capability_count": 123,
   "canonical_planned_capability_count": 13,
   "canonical_deprecated_capability_count": 0,
+  "project_view_summary": {
+    "pack_count": 14,
+    "selected_pack_count": 10,
+    "available_pack_count": 14,
+    "capability_count": 136,
+    "selected_capability_count": 132,
+    "enabled_capability_count": 123,
+    "available_capability_count": 123,
+    "deprecated_capability_count": 0,
+    "planned_capability_count": 13
+  },
   "fixture_pack_count": 3,
   "fixture_capability_count": 4,
   "scale_pack_count": 64,

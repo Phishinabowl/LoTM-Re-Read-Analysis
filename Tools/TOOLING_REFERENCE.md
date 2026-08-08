@@ -1122,11 +1122,13 @@ Current content-type and ownership regression: both implementations selected tax
 Library consumers import the catalog service and must not launch the command or scan
 `Framework/Packs/` to recover the same object. Python exposes `FrameworkConfig`,
 `FrameworkCatalog`, `load_framework_config`, `load_framework_catalog`,
-`compose_framework_catalog_selection`, `framework_catalog_json`, and
-`framework_catalog_failure`. PowerShell exposes the corresponding
+`compose_framework_catalog_selection`, `compose_framework_catalog_project_view`,
+`compose_framework_catalog_project_view_selection`, `framework_catalog_json`,
+`framework_catalog_project_view_json`, and `framework_catalog_failure`. PowerShell exposes the corresponding
 `Get-KnowledgeFrameworkConfig`, `Get-KnowledgeFrameworkCatalog`,
-`New-KnowledgeFrameworkCatalogSelection`, `New-KnowledgeFrameworkCatalogFailure`, root
-resolution, and shared canonical JSON functions from module version 0.7.0.
+`New-KnowledgeFrameworkCatalogSelection`, `New-KnowledgeFrameworkCatalogProjectView`,
+`New-KnowledgeFrameworkCatalogProjectViewSelection`, `New-KnowledgeFrameworkCatalogFailure`, root
+resolution, and shared canonical JSON functions from module version 0.8.0.
 
 The installation service resolves `Framework/framework.yaml` through explicit root,
 `KNOWLEDGE_FRAMEWORK_ROOT`, current-directory ancestry, then executable ancestry. The manifest
@@ -1139,6 +1141,7 @@ selects one pack root and one pinned lookup registry. It never globs lookup data
 | --- | --- | --- |
 | Auto-detect and summarize | `python Tools\Commands\Framework\inspect_framework_catalog.py` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1` |
 | Explicit framework repository root | `--root PATH` | `-Root PATH` |
+| Attach one explicit project | `--project-root PATH` | `-ProjectRoot PATH` |
 | Canonical JSON on standard output | `--json` | `-Json` |
 | Also export canonical JSON | `--output PATH` | `-Output PATH` |
 | Export selected human report | `--report-output PATH` | `-ReportOutput PATH` |
@@ -1153,6 +1156,11 @@ Selectors attempt exact stable ID first and then the manifest-selected lookup no
 may be combined and return a distinct `framework-catalog-selection` envelope without mutating or
 filtering the base catalog.
 
+Project attachment is opt-in even when the command runs inside a project. It emits the distinct
+`framework-catalog-project-view` contract, preserves all installed rows, and annotates copied rows
+with selected, available, enabled, deprecated, planned, used, and unavailable-reason state.
+Selectors then emit `framework-catalog-project-view-selection`.
+
 JSON and report outputs must resolve to files beneath the framework repository root. Exports use
 UTF-8 without a byte-order mark, LF endings, and one final newline. Structured failure uses the
 `framework-catalog-result` envelope and does not expose absolute machine paths.
@@ -1166,13 +1174,22 @@ its permanent 64-pack generated scale probe is intentionally broader and materia
 Windows PowerShell 5.1. It also covers canonical 14-pack/136-capability discovery, deterministic
 repeat loading, ignored directories, dependencies and cycles, directory/ID mismatch, malformed
 packs, deferred/planned/deprecated state, multiple providers, normalized and ambiguous selectors,
-and exact three-runtime summaries.
+project attachment, base-catalog immutability, annotated state, and exact three-runtime summaries.
 
 The registered `framework-catalog` compatibility check covers byte-identical base and selection
 JSON, concise/combined/deduplicated reports, report and JSON file exports, invalid roots, invalid
 sections, unknown selectors, outside-root rejection, and path-safe structured failures in Python,
-PowerShell 7, and Windows PowerShell 5.1. EffectiveProjectSchema remains a separate project-scoped
-contract until Phase 3.2.2 changes its internal pack-data dependency under shadow comparison.
+PowerShell 7, and Windows PowerShell 5.1. It also compares byte-identical project-view JSON,
+project-view reports and selectors, and explicit project-attachment failures. EffectiveProjectSchema
+remains a separate project-scoped contract while selecting its pack records from the validated
+catalog model.
+
+The Phase 3.2.2 closure run passed permanent project-view conformance in all three runtimes and
+byte-identical command output for complete project-view JSON, singular selection JSON, and human
+reports. The complete ten-check `full-release` compatibility profile passed on 2026-08-08 in
+1,050.1 seconds with canonical outputs unchanged and successful scoped output removed. Its isolated
+extraction rehearsal copied 266 files and passed eight portable suites in all three runtimes; the
+registry allows 360 seconds for that measured approximately 248-second check.
 
 ## Effective Project Schema
 
@@ -1190,7 +1207,7 @@ Python exposes `EffectiveProjectSchema`, `compose_effective_project_schema`,
 `compose_effective_schema_selection`, `effective_schema_json`, and `effective_schema_failure`.
 PowerShell exposes `New-KnowledgeEffectiveProjectSchema`, `Get-KnowledgeEffectiveProjectSchema`,
 `New-KnowledgeEffectiveConsumerSchemaProjection`, `New-KnowledgeEffectiveSchemaSelection`, and
-`New-KnowledgeEffectiveSchemaFailure` from module version 0.7.0.
+`New-KnowledgeEffectiveSchemaFailure` from module version 0.8.0.
 
 QA and Visualization compose one effective schema in-process from the project, pack, taxonomy, and
 resource objects already loaded by their supported runtime. QA and Visualization use direct

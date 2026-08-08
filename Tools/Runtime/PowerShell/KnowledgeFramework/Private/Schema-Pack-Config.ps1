@@ -985,7 +985,10 @@ function Assert-SchemaPackPresentationComposition {
 }
 
 function Get-KnowledgeSchemaPackRegistry {
-    param([object]$ProjectConfig)
+    param(
+        [object]$ProjectConfig,
+        [System.Collections.IDictionary]$InstalledPacks
+    )
 
     Import-ProjectYamlModule
     $registryPath = $ProjectConfig.schema_packs_registry
@@ -1015,7 +1018,23 @@ function Get-KnowledgeSchemaPackRegistry {
             throw "Schema-pack registry repeats pack '$packId'."
         }
         $packPath = Resolve-SchemaPackPath $ProjectConfig (Get-RequiredSchemaPackString $selection "path" $context) "$context.path"
-        $packs[$packId] = ConvertTo-SchemaPackConfig $packPath $packId
+        if ($null -eq $InstalledPacks) {
+            $packs[$packId] = ConvertTo-SchemaPackConfig $packPath $packId
+        }
+        else {
+            if (-not $InstalledPacks.Contains($packId)) {
+                throw "Schema-pack registry selects pack '$packId' that is not installed."
+            }
+            $installed = $InstalledPacks[$packId]
+            $installedPath = [System.IO.Path]::GetFullPath([string]$installed.path)
+            if (-not $installedPath.Equals(
+                    [System.IO.Path]::GetFullPath($packPath),
+                    [System.StringComparison]::OrdinalIgnoreCase
+                )) {
+                throw "Schema-pack registry path for '$packId' does not match the installed catalog path."
+            }
+            $packs[$packId] = $installed
+        }
         $selectionOrder += $packId
     }
 
@@ -1155,6 +1174,26 @@ function Get-KnowledgeSchemaPackRegistry {
         state_kind_profiles = $semantics.state_kind_profiles
         semantic_declaration_owners = $semantics.owners
     }
+}
+
+function Get-KnowledgeSchemaPackRegistryFromCatalog {
+    param(
+        [object]$ProjectConfig,
+        [object]$CatalogModel
+    )
+
+    if ($ProjectConfig.framework -cne $CatalogModel.config.framework_id) {
+        throw (
+            "Project framework '$($ProjectConfig.framework)' does not match installed framework " +
+            "'$($CatalogModel.config.framework_id)'."
+        )
+    }
+    $projectLookup = [System.IO.Path]::GetFullPath([string]$ProjectConfig.lookup_keys_registry)
+    $frameworkLookup = [System.IO.Path]::GetFullPath([string]$CatalogModel.config.lookup_keys_registry)
+    if (-not $projectLookup.Equals($frameworkLookup, [System.StringComparison]::OrdinalIgnoreCase)) {
+        throw 'Project lookup-key registry does not match the framework installation lookup-key registry.'
+    }
+    return Get-KnowledgeSchemaPackRegistry $ProjectConfig $CatalogModel.pack_configs
 }
 
 function Merge-SchemaPackSemanticDeclarations {

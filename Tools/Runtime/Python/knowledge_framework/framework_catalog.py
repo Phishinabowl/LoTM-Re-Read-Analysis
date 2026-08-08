@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from copy import deepcopy
 import json
 from pathlib import Path
 from typing import Any
@@ -23,6 +24,10 @@ CONTRACT_ID = "framework-catalog"
 CONTRACT_VERSION = 1
 SELECTION_CONTRACT_ID = "framework-catalog-selection"
 SELECTION_CONTRACT_VERSION = 1
+PROJECT_VIEW_CONTRACT_ID = "framework-catalog-project-view"
+PROJECT_VIEW_CONTRACT_VERSION = 1
+PROJECT_VIEW_SELECTION_CONTRACT_ID = "framework-catalog-project-view-selection"
+PROJECT_VIEW_SELECTION_CONTRACT_VERSION = 1
 CAPABILITY_LIFECYCLE_PRECEDENCE = ("available", "deprecated", "planned")
 
 
@@ -313,6 +318,103 @@ def framework_catalog_json(catalog: FrameworkCatalog, *, indent: int | None = 2)
     return json.dumps(catalog.to_dict(), ensure_ascii=False, indent=indent) + "\n"
 
 
+def compose_framework_catalog_project_view(
+    catalog: FrameworkCatalog,
+    effective_schema: object,
+) -> dict[str, Any]:
+    schema = effective_schema.to_dict() if hasattr(effective_schema, "to_dict") else effective_schema
+    if not isinstance(schema, dict) or schema.get("contract") != "effective-project-schema":
+        raise TypeError("Framework catalog project view requires a validated EffectiveProjectSchema.")
+    project = schema["project"]
+    if project["framework_id"] != catalog.config.framework_id:
+        raise ValueError(
+            f"Project framework `{project['framework_id']}` does not match catalog framework "
+            f"`{catalog.config.framework_id}`."
+        )
+
+    selected_packs = {row["id"]: row for row in schema["packs"]}
+    selected_capabilities = {row["id"]: row for row in schema["capabilities"]}
+    catalog_pack_ids = {row["id"] for row in catalog.packs}
+    catalog_capability_ids = {row["id"] for row in catalog.capabilities}
+    missing_packs = sorted(set(selected_packs) - catalog_pack_ids)
+    missing_capabilities = sorted(set(selected_capabilities) - catalog_capability_ids)
+    if missing_packs:
+        raise ValueError(
+            "Effective schema selects pack(s) absent from the framework catalog: " + ", ".join(missing_packs) + "."
+        )
+    if missing_capabilities:
+        raise ValueError(
+            "Effective schema declares capability or capabilities absent from the framework catalog: "
+            + ", ".join(missing_capabilities)
+            + "."
+        )
+
+    pack_rows: list[dict[str, Any]] = []
+    for catalog_row in catalog.packs:
+        row = deepcopy(catalog_row)
+        selected = catalog_row["id"] in selected_packs
+        row["catalog_record_id"] = row["record_id"]
+        row["record_id"] = f"framework-catalog-project-view:pack:{row['id']}"
+        row["project_state"] = {
+            "selected": selected,
+            "available": bool(catalog_row["discoverability"]["selectable"]),
+            "enabled": selected,
+            "deprecated": False,
+            "planned": catalog_row["lifecycle"] == "deferred",
+            "used_by_project": selected,
+            "unavailable_reason": (None if catalog_row["discoverability"]["selectable"] else "pack-lifecycle-deferred"),
+        }
+        pack_rows.append(row)
+
+    capability_rows: list[dict[str, Any]] = []
+    for catalog_row in catalog.capabilities:
+        row = deepcopy(catalog_row)
+        effective_row = selected_capabilities.get(catalog_row["id"])
+        selected = effective_row is not None
+        enabled = bool(effective_row and effective_row["enabled"])
+        row["catalog_record_id"] = row["record_id"]
+        row["record_id"] = f"framework-catalog-project-view:capability:{row['id']}"
+        row["project_state"] = {
+            "selected": selected,
+            "available": bool(catalog_row["available"]),
+            "enabled": enabled,
+            "deprecated": bool(catalog_row["deprecated"]),
+            "planned": bool(catalog_row["planned"]),
+            "used_by_project": enabled,
+            "unavailable_reason": "capability-lifecycle-planned" if catalog_row["planned"] else None,
+        }
+        capability_rows.append(row)
+
+    return {
+        "contract": PROJECT_VIEW_CONTRACT_ID,
+        "contract_version": PROJECT_VIEW_CONTRACT_VERSION,
+        "catalog_contract_version": catalog.contract_version,
+        "effective_schema_contract_version": schema["contract_version"],
+        "project": {
+            "project_id": project["project_id"],
+            "framework_id": project["framework_id"],
+            "domain_id": project["domain_id"],
+        },
+        "summary": {
+            "pack_count": len(pack_rows),
+            "selected_pack_count": sum(row["project_state"]["selected"] for row in pack_rows),
+            "available_pack_count": sum(row["project_state"]["available"] for row in pack_rows),
+            "capability_count": len(capability_rows),
+            "selected_capability_count": sum(row["project_state"]["selected"] for row in capability_rows),
+            "enabled_capability_count": sum(row["project_state"]["enabled"] for row in capability_rows),
+            "available_capability_count": sum(row["project_state"]["available"] for row in capability_rows),
+            "deprecated_capability_count": sum(row["project_state"]["deprecated"] for row in capability_rows),
+            "planned_capability_count": sum(row["project_state"]["planned"] for row in capability_rows),
+        },
+        "packs": pack_rows,
+        "capabilities": capability_rows,
+    }
+
+
+def framework_catalog_project_view_json(view: dict[str, Any], *, indent: int | None = 2) -> str:
+    return json.dumps(view, ensure_ascii=False, indent=indent) + "\n"
+
+
 def _resolve_catalog_row(
     rows: tuple[dict[str, Any], ...],
     value: str,
@@ -350,6 +452,31 @@ def compose_framework_catalog_selection(
             []
             if capability_id is None
             else [_resolve_catalog_row(catalog.capabilities, capability_id, "capability", catalog)]
+        ),
+    }
+
+
+def compose_framework_catalog_project_view_selection(
+    catalog: FrameworkCatalog,
+    view: dict[str, Any],
+    *,
+    pack_id: str | None = None,
+    capability_id: str | None = None,
+) -> dict[str, Any]:
+    if view.get("contract") != PROJECT_VIEW_CONTRACT_ID:
+        raise TypeError("Project-view selection requires a FrameworkCatalogProjectView.")
+    if pack_id is None and capability_id is None:
+        raise ValueError("Framework-catalog project-view selection requires a pack or capability ID.")
+    return {
+        "contract": PROJECT_VIEW_SELECTION_CONTRACT_ID,
+        "contract_version": PROJECT_VIEW_SELECTION_CONTRACT_VERSION,
+        "project_view_contract_version": view["contract_version"],
+        "requested": {"pack": pack_id, "capability": capability_id},
+        "packs": ([] if pack_id is None else [_resolve_catalog_row(tuple(view["packs"]), pack_id, "pack", catalog)]),
+        "capabilities": (
+            []
+            if capability_id is None
+            else [_resolve_catalog_row(tuple(view["capabilities"]), capability_id, "capability", catalog)]
         ),
     }
 
