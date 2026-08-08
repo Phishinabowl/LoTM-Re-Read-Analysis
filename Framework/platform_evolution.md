@@ -651,7 +651,7 @@ Phase 3.3.2 was implemented by `66f7ad5` (`Define trusted executable extension b
 
 ## Platform Phase 3.3.3 - Distribution And Entitlement Seam
 
-**Closure implemented by:** pending
+**Closure implemented by:** `7e40aef` (`Define distribution entitlement boundary`)
 
 Phase 3.3.3 defines commercial distribution and entitlement as optional host-service concerns around
 artifact discovery and acquisition. Offering catalogs, accounts, organizations, tenants, SKUs,
