@@ -604,7 +604,7 @@ the trusted executable extension boundary, is next.
 
 ## Platform Phase 3.3.2 - Trusted Executable Extension Boundary
 
-**Closure implemented by:** pending
+**Closure implemented by:** `66f7ad5` (`Define trusted executable extension boundary`)
 
 Phase 3.3.2 defines a separate future host boundary for code-bearing extensions without implementing
 an extension host. Executable extensions require their own package and manifest, stable extension
