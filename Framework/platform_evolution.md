@@ -489,7 +489,7 @@ grouping is the next platform boundary.
 
 ## Platform Phase 3.2.4 - Capability Grouping
 
-**Implemented by:** pending
+**Implemented by:** `15e9ae6` (`Add capability grouping to framework schemas`)
 
 Phase 3.2.4 advances canonical packs to schema version 6 and introduces 17 stable, ordered,
 localizable capability groups across the 14 installed packs. A group has one owning pack, while the
