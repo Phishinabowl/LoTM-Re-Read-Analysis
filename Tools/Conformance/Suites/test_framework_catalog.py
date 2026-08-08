@@ -185,14 +185,12 @@ def main() -> int:
         selected_pack_id = effective_schema.packs[0]["id"]
         selected_pack = next(row for row in project_view["packs"] if row["id"] == selected_pack_id)
         unselected_pack = next(row for row in project_view["packs"] if not row["project_state"]["selected"])
-        selected_group_id = effective_schema.capability_groups[0]["id"]
-        selected_group_capability_ids = set(effective_schema.capability_groups[0]["capability_ids"])
-        enabled_capability_id = next(
-            row["id"]
-            for row in effective_schema.capabilities
-            if row["enabled"] and row["id"] in selected_group_capability_ids
+        enabled_capability = next(row for row in project_view["capabilities"] if row["project_state"]["enabled"])
+        enabled_capability_id = enabled_capability["id"]
+        enabled_provider_pack_id = enabled_capability["providers"][0]["pack_id"]
+        selected_group_id = next(
+            row["id"] for row in effective_schema.capability_groups if enabled_capability_id in row["capability_ids"]
         )
-        enabled_capability = next(row for row in project_view["capabilities"] if row["id"] == enabled_capability_id)
         planned_capability = next(row for row in project_view["capabilities"] if row["project_state"]["planned"])
         assert selected_pack["project_state"]["selected"] and selected_pack["project_state"]["used_by_project"]
         assert not unselected_pack["project_state"]["selected"] and unselected_pack["project_state"]["available"]
@@ -221,7 +219,7 @@ def main() -> int:
         project_filter = compose_framework_catalog_project_view_selection(
             canonical,
             project_view,
-            provider_pack_ids=("Narrative-Media",),
+            provider_pack_ids=(enabled_provider_pack_id.upper(),),
             lifecycles=("available",),
             activation=("enabled",),
             usage=("used",),
@@ -231,7 +229,7 @@ def main() -> int:
             for row in project_view["capabilities"]
             if row["effective_lifecycle"] == "available"
             and row["project_state"]["enabled"]
-            and any(provider["pack_id"] == "narrative-media" for provider in row["providers"])
+            and any(provider["pack_id"] == enabled_provider_pack_id for provider in row["providers"])
         ]
         assert [row["id"] for row in project_filter["capabilities"]] == expected_project_filter_ids
         assert expected_project_filter_ids

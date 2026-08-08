@@ -8,6 +8,11 @@ README prose or infer architecture from a pack ID. Presentation metadata describ
 person. Classification metadata describes where the pack belongs architecturally. Neither changes
 capability ownership, dependency resolution, activation, or entitlement.
 
+Product surfaces may call a schema pack a plugin, but the pack remains a declarative `schema-pack`
+contract and cannot contain executable entrypoints, scripts, hooks, imports, permissions,
+credentials, or commercial grants. See `declarative-schema-pack.md` for the complete data-only
+boundary.
+
 This contract is domain-neutral. It defines portable records and validation behavior, not a fixed
 catalog of industries, wizard screens, icons, colors, or commercial tiers.
 
@@ -285,4 +290,6 @@ Paired Python and PowerShell suites must prove:
 - provider-equivalent dependency, recommendation, and conflict declarations;
 - generated scale behavior with rich metadata;
 - unchanged semantic composition when only presentation text changes;
+- closed-shape rejection of executable, host-permission, credential, offering, and entitlement
+  fields;
 - full QA and Visualization compatibility after catalog migration.

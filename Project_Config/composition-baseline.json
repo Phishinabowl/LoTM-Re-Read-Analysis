@@ -25,16 +25,16 @@
   "packs": {
     "selection_order": ["core", "hosting-foundation", "narrative-media", "narrative-publishing", "narrative-screen-audio", "narrative-adaptation", "narrative-distribution", "narrative-production", "narrative-shared-universe", "hosting-narrative"],
     "versions": {
-      "core": 42,
-      "hosting-foundation": 2,
-      "narrative-media": 25,
-      "narrative-publishing": 11,
-      "narrative-screen-audio": 12,
-      "narrative-adaptation": 11,
-      "narrative-distribution": 15,
-      "narrative-production": 5,
-      "narrative-shared-universe": 10,
-      "hosting-narrative": 2
+      "core": 43,
+      "hosting-foundation": 3,
+      "narrative-media": 26,
+      "narrative-publishing": 12,
+      "narrative-screen-audio": 13,
+      "narrative-adaptation": 12,
+      "narrative-distribution": 16,
+      "narrative-production": 6,
+      "narrative-shared-universe": 11,
+      "hosting-narrative": 3
     },
     "declared_capabilities": 132,
     "available_capabilities": 123,

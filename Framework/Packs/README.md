@@ -2,6 +2,12 @@
 
 Schema packs are composable contracts, not project instances. Pack files define capabilities and controlled vocabulary; `Project_Config/schema-packs.yaml` selects packs and activates only the available capabilities a project uses.
 
+Schema packs are versioned, data-only extension units interpreted by trusted framework runtimes.
+They may be presented as plugins in product interfaces, but they cannot contain executable code,
+host permissions, credentials, commercial offerings, or entitlement state. See
+[`Framework/Contracts/declarative-schema-pack.md`](../Contracts/declarative-schema-pack.md) for the
+enforced ownership and safety boundary.
+
 Pack presentation and architectural classification follow
 [`Framework/Contracts/schema-pack-presentation.md`](../Contracts/schema-pack-presentation.md).
 `pack_kind` remains the compatibility-facing validation class; family, role, scope, declared
@@ -9,7 +15,7 @@ domains, and bridge joins are separate machine-readable concerns. IDs and folder
 ownership or scope.
 
 Pack selection and capability activation are different controls. Selecting a pack composes its
-controlled vocabulary. Enabling a capability activates executable behavior. A vocabulary-only
+controlled vocabulary. Enabling a capability activates runtime-backed behavior. A vocabulary-only
 extension therefore declares `capabilities: []` rather than inventing an enabled capability whose
 state cannot govern its values.
 

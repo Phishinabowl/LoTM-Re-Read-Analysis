@@ -544,5 +544,60 @@ passed in 295.9 seconds. Both checks removed their scoped temporary output and r
 project outputs unchanged. The work-annotation linter also passed 364 eligible files and all 22
 fixtures.
 
-Phase 3.2.4 is ready for its two-part confirmation. Phase 3.3, the declarative plugin and
-entitlement boundary, is next.
+The later Phase 3.3.1 aggregate replay found that the committed project-composition oracle still
+contained the pre-migration pack-version counters even though the schema-6 pack files had each
+advanced by one. All semantic counts and provider records matched. Phase 3.3.1 corrected only those
+ten reviewed version counters and retained the aggregate project-composition gate.
+
+Phase 3.2.4 was implemented by `15e9ae6` (`Add capability grouping to framework schemas`). Phase
+3.3, the declarative plugin and entitlement boundary, is next.
+
+## Platform Phase 3.3.1 - Declarative Plugin Contract
+
+**Closure implemented by:** pending
+
+Phase 3.3.1 defines schema packs as versioned, data-only extension units interpreted by trusted
+framework runtimes. Product and interface surfaces may present them as plugins, but their canonical
+contract identity remains `schema-pack`. Pack declarations own portable schema identity,
+dependencies, capabilities, controlled values, semantic declarations, and presentation; they do
+not supply capability implementation code.
+
+The existing closed pack, dependency, and capability mappings now form an explicit safety boundary.
+Executable entrypoints, scripts, commands, hooks, arbitrary imports, host permissions, credentials,
+runtime packages, commercial offerings, and entitlement grants are prohibited. An HTTPS
+documentation target remains inert presentation metadata rather than network permission or an
+instruction to fetch content.
+
+Commercial offering-to-pack mappings remain external many-to-many distribution concerns.
+`pack_version` remains a technical pack compatibility version rather than a SKU or subscription
+tier. With no entitlement provider, valid locally installed packs retain deterministic offline
+behavior. Future executable extensions require a separate manifest, registry, trust, permission,
+compatibility, and lifecycle boundary.
+
+### Phase 3.3.1 Verification
+
+The schema-pack conformance corpus now includes 114 structured malformed compositions. Twelve new
+adversarial vectors reject executable entrypoints, scripts, commands, install hooks, imports, host
+permissions, credentials, runtime dependencies, commercial offerings, entitlements, executable
+dependency packages, and capability implementation fields. Python, PowerShell 7, and Windows
+PowerShell 5.1 produced matching passing summaries for all 114 cases.
+
+The aggregate replay exposed two older compatibility defects rather than weakening the new
+boundary. The committed project-composition oracle retained ten pre-migration pack-version
+counters; only those reviewed counters changed because all semantic counts and provider records
+already matched. The isolated framework fixture also exposed a narrative-specific assumption in
+the catalog conformance suite: its neutral core-only project enables one structural capability, so
+project-view probes now select an enabled capability, containing group, and provider from the
+loaded fixture instead of assuming the first group or `narrative-media`.
+
+After correction, focused project-composition and framework-catalog suites passed identically in
+all three runtimes. The complete 19-suite baseline passed in Python, PowerShell 7, and Windows
+PowerShell 5.1 in 59.6, 316.1, and 564.0 seconds. A direct isolated extraction copied 267 portable
+files, excluded the guarded project surfaces, and passed eight suites in all three runtimes. The
+ten-check `full-release` compatibility profile passed in 1,203.0 seconds across reporting, catalog,
+effective schema, Visualization, QA, root discovery, artifact lifecycle, extraction, and rendering;
+canonical outputs remained unchanged and successful scoped output was removed. Ruff, both
+PowerShell formatter runtimes, the work-annotation linter, and `git diff --check` also passed.
+
+Phase 3.3.1 is ready for its two-part confirmation. Phase 3.3.2, the trusted executable extension
+boundary, is next.

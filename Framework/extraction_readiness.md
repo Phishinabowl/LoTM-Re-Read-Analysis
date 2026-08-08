@@ -197,6 +197,14 @@ inspection, timestamps, absolute paths, or canonical authority. The reviewed QA 
 passed in the three runtimes, and the ten-check full-release profile passed in 1,017.8 seconds with
 canonical outputs unchanged and successful scoped output removed.
 
+Platform Phase 3.2.4 closed capability grouping and relationship-aware inspection on 2026-08-08.
+Schema-6 packs expose 17 stable groups across 14 installed packs, while catalog and effective-schema
+clients preserve the distinct installed and project-scoped views. Phase 3.3.1 then made the existing
+declarative plugin boundary explicit: schema packs are versioned data-only units and cannot contain
+executable code, host permissions, credentials, commercial offerings, or entitlement state. The
+current isolated rehearsal copied 267 portable files and passed eight suites in all three runtimes;
+the ten-check full-release profile passed in 1,203.0 seconds with canonical outputs unchanged.
+
 ## Known Limits And Next Boundaries
 
 Extraction readiness does not close these known items:
@@ -207,8 +215,9 @@ Extraction readiness does not close these known items:
   isolation, and canonical chronology-position provider closure are implemented and pressure-tested
   through V50. The Phase 1 model gate, Phase 2 effective-schema consumer-adoption gate, Phase 3.1
   pack-presentation gate, Phase 3.2.1 project-independent installed-pack catalog, Phase 3.2.2
-  effective-schema catalog integration and project-state annotation, and Phase 3.2.3 shared-report
-  QA publication are closed. Capability grouping is the next platform boundary.
+  effective-schema catalog integration and project-state annotation, Phase 3.2.3 shared-report QA
+  publication, Phase 3.2.4 capability grouping, and the Phase 3.3.1 declarative schema-pack boundary
+  are closed. The trusted executable-extension boundary is next.
 - Historical continuity-membership transitions, manifestation- or release-scoped continuity,
   occurrence-linked continuity transitions, first-class continuity systems, and sliding-chronology
   policies remain later normalized-content or deferred narrative capability work. They do not weaken

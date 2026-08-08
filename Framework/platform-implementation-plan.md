@@ -761,15 +761,15 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 #### Phase 3.3.1 Declarative Plugin Contract
 
-- [ ] Define schema packs as versioned, data-only extension units that may be presented as plugins
+- [x] Define schema packs as versioned, data-only extension units that may be presented as plugins
   without granting arbitrary code execution.
-- [ ] Preserve `schema-pack` as the internal contract name so declarative packs cannot be confused
+- [x] Preserve `schema-pack` as the internal contract name so declarative packs cannot be confused
   with executable extensions.
-- [ ] Prohibit executable entrypoints, scripts, commands, install hooks, arbitrary imports, network
+- [x] Prohibit executable entrypoints, scripts, commands, install hooks, arbitrary imports, network
   behavior, embedded credentials, and executable dependency declarations in schema packs.
-- [ ] Keep canonical pack identity, version, dependencies, lifecycle, presentation, capabilities,
+- [x] Keep canonical pack identity, version, dependencies, lifecycle, presentation, capabilities,
   and controlled-value contributions authoritative regardless of distribution or entitlement.
-- [ ] Distinguish commercial offerings from packs and capabilities. An offering may grant several
+- [x] Distinguish commercial offerings from packs and capabilities. An offering may grant several
   packs, one pack may belong to several offerings, and neither relationship belongs in `pack.yaml`.
 
 #### Phase 3.3.2 Trusted Executable Extension Boundary
@@ -804,7 +804,7 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 #### Phase 3.3.4 Boundary Conformance And Handoff
 
-- [ ] Add explicit malformed fixtures proving executable, hook, credential, commercial-offering,
+- [x] Add explicit malformed fixtures proving executable, hook, credential, commercial-offering,
   and entitlement fields are rejected from declarative schema packs.
 - [ ] Prove the no-provider path preserves current catalog, effective-schema, QA, Visualization,
   extraction, and project-composition behavior across supported runtimes.

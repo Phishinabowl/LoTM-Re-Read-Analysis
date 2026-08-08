@@ -252,16 +252,14 @@ try {
     $selectedPackId = [string](@($effectiveSchema.packs)[0].id)
     $selectedPack = @($projectView.packs | Where-Object id -CEQ $selectedPackId)[0]
     $unselectedPack = @($projectView.packs | Where-Object { -not $_.project_state.selected })[0]
-    $selectedGroupId = [string](@($effectiveSchema.capability_groups)[0].id)
-    $selectedGroupCapabilityIds = @($effectiveSchema.capability_groups[0].capability_ids)
-    $enabledCapabilityId = [string](
-        @(
-            $effectiveSchema.capabilities | Where-Object {
-                $_.enabled -and $selectedGroupCapabilityIds -ccontains $_.id
-            }
-        )[0].id
+    $enabledCapability = @($projectView.capabilities | Where-Object { $_.project_state.enabled })[0]
+    $enabledCapabilityId = [string]$enabledCapability.id
+    $enabledProviderPackId = [string]$enabledCapability.providers[0].pack_id
+    $selectedGroupId = [string](
+        @($effectiveSchema.capability_groups | Where-Object {
+                @($_.capability_ids) -ccontains $enabledCapabilityId
+            })[0].id
     )
-    $enabledCapability = @($projectView.capabilities | Where-Object id -CEQ $enabledCapabilityId)[0]
     $plannedCapability = @($projectView.capabilities | Where-Object { $_.project_state.planned })[0]
     if (-not $selectedPack.project_state.selected -or -not $selectedPack.project_state.used_by_project) {
         throw 'Selected project-view pack state changed.'
@@ -302,14 +300,14 @@ try {
         -Catalog $canonical `
         -ProjectView $projectView `
         -LookupKeys (Get-KnowledgeFrameworkConfig $actualRoot).lookup_keys `
-        -ProviderPackIds 'Narrative-Media' `
+        -ProviderPackIds $enabledProviderPackId.ToUpperInvariant() `
         -Lifecycles 'available' `
         -Activation 'enabled' `
         -Usage 'used'
     $expectedProjectFilterIds = @(
         $projectView.capabilities | Where-Object {
             $_.effective_lifecycle -ceq 'available' -and $_.project_state.enabled -and
-            @($_.providers | Where-Object pack_id -CEQ 'narrative-media').Count -gt 0
+            @($_.providers | Where-Object pack_id -CEQ $enabledProviderPackId).Count -gt 0
         } | ForEach-Object id
     )
     if (

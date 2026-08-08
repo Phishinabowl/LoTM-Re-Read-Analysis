@@ -173,9 +173,10 @@ Within canonical pages, the visible article and structured page data are two syn
 
 A capability has separate declaration, lifecycle, availability, and project-activation states. String capability entries are shorthand for lifecycle `available`; mapped entries may be `planned`, `available`, or `deprecated`. Planned capabilities remain discoverable to roadmap tooling but cannot be enabled. Available capabilities may be enabled by `capability_activation.enabled`; deprecated capabilities remain activatable for compatibility or migration but should not be recommended for new projects. The activation default must remain `disabled`. An unavailable or unenabled capability is omitted by tools, validators, projections, and interfaces unless project configuration explicitly references its contract, in which case validation must report the invalid reference. Missing or incompatible declared pack dependencies are always errors.
 
-A schema pack may contribute executable capabilities, controlled values, or both. A vocabulary-only
-pack uses an empty capability list; pack selection exposes its controlled values, while capability
-activation remains reserved for executable behavior. Optional capability foundations own reusable
+A schema pack may declare runtime-backed capabilities, controlled values, or both. The declarative
+pack supplies schema metadata, never capability implementation code. A vocabulary-only pack uses an
+empty capability list; pack selection exposes its controlled values, while capability activation
+remains reserved for trusted runtime behavior. Optional capability foundations own reusable
 mechanics, domain packs own domain vocabulary, and bridge extensions may depend on both without
 moving either concern into core. Pack selection must not expose vocabulary from an unselected
 family. Narrative media uses orthogonal axes: medium profiles own reader-position behavior; modalities describe prose, sequential art, animation, live action, audio, still image, or interaction; cultural forms preserve anime, Donghua, manga, manhwa, manhua, and webtoon identity; release forms describe creative packaging; and container formats describe concrete evidence artifacts. Narrative sources may contain embedded visual assets regardless of whether the container is an EPUB, comic release, scan, or another supported format. Official EPUB artwork is therefore an illustration carried by an EPUB source, not a compound medium. The source record owns evidence provenance, the extracted image is a visual resource, and promotion into a tracked page-ready asset remains a separate project action. Reusable packs do not instantiate LoTM works, categories, pages, paths, source records, or project-specific vocabulary. A project-owned extension pack may contribute local terminology while project registries instantiate actual records. Interface wizards should generate or edit those layers from pack contracts rather than embedding industry or organization assumptions in UI code.
@@ -187,6 +188,15 @@ foundations own reusable services; domain and bridge extensions contribute contr
 without leaking it into unrelated projects. Taxonomy fields, page modules, graph projections, and
 editor forms will migrate into the same effective-schema mechanism through the ordered platform
 implementation phases rather than defining parallel ownership rules.
+
+Schema packs are versioned, data-only extension units even when a product surface presents them as
+plugins. Their closed shape rejects executable entrypoints, scripts, commands, hooks, arbitrary
+imports, host permissions, credentials, executable dependencies, commercial offerings, and
+entitlement grants. Trusted runtime code interprets pack declarations; pack-controlled values never
+select code or grant execution authority. Any future executable extension requires a separate
+manifest, registry, trust, compatibility, permission, and lifecycle boundary. Commercial offering
+and entitlement mappings likewise remain outside portable packs, projects, installed catalogs, and
+effective schemas. See `Framework/Contracts/declarative-schema-pack.md`.
 
 ### Effective Project Schema
 

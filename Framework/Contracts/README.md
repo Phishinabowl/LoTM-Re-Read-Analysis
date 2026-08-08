@@ -40,6 +40,11 @@ commands, conformance, scale, and compatibility checks are executable. Effective
 uses validated catalog records, and explicit project attachment emits the separate
 `FrameworkCatalogProjectView` without changing the base catalog.
 
+`declarative-schema-pack.md` defines schema packs as versioned, data-only extension units. It makes
+the existing closed pack shape an explicit safety boundary, prohibits executable and commercial
+host state, and reserves future executable extensions and entitlement services as separate
+contracts.
+
 ## Capability Semantics
 
 Schema packs declare capabilities; capability lifecycle controls availability; projects enable available capabilities.
