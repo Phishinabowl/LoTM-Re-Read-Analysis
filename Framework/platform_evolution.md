@@ -450,9 +450,9 @@ Phase 3.2.2 is closed by `8eca229` (`Integrate effective schema with framework c
 
 ## Platform Phase 3.2.3 - Effective-Schema QA Publication
 
-**Implementation commits:** `pending`.
+**Implementation commits:** `4f801cd` (`Publish effective schema in QA exports`).
 
-**Closure implemented by:** `pending`
+**Closure implemented by:** `4f801cd` (`Publish effective schema in QA exports`)
 
 Phase 3.2.3 adds `effective-project-schema-report-model` version 1 as the shared semantic input for
 human-facing project-schema reports. It preserves the source contract sections and adds only derived
@@ -484,4 +484,5 @@ conformance reporting, framework catalog, effective schema, Visualization, QA, r
 artifact lifecycle, isolated extraction, and rendering. Canonical outputs remained unchanged and
 successful scoped output was removed.
 
-Phase 3.2.3 is implemented by `pending`. Capability grouping is the next platform boundary.
+Phase 3.2.3 is implemented by `4f801cd` (`Publish effective schema in QA exports`). Capability
+grouping is the next platform boundary.
