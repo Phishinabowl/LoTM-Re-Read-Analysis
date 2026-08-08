@@ -1,7 +1,7 @@
 # Validation Run Reporting Contract
 
-**Status:** Accepted Phase 3.1.6 design. Aggregate conformance and compatibility reporting are
-implemented and adopted; final closure validation remains pending.
+**Status:** Executable Phase 3.1.6 contract. Aggregate conformance and compatibility reporting are
+implemented, adopted, and closure-validated.
 
 ## Purpose
 
@@ -74,6 +74,10 @@ cannot exist because validation failed before that boundary was established.
 | `report_path` | Repository-relative forward-slash path to a detailed report, or `null`. Absolute machine paths are forbidden. |
 | `results` | Ordered concise result rows for completed suite or check attempts. |
 | `failures` | Ordered bounded failure rows. |
+
+`output_kept` and `report_path` are independent. Retaining an explicit report outside a scoped
+compatibility output tree does not change `output_kept`; conformance always reports `null` because it
+has no scoped output-tree concept. The report path alone records detailed-report availability.
 
 Elapsed time and a generated retained path are operational metadata. Cross-runtime parity requires
 matching field presence, type, nonnegative duration, containment, result order, status, counts, and

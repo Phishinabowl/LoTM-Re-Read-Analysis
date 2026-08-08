@@ -497,7 +497,7 @@ function New-ConciseConformanceSummary {
         failed = [int]$failures.Count
         elapsed_seconds = [math]::Round($ElapsedSeconds, 3)
         canonical_outputs_unchanged = $null
-        output_kept = $null -ne $normalizedReportPath
+        output_kept = $null
         report_path = $normalizedReportPath
         results = $conciseResults.ToArray()
         failures = $failures.ToArray()
@@ -520,7 +520,7 @@ function New-ConciseConformanceFailure {
         failed = 1
         elapsed_seconds = $null
         canonical_outputs_unchanged = $null
-        output_kept = $false
+        output_kept = $null
         report_path = $null
         results = @()
         failures = @(

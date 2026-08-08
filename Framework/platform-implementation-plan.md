@@ -633,10 +633,10 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 #### Phase 3.1.6.5 Closure And Handoff
 
-- [ ] Run static policy, formatting, focused reporting-contract tests, aggregate `baseline` in Python,
+- [x] Run static policy, formatting, focused reporting-contract tests, aggregate `baseline` in Python,
   PowerShell 7, and Windows PowerShell 5.1, and compatibility `full-release` with matching concise and
   detailed semantic results.
-- [ ] Confirm successful concise output is materially smaller than the retained detailed payload,
+- [x] Confirm successful concise output is materially smaller than the retained detailed payload,
   deliberate failures remain diagnosable without rerunning, canonical outputs remain unchanged, and
   temporary reports obey scoped cleanup policy.
 - [ ] Produce a compact fresh-task handoff for Phase 3.2 that names the branch, current commit, clean

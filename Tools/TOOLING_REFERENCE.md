@@ -1494,23 +1494,27 @@ established complete document for semantic consumers. CI uses concise output wit
 and prints the report only on failure. The isolated extraction verifier remains on detailed aggregate
 conformance JSON because it compares nested suite summaries.
 
-Last focused reporting check: 2026-08-07 for Platform Phase 3.1.6.3. The combined
-`conformance-reporting` and `compatibility-reporting` checks passed in 46.936 seconds. Conformance
-exercised 13 cross-runtime success, determinism, failure, and unsafe-path cases with byte-identical
+`output_kept` and `report_path` are orthogonal: the former reports whether a compatibility artifact
+tree remains, while the latter reports whether a detailed report remains. Conformance uses `null` for
+`output_kept` because it has no scoped artifact-tree concept.
+
+Last focused reporting check: 2026-08-07 for Platform Phase 3.1.6.5. The combined
+`conformance-reporting` and `compatibility-reporting` checks passed on the corrected field semantics.
+Conformance exercised 13 cross-runtime success, determinism, failure, and unsafe-path cases with byte-identical
 297-byte detailed reports. Compatibility exercised public help, focused and profile selection,
 deterministic concise output, exact detailed report export, three cleanup cases, two retained failure
-paths, and unsafe-path rejection. Its representative concise payload was 498 bytes versus 1,940
+paths, and unsafe-path rejection. Its representative concise payload was 499 bytes versus 1,939
 bytes detailed. Canonical outputs remained unchanged and successful scoped output was removed.
 
-Last compatibility check: 2026-08-07 for Platform Phase 3.1.5. The 469.2-second `full-release`
-profile passed all seven registered checks with effective-schema presentation and selection closure.
+Last compatibility check: 2026-08-07 for Platform Phase 3.1.6.5. The 502.6-second `full-release`
+profile passed all nine registered checks with reporting-contract closure.
 Visualization preserved 15 nodes, 121 relationships, all five redirected refresh files, refresh
 tree SHA-256
 `dfb0ffd4a11d304ab2ffd2571bfba4717b087c512d46abd6120f920835577fe6` and unbounded graph SHA-256
 `477eb74726f1c8430ad52c5a187db3bfd402404115f36ce2bf1750f8c6531cc4`.
 QA preserved 16 notes, 121 relationships, 71 data references, all 34 files, and tree SHA-256
 `2b754c78c5ed76d782f152b68d73df680029f1e40e5b7be5c4280fcc9c4bc292`. All twelve root launches,
-six unsafe artifact destinations, the 239-file neutral framework extraction, and three identical
+six unsafe artifact destinations, the 241-file neutral framework extraction, and three identical
 298,269-byte nonblank SVG renders passed. Canonical outputs remained unchanged and successful scoped
 output was removed.
 
@@ -1543,9 +1547,9 @@ modules with process scope, mutate process-local state, and terminate through sc
 Retain child-process execution until suites expose callable APIs with explicit state-reset and
 error-return contracts, then prove equivalent isolation before changing the aggregate runner.
 
-Last aggregate parity check: 2026-08-07 for Platform Phase 3.1.5. The `baseline` profile passed all
+Last aggregate parity check: 2026-08-07 for Platform Phase 3.1.6.5. The `baseline` profile passed all
 seventeen registered suites in Python, PowerShell 7, and Windows PowerShell 5.1 with matching suite
-IDs, statuses, and canonicalized semantic summaries in 51.6, 222.2, and 408.0 seconds. The effective-schema
+IDs, statuses, and canonicalized semantic summaries in 58.3, 250.4, and 435.0 seconds. The effective-schema
 suite preserved 10 active packs, 132 declared capabilities, 123
 enabled capabilities, nine planned capabilities, 138 controlled-value namespaces, and two
 deterministic deferred-category diagnostics while exercising three singular-selection cases, four

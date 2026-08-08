@@ -587,6 +587,10 @@ while keeping standard output concise or human-readable. Use `--keep-output` onl
 generated comparison artifacts need manual inspection; `--output-root` must remain beneath
 repository `.tmp/`.
 
+In concise output, `output_kept` describes only the scoped compatibility artifact tree;
+`report_path` independently describes a retained detailed report. Conformance reports `null` for
+`output_kept` because it does not own a scoped artifact tree.
+
 ## Strict YAML Conformance
 
 Run the dedicated strict-ingestion corpus after changing shared YAML parsing, scalar rules, mapping keys, schema-version handling, byte decoding, parser budgets, or RFC 3339 validation. Both implementations consume `Framework/Data/Strict-Yaml/`, create only uniquely named operating-system temporary files, and remove those files before exit.

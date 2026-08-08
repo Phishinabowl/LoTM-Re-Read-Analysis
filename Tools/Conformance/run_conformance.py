@@ -244,7 +244,7 @@ def concise_summary(
         "failed": failed,
         "elapsed_seconds": round(elapsed_seconds, 3),
         "canonical_outputs_unchanged": None,
-        "output_kept": report_path is not None,
+        "output_kept": None,
         "report_path": report_path,
         "results": concise_results,
         "failures": failures,
@@ -265,7 +265,7 @@ def concise_orchestration_failure(error: Exception) -> dict:
         "failed": 1,
         "elapsed_seconds": None,
         "canonical_outputs_unchanged": None,
-        "output_kept": False,
+        "output_kept": None,
         "report_path": None,
         "results": [],
         "failures": [

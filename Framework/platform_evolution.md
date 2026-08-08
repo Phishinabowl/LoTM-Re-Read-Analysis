@@ -281,3 +281,35 @@ also passed with canonical outputs unchanged and a 1,920-byte detailed report. A
 reports were removed without touching unrelated temporary content. Full three-runtime baselines and
 `full-release` compatibility remain deliberately assigned to Phase 3.1.6.5 so adoption does not
 duplicate the closure gate.
+
+### Phase 3.1.6.5 Closure And Handoff
+
+Closure review caught one semantic defect before confirmation: concise `output_kept` treated any
+retained report as retained scoped output, even when compatibility had cleaned its generated tree,
+and conformance populated a field that the contract marks non-applicable. The paired conformance
+runners now emit `null`; compatibility mirrors the detailed result's actual scoped-output state; and
+`report_path` independently records detailed-report availability. Permanent success, failure,
+determinism, path-safety, cleanup, and three-runtime checks now enforce that distinction.
+
+On the corrected exact-final tree, Ruff passed 45 Python files; the PowerShell formatter passed 46
+files in PowerShell 7 and Windows PowerShell 5.1; work-annotation policy passed 340 eligible files,
+eight annotations, and all 22 fixtures; and actionlint plus `git diff --check` passed. The focused
+reporting checks passed, including retained deliberate-failure diagnostics without reruns. Direct
+three-runtime report smoke tests produced `output_kept: null` with valid explicit report paths for
+conformance and `output_kept: false` with a valid report path after successful compatibility cleanup.
+
+All 17 `baseline` suites then passed in Python, PowerShell 7, and Windows PowerShell 5.1 in 58.3,
+250.4, and 435.0 seconds. Their 6,186-byte detailed reports preserved identical suite order and one
+canonicalized semantic hash. The final 9-check `full-release` profile passed in 502.6 seconds with
+canonical outputs unchanged and scoped output removed. Its approximately 1,125-byte concise envelope
+was materially smaller than the 8,203-byte detailed report.
+
+Visualization retained 15 nodes and 121 relationships. QA retained 16 notes, 121 relationships, 71
+data references, and all 34 normalized files. All 12 root launches passed; six unsafe destinations
+were rejected while unrelated temporary content was preserved; isolated extraction copied 241
+reusable files without project configuration and passed six portable suites in all three runtimes;
+and every renderer produced the same nonblank 298,269-byte SVG with SHA-256
+`11b9e70f735004641ab0bd348c21451d1cc2852327caa58d092dd045dfb59f73`.
+
+Phase 3.1.6 is behaviorally closed. Its fresh-task handoff is drafted; the final confirmation commit,
+exact pushed head, and clean-status fields remain pending the normal two-part confirmation sequence.

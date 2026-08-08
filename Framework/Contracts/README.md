@@ -23,21 +23,13 @@ The current executable contract is enforced by the matching Python and PowerShel
 | `Project_Config/occurrences.yaml` | `Tools/Runtime/Python/knowledge_framework/occurrence_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1`; see `occurrence-recurrence-registry.md` |
 | `Project_Config/interpretations.yaml` | `Tools/Runtime/Python/knowledge_framework/interpretation_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1`; see `structural-interpretation-registry.md` |
 | Generated `EffectiveProjectSchema` | `Tools/Runtime/Python/knowledge_framework/effective_schema.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1`; see `effective-project-schema.md` |
+| Aggregate validation reporting | `Tools/Conformance/run_conformance.py`, `Tools/Conformance/Run-Conformance.ps1`, and `Tools/Compatibility/run_compatibility.py`; see `validation-run-reporting.md` |
 
 Future machine-readable schema documents belong here as those loader contracts are stabilized. Do not add a partial schema that claims broader validation coverage than the loaders actually provide.
 
 `effective-project-schema.md` defines the generated composition contract implemented by the paired
 runtime services and inspection/export commands. It is diagnostic output over the canonical
 registries, not another canonical registry.
-
-## Accepted Pending Contracts
-
-`validation-run-reporting.md` is the accepted Phase 3.1.6 contract for separating validation
-execution strength from report verbosity. It preserves established detailed runner documents while
-defining a low-volume structured summary and confined detailed-report export for humans, agents, CI,
-and diagnostic clients. Aggregate conformance and compatibility reporting now satisfy the executable
-and adoption boundaries; move the contract into the executable-contract table after final closure
-validation also satisfies it.
 
 ## Capability Semantics
 

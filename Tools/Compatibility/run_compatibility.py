@@ -774,6 +774,8 @@ def validate_concise_compatibility_summary(document: Any, *, expected_status: st
         not isinstance(document["elapsed_seconds"], (int, float)) or document["elapsed_seconds"] < 0
     ):
         raise CompatibilityFailure("Compatibility concise elapsed_seconds must be null or nonnegative.")
+    if not isinstance(document["output_kept"], bool):
+        raise CompatibilityFailure("Compatibility concise output_kept must be boolean.")
     if len(document["requested_ids"]) != document["selected_count"]:
         raise CompatibilityFailure("Compatibility concise selection counts are inconsistent.")
     for result in document["results"]:
@@ -860,7 +862,7 @@ def run_compatibility_reporting_check(
         if (
             document["profile"] != "reporting"
             or document["requested_ids"] != ["reporting-root-discovery"]
-            or document["output_kept"] is not True
+            or document["output_kept"] is not False
             or not document["report_path"]
             or run_root.exists()
         ):
@@ -869,7 +871,11 @@ def run_compatibility_reporting_check(
     if len({normalized_compatibility_summary(document) for document in concise_documents}) != 1:
         raise CompatibilityFailure("Compatibility concise output is nondeterministic.")
     concise_detail = parse_json_output(concise_report.read_text(encoding="utf-8"))
-    if concise_detail["status"] != "passed" or len(concise_detail["checks"]) != 1:
+    if (
+        concise_detail["status"] != "passed"
+        or len(concise_detail["checks"]) != 1
+        or concise_documents[-1]["output_kept"] != concise_detail["output_kept"]
+    ):
         raise CompatibilityFailure("Compatibility concise detailed report is incomplete.")
 
     unsafe_report = root.parent / f"compatibility-reporting-unsafe-{os.getpid()}.json"
@@ -926,7 +932,11 @@ def run_compatibility_reporting_check(
     if not retained_report.is_file() or failure_output not in retained_report.parents:
         raise CompatibilityFailure("Failed compatibility detailed report was not retained with scoped output.")
     retained_detail = parse_json_output(retained_report.read_text(encoding="utf-8"))
-    if retained_detail["status"] != "failed" or not retained_detail.get("error"):
+    if (
+        retained_detail["status"] != "failed"
+        or not retained_detail.get("error")
+        or failure_document["output_kept"] != retained_detail["output_kept"]
+    ):
         raise CompatibilityFailure("Failed compatibility detailed report lacks complete diagnostics.")
 
     human_failure_output = output_root / "runs" / "human-failure"
@@ -1108,6 +1118,7 @@ def validate_concise_conformance_summary(document: Any, *, expected_status: str)
         or document["runner"] != "framework-conformance"
         or document["status"] != expected_status
         or document["canonical_outputs_unchanged"] is not None
+        or document["output_kept"] is not None
     ):
         raise CompatibilityFailure(f"Invalid conformance concise identity/status: {document}")
     if document["elapsed_seconds"] is not None and (
@@ -1184,7 +1195,7 @@ def run_conformance_reporting_check(
         )
         concise_document = parse_json_output(concise_result.stdout)
         validate_concise_conformance_summary(concise_document, expected_status="passed")
-        if not concise_document["output_kept"] or not concise_document["report_path"]:
+        if concise_document["output_kept"] is not None or not concise_document["report_path"]:
             raise CompatibilityFailure(f"{runtime.id} did not expose its explicit detailed report.")
         concise_documents[runtime.id] = concise_document
         concise_sizes[runtime.id] = len(concise_result.stdout.encode("utf-8"))
@@ -1246,7 +1257,7 @@ def run_conformance_reporting_check(
         )
         failure_document = parse_json_output(failure_result.stdout)
         validate_concise_conformance_summary(failure_document, expected_status="failed")
-        if not failure_document["output_kept"] or not failure_document["report_path"]:
+        if failure_document["output_kept"] is not None or not failure_document["report_path"]:
             raise CompatibilityFailure(f"{runtime.id} failed conformance did not retain its detailed report.")
         failure_row = failure_document["failures"][0]
         if (
@@ -1973,7 +1984,7 @@ def concise_compatibility_summary(
         "failed": payload["failed"],
         "elapsed_seconds": payload["elapsed_seconds"],
         "canonical_outputs_unchanged": payload["canonical_outputs_unchanged"],
-        "output_kept": payload["output_kept"] or report_path is not None,
+        "output_kept": payload["output_kept"],
         "report_path": report_path,
         "results": results,
         "failures": failures,
