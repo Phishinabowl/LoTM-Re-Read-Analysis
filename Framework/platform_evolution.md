@@ -554,7 +554,7 @@ Phase 3.2.4 was implemented by `15e9ae6` (`Add capability grouping to framework 
 
 ## Platform Phase 3.3.1 - Declarative Plugin Contract
 
-**Closure implemented by:** pending
+**Closure implemented by:** `a5fecca` (`Define declarative schema pack boundary`)
 
 Phase 3.3.1 defines schema packs as versioned, data-only extension units interpreted by trusted
 framework runtimes. Product and interface surfaces may present them as plugins, but their canonical
