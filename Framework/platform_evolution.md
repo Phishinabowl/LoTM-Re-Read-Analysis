@@ -388,9 +388,9 @@ records through the catalog under exact shadow comparison, and add the explicit
 
 ## Platform Phase 3.2.2 - Effective-Schema Catalog Integration
 
-**Implementation commits:** pending confirmation.
+**Implementation commits:** `8eca229` (`Integrate effective schema with framework catalog`).
 
-**Closure implemented by:** pending confirmation.
+**Closure implemented by:** `8eca229` (`Integrate effective schema with framework catalog`)
 
 Phase 3.2.2 makes the project-independent catalog the one runtime authority for installed pack
 parsing while preserving `EffectiveProjectSchema` as a distinct project-scoped composition. The
@@ -445,3 +445,5 @@ conformance reporting, framework catalog, effective schema, Visualization, QA, r
 artifact lifecycle, isolated extraction, and rendering all passed; canonical outputs remained
 unchanged and successful scoped output was removed. Phase 3.2.3, effective-schema QA publication,
 is the next platform boundary.
+
+Phase 3.2.2 is closed by `8eca229` (`Integrate effective schema with framework catalog`).
