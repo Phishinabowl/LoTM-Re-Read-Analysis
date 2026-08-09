@@ -838,7 +838,7 @@ paths resolved, and `git diff --check` passed.
 
 ## Platform Phase 3.4.3 - Catalog And Effective-Schema Projection
 
-**Closure implemented by:** pending
+**Closure implemented by:** `7b389f2` (`Project capability roadmap traceability`)
 
 Phase 3.4.3 projects validated planned-capability delivery traceability into the generated catalog
 and project composition surfaces without moving authority out of canonical pack manifests or the
