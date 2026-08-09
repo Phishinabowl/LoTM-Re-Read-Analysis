@@ -821,17 +821,67 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 ### Phase 3.4 Planned-Capability Lifecycle And Traceability
 
-- [ ] Make the effective schema expose every declared planned capability with its owning pack,
-  dependencies, lifecycle, description, and unavailable reason.
+#### Phase 3.4.1 Lifecycle And Authority Contract
+
+- [ ] Define the valid meanings and transitions for `planned`, `available`, `deprecated`, and any
+  later capability lifecycle states without duplicating project selection or activation state.
+- [ ] Keep schema packs authoritative for capability identity, provider ownership, lifecycle,
+  dependencies, relationships, and portable semantics.
+- [ ] Keep delivery phases, accepted deferrals, implementation evidence, and promotion readiness in
+  a separate framework-level capability-roadmap registry rather than `pack.yaml`.
+- [ ] Preserve the established projection boundary: `FrameworkCatalog` covers all installed packs,
+  `EffectiveProjectSchema` covers only selected packs, and `FrameworkCatalogProjectView` combines
+  installed inventory with project-specific selection and availability state.
+- [ ] Distinguish technical pack dependencies, platform implementation prerequisites, and
+  domain-capability delivery dependencies so deferred domain work cannot block unrelated framework,
+  IT, or interface work.
+- [ ] Define deterministic authority, identity, ordering, normalization, and failure behavior for the
+  capability-roadmap registry before adding runtime projections.
+
+#### Phase 3.4.2 Machine-Readable Capability Roadmap
+
+- [ ] Add a separate framework-level capability-roadmap registry and strict paired loaders where
+  runtime parity applies; do not make repository delivery metadata part of portable pack manifests.
+- [ ] Map every declared `planned` capability to a concrete implementation phase or an explicitly
+  accepted deferral with rationale and relevant platform prerequisites.
+- [ ] Reconcile the initial registry with all currently declared planned capabilities and the
+  corresponding delivery work in Phase 17.
+- [ ] Reject duplicate mappings, unknown capability IDs, orphaned planned capabilities, stale
+  mappings, invalid lifecycle/disposition combinations, unknown delivery targets, and malformed
+  deferrals.
+- [ ] Preserve deterministic standalone loading and extraction behavior without requiring a project
+  configuration or selected-pack context.
+
+#### Phase 3.4.3 Catalog And Effective-Schema Projection
+
+- [ ] Join delivery traceability into `FrameworkCatalog` as diagnostic planning metadata without
+  changing pack authority, catalog identity, capability lifecycle, or composition semantics.
+- [ ] Expose the same traceability through `FrameworkCatalogProjectView` alongside project-specific
+  selection, availability, and unavailable reasons.
+- [ ] Make `EffectiveProjectSchema` expose every planned capability declared by selected packs with
+  its provider pack, dependencies, lifecycle, description, delivery traceability, and explicit
+  unavailable reason.
+- [ ] Do not add capabilities from unselected packs to `EffectiveProjectSchema` or allow roadmap
+  metadata to select packs, activate capabilities, satisfy dependencies, or alter controlled values.
+- [ ] Extend headless inspection, JSON/report contracts, and generated QA diagnostics through the
+  existing shared report authority, with deliberate contract-version and compatibility handling.
+
+#### Phase 3.4.4 Promotion Governance And Closure
+
 - [ ] Define promotion criteria from `planned` to `available`, including an executable contract,
-  matching runtime support where parity applies, permanent positive/malformed/scale coverage,
-  documentation, extraction review, and compatibility impact analysis.
-- [ ] Require each planned capability to map to a concrete implementation phase or an explicitly
-  accepted deferral; reject silent lifecycle drift between pack declarations and this roadmap.
-- [ ] Distinguish platform prerequisites from domain-capability delivery so a deferred narrative
-  feature does not block unrelated framework, IT, or interface work.
-- [ ] Require roadmap, pack metadata, testing methodology, and framework evolution to be updated
-  together when a capability is introduced, promoted, deprecated, removed, or materially reshaped.
+  matching runtime support where parity applies, permanent positive/malformed/boundary/ambiguity/
+  scale coverage, documentation, extraction review, and compatibility impact analysis.
+- [ ] Define deprecation, removal, replacement, and material-reshape obligations without conflating
+  lifecycle transitions with project selection, activation, distribution, or entitlement state.
+- [ ] Require roadmap, pack metadata, testing methodology, framework evolution, compatibility
+  expectations, and implementation evidence to be updated together when a capability is introduced,
+  promoted, deprecated, removed, or materially reshaped.
+- [ ] Add permanent paired conformance for registry ingestion, traceability projections, lifecycle
+  transitions, accepted deferrals, drift detection, and promotion/deprecation failure cases where
+  runtime parity applies.
+- [ ] Run aggregate conformance, compatibility, extraction, QA, and Visualization regression profiles
+  before closing the phase, then reconcile every declared planned capability against a delivery phase
+  or accepted deferral.
 
 ### Phase 3 Exit Gate
 
