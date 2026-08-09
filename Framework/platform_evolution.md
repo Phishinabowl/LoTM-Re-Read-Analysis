@@ -888,3 +888,68 @@ each checked all 55 PowerShell files with zero formatting changes and zero long-
 work-annotation linter passed 379 files and all 22 fixtures with zero findings. `git diff --check`
 passed. Phase 3.4.3 is ready for its two-part confirmation; Phase 3.4.4 promotion governance and
 closure is next.
+
+## Platform Phase 3.4.4 - Promotion Governance And Phase Closure
+
+**Closure implemented by:** `4bd8486` (`Close capability promotion governance phase`)
+
+Phase 3.4.4 advances the capability-roadmap registry to schema 2 and replaces broad implementation-
+evidence kinds with exact promotion criteria. Contract, runtime, parity, and conformance evidence
+is provider-scoped; compatibility, documentation, extraction, migration, consumer-regression,
+emergency-decision, and evolution evidence may describe the framework-wide decision. Canonical
+pack manifests remain authoritative for capability lifecycle, and the roadmap remains current-state
+delivery metadata rather than a mutation service or historical log.
+
+Paired Python and PowerShell transition evaluators compare one provider's explicit before/after
+lifecycle with matching before/after roadmap presence and a closed governance decision. They cover
+promotion, withdrawal, deprecation, rescission, removal, emergency removal, and material reshape;
+validate known replacements; conditionally require runtime parity; and return exact required,
+present, and missing criteria without mutating any authority. Incomplete evidence is a deterministic
+not-ready result, while illegal lifecycle pairs, roadmap drift, malformed evidence, provider
+mismatch, self/unknown replacement, and parity without runtime impact fail explicitly.
+
+The existing paired `capability-roadmap` suite now owns the permanent transition boundary instead
+of introducing a redundant runner. Its neutral coverage includes complete and incomplete promotion,
+all legal transition classes, forbidden regressions, roadmap/lifecycle drift, accepted deferral,
+orphan and stale registry mappings, malformed and provider-mismatched evidence, deterministic
+normalization, and 128-capability scale behavior. All 13 canonical planned capabilities remain
+scheduled against eight delivery targets; none is silently promoted or activated.
+
+### Phase 3.4.4 Verification
+
+Focused roadmap conformance passed with matching Python, PowerShell 7, and Windows PowerShell 5.1
+summaries: 13 canonical mappings, eight delivery targets, 25 rejection cases, seven ready
+transition cases, two exact not-ready decisions, two neutral roadmap capabilities, and 128 scale
+mappings. The five-suite
+installation, roadmap, catalog, schema-pack, and effective-schema stack passed in all three
+runtimes in 14.1, 95.6, and 165.7 seconds respectively.
+
+The complete 21-suite baseline passed in Python, PowerShell 7, and Windows PowerShell 5.1 in 75.6,
+367.1, and 645.1 seconds. Focused framework-catalog compatibility passed in 413.0 seconds;
+effective-schema, Visualization, and QA compatibility passed together in 503.0 seconds. All
+canonical consumer outputs remained unchanged, confirming that governance evidence did not alter
+project composition, graph semantics, or the Obsidian report.
+
+The isolated extraction rehearsal passed in 300.5 seconds with canonical outputs unchanged and its
+scoped copy removed. The final 11-check `full-release` profile passed in 1,504.3 seconds across
+reporting, catalog, effective schema, Visualization, QA, root discovery, artifact lifecycle,
+extraction, distribution boundaries, and rendering. It preserved canonical outputs and retained no
+scoped artifacts.
+
+Final API review after that aggregate run found that the PowerShell transition evaluator used a
+generic map accessor that unwrapped one-element evidence arrays. The evaluator now reads the
+authored evidence collection directly, and the provider-mismatch vector again uses one evidence
+row. The same focused correction added an exact incomplete-deprecation decision requiring migration
+guidance. The finalized roadmap suite then emitted byte-equivalent summaries in Python,
+PowerShell 7, and Windows PowerShell 5.1, and exact-final isolated extraction passed in 307.9
+seconds with canonical outputs unchanged and no retained output. The correction affects only the
+new transition-evaluation API and its permanent suite; catalog, effective-schema, QA,
+Visualization, distribution, and render paths exercised by the earlier release profile are not
+consumers of that API.
+
+Ruff formatting and linting passed all 54 Python files. PowerShell 7 and Windows PowerShell 5.1
+each checked all 55 PowerShell files with zero formatting changes and zero long-line findings. The
+work-annotation linter passed 379 files and all 22 fixtures with zero findings. `git diff --check`
+passed. All 13 effective installed planned capabilities remain machine-discoverable and scheduled
+against eight delivery targets; no capability was promoted, activated, or removed. Phase 3 is
+closed and Phase 4 page modules, fields, defaults, and validation levels is next.
