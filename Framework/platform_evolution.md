@@ -746,3 +746,48 @@ each checked 53 PowerShell files with zero formatting changes and zero long-line
 370-file work-annotation scan and all 22 fixtures passed with zero findings. Registry JSON parsing,
 required-path existence, and `git diff --check` also passed. Phase 3.3.4 is ready for its two-part
 confirmation; Phase 3.4 planned-capability lifecycle and traceability is next.
+
+## Platform Phase 3.4.1 - Lifecycle And Authority Contract
+
+**Closure implemented by:** pending
+
+Phase 3.4.1 centralizes capability lifecycle and future delivery-traceability semantics without
+implementing the roadmap registry or changing runtime output. Canonical schema packs remain
+authoritative for capability identity, provider ownership, lifecycle, relationships, dependencies,
+and portable semantics. The future framework-level capability roadmap separately owns delivery
+targets, accepted deferrals, platform prerequisites, and promotion evidence.
+
+The lifecycle contract is the sole normative definition of lifecycle states and transitions.
+Contract indexes, pack summaries, project policy, catalog/effective-schema contracts, and tooling
+guidance retain only navigation or the validation, serialization, and operational consequences they
+independently own.
+
+The contract defines `planned`, `available`, and `deprecated` behavior; distinguishes roadmap
+candidates from declared capabilities; and establishes valid promotion, deprecation, rescission,
+withdrawal, and removal paths. Available capabilities cannot regress to planned, planned
+capabilities cannot be deprecated before becoming executable, and stable IDs cannot be renamed or
+repurposed through lifecycle changes. Existing multi-provider lifecycle precedence remains intact.
+
+Technical pack dependencies, platform implementation prerequisites, and domain-capability delivery
+dependencies are now explicitly independent. Roadmap metadata cannot satisfy composition, select a
+pack, activate behavior, authorize project records, or turn an accepted domain deferral into a
+failure for unrelated projects or industries.
+
+The future registry has stable identity `capability-roadmap`, is selected explicitly by
+`Framework/framework.yaml`, and remains project-independent. Exact capability IDs, ordinal output,
+confined relative paths, strict normalization boundaries, required planned-capability coverage, and
+deterministic failure classes are defined before the paired loaders begin in Phase 3.4.2. Catalog,
+project-view, and effective-schema projections remain deferred to Phase 3.4.3.
+
+### Phase 3.4.1 Verification
+
+Focused schema-pack, framework-catalog, and effective-schema conformance passed identically in
+Python, PowerShell 7, and Windows PowerShell 5.1. Each runtime completed the same three registered
+suites with no failures in 11.7, 82.9, and 145.8 seconds respectively. Existing pack lifecycle,
+multi-provider resolution, catalog discovery, project-view state, selected-pack composition, and
+activation behavior therefore remain unchanged by the contract-only slice.
+
+The work-annotation linter passed all 371 eligible files and 22 fixtures with zero findings. All six
+directly referenced lifecycle, pack, catalog, effective-schema, distribution, and executable-
+extension contract paths resolve. `git diff --check` passed. Phase 3.4.1 is ready for its two-part
+confirmation; Phase 3.4.2, the machine-readable capability roadmap, is next.

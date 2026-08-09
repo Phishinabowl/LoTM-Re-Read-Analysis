@@ -26,6 +26,10 @@ The pack describes what schema and runtime-backed capabilities are available. It
 the implementation of those capabilities. Trusted framework code remains the execution authority.
 A vocabulary-only pack may declare no capabilities without changing this boundary.
 
+Capability lifecycle meanings and transitions follow `capability-lifecycle-and-roadmap.md`.
+Delivery phases, accepted deferrals, platform prerequisites, and implementation evidence belong to
+the separate framework-level roadmap boundary and must not be added to `pack.yaml`.
+
 Canonical pack identity and semantics are independent of installation source, commercial offering,
 customer entitlement, product tier, and project selection. `pack_version` identifies the authored
 pack release used for compatibility checks; it is not a SKU, subscription, license tier, or grant.

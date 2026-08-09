@@ -55,17 +55,22 @@ outside portable packs and projects. It preserves the factual installed catalog,
 prerequisites from technical dependencies, and makes entitlement-free local behavior the default
 without implementing a commercial service.
 
+`capability-lifecycle-and-roadmap.md` defines capability lifecycle meanings and transitions,
+separates technical pack dependencies from implementation and domain-delivery prerequisites, and
+fixes the authority, identity, ordering, and failure boundary for the future machine-readable
+capability roadmap. Phase 3.4.1 implements the contract only; the registry, loaders, projections,
+and promotion conformance follow in Phases 3.4.2 through 3.4.4.
+
 ## Capability Semantics
 
-Schema packs declare capabilities; capability lifecycle controls availability; projects enable available capabilities.
+`capability-lifecycle-and-roadmap.md` is the sole normative authority for capability lifecycle
+meanings, valid transitions, roadmap-candidate status, delivery traceability, and promotion or
+removal constraints. Schema packs declare capabilities, selected-pack composition determines which
+declarations enter a project, and project activation enables only eligible selected capabilities.
 
-- A capability absent from all selected packs is undeclared, unavailable, and disabled.
-- `planned` capabilities are discoverable to roadmap tooling but unavailable for activation.
-- `available` capabilities may be enabled by the project.
-- `deprecated` capabilities remain available for compatibility or migration but should not be newly recommended.
-- An available or deprecated capability omitted from the project's enabled list is disabled.
-- Tools and interfaces must omit disabled feature modules without warning.
-- A selected pack with a missing or incompatible hard dependency is invalid.
-- A project registry that explicitly references an unavailable or disabled schema capability is invalid.
+The registry-specific contracts in this directory define how those shared semantics are validated,
+resolved, serialized, and consumed. They must reference the lifecycle contract rather than redefine
+its states. Roadmap metadata never changes pack dependency, selection, activation, or project-record
+validity.
 
 This distinction permits narrative, IT, legal, medical, and other projects to compose only the behavior relevant to their domain.

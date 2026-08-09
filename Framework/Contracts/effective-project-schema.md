@@ -25,6 +25,11 @@ organization identity, product tier, subscription, pricing, grants, tokens, and 
 cannot change pack selection, capability lifecycle or activation, controlled values, taxonomy,
 resources, or effective-schema identity. See `distribution-entitlement-boundary.md`.
 
+Capability lifecycle and future delivery traceability follow
+`capability-lifecycle-and-roadmap.md`. Phase 3.4.3 may project validated roadmap diagnostics for
+capabilities declared by selected packs, but it must not add unselected capabilities or permit
+roadmap metadata to alter lifecycle, dependency closure, controlled values, or activation.
+
 ## Ownership And Scope
 
 Core owns the effective-schema shape, lifecycle resolution, diagnostics model, deterministic

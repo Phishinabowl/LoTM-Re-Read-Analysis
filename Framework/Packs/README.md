@@ -144,4 +144,17 @@ Optional `hosting-foundation` keeps an identity-bearing subject separate from th
 
 ## Capability Honesty
 
-`available` means the selected contract can be instantiated and validated. `planned` means the concept has stable ownership and vocabulary but the repository must not yet store records that depend on it. A roadmap candidate is earlier still: it is neither discoverable nor selectable until a reviewed contract and pack declaration exist. Applicability scopes, explainable semantic applicability decisions, scoped continuity, claim supersession, production/right contexts, entity relationships, entity incarnations, identity phases, and stable-ID reconciliation are executable. Branching narrative state, crossover events, preservation state, contributor credits, textual witnesses, and detailed rights grants/restrictions remain planned until their paired Python and PowerShell contracts are implemented. Continuity systems, sliding chronology, versioned normative rulesets, and editorial-governance services remain roadmap candidates. Production/right contexts keep production origin, authorization, rights basis, and commerciality independent and make no legal inference from parody or other transformative lineage.
+Capability lifecycle and promotion follow
+[`capability-lifecycle-and-roadmap.md`](../Contracts/capability-lifecycle-and-roadmap.md).
+This catalog summarizes which reusable capabilities are implemented, declared for later delivery,
+or still only roadmap candidates; it does not redefine those lifecycle states or their transitions.
+
+Applicability scopes, explainable semantic applicability decisions, scoped continuity, claim
+supersession, production/right contexts, entity relationships, entity incarnations, identity
+phases, and stable-ID reconciliation are executable. Branching narrative state, crossover events,
+preservation state, contributor credits, textual witnesses, and detailed rights grants/restrictions
+remain planned until their executable contracts and promotion evidence pass the gate. Continuity
+systems, sliding chronology, versioned normative rulesets, and editorial-governance services remain
+roadmap candidates. Production/right contexts keep production origin, authorization, rights basis,
+and commerciality independent and make no legal inference from parody or other transformative
+lineage.

@@ -24,6 +24,11 @@ catalog. A future distribution view may join external offerings to installed pac
 `discoverability.installed` and `selectable` remain factual local and technical state. See
 `distribution-entitlement-boundary.md`.
 
+Capability lifecycle and future delivery traceability follow
+`capability-lifecycle-and-roadmap.md`. Canonical packs remain authoritative for lifecycle. Phase
+3.4.3 may join validated roadmap diagnostics into catalog rows, but roadmap metadata cannot change
+catalog identity, lifecycle resolution, dependency validation, or selectability.
+
 ## Boundary From EffectiveProjectSchema
 
 `FrameworkCatalog` and `EffectiveProjectSchema` answer different questions:

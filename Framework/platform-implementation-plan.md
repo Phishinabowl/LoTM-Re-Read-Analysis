@@ -823,27 +823,28 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 #### Phase 3.4.1 Lifecycle And Authority Contract
 
-- [ ] Define the valid meanings and transitions for `planned`, `available`, `deprecated`, and any
+- [x] Define the valid meanings and transitions for `planned`, `available`, `deprecated`, and any
   later capability lifecycle states without duplicating project selection or activation state.
-- [ ] Keep schema packs authoritative for capability identity, provider ownership, lifecycle,
+- [x] Keep schema packs authoritative for capability identity, provider ownership, lifecycle,
   dependencies, relationships, and portable semantics.
-- [ ] Keep delivery phases, accepted deferrals, implementation evidence, and promotion readiness in
+- [x] Keep delivery phases, accepted deferrals, implementation evidence, and promotion readiness in
   a separate framework-level capability-roadmap registry rather than `pack.yaml`.
-- [ ] Preserve the established projection boundary: `FrameworkCatalog` covers all installed packs,
+- [x] Preserve the established projection boundary: `FrameworkCatalog` covers all installed packs,
   `EffectiveProjectSchema` covers only selected packs, and `FrameworkCatalogProjectView` combines
   installed inventory with project-specific selection and availability state.
-- [ ] Distinguish technical pack dependencies, platform implementation prerequisites, and
+- [x] Distinguish technical pack dependencies, platform implementation prerequisites, and
   domain-capability delivery dependencies so deferred domain work cannot block unrelated framework,
   IT, or interface work.
-- [ ] Define deterministic authority, identity, ordering, normalization, and failure behavior for the
+- [x] Define deterministic authority, identity, ordering, normalization, and failure behavior for the
   capability-roadmap registry before adding runtime projections.
 
 #### Phase 3.4.2 Machine-Readable Capability Roadmap
 
 - [ ] Add a separate framework-level capability-roadmap registry and strict paired loaders where
   runtime parity applies; do not make repository delivery metadata part of portable pack manifests.
-- [ ] Map every declared `planned` capability to a concrete implementation phase or an explicitly
-  accepted deferral with rationale and relevant platform prerequisites.
+- [ ] Map every capability whose effective installed lifecycle is `planned` to a concrete
+  implementation phase or an explicitly accepted deferral with rationale and relevant platform
+  prerequisites.
 - [ ] Reconcile the initial registry with all currently declared planned capabilities and the
   corresponding delivery work in Phase 17.
 - [ ] Reject duplicate mappings, unknown capability IDs, orphaned planned capabilities, stale
@@ -906,8 +907,8 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
   behavior and existing catalog/effective-schema results.
 - [x] Commercial offerings and grants remain external to portable pack and project semantics, while
   the installed catalog remains factual and project selection remains project-owned.
-- [ ] Every declared planned capability is machine-discoverable and traceable to a delivery phase or
-  accepted deferral.
+- [ ] Every capability whose effective installed lifecycle is planned is machine-discoverable and
+  traceable to a delivery phase or accepted deferral.
 - [x] No licensing assumption leaks into reusable schema contracts.
 
 ## Phase 4: Page Modules, Fields, Defaults, And Validation Levels
