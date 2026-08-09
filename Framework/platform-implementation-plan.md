@@ -955,6 +955,21 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [ ] Preserve inventory evidence separately from generated schema authority so discovery findings do
   not become canonical definitions merely by being recorded.
 
+#### Phase 4.1.2 Page Surface Separation Decision
+
+- [ ] Classify every discovered page surface as structured knowledge, human-authored content,
+  presentation, or maintainer guidance before promoting candidates into contracts.
+- [ ] Treat structured state and authored content blocks as separate first-class canonical content
+  surfaces without requiring either to be reconstructed from the other.
+- [ ] Treat headings, tables, artwork placement, labels, section order, and other layout as generated
+  or validated presentation over canonical content rather than as field authority.
+- [ ] Keep authoring instructions, synchronization policy, omission guidance, and migration notes
+  outside canonical page records while exposing appropriate help text through editor schemas.
+- [ ] Keep this logical separation neutral about embedded Markdown, linked sidecars, databases, or
+  another physical storage decision owned by Phase 13.
+- [ ] Require future bounded rendering to filter structured rows and authored blocks independently;
+  never synthesize unsupported narrative prose from taxonomy values.
+
 ### Phase 4.2 Field Primitive Contract
 
 - [ ] Define stable field identity independently from page instances, Markdown labels, and physical
@@ -967,7 +982,7 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
   deprecation, replacement, and removal.
 - [ ] Prevent canonical page records from copying or redefining field contracts.
 
-### Phase 4.3 Reusable Page-Module Contract
+### Phase 4.3 Reusable Structured Page-Module Contract
 
 - [ ] Define reusable page modules as ordered compositions of field references rather than copied
   field definitions.
@@ -976,13 +991,26 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [ ] Separate universal modules, reusable domain modules, LoTM project modules, and legacy adapter
   modules without promoting project vocabulary into core.
 - [ ] Model shared candidates such as record identity, visibility, first appearances, chronology,
-  evidence, and human-authored prose at the lowest valid reusable layer.
+  evidence, and typed state at the lowest valid reusable layer.
 - [ ] Keep LoTM-specific candidates such as pathway state and associated Tarot cards project-owned
   unless later evidence supports promotion into a reusable pack.
 - [ ] Treat current Relationship Seeds as a legacy projection surface pending the canonical
   relationship work in Phase 6 rather than making them authoritative page modules.
 
-### Phase 4.4 Deterministic Composition And Overrides
+### Phase 4.4 Authored Content-Block Contract
+
+- [ ] Define stable authored-block identity, block type, human-authored body, optional title,
+  applicability and visibility, ordering, related structured records, and evidence references.
+- [ ] Preserve authored summaries, explanations, chronology prose, analysis, uncertainty, and
+  narrative voice without asking a renderer to invent them from machine values.
+- [ ] Bind chronology prose to structured timeline entries through stable references without making
+  either representation a lossy copy of the other.
+- [ ] Distinguish authored prose from generated current-state summaries, generated labels, generated
+  tables, and maintainer-only notes.
+- [ ] Permit structured modules and authored blocks to evolve independently while reporting broken,
+  duplicate, or semantically incompatible bindings.
+
+### Phase 4.5 Deterministic Composition And Overrides
 
 - [ ] Compose field and module contributions through core contracts, domain packs, project profiles,
   content types, categories, and explicit project extensions.
@@ -995,7 +1023,7 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [ ] Keep composed page schemas generated and diagnostic; canonical authority remains in their
   owning registries and pack or project declarations.
 
-### Phase 4.5 Presence, Rendering, And Readiness Semantics
+### Phase 4.6 Presence, Rendering, And Readiness Semantics
 
 - [ ] Model field and module presence independently as `required`, `conditional`, `recommended`, or
   `optional` rather than mixing validation with rendering or value production.
@@ -1008,7 +1036,7 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [ ] Ensure incomplete optional release, territory, localization, production, or evidence details do
   not block a useful draft record unless the requested readiness level explicitly requires them.
 
-### Phase 4.6 Defaults, Inference, Derivation, And Value Origin
+### Phase 4.7 Defaults, Inference, Derivation, And Value Origin
 
 - [ ] Model value production independently from presence and rendering requirements.
 - [ ] Distinguish authored values, literal defaults, inherited context, definitional implications,
@@ -1022,12 +1050,13 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [ ] Prove a Donghua example in which cultural form implies animation while optional release data
   remains absent and production assertions remain explicit.
 
-### Phase 4.7 Template And Editor Schema Projection
+### Phase 4.8 Template And Editor Schema Projection
 
 - [ ] Generate or validate templates from composed page modules without inserting empty optional
   sections into canonical pages.
-- [ ] Expose deterministic form-ready field, module, requirement, rendering, default, derivation,
-  applicability, ordering, and diagnostic schemas through `EffectiveProjectSchema`.
+- [ ] Expose deterministic form-ready field, structured-module, authored-block, requirement,
+  rendering, default, derivation, applicability, ordering, and diagnostic schemas through
+  `EffectiveProjectSchema`.
 - [ ] Ensure a generic editor can render composed forms without hardcoded category-specific field
   definitions.
 - [ ] Preserve human-authored prose fields separately from taxonomy labels, machine identifiers, and
@@ -1035,7 +1064,7 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [ ] Keep template and editor projections noncanonical and reproducible from the same composed
   schema authority.
 
-### Phase 4.8 LoTM Template Equivalence Proof
+### Phase 4.9 LoTM Template Equivalence Proof
 
 - [ ] Describe the universal, character, pathway, item, and knowledge-source templates through the
   composed field and module contracts without rewriting those templates or their populated pages.
@@ -1054,6 +1083,8 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
   a later owning phase.
 - [ ] Field, module, presence, rendering, value-production, and readiness semantics remain distinct
   and deterministic.
+- [ ] Structured knowledge, authored content, presentation, and maintainer guidance remain distinct;
+  structured values are never treated as a substitute for authored prose.
 - [ ] A page editor can know what to require, suggest, derive, hide, and omit without hardcoded
   category forms.
 - [ ] Existing LoTM templates can be described without forcing all optional modules onto every page.

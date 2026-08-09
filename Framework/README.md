@@ -17,6 +17,7 @@ This directory contains reusable framework assets that are portable across proje
 - `extraction_readiness.md` records the proven portable bundle, project-owned boundary, extraction rehearsal, stabilization evidence, and limits of the current readiness claim.
 - `analytical-projection-architecture.md` defines the downstream JSON, SQLite, Parquet, notebook, medallion, and optional Databricks/Delta path without changing canonical authority.
 - `platform-implementation-plan.md` is the phased execution checklist for effective schema composition, normalized content, consumer migration, LoTM physical migration, projections, add-on packs, the IT proof of concept, interfaces, and the ordered deferred-capability program. It also records capability candidates that are not yet pack declarations.
+- `page-schema-discovery-inventory.md` is the noncanonical Phase 4 evidence and conflict inventory for existing LoTM templates and representative pages; it does not define field, module, or normalized-record authority.
 - Future `Migrations/` content will contain versioned transformations between contract revisions.
 
 Platform Phases 1 through 3 are complete. Phase 4 begins page modules, fields, defaults, and
