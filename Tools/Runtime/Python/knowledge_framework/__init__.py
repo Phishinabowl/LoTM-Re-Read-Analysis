@@ -12,6 +12,7 @@ from .capability_roadmap import (
     CapabilityTraceability,
     DeliveryTarget,
     ImplementationEvidence,
+    evaluate_capability_lifecycle_transition,
     load_capability_roadmap,
     load_capability_roadmap_file,
 )
@@ -56,6 +57,7 @@ __all__ = [
     "CapabilityTraceability",
     "DeliveryTarget",
     "ImplementationEvidence",
+    "evaluate_capability_lifecycle_transition",
     "FrameworkCatalog",
     "FrameworkCatalogError",
     "compose_framework_catalog_project_view",

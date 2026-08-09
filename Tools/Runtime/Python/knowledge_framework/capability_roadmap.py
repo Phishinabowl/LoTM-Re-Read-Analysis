@@ -11,13 +11,102 @@ from .framework_config import FrameworkConfig, load_framework_config
 from .strict_yaml import assert_allowed_keys, load_yaml_file
 
 
-SUPPORTED_SCHEMA_VERSION = 1
+SUPPORTED_SCHEMA_VERSION = 2
 REGISTRY_ID = "capability-roadmap"
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 WINDOWS_ABSOLUTE_PATTERN = re.compile(r"^[A-Za-z]:/")
 DELIVERY_TARGET_KINDS = {"platform-phase"}
 DISPOSITIONS = {"scheduled", "accepted-deferral"}
-EVIDENCE_KINDS = {"compatibility", "conformance", "contract", "documentation", "extraction", "runtime"}
+EVIDENCE_CRITERIA = {
+    "compatibility-impact",
+    "conformance-ambiguity",
+    "conformance-boundary",
+    "conformance-malformed",
+    "conformance-positive",
+    "conformance-scale",
+    "consumer-regression",
+    "contract",
+    "documentation",
+    "emergency-decision",
+    "evolution",
+    "extraction-review",
+    "migration-guidance",
+    "runtime-parity",
+    "runtime-support",
+}
+CAPABILITY_LIFECYCLES = {"available", "deprecated", "planned"}
+TRANSITION_TYPES = {
+    ("planned", "available"): "promotion",
+    ("planned", None): "withdrawal",
+    ("available", "deprecated"): "deprecation",
+    ("deprecated", "available"): "rescission",
+    ("deprecated", None): "removal",
+    ("available", None): "emergency-removal",
+}
+PROMOTION_CRITERIA = {
+    "compatibility-impact",
+    "conformance-ambiguity",
+    "conformance-boundary",
+    "conformance-malformed",
+    "conformance-positive",
+    "conformance-scale",
+    "consumer-regression",
+    "contract",
+    "documentation",
+    "evolution",
+    "extraction-review",
+    "runtime-support",
+}
+TRANSITION_CRITERIA = {
+    "promotion": PROMOTION_CRITERIA,
+    "rescission": PROMOTION_CRITERIA,
+    "withdrawal": {"compatibility-impact", "documentation", "evolution"},
+    "deprecation": {
+        "compatibility-impact",
+        "consumer-regression",
+        "documentation",
+        "evolution",
+        "migration-guidance",
+    },
+    "removal": {
+        "compatibility-impact",
+        "consumer-regression",
+        "documentation",
+        "evolution",
+        "extraction-review",
+        "migration-guidance",
+    },
+    "emergency-removal": {
+        "compatibility-impact",
+        "consumer-regression",
+        "documentation",
+        "emergency-decision",
+        "evolution",
+        "extraction-review",
+        "migration-guidance",
+    },
+    "material-reshape": {
+        "compatibility-impact",
+        "conformance-boundary",
+        "conformance-malformed",
+        "conformance-positive",
+        "consumer-regression",
+        "contract",
+        "documentation",
+        "evolution",
+        "extraction-review",
+    },
+}
+PROVIDER_SCOPED_CRITERIA = {
+    "conformance-ambiguity",
+    "conformance-boundary",
+    "conformance-malformed",
+    "conformance-positive",
+    "conformance-scale",
+    "contract",
+    "runtime-parity",
+    "runtime-support",
+}
 
 
 @dataclass(frozen=True)
@@ -31,7 +120,7 @@ class DeliveryTarget:
 
 @dataclass(frozen=True)
 class ImplementationEvidence:
-    kind: str
+    criterion: str
     reference: str
     provider_pack_id: str | None
 
@@ -84,7 +173,7 @@ class CapabilityRoadmap:
                     "domain_capability_dependency_ids": list(row.domain_capability_dependency_ids),
                     "implementation_evidence": [
                         {
-                            "kind": evidence.kind,
+                            "criterion": evidence.criterion,
                             "reference": evidence.reference,
                             "provider_pack_id": evidence.provider_pack_id,
                         }
@@ -124,7 +213,7 @@ def compose_capability_delivery_traceability(roadmap: CapabilityRoadmap) -> dict
             "domain_capability_dependency_ids": list(row.domain_capability_dependency_ids),
             "implementation_evidence": [
                 {
-                    "kind": evidence.kind,
+                    "criterion": evidence.criterion,
                     "reference": evidence.reference,
                     "provider_pack_id": evidence.provider_pack_id,
                 }
@@ -347,14 +436,14 @@ def load_capability_roadmap_file(
             evidence_row = _require_mapping(evidence_value, evidence_context)
             assert_allowed_keys(
                 evidence_row,
-                {"kind", "reference", "provider_pack_id"},
+                {"criterion", "reference", "provider_pack_id"},
                 f"Capability roadmap `{evidence_context}`",
             )
-            evidence_kind = _require_string(evidence_row, "kind", evidence_context)
-            if evidence_kind not in EVIDENCE_KINDS:
+            evidence_criterion = _require_string(evidence_row, "criterion", evidence_context)
+            if evidence_criterion not in EVIDENCE_CRITERIA:
                 raise ValueError(
-                    f"Capability roadmap `{evidence_context}.kind` must be one of: "
-                    + ", ".join(sorted(EVIDENCE_KINDS))
+                    f"Capability roadmap `{evidence_context}.criterion` must be one of: "
+                    + ", ".join(sorted(EVIDENCE_CRITERIA))
                     + "."
                 )
             reference = _require_string(evidence_row, "reference", evidence_context)
@@ -373,11 +462,16 @@ def load_capability_roadmap_file(
                         f"Capability roadmap `{evidence_context}.provider_pack_id` is not a provider of "
                         f"`{capability_id}`: {provider_pack_id}"
                     )
-            evidence_key = (evidence_kind, reference, provider_pack_id)
+            if evidence_criterion in PROVIDER_SCOPED_CRITERIA and provider_pack_id is None:
+                raise ValueError(
+                    f"Capability roadmap `{evidence_context}.provider_pack_id` is required for "
+                    f"criterion `{evidence_criterion}`."
+                )
+            evidence_key = (evidence_criterion, reference, provider_pack_id)
             if evidence_key in evidence_keys:
                 raise ValueError(f"Capability roadmap `{context}.implementation_evidence` contains duplicates.")
             evidence_keys.add(evidence_key)
-            evidence.append(ImplementationEvidence(evidence_kind, reference, provider_pack_id))
+            evidence.append(ImplementationEvidence(evidence_criterion, reference, provider_pack_id))
 
         capabilities[capability_id] = CapabilityTraceability(
             capability_id=capability_id,
@@ -401,6 +495,142 @@ def load_capability_roadmap_file(
         delivery_targets=tuple(targets[target_id] for target_id in sorted(targets)),
         capabilities=tuple(capabilities[capability_id] for capability_id in sorted(capabilities)),
     )
+
+
+def evaluate_capability_lifecycle_transition(
+    *,
+    capability_id: str,
+    provider_pack_id: str,
+    before_lifecycle: str,
+    after_lifecycle: str | None,
+    decision: dict[str, Any],
+    known_capability_ids: set[str] | frozenset[str] | tuple[str, ...] = (),
+) -> dict[str, Any]:
+    """Evaluate governance evidence without mutating authoritative pack lifecycle."""
+
+    capability_id = _require_stable_id(capability_id, "transition.capability_id")
+    provider_pack_id = _require_stable_id(provider_pack_id, "transition.provider_pack_id")
+    if before_lifecycle not in CAPABILITY_LIFECYCLES:
+        raise ValueError(f"Capability lifecycle transition has unknown before lifecycle: {before_lifecycle}")
+    if after_lifecycle is not None and after_lifecycle not in CAPABILITY_LIFECYCLES:
+        raise ValueError(f"Capability lifecycle transition has unknown after lifecycle: {after_lifecycle}")
+    if not isinstance(decision, dict):
+        raise TypeError("Capability lifecycle transition decision must be a mapping.")
+    assert_allowed_keys(
+        decision,
+        {
+            "transition",
+            "rationale",
+            "replacement_capability_id",
+            "roadmap_after_present",
+            "roadmap_before_present",
+            "runtime_behavior_changed",
+            "runtime_parity_required",
+            "evidence",
+        },
+        "Capability lifecycle transition decision",
+    )
+
+    expected_transition = (
+        "material-reshape"
+        if before_lifecycle == after_lifecycle
+        else TRANSITION_TYPES.get((before_lifecycle, after_lifecycle))
+    )
+    transition = _require_string(decision, "transition", "transition")
+    if expected_transition is None or transition != expected_transition:
+        raise ValueError(
+            "Capability lifecycle transition is invalid: "
+            f"{before_lifecycle} -> {after_lifecycle or 'removed'} as `{transition}`."
+        )
+    _require_string(decision, "rationale", "transition")
+
+    roadmap_before_present = decision.get("roadmap_before_present")
+    roadmap_after_present = decision.get("roadmap_after_present")
+    if not isinstance(roadmap_before_present, bool) or not isinstance(roadmap_after_present, bool):
+        raise ValueError(
+            "Capability lifecycle transition `roadmap_before_present` and `roadmap_after_present` must be booleans."
+        )
+    if roadmap_before_present != (before_lifecycle == "planned"):
+        raise ValueError("Capability lifecycle transition before state has roadmap/lifecycle drift.")
+    if roadmap_after_present != (after_lifecycle == "planned"):
+        raise ValueError("Capability lifecycle transition after state has roadmap/lifecycle drift.")
+
+    runtime_behavior_changed = decision.get("runtime_behavior_changed")
+    runtime_parity_required = decision.get("runtime_parity_required")
+    if not isinstance(runtime_behavior_changed, bool) or not isinstance(runtime_parity_required, bool):
+        raise ValueError(
+            "Capability lifecycle transition `runtime_behavior_changed` and `runtime_parity_required` must be booleans."
+        )
+    if transition in {"promotion", "rescission"} and not runtime_behavior_changed:
+        raise ValueError(f"Capability lifecycle `{transition}` must declare changed runtime behavior.")
+    if runtime_parity_required and not runtime_behavior_changed:
+        raise ValueError("Capability lifecycle transition cannot require parity without runtime impact.")
+
+    replacement_id = decision.get("replacement_capability_id")
+    if replacement_id is not None:
+        if not isinstance(replacement_id, str) or not replacement_id.strip():
+            raise ValueError("Capability lifecycle transition replacement must be a stable capability ID or null.")
+        replacement_id = _require_stable_id(replacement_id.strip(), "transition.replacement_capability_id")
+        if replacement_id == capability_id:
+            raise ValueError("Capability lifecycle transition cannot replace a capability with itself.")
+        known_ids = set(known_capability_ids)
+        if replacement_id not in known_ids:
+            raise ValueError(f"Capability lifecycle transition references unknown replacement: {replacement_id}")
+
+    evidence_rows = decision.get("evidence")
+    if not isinstance(evidence_rows, list):
+        raise ValueError("Capability lifecycle transition `evidence` must be a list.")
+    present: set[str] = set()
+    seen: set[tuple[str, str, str | None]] = set()
+    for index, value in enumerate(evidence_rows):
+        context = f"transition.evidence[{index}]"
+        row = _require_mapping(value, context)
+        assert_allowed_keys(row, {"criterion", "reference", "provider_pack_id"}, context)
+        criterion = _require_string(row, "criterion", context)
+        if criterion not in EVIDENCE_CRITERIA:
+            raise ValueError(
+                f"Capability lifecycle transition `{context}.criterion` must be one of: "
+                + ", ".join(sorted(EVIDENCE_CRITERIA))
+                + "."
+            )
+        reference = _require_string(row, "reference", context)
+        evidence_provider = row.get("provider_pack_id")
+        if evidence_provider is not None:
+            if not isinstance(evidence_provider, str) or not evidence_provider.strip():
+                raise ValueError(f"Capability lifecycle transition `{context}.provider_pack_id` is invalid.")
+            evidence_provider = _require_stable_id(evidence_provider.strip(), f"{context}.provider_pack_id")
+        if criterion in PROVIDER_SCOPED_CRITERIA and evidence_provider != provider_pack_id:
+            raise ValueError(
+                f"Capability lifecycle transition criterion `{criterion}` must name provider `{provider_pack_id}`."
+            )
+        key = (criterion, reference, evidence_provider)
+        if key in seen:
+            raise ValueError("Capability lifecycle transition evidence contains duplicates.")
+        seen.add(key)
+        present.add(criterion)
+
+    required = set(TRANSITION_CRITERIA[transition])
+    if runtime_behavior_changed:
+        required.add("runtime-support")
+    if runtime_parity_required:
+        required.add("runtime-parity")
+    missing = sorted(required - present)
+    return {
+        "capability_id": capability_id,
+        "provider_pack_id": provider_pack_id,
+        "transition": transition,
+        "before_lifecycle": before_lifecycle,
+        "after_lifecycle": after_lifecycle,
+        "replacement_capability_id": replacement_id,
+        "roadmap_before_present": roadmap_before_present,
+        "roadmap_after_present": roadmap_after_present,
+        "runtime_behavior_changed": runtime_behavior_changed,
+        "runtime_parity_required": runtime_parity_required,
+        "required_criteria": sorted(required),
+        "present_criteria": sorted(present),
+        "missing_criteria": missing,
+        "ready": not missing,
+    }
 
 
 def load_capability_roadmap(root: Path, *, catalog: object | None = None) -> CapabilityRoadmap:

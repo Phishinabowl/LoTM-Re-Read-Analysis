@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "registry_id": "capability-roadmap",
   "delivery_targets": {
     "platform-phase-alpha": {
@@ -27,7 +27,7 @@
       "domain_capability_dependency_ids": ["deferred-capability"],
       "implementation_evidence": [
         {
-          "kind": "contract",
+          "criterion": "contract",
           "reference": "Framework/Contracts/example.md",
           "provider_pack_id": "fixture-domain"
         }

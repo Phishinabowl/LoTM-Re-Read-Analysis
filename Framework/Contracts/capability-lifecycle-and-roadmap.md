@@ -2,10 +2,10 @@
 
 ## Status And Purpose
 
-This contract defines the capability-lifecycle authority boundary and the Phase 3.4.3 executable
-delivery-traceability registry. It centralizes meanings that were previously spread across pack,
-catalog, effective-schema, and planning documents. Catalog, project-view, and effective-schema
-projections are implemented diagnostic consumers of the same registry.
+This contract defines the capability-lifecycle authority boundary, executable delivery-traceability
+registry, and Phase 3.4.4 lifecycle-transition evaluator. It centralizes meanings that were
+previously spread across pack, catalog, effective-schema, and planning documents. Catalog,
+project-view, and effective-schema projections are diagnostic consumers of the same registry.
 
 Schema packs remain authoritative for portable capability declarations. A separate framework-level
 capability-roadmap registry describes delivery planning for declared `planned` capabilities.
@@ -21,7 +21,7 @@ lifecycle, satisfy a dependency, select a pack, activate behavior, or authorize 
 | `FrameworkCatalog` | Project-independent installed pack and capability inventory plus joined roadmap diagnostics. | Project selection, activation, or roadmap authority. |
 | `EffectiveProjectSchema` | Selected-pack capability composition and project activation, plus selected-capability roadmap diagnostics. | Unselected capability inventory or independent roadmap parsing. |
 | `FrameworkCatalogProjectView` | Full installed catalog annotated with one effective project's selection and availability state. | A third capability or roadmap model. |
-| Framework evolution history | Confirmed implementation and verification history. | Current capability lifecycle or current roadmap disposition. |
+| Framework or platform evolution history | Confirmed semantic-version or platform-phase implementation and verification history. | Current capability lifecycle or current roadmap disposition. |
 
 Generated catalog, project-view, and effective-schema documents remain diagnostic projections. They
 must consume the validated pack and roadmap authorities rather than becoming configuration inputs.
@@ -106,7 +106,7 @@ Git history.
 
 ### Canonical Shape
 
-`Framework/capability-roadmap.yaml` is schema version 1. Its root is closed to
+`Framework/capability-roadmap.yaml` is schema version 2. Its root is closed to
 `schema_version`, `registry_id`, `delivery_targets`, and `capabilities`.
 
 - Delivery targets are keyed by stable ID and contain exactly `kind`, `label`, `plan_path`, and
@@ -116,8 +116,16 @@ Git history.
   `review_trigger`.
 - Every entry requires a rationale plus explicit lists for platform prerequisites,
   domain-capability delivery dependencies, and typed implementation evidence.
-- Evidence kinds are `compatibility`, `conformance`, `contract`, `documentation`, `extraction`, or
-  `runtime`. Provider-scoped evidence must name a pack that declares the capability.
+- Evidence criteria are `compatibility-impact`, `conformance-ambiguity`,
+  `conformance-boundary`, `conformance-malformed`, `conformance-positive`, `conformance-scale`,
+  `consumer-regression`, `contract`, `documentation`, `emergency-decision`, `evolution`,
+  `extraction-review`, `migration-guidance`, `runtime-parity`, or `runtime-support`.
+- Contract, runtime, parity, and conformance evidence is provider-scoped and must name a pack that
+  declares the capability. Governance-wide evidence may remain unscoped.
+- The roadmap registry schema version owns the shape and meaning of delivery traceability and its
+  implementation-evidence rows. Catalog and effective-project projections preserve that validated
+  nested payload and report the selected roadmap schema version; an unchanged outer projection
+  shape does not require an unrelated catalog or effective-schema contract-version increment.
 - The current registry maps all 13 effective installed `planned` capabilities to eight Phase 12 or
   Phase 17 delivery targets.
 
@@ -170,12 +178,41 @@ catalog identity, effective lifecycle precedence, selected dependency closure, c
 or activation. Any serialized field addition follows the owning contract's versioning and
 compatibility rules.
 
-## Promotion Readiness
+## Lifecycle Transition Evaluation
 
-Phase 3.4.4 will make promotion criteria executable. At minimum, promotion requires a reviewed
-contract, supported runtime implementation, matching runtime parity where applicable, permanent
-positive/malformed/boundary/ambiguity/scale coverage, documentation, extraction review,
-compatibility analysis, and required consumer regression results.
+The paired transition evaluator accepts one exact capability ID, one provider pack, explicit before
+and after provider lifecycle values, matching before/after roadmap-presence assertions, a typed
+transition decision, known replacement IDs, and typed evidence. Roadmap presence must equal whether
+that provider state is `planned`, making stale or missing mapping drift an explicit failure. The
+evaluator returns deterministic required, present, and missing criteria plus `ready`; it never edits
+a pack, roadmap, project, or generated document.
 
-Roadmap evidence supports that decision but never authorizes it by itself. The lifecycle changes to
-`available` only in the reviewed implementation change that makes the capability usable.
+The legal transition types are:
+
+| Transition | Lifecycle Change | Minimum Governance Obligation |
+| --- | --- | --- |
+| `promotion` | `planned` to `available` | Complete promotion gate. |
+| `withdrawal` | `planned` to removed | Compatibility impact, documentation, and evolution record. |
+| `deprecation` | `available` to `deprecated` | Compatibility impact, consumer regression, documentation, migration guidance, and evolution record. |
+| `rescission` | `deprecated` to `available` | Complete current promotion gate again. |
+| `removal` | `deprecated` to removed | Deprecation obligations plus extraction review. |
+| `emergency-removal` | `available` to removed | Removal obligations plus an explicit emergency decision. |
+| `material-reshape` | Lifecycle unchanged | Contract, positive/malformed/boundary conformance, documentation, extraction, compatibility, consumer regression, and evolution review. |
+
+Promotion and rescission require contract, runtime support, permanent positive, malformed,
+boundary, ambiguity, and scale conformance, documentation, extraction review, compatibility-impact
+analysis, consumer regression, and evolution evidence. Runtime parity is additionally required when
+the decision declares that provider/runtime boundary applicable. A material reshape adds runtime
+support and parity under the same conditional rule when executable behavior changes.
+
+Incomplete evidence is a valid not-ready decision with exact missing criteria. Malformed evidence,
+provider mismatch, unknown replacement identity, lifecycle regression, transition-name mismatch,
+self-replacement, parity without runtime impact, and unsupported lifecycle pairs fail explicitly.
+An accepted deferral remains a valid planned roadmap state and cannot satisfy promotion by itself.
+
+Roadmap evidence supports a reviewed decision but never authorizes or performs it. Promotion changes
+the provider lifecycle in canonical `pack.yaml` and removes the now-stale roadmap mapping in the
+same reviewed change. Deprecation, removal, replacement, and material reshape similarly update pack
+metadata, compatibility expectations, tests, documentation, roadmap state where applicable, and
+the evolution record together. Selection, activation, distribution, installation, and entitlement
+remain independent.

@@ -8,7 +8,8 @@ This directory contains reusable framework assets that are portable across proje
 - `framework.yaml` is the project-independent installation bootstrap that explicitly selects the
   pack root, pinned lookup registry, and capability roadmap.
 - `capability-roadmap.yaml` maps every installed planned capability to a concrete delivery target or
-  accepted deferral without changing pack lifecycle or project activation.
+  accepted deferral and records typed promotion evidence without changing pack lifecycle or project
+  activation.
 - `framework_improvement_lifecycle.md` defines the end-to-end version iteration, confirmation, testing, historical closure, and handoff workflow.
 - `testing_methodology.md` defines the cross-industry pressure-test candidate catalog plus cumulative conformance, runtime-parity, compatibility, pressure-scenario, comparison, and test-retention requirements.
 - `framework_evolution.md` records the historical implementation and pressure-test results that drove each framework version.
@@ -18,7 +19,8 @@ This directory contains reusable framework assets that are portable across proje
 - `platform-implementation-plan.md` is the phased execution checklist for effective schema composition, normalized content, consumer migration, LoTM physical migration, projections, add-on packs, the IT proof of concept, interfaces, and the ordered deferred-capability program. It also records capability candidates that are not yet pack declarations.
 - Future `Migrations/` content will contain versioned transformations between contract revisions.
 
-Platform Phases 1 through 3.4.3 are complete. The generated project-independent `FrameworkCatalog`
+Platform Phases 1 through 3 are complete. Phase 4 begins page modules, fields, defaults, and
+validation levels. The generated project-independent `FrameworkCatalog`
 inventories all installed packs while each project's `EffectiveProjectSchema` selects validated
 catalog records and adds activation, taxonomy, resources, and diagnostics. Explicit project
 attachment produces a separate `FrameworkCatalogProjectView` without mutating either source.

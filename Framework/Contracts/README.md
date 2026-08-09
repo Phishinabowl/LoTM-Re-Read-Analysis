@@ -58,9 +58,9 @@ without implementing a commercial service.
 
 `capability-lifecycle-and-roadmap.md` defines capability lifecycle meanings and transitions,
 separates technical pack dependencies from implementation and domain-delivery prerequisites, and
-fixes the authority, identity, ordering, and failure boundary for the future machine-readable
-capability roadmap. Phase 3.4.1 implements the contract only; the registry, loaders, projections,
-and promotion conformance follow in Phases 3.4.2 through 3.4.4.
+fixes the authority, identity, ordering, failure, and executable lifecycle-transition boundaries for
+the machine-readable capability roadmap. Phases 3.4.1 through 3.4.4 establish the contract,
+registry, projections, and promotion governance in order.
 
 ## Capability Semantics
 

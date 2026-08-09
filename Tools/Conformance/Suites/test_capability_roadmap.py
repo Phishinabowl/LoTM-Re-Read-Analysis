@@ -16,6 +16,8 @@ if str(RUNTIME_ROOT) not in sys.path:
     sys.path.insert(0, str(RUNTIME_ROOT))
 
 from knowledge_framework.capability_roadmap import (  # noqa: E402
+    EVIDENCE_CRITERIA,
+    evaluate_capability_lifecycle_transition,
     load_capability_roadmap,
     load_capability_roadmap_file,
 )
@@ -169,9 +171,9 @@ def main() -> int:
                 "confined framework-relative path",
             ),
             (
-                "unknown-evidence-kind",
+                "unknown-evidence-criterion",
                 lambda row: row["capabilities"]["scheduled-capability"]["implementation_evidence"][0].update(
-                    {"kind": "wish"}
+                    {"criterion": "wish"}
                 ),
                 "must be one of",
             ),
@@ -181,6 +183,13 @@ def main() -> int:
                     {"provider_pack_id": "fixture-core"}
                 ),
                 "is not a provider",
+            ),
+            (
+                "missing-evidence-provider",
+                lambda row: row["capabilities"]["scheduled-capability"]["implementation_evidence"][0].update(
+                    {"provider_pack_id": None}
+                ),
+                "is required",
             ),
         ]
         for _, mutate, expected in cases:
@@ -222,6 +231,179 @@ def main() -> int:
         scale = load_capability_roadmap_file(path, framework_config=config, catalog=scale_catalog)
         assert len(scale.capabilities) == 128
 
+        def evidence(criteria: set[str], provider: str = "fixture-domain") -> list[dict]:
+            return [
+                {
+                    "criterion": criterion,
+                    "reference": f"evidence:{criterion}",
+                    "provider_pack_id": provider
+                    if criterion.startswith("conformance-")
+                    or criterion
+                    in {
+                        "contract",
+                        "runtime-parity",
+                        "runtime-support",
+                    }
+                    else None,
+                }
+                for criterion in sorted(criteria)
+            ]
+
+        promotion_decision = {
+            "transition": "promotion",
+            "rationale": "Executable contract and all permanent verification are complete.",
+            "replacement_capability_id": None,
+            "roadmap_before_present": True,
+            "roadmap_after_present": False,
+            "runtime_behavior_changed": True,
+            "runtime_parity_required": True,
+            "evidence": evidence(EVIDENCE_CRITERIA - {"emergency-decision", "migration-guidance"}),
+        }
+        promotion = evaluate_capability_lifecycle_transition(
+            capability_id="scheduled-capability",
+            provider_pack_id="fixture-domain",
+            before_lifecycle="planned",
+            after_lifecycle="available",
+            decision=promotion_decision,
+            known_capability_ids={"scheduled-capability", "replacement-capability"},
+        )
+        assert promotion["ready"] and promotion["missing_criteria"] == []
+
+        incomplete_decision = deepcopy(promotion_decision)
+        incomplete_decision["evidence"] = [
+            row for row in incomplete_decision["evidence"] if row["criterion"] != "conformance-scale"
+        ]
+        incomplete = evaluate_capability_lifecycle_transition(
+            capability_id="scheduled-capability",
+            provider_pack_id="fixture-domain",
+            before_lifecycle="planned",
+            after_lifecycle="available",
+            decision=incomplete_decision,
+        )
+        assert not incomplete["ready"] and incomplete["missing_criteria"] == ["conformance-scale"]
+
+        incomplete_deprecation_decision = {
+            "transition": "deprecation",
+            "rationale": "Migration guidance is deliberately absent.",
+            "replacement_capability_id": None,
+            "roadmap_before_present": False,
+            "roadmap_after_present": False,
+            "runtime_behavior_changed": False,
+            "runtime_parity_required": False,
+            "evidence": evidence(EVIDENCE_CRITERIA - {"migration-guidance"}),
+        }
+        incomplete_deprecation = evaluate_capability_lifecycle_transition(
+            capability_id="scheduled-capability",
+            provider_pack_id="fixture-domain",
+            before_lifecycle="available",
+            after_lifecycle="deprecated",
+            decision=incomplete_deprecation_decision,
+        )
+        assert not incomplete_deprecation["ready"]
+        assert incomplete_deprecation["missing_criteria"] == ["migration-guidance"]
+
+        transition_vectors = [
+            ("withdrawal", "planned", None, False),
+            ("deprecation", "available", "deprecated", False),
+            ("rescission", "deprecated", "available", True),
+            ("removal", "deprecated", None, False),
+            ("emergency-removal", "available", None, True),
+            ("material-reshape", "available", "available", False),
+        ]
+        transition_results = []
+        for transition, before, after, runtime_changed in transition_vectors:
+            decision = {
+                "transition": transition,
+                "rationale": f"Exercise {transition} governance.",
+                "replacement_capability_id": (
+                    "replacement-capability" if transition in {"deprecation", "removal"} else None
+                ),
+                "roadmap_before_present": before == "planned",
+                "roadmap_after_present": after == "planned",
+                "runtime_behavior_changed": runtime_changed,
+                "runtime_parity_required": runtime_changed,
+                "evidence": evidence(EVIDENCE_CRITERIA, provider="fixture-domain"),
+            }
+            result = evaluate_capability_lifecycle_transition(
+                capability_id="scheduled-capability",
+                provider_pack_id="fixture-domain",
+                before_lifecycle=before,
+                after_lifecycle=after,
+                decision=decision,
+                known_capability_ids={"scheduled-capability", "replacement-capability"},
+            )
+            assert result["ready"]
+            transition_results.append(result)
+
+        transition_invalid_cases = [
+            (
+                lambda: evaluate_capability_lifecycle_transition(
+                    capability_id="scheduled-capability",
+                    provider_pack_id="fixture-domain",
+                    before_lifecycle="available",
+                    after_lifecycle="planned",
+                    decision={**promotion_decision, "transition": "promotion"},
+                ),
+                "is invalid",
+            ),
+            (
+                lambda: evaluate_capability_lifecycle_transition(
+                    capability_id="scheduled-capability",
+                    provider_pack_id="fixture-domain",
+                    before_lifecycle="planned",
+                    after_lifecycle="available",
+                    decision={**promotion_decision, "runtime_behavior_changed": False},
+                ),
+                "must declare changed runtime behavior",
+            ),
+            (
+                lambda: evaluate_capability_lifecycle_transition(
+                    capability_id="scheduled-capability",
+                    provider_pack_id="fixture-domain",
+                    before_lifecycle="planned",
+                    after_lifecycle=None,
+                    decision={
+                        **promotion_decision,
+                        "transition": "withdrawal",
+                        "replacement_capability_id": "missing-capability",
+                    },
+                    known_capability_ids={"scheduled-capability"},
+                ),
+                "unknown replacement",
+            ),
+            (
+                lambda: evaluate_capability_lifecycle_transition(
+                    capability_id="scheduled-capability",
+                    provider_pack_id="fixture-domain",
+                    before_lifecycle="planned",
+                    after_lifecycle="available",
+                    decision={**promotion_decision, "roadmap_after_present": True},
+                ),
+                "roadmap/lifecycle drift",
+            ),
+            (
+                lambda: evaluate_capability_lifecycle_transition(
+                    capability_id="scheduled-capability",
+                    provider_pack_id="fixture-domain",
+                    before_lifecycle="planned",
+                    after_lifecycle="available",
+                    decision={
+                        **promotion_decision,
+                        "evidence": [
+                            {
+                                **next(row for row in promotion_decision["evidence"] if row["criterion"] == "contract"),
+                                "provider_pack_id": "other-pack",
+                            }
+                        ],
+                    },
+                ),
+                "must name provider",
+            ),
+        ]
+        for action, expected in transition_invalid_cases:
+            assert_rejected(action, expected)
+            invalid_cases += 1
+
     canonical = load_capability_roadmap(root)
     assert len(canonical.delivery_targets) == 8
     assert len(canonical.capabilities) == 13
@@ -231,6 +413,9 @@ def main() -> int:
         "invalid_cases": invalid_cases,
         "neutral_capabilities": len(model.capabilities),
         "scale_capabilities": 128,
+        "transition_invalid_cases": len(transition_invalid_cases),
+        "transition_not_ready_cases": 2,
+        "transition_ready_cases": 1 + len(transition_results),
     }
     if args.json:
         print(json.dumps(summary, sort_keys=True, separators=(",", ":")))

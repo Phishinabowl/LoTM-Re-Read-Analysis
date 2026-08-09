@@ -109,7 +109,7 @@ The canonical JSON document uses this top-level order:
     "lookup_algorithm": "trim-nfc-default-casefold-nfc",
     "unicode_version": "16.0.0",
     "capability_roadmap_registry": "Framework/capability-roadmap.yaml",
-    "capability_roadmap_schema_version": 1
+    "capability_roadmap_schema_version": 2
   },
   "summary": {
     "pack_count": 0,
@@ -182,6 +182,10 @@ Each `capabilities` row contains:
 Catalog capability rows never contain `enabled`, `disabled`, `selected`, or `used_by_project`.
 Multiple providers do not imply that their packs form a valid project selection; they only describe
 independent installed declarations. Conflicting provider presentation is a catalog validation error.
+The selected capability-roadmap registry schema version governs the nested `delivery_traceability`
+payload. The catalog preserves that validated roadmap-owned shape and reports
+`capability_roadmap_schema_version`; changes confined to that nested schema do not independently
+change the catalog contract version unless the catalog-owned projection shape also changes.
 
 ## Selection Contract
 

@@ -1137,9 +1137,11 @@ Library consumers import the catalog service and must not launch the command or 
 `New-KnowledgeFrameworkCatalogProjectViewSelection`, `New-KnowledgeFrameworkCatalogFailure`, root
 resolution, and shared canonical JSON functions. Python additionally exposes
 `load_capability_roadmap` and `load_capability_roadmap_file`; PowerShell exposes
-`Get-KnowledgeCapabilityRoadmap`, `Get-KnowledgeCapabilityRoadmapModel`, and
-`ConvertTo-KnowledgeCapabilityRoadmap` from module version 0.12.0. Catalog capability inspection
-also exposes normalized roadmap delivery traceability for planned capabilities.
+`Get-KnowledgeCapabilityRoadmap`, `Get-KnowledgeCapabilityRoadmapModel`,
+`ConvertTo-KnowledgeCapabilityRoadmap`, and `Get-KnowledgeCapabilityLifecycleTransition` from
+module version 0.13.0. Python exposes the matching `evaluate_capability_lifecycle_transition` pure
+service. Catalog capability inspection also exposes normalized roadmap delivery traceability for
+planned capabilities.
 
 The installation service resolves `Framework/framework.yaml` through explicit root,
 `KNOWLEDGE_FRAMEWORK_ROOT`, current-directory ancestry, then executable ancestry. The manifest
@@ -1209,6 +1211,15 @@ reports. The complete ten-check `full-release` compatibility profile passed on 2
 1,050.1 seconds with canonical outputs unchanged and successful scoped output removed. Its isolated
 extraction rehearsal copied 266 files and passed eight portable suites in all three runtimes; the
 registry allows 360 seconds for that measured approximately 248-second check.
+
+Phase 3.4.4 advances the capability roadmap to schema 2 and the PowerShell module to 0.13.0. The
+paired roadmap suite covers 13 canonical mappings, eight delivery targets, 25 rejection cases,
+seven ready lifecycle-transition cases, exact incomplete promotion and deprecation decisions,
+accepted deferral, roadmap drift,
+provider-scoped evidence, known replacements, conditional runtime parity, and 128 scale mappings.
+The complete 21-suite baseline passed in all three runtimes, and the 11-check `full-release` profile
+passed with catalog, effective-schema, QA, Visualization, extraction, distribution, and render
+outputs unchanged.
 
 ## Effective Project Schema
 
@@ -1404,6 +1415,7 @@ This section tracks durable configuration and generated state files that affect 
 | Run pinned Unicode lookup conformance with structured summary output | `test_lookup_key.py` (`--json`) | `Test-Lookup-Key.ps1` (`-Json`) |
 | Load and validate selected schema packs | `load_schema_pack_registry`, `load_pack` in `schema_pack_config.py` | `Get-KnowledgeSchemaPackRegistry`, `ConvertTo-SchemaPackConfig` in `Schema-Pack-Config.ps1` |
 | Load and validate the manifest-selected capability roadmap | `load_capability_roadmap`, `load_capability_roadmap_file` in `capability_roadmap.py` | `Get-KnowledgeCapabilityRoadmap`, `Get-KnowledgeCapabilityRoadmapModel`, `ConvertTo-KnowledgeCapabilityRoadmap` in `Capability-Roadmap.ps1` |
+| Evaluate a provider capability lifecycle transition without mutating authority | `evaluate_capability_lifecycle_transition` | `Get-KnowledgeCapabilityLifecycleTransition` |
 | Run capability-roadmap conformance with structured summary output | `test_capability_roadmap.py` (`--json`) | `Test-Capability-Roadmap.ps1` (`-Json`) |
 | Run schema-pack composition conformance with structured summary output | `test_schema_pack.py` (`--json`) | `Test-Schema-Pack.ps1` (`-Json`) |
 | Inspect capability declaration, lifecycle, availability, and activation | `SchemaPackRegistry.capability_declared`, `capability_definitions_for`, `capability_available`, `capability_enabled` | `Test-SchemaPackCapabilityDeclared`, `Get-SchemaPackCapabilityDefinitions`, `Test-SchemaPackCapabilityAvailable`, `Test-SchemaPackCapabilityEnabled` |

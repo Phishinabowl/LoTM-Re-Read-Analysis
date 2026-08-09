@@ -32,7 +32,7 @@ $config = Get-KnowledgeFrameworkConfig $actualRoot
 $invalidCases = 0
 
 function Get-ValidRoadmapData {
-    ConvertFrom-KnowledgeYamlFile $validPath 1 'capability roadmap fixture'
+    ConvertFrom-KnowledgeYamlFile $validPath 2 'capability roadmap fixture'
 }
 
 function Invoke-InvalidRoadmapCase {
@@ -119,11 +119,14 @@ Invoke-InvalidRoadmapCase {
     param($data) $data['delivery_targets']['platform-phase-alpha']['plan_path'] = '../platform-implementation-plan.md'
 } 'confined framework-relative path'
 Invoke-InvalidRoadmapCase {
-    param($data) $data['capabilities']['scheduled-capability']['implementation_evidence'][0]['kind'] = 'wish'
+    param($data) $data['capabilities']['scheduled-capability']['implementation_evidence'][0]['criterion'] = 'wish'
 } 'must be one of'
 Invoke-InvalidRoadmapCase {
     param($data) $data['capabilities']['scheduled-capability']['implementation_evidence'][0]['provider_pack_id'] = 'fixture-core'
 } 'is not a provider'
+Invoke-InvalidRoadmapCase {
+    param($data) $data['capabilities']['scheduled-capability']['implementation_evidence'][0]['provider_pack_id'] = $null
+} 'is required'
 
 $tempPath = Join-Path ([System.IO.Path]::GetTempPath()) ('capability-roadmap-duplicate-' + [guid]::NewGuid().ToString('N') + '.yaml')
 try {
@@ -172,6 +175,225 @@ if (@($scale.capabilities).Count -ne 128) {
     throw 'Capability-roadmap scale fixture did not retain all 128 mappings.'
 }
 
+function New-TransitionEvidence {
+    param([string[]]$Criteria, [string]$ProviderPackId = 'fixture-domain')
+
+    return @(
+        $Criteria | Sort-Object -CaseSensitive | ForEach-Object {
+            $provider = if (
+                $_.StartsWith('conformance-', [System.StringComparison]::Ordinal) -or
+                $_ -cin @('contract', 'runtime-parity', 'runtime-support')
+            ) {
+                $ProviderPackId
+            }
+            else {
+                $null
+            }
+            [ordered]@{
+                criterion = $_
+                reference = "evidence:$_"
+                provider_pack_id = $provider
+            }
+        }
+    )
+}
+
+$allEvidenceCriteria = @(
+    'compatibility-impact'
+    'conformance-ambiguity'
+    'conformance-boundary'
+    'conformance-malformed'
+    'conformance-positive'
+    'conformance-scale'
+    'consumer-regression'
+    'contract'
+    'documentation'
+    'emergency-decision'
+    'evolution'
+    'extraction-review'
+    'migration-guidance'
+    'runtime-parity'
+    'runtime-support'
+)
+$promotionCriteria = @($allEvidenceCriteria | Where-Object { $_ -cnotin @('emergency-decision', 'migration-guidance') })
+$promotionDecision = [ordered]@{
+    transition = 'promotion'
+    rationale = 'Executable contract and all permanent verification are complete.'
+    replacement_capability_id = $null
+    roadmap_before_present = $true
+    roadmap_after_present = $false
+    runtime_behavior_changed = $true
+    runtime_parity_required = $true
+    evidence = @(New-TransitionEvidence $promotionCriteria)
+}
+$promotion = Get-KnowledgeCapabilityLifecycleTransition `
+    'scheduled-capability' `
+    'fixture-domain' `
+    'planned' `
+    'available' `
+    $promotionDecision `
+@('scheduled-capability', 'replacement-capability')
+if (-not $promotion.ready -or @($promotion.missing_criteria).Count -ne 0) {
+    throw 'Complete promotion evidence did not pass the lifecycle gate.'
+}
+
+$incompleteDecision = [ordered]@{
+    transition = 'promotion'
+    rationale = 'One criterion is deliberately absent.'
+    replacement_capability_id = $null
+    roadmap_before_present = $true
+    roadmap_after_present = $false
+    runtime_behavior_changed = $true
+    runtime_parity_required = $true
+    evidence = @($promotionDecision.evidence | Where-Object criterion -CNE 'conformance-scale')
+}
+$incomplete = Get-KnowledgeCapabilityLifecycleTransition `
+    'scheduled-capability' `
+    'fixture-domain' `
+    'planned' `
+    'available' `
+    $incompleteDecision
+if ($incomplete.ready -or (@($incomplete.missing_criteria) -join ',') -cne 'conformance-scale') {
+    throw 'Incomplete promotion evidence did not report its exact missing criterion.'
+}
+
+$incompleteDeprecationDecision = [ordered]@{
+    transition = 'deprecation'
+    rationale = 'Migration guidance is deliberately absent.'
+    replacement_capability_id = $null
+    roadmap_before_present = $false
+    roadmap_after_present = $false
+    runtime_behavior_changed = $false
+    runtime_parity_required = $false
+    evidence = @(
+        New-TransitionEvidence @($allEvidenceCriteria | Where-Object { $_ -cne 'migration-guidance' })
+    )
+}
+$incompleteDeprecation = Get-KnowledgeCapabilityLifecycleTransition `
+    'scheduled-capability' `
+    'fixture-domain' `
+    'available' `
+    'deprecated' `
+    $incompleteDeprecationDecision
+if (
+    $incompleteDeprecation.ready -or
+    (@($incompleteDeprecation.missing_criteria) -join ',') -cne 'migration-guidance'
+) {
+    throw 'Incomplete deprecation evidence did not report its exact missing criterion.'
+}
+
+$transitionVectors = @(
+    [pscustomobject]@{ transition = 'withdrawal'
+        before = 'planned'
+        after = $null
+        runtime_changed = $false
+    }
+    [pscustomobject]@{ transition = 'deprecation'
+        before = 'available'
+        after = 'deprecated'
+        runtime_changed = $false
+    }
+    [pscustomobject]@{ transition = 'rescission'
+        before = 'deprecated'
+        after = 'available'
+        runtime_changed = $true
+    }
+    [pscustomobject]@{ transition = 'removal'
+        before = 'deprecated'
+        after = $null
+        runtime_changed = $false
+    }
+    [pscustomobject]@{ transition = 'emergency-removal'
+        before = 'available'
+        after = $null
+        runtime_changed = $true
+    }
+    [pscustomobject]@{ transition = 'material-reshape'
+        before = 'available'
+        after = 'available'
+        runtime_changed = $false
+    }
+)
+$transitionReadyCases = 1
+foreach ($vector in $transitionVectors) {
+    $transition = [string]$vector.transition
+    $runtimeChanged = [bool]$vector.runtime_changed
+    $decision = [ordered]@{
+        transition = $transition
+        rationale = "Exercise $transition governance."
+        replacement_capability_id = if ($transition -cin @('deprecation', 'removal')) {
+            'replacement-capability'
+        }
+        else {
+            $null
+        }
+        roadmap_before_present = [string]$vector.before -ceq 'planned'
+        roadmap_after_present = [string]$vector.after -ceq 'planned'
+        runtime_behavior_changed = $runtimeChanged
+        runtime_parity_required = $runtimeChanged
+        evidence = @(New-TransitionEvidence $allEvidenceCriteria)
+    }
+    $result = Get-KnowledgeCapabilityLifecycleTransition `
+        'scheduled-capability' `
+        'fixture-domain' `
+    ([string]$vector.before) `
+        $vector.after `
+        $decision `
+    @('scheduled-capability', 'replacement-capability')
+    if (-not $result.ready) {
+        throw "Complete $transition evidence did not pass the lifecycle gate."
+    }
+    $transitionReadyCases++
+}
+
+$transitionInvalidCases = 0
+$invalidTransitionDecision = [ordered]@{} + $promotionDecision
+Assert-Rejected {
+    Get-KnowledgeCapabilityLifecycleTransition `
+        'scheduled-capability' 'fixture-domain' 'available' 'planned' $invalidTransitionDecision
+} 'is invalid'
+$transitionInvalidCases++
+
+$runtimeMissingDecision = [ordered]@{} + $promotionDecision
+$runtimeMissingDecision['runtime_behavior_changed'] = $false
+Assert-Rejected {
+    Get-KnowledgeCapabilityLifecycleTransition `
+        'scheduled-capability' 'fixture-domain' 'planned' 'available' $runtimeMissingDecision
+} 'must declare changed runtime behavior'
+$transitionInvalidCases++
+
+$replacementDecision = [ordered]@{} + $promotionDecision
+$replacementDecision['transition'] = 'withdrawal'
+$replacementDecision['replacement_capability_id'] = 'missing-capability'
+Assert-Rejected {
+    Get-KnowledgeCapabilityLifecycleTransition `
+        'scheduled-capability' 'fixture-domain' 'planned' $null $replacementDecision @('scheduled-capability')
+} 'unknown replacement'
+$transitionInvalidCases++
+
+$roadmapDriftDecision = [ordered]@{} + $promotionDecision
+$roadmapDriftDecision['roadmap_after_present'] = $true
+Assert-Rejected {
+    Get-KnowledgeCapabilityLifecycleTransition `
+        'scheduled-capability' 'fixture-domain' 'planned' 'available' $roadmapDriftDecision
+} 'roadmap/lifecycle drift'
+$transitionInvalidCases++
+
+$providerDecision = [ordered]@{} + $promotionDecision
+$providerDecision['evidence'] = @(
+    [ordered]@{
+        criterion = 'contract'
+        reference = 'evidence:contract'
+        provider_pack_id = 'other-pack'
+    }
+)
+Assert-Rejected {
+    Get-KnowledgeCapabilityLifecycleTransition `
+        'scheduled-capability' 'fixture-domain' 'planned' 'available' $providerDecision
+} 'must name provider'
+$transitionInvalidCases++
+$invalidCases += $transitionInvalidCases
+
 $canonical = Get-KnowledgeCapabilityRoadmap $actualRoot
 if (@($canonical.delivery_targets).Count -ne 8 -or @($canonical.capabilities).Count -ne 13) {
     throw 'Canonical capability-roadmap counts differ from the Phase 3.4.2 baseline.'
@@ -183,6 +405,9 @@ $summary = [ordered]@{
     invalid_cases = $invalidCases
     neutral_capabilities = @($model.capabilities).Count
     scale_capabilities = @($scale.capabilities).Count
+    transition_invalid_cases = $transitionInvalidCases
+    transition_not_ready_cases = 2
+    transition_ready_cases = $transitionReadyCases
 }
 if ($Json) {
     $summary | ConvertTo-Json -Compress

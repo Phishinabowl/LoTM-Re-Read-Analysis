@@ -869,36 +869,37 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 #### Phase 3.4.4 Promotion Governance And Closure
 
-- [ ] Define promotion criteria from `planned` to `available`, including an executable contract,
+- [x] Define promotion criteria from `planned` to `available`, including an executable contract,
   matching runtime support where parity applies, permanent positive/malformed/boundary/ambiguity/
   scale coverage, documentation, extraction review, and compatibility impact analysis.
-- [ ] Define deprecation, removal, replacement, and material-reshape obligations without conflating
+- [x] Define deprecation, removal, replacement, and material-reshape obligations without conflating
   lifecycle transitions with project selection, activation, distribution, or entitlement state.
-- [ ] Require roadmap, pack metadata, testing methodology, framework evolution, compatibility
+- [x] Require roadmap, pack metadata, testing methodology, the owning framework or platform
+  evolution history, compatibility
   expectations, and implementation evidence to be updated together when a capability is introduced,
   promoted, deprecated, removed, or materially reshaped.
-- [ ] Add permanent paired conformance for registry ingestion, traceability projections, lifecycle
+- [x] Add permanent paired conformance for registry ingestion, traceability projections, lifecycle
   transitions, accepted deferrals, drift detection, and promotion/deprecation failure cases where
   runtime parity applies.
-- [ ] Run aggregate conformance, compatibility, extraction, QA, and Visualization regression profiles
+- [x] Run aggregate conformance, compatibility, extraction, QA, and Visualization regression profiles
   before closing the phase, then reconcile every declared planned capability against a delivery phase
   or accepted deferral.
 
 ### Phase 3 Exit Gate
 
-- [ ] A headless client can present packs and capabilities coherently without reading README prose.
-- [ ] A headless client can explain whether a pack is a foundation, domain pack, bridge, or
+- [x] A headless client can present packs and capabilities coherently without reading README prose.
+- [x] A headless client can explain whether a pack is a foundation, domain pack, bridge, or
   extension; which family and scope it belongs to; why it was selected; and which vocabulary would
   appear or disappear if its selection changed.
-- [ ] `EffectiveProjectSchema` derives its selected pack/capability records from the same validated
+- [x] `EffectiveProjectSchema` derives its selected pack/capability records from the same validated
   model as `FrameworkCatalog`, adds project-owned composition state, and retains no independent pack
   metadata parser or discovery authority.
-- [ ] Catalog inspection implements `FrameworkCatalogProjectView` whenever project context is
+- [x] Catalog inspection implements `FrameworkCatalogProjectView` whenever project context is
   explicitly supplied, without making that context mandatory for base catalog inspection, mutating
   catalog identity, or introducing a circular dependency.
-- [ ] Human and JSON clients can inspect one pack or capability by stable ID and navigate its groups,
+- [x] Human and JSON clients can inspect one pack or capability by stable ID and navigate its groups,
   dependencies, providers, lifecycle, activation, recommendations, conflicts, and contributions.
-- [ ] Obsidian QA publishes one deterministic Markdown view of the effective project schema from the
+- [x] Obsidian QA publishes one deterministic Markdown view of the effective project schema from the
   same in-process report authority used by supported inspection clients, with three-runtime parity
   and reviewed artifact compatibility.
 - [x] Declarative schema packs cannot execute code, and future executable extensions have a separate
@@ -907,7 +908,7 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
   behavior and existing catalog/effective-schema results.
 - [x] Commercial offerings and grants remain external to portable pack and project semantics, while
   the installed catalog remains factual and project selection remains project-owned.
-- [ ] Every capability whose effective installed lifecycle is planned is machine-discoverable and
+- [x] Every capability whose effective installed lifecycle is planned is machine-discoverable and
   traceable to a delivery phase or accepted deferral.
 - [x] No licensing assumption leaks into reusable schema contracts.
 

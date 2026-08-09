@@ -1,16 +1,98 @@
-$script:SupportedCapabilityRoadmapSchemaVersion = 1
+$script:SupportedCapabilityRoadmapSchemaVersion = 2
 $script:CapabilityRoadmapRegistryId = 'capability-roadmap'
 $script:CapabilityRoadmapStableIdPattern = '^[a-z0-9]+(?:-[a-z0-9]+)*$'
 $script:CapabilityRoadmapDeliveryTargetKinds = @('platform-phase')
 $script:CapabilityRoadmapDispositions = @('accepted-deferral', 'scheduled')
-$script:CapabilityRoadmapEvidenceKinds = @(
-    'compatibility'
-    'conformance'
+$script:CapabilityRoadmapEvidenceCriteria = @(
+    'compatibility-impact'
+    'conformance-ambiguity'
+    'conformance-boundary'
+    'conformance-malformed'
+    'conformance-positive'
+    'conformance-scale'
+    'consumer-regression'
     'contract'
     'documentation'
-    'extraction'
-    'runtime'
+    'emergency-decision'
+    'evolution'
+    'extraction-review'
+    'migration-guidance'
+    'runtime-parity'
+    'runtime-support'
 )
+$script:CapabilityRoadmapProviderScopedCriteria = @(
+    'conformance-ambiguity'
+    'conformance-boundary'
+    'conformance-malformed'
+    'conformance-positive'
+    'conformance-scale'
+    'contract'
+    'runtime-parity'
+    'runtime-support'
+)
+$script:CapabilityLifecycles = @('available', 'deprecated', 'planned')
+$script:CapabilityTransitionTypes = [ordered]@{
+    'planned|available' = 'promotion'
+    'planned|' = 'withdrawal'
+    'available|deprecated' = 'deprecation'
+    'deprecated|available' = 'rescission'
+    'deprecated|' = 'removal'
+    'available|' = 'emergency-removal'
+}
+$script:CapabilityPromotionCriteria = @(
+    'compatibility-impact'
+    'conformance-ambiguity'
+    'conformance-boundary'
+    'conformance-malformed'
+    'conformance-positive'
+    'conformance-scale'
+    'consumer-regression'
+    'contract'
+    'documentation'
+    'evolution'
+    'extraction-review'
+    'runtime-support'
+)
+$script:CapabilityTransitionCriteria = [ordered]@{
+    promotion = $script:CapabilityPromotionCriteria
+    rescission = $script:CapabilityPromotionCriteria
+    withdrawal = @('compatibility-impact', 'documentation', 'evolution')
+    deprecation = @(
+        'compatibility-impact'
+        'consumer-regression'
+        'documentation'
+        'evolution'
+        'migration-guidance'
+    )
+    removal = @(
+        'compatibility-impact'
+        'consumer-regression'
+        'documentation'
+        'evolution'
+        'extraction-review'
+        'migration-guidance'
+    )
+    'emergency-removal' = @(
+        'compatibility-impact'
+        'consumer-regression'
+        'documentation'
+        'emergency-decision'
+        'evolution'
+        'extraction-review'
+        'migration-guidance'
+    )
+    'material-reshape' = @(
+        'compatibility-impact'
+        'conformance-boundary'
+        'conformance-malformed'
+        'conformance-positive'
+        'consumer-regression'
+        'contract'
+        'documentation'
+        'evolution'
+        'extraction-review'
+    )
+}
 
 function Get-RequiredCapabilityRoadmapString {
     param(
@@ -324,13 +406,16 @@ function ConvertTo-KnowledgeCapabilityRoadmap {
             $evidenceContext = "$context.implementation_evidence[$evidenceIndex]"
             Assert-KnowledgeMapKeys `
                 $evidenceRow `
-            @('kind', 'reference', 'provider_pack_id') `
+            @('criterion', 'reference', 'provider_pack_id') `
                 "Capability roadmap '$evidenceContext'"
-            $evidenceKind = Get-RequiredCapabilityRoadmapString $evidenceRow 'kind' $evidenceContext
-            if ($script:CapabilityRoadmapEvidenceKinds -cnotcontains $evidenceKind) {
+            $evidenceCriterion = Get-RequiredCapabilityRoadmapString `
+                $evidenceRow `
+                'criterion' `
+                $evidenceContext
+            if ($script:CapabilityRoadmapEvidenceCriteria -cnotcontains $evidenceCriterion) {
                 throw (
-                    "Capability roadmap '$evidenceContext.kind' must be one of: " +
-                    "$($script:CapabilityRoadmapEvidenceKinds -join ', ')."
+                    "Capability roadmap '$evidenceContext.criterion' must be one of: " +
+                    "$($script:CapabilityRoadmapEvidenceCriteria -join ', ')."
                 )
             }
             $reference = Get-RequiredCapabilityRoadmapString $evidenceRow 'reference' $evidenceContext
@@ -349,12 +434,21 @@ function ConvertTo-KnowledgeCapabilityRoadmap {
                     )
                 }
             }
-            $evidenceKey = "$evidenceKind`0$reference`0$providerPackId"
+            if (
+                $script:CapabilityRoadmapProviderScopedCriteria -ccontains $evidenceCriterion -and
+                $null -eq $providerPackId
+            ) {
+                throw (
+                    "Capability roadmap '$evidenceContext.provider_pack_id' is required for " +
+                    "criterion '$evidenceCriterion'."
+                )
+            }
+            $evidenceKey = "$evidenceCriterion`0$reference`0$providerPackId"
             if (-not $evidenceKeys.Add($evidenceKey)) {
                 throw "Capability roadmap '$context.implementation_evidence' contains duplicates."
             }
             $evidence += [ordered]@{
-                kind = $evidenceKind
+                criterion = $evidenceCriterion
                 reference = $reference
                 provider_pack_id = $providerPackId
             }
@@ -428,7 +522,7 @@ function New-KnowledgeCapabilityDeliveryTraceabilityMap {
             implementation_evidence = @(
                 $row.implementation_evidence | ForEach-Object {
                     [ordered]@{
-                        kind = [string]$_.kind
+                        criterion = [string]$_.criterion
                         reference = [string]$_.reference
                         provider_pack_id = $_.provider_pack_id
                     }
@@ -437,6 +531,192 @@ function New-KnowledgeCapabilityDeliveryTraceabilityMap {
         }
     }
     return $projections
+}
+
+function Get-KnowledgeCapabilityLifecycleTransition {
+    param(
+        [string]$CapabilityId,
+        [string]$ProviderPackId,
+        [string]$BeforeLifecycle,
+        [AllowNull()][object]$AfterLifecycle,
+        [object]$Decision,
+        [string[]]$KnownCapabilityIds = @()
+    )
+
+    $null = Assert-CapabilityRoadmapStableId $CapabilityId 'transition.capability_id'
+    $null = Assert-CapabilityRoadmapStableId $ProviderPackId 'transition.provider_pack_id'
+    if ($script:CapabilityLifecycles -cnotcontains $BeforeLifecycle) {
+        throw "Capability lifecycle transition has unknown before lifecycle: $BeforeLifecycle"
+    }
+    if ($null -ne $AfterLifecycle -and $script:CapabilityLifecycles -cnotcontains [string]$AfterLifecycle) {
+        throw "Capability lifecycle transition has unknown after lifecycle: $AfterLifecycle"
+    }
+    if ($Decision -isnot [System.Collections.IDictionary]) {
+        throw 'Capability lifecycle transition decision must be a mapping.'
+    }
+    Assert-KnowledgeMapKeys `
+        $Decision `
+    @(
+        'transition'
+        'rationale'
+        'replacement_capability_id'
+        'roadmap_after_present'
+        'roadmap_before_present'
+        'runtime_behavior_changed'
+        'runtime_parity_required'
+        'evidence'
+    ) `
+        'Capability lifecycle transition decision'
+
+    $afterValue = if ($null -eq $AfterLifecycle) {
+        ''
+    }
+    else {
+        [string]$AfterLifecycle
+    }
+    $expectedTransition = if ($BeforeLifecycle -ceq $afterValue) {
+        'material-reshape'
+    }
+    else {
+        Get-ProjectMapValue $script:CapabilityTransitionTypes "$BeforeLifecycle|$afterValue"
+    }
+    $transition = Get-RequiredCapabilityRoadmapString $Decision 'transition' 'transition'
+    if ($null -eq $expectedTransition -or $transition -cne [string]$expectedTransition) {
+        $displayAfter = if ($null -eq $AfterLifecycle) {
+            'removed'
+        }
+        else {
+            [string]$AfterLifecycle
+        }
+        throw (
+            'Capability lifecycle transition is invalid: ' +
+            "$BeforeLifecycle -> $displayAfter as '$transition'."
+        )
+    }
+    $null = Get-RequiredCapabilityRoadmapString $Decision 'rationale' 'transition'
+
+    $roadmapBeforePresent = Get-ProjectMapValue $Decision 'roadmap_before_present'
+    $roadmapAfterPresent = Get-ProjectMapValue $Decision 'roadmap_after_present'
+    if ($roadmapBeforePresent -isnot [bool] -or $roadmapAfterPresent -isnot [bool]) {
+        throw (
+            "Capability lifecycle transition 'roadmap_before_present' and " +
+            "'roadmap_after_present' must be booleans."
+        )
+    }
+    if ($roadmapBeforePresent -ne ($BeforeLifecycle -ceq 'planned')) {
+        throw 'Capability lifecycle transition before state has roadmap/lifecycle drift.'
+    }
+    if ($roadmapAfterPresent -ne ($AfterLifecycle -ceq 'planned')) {
+        throw 'Capability lifecycle transition after state has roadmap/lifecycle drift.'
+    }
+
+    $runtimeBehaviorChanged = Get-ProjectMapValue $Decision 'runtime_behavior_changed'
+    $runtimeParityRequired = Get-ProjectMapValue $Decision 'runtime_parity_required'
+    if ($runtimeBehaviorChanged -isnot [bool] -or $runtimeParityRequired -isnot [bool]) {
+        throw (
+            "Capability lifecycle transition 'runtime_behavior_changed' and " +
+            "'runtime_parity_required' must be booleans."
+        )
+    }
+    if ($transition -cin @('promotion', 'rescission') -and -not $runtimeBehaviorChanged) {
+        throw "Capability lifecycle '$transition' must declare changed runtime behavior."
+    }
+    if ($runtimeParityRequired -and -not $runtimeBehaviorChanged) {
+        throw 'Capability lifecycle transition cannot require parity without runtime impact.'
+    }
+
+    $replacementId = Get-ProjectMapValue $Decision 'replacement_capability_id'
+    if ($null -ne $replacementId) {
+        if ($replacementId -isnot [string] -or [string]::IsNullOrWhiteSpace([string]$replacementId)) {
+            throw 'Capability lifecycle transition replacement must be a stable capability ID or null.'
+        }
+        $replacementId = Assert-CapabilityRoadmapStableId `
+        ([string]$replacementId).Trim() `
+            'transition.replacement_capability_id'
+        if ($replacementId -ceq $CapabilityId) {
+            throw 'Capability lifecycle transition cannot replace a capability with itself.'
+        }
+        if ($KnownCapabilityIds -cnotcontains $replacementId) {
+            throw "Capability lifecycle transition references unknown replacement: $replacementId"
+        }
+    }
+
+    $evidenceRows = $Decision['evidence']
+    if (
+        $null -eq $evidenceRows -or
+        $evidenceRows -is [string] -or
+        $evidenceRows -is [System.Collections.IDictionary]
+    ) {
+        throw "Capability lifecycle transition 'evidence' must be a list."
+    }
+    $present = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+    $seen = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+    $index = 0
+    foreach ($row in @($evidenceRows)) {
+        $context = "transition.evidence[$index]"
+        Assert-KnowledgeMapKeys $row @('criterion', 'reference', 'provider_pack_id') $context
+        $criterion = Get-RequiredCapabilityRoadmapString $row 'criterion' $context
+        if ($script:CapabilityRoadmapEvidenceCriteria -cnotcontains $criterion) {
+            throw (
+                "Capability lifecycle transition '$context.criterion' must be one of: " +
+                "$($script:CapabilityRoadmapEvidenceCriteria -join ', ')."
+            )
+        }
+        $reference = Get-RequiredCapabilityRoadmapString $row 'reference' $context
+        $evidenceProvider = Get-ProjectMapValue $row 'provider_pack_id'
+        if ($null -ne $evidenceProvider) {
+            if ($evidenceProvider -isnot [string] -or [string]::IsNullOrWhiteSpace([string]$evidenceProvider)) {
+                throw "Capability lifecycle transition '$context.provider_pack_id' is invalid."
+            }
+            $evidenceProvider = Assert-CapabilityRoadmapStableId `
+            ([string]$evidenceProvider).Trim() `
+                "$context.provider_pack_id"
+        }
+        if (
+            $script:CapabilityRoadmapProviderScopedCriteria -ccontains $criterion -and
+            $evidenceProvider -cne $ProviderPackId
+        ) {
+            throw (
+                "Capability lifecycle transition criterion '$criterion' must name provider " +
+                "'$ProviderPackId'."
+            )
+        }
+        if (-not $seen.Add("$criterion`0$reference`0$evidenceProvider")) {
+            throw 'Capability lifecycle transition evidence contains duplicates.'
+        }
+        $null = $present.Add($criterion)
+        $index++
+    }
+
+    $required = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+    foreach ($criterion in @($script:CapabilityTransitionCriteria[$transition])) {
+        $null = $required.Add($criterion)
+    }
+    if ($runtimeBehaviorChanged) {
+        $null = $required.Add('runtime-support')
+    }
+    if ($runtimeParityRequired) {
+        $null = $required.Add('runtime-parity')
+    }
+    $requiredRows = @($required | Sort-Object -CaseSensitive)
+    $presentRows = @($present | Sort-Object -CaseSensitive)
+    $missingRows = @($requiredRows | Where-Object { -not $present.Contains($_) })
+    return [ordered]@{
+        capability_id = $CapabilityId
+        provider_pack_id = $ProviderPackId
+        transition = $transition
+        before_lifecycle = $BeforeLifecycle
+        after_lifecycle = $AfterLifecycle
+        replacement_capability_id = $replacementId
+        roadmap_before_present = $roadmapBeforePresent
+        roadmap_after_present = $roadmapAfterPresent
+        runtime_behavior_changed = $runtimeBehaviorChanged
+        runtime_parity_required = $runtimeParityRequired
+        required_criteria = $requiredRows
+        present_criteria = $presentRows
+        missing_criteria = $missingRows
+        ready = $missingRows.Count -eq 0
+    }
 }
 
 function Get-KnowledgeCapabilityRoadmapModel {
