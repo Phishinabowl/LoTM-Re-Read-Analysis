@@ -693,3 +693,56 @@ Ruff formatting and linting passed for all 50 Python files. PowerShell 7 and Win
 each checked 52 PowerShell files with zero formatting changes and zero long-line violations. The
 367-file work-annotation scan and all 22 fixtures passed with zero findings; contract-link
 existence and `git diff --check` also passed. Phase 3.3.3 is ready for its two-part confirmation.
+
+## Platform Phase 3.3.4 - Boundary Conformance And Handoff
+
+**Closure implemented by:** pending
+
+Phase 3.3.4 converts the distribution and entitlement seam into permanent regression coverage
+without implementing a provider or commercial runtime. A paired baseline-only
+`distribution-boundary` suite composes the installed catalog, effective project schema, and complete
+project registry chain in an isolated project copy. It then places deliberately hostile external
+offering, grant, failed-provider, dependency, lifecycle, selection, activation, controlled-value,
+and enforcement claims beside framework, pack, and project configuration. All three portable
+semantic outputs must remain identical.
+
+The suite also requires the six existing pack/dependency rejection vectors and rejects five direct
+commercial-field injections into the portable project manifest. Its fixture is explicitly
+noncanonical adversarial data rather than a provider schema. The compatibility registry adds a
+focused `distribution-boundary` profile combining reporting, catalog, effective schema, the paired
+boundary suite, Visualization, QA, and isolated extraction. `full-release` also includes the new
+boundary check; the ordinary `fast` conformance profile remains unchanged.
+
+Remote distribution, offering/provider schemas, package acquisition, integrity validation,
+installation, update, disablement, removal, revocation, cached decisions, offline grace,
+post-install enforcement, transactional project mutation, and rollback remain assigned to Phase
+14.3. Trusted executable-extension hosting remains independently assigned to Phase 14.4.
+
+### Phase 3.3.4 Verification
+
+Focused registered conformance passed with identical summaries in Python, PowerShell 7, and Windows
+PowerShell 5.1. The suite compared three semantic surfaces across four inert external metadata
+locations, required six pack/dependency rejection vectors, rejected five project-manifest injection
+cases, and found none of 16 forbidden commercial keys in generated outputs. Direct runtimes
+completed in 7.1, 39.5, and 65.1 seconds. The registered cross-runtime boundary check then passed in
+109.2 seconds with canonical outputs unchanged and successful scoped output removed.
+
+The named eight-check `distribution-boundary` compatibility profile passed in 1,273.0 seconds across
+reporting, catalog, effective schema, the paired boundary suite, Visualization, QA, and isolated
+extraction. It preserved all canonical outputs and removed successful scoped output. The extraction
+rehearsal copied 273 portable files, copied no project configuration, excluded all nine guarded
+project surfaces, and passed its eight neutral suites in Python, PowerShell 7, and Windows
+PowerShell 5.1.
+
+After correcting an initial registry-placement defect that put the new suite in `fast` instead of
+`baseline`, the valid 20-suite baseline passed in Python, PowerShell 7, and Windows PowerShell 5.1
+in 66.0, 346.7, and 631.7 seconds. The `fast` profile retains its prior membership. The final
+11-check `full-release` profile passed in 1,359.3 seconds with canonical outputs unchanged, complete
+artifact cleanup, and byte-identical nonblank 298,269-byte SVGs with SHA-256
+`11b9e70f735004641ab0bd348c21451d1cc2852327caa58d092dd045dfb59f73` in all three runtimes.
+
+Ruff formatting and linting passed for all 51 Python files. PowerShell 7 and Windows PowerShell 5.1
+each checked 53 PowerShell files with zero formatting changes and zero long-line violations. The
+370-file work-annotation scan and all 22 fixtures passed with zero findings. Registry JSON parsing,
+required-path existence, and `git diff --check` also passed. Phase 3.3.4 is ready for its two-part
+confirmation; Phase 3.4 planned-capability lifecycle and traceability is next.

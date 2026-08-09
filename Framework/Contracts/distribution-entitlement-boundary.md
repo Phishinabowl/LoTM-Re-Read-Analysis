@@ -183,3 +183,7 @@ operations become available, that phase must define:
   privacy, and security coverage.
 
 Until that gate closes, distribution and entitlement are an architectural seam only.
+
+Permanent Phase 3.3.4 coverage is owned by the paired `distribution-boundary` conformance suite and
+the registered compatibility profile of the same name. The suite's external metadata is adversarial
+input rather than a provisional provider schema; accepting or parsing it would violate this contract.

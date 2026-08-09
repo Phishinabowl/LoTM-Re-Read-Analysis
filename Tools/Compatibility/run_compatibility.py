@@ -32,6 +32,7 @@ ALLOWED_CHECK_KINDS = {
     "artifact-lifecycle",
     "compatibility-reporting",
     "conformance-reporting",
+    "distribution-boundary",
     "effective-schema",
     "framework-catalog",
     "framework-extraction",
@@ -44,6 +45,7 @@ CHECK_KEYS = {
     "artifact-lifecycle": {"id", "kind", "timeout_seconds"},
     "compatibility-reporting": {"id", "kind", "timeout_seconds"},
     "conformance-reporting": {"id", "kind", "timeout_seconds"},
+    "distribution-boundary": {"id", "kind", "timeout_seconds"},
     "effective-schema": {"id", "kind", "timeout_seconds"},
     "framework-catalog": {"id", "kind", "timeout_seconds"},
     "framework-extraction": {"id", "kind", "timeout_seconds"},
@@ -1530,6 +1532,59 @@ def run_framework_extraction_check(
     }
 
 
+def run_distribution_boundary_check(
+    check: dict[str, Any], runtimes: list[Runtime], root: Path, output_root: Path
+) -> dict[str, Any]:
+    del output_root
+    python_runner = root / "Tools" / "Conformance" / "run_conformance.py"
+    powershell_runner = root / "Tools" / "Conformance" / "Run-Conformance.ps1"
+    summaries: dict[str, dict[str, Any]] = {}
+    elapsed: dict[str, float] = {}
+
+    for runtime in runtimes:
+        command = python_or_powershell_command(
+            runtime,
+            python_runner,
+            powershell_runner,
+            ["--root", str(root), "--suite", "distribution-boundary", "--json"],
+            ["-Root", str(root), "-Suite", "distribution-boundary", "-Json"],
+        )
+        result = run_command(runtime, command, root, check["timeout_seconds"])
+        document = parse_json_output(result.stdout)
+        suites = document.get("suites") if isinstance(document, dict) else None
+        if (
+            not isinstance(document, dict)
+            or document.get("failed") != 0
+            or document.get("passed") != 1
+            or not isinstance(suites, list)
+            or len(suites) != 1
+            or suites[0].get("id") != "distribution-boundary"
+            or suites[0].get("status") != "passed"
+            or not isinstance(suites[0].get("summary"), dict)
+        ):
+            raise CompatibilityFailure(f"{runtime.id} returned an invalid distribution-boundary result: {document!r}")
+        summaries[runtime.id] = suites[0]["summary"]
+        elapsed[runtime.id] = result.elapsed_seconds
+
+    reference_runtime = "python"
+    reference = summaries[reference_runtime]
+    for runtime_id, summary in summaries.items():
+        if summary != reference:
+            raise CompatibilityFailure(
+                f"Distribution-boundary conformance differs between {reference_runtime} and {runtime_id}."
+            )
+    required_true = ("provider_failure_inert", "portable_outputs_unchanged")
+    if any(reference.get(key) is not True for key in required_true):
+        raise CompatibilityFailure(f"Distribution-boundary invariants were not satisfied: {reference!r}")
+
+    return {
+        "status": "passed",
+        **reference,
+        "runtimes": [runtime.id for runtime in runtimes],
+        "elapsed_seconds": elapsed,
+    }
+
+
 def run_framework_catalog_check(
     check: dict[str, Any], runtimes: list[Runtime], root: Path, output_root: Path
 ) -> dict[str, Any]:
@@ -2492,6 +2547,7 @@ CHECK_HANDLERS = {
     "artifact-lifecycle": run_artifact_lifecycle_check,
     "compatibility-reporting": run_compatibility_reporting_check,
     "conformance-reporting": run_conformance_reporting_check,
+    "distribution-boundary": run_distribution_boundary_check,
     "effective-schema": run_effective_schema_check,
     "framework-catalog": run_framework_catalog_check,
     "framework-extraction": run_framework_extraction_check,

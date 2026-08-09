@@ -807,16 +807,16 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 - [x] Add explicit malformed fixtures proving executable, hook, credential, commercial-offering,
   and entitlement fields are rejected from declarative schema packs.
-- [ ] Prove the no-provider path preserves current catalog, effective-schema, QA, Visualization,
+- [x] Prove the no-provider path preserves current catalog, effective-schema, QA, Visualization,
   extraction, and project-composition behavior across supported runtimes.
-- [ ] Prove entitlement or distribution metadata cannot satisfy pack dependencies, change pack or
+- [x] Prove entitlement or distribution metadata cannot satisfy pack dependencies, change pack or
   capability lifecycle, select packs, activate capabilities, or alter controlled-value composition.
-- [ ] Verify the extracted framework and portable project contracts contain no commercial account,
+- [x] Verify the extracted framework and portable project contracts contain no commercial account,
   product, pricing, or enforcement assumptions.
-- [ ] Record executable extension loading, remote distribution, package acquisition, installation,
+- [x] Record executable extension loading, remote distribution, package acquisition, installation,
   update, revocation, offline-grace, and post-install enforcement as explicit later work rather than
   partially implementing them in Phase 3.3.
-- [ ] Hand future add-on discovery, entitlement-aware acquisition, installation preview, and project
+- [x] Hand future add-on discovery, entitlement-aware acquisition, installation preview, and project
   mutation to Phase 14.3 without weakening the boundaries established here.
 
 ### Phase 3.4 Planned-Capability Lifecycle And Traceability
@@ -850,15 +850,15 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 - [ ] Obsidian QA publishes one deterministic Markdown view of the effective project schema from the
   same in-process report authority used by supported inspection clients, with three-runtime parity
   and reviewed artifact compatibility.
-- [ ] Declarative schema packs cannot execute code, and future executable extensions have a separate
+- [x] Declarative schema packs cannot execute code, and future executable extensions have a separate
   explicit trust boundary.
-- [ ] With no entitlement provider configured, locally installed packs retain deterministic offline
+- [x] With no entitlement provider configured, locally installed packs retain deterministic offline
   behavior and existing catalog/effective-schema results.
-- [ ] Commercial offerings and grants remain external to portable pack and project semantics, while
+- [x] Commercial offerings and grants remain external to portable pack and project semantics, while
   the installed catalog remains factual and project selection remains project-owned.
 - [ ] Every declared planned capability is machine-discoverable and traceable to a delivery phase or
   accepted deferral.
-- [ ] No licensing assumption leaks into reusable schema contracts.
+- [x] No licensing assumption leaks into reusable schema contracts.
 
 ## Phase 4: Page Modules, Fields, Defaults, And Validation Levels
 
@@ -1252,11 +1252,20 @@ wave is confirmed.
   outcomes, and already installed local behavior.
 - [ ] Preserve distinct offering-discoverable, entitled, acquirable, installed, selectable,
   selected, and enabled state in explainable previews and decisions.
+- [ ] Define package acquisition, integrity validation, staged installation, transactional update,
+  disablement, removal, audit, and rollback without granting distribution services schema-pack or
+  project authority.
+- [ ] Define revocation, provider outage, cached decisions, offline grace, and any post-install
+  enforcement as explicit host policies; preserve already installed local behavior unless a later
+  reviewed product requirement deliberately changes that Phase 3.3 default.
 - [ ] Preview dependency selection, capability activation, schema changes, and migrations.
 - [ ] Activate additive capabilities without rewriting unrelated records.
 - [ ] Block disabling or removing packs while project data still depends on them unless an accepted
   migration resolves that dependency.
 - [ ] Prove adding shared-universe/parallel-continuity support to an existing narrative project.
+- [ ] Add permanent no-provider, provider-failure, malformed, boundary, ambiguity, scale,
+  extraction, privacy, security, and transactional-failure coverage before enabling these
+  operations.
 
 ### Phase 14.4 Trusted Executable Extension Host
 

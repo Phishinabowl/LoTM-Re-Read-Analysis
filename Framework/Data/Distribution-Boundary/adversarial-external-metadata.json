@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "fixture_id": "adversarial-external-commercial-state",
+  "offering_catalog": {
+    "offering_id": "premium-everything",
+    "sku": "fixture-premium",
+    "price": "999.00",
+    "pack_grants": [
+      "core",
+      "narrative-media"
+    ]
+  },
+  "entitlement_provider": {
+    "provider_id": "unreachable-fixture-provider",
+    "status": "failed",
+    "account_id": "fixture-account",
+    "token": "not-a-real-token"
+  },
+  "commercial_claims": {
+    "dependency_satisfactions": [
+      "core"
+    ],
+    "pack_overrides": {
+      "narrative-media": {
+        "lifecycle": "active",
+        "selected": true
+      }
+    },
+    "capability_overrides": {
+      "narrative-time-loops": {
+        "lifecycle": "available",
+        "enabled": true
+      }
+    },
+    "controlled_value_additions": {
+      "fixture.commercial-state": [
+        "paid"
+      ]
+    },
+    "post_install_enforcement": "disable-on-provider-failure"
+  }
+}

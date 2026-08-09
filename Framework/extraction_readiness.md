@@ -220,6 +220,14 @@ grants are the initial future acquisition granularity; capability licensing rema
 updated isolated rehearsal copied 269 portable files, excluded all nine guarded project surfaces,
 and passed eight suites in all three runtimes without adding commercial host state.
 
+Phase 3.3.4 closes permanent distribution-boundary conformance and handoff. The extracted bundle
+includes the noncanonical adversarial fixture and paired boundary runners, but no provider, account,
+offering catalog, price, grant, token, installer, or enforcement runtime. The updated isolated
+rehearsal copied 273 portable files, copied no project configuration, excluded all nine guarded
+project surfaces, and passed eight neutral suites in all three runtimes. The dedicated boundary
+profile and final full-release profile preserved catalog, effective-schema, Visualization, QA, and
+project-composition behavior under the entitlement-free default.
+
 ## Known Limits And Next Boundaries
 
 Extraction readiness does not close these known items:
@@ -231,9 +239,10 @@ Extraction readiness does not close these known items:
   through V50. The Phase 1 model gate, Phase 2 effective-schema consumer-adoption gate, Phase 3.1
   pack-presentation gate, Phase 3.2.1 project-independent installed-pack catalog, Phase 3.2.2
   effective-schema catalog integration and project-state annotation, Phase 3.2.3 shared-report QA
-  publication, Phase 3.2.4 capability grouping, and the Phase 3.3.1 declarative schema-pack boundary
-  are closed. The trusted executable-extension and optional distribution/entitlement boundaries are
-  defined; Phase 3.3.4 boundary conformance and handoff are next.
+  publication, Phase 3.2.4 capability grouping, Phase 3.3.1 declarative schema-pack isolation,
+  Phase 3.3.2 trusted executable-extension separation, and Phase 3.3.3-3.3.4 optional
+  distribution/entitlement isolation and permanent conformance are closed. Executable loading and
+  add-on acquisition remain explicitly deferred to Phases 14.4 and 14.3 respectively.
 - Historical continuity-membership transitions, manifestation- or release-scoped continuity,
   occurrence-linked continuity transitions, first-class continuity systems, and sliding-chronology
   policies remain later normalized-content or deferred narrative capability work. They do not weaken

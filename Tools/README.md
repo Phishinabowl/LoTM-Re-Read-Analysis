@@ -572,7 +572,7 @@ python Tools\Conformance\run_conformance.py --profile baseline --summary-json --
 powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Conformance.ps1 -Profile baseline -SummaryJson -ReportOutput .tmp\validation\powershell-baseline.json
 ```
 
-The `baseline` profile runs every registered permanent suite and is the profile used by CI and framework-version validation. The smaller `fast` profile runs project-root, strict-ingestion, lookup-key, schema-pack, taxonomy, resource, temporal, and chronology checks for quick local feedback; it is not a substitute for the baseline. Schema-pack, taxonomy, and resource composition remain in `fast` because their small synthetic corpora diagnose foundational capability, vocabulary, content-routing, and placement failures before downstream registries obscure them. Source, entity, provenance, structural-interpretation, and full project-composition conformance remain baseline-only because they repeatedly compose larger dependency chains or provide narrower diagnostics. Use repeatable Python `--suite` arguments or a PowerShell `-Suite` array for focused diagnosis, and use `--list` / `-List` to inspect the registered inventory and profiles. The authoritative positive, malformed, boundary, ambiguity, and scale obligations for every registry suite are defined in the Registry Coverage Classes matrix in `Framework/testing_methodology.md`.
+The `baseline` profile runs every registered permanent suite and is the profile used by CI and framework-version validation. The smaller `fast` profile runs project-root, strict-ingestion, lookup-key, schema-pack, taxonomy, resource, temporal, and chronology checks for quick local feedback; it is not a substitute for the baseline. Schema-pack, taxonomy, and resource composition remain in `fast` because their small synthetic corpora diagnose foundational capability, vocabulary, content-routing, and placement failures before downstream registries obscure them. Distribution-boundary, source, entity, provenance, structural-interpretation, and full project-composition conformance remain baseline-only because they repeatedly compose larger dependency chains or provide narrower diagnostics. Use repeatable Python `--suite` arguments or a PowerShell `-Suite` array for focused diagnosis, and use `--list` / `-List` to inspect the registered inventory and profiles. The authoritative positive, malformed, boundary, ambiguity, and scale obligations for every registry suite are defined in the Registry Coverage Classes matrix in `Framework/testing_methodology.md`.
 
 ```powershell
 python Tools\Conformance\run_conformance.py --profile fast
@@ -596,6 +596,7 @@ Use the canonical compatibility orchestrator after permanent conformance passes.
 ```powershell
 python Tools\Compatibility\run_compatibility.py --profile local --summary-json
 python Tools\Compatibility\run_compatibility.py --profile pull-request --summary-json --report-output .tmp\validation\pull-request-compatibility.json
+python Tools\Compatibility\run_compatibility.py --profile distribution-boundary --summary-json --report-output .tmp\validation\distribution-boundary-compatibility.json
 python Tools\Compatibility\run_compatibility.py --profile full-release --summary-json --report-output .tmp\validation\full-release-compatibility.json
 ```
 
@@ -603,7 +604,9 @@ python Tools\Compatibility\run_compatibility.py --profile full-release --summary
 requests, extraction and render probes, timeouts, and profile membership. Every profile validates
 compatibility/conformance reporting, FrameworkCatalog, and EffectiveProjectSchema before consumer checks. `local` then
 compares Visualization and QA outputs; `pull-request` adds root-discovery, artifact-lifecycle, and
-isolated-extraction safety; `full-release` also renders a representative graph. Use `--list` or
+isolated-extraction safety; `distribution-boundary` combines no-provider consumer behavior,
+three-runtime commercial-metadata isolation, and extraction; `full-release` includes that boundary
+check and also renders a representative graph. Use `--list` or
 `--list --json` to inspect the registry, and repeat `--check` for focused diagnosis.
 
 Visualization and QA must agree across all three runtimes and match the reviewed LoTM consumer
@@ -663,6 +666,20 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Suites\Tes
 ```
 
 Use `--json` / `-Json` for matching canonical, fixture, malformed-case, and scale counts across Python, PowerShell 7, and Windows PowerShell 5.1.
+
+## Distribution-Boundary Conformance
+
+Run the paired distribution-boundary suite after changing schema-pack/project commercial isolation,
+catalog or effective-schema authority, optional-provider behavior, or distribution and entitlement
+contracts. It compares catalog, effective-schema, and complete project-composition outputs before
+and after four hostile external metadata placements, requires six pack/dependency rejection vectors,
+rejects five portable-project injections, and treats provider failure as inert external state.
+
+```powershell
+python Tools\Conformance\run_conformance.py --suite distribution-boundary --summary-json
+powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Conformance.ps1 -Suite distribution-boundary -SummaryJson
+python Tools\Compatibility\run_compatibility.py --profile distribution-boundary --summary-json
+```
 
 ## Taxonomy Conformance
 

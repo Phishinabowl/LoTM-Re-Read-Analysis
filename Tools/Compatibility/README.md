@@ -16,8 +16,10 @@ project-independent `FrameworkCatalog` and project-scoped `EffectiveProjectSchem
 cover byte-identical canonical and selection exports, combined and deduplicated human inspection,
 invalid selectors, malformed-input failure envelopes, and confined output across Python,
 PowerShell 7, and Windows PowerShell 5.1. Use
-`--profile pull-request` for root and artifact-lifecycle guards, or `--profile full-release` to add
-representative rendering. `--list --json` exposes the registered inventory. Use `--summary-json` for
+`--profile pull-request` for root and artifact-lifecycle guards, `--profile distribution-boundary`
+for no-provider consumers, external commercial-metadata isolation, and extraction, or
+`--profile full-release` to include that boundary plus representative rendering. `--list --json`
+exposes the registered inventory. Use `--summary-json` for
 routine status, `--json` for the complete nested result, and `--report-output PATH` to write that
 complete result while retaining concise or human standard output. Every run writes beneath
 a uniquely scoped ignored `.tmp/compatibility/` folder, protects canonical outputs by hash, and

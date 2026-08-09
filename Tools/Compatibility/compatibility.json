@@ -25,6 +25,16 @@
       "artifact-lifecycle",
       "framework-extraction"
     ],
+    "distribution-boundary": [
+      "compatibility-reporting",
+      "conformance-reporting",
+      "framework-catalog",
+      "effective-schema",
+      "distribution-boundary",
+      "visualization",
+      "qa",
+      "framework-extraction"
+    ],
     "full-release": [
       "compatibility-reporting",
       "conformance-reporting",
@@ -35,6 +45,7 @@
       "root-discovery",
       "artifact-lifecycle",
       "framework-extraction",
+      "distribution-boundary",
       "render"
     ]
   },
@@ -98,6 +109,11 @@
       "id": "framework-extraction",
       "kind": "framework-extraction",
       "timeout_seconds": 360
+    },
+    {
+      "id": "distribution-boundary",
+      "kind": "distribution-boundary",
+      "timeout_seconds": 180
     },
     {
       "id": "render",

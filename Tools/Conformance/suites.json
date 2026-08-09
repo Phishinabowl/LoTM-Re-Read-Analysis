@@ -20,6 +20,7 @@
       "strict-ingestion",
       "lookup-key",
       "schema-pack",
+      "distribution-boundary",
       "taxonomy",
       "resource",
       "effective-schema",
@@ -71,6 +72,12 @@
       "python": "Tools/Conformance/Suites/test_schema_pack.py",
       "powershell": "Tools/Conformance/Suites/Test-Schema-Pack.ps1",
       "tags": ["baseline", "fast", "composition"]
+    },
+    {
+      "id": "distribution-boundary",
+      "python": "Tools/Conformance/Suites/test_distribution_boundary.py",
+      "powershell": "Tools/Conformance/Suites/Test-Distribution-Boundary.ps1",
+      "tags": ["baseline", "distribution", "entitlement", "composition"]
     },
     {
       "id": "taxonomy",
