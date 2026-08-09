@@ -749,7 +749,7 @@ confirmation; Phase 3.4 planned-capability lifecycle and traceability is next.
 
 ## Platform Phase 3.4.1 - Lifecycle And Authority Contract
 
-**Closure implemented by:** pending
+**Closure implemented by:** `d5cc73a` (`Define capability lifecycle roadmap boundary`)
 
 Phase 3.4.1 centralizes capability lifecycle and future delivery-traceability semantics without
 implementing the roadmap registry or changing runtime output. Canonical schema packs remain
