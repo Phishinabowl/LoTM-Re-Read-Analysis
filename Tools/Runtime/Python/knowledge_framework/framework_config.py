@@ -11,7 +11,7 @@ from .lookup_key_config import LookupKeyConfig, load_lookup_key_registry
 from .strict_yaml import assert_allowed_keys, load_yaml_file
 
 
-SUPPORTED_FRAMEWORK_SCHEMA_VERSION = 1
+SUPPORTED_FRAMEWORK_SCHEMA_VERSIONS = (1, 2)
 STABLE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 WINDOWS_ABSOLUTE_PATTERN = re.compile(r"^[A-Za-z]:/")
 
@@ -28,6 +28,8 @@ class FrameworkConfig:
     lookup_keys_relative_path: str
     lookup_keys_registry: Path
     lookup_keys: LookupKeyConfig
+    capability_roadmap_relative_path: str | None
+    capability_roadmap_registry: Path | None
 
 
 def _require_mapping(value: object, context: str) -> dict:
@@ -80,7 +82,7 @@ def load_framework_config(root: Path) -> FrameworkConfig:
     data = load_yaml_file(
         manifest_path,
         "framework manifest",
-        expected_schema_version=SUPPORTED_FRAMEWORK_SCHEMA_VERSION,
+        expected_schema_version=SUPPORTED_FRAMEWORK_SCHEMA_VERSIONS,
     )
     manifest = _require_mapping(data, "root")
     assert_allowed_keys(
@@ -98,10 +100,15 @@ def load_framework_config(root: Path) -> FrameworkConfig:
     paths = _require_mapping(manifest.get("paths"), "paths")
     assert_allowed_keys(paths, {"packs"}, "Framework manifest `paths`")
     registries = _require_mapping(manifest.get("registries"), "registries")
-    assert_allowed_keys(registries, {"lookup_keys"}, "Framework manifest `registries`")
+    schema_version = manifest["schema_version"]
+    registry_keys = {"lookup_keys"} if schema_version == 1 else {"lookup_keys", "capability_roadmap"}
+    assert_allowed_keys(registries, registry_keys, "Framework manifest `registries`")
 
     packs_relative_path = _require_string(paths, "packs", "paths")
     lookup_relative_path = _require_string(registries, "lookup_keys", "registries")
+    capability_roadmap_relative_path = (
+        None if schema_version == 1 else _require_string(registries, "capability_roadmap", "registries")
+    )
     framework_directory = manifest_path.parent
     packs_root = _resolve_framework_path(
         framework_directory,
@@ -115,16 +122,28 @@ def load_framework_config(root: Path) -> FrameworkConfig:
         "registries.lookup_keys",
         require_directory=False,
     )
+    capability_roadmap_registry = (
+        None
+        if capability_roadmap_relative_path is None
+        else _resolve_framework_path(
+            framework_directory,
+            capability_roadmap_relative_path,
+            "registries.capability_roadmap",
+            require_directory=False,
+        )
+    )
 
     return FrameworkConfig(
         root=resolved_root,
         framework_directory=framework_directory,
         manifest_path=manifest_path,
-        schema_version=SUPPORTED_FRAMEWORK_SCHEMA_VERSION,
+        schema_version=schema_version,
         framework_id=framework_id,
         packs_relative_path=packs_relative_path,
         packs_root=packs_root,
         lookup_keys_relative_path=lookup_relative_path,
         lookup_keys_registry=lookup_registry,
         lookup_keys=load_lookup_key_registry(lookup_registry),
+        capability_roadmap_relative_path=capability_roadmap_relative_path,
+        capability_roadmap_registry=capability_roadmap_registry,
     )

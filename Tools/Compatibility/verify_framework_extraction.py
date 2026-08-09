@@ -46,6 +46,7 @@ PORTABLE_SUITES = (
     "project-root",
     "framework-installation",
     "framework-catalog",
+    "capability-roadmap",
     "strict-ingestion",
     "lookup-key",
     "schema-pack",

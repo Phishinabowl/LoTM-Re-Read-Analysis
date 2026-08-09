@@ -24,6 +24,7 @@ The current executable contract is enforced by the matching Python and PowerShel
 | `Project_Config/interpretations.yaml` | `Tools/Runtime/Python/knowledge_framework/interpretation_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1`; see `structural-interpretation-registry.md` |
 | Generated `EffectiveProjectSchema` | `Tools/Runtime/Python/knowledge_framework/effective_schema.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1`; see `effective-project-schema.md` |
 | `Framework/framework.yaml` | `Tools/Runtime/Python/knowledge_framework/framework_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1`; see `framework-installation.md` |
+| `Framework/capability-roadmap.yaml` | `Tools/Runtime/Python/knowledge_framework/capability_roadmap.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1`; see `capability-lifecycle-and-roadmap.md` |
 | Generated `FrameworkCatalog` | `Tools/Runtime/Python/knowledge_framework/framework_catalog.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1`; see `framework-catalog.md` |
 | Aggregate validation reporting | `Tools/Conformance/run_conformance.py`, `Tools/Conformance/Run-Conformance.ps1`, and `Tools/Compatibility/run_compatibility.py`; see `validation-run-reporting.md` |
 

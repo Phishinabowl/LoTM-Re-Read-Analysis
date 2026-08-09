@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "registry_id": "capability-roadmap",
+  "delivery_targets": {
+    "platform-phase-alpha": {
+      "kind": "platform-phase",
+      "label": "Alpha Delivery",
+      "plan_path": "Data/Capability-Roadmap/README.md",
+      "plan_anchor": "alpha-delivery"
+    }
+  },
+  "capabilities": {
+    "deferred-capability": {
+      "disposition": "accepted-deferral",
+      "deferral_id": "awaiting-demand",
+      "rationale": "No supported project currently requires this capability.",
+      "review_trigger": "Review when a project selects the extension pack.",
+      "platform_prerequisite_ids": [],
+      "domain_capability_dependency_ids": [],
+      "implementation_evidence": []
+    },
+    "scheduled-capability": {
+      "disposition": "scheduled",
+      "delivery_target_id": "platform-phase-alpha",
+      "rationale": "The capability has an approved delivery phase.",
+      "platform_prerequisite_ids": [],
+      "domain_capability_dependency_ids": ["deferred-capability"],
+      "implementation_evidence": [
+        {
+          "kind": "contract",
+          "reference": "Framework/Contracts/example.md",
+          "provider_pack_id": "fixture-domain"
+        }
+      ]
+    }
+  }
+}

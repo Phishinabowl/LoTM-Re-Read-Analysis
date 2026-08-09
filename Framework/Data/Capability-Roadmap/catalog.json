@@ -1,0 +1,26 @@
+{
+  "contract": "framework-catalog",
+  "capabilities": [
+    {
+      "id": "available-capability",
+      "planned": false,
+      "providers": [
+        {"pack_id": "fixture-core"}
+      ]
+    },
+    {
+      "id": "deferred-capability",
+      "planned": true,
+      "providers": [
+        {"pack_id": "fixture-extension"}
+      ]
+    },
+    {
+      "id": "scheduled-capability",
+      "planned": true,
+      "providers": [
+        {"pack_id": "fixture-domain"}
+      ]
+    }
+  ]
+}

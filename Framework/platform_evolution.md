@@ -791,3 +791,47 @@ The work-annotation linter passed all 371 eligible files and 22 fixtures with ze
 directly referenced lifecycle, pack, catalog, effective-schema, distribution, and executable-
 extension contract paths resolve. `git diff --check` passed. Phase 3.4.1 is ready for its two-part
 confirmation; Phase 3.4.2, the machine-readable capability roadmap, is next.
+
+## Platform Phase 3.4.2 - Machine-Readable Capability Roadmap
+
+**Closure implemented by:** pending
+
+Phase 3.4.2 implements `Framework/capability-roadmap.yaml` as a strict project-independent
+current-state registry selected explicitly by `Framework/framework.yaml` schema 2. The canonical
+registry maps all 13 effective installed planned capabilities to eight stable Phase 12 or Phase 17
+delivery targets. Capability identity and lifecycle remain authoritative in pack manifests; roadmap
+records own only scheduled delivery or accepted deferral, rationale, platform prerequisites,
+domain-capability delivery dependencies, and typed implementation evidence.
+
+Paired Python and PowerShell services validate the registry against `FrameworkCatalog` without
+reading project configuration. They reject unknown, stale, or orphaned capability mappings;
+unsupported dispositions; unknown or self-referential targets and dependencies; dependency cycles;
+malformed deferrals; invalid or escaping plan paths; contradictory duplicate evidence; and evidence
+attributed to a pack that does not provide the capability. Normalized target and capability output
+uses ordinal stable-ID order. Roadmap metadata cannot satisfy pack dependencies, select packs,
+activate capabilities, or alter catalog lifecycle resolution.
+
+The framework installation manifest advances to schema 2 and pins the roadmap path alongside the
+pack root and Unicode lookup registry. Schema 1 remains supported for legacy isolated installation
+fixtures, while roadmap-aware loading fails explicitly when no registry is selected. The roadmap,
+its neutral corpus, paired runtime code, and registered conformance suite remain inside the portable
+framework extraction boundary.
+
+### Phase 3.4.2 Verification
+
+The dedicated paired roadmap suite validates the canonical 13 mappings and eight targets, a neutral
+scheduled-plus-deferral fixture, 19 malformed and semantic rejection cases, deterministic repeated
+normalization, and a generated 128-capability scale registry. Framework-installation conformance
+validates schema 2 and 11 invalid cases while retaining schema-1 compatibility. The focused
+installation/catalog/roadmap stack passed 3/3 suites in Python, PowerShell 7, and Windows PowerShell
+5.1 in 4.9, 62.9, and 115.2 seconds respectively.
+
+The complete 21-suite baseline passed in all three runtimes in 75.0, 368.1, and 652.4 seconds. The
+isolated extraction rehearsal copied 284 portable files, copied no project configuration, excluded
+all nine guarded project surfaces, passed nine portable suites in every runtime, and removed its
+temporary copy. The six-check `local` compatibility profile passed reporting, framework catalog,
+effective schema, Visualization, and QA in 892.0 seconds with canonical outputs unchanged and all
+scoped output removed. Ruff passed all 54 Python files. PowerShell 7 and Windows PowerShell 5.1 each
+checked all 55 PowerShell files with no formatting or line-length findings. The work-annotation
+linter passed 379 files and all 22 fixtures; eight changed structured files parsed, required contract
+paths resolved, and `git diff --check` passed.

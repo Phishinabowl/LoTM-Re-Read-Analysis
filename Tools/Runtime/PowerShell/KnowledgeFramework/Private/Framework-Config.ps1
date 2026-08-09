@@ -1,4 +1,4 @@
-$script:SupportedFrameworkSchemaVersion = 1
+$script:SupportedFrameworkSchemaVersions = @(1, 2)
 $script:StableFrameworkIdPattern = '^[a-z0-9]+(?:-[a-z0-9]+)*$'
 
 function Get-RequiredFrameworkString {
@@ -61,7 +61,7 @@ function Get-KnowledgeFrameworkConfig {
     $manifestPath = Join-Path $resolvedRoot $script:FrameworkManifestPath
     $manifest = ConvertFrom-KnowledgeYamlFile `
         $manifestPath `
-        $script:SupportedFrameworkSchemaVersion `
+        $script:SupportedFrameworkSchemaVersions `
         'framework manifest'
     Assert-KnowledgeMapKeys `
         $manifest `
@@ -82,27 +82,51 @@ function Get-KnowledgeFrameworkConfig {
     if ($null -eq $registries) {
         throw "Framework manifest 'registries' must be a mapping."
     }
-    Assert-KnowledgeMapKeys $registries @('lookup_keys') "Framework manifest 'registries'"
+    $schemaVersion = [int](Get-ProjectMapValue $manifest 'schema_version')
+    $registryKeys = if ($schemaVersion -eq 1) {
+        @('lookup_keys')
+    }
+    else {
+        @('lookup_keys', 'capability_roadmap')
+    }
+    Assert-KnowledgeMapKeys $registries $registryKeys "Framework manifest 'registries'"
 
     $packsRelativePath = Get-RequiredFrameworkString $paths 'packs' 'paths'
     $lookupRelativePath = Get-RequiredFrameworkString $registries 'lookup_keys' 'registries'
+    $capabilityRoadmapRelativePath = if ($schemaVersion -eq 1) {
+        $null
+    }
+    else {
+        Get-RequiredFrameworkString $registries 'capability_roadmap' 'registries'
+    }
     $frameworkDirectory = [System.IO.Path]::GetDirectoryName($manifestPath)
     $packsRoot = Resolve-FrameworkManifestPath $frameworkDirectory $packsRelativePath 'paths.packs' -Directory
     $lookupRegistry = Resolve-FrameworkManifestPath `
         $frameworkDirectory `
         $lookupRelativePath `
         'registries.lookup_keys'
+    $capabilityRoadmapRegistry = if ($null -eq $capabilityRoadmapRelativePath) {
+        $null
+    }
+    else {
+        Resolve-FrameworkManifestPath `
+            $frameworkDirectory `
+            $capabilityRoadmapRelativePath `
+            'registries.capability_roadmap'
+    }
 
     return [pscustomobject]@{
         root = $resolvedRoot
         framework_directory = $frameworkDirectory
         manifest_path = $manifestPath
-        schema_version = $script:SupportedFrameworkSchemaVersion
+        schema_version = $schemaVersion
         framework_id = $frameworkId
         packs_relative_path = $packsRelativePath
         packs_root = $packsRoot
         lookup_keys_relative_path = $lookupRelativePath
         lookup_keys_registry = $lookupRegistry
         lookup_keys = Get-KnowledgeLookupKeyRegistryConfig $lookupRegistry
+        capability_roadmap_relative_path = $capabilityRoadmapRelativePath
+        capability_roadmap_registry = $capabilityRoadmapRegistry
     }
 }

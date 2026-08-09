@@ -6,7 +6,9 @@ This directory contains reusable framework assets that are portable across proje
 - `Data/` contains portable pinned runtime data used by framework contracts.
 - `Packs/` contains reusable capability and vocabulary bundles.
 - `framework.yaml` is the project-independent installation bootstrap that explicitly selects the
-  pack root and pinned lookup registry used by framework catalog discovery.
+  pack root, pinned lookup registry, and capability roadmap.
+- `capability-roadmap.yaml` maps every installed planned capability to a concrete delivery target or
+  accepted deferral without changing pack lifecycle or project activation.
 - `framework_improvement_lifecycle.md` defines the end-to-end version iteration, confirmation, testing, historical closure, and handoff workflow.
 - `testing_methodology.md` defines the cross-industry pressure-test candidate catalog plus cumulative conformance, runtime-parity, compatibility, pressure-scenario, comparison, and test-retention requirements.
 - `framework_evolution.md` records the historical implementation and pressure-test results that drove each framework version.
@@ -16,7 +18,7 @@ This directory contains reusable framework assets that are portable across proje
 - `platform-implementation-plan.md` is the phased execution checklist for effective schema composition, normalized content, consumer migration, LoTM physical migration, projections, add-on packs, the IT proof of concept, interfaces, and the ordered deferred-capability program. It also records capability candidates that are not yet pack declarations.
 - Future `Migrations/` content will contain versioned transformations between contract revisions.
 
-Platform Phases 1 through 3.4.1 are complete. The generated project-independent `FrameworkCatalog`
+Platform Phases 1 through 3.4.2 are complete. The generated project-independent `FrameworkCatalog`
 inventories all installed packs while each project's `EffectiveProjectSchema` selects validated
 catalog records and adds activation, taxonomy, resources, and diagnostics. Explicit project
 attachment produces a separate `FrameworkCatalogProjectView` without mutating either source.
@@ -27,8 +29,9 @@ through Obsidian QA. Capability groups provide stable wizard/editor navigation, 
 and lifecycle concerns without implementing an extension host. Phase 3.3.3 defines optional
 distribution and entitlement around acquisition while preserving entitlement-free local behavior.
 Phase 3.3.4 makes that boundary permanent regression coverage.
-Phase 3.4.1 defines capability lifecycle transitions and the authority boundary for a separate
-framework-level capability roadmap without yet implementing that registry or its projections.
+Phase 3.4.1 defines capability lifecycle transitions and authority. Phase 3.4.2 implements the
+strict project-independent roadmap registry and paired loaders. Catalog and effective-schema
+roadmap projections remain Phase 3.4.3 work.
 
 Project-specific composition, paths, activated capabilities, taxonomy, resources, sources, and extension packs remain under `Project_Config/`. See `Contracts/framework-installation.md` for the bootstrap boundary; it does not replace a project manifest or select project packs.
 

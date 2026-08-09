@@ -17,6 +17,7 @@
       "project-root",
       "framework-installation",
       "framework-catalog",
+      "capability-roadmap",
       "strict-ingestion",
       "lookup-key",
       "schema-pack",
@@ -54,6 +55,12 @@
       "python": "Tools/Conformance/Suites/test_framework_catalog.py",
       "powershell": "Tools/Conformance/Suites/Test-Framework-Catalog.ps1",
       "tags": ["baseline", "framework", "composition", "catalog"]
+    },
+    {
+      "id": "capability-roadmap",
+      "python": "Tools/Conformance/Suites/test_capability_roadmap.py",
+      "powershell": "Tools/Conformance/Suites/Test-Capability-Roadmap.ps1",
+      "tags": ["baseline", "framework", "catalog", "roadmap"]
     },
     {
       "id": "strict-ingestion",

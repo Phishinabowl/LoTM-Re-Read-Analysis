@@ -10,6 +10,11 @@ The current table was generated from the Unicode Character Database 16.0.0 expos
 
 `lookup-key-regression-vectors.json` preserves portable equivalent/distinct conformance cases, including Unicode formatting characters that culture-aware string comparers may ignore. Parity checks must normalize both sides and compare the results ordinally.
 
+`Capability-Roadmap/` contains the vocabulary-neutral capability-delivery corpus. Its fixture
+separates one scheduled capability, one accepted deferral, and one already-available capability;
+paired suites derive 19 strict malformed and semantic rejection cases plus a generated
+128-capability scale probe while also validating the canonical 13-entry roadmap.
+
 `Schema-Packs/` contains the portable schema-pack composition corpus. Its independent schema-6 three-pack fixture covers dependency ordering and exact minimum versions, active and deferred packs, available/planned/deprecated capabilities, explicit activation, multiple providers, architectural classification and bridge closure, localized presentation metadata, cross-pack controlled-value ownership and hierarchy, typed occurrence semantic declarations, and four-dimension state-profile composition. One hundred seventeen structured mutations cover malformed and conflicting composition, presentation, localization, scope, bridge, path-safety, executable-extension, credential, commercial-offering, and entitlement failures; typed collision probes preserve otherwise ambiguous member IDs; and a generated 64-pack probe verifies rich presentation-aware composition at bounded scale without storing repetitive fixtures. The canonical 14-pack catalog supplies the reviewed schema-6 metadata inventory, while `legacy/` independently preserves positive schema-4 ingestion coverage.
 
 `Distribution-Boundary/` contains deliberately noncanonical external commercial metadata. The paired

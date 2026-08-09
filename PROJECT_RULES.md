@@ -194,10 +194,11 @@ These files and folders are the project's working memory.
 
 `Project_Config/schema-packs.yaml` selects schema contracts in dependency order and explicitly enables the capabilities used by this project. `Framework/Packs/core/pack.yaml` owns domain-neutral platform and evidence primitives. Optional domain-neutral mechanics belong in capability foundations rather than core when unrelated projects may omit them. LoTM selects `hosting-foundation` plus `hosting-narrative` for physical embodiment support; it does not select simulation or compute hosting vocabulary. The narrative domain remains composable: `narrative-media` supplies the foundation, while `narrative-publishing`, `narrative-screen-audio`, `narrative-adaptation`, `narrative-distribution`, `narrative-production`, and `narrative-shared-universe` supply the other capabilities LoTM currently uses. Interactive and preservation packs remain optional for projects that need them. String capability entries remain legacy shorthand for `available`. A capability absent from selected packs is unavailable and disabled. An eligible selected capability omitted from `capability_activation.enabled` is disabled; tools and interfaces must omit that feature without warning. Internal composition may still register empty typed providers for a selected but disabled capability when provider closure requires stable target types; this does not activate behavior or permit records. Missing hard dependencies and explicit project references to unavailable or disabled contracts remain validation errors.
 
-Capability lifecycle meanings, valid transitions, and future delivery traceability follow
+Capability lifecycle meanings, valid transitions, and delivery traceability follow
 `Framework/Contracts/capability-lifecycle-and-roadmap.md`. Keep capability identity and lifecycle in
 canonical pack declarations. Keep delivery targets, accepted deferrals, platform prerequisites, and
-promotion evidence in the separate framework-level roadmap registry once implemented. Never use
+promotion evidence in the manifest-selected framework-level capability-roadmap registry. Every
+effective installed planned capability must have exactly one valid current mapping. Never use
 roadmap metadata to satisfy technical pack dependencies, select packs, activate behavior, authorize
 project records, or make a deferred domain capability block an unrelated project. Do not redefine
 lifecycle state meanings in project policy, pack summaries, consumer contracts, or tooling docs;

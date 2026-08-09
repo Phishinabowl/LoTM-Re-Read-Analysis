@@ -86,6 +86,8 @@ Windows PowerShell 5.1 for:
 - project-root discovery;
 - framework-installation discovery and pinned lookup selection;
 - framework-catalog discovery, composition, selection, and project attachment;
+- capability-roadmap selection, planned-capability coverage, delivery/deferral validation, and
+  deterministic standalone loading;
 - strict configuration ingestion;
 - Unicode lookup-key normalization;
 - schema-pack composition;

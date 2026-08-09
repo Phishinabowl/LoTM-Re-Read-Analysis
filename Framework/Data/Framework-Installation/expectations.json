@@ -1,8 +1,9 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "framework_id": "knowledge-model",
   "packs_relative_path": "Packs",
   "lookup_keys_relative_path": "Data/unicode-lookup-16.0.0.json",
+  "capability_roadmap_relative_path": "capability-roadmap.yaml",
   "unicode_version": "16.0.0",
   "algorithm": "trim-nfc-default-casefold-nfc",
   "root_vectors": 11,
@@ -15,6 +16,8 @@
     {"file": "invalid-empty-segment.yaml", "error": "confined relative path"},
     {"file": "invalid-missing-packs.yaml", "error": "directory does not exist"},
     {"file": "invalid-missing-lookup.yaml", "error": "file does not exist"},
-    {"file": "invalid-lookup-registry.yaml", "error": "Unsupported lookup-key schema_version"}
+    {"file": "invalid-lookup-registry.yaml", "error": "Unsupported lookup-key schema_version"},
+    {"file": "invalid-missing-roadmap.yaml", "error": "must be a non-empty string"},
+    {"file": "invalid-roadmap-path.yaml", "error": "file does not exist"}
   ]
 }

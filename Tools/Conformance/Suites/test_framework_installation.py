@@ -52,6 +52,7 @@ def prepare_config_root(source_root: Path, target_root: Path, manifest_source: P
     data = framework / "Data"
     data.mkdir()
     shutil.copy2(source_root / "Framework" / "Data" / "unicode-lookup-16.0.0.json", data)
+    shutil.copy2(source_root / "Framework" / "capability-roadmap.yaml", framework)
     shutil.copy2(manifest_source, framework / "framework.yaml")
     return target_root.resolve()
 
@@ -150,8 +151,10 @@ def main() -> int:
         assert canonical.framework_id == expectations["framework_id"]
         assert canonical.packs_relative_path == expectations["packs_relative_path"]
         assert canonical.lookup_keys_relative_path == expectations["lookup_keys_relative_path"]
+        assert canonical.capability_roadmap_relative_path == expectations["capability_roadmap_relative_path"]
         assert canonical.lookup_keys.unicode_version == expectations["unicode_version"]
         assert canonical.lookup_keys.algorithm == expectations["algorithm"]
+        assert canonical.schema_version == expectations["schema_version"]
         config_vectors += 1
 
         multi_root = prepare_config_root(root, temp_root / "multiple-lookups", root / "Framework" / "framework.yaml")

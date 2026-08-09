@@ -58,6 +58,9 @@ function New-ConfigRoot {
     Copy-Item `
         -LiteralPath (Join-Path $SourceRoot 'Framework\Data\unicode-lookup-16.0.0.json') `
         -Destination $data
+    Copy-Item `
+        -LiteralPath (Join-Path $SourceRoot 'Framework\capability-roadmap.yaml') `
+        -Destination $framework
     Copy-Item -LiteralPath $ManifestSource -Destination (Join-Path $framework 'framework.yaml')
     return [System.IO.Path]::GetFullPath($TargetRoot)
 }
@@ -149,11 +152,17 @@ try {
     if ($canonical.lookup_keys_relative_path -cne $expectations.lookup_keys_relative_path) {
         throw 'Canonical lookup-registry path differs from expectations.'
     }
+    if ($canonical.capability_roadmap_relative_path -cne $expectations.capability_roadmap_relative_path) {
+        throw 'Canonical capability-roadmap path differs from expectations.'
+    }
     if ($canonical.lookup_keys.unicode_version -cne $expectations.unicode_version) {
         throw 'Canonical lookup Unicode version differs from expectations.'
     }
     if ($canonical.lookup_keys.algorithm -cne $expectations.algorithm) {
         throw 'Canonical lookup algorithm differs from expectations.'
+    }
+    if ($canonical.schema_version -ne [int]$expectations.schema_version) {
+        throw 'Canonical framework schema version differs from expectations.'
     }
     $configVectors++
 

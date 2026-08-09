@@ -2,13 +2,13 @@
 
 ## Status And Purpose
 
-This contract defines the Phase 3.4.1 authority boundary for capability lifecycle and future
-delivery traceability. It centralizes meanings that were previously spread across pack, catalog,
-effective-schema, and planning documents without implementing the machine-readable roadmap
-registry, its loaders, or its projections.
+This contract defines the capability-lifecycle authority boundary and the Phase 3.4.2 executable
+delivery-traceability registry. It centralizes meanings that were previously spread across pack,
+catalog, effective-schema, and planning documents. Catalog and effective-schema projections remain
+deferred to Phase 3.4.3.
 
 Schema packs remain authoritative for portable capability declarations. A separate framework-level
-capability-roadmap registry will describe delivery planning for declared `planned` capabilities.
+capability-roadmap registry describes delivery planning for declared `planned` capabilities.
 The registry is development and diagnostic metadata: it cannot create a capability, change its
 lifecycle, satisfy a dependency, select a pack, activate behavior, or authorize project records.
 
@@ -81,12 +81,12 @@ accepted deferral in one domain does not block unrelated packs, projects, or ind
 
 ## Capability-Roadmap Registry Boundary
 
-Phase 3.4.2 will implement a strict framework-level registry with stable registry identity
+Phase 3.4.2 implements a strict framework-level registry with stable registry identity
 `capability-roadmap`. `Framework/framework.yaml` must explicitly select its repository-relative
 path. Loaders must not hardcode its filename, search for a plausible file, infer it from
 `platform-implementation-plan.md`, or require `Project_Config/`.
 
-The registry will contain:
+The registry contains:
 
 - a supported integer schema version and exact registry ID;
 - stable delivery-target records that identify implementation phases without parsing display
@@ -104,6 +104,27 @@ verification remain in framework or platform evolution. Promotion updates the pa
 roadmap atomically; historical evidence remains recoverable from the confirmed evolution record and
 Git history.
 
+### Canonical Shape
+
+`Framework/capability-roadmap.yaml` is schema version 1. Its root is closed to
+`schema_version`, `registry_id`, `delivery_targets`, and `capabilities`.
+
+- Delivery targets are keyed by stable ID and contain exactly `kind`, `label`, `plan_path`, and
+  `plan_anchor`. The only current target kind is `platform-phase`.
+- Capability entries are keyed by exact catalog capability ID. `scheduled` entries require one
+  `delivery_target_id`; `accepted-deferral` entries instead require `deferral_id` and
+  `review_trigger`.
+- Every entry requires a rationale plus explicit lists for platform prerequisites,
+  domain-capability delivery dependencies, and typed implementation evidence.
+- Evidence kinds are `compatibility`, `conformance`, `contract`, `documentation`, `extraction`, or
+  `runtime`. Provider-scoped evidence must name a pack that declares the capability.
+- The current registry maps all 13 effective installed `planned` capabilities to eight Phase 12 or
+  Phase 17 delivery targets.
+
+`Framework/framework.yaml` schema 2 requires `registries.capability_roadmap`. Framework manifest
+schema 1 remains loadable for legacy isolated installations, but roadmap services reject it because
+it does not select a registry.
+
 ### Identity And Ordering
 
 Capability references use exact canonical stable IDs from installed pack declarations. Registry and
@@ -118,7 +139,7 @@ directory, user, machine, or Git working state enters canonical registry identit
 
 ### Failure Behavior
 
-The future strict loader must reject at least:
+The strict paired loaders reject at least:
 
 - unsupported schema versions, wrong registry identity, unknown or duplicate keys, and nonportable
   YAML;

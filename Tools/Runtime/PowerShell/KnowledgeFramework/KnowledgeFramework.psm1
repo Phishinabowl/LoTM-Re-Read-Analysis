@@ -212,6 +212,7 @@ $implementationFiles = @(
     'Framework-Config.ps1'
     'Schema-Pack-Config.ps1'
     'Framework-Catalog.ps1'
+    'Capability-Roadmap.ps1'
     'Taxonomy-Config.ps1'
     'Resource-Config.ps1'
     'Temporal-Config.ps1'

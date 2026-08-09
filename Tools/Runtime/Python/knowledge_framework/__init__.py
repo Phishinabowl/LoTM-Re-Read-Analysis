@@ -7,6 +7,14 @@ from .project_paths import (
     resolve_project_root,
 )
 from .framework_config import FrameworkConfig, load_framework_config
+from .capability_roadmap import (
+    CapabilityRoadmap,
+    CapabilityTraceability,
+    DeliveryTarget,
+    ImplementationEvidence,
+    load_capability_roadmap,
+    load_capability_roadmap_file,
+)
 from .framework_catalog import (
     FrameworkCatalog,
     FrameworkCatalogError,
@@ -44,6 +52,10 @@ __all__ = [
     "FRAMEWORK_MANIFEST_PATH",
     "FRAMEWORK_ROOT_ENVIRONMENT_VARIABLE",
     "FrameworkConfig",
+    "CapabilityRoadmap",
+    "CapabilityTraceability",
+    "DeliveryTarget",
+    "ImplementationEvidence",
     "FrameworkCatalog",
     "FrameworkCatalogError",
     "compose_framework_catalog_project_view",
@@ -54,6 +66,8 @@ __all__ = [
     "framework_catalog_project_view_json",
     "is_framework_root",
     "load_framework_config",
+    "load_capability_roadmap",
+    "load_capability_roadmap_file",
     "load_framework_catalog",
     "resolve_framework_root",
     "EffectiveProjectSchema",

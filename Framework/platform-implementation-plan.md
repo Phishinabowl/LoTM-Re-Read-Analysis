@@ -840,17 +840,17 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 #### Phase 3.4.2 Machine-Readable Capability Roadmap
 
-- [ ] Add a separate framework-level capability-roadmap registry and strict paired loaders where
+- [x] Add a separate framework-level capability-roadmap registry and strict paired loaders where
   runtime parity applies; do not make repository delivery metadata part of portable pack manifests.
-- [ ] Map every capability whose effective installed lifecycle is `planned` to a concrete
+- [x] Map every capability whose effective installed lifecycle is `planned` to a concrete
   implementation phase or an explicitly accepted deferral with rationale and relevant platform
   prerequisites.
-- [ ] Reconcile the initial registry with all currently declared planned capabilities and the
+- [x] Reconcile the initial registry with all currently declared planned capabilities and the
   corresponding delivery work in Phase 17.
-- [ ] Reject duplicate mappings, unknown capability IDs, orphaned planned capabilities, stale
+- [x] Reject duplicate mappings, unknown capability IDs, orphaned planned capabilities, stale
   mappings, invalid lifecycle/disposition combinations, unknown delivery targets, and malformed
   deferrals.
-- [ ] Preserve deterministic standalone loading and extraction behavior without requiring a project
+- [x] Preserve deterministic standalone loading and extraction behavior without requiring a project
   configuration or selected-pack context.
 
 #### Phase 3.4.3 Catalog And Effective-Schema Projection

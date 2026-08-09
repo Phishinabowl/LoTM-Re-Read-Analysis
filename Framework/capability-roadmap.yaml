@@ -1,0 +1,142 @@
+schema_version: 1
+registry_id: capability-roadmap
+
+delivery_targets:
+  platform-phase-12:
+    kind: platform-phase
+    label: Mutation And Migration Services
+    plan_path: platform-implementation-plan.md
+    plan_anchor: phase-12-mutation-and-migration-services
+  platform-phase-17-1:
+    kind: platform-phase
+    label: Core Migration Services
+    plan_path: platform-implementation-plan.md
+    plan_anchor: phase-171-core-migration-services
+  platform-phase-17-2:
+    kind: platform-phase
+    label: Narrative Publishing And Textual History
+    plan_path: platform-implementation-plan.md
+    plan_anchor: phase-172-narrative-publishing-and-textual-history
+  platform-phase-17-3:
+    kind: platform-phase
+    label: Narrative Production Credits And Rights
+    plan_path: platform-implementation-plan.md
+    plan_anchor: phase-173-narrative-production-credits-and-rights
+  platform-phase-17-4:
+    kind: platform-phase
+    label: Preservation And Access
+    plan_path: platform-implementation-plan.md
+    plan_anchor: phase-174-preservation-and-access
+  platform-phase-17-5:
+    kind: platform-phase
+    label: Interactive Narrative
+    plan_path: platform-implementation-plan.md
+    plan_anchor: phase-175-interactive-narrative
+  platform-phase-17-6:
+    kind: platform-phase
+    label: Live And Synchronized Performance
+    plan_path: platform-implementation-plan.md
+    plan_anchor: phase-176-live-and-synchronized-performance
+  platform-phase-17-7:
+    kind: platform-phase
+    label: Shared-Universe Crossover Events
+    plan_path: platform-implementation-plan.md
+    plan_anchor: phase-177-shared-universe-crossover-events
+
+capabilities:
+  access-state:
+    disposition: scheduled
+    delivery_target_id: platform-phase-17-4
+    rationale: Separate distribution access from preservation state and legal rights.
+    platform_prerequisite_ids: []
+    domain_capability_dependency_ids: []
+    implementation_evidence: []
+  branching-narratives:
+    disposition: scheduled
+    delivery_target_id: platform-phase-17-5
+    rationale: Model authored choices and routes without overloading continuity branches.
+    platform_prerequisite_ids: []
+    domain_capability_dependency_ids: []
+    implementation_evidence: []
+  contributor-credits:
+    disposition: scheduled
+    delivery_target_id: platform-phase-17-3
+    rationale: Preserve scoped and source-backed creative contribution independently from ownership.
+    platform_prerequisite_ids: []
+    domain_capability_dependency_ids: []
+    implementation_evidence: []
+  crossover-events:
+    disposition: scheduled
+    delivery_target_id: platform-phase-17-7
+    rationale: Represent crossover reading structures separately from in-world occurrences.
+    platform_prerequisite_ids: []
+    domain_capability_dependency_ids:
+      - publication-runs
+    implementation_evidence: []
+  editorial-assembly:
+    disposition: scheduled
+    delivery_target_id: platform-phase-17-2
+    rationale: Preserve compilation and editorial assembly without rewriting source witnesses.
+    platform_prerequisite_ids: []
+    domain_capability_dependency_ids:
+      - textual-witnesses
+    implementation_evidence: []
+  live-performance-productions:
+    disposition: scheduled
+    delivery_target_id: platform-phase-17-6
+    rationale: Separate a reusable staging or production from each performance event.
+    platform_prerequisite_ids: []
+    domain_capability_dependency_ids: []
+    implementation_evidence: []
+  migration-services:
+    disposition: scheduled
+    delivery_target_id: platform-phase-17-1
+    rationale: Complete the existing mutation and migration owner rather than creating another service.
+    platform_prerequisite_ids:
+      - platform-phase-12
+    domain_capability_dependency_ids: []
+    implementation_evidence: []
+  narrative-instances:
+    disposition: scheduled
+    delivery_target_id: platform-phase-17-5
+    rationale: Represent playthrough and session outcomes as instances of authored narrative structures.
+    platform_prerequisite_ids: []
+    domain_capability_dependency_ids:
+      - branching-narratives
+    implementation_evidence: []
+  performance-events:
+    disposition: scheduled
+    delivery_target_id: platform-phase-17-6
+    rationale: Keep an individual performance distinct from its production work recording and release.
+    platform_prerequisite_ids: []
+    domain_capability_dependency_ids:
+      - live-performance-productions
+    implementation_evidence: []
+  preservation-state:
+    disposition: scheduled
+    delivery_target_id: platform-phase-17-4
+    rationale: Model survival loss damage reconstruction and custody independently from access.
+    platform_prerequisite_ids: []
+    domain_capability_dependency_ids: []
+    implementation_evidence: []
+  publication-runs:
+    disposition: scheduled
+    delivery_target_id: platform-phase-17-2
+    rationale: Represent publisher territory date serialization and format scoped publication runs.
+    platform_prerequisite_ids: []
+    domain_capability_dependency_ids: []
+    implementation_evidence: []
+  rights-grants-and-restrictions:
+    disposition: scheduled
+    delivery_target_id: platform-phase-17-3
+    rationale: Model source-backed rights instruments and restrictions without automatic legal conclusions.
+    platform_prerequisite_ids: []
+    domain_capability_dependency_ids: []
+    implementation_evidence: []
+  textual-witnesses:
+    disposition: scheduled
+    delivery_target_id: platform-phase-17-2
+    rationale: Preserve manuscript draft fragment revision and parallel-text identity below creative works.
+    platform_prerequisite_ids: []
+    domain_capability_dependency_ids: []
+    implementation_evidence: []
