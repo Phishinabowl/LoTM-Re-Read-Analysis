@@ -794,7 +794,7 @@ confirmation; Phase 3.4.2, the machine-readable capability roadmap, is next.
 
 ## Platform Phase 3.4.2 - Machine-Readable Capability Roadmap
 
-**Closure implemented by:** pending
+**Closure implemented by:** `81e5062` (`Implement capability roadmap registry`)
 
 Phase 3.4.2 implements `Framework/capability-roadmap.yaml` as a strict project-independent
 current-state registry selected explicitly by `Framework/framework.yaml` schema 2. The canonical
