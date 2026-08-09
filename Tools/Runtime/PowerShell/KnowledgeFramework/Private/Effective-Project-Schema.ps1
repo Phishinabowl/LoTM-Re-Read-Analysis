@@ -1,6 +1,6 @@
-$script:EffectiveProjectSchemaContractVersion = 3
-$script:EffectiveProjectSchemaSelectionContractVersion = 2
-$script:EffectiveProjectSchemaReportModelContractVersion = 2
+$script:EffectiveProjectSchemaContractVersion = 4
+$script:EffectiveProjectSchemaSelectionContractVersion = 3
+$script:EffectiveProjectSchemaReportModelContractVersion = 3
 
 function ConvertTo-KnowledgePortablePath {
     param([AllowNull()][object]$Path)
@@ -156,10 +156,18 @@ function New-KnowledgeEffectiveProjectSchema {
         [Parameter(Mandatory = $true)][object]$ProjectConfig,
         [Parameter(Mandatory = $true)][object]$SchemaPacks,
         [Parameter(Mandatory = $true)][object]$TaxonomyConfig,
-        [Parameter(Mandatory = $true)][object]$ResourceConfig
+        [Parameter(Mandatory = $true)][object]$ResourceConfig,
+        [object]$FrameworkCatalog
     )
 
     $diagnostics = @()
+    if ($null -ne $FrameworkCatalog -and [string]$FrameworkCatalog.contract -cne 'framework-catalog') {
+        throw 'EffectiveProjectSchema roadmap projection requires a validated FrameworkCatalog.'
+    }
+    $catalogCapabilities = [ordered]@{}
+    foreach ($row in @($FrameworkCatalog.capabilities)) {
+        $catalogCapabilities[[string]$row.id] = $row
+    }
     $packRows = @()
     foreach ($packId in @($SchemaPacks.selection_order)) {
         $pack = $SchemaPacks.packs[$packId]
@@ -331,6 +339,12 @@ function New-KnowledgeEffectiveProjectSchema {
             'planned'
         }
         $isEnabled = @($SchemaPacks.enabled_capabilities) -ccontains $capabilityId
+        $catalogRow = if ($catalogCapabilities.Contains($capabilityId)) {
+            $catalogCapabilities[$capabilityId]
+        }
+        else {
+            $null
+        }
         $capabilityRows += [ordered]@{
             id = $capabilityId
             declared = $true
@@ -340,6 +354,18 @@ function New-KnowledgeEffectiveProjectSchema {
             planned = $effectiveLifecycle -eq 'planned'
             enabled = $isEnabled
             disabled = -not $isEnabled
+            unavailable_reason = if ($effectiveLifecycle -ceq 'planned') {
+                'capability-lifecycle-planned'
+            }
+            else {
+                $null
+            }
+            delivery_traceability = if ($null -eq $catalogRow) {
+                $null
+            }
+            else {
+                $catalogRow.delivery_traceability
+            }
             presentation = $effectivePresentation
             group_ids = @(
                 $SchemaPacks.capability_group_memberships.Keys |
@@ -1054,7 +1080,8 @@ function Get-KnowledgeEffectiveProjectSchema {
         $project `
     (Get-KnowledgeSchemaPackRegistryFromCatalog $project $catalogModel) `
     (Get-KnowledgeTaxonomyConfig $project) `
-    (Get-KnowledgeResourceConfig $project)
+    (Get-KnowledgeResourceConfig $project) `
+        $catalogModel.document
 }
 
 function New-KnowledgeEffectiveSchemaReportModel {
@@ -1086,6 +1113,18 @@ function New-KnowledgeEffectiveSchemaReportModel {
             available_capabilities = @($capabilities | Where-Object available).Count
             planned_capabilities = @($capabilities | Where-Object planned).Count
             deprecated_capabilities = @($capabilities | Where-Object deprecated).Count
+            scheduled_capabilities = @(
+                $capabilities | Where-Object {
+                    $null -ne $_.delivery_traceability -and
+                    $_.delivery_traceability.disposition -ceq 'scheduled'
+                }
+            ).Count
+            deferred_capabilities = @(
+                $capabilities | Where-Object {
+                    $null -ne $_.delivery_traceability -and
+                    $_.delivery_traceability.disposition -ceq 'accepted-deferral'
+                }
+            ).Count
             diagnostics = @($Schema.diagnostics).Count
         }
     }
@@ -1141,6 +1180,8 @@ function ConvertTo-KnowledgeEffectiveSchemaMarkdown {
         "| Available capabilities | $($summary.available_capabilities) |"
         "| Planned capabilities | $($summary.planned_capabilities) |"
         "| Deprecated capabilities | $($summary.deprecated_capabilities) |"
+        "| Scheduled capabilities | $($summary.scheduled_capabilities) |"
+        "| Accepted capability deferrals | $($summary.deferred_capabilities) |"
         "| Diagnostics | $($summary.diagnostics) |"
         ''
         '## Selected Packs'
@@ -1195,6 +1236,34 @@ function ConvertTo-KnowledgeEffectiveSchemaMarkdown {
             ([string][bool]$row.enabled).ToLowerInvariant()
             $providerIds
             $row.presentation.description
+        ) | ForEach-Object { ConvertTo-KnowledgeMarkdownCell $_ }
+        $lines.Add('| ' + ($values -join ' | ') + ' |')
+    }
+    @(
+        ''
+        '## Planned Capability Delivery'
+        ''
+        '| Capability | Disposition | Target or deferral | Prerequisites | Capability dependencies | Unavailable reason |'
+        '| --- | --- | --- | --- | --- | --- |'
+    ) | ForEach-Object { $lines.Add($_) }
+    foreach ($row in @($model.capabilities | Where-Object planned)) {
+        $traceability = $row.delivery_traceability
+        $target = if ($null -ne $traceability.delivery_target) {
+            "$($traceability.delivery_target.label) ($($traceability.delivery_target.id))"
+        }
+        elseif ($null -ne $traceability.deferral) {
+            "$($traceability.deferral.id): $($traceability.deferral.review_trigger)"
+        }
+        else {
+            '-'
+        }
+        $values = @(
+            $row.id
+            $traceability.disposition
+            $target
+            (@($traceability.platform_prerequisite_ids) -join ', ')
+            (@($traceability.domain_capability_dependency_ids) -join ', ')
+            $row.unavailable_reason
         ) | ForEach-Object { ConvertTo-KnowledgeMarkdownCell $_ }
         $lines.Add('| ' + ($values -join ' | ') + ' |')
     }

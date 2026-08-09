@@ -20,13 +20,7 @@ $runtimeModule = Join-Path $PSScriptRoot '..\Tools\Runtime\PowerShell\KnowledgeF
 Import-Module $runtimeModule -Force
 $repoRoot = Resolve-KnowledgeProjectRoot -ExplicitRoot $Root -ExecutablePath $PSCommandPath
 $projectConfig = Get-KnowledgeProjectConfig $repoRoot
-$taxonomyConfig = Get-KnowledgeTaxonomyConfig $projectConfig
-$schemaPacks = Get-KnowledgeSchemaPackRegistry $projectConfig
-$effectiveSchema = New-KnowledgeEffectiveProjectSchema `
-    $projectConfig `
-    $schemaPacks `
-    $taxonomyConfig `
-(Get-KnowledgeResourceConfig $projectConfig)
+$effectiveSchema = Get-KnowledgeEffectiveProjectSchema $repoRoot
 $effectiveConsumerSchema = New-KnowledgeEffectiveConsumerSchemaProjection $effectiveSchema 'visualization'
 
 $script:VisualizationDiscovery = $null

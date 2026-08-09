@@ -28,14 +28,11 @@ if str(RUNTIME_ROOT) not in sys.path:
 
 from knowledge_framework.effective_schema import (
     EffectiveProjectSchema,
-    compose_effective_project_schema,
     compose_effective_consumer_schema_projection,
+    load_effective_project_schema,
 )
 from knowledge_framework.project_config import ProjectConfig, load_project_config
 from knowledge_framework.project_paths import resolve_project_root
-from knowledge_framework.resource_config import load_resource_config
-from knowledge_framework.schema_pack_config import load_schema_pack_registry
-from knowledge_framework.taxonomy_config import load_taxonomy_config
 
 
 REPO_ROOT = resolve_project_root(executable_path=__file__)
@@ -2049,14 +2046,7 @@ def main() -> None:
     args = parse_args()
     REPO_ROOT = resolve_project_root(args.root, executable_path=__file__)
     project = load_project_config(REPO_ROOT)
-    taxonomy = load_taxonomy_config(project)
-    schema_packs = load_schema_pack_registry(project)
-    effective_schema = compose_effective_project_schema(
-        project,
-        schema_packs,
-        taxonomy,
-        load_resource_config(project),
-    )
+    effective_schema = load_effective_project_schema(REPO_ROOT)
     configure_visualization_discovery(project, effective_schema)
     if args.mode == "qa-relationship":
         if not args.graph_path:

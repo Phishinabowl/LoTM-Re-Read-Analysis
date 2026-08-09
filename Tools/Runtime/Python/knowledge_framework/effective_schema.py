@@ -14,11 +14,11 @@ from .taxonomy_config import TaxonomyConfig, load_taxonomy_config
 
 
 CONTRACT_ID = "effective-project-schema"
-CONTRACT_VERSION = 3
+CONTRACT_VERSION = 4
 SELECTION_CONTRACT_ID = "effective-project-schema-selection"
-SELECTION_CONTRACT_VERSION = 2
+SELECTION_CONTRACT_VERSION = 3
 REPORT_MODEL_CONTRACT_ID = "effective-project-schema-report-model"
-REPORT_MODEL_CONTRACT_VERSION = 2
+REPORT_MODEL_CONTRACT_VERSION = 3
 SEVERITY_ORDER = {"warning": 0, "info": 1}
 CONSUMER_ENABLEMENT_FIELDS = {
     "qa": "qa_page_enabled",
@@ -177,8 +177,19 @@ def compose_effective_project_schema(
     packs: SchemaPackRegistry,
     taxonomy: TaxonomyConfig,
     resources: ResourceConfig,
+    framework_catalog: object | None = None,
 ) -> EffectiveProjectSchema:
     diagnostics: list[dict[str, Any]] = []
+    catalog_document = (
+        framework_catalog.to_dict()
+        if framework_catalog is not None and hasattr(framework_catalog, "to_dict")
+        else framework_catalog
+    )
+    if catalog_document is not None and (
+        not isinstance(catalog_document, dict) or catalog_document.get("contract") != "framework-catalog"
+    ):
+        raise TypeError("EffectiveProjectSchema roadmap projection requires a validated FrameworkCatalog.")
+    catalog_capabilities = {row["id"]: row for row in (catalog_document or {}).get("capabilities", [])}
 
     pack_rows: list[dict[str, Any]] = []
     for pack_id in packs.selection_order:
@@ -245,6 +256,8 @@ def compose_effective_project_schema(
             "available" if "available" in lifecycles else "deprecated" if "deprecated" in lifecycles else "planned"
         )
         is_enabled = capability_id in enabled
+        catalog_row = catalog_capabilities.get(capability_id)
+        delivery_traceability = None if catalog_row is None else catalog_row.get("delivery_traceability")
         capability_rows.append(
             {
                 "id": capability_id,
@@ -255,6 +268,8 @@ def compose_effective_project_schema(
                 "planned": effective_lifecycle == "planned",
                 "enabled": is_enabled,
                 "disabled": not is_enabled,
+                "unavailable_reason": ("capability-lifecycle-planned" if effective_lifecycle == "planned" else None),
+                "delivery_traceability": delivery_traceability,
                 "presentation": effective_presentation,
                 "group_ids": [
                     group_id
@@ -659,6 +674,7 @@ def load_effective_project_schema(root: Path) -> EffectiveProjectSchema:
         load_schema_pack_registry_from_catalog(project, catalog),
         load_taxonomy_config(project),
         load_resource_config(project),
+        catalog,
     )
 
 
@@ -686,6 +702,15 @@ def compose_effective_schema_report_model(schema: EffectiveProjectSchema) -> dic
             "available_capabilities": sum(bool(row["available"]) for row in capabilities),
             "planned_capabilities": sum(bool(row["planned"]) for row in capabilities),
             "deprecated_capabilities": sum(bool(row["deprecated"]) for row in capabilities),
+            "scheduled_capabilities": sum(
+                row["delivery_traceability"] is not None and row["delivery_traceability"]["disposition"] == "scheduled"
+                for row in capabilities
+            ),
+            "deferred_capabilities": sum(
+                row["delivery_traceability"] is not None
+                and row["delivery_traceability"]["disposition"] == "accepted-deferral"
+                for row in capabilities
+            ),
             "diagnostics": len(document["diagnostics"]),
         },
     }
@@ -733,6 +758,8 @@ def effective_schema_markdown(report: EffectiveProjectSchema | dict[str, Any]) -
         f"| Available capabilities | {summary['available_capabilities']} |",
         f"| Planned capabilities | {summary['planned_capabilities']} |",
         f"| Deprecated capabilities | {summary['deprecated_capabilities']} |",
+        f"| Scheduled capabilities | {summary['scheduled_capabilities']} |",
+        f"| Accepted capability deferrals | {summary['deferred_capabilities']} |",
         f"| Diagnostics | {summary['diagnostics']} |",
         "",
         "## Selected Packs",
@@ -808,6 +835,50 @@ def effective_schema_markdown(report: EffectiveProjectSchema | dict[str, Any]) -
                     str(bool(row["enabled"])).lower(),
                     ", ".join(provider["pack_id"] for provider in row["providers"]),
                     row["presentation"]["description"],
+                )
+            )
+            + " |"
+        )
+
+    lines.extend(
+        [
+            "",
+            "## Planned Capability Delivery",
+            "",
+            "| Capability | Disposition | Target or deferral | Prerequisites | "
+            "Capability dependencies | Unavailable reason |",
+            "| --- | --- | --- | --- | --- | --- |",
+        ]
+    )
+    for row in (item for item in model["capabilities"] if item["planned"]):
+        traceability = row["delivery_traceability"]
+        if traceability is None:
+            target = None
+            disposition = None
+            prerequisites: list[str] = []
+            dependencies: list[str] = []
+        else:
+            disposition = traceability["disposition"]
+            target_row = traceability["delivery_target"]
+            deferral_row = traceability["deferral"]
+            target = (
+                f"{target_row['label']} ({target_row['id']})"
+                if target_row is not None
+                else (f"{deferral_row['id']}: {deferral_row['review_trigger']}" if deferral_row is not None else None)
+            )
+            prerequisites = traceability["platform_prerequisite_ids"]
+            dependencies = traceability["domain_capability_dependency_ids"]
+        lines.append(
+            "| "
+            + " | ".join(
+                _markdown_cell(value)
+                for value in (
+                    row["id"],
+                    disposition,
+                    target,
+                    ", ".join(prerequisites),
+                    ", ".join(dependencies),
+                    row["unavailable_reason"],
                 )
             )
             + " |"

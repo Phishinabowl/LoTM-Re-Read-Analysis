@@ -24,13 +24,10 @@ from knowledge_framework.project_config import (
 from knowledge_framework.effective_schema import (
     EffectiveProjectSchema,
     compose_effective_schema_report_model,
-    compose_effective_project_schema,
     compose_effective_consumer_schema_projection,
     effective_schema_markdown,
+    load_effective_project_schema,
 )
-from knowledge_framework.resource_config import load_resource_config
-from knowledge_framework.schema_pack_config import load_schema_pack_registry
-from knowledge_framework.taxonomy_config import load_taxonomy_config
 
 
 ACTIVE_CONTENT_ROOTS: tuple[ContentRootConfig, ...] = ()
@@ -2667,14 +2664,7 @@ def main() -> int:
     args = build_parser().parse_args()
     root = resolve_project_root(args.root, executable_path=__file__)
     config = load_project_config(root)
-    taxonomy = load_taxonomy_config(config)
-    schema_packs = load_schema_pack_registry(config)
-    effective_schema = compose_effective_project_schema(
-        config,
-        schema_packs,
-        taxonomy,
-        load_resource_config(config),
-    )
+    effective_schema = load_effective_project_schema(root)
     effective_consumer_schema = compose_effective_consumer_schema_projection(effective_schema, "qa")
     ACTIVE_QA_DISCOVERY = compose_qa_discovery_config(config, effective_consumer_schema)
     qa_content_roots = ACTIVE_QA_DISCOVERY.content_roots

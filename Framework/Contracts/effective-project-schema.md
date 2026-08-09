@@ -25,8 +25,8 @@ organization identity, product tier, subscription, pricing, grants, tokens, and 
 cannot change pack selection, capability lifecycle or activation, controlled values, taxonomy,
 resources, or effective-schema identity. See `distribution-entitlement-boundary.md`.
 
-Capability lifecycle and future delivery traceability follow
-`capability-lifecycle-and-roadmap.md`. Phase 3.4.3 may project validated roadmap diagnostics for
+Capability lifecycle and delivery traceability follow `capability-lifecycle-and-roadmap.md`.
+Contract version 4 projects validated roadmap diagnostics for
 capabilities declared by selected packs, but it must not add unselected capabilities or permit
 roadmap metadata to alter lifecycle, dependency closure, controlled values, or activation.
 
@@ -36,7 +36,13 @@ Core owns the effective-schema shape, lifecycle resolution, diagnostics model, d
 ordering, and serialization contract. Selected packs own capability and controlled-value
 definitions. Project registries own instantiated taxonomy, roots, placements, and resource policy.
 
-Contract version 3 retains every version-2 field and adds:
+Contract version 4 retains every version-3 field and adds:
+
+- explicit unavailable reasons for planned capabilities declared by selected packs;
+- validated delivery traceability for those selected planned capabilities;
+- scheduled and accepted-deferral report counts and a planned-delivery QA section.
+
+Contract version 3 added:
 
 - selected-pack architectural classification and complete pack presentation;
 - effective and provider-level capability presentation;
@@ -57,7 +63,7 @@ The complete contract includes:
 
 Page modules, normalized content records, canonical relationships, and projection declarations join
 the effective schema only when their later platform contracts are implemented. Their absence from
-version 3 is not an empty declaration that they exist.
+version 4 is not an empty declaration that they exist.
 
 ## Document Shape
 
@@ -66,7 +72,7 @@ The serialized document uses this top-level order:
 ```json
 {
   "contract": "effective-project-schema",
-  "contract_version": 3,
+  "contract_version": 4,
   "project": {},
   "registry_schema_versions": [],
   "packs": [],
@@ -150,6 +156,8 @@ ordered by capability ID. Each row contains:
 | `planned` | Whether the capability is declared for future work but unavailable. |
 | `enabled` | Whether this project activates it. |
 | `disabled` | Exact inverse of `enabled`. |
+| `unavailable_reason` | `capability-lifecycle-planned` for a planned row; otherwise `null`. |
+| `delivery_traceability` | Validated roadmap target or deferral metadata for a selected planned capability; otherwise `null`. |
 | `presentation` | Effective capability presentation, or `null` for legacy providers. |
 | `group_ids` | Ordered groups containing this capability. |
 | `relationships` | Hard requirements, recommendations, and conflicts. |
@@ -327,7 +335,7 @@ must not become an alternate source of truth or an input required to load the pr
 
 ### Shared Report Model And QA Markdown
 
-Human-facing clients compose `effective-project-schema-report-model` version 1 from an already
+Human-facing clients compose `effective-project-schema-report-model` version 3 from an already
 validated in-memory `EffectiveProjectSchema`. The report model preserves the source schema sections
 and adds only deterministic derived summary counts. It is a presentation input, not canonical
 configuration, persisted project state, or a substitute for the effective schema itself.
@@ -335,7 +343,7 @@ configuration, persisted project state, or a substitute for the effective schema
 The paired runtimes render a concise Markdown presentation from that model. The Obsidian QA export
 writes it to `_Generated/effective-schema.md` on every run. The report includes generated and
 noncanonical metadata, project and source-contract identity, summary counts, selected packs,
-capability groups, capabilities, and diagnostics. It excludes the complete detailed `all` inspection view, absolute
+capability groups, capabilities, planned-capability delivery traceability, and diagnostics. It excludes the complete detailed `all` inspection view, absolute
 paths, wall-clock timestamps, and runtime-specific state.
 
 Inspection commands, QA exporters, and future interface clients must use this shared semantic model.
@@ -355,8 +363,8 @@ inherits from the framework installation manifest.
 remains the project composition that adds selected dependency closure, activation, taxonomy,
 resources, and diagnostics. The derived `FrameworkCatalogProjectView` combines both for explicit
 catalog presentation, but the base catalog does not depend on the effective schema and no generated
-document becomes canonical input. Contract version 3 keeps that dependency direction while adding
-schema-6 group and relationship output.
+document becomes canonical input. Contract version 4 keeps that dependency direction while adding
+selected planned-capability delivery diagnostics.
 
 ## Runtime And Command API
 
@@ -404,9 +412,9 @@ fail as ambiguous. Human mode appends detailed inspection blocks. Structured mod
 ```json
 {
   "contract": "effective-project-schema-selection",
-  "contract_version": 2,
+  "contract_version": 3,
   "source_contract": "effective-project-schema",
-  "source_contract_version": 3,
+  "source_contract_version": 4,
   "project_id": "example-project",
   "requested": {},
   "packs": [],

@@ -384,6 +384,61 @@ function ConvertTo-KnowledgeCapabilityRoadmap {
     }
 }
 
+function New-KnowledgeCapabilityDeliveryTraceabilityMap {
+    param([object]$CapabilityRoadmap)
+
+    $targets = [ordered]@{}
+    foreach ($target in @($CapabilityRoadmap.delivery_targets)) {
+        $targets[[string]$target.id] = $target
+    }
+    $projections = [ordered]@{}
+    foreach ($row in @($CapabilityRoadmap.capabilities)) {
+        $target = if ($null -eq $row.delivery_target_id) {
+            $null
+        }
+        else {
+            $targets[[string]$row.delivery_target_id]
+        }
+        $projections[[string]$row.capability_id] = [ordered]@{
+            disposition = [string]$row.disposition
+            delivery_target = if ($null -eq $target) {
+                $null
+            }
+            else {
+                [ordered]@{
+                    id = [string]$target.id
+                    kind = [string]$target.kind
+                    label = [string]$target.label
+                    plan_path = [string]$target.plan_path
+                    plan_anchor = [string]$target.plan_anchor
+                }
+            }
+            deferral = if ($null -eq $row.deferral_id) {
+                $null
+            }
+            else {
+                [ordered]@{
+                    id = [string]$row.deferral_id
+                    review_trigger = [string]$row.review_trigger
+                }
+            }
+            rationale = [string]$row.rationale
+            platform_prerequisite_ids = @($row.platform_prerequisite_ids)
+            domain_capability_dependency_ids = @($row.domain_capability_dependency_ids)
+            implementation_evidence = @(
+                $row.implementation_evidence | ForEach-Object {
+                    [ordered]@{
+                        kind = [string]$_.kind
+                        reference = [string]$_.reference
+                        provider_pack_id = $_.provider_pack_id
+                    }
+                }
+            )
+        }
+    }
+    return $projections
+}
+
 function Get-KnowledgeCapabilityRoadmapModel {
     param([string]$FrameworkRoot)
 

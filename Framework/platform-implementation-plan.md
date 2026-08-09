@@ -855,16 +855,16 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 #### Phase 3.4.3 Catalog And Effective-Schema Projection
 
-- [ ] Join delivery traceability into `FrameworkCatalog` as diagnostic planning metadata without
+- [x] Join delivery traceability into `FrameworkCatalog` as diagnostic planning metadata without
   changing pack authority, catalog identity, capability lifecycle, or composition semantics.
-- [ ] Expose the same traceability through `FrameworkCatalogProjectView` alongside project-specific
+- [x] Expose the same traceability through `FrameworkCatalogProjectView` alongside project-specific
   selection, availability, and unavailable reasons.
-- [ ] Make `EffectiveProjectSchema` expose every planned capability declared by selected packs with
+- [x] Make `EffectiveProjectSchema` expose every planned capability declared by selected packs with
   its provider pack, dependencies, lifecycle, description, delivery traceability, and explicit
   unavailable reason.
-- [ ] Do not add capabilities from unselected packs to `EffectiveProjectSchema` or allow roadmap
+- [x] Do not add capabilities from unselected packs to `EffectiveProjectSchema` or allow roadmap
   metadata to select packs, activate capabilities, satisfy dependencies, or alter controlled values.
-- [ ] Extend headless inspection, JSON/report contracts, and generated QA diagnostics through the
+- [x] Extend headless inspection, JSON/report contracts, and generated QA diagnostics through the
   existing shared report authority, with deliberate contract-version and compatibility handling.
 
 #### Phase 3.4.4 Promotion Governance And Closure

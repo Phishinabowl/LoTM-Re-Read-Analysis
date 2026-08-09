@@ -96,6 +96,44 @@ class CapabilityRoadmap:
         }
 
 
+def compose_capability_delivery_traceability(roadmap: CapabilityRoadmap) -> dict[str, dict[str, Any]]:
+    """Project validated roadmap rows into capability-owned diagnostic metadata."""
+
+    targets = {row.id: row for row in roadmap.delivery_targets}
+    projections: dict[str, dict[str, Any]] = {}
+    for row in roadmap.capabilities:
+        target = targets.get(row.delivery_target_id) if row.delivery_target_id is not None else None
+        projections[row.capability_id] = {
+            "disposition": row.disposition,
+            "delivery_target": (
+                None
+                if target is None
+                else {
+                    "id": target.id,
+                    "kind": target.kind,
+                    "label": target.label,
+                    "plan_path": target.plan_path,
+                    "plan_anchor": target.plan_anchor,
+                }
+            ),
+            "deferral": (
+                None if row.deferral_id is None else {"id": row.deferral_id, "review_trigger": row.review_trigger}
+            ),
+            "rationale": row.rationale,
+            "platform_prerequisite_ids": list(row.platform_prerequisite_ids),
+            "domain_capability_dependency_ids": list(row.domain_capability_dependency_ids),
+            "implementation_evidence": [
+                {
+                    "kind": evidence.kind,
+                    "reference": evidence.reference,
+                    "provider_pack_id": evidence.provider_pack_id,
+                }
+                for evidence in row.implementation_evidence
+            ],
+        }
+    return projections
+
+
 def _require_mapping(value: object, context: str) -> dict:
     if not isinstance(value, dict):
         raise ValueError(f"Capability roadmap `{context}` must be a mapping.")
@@ -370,6 +408,9 @@ def load_capability_roadmap(root: Path, *, catalog: object | None = None) -> Cap
         from .framework_catalog import load_framework_catalog
 
         catalog = load_framework_catalog(root)
+        attached = getattr(catalog, "capability_roadmap", None)
+        if attached is not None:
+            return attached
     config = catalog.config if hasattr(catalog, "config") else load_framework_config(root)
     if config.capability_roadmap_registry is None:
         raise ValueError("Framework manifest schema 2 with `registries.capability_roadmap` is required.")

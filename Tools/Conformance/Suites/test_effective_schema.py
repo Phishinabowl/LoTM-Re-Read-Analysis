@@ -69,6 +69,15 @@ def summary(document: dict, scale_capabilities: int) -> dict:
         "enabled_capabilities": sum(row["enabled"] for row in capabilities),
         "planned_capabilities": sum(row["planned"] for row in capabilities),
         "deprecated_capabilities": sum(row["deprecated"] for row in capabilities),
+        "scheduled_capabilities": sum(
+            row["delivery_traceability"] is not None and row["delivery_traceability"]["disposition"] == "scheduled"
+            for row in capabilities
+        ),
+        "deferred_capabilities": sum(
+            row["delivery_traceability"] is not None
+            and row["delivery_traceability"]["disposition"] == "accepted-deferral"
+            for row in capabilities
+        ),
         "capability_presentations": sum(row["presentation"] is not None for row in capabilities),
         "controlled_value_namespaces": len(document["controlled_value_namespaces"]),
         "content_roots": len(document["content"]["roots"]),
@@ -97,8 +106,8 @@ def main() -> int:
         raise AssertionError("Catalog-backed schema-pack composition differs from the direct shadow path.")
     taxonomy = load_taxonomy_config(project)
     resources = load_resource_config(project)
-    schema = compose_effective_project_schema(project, packs, taxonomy, resources)
-    catalog_schema = compose_effective_project_schema(project, catalog_packs, taxonomy, resources)
+    schema = compose_effective_project_schema(project, packs, taxonomy, resources, catalog)
+    catalog_schema = compose_effective_project_schema(project, catalog_packs, taxonomy, resources, catalog)
     if effective_schema_json(schema) != effective_schema_json(catalog_schema):
         raise AssertionError("Catalog-backed effective schema differs from the direct shadow composition.")
     if effective_schema_json(load_effective_project_schema(root)) != effective_schema_json(catalog_schema):
@@ -120,6 +129,7 @@ def main() -> int:
         "## Selected Packs",
         "## Capability Groups",
         "## Capabilities",
+        "## Planned Capability Delivery",
         "## Diagnostics",
     )
     if any(value not in markdown for value in required_markdown):
@@ -163,12 +173,19 @@ def main() -> int:
         raise AssertionError("Effective schema lost capability presentation.")
     if any(row["presentation"] is None for row in document["capability_groups"]):
         raise AssertionError("Effective schema lost capability-group presentation.")
+    planned_rows = [row for row in document["capabilities"] if row["planned"]]
+    if any(row["unavailable_reason"] != "capability-lifecycle-planned" for row in planned_rows):
+        raise AssertionError("Planned effective-schema capability lost its explicit unavailable reason.")
+    if any(row["delivery_traceability"] is None for row in planned_rows):
+        raise AssertionError("Selected planned capability lost roadmap delivery traceability.")
+    if any(row["delivery_traceability"] is not None for row in document["capabilities"] if not row["planned"]):
+        raise AssertionError("Effective schema attached roadmap traceability to a non-planned capability.")
     if any(row["presentation"]["visual"] is not None for row in document["packs"]):
         raise AssertionError("Effective schema invented optional pack visual metadata.")
     if str(root.resolve()) in effective_schema_json(schema):
         raise AssertionError("Effective schema leaked an absolute project path.")
     if effective_schema_json(schema) != effective_schema_json(
-        compose_effective_project_schema(project, packs, taxonomy, resources)
+        compose_effective_project_schema(project, packs, taxonomy, resources, catalog)
     ):
         raise AssertionError("Repeated effective-schema composition was not byte deterministic.")
     original_directory = Path.cwd()
@@ -176,7 +193,7 @@ def main() -> int:
         try:
             os.chdir(temp_directory)
             alternate_directory_json = effective_schema_json(
-                compose_effective_project_schema(project, packs, taxonomy, resources)
+                compose_effective_project_schema(project, packs, taxonomy, resources, catalog)
             )
         finally:
             os.chdir(original_directory)

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "contract": "effective-project-schema",
-  "contract_version": 3,
+  "contract_version": 4,
   "project_id": "lotm-analysis",
   "packs": 10,
   "active_packs": 10,
@@ -13,6 +13,8 @@
   "enabled_capabilities": 123,
   "planned_capabilities": 9,
   "deprecated_capabilities": 0,
+  "scheduled_capabilities": 9,
+  "deferred_capabilities": 0,
   "capability_presentations": 132,
   "controlled_value_namespaces": 138,
   "content_roots": 5,

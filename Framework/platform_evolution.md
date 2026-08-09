@@ -835,3 +835,56 @@ scoped output removed. Ruff passed all 54 Python files. PowerShell 7 and Windows
 checked all 55 PowerShell files with no formatting or line-length findings. The work-annotation
 linter passed 379 files and all 22 fixtures; eight changed structured files parsed, required contract
 paths resolved, and `git diff --check` passed.
+
+## Platform Phase 3.4.3 - Catalog And Effective-Schema Projection
+
+**Closure implemented by:** pending
+
+Phase 3.4.3 projects validated planned-capability delivery traceability into the generated catalog
+and project composition surfaces without moving authority out of canonical pack manifests or the
+capability-roadmap registry. `FrameworkCatalog` contract version 3 now reports its selected roadmap
+registry and schema, scheduled and accepted-deferral counts, and one normalized
+`delivery_traceability` object on every installed planned capability. Legacy framework-manifest
+fixtures remain valid and emit `null` traceability when no roadmap is selected.
+
+Catalog loading avoids a circular dependency by composing and validating the installed pack and
+capability inventory first, validating the selected roadmap against that base document, and then
+recomposing capability rows with diagnostic traceability. `FrameworkCatalogProjectView` contract
+version 3 preserves the same metadata beside project selection and availability state; roadmap
+metadata never selects a pack, changes lifecycle precedence, activates a capability, satisfies a
+dependency, or alters controlled values.
+
+`EffectiveProjectSchema` contract version 4 receives roadmap metadata only through the validated
+catalog and only for capabilities declared by selected packs. LoTM therefore exposes all nine of
+its selected planned capabilities with provider, lifecycle, relationships, explicit
+`capability-lifecycle-planned` unavailability, and delivery traceability, while the four planned
+capabilities supplied only by unselected packs remain absent. Selection contract version 3 and
+report-model contract version 3 preserve complete rows and add scheduled/deferral counts plus a
+deterministic Planned Capability Delivery Markdown section.
+
+The paired catalog and effective-schema inspectors expose delivery targets or accepted deferrals,
+rationale, platform prerequisites, and domain-capability delivery dependencies. QA and
+Visualization now load the canonical effective-schema runtime service directly instead of
+reconstructing composition locally. Obsidian QA publishes the shared Markdown report unchanged by
+the exporter itself; Visualization graph semantics remain unchanged.
+
+### Phase 3.4.3 Verification
+
+Focused framework-catalog, effective-schema, and capability-roadmap conformance passed in Python
+and PowerShell 7. The complete 21-suite baseline then passed in Python, PowerShell 7, and Windows
+PowerShell 5.1 in 73.1, 356.4, and 636.6 seconds respectively.
+
+Registered framework-catalog and effective-schema compatibility passed exact three-runtime JSON,
+selection, report, export, and failure behavior in 415.3 and 305.7 seconds. Visualization passed
+with all graph outputs unchanged. QA initially reported exactly one deliberate baseline change,
+`_Generated/effective-schema.md`; review confirmed the new contract version, two summary rows, and
+planned-delivery table were the only content change. After updating that single normalized file
+hash and tree hash, QA passed in 108.0 seconds with all other generated files unchanged. The
+isolated framework-extraction check passed in 302.6 seconds with canonical outputs unchanged and
+successful scoped output removed.
+
+Ruff formatting and linting passed all 54 Python files. PowerShell 7 and Windows PowerShell 5.1
+each checked all 55 PowerShell files with zero formatting changes and zero long-line findings. The
+work-annotation linter passed 379 files and all 22 fixtures with zero findings. `git diff --check`
+passed. Phase 3.4.3 is ready for its two-part confirmation; Phase 3.4.4 promotion governance and
+closure is next.

@@ -245,6 +245,23 @@ def render_capability_rows(rows: list[dict], heading: str) -> str:
             )
         lines.append(f"  label: {label}")
         lines.append(f"  description: {description}")
+        traceability = row["delivery_traceability"]
+        if traceability is None:
+            lines.append("  delivery: none")
+        else:
+            target = traceability["delivery_target"]
+            deferral = traceability["deferral"]
+            destination = (
+                f"target={target['id']} ({target['label']})" if target is not None else f"deferral={deferral['id']}"
+            )
+            lines.append(f"  delivery: disposition={traceability['disposition']} | {destination}")
+            lines.append(f"    rationale: {traceability['rationale']}")
+            lines.append(
+                "    prerequisites="
+                f"{','.join(traceability['platform_prerequisite_ids']) or 'none'} | "
+                "capability dependencies="
+                f"{','.join(traceability['domain_capability_dependency_ids']) or 'none'}"
+            )
         lines.append(f"  groups: {', '.join(row['group_ids']) or 'none'}")
         relationships = row["relationships"]
         lines.append(

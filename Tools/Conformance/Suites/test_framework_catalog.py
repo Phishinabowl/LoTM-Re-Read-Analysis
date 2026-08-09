@@ -161,6 +161,11 @@ def main() -> int:
         assert summary["available_capability_count"] == expectations["canonical_available_capability_count"]
         assert summary["planned_capability_count"] == expectations["canonical_planned_capability_count"]
         assert summary["deprecated_capability_count"] == expectations["canonical_deprecated_capability_count"]
+        assert summary["scheduled_capability_count"] == expectations["canonical_scheduled_capability_count"]
+        assert summary["deferred_capability_count"] == expectations["canonical_deferred_capability_count"]
+        planned_rows = [row for row in canonical.capabilities if row["planned"]]
+        assert all(row["delivery_traceability"] is not None for row in planned_rows)
+        assert all(row["delivery_traceability"] is None for row in canonical.capabilities if not row["planned"])
         assert framework_catalog_json(canonical) == framework_catalog_json(load_framework_catalog(root))
 
         effective_schema = load_effective_project_schema(root)
@@ -192,6 +197,7 @@ def main() -> int:
             row["id"] for row in effective_schema.capability_groups if enabled_capability_id in row["capability_ids"]
         )
         planned_capability = next(row for row in project_view["capabilities"] if row["project_state"]["planned"])
+        assert planned_capability["delivery_traceability"] is not None
         assert selected_pack["project_state"]["selected"] and selected_pack["project_state"]["used_by_project"]
         assert not unselected_pack["project_state"]["selected"] and unselected_pack["project_state"]["available"]
         assert enabled_capability["project_state"]["enabled"]

@@ -18,7 +18,7 @@ This directory contains reusable framework assets that are portable across proje
 - `platform-implementation-plan.md` is the phased execution checklist for effective schema composition, normalized content, consumer migration, LoTM physical migration, projections, add-on packs, the IT proof of concept, interfaces, and the ordered deferred-capability program. It also records capability candidates that are not yet pack declarations.
 - Future `Migrations/` content will contain versioned transformations between contract revisions.
 
-Platform Phases 1 through 3.4.2 are complete. The generated project-independent `FrameworkCatalog`
+Platform Phases 1 through 3.4.3 are complete. The generated project-independent `FrameworkCatalog`
 inventories all installed packs while each project's `EffectiveProjectSchema` selects validated
 catalog records and adds activation, taxonomy, resources, and diagnostics. Explicit project
 attachment produces a separate `FrameworkCatalogProjectView` without mutating either source.
@@ -30,8 +30,9 @@ and lifecycle concerns without implementing an extension host. Phase 3.3.3 defin
 distribution and entitlement around acquisition while preserving entitlement-free local behavior.
 Phase 3.3.4 makes that boundary permanent regression coverage.
 Phase 3.4.1 defines capability lifecycle transitions and authority. Phase 3.4.2 implements the
-strict project-independent roadmap registry and paired loaders. Catalog and effective-schema
-roadmap projections remain Phase 3.4.3 work.
+strict project-independent roadmap registry and paired loaders. Phase 3.4.3 projects validated
+delivery traceability into catalog, project-view, effective-schema, inspection, and QA diagnostics
+without changing selection or activation.
 
 Project-specific composition, paths, activated capabilities, taxonomy, resources, sources, and extension packs remain under `Project_Config/`. See `Contracts/framework-installation.md` for the bootstrap boundary; it does not replace a project manifest or select project packs.
 

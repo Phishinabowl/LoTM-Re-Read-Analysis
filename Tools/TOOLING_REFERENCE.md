@@ -1138,7 +1138,8 @@ Library consumers import the catalog service and must not launch the command or 
 resolution, and shared canonical JSON functions. Python additionally exposes
 `load_capability_roadmap` and `load_capability_roadmap_file`; PowerShell exposes
 `Get-KnowledgeCapabilityRoadmap`, `Get-KnowledgeCapabilityRoadmapModel`, and
-`ConvertTo-KnowledgeCapabilityRoadmap` from module version 0.11.0.
+`ConvertTo-KnowledgeCapabilityRoadmap` from module version 0.12.0. Catalog capability inspection
+also exposes normalized roadmap delivery traceability for planned capabilities.
 
 The installation service resolves `Framework/framework.yaml` through explicit root,
 `KNOWLEDGE_FRAMEWORK_ROOT`, current-directory ancestry, then executable ancestry. The manifest
@@ -1229,11 +1230,10 @@ PowerShell exposes `New-KnowledgeEffectiveProjectSchema`, `Get-KnowledgeEffectiv
 `New-KnowledgeEffectiveSchemaFailure`, plus `New-KnowledgeEffectiveSchemaReportModel` and
 `ConvertTo-KnowledgeEffectiveSchemaMarkdown`, from module version 0.10.0.
 
-QA and Visualization compose one effective schema in-process from the project, pack, taxonomy, and
-resource objects already loaded by their supported runtime. QA and Visualization use direct
-effective projections for discovery and record eligibility. Python QA passes that same composed
-object into Visualization's explicit library initializer when requesting graphs. Direct
-QA publication passes the same object through the runtime-owned report model and Markdown renderer;
+QA and Visualization load one effective schema in-process through the canonical runtime service and
+use direct effective projections for discovery and record eligibility. Python QA passes that same
+composed object into Visualization's explicit library initializer when requesting graphs. QA
+publication passes that same object through the runtime-owned report model and Markdown renderer;
 the generated report is not recovered by launching the inspection command. Page-local
 Markdown/YAML interpretation and generated semantics remain compatibility adapters until later
 normalized-content phases replace them. The temporary legacy projection, comparison, and shadow

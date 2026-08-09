@@ -21,13 +21,13 @@ from .schema_pack_config import (
 
 
 CONTRACT_ID = "framework-catalog"
-CONTRACT_VERSION = 2
+CONTRACT_VERSION = 3
 SELECTION_CONTRACT_ID = "framework-catalog-selection"
-SELECTION_CONTRACT_VERSION = 2
+SELECTION_CONTRACT_VERSION = 3
 PROJECT_VIEW_CONTRACT_ID = "framework-catalog-project-view"
-PROJECT_VIEW_CONTRACT_VERSION = 2
+PROJECT_VIEW_CONTRACT_VERSION = 3
 PROJECT_VIEW_SELECTION_CONTRACT_ID = "framework-catalog-project-view-selection"
-PROJECT_VIEW_SELECTION_CONTRACT_VERSION = 2
+PROJECT_VIEW_SELECTION_CONTRACT_VERSION = 3
 CAPABILITY_LIFECYCLE_PRECEDENCE = ("available", "deprecated", "planned")
 
 
@@ -44,6 +44,7 @@ class FrameworkCatalog:
     packs: tuple[dict[str, Any], ...]
     capability_groups: tuple[dict[str, Any], ...]
     capabilities: tuple[dict[str, Any], ...]
+    capability_roadmap: Any | None = None
     contract: str = CONTRACT_ID
     contract_version: int = CONTRACT_VERSION
 
@@ -58,6 +59,14 @@ class FrameworkCatalog:
                 "lookup_registry": _relative_path(self.config.lookup_keys_registry, self.config.root),
                 "lookup_algorithm": self.config.lookup_keys.algorithm,
                 "unicode_version": self.config.lookup_keys.unicode_version,
+                "capability_roadmap_registry": (
+                    None
+                    if self.config.capability_roadmap_registry is None
+                    else _relative_path(self.config.capability_roadmap_registry, self.config.root)
+                ),
+                "capability_roadmap_schema_version": (
+                    None if self.capability_roadmap is None else self.capability_roadmap.schema_version
+                ),
             },
             "summary": {
                 "pack_count": len(self.packs),
@@ -66,6 +75,16 @@ class FrameworkCatalog:
                 "available_capability_count": sum(row["available"] for row in self.capabilities),
                 "deprecated_capability_count": sum(row["deprecated"] for row in self.capabilities),
                 "planned_capability_count": sum(row["planned"] for row in self.capabilities),
+                "scheduled_capability_count": sum(
+                    row["delivery_traceability"] is not None
+                    and row["delivery_traceability"]["disposition"] == "scheduled"
+                    for row in self.capabilities
+                ),
+                "deferred_capability_count": sum(
+                    row["delivery_traceability"] is not None
+                    and row["delivery_traceability"]["disposition"] == "accepted-deferral"
+                    for row in self.capabilities
+                ),
             },
             "packs": list(self.packs),
             "capability_groups": list(self.capability_groups),
@@ -324,7 +343,11 @@ def _compose_capability_group_rows(packs: dict[str, SchemaPackConfig]) -> tuple[
     return tuple(rows)
 
 
-def _compose_capability_rows(packs: dict[str, SchemaPackConfig]) -> tuple[dict[str, Any], ...]:
+def _compose_capability_rows(
+    packs: dict[str, SchemaPackConfig],
+    delivery_traceability: dict[str, dict[str, Any]] | None = None,
+) -> tuple[dict[str, Any], ...]:
+    delivery_traceability = delivery_traceability or {}
     providers: dict[str, list[tuple[str, Any]]] = {}
     capability_groups: dict[str, list[str]] = {}
     for pack_id in sorted(packs):
@@ -352,6 +375,7 @@ def _compose_capability_rows(packs: dict[str, SchemaPackConfig]) -> tuple[dict[s
                 "available": effective_lifecycle == "available",
                 "deprecated": effective_lifecycle == "deprecated",
                 "planned": effective_lifecycle == "planned",
+                "delivery_traceability": deepcopy(delivery_traceability.get(capability_id)),
                 "group_ids": capability_groups.get(capability_id, []),
                 "relationships": _capability_relationships(definitions[0][1].relationships),
                 "providers": [
@@ -376,12 +400,35 @@ def load_framework_catalog(root: Path) -> FrameworkCatalog:
         classification = "lookup-registry" if "lookup-key registry" in str(exc).casefold() else "installation-manifest"
         raise FrameworkCatalogError(classification, str(exc)) from exc
     packs = _discover_pack_configs(config)
-    return FrameworkCatalog(
+    base_catalog = FrameworkCatalog(
         config=config,
         pack_configs=packs,
         packs=_compose_pack_rows(config, packs),
         capability_groups=_compose_capability_group_rows(packs),
         capabilities=_compose_capability_rows(packs),
+    )
+    if config.capability_roadmap_registry is None:
+        return base_catalog
+    try:
+        from .capability_roadmap import (
+            compose_capability_delivery_traceability,
+            load_capability_roadmap_file,
+        )
+
+        roadmap = load_capability_roadmap_file(
+            config.capability_roadmap_registry,
+            framework_config=config,
+            catalog=base_catalog,
+        )
+    except (OSError, RuntimeError, TypeError, ValueError) as exc:
+        raise FrameworkCatalogError("catalog-composition", str(exc)) from exc
+    return FrameworkCatalog(
+        config=config,
+        pack_configs=packs,
+        packs=base_catalog.packs,
+        capability_groups=base_catalog.capability_groups,
+        capabilities=_compose_capability_rows(packs, compose_capability_delivery_traceability(roadmap)),
+        capability_roadmap=roadmap,
     )
 
 
@@ -484,12 +531,16 @@ def compose_framework_catalog_project_view(
         row["record_id"] = f"framework-catalog-project-view:capability:{row['id']}"
         row["project_state"] = {
             "selected": selected,
-            "available": bool(catalog_row["available"]),
+            "available": bool(effective_row["available"] if selected else catalog_row["available"]),
             "enabled": enabled,
-            "deprecated": bool(catalog_row["deprecated"]),
-            "planned": bool(catalog_row["planned"]),
+            "deprecated": bool(effective_row["deprecated"] if selected else catalog_row["deprecated"]),
+            "planned": bool(effective_row["planned"] if selected else catalog_row["planned"]),
             "used_by_project": enabled,
-            "unavailable_reason": "capability-lifecycle-planned" if catalog_row["planned"] else None,
+            "unavailable_reason": (
+                effective_row["unavailable_reason"]
+                if selected
+                else ("capability-lifecycle-planned" if catalog_row["planned"] else None)
+            ),
         }
         capability_rows.append(row)
 

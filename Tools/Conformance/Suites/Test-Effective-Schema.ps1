@@ -38,6 +38,18 @@ function Get-EffectiveSchemaSummary {
         enabled_capabilities = @($capabilities | Where-Object enabled).Count
         planned_capabilities = @($capabilities | Where-Object planned).Count
         deprecated_capabilities = @($capabilities | Where-Object deprecated).Count
+        scheduled_capabilities = @(
+            $capabilities | Where-Object {
+                $null -ne $_.delivery_traceability -and
+                $_.delivery_traceability.disposition -ceq 'scheduled'
+            }
+        ).Count
+        deferred_capabilities = @(
+            $capabilities | Where-Object {
+                $null -ne $_.delivery_traceability -and
+                $_.delivery_traceability.disposition -ceq 'accepted-deferral'
+            }
+        ).Count
         capability_presentations = @($capabilities | Where-Object { $null -ne $_.presentation }).Count
         controlled_value_namespaces = @($Document.controlled_value_namespaces).Count
         content_roots = @($Document.content.roots).Count
@@ -64,8 +76,9 @@ if ((ConvertTo-KnowledgeCanonicalJson $packs) -cne (ConvertTo-KnowledgeCanonical
 }
 $taxonomy = Get-KnowledgeTaxonomyConfig $project
 $resources = Get-KnowledgeResourceConfig $project
-$schema = New-KnowledgeEffectiveProjectSchema $project $packs $taxonomy $resources
-$catalogSchema = New-KnowledgeEffectiveProjectSchema $project $catalogPacks $taxonomy $resources
+$schema = New-KnowledgeEffectiveProjectSchema $project $packs $taxonomy $resources $catalogModel.document
+$catalogSchema = New-KnowledgeEffectiveProjectSchema `
+    $project $catalogPacks $taxonomy $resources $catalogModel.document
 if ((ConvertTo-KnowledgeCanonicalJson $schema) -cne (ConvertTo-KnowledgeCanonicalJson $catalogSchema)) {
     throw 'Catalog-backed effective schema differs from the direct shadow composition.'
 }
@@ -97,6 +110,7 @@ $requiredMarkdown = @(
     '## Selected Packs'
     '## Capability Groups'
     '## Capabilities'
+    '## Planned Capability Delivery'
     '## Diagnostics'
 )
 foreach ($value in $requiredMarkdown) {
@@ -164,11 +178,23 @@ if (@($schema.capabilities | Where-Object { $null -eq $_.presentation }).Count -
 if (@($schema.capability_groups | Where-Object { $null -eq $_.presentation }).Count -ne 0) {
     throw 'Effective schema lost capability-group presentation.'
 }
+$plannedRows = @($schema.capabilities | Where-Object planned)
+if (@($plannedRows | Where-Object unavailable_reason -CNE 'capability-lifecycle-planned').Count -ne 0) {
+    throw 'Planned effective-schema capability lost its explicit unavailable reason.'
+}
+if (@($plannedRows | Where-Object { $null -eq $_.delivery_traceability }).Count -ne 0) {
+    throw 'Selected planned capability lost roadmap delivery traceability.'
+}
+if (@($schema.capabilities | Where-Object { -not $_.planned -and $null -ne $_.delivery_traceability }).Count -ne 0) {
+    throw 'Effective schema attached roadmap traceability to a non-planned capability.'
+}
 if (@($schema.packs | Where-Object { $null -ne $_.presentation.visual }).Count -ne 0) {
     throw 'Effective schema invented optional pack visual metadata.'
 }
 $firstJson = ConvertTo-CompactJson $schema
-$secondJson = ConvertTo-CompactJson (New-KnowledgeEffectiveProjectSchema $project $packs $taxonomy $resources)
+$secondJson = ConvertTo-CompactJson (
+    New-KnowledgeEffectiveProjectSchema $project $packs $taxonomy $resources $catalogModel.document
+)
 if ($firstJson -cne $secondJson) {
     throw 'Repeated effective-schema composition was not byte deterministic.'
 }
@@ -179,7 +205,7 @@ $originalDirectory = (Get-Location).Path
 try {
     Set-Location ([System.IO.Path]::GetTempPath())
     $alternateDirectoryJson = ConvertTo-CompactJson (
-        New-KnowledgeEffectiveProjectSchema $project $packs $taxonomy $resources
+        New-KnowledgeEffectiveProjectSchema $project $packs $taxonomy $resources $catalogModel.document
     )
 }
 finally {

@@ -6,6 +6,8 @@
   "canonical_available_capability_count": 123,
   "canonical_planned_capability_count": 13,
   "canonical_deprecated_capability_count": 0,
+  "canonical_scheduled_capability_count": 13,
+  "canonical_deferred_capability_count": 0,
   "project_view_summary": {
     "pack_count": 14,
     "selected_pack_count": 10,

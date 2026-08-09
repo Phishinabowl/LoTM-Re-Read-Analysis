@@ -1,7 +1,7 @@
-$script:FrameworkCatalogContractVersion = 2
-$script:FrameworkCatalogSelectionContractVersion = 2
-$script:FrameworkCatalogProjectViewContractVersion = 2
-$script:FrameworkCatalogProjectViewSelectionContractVersion = 2
+$script:FrameworkCatalogContractVersion = 3
+$script:FrameworkCatalogSelectionContractVersion = 3
+$script:FrameworkCatalogProjectViewContractVersion = 3
+$script:FrameworkCatalogProjectViewSelectionContractVersion = 3
 
 function New-FrameworkCatalogClassifiedException {
     param([string]$Classification, [string]$Message, [System.Exception]$InnerException)
@@ -272,7 +272,18 @@ function ConvertTo-FrameworkCatalogControlledNamespaces {
 }
 
 function New-KnowledgeFrameworkCatalog {
-    param([object]$FrameworkConfig, [System.Collections.IDictionary]$PackConfigs)
+    param(
+        [object]$FrameworkConfig,
+        [System.Collections.IDictionary]$PackConfigs,
+        [object]$CapabilityRoadmap
+    )
+
+    $deliveryTraceability = if ($null -eq $CapabilityRoadmap) {
+        [ordered]@{}
+    }
+    else {
+        New-KnowledgeCapabilityDeliveryTraceabilityMap $CapabilityRoadmap
+    }
 
     $packRows = @()
     $capabilityProviders = [ordered]@{}
@@ -403,6 +414,12 @@ function New-KnowledgeFrameworkCatalog {
             available = $effectiveLifecycle -ceq 'available'
             deprecated = $effectiveLifecycle -ceq 'deprecated'
             planned = $effectiveLifecycle -ceq 'planned'
+            delivery_traceability = if ($deliveryTraceability.Contains($capabilityId)) {
+                $deliveryTraceability[$capabilityId]
+            }
+            else {
+                $null
+            }
             group_ids = @($capabilityGroupIdsByCapability[$capabilityId])
             relationships = [ordered]@{
                 requires = @($providers[0].definition.relationships.requires)
@@ -437,6 +454,18 @@ function New-KnowledgeFrameworkCatalog {
                 $FrameworkConfig.root
             lookup_algorithm = [string]$FrameworkConfig.lookup_keys.algorithm
             unicode_version = [string]$FrameworkConfig.lookup_keys.unicode_version
+            capability_roadmap_registry = if ($null -eq $FrameworkConfig.capability_roadmap_registry) {
+                $null
+            }
+            else {
+                Get-FrameworkCatalogRelativePath $FrameworkConfig.capability_roadmap_registry $FrameworkConfig.root
+            }
+            capability_roadmap_schema_version = if ($null -eq $CapabilityRoadmap) {
+                $null
+            }
+            else {
+                [int]$CapabilityRoadmap.schema_version
+            }
         }
         summary = [ordered]@{
             pack_count = $packRows.Count
@@ -445,6 +474,18 @@ function New-KnowledgeFrameworkCatalog {
             available_capability_count = @($capabilityRows | Where-Object available).Count
             deprecated_capability_count = @($capabilityRows | Where-Object deprecated).Count
             planned_capability_count = @($capabilityRows | Where-Object planned).Count
+            scheduled_capability_count = @(
+                $capabilityRows | Where-Object {
+                    $null -ne $_.delivery_traceability -and
+                    $_.delivery_traceability.disposition -ceq 'scheduled'
+                }
+            ).Count
+            deferred_capability_count = @(
+                $capabilityRows | Where-Object {
+                    $null -ne $_.delivery_traceability -and
+                    $_.delivery_traceability.disposition -ceq 'accepted-deferral'
+                }
+            ).Count
         }
         packs = @($packRows)
         capability_groups = @($capabilityGroupRows)
@@ -472,10 +513,20 @@ function Get-KnowledgeFrameworkCatalogModel {
     }
     $packs = Get-FrameworkCatalogPackConfigs $config
     try {
+        $baseDocument = New-KnowledgeFrameworkCatalog $config $packs $null
+        $roadmap = $null
+        if ($null -ne $config.capability_roadmap_registry) {
+            $roadmapData = ConvertFrom-KnowledgeYamlFile `
+                $config.capability_roadmap_registry `
+                $script:SupportedCapabilityRoadmapSchemaVersion `
+                'capability roadmap'
+            $roadmap = ConvertTo-KnowledgeCapabilityRoadmap $roadmapData $config $baseDocument
+        }
         return [pscustomobject]@{
             config = $config
             pack_configs = $packs
-            document = New-KnowledgeFrameworkCatalog $config $packs
+            capability_roadmap = $roadmap
+            document = New-KnowledgeFrameworkCatalog $config $packs $roadmap
         }
     }
     catch {
@@ -864,17 +915,41 @@ function New-KnowledgeFrameworkCatalogProjectView {
     foreach ($catalogRow in @($Catalog.capabilities)) {
         $row = Copy-FrameworkCatalogRow $catalogRow
         $selected = $selectedCapabilities.ContainsKey([string]$catalogRow.id)
-        $enabled = $selected -and [bool]$selectedCapabilities[[string]$catalogRow.id].enabled
+        $effectiveRow = if ($selected) {
+            $selectedCapabilities[[string]$catalogRow.id]
+        }
+        else {
+            $null
+        }
+        $enabled = $selected -and [bool]$effectiveRow.enabled
         $row.catalog_record_id = $row.record_id
         $row.record_id = "framework-catalog-project-view:capability:$($row.id)"
         $row.project_state = [ordered]@{
             selected = $selected
-            available = [bool]$catalogRow.available
+            available = [bool]$(if ($selected) {
+                    $effectiveRow.available
+                }
+                else {
+                    $catalogRow.available
+                })
             enabled = $enabled
-            deprecated = [bool]$catalogRow.deprecated
-            planned = [bool]$catalogRow.planned
+            deprecated = [bool]$(if ($selected) {
+                    $effectiveRow.deprecated
+                }
+                else {
+                    $catalogRow.deprecated
+                })
+            planned = [bool]$(if ($selected) {
+                    $effectiveRow.planned
+                }
+                else {
+                    $catalogRow.planned
+                })
             used_by_project = $enabled
-            unavailable_reason = if ($catalogRow.planned) {
+            unavailable_reason = if ($selected) {
+                $effectiveRow.unavailable_reason
+            }
+            elseif ($catalogRow.planned) {
                 'capability-lifecycle-planned'
             }
             else {

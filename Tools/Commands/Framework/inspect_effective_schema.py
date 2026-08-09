@@ -205,7 +205,7 @@ def render_capability_rows(rows: list[dict], heading: str) -> str:
         lines.append(
             f"- {row['id']} | lifecycle={row['effective_lifecycle']} | available={display_value(row['available'])} "
             f"| enabled={display_value(row['enabled'])} | deprecated={display_value(row['deprecated'])} "
-            f"| providers={provider_ids}"
+            f"| unavailable={display_value(row['unavailable_reason'])} | providers={provider_ids}"
         )
         presentation = row["presentation"]
         if presentation is None:
@@ -214,6 +214,23 @@ def render_capability_rows(rows: list[dict], heading: str) -> str:
             lines.append(f"  presentation key: {presentation['localization_key']}")
             lines.append(f"  label: {presentation['label']}")
             lines.append(f"  description: {presentation['description']}")
+        traceability = row["delivery_traceability"]
+        if traceability is None:
+            lines.append("  delivery: none")
+        else:
+            target = traceability["delivery_target"]
+            deferral = traceability["deferral"]
+            destination = (
+                f"target={target['id']} ({target['label']})" if target is not None else f"deferral={deferral['id']}"
+            )
+            lines.append(f"  delivery: disposition={traceability['disposition']} | {destination}")
+            lines.append(f"    rationale: {traceability['rationale']}")
+            lines.append(
+                "    prerequisites="
+                f"{','.join(traceability['platform_prerequisite_ids']) or 'none'} | "
+                "capability dependencies="
+                f"{','.join(traceability['domain_capability_dependency_ids']) or 'none'}"
+            )
         lines.append(f"  groups: {', '.join(row['group_ids']) or 'none'}")
         relationships = row["relationships"]
         lines.append(

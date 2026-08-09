@@ -2,7 +2,7 @@
 
 ## Status And Purpose
 
-This document defines the implemented generated `FrameworkCatalog` contract through Phase 3.2.4. Paired
+This document defines the implemented generated `FrameworkCatalog` contract through Phase 3.4.3. Paired
 runtime services, commands, conformance, scale, and compatibility coverage enforce it. The catalog is a
 project-independent, deterministic inventory of installed schema packs and their capabilities. It
 exists so setup tools, documentation, editors, and later user interfaces can inspect what the
@@ -24,9 +24,9 @@ catalog. A future distribution view may join external offerings to installed pac
 `discoverability.installed` and `selectable` remain factual local and technical state. See
 `distribution-entitlement-boundary.md`.
 
-Capability lifecycle and future delivery traceability follow
-`capability-lifecycle-and-roadmap.md`. Canonical packs remain authoritative for lifecycle. Phase
-3.4.3 may join validated roadmap diagnostics into catalog rows, but roadmap metadata cannot change
+Capability lifecycle and delivery traceability follow `capability-lifecycle-and-roadmap.md`.
+Canonical packs remain authoritative for lifecycle. Version 3 joins validated roadmap diagnostics
+into catalog rows, but roadmap metadata cannot change
 catalog identity, lifecycle resolution, dependency validation, or selectability.
 
 ## Boundary From EffectiveProjectSchema
@@ -100,14 +100,16 @@ The canonical JSON document uses this top-level order:
 ```json
 {
   "contract": "framework-catalog",
-  "contract_version": 2,
+  "contract_version": 3,
   "framework": {
     "id": "knowledge-model",
     "manifest_path": "Framework/framework.yaml",
     "packs_root": "Framework/Packs",
     "lookup_registry": "Framework/Data/unicode-lookup-16.0.0.json",
     "lookup_algorithm": "trim-nfc-default-casefold-nfc",
-    "unicode_version": "16.0.0"
+    "unicode_version": "16.0.0",
+    "capability_roadmap_registry": "Framework/capability-roadmap.yaml",
+    "capability_roadmap_schema_version": 1
   },
   "summary": {
     "pack_count": 0,
@@ -115,7 +117,9 @@ The canonical JSON document uses this top-level order:
     "capability_count": 0,
     "available_capability_count": 0,
     "deprecated_capability_count": 0,
-    "planned_capability_count": 0
+    "planned_capability_count": 0,
+    "scheduled_capability_count": 0,
+    "deferred_capability_count": 0
   },
   "packs": [],
   "capability_groups": [],
@@ -167,6 +171,10 @@ Each `capabilities` row contains:
 - `effective_lifecycle`, resolved as `available` when any provider declares available, otherwise
   `deprecated` when any provider declares deprecated, otherwise `planned`;
 - derived `available`, `deprecated`, and `planned` booleans;
+- `delivery_traceability`, containing the validated scheduled target or accepted deferral,
+  rationale, platform prerequisites, domain-capability delivery dependencies, and implementation
+  evidence for a planned capability, or `null` for non-planned capabilities and legacy framework
+  manifests without a selected roadmap;
 - ordered `group_ids` and `relationships` for requirements, recommendations, and conflicts;
 - `providers`, ordered by ordinal pack ID, each containing `pack_id`, declaration lifecycle, and the
   provider declaration's presentation, pack dependencies, and controlled-value namespaces.
@@ -182,8 +190,8 @@ Singular lookup emits a separate envelope:
 ```json
 {
   "contract": "framework-catalog-selection",
-  "contract_version": 2,
-  "catalog_contract_version": 2,
+  "contract_version": 3,
+  "catalog_contract_version": 3,
   "requested": {
     "pack": null,
     "capability_group": null,
@@ -208,7 +216,7 @@ winner. Selection does not change or filter the base catalog object.
 ## Project View Contract
 
 Project attachment is explicit. Combining one validated catalog with one completed
-`EffectiveProjectSchema` emits `framework-catalog-project-view`, contract version 2. The base
+`EffectiveProjectSchema` emits `framework-catalog-project-view`, contract version 3. The base
 catalog remains project-independent and unchanged; the effective schema remains the authority for
 project selection and activation. The dependency flow is strictly catalog to effective schema,
 then catalog plus effective schema to project view.
@@ -231,7 +239,7 @@ domain ID, then reports installed, selected, available, and enabled counts befor
 rows. Selected pack and capability IDs must exist in the catalog. Framework IDs must match. The
 service rejects disagreement rather than inventing an unavailable installed record.
 
-Project-view lookup emits `framework-catalog-project-view-selection`, contract version 2.
+Project-view lookup emits `framework-catalog-project-view-selection`, contract version 3.
 It uses the catalog's pinned lookup-key service and returns complete annotated rows without
 mutating either source object. It additionally filters activation and project usage.
 
@@ -242,6 +250,8 @@ Paired catalog commands provide:
 - a concise default overview;
 - composable detailed `packs`, `groups`, and `capabilities` sections;
 - singular pack, group, and capability inspection;
+- planned-capability delivery disposition, target or deferral, rationale, prerequisites, and
+  delivery dependencies;
 - deterministic capability filtering by provider, lifecycle, availability, activation, and usage;
 - canonical JSON on standard output or in a confined export file;
 - a human-readable report written to a confined file.
@@ -299,3 +309,8 @@ Phase 3.2.2 additionally proves explicit project attachment, base-catalog immuta
 unselected packs, enabled and disabled capabilities, planned and deprecated state, unavailable
 reasons, normalized project-view selectors, mismatched or malformed project input, deterministic
 JSON and report export, and exact three-runtime parity.
+
+Phase 3.4.3 additionally proves strict roadmap attachment after base catalog validation, complete
+traceability for installed planned capabilities, `null` traceability for non-planned and legacy
+rows, unchanged lifecycle and composition behavior, project-view propagation, and exact paired
+runtime output.

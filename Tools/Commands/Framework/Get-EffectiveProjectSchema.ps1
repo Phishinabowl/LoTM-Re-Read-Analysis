@@ -301,7 +301,8 @@ function Write-EffectiveSchemaCapabilityRows {
             "- $($row.id) | lifecycle=$($row.effective_lifecycle) | " +
             "available=$(Get-EffectiveSchemaDisplayValue $row.available) | " +
             "enabled=$(Get-EffectiveSchemaDisplayValue $row.enabled) | " +
-            "deprecated=$(Get-EffectiveSchemaDisplayValue $row.deprecated) | providers=$providerIds"
+            "deprecated=$(Get-EffectiveSchemaDisplayValue $row.deprecated) | " +
+            "unavailable=$(Get-EffectiveSchemaDisplayValue $row.unavailable_reason) | providers=$providerIds"
         )
         if ($null -eq $row.presentation) {
             Write-Output '  presentation: legacy / unavailable'
@@ -310,6 +311,29 @@ function Write-EffectiveSchemaCapabilityRows {
             Write-Output "  presentation key: $($row.presentation.localization_key)"
             Write-Output "  label: $($row.presentation.label)"
             Write-Output "  description: $($row.presentation.description)"
+        }
+        if ($null -eq $row.delivery_traceability) {
+            Write-Output '  delivery: none'
+        }
+        else {
+            $traceability = $row.delivery_traceability
+            $destination = if ($null -ne $traceability.delivery_target) {
+                "target=$($traceability.delivery_target.id) ($($traceability.delivery_target.label))"
+            }
+            else {
+                "deferral=$($traceability.deferral.id)"
+            }
+            Write-Output "  delivery: disposition=$($traceability.disposition) | $destination"
+            Write-Output "    rationale: $($traceability.rationale)"
+            $prerequisites = @($traceability.platform_prerequisite_ids) -join ','
+            if ([string]::IsNullOrEmpty($prerequisites)) {
+                $prerequisites = 'none'
+            }
+            $dependencies = @($traceability.domain_capability_dependency_ids) -join ','
+            if ([string]::IsNullOrEmpty($dependencies)) {
+                $dependencies = 'none'
+            }
+            Write-Output "    prerequisites=$prerequisites | capability dependencies=$dependencies"
         }
         $groups = if (@($row.group_ids).Count -eq 0) {
             'none'

@@ -207,6 +207,20 @@ try {
     ) {
         throw 'Canonical deprecated-capability count changed.'
     }
+    if (
+        [int]$canonical.summary.scheduled_capability_count -ne
+        [int]$expectations.canonical_scheduled_capability_count -or
+        [int]$canonical.summary.deferred_capability_count -ne
+        [int]$expectations.canonical_deferred_capability_count
+    ) {
+        throw 'Canonical capability-roadmap projection counts changed.'
+    }
+    if (
+        @($canonical.capabilities | Where-Object planned | Where-Object { $null -eq $_.delivery_traceability }).Count -ne 0 -or
+        @($canonical.capabilities | Where-Object { -not $_.planned -and $null -ne $_.delivery_traceability }).Count -ne 0
+    ) {
+        throw 'Framework catalog capability-roadmap projection changed.'
+    }
     $firstCatalogJson = ConvertTo-KnowledgeCanonicalJson $canonical
     $secondCatalogJson = ConvertTo-KnowledgeCanonicalJson (Get-KnowledgeFrameworkCatalog $actualRoot)
     if ($firstCatalogJson -cne $secondCatalogJson) {
@@ -261,6 +275,9 @@ try {
             })[0].id
     )
     $plannedCapability = @($projectView.capabilities | Where-Object { $_.project_state.planned })[0]
+    if ($null -eq $plannedCapability.delivery_traceability) {
+        throw 'Framework catalog project view lost capability delivery traceability.'
+    }
     if (-not $selectedPack.project_state.selected -or -not $selectedPack.project_state.used_by_project) {
         throw 'Selected project-view pack state changed.'
     }

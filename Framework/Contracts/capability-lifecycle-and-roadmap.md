@@ -2,10 +2,10 @@
 
 ## Status And Purpose
 
-This contract defines the capability-lifecycle authority boundary and the Phase 3.4.2 executable
+This contract defines the capability-lifecycle authority boundary and the Phase 3.4.3 executable
 delivery-traceability registry. It centralizes meanings that were previously spread across pack,
-catalog, effective-schema, and planning documents. Catalog and effective-schema projections remain
-deferred to Phase 3.4.3.
+catalog, effective-schema, and planning documents. Catalog, project-view, and effective-schema
+projections are implemented diagnostic consumers of the same registry.
 
 Schema packs remain authoritative for portable capability declarations. A separate framework-level
 capability-roadmap registry describes delivery planning for declared `planned` capabilities.
@@ -18,8 +18,8 @@ lifecycle, satisfy a dependency, select a pack, activate behavior, or authorize 
 | --- | --- | --- |
 | Canonical `pack.yaml` | Capability identity, provider ownership, lifecycle, presentation, groups, relationships, controlled values, and portable semantics. | Delivery phase, accepted deferral, implementation evidence, project selection, or activation. |
 | Capability-roadmap registry | Delivery target or accepted deferral, rationale, platform prerequisites, and promotion evidence for declared planned capabilities. | Capability identity or lifecycle, pack dependency satisfaction, project state, or runtime authorization. |
-| `FrameworkCatalog` | Project-independent installed pack and capability inventory plus later joined roadmap diagnostics. | Project selection, activation, or roadmap authority. |
-| `EffectiveProjectSchema` | Selected-pack capability composition and project activation, plus later selected-capability roadmap diagnostics. | Unselected capability inventory or independent roadmap parsing. |
+| `FrameworkCatalog` | Project-independent installed pack and capability inventory plus joined roadmap diagnostics. | Project selection, activation, or roadmap authority. |
+| `EffectiveProjectSchema` | Selected-pack capability composition and project activation, plus selected-capability roadmap diagnostics. | Unselected capability inventory or independent roadmap parsing. |
 | `FrameworkCatalogProjectView` | Full installed catalog annotated with one effective project's selection and availability state. | A third capability or roadmap model. |
 | Framework evolution history | Confirmed implementation and verification history. | Current capability lifecycle or current roadmap disposition. |
 
@@ -158,11 +158,11 @@ not a failure and does not make the capability available.
 
 ## Projection Boundary
 
-Phase 3.4.3 will add projections without changing authority:
+Phase 3.4.3 adds projections without changing authority:
 
-- `FrameworkCatalog` may join traceability for every installed planned capability;
-- `FrameworkCatalogProjectView` may add the same traceability beside project state; and
-- `EffectiveProjectSchema` may include traceability only for capabilities declared by selected
+- `FrameworkCatalog` joins traceability for every installed planned capability;
+- `FrameworkCatalogProjectView` preserves the same traceability beside project state; and
+- `EffectiveProjectSchema` includes traceability only for capabilities declared by selected
   packs, with an explicit unavailable reason for selected planned capabilities.
 
 Unselected capabilities remain absent from `EffectiveProjectSchema`. Roadmap metadata cannot change
