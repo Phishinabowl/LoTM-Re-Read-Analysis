@@ -914,49 +914,151 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 
 ## Phase 4: Page Modules, Fields, Defaults, And Validation Levels
 
-### Phase 4.1 Page-Schema Contract
+### Phase 4 Guardrails
 
-- [ ] Define reusable page modules independently from page instances and Markdown templates.
-- [ ] Define field identity, type, cardinality, labels, help text, controlled-value source,
-  applicability, ordering, and display hints.
-- [ ] Compose modules through core contracts, domain packs, project profiles, content types,
-  categories, and project extensions.
-- [ ] Prevent page files from copying module or field definitions.
-- [ ] Define deterministic composition and conflict behavior.
+- [ ] Use existing LoTM templates and representative pages as the discovery corpus without treating
+  their current structure as framework authority.
+- [ ] Perform discovery from current pages and templates downward, then implement from stable field
+  primitives upward.
+- [ ] Limit Phase 4 to logical schema composition; defer physical storage and canonical page
+  migration decisions to their owning later phases.
+- [ ] Preserve canonical LoTM pages, templates, Relationship Seeds, QA behavior, and Visualization
+  behavior throughout Phase 4.
 
-### Phase 4.2 Requirement Semantics
+### Phase 4.1 Read-Only Template And Page Inventory
 
-- [ ] Support `required`, `conditional`, `recommended`, `optional`, `omit-if-empty`, and `derived`
-  semantics.
-- [ ] Define conditional requirements against enabled capabilities, record lifecycle, other field
-  values, and requested readiness level.
-- [ ] Define readiness levels such as draft-valid, graph-ready, publishable, and evidence-complete.
-- [ ] Ensure incomplete optional release, territory, localization, or evidence details do not block a
-  useful draft record.
+- [ ] Inventory every existing universal and type-specific LoTM template section, table, embedded
+  data-block field, Relationship Seed shape, evidence structure, ledger structure, visibility rule,
+  and maintainer-only instruction without changing canonical files.
+- [ ] Sample representative populated pages, including Dunn Smith, Old Neil, and Leonard Mitchell,
+  so the inventory captures real optional modules, reveal progression, and legacy variation rather
+  than template placeholders alone.
+- [ ] Identify candidate reusable fields and modules, repeated shapes, page-local specializations,
+  legacy compatibility surfaces, and structures that should remain human-authored prose.
+- [ ] Classify each candidate provisionally as core framework, reusable domain pack, LoTM project
+  profile or extension, or legacy-only compatibility behavior.
+- [ ] Record every discovered disagreement explicitly rather than silently normalizing it during
+  inventory.
 
-### Phase 4.3 Defaults And Inference
+#### Phase 4.1.1 Conflict Inventory And Disposition
 
-- [ ] Distinguish literal defaults, inherited context, definitional implications, suggested defaults,
-  and computed derivations.
-- [ ] Record value origin where persistence or explanation requires it.
-- [ ] Permit overrides only where the owning rule declares them valid.
+- [ ] Give each conflict a stable finding ID and record the affected templates or pages, exact
+  sections or fields, conflict class, current representations, semantic or structural difference,
+  likely authority, proposed resolution, migration impact, blocking state, and owning phase.
+- [ ] Support at least naming, type, cardinality, ownership, semantic, requirement, timing,
+  projection, presentation, layering, controlled-value, and legacy-only conflict classes.
+- [ ] Assign each reviewed finding exactly one disposition: `confirmed-equivalent`,
+  `intentional-specialization`, `requires-normalization`, `legacy-compatibility-only`,
+  `deferred-decision`, or `invalid-drift`.
+- [ ] Require maintainer review of blocking findings before the page-schema contract is finalized;
+  deferred findings must name the later phase that owns their resolution.
+- [ ] Preserve inventory evidence separately from generated schema authority so discovery findings do
+  not become canonical definitions merely by being recorded.
+
+### Phase 4.2 Field Primitive Contract
+
+- [ ] Define stable field identity independently from page instances, Markdown labels, and physical
+  storage paths.
+- [ ] Define field type, cardinality, labels, help text, controlled-value source, applicability,
+  ordering, and display hints.
+- [ ] Separate machine identity and validation semantics from localized or project-specific
+  presentation.
+- [ ] Define compatibility rules for additive field evolution, semantic changes, aliases,
+  deprecation, replacement, and removal.
+- [ ] Prevent canonical page records from copying or redefining field contracts.
+
+### Phase 4.3 Reusable Page-Module Contract
+
+- [ ] Define reusable page modules as ordered compositions of field references rather than copied
+  field definitions.
+- [ ] Define module identity, ownership, lifecycle, applicability, dependencies, conflicts,
+  presentation, ordering, and optional nested-module behavior.
+- [ ] Separate universal modules, reusable domain modules, LoTM project modules, and legacy adapter
+  modules without promoting project vocabulary into core.
+- [ ] Model shared candidates such as record identity, visibility, first appearances, chronology,
+  evidence, and human-authored prose at the lowest valid reusable layer.
+- [ ] Keep LoTM-specific candidates such as pathway state and associated Tarot cards project-owned
+  unless later evidence supports promotion into a reusable pack.
+- [ ] Treat current Relationship Seeds as a legacy projection surface pending the canonical
+  relationship work in Phase 6 rather than making them authoritative page modules.
+
+### Phase 4.4 Deterministic Composition And Overrides
+
+- [ ] Compose field and module contributions through core contracts, domain packs, project profiles,
+  content types, categories, and explicit project extensions.
+- [ ] Define deterministic contribution ordering, merge behavior, conflict detection, and diagnostic
+  traces.
+- [ ] Define which higher layers may add fields, tighten requirements, refine presentation, or narrow
+  applicability without changing lower-layer field identity, type, cardinality, or meaning.
+- [ ] Reject ambiguous ownership, incompatible duplicate definitions, invalid override attempts,
+  dependency cycles, and composition that depends on filesystem or authored mapping order.
+- [ ] Keep composed page schemas generated and diagnostic; canonical authority remains in their
+  owning registries and pack or project declarations.
+
+### Phase 4.5 Presence, Rendering, And Readiness Semantics
+
+- [ ] Model field and module presence independently as `required`, `conditional`, `recommended`, or
+  `optional` rather than mixing validation with rendering or value production.
+- [ ] Model rendering behavior independently, including omit-if-empty behavior and any explicitly
+  supported visible, hidden, or collapsed presentation state.
+- [ ] Define conditional requirements against enabled capabilities, content type, category, record
+  lifecycle, other field values, and requested readiness level.
+- [ ] Define readiness levels such as draft-valid, graph-ready, publishable, and evidence-complete,
+  with deterministic diagnostics for unmet requirements.
+- [ ] Ensure incomplete optional release, territory, localization, production, or evidence details do
+  not block a useful draft record unless the requested readiness level explicitly requires them.
+
+### Phase 4.6 Defaults, Inference, Derivation, And Value Origin
+
+- [ ] Model value production independently from presence and rendering requirements.
+- [ ] Distinguish authored values, literal defaults, inherited context, definitional implications,
+  suggested defaults, and computed derivations.
+- [ ] Record value origin where persistence, auditability, explanation, or override behavior requires
+  it.
+- [ ] Permit overrides only where the owning rule declares them valid and retain the reason or source
+  when an inferred or inherited value is overridden.
 - [ ] Treat source-backed facts such as exact release dates and production details as evidence, not
   silent inference.
 - [ ] Prove a Donghua example in which cultural form implies animation while optional release data
   remains absent and production assertions remain explicit.
 
-### Phase 4.4 Template And Editor Schema
+### Phase 4.7 Template And Editor Schema Projection
 
 - [ ] Generate or validate templates from composed page modules without inserting empty optional
   sections into canonical pages.
-- [ ] Expose form-ready schemas through `EffectiveProjectSchema`.
-- [ ] Preserve human-authored prose fields separately from taxonomy/display-label conversion.
+- [ ] Expose deterministic form-ready field, module, requirement, rendering, default, derivation,
+  applicability, ordering, and diagnostic schemas through `EffectiveProjectSchema`.
+- [ ] Ensure a generic editor can render composed forms without hardcoded category-specific field
+  definitions.
+- [ ] Preserve human-authored prose fields separately from taxonomy labels, machine identifiers, and
+  generated display-label conversion.
+- [ ] Keep template and editor projections noncanonical and reproducible from the same composed
+  schema authority.
+
+### Phase 4.8 LoTM Template Equivalence Proof
+
+- [ ] Describe the universal, character, pathway, item, and knowledge-source templates through the
+  composed field and module contracts without rewriting those templates or their populated pages.
+- [ ] Prove optional character modules do not appear merely because the category supports them.
+- [ ] Preserve the distinction among page-visible prose, structured page state, legacy Relationship
+  Seeds, evidence indexes, and Reader Knowledge Ledger entries without declaring their Phase 5 or
+  Phase 6 normalized ownership prematurely.
+- [ ] Produce deterministic equivalence and unresolved-conflict reports suitable for maintainer
+  review and later logical migration.
+- [ ] Add paired conformance, malformed, composition, runtime-parity, scale, and representative LoTM
+  compatibility coverage to the shared test registry and appropriate aggregate profiles.
 
 ### Phase 4 Exit Gate
 
+- [ ] Every blocking inventory conflict has a reviewed disposition, and every deferred finding names
+  a later owning phase.
+- [ ] Field, module, presence, rendering, value-production, and readiness semantics remain distinct
+  and deterministic.
 - [ ] A page editor can know what to require, suggest, derive, hide, and omit without hardcoded
   category forms.
 - [ ] Existing LoTM templates can be described without forcing all optional modules onto every page.
+- [ ] No canonical LoTM page, template, QA artifact, or Visualization artifact changes during the
+  Phase 4 logical-schema work.
 
 ## Phase 5: Normalized Content And Legacy Compatibility
 
