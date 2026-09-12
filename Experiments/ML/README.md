@@ -1,5 +1,38 @@
 # Machine Learning Experiments
 
+## How The Experiment Uses The AI Service
+
+The planned notebook will use a separately hosted, on-premises AI service to suggest subjects and
+categories from chapter text. The notebook prepares selected passages, category guidance, and
+previously reviewed decisions; the service runs a pretrained language model and returns suggestions
+for human review. The notebook does not need to run the language model on the reader's computer.
+
+The basic connection chain is:
+
+```text
+Notebook -> Microsoft sign-in -> HTTPS gateway -> local model server
+Notebook <- streamed suggestions <- HTTPS gateway <- local model server
+```
+
+- **Sign-in:** Microsoft Entra authenticates the user and issues an access token. Access is limited
+  to an assigned group, with membership managed through the existing directory synchronization.
+  Applicable sign-in policies determine MFA requirements.
+- **Secure connection:** the notebook sends its request and token over HTTPS. A reverse proxy
+  handles the encrypted connection, and an authentication gateway checks the token and permitted
+  API access before forwarding the request to the model server.
+- **Local inference:** the model runs on a dedicated server. Selected source text is sent to that
+  service for processing; Microsoft sign-in supplies identity, not the language-model response.
+- **Streaming:** generated text can appear progressively in the notebook instead of waiting for
+  the entire response. This improves responsiveness without changing the model's generation speed.
+- **Review:** suggestions remain experimental. The user accepts, edits, rejects, or defers them;
+  reviewed decisions become context for the next chapter, not automatic model retraining or
+  changes to canonical project content.
+
+The service foundation has been tested with authenticated, streamed responses. Notebook integration
+and chapter-level extraction are still pending. Reproducing live requests requires authorized
+service access, network connectivity, and certificate trust; private connection settings and
+credentials are kept outside this shared README and saved notebook outputs.
+
 ## Purpose And Starting Point
 
 Explore how machine learning could assist knowledge classification and source review through
@@ -13,8 +46,9 @@ extends that learning structure to source text: identify candidate subjects, sug
 project categories, and show how human decisions inform analysis of the next chapter. Unlike Iris,
 the subjects are not already isolated into labeled rows; extraction is an additional task.
 
-**Status:** documentation and initial directory structure only. No notebook, training corpus,
-trained model, extraction pipeline, or execution results exist in this directory yet.
+**Status:** experiment documentation and an independently tested AI service foundation are in place.
+No notebook, experiment training corpus, extraction pipeline, or chapter-analysis results exist yet;
+the service uses a pretrained model rather than a model trained by this experiment.
 
 ## Agreed Demo: Three Chapters With Progressive Review
 
