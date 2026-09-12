@@ -17,6 +17,7 @@ __pycache__/
 .ruff_cache/
 .tox/
 .tmp/
+.ipynb_checkpoints/
 
 # Personal Implementation Notes
 *.local.md
