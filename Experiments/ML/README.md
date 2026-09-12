@@ -8,49 +8,162 @@ class: load data, explore features, split training and test examples, train, eva
 live prediction. It should be explainable to a class while testing a useful part of the LoTM
 platform's longer-term direction.
 
-The Iris exercise uses four numerical flower measurements to predict a known species. This
-experiment asks what changes when the input is a subject description and the target is a project
-category. Turning text into numerical features is part of the lesson.
+The Iris exercise uses four numerical flower measurements to predict a known species. This demo
+extends that learning structure to source text: identify candidate subjects, suggest existing
+project categories, and show how human decisions inform analysis of the next chapter. Unlike Iris,
+the subjects are not already isolated into labeled rows; extraction is an additional task.
 
 **Status:** documentation and initial directory structure only. No notebook, training corpus,
 trained model, extraction pipeline, or execution results exist in this directory yet.
 
-## First Proposed Experiment: Recommend A Category
+## Agreed Demo: Three Chapters With Progressive Review
 
-Question: **Can a model recommend an existing category from a short description of one subject?**
+Question: **Can assisted extraction and classification produce useful chapter-level suggestions,
+and how do reviewed decisions change the next chapter's analysis?**
 
-Begin with a small, reviewed set of descriptions and known labels drawn from an explicitly chosen
-subset of project categories, such as character, location, and faction. The final category set,
-dataset size, example sources, and classifier remain to be selected after checking the available
-examples. A proposed notebook name is `lotm-category-classification.ipynb`; it has not been created.
+Use three sequential chapters from the supported LoTM Book 1 EPUB and an explicitly selected subset
+of existing project categories, such as character, location, and faction. Exact chapters and
+categories remain to be chosen. The private notebook and supporting data will live under
+`Experiments\ML\.local\`, which is already ignored. No notebook has been created.
 
-One row should initially represent one description of one identified subject. A chapter can mention
-many subjects and categories at once, so classifying whole chapters would answer a different
-question. A single-label teaching exercise also does not establish a single-category restriction
-for the framework or for subjects that need more complex modeling.
+One candidate row represents a subject mention or proposed subject with supporting context, not a
+category assigned to an entire chapter. A chapter can contain many subjects and categories. Repeated
+mentions may propose a match to a reviewed subject, but must not silently merge identities. Any
+simplified single-label exercise does not impose that restriction on the framework.
 
-The proposed teaching sequence is:
+The review loop is:
 
-1. Load the reviewed examples and explain the input text, reference labels, and evidence basis.
-2. Explore category balance and representative descriptions before fitting a model.
-3. Hold out evaluation examples, keeping repeated descriptions of the same subject together.
-4. Convert text into numerical features using an explainable starting approach such as TF-IDF.
-   Learn the vocabulary and feature weights from training data only.
-5. Train one simple classifier before introducing comparisons between algorithms.
-6. Evaluate held-out examples with a baseline, per-category results, and a confusion matrix.
-   Inspect incorrect predictions rather than relying only on overall accuracy.
-7. Let a user enter a mystery description and inspect the suggested category and available model
-   scores. Record whether the suggestion should be accepted, edited, rejected, or deferred.
+1. Explain the approved category subset and inspect what the existing EPUB helper returns.
+2. Read the first selected chapter and display short source snippets with their locations.
+3. Produce candidate subjects and category suggestions with supporting evidence and uncertainty.
+4. Pause for actual user decisions: accept, edit, reject, or defer, with reasons where useful.
+5. Save those decisions as experimental state, separate from canonical project records.
+6. Process the second chapter using its text and the reviewed state from the first; show which
+   decisions influenced new suggestions. Review and save again before the third chapter.
+7. Repeat for the third chapter, then compare new subjects, repeated mentions, corrections,
+   unresolved cases, and any proposed revisions to earlier decisions.
+
+Do not invent a completed review history for presentation. Build and execute the review checkpoints
+with the user, preserving their actual decisions. Accepted subjects, corrected categories,
+rejection reasons, and deferred identity matches should remain distinguishable. Later evidence may
+justify revisiting an earlier decision; preserve the history and the chapter where that evidence
+appeared instead of silently replacing the earlier understanding.
+
+Carrying reviewed state into the next analysis supplies context; it does not automatically retrain
+a classifier. The implementation must explain how the selected method consumes that state. In a
+mature pipeline, preliminary extraction could run ahead or in parallel, with reconciliation and
+dependency tracking afterward. Human approval before every chapter is the chosen teaching workflow,
+not a universal production requirement.
+
+## Notebook Teaching And Private Sharing
+
+Follow the Iris notebook's rhythm: explanatory Markdown, a manageable code cell, and visible
+results. Introduce the question, purpose, inputs, and expected observations before each meaningful
+step. Explain unfamiliar Python and ML concepts when they first appear.
+
+Code comments should explain intent, transformations, and meaningful decisions. Repository helper
+calls need particular care: classmates will not have the full repository. Introduce what each
+helper does, show the shape of the data it returns, and explain how the notebook uses that result.
+Avoid comments that merely repeat syntax or imply the helper performs semantic extraction when it
+only reads or searches source text.
+
+The notebook should read as a complete lesson covering the goal, categories, source reader, three
+chapter/review cycles, and final lessons and limitations. Distinguish automatic suggestions, user
+decisions, and any manually prepared examples throughout.
+
+Connect the lesson to the long-term platform at relevant points in Markdown and code comments.
+Each reference should briefly explain what the owning phase will provide, how the current step
+relates to it, and whether the capability is implemented, experimental, or planned. Verify phase
+names and status against the current implementation plan when authoring the notebook rather than
+assuming this outline remains current.
+
+Use these connections where they help explain the demonstrated behavior:
+
+- Category loading: implemented framework catalog and effective project schema; distinguish these
+  from Phase 14 configuration recommendations and Phase 16 setup wizards.
+- Candidate fields and descriptions: Phase 4 structured modules and authored blocks, followed by
+  Phase 5 normalized content. Temporary notebook rows are not those future canonical contracts.
+- Repeated subjects and proposed connections: existing identity/reconciliation services where
+  actually used, plus Phase 6 normalized relationships. Label experimental matching explicitly.
+- Review checkpoints: Phase 12 preview, mutation, recovery, and editorial governance, with Phase 16
+  editing interfaces. Saving a demo decision does not implement canonical promotion.
+- Chapter-level presentation: Phase 10 generalized summaries and Phase 11 generated projections;
+  preserve the distinction between source snippets, generated proposals, and authored analysis.
+- Final recap: show how the three-chapter experiment informs a future ingestion workflow while
+  keeping the ML orchestration itself identified as future design.
+
+Recipients will not have the repository, so a phase number or relative link alone is insufficient.
+Include the phase title, a short plain-language explanation, and the owning document path beside
+useful references. Links can supplement that explanation but must not be required to understand
+it. Keep code comments focused on the connection at that call or transformation; use Markdown for
+broader architecture. Avoid repeating the full roadmap in every section or presenting future
+services as dependencies already available to the notebook.
+
+Run and save the intended outputs before private sharing. The `.ipynb` should retain Markdown,
+code, short extracted snippets, chapter/internal-path/line references, ordinary result tables, and
+embedded plots if useful. Explain when snippet text is truncated. Show before/after review state
+and the influence of earlier decisions without requiring recipients to follow external file links.
+
+Recipients can inspect saved outputs in a compatible notebook viewer without the repository or
+rerunning cells. Rerunning still requires the source files, helpers, dependencies, and any selected
+model access. Do not rely on live widgets or a running kernel to communicate saved review results.
+An HTML companion may be useful later, but is not part of the current documentation increment.
+
+The notebook, source-derived data, and results remain in `.local/`; only these general READMEs are
+intended for Git. Short snippets are deliberately retained for this private learning demo. No
+email sending or other distribution is part of notebook creation.
+
+## Method Selection Still Pending
+
+The three-chapter workflow is agreed; the extraction/classification method is not yet selected.
+A traditional supervised exercise with manually identified subjects teaches feature extraction
+and training. A language-model-assisted extractor is closer to the intended ingestion experience,
+but must be explained as that kind of experiment rather than presented as an Iris-style model
+trained from scratch. Decide the method, dependencies, model access, and state input before coding.
+
+The earlier description-only TF-IDF classifier remains an optional smaller exercise, not a mandatory
+first stage of the agreed demo. If used, learn vocabulary and feature weights from training data
+only, hold out independent examples, and inspect a baseline, per-category results, and confusion
+matrix. Do not report training metrics for a method that did not train a classifier.
 
 The experiment should explain the difference between predicting a category and establishing a
 fact. Model scores are not provenance confidence, proof of correctness, or automatic permission
 to promote a record. Ambiguous descriptions and inputs outside the selected categories belong in
 the discussion; a classifier choosing a label does not prove that any available label fits.
 
+## Dependencies And Reproduction
+
+The maintainer is comfortable installing appropriate Python libraries for the agreed experiment.
+Choose dependencies after selecting the method and explain their purpose. No dependencies have
+been installed as part of this documentation work.
+
+Include a clearly labeled setup section near the start of the notebook documenting:
+
+- the Python version, notebook environment, and kernel used for the demonstrated run;
+- each third-party package, its installation name, import name when different, and role;
+- standard-library imports that need no separate installation;
+- repository-owned modules/helpers that cannot be obtained simply by installing a PyPI package;
+- the source EPUB and local supporting files required to reproduce the demo;
+- any model downloads, external services, credentials, network, or compute requirements, including
+  whether inference runs locally or remotely;
+- the package versions actually used and environment-appropriate installation instructions,
+  including kernel restart guidance where needed.
+
+Use a short dependency table and commented imports to connect each library to its purpose. Place
+installation commands in an explicit setup cell or documented setup step rather than silently
+installing packages during analysis. Keep credentials out of code, outputs, and saved metadata.
+Explain any external transfer of source text before using a selected service; permission to install
+libraries does not itself select a service or authorize purchases.
+
+Separate viewing requirements from execution requirements: classmates only need a compatible
+viewer to inspect saved Markdown and outputs. Rerunning requires the documented environment,
+repository helpers, source files, and any selected model access. Record actual setup and versions
+when implemented rather than presenting speculative dependencies as installed or tested.
+
 ## Dataset And Evaluation Decisions
 
-Dataset preparation is the next design step, not completed work. Review these choices before
-building the notebook:
+Source selection and method-appropriate evaluation remain design steps, not completed work. Review
+these choices before building the notebook:
 
 - Use sufficient independent subjects per category to support a meaningful split. If the available
   corpus is too small, describe the result as a teaching demonstration rather than a reliable
@@ -66,17 +179,20 @@ building the notebook:
 - Select a clear reader boundary for source-grounded examples and avoid introducing later reveals
   into examples presented as earlier reader knowledge.
 
-For a class demonstration, a useful review table would show the input description, reference
-category where known, model suggestion, error or uncertainty notes, and the reviewer's decision.
-That table remains experimental output; it does not write back into canonical records.
+The chapter review table should show chapter, candidate mention, suggested category, supporting
+snippet and location, proposed match to earlier reviewed state, uncertainty, and reviewer decision.
+Include reference labels only where actually reviewed. Evaluate extraction omissions and duplicate
+or incorrect identity suggestions as well as category errors. Three chapters demonstrate a workflow;
+they do not establish whole-book reliability. All review output remains experimental and does not
+write back into canonical records.
 
 ## Related Experiments
 
 | Task | Question | Relationship to this work |
 | --- | --- | --- |
-| Classification | Which existing category fits this subject? | First proposed exercise; uses reviewed labels. |
+| Classification | Which existing category fits this subject? | Part of the three-chapter demo; uses existing approved categories. |
 | Clustering | Which descriptions resemble each other without supplying labels? | Possible follow-up using the same descriptions with labels withheld from fitting. |
-| Extraction | Which subjects, events, assertions, and relationships occur in a passage? | Later bridge from raw ebook text to candidate records. |
+| Extraction | Which subjects, events, assertions, and relationships occur in a passage? | Subject candidates enter the initial demo; broader event, relationship, and analysis extraction remain later increments. |
 | Similarity and recommendation | What other material resembles this description or passage? | Possible retrieval aid for review and investigation. |
 | Anomaly detection | Which examples look unusual relative to their peers? | Possible review aid; unusual does not mean incorrect. |
 
@@ -158,6 +274,16 @@ structured assertions retain their separate canonical roles. Structured rows and
 must be filtered independently under the applicable visibility rules.
 
 ## Relationship To The Platform
+
+The current framework catalog can describe installed packs before a project exists, and the
+effective project schema can describe LoTM's configured categories and capability state. This demo
+uses that existing configuration; it does not build the separate project-setup recommendation flow.
+
+Future platform work supplies the broader integration: Phase 4 page fields/modules/authored blocks,
+Phases 5-6 normalized content and relationships, Phase 10 generalized summaries, Phase 11 analytical
+projections, Phase 12 mutation and editorial governance, Phase 14 optional solution/schema
+recommendations, and Phase 16 wizards and editors. The full ML ingestion orchestration is a separate
+future design, not an already implemented pipeline or an additional completed phase.
 
 Follow the parent [experiment conventions](../README.md) for authority, local artifacts, sharing,
 and promotion. This work can continue while Phase 4 reconciliation is underway, but cannot resolve

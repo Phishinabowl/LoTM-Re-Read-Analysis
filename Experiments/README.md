@@ -12,7 +12,7 @@ implementing that feature in the platform.
 
 | Area | Purpose | Status |
 | --- | --- | --- |
-| [ML](ML/README.md) | Explore text classification and, later, clustering and machine-assisted source extraction. | Scope and documentation only; no notebook, dataset, or model yet. |
+| [ML](ML/README.md) | Demonstrate extraction, category suggestions, and progressive human review across three LoTM chapters. | Agreed demo scope; notebook and execution remain pending. |
 
 ## Authority And Scope
 
@@ -37,8 +37,9 @@ ML exploration can proceed independently while that reconciliation continues.
 
 ## Working And Sharing Conventions
 
-Track reviewed notebook code, explanatory Markdown, and explicitly approved small teaching
-fixtures. Label synthetic examples and distinguish them from source-grounded project evidence.
+Track general experiment documentation and only explicitly approved notebook code and teaching
+fixtures. The initial ML demo notebook and its supporting data remain ignored under `ML/.local/`.
+Label synthetic examples and distinguish them from source-grounded project evidence.
 Keep personal class conversations and local reference documents outside shared documentation.
 
 Use an experiment-local `.local/` directory for extracted source text, working datasets, trained
@@ -47,10 +48,16 @@ are already ignored by repository policy; the root `.gitignore` also excludes Ju
 throughout the repository.
 Original ebooks remain in the existing ignored `Source/` area.
 
-Before committing or sharing a notebook, inspect its saved outputs and metadata. Clear source
-excerpts, private information, machine-specific paths, and bulky generated output. An ignored data
-directory does not protect text embedded in a tracked notebook. Record source references and
+Before committing or publicly publishing a notebook, inspect its saved outputs and metadata. Clear
+source excerpts, private information, machine-specific paths, and bulky generated output. An ignored
+data directory does not protect text embedded in a tracked notebook. Record source references and
 paraphrased findings rather than copying long ebook passages into tracked files.
+
+The initial ML demo is intended for private class sharing, not Git publication. Its ignored notebook
+will deliberately retain short source snippets, source locations, and saved results so readers can
+follow the lesson without the repository. Review that copy for credentials, unrelated private data,
+and unnecessary local paths before sharing; retain the intended teaching evidence. Keeping a file
+ignored does not prevent a recipient from seeing material embedded in it.
 
 Each experiment should explain:
 
