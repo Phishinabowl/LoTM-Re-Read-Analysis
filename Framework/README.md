@@ -2,22 +2,22 @@
 
 This directory contains reusable framework assets that are portable across project implementations.
 
-- `Contracts/` documents the configuration formats and ownership boundaries enforced by framework loaders.
-- `Data/` contains portable pinned runtime data used by framework contracts.
-- `Packs/` contains reusable capability and vocabulary bundles.
-- `framework.yaml` is the project-independent installation bootstrap that explicitly selects the
+- [Contracts](Contracts/README.md) documents the configuration formats and ownership boundaries enforced by framework loaders.
+- [Data](Data/README.md) contains portable pinned runtime data used by framework contracts.
+- [Packs](Packs/README.md) contains reusable capability and vocabulary bundles.
+- [framework.yaml](framework.yaml) is the project-independent installation bootstrap that explicitly selects the
   pack root, pinned lookup registry, and capability roadmap.
-- `capability-roadmap.yaml` maps every installed planned capability to a concrete delivery target or
+- [capability-roadmap.yaml](capability-roadmap.yaml) maps every installed planned capability to a concrete delivery target or
   accepted deferral and records typed promotion evidence without changing pack lifecycle or project
   activation.
-- `framework_improvement_lifecycle.md` defines the end-to-end version iteration, confirmation, testing, historical closure, and handoff workflow.
-- `testing_methodology.md` defines the cross-industry pressure-test candidate catalog plus cumulative conformance, runtime-parity, compatibility, pressure-scenario, comparison, and test-retention requirements.
-- `framework_evolution.md` records the historical implementation and pressure-test results that drove each framework version.
-- `platform_evolution.md` records confirmed platform-phase implementation, migration, compatibility closure, and handoff history without duplicating numbered framework-version pressure records.
-- `extraction_readiness.md` records the proven portable bundle, project-owned boundary, extraction rehearsal, stabilization evidence, and limits of the current readiness claim.
-- `analytical-projection-architecture.md` defines the downstream JSON, SQLite, Parquet, notebook, medallion, and optional Databricks/Delta path without changing canonical authority.
-- `platform-implementation-plan.md` is the phased execution checklist for effective schema composition, normalized content, consumer migration, LoTM physical migration, projections, add-on packs, the IT proof of concept, interfaces, and the ordered deferred-capability program. It also records capability candidates that are not yet pack declarations.
-- `page-schema-discovery-inventory.md` is the noncanonical Phase 4 evidence and conflict inventory for existing LoTM templates and representative pages; it does not define field, module, or normalized-record authority.
+- [framework_improvement_lifecycle.md](framework_improvement_lifecycle.md) defines the end-to-end version iteration, confirmation, testing, historical closure, and handoff workflow.
+- [testing_methodology.md](testing_methodology.md) defines the cross-industry pressure-test candidate catalog plus cumulative conformance, runtime-parity, compatibility, pressure-scenario, comparison, and test-retention requirements.
+- [framework_evolution.md](framework_evolution.md) records the historical implementation and pressure-test results that drove each framework version.
+- [platform_evolution.md](platform_evolution.md) records confirmed platform-phase implementation, migration, compatibility closure, and handoff history without duplicating numbered framework-version pressure records.
+- [extraction_readiness.md](extraction_readiness.md) records the proven portable bundle, project-owned boundary, extraction rehearsal, stabilization evidence, and limits of the current readiness claim.
+- [analytical-projection-architecture.md](analytical-projection-architecture.md) defines the downstream JSON, SQLite, Parquet, notebook, medallion, and optional Databricks/Delta path without changing canonical authority.
+- [platform-implementation-plan.md](platform-implementation-plan.md) is the phased execution checklist for effective schema composition, normalized content, consumer migration, LoTM physical migration, projections, add-on packs, the IT proof of concept, interfaces, and the ordered deferred-capability program. It also records capability candidates that are not yet pack declarations.
+- [page-schema-discovery-inventory.md](page-schema-discovery-inventory.md) is the noncanonical Phase 4 evidence and conflict inventory for existing LoTM templates and representative pages; it does not define field, module, or normalized-record authority.
 - Future `Migrations/` content will contain versioned transformations between contract revisions.
 
 Platform Phases 1 through 3 are complete. Phase 4 begins page modules, fields, defaults, and
