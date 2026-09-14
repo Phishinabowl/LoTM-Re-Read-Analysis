@@ -63,9 +63,13 @@ For clickable navigation, use the [Project Index](INDEX.md).
 
 Reusable helper commands, switch maps, output side effects, and Python/PowerShell parity notes are tracked in the [Tooling Reference](Tools/TOOLING_REFERENCE.md).
 
-Framework boundaries, component ownership, generated-output rules, stable-identity direction, and the LoTM-to-reusable-framework extraction sequence are defined in the [Architecture Contract](ARCHITECTURE.md).
+## Framework And Platform
+
+The [Framework overview](Framework/README.md) introduces the reusable contracts, schema packs, and runtime assets. Framework boundaries, component ownership, generated-output rules, stable-identity direction, and the LoTM-to-reusable-framework extraction sequence are defined in the [Architecture Contract](ARCHITECTURE.md).
 
 Maintainer framework/schema iterations enter through the [Framework Improvement Lifecycle](Framework/framework_improvement_lifecycle.md). The cross-industry candidate catalog and cumulative conformance, compatibility, parity, pressure-scenario, and test-retention requirements are defined in the [Framework Testing Methodology](Framework/testing_methodology.md). Version-specific implementation, selected candidates, pressure-test history, and next-version recommendations remain in the [Framework Evolution History](Framework/framework_evolution.md).
+
+The [Platform Implementation Plan](Framework/platform-implementation-plan.md) tracks the phased work from effective schema composition through page modeling, consumer migration, the IT proof of concept, and future interfaces. The [Platform Evolution History](Framework/platform_evolution.md) records completed platform phases separately from numbered framework versions. Current Phase 4 page/template findings and unresolved conflicts are in the [Page Schema Discovery Inventory](Framework/page-schema-discovery-inventory.md); that inventory is evidence for review, not canonical schema. The [Extraction Readiness](Framework/extraction_readiness.md) document records what has actually been proven portable so far.
 
 Implementation-local follow-ups, defects, questions, assumptions, workarounds, review needs, and verification needs follow the [Todo Tree And GitHub Working Convention](WORK_ANNOTATION_STANDARDS.md). Todo Tree is a source-local intake layer; content planning, framework evolution, permanent testing obligations, and promoted engineering work remain in their owning artifacts.
 
@@ -86,6 +90,10 @@ Do not embed the full graph in this README; it is maintained as a separate gener
 ```text
 Framework/
   README.md
+  platform-implementation-plan.md
+  platform_evolution.md
+  page-schema-discovery-inventory.md
+  extraction_readiness.md
   framework_improvement_lifecycle.md
   testing_methodology.md
   framework_evolution.md
@@ -124,8 +132,8 @@ Framework/
       pack.yaml
     narrative-production/
       pack.yaml
-  reusable runtime data, contracts, bundled schema packs, improvement lifecycle,
-  testing methodology, and framework evolution history shared across project instances
+  reusable runtime data, contracts, bundled schema packs, and framework/platform
+  plans and histories shared across project instances
 
 Project_Config/
   project.yaml
