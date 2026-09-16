@@ -179,6 +179,113 @@ flowchart TB
   class ASSIST,GATEWAY optional;
 ```
 
+## Governed Knowledge Lifecycle
+
+The platform turns human authoring, controlled imports, evidence intake, and optional AI assistance
+into reviewable proposals. Only approved mutations may change canonical project authority;
+normalized knowledge, scoped views, and every downstream projection remain rebuildable.
+
+```mermaid
+%%{init: {"theme":"base","themeVariables":{"fontFamily":"Arial","fontSize":"18px"},"flowchart":{"htmlLabels":true,"wrappingWidth":300,"nodeSpacing":32,"rankSpacing":48}}}%%
+flowchart TB
+  PERSON["Knowledge worker or reviewer"]
+
+  subgraph INTAKE["AUTHORING AND INTAKE"]
+    EDITOR["Human editing workspace<br/>Authored prose · structured records · project configuration"]
+    IMPORT["Controlled import and automation<br/>APIs · files · migration candidates · scheduled intake"]
+    EVIDENCE["Evidence and source intake<br/>Documents · observations · media · external references"]
+    PROPOSAL["Reviewable change proposal<br/>Explicit scope · provenance · rationale · affected records"]
+
+    EDITOR --> PROPOSAL
+    IMPORT --> PROPOSAL
+    EVIDENCE --> PROPOSAL
+  end
+
+  subgraph OPTIONAL_AI["OPTIONAL AI ASSISTANCE · proposal generation only"]
+    CONTEXT["Evidence-aware retrieval context<br/>Read-only access to scoped compiled knowledge<br/>Permitted sources · current policy"]
+    GATEWAY["Replaceable ModelGateway adapter<br/>Explicit local or cloud model selection"]
+    AI_PROPOSAL["Structured AI suggestion<br/>Claims · citations · uncertainty · proposed mutations"]
+
+    CONTEXT --> GATEWAY
+    GATEWAY --> AI_PROPOSAL
+  end
+
+  subgraph GOVERNANCE["GOVERNED CHANGE PIPELINE"]
+    PREFLIGHT["Preflight validation and preview<br/>Schema · references · provenance · policy · visibility · diff"]
+    REVIEW["Human review and decision<br/>Inspect evidence · compare impact · revise when needed"]
+    DECISION{"Accept for canonical write?"}
+    HOLD["Rejected or deferred<br/>Decision and rationale retained"]
+    MUTATION["Governed mutation or migration<br/>Apply approved change · record audit history"]
+
+    PREFLIGHT --> REVIEW
+    REVIEW --> DECISION
+    DECISION -->|"No"| HOLD
+    DECISION -->|"Yes"| MUTATION
+  end
+
+  subgraph COMPILE["VALIDATION AND KNOWLEDGE COMPILATION"]
+    COMPILER["Normalized content compiler<br/>Reads canonical project authority<br/>Validate · resolve identity · preserve conflicts · attach provenance"]
+    SILVER["Validated normalized knowledge<br/>Structurally trustworthy · indexed · explainable"]
+    GOLD["Scoped knowledge views<br/>Policy · authority · audience · chronology · visibility boundaries"]
+
+    COMPILER --> SILVER
+    SILVER --> GOLD
+  end
+
+  subgraph AUTHORITY["CANONICAL PROJECT AUTHORITY"]
+    CANONICAL["Durable project state<br/>Configuration · structured knowledge · authored content<br/>evidence · sources · investigations · assets"]
+    HISTORY["Version history and audit trail<br/>Who · what · why · evidence · effective context"]
+
+    CANONICAL --> HISTORY
+  end
+
+  subgraph PROJECTIONS["REBUILDABLE HUMAN AND MACHINE PROJECTIONS"]
+    EXPERIENCE["Human application<br/>Browse · search · graph · timeline · dashboard · editing context"]
+    DELIVERY["Web and integration delivery<br/>Website · JSON/API · supported clients"]
+    QA["Maintainer and QA views<br/>Obsidian · Mermaid · reports · diagnostics"]
+    ANALYTICS["Analytical views<br/>SQLite · Parquet · DuckDB · optional lakehouse"]
+  end
+
+  PERSON --> EDITOR
+  PERSON -.->|"Invokes when useful"| CONTEXT
+  AI_PROPOSAL -.->|"Reviewable proposal only"| PROPOSAL
+
+  PROPOSAL --> PREFLIGHT
+  PREFLIGHT -.->|"Needs correction"| EDITOR
+
+  MUTATION -.->|"Recompile affected knowledge"| COMPILER
+  MUTATION -->|"Approved write"| CANONICAL
+
+  GOLD --> EXPERIENCE
+  GOLD --> DELIVERY
+  GOLD --> QA
+  GOLD --> ANALYTICS
+
+  classDef person fill:#e6efff,stroke:#426ca6,color:#172b45;
+  classDef intake fill:#eaf1fb,stroke:#527aa8,color:#1c334d;
+  classDef inference fill:#fde8e1,stroke:#b96a4c,color:#4b281c;
+  classDef governance fill:#e2f3f1,stroke:#34857b,color:#143b36;
+  classDef decision fill:#f3f3f3,stroke:#686868,color:#252525;
+  classDef authority fill:#fff1d9,stroke:#b5893c,color:#493719;
+  classDef compiled fill:#eef3e3,stroke:#718544,color:#2e3a1c;
+  classDef generated fill:#f3f6e9,stroke:#7f944b,color:#303d1e;
+  classDef group fill:#f8faff,stroke:#cad4e4,color:#303a47;
+  classDef planned stroke-width:2px,stroke-dasharray:6 4;
+  classDef optional stroke-width:2px,stroke-dasharray:2 4;
+
+  class INTAKE,OPTIONAL_AI,GOVERNANCE,AUTHORITY,COMPILE,PROJECTIONS group;
+  class PERSON person;
+  class EDITOR,IMPORT,EVIDENCE,PROPOSAL intake;
+  class CONTEXT,GATEWAY,AI_PROPOSAL inference;
+  class PREFLIGHT,REVIEW,MUTATION governance;
+  class DECISION,HOLD decision;
+  class CANONICAL,HISTORY authority;
+  class COMPILER,SILVER,GOLD compiled;
+  class EXPERIENCE,DELIVERY,QA,ANALYTICS generated;
+  class EDITOR,IMPORT,PROPOSAL,PREFLIGHT,REVIEW,MUTATION,COMPILER,SILVER,GOLD,EXPERIENCE,DELIVERY,QA,ANALYTICS planned;
+  class CONTEXT,GATEWAY,AI_PROPOSAL optional;
+```
+
 ## Explore The Repository
 
 | Goal | Start here |
