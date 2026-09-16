@@ -1,255 +1,248 @@
-# Lord of the Mysteries Re-Read Analysis
+# Knowledge Framework And Platform
 
-This repository is currently focused on a deep reread analysis of **Lord of the Mysteries (Book 1)** while preserving a franchise-, continuity-, and work-aware source model for **Circle of Inevitability (Book 2)**, adaptations, spinoffs, and possible later works.
+This repository develops a reusable, schema-driven framework and supporting platform for building
+evidence-aware, temporally bounded knowledge systems across narrative, technical, legal, medical,
+and other domains.
 
-## AI Agent Bootstrap
+The first reference implementation is a spoiler-aware **Lord of the Mysteries** knowledge base. It
+acts as both a real analysis project and a proving ground for source authority, chronology,
+identity, reader knowledge, adaptation comparison, structured relationships, authored prose, QA,
+and visualization.
 
-If you are an AI assistant opening this repository from a zip, archive, project folder, or file set, start with [Read First: AI Agent Bootstrap](00_READ_FIRST_AI_AGENT_BOOTSTRAP.md).
+## What This Repository Builds
 
-The active operating contract for repository-answering behavior is [README AI Agent Specification](README-AI-Agent-Specification.md). Read that specification completely before answering substantive repository questions.
+| Layer | Responsibility |
+| --- | --- |
+| **Knowledge framework** | Portable contracts, schema packs, controlled vocabulary, registries, loaders, conformance suites, and reusable semantic services. |
+| **Knowledge platform** | Catalog and project-schema composition, inspection, validation, QA, visualization, compatibility, and the planned mutation, migration, packaging, and interface services built over the framework. |
+| **LoTM reference project** | Project configuration, canonical structured knowledge, authored analysis, evidence, source policy, artwork, investigations, and spoiler-aware projections used to exercise the framework and platform against real content. |
 
-[MAINTAINER_CONTEXT.md](MAINTAINER_CONTEXT.md) is maintainer tooling context only. It is not the AI Agent bootstrap or operating contract.
+The framework is intended to remain free of LoTM-specific vocabulary and paths. LoTM configuration
+and content consume the framework in the same way that future IT or other domain projects should.
 
-For graph, visualization, Mermaid, relationship-map, pathway-map, or rendered-image requests, follow the repository visualization workflow in [Visualization](Visualization/README.md). Do not create ad hoc graph artifacts outside the repository visualization workflow unless the user explicitly asks for scratch output.
+## Current Status
 
-## Repository Notice
+The repository is under active architectural development.
 
-This repository is an independent reread analysis project.
+### Implemented
 
-No source text is included.
+- The portable semantic kernel has been developed and pressure-tested through framework V50.
+- Platform Phases 1 through 3 are complete.
+- `FrameworkCatalog` inventories installed packs independently of any project.
+- `EffectiveProjectSchema` composes one project's selected packs, capabilities, taxonomy, resources,
+  and diagnostics.
+- `FrameworkCatalogProjectView` attaches project state to the catalog without mutating either
+  source view.
+- QA and Visualization consume the same effective project schema while retaining legacy
+  Markdown/YAML content adapters.
+- Python, PowerShell 7, and Windows PowerShell 5.1 conformance and compatibility coverage protect
+  the repository's paired-runtime contracts.
+- The reusable kernel has passed an isolated extraction rehearsal without LoTM content or
+  configuration.
 
-The repository contains notes, chronology analysis, investigations, adaptation comparisons, and research artifacts derived from a personal reread and Donghua analysis of **Lord of the Mysteries**.
+### Current Work
 
-The novel EPUB, Donghua subtitle files, bulk extracted artwork, working artwork crops, generated Obsidian QA exports, and any future local source materials are intentionally excluded from version control.
+Platform Phase 4 is reconciling the existing LoTM templates and pages with reusable field, module,
+authored-content, default, rendering, and validation contracts. The current
+[Page Schema Discovery Inventory](Framework/page-schema-discovery-inventory.md) records evidence and
+conflicts for maintainer review; it is not itself canonical schema.
 
-Original repository materials are covered by [LICENSE](LICENSE). Third-party names, artwork, terminology, and related fan-reference materials are covered by the repository [NOTICE](NOTICE.md).
+Structured knowledge and human-authored prose are separate first-class canonical content surfaces.
+Presentation and maintainer guidance remain distinct from both. Phase 4 preserves the existing LoTM
+pages, templates, Relationship Seeds, QA behavior, and Visualization behavior while those logical
+contracts are established.
 
----
+### Not Yet Complete
 
-The project is focused on investigation rather than summary:
+- The project-wide normalized content index and generalized relationship model are planned work.
+- QA graph construction has not yet been fully consolidated into one reusable Visualization engine.
+- Persisted page IDs, mutation planning, migrations, project packaging, and category/page editors
+  remain future platform phases.
+- Streamlit is a planned client, not an implemented architecture layer.
+- The isolated kernel is ready to copy and exercise, but the complete platform is not yet ready to
+  split into its final standalone repository.
+- No IT, medical, or legal schema pack is currently implemented; the IT proof of concept remains a
+  later platform phase.
 
-- Chronology
-- Reveal order
-- Character development
-- Themes
-- Historical causality
-- Family lineages
-- Reader knowledge state
-- Novel and Donghua disclosure differences
-- Spoiler-safe knowledge timelines by chapter and episode
+See [Extraction Readiness](Framework/extraction_readiness.md) for the proven portable boundary and
+its current limits.
 
-## Spoiler Policy
+## Architecture Overview
 
-The user has completed all 8 volumes of **Lord of the Mysteries (Book 1)**.
+```mermaid
+flowchart TD
+    Framework[Framework contracts, packs, and runtime]
+    Catalog[FrameworkCatalog]
+    Config[Project configuration]
+    Schema[EffectiveProjectSchema]
+    Content[Canonical structured knowledge, authored content, and evidence]
+    Services[Shared composition, validation, and projection services]
+    Consumers[CLI, QA, Visualization, and future interfaces]
 
-The user has not completed all of **Circle of Inevitability (Book 2)**. Avoid COI spoilers unless explicitly requested.
+    Framework --> Catalog
+    Catalog --> Schema
+    Config --> Schema
+    Schema --> Services
+    Content --> Services
+    Services --> Consumers
+```
 
-## Method
+Canonical framework files, project configuration, structured knowledge, authored content, and
+evidence own durable meaning. Catalogs, effective schemas, reports, Obsidian exports, graphs, and
+future interface views are generated or diagnostic projections and must not become competing
+sources of truth.
 
-Default workflow:
+The authoritative component and dependency boundaries are defined in the
+[Architecture Contract](ARCHITECTURE.md).
+
+## Explore The Repository
+
+| Goal | Start here |
+| --- | --- |
+| Understand the reusable framework | [Framework overview](Framework/README.md) |
+| Understand architectural ownership | [Architecture Contract](ARCHITECTURE.md) |
+| See the phased platform roadmap | [Platform Implementation Plan](Framework/platform-implementation-plan.md) |
+| Review completed platform work | [Platform Evolution History](Framework/platform_evolution.md) |
+| Review framework versions and pressure tests | [Framework Evolution History](Framework/framework_evolution.md) |
+| Understand the test lifecycle | [Framework Testing Methodology](Framework/testing_methodology.md) |
+| Browse LoTM content | [Project Index](INDEX.md) |
+| Review current LoTM work | [Current State](CURRENT_STATE.md) |
+| Inspect graphs and graph rules | [Visualization](Visualization/README.md) |
+| Use repository tools | [Tooling Reference](Tools/TOOLING_REFERENCE.md) |
+
+## Framework And Platform Documentation
+
+Maintainer framework/schema iterations enter through the
+[Framework Improvement Lifecycle](Framework/framework_improvement_lifecycle.md). The
+[Framework Testing Methodology](Framework/testing_methodology.md) owns cumulative conformance,
+compatibility, parity, pressure-scenario, comparison, and test-retention requirements. Numbered
+semantic/model versions and their pressure-test history live in the
+[Framework Evolution History](Framework/framework_evolution.md).
+
+The [Platform Implementation Plan](Framework/platform-implementation-plan.md) owns the ordered
+execution checklist from effective schema composition through page modeling, normalized content,
+consumer migration, LoTM physical migration, add-on packs, the IT proof of concept, project
+packaging, and future interfaces. The [Platform Evolution History](Framework/platform_evolution.md)
+records completed platform phases separately from numbered framework versions.
+
+Implementation-local follow-ups, defects, questions, assumptions, workarounds, review needs, and
+verification needs follow the
+[Todo Tree And GitHub Working Convention](WORK_ANNOTATION_STANDARDS.md). Todo Tree is a source-local
+intake layer; content planning, framework evolution, permanent testing obligations, and promoted
+engineering work remain in their owning artifacts.
+
+## LoTM Reference Implementation
+
+The LoTM project is focused on investigation rather than simple summary:
+
+- chronology and historical causality;
+- reveal order and reader knowledge state;
+- character development and relationships;
+- family lineages, factions, pathways, locations, artifacts, items, and knowledge sources;
+- themes and unresolved mysteries;
+- novel and Donghua disclosure differences; and
+- spoiler-aware knowledge timelines by chapter and episode.
+
+The current project model is franchise-, continuity-, and work-aware. It focuses primarily on
+**Lord of the Mysteries (Book 1)** while preserving source-model space for
+**Circle of Inevitability (Book 2)**, adaptations, spinoffs, and possible later works.
+
+### Reader Boundary
+
+The maintainer has completed all eight volumes of **Lord of the Mysteries (Book 1)** but has not
+completed all of **Circle of Inevitability (Book 2)**. Avoid COI spoilers unless explicitly
+requested.
+
+### Research And Evidence Workflow
+
+LoTM investigations commonly begin with:
 
 ```text
 Memory reconstruction
 -> Working theory
--> Source verification, if needed
--> Board update
+-> Source verification, when needed
+-> Canonical content or investigation update
 ```
 
-The EPUB is the canonical source for novel verification. Local `.ass` subtitle files are the canonical source for the dialogue, translated text, and timestamps contained in the Donghua subtitle release. Silent visual details require separate visual verification from the episode.
+The EPUB is the canonical source for novel verification. Local `.ass` subtitle files are the
+canonical source for dialogue, translated text, and timestamps contained in the Donghua subtitle
+release. Silent visual details require separate visual verification from the episode.
 
-External summaries, wikis, fandom pages, Reddit posts, and memory are not used as evidence when source verification is required.
+External summaries, wikis, fandom pages, Reddit posts, and memory are not used as evidence when
+source verification is required.
 
-For clickable navigation, use the [Project Index](INDEX.md).
+## QA And Visualization
 
-Reusable helper commands, switch maps, output side effects, and Python/PowerShell parity notes are tracked in the [Tooling Reference](Tools/TOOLING_REFERENCE.md).
+Generated repository visualization artifacts live in
+[Visualization](Visualization/README.md). The current GitHub-visible graph is the
+[Volume 1 Knowledge Graph](Visualization/graphs/volume-1-knowledge-graph.mmd). It is generated from
+canonical project records and compatibility-era page structures; it is not a source of truth.
 
-## Framework And Platform
+Local Obsidian QA mirrors are generated with
+[obsidian_qa_export.py](Tools/Commands/QA/obsidian_qa_export.py), or the PowerShell fallback
+[Obsidian-QA-Export.ps1](Tools/Commands/QA/Obsidian-QA-Export.ps1), into the ignored
+`Obsidian_Export\` folder. These mirrors include relationship graphs, anomaly reports, bounded
+views, repository graph dry runs, and a deterministic Markdown view of the effective project
+schema. They are compiled inspection artifacts, not canonical records.
 
-The [Framework overview](Framework/README.md) introduces the reusable contracts, schema packs, and runtime assets. Framework boundaries, component ownership, generated-output rules, stable-identity direction, and the LoTM-to-reusable-framework extraction sequence are defined in the [Architecture Contract](ARCHITECTURE.md).
+Graph construction rules shared by maintainer graph work and access-layer agent requests live in
+the [Graph Authoring Standard](Visualization/graph-authoring-standard.md).
 
-Maintainer framework/schema iterations enter through the [Framework Improvement Lifecycle](Framework/framework_improvement_lifecycle.md). The cross-industry candidate catalog and cumulative conformance, compatibility, parity, pressure-scenario, and test-retention requirements are defined in the [Framework Testing Methodology](Framework/testing_methodology.md). Version-specific implementation, selected candidates, pressure-test history, and next-version recommendations remain in the [Framework Evolution History](Framework/framework_evolution.md).
+## Repository Map
 
-The [Platform Implementation Plan](Framework/platform-implementation-plan.md) tracks the phased work from effective schema composition through page modeling, consumer migration, the IT proof of concept, and future interfaces. The [Platform Evolution History](Framework/platform_evolution.md) records completed platform phases separately from numbered framework versions. Current Phase 4 page/template findings and unresolved conflicts are in the [Page Schema Discovery Inventory](Framework/page-schema-discovery-inventory.md); that inventory is evidence for review, not canonical schema. The [Extraction Readiness](Framework/extraction_readiness.md) document records what has actually been proven portable so far.
+| Path | Purpose |
+| --- | --- |
+| `Framework\` | Portable contracts, packs, runtime data, framework/platform plans, testing methodology, and evolution history. |
+| `Project_Config\` | LoTM project identity, pack selection, capability activation, taxonomy, resources, sources, chronology, occurrences, entities, hosting, interpretations, reconciliation, and provenance. |
+| `Glossary_Threads\` | Canonical LoTM subject pages using the current compatibility-era page model. |
+| `Investigations\` | Source-bounded research records and working analytical conclusions. |
+| `Boards\` and `Volumes\` | Authored analysis boards and volume-level aggregation. |
+| `Tools\` | Commands, shared runtimes, conformance suites, compatibility checks, static validation, and tooling documentation. |
+| `Visualization\` | Graph configuration, source artifacts, generated Mermaid graphs, and rendered outputs. |
+| `Artwork\` | Tracked page-ready artwork and artwork metadata; bulk source staging remains local. |
+| `Source\` | Local evidence materials excluded from version control except explicitly tracked documentation metadata. |
+| `Experiments\` | Noncanonical experiments, including exploratory machine-learning work. |
+| `Testing\` and `UX\` | Local testing artifacts and interface-design exploration where applicable. |
+| `.github\` and `.vscode\` | Repository validation workflows and shared editor policy. |
 
-Implementation-local follow-ups, defects, questions, assumptions, workarounds, review needs, and verification needs follow the [Todo Tree And GitHub Working Convention](WORK_ANNOTATION_STANDARDS.md). Todo Tree is a source-local intake layer; content planning, framework evolution, permanent testing obligations, and promoted engineering work remain in their owning artifacts.
+Detailed content navigation belongs in the [Project Index](INDEX.md), while each major subsystem
+documents its own internal structure in its README.
 
-## Visualization
+## For Contributors And AI Agents
 
-Generated visualization artifacts live in [Visualization](Visualization/README.md).
+AI assistants opening this repository from a zip, archive, project folder, or file set must begin
+with [Read First: AI Agent Bootstrap](00_READ_FIRST_AI_AGENT_BOOTSTRAP.md), then follow the
+[README AI Agent Specification](README-AI-Agent-Specification.md) before answering substantive
+repository questions.
 
-The current GitHub-visible graph is the [Volume 1 Knowledge Graph](Visualization/graphs/volume-1-knowledge-graph.mmd). The graph is generated from glossary metadata, Relationship Seeds, and projected type-specific data-block availability; it is not the source of truth.
+[PROJECT_RULES.md](PROJECT_RULES.md) owns LoTM-specific authoring, evidence, taxonomy, spoiler, and
+content-modeling rules. [MAINTAINER_CONTEXT.md](MAINTAINER_CONTEXT.md) contains maintainer tooling
+context and is not the AI operating contract.
 
-Local Obsidian QA mirrors are generated with [Tools/Commands/QA/obsidian_qa_export.py](Tools/Commands/QA/obsidian_qa_export.py), or the PowerShell fallback [Tools/Commands/QA/Obsidian-QA-Export.ps1](Tools/Commands/QA/Obsidian-QA-Export.ps1) when Python is unavailable, into the ignored `Obsidian_Export/` folder. They are compiled inspection views for Obsidian graph review, not canonical records and not GitHub-visible visualization artifacts. Each Obsidian QA export also includes `_Generated/repo-refresh-check/`, a dry run of the current configured repository graph views that writes Mermaid sources and a refresh report without touching canonical `Visualization/` outputs.
+For graph, Mermaid, relationship-map, pathway-map, or rendered-image requests, follow the
+[Visualization workflow](Visualization/README.md). Reusable helper commands, switch maps, output
+side effects, and Python/PowerShell parity notes are tracked in the
+[Tooling Reference](Tools/TOOLING_REFERENCE.md).
 
-Graph construction rules shared by maintainer graph work and access-layer AI Agent graph requests live in the [Graph Authoring Standard](Visualization/graph-authoring-standard.md).
+## Repository And Source Policy
 
-Do not embed the full graph in this README; it is maintained as a separate generated artifact.
+This is an independent analysis and knowledge-platform development project. No novel, subtitle, or
+other bulk source files are distributed in the repository.
 
-## Project Structure
+The root `Source\` directory is ignored so EPUBs, Donghua subtitles, and future local source
+materials cannot be committed accidentally. Only explicitly tracked documentation metadata, such
+as `Source\README.md` and `Source\.order`, is public.
 
-```text
-Framework/
-  README.md
-  platform-implementation-plan.md
-  platform_evolution.md
-  page-schema-discovery-inventory.md
-  extraction_readiness.md
-  framework_improvement_lifecycle.md
-  testing_methodology.md
-  framework_evolution.md
-  Data/
-    README.md
-    unicode-lookup-16.0.0.json
-  Contracts/
-    README.md
-  Packs/
-    README.md
-    core/
-      pack.yaml
-    hosting-foundation/
-      pack.yaml
-    hosting-narrative/
-      pack.yaml
-    hosting-simulation/
-      pack.yaml
-    hosting-compute/
-      pack.yaml
-    narrative-media/
-      pack.yaml
-    narrative-publishing/
-      pack.yaml
-    narrative-screen-audio/
-      pack.yaml
-    narrative-adaptation/
-      pack.yaml
-    narrative-distribution/
-      pack.yaml
-    narrative-shared-universe/
-      pack.yaml
-    narrative-interactive/
-      pack.yaml
-    narrative-preservation/
-      pack.yaml
-    narrative-production/
-      pack.yaml
-  reusable runtime data, contracts, bundled schema packs, and framework/platform
-  plans and histories shared across project instances
+Bulk official artwork staging is also ignored. `Artwork\Source\` is the local-only workspace for
+extracted official artwork and derived working crops; only deliberately selected page-ready assets
+under `Artwork\page-assets\` should be tracked.
 
-Project_Config/
-  project.yaml
-  schema-packs.yaml
-  taxonomy.yaml
-  resources.yaml
-  sources.yaml
-  chronology.yaml
-  occurrences.yaml
-  provenance.yaml
-  entities.yaml
-  LoTM project identity, selected and activated packs, stable content/resource
-  roots, registry discovery, local taxonomy, repository resources, sources, and lookup-key selection
+Generated Obsidian QA exports are ignored. Regenerate them locally from canonical repository
+records rather than editing or committing `Obsidian_Export\`.
 
-Boards/
-  01_LoTM_Main_Reread_Board.md
-  02_LoTM_Ancient_History_Family_Board.md
-  authored Analysis Board content type
+Git commits should represent durable framework, platform, tooling, configuration, or project-content
+changes rather than ordinary discussion.
 
-Volumes/
-  TEMPLATE.md
-  volume-01-clown.md
-  aggregating Volume Summary content type and planned summary pages
-
-INDEX.md
-  fixed Navigation Index content type
-
-CURRENT_STATE.md
-  fixed Project Dashboard content type
-
-Investigations/
-  TEMPLATE.md
-  Artifacts/
-  Characters/
-  Concepts/
-  Events/
-  Factions/
-  Items/
-  Knowledge_Sources/
-  Locations/
-  Pathways/
-  Project/
-  Investigation Record content type, organized by optional subject category,
-  subject slug, medium, and bounded scope
-
-Glossary_Threads/
-  TEMPLATE.md
-  Artifacts/
-  Characters/
-  Concepts/
-  Deities/
-  Epochs/
-  Events/
-  Factions/
-  Families/
-  Items/
-  Knowledge_Sources/
-  Locations/
-  Mysteries/
-  Uniquenesses/
-  Pathways/
-  Tarot_Cards/
-  Timelines/
-  Glossary Page content type, organized by required subject category,
-  with embedded spoiler-aware knowledge units
-
-Visualization/
-  README.md
-  graph-authoring-standard.md
-  config/
-  graphs/
-  data/
-  rendered/
-  generated graph artifacts and provisional graph schema notes
-
-Tools/
-  README.md
-  Python-preferred helper scripts and documented PowerShell fallbacks
-
-.github/
-  workflows/
-    ci.yml
-  tracked GitHub Actions validation policy
-
-Artwork/
-  README.md
-  official-epub-image-map.md
-  page-assets/
-  tracked page-ready artwork and artwork metadata
-
-.vscode/
-  settings.json
-  extensions.json
-  tracked Todo Tree workspace configuration and extension recommendation
-
-00_READ_FIRST_AI_AGENT_BOOTSTRAP.md
-README-AI-Agent-Specification.md
-ARCHITECTURE.md
-MAINTAINER_CONTEXT.md
-WORK_ANNOTATION_STANDARDS.md
-ASSISTANT_CONTEXT.md (deprecated redirect)
-CURRENT_STATE.md
-PROJECT_RULES.md
-INDEX.md
-LICENSE
-NOTICE.md
-```
-
-Embedded Reader Knowledge Ledger entries preserve durable disclosure and audit history, while visible page sections and type-specific data blocks preserve ordinary structured state. Novel chapters and Donghua release order remain independently filterable so a future page can show only what a user should know at their selected position, while also supporting adaptation comparisons.
-
-## Version Control
-
-Git commits should mark durable project knowledge changes, not ordinary discussion.
-
-The entire `Source/` directory is ignored by Git so copyrighted source materials cannot be committed accidentally. The already tracked `Source/README.md` remains as public documentation; the EPUB, Donghua subtitles, and future local source files remain local-only.
-
-Bulk official artwork staging is also ignored by Git. `Artwork/Source/` is the local-only workspace for extracted official artwork and derived working crops; only deliberately selected page-ready assets under `Artwork/page-assets/` should be tracked.
-
-Generated Obsidian QA exports are ignored by Git. Regenerate them locally from canonical repository records instead of editing or committing `Obsidian_Export/`. The export includes QA-only graph dry-run artifacts under `Obsidian_Export/_Generated/repo-refresh-check/`; treat those as local inspection output, not repository graph refreshes.
+Original repository materials are covered by [LICENSE](LICENSE). Third-party names, artwork,
+terminology, and related fan-reference materials are covered by the repository
+[NOTICE](NOTICE.md).
