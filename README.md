@@ -67,7 +67,7 @@ contracts are established.
 See [Extraction Readiness](Framework/extraction_readiness.md) for the proven portable boundary and
 its current limits.
 
-## Architecture Overview
+## Current Architecture
 
 ```mermaid
 flowchart TD
@@ -94,6 +94,90 @@ sources of truth.
 
 The authoritative component and dependency boundaries are defined in the
 [Architecture Contract](ARCHITECTURE.md).
+
+## Eventual Platform Architecture
+
+The current foundation is intended to grow into the complete knowledge platform below. Dashed
+nodes represent planned platform capabilities, dotted nodes represent optional integrations, and
+generated projections remain rebuildable rather than becoming competing sources of truth. The
+human application and headless services remain fully usable without enabling AI integration.
+
+```mermaid
+%%{init: {"theme":"base","themeVariables":{"fontFamily":"Arial","fontSize":"18px"},"flowchart":{"htmlLabels":true,"wrappingWidth":300,"nodeSpacing":30,"rankSpacing":45}}}%%
+flowchart TB
+  subgraph EXPERIENCE["HUMAN EXPERIENCE AND OTHER CLIENTS"]
+    PEOPLE["Knowledge workers and reviewers"]
+    APP["Primary human application<br/><b>Build</b> · projects, schemas, categories and pages<br/><b>Explore</b> · search, graphs, timelines and dashboards<br/><b>Govern</b> · validation, review, history and publication"]
+    OTHER["Other supported clients<br/>CLI · notebooks · APIs · scheduled automation<br/>Repository · Obsidian · Mermaid"]
+    PEOPLE --> APP
+  end
+
+  subgraph FOUNDATION["PORTABLE KNOWLEDGE FRAMEWORK"]
+    MODEL["Portable framework + composed project model<br/>Contracts · packs · taxonomy · capabilities<br/>FrameworkCatalog + EffectiveProjectSchema"]
+  end
+
+  subgraph PLATFORM["KNOWLEDGE PLATFORM · reusable headless services"]
+    API["Application and API boundary<br/>Identity · project access · task policy"]
+    MANAGEMENT["Project and content management<br/>Setup · configuration · editing · inspection"]
+    DISCOVERY["Knowledge discovery<br/>Browse · query · search · graph traversal"]
+    GOVERNANCE["Governed change pipeline<br/>Preview · validate · review · migrate · audit"]
+    PUBLISH["Projection and publication<br/>Consumer-specific views and exports"]
+    API --> MANAGEMENT
+    API --> DISCOVERY
+    API --> GOVERNANCE
+    DISCOVERY --> PUBLISH
+  end
+
+  subgraph OPTIONAL_AI["OPTIONAL AI INTEGRATION · core platform remains fully usable without it"]
+    ASSIST["AI-assisted features<br/>Evidence-aware retrieval · suggested analysis<br/>Structured proposals for human review"]
+    GATEWAY["Replaceable ModelGateway adapter<br/><b>AI Model Gateway</b> · first-party companion project<br/>Actively developed in a separate repository<br/>Explicit local or cloud model selection"]
+    ASSIST <-->|"Authenticated inference"| GATEWAY
+  end
+
+  subgraph KNOWLEDGE["PROJECT AUTHORITY AND COMPILED KNOWLEDGE"]
+    CANONICAL["Canonical project authority<br/>Configuration · structured state · authored content<br/>evidence · sources · investigations · assets"]
+    COMPILED["Validated and scoped knowledge<br/>Normalized Silver content + project-wide index<br/>Policy-aware Gold views + visibility boundaries"]
+    CANONICAL --> COMPILED
+  end
+
+  subgraph OUTPUTS["REBUILDABLE PROJECTIONS"]
+    OPERATIONS["Operational outputs<br/>Website + JSON/API · SQLite<br/>Obsidian QA + Mermaid graphs"]
+    ANALYTICS["Analytical outputs<br/>Parquet + DuckDB<br/>Optional Delta / Databricks adapter"]
+  end
+
+  APP --> API
+  OTHER --> API
+
+  MODEL --> API
+  MODEL --> COMPILED
+  DISCOVERY -->|"Reads scoped knowledge"| COMPILED
+  GOVERNANCE -->|"Only governed writes"| CANONICAL
+
+  PUBLISH --> OPERATIONS
+  PUBLISH --> ANALYTICS
+  PUBLISH ~~~ CANONICAL
+
+  DISCOVERY <-.->|"User-invoked assistance"| ASSIST
+  ASSIST -.->|"Optional reviewable proposal"| GOVERNANCE
+
+  classDef client fill:#e6efff,stroke:#426ca6,color:#172b45;
+  classDef platform fill:#e2f3f1,stroke:#34857b,color:#143b36;
+  classDef framework fill:#f1edfb,stroke:#8b76ac,color:#342b48;
+  classDef authority fill:#fff1d9,stroke:#b5893c,color:#493719;
+  classDef generated fill:#eef3e3,stroke:#718544,color:#2e3a1c;
+  classDef inference fill:#fde8e1,stroke:#b96a4c,color:#4b281c;
+  classDef planned stroke-width:2px,stroke-dasharray:6 4;
+  classDef optional stroke-width:2px,stroke-dasharray:2 4;
+
+  class PEOPLE,APP,OTHER client;
+  class API,MANAGEMENT,DISCOVERY,GOVERNANCE,PUBLISH platform;
+  class MODEL framework;
+  class CANONICAL authority;
+  class COMPILED,OPERATIONS,ANALYTICS generated;
+  class ASSIST,GATEWAY inference;
+  class APP,API,DISCOVERY,GOVERNANCE,PUBLISH,COMPILED,OPERATIONS,ANALYTICS planned;
+  class ASSIST,GATEWAY optional;
+```
 
 ## Explore The Repository
 
