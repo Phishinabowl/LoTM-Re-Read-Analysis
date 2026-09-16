@@ -46,6 +46,24 @@ extends that learning structure to source text: identify candidate subjects, sug
 project categories, and show how human decisions inform analysis of the next chapter. Unlike Iris,
 the subjects are not already isolated into labeled rows; extraction is an additional task.
 
+### Local Model Evaluation Status
+
+- The CPU service has passed authenticated streaming tests. A separate laptop GPU has passed
+  local inference tests; routing authenticated requests to that laptop is still pending.
+- Qwen3.5-9B and two Qwen3.8-27B quantizations have been exercised. The 27B M variant is a
+  provisional working baseline: the initial M/XL comparison showed similar extraction quality,
+  with M using less memory and generating slightly faster.
+- Synthetic passages tested separate identities sharing an alias, attributed claims, uncertain
+  identity matches, evidence quotes, and instructions embedded in source text.
+- A simpler format improved results on a fresh passage. Automated structure and quote checks
+  passed, but human review still found an omitted relationship. Validation does not prove
+  completeness or factual support.
+- These are exploratory single-run results, not a controlled benchmark or chapter-level
+  evaluation. Private operating details and the evaluation log remain under the ignored
+  `.local` directory; no generated assertions have been promoted into canonical content.
+- Future comparisons should select the backend explicitly and record model, quantization,
+  runtime, prompt, settings, and review results. Do not silently substitute another backend.
+
 **Status:** experiment documentation and an independently tested AI service foundation are in place.
 No notebook, experiment training corpus, extraction pipeline, or chapter-analysis results exist yet;
 the service uses a pretrained model rather than a model trained by this experiment.
@@ -180,12 +198,16 @@ Include a clearly labeled setup section near the start of the notebook documenti
 - the source EPUB and local supporting files required to reproduce the demo;
 - any model downloads, external services, credentials, network, or compute requirements, including
   whether inference runs locally or remotely;
-- the package versions actually used and environment-appropriate installation instructions,
-  including kernel restart guidance where needed.
+- the package versions actually used, external setup prerequisites, and kernel restart guidance
+  where needed.
 
-Use a short dependency table and commented imports to connect each library to its purpose. Place
-installation commands in an explicit setup cell or documented setup step rather than silently
-installing packages during analysis. Keep credentials out of code, outputs, and saved metadata.
+Use a short dependency table and commented imports to connect each library to its purpose. Perform
+all package, runtime, and model installations or downloads outside the notebook as separate setup
+work. Do not embed pip commands, shell installers, model-pull commands, or other installation code
+in notebook cells, including Markdown examples. Document required names, tested versions, purposes,
+and setup references instead. Model-loading code must not silently download missing model assets;
+when local assets are required, check for their presence and explain missing prerequisites.
+Keep credentials out of code, outputs, and saved metadata.
 Explain any external transfer of source text before using a selected service; permission to install
 libraries does not itself select a service or authorize purchases.
 
