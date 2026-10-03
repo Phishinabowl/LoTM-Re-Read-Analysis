@@ -513,18 +513,27 @@ or pipeline was implemented by this checkpoint.
 
 ### Phase 1.2 Coverage And Consumer Dependency Ledger
 
-- [ ] Map all existing suites, checks, static validators, reporting probes, and retained pressure families
+- [x] Map all existing suites, checks, static validators, reporting probes, and retained pressure families
   to their current executable owners and required runtimes.
-- [ ] Inventory Python and PowerShell runtime modules and command adapters; assign implementation-test
+- [x] Inventory Python and PowerShell runtime modules and command adapters; assign implementation-test
   ownership and identify missing unit/integration coverage without duplicating shared conformance.
-- [ ] Map positive, malformed, boundary, ambiguity, exact decision/error, scale, reporting, cleanup,
+- [x] Map positive, malformed, boundary, ambiguity, exact decision/error, scale, reporting, cleanup,
   canonical protection, and parity scenarios to proposed coverage or explicit retained ownership.
-- [ ] Trace consumers of CLI switches, detailed JSON, concise v1, baselines, extraction copy lists,
+- [x] Trace consumers of CLI switches, detailed JSON, concise v1, baselines, extraction copy lists,
   fixture discovery, environment variables, and dependency declarations before proposing changes.
-- [ ] Identify transitive dependencies using current implemented paths; document areas where impact
+- [x] Identify transitive dependencies using current implemented paths; document areas where impact
   cannot be safely bounded and must select full coverage.
 
 **Checkpoint:** Every existing coverage family and public consumer has an owner; gaps remain visible.
+
+**Inspection deliverable:** [Coverage And Consumer Dependency Ledger](ci-testing-coverage-ledger.md)
+records the current 21 paired suites, 11 compatibility checks, static/parity families, 34 retained
+scenario/pressure families, runtime and command ownership, consumer contracts, transitive impact,
+and explicit gaps. Its baseline is the published Phase 1.1 commit `268ac9d`.
+The maintainer reviewed and confirmed the mapping and gap list on 2026-10-03, closing Phase 1.2.
+No executable registration or coverage retirement is part of this checkpoint. Phase 1.3 will review
+the ledger's durable location and concrete contracts; implementation of the proposed gaps remains
+subject to the corresponding later checkpoints.
 
 ### Phase 1.3 Contracts, Catalog Boundaries, And Result Semantics
 

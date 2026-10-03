@@ -4,6 +4,10 @@ The [CI And Testing Modernization Plan](ci-testing-modernization-plan.md) is the
 interlude before Platform Phase 4.2. It plans repository-owned testing and equivalent GitHub/ADO
 execution and reporting. Its proposed runners, catalogs, and hosted setup are not implemented yet.
 
+The [Coverage And Consumer Dependency Ledger](ci-testing-coverage-ledger.md) records the Phase 1.2
+inspection, existing owners and consumer dependencies, retained review families, and proposed
+implementation-test gaps. Executable membership remains in the conformance and compatibility registries.
+
 This folder contains reusable local helpers for project maintenance and source verification.
 
 For switch-by-switch maps, function-pipeline notes, side effects, parity checks, and durable config/state files for maintained helper scripts, see [Tooling Reference](TOOLING_REFERENCE.md). That reference should be extended whenever another tool is audited or a tool starts reading a new shared config file. The broader version process belongs to the [Framework Improvement Lifecycle](../Framework/framework_improvement_lifecycle.md), while the cumulative requirement for when and why checks run belongs to the [Framework Testing Methodology](../Framework/testing_methodology.md).
