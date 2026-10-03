@@ -1,7 +1,9 @@
 # CI And Testing Modernization Implementation Plan
 
-**Status:** Expanded documentation draft for maintainer review. No modernization implementation or
-hosted rollout is complete. Creating this plan does not authorize its execution.
+**Status:** Phase 1.1 inspection evidence and preparation are verified and confirmed for publication.
+Phase 1.2 is next; testing implementation and dual-host pipeline rollout have not started.
+Authorization currently covers Phase 1.1, dual-push preparation/initial branch synchronization,
+and matching hosted Python to the installed 3.14.5 runtime.
 
 **Working branch:** `architecture/ci-testing-modernization`, created from
 `architecture/framework-extraction-foundation` at `c4b7932`.
@@ -39,7 +41,7 @@ design candidates until Phase 1 review; do not describe them as implemented.
 ## Operating Rules
 
 - Work in focused increments. Leave edits uncommitted until explicit confirmation; publish through
-  the agreed Git workflow. This first pass changes documentation only.
+  the agreed Git workflow. Execute only the currently authorized subphase and explicit setup scope.
 - Keep canonical LoTM pages, templates, Relationship Seeds, project data, QA behavior, and
   Visualization behavior unchanged. Generate test artifacts only in isolated owned destinations.
 - Preserve authored prose independently from structured state. CI must not resolve Phase 4.1
@@ -280,15 +282,234 @@ next major phase while a blocking gate is unresolved.
 
 ### Phase 1.1 Repository And Host Orientation
 
-- [ ] Review this expanded plan and record the accepted scope before implementation starts.
-- [ ] Recheck branch/base commit, worktree changes, current catalogs, public entry points, source
+- [x] Review this expanded plan and record the accepted scope before implementation starts.
+- [x] Recheck branch/base commit, worktree changes, current catalogs, public entry points, source
   instructions, runtime/dependency availability, and current phase boundaries.
-- [ ] Inspect actual GitHub checks/protections, triggers, permissions, caches, and artifact behavior;
+- [x] Inspect actual GitHub checks/protections, triggers, permissions, caches, and artifact behavior;
   record unknown host settings rather than inferring them from YAML.
-- [ ] Identify ADO organization/project/repository candidates, access, agents, parallel-job availability,
+- [x] Identify ADO organization/project/repository candidates, access, agents, parallel-job availability,
   retention, and costs without creating resources or changing policies.
 
 **Checkpoint:** Current-state inventory distinguishes checkout facts, historical evidence, and host unknowns.
+
+#### Phase 1.1 Orientation Evidence (2026-10-03)
+
+The maintainer accepted the expanded plan, confirmed its documentation commit, and authorized
+Phase 1.1. They also supplied an existing empty Azure Repos destination and requested the EVR/SNOW
+dual-push pattern. Local transport preparation is an explicitly requested exception to deferring
+live setup until Phase 5; no pipelines, policies, branch creation in ADO, or publication were performed.
+The remaining Phase 1.1 boxes were left unchecked during preparation until checkpoint confirmation.
+Unresolved host settings below are recorded unknowns, not inferred passes.
+
+**Checkout and phase boundary:** Work began from clean `03e5073` on
+`architecture/ci-testing-modernization`, tracking the matching GitHub branch. The framework base
+remains `c4b7932`; recent history and instructions were rechecked. Global/repository instructions,
+the plan, platform phase boundaries, current workflows, requirements, registries, runner selection
+and reporting code, and EVR/SNOW repository instructions and remote configurations were inspected.
+No additional `AGENTS.md` was discovered beneath the affected `Tools`, `Framework`, or `.github`
+surfaces. Platform Phase 4.1 maintainer review remains pending; Phase 4.2 has not started.
+
+| Current surface | Observed result |
+| --- | --- |
+| Conformance registry | Schema v1; 21 paired suites; `fast` 10 and `baseline` 21. Python, PowerShell 7, and Windows PowerShell 5.1 list modes succeeded. |
+| Compatibility registry | Schema v2; 11 checks; `local` 6, `pull-request` 9, `distribution-boundary` 8, `full-release` 11; three required runtimes. List mode succeeded. |
+| Public entry points | `Tools/Conformance/run_conformance.py`, `Tools/Conformance/Run-Conformance.ps1`, and `Tools/Compatibility/run_compatibility.py` remain unchanged. Existing selection, detailed JSON, concise v1, and report-output switches are retained. |
+| Runner limitations | Python conformance has no subprocess timeout and chooses stderr or stdout on child failure; PowerShell conformance merges diagnostic streams and has no child deadline. Compatibility applies subprocess deadlines but its outer loop stops on the first failure. |
+| Static policy | Ruff format/check, parser-aware PowerShell formatting, actionlint, and work annotations remain existing owners. No new pytest/Pester registration is implemented. |
+
+**Local availability:** These are installed versions, not adopted modernization dependency decisions.
+No dependency installation or persistent execution-policy change was performed.
+
+| Tool/dependency | Local observation | Readiness implication |
+| --- | --- | --- |
+| Python | 3.14.5 | Differs from hosted 3.10; evaluate/pin in Phase 1.4. |
+| PowerShell | 7.6.6 and Windows PowerShell 5.1.19041.7725 | Both available; modern baseline decision remains Phase 1.4. |
+| Pester | 6.1.0 and legacy 3.4.0 visible in both shells | Required 6.2.0 is absent; framework pilots must not substitute 6.1.0. |
+| pytest | Not installed in the selected Python environment | Bootstrap/pinning remains later work. |
+| PyYAML / Ruff | 6.0.3 / 0.16.1 | Current requirements permit PyYAML >=6.0.2 and pin Ruff 0.16.1. |
+| PowerShell modules | powershell-yaml 0.4.12; PSScriptAnalyzer 1.25.0 | Installed locally; current requirements do not pin them. |
+| Node / Mermaid / Puppeteer | 24.15.0 / 11.16.0 / 25.3.0 | Puppeteer is present beneath the global Mermaid package; rendering was not executed. |
+| actionlint | 1.7.12 | Available; matches the workflow installer version. |
+| Azure CLI / DevOps extension | 2.89.1 / 1.0.6 | Installed; authenticated read queries succeeded. |
+
+A direct Windows PowerShell file launch initially failed because scripts were disabled. Its list
+probe succeeded with process-scoped `-ExecutionPolicy Bypass`, consistent with the existing
+compatibility launcher and documented local commands. This is a reproduction requirement, not a
+persistent machine-policy modification or proof that all tests pass.
+
+**GitHub host inspection:** Actions are enabled, all actions are allowed, and host-wide SHA pinning
+is not required. Workflow defaults grant read access and disallow PR approval by workflows.
+Repository rulesets were empty; protection queries for `main` and
+`architecture/framework-extraction-foundation` explicitly returned `Branch not protected`.
+Consequently the existing check names are preserved as migration contracts, but none were observed
+as required branch-protection checks. The latest modernization push's
+[Work Annotation Policy run](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37125500009)
+passed at `03e5073`; no PR-event runs were returned by the history query. This does not prove the
+full CI workflow passed for the current branch.
+
+Workflow YAML confirms PR/main/manual full CI and non-main annotation pushes, `contents: read`,
+superseded-run cancellation, five full-CI jobs with 5/15/20/20/15-minute limits, pip caching keyed
+by `requirements-python.txt`, repeated uncached PowerShell bootstrap, and Node setup for
+`full-release` only. It contains no hosted Markdown summary or artifact-upload steps. The artifact
+API returned zero stored Actions artifacts. The six existing check names and commands remain
+unchanged. Actual GitHub retention, billing/runner capacity, and organization-level constraints
+remain unverified.
+
+**ADO host inspection:** The supplied project is private and well formed. Its repository is enabled,
+size zero, has no default branch, and returns no refs through authenticated `git ls-remote`.
+Repository/project read access works; write permission has not been proved through publication.
+Project pipeline and policy inventories are empty. Organization pool and project queue listings
+include Azure Pipelines; the Default self-hosted pool has zero agents. Pool visibility does not
+prove usable hosted-job capacity or per-pipeline authorization.
+
+The build retention API reports 30 days for artifacts and runs, 10 days for PR runs, and three
+retained runs per protected branch. The older build resource-usage API reports
+`paidPrivateAgentSlots: 1`, `distributedTaskAgents: 0`, and `totalUsage: 0`; those fields do not
+establish Microsoft-hosted entitlement, current monthly balance, or price. Hosted parallel-job
+entitlement, actual billing/cost limits, queue authorization, and successful Windows/Linux agent
+allocation remain readiness checks for Phase 1.5/5.1. No resources or policies were changed.
+
+**Local transport preparation:** Inspection confirmed EVR and SNOW both fetch GitHub through
+`origin`, push to GitHub and ADO through its two push URLs, and retain a separate `ado` remote.
+The same configuration was prepared here using the maintainer-supplied destination. Exact remote
+URLs remain local Git configuration; [agent instructions](../AGENTS.md#local-dual-remote-publication)
+record the publication rule. No remote default was changed, no branch was pushed, and ADO remains
+empty. GitHub remains the authoritative merge location and the existing branch upstream.
+
+On the next authorized confirmation, `git push origin HEAD` will publish only the current branch
+to both destinations. It does not populate `main` or the framework target branch. Their initial
+ADO population, explicit default-branch selection, and future validation-PR setup need a scoped
+publication step; do not use `--mirror` or infer authorization to push every ref. Dual pushes are
+not atomic: verify both destinations independently and diagnose partial failures before retrying.
+Rollback of this preparation removes the `ado` remote and the explicit `origin` push URLs after
+verifying no later configuration needs them; the existing GitHub fetch URL then supplies the
+original implicit push destination. This rollback does not delete published remote branches.
+
+**Executed probes:** `git status --short --branch`, `git log -5 --oneline`, `git remote -v`,
+read-only ADO `git ls-remote`, Python conformance/compatibility `--list`, both PowerShell `-List`
+modes, runtime/module/package inventory, `gh repo view` and REST protection/ruleset/Actions/run/
+artifact queries, and `az` account/repository/project/pipeline/policy/pool/queue/retention/resource-
+usage queries. CLI calls required sandbox access to installed credential profiles and networking;
+no tokens were printed or written to repository files. Some initial ADO invoke API-version probes
+failed; supported `5.0-preview` resource usage and `7.1` retention queries then succeeded.
+Documentation verification passed: work-annotation validation checked both edited files and all
+22 fixtures; all 13 local Markdown links resolved; 35 subphases retained sequential numbering;
+conflict-marker and `git diff --check` inspections passed. Only this plan and `AGENTS.md` changed
+in tracked content; the remote preparation is local Git configuration.
+
+**Next checkpoint:** Phase 1.2 coverage and consumer tracing after Phase 1.1 confirmation. No
+conformance suites, compatibility profiles, rendering, timeout measurements, dependency bootstrap,
+test framework migration, new workflows, pipelines, or policies were executed in this orientation.
+Those passes cannot be inferred from successful registry discovery or the annotation run.
+
+#### Authorized Preparation Follow-Up (2026-10-03)
+
+After orientation, the maintainer requested local pytest/Pester installation commands, initial ADO
+branch parity, and hosted Python matching their installed version. This explicitly expands the
+Phase 1.1 setup scope; it does not authorize pipeline activation or wider framework migration.
+The following observations supersede the initial empty-repository and hosted-Python observations
+above without changing that historical orientation record.
+
+- Refreshed GitHub references and inspected live remote heads before publication. GitHub had four
+  live branches: `main`, `architecture/framework-extraction-foundation`,
+  `architecture/ci-testing-modernization`, and `codex/scaling-test`. Two stale local tracking refs
+  were deliberately excluded rather than recreating deleted GitHub branches in ADO.
+- Published exactly those four existing committed tips to the empty ADO repository through explicit
+  refspecs, without force, mirror, tag, or all-branch pushes. Independent `git ls-remote --heads`
+  comparisons then proved equal branch inventories and commit IDs. No pending worktree edits were
+  included. Updated ADO's default branch to `refs/heads/main` and refreshed its tracking refs.
+- The one-time initial population uses `ado` directly because GitHub already owns these tips.
+  Subsequent confirmed current-branch publication uses `git push origin HEAD` once for both hosts.
+- Changed all three `actions/setup-python` inputs, in `ci.yml` and `work-annotations.yml`, from
+  `3.10` to exact `3.14.5`. The official `actions/python-versions` manifest lists matching Windows
+  and Ubuntu 24.04 x64 builds. This workflow edit remains uncommitted/unpublished; no hosted run
+  using the changed YAML has been observed. Ruff's `py310` source target remains the portable source
+  policy; changing the CI interpreter does not raise the framework's minimum Python version.
+- Suggested local pytest **9.1.1** as an exact preparation candidate; its
+  [PyPI metadata](https://pypi.org/project/pytest/9.1.1/) includes Python 3.14. Pester remains exactly
+  [6.2.0](https://www.powershellgallery.com/packages/Pester/6.2.0), using version-qualified imports.
+  Installation is maintainer-run; neither dependency was installed by this work. Repository-owned
+  dependency/bootstrap adoption and framework pilots still need their planned evaluation.
+- After maintainer installation, `python -m pytest --version` confirmed **9.1.1**. Version-qualified
+  Pester **6.2.0** imports succeeded in fresh PowerShell 7 and Windows PowerShell 5.1 processes from
+  the shared machine installation. Module discovery no longer lists 6.1.0; the bundled 3.4.0 remains.
+  These are dependency availability/import checks, not pytest/Pester test-suite acceptance.
+
+Workflow validation with actionlint and Python Ruff format/check passed locally. Full runtime
+validation also passed through the existing Python baseline runner: all 21 suites passed on Python
+3.14.5 in 64.239 seconds, with detailed evidence at ignored
+`.tmp/ci/python3145-baseline.json`. This is local Python conformance evidence; project compatibility,
+PowerShell runtime execution, rendering, and hosted 3.14.5 runs were not repeated by this follow-up.
+
+#### Phase 1.1 Host Readiness Inspection Closure (2026-10-03)
+
+All three remaining Phase 1.1 inspection items have local verification evidence, and the maintainer
+confirmed this checkpoint for publication. The checked items are included in its closure commit;
+dual-host publication and hosted annotation verification follow that commit. The earlier statement
+that entitlement and costs required inspection in Phase
+1.5/5.1 is superseded by this evidence; they were inspected within Phase 1.1. No accepted deferral
+is needed to substitute for those inspections.
+
+Read-only discovery through `az devops invoke` identified the service-advertised distributed-task
+`resourcelimits` and `hublicense` resources. Queries using `7.1-preview` succeeded and give more
+specific evidence than the older build resource-usage response:
+
+| Readiness question | Confirmed configuration |
+| --- | --- |
+| Private Microsoft-hosted parallel jobs | `isHosted: true`, `parallelismTag: Private`, `totalCount: 1`, `FreeCount: 1`, `PurchasedCount: 0`, `totalMinutes: 1800`. |
+| Hosted license confirmation | Build hub reports `freeHostedLicenseCount: 1`, `totalHostedLicenseCount: 1`, `purchasedHostedLicenseCount: 0`, `hostedLicensesArePremium: false`, and `failedToReachAllProviders: false`. |
+| Private self-hosted parallel jobs | `isHosted: false`, `parallelismTag: Private`, `totalCount: 1`, `FreeCount: 1`, `PurchasedCount: 0`, `EnterpriseUsersCount: 0`; the Default pool still has no agents. |
+| Hosted queue | Project queue 39 targets the nonlegacy Microsoft-hosted Azure Pipelines pool 9. |
+| Pipeline resource authorization | The documented pipeline-permissions GET for `queue/39` reports `allPipelines.authorized: true`, with no individually listed pipelines. |
+| Pipeline inventory | Still empty. Per-pipeline execution identity and successful agent allocation cannot be tested against a nonexistent pipeline. |
+| Retention | Rechecked: artifacts/runs 30 days, PR runs 10 days, three retained runs per protected branch. |
+| GitHub cache inventory | Repository Actions cache usage reports zero active caches and zero bytes; declared pip caching remains a workflow configuration, not evidence of a populated cache. |
+
+**Cost and execution implications:** The existing hosted allocation is a free grant, with zero
+purchased hosted/self-hosted parallel jobs. Planned use within that grant therefore requires no
+additional parallel-job license purchase. This is a CI capacity/cost baseline, not an audit of the
+maintainer's Azure invoices, subscription charges, or other organization services.
+
+Microsoft's current [parallel-job guidance](https://learn.microsoft.com/en-us/azure/devops/pipelines/licensing/concurrent-jobs?view=azure-devops)
+sets a 60-minute maximum per free private hosted job and a 1,800-minute monthly organization
+allocation. Parallel jobs and minutes are shared across the organization's projects; EVR and other
+pipelines can consume the same capacity. Jobs beyond the single concurrent hosted job must wait.
+Phase 1.4 must budget against those limits before scheduling this repository's full profiles.
+
+The [published pricing](https://azure.microsoft.com/en-us/pricing/details/devops/azure-devops-services/)
+lists USD 40/month per paid Microsoft-hosted parallel job and USD 15/month per additional paid
+self-hosted parallel job. Those are optional list-price alternatives, not purchases, invoice
+amounts, or approved spend. The first hosted paid job removes free-tier time restrictions without
+adding a second concurrent job; do not budget it as free plus one paid concurrent slot. No billing,
+grant, capacity, authorization, pipeline, or branch-policy setting was changed by these inspections.
+
+**Usage interpretation:** The hub returned `hostedAgentMinutesUsedCount: 0` and
+`hostedAgentMinutesFreeCount: 0`; generic distributed-task resource usage returned `usedCount: 0`
+and `resourceLimit: null`. These counters do not establish an exact remaining monthly balance or
+override the explicit resource-limit allocation of 1,800 minutes. Refresh consumption when hosted
+execution starts rather than claiming all allocated minutes remain available. This does not leave
+the entitlement or published cost model unknown.
+
+**Verification boundary:** Queue authorization and configured entitlement are proved; a successful
+Windows/Linux agent launch is not. That runtime proof belongs to Phase 5's passing/failing hosted
+demonstrations, not to Phase 1.1's inspection-only acceptance. The new Python YAML still requires
+publication and a hosted run. This separation follows the existing phase boundaries and does not
+move an unfinished inspection item out of Phase 1.1.
+
+**Reproduction:** Inspect distributed-task `resourcelimits`, `hublicense` with `hubName=build`, and
+`pools` with `poolId=9`; inspect project `queues`, pipeline inventory, and build `retention` through
+the installed CLI. Read the documented
+[pipeline-permissions endpoint](https://learn.microsoft.com/en-us/rest/api/azure/devops/approvalsandchecks/pipeline-permissions/get?view=azure-devops-rest-7.1)
+with resource type `queue`, resource ID 39, and `api-version=7.1-preview.1`. The CLI's generic invoke
+does not resolve that route here; `az rest --method get` with the existing Azure DevOps resource
+sign-in succeeded. The older queue-restrictions invoke hit an SDK version-negotiation error;
+authorization evidence comes from the successful documented GET, not from that failed probe.
+No credentials or returned personal identity fields enter tracked evidence.
+
+**Closure sequence:** The maintainer confirmed the four-file checkpoint. Commit and publish it,
+verify current-branch parity on both hosts, and report the hosted annotation result for Python
+3.14.5 against the actual published commit. Phase 1.2 requires the next work request; no new suite
+or pipeline was implemented by this checkpoint.
 
 ### Phase 1.2 Coverage And Consumer Dependency Ledger
 
