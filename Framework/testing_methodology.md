@@ -317,6 +317,13 @@ do not silently stop testing the behavior it represented or refresh an oracle wi
 
 ## Local-To-CI Execution Hierarchy
 
+The hierarchy below describes current implemented execution. The
+[CI And Testing Modernization Plan](../Tools/ci-testing-modernization-plan.md) proposes a separate
+interlude before Platform Phase 4.2, adding implementation tests, conservative selection, shared
+local/hosted profiles, and GitHub/ADO Markdown and native result publication. Those changes remain
+pending. Update this methodology as each replacement is verified and adopted; drafting the plan
+does not retire coverage, change current events, or weaken framework-version closure requirements.
+
 Testing becomes more comprehensive as a change approaches integration. A later layer includes the safety obligations of earlier layers; it does not make permanent fixture maintenance optional:
 
 | Stage | Required Execution | Purpose |

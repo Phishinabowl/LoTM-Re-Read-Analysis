@@ -15,6 +15,11 @@ Use this document together with:
 - `Tools/CI_implementation_plan.md` for the completed tooling, conformance, CI, and extraction
   foundation on which this plan depends.
 
+The [CI And Testing Modernization Plan](../Tools/ci-testing-modernization-plan.md) owns the separate
+documentation-first interlude before Phase 4.2. It extends the completed tooling foundation with
+repository-owned execution, implementation testing, and GitHub/ADO reporting; it does not close
+Phase 4.1 discovery review or authorize canonical migration.
+
 ## Operating Rules
 
 - Complete phases in dependency order unless this plan explicitly allows parallel work.
@@ -969,6 +974,24 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
   another physical storage decision owned by Phase 13.
 - [ ] Require future bounded rendering to filter structured rows and authored blocks independently;
   never synthesize unsupported narrative prose from taxonomy values.
+
+### CI Modernization Interlude Before Phase 4.2
+
+Work on `architecture/ci-testing-modernization`, with a reviewed pull request targeting
+`architecture/framework-extraction-foundation`. The separate
+[CI And Testing Modernization Plan](../Tools/ci-testing-modernization-plan.md) owns CI Phases 1
+through 7 and their numbered subphases, including coverage equivalence, Pester 6.2.0/pytest,
+conservative selection, process isolation,
+local reproduction, GitHub Actions, Azure Pipelines, Markdown summaries, and native test results.
+This expanded documentation draft is for review; implementation and hosted setup have not started.
+
+- [ ] Review the modernization plan and settle its baseline, contracts, and setup details.
+- [ ] Complete its phased local and dual-host verification without weakening retained coverage.
+- [ ] Integrate the accepted modernization into the framework branch and record platform closure.
+- [ ] Independently complete Phase 4.1 maintainer review before Phase 4.2 begins.
+
+Preserve canonical LoTM pages, templates, Relationship Seeds, QA behavior, and Visualization
+behavior throughout. Do not renumber platform phases or resolve discovery conflicts through CI work.
 
 ### Phase 4.2 Field Primitive Contract
 

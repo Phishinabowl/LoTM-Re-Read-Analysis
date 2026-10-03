@@ -18,6 +18,9 @@ This directory contains reusable framework assets that are portable across proje
 - [analytical-projection-architecture.md](analytical-projection-architecture.md) defines the downstream JSON, SQLite, Parquet, notebook, medallion, and optional Databricks/Delta path without changing canonical authority.
 - [platform-implementation-plan.md](platform-implementation-plan.md) is the phased execution checklist for effective schema composition, normalized content, consumer migration, LoTM physical migration, projections, add-on packs, the IT proof of concept, interfaces, and the ordered deferred-capability program. It also records capability candidates that are not yet pack declarations.
 - [page-schema-discovery-inventory.md](page-schema-discovery-inventory.md) is the noncanonical Phase 4 evidence and conflict inventory for existing LoTM templates and representative pages; it does not define field, module, or normalized-record authority.
+- [CI And Testing Modernization Plan](../Tools/ci-testing-modernization-plan.md) owns the separate
+  documentation-first interlude before Phase 4.2, including local testing and GitHub/ADO execution
+  and reporting. It does not close the pending Phase 4.1 maintainer review.
 - Future `Migrations/` content will contain versioned transformations between contract revisions.
 
 Platform Phases 1 through 3 are complete. Phase 4 begins page modules, fields, defaults, and
