@@ -8,6 +8,10 @@ The [Coverage And Consumer Dependency Ledger](ci-testing-coverage-ledger.md) rec
 inspection, existing owners and consumer dependencies, retained review families, and proposed
 implementation-test gaps. Executable membership remains in the conformance and compatibility registries.
 
+The [CI Testing Modernization Contracts](ci-testing-contracts.md) define the accepted Phase 1.3 catalog,
+scope/selection, execution, result and publication design boundaries. Implementation remains pending;
+existing runners and reporting contracts continue to govern current execution.
+
 This folder contains reusable local helpers for project maintenance and source verification.
 
 For switch-by-switch maps, function-pipeline notes, side effects, parity checks, and durable config/state files for maintained helper scripts, see [Tooling Reference](TOOLING_REFERENCE.md). That reference should be extended whenever another tool is audited or a tool starts reading a new shared config file. The broader version process belongs to the [Framework Improvement Lifecycle](../Framework/framework_improvement_lifecycle.md), while the cumulative requirement for when and why checks run belongs to the [Framework Testing Methodology](../Framework/testing_methodology.md).

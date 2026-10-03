@@ -537,18 +537,34 @@ subject to the corresponding later checkpoints.
 
 ### Phase 1.3 Contracts, Catalog Boundaries, And Result Semantics
 
-- [ ] Set catalog filenames/schema versions, stable IDs/order, discovery rules, runtime requirements,
+- [x] Set catalog filenames/schema versions, stable IDs/order, discovery rules, runtime requirements,
   profile references, extension rules, and strict validation behavior.
-- [ ] Specify committed versus local change-scope modes, merge/source execution semantics, safe path
+- [x] Specify committed versus local change-scope modes, merge/source execution semantics, safe path
   handling, conservative fallback, and evidence required for a no-impact decision.
-- [ ] Specify execution/result states, blocking policy, prerequisite failures, skipped/unselected
+- [x] Specify execution/result states, blocking policy, prerequisite failures, skipped/unselected
   coverage, empty collection, cancellation, partial runs, aggregate exit codes, and report failures.
-- [ ] Specify supervisor JSON, Markdown/XML projections, stable test identities, native/custom
+- [x] Specify supervisor JSON, Markdown/XML projections, stable test identities, native/custom
   granularity, normalization rules, path confinement, and compatibility with existing consumers.
-- [ ] Nominate authoritative ledger, decision-record, and execution-evidence locations; set how
+- [x] Nominate authoritative ledger, decision-record, and execution-evidence locations; set how
   accepted design revisions and phase closure enter methodology, tooling reference, and evolution.
 
 **Checkpoint:** Review concrete contract shapes and failure examples before implementing the supervisor.
+
+**Design deliverable:** [CI Testing Modernization Contracts](ci-testing-contracts.md) defines accepted catalog
+schemas and ownership, explicit scope/snapshot modes, conservative selection, execution/exit states,
+supervisor report v1, native/custom XML and Markdown projections, artifact safety, durable evidence
+locations and decisions D01-D08. It includes concrete failure examples for the mandatory regression
+gate. Baseline: published Phase 1.2 `7d02499`. The maintainer confirmed the design and decisions
+D01-D08 on 2026-10-03, closing Phase 1.3. Catalog files, scripts, workflows and existing
+reporting/membership contracts are unchanged. Resolver/selector implementation remains in 3.2,
+mandatory regression proof in 3.6, and selection rollout in 6.1-6.2.
+Budgets/dependency decisions remain in 1.4, and event/host adoption design remains in 1.5.
+
+**Documentation verification:** Relative links resolve; two JSON examples and the custom JUnit
+example parse, and its case/state counts agree. Annotation validation passed all 22 fixtures and
+the 386-file scan with no findings; `git diff --check` passed. Pester XML format support was inspected
+in the locally installed 6.2.0 module; native report execution/publication remains unverified here
+and belongs to 2.4/5.4. No conformance/compatibility rerun is claimed for this design-only pass.
 
 ### Phase 1.4 Measurements, Dependencies, And Budget Design
 
