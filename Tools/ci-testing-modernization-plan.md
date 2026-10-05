@@ -14,8 +14,8 @@ rollout have not started. The maintainer accepted retirement of Windows PowerShe
 2026-10-05; remaining runtime/runner/workflow migration follows the owning checkpoints.
 CI 3.1.1 package/version inventory and contract are confirmed on 2026-10-05. Independent
 Python 0.1.0 numbering and Python 3.14+ eligibility with pinned 3.14.5 execution are explicitly
-selected. CI 3.1.2 local package/bootstrap implementation is prepared for review; Windows local
-proof is complete and fresh cross-OS hosted proof remains pending confirmation/publication.
+selected. CI 3.1.2 package/bootstrap implementation is confirmed, published and verified on
+local Windows/WSL and fresh hosted Windows/Linux on 2026-10-05.
 Full installed-artifact semantics/boundary testing remains 3.1.3.
 
 **Working branch:** `architecture/ci-testing-modernization`, created from
@@ -1234,9 +1234,9 @@ is introduced by this documentation pass.
   modules, locked Node package downloads, matching Puppeteer browser binaries and appropriate standalone
   tools where measured reuse helps. Keep persistent stores outside snapshots/disposable cleanup roots;
   recreate or verify the isolated execution environment instead of trusting an arbitrary cached install.
-- [ ] Use version-qualified Pester 6.2.0 imports; verify the adopted PS7 baseline and required OS lanes.
-  Local primary/floor runtime/Pester proof passes; fresh Windows/Linux package bootstrap execution
-  remains pending the manual-only exact-published-snapshot verification workflow.
+- [x] Use version-qualified Pester 6.2.0 imports; verify the adopted PS7 baseline and required OS lanes.
+  Local Windows primary/floor and WSL primary-host Pester proof passes; fresh hosted Windows/Linux
+  package/bootstrap proof passes at the exact published implementation snapshot recorded below.
 - [x] Keep test invocation free of automatic installation; detect missing, legacy, wrong, and unusable
   dependencies with actionable failures.
 - [x] Test clean setup, repeat setup, changed dependency/cache state, and portable conformance locally after
@@ -1252,7 +1252,13 @@ versions/paths are verified and test execution performs no silent installation o
 Cold/warm bootstrap evidence identifies useful reusable stores and actual setup costs; pinning alone
 is not a demonstrated performance improvement. Hosted transport remains Phase 6 work.
 
-**3.1.2 implementation prepared for review (2026-10-05):**
+**3.1.2 confirmed and verified (2026-10-05):**
+Implementation is `bd5e946`; the registered-workflow dispatch correction is `3b9b706`.
+[Hosted run 37379644665](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37379644665)
+passes at exact SHA `3b9b706e5596eccc862d3cf09c3137ff497d05a0`: Windows 2m55s, Linux 2m00s,
+Workflow Policy 5s. Both OS lanes pass cold/fresh-offline/check/wheel/editable routes, native pytest
+and the baseline registry. The hosted proof is Python/package/bootstrap coverage; Pester proof is
+local Windows primary/floor and WSL primary-host coverage, not a claim of hosted Pester adoption.
 [Local bootstrap tools](CI/README.md) implement the accepted Python 0.1.0 package contract,
 setuptools 84.0.0/build 1.4.0/pip 26.2, separate portable/dev/build/media declarations, published
 Windows/Linux wheel digests, exact PS module grammar/imports, owned verified environments and
@@ -1287,13 +1293,13 @@ wheel/editable, 67 pytest cases, 21 Python baseline suites and 17 primary-host P
 evidence is retained under ignored `.tmp/ci-wsl-20261005/`. This supplements the remaining hosted
 gate; Linux rendering/floor-host proof was not run. The temporary `bootstrap_only` option/job in
 the existing registered CI workflow is manual only (a new branch-only workflow could not dispatch),
-with Windows/Linux lanes calling the same repository `verify_bootstrap.py` commands. On
-confirmation publish the exact branch snapshot, dispatch this proof and record its exact SHA,
-outcomes and complete failure reports before closing the remaining OS item. This is verification,
+with Windows/Linux lanes calling the same repository `verify_bootstrap.py` commands. The exact
+published snapshot passed both lanes; complete hosted logs are preserved with local evidence.
+Ordinary expensive jobs were intentionally skipped for this bootstrap-only run. This is verification,
 not steady-state hosted adoption; retire the temporary workflow/driver after acceptance and canonical
 native-profile registration, keeping permanent bootstrap regressions. No ADO activation/required-check
-change occurs. Phase 6 still owns cache transport, steady profiles and hosted reporting. All changes
-remain uncommitted; 3.1.3 full installed-artifact boundary/semantic acceptance has not started.
+change occurs. Phase 6 still owns cache transport, steady profiles and hosted reporting.
+3.1.3 full installed-artifact boundary/semantic acceptance has not started.
 
 #### Phase 3.1.3 Installed Artifact And Boundary Verification
 
@@ -1746,8 +1752,8 @@ integration coverage, and a separate modernization branch/PR into the framework 
 
 Phase 1.1 inspected ADO access/capacity and prepared synchronized remotes; Phases 1.2/1.3 are confirmed.
 Phases 1.4/1.5 and 2.1-2.6 are confirmed; Phase 2 closes with successful manual hosted retirement proof.
-Phase 3.1.1 is confirmed; 3.1.2 implementation is ready for review with cross-OS proof pending publication. The runtime floor is locally
-tested; clean/offline dependency setup, future hosted launcher/report publication and policy adoption remain
+Phases 3.1.1 and 3.1.2 are confirmed; exact-snapshot cross-OS bootstrap proof passes. The runtime floor is locally
+tested; full installed-artifact semantics, future hosted launcher/report publication and policy adoption remain
 explicit later gates. Explain ADO
 concepts at their owning phase and record decisions in their authoritative documentation.
 

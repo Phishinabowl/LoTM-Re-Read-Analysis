@@ -249,7 +249,7 @@ cold/warm host proof at 6.1/6.5 retain ownership. Faster routine feedback remain
 ## Selected Version Baselines
 
 These exact selections are accepted design baselines. CI 3.1.2 implements the coordinated local
-declarations/bootstrap for review; cross-OS hosted acceptance remains pending publication. See
+declarations/bootstrap, confirmed with fresh cross-OS hosted acceptance on 2026-10-05. See
 [bootstrap commands and observations](CI/README.md). Local machine installations remain usable.
 
 | Component | Selected baseline / evidence |

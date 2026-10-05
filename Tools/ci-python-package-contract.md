@@ -5,8 +5,8 @@
 versioning starting at 0.1.0 and Python 3.14+ eligibility, with exact 3.14.5 bootstrap/testing.
 Backend, artifact and dependency details below are the accepted implementation contract.
 All five 3.1.1 checklist items are confirmed. CI 3.1.2 now implements local metadata/versioning,
-dependency separation, isolated build/install and verified caches for review; see [bootstrap tools](CI/README.md).
-Fresh cross-OS hosted acceptance is pending publication; broader
+dependency separation, isolated build/install and verified caches, confirmed on 2026-10-05;
+see [bootstrap tools](CI/README.md). Fresh cross-OS hosted acceptance passes; broader
 installed-artifact proof is 3.1.3. The [modernization plan](ci-testing-modernization-plan.md) owns gates.
 
 ## Confirmed Entry Inventory

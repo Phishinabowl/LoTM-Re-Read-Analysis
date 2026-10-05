@@ -145,7 +145,12 @@ The temporary manual-only `bootstrap_only` option in the existing CI workflow ca
 `verify_bootstrap.py` on Windows/Linux with the same repository-owned commands. GitHub requires
 workflow registration on the default branch; a separate branch-only workflow returned HTTP 404,
 so the proof uses the already registered CI entry point. Ordinary CI membership/names remain intact.
-Run it on the exact published SHA after confirmation before closing cross-OS acceptance. It has
+Cross-OS acceptance passed on 2026-10-05 at `3b9b706e5596eccc862d3cf09c3137ff497d05a0` in
+[run 37379644665](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37379644665):
+Windows 2m55s, Linux 2m00s, Workflow Policy 5s. Both lanes pass cold/fresh-offline/check,
+wheel/editable, native pytest and the Python baseline. Pester remains locally verified on Windows
+primary/floor and WSL primary; this temporary hosted driver does not claim hosted Pester adoption.
+Complete run logs are preserved under ignored `.tmp/ci-wsl-20261005/`. The temporary option has
 no automatic execution on push/PR/schedule, changes no required check, and must retire after acceptance/canonical
 native-profile adoption; do not let it become a duplicate permanent CI portfolio. Passing current
 conformance alone does not prove a fresh Linux bootstrap. Broad installed-artifact semantics and

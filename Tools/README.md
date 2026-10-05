@@ -40,9 +40,9 @@ The [Python Runtime Package Contract](ci-python-package-contract.md) is confirme
 independent Python 0.1.0 numbering, Python 3.14+ eligibility, accepted setuptools packaging at the
 existing runtime path, explicit external data and dependency boundaries. It inventories source
 consumers and defines distinct installed-wheel proof. CI 3.1.2 local package/bootstrap implementation
-is prepared for review; [bootstrap commands and proof boundaries](CI/README.md) document isolated
-source/editable/wheel routes, exact dependencies and verified cache reuse. Cross-OS hosted acceptance
-and broader installed-artifact testing remain open gates.
+is confirmed and verified; [bootstrap commands and proof boundaries](CI/README.md) document isolated
+source/editable/wheel routes, exact dependencies and verified cache reuse. Fresh Windows/Linux hosted
+bootstrap acceptance passes; broader installed-artifact testing remains the 3.1.3 gate.
 
 For switch-by-switch maps, function-pipeline notes, side effects, parity checks, and durable config/state files for maintained helper scripts, see [Tooling Reference](TOOLING_REFERENCE.md). That reference should be extended whenever another tool is audited or a tool starts reading a new shared config file. The broader version process belongs to the [Framework Improvement Lifecycle](../Framework/framework_improvement_lifecycle.md), while the cumulative requirement for when and why checks run belongs to the [Framework Testing Methodology](../Framework/testing_methodology.md).
 
