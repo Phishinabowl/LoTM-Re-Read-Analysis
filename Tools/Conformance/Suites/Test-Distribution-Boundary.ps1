@@ -9,6 +9,7 @@ $ErrorActionPreference = 'Stop'
 $toolsRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
 $runtimeModule = Join-Path $toolsRoot 'Runtime\PowerShell\KnowledgeFramework\KnowledgeFramework.psd1'
 Import-Module $runtimeModule -Force
+. (Join-Path (Split-Path -Parent $runtimeModule) 'Private\PowerShell-Host.ps1')
 $Root = Resolve-KnowledgeProjectRoot -ExplicitRoot $Root -ExecutablePath $PSCommandPath
 
 $requiredPackRejections = @(
@@ -100,11 +101,8 @@ function New-BoundaryProject {
 function Get-ProjectCompositionProbe {
     param([string]$SourceRoot, [string]$ProjectRoot)
 
-    $executable = (Get-Process -Id $PID).Path
+    $executable = Resolve-KnowledgePowerShellExecutable
     $arguments = @('-NoProfile')
-    if ($PSVersionTable.PSEdition -ceq 'Desktop') {
-        $arguments += @('-ExecutionPolicy', 'Bypass')
-    }
     $arguments += @(
         '-File'
         (Join-Path $SourceRoot 'Tools\Conformance\Suites\Test-Project-Composition.ps1')

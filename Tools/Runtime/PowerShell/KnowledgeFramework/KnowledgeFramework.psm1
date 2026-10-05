@@ -1,3 +1,6 @@
+. (Join-Path $PSScriptRoot 'Private\PowerShell-Host.ps1')
+Assert-KnowledgePowerShellHost
+
 $script:ProjectManifestPath = 'Project_Config/project.yaml'
 $script:ProjectRootEnvironmentVariable = 'KNOWLEDGE_PROJECT_ROOT'
 $script:FrameworkManifestPath = 'Framework/framework.yaml'

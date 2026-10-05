@@ -14,9 +14,9 @@ the supported contract; no feature is delegated to Python merely to satisfy this
 Independent Python/PS7 behavior, all semantic fixtures, root/visibility/validation rules, exports
 and public CLI paths remain required. Windows APIs still require explicitly supported OS coverage.
 
-This support-policy adoption precedes enforcement. Current code still has a 5.1-compatible module
-manifest, strict three-runtime compatibility schema 2, independent three-host extraction discovery,
-three QA `powershell` children and a 5.1 CI job. These are temporary migration obligations, not
+Phase 2.2 now implements the 0.14.0 module's 7.4/Core boundary, preflight and public startup guards
+confirmed on 2026-10-05. Current code still has strict three-runtime compatibility schema 2, independent three-host
+extraction discovery, three QA `powershell` children and a 5.1 CI job. These are temporary migration obligations, not
 an ongoing support promise. Implement enforcement at 2.2, children at 2.3, registry/extraction at
 2.4, retained proof at 2.5 and hosted retirement at 2.6. No complete two-runtime execution is claimed
 until those gates pass; current compatibility commands can still require installed 5.1 during transition.
@@ -48,8 +48,9 @@ Operational helper recipes can change executable spelling without changing their
 
 ## Executable Migration Inventory
 
-Paths below are repository-relative. Phase owners refer to the accepted CI plan; no row is completed
-by documenting it. Preserve focused commits and record each row's actual verification at adoption.
+Paths below are repository-relative and describe the frozen Phase 2.1 inventory. Phase owners refer
+to the accepted CI plan; no row is completed by documenting it. Preserve focused commits and record
+actual verification at adoption. Phase 2.2 progress and findings are recorded in the plan and below.
 
 | Consumer / location | Exact obligation | Owner / verification gate |
 | --- | --- | --- |
@@ -57,7 +58,7 @@ by documenting it. Preserve focused commits and record each row's actual verific
 | Runtime module entry/private scripts | Keep the independent implementation and existing loader/semantic APIs. No blanket conversion to newer syntax/APIs or removal of compatibility-safe constructs. | 2.2/2.5: all 21 suites and consumer parity; no private implementation churn. |
 | `Tools/Commands/Environment/Test-PowerShell.ps1` | Host readiness before module import; actual edition/version and unsupported-host diagnostics. Module discovery alone cannot mean ready. | 2.2: Core floor/current, Desktop, older Core, missing/import-failed module and structured/human exit evidence. |
 | `Tools/Commands/Environment/Test-Python.ps1`, Framework/QA/Media/Maintenance `.ps1` entry points, `Visualization/visualize.ps1` | Keep paths/arguments and imports; unsupported PowerShell fails clearly before generation. No Python subprocess replacement for domain behavior. | 2.2/2.5: startup, help where supported, JSON/human errors, canonical guard; required OS fixtures. |
-| `Tools/Static/Format-PowerShell.ps1` | Parser-native policy tool has no framework import guard. Enforce supported host explicitly without coupling static validation to domain services. | 2.2: unsupported early failure, retained parser/token/discovery/encoding policy. |
+| `Tools/Static/Format-PowerShell.ps1` | Correction from 2.2 inspection: already imports the framework module for project discovery. Add a dependency-free early host guard; retain its existing discovery dependency without adding domain validation. | 2.2: unsupported early failure, retained parser/token/discovery/encoding policy. |
 | `Tools/Conformance/Run-Conformance.ps1` | Module import occurs before orchestration. Preserve reporting-mode failure semantics on unsupported host; approved children inherit the resolved supported executable. | 2.2: List/help/summary/report failure boundaries, no suite launch under unsupported host. |
 | `Tools/Conformance/Suites/Test-Distribution-Boundary.ps1` | Existing current-process child executable plus Desktop launch branch. Preserve source/fixture roots and child comparison while removing Desktop obligation. | 2.2/2.5: retained distribution/composition probes, missing/wrong executable and no hidden Desktop child. |
 | `Tools/Commands/QA/Obsidian-QA-Export.ps1`: Write-RepoRefreshCheck, Write-BoundedGraphs, Invoke-DisposableCacheCleanup | Exactly three executable `powershell` calls; migrate to resolved approved PS7 while preserving arguments/cwd/side effects and isolated process boundaries. | 2.3: recorded child identity, redirected refresh/bounded/cleanup success and failure; baseline hashes unchanged. |
@@ -84,15 +85,15 @@ until 2.4/2.6 updates them. Last-check paragraphs and historical measurements ar
 evidence below that heading is preserved verbatim. `Framework/platform_evolution.md`,
 `Framework/framework_evolution.md`, completed `Tools/CI_implementation_plan.md`, read-only discovery
 inventories and authored investigations keep historical references/commands; they are not new launchers.
-PowerShell source help strings currently saying `powershell` are implementation documentation inside
-code and are updated with their owning entry points at 2.2/2.3; this checkpoint changes no `.ps1` file.
+Phase 2.1 changed no `.ps1` files. Phase 2.2 updates source help strings to `pwsh` alongside startup
+guards; QA's actual three executable child calls remain unchanged until 2.3.
 
 ## Accepted Version And Public Result Decisions
 
 These accepted planned implementation versions make the breaking host boundary explicit; they do not
 advance domain/model versions or falsely mark an unimplemented schema as live.
 
-| Surface | Current / planned adoption | Meaning / obsolete-input behavior |
+| Surface | Frozen 2.1 baseline / planned adoption | Meaning / obsolete-input behavior |
 | --- | --- | --- |
 | KnowledgeFramework module | 0.13.0 / **0.14.0** at 2.2 | Pre-1.0 support change recorded in module release notes. PS7.4+ Core only; old hosts fail before semantic/generation work. No export/API/data rewrite. |
 | Compatibility registry | schema 2 / **schema 3** at 2.4 | Same root/check/profile shapes, reviewed ordered runtime list becomes Python/PS7. Reject old schema 2 rather than silently rewriting or executing its Desktop obligation; explain migration. Synthetic registries migrate too. |
@@ -114,12 +115,21 @@ do not assert the old 302-file diagnostic count still describes a new bundle or 
 
 ## Acceptance And Next Checkpoint
 
+**Phase 2.2 confirmed 2026-10-05:** Host guards, module 0.14.0, usable-dependency readiness and
+conformance child resolution are implemented with focused Pester 6.2.0 regressions. The plan owns
+verification evidence and confirmation status. Actual 7.4.0/7.6.6 Windows runtime/media checks remain
+distinct from future clean bootstrap, full retained coverage and complete host retirement. Existing
+module exports match the baseline (309 actual functions); a pre-existing unimplemented manifest
+declaration is recorded without broadening this change. PSScriptAnalyzer 1.25.0 requires 7.4.6 and
+is correctly reported unusable on the runtime floor 7.4.0. No dependency or host installation is changed.
+
 The maintainer confirmed this inventory, documentary support adoption and version choices as Phase 2.1
 on 2026-10-05. Evidence here
 is static inventory, preserved snapshots and documentation consistency, not runtime retirement proof.
 Every implementation consumer has a named owner/checkpoint; baseline and canonical protection remain
-requirements. Phase 2.2 is next and implements host enforcement and module adoption. Remaining
-2.3-2.6 work does not become complete through this checkpoint. Rollback is documentation only.
+requirements. Phase 2.2 host enforcement and module adoption are confirmed; Phase 2.3 is next. Remaining
+2.3-2.6 work does not become complete through this checkpoint. Phase 2.1 rollback is documentary;
+Phase 2.2's coordinated executable/test/documentation rollback is specified in the plan.
 
 Verification on 2026-10-05: 171 relative links resolve across 33 edited tracked documents and two new
 documents. All 71 active families remain mapped, with 21 paired suites, 11 compatibility families and

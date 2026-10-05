@@ -54,7 +54,6 @@ param(
 $ErrorActionPreference = 'Stop'
 $toolsRoot = Split-Path -Parent $PSScriptRoot
 $runtimeModule = Join-Path $toolsRoot 'Runtime\PowerShell\KnowledgeFramework\KnowledgeFramework.psd1'
-Import-Module $runtimeModule -Force
 
 $registryRelativePath = 'Tools/Conformance/suites.json'
 $stableIdPattern = '^[a-z0-9]+(?:-[a-z0-9]+)*$'
@@ -330,11 +329,8 @@ function Invoke-ConformanceSuite {
     )
 
     try {
-        $executable = (Get-Process -Id $PID).Path
+        $executable = Resolve-KnowledgePowerShellExecutable
         $arguments = @('-NoProfile')
-        if ($PSVersionTable.PSEdition -ceq 'Desktop') {
-            $arguments += @('-ExecutionPolicy', 'Bypass')
-        }
         $arguments += @('-File', $SuiteDefinition.powershell_path, '-Root', $RepoRoot, '-Json')
         $output = @(& $executable @arguments 2>&1)
         if ($LASTEXITCODE -ne 0) {
@@ -543,6 +539,10 @@ trap {
     }
     exit 1
 }
+
+. (Join-Path (Split-Path -Parent $runtimeModule) 'Private\PowerShell-Host.ps1')
+Assert-KnowledgePowerShellHost
+Import-Module $runtimeModule -Force
 
 if ($Json -and $SummaryJson) {
     throw '-Json and -SummaryJson are mutually exclusive.'

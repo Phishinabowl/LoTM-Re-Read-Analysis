@@ -28,8 +28,8 @@ The design was confirmed on 2026-10-05; no pipeline, policy or schedule is activ
 
 The [PowerShell Host Retirement Inventory](ci-powershell-retirement-inventory.md) records CI 2.1's
 documentary Python/PS7 support adoption, family mapping, frozen evidence and exact migration/version
-targets. Current host enforcement, nested compatibility/extraction launches and CI remain staged
-work in 2.2-2.6; updated `pwsh` recipes do not claim complete retirement execution.
+targets. Phase 2.2 host enforcement is confirmed on 2026-10-05. QA children, nested compatibility/
+extraction launches and CI remain staged work in 2.3-2.6; `pwsh` recipes do not claim complete retirement.
 
 This folder contains reusable local helpers for project maintenance and source verification.
 
@@ -169,7 +169,7 @@ If the probe reports Python unavailable, use the documented PowerShell fallback 
 
 PowerShell fallback commands use `pwsh` under the supported PowerShell 7.4+ Core contract. Windows PowerShell 5.1 is outside that support contract; host enforcement and child migration are staged in CI Phase 2.
 
-Use `Test-PowerShell.ps1` to check repository PowerShell module requirements from `requirements-powershell.txt` before using fallback tools or PowerShell maintenance tools that need modules. The PowerShell Obsidian QA exporter requires `powershell-yaml`; source formatting requires `PSScriptAnalyzer`.
+Use `Test-PowerShell.ps1` to check the supported Core host and import usability of repository modules from `requirements-powershell.txt` before using fallback or maintenance tools. JSON retains its fields and adds `host_supported`, `minimum_powershell_version` and per-module `usable`. Exit 0 means ready; unsupported hosts, missing requirements or modules, and failed imports exit 1. The PowerShell Obsidian QA exporter requires `powershell-yaml`; source formatting requires `PSScriptAnalyzer`. Installed PSScriptAnalyzer 1.25.0 needs PS7.4.6 even though the framework runtime floor is 7.4.
 
 Run this probe once for an unfamiliar machine or fresh agent session, then treat the result as the session's PowerShell-module readiness state. Rerun only if the environment changes, such as module installation changes, a different PowerShell edition, a different machine, or a failed fallback command that suggests the earlier state is stale.
 

@@ -984,9 +984,10 @@ through 8 and their numbered subphases, including the reviewed Windows PowerShel
 in CI Phase 2, retained Python/PS7 coverage equivalence, Pester 6.2.0/pytest,
 conservative selection, process isolation,
 local reproduction, GitHub Actions, Azure Pipelines, Markdown summaries, and native test results.
-This expanded documentation draft is for review; implementation and hosted setup have not started.
-The retirement decision is accepted; support-contract and runtime changes will be implemented and
-verified through that separate CI plan, without renumbering platform phases or rewriting past results.
+CI design and retirement checkpoints through 2.2 are confirmed; remaining runtime migration,
+verification and hosted rollout follow that separate CI plan. Local Python package/version/build
+proof is planned at CI 3.1; public product distribution remains Platform 15.1. This interlude does
+not renumber platform phases, rewrite past results or resolve Phase 4.1's pending maintainer review.
 
 - [ ] Review the modernization plan and settle its baseline, contracts, and setup details.
 - [ ] Complete its phased local and dual-host verification without weakening retained coverage.
@@ -1511,6 +1512,9 @@ wave is confirmed.
 - [ ] Rehearse the expanded portable bundle including effective schema, page modules, normalized
   content, projections, and mutation services.
 - [ ] Decide the physical repository/package distribution model.
+  CI Phase 3.1 owns earlier local Python runtime packaging/versioning and installed-wheel tests;
+  this product-level decision still owns public publishing, package hosting and the complete
+  framework/code/pack distribution model. See the [CI plan](../Tools/ci-testing-modernization-plan.md#phase-31-runtime-packaging-pinned-bootstrap-and-preflight).
 - [ ] Keep LoTM as a consumer and permanent compatibility corpus.
 
 ### Phase 15.2 IT Solution And Pack

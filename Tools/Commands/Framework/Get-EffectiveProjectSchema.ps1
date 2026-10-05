@@ -23,6 +23,8 @@ $OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 
 $toolsRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
 $runtimeModule = Join-Path $toolsRoot 'Runtime\PowerShell\KnowledgeFramework\KnowledgeFramework.psd1'
+. (Join-Path (Split-Path -Parent $runtimeModule) 'Private\PowerShell-Host.ps1')
+Assert-KnowledgePowerShellHost
 Import-Module $runtimeModule -Force
 
 function Show-Help {
@@ -30,7 +32,7 @@ function Show-Help {
 Inspect or export the generated EffectiveProjectSchema for a configured project.
 
 Usage:
-  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 [options]
+  pwsh -NoProfile -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 [options]
 
 Options:
   -Root <path>     Project root. When omitted, searches upward from the current
@@ -54,16 +56,16 @@ Options:
   -Help, -?, -h    Show this help and exit.
 
 Examples:
-  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1
-  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Json
-  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Show overview
-  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Show packs,capabilities
-  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Pack narrative-media
-  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Capability narrative-time-loops -Json
-  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Group narrative-temporality -Activation enabled -Json
-  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Provider core,narrative-media -Lifecycle available -Json
-  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Output .tmp\effective-schema.json
-  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Show all -ReportOutput .local\effective-schema.txt
+  pwsh -NoProfile -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1
+  pwsh -NoProfile -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Json
+  pwsh -NoProfile -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Show overview
+  pwsh -NoProfile -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Show packs,capabilities
+  pwsh -NoProfile -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Pack narrative-media
+  pwsh -NoProfile -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Capability narrative-time-loops -Json
+  pwsh -NoProfile -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Group narrative-temporality -Activation enabled -Json
+  pwsh -NoProfile -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Provider core,narrative-media -Lifecycle available -Json
+  pwsh -NoProfile -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Output .tmp\effective-schema.json
+  pwsh -NoProfile -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Show all -ReportOutput .local\effective-schema.txt
 "@
 }
 

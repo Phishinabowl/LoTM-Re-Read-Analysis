@@ -32,6 +32,8 @@ $OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 
 $toolsRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
 $runtimeModule = Join-Path $toolsRoot 'Runtime\PowerShell\KnowledgeFramework\KnowledgeFramework.psd1'
+. (Join-Path (Split-Path -Parent $runtimeModule) 'Private\PowerShell-Host.ps1')
+Assert-KnowledgePowerShellHost
 Import-Module $runtimeModule -Force
 $repoRoot = Resolve-KnowledgeProjectRoot -ExplicitRoot $Root -ExecutablePath $PSCommandPath
 if (-not [System.IO.Path]::IsPathRooted($EpubPath)) {

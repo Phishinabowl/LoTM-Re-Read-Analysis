@@ -2,11 +2,13 @@
 
 **Status:** Phase 1 and all subphases 1.1-1.5 are confirmed on 2026-10-05.
 Phase 2.1 documentary support adoption, inventory and version decisions are confirmed on 2026-10-05;
-2.2 is next. No live activation has occurred. Executable host
-enforcement and full retirement proof remain pending in 2.2-2.6.
-Testing implementation and dual-host pipeline rollout have not started. On 2026-10-05 the maintainer
-accepted retirement of Windows PowerShell 5.1 support. Current authorization covers incorporating
-that decision into the plan; runtime/runner/workflow changes remain unimplemented.
+Phase 2.2 host enforcement and the Phase 3.1 packaging-plan addition are confirmed on 2026-10-05;
+2.3 is next.
+No hosted activation has occurred. QA child migration, registry/extraction changes and full retirement
+proof remain pending in 2.3-2.6.
+Focused host regressions are implemented; broader native-test foundations and dual-host pipeline
+rollout have not started. The maintainer accepted retirement of Windows PowerShell 5.1 support on
+2026-10-05; remaining runtime/runner/workflow migration follows the owning checkpoints.
 
 **Working branch:** `architecture/ci-testing-modernization`, created from
 `architecture/framework-extraction-foundation` at `c4b7932`.
@@ -717,17 +719,70 @@ execution remain the next subphases' obligations.
 
 ### Phase 2.2 PS7 Host Requirements And Launch Boundaries
 
-- [ ] Change the module's minimum-host/edition declaration to the reviewed PS7 floor and Core edition;
+- [x] Change the module's minimum-host/edition declaration to the reviewed PS7 floor and Core edition;
   preserve exported functions and public command paths. No broad implementation modernization/refactor.
-- [ ] Add actionable unsupported-host/preflight failures before launching work; environment readiness
+- [x] Add actionable unsupported-host/preflight failures before launching work; environment readiness
   must check actual edition/version, not just module discovery. Preserve structured error/exit contracts.
-- [ ] Keep isolated conformance children on the resolved approved PS7 executable; remove obsolete Desktop
+- [x] Keep isolated conformance children on the resolved approved PS7 executable; remove obsolete Desktop
   launch obligations deliberately. Test missing/wrong host behavior without removing machine installations.
-- [ ] Identify Windows API constraints independently of host support. Retain Windows/PS7 image coverage
+- [x] Identify Windows API constraints independently of host support. Retain Windows/PS7 image coverage
   and assess compression assembly availability; PS7 support does not automatically promise Linux media parity.
 
 **Checkpoint:** Supported PS7 commands import/run through the declared host; 5.1 invocations fail clearly
 and cannot silently launch a different implementation or begin canonical/generation work.
+
+**Deliverable (confirmed 2026-10-05):** Module 0.14.0 declares minimum 7.4/Core. A dependency-free
+private host policy guards module/direct entry-point startup; exports and public paths are unchanged.
+The environment probe preserves existing fields/exit codes, adds host/version and module usability
+diagnostics, checks actual dependency imports and rejects missing requirements files. Unsupported
+hosts return actionable structured/human failures without project discovery or dependency import.
+Conformance guards run inside its orchestration failure boundary; concise failure JSON remains v1,
+with zero selected suites and no report write. Children reuse the current verified supported executable
+and reject missing/different executables; the Desktop launch branches are removed from aggregate and
+distribution-boundary conformance. Source help now uses `pwsh`; QA's three executable children remain 2.3 work.
+
+**Verification:** Focused [Pester 6.2.0 host regressions](Tests/PowerShell/Host.Tests.ps1) exercise host
+policy vectors, supported imports, missing/wrong child executables, missing/broken modules and
+requirements files, every public Desktop startup, native manifest/direct psm1 rejection, and concise
+failure reporting with no report generation. These tests are directly runnable; admission to catalogs,
+hosted PR coverage and native-report adapters belongs to Phases 3-4, not an implicit suite-registry change.
+Run directly on Windows using the same installed dependencies (no root-level XML output):
+
+```powershell
+pwsh -NoProfile -Command 'Import-Module Pester -RequiredVersion 6.2.0; Invoke-Pester -Configuration @{ Run = @{ Path = "./Tools/Tests/PowerShell/Host.Tests.ps1"; Exit = $true }; Output = @{ Verbosity = "Normal" } }'
+```
+
+Ten tests pass on both 7.6.6 and 7.4.0; separate NUnit XML artifacts are retained under the ignored
+checkpoint directory. The ten-suite fast profile and distribution-boundary suite pass in Python,
+PS7.4.0 and PS7.6.6 with identical complete semantic JSON. The declared floor is tested using the checksum-verified official
+[portable PS7.4.0 release](https://github.com/PowerShell/PowerShell/releases/tag/v7.4.0) under ignored
+`.tmp/ci-phase22-20261005/`; no installed shell, PATH or machine execution policy changes. Desktop
+negative tests use only process-scoped ExecutionPolicy Bypass so OS policy does not mask host rejection.
+Core versions below 7.4 and incorrect/missing edition are deterministic policy vectors, not observed
+older-Core installations. Runtime floor testing does not claim a clean dependency bootstrap.
+
+**Retained boundaries and findings:** Baseline module export comparison is unchanged: 309 actual
+functions, with the pre-existing unimplemented `Assert-SchemaPackOccurrenceSemanticDeclarations`
+manifest declaration preserved and explicitly accounted for by the regression. Its repair is separate
+from host retirement. PSScriptAnalyzer 1.25.0 rejects 7.4.0 and requires 7.4.6; the new probe truthfully
+returns `host_supported: true`, `ready: false` there. The module and YAML-dependent runtime work at
+7.4.0; dependency/bootstrap alignment remains 3.1 work. Synthetic Windows image crops verify size and
+pixel content on 7.4.0/7.6.6; EPUB ZIP search matches Python. System.Drawing coverage remains Windows;
+no Linux media portability claim follows. Existing compatibility/extraction and the hosted 5.1 check
+still contain legacy obligations and will fail where they invoke the now-rejected host until 2.3-2.6.
+Required check names, registries and hosted YAML remain unchanged at this checkpoint.
+
+**Preservation/static checks:** 438 frozen files outside the explicitly approved documentation/code
+scope, all 58 protected history blocks and all 28 Phase 1.4 JSON records remain unchanged. Canonical
+content, fixtures, registries, requirements and hosted YAML are preserved. All 56 relative links in
+the seven updated documents resolve. PowerShell formatting passes all 57 discovered sources;
+annotation policy passes 22 fixtures / 392 files and `git diff --check` passes. The ignored checkpoint
+directory holds detailed conformance JSON, separate NUnit XML, synthetic media and preservation evidence.
+No full 21-suite closure, QA generation equivalence or hosted retirement is claimed before 2.3-2.6.
+
+**Rollback:** Revert this focused host-policy/module/preflight/startup/conformance/help change together,
+including tests and documentation; no machine installation or canonical refresh is involved.
+The maintainer confirmed all four checklist items on 2026-10-05; Phase 2.3 is the next checkpoint.
 
 ### Phase 2.3 QA Visualization And Cleanup Child Migration
 
@@ -806,16 +861,93 @@ history; do not uninstall Windows PowerShell, force-push, reset content or separ
 
 ## Phase 3: Pester And pytest Foundations And Pilots
 
-### Phase 3.1 Pinned Bootstrap And Runtime Preflight
+### Phase 3.1 Runtime Packaging, Pinned Bootstrap And Preflight
+
+Add local Python runtime packaging alongside bootstrap, before native-test layout/pilots. This is
+installation and artifact verification for the existing `knowledge_framework` implementation;
+public publishing, package hosting and the complete framework-product distribution model remain
+Platform Phase 15.1 decisions. Preserve the current runtime layout and CLI paths unless an explicit
+consumer migration is reviewed. Phase 3.2 and all later phase numbers remain unchanged.
+
+#### Phase 3.1.1 Python Package And Component Version Contract
+
+- [ ] Inventory package imports, runtime dependencies, Python floor, CLI/extraction consumers and
+  external framework/configuration/data requirements before selecting packaging metadata and backend.
+- [ ] Define the installable distribution name, a single authoritative Python package version and
+  supported-Python metadata; keep the `knowledge_framework` import name stable. Decide shared or
+  independent Python/PowerShell release numbering explicitly. Matching behavior does not require
+  identical component versions, and PS host retirement alone does not assign Python version 0.14.0.
+- [ ] Document when implementation releases increment versions and how installed version/provenance
+  is obtained without competing manually maintained copies. Keep runtime component versions separate
+  from framework/project/pack schema versions, conformance contracts and fixture baselines.
+- [ ] Define a reviewed inclusion allowlist for the existing reusable Python runtime and necessary
+  runtime metadata/resources. Preserve explicit external framework/project-root discovery; do not
+  silently embed or discover LoTM content, selected schema packs or configuration through installation.
+- [ ] Separate build, runtime, implementation-test and media dependencies. pytest/Ruff/Pillow and
+  repository CI tools do not become unconditional dependencies or contents of the core runtime wheel.
+  Keep package dependency metadata and reproducible bootstrap declarations consistent without
+  duplicating incompatible dependency authorities.
+
+**Checkpoint:** Package identity, initial version, version-policy relationship, supported interpreter,
+backend, artifact boundary and every affected consumer are reviewed before packaging implementation.
+This checkpoint settles concrete version/backend choices; the current plan does not invent them.
+
+#### Phase 3.1.2 Reproducible Local Build, Install And Bootstrap
 
 - [ ] Implement explicit bootstrap/dependency declarations and verify installed versions/paths.
+- [ ] Implement the accepted package metadata/build configuration without moving the existing source
+  tree solely for convention. Support installation into an isolated environment, including editable
+  development installation and a built wheel for installed-runtime verification.
+- [ ] Pin adopted build/bootstrap tools as appropriate, build only into owned ignored destinations,
+  and retain artifact digest, package version, interpreter and dependency provenance. Publish nothing
+  to PyPI, Azure Artifacts, GitHub releases or another external package host at this checkpoint.
 - [ ] Use version-qualified Pester 6.2.0 imports; verify the adopted PS7 baseline and required OS lanes.
 - [ ] Keep test invocation free of automatic installation; detect missing, legacy, wrong, and unusable
   dependencies with actionable failures.
 - [ ] Test clean setup, repeat setup, changed dependency/cache state, and portable conformance after
   separating runtime and test requirements.
+- [ ] Preserve standalone source-tree CLI/conformance/extraction execution while proving the new
+  installation route. Any path-bootstrap removal or adapter change needs explicit consumer proof;
+  wheel support alone does not authorize removing existing command entry points or import paths.
 
-**Checkpoint:** Installation and execution are independently reproducible; no silent version substitution.
+**Checkpoint:** Source development and wheel installation are independently reproducible locally;
+versions/paths are verified and test execution performs no silent installation or substitution.
+
+#### Phase 3.1.3 Installed Artifact And Boundary Verification
+
+- [ ] Install the built wheel into a fresh isolated environment and exercise it from an owned location
+  outside the checkout. Clear source-path overrides and assert imported package origin plus installed
+  metadata/version match that wheel, so the checkout cannot accidentally satisfy the test.
+- [ ] Inspect wheel contents/metadata against the inclusion allowlist; reject missing runtime files,
+  accidental LoTM content/project configuration, local secrets/caches, test fixtures, CI tools and
+  unexpected dependencies. Do not treat Python runtime packaging as a new authority for schema packs.
+- [ ] Run representative installed API and retained language-neutral fixture assertions with explicit
+  neutral framework/project roots. Prove invalid/missing roots fail without falling back to LoTM.
+  Existing source-tree conformance remains required; its path-inserting commands are not, by
+  themselves, evidence that the installed wheel was exercised.
+- [ ] Add permanent positive/negative implementation regressions for installed imports, version
+  consistency, declared dependencies, missing/incompatible installation and packaging boundaries.
+  Register their identity, ownership and PR/full-profile scope through Phases 3.2-3.5/4.1; keep
+  routine artifact smoke checks distinct from expensive full release/extraction profiles.
+- [ ] Preserve schema/fixture semantics and Python/PS7 parity. Record limitations, runtime cost,
+  external fixture ownership, post-exit cleanup and rollback evidence; extend extraction/equivalence
+  checks at 5.4 rather than replacing the existing portable-copy proof.
+
+**Checkpoint:** Both source and installed-artifact routes work; package identity is truthful,
+canonical content is unchanged and neither missing dependencies nor source-tree import leakage can
+produce a false pass. Full test discovery/report/catalog adoption remains owned by later checkpoints.
+
+**Rollback:** Revert the focused packaging/bootstrap/adapter changes together and restore the previous
+source-tree invocation route. Preserve original conformance, fixtures and canonical files. Limit any
+installation/cleanup to explicitly owned environments; do not alter machine-wide Python packages.
+
+**Planning addition (2026-10-05):** The maintainer approved this packaging scope; D20 records the
+decision and G15 owns the gap. All 41 primary subphases retain sequential numbering, with three
+nested 3.1 checkpoints added. All 39 relative links/anchors across this plan, contracts, ledger and
+platform-plan amendment resolve; annotation policy passes 22 fixtures / 392 files and
+`git diff --check` passes. This addition changes documentation only; packaging metadata, versions,
+dependencies and artifacts remain unimplemented. The maintainer confirmed Phase 2.2 and this
+planning addition on 2026-10-05; the new Phase 3.1 implementation checkboxes remain pending.
 
 ### Phase 3.2 Test Layout, Discovery, Fixtures, And Lifecycle
 
@@ -861,10 +993,14 @@ history; do not uninstall Windows PowerShell, force-push, reset content or separ
 
 ### Phase 3 Exit Gate
 
+- [ ] The local Python wheel passes installed-origin/version/dependency/content-boundary proof, and
+  source-tree commands plus portable extraction remain usable under the reviewed version policy.
 - [ ] Pilots pass in required runtimes and demonstrate useful diagnostics without weaker coverage.
 - [ ] No harness is retired or host gate reduced on the strength of pilot test counts alone.
 
-**Rollback:** Disable pilot profile references while retaining original execution and permanent fixtures.
+**Rollback:** Disable pilot profile references and revert focused packaging/bootstrap adoption as
+needed while retaining original execution and permanent fixtures. No published package removal or
+external distribution rollback is implied; this phase publishes no package.
 
 ## Phase 4: Catalogs, Supervisor, And Mandatory Meta-Regression
 

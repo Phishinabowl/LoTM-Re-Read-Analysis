@@ -24,6 +24,8 @@ $OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 
 $toolsRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
 $runtimeModule = Join-Path $toolsRoot 'Runtime\PowerShell\KnowledgeFramework\KnowledgeFramework.psd1'
+. (Join-Path (Split-Path -Parent $runtimeModule) 'Private\PowerShell-Host.ps1')
+Assert-KnowledgePowerShellHost
 Import-Module $runtimeModule -Force
 
 function Show-Help {
@@ -31,7 +33,7 @@ function Show-Help {
 Inspect or export the generated project-independent FrameworkCatalog.
 
 Usage:
-  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 [options]
+  pwsh -NoProfile -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 [options]
 
 Options:
   -Root <path>     Framework repository root. When omitted, searches upward
@@ -56,17 +58,17 @@ Options:
   -Help, -?, -h    Show this help and exit.
 
 Examples:
-  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1
-  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Json
-  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Show overview
-  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Show packs,capabilities
-  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Pack narrative-media
-  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Capability narrative-time-loops -Json
-  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Group narrative-temporality -Json
-  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -ProjectRoot . -Provider narrative-media -Activation enabled -Json
-  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -ProjectRoot . -Show overview
-  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Output .tmp\framework-catalog.json
-  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Show all -ReportOutput .local\framework-catalog.txt
+  pwsh -NoProfile -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1
+  pwsh -NoProfile -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Json
+  pwsh -NoProfile -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Show overview
+  pwsh -NoProfile -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Show packs,capabilities
+  pwsh -NoProfile -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Pack narrative-media
+  pwsh -NoProfile -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Capability narrative-time-loops -Json
+  pwsh -NoProfile -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Group narrative-temporality -Json
+  pwsh -NoProfile -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -ProjectRoot . -Provider narrative-media -Activation enabled -Json
+  pwsh -NoProfile -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -ProjectRoot . -Show overview
+  pwsh -NoProfile -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Output .tmp\framework-catalog.json
+  pwsh -NoProfile -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Show all -ReportOutput .local\framework-catalog.txt
 "@
 }
 

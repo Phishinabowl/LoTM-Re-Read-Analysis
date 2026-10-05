@@ -1,0 +1,194 @@
+# Focused Phase 2.2 regressions. Catalog/profile adoption belongs to CI Phase 3.
+BeforeAll {
+    $repoRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..\..'))
+    $modulePath = Join-Path $repoRoot 'Tools\Runtime\PowerShell\KnowledgeFramework\KnowledgeFramework.psd1'
+    . (Join-Path (Split-Path -Parent $modulePath) 'Private\PowerShell-Host.ps1')
+    $pwshPath = (Get-Process -Id $PID).Path
+    $desktopPath = Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe'
+
+    function Invoke-HostTestProcess {
+        param([string]$Executable = $pwshPath, [string[]]$Arguments)
+        $startInfo = [System.Diagnostics.ProcessStartInfo]::new()
+        $startInfo.FileName = $Executable
+        $startInfo.UseShellExecute = $false
+        $startInfo.CreateNoWindow = $true
+        $startInfo.RedirectStandardOutput = $true
+        $startInfo.RedirectStandardError = $true
+        $startInfo.WorkingDirectory = $repoRoot
+        foreach ($argument in $Arguments) {
+            $startInfo.ArgumentList.Add($argument)
+        }
+        $process = [System.Diagnostics.Process]::new()
+        $process.StartInfo = $startInfo
+        try {
+            $null = $process.Start()
+            $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+            $stderrTask = $process.StandardError.ReadToEndAsync()
+            if (-not $process.WaitForExit(60000)) {
+                $process.Kill($true)
+                $process.WaitForExit()
+                throw 'Host regression child exceeded 60 seconds.'
+            }
+            return [pscustomobject]@{
+                exit_code = $process.ExitCode
+                stdout = $stdoutTask.GetAwaiter().GetResult()
+                stderr = $stderrTask.GetAwaiter().GetResult()
+            }
+        }
+        finally {
+            $process.Dispose()
+        }
+    }
+}
+
+Describe 'PowerShell support boundary' {
+    It 'accepts Core 7.4 and newer and rejects Desktop and older Core' {
+        foreach ($version in @('7.4.0', '7.6.6', '8.0.0')) {
+            (Get-KnowledgePowerShellHostStatus @{ PSVersion = [version]$version
+                PSEdition = 'Core'
+            }).host_supported | Should -BeTrue
+        }
+        foreach ($table in @(
+                @{ PSVersion = [version]'7.3.12'
+                    PSEdition = 'Core'
+                }
+                @{ PSVersion = [version]'5.1'
+                    PSEdition = 'Desktop'
+                }
+                @{ PSVersion = [version]'7.4'
+                    PSEdition = 'Desktop'
+                }
+                @{ PSVersion = [version]'7.4' }
+            )) {
+            $status = Get-KnowledgePowerShellHostStatus $table
+            $status.host_supported | Should -BeFalse
+            $status.message | Should -Match 'PowerShell 7.4\+ Core.*pwsh'
+        }
+    }
+
+    It 'inherits the running host and rejects missing or different executables' {
+        Resolve-KnowledgePowerShellExecutable | Should -Be $pwshPath
+        { Resolve-KnowledgePowerShellExecutable -Executable '' } | Should -Throw '*unavailable*'
+        { Resolve-KnowledgePowerShellExecutable -Executable (Join-Path $TestDrive 'missing.exe') } | Should -Throw '*unavailable*'
+        { Resolve-KnowledgePowerShellExecutable -Executable $desktopPath } | Should -Throw '*alternate hosts*'
+    }
+
+    It 'declares the supported module version and imports on the running host' {
+        $manifest = Import-PowerShellDataFile $modulePath
+        $manifest.ModuleVersion | Should -Be '0.14.0'
+        $manifest.PowerShellVersion | Should -Be '7.4'
+        @($manifest.CompatiblePSEditions) | Should -Be @('Core')
+        Import-Module $modulePath -Force
+        # Existing manifest declaration has no implementation; host retirement preserves that baseline.
+        $declared = @($manifest.FunctionsToExport | Where-Object { $_ -cne 'Assert-SchemaPackOccurrenceSemanticDeclarations' } | Sort-Object -Unique)
+        $exported = @((Get-Module KnowledgeFramework).ExportedFunctions.Keys | Sort-Object)
+        @(Compare-Object $declared $exported).Count | Should -Be 0
+        (Get-Module KnowledgeFramework).ExportedFunctions.Keys | Should -Not -Contain 'Get-KnowledgePowerShellHostStatus'
+    }
+
+    It 'returns supported readiness with existing fields and usable modules' {
+        $requirements = Join-Path $TestDrive 'usable-requirements.txt'
+        Set-Content -LiteralPath $requirements -Value 'powershell-yaml'
+        $run = Invoke-HostTestProcess -Arguments @('-NoProfile', '-File', 'Tools/Commands/Environment/Test-PowerShell.ps1', '-RequirementsPath', $requirements, '-Json')
+        $run.exit_code | Should -Be 0
+        $report = $run.stdout | ConvertFrom-Json
+        $report.ready | Should -BeTrue
+        $report.host_supported | Should -BeTrue
+        $report.minimum_powershell_version | Should -Be '7.4'
+        @($report.modules | Where-Object { -not $_.present -or -not $_.usable }).Count | Should -Be 0
+        $report.requirements_path | Should -Not -BeNullOrEmpty
+    }
+
+    It 'does not treat a missing requirements file as an empty successful check' {
+        $requirements = Join-Path $TestDrive 'missing-requirements.txt'
+        $run = Invoke-HostTestProcess -Arguments @('-NoProfile', '-File', 'Tools/Commands/Environment/Test-PowerShell.ps1', '-RequirementsPath', $requirements, '-Json')
+        $run.exit_code | Should -Be 1
+        $report = $run.stdout | ConvertFrom-Json
+        $report.ready | Should -BeFalse
+        $report.message | Should -Match 'requirements file not found'
+    }
+
+    It 'reports missing and present but broken module requirements distinctly' {
+        $modulesRoot = Join-Path $TestDrive 'Modules'
+        $brokenRoot = Join-Path $modulesRoot 'BrokenHostFixture'
+        $null = New-Item -ItemType Directory -Path $brokenRoot -Force
+        Set-Content -LiteralPath (Join-Path $brokenRoot 'BrokenHostFixture.psm1') -Value "throw 'Host fixture import failure'"
+        $requirements = Join-Path $TestDrive 'requirements.txt'
+        Set-Content -LiteralPath $requirements -Value @('MissingHostFixture', 'BrokenHostFixture')
+        $originalModulePath = $env:PSModulePath
+        try {
+            $env:PSModulePath = $modulesRoot + [System.IO.Path]::PathSeparator + $originalModulePath
+            $run = Invoke-HostTestProcess -Arguments @('-NoProfile', '-File', 'Tools/Commands/Environment/Test-PowerShell.ps1', '-RequirementsPath', $requirements, '-Json')
+        }
+        finally {
+            $env:PSModulePath = $originalModulePath
+        }
+        $run.exit_code | Should -Be 1
+        $report = $run.stdout | ConvertFrom-Json
+        $report.ready | Should -BeFalse
+        $report.modules[0].present | Should -BeFalse
+        $report.modules[1].present | Should -BeTrue
+        $report.modules[1].usable | Should -BeFalse
+        $report.modules[1].detail | Should -Match 'Host fixture import failure'
+    }
+
+    It 'returns structured Desktop readiness without importing framework services' {
+        $arguments = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File',
+            'Tools/Commands/Environment/Test-PowerShell.ps1', '-Root', (Join-Path $TestDrive 'absent'), '-Json')
+        $run = Invoke-HostTestProcess -Executable $desktopPath -Arguments $arguments
+        $run.exit_code | Should -Be 1
+        $report = $run.stdout | ConvertFrom-Json
+        $report.ready | Should -BeFalse
+        $report.host_supported | Should -BeFalse
+        $report.edition | Should -Be 'Desktop'
+        $report.modules.Count | Should -Be 0
+        $report.message | Should -Match 'pwsh'
+    }
+
+    It 'preserves concise failure reporting and writes no report on Desktop' {
+        $reportPath = '.tmp/ci-phase22-forbidden-report.json'
+        Test-Path (Join-Path $repoRoot $reportPath) | Should -BeFalse
+        $arguments = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File',
+            'Tools/Conformance/Run-Conformance.ps1', '-SummaryJson', '-ReportOutput', $reportPath)
+        $run = Invoke-HostTestProcess -Executable $desktopPath -Arguments $arguments
+        $run.exit_code | Should -Be 1
+        $report = $run.stdout | ConvertFrom-Json
+        $report.contract | Should -Be 'validation-run-summary'
+        $report.selected_count | Should -Be 0
+        $report.failures[0].classification | Should -Be 'orchestration-failure'
+        $report.failures[0].excerpt | Should -Match 'Unsupported PowerShell host'
+        Test-Path (Join-Path $repoRoot $reportPath) | Should -BeFalse
+    }
+
+    It 'rejects native manifest import and direct psm1 import on Desktop' {
+        foreach ($path in @($modulePath, [System.IO.Path]::ChangeExtension($modulePath, '.psm1'))) {
+            $command = "`$ErrorActionPreference = 'Stop'; Import-Module '$($path.Replace("'", "''"))' -Force"
+            $run = Invoke-HostTestProcess -Executable $desktopPath -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', $command)
+            $run.exit_code | Should -Be 1
+            ($run.stdout + $run.stderr) | Should -Match '7.4'
+        }
+    }
+
+    It 'rejects every public startup path on Desktop before root discovery or generation' {
+        foreach ($path in @(
+                'Tools/Commands/Environment/Test-Python.ps1'
+                'Tools/Commands/Framework/Get-FrameworkCatalog.ps1'
+                'Tools/Commands/Framework/Get-EffectiveProjectSchema.ps1'
+                'Tools/Commands/Maintenance/Clean-TempFiles.ps1'
+                'Tools/Commands/Media/Edit-Image.ps1'
+                'Tools/Commands/Media/Search-Epub.ps1'
+                'Tools/Commands/QA/Obsidian-QA-Export.ps1'
+                'Tools/Static/Format-PowerShell.ps1'
+                'Visualization/visualize.ps1'
+            )) {
+            $run = Invoke-HostTestProcess -Executable $desktopPath -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $path, '-Root', (Join-Path $TestDrive 'absent'))
+            $run.exit_code | Should -Be 1 -Because $path
+            ($run.stdout + $run.stderr) | Should -Match 'Unsupported PowerShell host' -Because $path
+        }
+        foreach ($mode in @(@('-List', '-Json'), @('-Json'), @('-List'))) {
+            $run = Invoke-HostTestProcess -Executable $desktopPath -Arguments (@('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', 'Tools/Conformance/Run-Conformance.ps1') + $mode)
+            $run.exit_code | Should -Be 1
+            ($run.stdout + $run.stderr) | Should -Match 'Unsupported PowerShell host'
+        }
+    }
+}

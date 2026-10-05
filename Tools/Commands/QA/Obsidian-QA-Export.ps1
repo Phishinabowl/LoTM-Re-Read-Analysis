@@ -16,6 +16,8 @@ $OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 
 $toolsRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
 $runtimeModule = Join-Path $toolsRoot 'Runtime\PowerShell\KnowledgeFramework\KnowledgeFramework.psd1'
+. (Join-Path (Split-Path -Parent $runtimeModule) 'Private\PowerShell-Host.ps1')
+Assert-KnowledgePowerShellHost
 Import-Module $runtimeModule -Force
 
 function Show-Help {
@@ -23,7 +25,7 @@ function Show-Help {
 Generate an Obsidian QA mirror from metadata, data blocks, and Relationship Seeds.
 
 Usage:
-  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\QA\Obsidian-QA-Export.ps1 [options]
+  pwsh -NoProfile -File Tools\Commands\QA\Obsidian-QA-Export.ps1 [options]
 
 Options:
   -Root <path>             Repository root. When omitted, searches upward from
@@ -43,9 +45,9 @@ Options:
   -Help, -?, -h            Show this help and exit.
 
 Examples:
-  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\QA\Obsidian-QA-Export.ps1 -Clean
-  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\QA\Obsidian-QA-Export.ps1 -Clean -BoundedGraph 'name=ch50,medium=novel,maxVolume=1,maxChapter=50'
-  powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\QA\Obsidian-QA-Export.ps1 -Clean -BoundedPage 'slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=150'
+  pwsh -NoProfile -File Tools\Commands\QA\Obsidian-QA-Export.ps1 -Clean
+  pwsh -NoProfile -File Tools\Commands\QA\Obsidian-QA-Export.ps1 -Clean -BoundedGraph 'name=ch50,medium=novel,maxVolume=1,maxChapter=50'
+  pwsh -NoProfile -File Tools\Commands\QA\Obsidian-QA-Export.ps1 -Clean -BoundedPage 'slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=150'
 "@
 }
 

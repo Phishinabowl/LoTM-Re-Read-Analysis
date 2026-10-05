@@ -235,13 +235,13 @@ Last check: 2026-08-01. Ruff 0.16.1 formatted 21 of 22 existing Python files; on
 | --- | --- | --- |
 | Environment probe | `Tools/Commands/Environment/Test-PowerShell.ps1` | `pwsh -NoProfile -File Tools\Commands\Environment\Test-PowerShell.ps1` |
 
-Purpose: check whether the local PowerShell environment has repository-required modules from `requirements-powershell.txt`. This is a read-only probe and has no Python pair.
+Purpose: check the PowerShell 7.4+ Core host and usability of repository-required modules from `requirements-powershell.txt`. This probe imports discovered modules to verify usability; it writes no files and has no Python pair.
 
 ### Switch Map
 
 | Purpose | Switch | Default | Notes |
 | --- | --- | --- | --- |
-| Print JSON summary | `-Json` | off | Emits structured `ready`, `powershell_version`, `edition`, `executable`, `requirements_path`, `modules`, and `message` fields. |
+| Print JSON summary | `-Json` | off | Retains `ready`, `powershell_version`, `edition`, `executable`, `requirements_path`, `modules`, and `message`; adds `host_supported`, `minimum_powershell_version` and per-module `usable`. |
 | Select repository root | `-Root <path>` | Auto-detected | Uses the shared project-root contract. Relative requirements paths resolve beneath this root. |
 | Requirements file | `-RequirementsPath <path>` | `requirements-powershell.txt` | Checks required PowerShell modules from the repository dependency file. |
 
@@ -249,22 +249,25 @@ Purpose: check whether the local PowerShell environment has repository-required 
 
 | Input | Used For |
 | --- | --- |
-| `$PSVersionTable` | Reports PowerShell version and edition. |
+| `$PSVersionTable` | Validates Core edition and minimum 7.4, and reports actual version/edition. |
 | `requirements-powershell.txt` or supplied requirements path | Defines required PowerShell modules. |
-| `Get-Module -ListAvailable` | Checks whether each required module is installed. |
+| `Get-Module -ListAvailable`, `Import-Module` | Discovers the highest installed version and verifies its import; `present` remains discovery status and `usable` records import success. |
 
 ### Outputs And Side Effects
 
 | Mode | Output | Side Effect |
 | --- | --- | --- |
-| Default | Human-readable PowerShell version, executable, requirements path, and module status lines. | None. |
-| JSON | Structured readiness record plus module checks. | None. |
+| Default | Human-readable PowerShell version, executable, requirements path, and module status lines. | Imports discovered dependencies in the probe process; no file writes. |
+| JSON | Structured readiness record plus module checks. | Same process-local imports. |
 
 ### Important Notes
 
 - Run this once for an unfamiliar machine or fresh agent session, then treat the result as session state.
 - Rerun only if the environment changes, such as module installation changes, a different PowerShell edition, a different machine, or a failed fallback command that suggests the earlier state is stale.
-- If required modules are missing, install the repository PowerShell dependencies before using fallback features that need those modules.
+- `ready` requires supported Core host, an existing requirements file and successful dependency imports; exit 0 means ready, exit 1 means unavailable/unsupported/unusable. A missing requirements file cannot silently pass as an empty list.
+- Unsupported hosts return structured/human failure before framework import or project discovery, with empty `modules` and the supplied `requirements_path` spelling. Use `pwsh`; no automatic host switch occurs.
+- PSScriptAnalyzer 1.25.0 requires PS7.4.6. Runtime support at 7.4.0 does not promise that every separately installed tooling module imports there; dependency failures remain actionable.
+- If required modules are missing or unusable, install compatible repository PowerShell dependencies before using fallback features that need those modules.
 - `CurrentUser` module installs are usually sufficient. Maintainers who prefer machine-wide module availability may use `-Scope AllUsers` from an elevated PowerShell session.
 
 ### Check Recipe

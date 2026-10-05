@@ -269,11 +269,16 @@ an unavailable runtime or retained human review must remain visible rather than 
 | G12 | Annotation duplicate gates/check-name dependencies and future ADO policy/report publication need staged migration evidence. | Phases 1.5, 6.2-6.5. |
 | G13 | Extraction/root fixtures require unrelated ancestors; overriding TEMP under the repository invalidates that probe. A timeout retained owned external scratch despite parent exit; actual cleanup needs independent verification. | Phases 3.2, 4.3, 4.6, 5.4; D13 and Phase 1.4 evidence. |
 | G14 | Accepted 5.1 retirement requires coordinated module/preflight, QA child-host, registry/extraction/report-count and hosted-check migration. Preserve all 21 suites, 11 check families and nine extraction suites; prove Python/PS7 semantics before retiring the host gate. | Phases 2.1-2.6; D14; budgets refreshed at 2.5. |
+| G15 | Python runtime is currently imported from repository source without installable distribution metadata/versioning or installed-wheel proof. Copy-based extraction alone does not prove dependency metadata, artifact inclusion or import origin outside the checkout. | CI 3.1.1-3.1.3; D20; test registration/adoption at 3.2-3.5/4.1 and extraction/equivalence at 5.4. Public distribution remains Platform 15.1. |
 
 Phase 1.5's [host/integration design](ci-testing-host-integration-design.md#6-scenario-ledger-review-deferrals-and-entry-gates)
 reviews every G01-G14 disposition, required negative controls, event/capacity limits and accepted
 implementation deferrals. None is silently closed by design acceptance. Proposed shard/gate coverage
 and PR provenance regression belong to 4.1/4.2/4.4-4.6; final hosted placement/adoption belongs to 6.5/7.4.
+
+G15 was added after the Phase 1.5 review through D20. Its package/version/boundary design and proof
+belong to the three nested CI 3.1 checkpoints; the earlier G01-G14 review does not imply packaging
+acceptance or implementation. Stable methodology families and existing suite membership are unchanged.
 
 ### Runtime Retirement Inventory (2026-10-05)
 

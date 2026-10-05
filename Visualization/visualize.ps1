@@ -17,6 +17,8 @@ param(
 $ErrorActionPreference = "Stop"
 
 $runtimeModule = Join-Path $PSScriptRoot '..\Tools\Runtime\PowerShell\KnowledgeFramework\KnowledgeFramework.psd1'
+. (Join-Path (Split-Path -Parent $runtimeModule) 'Private\PowerShell-Host.ps1')
+Assert-KnowledgePowerShellHost
 Import-Module $runtimeModule -Force
 $repoRoot = Resolve-KnowledgeProjectRoot -ExplicitRoot $Root -ExecutablePath $PSCommandPath
 $projectConfig = Get-KnowledgeProjectConfig $repoRoot

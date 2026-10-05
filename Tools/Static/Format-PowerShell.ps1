@@ -14,6 +14,8 @@ $OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 $settingsPath = Join-Path $PSScriptRoot 'powershell-format-settings.psd1'
 $toolsRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $runtimeModule = Join-Path $toolsRoot 'Runtime\PowerShell\KnowledgeFramework\KnowledgeFramework.psd1'
+. (Join-Path (Split-Path -Parent $runtimeModule) 'Private\PowerShell-Host.ps1')
+Assert-KnowledgePowerShellHost
 Import-Module $runtimeModule -Force
 
 function Get-PowerShellRepositoryRoot {
