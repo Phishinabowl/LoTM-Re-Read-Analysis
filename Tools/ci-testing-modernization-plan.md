@@ -17,7 +17,8 @@ Python 0.1.0 numbering and Python 3.14+ eligibility with pinned 3.14.5 execution
 selected. CI 3.1.2 package/bootstrap implementation is confirmed, published and verified on
 local Windows/WSL and fresh hosted Windows/Linux on 2026-10-05.
 CI 3.1.3 installed-artifact verification is confirmed on 2026-10-05 with local Windows/WSL proof.
-Phase 3.1 is closed; native test layout/discovery begins at 3.2.
+Phase 3.1 is closed; CI 3.2 native test layout/discovery and editor configuration are confirmed
+on 2026-10-05. Representative Python/PowerShell pilots begin at 3.3.
 
 **Working branch:** `architecture/ci-testing-modernization`, created from
 `architecture/framework-extraction-foundation` at `c4b7932`.
@@ -1364,14 +1365,42 @@ planning addition on 2026-10-05; the new Phase 3.1 implementation checkboxes rem
 
 ### Phase 3.2 Test Layout, Discovery, Fixtures, And Lifecycle
 
-- [ ] Configure exact pytest roots and Pester files/tags; avoid collecting command-style conformance.
-- [ ] Define unit/integration categories, stable identities, fixture ownership, setup/teardown,
+- [x] Configure exact pytest roots and Pester files/tags; avoid collecting command-style conformance.
+- [x] Define unit/integration categories, stable identities, fixture ownership, setup/teardown,
   temporary output, environment restoration, and module import isolation.
-- [ ] Prove individual files can run without cross-file setup side effects and discovery never contacts
+- [x] Prove individual files can run without cross-file setup side effects and discovery never contacts
   services or mutates canonical content.
-- [ ] Define catalog registration expectations for new tests, including empty collection and stale files.
+- [x] Define catalog registration expectations for new tests, including empty collection and stale files.
 
 **Checkpoint:** A selected file/group and the pilot aggregate discover the intended same test identities.
+
+**3.2 confirmed (2026-10-05):** [Native test layout/lifecycle](Tests/README.md) owns the
+current discovery configuration, categories, stable identities, import/fixture restoration and
+future registration/empty-selection requirements. Default pytest discovers only its three native
+files; Pester's exact-version configuration confines native file selection and container hooks,
+uses explicit categories and disables unused registry fixtures and experimental parallel/shuffle.
+Python collection imports restore sys.path; per-test cleanup restores cwd/environment/import paths.
+PowerShell host tests restore framework-module state. No automatic dependency installation occurs.
+
+Windows/WSL prove the same 85 pytest and 17 Pester identities for individual files and aggregates;
+all cases pass independently and together, with no new semantic cases. Python audited collection
+rejects network/DNS, child processes and file writes except explicit evidence/null output. Pester
+SkipRun and inspection of current declaration bodies verify discovery setup separation. Fresh child
+hosts prove Pester file independence and module restoration; explicit empty/outside/stale file
+selections fail. Pester filter validation counts selected ShouldRun identities, not TotalCount.
+Evidence remains under ignored `.tmp/ci-phase32/`. This is current-layout proof, not an arbitrary-test
+sandbox or a new suite catalog. Formal catalog approval, aggregate supervision and result adapters
+remain with their owning checkpoints; conformance/compatibility fixtures and canonical content stay
+unchanged. The maintainer confirmed all four locally implemented/verified items on 2026-10-05.
+
+**Editor discovery addition:** Scoped Pester globs in folder/local workspace settings removed cached
+third-party tests and resolved the maintainer's stuck editor discovery state after reload. Both
+opening modes now enable pytest for the native root; VS Code's log confirms discovery of 85 cases.
+The ignored local workspace records an initial development-interpreter default, while existing
+interpreter selections require the editor's Select Interpreter action. No machine-specific path
+or cache key enters committed settings. Editor adapters remain development views, not catalog or
+runner authority. The maintainer selected the prepared isolated development interpreter; VS Code's
+log confirms all 85 cases discovered through that executable. These additions are confirmed with 3.2.
 
 ### Phase 3.3 Representative Python And PowerShell Pilots
 

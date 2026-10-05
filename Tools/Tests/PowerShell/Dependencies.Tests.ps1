@@ -3,7 +3,7 @@ BeforeAll {
     . (Join-Path $repoRoot 'Tools/Commands/Environment/Private/Requirements.ps1')
 }
 
-Describe 'Exact module dependency declarations' {
+Describe 'Exact module dependency declarations' -Tag 'Unit' {
     It 'preserves exact versions across confined includes' {
         Set-Content -LiteralPath (Join-Path $TestDrive 'runtime.txt') -Value 'powershell-yaml 0.4.12'
         Set-Content -LiteralPath (Join-Path $TestDrive 'dev.txt') -Value @('-r runtime.txt', 'Pester 6.2.0')

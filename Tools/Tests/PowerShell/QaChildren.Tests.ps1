@@ -41,7 +41,7 @@ Write-Output 'Fixture helper completed.'
 '@
 }
 
-Describe 'QA child launch contracts' {
+Describe 'QA child launch contracts' -Tag 'Integration' {
     BeforeEach {
         $fixtureRoot = Join-Path $TestDrive ('project with spaces ' + [guid]::NewGuid().ToString('N'))
         $generatedDir = Join-Path $fixtureRoot 'generated output'

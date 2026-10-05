@@ -1,5 +1,6 @@
 # Retained host regressions. Phase 2.6 retires live Desktop migration proof; catalog adoption remains Phase 3.
 BeforeAll {
+    $priorFrameworkModules = @(Get-Module -Name KnowledgeFramework)
     $repoRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..\..'))
     $modulePath = Join-Path $repoRoot 'Tools\Runtime\PowerShell\KnowledgeFramework\KnowledgeFramework.psd1'
     . (Join-Path (Split-Path -Parent $modulePath) 'Private\PowerShell-Host.ps1')
@@ -46,7 +47,14 @@ BeforeAll {
     }
 }
 
-Describe 'PowerShell support boundary' {
+AfterAll {
+    Remove-Module -Name KnowledgeFramework -Force -ErrorAction SilentlyContinue
+    foreach ($priorModule in $priorFrameworkModules) {
+        Import-Module $priorModule.Path -Force -ErrorAction Stop
+    }
+}
+
+Describe 'PowerShell support boundary' -Tag 'Integration' {
     It 'accepts Core 7.4 and newer and rejects Desktop and older Core' {
         foreach ($version in @('7.4.0', '7.6.6', '8.0.0')) {
             (Get-KnowledgePowerShellHostStatus @{ PSVersion = [version]$version

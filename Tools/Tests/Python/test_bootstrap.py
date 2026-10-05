@@ -8,12 +8,18 @@ import sys
 import pytest
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(ROOT / "Tools/Commands/Environment"))
-from dependency_requirements import read_requirements  # noqa: E402
+_prior_import_path = sys.path[:]
+try:
+    sys.path.insert(0, str(ROOT / "Tools/Commands/Environment"))
+    from dependency_requirements import read_requirements
 
-spec = importlib.util.spec_from_file_location("ci_bootstrap", ROOT / "Tools/CI/bootstrap.py")
-bootstrap = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(bootstrap)
+    spec = importlib.util.spec_from_file_location("ci_bootstrap", ROOT / "Tools/CI/bootstrap.py")
+    bootstrap = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(bootstrap)
+finally:
+    sys.path[:] = _prior_import_path
+
+pytestmark = pytest.mark.unit
 
 
 def test_marker_aware_exact_graph_and_include_digest(tmp_path):

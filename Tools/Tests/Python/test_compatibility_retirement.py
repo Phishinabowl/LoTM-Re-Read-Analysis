@@ -9,9 +9,13 @@ import tempfile
 import pytest
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(ROOT / "Tools/Compatibility"))
-import run_compatibility as compatibility
-import verify_framework_extraction as extraction
+_prior_import_path = sys.path[:]
+try:
+    sys.path.insert(0, str(ROOT / "Tools/Compatibility"))
+    import run_compatibility as compatibility
+    import verify_framework_extraction as extraction
+finally:
+    sys.path[:] = _prior_import_path
 
 
 @pytest.fixture
@@ -80,6 +84,7 @@ def test_rejects_duplicate_json_keys(tmp_path, text):
         compatibility.load_registry(path)
 
 
+@pytest.mark.integration
 def test_old_registry_cli_fails_before_output_or_host_launch(tmp_path, registry):
     registry["schema_version"] = 2
     path = write_registry(tmp_path, registry)

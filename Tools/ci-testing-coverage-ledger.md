@@ -313,6 +313,18 @@ timings from this static inspection. Existing executable registries and workflow
 
 ### Documentation Verification
 
+**CI 3.2 confirmed (2026-10-05):** [Native discovery/lifecycle](Tests/README.md) defines
+confined default roots, category labels, stable identities, source-import path restoration,
+per-test cwd/environment cleanup and future empty/stale/catalog-registration requirements.
+Individual and aggregate discovery agree at 85 pytest/17 Pester identities on Windows/WSL;
+individual files and aggregates pass, including fresh Pester child-host/module-restoration proof.
+Python audited collection blocks network/DNS, process launches and file writes except the evidence
+JSON/null device; current Pester discovery bodies are declarations with executable setup deferred.
+Unused TestRegistry is disabled. Categories and explicit empty/outside/stale file rejection pass.
+There are no new semantic cases or conformance/compatibility membership changes. This addresses
+layout/discovery foundations; formal registration, runner supervision/meta-regressions and result
+publication remain with their later owning phases. Local evidence is ignored `.tmp/ci-phase32/`.
+
 **CI 3.1.3 confirmed (2026-10-05):** `package_artifact.py` checks reviewed wheel
 membership/content/metadata/RECORD; the explicit `verify_installed_package.py` installation owner
 and isolated child probe check actual installed origin/content/version/dependencies and neutral

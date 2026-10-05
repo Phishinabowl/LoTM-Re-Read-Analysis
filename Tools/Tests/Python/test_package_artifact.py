@@ -12,9 +12,15 @@ import zipfile
 import pytest
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(ROOT / "Tools/CI"))
-import bootstrap  # noqa: E402
-from package_artifact import inspect_wheel  # noqa: E402
+_prior_import_path = sys.path[:]
+try:
+    sys.path.insert(0, str(ROOT / "Tools/CI"))
+    import bootstrap
+    from package_artifact import inspect_wheel
+finally:
+    sys.path[:] = _prior_import_path
+
+pytestmark = pytest.mark.unit
 
 
 @pytest.fixture
