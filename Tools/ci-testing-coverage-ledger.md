@@ -313,6 +313,19 @@ timings from this static inspection. Existing executable registries and workflow
 
 ### Documentation Verification
 
+**Phase 2.5 confirmed 2026-10-05:** The
+[retained coverage proof](ci-retained-coverage-proof.md) maps all 21 paired suites, all 11 compatibility
+checks and existing static/parity rows to completed retained execution or deliberate Desktop support
+retirement. Python, primary PS7 and floor PS7 baseline documents equal the pre-retirement reports;
+the complete full-release portfolio passes with unchanged fixture/oracle/registry membership.
+All 71 methodology families remain mapped. This does not turn retained pressure/review families into
+automatic passes or close the G01-G15 runner/bootstrap/hosted deferrals. G14's hosted/test retirement
+closure remains 2.6; G08/G13 supervision and timeout cleanup remain later work.
+The four live-5.1 Pester cases are temporary acceptance proof for removal from regular execution at
+2.6; its resolver case also needs an installed-path fixture replacement. Retain six host/eight QA-child
+cases and 52 Python regressions without permanent 5.1 dependencies. Required native media PR admission
+remains Phase 3. The budget authority records fresh timings and replacement sizing, not YAML membership.
+
 The inspection pass checked that all 71 stable methodology families, all 21 registered suite IDs
 and paired filenames, all 11 check IDs, all 22 Python package filenames, all 20 PowerShell private
 filenames, and all 14 command filenames appear in this ledger. Relative links in this ledger, the

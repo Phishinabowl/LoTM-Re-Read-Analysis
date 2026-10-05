@@ -183,16 +183,21 @@ fixing the layout. The earlier 120/660-second aggregate envelopes are placement 
 permission to pretend every individual suite can inherit the aggregate's deadline or hide its cases.
 Fewer shards require a measured/reviewed allocation change, not weaker or missing coverage.
 
-Compatibility placement can be illustrated using the dated pre-retirement deadline candidates:
+The following is the preserved Phase 1.5 illustration using dated pre-retirement deadline candidates:
 
 | Candidate shard | Owning check IDs | Deadline sum |
 | --- | --- | ---: |
 | Compatibility A | compatibility-reporting, conformance-reporting, framework-catalog, visualization, qa, root-discovery, artifact-lifecycle | 2,070 seconds |
 | Compatibility B | effective-schema, framework-extraction, distribution-boundary, render | 2,010 seconds; 1,890 for PR without render |
 
-This partitions all 11 checks; it is illustrative design, not an executable second registry or final
-post-retirement allocation. Preserve owning order inside each shard. Refresh every deadline and
-partition at 2.5; enforce it through profiles/metadata at 4.1/4.4. Source baseline/native/policy work
+This partitions all 11 checks; it is historical illustrative design, not an executable second registry.
+Phase 2.5's [budget refresh](ci-testing-runtime-budget.md#phase-25-retained-runtime-budget-refresh-2026-10-05)
+supersedes these sizing candidates: the complete retained portfolio proposes a 1,920-second deadline
+sum, fitting one 2,190-second allocation window. With the existing allowances, total admission is
+3,030 seconds under the 55-minute target. One compatibility shard is therefore a provisional option;
+native/meta tests and source baseline work are not included in that sum. No shard manifest or hosted
+partition is implemented by this evidence. Preserve owning order; enforce final measured placement
+through profiles/metadata at 4.1/4.4. Source baseline/native/policy work
 has separately admitted shards. Parity/aggregation needs its own measured budget and source manifests.
 Legacy fail-fast runners must expose owning check boundaries/continued failures before a wrapper
 can claim later coverage; this remains required in 4.4.

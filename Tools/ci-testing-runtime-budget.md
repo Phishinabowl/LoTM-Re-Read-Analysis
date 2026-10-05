@@ -5,11 +5,12 @@
 [accepted contracts](ci-testing-contracts.md) own orchestration semantics; their decision record
 references the selections here. The [plan](ci-testing-modernization-plan.md) owns closure.
 This document does not change requirements, executable catalogs, workflows or host settings.
+Phase 2.5's retained-runtime refresh is confirmed on 2026-10-05; dated Phase 1.4 evidence remains below.
 
 **Support revision (2026-10-05):** D14 accepts retirement of 5.1 through the new CI Phase 2. The
-three-runtime observations below remain dated evidence, not future required coverage. Refresh whole
-Python/PS7 compatibility/extraction costs and budgets at 2.5; their savings cannot be inferred exactly
-from the aggregate baseline. Former CI Phases 2-7 are now 3-8; platform phase numbering is unchanged.
+three-runtime observations below remain dated evidence, not future required coverage. The Phase 2.5
+refresh below supplies completed Python/PS7 costs and accepted replacement budget design candidates.
+Former CI Phases 2-7 are now 3-8; platform phase numbering is unchanged.
 
 ## Measurement Basis And Limits
 
@@ -121,6 +122,90 @@ Python setup **11 seconds**, checkout **2 seconds**. Step timestamps have one-se
 the annotation step completing within one recorded second is not proof of zero execution cost.
 No new full workflow dispatch, ADO pipeline or policy activation was performed for this checkpoint.
 
+## Phase 2.5 Retained-Runtime Budget Refresh (2026-10-05)
+
+Source snapshot `19b40d8`; ignored evidence `.tmp/ci-phase25-20261005/`. The existing full-release
+runner completed all 11 checks in registry order with unchanged timeouts and baselines. Its detailed
+report records **601.486 seconds**, before final cleanup/report publication. The disposable observer
+records **629.131 seconds**, including its post-run tracked-file audit; that audit overhead is not
+treated as production setup or cleanup. Actual scoped cleanup took **1.452 seconds**, PS7 discovery
+**0.495 seconds**, and detailed report writing **0.000834 seconds**. Check timings below come from
+completed handler calls; no timeout override or inferred missing pass is used.
+
+This sequential warm local sample supersedes the dated three-runtime compatibility/extraction
+deadline candidates for target planning. It does not measure cold restore, hosted throughput or a
+statistical percentile. Individual local/PR/distribution profiles were not independently rerun here;
+their check-time sums are derived estimates from this completed full run. Phase 2.4's independently
+passing six-check local profile remains separate evidence. Runtime, setup and baseline observations
+are recorded in the [retained coverage proof](ci-retained-coverage-proof.md).
+
+Completed baseline outer times are Python **60.706 seconds**, primary PS7 **327.346**, and floor
+PS7.4.0 **340.172**. Their complete semantic reports equal each other and the pre-retirement reports.
+The whole-profile envelope candidates become Python **150 seconds** and common supported PS7
+**690 seconds** under the same rounded two-times rule, superseding the former 120/660 values.
+These are placement envelopes, not individual suite deadlines. Fast-profile throughput was not
+remeasured; its unchanged subset and earlier acceptance do not supply new granular allocation data.
+Warm launch/import and actual policy/formatting costs are recorded in the proof. Pester timings include
+temporary Desktop rejection cases and must not set steady-state native group budgets before 2.6/3.3.
+
+| Compatibility check | Completed seconds | Proposed whole-check deadline seconds |
+| --- | ---: | ---: |
+| compatibility-reporting | 23.952 | 120 |
+| conformance-reporting | 12.544 | 120 |
+| framework-catalog | 161.299 | 330 |
+| effective-schema | 118.215 | 240 |
+| visualization | 34.640 | 120 |
+| qa | 41.188 | 120 |
+| root-discovery | 3.874 | 120 |
+| artifact-lifecycle | 30.491 | 120 |
+| framework-extraction | 115.870 | 390 |
+| distribution-boundary | 44.007 | 120 |
+| render | 15.326 | 120 |
+
+The existing `max(120, ceil(2*T/30)*30)` rule yields 240 seconds for extraction. Retain its existing
+**360-second inner call limit**, with a **390-second whole-check candidate** to allow that inner
+limit plus launch/verification headroom. The completed 2.4 extraction sample (116.501 seconds) and
+this full-run sample both fit the unchanged limit. The former proposed 780-second inner/810-second
+outer values are historical three-runtime candidates and are superseded. No executable registry
+timeout changes in 2.5; whole deadlines remain future supervisor metadata at 4.3/4.4. Other candidates
+use the reviewed whole-check rule; inner limits remain per-call caps and cannot be summed or mistaken
+for whole-check guarantees. Supervisor adoption must reconcile both scopes explicitly.
+
+| Existing profile | Whole-check deadline sum | With 210-second supervisor reserves | With provisional setup/publication/host allowances |
+| --- | ---: | ---: | ---: |
+| local | 1,050 | 1,260 | 2,160 |
+| pull-request | 1,680 | 1,890 | 2,790 |
+| distribution-boundary | 1,560 | 1,770 | 2,670 |
+| full-release | 1,920 | 2,130 | 3,030 |
+
+The last column adds the existing provisional 600-second cold setup, 180-second publication and
+120-second host margin. All 11 compatibility checks can provisionally fit one 2,190-second unit
+allocation window under the 55-minute target; this is admission arithmetic, not an implemented shard
+or a cold-host measurement. The earlier illustrative two-shard placement is superseded for sizing;
+final native/source/shard/gate ownership remains 4.1/4.4/5.1/6.1. Do not add native/meta-regression
+groups to this allocation without measuring and admitting them separately.
+
+The existing 900-second hosted compatibility job is still not certified adequate: one warm pass
+does not reserve declared cold setup, publication or failure headroom. Phase 2.6 should review a
+**55-minute retained compatibility job allowance** against fresh host/policy state, preserving its
+check identity and all current profile membership. This document changes no workflow or ADO settings.
+Per-suite conformance and native-test allocations remain independent; the 120-second granular-unit
+minimum still makes 21 suites exceed one 2,190-second window per runtime until measured/reviewed
+catalog allocation is adopted. A short aggregate baseline does not override that admission rule.
+
+Completed check-end artifact inventories sum to **177 files / 10,066,857 bytes**; these are snapshots
+of check artifacts, not a peak-live-tree measurement or all temporary fixture bytes. Largest captured
+child stdout is **752,862 bytes**, total captured child stdout **7,500,947 bytes**, largest stderr
+**1,433 bytes**, and the detailed compatibility report is **9,193 bytes**. Current artifact candidates
+remain adequate for these observations; native/release growth still requires measurement. The observer
+records durations/stream sizes but its child exit-code field is null because the current command
+result uses `exit_code`, not `returncode`; the complete owning check/report is the result authority.
+The observer adds start diagnostics to its stdout capture; the final producer summary retains contract 1.
+
+Normal-exit cleanup succeeded and the newly observed external extraction directory was absent after
+exit. The original Phase 1.4 timeout-retained directory remains a separate unresolved finding; no
+process-tree cancellation, failure cleanup, installation isolation or hosted result is certified here.
+
 ## Selected Version Baselines
 
 These exact selections are accepted design baselines for implementation in 3.1; repository declarations remain
@@ -199,6 +284,9 @@ local copyrighted EPUB/artwork directory is a CI prerequisite. Actual operations
 implemented and compared in the native pilot/integration phases, not claimed from package discovery.
 
 ## Budget Rules And Hosted Constraints
+
+The rules/reserves below remain applicable. The original Phase 1.4 numerical compatibility/extraction
+and baseline candidates are dated design evidence, superseded by the Phase 2.5 refresh above.
 
 For a measured unit with local warm time `T`, propose outer deadline
 `max(120, ceil(2*T/30)*30)` seconds. It covers startup, every nested subprocess, comparisons and

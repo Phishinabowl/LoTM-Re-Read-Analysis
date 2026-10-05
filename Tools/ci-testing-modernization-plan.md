@@ -4,8 +4,9 @@
 Phase 2.1 documentary support adoption, inventory and version decisions are confirmed on 2026-10-05;
 Phase 2.2 host enforcement and the Phase 3.1 packaging-plan addition are confirmed on 2026-10-05;
 Phase 2.3 QA child migration is confirmed on 2026-10-05. Phase 2.4 registry/extraction/reporting
-migration is confirmed on 2026-10-05; 2.5 is next. No hosted activation has
-occurred. Complete retained coverage, refreshed budgets and hosted retirement remain 2.5/2.6 work.
+migration is confirmed on 2026-10-05. Phase 2.5 retained coverage and budget refresh are confirmed
+on 2026-10-05; 2.6 is next. No hosted activation has occurred.
+Hosted retirement and removal of temporary live-5.1 tests remain 2.6 work.
 Focused host regressions are implemented; broader native-test foundations and dual-host pipeline
 rollout have not started. The maintainer accepted retirement of Windows PowerShell 5.1 support on
 2026-10-05; remaining runtime/runner/workflow migration follows the owning checkpoints.
@@ -54,6 +55,10 @@ design candidates until Phase 1 review; do not describe them as implemented.
 - Preserve existing public conformance/compatibility entry points and detailed JSON contracts.
 - Run legacy and replacement coverage together until equivalent or stronger coverage is evidenced.
   Retire coverage only through an explicit methodology decision and historical record.
+- Actively review measured costs for obsolete, temporary or redundant tests and repeated expensive
+  setup. Preserve required coverage rather than every test forever; overlapping fixtures do not prove
+  redundancy across different contract boundaries or independent runtimes. Identify candidates during
+  5.1 shadow comparison and retire only accepted coverage mappings at 8.1. Shadow duplication is temporary.
 - The accepted 5.1 retirement deliberately changes the supported-host contract. Preserve all semantic
   fixtures and Python/PS7 coverage; do not describe ending Desktop coverage as three-runtime equivalence.
   Full Python/PowerShell implementation parity remains required; reducing duplication is a separate decision.
@@ -952,25 +957,69 @@ or retired by this confirmation.
 
 ### Phase 2.5 Retained Coverage Proof And Budget Refresh
 
-- [ ] Run repository static policy and PS7 formatting, all 21 baseline suites in Python/PS7 and compare
+- [x] Run repository static policy and PS7 formatting, all 21 baseline suites in Python/PS7 and compare
   complete semantic inventories/results. Exercise unsupported-host and migrated child-launch failures.
-- [ ] Classify tests that actually launch Windows PowerShell 5.1 as temporary migration proof, separate
+- [x] Classify tests that actually launch Windows PowerShell 5.1 as temporary migration proof, separate
   from ongoing implementation coverage. Run that proof for retirement acceptance and record its evidence;
   identify each case for removal from regular execution in 2.6. Retain lightweight unsupported-host
   policy regressions using synthetic version/edition values or mocked discovery without launching 5.1.
-- [ ] Run the complete compatibility portfolio, including QA/Visualization, root discovery, artifact
+- [x] Run the complete compatibility portfolio, including QA/Visualization, root discovery, artifact
   lifecycle, extraction, distribution-boundary and rendering against unchanged project baselines.
-- [ ] Rehearse synthetic media operations in owned fixtures on the retained supported hosts; permanent
+- [x] Rehearse synthetic media operations in owned fixtures on the retained supported hosts; permanent
   pytest/Pester registration and required PR media coverage still belong to Phase 3 and later integration.
-- [ ] Independently inspect scratch cleanup and canonical fingerprints; classify every regression or
+- [x] Independently inspect scratch cleanup and canonical fingerprints; classify every regression or
   retained infrastructure limitation. Do not mark a failed full profile passed from focused successes.
-- [ ] Remeasure whole checks/profiles, startup/setup and artifact costs. Reconcile extraction's inner
+- [x] Remeasure whole checks/profiles, startup/setup and artifact costs. Reconcile extraction's inner
   timeout from completed two-runtime evidence; supersede three-runtime budget candidates explicitly.
-- [ ] Map every old coverage row to retained semantic proof or the deliberate Desktop support retirement;
+- [x] Map every old coverage row to retained semantic proof or the deliberate Desktop support retirement;
   the separately reviewed support loss cannot excuse other missing cases.
 
 **Checkpoint:** Complete retained coverage passes with unchanged canonical/baseline semantics, honest
 counts and observed cleanup; refreshed budgets replace extrapolated savings before hosted adoption.
+
+**Deliverable (confirmed 2026-10-05):** [Retained Coverage Proof](ci-retained-coverage-proof.md)
+maps every existing conformance/compatibility/static/parity coverage row to retained proof or explicit
+Desktop retirement. All 21 baseline suites pass independently in Python 3.14.5, PS7.6.6 and PS7.4.0;
+their complete detailed reports are exactly equal to each other and the original Phase 1.4 Python/PS7
+reports. All 11 full-release checks pass in owning order under unchanged timeouts, including rendering,
+distribution and nine-suite neutral extraction. The report records 601.486 seconds before final
+cleanup/publication. No failed whole profile is replaced by focused or derived passes.
+
+All 52 pytest cases and 18 Pester cases per host pass with native XML, zero failures/errors/skips;
+Pester includes four temporary Desktop cases issuing 16 Desktop launches per host. The inventory
+lists their 2.6 removal and the retained resolver assertion's installed-path dependency. Six host
+and eight QA-child cases remain intended permanent coverage, with a harmless alternate-file fixture
+replacing that dependency at 2.6. Python Desktop cases are synthetic/mocked. No tests move or retire
+in this evidence pass, and temporary-case timings do not become steady-state native budgets.
+
+Synthetic EPUB search and image crops match in Python and both PS7 hosts, including exact pixels,
+source preservation, PS7 overwrite rejection and independently absent fixture scratch. All static
+checks pass: Ruff, actionlint, annotation policy (22 fixtures / 395 files), and primary PS7 formatting
+(58 sources). Formatter dependency support at 7.4.0 remains distinct from framework runtime support.
+No local book/artwork, machine dependency upgrade, environment policy change or hosted execution is used.
+
+The [budget refresh](ci-testing-runtime-budget.md#phase-25-retained-runtime-budget-refresh-2026-10-05)
+supersedes three-runtime sizing candidates explicitly. Retain extraction's 360-second inner timeout;
+propose a 390-second supervised whole-check deadline. Full compatibility deadline sum is 1,920 seconds,
+or 3,030 with existing provisional setup/reserves/publication/host allowances, fitting the 55-minute
+target. One compatibility shard is a provisional option; source/native/meta allocations remain separate.
+Baseline envelope candidates are Python 150/common PS7 690 seconds, not per-suite deadlines. Review
+the retained hosted compatibility job's 55-minute allowance at 2.6; no YAML or runtime deadline changes here.
+
+**Preservation and boundaries:** Entry audit freezes 491 tracked files and 47 protected canonical/
+generated baseline files. Full execution changes none; only five existing evidence/planning documents
+and the new proof document record this checkpoint. Source, fixtures, registries/profile order, requirements,
+hosted configuration, canonical pages/templates/Relationship Seeds and accepted consumer baselines stay
+unchanged. All 28 original Phase 1.4 JSON records are preserved. New extraction/scoped/media scratch is
+observed absent after exit. The old timeout-retained extraction directory remains an unresolved finding;
+failure cleanup, process-tree ownership, supervisor continuation, clean/offline bootstrap and live hosted
+proof are not certified. The ledger preserves all 71 families and existing G01-G15 deferrals.
+
+**Rollback:** Revert this focused documentary proof/budget refresh together; retain raw historical
+evidence and confirmed 2.2-2.4 implementation. No code, registry timeout, canonical baseline or hosted
+setting needs restoration. The maintainer confirmed all seven checklist items on 2026-10-05;
+Phase 2.6 is next. The clarification also accepts active test-slimming review at 5.1/8.1 while preserving
+required coverage; no additional test removal is implemented by this confirmation.
 
 ### Phase 2.6 Hosted Check Retirement And Closure
 
@@ -1244,7 +1293,9 @@ three-runtime evidence stays available; shadow comparison does not reinstate 5.1
 - [ ] Compare ledger scenarios, inventories, runtimes, expected failure detection, and exit behavior.
 - [ ] Classify every difference as intended reporting improvement, implementation defect, environment
   limitation, or separately reviewed contract change; block unexplained differences.
-- [ ] Measure new setup/launch/execution/report costs and revise budgets with evidence.
+- [ ] Measure new setup/launch/execution/report costs and revise budgets with evidence. Identify obsolete,
+  temporary or redundant tests and repeated expensive setup; record each candidate's contract boundary,
+  remaining coverage, failure-detection comparison, measured savings and rollback before 8.1 review.
 
 **Checkpoint:** A comparison record identifies equivalent retained coverage and any remaining blockers.
 
@@ -1417,7 +1468,9 @@ newly introduced policies/triggers through reviewed changes. Preserve shared Git
 
 ### Phase 8.1 Retirement Proposal And Coverage Review
 
-- [ ] Name each superseded harness/adapter and map its scenarios to verified replacements.
+- [ ] Name each superseded harness/adapter and map its scenarios to verified replacements. Review the
+  5.1 slimming candidates, including individual tests, against retained coverage and measured savings;
+  do not permanently retain old/new shadow duplication merely because both suites once passed.
 - [ ] Review direct invocation, failure diagnostics, runtime variants, cleanup, and reporting—not just counts.
 - [ ] Retain useful custom conformance/end-to-end runners and shared fixtures; record accepted coverage
   revisions in methodology and evolution before deleting superseded implementation.
@@ -1483,9 +1536,10 @@ full PR gates, distribution-boundary
 integration coverage, and a separate modernization branch/PR into the framework branch.
 
 Phase 1.1 inspected ADO access/capacity and prepared synchronized remotes; Phases 1.2/1.3 are confirmed.
-Phase 1.4 proposals and Phase 1.5 event/host design still need closure. Phase 2 implements the accepted
-support retirement and refreshes budgets before Phase 3 setup/native pilots. Cold/offline and floor-host
-proof, live agent launches, publication and policy adoption remain explicit later gates. Explain ADO
+Phases 1.4/1.5 and 2.1-2.5 are confirmed; Phase 2.6 is next.
+Phase 2.6 closes hosted retirement before Phase 3 setup/native pilots. The runtime floor is locally
+tested; clean/offline dependency setup, live agent launches, publication and policy adoption remain
+explicit later gates. Explain ADO
 concepts at their owning phase and record decisions in their authoritative documentation.
 
 **Planning revision verification (2026-10-05):** CI major phases 1-8 and all 41 subphases are sequential;
