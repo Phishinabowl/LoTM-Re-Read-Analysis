@@ -141,10 +141,12 @@ Local Linux cold/fresh-offline/check/wheel/editable bootstrap routes pass, toget
 pytest cases, 21 Python baseline suites and 17 Pester cases on PS7.6.6. Evidence is preserved
 under ignored `.tmp/ci-wsl-20261005/`. Rendering and the Linux PS7.4 floor were not exercised
 in this setup pass. The Linux workspace is a test snapshot, not a second Git publication owner.
-The temporary manual-only Bootstrap Verification workflow calls `verify_bootstrap.py` on
-Windows/Linux with the same repository-owned commands.
+The temporary manual-only `bootstrap_only` option in the existing CI workflow calls
+`verify_bootstrap.py` on Windows/Linux with the same repository-owned commands. GitHub requires
+workflow registration on the default branch; a separate branch-only workflow returned HTTP 404,
+so the proof uses the already registered CI entry point. Ordinary CI membership/names remain intact.
 Run it on the exact published SHA after confirmation before closing cross-OS acceptance. It has
-no push/PR/schedule trigger, changes no required check, and must retire after acceptance/canonical
+no automatic execution on push/PR/schedule, changes no required check, and must retire after acceptance/canonical
 native-profile adoption; do not let it become a duplicate permanent CI portfolio. Passing current
 conformance alone does not prove a fresh Linux bootstrap. Broad installed-artifact semantics and
 boundary regressions remain 3.1.3; process-tree supervision/cancellation remains Phase 4.

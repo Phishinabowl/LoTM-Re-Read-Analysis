@@ -1285,7 +1285,8 @@ Ubuntu 24.04 is now installed locally through WSL 2, with user-owned CPython 3.1
 and an isolated source snapshot including the uncommitted changes. Linux cold/fresh-offline/check,
 wheel/editable, 67 pytest cases, 21 Python baseline suites and 17 primary-host Pester cases pass;
 evidence is retained under ignored `.tmp/ci-wsl-20261005/`. This supplements the remaining hosted
-gate; Linux rendering/floor-host proof was not run. Temporary `bootstrap-verification.yml` is manual only,
+gate; Linux rendering/floor-host proof was not run. The temporary `bootstrap_only` option/job in
+the existing registered CI workflow is manual only (a new branch-only workflow could not dispatch),
 with Windows/Linux lanes calling the same repository `verify_bootstrap.py` commands. On
 confirmation publish the exact branch snapshot, dispatch this proof and record its exact SHA,
 outcomes and complete failure reports before closing the remaining OS item. This is verification,
