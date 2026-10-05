@@ -3,9 +3,9 @@
 **Status:** Phase 1 and all subphases 1.1-1.5 are confirmed on 2026-10-05.
 Phase 2.1 documentary support adoption, inventory and version decisions are confirmed on 2026-10-05;
 Phase 2.2 host enforcement and the Phase 3.1 packaging-plan addition are confirmed on 2026-10-05;
-2.3 is next.
-No hosted activation has occurred. QA child migration, registry/extraction changes and full retirement
-proof remain pending in 2.3-2.6.
+Phase 2.3 QA child migration is confirmed on 2026-10-05; 2.4 is next.
+No hosted activation has occurred. Registry/extraction changes and full retirement proof remain
+pending in 2.4-2.6.
 Focused host regressions are implemented; broader native-test foundations and dual-host pipeline
 rollout have not started. The maintainer accepted retirement of Windows PowerShell 5.1 support on
 2026-10-05; remaining runtime/runner/workflow migration follows the owning checkpoints.
@@ -786,17 +786,75 @@ The maintainer confirmed all four checklist items on 2026-10-05; Phase 2.3 is th
 
 ### Phase 2.3 QA Visualization And Cleanup Child Migration
 
-- [ ] Replace the three executable `powershell` calls in QA refresh, bounded graphs and disposable-cache
+- [x] Replace the three executable `powershell` calls in QA refresh, bounded graphs and disposable-cache
   cleanup with the resolved approved PS7 host, preserving isolated processes, arguments, cwd and exit handling.
-- [ ] Verify direct QA-to-Visualization invocation and configured helper paths remain valid; do not change
+- [x] Verify direct QA-to-Visualization invocation and configured helper paths remain valid; do not change
   project path/schema declarations merely to change the executable host.
-- [ ] Prove generated file inventories, normalized bytes/hashes, bounded-reader visibility and accepted
+- [x] Prove generated file inventories, normalized bytes/hashes, bounded-reader visibility and accepted
   QA/Visualization baselines remain unchanged. Use owned destinations and guard canonical content.
-- [ ] Inspect failure/cleanup behavior and demonstrate no hidden Desktop descendant is launched. Preserve
+- [x] Inspect failure/cleanup behavior and demonstrate no hidden Desktop descendant is launched. Preserve
   the known timeout-cleanup finding; host migration alone does not certify process-tree ownership fixes.
 
 **Checkpoint:** PS7 QA completes refresh/bounded generation/cleanup through PS7 children and retains
 accepted project behavior; neither Python delegation nor baseline refresh hides a discrepancy.
+
+**Deliverable (confirmed 2026-10-05):** QA resolves the current approved PS7 executable at startup
+through the 2.2 private host policy. Its refresh check, bounded graph generation and cache cleanup
+reuse that exact executable with `-NoProfile`, retaining isolated children, arguments, inherited cwd
+and exit behavior. The obsolete Desktop `ExecutionPolicy Bypass` launch switches are removed.
+The direct `QaRelationship` visualization invocation remains in-process. No helper path, project
+manifest, module export, registry, canonical page, template, Relationship Seed or baseline is changed.
+
+**Verification:** [QA child regressions](Tests/PowerShell/QaChildren.Tests.ps1) add eight Pester 6.2.0
+tests for the three real launch functions: exact child host/version/executable/PID, argument and cwd
+preservation including spaces, refresh/bounded failure exits, cleanup failure/missing-helper/launch
+behavior, absent/stale bounded output, and actual delegated cache deletion in an isolated marker
+project with adjacent-file preservation. The command's functions are loaded through AST extraction
+for these narrow tests without running canonical export; fake helper observations are distinguished
+from the real cleanup helper and end-to-end consumer proof. Catalog/profile adoption remains Phase 3.
+All 18 host plus QA tests pass independently per file and together on PS7.6.6 and portable PS7.4.0,
+with separate NUnit XML under ignored `.tmp/ci-phase23-20261005/`.
+
+Direct local child-test reproduction on Windows (no installation or root-level XML output):
+
+```powershell
+pwsh -NoProfile -Command 'Import-Module Pester -RequiredVersion 6.2.0; Invoke-Pester -Configuration @{ Run = @{ Path = "./Tools/Tests/PowerShell/QaChildren.Tests.ps1"; Exit = $true }; Output = @{ Verbosity = "Normal" } }'
+```
+
+Focused calls to the unchanged compatibility handlers use explicit Python/PS7 runtime objects,
+including a separate 7.4.0 variant; they are migration diagnostics, not a schema-2 aggregate profile
+pass or early 2.4 registry migration. QA retains 16 notes, 121 relationships, 71 data references,
+one chapter-32 graph and two bounded pages. All 35 normalized files match Python and the accepted
+QA tree SHA-256 `da102d02d7180aa170a9062b7bbbcd1552fb52909a086d8b032fe02131fd30f3`.
+Visualization retains 15 nodes/121 relationships, all five refresh files and accepted tree SHA-256
+`dfb0ffd4a11d304ab2ffd2571bfba4717b087c512d46abd6120f920835577fe6`; its unbounded graph matches
+the accepted hash. These exact-content comparisons include existing bounded-reader visibility.
+No canonical output or baseline refresh was used to obtain parity.
+
+Read-only Windows descendant sampling every 20 ms observed seven PS7 processes per end-to-end
+variant: QA plus its three children, then three standalone visualization checks. Every observed PS7
+executable matched that variant's parent host, including inherited portable 7.4.0; no Desktop
+`powershell.exe` descendant was observed. Sampling is observational evidence, not exhaustive
+process-tree ownership or a guarantee about arbitrarily short-lived processes.
+
+**Preservation/static checks:** Snapshot `0453ef6` freezes 489 tracked files; all 482 outside the seven
+approved edited files remain unchanged. All 47 protected canonical/generated baseline files and 28
+original Phase 1.4 JSON records are unchanged. All 57 relative links in the six updated documents
+resolve. PowerShell formatting passes 58 sources; annotation policy passes 22 fixtures / 393 files;
+`git diff --check` passes. Generated comparison trees, process observations, NUnit results and
+fingerprints remain ignored/local. The compatibility registry, fixtures, schemas, project configuration
+and hosted workflows are unchanged; no complete retirement or aggregate-profile acceptance is claimed.
+
+**Failure/cleanup boundary:** Refresh and bounded nonzero exits remain terminating QA failures.
+Cleanup remains best-effort: missing helper, launch exception and child nonzero exit do not fail QA;
+no new timeout, cancellation, finally cleanup or explicit cleanup-root argument is introduced. Cwd
+and the existing root-discovery order still determine cleanup's project. The Phase 1.4 timeout-leftover
+finding remains unresolved; process ownership/timeout cleanup belongs to 4.3/4.6, and broader lifecycle
+coverage to 5.3. Successful normal-exit fixtures cannot certify those future gates.
+
+**Rollback:** Revert the focused three-launch/startup change and its tests/documentation together;
+no installation, execution-policy, configuration or canonical-content restoration is required.
+The maintainer confirmed all four checklist items on 2026-10-05; Phase 2.4 is the next checkpoint.
 
 ### Phase 2.4 Compatibility, Extraction And Reporting Migration
 

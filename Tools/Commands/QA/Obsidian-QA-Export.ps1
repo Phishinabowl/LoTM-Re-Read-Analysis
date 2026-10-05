@@ -19,6 +19,7 @@ $runtimeModule = Join-Path $toolsRoot 'Runtime\PowerShell\KnowledgeFramework\Kno
 . (Join-Path (Split-Path -Parent $runtimeModule) 'Private\PowerShell-Host.ps1')
 Assert-KnowledgePowerShellHost
 Import-Module $runtimeModule -Force
+$script:QaPowerShellExecutable = Resolve-KnowledgePowerShellExecutable
 
 function Show-Help {
     @"
@@ -2668,7 +2669,7 @@ function Write-RepoRefreshCheck {
     $settingsPath = Join-Path $checkDir "refresh-check-settings.json"
     Write-TextFile $settingsPath ($settings | ConvertTo-Json -Depth 50)
 
-    powershell -NoProfile -ExecutionPolicy Bypass `
+    & $script:QaPowerShellExecutable -NoProfile `
         -File $ProjectConfig.visualization_powershell_helper `
         -Root $RepoRoot `
         -Mode Refresh `
@@ -2738,7 +2739,7 @@ function Write-BoundedGraphs {
     $settingsPath = Join-Path $boundedDir "bounded-graphs-settings.json"
     Write-TextFile $settingsPath ($settings | ConvertTo-Json -Depth 50)
 
-    powershell -NoProfile -ExecutionPolicy Bypass `
+    & $script:QaPowerShellExecutable -NoProfile `
         -File $ProjectConfig.visualization_powershell_helper `
         -Root $RepoRoot `
         -Mode Refresh `
@@ -3788,7 +3789,7 @@ function Invoke-DisposableCacheCleanup {
     try {
         $cleanScript = $ProjectConfig.cleanup_powershell_helper
         if (Test-Path -LiteralPath $cleanScript) {
-            powershell -NoProfile -ExecutionPolicy Bypass -File $cleanScript -Delete | Out-Null
+            & $script:QaPowerShellExecutable -NoProfile -File $cleanScript -Delete | Out-Null
         }
     }
     catch {

@@ -1063,6 +1063,19 @@ The repo refresh check does not update canonical `Visualization/graphs/`, `Visua
 ### Important Differences
 
 - Python invokes the manifest-configured Python cleanup helper at the end of normal runs. PowerShell invokes the manifest-configured PowerShell cleanup helper with `-Delete` for the same behavior.
+- CI Phase 2.3 resolves the current approved PS7 executable once at QA startup, then uses that exact
+  executable for isolated repo refresh, bounded graph and cache cleanup children. All inherit cwd;
+  no PATH-selected Desktop shell, automatic host switch or Python delegation is used. Configured
+  helper paths and arguments remain unchanged; `QaRelationship` still invokes the PS helper directly.
+- Refresh/bounded child nonzero exits fail QA. Cleanup remains best-effort and suppresses launch
+  exceptions/nonzero child exits; it still has no explicit root argument and discovers its project
+  from cwd and helper location. This migration does not introduce process ownership or timeout cleanup.
+
+Phase 2.3 verification (2026-10-05): Python/PS7.6.6 and Python/PS7.4.0 match the accepted QA
+35-file and visualization five-file content baselines, including bounded pages/graphs and direct
+relationship output. Eight focused Pester child tests pass in both hosts; actual cleanup deletion
+uses an isolated marker project. Canonical outputs and accepted baseline files remain unchanged.
+The modernization plan owns detailed evidence, sampling limits and pending retirement checkpoints.
 - Both implementations auto-detect the repository root when `--root` / `-Root` is omitted, so they may be launched from the repository root, `Tools/`, or another descendant directory. Detection does not depend on `.git` or a domain-specific content folder; explicit roots are validated against `Project_Config/project.yaml`.
 - Both implementations accept existing or not-yet-created export directories beneath the repository root, create missing parent directories, and reject the repository root itself or any outside path before clean-up begins. The default `<repo>/Obsidian_Export/` path remains valid.
 - Python loads the manifest-configured Python visualization helper directly for the unbounded visualization-style graph and repo refresh dry run. PowerShell invokes the manifest-configured PowerShell visualization helper for both operations.

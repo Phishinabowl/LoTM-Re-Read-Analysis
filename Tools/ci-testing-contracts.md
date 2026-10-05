@@ -594,7 +594,8 @@ retirement; D09-D11/D13 were confirmed on 2026-10-05. Implementation evidence ga
 
 This planning update records the decision, not completed retirement. Current executable registries
 and hosted workflow retain 5.1 obligations until Phase 2 performs the coordinated change. Phase 2.2
-implements the confirmed module host boundary; compatibility/extraction/QA children migrate next.
+implements the confirmed module host boundary. Phase 2.3 QA child migration is confirmed on 2026-10-05;
+compatibility/extraction and hosted retirement remain later checkpoints.
 Existing architecture/methodology support wording is updated at 2.1; historical three-runtime results
 remain intact. D14 explicitly supersedes the planned 5.1 support portions of earlier decisions.
 

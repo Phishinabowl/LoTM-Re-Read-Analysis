@@ -15,8 +15,9 @@ Independent Python/PS7 behavior, all semantic fixtures, root/visibility/validati
 and public CLI paths remain required. Windows APIs still require explicitly supported OS coverage.
 
 Phase 2.2 now implements the 0.14.0 module's 7.4/Core boundary, preflight and public startup guards
-confirmed on 2026-10-05. Current code still has strict three-runtime compatibility schema 2, independent three-host
-extraction discovery, three QA `powershell` children and a 5.1 CI job. These are temporary migration obligations, not
+confirmed on 2026-10-05. Phase 2.3's three QA children use that resolved host, confirmed on 2026-10-05.
+Current code still has strict three-runtime compatibility schema 2, independent three-host
+extraction discovery and a 5.1 CI job. These are temporary migration obligations, not
 an ongoing support promise. Implement enforcement at 2.2, children at 2.3, registry/extraction at
 2.4, retained proof at 2.5 and hosted retirement at 2.6. No complete two-runtime execution is claimed
 until those gates pass; current compatibility commands can still require installed 5.1 during transition.
@@ -114,6 +115,12 @@ copied by extraction's existing Runtime directory rule. Record that documentary 
 do not assert the old 302-file diagnostic count still describes a new bundle or expand COPY_FILES to CI assets.
 
 ## Acceptance And Next Checkpoint
+
+**Phase 2.3 confirmed 2026-10-05:** The three QA child launches use the current approved PS7
+executable; direct visualization and helper paths remain unchanged. Eight child regressions and
+accepted QA/Visualization content baselines pass on PS7.6.6 and 7.4.0. Cleanup failure suppression,
+inherited cwd and the known timeout-leftover finding are preserved rather than reported fixed.
+The plan owns exact hashes, normal-exit cleanup proof, process sampling limits and confirmation status.
 
 **Phase 2.2 confirmed 2026-10-05:** Host guards, module 0.14.0, usable-dependency readiness and
 conformance child resolution are implemented with focused Pester 6.2.0 regressions. The plan owns
