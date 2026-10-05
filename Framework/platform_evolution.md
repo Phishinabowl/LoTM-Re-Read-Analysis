@@ -954,20 +954,22 @@ passed. All 13 effective installed planned capabilities remain machine-discovera
 against eight delivery targets; no capability was promoted, activated, or removed. Phase 3 is
 closed and Phase 4 page modules, fields, defaults, and validation levels is next.
 
-## CI Modernization Interlude - PowerShell Host Retirement (Closure Pending)
+## CI Modernization Interlude - PowerShell Host Retirement
 
-**Closure implemented by:** pending
+**Closure implemented by:** `6de0559` (hosted/test retirement), `1b98356` (Windows absolute
+documentation paths on POSIX) and `8fb0576` (resolved-root pack containment).
 
-**Status:** CI Phases 2.1-2.5 are confirmed on 2026-10-05. CI 2.6 checkout implementation is
-confirmed for publication on 2026-10-05; exact-snapshot hosted acceptance is pending. This records the
+**Status:** CI Phases 2.1-2.6 are confirmed on 2026-10-05. Exact-snapshot manual hosted acceptance
+closes CI Phase 2 for the authorized scope. Actual PR/main event proof remains with CI 6.2/8.4;
+ADO activation remains later work. This records the
 CI interlude before Platform 4.2, not a new semantic version or closure of Phase 4.1 discovery review.
 The [CI modernization plan](../Tools/ci-testing-modernization-plan.md) owns the separate checkpoints.
 
 **Confirmed foundation commits:** `202c1c3` (support contract/inventory), `0453ef6` (module 0.14.0,
 host guards and preflight), `eded91b` (approved PS7 QA children), `19b40d8` (schema-3 two-runtime
 compatibility/extraction/reporting), and `4f5c414` (complete retained coverage and budget proof).
-The final retirement/hosted closure commit and run references are filled after acceptance rather
-than inferred from this pending record.
+The retirement implementation and its two focused repairs are listed above; the successful run
+below tests the complete repaired source snapshot, not a combination of partial runs.
 
 The maintainer explicitly retires Desktop/5.1 support while retaining independent Python/PS7
 implementations and every semantic fixture. Phase 2.5 passes all 21 suites in Python, PS7.6.6 and
@@ -983,11 +985,11 @@ Python implementation cases remain. Historical source/XML preserves the removed 
 Desktop variant or replacement migration harness is added.
 
 Five retained check identities and existing PR/main/manual/annotation events are preserved; only
-the Desktop job and runtime/compatibility allowances change. Proposed checkout allowances are Python
+the Desktop job and runtime/compatibility allowances change. Published checkout allowances are Python
 25 minutes, PS7 30 and compatibility 55, with policy checks unchanged at 5. Fresh read-only GitHub
 inspection finds no rulesets and unprotected main/framework branches; ADO has no project policies
-or pipelines. No host policy or ADO pipeline is activated here. Actual hosted evidence on the published
-retirement SHA remains required; an existing annotation success is not a full retirement proof.
+or pipelines. No host policy or ADO pipeline is activated here. Actual full-release evidence comes
+from the successful published-snapshot run below; standalone annotation success is separate proof.
 
 The first hosted replay at `6de0559` exposes a pre-existing Linux-only Python conformance failure:
 the documentation loader accepts the existing forbidden `C:/outside.md` fixture under native POSIX
@@ -995,14 +997,29 @@ path rules. A focused repair adds an explicit Windows absolute-path check, prese
 and all case counts. The focused suite retains its complete accepted summary; a labeled grammar probe
 reproduces before/after behavior. Failed run
 [37360948758](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37360948758) and its
-complete Python job log remain evidence; final exact-snapshot replay is pending.
+complete Python job log remain evidence. The exact-snapshot replay below passes after repair.
 
 The same run also fails the extracted-framework schema-pack check on Windows: pack containment
 compares a resolved file with an unresolved fixture root. A genuine local directory-junction probe
 reproduces that mismatch. The loader now resolves both sides, matching the existing project-loader
 pattern; valid packs pass and traversal remains rejected. The permanent schema-pack suite passes
 with unchanged fixtures and summary. The complete compatibility log preserves this separate failure;
-the exact hosted replay must prove the repair in the hosted extraction environment.
+the exact hosted replay below proves acceptance in the hosted extraction environment.
+
+Manual run [37363093259](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37363093259)
+at `8fb0576` passes all four retained CI jobs. Contract-1 producer summaries preserve ordered catalog
+membership: Python 21/21 baseline suites, PS7 21/21 baseline suites and full-release 11/11 compatibility
+checks, including nested extraction/QA, distribution and render. Canonical outputs remain unchanged
+and successful compatibility output is removed. Matching push annotation run
+[37363043985](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37363043985) passes
+at the same SHA. The first run remains failed and its unexecuted distribution/render checks are
+not borrowed into acceptance. Complete failed logs and successful metadata/summaries/logs are retained
+under ignored `.tmp/ci-phase26-20261005/` alongside local proof.
+
+Producer elapsed observations are 71.747 seconds Python, 379.596 PS7 and 675.590 compatibility.
+Whole jobs take 88/416/999 seconds; compatibility includes 239 seconds of Mermaid installation.
+These are hosted observations, not cache savings, target performance or timeout values. The CI
+budget and later bootstrap/optimization/host checkpoints own the performance acceptance work.
 
 Canonical pages, templates, Relationship Seeds, fixture/registry data,
 accepted QA/Visualization baselines and public domain/report APIs are unchanged; runtime implementation

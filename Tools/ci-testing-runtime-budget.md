@@ -206,11 +206,11 @@ Normal-exit cleanup succeeded and the newly observed external extraction directo
 exit. The original Phase 1.4 timeout-retained directory remains a separate unresolved finding; no
 process-tree cancellation, failure cleanup, installation isolation or hosted result is certified here.
 
-## Phase 2.6 Checkout Job Allowances (2026-10-05, For Review)
+## Phase 2.6 Published Job Allowances And Hosted Observation (2026-10-05)
 
 CI 2.6 applies the reviewed 2.5 envelopes to the retained workflow while retiring the dedicated
-Desktop job. Exact published-snapshot hosted acceptance remains pending; these values are checkout
-configuration, not observed hosted duration or a new source of suite membership.
+Desktop job. Exact published-snapshot manual hosted acceptance passes at `8fb0576`; these values
+are configuration ceilings, not observed duration or a new source of suite membership.
 
 | Retained job | Execution envelope seconds | Existing provisional setup/reserves/publication/host allowance | Total seconds | Checkout timeout |
 | --- | ---: | ---: | ---: | ---: |
@@ -224,6 +224,27 @@ supervisor or that cold setup has been measured. The 5-minute workflow-policy/an
 unchanged. The old 15/20/15-minute runtime/compatibility job values and Phase 2.5 warning above are
 historical inputs to this reconciliation. Inner registry timeouts, all selected cases and check
 identities are unchanged. Native/catalog/bootstrap and ADO adoption remain their later phases.
+
+Successful manual [run 37363093259](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37363093259)
+passes all four retained CI jobs on `8fb0576`, plus matching standalone annotation push proof.
+The producer summaries verify 21 Python suites, 21 PS7 suites and all 11 full-release checks.
+
+| Job | Producer elapsed seconds | Workflow execution step seconds | Whole job seconds | Observed acquisition/setup steps |
+| --- | ---: | ---: | ---: | --- |
+| Python Validation | 71.747 | 72 | 88 | Python setup 10; requirements install 1. |
+| PowerShell 7 Validation | 379.596 | 381 | 416 | Modules install 10; formatting check 13. |
+| Project Compatibility | 675.590 | 677 | 999 | Python setup 48; Python requirements 4; PowerShell modules 13; Node setup 6; Mermaid install 239. |
+
+Job timers include checkout and post-job work; producer elapsed is measured inside the runner.
+Workflow timestamps have whole-second resolution, so a zero-second step is not proof of zero cost.
+The jobs run concurrently; do not sum their durations as developer wall-clock feedback. Compatibility
+starts 21 seconds after run creation, and its whole job lasts 16 minutes 39 seconds. These are
+individual hosted samples, not percentiles, clean/offline-bootstrap proof or demonstrated cache gains.
+Existing Python dependency caching remains enabled; no new cache or custom agent image is adopted.
+The first failed run installs Mermaid in 200 seconds versus 239 in the successful replay, illustrating
+setup variability without isolating a cache effect. Failed execution timing is not comparable complete
+portfolio acceptance. Pinned bootstrap/cache placement at 3.1, duplicate/setup review at 5.1/5.5 and
+cold/warm host proof at 6.1/6.5 retain ownership. Faster routine feedback remains a required objective.
 
 ## Selected Version Baselines
 

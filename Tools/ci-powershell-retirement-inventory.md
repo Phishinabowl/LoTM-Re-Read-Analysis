@@ -8,7 +8,8 @@ It does not change executables, dependency declarations, registries or hosted co
 ## Support Boundary And Transition
 
 Supported platform implementations are Python and **PowerShell 7.4+ Core**. The observed primary
-development host is **7.6.6**; that observation does not prove the 7.4 floor or a clean install.
+development host is **7.6.6**; Phase 2.5 separately proves the retained suites on **7.4.0**.
+Clean/offline dependency installation remains Phase 3.1.
 Pester remains **6.2.0**. Desktop/Windows PowerShell 5.1 and Core versions below 7.4 are outside
 the supported contract; no feature is delegated to Python merely to satisfy this policy.
 Independent Python/PS7 behavior, all semantic fixtures, root/visibility/validation rules, exports
@@ -18,10 +19,10 @@ Phase 2.2 now implements the 0.14.0 module's 7.4/Core boundary, preflight and pu
 confirmed on 2026-10-05. Phase 2.3's three QA children use that resolved host, confirmed on 2026-10-05.
 Phase 2.4 implements schema-3 Python/PS7 registries, verified host discovery, dynamic reporting counts
 and two-runtime extraction, confirmed on 2026-10-05. Phase 2.6 removes the checkout's 5.1 job and
-live-5.1 test obligations for review; published-snapshot hosted proof remains pending. Implement
+live-5.1 test obligations, published and verified through exact-snapshot manual hosted proof. Implement
 enforcement at 2.2, children at 2.3, registry/extraction at
 2.4, retained proof at 2.5 and hosted retirement at 2.6. Complete local retained coverage is confirmed
-at 2.5 on 2026-10-05; hosted closure remains 2.6. Standalone compatibility/extraction no longer require 5.1.
+at 2.5 on 2026-10-05; authorized manual hosted closure is recorded at 2.6. Standalone compatibility/extraction no longer require 5.1.
 
 Active documented PowerShell recipes use `pwsh`; a machine with only Python can use Python tools,
 and a PowerShell-only machine needs supported PS7 and applicable dependencies. Do not redirect an
@@ -117,15 +118,21 @@ do not assert the old 302-file diagnostic count still describes a new bundle or 
 
 ## Acceptance And Next Checkpoint
 
-**Phase 2.6 implementation for review:** The dedicated hosted Desktop job and four live-Desktop
+**Phase 2.6 confirmed and verified 2026-10-05:** The dedicated hosted Desktop job and four live-Desktop
 Pester cases are removed. Historical source at `4f5c414` and Phase 2.5 acceptance reports preserve
 that proof; no replacement on-demand harness or steady-state obligation is created. The resolver
 case now uses an inert existing fixture file; Desktop path setup is gone. The retained 14 Pester
 cases pass on both PS7.6.6 and 7.4.0 with Desktop absent from process PATH and command discovery.
 Synthetic policy values and 52 pytest cases remain. All five retained check names/events/steps and
 registry/fixture/canonical bytes are preserved. Fresh GitHub/ADO policy inventories are empty;
-workflow-only allowance changes are Python 25, PS7 30 and compatibility 55 minutes. Publication,
-actual hosted runs, confirmation and final platform-history closure are pending in the plan.
+workflow-only allowance changes are Python 25, PS7 30 and compatibility 55 minutes. Implementation
+`6de0559` and path repairs `1b98356`/`8fb0576` are published to both remotes. Successful manual
+[run 37363093259](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37363093259)
+at `8fb0576` proves Python 21/21, PS7 21/21 and compatibility 11/11 with canonical protection and
+successful cleanup; matching annotation proof also passes. The original failed run and both path
+reproductions remain recorded. G14 host retirement closes for this authorized scope; actual PR/main
+events and new ADO pipeline activation remain 6.2/8.4 and Phase 6 respectively. No later runner,
+bootstrap or native catalog implementation is inferred.
 
 **Phase 2.5 temporary-test classification, confirmed 2026-10-05:** Four `Host.Tests.ps1` cases actually launch Desktop:
 structured readiness, concise/no-report failure, native manifest/direct psm1 import rejection, and

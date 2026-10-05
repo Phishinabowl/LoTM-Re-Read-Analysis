@@ -313,15 +313,24 @@ timings from this static inspection. Existing executable registries and workflow
 
 ### Documentation Verification
 
-**Phase 2.6 checkout implementation (2026-10-05, for review):** Desktop's workflow job and four
+**Phase 2.6 confirmed and verified 2026-10-05:** Desktop's workflow job and four
 temporary live-Desktop host cases are removed after 2.5 acceptance. The resolver assertion now uses
 an inert existing file, leaving 14 native cases without Desktop command discovery; both PS7 hosts
 pass. Source `4f5c414` and dated 2.5 reports preserve the removed scenarios; no replacement steady-state
 obligation is created. The five retained check identities and all event/profile/step semantics remain;
 Python/PS7/compatibility allowances become 25/30/55 minutes. Fresh GitHub protections/rulesets and ADO
-policy/pipeline inventories reveal no legacy required-check dependency. Actual hosted proof on the
-retirement SHA, final history confirmation and Phase 2 closure remain pending; G14 is not closed by
-source inspection. G08/G13 supervision/timeout cleanup and all other implementation deferrals remain.
+policy/pipeline inventories reveal no legacy required-check dependency. Retirement `6de0559` and
+focused path repairs `1b98356`/`8fb0576` are published. Successful manual
+[run 37363093259](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37363093259)
+at `8fb0576` verifies all four retained CI jobs: 21/21 Python baseline suites, 21/21 PS7 baseline
+suites and 11/11 full-release checks, canonical outputs unchanged and successful output cleanup.
+Matching annotation proof passes at that SHA. All suites/fixtures/counts remain; runtime-byte
+preservation has the two documented schema-pack path repair exceptions. Original failed-run logs
+retain the Linux absolute-path failure and Windows extraction containment failure; no partial
+outcome is borrowed into acceptance. G14 closes for the authorized retirement/manual scope. Actual
+PR/main event proof remains 6.2/8.4; ADO activation remains Phase 6. G08/G13 supervision/timeout
+cleanup and all other implementation deferrals remain. Platform history and budget record closure
+and measured hosted durations; native/catalog/bootstrap adoption has not started.
 
 **Phase 2.5 confirmed 2026-10-05:** The
 [retained coverage proof](ci-retained-coverage-proof.md) maps all 21 paired suites, all 11 compatibility

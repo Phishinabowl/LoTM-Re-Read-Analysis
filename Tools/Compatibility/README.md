@@ -8,7 +8,7 @@ unknown/non-integer versions, duplicate JSON keys, empty inventories and invalid
 All 11 checks and all four profile memberships are retained. See the
 [retirement inventory](../ci-powershell-retirement-inventory.md); full retained coverage and hosted
 retirement are tracked by CI 2.5/2.6. Full retained local proof is confirmed at 2.5; CI 2.6 removes
-the checkout's hosted Desktop job for review, with published-snapshot hosted acceptance pending.
+the published hosted Desktop job; the modernization plan owns exact-snapshot hosted acceptance.
 
 Detailed reports and extraction summaries remain schema 1; concise summaries remain contract 1.
 Runtime lists/maps truthfully contain Python/PS7. Conformance-reporting counts derive from completed

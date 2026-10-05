@@ -4,7 +4,7 @@
 retirement. CI Phase 2.4 confirms two-runtime compatibility/extraction on 2026-10-05, including Core
 7.4+ preflight, all nine portable suites and post-context scratch-removal checks. This focused
 adoption is separate from CI 2.5's confirmed full local coverage/budget proof. CI 2.6's checkout
-hosted-job retirement is prepared for review; exact published-snapshot hosted closure is pending. Dated
+hosted-job retirement is published; the CI plan owns exact-snapshot hosted closure evidence. Dated
 Stabilization Evidence remains unchanged. See the [retirement inventory](../Tools/ci-powershell-retirement-inventory.md).
 
 ## Status

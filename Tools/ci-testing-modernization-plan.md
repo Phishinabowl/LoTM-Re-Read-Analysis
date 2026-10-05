@@ -5,8 +5,9 @@ Phase 2.1 documentary support adoption, inventory and version decisions are conf
 Phase 2.2 host enforcement and the Phase 3.1 packaging-plan addition are confirmed on 2026-10-05;
 Phase 2.3 QA child migration is confirmed on 2026-10-05. Phase 2.4 registry/extraction/reporting
 migration is confirmed on 2026-10-05. Phase 2.5 retained coverage and budget refresh are confirmed
-on 2026-10-05. Phase 2.6 checkout retirement and the performance/cache-plan clarification are
-confirmed for publication on 2026-10-05; exact-snapshot hosted proof and final Phase 2 closure remain pending. No ADO activation
+on 2026-10-05. Phase 2.6 retirement and the performance/cache-plan clarification are confirmed,
+published and verified through exact-snapshot manual hosted proof on 2026-10-05. Phase 2 is closed
+for that authorized scope; actual PR/main event proof remains with 6.2/8.4. No ADO activation
 has occurred. Temporary live-5.1 tests are removed from the current native test roots.
 Focused host regressions are implemented; broader native-test foundations and dual-host pipeline
 rollout have not started. The maintainer accepted retirement of Windows PowerShell 5.1 support on
@@ -1040,14 +1041,15 @@ required coverage; no additional test removal is implemented by this confirmatio
   unsupported-host policy checks and supported Python/PS7 launch, reporting and cleanup regressions.
 - [x] Reconcile the existing retained job deadlines with 2.5 measurements and setup/report headroom;
   host retirement alone does not prove the old 900-second compatibility job is adequate. Keep coverage.
-- [ ] Verify hosted compatibility now uses only retained hosts, including nested extraction/QA launches;
-  inspect actual retained PR/main/manual coverage on the published retirement snapshot when authorized.
-- [ ] Record focused commits/run evidence, coverage mapping, updated budgets and rollback point in the
+- [x] Verify hosted compatibility now uses only retained hosts, including nested extraction/QA launches;
+  inspect authorized manual coverage on the published retirement snapshot. Record unexecuted PR/main
+  event proof under 6.2/8.4 rather than claiming those events passed.
+- [x] Record focused commits/run evidence, coverage mapping, updated budgets and rollback point in the
   ledger/platform history at confirmation. Update future native catalogs/plans to exclude 5.1 obligations.
-- [ ] Review retirement closure before Phase 3 bootstrap/pilots start; unresolved retained-runtime failures
+- [x] Review retirement closure before Phase 3 bootstrap/pilots start; unresolved retained-runtime failures
   block closure. Broader supervisor/meta-regression work remains in Phase 4.
 
-**Phase 2.6 implementation (confirmed for publication 2026-10-05):** The checkout removes the dedicated Desktop
+**Phase 2.6 implementation (published 2026-10-05 at `6de0559`):** The checkout removes the dedicated Desktop
 workflow job and four live-Desktop Pester cases. Source/history at `4f5c414` and Phase 2.5's XML/proof
 preserve the acceptance evidence; no on-demand migration harness or future Desktop variant is added.
 The alternate-executable resolver assertion now uses an inert file in TestDrive and shared Desktop
@@ -1063,23 +1065,25 @@ records 150/690/1,920-second envelopes plus 1,110 seconds of provisional setup/r
 host headroom. These are maximum allowances, not a claim of slower normal runs or implemented supervision.
 
 Fresh read-only GitHub inspection finds no rulesets and main/framework unprotected; ADO project-wide
-policy and pipeline inventories are empty. There is no modernization PR. Latest published
+policy and pipeline inventories are empty. There is no modernization PR. At 2.6 entry, published
 [annotation run 37355984837](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37355984837)
-passed at `4f5c414`; it is not hosted proof for this uncommitted retirement snapshot. No required
+passed at `4f5c414`; it is not hosted proof for the published retirement snapshot. No required
 legacy-check reference was found, and no protection/pipeline/policy setting is changed.
 
-**Publication/closure gate:** Leave changes uncommitted until maintainer confirmation. Publish the
-reviewed branch through its established dual-remote workflow, then dispatch/inspect CI on that exact
+**Publication/closure gate:** Maintainer confirmation on 2026-10-05 authorizes the reviewed branch
+publication through its established dual-remote workflow and exact-snapshot manual CI proof. Dispatch/inspect CI on that exact
 published retirement SHA before treating manual full-release coverage as hosted proof. Record the
 run's event, commit, all retained jobs/steps, actual profile, outcomes and complete failure diagnostics;
 repair real failures before accepting closure. The main and manual selector is unchanged and selects
 full-release; PR selects pull-request. Static equivalence does not claim an actual PR or main event.
 There is no PR to trigger validation, and this branch is not merged into main; actual event-specific
 proof requires the corresponding separately authorized PR/integration action. Do not create/merge
-one merely to manufacture coverage or mark unexecuted events passed. This gate stays visibly open
-until the maintainer accepts the available exact-snapshot hosted evidence and outstanding event scope.
+one merely to manufacture coverage or mark unexecuted events passed. The maintainer's confirmation
+authorizes this manual proof scope. Actual PR-event proof belongs to 6.2; main-event proof requires
+the separately authorized integration at 8.4. Those event gates remain open without blocking the
+completed host-retirement manual acceptance.
 
-The ledger and pending platform-history entry record the focused source commits, deliberate
+The ledger and platform-history entry record the focused source commits, deliberate
 Desktop-only coverage loss, current native registration boundary, retained semantic inventories,
 updated budgets and rollback. All conformance/compatibility registry, fixture,
 dependency, canonical and baseline bytes are preserved against the frozen 492-file entry snapshot;
@@ -1103,30 +1107,51 @@ file with an unresolved fixture root. A genuine local directory junction reprodu
 resolving the project root before containment uses the existing project-loader pattern and preserves
 traversal rejection. The focused permanent suite passes with unchanged fixtures/counts/summary.
 This second repair is confined to the same Python schema-pack loader; its full hosted extraction
-acceptance remains pending and the original failure log is preserved.
+acceptance is established by the successful replay below and the original failure log is preserved.
+The repairs are published as `1b98356` (Windows absolute documentation paths) and `8fb0576`
+(resolved-root containment), with GitHub/ADO/upstream parity verified. The original run remains failed:
+Python passes 20/21, PS7 passes 21/21, compatibility passes eight checks and fails extraction;
+distribution and rendering are not executed after that failure. No mixed-snapshot acceptance is
+assembled from these partial outcomes. Manual replay
+[37363093259](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37363093259)
+tests the complete repaired snapshot `8fb0576` and succeeds: Workflow Policy, Python Validation,
+PowerShell 7 Validation and Project Compatibility all pass. Producer contract-1 summaries verify
+all 21 baseline suite IDs in each runtime and all 11 ordered full-release check IDs, zero failures,
+canonical outputs unchanged and successful compatibility output cleanup. Extraction and QA are
+included in that complete compatibility result. The matching push
+[annotation run 37363043985](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37363043985)
+also passes at the exact same SHA. No result is borrowed from the original failed run.
+
+Producer execution observations are Python 71.747 seconds, PS7 379.596 seconds and compatibility
+675.590 seconds. Whole jobs take 88/416/999 seconds; compatibility includes 239 seconds of Mermaid
+installation. The runtime budget records the setup breakdown and its cache/performance limitations.
+This is retained hosted coverage, not adoption of the future native catalogs or bootstrap.
 
 Ignored `.tmp/ci-phase26-20261005/` preserves the frozen entry, original workflow/host tests/platform
 history, native XML, policy/static output and structural/preservation observations. All 81 relative
-links resolve, the original platform history is preserved before its pending appended entry, final
+links resolve, the original platform history is preserved before its appended CI entry, final
 annotation policy passes 22 fixtures / 395 files, and `git diff --check` passes. The narrow formatter
-normalizes the edited test's line endings while preserving non-whitespace tokens. No closure or
-future native catalog acceptance is inferred from those local checks.
+normalizes the edited test's line endings while preserving non-whitespace tokens. Hosted acceptance
+comes from the completed exact-snapshot run; future native catalog acceptance remains separate.
 
 **Rollback:** Revert the focused checkout retirement/test/documentation changes together, restoring
 the Desktop job, earlier allowances and migration-only tests from `4f5c414` if needed. A full supported
 host-policy rollback must also coordinate the accepted 2.2-2.4 breaking-support changes; restoring
-only a Desktop job cannot make the now-rejected host supported again. Preserve raw history/content.
+only a Desktop job cannot make the now-rejected host supported again. The two independent path
+repairs need not be reverted for host-policy rollback; retain them unless explicitly reproducing
+the historical defective snapshot. Preserve raw history/content.
 The maintainer confirmed the four local implementation/inspection items and the explicit performance/
-cache acceptance wording on 2026-10-05. The three hosted/history/closure items and Phase 2 exit gate
-remain pending exact published-snapshot evidence. Phase 3 has not started.
+cache acceptance wording on 2026-10-05. Completed exact-snapshot manual proof closes the remaining
+hosted/history/closure items and Phase 2 exit for the authorized scope. Actual PR/main event tests,
+ADO activation and later native/runner/bootstrap adoption remain their owning gates. Phase 3 has not started.
 
 ### Phase 2 Exit Gate
 
-- [ ] Python/PS7 retain all semantic suites/check families and accepted LoTM behavior; every removed
+- [x] Python/PS7 retain all semantic suites/check families and accepted LoTM behavior; every removed
   obligation is specifically Desktop support, with no unclassified coverage loss.
-- [ ] Active commands, children, extraction, reports and hosted gates consistently implement the reviewed
+- [x] Active commands, children, extraction, reports and hosted gates consistently implement the reviewed
   support policy; required retained-host failures cannot be turned into skips or silent fallback.
-- [ ] Exact-snapshot local and authorized hosted evidence, refreshed budgets and safe rollback are accepted.
+- [x] Exact-snapshot local and authorized hosted evidence, refreshed budgets and safe rollback are accepted.
 
 **Rollback:** Revert the focused retirement changes together, restoring the previous module/support
 declarations, child launches, registry/report counts and hosted job. Preserve dated evidence and shared
@@ -1645,9 +1670,9 @@ full PR gates, distribution-boundary
 integration coverage, and a separate modernization branch/PR into the framework branch.
 
 Phase 1.1 inspected ADO access/capacity and prepared synchronized remotes; Phases 1.2/1.3 are confirmed.
-Phases 1.4/1.5 and 2.1-2.5 are confirmed; Phase 2.6 is next.
-Phase 2.6 closes hosted retirement before Phase 3 setup/native pilots. The runtime floor is locally
-tested; clean/offline dependency setup, live agent launches, publication and policy adoption remain
+Phases 1.4/1.5 and 2.1-2.6 are confirmed; Phase 2 closes with successful manual hosted retirement proof.
+Phase 3.1 is next. The runtime floor is locally
+tested; clean/offline dependency setup, future hosted launcher/report publication and policy adoption remain
 explicit later gates. Explain ADO
 concepts at their owning phase and record decisions in their authoritative documentation.
 

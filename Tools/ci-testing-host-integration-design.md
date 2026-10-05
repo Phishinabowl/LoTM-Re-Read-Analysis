@@ -27,7 +27,8 @@ Live `git ls-remote` returned identical tips on both hosts:
 | `architecture/ci-testing-modernization` | `0e89480f0f30cae0c6d9fb5370a319e6c1714a8e` |
 
 The checkout's GitHub `ci.yml` runs on PRs, main pushes and manual dispatch; CI 2.6 removes its 5.1
-job for review, with publication/hosted proof pending. Non-main pushes run the separate annotation workflow. There is no schedule. Full CI
+job in the published retirement implementation; the CI plan owns exact-snapshot hosted proof.
+Non-main pushes run the separate annotation workflow. There is no schedule. Full CI
 still has unconditional superseded-run cancellation, repeated setup, and no Markdown/XML/artifact
 publication. These are current behavior, not evidence of the target below being installed.
 

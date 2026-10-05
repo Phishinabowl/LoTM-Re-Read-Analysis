@@ -593,7 +593,8 @@ retirement; D09-D11/D13 were confirmed on 2026-10-05. Implementation evidence ga
 | D20 | Accepted planning scope 2026-10-05: add local Python runtime versioning, isolated installation, wheel build and installed-artifact boundary proof within CI 3.1. Settle initial version, backend and shared/independent component numbering at 3.1.1; retain source-tree commands and neutral conformance. No Python version is inferred from PS 0.14.0. Public publishing/hosting and complete product distribution remain Platform 15.1 decisions. | 3.1.1-3.1.3; registration/adoption at 3.2-3.5/4.1 and extraction/equivalence at 5.4. |
 
 This planning update records the decision; CI 2.6 removes the checkout's hosted/live-test 5.1
-obligations for review, with publication/hosted closure pending. Phase 2.4 schema-3 compatibility/extraction is confirmed on 2026-10-05. Phase 2.2
+obligations in the published retirement implementation; the plan owns hosted closure evidence.
+Phase 2.4 schema-3 compatibility/extraction is confirmed on 2026-10-05. Phase 2.2
 implements the confirmed module host boundary. Phase 2.3 QA child migration is confirmed on 2026-10-05;
 complete retained local coverage is confirmed at 2.5; hosted retirement closure remains 2.6.
 Existing architecture/methodology support wording is updated at 2.1; historical three-runtime results
@@ -602,10 +603,9 @@ remain intact. D14 explicitly supersedes the planned 5.1 support portions of ear
 The [Phase 2.1 inventory](ci-powershell-retirement-inventory.md) now applies documentary host policy,
 records every implementation/version consumer, and preserves the frozen source/measurement baseline.
 The maintainer confirmed D19, Phase 2.1, Phase 2.2 runtime enforcement and the D20 packaging-plan
-addition on 2026-10-05; full retirement and packaging implementation proof remain pending in their
-owning subphases.
+addition on 2026-10-05. Retirement evidence belongs to 2.6; packaging implementation remains 3.1.
 
-Still deliberately pending: two-runtime remeasurement (2.5), clean dependency/bootstrap proof (3.1),
+Two-runtime remeasurement is confirmed at 2.5. Still deliberately pending: clean dependency/bootstrap proof (3.1),
 final shard/deadline admission and implemented host/event/shadow proof;
 verified native report cases (3.4); implemented process/scope/report invariants
 (4.6); retained Python/PS7 equivalence and reviews (5.2-5.5); hosted passing/failing publication

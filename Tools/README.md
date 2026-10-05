@@ -19,7 +19,8 @@ implementation and remaining execution proofs are still pending.
 
 On 2026-10-05 the maintainer accepted Windows PowerShell 5.1 retirement. The modernization plan
 now schedules it as CI Phase 2 before native pilots; former CI Phases 2-7 become 3-8. The current
-checkout's tools and workflow no longer require 5.1; CI 2.6 publication/hosted closure remains pending.
+checkout's tools and published workflow no longer require 5.1; CI 2.6 in the plan owns exact-snapshot
+hosted evidence and closure.
 
 The [Dual-Host And Integration Design](ci-testing-host-integration-design.md) records Phase 1.5's
 event/profile, PR provenance, repository-owned sharding, check identity and staged rollout proposals.
@@ -31,7 +32,7 @@ documentary Python/PS7 support adoption, family mapping, frozen evidence and exa
 targets. Phase 2.2 host enforcement is confirmed on 2026-10-05; Phase 2.3 QA child migration is
 confirmed on 2026-10-05. Phase 2.4 schema-3 compatibility/extraction is confirmed on 2026-10-05;
 complete retained proof is confirmed at 2.5. Phase 2.6 removes the hosted Desktop job and live-Desktop
-tests for review; exact published-snapshot hosted evidence remains required before retirement closure.
+tests after accepted local proof. The plan records published commits, hosted outcomes and retirement closure.
 
 This folder contains reusable local helpers for project maintenance and source verification.
 
