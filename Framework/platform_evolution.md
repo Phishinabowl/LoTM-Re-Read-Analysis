@@ -989,8 +989,17 @@ inspection finds no rulesets and unprotected main/framework branches; ADO has no
 or pipelines. No host policy or ADO pipeline is activated here. Actual hosted evidence on the published
 retirement SHA remains required; an existing annotation success is not a full retirement proof.
 
-Canonical pages, templates, Relationship Seeds, fixture/registry data, runtime/domain services,
-accepted QA/Visualization baselines and public domain/report APIs are unchanged. The original
+The first hosted replay at `6de0559` exposes a pre-existing Linux-only Python conformance failure:
+the documentation loader accepts the existing forbidden `C:/outside.md` fixture under native POSIX
+path rules. A focused repair adds an explicit Windows absolute-path check, preserving the fixture
+and all case counts. The focused suite retains its complete accepted summary; a labeled grammar probe
+reproduces before/after behavior. Failed run
+[37360948758](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37360948758) and its
+complete Python job log remain evidence; final exact-snapshot replay is pending.
+
+Canonical pages, templates, Relationship Seeds, fixture/registry data,
+accepted QA/Visualization baselines and public domain/report APIs are unchanged; runtime implementation
+preservation has the single documentation-path repair exception above. The original
 timeout-retained extraction scratch, fail-fast/per-call legacy supervision and unimplemented
 manifest export remain explicitly separate findings. Broader native catalogs, safe diff selection,
 process ownership, reporting, bootstrap and GitHub/ADO adoption remain later CI phases.

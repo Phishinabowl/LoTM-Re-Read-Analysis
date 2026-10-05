@@ -1081,11 +1081,23 @@ until the maintainer accepts the available exact-snapshot hosted evidence and ou
 
 The ledger and pending platform-history entry record the focused source commits, deliberate
 Desktop-only coverage loss, current native registration boundary, retained semantic inventories,
-updated budgets and rollback. All conformance/compatibility registry, fixture, runtime/domain,
+updated budgets and rollback. All conformance/compatibility registry, fixture,
 dependency, canonical and baseline bytes are preserved against the frozen 492-file entry snapshot;
 47 protected files and 28 original Phase 1.4 JSON records remain unchanged. Phase 2.5's complete
 21-suite/11-check/nine-extraction proof remains the retained semantic reference because no domain
-implementation or registry changes in 2.6. Fresh full domain reruns are not substituted for hosted proof.
+registry changes in retirement itself. Fresh full domain reruns are not substituted for hosted proof.
+
+**Hosted repair exception:** The first manual run at `6de0559`,
+[37360948758](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37360948758), fails
+Linux Python conformance at the existing `presentation-documentation-absolute` fixture: the loader
+accepts `C:/outside.md` because native POSIX Path.is_absolute treats it as relative. Add an explicit
+PureWindowsPath absolute check alongside the native check in Python documentation metadata validation.
+The fixture, registered cases, schema/API declarations and canonical data stay unchanged. A focused
+schema-pack run passes with its complete summary equal to 2.5, and a clearly labeled path-grammar
+probe reproduces the old POSIX acceptance and corrected rejection while preserving Windows/relative/
+traversal behavior. This is a narrow pre-existing implementation defect discovered by actual hosted
+proof, not a new schema or a reason to weaken the test. Preserve the failed job's full log and await
+successful exact-snapshot hosted replay before closure; runtime-byte preservation excludes this repair.
 
 Ignored `.tmp/ci-phase26-20261005/` preserves the frozen entry, original workflow/host tests/platform
 history, native XML, policy/static output and structural/preservation observations. All 81 relative

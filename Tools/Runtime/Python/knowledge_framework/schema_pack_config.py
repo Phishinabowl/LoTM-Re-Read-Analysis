@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import re
 from urllib.parse import urlparse
 
@@ -397,7 +397,7 @@ def _parse_documentation_entries(presentation: dict, context: str) -> tuple[Docu
         target = require_string(entry, "target", entry_context)
         if target_kind == "repository-path":
             path = Path(target)
-            if path.is_absolute() or ".." in path.parts:
+            if path.is_absolute() or PureWindowsPath(target).is_absolute() or ".." in path.parts:
                 raise ValueError(f"Schema-pack configuration `{entry_context}.target` must remain repository-relative.")
             target = path.as_posix()
         else:
