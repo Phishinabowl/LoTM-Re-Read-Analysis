@@ -1,9 +1,9 @@
 # CI And Testing Modernization Implementation Plan
 
-**Status:** Phase 1.1 inspection evidence and preparation are verified and confirmed for publication.
-Phase 1.2 is next; testing implementation and dual-host pipeline rollout have not started.
-Authorization currently covers Phase 1.1, dual-push preparation/initial branch synchronization,
-and matching hosted Python to the installed 3.14.5 runtime.
+**Status:** Phases 1.1-1.4 are confirmed; Phase 1.5 design review is next.
+Testing implementation and dual-host pipeline rollout have not started. On 2026-10-05 the maintainer
+accepted retirement of Windows PowerShell 5.1 support. Current authorization covers incorporating
+that decision into the plan; runtime/runner/workflow changes remain unimplemented.
 
 **Working branch:** `architecture/ci-testing-modernization`, created from
 `architecture/framework-extraction-foundation` at `c4b7932`.
@@ -49,6 +49,9 @@ design candidates until Phase 1 review; do not describe them as implemented.
 - Preserve existing public conformance/compatibility entry points and detailed JSON contracts.
 - Run legacy and replacement coverage together until equivalent or stronger coverage is evidenced.
   Retire coverage only through an explicit methodology decision and historical record.
+- The accepted 5.1 retirement deliberately changes the supported-host contract. Preserve all semantic
+  fixtures and Python/PS7 coverage; do not describe ending Desktop coverage as three-runtime equivalence.
+  Full Python/PowerShell implementation parity remains required; reducing duplication is a separate decision.
 - Keep EVR inspection read-only. Adapt portable patterns; do not copy its Exchange, DevMenu,
   corporate approval, annotation enforcement, or Windows-only assumptions into this platform.
 - A phase checkbox means implemented, verified, documented, committed, and pushed unless it
@@ -106,7 +109,7 @@ harness catalog member. Adopt stricter unknown-path handling and explicit hosted
 | Static formatting and policy | Source inspection through Ruff, formatter, annotations, actionlint; no source execution or automatic fixes in CI. |
 | Actual-change validation | Complete selected file validation and required composed context; one explicit change scope. |
 | Python implementation tests | pytest unit/integration coverage for Python implementations, commands, validators, runners, selectors, and normalization. |
-| PowerShell implementation tests | Pester **6.2.0** unit/integration coverage in Windows PowerShell 5.1 and PowerShell 7.4+. |
+| PowerShell implementation tests | Pester **6.2.0** unit/integration coverage in the adopted PowerShell 7.4+ host; CI Phase 2 will implement and prove 5.1 retirement. |
 | Language-neutral conformance | Existing paired suites and shared fixtures proving portable contract semantics. |
 | Cross-runtime parity | Matching inventories, accepted/rejected behavior, semantic summaries, errors, and serialization. |
 | LoTM end-to-end compatibility | Reviewed project baselines, bounded QA/Visualization, extraction, and artifact lifecycle. |
@@ -157,7 +160,8 @@ profile outside the requested profile, and selection never weakens lifecycle clo
 
 ### Runtime, Isolation, And Failure Behavior
 
-Pin Pester exactly **6.2.0** and use version-qualified imports. Verify PowerShell 5.1 and 7.4+.
+Pin Pester exactly **6.2.0** and use version-qualified imports. Verify the adopted PowerShell 7.4+
+host after CI Phase 2 retires 5.1. Keep explicit Windows coverage where APIs/features require it.
 Choose and pin pytest, its necessary plugins, Python, and supporting dependency baselines after
 compatibility evaluation; never automatically float to the newest release. Separate bootstrap from
 execution. Required missing/incorrect dependencies fail preflight without silent runtime substitution.
@@ -223,7 +227,7 @@ do not assume corporate settings or EVR permissions apply here.
 | Event | Repository-owned coverage |
 | --- | --- |
 | Feature push | Annotations, static policy, affected implementation tests, fast conformance; conservative profile fallback. |
-| PR | Full implementation/meta-regression, all three baseline runtimes, full baseline parity, PR compatibility including distribution-boundary. |
+| PR | Full implementation/meta-regression, Python/PS7 baseline and full parity, PR compatibility including distribution-boundary. |
 | `main` | Full integration plus separately budgeted blocking release/render verification. |
 | Manual | Explicit named profile, default full; documented reproduction/scope options. |
 | Weekly schedule | Full unfiltered verification, release/render, retained executable scale coverage. |
@@ -233,9 +237,10 @@ runs before enabling expanded triggers. Prefer cancel-in-progress for superseded
 retain main/release evidence. Choose schedule ownership between hosts to avoid accidental duplicated
 expensive runs while proving scheduled execution on each host during rollout.
 
-Preserve existing GitHub check names: `Workflow Policy`, `Python Validation`,
-`PowerShell 7 Validation`, `Windows PowerShell 5.1 Validation`, `Project Compatibility`, and
-`Work Annotation Policy`. Inspect actual protections before adding/renaming requirements. Do not
+Preserve retained GitHub check names: `Workflow Policy`, `Python Validation`,
+`PowerShell 7 Validation`, `Project Compatibility`, and `Work Annotation Policy`. CI Phase 2.6
+explicitly retires `Windows PowerShell 5.1 Validation` after retained-runtime proof and a fresh policy
+inspection; do not leave a misleading no-op check. Inspect actual protections before changes. Do not
 skip required workflows with path filters; repository selection explains coverage within completed checks.
 Separate expensive job placement without masking failure in the integration result.
 
@@ -266,17 +271,24 @@ authorization. Do not mark an implementation checkbox complete from a local test
 | Phase | Prerequisite | Main acceptance evidence |
 | --- | --- | --- |
 | 1 | Accepted planning scope | Coverage ledger, measurements, reviewed contracts and decisions. |
-| 2 | Phase 1 design gate | Pinned framework pilots and legacy/replacement scenario comparisons. |
-| 3 | Phase 2 pilot gate | Catalog, scope, process, reporting, and selector meta-regression. |
-| 4 | Phase 3 execution gate | Full local equivalence, cross-runtime parity, unchanged LoTM baselines. |
-| 5 | Phase 4 local gate | Observed GitHub/ADO runs, native tests, Markdown, and host scope proof. |
-| 6 | Phase 5 hosted gate | Explain-only selection evidence, event matrix, costs, and safe fallback. |
-| 7 | Phase 6 rollout gate | Accepted retirement, exact-final validation, integration and handoff. |
+| 2 | Phase 1 design gate | Reviewed 5.1 retirement, migrated child hosts, complete retained-runtime proof and refreshed measurements. |
+| 3 | Phase 2 runtime gate | Pinned framework pilots and legacy/replacement scenario comparisons. |
+| 4 | Phase 3 pilot gate | Catalog, scope, process, reporting, and selector meta-regression. |
+| 5 | Phase 4 execution gate | Full local equivalence, cross-runtime parity, unchanged LoTM baselines. |
+| 6 | Phase 5 local gate | Observed GitHub/ADO runs, native tests, Markdown, and host scope proof. |
+| 7 | Phase 6 hosted gate | Explain-only selection evidence, event matrix, costs, and safe fallback. |
+| 8 | Phase 7 rollout gate | Accepted retirement, exact-final validation, integration and handoff. |
 
 Read-only ADO readiness inspection and publication design can occur in Phase 1. Live host setup
-belongs to Phase 5. Begin implementation tests for new Phase 3 APIs alongside those APIs; Phase 2
+belongs to Phase 6. Begin implementation tests for new Phase 4 APIs alongside those APIs; Phase 3
 pilots must use existing surfaces and must not depend on unimplemented selectors. Do not begin the
 next major phase while a blocking gate is unresolved.
+
+**Numbering revision (2026-10-05):** CI Phase 2 is now the dedicated runtime retirement. Former CI
+Phases 2-7 become 3-8 with their subphase suffixes preserved. CI Phase 1 and platform phase numbers
+are unchanged. Updated CI references use this numbering; historical measurements/results remain
+dated evidence of their original runtime coverage. Later equivalence compares the post-retirement
+Python/PS7 reference with the new supervisor, rather than reinstating the retired 5.1 host.
 
 ## Phase 1: Baseline, Coverage, And Design Contracts
 
@@ -297,7 +309,7 @@ next major phase while a blocking gate is unresolved.
 The maintainer accepted the expanded plan, confirmed its documentation commit, and authorized
 Phase 1.1. They also supplied an existing empty Azure Repos destination and requested the EVR/SNOW
 dual-push pattern. Local transport preparation is an explicitly requested exception to deferring
-live setup until Phase 5; no pipelines, policies, branch creation in ADO, or publication were performed.
+live setup until Phase 6; no pipelines, policies, branch creation in ADO, or publication were performed.
 The remaining Phase 1.1 boxes were left unchecked during preparation until checkpoint confirmation.
 Unresolved host settings below are recorded unknowns, not inferred passes.
 
@@ -367,7 +379,7 @@ retained runs per protected branch. The older build resource-usage API reports
 `paidPrivateAgentSlots: 1`, `distributedTaskAgents: 0`, and `totalUsage: 0`; those fields do not
 establish Microsoft-hosted entitlement, current monthly balance, or price. Hosted parallel-job
 entitlement, actual billing/cost limits, queue authorization, and successful Windows/Linux agent
-allocation remain readiness checks for Phase 1.5/5.1. No resources or policies were changed.
+allocation remain readiness checks for Phase 1.5/6.1. No resources or policies were changed.
 
 **Local transport preparation:** Inspection confirmed EVR and SNOW both fetch GitHub through
 `origin`, push to GitHub and ADO through its two push URLs, and retain a separate `ado` remote.
@@ -447,7 +459,7 @@ All three remaining Phase 1.1 inspection items have local verification evidence,
 confirmed this checkpoint for publication. The checked items are included in its closure commit;
 dual-host publication and hosted annotation verification follow that commit. The earlier statement
 that entitlement and costs required inspection in Phase
-1.5/5.1 is superseded by this evidence; they were inspected within Phase 1.1. No accepted deferral
+1.5/6.1 is superseded by this evidence; they were inspected within Phase 1.1. No accepted deferral
 is needed to substitute for those inspections.
 
 Read-only discovery through `az devops invoke` identified the service-advertised distributed-task
@@ -491,7 +503,7 @@ execution starts rather than claiming all allocated minutes remain available. Th
 the entitlement or published cost model unknown.
 
 **Verification boundary:** Queue authorization and configured entitlement are proved; a successful
-Windows/Linux agent launch is not. That runtime proof belongs to Phase 5's passing/failing hosted
+Windows/Linux agent launch is not. That runtime proof belongs to Phase 6's passing/failing hosted
 demonstrations, not to Phase 1.1's inspection-only acceptance. The new Python YAML still requires
 publication and a hosted run. This separation follows the existing phase boundaries and does not
 move an unfinished inspection item out of Phase 1.1.
@@ -556,30 +568,55 @@ supervisor report v1, native/custom XML and Markdown projections, artifact safet
 locations and decisions D01-D08. It includes concrete failure examples for the mandatory regression
 gate. Baseline: published Phase 1.2 `7d02499`. The maintainer confirmed the design and decisions
 D01-D08 on 2026-10-03, closing Phase 1.3. Catalog files, scripts, workflows and existing
-reporting/membership contracts are unchanged. Resolver/selector implementation remains in 3.2,
-mandatory regression proof in 3.6, and selection rollout in 6.1-6.2.
+reporting/membership contracts are unchanged. Resolver/selector implementation remains in 4.2,
+mandatory regression proof in 4.6, and selection rollout in 7.1-7.2.
 Budgets/dependency decisions remain in 1.4, and event/host adoption design remains in 1.5.
 
 **Documentation verification:** Relative links resolve; two JSON examples and the custom JUnit
 example parse, and its case/state counts agree. Annotation validation passed all 22 fixtures and
 the 386-file scan with no findings; `git diff --check` passed. Pester XML format support was inspected
 in the locally installed 6.2.0 module; native report execution/publication remains unverified here
-and belongs to 2.4/5.4. No conformance/compatibility rerun is claimed for this design-only pass.
+and belongs to 3.4/6.4. No conformance/compatibility rerun is claimed for this design-only pass.
 
 ### Phase 1.4 Measurements, Dependencies, And Budget Design
 
-- [ ] Measure current local profiles by runtime, including setup, launch, normalization, rendering,
+- [x] Measure current local profiles by runtime, including setup, launch, normalization, rendering,
   extraction, and cleanup costs. Refresh hosted evidence when publication is authorized.
-- [ ] Reconcile the existing full-release/job timeout mismatch; define total unit/run budgets and
+- [x] Reconcile the existing full-release/job timeout mismatch; define total unit/run budgets and
   termination/reporting headroom without weakening the selected coverage.
-- [ ] Select exact Python, pytest/plugins, PowerShell, and supporting dependency baselines; keep
-  Pester fixed at 6.2.0 and document supported 5.1/7.4+ variants.
-- [ ] Separate portable runtime/conformance requirements from test/dev/bootstrap dependencies where
+- [x] Select exact Python, pytest/plugins, PowerShell, and supporting dependency baselines; keep
+  Pester fixed at 6.2.0 and document adopted PS7 baselines and the accepted 5.1 retirement boundary.
+- [x] Separate portable runtime/conformance requirements from test/dev/bootstrap dependencies where
   appropriate; account for extraction copies and available offline execution after bootstrap.
-- [ ] Set cache keys/invalidation, runtime verification, owned module paths, artifact limits, retention,
+- [x] Set cache keys/invalidation, runtime verification, owned module paths, artifact limits, retention,
   and missing-tool behavior; record any environment constraints requiring a different agent.
 
 **Checkpoint:** Budgets and dependency decisions have measured or explicitly pending evidence.
+
+**Deliverable:** [Runtime, Dependency And Budget Design](ci-testing-runtime-budget.md), measured at
+published Phase 1.3 baseline `c5d1d78`. It owns the dated measurement baseline and proposed numerical
+allocations; the [contracts decision record](ci-testing-contracts.md#8-decision-record-and-remaining-gates)
+owns D09-D14. The maintainer confirmed all five Phase 1.4 design items and the retirement-plan
+revision on 2026-10-05 for commit/publication. Phase 1.5 remains the next checkpoint.
+
+The maintainer accepted required synthetic EPUB/image PR coverage (D12), the version/dependency,
+budget/cache and fixture-placement design (D09-D11/D13), and the 5.1 retirement plan (D14).
+Acceptance is design closure, not executable adoption. Measurements expose the
+existing extraction inner timeout and retained scratch; they do not silently repair the runner or
+claim a green full-release profile. Cold/offline setup, native group costs, supported PowerShell
+floor proof and hosted throughput have named later acceptance checkpoints in the deliverable.
+
+**Verification:** All six fast/baseline runtime executions passed and their complete detailed JSON
+matches across runtimes. Full compatibility failed at its 360-second extraction limit after eight
+passes; focused distribution/render passed. Corrected extraction passed in 378.285 seconds with an
+ephemeral 900-second allowance and all nine portable suites matching in three runtimes. Its owned
+scratch removal was independently verified; the original timeout retained scratch. Canonical guards
+and tracked-file fingerprints confirm only intended documentation edits. All 47 relative links,
+annotation policy (22 fixtures / 387 files), static checks and `git diff --check` passed. Detailed
+timing, diagnostic reports and cleanup observations remain ignored under `.tmp/ci-phase14-20261003/`.
+
+**Rollback:** Documentation only; retain current dependency declarations, runners, registries and
+hosted gates. No canonical LoTM migration or QA/Visualization behavior change occurs in this pass.
 
 ### Phase 1.5 Dual-Host And Integration Design Review
 
@@ -589,7 +626,8 @@ and belongs to 2.4/5.4. No conformance/compatibility rerun is claimed for this d
   run policy, check-name preservation, and safe staged branch-policy adoption.
 - [ ] Review the full scenario ledger and unresolved decisions; distinguish blockers from accepted
   deferrals with owners and later checkpoints.
-- [ ] Accept the implementation boundaries and Phase 2 pilot scope; retain original runners and gates.
+- [ ] Accept Phase 2 retirement boundaries and Phase 3 pilot scope; retain original runners and
+  retained-runtime gates until their respective reviewed migrations prove coverage.
 
 ### Phase 1 Exit Gate
 
@@ -598,12 +636,125 @@ and belongs to 2.4/5.4. No conformance/compatibility rerun is claimed for this d
 
 **Rollback:** Keep existing runners/workflows authoritative and revise design documents only.
 
-## Phase 2: Pester And pytest Foundations And Pilots
+## Phase 2: Windows PowerShell 5.1 Retirement
 
-### Phase 2.1 Pinned Bootstrap And Runtime Preflight
+**Decision:** D14 is accepted by the maintainer on 2026-10-05. The maintainer confirms nobody else
+has a copy of this project; no external consumer transition period is needed. Retain Python and
+PowerShell 7.4+ support, with 7.6.6 as the current measured primary candidate. This phase changes
+host support and orchestration, not domain semantics, canonical storage, or Python/PS7 parity.
+Implementation begins only after the Phase 1 design gate and an explicit request for this phase.
+
+### Phase 2.1 Support Contract And Migration Inventory
+
+- [ ] Freeze the reviewed source snapshot and preserve the dated three-runtime measurement evidence.
+- [ ] Update architecture, methodology, affected framework contracts, active platform gates, command
+  references and module release notes to declare Python/PS7 support; preserve completed historical evidence.
+- [ ] Retire the `PARITY-THREE-RUNTIME` requirement through an explicit methodology mapping to retained
+  Python/PS7 parity, preserving every semantic family and assertion instead of dropping fixture coverage.
+- [ ] Record the complete migration inventory: module manifest, runtime/environment preflight, QA's
+  three child launches, compatibility registry/validator/synthetic reporting registry/counts, extraction
+  verifier, hosted check and documented `powershell` entry points. Distinguish executable calls from examples.
+- [ ] Review runtime/report/schema version implications and rejection behavior for obsolete declarations;
+  do not silently change public field meanings or present retired runtime results as current passes.
+
+**Checkpoint:** Every identified consumer has an owner, planned change and verification obligation;
+the support-policy change is explicit and no canonical/schema migration is included.
+
+### Phase 2.2 PS7 Host Requirements And Launch Boundaries
+
+- [ ] Change the module's minimum-host/edition declaration to the reviewed PS7 floor and Core edition;
+  preserve exported functions and public command paths. No broad implementation modernization/refactor.
+- [ ] Add actionable unsupported-host/preflight failures before launching work; environment readiness
+  must check actual edition/version, not just module discovery. Preserve structured error/exit contracts.
+- [ ] Keep isolated conformance children on the resolved approved PS7 executable; remove obsolete Desktop
+  launch obligations deliberately. Test missing/wrong host behavior without removing machine installations.
+- [ ] Identify Windows API constraints independently of host support. Retain Windows/PS7 image coverage
+  and assess compression assembly availability; PS7 support does not automatically promise Linux media parity.
+
+**Checkpoint:** Supported PS7 commands import/run through the declared host; 5.1 invocations fail clearly
+and cannot silently launch a different implementation or begin canonical/generation work.
+
+### Phase 2.3 QA Visualization And Cleanup Child Migration
+
+- [ ] Replace the three executable `powershell` calls in QA refresh, bounded graphs and disposable-cache
+  cleanup with the resolved approved PS7 host, preserving isolated processes, arguments, cwd and exit handling.
+- [ ] Verify direct QA-to-Visualization invocation and configured helper paths remain valid; do not change
+  project path/schema declarations merely to change the executable host.
+- [ ] Prove generated file inventories, normalized bytes/hashes, bounded-reader visibility and accepted
+  QA/Visualization baselines remain unchanged. Use owned destinations and guard canonical content.
+- [ ] Inspect failure/cleanup behavior and demonstrate no hidden Desktop descendant is launched. Preserve
+  the known timeout-cleanup finding; host migration alone does not certify process-tree ownership fixes.
+
+**Checkpoint:** PS7 QA completes refresh/bounded generation/cleanup through PS7 children and retains
+accepted project behavior; neither Python delegation nor baseline refresh hides a discrepancy.
+
+### Phase 2.4 Compatibility, Extraction And Reporting Migration
+
+- [ ] Coordinate the two-runtime registry, strict validator, host discovery and synthetic reporting
+  registry; retain all 11 compatibility check IDs and existing profile/check semantics.
+- [ ] Update extraction's independent host discovery/comparison to Python/PS7 while retaining all nine
+  portable suites, neutral consumer, copy boundary, canonical guard and observed scratch-removal checks.
+- [ ] Derive runtime-dependent reporting counts from actual execution: success/failure/unsafe-path and
+  determinism cases must match the retained runtime inventory. Preserve unrelated fixed scenario counts.
+- [ ] Verify detailed/concise JSON and human output, negative fixtures, report bytes and failure retention;
+  reject stale/invalid inventories. No fabricated 5.1 result or optional skip substitutes for retirement.
+- [ ] Keep paired conformance registration and all 21 Python/PowerShell suite files; losing a host must
+  not delete the PowerShell implementation or its language-neutral fixture assertions.
+
+**Checkpoint:** Standalone compatibility/extraction/reporting work without launching or requiring 5.1,
+and result inventories/counts truthfully describe Python/PS7 execution.
+
+### Phase 2.5 Retained Coverage Proof And Budget Refresh
+
+- [ ] Run repository static policy and PS7 formatting, all 21 baseline suites in Python/PS7 and compare
+  complete semantic inventories/results. Exercise unsupported-host and migrated child-launch failures.
+- [ ] Run the complete compatibility portfolio, including QA/Visualization, root discovery, artifact
+  lifecycle, extraction, distribution-boundary and rendering against unchanged project baselines.
+- [ ] Rehearse synthetic media operations in owned fixtures on the retained supported hosts; permanent
+  pytest/Pester registration and required PR media coverage still belong to Phase 3 and later integration.
+- [ ] Independently inspect scratch cleanup and canonical fingerprints; classify every regression or
+  retained infrastructure limitation. Do not mark a failed full profile passed from focused successes.
+- [ ] Remeasure whole checks/profiles, startup/setup and artifact costs. Reconcile extraction's inner
+  timeout from completed two-runtime evidence; supersede three-runtime budget candidates explicitly.
+- [ ] Map every old coverage row to retained semantic proof or the deliberate Desktop support retirement;
+  the separately reviewed support loss cannot excuse other missing cases.
+
+**Checkpoint:** Complete retained coverage passes with unchanged canonical/baseline semantics, honest
+counts and observed cleanup; refreshed budgets replace extrapolated savings before hosted adoption.
+
+### Phase 2.6 Hosted Check Retirement And Closure
+
+- [ ] Refresh GitHub protections/rulesets and ADO policies/pipeline inventory before changing checks.
+  The 2026-10-05 inspection found both main/framework branches unprotected and zero ADO pipelines.
+- [ ] Retire the dedicated `Windows PowerShell 5.1 Validation` job and its report/setup obligations after
+  2.5 proof. Preserve the five retained check identities and existing events; do not activate new ADO CI.
+- [ ] Reconcile the existing retained job deadlines with 2.5 measurements and setup/report headroom;
+  host retirement alone does not prove the old 900-second compatibility job is adequate. Keep coverage.
+- [ ] Verify hosted compatibility now uses only retained hosts, including nested extraction/QA launches;
+  inspect actual retained PR/main/manual coverage on the published retirement snapshot when authorized.
+- [ ] Record focused commits/run evidence, coverage mapping, updated budgets and rollback point in the
+  ledger/platform history at confirmation. Update future native catalogs/plans to exclude 5.1 obligations.
+- [ ] Review retirement closure before Phase 3 bootstrap/pilots start; unresolved retained-runtime failures
+  block closure. Broader supervisor/meta-regression work remains in Phase 4.
+
+### Phase 2 Exit Gate
+
+- [ ] Python/PS7 retain all semantic suites/check families and accepted LoTM behavior; every removed
+  obligation is specifically Desktop support, with no unclassified coverage loss.
+- [ ] Active commands, children, extraction, reports and hosted gates consistently implement the reviewed
+  support policy; required retained-host failures cannot be turned into skips or silent fallback.
+- [ ] Exact-snapshot local and authorized hosted evidence, refreshed budgets and safe rollback are accepted.
+
+**Rollback:** Revert the focused retirement changes together, restoring the previous module/support
+declarations, child launches, registry/report counts and hosted job. Preserve dated evidence and shared
+history; do not uninstall Windows PowerShell, force-push, reset content or separately weaken policy.
+
+## Phase 3: Pester And pytest Foundations And Pilots
+
+### Phase 3.1 Pinned Bootstrap And Runtime Preflight
 
 - [ ] Implement explicit bootstrap/dependency declarations and verify installed versions/paths.
-- [ ] Use version-qualified Pester 6.2.0 imports; verify 5.1 and the adopted 7.4+ runtime baseline.
+- [ ] Use version-qualified Pester 6.2.0 imports; verify the adopted PS7 baseline and required OS lanes.
 - [ ] Keep test invocation free of automatic installation; detect missing, legacy, wrong, and unusable
   dependencies with actionable failures.
 - [ ] Test clean setup, repeat setup, changed dependency/cache state, and portable conformance after
@@ -611,7 +762,7 @@ and belongs to 2.4/5.4. No conformance/compatibility rerun is claimed for this d
 
 **Checkpoint:** Installation and execution are independently reproducible; no silent version substitution.
 
-### Phase 2.2 Test Layout, Discovery, Fixtures, And Lifecycle
+### Phase 3.2 Test Layout, Discovery, Fixtures, And Lifecycle
 
 - [ ] Configure exact pytest roots and Pester files/tags; avoid collecting command-style conformance.
 - [ ] Define unit/integration categories, stable identities, fixture ownership, setup/teardown,
@@ -622,12 +773,12 @@ and belongs to 2.4/5.4. No conformance/compatibility rerun is claimed for this d
 
 **Checkpoint:** A selected file/group and the pilot aggregate discover the intended same test identities.
 
-### Phase 2.3 Representative Python And PowerShell Pilots
+### Phase 3.3 Representative Python And PowerShell Pilots
 
 - [ ] Add fixture-driven pytest coverage for annotation discovery/CLI, existing registry validation,
   compatibility normalization, and representative Python API behavior selected by the ledger.
 - [ ] Add Pester coverage for formatter discovery/token preservation, existing aggregate/report
-  boundaries, and representative PowerShell API behavior in both supported runtimes.
+  boundaries, and representative PowerShell API behavior in the supported PS7 host.
 - [ ] Use narrow importable helpers where needed; review any helper extraction separately and preserve
   public CLI behavior rather than introducing a broad runtime refactor.
 - [ ] Exercise positive and negative scenarios with useful case names and exact assertions where
@@ -635,7 +786,7 @@ and belongs to 2.4/5.4. No conformance/compatibility rerun is claimed for this d
 
 **Checkpoint:** Pilots prove implementation behavior and complement independently runnable conformance.
 
-### Phase 2.4 Native Results And Framework Failure Contracts
+### Phase 3.4 Native Results And Framework Failure Contracts
 
 - [ ] Emit pytest JUnit and Pester native JUnit/NUnit results with distinct runtime identities.
 - [ ] Prove assertion/discovery failures, no tests, wrong filters, missing dependencies, unexpected
@@ -646,23 +797,23 @@ and belongs to 2.4/5.4. No conformance/compatibility rerun is claimed for this d
 
 **Checkpoint:** Results can be inspected locally and parsed without relying on hosted publication.
 
-### Phase 2.5 Pilot Equivalence And Adoption Review
+### Phase 3.5 Pilot Equivalence And Adoption Review
 
 - [ ] Compare legacy and pilot coverage scenario by scenario, including deliberate failure detection,
   diagnostics, isolation, runtime cost, and local invocation.
 - [ ] Update the coverage ledger and exact command documentation; keep original coverage active.
-- [ ] Record limitations and choose the next implementation-test groups as Phase 3 APIs are added.
+- [ ] Record limitations and choose the next implementation-test groups as Phase 4 APIs are added.
 
-### Phase 2 Exit Gate
+### Phase 3 Exit Gate
 
 - [ ] Pilots pass in required runtimes and demonstrate useful diagnostics without weaker coverage.
 - [ ] No harness is retired or host gate reduced on the strength of pilot test counts alone.
 
 **Rollback:** Disable pilot profile references while retaining original execution and permanent fixtures.
 
-## Phase 3: Catalogs, Supervisor, And Mandatory Meta-Regression
+## Phase 4: Catalogs, Supervisor, And Mandatory Meta-Regression
 
-### Phase 3.1 Strict Catalogs And Execution Planning
+### Phase 4.1 Strict Catalogs And Execution Planning
 
 - [ ] Implement owning catalogs and profile references without copying existing suite membership.
 - [ ] Validate closed shapes, duplicates, unknown IDs, missing/stale files, runtime variants,
@@ -672,7 +823,7 @@ and belongs to 2.4/5.4. No conformance/compatibility rerun is claimed for this d
 
 **Checkpoint:** Repeated planning selects the same ordered units; no children run during inspection.
 
-### Phase 3.2 Change-Scope Resolver And Explain-Only Selector
+### Phase 4.2 Change-Scope Resolver And Explain-Only Selector
 
 - [ ] Implement NUL-delimited multi-commit merge-base scope, rename source/destination, deletions,
   explicit local modes, resolved refs, and executed source/merge provenance.
@@ -681,12 +832,12 @@ and belongs to 2.4/5.4. No conformance/compatibility rerun is claimed for this d
 - [ ] Test spaces/Unicode/tabs and platform path rules, case distinctions, type/status changes,
   staged/unstaged/untracked input, empty scope, shallow history, and unavailable base/head.
 - [ ] Prove shared infrastructure/transitive dependencies broaden selection and every no-impact
-  decision has affirmative rules. Keep selection explain-only until Phase 6.
+  decision has affirmative rules. Keep selection explain-only until Phase 7.
 
 **Checkpoint:** Fixture-backed plans explain each selected/omitted unit and distinguish invalid catalogs
 from safely recoverable selection uncertainty.
 
-### Phase 3.3 Process Ownership, Deadlines, And Cancellation
+### Phase 4.3 Process Ownership, Deadlines, And Cancellation
 
 - [ ] Implement tested Windows Job Object and POSIX process-group ownership using safe argument arrays.
 - [ ] Drain stdout/stderr without deadlock, retain complete diagnostics to owned files, and bound
@@ -698,7 +849,7 @@ from safely recoverable selection uncertainty.
 
 **Checkpoint:** Synthetic process trees stop within budget; unrelated processes and outputs survive.
 
-### Phase 3.4 Layer Adapters And Aggregate Execution
+### Phase 4.4 Layer Adapters And Aggregate Execution
 
 - [ ] Add adapters for static policy, actual-change validators, pytest, Pester, existing conformance,
   parity, and compatibility using their supported public contracts.
@@ -712,7 +863,7 @@ from safely recoverable selection uncertainty.
 
 **Checkpoint:** Deliberate formatter/test/compatibility failures leave later independent evidence visible.
 
-### Phase 3.5 Unified JSON, Markdown, XML, And Artifact Lifecycle
+### Phase 4.5 Unified JSON, Markdown, XML, And Artifact Lifecycle
 
 - [ ] Implement projections from one recorded result model, retaining detailed JSON and concise v1.
 - [ ] Render selection, skipped/unexecuted coverage, durations, failures, canonical protection,
@@ -724,7 +875,7 @@ from safely recoverable selection uncertainty.
 
 **Checkpoint:** Human, JSON, Markdown, and XML results agree; artifacts belong to one isolated run.
 
-### Phase 3.6 Mandatory Runner And Selector Regression Gate
+### Phase 4.6 Mandatory Runner And Selector Regression Gate
 
 - [ ] Register catalog/scope/selector/process/report regression in mandatory local and hosted profiles.
 - [ ] Use synthetic children and private registries to test the supervisor without recursively invoking
@@ -733,16 +884,19 @@ from safely recoverable selection uncertainty.
   coverage, launch errors, output limits, timeouts, cancellation, cleanup failures, and recovery.
 - [ ] Prove selection reasons/order/counts and aggregate exit status remain deterministic.
 
-### Phase 3 Exit Gate
+### Phase 4 Exit Gate
 
 - [ ] Meta-regression proves the concrete execution and failure contracts in supported OS/runtime variants.
 - [ ] Existing runners remain usable and no reported result implies coverage that did not execute.
 
 **Rollback:** Disable supervisor adoption; preserve original standalone execution and added regression fixtures.
 
-## Phase 4: Full Local Equivalence And Compatibility Proof
+## Phase 5: Full Local Equivalence And Compatibility Proof
 
-### Phase 4.1 Same-Snapshot Shadow Comparison
+### Phase 5.1 Same-Snapshot Shadow Comparison
+
+The legacy reference is the accepted post-retirement Phase 2 Python/PS7 execution. Historical
+three-runtime evidence stays available; shadow comparison does not reinstate 5.1 support.
 
 - [ ] Run old and new full profiles on the same committed snapshot and dependency baseline.
 - [ ] Compare ledger scenarios, inventories, runtimes, expected failure detection, and exit behavior.
@@ -752,9 +906,9 @@ from safely recoverable selection uncertainty.
 
 **Checkpoint:** A comparison record identifies equivalent retained coverage and any remaining blockers.
 
-### Phase 4.2 Complete Cross-Runtime Conformance And Parity
+### Phase 5.2 Complete Cross-Runtime Conformance And Parity
 
-- [ ] Run all registered baseline suites in Python, PowerShell 7, and Windows PowerShell 5.1.
+- [ ] Run all registered baseline suites in Python and PowerShell 7 against the accepted Phase 2 inventory.
 - [ ] Compare exact selected inventories and semantic summaries through the canonical comparator.
 - [ ] Validate allowed operational normalization; inject a changed ID/count/decision/order/error to
   prove prohibited semantic differences fail.
@@ -762,7 +916,7 @@ from safely recoverable selection uncertainty.
 
 **Checkpoint:** Full baseline parity is executable, not inferred from independent green runtime jobs.
 
-### Phase 4.3 LoTM Consumers, Safety, And Distribution Boundaries
+### Phase 5.3 LoTM Consumers, Safety, And Distribution Boundaries
 
 - [ ] Run existing compatibility portfolios with distribution-boundary added to PR integration coverage.
 - [ ] Preserve accepted QA/Visualization summaries, normalized inventories/hashes, bounded reader
@@ -774,34 +928,35 @@ from safely recoverable selection uncertainty.
 
 **Checkpoint:** Project semantics and canonical bytes remain unchanged, with complete consumer evidence.
 
-### Phase 4.4 Extraction, Release, And Local Reproduction
+### Phase 5.4 Extraction, Release, And Local Reproduction
 
 - [ ] Rehearse the portable extraction bundle with the revised requirements/copy lists and no LoTM
   canonical content or new unapproved CI/runtime coupling.
 - [ ] Run rendering and retained executable scale/pressure coverage using redirected outputs.
 - [ ] Verify deadlines cover extraction/render descendants and successful cleanup preserves ownership.
 - [ ] Document exact bootstrap/profile commands from Windows and unrelated working directories;
-  Linux reports unavailable 5.1 coverage explicitly rather than claiming a full equivalent pass.
+  Linux reports any required Windows/API coverage assigned to another shard explicitly; it cannot
+  claim a complete platform result by silently dropping those retained obligations.
 
 **Checkpoint:** Portable conformance survives modernization and hosted profiles have direct local recipes.
 
-### Phase 4.5 Coverage And Safety Acceptance Review
+### Phase 5.5 Coverage And Safety Acceptance Review
 
 - [ ] Reconcile every legacy ledger row against current executable evidence and unresolved limitations.
 - [ ] Review reports/artifacts and verify new implementation tests cover affected modules/commands,
   rather than concentrating all test effort on the supervisor.
 - [ ] Accept the local equivalence record before changing hosted authority; keep original gates available.
 
-### Phase 4 Exit Gate
+### Phase 5 Exit Gate
 
 - [ ] Equivalent or stronger full coverage, unchanged LoTM baselines, complete parity, and safe output
   lifecycle are proved locally; environment limitations are explicit and do not masquerade as passes.
 
 **Rollback:** Retain legacy invocation as reference and repair discrepancies before hosted adoption.
 
-## Phase 5: GitHub And ADO Shadow Adoption And Learning
+## Phase 6: GitHub And ADO Shadow Adoption And Learning
 
-### Phase 5.1 Repository Synchronization And Host Readiness
+### Phase 6.1 Repository Synchronization And Host Readiness
 
 - [ ] Publish the branch only after Git confirmation; establish approved ADO resources and remotes
   through the reviewed synchronization contract without destructive mirror/force pushes.
@@ -813,7 +968,7 @@ from safely recoverable selection uncertainty.
 
 **Checkpoint:** Both hosts test traceable identical source history; publication and merge authority are clear.
 
-### Phase 5.2 Thin GitHub Actions Adapter
+### Phase 6.2 Thin GitHub Actions Adapter
 
 - [ ] Bootstrap pinned dependencies, verify runtime versions, pass event scope, and invoke repository
   profiles with no YAML-owned suite membership or validation semantics.
@@ -825,7 +980,7 @@ from safely recoverable selection uncertainty.
 
 **Checkpoint:** Observed GitHub evidence matches local profile behavior and identifies the executed commit.
 
-### Phase 5.3 Native Azure Pipelines Adapter
+### Phase 6.3 Native Azure Pipelines Adapter
 
 - [ ] Explain project/repository/pipeline/agent/job/task boundaries and their local equivalents before setup.
 - [ ] Configure pipeline YAML that bootstraps the same dependencies and invokes the same repository profiles.
@@ -836,7 +991,7 @@ from safely recoverable selection uncertainty.
 
 **Checkpoint:** ADO runs reproduce the same semantic profile and source provenance as GitHub/local runs.
 
-### Phase 5.4 Markdown, Tests Tab, And Detailed Publication
+### Phase 6.4 Markdown, Tests Tab, And Detailed Publication
 
 - [ ] Publish Markdown in both hosts and native pytest/Pester/custom XML with `PublishTestResults@2`
   in ADO after ordinary test failures; retain run-specific JSON and diagnostic artifacts.
@@ -849,7 +1004,7 @@ from safely recoverable selection uncertainty.
 
 **Checkpoint:** The maintainer can diagnose an intentional failure from each host without rerunning blindly.
 
-### Phase 5.5 Host Equivalence And Policy Adoption Review
+### Phase 6.5 Host Equivalence And Policy Adoption Review
 
 - [ ] Compare run/profile/suite identities, scenario outcomes, executed commits, dependency versions,
   normalization, and report contents between both hosts and local reference runs.
@@ -858,7 +1013,7 @@ from safely recoverable selection uncertainty.
   do not remove old gates until equivalent or stronger hosted coverage is accepted.
 - [ ] Keep rollback settings and original workflows available; record activation decisions and run URLs.
 
-### Phase 5 Exit Gate
+### Phase 6 Exit Gate
 
 - [ ] Both hosts have observed success/failure evidence, usable native/Markdown reports, accurate PR
   scope, and safe staged policy adoption; local proof alone does not close this gate.
@@ -866,9 +1021,9 @@ from safely recoverable selection uncertainty.
 **Rollback:** Restore previous GitHub invocation; leave new ADO pipelines nonrequired and disable only
 newly introduced policies/triggers through reviewed changes. Preserve shared Git history.
 
-## Phase 6: Conservative Selection And Event Rollout
+## Phase 7: Conservative Selection And Event Rollout
 
-### Phase 6.1 Explain-Only Selection Against Full References
+### Phase 7.1 Explain-Only Selection Against Full References
 
 - [ ] Run selectors alongside full local and hosted reference profiles without reducing execution.
 - [ ] Exercise representative current paths and deliberate shared/transitive changes, deletions,
@@ -879,7 +1034,7 @@ newly introduced policies/triggers through reviewed changes. Preserve shared Git
 
 **Checkpoint:** Reviewed selection scenarios demonstrate conservative dependency mapping, not merely green runs.
 
-### Phase 6.2 Local And Feature-Branch Selection Enablement
+### Phase 7.2 Local And Feature-Branch Selection Enablement
 
 - [ ] Enable affected implementation tests and fast conformance for local/feature profiles with
   complete applicable-profile fallback and an explicit full-run override.
@@ -890,7 +1045,7 @@ newly introduced policies/triggers through reviewed changes. Preserve shared Git
 
 **Checkpoint:** Selection saves work only where its evidence permits; required integration coverage stays full.
 
-### Phase 6.3 Main, Manual, And Scheduled Profiles
+### Phase 7.3 Main, Manual, And Scheduled Profiles
 
 - [ ] Enable full integration and separately budgeted blocking release/render verification for `main`.
 - [ ] Enable named manual profiles with default full execution and documented reproduction options.
@@ -901,7 +1056,7 @@ newly introduced policies/triggers through reviewed changes. Preserve shared Git
 
 **Checkpoint:** Every event maps to a documented locally runnable profile and produces accountable evidence.
 
-### Phase 6.4 Failure, Cost, And Fallback Rollout Review
+### Phase 7.4 Failure, Cost, And Fallback Rollout Review
 
 - [ ] Rehearse unavailable history, dependency/runtime drift, canceled jobs, partial publication, and
   selector failure under the enabled event model.
@@ -909,16 +1064,16 @@ newly introduced policies/triggers through reviewed changes. Preserve shared Git
 - [ ] Review costs/budgets and update actual event behavior in the methodology/tooling documentation.
 - [ ] Accept event rollout without authorizing any future reduction of full PR/lifecycle gates.
 
-### Phase 6 Exit Gate
+### Phase 7 Exit Gate
 
 - [ ] Explainable selection, full fallback, complete required checks, and event cost/retention ownership
   are demonstrated in both host adapters.
 
 **Rollback:** Force full profiles and disable only new optional triggers/schedules; retain mandatory gates.
 
-## Phase 7: Selective Retirement, Integration, And Framework Handoff
+## Phase 8: Selective Retirement, Integration, And Framework Handoff
 
-### Phase 7.1 Retirement Proposal And Coverage Review
+### Phase 8.1 Retirement Proposal And Coverage Review
 
 - [ ] Name each superseded harness/adapter and map its scenarios to verified replacements.
 - [ ] Review direct invocation, failure diagnostics, runtime variants, cleanup, and reporting—not just counts.
@@ -928,7 +1083,7 @@ newly introduced policies/triggers through reviewed changes. Preserve shared Git
 
 **Checkpoint:** Only explicitly accepted replacements retire; no orphaned consumer or silently lost scenario.
 
-### Phase 7.2 Documentation And Operational Handoff
+### Phase 8.2 Documentation And Operational Handoff
 
 - [ ] Update architecture, testing methodology, tooling reference, extraction/dependency guidance,
   profile commands, registration procedure, troubleshooting, and rollback instructions.
@@ -940,7 +1095,7 @@ newly introduced policies/triggers through reviewed changes. Preserve shared Git
 
 **Checkpoint:** A fresh maintainer can reproduce, extend, and diagnose the architecture from repository docs.
 
-### Phase 7.3 Exact-Final Verification And PR Readiness
+### Phase 8.3 Exact-Final Verification And PR Readiness
 
 - [ ] Run full local baseline/parity/implementation/meta-regression, static policy, compatibility,
   extraction, rendering, and retained executable pressure coverage on the final proposed snapshot.
@@ -952,7 +1107,7 @@ newly introduced policies/triggers through reviewed changes. Preserve shared Git
 
 **Checkpoint:** Final PR evidence belongs to the exact reviewed commits, with no outstanding blocker.
 
-### Phase 7.4 Reviewed Merge And Post-Integration Verification
+### Phase 8.4 Reviewed Merge And Post-Integration Verification
 
 - [ ] Merge only with explicit publication authorization and accepted gates; synchronize GitHub's
   accepted framework history to ADO through the reviewed workflow.
@@ -963,14 +1118,14 @@ newly introduced policies/triggers through reviewed changes. Preserve shared Git
 
 **Checkpoint:** The framework branch contains the accepted modernization and both hosts reflect that history.
 
-### Phase 7.5 Return To Platform Work
+### Phase 8.5 Return To Platform Work
 
 - [ ] Close the CI interlude checklist without marking Phase 4.1 findings reviewed.
 - [ ] Independently complete the pending Phase 4.1 maintainer disposition gate before Phase 4.2.
 - [ ] Resume platform work with the new test-registration/verification procedure and preserved
   logical-schema/canonical-content boundaries.
 
-### Phase 7 Exit Gate
+### Phase 8 Exit Gate
 
 - [ ] The reviewed overhaul is integrated and verified, accepted retirements are recorded, the
   repository/host documentation is current, and the platform handoff is explicit.
@@ -981,14 +1136,21 @@ path. Do not rewrite shared history, force synchronization, or reset canonical c
 ## Remaining Setup And Review Details
 
 The agreed direction includes dual hosts, GitHub merge authority initially, Pester 6.2.0, pytest,
-retained shared conformance, Markdown plus native results, full PR gates, distribution-boundary
+retired 5.1 support with retained Python/PS7 parity, shared conformance, Markdown plus native results,
+full PR gates, distribution-boundary
 integration coverage, and a separate modernization branch/PR into the framework branch.
 
-Phase 1 still needs concrete ADO organization/project/repository, access and agent availability,
-remote/synchronization mechanics, exact dependency versions beyond Pester, runtime baselines,
-measured budgets, schedule time/host ownership, artifact retention, and actual protection settings.
-These are setup/design refinements, not completed tenant configuration. Explain ADO concepts at
-their owning phase and record decisions in their authoritative contract or command documentation.
+Phase 1.1 inspected ADO access/capacity and prepared synchronized remotes; Phases 1.2/1.3 are confirmed.
+Phase 1.4 proposals and Phase 1.5 event/host design still need closure. Phase 2 implements the accepted
+support retirement and refreshes budgets before Phase 3 setup/native pilots. Cold/offline and floor-host
+proof, live agent launches, publication and policy adoption remain explicit later gates. Explain ADO
+concepts at their owning phase and record decisions in their authoritative documentation.
+
+**Planning revision verification (2026-10-05):** CI major phases 1-8 and all 41 subphases are sequential;
+49 relative links across the six affected documents resolve. Both JSON examples and the XML example
+parse; target examples use PS7. Annotation policy passes all 22 fixtures across 387 files, and
+`git diff --check` passes. Fingerprints show only intended documentation changes; no retirement
+implementation or fresh runtime-suite acceptance is claimed by this planning update.
 
 ## Official References
 

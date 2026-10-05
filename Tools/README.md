@@ -12,6 +12,15 @@ The [CI Testing Modernization Contracts](ci-testing-contracts.md) define the acc
 scope/selection, execution, result and publication design boundaries. Implementation remains pending;
 existing runners and reporting contracts continue to govern current execution.
 
+The [CI Runtime, Dependency And Budget Design](ci-testing-runtime-budget.md) records Phase 1.4
+measurements, exact candidate versions, portable/development dependency separation, host budget
+constraints and accepted cache/artifact design. Its design checkpoint was confirmed on 2026-10-05;
+implementation and remaining execution proofs are still pending.
+
+On 2026-10-05 the maintainer accepted Windows PowerShell 5.1 retirement. The modernization plan
+now schedules it as CI Phase 2 before native pilots; former CI Phases 2-7 become 3-8. Current tools
+and workflows still require 5.1 until that coordinated migration is implemented and verified.
+
 This folder contains reusable local helpers for project maintenance and source verification.
 
 For switch-by-switch maps, function-pipeline notes, side effects, parity checks, and durable config/state files for maintained helper scripts, see [Tooling Reference](TOOLING_REFERENCE.md). That reference should be extended whenever another tool is audited or a tool starts reading a new shared config file. The broader version process belongs to the [Framework Improvement Lifecycle](../Framework/framework_improvement_lifecycle.md), while the cumulative requirement for when and why checks run belongs to the [Framework Testing Methodology](../Framework/testing_methodology.md).

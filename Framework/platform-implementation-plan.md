@@ -980,10 +980,13 @@ capability boundaries. The following phases reopen Phase 1 without rewriting tha
 Work on `architecture/ci-testing-modernization`, with a reviewed pull request targeting
 `architecture/framework-extraction-foundation`. The separate
 [CI And Testing Modernization Plan](../Tools/ci-testing-modernization-plan.md) owns CI Phases 1
-through 7 and their numbered subphases, including coverage equivalence, Pester 6.2.0/pytest,
+through 8 and their numbered subphases, including the reviewed Windows PowerShell 5.1 retirement
+in CI Phase 2, retained Python/PS7 coverage equivalence, Pester 6.2.0/pytest,
 conservative selection, process isolation,
 local reproduction, GitHub Actions, Azure Pipelines, Markdown summaries, and native test results.
 This expanded documentation draft is for review; implementation and hosted setup have not started.
+The retirement decision is accepted; support-contract and runtime changes will be implemented and
+verified through that separate CI plan, without renumbering platform phases or rewriting past results.
 
 - [ ] Review the modernization plan and settle its baseline, contracts, and setup details.
 - [ ] Complete its phased local and dual-host verification without weakening retained coverage.

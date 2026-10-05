@@ -93,10 +93,11 @@ existing check identities and duplicate gate behavior until Phase 1.5 defines mi
 ## Proposed Implementation-Test Ownership
 
 Python owns pytest unit/integration tests; PowerShell owns Pester **6.2.0** unit/integration tests in
-5.1 and the adopted 7.4+ host. Shared fixtures and paired conformance remain their semantic owner.
+the adopted PS7 host. D14 retires 5.1 through CI Phase 2; the current three-runtime inventory above
+remains the inspected pre-retirement baseline. Shared fixtures and paired conformance retain authority.
 Native tests should add implementation failure modes and isolate defects without copying the whole
-neutral assertion set. The Phase 2 pilot and later regression phases must prove coverage alongside
-existing runners before retirement. Exact dependency separation belongs to Phases 1.4/2.1.
+neutral assertion set. The Phase 3 pilot and later regression phases must prove coverage alongside
+existing runners before retirement. Exact dependency separation belongs to Phases 1.4/3.1.
 
 There are **22 Python package files**, **20 PowerShell private scripts**, and the PowerShell root
 module/manifest. Python names below are under `Runtime/Python/knowledge_framework/`; PowerShell
@@ -248,18 +249,41 @@ an unavailable runtime or retained human review must remain visible rather than 
 
 | Gap | Current limitation / proposed owner | Delivery checkpoint |
 | --- | --- | --- |
-| G01 | No native implementation registration or complete runner/selector meta-regression catalog; add pytest/Pester tests without replacing shared fixtures. | Phases 2.3, 3.1-3.6. |
-| G02 | Formatter lacks a dedicated permanent fixture harness; annotation fixtures do not exhaust Git/discovery/I/O/report regressions. | Phases 2.3, 3.4, 3.6, 4.1. |
-| G03 | Root-discovery matrix exercises the root suite, not every adapter; media/environment adapter boundaries have no dedicated registered tests. | Phases 2.3, 4.1, 4.3; review optional media scope in 1.3/1.4. |
-| G04 | Lifecycle destructive mutation/stale removal exercised in Python; PowerShell gets rejection/dry-run evidence. | Phases 2.3, 4.3 before retirement in 7.1. |
-| G05 | Current protected paths do not guard the complete canonical page/template/Relationship Seeds boundary. | Phases 1.3, 2.2, 4.3. |
-| G06 | Availability checks and extraction copies constrain dependency splitting/pinning; Pillow declaration/support is unresolved. | Phases 1.4, 2.1, 4.4; media scope decision before implementation. |
-| G07 | Custom reports have no native XML test projection; retained pressure families have no automatic per-story pass evidence. | Phases 1.3, 3.5, 5.4; retained review at 4.5. |
-| G08 | Per-call timeouts and fail-fast compatibility do not guarantee whole-check budgets, cancellation or continued coverage. | Phases 1.4, 3.3, 3.4, 3.6. |
-| G09 | Three green runtime jobs do not compare all 21 nested suite outputs; extraction compares only nine. | Phases 1.3, 4.2, 4.4. |
-| G10 | Baseline/report normalization and temporary extraction cleanup need implementation-level regression proof. | Phases 2.3, 3.5, 4.3, 4.4. |
-| G11 | Shared modules/data/provider relationships make simplistic affected selection unsafe. | Phases 1.3, 3.2, 3.6, 6.1. |
-| G12 | Annotation duplicate gates/check-name dependencies and future ADO policy/report publication need staged migration evidence. | Phases 1.5, 5.2-5.5. |
+| G01 | No native implementation registration or complete runner/selector meta-regression catalog; add pytest/Pester tests without replacing shared fixtures. | Phases 3.3, 4.1-4.6. |
+| G02 | Formatter lacks a dedicated permanent fixture harness; annotation fixtures do not exhaust Git/discovery/I/O/report regressions. | Phases 3.3, 4.4, 4.6, 5.1. |
+| G03 | Root-discovery matrix exercises the root suite, not every adapter; media/environment adapter boundaries have no dedicated registered tests. | Phases 3.3, 5.1, 5.3; required synthetic media PR scope accepted in D12. |
+| G04 | Lifecycle destructive mutation/stale removal exercised in Python; PowerShell gets rejection/dry-run evidence. | Phases 3.3, 5.3 before retirement in 8.1. |
+| G05 | Current protected paths do not guard the complete canonical page/template/Relationship Seeds boundary. | Phases 1.3, 3.2, 5.3. |
+| G06 | Availability checks and extraction copies constrain dependency splitting/pinning; Phase 1.4 proposes exact portable/dev/media declarations. Pillow scope is accepted, declaration/clean install proof remains pending. | Phases 1.4, 3.1, 5.4; see runtime/dependency/budget design and D12. |
+| G07 | Custom reports have no native XML test projection; retained pressure families have no automatic per-story pass evidence. | Phases 1.3, 4.5, 6.4; retained review at 5.5. |
+| G08 | Per-call timeouts and fail-fast compatibility do not guarantee whole-check budgets, cancellation or continued coverage. Phase 1.4 full release failed at the 360-second extraction limit after eight passes; later checks were unattempted. | Phases 1.4, 4.3, 4.4, 4.6; measured evidence in runtime/dependency/budget design. |
+| G09 | Three green runtime jobs do not compare all 21 nested suite outputs; extraction compares only nine. | Phases 1.3, 5.2, 5.4. |
+| G10 | Baseline/report normalization and temporary extraction cleanup need implementation-level regression proof. | Phases 3.3, 4.5, 5.3, 5.4. |
+| G11 | Shared modules/data/provider relationships make simplistic affected selection unsafe. | Phases 1.3, 4.2, 4.6, 7.1. |
+| G12 | Annotation duplicate gates/check-name dependencies and future ADO policy/report publication need staged migration evidence. | Phases 1.5, 6.2-6.5. |
+| G13 | Extraction/root fixtures require unrelated ancestors; overriding TEMP under the repository invalidates that probe. A timeout retained owned external scratch despite parent exit; actual cleanup needs independent verification. | Phases 3.2, 4.3, 4.6, 5.4; D13 and Phase 1.4 evidence. |
+| G14 | Accepted 5.1 retirement requires coordinated module/preflight, QA child-host, registry/extraction/report-count and hosted-check migration. Preserve all 21 suites, 11 check families and nine extraction suites; prove Python/PS7 semantics before retiring the host gate. | Phases 2.1-2.6; D14; budgets refreshed at 2.5. |
+
+### Runtime Retirement Inventory (2026-10-05)
+
+The read-only consumer audit found no feature uniquely requiring Desktop/5.1 and no registered
+external consumer. The maintainer additionally confirms nobody else has a copy of the project.
+Current GitHub main/framework branches reported `protected: false`; ADO pipeline inventory was empty.
+Refresh protections/policies before check retirement; these observations do not authorize activation.
+
+| Actual consumer / declaration | Required migration / proof |
+| --- | --- |
+| `Runtime/PowerShell/KnowledgeFramework/KnowledgeFramework.psd1` | Current minimum 5.1 and Desktop/Core declaration become the reviewed PS7 minimum/Core support; preserve exports and reject unsupported hosts. |
+| `Commands/Environment/Test-PowerShell.ps1`, conformance launch boundaries | Readiness validates actual host/edition; retained suites use the approved PS7 executable; verify early unsupported-host failures. |
+| `Commands/QA/Obsidian-QA-Export.ps1` | Three hardcoded `powershell` children perform refresh, bounded graphs and cache cleanup even under a PS7 parent. Migrate resolved hosts and prove unchanged outputs/side effects. |
+| `Compatibility/compatibility.json`, `run_compatibility.py` | Strict runtime list, discovery and synthetic reporting registry require all three hosts today. Coordinate two-runtime acceptance and derive runtime-dependent reporting case counts truthfully. |
+| `Compatibility/verify_framework_extraction.py` | Independent three-host discovery must become Python/PS7; preserve neutral consumer, all nine suites, copy boundary and actual removal proof. |
+| `.github/workflows/ci.yml` | Retire the dedicated 5.1 job only after retained proof and fresh policy inspection; preserve retained gates/events and nested compatibility coverage. |
+| Active help/docs/contracts/platform gates | Replace current `powershell` recipes/support promises through coordinated support adoption; retain historical test evidence. No file extension or helper path rename is needed. |
+| `Commands/Media/Edit-Image.ps1`, `Search-Epub.ps1` | System.Drawing/compression use needs retained Windows/PS7 fixture proof. Host retirement does not automatically promise Linux media support or remove Windows CI. |
+
+This inventory updates planned ownership only. No executable/support metadata, active framework
+contract, workflow, dependency declaration or canonical content is changed by the planning pass.
 
 For each implementation increment, preserve positive cases, malformed/minimal inputs, boundary and
 ambiguity decisions, exact errors, scale/termination, report success/failure, cleanup, canonical

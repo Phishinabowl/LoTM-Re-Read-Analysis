@@ -1,8 +1,11 @@
 # CI Testing Modernization Contracts
 
 **Status:** Accepted Phase 1.3 design, confirmed by the maintainer on 2026-10-03, based on published Phase 1.2
-`7d02499`. No catalog, supervisor, selector, XML adapter, or hosted pipeline is implemented by this
-document. Examples are design fixtures, not current invocation recipes or measured results.
+`7d02499`. Phase 1.4 design additions were confirmed on 2026-10-05; support retirement D14
+was accepted on 2026-10-05 and will be implemented through the new CI Phase 2 before native pilots.
+No catalog, supervisor,
+selector, XML adapter, or hosted pipeline is implemented by this document. Examples are design
+fixtures, not current invocation recipes or measured results.
 
 The [modernization plan](ci-testing-modernization-plan.md) owns delivery and acceptance gates.
 The [coverage ledger](ci-testing-coverage-ledger.md) owns coverage mapping and migration gaps.
@@ -85,7 +88,8 @@ An empty impact list means impact is unbounded, causing full selection; it never
 it defaults to an explicit empty list, not an unrestricted skip allowance.
 
 Runtime/OS arrays must be nonempty, unique and compatible with the adapter: pytest uses Python;
-Pester uses the declared PowerShell variants; 5.1 requires Windows. OS IDs are `windows`, `linux`,
+Pester uses the adopted PS7 host. Windows API obligations remain explicit after 5.1 retirement.
+OS IDs are `windows`, `linux`,
 `macos`. `result_contract` is a supported adapter contract ID, not a free-form version claim.
 An allowed-skip record requires `identity`, `reason`, `decision`, `review_checkpoint`; an unknown,
 stale or mismatched identity fails validation. Acceptance is reviewed at the nominated checkpoint,
@@ -103,10 +107,11 @@ files. pytest/Pester collection must be limited to approved files; discovery doe
 Logical unit IDs are `policy/<id>`, `implementation/<id>`, `conformance/<suite-id>`,
 `compatibility/<check-id>`, and `parity/<id>`. An expanded execution ID appends `::<runtime>`.
 Compatibility and parity use `::referee`: one Python orchestrator/comparison with recorded
-participating runtime IDs, not three fictitious implementations. Native runtime IDs are `python`, `powershell7`,
-`powershell51`; profile `runtime_order` is explicit and unique. OS restrictions cannot remove a
-required runtime from a gating profile: an unavailable Windows 5.1 obligation is blocked/failing,
-or must be assigned to another declared shard.
+participating runtime IDs, not fictitious implementations. Target native runtime IDs are `python`
+and `powershell7`; profile `runtime_order` is explicit and unique. D14 removes `powershell51` from
+future catalogs after CI Phase 2 migration; unknown/retired runtime declarations fail planning.
+OS restrictions cannot remove a required retained obligation from a gating profile: unavailable
+Windows/API coverage is blocked/failing or assigned to another declared shard.
 
 External metadata records require `unit`, `fixtures`, `impact_paths`, `deadline_seconds`,
 `depends_on`, `result_contract`. Membership and entry paths still come from the owning registries.
@@ -283,6 +288,15 @@ owned children using tested Windows Job Objects/POSIX process groups. Unproven c
 is a preflight error for units needing it. The run budget stops new launches early enough to reserve
 termination, cleanup and finalization. Later budget-blocked units remain visible and fail a gate.
 
+Phase 1.4 measurements also require fixture placement to respect discovery semantics. An unrelated
+directory fixture cannot inherit a repository/project root through its ancestors. When needed,
+allocate an owned directory outside the checkout/snapshot, with a private absolute ownership record
+and stable public alias. Published reports/artifact links remain confined to the run directory.
+Verify external scratch removal after child exit, including timeout; preserve a cleanup failure
+instead of claiming success from a declaration made before removal. Never change foreign ACLs or
+delete unrelated temporary trees to recover an owned failure. This clarification was accepted at Phase 1.4
+review as D13 and requires permanent regression proof before adoption.
+
 Canonical guard checks include inventoried authored pages, templates, Relationship Seeds,
 configuration and configured canonical outputs. Resolve the existing paths before launch; do not
 design a future layout. Record changed/additional/deleted paths and hashes before/after protected
@@ -354,11 +368,11 @@ assertion count. The corresponding custom XML case appears below. Values are ill
 
 ```json
 {
-  "id": "conformance/strict-ingestion::powershell51",
+  "id": "conformance/strict-ingestion::powershell7",
   "owner": "conformance",
   "layer": "language-neutral-conformance",
-  "runtime": "powershell51",
-  "participating_runtimes": ["powershell51"],
+  "runtime": "powershell7",
+  "participating_runtimes": ["powershell7"],
   "blocking": true,
   "status": "timed-out",
   "classification": "timeout",
@@ -371,8 +385,8 @@ assertion count. The corresponding custom XML case appears below. Values are ill
   "diagnostics": {
     "excerpt": "Unit deadline exceeded",
     "excerpt_truncated": false,
-    "stdout": "units/conformance-strict-ingestion-powershell51/stdout.txt",
-    "stderr": "units/conformance-strict-ingestion-powershell51/stderr.txt",
+    "stdout": "units/conformance-strict-ingestion-powershell7/stdout.txt",
+    "stderr": "units/conformance-strict-ingestion-powershell7/stderr.txt",
     "termination": "owned-tree-terminated"
   },
   "artifacts": ["diagnostics/strict-ingestion.txt"]
@@ -428,8 +442,8 @@ inventory just because excerpts are bounded. Report links are platform projectio
 relative artifacts. YAML cannot supply a different Markdown interpretation.
 
 pytest produces native JUnit XML; Pester 6.2.0 supports `JUnitXml`, `NUnitXml`/`NUnit2.5` and `NUnit3`
-in the inspected installed implementation. Prefer JUnit for both pilots; Phase 2.4 must verify actual
-pass/fail/skip/collection/cancellation output on both PowerShell hosts before accepting its adapter.
+in the inspected installed implementation. Prefer JUnit for both pilots; Phase 3.4 must verify actual
+pass/fail/skip/collection/cancellation output on the adopted PS7/OS lanes before accepting its adapter.
 Native case identity includes logical group, runtime and stable test/node/data identity. Parameter
 names must be deterministic, with no temporary paths or run IDs. Deliberate renames need a decision
 because hosted history may treat them as different tests. Preserve native XML and mapping evidence.
@@ -456,11 +470,11 @@ publish them with the separate timeout error; never infer unreported native pass
 duration and state must agree with recorded source data at their respective granularity.
 
 Runtime identity must survive JUnit `classname`/`name` (or corresponding NUnit fields) and test run
-titles, so Python/7/5.1 results cannot overwrite one another. Conformance example:
+titles, so Python/PS7 results and adopted host variants cannot overwrite one another. Conformance example:
 
 ```xml
-<testsuite name="conformance.powershell51" tests="1" failures="0" errors="1" skipped="0">
-  <testcase classname="conformance.powershell51" name="strict-ingestion" time="120.000">
+<testsuite name="conformance.powershell7" tests="1" failures="0" errors="1" skipped="0">
+  <testcase classname="conformance.powershell7" name="strict-ingestion" time="120.000">
     <error type="timeout" message="Unit deadline exceeded">See diagnostics/strict-ingestion.txt</error>
   </testcase>
 </testsuite>
@@ -489,7 +503,7 @@ same files and statuses; ADO-specific task behavior is not a local testing rule.
 | --- | --- |
 | Unknown changed path under a coherent checkout | Full requested profile, reason `unknown-impact`, complete eligible policy scan if precise scope unavailable; never an empty green run. |
 | Duplicate group ID or unregistered native test | Planning exit 2; no child starts; catalog failure in JSON/Markdown/infrastructure XML where writable. |
-| Missing PowerShell 5.1 | Its required units blocked; Python/7 independent work continues; aggregate exit 1. |
+| Missing PowerShell 7 | Its required units blocked; independent Python work continues; aggregate exit 1. |
 | Unit returns exit 0 with missing/malformed summary | Unit error `result-contract`; later independent units still run. |
 | One assertion fails and a later unit times out | Both failures recorded in plan order, full streams retained; descendants terminated; remaining independent coverage attempted within budget. |
 | Cancellation after one pass | Pass retained, active/planned units cancelled, partial native results retained; aggregate exit 130. |
@@ -515,18 +529,36 @@ must record their rationale, affected contract and maintainer review before supe
 
 | ID | Accepted decision and reason | Affected checkpoints |
 | --- | --- | --- |
-| D01 | Python supervisor; four new metadata/catalog files; existing membership stays authoritative. Avoid competing selectors and duplicate inventories. | 3.1, 3.4. |
-| D02 | Explicit snapshot/scope modes; unknown impact falls back, invalid planning fails. Preserve actual-change validation independently. | 3.2, 3.6, 6.1. |
-| D03 | Sequential isolated children, total unit/run deadlines, continuation and explicit blocked/cancelled outcomes. Preserve later independent evidence. | 1.4, 3.3-3.6. |
-| D04 | New supervisor report v1; preserve legacy detailed/concise contracts and extraction consumer. Avoid hidden breaking changes. | 2.4, 3.5, 4.4. |
-| D05 | Native pytest/Pester case results, honest custom suite/check XML, Markdown on both hosts. Keep counts and identity truthful. | 2.4, 3.5, 5.4. |
-| D06 | Required review evidence distinct from automated passes; native expected skips explicitly registered. Keep unsupported/retained coverage visible. | 1.5, 4.5, 7.1. |
-| D07 | Existing ledger and this decision section are durable; ignored run evidence plus confirmed evolution pointers. Avoid duplicate design stores. | Every closure, 7.2. |
-| D08 | Run-owned reports, broader canonical guard and fail-closed artifact/publication verification. Prevent false green or foreign cleanup. | 2.2, 3.5, 4.3, 5.4. |
+| D01 | Python supervisor; four new metadata/catalog files; existing membership stays authoritative. Avoid competing selectors and duplicate inventories. | 4.1, 4.4. |
+| D02 | Explicit snapshot/scope modes; unknown impact falls back, invalid planning fails. Preserve actual-change validation independently. | 4.2, 4.6, 7.1. |
+| D03 | Sequential isolated children, total unit/run deadlines, continuation and explicit blocked/cancelled outcomes. Preserve later independent evidence. | 1.4, 4.3-4.6. |
+| D04 | New supervisor report v1; preserve legacy detailed/concise contracts and extraction consumer. Avoid hidden breaking changes. | 3.4, 4.5, 5.4. |
+| D05 | Native pytest/Pester case results, honest custom suite/check XML, Markdown on both hosts. Keep counts and identity truthful. | 3.4, 4.5, 6.4. |
+| D06 | Required review evidence distinct from automated passes; native expected skips explicitly registered. Keep unsupported/retained coverage visible. | 1.5, 5.5, 8.1. |
+| D07 | Existing ledger and this decision section are durable; ignored run evidence plus confirmed evolution pointers. Avoid duplicate design stores. | Every closure, 8.2. |
+| D08 | Run-owned reports, broader canonical guard and fail-closed artifact/publication verification. Prevent false green or foreign cleanup. | 3.2, 4.5, 5.3, 6.4. |
 
-Still deliberately pending: measured budgets, exact dependency/bootstrap baselines and image support
-scope (1.4); event/check-name/shard mappings, schedule host ownership and observational shadow
-profiles (1.5); verified native report cases (2.4); implemented process/scope/report invariants
-(3.6); three-runtime equivalence and retained reviews (4.2-4.5); hosted passing/failing publication
-demonstrations and branch-policy adoption (5.4-5.5). Neither this accepted design nor a successful documentation
+Phase 1.4 design decisions are detailed in the [runtime/dependency/budget design](ci-testing-runtime-budget.md).
+D12 records the maintainer's explicit media-scope answer. D14 records the later accepted support
+retirement; D09-D11/D13 were confirmed on 2026-10-05. Implementation evidence gates remain open.
+
+| ID | Decision / review state | Affected checkpoints |
+| --- | --- | --- |
+| D09 | Accepted 2026-10-05: exact observed runtime/tool baselines; portable/dev/media declaration split; owned Node lock and coordinated extraction/bootstrap migration. Clean installation/floor-runtime proof remains required. | 3.1, 3.4, 5.4, 6.1. |
+| D10 | Accepted 2026-10-05: measured whole-unit deadlines, separate termination/cleanup/finalization reserves, cold setup/publication allowance and admitted shard budgets below host ceilings. Refresh two-runtime costs at 2.5 and coordinate extraction's inner timeout. | 1.5, 2.5, 4.3, 4.4, 6.1. |
+| D11 | Accepted 2026-10-05: version/digest/platform cache keys, isolated imports, offline execution after bootstrap, bounded retained artifacts and explicit missing-tool failures. | 3.1, 4.5, 4.6, 6.4. |
+| D12 | Accepted 2026-10-03: require synthetic EPUB/image implementation tests in PR coverage; Pillow stays in development/media dependencies. No local books/artwork prerequisite. | 3.1-3.3, 5.1, 5.3. |
+| D13 | Accepted 2026-10-05: explicitly owned external fixtures when discovery requires unrelated ancestors; process-tree containment and independently verified timeout cleanup. Preserve confined publication paths. | 3.2, 4.3, 4.6, 5.4. |
+| D14 | Accepted 2026-10-05: retire Windows PowerShell 5.1 support; retain Python/PS7 and Pester 6.2.0. The maintainer confirms there are no other project copies/consumers. Preserve all semantic fixtures, migrate child hosts and reporting, prove retained coverage and refresh budgets before native/host adoption. Full Python/PS7 duplication remains a separate policy from host retirement. | 2.1-2.6; updates future runtime obligations throughout Phases 3-8. |
+
+This planning update records the decision, not completed retirement. Current executable registries,
+module metadata and hosted workflow still require 5.1 until Phase 2 performs the coordinated change.
+Existing architecture/methodology support wording is updated at 2.1; historical three-runtime results
+remain intact. D14 explicitly supersedes the planned 5.1 support portions of earlier decisions.
+
+Still deliberately pending: two-runtime remeasurement (2.5), clean dependency/bootstrap proof (3.1),
+event/check-name/shard mappings, schedule host ownership and observational shadow
+profiles (1.5); verified native report cases (3.4); implemented process/scope/report invariants
+(4.6); retained Python/PS7 equivalence and reviews (5.2-5.5); hosted passing/failing publication
+demonstrations and branch-policy adoption (6.4-6.5). Neither this accepted design nor a successful documentation
 check satisfies those execution gates. The rollback for this pass is documentation only.
