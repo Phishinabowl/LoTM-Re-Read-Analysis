@@ -997,9 +997,16 @@ reproduces before/after behavior. Failed run
 [37360948758](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37360948758) and its
 complete Python job log remain evidence; final exact-snapshot replay is pending.
 
+The same run also fails the extracted-framework schema-pack check on Windows: pack containment
+compares a resolved file with an unresolved fixture root. A genuine local directory-junction probe
+reproduces that mismatch. The loader now resolves both sides, matching the existing project-loader
+pattern; valid packs pass and traversal remains rejected. The permanent schema-pack suite passes
+with unchanged fixtures and summary. The complete compatibility log preserves this separate failure;
+the exact hosted replay must prove the repair in the hosted extraction environment.
+
 Canonical pages, templates, Relationship Seeds, fixture/registry data,
 accepted QA/Visualization baselines and public domain/report APIs are unchanged; runtime implementation
-preservation has the single documentation-path repair exception above. The original
+preservation has the two focused schema-pack path repair exceptions above. The original
 timeout-retained extraction scratch, fail-fast/per-call legacy supervision and unimplemented
 manifest export remain explicitly separate findings. Broader native catalogs, safe diff selection,
 process ownership, reporting, bootstrap and GitHub/ADO adoption remain later CI phases.

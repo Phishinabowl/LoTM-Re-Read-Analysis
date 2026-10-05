@@ -811,8 +811,9 @@ def resolve_pack_path(project: ProjectConfig, value: str, context: str) -> Path:
     relative_path = Path(value)
     if relative_path.is_absolute():
         raise ValueError(f"Schema-pack configuration `{context}` must be repository-relative: {value}")
-    path = (project.root / relative_path).resolve()
-    if path != project.root and project.root not in path.parents:
+    resolved_root = project.root.resolve()
+    path = (resolved_root / relative_path).resolve()
+    if path != resolved_root and resolved_root not in path.parents:
         raise ValueError(f"Schema-pack configuration `{context}` escapes the repository: {value}")
     if not path.is_file():
         raise ValueError(f"Schema-pack configuration `{context}` file does not exist: {path}")

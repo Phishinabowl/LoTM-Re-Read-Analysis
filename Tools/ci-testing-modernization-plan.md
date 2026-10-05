@@ -1098,6 +1098,12 @@ probe reproduces the old POSIX acceptance and corrected rejection while preservi
 traversal behavior. This is a narrow pre-existing implementation defect discovered by actual hosted
 proof, not a new schema or a reason to weaken the test. Preserve the failed job's full log and await
 successful exact-snapshot hosted replay before closure; runtime-byte preservation excludes this repair.
+The same run also fails Windows neutral extraction because pack containment compares a resolved
+file with an unresolved fixture root. A genuine local directory junction reproduces the mismatch;
+resolving the project root before containment uses the existing project-loader pattern and preserves
+traversal rejection. The focused permanent suite passes with unchanged fixtures/counts/summary.
+This second repair is confined to the same Python schema-pack loader; its full hosted extraction
+acceptance remains pending and the original failure log is preserved.
 
 Ignored `.tmp/ci-phase26-20261005/` preserves the frozen entry, original workflow/host tests/platform
 history, native XML, policy/static output and structural/preservation observations. All 81 relative
