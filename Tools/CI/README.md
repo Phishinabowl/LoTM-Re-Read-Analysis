@@ -3,7 +3,7 @@
 CI 3.1.2 implements explicit local acquisition, verified environments and package builds. The
 [package contract](../ci-python-package-contract.md) defines identity/version/artifact boundaries;
 the [modernization plan](../ci-testing-modernization-plan.md) owns acceptance and later adoption.
-Full installed-artifact semantic/boundary testing is 3.1.3. No external package publishing is provided.
+CI 3.1.3 installed-artifact semantic/boundary verification is confirmed. No external package publishing is provided.
 
 ## Normal Development Setup
 
@@ -65,7 +65,57 @@ SOURCE_DATE_EPOCH removes ZIP timestamp variation; this is not a universal repro
 The build owner may supply `--source-revision <verified-full-commit-id>` and `--source-modified`
 for an uncommitted checkout. Absence is recorded as unknown; the tool does not invent a clean Git
 revision or require Git for a detached source bundle. Exact source-input digests remain available.
-Detailed wheel-member inspection and installed neutral semantic assertions remain 3.1.3.
+The explicit installed-artifact verifier below owns wheel-member inspection and neutral API proof;
+bootstrap's version/origin smoke is deliberately separate from that verification.
+
+## Installed Artifact Verification (CI 3.1.3)
+
+This explicit installation owner checks a built wheel and installs it into a fresh temporary
+environment outside the checkout. It is not an implicit setup hook in pytest or a replacement
+for source conformance. Acquire runtime payloads and build tools explicitly first:
+
+```powershell
+python Tools/CI/bootstrap.py --python-profile runtime --report .tmp/ci/runtime.json
+python Tools/CI/bootstrap.py --package-mode wheel --build-only --report .tmp/ci/build.json
+$build = Get-Content .tmp/ci/build.json -Raw | ConvertFrom-Json
+python Tools/CI/verify_installed_package.py --install-and-verify --wheel $build.package.wheel --installer-python $build.python.executable --report .tmp/ci/installed.json
+```
+
+Verification never downloads payloads. The installer must be CPython 3.14.5 with pip 26.2;
+installation uses `--no-index --no-deps` and the already hash-verified runtime wheel. The fresh
+runtime environment contains the framework and PyYAML, without pytest, build tools or editable
+links. Child probes use `-I`, remove inherited root/path overrides, execute outside the source
+tree and verify all 23 modules' environment origins and wheel-matching bytes.
+
+Artifact inspection accepts exactly 28 members: 23 reviewed Python files, LICENSE and four
+metadata/RECORD files. Metadata identity, eligibility/dependency bounds, license bytes, pure-wheel
+tag and every RECORD digest/size must match. Unexpected members, duplicate entries, missing or
+changed code, extras and binary/platform substitutions fail. The permanent pytest cases use
+synthetic wheels and never install or acquire packages.
+
+The installed API probe copies an explicit external fixture surface and reuses the unchanged
+synthetic extraction consumer through `Compatibility/neutral_consumer.py`. Its 49 external files
+include framework packs, pinned Unicode data, retained lookup/YAML/catalog expectations and the
+roadmap's referenced plan. None are wheel members. It checks catalog/composition determinism,
+24 lookup vectors, 21 malformed YAML sources, explicit roots and six missing-root/data failures.
+It does not run source-path-inserting conformance scripts to claim wheel coverage.
+
+Ten installation checks cover missing installation, missing PyYAML, fresh installation/semantics,
+wrong required package/dependency versions, changed installed code, dependency consistency and
+failure to satisfy a missing package through inherited checkout paths. Complete success/expected
+failure diagnostics, fixture hashes, imported origin, wheel digest, timings and post-exit cleanup
+are recorded in JSON. Owned temporary environments are removed after success or failure.
+
+Proposed later registration: `python-package-artifact` owns
+`Tools/Tests/Python/test_package_artifact.py`; `python-installed-runtime` owns this explicit
+installation/probe route. Both belong in PR/full native coverage through 3.2-3.5/4.1; they are
+implementation/package checks, not new language-neutral semantic suite memberships. Full release
+or extraction/equivalence expansion remains 5.4. Process-tree supervision remains Phase 4.
+
+Local Windows and WSL proof is retained under ignored `.tmp/ci-phase313/`: 85 pytest cases pass
+on each OS (18 new boundary/helper cases), and the fresh installed checks pass in 7.456s/3.822s.
+These are local samples, not hosted measurements. CI 3.1.3 is confirmed on 2026-10-05;
+hosted steady-state artifact adoption and native result publication remain later phases.
 
 ## Dependency Authorities And Cache Boundaries
 
@@ -153,5 +203,5 @@ primary/floor and WSL primary; this temporary hosted driver does not claim hoste
 Complete run logs are preserved under ignored `.tmp/ci-wsl-20261005/`. The temporary option has
 no automatic execution on push/PR/schedule, changes no required check, and must retire after acceptance/canonical
 native-profile adoption; do not let it become a duplicate permanent CI portfolio. Passing current
-conformance alone does not prove a fresh Linux bootstrap. Broad installed-artifact semantics and
-boundary regressions remain 3.1.3; process-tree supervision/cancellation remains Phase 4.
+conformance alone does not prove a fresh Linux bootstrap. Installed-artifact proof is described
+in the 3.1.3 section above; process-tree supervision/cancellation remains Phase 4.

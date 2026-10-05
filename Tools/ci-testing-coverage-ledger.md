@@ -313,6 +313,21 @@ timings from this static inspection. Existing executable registries and workflow
 
 ### Documentation Verification
 
+**CI 3.1.3 confirmed (2026-10-05):** `package_artifact.py` checks reviewed wheel
+membership/content/metadata/RECORD; the explicit `verify_installed_package.py` installation owner
+and isolated child probe check actual installed origin/content/version/dependencies and neutral
+external-data semantics. Windows/WSL pass ten installation checks, 24 lookup vectors, 21 malformed
+YAML sources and six external-root/data failures; all temporary installations are removed after exit.
+Permanent pytest adds 18 artifact/helper cases (85 aggregate cases on each OS), without automatic
+installation or downloads. Proposed `python-package-artifact` and `python-installed-runtime` native
+groups belong in PR/full registration through 3.2-3.5/4.1; no shared registry membership changes.
+The extraction consumer writer is shared without changing its fixture content; renewed nine-suite
+Python/PS7 extraction passes with 306 copied files. G15's local artifact proof is supplied, while
+formal registration/profile adoption and broader equivalence closure remain later gates. G06's
+complete distribution/extraction portfolio is not closed by this representative package smoke.
+Evidence and local timing samples are retained under ignored `.tmp/ci-phase313/` and
+[bootstrap documentation](CI/README.md#installed-artifact-verification-ci-313).
+
 **CI 3.1.2 confirmed and verified (2026-10-05):** Package/bootstrap proof covers separate
 source/editable/wheel/build-only routes, exact version/origin/dependency verification, confined
 declarations, payload/content receipts and actual corrupt/mismatched/missing/offline failure paths.

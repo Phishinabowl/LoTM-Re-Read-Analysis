@@ -16,7 +16,8 @@ CI 3.1.1 package/version inventory and contract are confirmed on 2026-10-05. Ind
 Python 0.1.0 numbering and Python 3.14+ eligibility with pinned 3.14.5 execution are explicitly
 selected. CI 3.1.2 package/bootstrap implementation is confirmed, published and verified on
 local Windows/WSL and fresh hosted Windows/Linux on 2026-10-05.
-Full installed-artifact semantics/boundary testing remains 3.1.3.
+CI 3.1.3 installed-artifact verification is confirmed on 2026-10-05 with local Windows/WSL proof.
+Phase 3.1 is closed; native test layout/discovery begins at 3.2.
 
 **Working branch:** `architecture/ci-testing-modernization`, created from
 `architecture/framework-extraction-foundation` at `c4b7932`.
@@ -1299,25 +1300,25 @@ Ordinary expensive jobs were intentionally skipped for this bootstrap-only run. 
 not steady-state hosted adoption; retire the temporary workflow/driver after acceptance and canonical
 native-profile registration, keeping permanent bootstrap regressions. No ADO activation/required-check
 change occurs. Phase 6 still owns cache transport, steady profiles and hosted reporting.
-3.1.3 full installed-artifact boundary/semantic acceptance has not started.
+3.1.3 installed-artifact boundary/semantic implementation is confirmed below.
 
 #### Phase 3.1.3 Installed Artifact And Boundary Verification
 
-- [ ] Install the built wheel into a fresh isolated environment and exercise it from an owned location
+- [x] Install the built wheel into a fresh isolated environment and exercise it from an owned location
   outside the checkout. Clear source-path overrides and assert imported package origin plus installed
   metadata/version match that wheel, so the checkout cannot accidentally satisfy the test.
-- [ ] Inspect wheel contents/metadata against the inclusion allowlist; reject missing runtime files,
+- [x] Inspect wheel contents/metadata against the inclusion allowlist; reject missing runtime files,
   accidental LoTM content/project configuration, local secrets/caches, test fixtures, CI tools and
   unexpected dependencies. Do not treat Python runtime packaging as a new authority for schema packs.
-- [ ] Run representative installed API and retained language-neutral fixture assertions with explicit
+- [x] Run representative installed API and retained language-neutral fixture assertions with explicit
   neutral framework/project roots. Prove invalid/missing roots fail without falling back to LoTM.
   Existing source-tree conformance remains required; its path-inserting commands are not, by
   themselves, evidence that the installed wheel was exercised.
-- [ ] Add permanent positive/negative implementation regressions for installed imports, version
+- [x] Add permanent positive/negative implementation regressions for installed imports, version
   consistency, declared dependencies, missing/incompatible installation and packaging boundaries.
   Register their identity, ownership and PR/full-profile scope through Phases 3.2-3.5/4.1; keep
   routine artifact smoke checks distinct from expensive full release/extraction profiles.
-- [ ] Preserve schema/fixture semantics and Python/PS7 parity. Record limitations, runtime cost,
+- [x] Preserve schema/fixture semantics and Python/PS7 parity. Record limitations, runtime cost,
   external fixture ownership, post-exit cleanup and rollback evidence; extend extraction/equivalence
   checks at 5.4 rather than replacing the existing portable-copy proof.
 
@@ -1328,6 +1329,30 @@ produce a false pass. Full test discovery/report/catalog adoption remains owned 
 **Rollback:** Revert the focused packaging/bootstrap/adapter changes together and restore the previous
 source-tree invocation route. Preserve original conformance, fixtures and canonical files. Limit any
 installation/cleanup to explicitly owned environments; do not alter machine-wide Python packages.
+
+**3.1.3 confirmed (2026-10-05):**
+[Installed artifact verification](CI/README.md#installed-artifact-verification-ci-313) inspects exactly
+28 wheel members (23 reviewed runtime modules, LICENSE and four metadata/RECORD files), source/license
+bytes, metadata identity/eligibility/runtime bounds, pure-wheel tag and RECORD digests. The explicit
+installation command uses pre-acquired hash-verified payloads and an exact-version installer; pytest
+never acquires or installs dependencies. Fresh runtime-only environments outside the checkout execute
+isolated children with all-module origin/content checks and leave no environment after exit.
+
+Both Windows and WSL pass ten installation checks, 24 retained lookup vectors, 21 malformed-YAML
+fixtures, neutral catalog/effective-schema composition and six external-root/data rejection checks.
+Installed proof takes 7.456s/3.822s; 85 pytest cases pass on each OS, including 18 new artifact/helper
+regressions. These are local samples. Evidence is retained under ignored `.tmp/ci-phase313/`.
+The existing synthetic consumer writer moved unchanged into a dependency-free shared fixture helper;
+the renewed nine-suite Python/PS7 source extraction passes in 126.273s with 306 copied files and
+unchanged membership. Source conformance remains independently authoritative; the installed probe
+does not invoke source-path-inserting suites or package external data.
+
+Registration proposals are `python-package-artifact` (permanent pytest boundary/helper cases) and
+`python-installed-runtime` (explicit installation/probe route), owned by CI/package tooling for
+PR/full native coverage in 3.2-3.5/4.1. They do not alter the shared conformance registry. No workflow,
+package version, runtime behavior, LoTM content, schema pack or canonical fixture changed in this
+checkpoint. Hosted steady-state adoption remains Phase 6; extraction/equivalence expansion remains
+5.4. The maintainer confirmed all five locally verified implementation items on 2026-10-05.
 
 **Planning addition (2026-10-05):** The maintainer approved this packaging scope; D20 records the
 decision and G15 owns the gap. All 41 primary subphases retain sequential numbering, with three
@@ -1752,8 +1777,8 @@ integration coverage, and a separate modernization branch/PR into the framework 
 
 Phase 1.1 inspected ADO access/capacity and prepared synchronized remotes; Phases 1.2/1.3 are confirmed.
 Phases 1.4/1.5 and 2.1-2.6 are confirmed; Phase 2 closes with successful manual hosted retirement proof.
-Phases 3.1.1 and 3.1.2 are confirmed; exact-snapshot cross-OS bootstrap proof passes. The runtime floor is locally
-tested; full installed-artifact semantics, future hosted launcher/report publication and policy adoption remain
+Phases 3.1.1-3.1.3 are confirmed; exact-snapshot cross-OS bootstrap and local installed-artifact proof pass.
+The runtime floor is locally tested; formal native registration, future hosted launcher/report publication and policy adoption remain
 explicit later gates. Explain ADO
 concepts at their owning phase and record decisions in their authoritative documentation.
 
