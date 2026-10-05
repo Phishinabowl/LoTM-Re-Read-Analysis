@@ -17,9 +17,9 @@ and public CLI paths remain required. Windows APIs still require explicitly supp
 Phase 2.2 now implements the 0.14.0 module's 7.4/Core boundary, preflight and public startup guards
 confirmed on 2026-10-05. Phase 2.3's three QA children use that resolved host, confirmed on 2026-10-05.
 Phase 2.4 implements schema-3 Python/PS7 registries, verified host discovery, dynamic reporting counts
-and two-runtime extraction, confirmed on 2026-10-05. Current hosted CI still has a 5.1 job, pending 2.6. This is a
-temporary migration obligation, not
-an ongoing support promise. Implement enforcement at 2.2, children at 2.3, registry/extraction at
+and two-runtime extraction, confirmed on 2026-10-05. Phase 2.6 removes the checkout's 5.1 job and
+live-5.1 test obligations for review; published-snapshot hosted proof remains pending. Implement
+enforcement at 2.2, children at 2.3, registry/extraction at
 2.4, retained proof at 2.5 and hosted retirement at 2.6. Complete local retained coverage is confirmed
 at 2.5 on 2026-10-05; hosted closure remains 2.6. Standalone compatibility/extraction no longer require 5.1.
 
@@ -116,6 +116,16 @@ copied by extraction's existing Runtime directory rule. Record that documentary 
 do not assert the old 302-file diagnostic count still describes a new bundle or expand COPY_FILES to CI assets.
 
 ## Acceptance And Next Checkpoint
+
+**Phase 2.6 implementation for review:** The dedicated hosted Desktop job and four live-Desktop
+Pester cases are removed. Historical source at `4f5c414` and Phase 2.5 acceptance reports preserve
+that proof; no replacement on-demand harness or steady-state obligation is created. The resolver
+case now uses an inert existing fixture file; Desktop path setup is gone. The retained 14 Pester
+cases pass on both PS7.6.6 and 7.4.0 with Desktop absent from process PATH and command discovery.
+Synthetic policy values and 52 pytest cases remain. All five retained check names/events/steps and
+registry/fixture/canonical bytes are preserved. Fresh GitHub/ADO policy inventories are empty;
+workflow-only allowance changes are Python 25, PS7 30 and compatibility 55 minutes. Publication,
+actual hosted runs, confirmation and final platform-history closure are pending in the plan.
 
 **Phase 2.5 temporary-test classification, confirmed 2026-10-05:** Four `Host.Tests.ps1` cases actually launch Desktop:
 structured readiness, concise/no-report failure, native manifest/direct psm1 import rejection, and

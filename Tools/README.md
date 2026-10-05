@@ -18,8 +18,8 @@ constraints and accepted cache/artifact design. Its design checkpoint was confir
 implementation and remaining execution proofs are still pending.
 
 On 2026-10-05 the maintainer accepted Windows PowerShell 5.1 retirement. The modernization plan
-now schedules it as CI Phase 2 before native pilots; former CI Phases 2-7 become 3-8. Current tools
-and workflows still require 5.1 until that coordinated migration is implemented and verified.
+now schedules it as CI Phase 2 before native pilots; former CI Phases 2-7 become 3-8. The current
+checkout's tools and workflow no longer require 5.1; CI 2.6 publication/hosted closure remains pending.
 
 The [Dual-Host And Integration Design](ci-testing-host-integration-design.md) records Phase 1.5's
 event/profile, PR provenance, repository-owned sharding, check identity and staged rollout proposals.
@@ -30,7 +30,8 @@ The [PowerShell Host Retirement Inventory](ci-powershell-retirement-inventory.md
 documentary Python/PS7 support adoption, family mapping, frozen evidence and exact migration/version
 targets. Phase 2.2 host enforcement is confirmed on 2026-10-05; Phase 2.3 QA child migration is
 confirmed on 2026-10-05. Phase 2.4 schema-3 compatibility/extraction is confirmed on 2026-10-05;
-complete retained proof and hosted retirement remain 2.5/2.6 work.
+complete retained proof is confirmed at 2.5. Phase 2.6 removes the hosted Desktop job and live-Desktop
+tests for review; exact published-snapshot hosted evidence remains required before retirement closure.
 
 This folder contains reusable local helpers for project maintenance and source verification.
 
@@ -215,13 +216,12 @@ Every normal run validates the permanent valid/invalid fixture corpus before sca
 
 ## Continuous Integration
 
-The tracked workflow at `.github/workflows/ci.yml` runs for pull requests, pushes to `main`, and intentional manual dispatches. The lightweight `.github/workflows/work-annotations.yml` workflow runs `Work Annotation Policy` on every non-`main` branch push without installing project dependencies or starting full conformance. Use the local `fast` conformance profile for immediate iteration; hosted CI preserves six stable check names across both workflows for future repository rules:
+The tracked workflow at `.github/workflows/ci.yml` runs for pull requests, pushes to `main`, and intentional manual dispatches. The lightweight `.github/workflows/work-annotations.yml` workflow runs `Work Annotation Policy` on every non-`main` branch push without installing project dependencies or starting full conformance. Use the local `fast` conformance profile for immediate iteration; CI 2.6 retains five stable check names across both workflows:
 
 - `Work Annotation Policy`
 - `Workflow Policy`
 - `Python Validation`
 - `PowerShell 7 Validation`
-- `Windows PowerShell 5.1 Validation`
 - `Project Compatibility`
 
 `Workflow Policy` validates every GitHub Actions workflow with `actionlint`. The workflow downloads a checksum-pinned standalone actionlint release for itself; local maintainers may install the official executable system-wide and run this preflight from the repository root:
@@ -230,9 +230,9 @@ The tracked workflow at `.github/workflows/ci.yml` runs for pull requests, pushe
 actionlint -color
 ```
 
-The three runtime jobs install their declared dependencies, enforce Python and PowerShell formatting,
+The two runtime jobs install their declared dependencies, enforce Python and PowerShell formatting,
 enforce work-annotation policy, and run the permanent `baseline` conformance profile. `Project
-Compatibility` separately compares all three FrameworkCatalog, EffectiveProjectSchema,
+Compatibility` separately compares the Python/PS7 FrameworkCatalog, EffectiveProjectSchema,
 Visualization, and QA
 implementations, root discovery, safe artifact lifecycle, isolated framework extraction,
 canonical-output preservation, and unsafe destination rejection through the registry-owned
@@ -240,8 +240,15 @@ compatibility profile. Pull requests use `pull-request`; pushes to `main` and ma
 `full-release`, which adds byte-identical representative Mermaid rendering. Routine hosted output uses
 the concise validation envelope while every job writes a detailed report beneath `.tmp/ci/`; a
 failure-only follow-up step prints that report into the hosted log. Keep action SHAs immutable. Treat
-all six job names as a public policy surface: rename one only with the same care as changing a
+all five retained job names as a public policy surface: rename one only with the same care as changing a
 required status check.
+
+The dedicated `Windows PowerShell 5.1 Validation` job is retired in the current checkout after CI 2.5
+retained proof. Fresh GitHub ruleset/branch and ADO policy inspections found no required legacy-check
+reference; publication/hosted verification still belongs to CI 2.6. Job allowances are Workflow Policy
+5 minutes, Python 25, PS7 30, compatibility 55, and standalone annotations 5. Events, profile selection,
+retained steps and pinned actions are unchanged. These are maximum allowances, not expected durations.
+Pester remains direct local implementation coverage until native hosted adoption in later phases.
 
 ## Temporary File Cleanup
 

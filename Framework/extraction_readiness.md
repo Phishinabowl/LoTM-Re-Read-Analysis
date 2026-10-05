@@ -3,7 +3,8 @@
 **CI Phase 2.1 support policy:** The retained host comparison is Python/PS7 under the reviewed
 retirement. CI Phase 2.4 confirms two-runtime compatibility/extraction on 2026-10-05, including Core
 7.4+ preflight, all nine portable suites and post-context scratch-removal checks. This focused
-adoption is separate from CI 2.5 full coverage/budget proof and CI 2.6 hosted retirement. Dated
+adoption is separate from CI 2.5's confirmed full local coverage/budget proof. CI 2.6's checkout
+hosted-job retirement is prepared for review; exact published-snapshot hosted closure is pending. Dated
 Stabilization Evidence remains unchanged. See the [retirement inventory](../Tools/ci-powershell-retirement-inventory.md).
 
 ## Status

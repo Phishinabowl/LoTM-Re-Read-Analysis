@@ -206,6 +206,25 @@ Normal-exit cleanup succeeded and the newly observed external extraction directo
 exit. The original Phase 1.4 timeout-retained directory remains a separate unresolved finding; no
 process-tree cancellation, failure cleanup, installation isolation or hosted result is certified here.
 
+## Phase 2.6 Checkout Job Allowances (2026-10-05, For Review)
+
+CI 2.6 applies the reviewed 2.5 envelopes to the retained workflow while retiring the dedicated
+Desktop job. Exact published-snapshot hosted acceptance remains pending; these values are checkout
+configuration, not observed hosted duration or a new source of suite membership.
+
+| Retained job | Execution envelope seconds | Existing provisional setup/reserves/publication/host allowance | Total seconds | Checkout timeout |
+| --- | ---: | ---: | ---: | ---: |
+| Python Validation | 150 | 1,110 | 1,260 | 25 minutes |
+| PowerShell 7 Validation | 690 | 1,110 | 1,800 | 30 minutes |
+| Project Compatibility, complete portfolio | 1,920 | 1,110 | 3,030 | 55 minutes |
+
+The 1,110-second allowance is 600 setup + 210 termination/cleanup/finalization + 180 publication +
+120 host margin. It reserves headroom; it does not claim the legacy runners implement the future
+supervisor or that cold setup has been measured. The 5-minute workflow-policy/annotation jobs remain
+unchanged. The old 15/20/15-minute runtime/compatibility job values and Phase 2.5 warning above are
+historical inputs to this reconciliation. Inner registry timeouts, all selected cases and check
+identities are unchanged. Native/catalog/bootstrap and ADO adoption remain their later phases.
+
 ## Selected Version Baselines
 
 These exact selections are accepted design baselines for implementation in 3.1; repository declarations remain

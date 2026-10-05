@@ -1360,7 +1360,7 @@ without changing canonical project output.
 
 ## GitHub Actions CI
 
-The tracked `.github/workflows/ci.yml` workflow runs for pull requests, pushes to `main`, and intentional manual dispatches. The tracked `.github/workflows/work-annotations.yml` workflow runs the standalone `Work Annotation Policy` job on every non-`main` branch push. Feature checkpoints therefore receive annotation validation without starting conformance, compatibility, formatting, rendering, or workflow-policy jobs unless the branch also participates in an open pull request. The six stable job/check names are `Work Annotation Policy`, `Workflow Policy`, `Python Validation`, `PowerShell 7 Validation`, `Windows PowerShell 5.1 Validation`, and `Project Compatibility`. Future repository rules may require these names, so avoid casual renames.
+The tracked `.github/workflows/ci.yml` workflow runs for pull requests, pushes to `main`, and intentional manual dispatches. The tracked `.github/workflows/work-annotations.yml` workflow runs the standalone `Work Annotation Policy` job on every non-`main` branch push. Feature checkpoints therefore receive annotation validation without starting conformance, compatibility, formatting, rendering, or workflow-policy jobs unless the branch also participates in an open pull request. The five retained job/check names are `Work Annotation Policy`, `Workflow Policy`, `Python Validation`, `PowerShell 7 Validation`, and `Project Compatibility`. CI 2.6 retires `Windows PowerShell 5.1 Validation` after retained coverage proof; publication/hosted acceptance remains pending. Future repository rules may require the retained names, so avoid casual renames.
 
 `Workflow Policy` installs the checksum-pinned standalone actionlint release declared in the workflow and validates all workflow files. Local preflight uses a system-installed official executable:
 
@@ -1368,7 +1368,13 @@ The tracked `.github/workflows/ci.yml` workflow runs for pull requests, pushes t
 actionlint -color
 ```
 
-The runtime jobs install repository dependencies and execute static policy plus the complete registered `baseline` conformance profile in Python, PowerShell 7, and Windows PowerShell 5.1. `Project Compatibility` runs independently on Windows so cross-runtime Visualization, QA, root-discovery, artifact-lifecycle, and canonical-output comparisons are not duplicated across runtime jobs. It selects `pull-request` for PRs and `full-release` for `main` and manual dispatch; Mermaid CLI is installed only for the latter render-bearing profile. Third-party actions are pinned to immutable commit SHAs.
+The runtime jobs install repository dependencies and execute static policy plus the complete registered `baseline` conformance profile in Python and PowerShell 7. `Project Compatibility` runs independently on Windows so cross-runtime Visualization, QA, root-discovery, artifact-lifecycle, and canonical-output comparisons are not duplicated across runtime jobs. It selects `pull-request` for PRs and `full-release` for `main` and manual dispatch; Mermaid CLI is installed only for the latter render-bearing profile. Third-party actions are pinned to immutable commit SHAs.
+
+CI 2.6's checkout allowances are Python 25 minutes, PS7 30 and compatibility 55; workflow/annotation
+policy remain 5 each. They reconcile the retained baseline/profile envelopes plus provisional cold
+setup and cleanup/reporting headroom. Workflow comparison proves only the Desktop job and three
+allowances change. No hosted native test adoption or ADO activation occurs here. The following dated
+Phase 8 measurements and dependency descriptions preserve their original three-runtime context.
 
 Phase 8 pre-consolidation measurement: manual run `30775535401` at commit `a843616` passed on 2026-08-02 in 5m50s wall-clock. `Workflow Policy` took 7s; Python took 1m07s with 55s in conformance; PowerShell 7 took 3m45s with 2m39s in conformance; and Windows PowerShell 5.1 took 5m46s with 4m36s in conformance. Python setup plus requirements took 4s, while PowerShell requirements took 15s and 19s. The Phase 8 policy retained full PR/main/manual conformance, left ordinary feature-branch pushes quiet, and moved duplicated project-consumer checks into the parallel `Project Compatibility` job. The later standalone annotation workflow intentionally supersedes only the completely quiet feature-push behavior; feature pushes still do not run conformance or compatibility.
 

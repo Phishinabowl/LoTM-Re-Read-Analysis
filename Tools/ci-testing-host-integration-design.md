@@ -26,8 +26,8 @@ Live `git ls-remote` returned identical tips on both hosts:
 | `architecture/framework-extraction-foundation` | `c4b79326e8dde5420f61d318f4f541e752b6030a` |
 | `architecture/ci-testing-modernization` | `0e89480f0f30cae0c6d9fb5370a319e6c1714a8e` |
 
-Current GitHub `ci.yml` runs on PRs, main pushes and manual dispatch; it still includes 5.1 until
-CI Phase 2. Non-main pushes run the separate annotation workflow. There is no schedule. Full CI
+The checkout's GitHub `ci.yml` runs on PRs, main pushes and manual dispatch; CI 2.6 removes its 5.1
+job for review, with publication/hosted proof pending. Non-main pushes run the separate annotation workflow. There is no schedule. Full CI
 still has unconditional superseded-run cancellation, repeated setup, and no Markdown/XML/artifact
 publication. These are current behavior, not evidence of the target below being installed.
 

@@ -5,8 +5,9 @@ Phase 2.1 documentary support adoption, inventory and version decisions are conf
 Phase 2.2 host enforcement and the Phase 3.1 packaging-plan addition are confirmed on 2026-10-05;
 Phase 2.3 QA child migration is confirmed on 2026-10-05. Phase 2.4 registry/extraction/reporting
 migration is confirmed on 2026-10-05. Phase 2.5 retained coverage and budget refresh are confirmed
-on 2026-10-05; 2.6 is next. No hosted activation has occurred.
-Hosted retirement and removal of temporary live-5.1 tests remain 2.6 work.
+on 2026-10-05. Phase 2.6 checkout retirement and the performance/cache-plan clarification are
+confirmed for publication on 2026-10-05; exact-snapshot hosted proof and final Phase 2 closure remain pending. No ADO activation
+has occurred. Temporary live-5.1 tests are removed from the current native test roots.
 Focused host regressions are implemented; broader native-test foundations and dual-host pipeline
 rollout have not started. The maintainer accepted retirement of Windows PowerShell 5.1 support on
 2026-10-05; remaining runtime/runner/workflow migration follows the owning checkpoints.
@@ -59,6 +60,11 @@ design candidates until Phase 1 review; do not describe them as implemented.
   setup. Preserve required coverage rather than every test forever; overlapping fixtures do not prove
   redundancy across different contract boundaries or independent runtimes. Identify candidates during
   5.1 shadow comparison and retire only accepted coverage mappings at 8.1. Shadow duplication is temporary.
+- Faster routine CI feedback is an acceptance objective, alongside equivalent or stronger coverage.
+  Measure dependency acquisition/cache restore, environment preparation, test execution and publication
+  separately; keep queue delay distinct from execution time. Timeout ceilings and provisional cold-start
+  reserves are safety limits, not acceptable normal durations or evidence that optimization succeeded.
+  Agree measurable per-profile feedback targets during 3.5/5.1 and verify them before hosted adoption.
 - The accepted 5.1 retirement deliberately changes the supported-host contract. Preserve all semantic
   fixtures and Python/PS7 coverage; do not describe ending Desktop coverage as three-runtime equivalence.
   Full Python/PowerShell implementation parity remains required; reducing duplication is a separate decision.
@@ -1023,16 +1029,16 @@ required coverage; no additional test removal is implemented by this confirmatio
 
 ### Phase 2.6 Hosted Check Retirement And Closure
 
-- [ ] Refresh GitHub protections/rulesets and ADO policies/pipeline inventory before changing checks.
+- [x] Refresh GitHub protections/rulesets and ADO policies/pipeline inventory before changing checks.
   The 2026-10-05 inspection found both main/framework branches unprotected and zero ADO pipelines.
-- [ ] Retire the dedicated `Windows PowerShell 5.1 Validation` job and its report/setup obligations after
+- [x] Retire the dedicated `Windows PowerShell 5.1 Validation` job and its report/setup obligations after
   2.5 proof. Preserve the five retained check identities and existing events; do not activate new ADO CI.
-- [ ] Remove the temporary live-5.1 migration tests from regular test execution before Phase 3 catalog
+- [x] Remove the temporary live-5.1 migration tests from regular test execution before Phase 3 catalog
   adoption. Preserve their recorded acceptance evidence; any retained migration harness must be explicitly
   on demand and excluded from steady-state catalogs, profiles and hosted gates. Verify permanent tests
   require no installed 5.1 executable, including alternate-executable fixtures, while retaining synthetic
   unsupported-host policy checks and supported Python/PS7 launch, reporting and cleanup regressions.
-- [ ] Reconcile the existing retained job deadlines with 2.5 measurements and setup/report headroom;
+- [x] Reconcile the existing retained job deadlines with 2.5 measurements and setup/report headroom;
   host retirement alone does not prove the old 900-second compatibility job is adequate. Keep coverage.
 - [ ] Verify hosted compatibility now uses only retained hosts, including nested extraction/QA launches;
   inspect actual retained PR/main/manual coverage on the published retirement snapshot when authorized.
@@ -1040,6 +1046,61 @@ required coverage; no additional test removal is implemented by this confirmatio
   ledger/platform history at confirmation. Update future native catalogs/plans to exclude 5.1 obligations.
 - [ ] Review retirement closure before Phase 3 bootstrap/pilots start; unresolved retained-runtime failures
   block closure. Broader supervisor/meta-regression work remains in Phase 4.
+
+**Phase 2.6 implementation (confirmed for publication 2026-10-05):** The checkout removes the dedicated Desktop
+workflow job and four live-Desktop Pester cases. Source/history at `4f5c414` and Phase 2.5's XML/proof
+preserve the acceptance evidence; no on-demand migration harness or future Desktop variant is added.
+The alternate-executable resolver assertion now uses an inert file in TestDrive and shared Desktop
+path setup is removed. Six host and eight QA-child cases remain. Exact Pester 6.2.0 runs pass 14 cases
+on both 7.6.6 and 7.4.0 with powershell.exe absent from process PATH and command discovery. Synthetic
+Desktop/older-Core policy inputs remain; no machine runtime is removed or policy changed.
+
+All 52 pytest cases, primary PS7 formatting (58 sources), Ruff, annotation fixtures and actionlint
+pass. Workflow structural comparison proves only the removed job and Python/PS7/compatibility
+allowances change: 25/30/55 minutes. All five retained check names, event/permissions/concurrency
+objects, steps, action SHAs, profiles and output contracts remain unchanged. The budget document
+records 150/690/1,920-second envelopes plus 1,110 seconds of provisional setup/reserves/publication/
+host headroom. These are maximum allowances, not a claim of slower normal runs or implemented supervision.
+
+Fresh read-only GitHub inspection finds no rulesets and main/framework unprotected; ADO project-wide
+policy and pipeline inventories are empty. There is no modernization PR. Latest published
+[annotation run 37355984837](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37355984837)
+passed at `4f5c414`; it is not hosted proof for this uncommitted retirement snapshot. No required
+legacy-check reference was found, and no protection/pipeline/policy setting is changed.
+
+**Publication/closure gate:** Leave changes uncommitted until maintainer confirmation. Publish the
+reviewed branch through its established dual-remote workflow, then dispatch/inspect CI on that exact
+published retirement SHA before treating manual full-release coverage as hosted proof. Record the
+run's event, commit, all retained jobs/steps, actual profile, outcomes and complete failure diagnostics;
+repair real failures before accepting closure. The main and manual selector is unchanged and selects
+full-release; PR selects pull-request. Static equivalence does not claim an actual PR or main event.
+There is no PR to trigger validation, and this branch is not merged into main; actual event-specific
+proof requires the corresponding separately authorized PR/integration action. Do not create/merge
+one merely to manufacture coverage or mark unexecuted events passed. This gate stays visibly open
+until the maintainer accepts the available exact-snapshot hosted evidence and outstanding event scope.
+
+The ledger and pending platform-history entry record the focused source commits, deliberate
+Desktop-only coverage loss, current native registration boundary, retained semantic inventories,
+updated budgets and rollback. All conformance/compatibility registry, fixture, runtime/domain,
+dependency, canonical and baseline bytes are preserved against the frozen 492-file entry snapshot;
+47 protected files and 28 original Phase 1.4 JSON records remain unchanged. Phase 2.5's complete
+21-suite/11-check/nine-extraction proof remains the retained semantic reference because no domain
+implementation or registry changes in 2.6. Fresh full domain reruns are not substituted for hosted proof.
+
+Ignored `.tmp/ci-phase26-20261005/` preserves the frozen entry, original workflow/host tests/platform
+history, native XML, policy/static output and structural/preservation observations. All 81 relative
+links resolve, the original platform history is preserved before its pending appended entry, final
+annotation policy passes 22 fixtures / 395 files, and `git diff --check` passes. The narrow formatter
+normalizes the edited test's line endings while preserving non-whitespace tokens. No closure or
+future native catalog acceptance is inferred from those local checks.
+
+**Rollback:** Revert the focused checkout retirement/test/documentation changes together, restoring
+the Desktop job, earlier allowances and migration-only tests from `4f5c414` if needed. A full supported
+host-policy rollback must also coordinate the accepted 2.2-2.4 breaking-support changes; restoring
+only a Desktop job cannot make the now-rejected host supported again. Preserve raw history/content.
+The maintainer confirmed the four local implementation/inspection items and the explicit performance/
+cache acceptance wording on 2026-10-05. The three hosted/history/closure items and Phase 2 exit gate
+remain pending exact published-snapshot evidence. Phase 3 has not started.
 
 ### Phase 2 Exit Gate
 
@@ -1095,17 +1156,26 @@ This checkpoint settles concrete version/backend choices; the current plan does 
 - [ ] Pin adopted build/bootstrap tools as appropriate, build only into owned ignored destinations,
   and retain artifact digest, package version, interpreter and dependency provenance. Publish nothing
   to PyPI, Azure Artifacts, GitHub releases or another external package host at this checkpoint.
+- [ ] Implement the accepted cache/bootstrap design with exact adopted runtime/tool/dependency versions,
+  lock/declaration digests and artifact verification. Reuse Python package payloads, versioned PowerShell
+  modules, locked Node package downloads, matching Puppeteer browser binaries and appropriate standalone
+  tools where measured reuse helps. Keep persistent stores outside snapshots/disposable cleanup roots;
+  recreate or verify the isolated execution environment instead of trusting an arbitrary cached install.
 - [ ] Use version-qualified Pester 6.2.0 imports; verify the adopted PS7 baseline and required OS lanes.
 - [ ] Keep test invocation free of automatic installation; detect missing, legacy, wrong, and unusable
   dependencies with actionable failures.
 - [ ] Test clean setup, repeat setup, changed dependency/cache state, and portable conformance after
-  separating runtime and test requirements.
+  separating runtime and test requirements. Measure cold misses and warm hits separately, including
+  restore/save overhead; exercise changed locks, wrong/corrupt versions and offline execution after
+  bootstrap. Retain only caches that demonstrably save time while preserving version/provenance checks.
 - [ ] Preserve standalone source-tree CLI/conformance/extraction execution while proving the new
   installation route. Any path-bootstrap removal or adapter change needs explicit consumer proof;
   wheel support alone does not authorize removing existing command entry points or import paths.
 
 **Checkpoint:** Source development and wheel installation are independently reproducible locally;
 versions/paths are verified and test execution performs no silent installation or substitution.
+Cold/warm bootstrap evidence identifies useful reusable stores and actual setup costs; pinning alone
+is not a demonstrated performance improvement. Hosted transport remains Phase 6 work.
 
 #### Phase 3.1.3 Installed Artifact And Boundary Verification
 
@@ -1182,6 +1252,9 @@ planning addition on 2026-10-05; the new Phase 3.1 implementation checkboxes rem
 
 - [ ] Compare legacy and pilot coverage scenario by scenario, including deliberate failure detection,
   diagnostics, isolation, runtime cost, and local invocation.
+- [ ] Establish measurable routine-feedback targets and cold/warm setup expectations from pilot evidence,
+  with full-profile targets reconciled at 5.1. Keep maximum timeout allowances separate from normal
+  duration targets; do not invent promised savings before measuring the affected workload.
 - [ ] Update the coverage ledger and exact command documentation; keep original coverage active.
 - [ ] Record limitations and choose the next implementation-test groups as Phase 4 APIs are added.
 
@@ -1296,6 +1369,9 @@ three-runtime evidence stays available; shadow comparison does not reinstate 5.1
 - [ ] Measure new setup/launch/execution/report costs and revise budgets with evidence. Identify obsolete,
   temporary or redundant tests and repeated expensive setup; record each candidate's contract boundary,
   remaining coverage, failure-detection comparison, measured savings and rollback before 8.1 review.
+  Investigate expensive repeated process launches, parsing and validation independently of dependency
+  downloads. Set/reconcile per-profile feedback targets against the accepted 2.5 reference and native
+  pilot costs; explain added coverage, host differences and shadow overhead instead of hiding them.
 
 **Checkpoint:** A comparison record identifies equivalent retained coverage and any remaining blockers.
 
@@ -1339,6 +1415,9 @@ three-runtime evidence stays available; shadow comparison does not reinstate 5.1
 - [ ] Review reports/artifacts and verify new implementation tests cover affected modules/commands,
   rather than concentrating all test effort on the supervisor.
 - [ ] Accept the local equivalence record before changing hosted authority; keep original gates available.
+- [ ] Review measured routine-feedback improvements against the agreed targets, with setup and execution
+  distinguished. Unmet targets need further optimization or an explicit reviewed tradeoff; larger
+  timeout allowances and a populated cache do not by themselves satisfy performance acceptance.
 
 ### Phase 5 Exit Gate
 
@@ -1356,6 +1435,12 @@ three-runtime evidence stays available; shadow comparison does not reinstate 5.1
 - [ ] Verify framework and modernization branch commit parity, ref mapping, authentication scope,
   divergence detection, and recovery after a partial synchronization failure.
 - [ ] Recheck agents, runtimes, job capacity, costs, permissions, and protections before activation.
+- [ ] Implement/measure dependency-cache transport on each host using the repository-owned bootstrap
+  contract and compatible OS/architecture/runtime/lock keys. Verify restored versions and provenance;
+  demonstrate cold miss, warm hit, invalidation and recovery, including restore/save costs. Use GitHub
+  dependency caching and Azure Pipelines Cache@2 as transport, not competing dependency authorities.
+  Evaluate prepared/custom agent images or internal package feeds only if measured needs justify their
+  separate cost, maintenance and ownership decisions; they are not prerequisites for this overhaul.
 - [ ] Open an authorized draft GitHub PR into the framework branch when needed for shadow PR runs;
   use an ADO validation PR against the matching framework branch, without independent ADO merging.
 
@@ -1402,6 +1487,9 @@ three-runtime evidence stays available; shadow comparison does not reinstate 5.1
 - [ ] Compare run/profile/suite identities, scenario outcomes, executed commits, dependency versions,
   normalization, and report contents between both hosts and local reference runs.
 - [ ] Record observed timings, cache behavior, artifact retention, permissions, cancellation, and agent limits.
+  Compare cold/warm setup, actual test execution and publication against local/reference evidence and
+  agreed feedback targets. Account for host queue delay and repeated setup across shards separately;
+  use measured cache benefits and workload costs to replace provisional setup allowances and timeouts.
 - [ ] Review real required-check/build-validation configuration before making shadow jobs authoritative;
   do not remove old gates until equivalent or stronger hosted coverage is accepted.
 - [ ] Keep rollback settings and original workflows available; record activation decisions and run URLs.
@@ -1524,6 +1612,9 @@ newly introduced policies/triggers through reviewed changes. Preserve shared Git
 
 - [ ] The reviewed overhaul is integrated and verified, accepted retirements are recorded, the
   repository/host documentation is current, and the platform handoff is explicit.
+- [ ] Routine CI feedback demonstrates the accepted performance improvements with equivalent or stronger
+  required coverage; final cold/warm costs and any explicitly accepted tradeoffs are recorded. Permanent
+  old/new shadow duplication and oversized timeout ceilings do not substitute for this outcome.
 
 **Rollback:** Revert focused adoption commits through normal review and restore the retained execution
 path. Do not rewrite shared history, force synchronization, or reset canonical content.

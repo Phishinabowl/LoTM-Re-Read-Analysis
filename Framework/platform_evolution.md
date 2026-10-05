@@ -953,3 +953,49 @@ work-annotation linter passed 379 files and all 22 fixtures with zero findings. 
 passed. All 13 effective installed planned capabilities remain machine-discoverable and scheduled
 against eight delivery targets; no capability was promoted, activated, or removed. Phase 3 is
 closed and Phase 4 page modules, fields, defaults, and validation levels is next.
+
+## CI Modernization Interlude - PowerShell Host Retirement (Closure Pending)
+
+**Closure implemented by:** pending
+
+**Status:** CI Phases 2.1-2.5 are confirmed on 2026-10-05. CI 2.6 checkout implementation is
+confirmed for publication on 2026-10-05; exact-snapshot hosted acceptance is pending. This records the
+CI interlude before Platform 4.2, not a new semantic version or closure of Phase 4.1 discovery review.
+The [CI modernization plan](../Tools/ci-testing-modernization-plan.md) owns the separate checkpoints.
+
+**Confirmed foundation commits:** `202c1c3` (support contract/inventory), `0453ef6` (module 0.14.0,
+host guards and preflight), `eded91b` (approved PS7 QA children), `19b40d8` (schema-3 two-runtime
+compatibility/extraction/reporting), and `4f5c414` (complete retained coverage and budget proof).
+The final retirement/hosted closure commit and run references are filled after acceptance rather
+than inferred from this pending record.
+
+The maintainer explicitly retires Desktop/5.1 support while retaining independent Python/PS7
+implementations and every semantic fixture. Phase 2.5 passes all 21 suites in Python, PS7.6.6 and
+PS7.4.0 with complete reports exactly equal to the pre-retirement reports. All 11 full-release
+checks, nine-suite neutral extraction, consumer baselines, synthetic Windows media and canonical
+fingerprints pass. Its 601.486-second compatibility duration is a warm local observation before final
+cleanup/reporting, not the total portfolio or a hosted throughput claim.
+
+The confirmed 2.6 implementation retires the dedicated Desktop job and four temporary live-Desktop Pester
+cases after their acceptance proof. The installed-host resolver input becomes an inert fixture;
+14 retained native cases pass on both PS7 hosts with Desktop unavailable on process PATH. All 52
+Python implementation cases remain. Historical source/XML preserves the removed proof; no permanent
+Desktop variant or replacement migration harness is added.
+
+Five retained check identities and existing PR/main/manual/annotation events are preserved; only
+the Desktop job and runtime/compatibility allowances change. Proposed checkout allowances are Python
+25 minutes, PS7 30 and compatibility 55, with policy checks unchanged at 5. Fresh read-only GitHub
+inspection finds no rulesets and unprotected main/framework branches; ADO has no project policies
+or pipelines. No host policy or ADO pipeline is activated here. Actual hosted evidence on the published
+retirement SHA remains required; an existing annotation success is not a full retirement proof.
+
+Canonical pages, templates, Relationship Seeds, fixture/registry data, runtime/domain services,
+accepted QA/Visualization baselines and public domain/report APIs are unchanged. The original
+timeout-retained extraction scratch, fail-fast/per-call legacy supervision and unimplemented
+manifest export remain explicitly separate findings. Broader native catalogs, safe diff selection,
+process ownership, reporting, bootstrap and GitHub/ADO adoption remain later CI phases.
+
+Rollback must coordinate the focused retirement changes with earlier breaking host-policy changes;
+restoring only a Desktop job cannot make module 0.14.0 support that host again. Preserve original
+evidence and Git history, restore through ordinary reviewed changes, and leave machine installations
+and canonical content untouched. Phase 3 bootstrap/pilots do not start until CI Phase 2 exit is accepted.

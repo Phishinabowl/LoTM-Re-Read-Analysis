@@ -592,10 +592,10 @@ retirement; D09-D11/D13 were confirmed on 2026-10-05. Implementation evidence ga
 | D19 | Accepted 2026-10-05: adopt documentary Python/PS7 Core 7.4+ support and rename the active parity family one-for-one. Plan module 0.14.0 at 2.2 and compatibility registry schema 3 at 2.4, rejecting obsolete declarations; retain conformance/report/extraction v1 and all knowledge schemas. Refined host readiness and runtime-dependent result counts need explicit consumer proof. | 2.1-2.5; inventory/version details in the retirement inventory. |
 | D20 | Accepted planning scope 2026-10-05: add local Python runtime versioning, isolated installation, wheel build and installed-artifact boundary proof within CI 3.1. Settle initial version, backend and shared/independent component numbering at 3.1.1; retain source-tree commands and neutral conformance. No Python version is inferred from PS 0.14.0. Public publishing/hosting and complete product distribution remain Platform 15.1 decisions. | 3.1.1-3.1.3; registration/adoption at 3.2-3.5/4.1 and extraction/equivalence at 5.4. |
 
-This planning update records the decision, not completed retirement. The hosted workflow retains
-its 5.1 obligation until 2.6. Phase 2.4 schema-3 compatibility/extraction is confirmed on 2026-10-05. Phase 2.2
+This planning update records the decision; CI 2.6 removes the checkout's hosted/live-test 5.1
+obligations for review, with publication/hosted closure pending. Phase 2.4 schema-3 compatibility/extraction is confirmed on 2026-10-05. Phase 2.2
 implements the confirmed module host boundary. Phase 2.3 QA child migration is confirmed on 2026-10-05;
-complete retained coverage and hosted retirement remain later checkpoints.
+complete retained local coverage is confirmed at 2.5; hosted retirement closure remains 2.6.
 Existing architecture/methodology support wording is updated at 2.1; historical three-runtime results
 remain intact. D14 explicitly supersedes the planned 5.1 support portions of earlier decisions.
 

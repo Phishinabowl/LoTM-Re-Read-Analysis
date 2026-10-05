@@ -43,7 +43,7 @@ jobs:
   python-validation:
     name: Python Validation
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 25
     env:
       PYTHONUTF8: "1"
     steps:
@@ -84,7 +84,7 @@ jobs:
   powershell-7-validation:
     name: PowerShell 7 Validation
     runs-on: windows-2022
-    timeout-minutes: 20
+    timeout-minutes: 30
     defaults:
       run:
         shell: pwsh
@@ -123,52 +123,10 @@ jobs:
               Get-Content -LiteralPath .tmp/ci/powershell7-conformance.json -Raw
           }
 
-  windows-powershell-validation:
-    name: Windows PowerShell 5.1 Validation
-    runs-on: windows-2022
-    timeout-minutes: 20
-    defaults:
-      run:
-        shell: powershell
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
-
-      - name: Install PowerShell requirements
-        run: |
-          $ErrorActionPreference = 'Stop'
-          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
-          $modulePath = Join-Path $env:RUNNER_TEMP 'knowledge-framework-modules'
-          New-Item -ItemType Directory -Path $modulePath -Force | Out-Null
-          foreach ($module in Get-Content -LiteralPath requirements-powershell.txt) {
-              $module = $module.Trim()
-              if ($module -and -not $module.StartsWith('#')) {
-                  Save-Module -Name $module -Repository PSGallery -Path $modulePath -Force
-              }
-          }
-          "PSModulePath=$modulePath;$env:PSModulePath" |
-              Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-
-      - name: Check PowerShell formatting
-        run: ./Tools/Static/Format-PowerShell.ps1
-
-      - name: Run framework conformance suites
-        run: >-
-          ./Tools/Conformance/Run-Conformance.ps1 -Profile baseline -SummaryJson
-          -ReportOutput .tmp/ci/powershell51-conformance.json
-
-      - name: Print detailed conformance report on failure
-        if: failure()
-        run: |
-          if (Test-Path -LiteralPath .tmp/ci/powershell51-conformance.json) {
-              Get-Content -LiteralPath .tmp/ci/powershell51-conformance.json -Raw
-          }
-
   project-compatibility:
     name: Project Compatibility
     runs-on: windows-2022
-    timeout-minutes: 15
+    timeout-minutes: 55
     defaults:
       run:
         shell: pwsh

@@ -7,7 +7,8 @@ hosts fail without Desktop fallback. Schema 2 declarations fail with an explicit
 unknown/non-integer versions, duplicate JSON keys, empty inventories and invalid runtime lists fail.
 All 11 checks and all four profile memberships are retained. See the
 [retirement inventory](../ci-powershell-retirement-inventory.md); full retained coverage and hosted
-retirement remain CI 2.5/2.6 work.
+retirement are tracked by CI 2.5/2.6. Full retained local proof is confirmed at 2.5; CI 2.6 removes
+the checkout's hosted Desktop job for review, with published-snapshot hosted acceptance pending.
 
 Detailed reports and extraction summaries remain schema 1; concise summaries remain contract 1.
 Runtime lists/maps truthfully contain Python/PS7. Conformance-reporting counts derive from completed
