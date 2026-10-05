@@ -50,6 +50,10 @@ CI 3.2 [native test layout and lifecycle](Tests/README.md) is confirmed: confine
 defaults, exact Pester configuration, unit/integration labels, stable identities and isolated-file
 proof. Shared conformance remains separately owned by its registry.
 
+CI 3.3 [tooling pilots](Tests/README.md#ci-33-pilot-scope-and-evidence) are confirmed:
+Windows/WSL pass 97 pytest/32 Pester cases, including annotation, normalization, formatter,
+conformance helpers and root APIs, with narrow annotation-error/formatter-idempotence fixes.
+
 For switch-by-switch maps, function-pipeline notes, side effects, parity checks, and durable config/state files for maintained helper scripts, see [Tooling Reference](TOOLING_REFERENCE.md). That reference should be extended whenever another tool is audited or a tool starts reading a new shared config file. The broader version process belongs to the [Framework Improvement Lifecycle](../Framework/framework_improvement_lifecycle.md), while the cumulative requirement for when and why checks run belongs to the [Framework Testing Methodology](../Framework/testing_methodology.md).
 
 Paired validation and conformance commands that emit a human-readable summary also support

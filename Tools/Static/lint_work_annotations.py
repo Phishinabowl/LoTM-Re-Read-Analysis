@@ -8,6 +8,7 @@ import importlib.util
 import json
 import re
 import subprocess
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any

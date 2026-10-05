@@ -65,9 +65,13 @@ The Testing panel is a development view, not suite membership authority or hoste
 | Python/test_bootstrap.py | unit | 15 | Dependency grammar/cache/bootstrap implementation |
 | Python/test_compatibility_retirement.py | unit/integration | 51 unit, 1 integration | Current registry/report/host/extraction implementation; inert legacy-host inputs are retained rejection cases |
 | Python/test_package_artifact.py | unit | 18 | Wheel boundary and pure synthetic-consumer helper |
+| Python/test_tooling_pilots.py | unit/integration | 9 unit, 3 integration | Annotation discovery/CLI, normalization and root API implementation |
+| PowerShell/ConformanceRunner.Tests.ps1 | Unit | 6 | Conformance registry/selection/report helpers with inert synthetic runners |
 | PowerShell/Dependencies.Tests.ps1 | Unit | 3 | Exact module-declaration implementation |
+| PowerShell/Formatter.Tests.ps1 | Unit/Integration | 3 Unit, 4 Integration | Mocked Git/explicit-file discovery and real exact-version analyzer |
 | PowerShell/Host.Tests.ps1 | Integration | 6 | Supported host/module/readiness collaboration |
 | PowerShell/QaChildren.Tests.ps1 | Integration | 8 | QA launch functions with synthetic child helpers |
+| PowerShell/RuntimeApi.Tests.ps1 | Integration | 2 | Source-module root precedence/rejection with neutral manifests |
 
 Python's collection hook adds `unit` only when no category is declared, rejects overlapping
 categories and sorts stable node IDs. Mark integration explicitly for real command/module
@@ -122,6 +126,36 @@ general isolation/security guarantee for arbitrary future tests. No new semantic
 memberships were added. CI 3.2 is confirmed on 2026-10-05. VS Code discovery also confirms all
 85 Python cases using the selected isolated development interpreter; the maintainer confirmed
 that scoped Pester discovery removed the cached dependency test and cleared its pending state.
+
+## CI 3.3 Pilot Scope And Evidence
+
+CI 3.3 is confirmed on 2026-10-05: 12 pytest/15 Pester cases supplement the retained
+foundation, giving 97/32 aggregate cases. Existing registry validation is retained rather than
+duplicated. Annotation CLI integration reuses the 22 existing policy fixtures as one CLI/report
+route, not a competing oracle. New writes use tmp_path/TestDrive; Git is mocked with argument/exit
+assertions, registry runners are inert synthetic files and source API roots contain neutral manifests.
+No service calls, canonical exports or dependency installation occur during these tests.
+
+Support/Get-ToolFunctionBlock.ps1 is a test-only AST adapter loading actual function definitions
+without command startup. The formatter uses real PSScriptAnalyzer 1.25.0; only the corruption-output
+boundary is mocked. No production helper extraction or runtime refactor was required. New files
+pass independently and all native cases pass on Windows/WSL. Observed aggregate process times are
+Python 4.292s/2.057s and Pester 12.254s/23.208s, including startup; local samples, not hosted percentiles.
+The formatter pilot needs the development host (PS7.6.6 adopted; analyzer requires Core 7.4.6+),
+not the runtime-only 7.4.0 lane. Evidence/logs/native XML are ignored `.tmp/ci-phase33/`.
+
+The pilots caught two genuine defects before their narrow fixes: annotation JSON error handling
+referenced sys without importing it, and single-line formatting could switch LF/CRLF on its second
+pass. The missing import is added; final formatting follows the existing CRLF policy. Invalid policy
+and escaping CLI requests now return JSON failure/exit 1 instead of NameError. Both failure-detecting
+assertions remain. No policy grammar, runtime/schema behavior, fixtures or suite membership changed.
+Full static formatting passes 67 sources unchanged; annotation policy passes 22 fixtures without findings.
+
+Proposed PR/full native groups are python-tooling-pilots, powershell-formatting-implementation,
+powershell-conformance-implementation and powershell-runtime-api; formal registration belongs to 4.1.
+G01/G02/G03/G10 receive partial implementation proof. Media/every-adapter coverage, exhaustive runner
+supervision and broader report encoding/path/case/link safety remain later gates. Native failure
+contracts and equivalence/adoption review are 3.4/3.5. No existing coverage is retired here.
 
 ## Framework References
 

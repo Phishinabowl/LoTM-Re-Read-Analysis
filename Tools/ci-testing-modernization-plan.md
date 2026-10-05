@@ -18,7 +18,8 @@ selected. CI 3.1.2 package/bootstrap implementation is confirmed, published and 
 local Windows/WSL and fresh hosted Windows/Linux on 2026-10-05.
 CI 3.1.3 installed-artifact verification is confirmed on 2026-10-05 with local Windows/WSL proof.
 Phase 3.1 is closed; CI 3.2 native test layout/discovery and editor configuration are confirmed
-on 2026-10-05. Representative Python/PowerShell pilots begin at 3.3.
+on 2026-10-05. CI 3.3 representative Python/PowerShell pilots and their narrow tooling fixes are
+confirmed on 2026-10-05. Native results/failure contracts begin at 3.4.
 
 **Working branch:** `architecture/ci-testing-modernization`, created from
 `architecture/framework-extraction-foundation` at `c4b7932`.
@@ -1404,16 +1405,33 @@ log confirms all 85 cases discovered through that executable. These additions ar
 
 ### Phase 3.3 Representative Python And PowerShell Pilots
 
-- [ ] Add fixture-driven pytest coverage for annotation discovery/CLI, existing registry validation,
+- [x] Add fixture-driven pytest coverage for annotation discovery/CLI, existing registry validation,
   compatibility normalization, and representative Python API behavior selected by the ledger.
-- [ ] Add Pester coverage for formatter discovery/token preservation, existing aggregate/report
+- [x] Add Pester coverage for formatter discovery/token preservation, existing aggregate/report
   boundaries, and representative PowerShell API behavior in the supported PS7 host.
-- [ ] Use narrow importable helpers where needed; review any helper extraction separately and preserve
+- [x] Use narrow importable helpers where needed; review any helper extraction separately and preserve
   public CLI behavior rather than introducing a broad runtime refactor.
-- [ ] Exercise positive and negative scenarios with useful case names and exact assertions where
+- [x] Exercise positive and negative scenarios with useful case names and exact assertions where
   defined; label mocks/synthetic fixtures and preserve shared-fixture authority.
 
 **Checkpoint:** Pilots prove implementation behavior and complement independently runnable conformance.
+
+**3.3 confirmed (2026-10-05):** [Pilot scope/evidence](Tests/README.md#ci-33-pilot-scope-and-evidence)
+adds 12 pytest/15 Pester cases for annotation discovery/CLI, compatibility normalization, formatter
+discovery/token stability, conformance registry/selection/report helpers and root API boundaries.
+Existing registry-validation tests are retained; synthetic Git/runners are labeled, and the real
+exact-version analyzer is used. A test-only AST adapter avoids command startup without production
+helper extraction. Retained policy fixtures and shared semantic suites remain authoritative.
+
+Two defects were detected and narrowly fixed: missing sys import in annotation JSON error handling,
+and second-pass LF/CRLF instability in single-line formatting. Their failing-before/passing-after
+assertions remain. No runtime/schema/consumer behavior, canonical data, registry or workflow changes.
+New files and all 97 pytest/32 Pester cases pass independently/aggregately on Windows/WSL; process
+times are Python 4.292s/2.057s, Pester 12.254s/23.208s (local samples). Full formatting passes 67
+sources unchanged and annotation policy passes 22 fixtures without findings. Evidence is ignored
+`.tmp/ci-phase33/`. G01/G02/G03/G10 are partially addressed; result contracts, exhaustive path safety,
+equivalence and formal registration stay with later gates. The maintainer confirmed all four
+implementation items on 2026-10-05; no legacy coverage is retired here.
 
 ### Phase 3.4 Native Results And Framework Failure Contracts
 

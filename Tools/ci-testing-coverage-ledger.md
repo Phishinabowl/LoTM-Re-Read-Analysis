@@ -313,6 +313,18 @@ timings from this static inspection. Existing executable registries and workflow
 
 ### Documentation Verification
 
+**CI 3.3 confirmed (2026-10-05):** [Tooling pilots](Tests/README.md#ci-33-pilot-scope-and-evidence)
+add 12 pytest/15 Pester cases; Windows/WSL pass 97/32 aggregate cases and independent new files.
+G02 gains annotation inventory/CLI and formatter discovery/token/idempotence proof. Existing registry
+tests remain rather than being duplicated. G10 gains normalization that preserves meaningful content,
+artifact mismatch detection and conformance count/UTF8/path/excerpt boundaries. G03 gains root API
+precedence/rejection, not every adapter or media implementation. The tests caught missing sys import
+in annotation error reporting and formatter second-pass line-ending instability; both are narrowly
+fixed with retained failure-detecting assertions. Test-only AST loading avoids production extraction
+or command startup, and synthetic inventories/runners are labeled. Shared fixtures, canonical content,
+semantic registries and retained compatibility stay unchanged. Result/path safety, supervision,
+equivalence and registration remain later gates. Evidence/logs/XML are ignored `.tmp/ci-phase33/`.
+
 **CI 3.2 confirmed (2026-10-05):** [Native discovery/lifecycle](Tests/README.md) defines
 confined default roots, category labels, stable identities, source-import path restoration,
 per-test cwd/environment cleanup and future empty/stale/catalog-registration requirements.

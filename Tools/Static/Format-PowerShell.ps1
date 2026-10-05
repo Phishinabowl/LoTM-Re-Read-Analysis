@@ -222,6 +222,7 @@ function ConvertTo-ReadablePowerShell {
         -ScriptDefinition $expanded.Source `
         -Settings $settingsPath `
         -ErrorAction Stop
+    $formatted = $formatted.Replace("`r`n", "`n").Replace("`r", "`n").Replace("`n", "`r`n")
     $after = Get-ParsedPowerShell -Source $formatted -SourcePath $SourcePath
 
     $beforeFingerprint = Get-TokenFingerprint -Tokens $before.Tokens
