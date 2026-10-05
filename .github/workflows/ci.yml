@@ -55,10 +55,12 @@ jobs:
         with:
           python-version: "3.14.5"
           cache: pip
-          cache-dependency-path: requirements-python.txt
+          cache-dependency-path: |
+            requirements-python.txt
+            requirements-python-dev.txt
 
       - name: Install Python requirements
-        run: python -m pip install --disable-pip-version-check --requirement requirements-python.txt
+        run: python -m pip install --disable-pip-version-check --requirement requirements-python-dev.txt
 
       - name: Check Python formatting and lint
         run: |
@@ -99,12 +101,7 @@ jobs:
           Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
           $modulePath = Join-Path $env:RUNNER_TEMP 'knowledge-framework-modules'
           New-Item -ItemType Directory -Path $modulePath -Force | Out-Null
-          foreach ($module in Get-Content -LiteralPath requirements-powershell.txt) {
-              $module = $module.Trim()
-              if ($module -and -not $module.StartsWith('#')) {
-                  Save-Module -Name $module -Repository PSGallery -Path $modulePath -Force
-              }
-          }
+          ./Tools/CI/Install-PowerShellRequirements.ps1 -Destination $modulePath
           "PSModulePath=$modulePath;$env:PSModulePath" |
               Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
@@ -154,12 +151,7 @@ jobs:
           Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
           $modulePath = Join-Path $env:RUNNER_TEMP 'knowledge-framework-modules'
           New-Item -ItemType Directory -Path $modulePath -Force | Out-Null
-          foreach ($module in Get-Content -LiteralPath requirements-powershell.txt) {
-              $module = $module.Trim()
-              if ($module -and -not $module.StartsWith('#')) {
-                  Save-Module -Name $module -Repository PSGallery -Path $modulePath -Force
-              }
-          }
+          ./Tools/CI/Install-PowerShellRequirements.ps1 -Destination $modulePath
           "PSModulePath=$modulePath;$env:PSModulePath" |
               Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 

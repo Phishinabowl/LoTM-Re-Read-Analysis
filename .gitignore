@@ -17,6 +17,7 @@ __pycache__/
 .ruff_cache/
 .tox/
 .tmp/
+/Tools/Runtime/Python/*.egg-info/
 .ipynb_checkpoints/
 
 # Personal Implementation Notes

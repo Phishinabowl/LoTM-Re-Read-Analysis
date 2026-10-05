@@ -245,15 +245,19 @@ function ConvertTo-ReadablePowerShell {
     }
 }
 
-if (-not (Get-Module -ListAvailable -Name PSScriptAnalyzer)) {
+$repoRoot = Get-PowerShellRepositoryRoot -ExplicitRoot $Root
+. (Join-Path $repoRoot 'Tools/Commands/Environment/Private/Requirements.ps1')
+$analyzerRequirement = Read-ExactModuleRequirements -Path (Join-Path $repoRoot 'requirements-powershell-dev.txt') `
+    -Root $repoRoot | Where-Object { $_.Name -eq 'PSScriptAnalyzer' }
+if (-not $analyzerRequirement -or -not (Get-Module -ListAvailable -Name PSScriptAnalyzer |
+            Where-Object { [string]$_.Version -eq $analyzerRequirement.Version })) {
     throw (
         'PSScriptAnalyzer is required. Run Tools/Commands/Environment/Test-PowerShell.ps1 for dependency status, ' +
         'then install the missing requirement before formatting.'
     )
 }
-Import-Module PSScriptAnalyzer -ErrorAction Stop
+Import-Module PSScriptAnalyzer -RequiredVersion $analyzerRequirement.Version -ErrorAction Stop
 
-$repoRoot = Get-PowerShellRepositoryRoot -ExplicitRoot $Root
 $results = @()
 foreach ($file in Get-PowerShellSourceFiles -RepoRoot $repoRoot -InputPath $Path) {
     $source = Get-Content -LiteralPath $file.FullName -Raw

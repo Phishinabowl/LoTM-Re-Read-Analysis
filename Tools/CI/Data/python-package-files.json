@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "files": [
+    "__init__.py", "_version.py", "capability_roadmap.py", "chronology_config.py",
+    "effective_schema.py", "entity_config.py", "framework_catalog.py", "framework_config.py",
+    "framework_paths.py", "hosting_config.py", "interpretation_config.py", "lookup_key_config.py",
+    "occurrence_config.py", "project_config.py", "project_paths.py", "provenance_config.py",
+    "reconciliation_config.py", "resource_config.py", "schema_pack_config.py", "source_config.py",
+    "strict_yaml.py", "taxonomy_config.py", "temporal_config.py"
+  ]
+}

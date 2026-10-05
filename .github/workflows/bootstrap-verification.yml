@@ -1,0 +1,34 @@
+name: Bootstrap Verification
+
+# Temporary 3.1.2 proof. No PR/push/schedule trigger or branch-policy adoption.
+# Retire after cross-OS acceptance and registration through the canonical native profiles.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Bootstrap Verification (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2022]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.14.5"
+      - name: Verify repository bootstrap
+        env:
+          SOURCE_REVISION: ${{ github.sha }}
+          PYTHONUTF8: "1"
+        shell: pwsh
+        run: |
+          python Tools/CI/verify_bootstrap.py --source-revision $env:SOURCE_REVISION
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

@@ -313,6 +313,19 @@ timings from this static inspection. Existing executable registries and workflow
 
 ### Documentation Verification
 
+**CI 3.1.2 local implementation for review (2026-10-05):** Package/bootstrap proof covers separate
+source/editable/wheel/build-only routes, exact version/origin/dependency verification, confined
+declarations, payload/content receipts and actual corrupt/mismatched/missing/offline failure paths.
+The 15 Python/three Pester bootstrap cases extend implementation coverage; they do not replace any
+semantic suite or register future native groups. All 52 prior Python/14 prior Pester cases remain,
+with host fixtures migrated to exact-version declarations and neutral roots. Source baseline 21/21
+and runtime-only nine-suite neutral extraction pass with canonical/fixture membership unchanged.
+G06/G15 remain open for fresh cross-OS acceptance and 3.1.3 installed-artifact semantics/boundaries;
+cache transport/steady-state hosted adoption remains Phase 6. Temporary manual-only Bootstrap
+Verification supplies cross-OS proof after publication and retires after acceptance/canonical
+registration. [Bootstrap tools](CI/README.md) preserve timings, the corrected Firefox-acquisition
+mistake, sandbox-loopback limitation and honest fresh-npm restore cost.
+
 **Phase 2.6 confirmed and verified 2026-10-05:** Desktop's workflow job and four
 temporary live-Desktop host cases are removed after 2.5 acceptance. The resolver assertion now uses
 an inert existing file, leaving 14 native cases without Desktop command discovery; both PS7 hosts

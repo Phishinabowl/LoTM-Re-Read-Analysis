@@ -28,6 +28,7 @@ COPY_DIRECTORIES = (
     Path("Tools/Conformance"),
 )
 COPY_FILES = (
+    Path("LICENSE"),
     Path("pyproject.toml"),
     Path("requirements-python.txt"),
     Path("requirements-powershell.txt"),

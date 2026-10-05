@@ -1,3 +1,23 @@
+[build-system]
+requires = ["setuptools==84.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "knowledge-framework"
+description = "Reusable knowledge-framework runtime services."
+requires-python = ">=3.14"
+dependencies = ["PyYAML>=6.0.3,<7"]
+dynamic = ["version"]
+license-files = ["LICENSE"]
+
+[tool.setuptools]
+packages = ["knowledge_framework"]
+package-dir = {"" = "Tools/Runtime/Python"}
+include-package-data = false
+
+[tool.setuptools.dynamic]
+version = {attr = "knowledge_framework._version.__version__"}
+
 [tool.ruff]
 target-version = "py310"
 line-length = 120

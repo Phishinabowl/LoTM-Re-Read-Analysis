@@ -14,7 +14,9 @@ rollout have not started. The maintainer accepted retirement of Windows PowerShe
 2026-10-05; remaining runtime/runner/workflow migration follows the owning checkpoints.
 CI 3.1.1 package/version inventory and contract are confirmed on 2026-10-05. Independent
 Python 0.1.0 numbering and Python 3.14+ eligibility with pinned 3.14.5 execution are explicitly
-selected. Packaging/bootstrap implementation at 3.1.2 has not started.
+selected. CI 3.1.2 local package/bootstrap implementation is prepared for review; Windows local
+proof is complete and fresh cross-OS hosted proof remains pending confirmation/publication.
+Full installed-artifact semantics/boundary testing remains 3.1.3.
 
 **Working branch:** `architecture/ci-testing-modernization`, created from
 `architecture/framework-extraction-foundation` at `c4b7932`.
@@ -1220,26 +1222,28 @@ is introduced by this documentation pass.
 
 #### Phase 3.1.2 Reproducible Local Build, Install And Bootstrap
 
-- [ ] Implement explicit bootstrap/dependency declarations and verify installed versions/paths.
-- [ ] Implement the accepted package metadata/build configuration without moving the existing source
+- [x] Implement explicit bootstrap/dependency declarations and verify installed versions/paths locally.
+- [x] Implement the accepted package metadata/build configuration without moving the existing source
   tree solely for convention. Support installation into an isolated environment, including editable
   development installation and a built wheel for installed-runtime verification.
-- [ ] Pin adopted build/bootstrap tools as appropriate, build only into owned ignored destinations,
+- [x] Pin adopted build/bootstrap tools as appropriate, build only into owned ignored destinations,
   and retain artifact digest, package version, interpreter and dependency provenance. Publish nothing
   to PyPI, Azure Artifacts, GitHub releases or another external package host at this checkpoint.
-- [ ] Implement the accepted cache/bootstrap design with exact adopted runtime/tool/dependency versions,
+- [x] Implement the accepted cache/bootstrap design with exact adopted runtime/tool/dependency versions,
   lock/declaration digests and artifact verification. Reuse Python package payloads, versioned PowerShell
   modules, locked Node package downloads, matching Puppeteer browser binaries and appropriate standalone
   tools where measured reuse helps. Keep persistent stores outside snapshots/disposable cleanup roots;
   recreate or verify the isolated execution environment instead of trusting an arbitrary cached install.
 - [ ] Use version-qualified Pester 6.2.0 imports; verify the adopted PS7 baseline and required OS lanes.
-- [ ] Keep test invocation free of automatic installation; detect missing, legacy, wrong, and unusable
+  Local primary/floor runtime/Pester proof passes; fresh Windows/Linux package bootstrap execution
+  remains pending the manual-only exact-published-snapshot verification workflow.
+- [x] Keep test invocation free of automatic installation; detect missing, legacy, wrong, and unusable
   dependencies with actionable failures.
-- [ ] Test clean setup, repeat setup, changed dependency/cache state, and portable conformance after
+- [x] Test clean setup, repeat setup, changed dependency/cache state, and portable conformance locally after
   separating runtime and test requirements. Measure cold misses and warm hits separately, including
   restore/save overhead; exercise changed locks, wrong/corrupt versions and offline execution after
   bootstrap. Retain only caches that demonstrably save time while preserving version/provenance checks.
-- [ ] Preserve standalone source-tree CLI/conformance/extraction execution while proving the new
+- [x] Preserve standalone source-tree CLI/conformance/extraction execution while proving the new
   installation route. Any path-bootstrap removal or adapter change needs explicit consumer proof;
   wheel support alone does not authorize removing existing command entry points or import paths.
 
@@ -1247,6 +1251,48 @@ is introduced by this documentation pass.
 versions/paths are verified and test execution performs no silent installation or substitution.
 Cold/warm bootstrap evidence identifies useful reusable stores and actual setup costs; pinning alone
 is not a demonstrated performance improvement. Hosted transport remains Phase 6 work.
+
+**3.1.2 implementation prepared for review (2026-10-05):**
+[Local bootstrap tools](CI/README.md) implement the accepted Python 0.1.0 package contract,
+setuptools 84.0.0/build 1.4.0/pip 26.2, separate portable/dev/build/media declarations, published
+Windows/Linux wheel digests, exact PS module grammar/imports, owned verified environments and
+locked Node/browser acquisition. Source, editable, built-wheel and build-without-runtime routes
+pass locally. Build inputs/digests and supplied dirty-source provenance are recorded; no package
+is published externally and no machine-wide dependencies are changed.
+
+Existing Python formatting CI installs the development declaration so Ruff is retained; PowerShell
+setup calls a repository-owned exact installer. Required names/events/profiles/registry membership
+remain unchanged. Readiness probes reject invalid/missing/version-mismatched/unimportable dependencies;
+Test-Python now exits nonzero on false readiness. Source path bootstraps are preserved. Extraction
+explicitly adds LICENSE and reports 306 files, all nine portable suites in Python/PS7 and successful
+cleanup using runtime-only dependencies. Full Python baseline passes 21/21 with retained complete
+summaries. Native proof passes 67 pytest cases and 17 Pester cases on both PS7.6.6 and PS7.4.0;
+PSScriptAnalyzer's existing 7.4.6 development-tool minimum does not change the framework 7.4 floor.
+
+Persistent payload/environment keys and content receipts are verified before reuse; actual corrupt
+wheel, wrong installed version and missing environment probes fail closed, with independent available
+units continuing. The initial broad Puppeteer installer accidentally enabled Firefox's Windows
+self-extractor; its failed attempt is preserved. Corrected acquisition explicitly selects pinned
+Chrome only, suppresses Firefox/headless-shell acquisition and inherited overrides, and passes its
+headless smoke. Restricted-sandbox warm checks failed local loopback access; approved offline checks pass.
+
+Measured Chrome-only cold setup is 247.602 seconds versus 8.003 verified environment reuse. Fresh
+offline npm restoration remains 245.883, so download caching alone is not claimed as a major setup
+improvement. The performance/duplication review retains that unresolved cost. Python/PS/cache/native
+and failure proof lives under ignored `.tmp/ci-phase312-20261005/`; these are local observations.
+
+Ubuntu 24.04 is now installed locally through WSL 2, with user-owned CPython 3.14.5 and PS7.6.6
+and an isolated source snapshot including the uncommitted changes. Linux cold/fresh-offline/check,
+wheel/editable, 67 pytest cases, 21 Python baseline suites and 17 primary-host Pester cases pass;
+evidence is retained under ignored `.tmp/ci-wsl-20261005/`. This supplements the remaining hosted
+gate; Linux rendering/floor-host proof was not run. Temporary `bootstrap-verification.yml` is manual only,
+with Windows/Linux lanes calling the same repository `verify_bootstrap.py` commands. On
+confirmation publish the exact branch snapshot, dispatch this proof and record its exact SHA,
+outcomes and complete failure reports before closing the remaining OS item. This is verification,
+not steady-state hosted adoption; retire the temporary workflow/driver after acceptance and canonical
+native-profile registration, keeping permanent bootstrap regressions. No ADO activation/required-check
+change occurs. Phase 6 still owns cache transport, steady profiles and hosted reporting. All changes
+remain uncommitted; 3.1.3 full installed-artifact boundary/semantic acceptance has not started.
 
 #### Phase 3.1.3 Installed Artifact And Boundary Verification
 
@@ -1699,7 +1745,7 @@ integration coverage, and a separate modernization branch/PR into the framework 
 
 Phase 1.1 inspected ADO access/capacity and prepared synchronized remotes; Phases 1.2/1.3 are confirmed.
 Phases 1.4/1.5 and 2.1-2.6 are confirmed; Phase 2 closes with successful manual hosted retirement proof.
-Phase 3.1.1 is confirmed; implementation at 3.1.2 is next. The runtime floor is locally
+Phase 3.1.1 is confirmed; 3.1.2 implementation is ready for review with cross-OS proof pending publication. The runtime floor is locally
 tested; clean/offline dependency setup, future hosted launcher/report publication and policy adoption remain
 explicit later gates. Explain ADO
 concepts at their owning phase and record decisions in their authoritative documentation.

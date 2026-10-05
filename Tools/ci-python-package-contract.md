@@ -3,9 +3,10 @@
 **Status:** CI 3.1.1 assessment and design confirmed on 2026-10-05 from `ee653a6`,
 `architecture/ci-testing-modernization`. The maintainer explicitly selects independent Python
 versioning starting at 0.1.0 and Python 3.14+ eligibility, with exact 3.14.5 bootstrap/testing.
-Backend, artifact and dependency details below are the accepted implementation contract. No
-packaging metadata, version module, dependency declaration, runtime behavior or hosted job is
-implemented by this document. All five 3.1.1 checklist items are confirmed; implementation is CI 3.1.2 and
+Backend, artifact and dependency details below are the accepted implementation contract.
+All five 3.1.1 checklist items are confirmed. CI 3.1.2 now implements local metadata/versioning,
+dependency separation, isolated build/install and verified caches for review; see [bootstrap tools](CI/README.md).
+Fresh cross-OS hosted acceptance is pending publication; broader
 installed-artifact proof is 3.1.3. The [modernization plan](ci-testing-modernization-plan.md) owns gates.
 
 ## Confirmed Entry Inventory
@@ -61,11 +62,11 @@ and installed-artifact checks must explicitly report which runtime path they exe
 | Backend | `setuptools.build_meta`, explicit package mapping. Build with the standard `build` frontend; no SCM-version plugin, setup.py execution or automatic root discovery. |
 | Exact build-tool versions | Select and pin compatible setuptools/build/pip versions during 3.1.2 acquisition/provenance proof; never float during a build. Backend identity is settled here, acquisition versions are not guessed from installed machine state. |
 
-The single authored version authority will be a dependency-free literal
+The single authored version authority is a dependency-free literal
 `Tools/Runtime/Python/knowledge_framework/_version.py`, initially `__version__ = "0.1.0"`.
 Use setuptools dynamic version metadata pointing to `knowledge_framework._version.__version__`;
 literal extraction must work without runtime imports, PyYAML, Git metadata or a checkout.
-Package-root `__version__` may re-export that value without maintaining a second literal.
+Package-root `__version__` re-exports that value without maintaining a second literal.
 No static `[project].version`, separately edited version text, or conversion from PS/module/schema
 numbers is allowed. Generated wheel/sdist metadata is a derived version record.
 
@@ -138,7 +139,7 @@ adapter at 3.1.3 and retain source conformance independently.
 
 | Layer | Membership / authority |
 | --- | --- |
-| Runtime compatibility metadata | `[project].dependencies`: PyYAML only; propose `PyYAML>=6.0.3,<7`. No runtime dependency on build tools or CI/media tools. |
+| Runtime compatibility metadata | `[project].dependencies`: PyYAML only, `PyYAML>=6.0.3,<7`. No runtime dependency on build tools or CI/media tools. |
 | Reproducible runtime installation | `requirements-python.txt`: exact adopted PyYAML 6.0.3, constrained to package compatibility metadata. Validate package-name membership and satisfaction of metadata bounds; no independently maintained competing runtime graph. |
 | Build | Separate exact build-tool declaration for setuptools, build, pip and required transitive tools evaluated in 3.1.2. Install into the owned build environment before invoking the build; no surprise network acquisition during execution. |
 | Implementation/policy tests | Development declaration includes runtime pins plus exact pytest/Ruff and evaluated transitive dependencies; Pester/PS tooling remains its own declaration. |

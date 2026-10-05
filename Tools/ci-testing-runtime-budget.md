@@ -248,8 +248,9 @@ cold/warm host proof at 6.1/6.5 retain ownership. Faster routine feedback remain
 
 ## Selected Version Baselines
 
-These exact selections are accepted design baselines for implementation in 3.1; repository declarations remain
-unchanged until that coordinated consumer migration. Local machine installations remain usable.
+These exact selections are accepted design baselines. CI 3.1.2 implements the coordinated local
+declarations/bootstrap for review; cross-OS hosted acceptance remains pending publication. See
+[bootstrap commands and observations](CI/README.md). Local machine installations remain usable.
 
 | Component | Selected baseline / evidence |
 | --- | --- |
@@ -285,7 +286,7 @@ The lockfile is generated and checked from that input. Do not install tools glob
 
 ## Portable Versus Development Dependencies
 
-Proposed declaration layout retains existing portable filenames so extraction can remain bounded:
+The 3.1.2 declaration layout retains existing portable filenames so extraction remains bounded:
 
 | File / surface | Proposed ownership |
 | --- | --- |
@@ -300,9 +301,9 @@ Proposed declaration layout retains existing portable filenames so extraction ca
 PowerShell requirements use two whitespace-separated fields, module name and exact version; optional
 comments and a confined `-r <relative-file>` include grammar apply to development lists. Unknown
 syntax, duplicate conflicting versions, include cycles, escaping paths or floating constraints fail.
-Current Save-Module workflow loops and environment helpers do not enforce this grammar. Update them
-and their regressions together in 3.1, using `Save-Module -RequiredVersion` and version-qualified
-imports. Never place version text into current name-only installation loops and assume it works.
+CI 3.1.2 replaces the Save-Module workflow loops with a repository-owned exact installer and updates
+environment helpers/regressions together, using `Save-Module -RequiredVersion` and version-qualified
+imports. Name-only/floating declarations are rejected rather than accidentally installed as module names.
 
 Python includes must be confined and the supported pip grammar explicit. Evaluate wheel availability
 and verified hashes for adopted Windows/Linux platforms during clean bootstrap; a full hash lock

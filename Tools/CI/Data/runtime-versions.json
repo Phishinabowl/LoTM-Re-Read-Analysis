@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "python": "3.14.5",
+  "pip": "26.2",
+  "powershell": "7.6.6",
+  "powershell_floor": "7.4.0",
+  "node": "24.15.0",
+  "npm": "11.12.1",
+  "chrome": "150.0.7871.24",
+  "actionlint": "1.7.12",
+  "python_declarations": {
+    "runtime": "requirements-python.txt",
+    "development": "requirements-python-dev.txt",
+    "build": "requirements-python-build.txt",
+    "media": "requirements-python-media.txt"
+  },
+  "powershell_declarations": {
+    "runtime": "requirements-powershell.txt",
+    "development": "requirements-powershell-dev.txt"
+  }
+}

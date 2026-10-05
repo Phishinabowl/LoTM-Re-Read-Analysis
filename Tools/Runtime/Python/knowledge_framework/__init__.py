@@ -1,5 +1,6 @@
 """Reusable knowledge-framework runtime services."""
 
+from ._version import __version__
 from .project_paths import (
     PROJECT_MANIFEST_PATH,
     PROJECT_ROOT_ENVIRONMENT_VARIABLE,
@@ -46,6 +47,7 @@ from .effective_schema import (
 )
 
 __all__ = [
+    "__version__",
     "PROJECT_MANIFEST_PATH",
     "PROJECT_ROOT_ENVIRONMENT_VARIABLE",
     "is_project_root",

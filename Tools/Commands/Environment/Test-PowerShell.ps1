@@ -18,24 +18,7 @@ if ($hostStatus.host_supported) {
     $repoRoot = Resolve-KnowledgeProjectRoot -ExplicitRoot $Root -ExecutablePath $PSCommandPath
 }
 
-function Get-RequiredModules {
-    param([string]$Path)
-    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
-        return @()
-    }
-    $modules = @()
-    foreach ($line in Get-Content -LiteralPath $Path) {
-        $trimmed = $line.Trim()
-        if (-not $trimmed -or $trimmed.StartsWith("#")) {
-            continue
-        }
-        $moduleName = ($trimmed -split "\s+")[0]
-        if ($moduleName) {
-            $modules += $moduleName
-        }
-    }
-    return @($modules)
-}
+. (Join-Path $PSScriptRoot 'Private/Requirements.ps1')
 
 $requirementsFullPath = if ([System.IO.Path]::IsPathRooted($RequirementsPath)) {
     $RequirementsPath
@@ -49,21 +32,28 @@ else {
     }
 }
 
-$requiredModules = if ($hostStatus.host_supported) {
-    @(Get-RequiredModules $requirementsFullPath)
-}
-else {
-    @()
+$requirementError = ''
+$requiredModules = @()
+if ($hostStatus.host_supported) {
+    try {
+        $requiredModules = @(Read-ExactModuleRequirements -Path $requirementsFullPath -Root $repoRoot)
+    }
+    catch {
+        $requirementError = $_.Exception.Message
+    }
 }
 $moduleResults = @()
-foreach ($moduleName in $requiredModules) {
-    $available = @(Get-Module -ListAvailable -Name $moduleName)
+foreach ($requirement in $requiredModules) {
+    $moduleName = $requirement.Name
+    $available = @(Get-Module -ListAvailable -Name $moduleName |
+            Where-Object { [string]$_.Version -eq $requirement.Version })
     $usable = $false
+    $loadedModule = $null
     $importDetail = ''
     if ($available.Count -gt 0) {
         try {
             $selectedModule = $available | Sort-Object Version -Descending | Select-Object -First 1
-            $null = Import-Module $selectedModule.Path -Force -PassThru -ErrorAction Stop
+            $loadedModule = Import-Module $moduleName -RequiredVersion $requirement.Version -Force -PassThru -ErrorAction Stop
             $usable = $true
             $importDetail = 'Module discovery and import checks passed.'
         }
@@ -73,6 +63,7 @@ foreach ($moduleName in $requiredModules) {
     }
     $moduleResults += [ordered]@{
         module = $moduleName
+        expected_version = $requirement.Version
         present = $available.Count -gt 0
         usable = $usable
         version = if ($available.Count -gt 0) {
@@ -81,7 +72,10 @@ foreach ($moduleName in $requiredModules) {
         else {
             ""
         }
-        path = if ($available.Count -gt 0) {
+        path = if ($loadedModule) {
+            $loadedModule.Path
+        }
+        elseif ($available.Count -gt 0) {
             ($available | Sort-Object Version -Descending | Select-Object -First 1).Path
         }
         else {
@@ -91,13 +85,13 @@ foreach ($moduleName in $requiredModules) {
             $importDetail
         }
         else {
-            "Module not found. Run: Install-Module $moduleName -Scope CurrentUser -Force -AllowClobber"
+            "Exact module $moduleName $($requirement.Version) missing; run the explicit dependency bootstrap."
         }
     }
 }
 
 $requirementsAvailable = $hostStatus.host_supported -and (Test-Path -LiteralPath $requirementsFullPath -PathType Leaf)
-$ready = $requirementsAvailable -and -not ($moduleResults | Where-Object { -not $_.usable })
+$ready = $requirementsAvailable -and -not $requirementError -and -not ($moduleResults | Where-Object { -not $_.usable })
 $result = [ordered]@{
     ready = $ready
     host_supported = $hostStatus.host_supported
@@ -117,6 +111,9 @@ $result = [ordered]@{
     }
     elseif (-not $requirementsAvailable) {
         "PowerShell requirements file not found: $requirementsFullPath. Supply an existing -RequirementsPath."
+    }
+    elseif ($requirementError) {
+        $requirementError
     }
     elseif ($ready) {
         'Supported PowerShell host and module requirements are usable.'

@@ -137,6 +137,12 @@ Resolution order is explicit `--root` / `-Root`, absolute `KNOWLEDGE_PROJECT_ROO
 
 Purpose: check whether the local machine has a usable Python command and the repository's required Python modules before choosing Python-preferred tools or documented PowerShell fallbacks. This is a read-only probe and has no Python pair.
 
+CI 3.1.2 adopts Python 3.14+ eligibility and exact dependency declarations. The PowerShell wrapper
+calls the read-only `check_python.py` helper for interpreter, installed-version and actual import checks;
+missing/invalid declarations and false readiness exit 1 in human and JSON modes. Relative includes
+are confined to the selected root. Build/dev/media graphs and explicit installation are documented
+in [Local Bootstrap Tools](CI/README.md). This supersedes the original discovery-only behavior below.
+
 ### Switch Map
 
 | Purpose | Switch | Default | Notes |
@@ -150,8 +156,7 @@ Purpose: check whether the local machine has a usable Python command and the rep
 | Input | Used For |
 | --- | --- |
 | Local shell PATH | Finds candidate commands in order: `python`, `python3`, then `py`. |
-| Candidate command `--version` output | Confirms the command launches and reports a version. |
-| Candidate command `-c "import sys; print(sys.executable)"` output | Confirms Python can execute code and reports the underlying executable path. |
+| `check_python.py` interpreter probe | Confirms Python 3.14+ eligibility and reports the actual executable/version. |
 | `requirements-python.txt` or supplied requirements path | Defines repository Python packages to validate before treating Python tooling as fully ready. |
 
 ### Outputs And Side Effects
@@ -166,12 +171,11 @@ Purpose: check whether the local machine has a usable Python command and the rep
 | Behavior | PowerShell location |
 | --- | --- |
 | Parse switches | top-level `param(...)` |
-| Define candidate commands | top-level `$candidates = @("python", "python3", "py")` |
+| Define candidate commands | ordered `python`, `python3`, `py` loop |
 | Resolve candidate commands | `Get-Command` loop |
-| Validate version launch | candidate `--version` call |
-| Validate Python execution | candidate `-c "import sys; print(sys.executable)"` call |
-| Read repository requirements | `Get-RequirementModules` |
-| Validate Python modules | candidate `-c "import importlib.util ..."` calls |
+| Validate interpreter/version/executable | `check_python.py` |
+| Read repository requirements | `dependency_requirements.py::read_requirements` |
+| Validate exact metadata and actual imports | `check_python.py::inspect` |
 | Render JSON/human output | bottom script block |
 
 ### Important Notes
@@ -196,15 +200,15 @@ Last check: 2026-08-01. Normal and JSON modes ran successfully on this machine. 
 
 | Role | Tool / File | Command |
 | --- | --- | --- |
-| Canonical formatter | Ruff from `requirements-python.txt` | `python -m ruff format .` |
-| Read-only formatting check | Ruff from `requirements-python.txt` | `python -m ruff format --check .` |
+| Canonical formatter | Ruff from `requirements-python-dev.txt` | `python -m ruff format .` |
+| Read-only formatting check | Ruff from `requirements-python-dev.txt` | `python -m ruff format --check .` |
 | Line-length check | Ruff `E501` policy from `pyproject.toml` | `python -m ruff check .` |
 
 Purpose: deterministically format and check every tracked or nonignored untracked `.py` and `.pyi` source in the Git worktree. Ruff is the formatter engine rather than a repository-specific wrapper.
 
 ### Formatting Contract
 
-- `pyproject.toml` owns the Python 3.10 compatibility target, 120-character line length, spaces, double quotes, LF output, stable trailing-comma behavior, and the current deliberately narrow `E501` lint selection.
+- `pyproject.toml` owns the py310 source-syntax target, 120-character line length, spaces, double quotes, LF output, stable trailing-comma behavior, and the current deliberately narrow `E501` lint selection. Package interpreter eligibility is separately Python 3.14+; bootstrap tests exact 3.14.5.
 - Ruff's include list is limited to `.py` and `.pyi`; Markdown code fences are canonical project content and must not be formatted as Python.
 - `.gitattributes` owns LF checkout line endings for Python source.
 - Default discovery respects Gitignore and automatically includes new nonignored Python files and source folders.
@@ -251,7 +255,7 @@ Purpose: check the PowerShell 7.4+ Core host and usability of repository-require
 | --- | --- |
 | `$PSVersionTable` | Validates Core edition and minimum 7.4, and reports actual version/edition. |
 | `requirements-powershell.txt` or supplied requirements path | Defines required PowerShell modules. |
-| `Get-Module -ListAvailable`, `Import-Module` | Discovers the highest installed version and verifies its import; `present` remains discovery status and `usable` records import success. |
+| `Read-ExactModuleRequirements`, `Get-Module -ListAvailable`, qualified `Import-Module` | Parses confined exact declarations and imports the required version; `present` and `usable` remain distinct. Reports the actual imported path. |
 
 ### Outputs And Side Effects
 
@@ -275,8 +279,8 @@ Purpose: check the PowerShell 7.4+ Core host and usability of repository-require
 ```powershell
 pwsh -NoProfile -File Tools\Commands\Environment\Test-PowerShell.ps1
 pwsh -NoProfile -File Tools\Commands\Environment\Test-PowerShell.ps1 -Json
-Install-Module powershell-yaml -Scope CurrentUser -Force -AllowClobber
-Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
+Install-Module powershell-yaml -RequiredVersion 0.4.12 -Scope CurrentUser -Force -AllowClobber
+Install-Module PSScriptAnalyzer -RequiredVersion 1.25.0 -Scope CurrentUser -Force
 ```
 
 Last mapped: 2026-08-02.
@@ -1411,11 +1415,11 @@ This section tracks durable configuration and generated state files that affect 
 | `Project_Config/entities.yaml` | Entity, incarnation, and identity-phase registry | `Tools/Runtime/Python/knowledge_framework/entity_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Entity-Config.ps1`, provenance, and future content-index, visualization, editor, reconciliation, and migration services | Maintainers through reviewed edits; future entity editors through the mutation service | Instantiates conceptual entities, ambiguity-preserving names, canonical and optionally acyclic lineage, continuity-bound incarnations, scope-backed bindings, incarnation relationships, and persistent-identity phases with explicit scope bindings and succession. | A category membership, shared label/alias, relationship policy, justified incarnation split, continuity membership, scoped appearance, persistent-identity phase, or phase/incarnation relationship changes. |
 | `Project_Config/reconciliation.yaml` | Stable-ID reconciliation registry | `Tools/Runtime/Python/knowledge_framework/reconciliation_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Reconciliation-Config.ps1`, provenance, and future editor/migration services | Maintainers through reviewed edits; future reconciliation editors through the mutation service | Preserves bounded branch-aware redirects, merges, splits, tombstone-backed retirements, cross-type reclassifications, privacy-aware labels, strict audit metadata, and superseded/reversed decisions without mutating repository files. | A stable ID changes disposition, a historical decision is superseded/reversed, any resolution safety bound changes, or a migration establishes a new canonical target or type. |
 | `Project_Config/provenance.yaml` | Cross-registry provenance registry | `Tools/Runtime/Python/knowledge_framework/provenance_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Provenance-Config.ps1`, and future validation, editor, comparison, and audit services | Maintainers through reviewed edits; future provenance editors through the mutation service | Owns factual assertions, semantic field paths, evidence links and locators, stable claim grouping, authority evaluation, and acyclic scope-backed claim supersession across typed subject providers. | An assertion, evidence locator, claim value/status/timing, subject field path, or claim-supersession edge changes. |
-| `requirements-python.txt` | Dependency registry | `Tools/Commands/Environment/Test-Python.ps1`; human setup via `python -m pip install -r requirements-python.txt` | Maintainers | Defines Python packages required by preferred Python helpers and source maintenance, including `PyYAML` and the pinned Ruff formatter. | Add or change entries when a Python helper or source-maintenance gate gains or removes a third-party package dependency. |
-| `requirements-powershell.txt` | Dependency registry | `Tools/Commands/Environment/Test-PowerShell.ps1`; human setup via `Install-Module <module> -Scope CurrentUser -Force -AllowClobber` or elevated `-Scope AllUsers` when machine-wide installs are preferred | Maintainers | Defines PowerShell modules required by repository tools, including `powershell-yaml` for structured configuration/page data and `PSScriptAnalyzer` for source formatting. | Add or change entries when a PowerShell helper gains or removes a module dependency. |
+| `requirements-python.txt` | Portable runtime pins | Environment readiness, bootstrap and neutral extraction | Maintainers | Exact PyYAML only; dev/build/media declarations separately own pytest/Ruff/build tooling/Pillow. See Tools/CI/README.md for lock and metadata consistency. | Coordinated dependency/metadata/lock changes. |
+| `requirements-powershell.txt` | Portable runtime pins | Environment readiness, bootstrap and neutral extraction | Maintainers | Exact powershell-yaml only; the development declaration includes Pester 6.2.0 and PSScriptAnalyzer. | Coordinated exact declarations/parser/consumer changes. |
 | `requirements-node.txt` | Rendering dependency registry | GitHub Actions `Project Compatibility`; human setup through npm | Maintainers | Pins Mermaid CLI and its Puppeteer peer so local and hosted representative renders share the validated renderer and version-matched Chrome for Testing contract. | Mermaid rendering adopts a reviewed CLI/Puppeteer pair or removes the Node-based renderer dependency. |
 | `.gitattributes` | Repository text policy | Git, Ruff, and `Tools/Static/Format-PowerShell.ps1` | Maintainers | Enforces LF for Python and CRLF for PowerShell source/module/config files while preserving Git's normalized text storage. | A tracked source extension or repository line-ending policy changes. |
-| `pyproject.toml` | Python formatter and narrow lint configuration | Ruff | Maintainers | Defines repository-wide Python source inclusion, Python 3.10 compatibility, canonical formatting, LF output, 120-character line length, and the current `E501` check. | Python compatibility, formatting, inclusion, line-length, or lint policy changes. |
+| `pyproject.toml` | Python packaging, formatter and lint configuration | Setuptools/build/pip, bootstrap and Ruff | Maintainers | Explicit runtime package mapping, dynamic version authority, Python 3.14+ eligibility and compatible PyYAML metadata; preserves Ruff py310 syntax/format/E501 policy. | Coordinated packaging/dependency/interpreter or separately reviewed formatting/lint changes. |
 | `Tools/Static/powershell-format-settings.psd1` | Formatter configuration | `Tools/Static/Format-PowerShell.ps1` and `Invoke-Formatter` from `PSScriptAnalyzer` | Maintainers | Defines deterministic PowerShell indentation, brace placement, whitespace, and trailing-whitespace behavior. | A formatting rule changes; rerun `STATIC-POWERSHELL` in both supported PowerShell runtimes. |
 | `Visualization/config/render-settings.json` | Source config | `Visualization/visualize.py`, `Visualization/visualize.ps1`, `Tools/Commands/QA/obsidian_qa_export.py`, `Tools/Commands/QA/Obsidian-QA-Export.ps1` | Maintainers | Defines canonical graph views, source Mermaid paths, rendered output paths, render dimensions, validation settings, reader-boundary filters, report path, and semantic snapshot path. The Obsidian QA export also derives its local `_Generated/repo-refresh-check/` dry-run settings from this file. | Add or remove repository graph views, change render sizes, adjust validation rules, change reader-boundary behavior, or redirect canonical report/snapshot paths. |
 | `Visualization/config/puppeteer-config.json` | Source config | `Visualization/visualize.py`, `Visualization/visualize.ps1`, Obsidian QA repo-refresh dry-run helpers through visualization tooling | Maintainers | Configures timeout and launch args while leaving browser selection to Puppeteer's version-matched Chrome for Testing runtime. Machine-specific `executablePath` overrides belong only in ignored diagnostic configs. | Rendering starts timing out, CI/local environment changes, Mermaid rendering needs different launch args, or the bundled-browser policy changes. |

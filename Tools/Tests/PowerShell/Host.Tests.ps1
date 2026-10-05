@@ -5,6 +5,12 @@ BeforeAll {
     . (Join-Path (Split-Path -Parent $modulePath) 'Private\PowerShell-Host.ps1')
     $pwshPath = (Get-Process -Id $PID).Path
 
+    function Initialize-HostFixtureRoot {
+        $config = Join-Path $TestDrive 'Project_Config'
+        $null = New-Item -ItemType Directory -Path $config -Force
+        Set-Content -LiteralPath (Join-Path $config 'project.yaml') -Value 'schema_version: 1'
+    }
+
     function Invoke-HostTestProcess {
         param([string]$Executable = $pwshPath, [string[]]$Arguments)
         $startInfo = [System.Diagnostics.ProcessStartInfo]::new()
@@ -88,9 +94,10 @@ Describe 'PowerShell support boundary' {
     }
 
     It 'returns supported readiness with existing fields and usable modules' {
+        Initialize-HostFixtureRoot
         $requirements = Join-Path $TestDrive 'usable-requirements.txt'
-        Set-Content -LiteralPath $requirements -Value 'powershell-yaml'
-        $run = Invoke-HostTestProcess -Arguments @('-NoProfile', '-File', 'Tools/Commands/Environment/Test-PowerShell.ps1', '-RequirementsPath', $requirements, '-Json')
+        Set-Content -LiteralPath $requirements -Value 'powershell-yaml 0.4.12'
+        $run = Invoke-HostTestProcess -Arguments @('-NoProfile', '-File', 'Tools/Commands/Environment/Test-PowerShell.ps1', '-Root', $TestDrive, '-RequirementsPath', $requirements, '-Json')
         $run.exit_code | Should -Be 0
         $report = $run.stdout | ConvertFrom-Json
         $report.ready | Should -BeTrue
@@ -110,16 +117,19 @@ Describe 'PowerShell support boundary' {
     }
 
     It 'reports missing and present but broken module requirements distinctly' {
+        Initialize-HostFixtureRoot
         $modulesRoot = Join-Path $TestDrive 'Modules'
         $brokenRoot = Join-Path $modulesRoot 'BrokenHostFixture'
         $null = New-Item -ItemType Directory -Path $brokenRoot -Force
         Set-Content -LiteralPath (Join-Path $brokenRoot 'BrokenHostFixture.psm1') -Value "throw 'Host fixture import failure'"
+        New-ModuleManifest -Path (Join-Path $brokenRoot 'BrokenHostFixture.psd1') `
+            -RootModule 'BrokenHostFixture.psm1' -ModuleVersion '1.0.0'
         $requirements = Join-Path $TestDrive 'requirements.txt'
-        Set-Content -LiteralPath $requirements -Value @('MissingHostFixture', 'BrokenHostFixture')
+        Set-Content -LiteralPath $requirements -Value @('MissingHostFixture 1.0.0', 'BrokenHostFixture 1.0.0')
         $originalModulePath = $env:PSModulePath
         try {
             $env:PSModulePath = $modulesRoot + [System.IO.Path]::PathSeparator + $originalModulePath
-            $run = Invoke-HostTestProcess -Arguments @('-NoProfile', '-File', 'Tools/Commands/Environment/Test-PowerShell.ps1', '-RequirementsPath', $requirements, '-Json')
+            $run = Invoke-HostTestProcess -Arguments @('-NoProfile', '-File', 'Tools/Commands/Environment/Test-PowerShell.ps1', '-Root', $TestDrive, '-RequirementsPath', $requirements, '-Json')
         }
         finally {
             $env:PSModulePath = $originalModulePath
