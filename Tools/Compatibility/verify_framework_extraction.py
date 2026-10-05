@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -217,10 +218,51 @@ def powershell_command(host: str) -> list[str]:
     suite_literals = ",".join(f"'{suite}'" for suite in PORTABLE_SUITES)
     invocation = f"& 'Tools/Conformance/Run-Conformance.ps1' -Suite @({suite_literals}) -Json"
     command = [host, "-NoProfile"]
-    if Path(host).name.casefold() == "powershell.exe":
-        command.extend(("-ExecutionPolicy", "Bypass"))
     command.extend(("-Command", invocation))
     return command
+
+
+def find_powershell_host() -> str:
+    host = shutil.which("pwsh")
+    if host is None:
+        raise RuntimeError(
+            "Required extraction-test runtime is unavailable: powershell7. Install PowerShell 7.4+ Core."
+        )
+    try:
+        probe = subprocess.run(
+            [
+                host,
+                "-NoProfile",
+                "-Command",
+                "@{edition=$PSVersionTable.PSEdition;version=$PSVersionTable.PSVersion.ToString()}"
+                " | ConvertTo-Json -Compress",
+            ],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=15,
+            check=False,
+        )
+        if probe.returncode != 0:
+            raise RuntimeError(
+                f"Extraction PowerShell host probe failed ({probe.returncode}) at {host}: "
+                f"{probe.stdout.strip()} {probe.stderr.strip()}. Use PowerShell 7.4+ Core."
+            )
+        result = json.loads(probe.stdout)
+        version = str(result.get("version", ""))
+        supported = (
+            result.get("edition") == "Core"
+            and re.fullmatch(r"\d+\.\d+(?:\.\d+){0,2}", version)
+            and tuple(int(part) for part in version.split(".")[:2]) >= (7, 4)
+        )
+    except (OSError, subprocess.TimeoutExpired, ValueError, AttributeError) as exc:
+        raise RuntimeError(
+            f"Unable to verify extraction PowerShell host {host}: {exc}. Use PowerShell 7.4+ Core."
+        ) from exc
+    if not supported:
+        raise RuntimeError(f"Unsupported extraction PowerShell host at {host}: {result!r}. Use PowerShell 7.4+ Core.")
+    return host
 
 
 def normalized_summary(summary: dict[str, Any]) -> dict[str, Any]:
@@ -234,9 +276,31 @@ def normalized_summary(summary: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def validate_portable_summary(summary: dict[str, Any]) -> None:
+    suites = summary.get("suites")
+    if (
+        type(summary.get("schema_version")) is not int
+        or summary["schema_version"] != 1
+        or type(summary.get("failed")) is not int
+        or summary["failed"] != 0
+        or type(summary.get("passed")) is not int
+        or summary["passed"] != len(PORTABLE_SUITES)
+        or type(summary.get("suite_count")) is not int
+        or summary["suite_count"] != len(PORTABLE_SUITES)
+        or summary.get("profile") != "selected"
+        or not isinstance(suites, list)
+        or any(not isinstance(row, dict) or row.get("status") != "passed" for row in suites)
+        or [row.get("id") for row in suites] != list(PORTABLE_SUITES)
+    ):
+        raise RuntimeError(
+            "Extraction summary must report all nine selected portable suites passed in order (schema 1)."
+        )
+
+
 def main() -> int:
     args = parse_args()
     source_root = resolve_project_root(args.root, executable_path=__file__)
+    powershell_host = find_powershell_host()
     with tempfile.TemporaryDirectory(prefix="knowledge-framework-extraction-") as temp_directory:
         target_root = Path(temp_directory) / "extracted-framework"
         target_root.mkdir()
@@ -245,17 +309,12 @@ def main() -> int:
         assert_copy_boundary(target_root)
 
         summaries: dict[str, dict[str, Any]] = {"python": run_json(python_command(), target_root)}
-        hosts = {
-            "powershell7": shutil.which("pwsh"),
-            "powershell51": shutil.which("powershell"),
-        }
-        for runtime, host in hosts.items():
-            if host is None:
-                raise RuntimeError(f"Required extraction-test runtime is unavailable: {runtime}")
-            summaries[runtime] = run_json(powershell_command(host), target_root)
+        summaries["powershell7"] = run_json(powershell_command(powershell_host), target_root)
 
+        for result in summaries.values():
+            validate_portable_summary(result)
         expected = normalized_summary(summaries["python"])
-        for runtime in ("powershell7", "powershell51"):
+        for runtime in ("powershell7",):
             if normalized_summary(summaries[runtime]) != expected:
                 raise RuntimeError(f"Extracted framework conformance differs between Python and {runtime}.")
 
@@ -271,14 +330,16 @@ def main() -> int:
             "portable_suites": list(PORTABLE_SUITES),
             "temporary_copy_removed_on_exit": True,
         }
-        if args.json:
-            print(json.dumps(summary, sort_keys=True, separators=(",", ":")))
-        else:
-            print(
-                "Framework extraction rehearsal passed: "
-                f"{copied_files} reusable files, {len(PORTABLE_SUITES)} portable suites, "
-                "and three matching runtimes."
-            )
+    if Path(temp_directory).exists():
+        raise RuntimeError(f"Extraction temporary copy remains after cleanup: {temp_directory}")
+    if args.json:
+        print(json.dumps(summary, sort_keys=True, separators=(",", ":")))
+    else:
+        print(
+            "Framework extraction rehearsal passed: "
+            f"{copied_files} reusable files, {len(PORTABLE_SUITES)} portable suites, "
+            "and two matching runtimes."
+        )
     return 0
 
 

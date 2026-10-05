@@ -1,9 +1,29 @@
 # Compatibility
 
-**CI Phase 2.1 support policy:** Python/PS7 are the retained implementations. The current schema-2
-registry/validator, synthetic reporting registry and extraction verifier still require 5.1 until
-CI 2.4 migrates them together. The supported comparison obligations below are the adopted policy,
-not a claim that current commands already run without Desktop. See the [retirement inventory](../ci-powershell-retirement-inventory.md).
+**CI Phase 2.4 confirmed 2026-10-05:** Registry schema 3 and its synthetic reporting registry
+require the ordered runtimes `python`, `powershell7`. Compatibility and extraction discover only
+`pwsh` and verify actual Core edition/minimum 7.4 before work; missing, wrong, unusable or obsolete
+hosts fail without Desktop fallback. Schema 2 declarations fail with an explicit migration message;
+unknown/non-integer versions, duplicate JSON keys, empty inventories and invalid runtime lists fail.
+All 11 checks and all four profile memberships are retained. See the
+[retirement inventory](../ci-powershell-retirement-inventory.md); full retained coverage and hosted
+retirement remain CI 2.5/2.6 work.
+
+Detailed reports and extraction summaries remain schema 1; concise summaries remain contract 1.
+Runtime lists/maps truthfully contain Python/PS7. Conformance-reporting counts derive from completed
+executions (two success/failure/unsafe cases and four determinism cases for the supported inventory);
+compatibility-reporting's fixed scenario counts, including three cleanup cases, are unchanged.
+Extraction requires all nine portable suite IDs passed in order, compares complete semantic summaries,
+and emits success only after the temporary-directory context exits and the scratch path is absent.
+This normal-exit proof does not certify cancellation/process-tree cleanup.
+
+Focused implementation regressions are directly reproducible without test installation:
+
+```powershell
+python -m pytest Tools\Tests\Python\test_compatibility_retirement.py -q
+```
+
+These tests supplement shared conformance; native catalog/profile adoption remains Phase 3.
 
 `run_compatibility.py` is the canonical cross-runtime project-compatibility orchestrator.
 `compatibility.json` is its durable check registry and profile inventory. The orchestrator may launch

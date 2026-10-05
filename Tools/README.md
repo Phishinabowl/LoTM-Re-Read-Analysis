@@ -29,8 +29,8 @@ The design was confirmed on 2026-10-05; no pipeline, policy or schedule is activ
 The [PowerShell Host Retirement Inventory](ci-powershell-retirement-inventory.md) records CI 2.1's
 documentary Python/PS7 support adoption, family mapping, frozen evidence and exact migration/version
 targets. Phase 2.2 host enforcement is confirmed on 2026-10-05; Phase 2.3 QA child migration is
-confirmed on 2026-10-05. Nested compatibility/extraction launches and CI remain staged work in
-2.4-2.6; `pwsh` recipes do not claim complete retirement.
+confirmed on 2026-10-05. Phase 2.4 schema-3 compatibility/extraction is confirmed on 2026-10-05;
+complete retained proof and hosted retirement remain 2.5/2.6 work.
 
 This folder contains reusable local helpers for project maintenance and source verification.
 

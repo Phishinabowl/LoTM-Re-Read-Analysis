@@ -1,9 +1,8 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "runtimes": [
     "python",
-    "powershell7",
-    "powershell51"
+    "powershell7"
   ],
   "profiles": {
     "local": [

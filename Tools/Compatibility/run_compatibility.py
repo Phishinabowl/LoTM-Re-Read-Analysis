@@ -171,9 +171,18 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def reject_duplicate_registry_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise CompatibilityFailure(f"Duplicate compatibility registry key: {key}")
+        result[key] = value
+    return result
+
+
 def load_registry(path: Path) -> dict[str, Any]:
     try:
-        registry = json.loads(path.read_text(encoding="utf-8"))
+        registry = json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=reject_duplicate_registry_keys)
     except (OSError, json.JSONDecodeError) as exc:
         raise CompatibilityFailure(f"Unable to load compatibility registry {path}: {exc}") from exc
     if not isinstance(registry, dict):
@@ -182,15 +191,25 @@ def load_registry(path: Path) -> dict[str, Any]:
     unknown = set(registry) - allowed
     if unknown:
         raise CompatibilityFailure(f"Unknown compatibility registry keys: {sorted(unknown)}")
-    if registry.get("schema_version") != 2:
-        raise CompatibilityFailure("Compatibility registry schema_version must be integer 2.")
+    version = registry.get("schema_version")
+    if type(version) is int and version == 2:
+        raise CompatibilityFailure(
+            "Compatibility registry schema 2 is retired. Migrate to schema 3 with runtimes "
+            "['python', 'powershell7']; Windows PowerShell 5.1 is unsupported."
+        )
+    if type(version) is not int or version != 3:
+        raise CompatibilityFailure("Compatibility registry schema_version must be integer 3.")
     runtimes = registry.get("runtimes")
-    if runtimes != ["python", "powershell7", "powershell51"]:
-        raise CompatibilityFailure("Compatibility runtimes must be python, powershell7, powershell51 in order.")
+    if runtimes != ["python", "powershell7"]:
+        raise CompatibilityFailure(
+            "Compatibility runtimes must be python, powershell7 in order; obsolete hosts are unsupported."
+        )
     checks = registry.get("checks")
     profiles = registry.get("profiles")
     if not isinstance(checks, list) or not isinstance(profiles, dict):
         raise CompatibilityFailure("Compatibility checks must be a list and profiles must be an object.")
+    if not checks or not profiles:
+        raise CompatibilityFailure("Compatibility checks and profiles must be nonempty.")
     check_ids: set[str] = set()
     for check in checks:
         if not isinstance(check, dict) or not isinstance(check.get("id"), str) or not MACHINE_ID.fullmatch(check["id"]):
@@ -246,10 +265,47 @@ def resolve_report_output(value: str, root: Path) -> Path:
 def find_runtime(runtime_id: str) -> Runtime:
     if runtime_id == "python":
         return Runtime(runtime_id, sys.executable)
-    command = "pwsh" if runtime_id == "powershell7" else "powershell"
+    if runtime_id != "powershell7":
+        raise CompatibilityFailure(f"Unsupported compatibility runtime: {runtime_id}. Use python or powershell7.")
+    command = "pwsh"
     executable = shutil.which(command)
     if not executable:
         raise CompatibilityFailure(f"Required runtime not found on PATH: {command}")
+    try:
+        probe = subprocess.run(
+            [
+                executable,
+                "-NoProfile",
+                "-Command",
+                "@{edition=$PSVersionTable.PSEdition;version=$PSVersionTable.PSVersion.ToString()}"
+                " | ConvertTo-Json -Compress",
+            ],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=15,
+            check=False,
+        )
+        if probe.returncode != 0:
+            raise CompatibilityFailure(
+                f"PowerShell host probe failed ({probe.returncode}) at {executable}: "
+                f"{probe.stdout.strip()} {probe.stderr.strip()}. Use PowerShell 7.4+ Core."
+            )
+        host = json.loads(probe.stdout)
+        version = str(host.get("version", ""))
+        supported = (
+            probe.returncode == 0
+            and host.get("edition") == "Core"
+            and re.fullmatch(r"\d+\.\d+(?:\.\d+){0,2}", version)
+            and tuple(int(part) for part in version.split(".")[:2]) >= (7, 4)
+        )
+    except (OSError, subprocess.TimeoutExpired, ValueError, AttributeError) as exc:
+        raise CompatibilityFailure(
+            f"Unable to verify PowerShell host {executable}: {exc}. Use PowerShell 7.4+ Core."
+        ) from exc
+    if not supported:
+        raise CompatibilityFailure(f"Unsupported PowerShell host at {executable}: {host!r}. Use PowerShell 7.4+ Core.")
     return Runtime(runtime_id, executable)
 
 
@@ -291,10 +347,9 @@ def run_command(
 
 
 def powershell_prefix(runtime: Runtime) -> list[str]:
-    prefix = [runtime.executable, "-NoProfile"]
-    if runtime.id == "powershell51":
-        prefix.extend(["-ExecutionPolicy", "Bypass"])
-    return prefix
+    if runtime.id != "powershell7":
+        raise CompatibilityFailure(f"Unsupported PowerShell runtime: {runtime.id}. Use powershell7.")
+    return [runtime.executable, "-NoProfile"]
 
 
 def python_or_powershell_command(
@@ -717,8 +772,8 @@ def compatibility_child_command(
 def create_compatibility_reporting_registry(root: Path, destination: Path) -> Path:
     registry_path = destination / "reporting-registry.json"
     registry = {
-        "schema_version": 2,
-        "runtimes": ["python", "powershell7", "powershell51"],
+        "schema_version": 3,
+        "runtimes": ["python", "powershell7"],
         "profiles": {
             "reporting": ["reporting-root-discovery"],
             "failing": ["reporting-failing-render"],
@@ -1159,6 +1214,8 @@ def run_conformance_reporting_check(
     detailed_sizes: dict[str, int] = {}
     elapsed: dict[str, float] = {}
     failure_report_sizes: dict[str, int] = {}
+    determinism_cases = 0
+    unsafe_report_path_cases = 0
 
     for runtime in runtimes:
         help_command = (
@@ -1219,6 +1276,7 @@ def run_conformance_reporting_check(
             document = parse_json_output(result.stdout)
             validate_concise_conformance_summary(document, expected_status="passed")
             deterministic_results.append(normalized_concise_summary(document))
+            determinism_cases += 1
         if len(set(deterministic_results)) != 1:
             raise CompatibilityFailure(f"{runtime.id} concise conformance output is nondeterministic.")
 
@@ -1246,6 +1304,7 @@ def run_conformance_reporting_check(
             or unsafe_document["failures"][0].get("classification") != "orchestration-failure"
         ):
             raise CompatibilityFailure(f"{runtime.id} unsafe report validation occurred after suite execution.")
+        unsafe_report_path_cases += 1
 
         failure_result = run_command(
             runtime,
@@ -1292,10 +1351,10 @@ def run_conformance_reporting_check(
         "contract": "validation-run-summary",
         "contract_version": 1,
         "runtimes": [runtime.id for runtime in runtimes],
-        "success_cases": 3,
-        "determinism_cases": 6,
-        "failure_cases": 3,
-        "unsafe_report_path_cases": 3,
+        "success_cases": len(detailed_documents),
+        "determinism_cases": determinism_cases,
+        "failure_cases": len(failure_report_sizes),
+        "unsafe_report_path_cases": unsafe_report_path_cases,
         "detailed_bytes": detailed_sizes[reference_runtime],
         "concise_bytes": concise_sizes,
         "report_bytes": len(report_bytes[reference_runtime]),

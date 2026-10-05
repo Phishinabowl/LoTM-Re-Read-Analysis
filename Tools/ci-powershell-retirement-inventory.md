@@ -16,11 +16,12 @@ and public CLI paths remain required. Windows APIs still require explicitly supp
 
 Phase 2.2 now implements the 0.14.0 module's 7.4/Core boundary, preflight and public startup guards
 confirmed on 2026-10-05. Phase 2.3's three QA children use that resolved host, confirmed on 2026-10-05.
-Current code still has strict three-runtime compatibility schema 2, independent three-host
-extraction discovery and a 5.1 CI job. These are temporary migration obligations, not
+Phase 2.4 implements schema-3 Python/PS7 registries, verified host discovery, dynamic reporting counts
+and two-runtime extraction, confirmed on 2026-10-05. Current hosted CI still has a 5.1 job, pending 2.6. This is a
+temporary migration obligation, not
 an ongoing support promise. Implement enforcement at 2.2, children at 2.3, registry/extraction at
 2.4, retained proof at 2.5 and hosted retirement at 2.6. No complete two-runtime execution is claimed
-until those gates pass; current compatibility commands can still require installed 5.1 during transition.
+until those gates pass; current standalone compatibility/extraction commands no longer require 5.1.
 
 Active documented PowerShell recipes use `pwsh`; a machine with only Python can use Python tools,
 and a PowerShell-only machine needs supported PS7 and applicable dependencies. Do not redirect an
@@ -115,6 +116,14 @@ copied by extraction's existing Runtime directory rule. Record that documentary 
 do not assert the old 302-file diagnostic count still describes a new bundle or expand COPY_FILES to CI assets.
 
 ## Acceptance And Next Checkpoint
+
+**Phase 2.4 confirmed 2026-10-05:** Registry and synthetic registry are schema 3, ordered
+Python/PS7; obsolete schema 2 receives a migration error. Both independent discovery paths verify
+Core/minimum 7.4 before work. Reporting counts are derived from completed executions; fixed
+compatibility scenario counts and report/extraction schema 1 remain unchanged. Extraction requires
+all nine portable results and checks scratch absence before emitting success. The plan owns pytest,
+CLI/report evidence and preserved inventories. Full portfolio, budget and timeout/process ownership
+proof remain separately owned by 2.5 and later checkpoints.
 
 **Phase 2.3 confirmed 2026-10-05:** The three QA child launches use the current approved PS7
 executable; direct visualization and helper paths remain unchanged. Eight child regressions and

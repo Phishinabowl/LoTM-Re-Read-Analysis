@@ -3,9 +3,9 @@
 **Status:** Phase 1 and all subphases 1.1-1.5 are confirmed on 2026-10-05.
 Phase 2.1 documentary support adoption, inventory and version decisions are confirmed on 2026-10-05;
 Phase 2.2 host enforcement and the Phase 3.1 packaging-plan addition are confirmed on 2026-10-05;
-Phase 2.3 QA child migration is confirmed on 2026-10-05; 2.4 is next.
-No hosted activation has occurred. Registry/extraction changes and full retirement proof remain
-pending in 2.4-2.6.
+Phase 2.3 QA child migration is confirmed on 2026-10-05. Phase 2.4 registry/extraction/reporting
+migration is confirmed on 2026-10-05; 2.5 is next. No hosted activation has
+occurred. Complete retained coverage, refreshed budgets and hosted retirement remain 2.5/2.6 work.
 Focused host regressions are implemented; broader native-test foundations and dual-host pipeline
 rollout have not started. The maintainer accepted retirement of Windows PowerShell 5.1 support on
 2026-10-05; remaining runtime/runner/workflow migration follows the owning checkpoints.
@@ -858,24 +858,106 @@ The maintainer confirmed all four checklist items on 2026-10-05; Phase 2.4 is th
 
 ### Phase 2.4 Compatibility, Extraction And Reporting Migration
 
-- [ ] Coordinate the two-runtime registry, strict validator, host discovery and synthetic reporting
+- [x] Coordinate the two-runtime registry, strict validator, host discovery and synthetic reporting
   registry; retain all 11 compatibility check IDs and existing profile/check semantics.
-- [ ] Update extraction's independent host discovery/comparison to Python/PS7 while retaining all nine
+- [x] Update extraction's independent host discovery/comparison to Python/PS7 while retaining all nine
   portable suites, neutral consumer, copy boundary, canonical guard and observed scratch-removal checks.
-- [ ] Derive runtime-dependent reporting counts from actual execution: success/failure/unsafe-path and
+- [x] Derive runtime-dependent reporting counts from actual execution: success/failure/unsafe-path and
   determinism cases must match the retained runtime inventory. Preserve unrelated fixed scenario counts.
-- [ ] Verify detailed/concise JSON and human output, negative fixtures, report bytes and failure retention;
+- [x] Verify detailed/concise JSON and human output, negative fixtures, report bytes and failure retention;
   reject stale/invalid inventories. No fabricated 5.1 result or optional skip substitutes for retirement.
-- [ ] Keep paired conformance registration and all 21 Python/PowerShell suite files; losing a host must
+- [x] Keep paired conformance registration and all 21 Python/PowerShell suite files; losing a host must
   not delete the PowerShell implementation or its language-neutral fixture assertions.
 
 **Checkpoint:** Standalone compatibility/extraction/reporting work without launching or requiring 5.1,
 and result inventories/counts truthfully describe Python/PS7 execution.
 
+**Deliverable (confirmed 2026-10-05):** Canonical and synthetic compatibility registries use schema 3
+with exact ordered Python/PS7 runtimes; all 11 check records and four profile memberships are unchanged.
+Schema 2 declarations fail with an actionable migration message; duplicate JSON keys, non-integer
+versions, empty catalog surfaces and wrong/obsolete runtime inventories fail. Unknown runtime IDs
+cannot fall through to Desktop discovery or launch prefixes. Compatibility and extraction independently
+probe the discovered PS7 executable's actual Core edition/version, with a 15-second preflight bound
+and actionable missing, unusable, malformed, nonzero and timeout diagnostics. Domain implementations
+remain independent; no automatic Python delegation or host skip is introduced.
+
+Conformance-reporting counts derive from completed executions: success/failure/unsafe cases 2/2/2
+and determinism 4 for the retained runtime inventory. A Python-only implementation regression proves
+those counts adapt to 1/1/1 and 2 rather than hardcoding another constant. Compatibility-reporting's
+fixed counts, including three cleanup scenarios, remain unchanged. Detailed reports/extraction summary
+stay schema 1 and concise summaries stay contract 1; runtime arrays/maps describe actual coverage.
+
+Extraction retains the same copy directories/files, forbidden project surfaces, neutral consumer and
+nine portable suite IDs. It validates every selected suite passed in order before comparing full
+semantic summaries. Success is emitted after the temporary-directory context has exited and the
+scratch path is absent; retained scratch cannot receive a fabricated JSON/human success message.
+The observed 304 copied files include the earlier release note and host policy additions; tests/CI
+assets and LoTM configuration/content remain outside the bundle. copied_files remains measured data.
+
+**Verification:** [Focused pytest regressions](Tests/Python/test_compatibility_retirement.py) pass
+52 cases covering canonical/synthetic registries, obsolete schema CLI failure without output creation,
+invalid/duplicate/empty inventories, both independent host probes, no Desktop fallback, complete
+portable inventory, JSON/human post-context cleanup and real Python reporting cardinality. Host,
+copy and subprocess stubs are clearly fixture observations; they do not replace shared semantic
+conformance or live extraction. Native catalog/profile admission remains Phase 3 work.
+
+```powershell
+python -m pytest Tools\Tests\Python\test_compatibility_retirement.py -q
+python Tools\Compatibility\run_compatibility.py --list --json
+python Tools\Compatibility\run_compatibility.py --check compatibility-reporting --check conformance-reporting --summary-json
+python Tools\Compatibility\verify_framework_extraction.py --json
+```
+
+The public combined reporting check passed in 37.092 seconds with byte-identical 297-byte detailed
+conformance reports, complete retained failure diagnostics and successful scoped-output removal.
+Standalone extraction passed with nine matching suites and a schema-1 Python/PS7 summary. Its
+observed owned scratch path was independently absent after process exit. The public compatibility
+extraction check passed in 116.501 seconds within its unchanged 360-second limit, with canonical
+outputs unchanged and scoped output removed. No newly created extraction scratch remains after
+that wrapper exited. Timing here is focused execution evidence, not refreshed whole-profile budgets.
+JSON and human inventory listing remain directly reproducible; failed/concise output contracts are
+exercised by the existing reporting checks and implementation regressions.
+
+The public six-check `local` profile also passed in 395.867 seconds, retaining framework-catalog,
+effective-schema, Visualization and QA comparisons against the same baselines. Its detailed v1
+report is retained and scoped output was removed. This is representative aggregate compatibility
+proof; the complete 11-check full-release portfolio and independent 21-suite baseline remain 2.5.
+Both independent host preflights also verified the real portable PS7.4.0 through a task-process PATH
+override. Its public human-mode conformance-reporting check passed in 12.609 seconds with the same
+2/4/2/2 counts, unchanged canonical outputs and scoped-output removal. No machine PATH was changed.
+
+**Preservation/static checks:** Frozen `eded91b` records all 490 entry files; 479 outside the 11 edited
+tracked files remain unchanged. All 47 canonical/generated baseline files, 28 Phase 1.4 JSON records,
+and 56 unchanged protected historical/reference blocks are preserved. Two reviewed live reference
+blocks update the active registry inventory/support paragraph to schema 3; dated checks are untouched.
+All 60 relative links in the eight changed documents resolve. Copy constants, all 11 check records,
+four profile memberships and 21 paired suites are unchanged. New tests live outside the copy allowlist.
+Ruff format/static checks, annotation policy (22 fixtures / 394 files) and `git diff --check` pass.
+Ignored `.tmp/ci-phase24-20261005/` retains native pytest XML, detailed compatibility reports, scratch
+observations and fingerprint evidence; no hosted result or full retirement acceptance is inferred.
+
+**Retained boundaries:** All 21 paired suite files and conformance registry schema/profile membership
+remain unchanged. No canonical page/template/Relationship Seed, project/pack/model/fixture schema,
+consumer baseline, dependency declaration, hosted workflow or required check name changes. Full
+retained 21-suite and 11-check/release/rendering coverage and budget admission belong to 2.5; the
+legacy hosted 5.1 job retires at 2.6. Successful normal-exit scratch checks do not resolve the original
+Phase 1.4 timeout-leftover finding or certify descendant cancellation/process ownership (4.3/4.6).
+
+**Rollback:** Revert the coordinated registry/validator/synthetic producer, host discovery, reporting
+counts, extraction and test/documentation changes together. Do not roll back only the registry or
+silently rewrite obsolete declarations. No installation or canonical baseline refresh is involved.
+The maintainer confirmed all five checklist items and the temporary-test lifecycle wording in 2.5/2.6
+on 2026-10-05. Phase 2.5 is the next checkpoint; live-5.1 migration tests have not yet been separated
+or retired by this confirmation.
+
 ### Phase 2.5 Retained Coverage Proof And Budget Refresh
 
 - [ ] Run repository static policy and PS7 formatting, all 21 baseline suites in Python/PS7 and compare
   complete semantic inventories/results. Exercise unsupported-host and migrated child-launch failures.
+- [ ] Classify tests that actually launch Windows PowerShell 5.1 as temporary migration proof, separate
+  from ongoing implementation coverage. Run that proof for retirement acceptance and record its evidence;
+  identify each case for removal from regular execution in 2.6. Retain lightweight unsupported-host
+  policy regressions using synthetic version/edition values or mocked discovery without launching 5.1.
 - [ ] Run the complete compatibility portfolio, including QA/Visualization, root discovery, artifact
   lifecycle, extraction, distribution-boundary and rendering against unchanged project baselines.
 - [ ] Rehearse synthetic media operations in owned fixtures on the retained supported hosts; permanent
@@ -896,6 +978,11 @@ counts and observed cleanup; refreshed budgets replace extrapolated savings befo
   The 2026-10-05 inspection found both main/framework branches unprotected and zero ADO pipelines.
 - [ ] Retire the dedicated `Windows PowerShell 5.1 Validation` job and its report/setup obligations after
   2.5 proof. Preserve the five retained check identities and existing events; do not activate new ADO CI.
+- [ ] Remove the temporary live-5.1 migration tests from regular test execution before Phase 3 catalog
+  adoption. Preserve their recorded acceptance evidence; any retained migration harness must be explicitly
+  on demand and excluded from steady-state catalogs, profiles and hosted gates. Verify permanent tests
+  require no installed 5.1 executable, including alternate-executable fixtures, while retaining synthetic
+  unsupported-host policy checks and supported Python/PS7 launch, reporting and cleanup regressions.
 - [ ] Reconcile the existing retained job deadlines with 2.5 measurements and setup/report headroom;
   host retirement alone does not prove the old 900-second compatibility job is adequate. Keep coverage.
 - [ ] Verify hosted compatibility now uses only retained hosts, including nested extraction/QA launches;

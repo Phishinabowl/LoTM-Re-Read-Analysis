@@ -2,10 +2,10 @@
 
 **Supported host policy (CI Phase 2.1):** Use Python or PowerShell 7.4+ Core (`pwsh`). Windows
 PowerShell 5.1/Desktop is outside the supported contract. This reference's active recipes and parity
-requirements reflect that decision; dated checks and current CI/schema-2 compatibility descriptions
-preserve the pre-migration implementation. Enforcement/children/registry/hosted retirement are staged
-at CI 2.2-2.6, so current compatibility commands still need legacy hosts until their migration.
-See the [retirement inventory](ci-powershell-retirement-inventory.md); no runtime proof is claimed here.
+requirements reflect that decision; dated checks and current hosted CI descriptions preserve their
+original implementation. CI 2.2/2.3 host enforcement and QA children are confirmed; CI 2.4 implements
+schema-3 compatibility/extraction, confirmed on 2026-10-05. Full retained proof and hosted retirement remain
+2.5/2.6. See the [retirement inventory](ci-powershell-retirement-inventory.md) for checkpoint evidence.
 
 This file is the human-facing map for repository helper scripts. It records what each script is for, how Python-preferred and PowerShell-fallback versions line up when a pair exists, which switches are supported, what files are read or written, and how parity or standalone behavior was last checked.
 
@@ -1386,7 +1386,7 @@ This section tracks durable configuration and generated state files that affect 
 | `.github/workflows/work-annotations.yml` | Feature-branch annotation policy | GitHub Actions, work-annotation linter, maintainers, and future repository rules | Maintainers | Defines the stable lightweight `Work Annotation Policy` check for every non-`main` branch push without project dependency installation or full validation. | Annotation trigger, Python runtime, action pin, command, permissions, concurrency, timeout, or stable check name changes. |
 | `Tools/Conformance/suites.json` | Aggregate conformance registry | `Tools/Conformance/run_conformance.py`, `Tools/Conformance/Run-Conformance.ps1`, CI, and maintainers | Maintainers | Defines stable conformance suite IDs, paired runner paths, named profiles, and discovery exclusions; aggregate validation rejects unregistered or stale runner inventory. | A permanent suite is added, renamed, moved, removed, assigned to a profile, or explicitly excluded from conformance discovery. |
 | `Framework/framework.yaml`, `Framework/capability-roadmap.yaml` | Framework installation and capability-delivery registries | Paired framework-config, catalog, and capability-roadmap services plus conformance and future diagnostic projections | Framework maintainers | Select the installed pack root, pinned lookup data, and roadmap authority; map every effective planned capability to scheduled delivery or accepted deferral without changing pack lifecycle or project activation. | Installation paths change, a planned capability is added, promoted, or withdrawn, or its delivery target, deferral, prerequisite, or implementation evidence changes. |
-| `Tools/Compatibility/compatibility.json` | Project-compatibility registry | `Tools/Compatibility/run_compatibility.py`, CI, and maintainers | Maintainers | Defines stable compatibility checks, three-runtime execution, representative bounded QA requests, isolated extraction, render assertions, timeouts, and the cumulative `local`, `pull-request`, and `full-release` profiles. | A compatibility check, representative probe, timeout, assertion, or profile membership changes. |
+| `Tools/Compatibility/compatibility.json` | Project-compatibility registry | `Tools/Compatibility/run_compatibility.py`, CI, and maintainers | Maintainers | Defines stable compatibility checks, schema-3 Python/PS7 execution, representative bounded QA requests, isolated extraction, render assertions, timeouts, and the cumulative `local`, `pull-request`, and `full-release` profiles. | A compatibility check, representative probe, timeout, assertion, or profile membership changes. |
 | `Tools/Compatibility/Baselines/lotm-consumers.json` | LoTM consumer compatibility oracle | `Tools/Compatibility/run_compatibility.py`, CI, and maintainers | Maintainers through reviewed output changes | Pins accepted Visualization and QA semantic summaries, complete normalized file inventories, per-file hashes, and aggregate tree hashes so identical cross-runtime regressions cannot pass. It remains project-owned and is excluded from the portable framework rehearsal. | Accepted LoTM content, graph, QA, preset, or representative-boundary behavior intentionally changes after mismatch diagnosis and review. |
 | `Tools/Static/work-annotations.json`, `Tools/Static/Fixtures/Work-Annotations/cases.json` | Static-policy registry and conformance fixtures | `Tools/Static/lint_work_annotations.py`, CI, and maintainers | Maintainers | Define executable annotation tags, ownership, eligible/prohibited surfaces, safety bounds, and permanent valid/invalid policy cases. | Annotation syntax, ownership, GitHub tracking, path eligibility, safety bounds, or a permanent regression case changes. |
 | `Project_Config/project.yaml` | Project manifest | `Tools/Runtime/Python/knowledge_framework/project_config.py`, `Tools/Runtime/PowerShell/KnowledgeFramework/Private/Project-Config.ps1`, and consumers such as both Obsidian QA exporters | Maintainers | Identifies the project and configures modeled content/resource roots, provenance behavior, registry paths, default QA output, visualization helpers/settings, cleanup helpers, and manifest schema version without coupling framework code to LoTM directory names. | Project identity or paths change, a content/resource root is added, provenance behavior changes, helper locations move, or the manifest schema changes. |
@@ -1587,11 +1587,26 @@ The loaders reject unsupported schema/capability state, malformed IDs, unknown o
 ### Compatibility Orchestration
 
 `Tools/Compatibility/run_compatibility.py` is the canonical Python orchestrator for cross-runtime
-project-consumer comparisons and isolated framework extraction. It loads the strict schema-2
-`Tools/Compatibility/compatibility.json` registry, requires Python, PowerShell 7, and Windows
-PowerShell 5.1, launches each runtime's own implementation, and does not implement domain behavior
+project-consumer comparisons and isolated framework extraction. It loads the strict schema-3
+`Tools/Compatibility/compatibility.json` registry, requires ordered Python/PowerShell 7 runtimes,
+verifies actual Core edition/minimum 7.4, launches each runtime's own implementation, and does not implement domain behavior
 itself. This canonical orchestration exception does not relax parity requirements for Visualization,
 QA export, cleanup, conformance, or their runtime services.
+
+Schema 2 fails with an actionable migration message; schema 3 does not silently rewrite old
+declarations or skip a declared host. Duplicate JSON keys, non-integer versions, empty inventories,
+wrong runtime order and obsolete/unknown hosts fail. The synthetic reporting registry migrates with
+the canonical validator. Existing detailed/concise output contracts remain version 1; conformance
+reporting derives its runtime-dependent counts from completed cases (2/4/2/2 for success/determinism/
+failure/unsafe-path checks). Fixed compatibility-reporting scenario counts remain unchanged.
+
+The extraction verifier independently discovers/verifies PS7 and preserves its existing copy
+allowlist and nine portable suite IDs. It rejects incomplete/failed/reordered portable summaries,
+compares full retained semantic results and emits success only after context cleanup and an absent
+scratch-path check. The current 304 copied files include the module release note and private host
+policy; copied_files is measured, not a frozen bundle-size contract. No LoTM project configuration,
+canonical content or CI implementation tests are added to the bundle. Normal-exit cleanup is separate
+from the known timeout-leftover finding and future process ownership.
 
 | Behavior | Command |
 | --- | --- |
