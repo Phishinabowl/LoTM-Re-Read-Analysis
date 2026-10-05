@@ -1,6 +1,7 @@
 # CI And Testing Modernization Implementation Plan
 
-**Status:** Phases 1.1-1.4 are confirmed; Phase 1.5 design review is next.
+**Status:** Phase 1 and all subphases 1.1-1.5 are confirmed on 2026-10-05.
+Phase 2.1 support-contract and migration inventory is next; no live activation has occurred.
 Testing implementation and dual-host pipeline rollout have not started. On 2026-10-05 the maintainer
 accepted retirement of Windows PowerShell 5.1 support. Current authorization covers incorporating
 that decision into the plan; runtime/runner/workflow changes remain unimplemented.
@@ -620,19 +621,46 @@ hosted gates. No canonical LoTM migration or QA/Visualization behavior change oc
 
 ### Phase 1.5 Dual-Host And Integration Design Review
 
-- [ ] Record ADO destination, GitHub merge authority, remotes/ref mappings, synchronization sequence,
+- [x] Record ADO destination, GitHub merge authority, remotes/ref mappings, synchronization sequence,
   divergence handling, and credential ownership; do not establish two independent merge histories.
-- [ ] Set host event-to-profile mapping, PR target/source semantics, schedule time/ownership, duplicate
+- [x] Set host event-to-profile mapping, PR target/source semantics, schedule time/ownership, duplicate
   run policy, check-name preservation, and safe staged branch-policy adoption.
-- [ ] Review the full scenario ledger and unresolved decisions; distinguish blockers from accepted
+- [x] Review the full scenario ledger and unresolved decisions; distinguish blockers from accepted
   deferrals with owners and later checkpoints.
-- [ ] Accept Phase 2 retirement boundaries and Phase 3 pilot scope; retain original runners and
+- [x] Accept Phase 2 retirement boundaries and Phase 3 pilot scope; retain original runners and
   retained-runtime gates until their respective reviewed migrations prove coverage.
+
+**Deliverable:** [Dual-Host And Integration Design](ci-testing-host-integration-design.md), based on
+confirmed `0e89480` and read-only live inspection on 2026-10-05. It records matching live main,
+framework and modernization branch tips; GitHub merge authority and dual-push recovery; profile/event
+mapping, PR provenance, conservative sharding, aggregate identities, and staged adoption/rollback.
+The contracts decision record owns D15-D18, accepted with this checkpoint on 2026-10-05.
+
+The maintainer confirmed GitHub weekly verification with ADO full runs on demand; accepted time is
+Sunday 09:00 UTC. Both schedulers must be demonstrated during rollout, then the temporary ADO
+schedule removed. The current GitHub default branch is main; ADO also defaults to main and still
+has no pipelines/policies. No PR, pipeline, protection, schedule or agent configuration was changed.
+
+**Review boundary:** All G01-G14 gaps have named owners/checkpoints. Exact post-retirement deadlines,
+cold/native timing and final shard counts remain measurement gates, not assumed savings. The accepted
+unit minimum can require multiple conformance shards; the proposed strict shard_plans addition stays
+in the existing profiles catalog. Complete retained coverage, truthful artifacts and full PR parity
+remain mandatory. Phase 2 retirement precedes Phase 3 pilots; no implementation begins from this pass.
+
+The maintainer confirmed these four items and the Phase 1 exit gate on 2026-10-05 for commit/publication.
+Confirmation accepts design only; it does not activate policies or start the next phase automatically.
+
+**Verification (2026-10-05):** All 56 relative links/anchors across the six affected documents resolve;
+41 subphases remain sequential; JSON/XML examples parse. All 71 stable methodology families remain
+mapped, every G01-G14 gap has a disposition, and the illustrative compatibility partition covers all
+11 checks exactly once within its stated arithmetic. Annotation policy passed 22 fixtures / 388 files;
+`git diff --check` passed. Live ref/policy/default-branch reads are inspection evidence only; no fresh
+runtime, agent, pipeline or schedule execution is claimed for this design pass.
 
 ### Phase 1 Exit Gate
 
-- [ ] Reviewed contracts, ledger, budgets, dependency strategy, and host design are sufficient to implement.
-- [ ] No unclassified coverage omission, public-consumer break, or Phase 4 canonical change is planned.
+- [x] Reviewed contracts, ledger, budgets, dependency strategy, and host design are sufficient to implement.
+- [x] No unclassified coverage omission, public-consumer break, or Phase 4 canonical change is planned.
 
 **Rollback:** Keep existing runners/workflows authoritative and revise design documents only.
 
@@ -816,6 +844,8 @@ history; do not uninstall Windows PowerShell, force-push, reset content or separ
 ### Phase 4.1 Strict Catalogs And Execution Planning
 
 - [ ] Implement owning catalogs and profile references without copying existing suite membership.
+- [ ] Implement the reviewed shard_plans/result-gate extension inside the profiles catalog; validate
+  exact unit union, source manifests, dependency DAG, gate projection and budget admission before launch.
 - [ ] Validate closed shapes, duplicates, unknown IDs, missing/stale files, runtime variants,
   containment, ordering, fixture ownership, and registration completeness.
 - [ ] Produce deterministic read-only list/plan output, including required prerequisites and budgets.
@@ -860,6 +890,8 @@ from safely recoverable selection uncertainty.
 - [ ] Continue independent failures, classify dependency-blocked/unexecuted units, stop unsafe shared
   state, and calculate aggregate status independently of publication success.
 - [ ] Preserve standalone commands, detailed JSON consumers, expected errors, and semantic ownership.
+- [ ] Support local run-set reproduction and hosted shard result collection through the same repository
+  aggregate contract; wrong/missing/stale/duplicate source evidence fails independent of upload success.
 
 **Checkpoint:** Deliberate formatter/test/compatibility failures leave later independent evidence visible.
 
@@ -883,6 +915,8 @@ from safely recoverable selection uncertainty.
 - [ ] Cover multiple failures, missing children, malformed summaries, discovery errors, empty/skipped
   coverage, launch errors, output limits, timeouts, cancellation, cleanup failures, and recovery.
 - [ ] Prove selection reasons/order/counts and aggregate exit status remain deterministic.
+- [ ] Cover shard partition omissions/duplicates, wrong execution trees/digests, source artifact failures,
+  retained aggregate check identities and event/PR metadata races with synthetic fixture-backed tests.
 
 ### Phase 4 Exit Gate
 

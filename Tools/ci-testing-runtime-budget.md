@@ -255,6 +255,11 @@ Preserve `Project Compatibility` and other required-check identities through rev
 Legacy/replacement shadow overhead needs additional explicit capacity or separate runs, not hidden
 inside the steady-state budget. Main/manual/full local execution spans all required shards.
 
+The [Phase 1.5 host/integration design](ci-testing-host-integration-design.md#4-shards-budgets-and-aggregate-check-identity)
+maps illustrative compatibility placement, explains the granular conformance minimum and proposed
+strict shard/gate manifests, and assigns final sizing to 2.5/3.1/5.1. Its old-deadline examples are
+not approved executable partitions or fresh two-runtime measurements. YAML cannot own that inventory.
+
 ADO entitlement/agent readiness was inspected in 1.1: one free hosted slot, 1,800 minutes/month,
 60-minute private job limit, and no registered self-hosted agents. Do not assume simultaneous shards;
 one slot serializes jobs and affects total feedback latency. Recheck tenant settings before rollout.

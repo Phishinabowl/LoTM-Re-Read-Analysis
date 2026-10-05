@@ -264,6 +264,11 @@ an unavailable runtime or retained human review must remain visible rather than 
 | G13 | Extraction/root fixtures require unrelated ancestors; overriding TEMP under the repository invalidates that probe. A timeout retained owned external scratch despite parent exit; actual cleanup needs independent verification. | Phases 3.2, 4.3, 4.6, 5.4; D13 and Phase 1.4 evidence. |
 | G14 | Accepted 5.1 retirement requires coordinated module/preflight, QA child-host, registry/extraction/report-count and hosted-check migration. Preserve all 21 suites, 11 check families and nine extraction suites; prove Python/PS7 semantics before retiring the host gate. | Phases 2.1-2.6; D14; budgets refreshed at 2.5. |
 
+Phase 1.5's [host/integration design](ci-testing-host-integration-design.md#6-scenario-ledger-review-deferrals-and-entry-gates)
+reviews every G01-G14 disposition, required negative controls, event/capacity limits and accepted
+implementation deferrals. None is silently closed by design acceptance. Proposed shard/gate coverage
+and PR provenance regression belong to 4.1/4.2/4.4-4.6; final hosted placement/adoption belongs to 6.5/7.4.
+
 ### Runtime Retirement Inventory (2026-10-05)
 
 The read-only consumer audit found no feature uniquely requiring Desktop/5.1 and no registered

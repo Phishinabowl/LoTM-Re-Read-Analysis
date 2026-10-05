@@ -6,6 +6,7 @@ was accepted on 2026-10-05 and will be implemented through the new CI Phase 2 be
 No catalog, supervisor,
 selector, XML adapter, or hosted pipeline is implemented by this document. Examples are design
 fixtures, not current invocation recipes or measured results.
+Phase 1.5 host/run-set additions D15-D18 were confirmed on 2026-10-05; implementation proof remains pending.
 
 The [modernization plan](ci-testing-modernization-plan.md) owns delivery and acceptance gates.
 The [coverage ledger](ci-testing-coverage-ledger.md) owns coverage mapping and migration gaps.
@@ -51,7 +52,7 @@ All new catalog roots require `schema_version: 1`. Their root keys are:
 | --- | --- |
 | Policy | `schema_version`, `validators`, `discovery` |
 | Implementation | `schema_version`, `groups`, `discovery` |
-| Profiles | `schema_version`, `runtime_order`, `profiles` |
+| Profiles | `schema_version`, `runtime_order`, `profiles`, `shard_plans` (Phase 1.5 accepted design addition D16) |
 | Coverage metadata | `schema_version`, `external_units`, `comparisons`, `dependencies`, `full_selection_paths`, `non_impact_paths` |
 
 Unknown keys, unsupported versions, duplicate JSON object keys, missing required fields, wrong
@@ -167,6 +168,40 @@ as its tie-break. The recorded plan order is immutable; completion timing cannot
 Execution dependencies use logical IDs and require all declared variants of their prerequisite.
 Parity source references also imply those prerequisites. Select the entire comparison runtime set
 when any source is affected; a partial runtime sample cannot prove full parity.
+
+### Hosted Shard Plans And Result Gates (Accepted Phase 1.5 Design)
+
+The [host/integration design](ci-testing-host-integration-design.md) binds host events to repository
+profiles. D16 extends the proposed profiles schema inside the same four-catalog architecture;
+it changes no existing executable registry. `shard_plans` records require `id`, `profile`, `shards`,
+`gates`, `aggregate_gate`. IDs are unique machine IDs; profile must exist and aggregate_gate must
+name one declared gate. Shards require `id`, `order`, `units`, `depends_on`, `os`, `budget`; gates
+require `id`, `check_name`, `units`, `source_shards`, `budget`. Unknown fields fail validation.
+Order is unique; dependencies use shard IDs and must be acyclic/consistent with unit dependencies.
+OS is an approved host ID, compatible with assigned units. Budgets use the profile's four reserved
+budget keys; setup/publication/host allowances are separately admitted as in the budget design.
+
+Shard `units` is an ordered list of already expanded profile execution IDs, including comparisons.
+Validate exact disjoint union against the owning profile closure: each unit is assigned once,
+none missing or added. Placement is not membership approval. Changed profile/registry expansion
+invalidates stale placement before launch. Keep canonical profile result order across shards.
+Execution inside each shard remains sequential; cross-job overlap requires proved isolated state.
+
+Gate units are result projections, never extra executions. They require source shard manifests,
+exact registered unit IDs and matching provenance/digests; subsets allow truthful language/policy
+check identity. The aggregate_gate covers the entire profile closure, so no partial green gate
+substitutes for complete integration. Comparisons are registered units assigned to shards after
+their source producers, not silently implemented in YAML gate scripts. Gate budgets are separately
+measured. Missing/stale/duplicate artifacts, wrong snapshot, absent results or cancelled required
+shards fail the gate. Local run-set reproduction uses the same plans and aggregate rules without
+host services; report originals remain available and no synthetic legacy invocation is invented.
+
+Declared shard IDs and check names must be unique within a plan; each gate's source list is unique,
+and gate units must actually occur in those source shards. Multiple gates may project the same
+source results without re-execution. Every cross-shard prerequisite is represented in the DAG and satisfies
+the same prerequisite outcome rule as local execution. Neither partial-profile workers nor result
+gates bypass immutable profile expansion/preflight. A profile without a valid admitted shard plan
+cannot be split arbitrarily by a hosted adapter. OS IDs remain the approved windows/linux/macos enum.
 
 ### Illustrative External Metadata Record
 
@@ -550,6 +585,10 @@ retirement; D09-D11/D13 were confirmed on 2026-10-05. Implementation evidence ga
 | D12 | Accepted 2026-10-03: require synthetic EPUB/image implementation tests in PR coverage; Pillow stays in development/media dependencies. No local books/artwork prerequisite. | 3.1-3.3, 5.1, 5.3. |
 | D13 | Accepted 2026-10-05: explicitly owned external fixtures when discovery requires unrelated ancestors; process-tree containment and independently verified timeout cleanup. Preserve confined publication paths. | 3.2, 4.3, 4.6, 5.4. |
 | D14 | Accepted 2026-10-05: retire Windows PowerShell 5.1 support; retain Python/PS7 and Pester 6.2.0. The maintainer confirms there are no other project copies/consumers. Preserve all semantic fixtures, migrate child hosts and reporting, prove retained coverage and refresh budgets before native/host adoption. Full Python/PS7 duplication remains a separate policy from host retirement. | 2.1-2.6; updates future runtime obligations throughout Phases 3-8. |
+| D15 | Accepted 2026-10-05: GitHub sole merge authority and deliberate dual-host events; immutable source/target/execution provenance, scoped synchronization and read-only hosted credentials. No separate ADO merge history. | 4.2, 6.1-6.3, 8.4. |
+| D16 | Accepted 2026-10-05: add strict shard_plans to the proposed profiles catalog; exact profile union, sequential shard children, registered comparisons, stable result gates and matching artifact provenance. Refresh final placement/deadlines before adoption. | 2.5, 4.1/4.4-4.6, 5.1/5.2, 6.4/6.5. |
+| D17 | Accepted 2026-10-05: GitHub weekly, ADO full runs on demand. Time Sunday 09:00 UTC; demonstrate both host schedulers during rollout, then remove the temporary ADO schedule. | 6.4/6.5, 7.3/7.4. |
+| D18 | Accepted 2026-10-05: optional observational shadow/policy first, retained/full PR gates, staged check adoption and explicit deferral owners; Phase 2 retirement then Phase 3 native pilots. Preserve human-review readiness and current platform boundaries. | Phase 1 exit, 2.1-2.6, 3.1-3.5, 6.5, 7.1-7.4. |
 
 This planning update records the decision, not completed retirement. Current executable registries,
 module metadata and hosted workflow still require 5.1 until Phase 2 performs the coordinated change.
@@ -557,8 +596,8 @@ Existing architecture/methodology support wording is updated at 2.1; historical 
 remain intact. D14 explicitly supersedes the planned 5.1 support portions of earlier decisions.
 
 Still deliberately pending: two-runtime remeasurement (2.5), clean dependency/bootstrap proof (3.1),
-event/check-name/shard mappings, schedule host ownership and observational shadow
-profiles (1.5); verified native report cases (3.4); implemented process/scope/report invariants
+final shard/deadline admission and implemented host/event/shadow proof;
+verified native report cases (3.4); implemented process/scope/report invariants
 (4.6); retained Python/PS7 equivalence and reviews (5.2-5.5); hosted passing/failing publication
 demonstrations and branch-policy adoption (6.4-6.5). Neither this accepted design nor a successful documentation
 check satisfies those execution gates. The rollback for this pass is documentation only.

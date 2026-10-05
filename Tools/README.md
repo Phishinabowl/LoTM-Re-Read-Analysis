@@ -21,6 +21,11 @@ On 2026-10-05 the maintainer accepted Windows PowerShell 5.1 retirement. The mod
 now schedules it as CI Phase 2 before native pilots; former CI Phases 2-7 become 3-8. Current tools
 and workflows still require 5.1 until that coordinated migration is implemented and verified.
 
+The [Dual-Host And Integration Design](ci-testing-host-integration-design.md) records Phase 1.5's
+event/profile, PR provenance, repository-owned sharding, check identity and staged rollout proposals.
+GitHub is the selected weekly host at Sunday 09:00 UTC; ADO full runs remain on demand after rollout.
+The design was confirmed on 2026-10-05; no pipeline, policy or schedule is activated by these documents.
+
 This folder contains reusable local helpers for project maintenance and source verification.
 
 For switch-by-switch maps, function-pipeline notes, side effects, parity checks, and durable config/state files for maintained helper scripts, see [Tooling Reference](TOOLING_REFERENCE.md). That reference should be extended whenever another tool is audited or a tool starts reading a new shared config file. The broader version process belongs to the [Framework Improvement Lifecycle](../Framework/framework_improvement_lifecycle.md), while the cumulative requirement for when and why checks run belongs to the [Framework Testing Methodology](../Framework/testing_methodology.md).
