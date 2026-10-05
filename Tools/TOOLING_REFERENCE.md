@@ -1,5 +1,12 @@
 # Tooling Reference
 
+**Supported host policy (CI Phase 2.1):** Use Python or PowerShell 7.4+ Core (`pwsh`). Windows
+PowerShell 5.1/Desktop is outside the supported contract. This reference's active recipes and parity
+requirements reflect that decision; dated checks and current CI/schema-2 compatibility descriptions
+preserve the pre-migration implementation. Enforcement/children/registry/hosted retirement are staged
+at CI 2.2-2.6, so current compatibility commands still need legacy hosts until their migration.
+See the [retirement inventory](ci-powershell-retirement-inventory.md); no runtime proof is claimed here.
+
 This file is the human-facing map for repository helper scripts. It records what each script is for, how Python-preferred and PowerShell-fallback versions line up when a pair exists, which switches are supported, what files are read or written, and how parity or standalone behavior was last checked.
 
 `Framework/framework_improvement_lifecycle.md` is authoritative for the end-to-end version workflow. `Framework/testing_methodology.md` is authoritative for cumulative test requirements, stable families, retention rules, impact matrix, comparison standards, and result classification. This reference remains authoritative for exact commands, tool-specific output contracts, normalization recipes, and dated parity executions.
@@ -19,7 +26,7 @@ The repository convention is:
 
 ### Reusable Runtime Pairs
 
-All rows in this table require independent Python, PowerShell 7, and Windows PowerShell 5.1 semantic parity. Python modules live beneath `Tools/Runtime/Python/knowledge_framework/`. PowerShell implementations are internal parts of `Tools/Runtime/PowerShell/KnowledgeFramework/`, with supported functions exported through `KnowledgeFramework.psd1` and `KnowledgeFramework.psm1` rather than peer-script dot sourcing.
+All rows in this table require independent Python and PowerShell 7 semantic parity. Python modules live beneath `Tools/Runtime/Python/knowledge_framework/`. PowerShell implementations are internal parts of `Tools/Runtime/PowerShell/KnowledgeFramework/`, with supported functions exported through `KnowledgeFramework.psd1` and `KnowledgeFramework.psm1` rather than peer-script dot sourcing.
 
 | Python Source | PowerShell Source | Python Module | PowerShell Ownership | Dependency Role |
 | --- | --- | --- | --- | --- |
@@ -126,7 +133,7 @@ Resolution order is explicit `--root` / `-Root`, absolute `KNOWLEDGE_PROJECT_ROO
 
 | Role | Script | Command |
 | --- | --- | --- |
-| Environment probe | `Tools/Commands/Environment/Test-Python.ps1` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Environment\Test-Python.ps1` |
+| Environment probe | `Tools/Commands/Environment/Test-Python.ps1` | `pwsh -NoProfile -File Tools\Commands\Environment\Test-Python.ps1` |
 
 Purpose: check whether the local machine has a usable Python command and the repository's required Python modules before choosing Python-preferred tools or documented PowerShell fallbacks. This is a read-only probe and has no Python pair.
 
@@ -169,18 +176,13 @@ Purpose: check whether the local machine has a usable Python command and the rep
 
 ### Important Notes
 
-- Run this once for an unfamiliar machine or fresh agent session, then treat the result as session state.
-- Rerun only if the environment changes, such as PATH edits, Python installation changes, a different shell, a different machine, or a failed Python launch that suggests the earlier state is stale.
-- If Python is unavailable, use the documented PowerShell fallback scripts for that session.
-- If Python is available but `ready` is false because required modules are missing, install the repository dependencies with `python -m pip install -r requirements-python.txt` before using Python helpers that need those modules.
-- If Python is available and ready but a Python helper fails, treat that as a helper failure rather than silently falling back.
-- Keep PowerShell fallback scripts compatible with Windows PowerShell 5.1 unless a tool explicitly documents a PowerShell 7 requirement.
+- Use the supported PS7 host for PowerShell fallback scripts; preserve independent Python/PS7 semantics and explicit unsupported-host failures as retirement is enforced.
 
 ### Check Recipe
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Environment\Test-Python.ps1
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Environment\Test-Python.ps1 -Json
+pwsh -NoProfile -File Tools\Commands\Environment\Test-Python.ps1
+pwsh -NoProfile -File Tools\Commands\Environment\Test-Python.ps1 -Json
 python -m pip install -r requirements-python.txt
 ```
 
@@ -231,7 +233,7 @@ Last check: 2026-08-01. Ruff 0.16.1 formatted 21 of 22 existing Python files; on
 
 | Role | Script | Command |
 | --- | --- | --- |
-| Environment probe | `Tools/Commands/Environment/Test-PowerShell.ps1` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Environment\Test-PowerShell.ps1` |
+| Environment probe | `Tools/Commands/Environment/Test-PowerShell.ps1` | `pwsh -NoProfile -File Tools\Commands\Environment\Test-PowerShell.ps1` |
 
 Purpose: check whether the local PowerShell environment has repository-required modules from `requirements-powershell.txt`. This is a read-only probe and has no Python pair.
 
@@ -268,8 +270,8 @@ Purpose: check whether the local PowerShell environment has repository-required 
 ### Check Recipe
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Environment\Test-PowerShell.ps1
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Environment\Test-PowerShell.ps1 -Json
+pwsh -NoProfile -File Tools\Commands\Environment\Test-PowerShell.ps1
+pwsh -NoProfile -File Tools\Commands\Environment\Test-PowerShell.ps1 -Json
 Install-Module powershell-yaml -Scope CurrentUser -Force -AllowClobber
 Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
 ```
@@ -284,7 +286,7 @@ Last check: 2026-08-01. JSON mode ran successfully in PowerShell 7.6.3 and Windo
 
 | Role | Script | Command |
 | --- | --- | --- |
-| PowerShell static formatter and check | `Tools/Static/Format-PowerShell.ps1` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Static\Format-PowerShell.ps1` |
+| PowerShell static formatter and check | `Tools/Static/Format-PowerShell.ps1` | `pwsh -NoProfile -File Tools\Static\Format-PowerShell.ps1` |
 
 Purpose: deterministically format and statically check maintained PowerShell sources. This tool has no Python pair because its behavior depends on the PowerShell parser and `PSScriptAnalyzer`; it does not implement a project-domain feature that requires a fallback runtime.
 
@@ -312,11 +314,11 @@ Purpose: deterministically format and statically check maintained PowerShell sou
 ### Check Recipe
 
 ```powershell
-# Read-only default check under Windows PowerShell 5.1
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Static\Format-PowerShell.ps1
+# Read-only default check under supported PS7
+pwsh -NoProfile -File Tools\Static\Format-PowerShell.ps1
 
 # Apply canonical formatting
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Static\Format-PowerShell.ps1 -Fix
+pwsh -NoProfile -File Tools\Static\Format-PowerShell.ps1 -Fix
 
 # PowerShell 7 structured check
 pwsh -NoProfile -File Tools\Static\Format-PowerShell.ps1 -Json
@@ -374,7 +376,7 @@ Last check: 2026-08-02. All 22 valid and invalid fixture cases passed. The defau
 | Role | Script | Command |
 | --- | --- | --- |
 | Preferred implementation | `Tools/Commands/Maintenance/clean_temp_files.py` | `python Tools\Commands\Maintenance\clean_temp_files.py` |
-| Windows fallback | `Tools/Commands/Maintenance/Clean-TempFiles.ps1` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Maintenance\Clean-TempFiles.ps1` |
+| Windows fallback | `Tools/Commands/Maintenance/Clean-TempFiles.ps1` | `pwsh -NoProfile -File Tools\Commands\Maintenance\Clean-TempFiles.ps1` |
 
 Purpose: find and optionally remove allowlisted local cache directories under the repository root. This tool is for disposable tool/runtime artifacts only, not project source files.
 
@@ -444,13 +446,13 @@ New-Item -ItemType Directory -Force -Path .tmp\cleanup-parity\Nested\.pytest_cac
 New-Item -ItemType Directory -Force -Path .tmp\cleanup-parity\Nested\.ruff_cache
 
 python Tools\Commands\Maintenance\clean_temp_files.py --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Maintenance\Clean-TempFiles.ps1 -Json
+pwsh -NoProfile -File Tools\Commands\Maintenance\Clean-TempFiles.ps1 -Json
 
 python Tools\Commands\Maintenance\clean_temp_files.py --include-tmp --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Maintenance\Clean-TempFiles.ps1 -IncludeTmp -Json
+pwsh -NoProfile -File Tools\Commands\Maintenance\Clean-TempFiles.ps1 -IncludeTmp -Json
 
 python Tools\Commands\Maintenance\clean_temp_files.py --tmp-path .tmp\cleanup-parity --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Maintenance\Clean-TempFiles.ps1 -TmpPath .tmp\cleanup-parity -Json
+pwsh -NoProfile -File Tools\Commands\Maintenance\Clean-TempFiles.ps1 -TmpPath .tmp\cleanup-parity -Json
 
 python Tools\Commands\Maintenance\clean_temp_files.py --delete --json
 
@@ -458,7 +460,7 @@ New-Item -ItemType Directory -Force -Path .tmp\cleanup-parity\Tools\__pycache__
 New-Item -ItemType Directory -Force -Path .tmp\cleanup-parity\Nested\.pytest_cache
 New-Item -ItemType Directory -Force -Path .tmp\cleanup-parity\Nested\.ruff_cache
 
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Maintenance\Clean-TempFiles.ps1 -Delete -Json
+pwsh -NoProfile -File Tools\Commands\Maintenance\Clean-TempFiles.ps1 -Delete -Json
 ```
 
 Automatic tool cleanup should prefer `--tmp-path ... --delete` / `-TmpPath ... -Delete` for exact paths created by the current run. Use `--include-tmp --delete` / `-IncludeTmp -Delete` only when ignored local test outputs under `.tmp/` are no longer needed. This is intentionally opt-in so parity runs that write inspectable outputs under `.tmp/` are not deleted immediately by the tools that created them.
@@ -478,7 +480,7 @@ Last parity check: 2026-07-07. Dry-run JSON matched semantically for three test 
 | Role | Script | Command |
 | --- | --- | --- |
 | Preferred implementation | `Tools/Commands/Media/edit_image.py` | `python Tools\Commands\Media\edit_image.py` |
-| Windows fallback | `Tools/Commands/Media/Edit-Image.ps1` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Edit-Image.ps1` |
+| Windows fallback | `Tools/Commands/Media/Edit-Image.ps1` | `pwsh -NoProfile -File Tools\Commands\Media\Edit-Image.ps1` |
 
 Purpose: run repeatable local image operations. Current operations are fixed-geometry image cropping, named crop presets for official pathway guide assets, and EPUB image listing/extraction in spine order.
 
@@ -599,28 +601,28 @@ List presets:
 
 ```powershell
 python Tools\Commands\Media\edit_image.py --list-presets
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Edit-Image.ps1 -ListPresets
+pwsh -NoProfile -File Tools\Commands\Media\Edit-Image.ps1 -ListPresets
 ```
 
 List EPUB images:
 
 ```powershell
 python Tools\Commands\Media\edit_image.py --operation list-images --start-image-number 1 --end-image-number 5 --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Edit-Image.ps1 -Operation List-Images -StartImageNumber 1 -EndImageNumber 5 -Json
+pwsh -NoProfile -File Tools\Commands\Media\Edit-Image.ps1 -Operation List-Images -StartImageNumber 1 -EndImageNumber 5 -Json
 ```
 
 Extract one EPUB image:
 
 ```powershell
 python Tools\Commands\Media\edit_image.py --operation ExtractEpubImages --start-image-number 1 --end-image-number 1 --output-dir .tmp\image-parity\python-extract --extract --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Edit-Image.ps1 -Operation ExtractEpubImages -StartImageNumber 1 -EndImageNumber 1 -OutputDir .tmp\image-parity\powershell-extract -Extract -Json
+pwsh -NoProfile -File Tools\Commands\Media\Edit-Image.ps1 -Operation ExtractEpubImages -StartImageNumber 1 -EndImageNumber 1 -OutputDir .tmp\image-parity\powershell-extract -Extract -Json
 ```
 
 Crop a synthetic source image and compare dimensions/pixels:
 
 ```powershell
 python Tools\Commands\Media\edit_image.py --operation crop --source-image .tmp\image-parity\source.png --output-image .tmp\image-parity\python-crop.png --x 3 --y 4 --width 7 --height 6 --force
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Edit-Image.ps1 -Operation Crop -SourceImage .tmp\image-parity\source.png -OutputImage .tmp\image-parity\powershell-crop.png -X 3 -Y 4 -Width 7 -Height 6 -Force
+pwsh -NoProfile -File Tools\Commands\Media\Edit-Image.ps1 -Operation Crop -SourceImage .tmp\image-parity\source.png -OutputImage .tmp\image-parity\powershell-crop.png -X 3 -Y 4 -Width 7 -Height 6 -Force
 ```
 
 Expected non-semantic differences:
@@ -640,7 +642,7 @@ Last parity check: 2026-07-07. Preset listing matched exactly. EPUB JSON listing
 | Role | Script | Command |
 | --- | --- | --- |
 | Preferred implementation | `Tools/Commands/Media/search_epub.py` | `python Tools\Commands\Media\search_epub.py` |
-| Windows fallback | `Tools/Commands/Media/Search-Epub.ps1` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1` |
+| Windows fallback | `Tools/Commands/Media/Search-Epub.ps1` | `pwsh -NoProfile -File Tools\Commands\Media\Search-Epub.ps1` |
 
 Both current implementations discover the Book 1 EPUB layout. They do not yet consume `Project_Config/sources.yaml`, accept a registered work ID, or discover entries in the current COI EPUB package. Passing the COI path returns an empty entry list and must not be interpreted as an empty book. Multi-book search support requires registry-backed work/source selection plus package-specific discovery adapters.
 
@@ -738,42 +740,42 @@ List all EPUB entries:
 
 ```powershell
 python Tools\Commands\Media\search_epub.py --entry-type All --list-entries --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -EntryType All -ListEntries -Json
+pwsh -NoProfile -File Tools\Commands\Media\Search-Epub.ps1 -EntryType All -ListEntries -Json
 ```
 
 Counts-only chapter search:
 
 ```powershell
 python Tools\Commands\Media\search_epub.py --start-chapter 1 --end-chapter 5 --pattern "Klein|Zhou" --counts-only --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -StartChapter 1 -EndChapter 5 -Pattern "Klein|Zhou" -CountsOnly -Json
+pwsh -NoProfile -File Tools\Commands\Media\Search-Epub.ps1 -StartChapter 1 -EndChapter 5 -Pattern "Klein|Zhou" -CountsOnly -Json
 ```
 
 Term summary:
 
 ```powershell
 python Tools\Commands\Media\search_epub.py --start-chapter 1 --end-chapter 10 --pattern "Klein|Zhou" --term-summary --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -StartChapter 1 -EndChapter 10 -Pattern "Klein|Zhou" -TermSummary -Json
+pwsh -NoProfile -File Tools\Commands\Media\Search-Epub.ps1 -StartChapter 1 -EndChapter 10 -Pattern "Klein|Zhou" -TermSummary -Json
 ```
 
 Context hits with line counts:
 
 ```powershell
 python Tools\Commands\Media\search_epub.py --start-chapter 1 --end-chapter 1 --pattern "Klein|Zhou" --context-lines 1 --max-hits-per-chapter 3 --include-line-match-counts --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -StartChapter 1 -EndChapter 1 -Pattern "Klein|Zhou" -ContextLines 1 -MaxHitsPerChapter 3 -IncludeLineMatchCounts -Json
+pwsh -NoProfile -File Tools\Commands\Media\Search-Epub.ps1 -StartChapter 1 -EndChapter 1 -Pattern "Klein|Zhou" -ContextLines 1 -MaxHitsPerChapter 3 -IncludeLineMatchCounts -Json
 ```
 
 Regex and case-sensitive search:
 
 ```powershell
 python Tools\Commands\Media\search_epub.py --start-chapter 1 --end-chapter 3 --pattern "Klein\b" --regex-pattern --case-sensitive --counts-only --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -StartChapter 1 -EndChapter 3 -Pattern "Klein\b" -RegexPattern -CaseSensitive -CountsOnly -Json
+pwsh -NoProfile -File Tools\Commands\Media\Search-Epub.ps1 -StartChapter 1 -EndChapter 3 -Pattern "Klein\b" -RegexPattern -CaseSensitive -CountsOnly -Json
 ```
 
 Non-chapter appendix search:
 
 ```powershell
 python Tools\Commands\Media\search_epub.py --entry-type Appendices --entry-name-pattern "*pathways*" --pattern "Pathway|Sequence|Seer" --counts-only --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -EntryType Appendices -EntryNamePattern "*pathways*" -Pattern "Pathway|Sequence|Seer" -CountsOnly -Json
+pwsh -NoProfile -File Tools\Commands\Media\Search-Epub.ps1 -EntryType Appendices -EntryNamePattern "*pathways*" -Pattern "Pathway|Sequence|Seer" -CountsOnly -Json
 ```
 
 Expected non-semantic differences:
@@ -792,7 +794,7 @@ Last parity check: 2026-07-07. JSON outputs matched semantically for full entry 
 | Role | Script | Command |
 | --- | --- | --- |
 | Preferred implementation | `Visualization/visualize.py` | `python Visualization\visualize.py` |
-| Windows fallback | `Visualization/visualize.ps1` | `powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1` |
+| Windows fallback | `Visualization/visualize.ps1` | `pwsh -NoProfile -File Visualization\visualize.ps1` |
 
 Purpose: generate repository Mermaid graph views from canonical graph inputs, validate generated/manual Mermaid files, render Mermaid files to image outputs through Mermaid CLI, update the visualization refresh report, and write semantic graph snapshots.
 
@@ -911,21 +913,21 @@ Validate mode:
 
 ```powershell
 python Visualization\visualize.py --mode Validate
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Validate
+pwsh -NoProfile -File Visualization\visualize.ps1 -Mode Validate
 ```
 
 No-render refresh mode with redirected settings:
 
 ```powershell
 python Visualization\visualize.py --mode Refresh --settings-path .tmp\visualization-parity\python\render-settings.json --skip-render
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Refresh -SettingsPath .tmp\visualization-parity\powershell\render-settings.json -SkipRender
+pwsh -NoProfile -File Visualization\visualize.ps1 -Mode Refresh -SettingsPath .tmp\visualization-parity\powershell\render-settings.json -SkipRender
 ```
 
 Manual render mode with a tiny temporary Mermaid file:
 
 ```powershell
 python Visualization\visualize.py --mode Render --settings-path .tmp\visualization-parity\python\render-settings.json --input-path .tmp\visualization-parity\render\tiny.mmd --output-path .tmp\visualization-parity\render\python-tiny.svg
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Render -SettingsPath .tmp\visualization-parity\powershell\render-settings.json -InputPath .tmp\visualization-parity\render\tiny.mmd -OutputPath .tmp\visualization-parity\render\powershell-tiny.svg
+pwsh -NoProfile -File Visualization\visualize.ps1 -Mode Render -SettingsPath .tmp\visualization-parity\powershell\render-settings.json -InputPath .tmp\visualization-parity\render\tiny.mmd -OutputPath .tmp\visualization-parity\render\powershell-tiny.svg
 ```
 
 Expected non-semantic differences:
@@ -947,7 +949,7 @@ Last parity check: 2026-08-01. Python, PowerShell 7, and Windows PowerShell 5.1 
 | Role | Script | Command |
 | --- | --- | --- |
 | Preferred implementation | `Tools/Commands/QA/obsidian_qa_export.py` | `python Tools\Commands\QA\obsidian_qa_export.py` |
-| Windows fallback | `Tools/Commands/QA/Obsidian-QA-Export.ps1` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\QA\Obsidian-QA-Export.ps1` |
+| Windows fallback | `Tools/Commands/QA/Obsidian-QA-Export.ps1` | `pwsh -NoProfile -File Tools\Commands\QA\Obsidian-QA-Export.ps1` |
 
 Purpose: compile repository metadata, type-specific YAML data blocks, Relationship Seeds, and graph projections into an ignored Obsidian-friendly QA mirror. The export is for maintainer inspection and visual QA; it is not a source of truth.
 
@@ -1070,13 +1072,13 @@ Use ignored `.tmp/` output folders so comparison runs do not create trackable ar
 
 ```powershell
 python Tools\Commands\QA\obsidian_qa_export.py --clean --output-dir .tmp\obsidian-python-check --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\QA\Obsidian-QA-Export.ps1 -Clean -OutputDir .tmp\obsidian-powershell-check -Json
+pwsh -NoProfile -File Tools\Commands\QA\Obsidian-QA-Export.ps1 -Clean -OutputDir .tmp\obsidian-powershell-check -Json
 
 python Tools\Commands\QA\obsidian_qa_export.py --clean --output-dir .tmp\obsidian-python-bounded --bounded-graph "name=ch10,medium=novel,maxVolume=1,maxChapter=10" --bounded-graph "name=vol1,medium=novel,maxVolume=1" --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\QA\Obsidian-QA-Export.ps1 -Clean -OutputDir .tmp\obsidian-powershell-bounded -BoundedGraph 'name=ch10,medium=novel,maxVolume=1,maxChapter=10;name=vol1,medium=novel,maxVolume=1' -Json
+pwsh -NoProfile -File Tools\Commands\QA\Obsidian-QA-Export.ps1 -Clean -OutputDir .tmp\obsidian-powershell-bounded -BoundedGraph 'name=ch10,medium=novel,maxVolume=1,maxChapter=10;name=vol1,medium=novel,maxVolume=1' -Json
 
 python Tools\Commands\QA\obsidian_qa_export.py --clean --output-dir .tmp\obsidian-python-pages --bounded-page "slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=10" --bounded-page "slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=30" --bounded-page "slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=50" --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\QA\Obsidian-QA-Export.ps1 -Clean -OutputDir .tmp\obsidian-powershell-pages -BoundedPage 'slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=10;slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=30;slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=50' -Json
+pwsh -NoProfile -File Tools\Commands\QA\Obsidian-QA-Export.ps1 -Clean -OutputDir .tmp\obsidian-powershell-pages -BoundedPage 'slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=10;slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=30;slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=50' -Json
 ```
 
 Compare at minimum:
@@ -1152,7 +1154,7 @@ roadmap. It never globs registries or depends on `Project_Config/`.
 
 | Behavior | Python | PowerShell |
 | --- | --- | --- |
-| Auto-detect and summarize | `python Tools\Commands\Framework\inspect_framework_catalog.py` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1` |
+| Auto-detect and summarize | `python Tools\Commands\Framework\inspect_framework_catalog.py` | `pwsh -NoProfile -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1` |
 | Explicit framework repository root | `--root PATH` | `-Root PATH` |
 | Attach one explicit project | `--project-root PATH` | `-ProjectRoot PATH` |
 | Canonical JSON on standard output | `--json` | `-Json` |
@@ -1190,17 +1192,16 @@ UTF-8 without a byte-order mark, LF endings, and one final newline. Structured f
 
 `framework-installation` belongs to `fast` and `baseline`. It proves root precedence,
 working-directory preservation, strict manifests, confined paths, explicit lookup selection when
-multiple datasets coexist, and three-runtime parity. `framework-catalog` is baseline-only because
-its permanent 64-pack generated scale probe is intentionally broader and materially slower in
-Windows PowerShell 5.1. It also covers canonical 14-pack/136-capability discovery, deterministic
+multiple datasets coexist, and Python/PS7 parity. `framework-catalog` is baseline-only because
+its permanent 64-pack generated scale probe is intentionally broader; the previous Desktop cost
+remains historical measurement evidence. It also covers canonical 14-pack/136-capability discovery, deterministic
 repeat loading, ignored directories, dependencies and cycles, directory/ID mismatch, malformed
 packs, deferred/planned/deprecated state, multiple providers, normalized and ambiguous selectors,
-project attachment, base-catalog immutability, annotated state, and exact three-runtime summaries.
+project attachment, base-catalog immutability, annotated state, and exact Python/PS7 summaries.
 
 The registered `framework-catalog` compatibility check covers byte-identical base and selection
 JSON, concise/combined/deduplicated reports, report and JSON file exports, invalid roots, invalid
-sections, unknown selectors, outside-root rejection, and path-safe structured failures in Python,
-PowerShell 7, and Windows PowerShell 5.1. It also compares byte-identical project-view JSON,
+sections, unknown selectors, outside-root rejection, and path-safe structured failures in Python and PowerShell 7. It also compares byte-identical project-view JSON,
 project-view reports and selectors, and explicit project-attachment failures. EffectiveProjectSchema
 remains a separate project-scoped contract while selecting its pack records from the validated
 catalog model.
@@ -1254,7 +1255,7 @@ assertion APIs were retired after Phase 2.3.5 closure.
 
 | Behavior | Python | PowerShell |
 | --- | --- | --- |
-| Auto-detect and summarize | `python Tools\Commands\Framework\inspect_effective_schema.py` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1` |
+| Auto-detect and summarize | `python Tools\Commands\Framework\inspect_effective_schema.py` | `pwsh -NoProfile -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1` |
 | Explicit project root | `--root PATH` | `-Root PATH` |
 | Canonical JSON on standard output | `--json` | `-Json` |
 | Also export canonical JSON | `--output PATH` | `-Output PATH` |
@@ -1314,14 +1315,14 @@ the same ID compares complete in-memory JSON, byte-identical canonical file expo
 `packs` plus `capabilities` human inspection, the concise overview, byte-identical report exports,
 deduplicated `all` expansion, normalized combined selection envelopes and exports, invalid section
 and singular selection, and
-malformed-root failure envelopes in Python, PowerShell 7, and Windows PowerShell 5.1 while protecting
+malformed-root failure envelopes in Python and PowerShell 7 while protecting
 canonical outputs.
 
 Focused commands:
 
 ```powershell
 python Tools\Conformance\run_conformance.py --suite effective-schema --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Conformance.ps1 -Suite effective-schema -Json
+pwsh -NoProfile -File Tools\Conformance\Run-Conformance.ps1 -Suite effective-schema -Json
 python Tools\Compatibility\run_compatibility.py --check effective-schema --json
 ```
 
@@ -1580,10 +1581,10 @@ QA export, cleanup, conformance, or their runtime services.
 | --- | --- |
 | Compare Visualization and redirected QA output during implementation | `python Tools/Compatibility/run_compatibility.py --profile local --summary-json` |
 | Add root-discovery and artifact-lifecycle protection before PR readiness | `python Tools/Compatibility/run_compatibility.py --profile pull-request --summary-json` |
-| Add representative three-runtime rendering for version closure | `python Tools/Compatibility/run_compatibility.py --profile full-release --summary-json --report-output .tmp/validation/full-release-compatibility.json` |
+| Add representative Python/PS7 rendering for version closure | `python Tools/Compatibility/run_compatibility.py --profile full-release --summary-json --report-output .tmp/validation/full-release-compatibility.json` |
 | Rehearse a neutral standalone framework copy directly | `python Tools/Compatibility/verify_framework_extraction.py --json` |
 
-The extraction verifier copies `Framework/`, `Tools/Runtime/`, `Tools/Conformance/`, the Python and PowerShell dependency declarations, and the Python formatter policy into a unique operating-system temporary directory. It does not copy the LoTM `Project_Config/`; it generates a neutral core-only `extraction-smoke` manifest and placeholder consumer registry paths. The copied tree must omit nine canonical or generated project surfaces, then pass project-root, strict-ingestion, lookup-key, schema-pack, temporal, and structural-interpretation conformance with identical structured summaries in Python, PowerShell 7, and Windows PowerShell 5.1. The temporary copy is removed automatically on success or failure.
+The extraction verifier copies `Framework/`, `Tools/Runtime/`, `Tools/Conformance/`, the Python and PowerShell dependency declarations, and the Python formatter policy into a unique operating-system temporary directory. It does not copy the LoTM `Project_Config/`; it generates a neutral core-only `extraction-smoke` manifest and placeholder consumer registry paths. The copied tree must omit nine canonical or generated project surfaces, then pass project-root, strict-ingestion, lookup-key, schema-pack, temporal, and structural-interpretation conformance with identical structured summaries in Python and PowerShell 7. The temporary copy is removed automatically on success or failure.
 | Select checks for diagnosis | repeat `--check CHECK_ID` |
 | List profiles and checks | `--list`; add `--json` for structured output |
 | Select project root or registry | `--root PATH`, `--registry PATH` |
@@ -1654,8 +1655,8 @@ The paired aggregate runners accept an optional repository root, validate `Tools
 
 | Behavior | Python | PowerShell |
 | --- | --- | --- |
-| Run every registered permanent suite | `python Tools/Conformance/run_conformance.py --profile baseline` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Run-Conformance.ps1 -Profile baseline` |
-| Run the quick local profile | `python Tools/Conformance/run_conformance.py --profile fast` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Run-Conformance.ps1 -Profile fast` |
+| Run every registered permanent suite | `python Tools/Conformance/run_conformance.py --profile baseline` | `pwsh -NoProfile -File Tools/Conformance/Run-Conformance.ps1 -Profile baseline` |
+| Run the quick local profile | `python Tools/Conformance/run_conformance.py --profile fast` | `pwsh -NoProfile -File Tools/Conformance/Run-Conformance.ps1 -Profile fast` |
 | Select focused suites | repeat `--suite SUITE_ID` | pass an array with `-Suite ID1,ID2` |
 | List registered suites and profiles | `--list` | `-List` |
 | Emit concise contract-first status | `--summary-json` | `-SummaryJson` |
@@ -1697,8 +1698,8 @@ The paired strict-ingestion runners accept an optional repository root and leave
 
 | Behavior | Python | PowerShell |
 | --- | --- | --- |
-| Run the portable strict-ingestion corpus | `python Tools/Conformance/Suites/test_strict_yaml.py` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Strict-Yaml.ps1` |
-| Emit stable corpus counts | `python Tools/Conformance/Suites/test_strict_yaml.py --json` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Strict-Yaml.ps1 -Json` |
+| Run the portable strict-ingestion corpus | `python Tools/Conformance/Suites/test_strict_yaml.py` | `pwsh -NoProfile -File Tools/Conformance/Suites/Test-Strict-Yaml.ps1` |
+| Emit stable corpus counts | `python Tools/Conformance/Suites/test_strict_yaml.py --json` | `pwsh -NoProfile -File Tools/Conformance/Suites/Test-Strict-Yaml.ps1 -Json` |
 | Select repository root | `--root PATH` | `-Root PATH` |
 
 Both runners validate portable scalar values and types, canonical mapping keys, forbidden YAML constructs, duplicate keys, exact schema-version typing, strict UTF-8 without BOM, byte/depth/node/scalar budgets, and the shared RFC 3339 profile. Source, byte, and budget probes use uniquely named operating-system temporary directories that are removed before exit.
@@ -1709,8 +1710,8 @@ The paired lookup runners accept an optional repository root and leave no persis
 
 | Behavior | Python | PowerShell |
 | --- | --- | --- |
-| Run pinned Unicode and malformed-registry vectors | `python Tools/Conformance/Suites/test_lookup_key.py` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Lookup-Key.ps1` |
-| Emit stable corpus counts and Unicode version | `python Tools/Conformance/Suites/test_lookup_key.py --json` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Lookup-Key.ps1 -Json` |
+| Run pinned Unicode and malformed-registry vectors | `python Tools/Conformance/Suites/test_lookup_key.py` | `pwsh -NoProfile -File Tools/Conformance/Suites/Test-Lookup-Key.ps1` |
+| Emit stable corpus counts and Unicode version | `python Tools/Conformance/Suites/test_lookup_key.py --json` | `pwsh -NoProfile -File Tools/Conformance/Suites/Test-Lookup-Key.ps1 -Json` |
 | Select repository root | `--root PATH` | `-Root PATH` |
 
 Both runners load the manifest-selected Unicode registry, consume equivalent, distinct, exact-output, and Hangul vectors, reject non-string and unpaired-surrogate inputs, and apply thirteen process-local malformed registry mutations. Every mutation is written beneath a uniquely named operating-system temporary directory and removed before exit; the 354 KB canonical registry is not duplicated in source control.
@@ -1721,8 +1722,8 @@ The paired schema-pack runners accept an optional repository root and leave no p
 
 | Behavior | Python | PowerShell |
 | --- | --- | --- |
-| Run canonical, synthetic, malformed, and scale composition checks | `python Tools/Conformance/Suites/test_schema_pack.py` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Schema-Pack.ps1` |
-| Emit stable composition counts | `python Tools/Conformance/Suites/test_schema_pack.py --json` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Schema-Pack.ps1 -Json` |
+| Run canonical, synthetic, malformed, and scale composition checks | `python Tools/Conformance/Suites/test_schema_pack.py` | `pwsh -NoProfile -File Tools/Conformance/Suites/Test-Schema-Pack.ps1` |
+| Emit stable composition counts | `python Tools/Conformance/Suites/test_schema_pack.py --json` | `pwsh -NoProfile -File Tools/Conformance/Suites/Test-Schema-Pack.ps1 -Json` |
 | Select repository root | `--root PATH` | `-Root PATH` |
 
 Both runners load the canonical schema-6 selected packs, validate the complete 14-pack catalog with 17 capability groups and 136 capability presentations, and consume the shared independent schema-6 corpus plus one-pack schema-4 compatibility fixture in `Framework/Data/Schema-Packs/`. The synthetic composition proves independent compatibility kind and architectural role, foundation/domain/bridge classification, scope and domain closure, exact bridge joins, localizable pack/group/capability presentation, ordered group contributions without ownership transfer, equivalent multi-provider capability presentation and relationships, dependency-version boundaries, lifecycle, activation, controlled-value hierarchy and ownership, and typed occurrence semantic closure. One hundred two shared structured mutations must be rejected, including group ownership/membership and relationship-cycle failures; presentation-only text changes must preserve semantic composition, and two typed pair declarations that collide under the superseded delimiter encoding must remain distinct. A generated 64-pack schema-6 composition must retain exact pack, group, capability, activation, value, presentation, and typed-declaration counts. Mixed schema-4/schema-5/schema-6 compositions fail closed. Each case runs in a unique operating-system temporary tree that is removed before exit.
@@ -1733,8 +1734,8 @@ The paired taxonomy runners accept an optional repository root and leave no pers
 
 | Behavior | Python | PowerShell |
 | --- | --- | --- |
-| Run canonical, synthetic, malformed, query, and scale checks | `python Tools/Conformance/Suites/test_taxonomy.py` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Taxonomy.ps1` |
-| Emit stable taxonomy counts | `python Tools/Conformance/Suites/test_taxonomy.py --json` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Taxonomy.ps1 -Json` |
+| Run canonical, synthetic, malformed, query, and scale checks | `python Tools/Conformance/Suites/test_taxonomy.py` | `pwsh -NoProfile -File Tools/Conformance/Suites/Test-Taxonomy.ps1` |
+| Emit stable taxonomy counts | `python Tools/Conformance/Suites/test_taxonomy.py --json` | `pwsh -NoProfile -File Tools/Conformance/Suites/Test-Taxonomy.ps1 -Json` |
 | Select repository root | `--root PATH` | `-Root PATH` |
 
 Both runners load the canonical taxonomy and the vocabulary-neutral corpus in `Framework/Data/Taxonomy/`. The fixture proves active/deferred lifecycle, required/optional/forbidden category policy, all four path strategies, category and record slug modes, all metadata modes, default and overridden templates, fixed records, category placements, reconciliation targets, and QA content-root selection. Forty-eight shared structured mutations must be rejected, two invalid target queries must fail, and a generated 128-category composition must preserve exact counts. Every case runs in a unique operating-system temporary tree that is removed before exit.
@@ -1745,8 +1746,8 @@ The paired resource runners accept an optional repository root and leave no pers
 
 | Behavior | Python | PowerShell |
 | --- | --- | --- |
-| Run canonical, synthetic, malformed, query, and scale checks | `python Tools/Conformance/Suites/test_resource.py` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Resource.ps1` |
-| Emit stable resource counts | `python Tools/Conformance/Suites/test_resource.py --json` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Resource.ps1 -Json` |
+| Run canonical, synthetic, malformed, query, and scale checks | `python Tools/Conformance/Suites/test_resource.py` | `pwsh -NoProfile -File Tools/Conformance/Suites/Test-Resource.ps1` |
+| Emit stable resource counts | `python Tools/Conformance/Suites/test_resource.py --json` | `pwsh -NoProfile -File Tools/Conformance/Suites/Test-Resource.ps1 -Json` |
 | Select repository root | `--root PATH` | `-Root PATH` |
 
 Both runners load the canonical resource registry and the vocabulary-neutral corpus in `Framework/Data/Resources/`. The fixture proves active/deferred lifecycle, all six authority values, editor eligibility, all three tracking modes, required/optional and multiple placements, root-relative resolution, and reconciliation targets. Thirty shared structured mutations must be rejected, two invalid target queries must fail, and a generated 128-type composition must preserve exact counts. Every case runs in a unique operating-system temporary tree that is removed before exit.
@@ -1757,8 +1758,8 @@ The paired source runners accept an optional repository root and leave no persis
 
 | Behavior | Python | PowerShell |
 | --- | --- | --- |
-| Run canonical, synthetic, malformed, query, and scale checks | `python Tools/Conformance/Suites/test_source.py` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Source.ps1` |
-| Emit stable source counts | `python Tools/Conformance/Suites/test_source.py --json` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Source.ps1 -Json` |
+| Run canonical, synthetic, malformed, query, and scale checks | `python Tools/Conformance/Suites/test_source.py` | `pwsh -NoProfile -File Tools/Conformance/Suites/Test-Source.ps1` |
+| Emit stable source counts | `python Tools/Conformance/Suites/test_source.py --json` | `pwsh -NoProfile -File Tools/Conformance/Suites/Test-Source.ps1 -Json` |
 | Select repository root | `--root PATH` | `-Root PATH` |
 
 Both runners load the canonical source registry and the vocabulary-neutral schema-18 corpus in `Framework/Data/Sources/`. The fixture exercises work and continuity structure, media and both structural-position strategies, authority inheritance and fallback, scoped applicability, adaptations, manifestations, release/distribution records, evidence sources, observations, coverage, identifiers, localized titles, resource bindings, and reconciliation/provenance targets. Sixty-five shared structured mutations must be rejected, fifteen invalid service queries must fail, and a generated 128-source composition must preserve exact counts. Every case runs in a unique operating-system temporary tree that is removed before exit.
@@ -1769,8 +1770,8 @@ The paired entity runners accept an optional repository root and leave no persis
 
 | Behavior | Python | PowerShell |
 | --- | --- | --- |
-| Run canonical, synthetic, malformed, query, and scale checks | `python Tools/Conformance/Suites/test_entity.py` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Entity.ps1` |
-| Emit stable entity counts | `python Tools/Conformance/Suites/test_entity.py --json` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Entity.ps1 -Json` |
+| Run canonical, synthetic, malformed, query, and scale checks | `python Tools/Conformance/Suites/test_entity.py` | `pwsh -NoProfile -File Tools/Conformance/Suites/Test-Entity.ps1` |
+| Emit stable entity counts | `python Tools/Conformance/Suites/test_entity.py --json` | `pwsh -NoProfile -File Tools/Conformance/Suites/Test-Entity.ps1 -Json` |
 | Select repository root | `--root PATH` | `-Root PATH` |
 
 Both runners load the canonical entity registry and compose the vocabulary-neutral schema-4 corpus in `Framework/Data/Entities/` against the independent taxonomy and source fixtures. The fixture proves conceptual entity/category membership, active/deferred lifecycle, ambiguity-safe aliases, canonical/inverse and symmetric relationship semantics, cycle rejection, lineage basis roles, continuity-bound incarnations, applicability bindings, entity- and incarnation-subject identity phases, ordered phase relationships, and reconciliation/provenance targets. Eighty-six shared structured mutations must be rejected, fifteen invalid service queries must fail, and a generated 128-entity composition must preserve exact counts. Every case runs in a unique operating-system temporary tree that is removed before exit.
@@ -1781,8 +1782,8 @@ The paired provenance runners accept an optional repository root and leave no pe
 
 | Behavior | Python | PowerShell |
 | --- | --- | --- |
-| Run canonical, synthetic, malformed, query, authority, and scale checks | `python Tools/Conformance/Suites/test_provenance.py` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Provenance.ps1` |
-| Emit stable provenance counts | `python Tools/Conformance/Suites/test_provenance.py --json` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Provenance.ps1 -Json` |
+| Run canonical, synthetic, malformed, query, authority, and scale checks | `python Tools/Conformance/Suites/test_provenance.py` | `pwsh -NoProfile -File Tools/Conformance/Suites/Test-Provenance.ps1` |
+| Emit stable provenance counts | `python Tools/Conformance/Suites/test_provenance.py --json` | `pwsh -NoProfile -File Tools/Conformance/Suites/Test-Provenance.ps1 -Json` |
 | Select repository root | `--root PATH` | `-Root PATH` |
 
 Both runners load the canonical registry chain and compose the vocabulary-neutral schema-3 corpus in `Framework/Data/Provenance/` against independent source, entity, chronology, and occurrence fixtures. Twenty fixture assertions prove assertion shape consistency, typed target lookup including recurrence-cardinality, occurrence-participation, and occurrence-track-entry fields, semantic field paths, evidence roles, point/range locators, source scope and coverage, temporal windows, claim applicability, acyclic supersession, and five winner, corroborating-tie, equal-rank-conflict, or incomparable authority outcomes. Sixty-eight shared structured mutations must be rejected, five invalid service queries must fail, and a generated 128-assertion composition must preserve exact counts. Every case runs in a unique operating-system temporary tree that is removed before exit.
@@ -1801,8 +1802,8 @@ uniquely named operating-system temporary tree before exit.
 
 | Action | Python | PowerShell |
 | --- | --- | --- |
-| Run carrier, occupancy, transition, malformed, query, and scale checks | `python Tools/Conformance/Suites/test_hosting.py` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Hosting.ps1` |
-| Emit the stable hosting summary | `python Tools/Conformance/Suites/test_hosting.py --json` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Hosting.ps1 -Json` |
+| Run carrier, occupancy, transition, malformed, query, and scale checks | `python Tools/Conformance/Suites/test_hosting.py` | `pwsh -NoProfile -File Tools/Conformance/Suites/Test-Hosting.ps1` |
+| Emit the stable hosting summary | `python Tools/Conformance/Suites/test_hosting.py --json` | `pwsh -NoProfile -File Tools/Conformance/Suites/Test-Hosting.ps1 -Json` |
 
 ### Structural Interpretation Conformance
 
@@ -1810,8 +1811,8 @@ The paired structural-interpretation runners accept an optional repository root 
 
 | Behavior | Python | PowerShell |
 | --- | --- | --- |
-| Run canonical, synthetic, malformed, query, and scale checks | `python Tools/Conformance/Suites/test_interpretation.py` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Interpretation.ps1` |
-| Emit stable interpretation counts | `python Tools/Conformance/Suites/test_interpretation.py --json` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Interpretation.ps1 -Json` |
+| Run canonical, synthetic, malformed, query, and scale checks | `python Tools/Conformance/Suites/test_interpretation.py` | `pwsh -NoProfile -File Tools/Conformance/Suites/Test-Interpretation.ps1` |
+| Emit stable interpretation counts | `python Tools/Conformance/Suites/test_interpretation.py --json` | `pwsh -NoProfile -File Tools/Conformance/Suites/Test-Interpretation.ps1 -Json` |
 | Select repository root | `--root PATH` | `-Root PATH` |
 
 Both runners load the canonical empty registry and compose the vocabulary-neutral schema-1 corpus in `Framework/Data/Interpretations/` against typed fixture providers. Three interpretations, seven members, four local relations, and three comparison sets prove stable candidate identity, canonical target reuse, deferred provenance-claim membership, local inverse/cycle behavior, compatible and unresolved conservative decisions, provenance targeting, and canonical-graph isolation. Thirty-six invalid configurations and eight invalid queries must fail, while a generated 128-member structure with 127 relations protects bounded scale. The suite is baseline-only and removes its uniquely named operating-system temporary tree before exit.
@@ -1822,8 +1823,8 @@ The paired project-composition runners accept an optional repository root and le
 
 | Behavior | Python | PowerShell |
 | --- | --- | --- |
-| Run the full canonical composition and invalid wiring probes | `python Tools/Conformance/Suites/test_project_composition.py` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Project-Composition.ps1` |
-| Emit the stable composition summary | `python Tools/Conformance/Suites/test_project_composition.py --json` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Project-Composition.ps1 -Json` |
+| Run the full canonical composition and invalid wiring probes | `python Tools/Conformance/Suites/test_project_composition.py` | `pwsh -NoProfile -File Tools/Conformance/Suites/Test-Project-Composition.ps1` |
+| Emit the stable composition summary | `python Tools/Conformance/Suites/test_project_composition.py --json` | `pwsh -NoProfile -File Tools/Conformance/Suites/Test-Project-Composition.ps1 -Json` |
 | Select repository root | `--root PATH` | `-Root PATH` |
 
 Both runners load every manifest-owned canonical registry twice in dependency order and compare the result with `Project_Config/composition-baseline.json`. The reviewed project-instance oracle pins exact root IDs, registry schemas and record counts, selected pack versions, declared/available/enabled capabilities, disabled capability IDs, controlled vocabulary totals, reconciliation and provenance provider totals, and repeat-pass/probe counts. The suite also verifies provider and object closure, deferred interpretation-claim closure, deterministic repeated loads, clean absence of disabled capabilities, and rejection of twelve missing, duplicate, unregistered, or capability-disabled cross-registry compositions. It belongs only to `baseline`; reusable registry semantics remain owned by the neutral fixture suites.
@@ -1838,8 +1839,8 @@ The paired conformance tools accept only repository-root and deep-chain-size ove
 
 | Behavior | Python | PowerShell |
 | --- | --- | --- |
-| Run default corpus and 1,500-hop stress case | `python Tools/Conformance/Suites/test_reconciliation.py` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Reconciliation.ps1` |
-| Emit structured corpus and stress-test counts | `python Tools/Conformance/Suites/test_reconciliation.py --json` | `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Reconciliation.ps1 -Json` |
+| Run default corpus and 1,500-hop stress case | `python Tools/Conformance/Suites/test_reconciliation.py` | `pwsh -NoProfile -File Tools/Conformance/Suites/Test-Reconciliation.ps1` |
+| Emit structured corpus and stress-test counts | `python Tools/Conformance/Suites/test_reconciliation.py --json` | `pwsh -NoProfile -File Tools/Conformance/Suites/Test-Reconciliation.ps1 -Json` |
 | Select repository root | `--root PATH` | `-Root PATH` |
 | Override stress depth | `--deep-chain N` | `-DeepChain N` |
 

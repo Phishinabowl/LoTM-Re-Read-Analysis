@@ -1,5 +1,10 @@
 # Framework Extraction Readiness
 
+**CI Phase 2.1 support policy:** The retained host comparison is Python/PS7 under the reviewed
+retirement. Current compatibility/extraction implementation still requires 5.1 until CI 2.4; the
+readiness gate below states the new policy, not completed two-runtime adoption. Dated Stabilization
+Evidence remains unchanged. See the [retirement inventory](../Tools/ci-powershell-retirement-inventory.md).
+
 ## Status
 
 The reusable framework kernel is ready for an isolated-copy foundation. This means the
@@ -80,8 +85,7 @@ Run the complete extraction-readiness compatibility gate with:
 python Tools\Compatibility\run_compatibility.py --profile full-release --summary-json --report-output .tmp\validation\extraction-readiness.json
 ```
 
-The permanent rehearsal requires matching structured summaries from Python, PowerShell 7, and
-Windows PowerShell 5.1 for:
+The permanent rehearsal requires matching structured summaries from Python and PowerShell 7 for:
 
 - project-root discovery;
 - framework-installation discovery and pinned lookup selection;
@@ -101,7 +105,7 @@ nonblank Mermaid rendering without changing canonical outputs.
 The outer gate uses concise status plus a retained detailed report. The embedded
 `verify_framework_extraction.py` rehearsal intentionally continues to invoke aggregate conformance
 with complete `--json` / `-Json` output because it compares nested portable-suite summaries across
-all three runtimes.
+both supported runtimes.
 
 ## Stabilization Evidence
 

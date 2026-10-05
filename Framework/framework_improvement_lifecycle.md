@@ -152,14 +152,14 @@ Use `WORK_ANNOTATION_STANDARDS.md` for implementation-local annotations discover
 Use `Framework/testing_methodology.md`, not memory, to select and execute:
 
 - the complete required framework-version baseline;
-- the `STATIC-POWERSHELL` gate in PowerShell 7 and Windows PowerShell 5.1;
+- the `STATIC-POWERSHELL` gate in PowerShell 7;
 - the `STATIC-PYTHON` Ruff format and line-length gates;
 - all impact-matrix additions;
-- three-runtime and structured-output parity;
+- Python/PS7 and structured-output parity;
 - project compatibility consumers, including QA and visualization; and
 - root-discovery, rendering, artifact-safety, or scale tests when triggered.
 
-Use focused suite or compatibility-check selection for diagnosis while editing. Before implementation confirmation, run the aggregate conformance `baseline` profile in Python, PowerShell 7, and Windows PowerShell 5.1 and compare its registered inventory and semantic summaries. Run the cumulative compatibility profile required by the methodology rather than assembling individual consumer commands. The aggregate runners are the closure gates; direct suite commands are not substitutes.
+Use focused suite or compatibility-check selection for diagnosis while editing. Before implementation confirmation, run the aggregate conformance `baseline` profile in Python and PowerShell 7 and compare its registered inventory and semantic summaries. Run the cumulative compatibility profile required by the methodology rather than assembling individual consumer commands. The aggregate runners are the closure gates; direct suite commands are not substitutes.
 
 Use concise structured output for routine progress and retain detailed reports for aggregate closure
 evidence. Compare those detailed reports when nested semantic parity is required; do not print every
@@ -205,9 +205,9 @@ Start from the proposed testing recorded in the version entry, then consult the 
 - new version-specific conceptual or executable probes; and
 - affected implementation-conformance and compatibility families when pressure work changes code or fixtures.
 
-Pressure testing must try to break the version's assumptions. Distinguish consistent missing capability from implementation correctness: three runtimes can agree on the same defect.
+Pressure testing must try to break the version's assumptions. Distinguish consistent missing capability from implementation correctness: both supported runtimes can agree on the same defect.
 
-Classify every meaningful result using the methodology's result classes. If a deterministic defect is fixed during pressure testing, add permanent regression coverage to the owning registered suite, or create and register a new suite only when the defect reveals an independent test boundary. Rerun the affected focused suite in both implementations, the complete aggregate baseline in all three runtimes, and required compatibility profiles before citing the corrective commit in the evolution results. If testing discovers a durable new testing obligation or a reusable candidate that exposes a distinct structural pressure pattern or fills an industry gap, revise `Framework/testing_methodology.md` before closing the round. Do not promote every one-off example; apply the catalog retention rules.
+Classify every meaningful result using the methodology's result classes. If a deterministic defect is fixed during pressure testing, add permanent regression coverage to the owning registered suite, or create and register a new suite only when the defect reveals an independent test boundary. Rerun the affected focused suite in both implementations, the complete aggregate baseline in both supported runtimes, and required compatibility profiles before citing the corrective commit in the evolution results. If testing discovers a durable new testing obligation or a reusable candidate that exposes a distinct structural pressure pattern or fills an industry gap, revise `Framework/testing_methodology.md` before closing the round. Do not promote every one-off example; apply the catalog retention rules.
 
 ### 8. Close The Evolution Record
 

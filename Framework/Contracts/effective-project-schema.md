@@ -314,8 +314,8 @@ output may present the same data differently, but JSON output and exported files
 canonical shape.
 
 Running composition twice against identical canonical inputs must produce byte-identical JSON.
-Python, PowerShell 7, and Windows PowerShell 5.1 must produce semantically identical documents; the
-permanent compatibility check additionally compares canonical export bytes across all three
+Python and PowerShell 7 must produce semantically identical documents; the
+permanent compatibility check additionally compares canonical export bytes across both supported
 runtimes.
 
 ## Compatibility And Evolution
@@ -381,7 +381,7 @@ The paired headless commands are:
 
 ```powershell
 python Tools\Commands\Framework\inspect_effective_schema.py [--root PATH] [--json] [--output PATH] [--report-output PATH] [--show SECTION] [--pack PACK_ID] [--group GROUP_ID] [--capability CAPABILITY_ID] [filters]
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 [-Root PATH] [-Json] [-Output PATH] [-ReportOutput PATH] [-Show SECTION[,SECTION]] [-Pack PACK_ID] [-Group GROUP_ID] [-Capability CAPABILITY_ID] [filters]
+pwsh -NoProfile -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 [-Root PATH] [-Json] [-Output PATH] [-ReportOutput PATH] [-Show SECTION[,SECTION]] [-Pack PACK_ID] [-Group GROUP_ID] [-Capability CAPABILITY_ID] [filters]
 ```
 
 Without structured-output switches, each command prints a concise project, pack, capability,
@@ -435,7 +435,7 @@ compound filtering, exact and normalized singular selection, unknown and ambiguo
 selection, available-disabled, planned, deprecated, multiple-provider, dependency-failure,
 malformed, deterministic, path-safety, and generated 400-capability scale behavior. The
 compatibility orchestrator compares the complete document, export, selection, and failure envelopes
-across Python, PowerShell 7, and Windows PowerShell 5.1.
+across Python and PowerShell 7.
 
 ## Consumer Rules
 

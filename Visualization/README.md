@@ -313,7 +313,7 @@ python Visualization\visualize.py --mode Refresh
 PowerShell fallback:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Refresh
+pwsh -NoProfile -File Visualization\visualize.ps1 -Mode Refresh
 ```
 
 Compatibility validation command:
@@ -327,7 +327,7 @@ python Visualization\visualize.py --mode Validate
 PowerShell fallback:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Validate
+pwsh -NoProfile -File Visualization\visualize.ps1 -Mode Validate
 ```
 
 Generate a standalone unbounded QA relationship graph without refreshing configured repository views:
@@ -335,7 +335,7 @@ Generate a standalone unbounded QA relationship graph without refreshing configu
 ```powershell
 python Visualization\visualize.py --mode qa-relationship --graph-path .tmp\qa-relationship.mmd --include-confirmed-confidence
 
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode QaRelationship -GraphPath .tmp\qa-relationship.mmd -IncludeConfirmedConfidence
+pwsh -NoProfile -File Visualization\visualize.ps1 -Mode QaRelationship -GraphPath .tmp\qa-relationship.mmd -IncludeConfirmedConfidence
 ```
 
 Validation mode checks glossary node parsing, Relationship Seed parsing, configured graph class/layout validation, and fresh temp graph generation without updating generated graph files, rendered images, the semantic snapshot, or this refresh tracker.
@@ -351,7 +351,7 @@ python Visualization\visualize.py --mode Render --input-path Visualization\graph
 PowerShell fallback:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Render -InputPath Visualization\graphs\example.mmd
+pwsh -NoProfile -File Visualization\visualize.ps1 -Mode Render -InputPath Visualization\graphs\example.mmd
 ```
 
 Pure render mode uses the same Puppeteer and render-size settings as the canonical refresh command, but it does not regenerate graph files, update the semantic snapshot, or update this refresh tracker.

@@ -589,11 +589,17 @@ retirement; D09-D11/D13 were confirmed on 2026-10-05. Implementation evidence ga
 | D16 | Accepted 2026-10-05: add strict shard_plans to the proposed profiles catalog; exact profile union, sequential shard children, registered comparisons, stable result gates and matching artifact provenance. Refresh final placement/deadlines before adoption. | 2.5, 4.1/4.4-4.6, 5.1/5.2, 6.4/6.5. |
 | D17 | Accepted 2026-10-05: GitHub weekly, ADO full runs on demand. Time Sunday 09:00 UTC; demonstrate both host schedulers during rollout, then remove the temporary ADO schedule. | 6.4/6.5, 7.3/7.4. |
 | D18 | Accepted 2026-10-05: optional observational shadow/policy first, retained/full PR gates, staged check adoption and explicit deferral owners; Phase 2 retirement then Phase 3 native pilots. Preserve human-review readiness and current platform boundaries. | Phase 1 exit, 2.1-2.6, 3.1-3.5, 6.5, 7.1-7.4. |
+| D19 | Accepted 2026-10-05: adopt documentary Python/PS7 Core 7.4+ support and rename the active parity family one-for-one. Plan module 0.14.0 at 2.2 and compatibility registry schema 3 at 2.4, rejecting obsolete declarations; retain conformance/report/extraction v1 and all knowledge schemas. Refined host readiness and runtime-dependent result counts need explicit consumer proof. | 2.1-2.5; inventory/version details in the retirement inventory. |
 
 This planning update records the decision, not completed retirement. Current executable registries,
 module metadata and hosted workflow still require 5.1 until Phase 2 performs the coordinated change.
 Existing architecture/methodology support wording is updated at 2.1; historical three-runtime results
 remain intact. D14 explicitly supersedes the planned 5.1 support portions of earlier decisions.
+
+The [Phase 2.1 inventory](ci-powershell-retirement-inventory.md) now applies documentary host policy,
+records every implementation/version consumer, and preserves the frozen source/measurement baseline.
+The maintainer confirmed D19 and Phase 2.1 on 2026-10-05. Runtime enforcement and retirement proof
+remain pending in their owning subphases.
 
 Still deliberately pending: two-runtime remeasurement (2.5), clean dependency/bootstrap proof (3.1),
 final shard/deadline admission and implemented host/event/shadow proof;

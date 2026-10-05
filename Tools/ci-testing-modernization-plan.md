@@ -1,7 +1,9 @@
 # CI And Testing Modernization Implementation Plan
 
 **Status:** Phase 1 and all subphases 1.1-1.5 are confirmed on 2026-10-05.
-Phase 2.1 support-contract and migration inventory is next; no live activation has occurred.
+Phase 2.1 documentary support adoption, inventory and version decisions are confirmed on 2026-10-05;
+2.2 is next. No live activation has occurred. Executable host
+enforcement and full retirement proof remain pending in 2.2-2.6.
 Testing implementation and dual-host pipeline rollout have not started. On 2026-10-05 the maintainer
 accepted retirement of Windows PowerShell 5.1 support. Current authorization covers incorporating
 that decision into the plan; runtime/runner/workflow changes remain unimplemented.
@@ -674,19 +676,44 @@ Implementation begins only after the Phase 1 design gate and an explicit request
 
 ### Phase 2.1 Support Contract And Migration Inventory
 
-- [ ] Freeze the reviewed source snapshot and preserve the dated three-runtime measurement evidence.
-- [ ] Update architecture, methodology, affected framework contracts, active platform gates, command
+- [x] Freeze the reviewed source snapshot and preserve the dated three-runtime measurement evidence.
+- [x] Update architecture, methodology, affected framework contracts, active platform gates, command
   references and module release notes to declare Python/PS7 support; preserve completed historical evidence.
-- [ ] Retire the `PARITY-THREE-RUNTIME` requirement through an explicit methodology mapping to retained
+- [x] Retire the `PARITY-THREE-RUNTIME` requirement through an explicit methodology mapping to retained
   Python/PS7 parity, preserving every semantic family and assertion instead of dropping fixture coverage.
-- [ ] Record the complete migration inventory: module manifest, runtime/environment preflight, QA's
+- [x] Record the complete migration inventory: module manifest, runtime/environment preflight, QA's
   three child launches, compatibility registry/validator/synthetic reporting registry/counts, extraction
   verifier, hosted check and documented `powershell` entry points. Distinguish executable calls from examples.
-- [ ] Review runtime/report/schema version implications and rejection behavior for obsolete declarations;
+- [x] Review runtime/report/schema version implications and rejection behavior for obsolete declarations;
   do not silently change public field meanings or present retired runtime results as current passes.
 
 **Checkpoint:** Every identified consumer has an owner, planned change and verification obligation;
 the support-policy change is explicit and no canonical/schema migration is included.
+
+**Deliverable (2026-10-05):** [Support Contract And Migration Inventory](ci-powershell-retirement-inventory.md),
+frozen at confirmed `be54319`. Local fingerprints preserve all 485 tracked entry files and 28 JSON
+measurement records from Phase 1.4. Architecture, project policy, methodology, affected contract
+host clauses, active recipes and the future platform parity gate now use retained Python/PS7 support.
+`PARITY-SUPPORTED-RUNTIMES` maps the retired family one-for-one; all 71 active families and semantic
+cases remain. Completed history and original test results are preserved, not re-described as two-host runs.
+
+The inventory records exact implementation targets/owners and rejection/verification gates. D19
+records the accepted plan for module 0.14.0 and compatibility registry schema 3 at their owning subphases; existing report
+and knowledge schemas stay unchanged. The module release note is explicitly planned, not adoption.
+Current executables, module metadata, registry/runtime lists, source help and workflow remain legacy
+until 2.2-2.6. The maintainer confirmed all five documentary items and D19 on 2026-10-05.
+
+**Rollback:** Revert the documentary host-policy/recipe/family mapping together; frozen evidence,
+domain fixtures, authored pages and existing runtime behavior are not rewritten or restored automatically.
+
+**Verification (2026-10-05):** All 171 relative links across 33 edited tracked documents and two new
+documents resolve. Static inventory retains 71 active families, 21 suites, 11 check families and nine
+extraction suites; the old family ID is explicitly historical. The 58 protected history blocks and
+28 original JSON measurement records are preserved. Frozen tracked hashes show only intended Markdown
+changes, including operational guide recipes; source, manifests, requirements, registries, fixtures,
+LoTM content and baselines remain unchanged. Annotation policy passed 22 fixtures / 390 files and
+`git diff --check` passed. This is documentary/static proof; runtime enforcement and compatibility
+execution remain the next subphases' obligations.
 
 ### Phase 2.2 PS7 Host Requirements And Launch Boundaries
 

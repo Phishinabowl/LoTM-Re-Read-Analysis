@@ -100,6 +100,6 @@ Paired schema-pack conformance must prove:
 - executable entrypoint, script, command, hook, import, permission, credential, runtime-dependency,
   commercial-offering, and entitlement fields fail closed;
 - executable additions to dependency and capability mappings fail closed;
-- malformed rejection is equivalent in Python, PowerShell 7, and Windows PowerShell 5.1; and
+- malformed rejection is equivalent in Python and PowerShell 7; and
 - the added safety vectors do not change canonical pack, catalog, effective-schema, QA,
   Visualization, or extraction outputs.

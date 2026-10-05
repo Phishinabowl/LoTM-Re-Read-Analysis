@@ -35,7 +35,7 @@ The repository is under active architectural development.
   source view.
 - QA and Visualization consume the same effective project schema while retaining legacy
   Markdown/YAML content adapters.
-- Python, PowerShell 7, and Windows PowerShell 5.1 conformance and compatibility coverage protect
+- Python and PowerShell 7 conformance and compatibility coverage protect
   the repository's paired-runtime contracts.
 - The reusable kernel has passed an isolated extraction rehearsal without LoTM content or
   configuration.

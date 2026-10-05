@@ -305,14 +305,14 @@ when multiple lookup datasets coexist, canonical 14-pack discovery, complete cap
 presentation, deterministic repeat loading, dependency and classification validation,
 deferred/planned/deprecated discoverability, multi-provider capability handling, exact and
 normalized singular lookup, ambiguity rejection, malformed root, manifest, registry, and pack
-failures, path confinement, generated scale behavior, and Python/PowerShell 7/Windows PowerShell
-5.1 parity. Existing effective-schema, schema-pack, QA, and Visualization behavior remains unchanged
+failures, path confinement, generated scale behavior, and Python/PowerShell 7 parity.
+Existing effective-schema, schema-pack, QA, and Visualization behavior remains unchanged
 during this phase.
 
 Phase 3.2.2 additionally proves explicit project attachment, base-catalog immutability, selected and
 unselected packs, enabled and disabled capabilities, planned and deprecated state, unavailable
 reasons, normalized project-view selectors, mismatched or malformed project input, deterministic
-JSON and report export, and exact three-runtime parity.
+JSON and report export, and exact Python/PS7 parity.
 
 Phase 3.4.3 additionally proves strict roadmap attachment after base catalog validation, complete
 traceability for installed planned capabilities, `null` traceability for non-planned and legacy

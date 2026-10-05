@@ -4,7 +4,7 @@
 
 Track official EPUB image assets in spine/reading order so they can later be linked to character, pathway, artifact, faction, location, concept, and event pages as reader-safe visual evidence.
 
-Use `Tools/Commands/Media/edit_image.py --operation extract-epub-images` as the preferred source for image order and asset paths. `Tools/Commands/Media/Edit-Image.ps1 -Operation ExtractEpubImages` is the Windows PowerShell fallback and should emit the same spine-order image numbering. Extracted image files and derived working crops live under the ignored local `Artwork/Source/` folder.
+Use `Tools/Commands/Media/edit_image.py --operation extract-epub-images` as the preferred source for image order and asset paths. `Tools/Commands/Media/Edit-Image.ps1 -Operation ExtractEpubImages` is the PowerShell 7 fallback and should emit the same spine-order image numbering. Extracted image files and derived working crops live under the ignored local `Artwork/Source/` folder.
 
 ## Source
 
@@ -15,7 +15,7 @@ Use `Tools/Commands/Media/edit_image.py --operation extract-epub-images` as the 
 
 ```text
 python Tools\Commands\Media\edit_image.py --operation extract-epub-images --volume 1
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Edit-Image.ps1 -Operation ExtractEpubImages -Volume 1
+pwsh -NoProfile -File Tools\Commands\Media\Edit-Image.ps1 -Operation ExtractEpubImages -Volume 1
 ```
 
 ## Mapping Rules

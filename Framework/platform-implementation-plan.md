@@ -1253,7 +1253,7 @@ behavior throughout. Do not renumber platform phases or resolve discovery confli
 ### Phase 8 Exit Gate
 
 - [ ] QA contains no independent graph semantics or category-specific schema duplication.
-- [ ] Python, PowerShell 7, and Windows PowerShell 5.1 retain required consumer parity.
+- [ ] Python and PowerShell 7 retain required consumer parity under the reviewed CI Phase 2 support policy.
 
 ## Phase 9: LoTM Compatibility Freeze Before Physical Migration
 

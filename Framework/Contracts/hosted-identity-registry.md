@@ -156,5 +156,5 @@ do not select it.
 
 Portable fixtures live under `Framework/Data/Hosting/`. Run
 `python Tools/Conformance/Suites/test_hosting.py` or
-`powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Conformance/Suites/Test-Hosting.ps1`.
+`pwsh -NoProfile -File Tools/Conformance/Suites/Test-Hosting.ps1`.
 Add `--json` or `-Json` for matching structured summaries.

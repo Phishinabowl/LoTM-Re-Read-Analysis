@@ -13,6 +13,12 @@ coverage-family IDs. [Conformance registry](Conformance/suites.json) and
 [Validation reporting](../Framework/Contracts/validation-run-reporting.md) owns existing report semantics.
 Changes to those authorities require review; this inventory cannot silently override them.
 
+CI Phase 2.1 applies the reviewed support-policy change through the [retirement inventory](ci-powershell-retirement-inventory.md).
+The active parity family is now `PARITY-SUPPORTED-RUNTIMES`; the historical `PARITY-THREE-RUNTIME`
+ID maps to it one-for-one with only Desktop host support removed. The inspected three-runtime rows
+below remain the frozen pre-migration implementation baseline; live registry/code migration follows
+at 2.2-2.6. All 71 active semantic families, 21 suites, 11 check families and nine extraction suites remain.
+
 **Evidence labels:** Current means inspected executable behavior; retained means documented required
 pressure or review without an equivalent registered executable family; proposed means future work.
 Ownership below means a repository component and delivery checkpoint, not a newly assigned person.
@@ -81,7 +87,7 @@ Profiles are `local` (6), `pull-request` (9), `distribution-boundary` (8), `full
 | `STATIC-POWERSHELL` | `Static/Format-PowerShell.ps1`, `powershell-format-settings.psd1`, Git inventory and parser/token preservation in both hosts | Pester formatting fixtures: discovery, encodings, token preservation, limits, check/fix and diagnostics. |
 | `STATIC-WORK-ANNOTATIONS` | `Static/lint_work_annotations.py`, policy JSON, `Fixtures/Work-Annotations/cases.json` (22 cases), standards/Todo Tree exclusions | Retain fixture conformance; pytest filesystem/Git discovery, policy errors, CLI and report regressions. |
 | `STATIC-GITHUB-ACTIONS` | actionlint and checksum-pinned installer in `.github/workflows/ci.yml`; workflow pins, permissions, timeouts/check names | Repository policy tests for owned rules; retain actionlint locally and hosted. Future ADO policy needs an explicit contract. |
-| `PARITY-THREE-RUNTIME` | Paired conformance and Python compatibility referee | Explicit cross-runtime comparison owner; three independent green baseline jobs alone do not compare all suite summaries. |
+| `PARITY-SUPPORTED-RUNTIMES` | Paired conformance and Python compatibility referee; maps historical PARITY-THREE-RUNTIME one-for-one | Retained Python/PS7 comparison owner; independent green baseline jobs alone do not compare complete suite summaries. Pre-migration execution still includes Desktop until CI 2.4/2.6. |
 | `PARITY-STRUCTURED-OUTPUT` | Compatibility reporting/command checks, semantic baseline normalization, extraction comparison | Preserve detailed/concise/artifact contracts; regression tests for only permitted normalization. |
 | `PARITY-COMMAND-SURFACE` | Reporting help probes and catalog/schema/consumer command checks | Adapter integration tests plus parity checks for currently unexercised defaults, switches and failures. |
 

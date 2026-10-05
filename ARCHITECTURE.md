@@ -104,7 +104,9 @@ provenance_config -> chronology_config, entity_config, hosting_config, interpret
 
 Provider objects may flow into higher services without adding reverse imports. A lower layer must not import a higher layer merely to construct project composition; the future project-composition service owns that orchestration.
 
-The PowerShell runtime is one manifest-backed `KnowledgeFramework` module with `KnowledgeFramework.psd1`, `KnowledgeFramework.psm1`, and internal implementation scripts. The manifest explicitly exports supported functions; commands and conformance runners import the module and do not dot-source a chain of peer scripts. Both PowerShell 7 and Windows PowerShell 5.1 remain supported until a separately reviewed compatibility decision changes that contract.
+The PowerShell runtime is one manifest-backed `KnowledgeFramework` module with `KnowledgeFramework.psd1`, `KnowledgeFramework.psm1`, and internal implementation scripts. The manifest explicitly exports supported functions; commands and conformance runners import the module and do not dot-source a chain of peer scripts. The supported PowerShell host contract is PowerShell 7.4+ Core; independent Python/PS7 semantic parity remains required. Windows PowerShell 5.1/Desktop and Core versions below 7.4 are outside that support contract.
+
+CI Phase 2.1 adopts this support policy before enforcement. Current module metadata, compatibility/extraction discovery, QA children and hosted CI still contain legacy host obligations until CI Phases 2.2-2.6 migrate and verify them. Use `pwsh` for PowerShell recipes; unsupported launches must fail clearly rather than silently switch hosts or delegate to Python. See the [retirement inventory](Tools/ci-powershell-retirement-inventory.md) for the frozen baseline, versions and complete consumer gates. No domain schema, CLI path, exported service or canonical projection changes with host retirement.
 
 `project_paths` owns dependency-light project discovery and safe repository-relative path primitives. `project_config` owns manifest parsing and validation on top of those primitives. Project discovery uses `Project_Config/project.yaml`, never `.git`, and resolves in this order: an explicit root, the `KNOWLEDGE_PROJECT_ROOT` environment override, current-directory ancestors, executable-location ancestors, then a precise failure. Discovery must not change the caller's working directory.
 
@@ -121,7 +123,7 @@ Environment probes, parser-native formatters, Ruff, the work-annotation linter, 
 
 The command paths shown above are the stable public CLI entry points. The Phase 3 migration moved tracked callers, CI, documentation, module imports, and conformance registry paths together. Old root-level script paths do not receive permanent wrappers, because that would recreate the flat directory and duplicate command inventory. A temporary wrapper is permitted only for a specifically identified external dependency, must warn about deprecation, and must have a recorded removal checkpoint.
 
-The migration sequence is:
+The completed Platform Phase 3 migration sequence was:
 
 1. implement and validate shared project discovery;
 2. create the Python package and PowerShell module without changing command behavior;

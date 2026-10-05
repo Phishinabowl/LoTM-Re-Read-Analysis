@@ -125,7 +125,7 @@ current nested semantics:
 
 Adding concise reporting must not rename, remove, reinterpret, or reorder established detailed
 fields. The isolated framework extraction rehearsal remains a detailed conformance client because it
-compares complete suite summaries across Python, PowerShell 7, and Windows PowerShell 5.1.
+compares complete suite summaries across Python and PowerShell 7.
 
 ## Report Paths And Lifecycle
 

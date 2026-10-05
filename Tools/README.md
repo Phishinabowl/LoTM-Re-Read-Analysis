@@ -26,6 +26,11 @@ event/profile, PR provenance, repository-owned sharding, check identity and stag
 GitHub is the selected weekly host at Sunday 09:00 UTC; ADO full runs remain on demand after rollout.
 The design was confirmed on 2026-10-05; no pipeline, policy or schedule is activated by these documents.
 
+The [PowerShell Host Retirement Inventory](ci-powershell-retirement-inventory.md) records CI 2.1's
+documentary Python/PS7 support adoption, family mapping, frozen evidence and exact migration/version
+targets. Current host enforcement, nested compatibility/extraction launches and CI remain staged
+work in 2.2-2.6; updated `pwsh` recipes do not claim complete retirement execution.
+
 This folder contains reusable local helpers for project maintenance and source verification.
 
 For switch-by-switch maps, function-pipeline notes, side effects, parity checks, and durable config/state files for maintained helper scripts, see [Tooling Reference](TOOLING_REFERENCE.md). That reference should be extended whenever another tool is audited or a tool starts reading a new shared config file. The broader version process belongs to the [Framework Improvement Lifecycle](../Framework/framework_improvement_lifecycle.md), while the cumulative requirement for when and why checks run belongs to the [Framework Testing Methodology](../Framework/testing_methodology.md).
@@ -53,9 +58,9 @@ python Tools\Commands\Framework\inspect_framework_catalog.py --pack narrative-me
 python Tools\Commands\Framework\inspect_framework_catalog.py --show all --report-output .local\framework-catalog.txt
 python Tools\Commands\Framework\inspect_framework_catalog.py --json
 python Tools\Commands\Framework\inspect_framework_catalog.py --project-root . --show overview
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Show packs,capabilities
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Group narrative-time-continuity-and-disclosure
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Json
+pwsh -NoProfile -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Show packs,capabilities
+pwsh -NoProfile -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Group narrative-time-continuity-and-disclosure
+pwsh -NoProfile -File Tools\Commands\Framework\Get-FrameworkCatalog.ps1 -Json
 ```
 
 The command auto-detects `Framework/framework.yaml` independently of project configuration.
@@ -83,11 +88,11 @@ python Tools\Commands\Framework\inspect_effective_schema.py --provider narrative
 python Tools\Commands\Framework\inspect_effective_schema.py --pack narrative-media --capability narrative-time-loops
 python Tools\Commands\Framework\inspect_effective_schema.py --show all --report-output .local\effective-schema.txt
 python Tools\Commands\Framework\inspect_effective_schema.py --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Show packs,capabilities
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Group narrative-time-continuity-and-disclosure
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Show overview
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Pack narrative-media -Capability narrative-time-loops
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Json
+pwsh -NoProfile -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Show packs,capabilities
+pwsh -NoProfile -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Group narrative-time-continuity-and-disclosure
+pwsh -NoProfile -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Show overview
+pwsh -NoProfile -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Pack narrative-media -Capability narrative-time-loops
+pwsh -NoProfile -File Tools\Commands\Framework\Get-EffectiveProjectSchema.ps1 -Json
 ```
 
 Add `--output PATH` / `-Output PATH` to write canonical JSON beneath the project root. The export is
@@ -128,8 +133,8 @@ Use `Test-Python.ps1` to check whether Python is present and actually usable bef
 Run this probe once for an unfamiliar machine or fresh agent session, then treat the result as the session's Python-availability state. If Python is available, use Python-preferred tools going forward without rerunning the probe before every command. Rerun only if the environment changes, such as PATH edits, Python installation changes, a different shell, a different machine, or a failed Python launch that suggests the earlier state is stale.
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Environment\Test-Python.ps1
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Environment\Test-Python.ps1 -Json
+pwsh -NoProfile -File Tools\Commands\Environment\Test-Python.ps1
+pwsh -NoProfile -File Tools\Commands\Environment\Test-Python.ps1 -Json
 ```
 
 If Python is available but required modules are missing, install the repository Python dependencies:
@@ -162,15 +167,15 @@ Ruff handles deterministic mechanical layout. Manually split long strings, regex
 
 If the probe reports Python unavailable, use the documented PowerShell fallback scripts for that session. If Python is available but a Python tool fails, treat that as a tool/script failure rather than silently falling back.
 
-PowerShell fallback commands use `powershell`, which targets Windows PowerShell 5.1 on many Windows machines even when PowerShell 7 is also installed as `pwsh`. Keep `.ps1` fallback scripts compatible with Windows PowerShell 5.1 syntax and APIs unless a tool explicitly documents a PowerShell 7 requirement.
+PowerShell fallback commands use `pwsh` under the supported PowerShell 7.4+ Core contract. Windows PowerShell 5.1 is outside that support contract; host enforcement and child migration are staged in CI Phase 2.
 
 Use `Test-PowerShell.ps1` to check repository PowerShell module requirements from `requirements-powershell.txt` before using fallback tools or PowerShell maintenance tools that need modules. The PowerShell Obsidian QA exporter requires `powershell-yaml`; source formatting requires `PSScriptAnalyzer`.
 
 Run this probe once for an unfamiliar machine or fresh agent session, then treat the result as the session's PowerShell-module readiness state. Rerun only if the environment changes, such as module installation changes, a different PowerShell edition, a different machine, or a failed fallback command that suggests the earlier state is stale.
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Environment\Test-PowerShell.ps1
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Environment\Test-PowerShell.ps1 -Json
+pwsh -NoProfile -File Tools\Commands\Environment\Test-PowerShell.ps1
+pwsh -NoProfile -File Tools\Commands\Environment\Test-PowerShell.ps1 -Json
 ```
 
 If required PowerShell modules are missing, install them from an internet-enabled PowerShell session as needed. Current-user installs are usually sufficient; maintainers who prefer machine-wide module availability may use `-Scope AllUsers` from an elevated PowerShell session. For the current registry:
@@ -185,13 +190,13 @@ Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
 Use `Format-PowerShell.ps1` to check every tracked or nonignored untracked PowerShell source anywhere in the Git worktree. New scripts and new source directories are discovered automatically. Check mode is the default and does not write files:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Static\Format-PowerShell.ps1
+pwsh -NoProfile -File Tools\Static\Format-PowerShell.ps1
 ```
 
 Use `-Fix` to apply the repository formatter:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Static\Format-PowerShell.ps1 -Fix
+pwsh -NoProfile -File Tools\Static\Format-PowerShell.ps1 -Fix
 ```
 
 The formatter uses `Tools/Static/powershell-format-settings.psd1`, writes UTF-8 without a BOM and CRLF line endings, removes optional statement-terminating semicolons, preserves required `for (...)` separators, verifies parse/token equivalence, and rejects lines longer than 200 characters. Gitignored files are excluded from the default repository policy. Use `-Path`, `-MaximumLineLength`, or `-Json` for targeted checks, an explicit line-length gate, or structured results. Relative explicit paths resolve from the repository root. Manual wrapping is still required when a long expression cannot be changed mechanically without obscuring semantics.
@@ -241,7 +246,7 @@ required status check.
 
 Use `clean_temp_files.py` to remove disposable local cache directories when Python is available. It is the preferred implementation because it is portable across Windows, macOS, and Linux while matching the rest of the repository's Python-preferred tool convention.
 
-`Clean-TempFiles.ps1` is the Windows PowerShell fallback for users who do not have Python installed.
+`Clean-TempFiles.ps1` is the PowerShell 7 fallback for users who do not have Python installed.
 
 By default, both scripts only target allowlisted cache directories under the repository root:
 
@@ -264,7 +269,7 @@ python Tools\Commands\Maintenance\clean_temp_files.py
 PowerShell fallback:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Maintenance\Clean-TempFiles.ps1
+pwsh -NoProfile -File Tools\Commands\Maintenance\Clean-TempFiles.ps1
 ```
 
 Use `--delete` / `-Delete` to actually remove the matching cache directories:
@@ -278,7 +283,7 @@ python Tools\Commands\Maintenance\clean_temp_files.py --delete
 PowerShell fallback:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Maintenance\Clean-TempFiles.ps1 -Delete
+pwsh -NoProfile -File Tools\Commands\Maintenance\Clean-TempFiles.ps1 -Delete
 ```
 
 Use `--include-tmp` / `-IncludeTmp` to include direct children of the ignored repository `.tmp/` folder. This is useful after parity checks, bounded-graph experiments, EPUB extraction checks, or other local QA runs:
@@ -293,8 +298,8 @@ python Tools\Commands\Maintenance\clean_temp_files.py --include-tmp --delete
 PowerShell fallback:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Maintenance\Clean-TempFiles.ps1 -IncludeTmp
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Maintenance\Clean-TempFiles.ps1 -IncludeTmp -Delete
+pwsh -NoProfile -File Tools\Commands\Maintenance\Clean-TempFiles.ps1 -IncludeTmp
+pwsh -NoProfile -File Tools\Commands\Maintenance\Clean-TempFiles.ps1 -IncludeTmp -Delete
 ```
 
 Tools that create disposable `.tmp` artifacts automatically should use scoped cleanup instead of broad `.tmp` cleanup. Pass the exact path created during that run with `--tmp-path` / `-TmpPath`; the helper will delete only that path and only if it resolves under repository `.tmp/`.
@@ -308,7 +313,7 @@ python Tools\Commands\Maintenance\clean_temp_files.py --tmp-path .tmp\tool-run-i
 PowerShell fallback:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Maintenance\Clean-TempFiles.ps1 -TmpPath .tmp\tool-run-id -Delete
+pwsh -NoProfile -File Tools\Commands\Maintenance\Clean-TempFiles.ps1 -TmpPath .tmp\tool-run-id -Delete
 ```
 
 Use `--json` / `-Json` when downstream tooling needs structured results.
@@ -333,14 +338,14 @@ List available presets:
 
 ```powershell
 python Tools\Commands\Media\edit_image.py --list-presets
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Edit-Image.ps1 -ListPresets
+pwsh -NoProfile -File Tools\Commands\Media\Edit-Image.ps1 -ListPresets
 ```
 
 Use the official pathway tarot-card crop preset:
 
 ```powershell
 python Tools\Commands\Media\edit_image.py --preset PathwayTarotCard --source-image <source-image> --output-image <output-image> --force
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Edit-Image.ps1 -Preset PathwayTarotCard -SourceImage <source-image> -OutputImage <output-image> -Force
+pwsh -NoProfile -File Tools\Commands\Media\Edit-Image.ps1 -Preset PathwayTarotCard -SourceImage <source-image> -OutputImage <output-image> -Force
 ```
 
 Name tarot-card crops with the tarot-card slug first and the pathway slug second:
@@ -353,14 +358,14 @@ Example:
 
 ```powershell
 python Tools\Commands\Media\edit_image.py --preset PathwayTarotCard --source-image Artwork\Source\extracted\volume-2-faceless\0023-spine-0505-pathways-pathways4.jpeg --output-image Artwork\Source\tarot-cards\pathways\world-planter-pathway.png --force
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Edit-Image.ps1 -Preset PathwayTarotCard -SourceImage Artwork\Source\extracted\volume-2-faceless\0023-spine-0505-pathways-pathways4.jpeg -OutputImage Artwork\Source\tarot-cards\pathways\world-planter-pathway.png -Force
+pwsh -NoProfile -File Tools\Commands\Media\Edit-Image.ps1 -Preset PathwayTarotCard -SourceImage Artwork\Source\extracted\volume-2-faceless\0023-spine-0505-pathways-pathways4.jpeg -OutputImage Artwork\Source\tarot-cards\pathways\world-planter-pathway.png -Force
 ```
 
 Use the official pathway central-symbol crop preset as a review starting point:
 
 ```powershell
 python Tools\Commands\Media\edit_image.py --preset PathwaySymbol --source-image <source-image> --output-image <output-image> --force
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Edit-Image.ps1 -Preset PathwaySymbol -SourceImage <source-image> -OutputImage <output-image> -Force
+pwsh -NoProfile -File Tools\Commands\Media\Edit-Image.ps1 -Preset PathwaySymbol -SourceImage <source-image> -OutputImage <output-image> -Force
 ```
 
 Name pathway-symbol crops by source section or volume and pathway slug:
@@ -373,7 +378,7 @@ Example:
 
 ```powershell
 python Tools\Commands\Media\edit_image.py --preset PathwaySymbol --source-image Artwork\Source\extracted\volume-1-clown\0009-spine-0223-pathways-pathways3.jpeg --output-image Artwork\Source\extracted\pathway-symbols\volume-1-clown\sleepless-pathway-symbol.jpg --force
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Edit-Image.ps1 -Preset PathwaySymbol -SourceImage Artwork\Source\extracted\volume-1-clown\0009-spine-0223-pathways-pathways3.jpeg -OutputImage Artwork\Source\extracted\pathway-symbols\volume-1-clown\sleepless-pathway-symbol.jpg -Force
+pwsh -NoProfile -File Tools\Commands\Media\Edit-Image.ps1 -Preset PathwaySymbol -SourceImage Artwork\Source\extracted\volume-1-clown\0009-spine-0223-pathways-pathways3.jpeg -OutputImage Artwork\Source\extracted\pathway-symbols\volume-1-clown\sleepless-pathway-symbol.jpg -Force
 ```
 
 Unlike the tarot-card preset, pathway symbols should be visually reviewed per image. The preset captures the common guide-page symbol area, but individual pages may need manual crop refinement before promotion or mapping.
@@ -382,14 +387,14 @@ Use an explicit custom crop when a future image job needs different geometry:
 
 ```powershell
 python Tools\Commands\Media\edit_image.py --operation crop --source-image path\to\source.jpeg --output-image path\to\crop.png --x 24 --y 804 --width 660 --height 1168
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Edit-Image.ps1 -Operation Crop -SourceImage path\to\source.jpeg -OutputImage path\to\crop.png -X 24 -Y 804 -Width 660 -Height 1168
+pwsh -NoProfile -File Tools\Commands\Media\Edit-Image.ps1 -Operation Crop -SourceImage path\to\source.jpeg -OutputImage path\to\crop.png -X 24 -Y 804 -Width 660 -Height 1168
 ```
 
 For the full image helper switch map, operation aliases, side effects, and Python/PowerShell parity notes, see [Tooling Reference](TOOLING_REFERENCE.md#image-manipulation).
 
 ## EPUB Search
 
-Use `search_epub.py` for repeatable novel EPUB sweeps when Python is available. It is the preferred implementation because it is faster, uses only the Python standard library, and exposes reusable functions that can later support generated indexes or frontend tooling. `Search-Epub.ps1` remains the Windows PowerShell fallback with matching behavior.
+Use `search_epub.py` for repeatable novel EPUB sweeps when Python is available. It is the preferred implementation because it is faster, uses only the Python standard library, and exposes reusable functions that can later support generated indexes or frontend tooling. `Search-Epub.ps1` remains the PowerShell 7 fallback with matching behavior.
 
 Current entry discovery is specific to the Book 1 EPUB package layout. Supplying `Source/Circle of Inevitability.epub` currently yields no discovered entries even though the package contains sequential chapter files. The source registry already models COI as work `lotm-2`; a later search-tool migration must select a registered work/source and support its package adapter before COI searches are considered reliable.
 
@@ -417,7 +422,7 @@ Most EPUB search workflows follow this shape. Replace the pattern and filters wi
 
 ```powershell
 python Tools\Commands\Media\search_epub.py --pattern "<term-a>|<term-b>" --counts-only
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -Pattern "<term-a>|<term-b>" -CountsOnly
+pwsh -NoProfile -File Tools\Commands\Media\Search-Epub.ps1 -Pattern "<term-a>|<term-b>" -CountsOnly
 ```
 
 ### Survey Counts
@@ -428,21 +433,21 @@ Preferred flags are `--counts-only` / `-CountsOnly`; the shorter aliases `--coun
 
 ```powershell
 python Tools\Commands\Media\search_epub.py --start-chapter 10 --end-chapter 47 --pattern "Dunn|Captain|Nighthawk|Nightmare|Sleepless" --counts-only
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -StartChapter 10 -EndChapter 47 -Pattern "Dunn|Captain|Nighthawk|Nightmare|Sleepless" -CountsOnly
+pwsh -NoProfile -File Tools\Commands\Media\Search-Epub.ps1 -StartChapter 10 -EndChapter 47 -Pattern "Dunn|Captain|Nighthawk|Nightmare|Sleepless" -CountsOnly
 ```
 
 Full-book or later-volume sweeps use the same global chapter numbers:
 
 ```powershell
 python Tools\Commands\Media\search_epub.py --start-chapter 483 --end-chapter 732 --pattern "Gehrman|Traveler" --counts-only
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -StartChapter 483 -EndChapter 732 -Pattern "Gehrman|Traveler" -CountsOnly
+pwsh -NoProfile -File Tools\Commands\Media\Search-Epub.ps1 -StartChapter 483 -EndChapter 732 -Pattern "Gehrman|Traveler" -CountsOnly
 ```
 
 You can also narrow by volume without remembering the chapter span:
 
 ```powershell
 python Tools\Commands\Media\search_epub.py --volume 3 --pattern "Gehrman|Traveler" --counts-only
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -Volume 3 -Pattern "Gehrman|Traveler" -CountsOnly
+pwsh -NoProfile -File Tools\Commands\Media\Search-Epub.ps1 -Volume 3 -Pattern "Gehrman|Traveler" -CountsOnly
 ```
 
 ### Term Summary
@@ -453,14 +458,14 @@ Preferred flags are `--term-summary` / `-TermSummary`; the aliases `--summary-on
 
 ```powershell
 python Tools\Commands\Media\search_epub.py --pattern "savant|artisan|paragon" --term-summary
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -Pattern "savant|artisan|paragon" -TermSummary
+pwsh -NoProfile -File Tools\Commands\Media\Search-Epub.ps1 -Pattern "savant|artisan|paragon" -TermSummary
 ```
 
 Use `--json` / `-Json` when downstream tooling needs structured summary rows:
 
 ```powershell
 python Tools\Commands\Media\search_epub.py --pattern "savant|artisan|paragon" --term-summary --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -Pattern "savant|artisan|paragon" -TermSummary -Json
+pwsh -NoProfile -File Tools\Commands\Media\Search-Epub.ps1 -Pattern "savant|artisan|paragon" -TermSummary -Json
 ```
 
 ### Entry Listing
@@ -469,7 +474,7 @@ Use `-ListEntries` to inspect the EPUB's searchable sections without searching f
 
 ```powershell
 python Tools\Commands\Media\search_epub.py --entry-type All --list-entries
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -EntryType All -ListEntries
+pwsh -NoProfile -File Tools\Commands\Media\Search-Epub.ps1 -EntryType All -ListEntries
 ```
 
 Examples for non-main sections:
@@ -477,8 +482,8 @@ Examples for non-main sections:
 ```powershell
 python Tools\Commands\Media\search_epub.py --entry-type SideStories --list-entries
 python Tools\Commands\Media\search_epub.py --entry-type Appendices --entry-name-pattern "*pathways*" --list-entries
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -EntryType SideStories -ListEntries
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -EntryType Appendices -EntryNamePattern "*pathways*" -ListEntries
+pwsh -NoProfile -File Tools\Commands\Media\Search-Epub.ps1 -EntryType SideStories -ListEntries
+pwsh -NoProfile -File Tools\Commands\Media\Search-Epub.ps1 -EntryType Appendices -EntryNamePattern "*pathways*" -ListEntries
 ```
 
 ### Non-Chapter Searches
@@ -489,9 +494,9 @@ Search side stories, appendices, artwork text, front matter, or every XHTML sect
 python Tools\Commands\Media\search_epub.py --entry-type SideStories --pattern "3-0782" --counts-only
 python Tools\Commands\Media\search_epub.py --entry-type Appendices --entry-name-pattern "*pathways*" --pattern "Seer" --counts-only
 python Tools\Commands\Media\search_epub.py --entry-type All --pattern "Evernight" --counts-only
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -EntryType SideStories -Pattern "3-0782" -CountsOnly
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -EntryType Appendices -EntryNamePattern "*pathways*" -Pattern "Seer" -CountsOnly
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -EntryType All -Pattern "Evernight" -CountsOnly
+pwsh -NoProfile -File Tools\Commands\Media\Search-Epub.ps1 -EntryType SideStories -Pattern "3-0782" -CountsOnly
+pwsh -NoProfile -File Tools\Commands\Media\Search-Epub.ps1 -EntryType Appendices -EntryNamePattern "*pathways*" -Pattern "Seer" -CountsOnly
+pwsh -NoProfile -File Tools\Commands\Media\Search-Epub.ps1 -EntryType All -Pattern "Evernight" -CountsOnly
 ```
 
 ### Candidate Hits
@@ -500,7 +505,7 @@ Use this to inspect where matches occur without expanding much context.
 
 ```powershell
 python Tools\Commands\Media\search_epub.py --start-chapter 10 --end-chapter 13 --pattern "Dunn|Nighthawk" --max-hits-per-chapter 20
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -StartChapter 10 -EndChapter 13 -Pattern "Dunn|Nighthawk" -MaxHitsPerChapter 20
+pwsh -NoProfile -File Tools\Commands\Media\Search-Epub.ps1 -StartChapter 10 -EndChapter 13 -Pattern "Dunn|Nighthawk" -MaxHitsPerChapter 20
 ```
 
 ### Context Expansion
@@ -509,7 +514,7 @@ Use this after candidate chapters are known.
 
 ```powershell
 python Tools\Commands\Media\search_epub.py --start-chapter 12 --end-chapter 13 --pattern "Dunn|Nighthawk" --context-lines 2 --max-hits-per-chapter 8
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -StartChapter 12 -EndChapter 13 -Pattern "Dunn|Nighthawk" -ContextLines 2 -MaxHitsPerChapter 8
+pwsh -NoProfile -File Tools\Commands\Media\Search-Epub.ps1 -StartChapter 12 -EndChapter 13 -Pattern "Dunn|Nighthawk" -ContextLines 2 -MaxHitsPerChapter 8
 ```
 
 ### Regex Search
@@ -518,7 +523,7 @@ By default, `--pattern` / `-Pattern` treats `|` as a separator between literal s
 
 ```powershell
 python Tools\Commands\Media\search_epub.py --start-chapter 1 --end-chapter 1394 --pattern "red (chimney|smokestack)" --regex-pattern --counts-only
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -StartChapter 1 -EndChapter 1394 -Pattern "red (chimney|smokestack)" -RegexPattern -CountsOnly
+pwsh -NoProfile -File Tools\Commands\Media\Search-Epub.ps1 -StartChapter 1 -EndChapter 1394 -Pattern "red (chimney|smokestack)" -RegexPattern -CountsOnly
 ```
 
 ### JSON Output
@@ -527,7 +532,7 @@ Use `-Json` when downstream tooling or Codex needs structured results instead of
 
 ```powershell
 python Tools\Commands\Media\search_epub.py --start-chapter 17 --end-chapter 17 --pattern "Sleepless" --context-lines 1 --max-hits-per-chapter 1 --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -StartChapter 17 -EndChapter 17 -Pattern "Sleepless" -ContextLines 1 -MaxHitsPerChapter 1 -Json
+pwsh -NoProfile -File Tools\Commands\Media\Search-Epub.ps1 -StartChapter 17 -EndChapter 17 -Pattern "Sleepless" -ContextLines 1 -MaxHitsPerChapter 1 -Json
 ```
 
 JSON output includes `entry_type`, `volume`, `chapter`, `title`, and `source_path` fields where available.
@@ -536,7 +541,7 @@ Use `--include-line-match-counts` / `-IncludeLineMatchCounts` with JSON hit outp
 
 ```powershell
 python Tools\Commands\Media\search_epub.py --pattern "savant|artisan" --context-lines 2 --max-hits-per-chapter 100 --json --include-line-match-counts
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -Pattern "savant|artisan" -ContextLines 2 -MaxHitsPerChapter 100 -Json -IncludeLineMatchCounts
+pwsh -NoProfile -File Tools\Commands\Media\Search-Epub.ps1 -Pattern "savant|artisan" -ContextLines 2 -MaxHitsPerChapter 100 -Json -IncludeLineMatchCounts
 ```
 
 ### Term Arbitration
@@ -557,9 +562,9 @@ python Tools\Commands\Media\search_epub.py --pattern "savant|artisan|paragon" --
 python Tools\Commands\Media\search_epub.py --pattern "savant|artisan|paragon" --counts-only --json
 python Tools\Commands\Media\search_epub.py --pattern "savant|artisan|paragon" --context-lines 2 --max-hits-per-chapter 100 --json --include-line-match-counts
 
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -Pattern "savant|artisan|paragon" -TermSummary
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -Pattern "savant|artisan|paragon" -CountsOnly -Json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Search-Epub.ps1 -Pattern "savant|artisan|paragon" -ContextLines 2 -MaxHitsPerChapter 100 -Json -IncludeLineMatchCounts
+pwsh -NoProfile -File Tools\Commands\Media\Search-Epub.ps1 -Pattern "savant|artisan|paragon" -TermSummary
+pwsh -NoProfile -File Tools\Commands\Media\Search-Epub.ps1 -Pattern "savant|artisan|paragon" -CountsOnly -Json
+pwsh -NoProfile -File Tools\Commands\Media\Search-Epub.ps1 -Pattern "savant|artisan|paragon" -ContextLines 2 -MaxHitsPerChapter 100 -Json -IncludeLineMatchCounts
 ```
 
 Raw counts can mislead when a term is also a job, epithet, or individual label. For example, `artisan` may outnumber `savant` while mostly referring to an item-maker or a specific person, whereas `Savant pathway` is stronger evidence for the canonical pathway slug.
@@ -568,7 +573,7 @@ For the full EPUB search switch map, entry-type behavior, side effects, and Pyth
 
 ## Obsidian QA Export
 
-Use `obsidian_qa_export.py` to compile glossary metadata, Relationship Seeds, YAML data-block references, and projected data-block availability into a generated Obsidian-friendly mirror. It is the preferred implementation when Python is available. If Python is unavailable, use the Windows PowerShell fallback `Obsidian-QA-Export.ps1`. The export is a QA view, not a source of truth. Canonical project notes remain under `Glossary_Threads/`, `Investigations/`, `Volumes/`, and related source folders.
+Use `obsidian_qa_export.py` to compile glossary metadata, Relationship Seeds, YAML data-block references, and projected data-block availability into a generated Obsidian-friendly mirror. It is the preferred implementation when Python is available. If Python is unavailable, use the PowerShell 7 fallback `Obsidian-QA-Export.ps1`. The export is a QA view, not a source of truth. Canonical project notes remain under `Glossary_Threads/`, `Investigations/`, `Volumes/`, and related source folders.
 
 Every run also writes `_Generated/effective-schema.md`, a concise noncanonical report over the
 already-composed project schema. Both exporters use their runtime's shared report model and Markdown
@@ -580,14 +585,14 @@ Default output goes to ignored local directory `Obsidian_Export/`:
 
 ```powershell
 python Tools\Commands\QA\obsidian_qa_export.py
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\QA\Obsidian-QA-Export.ps1
+pwsh -NoProfile -File Tools\Commands\QA\Obsidian-QA-Export.ps1
 ```
 
 Custom `--output-dir` / `-OutputDir` destinations must be child directories beneath the repository root. Safe missing parent directories are created automatically. The repository root itself and paths outside it are rejected before `--clean` / `-Clean` can remove anything; this does not affect the normal `<repo>/Obsidian_Export/` destination.
 
 When `--root` / `-Root` is omitted, project-aware tools use the shared runtime resolver. It checks an explicit root, `KNOWLEDGE_PROJECT_ROOT`, current-directory ancestors, then executable-location ancestors for `Project_Config/project.yaml`; `.git` is not a project marker, and discovery never changes caller location. Commands can therefore launch from repository descendants or unrelated working directories without path-sensitive behavior. The manifest supplies stable content/resource-root IDs, provenance behavior, registry locations, the default QA output path, visualization integration paths, and cleanup helper paths. `Project_Config/schema-packs.yaml` selects reusable contracts from `Framework/Packs/` and explicitly enables project capabilities. Planned capabilities remain declared but unavailable; available or deprecated capabilities remain disabled until enabled. `Project_Config/taxonomy.yaml` defines content-type/category routing and marks which content types participate in QA page discovery; `Project_Config/resources.yaml` separately describes framework assets, non-content assets, source material, tools, configuration, generated outputs, workspace support, and temporary artifacts; `Project_Config/sources.yaml` schema 18 instantiates selected-pack media facets, work/release/container forms, works and evidence services; `Project_Config/entities.yaml` schema 4 optionally instantiates conceptual entities, incarnations, and persistent-identity phases. Taxonomy, resource, source, and entity loaders expose narrow stable-record and alias provider maps to `Project_Config/reconciliation.yaml` schema 4, whose paired resolver preserves resource-bounded branch-aware redirects, merges, splits, retirements, reclassifications, tombstones, privacy-aware labels, and audit history without mutating repository files. `Project_Config/interpretations.yaml` schema 1 preserves named candidate structures and local relations without changing canonical graphs. `Project_Config/provenance.yaml` schema 3 then composes typed subject providers, owns assertions, semantic field paths, evidence locators, stable claims, authority evaluation, and claim supersession, and closes deferred interpretation claim references. Framework registry loaders share canonical scalar parsing, closed record shapes, parser budgets, strict six-digit timestamp validation, and a core-owned temporal kernel; page-embedded YAML remains outside that contract pending content-index normalization. Both exporters mirror configured QA page types and delegate visualization-style graph generation to the manifest-configured Visualization implementation; transitional QA-specific graph builders remain until the normalized content-index migration. Content-directory names such as `Glossary_Threads/` are LoTM configuration values, not framework assumptions.
 
-Semantic alias resolution is backed by the manifest-selected `Framework/Data/unicode-lookup-16.0.0.json` registry. `lookup_key_config.py` and `Lookup-Key-Config.ps1` provide identical pinned Unicode normalization for Python, PowerShell 7, and Windows PowerShell 5.1; consumers compare their output ordinally instead of using runtime-default case-insensitive collections.
+Semantic alias resolution is backed by the manifest-selected `Framework/Data/unicode-lookup-16.0.0.json` registry. `lookup_key_config.py` and `Lookup-Key-Config.ps1` provide identical pinned Unicode normalization for Python and PowerShell 7; consumers compare their output ordinally instead of using runtime-default case-insensitive collections.
 
 ## Aggregate Conformance
 
@@ -595,7 +600,7 @@ Use the paired aggregate runners as the normal entry point for permanent framewo
 
 ```powershell
 python Tools\Conformance\run_conformance.py --profile baseline --summary-json --report-output .tmp\validation\python-baseline.json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Conformance.ps1 -Profile baseline -SummaryJson -ReportOutput .tmp\validation\powershell-baseline.json
+pwsh -NoProfile -File Tools\Conformance\Run-Conformance.ps1 -Profile baseline -SummaryJson -ReportOutput .tmp\validation\powershell-baseline.json
 ```
 
 The `baseline` profile runs every registered permanent suite and is the profile used by CI and framework-version validation. The smaller `fast` profile runs project-root, strict-ingestion, lookup-key, schema-pack, taxonomy, resource, temporal, and chronology checks for quick local feedback; it is not a substitute for the baseline. Schema-pack, taxonomy, and resource composition remain in `fast` because their small synthetic corpora diagnose foundational capability, vocabulary, content-routing, and placement failures before downstream registries obscure them. Distribution-boundary, source, entity, provenance, structural-interpretation, and full project-composition conformance remain baseline-only because they repeatedly compose larger dependency chains or provide narrower diagnostics. Use repeatable Python `--suite` arguments or a PowerShell `-Suite` array for focused diagnosis, and use `--list` / `-List` to inspect the registered inventory and profiles. The authoritative positive, malformed, boundary, ambiguity, and scale obligations for every registry suite are defined in the Registry Coverage Classes matrix in `Framework/testing_methodology.md`.
@@ -603,8 +608,8 @@ The `baseline` profile runs every registered permanent suite and is the profile 
 ```powershell
 python Tools\Conformance\run_conformance.py --profile fast
 python Tools\Conformance\run_conformance.py --suite temporal --suite chronology --summary-json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Conformance.ps1 -Suite temporal,chronology -SummaryJson
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Conformance.ps1 -List -Json
+pwsh -NoProfile -File Tools\Conformance\Run-Conformance.ps1 -Suite temporal,chronology -SummaryJson
+pwsh -NoProfile -File Tools\Conformance\Run-Conformance.ps1 -List -Json
 ```
 
 Use concise structured output for routine successful validation and focused agent diagnosis. Use
@@ -617,7 +622,7 @@ The current aggregate layer launches each suite in an isolated child runtime. Th
 
 ## Compatibility Validation
 
-Use the canonical compatibility orchestrator after permanent conformance passes. It launches Python, PowerShell 7, and Windows PowerShell 5.1 implementations and compares project-consumer behavior from one registry-driven command:
+Use the canonical compatibility orchestrator after permanent conformance passes. It launches Python and PowerShell 7 implementations and compares project-consumer behavior from one registry-driven command:
 
 ```powershell
 python Tools\Compatibility\run_compatibility.py --profile local --summary-json
@@ -631,17 +636,17 @@ requests, extraction and render probes, timeouts, and profile membership. Every 
 compatibility/conformance reporting, FrameworkCatalog, and EffectiveProjectSchema before consumer checks. `local` then
 compares Visualization and QA outputs; `pull-request` adds root-discovery, artifact-lifecycle, and
 isolated-extraction safety; `distribution-boundary` combines no-provider consumer behavior,
-three-runtime commercial-metadata isolation, and extraction; `full-release` includes that boundary
+Python/PS7 commercial-metadata isolation, and extraction; `full-release` includes that boundary
 check and also renders a representative graph. Use `--list` or
 `--list --json` to inspect the registry, and repeat `--check` for focused diagnosis.
 
-Visualization and QA must agree across all three runtimes and match the reviewed LoTM consumer
+Visualization and QA must agree across both supported runtimes and match the reviewed LoTM consumer
 oracle in `Tools/Compatibility/Baselines/lotm-consumers.json`. The oracle pins semantic summaries,
 complete normalized inventories, per-file hashes, and aggregate tree hashes so an identical
 regression in every runtime still fails. Update it only after diagnosing and approving an intentional
 content, graph, QA, preset, or representative-boundary change.
 
-Pull-request and full-release compatibility also rehearse framework extraction. The canonical verifier copies only reusable framework, runtime, and conformance assets into an operating-system temporary directory, generates a neutral core-only consumer manifest rather than copying `Project_Config/`, rejects canonical/generated LoTM surfaces, and runs project-root, strict-ingestion, lookup-key, schema-pack, temporal, and structural-interpretation conformance in Python, PowerShell 7, and Windows PowerShell 5.1. It always removes its isolated copy on exit:
+Pull-request and full-release compatibility also rehearse framework extraction. The canonical verifier copies only reusable framework, runtime, and conformance assets into an operating-system temporary directory, generates a neutral core-only consumer manifest rather than copying `Project_Config/`, rejects canonical/generated LoTM surfaces, and runs project-root, strict-ingestion, lookup-key, schema-pack, temporal, and structural-interpretation conformance in Python and PowerShell 7. It always removes its isolated copy on exit:
 
 ```powershell
 python Tools\Compatibility\verify_framework_extraction.py
@@ -666,10 +671,10 @@ Run the dedicated strict-ingestion corpus after changing shared YAML parsing, sc
 
 ```powershell
 python Tools\Conformance\Suites\test_strict_yaml.py
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Suites\Test-Strict-Yaml.ps1
+pwsh -NoProfile -File Tools\Conformance\Suites\Test-Strict-Yaml.ps1
 ```
 
-Use `--json` / `-Json` for matching stable summaries across Python, PowerShell 7, and Windows PowerShell 5.1.
+Use `--json` / `-Json` for matching stable summaries across Python and PowerShell 7.
 
 ## Lookup-Key Conformance
 
@@ -677,7 +682,7 @@ Run the lookup corpus after changing pinned Unicode data, normalization, aliases
 
 ```powershell
 python Tools\Conformance\Suites\test_lookup_key.py
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Suites\Test-Lookup-Key.ps1
+pwsh -NoProfile -File Tools\Conformance\Suites\Test-Lookup-Key.ps1
 ```
 
 Use `--json` / `-Json` for parity-comparable corpus counts and the pinned Unicode version.
@@ -688,10 +693,10 @@ Run the dedicated schema-pack suite after changing pack shape, dependency compos
 
 ```powershell
 python Tools\Conformance\Suites\test_schema_pack.py
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Suites\Test-Schema-Pack.ps1
+pwsh -NoProfile -File Tools\Conformance\Suites\Test-Schema-Pack.ps1
 ```
 
-Use `--json` / `-Json` for matching canonical, fixture, malformed-case, and scale counts across Python, PowerShell 7, and Windows PowerShell 5.1.
+Use `--json` / `-Json` for matching canonical, fixture, malformed-case, and scale counts across Python and PowerShell 7.
 
 ## Distribution-Boundary Conformance
 
@@ -703,7 +708,7 @@ rejects five portable-project injections, and treats provider failure as inert e
 
 ```powershell
 python Tools\Conformance\run_conformance.py --suite distribution-boundary --summary-json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Run-Conformance.ps1 -Suite distribution-boundary -SummaryJson
+pwsh -NoProfile -File Tools\Conformance\Run-Conformance.ps1 -Suite distribution-boundary -SummaryJson
 python Tools\Compatibility\run_compatibility.py --profile distribution-boundary --summary-json
 ```
 
@@ -713,10 +718,10 @@ Run the dedicated taxonomy suite after changing content-type/category shape, lif
 
 ```powershell
 python Tools\Conformance\Suites\test_taxonomy.py
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Suites\Test-Taxonomy.ps1
+pwsh -NoProfile -File Tools\Conformance\Suites\Test-Taxonomy.ps1
 ```
 
-Use `--json` / `-Json` for matching canonical, fixture, malformed-case, invalid-query, and scale counts across Python, PowerShell 7, and Windows PowerShell 5.1.
+Use `--json` / `-Json` for matching canonical, fixture, malformed-case, invalid-query, and scale counts across Python and PowerShell 7.
 
 ## Resource Conformance
 
@@ -724,10 +729,10 @@ Run the dedicated resource suite after changing resource-kind/type shape, lifecy
 
 ```powershell
 python Tools\Conformance\Suites\test_resource.py
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Suites\Test-Resource.ps1
+pwsh -NoProfile -File Tools\Conformance\Suites\Test-Resource.ps1
 ```
 
-Use `--json` / `-Json` for matching canonical, fixture, malformed-case, invalid-query, and scale counts across Python, PowerShell 7, and Windows PowerShell 5.1.
+Use `--json` / `-Json` for matching canonical, fixture, malformed-case, invalid-query, and scale counts across Python and PowerShell 7.
 
 ## Source Conformance
 
@@ -735,10 +740,10 @@ Run the dedicated source suite after changing work/continuity structure, media o
 
 ```powershell
 python Tools\Conformance\Suites\test_source.py
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Suites\Test-Source.ps1
+pwsh -NoProfile -File Tools\Conformance\Suites\Test-Source.ps1
 ```
 
-Use `--json` / `-Json` for matching canonical, fixture, malformed-case, invalid-query, and scale counts across Python, PowerShell 7, and Windows PowerShell 5.1.
+Use `--json` / `-Json` for matching canonical, fixture, malformed-case, invalid-query, and scale counts across Python and PowerShell 7.
 
 ## Entity Conformance
 
@@ -746,7 +751,7 @@ Run the dedicated entity suite after changing conceptual entities, category memb
 
 ```powershell
 python Tools\Conformance\Suites\test_entity.py
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Suites\Test-Entity.ps1
+pwsh -NoProfile -File Tools\Conformance\Suites\Test-Entity.ps1
 ```
 
 ## Provenance Conformance
@@ -755,17 +760,17 @@ Run the dedicated provenance suite after changing assertions, typed provenance s
 
 ```powershell
 python Tools\Conformance\Suites\test_provenance.py
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Suites\Test-Provenance.ps1
+pwsh -NoProfile -File Tools\Conformance\Suites\Test-Provenance.ps1
 ```
 
 Run the dedicated structural-interpretation suite after changing candidate structures, typed membership, local relation definitions or cycles, comparison modes, deferred claim references, provenance targeting, or conservative decision behavior. Both implementations load the canonical empty project registry and the vocabulary-neutral schema-1 corpus in `Framework/Data/Interpretations/`. Three interpretations, seven members, four local relations, and three comparison sets prove canonical target reuse, deferred claim closure, compatible and unresolved decisions, and graph isolation. Thirty-six invalid configurations, eight invalid service queries, and a generated 128-member/127-relation structure protect provider closure, local invariants, and bounded scale.
 
 ```powershell
 python Tools\Conformance\Suites\test_interpretation.py
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Suites\Test-Interpretation.ps1
+pwsh -NoProfile -File Tools\Conformance\Suites\Test-Interpretation.ps1
 ```
 
-Use `--json` / `-Json` for matching canonical, fixture, malformed-case, invalid-query, and scale counts across Python, PowerShell 7, and Windows PowerShell 5.1.
+Use `--json` / `-Json` for matching canonical, fixture, malformed-case, invalid-query, and scale counts across Python and PowerShell 7.
 
 ## Project Composition Conformance
 
@@ -773,10 +778,10 @@ Run the project-composition suite after changing the manifest, registry paths or
 
 ```powershell
 python Tools\Conformance\Suites\test_project_composition.py
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Suites\Test-Project-Composition.ps1
+pwsh -NoProfile -File Tools\Conformance\Suites\Test-Project-Composition.ps1
 ```
 
-Use `--json` / `-Json` for matching stable composition summaries across Python, PowerShell 7, and Windows PowerShell 5.1. This suite is intentionally baseline-only: the oracle describes the current project instance, while reusable registry behavior remains covered by the vocabulary-neutral framework fixtures.
+Use `--json` / `-Json` for matching stable composition summaries across Python and PowerShell 7. This suite is intentionally baseline-only: the oracle describes the current project instance, while reusable registry behavior remains covered by the vocabulary-neutral framework fixtures.
 
 ## Reconciliation Conformance
 
@@ -784,14 +789,14 @@ Run the permanent stable-ID reconciliation vectors after changing strict registr
 
 ```powershell
 python Tools\Conformance\Suites\test_reconciliation.py
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Suites\Test-Reconciliation.ps1
+pwsh -NoProfile -File Tools\Conformance\Suites\Test-Reconciliation.ps1
 ```
 
 Use `--json` / `-Json` for matching structured corpus and stress-test counts:
 
 ```powershell
 python Tools\Conformance\Suites\test_reconciliation.py --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Suites\Test-Reconciliation.ps1 -Json
+pwsh -NoProfile -File Tools\Conformance\Suites\Test-Reconciliation.ps1 -Json
 ```
 
 ## Temporal Conformance
@@ -800,14 +805,14 @@ Run the permanent temporal vectors after changing shared time parsing, temporal 
 
 ```powershell
 python Tools\Conformance\Suites\test_temporal.py
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Suites\Test-Temporal.ps1
+pwsh -NoProfile -File Tools\Conformance\Suites\Test-Temporal.ps1
 ```
 
 Use `--json` / `-Json` for the same stable summary fields in automation:
 
 ```powershell
 python Tools\Conformance\Suites\test_temporal.py --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Suites\Test-Temporal.ps1 -Json
+pwsh -NoProfile -File Tools\Conformance\Suites\Test-Temporal.ps1 -Json
 ```
 
 ## Chronology Conformance
@@ -816,7 +821,7 @@ Run the chronology vectors after changing coordinate-system vocabulary, era, pos
 
 ```powershell
 python Tools\Conformance\Suites\test_chronology.py
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Suites\Test-Chronology.ps1
+pwsh -NoProfile -File Tools\Conformance\Suites\Test-Chronology.ps1
 ```
 
 ## Occurrence Conformance
@@ -825,7 +830,7 @@ Run the occurrence vectors after changing branch identity, continuity, or lifecy
 
 ```powershell
 python Tools\Conformance\Suites\test_occurrence.py
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Conformance\Suites\Test-Occurrence.ps1
+pwsh -NoProfile -File Tools\Conformance\Suites\Test-Occurrence.ps1
 ```
 
 The generated structure mirrors active canonical pages by type and adds QA reports. Pages with `Status: Stub` are excluded by default; pass `--include-stubs` / `-IncludeStubs` when stub pages should be mirrored for local inspection. Pending pages are treated as normal QA candidates unless the source page itself is omitted by status.
@@ -883,7 +888,7 @@ Use `--bounded-page` / `-BoundedPage` to generate optional local QA page project
 
 ```powershell
 python Tools\Commands\QA\obsidian_qa_export.py --clean --bounded-page "slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=30"
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\QA\Obsidian-QA-Export.ps1 -Clean -BoundedPage 'slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=30'
+pwsh -NoProfile -File Tools\Commands\QA\Obsidian-QA-Export.ps1 -Clean -BoundedPage 'slug=character-dunn-smith,medium=novel,maxVolume=1,maxChapter=30'
 ```
 
 Bounded pages read the canonical page's structured data block and render boundary-filtered QA tables plus matching timeline prose sections when `timeline_entries` map to visible `timeline_id` comments. Character bounded pages include the standard character modules such as first appearance, identity, physical profile, status/origin/location, affiliations, pathway and sequence state, abilities, equipment, personality, relationships, major events, and timeline entries. Optional modules such as associated Tarot card, mythical creature form, uniqueness, knowledge sources/documents, messengers/servants/companions, and prayers/ritual access render only when present in the source data block. They are generated inspection artifacts, not canonical rewritten articles. Before the page's `Subject Visible From` boundary, the output must clearly mark the canonical page as hidden; explicitly modeled anonymous first-appearance beats may still appear as QA preview rows. Their timing display may come from either state-row `availability` ladders or positioned reveal fields such as `position`, `source_refs`, and `graph_display`.
@@ -908,14 +913,14 @@ Use `--clean` to delete and regenerate the export directory:
 
 ```powershell
 python Tools\Commands\QA\obsidian_qa_export.py --clean
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\QA\Obsidian-QA-Export.ps1 -Clean
+pwsh -NoProfile -File Tools\Commands\QA\Obsidian-QA-Export.ps1 -Clean
 ```
 
 Use `--json` / `-Json` when downstream tooling needs summary counts:
 
 ```powershell
 python Tools\Commands\QA\obsidian_qa_export.py --json
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\QA\Obsidian-QA-Export.ps1 -Json
+pwsh -NoProfile -File Tools\Commands\QA\Obsidian-QA-Export.ps1 -Json
 ```
 
 ## EPUB Image Extraction
@@ -928,7 +933,7 @@ Both implementations assign an `image_number` based on EPUB spine order so "firs
 
 ```powershell
 python Tools\Commands\Media\edit_image.py --operation extract-epub-images
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Edit-Image.ps1 -Operation ExtractEpubImages
+pwsh -NoProfile -File Tools\Commands\Media\Edit-Image.ps1 -Operation ExtractEpubImages
 ```
 
 Useful filters:
@@ -938,9 +943,9 @@ python Tools\Commands\Media\edit_image.py --operation extract-epub-images --star
 python Tools\Commands\Media\edit_image.py --operation extract-epub-images --volume 1 --image-type Characters
 python Tools\Commands\Media\edit_image.py --operation extract-epub-images --image-type Artwork
 
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Edit-Image.ps1 -Operation ExtractEpubImages -StartImageNumber 1 -EndImageNumber 12
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Edit-Image.ps1 -Operation ExtractEpubImages -Volume 1 -ImageType Characters
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Edit-Image.ps1 -Operation ExtractEpubImages -ImageType Artwork
+pwsh -NoProfile -File Tools\Commands\Media\Edit-Image.ps1 -Operation ExtractEpubImages -StartImageNumber 1 -EndImageNumber 12
+pwsh -NoProfile -File Tools\Commands\Media\Edit-Image.ps1 -Operation ExtractEpubImages -Volume 1 -ImageType Characters
+pwsh -NoProfile -File Tools\Commands\Media\Edit-Image.ps1 -Operation ExtractEpubImages -ImageType Artwork
 ```
 
 ### Extract Images
@@ -949,7 +954,7 @@ Extract selected images into `.tmp/epub-images` by default:
 
 ```powershell
 python Tools\Commands\Media\edit_image.py --operation extract-epub-images --start-image-number 1 --end-image-number 4 --extract
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Media\Edit-Image.ps1 -Operation ExtractEpubImages -StartImageNumber 1 -EndImageNumber 4 -Extract
+pwsh -NoProfile -File Tools\Commands\Media\Edit-Image.ps1 -Operation ExtractEpubImages -StartImageNumber 1 -EndImageNumber 4 -Extract
 ```
 
 Use `--output-dir` / `-OutputDir` to choose another destination, and `--json` / `-Json` when downstream tooling needs structured fields such as `image_number`, `spine_index`, `image_type`, `volume`, `xhtml_path`, `image_path`, `alt`, and `output_path`.

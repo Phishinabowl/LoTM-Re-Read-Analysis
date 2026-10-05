@@ -27,7 +27,7 @@ If the user cannot provide them, continue with repository artifacts only and tre
 
 The public GitHub repository does not include ignored local source materials, so GitHub fallback bootstraps should always perform this availability check and report the missing-source limitation.
 
-If novel EPUB source expansion is available and needed, prefer the repository EPUB search helper `Tools/Commands/Media/search_epub.py` for bounded chapter sweeps before using ad hoc EPUB parsing. If Python is unavailable, use the Windows PowerShell fallback `Tools/Commands/Media/Search-Epub.ps1`. If both helpers are missing or unusable, report the degraded source-search path.
+If novel EPUB source expansion is available and needed, prefer the repository EPUB search helper `Tools/Commands/Media/search_epub.py` for bounded chapter sweeps before using ad hoc EPUB parsing. If Python is unavailable, use the PowerShell 7 fallback `Tools/Commands/Media/Search-Epub.ps1`. If both helpers are missing or unusable, report the degraded source-search path.
 
 ## Repository Tooling Availability Check
 

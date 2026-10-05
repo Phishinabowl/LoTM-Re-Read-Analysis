@@ -75,4 +75,4 @@ or changes project inheritance semantics.
 Permanent paired coverage must include valid loading, strict shape failures, missing targets,
 absolute and escaping paths, explicit-root precedence, environment and ancestor discovery,
 multiple installed lookup datasets with one explicit selection, deterministic diagnostics, and
-Python/PowerShell 7/Windows PowerShell 5.1 parity.
+Python/PowerShell 7 parity.

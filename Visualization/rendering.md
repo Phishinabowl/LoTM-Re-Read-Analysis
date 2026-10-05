@@ -52,13 +52,13 @@ Keep the permanent config browser-neutral. If a diagnostic must use a system bro
 Before running visualization helpers on an unfamiliar machine or fresh agent session, check whether Python is available:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Environment\Test-Python.ps1
+pwsh -NoProfile -File Tools\Commands\Environment\Test-Python.ps1
 ```
 
 For structured agent workflows, use JSON output:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Tools\Commands\Environment\Test-Python.ps1 -Json
+pwsh -NoProfile -File Tools\Commands\Environment\Test-Python.ps1 -Json
 ```
 
 For the full environment probe map, candidate order, JSON fields, and latest local check note, see the [Tooling Reference](../Tools/TOOLING_REFERENCE.md#python-environment-check).
@@ -72,7 +72,7 @@ Treat the probe result as the session's Python-availability state. If Python is 
 
 If Python is unavailable, use the PowerShell fallback commands below for that session. If Python is available but a Python helper fails, treat that as a helper failure rather than silently falling back. If both helpers fail or required config is missing, report repository visualization rendering as degraded before using direct `mmdc`.
 
-PowerShell fallback commands use `powershell`, which usually means Windows PowerShell 5.1 rather than PowerShell 7's `pwsh`. Keep visualization `.ps1` fallback code compatible with Windows PowerShell 5.1 APIs unless the documented command changes to require `pwsh`.
+PowerShell fallback commands use `pwsh` under the supported PowerShell 7.4+ Core contract. Windows PowerShell 5.1 is outside that support contract; host enforcement and child migration are staged in CI Phase 2.
 
 ## Render Commands
 
@@ -87,7 +87,7 @@ python Visualization\visualize.py --mode Refresh
 PowerShell fallback:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Refresh
+pwsh -NoProfile -File Visualization\visualize.ps1 -Mode Refresh
 ```
 
 The helpers accept a few ergonomic aliases for common slips. Python mode values are case-insensitive for `refresh`, `render`, and `validate`; both helpers also accept `Update`/`Generate` for refresh, `Manual-Render`/`Pure-Render` for render, and `Check`/`Test` for validate. Python accepts `--input`, `--graph`, `--output`, `--out`, `--settings`, and `--no-render` as aliases for the longer option names. PowerShell accepts matching aliases: `-Input`, `-Graph`, `-Output`, `-Out`, `-Settings`, and `-NoRender`.
@@ -103,7 +103,7 @@ python Visualization\visualize.py --mode Validate
 PowerShell fallback:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Validate
+pwsh -NoProfile -File Visualization\visualize.ps1 -Mode Validate
 ```
 
 To update only the refresh report without rerendering images:
@@ -117,7 +117,7 @@ python Visualization\visualize.py --mode Refresh --skip-render
 PowerShell fallback:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Refresh -SkipRender
+pwsh -NoProfile -File Visualization\visualize.ps1 -Mode Refresh -SkipRender
 ```
 
 To render a manually authored Mermaid file without regenerating repository graph views or updating the refresh tracker, use pure render mode:
@@ -132,7 +132,7 @@ python Visualization\visualize.py --mode Render `
 PowerShell fallback:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Render `
+pwsh -NoProfile -File Visualization\visualize.ps1 -Mode Render `
   -InputPath Visualization\graphs\example.mmd
 ```
 
@@ -150,7 +150,7 @@ python Visualization\visualize.py --mode Render `
 PowerShell fallback:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File Visualization\visualize.ps1 -Mode Render `
+pwsh -NoProfile -File Visualization\visualize.ps1 -Mode Render `
   -InputPath Visualization\graphs\example.mmd `
   -OutputPath Visualization\rendered\example.svg,Visualization\rendered\example.png
 ```
