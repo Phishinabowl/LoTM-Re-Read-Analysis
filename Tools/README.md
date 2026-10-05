@@ -36,6 +36,11 @@ tests after accepted local proof. The plan records published commits, hosted out
 
 This folder contains reusable local helpers for project maintenance and source verification.
 
+The [Python Runtime Package Contract](ci-python-package-contract.md) is confirmed at CI 3.1.1 on 2026-10-05:
+independent Python 0.1.0 numbering, Python 3.14+ eligibility, accepted setuptools packaging at the
+existing runtime path, explicit external data and dependency boundaries. It inventories source
+consumers and defines distinct installed-wheel proof; package/bootstrap implementation has not started.
+
 For switch-by-switch maps, function-pipeline notes, side effects, parity checks, and durable config/state files for maintained helper scripts, see [Tooling Reference](TOOLING_REFERENCE.md). That reference should be extended whenever another tool is audited or a tool starts reading a new shared config file. The broader version process belongs to the [Framework Improvement Lifecycle](../Framework/framework_improvement_lifecycle.md), while the cumulative requirement for when and why checks run belongs to the [Framework Testing Methodology](../Framework/testing_methodology.md).
 
 Paired validation and conformance commands that emit a human-readable summary also support

@@ -12,6 +12,9 @@ has occurred. Temporary live-5.1 tests are removed from the current native test 
 Focused host regressions are implemented; broader native-test foundations and dual-host pipeline
 rollout have not started. The maintainer accepted retirement of Windows PowerShell 5.1 support on
 2026-10-05; remaining runtime/runner/workflow migration follows the owning checkpoints.
+CI 3.1.1 package/version inventory and contract are confirmed on 2026-10-05. Independent
+Python 0.1.0 numbering and Python 3.14+ eligibility with pinned 3.14.5 execution are explicitly
+selected. Packaging/bootstrap implementation at 3.1.2 has not started.
 
 **Working branch:** `architecture/ci-testing-modernization`, created from
 `architecture/framework-extraction-foundation` at `c4b7932`.
@@ -1143,7 +1146,7 @@ the historical defective snapshot. Preserve raw history/content.
 The maintainer confirmed the four local implementation/inspection items and the explicit performance/
 cache acceptance wording on 2026-10-05. Completed exact-snapshot manual proof closes the remaining
 hosted/history/closure items and Phase 2 exit for the authorized scope. Actual PR/main event tests,
-ADO activation and later native/runner/bootstrap adoption remain their owning gates. Phase 3 has not started.
+ADO activation and later native/runner/bootstrap adoption remain their owning gates. Phase 3 implementation has not started.
 
 ### Phase 2 Exit Gate
 
@@ -1169,19 +1172,19 @@ consumer migration is reviewed. Phase 3.2 and all later phase numbers remain unc
 
 #### Phase 3.1.1 Python Package And Component Version Contract
 
-- [ ] Inventory package imports, runtime dependencies, Python floor, CLI/extraction consumers and
+- [x] Inventory package imports, runtime dependencies, Python floor, CLI/extraction consumers and
   external framework/configuration/data requirements before selecting packaging metadata and backend.
-- [ ] Define the installable distribution name, a single authoritative Python package version and
+- [x] Define the installable distribution name, a single authoritative Python package version and
   supported-Python metadata; keep the `knowledge_framework` import name stable. Decide shared or
   independent Python/PowerShell release numbering explicitly. Matching behavior does not require
   identical component versions, and PS host retirement alone does not assign Python version 0.14.0.
-- [ ] Document when implementation releases increment versions and how installed version/provenance
+- [x] Document when implementation releases increment versions and how installed version/provenance
   is obtained without competing manually maintained copies. Keep runtime component versions separate
   from framework/project/pack schema versions, conformance contracts and fixture baselines.
-- [ ] Define a reviewed inclusion allowlist for the existing reusable Python runtime and necessary
+- [x] Define a reviewed inclusion allowlist for the existing reusable Python runtime and necessary
   runtime metadata/resources. Preserve explicit external framework/project-root discovery; do not
   silently embed or discover LoTM content, selected schema packs or configuration through installation.
-- [ ] Separate build, runtime, implementation-test and media dependencies. pytest/Ruff/Pillow and
+- [x] Separate build, runtime, implementation-test and media dependencies. pytest/Ruff/Pillow and
   repository CI tools do not become unconditional dependencies or contents of the core runtime wheel.
   Keep package dependency metadata and reproducible bootstrap declarations consistent without
   duplicating incompatible dependency authorities.
@@ -1189,6 +1192,31 @@ consumer migration is reviewed. Phase 3.2 and all later phase numbers remain unc
 **Checkpoint:** Package identity, initial version, version-policy relationship, supported interpreter,
 backend, artifact boundary and every affected consumer are reviewed before packaging implementation.
 This checkpoint settles concrete version/backend choices; the current plan does not invent them.
+
+**3.1.1 confirmed (2026-10-05):** The
+[Python package contract](ci-python-package-contract.md) records the entry inventory at `ee653a6`:
+22 existing modules, PyYAML as the only external runtime import, no current resources/version/build
+metadata and 31 direct source-bootstrapped consumers. It maps other declaration/environment/hosted
+and extraction consumers, external root/Unicode/catalog requirements and isolated installed-mode
+proof. The maintainer explicitly selects independent Python 0.1.0 numbering (PS remains 0.14.0)
+and Python 3.14+ package eligibility, pinned 3.14.5 initial execution, with Ruff py310 syntax retained.
+
+Accepted implementation details are local distribution `knowledge-framework`, stable import
+`knowledge_framework`, setuptools.build_meta with explicit current-layout mapping, a single literal
+`_version.py` version authority and derived installed metadata/provenance. The reviewed artifact
+boundary includes the current 22 sources, proposed version module, generated metadata and unchanged
+LICENSE; framework/project/configuration/data/CLI/test/media/CI content stays external. Source and
+wheel routes are distinct. Exact build-tool adoption and acquisition proof belong to 3.1.2.
+Runtime metadata bounds PyYAML eligibility; exact runtime bootstrap pins must satisfy those bounds
+with identical package membership. Build/dev/media dependencies remain separate. Extraction must
+explicitly copy its new LICENSE build input and verify its expanded input inventory; no silent
+copy-surface or native/hosted adoption is authorized by a wheel.
+
+The maintainer confirms all five inventory/definition/review items and the complete contract.
+No pyproject/dependency/runtime/fixture/
+canonical/workflow bytes change at 3.1.1. The ignored AST inventory is inspection evidence, not a
+new production test or a claim of built/installed artifact acceptance. No semantic/model version
+is introduced by this documentation pass.
 
 #### Phase 3.1.2 Reproducible Local Build, Install And Bootstrap
 
@@ -1671,7 +1699,7 @@ integration coverage, and a separate modernization branch/PR into the framework 
 
 Phase 1.1 inspected ADO access/capacity and prepared synchronized remotes; Phases 1.2/1.3 are confirmed.
 Phases 1.4/1.5 and 2.1-2.6 are confirmed; Phase 2 closes with successful manual hosted retirement proof.
-Phase 3.1 is next. The runtime floor is locally
+Phase 3.1.1 is confirmed; implementation at 3.1.2 is next. The runtime floor is locally
 tested; clean/offline dependency setup, future hosted launcher/report publication and policy adoption remain
 explicit later gates. Explain ADO
 concepts at their owning phase and record decisions in their authoritative documentation.
