@@ -11,6 +11,27 @@ CI 5.1's [same-snapshot shadow comparison](ci-testing-shadow-comparison.md) is c
 2026-10-06. Its failed full runs identify correction/optimization work; they do not
 replace the successful Phase 2.5 reference or prove hosted throughput.
 
+**CI 5.7 current local overlay (confirmed by the maintainer on 2026-10-06):** The
+[optimization review](ci-testing-local-optimization-review.md) records Windows full 74/74 in
+1,056.779s (17m37s), 36.883s / 3.37% faster than 5.5, and Windows feature 41/41 in 271.451s
+(4m31s). Linux feature passes 41/41 in 266.949s (4m27s), with exact 573-file source provenance.
+Complete native cohorts take 125.152s full / 125.225s feature on Windows and 105.520s on Linux.
+Both feature proofs satisfy the maintainer's conditional native/full timing exceptions;
+<=90s native / <=960s sequential full remain goals with measured follow-up at Phase 8.1.
+Feature/hosted targets, executable ceilings, independent
+processes and complete coverage are unchanged. No Windows full-native speedup is claimed.
+Prepared execution includes capture/preflight/reporting and excludes acquisition. The 53.064s
+full non-unit remainder includes post-unit guards and publication, so it is not all setup. Restricted
+environment diagnostics do not qualify performance. Phase 6 owns cache transport/hosted measurement.
+
+**Phase 5.8 placement gate confirmed (2026-10-06, implementation not started):** The
+[Linux portability/full comparison checkpoint](ci-testing-modernization-plan.md#phase-58-linux-portability-full-comparison-and-os-placement)
+must distinguish current Windows-only registration from actual dependencies, qualify proposed Linux
+owners and compare equivalent complete coverage before hosted adoption. If Windows obligations remain,
+measure and label the split explicitly; it is not a full Linux pass. Preserve 5.7's accepted timings,
+exceptions and goals. Source/coverage equivalence and normal execution conditions precede timing;
+final agent/cache/queue and placement validation remains Phase 6 on real GitHub/ADO hosts.
+
 ## CI 5.1 Feedback Targets And Current Gap
 
 **Plan sequencing revision (2026-10-06):** The agreed 5.6/5.7 extension now places coverage/scenario

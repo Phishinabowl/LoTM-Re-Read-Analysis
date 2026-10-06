@@ -39,7 +39,7 @@ def guarded_manifest(root, snapshot):
     changed = sorted(found ^ set(snapshot.files))
     for name in sorted(found & set(snapshot.files)):
         path = root / name
-        if hashlib.sha256(path.read_bytes()).hexdigest() != hashlib.sha256(snapshot.files[name]).hexdigest():
+        if path.read_bytes() != snapshot.files[name]:
             changed.append(name)
         if os.name != "nt" and bool(path.stat().st_mode & 0o111) != (snapshot.modes[name] == "100755"):
             changed.append(name)

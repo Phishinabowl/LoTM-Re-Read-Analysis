@@ -53,7 +53,7 @@ function Assert-KnowledgeYamlSource {
     $parser = [YamlDotNet.Core.Parser]::new($reader)
     $depth = 0
     $nodeCount = 0
-    $frames = New-Object 'System.Collections.Generic.List[object]'
+    $frames = [System.Collections.Generic.List[object]]::new()
     try {
         while ($parser.MoveNext()) {
             $event = $parser.Current
@@ -92,7 +92,7 @@ function Assert-KnowledgeYamlSource {
                     $frames.Add([pscustomobject]@{
                             kind='mapping'
                             expect_key=$true
-                            seen_keys=(New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal))
+                            seen_keys=([System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal))
                         })
                 }
                 else {

@@ -61,6 +61,10 @@ Pester 6.2.0 also passes in that host; PSScriptAnalyzer 1.25.0 requires Core 7.4
 development baseline is 7.6.6. The framework runtime floor remains 7.4; no older tool fallback.
 
 Use the executable/module/browser paths recorded in the JSON report for subsequent commands.
+Aggregate/native verification needs the complete development environment, including PyYAML,
+pytest, required media dependencies and Ruff. A build-only environment with the same interpreter
+version cannot substitute for it. CI 5.7's [local optimization record](../ci-testing-local-optimization-review.md)
+retains this distinction, measured profile costs and the pre-hosted timing disposition.
 Bootstrap does not modify the caller's PATH, PSModulePath or global packages. Python environments
 omit system/user site packages and disable pytest plugin auto-loading. PowerShell imports come
 from the owned module cache, with exact `-RequiredVersion` and imported-path checks. The report's

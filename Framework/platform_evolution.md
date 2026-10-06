@@ -1063,3 +1063,28 @@ execution-time saving is claimed. Details and remaining review boundaries are in
 Phase 5.7 owns local execution optimization and current timing acceptance before hosted adoption.
 Rollback restores the original review registration, methodology and admission rules together through
 focused changes; retain historical questions and do not reset canonical content or rewrite history.
+
+## CI Modernization Interlude - Local Optimization And Timing Acceptance (5.7)
+
+**Status:** Implemented, locally verified and confirmed by the maintainer on 2026-10-06.
+The [local optimization review](../Tools/ci-testing-local-optimization-review.md) and
+[CI plan](../Tools/ci-testing-modernization-plan.md) own evidence and checkpoint closure.
+
+Strict YAML and schema-pack validation use direct constructors for the same .NET collection types
+and ordinal comparers. Canonical execution guards compare every captured file's bytes directly,
+retaining inventory, link/junction and executable-mode checks. No parser, source/model contract,
+fixture, command output, case, independent process boundary or required check is removed. A retained
+regression additionally proves equal-length content changes with restored timestamps are rejected.
+
+Windows full passes 74/74 in 17m37s (3.37% faster than 5.5); Windows/Linux feature pass 41/41
+in 4m31s / 4m27s. All three qualified captures share the same complete 573-file source digest.
+All 486 prior native cases remain with the two 5.6 additions, all 42 full detailed conformance rows
+match exactly, all eleven consumers pass, and publication/canonical/containment evidence verifies.
+The final feature/source audits satisfy the maintainer's conditional acceptance of remaining
+native/full timing gaps, retaining the 90s / 960s goals and explicit Phase 8.1 follow-up. No timeout or coverage
+concession meets a goal, and no Windows full-native improvement is claimed.
+
+This is implementation/performance evidence, not a new framework model version, hosted pipeline
+activation, platform Phase 4.1 acceptance, or closure of the 17 pending semantic pressure reviews.
+Canonical LoTM data and golden projection expectations remain unchanged. Rollback restores the
+four implementation/test files to the confirmed 5.6 baseline; retain evidence and review mappings.

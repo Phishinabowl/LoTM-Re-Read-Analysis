@@ -3,6 +3,7 @@
 import copy
 import importlib
 import json
+import os
 import stat
 from pathlib import Path
 import subprocess
@@ -636,6 +637,15 @@ def test_captured_bytes_and_additional_authored_files_are_guarded(tmp_path):
     assert adapters.guarded_manifest(tmp_path, snapshot) == snapshot.digest
     (tmp_path / ".tmp").mkdir()
     (tmp_path / ".tmp/log.bin").write_bytes(b"owned output")
+    assert adapters.guarded_manifest(tmp_path, snapshot) == snapshot.digest
+    authored = tmp_path / "authored.md"
+    original_stat = authored.stat()
+    authored.write_bytes(b"modified")
+    # Same length and restored timestamps cannot substitute for checking every source byte.
+    os.utime(authored, ns=(original_stat.st_atime_ns, original_stat.st_mtime_ns))
+    with pytest.raises(ValueError, match="Protected"):
+        adapters.guarded_manifest(tmp_path, snapshot)
+    authored.write_bytes(b"original")
     assert adapters.guarded_manifest(tmp_path, snapshot) == snapshot.digest
     (tmp_path / "additional.md").write_text("unexpected authoring")
     with pytest.raises(ValueError, match="Protected"):

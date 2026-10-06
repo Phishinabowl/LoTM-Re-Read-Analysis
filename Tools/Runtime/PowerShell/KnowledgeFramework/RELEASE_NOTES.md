@@ -25,3 +25,8 @@ project-manifest or schema-pack version bump. Prior dated 5.1 results remain his
 The source repository's CI retirement inventory owns version/report decisions and complete migration
 gates. That CI planning document is not
 part of a portable extraction bundle; this release note's host/version statements stand alone.
+
+CI 5.7 replaces collection construction in strict YAML and schema-pack validation with direct .NET
+constructors for the same List/HashSet types and ordinal comparers. Parsing, limits, validation,
+exports, output contracts and fixtures remain unchanged. No decoded-YAML cache or shared mutable
+configuration is introduced; module identity and support boundaries remain 0.14.0 / PowerShell 7.4 Core.

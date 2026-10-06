@@ -82,7 +82,7 @@ function Get-SchemaPackStableIdList {
     param([object]$Map, [string]$Key, [string]$Context)
 
     $values = @(Get-SchemaPackStringList $Map $Key $Context $true)
-    $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $seen = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
     foreach ($value in $values) {
         Assert-SchemaPackStableId $value "$Context.$Key"
         if (-not $seen.Add($value)) {
@@ -108,7 +108,7 @@ function ConvertTo-SchemaPackPresentationEntries {
         throw "Schema-pack configuration '$Context.$Key' must be a non-empty list."
     }
     $result = @()
-    $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $seen = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
     for ($index = 0; $index -lt $entries.Count; $index += 1) {
         $entry = $entries[$index]
         $entryContext = "$Context.$Key[$index]"
@@ -135,7 +135,7 @@ function ConvertTo-SchemaPackDocumentationEntries {
     }
     $entries = @(Get-ProjectMapValue $Presentation 'documentation')
     $result = @()
-    $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $seen = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
     for ($index = 0; $index -lt $entries.Count; $index += 1) {
         $entry = $entries[$index]
         $entryContext = "$Context.documentation[$index]"
@@ -250,7 +250,7 @@ function ConvertTo-SchemaPackPresentation {
         throw "Schema-pack configuration '$context.maturity' is unsupported."
     }
     $keywords = @(Get-SchemaPackStringList $presentation 'search_keywords' $context $true)
-    $seenKeywords = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+    $seenKeywords = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
     foreach ($keyword in $keywords) {
         if (-not $seenKeywords.Add($keyword)) {
             throw "Schema-pack configuration '$context.search_keywords' contains duplicates."
@@ -343,7 +343,7 @@ function ConvertTo-SchemaPackCapabilityRelationships {
         else {
             @()
         }
-        $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+        $seen = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
         foreach ($value in $values) {
             if (-not $seen.Add($value)) {
                 throw "Schema-pack configuration '$Context.relationships.$key' contains duplicates."
@@ -359,7 +359,7 @@ function ConvertTo-SchemaPackCapabilityGroups {
 
     $rawGroups = @(Get-ProjectMapValue $Pack 'capability_groups')
     $groups = @()
-    $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $seen = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
     for ($index = 0; $index -lt $rawGroups.Count; $index += 1) {
         $context = "$PackId.capability_groups[$index]"
         $group = $rawGroups[$index]
@@ -386,7 +386,7 @@ function ConvertTo-SchemaPackCapabilityGroupMemberships {
 
     $rawMemberships = @(Get-ProjectMapValue $Pack 'capability_group_memberships')
     $memberships = @()
-    $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $seen = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
     for ($index = 0; $index -lt $rawMemberships.Count; $index += 1) {
         $context = "$PackId.capability_group_memberships[$index]"
         $membership = $rawMemberships[$index]
@@ -757,7 +757,7 @@ function ConvertTo-SchemaPackConfig {
     }
 
     $dependencies = @()
-    $seenDependencies = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $seenDependencies = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
     $rawDependencies = @(Get-ProjectMapValue $pack "dependencies")
     for ($index = 0; $index -lt $rawDependencies.Count; $index += 1) {
         $context = "$packId.dependencies[$index]"
@@ -791,7 +791,7 @@ function ConvertTo-SchemaPackConfig {
     $rawCapabilities = @($rawCapabilityValue)
     $capabilities = @()
     $capabilityDefinitions = [ordered]@{}
-    $seenCapabilities = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $seenCapabilities = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
     for ($index = 0; $index -lt $rawCapabilities.Count; $index += 1) {
         $rawCapability = $rawCapabilities[$index]
         $context = "$packId.capabilities[$index]"
@@ -911,7 +911,7 @@ function ConvertTo-SchemaPackConfig {
         if ($values.Count -eq 0) {
             throw "Schema-pack configuration '$context' must be a non-empty list."
         }
-        $seenValues = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+        $seenValues = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
         $definitions = [ordered]@{}
         for ($index = 0; $index -lt $values.Count; $index += 1) {
             $rawValue = $values[$index]
@@ -1021,7 +1021,7 @@ function Assert-SchemaPackPresentationComposition {
     $localizationOwners = @{}
     $capabilityPresentations = @{}
     $capabilityRelationships = @{}
-    $knownCapabilities = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $knownCapabilities = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
     foreach ($pack in $Packs.Values) {
         foreach ($capabilityId in @($pack.capabilities)) {
             $null = $knownCapabilities.Add($capabilityId)
@@ -1029,7 +1029,7 @@ function Assert-SchemaPackPresentationComposition {
     }
     $groupOwners = @{}
     $groupDefinitions = @{}
-    $groupedCapabilities = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $groupedCapabilities = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
     foreach ($packId in $SelectionOrder) {
         $pack = $Packs[$packId]
         $classification = $pack.classification
@@ -1086,7 +1086,7 @@ function Assert-SchemaPackPresentationComposition {
             if ((@($bridgeIds | Sort-Object) -join '|') -cne (@($joinable | Sort-Object) -join '|')) {
                 throw "Bridge schema pack '$packId' must declare every joined foundation or domain."
             }
-            $joinedDomains = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+            $joinedDomains = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
             foreach ($dependencyId in $bridgeIds) {
                 $joined = $Packs[$dependencyId].classification
                 $values = if (@($joined.domains).Count -gt 0) {
@@ -1191,7 +1191,7 @@ function Assert-SchemaPackPresentationComposition {
 
     foreach ($packId in $SelectionOrder) {
         $pack = $Packs[$packId]
-        $permittedCapabilities = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+        $permittedCapabilities = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
         foreach ($capabilityId in @($pack.capabilities)) {
             $null = $permittedCapabilities.Add($capabilityId)
         }
@@ -1219,7 +1219,7 @@ function Assert-SchemaPackPresentationComposition {
     }
 
     foreach ($startCapability in $knownCapabilities) {
-        $active = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+        $active = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
         $pending = [System.Collections.Generic.Stack[object]]::new()
         $pending.Push([pscustomobject]@{ id = $startCapability
                 leaving = $false
@@ -1306,7 +1306,7 @@ function Get-KnowledgeSchemaPackRegistry {
         $selectionOrder += $packId
     }
 
-    $selectedBefore = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $selectedBefore = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
     foreach ($packId in $selectionOrder) {
         $pack = $packs[$packId]
         foreach ($dependency in $pack.dependencies) {
@@ -1388,7 +1388,7 @@ function Get-KnowledgeSchemaPackRegistry {
         throw "Schema-pack registry 'capability_activation.default' must be 'disabled' so features remain opt-in."
     }
     $enabledCapabilities = @(Get-SchemaPackStringList $activation "enabled" "capability_activation" $true)
-    $seenEnabledCapabilities = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $seenEnabledCapabilities = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
     foreach ($capability in $enabledCapabilities) {
         Assert-SchemaPackStableId $capability "capability_activation.enabled"
         if (-not $seenEnabledCapabilities.Add($capability)) {
@@ -1433,7 +1433,7 @@ function Get-KnowledgeSchemaPackRegistry {
         }
     }
     foreach ($startKey in $definitions.Keys) {
-        $active = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+        $active = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
         $cursor = $startKey
         while ($null -ne $cursor) {
             if (-not $active.Add($cursor)) {

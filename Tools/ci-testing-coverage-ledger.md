@@ -62,6 +62,16 @@ paired conformance obligations remain ordered identically. Prior 71-family recor
 their dates. New focused catalog regressions bring declared inventory to 439 pytest / 49 Pester;
 full timing and any further case reduction remain 5.7.
 
+**CI 5.7 current implementation overlay (locally verified and confirmed on 2026-10-06):** The
+[optimization review](ci-testing-local-optimization-review.md) retains all 486 named 5.5 native
+cases plus the two 5.6 cases (439 pytest / 49 Pester), all 74 full units, 42 exact detailed rows
+and eleven passing consumers. Windows full and Windows/Linux feature capture the same 573-file
+digest, pass their complete portfolios, and verify publication and canonical/containment guards.
+Configuration constructors and source-byte comparison are the only runtime/CI implementation changes;
+no case, fixture, suite, group, pressure question or required check is removed. The 54 active
+families and 17 unresolved semantic reviews remain. Final feature proof satisfies the explicitly
+reviewed pre-hosted timing exception conditions; 90s / 960s goals and measured Phase 8.1 follow-up remain.
+
 CI Phase 2.1 applies the reviewed support-policy change through the [retirement inventory](ci-powershell-retirement-inventory.md).
 The active parity family is now `PARITY-SUPPORTED-RUNTIMES`; the historical `PARITY-THREE-RUNTIME`
 ID maps to it one-for-one with only Desktop host support removed. The inspected three-runtime rows
