@@ -19,10 +19,8 @@ finally:
     sys.path[:] = before
 
 
-@pytest.fixture
-def private_catalog(tmp_path):
+def build_private_catalog(root):
     # Private source/registry tree. Nothing changes real registration or canonical sources.
-    root = tmp_path / "repo"
     data = root / "Tools/CI/Data"
     data.mkdir(parents=True)
     for filename in catalogs.FILES.values():
@@ -84,6 +82,32 @@ def private_catalog(tmp_path):
     ):
         shutil.copy2(ROOT / "Tools/CI" / script, root / "Tools/CI" / script)
     return root, data, documents
+
+
+@pytest.fixture(scope="session")
+def catalog_seed(tmp_path_factory):
+    return build_private_catalog(tmp_path_factory.mktemp("catalog-baseline") / "repo")
+
+
+@pytest.fixture
+def private_catalog(tmp_path, catalog_seed):
+    root = tmp_path / "repo"
+    shutil.copytree(catalog_seed[0], root)
+    return root, root / "Tools/CI/Data", copy.deepcopy(catalog_seed[2])
+
+
+def test_private_catalog_copies_keep_source_and_document_mutations_independent(private_catalog, catalog_seed):
+    root, data, docs = private_catalog
+    original = (catalog_seed[0] / "Tools/CI/plan_ci.py").read_bytes()
+    (root / "Tools/CI/plan_ci.py").write_bytes(b"changed isolated source\n")
+    docs["implementation"]["groups"][0]["description"] = "isolated mutation"
+    write_documents(data, docs)
+    assert (catalog_seed[0] / "Tools/CI/plan_ci.py").read_bytes() == original
+    assert catalog_seed[2]["implementation"]["groups"][0]["description"] != "isolated mutation"
+    assert (
+        json.loads((catalog_seed[1] / catalogs.FILES["implementation"]).read_text())
+        == catalog_seed[2]["implementation"]
+    )
 
 
 def write_documents(data, documents):

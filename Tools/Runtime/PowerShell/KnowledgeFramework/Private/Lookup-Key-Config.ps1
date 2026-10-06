@@ -1,6 +1,8 @@
 $script:SupportedLookupKeySchemaVersion = 1
 $script:SupportedLookupKeyAlgorithm = "trim-nfc-default-casefold-nfc"
 $script:LookupKeyConfigCache = @{}
+$script:LookupKeyValidatedContent = $null
+$script:LookupKeyValidatedTemplate = $null
 
 $script:HangulSBase = 0xAC00
 $script:HangulLBase = 0x1100
@@ -42,7 +44,7 @@ function ConvertFrom-KnowledgeCodePointSequence {
     if ($Value -isnot [System.Array] -or $Value.Count -eq 0) {
         throw "Lookup-key registry '$Context' must be a non-empty code-point list."
     }
-    $result = New-Object 'System.Collections.Generic.List[int]'
+    $result = [System.Collections.Generic.List[int]]::new()
     for ($index = 0; $index -lt $Value.Count; $index += 1) {
         $item = $Value[$index]
         if (-not (Test-KnowledgeJsonInteger $item)) {
@@ -78,7 +80,7 @@ function ConvertFrom-KnowledgeHexCodePoint {
 function ConvertTo-KnowledgeCodePoints {
     param([string]$Value)
 
-    $result = New-Object 'System.Collections.Generic.List[int]'
+    $result = [System.Collections.Generic.List[int]]::new()
     for ($index = 0; $index -lt $Value.Length; $index += 1) {
         $current = [int]$Value[$index]
         if ([char]::IsHighSurrogate($Value[$index])) {
@@ -160,7 +162,7 @@ function Get-KnowledgeCanonicalComposition {
 function ConvertTo-KnowledgeNfcCodePoints {
     param([int[]]$CodePoints, [object]$LookupKeyConfig)
 
-    $decomposed = New-Object 'System.Collections.Generic.List[int]'
+    $decomposed = [System.Collections.Generic.List[int]]::new()
     foreach ($codePoint in @($CodePoints)) {
         Add-KnowledgeCanonicalDecomposition $codePoint $LookupKeyConfig $decomposed
     }
@@ -185,7 +187,7 @@ function ConvertTo-KnowledgeNfcCodePoints {
         return @()
     }
 
-    $result = New-Object 'System.Collections.Generic.List[int]'
+    $result = [System.Collections.Generic.List[int]]::new()
     $result.Add($decomposed[0])
     $starterPosition = 0
     $starter = $decomposed[0]
@@ -234,7 +236,7 @@ function ConvertTo-KnowledgeLookupKey {
         @()
     }
     $normalized = @(ConvertTo-KnowledgeNfcCodePoints $trimmed $LookupKeyConfig)
-    $folded = New-Object 'System.Collections.Generic.List[int]'
+    $folded = [System.Collections.Generic.List[int]]::new()
     foreach ($codePoint in $normalized) {
         if ($LookupKeyConfig.case_folding.ContainsKey([int]$codePoint)) {
             foreach ($item in @($LookupKeyConfig.case_folding[[int]$codePoint])) {
@@ -249,7 +251,7 @@ function ConvertTo-KnowledgeLookupKey {
         return , ([string]::Empty)
     }
     $final = @(ConvertTo-KnowledgeNfcCodePoints @($folded) $LookupKeyConfig)
-    $builder = New-Object System.Text.StringBuilder
+    $builder = [System.Text.StringBuilder]::new()
     foreach ($codePoint in $final) {
         [void]$builder.Append([char]::ConvertFromUtf32($codePoint))
     }
@@ -262,6 +264,30 @@ function Test-KnowledgeLookupKeysEqual {
     return [string]::Equals($Left, $Right, [System.StringComparison]::Ordinal)
 }
 
+function Copy-KnowledgeLookupKeyRegistryConfig {
+    param([object]$Config, [string]$Path)
+
+    $caseFolding = @{}
+    foreach ($key in $Config.case_folding.Keys) {
+        $caseFolding[$key] = $Config.case_folding[$key].Clone()
+    }
+    $decomposition = @{}
+    foreach ($key in $Config.canonical_decomposition.Keys) {
+        $decomposition[$key] = $Config.canonical_decomposition[$key].Clone()
+    }
+    return [pscustomobject]@{
+        path = $Path
+        schema_version = $Config.schema_version
+        unicode_version = $Config.unicode_version
+        algorithm = $Config.algorithm
+        trim_codepoints = [System.Collections.Generic.HashSet[int]]::new($Config.trim_codepoints)
+        case_folding = $caseFolding
+        canonical_decomposition = $decomposition
+        canonical_combining_class = $Config.canonical_combining_class.Clone()
+        canonical_composition = $Config.canonical_composition.Clone()
+    }
+}
+
 function Get-KnowledgeLookupKeyRegistryConfig {
     param([string]$RegistryPath)
 
@@ -270,7 +296,15 @@ function Get-KnowledgeLookupKeyRegistryConfig {
         return $script:LookupKeyConfigCache[$path]
     }
     try {
-        $registry = ConvertFrom-Json -InputObject ([System.IO.File]::ReadAllText($path, [System.Text.Encoding]::ASCII))
+        $content = [System.IO.File]::ReadAllText($path, [System.Text.Encoding]::ASCII)
+        # Only exact previously validated text is reusable; the private template never escapes.
+        # Keep one template, and preserve independent mutable configurations for each path.
+        if ([string]::Equals($content, $script:LookupKeyValidatedContent, [System.StringComparison]::Ordinal)) {
+            $config = Copy-KnowledgeLookupKeyRegistryConfig $script:LookupKeyValidatedTemplate $path
+            $script:LookupKeyConfigCache[$path] = $config
+            return $config
+        }
+        $registry = ConvertFrom-Json -InputObject $content
     }
     catch {
         throw "Unable to parse lookup-key registry $path`: $($_.Exception.Message)"
@@ -301,7 +335,7 @@ function Get-KnowledgeLookupKeyRegistryConfig {
     if ($registry.trim_codepoints -isnot [System.Array]) {
         throw "Lookup-key registry 'trim_codepoints' must be a code-point list."
     }
-    $trimCodePoints = New-Object 'System.Collections.Generic.HashSet[int]'
+    $trimCodePoints = [System.Collections.Generic.HashSet[int]]::new()
     foreach ($item in @($registry.trim_codepoints)) {
         if (-not (Test-KnowledgeJsonInteger $item)) {
             throw "Lookup-key registry 'trim_codepoints' values must be integers."
@@ -377,6 +411,8 @@ function Get-KnowledgeLookupKeyRegistryConfig {
             throw "Lookup-key registry declared counts do not match its mapping data."
         }
     }
+    $script:LookupKeyValidatedTemplate = Copy-KnowledgeLookupKeyRegistryConfig $config $path
+    $script:LookupKeyValidatedContent = $content
     $script:LookupKeyConfigCache[$path] = $config
     return $config
 }

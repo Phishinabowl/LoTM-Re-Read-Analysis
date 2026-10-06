@@ -76,6 +76,14 @@ def alive(pid):
         return False
 
 
+def test_live_posix_root_is_active_even_when_proc_group_scan_has_no_members(monkeypatch):
+    tree = processes.PosixTree.__new__(processes.PosixTree)
+    tree.pid = 123
+    tree.child = type("Child", (), {"returncode": None, "poll": lambda self: None})()
+    monkeypatch.setattr(Path, "glob", lambda *args: [])
+    assert tree.active() is True
+
+
 def tree_code(tmp_path, root_exit=False):
     leaf = (
         "import os,time; from pathlib import Path; Path('grandchild.pid').write_text(str(os.getpid())); time.sleep(20)"

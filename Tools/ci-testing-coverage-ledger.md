@@ -43,6 +43,15 @@ narrowed obligations pass; 30 detailed scale/limit rows match 5.2 and renderer o
 retained explicit-full-Chrome diagnostic. Acquired receipts and source/cleanup guards pass. No registry
 or fixture is retired; final full-profile/performance acceptance and hosted adoption remain separate.
 
+**CI 5.5 evidence overlay (locally verified and confirmed on 2026-10-06):** The
+[acceptance review](ci-testing-acceptance-review.md) maps all 71 current methodology families to
+37 verified executable/policy/parity owners and 34 retained scenario/pressure reviews. Corrected
+committed reference and final captured candidate both pass all 74 units. The final candidate preserves
+all 478 original native cases, adds eight cases (437 pytest/49 Pester), matches all 42 detailed
+conformance rows exactly and passes all eleven consumers. Final feature profiles pass 41/41 on
+Windows/Linux. Explicit interim native/full timing exceptions retain <=90s / <=960s goals in Phase 8.1;
+hosted proof remains Phase 6. No fixture, family, original gate or process boundary is retired.
+
 CI Phase 2.1 applies the reviewed support-policy change through the [retirement inventory](ci-powershell-retirement-inventory.md).
 The active parity family is now `PARITY-SUPPORTED-RUNTIMES`; the historical `PARITY-THREE-RUNTIME`
 ID maps to it one-for-one with only Desktop host support removed. The inspected three-runtime rows

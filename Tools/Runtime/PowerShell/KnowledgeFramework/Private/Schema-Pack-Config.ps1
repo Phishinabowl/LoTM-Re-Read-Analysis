@@ -152,7 +152,12 @@ function ConvertTo-SchemaPackDocumentationEntries {
         $target = Get-RequiredSchemaPackString $entry 'target' $entryContext
         if ($targetKind -ceq 'repository-path') {
             $segments = @($target.Replace('\', '/').Split('/'))
-            if ([System.IO.Path]::IsPathRooted($target) -or $segments -ccontains '..') {
+            if (
+                [System.IO.Path]::IsPathRooted($target) -or
+                $target -match '^[A-Za-z]:[/\\]' -or
+                $target.Replace('\', '/').StartsWith('/') -or
+                $segments -ccontains '..'
+            ) {
                 throw "Schema-pack configuration '$entryContext.target' must remain repository-relative."
             }
             $target = $target.Replace('\', '/')

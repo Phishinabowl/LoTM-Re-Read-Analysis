@@ -13,6 +13,37 @@ replace the successful Phase 2.5 reference or prove hosted throughput.
 
 ## CI 5.1 Feedback Targets And Current Gap
 
+CI 5.5's [acceptance review](ci-testing-acceptance-review.md) records a corrected committed passing
+full profile at `ad5b71c`: 74/74 units, 434 pytest/44 Pester cases and safe cleanup, **1,210.201s
+(20m10s)** outer wall time. Complete native/installed units total **120.521s**. These exceed the
+unchanged 960s/90s targets; no timeout or coverage concession closes that gap. Candidate fixture
+preparation and positive Pester batching are separate measurements; batching is not adopted because
+whole-process timeout/failure isolation is not yet equivalent. Runtime profiling identifies repeated
+lookup-registry construction. The maintainer authorized narrow runtime optimization on 2026-10-06;
+final same-candidate measurements and acceptance remain open.
+
+The Windows candidate feature profile passes 41/41 in **280.820s**, with **117.727s** of native/
+installed work. Linux native-filesystem qualification takes **272.241s**, but fails schema-pack
+documentation-path validation and blocks parity; it cannot certify the feature target. Its native/
+installed work is **100.611s**. The narrow path repair passes focused unchanged conformance on both
+OSes; a fresh aggregate proof is still required. These observations do not relax any target.
+
+**Explicit interim native exception (2026-10-06):** The maintainer accepts final candidate native/
+installed costs of **122.277s Windows / 105.911s Linux** while retaining independent processes and
+coverage. The **<=90s goal is retained in Phase 8.1** for further optimization/review. No full,
+feature or hosted target, timeout allowance, registration or required obligation is relaxed.
+The final Linux feature run passes 41/41 in **275.151s**, with exact retained fast conformance
+and verified publication/cleanup. Windows final full proof passes as recorded below.
+
+**Explicit interim full exception (2026-10-06):** Final Windows full verification passes 74/74 in
+**1,093.662s (18m14s)**, versus committed 1,210.201s: **116.539s / 9.63% faster**, with eight added
+native cases and all 478 original named cases / 42 detailed conformance rows preserved. The maintainer
+accepts this measured interim sequential cost. The **<=960s full goal remains in Phase 8.1**;
+hosted/feature targets and executable allowances are unchanged. Final Windows feature passes 41/41
+in **285.973s (4m46s)**, with verified publication/cleanup and exact fast-profile conformance.
+Its separate native/installed sample is **131.242s**; the variation from the full sample remains
+visible in the acceptance review and Phase 8.1 follow-up. No new hard native ceiling is inferred.
+
 The exact committed source is `1627dfecf902287b83d683234ad2b7bca8a29aad`, with the prepared adopted
 Windows runtimes/dependencies. Legacy standalone portfolios total **983.272s (16m23s)**; replacement
 full shadow takes **1,179.022s (19m39s)** and reports 70 passes, three failures and one error across
@@ -27,7 +58,7 @@ The corresponding sequential cohort is **50.803s**. These observations remain wi
 catalog/scope/process/aggregate cases are additional obligations, not a regression of that original
 130-case cohort. Their 49.389s registered cost must stay visible.
 
-| Prepared execution target for 5.5 review | Evidence / remaining work |
+| Target accepted at CI 5.1 | CI 5.1 historical evidence and follow-up assignment |
 | --- | --- |
 | Complete native implementation/infrastructure plus installed artifact <=90s | Current independent native groups 92.875s plus readable install 7.317s exceed this. Batch prototypes preserve all 408 named cases in 64.032s, or 71.349s including installation, but do not yet prove equivalent isolation, family reporting or failure continuation. |
 | Feature-feedback <=300s on each adopted local OS | Accepted feedback objective with all mandatory meta-regression. The earlier Windows 4.5 sample was 249.550s; no new full feature-profile or Linux cost is certified at 5.1. |

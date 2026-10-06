@@ -50,6 +50,12 @@ and confirmed by the maintainer on 2026-10-06. All ten non-render checks pass; 5
 CI 5.4 release-input admission and reproduction are implemented and verified locally on 2026-10-06,
 confirmed by the maintainer. All 33 release/limit obligations pass; full/performance acceptance remains 5.5.
 
+CI 5.5 and the Phase 5 local exit gate are confirmed by the maintainer on 2026-10-06. Final full verification passes
+74/74 in 18m14s; feature verification passes 41/41 in 4m46s Windows / 4m35s Linux. The acceptance
+review reconciles all 71 families, preserves all original cases and records the narrow lookup,
+fixture and Linux safety changes. Explicitly accepted interim native/full timing exceptions retain
+the 90-second / 16-minute goals in Phase 8.1. Hosted authority remains unchanged and gated by Phase 6.
+
 **Working branch:** `architecture/ci-testing-modernization`, created from
 `architecture/framework-extraction-foundation` at `c4b7932`.
 
@@ -1851,23 +1857,38 @@ passes 234 cases on each of Windows and WSL. Required release reviews remain exp
 
 ### Phase 5.5 Coverage And Safety Acceptance Review
 
-- [ ] Review the 5.1 measured optimization candidates and implement only accepted changes with
+**Verified local checkpoint, confirmed by the maintainer on 2026-10-06:** The
+[acceptance review](ci-testing-acceptance-review.md) records final 74/74 full proof, all 478 original
+named native cases plus eight additions, exact 42-row conformance parity, all eleven consumers and
+verified source/output lifecycle. Windows/Linux feature profiles pass 41/41 within five minutes.
+Narrow approved lookup preparation, private fixture isolation, container failure coverage, Linux
+root-process supervision and documentation-path portability are proved. Interim 122.277s Windows
+full / 131.242s Windows feature / 105.911s Linux native costs and 1,093.662s sequential full cost
+remain visible; the maintainer explicitly accepts interim native/full exceptions with <=90s / <=960s
+goals retained in Phase 8.1. No unsafe batching, fixture/family deletion or timeout increase is adopted.
+
+- [x] Review the 5.1 measured optimization candidates and implement only accepted changes with
   equivalent named cases, mandatory family accounting, independent failure continuation, isolation,
   source guards and reporting. No directory sweep or positive-only batch prototype retires groups.
-- [ ] Reconcile every legacy ledger row against current executable evidence and unresolved limitations.
-- [ ] Review reports/artifacts and verify new implementation tests cover affected modules/commands,
+- [x] Reconcile every legacy ledger row against current executable evidence and unresolved limitations.
+- [x] Review reports/artifacts and verify new implementation tests cover affected modules/commands,
   rather than concentrating all test effort on the supervisor.
-- [ ] Accept the local equivalence record before changing hosted authority; keep original gates available.
-- [ ] Review measured routine-feedback improvements against the agreed targets, with setup and execution
+- [x] Accept the local equivalence record before changing hosted authority; keep original gates available.
+  The maintainer confirms the completed record on 2026-10-06; hosted authority is unchanged.
+- [x] Review measured routine-feedback improvements against the agreed targets, with setup and execution
   distinguished. Unmet targets need further optimization or an explicit reviewed tradeoff; larger
   timeout allowances and a populated cache do not by themselves satisfy performance acceptance.
-- [ ] Reconcile the 5.1 prepared native/feature/full and hosted feedback targets against successful
+- [x] Reconcile the 5.1 prepared native/feature/full and hosted feedback targets against successful
   corrected profiles. Profile the dominant conformance/consumer work when startup batching alone
   cannot meet the full target; record any explicit maintainer tradeoff rather than silently relaxing it.
 
 ### Phase 5 Exit Gate
 
-- [ ] Equivalent or stronger full coverage, unchanged LoTM baselines, complete parity, and safe output
+The [CI 5.5 acceptance review](ci-testing-acceptance-review.md) distinguishes the corrected committed
+passing portfolio from the final candidate and explicitly accepted interim timing exceptions. Existing
+group/process boundaries, retained review families and hosted-policy limits remain explicit.
+
+- [x] Equivalent or stronger full coverage, unchanged LoTM baselines, complete parity, and safe output
   lifecycle are proved locally; environment limitations are explicit and do not masquerade as passes.
 
 **Rollback:** Retain legacy invocation as reference and repair discrepancies before hosted adoption.
@@ -2002,6 +2023,13 @@ newly introduced policies/triggers through reviewed changes. Preserve shared Git
 
 ### Phase 8.1 Retirement Proposal And Coverage Review
 
+- [ ] Revisit CI 5.5's accepted interim native exception and observed costs (122.277s Windows full,
+  131.242s Windows feature / 105.911s Linux)
+  and 1,093.662s sequential full cost against the retained <=90s native / <=960s full goals.
+  Profile preparation, process startup, infrastructure regressions, remaining conformance/consumer work
+  and guards before changing granularity. Any batching must prove equivalent named coverage,
+  isolation, timeout/termination recovery, continuation and family reporting. Record measured savings
+  or a further explicit reviewed tradeoff; do not turn this interim exception into a silent new target.
 - [ ] Name each superseded harness/adapter and map its scenarios to verified replacements. Review the
   5.1 slimming candidates, including individual tests, against retained coverage and measured savings;
   do not permanently retain old/new shadow duplication merely because both suites once passed.

@@ -4,6 +4,7 @@ import copy
 import importlib
 import json
 import os
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -27,10 +28,9 @@ def git(root, *arguments):
     return child.stdout.decode("utf-8").strip()
 
 
-@pytest.fixture
-def repo(tmp_path):
-    root = tmp_path / "repo"
-    root.mkdir()
+@pytest.fixture(scope="session")
+def repo_seed(tmp_path_factory):
+    root = tmp_path_factory.mktemp("scope-baseline")
     git(root, "init", "--initial-branch=main")
     git(root, "config", "user.name", "CI synthetic fixture")
     git(root, "config", "user.email", "ci-fixture@example.invalid")
@@ -41,6 +41,26 @@ def repo(tmp_path):
     git(root, "add", "--all")
     git(root, "commit", "-m", "synthetic baseline")
     return root
+
+
+@pytest.fixture
+def repo(tmp_path, repo_seed):
+    root = tmp_path / "repo"
+    shutil.copytree(repo_seed, root)
+    return root
+
+
+def test_private_git_copies_do_not_share_history_configuration_or_worktree(repo, repo_seed):
+    before = git(repo_seed, "rev-parse", "HEAD")
+    original_config = (repo_seed / ".git/config").read_bytes()
+    (repo / "tracked.txt").write_bytes(b"changed independent worktree\n")
+    git(repo, "config", "user.name", "Independent fixture")
+    commit(repo, "independent history")
+    assert git(repo, "rev-parse", "HEAD") != before
+    assert git(repo_seed, "rev-parse", "HEAD") == before
+    assert (repo_seed / ".git/config").read_bytes() == original_config
+    assert (repo_seed / "tracked.txt").read_bytes() == b"initial\n"
+    assert git(repo_seed, "status", "--porcelain") == ""
 
 
 def commit(root, message):

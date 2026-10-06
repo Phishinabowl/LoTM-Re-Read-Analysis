@@ -132,6 +132,10 @@ class PosixTree:
 
     def active(self):
         self.poll()
+        # A /proc scan can miss a live root during exit or process-group transitions.
+        # Popen owns the root wait status; never publish an exit before it is available.
+        if self.child.returncode is None:
+            return True
         if self.child.returncode is not None:
             while True:
                 try:

@@ -399,7 +399,7 @@
     },
     {
       "id": "powershell-runtime-api",
-      "description": "powershell runtime api",
+      "description": "PowerShell runtime API and native container boundaries",
       "order": 11,
       "adapter": "pester",
       "runtimes": [
@@ -410,7 +410,8 @@
         "linux"
       ],
       "entry": [
-        "Tools/Tests/PowerShell/RuntimeApi.Tests.ps1"
+        "Tools/Tests/PowerShell/RuntimeApi.Tests.ps1",
+        "Tools/Tests/PowerShell/NativeExecution.Tests.ps1"
       ],
       "arguments": [],
       "fixtures": [
