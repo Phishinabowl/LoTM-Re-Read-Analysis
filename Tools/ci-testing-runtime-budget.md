@@ -7,6 +7,70 @@ references the selections here. The [plan](ci-testing-modernization-plan.md) own
 This document does not change requirements, executable catalogs, workflows or host settings.
 Phase 2.5's retained-runtime refresh is confirmed on 2026-10-05; dated Phase 1.4 evidence remains below.
 
+CI 5.1's [same-snapshot shadow comparison](ci-testing-shadow-comparison.md) is confirmed on
+2026-10-06. Its failed full runs identify correction/optimization work; they do not
+replace the successful Phase 2.5 reference or prove hosted throughput.
+
+## CI 5.1 Feedback Targets And Current Gap
+
+The exact committed source is `1627dfecf902287b83d683234ad2b7bca8a29aad`, with the prepared adopted
+Windows runtimes/dependencies. Legacy standalone portfolios total **983.272s (16m23s)**; replacement
+full shadow takes **1,179.022s (19m39s)** and reports 70 passes, three failures and one error across
+74 units. Rendering also exposes unsafe global dependency resolution. These are not accepted
+successful full-profile performance results. The linked comparison classifies each difference and
+preserves the complete diagnostics, corpus and canonical hashes.
+
+The original 130-case Python pilot cohort totals **11.965s** across its five current registered
+groups; Pester's current 34 cases total **31.522s**, and readable-wheel verification takes **7.317s**.
+The corresponding sequential cohort is **50.803s**. These observations remain within the accepted
+3.5 goals (Python <=15s, Pester <=40s, installed artifact <=15s, original cohort <=60s). The 244 newer
+catalog/scope/process/aggregate cases are additional obligations, not a regression of that original
+130-case cohort. Their 49.389s registered cost must stay visible.
+
+| Prepared execution target for 5.5 review | Evidence / remaining work |
+| --- | --- |
+| Complete native implementation/infrastructure plus installed artifact <=90s | Current independent native groups 92.875s plus readable install 7.317s exceed this. Batch prototypes preserve all 408 named cases in 64.032s, or 71.349s including installation, but do not yet prove equivalent isolation, family reporting or failure continuation. |
+| Feature-feedback <=300s on each adopted local OS | Accepted feedback objective with all mandatory meta-regression. The earlier Windows 4.5 sample was 249.550s; no new full feature-profile or Linux cost is certified at 5.1. |
+| Complete successful prepared sequential full verification <=960s (16m) | Accepted optimization target, not the current result. The 19m39s failed shadow must improve by more than native batching alone; all required semantics, consumers, source guards and diagnostics remain. |
+| Hosted prepared feature <=5m; integration/full critical path <=12m, excluding queue time | Accepted Phase 6 measurement targets. GitHub parallel placement and ADO's shared slot have different critical paths. These are not current hosted observations or permission to drop obligations to meet a number. |
+
+The new full admission remains **9,600s**, including its 210s lifecycle reserves, with the separate
+600s setup allowance. This local safety ceiling is not a normal feedback target and cannot be copied
+into a hosted job whose admitted allocation does not fit. Existing hosted check names/55-minute
+headroom remain unchanged. Phase 6 must size validated shards/job-level budgets and setup/publication
+cost, accounting for ADO serialization and repeated setup. Parallelizing jobs does not reduce summed
+agent minutes, and a free single-slot ADO plan does not realize GitHub's parallel wall time.
+
+Measured unit totals explain the present bottlenecks: **429.528s conformance** and **604.332s
+compatibility** dominate the replacement. Native batching opportunities total approximately **28.843s**,
+including reduced guard/supervisor boundaries, not solely interpreter startup. The catalog/schema/
+extraction checks cost 164.884/122.368/117.928s respectively; no safe deletion or core-runtime saving
+has been demonstrated for them. Profile repeated CLI launches, immutable composition and fixture
+setup before changing those contracts. Cache downloads alone cannot remove that execution work.
+
+Initial capture/preflight/admission is approximately 10.013s (record-timestamp estimate). Six
+preparation-process records sum to 4.553s. Another 35.311s of recorded time lies outside summed units,
+including that initial preparation, guards and evidence work. The 2.227s observer tail includes
+cleanup/finalization/exit rather than pure Markdown rendering. These components overlap: do not add
+the initial 10.013s to the 35.311s remainder. Full publication admission verifies **555 listed files /
+3,526,423 bytes**; this excludes cache payloads and peak external scratch/captured source.
+
+The initial restricted-account bootstrap check separately records full Python environment
+verification **8.665s** and PS cache verification **3.083s**, with no acquisition. The Python sample
+exceeds the existing <=5s reuse-verification goal; repeat the complete check under the supported
+execution account after the 5.4 bootstrap corrections. The narrower aggregate Python prerequisite
+probe's 0.547s is not an equivalent replacement benchmark.
+
+The 4.6 guardian enforces a **64 MiB combined stdout/stderr monitoring threshold**, with documented
+possible polling overshoot. That is not implementation of the proposed per-stream/per-unit/per-run
+artifact tree/file-count quotas below. Phase 6 publication/lifecycle work must reconcile those limits
+explicitly. This sample fits the proposed publication totals; it does not prove all peak quotas.
+
+Targets are accepted at CI 5.1 confirmation; successful exact-source remeasurement remains required
+before 5.5/hosted adoption. If the targets cannot be met safely, investigate further or obtain an
+explicit reviewed tradeoff; do not silently raise them or lower fixture counts/deadlines. Preserve
+the dated measurements below. No executable budget, catalog or workflow is changed by this update.
+
 **Support revision (2026-10-05):** D14 accepts retirement of 5.1 through the new CI Phase 2. The
 three-runtime observations below remain dated evidence, not future required coverage. The Phase 2.5
 refresh below supplies completed Python/PS7 costs and accepted replacement budget design candidates.

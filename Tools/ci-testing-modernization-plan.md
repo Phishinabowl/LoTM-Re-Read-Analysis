@@ -37,6 +37,10 @@ Hosted publication and complete legacy equivalence remain later gates.
 CI 4.6 mandatory regression and the Phase 4 local exit gate are confirmed by the maintainer on 2026-10-06.
 Real hosted activation/event/API proof and full same-snapshot equivalence remain Phase 5/6.
 
+CI 5.1 same-snapshot comparison is confirmed by the maintainer on 2026-10-06.
+Its classified failed obligations and browser-provenance gap remain correction gates at 5.2-5.4;
+the Phase 5 equivalence/performance exit gate is not closed. See the comparison record and budget targets.
+
 **Working branch:** `architecture/ci-testing-modernization`, created from
 `architecture/framework-extraction-foundation` at `c4b7932`.
 
@@ -1750,11 +1754,11 @@ Phase 6. Same-commit full legacy/supervisor equivalence and measured optimizatio
 The legacy reference is the accepted post-retirement Phase 2 Python/PS7 execution. Historical
 three-runtime evidence stays available; shadow comparison does not reinstate 5.1 support.
 
-- [ ] Run old and new full profiles on the same committed snapshot and dependency baseline.
-- [ ] Compare ledger scenarios, inventories, runtimes, expected failure detection, and exit behavior.
-- [ ] Classify every difference as intended reporting improvement, implementation defect, environment
+- [x] Run old and new full profiles on the same committed snapshot and dependency baseline.
+- [x] Compare ledger scenarios, inventories, runtimes, expected failure detection, and exit behavior.
+- [x] Classify every difference as intended reporting improvement, implementation defect, environment
   limitation, or separately reviewed contract change; block unexplained differences.
-- [ ] Measure new setup/launch/execution/report costs and revise budgets with evidence. Identify obsolete,
+- [x] Measure new setup/launch/execution/report costs and revise budgets with evidence. Identify obsolete,
   temporary or redundant tests and repeated expensive setup; record each candidate's contract boundary,
   remaining coverage, failure-detection comparison, measured savings and rollback before 8.1 review.
   Investigate expensive repeated process launches, parsing and validation independently of dependency
@@ -1763,8 +1767,17 @@ three-runtime evidence stays available; shadow comparison does not reinstate 5.1
 
 **Checkpoint:** A comparison record identifies equivalent retained coverage and any remaining blockers.
 
+CI 5.1's [same-snapshot comparison record](ci-testing-shadow-comparison.md) retains the initial
+legacy/replacement results, diagnostic counterfactuals and cost/removal candidates separately.
+Completing this comparison checkpoint does not imply that a failed shadow run passed or close
+the Phase 5 exit gate. Resolve the classified implementation/environment differences at the
+owning checkpoints below; unexplained differences still block comparison acceptance.
+
 ### Phase 5.2 Complete Cross-Runtime Conformance And Parity
 
+- [ ] Resolve the captured Git-blob versus physical-worktree formatter representation mismatch
+  identified at 5.1. Preserve snapshot bytes, real formatting failures and the existing checkout
+  line-ending policy; add focused regression before accepting the corrected static adapter.
 - [ ] Run all registered baseline suites in Python and PowerShell 7 against the accepted Phase 2 inventory.
 - [ ] Compare exact selected inventories and semantic summaries through the canonical comparator.
 - [ ] Validate allowed operational normalization; inject a changed ID/count/decision/order/error to
@@ -1775,6 +1788,9 @@ three-runtime evidence stays available; shadow comparison does not reinstate 5.1
 
 ### Phase 5.3 LoTM Consumers, Safety, And Distribution Boundaries
 
+- [ ] Correct output-path normalization for nested owned `.tmp` checkouts, with tests for absolute
+  and repository-relative aliases and preserved authored content/list order. Match the unchanged
+  golden inventories/hashes; do not rebaseline the 5.1 failure.
 - [ ] Run existing compatibility portfolios with distribution-boundary added to PR integration coverage.
 - [ ] Preserve accepted QA/Visualization summaries, normalized inventories/hashes, bounded reader
   visibility, authored-content protection, filenames, and lifecycle semantics.
@@ -1782,11 +1798,19 @@ three-runtime evidence stays available; shadow comparison does not reinstate 5.1
   multiple failures, and compatibility deadline/cancellation behavior.
 - [ ] Inspect retained failure output and prove unrelated artifacts survive; do not refresh baselines
   to hide a migration regression.
+- [ ] Promote bounded owning-check error detail into human/Markdown failure summaries while retaining
+  complete JSON/streams; avoid the generic `failed` reason identified by 5.1.
 
 **Checkpoint:** Project semantics and canonical bytes remain unchanged, with complete consumer evidence.
 
 ### Phase 5.4 Extraction, Release, And Local Reproduction
 
+- [ ] Resolve the 5.1 npm configuration collision and explicitly admit/propagate the verified
+  Mermaid/full-Chrome environment. Prove that the renderer consumes the pinned browser without
+  requesting omitted browser variants or falling back to global installations.
+- [ ] Verify readable acquired wheel inputs before execution and retain actionable prerequisite
+  diagnostics. Preserve original cache/build ACLs; diagnostic byte-identical copies do not replace
+  a passing registered installed-artifact execution.
 - [ ] Rehearse the portable extraction bundle with the revised requirements/copy lists and no LoTM
   canonical content or new unapproved CI/runtime coupling.
 - [ ] Run rendering and retained executable scale/pressure coverage using redirected outputs.
@@ -1799,6 +1823,9 @@ three-runtime evidence stays available; shadow comparison does not reinstate 5.1
 
 ### Phase 5.5 Coverage And Safety Acceptance Review
 
+- [ ] Review the 5.1 measured optimization candidates and implement only accepted changes with
+  equivalent named cases, mandatory family accounting, independent failure continuation, isolation,
+  source guards and reporting. No directory sweep or positive-only batch prototype retires groups.
 - [ ] Reconcile every legacy ledger row against current executable evidence and unresolved limitations.
 - [ ] Review reports/artifacts and verify new implementation tests cover affected modules/commands,
   rather than concentrating all test effort on the supervisor.
@@ -1806,6 +1833,9 @@ three-runtime evidence stays available; shadow comparison does not reinstate 5.1
 - [ ] Review measured routine-feedback improvements against the agreed targets, with setup and execution
   distinguished. Unmet targets need further optimization or an explicit reviewed tradeoff; larger
   timeout allowances and a populated cache do not by themselves satisfy performance acceptance.
+- [ ] Reconcile the 5.1 prepared native/feature/full and hosted feedback targets against successful
+  corrected profiles. Profile the dominant conformance/consumer work when startup batching alone
+  cannot meet the full target; record any explicit maintainer tradeoff rather than silently relaxing it.
 
 ### Phase 5 Exit Gate
 

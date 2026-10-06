@@ -13,6 +13,15 @@ coverage-family IDs. [Conformance registry](Conformance/suites.json) and
 [Validation reporting](../Framework/Contracts/validation-run-reporting.md) owns existing report semantics.
 Changes to those authorities require review; this inventory cannot silently override them.
 
+**CI 5.1 evidence overlay (confirmed 2026-10-06):** The
+[same-snapshot shadow comparison](ci-testing-shadow-comparison.md) maps all 21 paired suites,
+11 consumer checks, static policy and new implementation/meta-regression to commit `1627dfec`.
+All 42 retained detailed suite rows match exactly; 374 pytest and 34 Pester cases pass. The full
+replacement records all 74 units, but three failures and one environment error remain; a passing
+render also lacks admitted browser provenance. It is not a green coverage/retirement acceptance.
+The frozen historical tables below remain historical. No semantic family, fixture, registry member,
+required review or legacy check is removed. Closure at 5.2-5.4 and final 5.5 review remain explicit.
+
 CI Phase 2.1 applies the reviewed support-policy change through the [retirement inventory](ci-powershell-retirement-inventory.md).
 The active parity family is now `PARITY-SUPPORTED-RUNTIMES`; the historical `PARITY-THREE-RUNTIME`
 ID maps to it one-for-one with only Desktop host support removed. The inspected three-runtime rows
