@@ -44,6 +44,9 @@ the Phase 5 equivalence/performance exit gate is not closed. See the comparison 
 CI 5.2 formatter representation and complete conformance/parity proof are implemented and verified
 locally and confirmed by the maintainer on 2026-10-06. The remaining 5.3/5.4/full/hosted gates remain open.
 
+CI 5.3 consumer normalization and bounded failure diagnostics are implemented and verified locally
+and confirmed by the maintainer on 2026-10-06. All ten non-render checks pass; 5.4/5.5 remain open.
+
 **Working branch:** `architecture/ci-testing-modernization`, created from
 `architecture/framework-extraction-foundation` at `c4b7932`.
 
@@ -1796,20 +1799,27 @@ formatter discrepancy is corrected without altering source bytes or physical CRL
 
 ### Phase 5.3 LoTM Consumers, Safety, And Distribution Boundaries
 
-- [ ] Correct output-path normalization for nested owned `.tmp` checkouts, with tests for absolute
+- [x] Correct output-path normalization for nested owned `.tmp` checkouts, with tests for absolute
   and repository-relative aliases and preserved authored content/list order. Match the unchanged
   golden inventories/hashes; do not rebaseline the 5.1 failure.
-- [ ] Run existing compatibility portfolios with distribution-boundary added to PR integration coverage.
-- [ ] Preserve accepted QA/Visualization summaries, normalized inventories/hashes, bounded reader
+- [x] Run existing compatibility portfolios with distribution-boundary added to PR integration coverage.
+- [x] Preserve accepted QA/Visualization summaries, normalized inventories/hashes, bounded reader
   visibility, authored-content protection, filenames, and lifecycle semantics.
-- [ ] Exercise root discovery, unsafe paths, stale output, scoped cleanup, protected-output changes,
+- [x] Exercise root discovery, unsafe paths, stale output, scoped cleanup, protected-output changes,
   multiple failures, and compatibility deadline/cancellation behavior.
-- [ ] Inspect retained failure output and prove unrelated artifacts survive; do not refresh baselines
+- [x] Inspect retained failure output and prove unrelated artifacts survive; do not refresh baselines
   to hide a migration regression.
-- [ ] Promote bounded owning-check error detail into human/Markdown failure summaries while retaining
+- [x] Promote bounded owning-check error detail into human/Markdown failure summaries while retaining
   complete JSON/streams; avoid the generic `failed` reason identified by 5.1.
 
 **Checkpoint:** Project semantics and canonical bytes remain unchanged, with complete consumer evidence.
+
+The [CI 5.3 consumer/safety proof](ci-testing-consumer-safety-proof.md) records the nearest-owner
+output alias correction, specific bounded owner errors and final Windows/Linux regression.
+All ten non-render compatibility checks pass with unchanged consumer golden hashes and verified
+source/scratch ownership. Its scoped portfolio and final 122-case native group are distinct proofs.
+Distribution-boundary is already explicitly registered for PR integration; this checkpoint verifies
+that ownership without changing shared fixtures, golden hashes or hosted authority.
 
 ### Phase 5.4 Extraction, Release, And Local Reproduction
 

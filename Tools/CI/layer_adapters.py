@@ -10,6 +10,7 @@ import time
 
 from process_supervisor import Lease, run_process
 from native_results import parse_junit, validate_phase, classify
+from execution_reports import excerpt
 
 
 def read_json(path):
@@ -109,6 +110,27 @@ def format_representation(snapshot_kind):
     if snapshot_kind == "worktree":
         return "Worktree"
     raise ValueError("Unknown captured-source representation")
+
+
+def owning_failure_reasons(document, adapter):
+    """Promote owner diagnostics without changing retained evidence or its pass/fail contract."""
+    if adapter == "powershell-format":
+        details = [
+            f"PowerShell formatting: {document.get('files_changed')} changed files; "
+            f"{document.get('long_lines')} long lines."
+        ]
+        for row in document.get("files", []):
+            if row.get("changed") or row.get("long_lines"):
+                details.append(f"{row.get('path')}: changed={row.get('changed')}; long_lines={row.get('long_lines')}")
+    else:
+        rows = document.get("checks" if adapter == "compatibility" else "suites", [])
+        details = [row.get("error") for row in rows if row.get("status") != "passed" and row.get("error")]
+    if not details and document.get("error"):
+        details = [document["error"]]
+    if not details:
+        return []
+    text, truncated = excerpt("\n".join(str(detail) for detail in details))
+    return [text + ("\n[Truncated; complete owner JSON and process streams retained.]" if truncated else "")]
 
 
 class AdapterSession:
@@ -585,6 +607,9 @@ class AdapterSession:
             "classification": classification,
             "child_exit_code": last["child_exit_code"],
             "native_counts": native,
+            "reasons": owning_failure_reasons(document, adapter)
+            if not passed and adapter in {"compatibility", "conformance", "powershell-format"}
+            else [],
             "evidence": document,
             "processes": processes,
         }

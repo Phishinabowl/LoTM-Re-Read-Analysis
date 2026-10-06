@@ -28,6 +28,14 @@ representation failure, passes all 42 retained semantic obligations and strength
 parity rejection. Existing native groups add focused representation/comparator cases; membership
 and the frozen historical tables remain unchanged. Consumer/browser/wheel/full acceptance stays open.
 
+**CI 5.3 evidence overlay (confirmed on 2026-10-06):** The
+[consumer/safety proof](ci-testing-consumer-safety-proof.md) corrects nested output aliases and
+promotes bounded owning-check errors. Existing ci-execution registration gains targeted consumer
+and interruption regressions. All ten non-render checks pass; the eight already passing checks match
+retained 5.1 semantics after only declared operational normalization. Visualization/QA match unchanged
+five/35-file golden baselines. All legacy family mappings remain intact;
+browser/wheel/full acceptance and hosted adoption stay separate gates.
+
 CI Phase 2.1 applies the reviewed support-policy change through the [retirement inventory](ci-powershell-retirement-inventory.md).
 The active parity family is now `PARITY-SUPPORTED-RUNTIMES`; the historical `PARITY-THREE-RUNTIME`
 ID maps to it one-for-one with only Desktop host support removed. The inspected three-runtime rows

@@ -5,6 +5,12 @@ detailed JSON, concise JSON, Markdown and JUnit from it. Existing standalone con
 detailed JSON and validation-run-summary v1 remain unchanged. Hosted summary/upload tasks and
 publication receipts remain Phase 6.4; local publication admission is available now.
 
+CI 5.3 promotes owning conformance/compatibility failures and formatter file/count diagnostics into
+unit reasons before deriving these projections. Reasons use the existing 20-line/4,096-byte excerpt
+limit plus an explicit truncation notice; complete owner JSON and process streams stay in the artifact
+inventory. Report schemas and owner outcome/exit validation are unchanged. See the
+[consumer/safety proof](../ci-testing-consumer-safety-proof.md) for negative-path regression evidence.
+
 ## Files And Authority
 
 Each invocation allocates a fresh run owner under the approved repository `.tmp` output parent.

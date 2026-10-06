@@ -21,6 +21,11 @@ cases; all Python groups total 390 and PowerShell groups total 44. The table abo
 CI 4.6 baseline, not a second registration authority. [CI 5.2 proof](../ci-testing-conformance-parity-proof.md)
 records focused execution and complete semantic conformance separately from those inventory counts.
 
+CI 5.3 adds 17 consumer/diagnostic/interruption regressions to the same ci-execution group (now 122).
+Current mandatory inventory is 310 Python cases, all Python groups total 407 and PowerShell remains
+44. The [consumer/safety proof](../ci-testing-consumer-safety-proof.md) separates final focused native
+execution from the registered real consumer portfolio and its remaining release/full gates.
+
 At CI 4.6 these five groups contained 277 pytest cases. Reporting/gate tests join the existing ci-execution
 group. All implementation-bearing profiles must retain all five always-run groups. Every
 test_ci_*.py entry must belong to a mandatory group; these groups support Windows and Linux.

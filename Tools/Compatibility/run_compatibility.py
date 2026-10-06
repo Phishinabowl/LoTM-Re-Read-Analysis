@@ -410,7 +410,9 @@ def normalize_string(value: str, output_roots: list[Path]) -> str:
         }
         parts = output_root.resolve().parts
         if ".tmp" in parts:
-            tmp_index = parts.index(".tmp")
+            # Isolated checkouts may themselves live beneath another repository's .tmp.
+            # Generated repository-relative aliases begin at the nearest output owner.
+            tmp_index = len(parts) - 1 - parts[::-1].index(".tmp")
             tmp_relative = str(Path(*parts[tmp_index:]))
             variants.update({tmp_relative, tmp_relative.replace("\\", "/")})
         for variant in sorted(variants, key=len, reverse=True):

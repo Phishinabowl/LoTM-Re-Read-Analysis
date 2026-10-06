@@ -101,6 +101,12 @@ and error-free success shape before comparing summaries. Different operational p
 change equivalence; no field inside a semantic summary is removed or normalized. Changed decisions,
 counts, JSON types and array order fail; missing runtime or malformed/error evidence is an error.
 
+CI 5.3 preserves owning-check JSON while promoting failed conformance/compatibility error text into
+bounded aggregate reasons. Formatter failures also expose counts and affected paths. Full owner JSON
+and streams remain retained; the existing human/Markdown projections receive specific reasons.
+Consumer output normalization uses the nearest output-owning `.tmp`, supporting current nested
+execution checkouts without changing canonical consumer baselines.
+
 Preflight checks exact adopted Python/PS7/actionlint and required native dependency versions, selected
 environment import origins, installed Python RECORD content and owned PowerShell cache receipts.
 Runtime/module absence blocks affected obligations while independent available units may continue.

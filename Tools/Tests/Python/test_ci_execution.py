@@ -309,6 +309,188 @@ def test_compatibility_owner_continues_and_stops_after_canonical_mutation(tmp_pa
     assert failures[-1]["classification"] == "canonical-output-change"
 
 
+def test_compatibility_owner_records_multiple_failures_and_preserves_unrelated_artifacts(tmp_path, monkeypatch):
+    protected = tmp_path / "authored.md"
+    protected.write_bytes(b"authored wording stays intact")
+    sentinel = tmp_path / "unrelated.txt"
+    sentinel.write_bytes(b"keep unrelated artifact")
+    monkeypatch.setattr(compatibility, "protected_paths", lambda root: [protected])
+    before = compatibility.sha256_tree([protected])
+
+    def failed(check, *args):
+        raise compatibility.CompatibilityFailure("specific failure " + check["id"])
+
+    monkeypatch.setitem(compatibility.CHECK_HANDLERS, "failed-fixture", failed)
+    monkeypatch.setitem(compatibility.CHECK_HANDLERS, "passed-fixture", lambda *args: {"status": "passed"})
+    checks = [
+        {"id": "first", "kind": "failed-fixture"},
+        {"id": "second", "kind": "failed-fixture"},
+        {"id": "later", "kind": "passed-fixture"},
+    ]
+    rows, failures, safe = compatibility.execute_checks(checks, [], tmp_path, tmp_path / "output", before)
+    assert [row["status"] for row in rows] == ["failed", "failed", "passed"] and safe
+    assert [failure["error"] for failure in failures] == ["specific failure first", "specific failure second"]
+    assert protected.read_bytes() == b"authored wording stays intact"
+    assert sentinel.read_bytes() == b"keep unrelated artifact"
+
+
+@pytest.mark.parametrize("depth", [0, 1, 2])
+@pytest.mark.parametrize("separator", ["/", "\\"])
+def test_normalization_uses_nearest_output_owner_and_preserves_content(tmp_path, depth, separator):
+    root = tmp_path
+    for _ in range(depth):
+        root = root / ".tmp" / "isolated-source"
+    output = root / ".tmp" / "compatibility-qa" / "qa" / "python"
+    relative = ".tmp/compatibility-qa/qa/python"
+    absolute = str(output).replace("\\", "/")
+    text = f"Authored words; ordered A then B.\n{absolute}/page.md\n{relative}/page.md\n"
+    text = text.replace("/", separator)
+    normalized = compatibility.normalize_string(text, [output])
+    assert normalized == (
+        "Authored words; ordered A then B.\n<compat-output>"
+        + separator
+        + "page.md\n<compat-output>"
+        + separator
+        + "page.md\n"
+    )
+    values = compatibility.normalize_value({"items": ["second", "first"], "prose": text}, [output])
+    assert values["items"] == ["second", "first"] and values["prose"] == normalized
+
+
+@pytest.mark.parametrize("adapter", ["compatibility", "conformance"])
+@pytest.mark.parametrize("long", [False, True])
+def test_owner_error_promotion_is_bounded_and_retains_full_evidence(adapter, long):
+    error = "Unsafe output: <authored>|preserve.\r\n" + ("detail\n" * 1000 if long else "specific mismatch")
+    document = {"checks" if adapter == "compatibility" else "suites": [{"status": "failed", "error": error}]}
+    before = copy.deepcopy(document)
+    reasons = adapters.owning_failure_reasons(document, adapter)
+    assert reasons and "Unsafe output" in reasons[0] and "\r" not in reasons[0]
+    assert len(reasons[0].encode("utf-8")) < 4200
+    assert ("Truncated" in reasons[0]) is long
+    assert document == before
+
+
+def test_owner_error_promotion_prefers_check_detail_with_envelope_fallback():
+    assert adapters.owning_failure_reasons({"checks": [], "error": "cleanup failed"}, "compatibility") == [
+        "cleanup failed"
+    ]
+    assert adapters.owning_failure_reasons({"checks": [{"status": "passed"}]}, "compatibility") == []
+
+
+def test_formatter_failure_promotes_counts_and_paths_without_losing_full_owner_rows():
+    document = {
+        "files_changed": 70,
+        "long_lines": 1,
+        "files": [
+            {"path": f"file-{index}.ps1", "changed": True, "long_lines": [{"line": 5, "length": 201}]}
+            for index in range(70)
+        ],
+    }
+    before = copy.deepcopy(document)
+    reasons = adapters.owning_failure_reasons(document, "powershell-format")
+    assert "70 changed files; 1 long lines" in reasons[0] and "file-0.ps1" in reasons[0]
+    assert "Truncated" in reasons[0] and len(reasons[0].encode("utf-8")) < 4200
+    assert document == before
+
+
+@pytest.mark.parametrize("adapter,runtime", [("compatibility", "referee"), ("conformance", "python")])
+def test_real_adapter_promotes_failure_into_aggregate_and_markdown(tmp_path, monkeypatch, adapter, runtime):
+    error = "Golden inventory mismatch: <preserve>|specific owner error"
+    document = {
+        "schema_version": 1,
+        "passed": 0,
+        "failed": 1,
+        "error": error,
+    }
+    if adapter == "compatibility":
+        document.update(
+            requested_checks=["alpha"],
+            canonical_outputs_unchanged=True,
+            status="failed",
+            checks=[{"id": "alpha", "status": "failed", "error": error}],
+        )
+    else:
+        document.update(suite_count=1, suites=[{"id": "alpha", "status": "failed", "error": error}])
+    session = adapters.AdapterSession(tmp_path, scopes.Snapshot({}, {}), tmp_path, {"python": sys.executable})
+    session.readiness = {"python": True, "powershell7": True}
+
+    def launch(command, directory, lease, cancel):
+        (directory / "stdout.bin").write_text(json.dumps(document))
+        return {"directory": str(directory), "status": "exited", "child_exit_code": 1, "cleanup": {"verified": True}}
+
+    monkeypatch.setattr(session, "launch", launch)
+    row = {
+        **plan()["units"][0],
+        "execution_id": f"{adapter}/alpha::{runtime}",
+        "adapter": adapter,
+        "runtimes": ["python", "powershell7"] if adapter == "compatibility" else ["python"],
+        "deadline_seconds": 5,
+    }
+    results, failures, guard = aggregate.execute_units(
+        {"units": [row]}, session.execute, budget(), threading.Event(), lambda: None
+    )
+    assert results[0]["status"] == "failed" and results[0]["evidence"] == document
+    assert failures[0]["excerpt"] == error
+    report = controller.empty_report("synthetic", "private-owner")
+    report.update(results=results, failures=failures, canonical_guard=guard)
+    markdown = sys.modules["execution_reports"].markdown(report)
+    assert "Golden inventory mismatch" in markdown and "&lt;preserve&gt;" in markdown
+    assert "\\|specific owner error" in markdown
+
+
+@pytest.mark.parametrize("mode", ["deadline", "cancel"])
+def test_compatibility_adapter_contains_real_nested_child_on_interruption(tmp_path, mode):
+    runner = tmp_path / "Tools/Compatibility/run_compatibility.py"
+    runner.parent.mkdir(parents=True)
+    ready = tmp_path / "nested-ready"
+    sentinel = tmp_path / "unrelated.txt"
+    sentinel.write_bytes(b"keep unrelated artifact")
+    child = "import time; from pathlib import Path; Path('nested-ready').write_text('ready'); time.sleep(30)"
+    runner.write_text(
+        "import sys,json\nfrom pathlib import Path\n"
+        f"sys.path.insert(0, {str(ROOT / 'Tools/Compatibility')!r})\n"
+        "import run_compatibility as owner\n"
+        "try:\n"
+        "    owner.run_command(owner.Runtime('python',sys.executable), "
+        f"[sys.executable,'-c',{child!r}], Path.cwd(), 60)\n"
+        "except owner.CompatibilityFailure as error:\n"
+        "    print(json.dumps({'schema_version':1,'requested_checks':['alpha'],'canonical_outputs_unchanged':True,"
+        "'status':'failed','passed':0,'failed':1,'checks':[{'id':'alpha','status':'failed','error':str(error)}]}),flush=True)\n"
+        "    sys.exit(1)\n"
+    )
+    session = adapters.AdapterSession(tmp_path, scopes.Snapshot({}, {}), tmp_path, {"python": sys.executable})
+    session.readiness = {"python": True, "powershell7": True}
+    cancel = threading.Event()
+    stop = threading.Event()
+
+    def cancellation():
+        while not stop.wait(0.01):
+            if ready.exists():
+                cancel.set()
+                return
+
+    thread = threading.Thread(target=cancellation)
+    if mode == "cancel":
+        thread.start()
+    try:
+        result = session.execute(
+            {"adapter": "compatibility", "execution_id": "compatibility/alpha::referee"},
+            processes.Lease(time.monotonic() + (5 if mode == "deadline" else 10)),
+            cancel,
+            {},
+        )
+    finally:
+        stop.set()
+        if mode == "cancel":
+            thread.join(timeout=1)
+    assert ready.exists(), "The nested child must actually start before testing interruption"
+    assert result["status"] == ("failed" if mode == "deadline" else "cancelled")
+    if mode == "deadline":
+        assert "nested command deadline exceeded" in result["reasons"][0]
+    assert result["processes"][0]["cleanup"]["verified"] and session.containment_verified
+    assert sentinel.read_bytes() == b"keep unrelated artifact"
+
+
 def test_captured_bytes_and_additional_authored_files_are_guarded(tmp_path):
     snapshot = scopes.Snapshot({"authored.md": b"original"}, {"authored.md": "100644"})
     (tmp_path / "authored.md").write_bytes(b"original")
