@@ -502,6 +502,8 @@ class Catalog:
             "Invalid profile version/runtime order",
         )
         require(isinstance(document["profiles"], list) and document["profiles"], "Profiles required")
+        methodology = (self.root / "Framework/testing_methodology.md").read_text(encoding="utf-8")
+        families = set(re.findall(r"^\| `(PRESSURE-[A-Z0-9-]+|SCENARIO-[A-Z0-9-]+)`", methodology, re.M))
         for profile in document["profiles"]:
             closed(
                 profile,
@@ -554,11 +556,10 @@ class Catalog:
             require(allocation <= window, f"Profile {profile['id']}: deadline allocation {allocation} exceeds {window}")
             require(isinstance(profile["required_reviews"], list), "Invalid review inventory")
             seen = set()
-            methodology = (self.root / "Framework/testing_methodology.md").read_text(encoding="utf-8")
             for review in profile["required_reviews"]:
                 closed(review, {"family", "blocking", "evidence"}, "required review")
                 require(
-                    review["family"] not in seen and f"`{review['family']}`" in methodology,
+                    review["family"] not in seen and review["family"] in families,
                     "Unknown/duplicate methodology review",
                 )
                 seen.add(review["family"])
@@ -568,7 +569,6 @@ class Catalog:
                 )
             self.profiles[profile["id"]] = {**profile, "execution": execution, "dependencies": edges}
             if profile["id"] == "release-readiness":
-                families = set(re.findall(r"^\| `(PRESSURE-[A-Z0-9-]+|SCENARIO-[A-Z0-9-]+)`", methodology, re.M))
                 require(seen == families and bool(seen), "Release readiness omits retained methodology review")
             if profile["id"] in {
                 "feature-feedback",

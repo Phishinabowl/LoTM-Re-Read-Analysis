@@ -107,8 +107,12 @@ Python Validation, PowerShell 7 Validation, Project Compatibility where applicab
 
 Full/release profiles visibly retain later process, policy, report, synthetic media and complete
 parity acceptance blockers. No placeholder nonexistent test file is treated as approved coverage.
-Release readiness also lists all 34 current retained PRESSURE/SCENARIO families from the methodology
-with null evidence; an empty or incomplete review list is rejected. Inspection does not satisfy them.
+At CI 4.1, release readiness listed 34 retained PRESSURE/SCENARIO entries with null evidence.
+CI 5.6 consolidates current review ownership into 17 semantic PRESSURE families; historical SCENARIO
+IDs and all original questions remain in the [mapped example library](../../Framework/pressure-scenario-examples.md).
+Current admission requires explicit active methodology declarations, rejects historical aliases used
+as reviews, and requires the complete semantic-family set for release readiness. Null evidence remains
+pending and blocking. Inspection or consolidation does not satisfy those reviews.
 
 ## Source Manifests And Plan Evidence
 

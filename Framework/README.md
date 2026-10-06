@@ -12,6 +12,9 @@ This directory contains reusable framework assets that are portable across proje
   activation.
 - [framework_improvement_lifecycle.md](framework_improvement_lifecycle.md) defines the end-to-end version iteration, confirmation, testing, historical closure, and handoff workflow.
 - [testing_methodology.md](testing_methodology.md) defines the cross-industry pressure-test candidate catalog plus cumulative conformance, runtime-parity, compatibility, pressure-scenario, comparison, and test-retention requirements.
+- [pressure-scenario-examples.md](pressure-scenario-examples.md) preserves historical scenario questions
+  and maps narrative/worldbuilding examples to semantic pressure families; domain examples do not
+  independently add executable suites or release review gates.
 - [framework_evolution.md](framework_evolution.md) records the historical implementation and pressure-test results that drove each framework version.
 - [platform_evolution.md](platform_evolution.md) records confirmed platform-phase implementation, migration, compatibility closure, and handoff history without duplicating numbered framework-version pressure records.
 - [extraction_readiness.md](extraction_readiness.md) records the proven portable bundle, project-owned boundary, extraction rehearsal, stabilization evidence, and limits of the current readiness claim.

@@ -135,6 +135,27 @@ def test_private_tree_has_equivalent_plan_ids(private_catalog):
     assert [row["execution_id"] for row in actual["units"]] == [row["execution_id"] for row in expected["units"]]
 
 
+def test_historical_scenario_reference_cannot_be_admitted_as_active_review(private_catalog):
+    root, data, docs = private_catalog
+    methodology = root / "Framework/testing_methodology.md"
+    assert "`SCENARIO-DERRICK`" in methodology.read_text()
+    profile = next(row for row in docs["profiles"]["profiles"] if row["id"] == "implementation-pilot")
+    profile["required_reviews"] = [{"family": "SCENARIO-DERRICK", "blocking": True, "evidence": None}]
+    write_documents(data, docs)
+    with pytest.raises(catalogs.CatalogError, match="Unknown/duplicate methodology review"):
+        catalogs.Catalog(root)
+
+
+def test_release_cannot_omit_a_semantic_review_after_example_consolidation(private_catalog):
+    root, data, docs = private_catalog
+    profile = next(row for row in docs["profiles"]["profiles"] if row["id"] == "release-readiness")
+    assert profile["required_reviews"]
+    profile["required_reviews"].pop()
+    write_documents(data, docs)
+    with pytest.raises(catalogs.CatalogError, match="Release readiness omits retained methodology review"):
+        catalogs.Catalog(root)
+
+
 def test_unavailable_required_coverage_is_visible_not_omitted():
     plan = catalogs.Catalog(ROOT).plan("pr-integration", "linux", ["python"])
     blocked = {row["execution_id"] for row in plan["units"] if row["availability"] == "blocked"}

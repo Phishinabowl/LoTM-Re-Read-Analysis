@@ -60,6 +60,12 @@ optimization/timing acceptance before hosted adoption; the expanded Phase 5 exit
 The goals move from the former Phase 8.1 assignment to 5.7 without revoking 5.5's accepted interim
 record. Hosted authority remains unchanged; Phase 6 starts only after the expanded local gate closes.
 
+CI 5.6 consolidation is implemented, locally verified and confirmed by the maintainer on 2026-10-06.
+Active review accounting is 17 semantic pressure families; 17 historical scenario IDs and their
+original questions remain mapped examples. All 257 affected tests pass on Windows and WSL; source
+and fixture preservation audit passes. No executable case is removed or timing saving claimed.
+Phase 5.7 implementation has not started; hosted adoption remains gated.
+
 **Working branch:** `architecture/ci-testing-modernization`, created from
 `architecture/framework-extraction-foundation` at `c4b7932`.
 
@@ -1895,27 +1901,37 @@ fixture/family deletion or timeout increase is adopted.
 
 ### Phase 5.6 Coverage And Pressure-Scenario Consolidation
 
+**Local checkpoint confirmed by the maintainer (2026-10-06):** The
+[consolidation review](ci-testing-pressure-consolidation.md) records 54 active families and 17
+semantic pressure review entries, with all 17 historical scenario question sets preserved verbatim
+and mapped in the portable example library. The maintainer approves semantic-family consolidation;
+fixture support, distinct composed questions and unsupported/pending findings remain explicit.
+Full membership stays 74 units with unchanged conformance/compatibility inventories and protected
+source/data bytes. Catalog admission rejects quoted historical aliases and missing active reviews;
+two regressions join the existing mandatory group. All 257 affected cases pass on Windows and WSL.
+No executable case is removed or timing improvement claimed; 5.7 owns remeasurement.
+
 **Agreed organization direction (2026-10-06):** Separate stable semantic coverage families from domain
 collections and named examples. Narrative/worldbuilding is a domain collection within broader domain
 pressure testing; Derrick, Loki, Marvel and comparable examples preserve concrete questions and
 historical discoveries. The approved direction itself does not rename IDs or retire requirements.
 
-- [ ] Map every retained scenario question to semantic coverage, supporting executable fixtures and
+- [x] Map every retained scenario question to semantic coverage, supporting executable fixtures and
   any distinct composed or source-grounded review obligation. Preserve historical scenario IDs through
   explicit mappings; retain unsupported findings and unique distinctions such as knowledge versus
   capability progression. Do not replace detailed obligations with one opaque domain-level pass.
-- [ ] Organize named examples into domain collections, distinguishing illustrative examples from
+- [x] Organize named examples into domain collections, distinguishing illustrative examples from
   permanent regressions and unresolved pressure reviews. Define bounded representative automated
   coverage and impact-selected broader pressure review; add permanent obligations for new behaviors
   or reproducible defects rather than automatically for each new franchise or domain example.
-- [ ] Review duplicate scenarios/cases only after their preconditions, expected behavior, failure modes
+- [x] Review duplicate scenarios/cases only after their preconditions, expected behavior, failure modes
   and composition boundaries map to retained coverage. Record proposed removals, retained questions,
   equivalence evidence and unresolved gaps; reuse 5.5's passing record where coverage is unchanged.
-- [ ] Apply reviewed consolidation through the testing methodology and evolution, then update
+- [x] Apply reviewed consolidation through the testing methodology and evolution, then update
   catalogs, coverage mappings, required-review entries and reporting consistently. Preserve pending
   review status and explicit missing capabilities; a renamed collection cannot supply missing evidence.
   Retain legacy runner entry points and checks needed for hosted shadow comparison.
-- [ ] Verify registry/family accounting and affected semantic cases, then review the complete mapping
+- [x] Verify registry/family accounting and affected semantic cases, then review the complete mapping
   before 5.7. Distinguish organizational/review savings from measured executable CI savings.
 
 **Checkpoint:** Pressure coverage scales by distinct semantic requirements, with explainable domain
@@ -1960,9 +1976,9 @@ group/process boundaries, retained review families and hosted-policy limits rema
 
 - [x] Equivalent or stronger full coverage, unchanged LoTM baselines, complete parity, and safe output
   lifecycle are proved locally; environment limitations are explicit and do not masquerade as passes.
-- [ ] Phase 5.6 consolidation is mapped, implemented and accepted without silently losing requirements.
+- [x] Phase 5.6 consolidation is mapped, implemented and accepted without silently losing requirements.
 - [ ] Phase 5.7 final local correctness and timing disposition are accepted for the resulting portfolio
-  before hosted adoption. The confirmed 5.5 gate remains historical; these additions are not yet closed.
+  before hosted adoption. The confirmed 5.5 gate remains historical; the expanded gate awaits 5.7.
 
 **Rollback:** Retain legacy invocation as reference and repair discrepancies before hosted adoption.
 

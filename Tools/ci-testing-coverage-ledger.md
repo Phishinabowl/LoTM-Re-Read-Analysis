@@ -52,6 +52,16 @@ conformance rows exactly and passes all eleven consumers. Final feature profiles
 Windows/Linux. Explicit interim native/full timing exceptions retain <=90s / <=960s goals in Phase 8.1;
 hosted proof remains Phase 6. No fixture, family, original gate or process boundary is retired.
 
+**CI 5.6 current organization overlay (locally verified and confirmed on 2026-10-06):** The
+[consolidation review](ci-testing-pressure-consolidation.md) maps all 17 historical SCENARIO question
+sets into the existing 17 semantic PRESSURE families. Current active-family accounting is 54
+(37 executable/policy/parity + 17 pressure); the 17 historical IDs remain example references with
+their full original questions preserved. Release readiness registers 17 null, blocking reviews.
+No executable case, suite, fixture or source/model contract is removed. All 74 full units and 42
+paired conformance obligations remain ordered identically. Prior 71-family records below retain
+their dates. New focused catalog regressions bring declared inventory to 439 pytest / 49 Pester;
+full timing and any further case reduction remain 5.7.
+
 CI Phase 2.1 applies the reviewed support-policy change through the [retirement inventory](ci-powershell-retirement-inventory.md).
 The active parity family is now `PARITY-SUPPORTED-RUNTIMES`; the historical `PARITY-THREE-RUNTIME`
 ID maps to it one-for-one with only Desktop host support removed. The inspected three-runtime rows
@@ -194,9 +204,11 @@ EPUB chapter/volume/entry/query/context/count/regex aliases; image crop/preset/e
 and Visualization mode/input/output/graph/settings/no-render aliases. File-producing Visualization
 has structured artifacts; it does not expose a universal generic `--json` summary.
 
-## Retained Scenario And Pressure Ownership
+## Historical Scenario Mapping And Retained Pressure Ownership
 
-The following stable families are methodology requirements. The inspected executable suite set does
+The scenario table below is the retained Phase 1.2 review inventory. CI 5.6 reclassifies its named
+IDs as historical/example references with mandatory semantic questions owned by the pressure-family
+mappings above. It is not the current independent review registry. The inspected executable suite set does
 not supply named source-grounded story probes equivalent to all these requirements. Primitive
 coverage below is supporting evidence, not a declaration that an entire narrative matrix passed.
 Framework maintainer review owns concrete probe selection and unsupported findings. Reproducible

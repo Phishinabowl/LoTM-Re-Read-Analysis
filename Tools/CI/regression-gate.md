@@ -31,6 +31,13 @@ and one to package artifacts. Current Python inventory is 434, mandatory infrast
 PowerShell remains 44. [Release reproduction proof](../ci-testing-release-reproduction-proof.md)
 distinguishes native negative paths from actual acquired wheel/browser and copied-framework execution.
 
+CI 5.5 adds isolated fixture/process/container coverage and four lookup-preparation regressions;
+its confirmed full record has 437 pytest / 49 Pester cases, including 331 mandatory infrastructure cases.
+CI 5.6 adds two catalog-admission regressions (ci-catalog 70; mandatory infrastructure 333; declared
+Python inventory 439). These protect inactive historical aliases and omitted semantic reviews.
+The [consolidation review](../ci-testing-pressure-consolidation.md) distinguishes focused current
+CI evidence from the unchanged 5.5 domain baseline; final full/timing requalification remains 5.7.
+
 At CI 4.6 these five groups contained 277 pytest cases. Reporting/gate tests join the existing ci-execution
 group. All implementation-bearing profiles must retain all five always-run groups. Every
 test_ci_*.py entry must belong to a mandatory group; these groups support Windows and Linux.

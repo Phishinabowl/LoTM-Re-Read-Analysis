@@ -1032,3 +1032,34 @@ Rollback must coordinate the focused retirement changes with earlier breaking ho
 restoring only a Desktop job cannot make module 0.14.0 support that host again. Preserve original
 evidence and Git history, restore through ordinary reviewed changes, and leave machine installations
 and canonical content untouched. Phase 3 bootstrap/pilots do not start until CI Phase 2 exit is accepted.
+
+## CI Modernization Interlude - Semantic Pressure Review Consolidation (5.6)
+
+**Status:** Locally verified and confirmed by the maintainer on 2026-10-06.
+The [CI plan](../Tools/ci-testing-modernization-plan.md) owns closure. This is a testing-methodology
+organization change, not a new numbered semantic/model version or completion of platform Phase 4.1.
+
+The maintainer approves consolidation into the existing 17 semantic PRESSURE families, retaining
+the 17 former named SCENARIO IDs as historical/example references. Original scenario questions from
+`eafcb2a1056fad0220925f10fbb4dbdb856a122e` are preserved verbatim in the
+[example library](pressure-scenario-examples.md), with explicit semantic owners and required composed
+distinctions. Narrative/worldbuilding/media and non-narrative domain collections select representatives;
+new titles do not automatically add permanent review families or executable suites.
+
+Active accounting changes from 71 families (37 executable/policy/parity + 34 scenario/pressure)
+to 54 (the same 37 + 17 semantic pressure). Release readiness now has 17 null, blocking review
+entries; no missing capability, source-grounded question or pending disposition becomes accepted.
+Catalog admission distinguishes active declarations from quoted historical aliases and still rejects
+an incomplete release review set. Two targeted negative regressions join the existing catalog group.
+
+All 74 full units, 42 conformance obligations, eleven compatibility checks, source/model contracts,
+canonical data and fixtures remain. Existing 5.5 full evidence supplies unchanged domain behavior;
+focused catalog/scope/aggregate/report/gate tests cover this CI change. The audit preserves all 17
+question sets, verifies 309 unchanged protected files and proves the new library travels with the
+existing complete-Framework copy rule. No fresh full pressure replay, full extraction execution or
+execution-time saving is claimed. Details and remaining review boundaries are in the
+[consolidation review](../Tools/ci-testing-pressure-consolidation.md).
+
+Phase 5.7 owns local execution optimization and current timing acceptance before hosted adoption.
+Rollback restores the original review registration, methodology and admission rules together through
+focused changes; retain historical questions and do not reset canonical content or rewrite history.
