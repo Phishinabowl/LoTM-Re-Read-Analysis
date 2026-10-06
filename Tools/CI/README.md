@@ -28,6 +28,10 @@ through `run_ci.py`. Captured source, actual-policy/context proof, native/custom
 independent continuation and verified source bundles share one repository implementation. Full
 membership remains mandatory; hosted orchestration/publication adoption is still gated.
 
+CI 4.5 adds [atomic local reports and recovery](execution-reporting.md), common Markdown/native/custom
+JUnit projections and exact publication inventories. `report_ci.py` verifies an owned bundle or
+recovers interrupted evidence; hosted uploads and publication receipts remain later gates.
+
 ## Normal Development Setup
 
 Use the adopted CPython 3.14.5 x64 interpreter and PS7.6.6 development host. The controller fails

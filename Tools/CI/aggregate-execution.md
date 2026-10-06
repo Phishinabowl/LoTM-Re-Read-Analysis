@@ -2,8 +2,8 @@
 
 CI 4.4 is confirmed by the maintainer on 2026-10-06. `run_ci.py` connects captured Git scope, owning
 catalogs, process supervision and layer adapters. Explicit local execution is available; existing
-hosted workflows/check names remain unchanged. Planning still advertises rollout blockers: atomic
-reporting/publication (4.5), mandatory hosted meta-regression/adoption and complete equivalence
+hosted workflows/check names remain unchanged. CI 4.5 adds [local reporting](execution-reporting.md).
+Planning still advertises rollout blockers: hosted publication, mandatory hosted meta-regression/adoption and complete equivalence
 (4.6/Phase 5 onward). This checkpoint is not the completed hosted migration.
 
 ## Local Commands
@@ -112,7 +112,7 @@ acceptance gate; no automated passing result invents maintainer approval.
 Local JSON is `ci-execution-report` v1. Units retain original exits, native counts, detailed adapter
 artifacts and complete stdout/stderr; bounded diagnostic tails are presentation only. Artifact records
 contain relative paths, producer, bytes and SHA-256. This is the initial local recording/collection
-implementation, not atomic journaling/recovery or final Markdown/XML projections.
+implementation. CI 4.5 extends it with atomic journaling/recovery and Markdown/XML projections.
 
 `ci-shard-result` v1 binds a report to the existing `ci-shard-source` manifest. Collection verifies
 exact catalog/profile/shard/snapshot identity, partition membership/order, terminal counts, source
@@ -126,6 +126,6 @@ native-infrastructure-1 shard owns catalog/scope/process/aggregate regression: 3
 plus 210 reserve. Existing check identities remain intact with updated source-shard projections;
 neither shard exceeds the unchanged 2190 execution / 3300 host ceiling. No workflow YAML is activated.
 
-Atomic incremental events, interrupted-run recovery, confined publication, Markdown/custom XML,
-hard supervisor/host-kill reporting and complete host/event/shadow adoption remain later gates.
+Local incremental events, interrupted recovery, confined publication admission and Markdown/custom XML
+are implemented at CI 4.5. Actual hosted publication and complete host/event/shadow adoption remain later gates.
 Evidence and measured costs are recorded in the [coverage ledger](../ci-testing-coverage-ledger.md).

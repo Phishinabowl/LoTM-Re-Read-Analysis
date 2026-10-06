@@ -552,7 +552,8 @@
         "linux"
       ],
       "entry": [
-        "Tools/Tests/Python/test_ci_execution.py"
+        "Tools/Tests/Python/test_ci_execution.py",
+        "Tools/Tests/Python/test_ci_reports.py"
       ],
       "arguments": [],
       "fixtures": [

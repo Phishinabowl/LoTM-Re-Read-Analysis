@@ -1933,3 +1933,11 @@ source with explicit preflight paths. Registered `--shard-plan`/`--shard` execut
 `--source-result` admission and complete `--shard-result` collection use the same source/result
 contracts. [Aggregate execution](CI/aggregate-execution.md) owns commands, failure/coverage rules,
 actual-policy boundaries and remaining reporting/hosted gates. Execution acquires no dependencies.
+
+## CI Execution Reporting (CI 4.5)
+
+`run_ci.py` emits [atomic reports](CI/execution-reporting.md) and an exact publication manifest.
+`--summary-json` selects concise execution JSON without changing membership; native/custom XML and
+Markdown share the detailed result model. `report_ci.py --run <owner>` admits expected artifacts;
+`--recover` retains interrupted evidence in a fresh sibling owner and always records partial failure.
+Actual hosted upload/summary tasks and publication receipts remain Phase 6.4.

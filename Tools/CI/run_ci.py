@@ -1,6 +1,7 @@
 """Repository-owned full local execution and shard collection; affected execution remains disabled."""
 
 import argparse
+import copy
 import json
 import os
 from pathlib import Path
@@ -20,6 +21,7 @@ from catalog import Catalog, CatalogError
 from layer_adapters import AdapterSession, guarded_manifest
 from process_supervisor import RunBudget, Lease, plain_directory, run_process
 from scope import MODES, ScopeError, resolve_scope
+from execution_reports import Journal, atomic_bytes, encoded, finalize, summary, excerpt
 
 
 def empty_report(profile, run_id):
@@ -77,6 +79,8 @@ def execute(args):
     owner = parent / ("run-" + uuid.uuid4().hex)
     owner.mkdir()
     report = empty_report(args.profile, owner.name)
+    journal = Journal(owner, report)
+    recorded_rows, recorded_artifacts = [], []
     cancel = threading.Event()
     signals = {}
     scratch = None
@@ -106,6 +110,10 @@ def execute(args):
         }
         candidates = [row["execution_id"] for row in plan["units"]]
         execution_plan = plan
+        report["reviews"] = [
+            {"family": row["family"], "required": True, "status": "pending", "evidence": row["evidence"]}
+            for row in plan["required_reviews"]
+        ]
         report["selection"] = {
             "candidate_ids": candidates,
             "selected_ids": candidates,
@@ -176,6 +184,16 @@ def execute(args):
                 started=started,
             )
             execution_plan = {**plan, "units": selected}
+            selected_ids = [row["execution_id"] for row in selected]
+            report["selection"].update(
+                selected_ids=selected_ids,
+                unselected=[
+                    {"id": name, "reason": "Delegated to registered shard"}
+                    for name in candidates
+                    if name not in selected_ids
+                ],
+            )
+            journal.event("plan", report)
             sources = {}
             if args.source_results:
                 if not args.shard_plan or not args.shard:
@@ -277,8 +295,23 @@ def execute(args):
                 "changes": scope["changes"],
                 "fallback_reasons": scope["fallback_reasons"],
             }
+            journal.event("plan", report)
+
+            def record_unit(result):
+                saved = copy.deepcopy(result)
+                recorded_rows.append(saved)
+                entries = persist_units([saved], owner)
+                recorded_artifacts.extend(entries)
+                journal.event("unit-terminal", {"result": saved, "artifacts": entries})
+
             results, failures, guard = execute_units(
-                execution_plan, session.execute, budget, cancel, lambda: guarded_manifest(workspace, snapshot), sources
+                execution_plan,
+                session.execute,
+                budget,
+                cancel,
+                lambda: guarded_manifest(workspace, snapshot),
+                sources,
+                observer=record_unit,
             )
             report["results"], report["canonical_guard"] = results, guard
             dispositions = actual_dispositions(
@@ -301,7 +334,8 @@ def execute(args):
                 failures.append(
                     {"id": None, "classification": "policy", "excerpt": "Actual change policy dispositions incomplete"}
                 )
-            report["artifacts"] = persist_units(results, owner)
+            report["results"] = recorded_rows
+            report["artifacts"] = recorded_artifacts
             report["budget"] = {
                 **budget_record,
                 "setup_allowance_seconds": 600,
@@ -354,6 +388,25 @@ def execute(args):
             "terminal": counts(report["results"]),
         }
     except Exception as error:
+        if recorded_rows:
+            report["results"] = recorded_rows
+            report["artifacts"] = recorded_artifacts
+            remaining = [
+                row
+                for row in execution_plan["units"]
+                if row["execution_id"] not in {value["id"] for value in recorded_rows}
+            ]
+
+            class NoRemainingAdmission:
+                def admit(self, seconds):
+                    return None
+
+            pending, _, _ = execute_units(
+                {**execution_plan, "units": remaining}, lambda *args: None, NoRemainingAdmission(), cancel, lambda: None
+            )
+            for row in pending:
+                row.update(classification="report", reasons=["Durable recording failed; later units not launched"])
+            report["results"].extend(pending)
         if report["provenance"] and not report["results"]:
 
             class NoAdmission:
@@ -369,7 +422,10 @@ def execute(args):
                     )
             report["results"] = rows
         planning_error = isinstance(error, (ScopeError, CatalogError)) or not report["runtime_inventory"]
-        report.update(status="failed", exit_code=2 if planning_error else 1)
+        report.update(
+            status="cancelled" if cancel.is_set() else "failed",
+            exit_code=130 if cancel.is_set() else 2 if planning_error else 1,
+        )
         if report["results"]:
             report["counts"] = {
                 "candidate": len(candidates),
@@ -404,25 +460,22 @@ def execute(args):
             signal.signal(name, handler)
     path = owner / "report.json"
     try:
-        path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        if args.shard and "shard_source" in report["provenance"]:
-            (owner / "shard-result.json").write_text(
-                json.dumps(
-                    {
-                        "contract": "ci-shard-result",
-                        "contract_version": 1,
-                        "source": report["provenance"]["shard_source"],
-                        "report": report,
-                    },
-                    ensure_ascii=False,
-                    indent=2,
-                )
-                + "\n",
-                encoding="utf-8",
-            )
-    except OSError as error:
-        report.update(status="failed", exit_code=1)
+        journal.event("run-terminal", report)
+        journal.close()
+        finalize(owner, report)
+    except Exception as error:
+        journal.close()
+        report.update(status="failed", exit_code=130 if cancel.is_set() else 1)
         report["failures"].append({"id": None, "classification": "report", "excerpt": str(error)})
+        print("CI report finalization failed: " + str(error), file=sys.stderr)
+        # This is diagnostic evidence, not a complete publication bundle; never replace foreign targets.
+        report["complete"] = False
+        try:
+            atomic_bytes(owner, "finalization-failure.json", encoded(report))
+            path = owner / "finalization-failure.json"
+        except Exception as secondary:
+            path = None
+            print("CI failure evidence could not be written: " + str(secondary), file=sys.stderr)
     return report, path
 
 
@@ -446,21 +499,39 @@ def main():
     parser.add_argument("--source-result", action="append", dest="source_results", default=[])
     parser.add_argument("--output-root", default=".tmp/ci-execution")
     parser.add_argument("--json", action="store_true")
+    parser.add_argument("--summary-json", action="store_true")
     args = parser.parse_args()
+    if args.json and args.summary_json:
+        parser.error("Choose detailed or concise JSON")
     try:
         report, path = execute(args)
     except Exception as error:
         report, path = empty_report(args.profile, "unestablished"), None
-        report["failures"] = [{"id": None, "classification": "scope", "excerpt": str(error)}]
+        report["failures"] = [
+            {"id": None, "classification": "report" if isinstance(error, OSError) else "scope", "excerpt": str(error)}
+        ]
+        if isinstance(error, OSError):
+            report["exit_code"] = 1
+        print("CI execution could not establish evidence: " + str(error), file=sys.stderr)
     if args.json:
         print(json.dumps(report, ensure_ascii=False, indent=2))
+    elif args.summary_json:
+        print(json.dumps(summary(report, path.name if path else None), ensure_ascii=False, indent=2))
     else:
+        terminal = ", ".join(f"{value} {name}" for name, value in report["counts"]["terminal"].items() if value)
+        elapsed = report["budget"].get("elapsed_seconds")
         print(
             f"CI {report['status']}: {report['counts']['selected']} units; "
-            f"{report['counts']['terminal']}. Report: {path}"
+            f"{terminal or 'no completed units'}; "
+            + (f"{elapsed:.3f}s. " if elapsed is not None else "")
+            + f"Report: {path}"
         )
         for failure in report["failures"]:
-            print(f"{failure['id'] or 'run'} [{failure['classification']}]: {failure['excerpt']}")
+            text, truncated = excerpt(failure["excerpt"])
+            print(
+                f"{failure['id'] or 'run'} [{failure['classification']}]: {text}"
+                + (" [excerpt truncated; see detailed evidence]" if truncated else "")
+            )
     raise SystemExit(report["exit_code"])
 
 

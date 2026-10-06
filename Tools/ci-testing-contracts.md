@@ -29,6 +29,9 @@ collection are local implementations. Atomic journal/report lifecycle and final 
 4.5; hosted/default adoption, required reviews and complete equivalence remain later gates.
 
 The [modernization plan](ci-testing-modernization-plan.md) owns delivery and acceptance gates.
+CI 4.5's [execution reporting](CI/execution-reporting.md) is confirmed on 2026-10-06: local atomic
+events/records, JSON/Markdown/JUnit projections, exact publication admission and partial recovery.
+Legacy detailed/concise contracts remain unchanged; actual hosted publication is Phase 6.4.
 The [coverage ledger](ci-testing-coverage-ledger.md) owns coverage mapping and migration gaps.
 Existing [validation reporting](../Framework/Contracts/validation-run-reporting.md),
 [conformance membership](Conformance/suites.json), and

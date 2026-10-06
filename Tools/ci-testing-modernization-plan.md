@@ -31,6 +31,9 @@ aggregate/publication adoption remain 4.4 onward.
 CI 4.4 layer adapters/local aggregate execution are confirmed by the maintainer on 2026-10-06.
 Hosted/default adoption, atomic reporting and complete legacy equivalence remain gated.
 
+CI 4.5 local reporting/artifact lifecycle is confirmed by the maintainer on 2026-10-06.
+Hosted publication and complete legacy equivalence remain later gates.
+
 **Working branch:** `architecture/ci-testing-modernization`, created from
 `architecture/framework-extraction-foundation` at `c4b7932`.
 
@@ -1651,15 +1654,37 @@ implementation record and all existing hosted check names remain unchanged.
 
 ### Phase 4.5 Unified JSON, Markdown, XML, And Artifact Lifecycle
 
-- [ ] Implement projections from one recorded result model, retaining detailed JSON and concise v1.
-- [ ] Render selection, skipped/unexecuted coverage, durations, failures, canonical protection,
+- [x] Implement projections from one recorded result model, retaining detailed JSON and concise v1.
+- [x] Render selection, skipped/unexecuted coverage, durations, failures, canonical protection,
   cleanup, and diagnostic links in readable Markdown.
-- [ ] Adapt custom suites/checks to honest XML units while preserving native pytest/Pester cases.
-- [ ] Test incremental evidence/atomic finalization, UTF-8/newlines/XML escaping, concurrent run names,
+- [x] Adapt custom suites/checks to honest XML units while preserving native pytest/Pester cases.
+- [x] Test incremental evidence/atomic finalization, UTF-8/newlines/XML escaping, concurrent run names,
   confined paths, unsafe overwrite targets, stale evidence, and cleanup/publication failures.
-- [ ] Verify cancellation/timeout partial reports and document the hard-host-kill boundary.
+- [x] Verify cancellation/timeout partial reports and document the hard-host-kill boundary.
 
 **Checkpoint:** Human, JSON, Markdown, and XML results agree; artifacts belong to one isolated run.
+
+**Implementation/evidence (confirmed 2026-10-06):**
+[Execution reporting](CI/execution-reporting.md) connects atomic per-unit records and a flushed
+sequenced journal to full/concise JSON, common Markdown, custom/native JUnit and exact hash-bound
+publication admission. Missing/changed/foreign evidence or incomplete finalization fails closed.
+Recovery keeps durable completed units, blocks unknown work, and always records partial failure with
+unknown guard/unverified cleanup. Legacy standalone JSON/concise contracts, check identities,
+catalog group/shard counts and workflow YAML remain unchanged. Report regression is registered
+within the existing ci-execution group; no new process/shard allowance is added.
+
+Forty-one reporting cases (40 unit, one real killed-writer integration) supplement the existing
+39 aggregate cases within ci-execution. Captured Windows feature execution passes all 41 units in
+249.550s with 341 pytest cases at that snapshot, 34 Pester cases, four policies, ten fast conformance
+suites in both retained runtimes and parity. Current reporting admission also verifies that bundle.
+Final expanded native inventory and exact publication/shard proof are recorded in the coverage ledger.
+Windows/WSL native aggregates pass all 346 cases with no errors/skips in 35.373s / 12.365s;
+final reporting/aggregate regression passes all 80 cases. Ruff/formatting (92 sources), annotation
+policy (22 fixtures / 457 files), 99 relative documentation links/anchors and diff checks pass.
+Real workflow shard execution/complete collection pass with the finalized-manifest requirement.
+Original/collected bundles preserve selected-source identity and exact artifact/XML coverage.
+Actual hosted uploads/receipts,
+native/domain shadow equivalence and host-event adoption remain later gates.
 
 ### Phase 4.6 Mandatory Runner And Selector Regression Gate
 

@@ -5,6 +5,7 @@ import hashlib
 import json
 from pathlib import Path
 import time
+import xml.etree.ElementTree as ET
 
 from catalog import CatalogError
 from layer_adapters import read_json, conformance_result, compatibility_result, typed_equal
@@ -20,7 +21,7 @@ LAYERS = {
 }
 
 
-def execute_units(plan, dispatch, budget, cancel, guard, sources=None):
+def execute_units(plan, dispatch, budget, cancel, guard, sources=None, observer=None):
     results, failures, complete = [], [], dict(sources or {})
     safe, contained, changed = True, True, []
     for row in plan["units"]:
@@ -103,6 +104,8 @@ def execute_units(plan, dispatch, budget, cancel, guard, sources=None):
             cancel.set()
         complete[identity] = result
         results.append(result)
+        if observer is not None:
+            observer(result)
     return results, failures, {"unchanged": not changed, "changed_paths": changed, "containment_verified": contained}
 
 
@@ -153,21 +156,54 @@ def persist_units(results, owner):
     manifests = []
     for row in results:
         directory = owner / "units" / row["id"].replace("/", "-").replace("::", "-")
-        directory.mkdir(parents=True)
+        directory.mkdir(parents=True, exist_ok=True)
         evidence = row.pop("evidence", None)
+        from execution_reports import atomic_bytes, encoded, xml_bytes
+
         if evidence is not None:
             detail = directory / "detail.json"
-            detail.write_text(json.dumps(evidence, ensure_ascii=False, indent=2), encoding="utf-8")
+            atomic_bytes(owner, detail.relative_to(owner).as_posix(), encoded(evidence))
             row["artifacts"].append(detail.relative_to(owner).as_posix())
             manifests.append(artifact(detail, owner, row["id"]))
             if row["native_counts"] is not None:
-                import shutil
-
-                for source, name in [("native.xml", "native.xml"), ("native-phases.json", "phase.json")]:
+                for source, name in [
+                    ("native.xml", "native.xml"),
+                    ("native-phases.json", "phase.json"),
+                    ("junit.xml", "publication.xml"),
+                ]:
                     target = directory / name
-                    shutil.copy2(Path(evidence["run_directory"]) / source, target)
+                    content = (Path(evidence["run_directory"]) / source).read_bytes()
+                    if name == "publication.xml":
+                        content = xml_bytes(parse_junit(Path(evidence["run_directory"]) / source)[0])
+                    atomic_bytes(
+                        owner,
+                        target.relative_to(owner).as_posix(),
+                        content,
+                    )
                     row["artifacts"].append(target.relative_to(owner).as_posix())
                     manifests.append(artifact(target, owner, row["id"]))
+        retained = row.pop("retained_native", {})
+        for name, source in retained.items():
+            target = directory / ("partial-" + name if row["native_counts"] is None else "child-" + name)
+            atomic_bytes(owner, target.relative_to(owner).as_posix(), Path(source).read_bytes())
+            row["artifacts"].append(target.relative_to(owner).as_posix())
+            manifests.append(artifact(target, owner, row["id"]))
+            if name == "native.xml" and row["native_counts"] is None:
+                try:
+                    tree, _, _ = parse_junit(target)
+                    for case in tree.iter("testcase"):
+                        # Interrupted raw XML may contain machine-specific PS source paths.
+                        original = case.get("classname", "").replace("\\", "/")
+                        if "Tools/Tests/" in original:
+                            original = "Tools/Tests/" + original.split("Tools/Tests/", 1)[1]
+                        case.set("classname", row["id"].replace("::", ".") + "." + original)
+                    publication = directory / "publication.xml"
+                    atomic_bytes(owner, publication.relative_to(owner).as_posix(), xml_bytes(tree))
+                    row["artifacts"].append(publication.relative_to(owner).as_posix())
+                    manifests.append(artifact(publication, owner, row["id"]))
+                except (ValueError, ET.ParseError) as error:
+                    # Invalid/incomplete raw XML remains a diagnostic, never an upload candidate.
+                    row["diagnostics"]["partial-native"] = {"error": str(error)}
         for index, process in enumerate(row.pop("processes", [])):
             source = Path(process["directory"])
             diagnostics = {}
@@ -248,6 +284,14 @@ def collect_shards(catalog, plan_id, bundles, snapshot_digest, partial=False, pr
     rows, artifacts, inventory = {}, [], {}
     semantic_evidence = {}
     for path, document in documents:
+        from execution_reports import verify_publication
+
+        try:
+            admitted = verify_publication(path.parent)
+            if path.name != "shard-result.json" or not admitted["complete"]:
+                raise ValueError("Shard requires its finalized publication bundle")
+        except (OSError, ValueError, KeyError) as error:
+            raise CatalogError("Shard report publication was not finalized: " + str(error)) from error
         if (
             set(document) != {"contract", "contract_version", "source", "report"}
             or document["contract"] != "ci-shard-result"

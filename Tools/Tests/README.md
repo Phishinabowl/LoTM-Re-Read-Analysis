@@ -71,6 +71,7 @@ The Testing panel is a development view, not suite membership authority or hoste
 | Python/test_ci_scope.py | unit/integration | 30 unit, 12 integration | Real private Git histories, snapshot/rename/mode/drift contracts and advisory selector closure |
 | Python/test_ci_process.py | unit/integration | 27 unit, 9 integration | Owned synthetic process trees, guardian/caller loss, deadlines, cancellation, complete diagnostics and cleanup failures |
 | Python/test_ci_execution.py | unit/integration | 38 unit, 1 integration | Aggregate continuation/blocking, actual source/policy scope, typed parity, runner deadlines, owned cleanup and shard evidence |
+| Python/test_ci_reports.py | unit/integration | 40 unit, 1 integration | Atomic report/publication truth, projections, partial native evidence and real killed-writer recovery; registered within ci-execution |
 | PowerShell/ConformanceRunner.Tests.ps1 | Unit/Integration | 6 Unit, 2 Integration | Conformance registry/report helpers and real bounded synthetic child failures/recovery |
 | PowerShell/Dependencies.Tests.ps1 | Unit | 3 | Exact module-declaration implementation |
 | PowerShell/Formatter.Tests.ps1 | Unit/Integration | 3 Unit, 4 Integration | Mocked Git/explicit-file discovery and real exact-version analyzer |

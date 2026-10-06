@@ -263,6 +263,17 @@ def test_adapter_contract_failure_retains_process_diagnostics(tmp_path, monkeypa
     result = session.execute({}, processes.Lease(time.monotonic() + 1), threading.Event(), {})
     assert result["status"] == "error" and result["classification"] == "result-contract"
     assert result["processes"] == [process] and result["child_exit_code"] == 0
+    native_root = tmp_path / ".tmp/native-synthetic"
+    (native_root / "run-one").mkdir(parents=True)
+    (native_root / "run-two").mkdir()
+    result = session.execute(
+        {"adapter": "pytest", "execution_id": "implementation/synthetic::python"},
+        processes.Lease(time.monotonic() + 1),
+        threading.Event(),
+        {},
+    )
+    assert result["processes"] == [process]
+    assert result["status"] == "error" and "Unexpected native run owner" in result["reasons"][-1]
 
 
 def test_prerequisite_source_rows_enable_shard_dependencies_without_duplicate_execution():
@@ -360,20 +371,28 @@ def test_shard_collection_rejects_incomplete_or_false_evidence(tmp_path, change)
         "child_exit_code": 0,
         "native_counts": None,
         "artifacts": [entry["path"]],
+        "classification": None,
+        "elapsed_seconds": 0,
+        "reasons": [],
+        "diagnostics": {},
     }
-    report = controller.empty_report("synthetic", "owned")
+    report = controller.empty_report("synthetic", tmp_path.name)
     report.update(
         profile="synthetic",
         status="passed",
         exit_code=0,
-        provenance={"snapshot_digest": "snapshot", "catalog_digests": Catalog.source_digests},
+        provenance={"snapshot_digest": "snapshot", "catalog_digests": Catalog.source_digests, "shard_source": source},
         results=[row],
         artifacts=[entry],
-        counts={"terminal": aggregate.counts([row])},
+        counts={"candidate": 1, "selected": 1, "unselected": 0, "terminal": aggregate.counts([row])},
+        selection={"candidate_ids": [row["id"]], "selected_ids": [row["id"]], "unselected": []},
         canonical_guard={"unchanged": True},
         cleanup={"verified": True},
     )
-    path = tmp_path / "bundle.json"
+    from execution_reports import finalize
+
+    finalize(tmp_path, report)
+    path = tmp_path / "shard-result.json"
     value = {"contract": "ci-shard-result", "contract_version": 1, "source": source, "report": report}
     if change == "snapshot":
         report["provenance"]["snapshot_digest"] = "wrong"
@@ -383,7 +402,8 @@ def test_shard_collection_rejects_incomplete_or_false_evidence(tmp_path, change)
         row["native_counts"] = {"passed": 1}
     if change == "foreign-unit":
         row["id"] = "policy/other::python"
-    path.write_text(json.dumps(value))
+    if change != "valid":
+        path.write_text(json.dumps(value))
     bundles = [] if change == "missing" else [path, path] if change == "duplicate" else [path]
     if change == "valid":
         rows, _ = aggregate.collect_shards(Catalog(), "plan", bundles, "snapshot")

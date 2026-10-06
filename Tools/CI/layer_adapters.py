@@ -268,14 +268,40 @@ class AdapterSession:
     def execute(self, row, lease, cancel, completed):
         self.active_processes = []
         try:
-            return self.execute_layer(row, lease, cancel, completed)
+            result = self.execute_layer(row, lease, cancel, completed)
         except Exception as error:
-            return {
+            result = {
                 "status": "timed-out" if isinstance(error, TimeoutError) else "error",
                 "classification": "timeout" if isinstance(error, TimeoutError) else "result-contract",
                 "child_exit_code": self.active_processes[-1]["child_exit_code"] if self.active_processes else None,
                 "processes": self.active_processes,
                 "reasons": [str(error)],
+            }
+        if row.get("adapter") in {"pytest", "pester"}:
+            try:
+                self.retain_native(row, result)
+            except Exception as error:
+                result.update(
+                    status="error", classification="result-contract", reasons=[*result.get("reasons", []), str(error)]
+                )
+                result.setdefault("processes", self.active_processes)
+        return result
+
+    def retain_native(self, row, result):
+        native_root = self.root / ".tmp" / ("native-" + row["execution_id"].split("/")[1].split("::")[0])
+        if native_root.exists():
+            from execution_reports import confined
+
+            directories = list(native_root.iterdir())
+            if len(directories) != 1 or not directories[0].name.startswith("run-"):
+                raise ValueError("Unexpected native run owner inventory")
+            native_owner = directories[0]
+            if native_owner.resolve() != native_owner or native_owner.is_symlink() or native_owner.is_junction():
+                raise ValueError("Redirected native run owner")
+            result["retained_native"] = {
+                name: str(confined(native_owner, name))
+                for name in ("native.xml", "native-phases.json", "stdout.log", "stderr.log")
+                if confined(native_owner, name).is_file()
             }
 
     def execute_layer(self, row, lease, cancel, completed):
@@ -368,7 +394,7 @@ class AdapterSession:
                     "--group",
                     logical_id,
                     "--output-root",
-                    str(self.root / ".tmp/native"),
+                    str(self.root / ".tmp" / ("native-" + logical_id)),
                     "--timeout",
                     str(max(0.1, lease.remaining())),
                 ]

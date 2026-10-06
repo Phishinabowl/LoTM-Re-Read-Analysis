@@ -313,6 +313,25 @@ timings from this static inspection. Existing executable registries and workflow
 
 ### Documentation Verification
 
+**CI 4.5 confirmed (2026-10-06):**
+[Execution reporting](CI/execution-reporting.md) adds atomic per-unit evidence and flushed event
+records, full/concise JSON, common Markdown and honest native/custom JUnit. G01 gains 41 reporting
+cases; G07 gains local custom XML with no invented assertions or duplicate successful native groups;
+G08/G13 gain interrupted evidence recovery, partial native timeout/cancellation and exact publication
+admission. A real killed writer proves durable records survive without inventing cleanup or a pass.
+Full host upload/receipt/Test-tab adoption remains 6.4; no current check or semantic fixture is retired.
+
+Captured Windows feature feedback passes all 41 units in 249.550s with 341 pytest cases at that
+snapshot, 34 Pester cases, four policies, ten fast conformance suites in Python/PS7 and parity.
+The current publication verifier admits its exact files, native/custom case counts and projections.
+Real workflow shard execution and complete collection pass with mandatory finalized manifests.
+Registration stays 54 logical units/16 implementation groups; reporting tests join ci-execution
+without new shard/job limits. Legacy validation-run-summary v1 and detailed domain JSON remain intact.
+Final native aggregates pass all 346 pytest cases with zero errors/skips: Windows 35.373s and WSL
+12.365s. Final reporting/aggregate regression passes all 80 cases. Ruff/formatting (92 sources),
+annotation policy (22 fixtures / 457 files), 99 relative documentation links/anchors and diff checks
+pass. Evidence is ignored `.tmp/ci-phase45/` and `.tmp/ci-phase45-*.json`.
+
 **CI 4.4 confirmed (2026-10-06):**
 [Aggregate execution](CI/aggregate-execution.md) adds fixed layer adapters, true actual captured-context
 validation/deletion dispositions, immutable authored/source guards, dependency/cancellation/run-budget

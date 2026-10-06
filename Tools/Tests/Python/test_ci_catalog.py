@@ -79,6 +79,8 @@ def private_catalog(tmp_path):
         "layer_adapters.py",
         "adapter_worker.py",
         "Invoke-CiAdapter.ps1",
+        "execution_reports.py",
+        "report_ci.py",
     ):
         shutil.copy2(ROOT / "Tools/CI" / script, root / "Tools/CI" / script)
     return root, data, documents

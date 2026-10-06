@@ -222,6 +222,8 @@ class Catalog:
                 "layer_adapters.py",
                 "adapter_worker.py",
                 "Invoke-CiAdapter.ps1",
+                "execution_reports.py",
+                "report_ci.py",
             ):
                 self.sources["execution-code-" + script] = self.root / "Tools/CI" / script
         self.source_digests = {
@@ -752,7 +754,7 @@ class Catalog:
                 "execution_ready": False,
                 "rollout_blockers": [
                     "Phase 4.4 local execution exists; hosted adoption remains gated",
-                    "Phase 4.5 aggregate reports",
+                    "Phase 4.5 local reports exist; hosted publication remains gated",
                 ]
                 + (
                     ["Phase 5 required synthetic media and complete parity proof"]
