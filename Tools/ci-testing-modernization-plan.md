@@ -19,7 +19,8 @@ local Windows/WSL and fresh hosted Windows/Linux on 2026-10-05.
 CI 3.1.3 installed-artifact verification is confirmed on 2026-10-05 with local Windows/WSL proof.
 Phase 3.1 is closed; CI 3.2 native test layout/discovery and editor configuration are confirmed
 on 2026-10-05. CI 3.3 representative Python/PowerShell pilots and their narrow tooling fixes are
-confirmed on 2026-10-05. Native results/failure contracts begin at 3.4.
+confirmed on 2026-10-05. CI 3.4 native results/failure contracts are confirmed on 2026-10-05
+with local Windows/WSL proof. Pilot equivalence and adoption review follow at 3.5.
 
 **Working branch:** `architecture/ci-testing-modernization`, created from
 `architecture/framework-extraction-foundation` at `c4b7932`.
@@ -1435,14 +1436,33 @@ implementation items on 2026-10-05; no legacy coverage is retired here.
 
 ### Phase 3.4 Native Results And Framework Failure Contracts
 
-- [ ] Emit pytest JUnit and Pester native JUnit/NUnit results with distinct runtime identities.
-- [ ] Prove assertion/discovery failures, no tests, wrong filters, missing dependencies, unexpected
+- [x] Emit pytest JUnit and Pester native JUnit/NUnit results with distinct runtime identities.
+- [x] Prove assertion/discovery failures, no tests, wrong filters, missing dependencies, unexpected
   required skips, and fixture teardown failures return classified nonzero outcomes.
-- [ ] Preserve case diagnostics, durations, native counts, and both output streams; verify structured
+- [x] Preserve case diagnostics, durations, native counts, and both output streams; verify structured
   adapters do not invent test granularity or mask framework exits.
-- [ ] Check report encoding, XML escaping, unsafe paths, repeat execution, and stale-result avoidance.
+- [x] Check report encoding, XML escaping, unsafe paths, repeat execution, and stale-result avoidance.
 
 **Checkpoint:** Results can be inspected locally and parsed without relying on hosted publication.
+
+**Implementation/evidence (confirmed 2026-10-05):**
+[Native result commands and contract](Tests/README.md#ci-34-native-results-and-failure-contracts)
+implement a single-group adapter with pytest/Pester native JUnit, unchanged raw XML, distinct
+group/runtime publication identities and repository-relative Pester source classes. JSON preserves
+framework and aggregate exits, selected inventory separately from XML entries, durations, available
+artifacts and phase evidence. Both streams and framework diagnostics remain inspectable. Unique
+owned output generations prevent stale reuse; invalid XML/phase evidence and report-write failures
+fail closed. No custom fixture is promoted into a fabricated native case.
+
+Windows/WSL pass 130 pytest/32 Pester aggregate cases, including 33 new permanent native-result
+unit cases. Deliberate 10 pytest/9 Pester scenarios prove assertion, collection, setup/cleanup,
+empty/filter, skip/xfail/strict XPASS and cancellation outcomes. Bare Python environments prove
+missing pytest rejection without acquisition; Linux additionally rejects a symlink output escape.
+Evidence is ignored `.tmp/ci-phase34/`. Framework counts and raw/publication XML are locally
+inspectable; no hosted publishing or legacy-suite retirement occurs. Pester cancellation is a
+controlled child exit 130, not a proved Ctrl+C/process-tree contract. Whole-run admission,
+descendant cleanup, catalog approval and aggregate reporting remain Phase 4; hosted publication
+remains Phase 6. Broader legacy report-path/case/link safety remains with its owning later gates.
 
 ### Phase 3.5 Pilot Equivalence And Adoption Review
 

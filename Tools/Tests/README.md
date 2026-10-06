@@ -66,6 +66,7 @@ The Testing panel is a development view, not suite membership authority or hoste
 | Python/test_compatibility_retirement.py | unit/integration | 51 unit, 1 integration | Current registry/report/host/extraction implementation; inert legacy-host inputs are retained rejection cases |
 | Python/test_package_artifact.py | unit | 18 | Wheel boundary and pure synthetic-consumer helper |
 | Python/test_tooling_pilots.py | unit/integration | 9 unit, 3 integration | Annotation discovery/CLI, normalization and root API implementation |
+| Python/test_native_results.py | unit | 33 | Native XML/phase truth, publication identity, adapter scope, timeout and finalization |
 | PowerShell/ConformanceRunner.Tests.ps1 | Unit | 6 | Conformance registry/selection/report helpers with inert synthetic runners |
 | PowerShell/Dependencies.Tests.ps1 | Unit | 3 | Exact module-declaration implementation |
 | PowerShell/Formatter.Tests.ps1 | Unit/Integration | 3 Unit, 4 Integration | Mocked Git/explicit-file discovery and real exact-version analyzer |
@@ -156,6 +157,78 @@ powershell-conformance-implementation and powershell-runtime-api; formal registr
 G01/G02/G03/G10 receive partial implementation proof. Media/every-adapter coverage, exhaustive runner
 supervision and broader report encoding/path/case/link safety remain later gates. Native failure
 contracts and equivalence/adoption review are 3.4/3.5. No existing coverage is retired here.
+
+## CI 3.4 Native Results And Failure Contracts
+
+CI 3.4 is confirmed on 2026-10-05. The single-group adapter is
+`Tools/CI/run_native_tests.py`; it invokes exact pytest 9.1.1 on CPython 3.14.5 or exact
+Pester 6.2.0 on the selected supported PS7 host. It never installs missing dependencies.
+Use the development executable and process-scoped module path recorded by bootstrap:
+
+```powershell
+$bootstrap = Get-Content .tmp/ci/bootstrap.json -Raw | ConvertFrom-Json
+$python = $bootstrap.python.executable
+$env:PSModulePath = $bootstrap.powershell.module_path
+& $python Tools/CI/run_native_tests.py --runtime python --executable $python --group python-native
+& $python Tools/CI/run_native_tests.py --runtime powershell7 --executable pwsh --group powershell-native
+```
+
+`--path` may repeat for existing files confined to that runtime's native test root; omitted paths
+select the current sorted root files. `--filter` passes a pytest keyword expression or Pester
+FullName pattern. An explicit empty result fails; it never broadens selection. This is local
+development discovery, not approved catalog membership or affected-test selection.
+`--timeout` is a positive child timeout (default 120 seconds, maximum 3600); the Python prerequisite
+probe has a separate 15-second timeout. Phase 4 owns admission, whole-run budgets and process trees.
+
+Each invocation creates a new `run-<uuid>` beneath `--output-root` (default `.tmp/native-tests`).
+The adapter resolves links and confines output to the checkout's owned `.tmp`; absolute, relative,
+sibling and escaping inputs are checked before launch. UUIDs identify artifact generations, not
+native tests. Retained files are `native.xml`, publication `junit.xml`, `native-phases.json`, both
+child stream logs, and `result.json` where produced. Missing XML/phase evidence cannot pass or reuse
+an older generation. The complete structured result is also written to controller stdout.
+
+The local JSON contract is `native-test-run`, version 1: identity, runtime, selected paths,
+status/classification, aggregate and original child exits, duration, native counts, phase evidence,
+run directory and available artifact names. Unknown counts/exits remain null. This is one native
+group's result, not the later `ci-execution-report` supervisor contract. Exit 0 means passed;
+1 means a blocking execution/result/report failure, 2 a rejected invocation/scope, and 130 cancellation.
+Framework exits remain separate: for example pytest's empty-selection exit 5 becomes aggregate 1.
+
+Both frameworks emit native **JUnit**, one of the reviewed JUnit/NUnit alternatives. Raw XML stays
+unchanged. Publication XML prefixes existing case classnames with `<group>.<runtime>`; Pester's
+absolute source classnames become repository-relative paths. It never adds a successful group case
+or converts custom suites into invented native tests. Case names, diagnostics, durations and native
+XML entries are retained. Actual selected inventory comes from pytest session/Pester ShouldRun
+evidence. XML entries are counted separately because an assertion plus teardown error can yield two
+entries for one pytest test. Pester excludes unselected tests from the selected inventory.
+
+The explicitly loaded pytest observer retains setup/call/teardown outcomes and collection errors.
+Pester retains selected identities, per-test errors and captured pipeline output, plus failed
+container/block diagnostics. Child stdout and stderr stay separate; pytest captured case output is
+also in its native XML. Discovery, setup, teardown, assertion, unexpected required skips/xfail,
+strict XPASS, zero tests, wrong filters, unavailable dependencies and malformed/missing/inconsistent
+result evidence all fail. Strict XPASS uses assertion classification; xfail/skips use result-contract.
+Pester hook phases use actual error stack frames and owning native test AST extents.
+
+`Fixtures/native_result_cases.py` and `Fixtures/NativeResultCases.Tests.ps1` deliberately fail only
+when explicitly invoked; normal/editor root discovery excludes them. For example:
+
+```powershell
+$env:NATIVE_FAILURE_CASE = 'teardown'
+try {
+    & $python Tools/CI/run_native_tests.py --runtime python --executable $python --path Tools/Tests/Python/Fixtures/native_result_cases.py
+    & $python Tools/CI/run_native_tests.py --runtime powershell7 --executable pwsh --path Tools/Tests/PowerShell/Fixtures/NativeResultCases.Tests.ps1
+} finally { Remove-Item Env:NATIVE_FAILURE_CASE }
+```
+
+Local Windows/WSL proof under ignored `.tmp/ci-phase34/` covers 10 pytest/9 Pester deliberate
+scenarios, plus real bare-environment pytest rejection. Both normal aggregates pass 130 pytest and
+32 Pester cases, including the 33 permanent report/adapter unit regressions. XML escaping and Unicode,
+both streams, native/publication case parity, stale avoidance and a Linux symlink escape are checked.
+Cancellation proof is pytest KeyboardInterrupt and a controlled Pester child exit 130; it does not
+certify Ctrl+C handling or descendant termination. Timeout tests preserve partial streams and unknown
+counts; Phase 4 still owns process-tree cancellation/cleanup and exhaustive supervisor regressions.
+No custom conformance fixtures, legacy coverage, workflow/check names or hosted publication change.
 
 ## Framework References
 

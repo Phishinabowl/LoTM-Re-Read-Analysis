@@ -5,6 +5,11 @@ CI 3.1.2 implements explicit local acquisition, verified environments and packag
 the [modernization plan](../ci-testing-modernization-plan.md) owns acceptance and later adoption.
 CI 3.1.3 installed-artifact semantic/boundary verification is confirmed. No external package publishing is provided.
 
+CI 3.4 adds the local single-group `run_native_tests.py` adapter and explicit pytest/Pester phase
+observers. [Native result commands, artifacts and failure boundaries](../Tests/README.md#ci-34-native-results-and-failure-contracts)
+are owned by the test-layout documentation. Catalog approval, full supervision, Markdown summaries
+and hosted native-result publication remain with later modernization phases.
+
 ## Normal Development Setup
 
 Use the adopted CPython 3.14.5 x64 interpreter and PS7.6.6 development host. The controller fails

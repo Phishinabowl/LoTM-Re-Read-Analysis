@@ -313,6 +313,18 @@ timings from this static inspection. Existing executable registries and workflow
 
 ### Documentation Verification
 
+**CI 3.4 confirmed (2026-10-05):**
+[Native results/failure contracts](Tests/README.md#ci-34-native-results-and-failure-contracts)
+add 33 permanent pytest unit cases; Windows/WSL normal aggregates pass 130 pytest/32 Pester.
+G07 gains actual native JUnit plus unchanged originals, explicit runtime identities and truthful
+selected counts distinct from XML entries. G10 gains phase/exit reconciliation, XML encoding and
+escaping, fresh-generation/stale rejection, output confinement, timeout partial-output and report-write
+failure proof. Deliberate native failure matrices and bare dependency rejection are locally verified.
+These are single-group adapters, not the Phase 4 supervisor; controlled Pester exit 130 is not
+process-tree cancellation proof. Existing custom reports, legacy report path safety, canonical
+protection, hosted publication and per-story pressure evidence retain their later ownership.
+Evidence is ignored `.tmp/ci-phase34/`; no legacy checks or shared semantic fixtures are retired.
+
 **CI 3.3 confirmed (2026-10-05):** [Tooling pilots](Tests/README.md#ci-33-pilot-scope-and-evidence)
 add 12 pytest/15 Pester cases; Windows/WSL pass 97/32 aggregate cases and independent new files.
 G02 gains annotation inventory/CLI and formatter discovery/token/idempotence proof. Existing registry
