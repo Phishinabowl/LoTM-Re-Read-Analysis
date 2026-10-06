@@ -9,8 +9,8 @@ on 2026-10-05. Phase 2.6 retirement and the performance/cache-plan clarification
 published and verified through exact-snapshot manual hosted proof on 2026-10-05. Phase 2 is closed
 for that authorized scope; actual PR/main event proof remains with 6.2/8.4. No ADO activation
 has occurred. Temporary live-5.1 tests are removed from the current native test roots.
-Focused host regressions are implemented; broader native-test foundations and dual-host pipeline
-rollout have not started. The maintainer accepted retirement of Windows PowerShell 5.1 support on
+Native-test foundations and focused host regressions are implemented; aggregate supervision and
+dual-host pipeline rollout remain later phases. The maintainer accepted retirement of Windows PowerShell 5.1 support on
 2026-10-05; remaining runtime/runner/workflow migration follows the owning checkpoints.
 CI 3.1.1 package/version inventory and contract are confirmed on 2026-10-05. Independent
 Python 0.1.0 numbering and Python 3.14+ eligibility with pinned 3.14.5 execution are explicitly
@@ -20,7 +20,8 @@ CI 3.1.3 installed-artifact verification is confirmed on 2026-10-05 with local W
 Phase 3.1 is closed; CI 3.2 native test layout/discovery and editor configuration are confirmed
 on 2026-10-05. CI 3.3 representative Python/PowerShell pilots and their narrow tooling fixes are
 confirmed on 2026-10-05. CI 3.4 native results/failure contracts are confirmed on 2026-10-05
-with local Windows/WSL proof. Pilot equivalence and adoption review follow at 3.5.
+with local Windows/WSL proof. CI 3.5 pilot adoption review and the Phase 3 local exit gates are
+confirmed on 2026-10-05. Phase 3 is closed; Phase 4 implementation has not started.
 
 **Working branch:** `architecture/ci-testing-modernization`, created from
 `architecture/framework-extraction-foundation` at `c4b7932`.
@@ -1466,20 +1467,34 @@ remains Phase 6. Broader legacy report-path/case/link safety remains with its ow
 
 ### Phase 3.5 Pilot Equivalence And Adoption Review
 
-- [ ] Compare legacy and pilot coverage scenario by scenario, including deliberate failure detection,
+- [x] Compare legacy and pilot coverage scenario by scenario, including deliberate failure detection,
   diagnostics, isolation, runtime cost, and local invocation.
-- [ ] Establish measurable routine-feedback targets and cold/warm setup expectations from pilot evidence,
+- [x] Establish measurable routine-feedback targets and cold/warm setup expectations from pilot evidence,
   with full-profile targets reconciled at 5.1. Keep maximum timeout allowances separate from normal
   duration targets; do not invent promised savings before measuring the affected workload.
-- [ ] Update the coverage ledger and exact command documentation; keep original coverage active.
-- [ ] Record limitations and choose the next implementation-test groups as Phase 4 APIs are added.
+- [x] Update the coverage ledger and exact command documentation; keep original coverage active.
+- [x] Record limitations and choose the next implementation-test groups as Phase 4 APIs are added.
+
+**Review/evidence (confirmed 2026-10-05):**
+[Pilot equivalence and adoption review](ci-testing-pilot-adoption-review.md) compares fourteen
+behavior boundaries against retained checks, distinguishing supplementary coverage from partial
+overlap and unproved replacement. No retained coverage is retired; native candidates proceed to
+4.1 registration. The current native cohort has accepted prepared feedback goals of Python <=15s,
+Pester <=40s, installed-artifact checks <=15s and combined <=60s per adopted local OS. These exclude
+setup/build/static/conformance/project checks and do not reduce failure timeouts. Existing Python
+verification/fresh-offline preparation have separate accepted <=5s/<=45s goals; combined hosted
+setup remains unmeasured. Full-profile reconciliation stays at 5.1, hosted cold/warm proof at 6.1/6.5.
+The review records remaining isolation/process/publication/canonical/semantic gaps and the next
+mandatory Phase 4 catalog/scope/process/adapter/report regression owners. Accepted prior evidence
+is inspected rather than rerunning unchanged expensive portfolios. Phase 3 local exit gates below
+are confirmed on 2026-10-05; hosted adoption remains a later gate.
 
 ### Phase 3 Exit Gate
 
-- [ ] The local Python wheel passes installed-origin/version/dependency/content-boundary proof, and
+- [x] The local Python wheel passes installed-origin/version/dependency/content-boundary proof, and
   source-tree commands plus portable extraction remain usable under the reviewed version policy.
-- [ ] Pilots pass in required runtimes and demonstrate useful diagnostics without weaker coverage.
-- [ ] No harness is retired or host gate reduced on the strength of pilot test counts alone.
+- [x] Pilots pass in required runtimes and demonstrate useful diagnostics without weaker coverage.
+- [x] No harness is retired or host gate reduced on the strength of pilot test counts alone.
 
 **Rollback:** Disable pilot profile references and revert focused packaging/bootstrap adoption as
 needed while retaining original execution and permanent fixtures. No published package removal or

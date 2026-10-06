@@ -230,6 +230,15 @@ certify Ctrl+C handling or descendant termination. Timeout tests preserve partia
 counts; Phase 4 still owns process-tree cancellation/cleanup and exhaustive supervisor regressions.
 No custom conformance fixtures, legacy coverage, workflow/check names or hosted publication change.
 
+## CI 3.5 Adoption Boundary
+
+The [pilot adoption review](../ci-testing-pilot-adoption-review.md) records scenario-level comparisons,
+local feedback targets, exact representative/retained invocations and Phase 4 registration candidates.
+It is confirmed on 2026-10-05. Native tests supplement existing semantic and actual-file checks;
+no legacy family is retired. Catalog registration must avoid executing a native aggregate and its
+constituent groups twice in routine coverage. Independent file proof remains an isolation/diagnostic
+route. Prepared native timing targets exclude setup and the retained compatibility portfolio.
+
 ## Framework References
 
 - [pytest collection configuration](https://docs.pytest.org/en/stable/example/pythoncollection.html)

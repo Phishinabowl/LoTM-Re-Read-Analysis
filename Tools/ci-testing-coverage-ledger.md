@@ -313,6 +313,18 @@ timings from this static inspection. Existing executable registries and workflow
 
 ### Documentation Verification
 
+**CI 3.5 adoption review confirmed (2026-10-05):**
+[Scenario comparison and feedback targets](ci-testing-pilot-adoption-review.md) assess fourteen
+retained/native behavior boundaries, diagnose partial overlap and approve supplementary candidates
+for 4.1 registration. No existing suite, check, fixture or hosted gate is retired. Annotation CLI
+reuses the same 22 authored fixtures; repeated fixture execution is a measured consolidation candidate
+at 5.1, preserving actual-file validation and CLI failure proof. Native aggregate/per-file repetition
+must not become steady-state duplicate coverage. Prepared local cohort goals are separate from
+whole-profile budgets, clean setup and hosted performance. G15's initial local package proof is
+implemented with registration/host/extraction follow-ups; broader G01/G02/G03/G07/G10 scope and
+process/canonical/parity/selector/host gaps remain open. Phase 4 owns catalog/scope/process/adapter/
+report meta-regression groups; media and complete semantic/consumer parity remain Phase 5.
+
 **CI 3.4 confirmed (2026-10-05):**
 [Native results/failure contracts](Tests/README.md#ci-34-native-results-and-failure-contracts)
 add 33 permanent pytest unit cases; Windows/WSL normal aggregates pass 130 pytest/32 Pester.
