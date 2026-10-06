@@ -70,7 +70,8 @@ The Testing panel is a development view, not suite membership authority or hoste
 | Python/test_ci_catalog.py | unit | 58 | Private source/catalog trees, discovery/closure, deterministic planning, shard/gate admission and manifests |
 | Python/test_ci_scope.py | unit/integration | 30 unit, 12 integration | Real private Git histories, snapshot/rename/mode/drift contracts and advisory selector closure |
 | Python/test_ci_process.py | unit/integration | 27 unit, 9 integration | Owned synthetic process trees, guardian/caller loss, deadlines, cancellation, complete diagnostics and cleanup failures |
-| PowerShell/ConformanceRunner.Tests.ps1 | Unit | 6 | Conformance registry/selection/report helpers with inert synthetic runners |
+| Python/test_ci_execution.py | unit/integration | 38 unit, 1 integration | Aggregate continuation/blocking, actual source/policy scope, typed parity, runner deadlines, owned cleanup and shard evidence |
+| PowerShell/ConformanceRunner.Tests.ps1 | Unit/Integration | 6 Unit, 2 Integration | Conformance registry/report helpers and real bounded synthetic child failures/recovery |
 | PowerShell/Dependencies.Tests.ps1 | Unit | 3 | Exact module-declaration implementation |
 | PowerShell/Formatter.Tests.ps1 | Unit/Integration | 3 Unit, 4 Integration | Mocked Git/explicit-file discovery and real exact-version analyzer |
 | PowerShell/Host.Tests.ps1 | Integration | 6 | Supported host/module/readiness collaboration |
@@ -89,6 +90,10 @@ temporary paths, timestamps and Pester-generated GUIDs. New parameterized cases 
 identities must be unique and unchanged between individual and aggregate discovery.
 
 ## Fixture And State Ownership
+
+[CI 4.4 aggregate execution](../CI/aggregate-execution.md) registers ci-execution and exercises
+real approved layer adapters on a captured copy. The new infrastructure shard separates mandatory
+catalog/scope/process/aggregate regression from native/policy work without changing check identities.
 
 [CI 4.3 process ownership](../CI/process-ownership.md) supplies the lifecycle primitive and its
 synthetic tests. Group registration is local/always-run; production adapter supervision and hosted

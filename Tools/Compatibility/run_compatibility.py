@@ -7,6 +7,7 @@ import argparse
 import copy
 import hashlib
 import json
+import math
 import os
 import re
 import shutil
@@ -318,17 +319,32 @@ def run_command(
     expect_success: bool = True,
 ) -> CommandResult:
     started = time.perf_counter()
-    completed = subprocess.run(
-        command,
-        cwd=cwd,
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        timeout=timeout,
-        check=False,
-        env={**os.environ, "PYTHONUTF8": "1"},
-    )
+    deadline = os.environ.get("LOTM_CI_UNIT_DEADLINE")
+    if deadline is not None:
+        limit = float(deadline)
+        if not math.isfinite(limit):
+            raise CompatibilityFailure("Invalid inherited whole-unit deadline")
+        timeout = min(timeout, limit - time.monotonic() - 2)
+        if timeout <= 0:
+            raise CompatibilityFailure("Whole-check budget exhausted before nested command launch")
+    try:
+        completed = subprocess.run(
+            command,
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=timeout,
+            check=False,
+            env={**os.environ, "PYTHONUTF8": "1"},
+        )
+    except subprocess.TimeoutExpired as error:
+        output = (error.stdout or b"", error.stderr or b"")
+        detail = "\n".join(
+            value.decode("utf-8", errors="replace") if isinstance(value, bytes) else value for value in output
+        )
+        raise CompatibilityFailure(f"{runtime.id} nested command deadline exceeded ({timeout}s).\n{detail}") from error
     result = CommandResult(
         runtime=runtime.id,
         command=command,
@@ -2704,7 +2720,18 @@ def concise_compatibility_summary(
 ) -> dict[str, Any]:
     results = [{"id": result["id"], "kind": result["kind"], "status": result["status"]} for result in payload["checks"]]
     failures = []
-    if "error" in payload:
+    if payload.get("failures"):
+        for failure in payload["failures"]:
+            excerpt, truncated = bounded_failure_excerpt(failure["error"])
+            failures.append(
+                {
+                    "id": failure["id"],
+                    "classification": failure["classification"],
+                    "excerpt": excerpt,
+                    "excerpt_truncated": truncated,
+                }
+            )
+    elif "error" in payload:
         failed_id = failed_check["id"] if failed_check is not None else None
         if failed_check is not None and not any(result["id"] == failed_id for result in results):
             results.append({"id": failed_id, "kind": failed_check["kind"], "status": "failed"})
@@ -2764,6 +2791,45 @@ def concise_compatibility_orchestration_failure(error: Exception) -> dict[str, A
     }
 
 
+def execute_checks(checks, runtimes, root, output_root, before):
+    """Continue independent check failures; stop consumers after protected state becomes unsafe."""
+    results, failures = [], []
+    safe = True
+    for check in checks:
+        if not safe:
+            results.append(
+                {
+                    "id": check["id"],
+                    "kind": check["kind"],
+                    "status": "blocked",
+                    "error": "Protected canonical state is unsafe; check not executed.",
+                }
+            )
+            continue
+        check_root = output_root / check["id"]
+        check_root.mkdir(parents=True, exist_ok=True)
+        try:
+            result = CHECK_HANDLERS[check["kind"]](check, runtimes, root, check_root)
+            results.append({"id": check["id"], "kind": check["kind"], **result})
+        except Exception as error:
+            results.append({"id": check["id"], "kind": check["kind"], "status": "failed", "error": str(error)})
+            failures.append({"id": check["id"], "classification": "check-failure", "error": str(error)})
+        try:
+            safe = before == sha256_tree(protected_paths(root))
+        except Exception as error:
+            safe = False
+            failures.append({"id": None, "classification": "canonical-output-change", "error": str(error)})
+        if not safe:
+            failures.append(
+                {
+                    "id": None,
+                    "classification": "canonical-output-change",
+                    "error": "Compatibility run modified or lost protected canonical outputs.",
+                }
+            )
+    return results, failures, safe
+
+
 def main() -> int:
     args = parse_args()
     root = resolve_project_root(args.root, executable_path=__file__)
@@ -2797,15 +2863,13 @@ def main() -> int:
     failure_classification: str | None = None
     before: dict[str, str] | None = None
     canonical_unchanged = False
+    failures = []
     try:
         before = sha256_tree(protected_paths(root))
-        for check in checks:
-            failed_check = check
-            check_root = output_root / check["id"]
-            check_root.mkdir(parents=True, exist_ok=True)
-            result = CHECK_HANDLERS[check["kind"]](check, runtimes, root, check_root)
-            results.append({"id": check["id"], "kind": check["kind"], **result})
-            failed_check = None
+        results, failures, canonical_unchanged = execute_checks(checks, runtimes, root, output_root, before)
+        if failures:
+            failure = CompatibilityFailure("\n".join(item["error"] for item in failures))
+            failure_classification = failures[0]["classification"]
     except Exception as exc:  # preserve scoped output for the failure summary before cleanup
         failure = exc
         failure_classification = "check-failure" if failed_check is not None else "orchestration-failure"
@@ -2820,8 +2884,8 @@ def main() -> int:
         "profile": args.profile if not args.check else None,
         "requested_checks": [check["id"] for check in checks],
         "status": "failed" if failure else "passed",
-        "passed": len(results),
-        "failed": 1 if failure else 0,
+        "passed": sum(result["status"] == "passed" for result in results),
+        "failed": sum(result["status"] in {"failed", "blocked"} for result in results) or (1 if failure else 0),
         "elapsed_seconds": round(time.perf_counter() - started, 3),
         "canonical_outputs_unchanged": canonical_unchanged,
         "output_root": str(output_root),
@@ -2830,6 +2894,8 @@ def main() -> int:
     }
     if failure:
         payload["error"] = str(failure)
+        if failures:
+            payload["failures"] = failures
     report_inside_output = report_output is not None and (
         report_output == output_root or output_root in report_output.parents
     )

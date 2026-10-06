@@ -31,6 +31,9 @@ Emits a concise validation-run-summary without nested suite summaries.
 .PARAMETER ReportOutput
 Writes the complete stable JSON result to a file beneath the project root.
 
+.PARAMETER TimeoutSeconds
+Per-suite child deadline. Defaults to 600 seconds; aggregate CI supplies the admitted unit limit.
+
 .EXAMPLE
 ./Tools/Conformance/Run-Conformance.ps1 -Profile baseline -Json
 
@@ -48,7 +51,9 @@ param(
     [switch]$List,
     [switch]$Json,
     [switch]$SummaryJson,
-    [string]$ReportOutput
+    [string]$ReportOutput,
+    [ValidateRange(1, 7200)]
+    [int]$TimeoutSeconds = 600
 )
 
 $ErrorActionPreference = 'Stop'
@@ -325,19 +330,53 @@ function Get-SelectedSuites {
 function Invoke-ConformanceSuite {
     param(
         [string]$RepoRoot,
-        [object]$SuiteDefinition
+        [object]$SuiteDefinition,
+        [int]$ChildTimeoutSeconds = 600
     )
 
     try {
         $executable = Resolve-KnowledgePowerShellExecutable
         $arguments = @('-NoProfile')
         $arguments += @('-File', $SuiteDefinition.powershell_path, '-Root', $RepoRoot, '-Json')
-        $output = @(& $executable @arguments 2>&1)
-        if ($LASTEXITCODE -ne 0) {
-            $detail = @($output | ForEach-Object { [string]$_ } | Where-Object { $_ }) -join [Environment]::NewLine
-            throw ($detail.Trim())
+        $startInfo = [System.Diagnostics.ProcessStartInfo]::new($executable)
+        $startInfo.UseShellExecute = $false
+        $startInfo.CreateNoWindow = $true
+        $startInfo.WorkingDirectory = $RepoRoot
+        $startInfo.RedirectStandardOutput = $true
+        $startInfo.RedirectStandardError = $true
+        foreach ($argument in $arguments) {
+            $startInfo.ArgumentList.Add($argument)
         }
-        $lines = @($output | ForEach-Object { ([string]$_).Trim() } | Where-Object { $_ })
+        $process = [System.Diagnostics.Process]::new()
+        $process.StartInfo = $startInfo
+        $launched = $false
+        try {
+            $launched = $process.Start()
+            $stdout = $process.StandardOutput.ReadToEndAsync()
+            $stderr = $process.StandardError.ReadToEndAsync()
+            $expired = -not $process.WaitForExit($ChildTimeoutSeconds * 1000)
+            if ($expired) {
+                $process.Kill($true)
+                $null = $process.WaitForExit(3000)
+            }
+            if (-not $stdout.Wait(3000) -or -not $stderr.Wait(3000)) {
+                throw 'Conformance child stream closure could not be verified.'
+            }
+            $detail = ($stdout.Result + "`n" + $stderr.Result).Trim()
+            if ($expired) {
+                throw "Suite deadline exceeded ($ChildTimeoutSeconds seconds).`n$detail"
+            }
+            if ($process.ExitCode -ne 0) {
+                throw $detail
+            }
+            $lines = @($stdout.Result -split "`r?`n" | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+        }
+        finally {
+            if ($launched -and -not $process.HasExited) {
+                $process.Kill($true)
+            }
+            $process.Dispose()
+        }
         if ($lines.Count -eq 0) {
             throw "Conformance suite '$($SuiteDefinition.id)' emitted no JSON summary."
         }
@@ -581,7 +620,7 @@ foreach ($suiteDefinition in @($selection.suites)) {
     if (-not $Json -and -not $SummaryJson) {
         Write-Output "RUN: $($suiteDefinition.id)"
     }
-    $result = Invoke-ConformanceSuite $repoRoot $suiteDefinition
+    $result = Invoke-ConformanceSuite $repoRoot $suiteDefinition $TimeoutSeconds
     $results.Add($result)
     if (-not $Json -and -not $SummaryJson) {
         Write-Output "$(([string]$result.status).ToUpper()): $($suiteDefinition.id)"

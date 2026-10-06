@@ -118,3 +118,39 @@ Describe 'Existing conformance report implementation boundaries' -Tag Unit {
         { Resolve-ConformanceReportOutput -RepoRoot $TestDrive -Value 'reports' } | Should -Throw '*file path*'
     }
 }
+
+Describe 'Conformance child deadlines with synthetic scripts' -Tag Integration {
+    BeforeAll {
+        function Resolve-KnowledgePowerShellExecutable {
+            [Environment]::ProcessPath
+        }
+    }
+    It 'retains nonzero child diagnostics and permits a later independent suite' {
+        $failed = Join-Path $TestDrive 'failed.ps1'
+        $passed = Join-Path $TestDrive 'passed.ps1'
+        Set-Content $failed "Write-Output 'complete synthetic diagnostic'; exit 1"
+        Set-Content $passed 'Write-Output ''{"fixture":true}'''
+        $first = Invoke-ConformanceSuite $TestDrive @{ id = 'failed'
+            powershell_path = $failed
+        } 5
+        $second = Invoke-ConformanceSuite $TestDrive @{ id = 'passed'
+            powershell_path = $passed
+        } 5
+        $first.status | Should -Be 'failed'
+        $first.error | Should -Match 'complete synthetic diagnostic'
+        $second.status | Should -Be 'passed'
+        $second.summary.fixture | Should -BeTrue
+    }
+    It 'bounds a hung synthetic child and continues after it' {
+        $hung = Join-Path $TestDrive 'hung.ps1'
+        Set-Content $hung "Write-Output 'before timeout'; Start-Sleep -Seconds 20"
+        $timer = [Diagnostics.Stopwatch]::StartNew()
+        $result = Invoke-ConformanceSuite $TestDrive @{ id = 'hung'
+            powershell_path = $hung
+        } 1
+        $result.status | Should -Be 'failed'
+        $result.error | Should -Match 'Suite deadline exceeded'
+        $result.error | Should -Match 'before timeout'
+        $timer.Elapsed.TotalSeconds | Should -BeLessThan 5
+    }
+}

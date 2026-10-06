@@ -665,6 +665,7 @@
         "implementation/python-installed-runtime",
         "implementation/ci-scope",
         "implementation/ci-process",
+        "implementation/ci-execution",
         "conformance/project-root",
         "conformance/framework-installation",
         "conformance/framework-catalog",

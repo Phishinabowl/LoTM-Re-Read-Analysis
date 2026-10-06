@@ -28,6 +28,9 @@ confirmed on 2026-10-05. Phase 3 is closed; CI 4.1 catalogs/planning and D22 are
 CI 4.3 process lifecycle primitives are confirmed on 2026-10-05; real adapter integration and
 aggregate/publication adoption remain 4.4 onward.
 
+CI 4.4 layer adapters/local aggregate execution are confirmed by the maintainer on 2026-10-06.
+Hosted/default adoption, atomic reporting and complete legacy equivalence remain gated.
+
 **Working branch:** `architecture/ci-testing-modernization`, created from
 `architecture/framework-extraction-foundation` at `c4b7932`.
 
@@ -1602,19 +1605,49 @@ reused; no semantic/conformance retirement is claimed. Local evidence is ignored
 
 ### Phase 4.4 Layer Adapters And Aggregate Execution
 
-- [ ] Add adapters for static policy, actual-change validators, pytest, Pester, existing conformance,
+- [x] Add adapters for static policy, actual-change validators, pytest, Pester, existing conformance,
   parity, and compatibility using their supported public contracts.
-- [ ] Separate actual-file validation scope from tooling regression selection; include necessary
+- [x] Separate actual-file validation scope from tooling regression selection; include necessary
   composed context and deletion integrity checks.
-- [ ] Address conformance child deadlines and compatibility first-failure behavior at their owning
+- [x] Address conformance child deadlines and compatibility first-failure behavior at their owning
   runner boundaries; a supervisor wrapper alone must not claim later internal checks ran.
-- [ ] Continue independent failures, classify dependency-blocked/unexecuted units, stop unsafe shared
+- [x] Continue independent failures, classify dependency-blocked/unexecuted units, stop unsafe shared
   state, and calculate aggregate status independently of publication success.
-- [ ] Preserve standalone commands, detailed JSON consumers, expected errors, and semantic ownership.
-- [ ] Support local run-set reproduction and hosted shard result collection through the same repository
+- [x] Preserve standalone commands, detailed JSON consumers, expected errors, and semantic ownership.
+- [x] Support local run-set reproduction and hosted shard result collection through the same repository
   aggregate contract; wrong/missing/stale/duplicate source evidence fails independent of upload success.
 
 **Checkpoint:** Deliberate formatter/test/compatibility failures leave later independent evidence visible.
+
+**Implementation/evidence (confirmed 2026-10-06):**
+[Local aggregate execution](CI/aggregate-execution.md) connects exact captured scope/catalog authority,
+preflight, fixed adapters, actual current-context/deletion dispositions, source/containment guards,
+independent continuation, nested/whole-run budgets and truthful aggregate exits. Standalone
+conformance adds child deadlines; compatibility records later independent failures/checks and blocks
+after unsafe canonical state. Native raw XML/phase/count truth and locked wheel verification retain
+their existing owners. Scope/root-only synthetic fixtures remain separate from canonical LoTM data.
+
+The new native-infrastructure-1 shard admits 390 execution / 600 lifecycle-total seconds; native/policy
+becomes 1920 / 2130. Existing check names and 2190/3300 ceilings remain unchanged. Exact registered
+source manifests, source/merge provenance, artifacts/digests and actual native/semantic evidence are
+required by shard admission/collection; uploaded success alone cannot satisfy coverage. Hosted YAML
+is unchanged. Current artifacts are retained local JSON/native evidence, not completed atomic journals
+or final Markdown/custom XML/publication projections.
+
+Thirty-nine aggregate/adapter cases and two synthetic Pester child cases supplement existing proof.
+The full captured Windows feature profile passes all 41 units in 257.040s: 301 pytest cases (35 aggregate
+cases at that snapshot), 34 Pester cases, installed-artifact verification, all four policies, all ten fast
+suites in Python/PS7 and exact retained semantic parity. Final expanded native inventory is 305 pytest
+cases; final Windows/WSL native aggregates pass all 305 in 35.679s / 11.320s.
+Real framework-catalog/effective-schema compatibility adapters,
+workflow shard execution and collection also pass. Ownership/cache/bytecode/read-only scratch issues
+found by real runs were corrected without weakening source guards; later setup/launch/parser cost
+optimization remains Phase 5.1. Existing semantic fixtures/baselines and authored sources are unchanged.
+Evidence is ignored `.tmp/ci-phase44/`; full baseline/compatibility shadow and hosted/event execution
+remain Phase 5/6 gates, not inferred from this checkpoint.
+Final Ruff/formatting (89 sources), annotation policy (22 fixtures / 453 files), 93 relative
+documentation links/anchors and diff checks pass. Final diff audit verifies every preexisting
+implementation record and all existing hosted check names remain unchanged.
 
 ### Phase 4.5 Unified JSON, Markdown, XML, And Artifact Lifecycle
 

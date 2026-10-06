@@ -538,6 +538,42 @@
       "result_contract": "native-test-run-v1",
       "empty_policy": "fail",
       "allowed_skips": []
+    },
+    {
+      "id": "ci-execution",
+      "description": "aggregate adapters and shard evidence regression",
+      "order": 15,
+      "adapter": "pytest",
+      "runtimes": [
+        "python"
+      ],
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "entry": [
+        "Tools/Tests/Python/test_ci_execution.py"
+      ],
+      "arguments": [],
+      "fixtures": [
+        "Tools/Tests/Python",
+        "Tools/CI/Data"
+      ],
+      "impact_paths": [
+        "Tools/CI/**",
+        "Tools/Tests/**",
+        "Tools/Runtime/**",
+        "Tools/Static/**",
+        "Tools/Conformance/**",
+        "Tools/Compatibility/**",
+        "requirements-*",
+        "pyproject.toml"
+      ],
+      "depends_on": [],
+      "deadline_seconds": 120,
+      "result_contract": "native-test-run-v1",
+      "empty_policy": "fail",
+      "allowed_skips": []
     }
   ],
   "discovery": [

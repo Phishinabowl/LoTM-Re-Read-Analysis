@@ -9,6 +9,9 @@ ci-scope as a fourteenth implementation group and always-run obligation; its cur
 inventory, additional allowance and explain-only behavior are documented in [Git scope](change-scope.md).
 CI 4.3 adds [process lifecycle regression](process-ownership.md), reaching 53 logical units and
 15 implementation groups while retaining the provisional 2190-second shard execution ceiling.
+CI 4.4 adds [local aggregate adapters](aggregate-execution.md), reaching 54 logical units and
+16 implementation groups. It moves infrastructure regression into its own admitted shard;
+planning remains read-only and hosted adoption/report publication remain gated.
 
 ```powershell
 # Use the prepared development Python executable recorded by bootstrap.

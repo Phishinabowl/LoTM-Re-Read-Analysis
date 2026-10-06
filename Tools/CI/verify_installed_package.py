@@ -50,16 +50,22 @@ def prepare_consumer(target):
     return {path.relative_to(target).as_posix(): bootstrap.digest(path) for path in files}
 
 
-def verify(wheel, installer, report):
+def verify(wheel, installer, report, runtime_wheel=None):
     start = time.perf_counter()
     metadata, files = bootstrap.package_metadata()
     contract = inspect_wheel(wheel, ROOT, bootstrap.source_version(), files, metadata["project"])
     versions = bootstrap.read_json(bootstrap.DATA / "runtime-versions.json")
     pins, identity, lock = bootstrap.python_plan("runtime", False, versions)
-    payload_cache = bootstrap.owned_path(ROOT / ".local/ci-cache/python" / bootstrap.key_for(identity))
-    # Verification uses already acquired payloads only, including their committed published digests.
-    bootstrap.acquire_wheels(pins, payload_cache, lock, offline=True, check=True)
-    yaml_wheel = payload_cache / bootstrap.wheel_for(lock["packages"]["pyyaml"])["filename"]
+    if runtime_wheel is None:
+        payload_cache = bootstrap.owned_path(ROOT / ".local/ci-cache/python" / bootstrap.key_for(identity))
+        # Verification uses already acquired payloads only, including their committed published digests.
+        bootstrap.acquire_wheels(pins, payload_cache, lock, offline=True, check=True)
+        yaml_wheel = payload_cache / bootstrap.wheel_for(lock["packages"]["pyyaml"])["filename"]
+    else:
+        yaml_wheel = Path(runtime_wheel).resolve()
+        row = bootstrap.wheel_for(lock["packages"]["pyyaml"])
+        if yaml_wheel.name != row["filename"] or bootstrap.digest(yaml_wheel) != row["sha256"]:
+            raise ValueError("Explicit runtime wheel does not match the committed platform lock")
     contract["yaml_version"] = pins["pyyaml"]
     contract["python_version"] = versions["python"]
     interpreter = json.loads(
@@ -214,13 +220,16 @@ def main():
     parser.add_argument("--wheel", type=Path, required=True)
     parser.add_argument("--installer-python", type=Path, required=True)
     parser.add_argument("--report", type=Path, required=True)
+    parser.add_argument(
+        "--runtime-wheel", type=Path, help="Explicit already acquired locked PyYAML wheel for captured execution."
+    )
     args = parser.parse_args()
     report = args.report.resolve()
     if not report.is_relative_to((ROOT / ".tmp").resolve()) or not (ROOT / ".tmp").resolve().is_relative_to(
         ROOT.resolve()
     ):
         parser.error("Report must stay inside the checkout owned .tmp directory")
-    verify(args.wheel.resolve(), args.installer_python.resolve(), report)
+    verify(args.wheel.resolve(), args.installer_python.resolve(), report, args.runtime_wheel)
 
 
 if __name__ == "__main__":

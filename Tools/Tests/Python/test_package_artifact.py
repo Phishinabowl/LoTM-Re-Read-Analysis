@@ -89,7 +89,10 @@ def test_neutral_fixture_builder_needs_no_runtime_or_yaml_installation(tmp_path)
         "module.write_neutral_consumer(pathlib.Path(sys.argv[2]))"
     )
     result = subprocess.run(
-        [sys.executable, "-I", "-S", "-c", code, str(helper), str(tmp_path)], capture_output=True, text=True, timeout=15
+        [sys.executable, "-I", "-B", "-S", "-c", code, str(helper), str(tmp_path)],
+        capture_output=True,
+        text=True,
+        timeout=15,
     )
     assert result.returncode == 0, result.stderr
     assert "project_id: extraction-smoke" in (tmp_path / "Project_Config/project.yaml").read_text()

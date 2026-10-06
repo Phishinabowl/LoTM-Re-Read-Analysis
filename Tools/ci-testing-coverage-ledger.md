@@ -313,6 +313,31 @@ timings from this static inspection. Existing executable registries and workflow
 
 ### Documentation Verification
 
+**CI 4.4 confirmed (2026-10-06):**
+[Aggregate execution](CI/aggregate-execution.md) adds fixed layer adapters, true actual captured-context
+validation/deletion dispositions, immutable authored/source guards, dependency/cancellation/run-budget
+states and source-bound shard collection. G01 gains 39 aggregate cases; G08 gains conformance child
+limits, compatibility continuation and inherited nested check deadlines; G13 gains verified removal
+of exact owned external scratch, including Windows read-only synthetic Git objects. Current-context
+proof does not close future authored logical-schema/link rules; broad source guarding does not claim
+all project compatibility/consumer scenarios have been migrated or retired.
+
+Full Windows feature execution passes 41 units in 257.040s with 301 pytest cases at that snapshot,
+34 Pester cases, real installed-artifact proof, four policies, ten fast suites in both retained runtimes
+and exact semantic parity. Final pytest inventory grows to 305; Windows/WSL aggregates pass all 305
+in 35.679s / 11.320s. Ruff/formatting (89 sources), annotation policy (22 fixtures / 453 files),
+93 relative documentation links/anchors and diff checks pass. Exact catalog audit preserves all
+preexisting implementation records and existing hosted gate/check identities.
+Real framework-catalog/effective-schema compatibility adapters and workflow shard execution/collection
+pass separately. Full baseline/profile equivalence and hosted/event proof remain Phase 5/6.
+
+Registration is 54 logical units/16 implementation groups. Initial native/policy execution is 1920s;
+new infrastructure regression is 390s in its own shard. Existing check identities and 2190/3300 ceilings
+remain intact. Raw domain/native results, process diagnostics and relative hash-bound artifacts stay
+local/ignored; atomic journals, final projections and hosted publication remain 4.5 onward. Evidence:
+`.tmp/ci-phase44/`. Measured setup/PS launch/parsing costs feed Phase 5.1 optimization; no performance
+equivalence or semantic retirement is declared from a supplementary local run.
+
 **CI 4.3 confirmed (2026-10-05):**
 [Owned process lifecycle](CI/process-ownership.md) adds 36 synthetic cases (27 unit / 9 integration)
 and always-run ci-process registration. G01 gains concrete process meta-regression; G13 gains owned

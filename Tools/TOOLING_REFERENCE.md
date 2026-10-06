@@ -1925,3 +1925,11 @@ execution adapters. It owns one synthetic/approved process tree with explicit ar
 environment and retained outputs, using Windows Job Objects or Linux process groups. Catalog plans
 still do not launch suites. [Process ownership](CI/process-ownership.md) owns API/lifecycle limits,
 failure evidence and local synthetic verification commands; real layer integration begins at 4.4.
+
+## CI Local Aggregate Execution (CI 4.4)
+
+`Tools/CI/run_ci.py --profile <id> --scope <mode>` executes an approved full profile on captured
+source with explicit preflight paths. Registered `--shard-plan`/`--shard` execution, prerequisite
+`--source-result` admission and complete `--shard-result` collection use the same source/result
+contracts. [Aggregate execution](CI/aggregate-execution.md) owns commands, failure/coverage rules,
+actual-policy boundaries and remaining reporting/hosted gates. Execution acquires no dependencies.

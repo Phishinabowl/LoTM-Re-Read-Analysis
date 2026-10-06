@@ -158,9 +158,18 @@ def parse_child_summary(stdout: str, suite_id: str) -> dict:
     return value
 
 
-def run_suite(root: Path, suite: dict) -> dict:
+def run_suite(root: Path, suite: dict, timeout: float = 600) -> dict:
     command = [sys.executable, str(suite["python_path"]), "--root", str(root), "--json"]
-    completed = subprocess.run(command, cwd=root, capture_output=True, text=True, encoding="utf-8", check=False)
+    try:
+        completed = subprocess.run(
+            command, cwd=root, capture_output=True, text=True, encoding="utf-8", check=False, timeout=timeout
+        )
+    except subprocess.TimeoutExpired as error:
+        output = (error.stdout or b"", error.stderr or b"")
+        detail = "\n".join(
+            value.decode("utf-8", errors="replace") if isinstance(value, bytes) else value for value in output
+        )
+        return {"id": suite["id"], "status": "failed", "error": f"Suite deadline exceeded ({timeout}s).\n{detail}"}
     if completed.returncode != 0:
         detail = (completed.stderr or completed.stdout).strip()
         return {"id": suite["id"], "status": "failed", "error": detail or "Runner exited without output."}
@@ -297,7 +306,12 @@ def main() -> int:
         metavar="PATH",
         help="Write the complete stable JSON result to a file beneath the project root.",
     )
+    parser.add_argument(
+        "--timeout", type=float, default=600, help="Per-suite child deadline in seconds (default: 600)."
+    )
     args = parser.parse_args()
+    if not 0 < args.timeout <= 7200:
+        parser.error("Suite timeout must be positive and at most 7200 seconds.")
 
     root = resolve_project_root(args.root, executable_path=__file__)
     if args.list and (args.summary_json or args.report_output):
@@ -317,7 +331,7 @@ def main() -> int:
     for suite in selected:
         if not args.json and not args.summary_json:
             print(f"RUN: {suite['id']}")
-        result = run_suite(root, suite)
+        result = run_suite(root, suite, args.timeout)
         results.append(result)
         if not args.json and not args.summary_json:
             print(f"{result['status'].upper()}: {suite['id']}")

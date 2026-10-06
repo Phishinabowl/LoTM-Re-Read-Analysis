@@ -23,6 +23,11 @@ ci-owned-process v1 envelope reports process-only outcomes, explicit cleanup ver
 retained diagnostics. Budget admission/leases and synthetic Windows/Linux proof do not claim
 that production adapters, aggregate reporting or hosted lifecycle adoption are complete.
 
+CI 4.4's [local aggregate execution](CI/aggregate-execution.md) is confirmed by the maintainer on
+2026-10-06. Initial ci-execution-report v1 recording, fixed layer adapters and source-bound shard
+collection are local implementations. Atomic journal/report lifecycle and final projections remain
+4.5; hosted/default adoption, required reviews and complete equivalence remain later gates.
+
 The [modernization plan](ci-testing-modernization-plan.md) owns delivery and acceptance gates.
 The [coverage ledger](ci-testing-coverage-ledger.md) owns coverage mapping and migration gaps.
 Existing [validation reporting](../Framework/Contracts/validation-run-reporting.md),

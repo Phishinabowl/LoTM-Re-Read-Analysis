@@ -23,6 +23,11 @@ CI 4.3 adds the [owned process primitive](process-ownership.md), monotonic run/u
 admission, cancellation and synthetic Windows/Linux lifecycle regression. It does not connect
 production adapters or activate hosted profiles; those remain 4.4 onward.
 
+CI 4.4 adds explicit [local aggregate execution and shard collection](aggregate-execution.md)
+through `run_ci.py`. Captured source, actual-policy/context proof, native/custom layer adapters,
+independent continuation and verified source bundles share one repository implementation. Full
+membership remains mandatory; hosted orchestration/publication adoption is still gated.
+
 ## Normal Development Setup
 
 Use the adopted CPython 3.14.5 x64 interpreter and PS7.6.6 development host. The controller fails

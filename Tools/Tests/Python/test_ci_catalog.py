@@ -74,6 +74,11 @@ def private_catalog(tmp_path):
         "explain_ci.py",
         "process_supervisor.py",
         "windows_process.py",
+        "run_ci.py",
+        "aggregate_execution.py",
+        "layer_adapters.py",
+        "adapter_worker.py",
+        "Invoke-CiAdapter.ps1",
     ):
         shutil.copy2(ROOT / "Tools/CI" / script, root / "Tools/CI" / script)
     return root, data, documents

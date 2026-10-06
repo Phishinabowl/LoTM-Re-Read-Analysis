@@ -526,6 +526,11 @@ def run_fixtures(path: Path, policy: Policy) -> tuple[list[dict[str, Any]], list
 
 def scan_repository(root: Path, policy: Policy, requested: list[str]) -> tuple[int, int, list[Finding]]:
     inventory = requested_inventory(root, requested) if requested else repository_inventory(root)
+    return scan_paths(root, policy, inventory)
+
+
+def scan_paths(root: Path, policy: Policy, inventory: list[Path]) -> tuple[int, int, list[Finding]]:
+    """Validate an explicit source inventory supplied by a repository-owned snapshot controller."""
     files_checked = 0
     annotations = 0
     findings: list[Finding] = []

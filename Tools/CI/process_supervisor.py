@@ -46,7 +46,7 @@ class Lease:
 
 
 class RunBudget:
-    def __init__(self, total, termination, cleanup, finalization):
+    def __init__(self, total, termination, cleanup, finalization, *, started=None):
         self.total = seconds(total)
         self.termination = seconds(termination)
         self.cleanup = seconds(cleanup)
@@ -54,7 +54,15 @@ class RunBudget:
         reserve = self.termination + self.cleanup + self.finalization
         if reserve >= self.total:
             raise ValueError("Run budget cannot admit execution after lifecycle reserves")
-        self.deadline = time.monotonic() + self.total
+        now = time.monotonic()
+        if started is not None and (
+            not isinstance(started, (int, float))
+            or isinstance(started, bool)
+            or not math.isfinite(started)
+            or started > now
+        ):
+            raise ValueError("Run origin must be a finite monotonic timestamp no later than now")
+        self.deadline = (now if started is None else started) + self.total
         self.execution_deadline = self.deadline - reserve
 
     def admit(self, timeout):
@@ -325,7 +333,7 @@ def run_process(arguments, *, cwd, env, output_parent, lease, termination=1, cle
     with (directory / "guardian.bin").open("xb") as diagnostic:
         try:
             child = subprocess.Popen(
-                [sys.executable, "-I", str(Path(__file__).resolve()), "--guardian"],
+                [sys.executable, "-I", "-B", str(Path(__file__).resolve()), "--guardian"],
                 stdin=subprocess.PIPE,
                 stdout=diagnostic,
                 stderr=diagnostic,
