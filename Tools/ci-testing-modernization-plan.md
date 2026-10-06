@@ -25,6 +25,9 @@ confirmed on 2026-10-05. Phase 3 is closed; CI 4.1 catalogs/planning and D22 are
 2026-10-05 with local Windows/WSL proof. CI 4.2 scope/selector implementation is confirmed on
 2026-10-05 with local Windows/WSL proof. No execution supervisor/hosted profile is activated.
 
+CI 4.3 process lifecycle primitives are confirmed on 2026-10-05; real adapter integration and
+aggregate/publication adoption remain 4.4 onward.
+
 **Working branch:** `architecture/ci-testing-modernization`, created from
 `architecture/framework-extraction-foundation` at `c4b7932`.
 
@@ -1569,15 +1572,33 @@ deadlines, actual policy validation and durable aggregate artifact lifecycle rem
 
 ### Phase 4.3 Process Ownership, Deadlines, And Cancellation
 
-- [ ] Implement tested Windows Job Object and POSIX process-group ownership using safe argument arrays.
-- [ ] Drain stdout/stderr without deadlock, retain complete diagnostics to owned files, and bound
+- [x] Implement tested Windows Job Object and POSIX process-group ownership using safe argument arrays.
+- [x] Drain stdout/stderr without deadlock, retain complete diagnostics to owned files, and bound
   routine presentation without discarding failure evidence.
-- [ ] Enforce total unit/nested-child/run budgets, graceful termination where supported, bounded
+- [x] Enforce total unit/nested-child/run budgets, graceful termination where supported, bounded
   forced cleanup, and reserved report-publication time.
-- [ ] Test grandchildren, hung/noisy children, launch/ownership failure, timeout, cancellation,
+- [x] Test grandchildren, hung/noisy children, launch/ownership failure, timeout, cancellation,
   parent termination, unrelated-process preservation, and later successful recovery.
 
 **Checkpoint:** Synthetic process trees stop within budget; unrelated processes and outputs survive.
+
+**Implementation/evidence (confirmed 2026-10-05):**
+[Owned process lifecycle](CI/process-ownership.md) implements atomic Windows job creation and Linux
+session/group/subreaper ownership behind a private guardian, explicit arguments/environment/cwd,
+complete binary file capture with bounded presentation, monotonic run-reserve admission and nested
+leases. Caller loss/Ctrl+C/cancellation/timeout stop only the owned tree; cleanup failure remains an
+error. Windows verifies both job accounting and retained member exit handles before claiming cleanup.
+Thirty-six synthetic cases (27 unit / 9 integration) prove this checkpoint without production-suite
+recursion. ci-process is always-run and brings registration to 53 logical units/15 implementation
+groups. Its measured 30-second allowance fills the existing 2190-second initial native/policy ceiling;
+further groups require placement review. The API requires adapter Lease.verify after result work;
+actual adapter/run cancellation wiring is 4.4, durable aggregate/publication recovery is 4.5.
+Existing standalone runners/hosted workflows keep their behavior. Linux deliberately detached
+processes and hard guardian/host kills are explicit boundaries, not claimed cleanup guarantees.
+Windows/WSL native aggregates pass all 266 cases (33.981s / 11.474s); the isolated Windows ci-process
+group passes its exact 36-case inventory in 6.852s under the 30-second limit. Ruff/formatting,
+annotation policy and relative documentation links pass. Pester's unchanged 32-case evidence is
+reused; no semantic/conformance retirement is claimed. Local evidence is ignored `.tmp/ci-phase43/`.
 
 ### Phase 4.4 Layer Adapters And Aggregate Execution
 

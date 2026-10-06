@@ -18,6 +18,11 @@ Current snapshot support is regular files only, with 32 MiB per-file / 256 MiB t
 safe snapshots are required before comparison fallback. Optional materialization uses ignored .tmp.
 No production non-impact exemption or hosted no-impact execution is adopted in this checkpoint.
 
+CI 4.3's [owned process lifecycle](CI/process-ownership.md) is confirmed on 2026-10-05. The
+ci-owned-process v1 envelope reports process-only outcomes, explicit cleanup verification and
+retained diagnostics. Budget admission/leases and synthetic Windows/Linux proof do not claim
+that production adapters, aggregate reporting or hosted lifecycle adoption are complete.
+
 The [modernization plan](ci-testing-modernization-plan.md) owns delivery and acceptance gates.
 The [coverage ledger](ci-testing-coverage-ledger.md) owns coverage mapping and migration gaps.
 Existing [validation reporting](../Framework/Contracts/validation-run-reporting.md),

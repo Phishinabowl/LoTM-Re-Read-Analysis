@@ -1917,3 +1917,11 @@ dispositions. effective_execution_units stays full; selection_enforced and execu
 Index/committed modes require explicit ignored snapshot materialization for matching catalog authority.
 [Git scope](CI/change-scope.md) owns mode/ref/path rules, snapshot APIs, limits, fallback/blocking
 boundaries and local recipes. No fetch, test launch or hosted selection activation is performed.
+
+## CI Owned Process Lifecycle (CI 4.3)
+
+`Tools/CI/process_supervisor.py` exposes `run_process`, `RunBudget` and `Lease` for repository
+execution adapters. It owns one synthetic/approved process tree with explicit arguments, cwd,
+environment and retained outputs, using Windows Job Objects or Linux process groups. Catalog plans
+still do not launch suites. [Process ownership](CI/process-ownership.md) owns API/lifecycle limits,
+failure evidence and local synthetic verification commands; real layer integration begins at 4.4.

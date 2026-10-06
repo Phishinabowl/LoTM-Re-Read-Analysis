@@ -69,6 +69,7 @@ The Testing panel is a development view, not suite membership authority or hoste
 | Python/test_native_results.py | unit | 33 | Native XML/phase truth, publication identity, adapter scope, timeout and finalization |
 | Python/test_ci_catalog.py | unit | 58 | Private source/catalog trees, discovery/closure, deterministic planning, shard/gate admission and manifests |
 | Python/test_ci_scope.py | unit/integration | 30 unit, 12 integration | Real private Git histories, snapshot/rename/mode/drift contracts and advisory selector closure |
+| Python/test_ci_process.py | unit/integration | 27 unit, 9 integration | Owned synthetic process trees, guardian/caller loss, deadlines, cancellation, complete diagnostics and cleanup failures |
 | PowerShell/ConformanceRunner.Tests.ps1 | Unit | 6 | Conformance registry/selection/report helpers with inert synthetic runners |
 | PowerShell/Dependencies.Tests.ps1 | Unit | 3 | Exact module-declaration implementation |
 | PowerShell/Formatter.Tests.ps1 | Unit/Integration | 3 Unit, 4 Integration | Mocked Git/explicit-file discovery and real exact-version analyzer |
@@ -88,6 +89,10 @@ temporary paths, timestamps and Pester-generated GUIDs. New parameterized cases 
 identities must be unique and unchanged between individual and aggregate discovery.
 
 ## Fixture And State Ownership
+
+[CI 4.3 process ownership](../CI/process-ownership.md) supplies the lifecycle primitive and its
+synthetic tests. Group registration is local/always-run; production adapter supervision and hosted
+activation remain later gates. Process exit is not a native passing result or a coverage claim.
 
 - Runtime/source implementation tests use explicit, temporary source import paths and restore them
   immediately after collection imports. Imported helpers must be the intended source implementation;

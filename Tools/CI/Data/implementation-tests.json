@@ -502,6 +502,42 @@
       "result_contract": "native-test-run-v1",
       "empty_policy": "fail",
       "allowed_skips": []
+    },
+    {
+      "id": "ci-process",
+      "description": "owned process lifecycle regression",
+      "order": 14,
+      "adapter": "pytest",
+      "runtimes": [
+        "python"
+      ],
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "entry": [
+        "Tools/Tests/Python/test_ci_process.py"
+      ],
+      "arguments": [],
+      "fixtures": [
+        "Tools/Tests/Python",
+        "Tools/CI/Data"
+      ],
+      "impact_paths": [
+        "Tools/CI/**",
+        "Tools/Tests/**",
+        "Tools/Runtime/**",
+        "Tools/Static/**",
+        "Tools/Conformance/**",
+        "Tools/Compatibility/**",
+        "requirements-*",
+        "pyproject.toml"
+      ],
+      "depends_on": [],
+      "deadline_seconds": 30,
+      "result_contract": "native-test-run-v1",
+      "empty_policy": "fail",
+      "allowed_skips": []
     }
   ],
   "discovery": [

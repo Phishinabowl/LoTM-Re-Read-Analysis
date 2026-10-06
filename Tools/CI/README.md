@@ -19,6 +19,10 @@ CI 4.2 adds [Git scope and advisory impact explanation](change-scope.md) through
 It distinguishes index/worktree/source/merge provenance and coherent snapshots from recoverable
 comparison uncertainty. `would_select` never changes full effective execution membership here.
 
+CI 4.3 adds the [owned process primitive](process-ownership.md), monotonic run/unit/nested budget
+admission, cancellation and synthetic Windows/Linux lifecycle regression. It does not connect
+production adapters or activate hosted profiles; those remain 4.4 onward.
+
 ## Normal Development Setup
 
 Use the adopted CPython 3.14.5 x64 interpreter and PS7.6.6 development host. The controller fails

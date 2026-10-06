@@ -212,6 +212,9 @@ class Catalog:
         if "implementation/ci-scope" in self.units:
             for script in ("scope.py", "selection.py", "explain_ci.py"):
                 self.sources["scope-code-" + script] = self.root / "Tools/CI" / script
+        if "implementation/ci-process" in self.units:
+            for script in ("process_supervisor.py", "windows_process.py"):
+                self.sources["process-code-" + script] = self.root / "Tools/CI" / script
         self.source_digests = {
             path.relative_to(self.root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
             for path in sorted(self.sources.values(), key=lambda value: value.relative_to(self.root).as_posix())
@@ -509,6 +512,11 @@ class Catalog:
                     require(
                         "implementation/ci-scope::python" in profile["always_run"],
                         "Scope/selector regression must always run",
+                    )
+                if "implementation/ci-process" in self.units:
+                    require(
+                        "implementation/ci-process::python" in profile["always_run"],
+                        "Process lifecycle regression must always run",
                     )
             allocation = sum(self.units[unit.split("::")[0]]["deadline_seconds"] for unit in execution)
             window = budget(profile["budget"])

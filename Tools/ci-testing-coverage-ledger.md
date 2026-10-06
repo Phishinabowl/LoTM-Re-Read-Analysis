@@ -313,6 +313,27 @@ timings from this static inspection. Existing executable registries and workflow
 
 ### Documentation Verification
 
+**CI 4.3 confirmed (2026-10-05):**
+[Owned process lifecycle](CI/process-ownership.md) adds 36 synthetic cases (27 unit / 9 integration)
+and always-run ci-process registration. G01 gains concrete process meta-regression; G13 gains owned
+descendant/caller-loss termination proof, while real extraction scratch removal remains 4.4/5.4.
+Timeout/cancellation, noisy complete binary output, launch/ownership failure, cleanup error, unrelated
+child preservation and recovery are covered on Windows and WSL. A Windows race found during testing
+required waiting retained member handles as well as job accounting before claiming cleanup.
+Run admission and nested leases preserve lifecycle/publication reserves without resetting deadlines.
+Forced guardian waits share the existing cleanup window. Real runner wiring and aggregate/native
+semantics remain 4.4; durable report recovery/host hard-kill boundaries remain 4.5.
+Registration is 53 logical units/15 implementation groups, with the initial native/policy allocation
+at its unchanged 2190-second ceiling. Windows/WSL aggregates are 266 passed, no skips/errors,
+33.981s / 11.474s; isolated Windows ci-process passes 36 cases in 6.852s under its 30-second deadline.
+Ruff/formatting and annotation policy (22 fixtures / 446 files, zero findings) pass. Existing Pester
+32-case evidence is reused because no PowerShell implementation changed. No existing checks or
+semantic fixtures are retired, and no hosted profile is activated. Evidence: ignored `.tmp/ci-phase43/`.
+Confirmation audit corrected a catalog edit that had assigned the new deadline to bootstrap instead
+of ci-process. All preexisting implementation records match HEAD exactly; ci-process alone adds a
+30-second allowance. Catalog regression was rerun after correction: 58 passed on Windows and WSL,
+and exact profile/dependency comparison plus shard admission pass.
+
 **CI 4.2 confirmed (2026-10-05):**
 [Git scope/advisory impact](CI/change-scope.md) adds 42 private regressions and an always-run
 ci-scope group. G11 gains precise mode/source/index/worktree/merge provenance, declared glob grammar,

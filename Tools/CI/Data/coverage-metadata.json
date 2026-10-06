@@ -664,6 +664,7 @@
         "implementation/powershell-runtime-api",
         "implementation/python-installed-runtime",
         "implementation/ci-scope",
+        "implementation/ci-process",
         "conformance/project-root",
         "conformance/framework-installation",
         "conformance/framework-catalog",

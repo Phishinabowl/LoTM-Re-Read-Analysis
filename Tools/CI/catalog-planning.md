@@ -7,6 +7,8 @@ dependencies, selects affected tests or publishes results. Existing workflows/ch
 Inventory/timing tables below record the confirmed 4.1 checkpoint. CI 4.2 subsequently registers
 ci-scope as a fourteenth implementation group and always-run obligation; its current 52-unit
 inventory, additional allowance and explain-only behavior are documented in [Git scope](change-scope.md).
+CI 4.3 adds [process lifecycle regression](process-ownership.md), reaching 53 logical units and
+15 implementation groups while retaining the provisional 2190-second shard execution ceiling.
 
 ```powershell
 # Use the prepared development Python executable recorded by bootstrap.
