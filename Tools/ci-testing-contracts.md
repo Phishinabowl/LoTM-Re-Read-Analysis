@@ -8,6 +8,10 @@ selector, XML adapter, or hosted pipeline is implemented by this document. Examp
 fixtures, not current invocation recipes or measured results.
 Phase 1.5 host/run-set additions D15-D18 were confirmed on 2026-10-05; implementation proof remains pending.
 
+CI 4.1's initial catalog/planning subset is confirmed on 2026-10-05; see
+[catalog planning](CI/catalog-planning.md) for actual commands and remaining capabilities.
+This historical design is not a claim that the supervisor/selector or hosted execution is active.
+
 The [modernization plan](ci-testing-modernization-plan.md) owns delivery and acceptance gates.
 The [coverage ledger](ci-testing-coverage-ledger.md) owns coverage mapping and migration gaps.
 Existing [validation reporting](../Framework/Contracts/validation-run-reporting.md),
@@ -67,7 +71,7 @@ Policy/group records require `id`, `description`, `order`, `adapter`, `runtimes`
 `deadline_seconds` is a positive integer defining the entire unit lifetime. Phase 1.4 supplies
 measured values before executable adoption; unresolved budgets make a catalog non-executable.
 
-`entry` is a nonempty explicit ordered file list: one script for an owned validator, explicit test
+`entry` is a nonempty explicit ordered file list: one script/configuration input for a fixed owned validator, explicit test
 files for pytest/Pester groups. Files cannot belong to multiple native groups. `arguments` is a
 string array passed as process arguments, never an evaluated shell string. Runtime, executable,
 root/scope/output arguments are adapter-owned typed inputs, not arbitrary string interpolation.
@@ -78,6 +82,13 @@ Proposed adapters: `ruff`, `powershell-format`, `work-annotations`, `actionlint`
 `pytest`, `pester`, `conformance`, `compatibility`, `parity`. Each has a separately tested argument,
 result and artifact contract. External adapters refer to existing IDs/entry points. Policy
 registration approves actual validator code; a filename discovered on disk is not that approval.
+
+CI 4.1 adds the `installed-artifact` planning adapter for D20's explicit installed-package route,
+with one verify_installed_package.py entry and result ID `installed-package-v1`; it is not pytest
+collection. Initial catalogs adopt only empty arguments/skips, fail-on-empty, full selection,
+`canonical-v1` / `owned-v1` policy IDs and `conformance-semantic-v1` planned comparison identity.
+Actual enforcement of those execution/normalization policies remains 4.3-4.5/5.2. Catalog validators
+reject unadopted exemptions rather than interpreting them as executable support.
 
 `fixtures` lists current repository-relative files/directories consumed by the unit. `impact_paths`
 lists repository-relative glob patterns. `depends_on` lists exact unit identities needed for
@@ -592,6 +603,7 @@ retirement; D09-D11/D13 were confirmed on 2026-10-05. Implementation evidence ga
 | D19 | Accepted 2026-10-05: adopt documentary Python/PS7 Core 7.4+ support and rename the active parity family one-for-one. Plan module 0.14.0 at 2.2 and compatibility registry schema 3 at 2.4, rejecting obsolete declarations; retain conformance/report/extraction v1 and all knowledge schemas. Refined host readiness and runtime-dependent result counts need explicit consumer proof. | 2.1-2.5; inventory/version details in the retirement inventory. |
 | D20 | Accepted planning scope 2026-10-05: add local Python runtime versioning, isolated installation, wheel build and installed-artifact boundary proof within CI 3.1. Settle initial version, backend and shared/independent component numbering at 3.1.1; retain source-tree commands and neutral conformance. No Python version is inferred from PS 0.14.0. Public publishing/hosting and complete product distribution remain Platform 15.1 decisions. | 3.1.1-3.1.3; registration/adoption at 3.2-3.5/4.1 and extraction/equivalence at 5.4. |
 | D21 | Confirmed 2026-10-05: Python begins at 0.1.0 with independent component numbering; PS remains 0.14.0. Python package eligibility is 3.14+, initially bootstrap/test exact 3.14.5; retain Ruff py310 as source syntax policy without claiming older interpreter support. Setuptools backend, single literal version authority, explicit artifact/dependency boundaries and consumer gates are accepted in the Python package contract; no packaging implementation is claimed. | [CI 3.1.1 package contract](ci-python-package-contract.md); implementation/proof at 3.1.2/3.1.3. |
+| D22 | Confirmed 2026-10-05 through CI 4.1: keep schema-1 fields; use script/configuration entries for fixed Ruff/actionlint adapters and a distinct installed-artifact adapter for the accepted D20 verification route. Initial planning supports full selection, no argument/skip/no-impact exemptions, explicit policy IDs and conservative admission. Source-manifest snapshot authority and execution readiness remain later gates. | [Catalog planning](CI/catalog-planning.md); execution at 4.3-4.5 and parity proof at 5.2. |
 
 This planning update records the decision; CI 2.6 removes the checkout's hosted/live-test 5.1
 obligations in the published retirement implementation; the plan owns hosted closure evidence.

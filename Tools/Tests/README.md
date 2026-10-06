@@ -67,6 +67,7 @@ The Testing panel is a development view, not suite membership authority or hoste
 | Python/test_package_artifact.py | unit | 18 | Wheel boundary and pure synthetic-consumer helper |
 | Python/test_tooling_pilots.py | unit/integration | 9 unit, 3 integration | Annotation discovery/CLI, normalization and root API implementation |
 | Python/test_native_results.py | unit | 33 | Native XML/phase truth, publication identity, adapter scope, timeout and finalization |
+| Python/test_ci_catalog.py | unit | 58 | Private source/catalog trees, discovery/closure, deterministic planning, shard/gate admission and manifests |
 | PowerShell/ConformanceRunner.Tests.ps1 | Unit | 6 | Conformance registry/selection/report helpers with inert synthetic runners |
 | PowerShell/Dependencies.Tests.ps1 | Unit | 3 | Exact module-declaration implementation |
 | PowerShell/Formatter.Tests.ps1 | Unit/Integration | 3 Unit, 4 Integration | Mocked Git/explicit-file discovery and real exact-version analyzer |
@@ -238,6 +239,15 @@ It is confirmed on 2026-10-05. Native tests supplement existing semantic and act
 no legacy family is retired. Catalog registration must avoid executing a native aggregate and its
 constituent groups twice in routine coverage. Independent file proof remains an isolation/diagnostic
 route. Prepared native timing targets exclude setup and the retained compatibility portfolio.
+
+## CI 4.1 Catalog Registration
+
+[Catalog planning](../CI/catalog-planning.md) is confirmed on 2026-10-05. Native discovery is now
+reconciled with explicit owning groups; the deliberate Pester result fixture has a reasoned exclusion.
+One installed-artifact group owns the separate explicit verification route. Catalog meta-regression
+is always-run in native profiles, using private trees and inert entries without full-suite recursion.
+Native execution still uses the 3.4 development adapter; catalog planning never invokes it. Scope
+selection, supervision, complete reports and hosted adoption remain later checkpoints.
 
 ## Framework References
 

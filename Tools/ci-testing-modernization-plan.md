@@ -21,7 +21,8 @@ Phase 3.1 is closed; CI 3.2 native test layout/discovery and editor configuratio
 on 2026-10-05. CI 3.3 representative Python/PowerShell pilots and their narrow tooling fixes are
 confirmed on 2026-10-05. CI 3.4 native results/failure contracts are confirmed on 2026-10-05
 with local Windows/WSL proof. CI 3.5 pilot adoption review and the Phase 3 local exit gates are
-confirmed on 2026-10-05. Phase 3 is closed; Phase 4 implementation has not started.
+confirmed on 2026-10-05. Phase 3 is closed; CI 4.1 catalogs/planning and D22 are confirmed on
+2026-10-05 with local Windows/WSL proof. No execution supervisor/hosted profile is activated.
 
 **Working branch:** `architecture/ci-testing-modernization`, created from
 `architecture/framework-extraction-foundation` at `c4b7932`.
@@ -1504,15 +1505,34 @@ external distribution rollback is implied; this phase publishes no package.
 
 ### Phase 4.1 Strict Catalogs And Execution Planning
 
-- [ ] Implement owning catalogs and profile references without copying existing suite membership.
-- [ ] Implement the reviewed shard_plans/result-gate extension inside the profiles catalog; validate
+- [x] Implement owning catalogs and profile references without copying existing suite membership.
+- [x] Implement the reviewed shard_plans/result-gate extension inside the profiles catalog; validate
   exact unit union, source manifests, dependency DAG, gate projection and budget admission before launch.
-- [ ] Validate closed shapes, duplicates, unknown IDs, missing/stale files, runtime variants,
+- [x] Validate closed shapes, duplicates, unknown IDs, missing/stale files, runtime variants,
   containment, ordering, fixture ownership, and registration completeness.
-- [ ] Produce deterministic read-only list/plan output, including required prerequisites and budgets.
-- [ ] Test invalid catalogs as hard failures; unavailable approved coverage remains visible.
+- [x] Produce deterministic read-only list/plan output, including required prerequisites and budgets.
+- [x] Test invalid catalogs as hard failures; unavailable approved coverage remains visible.
 
 **Checkpoint:** Repeated planning selects the same ordered units; no children run during inspection.
+
+**Implementation/evidence (confirmed 2026-10-05):**
+[Catalog planning](CI/catalog-planning.md) owns four schema-1 catalogs, the read-only Python loader/
+CLI and initial source-manifest API. Eight profiles expand 51 logical units from approved policies,
+native groups, existing source registries and planned comparisons. Owner profile membership remains
+authoritative; explicit shard/gate projections are validated against current expansion. Closed shapes,
+ownership/discovery, paths, runtime/result enums, prerequisite DAG, canonical order, exact union,
+source manifests and reserved-budget admission fail closed. Unavailable coverage is retained and
+execution readiness remains false, with later policy/process/report/media/parity gates explicit.
+
+Fifty-eight private-tree regressions pass; Windows/WSL native pytest aggregates pass 188 cases.
+Read-only audit blocks child/network/file mutation and proves repeated eight-profile plans agree
+(about 0.35s Windows / 0.15s WSL). WSL retains 32 passing Pester cases; unchanged Windows PS evidence
+is reused. Windows expanded pytest is 18.046s, above the earlier 130-case cohort's 15s goal; retain
+that goal and review added metadata/fixture costs at 5.1. No hosted placement/check changes or
+legacy retirement occurs. Initial per-unit 120s floors and two-runtime compatibility allocations
+are admission headroom, not expected feedback time; remeasure placement/setup before 6.5 activation.
+Evidence is ignored `.tmp/ci-phase41/`. D22 documents the installed-artifact/config-entry clarification.
+Captured scope/snapshot authority is 4.2; result/artifact manifests and actual execution are 4.4/4.5.
 
 ### Phase 4.2 Change-Scope Resolver And Explain-Only Selector
 

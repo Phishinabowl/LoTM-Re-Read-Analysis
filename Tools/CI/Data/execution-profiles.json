@@ -1,0 +1,3269 @@
+{
+  "schema_version": 1,
+  "runtime_order": [
+    "python",
+    "powershell7"
+  ],
+  "profiles": [
+    {
+      "id": "workflow-policy",
+      "description": "workflow policy",
+      "references": [
+        {
+          "owner": "policy",
+          "profile": null,
+          "ids": [
+            "actionlint"
+          ],
+          "runtimes": [
+            "python"
+          ],
+          "blocking": true
+        }
+      ],
+      "always_run": [
+        "policy/actionlint::python"
+      ],
+      "selection": "full",
+      "execution_policy": {
+        "continue_independent": true,
+        "parallelism": 1,
+        "canonical_guard": "canonical-v1",
+        "environment": "owned-v1"
+      },
+      "budget": {
+        "total_seconds": 330,
+        "termination_seconds": 30,
+        "cleanup_seconds": 60,
+        "finalization_seconds": 120
+      },
+      "required_reviews": []
+    },
+    {
+      "id": "annotation-policy",
+      "description": "annotation policy",
+      "references": [
+        {
+          "owner": "policy",
+          "profile": null,
+          "ids": [
+            "work-annotations"
+          ],
+          "runtimes": [
+            "python"
+          ],
+          "blocking": true
+        }
+      ],
+      "always_run": [
+        "policy/work-annotations::python"
+      ],
+      "selection": "full",
+      "execution_policy": {
+        "continue_independent": true,
+        "parallelism": 1,
+        "canonical_guard": "canonical-v1",
+        "environment": "owned-v1"
+      },
+      "budget": {
+        "total_seconds": 330,
+        "termination_seconds": 30,
+        "cleanup_seconds": 60,
+        "finalization_seconds": 120
+      },
+      "required_reviews": []
+    },
+    {
+      "id": "feature-feedback",
+      "description": "feature feedback",
+      "references": [
+        {
+          "owner": "policy",
+          "profile": null,
+          "ids": [
+            "ruff",
+            "work-annotations",
+            "actionlint"
+          ],
+          "runtimes": [
+            "python"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "policy",
+          "profile": null,
+          "ids": [
+            "powershell-format"
+          ],
+          "runtimes": [
+            "powershell7"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "implementation",
+          "profile": null,
+          "ids": [
+            "python-bootstrap",
+            "python-compatibility-implementation",
+            "python-package-artifact",
+            "python-tooling-pilots",
+            "python-native-results",
+            "ci-catalog",
+            "python-installed-runtime"
+          ],
+          "runtimes": [
+            "python"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "implementation",
+          "profile": null,
+          "ids": [
+            "powershell-conformance-implementation",
+            "powershell-dependencies",
+            "powershell-formatting-implementation",
+            "powershell-host",
+            "powershell-qa-children",
+            "powershell-runtime-api"
+          ],
+          "runtimes": [
+            "powershell7"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "conformance",
+          "profile": "fast",
+          "ids": null,
+          "runtimes": [
+            "python",
+            "powershell7"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "parity",
+          "profile": null,
+          "ids": [
+            "conformance-fast"
+          ],
+          "runtimes": [
+            "python",
+            "powershell7"
+          ],
+          "blocking": true
+        }
+      ],
+      "always_run": [
+        "implementation/ci-catalog::python"
+      ],
+      "selection": "full",
+      "execution_policy": {
+        "continue_independent": true,
+        "parallelism": 1,
+        "canonical_guard": "canonical-v1",
+        "environment": "owned-v1"
+      },
+      "budget": {
+        "total_seconds": 4770,
+        "termination_seconds": 30,
+        "cleanup_seconds": 60,
+        "finalization_seconds": 120
+      },
+      "required_reviews": []
+    },
+    {
+      "id": "pr-integration",
+      "description": "pr integration",
+      "references": [
+        {
+          "owner": "policy",
+          "profile": null,
+          "ids": [
+            "ruff",
+            "work-annotations",
+            "actionlint"
+          ],
+          "runtimes": [
+            "python"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "policy",
+          "profile": null,
+          "ids": [
+            "powershell-format"
+          ],
+          "runtimes": [
+            "powershell7"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "implementation",
+          "profile": null,
+          "ids": [
+            "python-bootstrap",
+            "python-compatibility-implementation",
+            "python-package-artifact",
+            "python-tooling-pilots",
+            "python-native-results",
+            "ci-catalog",
+            "python-installed-runtime"
+          ],
+          "runtimes": [
+            "python"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "implementation",
+          "profile": null,
+          "ids": [
+            "powershell-conformance-implementation",
+            "powershell-dependencies",
+            "powershell-formatting-implementation",
+            "powershell-host",
+            "powershell-qa-children",
+            "powershell-runtime-api"
+          ],
+          "runtimes": [
+            "powershell7"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "conformance",
+          "profile": "baseline",
+          "ids": null,
+          "runtimes": [
+            "python",
+            "powershell7"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "parity",
+          "profile": null,
+          "ids": [
+            "conformance-baseline"
+          ],
+          "runtimes": [
+            "python",
+            "powershell7"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "compatibility",
+          "profile": "pull-request",
+          "ids": null,
+          "runtimes": [
+            "python",
+            "powershell7"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "compatibility",
+          "profile": null,
+          "ids": [
+            "distribution-boundary"
+          ],
+          "runtimes": [
+            "python",
+            "powershell7"
+          ],
+          "blocking": true
+        }
+      ],
+      "always_run": [
+        "implementation/ci-catalog::python"
+      ],
+      "selection": "full",
+      "execution_policy": {
+        "continue_independent": true,
+        "parallelism": 1,
+        "canonical_guard": "canonical-v1",
+        "environment": "owned-v1"
+      },
+      "budget": {
+        "total_seconds": 9210,
+        "termination_seconds": 30,
+        "cleanup_seconds": 60,
+        "finalization_seconds": 120
+      },
+      "required_reviews": []
+    },
+    {
+      "id": "full-verification",
+      "description": "full verification",
+      "references": [
+        {
+          "owner": "policy",
+          "profile": null,
+          "ids": [
+            "ruff",
+            "work-annotations",
+            "actionlint"
+          ],
+          "runtimes": [
+            "python"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "policy",
+          "profile": null,
+          "ids": [
+            "powershell-format"
+          ],
+          "runtimes": [
+            "powershell7"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "implementation",
+          "profile": null,
+          "ids": [
+            "python-bootstrap",
+            "python-compatibility-implementation",
+            "python-package-artifact",
+            "python-tooling-pilots",
+            "python-native-results",
+            "ci-catalog",
+            "python-installed-runtime"
+          ],
+          "runtimes": [
+            "python"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "implementation",
+          "profile": null,
+          "ids": [
+            "powershell-conformance-implementation",
+            "powershell-dependencies",
+            "powershell-formatting-implementation",
+            "powershell-host",
+            "powershell-qa-children",
+            "powershell-runtime-api"
+          ],
+          "runtimes": [
+            "powershell7"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "conformance",
+          "profile": "baseline",
+          "ids": null,
+          "runtimes": [
+            "python",
+            "powershell7"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "parity",
+          "profile": null,
+          "ids": [
+            "conformance-baseline"
+          ],
+          "runtimes": [
+            "python",
+            "powershell7"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "compatibility",
+          "profile": "full-release",
+          "ids": null,
+          "runtimes": [
+            "python",
+            "powershell7"
+          ],
+          "blocking": true
+        }
+      ],
+      "always_run": [
+        "implementation/ci-catalog::python"
+      ],
+      "selection": "full",
+      "execution_policy": {
+        "continue_independent": true,
+        "parallelism": 1,
+        "canonical_guard": "canonical-v1",
+        "environment": "owned-v1"
+      },
+      "budget": {
+        "total_seconds": 9330,
+        "termination_seconds": 30,
+        "cleanup_seconds": 60,
+        "finalization_seconds": 120
+      },
+      "required_reviews": []
+    },
+    {
+      "id": "release-readiness",
+      "description": "release readiness",
+      "references": [
+        {
+          "owner": "policy",
+          "profile": null,
+          "ids": [
+            "ruff",
+            "work-annotations",
+            "actionlint"
+          ],
+          "runtimes": [
+            "python"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "policy",
+          "profile": null,
+          "ids": [
+            "powershell-format"
+          ],
+          "runtimes": [
+            "powershell7"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "implementation",
+          "profile": null,
+          "ids": [
+            "python-bootstrap",
+            "python-compatibility-implementation",
+            "python-package-artifact",
+            "python-tooling-pilots",
+            "python-native-results",
+            "ci-catalog",
+            "python-installed-runtime"
+          ],
+          "runtimes": [
+            "python"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "implementation",
+          "profile": null,
+          "ids": [
+            "powershell-conformance-implementation",
+            "powershell-dependencies",
+            "powershell-formatting-implementation",
+            "powershell-host",
+            "powershell-qa-children",
+            "powershell-runtime-api"
+          ],
+          "runtimes": [
+            "powershell7"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "conformance",
+          "profile": "baseline",
+          "ids": null,
+          "runtimes": [
+            "python",
+            "powershell7"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "parity",
+          "profile": null,
+          "ids": [
+            "conformance-baseline"
+          ],
+          "runtimes": [
+            "python",
+            "powershell7"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "compatibility",
+          "profile": "full-release",
+          "ids": null,
+          "runtimes": [
+            "python",
+            "powershell7"
+          ],
+          "blocking": true
+        }
+      ],
+      "always_run": [
+        "implementation/ci-catalog::python"
+      ],
+      "selection": "full",
+      "execution_policy": {
+        "continue_independent": true,
+        "parallelism": 1,
+        "canonical_guard": "canonical-v1",
+        "environment": "owned-v1"
+      },
+      "budget": {
+        "total_seconds": 9330,
+        "termination_seconds": 30,
+        "cleanup_seconds": 60,
+        "finalization_seconds": 120
+      },
+      "required_reviews": [
+        {
+          "family": "SCENARIO-DERRICK",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "SCENARIO-LOKI",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "SCENARIO-PRIMER",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "SCENARIO-ARRIVAL",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "SCENARIO-MEMENTO",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "SCENARIO-DOCTOR-WHO",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "SCENARIO-WESTWORLD",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "SCENARIO-PARODY-DERIVATION",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "SCENARIO-CONTINUITY-IDENTITY",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "SCENARIO-MARVEL-SHARED-UNIVERSE",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "SCENARIO-DC-CONTINUITY-REWRITES",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "SCENARIO-COLLABORATIVE-CANON",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "SCENARIO-VERSIONED-RULESETS",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "SCENARIO-LIVE-SERVICE-NARRATIVE",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "SCENARIO-RECONSTRUCTED-MEDIA",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "SCENARIO-SERIALIZED-ADAPTATION",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "SCENARIO-TEXTUAL-TRADITION",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "PRESSURE-CROSS-DOMAIN",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "PRESSURE-ADVERSARIAL",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "PRESSURE-SCALE",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "PRESSURE-LAYER-PORTABILITY",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "PRESSURE-WORK-CONTINUITY",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "PRESSURE-MEDIA-DISTRIBUTION",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "PRESSURE-EVIDENCE-AUTHORITY",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "PRESSURE-RULESET-POLICY",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "PRESSURE-ENTITY-IDENTITY",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "PRESSURE-TEMPORAL-TOPOLOGY",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "PRESSURE-RECURRENCE-STATE",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "PRESSURE-EPISTEMIC-STATE",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "PRESSURE-CAPABILITY-STATE",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "PRESSURE-TEMPORAL-COMPOSITION",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "PRESSURE-STRUCTURAL-INTERPRETATION",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "PRESSURE-PARTICIPANT-CHRONOLOGY",
+          "blocking": true,
+          "evidence": null
+        },
+        {
+          "family": "PRESSURE-HOSTED-IDENTITY",
+          "blocking": true,
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "id": "implementation-pilot",
+      "description": "implementation pilot",
+      "references": [
+        {
+          "owner": "implementation",
+          "profile": null,
+          "ids": [
+            "python-bootstrap",
+            "python-compatibility-implementation",
+            "python-package-artifact",
+            "python-tooling-pilots",
+            "python-native-results",
+            "ci-catalog",
+            "python-installed-runtime"
+          ],
+          "runtimes": [
+            "python"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "implementation",
+          "profile": null,
+          "ids": [
+            "powershell-conformance-implementation",
+            "powershell-dependencies",
+            "powershell-formatting-implementation",
+            "powershell-host",
+            "powershell-qa-children",
+            "powershell-runtime-api"
+          ],
+          "runtimes": [
+            "powershell7"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "conformance",
+          "profile": "fast",
+          "ids": null,
+          "runtimes": [
+            "python",
+            "powershell7"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "parity",
+          "profile": null,
+          "ids": [
+            "conformance-fast"
+          ],
+          "runtimes": [
+            "python",
+            "powershell7"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "compatibility",
+          "profile": "local",
+          "ids": null,
+          "runtimes": [
+            "python",
+            "powershell7"
+          ],
+          "blocking": true
+        }
+      ],
+      "always_run": [
+        "implementation/ci-catalog::python"
+      ],
+      "selection": "full",
+      "execution_policy": {
+        "continue_independent": true,
+        "parallelism": 1,
+        "canonical_guard": "canonical-v1",
+        "environment": "owned-v1"
+      },
+      "budget": {
+        "total_seconds": 5340,
+        "termination_seconds": 30,
+        "cleanup_seconds": 60,
+        "finalization_seconds": 120
+      },
+      "required_reviews": []
+    },
+    {
+      "id": "modernization-shadow",
+      "description": "modernization shadow",
+      "references": [
+        {
+          "owner": "policy",
+          "profile": null,
+          "ids": [
+            "ruff",
+            "work-annotations",
+            "actionlint"
+          ],
+          "runtimes": [
+            "python"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "policy",
+          "profile": null,
+          "ids": [
+            "powershell-format"
+          ],
+          "runtimes": [
+            "powershell7"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "implementation",
+          "profile": null,
+          "ids": [
+            "python-bootstrap",
+            "python-compatibility-implementation",
+            "python-package-artifact",
+            "python-tooling-pilots",
+            "python-native-results",
+            "ci-catalog",
+            "python-installed-runtime"
+          ],
+          "runtimes": [
+            "python"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "implementation",
+          "profile": null,
+          "ids": [
+            "powershell-conformance-implementation",
+            "powershell-dependencies",
+            "powershell-formatting-implementation",
+            "powershell-host",
+            "powershell-qa-children",
+            "powershell-runtime-api"
+          ],
+          "runtimes": [
+            "powershell7"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "conformance",
+          "profile": "baseline",
+          "ids": null,
+          "runtimes": [
+            "python",
+            "powershell7"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "parity",
+          "profile": null,
+          "ids": [
+            "conformance-baseline"
+          ],
+          "runtimes": [
+            "python",
+            "powershell7"
+          ],
+          "blocking": true
+        },
+        {
+          "owner": "compatibility",
+          "profile": "full-release",
+          "ids": null,
+          "runtimes": [
+            "python",
+            "powershell7"
+          ],
+          "blocking": true
+        }
+      ],
+      "always_run": [
+        "implementation/ci-catalog::python"
+      ],
+      "selection": "full",
+      "execution_policy": {
+        "continue_independent": true,
+        "parallelism": 1,
+        "canonical_guard": "canonical-v1",
+        "environment": "owned-v1"
+      },
+      "budget": {
+        "total_seconds": 9330,
+        "termination_seconds": 30,
+        "cleanup_seconds": 60,
+        "finalization_seconds": 120
+      },
+      "required_reviews": []
+    }
+  ],
+  "shard_plans": [
+    {
+      "id": "workflow-policy-initial",
+      "profile": "workflow-policy",
+      "shards": [
+        {
+          "id": "native-policy-0",
+          "order": 0,
+          "units": [
+            "policy/actionlint::python"
+          ],
+          "depends_on": [],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        }
+      ],
+      "gates": [
+        {
+          "id": "gate-python",
+          "check_name": "Workflow Policy",
+          "units": [
+            "policy/actionlint::python"
+          ],
+          "source_shards": [
+            "native-policy-0"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "aggregate",
+          "check_name": "CI Aggregate (workflow-policy)",
+          "units": [
+            "policy/actionlint::python"
+          ],
+          "source_shards": [
+            "native-policy-0"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        }
+      ],
+      "aggregate_gate": "aggregate"
+    },
+    {
+      "id": "annotation-policy-initial",
+      "profile": "annotation-policy",
+      "shards": [
+        {
+          "id": "native-policy-0",
+          "order": 0,
+          "units": [
+            "policy/work-annotations::python"
+          ],
+          "depends_on": [],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        }
+      ],
+      "gates": [
+        {
+          "id": "gate-python",
+          "check_name": "Work Annotation Policy",
+          "units": [
+            "policy/work-annotations::python"
+          ],
+          "source_shards": [
+            "native-policy-0"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "aggregate",
+          "check_name": "CI Aggregate (annotation-policy)",
+          "units": [
+            "policy/work-annotations::python"
+          ],
+          "source_shards": [
+            "native-policy-0"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        }
+      ],
+      "aggregate_gate": "aggregate"
+    },
+    {
+      "id": "feature-feedback-initial",
+      "profile": "feature-feedback",
+      "shards": [
+        {
+          "id": "native-policy-0",
+          "order": 0,
+          "units": [
+            "policy/ruff::python",
+            "policy/work-annotations::python",
+            "policy/actionlint::python",
+            "policy/powershell-format::powershell7",
+            "implementation/python-bootstrap::python",
+            "implementation/python-compatibility-implementation::python",
+            "implementation/python-package-artifact::python",
+            "implementation/python-tooling-pilots::python",
+            "implementation/python-native-results::python",
+            "implementation/ci-catalog::python",
+            "implementation/python-installed-runtime::python",
+            "implementation/powershell-conformance-implementation::powershell7",
+            "implementation/powershell-dependencies::powershell7",
+            "implementation/powershell-formatting-implementation::powershell7",
+            "implementation/powershell-host::powershell7",
+            "implementation/powershell-qa-children::powershell7",
+            "implementation/powershell-runtime-api::powershell7"
+          ],
+          "depends_on": [],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 2250,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "conformance-python-1",
+          "order": 1,
+          "units": [
+            "conformance/project-root::python",
+            "conformance/framework-installation::python",
+            "conformance/strict-ingestion::python",
+            "conformance/lookup-key::python",
+            "conformance/schema-pack::python",
+            "conformance/taxonomy::python",
+            "conformance/resource::python",
+            "conformance/effective-schema::python",
+            "conformance/temporal::python",
+            "conformance/chronology::python"
+          ],
+          "depends_on": [],
+          "os": "linux",
+          "budget": {
+            "total_seconds": 1410,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "conformance-powershell7-2",
+          "order": 2,
+          "units": [
+            "conformance/project-root::powershell7",
+            "conformance/framework-installation::powershell7",
+            "conformance/strict-ingestion::powershell7",
+            "conformance/lookup-key::powershell7",
+            "conformance/schema-pack::powershell7",
+            "conformance/taxonomy::powershell7",
+            "conformance/resource::powershell7",
+            "conformance/effective-schema::powershell7",
+            "conformance/temporal::powershell7",
+            "conformance/chronology::powershell7"
+          ],
+          "depends_on": [],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 1410,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "parity-3",
+          "order": 3,
+          "units": [
+            "parity/conformance-fast::referee"
+          ],
+          "depends_on": [
+            "conformance-python-1",
+            "conformance-powershell7-2"
+          ],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        }
+      ],
+      "gates": [
+        {
+          "id": "gate-python",
+          "check_name": "Python Validation",
+          "units": [
+            "policy/ruff::python",
+            "policy/work-annotations::python",
+            "policy/actionlint::python",
+            "implementation/python-bootstrap::python",
+            "implementation/python-compatibility-implementation::python",
+            "implementation/python-package-artifact::python",
+            "implementation/python-tooling-pilots::python",
+            "implementation/python-native-results::python",
+            "implementation/ci-catalog::python",
+            "implementation/python-installed-runtime::python",
+            "conformance/project-root::python",
+            "conformance/framework-installation::python",
+            "conformance/strict-ingestion::python",
+            "conformance/lookup-key::python",
+            "conformance/schema-pack::python",
+            "conformance/taxonomy::python",
+            "conformance/resource::python",
+            "conformance/effective-schema::python",
+            "conformance/temporal::python",
+            "conformance/chronology::python"
+          ],
+          "source_shards": [
+            "native-policy-0",
+            "conformance-python-1"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "gate-powershell7",
+          "check_name": "PowerShell 7 Validation",
+          "units": [
+            "policy/powershell-format::powershell7",
+            "implementation/powershell-conformance-implementation::powershell7",
+            "implementation/powershell-dependencies::powershell7",
+            "implementation/powershell-formatting-implementation::powershell7",
+            "implementation/powershell-host::powershell7",
+            "implementation/powershell-qa-children::powershell7",
+            "implementation/powershell-runtime-api::powershell7",
+            "conformance/project-root::powershell7",
+            "conformance/framework-installation::powershell7",
+            "conformance/strict-ingestion::powershell7",
+            "conformance/lookup-key::powershell7",
+            "conformance/schema-pack::powershell7",
+            "conformance/taxonomy::powershell7",
+            "conformance/resource::powershell7",
+            "conformance/effective-schema::powershell7",
+            "conformance/temporal::powershell7",
+            "conformance/chronology::powershell7"
+          ],
+          "source_shards": [
+            "native-policy-0",
+            "conformance-powershell7-2"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "gate-referee",
+          "check_name": "Project Compatibility",
+          "units": [
+            "parity/conformance-fast::referee"
+          ],
+          "source_shards": [
+            "parity-3"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "workflow-policy",
+          "check_name": "Workflow Policy",
+          "units": [
+            "policy/actionlint::python"
+          ],
+          "source_shards": [
+            "native-policy-0"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "annotation-policy",
+          "check_name": "Work Annotation Policy",
+          "units": [
+            "policy/work-annotations::python"
+          ],
+          "source_shards": [
+            "native-policy-0"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "aggregate",
+          "check_name": "CI Aggregate (feature-feedback)",
+          "units": [
+            "policy/ruff::python",
+            "policy/work-annotations::python",
+            "policy/actionlint::python",
+            "policy/powershell-format::powershell7",
+            "implementation/python-bootstrap::python",
+            "implementation/python-compatibility-implementation::python",
+            "implementation/python-package-artifact::python",
+            "implementation/python-tooling-pilots::python",
+            "implementation/python-native-results::python",
+            "implementation/ci-catalog::python",
+            "implementation/python-installed-runtime::python",
+            "implementation/powershell-conformance-implementation::powershell7",
+            "implementation/powershell-dependencies::powershell7",
+            "implementation/powershell-formatting-implementation::powershell7",
+            "implementation/powershell-host::powershell7",
+            "implementation/powershell-qa-children::powershell7",
+            "implementation/powershell-runtime-api::powershell7",
+            "conformance/project-root::python",
+            "conformance/project-root::powershell7",
+            "conformance/framework-installation::python",
+            "conformance/framework-installation::powershell7",
+            "conformance/strict-ingestion::python",
+            "conformance/strict-ingestion::powershell7",
+            "conformance/lookup-key::python",
+            "conformance/lookup-key::powershell7",
+            "conformance/schema-pack::python",
+            "conformance/schema-pack::powershell7",
+            "conformance/taxonomy::python",
+            "conformance/taxonomy::powershell7",
+            "conformance/resource::python",
+            "conformance/resource::powershell7",
+            "conformance/effective-schema::python",
+            "conformance/effective-schema::powershell7",
+            "conformance/temporal::python",
+            "conformance/temporal::powershell7",
+            "conformance/chronology::python",
+            "conformance/chronology::powershell7",
+            "parity/conformance-fast::referee"
+          ],
+          "source_shards": [
+            "native-policy-0",
+            "conformance-python-1",
+            "conformance-powershell7-2",
+            "parity-3"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        }
+      ],
+      "aggregate_gate": "aggregate"
+    },
+    {
+      "id": "pr-integration-initial",
+      "profile": "pr-integration",
+      "shards": [
+        {
+          "id": "native-policy-0",
+          "order": 0,
+          "units": [
+            "policy/ruff::python",
+            "policy/work-annotations::python",
+            "policy/actionlint::python",
+            "policy/powershell-format::powershell7",
+            "implementation/python-bootstrap::python",
+            "implementation/python-compatibility-implementation::python",
+            "implementation/python-package-artifact::python",
+            "implementation/python-tooling-pilots::python",
+            "implementation/python-native-results::python",
+            "implementation/ci-catalog::python",
+            "implementation/python-installed-runtime::python",
+            "implementation/powershell-conformance-implementation::powershell7",
+            "implementation/powershell-dependencies::powershell7",
+            "implementation/powershell-formatting-implementation::powershell7",
+            "implementation/powershell-host::powershell7",
+            "implementation/powershell-qa-children::powershell7",
+            "implementation/powershell-runtime-api::powershell7"
+          ],
+          "depends_on": [],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 2250,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "conformance-python-1",
+          "order": 1,
+          "units": [
+            "conformance/project-root::python",
+            "conformance/framework-installation::python",
+            "conformance/framework-catalog::python",
+            "conformance/capability-roadmap::python",
+            "conformance/strict-ingestion::python",
+            "conformance/lookup-key::python",
+            "conformance/schema-pack::python",
+            "conformance/distribution-boundary::python",
+            "conformance/taxonomy::python",
+            "conformance/resource::python",
+            "conformance/effective-schema::python",
+            "conformance/source::python",
+            "conformance/entity::python",
+            "conformance/provenance::python",
+            "conformance/temporal::python",
+            "conformance/chronology::python",
+            "conformance/reconciliation::python",
+            "conformance/occurrence::python"
+          ],
+          "depends_on": [],
+          "os": "linux",
+          "budget": {
+            "total_seconds": 2370,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "conformance-python-2",
+          "order": 2,
+          "units": [
+            "conformance/hosting::python",
+            "conformance/interpretation::python",
+            "conformance/project-composition::python"
+          ],
+          "depends_on": [],
+          "os": "linux",
+          "budget": {
+            "total_seconds": 570,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "conformance-powershell7-3",
+          "order": 3,
+          "units": [
+            "conformance/project-root::powershell7",
+            "conformance/framework-installation::powershell7",
+            "conformance/framework-catalog::powershell7",
+            "conformance/capability-roadmap::powershell7",
+            "conformance/strict-ingestion::powershell7",
+            "conformance/lookup-key::powershell7",
+            "conformance/schema-pack::powershell7",
+            "conformance/distribution-boundary::powershell7",
+            "conformance/taxonomy::powershell7",
+            "conformance/resource::powershell7",
+            "conformance/effective-schema::powershell7",
+            "conformance/source::powershell7",
+            "conformance/entity::powershell7",
+            "conformance/provenance::powershell7",
+            "conformance/temporal::powershell7",
+            "conformance/chronology::powershell7",
+            "conformance/reconciliation::powershell7",
+            "conformance/occurrence::powershell7"
+          ],
+          "depends_on": [],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 2370,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "conformance-powershell7-4",
+          "order": 4,
+          "units": [
+            "conformance/hosting::powershell7",
+            "conformance/interpretation::powershell7",
+            "conformance/project-composition::powershell7"
+          ],
+          "depends_on": [],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 570,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "parity-5",
+          "order": 5,
+          "units": [
+            "parity/conformance-baseline::referee"
+          ],
+          "depends_on": [
+            "conformance-python-1",
+            "conformance-python-2",
+            "conformance-powershell7-3",
+            "conformance-powershell7-4"
+          ],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "compatibility-6",
+          "order": 6,
+          "units": [
+            "compatibility/compatibility-reporting::referee",
+            "compatibility/conformance-reporting::referee",
+            "compatibility/framework-catalog::referee",
+            "compatibility/effective-schema::referee",
+            "compatibility/visualization::referee",
+            "compatibility/qa::referee",
+            "compatibility/root-discovery::referee",
+            "compatibility/artifact-lifecycle::referee",
+            "compatibility/framework-extraction::referee",
+            "compatibility/distribution-boundary::referee"
+          ],
+          "depends_on": [],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 2010,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        }
+      ],
+      "gates": [
+        {
+          "id": "gate-python",
+          "check_name": "Python Validation",
+          "units": [
+            "policy/ruff::python",
+            "policy/work-annotations::python",
+            "policy/actionlint::python",
+            "implementation/python-bootstrap::python",
+            "implementation/python-compatibility-implementation::python",
+            "implementation/python-package-artifact::python",
+            "implementation/python-tooling-pilots::python",
+            "implementation/python-native-results::python",
+            "implementation/ci-catalog::python",
+            "implementation/python-installed-runtime::python",
+            "conformance/project-root::python",
+            "conformance/framework-installation::python",
+            "conformance/framework-catalog::python",
+            "conformance/capability-roadmap::python",
+            "conformance/strict-ingestion::python",
+            "conformance/lookup-key::python",
+            "conformance/schema-pack::python",
+            "conformance/distribution-boundary::python",
+            "conformance/taxonomy::python",
+            "conformance/resource::python",
+            "conformance/effective-schema::python",
+            "conformance/source::python",
+            "conformance/entity::python",
+            "conformance/provenance::python",
+            "conformance/temporal::python",
+            "conformance/chronology::python",
+            "conformance/reconciliation::python",
+            "conformance/occurrence::python",
+            "conformance/hosting::python",
+            "conformance/interpretation::python",
+            "conformance/project-composition::python"
+          ],
+          "source_shards": [
+            "native-policy-0",
+            "conformance-python-1",
+            "conformance-python-2"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "gate-powershell7",
+          "check_name": "PowerShell 7 Validation",
+          "units": [
+            "policy/powershell-format::powershell7",
+            "implementation/powershell-conformance-implementation::powershell7",
+            "implementation/powershell-dependencies::powershell7",
+            "implementation/powershell-formatting-implementation::powershell7",
+            "implementation/powershell-host::powershell7",
+            "implementation/powershell-qa-children::powershell7",
+            "implementation/powershell-runtime-api::powershell7",
+            "conformance/project-root::powershell7",
+            "conformance/framework-installation::powershell7",
+            "conformance/framework-catalog::powershell7",
+            "conformance/capability-roadmap::powershell7",
+            "conformance/strict-ingestion::powershell7",
+            "conformance/lookup-key::powershell7",
+            "conformance/schema-pack::powershell7",
+            "conformance/distribution-boundary::powershell7",
+            "conformance/taxonomy::powershell7",
+            "conformance/resource::powershell7",
+            "conformance/effective-schema::powershell7",
+            "conformance/source::powershell7",
+            "conformance/entity::powershell7",
+            "conformance/provenance::powershell7",
+            "conformance/temporal::powershell7",
+            "conformance/chronology::powershell7",
+            "conformance/reconciliation::powershell7",
+            "conformance/occurrence::powershell7",
+            "conformance/hosting::powershell7",
+            "conformance/interpretation::powershell7",
+            "conformance/project-composition::powershell7"
+          ],
+          "source_shards": [
+            "native-policy-0",
+            "conformance-powershell7-3",
+            "conformance-powershell7-4"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "gate-referee",
+          "check_name": "Project Compatibility",
+          "units": [
+            "parity/conformance-baseline::referee",
+            "compatibility/compatibility-reporting::referee",
+            "compatibility/conformance-reporting::referee",
+            "compatibility/framework-catalog::referee",
+            "compatibility/effective-schema::referee",
+            "compatibility/visualization::referee",
+            "compatibility/qa::referee",
+            "compatibility/root-discovery::referee",
+            "compatibility/artifact-lifecycle::referee",
+            "compatibility/framework-extraction::referee",
+            "compatibility/distribution-boundary::referee"
+          ],
+          "source_shards": [
+            "parity-5",
+            "compatibility-6"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "workflow-policy",
+          "check_name": "Workflow Policy",
+          "units": [
+            "policy/actionlint::python"
+          ],
+          "source_shards": [
+            "native-policy-0"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "annotation-policy",
+          "check_name": "Work Annotation Policy",
+          "units": [
+            "policy/work-annotations::python"
+          ],
+          "source_shards": [
+            "native-policy-0"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "aggregate",
+          "check_name": "CI Aggregate (pr-integration)",
+          "units": [
+            "policy/ruff::python",
+            "policy/work-annotations::python",
+            "policy/actionlint::python",
+            "policy/powershell-format::powershell7",
+            "implementation/python-bootstrap::python",
+            "implementation/python-compatibility-implementation::python",
+            "implementation/python-package-artifact::python",
+            "implementation/python-tooling-pilots::python",
+            "implementation/python-native-results::python",
+            "implementation/ci-catalog::python",
+            "implementation/python-installed-runtime::python",
+            "implementation/powershell-conformance-implementation::powershell7",
+            "implementation/powershell-dependencies::powershell7",
+            "implementation/powershell-formatting-implementation::powershell7",
+            "implementation/powershell-host::powershell7",
+            "implementation/powershell-qa-children::powershell7",
+            "implementation/powershell-runtime-api::powershell7",
+            "conformance/project-root::python",
+            "conformance/project-root::powershell7",
+            "conformance/framework-installation::python",
+            "conformance/framework-installation::powershell7",
+            "conformance/framework-catalog::python",
+            "conformance/framework-catalog::powershell7",
+            "conformance/capability-roadmap::python",
+            "conformance/capability-roadmap::powershell7",
+            "conformance/strict-ingestion::python",
+            "conformance/strict-ingestion::powershell7",
+            "conformance/lookup-key::python",
+            "conformance/lookup-key::powershell7",
+            "conformance/schema-pack::python",
+            "conformance/schema-pack::powershell7",
+            "conformance/distribution-boundary::python",
+            "conformance/distribution-boundary::powershell7",
+            "conformance/taxonomy::python",
+            "conformance/taxonomy::powershell7",
+            "conformance/resource::python",
+            "conformance/resource::powershell7",
+            "conformance/effective-schema::python",
+            "conformance/effective-schema::powershell7",
+            "conformance/source::python",
+            "conformance/source::powershell7",
+            "conformance/entity::python",
+            "conformance/entity::powershell7",
+            "conformance/provenance::python",
+            "conformance/provenance::powershell7",
+            "conformance/temporal::python",
+            "conformance/temporal::powershell7",
+            "conformance/chronology::python",
+            "conformance/chronology::powershell7",
+            "conformance/reconciliation::python",
+            "conformance/reconciliation::powershell7",
+            "conformance/occurrence::python",
+            "conformance/occurrence::powershell7",
+            "conformance/hosting::python",
+            "conformance/hosting::powershell7",
+            "conformance/interpretation::python",
+            "conformance/interpretation::powershell7",
+            "conformance/project-composition::python",
+            "conformance/project-composition::powershell7",
+            "parity/conformance-baseline::referee",
+            "compatibility/compatibility-reporting::referee",
+            "compatibility/conformance-reporting::referee",
+            "compatibility/framework-catalog::referee",
+            "compatibility/effective-schema::referee",
+            "compatibility/visualization::referee",
+            "compatibility/qa::referee",
+            "compatibility/root-discovery::referee",
+            "compatibility/artifact-lifecycle::referee",
+            "compatibility/framework-extraction::referee",
+            "compatibility/distribution-boundary::referee"
+          ],
+          "source_shards": [
+            "native-policy-0",
+            "conformance-python-1",
+            "conformance-python-2",
+            "conformance-powershell7-3",
+            "conformance-powershell7-4",
+            "parity-5",
+            "compatibility-6"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        }
+      ],
+      "aggregate_gate": "aggregate"
+    },
+    {
+      "id": "full-verification-initial",
+      "profile": "full-verification",
+      "shards": [
+        {
+          "id": "native-policy-0",
+          "order": 0,
+          "units": [
+            "policy/ruff::python",
+            "policy/work-annotations::python",
+            "policy/actionlint::python",
+            "policy/powershell-format::powershell7",
+            "implementation/python-bootstrap::python",
+            "implementation/python-compatibility-implementation::python",
+            "implementation/python-package-artifact::python",
+            "implementation/python-tooling-pilots::python",
+            "implementation/python-native-results::python",
+            "implementation/ci-catalog::python",
+            "implementation/python-installed-runtime::python",
+            "implementation/powershell-conformance-implementation::powershell7",
+            "implementation/powershell-dependencies::powershell7",
+            "implementation/powershell-formatting-implementation::powershell7",
+            "implementation/powershell-host::powershell7",
+            "implementation/powershell-qa-children::powershell7",
+            "implementation/powershell-runtime-api::powershell7"
+          ],
+          "depends_on": [],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 2250,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "conformance-python-1",
+          "order": 1,
+          "units": [
+            "conformance/project-root::python",
+            "conformance/framework-installation::python",
+            "conformance/framework-catalog::python",
+            "conformance/capability-roadmap::python",
+            "conformance/strict-ingestion::python",
+            "conformance/lookup-key::python",
+            "conformance/schema-pack::python",
+            "conformance/distribution-boundary::python",
+            "conformance/taxonomy::python",
+            "conformance/resource::python",
+            "conformance/effective-schema::python",
+            "conformance/source::python",
+            "conformance/entity::python",
+            "conformance/provenance::python",
+            "conformance/temporal::python",
+            "conformance/chronology::python",
+            "conformance/reconciliation::python",
+            "conformance/occurrence::python"
+          ],
+          "depends_on": [],
+          "os": "linux",
+          "budget": {
+            "total_seconds": 2370,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "conformance-python-2",
+          "order": 2,
+          "units": [
+            "conformance/hosting::python",
+            "conformance/interpretation::python",
+            "conformance/project-composition::python"
+          ],
+          "depends_on": [],
+          "os": "linux",
+          "budget": {
+            "total_seconds": 570,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "conformance-powershell7-3",
+          "order": 3,
+          "units": [
+            "conformance/project-root::powershell7",
+            "conformance/framework-installation::powershell7",
+            "conformance/framework-catalog::powershell7",
+            "conformance/capability-roadmap::powershell7",
+            "conformance/strict-ingestion::powershell7",
+            "conformance/lookup-key::powershell7",
+            "conformance/schema-pack::powershell7",
+            "conformance/distribution-boundary::powershell7",
+            "conformance/taxonomy::powershell7",
+            "conformance/resource::powershell7",
+            "conformance/effective-schema::powershell7",
+            "conformance/source::powershell7",
+            "conformance/entity::powershell7",
+            "conformance/provenance::powershell7",
+            "conformance/temporal::powershell7",
+            "conformance/chronology::powershell7",
+            "conformance/reconciliation::powershell7",
+            "conformance/occurrence::powershell7"
+          ],
+          "depends_on": [],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 2370,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "conformance-powershell7-4",
+          "order": 4,
+          "units": [
+            "conformance/hosting::powershell7",
+            "conformance/interpretation::powershell7",
+            "conformance/project-composition::powershell7"
+          ],
+          "depends_on": [],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 570,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "parity-5",
+          "order": 5,
+          "units": [
+            "parity/conformance-baseline::referee"
+          ],
+          "depends_on": [
+            "conformance-python-1",
+            "conformance-python-2",
+            "conformance-powershell7-3",
+            "conformance-powershell7-4"
+          ],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "compatibility-6",
+          "order": 6,
+          "units": [
+            "compatibility/compatibility-reporting::referee",
+            "compatibility/conformance-reporting::referee",
+            "compatibility/framework-catalog::referee",
+            "compatibility/effective-schema::referee",
+            "compatibility/visualization::referee",
+            "compatibility/qa::referee",
+            "compatibility/root-discovery::referee",
+            "compatibility/artifact-lifecycle::referee",
+            "compatibility/framework-extraction::referee",
+            "compatibility/distribution-boundary::referee",
+            "compatibility/render::referee"
+          ],
+          "depends_on": [],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 2130,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        }
+      ],
+      "gates": [
+        {
+          "id": "gate-python",
+          "check_name": "Python Validation",
+          "units": [
+            "policy/ruff::python",
+            "policy/work-annotations::python",
+            "policy/actionlint::python",
+            "implementation/python-bootstrap::python",
+            "implementation/python-compatibility-implementation::python",
+            "implementation/python-package-artifact::python",
+            "implementation/python-tooling-pilots::python",
+            "implementation/python-native-results::python",
+            "implementation/ci-catalog::python",
+            "implementation/python-installed-runtime::python",
+            "conformance/project-root::python",
+            "conformance/framework-installation::python",
+            "conformance/framework-catalog::python",
+            "conformance/capability-roadmap::python",
+            "conformance/strict-ingestion::python",
+            "conformance/lookup-key::python",
+            "conformance/schema-pack::python",
+            "conformance/distribution-boundary::python",
+            "conformance/taxonomy::python",
+            "conformance/resource::python",
+            "conformance/effective-schema::python",
+            "conformance/source::python",
+            "conformance/entity::python",
+            "conformance/provenance::python",
+            "conformance/temporal::python",
+            "conformance/chronology::python",
+            "conformance/reconciliation::python",
+            "conformance/occurrence::python",
+            "conformance/hosting::python",
+            "conformance/interpretation::python",
+            "conformance/project-composition::python"
+          ],
+          "source_shards": [
+            "native-policy-0",
+            "conformance-python-1",
+            "conformance-python-2"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "gate-powershell7",
+          "check_name": "PowerShell 7 Validation",
+          "units": [
+            "policy/powershell-format::powershell7",
+            "implementation/powershell-conformance-implementation::powershell7",
+            "implementation/powershell-dependencies::powershell7",
+            "implementation/powershell-formatting-implementation::powershell7",
+            "implementation/powershell-host::powershell7",
+            "implementation/powershell-qa-children::powershell7",
+            "implementation/powershell-runtime-api::powershell7",
+            "conformance/project-root::powershell7",
+            "conformance/framework-installation::powershell7",
+            "conformance/framework-catalog::powershell7",
+            "conformance/capability-roadmap::powershell7",
+            "conformance/strict-ingestion::powershell7",
+            "conformance/lookup-key::powershell7",
+            "conformance/schema-pack::powershell7",
+            "conformance/distribution-boundary::powershell7",
+            "conformance/taxonomy::powershell7",
+            "conformance/resource::powershell7",
+            "conformance/effective-schema::powershell7",
+            "conformance/source::powershell7",
+            "conformance/entity::powershell7",
+            "conformance/provenance::powershell7",
+            "conformance/temporal::powershell7",
+            "conformance/chronology::powershell7",
+            "conformance/reconciliation::powershell7",
+            "conformance/occurrence::powershell7",
+            "conformance/hosting::powershell7",
+            "conformance/interpretation::powershell7",
+            "conformance/project-composition::powershell7"
+          ],
+          "source_shards": [
+            "native-policy-0",
+            "conformance-powershell7-3",
+            "conformance-powershell7-4"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "gate-referee",
+          "check_name": "Project Compatibility",
+          "units": [
+            "parity/conformance-baseline::referee",
+            "compatibility/compatibility-reporting::referee",
+            "compatibility/conformance-reporting::referee",
+            "compatibility/framework-catalog::referee",
+            "compatibility/effective-schema::referee",
+            "compatibility/visualization::referee",
+            "compatibility/qa::referee",
+            "compatibility/root-discovery::referee",
+            "compatibility/artifact-lifecycle::referee",
+            "compatibility/framework-extraction::referee",
+            "compatibility/distribution-boundary::referee",
+            "compatibility/render::referee"
+          ],
+          "source_shards": [
+            "parity-5",
+            "compatibility-6"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "workflow-policy",
+          "check_name": "Workflow Policy",
+          "units": [
+            "policy/actionlint::python"
+          ],
+          "source_shards": [
+            "native-policy-0"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "annotation-policy",
+          "check_name": "Work Annotation Policy",
+          "units": [
+            "policy/work-annotations::python"
+          ],
+          "source_shards": [
+            "native-policy-0"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "aggregate",
+          "check_name": "CI Aggregate (full-verification)",
+          "units": [
+            "policy/ruff::python",
+            "policy/work-annotations::python",
+            "policy/actionlint::python",
+            "policy/powershell-format::powershell7",
+            "implementation/python-bootstrap::python",
+            "implementation/python-compatibility-implementation::python",
+            "implementation/python-package-artifact::python",
+            "implementation/python-tooling-pilots::python",
+            "implementation/python-native-results::python",
+            "implementation/ci-catalog::python",
+            "implementation/python-installed-runtime::python",
+            "implementation/powershell-conformance-implementation::powershell7",
+            "implementation/powershell-dependencies::powershell7",
+            "implementation/powershell-formatting-implementation::powershell7",
+            "implementation/powershell-host::powershell7",
+            "implementation/powershell-qa-children::powershell7",
+            "implementation/powershell-runtime-api::powershell7",
+            "conformance/project-root::python",
+            "conformance/project-root::powershell7",
+            "conformance/framework-installation::python",
+            "conformance/framework-installation::powershell7",
+            "conformance/framework-catalog::python",
+            "conformance/framework-catalog::powershell7",
+            "conformance/capability-roadmap::python",
+            "conformance/capability-roadmap::powershell7",
+            "conformance/strict-ingestion::python",
+            "conformance/strict-ingestion::powershell7",
+            "conformance/lookup-key::python",
+            "conformance/lookup-key::powershell7",
+            "conformance/schema-pack::python",
+            "conformance/schema-pack::powershell7",
+            "conformance/distribution-boundary::python",
+            "conformance/distribution-boundary::powershell7",
+            "conformance/taxonomy::python",
+            "conformance/taxonomy::powershell7",
+            "conformance/resource::python",
+            "conformance/resource::powershell7",
+            "conformance/effective-schema::python",
+            "conformance/effective-schema::powershell7",
+            "conformance/source::python",
+            "conformance/source::powershell7",
+            "conformance/entity::python",
+            "conformance/entity::powershell7",
+            "conformance/provenance::python",
+            "conformance/provenance::powershell7",
+            "conformance/temporal::python",
+            "conformance/temporal::powershell7",
+            "conformance/chronology::python",
+            "conformance/chronology::powershell7",
+            "conformance/reconciliation::python",
+            "conformance/reconciliation::powershell7",
+            "conformance/occurrence::python",
+            "conformance/occurrence::powershell7",
+            "conformance/hosting::python",
+            "conformance/hosting::powershell7",
+            "conformance/interpretation::python",
+            "conformance/interpretation::powershell7",
+            "conformance/project-composition::python",
+            "conformance/project-composition::powershell7",
+            "parity/conformance-baseline::referee",
+            "compatibility/compatibility-reporting::referee",
+            "compatibility/conformance-reporting::referee",
+            "compatibility/framework-catalog::referee",
+            "compatibility/effective-schema::referee",
+            "compatibility/visualization::referee",
+            "compatibility/qa::referee",
+            "compatibility/root-discovery::referee",
+            "compatibility/artifact-lifecycle::referee",
+            "compatibility/framework-extraction::referee",
+            "compatibility/distribution-boundary::referee",
+            "compatibility/render::referee"
+          ],
+          "source_shards": [
+            "native-policy-0",
+            "conformance-python-1",
+            "conformance-python-2",
+            "conformance-powershell7-3",
+            "conformance-powershell7-4",
+            "parity-5",
+            "compatibility-6"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        }
+      ],
+      "aggregate_gate": "aggregate"
+    },
+    {
+      "id": "release-readiness-initial",
+      "profile": "release-readiness",
+      "shards": [
+        {
+          "id": "native-policy-0",
+          "order": 0,
+          "units": [
+            "policy/ruff::python",
+            "policy/work-annotations::python",
+            "policy/actionlint::python",
+            "policy/powershell-format::powershell7",
+            "implementation/python-bootstrap::python",
+            "implementation/python-compatibility-implementation::python",
+            "implementation/python-package-artifact::python",
+            "implementation/python-tooling-pilots::python",
+            "implementation/python-native-results::python",
+            "implementation/ci-catalog::python",
+            "implementation/python-installed-runtime::python",
+            "implementation/powershell-conformance-implementation::powershell7",
+            "implementation/powershell-dependencies::powershell7",
+            "implementation/powershell-formatting-implementation::powershell7",
+            "implementation/powershell-host::powershell7",
+            "implementation/powershell-qa-children::powershell7",
+            "implementation/powershell-runtime-api::powershell7"
+          ],
+          "depends_on": [],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 2250,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "conformance-python-1",
+          "order": 1,
+          "units": [
+            "conformance/project-root::python",
+            "conformance/framework-installation::python",
+            "conformance/framework-catalog::python",
+            "conformance/capability-roadmap::python",
+            "conformance/strict-ingestion::python",
+            "conformance/lookup-key::python",
+            "conformance/schema-pack::python",
+            "conformance/distribution-boundary::python",
+            "conformance/taxonomy::python",
+            "conformance/resource::python",
+            "conformance/effective-schema::python",
+            "conformance/source::python",
+            "conformance/entity::python",
+            "conformance/provenance::python",
+            "conformance/temporal::python",
+            "conformance/chronology::python",
+            "conformance/reconciliation::python",
+            "conformance/occurrence::python"
+          ],
+          "depends_on": [],
+          "os": "linux",
+          "budget": {
+            "total_seconds": 2370,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "conformance-python-2",
+          "order": 2,
+          "units": [
+            "conformance/hosting::python",
+            "conformance/interpretation::python",
+            "conformance/project-composition::python"
+          ],
+          "depends_on": [],
+          "os": "linux",
+          "budget": {
+            "total_seconds": 570,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "conformance-powershell7-3",
+          "order": 3,
+          "units": [
+            "conformance/project-root::powershell7",
+            "conformance/framework-installation::powershell7",
+            "conformance/framework-catalog::powershell7",
+            "conformance/capability-roadmap::powershell7",
+            "conformance/strict-ingestion::powershell7",
+            "conformance/lookup-key::powershell7",
+            "conformance/schema-pack::powershell7",
+            "conformance/distribution-boundary::powershell7",
+            "conformance/taxonomy::powershell7",
+            "conformance/resource::powershell7",
+            "conformance/effective-schema::powershell7",
+            "conformance/source::powershell7",
+            "conformance/entity::powershell7",
+            "conformance/provenance::powershell7",
+            "conformance/temporal::powershell7",
+            "conformance/chronology::powershell7",
+            "conformance/reconciliation::powershell7",
+            "conformance/occurrence::powershell7"
+          ],
+          "depends_on": [],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 2370,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "conformance-powershell7-4",
+          "order": 4,
+          "units": [
+            "conformance/hosting::powershell7",
+            "conformance/interpretation::powershell7",
+            "conformance/project-composition::powershell7"
+          ],
+          "depends_on": [],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 570,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "parity-5",
+          "order": 5,
+          "units": [
+            "parity/conformance-baseline::referee"
+          ],
+          "depends_on": [
+            "conformance-python-1",
+            "conformance-python-2",
+            "conformance-powershell7-3",
+            "conformance-powershell7-4"
+          ],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "compatibility-6",
+          "order": 6,
+          "units": [
+            "compatibility/compatibility-reporting::referee",
+            "compatibility/conformance-reporting::referee",
+            "compatibility/framework-catalog::referee",
+            "compatibility/effective-schema::referee",
+            "compatibility/visualization::referee",
+            "compatibility/qa::referee",
+            "compatibility/root-discovery::referee",
+            "compatibility/artifact-lifecycle::referee",
+            "compatibility/framework-extraction::referee",
+            "compatibility/distribution-boundary::referee",
+            "compatibility/render::referee"
+          ],
+          "depends_on": [],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 2130,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        }
+      ],
+      "gates": [
+        {
+          "id": "gate-python",
+          "check_name": "Python Validation",
+          "units": [
+            "policy/ruff::python",
+            "policy/work-annotations::python",
+            "policy/actionlint::python",
+            "implementation/python-bootstrap::python",
+            "implementation/python-compatibility-implementation::python",
+            "implementation/python-package-artifact::python",
+            "implementation/python-tooling-pilots::python",
+            "implementation/python-native-results::python",
+            "implementation/ci-catalog::python",
+            "implementation/python-installed-runtime::python",
+            "conformance/project-root::python",
+            "conformance/framework-installation::python",
+            "conformance/framework-catalog::python",
+            "conformance/capability-roadmap::python",
+            "conformance/strict-ingestion::python",
+            "conformance/lookup-key::python",
+            "conformance/schema-pack::python",
+            "conformance/distribution-boundary::python",
+            "conformance/taxonomy::python",
+            "conformance/resource::python",
+            "conformance/effective-schema::python",
+            "conformance/source::python",
+            "conformance/entity::python",
+            "conformance/provenance::python",
+            "conformance/temporal::python",
+            "conformance/chronology::python",
+            "conformance/reconciliation::python",
+            "conformance/occurrence::python",
+            "conformance/hosting::python",
+            "conformance/interpretation::python",
+            "conformance/project-composition::python"
+          ],
+          "source_shards": [
+            "native-policy-0",
+            "conformance-python-1",
+            "conformance-python-2"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "gate-powershell7",
+          "check_name": "PowerShell 7 Validation",
+          "units": [
+            "policy/powershell-format::powershell7",
+            "implementation/powershell-conformance-implementation::powershell7",
+            "implementation/powershell-dependencies::powershell7",
+            "implementation/powershell-formatting-implementation::powershell7",
+            "implementation/powershell-host::powershell7",
+            "implementation/powershell-qa-children::powershell7",
+            "implementation/powershell-runtime-api::powershell7",
+            "conformance/project-root::powershell7",
+            "conformance/framework-installation::powershell7",
+            "conformance/framework-catalog::powershell7",
+            "conformance/capability-roadmap::powershell7",
+            "conformance/strict-ingestion::powershell7",
+            "conformance/lookup-key::powershell7",
+            "conformance/schema-pack::powershell7",
+            "conformance/distribution-boundary::powershell7",
+            "conformance/taxonomy::powershell7",
+            "conformance/resource::powershell7",
+            "conformance/effective-schema::powershell7",
+            "conformance/source::powershell7",
+            "conformance/entity::powershell7",
+            "conformance/provenance::powershell7",
+            "conformance/temporal::powershell7",
+            "conformance/chronology::powershell7",
+            "conformance/reconciliation::powershell7",
+            "conformance/occurrence::powershell7",
+            "conformance/hosting::powershell7",
+            "conformance/interpretation::powershell7",
+            "conformance/project-composition::powershell7"
+          ],
+          "source_shards": [
+            "native-policy-0",
+            "conformance-powershell7-3",
+            "conformance-powershell7-4"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "gate-referee",
+          "check_name": "Project Compatibility",
+          "units": [
+            "parity/conformance-baseline::referee",
+            "compatibility/compatibility-reporting::referee",
+            "compatibility/conformance-reporting::referee",
+            "compatibility/framework-catalog::referee",
+            "compatibility/effective-schema::referee",
+            "compatibility/visualization::referee",
+            "compatibility/qa::referee",
+            "compatibility/root-discovery::referee",
+            "compatibility/artifact-lifecycle::referee",
+            "compatibility/framework-extraction::referee",
+            "compatibility/distribution-boundary::referee",
+            "compatibility/render::referee"
+          ],
+          "source_shards": [
+            "parity-5",
+            "compatibility-6"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "workflow-policy",
+          "check_name": "Workflow Policy",
+          "units": [
+            "policy/actionlint::python"
+          ],
+          "source_shards": [
+            "native-policy-0"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "annotation-policy",
+          "check_name": "Work Annotation Policy",
+          "units": [
+            "policy/work-annotations::python"
+          ],
+          "source_shards": [
+            "native-policy-0"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "aggregate",
+          "check_name": "CI Aggregate (release-readiness)",
+          "units": [
+            "policy/ruff::python",
+            "policy/work-annotations::python",
+            "policy/actionlint::python",
+            "policy/powershell-format::powershell7",
+            "implementation/python-bootstrap::python",
+            "implementation/python-compatibility-implementation::python",
+            "implementation/python-package-artifact::python",
+            "implementation/python-tooling-pilots::python",
+            "implementation/python-native-results::python",
+            "implementation/ci-catalog::python",
+            "implementation/python-installed-runtime::python",
+            "implementation/powershell-conformance-implementation::powershell7",
+            "implementation/powershell-dependencies::powershell7",
+            "implementation/powershell-formatting-implementation::powershell7",
+            "implementation/powershell-host::powershell7",
+            "implementation/powershell-qa-children::powershell7",
+            "implementation/powershell-runtime-api::powershell7",
+            "conformance/project-root::python",
+            "conformance/project-root::powershell7",
+            "conformance/framework-installation::python",
+            "conformance/framework-installation::powershell7",
+            "conformance/framework-catalog::python",
+            "conformance/framework-catalog::powershell7",
+            "conformance/capability-roadmap::python",
+            "conformance/capability-roadmap::powershell7",
+            "conformance/strict-ingestion::python",
+            "conformance/strict-ingestion::powershell7",
+            "conformance/lookup-key::python",
+            "conformance/lookup-key::powershell7",
+            "conformance/schema-pack::python",
+            "conformance/schema-pack::powershell7",
+            "conformance/distribution-boundary::python",
+            "conformance/distribution-boundary::powershell7",
+            "conformance/taxonomy::python",
+            "conformance/taxonomy::powershell7",
+            "conformance/resource::python",
+            "conformance/resource::powershell7",
+            "conformance/effective-schema::python",
+            "conformance/effective-schema::powershell7",
+            "conformance/source::python",
+            "conformance/source::powershell7",
+            "conformance/entity::python",
+            "conformance/entity::powershell7",
+            "conformance/provenance::python",
+            "conformance/provenance::powershell7",
+            "conformance/temporal::python",
+            "conformance/temporal::powershell7",
+            "conformance/chronology::python",
+            "conformance/chronology::powershell7",
+            "conformance/reconciliation::python",
+            "conformance/reconciliation::powershell7",
+            "conformance/occurrence::python",
+            "conformance/occurrence::powershell7",
+            "conformance/hosting::python",
+            "conformance/hosting::powershell7",
+            "conformance/interpretation::python",
+            "conformance/interpretation::powershell7",
+            "conformance/project-composition::python",
+            "conformance/project-composition::powershell7",
+            "parity/conformance-baseline::referee",
+            "compatibility/compatibility-reporting::referee",
+            "compatibility/conformance-reporting::referee",
+            "compatibility/framework-catalog::referee",
+            "compatibility/effective-schema::referee",
+            "compatibility/visualization::referee",
+            "compatibility/qa::referee",
+            "compatibility/root-discovery::referee",
+            "compatibility/artifact-lifecycle::referee",
+            "compatibility/framework-extraction::referee",
+            "compatibility/distribution-boundary::referee",
+            "compatibility/render::referee"
+          ],
+          "source_shards": [
+            "native-policy-0",
+            "conformance-python-1",
+            "conformance-python-2",
+            "conformance-powershell7-3",
+            "conformance-powershell7-4",
+            "parity-5",
+            "compatibility-6"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        }
+      ],
+      "aggregate_gate": "aggregate"
+    },
+    {
+      "id": "implementation-pilot-initial",
+      "profile": "implementation-pilot",
+      "shards": [
+        {
+          "id": "native-policy-0",
+          "order": 0,
+          "units": [
+            "implementation/python-bootstrap::python",
+            "implementation/python-compatibility-implementation::python",
+            "implementation/python-package-artifact::python",
+            "implementation/python-tooling-pilots::python",
+            "implementation/python-native-results::python",
+            "implementation/ci-catalog::python",
+            "implementation/python-installed-runtime::python",
+            "implementation/powershell-conformance-implementation::powershell7",
+            "implementation/powershell-dependencies::powershell7",
+            "implementation/powershell-formatting-implementation::powershell7",
+            "implementation/powershell-host::powershell7",
+            "implementation/powershell-qa-children::powershell7",
+            "implementation/powershell-runtime-api::powershell7"
+          ],
+          "depends_on": [],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 1770,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "conformance-python-1",
+          "order": 1,
+          "units": [
+            "conformance/project-root::python",
+            "conformance/framework-installation::python",
+            "conformance/strict-ingestion::python",
+            "conformance/lookup-key::python",
+            "conformance/schema-pack::python",
+            "conformance/taxonomy::python",
+            "conformance/resource::python",
+            "conformance/effective-schema::python",
+            "conformance/temporal::python",
+            "conformance/chronology::python"
+          ],
+          "depends_on": [],
+          "os": "linux",
+          "budget": {
+            "total_seconds": 1410,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "conformance-powershell7-2",
+          "order": 2,
+          "units": [
+            "conformance/project-root::powershell7",
+            "conformance/framework-installation::powershell7",
+            "conformance/strict-ingestion::powershell7",
+            "conformance/lookup-key::powershell7",
+            "conformance/schema-pack::powershell7",
+            "conformance/taxonomy::powershell7",
+            "conformance/resource::powershell7",
+            "conformance/effective-schema::powershell7",
+            "conformance/temporal::powershell7",
+            "conformance/chronology::powershell7"
+          ],
+          "depends_on": [],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 1410,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "parity-3",
+          "order": 3,
+          "units": [
+            "parity/conformance-fast::referee"
+          ],
+          "depends_on": [
+            "conformance-python-1",
+            "conformance-powershell7-2"
+          ],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "compatibility-4",
+          "order": 4,
+          "units": [
+            "compatibility/compatibility-reporting::referee",
+            "compatibility/conformance-reporting::referee",
+            "compatibility/framework-catalog::referee",
+            "compatibility/effective-schema::referee",
+            "compatibility/visualization::referee",
+            "compatibility/qa::referee"
+          ],
+          "depends_on": [],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 1260,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        }
+      ],
+      "gates": [
+        {
+          "id": "gate-python",
+          "check_name": "Python Validation",
+          "units": [
+            "implementation/python-bootstrap::python",
+            "implementation/python-compatibility-implementation::python",
+            "implementation/python-package-artifact::python",
+            "implementation/python-tooling-pilots::python",
+            "implementation/python-native-results::python",
+            "implementation/ci-catalog::python",
+            "implementation/python-installed-runtime::python",
+            "conformance/project-root::python",
+            "conformance/framework-installation::python",
+            "conformance/strict-ingestion::python",
+            "conformance/lookup-key::python",
+            "conformance/schema-pack::python",
+            "conformance/taxonomy::python",
+            "conformance/resource::python",
+            "conformance/effective-schema::python",
+            "conformance/temporal::python",
+            "conformance/chronology::python"
+          ],
+          "source_shards": [
+            "native-policy-0",
+            "conformance-python-1"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "gate-powershell7",
+          "check_name": "PowerShell 7 Validation",
+          "units": [
+            "implementation/powershell-conformance-implementation::powershell7",
+            "implementation/powershell-dependencies::powershell7",
+            "implementation/powershell-formatting-implementation::powershell7",
+            "implementation/powershell-host::powershell7",
+            "implementation/powershell-qa-children::powershell7",
+            "implementation/powershell-runtime-api::powershell7",
+            "conformance/project-root::powershell7",
+            "conformance/framework-installation::powershell7",
+            "conformance/strict-ingestion::powershell7",
+            "conformance/lookup-key::powershell7",
+            "conformance/schema-pack::powershell7",
+            "conformance/taxonomy::powershell7",
+            "conformance/resource::powershell7",
+            "conformance/effective-schema::powershell7",
+            "conformance/temporal::powershell7",
+            "conformance/chronology::powershell7"
+          ],
+          "source_shards": [
+            "native-policy-0",
+            "conformance-powershell7-2"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "gate-referee",
+          "check_name": "Project Compatibility",
+          "units": [
+            "parity/conformance-fast::referee",
+            "compatibility/compatibility-reporting::referee",
+            "compatibility/conformance-reporting::referee",
+            "compatibility/framework-catalog::referee",
+            "compatibility/effective-schema::referee",
+            "compatibility/visualization::referee",
+            "compatibility/qa::referee"
+          ],
+          "source_shards": [
+            "parity-3",
+            "compatibility-4"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "aggregate",
+          "check_name": "CI Aggregate (implementation-pilot)",
+          "units": [
+            "implementation/python-bootstrap::python",
+            "implementation/python-compatibility-implementation::python",
+            "implementation/python-package-artifact::python",
+            "implementation/python-tooling-pilots::python",
+            "implementation/python-native-results::python",
+            "implementation/ci-catalog::python",
+            "implementation/python-installed-runtime::python",
+            "implementation/powershell-conformance-implementation::powershell7",
+            "implementation/powershell-dependencies::powershell7",
+            "implementation/powershell-formatting-implementation::powershell7",
+            "implementation/powershell-host::powershell7",
+            "implementation/powershell-qa-children::powershell7",
+            "implementation/powershell-runtime-api::powershell7",
+            "conformance/project-root::python",
+            "conformance/project-root::powershell7",
+            "conformance/framework-installation::python",
+            "conformance/framework-installation::powershell7",
+            "conformance/strict-ingestion::python",
+            "conformance/strict-ingestion::powershell7",
+            "conformance/lookup-key::python",
+            "conformance/lookup-key::powershell7",
+            "conformance/schema-pack::python",
+            "conformance/schema-pack::powershell7",
+            "conformance/taxonomy::python",
+            "conformance/taxonomy::powershell7",
+            "conformance/resource::python",
+            "conformance/resource::powershell7",
+            "conformance/effective-schema::python",
+            "conformance/effective-schema::powershell7",
+            "conformance/temporal::python",
+            "conformance/temporal::powershell7",
+            "conformance/chronology::python",
+            "conformance/chronology::powershell7",
+            "parity/conformance-fast::referee",
+            "compatibility/compatibility-reporting::referee",
+            "compatibility/conformance-reporting::referee",
+            "compatibility/framework-catalog::referee",
+            "compatibility/effective-schema::referee",
+            "compatibility/visualization::referee",
+            "compatibility/qa::referee"
+          ],
+          "source_shards": [
+            "native-policy-0",
+            "conformance-python-1",
+            "conformance-powershell7-2",
+            "parity-3",
+            "compatibility-4"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        }
+      ],
+      "aggregate_gate": "aggregate"
+    },
+    {
+      "id": "modernization-shadow-initial",
+      "profile": "modernization-shadow",
+      "shards": [
+        {
+          "id": "native-policy-0",
+          "order": 0,
+          "units": [
+            "policy/ruff::python",
+            "policy/work-annotations::python",
+            "policy/actionlint::python",
+            "policy/powershell-format::powershell7",
+            "implementation/python-bootstrap::python",
+            "implementation/python-compatibility-implementation::python",
+            "implementation/python-package-artifact::python",
+            "implementation/python-tooling-pilots::python",
+            "implementation/python-native-results::python",
+            "implementation/ci-catalog::python",
+            "implementation/python-installed-runtime::python",
+            "implementation/powershell-conformance-implementation::powershell7",
+            "implementation/powershell-dependencies::powershell7",
+            "implementation/powershell-formatting-implementation::powershell7",
+            "implementation/powershell-host::powershell7",
+            "implementation/powershell-qa-children::powershell7",
+            "implementation/powershell-runtime-api::powershell7"
+          ],
+          "depends_on": [],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 2250,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "conformance-python-1",
+          "order": 1,
+          "units": [
+            "conformance/project-root::python",
+            "conformance/framework-installation::python",
+            "conformance/framework-catalog::python",
+            "conformance/capability-roadmap::python",
+            "conformance/strict-ingestion::python",
+            "conformance/lookup-key::python",
+            "conformance/schema-pack::python",
+            "conformance/distribution-boundary::python",
+            "conformance/taxonomy::python",
+            "conformance/resource::python",
+            "conformance/effective-schema::python",
+            "conformance/source::python",
+            "conformance/entity::python",
+            "conformance/provenance::python",
+            "conformance/temporal::python",
+            "conformance/chronology::python",
+            "conformance/reconciliation::python",
+            "conformance/occurrence::python"
+          ],
+          "depends_on": [],
+          "os": "linux",
+          "budget": {
+            "total_seconds": 2370,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "conformance-python-2",
+          "order": 2,
+          "units": [
+            "conformance/hosting::python",
+            "conformance/interpretation::python",
+            "conformance/project-composition::python"
+          ],
+          "depends_on": [],
+          "os": "linux",
+          "budget": {
+            "total_seconds": 570,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "conformance-powershell7-3",
+          "order": 3,
+          "units": [
+            "conformance/project-root::powershell7",
+            "conformance/framework-installation::powershell7",
+            "conformance/framework-catalog::powershell7",
+            "conformance/capability-roadmap::powershell7",
+            "conformance/strict-ingestion::powershell7",
+            "conformance/lookup-key::powershell7",
+            "conformance/schema-pack::powershell7",
+            "conformance/distribution-boundary::powershell7",
+            "conformance/taxonomy::powershell7",
+            "conformance/resource::powershell7",
+            "conformance/effective-schema::powershell7",
+            "conformance/source::powershell7",
+            "conformance/entity::powershell7",
+            "conformance/provenance::powershell7",
+            "conformance/temporal::powershell7",
+            "conformance/chronology::powershell7",
+            "conformance/reconciliation::powershell7",
+            "conformance/occurrence::powershell7"
+          ],
+          "depends_on": [],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 2370,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "conformance-powershell7-4",
+          "order": 4,
+          "units": [
+            "conformance/hosting::powershell7",
+            "conformance/interpretation::powershell7",
+            "conformance/project-composition::powershell7"
+          ],
+          "depends_on": [],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 570,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "parity-5",
+          "order": 5,
+          "units": [
+            "parity/conformance-baseline::referee"
+          ],
+          "depends_on": [
+            "conformance-python-1",
+            "conformance-python-2",
+            "conformance-powershell7-3",
+            "conformance-powershell7-4"
+          ],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "compatibility-6",
+          "order": 6,
+          "units": [
+            "compatibility/compatibility-reporting::referee",
+            "compatibility/conformance-reporting::referee",
+            "compatibility/framework-catalog::referee",
+            "compatibility/effective-schema::referee",
+            "compatibility/visualization::referee",
+            "compatibility/qa::referee",
+            "compatibility/root-discovery::referee",
+            "compatibility/artifact-lifecycle::referee",
+            "compatibility/framework-extraction::referee",
+            "compatibility/distribution-boundary::referee",
+            "compatibility/render::referee"
+          ],
+          "depends_on": [],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 2130,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        }
+      ],
+      "gates": [
+        {
+          "id": "gate-python",
+          "check_name": "Python Validation",
+          "units": [
+            "policy/ruff::python",
+            "policy/work-annotations::python",
+            "policy/actionlint::python",
+            "implementation/python-bootstrap::python",
+            "implementation/python-compatibility-implementation::python",
+            "implementation/python-package-artifact::python",
+            "implementation/python-tooling-pilots::python",
+            "implementation/python-native-results::python",
+            "implementation/ci-catalog::python",
+            "implementation/python-installed-runtime::python",
+            "conformance/project-root::python",
+            "conformance/framework-installation::python",
+            "conformance/framework-catalog::python",
+            "conformance/capability-roadmap::python",
+            "conformance/strict-ingestion::python",
+            "conformance/lookup-key::python",
+            "conformance/schema-pack::python",
+            "conformance/distribution-boundary::python",
+            "conformance/taxonomy::python",
+            "conformance/resource::python",
+            "conformance/effective-schema::python",
+            "conformance/source::python",
+            "conformance/entity::python",
+            "conformance/provenance::python",
+            "conformance/temporal::python",
+            "conformance/chronology::python",
+            "conformance/reconciliation::python",
+            "conformance/occurrence::python",
+            "conformance/hosting::python",
+            "conformance/interpretation::python",
+            "conformance/project-composition::python"
+          ],
+          "source_shards": [
+            "native-policy-0",
+            "conformance-python-1",
+            "conformance-python-2"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "gate-powershell7",
+          "check_name": "PowerShell 7 Validation",
+          "units": [
+            "policy/powershell-format::powershell7",
+            "implementation/powershell-conformance-implementation::powershell7",
+            "implementation/powershell-dependencies::powershell7",
+            "implementation/powershell-formatting-implementation::powershell7",
+            "implementation/powershell-host::powershell7",
+            "implementation/powershell-qa-children::powershell7",
+            "implementation/powershell-runtime-api::powershell7",
+            "conformance/project-root::powershell7",
+            "conformance/framework-installation::powershell7",
+            "conformance/framework-catalog::powershell7",
+            "conformance/capability-roadmap::powershell7",
+            "conformance/strict-ingestion::powershell7",
+            "conformance/lookup-key::powershell7",
+            "conformance/schema-pack::powershell7",
+            "conformance/distribution-boundary::powershell7",
+            "conformance/taxonomy::powershell7",
+            "conformance/resource::powershell7",
+            "conformance/effective-schema::powershell7",
+            "conformance/source::powershell7",
+            "conformance/entity::powershell7",
+            "conformance/provenance::powershell7",
+            "conformance/temporal::powershell7",
+            "conformance/chronology::powershell7",
+            "conformance/reconciliation::powershell7",
+            "conformance/occurrence::powershell7",
+            "conformance/hosting::powershell7",
+            "conformance/interpretation::powershell7",
+            "conformance/project-composition::powershell7"
+          ],
+          "source_shards": [
+            "native-policy-0",
+            "conformance-powershell7-3",
+            "conformance-powershell7-4"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "gate-referee",
+          "check_name": "Project Compatibility",
+          "units": [
+            "parity/conformance-baseline::referee",
+            "compatibility/compatibility-reporting::referee",
+            "compatibility/conformance-reporting::referee",
+            "compatibility/framework-catalog::referee",
+            "compatibility/effective-schema::referee",
+            "compatibility/visualization::referee",
+            "compatibility/qa::referee",
+            "compatibility/root-discovery::referee",
+            "compatibility/artifact-lifecycle::referee",
+            "compatibility/framework-extraction::referee",
+            "compatibility/distribution-boundary::referee",
+            "compatibility/render::referee"
+          ],
+          "source_shards": [
+            "parity-5",
+            "compatibility-6"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "workflow-policy",
+          "check_name": "Workflow Policy",
+          "units": [
+            "policy/actionlint::python"
+          ],
+          "source_shards": [
+            "native-policy-0"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "annotation-policy",
+          "check_name": "Work Annotation Policy",
+          "units": [
+            "policy/work-annotations::python"
+          ],
+          "source_shards": [
+            "native-policy-0"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        },
+        {
+          "id": "aggregate",
+          "check_name": "CI Aggregate (modernization-shadow)",
+          "units": [
+            "policy/ruff::python",
+            "policy/work-annotations::python",
+            "policy/actionlint::python",
+            "policy/powershell-format::powershell7",
+            "implementation/python-bootstrap::python",
+            "implementation/python-compatibility-implementation::python",
+            "implementation/python-package-artifact::python",
+            "implementation/python-tooling-pilots::python",
+            "implementation/python-native-results::python",
+            "implementation/ci-catalog::python",
+            "implementation/python-installed-runtime::python",
+            "implementation/powershell-conformance-implementation::powershell7",
+            "implementation/powershell-dependencies::powershell7",
+            "implementation/powershell-formatting-implementation::powershell7",
+            "implementation/powershell-host::powershell7",
+            "implementation/powershell-qa-children::powershell7",
+            "implementation/powershell-runtime-api::powershell7",
+            "conformance/project-root::python",
+            "conformance/project-root::powershell7",
+            "conformance/framework-installation::python",
+            "conformance/framework-installation::powershell7",
+            "conformance/framework-catalog::python",
+            "conformance/framework-catalog::powershell7",
+            "conformance/capability-roadmap::python",
+            "conformance/capability-roadmap::powershell7",
+            "conformance/strict-ingestion::python",
+            "conformance/strict-ingestion::powershell7",
+            "conformance/lookup-key::python",
+            "conformance/lookup-key::powershell7",
+            "conformance/schema-pack::python",
+            "conformance/schema-pack::powershell7",
+            "conformance/distribution-boundary::python",
+            "conformance/distribution-boundary::powershell7",
+            "conformance/taxonomy::python",
+            "conformance/taxonomy::powershell7",
+            "conformance/resource::python",
+            "conformance/resource::powershell7",
+            "conformance/effective-schema::python",
+            "conformance/effective-schema::powershell7",
+            "conformance/source::python",
+            "conformance/source::powershell7",
+            "conformance/entity::python",
+            "conformance/entity::powershell7",
+            "conformance/provenance::python",
+            "conformance/provenance::powershell7",
+            "conformance/temporal::python",
+            "conformance/temporal::powershell7",
+            "conformance/chronology::python",
+            "conformance/chronology::powershell7",
+            "conformance/reconciliation::python",
+            "conformance/reconciliation::powershell7",
+            "conformance/occurrence::python",
+            "conformance/occurrence::powershell7",
+            "conformance/hosting::python",
+            "conformance/hosting::powershell7",
+            "conformance/interpretation::python",
+            "conformance/interpretation::powershell7",
+            "conformance/project-composition::python",
+            "conformance/project-composition::powershell7",
+            "parity/conformance-baseline::referee",
+            "compatibility/compatibility-reporting::referee",
+            "compatibility/conformance-reporting::referee",
+            "compatibility/framework-catalog::referee",
+            "compatibility/effective-schema::referee",
+            "compatibility/visualization::referee",
+            "compatibility/qa::referee",
+            "compatibility/root-discovery::referee",
+            "compatibility/artifact-lifecycle::referee",
+            "compatibility/framework-extraction::referee",
+            "compatibility/distribution-boundary::referee",
+            "compatibility/render::referee"
+          ],
+          "source_shards": [
+            "native-policy-0",
+            "conformance-python-1",
+            "conformance-python-2",
+            "conformance-powershell7-3",
+            "conformance-powershell7-4",
+            "parity-5",
+            "compatibility-6"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        }
+      ],
+      "aggregate_gate": "aggregate"
+    }
+  ]
+}

@@ -1,0 +1,787 @@
+{
+  "schema_version": 1,
+  "external_units": [
+    {
+      "unit": "conformance/project-root",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Conformance/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "conformance-detailed-v1"
+    },
+    {
+      "unit": "conformance/framework-installation",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Conformance/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "conformance-detailed-v1"
+    },
+    {
+      "unit": "conformance/framework-catalog",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Conformance/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "conformance-detailed-v1"
+    },
+    {
+      "unit": "conformance/capability-roadmap",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Conformance/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "conformance-detailed-v1"
+    },
+    {
+      "unit": "conformance/strict-ingestion",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Conformance/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "conformance-detailed-v1"
+    },
+    {
+      "unit": "conformance/lookup-key",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Conformance/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "conformance-detailed-v1"
+    },
+    {
+      "unit": "conformance/schema-pack",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Conformance/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "conformance-detailed-v1"
+    },
+    {
+      "unit": "conformance/distribution-boundary",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Conformance/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "conformance-detailed-v1"
+    },
+    {
+      "unit": "conformance/taxonomy",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Conformance/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "conformance-detailed-v1"
+    },
+    {
+      "unit": "conformance/resource",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Conformance/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "conformance-detailed-v1"
+    },
+    {
+      "unit": "conformance/effective-schema",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Conformance/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "conformance-detailed-v1"
+    },
+    {
+      "unit": "conformance/source",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Conformance/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "conformance-detailed-v1"
+    },
+    {
+      "unit": "conformance/entity",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Conformance/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "conformance-detailed-v1"
+    },
+    {
+      "unit": "conformance/provenance",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Conformance/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "conformance-detailed-v1"
+    },
+    {
+      "unit": "conformance/temporal",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Conformance/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "conformance-detailed-v1"
+    },
+    {
+      "unit": "conformance/chronology",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Conformance/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "conformance-detailed-v1"
+    },
+    {
+      "unit": "conformance/reconciliation",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Conformance/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "conformance-detailed-v1"
+    },
+    {
+      "unit": "conformance/occurrence",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Conformance/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "conformance-detailed-v1"
+    },
+    {
+      "unit": "conformance/hosting",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Conformance/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "conformance-detailed-v1"
+    },
+    {
+      "unit": "conformance/interpretation",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Conformance/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "conformance-detailed-v1"
+    },
+    {
+      "unit": "conformance/project-composition",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Conformance/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "conformance-detailed-v1"
+    },
+    {
+      "unit": "compatibility/compatibility-reporting",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config",
+        "Tools/Compatibility/Baselines"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Compatibility/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "compatibility-detailed-v3"
+    },
+    {
+      "unit": "compatibility/conformance-reporting",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config",
+        "Tools/Compatibility/Baselines"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Compatibility/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "compatibility-detailed-v3"
+    },
+    {
+      "unit": "compatibility/framework-catalog",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config",
+        "Tools/Compatibility/Baselines"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Compatibility/**"
+      ],
+      "deadline_seconds": 330,
+      "depends_on": [],
+      "result_contract": "compatibility-detailed-v3"
+    },
+    {
+      "unit": "compatibility/effective-schema",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config",
+        "Tools/Compatibility/Baselines"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Compatibility/**"
+      ],
+      "deadline_seconds": 240,
+      "depends_on": [],
+      "result_contract": "compatibility-detailed-v3"
+    },
+    {
+      "unit": "compatibility/visualization",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config",
+        "Tools/Compatibility/Baselines",
+        "Tools/Compatibility/Baselines/lotm-consumers.json",
+        "Visualization",
+        "Volumes",
+        "Glossary_Threads",
+        "Investigations",
+        "Boards",
+        "UX"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Compatibility/**",
+        "Visualization/**",
+        "Volumes/**",
+        "Glossary_Threads/**",
+        "Investigations/**",
+        "Boards/**",
+        "UX/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "compatibility-detailed-v3"
+    },
+    {
+      "unit": "compatibility/qa",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config",
+        "Tools/Compatibility/Baselines",
+        "Tools/Compatibility/Baselines/lotm-consumers.json",
+        "Visualization",
+        "Volumes",
+        "Glossary_Threads",
+        "Investigations",
+        "Boards",
+        "UX"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Compatibility/**",
+        "Visualization/**",
+        "Volumes/**",
+        "Glossary_Threads/**",
+        "Investigations/**",
+        "Boards/**",
+        "UX/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "compatibility-detailed-v3"
+    },
+    {
+      "unit": "compatibility/root-discovery",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config",
+        "Tools/Compatibility/Baselines"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Compatibility/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "compatibility-detailed-v3"
+    },
+    {
+      "unit": "compatibility/artifact-lifecycle",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config",
+        "Tools/Compatibility/Baselines",
+        "Visualization",
+        "Volumes",
+        "Glossary_Threads",
+        "Investigations",
+        "Boards",
+        "UX"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Compatibility/**",
+        "Visualization/**",
+        "Volumes/**",
+        "Glossary_Threads/**",
+        "Investigations/**",
+        "Boards/**",
+        "UX/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "compatibility-detailed-v3"
+    },
+    {
+      "unit": "compatibility/framework-extraction",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config",
+        "Tools/Compatibility/Baselines"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Compatibility/**"
+      ],
+      "deadline_seconds": 390,
+      "depends_on": [],
+      "result_contract": "compatibility-detailed-v3"
+    },
+    {
+      "unit": "compatibility/distribution-boundary",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config",
+        "Tools/Compatibility/Baselines"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Compatibility/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "compatibility-detailed-v3"
+    },
+    {
+      "unit": "compatibility/render",
+      "fixtures": [
+        "Framework/Data",
+        "Project_Config",
+        "Tools/Compatibility/Baselines",
+        "Visualization/graphs/volume-1-knowledge-graph.mmd",
+        "Visualization",
+        "Volumes",
+        "Glossary_Threads",
+        "Investigations",
+        "Boards",
+        "UX"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/**",
+        "Framework/**",
+        "Project_Config/**",
+        "Tools/Compatibility/**",
+        "Visualization/**",
+        "Volumes/**",
+        "Glossary_Threads/**",
+        "Investigations/**",
+        "Boards/**",
+        "UX/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "compatibility-detailed-v3"
+    }
+  ],
+  "comparisons": [
+    {
+      "unit": "parity/conformance-fast",
+      "id": "conformance-fast",
+      "description": "Complete selected conformance typed semantic summaries; no rerun.",
+      "order": 0,
+      "fixtures": [
+        "Tools/Conformance/suites.json"
+      ],
+      "impact_paths": [
+        "Tools/Conformance/**",
+        "Tools/Runtime/**",
+        "Framework/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "parity-v1",
+      "source_reference": {
+        "owner": "conformance",
+        "profile": "fast",
+        "ids": null,
+        "runtimes": [
+          "python",
+          "powershell7"
+        ],
+        "blocking": true
+      },
+      "runtimes": [
+        "python",
+        "powershell7"
+      ],
+      "normalization": "conformance-semantic-v1"
+    },
+    {
+      "unit": "parity/conformance-baseline",
+      "id": "conformance-baseline",
+      "description": "Complete selected conformance typed semantic summaries; no rerun.",
+      "order": 1,
+      "fixtures": [
+        "Tools/Conformance/suites.json"
+      ],
+      "impact_paths": [
+        "Tools/Conformance/**",
+        "Tools/Runtime/**",
+        "Framework/**"
+      ],
+      "deadline_seconds": 120,
+      "depends_on": [],
+      "result_contract": "parity-v1",
+      "source_reference": {
+        "owner": "conformance",
+        "profile": "baseline",
+        "ids": null,
+        "runtimes": [
+          "python",
+          "powershell7"
+        ],
+        "blocking": true
+      },
+      "runtimes": [
+        "python",
+        "powershell7"
+      ],
+      "normalization": "conformance-semantic-v1"
+    }
+  ],
+  "dependencies": [
+    {
+      "source": "Tools/Runtime/**",
+      "consumers": [
+        "policy/ruff",
+        "policy/powershell-format",
+        "policy/work-annotations",
+        "policy/actionlint",
+        "implementation/python-bootstrap",
+        "implementation/python-compatibility-implementation",
+        "implementation/python-package-artifact",
+        "implementation/python-tooling-pilots",
+        "implementation/python-native-results",
+        "implementation/ci-catalog",
+        "implementation/powershell-conformance-implementation",
+        "implementation/powershell-dependencies",
+        "implementation/powershell-formatting-implementation",
+        "implementation/powershell-host",
+        "implementation/powershell-qa-children",
+        "implementation/powershell-runtime-api",
+        "implementation/python-installed-runtime",
+        "conformance/project-root",
+        "conformance/framework-installation",
+        "conformance/framework-catalog",
+        "conformance/capability-roadmap",
+        "conformance/strict-ingestion",
+        "conformance/lookup-key",
+        "conformance/schema-pack",
+        "conformance/distribution-boundary",
+        "conformance/taxonomy",
+        "conformance/resource",
+        "conformance/effective-schema",
+        "conformance/source",
+        "conformance/entity",
+        "conformance/provenance",
+        "conformance/temporal",
+        "conformance/chronology",
+        "conformance/reconciliation",
+        "conformance/occurrence",
+        "conformance/hosting",
+        "conformance/interpretation",
+        "conformance/project-composition",
+        "compatibility/compatibility-reporting",
+        "compatibility/conformance-reporting",
+        "compatibility/framework-catalog",
+        "compatibility/effective-schema",
+        "compatibility/visualization",
+        "compatibility/qa",
+        "compatibility/root-discovery",
+        "compatibility/artifact-lifecycle",
+        "compatibility/framework-extraction",
+        "compatibility/distribution-boundary",
+        "compatibility/render",
+        "parity/conformance-fast",
+        "parity/conformance-baseline"
+      ],
+      "reason": "Shared runtime affects validators, semantic and consumer obligations."
+    }
+  ],
+  "full_selection_paths": [
+    {
+      "pattern": "Tools/CI/**",
+      "reason": "Shared/unknown transitive impact; conservative full requested-profile selection."
+    },
+    {
+      "pattern": "Tools/Tests/**",
+      "reason": "Shared/unknown transitive impact; conservative full requested-profile selection."
+    },
+    {
+      "pattern": "Tools/Runtime/**",
+      "reason": "Shared/unknown transitive impact; conservative full requested-profile selection."
+    },
+    {
+      "pattern": "Framework/**",
+      "reason": "Shared/unknown transitive impact; conservative full requested-profile selection."
+    },
+    {
+      "pattern": "Project_Config/**",
+      "reason": "Shared/unknown transitive impact; conservative full requested-profile selection."
+    },
+    {
+      "pattern": "Tools/Conformance/**",
+      "reason": "Shared/unknown transitive impact; conservative full requested-profile selection."
+    },
+    {
+      "pattern": "Tools/Compatibility/**",
+      "reason": "Shared/unknown transitive impact; conservative full requested-profile selection."
+    },
+    {
+      "pattern": "Tools/Static/**",
+      "reason": "Shared/unknown transitive impact; conservative full requested-profile selection."
+    },
+    {
+      "pattern": "requirements-*",
+      "reason": "Shared/unknown transitive impact; conservative full requested-profile selection."
+    },
+    {
+      "pattern": "pyproject.toml",
+      "reason": "Shared/unknown transitive impact; conservative full requested-profile selection."
+    },
+    {
+      "pattern": ".github/**",
+      "reason": "Shared/unknown transitive impact; conservative full requested-profile selection."
+    },
+    {
+      "pattern": "Visualization/**",
+      "reason": "Current project content/consumer surface; conservative full-profile fallback."
+    },
+    {
+      "pattern": "Volumes/**",
+      "reason": "Current project content/consumer surface; conservative full-profile fallback."
+    },
+    {
+      "pattern": "Glossary_Threads/**",
+      "reason": "Current project content/consumer surface; conservative full-profile fallback."
+    },
+    {
+      "pattern": "Investigations/**",
+      "reason": "Current project content/consumer surface; conservative full-profile fallback."
+    },
+    {
+      "pattern": "Boards/**",
+      "reason": "Current project content/consumer surface; conservative full-profile fallback."
+    },
+    {
+      "pattern": "UX/**",
+      "reason": "Current project content/consumer surface; conservative full-profile fallback."
+    },
+    {
+      "pattern": "Source/**",
+      "reason": "Current project content/consumer surface; conservative full-profile fallback."
+    },
+    {
+      "pattern": "Testing/**",
+      "reason": "Current project content/consumer surface; conservative full-profile fallback."
+    },
+    {
+      "pattern": "Artwork/**",
+      "reason": "Current project content/consumer surface; conservative full-profile fallback."
+    }
+  ],
+  "non_impact_paths": []
+}

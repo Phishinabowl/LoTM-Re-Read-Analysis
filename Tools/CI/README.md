@@ -1,4 +1,4 @@
-# Local Dependency, Package And Bootstrap Tools
+# Local Dependency, Package, Bootstrap And Catalog Tools
 
 CI 3.1.2 implements explicit local acquisition, verified environments and package builds. The
 [package contract](../ci-python-package-contract.md) defines identity/version/artifact boundaries;
@@ -9,6 +9,11 @@ CI 3.4 adds the local single-group `run_native_tests.py` adapter and explicit py
 observers. [Native result commands, artifacts and failure boundaries](../Tests/README.md#ci-34-native-results-and-failure-contracts)
 are owned by the test-layout documentation. Catalog approval, full supervision, Markdown summaries
 and hosted native-result publication remain with later modernization phases.
+
+CI 4.1 implements [strict catalogs and read-only planning](catalog-planning.md) through
+`plan_ci.py --list` and `plan_ci.py --profile <id>`. Approved registration, source registry expansion,
+shard/gate admission and source-manifest validation remain repository-owned. Planning launches no
+children and reports unavailable obligations explicitly; every current profile is not execution-ready.
 
 ## Normal Development Setup
 

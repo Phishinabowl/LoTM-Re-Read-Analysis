@@ -1896,3 +1896,15 @@ The source registry remains authoritative for evidence artifacts, permitted medi
 ### Future Config Extensions
 
 Controlled relationship types, field-scoped enums, aliases, and confidence/precedence rules remain planned additions to the taxonomy registry through reviewed migrations. Capability-gated omission of registry files and controlled-value providers remains project-composition/bootstrap work; the current manifest requires its declared registry paths even when a downstream implementation would disable the corresponding capability.
+
+## CI Catalog Planning (CI 4.1)
+
+`Tools/CI/plan_ci.py --list` validates and lists owning catalogs. `--profile <id>` produces a
+deterministic full plan; `--shard-plan <id>` includes admitted placement/gate metadata. Explicit
+`--os` and repeatable `--available-runtime` are planning assumptions; unavailable obligations stay
+visible. No child, installation, affected selection or hosted publication runs. Valid plans exit 0
+with planned status and execution_ready false; invalid catalogs/invocations exit 2.
+
+[Catalog planning](CI/catalog-planning.md) owns schema/adapter details, source-manifest APIs,
+current profile inventory, admission arithmetic, exact examples and remaining execution gates.
+Existing conformance/compatibility registries and standalone commands retain their authority.

@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "validators": [
+    {
+      "id": "ruff",
+      "description": "ruff",
+      "order": 0,
+      "adapter": "ruff",
+      "runtimes": [
+        "python"
+      ],
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "entry": [
+        "pyproject.toml"
+      ],
+      "arguments": [],
+      "fixtures": [
+        "requirements-python-dev.txt"
+      ],
+      "impact_paths": [
+        "**/*.py",
+        "pyproject.toml"
+      ],
+      "depends_on": [],
+      "deadline_seconds": 120,
+      "result_contract": "ruff-v1",
+      "empty_policy": "fail",
+      "allowed_skips": []
+    },
+    {
+      "id": "powershell-format",
+      "description": "powershell format",
+      "order": 1,
+      "adapter": "powershell-format",
+      "runtimes": [
+        "powershell7"
+      ],
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "entry": [
+        "Tools/Static/Format-PowerShell.ps1"
+      ],
+      "arguments": [],
+      "fixtures": [
+        "Tools/Static/powershell-format-settings.psd1",
+        "requirements-powershell-dev.txt"
+      ],
+      "impact_paths": [
+        "**/*.ps1",
+        "**/*.psm1",
+        "**/*.psd1"
+      ],
+      "depends_on": [],
+      "deadline_seconds": 120,
+      "result_contract": "powershell-format-v1",
+      "empty_policy": "fail",
+      "allowed_skips": []
+    },
+    {
+      "id": "work-annotations",
+      "description": "work annotations",
+      "order": 2,
+      "adapter": "work-annotations",
+      "runtimes": [
+        "python"
+      ],
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "entry": [
+        "Tools/Static/lint_work_annotations.py"
+      ],
+      "arguments": [],
+      "fixtures": [
+        "Tools/Static/work-annotations.json",
+        "Tools/Static/Fixtures/Work-Annotations/cases.json"
+      ],
+      "impact_paths": [],
+      "depends_on": [],
+      "deadline_seconds": 120,
+      "result_contract": "work-annotations-v1",
+      "empty_policy": "fail",
+      "allowed_skips": []
+    },
+    {
+      "id": "actionlint",
+      "description": "actionlint",
+      "order": 3,
+      "adapter": "actionlint",
+      "runtimes": [
+        "python"
+      ],
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "entry": [
+        "Tools/CI/Data/runtime-versions.json"
+      ],
+      "arguments": [],
+      "fixtures": [
+        ".github/workflows"
+      ],
+      "impact_paths": [
+        ".github/workflows/**"
+      ],
+      "depends_on": [],
+      "deadline_seconds": 120,
+      "result_contract": "actionlint-v1",
+      "empty_policy": "fail",
+      "allowed_skips": []
+    }
+  ],
+  "discovery": [
+    {
+      "directory": ".",
+      "pattern": "pyproject.toml",
+      "exclude": []
+    },
+    {
+      "directory": "Tools/Static",
+      "pattern": "Format-PowerShell.ps1",
+      "exclude": []
+    },
+    {
+      "directory": "Tools/Static",
+      "pattern": "lint_work_annotations.py",
+      "exclude": []
+    },
+    {
+      "directory": "Tools/CI/Data",
+      "pattern": "runtime-versions.json",
+      "exclude": []
+    }
+  ]
+}

@@ -1,0 +1,494 @@
+{
+  "schema_version": 1,
+  "groups": [
+    {
+      "id": "python-bootstrap",
+      "description": "python bootstrap",
+      "order": 0,
+      "adapter": "pytest",
+      "runtimes": [
+        "python"
+      ],
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "entry": [
+        "Tools/Tests/Python/test_bootstrap.py"
+      ],
+      "arguments": [],
+      "fixtures": [
+        "Tools/Tests/Python",
+        "Tools/CI/Data"
+      ],
+      "impact_paths": [
+        "Tools/CI/**",
+        "Tools/Tests/**",
+        "Tools/Runtime/**",
+        "Tools/Static/**",
+        "Tools/Conformance/**",
+        "Tools/Compatibility/**",
+        "requirements-*",
+        "pyproject.toml"
+      ],
+      "depends_on": [],
+      "deadline_seconds": 120,
+      "result_contract": "native-test-run-v1",
+      "empty_policy": "fail",
+      "allowed_skips": []
+    },
+    {
+      "id": "python-compatibility-implementation",
+      "description": "python compatibility implementation",
+      "order": 1,
+      "adapter": "pytest",
+      "runtimes": [
+        "python"
+      ],
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "entry": [
+        "Tools/Tests/Python/test_compatibility_retirement.py"
+      ],
+      "arguments": [],
+      "fixtures": [
+        "Tools/Tests/Python",
+        "Tools/CI/Data"
+      ],
+      "impact_paths": [
+        "Tools/CI/**",
+        "Tools/Tests/**",
+        "Tools/Runtime/**",
+        "Tools/Static/**",
+        "Tools/Conformance/**",
+        "Tools/Compatibility/**",
+        "requirements-*",
+        "pyproject.toml"
+      ],
+      "depends_on": [],
+      "deadline_seconds": 120,
+      "result_contract": "native-test-run-v1",
+      "empty_policy": "fail",
+      "allowed_skips": []
+    },
+    {
+      "id": "python-package-artifact",
+      "description": "python package artifact",
+      "order": 2,
+      "adapter": "pytest",
+      "runtimes": [
+        "python"
+      ],
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "entry": [
+        "Tools/Tests/Python/test_package_artifact.py"
+      ],
+      "arguments": [],
+      "fixtures": [
+        "Tools/Tests/Python",
+        "Tools/CI/Data"
+      ],
+      "impact_paths": [
+        "Tools/CI/**",
+        "Tools/Tests/**",
+        "Tools/Runtime/**",
+        "Tools/Static/**",
+        "Tools/Conformance/**",
+        "Tools/Compatibility/**",
+        "requirements-*",
+        "pyproject.toml"
+      ],
+      "depends_on": [],
+      "deadline_seconds": 120,
+      "result_contract": "native-test-run-v1",
+      "empty_policy": "fail",
+      "allowed_skips": []
+    },
+    {
+      "id": "python-tooling-pilots",
+      "description": "python tooling pilots",
+      "order": 3,
+      "adapter": "pytest",
+      "runtimes": [
+        "python"
+      ],
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "entry": [
+        "Tools/Tests/Python/test_tooling_pilots.py"
+      ],
+      "arguments": [],
+      "fixtures": [
+        "Tools/Tests/Python",
+        "Tools/CI/Data"
+      ],
+      "impact_paths": [
+        "Tools/CI/**",
+        "Tools/Tests/**",
+        "Tools/Runtime/**",
+        "Tools/Static/**",
+        "Tools/Conformance/**",
+        "Tools/Compatibility/**",
+        "requirements-*",
+        "pyproject.toml"
+      ],
+      "depends_on": [],
+      "deadline_seconds": 120,
+      "result_contract": "native-test-run-v1",
+      "empty_policy": "fail",
+      "allowed_skips": []
+    },
+    {
+      "id": "python-native-results",
+      "description": "python native results",
+      "order": 4,
+      "adapter": "pytest",
+      "runtimes": [
+        "python"
+      ],
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "entry": [
+        "Tools/Tests/Python/test_native_results.py"
+      ],
+      "arguments": [],
+      "fixtures": [
+        "Tools/Tests/Python",
+        "Tools/CI/Data"
+      ],
+      "impact_paths": [
+        "Tools/CI/**",
+        "Tools/Tests/**",
+        "Tools/Runtime/**",
+        "Tools/Static/**",
+        "Tools/Conformance/**",
+        "Tools/Compatibility/**",
+        "requirements-*",
+        "pyproject.toml"
+      ],
+      "depends_on": [],
+      "deadline_seconds": 120,
+      "result_contract": "native-test-run-v1",
+      "empty_policy": "fail",
+      "allowed_skips": []
+    },
+    {
+      "id": "ci-catalog",
+      "description": "ci catalog",
+      "order": 5,
+      "adapter": "pytest",
+      "runtimes": [
+        "python"
+      ],
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "entry": [
+        "Tools/Tests/Python/test_ci_catalog.py"
+      ],
+      "arguments": [],
+      "fixtures": [
+        "Tools/Tests/Python",
+        "Tools/CI/Data"
+      ],
+      "impact_paths": [
+        "Tools/CI/**",
+        "Tools/Tests/**",
+        "Tools/Runtime/**",
+        "Tools/Static/**",
+        "Tools/Conformance/**",
+        "Tools/Compatibility/**",
+        "requirements-*",
+        "pyproject.toml"
+      ],
+      "depends_on": [],
+      "deadline_seconds": 120,
+      "result_contract": "native-test-run-v1",
+      "empty_policy": "fail",
+      "allowed_skips": []
+    },
+    {
+      "id": "powershell-conformance-implementation",
+      "description": "powershell conformance implementation",
+      "order": 6,
+      "adapter": "pester",
+      "runtimes": [
+        "powershell7"
+      ],
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "entry": [
+        "Tools/Tests/PowerShell/ConformanceRunner.Tests.ps1"
+      ],
+      "arguments": [],
+      "fixtures": [
+        "Tools/Tests/PowerShell",
+        "Tools/CI/Data"
+      ],
+      "impact_paths": [
+        "Tools/CI/**",
+        "Tools/Tests/**",
+        "Tools/Runtime/**",
+        "Tools/Static/**",
+        "Tools/Conformance/**",
+        "Tools/Compatibility/**",
+        "requirements-*",
+        "pyproject.toml"
+      ],
+      "depends_on": [],
+      "deadline_seconds": 120,
+      "result_contract": "native-test-run-v1",
+      "empty_policy": "fail",
+      "allowed_skips": []
+    },
+    {
+      "id": "powershell-dependencies",
+      "description": "powershell dependencies",
+      "order": 7,
+      "adapter": "pester",
+      "runtimes": [
+        "powershell7"
+      ],
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "entry": [
+        "Tools/Tests/PowerShell/Dependencies.Tests.ps1"
+      ],
+      "arguments": [],
+      "fixtures": [
+        "Tools/Tests/PowerShell",
+        "Tools/CI/Data"
+      ],
+      "impact_paths": [
+        "Tools/CI/**",
+        "Tools/Tests/**",
+        "Tools/Runtime/**",
+        "Tools/Static/**",
+        "Tools/Conformance/**",
+        "Tools/Compatibility/**",
+        "requirements-*",
+        "pyproject.toml"
+      ],
+      "depends_on": [],
+      "deadline_seconds": 120,
+      "result_contract": "native-test-run-v1",
+      "empty_policy": "fail",
+      "allowed_skips": []
+    },
+    {
+      "id": "powershell-formatting-implementation",
+      "description": "powershell formatting implementation",
+      "order": 8,
+      "adapter": "pester",
+      "runtimes": [
+        "powershell7"
+      ],
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "entry": [
+        "Tools/Tests/PowerShell/Formatter.Tests.ps1"
+      ],
+      "arguments": [],
+      "fixtures": [
+        "Tools/Tests/PowerShell",
+        "Tools/CI/Data"
+      ],
+      "impact_paths": [
+        "Tools/CI/**",
+        "Tools/Tests/**",
+        "Tools/Runtime/**",
+        "Tools/Static/**",
+        "Tools/Conformance/**",
+        "Tools/Compatibility/**",
+        "requirements-*",
+        "pyproject.toml"
+      ],
+      "depends_on": [],
+      "deadline_seconds": 120,
+      "result_contract": "native-test-run-v1",
+      "empty_policy": "fail",
+      "allowed_skips": []
+    },
+    {
+      "id": "powershell-host",
+      "description": "powershell host",
+      "order": 9,
+      "adapter": "pester",
+      "runtimes": [
+        "powershell7"
+      ],
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "entry": [
+        "Tools/Tests/PowerShell/Host.Tests.ps1"
+      ],
+      "arguments": [],
+      "fixtures": [
+        "Tools/Tests/PowerShell",
+        "Tools/CI/Data"
+      ],
+      "impact_paths": [
+        "Tools/CI/**",
+        "Tools/Tests/**",
+        "Tools/Runtime/**",
+        "Tools/Static/**",
+        "Tools/Conformance/**",
+        "Tools/Compatibility/**",
+        "requirements-*",
+        "pyproject.toml"
+      ],
+      "depends_on": [],
+      "deadline_seconds": 120,
+      "result_contract": "native-test-run-v1",
+      "empty_policy": "fail",
+      "allowed_skips": []
+    },
+    {
+      "id": "powershell-qa-children",
+      "description": "powershell qa children",
+      "order": 10,
+      "adapter": "pester",
+      "runtimes": [
+        "powershell7"
+      ],
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "entry": [
+        "Tools/Tests/PowerShell/QaChildren.Tests.ps1"
+      ],
+      "arguments": [],
+      "fixtures": [
+        "Tools/Tests/PowerShell",
+        "Tools/CI/Data"
+      ],
+      "impact_paths": [
+        "Tools/CI/**",
+        "Tools/Tests/**",
+        "Tools/Runtime/**",
+        "Tools/Static/**",
+        "Tools/Conformance/**",
+        "Tools/Compatibility/**",
+        "requirements-*",
+        "pyproject.toml"
+      ],
+      "depends_on": [],
+      "deadline_seconds": 120,
+      "result_contract": "native-test-run-v1",
+      "empty_policy": "fail",
+      "allowed_skips": []
+    },
+    {
+      "id": "powershell-runtime-api",
+      "description": "powershell runtime api",
+      "order": 11,
+      "adapter": "pester",
+      "runtimes": [
+        "powershell7"
+      ],
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "entry": [
+        "Tools/Tests/PowerShell/RuntimeApi.Tests.ps1"
+      ],
+      "arguments": [],
+      "fixtures": [
+        "Tools/Tests/PowerShell",
+        "Tools/CI/Data"
+      ],
+      "impact_paths": [
+        "Tools/CI/**",
+        "Tools/Tests/**",
+        "Tools/Runtime/**",
+        "Tools/Static/**",
+        "Tools/Conformance/**",
+        "Tools/Compatibility/**",
+        "requirements-*",
+        "pyproject.toml"
+      ],
+      "depends_on": [],
+      "deadline_seconds": 120,
+      "result_contract": "native-test-run-v1",
+      "empty_policy": "fail",
+      "allowed_skips": []
+    },
+    {
+      "id": "python-installed-runtime",
+      "description": "python installed runtime",
+      "order": 12,
+      "adapter": "installed-artifact",
+      "runtimes": [
+        "python"
+      ],
+      "os": [
+        "windows",
+        "linux"
+      ],
+      "entry": [
+        "Tools/CI/verify_installed_package.py"
+      ],
+      "arguments": [],
+      "fixtures": [
+        "Tools/CI/Data/python-package-files.json",
+        "Tools/Runtime/Python",
+        "pyproject.toml",
+        "requirements-python-build.txt"
+      ],
+      "impact_paths": [
+        "Tools/Runtime/Python/**",
+        "Tools/CI/**",
+        "requirements-*",
+        "pyproject.toml"
+      ],
+      "depends_on": [],
+      "deadline_seconds": 120,
+      "result_contract": "installed-package-v1",
+      "empty_policy": "fail",
+      "allowed_skips": []
+    }
+  ],
+  "discovery": [
+    {
+      "directory": "Tools/Tests/Python",
+      "pattern": "**/test_*.py",
+      "exclude": []
+    },
+    {
+      "directory": "Tools/Tests/PowerShell",
+      "pattern": "**/*.Tests.ps1",
+      "exclude": [
+        {
+          "path": "Tools/Tests/PowerShell/Fixtures/NativeResultCases.Tests.ps1",
+          "reason": "Deliberate failures are explicit diagnostic fixtures, not normal coverage.",
+          "decision": "CI 3.4"
+        }
+      ]
+    },
+    {
+      "directory": "Tools/CI",
+      "pattern": "verify_installed_package.py",
+      "exclude": []
+    }
+  ]
+}

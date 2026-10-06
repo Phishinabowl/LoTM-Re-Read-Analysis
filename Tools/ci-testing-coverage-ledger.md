@@ -313,6 +313,17 @@ timings from this static inspection. Existing executable registries and workflow
 
 ### Documentation Verification
 
+**CI 4.1 confirmed (2026-10-05):**
+[Catalog planning](CI/catalog-planning.md) registers four policies, thirteen implementation groups,
+metadata for all 21/11 existing owner units and two planned comparisons. Eight profiles and their
+initial shard/gate projections expand source membership without replacing its registries.
+G01/G11/G12 gain strict registration, closure/order, source-manifest and admission proof through
+58 private-tree regressions and read-only Windows/WSL planning audit. These are partial closures:
+scope selection, process ownership, actual policy validation, projections/publication, synthetic
+media and complete semantic parity remain later. No existing checks are retired or hosted profiles
+activated. New pytest aggregate is 188; observed Windows 18.046s/WSL 5.545s retains 5.1 performance
+review ownership rather than weakening the 3.5 feedback goal. Evidence is ignored `.tmp/ci-phase41/`.
+
 **CI 3.5 adoption review confirmed (2026-10-05):**
 [Scenario comparison and feedback targets](ci-testing-pilot-adoption-review.md) assess fourteen
 retained/native behavior boundaries, diagnose partial overlap and approve supplementary candidates
