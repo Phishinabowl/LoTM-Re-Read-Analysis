@@ -7,6 +7,12 @@ durable report publication belongs to 4.5. No catalog profile is execution-ready
 
 ## API And Ownership
 
+CI 4.6 adds a [mandatory regression gate](regression-gate.md) and a 64 MiB combined stdout/stderr
+monitoring threshold. Exceeding it yields evidence-limit, owned-tree termination and retained bytes;
+it is not a hard filesystem quota and may overshoot during a write/poll/termination interval.
+Small-threshold fixtures prove each stream and subsequent independent recovery. The optional
+primitive argument capture_limit_bytes exists for fixtures; catalog/CLI overrides are not adopted.
+
 `run_process(arguments, cwd=..., env=..., output_parent=..., lease=..., termination=..., cleanup=...,
 cancel=...)` requires an argument list with an absolute executable, existing explicit directories,
 an explicit environment dictionary and an admitted finite monotonic `Lease`. No shell, runtime

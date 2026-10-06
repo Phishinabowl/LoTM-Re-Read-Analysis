@@ -8,6 +8,13 @@ import re
 
 ID = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
 RUNTIMES = ["python", "powershell7"]
+REGRESSION_UNITS = (
+    "implementation/python-native-results::python",
+    "implementation/ci-catalog::python",
+    "implementation/ci-scope::python",
+    "implementation/ci-process::python",
+    "implementation/ci-execution::python",
+)
 OPERATING_SYSTEMS = {"windows", "linux", "macos"}
 BUDGET_KEYS = {"total_seconds", "termination_seconds", "cleanup_seconds", "finalization_seconds"}
 RECORD_KEYS = set(
@@ -465,6 +472,28 @@ class Catalog:
 
     def _profiles(self):
         document = self.documents["profiles"]
+        require(
+            all(identity.split("::")[0] in self.units for identity in REGRESSION_UNITS),
+            "Mandatory infrastructure regression registration missing",
+        )
+        for identity in REGRESSION_UNITS:
+            unit = self.units[identity.split("::")[0]]
+            require(
+                unit["adapter"] == "pytest"
+                and unit["runtimes"] == ["python"]
+                and {"windows", "linux"} <= set(unit["os"]),
+                "Mandatory regression must support Windows/Linux Python",
+            )
+        mandatory_entries = {
+            name for identity in REGRESSION_UNITS for name in self.units[identity.split("::")[0]]["entry"]
+        }
+        require(
+            all(
+                path.relative_to(self.root).as_posix() in mandatory_entries
+                for path in (self.root / "Tools/Tests/Python").glob("test_ci_*.py")
+            ),
+            "CI regression entry belongs to a nonmandatory group",
+        )
         closed(document, {"schema_version", "runtime_order", "profiles", "shard_plans"}, "profiles catalog")
         require(
             type(document["schema_version"]) is int
@@ -517,23 +546,9 @@ class Catalog:
             require(set(profile["always_run"]) <= set(execution), "Unknown always-run obligation")
             if any(unit.startswith("implementation/") for unit in execution):
                 require(
-                    "implementation/ci-catalog::python" in profile["always_run"], "Catalog regression must always run"
+                    set(REGRESSION_UNITS) <= set(profile["always_run"]),
+                    "Catalog/scope/process/aggregate/native regression must always run",
                 )
-                if "implementation/ci-scope" in self.units:
-                    require(
-                        "implementation/ci-scope::python" in profile["always_run"],
-                        "Scope/selector regression must always run",
-                    )
-                if "implementation/ci-process" in self.units:
-                    require(
-                        "implementation/ci-process::python" in profile["always_run"],
-                        "Process lifecycle regression must always run",
-                    )
-                if "implementation/ci-execution" in self.units:
-                    require(
-                        "implementation/ci-execution::python" in profile["always_run"],
-                        "Aggregate regression must always run",
-                    )
             allocation = sum(self.units[unit.split("::")[0]]["deadline_seconds"] for unit in execution)
             window = budget(profile["budget"])
             require(allocation <= window, f"Profile {profile['id']}: deadline allocation {allocation} exceeds {window}")
@@ -596,6 +611,12 @@ class Catalog:
                     "Gating profile omits baseline semantics",
                 )
                 require(any(unit.startswith("parity/") for unit in execution), "Gating profile omits parity")
+
+        require(
+            "ci-infrastructure" in self.profiles
+            and self.profiles["ci-infrastructure"]["execution"] == list(REGRESSION_UNITS),
+            "Focused infrastructure profile must contain the exact mandatory regression set",
+        )
 
     def _shards(self):
         plans = self.documents["profiles"]["shard_plans"]

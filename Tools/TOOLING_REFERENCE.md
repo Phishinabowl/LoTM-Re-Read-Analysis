@@ -1941,3 +1941,10 @@ actual-policy boundaries and remaining reporting/hosted gates. Execution acquire
 Markdown share the detailed result model. `report_ci.py --run <owner>` admits expected artifacts;
 `--recover` retains interrupted evidence in a fresh sibling owner and always records partial failure.
 Actual hosted upload/summary tasks and publication receipts remain Phase 6.4.
+
+## CI Mandatory Infrastructure Regression (CI 4.6)
+
+`run_ci.py --profile ci-infrastructure --scope local-worktree --python <prepared-python>` runs
+the same five registered native/infrastructure groups required in implementation-bearing profiles.
+[Regression gate](CI/regression-gate.md) owns membership, permanent failure scenarios, local commands,
+OS/runtime evidence and later hosted activation. It does not recursively run domain portfolios.

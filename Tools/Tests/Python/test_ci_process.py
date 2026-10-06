@@ -442,3 +442,36 @@ def test_supported_graceful_exit_and_keyboard_interrupt(tmp_path, monkeypatch):
     monkeypatch.setattr(processes.time, "sleep", interrupt_once)
     result = execute(tmp_path, "import time; time.sleep(20)")
     assert result["status"] == "cancelled" and result["cleanup"]["verified"], result
+
+
+@pytest.mark.parametrize("limit", [0, -1, True, 1.5])
+def test_capture_limit_rejects_invalid_threshold_before_launch(tmp_path, limit):
+    with pytest.raises(ValueError, match="Capture threshold"):
+        processes.run_process(
+            [sys.executable, "-c", "pass"],
+            cwd=tmp_path,
+            env=env(),
+            output_parent=tmp_path,
+            lease=processes.Lease(time.monotonic() + 1),
+            capture_limit_bytes=limit,
+        )
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize("stream", [1, 2])
+def test_output_threshold_retains_diagnostics_terminates_owned_child_and_recovers(tmp_path, stream):
+    code = f"import os,time;os.write({stream},b'complete diagnostic '*4096);time.sleep(10)"
+    result = processes.run_process(
+        [sys.executable, "-c", code],
+        cwd=tmp_path,
+        env=env(),
+        output_parent=tmp_path,
+        lease=processes.Lease(time.monotonic() + 3),
+        termination=0.15,
+        cleanup=1,
+        capture_limit_bytes=32768,
+    )
+    assert result["status"] == "error" and result["classification"] == "evidence-limit", result
+    assert result["cleanup"]["verified"] and result["capture"]["exceeded"]
+    assert result["diagnostics"]["stdout.bin" if stream == 1 else "stderr.bin"]["bytes"] > 32768
+    assert execute(tmp_path, "print('later independent child')")["status"] == "exited"

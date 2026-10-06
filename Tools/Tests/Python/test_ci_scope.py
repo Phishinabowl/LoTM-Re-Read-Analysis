@@ -380,3 +380,50 @@ def test_prerequisite_and_parity_closure_include_all_declared_sources():
     output = selection.explain(plan, units, metadata, report)
     assert "parity/pair::referee" in output["would_select"]
     assert "execution prerequisite for parity/pair::referee" in output["reasons"]["implementation/consumer::python"]
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize("moving", ["source", "target", "checkout"])
+def test_pr_metadata_drift_during_capture_cannot_be_admitted(repo, monkeypatch, moving):
+    git(repo, "checkout", "-b", "feature")
+    (repo / "source.txt").write_text("source")
+    source = commit(repo, "source")
+    git(repo, "checkout", "main")
+    (repo / "target.txt").write_text("target")
+    target = commit(repo, "target")
+    git(repo, "merge", "--no-ff", "feature", "-m", "synthetic PR merge")
+    git(repo, "update-ref", "refs/heads/target-base", target)
+    executed = git(repo, "rev-parse", "HEAD")
+    original = scope.Git.read
+    changed = False
+
+    def drift(self, *arguments, **options):
+        nonlocal changed
+        value = original(self, *arguments, **options)
+        if arguments[0] == "diff" and not changed:
+            changed = True
+            if moving == "checkout":
+                git(repo, "update-ref", "HEAD", target)
+            else:
+                git(
+                    repo,
+                    "update-ref",
+                    "refs/heads/feature" if moving == "source" else "refs/heads/target-base",
+                    executed,
+                )
+        return value
+
+    monkeypatch.setattr(scope.Git, "read", drift)
+    with pytest.raises(scope.ScopeError, match="drift"):
+        scope.resolve_scope(repo, "hosted-pr", "target-base", "feature", executed)
+
+
+def test_selector_reasons_order_counts_and_full_membership_are_repeatable():
+    plan, units, metadata, report = selection_fixture()
+    first = selection.explain(plan, units, metadata, report)
+    reordered = dict(reversed(list(units.items())))
+    for _ in range(3):
+        again = selection.explain(plan, reordered, metadata, report)
+        assert again == first
+        assert len(again["would_select"]) + len(again["would_omit"]) == len(again["candidate_units"])
+        assert again["effective_execution_units"] == again["candidate_units"]

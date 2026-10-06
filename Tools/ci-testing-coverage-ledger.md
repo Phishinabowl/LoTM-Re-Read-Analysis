@@ -313,6 +313,32 @@ timings from this static inspection. Existing executable registries and workflow
 
 ### Documentation Verification
 
+**CI 4.6 confirmed (2026-10-06):**
+[Mandatory regression gate](CI/regression-gate.md) closes the initial local G01 infrastructure
+failure matrix through 277 native cases in five mandatory groups. Twenty-eight new cases cover
+family/OS membership, PR/ref drift, explanation repeatability, output thresholds, private end-to-end
+supervisor continuation/cancellation, metadata overrides and empty execution. Existing native
+discovery/skip/phase, tree cleanup, shard and report/recovery fixtures remain authoritative.
+Unit-record failure now cannot finalize a sequence gap; actual completed outcomes remain visible.
+Deep private Windows index paths are admitted through per-command core.longpaths, with no global
+Git change. No conformance fixture, compatibility baseline, authored content or existing check name
+is retired. G08/G13 gain monitored capture-limit termination and retained diagnostic/cleanup proof.
+
+Captured Windows ci-infrastructure passes all five units/277 cases in 67.747s; a manifest-bound
+isolated WSL copy passes in 21.325s. Full native inventory passes 374 pytest and 34 Pester cases on
+Windows/WSL with no errors/skips. Python timings are 46.445s / 16.582s; Pester 17.388s / 25.817s.
+The Linux test checkout uses a private synthetic commit; original source bytes/modes/digests are
+verified and recorded independently. Catalog inventory stays 54 logical units/16 implementation
+groups; the new focused profile does not enlarge existing shard/job budgets. Registered profiles
+are ready for future hosted invocation, not live GitHub/ADO event proof. Phase 5/6 retain full
+equivalence, performance and hosted adoption. Evidence: `.tmp/ci-phase46/`, `.tmp/ci-phase46-*.json`.
+
+Final containment/report refinements pass 89 focused cases on both OSes; invalid adapter metadata
+cannot discard unverified process cleanup. Original standalone project-root runners pass in Python/
+PS7. Ruff/formatting (93 sources), annotation policy (22 fixtures / 459 files), 111 relative doc links/
+anchors and diff checks pass. Exact audit preserves all preexisting shard/gate/budget objects; the
+only existing-profile change adds mandatory native-result regression to always-run obligations.
+
 **CI 4.5 confirmed (2026-10-06):**
 [Execution reporting](CI/execution-reporting.md) adds atomic per-unit evidence and flushed event
 records, full/concise JSON, common Markdown and honest native/custom JUnit. G01 gains 41 reporting

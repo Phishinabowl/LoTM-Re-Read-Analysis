@@ -366,3 +366,47 @@ def test_invalid_external_registry_has_catalog_classification(private_catalog):
     path.write_text(json.dumps(registry))
     with pytest.raises(catalogs.CatalogError, match="obsolete"):
         catalogs.Catalog(root)
+
+
+@pytest.mark.parametrize("identity", catalogs.REGRESSION_UNITS)
+def test_mandatory_regression_cannot_be_removed_from_feature_profile(private_catalog, identity):
+    root, data, docs = private_catalog
+    profile = next(row for row in docs["profiles"]["profiles"] if row["id"] == "feature-feedback")
+    profile["always_run"].remove(identity)
+    write_documents(data, docs)
+    with pytest.raises(catalogs.CatalogError, match="must always run"):
+        catalogs.Catalog(root)
+
+
+@pytest.mark.parametrize("mutation", ["report-to-optional", "windows-only", "extra-unit"])
+def test_focused_gate_admission_protects_families_and_os_coverage(private_catalog, mutation):
+    root, data, docs = private_catalog
+    groups = {row["id"]: row for row in docs["implementation"]["groups"]}
+    if mutation == "report-to-optional":
+        path = "Tools/Tests/Python/test_ci_reports.py"
+        groups["ci-execution"]["entry"].remove(path)
+        groups["python-tooling-pilots"]["entry"].append(path)
+    elif mutation == "windows-only":
+        groups["ci-process"]["os"] = ["windows"]
+    else:
+        profile = next(row for row in docs["profiles"]["profiles"] if row["id"] == "ci-infrastructure")
+        profile["references"][0]["ids"].append("python-bootstrap")
+        profile["budget"]["total_seconds"] = 840
+    write_documents(data, docs)
+    with pytest.raises(catalogs.CatalogError, match="regression|nonmandatory"):
+        catalogs.Catalog(root)
+
+
+def test_all_implementation_profiles_keep_mandatory_gate_and_existing_check_names():
+    catalog = catalogs.Catalog(ROOT)
+    for profile in catalog.profiles.values():
+        if any(name.startswith("implementation/") for name in profile["execution"]):
+            assert set(catalogs.REGRESSION_UNITS) <= set(profile["always_run"])
+    plan = catalog.plan("ci-infrastructure", "linux")
+    assert [row["execution_id"] for row in plan["units"]] == list(catalogs.REGRESSION_UNITS)
+    assert all(row["adapter"] == "pytest" and row["availability"] == "unverified" for row in plan["units"])
+    assert plan["deadline_sum_seconds"] == 510
+    expected = {"Workflow Policy", "Python Validation", "PowerShell 7 Validation", "Project Compatibility"}
+    for profile in ("feature-feedback", "pr-integration", "full-verification"):
+        checks = {row["check_name"] for row in catalog.shard_plans[profile + "-initial"]["gates"]}
+        assert (expected - {"Project Compatibility"} if profile == "feature-feedback" else expected) <= checks

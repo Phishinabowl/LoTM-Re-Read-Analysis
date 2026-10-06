@@ -13,6 +13,11 @@ CI 4.4 adds [local aggregate adapters](aggregate-execution.md), reaching 54 logi
 16 implementation groups. It moves infrastructure regression into its own admitted shard;
 planning remains read-only and hosted adoption/report publication remain gated.
 
+CI 4.6 adds the [mandatory infrastructure profile](regression-gate.md), while preserving 54 logical
+units/16 implementation groups and existing shard/check identities. All implementation-bearing
+profiles retain the five mandatory groups; reporting/gate fixtures are entries within ci-execution.
+The new focused profile/shard is locally executable; hosted placement and adoption remain Phase 6.
+
 ```powershell
 # Use the prepared development Python executable recorded by bootstrap.
 & $python Tools/CI/plan_ci.py --list

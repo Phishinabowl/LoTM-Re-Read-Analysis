@@ -67,11 +67,12 @@ The Testing panel is a development view, not suite membership authority or hoste
 | Python/test_package_artifact.py | unit | 18 | Wheel boundary and pure synthetic-consumer helper |
 | Python/test_tooling_pilots.py | unit/integration | 9 unit, 3 integration | Annotation discovery/CLI, normalization and root API implementation |
 | Python/test_native_results.py | unit | 33 | Native XML/phase truth, publication identity, adapter scope, timeout and finalization |
-| Python/test_ci_catalog.py | unit | 58 | Private source/catalog trees, discovery/closure, deterministic planning, shard/gate admission and manifests |
-| Python/test_ci_scope.py | unit/integration | 30 unit, 12 integration | Real private Git histories, snapshot/rename/mode/drift contracts and advisory selector closure |
-| Python/test_ci_process.py | unit/integration | 27 unit, 9 integration | Owned synthetic process trees, guardian/caller loss, deadlines, cancellation, complete diagnostics and cleanup failures |
+| Python/test_ci_catalog.py | unit | 67 | Private source/catalog trees, discovery/closure, mandatory family/OS membership, deterministic planning and shard/gate manifests |
+| Python/test_ci_scope.py | unit/integration | 31 unit, 15 integration | Real private Git histories, snapshots, PR/ref drift, selection reason/order/count repeatability and full fallback |
+| Python/test_ci_process.py | unit/integration | 31 unit, 11 integration | Owned trees, guardian/caller loss, deadlines, cancellation, output thresholds, diagnostics and cleanup |
 | Python/test_ci_execution.py | unit/integration | 38 unit, 1 integration | Aggregate continuation/blocking, actual source/policy scope, typed parity, runner deadlines, owned cleanup and shard evidence |
 | Python/test_ci_reports.py | unit/integration | 40 unit, 1 integration | Atomic report/publication truth, projections, partial native evidence and real killed-writer recovery; registered within ci-execution |
+| Python/test_ci_gate.py | unit/integration | 5 unit, 4 integration | Private end-to-end supervisor failures, unit-record/finalization failure, metadata overrides and empty execution; within ci-execution |
 | PowerShell/ConformanceRunner.Tests.ps1 | Unit/Integration | 6 Unit, 2 Integration | Conformance registry/report helpers and real bounded synthetic child failures/recovery |
 | PowerShell/Dependencies.Tests.ps1 | Unit | 3 | Exact module-declaration implementation |
 | PowerShell/Formatter.Tests.ps1 | Unit/Integration | 3 Unit, 4 Integration | Mocked Git/explicit-file discovery and real exact-version analyzer |
@@ -91,6 +92,11 @@ temporary paths, timestamps and Pester-generated GUIDs. New parameterized cases 
 identities must be unique and unchanged between individual and aggregate discovery.
 
 ## Fixture And State Ownership
+
+[CI 4.6 mandatory regression](../CI/regression-gate.md) owns the focused ci-infrastructure profile:
+277 cases across five registered groups, retained in every implementation-bearing profile. The
+end-to-end fixture uses synthetic children/private catalogs without recursively running the
+production portfolio. Hosted activation remains Phase 6.
 
 [CI 4.4 aggregate execution](../CI/aggregate-execution.md) registers ci-execution and exercises
 real approved layer adapters on a captured copy. The new infrastructure shard separates mandatory

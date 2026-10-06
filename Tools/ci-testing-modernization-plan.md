@@ -34,6 +34,9 @@ Hosted/default adoption, atomic reporting and complete legacy equivalence remain
 CI 4.5 local reporting/artifact lifecycle is confirmed by the maintainer on 2026-10-06.
 Hosted publication and complete legacy equivalence remain later gates.
 
+CI 4.6 mandatory regression and the Phase 4 local exit gate are confirmed by the maintainer on 2026-10-06.
+Real hosted activation/event/API proof and full same-snapshot equivalence remain Phase 5/6.
+
 **Working branch:** `architecture/ci-testing-modernization`, created from
 `architecture/framework-extraction-foundation` at `c4b7932`.
 
@@ -1688,19 +1691,55 @@ native/domain shadow equivalence and host-event adoption remain later gates.
 
 ### Phase 4.6 Mandatory Runner And Selector Regression Gate
 
-- [ ] Register catalog/scope/selector/process/report regression in mandatory local and hosted profiles.
-- [ ] Use synthetic children and private registries to test the supervisor without recursively invoking
+- [x] Register catalog/scope/selector/process/report regression in mandatory local and hosted profiles.
+- [x] Use synthetic children and private registries to test the supervisor without recursively invoking
   the production full suite.
-- [ ] Cover multiple failures, missing children, malformed summaries, discovery errors, empty/skipped
+- [x] Cover multiple failures, missing children, malformed summaries, discovery errors, empty/skipped
   coverage, launch errors, output limits, timeouts, cancellation, cleanup failures, and recovery.
-- [ ] Prove selection reasons/order/counts and aggregate exit status remain deterministic.
-- [ ] Cover shard partition omissions/duplicates, wrong execution trees/digests, source artifact failures,
+- [x] Prove selection reasons/order/counts and aggregate exit status remain deterministic.
+- [x] Cover shard partition omissions/duplicates, wrong execution trees/digests, source artifact failures,
   retained aggregate check identities and event/PR metadata races with synthetic fixture-backed tests.
+
+**Implementation/evidence (confirmed 2026-10-06):**
+[Mandatory infrastructure gate](CI/regression-gate.md) registers ci-infrastructure with 277 pytest
+cases across five existing groups. Every implementation-bearing profile retains native-result,
+catalog, scope/selector, process and aggregate/report always-run obligations. Native entry discovery
+cannot move CI/report coverage into optional groups, and mandatory groups support Windows/Linux.
+Catalog-only CI Infrastructure Regression does not rename/activate existing required checks;
+hosted matrices/event/API wiring remain Phase 6. Existing full-profile membership, shard allocations,
+domain fixtures and authored content are preserved.
+
+Twenty-eight focused additions fill identified gaps rather than duplicate earlier failure cases.
+Private end-to-end runs prove assertion/launch/malformed-summary continuation and cancellation;
+failed unit recording retains the actual completed outcome, blocks later work and cannot finalize
+an invalid journal. Other fixtures prove immutable adapter metadata, empty-run rejection,
+per-stream capture thresholds, deterministic explanation and source/target/checkout PR-ref drift.
+Guardian capture has a 64 MiB monitored stdout/stderr threshold, preserving captured bytes and
+cleanup evidence; write/poll/termination overshoot remains explicit. Private Git index commands
+enable long paths per invocation without changing global/user Git configuration.
+
+The registered five-unit profile passes on captured Windows source in 67.747s and on an isolated
+manifest-bound WSL copy in 21.325s. Final native inventories pass all 374 pytest and 34 Pester cases
+on both systems, with no errors/skips: Python Windows 46.445s / WSL 16.582s; Pester Windows 17.388s /
+WSL 25.817s. The WSL fixture has its own synthetic commit; matching original bytes/modes and source
+manifest are recorded separately, not presented as an original committed/hosted snapshot.
+Full old/new equivalence, performance acceptance and real hosted events/publication remain Phase 5/6.
+Final malformed-adapter containment/report refinements pass 89 focused cases on Windows/WSL;
+unverified containment is retained even when result metadata is invalid or recording aborts.
+Standalone project-root conformance passes through both original runners. Ruff/formatting (93 sources),
+annotation policy (22 fixtures / 459 files), 111 relative documentation links/anchors and diff checks
+pass. Exact catalog audit preserves every preexisting shard, gate identity, allocation and budget;
+existing profiles change only the mandatory native-result always-run obligation. Evidence is ignored
+`.tmp/ci-phase46/` and `.tmp/ci-phase46-*.json`.
 
 ### Phase 4 Exit Gate
 
-- [ ] Meta-regression proves the concrete execution and failure contracts in supported OS/runtime variants.
-- [ ] Existing runners remain usable and no reported result implies coverage that did not execute.
+- [x] Meta-regression proves the concrete execution and failure contracts in supported OS/runtime variants.
+- [x] Existing runners remain usable and no reported result implies coverage that did not execute.
+
+**Exit-gate boundary:** This is local supported-OS/runtime implementation proof. Registration in
+future-host profiles is complete; actual hosted placement, event freshness and adoption remain
+Phase 6. Same-commit full legacy/supervisor equivalence and measured optimization are Phase 5.
 
 **Rollback:** Disable supervisor adoption; preserve original standalone execution and added regression fixtures.
 

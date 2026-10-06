@@ -34,6 +34,10 @@ recovers interrupted evidence; hosted uploads and publication receipts remain la
 
 ## Normal Development Setup
 
+CI 4.6 registers the focused [mandatory infrastructure regression gate](regression-gate.md).
+Implementation-bearing profiles retain five native/infrastructure groups; hosted activation and
+required-check policy remain Phase 6. The focused profile uses prepared Python only.
+
 Use the adopted CPython 3.14.5 x64 interpreter and PS7.6.6 development host. The controller fails
 with an actionable error if a selected interpreter/tool is missing or mismatched; it does not
 upgrade machine runtimes or machine-wide packages. Acquire those explicitly before bootstrap.

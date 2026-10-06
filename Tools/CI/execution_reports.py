@@ -93,6 +93,41 @@ def verify_files(owner, entries):
             raise ValueError("Stale or changed artifact: " + entry["path"])
 
 
+def journal_records(owner, partial=False):
+    lines = confined(owner, "events.jsonl").read_bytes().splitlines(keepends=True)
+    records, units_started, terminal = [], False, False
+    for index, line in enumerate(lines):
+        if not line.endswith(b"\n"):
+            if partial and index == len(lines) - 1:
+                break
+            raise ValueError("Incomplete finalized journal")
+        event = decode_json(line)
+        if (
+            set(event) != {"sequence", "kind", "record"}
+            or type(event["sequence"]) is not int
+            or event["sequence"] != index + 1
+            or event["record"]["path"] != f"records/{index + 1:06d}.json"
+        ):
+            raise ValueError("Journal sequence/record mismatch")
+        kind = event["kind"]
+        if (
+            terminal
+            or kind not in {"run-start", "plan", "unit-terminal", "run-terminal"}
+            or (index == 0 and kind != "run-start")
+            or (index > 0 and kind == "run-start")
+            or (units_started and kind == "plan")
+        ):
+            raise ValueError("Unknown or misplaced journal transition")
+        units_started = units_started or kind == "unit-terminal"
+        terminal = kind == "run-terminal"
+        verify_files(owner, [event["record"]])
+        payload = decode_json(confined(owner, event["record"]["path"]).read_text(encoding="utf-8"))
+        records.append((event, payload))
+    if not records or (not partial and not terminal):
+        raise ValueError("Missing durable run/terminal journal record")
+    return records
+
+
 class Journal:
     """One writer per unique owner; fsync each event after its atomic record is durable."""
 
@@ -326,7 +361,8 @@ def validate_report(report):
     if any(name not in known for row in report["results"] for name in row["artifacts"]):
         raise ValueError("Unit references missing artifact")
     if report["status"] == "passed" and (
-        report["exit_code"] != 0
+        not identities
+        or report["exit_code"] != 0
         or not report["complete"]
         or report["failures"]
         or any(row["status"] != "passed" for row in report["results"])
@@ -380,9 +416,10 @@ def finalize(owner, report):
     ]
     journal_path = confined(owner, "events.jsonl")
     if journal_path.exists():
-        events = [decode_json(line) for line in journal_path.read_text(encoding="utf-8").splitlines()]
-        if not events or events[-1]["kind"] != "run-terminal":
-            raise ValueError("Normal finalization requires a durable terminal event")
+        records = journal_records(owner)
+        events = [event for event, _ in records]
+        if records[-1][1] != report:
+            raise ValueError("Terminal journal differs from finalized report")
         files.append(fingerprint(owner, "events.jsonl"))
         files.extend(event["record"] for event in events)
     if "shard_source" in report["provenance"]:
@@ -453,9 +490,10 @@ def verify_publication(owner):
     if "shard_source" in report["provenance"]:
         expected.add("shard-result.json")
     if confined(owner, "events.jsonl").exists():
-        events = [
-            decode_json(line) for line in confined(owner, "events.jsonl").read_text(encoding="utf-8").splitlines()
-        ]
+        records = journal_records(owner)
+        events = [event for event, _ in records]
+        if records[-1][1] != report:
+            raise ValueError("Terminal journal differs from published report")
         expected.add("events.jsonl")
         expected.update(event["record"]["path"] for event in events)
     if inventory != expected:
@@ -486,22 +524,8 @@ def verify_publication(owner):
 def recover(source, destination):
     """Recover durable completed records into a new owner, never claim process cleanup or final success."""
     source, destination = Path(source), Path(destination)
-    events = confined(source, "events.jsonl").read_bytes().splitlines(keepends=True)
     report, artifacts, rows, selected = None, [], [], []
-    for index, line in enumerate(events):
-        if not line.endswith(b"\n") and index == len(events) - 1:
-            break
-        event = decode_json(line)
-        if event["sequence"] != index + 1:
-            raise ValueError("Journal sequence mismatch")
-        if (
-            event["kind"] not in {"run-start", "plan", "unit-terminal", "run-terminal"}
-            or (index == 0 and event["kind"] != "run-start")
-            or (index > 0 and event["kind"] == "run-start")
-        ):
-            raise ValueError("Unknown or misplaced journal event")
-        verify_files(source, [event["record"]])
-        payload = decode_json(confined(source, event["record"]["path"]).read_text(encoding="utf-8"))
+    for event, payload in journal_records(source, partial=True):
         if event["kind"] in {"run-start", "plan", "run-terminal"}:
             report = payload
             selected = report["selection"].get("selected_ids", [])

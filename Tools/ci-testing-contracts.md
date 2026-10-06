@@ -32,6 +32,12 @@ The [modernization plan](ci-testing-modernization-plan.md) owns delivery and acc
 CI 4.5's [execution reporting](CI/execution-reporting.md) is confirmed on 2026-10-06: local atomic
 events/records, JSON/Markdown/JUnit projections, exact publication admission and partial recovery.
 Legacy detailed/concise contracts remain unchanged; actual hosted publication is Phase 6.4.
+
+CI 4.6's [mandatory infrastructure regression](CI/regression-gate.md) is confirmed on 2026-10-06.
+The ci-infrastructure profile and mandatory native/catalog/scope/process/aggregate membership apply
+locally and to the profiles future hosts invoke. Capture thresholds, immutable adapter metadata,
+empty-run rejection and journal transition/terminal agreement supplement prior failure contracts.
+Actual hosted event/API freshness and pipeline/check adoption remain Phase 6.
 The [coverage ledger](ci-testing-coverage-ledger.md) owns coverage mapping and migration gaps.
 Existing [validation reporting](../Framework/Contracts/validation-run-reporting.md),
 [conformance membership](Conformance/suites.json), and
@@ -371,7 +377,7 @@ read-only evidence can continue only with proven isolation. Never automatically 
 
 Failure classification is an enum: `assertion`, `policy`, `parity`, `catalog`, `scope`,
 `prerequisite`, `launch`, `collection`, `result-contract`, `timeout`, `cancellation`, `budget`,
-`canonical-mutation`, `cleanup`, `report`, `publication`. Preserve original child exit/message
+`canonical-mutation`, `cleanup`, `evidence-limit`, `report`, `publication`. Preserve original child exit/message
 and full diagnostics, while reporting the supervisor classification separately.
 
 | Aggregate exit | Required behavior |

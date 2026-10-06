@@ -67,8 +67,23 @@ def execute_units(plan, dispatch, budget, cancel, guard, sources=None, observer=
                 guard()
                 result["attempts"] = 1
                 outcome = dispatch(row, lease, cancel, complete)
+                if isinstance(outcome, dict) and "processes" in outcome:
+                    # Preserve containment evidence even when the adapter's result contract is invalid.
+                    result["processes"] = outcome["processes"]
                 if outcome.get("status") not in STATES:
                     raise ValueError("Adapter did not supply a terminal unit state")
+                allowed = {
+                    "status",
+                    "classification",
+                    "child_exit_code",
+                    "native_counts",
+                    "reasons",
+                    "evidence",
+                    "processes",
+                    "retained_native",
+                }
+                if set(outcome) - allowed:
+                    raise ValueError("Adapter attempted to alter approved unit metadata")
                 result.update(outcome)
                 if result["status"] == "blocked":
                     result["attempts"] = 0
@@ -117,7 +132,8 @@ def outcome(results, failures, cancelled, reviews):
     if cancelled or any(row["status"] == "cancelled" for row in results):
         return "cancelled", 130
     if (
-        failures
+        not results
+        or failures
         or any(row["status"] != "passed" for row in results)
         or any(row["status"] != "accepted" for row in reviews)
     ):

@@ -162,6 +162,7 @@
       ],
       "always_run": [
         "implementation/ci-catalog::python",
+        "implementation/python-native-results::python",
         "implementation/ci-scope::python",
         "implementation/ci-process::python",
         "implementation/ci-execution::python"
@@ -292,6 +293,7 @@
       ],
       "always_run": [
         "implementation/ci-catalog::python",
+        "implementation/python-native-results::python",
         "implementation/ci-scope::python",
         "implementation/ci-process::python",
         "implementation/ci-execution::python"
@@ -410,6 +412,7 @@
       ],
       "always_run": [
         "implementation/ci-catalog::python",
+        "implementation/python-native-results::python",
         "implementation/ci-scope::python",
         "implementation/ci-process::python",
         "implementation/ci-execution::python"
@@ -528,6 +531,7 @@
       ],
       "always_run": [
         "implementation/ci-catalog::python",
+        "implementation/python-native-results::python",
         "implementation/ci-scope::python",
         "implementation/ci-process::python",
         "implementation/ci-execution::python"
@@ -793,6 +797,7 @@
       ],
       "always_run": [
         "implementation/ci-catalog::python",
+        "implementation/python-native-results::python",
         "implementation/ci-scope::python",
         "implementation/ci-process::python",
         "implementation/ci-execution::python"
@@ -911,6 +916,7 @@
       ],
       "always_run": [
         "implementation/ci-catalog::python",
+        "implementation/python-native-results::python",
         "implementation/ci-scope::python",
         "implementation/ci-process::python",
         "implementation/ci-execution::python"
@@ -924,6 +930,48 @@
       },
       "budget": {
         "total_seconds": 9600,
+        "termination_seconds": 30,
+        "cleanup_seconds": 60,
+        "finalization_seconds": 120
+      },
+      "required_reviews": []
+    },
+    {
+      "id": "ci-infrastructure",
+      "description": "Mandatory native adapter, catalog, scope/selector, process and reporting regression; no recursive production suites",
+      "references": [
+        {
+          "owner": "implementation",
+          "profile": null,
+          "ids": [
+            "python-native-results",
+            "ci-catalog",
+            "ci-scope",
+            "ci-process",
+            "ci-execution"
+          ],
+          "runtimes": [
+            "python"
+          ],
+          "blocking": true
+        }
+      ],
+      "always_run": [
+        "implementation/python-native-results::python",
+        "implementation/ci-catalog::python",
+        "implementation/ci-scope::python",
+        "implementation/ci-process::python",
+        "implementation/ci-execution::python"
+      ],
+      "selection": "full",
+      "execution_policy": {
+        "continue_independent": true,
+        "parallelism": 1,
+        "canonical_guard": "canonical-v1",
+        "environment": "owned-v1"
+      },
+      "budget": {
+        "total_seconds": 720,
         "termination_seconds": 30,
         "cleanup_seconds": 60,
         "finalization_seconds": 120
@@ -3440,6 +3488,54 @@
             "conformance-powershell7-4",
             "parity-5",
             "compatibility-6"
+          ],
+          "budget": {
+            "total_seconds": 330,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        }
+      ],
+      "aggregate_gate": "aggregate"
+    },
+    {
+      "id": "ci-infrastructure-initial",
+      "profile": "ci-infrastructure",
+      "shards": [
+        {
+          "id": "infrastructure-0",
+          "order": 0,
+          "units": [
+            "implementation/python-native-results::python",
+            "implementation/ci-catalog::python",
+            "implementation/ci-scope::python",
+            "implementation/ci-process::python",
+            "implementation/ci-execution::python"
+          ],
+          "depends_on": [],
+          "os": "windows",
+          "budget": {
+            "total_seconds": 720,
+            "termination_seconds": 30,
+            "cleanup_seconds": 60,
+            "finalization_seconds": 120
+          }
+        }
+      ],
+      "gates": [
+        {
+          "id": "aggregate",
+          "check_name": "CI Infrastructure Regression",
+          "units": [
+            "implementation/python-native-results::python",
+            "implementation/ci-catalog::python",
+            "implementation/ci-scope::python",
+            "implementation/ci-process::python",
+            "implementation/ci-execution::python"
+          ],
+          "source_shards": [
+            "infrastructure-0"
           ],
           "budget": {
             "total_seconds": 330,

@@ -13,6 +13,8 @@ import threading
 import time
 import uuid
 
+CAPTURE_LIMIT_BYTES = 64 * 1024 * 1024
+
 
 def seconds(value):
     if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value <= 0:
@@ -233,6 +235,7 @@ def supervise_owned(request, cancellation, reason):
         "ownership": "windows-job" if os.name == "nt" else "linux-process-group",
     }
     started = time.monotonic()
+    capture_limit = request.get("capture_limit_bytes", CAPTURE_LIMIT_BYTES)
     try:
         with (
             (directory / "stdout.bin").open("xb", buffering=0) as stdout,
@@ -255,9 +258,23 @@ def supervise_owned(request, cancellation, reason):
                     encoding="utf-8",
                 )
                 while tree.active() and not cancellation.is_set() and time.monotonic() < request["deadline"]:
+                    if stdout.tell() + stderr.tell() > capture_limit:
+                        break
                     time.sleep(0.01)
                 code = tree.poll()
-                if cancellation.is_set():
+                captured = stdout.tell() + stderr.tell()
+                record["capture"] = {
+                    "limit_bytes": capture_limit,
+                    "observed_bytes": captured,
+                    "exceeded": captured > capture_limit,
+                }
+                if captured > capture_limit:
+                    record.update(
+                        status="error",
+                        classification="evidence-limit",
+                        reason="Combined stdout/stderr capture threshold exceeded",
+                    )
+                elif cancellation.is_set():
                     record.update(status="cancelled", classification="cancellation", reason=reason[0])
                 elif time.monotonic() >= request["deadline"]:
                     record.update(status="timed-out", classification="timeout")
@@ -266,6 +283,10 @@ def supervise_owned(request, cancellation, reason):
                 # Native assertions/coverage are deliberately not inferred from the process exit.
                 record["child_exit_code"] = code
                 record["cleanup"] = stop_tree(tree, request["termination"], request["cleanup"])
+                captured = stdout.tell() + stderr.tell()
+                record["capture"].update(observed_bytes=captured, exceeded=captured > capture_limit)
+                if captured > capture_limit:
+                    record.update(status="error", classification="evidence-limit")
                 if record["child_exit_code"] is None:
                     record["child_exit_code"] = tree.poll()
                 if not record["cleanup"]["verified"]:
@@ -289,13 +310,26 @@ def supervise_owned(request, cancellation, reason):
     (directory / "process.json").write_text(json.dumps(record, indent=2), encoding="utf-8")
 
 
-def run_process(arguments, *, cwd, env, output_parent, lease, termination=1, cleanup=2, cancel=None):
+def run_process(
+    arguments,
+    *,
+    cwd,
+    env,
+    output_parent,
+    lease,
+    termination=1,
+    cleanup=2,
+    cancel=None,
+    capture_limit_bytes=CAPTURE_LIMIT_BYTES,
+):
     """Launch one explicitly owned command; retain outputs; return honest process-only status."""
     started = time.monotonic()
     if not isinstance(lease, Lease) or not math.isfinite(lease.deadline):
         raise ValueError("Finite admitted lease required")
     seconds(termination)
     seconds(cleanup)
+    if type(capture_limit_bytes) is not int or capture_limit_bytes <= 0:
+        raise ValueError("Capture threshold must be a positive integer byte count")
     if (
         not isinstance(arguments, list)
         or not arguments
@@ -328,6 +362,7 @@ def run_process(arguments, *, cwd, env, output_parent, lease, termination=1, cle
         "deadline": lease.deadline,
         "termination": termination,
         "cleanup": cleanup,
+        "capture_limit_bytes": capture_limit_bytes,
     }
     # Only the caller holds the guardian's stdin writer. Target handles cannot inherit it.
     with (directory / "guardian.bin").open("xb") as diagnostic:

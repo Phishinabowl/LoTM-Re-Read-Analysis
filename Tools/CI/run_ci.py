@@ -244,11 +244,23 @@ def execute(args):
             paths_file = workspace_tmp / "captured-paths.bin"
             paths_file.write_bytes(b"\0".join(name.encode("utf-8") for name in sorted(snapshot.files)) + b"\0")
             for command in (
-                [git, "-c", "core.autocrlf=false", "-C", str(workspace), "init", "--quiet"],
                 [
                     git,
                     "-c",
                     "core.autocrlf=false",
+                    "-c",
+                    "core.longpaths=true",
+                    "-C",
+                    str(workspace),
+                    "init",
+                    "--quiet",
+                ],
+                [
+                    git,
+                    "-c",
+                    "core.autocrlf=false",
+                    "-c",
+                    "core.longpaths=true",
                     "-C",
                     str(workspace),
                     "add",
@@ -388,6 +400,8 @@ def execute(args):
             "terminal": counts(report["results"]),
         }
     except Exception as error:
+        if "session" in locals() and not session.containment_verified:
+            report["cleanup"] = {"verified": False, "state": "failed", "external_scratch": "retained-unsafe"}
         if recorded_rows:
             report["results"] = recorded_rows
             report["artifacts"] = recorded_artifacts
