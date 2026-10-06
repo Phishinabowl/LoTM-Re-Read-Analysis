@@ -229,7 +229,25 @@ def main():
         ROOT.resolve()
     ):
         parser.error("Report must stay inside the checkout owned .tmp directory")
-    verify(args.wheel.resolve(), args.installer_python.resolve(), report, args.runtime_wheel)
+    try:
+        verify(args.wheel.resolve(), args.installer_python.resolve(), report, args.runtime_wheel)
+    except Exception as error:
+        if not report.exists():
+            report.parent.mkdir(parents=True, exist_ok=True)
+            report.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "status": "failed",
+                        "error": str(error),
+                        "checks": [],
+                        "cleanup_complete": False,
+                    },
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
+        raise
 
 
 if __name__ == "__main__":

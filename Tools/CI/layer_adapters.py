@@ -144,6 +144,7 @@ class AdapterSession:
         wheel=None,
         runtime_wheel=None,
         source_representation="Worktree",
+        render_report=None,
     ):
         self.root, self.snapshot, self.output = Path(root), snapshot, Path(output)
         self.executables = {key: str(Path(value).resolve()) for key, value in executables.items() if value}
@@ -151,7 +152,8 @@ class AdapterSession:
         if source_representation not in {"Worktree", "GitBlob"}:
             raise ValueError("Unknown formatter source representation")
         self.source_representation = source_representation
-        names = ("SystemRoot", "WINDIR", "TEMP", "TMP", "HOME", "LANG", "PATH", "PATHEXT")
+        self.render_report = render_report
+        names = ("SystemRoot", "SystemDrive", "ProgramData", "WINDIR", "TEMP", "TMP", "HOME", "LANG", "PATH", "PATHEXT")
         self.env = {name: os.environ[name] for name in names if name in os.environ}
         self.env.update(
             PYTHONUTF8="1",
@@ -287,6 +289,119 @@ class AdapterSession:
                     "error": str(error),
                     "executable": runtime + "-explicit",
                 }
+        if any(row["execution_id"].startswith("compatibility/render::") for row in rows):
+            self.preflight_render(versions, cancel)
+
+    def preflight_render(self, versions, cancel=None):
+        directory = self.output / "preflight-render"
+        directory.mkdir()
+        try:
+            import bootstrap
+
+            if not self.render_report:
+                raise ValueError("Explicit --render-bootstrap-report required; run pinned render bootstrap first")
+            document = read_json(self.render_report)
+            if document.get("status") != "passed":
+                raise ValueError("Render bootstrap report did not pass")
+            render = document["render"]
+            owner, cache = Path(render["environment"]).resolve(), Path(render["browser_cache"]).resolve()
+            key = render["key"]
+            if not re.fullmatch(r"[0-9a-f]{24}", key):
+                raise ValueError("Invalid render cache key")
+            local = owner.parents[3]
+            if (
+                local.name != ".local"
+                or owner.parent != local / "ci-environments/render" / key
+                or cache != local / "ci-cache/browsers" / key
+            ):
+                raise ValueError("Render paths do not belong to matching owned environment/cache")
+            for path in (owner, cache):
+                if any(item.is_symlink() or item.is_junction() for item in (path, *path.parents)):
+                    raise ValueError("Render ownership traverses a link")
+            manifest = read_json(self.root / "Tools/CI/Node/package.json")
+            identity = {
+                "schema": 2,
+                "os": sys.platform,
+                "architecture": __import__("platform").machine(),
+                "node": versions["node"],
+                "npm": versions["npm"],
+                "browser": "chrome",
+                "browser_version": versions["chrome"],
+                "lock": bootstrap.digest(self.root / "Tools/CI/Node/package-lock.json"),
+            }
+            if key != bootstrap.key_for(identity):
+                raise ValueError("Render cache key differs from captured runtime/lock identity")
+            if (owner / ".puppeteerrc.cjs").read_text() != bootstrap.render_configuration():
+                raise ValueError("Owned Chrome-only configuration changed")
+            if read_json(owner / "package.json") != manifest or bootstrap.digest(owner / "package-lock.json") != (
+                bootstrap.digest(self.root / "Tools/CI/Node/package-lock.json")
+            ):
+                raise ValueError("Render package/lock differs from captured declarations")
+            if read_json(owner / "content-sha256.json") != bootstrap.tree_manifest(owner / "node_modules"):
+                raise ValueError("Render dependency content differs from bootstrap receipt")
+            browser_files = {
+                file.relative_to(cache).as_posix(): bootstrap.digest(file)
+                for file in sorted(cache.rglob("*"))
+                if file.is_file() and file != cache / "content-sha256.json"
+            }
+            if not browser_files or read_json(cache / "content-sha256.json") != browser_files:
+                raise ValueError("Browser content differs from bootstrap receipt")
+            for base in (owner / "node_modules", cache):
+                for file in base.rglob("*"):
+                    if not file.resolve().is_relative_to(base) or file.is_junction():
+                        raise ValueError("Render content link escapes ownership")
+            node, browser = Path(render["node"]).resolve(), Path(render["path"]).resolve()
+            mmdc = owner / "node_modules/.bin" / ("mmdc.cmd" if os.name == "nt" else "mmdc")
+            if not browser.is_relative_to(cache) or not browser.is_file() or not node.is_file() or not mmdc.is_file():
+                raise ValueError("Admitted Node/browser/Mermaid executable missing or outside owned cache")
+            if render["mmdc"] != str(mmdc) or render["browser"] != "Chrome/" + versions["chrome"]:
+                raise ValueError("Render executable/version differs from bootstrap result")
+            environment = {
+                "PUPPETEER_CACHE_DIR": str(cache),
+                "PUPPETEER_EXECUTABLE_PATH": str(browser),
+                "PUPPETEER_CHROME_VERSION": versions["chrome"],
+                "PUPPETEER_SKIP_DOWNLOAD": "true",
+                "PUPPETEER_FIREFOX_SKIP_DOWNLOAD": "true",
+                "PUPPETEER_CHROME_HEADLESS_SHELL_SKIP_DOWNLOAD": "true",
+            }
+            self.env.update(environment)
+            self.env["PATH"] = os.pathsep.join([str(mmdc.parent), str(node.parent), self.env["PATH"]])
+            script = (
+                "const p=require('puppeteer');(async()=>{"
+                "const b=await p.launch({executablePath:process.env.PUPPETEER_EXECUTABLE_PATH,"
+                "headless:true,args:process.platform==='linux'?['--no-sandbox']:[]});"
+                "console.log(JSON.stringify({status:'passed',version:process.version,browser:await b.version(),"
+                "puppeteer:require('puppeteer/package.json').version,"
+                "path:await p.executablePath({headless:'shell'})}));"
+                "await b.close();})().catch(e=>{console.error(e);process.exit(1)});"
+            )
+            process = run_process(
+                [str(node), "-e", script],
+                cwd=owner,
+                env=self.env,
+                output_parent=directory,
+                lease=Lease(time.monotonic() + 30),
+                termination=0.5,
+                cleanup=3,
+                cancel=cancel,
+            )
+            self.containment_verified = self.containment_verified and process["cleanup"]["verified"]
+            probe = read_json(Path(process["directory"]) / "stdout.bin")
+            if (
+                process["status"] != "exited"
+                or process["child_exit_code"] != 0
+                or not process["cleanup"]["verified"]
+                or probe.get("version") != "v" + versions["node"]
+                or probe.get("browser") != "Chrome/" + versions["chrome"]
+                or probe.get("puppeteer") != manifest["dependencies"]["puppeteer"]
+                or Path(probe["path"]).resolve() != browser
+            ):
+                raise ValueError("Pinned render probe/version/resolver/cleanup mismatch")
+            self.readiness["render"] = True
+            self.inventory["render"] = {**probe, "status": "verified"}
+        except Exception as error:
+            self.readiness["render"] = False
+            self.inventory["render"] = {"status": "unavailable", "error": str(error)}
 
     def context(self, cancel=None):
         if not self.readiness.get("python"):
@@ -379,6 +494,8 @@ class AdapterSession:
         needed = ["python"] if runtime == "referee" else [runtime]
         if adapter == "compatibility":
             needed = ["python", "powershell7"]
+            if logical_id == "render":
+                needed.append("render")
         if adapter == "actionlint":
             needed.append("actionlint")
         missing = [value for value in needed if not self.readiness.get(value)]
@@ -386,7 +503,8 @@ class AdapterSession:
             return {
                 "status": "blocked",
                 "classification": "prerequisite",
-                "reasons": ["Unavailable: " + ", ".join(missing)],
+                "reasons": ["Unavailable: " + ", ".join(missing)]
+                + [self.inventory[name]["error"] for name in missing if self.inventory.get(name, {}).get("error")],
             }
         directory = self.output / ("unit-" + identity.replace("/", "-") + "-" + runtime)
         directory.mkdir()
@@ -507,6 +625,19 @@ class AdapterSession:
                     "classification": "prerequisite",
                     "reasons": ["Explicit wheel/runtime wheel required"],
                 }
+            try:
+                for name, path in (("framework", self.wheel), ("runtime", self.runtime_wheel)):
+                    with Path(path).open("rb") as stream:
+                        stream.read(1)
+            except OSError as error:
+                return {
+                    "status": "blocked",
+                    "classification": "prerequisite",
+                    "reasons": [
+                        f"Unreadable {name} wheel input {path}: {error}. "
+                        "Acquire readable inputs explicitly; ACLs are unchanged."
+                    ],
+                }
             commands = [
                 [
                     python,
@@ -608,7 +739,7 @@ class AdapterSession:
             "child_exit_code": last["child_exit_code"],
             "native_counts": native,
             "reasons": owning_failure_reasons(document, adapter)
-            if not passed and adapter in {"compatibility", "conformance", "powershell-format"}
+            if not passed and adapter in {"compatibility", "conformance", "powershell-format", "installed-artifact"}
             else [],
             "evidence": document,
             "processes": processes,

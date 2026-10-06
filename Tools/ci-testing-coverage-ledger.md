@@ -36,6 +36,13 @@ retained 5.1 semantics after only declared operational normalization. Visualizat
 five/35-file golden baselines. All legacy family mappings remain intact;
 browser/wheel/full acceptance and hosted adoption stay separate gates.
 
+**CI 5.4 evidence overlay (confirmed on 2026-10-06):** The
+[release reproduction proof](ci-testing-release-reproduction-proof.md) verifies explicit owned
+render/wheel admission, portable extraction and retained executable scale/limit coverage. All 33
+narrowed obligations pass; 30 detailed scale/limit rows match 5.2 and renderer output matches the
+retained explicit-full-Chrome diagnostic. Acquired receipts and source/cleanup guards pass. No registry
+or fixture is retired; final full-profile/performance acceptance and hosted adoption remain separate.
+
 CI Phase 2.1 applies the reviewed support-policy change through the [retirement inventory](ci-powershell-retirement-inventory.md).
 The active parity family is now `PARITY-SUPPORTED-RUNTIMES`; the historical `PARITY-THREE-RUNTIME`
 ID maps to it one-for-one with only Desktop host support removed. The inspected three-runtime rows

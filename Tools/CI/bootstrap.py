@@ -5,6 +5,7 @@ import argparse
 import ast
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import platform
@@ -59,7 +60,7 @@ def clean_environment():
     environment = {
         key: value
         for key, value in os.environ.items()
-        if key not in blocked and not key.startswith(("PIP_", "PUPPETEER_", "NPM_CONFIG_"))
+        if key.upper() not in blocked and not key.upper().startswith(("PIP_", "PUPPETEER_", "NPM_CONFIG_"))
     }
     environment.update(
         PYTHONNOUSERSITE="1",
@@ -68,13 +69,32 @@ def clean_environment():
         PIP_DISABLE_PIP_VERSION_CHECK="1",
         PIP_NO_INDEX="1",
         PYTEST_DISABLE_PLUGIN_AUTOLOAD="1",
-        NPM_CONFIG_USERCONFIG=os.devnull,
-        NPM_CONFIG_GLOBALCONFIG=os.devnull,
     )
     return environment
 
 
+def npm_environment(*, check=False):
+    environment = clean_environment()
+    owner = owned_path(ROOT / ".local/ci-cache/npm-config")
+    for key, name in (("NPM_CONFIG_USERCONFIG", "user.npmrc"), ("NPM_CONFIG_GLOBALCONFIG", "global.npmrc")):
+        path = owner / name
+        if not path.exists() and not check:
+            owner.mkdir(parents=True, exist_ok=True)
+            with path.open("xb"):
+                pass
+        if path.is_symlink() or not path.is_file() or path.read_bytes() != b"":
+            raise ValueError("Distinct empty owned npm configuration required: " + str(path))
+        environment[key] = str(path)
+    return environment
+
+
 def run(command, *, cwd=ROOT, environment=None, timeout=600):
+    deadline = os.environ.get("LOTM_CI_UNIT_DEADLINE")
+    if deadline is not None:
+        limit = float(deadline)
+        if not math.isfinite(limit) or limit - time.monotonic() <= 2:
+            raise ValueError("Whole-unit deadline exhausted or invalid before bootstrap child launch")
+        timeout = min(timeout, limit - time.monotonic() - 2)
     result = subprocess.run(
         [str(item) for item in command],
         cwd=cwd,
@@ -443,11 +463,23 @@ def bootstrap_powershell(args, versions):
     return result
 
 
+def render_configuration():
+    return (
+        "module.exports={cacheDirectory:process.env.PUPPETEER_CACHE_DIR,defaultBrowser:'chrome',"
+        "chrome:{version:process.env.PUPPETEER_CHROME_VERSION,skipDownload:true},"
+        "'chrome-headless-shell':{skipDownload:true},firefox:{skipDownload:true}};\n"
+    )
+
+
 def bootstrap_render(args, versions):
     node, npm = shutil.which("node"), shutil.which("npm.cmd" if os.name == "nt" else "npm")
     if node is None or npm is None:
         raise ValueError("Exact Node/npm unavailable; install the declared runtime before bootstrap")
-    if run([node, "--version"]).strip() != "v" + versions["node"] or run([npm, "--version"]).strip() != versions["npm"]:
+    environment = npm_environment(check=args.check)
+    if (
+        run([node, "--version"], environment=environment).strip() != "v" + versions["node"]
+        or run([npm, "--version"], environment=environment).strip() != versions["npm"]
+    ):
         raise ValueError("Node/npm do not match adopted exact versions")
     manifest = read_json(ROOT / "Tools/CI/Node/package.json")
     if manifest["engines"] != {"node": versions["node"], "npm": versions["npm"]}:
@@ -469,7 +501,6 @@ def bootstrap_render(args, versions):
     owner = owned_path(ROOT / ".local/ci-environments/render" / key / args.environment_id)
     cache = owned_path(ROOT / ".local/ci-cache/npm" / key)
     browsers = owned_path(ROOT / ".local/ci-cache/browsers" / key)
-    environment = clean_environment()
     environment.update(
         PUPPETEER_CACHE_DIR=str(browsers),
         PUPPETEER_SKIP_DOWNLOAD="true",
@@ -480,11 +511,7 @@ def bootstrap_render(args, versions):
     )
     start = time.perf_counter()
     present = (owner / "node_modules/puppeteer/package.json").exists()
-    configuration = (
-        "module.exports={cacheDirectory:process.env.PUPPETEER_CACHE_DIR,defaultBrowser:'chrome',"
-        "chrome:{version:process.env.PUPPETEER_CHROME_VERSION,skipDownload:true},"
-        "'chrome-headless-shell':{skipDownload:true},firefox:{skipDownload:true}};\n"
-    )
+    configuration = render_configuration()
     if not present:
         if args.check:
             raise ValueError("Render environment missing; run explicit bootstrap")
@@ -551,6 +578,8 @@ cacheDir:process.env.PUPPETEER_CACHE_DIR,platform:b.detectBrowserPlatform(),inst
         environment=str(owner),
         npm_cache=str(cache),
         browser_cache=str(browsers),
+        node=str(Path(node).resolve()),
+        npm=str(Path(npm).resolve()),
         environment_hit=present,
         elapsed_seconds=time.perf_counter() - start,
         mmdc=str(owner / "node_modules/.bin" / ("mmdc.cmd" if os.name == "nt" else "mmdc")),

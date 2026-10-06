@@ -26,6 +26,11 @@ Current mandatory inventory is 310 Python cases, all Python groups total 407 and
 44. The [consumer/safety proof](../ci-testing-consumer-safety-proof.md) separates final focused native
 execution from the registered real consumer portfolio and its remaining release/full gates.
 
+CI 5.4 adds 18 cases to ci-execution (now 140), five to bootstrap, three to compatibility implementation
+and one to package artifacts. Current Python inventory is 434, mandatory infrastructure is 328 and
+PowerShell remains 44. [Release reproduction proof](../ci-testing-release-reproduction-proof.md)
+distinguishes native negative paths from actual acquired wheel/browser and copied-framework execution.
+
 At CI 4.6 these five groups contained 277 pytest cases. Reporting/gate tests join the existing ci-execution
 group. All implementation-bearing profiles must retain all five always-run groups. Every
 test_ci_*.py entry must belong to a mandatory group; these groups support Windows and Linux.

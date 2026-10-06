@@ -22,6 +22,7 @@ try:
     scopes = importlib.import_module("scope")
     worker = importlib.import_module("adapter_worker")
     controller = importlib.import_module("run_ci")
+    bootstrap = importlib.import_module("bootstrap")
     sys.path.insert(0, str(ROOT / "Tools/Conformance"))
     conformance = importlib.import_module("run_conformance")
     sys.path.insert(0, str(ROOT / "Tools/Compatibility"))
@@ -393,6 +394,142 @@ def test_formatter_failure_promotes_counts_and_paths_without_losing_full_owner_r
     assert document == before
 
 
+@pytest.mark.parametrize("input_kind", ["missing", "denied"])
+def test_unreadable_wheel_blocks_before_verifier_launch(tmp_path, monkeypatch, input_kind):
+    wheel = tmp_path / "framework.whl"
+    runtime = tmp_path / "runtime.whl"
+    runtime.write_bytes(b"runtime")
+    if input_kind == "denied":
+        wheel.write_bytes(b"framework")
+        original = Path.open
+
+        def denied(path, *args, **kwargs):
+            if path == wheel:
+                raise PermissionError("synthetic unreadable original ACL")
+            return original(path, *args, **kwargs)
+
+        monkeypatch.setattr(Path, "open", denied)
+    session = adapters.AdapterSession(
+        tmp_path, scopes.Snapshot({}, {}), tmp_path, {"python": sys.executable}, wheel=wheel, runtime_wheel=runtime
+    )
+    session.readiness = {"python": True}
+    monkeypatch.setattr(session, "launch", lambda *args: pytest.fail("Unreadable input launched verifier"))
+    result = session.execute(
+        {"adapter": "installed-artifact", "execution_id": "implementation/python-installed-runtime::python"},
+        processes.Lease(time.monotonic() + 5),
+        threading.Event(),
+        {},
+    )
+    assert result["status"] == "blocked" and result["classification"] == "prerequisite"
+    assert "Unreadable framework wheel input" in result["reasons"][0] and str(wheel) in result["reasons"][0]
+
+
+def test_owned_child_environment_keeps_windows_system_locations_without_global_browser_override(tmp_path, monkeypatch):
+    monkeypatch.setenv("SystemDrive", "Z:")
+    monkeypatch.setenv("ProgramData", "Z:/ProgramData")
+    monkeypatch.setenv("PUPPETEER_EXECUTABLE_PATH", "global-browser")
+    session = adapters.AdapterSession(tmp_path, None, tmp_path, {})
+    assert session.env["SystemDrive"] == "Z:" and session.env["ProgramData"] == "Z:/ProgramData"
+    assert "PUPPETEER_EXECUTABLE_PATH" not in session.env
+
+
+@pytest.mark.parametrize(
+    "change",
+    ["none", "missing", "report", "key", "outside", "lock", "dependency", "browser", "config", "resolver", "version"],
+)
+def test_render_admission_rejects_stale_or_global_inputs(tmp_path, monkeypatch, change):
+    versions = json.loads((ROOT / "Tools/CI/Data/runtime-versions.json").read_text())
+    manifest = json.loads((ROOT / "Tools/CI/Node/package.json").read_text())
+    lock = (ROOT / "Tools/CI/Node/package-lock.json").read_bytes()
+    identity = {
+        "schema": 2,
+        "os": sys.platform,
+        "architecture": __import__("platform").machine(),
+        "node": versions["node"],
+        "npm": versions["npm"],
+        "browser": "chrome",
+        "browser_version": versions["chrome"],
+        "lock": __import__("hashlib").sha256(lock).hexdigest(),
+    }
+    key = bootstrap.key_for(identity)
+    owner = tmp_path / ".local/ci-environments/render" / key / "synthetic"
+    cache = tmp_path / ".local/ci-cache/browsers" / key
+    modules = owner / "node_modules"
+    modules.mkdir(parents=True)
+    cache.mkdir(parents=True)
+    (modules / "package.txt").write_bytes(b"pinned dependency")
+    (owner / "package.json").write_text(json.dumps(manifest))
+    (owner / "package-lock.json").write_bytes(lock)
+    (owner / ".puppeteerrc.cjs").write_text(bootstrap.render_configuration())
+    browser = cache / "chrome.exe"
+    browser.write_bytes(b"pinned browser")
+    (owner / "content-sha256.json").write_text(json.dumps(bootstrap.tree_manifest(modules)))
+    (cache / "content-sha256.json").write_text(json.dumps(bootstrap.tree_manifest(cache)))
+    mmdc = modules / ".bin" / ("mmdc.cmd" if sys.platform == "win32" else "mmdc")
+    mmdc.parent.mkdir()
+    mmdc.write_bytes(b"owned launcher")
+    (owner / "content-sha256.json").write_text(json.dumps(bootstrap.tree_manifest(modules)))
+    report = tmp_path / "bootstrap.json"
+    report.write_text(
+        json.dumps(
+            {
+                "status": "passed",
+                "render": {
+                    "environment": str(owner),
+                    "browser_cache": str(cache),
+                    "key": key,
+                    "node": sys.executable,
+                    "path": str(browser),
+                    "mmdc": str(mmdc),
+                    "browser": "Chrome/" + versions["chrome"],
+                },
+            }
+        )
+    )
+    if change == "report":
+        report.write_text('{"status":"failed"}')
+    elif change == "lock":
+        (owner / "package-lock.json").write_text("changed")
+    elif change == "dependency":
+        (modules / "package.txt").write_text("changed")
+    elif change == "browser":
+        browser.write_text("changed")
+    elif change == "config":
+        (owner / ".puppeteerrc.cjs").write_text("global fallback")
+    elif change in {"key", "outside"}:
+        value = json.loads(report.read_text())
+        value["render"]["key" if change == "key" else "browser_cache"] = (
+            "0" * 24 if change == "key" else str(tmp_path / "unowned-cache")
+        )
+        report.write_text(json.dumps(value))
+
+    def probe(command, **kwargs):
+        environment = kwargs["env"]
+        assert environment["PUPPETEER_EXECUTABLE_PATH"] == str(browser)
+        assert environment["PUPPETEER_SKIP_DOWNLOAD"] == "true"
+        directory = kwargs["output_parent"] / "process"
+        directory.mkdir()
+        (directory / "stdout.bin").write_text(
+            json.dumps(
+                {
+                    "status": "passed",
+                    "version": "v" + ("wrong" if change == "version" else versions["node"]),
+                    "browser": "Chrome/" + versions["chrome"],
+                    "puppeteer": manifest["dependencies"]["puppeteer"],
+                    "path": str(tmp_path / "global-browser") if change == "resolver" else str(browser),
+                }
+            )
+        )
+        return {"directory": str(directory), "status": "exited", "child_exit_code": 0, "cleanup": {"verified": True}}
+
+    monkeypatch.setattr(adapters, "run_process", probe)
+    session = adapters.AdapterSession(ROOT, None, tmp_path, {}, render_report=None if change == "missing" else report)
+    session.preflight_render(versions)
+    assert session.readiness["render"] is (change == "none")
+    if change != "none":
+        assert session.inventory["render"]["error"]
+
+
 @pytest.mark.parametrize("adapter,runtime", [("compatibility", "referee"), ("conformance", "python")])
 def test_real_adapter_promotes_failure_into_aggregate_and_markdown(tmp_path, monkeypatch, adapter, runtime):
     error = "Golden inventory mismatch: <preserve>|specific owner error"
@@ -439,7 +576,8 @@ def test_real_adapter_promotes_failure_into_aggregate_and_markdown(tmp_path, mon
 
 
 @pytest.mark.parametrize("mode", ["deadline", "cancel"])
-def test_compatibility_adapter_contains_real_nested_child_on_interruption(tmp_path, mode):
+@pytest.mark.parametrize("logical_id", ["alpha", "render", "framework-extraction"])
+def test_compatibility_adapter_contains_real_nested_child_on_interruption(tmp_path, mode, logical_id):
     runner = tmp_path / "Tools/Compatibility/run_compatibility.py"
     runner.parent.mkdir(parents=True)
     ready = tmp_path / "nested-ready"
@@ -450,16 +588,17 @@ def test_compatibility_adapter_contains_real_nested_child_on_interruption(tmp_pa
         "import sys,json\nfrom pathlib import Path\n"
         f"sys.path.insert(0, {str(ROOT / 'Tools/Compatibility')!r})\n"
         "import run_compatibility as owner\n"
+        "identity=sys.argv[sys.argv.index('--check')+1]\n"
         "try:\n"
         "    owner.run_command(owner.Runtime('python',sys.executable), "
         f"[sys.executable,'-c',{child!r}], Path.cwd(), 60)\n"
         "except owner.CompatibilityFailure as error:\n"
-        "    print(json.dumps({'schema_version':1,'requested_checks':['alpha'],'canonical_outputs_unchanged':True,"
-        "'status':'failed','passed':0,'failed':1,'checks':[{'id':'alpha','status':'failed','error':str(error)}]}),flush=True)\n"
+        "    print(json.dumps({'schema_version':1,'requested_checks':[identity],'canonical_outputs_unchanged':True,"
+        "'status':'failed','passed':0,'failed':1,'checks':[{'id':identity,'status':'failed','error':str(error)}]}),flush=True)\n"
         "    sys.exit(1)\n"
     )
     session = adapters.AdapterSession(tmp_path, scopes.Snapshot({}, {}), tmp_path, {"python": sys.executable})
-    session.readiness = {"python": True, "powershell7": True}
+    session.readiness = {"python": True, "powershell7": True, "render": True}
     cancel = threading.Event()
     stop = threading.Event()
 
@@ -474,7 +613,7 @@ def test_compatibility_adapter_contains_real_nested_child_on_interruption(tmp_pa
         thread.start()
     try:
         result = session.execute(
-            {"adapter": "compatibility", "execution_id": "compatibility/alpha::referee"},
+            {"adapter": "compatibility", "execution_id": f"compatibility/{logical_id}::referee"},
             processes.Lease(time.monotonic() + (5 if mode == "deadline" else 10)),
             cancel,
             {},

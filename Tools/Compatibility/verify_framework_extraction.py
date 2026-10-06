@@ -5,12 +5,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
+import os
 from pathlib import Path
 import re
 import shutil
 import subprocess
 import sys
 import tempfile
+import time
 from typing import Any
 from neutral_consumer import write_neutral_consumer, write_text as write_text
 
@@ -88,7 +91,24 @@ def assert_copy_boundary(target_root: Path) -> None:
 
 
 def run_json(command: list[str], cwd: Path) -> dict[str, Any]:
-    completed = subprocess.run(command, cwd=cwd, check=False, capture_output=True, text=True, encoding="utf-8")
+    timeout = 360
+    if "LOTM_CI_UNIT_DEADLINE" in os.environ:
+        deadline = float(os.environ["LOTM_CI_UNIT_DEADLINE"])
+        if not math.isfinite(deadline) or deadline - time.monotonic() <= 2:
+            raise RuntimeError("Extraction whole-unit deadline exhausted or invalid")
+        timeout = min(timeout, deadline - time.monotonic() - 2)
+    try:
+        completed = subprocess.run(
+            command,
+            cwd=cwd,
+            check=False,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            timeout=timeout,
+        )
+    except subprocess.TimeoutExpired as error:
+        raise RuntimeError(f"Extraction command deadline exceeded: {error.stdout!r}\n{error.stderr!r}") from error
     if completed.returncode != 0:
         output = "\n".join(part.strip() for part in (completed.stdout, completed.stderr) if part.strip())
         raise RuntimeError(f"Extraction command failed ({completed.returncode}): {' '.join(command)}\n{output}")

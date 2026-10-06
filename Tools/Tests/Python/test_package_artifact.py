@@ -4,6 +4,7 @@ import base64
 import csv
 import hashlib
 import io
+import json
 from pathlib import Path
 import sys
 import subprocess
@@ -17,10 +18,40 @@ try:
     sys.path.insert(0, str(ROOT / "Tools/CI"))
     import bootstrap
     from package_artifact import inspect_wheel
+    import verify_installed_package as installed_verifier
 finally:
     sys.path[:] = _prior_import_path
 
 pytestmark = pytest.mark.unit
+
+
+def test_early_installed_verifier_failure_retains_prerequisite_report(tmp_path, monkeypatch):
+    monkeypatch.setattr(installed_verifier, "ROOT", tmp_path)
+    report = tmp_path / ".tmp/prerequisite.json"
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "verify",
+            "--install-and-verify",
+            "--wheel",
+            str(tmp_path / "missing.whl"),
+            "--installer-python",
+            sys.executable,
+            "--report",
+            str(report),
+        ],
+    )
+
+    def unavailable(*args):
+        raise PermissionError("Original wheel unreadable")
+
+    monkeypatch.setattr(installed_verifier, "verify", unavailable)
+    with pytest.raises(PermissionError):
+        installed_verifier.main()
+    result = json.loads(report.read_text())
+    assert result["status"] == "failed" and result["checks"] == [] and result["cleanup_complete"] is False
+    assert result["error"] == "Original wheel unreadable"
 
 
 @pytest.fixture

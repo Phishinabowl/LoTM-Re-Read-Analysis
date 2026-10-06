@@ -5,6 +5,12 @@ CI 3.1.2 implements explicit local acquisition, verified environments and packag
 the [modernization plan](../ci-testing-modernization-plan.md) owns acceptance and later adoption.
 CI 3.1.3 installed-artifact semantic/boundary verification is confirmed. No external package publishing is provided.
 
+CI 5.4 adds [release-input admission and reproduction](../ci-testing-release-reproduction-proof.md):
+distinct empty npm configurations, explicit render-bootstrap report admission, pinned full-Chrome
+propagation and actionable unreadable-wheel diagnostics. [Aggregate commands](aggregate-execution.md)
+require `--render-bootstrap-report` for profiles selecting rendering. Preparation remains explicit;
+current hosted workflows and required check names remain unchanged until their adoption phase.
+
 CI 3.4 adds the local single-group `run_native_tests.py` adapter and explicit pytest/Pester phase
 observers. [Native result commands, artifacts and failure boundaries](../Tests/README.md#ci-34-native-results-and-failure-contracts)
 are owned by the test-layout documentation. Catalog approval, full supervision, Markdown summaries

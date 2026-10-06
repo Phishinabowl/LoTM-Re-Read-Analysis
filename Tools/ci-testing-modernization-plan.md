@@ -47,6 +47,9 @@ locally and confirmed by the maintainer on 2026-10-06. The remaining 5.3/5.4/ful
 CI 5.3 consumer normalization and bounded failure diagnostics are implemented and verified locally
 and confirmed by the maintainer on 2026-10-06. All ten non-render checks pass; 5.4/5.5 remain open.
 
+CI 5.4 release-input admission and reproduction are implemented and verified locally on 2026-10-06,
+confirmed by the maintainer. All 33 release/limit obligations pass; full/performance acceptance remains 5.5.
+
 **Working branch:** `architecture/ci-testing-modernization`, created from
 `architecture/framework-extraction-foundation` at `c4b7932`.
 
@@ -1823,21 +1826,28 @@ that ownership without changing shared fixtures, golden hashes or hosted authori
 
 ### Phase 5.4 Extraction, Release, And Local Reproduction
 
-- [ ] Resolve the 5.1 npm configuration collision and explicitly admit/propagate the verified
+- [x] Resolve the 5.1 npm configuration collision and explicitly admit/propagate the verified
   Mermaid/full-Chrome environment. Prove that the renderer consumes the pinned browser without
   requesting omitted browser variants or falling back to global installations.
-- [ ] Verify readable acquired wheel inputs before execution and retain actionable prerequisite
+- [x] Verify readable acquired wheel inputs before execution and retain actionable prerequisite
   diagnostics. Preserve original cache/build ACLs; diagnostic byte-identical copies do not replace
   a passing registered installed-artifact execution.
-- [ ] Rehearse the portable extraction bundle with the revised requirements/copy lists and no LoTM
+- [x] Rehearse the portable extraction bundle with the revised requirements/copy lists and no LoTM
   canonical content or new unapproved CI/runtime coupling.
-- [ ] Run rendering and retained executable scale/pressure coverage using redirected outputs.
-- [ ] Verify deadlines cover extraction/render descendants and successful cleanup preserves ownership.
-- [ ] Document exact bootstrap/profile commands from Windows and unrelated working directories;
+- [x] Run rendering and retained executable scale/pressure coverage using redirected outputs.
+- [x] Verify deadlines cover extraction/render descendants and successful cleanup preserves ownership.
+- [x] Document exact bootstrap/profile commands from Windows and unrelated working directories;
   Linux reports any required Windows/API coverage assigned to another shard explicitly; it cannot
   claim a complete platform result by silently dropping those retained obligations.
 
 **Checkpoint:** Portable conformance survives modernization and hosted profiles have direct local recipes.
+
+The [CI 5.4 release reproduction proof](ci-testing-release-reproduction-proof.md) records distinct
+npm configuration, explicit render-bootstrap admission, wheel prerequisite diagnostics and inherited
+extraction deadlines. Exact local recipes preserve complete profile membership and honest OS assignment.
+All 33 narrowed release/limit obligations pass with an observed pinned headless Chrome launch,
+unchanged retained render/scale semantics, verified receipts and safe cleanup. Final native regression
+passes 234 cases on each of Windows and WSL. Required release reviews remain explicit and pending.
 
 ### Phase 5.5 Coverage And Safety Acceptance Review
 

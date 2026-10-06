@@ -5,6 +5,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import time
 
 import pytest
 
@@ -36,6 +37,34 @@ def test_registry_and_synthetic_reporting_keep_two_runtimes(tmp_path, registry):
     assert len(loaded["checks"]) == 11
     generated = compatibility.create_compatibility_reporting_registry(ROOT, tmp_path)
     assert compatibility.load_registry(generated)["runtimes"] == loaded["runtimes"]
+
+
+@pytest.mark.parametrize("value", ["expired", "nonfinite", "bounded"])
+def test_extraction_deadline_blocks_or_bounds_nested_command(tmp_path, monkeypatch, value):
+    monkeypatch.setenv(
+        "LOTM_CI_UNIT_DEADLINE",
+        str(
+            time.monotonic() - 1
+            if value == "expired"
+            else float("inf")
+            if value == "nonfinite"
+            else time.monotonic() + 5
+        ),
+    )
+    calls = []
+
+    def child(command, **kwargs):
+        calls.append(kwargs["timeout"])
+        raise subprocess.TimeoutExpired(command, kwargs["timeout"], output=b"retained output", stderr=b"retained error")
+
+    monkeypatch.setattr(extraction.subprocess, "run", child)
+    with pytest.raises(RuntimeError, match="deadline") as caught:
+        extraction.run_json(["synthetic"], tmp_path)
+    if value == "bounded":
+        assert len(calls) == 1 and 0 < calls[0] <= 3
+        assert "retained output" in str(caught.value) and "retained error" in str(caught.value)
+    else:
+        assert not calls
 
 
 @pytest.mark.parametrize("version", [2, 3.0, True, "3", None, 99])

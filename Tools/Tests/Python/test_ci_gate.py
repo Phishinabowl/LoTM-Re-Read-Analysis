@@ -69,7 +69,7 @@ def private_controller(tmp_path, monkeypatch):
     monkeypatch.setattr(controller, "Catalog", PrivateCatalog)
 
     class PrivateSession:
-        def __init__(self, workspace, snapshot, output, *args):
+        def __init__(self, workspace, snapshot, output, *args, **kwargs):
             assert args[-1] == "Worktree"
             self.root, self.output = workspace, output
             self.env = {
@@ -151,6 +151,7 @@ def private_controller(tmp_path, monkeypatch):
         actionlint=None,
         wheel=None,
         runtime_wheel=None,
+        render_bootstrap_report=None,
     )
     return args, scenario, root
 

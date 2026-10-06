@@ -230,6 +230,7 @@ def execute(args):
                 args.wheel,
                 args.runtime_wheel,
                 format_representation(scope["provenance"]["snapshot_kind"]),
+                render_report=args.render_bootstrap_report,
             )
             for name in ("TEMP", "TMP", "TMPDIR"):
                 session.env[name] = str(scratch)
@@ -508,6 +509,7 @@ def main():
     parser.add_argument("--actionlint")
     parser.add_argument("--wheel")
     parser.add_argument("--runtime-wheel")
+    parser.add_argument("--render-bootstrap-report")
     parser.add_argument("--shard-plan")
     parser.add_argument("--shard")
     parser.add_argument("--shard-result", action="append", dest="shard_results", default=[])

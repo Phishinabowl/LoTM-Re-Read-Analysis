@@ -123,3 +123,42 @@ def test_pure_runtime_lock_has_no_development_or_media_dependencies():
     versions = json.loads((ROOT / "Tools/CI/Data/runtime-versions.json").read_text())
     pins, _, _ = bootstrap.python_plan("runtime", False, versions)
     assert set(pins) == {"pyyaml", "pip"}
+
+
+def test_npm_uses_distinct_empty_owned_configs_and_scrubs_lowercase_inheritance(tmp_path, monkeypatch):
+    monkeypatch.setattr(bootstrap, "ROOT", tmp_path)
+    monkeypatch.setenv("npm_config_userconfig", "untrusted")
+    environment = bootstrap.npm_environment()
+    user, global_config = Path(environment["NPM_CONFIG_USERCONFIG"]), Path(environment["NPM_CONFIG_GLOBALCONFIG"])
+    assert user != global_config and user.read_bytes() == global_config.read_bytes() == b""
+    assert "npm_config_userconfig" not in environment
+    assert bootstrap.npm_environment(check=True)["NPM_CONFIG_USERCONFIG"] == str(user)
+    global_config.write_text("unexpected=configuration")
+    with pytest.raises(ValueError, match="empty owned"):
+        bootstrap.npm_environment(check=True)
+
+
+def test_npm_check_does_not_create_missing_configs(tmp_path, monkeypatch):
+    monkeypatch.setattr(bootstrap, "ROOT", tmp_path)
+    with pytest.raises(ValueError, match="empty owned"):
+        bootstrap.npm_environment(check=True)
+    assert not (tmp_path / ".local").exists()
+
+
+@pytest.mark.parametrize("deadline", ["expired", "nonfinite", "bounded"])
+def test_bootstrap_children_obey_inherited_whole_unit_deadline(tmp_path, monkeypatch, deadline):
+    monkeypatch.setattr(bootstrap.time, "monotonic", lambda: 100)
+    monkeypatch.setenv("LOTM_CI_UNIT_DEADLINE", {"expired": "99", "nonfinite": "inf", "bounded": "105"}[deadline])
+    calls = []
+
+    def child(*args, **kwargs):
+        calls.append(kwargs["timeout"])
+        return type("Result", (), {"returncode": 0, "stdout": "ok"})()
+
+    monkeypatch.setattr(bootstrap.subprocess, "run", child)
+    if deadline == "bounded":
+        assert bootstrap.run(["synthetic"], cwd=tmp_path) == "ok" and calls == [3]
+    else:
+        with pytest.raises(ValueError, match="deadline"):
+            bootstrap.run(["synthetic"], cwd=tmp_path)
+        assert not calls

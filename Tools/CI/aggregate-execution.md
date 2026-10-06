@@ -11,6 +11,13 @@ Planning still advertises rollout blockers: hosted publication, mandatory hosted
 Use explicit verified paths recorded by bootstrap, including its module root and acquired wheels.
 Execution never installs dependencies, downloads tools or repairs an environment.
 
+Profiles selecting rendering also require `--render-bootstrap-report` pointing to a passing current
+bootstrap report. Admission rechecks owned content receipts, captured pins/configuration and actual
+Node/full-Chrome resolution before propagating the exact executable and owned Mermaid PATH.
+Missing/unreadable wheel inputs block installed-artifact execution with prerequisite diagnostics.
+See the [release reproduction proof](../ci-testing-release-reproduction-proof.md) for exact preparation
+recipes, input ownership and OS limits; feature-only profiles do not require render preparation.
+
 ```powershell
 # Variables are executable/module/artifact paths from your bootstrap reports.
 & $python Tools/CI/run_ci.py --profile feature-feedback --scope local-worktree `
