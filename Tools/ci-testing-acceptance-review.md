@@ -3,6 +3,11 @@
 **Status:** Final local proof and CI 5.5 are confirmed by the maintainer on 2026-10-06.
 Interim native/full timing exceptions are explicitly accepted; hosted adoption remains Phase 6.
 
+**Subsequent plan extension (2026-10-06):** This confirmed 5.5 record remains the baseline. New
+5.6/5.7 checkpoints now require scenario consolidation and current local optimization/timing
+acceptance before Phase 6. The 90-second native / 16-minute full goals previously assigned here
+to Phase 8.1 move to 5.7; dated measurements and accepted interim exceptions are not revoked.
+
 The [modernization plan](ci-testing-modernization-plan.md) owns closure. This review neither retires
 legacy checks nor activates GitHub/ADO authority. On 2026-10-06 the maintainer authorized narrowly
 profiled runtime optimization with parity/consumer proof. Candidate changes include the Linux
@@ -234,4 +239,5 @@ committed reference; this final acceptance record qualifies the captured candida
 Complete original gates remain available. The maintainer confirms this checkpoint and authorizes
 focused branch publication on 2026-10-06. No required check identity or legacy runner is retired. Phase 6 owns exact
 committed hosted evidence, optional hosted-policy integrations and platform publication/activation.
-Phase 8.1 owns the retained 90-second native and 16-minute sequential full optimization goals.
+The subsequent plan extension assigns the retained 90-second native and 16-minute sequential full
+optimization goals to 5.7 before hosting; Phase 8.1 owns retirement after verified hosted equivalence.

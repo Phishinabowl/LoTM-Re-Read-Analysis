@@ -50,11 +50,15 @@ and confirmed by the maintainer on 2026-10-06. All ten non-render checks pass; 5
 CI 5.4 release-input admission and reproduction are implemented and verified locally on 2026-10-06,
 confirmed by the maintainer. All 33 release/limit obligations pass; full/performance acceptance remains 5.5.
 
-CI 5.5 and the Phase 5 local exit gate are confirmed by the maintainer on 2026-10-06. Final full verification passes
+CI 5.5 and the original Phase 5 local exit gate are confirmed by the maintainer on 2026-10-06. Final full verification passes
 74/74 in 18m14s; feature verification passes 41/41 in 4m46s Windows / 4m35s Linux. The acceptance
 review reconciles all 71 families, preserves all original cases and records the narrow lookup,
 fixture and Linux safety changes. Explicitly accepted interim native/full timing exceptions retain
-the 90-second / 16-minute goals in Phase 8.1. Hosted authority remains unchanged and gated by Phase 6.
+the 90-second / 16-minute goals. The plan extension, confirmed by the maintainer on 2026-10-06,
+adds 5.6 consolidation and 5.7 local
+optimization/timing acceptance before hosted adoption; the expanded Phase 5 exit gate remains open.
+The goals move from the former Phase 8.1 assignment to 5.7 without revoking 5.5's accepted interim
+record. Hosted authority remains unchanged; Phase 6 starts only after the expanded local gate closes.
 
 **Working branch:** `architecture/ci-testing-modernization`, created from
 `architecture/framework-extraction-foundation` at `c4b7932`.
@@ -102,8 +106,14 @@ design candidates until Phase 1 review; do not describe them as implemented.
   Retire coverage only through an explicit methodology decision and historical record.
 - Actively review measured costs for obsolete, temporary or redundant tests and repeated expensive
   setup. Preserve required coverage rather than every test forever; overlapping fixtures do not prove
-  redundancy across different contract boundaries or independent runtimes. Identify candidates during
-  5.1 shadow comparison and retire only accepted coverage mappings at 8.1. Shadow duplication is temporary.
+  redundancy across different contract boundaries or independent runtimes. Review mapped case/scenario
+  consolidation at 5.6 and local execution improvements at 5.7. Retire superseded runners/adapters and
+  hosted shadow duplication at 8.1 only after equivalent coverage is proved on both hosts.
+- Review coverage growth and execution cost at each remaining implementation checkpoint, rather than
+  postponing optimization until Phase 8. Before adding permanent coverage, identify the distinct
+  behavior, failure mode or contract boundary and check existing fixtures. Record material added cost
+  and opportunities for shared preparation. A new story or domain example alone does not justify a
+  new permanent suite; retained methodology requirements still apply until explicitly revised.
 - Faster routine CI feedback is an acceptance objective, alongside equivalent or stronger coverage.
   Measure dependency acquisition/cache restore, environment preparation, test execution and publication
   separately; keep queue delay distinct from execution time. Timeout ceilings and provisional cold-start
@@ -1865,7 +1875,8 @@ Narrow approved lookup preparation, private fixture isolation, container failure
 root-process supervision and documentation-path portability are proved. Interim 122.277s Windows
 full / 131.242s Windows feature / 105.911s Linux native costs and 1,093.662s sequential full cost
 remain visible; the maintainer explicitly accepts interim native/full exceptions with <=90s / <=960s
-goals retained in Phase 8.1. No unsafe batching, fixture/family deletion or timeout increase is adopted.
+goals retained (now assigned to 5.7 by the subsequent plan extension). No unsafe batching,
+fixture/family deletion or timeout increase is adopted.
 
 - [x] Review the 5.1 measured optimization candidates and implement only accepted changes with
   equivalent named cases, mandatory family accounting, independent failure continuation, isolation,
@@ -1882,7 +1893,66 @@ goals retained in Phase 8.1. No unsafe batching, fixture/family deletion or time
   corrected profiles. Profile the dominant conformance/consumer work when startup batching alone
   cannot meet the full target; record any explicit maintainer tradeoff rather than silently relaxing it.
 
-### Phase 5 Exit Gate
+### Phase 5.6 Coverage And Pressure-Scenario Consolidation
+
+**Agreed organization direction (2026-10-06):** Separate stable semantic coverage families from domain
+collections and named examples. Narrative/worldbuilding is a domain collection within broader domain
+pressure testing; Derrick, Loki, Marvel and comparable examples preserve concrete questions and
+historical discoveries. The approved direction itself does not rename IDs or retire requirements.
+
+- [ ] Map every retained scenario question to semantic coverage, supporting executable fixtures and
+  any distinct composed or source-grounded review obligation. Preserve historical scenario IDs through
+  explicit mappings; retain unsupported findings and unique distinctions such as knowledge versus
+  capability progression. Do not replace detailed obligations with one opaque domain-level pass.
+- [ ] Organize named examples into domain collections, distinguishing illustrative examples from
+  permanent regressions and unresolved pressure reviews. Define bounded representative automated
+  coverage and impact-selected broader pressure review; add permanent obligations for new behaviors
+  or reproducible defects rather than automatically for each new franchise or domain example.
+- [ ] Review duplicate scenarios/cases only after their preconditions, expected behavior, failure modes
+  and composition boundaries map to retained coverage. Record proposed removals, retained questions,
+  equivalence evidence and unresolved gaps; reuse 5.5's passing record where coverage is unchanged.
+- [ ] Apply reviewed consolidation through the testing methodology and evolution, then update
+  catalogs, coverage mappings, required-review entries and reporting consistently. Preserve pending
+  review status and explicit missing capabilities; a renamed collection cannot supply missing evidence.
+  Retain legacy runner entry points and checks needed for hosted shadow comparison.
+- [ ] Verify registry/family accounting and affected semantic cases, then review the complete mapping
+  before 5.7. Distinguish organizational/review savings from measured executable CI savings.
+
+**Checkpoint:** Pressure coverage scales by distinct semantic requirements, with explainable domain
+collections and example selection. Every consolidated obligation has a reviewed retained mapping.
+
+**Rollback:** Revert focused methodology/catalog consolidation together using the retained mappings;
+preserve historical IDs, findings and the original fixtures until replacement coverage is accepted.
+
+### Phase 5.7 Local Optimization And Timing Acceptance
+
+- [ ] Use confirmed 5.5 as the baseline: 1,093.662s sequential full, 122.277s Windows full native,
+  131.242s Windows feature native, 105.911s Linux native, and passing Windows/Linux feature profiles.
+  Keep setup, execution, publication and measurement conditions distinct; record any coverage changes
+  accepted at 5.6 so comparisons do not misattribute removed work to faster implementation.
+- [ ] Profile remaining preparation, startup, infrastructure regressions, guards, conformance and
+  consumer work. Prioritize measured costs; implement justified local improvements with equivalent
+  named obligations, independent failure continuation, isolation and complete reporting. Batching
+  requires timeout/termination recovery and contamination proof as well as passing cases.
+- [ ] Use focused checks and targeted timing during implementation. Once the candidate is stable,
+  run complete final local profiles and parity/consumer/source-guard/publication proof on the adopted
+  OS assignments. Retime both feature profiles and the complete native/full cohorts; do not repeat
+  expensive full runs merely for documentation or organization changes.
+- [ ] Reconcile the retained <=90s native, <=960s sequential full and <=300s per-OS feature goals.
+  Meet them or obtain an explicit reviewed pre-hosted disposition with measured gaps and follow-up;
+  5.5's interim acceptance is historical evidence, not automatic acceptance of a new candidate.
+  Do not weaken required coverage, skip failures or increase timeout ceilings to meet feedback goals.
+- [ ] Record the accepted local portfolio, timings, exact source provenance, limitations and rollback
+  in the plan, runtime-budget design and coverage ledger. Confirm the local record before Phase 6;
+  hosted cache transport, agent/shard placement and hosted critical-path measurements remain Phase 6.
+
+**Checkpoint:** The portfolio sent to hosted shadow adoption has reviewed coverage and current local
+correctness/timing acceptance. Any remaining performance exception is explicit before hosting starts.
+
+**Rollback:** Revert individual optimization changes against the retained 5.5 baseline; restore mapped
+cases where equivalence fails. Keep accepted historical evidence and original hosted checks available.
+
+### Phase 5 Exit Gate (Expanded After Confirmed 5.5)
 
 The [CI 5.5 acceptance review](ci-testing-acceptance-review.md) distinguishes the corrected committed
 passing portfolio from the final candidate and explicitly accepted interim timing exceptions. Existing
@@ -1890,6 +1960,9 @@ group/process boundaries, retained review families and hosted-policy limits rema
 
 - [x] Equivalent or stronger full coverage, unchanged LoTM baselines, complete parity, and safe output
   lifecycle are proved locally; environment limitations are explicit and do not masquerade as passes.
+- [ ] Phase 5.6 consolidation is mapped, implemented and accepted without silently losing requirements.
+- [ ] Phase 5.7 final local correctness and timing disposition are accepted for the resulting portfolio
+  before hosted adoption. The confirmed 5.5 gate remains historical; these additions are not yet closed.
 
 **Rollback:** Retain legacy invocation as reference and repair discrepancies before hosted adoption.
 
@@ -1897,6 +1970,8 @@ group/process boundaries, retained review families and hosted-policy limits rema
 
 ### Phase 6.1 Repository Synchronization And Host Readiness
 
+- [ ] Verify that the expanded Phase 5 local gate (including 5.6/5.7) is closed before starting hosted
+  shadow adoption. Use its accepted repository portfolio and local recipes as the hosted baseline.
 - [ ] Publish the branch only after Git confirmation; establish approved ADO resources and remotes
   through the reviewed synchronization contract without destructive mirror/force pushes.
 - [ ] Verify framework and modernization branch commit parity, ref mapping, authentication scope,
@@ -2023,16 +2098,16 @@ newly introduced policies/triggers through reviewed changes. Preserve shared Git
 
 ### Phase 8.1 Retirement Proposal And Coverage Review
 
-- [ ] Revisit CI 5.5's accepted interim native exception and observed costs (122.277s Windows full,
-  131.242s Windows feature / 105.911s Linux)
-  and 1,093.662s sequential full cost against the retained <=90s native / <=960s full goals.
-  Profile preparation, process startup, infrastructure regressions, remaining conformance/consumer work
-  and guards before changing granularity. Any batching must prove equivalent named coverage,
-  isolation, timeout/termination recovery, continuation and family reporting. Record measured savings
-  or a further explicit reviewed tradeoff; do not turn this interim exception into a silent new target.
-- [ ] Name each superseded harness/adapter and map its scenarios to verified replacements. Review the
-  5.1 slimming candidates, including individual tests, against retained coverage and measured savings;
-  do not permanently retain old/new shadow duplication merely because both suites once passed.
+Local scenario consolidation and timing acceptance must complete at 5.6/5.7 before hosted adoption.
+This checkpoint reviews retirement after exact-source equivalent coverage is demonstrated on both
+GitHub and ADO; it is not the first opportunity to organize or optimize the local portfolio.
+
+- [ ] Name each superseded harness/adapter and map its scenarios to the locally accepted replacements
+  and verified hosted evidence. Retire only approved legacy runners and temporary shadow duplication;
+  do not permanently retain old/new execution merely because both suites once passed.
+- [ ] Compare final local and hosted costs with the 5.7 acceptance record, explain changes introduced
+  during rollout and resolve any retained timing follow-up before integration. Further coverage
+  changes require updated methodology/mappings and fresh affected local/hosted proof.
 - [ ] Review direct invocation, failure diagnostics, runtime variants, cleanup, and reporting—not just counts.
 - [ ] Retain useful custom conformance/end-to-end runners and shared fixtures; record accepted coverage
   revisions in methodology and evolution before deleting superseded implementation.

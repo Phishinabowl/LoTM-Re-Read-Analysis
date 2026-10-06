@@ -13,6 +13,12 @@ replace the successful Phase 2.5 reference or prove hosted throughput.
 
 ## CI 5.1 Feedback Targets And Current Gap
 
+**Plan sequencing revision (2026-10-06):** The agreed 5.6/5.7 extension now places coverage/scenario
+consolidation and local optimization/timing acceptance before hosted adoption. References below to
+Phase 8.1 follow-up retain the dated 5.5 decision; current ownership of the <=90s native / <=960s full
+goals is Phase 5.7. Existing interim acceptances and measurements are preserved. Phase 8.1 reviews
+post-hosted retirement and final rollout costs; it does not defer the expanded local exit gate.
+
 CI 5.5's [acceptance review](ci-testing-acceptance-review.md) records a corrected committed passing
 full profile at `ad5b71c`: 74/74 units, 434 pytest/44 Pester cases and safe cleanup, **1,210.201s
 (20m10s)** outer wall time. Complete native/installed units total **120.521s**. These exceed the
