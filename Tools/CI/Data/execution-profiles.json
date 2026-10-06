@@ -111,7 +111,8 @@
             "python-tooling-pilots",
             "python-native-results",
             "ci-catalog",
-            "python-installed-runtime"
+            "python-installed-runtime",
+            "ci-scope"
           ],
           "runtimes": [
             "python"
@@ -158,7 +159,8 @@
         }
       ],
       "always_run": [
-        "implementation/ci-catalog::python"
+        "implementation/ci-catalog::python",
+        "implementation/ci-scope::python"
       ],
       "selection": "full",
       "execution_policy": {
@@ -168,7 +170,7 @@
         "environment": "owned-v1"
       },
       "budget": {
-        "total_seconds": 4770,
+        "total_seconds": 4890,
         "termination_seconds": 30,
         "cleanup_seconds": 60,
         "finalization_seconds": 120
@@ -213,7 +215,8 @@
             "python-tooling-pilots",
             "python-native-results",
             "ci-catalog",
-            "python-installed-runtime"
+            "python-installed-runtime",
+            "ci-scope"
           ],
           "runtimes": [
             "python"
@@ -282,7 +285,8 @@
         }
       ],
       "always_run": [
-        "implementation/ci-catalog::python"
+        "implementation/ci-catalog::python",
+        "implementation/ci-scope::python"
       ],
       "selection": "full",
       "execution_policy": {
@@ -292,7 +296,7 @@
         "environment": "owned-v1"
       },
       "budget": {
-        "total_seconds": 9210,
+        "total_seconds": 9330,
         "termination_seconds": 30,
         "cleanup_seconds": 60,
         "finalization_seconds": 120
@@ -337,7 +341,8 @@
             "python-tooling-pilots",
             "python-native-results",
             "ci-catalog",
-            "python-installed-runtime"
+            "python-installed-runtime",
+            "ci-scope"
           ],
           "runtimes": [
             "python"
@@ -394,7 +399,8 @@
         }
       ],
       "always_run": [
-        "implementation/ci-catalog::python"
+        "implementation/ci-catalog::python",
+        "implementation/ci-scope::python"
       ],
       "selection": "full",
       "execution_policy": {
@@ -404,7 +410,7 @@
         "environment": "owned-v1"
       },
       "budget": {
-        "total_seconds": 9330,
+        "total_seconds": 9450,
         "termination_seconds": 30,
         "cleanup_seconds": 60,
         "finalization_seconds": 120
@@ -449,7 +455,8 @@
             "python-tooling-pilots",
             "python-native-results",
             "ci-catalog",
-            "python-installed-runtime"
+            "python-installed-runtime",
+            "ci-scope"
           ],
           "runtimes": [
             "python"
@@ -506,7 +513,8 @@
         }
       ],
       "always_run": [
-        "implementation/ci-catalog::python"
+        "implementation/ci-catalog::python",
+        "implementation/ci-scope::python"
       ],
       "selection": "full",
       "execution_policy": {
@@ -516,7 +524,7 @@
         "environment": "owned-v1"
       },
       "budget": {
-        "total_seconds": 9330,
+        "total_seconds": 9450,
         "termination_seconds": 30,
         "cleanup_seconds": 60,
         "finalization_seconds": 120
@@ -708,7 +716,8 @@
             "python-tooling-pilots",
             "python-native-results",
             "ci-catalog",
-            "python-installed-runtime"
+            "python-installed-runtime",
+            "ci-scope"
           ],
           "runtimes": [
             "python"
@@ -765,7 +774,8 @@
         }
       ],
       "always_run": [
-        "implementation/ci-catalog::python"
+        "implementation/ci-catalog::python",
+        "implementation/ci-scope::python"
       ],
       "selection": "full",
       "execution_policy": {
@@ -775,7 +785,7 @@
         "environment": "owned-v1"
       },
       "budget": {
-        "total_seconds": 5340,
+        "total_seconds": 5460,
         "termination_seconds": 30,
         "cleanup_seconds": 60,
         "finalization_seconds": 120
@@ -820,7 +830,8 @@
             "python-tooling-pilots",
             "python-native-results",
             "ci-catalog",
-            "python-installed-runtime"
+            "python-installed-runtime",
+            "ci-scope"
           ],
           "runtimes": [
             "python"
@@ -877,7 +888,8 @@
         }
       ],
       "always_run": [
-        "implementation/ci-catalog::python"
+        "implementation/ci-catalog::python",
+        "implementation/ci-scope::python"
       ],
       "selection": "full",
       "execution_policy": {
@@ -887,7 +899,7 @@
         "environment": "owned-v1"
       },
       "budget": {
-        "total_seconds": 9330,
+        "total_seconds": 9450,
         "termination_seconds": 30,
         "cleanup_seconds": 60,
         "finalization_seconds": 120
@@ -1027,6 +1039,7 @@
             "implementation/python-native-results::python",
             "implementation/ci-catalog::python",
             "implementation/python-installed-runtime::python",
+            "implementation/ci-scope::python",
             "implementation/powershell-conformance-implementation::powershell7",
             "implementation/powershell-dependencies::powershell7",
             "implementation/powershell-formatting-implementation::powershell7",
@@ -1037,7 +1050,7 @@
           "depends_on": [],
           "os": "windows",
           "budget": {
-            "total_seconds": 2250,
+            "total_seconds": 2370,
             "termination_seconds": 30,
             "cleanup_seconds": 60,
             "finalization_seconds": 120
@@ -1125,6 +1138,7 @@
             "implementation/python-native-results::python",
             "implementation/ci-catalog::python",
             "implementation/python-installed-runtime::python",
+            "implementation/ci-scope::python",
             "conformance/project-root::python",
             "conformance/framework-installation::python",
             "conformance/strict-ingestion::python",
@@ -1243,6 +1257,7 @@
             "implementation/python-native-results::python",
             "implementation/ci-catalog::python",
             "implementation/python-installed-runtime::python",
+            "implementation/ci-scope::python",
             "implementation/powershell-conformance-implementation::powershell7",
             "implementation/powershell-dependencies::powershell7",
             "implementation/powershell-formatting-implementation::powershell7",
@@ -1306,6 +1321,7 @@
             "implementation/python-native-results::python",
             "implementation/ci-catalog::python",
             "implementation/python-installed-runtime::python",
+            "implementation/ci-scope::python",
             "implementation/powershell-conformance-implementation::powershell7",
             "implementation/powershell-dependencies::powershell7",
             "implementation/powershell-formatting-implementation::powershell7",
@@ -1316,7 +1332,7 @@
           "depends_on": [],
           "os": "windows",
           "budget": {
-            "total_seconds": 2250,
+            "total_seconds": 2370,
             "termination_seconds": 30,
             "cleanup_seconds": 60,
             "finalization_seconds": 120
@@ -1480,6 +1496,7 @@
             "implementation/python-native-results::python",
             "implementation/ci-catalog::python",
             "implementation/python-installed-runtime::python",
+            "implementation/ci-scope::python",
             "conformance/project-root::python",
             "conformance/framework-installation::python",
             "conformance/framework-catalog::python",
@@ -1633,6 +1650,7 @@
             "implementation/python-native-results::python",
             "implementation/ci-catalog::python",
             "implementation/python-installed-runtime::python",
+            "implementation/ci-scope::python",
             "implementation/powershell-conformance-implementation::powershell7",
             "implementation/powershell-dependencies::powershell7",
             "implementation/powershell-formatting-implementation::powershell7",
@@ -1731,6 +1749,7 @@
             "implementation/python-native-results::python",
             "implementation/ci-catalog::python",
             "implementation/python-installed-runtime::python",
+            "implementation/ci-scope::python",
             "implementation/powershell-conformance-implementation::powershell7",
             "implementation/powershell-dependencies::powershell7",
             "implementation/powershell-formatting-implementation::powershell7",
@@ -1741,7 +1760,7 @@
           "depends_on": [],
           "os": "windows",
           "budget": {
-            "total_seconds": 2250,
+            "total_seconds": 2370,
             "termination_seconds": 30,
             "cleanup_seconds": 60,
             "finalization_seconds": 120
@@ -1906,6 +1925,7 @@
             "implementation/python-native-results::python",
             "implementation/ci-catalog::python",
             "implementation/python-installed-runtime::python",
+            "implementation/ci-scope::python",
             "conformance/project-root::python",
             "conformance/framework-installation::python",
             "conformance/framework-catalog::python",
@@ -2060,6 +2080,7 @@
             "implementation/python-native-results::python",
             "implementation/ci-catalog::python",
             "implementation/python-installed-runtime::python",
+            "implementation/ci-scope::python",
             "implementation/powershell-conformance-implementation::powershell7",
             "implementation/powershell-dependencies::powershell7",
             "implementation/powershell-formatting-implementation::powershell7",
@@ -2159,6 +2180,7 @@
             "implementation/python-native-results::python",
             "implementation/ci-catalog::python",
             "implementation/python-installed-runtime::python",
+            "implementation/ci-scope::python",
             "implementation/powershell-conformance-implementation::powershell7",
             "implementation/powershell-dependencies::powershell7",
             "implementation/powershell-formatting-implementation::powershell7",
@@ -2169,7 +2191,7 @@
           "depends_on": [],
           "os": "windows",
           "budget": {
-            "total_seconds": 2250,
+            "total_seconds": 2370,
             "termination_seconds": 30,
             "cleanup_seconds": 60,
             "finalization_seconds": 120
@@ -2334,6 +2356,7 @@
             "implementation/python-native-results::python",
             "implementation/ci-catalog::python",
             "implementation/python-installed-runtime::python",
+            "implementation/ci-scope::python",
             "conformance/project-root::python",
             "conformance/framework-installation::python",
             "conformance/framework-catalog::python",
@@ -2488,6 +2511,7 @@
             "implementation/python-native-results::python",
             "implementation/ci-catalog::python",
             "implementation/python-installed-runtime::python",
+            "implementation/ci-scope::python",
             "implementation/powershell-conformance-implementation::powershell7",
             "implementation/powershell-dependencies::powershell7",
             "implementation/powershell-formatting-implementation::powershell7",
@@ -2583,6 +2607,7 @@
             "implementation/python-native-results::python",
             "implementation/ci-catalog::python",
             "implementation/python-installed-runtime::python",
+            "implementation/ci-scope::python",
             "implementation/powershell-conformance-implementation::powershell7",
             "implementation/powershell-dependencies::powershell7",
             "implementation/powershell-formatting-implementation::powershell7",
@@ -2593,7 +2618,7 @@
           "depends_on": [],
           "os": "windows",
           "budget": {
-            "total_seconds": 1770,
+            "total_seconds": 1890,
             "termination_seconds": 30,
             "cleanup_seconds": 60,
             "finalization_seconds": 120
@@ -2698,6 +2723,7 @@
             "implementation/python-native-results::python",
             "implementation/ci-catalog::python",
             "implementation/python-installed-runtime::python",
+            "implementation/ci-scope::python",
             "conformance/project-root::python",
             "conformance/framework-installation::python",
             "conformance/strict-ingestion::python",
@@ -2786,6 +2812,7 @@
             "implementation/python-native-results::python",
             "implementation/ci-catalog::python",
             "implementation/python-installed-runtime::python",
+            "implementation/ci-scope::python",
             "implementation/powershell-conformance-implementation::powershell7",
             "implementation/powershell-dependencies::powershell7",
             "implementation/powershell-formatting-implementation::powershell7",
@@ -2856,6 +2883,7 @@
             "implementation/python-native-results::python",
             "implementation/ci-catalog::python",
             "implementation/python-installed-runtime::python",
+            "implementation/ci-scope::python",
             "implementation/powershell-conformance-implementation::powershell7",
             "implementation/powershell-dependencies::powershell7",
             "implementation/powershell-formatting-implementation::powershell7",
@@ -2866,7 +2894,7 @@
           "depends_on": [],
           "os": "windows",
           "budget": {
-            "total_seconds": 2250,
+            "total_seconds": 2370,
             "termination_seconds": 30,
             "cleanup_seconds": 60,
             "finalization_seconds": 120
@@ -3031,6 +3059,7 @@
             "implementation/python-native-results::python",
             "implementation/ci-catalog::python",
             "implementation/python-installed-runtime::python",
+            "implementation/ci-scope::python",
             "conformance/project-root::python",
             "conformance/framework-installation::python",
             "conformance/framework-catalog::python",
@@ -3185,6 +3214,7 @@
             "implementation/python-native-results::python",
             "implementation/ci-catalog::python",
             "implementation/python-installed-runtime::python",
+            "implementation/ci-scope::python",
             "implementation/powershell-conformance-implementation::powershell7",
             "implementation/powershell-dependencies::powershell7",
             "implementation/powershell-formatting-implementation::powershell7",

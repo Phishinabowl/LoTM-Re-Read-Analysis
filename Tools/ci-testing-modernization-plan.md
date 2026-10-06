@@ -22,6 +22,7 @@ on 2026-10-05. CI 3.3 representative Python/PowerShell pilots and their narrow t
 confirmed on 2026-10-05. CI 3.4 native results/failure contracts are confirmed on 2026-10-05
 with local Windows/WSL proof. CI 3.5 pilot adoption review and the Phase 3 local exit gates are
 confirmed on 2026-10-05. Phase 3 is closed; CI 4.1 catalogs/planning and D22 are confirmed on
+2026-10-05 with local Windows/WSL proof. CI 4.2 scope/selector implementation is confirmed on
 2026-10-05 with local Windows/WSL proof. No execution supervisor/hosted profile is activated.
 
 **Working branch:** `architecture/ci-testing-modernization`, created from
@@ -1536,17 +1537,35 @@ Captured scope/snapshot authority is 4.2; result/artifact manifests and actual e
 
 ### Phase 4.2 Change-Scope Resolver And Explain-Only Selector
 
-- [ ] Implement NUL-delimited multi-commit merge-base scope, rename source/destination, deletions,
+- [x] Implement NUL-delimited multi-commit merge-base scope, rename source/destination, deletions,
   explicit local modes, resolved refs, and executed source/merge provenance.
-- [ ] Implement approved impact rules and conservative full-profile fallback for unknown/unsupported
+- [x] Implement approved impact rules and conservative full-profile fallback for unknown/unsupported
   scope, missing history, unsafe paths, and incomplete metadata.
-- [ ] Test spaces/Unicode/tabs and platform path rules, case distinctions, type/status changes,
+- [x] Test spaces/Unicode/tabs and platform path rules, case distinctions, type/status changes,
   staged/unstaged/untracked input, empty scope, shallow history, and unavailable base/head.
-- [ ] Prove shared infrastructure/transitive dependencies broaden selection and every no-impact
+- [x] Prove shared infrastructure/transitive dependencies broaden selection and every no-impact
   decision has affirmative rules. Keep selection explain-only until Phase 7.
 
 **Checkpoint:** Fixture-backed plans explain each selected/omitted unit and distinguish invalid catalogs
 from safely recoverable selection uncertainty.
+
+**Implementation/evidence (confirmed 2026-10-05):**
+[Git scope and advisory selection](CI/change-scope.md) implement all six explicit modes, resolved
+multi-commit merge-base source impact, separate executed merge provenance, NUL status/path inventory,
+coherent byte/mode captures and optional verified ignored snapshots. Missing/shallow/unbounded
+comparison falls back on known source; invalid catalog, unsafe/unreadable source or drift blocks.
+Changed-file policy disposition remains independently pending. Explain output preserves full effective
+membership while showing path/rule/dependency/parity/always-run reasons. No production non-impact
+exemption or execution narrowing is adopted; unknown/shared/unbounded mappings conservatively select full.
+
+Forty-two new cases (30 unit / 12 integration) and the updated catalog regressions pass; Windows/WSL
+native aggregate is 230. This checkout's worktree/full/materialized explanations validate captured
+catalog authority and unchanged full membership. ci-scope joins always-run registration, increasing
+the initial native/policy allocation from 2040 to 2160 seconds within the existing 2190 window.
+Per-file/total snapshot support is bounded at 32/256 MiB; current symlinks/gitlinks block rather than
+produce incomplete executable captures. Real Git fixtures are private and synthetic, with no fetch
+or real repository mutation. Evidence is ignored `.tmp/ci-phase42/`; process ownership/whole-run
+deadlines, actual policy validation and durable aggregate artifact lifecycle remain 4.3-4.5.
 
 ### Phase 4.3 Process Ownership, Deadlines, And Cancellation
 

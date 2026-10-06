@@ -1908,3 +1908,12 @@ with planned status and execution_ready false; invalid catalogs/invocations exit
 [Catalog planning](CI/catalog-planning.md) owns schema/adapter details, source-manifest APIs,
 current profile inventory, admission arithmetic, exact examples and remaining execution gates.
 Existing conformance/compatibility registries and standalone commands retain their authority.
+
+## CI Git Scope And Impact Explanation (CI 4.2)
+
+`Tools/CI/explain_ci.py --profile <id> --scope <mode>` resolves explicit Git comparison and
+source provenance, then explains candidate/selected/omitted impact with independent pending policy
+dispositions. effective_execution_units stays full; selection_enforced and execution_ready stay false.
+Index/committed modes require explicit ignored snapshot materialization for matching catalog authority.
+[Git scope](CI/change-scope.md) owns mode/ref/path rules, snapshot APIs, limits, fallback/blocking
+boundaries and local recipes. No fetch, test launch or hosted selection activation is performed.

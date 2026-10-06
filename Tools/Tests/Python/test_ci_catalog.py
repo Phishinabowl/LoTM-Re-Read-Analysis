@@ -66,7 +66,7 @@ def private_catalog(tmp_path):
     methodology.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(ROOT / "Framework/testing_methodology.md", methodology)
     shutil.copy2(ROOT / "Tools/CI/Data/runtime-versions.json", data / "runtime-versions.json")
-    for script in ("catalog.py", "plan_ci.py"):
+    for script in ("catalog.py", "plan_ci.py", "scope.py", "selection.py", "explain_ci.py"):
         shutil.copy2(ROOT / "Tools/CI" / script, root / "Tools/CI" / script)
     return root, data, documents
 

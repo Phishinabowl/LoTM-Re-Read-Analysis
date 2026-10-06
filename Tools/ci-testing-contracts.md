@@ -12,6 +12,12 @@ CI 4.1's initial catalog/planning subset is confirmed on 2026-10-05; see
 [catalog planning](CI/catalog-planning.md) for actual commands and remaining capabilities.
 This historical design is not a claim that the supervisor/selector or hosted execution is active.
 
+CI 4.2's [Git scope/advisory selector](CI/change-scope.md) is confirmed on 2026-10-05. New local
+envelopes are ci-change-scope v1 and ci-impact-explanation v1; effective execution stays full.
+Current snapshot support is regular files only, with 32 MiB per-file / 256 MiB total bounds;
+safe snapshots are required before comparison fallback. Optional materialization uses ignored .tmp.
+No production non-impact exemption or hosted no-impact execution is adopted in this checkpoint.
+
 The [modernization plan](ci-testing-modernization-plan.md) owns delivery and acceptance gates.
 The [coverage ledger](ci-testing-coverage-ledger.md) owns coverage mapping and migration gaps.
 Existing [validation reporting](../Framework/Contracts/validation-run-reporting.md),
@@ -604,6 +610,7 @@ retirement; D09-D11/D13 were confirmed on 2026-10-05. Implementation evidence ga
 | D20 | Accepted planning scope 2026-10-05: add local Python runtime versioning, isolated installation, wheel build and installed-artifact boundary proof within CI 3.1. Settle initial version, backend and shared/independent component numbering at 3.1.1; retain source-tree commands and neutral conformance. No Python version is inferred from PS 0.14.0. Public publishing/hosting and complete product distribution remain Platform 15.1 decisions. | 3.1.1-3.1.3; registration/adoption at 3.2-3.5/4.1 and extraction/equivalence at 5.4. |
 | D21 | Confirmed 2026-10-05: Python begins at 0.1.0 with independent component numbering; PS remains 0.14.0. Python package eligibility is 3.14+, initially bootstrap/test exact 3.14.5; retain Ruff py310 as source syntax policy without claiming older interpreter support. Setuptools backend, single literal version authority, explicit artifact/dependency boundaries and consumer gates are accepted in the Python package contract; no packaging implementation is claimed. | [CI 3.1.1 package contract](ci-python-package-contract.md); implementation/proof at 3.1.2/3.1.3. |
 | D22 | Confirmed 2026-10-05 through CI 4.1: keep schema-1 fields; use script/configuration entries for fixed Ruff/actionlint adapters and a distinct installed-artifact adapter for the accepted D20 verification route. Initial planning supports full selection, no argument/skip/no-impact exemptions, explicit policy IDs and conservative admission. Source-manifest snapshot authority and execution readiness remain later gates. | [Catalog planning](CI/catalog-planning.md); execution at 4.3-4.5 and parity proof at 5.2. |
+| D23 | Confirmed 2026-10-05 through CI 4.2: capture exact regular-file bytes/modes with explicit local/index/commit/merge provenance; reject current links/gitlinks and oversized/drifting sources. Known safe snapshots permit full comparison fallback. Index/commit CLI uses an explicit captured catalog tree, worktree CLI rechecks catalog/source coherence. Selection stays advisory/full effective membership, with no production non-impact exemptions. | [Git scope](CI/change-scope.md); execution/lifecycle at 4.3-4.5 and selection adoption at 4.6/Phase 7. |
 
 This planning update records the decision; CI 2.6 removes the checkout's hosted/live-test 5.1
 obligations in the published retirement implementation; the plan owns hosted closure evidence.

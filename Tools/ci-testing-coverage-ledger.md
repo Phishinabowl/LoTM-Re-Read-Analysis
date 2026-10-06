@@ -313,6 +313,17 @@ timings from this static inspection. Existing executable registries and workflow
 
 ### Documentation Verification
 
+**CI 4.2 confirmed (2026-10-05):**
+[Git scope/advisory impact](CI/change-scope.md) adds 42 private regressions and an always-run
+ci-scope group. G11 gains precise mode/source/index/worktree/merge provenance, declared glob grammar,
+dependency/parity closure, affirmative synthetic no-impact proof and conservative full fallback.
+G01/G13 gain coherent capture/drift and verified owned snapshot boundaries; Git per-call limits do
+not close descendant/whole-run cleanup (4.3). Invalid catalogs/source block independently of comparison
+fallback. Actual-file policy remains pending, effective execution remains full and no exemptions,
+hosted selection or semantic retirement is activated. Metadata has 52 logical units/14 implementation
+groups; Windows/WSL native aggregate is 230. New cohort cost retains 5.1 optimization ownership.
+Evidence is ignored `.tmp/ci-phase42/`; this is partial selector/snapshot proof before 4.6/Phase 7 adoption.
+
 **CI 4.1 confirmed (2026-10-05):**
 [Catalog planning](CI/catalog-planning.md) registers four policies, thirteen implementation groups,
 metadata for all 21/11 existing owner units and two planned comparisons. Eight profiles and their

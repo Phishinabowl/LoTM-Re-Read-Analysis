@@ -68,6 +68,7 @@ The Testing panel is a development view, not suite membership authority or hoste
 | Python/test_tooling_pilots.py | unit/integration | 9 unit, 3 integration | Annotation discovery/CLI, normalization and root API implementation |
 | Python/test_native_results.py | unit | 33 | Native XML/phase truth, publication identity, adapter scope, timeout and finalization |
 | Python/test_ci_catalog.py | unit | 58 | Private source/catalog trees, discovery/closure, deterministic planning, shard/gate admission and manifests |
+| Python/test_ci_scope.py | unit/integration | 30 unit, 12 integration | Real private Git histories, snapshot/rename/mode/drift contracts and advisory selector closure |
 | PowerShell/ConformanceRunner.Tests.ps1 | Unit | 6 | Conformance registry/selection/report helpers with inert synthetic runners |
 | PowerShell/Dependencies.Tests.ps1 | Unit | 3 | Exact module-declaration implementation |
 | PowerShell/Formatter.Tests.ps1 | Unit/Integration | 3 Unit, 4 Integration | Mocked Git/explicit-file discovery and real exact-version analyzer |
@@ -248,6 +249,15 @@ One installed-artifact group owns the separate explicit verification route. Cata
 is always-run in native profiles, using private trees and inert entries without full-suite recursion.
 Native execution still uses the 3.4 development adapter; catalog planning never invokes it. Scope
 selection, supervision, complete reports and hosted adoption remain later checkpoints.
+
+## CI 4.2 Scope And Selector Regression
+
+[Git scope](../CI/change-scope.md) is confirmed on 2026-10-05. Its 42 cases supplement the 4.1
+catalog gate; ci-scope is registered and always-run in native profiles. Git integration fixtures use
+only owned temporary repositories, synthetic identities/content and standalone argument-array Git
+commands, without fetching/publication or changing the real checkout. Snapshots use exact bytes/modes,
+not source-generated semantic expectations. Narrow selection remains advisory; full execution and
+pending actual-file policy obligations stay visible. Current native aggregate is 230 pytest cases.
 
 ## Framework References
 

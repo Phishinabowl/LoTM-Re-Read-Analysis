@@ -90,6 +90,11 @@ def path_value(value, pattern=False):
     require(all(part not in ("", "..") for part in value.split("/")), f"Unsafe relative path: {value}")
     if not pattern:
         require(not any(char in value for char in "*?[]"), f"Literal path required: {value}")
+    else:
+        require(not any(char in value for char in "[]!"), "Unsupported impact/discovery glob grammar")
+        require(
+            all("**" not in part or part == "**" for part in value.split("/")), "Globstar must occupy a whole segment"
+        )
 
 
 def owned_path(root, value, file=False):
@@ -204,6 +209,9 @@ class Catalog:
                 self.sources[f"entry-{identity}-{index}"] = self.root / entry
         self.sources["catalog-code"] = self.root / "Tools/CI/catalog.py"
         self.sources["planner-code"] = self.root / "Tools/CI/plan_ci.py"
+        if "implementation/ci-scope" in self.units:
+            for script in ("scope.py", "selection.py", "explain_ci.py"):
+                self.sources["scope-code-" + script] = self.root / "Tools/CI" / script
         self.source_digests = {
             path.relative_to(self.root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
             for path in sorted(self.sources.values(), key=lambda value: value.relative_to(self.root).as_posix())
@@ -497,6 +505,11 @@ class Catalog:
                 require(
                     "implementation/ci-catalog::python" in profile["always_run"], "Catalog regression must always run"
                 )
+                if "implementation/ci-scope" in self.units:
+                    require(
+                        "implementation/ci-scope::python" in profile["always_run"],
+                        "Scope/selector regression must always run",
+                    )
             allocation = sum(self.units[unit.split("::")[0]]["deadline_seconds"] for unit in execution)
             window = budget(profile["budget"])
             require(allocation <= window, f"Profile {profile['id']}: deadline allocation {allocation} exceeds {window}")

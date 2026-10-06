@@ -663,6 +663,7 @@
         "implementation/powershell-qa-children",
         "implementation/powershell-runtime-api",
         "implementation/python-installed-runtime",
+        "implementation/ci-scope",
         "conformance/project-root",
         "conformance/framework-installation",
         "conformance/framework-catalog",

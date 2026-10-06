@@ -15,6 +15,10 @@ CI 4.1 implements [strict catalogs and read-only planning](catalog-planning.md) 
 shard/gate admission and source-manifest validation remain repository-owned. Planning launches no
 children and reports unavailable obligations explicitly; every current profile is not execution-ready.
 
+CI 4.2 adds [Git scope and advisory impact explanation](change-scope.md) through `explain_ci.py`.
+It distinguishes index/worktree/source/merge provenance and coherent snapshots from recoverable
+comparison uncertainty. `would_select` never changes full effective execution membership here.
+
 ## Normal Development Setup
 
 Use the adopted CPython 3.14.5 x64 interpreter and PS7.6.6 development host. The controller fails
