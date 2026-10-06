@@ -18,7 +18,7 @@ sys.dont_write_bytecode = True
 
 from aggregate_execution import actual_dispositions, collect_shards, counts, execute_units, outcome, persist_units
 from catalog import Catalog, CatalogError
-from layer_adapters import AdapterSession, guarded_manifest
+from layer_adapters import AdapterSession, guarded_manifest, format_representation
 from process_supervisor import RunBudget, Lease, plain_directory, run_process
 from scope import MODES, ScopeError, resolve_scope
 from execution_reports import Journal, atomic_bytes, encoded, finalize, summary, excerpt
@@ -229,6 +229,7 @@ def execute(args):
                 args.module_root,
                 args.wheel,
                 args.runtime_wheel,
+                format_representation(scope["provenance"]["snapshot_kind"]),
             )
             for name in ("TEMP", "TMP", "TMPDIR"):
                 session.env[name] = str(scratch)

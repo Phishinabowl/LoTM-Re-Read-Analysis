@@ -41,6 +41,9 @@ CI 5.1 same-snapshot comparison is confirmed by the maintainer on 2026-10-06.
 Its classified failed obligations and browser-provenance gap remain correction gates at 5.2-5.4;
 the Phase 5 equivalence/performance exit gate is not closed. See the comparison record and budget targets.
 
+CI 5.2 formatter representation and complete conformance/parity proof are implemented and verified
+locally and confirmed by the maintainer on 2026-10-06. The remaining 5.3/5.4/full/hosted gates remain open.
+
 **Working branch:** `architecture/ci-testing-modernization`, created from
 `architecture/framework-extraction-foundation` at `c4b7932`.
 
@@ -1775,16 +1778,21 @@ owning checkpoints below; unexplained differences still block comparison accepta
 
 ### Phase 5.2 Complete Cross-Runtime Conformance And Parity
 
-- [ ] Resolve the captured Git-blob versus physical-worktree formatter representation mismatch
+- [x] Resolve the captured Git-blob versus physical-worktree formatter representation mismatch
   identified at 5.1. Preserve snapshot bytes, real formatting failures and the existing checkout
   line-ending policy; add focused regression before accepting the corrected static adapter.
-- [ ] Run all registered baseline suites in Python and PowerShell 7 against the accepted Phase 2 inventory.
-- [ ] Compare exact selected inventories and semantic summaries through the canonical comparator.
-- [ ] Validate allowed operational normalization; inject a changed ID/count/decision/order/error to
+- [x] Run all registered baseline suites in Python and PowerShell 7 against the accepted Phase 2 inventory.
+- [x] Compare exact selected inventories and semantic summaries through the canonical comparator.
+- [x] Validate allowed operational normalization; inject a changed ID/count/decision/order/error to
   prove prohibited semantic differences fail.
-- [ ] Exercise focused selection and full aggregation without changing shared-fixture expectations.
+- [x] Exercise focused selection and full aggregation without changing shared-fixture expectations.
 
 **Checkpoint:** Full baseline parity is executable, not inferred from independent green runtime jobs.
+
+The [CI 5.2 proof](ci-testing-conformance-parity-proof.md) records 44 passing catalog obligations,
+42 exact retained-result matches, focused owner selection and Windows/Linux negative-path regression.
+It distinguishes frozen working-overlay proof from committed/full-profile acceptance. The 5.1
+formatter discrepancy is corrected without altering source bytes or physical CRLF policy.
 
 ### Phase 5.3 LoTM Consumers, Safety, And Distribution Boundaries
 

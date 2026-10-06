@@ -15,7 +15,13 @@ conformance/compatibility portfolio. GitHub/ADO activation remains Phase 6.
 | ci-process | 42 | Explicit launch/environment, owned descendants, timeout/cancellation/caller loss, cleanup and capture thresholds. |
 | ci-execution | 89 | Aggregate/adapter outcomes, reports/publication/recovery and private end-to-end supervisor failures. |
 
-These five groups contain 277 pytest cases. Reporting/gate tests join the existing ci-execution
+CI 5.2 adds 16 representation/parity regressions to the existing ci-execution group (now 105 cases)
+and ten cases to the existing Pester formatter file. Current mandatory inventory is 293 Python
+cases; all Python groups total 390 and PowerShell groups total 44. The table above is the dated
+CI 4.6 baseline, not a second registration authority. [CI 5.2 proof](../ci-testing-conformance-parity-proof.md)
+records focused execution and complete semantic conformance separately from those inventory counts.
+
+At CI 4.6 these five groups contained 277 pytest cases. Reporting/gate tests join the existing ci-execution
 group. All implementation-bearing profiles must retain all five always-run groups. Every
 test_ci_*.py entry must belong to a mandatory group; these groups support Windows and Linux.
 Removing a family, moving reporting coverage to an optional group or declaring one OS fails

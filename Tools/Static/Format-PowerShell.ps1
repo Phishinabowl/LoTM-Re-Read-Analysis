@@ -3,6 +3,8 @@ param(
     [string[]]$Path = @(),
     [ValidateRange(80, 1000)]
     [int]$MaximumLineLength = 200,
+    [ValidateSet('Worktree', 'GitBlob')]
+    [string]$SourceRepresentation = 'Worktree',
     [switch]$Fix,
     [switch]$Json
 )
@@ -10,6 +12,10 @@ param(
 $ErrorActionPreference = 'Stop'
 $OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+
+if ($Fix -and $SourceRepresentation -eq 'GitBlob') {
+    throw 'GitBlob formatting is read-only; use Worktree representation for fixes.'
+}
 
 $settingsPath = Join-Path $PSScriptRoot 'powershell-format-settings.psd1'
 $toolsRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
@@ -246,6 +252,23 @@ function ConvertTo-ReadablePowerShell {
     }
 }
 
+function Get-PowerShellFormattingComparison {
+    param(
+        [string]$Source,
+        [string]$FormattedSource,
+        [ValidateSet('Worktree', 'GitBlob')]
+        [string]$Representation = 'Worktree'
+    )
+
+    if ($Representation -eq 'GitBlob') {
+        if ($Source.Contains("`r")) {
+            throw 'GitBlob formatting requires LF-normalized source bytes.'
+        }
+        return $Source -cne $FormattedSource.Replace("`r`n", "`n")
+    }
+    return $Source -cne $FormattedSource
+}
+
 $repoRoot = Get-PowerShellRepositoryRoot -ExplicitRoot $Root
 . (Join-Path $repoRoot 'Tools/Commands/Environment/Private/Requirements.ps1')
 $analyzerRequirement = Read-ExactModuleRequirements -Path (Join-Path $repoRoot 'requirements-powershell-dev.txt') `
@@ -263,7 +286,8 @@ $results = @()
 foreach ($file in Get-PowerShellSourceFiles -RepoRoot $repoRoot -InputPath $Path) {
     $source = Get-Content -LiteralPath $file.FullName -Raw
     $converted = ConvertTo-ReadablePowerShell -Source $source -SourcePath $file.FullName
-    $changed = $source -cne $converted.Source
+    $changed = Get-PowerShellFormattingComparison -Source $source -FormattedSource $converted.Source `
+        -Representation $SourceRepresentation
     $longLines = @(Get-LongLineIssues -Source $converted.Source -MaximumLength $MaximumLineLength)
 
     if ($changed -and $Fix) {

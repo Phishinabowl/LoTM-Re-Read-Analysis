@@ -90,6 +90,17 @@ Cleanup failure remains a run failure and preserves the owner for diagnosis.
 | Compatibility | Owning registry selects individual checks, preserving detailed JSON and expected-error contracts. Portfolio mode continues independent check failures, records failed/blocked checks, and stops after protected state changes. Inherited aggregate deadlines clamp nested calls and retain timeout diagnostics. |
 | Installed artifact | Existing reviewed-wheel verifier; explicit locked PyYAML wheel supports copied-source execution without hidden cache/network fallback. Wheel content/metadata and dependency digest checks remain authoritative. |
 
+CI 5.2 distinguishes the formatter's input representation explicitly. Commit/hosted and staged-index
+captures use `GitBlob`: computed formatter CRLF output is compared in Git's LF representation without
+writing captured bytes. Local-worktree/full captures use `Worktree`, preserving the existing physical
+CRLF check. Blob fixes and non-LF blob input are rejected; unknown snapshot kinds fail closed. Existing
+formatter JSON fields and default direct invocation remain unchanged.
+
+The parity adapter also validates each retained source's passed status, expected suite ID, schema/counts
+and error-free success shape before comparing summaries. Different operational profile labels do not
+change equivalence; no field inside a semantic summary is removed or normalized. Changed decisions,
+counts, JSON types and array order fail; missing runtime or malformed/error evidence is an error.
+
 Preflight checks exact adopted Python/PS7/actionlint and required native dependency versions, selected
 environment import origins, installed Python RECORD content and owned PowerShell cache receipts.
 Runtime/module absence blocks affected obligations while independent available units may continue.

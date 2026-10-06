@@ -22,6 +22,12 @@ render also lacks admitted browser provenance. It is not a green coverage/retire
 The frozen historical tables below remain historical. No semantic family, fixture, registry member,
 required review or legacy check is removed. Closure at 5.2-5.4 and final 5.5 review remain explicit.
 
+**CI 5.2 evidence overlay (confirmed on 2026-10-06):** The
+[conformance/parity proof](ci-testing-conformance-parity-proof.md) resolves the captured formatter
+representation failure, passes all 42 retained semantic obligations and strengthens invalid-source
+parity rejection. Existing native groups add focused representation/comparator cases; membership
+and the frozen historical tables remain unchanged. Consumer/browser/wheel/full acceptance stays open.
+
 CI Phase 2.1 applies the reviewed support-policy change through the [retirement inventory](ci-powershell-retirement-inventory.md).
 The active parity family is now `PARITY-SUPPORTED-RUNTIMES`; the historical `PARITY-THREE-RUNTIME`
 ID maps to it one-for-one with only Desktop host support removed. The inspected three-runtime rows

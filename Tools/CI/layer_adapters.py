@@ -103,11 +103,32 @@ def compatibility_result(document, identity):
     return passed
 
 
+def format_representation(snapshot_kind):
+    if snapshot_kind in {"commit", "index"}:
+        return "GitBlob"
+    if snapshot_kind == "worktree":
+        return "Worktree"
+    raise ValueError("Unknown captured-source representation")
+
+
 class AdapterSession:
-    def __init__(self, root, snapshot, output, executables, module_root=None, wheel=None, runtime_wheel=None):
+    def __init__(
+        self,
+        root,
+        snapshot,
+        output,
+        executables,
+        module_root=None,
+        wheel=None,
+        runtime_wheel=None,
+        source_representation="Worktree",
+    ):
         self.root, self.snapshot, self.output = Path(root), snapshot, Path(output)
         self.executables = {key: str(Path(value).resolve()) for key, value in executables.items() if value}
         self.module_root, self.wheel, self.runtime_wheel = module_root, wheel, runtime_wheel
+        if source_representation not in {"Worktree", "GitBlob"}:
+            raise ValueError("Unknown formatter source representation")
+        self.source_representation = source_representation
         names = ("SystemRoot", "WINDIR", "TEMP", "TMP", "HOME", "LANG", "PATH", "PATHEXT")
         self.env = {name: os.environ[name] for name in names if name in os.environ}
         self.env.update(
@@ -311,7 +332,12 @@ class AdapterSession:
         if adapter == "parity":
             pairs = {}
             for source in row["depends_on"]:
+                if completed[source]["status"] != "passed":
+                    raise ValueError("Parity source did not pass")
                 evidence = completed[source]["evidence"]
+                passed, suite = conformance_result(evidence, source.split("::")[0].split("/")[1])
+                if not passed or "error" in evidence or set(suite) != {"id", "status", "summary"}:
+                    raise ValueError("Parity requires successful, error-free conformance evidence")
                 pairs.setdefault(source.split("::")[0], {})[source.split("::")[1]] = evidence["suites"][0]["summary"]
             if not pairs or any(set(pair) != {"python", "powershell7"} for pair in pairs.values()):
                 raise ValueError("Incomplete parity runtime/semantic inventory")
@@ -370,7 +396,9 @@ class AdapterSession:
                 eligible = [name for name in paths if Path(name).suffix in {".ps1", ".psm1", ".psd1"}]
                 if not eligible:
                     raise ValueError("Required formatting surface is empty")
-                request = self.request(directory, "format", paths=eligible)
+                request = self.request(
+                    directory, "format", paths=eligible, source_representation=self.source_representation
+                )
                 commands = [
                     [
                         self.executables["powershell7"],

@@ -32,7 +32,7 @@ def private_controller(tmp_path, monkeypatch):
     (root / "authored.md").write_bytes(b"untouched authored wording\n")
     source = scope.Snapshot({"authored.md": b"untouched authored wording\n"}, {"authored.md": "100644"})
     captured = {
-        "provenance": {"mode": "local-worktree", "executed_commit": "a" * 40},
+        "provenance": {"mode": "local-worktree", "executed_commit": "a" * 40, "snapshot_kind": "worktree"},
         "changes": [],
         "fallback_reasons": [],
         "policy_scope": {"mode": "changed", "paths": [], "dispositions": []},
@@ -70,6 +70,7 @@ def private_controller(tmp_path, monkeypatch):
 
     class PrivateSession:
         def __init__(self, workspace, snapshot, output, *args):
+            assert args[-1] == "Worktree"
             self.root, self.output = workspace, output
             self.env = {
                 name: os.environ[name]

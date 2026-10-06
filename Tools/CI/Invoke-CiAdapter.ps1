@@ -36,7 +36,14 @@ try {
         } | ConvertTo-Json -Depth 10 -Compress
     }
     elseif ($document.mode -eq 'format') {
-        & (Join-Path $document.root 'Tools/Static/Format-PowerShell.ps1') -Root $document.root -Path @($document.paths) -Json
+        $representation = if ($document.source_representation) {
+            $document.source_representation
+        }
+        else {
+            'Worktree'
+        }
+        & (Join-Path $document.root 'Tools/Static/Format-PowerShell.ps1') -Root $document.root `
+            -Path @($document.paths) -SourceRepresentation $representation -Json
         exit $LASTEXITCODE
     }
     else {

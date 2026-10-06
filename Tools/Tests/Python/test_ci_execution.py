@@ -154,6 +154,88 @@ def test_parity_preserves_semantic_types_order_and_fields(left, right):
     assert adapters.typed_equal(left, right) is False
 
 
+@pytest.mark.parametrize("kind,expected", [("commit", "GitBlob"), ("index", "GitBlob"), ("worktree", "Worktree")])
+def test_formatter_representation_is_bound_to_snapshot_provenance(kind, expected):
+    assert adapters.format_representation(kind) == expected
+
+
+def test_unknown_formatter_representation_fails_closed(tmp_path):
+    with pytest.raises(ValueError, match="representation"):
+        adapters.format_representation("unknown")
+    with pytest.raises(ValueError, match="representation"):
+        adapters.AdapterSession(tmp_path, None, tmp_path, {}, source_representation="unknown")
+
+
+@pytest.mark.parametrize("representation", ["GitBlob", "Worktree"])
+def test_formatter_request_preserves_declared_representation(tmp_path, monkeypatch, representation):
+    snapshot = scopes.Snapshot({"sample.ps1": b"$value = 1\n"}, {"sample.ps1": "100644"})
+    session = adapters.AdapterSession(
+        tmp_path,
+        snapshot,
+        tmp_path,
+        {"python": sys.executable, "powershell7": sys.executable},
+        source_representation=representation,
+    )
+    session.readiness = {"powershell7": True}
+
+    def launch(command, directory, lease, cancel):
+        request = json.loads((directory / "request.json").read_text())
+        assert request["paths"] == ["sample.ps1"] and request["source_representation"] == representation
+        (directory / "stdout.bin").write_text(json.dumps({"ready": True, "files_checked": 1}))
+        return {"directory": str(directory), "status": "exited", "child_exit_code": 0, "cleanup": {"verified": True}}
+
+    monkeypatch.setattr(session, "launch", launch)
+    result = session.execute_layer(
+        {"adapter": "powershell-format", "execution_id": "policy/powershell-format::powershell7"},
+        processes.Lease(time.monotonic() + 5),
+        threading.Event(),
+        {},
+    )
+    assert result["status"] == "passed"
+
+
+@pytest.mark.parametrize(
+    "change",
+    ["none", "id", "count", "decision", "order", "error", "status", "type", "source-status", "missing-runtime"],
+)
+def test_real_parity_adapter_rejects_semantic_and_source_failures(tmp_path, change):
+    left = detailed()
+    left["suites"][0]["summary"].update(decision="accepted", ordered=["first", "second"])
+    right = copy.deepcopy(left)
+    right["profile"] = "different-operational-profile"
+    summary = right["suites"][0]["summary"]
+    if change == "id":
+        right["suites"][0]["id"] = "beta"
+    elif change == "count":
+        summary["cases"] = 3
+    elif change == "decision":
+        summary["decision"] = "rejected"
+    elif change == "order":
+        summary["ordered"].reverse()
+    elif change == "error":
+        right["suites"][0]["error"] = "unexpected semantic failure"
+    elif change == "status":
+        right["suites"][0]["status"] = "failed"
+        right.update(passed=0, failed=1)
+    elif change == "type":
+        summary["cases"] = 2.0
+    dependencies = ["conformance/alpha::python", "conformance/alpha::powershell7"]
+    completed = {name: {"status": "passed", "evidence": value} for name, value in zip(dependencies, [left, right])}
+    if change == "source-status":
+        completed[dependencies[1]]["status"] = "failed"
+    elif change == "missing-runtime":
+        dependencies = dependencies[:1]
+    session = adapters.AdapterSession(tmp_path, None, tmp_path, {})
+    row = {"adapter": "parity", "execution_id": "parity/synthetic::referee", "depends_on": dependencies}
+    if change in {"id", "error", "status", "source-status", "missing-runtime"}:
+        with pytest.raises(ValueError):
+            session.execute_layer(row, processes.Lease(time.monotonic() + 5), threading.Event(), completed)
+    else:
+        result = session.execute_layer(row, processes.Lease(time.monotonic() + 5), threading.Event(), completed)
+        assert result["status"] == ("passed" if change == "none" else "failed")
+        assert result["evidence"]["sources"] == dependencies
+
+
 def detailed():
     return {
         "schema_version": 1,

@@ -68,3 +68,115 @@ Describe 'Formatter token preservation with real exact-version analyzer' -Tag In
         $issues[0].length | Should -Be 81
     }
 }
+
+Describe 'Captured formatter representation preserves physical policy' -Tag Integration {
+    It 'accepts an LF Git blob while the physical check still requires CRLF' {
+        $source = "`$value = 1`n"
+        $formatted = (ConvertTo-ReadablePowerShell -Source $source -SourcePath 'blob.ps1').Source
+        Get-PowerShellFormattingComparison -Source $source -FormattedSource $formatted -Representation GitBlob |
+            Should -BeFalse
+        Get-PowerShellFormattingComparison -Source $source -FormattedSource $formatted | Should -BeTrue
+        Get-PowerShellFormattingComparison -Source $formatted -FormattedSource $formatted | Should -BeFalse
+    }
+    It 'retains whitespace and statement-separator failures in blob mode' {
+        foreach ($source in @("`$value=1`n", "`$a = 1; `$b = 2`n")) {
+            $formatted = (ConvertTo-ReadablePowerShell -Source $source -SourcePath 'bad-blob.ps1').Source
+            Get-PowerShellFormattingComparison -Source $source -FormattedSource $formatted -Representation GitBlob |
+                Should -BeTrue
+        }
+    }
+    It 'preserves LF multiline literal text when comparing the computed representation' {
+        $source = "`$text = @'`nfirst;literal`nsecond`n'@`n"
+        $formatted = (ConvertTo-ReadablePowerShell -Source $source -SourcePath 'literal.ps1').Source
+        Get-PowerShellFormattingComparison -Source $source -FormattedSource $formatted -Representation GitBlob |
+            Should -BeFalse
+        $source | Should -BeExactly "`$text = @'`nfirst;literal`nsecond`n'@`n"
+    }
+    It 'rejects nonnormalized blob input rather than silently discarding carriage returns' {
+        { Get-PowerShellFormattingComparison -Source "`$a = 1`r`n" -FormattedSource "`$a = 1`r`n" `
+                -Representation GitBlob } | Should -Throw '*LF-normalized*'
+    }
+}
+
+Describe 'Formatter CLI representation and read-only contracts' -Tag Integration {
+    BeforeAll {
+        $fixtureRoot = Join-Path $TestDrive 'formatter-cli'
+        $null = New-Item -ItemType Directory -Path (Join-Path $fixtureRoot 'Project_Config') -Force
+        [IO.File]::WriteAllText((Join-Path $fixtureRoot 'Project_Config/project.yaml'), "schema_version: 1`n")
+        $privateRoot = Join-Path $fixtureRoot 'Tools/Commands/Environment/Private'
+        $null = New-Item -ItemType Directory -Path $privateRoot -Force
+        Copy-Item (Join-Path $repoRoot 'Tools/Commands/Environment/Private/Requirements.ps1') $privateRoot
+        foreach ($name in @('requirements-powershell.txt', 'requirements-powershell-dev.txt')) {
+            Copy-Item (Join-Path $repoRoot $name) $fixtureRoot
+        }
+        & git -C $fixtureRoot init --quiet
+        if ($LASTEXITCODE -ne 0) {
+            throw 'Synthetic formatter Git initialization failed.'
+        }
+        $formatter = Join-Path $repoRoot 'Tools/Static/Format-PowerShell.ps1'
+        $hostExecutable = [Environment]::ProcessPath
+    }
+    It 'checks <representation>/<case> without modifying the fixture' -ForEach @(
+        @{ representation = 'GitBlob'
+            case = 'canonical LF'
+            source = "`$value = 1`n"
+            expected = 0
+            fix = $false
+        }
+        @{ representation = 'Worktree'
+            case = 'canonical CRLF'
+            source = "`$value = 1`r`n"
+            expected = 0
+            fix = $false
+        }
+        @{ representation = 'Worktree'
+            case = 'wrong EOL'
+            source = "`$value = 1`n"
+            expected = 1
+            fix = $false
+        }
+        @{ representation = 'GitBlob'
+            case = 'bad spacing'
+            source = "`$value=1`n"
+            expected = 1
+            fix = $false
+        }
+        @{ representation = 'GitBlob'
+            case = 'parse error'
+            source = 'function {'
+            expected = 1
+            fix = $false
+        }
+        @{ representation = 'GitBlob'
+            case = 'forbidden fix'
+            source = "`$value=1`n"
+            expected = 1
+            fix = $true
+        }
+    ) {
+        $path = Join-Path $fixtureRoot 'sample.ps1'
+        [IO.File]::WriteAllText($path, $source, [Text.UTF8Encoding]::new($false))
+        $before = [Convert]::ToBase64String([IO.File]::ReadAllBytes($path))
+        $arguments = @('-NoProfile', '-File', $formatter, '-Root', $fixtureRoot, '-Path', $path,
+            '-SourceRepresentation', $representation, '-Json')
+        if ($fix) {
+            $arguments += '-Fix'
+        }
+        $output = & $hostExecutable @arguments 2>&1 | Out-String
+        $LASTEXITCODE | Should -Be $expected
+        [Convert]::ToBase64String([IO.File]::ReadAllBytes($path)) | Should -BeExactly $before
+        if ($case -notin @('parse error', 'forbidden fix')) {
+            $document = $output | ConvertFrom-Json
+            $document.files_checked | Should -Be 1
+            $document.ready | Should -Be ($expected -eq 0)
+        }
+        else {
+            $output | Should -Match $(if ($fix) {
+                    'read-only'
+                }
+                else {
+                    'parse failed'
+                })
+        }
+    }
+}

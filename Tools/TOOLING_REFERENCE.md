@@ -329,7 +329,15 @@ pwsh -NoProfile -File Tools\Static\Format-PowerShell.ps1 -Fix
 
 # PowerShell 7 structured check
 pwsh -NoProfile -File Tools\Static\Format-PowerShell.ps1 -Json
+
+# Read-only check of Git-normalized LF source in a captured commit/index tree
+pwsh -NoProfile -File Tools\Static\Format-PowerShell.ps1 -SourceRepresentation GitBlob -Json
 ```
+
+`-SourceRepresentation Worktree` is the default and retains physical CRLF formatting checks/fixes.
+`GitBlob` compares computed formatting in LF form, requires LF-normalized input and forbids `-Fix`.
+The CI adapter chooses from captured scope provenance: commit/index use GitBlob, worktree uses Worktree.
+It never rewrites snapshot files to make a check pass. CI 5.2 retains the existing JSON result shape.
 
 Last mapped: 2026-08-01.
 
