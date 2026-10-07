@@ -2446,6 +2446,21 @@ failure diagnostics. The wiring is uncommitted pending confirmation; Azure templ
 bounded shared-cohort qualification precede full/failure/recovery/adoption gates. No hosted run,
 required-check/policy change or timing waiver is introduced by the local pass. Both PRs stay paused.
 
+The maintainer confirms opt-in publication and bounded qualification, dual-published as `8138f9d`
+on 2026-10-07. Azure previews compile ordinary shards, full cohorts and bounded smoke at that source.
+Smoke run 65 passes the approved shared cohort with two original reports: four infrastructure
+checks/489 pytest cases and three PowerShell conformance suites. Shared core preparation runs once
+in 24.027s; both child manifests, source protection and cleanup verify. One 15,820-byte stored
+partial-qualification report matches admitted artifact bytes, and server native inventory is empty
+as designed. The maintainer's copied tenant report confirms the partial label and both result
+blocks; bounded qualification is accepted, with collapsible coverage lists assigned to the next
+increment. Copied text does not independently prove heading/table appearance. Whole pipeline cost
+is 7m22.913s queue-to-finish, which is bounded smoke evidence, not full-suite timing acceptance.
+Native Python acquisition still costs about 45–46 seconds per job and remains an open optimization
+gate. Deliberate failure/recovery, full cohort collection/native/report parity, full timings and
+fresh PR/event/policy adoption are not closed. Ordinary shard placement and both paused PRs remain
+unchanged; see the host-equivalence record for exact source, artifact and timing evidence.
+
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain
 `3008f0238bb10a15e6907d7bc821199eed266dd5`. This stops their automatic full PR update runs during

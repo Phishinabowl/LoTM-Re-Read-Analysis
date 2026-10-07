@@ -445,6 +445,56 @@ Keep deliberate failure/recovery and full cohort aggregate/native/report equalit
 remaining gates. No hosted runs are queued by this local increment; normal placement and timing
 goals remain unchanged. Rollback is the default `shards` mode and retained individual worker template.
 
+### Bounded Hosted Cohort Qualification At 8138f9d
+
+The maintainer confirms opt-in publication and bounded hosted qualification on 2026-10-07.
+The eleven-file checkpoint is dual-published as `8138f9d40940c745c4e123dd1ad5ebc8286a45d9`,
+with HEAD/upstream/GitHub/Azure parity verified. The separate annotation push check passes.
+Azure template previews succeed for all three modes at that exact source, without agent allocation.
+The expanded smoke graph contains Plan and the two execution-wave definitions, with no Aggregate
+or native upload tasks; runtime planning sets the empty dependent count to zero, skipping allocation.
+Both full graphs retain Aggregate and its three fatal-on-missing native upload tasks.
+
+[Azure smoke run 65](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=65)
+passes Plan and one shared execution job, titled
+`CI Check_01_CI_infrastructure_PowerShell_7_conformance_batch_2_of_2`. The captured source,
+manual placement, approved shard inventory and role map match independently recomputed catalogs.
+Both owned child processes exit successfully, and their finalized manifests, original reports,
+source protection and cleanup verify. No captured source tree or duplicate shard bundle enters
+the cohort transport artifact.
+
+| Original logical shard | Checks | Recorded pytest cases | Execution seconds | Manifest files |
+| --- | ---: | ---: | ---: | ---: |
+| CI infrastructure | 4 | 489 | 150.793 | 62 |
+| PowerShell conformance, batch 2 | 3 | — | 53.723 | 28 |
+
+The three conformance suites retain their original language-neutral/custom outcome contracts;
+they are not converted to Pester or counted as pytest cases. Shared core preparation executes
+exactly once in 24.027s, with an actual payload cache miss, Python 3.14.8 and PowerShell 7.6.6.
+No wheel build, Node or rendering recipe is provisioned. The cohort executor takes 210.995s;
+its whole agent job takes 317.627s. Plan takes 78.480s. Pipeline start-to-finish is 434.238s
+(7m14.238s), and queue-to-finish is 442.913s (7m22.913s). These are bounded qualification costs,
+not full-portfolio timings or a controlled comparison against earlier runs.
+
+Repeated native Python acquisition remains visible: Plan's `UsePythonVersion` takes 45.220s and
+the cohort worker's takes 46.143s. The acquisition/warning optimization gate remains open;
+payload caching does not imply the interpreter acquisition is cached across fresh agents.
+
+Azure stores exactly one 15,820-byte `ci-cohort-qualification-8e73bd64.md` attachment, identical
+to the original staged Markdown. It explicitly marks partial qualification and includes both
+original logical shard sections. Server test-run/case inventory is empty as designed: smoke is not
+the full aggregate and does not upload native cases. API acceptance and exact-byte admission pass;
+the maintainer's copied tenant report confirms the partial boundary and both result blocks.
+The maintainer accepts this bounded evidence and requests collapsible coverage-detail lists
+in the next increment. The copied text does not independently prove heading/table appearance;
+the lengthy delegated-unit lists remain a readability improvement, not a coverage failure.
+
+Original previews, timeline, cohort artifact and audit helpers remain under ignored `.tmp/ci-phase65`,
+with exact stored server bytes in `.tmp/ci-phase64/ado65-server`. Default shard placement remains
+active. GitHub PR 3 is still closed and Azure PR 19 abandoned; no policy/check/schedule changed.
+Deliberate cohort failure/recovery, full cohort collector/native/report equality, full timings,
+interpreter acquisition, fresh PR/event equivalence and adoption remain separate open gates.
+
 ## Remaining Qualification And Rollback
 
 The patch and aggregate-preparation checkpoints are confirmed on 2026-10-07. Continue with deliberate
