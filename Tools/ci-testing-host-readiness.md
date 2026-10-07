@@ -256,6 +256,56 @@ recovery controls, complete queue/setup/restore/save/publication accounting, and
 review. Draft PRs remain conditional on needing actual PR shadow wiring at 6.2/6.3. Original check
 names, event ownership, branch protection and canonical sources are unchanged.
 
+## Complete Payload And Negative-Control Pilot Preparation
+
+The maintainer confirmed the next 6.1 increment for publication and hosted experiments; it is not
+yet hosted-qualified. It extends the same
+optional pilot with `payload_profile=complete` and bounded `fault=none|wheel|module-receipt` inputs.
+These are dependency-setup controls, not execution-profile membership or new semantic suites.
+
+Complete setup invokes existing bootstrap owners for development/media + PS modules, a fresh
+build-only wheel, and a fresh locked npm/Chrome environment. Core and complete payload identities
+are separate. Verified tool archives join wheels, PS module receipts, npm downloads and Chrome
+content under `.local/ci-cache`; extracted tools, venvs, node_modules, built wheels and reports are
+not transported. Node 24.15.0/npm 11.12.1 comes from the hash-pinned official x64 archive, extracted
+into owned `.local/ci-tools` storage and checked by a content receipt before local reuse. No machine
+installation occurs. [Official Node checksums](https://nodejs.org/dist/v24.15.0/SHASUMS256.txt).
+
+After bootstrap, the real Mermaid CLI renders a tiny synthetic SVG using the verified Chrome
+executable. Labels and positive geometry must match. Linux records `ldd` and requires an
+Arial-compatible font through `fc-match`; Windows checks its Arial font. Chrome-only configuration
+and the existing Linux launch flags remain unchanged. Missing libraries/fonts fail explicitly;
+this pilot performs no implicit system-package installation or changes to canonical diagrams.
+
+Faults require an asserted restored hit, a nonlocal host, and the explicit hosted-pilot marker.
+They either corrupt the exact locked PyYAML wheel or remove the exact selected PS content receipt
+inside the ephemeral restored workspace. Bootstrap then runs offline; ordinary nonzero failure
+must remain the host outcome, with complete diagnostics and no cache save. Server caches are
+immutable, so a later fresh-workspace recovery can reuse the original intact payload. Tests never
+mutate primary local caches or delete arbitrary cache keys. Operator-selected namespace recovery
+also remains available when a new acquisition is needed.
+
+The helper imposes a 900-second setup deadline, retains shorter inherited deadlines, and caps
+each bootstrap child at 720 seconds or the remaining budget. Existing 20-minute host jobs retain
+time for provisioning/transport/publication. Selected bootstrap stages aggregate ordinary failures
+and continue independent build/render diagnostics. Timeout partial stdout/stderr is retained;
+full production cancellation/process lifecycle acceptance remains with 6.4.
+
+Local preparation passes all 30 focused Python cases on Windows/Linux, adding four meaningful
+archive/provenance/fault safety cases within the existing bootstrap group. Offline complete
+development/build/render preparation passed on Windows and on a new native Linux source fixture;
+real CLI/font/library qualification passed separately on both OSs. Windows preparation measured
+309.203s versus 32.409s Linux, before the final additional owned-Node provisioning/CLI checks.
+These are local staged samples, not final-source hosted costs. Windows fresh rendering alone cost
+268.481s, reinforcing why 6.1 must measure actual agents rather than transferring WSL timings.
+Pinned owned Node/npm extraction and strict offline receipt reuse are additionally verified.
+
+Before closing 6.1, publish this reviewed increment, then observe complete cold and warm setup on
+both hosts/OSs, explicit wheel-corruption and missing-receipt failures, and successful subsequent
+fresh-workspace recovery. Audit source/key/package/tool identities, render output, queue delay,
+runtime provisioning, bootstrap stages, cache restore/save and publication. A failed control is
+evidence only when its expected diagnostic is present; it must not be converted into a green run.
+
 Checkpoint verification: repository Ruff lint, both changed Python files' formatting, actionlint across
 all workflows, annotation policy (22/22 fixtures, 478 files, zero findings), 101 relative file links,
 pilot YAML/permission/pin/timeout invariants and `git diff --check` pass. These static checks do not

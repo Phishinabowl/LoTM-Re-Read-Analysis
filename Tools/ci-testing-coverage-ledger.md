@@ -10,6 +10,10 @@ its four cases pass on Windows/Linux. The bootstrap/probe correction is publishe
 with eight passing corrected cold/warm hosted setup outcomes across both OSs and hosts. No full
 hosted profile, conformance fixture or historical Phase 5 evidence is replaced; remaining 6.1
 payload/control proof and later production-adapter qualification stay open.
+The staged complete-payload/fault-control increment adds four archive/Node-receipt/mutation-safety
+cases to the same bootstrap group (30 focused cases pass on Windows/Linux). Synthetic CLI setup
+qualification is a preparation probe, not a new conformance family or full-profile pass. Hosted
+complete/control/recovery acceptance remains within the open 6.1 gate.
 
 Phase 1.2 inspection baseline: `268ac9d7930377d3ba789e64978fbb1bf3635ea0`, on
 `architecture/ci-testing-modernization`, inspected 2026-10-03. This document records current

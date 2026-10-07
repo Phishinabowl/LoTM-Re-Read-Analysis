@@ -10,6 +10,14 @@ parameters:
     type: string
     default: auto
     values: [auto, miss, hit]
+  - name: payload_profile
+    type: string
+    default: core
+    values: [core, complete]
+  - name: fault
+    type: string
+    default: none
+    values: [none, wheel, module-receipt]
 
 jobs:
   - job: CachePilot
@@ -27,6 +35,7 @@ jobs:
       vmImage: $(image)
     variables:
       PYTHONUTF8: '1'
+      LOTM_CI_CACHE_PILOT: hosted
     steps:
       - checkout: self
         fetchDepth: 0
@@ -36,12 +45,13 @@ jobs:
           versionSpec: '3.14.5'
           architecture: x64
       - pwsh: |
-          python Tools/CI/host_cache.py prepare --host ado --namespace $env:CACHE_NAMESPACE --source-revision $env:SOURCE_REVISION
+          python Tools/CI/host_cache.py prepare --host ado --namespace $env:CACHE_NAMESPACE --source-revision $env:SOURCE_REVISION --payload-profile $env:CACHE_PROFILE
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
         displayName: Prepare repository-owned payload key
         env:
           CACHE_NAMESPACE: ${{ parameters.namespace }}
           SOURCE_REVISION: $(Build.SourceVersion)
+          CACHE_PROFILE: ${{ parameters.payload_profile }}
       - task: Cache@2
         displayName: Restore exact payload cache and save after success
         inputs:
@@ -49,13 +59,15 @@ jobs:
           path: $(Build.SourcesDirectory)/.local/ci-cache
           cacheHitVar: PAYLOAD_CACHE_HIT
       - pwsh: |
-          python Tools/CI/host_cache.py bootstrap --host ado --namespace $env:CACHE_NAMESPACE --source-revision $env:SOURCE_REVISION --cache-hit $env:PAYLOAD_CACHE_HIT --expect $env:CACHE_EXPECT
+          python Tools/CI/host_cache.py bootstrap --host ado --namespace $env:CACHE_NAMESPACE --source-revision $env:SOURCE_REVISION --cache-hit $env:PAYLOAD_CACHE_HIT --expect $env:CACHE_EXPECT --payload-profile $env:CACHE_PROFILE --fault $env:CACHE_FAULT
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
         displayName: Verify payloads and create fresh environments
         env:
           CACHE_NAMESPACE: ${{ parameters.namespace }}
           CACHE_EXPECT: ${{ parameters.expect }}
           SOURCE_REVISION: $(Build.SourceVersion)
+          CACHE_PROFILE: ${{ parameters.payload_profile }}
+          CACHE_FAULT: ${{ parameters.fault }}
       - task: PublishPipelineArtifact@1
         condition: always()
         displayName: Retain pilot diagnostics

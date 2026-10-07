@@ -46,6 +46,7 @@ def test_transport_key_separates_platform_namespace_and_changed_inputs(tmp_path)
     assert key == pilot.cache_identity(tmp_path, "one", "win32", "x86_64")["key"]
     assert key != pilot.cache_identity(tmp_path, "one", "linux", "x86_64")["key"]
     assert key != pilot.cache_identity(tmp_path, "two", "win32", "AMD64")["key"]
+    assert key != pilot.cache_identity(tmp_path, "one", "win32", "AMD64", "complete")["key"]
     declaration.write_text("PyYAML==6.0.2\n")
     assert key != pilot.cache_identity(tmp_path, "one", "win32", "AMD64")["key"]
     declaration.unlink()
@@ -58,6 +59,112 @@ def test_transport_key_separates_platform_namespace_and_changed_inputs(tmp_path)
 def test_transport_key_rejects_untrusted_labels(label):
     with pytest.raises(ValueError, match="namespace"):
         load_host_cache().cache_identity(ROOT, label)
+
+
+def test_runtime_archive_offline_verification_never_downloads_or_repairs(tmp_path, monkeypatch):
+    import hashlib
+
+    pilot = load_host_cache()
+    monkeypatch.setattr(pilot, "ROOT", tmp_path)
+    monkeypatch.setattr(pilot.bootstrap, "ROOT", tmp_path)
+    monkeypatch.setattr(pilot.urllib.request, "urlopen", lambda *a, **k: pytest.fail("Unexpected network"))
+    expected = hashlib.sha256(b"approved").hexdigest()
+    with pytest.raises(ValueError, match="unavailable offline"):
+        pilot.acquire_archive("fixture.zip", expected, "https://example.invalid/fixture.zip", True)
+    payload = tmp_path / ".local/ci-cache/tool-archives/fixture.zip"
+    payload.parent.mkdir(parents=True)
+    payload.write_bytes(b"corrupt")
+    with pytest.raises(ValueError, match="digest mismatch"):
+        pilot.acquire_archive("fixture.zip", expected, "https://example.invalid/fixture.zip", True)
+    assert payload.read_bytes() == b"corrupt"
+    payload.write_bytes(b"approved")
+    assert pilot.acquire_archive("fixture.zip", expected, "https://example.invalid/fixture.zip", True) == payload
+
+
+def test_fault_controls_refuse_local_payload_mutation(monkeypatch):
+    pilot = load_host_cache()
+    monkeypatch.delenv("LOTM_CI_CACHE_PILOT", raising=False)
+    with pytest.raises(ValueError, match="ephemeral hosted"):
+        pilot.inject_fault("wheel")
+    with pytest.raises(ValueError, match="Unknown cache fault"):
+        pilot.inject_fault("unknown")
+
+
+def test_owned_node_receipt_proves_reuse_and_refuses_modified_installation(tmp_path, monkeypatch):
+    import hashlib
+    import io
+    import tarfile
+    import zipfile
+
+    pilot = load_host_cache()
+    monkeypatch.setattr(pilot, "ROOT", tmp_path)
+    monkeypatch.setattr(pilot.bootstrap, "ROOT", tmp_path)
+    monkeypatch.setattr(pilot.urllib.request, "urlopen", lambda *a, **k: pytest.fail("Unexpected network"))
+    data = tmp_path / "Tools/CI/Data"
+    data.mkdir(parents=True)
+    (data / "runtime-versions.json").write_text('{"node":"24.15.0","npm":"11.12.1"}')
+    folder = "node-v24.15.0-" + ("win-x64" if sys.platform == "win32" else "linux-x64")
+    filename = folder + (".zip" if sys.platform == "win32" else ".tar.gz")
+    archive = tmp_path / ".local/ci-cache/tool-archives" / filename
+    archive.parent.mkdir(parents=True)
+    member = folder + ("/node.exe" if sys.platform == "win32" else "/bin/node")
+    if sys.platform == "win32":
+        with zipfile.ZipFile(archive, "w") as bundle:
+            bundle.writestr(member, b"approved synthetic executable")
+    else:
+        with tarfile.open(archive, "w:gz") as bundle:
+            entry = tarfile.TarInfo(member)
+            entry.size = len(b"approved synthetic executable")
+            entry.mode = 0o755
+            bundle.addfile(entry, io.BytesIO(b"approved synthetic executable"))
+    monkeypatch.setattr(
+        pilot, "NODE_ARCHIVES", {sys.platform: (filename, hashlib.sha256(archive.read_bytes()).hexdigest())}
+    )
+    directory = Path(pilot.node_runtime(True))
+    assert Path(pilot.node_runtime(True)) == directory
+    executable = directory / ("node.exe" if sys.platform == "win32" else "node")
+    executable.write_bytes(b"modified")
+    with pytest.raises(ValueError, match="no implicit repair"):
+        pilot.node_runtime(True)
+    assert executable.read_bytes() == b"modified"
+
+
+def test_hosted_wheel_fault_is_confined_and_caught_by_real_verification(tmp_path, monkeypatch):
+    import hashlib
+
+    pilot = load_host_cache()
+    monkeypatch.setattr(pilot, "ROOT", tmp_path)
+    monkeypatch.setattr(pilot.bootstrap, "ROOT", tmp_path)
+    monkeypatch.setenv("LOTM_CI_CACHE_PILOT", "hosted")
+    data = tmp_path / "Tools/CI/Data"
+    data.mkdir(parents=True)
+    (data / "runtime-versions.json").write_text("{}")
+    identity = {"synthetic": True}
+    lock = {
+        "packages": {
+            "pyyaml": {
+                "files": [
+                    {
+                        "filename": "pyyaml-6.0.3-py3-none-any.whl",
+                        "sha256": hashlib.sha256(b"approved").hexdigest(),
+                        "url": "https://files.pythonhosted.org/fixture.whl",
+                    }
+                ]
+            }
+        }
+    }
+    monkeypatch.setattr(pilot.bootstrap, "python_plan", lambda *a: ({"pyyaml": "6.0.3"}, identity, lock))
+    with pytest.raises(ValueError, match="Fault target missing"):
+        pilot.inject_fault("wheel")
+    payload = tmp_path / ".local/ci-cache/python" / pilot.bootstrap.key_for(identity) / "pyyaml-6.0.3-py3-none-any.whl"
+    payload.parent.mkdir(parents=True)
+    payload.write_bytes(b"approved")
+    unrelated = tmp_path / "unrelated.txt"
+    unrelated.write_bytes(b"preserved")
+    pilot.inject_fault("wheel")
+    with pytest.raises(ValueError, match="Corrupt cached wheel"):
+        pilot.bootstrap.acquire_wheels({"pyyaml": "6.0.3"}, payload.parent, lock, offline=True, check=True)
+    assert unrelated.read_bytes() == b"preserved"
 
 
 def test_cache_corruption_is_not_silently_repaired_and_explicit_recovery_verifies(tmp_path, monkeypatch):

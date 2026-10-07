@@ -2152,6 +2152,11 @@ complete cost accounting and final readiness review remain open within 6.1. Deta
 run links are in the readiness record; core-only measurements do not reduce full setup admission.
 The maintainer confirms the bounded core-payload evidence checkpoint on 2026-10-06 and authorizes
 continuing the remaining 6.1 work; the complete checkpoint stays open.
+The complete build/render payload and bounded hosted fault controls are confirmed for publication with local
+Windows/Linux proof (30 focused Python cases, offline bootstrap, real CLI/fonts/libraries and owned
+Node archive provenance). No new required profile or policy is activated. Publication and actual
+complete cold/warm/control/recovery evidence remain necessary before 6.1 closes; the readiness
+record describes the concrete next pilot and remaining measurements.
 
 - [x] Verify that the expanded Phase 5 local gate (including 5.6/5.7/5.8) is closed before starting hosted
   shadow adoption. Use its accepted portfolio, local recipes and provisional OS matrix as the baseline;

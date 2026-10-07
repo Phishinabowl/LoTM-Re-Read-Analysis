@@ -17,6 +17,16 @@ on:
         type: choice
         options: [auto, miss, hit]
         default: auto
+      payload_profile:
+        description: "Dependency payload coverage"
+        type: choice
+        options: [core, complete]
+        default: core
+      fault:
+        description: "Controlled rejection; requires a hit and intentionally fails the run"
+        type: choice
+        options: [none, wheel, module-receipt]
+        default: none
 
 permissions:
   contents: read
@@ -35,6 +45,9 @@ jobs:
       SOURCE_REVISION: ${{ github.sha }}
       CACHE_NAMESPACE: ${{ inputs.namespace || 'pilot-1' }}
       CACHE_EXPECT: ${{ inputs.expect || 'auto' }}
+      CACHE_PROFILE: ${{ inputs.payload_profile || 'core' }}
+      CACHE_FAULT: ${{ inputs.fault || 'none' }}
+      LOTM_CI_CACHE_PILOT: hosted
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
@@ -47,7 +60,7 @@ jobs:
         id: prepare
         shell: pwsh
         run: |
-          python Tools/CI/host_cache.py prepare --host github --namespace $env:CACHE_NAMESPACE --source-revision $env:SOURCE_REVISION
+          python Tools/CI/host_cache.py prepare --host github --namespace $env:CACHE_NAMESPACE --source-revision $env:SOURCE_REVISION --payload-profile $env:CACHE_PROFILE
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Restore exact payload cache
         id: payload
@@ -60,7 +73,7 @@ jobs:
         env:
           CACHE_HIT: ${{ steps.payload.outputs.cache-hit == 'true' && 'true' || 'false' }}
         run: |
-          python Tools/CI/host_cache.py bootstrap --host github --namespace $env:CACHE_NAMESPACE --source-revision $env:SOURCE_REVISION --cache-hit $env:CACHE_HIT --expect $env:CACHE_EXPECT
+          python Tools/CI/host_cache.py bootstrap --host github --namespace $env:CACHE_NAMESPACE --source-revision $env:SOURCE_REVISION --cache-hit $env:CACHE_HIT --expect $env:CACHE_EXPECT --payload-profile $env:CACHE_PROFILE --fault $env:CACHE_FAULT
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Save verified payloads after success
         if: ${{ success() && steps.payload.outputs.cache-hit != 'true' }}
