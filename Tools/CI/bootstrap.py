@@ -446,6 +446,8 @@ def bootstrap_powershell(args, versions):
                 ROOT / "Tools/CI/Probe-PowerShellModules.ps1",
                 "-RequirementsPath",
                 declaration,
+                "-ModulePath",
+                environment["PSModulePath"],
             ],
             environment=environment,
         )

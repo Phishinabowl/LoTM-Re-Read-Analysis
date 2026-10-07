@@ -3,8 +3,9 @@
 **Status:** Readiness inspection and first cache pilot confirmed for publication on 2026-10-06,
 based on `507caa4bea5743c3dad91bd077eedeb4f63d0d8f`. The maintainer authorizes continuing the hosted
 portion after dual-host publication; this confirmation does not close 6.1.
-**6.1 remains open:** no new hosted pilot has run, no ADO pipeline has been created, and no PR or
-branch-policy change has been made. [The plan](ci-testing-modernization-plan.md#phase-61-repository-synchronization-and-host-readiness)
+**6.1 remains open:** the first pilot is published as `6b884da` with exact dual-host parity. Hosted
+experiments have begun and the optional ADO pipeline exists. No PR or branch-policy change has
+been made. [The plan](ci-testing-modernization-plan.md#phase-61-repository-synchronization-and-host-readiness)
 owns completion; [the integration design](ci-testing-host-integration-design.md) retains merge/event
 authority. This record supplements its dated inspection rather than rewriting historical evidence.
 
@@ -40,13 +41,21 @@ ADO validation PRs cannot create independent merge history.
 | One destination is an ancestor of the intended commit | Verify ancestry and intended branch. A reviewed retry of the current dual push can bring the lagging destination forward; the already-current side is a no-op. |
 | Either destination diverges or is ahead unexpectedly | Stop publication, inspect history and obtain a concrete recovery decision. Never force, merge in ADO, or overwrite history to hide divergence. |
 
-These are reviewed recovery rules, not a claim that a destructive hosted divergence drill ran.
-The confirmation publication will exercise the ordinary parity path; partial-failure recovery proof
-must still be recorded before this 6.1 checklist item closes.
+The confirmed publication exercised ordinary parity: HEAD/upstream/GitHub/ADO all equal
+`6b884da0798e0706e4ff32cd15a618abf1cb9667`. An isolated local two-bare-repository exercise then proved
+partial recovery: the first destination accepted fixture commit `83eedce`, the unavailable second
+destination failed and the overall push exited 1. Inspection proved the first ref present and the
+second absent. After correcting only the fixture destination, the same dual push left the first
+up-to-date and created the second; both matched. No force push, extra production ref or hosted
+history mutation occurred. This tests transport failure/retry semantics, not live policy bypass.
+An additional fixture-only divergence control set the second destination to independent commit
+`f95e3b8`. Routine dual push exited 1 with a non-fast-forward rejection; reinspection proved that
+destination unchanged. No forced recovery or production configuration change followed.
 
 ## Current Host Configuration
 
-Successful authenticated API reads prove the following current scope. Credentials and personal
+Successful authenticated API reads prove the following pre-activation inspection scope; the hosted
+experiment section below supersedes pipeline/agent inventory after activation. Credentials and personal
 identity details are excluded from tracked evidence. No tokens are printed, saved or put in caches.
 
 | Surface | 2026-10-06 inspection |
@@ -129,7 +138,8 @@ wheels and verified exact PS module imports. It passed; its local supplied hit f
 bootstrap path, **not a GitHub/ADO cache hit**. Evidence is ignored under `.tmp/ci-cache-pilot` and
 the new environment is owned under `.local/ci-environments`; unrelated prepared environments remain.
 
-Before closing 6.1:
+The initial publication, optional pipeline setup and scoped partial-publication recovery below are
+now proved by the hosted/fixture evidence that follows. Before closing 6.1:
 
 1. Confirm/publish the staged files through the normal dual push and verify exact branch parity.
 2. Create the nonrequired ADO cache-pilot pipeline at the published modernization ref; record its
@@ -149,6 +159,52 @@ Before closing 6.1:
 **Rollback:** Disable/remove only this optional pilot and its later-created pipeline. Preserve old
 CI, required identities, shared branch history and unrelated caches. No adoption decision depends
 on a hosted measurement that has not yet happened.
+
+## First Hosted Experiments And Isolation Correction
+
+The reviewed eight-file pilot was committed and published as `6b884da` on both hosts. The worktree
+was clean after publication. Optional Azure pipeline **2**, `LoTM CI Cache Pilot`, was created without
+an initial run and set to queue 39/pool 9 before launch. The CLI initially selected a legacy queue;
+that default was corrected on this new pipeline only. Both OS agent allocations are now observed.
+Its repository/default ref is the modernization branch; no trigger, schedule, policy, service
+connection or repository permission was added.
+
+| Experiment at `6b884da` | Windows | Linux | Evidence |
+| --- | --- | --- | --- |
+| GitHub cold, `pilot-1` | Miss; setup passed, verified payloads saved | Miss; PS module provenance failed, cache save skipped | [Run 37564995939](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37564995939) |
+| GitHub expected warm, same key | Hit; offline fresh environment passed | Miss correctly rejected by the required-hit assertion | [Run 37565381968](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37565381968) |
+| ADO cold, `pilot-1` | Miss; setup passed, verified payloads saved | Miss; same PS module provenance failure | [Run 34](https://dev.azure.com/DreamtechADO/LoTM%20Inspired%20KM%20Platform/_build/results?buildId=34) |
+| ADO expected warm, same key | Hit; offline fresh environment passed | Miss correctly rejected by the required-hit assertion | [Run 35](https://dev.azure.com/DreamtechADO/LoTM%20Inspired%20KM%20Platform/_build/results?buildId=35) |
+
+Both cold runs retained success/failure diagnostics. GitHub manual dispatch against this feature
+branch succeeded; no default-branch workflow merge was needed. The combined runs remain failed
+because their Linux obligations failed. Individual Windows success is not a passing dual-OS gate.
+ADO's exact Python pin produced the task's usual patch-pin/download-limit warnings but successfully
+installed 3.14.5; no floating version or stored download credential was substituted.
+
+GitHub Windows setup measured 22.355 seconds cold versus 12.622 warm; the warm restore task took
+approximately two seconds. These are single setup samples at this snapshot, excluding checkout,
+Python setup, queue and publication; they are not full-suite or median performance claims. ADO
+Windows setup measured 25.731 seconds cold versus 12.613 warm; its warm restore task took 5.673
+seconds. Cache transport overhead must be included before claiming net savings. Exact task timestamps, bootstrap metadata, cache keys
+and native outcomes are retained under ignored `.tmp/ci-phase61`.
+
+Both Linux agents loaded equal-version PSScriptAnalyzer 1.25.0 from
+`/usr/local/share/powershell/Modules` rather than the receipt-verified owned cache. The existing
+origin check rejected it. Inherited `PSModulePath` is insufficient when PowerShell startup inserts
+agent paths. The scoped correction passes the intended module path explicitly into the probe and
+sets it inside the child after startup; the original exact-version and owned-origin checks remain.
+
+The correction is **confirmed for publication by the maintainer**, and has not yet been tested
+on hosted Linux. Its synthetic Pester regression proves an equal-version shadow module wins in the
+negative control, then the explicit owned path wins. All four dependency cases pass on Windows/Linux;
+26 Python bootstrap cases still pass, and a real Windows offline bootstrap check passes. No host
+module is removed or modified. The existing dependency group owns the additional case.
+
+Next publication will invalidate the transport key automatically because both bootstrap and probe
+bytes are keyed. Re-run cold and warm proof on the corrected source before accepting Linux cache
+transport. Remaining build/render transport, corrupted/provenance-negative hosted experiments,
+full timing accounting and final 6.1 review remain open.
 
 Staged verification: repository Ruff lint, both changed Python files' formatting, actionlint across
 all workflows, annotation policy (22/22 fixtures, 478 files, zero findings), 101 relative file links,

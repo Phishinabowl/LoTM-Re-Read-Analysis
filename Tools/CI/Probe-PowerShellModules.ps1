@@ -1,6 +1,13 @@
-param([string]$RequirementsPath = 'requirements-powershell-dev.txt')
+param(
+    [string]$RequirementsPath = 'requirements-powershell-dev.txt',
+    [string]$ModulePath
+)
 
 $ErrorActionPreference = 'Stop'
+if ($ModulePath) {
+    # pwsh startup can insert agent/global paths ahead of an inherited PSModulePath.
+    $env:PSModulePath = $ModulePath
+}
 $repoRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
 . (Join-Path $repoRoot 'Tools/Commands/Environment/Private/Requirements.ps1')
 $modules = @(Read-ExactModuleRequirements -Path (Join-Path $repoRoot $RequirementsPath) -Root $repoRoot)

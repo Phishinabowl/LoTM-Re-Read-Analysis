@@ -2136,15 +2136,22 @@ Readiness refresh and the first Python/PowerShell payload-cache pilot are confir
 see [host readiness and remaining live evidence](ci-testing-host-readiness.md). The branch/framework/main
 tips match on both hosts; the current ADO grant remains one shared free hosted slot. The maintainer
 authorizes hosted continuation after the reviewed files are published; no PR or policy is activated here.
+The first pilot is published as `6b884da` with HEAD/upstream/GitHub/ADO parity. Optional ADO pipeline 2
+now uses queue 39, and Windows/Linux agents are observed. First cold runs on both hosts pass Windows
+and fail Linux's owned-module provenance; Windows warm reuse passes on both hosts while a missing Linux
+cache is explicitly rejected. The scoped bootstrap/probe correction and synthetic regression are
+locally proved on both OSs and confirmed for publication. Disposable local repositories prove
+partial dual-push failure/recovery without changing hosted branch history. These results do not
+close 6.1 or activate required policy.
 This does not close 6.1: live cold/warm/invalidation/recovery, remaining build/render transport,
 partial-synchronization recovery and actual agent/permission evidence remain required.
 
 - [x] Verify that the expanded Phase 5 local gate (including 5.6/5.7/5.8) is closed before starting hosted
   shadow adoption. Use its accepted portfolio, local recipes and provisional OS matrix as the baseline;
   validate actual host performance and final placement rather than assuming WSL timing transfers directly.
-- [ ] Publish the branch only after Git confirmation; establish approved ADO resources and remotes
+- [x] Publish the branch only after Git confirmation; establish approved ADO resources and remotes
   through the reviewed synchronization contract without destructive mirror/force pushes.
-- [ ] Verify framework and modernization branch commit parity, ref mapping, authentication scope,
+- [x] Verify framework and modernization branch commit parity, ref mapping, authentication scope,
   divergence detection, and recovery after a partial synchronization failure.
 - [ ] Recheck agents, runtimes, job capacity, costs, permissions, and protections before activation.
 - [ ] Implement/measure dependency-cache transport on each host using the repository-owned bootstrap
