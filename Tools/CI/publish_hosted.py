@@ -241,19 +241,20 @@ def main():
     destination, receipt = admit(Path(args.root).absolute(), context, args.shard)
     try:
         if context["host"] == "ado":
-            from catalog import Catalog
-
-            plans = [
-                row
-                for row in Catalog(Path(args.root).absolute()).shard_plans.values()
-                if row["profile"] == context["profile"]
-            ]
-            if len(plans) != 1:
-                raise ValueError("Exactly one approved Azure report plan required")
             if args.shard:
                 receipt["markdown_submission"] = "retained-in-shard-artifact"
             else:
-                ordered_azure_summary(Path(args.root).absolute(), context, destination, receipt, plans[0])
+                if receipt["status"] == "admitted":
+                    from catalog import Catalog
+
+                    plans = [
+                        row
+                        for row in Catalog(Path(args.root).absolute()).shard_plans.values()
+                        if row["profile"] == context["profile"]
+                    ]
+                    if len(plans) != 1:
+                        raise ValueError("Exactly one approved Azure report plan required")
+                    ordered_azure_summary(Path(args.root).absolute(), context, destination, receipt, plans[0])
                 submit(destination, receipt, os.environ)
         else:
             submit(destination, receipt, os.environ)

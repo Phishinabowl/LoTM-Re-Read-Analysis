@@ -7,8 +7,9 @@ one exact-byte summary and two passing native cases. Current-source GitHub and A
 both pass 76/76 units and 663 unique cases. Azure run 49 stores ten Markdown attachments and exact
 aggregate-only native results. The maintainer confirms Tests and Markdown are both visible in the
 actual tenant UI for failure run 50. The published 6.4 implementation has complete qualification
-evidence. A subsequently requested combined Azure report is prepared locally and remains uncommitted;
-its actual hosted presentation must be qualified before claiming the refinement accepted.
+evidence. The subsequently requested combined Azure report is confirmed and dual-published as
+`5513fa7`; its actual hosted presentation is still unqualified. A reproduced interpreter-handoff
+correction is prepared locally and remains uncommitted for review.
 First-source Azure run 48 passes all 76 units and publishes 652 verified server cases. Entry is
 confirmed 6.3 at `cc93c8d`; the [modernization plan](ci-testing-modernization-plan.md#phase-64-markdown-tests-tab-and-detailed-publication)
 owns acceptance. No required check, branch policy, event or timing goal is changed.
@@ -295,8 +296,9 @@ no summary attachment. The aggregate publishes the single combined report. GitHu
 summaries and manual qualification probes are unchanged. Every included shard requires verified final
 publication, matching profile/commit/plan and original report envelope. Duplicate, corrupt, foreign or
 unknown evidence is rejected; an admitted aggregate requires the exact collected shard-owner inventory.
-Failed aggregate collection can display available verified reports and explicitly unavailable shards;
-composition rejection still attempts a visible diagnostic attachment and returns failure. No missing
+Failed aggregate admission emits its honest failure diagnostic without loading the full catalog;
+individual shard evidence stays in artifacts. Composition rejection still attempts a visible
+diagnostic attachment and returns failure. No missing
 coverage is invented, no native XML is regenerated and test publication remains aggregate-only.
 
 The combined display must fit the existing 900 KiB allowance; oversized composition fails visibly
@@ -312,6 +314,23 @@ preserved. Ruff and diff hygiene pass. No fresh hosted acceptance or additional 
 claimed for this unpublished refinement. After confirmation, use a bounded Azure profile to qualify
 the single attachment and rendering, and observe the next ordinary PR aggregate for the complete
 nine-section presentation; preserve run 49 as the accepted preceding publication evidence.
+
+**Publication and interpreter correction:** Confirmation publishes the four-file increment as
+`5513fa7316bed71cf80ff027f1826384da2f784d`, with a clean tree and exact four-reference parity.
+Azure bounded infrastructure qualification 53 and automatic PR run 52 are queued on this source.
+Before acceptance, a local `python -S` reproduction exposes that full catalog construction imports
+the compatibility/runtime owners and requires PyYAML. The existing Azure publisher step invokes the
+bare setup interpreter rather than the verified development environment. Runs 52/53 are cancelled
+to avoid consuming hosted minutes on an unqualified source; no successful qualification is credited.
+
+The prepared correction passes `Bootstrap.python` into the publication task, uses that existing
+verified executable when available, and retains bare-Python diagnostic fallback after setup failure.
+Shard-only artifact retention does not load the full catalog; failed aggregate admission can emit
+its summary with no site packages. A real `-S` CLI regression proves the latter, and workflow coverage
+checks the prepared-interpreter handoff. **91 report cases pass per OS** (Windows 11.37s; Linux 10.06s).
+The correction is uncommitted, awaiting confirmation before retrying bounded Azure publication and
+the actual Extensions rendering check. Original run 49 and the bounded failure/recovery evidence
+remain intact; GitHub publication has no new catalog dependency.
 
 **Rollback:** Restore preceding worker templates and remove the new publication invocation. Preserve
 original bundles, failed receipts and optional policies; no catalog or execution contract rollback

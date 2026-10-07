@@ -82,8 +82,9 @@ verified and confirmed on 2026-10-07. Phase 6.4's first publication increment is
 as `117a457`, with follow-up `849b8a6` confirmed and published. Complete 6.4 hosted success/failure
 qualification and the Azure UI walkthrough are verified; final documentation/checklist closure awaits
 maintainer confirmation. Phase 6.5 remains unstarted.
-The requested combined Azure report refinement is locally verified and uncommitted; its hosted
+The requested combined Azure report refinement is confirmed and published as `5513fa7`; its hosted
 single-attachment and expandable-section presentation still requires qualification before acceptance.
+A reproduced publisher interpreter-handoff correction is locally verified and uncommitted for review.
 The accepted 5.7 results and timing disposition remain intact; local WSL evidence will not substitute
 for actual hosted measurements.
 
@@ -2311,8 +2312,12 @@ on undocumented Extensions attachment sorting. The prepared publisher retains in
 artifacts, displays aggregate first and verified shard sections in catalog order, and preserves honest
 failure diagnostics and aggregate-only native cases. Local report regressions pass 89/89 on Windows
 and Linux; replay of actual run 49 bundles preserves 19 XML files and yields a 104914-byte combined
-report. Confirmation/publication and bounded hosted rendering proof remain required for this new diff;
-run 49's accepted preceding evidence is not a claim that the unpublished presentation already works.
+report. Confirmation publishes the refinement as `5513fa7`. A bare-interpreter reproduction exposes
+the catalog's PyYAML requirement; the prepared Azure publisher handoff uses verified `Bootstrap.python`
+and preserves dependency-free failed-admission diagnostics. All 91 report cases pass on each OS.
+Affected Azure runs 52/53 are cancelled without acceptance credit. Correction publication, bounded
+hosted proof and rendered UI verification remain open; run 49's preceding evidence does not prove
+the new presentation already works.
 
 ### Phase 6.5 Host Equivalence And Policy Adoption Review
 

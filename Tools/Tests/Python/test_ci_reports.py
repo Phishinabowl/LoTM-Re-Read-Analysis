@@ -317,6 +317,39 @@ def test_azure_composition_failure_still_submits_diagnostics_and_fails(tmp_path,
     )
 
 
+def test_azure_missing_result_cli_reports_failure_without_site_packages(tmp_path):
+    context = {
+        "host": "ado",
+        "profile": "ci-infrastructure",
+        "run_url": "https://dev.azure.com/DreamtechADO/project/_build/results?buildId=123",
+    }
+    child = subprocess.run(
+        [sys.executable, "-S", publisher.__file__, "--root", str(tmp_path)],
+        env={**os.environ, "SHADOW_CONTEXT": json.dumps(context)},
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        timeout=30,
+        check=False,
+    )
+    assert child.returncode == 1 and "task.addattachment" in child.stdout
+    assert "ModuleNotFoundError" not in child.stderr
+    receipt = json.loads((tmp_path / ".tmp/ci-shadow/publication/receipt.json").read_text())
+    assert receipt["status"] == "failed" and receipt["xml"] == []
+    assert receipt["markdown_submission"] == "logging-command-emitted"
+
+
+def test_azure_publisher_uses_prepared_python_with_setup_failure_fallback():
+    import yaml
+
+    document = yaml.safe_load((ROOT / ".azuredevops/ci-worker.yml").read_text())
+    step = next(row for row in document["jobs"][0]["steps"] if row.get("name") == "Publication")
+    assert step["env"]["PUBLICATION_PYTHON"] == "$(Bootstrap.python)"
+    assert "& $env:PUBLICATION_PYTHON Tools/CI/publish_hosted.py" in step["pwsh"]
+    assert "Test-Path -LiteralPath $env:PUBLICATION_PYTHON -PathType Leaf" in step["pwsh"]
+    assert "else {\n    python Tools/CI/publish_hosted.py" in step["pwsh"]
+
+
 def test_azure_failed_bundle_export_retains_publication_diagnostics(tmp_path, monkeypatch):
     owner, context = hosted_bundle(tmp_path, host="ado")
     (owner / "custom.xml").write_text("corrupt XML")

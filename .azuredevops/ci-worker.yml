@@ -76,13 +76,18 @@ jobs:
           ${{ if ne(parameters.wave, 'aggregate') }}:
             SHADOW_SHARD: $(shard)
       - pwsh: |
-          python Tools/CI/publish_hosted.py
+          if ($env:PUBLICATION_PYTHON -and (Test-Path -LiteralPath $env:PUBLICATION_PYTHON -PathType Leaf)) {
+              & $env:PUBLICATION_PYTHON Tools/CI/publish_hosted.py
+          } else {
+              python Tools/CI/publish_hosted.py
+          }
           exit $LASTEXITCODE
         name: Publication
         condition: always()
         timeoutInMinutes: 2
         displayName: Admit results and publish Markdown summary
         env:
+          PUBLICATION_PYTHON: $(Bootstrap.python)
           ${{ if ne(parameters.wave, 'aggregate') }}:
             SHADOW_SHARD: $(shard)
       - ${{ if eq(parameters.wave, 'aggregate') }}:
