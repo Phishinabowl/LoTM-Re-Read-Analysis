@@ -1,11 +1,11 @@
 # CI 6.1 Repository Synchronization And Host Readiness
 
-**Status:** Readiness inspection and first cache pilot confirmed for publication on 2026-10-06,
-based on `507caa4bea5743c3dad91bd077eedeb4f63d0d8f`. The maintainer authorizes continuing the hosted
-portion after dual-host publication; this confirmation does not close 6.1.
-**6.1 remains open:** the first pilot is published as `6b884da` with exact dual-host parity. Hosted
-experiments have begun and the optional ADO pipeline exists. No PR or branch-policy change has
-been made. [The plan](ci-testing-modernization-plan.md#phase-61-repository-synchronization-and-host-readiness)
+**Status:** Complete 6.1 readiness and cache qualification are verified and confirmed by the maintainer
+on 2026-10-07. The expanded implementation is published as `ba6047a` with exact
+HEAD/upstream/GitHub/ADO parity; this checkpoint publishes the final evidence and closes 6.1.
+All twenty complete-payload job outcomes match expectations. No experiment remains running.
+No PR or branch-policy change has been made. Historical inspection and intermediate failures below
+retain their original scope. [The plan](ci-testing-modernization-plan.md#phase-61-repository-synchronization-and-host-readiness)
 owns completion; [the integration design](ci-testing-host-integration-design.md) retains merge/event
 authority. This record supplements its dated inspection rather than rewriting historical evidence.
 
@@ -250,7 +250,7 @@ Audited artifacts and sanitized task timings are retained under ignored `.tmp/ci
 `fixed-cache-audit.json` records all eight results. Both failed original-source experiments remain
 available; they are not overwritten by the corrected success. No hosted jobs are still running.
 
-**6.1 is still open.** Remaining work includes build/render payload transport and actual agent
+**At this core-only checkpoint, 6.1 was still open.** Remaining work included build/render payload transport and actual agent
 Node/npm/Chrome/font/library qualification, deliberate cached-byte/missing-receipt rejection and
 recovery controls, complete queue/setup/restore/save/publication accounting, and final readiness
 review. Draft PRs remain conditional on needing actual PR shadow wiring at 6.2/6.3. Original check
@@ -258,8 +258,9 @@ names, event ownership, branch protection and canonical sources are unchanged.
 
 ## Complete Payload And Negative-Control Pilot Preparation
 
-The maintainer confirmed the next 6.1 increment for publication and hosted experiments; it is not
-yet hosted-qualified. It extends the same
+The maintainer confirmed this increment for publication and hosted experiments. It was published
+as `ba6047a`; the complete qualification below supersedes its earlier local-only preparation status.
+It extends the same
 optional pilot with `payload_profile=complete` and bounded `fault=none|wheel|module-receipt` inputs.
 These are dependency-setup controls, not execution-profile membership or new semantic suites.
 
@@ -300,7 +301,7 @@ These are local staged samples, not final-source hosted costs. Windows fresh ren
 268.481s, reinforcing why 6.1 must measure actual agents rather than transferring WSL timings.
 Pinned owned Node/npm extraction and strict offline receipt reuse are additionally verified.
 
-Before closing 6.1, publish this reviewed increment, then observe complete cold and warm setup on
+The published increment required complete cold and warm setup on
 both hosts/OSs, explicit wheel-corruption and missing-receipt failures, and successful subsequent
 fresh-workspace recovery. Audit source/key/package/tool identities, render output, queue delay,
 runtime provisioning, bootstrap stages, cache restore/save and publication. A failed control is
@@ -310,3 +311,73 @@ Checkpoint verification: repository Ruff lint, both changed Python files' format
 all workflows, annotation policy (22/22 fixtures, 478 files, zero findings), 101 relative file links,
 pilot YAML/permission/pin/timeout invariants and `git diff --check` pass. These static checks do not
 certify Azure server YAML compilation, successful agent allocation or cache transport performance.
+
+## Complete Hosted Qualification And 6.1 Review
+
+Every job below executes exact source `ba6047ab0f815be30a03f29750565755226c6764` on
+`windows-2022` or `ubuntu-24.04`, using `payload_profile=complete` and namespace `complete-1`.
+Cold legs assert a miss. All later legs assert the same platform-specific hit and run offline.
+An independent artifact audit verifies all twenty outcomes: twelve positive passes and eight
+expected negative failures. Windows/Linux keys differ; corresponding keys match across hosts.
+
+| Experiment | GitHub, both OSs | ADO, both OSs | Audited result |
+| --- | --- | --- | --- |
+| Cold | [37569838976](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37569838976) | [38](https://dev.azure.com/DreamtechADO/LoTM%20Inspired%20KM%20Platform/_build/results?buildId=38) | Miss; acquisition, qualification and save succeed. |
+| Warm | [37570086850](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37570086850) | [39](https://dev.azure.com/DreamtechADO/LoTM%20Inspired%20KM%20Platform/_build/results?buildId=39) | Hit; fresh offline environments and qualification succeed. |
+| Corrupt wheel | [37570296299](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37570296299) | [40](https://dev.azure.com/DreamtechADO/LoTM%20Inspired%20KM%20Platform/_build/results?buildId=40) | Red, exit 1; exactly one bootstrap error: `Corrupt cached wheel`. |
+| Missing module receipt | [37570302528](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37570302528) | [41](https://dev.azure.com/DreamtechADO/LoTM%20Inspired%20KM%20Platform/_build/results?buildId=41) | Red, exit 1; exactly one bootstrap error: `Module cache unavailable offline`. |
+| Fresh-workspace recovery | [37570659120](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37570659120) | [42](https://dev.azure.com/DreamtechADO/LoTM%20Inspired%20KM%20Platform/_build/results?buildId=42) | Hit; intact immutable server payload succeeds without repair/deletion. |
+
+Every positive leg creates a fresh Python environment, build-only Python 0.1.0 wheel and locked
+node_modules tree. Verified versions are CPython 3.14.5, PowerShell 7.6.6, Pester 6.2.0,
+PSScriptAnalyzer 1.25.0, powershell-yaml 0.4.12, owned Node 24.15.0/npm 11.12.1,
+Puppeteer 25.3.0 and Chrome 150.0.7871.24. Module origins and receipts remain owned and verified.
+The real Mermaid CLI renders expected labels with positive finite SVG geometry; Windows Arial
+and Linux Arial-compatible Liberation Sans qualify, with no missing Linux shared libraries.
+No agent system package or global module installation is changed.
+
+Negative legs retain the expected error and complete diagnostics, continue independent build/render
+qualification, remain failed at the host, and skip cache saving. Subsequent recovery is a new agent
+workspace using the same server key. It proves refusal and safe recovery, not implicit cache repair.
+Code/input invalidation is additionally established by the earlier corrected-core key change and
+the local changed-input regression. Historical first-source failures remain available.
+
+| Host / OS | Cold setup | Warm setup | Recovery setup | Warm restore | Cold save | Cold / warm job |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| GitHub Windows | 68.594s | 51.901s | 52.071s | ~6s | ~6s | 138s / 118s |
+| GitHub Linux | 56.341s | 19.782s | 34.948s | ~4s | ~4s | 87s / 43s |
+| ADO Windows | 79.174s | 57.647s | 56.816s | 10.450s | 26.770s | 181.580s / 143.647s |
+| ADO Linux | 57.252s | 39.062s | 38.655s | 11.257s | 23.357s | 108.010s / 76.327s |
+
+Setup is the measured helper interval, including owned tool provisioning, bootstrap stages and real
+render qualification. Native restore/save and job intervals are independent measurements. ADO cold
+restores cost 1.697s/1.550s and warm post-cache tasks 1.400s/0.987s (Windows/Linux). Diagnostic
+artifact tasks cost approximately 0-1s on GitHub and 1.950-2.807s on ADO for cold/warm jobs.
+Warm reuse improves both setup plus transport and whole-job cost in all four comparisons. These
+are single samples, not medians, guaranteed savings or full-profile timings. GitHub complete caches
+occupy 361,072,281 bytes Windows / 358,384,362 bytes Linux; transport is material at this size.
+
+Exact CPython provisioning remains separate: cold/warm GitHub Windows 47s/46s, Linux 12s/8s;
+ADO Windows 50.563s/50.290s, Linux 12.400s/11.307s. Warm caching does not remove interpreter
+provisioning or fresh environment installation. Native timelines preserve checkout, key preparation,
+task wrappers, post-job work and artifact upload separately. Dispatch-to-job-start elapsed is
+GitHub 2-6s for cold/warm/recovery and ADO 7.823-470.534s, including allocation, matrix serialization
+and waiting behind other experiments; it is not pure queue time or computation. ADO recovery jobs
+take 144.463s Windows / 80.303s Linux. The shared one-slot entitlement remains consequential.
+
+Final readiness refresh confirms the existing empty GitHub ruleset/framework-protection and ADO
+repository-policy inventories, optional pipeline 2 at queue 39/pool 9 and the modernization ref.
+Actual checkout, cache and artifact permissions are proved by execution. No broad authorization,
+service connection, policy, required check, schedule or merge authority changes. Granular future
+build-validation/token configuration is not inferred from these effective setup permissions.
+No custom agent image or internal feed is justified by these bounded samples; revisit only after
+real profile/shard measurement at 6.5. Provisional budgets and 90s/960s goals remain unchanged.
+
+Audited reports, sanitized native timelines and independent audit summaries are retained under
+ignored `.tmp/ci-phase61/complete` (`audit.json`, `timing-audit.json`). All required 6.1 runtime
+work is complete. The maintainer confirms the final documentation and verified checklist on 2026-10-07.
+Draft GitHub/framework and matching ADO validation PRs are conditionally deferred to actual PR
+shadow wiring at 6.2/6.3; cache qualification needed neither. Phase 6.2 has not started. Production
+child module isolation, profile equivalence, Tests-tab/Markdown publication, cancellation and final
+host admission remain their explicit later gates. Retire this optional pilot after adopted transport
+has equivalent evidence; preserve original CI until the accepted migration gate.

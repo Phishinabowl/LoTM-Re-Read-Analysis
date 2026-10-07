@@ -74,8 +74,9 @@ before hosted adoption. Phase 5.8.1 inventory and its bounded proposal are confi
 executable qualification at 5.8.2 is implemented, verified and confirmed on 2026-10-06. Phase 5.8.3
 is measured and audited; its bounded evidence, timing exceptions and provisional Windows placement
 and the complete checkpoint are confirmed on 2026-10-06. The expanded Phase 5 local gate is closed;
-Phase 6.1 readiness inspection and the first dependency-cache pilot are confirmed for publication;
-hosted evidence and its checkpoint remain open. The accepted 5.7 results and timing
+Phase 6.1's expanded implementation is published as `ba6047a`; complete hosted setup, negative
+controls and recovery are verified, with the final evidence/checkpoint confirmed on 2026-10-07.
+Phase 6.2 has not started. The accepted 5.7 results and timing
 disposition remain intact; local WSL evidence will not substitute for actual hosted measurements.
 
 **Working branch:** `architecture/ci-testing-modernization`, created from
@@ -2132,7 +2133,8 @@ group/process boundaries, retained review families and hosted-policy limits rema
 
 ### Phase 6.1 Repository Synchronization And Host Readiness
 
-Readiness refresh and the first Python/PowerShell payload-cache pilot are confirmed for publication on 2026-10-06;
+Historical entry/core checkpoints: readiness refresh and the first Python/PowerShell payload-cache pilot
+were confirmed for publication on 2026-10-06;
 see [host readiness and remaining live evidence](ci-testing-host-readiness.md). The branch/framework/main
 tips match on both hosts; the current ADO grant remains one shared free hosted slot. The maintainer
 authorizes hosted continuation after the reviewed files are published; no PR or policy is activated here.
@@ -2152,11 +2154,20 @@ complete cost accounting and final readiness review remain open within 6.1. Deta
 run links are in the readiness record; core-only measurements do not reduce full setup admission.
 The maintainer confirms the bounded core-payload evidence checkpoint on 2026-10-06 and authorizes
 continuing the remaining 6.1 work; the complete checkpoint stays open.
-The complete build/render payload and bounded hosted fault controls are confirmed for publication with local
-Windows/Linux proof (30 focused Python cases, offline bootstrap, real CLI/fonts/libraries and owned
-Node archive provenance). No new required profile or policy is activated. Publication and actual
-complete cold/warm/control/recovery evidence remain necessary before 6.1 closes; the readiness
-record describes the concrete next pilot and remaining measurements.
+**Current complete checkpoint:** The complete build/render payload and bounded hosted fault controls are published as `ba6047a`,
+with local Windows/Linux proof (30 focused Python cases) and twenty audited hosted job outcomes:
+twelve positive cold/warm/recovery passes and eight deliberately red corruption/missing-receipt
+controls. Exact source/key/runtime/package provenance, real CLI/fonts/libraries, fresh environments,
+native cache transport and job timings qualify on both hosts/OSs. Independent build/render stages
+continue after expected bootstrap failures; failed jobs never save cache content. Recovery reuses
+intact server payloads without implicit repair. Complete setup measures 56.341-79.174s cold /
+19.782-57.647s warm, separately from restore/save, CPython provisioning and publication. Both warm
+setup plus transport and whole-job cost improve in the four single-sample comparisons; full test
+timings and profile adoption are not claimed. Detailed runs, limits and refreshed host inventory are
+in the [complete hosted qualification](ci-testing-host-readiness.md#complete-hosted-qualification-and-61-review).
+No new required profile or policy is activated. All runtime work is complete; final evidence and
+the checkpoint are confirmed by the maintainer on 2026-10-07. All checklist items are closed,
+with the PR condition satisfied by explicit deferral until actual shadow PR wiring at 6.2/6.3.
 
 - [x] Verify that the expanded Phase 5 local gate (including 5.6/5.7/5.8) is closed before starting hosted
   shadow adoption. Use its accepted portfolio, local recipes and provisional OS matrix as the baseline;
@@ -2165,17 +2176,21 @@ record describes the concrete next pilot and remaining measurements.
   through the reviewed synchronization contract without destructive mirror/force pushes.
 - [x] Verify framework and modernization branch commit parity, ref mapping, authentication scope,
   divergence detection, and recovery after a partial synchronization failure.
-- [ ] Recheck agents, runtimes, job capacity, costs, permissions, and protections before activation.
-- [ ] Implement/measure dependency-cache transport on each host using the repository-owned bootstrap
+- [x] Recheck agents, runtimes, job capacity, costs, permissions, and protections before activation.
+- [x] Implement/measure dependency-cache transport on each host using the repository-owned bootstrap
   contract and compatible OS/architecture/runtime/lock keys. Verify restored versions and provenance;
   demonstrate cold miss, warm hit, invalidation and recovery, including restore/save costs. Use GitHub
   dependency caching and Azure Pipelines Cache@2 as transport, not competing dependency authorities.
   Evaluate prepared/custom agent images or internal package feeds only if measured needs justify their
   separate cost, maintenance and ownership decisions; they are not prerequisites for this overhaul.
-- [ ] Open an authorized draft GitHub PR into the framework branch when needed for shadow PR runs;
+- [x] Open an authorized draft GitHub PR into the framework branch when needed for shadow PR runs;
   use an ADO validation PR against the matching framework branch, without independent ADO merging.
+  No PR is needed for the completed setup pilot. Create these at 6.2/6.3 when PR shadow execution
+  requires them; this conditional deferral does not block 6.1 readiness closure.
 
-**Checkpoint:** Both hosts test traceable identical source history; publication and merge authority are clear.
+**Checkpoint:** Verified and confirmed by the maintainer on 2026-10-07. Both hosts execute traceable identical
+source history; publication and merge authority are clear. This checkpoint publishes the final evidence
+and closes 6.1; actual profile adoption begins separately at 6.2.
 
 ### Phase 6.2 Thin GitHub Actions Adapter
 

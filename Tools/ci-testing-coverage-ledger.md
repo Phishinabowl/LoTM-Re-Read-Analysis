@@ -1,19 +1,26 @@
 # CI Testing Coverage And Consumer Dependency Ledger
 
-CI 6.1 stages [host readiness and a temporary payload-cache pilot](ci-testing-host-readiness.md).
+CI 6.1 qualifies [host readiness and a temporary payload-cache pilot](ci-testing-host-readiness.md).
 Six additional cache-key/corruption/recovery cases are covered by the existing `python-bootstrap`
 group; its focused 26 cases pass on Windows/Linux. No suite membership, semantic family, required
-check identity or Phase 5 historical benchmark is replaced. Real hosted cache/agent proof remains open.
+check identity or Phase 5 historical benchmark is replaced. The complete hosted proof follows below.
 The first hosted Linux pilots exposed an equal-version global-module shadow during bootstrap.
 A synthetic shadow/owned-path regression is added to the existing `powershell-dependencies` group;
 its four cases pass on Windows/Linux. The bootstrap/probe correction is published as `c4972f8`,
 with eight passing corrected cold/warm hosted setup outcomes across both OSs and hosts. No full
-hosted profile, conformance fixture or historical Phase 5 evidence is replaced; remaining 6.1
-payload/control proof and later production-adapter qualification stay open.
-The staged complete-payload/fault-control increment adds four archive/Node-receipt/mutation-safety
+hosted profile, conformance fixture or historical Phase 5 evidence is replaced. The corrected core
+checkpoint preceded complete payload/control proof; production-adapter qualification remains later.
+The published complete-payload/fault-control increment adds four archive/Node-receipt/mutation-safety
 cases to the same bootstrap group (30 focused cases pass on Windows/Linux). Synthetic CLI setup
 qualification is a preparation probe, not a new conformance family or full-profile pass. Hosted
-complete/control/recovery acceptance remains within the open 6.1 gate.
+complete/control/recovery acceptance is now verified at published `ba6047a`: twenty audited job
+outcomes across both hosts/OSs (twelve positive passes and eight expected red rejection controls).
+Fresh package/render setup and real CLI qualification pass independently after deliberate bootstrap
+failure; subsequent fresh-workspace recovery succeeds without server-cache repair. Final evidence
+is confirmed by the maintainer on 2026-10-07. This is setup proof, not full hosted profile/conformance acceptance;
+no suite, semantic family or permanent execution group is added. Retire temporary pilot orchestration
+after equivalent transport is proved in adopted adapters; production entry-point qualification remains
+6.2/6.3 and native hosted result publication remains 6.4.
 
 Phase 1.2 inspection baseline: `268ac9d7930377d3ba789e64978fbb1bf3635ea0`, on
 `architecture/ci-testing-modernization`, inspected 2026-10-03. This document records current

@@ -7,6 +7,21 @@ checkout, queue and publication are separate. Windows Python provisioning alone 
 45-52s in these samples. This does not measure complete build/render dependencies or full test
 execution, and does not reduce provisional setup reserves, profile deadlines or accepted goals.
 
+**CI 6.1 complete setup overlay (verified and confirmed on 2026-10-07):** The
+[complete hosted qualification](ci-testing-host-readiness.md#complete-hosted-qualification-and-61-review)
+at published `ba6047a` measures development/media, PS modules, fresh package build, locked npm/Chrome,
+owned Node provisioning and real rendering. Cold/warm helper setup is GitHub Windows 68.594s/51.901s,
+Linux 56.341s/19.782s; ADO Windows 79.174s/57.647s, Linux 57.252s/39.062s. Warm restores add
+~6s/~4s GitHub and 10.450s/11.257s ADO (Windows/Linux); cold cache saves cost ~6s/~4s GitHub
+and 26.770s/23.357s ADO. Whole cold/warm jobs are 138s/118s and 87s/43s GitHub, 181.580s/143.647s
+and 108.010s/76.327s ADO. These single samples demonstrate net transport benefit, not medians or
+full test execution. Interpreter provisioning remains separate, about 46-51s on Windows in these
+samples; dispatch/allocation and serialized waiting are distinct from computation. Approximately
+360 MB per complete platform payload makes cache transport a visible cost. Both negative controls
+remain failed and fresh recovery passes; no silent repair or failed-cache save is credited as speedup.
+Retain provisional setup reserves and 90s/960s goals. Profile/shard measurement and final placement
+remain 6.5; no custom image/feed adoption follows from this preparation experiment.
+
 **Status:** Phase 1.4 measurement/design checkpoint confirmed on 2026-10-05. Baseline: `c5d1d78`,
 `architecture/ci-testing-modernization`, 2026-10-03. The
 [accepted contracts](ci-testing-contracts.md) own orchestration semantics; their decision record
