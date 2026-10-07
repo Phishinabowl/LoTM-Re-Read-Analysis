@@ -32,6 +32,15 @@ measure and label the split explicitly; it is not a full Linux pass. Preserve 5.
 exceptions and goals. Source/coverage equivalence and normal execution conditions precede timing;
 final agent/cache/queue and placement validation remains Phase 6 on real GitHub/ADO hosts.
 
+**5.8.1 inventory overlay (confirmed by the maintainer on 2026-10-06):** The
+[Linux inventory](ci-testing-linux-portability-inventory.md) reconciles all 74 IDs: 40 exact feature
+overlaps, 22 additional conformance variants, baseline parity and eleven unqualified compatibility
+owners. No intrinsic Windows requirement is established for those eleven; actual QA path behavior
+and absent Linux render preparation block an immediate equivalent full run. D12 media behavior
+coverage is still missing from permanent registration. Its approved bounded closure preserves Windows-only
+System.Drawing image coverage and changes complete portfolio accounting; do not credit added or
+omitted work as faster execution. No new timing sample or relaxed budget follows from this inventory.
+
 ## CI 5.1 Feedback Targets And Current Gap
 
 **Plan sequencing revision (2026-10-06):** The agreed 5.6/5.7 extension now places coverage/scenario

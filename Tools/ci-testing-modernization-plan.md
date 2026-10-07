@@ -70,7 +70,8 @@ case retention, parity, consumer, source-guard, publication and cleanup audits p
 conditional pre-hosted timing acceptance is satisfied, retaining the 90-second / 16-minute goals
 and measured Phase 8.1 follow-up. The 5.7 checkpoint is closed.
 On 2026-10-06 the maintainer confirms the Phase 5.8 plan addition for Linux portability/full comparison
-before hosted adoption. Its implementation has not started; the expanded local gate now also
+before hosted adoption. Phase 5.8.1 inventory and its bounded proposal are confirmed on 2026-10-06;
+executable qualification at 5.8.2 has not started. The expanded local gate now also
 requires that comparison and an explicit OS-placement review. The accepted 5.7 results and timing
 disposition remain intact; local WSL evidence will not substitute for actual hosted measurements.
 
@@ -1989,7 +1990,7 @@ cases where equivalence fails. Keep accepted historical evidence and original ho
 
 ### Phase 5.8 Linux Portability, Full Comparison And OS Placement
 
-**Plan addition confirmed by the maintainer (2026-10-06), implementation not started:** Establish Linux feasibility and comparable local
+**Plan addition confirmed by the maintainer (2026-10-06), executable qualification not started:** Establish Linux feasibility and comparable local
 costs before writing hosted adapters around provisional Windows placement. Current catalog admission
 marks every compatibility check Windows-only; this is confirmed registration behavior, not evidence
 that every implementation needs Windows. Preserve the accepted 5.7 portfolio and timing disposition
@@ -1998,15 +1999,26 @@ authorize unrelated cross-platform product work.
 
 #### Phase 5.8.1 Portability And Dependency Inventory
 
-- [ ] Inspect all eleven compatibility owners, installed-artifact and policy paths, nested commands,
+**Read-only inventory confirmed by the maintainer (2026-10-06):** The
+[portability inventory](ci-testing-linux-portability-inventory.md) accounts for all 74 current units,
+all eleven compatibility owners and their nested execution. Linux feature proves 40 matching full
+IDs plus fast parity; full still needs 22 variants, baseline parity and eleven owners. A read-only
+AST probe confirms the QA relative-path defect; Visualization filtering/diagnostic separators and
+case/containment behavior need focused proof. Native Node and owned Linux render/browser preparation
+are missing. D24 confirms the design for explicit CI metadata schema-2 OS admission; no executable contract changes
+yet. The previously accepted D12 synthetic-media PR gap remains unimplemented in permanent tests;
+the approved bounded proposal closes it at 5.8.2 with portable fixtures and explicit Windows image coverage.
+The 5.7 evidence/timing exceptions remain; no full run or data migration occurs at this checkpoint.
+
+- [x] Inspect all eleven compatibility owners, installed-artifact and policy paths, nested commands,
   fixture/platform assumptions, canonical projections, extraction, browser rendering and preparation.
   Distinguish real Windows dependencies, portable behavior already proved, and unverified portability;
   do not classify a check solely from its catalog OS field or language.
-- [ ] Map the complete 74-unit Windows reference to proposed Linux or retained Windows obligations.
+- [x] Map the complete 74-unit Windows reference to proposed Linux or retained Windows obligations.
   Record pinned Linux dependencies, system/browser requirements, filesystem/encoding/case/executable
   differences, failure/cleanup boundaries and exact result comparators. Preserve Windows-specific
   behavior where it is itself an obligation rather than replacing it with an easier Linux variant.
-- [ ] Review a bounded qualification proposal: name candidate checks, focused proof, intended catalog/
+- [x] Review a bounded qualification proposal: name candidate checks, focused proof, intended catalog/
   adapter/bootstrap changes and rollback. Identify genuine support-policy or substantial runtime-design
   decisions for maintainer input before implementation; do not solve arbitrary platform gaps silently.
 
@@ -2023,6 +2035,11 @@ against a knowingly blocked or incomplete inventory.
 - [ ] Implement only reviewed portability corrections and repository-owned per-check OS admission.
   Keep suite membership, runtime parity, required Windows variants, deadlines, independent process
   continuation, source guards and report contracts intact. YAML must not become the OS-support authority.
+- [ ] Close the previously accepted D12 synthetic EPUB/image PR-coverage gap through explicit native
+  registration: portable Python fixtures, PS EPUB qualification and retained Windows-only PS image
+  coverage for System.Drawing. Do not port/retire image tooling as an implicit CI change. Account for
+  any added unit/case counts and Windows remainder separately from the historic 74-unit core comparison;
+  adding required coverage cannot justify silently omitting it from the complete portfolio.
 - [ ] Prove affected behavior on Linux and recheck affected Windows behavior. Compare semantic output,
   CLI/export/error contracts, golden projections, extraction contents, containment and publication;
   explicitly normalize only permitted operational/platform fields. Add meaningful regression coverage

@@ -72,6 +72,15 @@ no case, fixture, suite, group, pressure question or required check is removed. 
 families and 17 unresolved semantic reviews remain. Final feature proof satisfies the explicitly
 reviewed pre-hosted timing exception conditions; 90s / 960s goals and measured Phase 8.1 follow-up remain.
 
+**5.8.1 portability/coverage inventory (confirmed by the maintainer on 2026-10-06):** The
+[inventory](ci-testing-linux-portability-inventory.md) maps every current full ID and eleven nested
+compatibility owners. Forty IDs overlap exact Linux feature proof; fast/full parity IDs differ.
+Remaining Linux full proof is 22 variants, baseline parity and eleven owners. D12 synthetic-media
+PR behavior tests are absent from the current permanent registry; earlier rehearsals and Pillow
+readiness do not close G03. Approved bounded 5.8.2 closure retains portable fixtures and a Windows PS image
+lane, without changing canonical media or silently claiming complete Linux coverage. No fixture,
+test, support declaration or admitted OS changes in this read-only checkpoint.
+
 CI Phase 2.1 applies the reviewed support-policy change through the [retirement inventory](ci-powershell-retirement-inventory.md).
 The active parity family is now `PARITY-SUPPORTED-RUNTIMES`; the historical `PARITY-THREE-RUNTIME`
 ID maps to it one-for-one with only Desktop host support removed. The inspected three-runtime rows
