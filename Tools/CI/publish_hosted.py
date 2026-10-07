@@ -145,7 +145,11 @@ def readable_report(report):
         ("Retained reviews", report["reviews"]),
     ):
         if rows:
-            lines += ["", "## " + title, ""]
+            collapsed = title == "Unselected coverage"
+            if collapsed:
+                lines += ["", "<details>", f"<summary>Unselected coverage ({len(rows)} checks)</summary>", ""]
+            else:
+                lines += ["", "## " + title, ""]
             for row in rows:
                 fields = row.items() if isinstance(row, dict) else [("Detail", row)]
                 lines += [
@@ -155,6 +159,8 @@ def readable_report(report):
                         for key, value in fields
                     )
                 ]
+            if collapsed:
+                lines += ["", "</details>", ""]
     if report["failures"]:
         lines += ["", "## Failures", ""]
         for failure in report["failures"]:

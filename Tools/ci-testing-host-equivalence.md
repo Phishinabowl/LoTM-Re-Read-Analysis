@@ -497,6 +497,47 @@ interpreter acquisition, fresh PR/event equivalence and adoption remain separate
 
 ## Remaining Qualification And Rollback
 
+### Coverage Detail Readability Follow-Up
+
+The maintainer requests collapsible coverage-detail lists after accepting run 65's bounded
+qualification. The next local increment wraps nonempty unselected coverage in a closed details
+section with a check count, retaining every original ID and selection reason. Required reviews
+and failure diagnostics stay visible. Empty coverage does not add an empty section; original
+report evidence is not mutated. Hosted rendering of this follow-up remains unqualified until
+the increment is confirmed and included in a subsequent bounded publication experiment.
+Focused report/cohort regressions pass all 146 cases on Windows (25.74s) and Linux (122.07s),
+including preserved reasons, visible reviews/failures, balanced closed sections and unchanged
+input evidence. Ruff checks and formatting pass. No new hosted run is queued for this local pass.
+
+### Bounded Cohort Failure And Recovery Follow-Up
+
+The next local increment adds an explicit `cohort_qualification: launch-failure` manual parameter,
+defaulting to `none`. Admission requires Azure Manual, `cohort-smoke`, the full-verification source
+catalog and no PR replay; ordinary shards, full cohorts, policy PRs, unknown faults and mixed
+publication probes cannot admit it. The first original child exits with code 2 before producing
+results. The executor retains its bounded process capture and verified cleanup, records missing
+coverage honestly, continues the later original shard and returns failure. No canonical source
+or fixture is corrupted, no native cases are invented or uploaded, and original child deadlines
+and preparation roles remain unchanged. The summary labels the deliberate fault and exposes the
+missing shard's process status/exit and admission diagnostic alongside actual later results.
+
+After confirmation/publication, preview and queue a bounded smoke at the exact new source with
+the fault enabled. Require an intentionally failed execution job/run, a real passing second shard,
+retained first-child exit/capture/cleanup, no first-shard finalized results, one exact-byte partial
+summary and zero server native cases. Then queue matching smoke at that same source with the fault
+disabled; require both original shards and manifests, successful execution and complete bounded
+report admission. Observe collapsible coverage and visible diagnostics in the tenant report.
+Keep PRs paused and ordinary `shards` placement active. Neither probe closes full cohort collection,
+native-report equality, portfolio timing, interpreter acquisition or final event/policy adoption.
+
+The nine-file local increment, including the previously reviewed report cleanup, passes all 275
+focused report/cohort/scope cases on Windows (63.56s) and Linux (163.62s). Ruff checks/formatting
+and diff checks pass. The new cases exercise a real isolated exit-2 child and later-shard execution,
+fault admission bounds, missing-result human diagnostics and qualification receipt mismatch.
+A local readability preview generated from run 65's original reports preserves both coverage lists
+under closed details sections in original shard order. Changes remain uncommitted; no hosted probe
+or runtime/policy adoption is claimed from this local proof.
+
 The patch and aggregate-preparation checkpoints are confirmed on 2026-10-07. Continue with deliberate
 manual optimization runs while PRs remain paused; branch qualification is not fresh PR merge proof.
 The adopted exact Python baseline is now 3.14.8, with retained 3.14.5 rollback evidence. Setup failure

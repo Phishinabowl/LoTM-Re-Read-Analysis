@@ -420,6 +420,31 @@ def test_human_review_and_unselected_fields_preserve_nested_unknown_and_false_va
     assert "reasons: unaffected; &lt;unsafe&gt;" in text and "[&#x27;" not in text
 
 
+def test_unselected_coverage_is_collapsed_without_hiding_failures_or_reviews(tmp_path):
+    report = record(tmp_path, "failed")
+    report["selection"]["unselected"] = [
+        {"id": "delegated", "reason": "Delegated to registered shard"},
+        {"id": "unaffected", "reason": "No affected implementation"},
+    ]
+    report["reviews"] = [{"family": "required review", "blocking": True}]
+    report["failures"] = [{"id": "failed check", "classification": "synthetic", "excerpt": "failure details"}]
+    original = copy.deepcopy(report)
+    text = publisher.readable_report(report)
+    start = text.index("<summary>Unselected coverage (2 checks)</summary>")
+    end = text.index("</details>", start)
+    assert " open" not in text[text.rfind("<details>", 0, start) : start]
+    assert "id: delegated; reason: Delegated to registered shard" in text[start:end]
+    assert "id: unaffected; reason: No affected implementation" in text[start:end]
+    assert text.index("## Retained reviews") > end
+    assert text.index("## Failures") > end and "failure details" in text[end:]
+    assert text.count("<details>") == text.count("</details>")
+    assert report == original
+
+
+def test_empty_unselected_coverage_has_no_expandable_section(tmp_path):
+    assert "<summary>Unselected coverage" not in publisher.readable_report(record(tmp_path))
+
+
 def test_azure_failed_bundle_export_retains_publication_diagnostics(tmp_path, monkeypatch):
     owner, context = hosted_bundle(tmp_path, host="ado")
     (owner / "custom.xml").write_text("corrupt XML")
@@ -547,7 +572,7 @@ def test_manual_publication_qualification_skips_catalog_execution_and_keeps_uplo
     pipeline = yaml.safe_load((ROOT / ".azuredevops/ci.yml").read_text())
     assert pipeline["jobs"][0]["condition"] == (
         "or(eq(variables['Build.Reason'], 'PullRequest'), eq('${{ parameters.publication_qualification }}', 'none'), "
-        "ne('${{ parameters.placement }}', 'shards'))"
+        "ne('${{ parameters.placement }}', 'shards'), ne('${{ parameters.cohort_qualification }}', 'none'))"
     )
     job = azure["jobs"][0]
     assert job["condition"] == "eq(variables['Build.Reason'], 'Manual')"

@@ -84,6 +84,35 @@ def test_azure_cohort_experiments_are_manual_only_and_cannot_mix_with_other_prob
 
 
 @pytest.mark.parametrize(
+    "changes",
+    [
+        {"SHADOW_COHORT_QUALIFICATION": "unknown"},
+        {"SHADOW_PLACEMENT": "shards"},
+        {"SHADOW_PLACEMENT": "cohorts"},
+        {"SHADOW_PROFILE": "ci-infrastructure"},
+        {"BUILD_REASON": "PullRequest"},
+        {"SHADOW_PUBLICATION_QUALIFICATION": "failures"},
+        {"SHADOW_PR_NUMBER": "7", "BUILD_SOURCEVERSION": "a" * 40},
+    ],
+)
+def test_cohort_failure_probe_cannot_enter_ordinary_full_or_pr_runs(changes):
+    env, pull = azure_fixture()
+    env.update(BUILD_REASON="Manual", SHADOW_PLACEMENT="cohort-smoke", SHADOW_COHORT_QUALIFICATION="launch-failure")
+    env.update(changes)
+    with pytest.raises(ValueError):
+        ado_shadow.event_context(env, pull)
+
+
+def test_cohort_failure_probe_is_captured_only_in_explicit_manual_smoke():
+    env, _ = azure_fixture()
+    env.update(BUILD_REASON="Manual", SHADOW_PLACEMENT="cohort-smoke", SHADOW_COHORT_QUALIFICATION="launch-failure")
+    context = ado_shadow.event_context(env)
+    assert context["cohort_qualification"] == "launch-failure"
+    env["SHADOW_COHORT_QUALIFICATION"] = "none"
+    assert "cohort_qualification" not in ado_shadow.event_context(env)
+
+
+@pytest.mark.parametrize(
     "field,value",
     [
         ("SYSTEM_COLLECTIONURI", "https://example.invalid/"),

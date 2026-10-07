@@ -25,6 +25,22 @@ def positive(value):
     return int(value)
 
 
+def cohort_qualification(context):
+    mode = context.get("cohort_qualification", "none")
+    if mode not in {"none", "launch-failure"} or (
+        mode != "none"
+        and (
+            context.get("host") != "ado"
+            or context.get("event") != "Manual"
+            or context.get("placement") != "cohort-smoke"
+            or context.get("profile") != "full-verification"
+            or context.get("pr") is not None
+        )
+    ):
+        raise ValueError("Cohort qualification requires manual full-catalog smoke without PR replay")
+    return mode
+
+
 def event_context(environment, pull=None):
     """Require immutable execution metadata and API corroboration for PRs."""
     if (
@@ -99,6 +115,10 @@ def event_context(environment, pull=None):
         context.update(source=source, base=base, scope="hosted-pr", checkout_kind=kind, pr=number)
     elif reason == "PullRequest":
         raise ValueError("Policy PR identity is missing")
+    qualification = environment.get("SHADOW_COHORT_QUALIFICATION", "none")
+    if qualification != "none":
+        context["cohort_qualification"] = qualification
+    cohort_qualification(context)
     return context
 
 
@@ -199,6 +219,7 @@ def placed_cohorts(root, context):
 
 
 def validate_placement(root, context):
+    cohort_qualification(context)
     if (
         context.get("host") != "ado"
         or context.get("placement") not in {"cohorts", "cohort-smoke"}
@@ -212,6 +233,7 @@ def validate_placement(root, context):
 
 
 def cohort_matrices(root, context):
+    cohort_qualification(context)
     plan, _, _ = transport.matrices(root, context)
     proposal, groups = placed_cohorts(root, context)
     titles = {row["shard"]: row["title"] for row in transport.shard_presentation(plan)}

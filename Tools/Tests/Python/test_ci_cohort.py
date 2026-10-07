@@ -77,6 +77,7 @@ def experiment(tmp_path, monkeypatch):
     def write(name, mode):
         owner = tmp_path / ("run-fixture-" + name)
         report = record(owner, "failed" if mode == "failed" else "passed")
+        report["profile"] = context["profile"]
         report["provenance"].update(
             executed_commit=context["executed"], shard_source={"shard": name, "shard_plan": plan["id"]}
         )
@@ -109,6 +110,28 @@ def test_owned_children_continue_after_failure_with_exact_original_bundles(exper
     assert not any(path.name == "source" for path in stage.rglob("*"))
     with pytest.raises(FileExistsError):
         cohort.run_cohort(root, context, "cohort-0", root / ".tmp/absent")
+
+
+@pytest.mark.integration
+def test_manual_launch_fault_runs_real_child_then_continues_without_invented_coverage(experiment, monkeypatch):
+    root, context, write = experiment
+    context.update(event="Manual", placement="cohort-smoke", profile="full-verification", pr=None)
+    context["cohort_qualification"] = "launch-failure"
+    monkeypatch.setattr(
+        cohort.ado_shadow, "validate_placement", lambda *args: [{"id": "cohort-0", "shards": ["first", "second"]}]
+    )
+    write("first", "passed")
+    write("second", "passed")
+    result, stage = cohort.run_cohort(root, context, "cohort-0", root / ".tmp/absent")
+    first, second = result["shards"]
+    assert result["status"] == "failed" and result["exit_code"] == 1
+    assert result["qualification"] == {"scenario": "launch-failure", "shard": "first"}
+    assert first["process"]["child_exit_code"] == 2 and first["process"]["cleanup"]["verified"]
+    assert "run_id" not in first
+    assert second["status"] == "passed", second
+    assert not (stage / "first/bundle").exists()
+    assert len(list(stage.rglob("shard-result.json"))) == 1
+    assert "Deliberate cohort qualification" in (stage / "processes/first/stdout.bin").read_text()
 
 
 def test_cancelled_cohort_never_launches_or_invents_later_coverage(experiment):
@@ -426,6 +449,7 @@ def test_collection_admits_original_failed_and_passing_shards_without_changing_o
         "escape",
         "status",
         "manifest",
+        "qualification",
     ],
 )
 def test_collection_rejects_incomplete_foreign_or_inconsistent_cohort_evidence(collected, mutation):
@@ -457,6 +481,8 @@ def test_collection_rejects_incomplete_foreign_or_inconsistent_cohort_evidence(c
             result["shards"][0]["run_id"] = "../escape"
         elif mutation == "status":
             result["status"] = "passed"
+        elif mutation == "qualification":
+            result["qualification"] = {"scenario": "launch-failure", "shard": "first"}
         receipt.write_bytes(reports.encoded(result))
     with pytest.raises((ValueError, OSError, KeyError)):
         cohort.validate_collection(root, context, stage)
@@ -471,6 +497,34 @@ def test_smoke_summary_marks_partial_coverage_and_never_uploads_test_cases(colle
     assert "01. First" in text and "02. Second" in text
     output = capsys.readouterr().out
     assert "task.addattachment" in output and "testresults" not in output.lower()
+
+
+def test_launch_failure_summary_preserves_missing_coverage_diagnostic_and_later_results(collected, capsys):
+    root, context, stage, result = collected
+    context.update(event="Manual", placement="cohort-smoke", profile="full-verification", pr=None)
+    context["cohort_qualification"] = "launch-failure"
+    # Keep the captured fixture source profile; admission failure must not hide readable later evidence.
+    for owner in stage.glob("*/bundle/run-*"):
+        report = reports.decode_json((owner / "report.json").read_text(encoding="utf-8"))
+        report["profile"] = context["profile"]
+        shutil.rmtree(owner)
+        owner.mkdir()
+        reports.finalize(owner, report)
+    first = result["shards"][0]
+    shutil.rmtree(stage / "first")
+    first.pop("run_id")
+    first.update(reason="Cohort child produced missing or ambiguous run evidence")
+    first["process"]["child_exit_code"] = 2
+    result["profile"] = context["profile"]
+    result["qualification"] = {"scenario": "launch-failure", "shard": "first"}
+    reports.atomic_bytes(stage, "cohort-result.json", reports.encoded(result), replace=True)
+    assert cohort.publish_summary(root, context, "cohort-0") == 1
+    text = (stage / "summary.md").read_text(encoding="utf-8")
+    assert "Partial qualification only" in text and "Deliberate qualification fault" in text
+    assert "Missing finalized shard evidence: first" in text
+    assert "Child process: exited; exit: 2" in text
+    assert "no passing coverage is inferred" in text and "CI execution: passed" in text
+    assert "testresults" not in capsys.readouterr().out.lower()
 
 
 def test_bare_diagnostic_staging_retains_setup_without_promoting_it_to_coverage(tmp_path):

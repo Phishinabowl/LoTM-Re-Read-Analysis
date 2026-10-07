@@ -18,6 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import ado_shadow
 import github_shadow as transport
 from execution_reports import atomic_bytes, confined, decode_json, encoded, verify_publication
+from execution_reports import markdown_text
 from process_supervisor import Lease, run_process
 from publish_hosted import admit, hosted_markdown, readable_report, native_failures, submit
 
@@ -113,6 +114,7 @@ def run_cohort(root, context, identity, inputs, *, cancel=None):
     if root != transport.ROOT:
         raise ValueError("Cohort execution requires the configured repository owner")
     cohort, plan = admitted_cohort(root, context, identity)
+    qualification = ado_shadow.cohort_qualification(context)
     cohort = {**cohort, "shard_plan": plan["id"]}
     prefix = ".tmp/ci-shadow/cohorts/" + cohort["id"]
     owner = confined(root, prefix)
@@ -138,6 +140,8 @@ def run_cohort(root, context, identity, inputs, *, cancel=None):
         "shards": [],
     }
     budgets = {row["id"]: row["budget"]["total_seconds"] for row in plan["shards"]}
+    if qualification != "none":
+        result["qualification"] = {"scenario": qualification, "shard": cohort["shards"][0]}
     try:
         for shard in cohort["shards"]:
             row = {"shard": shard, "status": "error", "exit_code": 1}
@@ -156,8 +160,17 @@ def run_cohort(root, context, identity, inputs, *, cancel=None):
                         row["status"] = "blocked"
                         raise ValueError("Cohort preflight consumed the remaining complete child allowance")
                     environment = child_environment()
+                    command = child_command(args)
+                    if qualification == "launch-failure" and shard == cohort["shards"][0]:
+                        command = [
+                            args.python,
+                            "-I",
+                            "-c",
+                            "import sys; print('Deliberate cohort qualification: first child exits before results', "
+                            "flush=True); sys.exit(2)",
+                        ]
                     process = run_process(
-                        child_command(args),
+                        command,
                         cwd=root,
                         env=environment,
                         output_parent=processes,
@@ -196,6 +209,8 @@ def run_cohort(root, context, identity, inputs, *, cancel=None):
 
 def validate_result(root, context, stage, result, expected):
     plan, _, _ = transport.matrices(root, context)
+    qualification = ado_shadow.cohort_qualification(context)
+    fault = None if qualification == "none" else {"scenario": qualification, "shard": expected["shards"][0]}
     if (
         result.get("contract") != "ci-ado-cohort-experiment"
         or result.get("contract_version") != 1
@@ -203,11 +218,14 @@ def validate_result(root, context, stage, result, expected):
         or result.get("executed_commit") != context["executed"]
         or result.get("profile") != context["profile"]
         or result.get("cohort") != {**expected, "shard_plan": plan["id"]}
+        or result.get("qualification") != fault
         or [row["shard"] for row in result["shards"]] != expected["shards"]
     ):
         raise ValueError("Cohort receipt differs from captured source and logical inventory")
     owners = []
     for row in result["shards"]:
+        if not row.get("run_id"):
+            raise ValueError("Missing finalized shard evidence: " + row["shard"])
         owner = confined(stage, row["shard"] + "/bundle/" + row["run_id"])
         manifest = verify_publication(owner)
         report = decode_json(confined(owner, "report.json").read_text(encoding="utf-8"))
@@ -286,9 +304,10 @@ def publish_summary(root, context, identity):
     text = "# CI cohort qualification: " + ("failed" if error else result["status"]) + "\n\n"
     text += "**Partial qualification only. This does not satisfy full-profile coverage.**\n\n"
     text += "Shared preparation; original shards remain independently executed and reported.\n\n"
+    qualification = ado_shadow.cohort_qualification(context)
+    if qualification != "none":
+        text += "**Deliberate qualification fault:** First child exits before producing shard results.\n\n"
     if error:
-        from execution_reports import markdown_text
-
         text += "Admission diagnostic: " + markdown_text(error) + "\n\n"
     plan, _, _ = transport.matrices(root, context)
     titles = {row["shard"]: row["title"] for row in transport.shard_presentation(plan)}
@@ -306,6 +325,13 @@ def publish_summary(root, context, identity):
             text += readable_report(report) + native_failures(owners[0], manifest)
         else:
             text += "Finalized shard evidence unavailable; no passing coverage is inferred.\n\n"
+            row = next((row for row in result["shards"] if row["shard"] == shard), {})
+            if row.get("reason"):
+                text += "Diagnostic: " + markdown_text(row["reason"]) + "\n\n"
+            process = row.get("process", {})
+            if process:
+                text += "Child process: " + markdown_text(process.get("status", "unknown"))
+                text += "; exit: " + markdown_text(str(process.get("child_exit_code"))) + ".\n\n"
     atomic_bytes(stage, "summary.md", hosted_markdown(text, context["run_url"], "ci-shadow-" + identity))
     receipt = {"host": "ado", "summary_label": "cohort-qualification", "markdown_submission": "not-submitted"}
     if context["placement"] == "cohort-smoke":

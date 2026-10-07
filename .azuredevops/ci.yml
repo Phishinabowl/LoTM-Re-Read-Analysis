@@ -18,6 +18,10 @@ parameters:
     type: string
     default: none
     values: [none, passing, failures]
+  - name: cohort_qualification
+    type: string
+    default: none
+    values: [none, launch-failure]
 
 variables:
   PYTHONUTF8: '1'
@@ -28,7 +32,7 @@ variables:
 
 jobs:
   - job: Plan
-    condition: or(eq(variables['Build.Reason'], 'PullRequest'), eq('${{ parameters.publication_qualification }}', 'none'), ne('${{ parameters.placement }}', 'shards'))
+    condition: or(eq(variables['Build.Reason'], 'PullRequest'), eq('${{ parameters.publication_qualification }}', 'none'), ne('${{ parameters.placement }}', 'shards'), ne('${{ parameters.cohort_qualification }}', 'none'))
     displayName: Plan - validate scope and catalog
     timeoutInMinutes: 5
     cancelTimeoutInMinutes: 2
@@ -53,6 +57,7 @@ jobs:
           SHADOW_PR_NUMBER: ${{ parameters.pr_number }}
           SHADOW_PLACEMENT: ${{ parameters.placement }}
           SHADOW_PUBLICATION_QUALIFICATION: ${{ parameters.publication_qualification }}
+          SHADOW_COHORT_QUALIFICATION: ${{ parameters.cohort_qualification }}
       - pwsh: |
           python Tools/CI/ado_shadow.py plan-bootstrap
           exit $LASTEXITCODE

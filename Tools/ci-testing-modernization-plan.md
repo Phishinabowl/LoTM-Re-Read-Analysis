@@ -2461,6 +2461,22 @@ gate. Deliberate failure/recovery, full cohort collection/native/report parity, 
 fresh PR/event/policy adoption are not closed. Ordinary shard placement and both paused PRs remain
 unchanged; see the host-equivalence record for exact source, artifact and timing evidence.
 
+The next local readability increment makes unselected/delegated coverage lists collapsible with
+their check count and complete reasons preserved. Required reviews and failures remain visible;
+original evidence is unchanged. This follow-up stays uncommitted pending confirmation and must
+be observed in the next bounded hosted publication before claiming tenant-rendering acceptance.
+
+The following bounded failure/recovery increment adds default-disabled, manual smoke-only
+`cohort_qualification: launch-failure`. It proves a first child exiting before results cannot
+invent passing coverage or stop the later original shard; diagnostics and cleanup remain visible.
+After confirmation/publication, qualify intentional failure and unmodified recovery at the same
+source, with original shard receipts, zero smoke native uploads and the collapsible report.
+Ordinary/full/PR execution rejects the fault control; existing deadlines and required coverage
+remain unchanged. These local changes and planned hosted probes do not close the remaining 6.5 gates.
+The nine-file combined readability/fault increment passes 275 focused cases per OS (Windows 63.56s;
+Linux 163.62s), plus Ruff checks/formatting and diff checks. It remains uncommitted pending explicit
+publication confirmation; live failure/recovery and the tenant report observation are still open.
+
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain
 `3008f0238bb10a15e6907d7bc821199eed266dd5`. This stops their automatic full PR update runs during
