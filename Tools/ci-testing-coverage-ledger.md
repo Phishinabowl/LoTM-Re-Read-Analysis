@@ -6,8 +6,10 @@ group; its focused 26 cases pass on Windows/Linux. No suite membership, semantic
 check identity or Phase 5 historical benchmark is replaced. Real hosted cache/agent proof remains open.
 The first hosted Linux pilots exposed an equal-version global-module shadow during bootstrap.
 A synthetic shadow/owned-path regression is added to the existing `powershell-dependencies` group;
-its four cases pass on Windows/Linux. The bootstrap/probe correction is confirmed for publication
-and real hosted Linux retry; no conformance fixture or historical Phase 5 evidence is changed.
+its four cases pass on Windows/Linux. The bootstrap/probe correction is published as `c4972f8`,
+with eight passing corrected cold/warm hosted setup outcomes across both OSs and hosts. No full
+hosted profile, conformance fixture or historical Phase 5 evidence is replaced; remaining 6.1
+payload/control proof and later production-adapter qualification stay open.
 
 Phase 1.2 inspection baseline: `268ac9d7930377d3ba789e64978fbb1bf3635ea0`, on
 `architecture/ci-testing-modernization`, inspected 2026-10-03. This document records current

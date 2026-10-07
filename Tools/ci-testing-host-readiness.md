@@ -195,18 +195,68 @@ origin check rejected it. Inherited `PSModulePath` is insufficient when PowerShe
 agent paths. The scoped correction passes the intended module path explicitly into the probe and
 sets it inside the child after startup; the original exact-version and owned-origin checks remain.
 
-The correction is **confirmed for publication by the maintainer**, and has not yet been tested
-on hosted Linux. Its synthetic Pester regression proves an equal-version shadow module wins in the
+The correction was **confirmed and published as `c4972f8`**, with local/upstream/GitHub/ADO parity.
+Its synthetic Pester regression proves an equal-version shadow module wins in the
 negative control, then the explicit owned path wins. All four dependency cases pass on Windows/Linux;
 26 Python bootstrap cases still pass, and a real Windows offline bootstrap check passes. No host
 module is removed or modified. The existing dependency group owns the additional case.
 
-Next publication will invalidate the transport key automatically because both bootstrap and probe
-bytes are keyed. Re-run cold and warm proof on the corrected source before accepting Linux cache
-transport. Remaining build/render transport, corrupted/provenance-negative hosted experiments,
-full timing accounting and final 6.1 review remain open.
+The publication invalidated the transport key automatically because both bootstrap and probe bytes
+are keyed. Corrected hosted proof below resolves this specific probe failure. Production adapters
+still need their own module-origin and startup isolation proof at 6.2/6.3; a passing setup probe
+does not certify every future PowerShell child entry point.
 
-Staged verification: repository Ruff lint, both changed Python files' formatting, actionlint across
+## Corrected Core Payload Checkpoint
+
+The maintainer confirmed this bounded core-payload evidence checkpoint on 2026-10-06. Confirmation
+publishes the evidence and authorizes continuing the remaining 6.1 work; it does not close 6.1.
+
+All eight experiments at exact source `c4972f8f8fe5e2b6694403c12cc813d1dc788451` pass. Every cold
+leg asserted a miss, every warm leg asserted a hit, and every warm bootstrap ran offline. Each
+created a fresh environment; no virtual environment was transported. Both hosts share the same
+platform key, with distinct Windows/Linux keys. Artifact audit verifies CPython 3.14.5, Core 7.6.6,
+Pester 6.2.0, PSScriptAnalyzer 1.25.0, powershell-yaml 0.4.12, empty warm Python acquisition, intact
+module receipts and imported module paths inside the owned cache.
+
+| Host / OS | Cold bootstrap | Warm bootstrap | Warm restore | Cold save |
+| --- | ---: | ---: | ---: | ---: |
+| GitHub Windows | 22.708s | 12.030s | ~1s | ~2s |
+| GitHub Linux | 25.686s | 11.088s | ~1s | ~1s |
+| ADO Windows | 26.693s | 12.325s | 5.440s | 5.773s |
+| ADO Linux | 22.454s | 12.701s | 5.747s | 9.773s |
+
+Bootstrap is the helper's measured setup interval, including its runtime check and repository
+bootstrap. Restore/save are separate native task durations. GitHub timestamps have one-second
+resolution, hence approximate transport values. ADO save values are the whole cold post-cache
+task; warm post-cache tasks still cost 1.450s/1.260s on Windows/Linux despite no new payload save.
+Cold restores also cost 1.647s/2.033s in ADO. These are single samples, not medians or a promise
+of steady-state performance. They demonstrate beneficial core payload reuse on the tested agents;
+remaining payloads require separate measurements.
+
+Python provisioning remains outside this payload cache: GitHub measured 45s/47s Windows cold/warm
+and 9s/11s Linux; ADO measured 51.693s/51.087s Windows and 13.093s/12.087s Linux. Checkout, task
+wrappers, diagnostic upload and queue/allocation delays also remain separate. Do not attribute
+interpreter acquisition to test execution or claim that a twelve-second bootstrap is the complete
+CI job. Retain provisional setup admission until all required dependencies are measured at 6.5.
+
+Corrected run links:
+
+- [GitHub cold 37566066281](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37566066281)
+- [GitHub warm 37566222253](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37566222253)
+- [ADO cold 36](https://dev.azure.com/DreamtechADO/LoTM%20Inspired%20KM%20Platform/_build/results?buildId=36)
+- [ADO warm 37](https://dev.azure.com/DreamtechADO/LoTM%20Inspired%20KM%20Platform/_build/results?buildId=37)
+
+Audited artifacts and sanitized task timings are retained under ignored `.tmp/ci-phase61`;
+`fixed-cache-audit.json` records all eight results. Both failed original-source experiments remain
+available; they are not overwritten by the corrected success. No hosted jobs are still running.
+
+**6.1 is still open.** Remaining work includes build/render payload transport and actual agent
+Node/npm/Chrome/font/library qualification, deliberate cached-byte/missing-receipt rejection and
+recovery controls, complete queue/setup/restore/save/publication accounting, and final readiness
+review. Draft PRs remain conditional on needing actual PR shadow wiring at 6.2/6.3. Original check
+names, event ownership, branch protection and canonical sources are unchanged.
+
+Checkpoint verification: repository Ruff lint, both changed Python files' formatting, actionlint across
 all workflows, annotation policy (22/22 fixtures, 478 files, zero findings), 101 relative file links,
 pilot YAML/permission/pin/timeout invariants and `git diff --check` pass. These static checks do not
 certify Azure server YAML compilation, successful agent allocation or cache transport performance.

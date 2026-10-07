@@ -1,5 +1,12 @@
 # CI Runtime, Dependency And Budget Design
 
+CI 6.1's [corrected core payload checkpoint](ci-testing-host-readiness.md#corrected-core-payload-checkpoint)
+measures Python development/media and PS development bootstrap at 22.454-26.693s cold and
+11.088-12.701s warm across GitHub/ADO Windows/Linux. Cache restore/save, interpreter provisioning,
+checkout, queue and publication are separate. Windows Python provisioning alone costs roughly
+45-52s in these samples. This does not measure complete build/render dependencies or full test
+execution, and does not reduce provisional setup reserves, profile deadlines or accepted goals.
+
 **Status:** Phase 1.4 measurement/design checkpoint confirmed on 2026-10-05. Baseline: `c5d1d78`,
 `architecture/ci-testing-modernization`, 2026-10-03. The
 [accepted contracts](ci-testing-contracts.md) own orchestration semantics; their decision record

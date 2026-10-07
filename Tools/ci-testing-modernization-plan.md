@@ -2140,11 +2140,18 @@ The first pilot is published as `6b884da` with HEAD/upstream/GitHub/ADO parity. 
 now uses queue 39, and Windows/Linux agents are observed. First cold runs on both hosts pass Windows
 and fail Linux's owned-module provenance; Windows warm reuse passes on both hosts while a missing Linux
 cache is explicitly rejected. The scoped bootstrap/probe correction and synthetic regression are
-locally proved on both OSs and confirmed for publication. Disposable local repositories prove
+locally proved on both OSs and published as `c4972f8`, with exact dual-host parity. Corrected cold
+and required-hit warm experiments pass Windows/Linux on both hosts (eight audited outcomes),
+proving automatic code-input invalidation, fresh environments and owned dependency provenance.
+Measured bootstrap is 22.454-26.693s cold / 11.088-12.701s warm, excluding native restore/save,
+interpreter provisioning, checkout and publication. Disposable local repositories prove
 partial dual-push failure/recovery without changing hosted branch history. These results do not
 close 6.1 or activate required policy.
-This does not close 6.1: live cold/warm/invalidation/recovery, remaining build/render transport,
-partial-synchronization recovery and actual agent/permission evidence remain required.
+Build/render transport and agent qualification, hosted cached-byte/missing-receipt controls,
+complete cost accounting and final readiness review remain open within 6.1. Detailed timings and
+run links are in the readiness record; core-only measurements do not reduce full setup admission.
+The maintainer confirms the bounded core-payload evidence checkpoint on 2026-10-06 and authorizes
+continuing the remaining 6.1 work; the complete checkpoint stays open.
 
 - [x] Verify that the expanded Phase 5 local gate (including 5.6/5.7/5.8) is closed before starting hosted
   shadow adoption. Use its accepted portfolio, local recipes and provisional OS matrix as the baseline;
