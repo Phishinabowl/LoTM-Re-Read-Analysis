@@ -155,8 +155,20 @@ def test_azure_output_escapes_logging_controls(capsys):
 def test_azure_yaml_transport_keeps_policy_credentials_and_membership_bounded():
     import yaml
 
-    pipeline = yaml.safe_load((ROOT / ".azuredevops/ci.yml").read_text())
-    worker = yaml.safe_load((ROOT / ".azuredevops/ci-worker.yml").read_text())
+    class UniqueLoader(yaml.SafeLoader):
+        pass
+
+    def unique_mapping(loader, node):
+        result = {}
+        for key, value in node.value:
+            name = loader.construct_object(key)
+            assert name not in result, "Duplicate Azure YAML key: " + name
+            result[name] = loader.construct_object(value)
+        return result
+
+    UniqueLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, unique_mapping)
+    pipeline = yaml.load((ROOT / ".azuredevops/ci.yml").read_text(), Loader=UniqueLoader)
+    worker = yaml.load((ROOT / ".azuredevops/ci-worker.yml").read_text(), Loader=UniqueLoader)
     assert pipeline["trigger"] == "none" and pipeline["pr"] == "none"
     assert "schedules" not in pipeline
     steps = pipeline["jobs"][0]["steps"]
@@ -165,8 +177,13 @@ def test_azure_yaml_transport_keeps_policy_credentials_and_membership_bounded():
     assert sum("SYSTEM_ACCESSTOKEN" in row.get("env", {}) for row in steps) == 1
     checkouts = [row for row in steps + worker["jobs"][0]["steps"] if "checkout" in row]
     assert all(row["fetchDepth"] == 0 and row["persistCredentials"] is False for row in checkouts)
-    assert worker["jobs"][0]["condition"] == (
-        "and(not(canceled()), eq(dependencies.Plan.result, 'Succeeded'), ne(variables['shard'], '__no_work__'))"
+    dependent = worker["jobs"][0]["${{ if eq(parameters.wave, 'dependent') }}"]
+    assert dependent["condition"] == (
+        "and(not(canceled()), eq(dependencies.Plan.result, 'Succeeded'), "
+        "ne(dependencies.Plan.outputs['Catalog.dependent_count'], '0'))"
+    )
+    assert worker["jobs"][0]["${{ if ne(parameters.wave, 'dependent') }}"]["condition"] == (
+        "and(not(canceled()), eq(dependencies.Plan.result, 'Succeeded'))"
     )
     assert all("continueOnError" not in row for row in steps + worker["jobs"][0]["steps"])
 

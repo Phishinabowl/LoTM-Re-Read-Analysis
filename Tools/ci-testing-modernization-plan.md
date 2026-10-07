@@ -2221,10 +2221,12 @@ Observed GitHub evidence matches local profile behavior and identifies exact sou
 ### Phase 6.3 Native Azure Pipelines Adapter
 
 The [Azure shadow checkpoint](ci-testing-azure-shadow.md) implements thin metadata/variable transport
-and catalog-owned Azure job waves over the qualified 6.2 executor. Local verification passes;
-publication, pipeline/optional-policy creation and actual hosted source/merge qualification remain
-open. No new Azure resource or branch policy is claimed from local evidence. The first hosted run
-will use the small infrastructure profile before complete PR qualification on the shared agent slot.
+and catalog-owned Azure job waves over the qualified 6.2 executor. Initial adapter `0284a36` is
+published; pipeline 3 and actual smoke planning/5-unit execution are observed. The smoke was cancelled
+after an unintended empty-wave allocation, and concurrent GitHub shadow evidence exposed corrupt
+formatter capture. Scoped capture/wave corrections pass 176 Python cases per OS and real formatter
+recovery, and await confirmation before publication/retry. Optional-policy/PR creation and complete
+hosted source/merge qualification remain open; no policy is active or full checkpoint is credited.
 
 - [ ] Explain project/repository/pipeline/agent/job/task boundaries and their local equivalents before setup.
 - [ ] Configure pipeline YAML that bootstraps the same dependencies and invokes the same repository profiles.

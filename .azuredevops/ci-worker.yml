@@ -13,7 +13,11 @@ jobs:
   - job: ${{ parameters.job }}
     displayName: Shadow ${{ parameters.job }}
     dependsOn: ${{ parameters.dependsOn }}
-    condition: and(not(canceled()), eq(dependencies.Plan.result, 'Succeeded'), ne(variables['shard'], '__no_work__'))
+    ${{ if eq(parameters.wave, 'dependent') }}:
+      # Job conditions are evaluated before matrix variables exist; use upstream wave metadata.
+      condition: and(not(canceled()), eq(dependencies.Plan.result, 'Succeeded'), ne(dependencies.Plan.outputs['Catalog.dependent_count'], '0'))
+    ${{ if ne(parameters.wave, 'dependent') }}:
+      condition: and(not(canceled()), eq(dependencies.Plan.result, 'Succeeded'))
     # Every catalog row is separately admitted <=55; child deadlines retain tighter budgets.
     timeoutInMinutes: 55
     cancelTimeoutInMinutes: 2

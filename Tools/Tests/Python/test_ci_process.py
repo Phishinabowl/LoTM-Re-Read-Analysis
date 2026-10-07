@@ -334,6 +334,45 @@ def test_noisy_binary_streams_are_complete_and_presentation_bounded(tmp_path):
     assert result["diagnostics"]["stderr.bin"]["tail"].endswith("\ufffdEND")
 
 
+def test_capture_accounting_measures_bytes_without_touching_shared_cursor(tmp_path):
+    with (tmp_path / "out").open("w+b", buffering=0) as out, (tmp_path / "err").open("w+b", buffering=0) as err:
+        out.write(b"stdout bytes")
+        err.write(b"stderr")
+        out.seek(2)
+        err.seek(1)
+        assert processes.captured_bytes(out, err) == 18
+        assert out.tell() == 2 and err.tell() == 1
+
+
+@pytest.mark.integration
+def test_incremental_native_output_retains_every_structured_byte(tmp_path):
+    expected = json.dumps([{"id": index, "text": "x" * 120} for index in range(3000)]).encode()
+    code = """
+import ctypes,json,os,time
+data=json.dumps([{'id':i,'text':'x'*120} for i in range(3000)]).encode()
+if os.name=='nt':
+    api=ctypes.WinDLL('kernel32',use_last_error=True)
+    api.GetStdHandle.argtypes=[ctypes.c_ulong]
+    api.GetStdHandle.restype=ctypes.c_void_p
+    api.WriteFile.argtypes=[ctypes.c_void_p,ctypes.c_void_p,ctypes.c_ulong,ctypes.POINTER(ctypes.c_ulong),ctypes.c_void_p]
+    handle=api.GetStdHandle(0xfffffff5)
+for start in range(0,len(data),256):
+    chunk=data[start:start+256]
+    if os.name=='nt':
+        count=ctypes.c_ulong()
+        assert api.WriteFile(handle,chunk,len(chunk),ctypes.byref(count),None) and count.value==len(chunk)
+    else:
+        assert os.write(1,chunk)==len(chunk)
+    time.sleep(.0001)
+"""
+    result = execute(tmp_path, code, timeout=8)
+    captured = (Path(result["directory"]) / "stdout.bin").read_bytes()
+    assert result["status"] == "exited" and result["child_exit_code"] == 0, result
+    assert captured == expected
+    assert len(json.loads(captured)) == 3000
+    assert result["capture"]["observed_bytes"] == len(expected)
+
+
 @pytest.mark.integration
 @pytest.mark.parametrize("root_exit", [False, True])
 def test_timeout_includes_grandchildren_even_after_root_exit(tmp_path, root_exit):

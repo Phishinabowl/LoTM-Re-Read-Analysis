@@ -225,6 +225,11 @@ def guardian():
     supervise_owned(request, cancellation, reason)
 
 
+def captured_bytes(*streams):
+    """Inspect file size without querying or changing a child-shared output cursor."""
+    return sum(os.fstat(stream.fileno()).st_size for stream in streams)
+
+
 def supervise_owned(request, cancellation, reason):
     """Guardian implementation separated from its control endpoint for deterministic failure tests."""
     directory = Path(request["directory"])
@@ -262,11 +267,11 @@ def supervise_owned(request, cancellation, reason):
                     encoding="utf-8",
                 )
                 while tree.active() and not cancellation.is_set() and time.monotonic() < request["deadline"]:
-                    if stdout.tell() + stderr.tell() > capture_limit:
+                    if captured_bytes(stdout, stderr) > capture_limit:
                         break
                     time.sleep(0.01)
                 code = tree.poll()
-                captured = stdout.tell() + stderr.tell()
+                captured = captured_bytes(stdout, stderr)
                 record["capture"] = {
                     "limit_bytes": capture_limit,
                     "observed_bytes": captured,
@@ -287,7 +292,7 @@ def supervise_owned(request, cancellation, reason):
                 # Native assertions/coverage are deliberately not inferred from the process exit.
                 record["child_exit_code"] = code
                 record["cleanup"] = stop_tree(tree, request["termination"], request["cleanup"])
-                captured = stdout.tell() + stderr.tell()
+                captured = captured_bytes(stdout, stderr)
                 record["capture"].update(observed_bytes=captured, exceeded=captured > capture_limit)
                 if captured > capture_limit:
                     record.update(status="error", classification="evidence-limit")
