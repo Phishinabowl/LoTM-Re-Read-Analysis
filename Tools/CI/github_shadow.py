@@ -216,11 +216,20 @@ def execute(context, shard, inputs):
         if len(identities) != len(expected) or set(identities) != expected:
             raise ValueError("Collection requires every approved shard exactly once; no sequential fallback")
     setup = bootstrap.read_json(ROOT / ".tmp/ci-cache-pilot/bootstrap.json")
-    build = bootstrap.read_json(ROOT / ".tmp/ci-cache-pilot/build.json")
-    if setup["status"] != "passed" or build["status"] != "passed":
-        raise ValueError("Verified dependency/build setup required")
+    pilot = bootstrap.read_json(ROOT / ".tmp/ci-cache-pilot/pilot.json")
+    payload_profile = "complete" if shard else "collection"
+    if (
+        setup["status"] != "passed"
+        or pilot["exit_code"] != 0
+        or pilot["payload_profile"] != payload_profile
+        or pilot["source_revision"] != context["executed"]
+    ):
+        raise ValueError("Verified role-specific dependency setup required")
+    build = bootstrap.read_json(ROOT / ".tmp/ci-cache-pilot/build.json") if shard else None
+    if shard and (build["status"] != "passed" or "powershell" not in setup):
+        raise ValueError("Verified execution dependency/build setup required")
     # Paths are taken from authoritative bootstrap receipts, never from workflow guesses.
-    modules = setup["powershell"]["module_path"].split(os.pathsep)[0]
+    modules = setup["powershell"]["module_path"].split(os.pathsep)[0] if shard else None
     lock = bootstrap.read_json(ROOT / "Tools/CI/Data/python-wheel-lock.json")
     payload = bootstrap.wheel_for(lock["packages"]["pyyaml"])
     runtime_wheel = ROOT / ".local/ci-cache/python" / setup["python"]["key"] / payload["filename"]
@@ -234,10 +243,10 @@ def execute(context, shard, inputs):
         source=context["source"],
         executed=context["executed"],
         python=setup["python"]["executable"],
-        pwsh=setup["powershell"]["executable"],
+        pwsh=setup["powershell"]["executable"] if shard else None,
         module_root=modules,
         actionlint=bootstrap.read_json(ROOT / ".tmp/ci-shadow/tools.json")["actionlint"],
-        wheel=build["package"]["wheel"],
+        wheel=build["package"]["wheel"] if shard else None,
         runtime_wheel=str(runtime_wheel),
         render_bootstrap_report=str(ROOT / ".tmp/ci-cache-pilot/render.json"),
         shard_plan=plan["id"],
@@ -268,7 +277,7 @@ def main():
     parser.add_argument(
         "operation", choices=("context", "plan-bootstrap", "plan", "prepare", "bootstrap", "execute", "collect")
     )
-    parser.add_argument("--shard")
+    parser.add_argument("--shard", default=os.environ.get("SHADOW_SHARD") or None)
     parser.add_argument("--inputs", default=".tmp/ci-shadow/downloads")
     args = parser.parse_args()
     out = confined(ROOT, ".tmp/ci-shadow")
@@ -328,7 +337,8 @@ def main():
         return 0
     if args.operation == "prepare":
         validate_context(ROOT, context)
-        identity = host_cache.cache_identity(ROOT, context["host"] + "-shadow-1", payload_profile="complete")
+        payload_profile = "complete" if args.shard else "collection"
+        identity = host_cache.cache_identity(ROOT, context["host"] + "-shadow-1", payload_profile=payload_profile)
         (out / "context.json").write_text(json.dumps(context, indent=2))
         output(key=identity["key"])
         return 0
@@ -336,9 +346,9 @@ def main():
         hit = os.environ.get("CACHE_HIT") == "true"
         deadline = time.monotonic() + 600
         os.environ["LOTM_CI_UNIT_DEADLINE"] = str(deadline)
-        tool = actionlint(hit)
+        tool = actionlint(hit) if args.shard else None
         environment = {**os.environ, "LOTM_CI_UNIT_DEADLINE": str(deadline)}
-        # The complete payload remains the measured immutable transport unit during shadow rollout.
+        # Collection admits retained results; it does not execute tests or build/render inputs.
         command = [
             sys.executable,
             "Tools/CI/host_cache.py",
@@ -352,7 +362,7 @@ def main():
             "--cache-hit",
             "true" if hit else "false",
             "--payload-profile",
-            "complete",
+            "complete" if args.shard else "collection",
         ]
         remaining = deadline - time.monotonic()
         if remaining <= 0:

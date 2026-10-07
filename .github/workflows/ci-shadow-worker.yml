@@ -33,6 +33,7 @@ jobs:
     env:
       PYTHONUTF8: "1"
       SHADOW_CONTEXT: ${{ inputs.context }}
+      SHADOW_SHARD: ${{ inputs.shard }}
       CACHE_HIT: "false"
       # Keep unspecified text (including LICENSE) aligned with captured Git blobs for wheel builds.
       GIT_CONFIG_COUNT: "1"

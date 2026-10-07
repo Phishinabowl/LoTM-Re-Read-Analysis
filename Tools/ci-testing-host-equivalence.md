@@ -6,8 +6,10 @@ Phase 6.5 starts from confirmed Phase 6.4 closeout `2f150d6`. The
 [modernization plan](ci-testing-modernization-plan.md#phase-65-host-equivalence-and-policy-adoption-review)
 owns acceptance. GitHub PR 3 and Azure PR 19 remain paused; no required check, policy, event,
 suite membership, conformance fixture or canonical content is changed by this first increment.
-The Python patch candidate is prepared locally and uncommitted. Hosted acceptance and all
-optimization/equivalence/policy-adoption gates remain open.
+The Python patch checkpoint is confirmed and dual-published as `b07f942`. Cold/warm dependency and
+build execution passes on both hosts/OSs, but an independently observed pilot checkout-byte gap
+keeps final package-input equivalence open. Its correction and the first collection-role optimization
+are prepared locally and uncommitted. Wider optimization/equivalence/policy-adoption gates remain open.
 
 ## Python Patch Candidate
 
@@ -94,6 +96,83 @@ preflight, necessary package/runtime payloads, source protection and complete ad
 isolation and full profile membership remain mandatory. ADO consolidation and narrower barriers
 must preserve every approved unit exactly once and independent continuation after failure;
 job reduction alone is not evidence of stronger or equivalent coverage.
+
+## Hosted Patch Qualification At b07f942
+
+Confirmation publishes all nineteen reviewed files as `b07f9428b43a11b2e71f645f31384e89475b3cc1`.
+Local HEAD, upstream and both fetched remote branch tips agree, with a clean tree before the next
+increment. Both PRs remain paused. Annotation run 37657000281 and the automatic core cache pilot
+37657000390 pass. No automatic full PR run is triggered.
+
+Complete cold and warm pilots pass on Windows and Linux:
+
+- GitHub [cold 37657056851](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37657056851)
+  and [warm 37657516265](https://github.com/Phishinabowl/LoTM-Re-Read-Analysis/actions/runs/37657516265).
+- Azure [cold 57](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=57)
+  and [warm 58](https://dev.azure.com/DreamtechADO/66e8d68e-9ebd-41d1-adc5-9e6fde7a57bb/_build/results?buildId=58).
+
+Independent receipt audit verifies all eight jobs' exact published source, 3.14.8 interpreters,
+unchanged dependencies, 7.6.6 PowerShell, package 0.1.0 builds, pinned browser and real SVG labels,
+and requested cache miss/hit disposition. Each OS's warm key equals its cold key. The 23 Python
+runtime source-input hashes match across all eight jobs. Pilot artifacts retain build receipts/logs,
+not downloadable wheel bytes; this audit does not claim independent rehashing of hosted wheel archives.
+
+| Host / OS | Cold setup | Warm setup | Cold job | Warm job | Cold / warm Python acquisition |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| GitHub / Windows | 82.045s | 55.035s | 162s | 84s | 59s / 0s |
+| GitHub / Linux | 67.385s | 33.960s | 100s | 51s | 1s / 0s |
+| Azure / Windows | 77.986s | 59.793s | 168.723s | 107.057s | 43.210s / 0.317s |
+| Azure / Linux | 54.630s | 39.195s | 91.257s | 88.403s | 10.123s / 10.783s |
+
+Helper setup excludes native cache transport and Python acquisition. Job intervals exclude waiting
+for another allocation. These are single samples on distinct hosted allocations, not percentiles;
+variation in agent interpreter availability cannot be attributed to the dependency payload cache.
+
+The audit also detects **different Windows/Linux `pyproject.toml` and `LICENSE` input hashes**:
+pilot checkouts inherit Windows CRLF conversion. Successful local wheel checks validate each
+checkout's own bytes, so green jobs alone do not prove cross-host build-input equivalence.
+The prepared correction applies the existing shadow-worker `core.autocrlf=false` process setting
+before checkout in both pilots. Existing synthetic real-Git regression covers that setting; corrected
+hosted pilot input comparison remains required. Original pilot outcomes remain honest dependency/
+build-execution proof, not final package-input equivalence or whole-profile acceptance.
+
+Evidence is retained under `.tmp/ci-phase65`: original cold/warm artifacts, native task timelines,
+`patch-pilot-audit.json` and `patch-timing-audit.json`. Python 3.14.5 rollback remains available.
+
+## Prepared Collection-Role Optimization
+
+The aggregate worker now requests a distinct `collection` payload containing only runtime Python
+dependencies (`pip` and PyYAML). It neither acquires PowerShell/actionlint/Node nor builds the wheel
+or prepares/qualifies rendering. Cache identity distinguishes this role from `complete` and `core`.
+Execution workers keep complete preparation unchanged in this increment.
+
+Both host workers explicitly propagate their assigned shard during preparation. A missing shard
+denotes collection, not a smaller test selection. Before execution/collection, the transport requires
+a successful receipt with the expected role and exact execution commit; execution additionally
+requires the original successful build and PowerShell receipts. Collection still admits every
+approved shard exactly once with existing provenance, manifest, XML, cleanup and failure checks.
+No catalog IDs, suite membership, unit deadlines, check names or policy conditions change.
+
+Final focused bootstrap/scope regression contains **128 cases per OS**, covering role-separated keys,
+forbidden collection tool acquisition, assigned-shard propagation and wrong-role/foreign-source
+receipt rejection. Fresh production collection bootstraps pass in private owners on both OSs:
+Windows 12.457s, Linux 85.850s on the Windows-mounted checkout. Both install only pip/PyYAML and
+produce no build/render/Node or PowerShell receipt. These setup samples are not hosted performance proof.
+
+The final real Windows infrastructure shard passes all five checks and **460 native cases** in
+96.837s. The runtime-only collector admits its complete bundle in **4.562s**, preserving those same
+460 cases and verified source protection/cleanup. An initial accidental use of the bare candidate
+controller fails on missing YAML without crediting coverage; the verified runtime controller succeeds.
+A Linux attempt to admit that local Windows worktree bundle correctly rejects its different snapshot
+digest: mounted Unix worktree mode capture differs from Windows index mode capture. That experiment
+does not establish cross-OS local-worktree interchangeability or justify relaxing provenance.
+Current hosted aggregate placement remains Windows; Linux reduced preparation and focused tests
+are qualified, while full Linux collection would require its own coherent source/manifest proof.
+
+These eight implementation/test/workflow files plus the two evidence/plan updates are uncommitted
+pending confirmation. Publication must then prove corrected pilot build-input hashes and the
+reduced aggregate's ordinary success/failure publication on both hosts. Further execution-role
+preparation, ADO consolidation, barriers and runtime acquisition remain explicit later increments.
 
 ## Remaining Qualification And Rollback
 

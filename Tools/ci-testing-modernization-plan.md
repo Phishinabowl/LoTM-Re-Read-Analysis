@@ -2379,12 +2379,15 @@ exceptions and conservative full execution remain unchanged, and Phase 6.5 has n
 
 ### Phase 6.5 Host Equivalence And Policy Adoption Review
 
-**In progress:** The first [host-equivalence increment](ci-testing-host-equivalence.md) prepares
-the exact Python 3.14.8 patch candidate with coordinated runtime/lock/workflow pins, isolated
-Windows/Linux qualification and authoritative native-adapter prerequisite checks. Publication and
-both-host patch acceptance remain open. The initial ADO task audit separates repeated acquisition,
-worker preparation and actual execution; role preparation, consolidation, barriers and final
-host/event/policy equivalence remain later increments within this phase. Both PRs stay paused.
+**In progress:** The first [host-equivalence increment](ci-testing-host-equivalence.md) is confirmed
+and dual-published as `b07f942`, with coordinated Python 3.14.8 pins and locally qualified native
+prerequisites. Complete cold/warm pilots pass on both hosts/OSs, but their audited Windows/Linux
+build-input byte mismatch keeps final patch/package equivalence open. The pilot checkout correction
+and runtime-only aggregate preparation are locally prepared: 128 focused cases per OS, fresh reduced
+bootstraps on both OSs, and a real Windows collector preserving five checks/460 cases. This ten-file
+increment awaits publication confirmation and hosted qualification. Execution-role preparation,
+consolidation, barriers, runtime acquisition and final host/event/policy equivalence remain open.
+No timing goal or coverage boundary is relaxed. Both PRs stay paused.
 
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain

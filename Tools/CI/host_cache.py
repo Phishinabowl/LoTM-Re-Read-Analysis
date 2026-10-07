@@ -54,7 +54,7 @@ def cache_identity(root, namespace, system=None, architecture=None, payload_prof
     architecture = (architecture or platform.machine()).lower()
     if system not in ARCHIVES or architecture not in {"amd64", "x86_64"}:
         raise ValueError("Cache pilot supports Windows/Linux x64 only")
-    if payload_profile not in {"core", "complete"}:
+    if payload_profile not in {"core", "complete", "collection"}:
         raise ValueError("Unknown payload profile")
     inputs = sorted(set(INPUTS) | {p.name for p in root.glob("requirements-*.txt")})
     hashes = {}
@@ -229,7 +229,7 @@ def main():
     parser.add_argument("--cache-hit", choices=("true", "false"), default="false")
     parser.add_argument("--expect", choices=("auto", "hit", "miss"), default="auto")
     parser.add_argument("--source-revision", required=True)
-    parser.add_argument("--payload-profile", choices=("core", "complete"), default="core")
+    parser.add_argument("--payload-profile", choices=("core", "complete", "collection"), default="core")
     parser.add_argument("--fault", choices=("none", "wheel", "module-receipt"), default="none")
     parser.add_argument("--environment-id", default="host-pilot-fresh")
     parser.add_argument("--source-modified", action="store_true")
@@ -263,7 +263,7 @@ def main():
     started = time.perf_counter()
     deadline = time.monotonic() + 900
     os.environ["LOTM_CI_UNIT_DEADLINE"] = str(min(float(os.environ.get("LOTM_CI_UNIT_DEADLINE", deadline)), deadline))
-    pwsh = runtime(hit)
+    pwsh = runtime(hit) if args.payload_profile != "collection" else None
     inject_fault(args.fault)
     base = [
         sys.executable,
@@ -277,18 +277,22 @@ def main():
         base.append("--offline")
     if args.source_modified:
         base.append("--source-modified")
-    commands = [
-        (
-            "bootstrap",
-            [
-                "--media",
-                "--powershell-profile",
-                "development",
-                "--pwsh",
-                pwsh,
-            ],
-        )
-    ]
+    commands = (
+        [("bootstrap", ["--python-profile", "runtime"])]
+        if args.payload_profile == "collection"
+        else [
+            (
+                "bootstrap",
+                [
+                    "--media",
+                    "--powershell-profile",
+                    "development",
+                    "--pwsh",
+                    pwsh,
+                ],
+            )
+        ]
+    )
     if args.payload_profile == "complete":
         node_started = time.perf_counter()
         directory = node_runtime(hit)

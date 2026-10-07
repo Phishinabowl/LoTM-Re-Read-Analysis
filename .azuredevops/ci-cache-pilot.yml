@@ -35,6 +35,9 @@ jobs:
       vmImage: $(image)
     variables:
       PYTHONUTF8: '1'
+      GIT_CONFIG_COUNT: '1'
+      GIT_CONFIG_KEY_0: core.autocrlf
+      GIT_CONFIG_VALUE_0: 'false'
       LOTM_CI_CACHE_PILOT: hosted
     steps:
       - checkout: self

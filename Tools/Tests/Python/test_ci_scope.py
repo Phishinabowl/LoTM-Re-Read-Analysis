@@ -354,6 +354,44 @@ def test_github_matrix_is_complete_catalog_owned_and_admitted():
     assert all(row["timeout"] <= 55 for row in rows)
 
 
+@pytest.mark.parametrize("shard,expected", [("infrastructure-0", "complete"), ("", "collection")])
+def test_host_cache_role_uses_assigned_shard_before_bootstrap(tmp_path, monkeypatch, shard, expected):
+    monkeypatch.setattr(github_shadow, "ROOT", tmp_path)
+    monkeypatch.setattr(github_shadow, "validate_context", lambda *a: {})
+    observed = []
+    monkeypatch.setattr(
+        github_shadow.host_cache,
+        "cache_identity",
+        lambda *a, **kw: observed.append(kw["payload_profile"]) or {"key": "fixture"},
+    )
+    monkeypatch.setattr(github_shadow, "output", lambda **kw: None)
+    monkeypatch.setenv("SHADOW_CONTEXT", json.dumps({"host": "github"}))
+    monkeypatch.setenv("SHADOW_SHARD", shard)
+    monkeypatch.setattr(sys, "argv", ["github_shadow", "prepare"])
+    assert github_shadow.main() == 0
+    assert observed == [expected]
+
+
+@pytest.mark.parametrize("payload_profile,source", [("complete", "a" * 40), ("collection", "b" * 40)])
+def test_collection_rejects_wrong_role_or_source_before_reading_build_inputs(
+    tmp_path, monkeypatch, payload_profile, source
+):
+    monkeypatch.syspath_prepend(str(ROOT / "Tools/CI"))
+    monkeypatch.setattr(github_shadow, "ROOT", tmp_path)
+    monkeypatch.setattr(github_shadow, "validate_context", lambda *a: {})
+    monkeypatch.setattr(github_shadow, "matrices", lambda *a: ({"shards": []}, {}, {}))
+    out = tmp_path / ".tmp/ci-cache-pilot"
+    out.mkdir(parents=True)
+    (out / "bootstrap.json").write_text(json.dumps({"status": "passed"}))
+    (out / "pilot.json").write_text(
+        json.dumps({"exit_code": 0, "payload_profile": payload_profile, "source_revision": source})
+    )
+    with pytest.raises(ValueError, match="role-specific"):
+        github_shadow.execute(
+            {"profile": "ci-infrastructure", "executed": "a" * 40}, None, tmp_path / ".tmp/absent-inputs"
+        )
+
+
 def test_github_manual_without_base_retains_full_comparison_fallback(repo):
     head = git(repo, "rev-parse", "HEAD")
     context = github_shadow.event_context({}, shadow_environment(head, "workflow_dispatch"))

@@ -42,6 +42,9 @@ jobs:
     timeout-minutes: 20
     env:
       PYTHONUTF8: "1"
+      GIT_CONFIG_COUNT: "1"
+      GIT_CONFIG_KEY_0: core.autocrlf
+      GIT_CONFIG_VALUE_0: "false"
       SOURCE_REVISION: ${{ github.sha }}
       CACHE_NAMESPACE: ${{ inputs.namespace || 'pilot-1' }}
       CACHE_EXPECT: ${{ inputs.expect || 'auto' }}

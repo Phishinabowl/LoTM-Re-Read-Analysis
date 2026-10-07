@@ -45,6 +45,9 @@ jobs:
           exit $LASTEXITCODE
         name: Prepare
         displayName: Validate checkout and payload identity
+        ${{ if ne(parameters.wave, 'aggregate') }}:
+          env:
+            SHADOW_SHARD: $(shard)
       - task: Cache@2
         inputs:
           key: '"$(Prepare.key)"'
@@ -57,6 +60,8 @@ jobs:
         displayName: Verify payload and provision fresh environments
         env:
           CACHE_HIT: $(PAYLOAD_CACHE_HIT)
+          ${{ if ne(parameters.wave, 'aggregate') }}:
+            SHADOW_SHARD: $(shard)
       - ${{ if parameters.download }}:
           - task: DownloadPipelineArtifact@2
             inputs:

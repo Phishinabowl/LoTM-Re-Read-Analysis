@@ -47,6 +47,7 @@ def test_transport_key_separates_platform_namespace_and_changed_inputs(tmp_path)
     assert key != pilot.cache_identity(tmp_path, "one", "linux", "x86_64")["key"]
     assert key != pilot.cache_identity(tmp_path, "two", "win32", "AMD64")["key"]
     assert key != pilot.cache_identity(tmp_path, "one", "win32", "AMD64", "complete")["key"]
+    assert key != pilot.cache_identity(tmp_path, "one", "win32", "AMD64", "collection")["key"]
     declaration.write_text("PyYAML==6.0.2\n")
     assert key != pilot.cache_identity(tmp_path, "one", "win32", "AMD64")["key"]
     declaration.unlink()
@@ -299,6 +300,36 @@ def test_pure_runtime_lock_has_no_development_or_media_dependencies():
     versions = json.loads((ROOT / "Tools/CI/Data/runtime-versions.json").read_text())
     pins, _, _ = bootstrap.python_plan("runtime", False, versions)
     assert set(pins) == {"pyyaml", "pip"}
+
+
+def test_collection_payload_never_acquires_execution_build_or_render_tools(tmp_path, monkeypatch):
+    pilot = load_host_cache()
+    monkeypatch.setattr(pilot, "ROOT", tmp_path)
+    monkeypatch.setattr(pilot.platform, "machine", lambda: "x86_64")
+    for name in pilot.INPUTS:
+        target = tmp_path / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((ROOT / name).read_bytes())
+    monkeypatch.setattr(pilot, "runtime", lambda *a: pytest.fail("Collection acquired PowerShell"))
+    monkeypatch.setattr(pilot, "node_runtime", lambda *a: pytest.fail("Collection acquired Node"))
+    monkeypatch.setattr(pilot, "qualify_render", lambda *a: pytest.fail("Collection launched renderer"))
+    commands = []
+
+    def child(command, **kwargs):
+        import subprocess
+
+        commands.append(command)
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    monkeypatch.setattr(pilot.subprocess, "run", child)
+    monkeypatch.setattr(
+        sys, "argv", ["host_cache", "bootstrap", "--payload-profile", "collection", "--source-revision", "a" * 40]
+    )
+    assert pilot.main() == 0
+    assert len(commands) == 1 and commands[0][commands[0].index("--python-profile") + 1] == "runtime"
+    assert not {"--media", "--powershell-profile", "--build-only", "--render"}.intersection(commands[0])
+    result = json.loads((tmp_path / ".tmp/ci-cache-pilot/pilot.json").read_text())
+    assert result["payload_profile"] == "collection" and result["exit_code"] == 0
 
 
 def test_npm_uses_distinct_empty_owned_configs_and_scrubs_lowercase_inheritance(tmp_path, monkeypatch):
