@@ -76,7 +76,7 @@ is measured and audited; its bounded evidence, timing exceptions and provisional
 and the complete checkpoint are confirmed on 2026-10-06. The expanded Phase 5 local gate is closed;
 Phase 6.1's expanded implementation is published as `ba6047a`; complete hosted setup, negative
 controls and recovery are verified, with the final evidence/checkpoint confirmed on 2026-10-07.
-Phase 6.2 has not started. The accepted 5.7 results and timing
+Phase 6.2 is implemented locally with its live hosted checkpoint still open. The accepted 5.7 results and timing
 disposition remain intact; local WSL evidence will not substitute for actual hosted measurements.
 
 **Working branch:** `architecture/ci-testing-modernization`, created from
@@ -2193,6 +2193,12 @@ source history; publication and merge authority are clear. This checkpoint publi
 and closes 6.1; actual profile adoption begins separately at 6.2.
 
 ### Phase 6.2 Thin GitHub Actions Adapter
+
+The [GitHub shadow checkpoint](ci-testing-github-shadow.md) stages catalog-derived worker waves,
+strict event/source/merge provenance, qualified cache/bootstrap transport and exact transferable
+bundles. Production PowerShell child isolation is included with explicit regression. Existing
+required check names remain unchanged. Local verification and actual hosted PR/source/merge proof
+must complete before this checkpoint is confirmed; Phase 6.3 has not started.
 
 - [ ] Bootstrap pinned dependencies, verify runtime versions, pass event scope, and invoke repository
   profiles with no YAML-owned suite membership or validation semantics.

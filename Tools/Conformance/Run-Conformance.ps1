@@ -338,6 +338,12 @@ function Invoke-ConformanceSuite {
         $executable = Resolve-KnowledgePowerShellExecutable
         $arguments = @('-NoProfile')
         $arguments += @('-File', $SuiteDefinition.powershell_path, '-Root', $RepoRoot, '-Json')
+        if ($env:LOTM_CI_MODULE_ROOT) {
+            $payload = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes(
+                    (@($SuiteDefinition.powershell_path, '-Root', $RepoRoot, '-Json') | ConvertTo-Json -Compress)))
+            $wrapper = Join-Path $toolsRoot 'Commands/Environment/Invoke-OwnedPowerShell.ps1'
+            $arguments = @('-NoProfile', '-File', $wrapper, '-Payload', $payload)
+        }
         $startInfo = [System.Diagnostics.ProcessStartInfo]::new($executable)
         $startInfo.UseShellExecute = $false
         $startInfo.CreateNoWindow = $true

@@ -104,8 +104,8 @@ def execute(args):
             **scope["provenance"],
             "snapshot_digest": snapshot.digest,
             "catalog_digests": catalog.source_digests,
-            "host_kind": "local",
-            "run_url": None,
+            "host_kind": getattr(args, "host_kind", "local"),
+            "run_url": getattr(args, "run_url", None),
             "actual_change_scope": scope["policy_scope"],
         }
         candidates = [row["execution_id"] for row in plan["units"]]
@@ -503,6 +503,8 @@ def main():
     parser.add_argument("--base")
     parser.add_argument("--source")
     parser.add_argument("--executed")
+    parser.add_argument("--host-kind", choices=("local", "github", "ado"), default="local")
+    parser.add_argument("--run-url")
     parser.add_argument("--python", default=sys.executable)
     parser.add_argument("--pwsh")
     parser.add_argument("--module-root")

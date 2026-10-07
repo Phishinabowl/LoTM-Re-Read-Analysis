@@ -4,6 +4,53 @@ BeforeAll {
 }
 
 Describe 'Exact module dependency declarations' -Tag 'Unit' {
+    It 'isolates production script children from an equal-version shadow and preserves argument data and exit' {
+        $owned = Join-Path $TestDrive 'production-owned'
+        $shadow = Join-Path $TestDrive 'production-shadow'
+        foreach ($base in @($owned, $shadow)) {
+            $module = Join-Path $base 'FixtureChild/1.0.0'
+            $null = New-Item -ItemType Directory -Path $module -Force
+            Set-Content -LiteralPath (Join-Path $module 'FixtureChild.psm1') -Value "function Get-FixtureChild { 'fixture' }"
+            Set-Content -LiteralPath (Join-Path $module 'FixtureChild.psd1') -Value "@{ RootModule='FixtureChild.psm1'; ModuleVersion='1.0.0' }"
+        }
+        $scriptPath = Join-Path $TestDrive 'child with spaces.ps1'
+        Set-Content -LiteralPath $scriptPath -Value @(
+            'param([string]$Value)',
+            '$module = Import-Module FixtureChild -RequiredVersion 1.0.0 -PassThru',
+            '@{path=$module.ModuleBase; value=$Value} | ConvertTo-Json -Compress',
+            'exit 7'
+        )
+        $priorOwner = $env:LOTM_CI_MODULE_ROOT
+        $priorPath = $env:PSModulePath
+        try {
+            $env:LOTM_CI_MODULE_ROOT = $owned
+            $env:PSModulePath = $shadow + [IO.Path]::PathSeparator + (Join-Path $PSHOME 'Modules')
+            $literal = 'spaces; $(literal) "quoted"'
+            $payload = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes(
+                    (@($scriptPath, '-Value', $literal) | ConvertTo-Json -Compress)))
+            $wrapper = Join-Path $repoRoot 'Tools/Commands/Environment/Invoke-OwnedPowerShell.ps1'
+            $result = & (Get-Process -Id $PID).Path -NoProfile -File $wrapper -Payload $payload
+            $LASTEXITCODE | Should -Be 7
+            $document = $result | ConvertFrom-Json
+            $document.path | Should -BeLike "$owned*"
+            $document.value | Should -Be $literal
+            Set-Content -LiteralPath $scriptPath -Value @(
+                '$hostExecutable = (Get-Process -Id $PID).Path',
+                '& $hostExecutable -NoProfile -Command ''exit 9''',
+                '''handled native failure'''
+            )
+            $payload = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes(
+                    (@($scriptPath) | ConvertTo-Json -Compress)))
+            $result = & (Get-Process -Id $PID).Path -NoProfile -File $wrapper -Payload $payload
+            $LASTEXITCODE | Should -Be 0
+            $result | Should -Be 'handled native failure'
+        }
+        finally {
+            $env:LOTM_CI_MODULE_ROOT = $priorOwner
+            $env:PSModulePath = $priorPath
+        }
+    }
+
     It 'probes the owned module path even when an equal-version module shadows it' {
         $project = Join-Path $TestDrive 'probe-project'
         $ci = Join-Path $project 'Tools/CI'

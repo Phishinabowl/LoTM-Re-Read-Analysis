@@ -11,6 +11,9 @@ import time
 import uuid
 
 import bootstrap
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Commands/Environment"))
+from powershell_process import isolated_command  # noqa: E402
 from native_results import classify, parse_junit, publication_xml, validate_phase
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -121,7 +124,7 @@ def execute(args):
             ]
         result["classification"] = "launch"
         child = subprocess.run(
-            command,
+            isolated_command(command, env) if args.runtime == "powershell7" else command,
             cwd=ROOT,
             env=env,
             capture_output=True,

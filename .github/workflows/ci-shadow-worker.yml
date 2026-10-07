@@ -1,0 +1,101 @@
+name: CI Shadow Worker
+
+on:
+  workflow_call:
+    inputs:
+      context:
+        type: string
+        required: true
+      shard:
+        type: string
+        default: ""
+      os:
+        type: string
+        required: true
+      timeout:
+        type: number
+        required: true
+      download:
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  execute:
+    name: Shadow ${{ inputs.shard || 'aggregate' }}
+    runs-on: ${{ inputs.os }}
+    timeout-minutes: ${{ inputs.timeout }}
+    env:
+      PYTHONUTF8: "1"
+      SHADOW_CONTEXT: ${{ inputs.context }}
+      CACHE_HIT: "false"
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          ref: ${{ fromJSON(inputs.context).executed }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.14.5"
+      - name: Validate execution and prepare payload identity
+        id: prepare
+        shell: pwsh
+        run: |
+          python Tools/CI/github_shadow.py prepare
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Restore exact verified payload transport
+        id: payload
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: .local/ci-cache
+          key: ${{ steps.prepare.outputs.key }}
+      - name: Prepare pinned fresh environments
+        id: bootstrap
+        shell: pwsh
+        env:
+          CACHE_HIT: ${{ steps.payload.outputs.cache-hit == 'true' && 'true' || 'false' }}
+        run: |
+          python Tools/CI/github_shadow.py bootstrap
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Save verified new payloads
+        if: ${{ success() && steps.payload.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: .local/ci-cache
+          key: ${{ steps.prepare.outputs.key }}
+      - name: Download this run's shard evidence
+        if: ${{ inputs.download && !cancelled() && steps.bootstrap.outcome == 'success' }}
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: ci-shadow-shard-*
+          path: .tmp/ci-shadow/downloads
+      - name: Execute repository shard or collect complete profile
+        if: ${{ !cancelled() && steps.bootstrap.outcome == 'success' }}
+        shell: pwsh
+        env:
+          SHADOW_SHARD: ${{ inputs.shard }}
+        run: |
+          if ($env:SHADOW_SHARD) {
+              python Tools/CI/github_shadow.py execute --shard $env:SHADOW_SHARD
+          }
+          else {
+              python Tools/CI/github_shadow.py collect
+          }
+          exit $LASTEXITCODE
+      - name: Retain exact admitted evidence and setup diagnostics
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ci-shadow-${{ inputs.shard && 'shard' || 'aggregate' }}-${{ inputs.shard || 'all' }}-${{ github.run_attempt }}
+          path: |
+            .tmp/ci-shadow/bundle
+            .tmp/ci-shadow/failure.json
+            .tmp/ci-shadow/context.json
+            .tmp/ci-shadow/tools.json
+            .tmp/ci-cache-pilot
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7

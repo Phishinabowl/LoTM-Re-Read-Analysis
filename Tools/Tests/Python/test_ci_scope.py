@@ -17,6 +17,7 @@ try:
     sys.path.insert(0, str(ROOT / "Tools/CI"))
     scope = importlib.import_module("scope")
     selection = importlib.import_module("selection")
+    github_shadow = importlib.import_module("github_shadow")
 finally:
     sys.path[:] = before
 
@@ -67,6 +68,117 @@ def commit(root, message):
     git(root, "add", "--all")
     git(root, "commit", "-m", message)
     return git(root, "rev-parse", "HEAD")
+
+
+def shadow_event(base, source):
+    return {
+        "pull_request": {
+            "number": 7,
+            "head": {"sha": source},
+            "base": {"sha": base, "ref": github_shadow.TARGET, "repo": {"full_name": "fixture/repository"}},
+        }
+    }
+
+
+def shadow_environment(head, name="pull_request"):
+    return {
+        "GITHUB_SHA": head,
+        "GITHUB_EVENT_NAME": name,
+        "GITHUB_REPOSITORY": "fixture/repository",
+        "GITHUB_RUN_ID": "123",
+        "GITHUB_RUN_ATTEMPT": "2",
+    }
+
+
+def test_github_pr_context_proves_full_multicommit_scope_and_merge_execution(repo):
+    base = git(repo, "rev-parse", "HEAD")
+    git(repo, "checkout", "-b", "feature")
+    (repo / "first.txt").write_text("first")
+    commit(repo, "first source")
+    (repo / "tracked.txt").unlink()
+    source = commit(repo, "second source deletes baseline")
+    git(repo, "checkout", "main")
+    git(repo, "merge", "--no-ff", "feature", "-m", "synthetic hosted merge")
+    executed = git(repo, "rev-parse", "HEAD")
+    context = github_shadow.event_context(shadow_event(base, source), shadow_environment(executed))
+    result = github_shadow.validate_context(repo, context)
+    assert context["profile"] == "pr-integration" and result["provenance"]["checkout_kind"] == "merge"
+    assert result["fallback_reasons"] == []
+    assert {row["new_path"] or row["old_path"] for row in result["changes"]} == {"first.txt", "tracked.txt"}
+    context["executed"] = source
+    with pytest.raises(ValueError, match="checkout differs"):
+        github_shadow.validate_context(repo, context)
+
+
+@pytest.mark.parametrize("kind", ["merge", "source"])
+def test_manual_pr_replay_preserves_exact_metadata(kind):
+    pull = shadow_event("a" * 40, "b" * 40)["pull_request"]
+    pull["merge_commit_sha"] = "c" * 40
+    event = {"inputs": {"profile": "pr-integration", "checkout_kind": kind}}
+    context = github_shadow.event_context(event, shadow_environment("d" * 40, "workflow_dispatch"), pull)
+    assert context["executed"] == ("b" if kind == "source" else "c") * 40
+    assert context["base"] == "a" * 40 and context["source"] == "b" * 40
+
+
+@pytest.mark.parametrize("mutation", ["target", "source", "event", "profile"])
+def test_github_context_rejects_unapproved_metadata(mutation):
+    event = shadow_event("a" * 40, "b" * 40)
+    environment = shadow_environment("c" * 40)
+    if mutation == "target":
+        event["pull_request"]["base"]["ref"] = "main"
+    elif mutation == "source":
+        event["pull_request"]["head"]["sha"] = "moving-branch"
+    elif mutation == "event":
+        environment["GITHUB_EVENT_NAME"] = "pull_request_target"
+    else:
+        environment["GITHUB_EVENT_NAME"] = "workflow_dispatch"
+        event = {"inputs": {"profile": "arbitrary-profile"}}
+    with pytest.raises(ValueError):
+        github_shadow.event_context(event, environment)
+
+
+def test_github_unproven_merge_fails_instead_of_testing_unrelated_tree(repo):
+    head = git(repo, "rev-parse", "HEAD")
+    context = github_shadow.event_context(shadow_event(head, "b" * 40), shadow_environment(head))
+    with pytest.raises(ValueError, match="parents"):
+        github_shadow.validate_context(repo, context)
+
+
+def test_github_matrix_is_complete_catalog_owned_and_admitted():
+    plan, independent, dependent = github_shadow.matrices(ROOT, {"profile": "pr-integration"})
+    rows = independent["include"] + dependent["include"]
+    assert [row["shard"] for row in dependent["include"]] == ["parity-5"]
+    assert {row["shard"] for row in rows} == {row["id"] for row in plan["shards"]}
+    assert all(row["timeout"] <= 55 for row in rows)
+
+
+def test_github_manual_without_base_retains_full_comparison_fallback(repo):
+    head = git(repo, "rev-parse", "HEAD")
+    context = github_shadow.event_context({}, shadow_environment(head, "workflow_dispatch"))
+    result = github_shadow.validate_context(repo, context)
+    assert result["policy_scope"]["mode"] == "full" and result["fallback_reasons"]
+
+
+@pytest.mark.parametrize("unsafe", ["depth", "budget"])
+def test_github_transport_refuses_unadmitted_graphs(unsafe, monkeypatch):
+    rows = [
+        {
+            "id": str(index),
+            "depends_on": [str(index - 1)] if index else [],
+            "os": "windows",
+            "budget": {"total_seconds": 330},
+        }
+        for index in range(3)
+    ]
+    if unsafe == "budget":
+        rows = rows[:1]
+        rows[0]["budget"]["total_seconds"] = 3300
+    plan = {"profile": "synthetic", "shards": rows}
+    monkeypatch.setattr(
+        github_shadow, "Catalog", lambda root: type("Fixture", (), {"shard_plans": {"fixture": plan}})()
+    )
+    with pytest.raises(ValueError):
+        github_shadow.matrices(ROOT, {"profile": "synthetic"})
 
 
 @pytest.mark.integration

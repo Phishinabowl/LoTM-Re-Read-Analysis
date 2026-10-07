@@ -20,6 +20,7 @@ try:
     reports = importlib.import_module("execution_reports")
     controller = importlib.import_module("run_ci")
     aggregate = importlib.import_module("aggregate_execution")
+    github_shadow = importlib.import_module("github_shadow")
 finally:
     sys.path[:] = before
 
@@ -58,6 +59,32 @@ def record(owner, status="passed", native=False):
     report["canonical_guard"] = {"unchanged": True}
     report["budget"] = {"elapsed_seconds": 1.25}
     return report
+
+
+@pytest.mark.parametrize("status", ["passed", "failed"])
+def test_github_transfer_copies_exact_admitted_inventory_preserving_owner_and_failure(tmp_path, status):
+    owner = tmp_path / "run-shadow-transfer"
+    owner.mkdir()
+    report = record(owner, status)
+    reports.finalize(owner, report)
+    (owner / "source-not-for-upload.txt").write_text("private generated source")
+    destination = tmp_path / "transfer"
+    github_shadow.export_bundle(owner, destination)
+    copied = destination / owner.name
+    manifest = reports.verify_publication(copied)
+    assert manifest["execution_exit_code"] == (0 if status == "passed" else 1)
+    assert not (copied / "source-not-for-upload.txt").exists()
+    (copied / "custom.xml").write_text("corrupt transferred XML")
+    with pytest.raises(ValueError):
+        reports.verify_publication(copied)
+
+
+def test_github_missing_downloads_cannot_fall_back_to_full_sequential_execution(tmp_path, monkeypatch):
+    monkeypatch.setattr(github_shadow, "validate_context", lambda *args: None)
+    monkeypatch.setattr(github_shadow, "matrices", lambda *args: ({"shards": [{"id": "required"}]}, {}, {}))
+    monkeypatch.setattr(controller, "execute", lambda *args: pytest.fail("Missing shards launched execution"))
+    with pytest.raises(ValueError, match="every approved shard"):
+        github_shadow.execute({}, None, tmp_path / "absent-downloads")
 
 
 @pytest.mark.parametrize("data", ['{"status":"passed","status":"failed"}', '{"duration":NaN}', '{"duration":Infinity}'])

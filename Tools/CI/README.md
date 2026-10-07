@@ -170,6 +170,10 @@ hosted steady-state artifact adoption and native result publication remain later
 
 ## Dependency Authorities And Cache Boundaries
 
+CI 6.2 stages the [GitHub shadow adapter](../ci-testing-github-shadow.md): catalog-owned shard waves,
+exact event/execution provenance and admitted evidence transport delegate to the existing local runner.
+Hosted PR/source/merge qualification remains open; required reference jobs are preserved.
+
 CI 6.1 qualifies a temporary [host cache pilot](../ci-testing-host-readiness.md) using
 `host_cache.py prepare` / `host_cache.py bootstrap` and native GitHub/Azure cache transports.
 It verifies Python/PowerShell/build/npm/browser/archive payloads and recreates environments.

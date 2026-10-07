@@ -11,6 +11,10 @@ import time
 from process_supervisor import Lease, run_process
 from native_results import parse_junit, validate_phase, classify
 from execution_reports import excerpt
+import bootstrap
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Commands/Environment"))
+from powershell_process import isolated_command  # noqa: E402
 
 
 def read_json(path):
@@ -168,6 +172,7 @@ class AdapterSession:
         )
         if module_root:
             self.env["PSModulePath"] = str(Path(module_root).resolve())
+            self.env["LOTM_CI_MODULE_ROOT"] = str(Path(module_root).resolve())
         prefixes = [str(Path(value).parent) for value in self.executables.values()]
         self.env["PATH"] = os.pathsep.join(prefixes + [self.env.get("PATH", "")])
         self.inventory = {}
@@ -182,7 +187,7 @@ class AdapterSession:
     def launch(self, command, directory, lease, cancel=None):
         environment = {**self.env, "LOTM_CI_UNIT_DEADLINE": str(lease.deadline)}
         result = run_process(
-            command,
+            isolated_command(command, environment) if command[0] == self.executables.get("powershell7") else command,
             cwd=self.root,
             env=environment,
             output_parent=directory,
@@ -296,8 +301,6 @@ class AdapterSession:
         directory = self.output / "preflight-render"
         directory.mkdir()
         try:
-            import bootstrap
-
             if not self.render_report:
                 raise ValueError("Explicit --render-bootstrap-report required; run pinned render bootstrap first")
             document = read_json(self.render_report)

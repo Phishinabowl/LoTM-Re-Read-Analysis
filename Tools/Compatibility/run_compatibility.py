@@ -26,6 +26,9 @@ if str(RUNTIME_ROOT) not in sys.path:
 from knowledge_framework.project_config import load_project_config  # noqa: E402
 from knowledge_framework.project_paths import resolve_project_root  # noqa: E402
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Commands/Environment"))
+from powershell_process import isolated_command  # noqa: E402
+
 
 REGISTRY_PATH = Path(__file__).with_name("compatibility.json")
 # TODO (OWNER): Phase 5.3 - Register compatibility coverage for normalized-content consumers.
@@ -329,7 +332,7 @@ def run_command(
             raise CompatibilityFailure("Whole-check budget exhausted before nested command launch")
     try:
         completed = subprocess.run(
-            command,
+            isolated_command(command, os.environ) if runtime.id == "powershell7" else command,
             cwd=cwd,
             capture_output=True,
             text=True,

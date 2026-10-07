@@ -1,0 +1,104 @@
+name: CI Modernization Shadow
+
+on:
+  pull_request:
+    branches: [architecture/framework-extraction-foundation]
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: Repository-owned shadow profile
+        type: choice
+        options: [full-verification, pr-integration, ci-infrastructure]
+        default: full-verification
+      pr_number:
+        description: Optional open framework PR replay; requires pr-integration
+        default: ""
+      checkout_kind:
+        description: Explicit PR replay checkout
+        type: choice
+        options: [merge, source]
+        default: merge
+
+permissions:
+  contents: read
+  pull-requests: read
+
+# No push/schedule adoption or supersession cancellation before its dedicated Phase 7 gate.
+jobs:
+  plan:
+    name: Shadow Plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      context: ${{ steps.context.outputs.context }}
+      independent: ${{ steps.plan.outputs.independent }}
+      dependent: ${{ steps.plan.outputs.dependent }}
+      dependent_count: ${{ steps.plan.outputs.dependent_count }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.14.5"
+      - name: Normalize bounded event context
+        id: context
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python Tools/CI/github_shadow.py context
+      - name: Check out exact source or merge execution
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          ref: ${{ steps.context.outputs.checkout }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Resolve full scope and approved shard matrices
+        id: plan
+        env:
+          SHADOW_CONTEXT: ${{ steps.context.outputs.context }}
+        run: python Tools/CI/github_shadow.py plan
+      - name: Retain planning diagnostics
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ci-shadow-plan-${{ github.run_attempt }}
+          path: .tmp/ci-shadow
+          if-no-files-found: error
+          retention-days: 7
+  independent:
+    name: Shadow Independent (${{ matrix.shard }})
+    needs: plan
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.independent) }}
+    uses: ./.github/workflows/ci-shadow-worker.yml
+    with:
+      context: ${{ needs.plan.outputs.context }}
+      shard: ${{ matrix.shard }}
+      os: ${{ matrix.os }}
+      timeout: ${{ matrix.timeout }}
+  dependent:
+    name: Shadow Dependent (${{ matrix.shard }})
+    needs: [plan, independent]
+    if: ${{ always() && !cancelled() && needs.plan.result == 'success' && needs.plan.outputs.dependent_count != '0' }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.dependent) }}
+    uses: ./.github/workflows/ci-shadow-worker.yml
+    with:
+      context: ${{ needs.plan.outputs.context }}
+      shard: ${{ matrix.shard }}
+      os: ${{ matrix.os }}
+      timeout: ${{ matrix.timeout }}
+      download: true
+  aggregate:
+    name: CI Aggregate (modernization-shadow)
+    needs: [plan, independent, dependent]
+    if: ${{ always() && !cancelled() && needs.plan.result == 'success' }}
+    uses: ./.github/workflows/ci-shadow-worker.yml
+    with:
+      context: ${{ needs.plan.outputs.context }}
+      os: windows-2022
+      timeout: 21
+      download: true
