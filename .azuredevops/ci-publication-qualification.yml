@@ -1,0 +1,68 @@
+parameters:
+  - name: mode
+    type: string
+    values: [passing, failures]
+
+jobs:
+  - job: PublicationQualification
+    displayName: Manual publication qualification (${{ parameters.mode }})
+    condition: eq(variables['Build.Reason'], 'Manual')
+    timeoutInMinutes: 12
+    cancelTimeoutInMinutes: 2
+    pool:
+      vmImage: windows-2022
+    steps:
+      - checkout: self
+        fetchDepth: 0
+        persistCredentials: false
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '3.14.5'
+          architecture: x64
+      - pwsh: |
+          python Tools/CI/publication_qualification.py prepare --host ado --mode '${{ parameters.mode }}'
+          exit $LASTEXITCODE
+        name: Prepare
+        displayName: Prepare pinned qualification runtimes
+      - pwsh: |
+          & $env:PROBE_PYTHON Tools/CI/publication_qualification.py execute --host ado --mode '${{ parameters.mode }}'
+          exit $LASTEXITCODE
+        displayName: Execute isolated qualification fixtures
+        env:
+          PROBE_PYTHON: $(Prepare.python)
+      - pwsh: |
+          & $env:PROBE_PYTHON Tools/CI/publication_qualification.py publish --host ado --mode '${{ parameters.mode }}'
+          exit $LASTEXITCODE
+        name: Publication
+        condition: and(always(), ne(variables['Prepare.python'], ''))
+        displayName: Publish qualification summaries
+        env:
+          PROBE_PYTHON: $(Prepare.python)
+      - ${{ each category in split('python,powershell,custom', ',') }}:
+          - task: PublishTestResults@2
+            condition: and(always(), eq(variables['Publication.${{ category }}_enabled'], 'true'))
+            displayName: Publish qualification ${{ category }} cases
+            inputs:
+              testResultsFormat: JUnit
+              testResultsFiles: $(Publication.${{ category }}_files)
+              mergeTestResults: true
+              failTaskOnFailedTests: true
+              failTaskOnFailureToPublishResults: true
+              failTaskOnMissingResultsFile: true
+              testRunTitle: 'QUALIFICATION ${{ category }} | $(Build.BuildNumber)'
+              publishRunAttachments: true
+      - ${{ if eq(parameters.mode, 'failures') }}:
+          - task: PublishTestResults@2
+            condition: and(always(), ne(variables['Publication.fault_file'], ''))
+            displayName: Deliberately reject a missing publication input
+            inputs:
+              testResultsFormat: JUnit
+              testResultsFiles: $(Publication.fault_file)
+              failTaskOnFailureToPublishResults: true
+              failTaskOnMissingResultsFile: true
+              testRunTitle: 'QUALIFICATION deliberate publication failure'
+      - task: PublishPipelineArtifact@1
+        condition: always()
+        inputs:
+          targetPath: $(Build.SourcesDirectory)/.tmp/ci-publication-qualification
+          artifact: ci-shadow-aggregate-$(Build.BuildId)

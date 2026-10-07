@@ -54,6 +54,28 @@ def wait_file(path, timeout=5):
     pytest.fail("Synthetic process did not publish readiness: " + str(path))
 
 
+def cancel_ready_child(tmp_path, setup="pass"):
+    from concurrent.futures import ThreadPoolExecutor
+
+    ready = tmp_path / "ready.pid"
+    code = (
+        f"import os,pathlib,signal,time; {setup}; "
+        f"pathlib.Path({json.dumps(str(ready))}).write_text(str(os.getpid())); time.sleep(20)"
+    )
+    cancel = threading.Event()
+
+    def cancel_ready():
+        wait_file(ready)
+        cancel.set()
+
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        trigger = pool.submit(cancel_ready)
+        result = execute(tmp_path, code, timeout=10, cancel=cancel)
+        trigger.result(timeout=1)
+    assert not alive(int(ready.read_text()))
+    return result
+
+
 def alive(pid):
     if os.name == "nt":
         import ctypes
@@ -464,9 +486,10 @@ def test_hard_caller_termination_releases_tree_and_retains_record(tmp_path):
 
 @pytest.mark.integration
 def test_platform_graceful_and_forced_termination(tmp_path):
-    code = "import signal,time; signal.signal(signal.SIGTERM,signal.SIG_IGN); print('ready',flush=True); time.sleep(20)"
-    result = execute(tmp_path, code, timeout=0.8)
-    assert result["status"] == "timed-out" and result["cleanup"]["verified"] and result["cleanup"]["forced"]
+    # Test forced termination after the handler is installed, independently of cold launch latency.
+    # Whole-lifetime timeout behavior remains covered by the dedicated timeout tests.
+    result = cancel_ready_child(tmp_path, "signal.signal(signal.SIGTERM,signal.SIG_IGN)")
+    assert result["status"] == "cancelled" and result["cleanup"]["verified"] and result["cleanup"]["forced"]
     assert result["cleanup"]["graceful"] == (
         "unsupported-no-shared-console" if os.name == "nt" else "SIGTERM-process-group"
     )
@@ -474,8 +497,8 @@ def test_platform_graceful_and_forced_termination(tmp_path):
 
 @pytest.mark.integration
 def test_supported_graceful_exit_and_keyboard_interrupt(tmp_path, monkeypatch):
-    result = execute(tmp_path, "import time; print('ready',flush=True); time.sleep(20)", timeout=0.5)
-    assert result["status"] == "timed-out" and result["cleanup"]["verified"]
+    result = cancel_ready_child(tmp_path)
+    assert result["status"] == "cancelled" and result["cleanup"]["verified"]
     assert result["cleanup"]["forced"] is (os.name == "nt")
     original_sleep = processes.time.sleep
     first = [True]

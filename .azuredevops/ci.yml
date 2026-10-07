@@ -10,6 +10,10 @@ parameters:
   - name: pr_number
     type: string
     default: ''
+  - name: publication_qualification
+    type: string
+    default: none
+    values: [none, passing, failures]
 
 variables:
   PYTHONUTF8: '1'
@@ -20,6 +24,7 @@ variables:
 
 jobs:
   - job: Plan
+    condition: or(eq(variables['Build.Reason'], 'PullRequest'), eq('${{ parameters.publication_qualification }}', 'none'))
     displayName: Validate Azure execution and catalog plan
     timeoutInMinutes: 5
     cancelTimeoutInMinutes: 2
@@ -74,6 +79,10 @@ jobs:
       dependsOn: [Plan, Independent]
       wave: dependent
       download: true
+  - ${{ if ne(parameters.publication_qualification, 'none') }}:
+      - template: ci-publication-qualification.yml
+        parameters:
+          mode: ${{ parameters.publication_qualification }}
   - template: ci-worker.yml
     parameters:
       job: Aggregate

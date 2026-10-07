@@ -18,6 +18,11 @@ on:
         type: choice
         options: [merge, source]
         default: merge
+      publication_qualification:
+        description: Manual isolated publication probes; never PR coverage
+        type: choice
+        options: [none, passing, failures]
+        default: none
 
 permissions:
   contents: read
@@ -26,6 +31,7 @@ permissions:
 # No push/schedule adoption or supersession cancellation before its dedicated Phase 7 gate.
 jobs:
   plan:
+    if: ${{ github.event_name != 'workflow_dispatch' || (github.event.inputs.publication_qualification || 'none') == 'none' }}
     name: Shadow Plan
     runs-on: ubuntu-24.04
     timeout-minutes: 5
@@ -108,3 +114,8 @@ jobs:
       os: windows-2022
       timeout: 21
       download: true
+  publication-qualification:
+    if: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.publication_qualification || 'none') != 'none' }}
+    uses: ./.github/workflows/ci-publication-qualification.yml
+    with:
+      mode: ${{ github.event.inputs.publication_qualification }}

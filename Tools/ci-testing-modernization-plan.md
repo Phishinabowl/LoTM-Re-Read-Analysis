@@ -78,8 +78,9 @@ Phase 6.1's expanded implementation is published as `ba6047a`; complete hosted s
 controls and recovery are verified, with the final evidence/checkpoint confirmed on 2026-10-07.
 Phase 6.2 implementation and complete hosted source/merge proof are verified, with final evidence
 and the checkpoint confirmed on 2026-10-07. Phase 6.3 implementation and hosted source/merge proof are
-verified and confirmed on 2026-10-07. Phase 6.4's first publication increment is prepared locally,
-uncommitted for review; hosted publication/failure qualification remains open. The accepted 5.7 results and timing
+verified and confirmed on 2026-10-07. Phase 6.4's first publication increment is confirmed and published
+as `117a457`; hosted qualification is underway. Scoped readiness correction/manual probes remain
+uncommitted for review. The accepted 5.7 results and timing
 disposition remain intact; local WSL evidence will not substitute for actual hosted measurements.
 
 **Working branch:** `architecture/ci-testing-modernization`, created from
@@ -2249,10 +2250,15 @@ qualification, not the observed ADO timing as steady-state performance.
 
 The [hosted publication increment](ci-testing-host-publication.md) adds shared manifest admission,
 bounded run-linked Markdown and exact aggregate-only pytest/Pester/custom XML inputs for native Azure
-publication. Private regression and immutable 6.3 bundle replays verify local behavior; no hosted UI,
-server acceptance or intentional hosted failure is credited from those local checks. Changes remain
-uncommitted pending confirmation before publication and live qualification. All checklist items remain
-open until their complete hosted evidence and maintainer walkthrough are accepted.
+publication. The first increment is confirmed and published as `117a457`. GitHub's first full run
+preserves all 76 units and stays failed after successful summary/artifact publication; it exposes a
+cold-launch assumption in an existing forced-termination test. The readiness
+correction, explicit named Azure summary attachment transport, native failure excerpts and bounded
+manual pytest/Pester assertion, child-timeout, missing-result, publication-loss and recovery probes
+are prepared locally, awaiting confirmation before publication. Azure run 48 passes all 76 units and
+publishes exactly 652 server case identities; summary attachment acceptance remains open. Local proof is
+not hosted acceptance. All checklist items remain open until complete hosted evidence and the
+maintainer walkthrough are accepted; no timing or policy-adoption gate is relaxed.
 
 - [ ] Publish Markdown in both hosts and native pytest/Pester/custom XML with `PublishTestResults@2`
   in ADO after ordinary test failures; retain run-specific JSON and diagnostic artifacts.

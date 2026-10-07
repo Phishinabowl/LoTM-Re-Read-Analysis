@@ -1,6 +1,7 @@
 """Admit existing run evidence for host summaries and aggregate-only test publication."""
 
 import argparse
+import hashlib
 import html
 import os
 from pathlib import Path
@@ -10,10 +11,44 @@ from urllib.parse import parse_qs, urlsplit
 
 sys.dont_write_bytecode = True
 
-from execution_reports import atomic_bytes, confined, decode_json, encoded, fingerprint, verify_publication
+from execution_reports import (
+    atomic_bytes,
+    confined,
+    decode_json,
+    encoded,
+    excerpt,
+    fingerprint,
+    markdown_text,
+    verify_publication,
+)
+from native_results import parse_junit
 
 ROOT = Path(__file__).resolve().parents[2]
 SUMMARY_LIMIT = 900 * 1024  # Below GitHub's 1 MiB per-step summary limit, including our notice.
+
+
+def native_failures(owner, manifest):
+    lines = []
+    for entry in manifest["xml"]:
+        if entry["identity"] == "ci-custom" or not (entry["counts"]["failed"] or entry["counts"]["errors"]):
+            continue
+        document, _, _ = parse_junit(confined(owner, entry["path"]))
+        for case in document.iter("testcase"):
+            node = next((item for item in case if item.tag in {"failure", "error"}), None)
+            if node is None:
+                continue
+            if not lines:
+                lines.extend(["\n## Native case failures\n", ""])
+            text, truncated = excerpt(node.get("message", "") + "\n" + (node.text or ""))
+            lines.extend(
+                [
+                    "- " + markdown_text(entry["identity"] + " / " + case.get("name", "unknown")),
+                    "  " + markdown_text(text),
+                    "  Complete native XML in artifact: <code>" + html.escape(entry["path"]) + "</code>.",
+                    "  Diagnostic display truncated." if truncated else "",
+                ]
+            )
+    return "\n".join(lines)
 
 
 def hosted_markdown(content, run_url, artifact):
@@ -72,6 +107,7 @@ def admit(root, context, shard=""):
             execution_exit_code=manifest["execution_exit_code"],
             complete=manifest["complete"],
             manifest=fingerprint(owner, "publication-manifest.json"),
+            summary_label=provenance.get("qualification_scenario", shard or "aggregate"),
         )
         if host == "github":
             artifact = f"ci-shadow-{'shard-' + shard if shard else 'aggregate-all'}-{context['attempt']}"
@@ -81,6 +117,7 @@ def admit(root, context, shard=""):
                 raise ValueError("Invalid Azure build identity")
             artifact = "ci-shadow-shard-" + shard if shard else "ci-shadow-aggregate-" + build
         content = confined(owner, "summary.md").read_text(encoding="utf-8")
+        content = content.split("\n## Artifacts\n", 1)[0] + native_failures(owner, manifest)
         atomic_bytes(destination, "summary.md", hosted_markdown(content, url, artifact))
         # Only the collected aggregate supplies test cases. Shard summaries never duplicate them.
         if not shard:
@@ -130,7 +167,14 @@ def submit(destination, receipt, environment):
     else:
         path = str(confined(destination, "summary.md"))
         escaped = path.replace("%", "%AZP25").replace("\r", "%0D").replace("\n", "%0A")
-        print("##vso[task.uploadsummary]" + escaped, flush=True)
+        label = receipt.get("summary_label", "publication-failure")
+        if not isinstance(label, str) or not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,99}", label):
+            label = "publication-failure"
+        suffix = hashlib.sha256(str(destination).encode("utf-8")).hexdigest()[:8]
+        name = f"ci-{label}-{suffix}.md"
+        # Name each attachment explicitly; multiple qualification summaries share one task record.
+        print(f"##vso[task.addattachment type=Distributedtask.Core.Summary;name={name};]" + escaped, flush=True)
+        receipt["summary_attachment_name"] = name
         receipt["markdown_submission"] = "logging-command-emitted"
 
 

@@ -23,6 +23,7 @@ try:
     github_shadow = importlib.import_module("github_shadow")
     ado_shadow = importlib.import_module("ado_shadow")
     publisher = importlib.import_module("publish_hosted")
+    qualification = importlib.import_module("publication_qualification")
 finally:
     sys.path[:] = before
 
@@ -75,7 +76,16 @@ def hosted_bundle(root, status="passed", runtime=None, shard="", host="github"):
         row = report["results"][0]
         row.update(id="implementation/fixture::" + runtime, runtime=runtime)
         report["selection"]["candidate_ids"] = report["selection"]["selected_ids"] = [row["id"]]
-        native = b'<testsuite tests="1"><testcase classname="fixture" name="native" time="0.2"/></testsuite>\n'
+        diagnostic = (
+            '<failure message="Expected 2">trace &lt;unsafe&gt;\nline 2</failure>' if status == "failed" else ""
+        )
+        native = (
+            '<testsuite tests="1"><testcase classname="fixture" name="native" time="0.2">'
+            + diagnostic
+            + "</testcase></testsuite>\n"
+        ).encode()
+        if status == "failed":
+            row["native_counts"].update(passed=0, failed=1)
         reports.atomic_bytes(owner, "units/native/publication.xml", native)
         report["artifacts"] = [reports.fingerprint(owner, "units/native/publication.xml")]
         row["artifacts"] = ["units/native/publication.xml"]
@@ -116,6 +126,18 @@ def test_host_publication_routes_native_cases_once_without_empty_custom_duplicat
     entry = receipt["xml"][0]
     assert entry["category"] == category and entry["counts"]["entries"] == 1
     assert (destination / entry["path"]).read_bytes() == (owner / "units/native/publication.xml").read_bytes()
+
+
+@pytest.mark.parametrize("runtime", ["python", "powershell7"])
+def test_host_failed_native_cases_show_bounded_diagnostics_without_rewriting_xml(tmp_path, runtime):
+    owner, value = hosted_bundle(tmp_path, status="failed", runtime=runtime)
+    destination, receipt = publisher.admit(tmp_path, value)
+    assert receipt["status"] == "admitted" and receipt["execution_exit_code"] == 1
+    text = (destination / "summary.md").read_text(encoding="utf-8")
+    assert "Native case failures" in text and "Expected 2" in text and "trace &lt;unsafe&gt;" in text
+    assert (destination / receipt["xml"][0]["path"]).read_bytes() == (
+        owner / "units/native/publication.xml"
+    ).read_bytes()
 
 
 def test_host_shard_summary_does_not_publish_duplicate_test_cases(tmp_path):
@@ -165,7 +187,9 @@ def test_host_summary_submission_is_not_claimed_as_server_acceptance(tmp_path, c
     if host == "github":
         assert summary_file.read_bytes() == (destination / "summary.md").read_bytes()
     else:
-        assert "##vso[task.uploadsummary]" in capsys.readouterr().out
+        assert (
+            "##vso[task.addattachment type=Distributedtask.Core.Summary;name=ci-aggregate-" in capsys.readouterr().out
+        )
         assert "ci-shadow-aggregate-123" in (destination / "summary.md").read_text(encoding="utf-8")
 
 
@@ -175,6 +199,19 @@ def test_host_summary_write_failure_preserves_failed_execution(tmp_path):
     with pytest.raises(OSError):
         publisher.submit(destination, receipt, {"GITHUB_STEP_SUMMARY": str(tmp_path)})
     assert receipt["execution_exit_code"] == 1 and receipt["markdown_submission"] == "not-submitted"
+
+
+def test_azure_summary_names_are_distinct_for_multiple_probes_and_reject_command_injection(tmp_path, capsys):
+    names = []
+    for index in range(2):
+        _, value = hosted_bundle(tmp_path / str(index), host="ado")
+        destination, receipt = publisher.admit(tmp_path / str(index), value)
+        receipt["summary_label"] = "bad;]\n##vso[task.complete result=Succeeded]"
+        publisher.submit(destination, receipt, {})
+        names.append(receipt["summary_attachment_name"])
+    output = capsys.readouterr().out
+    assert len(set(names)) == 2 and all(name.startswith("ci-publication-failure-") for name in names)
+    assert "task.complete" not in output and output.count("task.addattachment") == 2
 
 
 def test_azure_failed_bundle_export_retains_publication_diagnostics(tmp_path, monkeypatch):
@@ -235,6 +272,108 @@ def test_host_native_tasks_publish_only_admitted_aggregate_xml_after_execution_f
     summary_step = next(step for step in github_steps if "publish_hosted.py" in step.get("run", ""))
     assert summary_step["if"] == "${{ always() }}" and summary_step["timeout-minutes"] == 2
     assert all("continue-on-error" not in step for step in github_steps)
+
+
+@pytest.mark.parametrize("host", ["github", "ado"])
+def test_publication_qualification_cannot_run_as_pull_request_or_unknown_checkout(tmp_path, host):
+    original = qualification.Git
+    qualification.Git = lambda root: type("FixtureGit", (), {"resolve": lambda self, name: "a" * 40})()
+    try:
+        env = {"GITHUB_EVENT_NAME": "pull_request", "BUILD_REASON": "PullRequest"}
+        with pytest.raises(ValueError, match="manual|forbidden"):
+            qualification.context(host, env, tmp_path)
+        env.update(GITHUB_EVENT_NAME="workflow_dispatch", GITHUB_SHA="b" * 40)
+        if host == "github":
+            with pytest.raises(ValueError, match="exact manual"):
+                qualification.context(host, env, tmp_path)
+    finally:
+        qualification.Git = original
+
+
+def test_qualification_environment_excludes_host_credentials_from_persisted_guardian_request(tmp_path, monkeypatch):
+    monkeypatch.setenv("GH_TOKEN", "private-fixture-value")
+    monkeypatch.setenv("SYSTEM_ACCESSTOKEN", "private-fixture-value")
+    monkeypatch.setenv("AZURE_CLIENT_SECRET", "private-fixture-value")
+    values = qualification.probe_environment({"powershell": {"module_path": str(tmp_path)}})
+    assert not {"GH_TOKEN", "SYSTEM_ACCESSTOKEN", "AZURE_CLIENT_SECRET"} & values.keys()
+    assert values["LOTM_CI_MODULE_ROOT"] == str(tmp_path) and values["PYTHONUTF8"] == "1"
+
+
+@pytest.mark.parametrize("scenario,status", [("timeout", "timed-out"), ("missing", "error"), ("publication", "passed")])
+@pytest.mark.integration
+def test_real_publication_qualification_probes_preserve_process_outcomes_and_cleanup(
+    tmp_path, monkeypatch, scenario, status
+):
+    monkeypatch.setattr(qualification, "tracked_digest", lambda root: {"source": "unchanged"})
+    setup = {"python": {"executable": sys.executable}, "powershell": {"module_path": str(tmp_path)}}
+    context = {
+        "host": "github",
+        "profile": qualification.PROFILE,
+        "executed": "a" * 40,
+        "attempt": 1,
+        "run_url": "https://github.com/fixture/repository/actions/runs/1",
+    }
+    exit_code = qualification.probe(tmp_path, scenario, context, setup)
+    workspace = tmp_path / ".tmp/ci-publication-qualification" / scenario
+    owner = next((workspace / "execution").iterdir())
+    manifest = reports.verify_publication(owner)
+    report = json.loads((owner / "report.json").read_text(encoding="utf-8"))
+    assert report["results"][0]["status"] == status
+    assert report["cleanup"]["verified"] is True
+    assert exit_code == manifest["execution_exit_code"] == (0 if scenario == "publication" else 1)
+    destination, receipt = publisher.admit(workspace, context)
+    assert receipt["status"] == ("failed" if scenario == "missing" else "admitted")
+    assert (destination / "summary.md").is_file()
+    if scenario == "missing":
+        assert receipt["xml"] == []
+    else:
+        assert receipt["xml"][0]["counts"]["entries"] == 1
+
+
+def test_manual_publication_qualification_skips_catalog_execution_and_keeps_upload_errors_fatal():
+    import yaml
+
+    github = yaml.safe_load((ROOT / ".github/workflows/ci-shadow.yml").read_text())
+    assert "publication_qualification" in github[True]["workflow_dispatch"]["inputs"]
+    assert "publication_qualification" in github["jobs"]["plan"]["if"]
+    assert "workflow_dispatch" in github["jobs"]["publication-qualification"]["if"]
+    azure = yaml.safe_load((ROOT / ".azuredevops/ci-publication-qualification.yml").read_text())
+    pipeline = yaml.safe_load((ROOT / ".azuredevops/ci.yml").read_text())
+    assert pipeline["jobs"][0]["condition"] == (
+        "or(eq(variables['Build.Reason'], 'PullRequest'), eq('${{ parameters.publication_qualification }}', 'none'))"
+    )
+    job = azure["jobs"][0]
+    assert job["condition"] == "eq(variables['Build.Reason'], 'Manual')"
+    assert job["timeoutInMinutes"] == 12
+    fault = next(
+        row["${{ if eq(parameters.mode, 'failures') }}"][0]
+        for row in job["steps"]
+        if "${{ if eq(parameters.mode, 'failures') }}" in row
+    )
+    assert fault["inputs"]["failTaskOnMissingResultsFile"] is True
+    assert fault["inputs"]["testResultsFiles"] == "$(Publication.fault_file)"
+    assert all("continueOnError" not in row for row in job["steps"] + [fault])
+
+
+def test_manual_qualification_publishes_later_diagnostics_after_missing_results_and_withholds_only_owned_copy(
+    tmp_path, monkeypatch
+):
+    out = tmp_path / ".tmp/ci-publication-qualification"
+    for scenario, status in (("assertion", "failed"), ("timeout", "timed-out"), ("publication", "passed")):
+        owner, value = hosted_bundle(out / scenario, status)
+    reports.atomic_bytes(out, "context.json", reports.encoded(value))
+    monkeypatch.setattr(qualification, "ROOT", tmp_path)
+    monkeypatch.setattr(qualification, "context", lambda *args: value)
+    monkeypatch.setattr(sys, "argv", ["qualification", "publish", "--host", "github", "--mode", "failures"])
+    monkeypatch.setenv("GITHUB_STEP_SUMMARY", str(tmp_path / "host-summary"))
+    monkeypatch.setenv("GITHUB_OUTPUT", str(tmp_path / "host-output"))
+    assert qualification.main() == 1
+    receipts = json.loads((out / "publication.json").read_text(encoding="utf-8"))
+    assert [row["status"] for row in receipts] == ["admitted", "admitted", "failed", "admitted"]
+    fault = Path(receipts[-1]["deliberate_publication_fault"])
+    assert not fault.exists() and fault.is_relative_to(out / "publication")
+    assert reports.verify_publication(owner)["execution_exit_code"] == 0  # Original source evidence is intact.
+    assert "fault_file=" in (tmp_path / "host-output").read_text()
 
 
 @pytest.mark.parametrize("status", ["passed", "failed"])

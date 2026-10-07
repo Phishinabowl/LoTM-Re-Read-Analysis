@@ -1,0 +1,69 @@
+name: Manual Publication Qualification
+
+on:
+  workflow_call:
+    inputs:
+      mode:
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    name: Publication qualification (${{ inputs.mode }})
+    runs-on: windows-2022
+    timeout-minutes: 12
+    env:
+      PYTHONUTF8: "1"
+      QUALIFICATION_MODE: ${{ inputs.mode }}
+      GIT_CONFIG_COUNT: "1"
+      GIT_CONFIG_KEY_0: core.autocrlf
+      GIT_CONFIG_VALUE_0: "false"
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.14.5"
+      - name: Prepare pinned qualification runtimes
+        id: prepare
+        shell: pwsh
+        run: |
+          python Tools/CI/publication_qualification.py prepare --host github --mode $env:QUALIFICATION_MODE
+          exit $LASTEXITCODE
+      - name: Execute isolated qualification fixtures
+        shell: pwsh
+        env:
+          QUALIFICATION_PYTHON: ${{ steps.prepare.outputs.python }}
+        run: |
+          & $env:QUALIFICATION_PYTHON Tools/CI/publication_qualification.py execute --host github --mode $env:QUALIFICATION_MODE
+          exit $LASTEXITCODE
+      - name: Publish qualification summaries
+        id: publish
+        if: ${{ always() && steps.prepare.outcome == 'success' }}
+        shell: pwsh
+        env:
+          QUALIFICATION_PYTHON: ${{ steps.prepare.outputs.python }}
+        run: |
+          & $env:QUALIFICATION_PYTHON Tools/CI/publication_qualification.py publish --host github --mode $env:QUALIFICATION_MODE
+          exit $LASTEXITCODE
+      - name: Deliberately reject a missing publication input
+        if: ${{ always() && inputs.mode == 'failures' && steps.publish.outputs.fault_file != '' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: qualification-deliberately-missing
+          path: ${{ steps.publish.outputs.fault_file }}
+          if-no-files-found: error
+      - name: Retain qualification evidence independently of failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ci-shadow-aggregate-all-${{ github.run_attempt }}
+          path: .tmp/ci-publication-qualification
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
