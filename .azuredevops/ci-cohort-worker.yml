@@ -1,0 +1,88 @@
+parameters:
+  - name: job
+    type: string
+  - name: dependsOn
+    type: object
+  - name: wave
+    type: string
+    values: [independent, dependent]
+
+jobs:
+  - job: ${{ parameters.job }}
+    displayName: CI
+    dependsOn: ${{ parameters.dependsOn }}
+    ${{ if eq(parameters.wave, 'dependent') }}:
+      condition: and(not(canceled()), eq(dependencies.Plan.result, 'Succeeded'), ne(dependencies.Plan.outputs['Catalog.dependent_count'], '0'))
+    ${{ else }}:
+      condition: and(not(canceled()), eq(dependencies.Plan.result, 'Succeeded'))
+    timeoutInMinutes: 55
+    cancelTimeoutInMinutes: 2
+    variables:
+      SHADOW_CONTEXT: $[ dependencies.Plan.outputs['Catalog.context'] ]
+    strategy:
+      maxParallel: 1
+      matrix: $[ dependencies.Plan.outputs['Catalog.${{ parameters.wave }}'] ]
+    pool:
+      vmImage: $(os)
+    steps:
+      - checkout: self
+        fetchDepth: 0
+        persistCredentials: false
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '3.14.8'
+          architecture: x64
+      - pwsh: |
+          python Tools/CI/ado_shadow.py prepare
+          exit $LASTEXITCODE
+        name: Prepare
+        displayName: Validate captured placement and payload identity
+        env:
+          SHADOW_SHARD: $(setup_shard)
+      - task: Cache@2
+        inputs:
+          key: '"$(Prepare.key)"'
+          path: $(Build.SourcesDirectory)/.local/ci-cache
+          cacheHitVar: PAYLOAD_CACHE_HIT
+      - pwsh: |
+          python Tools/CI/ado_shadow.py bootstrap
+          exit $LASTEXITCODE
+        name: Bootstrap
+        displayName: Provision shared pinned preparation once
+        env:
+          CACHE_HIT: $(PAYLOAD_CACHE_HIT)
+          SHADOW_SHARD: $(setup_shard)
+      - ${{ if eq(parameters.wave, 'dependent') }}:
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              buildType: current
+              itemPattern: 'ci-shadow-cohort-*/**'
+              targetPath: $(Build.SourcesDirectory)/.tmp/ci-shadow/downloads
+      - pwsh: |
+          & $env:EXECUTION_PYTHON Tools/CI/ado_cohort.py --cohort $env:SHADOW_COHORT
+          exit $LASTEXITCODE
+        displayName: Execute original shards in owned child processes
+        env:
+          EXECUTION_PYTHON: $(Bootstrap.python)
+          SHADOW_COHORT: $(cohort)
+      - pwsh: |
+          python Tools/CI/ado_cohort.py --cohort $env:SHADOW_COHORT --diagnostics
+          exit $LASTEXITCODE
+        condition: always()
+        displayName: Retain bounded cohort and setup diagnostics
+        env:
+          SHADOW_COHORT: $(cohort)
+      - pwsh: |
+          & $env:PUBLICATION_PYTHON Tools/CI/ado_cohort.py --cohort $env:SHADOW_COHORT --publish
+          exit $LASTEXITCODE
+        condition: always()
+        timeoutInMinutes: 2
+        displayName: Verify original results and retain cohort report
+        env:
+          PUBLICATION_PYTHON: $(Bootstrap.python)
+          SHADOW_COHORT: $(cohort)
+      - task: PublishPipelineArtifact@1
+        condition: always()
+        inputs:
+          targetPath: $(Build.SourcesDirectory)/.tmp/ci-shadow/cohorts/$(cohort)/transport
+          artifact: ci-shadow-$(cohort)

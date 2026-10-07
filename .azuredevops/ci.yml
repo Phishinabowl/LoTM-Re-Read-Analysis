@@ -3,6 +3,10 @@ trigger: none
 pr: none
 
 parameters:
+  - name: placement
+    type: string
+    default: shards
+    values: [shards, cohorts, cohort-smoke]
   - name: profile
     type: string
     default: full-verification
@@ -24,7 +28,7 @@ variables:
 
 jobs:
   - job: Plan
-    condition: or(eq(variables['Build.Reason'], 'PullRequest'), eq('${{ parameters.publication_qualification }}', 'none'))
+    condition: or(eq(variables['Build.Reason'], 'PullRequest'), eq('${{ parameters.publication_qualification }}', 'none'), ne('${{ parameters.placement }}', 'shards'))
     displayName: Plan - validate scope and catalog
     timeoutInMinutes: 5
     cancelTimeoutInMinutes: 2
@@ -47,6 +51,8 @@ jobs:
           SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           SHADOW_PROFILE: ${{ parameters.profile }}
           SHADOW_PR_NUMBER: ${{ parameters.pr_number }}
+          SHADOW_PLACEMENT: ${{ parameters.placement }}
+          SHADOW_PUBLICATION_QUALIFICATION: ${{ parameters.publication_qualification }}
       - pwsh: |
           python Tools/CI/ado_shadow.py plan-bootstrap
           exit $LASTEXITCODE
@@ -67,25 +73,39 @@ jobs:
         inputs:
           targetPath: $(Build.SourcesDirectory)/.tmp/ci-shadow
           artifact: ci-shadow-plan-$(Build.BuildId)
-  - template: ci-worker.yml
-    parameters:
-      job: Independent
-      dependsOn: [Plan]
-      wave: independent
-      download: false
-  - template: ci-worker.yml
-    parameters:
-      job: Dependent
-      dependsOn: [Plan, Independent]
-      wave: dependent
-      download: true
+  - ${{ if eq(parameters.placement, 'shards') }}:
+      - template: ci-worker.yml
+        parameters:
+          job: Independent
+          dependsOn: [Plan]
+          wave: independent
+          download: false
+      - template: ci-worker.yml
+        parameters:
+          job: Dependent
+          dependsOn: [Plan, Independent]
+          wave: dependent
+          download: true
+  - ${{ else }}:
+      - template: ci-cohort-worker.yml
+        parameters:
+          job: Independent
+          dependsOn: [Plan]
+          wave: independent
+      - template: ci-cohort-worker.yml
+        parameters:
+          job: Dependent
+          dependsOn: [Plan, Independent]
+          wave: dependent
   - ${{ if ne(parameters.publication_qualification, 'none') }}:
       - template: ci-publication-qualification.yml
         parameters:
           mode: ${{ parameters.publication_qualification }}
-  - template: ci-worker.yml
-    parameters:
-      job: Aggregate
-      dependsOn: [Plan, Independent, Dependent]
-      wave: aggregate
-      download: true
+  - ${{ if ne(parameters.placement, 'cohort-smoke') }}:
+      - template: ci-worker.yml
+        parameters:
+          job: Aggregate
+          dependsOn: [Plan, Independent, Dependent]
+          wave: aggregate
+          download: true
+          cohortDownloads: ${{ eq(parameters.placement, 'cohorts') }}

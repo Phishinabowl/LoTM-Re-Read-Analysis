@@ -393,6 +393,58 @@ friendly cohort job titles. Run the actual approved shared cohort and compare or
 identities/outcomes and timings before normal placement can change. Reopen the same PRs only for
 the later fresh event/policy gate. Retain individual workers and complete preparation for rollback.
 
+### Manual Azure Wiring Review Checkpoint
+
+The maintainer confirms the nine-file backend checkpoint, dual-published as
+`11651feb93e8a6ac8e5c3aca7fe4a01a0726687f` on 2026-10-07, with four-reference parity verified.
+The next wiring increment is locally prepared and remains uncommitted pending confirmation.
+
+Pipeline 3 gains an explicit `placement` parameter:
+
+| Mode | Execution and acceptance boundary |
+| --- | --- |
+| `shards` (default) | Existing individual workers and aggregate; ordinary/PR behavior retained |
+| `cohorts` | Manual full-profile experiment: eight execution cohorts plus Plan/Aggregate; every original logical shard remains required |
+| `cohort-smoke` | Manual bounded qualification of the one approved shared independent cohort, using the full-verification source catalog; no full-profile aggregate |
+
+Both experimental modes require a Manual event and cannot mix with publication probes. Smoke
+requires the full-verification source catalog, captures its exact approved placement/roles and
+executes only the infrastructure/PowerShell-tail cohort. The two actual logical shards retain
+independent owned children and reports. Its combined Markdown explicitly marks partial qualification.
+No smoke-native Test Results upload is performed: native cases remain aggregate-only, and smoke
+cannot satisfy full-profile collection/publication. A green smoke run is not full-portfolio proof.
+
+Full experiments receive deterministic, sequential friendly cohort job labels in execution-wave
+order. Shared preparation uses a catalog-derived member with the cohort's maximum required role;
+it is provisioned once. Cohort artifacts retain the original per-shard bundles, diagnostics and
+setup receipts. Full collection recomputes captured placement and requires every cohort receipt
+and original shard exactly once. Missing/duplicate/foreign inventory, changed budgets, inconsistent
+exit/status, bad cleanup, escaped ownership and lost manifests are rejected before collection.
+Genuine failed and passing finalized shards remain independently admissible, preserving their
+original outcomes. Combined aggregate sections retain logical shard order and link to the owning
+cohort artifact; ordinary shard links remain unchanged.
+
+The opt-in worker downloads only the current run's cohort artifacts; the aggregate chooses the
+matching cohort/shard artifact pattern. The unchanged task's documented
+[artifact matching contract](https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/download-pipeline-artifact-v2?view=azure-pipelines)
+supports the bounded pattern and per-artifact download directories. No credentials are propagated
+to cohort children, no pipeline/policy/schedule is activated, and both PRs stay paused.
+
+Final focused cohort/scope/report regression passes **262 cases per OS**: Windows 61.91s and
+WSL 162.92s. These include real clean-checkout planning CLIs for both new modes, original
+failed/passing receipt admission, deliberate collector mutations, artifact routes and partial-report
+submission. Bare `-I -S` diagnostics preserve a setup failure without site packages; that probe
+identified and fixed the cohort CLI's missing explicit colocated import path. Original policy
+PR and default shard paths remain covered. Ruff, Azure YAML parsing, existing actionlint and diff
+checks pass. Local YAML parsing is not Azure template compilation or live UI acceptance.
+
+After publication, preview the actual Azure templates, then run bounded `cohort-smoke` qualification
+at the exact published source before a full experiment. Verify shared setup occurs once, both
+original shard identities/outcomes, complete failure diagnostics, exact stored Markdown and timings.
+Keep deliberate failure/recovery and full cohort aggregate/native/report equality as distinct
+remaining gates. No hosted runs are queued by this local increment; normal placement and timing
+goals remain unchanged. Rollback is the default `shards` mode and retained individual worker template.
+
 ## Remaining Qualification And Rollback
 
 The patch and aggregate-preparation checkpoints are confirmed on 2026-10-07. Continue with deliberate

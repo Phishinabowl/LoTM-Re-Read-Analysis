@@ -2435,6 +2435,17 @@ Final 321 focused cases pass per OS; the real Windows infrastructure reference p
 review/publication. Manual opt-in Azure wiring, real shared-cohort execution, artifact/collector
 identity, partial-failure/recovery and readable ordered report proof remain required before adoption.
 
+The maintainer confirms the backend, dual-published as `11651fe` on 2026-10-07. The next local
+wiring checkpoint adds manual `cohorts` and bounded `cohort-smoke` options while keeping `shards`
+as the default and rejecting experimental policy PRs. Smoke explicitly claims partial qualification,
+cannot collect/publish a full-profile aggregate and uploads no native Test Results. Full experiments
+preserve every original shard and verify exact cohort receipts, artifact routes and aggregate-only
+publication. Sequential friendly job labels and logical report-section order remain separate from
+internal IDs. Final 262 focused cases pass per OS, including clean-checkout planning and bare setup
+failure diagnostics. The wiring is uncommitted pending confirmation; Azure template preview and
+bounded shared-cohort qualification precede full/failure/recovery/adoption gates. No hosted run,
+required-check/policy change or timing waiver is introduced by the local pass. Both PRs stay paused.
+
 **Temporary PR pause (maintainer-authorized, 2026-10-07):** GitHub draft PR 3 is closed and Azure
 validation PR 19 is abandoned, without merging or deleting branches. Both remote branch tips remain
 `3008f0238bb10a15e6907d7bc821199eed266dd5`. This stops their automatic full PR update runs during

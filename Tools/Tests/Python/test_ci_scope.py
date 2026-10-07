@@ -68,6 +68,22 @@ def test_azure_policy_forces_full_pr_and_preserves_immutable_metadata():
 
 
 @pytest.mark.parametrize(
+    "reason,mode,probe",
+    [
+        ("PullRequest", "cohorts", "none"),
+        ("Manual", "unknown", "none"),
+        ("Manual", "cohorts", "failures"),
+        ("PullRequest", "cohort-smoke", "none"),
+    ],
+)
+def test_azure_cohort_experiments_are_manual_only_and_cannot_mix_with_other_probes(reason, mode, probe):
+    env, pull = azure_fixture()
+    env.update(BUILD_REASON=reason, SHADOW_PLACEMENT=mode, SHADOW_PUBLICATION_QUALIFICATION=probe)
+    with pytest.raises(ValueError, match="placement"):
+        ado_shadow.event_context(env, pull)
+
+
+@pytest.mark.parametrize(
     "field,value",
     [
         ("SYSTEM_COLLECTIONURI", "https://example.invalid/"),
@@ -526,7 +542,7 @@ def test_github_context_cli_works_without_site_packages_and_uses_ignored_report_
 
 
 @pytest.mark.integration
-@pytest.mark.parametrize("adapter", ["github", "ado"])
+@pytest.mark.parametrize("adapter", ["github", "ado", "ado-cohorts", "ado-cohort-smoke"])
 def test_host_full_planning_cli_in_clean_private_checkout(tmp_path, adapter):
     root = tmp_path / "private-project"
     # Captured CI sources have a private index without HEAD; copy index-approved working bytes.
@@ -553,10 +569,15 @@ def test_host_full_planning_cli_in_clean_private_checkout(tmp_path, adapter):
     context = github_shadow.event_context(
         {"inputs": {"profile": "pr-integration"}}, shadow_environment(head, "workflow_dispatch")
     )
-    context["host"] = adapter
+    host = "ado" if adapter.startswith("ado") else adapter
+    context["host"] = host
+    if adapter in {"ado-cohorts", "ado-cohort-smoke"}:
+        context.update(event="Manual", placement=adapter.removeprefix("ado-"))
+        if adapter == "ado-cohort-smoke":
+            context["profile"] = "full-verification"
     environment = {**os.environ, "SHADOW_CONTEXT": json.dumps(context), "GITHUB_OUTPUT": str(output)}
     child = subprocess.run(
-        [sys.executable, "-I", str(root / f"Tools/CI/{adapter}_shadow.py"), "plan"],
+        [sys.executable, "-I", str(root / f"Tools/CI/{host}_shadow.py"), "plan"],
         cwd=root,
         env=environment,
         capture_output=True,
@@ -570,8 +591,13 @@ def test_host_full_planning_cli_in_clean_private_checkout(tmp_path, adapter):
         assert len(json.loads(values["dependent"])["include"]) == 1
     else:
         values = dict(line.split(";isOutput=true]", 1) for line in child.stdout.splitlines())
-        assert len(json.loads(values["##vso[task.setvariable variable=independent"])) == 8
+        assert len(json.loads(values["##vso[task.setvariable variable=independent"])) == (
+            1 if adapter == "ado-cohort-smoke" else 7 if adapter == "ado-cohorts" else 8
+        )
         assert len(json.loads(values["##vso[task.setvariable variable=dependent"])) == 1
+        if adapter == "ado-cohort-smoke":
+            assert values["##vso[task.setvariable variable=dependent_count"] == "0"
+            assert "NoWork" in json.loads(values["##vso[task.setvariable variable=dependent"])
     plan = json.loads((root / ".tmp/ci-shadow/plan.json").read_text())
     assert plan["scope"]["provenance"]["executed_commit"] == head
     assert plan["scope"]["policy_scope"]["mode"] == "full"

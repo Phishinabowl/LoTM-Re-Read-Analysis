@@ -36,6 +36,12 @@ def event_context(environment, pull=None):
     reason = environment["BUILD_REASON"]
     if reason not in {"PullRequest", "Manual"}:
         raise ValueError("Only policy PR and explicit manual events are adopted at 6.3")
+    placement = environment.get("SHADOW_PLACEMENT", "shards")
+    if placement not in {"shards", "cohorts", "cohort-smoke"} or (
+        placement != "shards"
+        and (reason != "Manual" or environment.get("SHADOW_PUBLICATION_QUALIFICATION", "none") != "none")
+    ):
+        raise ValueError("Cohort placement requires an explicit manual experiment without publication probes")
     executed = transport.oid(environment["BUILD_SOURCEVERSION"])
     profile = "pr-integration" if reason == "PullRequest" else environment.get("SHADOW_PROFILE", "full-verification")
     if profile not in transport.PROFILES:
@@ -54,6 +60,8 @@ def event_context(environment, pull=None):
         "run_url": COLLECTION + PROJECT + "/_build/results?buildId=" + str(positive(environment["BUILD_BUILDID"])),
         "attempt": positive(environment.get("SYSTEM_JOBATTEMPT", "1")),
     }
+    if placement != "shards":
+        context["placement"] = placement
     number = (
         environment.get("SYSTEM_PULLREQUEST_PULLREQUESTID")
         if reason == "PullRequest"
@@ -178,6 +186,53 @@ def cohort_plan(root, profile):
     }
 
 
+def placed_cohorts(root, context):
+    proposal = cohort_plan(root, context["profile"])
+    rows = proposal["cohorts"]
+    if context.get("placement") == "cohort-smoke":
+        if context["profile"] != "full-verification":
+            raise ValueError("Shared-cohort smoke requires the full-verification source catalog")
+        rows = [row for row in rows if len(row["shards"]) > 1 and not row["depends_on"]]
+        if len(rows) != 1:
+            raise ValueError("Smoke qualification requires exactly one approved shared independent cohort")
+    return proposal, rows
+
+
+def validate_placement(root, context):
+    if (
+        context.get("host") != "ado"
+        or context.get("placement") not in {"cohorts", "cohort-smoke"}
+        or context.get("event") != "Manual"
+    ):
+        raise ValueError("Only captured manual cohort placement is admitted")
+    proposal, rows = placed_cohorts(root, context)
+    if context.get("cohort_placement") != proposal:
+        raise ValueError("Captured cohort placement differs from the approved catalog")
+    return rows
+
+
+def cohort_matrices(root, context):
+    plan, _, _ = transport.matrices(root, context)
+    proposal, groups = placed_cohorts(root, context)
+    titles = {row["shard"]: row["title"] for row in transport.shard_presentation(plan)}
+    roles = transport.preparation_roles(root, plan)
+    independent, dependent = [], []
+    for number, group in enumerate(sorted(groups, key=lambda row: bool(row["depends_on"])), 1):
+        setup_shard = next(shard for shard in group["shards"] if roles[shard] == group["preparation"])
+        entry = {
+            "cohort": group["id"],
+            "shard": group["id"],
+            "setup_shard": setup_shard,
+            "os": "windows-2022" if group["os"] == "windows" else "ubuntu-24.04",
+            "timeout": group["timeout_minutes"],
+            "display_number": number,
+            "display_title": " + ".join(titles[shard] for shard in group["shards"]),
+        }
+        (dependent if group["depends_on"] else independent).append(entry)
+    context = {**context, "preparation_roles": roles, "cohort_placement": proposal}
+    return context, plan, {"include": independent}, {"include": dependent}
+
+
 def output(**values):
     for name, value in values.items():
         if not re.fullmatch(r"[a-z_]+", name):
@@ -237,6 +292,25 @@ def main():
         transport.validate_context(transport.ROOT, context)
         output(context=context)
         return 0
+    operation = sys.argv[1] if len(sys.argv) > 1 else ""
+    context = json.loads(os.environ["SHADOW_CONTEXT"]) if operation in {"plan", "collect"} else {}
+    if operation == "plan" and context.get("placement") in {"cohorts", "cohort-smoke"}:
+        scope = transport.validate_context(transport.ROOT, context)
+        context, plan, independent, dependent = cohort_matrices(transport.ROOT, context)
+        out = transport.confined(transport.ROOT, ".tmp/ci-shadow")
+        out.mkdir(parents=True, exist_ok=True)
+        (out / "plan.json").write_text(json.dumps({"context": context, "scope": scope, "shard_plan": plan}, indent=2))
+        output(
+            context=context,
+            independent=independent,
+            dependent=dependent,
+            dependent_count=str(len(dependent["include"])),
+        )
+        return 0
+    if operation == "collect" and context.get("placement") in {"cohorts", "cohort-smoke"}:
+        from ado_cohort import validate_collection
+
+        validate_collection(transport.ROOT, context, transport.ROOT / ".tmp/ci-shadow/downloads")
     transport.output = output
     return transport.main()
 

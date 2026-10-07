@@ -223,6 +223,18 @@ def hosted_markdown(content, run_url, artifact):
     return data
 
 
+def shard_artifact(root, context, shard):
+    if context.get("placement") in {"cohorts", "cohort-smoke"}:
+        from ado_shadow import validate_placement
+
+        groups = validate_placement(root, context)
+        matches = [row for row in groups if shard in row["shards"]]
+        if len(matches) != 1:
+            raise ValueError("Shard artifact route differs from captured cohort placement")
+        return "ci-shadow-" + matches[0]["id"]
+    return "ci-shadow-shard-" + shard
+
+
 def admit(root, context, shard="", *, worker_owner=".tmp/ci-shadow", artifact_override=None):
     """Stage exact admitted XML; never regenerate cases, scan raw XML, or alter execution outcomes."""
     if worker_owner != ".tmp/ci-shadow" and not worker_owner.startswith(".tmp/ci-shadow/cohorts/"):
@@ -275,7 +287,7 @@ def admit(root, context, shard="", *, worker_owner=".tmp/ci-shadow", artifact_ov
             build = parse_qs(urlsplit(url).query)["buildId"][0]
             if not re.fullmatch(r"[1-9][0-9]{0,8}", build):
                 raise ValueError("Invalid Azure build identity")
-            artifact = "ci-shadow-shard-" + shard if shard else "ci-shadow-aggregate-" + build
+            artifact = shard_artifact(root, context, shard) if shard else "ci-shadow-aggregate-" + build
         if artifact_override is not None:
             if host != "ado" or not shard or not re.fullmatch(r"ci-shadow-cohort-[0-9]+", artifact_override):
                 raise ValueError("Invalid cohort artifact destination")
@@ -384,7 +396,9 @@ def ordered_azure_summary(root, context, destination, receipt, plan):
         if identity in owners:
             owner, manifest, report = owners[identity]
             content = readable_report(report) + native_failures(owner, manifest)
-            text += hosted_markdown(content, context["run_url"], "ci-shadow-shard-" + identity).decode("utf-8")
+            text += hosted_markdown(content, context["run_url"], shard_artifact(root, context, identity)).decode(
+                "utf-8"
+            )
         else:
             text += "Shard evidence unavailable; no execution or passing coverage is inferred.\n"
         text += "\n</details>\n"
@@ -403,6 +417,8 @@ def main():
     parser.add_argument("--shard", default=os.environ.get("SHADOW_SHARD", ""))
     args = parser.parse_args()
     context = decode_json(os.environ["SHADOW_CONTEXT"])
+    if context.get("placement") == "cohort-smoke" and not args.shard:
+        raise ValueError("Partial cohort smoke cannot publish full-profile aggregate results")
     # Failed-job retries reuse Plan outputs, but artifact uploads belong to the current attempt.
     if context["host"] == "github" and "GITHUB_RUN_ATTEMPT" in os.environ:
         attempt = os.environ["GITHUB_RUN_ATTEMPT"]

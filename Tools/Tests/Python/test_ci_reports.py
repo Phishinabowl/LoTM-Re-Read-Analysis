@@ -546,7 +546,8 @@ def test_manual_publication_qualification_skips_catalog_execution_and_keeps_uplo
     azure = yaml.safe_load((ROOT / ".azuredevops/ci-publication-qualification.yml").read_text())
     pipeline = yaml.safe_load((ROOT / ".azuredevops/ci.yml").read_text())
     assert pipeline["jobs"][0]["condition"] == (
-        "or(eq(variables['Build.Reason'], 'PullRequest'), eq('${{ parameters.publication_qualification }}', 'none'))"
+        "or(eq(variables['Build.Reason'], 'PullRequest'), eq('${{ parameters.publication_qualification }}', 'none'), "
+        "ne('${{ parameters.placement }}', 'shards'))"
     )
     job = azure["jobs"][0]
     assert job["condition"] == "eq(variables['Build.Reason'], 'Manual')"

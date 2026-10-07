@@ -5,6 +5,9 @@ import copy
 import importlib
 import json
 import signal
+import shutil
+import subprocess
+import os
 import sys
 from pathlib import Path
 import threading
@@ -314,3 +317,193 @@ def test_shared_role_retains_required_receipts_and_explicit_child_inputs(tmp_pat
     command = cohort.child_command(args)
     assert command[command.index("--output-root") + 1] == args.output_root
     assert command[command.index("--shard") + 1] == "fixture"
+
+
+@pytest.mark.parametrize("mode", ["cohorts", "cohort-smoke"])
+def test_manual_matrices_preserve_roles_coverage_order_and_capture_placement(mode):
+    context, plan, independent, dependent = cohort.ado_shadow.cohort_matrices(
+        ROOT, {"host": "ado", "event": "Manual", "placement": mode, "profile": "full-verification"}
+    )
+    rows = independent["include"] + dependent["include"]
+    assert [row["display_number"] for row in rows] == list(range(1, len(rows) + 1))
+    assert len(rows) == (8 if mode == "cohorts" else 1)
+    assert all(row["timeout"] <= 55 for row in rows)
+    selected = cohort.ado_shadow.validate_placement(ROOT, context)
+    for row in rows:
+        group = next(group for group in selected if group["id"] == row["cohort"])
+        assert context["preparation_roles"][row["setup_shard"]] == group["preparation"]
+        assert row["display_title"] and not row["display_title"].endswith("-1")
+        for shard in group["shards"]:
+            assert publisher.shard_artifact(ROOT, context, shard) == "ci-shadow-" + group["id"]
+    if mode == "cohorts":
+        assert {shard for group in selected for shard in group["shards"]} == {row["id"] for row in plan["shards"]}
+    else:
+        with pytest.raises(ValueError, match="Partial"):
+            cohort.validate_collection(ROOT, context, ROOT / ".tmp/no-results")
+    damaged = copy.deepcopy(context)
+    damaged["cohort_placement"]["cohorts"][0]["preparation"] = "core"
+    with pytest.raises(ValueError, match="Captured"):
+        cohort.ado_shadow.validate_placement(ROOT, damaged)
+
+
+@pytest.fixture
+def collected(tmp_path, monkeypatch):
+    context = {
+        "host": "ado",
+        "event": "Manual",
+        "placement": "cohorts",
+        "profile": "synthetic",
+        "executed": "a" * 40,
+        "run_url": "https://dev.azure.com/DreamtechADO/project/_build/results?buildId=123",
+    }
+    group = {
+        "id": "cohort-0",
+        "shards": ["first", "second"],
+        "preparation": "core",
+        "os": "windows",
+        "declared_shard_seconds": 60,
+        "preserved_child_setup_seconds": 1200,
+    }
+    plan = {
+        "id": "fixture-plan",
+        "shards": [{"id": name, "order": number, "depends_on": []} for number, name in enumerate(group["shards"])],
+    }
+    monkeypatch.setattr(cohort.ado_shadow, "validate_placement", lambda *a: [group])
+    monkeypatch.setattr(cohort.transport, "matrices", lambda *a: (plan, {}, {}))
+    stage = tmp_path / ".tmp/ci-shadow/cohorts/cohort-0/transport"
+    entries = []
+    for name in group["shards"]:
+        owner = stage / name / "bundle" / ("run-fixture-" + name)
+        owner.mkdir(parents=True)
+        report = record(owner, "failed" if name == "first" else "passed")
+        report["provenance"].update(
+            executed_commit=context["executed"], shard_source={"shard": name, "shard_plan": plan["id"]}
+        )
+        reports.finalize(owner, report)
+        entries.append(
+            {
+                "shard": name,
+                "run_id": report["run_id"],
+                "status": report["status"],
+                "exit_code": report["exit_code"],
+                "process": {"status": "exited", "child_exit_code": report["exit_code"], "cleanup": {"verified": True}},
+            }
+        )
+    result = {
+        "contract": "ci-ado-cohort-experiment",
+        "contract_version": 1,
+        "adopted": False,
+        "executed_commit": context["executed"],
+        "profile": context["profile"],
+        "cohort": {**group, "shard_plan": plan["id"]},
+        "shards": entries,
+        "exit_code": 1,
+        "status": "failed",
+    }
+    reports.atomic_bytes(stage, "cohort-result.json", reports.encoded(result))
+    return tmp_path, context, stage, result
+
+
+def test_collection_admits_original_failed_and_passing_shards_without_changing_outcomes(collected):
+    root, context, stage, _ = collected
+    owners = cohort.validate_collection(root, context, stage)
+    assert len(owners) == 2
+    assert [reports.verify_publication(owner)["execution_exit_code"] for owner in owners] == [1, 0]
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "missing",
+        "duplicate",
+        "extra-bundle",
+        "profile",
+        "commit",
+        "budget",
+        "shards",
+        "exit",
+        "cleanup",
+        "escape",
+        "status",
+        "manifest",
+    ],
+)
+def test_collection_rejects_incomplete_foreign_or_inconsistent_cohort_evidence(collected, mutation):
+    root, context, stage, result = collected
+    receipt = stage / "cohort-result.json"
+    if mutation == "missing":
+        receipt.unlink()
+    elif mutation == "duplicate":
+        (stage / "duplicate").mkdir()
+        shutil.copy2(receipt, stage / "duplicate/cohort-result.json")
+    elif mutation == "extra-bundle":
+        shutil.copytree(stage / "first/bundle", stage / "stray/bundle")
+    elif mutation == "manifest":
+        (stage / "first/bundle/run-fixture-first/publication-manifest.json").unlink()
+    else:
+        if mutation == "profile":
+            result["profile"] = "foreign"
+        elif mutation == "commit":
+            result["executed_commit"] = "b" * 40
+        elif mutation == "budget":
+            result["cohort"]["preserved_child_setup_seconds"] = 0
+        elif mutation == "shards":
+            result["shards"].pop()
+        elif mutation == "exit":
+            result["shards"][0]["exit_code"] = 0
+        elif mutation == "cleanup":
+            result["shards"][0]["process"]["cleanup"]["verified"] = False
+        elif mutation == "escape":
+            result["shards"][0]["run_id"] = "../escape"
+        elif mutation == "status":
+            result["status"] = "passed"
+        receipt.write_bytes(reports.encoded(result))
+    with pytest.raises((ValueError, OSError, KeyError)):
+        cohort.validate_collection(root, context, stage)
+
+
+def test_smoke_summary_marks_partial_coverage_and_never_uploads_test_cases(collected, capsys):
+    root, context, stage, _ = collected
+    context["placement"] = "cohort-smoke"
+    assert cohort.publish_summary(root, context, "cohort-0") == 0
+    text = (stage / "summary.md").read_text(encoding="utf-8")
+    assert "Partial qualification only" in text and "failed" in text
+    assert "01. First" in text and "02. Second" in text
+    output = capsys.readouterr().out
+    assert "task.addattachment" in output and "testresults" not in output.lower()
+
+
+def test_bare_diagnostic_staging_retains_setup_without_promoting_it_to_coverage(tmp_path):
+    source = tmp_path / ".tmp/ci-cache-pilot"
+    source.mkdir(parents=True)
+    (source / "failure.json").write_text('{"error":"synthetic acquisition failure"}')
+    stage = cohort.diagnostics(tmp_path, {"host": "ado"}, "cohort-0")
+    assert (stage / "setup/failure.json").is_file()
+    assert not list(stage.rglob("shard-result.json"))
+    with pytest.raises(ValueError):
+        cohort.diagnostics(tmp_path, {}, "../escape")
+
+
+@pytest.mark.integration
+def test_cohort_diagnostic_cli_works_without_site_packages_after_setup_failure(tmp_path):
+    directory = tmp_path / "Tools/CI"
+    directory.mkdir(parents=True)
+    for source in (ROOT / "Tools/CI").glob("*.py"):
+        shutil.copy2(source, directory / source.name)
+    runtime = tmp_path / "Tools/Commands/Environment"
+    runtime.mkdir(parents=True)
+    for source in (ROOT / "Tools/Commands/Environment").glob("*.py"):
+        shutil.copy2(source, runtime / source.name)
+    failure = tmp_path / ".tmp/ci-cache-pilot"
+    failure.mkdir(parents=True)
+    (failure / "failure.json").write_text('{"error":"controlled setup failure"}', encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, "-I", "-S", str(directory / "ado_cohort.py"), "--cohort", "cohort-0", "--diagnostics"],
+        env={**os.environ, "SHADOW_CONTEXT": json.dumps({"host": "ado"})},
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert (tmp_path / ".tmp/ci-shadow/cohorts/cohort-0/transport/setup/failure.json").is_file()
