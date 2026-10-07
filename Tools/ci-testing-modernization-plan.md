@@ -72,8 +72,9 @@ and measured Phase 8.1 follow-up. The 5.7 checkpoint is closed.
 On 2026-10-06 the maintainer confirms the Phase 5.8 plan addition for Linux portability/full comparison
 before hosted adoption. Phase 5.8.1 inventory and its bounded proposal are confirmed on 2026-10-06;
 executable qualification at 5.8.2 is implemented, verified and confirmed on 2026-10-06. Phase 5.8.3
-has not started. The expanded local gate now also
-requires that comparison and an explicit OS-placement review. The accepted 5.7 results and timing
+is measured and audited; its bounded evidence, timing exceptions and provisional Windows placement
+and the complete checkpoint are confirmed on 2026-10-06. The expanded Phase 5 local gate is closed;
+Phase 6 has not started. The accepted 5.7 results and timing
 disposition remain intact; local WSL evidence will not substitute for actual hosted measurements.
 
 **Working branch:** `architecture/ci-testing-modernization`, created from
@@ -1991,7 +1992,7 @@ cases where equivalence fails. Keep accepted historical evidence and original ho
 
 ### Phase 5.8 Linux Portability, Full Comparison And OS Placement
 
-**Plan addition and 5.8.2 qualification confirmed by the maintainer (2026-10-06); 5.8.3 unstarted:** Establish Linux feasibility and comparable local
+**Plan addition and all 5.8 checkpoints confirmed by the maintainer (2026-10-06):** Establish Linux feasibility and comparable local
 costs before writing hosted adapters around provisional Windows placement. At the plan addition, catalog admission
 marked every compatibility check Windows-only; that was confirmed registration behavior, not evidence
 that every implementation needs Windows. Preserve the accepted 5.7 portfolio and timing disposition
@@ -2064,25 +2065,41 @@ Any remaining Windows dependency or unverified obligation is explicit before agg
 
 #### Phase 5.8.3 Complete Measurement And Placement Review
 
-- [ ] Once stable, run a complete equivalent Linux full portfolio if all required obligations qualify.
+**Complete measurement, audits and disposition confirmed by the maintainer (2026-10-06):** The
+[OS comparison](ci-testing-os-comparison.md) records exact shared 580-file capture, same ordered
+77 IDs, 512 matching portable native cases and 42 exact cross-runtime/cross-host reference rows.
+Windows passes all 77 in 1010.466s (16m50s), with 456 pytest / 58 Pester; Linux passes 76 portable
+units in 1189.784s (19m50s), with 456 pytest / 56 Pester and the Windows image group explicitly
+blocked with zero attempts. Linux's complete report remains failed/exit 1. Both source/containment,
+cleanup, canonical and publication audits pass; no profile exclusion or green cross-host aggregate
+is invented. This is the bounded split comparison route, not a wholly Linux full pass.
+The maintainer's accepted disposition retains Windows as provisional full default, Linux eligibility and Phase 6
+real-agent comparison, with 90s native / 960s full goals and measured Phase 8.1 optimization follow-up.
+The maintainer explicitly accepts the changed-coverage timing exceptions and provisional placement
+on 2026-10-06 and confirms the complete checkpoint. The expanded Phase 5 local exit is closed;
+Phase 6 is unstarted.
+
+- [x] Once stable, run a complete equivalent Linux full portfolio if all required obligations qualify.
   Compare the same named coverage, fixtures, runtime/dependency versions and captured source with the
   accepted Windows reference. If executable changes affect that reference, requalify affected Windows
   obligations and run a fresh complete Windows profile when needed; do not repeat full runs for docs alone.
-- [ ] If some obligations require Windows, measure the qualified Linux portion and required Windows
+  The all-Linux condition is not met: the required image group stays Windows-only. The accepted
+  bounded comparison below preserves all obligations and supplies the conditional split route.
+- [x] If some obligations require Windows, measure the qualified Linux portion and required Windows
   remainder with explicit coverage accounting and an accepted reason for each retained assignment.
   Admit a repository-owned complete split plan/recipe before running it; preserve existing check
   identities and every obligation rather than bypassing a blocked all-Linux profile with exclusions.
   Label it a split-platform portfolio, not a passing full Linux run. Blocked, skipped or failed coverage
   cannot be removed to manufacture an equivalent timing or a green required gate.
-- [ ] Measure profiles sequentially and retain capture/preflight, native/conformance/consumer execution,
+- [x] Measure profiles sequentially and retain capture/preflight, native/conformance/consumer execution,
   guards and publication costs separately where instrumentation permits. Distinguish prepared execution,
   acquisition and cold/warm conditions; report whole wall time and resource/shard costs without equating
   parallel feedback with lower sequential work. Verify parity, complete diagnostics, publication and cleanup.
-- [ ] Record Windows-versus-Linux results, gaps, support boundaries and a provisional repository-owned
+- [x] Record Windows-versus-Linux results, gaps, support boundaries and a provisional repository-owned
   placement proposal in the budget/coverage evidence. Retain the <=90s native / <=960s sequential full
   goals and the explicit 5.7 exceptions; changed coverage, new performance/support tradeoffs or a remaining
   portability blocker require a reviewed disposition before closing this checkpoint.
-- [ ] Obtain maintainer acceptance of the full comparison or explicitly bounded split-platform result,
+- [x] Obtain maintainer acceptance of the full comparison or explicitly bounded split-platform result,
   exact evidence and provisional placement before Phase 6. WSL uses the same physical machine and is
   local feasibility evidence; Phase 6 must validate real hosted agents, cache transport, queue/capacity,
   cold/warm throughput, budgets and final placement on GitHub and ADO.
@@ -2104,8 +2121,8 @@ group/process boundaries, retained review families and hosted-policy limits rema
   lifecycle are proved locally; environment limitations are explicit and do not masquerade as passes.
 - [x] Phase 5.6 consolidation is mapped, implemented and accepted without silently losing requirements.
 - [x] Phase 5.7 final local correctness and timing disposition are accepted for the resulting portfolio
-  before Linux comparison. The confirmed 5.5 gate remains historical; the expanded gate awaits 5.8.
-- [ ] Phase 5.8 Linux portability/comparison evidence and provisional OS placement are accepted before
+  before Linux comparison. The confirmed 5.5 gate remains historical; the expanded gate is closed at 5.8.
+- [x] Phase 5.8 Linux portability/comparison evidence and provisional OS placement are accepted before
   hosted adoption, with every required obligation accounted for and any Windows remainder explicit.
 
 **Rollback:** Retain legacy invocation as reference and repair discrepancies before hosted adoption.
@@ -2247,19 +2264,24 @@ Local scenario consolidation, timing acceptance and OS comparison must complete 
 before hosted adoption.
 This checkpoint reviews retirement after exact-source equivalent coverage is demonstrated on both
 GitHub and ADO; it is not the first opportunity to organize or optimize the local portfolio.
-The reviewed 5.7 pre-hosted timing exceptions retain the <=90s native / <=960s sequential full goals.
+The reviewed 5.7 and 5.8.3 pre-hosted timing exceptions retain the <=90s native / <=960s sequential full goals.
 Resolve their measured follow-up here before integration; hosted critical-path improvements alone
 do not demonstrate lower complete native/sequential costs.
 
 - [ ] Name each superseded harness/adapter and map its scenarios to the locally accepted replacements
   and verified hosted evidence. Retire only approved legacy runners and temporary shadow duplication;
   do not permanently retain old/new execution merely because both suites once passed.
-- [ ] Compare final local and hosted costs with the 5.7 acceptance record, explain changes introduced
+- [ ] Compare final local and hosted costs with the 5.7 acceptance and 5.8.3 OS comparison records, explain changes introduced
   during rollout and resolve any retained timing follow-up before integration. Profile repeated CLI
   configuration work, catalog/scope/aggregate regressions, startup/private fixture preparation and
   render-store validation. Meet the retained goals or obtain a final explicit timing disposition;
   batching requires timeout/restart and contamination proof. Further coverage changes require updated
   methodology/mappings and fresh affected local/hosted proof; timeout increases cannot meet a goal.
+  Resolve the accepted 5.8.3 Windows 1010.466s full / 131.930s implementation costs, Linux
+  1189.784s qualified portion / 104.905s implementation cost, and required Windows media/setup
+  accounting against the retained goals. Conformance/compatibility dominate the measured Linux
+  difference; portable native execution is faster there. Profile these layers and source/reporting
+  overhead with complete coverage and real hosted evidence, preserving independent isolation.
 - [ ] Review direct invocation, failure diagnostics, runtime variants, cleanup, and reporting—not just counts.
 - [ ] Retain useful custom conformance/end-to-end runners and shared fixtures; record accepted coverage
   revisions in methodology and evolution before deleting superseded implementation.

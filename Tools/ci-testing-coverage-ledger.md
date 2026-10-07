@@ -91,6 +91,19 @@ unchanged goldens/canonical guards, and verified supervised cleanup. Windows nat
 not a uniform-source full-profile result, timing acceptance or hosted adoption. G03 gains these media
 and path boundaries; it is not a claim that every tooling behavior has exhaustive regression coverage.
 
+**5.8.3 same-capture complete comparison (confirmed by the maintainer on 2026-10-06):** The
+[OS comparison](ci-testing-os-comparison.md) preserves all 77 ordered obligations on both hosts.
+Windows passes 77/77; Linux passes the 76 portable obligations and retains the required Windows
+image group as explicitly blocked, with no attempt/skip/pass substitution. All 512 portable native
+identities match exactly, Windows proves two additional image cases, and all 488 historical native
+identities remain with 26 meaningful additions. All 42 conformance variants match both runtimes,
+both hosts and certified reference semantics. Eleven consumers/goldens, actual policy, source/
+canonical guards, process cleanup and publication verify. The bounded split comparison does not
+create a green mixed-host aggregate from separate reports or retire existing checks. Local costs,
+provisional Windows full placement and changed-coverage exceptions are explicitly accepted; Phase 6 owns
+real hosted proof and final placement. The expanded Phase 5 local exit is confirmed closed;
+Phase 6 has not started.
+
 CI Phase 2.1 applies the reviewed support-policy change through the [retirement inventory](ci-powershell-retirement-inventory.md).
 The active parity family is now `PARITY-SUPPORTED-RUNTIMES`; the historical `PARITY-THREE-RUNTIME`
 ID maps to it one-for-one with only Desktop host support removed. The inspected three-runtime rows

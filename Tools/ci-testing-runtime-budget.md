@@ -51,6 +51,22 @@ New media groups reserve 30 seconds each, in their own admitted shard; existing 
 are not new full/feature benchmarks. Phase 5.8.3 must compare identical core coverage and account
 for all added media plus the Windows remainder before proposing placement or timing disposition.
 
+**5.8.3 complete local comparison (confirmed by the maintainer on 2026-10-06):** The
+[comparison record](ci-testing-os-comparison.md) measures Windows 77/77 at 1010.466s whole wall
+(16m50s), with 131.930s implementation/native cost. Linux retains the same 77 IDs, passes 76 portable
+units and explicitly blocks Windows image coverage: 1189.784s whole wall (19m50s), with 104.905s
+qualified implementation cost. Both use identical captured bytes/modes and catalog digests, with
+512 matching portable native identities, exact 42-row conformance parity, canonical guards and
+verified cleanup/publication. Linux's complete report remains nonpassing; the 3.590s Windows image
+unit is separately proved in the fresh full Windows reference. Its additive cost is an estimate
+without standalone Windows setup, not an end-to-end split benchmark or passing aggregate.
+Linux's whole invocation is 17.7% longer; conformance/compatibility outweigh faster portable native
+execution and lower non-unit overhead. The accepted provisional initial full default is Windows, subject to
+real hosted cache/queue/agent/throughput and placement proof in Phase 6. 90s / 960s goals remain;
+the maintainer explicitly accepts the changed-coverage cost exceptions on 2026-10-06, with measured
+follow-up at Phase 8.1. Acquisition and the restricted failed diagnostic are
+excluded; these are single local prepared samples. Detailed component/overhead limits remain explicit.
+
 ## CI 5.1 Feedback Targets And Current Gap
 
 **Plan sequencing revision (2026-10-06):** The agreed 5.6/5.7 extension now places coverage/scenario
